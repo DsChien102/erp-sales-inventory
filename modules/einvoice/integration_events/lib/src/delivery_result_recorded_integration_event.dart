@@ -15,4 +15,10 @@ final class DeliveryResultRecordedIntegrationEvent
 
   final String salesOrderId;
   final String deliveryId;
+
+  @override
+  Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
+        'sales_order_id': salesOrderId,
+        'delivery_id': deliveryId,
+      });
 }

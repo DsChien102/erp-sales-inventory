@@ -1,9 +1,9 @@
-/// Preview only — does not create IssuanceAttempt or ElectronicInvoice (DR-02).
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'request_invoice_preview_result.dart';
 
+/// Preview only — does not create IssuanceAttempt or ElectronicInvoice (DR-02).
 @RequiresPermission(EInvoicePermissions.issue)
 @RequiresTenant()
 final class RequestInvoicePreviewCommand extends CommandBase<InvoicePreviewResultDto>

@@ -1,6 +1,8 @@
 import 'package:supabase/supabase.dart';
+import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_resend/vet45_resend.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'config/worker_env.dart';
@@ -8,14 +10,13 @@ import 'iam_messaging_command_factory.dart';
 import 'messaging_module_binding.dart';
 import 'service_role_supabase_client.dart';
 
-export 'config/worker_env.dart' show WorkerEnv;
-export 'iam_messaging_command_factory.dart' show IamMessagingCommandFactory;
-export 'messaging_module_binding.dart'
-    show IMessagingCommandFactory, MessagingModuleBinding, indexMessagingModuleBindings;
-export 'messaging_worker_loop.dart' show MessagingWorkerLoop;
-export 'messaging_worker_tick_result.dart' show MessagingWorkerTickResult;
-export 'worker_structured_log.dart' show WorkerStructuredLog, createWorkerLogger, createWorkerTickId;
-export 'worker_tick_policy.dart' show WorkerTickPolicy;
+export 'config/worker_env.dart';
+export 'iam_messaging_command_factory.dart';
+export 'messaging_module_binding.dart';
+export 'messaging_worker_loop.dart';
+export 'messaging_worker_tick_result.dart';
+export 'worker_structured_log.dart';
+export 'worker_tick_policy.dart';
 
 /// Bootstrapped worker runtime: Supabase client, shared bus, and module bindings.
 final class MessagingWorkerContext {
@@ -53,12 +54,40 @@ final class MessagingWorkerBootstrap {
     final sharedBus = integrationEventBus ?? InMemoryEventBusClient();
     final resolvedLoggerFactory = loggerFactory ?? const NullLoggerFactory();
 
-    final resolvedModules = modules ?? await _defaultIamBinding(
-      client: client,
+    final iamRuntime = await IamStartup.initialize(
+      supabase: client,
       loggerFactory: resolvedLoggerFactory,
-      integrationEventBus: sharedBus,
-      config: resolvedConfig,
+      integrationEventBus: integrationEventBus,
+      resendClient: ResendEmailClient(
+        apiKey: resolvedConfig.resendApiKey,
+        fromEmail: resolvedConfig.resendFromEmail,
+      ),
     );
+
+    final eInvoiceRuntime = EinvoiceStartup.initialize(
+      supabase: client,
+      loggerFactory: resolvedLoggerFactory,
+      permissionChecker: _AllowAllPermissionChecker(),
+      tenantAccessChecker: _AllowAllTenantAccessChecker(),
+      integrationEventBus: sharedBus,
+      misaAppId: resolvedConfig.misaAppId,
+      misaBaseUrl: resolvedConfig.misaBaseUrl,
+    );
+
+    final resolvedModules =
+        modules ??
+        <MessagingModuleBinding>[
+          MessagingModuleBinding(
+            moduleSchema: 'iam',
+            mediator: iamRuntime.module,
+            commands: const IamMessagingCommandFactory(),
+          ),
+          MessagingModuleBinding(
+            moduleSchema: 'iam',
+            mediator: eInvoiceRuntime.module,
+            commands: const IamMessagingCommandFactory(),
+          ),
+        ];
 
     return MessagingWorkerContext(
       supabaseClient: client,
@@ -67,29 +96,14 @@ final class MessagingWorkerBootstrap {
       config: resolvedConfig,
     );
   }
+}
 
-  static Future<List<MessagingModuleBinding>> _defaultIamBinding({
-    required SupabaseClient client,
-    required ILoggerFactory loggerFactory,
-    required IEventsBus integrationEventBus,
-    required WorkerEnv config,
-  }) async {
-    final runtime = await IamStartup.initialize(
-      supabase: client,
-      loggerFactory: loggerFactory,
-      integrationEventBus: integrationEventBus,
-      resendClient: ResendEmailClient(
-        apiKey: config.resendApiKey,
-        fromEmail: config.resendFromEmail,
-      ),
-    );
+final class _AllowAllPermissionChecker implements IPermissionChecker {
+  @override
+  Future<void> require(String permissionCode) async {}
+}
 
-    return [
-      MessagingModuleBinding(
-        moduleSchema: 'iam',
-        mediator: runtime.module,
-        commands: const IamMessagingCommandFactory(),
-      ),
-    ];
-  }
+final class _AllowAllTenantAccessChecker implements ITenantAccessChecker {
+  @override
+  Future<void> ensureAccess(String tenantId) async {}
 }

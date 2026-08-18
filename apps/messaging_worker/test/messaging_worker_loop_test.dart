@@ -30,6 +30,8 @@ const _baseConfig = WorkerEnv(
   moduleBatchSize: 10,
   maxRoundsPerTick: 5,
   concurrency: 4,
+  misaAppId: 'test-app-id',
+  misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
 );
 
 void main() {
@@ -265,6 +267,8 @@ void main() {
           moduleBatchSize: 10,
           maxRoundsPerTick: 5,
           concurrency: 4,
+          misaAppId: 'test-app-id',
+          misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
         ),
         supabaseClient: _FakeSupabaseClient(),
         modules: _iamBinding(mediator),
@@ -306,6 +310,8 @@ void main() {
           moduleBatchSize: 10,
           maxRoundsPerTick: 5,
           concurrency: 4,
+          misaAppId: 'test-app-id',
+          misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
         ),
         supabaseClient: _FakeSupabaseClient(),
         modules: _iamBinding(mediator),
@@ -347,6 +353,8 @@ void main() {
           moduleBatchSize: 10,
           maxRoundsPerTick: 2,
           concurrency: 4,
+          misaAppId: 'test-app-id',
+          misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
         ),
         supabaseClient: _FakeSupabaseClient(),
         modules: _iamBinding(_RecordingMediator()),

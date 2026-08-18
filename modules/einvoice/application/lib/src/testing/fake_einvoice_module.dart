@@ -106,7 +106,6 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           ConnectProviderCommand(
             tenantId: c.tenantId,
             actorId: c.actorId,
-            appId: c.appId,
             username: c.username,
             password: c.password,
           ),

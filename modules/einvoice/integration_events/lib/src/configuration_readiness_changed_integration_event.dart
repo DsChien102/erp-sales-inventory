@@ -13,4 +13,9 @@ final class ConfigurationReadinessChangedIntegrationEvent
   static const String type = 'einvoice.configuration.readiness_changed';
 
   final String level;
+
+  @override
+  Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
+        'level': level,
+      });
 }

@@ -55,11 +55,12 @@ Spec: [Epic-01-provider-connection-config/US-01.md](../Epic-01-provider-connecti
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `GetProviderConnectionScreenQuery` | tenantId, actorId | `ProviderConnectionScreenDto` (legal profile read-only, connection status, last check) | NO_PERMISSION, SYSTEM_ERROR |
-| `ConnectProviderCommand` | tenantId, actorId, appId, username, password, expectedConnectionVersion? | `ProviderConnectionResultDto` (connectionId, status) | NO_PERMISSION, VALIDATION_ERROR, PROVIDER_AUTH_FAILED, PROVIDER_UNAVAILABLE, STATE_CHANGED |
+| `ConnectProviderCommand` | tenantId, actorId, appId, username, password, expectedConnectionVersion? | `ProviderConnectionResultDto` (connectionId, status=`checkRequired`) — **async**: RPC encrypt credential + enqueue `einvoice.sync_capabilities`; auth errors surface via poll | NO_PERMISSION, VALIDATION_ERROR, STATE_CHANGED |
 | `VerifyProviderConnectionCommand` | tenantId, actorId, connectionId | `ProviderConnectionCheckResultDto` | NO_PERMISSION, NOT_FOUND, PROVIDER_UNAVAILABLE, PROVIDER_AUTH_FAILED |
 | `ReconnectProviderCommand` | tenantId, actorId, connectionId, appId, username, password | `ProviderConnectionResultDto` | NO_PERMISSION, NOT_FOUND, VALIDATION_ERROR, PROVIDER_AUTH_FAILED, STATE_CHANGED |
 | `DisconnectProviderCommand` | tenantId, actorId, connectionId, confirm | `ProviderConnectionResultDto` (status=DISCONNECTED) | NO_PERMISSION, NOT_FOUND, INVALID_STATUS |
-| `SyncProviderCapabilitiesCommand` | tenantId, actorId, connectionId (internal/worker post-auth) | `ProviderCapabilitiesDto` | PROVIDER_UNAVAILABLE, SYSTEM_ERROR |
+| `SyncProviderCapabilitiesCommand` | tenantId, connectionId (internal serializable — worker) | `void` | PROVIDER_UNAVAILABLE (soft-fail; no status change) |
+| `RecordConnectionVerifiedCommand` | tenantId, connectionId, status, capabilities?, verifiedAt?, correlationId? (internal/worker) | `void` | NOT_FOUND, INVALID_STATUS, SYSTEM_ERROR |
 
 FR-01..08 map: screen query (FR-01,02); connect (FR-03,04,05); verify (FR-06); reconnect (FR-07); disconnect (FR-08). Legal mismatch → `VALIDATION_ERROR` với subcode legal_mismatch (không CONNECTED).
 
@@ -72,7 +73,10 @@ FR-01..08 map: screen query (FR-01,02); connect (FR-03,04,05); verify (FR-06); r
 | Verify | `einvoice.verify_provider_connection` | drafted |
 | Reconnect | `einvoice.reconnect_provider` | drafted |
 | Disconnect | `einvoice.disconnect_provider` | drafted |
-| Sync capabilities | `einvoice.sync_provider_capabilities` | drafted |
+| Sync capabilities | `einvoice.enqueue_internal_command` (`command_type = einvoice.sync_capabilities`) — RPC do `platform.install_module_messaging('einvoice')` cài | drafted |
+| Record verified | `einvoice.record_connection_verified` | drafted |
+| Read credentials (worker) | `einvoice.read_provider_credentials` (service role) | drafted |
+| Claim/complete/fail queues | `einvoice.claim_*` / `complete_*` / `fail_*` — installer, không draft riêng | drafted |
 
 ### Worker mapping
 
@@ -651,4 +655,4 @@ FR-04: `DeliveryDisplayState` derived from authoritative history. Undetermined �
 - FE có thể fake sau khi Contract lane chốt symbol — dùng `FakeEInvoiceModule` scenarios ở trên.
 - E2E blocked by: [04-slice-roadmap.md](04-slice-roadmap.md).
 - E2E vendor: `FakeMeInvoiceClient` — không gọi MISA thật.
-- BE lane viết draft SQL: `supabase/migrations/_drafts/einvoice_*.sql` — không timestamp migration cho đến khi user promote.
+- BE lane viết draft SQL: `supabase/migrations/_drafts/einvoice_*.sql` — không timestamp migration cho đến khi user promote. Messaging tables/RPC đi qua `einvoice_s1_install_module_messaging.sql` (`install_module_messaging('einvoice')`), không DDL queue tự viết.

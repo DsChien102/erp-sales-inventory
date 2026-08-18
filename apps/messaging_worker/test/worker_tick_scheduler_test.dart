@@ -23,6 +23,8 @@ void main() {
           moduleBatchSize: 10,
           maxRoundsPerTick: 5,
           concurrency: 4,
+          misaAppId: 'test-app-id',
+          misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
         ),
         supabaseClient: _FakeSupabaseClient(),
         modules: [

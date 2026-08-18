@@ -27,6 +27,11 @@ workspace:
   - modules/iam/application
   - modules/iam/infrastructure
   - modules/iam/integration_events
+  - modules/einvoice/domain
+  - modules/einvoice/application
+  - modules/einvoice/infrastructure
+  - modules/einvoice/integration_events
+  - packages/vet45_misa
   - modules/partner/domain
   - modules/partner/application
   - modules/partner/infrastructure

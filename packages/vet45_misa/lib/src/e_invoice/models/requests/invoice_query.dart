@@ -7,7 +7,6 @@ enum MeInvoiceStatusInputType {
   refId(2);
 
   const MeInvoiceStatusInputType(this.wireValue);
-
   final int wireValue;
 }
 
@@ -38,9 +37,7 @@ final class MeInvoiceInvoiceQuery {
   /// - Index 4 (5th char): `M` = máy tính tiền (MTT), else thường
   factory MeInvoiceInvoiceQuery.fromInvSeries(String invSeries) {
     final normalized = invSeries.trim();
-    final withCode = normalized.length < 2
-        ? true
-        : normalized[1].toUpperCase() == 'C';
+    final withCode = normalized.length < 2 ? true : normalized[1].toUpperCase() == 'C';
     final calcu = normalized.length >= 5 && normalized[4].toUpperCase() == 'M';
     return MeInvoiceInvoiceQuery(
       invoiceWithCode: withCode,
@@ -58,10 +55,9 @@ final class MeInvoiceInvoiceQuery {
       'invoiceWithCode': invoiceWithCode.toString(),
       'invoiceCalcu': invoiceCalcu.toString(),
       if (inputType != null) 'inputType': '${inputType.wireValue}',
-      if (downloadDataType != null)
-        'downloadDataType': downloadDataType.wireValue,
-      if (converter != null) 'Converter': converter,
-      if (convertDate != null) 'ConvertDate': convertDate,
+      if (downloadDataType != null) 'downloadDataType': downloadDataType.wireValue,
+      'Converter': ?converter,
+      'ConvertDate': ?convertDate,
     };
   }
 }

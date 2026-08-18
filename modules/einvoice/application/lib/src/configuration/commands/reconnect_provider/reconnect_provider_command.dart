@@ -12,7 +12,6 @@ final class ReconnectProviderCommand extends CommandBase<ProviderConnectionResul
     required this.tenantId,
     required this.actorId,
     required this.connectionId,
-    required this.appId,
     required this.username,
     required this.password,
   }) : super(id);
@@ -21,7 +20,6 @@ final class ReconnectProviderCommand extends CommandBase<ProviderConnectionResul
   final String tenantId;
   final String actorId;
   final String connectionId;
-  final String appId;
   final String username;
   final String password;
 }

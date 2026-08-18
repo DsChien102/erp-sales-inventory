@@ -11,7 +11,6 @@ void main() {
         ConnectProviderCommand(
           tenantId: 't1',
           actorId: 'a1',
-          appId: 'app',
           username: 'u',
           password: 'p',
         ),
@@ -27,7 +26,6 @@ void main() {
           ConnectProviderCommand(
             tenantId: 't1',
             actorId: 'a1',
-            appId: 'app',
             username: 'u',
             password: 'bad',
           ),

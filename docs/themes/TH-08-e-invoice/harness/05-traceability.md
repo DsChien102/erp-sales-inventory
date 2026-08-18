@@ -19,7 +19,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-01/US-01 | CONTRACT | §S1a | application | `ConnectProviderCommand`, `VerifyProviderConnectionCommand`, `GetProviderConnectionScreenQuery` | — | done |
-| EP-01/US-01/FR-01..08 | BE | §S1a | application + infrastructure | `ConnectProviderCommandHandler`, RPC `einvoice.connect_provider` | scn_e01_u01_fr01_01 | todo |
+| EP-01/US-01/FR-01..08 | BE | §S1a | domain + application + infrastructure | Handlers + RPC + worker `einvoice.sync_capabilities` | scn_e01_u01_fr01_01 | done |
 | EP-01/US-01/FR-01..08 | FE | §S1a | presentation | SG-01 `einvoice_settings_page.dart` + connection form | wgt_e01_u01_fr01_01 | todo |
 | EP-01/US-01/SC-01 | E2E | §S1a | integration | Open settings → legal read-only + connect CTA | e2e_e01_u01_sc01_01 | todo |
 
@@ -28,7 +28,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-01/US-02 | CONTRACT | §S1b | application | `SetDefaultIssuanceConfigurationCommand`, `ListProviderTemplatesQuery` | — | done |
-| EP-01/US-02/FR-01..08 | BE | §S1b | application + worker | Handler + `listInvoiceTemplates` worker job | scn_e01_u02_fr01_01 | todo |
+| EP-01/US-02/FR-01..08 | BE | §S1b | application + infrastructure | Profile handlers + gateways | scn_e01_u02_fr01_01 | done |
 | EP-01/US-02/FR-01..08 | FE | §S1b | presentation | SG-01 issuance profile section | wgt_e01_u02_fr04_01 | todo |
 | EP-01/US-02/SC-01 | E2E | §S1b | integration | Save default HSM config | e2e_e01_u02_sc01_01 | todo |
 
@@ -37,7 +37,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-01/US-03 | CONTRACT | §S1c | application | `UpdateAutomationPolicyCommand`, `GetAutomationPolicyQuery` | — | done |
-| EP-01/US-03/FR-01..07 | BE | §S1c | application | `UpdateAutomationPolicyCommandHandler` | scn_e01_u03_fr02_01 | todo |
+| EP-01/US-03/FR-01..07 | BE | §S1c | application + domain | `UpdateAutomationPolicyCommandHandler` | scn_e01_u03_fr02_01 | done |
 | EP-01/US-03/FR-01..07 | FE | §S1c | presentation | SG-01 automation toggles | wgt_e01_u03_fr02_01 | todo |
 | EP-01/US-03/SC-01 | E2E | §S1c | integration | Enable auto-issue when ready | e2e_e01_u01_sc01_01 | todo |
 
@@ -46,7 +46,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-01/US-04 | CONTRACT | §S1d | application | `GetConfigurationReadinessQuery` | — | done |
-| EP-01/US-04/FR-01..09 | BE | §S1d | application | Readiness aggregator handler | scn_e01_u04_fr01_01 | todo |
+| EP-01/US-04/FR-01..09 | BE | §S1d | domain + application | `ConfigurationReadinessEvaluator` + query handler | scn_e01_u04_fr01_01 | done |
 | EP-01/US-04/FR-01..09 | FE | §S1d | presentation | SG-01 readiness banner + blockers | wgt_e01_u04_fr09_01 | todo |
 | EP-01/US-04/SC-01 | E2E | §S1d | integration | Manual issue readiness = READY | e2e_e01_u04_sc01_01 | todo |
 

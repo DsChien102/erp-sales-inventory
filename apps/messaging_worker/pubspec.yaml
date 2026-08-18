@@ -14,6 +14,7 @@ dependencies:
   shelf_router: ^1.1.4
   supabase: ^2.12.2
   vet45_adapters: ^0.1.0
+  vet45_einvoice_infrastructure: ^1.0.0
   vet45_iam_infrastructure: ^1.0.0
   vet45_resend: ^0.1.0
   vet45_shared_application: ^1.0.0

@@ -15,4 +15,10 @@ final class ElectronicInvoiceRegisteredIntegrationEvent
 
   final String electronicInvoiceId;
   final String salesOrderId;
+
+  @override
+  Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
+        'electronic_invoice_id': electronicInvoiceId,
+        'sales_order_id': salesOrderId,
+      });
 }

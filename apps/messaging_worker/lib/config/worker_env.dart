@@ -14,6 +14,8 @@ final class WorkerEnv {
     required this.moduleBatchSize,
     required this.maxRoundsPerTick,
     required this.concurrency,
+    required this.misaAppId,
+    required this.misaBaseUrl,
     this.environment = 'unknown',
     this.tickActiveSeconds = 3,
     this.tickIdleSeconds = 15,
@@ -31,6 +33,7 @@ final class WorkerEnv {
   final int moduleBatchSize;
   final int maxRoundsPerTick;
   final int concurrency;
+  final String misaAppId;
   final String environment;
   final int tickActiveSeconds;
   final int tickIdleSeconds;
@@ -45,6 +48,9 @@ final class WorkerEnv {
 
   /// Optional HTTPS App Link origin (e.g. `https://app.vet45.example`).
   final String? appLinkBaseUrl;
+
+  /// MISA meInvoice API base URL for e-invoice worker jobs.
+  final String misaBaseUrl;
 
   String get resendFromEmail {
     final normalized = environment.trim().toLowerCase();
@@ -114,6 +120,8 @@ final class WorkerEnv {
       resendApiKey: _optional(env, 'RESEND_API_KEY'),
       resendFromDomain: _optional(env, 'RESEND_FROM_DOMAIN') ?? 'resend.dev',
       appLinkBaseUrl: _optional(env, 'APP_LINK_BASE_URL'),
+      misaAppId: _require(env, 'MISA_MEINVOICE_APP_ID'),
+      misaBaseUrl: _require(env, 'MISA_MEINVOICE_BASE_URL'),
     );
   }
 

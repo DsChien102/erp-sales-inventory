@@ -10,8 +10,7 @@ import 'me_invoice_auth.dart';
 
 /// Low-level authenticated HTTP helper for meInvoice.
 final class MeInvoiceHttp {
-  MeInvoiceHttp({required this.auth, required http.Client httpClient})
-    : _http = httpClient;
+  MeInvoiceHttp({required this.auth, required http.Client httpClient}) : _http = httpClient;
 
   final MeInvoiceAuth auth;
   final http.Client _http;
@@ -119,7 +118,7 @@ final class MeInvoiceHttp {
     return <String, String>{
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
-      if (extra != null) ...extra,
+      ...?extra,
     };
   }
 }

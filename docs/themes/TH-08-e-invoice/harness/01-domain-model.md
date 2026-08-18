@@ -251,9 +251,9 @@ Canonical §3.2.5. Display state (Issuance / Delivery trên Theme 05) là **proj
 
 | Aggregate / process      | Folder                               | Application folder                                        | Ghi chú                                      |
 | ------------------------ | ------------------------------------ | --------------------------------------------------------- | -------------------------------------------- |
-| `ProviderConnection`     | `domain/lib/src/configuration/`      | `application/lib/src/configuration/commands/`, `queries/` | AR — một connection hoạt động / tenant (MVP) |
-| `IssuanceProfile`        | `domain/lib/src/configuration/`      | `application/lib/src/configuration/`                      | AR — template + signing default              |
-| `AutomationPolicy`       | `domain/lib/src/configuration/`      | `application/lib/src/configuration/`                      | AR — auto-issue / auto-send                  |
+| `ProviderConnection`     | `domain/lib/src/provider_connection/` | `application/lib/src/configuration/commands/`, `queries/` | AR — một connection hoạt động / tenant (MVP) |
+| `IssuanceProfile`        | `domain/lib/src/issuance_profile/`    | `application/lib/src/configuration/`                      | AR — template + signing default              |
+| `AutomationPolicy`       | `domain/lib/src/automation_policy/`   | `application/lib/src/configuration/`                      | AR — auto-issue / auto-send                  |
 | `BuyerInvoiceCompletion` | `domain/lib/src/issuance/`           | `application/lib/src/issuance/`                           | Process — OPEN → LOCKED                      |
 | `InvoiceIssuance`        | `domain/lib/src/issuance/`           | `application/lib/src/issuance/`                           | AR — một ORIGINAL / SalesOrder               |
 | `IssuanceAttempt`        | `domain/lib/src/issuance/`           | `application/lib/src/issuance/`                           | Process — attempt + AttemptSnapshot          |

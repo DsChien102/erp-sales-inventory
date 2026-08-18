@@ -11,7 +11,6 @@ final class ConnectProviderCommand extends CommandBase<ProviderConnectionResultD
     String? id,
     required this.tenantId,
     required this.actorId,
-    required this.appId,
     required this.username,
     required this.password,
     this.expectedConnectionVersion,
@@ -20,7 +19,6 @@ final class ConnectProviderCommand extends CommandBase<ProviderConnectionResultD
   @override
   final String tenantId;
   final String actorId;
-  final String appId;
   final String username;
   final String password;
   final int? expectedConnectionVersion;

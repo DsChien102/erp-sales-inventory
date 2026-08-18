@@ -1,6 +1,6 @@
 # TH-08: Hóa đơn điện tử
 
-**Trạng thái deliver:** `in_progress` (Contract lane S1–S5 done; BE/FE/E2E todo)
+**Trạng thái deliver:** `in_progress` (Contract + BE S1 done; FE/E2E todo)
 
 ## Mục tiêu
 

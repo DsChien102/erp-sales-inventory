@@ -191,6 +191,12 @@ Luồng messaging nền: [docs/architecture/07-integration-and-messaging.md](../
 
 Mọi vendor call qua outbox/internal job — **không giữ DB transaction mở** trong provider call (canonical reliability invariant).
 
+**S1 (EP-01) — dispatch qua `internal_commands` (không job registry riêng):**
+
+- Messaging tables/RPC (`outbox` / `inbox` / `internal_commands` + claim/complete/fail) cài bằng `platform.install_module_messaging('einvoice')` — không DDL messaging riêng. Worker discovery lấy tenant từ `platform.messaging_module_registry` (không patch tay `list_tenants_with_pending_messaging`).
+- `ConnectProviderCommand` RPC `einvoice.connect_provider` encrypt credential (`pgcrypto` `pgp_sym_encrypt`, key từ Supabase Vault secret `einvoice_credential_key`) và `einvoice.enqueue_internal_command` (`command_type = einvoice.sync_capabilities`) trong cùng transaction; trả `status = CHECK_REQUIRED`.
+- Worker tick: `EinvoiceMessagingModule` → claim `einvoice.internal_commands` → `SyncProviderCapabilitiesCommandHandler` → `TenantMeInvoiceClientFactory` đọc credential qua RPC `einvoice.read_provider_credentials` (service role only) → MISA auth + `listInvoiceTemplates` → `RecordConnectionVerifiedCommand` / RPC `einvoice.record_connection_verified`.
+- Password **không** round-trip về client; decrypt chỉ trong RPC worker path (DR-05, BR-11).
 
 | Job type                             | Payload (summary)                        | Idempotency key                                    | IMeInvoiceClient       | Retry                   | Terminal                         |
 | ------------------------------------ | ---------------------------------------- | -------------------------------------------------- | ---------------------- | ----------------------- | -------------------------------- |

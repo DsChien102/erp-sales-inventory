@@ -10,7 +10,7 @@ Contracts: [07-api-contracts.md](07-api-contracts.md) · Traceability: [05-trace
 | #   | Slice                                                                                                                                                                                                                                                                             | Type     | Contract | BE   | FE   | E2E  | Parallel group | E2E blocked by      |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | ---- | ---- | ---- | -------------- | ------------------- |
 | S0  | Docs ingest (canonical → Epic/US + harness)                                                                                                                                                                                                                                       | docs     | done     | n/a  | n/a  | n/a  | —              | —                   |
-| S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | done     | todo | todo | todo | A              | —                   |
+| S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | done     | done | todo | todo | A              | —                   |
 | S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | done     | todo | todo | todo | B              | S1 Contract+BE      |
 | S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | done     | todo | todo | todo | B              | S2                  |
 | S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
@@ -47,6 +47,8 @@ Contracts: [07-api-contracts.md](07-api-contracts.md) · Traceability: [05-trace
 - S4 và S5 parallel sau khi có ElectronicInvoice từ S2/S3.
 - UI entry Theme 05 (SG-02/03): coordinate với sales presentation — không block BE handler tests.
 
+
+
 ## Status feedback (thuộc S2 FE lane)
 
 ERP quan sát trạng thái async bằng **poll projection qua RPC**, không dùng realtime — quyết định và lý do: [03-architecture-and-flows.md §11](03-architecture-and-flows.md).
@@ -58,8 +60,6 @@ Việc cụ thể trong S2:
 - [ ] Thêm `refetchInterval` vào `packages/vet45_async_query` (`QueryOptions` + `QueryObserver`) — mechanism dùng chung, không dựng `Timer.periodic` từng màn
 
 Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast signal → invalidate; kick worker tick server-side sau enqueue.
-
-
 
 ## Definition of Done
 
@@ -76,21 +76,21 @@ Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast s
 
 ### BE lane
 
-- [ ] Handlers registered via codegen (`modules/einvoice/`)
-- [ ] Validators trong pipeline — không inline trong handler
-- [ ] Draft SQL trong `_drafts/` — không file timestamp migration
-- [ ] Domain invariants covered by unit tests
-- [ ] 05 traceability BE rows có `scn_*` test id
+- [x] Handlers registered via codegen (`modules/einvoice/`)
+- [x] Validators trong pipeline — không inline trong handler
+- [x] Draft SQL trong `_drafts/` — không file timestamp migration
+- [x] Domain invariants covered by unit tests
+- [x] 05 traceability BE rows có `scn_*` test id
 
 
 
 ### BE → Worker sub-lane
 
-- [ ] Job type + payload documented trong [03-architecture-and-flows.md §8](03-architecture-and-flows.md)
-- [ ] Idempotency key stable per operation
-- [ ] Per-tenant credential load + token cache keyed by `tenantId`
-- [ ] Soft-fail khi thiếu credential tenant (không crash worker tick)
-- [ ] `FakeMeInvoiceClient` trong worker/integration tests
+- [x] Job type + payload documented trong [03-architecture-and-flows.md §8](03-architecture-and-flows.md)
+- [x] Idempotency key stable per operation
+- [x] Per-tenant credential load + token cache keyed by `tenantId`
+- [x] Soft-fail khi thiếu credential tenant (không crash worker tick)
+- [x] `FakeMeInvoiceClient` trong worker/integration tests
 
 
 

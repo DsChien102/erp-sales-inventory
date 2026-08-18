@@ -7,11 +7,12 @@ Tài liệu vận hành cho migrations messaging foundation. Kiến trúc luồn
 | File | Mục đích |
 | ---- | -------- |
 | `supabase/migrations/20260623000001_platform_messaging_foundation.sql` | Schema `platform`, `install_module_messaging`, discovery RPC, backlog view |
-| `supabase/migrations/20260623000002_install_module_messaging_modules.sql` | Cài messaging cho 8 module |
+| `supabase/migrations/20260623000002_install_module_messaging_modules.sql` | Cài messaging cho 8 module Phase 1 |
+| `_drafts/einvoice_s1_install_module_messaging.sql` | TH-08: whitelist + `install_module_messaging('einvoice')` (chưa promote) |
 
 ## Module được cài (Phase 1)
 
-`iam`, `catalog`, `partner`, `sales`, `inventory`, `costing`, `accounting`, `dashboard`
+`iam`, `catalog`, `partner`, `sales`, `inventory`, `costing`, `accounting`, `dashboard`, `einvoice` (einvoice: draft installer, chưa promote)
 
 Mỗi schema có:
 
@@ -70,7 +71,7 @@ Tất cả RPC worker: `SECURITY DEFINER`, grant `EXECUTE` cho `service_role` on
 | Object | Vai trò |
 | ------ | ------- |
 | `platform.messaging_module_registry` | Danh sách module đã cài |
-| `platform.install_module_messaging(text)` | DRY installer (whitelist 8 schema) |
+| `platform.install_module_messaging(text)` | DRY installer (whitelist: 8 Phase 1 + `einvoice` khi promote TH-08) |
 | `platform.messaging_backlog_stats` | View observability (rebuild sau mỗi install) |
 | `platform.list_tenants_with_pending_messaging(int, text[])` | Discovery cho `messaging_worker` — `p_modules` lọc module đã bind (draft `001_platform_list_pending_messaging_queues.sql`) |
 

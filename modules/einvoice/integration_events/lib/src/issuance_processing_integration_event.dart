@@ -14,4 +14,10 @@ final class IssuanceProcessingIntegrationEvent extends EInvoiceIntegrationEvent 
 
   final String salesOrderId;
   final String attemptId;
+
+  @override
+  Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
+        'sales_order_id': salesOrderId,
+        'attempt_id': attemptId,
+      });
 }

@@ -13,6 +13,8 @@ WorkerEnv _config({
     moduleBatchSize: 10,
     maxRoundsPerTick: 5,
     concurrency: 4,
+    misaAppId: 'test-app-id',
+    misaBaseUrl: 'https://testapi.meinvoice.vn/api/integration',
     environment: environment,
     resendFromDomain: resendFromDomain,
   );
