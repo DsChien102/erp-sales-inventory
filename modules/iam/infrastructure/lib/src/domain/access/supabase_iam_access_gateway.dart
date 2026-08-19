@@ -59,6 +59,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
               name: row['name'] as String,
               roleLabel: row['role'] as String,
               status: _mapTenantStatus(row['status'] as String?),
+              isOwner: row['is_owner'] as bool? ?? false,
             ),
           )
           .toList(growable: false);

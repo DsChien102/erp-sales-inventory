@@ -7,6 +7,33 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import 'support/fake_iam_rpc_supabase.dart';
 
 void main() {
+  group('SupabaseIamAccessGateway.listAccessibleTenants', () {
+    test('maps ownership separately from operational role', () async {
+      final supabase = FakeIamRpcSupabase()
+        ..registerHandler(
+          'list_accessible_tenants',
+          (_) async => [
+            {
+              'tenant_id': 'tenant-1',
+              'name': 'Vet45 Provisioning',
+              'role': 'store_owner',
+              'status': 'provisioning',
+              'is_owner': true,
+            },
+          ],
+        );
+      final gateway = _gateway(supabase);
+
+      final tenants = await gateway.listAccessibleTenants();
+
+      expect(supabase.calls.single.functionName, 'list_accessible_tenants');
+      expect(tenants, hasLength(1));
+      expect(tenants.single.roleLabel, 'store_owner');
+      expect(tenants.single.isOwner, isTrue);
+      expect(tenants.single.status.name, 'provisioning');
+    });
+  });
+
   group('SupabaseIamAccessGateway.listTenantMembers', () {
     test('sends exact RPC name and all params', () async {
       final supabase = FakeIamRpcSupabase()

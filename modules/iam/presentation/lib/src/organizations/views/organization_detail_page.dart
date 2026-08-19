@@ -76,7 +76,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         showBackButton: true,
         leading: IconButton(
           icon: VIcon(
-            icon: VIcons.arrowLeft,
+            icon: VIcons.chevronLeft,
             color: colors.textPrimary,
           ),
           onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(true),
@@ -95,11 +95,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             ),
             const VGap.md(),
 
-            // Warning / Status Alerts
-            OrganizationDetailAlerts(
-              organization: widget.organization,
-            ),
-
             // Active -> Members list card; Others -> Owner card
             if (widget.organization.status == OrganizationStatus.active) ...[
               OrganizationDetailMembersCard(
@@ -112,6 +107,11 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
               ),
             ],
             const VGap.md(),
+
+            // Warning / Status Alerts
+            OrganizationDetailAlerts(
+              organization: widget.organization,
+            ),
 
             // Platform Info Card
             OrganizationDetailPlatformInfoCard(

@@ -1,0 +1,288 @@
+-- Title: iam tenant member read display name order and detail user info
+-- Kind: patch
+-- Intent: iam_tenant_member_detail_user_info
+-- Touches: iam._membership_detail_json, iam.get_tenant_member, iam.list_tenant_members
+
+create or replace function iam._membership_detail_json(p_membership iam.memberships)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_sole_owner boolean := false;
+  v_display_name text;
+  v_email text;
+  v_role_label text;
+  v_last_activity_at timestamptz;
+begin
+  if (p_membership.is_owner is true or p_membership.role = 'owner') then
+    select count(*) = 1
+    into v_sole_owner
+    from iam.memberships m
+    where m.tenant_id = p_membership.tenant_id
+      and (m.is_owner is true or m.role = 'owner')
+      and m.status = 'active';
+  end if;
+
+  select
+    coalesce(
+      nullif(
+        trim(concat_ws(' ', p.family_middle_name, p.given_name)),
+        ''
+      ),
+      ''
+    ),
+    coalesce(u.email::text, ''),
+    coalesce(rd.label, p_membership.role),
+    u.last_sign_in_at
+  into
+    v_display_name,
+    v_email,
+    v_role_label,
+    v_last_activity_at
+  from auth.users u
+  left join iam.platform_user_profiles p on p.user_id = u.id
+  left join iam.role_definitions rd on rd.code = p_membership.role
+  where u.id = p_membership.user_id;
+
+  return jsonb_build_object(
+    'membership_id', p_membership.id,
+    'tenant_id', p_membership.tenant_id,
+    'user_id', p_membership.user_id,
+    'display_name', v_display_name,
+    'email', v_email,
+    'role', p_membership.role,
+    'role_label', coalesce(v_role_label, p_membership.role),
+    'is_owner', (p_membership.is_owner is true or p_membership.role = 'owner'),
+    'is_sole_owner', v_sole_owner,
+    'status', p_membership.status,
+    'version', p_membership.version,
+    'joined_at', p_membership.created_at,
+    'last_activity_at', v_last_activity_at,
+    'status_changed_at', p_membership.status_changed_at,
+    'removed_at', p_membership.removed_at
+  );
+end;
+$$;
+
+create or replace function iam.get_tenant_member(
+  p_tenant_id uuid,
+  p_membership_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_caller uuid := auth.uid();
+  v_row iam.memberships;
+begin
+  if v_caller is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = p_tenant_id
+      and m.user_id = v_caller
+      and m.status = 'active'
+  ) then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.member.view') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  select *
+  into v_row
+  from iam.memberships m
+  where m.id = p_membership_id
+    and m.tenant_id = p_tenant_id;
+
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  return iam._membership_detail_json(v_row);
+end;
+$$;
+
+create or replace function iam.list_tenant_members(
+  p_tenant_id uuid,
+  p_search text default null,
+  p_status text default null,
+  p_cursor text default null,
+  p_limit integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_caller uuid := auth.uid();
+  v_limit int := coalesce(p_limit, 20);
+  v_search text := lower(trim(coalesce(p_search, '')));
+  v_status text := nullif(trim(coalesce(p_status, '')), '');
+  v_cur_created timestamptz;
+  v_cur_id uuid;
+  v_cursor_payload jsonb;
+  v_items jsonb;
+  v_next_cursor text;
+begin
+  if v_caller is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = p_tenant_id
+      and m.user_id = v_caller
+      and m.status = 'active'
+  ) then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.member.view') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  if v_limit < 1 or v_limit > 100 then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  if v_status is not null and v_status not in ('active', 'inactive', 'removed') then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  if p_cursor is not null and p_cursor <> '' then
+    begin
+      v_cursor_payload :=
+        convert_from(decode(p_cursor, 'hex'), 'UTF8')::jsonb;
+      v_cur_created :=
+        (v_cursor_payload ->> 'created_at')::timestamptz;
+      v_cur_id :=
+        (v_cursor_payload ->> 'id')::uuid;
+
+      if v_cur_created is null or v_cur_id is null then
+        raise exception 'VALIDATION_ERROR';
+      end if;
+    exception
+      when others then
+        raise exception 'VALIDATION_ERROR';
+    end;
+  end if;
+
+  with filtered as (
+    select
+      m.id,
+      m.user_id,
+      m.role,
+      m.is_owner,
+      m.status,
+      m.created_at,
+      m.version,
+      coalesce(
+        nullif(
+          trim(concat_ws(' ', p.family_middle_name, p.given_name)),
+          ''
+        ),
+        ''
+      ) as display_name,
+      coalesce(u.email::text, '') as email,
+      coalesce(rd.id::text, m.role) as role_id,
+      coalesce(rd.label, m.role) as role_label
+    from iam.memberships m
+    left join auth.users u on u.id = m.user_id
+    left join iam.platform_user_profiles p on p.user_id = m.user_id
+    left join iam.role_definitions rd on rd.code = m.role
+    where m.tenant_id = p_tenant_id
+      and (v_status is null or m.status = v_status)
+      and (
+        v_search = ''
+        or lower(coalesce(u.email::text, ''))
+          like '%' || v_search || '%'
+        or lower(
+          coalesce(
+            nullif(
+              trim(concat_ws(' ', p.family_middle_name, p.given_name)),
+              ''
+            ),
+            ''
+          )
+        ) like '%' || v_search || '%'
+      )
+      and (
+        v_cur_created is null
+        or (m.created_at, m.id) < (v_cur_created, v_cur_id)
+      )
+    order by m.created_at desc, m.id desc
+    limit v_limit + 1
+  ),
+  page as (
+    select *
+    from filtered
+    order by created_at desc, id desc
+    limit v_limit
+  )
+  select
+    coalesce(
+      (
+        select jsonb_agg(
+          jsonb_build_object(
+            'membership_id', f.id,
+            'user_id', f.user_id,
+            'display_name', f.display_name,
+            'email', f.email,
+            'role_id', f.role_id,
+            'role_label', f.role_label,
+            'is_owner', (f.is_owner is true or f.role = 'owner'),
+            'status', f.status,
+            'joined_at', f.created_at,
+            'version', f.version
+          )
+          order by f.created_at desc, f.id desc
+        )
+        from page f
+      ),
+      '[]'::jsonb
+    ),
+    case
+      when (select count(*) from filtered) > v_limit then (
+        select encode(
+          convert_to(
+            jsonb_build_object(
+              'created_at', p.created_at,
+              'id', p.id
+            )::text,
+            'UTF8'
+          ),
+          'hex'
+        )
+        from page p
+        order by p.created_at asc, p.id asc
+        limit 1
+      )
+      else null
+    end
+  into v_items, v_next_cursor;
+
+  return jsonb_build_object(
+    'items', coalesce(v_items, '[]'::jsonb),
+    'next_cursor', v_next_cursor
+  );
+end;
+$$;
+
+revoke all on function iam.get_tenant_member(uuid, uuid) from public, anon;
+revoke all on function iam.list_tenant_members(uuid, text, text, text, integer) from public, anon;
+
+grant execute on function iam.get_tenant_member(uuid, uuid) to authenticated;
+grant execute on function iam.list_tenant_members(uuid, text, text, text, integer) to authenticated;
+

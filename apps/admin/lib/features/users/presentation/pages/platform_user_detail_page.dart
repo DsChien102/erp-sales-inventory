@@ -69,7 +69,7 @@ class _PlatformUserDetailView extends StatelessWidget {
             const VGap.md(),
             if (state.showActivationInvite) ...[
               PlatformUserActionCard(
-                icon: VIcons.mail,
+                icon: VIcons.send,
                 title: 'Gửi lại email kích hoạt',
                 subtitle: 'Vô hiệu hóa liên kết cũ và gửi email mới',
                 onTap: () {
@@ -115,7 +115,10 @@ class _PlatformUserDetailView extends StatelessWidget {
               PlatformUserActionCard(
                 icon: VIcons.pause,
                 title: 'Tạm ngừng người dùng',
-                subtitle: 'Chặn đăng nhập trên toàn nền tảng',
+                subtitle:
+                    state.user?.status == PlatformUserStatus.pendingActivation
+                        ? 'Chặn kích hoạt và đăng nhập'
+                        : 'Chặn đăng nhập trên toàn nền tảng',
                 isDestructive: true,
                 onTap: () {
                   Navigator.pop(context);
@@ -373,6 +376,11 @@ class _PlatformUserDetailView extends StatelessWidget {
                                     ],
                                   ),
                                 ),
+                                VIcon(
+                                  icon: VIcons.chevronRight,
+                                  color: colors.textMuted,
+                                  size: 20,
+                                ),
                               ],
                             ),
                           ),
@@ -389,33 +397,32 @@ class _PlatformUserDetailView extends StatelessWidget {
                   ],
                 ),
               ),
-              if (canAct)
-                Container(
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    border: Border(
-                      top: BorderSide(color: colors.borderDefault),
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(
+                    top: BorderSide(color: colors.borderDefault),
                   ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: VSpacing.screenMobile,
-                        vertical: VSpacing.space3,
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: VSpacing.screenMobile,
+                      vertical: VSpacing.space3,
+                    ),
+                    child: VButton(
+                      label: 'Thao tác',
+                      fullWidth: true,
+                      trailingIcon: const VIcon(
+                        icon: VIcons.chevronUp,
+                        color: Colors.white,
+                        size: 16,
                       ),
-                      child: VButton(
-                        label: 'Thao tác',
-                        fullWidth: true,
-                        trailingIcon: const VIcon(
-                          icon: VIcons.chevronUp,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        onPressed: () => _showActionsBottomSheet(context),
-                      ),
+                      onPressed: () => _showActionsBottomSheet(context),
                     ),
                   ),
                 ),
+              ),
             ],
           ),
         );

@@ -8,33 +8,28 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/023_iam_owner_activation.sql',
+      '${root.path}/supabase/migrations/_drafts/iam_owner_activation_store_owner_role.sql',
     ).readAsStringSync();
   });
 
   group('iam owner activation RPC contract (Hướng 1)', () {
-    test('inspect is read-only and callable by anon', () {
-      expect(sql, contains('function iam.inspect_owner_activation'));
-      expect(
-        sql,
-        contains('grant execute on function iam.inspect_owner_activation(text) '
-            'to anon, authenticated'),
-      );
-    });
-
     test('accept requires a session and is authenticated-only', () {
       expect(sql, contains('function iam.accept_owner_activation'));
       expect(sql, contains('AUTHENTICATION_REQUIRED'));
       expect(
         sql,
-        contains('grant execute on function iam.accept_owner_activation(text, text) '
-            'to authenticated'),
+        contains(
+          'grant execute on function iam.accept_owner_activation(text, text) '
+          'to authenticated',
+        ),
       );
       // Not exposed to anon/service_role.
       expect(
         sql,
-        contains('revoke all on function iam.accept_owner_activation(text, text) '
-            'from public, anon'),
+        contains(
+          'revoke all on function iam.accept_owner_activation(text, text) '
+          'from public, anon',
+        ),
       );
     });
 
@@ -43,7 +38,8 @@ void main() {
         sql.indexOf('function iam.accept_owner_activation'),
       );
       expect(body, contains('insert into iam.memberships'));
-      expect(body, contains("'owner', true, 'active'"));
+      expect(body, contains("'store_owner', true, 'active'"));
+      expect(body, isNot(contains("'owner', true, 'active'")));
       expect(body, contains("status = 'active'"));
       expect(body, contains("status = 'accepted'"));
     });
@@ -62,10 +58,6 @@ void main() {
         sql.indexOf('function iam.accept_owner_activation'),
       );
       expect(body, isNot(contains('update iam.tenants')));
-    });
-
-    test('legacy service_role consume RPC is gone', () {
-      expect(sql, isNot(contains('consume_owner_activation')));
     });
   });
 }

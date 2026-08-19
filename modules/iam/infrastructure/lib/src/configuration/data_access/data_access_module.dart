@@ -25,6 +25,7 @@ import '../../adapters/notification/supabase_email_delivery_gateways.dart';
 import '../../adapters/notification/supabase_email_delivery_port.dart';
 import '../../domain/access/supabase_iam_access_gateway.dart';
 import '../../domain/access/supabase_platform_user_preference_port.dart';
+import '../../domain/auth/login_audit_authenticator.dart';
 import '../../domain/auth/supabase_authenticator.dart';
 import '../../domain/membership/supabase_tenant_membership_command_gateway.dart';
 import '../../domain/membership/supabase_tenant_membership_read_gateway.dart';
@@ -161,7 +162,12 @@ final class IamDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
-      ..registerSingleton<IAuthenticator>(SupabaseAuthenticator(supabase))
+      ..registerSingleton<IAuthenticator>(
+        LoginAuditAuthenticator(
+          inner: SupabaseAuthenticator(supabase),
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
       ..registerSingleton<IIamSessionPort>(
         IamSessionCoordinator(
           session: container.get<IamSession>(),

@@ -22,6 +22,12 @@ class MemberDetailBody extends StatelessWidget {
     final isInactive = detailStatus == MembershipStatus.inactive;
     final isRemoved = detailStatus == MembershipStatus.removed;
 
+    final (badgeLabel, badgeStatus) = switch (detailStatus) {
+      MembershipStatus.active => ('Hoạt động', VBadgeStatus.success),
+      MembershipStatus.inactive => ('Tạm ngừng', VBadgeStatus.danger),
+      MembershipStatus.removed => ('Đã loại', VBadgeStatus.danger),
+    };
+
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
@@ -35,39 +41,37 @@ class MemberDetailBody extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: VText(
-                        member.name,
-                        variant: VTextVariant.headingH4,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                    VText(
+                      'Thông tin thành viên',
+                      variant: VTextVariant.headingH4,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
                       ),
                     ),
                     VBadge(
-                      label: isActive
-                          ? 'Hoạt động'
-                          : isInactive
-                              ? 'Tạm ngừng'
-                              : 'Đã loại',
-                      status: isActive
-                          ? VBadgeStatus.success
-                          : VBadgeStatus.danger,
+                      label: badgeLabel,
+                      status: badgeStatus,
                       isSmall: true,
                     ),
                   ],
                 ),
-                const VGap.xs(),
-                VText(
-                  member.email.isEmpty
-                      ? member.role
-                      : '${member.email} · ${member.role}',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
+                const VGap.md(),
+                _DetailRow(
+                  label: 'Tên',
+                  value: member.name.isNotEmpty ? member.name : '—',
                 ),
                 const VGap.md(),
-                VText(
-                  'Danh tính ${member.identityText}',
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                _DetailRow(
+                  label: 'Email',
+                  value: member.email.isNotEmpty ? member.email : '—',
+                ),
+                const VGap.md(),
+                _DetailRow(label: 'Vai trò hiện hành', value: member.role),
+                const VGap.md(),
+                _DetailRow(
+                  label: member.isOwner ? 'Quyền sở hữu' : 'Danh tính',
+                  value: member.identityText,
                 ),
               ],
             ),
@@ -97,29 +101,6 @@ class MemberDetailBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VText(
-                'Thông tin thành viên',
-                variant: VTextVariant.headingH4,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: colors.textPrimary,
-                ),
-              ),
-              const VGap.md(),
-              _DetailRow(label: 'User ID', value: member.name),
-              const VGap.md(),
-              _DetailRow(label: 'Vai trò hiện hành', value: member.role),
-              const VGap.md(),
-              _DetailRow(label: 'Danh tính', value: member.identityText),
-            ],
-          ),
-        ),
-        const VGap.md(),
-        VCard(
-          padding: const EdgeInsets.all(VSpacing.space4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              VText(
                 'Trạng thái truy cập',
                 variant: VTextVariant.headingH4,
                 style: TextStyle(
@@ -130,6 +111,13 @@ class MemberDetailBody extends StatelessWidget {
               const VGap.md(),
               if (isActive) ...[
                 _DetailRow(label: 'Ngày tham gia', value: member.joinedDate),
+                const VGap.md(),
+                _DetailRow(
+                  label: 'Hoạt động gần nhất',
+                  value: member.lastActiveDate.isNotEmpty
+                      ? member.lastActiveDate
+                      : '—',
+                ),
                 const VGap.md(),
                 _DetailRow(
                   label: 'Phiên bản dữ liệu',

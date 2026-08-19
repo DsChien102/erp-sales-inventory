@@ -118,7 +118,9 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
                 ),
                 const VGap.md(),
                 VText(
-                  'Danh tính ${member.identityText}',
+                  member.isOwner
+                      ? 'Quyền sở hữu: Chủ sở hữu'
+                      : 'Danh tính: ${member.identityText}',
                   variant: VTextVariant.bodyDefault,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),

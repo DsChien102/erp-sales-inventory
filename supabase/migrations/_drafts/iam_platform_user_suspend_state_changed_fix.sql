@@ -1,0 +1,203 @@
+-- Title: iam platform user suspend state changed fix
+-- Kind: surgical
+-- Intent: iam_platform_user_suspend_state_changed_fix
+-- Context: TH-01 S15 platform user lifecycle optimistic concurrency
+-- Touches: iam.get_platform_user, iam.search_platform_users, iam.suspend_platform_user
+-- Safety: idempotent; low
+-- Depends on: 20260811004_iam_platform_users_read.sql, 20260811005_iam_platform_user_lifecycle.sql
+
+create or replace function iam.get_platform_user(p_user_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_row record;
+  v_memberships jsonb;
+begin
+  if not iam.has_platform_permission('platform.user.view') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+
+  select
+    u.id as user_id,
+    coalesce(
+      nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
+      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+      ''
+    )::text as full_name,
+    coalesce(u.email::text, '')::text as email,
+    case when p.status = 'suspended' then 'suspended'
+      else iam._platform_user_effective_status(u.email_confirmed_at)
+    end::text as status,
+    (u.email_confirmed_at is not null) as email_verified,
+    coalesce(p.created_at, u.created_at) as created_at,
+    p.last_login_at,
+    coalesce(p.version, 1) as version
+  into v_row
+  from auth.users u
+  left join iam.platform_user_profiles p on p.user_id = u.id
+  where u.id = p_user_id;
+
+  if v_row.user_id is null then
+    raise exception 'platform user not found';
+  end if;
+
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'tenant_id', t.id,
+        'tenant_name', t.name,
+        'role', m.role,
+        'is_owner', m.is_owner
+      )
+      order by m.created_at
+    ),
+    '[]'::jsonb
+  )
+  into v_memberships
+  from iam.memberships m
+  join iam.tenants t on t.id = m.tenant_id
+  where m.user_id = p_user_id;
+
+  return jsonb_build_object(
+    'user_id', v_row.user_id,
+    'full_name', v_row.full_name,
+    'email', v_row.email,
+    'status', v_row.status,
+    'email_verified', v_row.email_verified,
+    'created_at', v_row.created_at,
+    'last_login_at', v_row.last_login_at,
+    'memberships', v_memberships,
+    'version', v_row.version
+  );
+end;
+$$;
+
+revoke all on function iam.get_platform_user(uuid) from public, anon;
+grant execute on function iam.get_platform_user(uuid) to authenticated;
+
+create or replace function iam.search_platform_users(
+  p_query text default null,
+  p_status text default null,
+  p_cursor text default null,
+  p_page_size integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+begin
+  if not iam.has_platform_permission('platform.user.view') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  return jsonb_build_object(
+    'items', coalesce((
+      select jsonb_agg(row_to_json(t)::jsonb)
+      from (
+        select
+          u.id as user_id,
+          coalesce(
+            nullif(
+              trim(concat_ws(' ', p.family_middle_name, p.given_name)),
+              ''
+            ),
+            nullif(
+              trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')),
+              ''
+            ),
+            ''
+          )::text as full_name,
+          coalesce(u.email::text, '')::text as email,
+          case when p.status = 'suspended' then 'suspended'
+            else iam._platform_user_effective_status(u.email_confirmed_at)
+          end::text as status,
+          coalesce(p.created_at, u.created_at) as created_at,
+          coalesce(p.version, 1) as version
+        from auth.users u
+        left join iam.platform_user_profiles p on p.user_id = u.id
+        where (
+            p_status is null
+            or case when p.status = 'suspended' then 'suspended'
+              else iam._platform_user_effective_status(u.email_confirmed_at)
+            end = p_status
+          )
+          and (
+            p_query is null or p_query = ''
+            or u.email ilike '%' || p_query || '%'
+            or coalesce(p.given_name, '') ilike '%' || p_query || '%'
+            or coalesce(p.family_middle_name, '') ilike '%' || p_query || '%'
+            or coalesce(u.raw_user_meta_data->>'first_name', '') ilike '%' || p_query || '%'
+            or coalesce(u.raw_user_meta_data->>'last_name', '') ilike '%' || p_query || '%'
+          )
+        order by coalesce(p.created_at, u.created_at) desc
+        limit v_limit
+      ) t
+    ), '[]'::jsonb),
+    'next_cursor', null
+  );
+end;
+$$;
+
+revoke all on function iam.search_platform_users(text, text, text, integer) from public, anon;
+grant execute on function iam.search_platform_users(text, text, text, integer) to authenticated;
+
+create or replace function iam.suspend_platform_user(
+  p_user_id uuid,
+  p_reason text,
+  p_expected_version integer,
+  p_idempotency_key text
+)
+returns void
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_version int;
+  v_fp text;
+  v_existing text;
+begin
+  if not iam.has_platform_permission('platform.user.suspend') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  if p_reason is null or trim(p_reason) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+  v_fp := p_user_id::text || '|' || p_reason || '|' || p_expected_version::text;
+  select payload_fingerprint into v_existing
+  from iam.platform_user_lifecycle_operations
+  where idempotency_key = p_idempotency_key;
+  if v_existing is not null then
+    if v_existing <> v_fp then
+      raise exception 'IDEMPOTENCY_CONFLICT';
+    end if;
+    return;
+  end if;
+  select coalesce(version, 1) into v_version
+  from iam.platform_user_profiles where user_id = p_user_id for update;
+  if not found then
+    v_version := 1;
+  end if;
+  if v_version is distinct from p_expected_version then
+    raise exception 'STATE_CHANGED';
+  end if;
+  insert into iam.platform_user_profiles (user_id, status, version)
+  values (p_user_id, 'suspended', v_version + 1)
+  on conflict (user_id) do update
+    set status = 'suspended', version = iam.platform_user_profiles.version + 1;
+  insert into iam.platform_user_lifecycle_operations(
+    idempotency_key, user_id, action, payload_fingerprint
+  ) values (p_idempotency_key, p_user_id, 'suspend', v_fp);
+end;
+$$;
+
+revoke all on function iam.suspend_platform_user(uuid, text, integer, text) from public, anon;
+grant execute on function iam.suspend_platform_user(uuid, text, integer, text) to authenticated;

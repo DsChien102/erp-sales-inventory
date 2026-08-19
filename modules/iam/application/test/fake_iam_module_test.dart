@@ -88,6 +88,28 @@ void main() {
       expect(restored.status, PlatformUserStatus.active);
     });
 
+    test('suspend stale expectedVersion throws STATE_CHANGED', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.suspendOk);
+
+      await expectLater(
+        () => module.executeCommandAsync(
+          SuspendPlatformUserCommand(
+            userId: 'lan-le',
+            reason: 'policy',
+            expectedVersion: 2,
+            idempotencyKey: 'sus-lan-stale',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.stateChanged,
+          ),
+        ),
+      );
+    });
+
     test('onboarding_existing_user_ok', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.onboardingExistingUserOk,

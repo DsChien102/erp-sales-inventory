@@ -4,7 +4,7 @@ import 'package:vet45_iam_domain/domain.dart';
 import '../../shared/iam_load_status.dart';
 import '../../shared/iam_ui_failure.dart';
 
-enum MembershipMutation { deactivate, reactivate, remove }
+enum MembershipMutation { deactivate, reactivate, remove, changeRole }
 
 final class OrganizationMemberDetailState {
   const OrganizationMemberDetailState({
@@ -23,6 +23,11 @@ final class OrganizationMemberDetailState {
   final IamUiFailure? failure;
   final String? successMessage;
 
+  bool get canChangeRole =>
+      member != null &&
+      member!.status != MembershipStatus.removed &&
+      !member!.isSoleOwner;
+
   bool get canDeactivate =>
       member != null &&
       member!.status == MembershipStatus.active &&
@@ -36,7 +41,8 @@ final class OrganizationMemberDetailState {
       member!.status != MembershipStatus.removed &&
       !member!.isSoleOwner;
 
-  bool get hasLifecycleActions => canDeactivate || canReactivate || canRemove;
+  bool get hasLifecycleActions =>
+      canChangeRole || canDeactivate || canReactivate || canRemove;
 
   bool get isReadOnly =>
       member == null || member!.status == MembershipStatus.removed;

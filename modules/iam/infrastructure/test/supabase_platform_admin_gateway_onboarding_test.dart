@@ -19,6 +19,7 @@ void main() {
       expect(params?['p_org_commune_code'], 'Phường Ba Đình');
       expect(params?['p_org_legal_name'], 'Org Legal Co');
       expect(params?['p_org_tax_code'], '0123456789');
+      expect(params?['p_org_registered_address_text'], '456 Legal St');
       expect(params?['p_idempotency_key'], 'idem-1');
       expect(params?['p_correlation_id'], 'corr-1');
       expect(params?['p_is_new_user'], true);
@@ -51,6 +52,7 @@ void main() {
       communeCode: 'Phường Ba Đình',
       legalName: 'Org Legal Co',
       taxCode: '0123456789',
+      registeredAddressText: '456 Legal St',
       idempotencyKey: 'idem-1',
       correlationId: 'corr-1',
     );

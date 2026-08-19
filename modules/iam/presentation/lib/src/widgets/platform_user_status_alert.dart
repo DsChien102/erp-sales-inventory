@@ -14,7 +14,7 @@ class PlatformUserStatusAlert extends StatelessWidget {
     if (status == PlatformUserStatus.pendingActivation) {
       return VCard(
         tone: VComponentTone.warning,
-        backgroundColor: colors.warning.withValues(alpha: 0.08),
+        backgroundColor: colors.warningBg,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,7 +38,7 @@ class PlatformUserStatusAlert extends StatelessWidget {
                   VText(
                     'Người dùng chưa đăng nhập để xác minh email và thiết lập thông tin đăng nhập.',
                     variant: VTextVariant.bodySmall,
-                    color: colors.warning.withValues(alpha: 0.9),
+                    color: colors.textPrimary,
                   ),
                 ],
               ),
@@ -51,7 +51,7 @@ class PlatformUserStatusAlert extends StatelessWidget {
     if (status == PlatformUserStatus.suspended) {
       return VCard(
         tone: VComponentTone.danger,
-        backgroundColor: colors.danger.withValues(alpha: 0.08),
+        backgroundColor: colors.dangerBg,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,7 +75,7 @@ class PlatformUserStatusAlert extends StatelessWidget {
                   VText(
                     'Người dùng không thể đăng nhập hoặc truy cập bất kỳ tổ chức nào. Dữ liệu và lịch sử vẫn được giữ lại.',
                     variant: VTextVariant.bodySmall,
-                    color: colors.danger.withValues(alpha: 0.9),
+                    color: colors.textPrimary,
                   ),
                 ],
               ),

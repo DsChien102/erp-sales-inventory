@@ -66,7 +66,7 @@ void main() {
       expect(find.text('Mậu Hiền'), findsOneWidget);
 
       // Members section
-      expect(find.text('Thành viên tổ chức'), findsNWidgets(4));
+      expect(find.text('Thành viên tổ chức'), findsNWidgets(3));
       expect(find.text('3 thành viên'), findsOneWidget);
       expect(find.text('Lê Thị Lan'), findsOneWidget);
       expect(find.text('Trần Thị Hoa'), findsOneWidget);

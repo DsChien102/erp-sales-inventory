@@ -59,6 +59,7 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
     String? ownerGivenName,

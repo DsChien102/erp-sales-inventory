@@ -6,8 +6,7 @@ import '../../errors/iam_blocked_error_mapper.dart';
 import '../membership/supabase_tenant_membership_read_gateway.dart';
 import 'supabase_tenant_invitation_command_gateway.dart';
 
-final class SupabaseTenantInvitationAcceptancePort
-    implements ITenantInvitationAcceptancePort {
+final class SupabaseTenantInvitationAcceptancePort implements ITenantInvitationAcceptancePort {
   SupabaseTenantInvitationAcceptancePort({
     required SupabaseSchemaRpcClient rpcClient,
   }) : _rpcClient = rpcClient;
@@ -29,6 +28,9 @@ final class SupabaseTenantInvitationAcceptancePort
         initialRoleLabel: (result['initial_role_label'] as String?) ?? '',
         expiresAt: DateTime.parse(result['expires_at'].toString()).toUtc(),
         accountExists: result['account_exists'] as bool? ?? false,
+        givenName: result['given_name'] as String?,
+        familyName: result['family_name'] as String?,
+        phone: result['phone'] as String?,
       );
     } on RpcException catch (error) {
       throw mapIamBlockedRpcError(error);

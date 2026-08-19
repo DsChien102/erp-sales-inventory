@@ -36,8 +36,7 @@ class _PlatformOnboardingView extends StatefulWidget {
   final IIamModule? iamModule;
 
   @override
-  State<_PlatformOnboardingView> createState() =>
-      _PlatformOnboardingViewState();
+  State<_PlatformOnboardingView> createState() => _PlatformOnboardingViewState();
 }
 
 class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
@@ -62,8 +61,10 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   final _orgPhoneController = TextEditingController();
   final _orgEmailController = TextEditingController();
   final _orgAddressController = TextEditingController();
+  final _orgRegisteredAddressController = TextEditingController();
   String? _selectedProvince;
   String? _selectedWard;
+  String? _selectedEntityType;
 
   String? _orgNameErrorText;
   String? _orgEmailErrorText;
@@ -79,6 +80,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
     _orgDisplayNameController.dispose();
     _orgLegalNameController.dispose();
     _orgTaxCodeController.dispose();
+    _orgRegisteredAddressController.dispose();
     _orgPhoneController.dispose();
     _orgEmailController.dispose();
     _orgAddressController.dispose();
@@ -125,8 +127,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
         VToast.show(
           context,
           title: 'Thông tin không hợp lệ',
-          message:
-              'Vui lòng kiểm tra các trường bắt buộc và định dạng bên dưới.',
+          message: 'Vui lòng kiểm tra các trường bắt buộc và định dạng bên dưới.',
           type: VToastType.danger,
         );
         return false;
@@ -203,8 +204,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   Future<void> _handleSubmit() async {
     final orgName = _orgNameController.text.trim();
 
-    if (orgName.toLowerCase().contains('error') ||
-        orgName.toLowerCase().contains('lỗi')) {
+    if (orgName.toLowerCase().contains('error') || orgName.toLowerCase().contains('lỗi')) {
       VToast.show(
         context,
         title: 'Không thể khởi tạo tổ chức',
@@ -220,9 +220,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
         lastName: _lastNameController.text.trim(),
         firstName: _firstNameController.text.trim(),
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty
-            ? null
-            : _phoneController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
       );
     } else {
       ownerInput = OnboardingOwnerInput.existing(_selectedOwner!.userId);
@@ -248,9 +246,10 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
       legalName: _orgLegalNameController.text.trim().isEmpty
           ? null
           : _orgLegalNameController.text.trim(),
-      taxCode: _orgTaxCodeController.text.trim().isEmpty
+      taxCode: _orgTaxCodeController.text.trim().isEmpty ? null : _orgTaxCodeController.text.trim(),
+      registeredAddressText: _orgRegisteredAddressController.text.trim().isEmpty
           ? null
-          : _orgTaxCodeController.text.trim(),
+          : _orgRegisteredAddressController.text.trim(),
       idempotencyKey: 'idemp-${DateTime.now().millisecondsSinceEpoch}',
     );
 
@@ -340,42 +339,32 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                       top: BorderSide(color: colors.borderDefault),
                     ),
                   ),
-                  child:
-                      BlocBuilder<
-                        PlatformOnboardingCubit,
-                        PlatformOnboardingState
-                      >(
-                        buildWhen: (p, c) => p.status != c.status,
-                        builder: (context, state) {
-                          final submitting =
-                              state.status ==
-                              PlatformOnboardingLoadStatus.submitting;
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: VButton(
-                                  label: 'Quay lại',
-                                  variant: VButtonVariant.secondary,
-                                  onPressed: submitting ? null : _onBackPressed,
-                                ),
-                              ),
-                              const VGap.horizontalSm(),
-                              Expanded(
-                                child: VButton(
-                                  label: _currentStep == 2
-                                      ? 'Khởi tạo tổ chức'
-                                      : 'Tiếp tục',
-                                  onPressed: submitting
-                                      ? null
-                                      : (_currentStep == 2
-                                            ? _handleSubmit
-                                            : _handleNext),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                  child: BlocBuilder<PlatformOnboardingCubit, PlatformOnboardingState>(
+                    buildWhen: (p, c) => p.status != c.status,
+                    builder: (context, state) {
+                      final submitting = state.status == PlatformOnboardingLoadStatus.submitting;
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: VButton(
+                              label: 'Quay lại',
+                              variant: VButtonVariant.secondary,
+                              onPressed: submitting ? null : _onBackPressed,
+                            ),
+                          ),
+                          const VGap.horizontalSm(),
+                          Expanded(
+                            child: VButton(
+                              label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
+                              onPressed: submitting
+                                  ? null
+                                  : (_currentStep == 2 ? _handleSubmit : _handleNext),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -441,11 +430,13 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           orgDisplayNameController: _orgDisplayNameController,
           orgLegalNameController: _orgLegalNameController,
           orgTaxCodeController: _orgTaxCodeController,
+          orgRegisteredAddressController: _orgRegisteredAddressController,
           orgPhoneController: _orgPhoneController,
           orgEmailController: _orgEmailController,
           orgAddressController: _orgAddressController,
           selectedProvince: _selectedProvince,
           selectedWard: _selectedWard,
+          selectedEntityType: _selectedEntityType,
           orgNameErrorText: _orgNameErrorText,
           orgEmailErrorText: _orgEmailErrorText,
           orgPhoneErrorText: _orgPhoneErrorText,
@@ -473,17 +464,18 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           onWardChanged: (val) {
             setState(() => _selectedWard = val);
           },
+          onEntityTypeChanged: (val) {
+            setState(() => _selectedEntityType = val);
+          },
         );
       case 2:
-        final review = PlatformOnboardingStepReview(
+        return PlatformOnboardingStepReview(
           isNewOwner: _isNewOwner,
           lastName: _lastNameController.text.trim(),
           firstName: _isNewOwner
               ? _firstNameController.text.trim()
               : (_selectedOwner?.fullName ?? ''),
-          email: _isNewOwner
-              ? _emailController.text.trim()
-              : (_selectedOwner?.email ?? ''),
+          email: _isNewOwner ? _emailController.text.trim() : (_selectedOwner?.email ?? ''),
           phone: _phoneController.text.trim(),
           orgName: _orgNameController.text.trim(),
           orgLegalName: _orgLegalNameController.text.trim(),
@@ -493,26 +485,6 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           orgAddress: _orgAddressController.text.trim(),
           selectedProvince: _selectedProvince,
           selectedWard: _selectedWard,
-        );
-        final ownerEmail = _isNewOwner
-            ? _emailController.text.trim()
-            : (_selectedOwner?.email ?? '');
-        final colors = context.vColors;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            review,
-            const VGap.md(),
-            VCard(
-              tone: VComponentTone.info,
-              child: VText(
-                'Sau khi khởi tạo, hệ thống sẽ gửi mã mời tham gia tới '
-                '$ownerEmail. Chủ sở hữu nhập mã trong ứng dụng để tham gia tổ chức.',
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-              ),
-            ),
-          ],
         );
       default:
         return const SizedBox.shrink();

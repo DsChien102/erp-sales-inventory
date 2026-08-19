@@ -7,6 +7,7 @@ import '../bloc/organization_member_detail_state.dart';
 Future<void> showMemberLifecycleActionsBottomSheet({
   required BuildContext context,
   required OrganizationMemberDetailState state,
+  VoidCallback? onChangeRole,
   required VoidCallback onDeactivate,
   required VoidCallback onReactivate,
   required VoidCallback onRemove,
@@ -30,7 +31,18 @@ Future<void> showMemberLifecycleActionsBottomSheet({
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const VGap.md(),
-          if (state.canDeactivate)
+          if (state.canChangeRole && onChangeRole != null)
+            _LifecycleActionItem(
+              icon: VIcons.shield,
+              title: 'Thay đổi vai trò',
+              subtitle: 'Cập nhật quyền vận hành',
+              onTap: () {
+                Navigator.of(context).pop();
+                onChangeRole();
+              },
+            ),
+          if (state.canDeactivate) ...[
+            if (state.canChangeRole && onChangeRole != null) const VGap.sm(),
             _LifecycleActionItem(
               icon: VIcons.pause,
               title: 'Tạm ngừng thành viên',
@@ -40,7 +52,9 @@ Future<void> showMemberLifecycleActionsBottomSheet({
                 onDeactivate();
               },
             ),
-          if (state.canReactivate)
+          ],
+          if (state.canReactivate) ...[
+            if (state.canChangeRole && onChangeRole != null) const VGap.sm(),
             _LifecycleActionItem(
               icon: VIcons.personCheck,
               title: 'Kích hoạt lại',
@@ -50,8 +64,12 @@ Future<void> showMemberLifecycleActionsBottomSheet({
                 onReactivate();
               },
             ),
+          ],
           if (state.canRemove) ...[
-            if (state.canDeactivate || state.canReactivate) const VGap.sm(),
+            if ((state.canChangeRole && onChangeRole != null) ||
+                state.canDeactivate ||
+                state.canReactivate)
+              const VGap.sm(),
             _LifecycleActionItem(
               icon: VIcons.personRemove,
               title: 'Loại khỏi tổ chức',

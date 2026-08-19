@@ -52,8 +52,9 @@ void main() {
       const dto = AccessibleTenantDto(
         tenantId: 'org-provisioning',
         name: 'Đang thiết lập',
-        roleLabel: 'Owner',
+        roleLabel: 'Chủ cửa hàng',
         status: TenantLifecycleStatus.provisioning,
+        isOwner: true,
       );
       // The DTO's canonical flag stays active-only …
       expect(dto.isSelectable, isFalse);
@@ -88,8 +89,9 @@ void main() {
       const closed = AccessibleTenantDto(
         tenantId: 'org-004',
         name: 'Đã đóng',
-        roleLabel: 'Owner',
+        roleLabel: 'Chủ cửa hàng',
         status: TenantLifecycleStatus.closed,
+        isOwner: true,
       );
       final closedUi = AccessibleTenantUiMapper.fromDto(closed);
       expect(closedUi.isSelectable, isFalse);

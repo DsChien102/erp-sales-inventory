@@ -1,4 +1,5 @@
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
+import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_token_entry_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,10 +10,12 @@ import 'package:vet45_iam_application/testing.dart';
 Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
   expect(find.byType(VVerificationCodeField), findsOneWidget);
   await tester.enterText(
-    find.descendant(
-      of: find.byKey(const Key('invitation_token_input')),
-      matching: find.byType(TextField),
-    ).first,
+    find
+        .descendant(
+          of: find.byKey(const Key('invitation_token_input')),
+          matching: find.byType(TextField),
+        )
+        .first,
     code,
   );
   await tester.pump();
@@ -142,6 +145,92 @@ void main() {
     },
   );
 
+  testWidgets(
+    'new account registration pre-fills invitation profile but keeps name fields editable',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationRegistrationForm(
+            inspection: InvitationTokenInspectionDto(
+              tenantId: 'org-001',
+              tenantName: 'Dschien',
+              inviteeEmail: 'dosychien9@gmail.com',
+              initialRoleId: 'store_owner',
+              initialRoleLabel: 'Chủ sở hữu',
+              expiresAt: DateTime.utc(2026, 8, 18),
+              accountExists: false,
+              givenName: 'Chiến',
+              familyName: 'Đỗ Sỹ',
+              phone: '0901234567',
+            ),
+            isSubmitting: false,
+            onRegister:
+                ({
+                  required givenName,
+                  required familyName,
+                  phone,
+                  required password,
+                }) async {},
+            onDecline: () async {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final familyField = tester.widget<TextField>(
+        find
+            .descendant(
+              of: find.byKey(const Key('invitation_register_family_name')),
+              matching: find.byType(TextField),
+            )
+            .first,
+      );
+      final givenField = tester.widget<TextField>(
+        find
+            .descendant(
+              of: find.byKey(const Key('invitation_register_given_name')),
+              matching: find.byType(TextField),
+            )
+            .first,
+      );
+      final phoneField = tester.widget<TextField>(
+        find
+            .descendant(
+              of: find.byKey(const Key('invitation_register_phone')),
+              matching: find.byType(TextField),
+            )
+            .first,
+      );
+      final emailField = tester.widget<TextField>(
+        find
+            .descendant(
+              of: find.byKey(const Key('invitation_locked_email')),
+              matching: find.byType(TextField),
+            )
+            .first,
+      );
+
+      expect(familyField.controller?.text, 'Đỗ Sỹ');
+      expect(givenField.controller?.text, 'Chiến');
+      expect(phoneField.controller?.text, '0901234567');
+      expect(familyField.enabled, isTrue);
+      expect(givenField.enabled, isTrue);
+      expect(emailField.enabled, isFalse);
+
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_family_name')),
+        'Đỗ Văn',
+      );
+      expect(find.text('Đỗ Văn'), findsOneWidget);
+    },
+  );
+
   testWidgets('code field uses alphanumeric verification cells and uppercases', (
     tester,
   ) async {
@@ -165,9 +254,7 @@ void main() {
     expect(find.byType(VVerificationCodeField), findsOneWidget);
     expect(
       find.byWidgetPredicate(
-        (w) =>
-            w is RichText &&
-            w.text.toPlainText().contains('Mã lời mời'),
+        (w) => w is RichText && w.text.toPlainText().contains('Mã lời mời'),
       ),
       findsOneWidget,
     );
@@ -188,4 +275,71 @@ void main() {
     expect(tester.widget<TextField>(cells.at(0)).controller!.text, 'K');
     expect(tester.widget<TextField>(cells.at(7)).controller!.text, 'M');
   });
+
+  testWidgets(
+    'new account registration success shows success toast and navigates',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final router = GoRouter(
+        initialLocation: '/invitation',
+        routes: <RouteBase>[
+          GoRoute(
+            path: '/invitation',
+            builder: (_, _) => InvitationTokenPage(
+              iamModule: FakeIamModule(
+                scenario: FakeIamScenario.inspectNewAccount,
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/login',
+            builder: (_, _) => const Scaffold(body: Text('LOGIN_PAGE')),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: VTheme.lightTheme,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _enterInvitationCode(tester, 'TOKENNEW');
+      await tester.pumpAndSettle();
+      final inspectSubmit = find.byKey(const Key('invitation_inspect_submit'));
+      if (inspectSubmit.evaluate().isNotEmpty) {
+        await tester.tap(inspectSubmit);
+        await tester.pumpAndSettle();
+      }
+
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_family_name')),
+        'Đỗ Sỹ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_given_name')),
+        'Chiến',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_password')),
+        'Password123@',
+      );
+      await tester.enterText(
+        find.byKey(const Key('invitation_register_confirm_password')),
+        'Password123@',
+      );
+
+      await tester.tap(find.byKey(const Key('invitation_accept_submit')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Kích hoạt thành công'), findsOneWidget);
+      expect(find.text('LOGIN_PAGE'), findsOneWidget);
+    },
+  );
 }

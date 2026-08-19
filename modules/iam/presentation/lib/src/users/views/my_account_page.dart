@@ -29,7 +29,7 @@ class MyAccountUiModel {
     this.avatarUrl,
   });
 
-  String get fullName => '$firstName $lastName'.trim();
+  String get fullName => '$lastName $firstName'.trim();
 
   bool get hasName => fullName.isNotEmpty;
 
@@ -45,8 +45,8 @@ class MyAccountUiModel {
   }
 
   static const sample = MyAccountUiModel(
-    firstName: 'Nguyễn Văn',
-    lastName: 'Minh',
+    firstName: 'Minh',
+    lastName: 'Nguyễn Văn',
     email: 'minh@gmail.com',
     emailStatus: 'Đã xác minh',
     phoneNumber: '0901 234 567',
@@ -426,8 +426,8 @@ class _MyAccountScaffold extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const VGap.md(),
-                _buildInfoRow(context, 'Họ và tên đệm', data.firstName),
-                _buildInfoRow(context, 'Tên', data.lastName),
+                _buildInfoRow(context, 'Họ và tên đệm', data.lastName),
+                _buildInfoRow(context, 'Tên', data.firstName),
                 _buildInfoRow(context, 'Email đăng nhập', data.email),
                 _buildInfoRow(context, 'Trạng thái email', data.emailStatus),
                 _buildInfoRow(context, 'Số điện thoại', data.phoneNumber),

@@ -81,7 +81,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Tài khoản của tôi'), findsOneWidget);
-    expect(find.text('Lan Le'), findsOneWidget);
+    expect(find.text('Le Lan'), findsOneWidget);
     expect(find.text('lan@gmail.com'), findsOneWidget);
   });
 

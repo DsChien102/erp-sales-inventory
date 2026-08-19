@@ -238,7 +238,16 @@ begin
     end if;
   end if;
 
-  if p_target_status = 'active' and v_row.role not in ('owner', 'staff') then
+  -- Reactivation must keep an assignable role. Validate against the live role
+  -- catalog rather than a hardcoded whitelist, so all active system roles
+  -- (store_owner/staff/accountant/warehouse) reactivate, while a member whose
+  -- role was retired is still blocked with ROLE_NOT_ASSIGNABLE.
+  if p_target_status = 'active' and not exists (
+    select 1
+    from iam.role_definitions r
+    where r.code = v_row.role
+      and r.status = 'active'
+  ) then
     raise exception 'ROLE_NOT_ASSIGNABLE';
   end if;
 
@@ -459,12 +468,16 @@ begin
 end;
 $$;
 
+-- Return type widens (adds is_owner), so drop the earlier signature first.
+drop function if exists iam.list_accessible_tenants();
+
 create or replace function iam.list_accessible_tenants()
 returns table (
   tenant_id uuid,
   name text,
   role text,
-  status text
+  status text,
+  is_owner boolean
 )
 language plpgsql
 security definer
@@ -478,7 +491,7 @@ begin
   end if;
 
   return query
-  select t.id, t.name, m.role, t.status
+  select t.id, t.name, m.role, t.status, m.is_owner
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
