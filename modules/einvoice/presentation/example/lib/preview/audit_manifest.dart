@@ -9,6 +9,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D02',
@@ -17,6 +18,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D04-A',
@@ -25,6 +27,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D04-B',
@@ -33,6 +36,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D05',
@@ -41,6 +45,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/default_issuance_configuration_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D06',
@@ -49,6 +54,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/automation_policy_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-O01',
@@ -57,6 +63,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/disconnect_provider_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-O02',
@@ -65,6 +72,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/provider_connection_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-S01',
@@ -73,6 +81,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'State Message',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_permission_denied_state.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-S02',
@@ -81,6 +90,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'State Message',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_load_error_state.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-02 — EP-02+03 / Slice S2
@@ -316,8 +326,9 @@ abstract final class EInvoiceAuditManifest {
     ),
   ];
 
-  static List<EInvoiceAuditEntry> forGroup(EInvoiceScreenGroup group) =>
-      entries.where((entry) => entry.screenGroup == group).toList(growable: false);
+  static List<EInvoiceAuditEntry> forGroup(EInvoiceScreenGroup group) => entries
+      .where((entry) => entry.screenGroup == group)
+      .toList(growable: false);
 }
 
 enum AuditStatus { pending, stub, done }
@@ -354,8 +365,8 @@ class EInvoiceAuditEntry {
   final AuditStatus status;
 
   String get statusLabel => switch (status) {
-        AuditStatus.pending => 'Chưa làm',
-        AuditStatus.stub => 'Stub',
-        AuditStatus.done => 'Done',
-      };
+    AuditStatus.pending => 'Chưa làm',
+    AuditStatus.stub => 'Stub',
+    AuditStatus.done => 'Done',
+  };
 }

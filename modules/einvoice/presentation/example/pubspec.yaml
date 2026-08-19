@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
   vet45_design_system:
     path: ../../../../packages/vet45_design_system
   vet45_einvoice_presentation:
@@ -19,6 +20,8 @@ dependencies:
     path: ../../domain
   vet45_shared_application:
     path: ../../../../packages/vet45_shared/application
+  vet45_shared_testing:
+    path: ../../../../packages/vet45_shared/testing
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +48,8 @@ dependency_overrides:
     path: ../../../../packages/vet45_shared/domain
   vet45_shared_infrastructure:
     path: ../../../../packages/vet45_shared/infrastructure
+  vet45_shared_testing:
+    path: ../../../../packages/vet45_shared/testing
 
 flutter:
   uses-material-design: true

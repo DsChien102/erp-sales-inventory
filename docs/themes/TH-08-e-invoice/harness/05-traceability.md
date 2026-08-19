@@ -47,7 +47,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-01/US-04 | CONTRACT | §S1d | application | `GetConfigurationReadinessQuery` | — | done |
 | EP-01/US-04/FR-01..09 | BE | §S1d | domain + application | `ConfigurationReadinessEvaluator` + query handler | scn_e01_u04_fr01_01 | done |
-| EP-01/US-04/FR-01..09 | FE | §S1d | presentation | SG-01 readiness banner + blockers | wgt_e01_u04_fr09_01 | todo |
+| EP-01/US-04/FR-01..09 | FE | §S1d | presentation | SG-01 `einvoice_configuration_overview_page.dart` D01/D02 | wgt_e01_u04_fr09_01 | done |
 | EP-01/US-04/SC-01 | E2E | §S1d | integration | Manual issue readiness = READY | e2e_e01_u04_sc01_01 | todo |
 
 ## S2 — EP-02 — Preview + manual issue + attempt lock

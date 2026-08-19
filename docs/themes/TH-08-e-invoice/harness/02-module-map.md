@@ -114,7 +114,7 @@ Cross-module: package `einvoice_integration_events` only — không import domai
 
 | Screen group | Epic | Presentation path | Ghi chú |
 | ------------ | ---- | ------------------- | ------- |
-| SG-01 | EP-01 | `apps/erp/features/einvoice/presentation/pages/einvoice_settings_page.dart` | Settings — connection + profile + policy |
+| SG-01 | EP-01 | `apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart` | Settings — connection + profile + policy |
 | SG-02 | EP-02, EP-03 | Embed trong `apps/erp/features/sales/presentation/` (order detail / sales result row) | Row HĐĐT + preview entry |
 | SG-03 | EP-02 | `apps/erp/features/sales/presentation/widgets/` (confirmation sheet, progress) | Issue confirm + processing |
 | SG-04 | EP-02 | **No UI MVP** | Server-side reconciliation |

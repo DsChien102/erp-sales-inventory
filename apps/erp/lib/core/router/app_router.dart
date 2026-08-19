@@ -18,11 +18,10 @@ import '../../features/sales/presentation/navigation/sales_typed_routes.dart';
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/pages/users_and_roles_page.dart';
-import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
-import '../../features/more/presentation/einvoice_settings/pages/einvoice_connection_page.dart';
-import '../../features/more/presentation/einvoice_settings/pages/einvoice_template_page.dart';
-import '../../features/more/presentation/einvoice_settings/pages/einvoice_auto_page.dart';
-import '../../features/more/presentation/einvoice_settings/bloc/einvoice_settings_cubit.dart';
+import '../../features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart';
+import '../../features/einvoice/presentation/pages/provider_connection_page.dart';
+import '../../features/einvoice/presentation/pages/default_issuance_configuration_page.dart';
+import '../../features/einvoice/presentation/pages/automation_policy_page.dart';
 
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -381,78 +380,69 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/more/einvoice-settings',
-      name: 'more.einvoice-settings',
+      path: '/more/einvoice',
+      name: 'more.einvoice.overview',
       builder: (context, state) {
         final session = getIt<IamSession>();
-        if (!session.hasPermission('settings.einvoice.configure')) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: VText(
-                  'Bạn không có quyền thiết lập hóa đơn điện tử',
-                ),
-                backgroundColor: context.vColors.danger,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(VRadius.card),
-                ),
-                margin: const EdgeInsets.all(VSpacing.space4),
-              ),
-            );
+        void goBack() {
+          if (context.canPop()) {
+            context.pop();
+          } else {
             context.go('/');
-          });
-          return const Scaffold(body: SizedBox.shrink());
+          }
         }
-        return const EInvoiceSettingsPage();
+
+        if (!session.hasPermission('settings.einvoice.configure')) {
+          return VPageScaffold(
+            title: 'Hóa đơn điện tử',
+            showBackButton: true,
+            body: ConfigurationPermissionDeniedState(onBack: goBack),
+          );
+        }
+        return EInvoiceConfigurationOverviewPage(
+          einvoiceModule: getIt<IEInvoiceModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onBack: goBack,
+          onConnectionTap: () => context.push('/more/einvoice/connection'),
+          onIssuanceTap: () => context.push('/more/einvoice/issuance'),
+          onAutomationTap: () => context.push('/more/einvoice/automation'),
+        );
       },
     ),
     GoRoute(
-      path: '/more/einvoice-settings/connection',
-      name: 'more.einvoice-settings.connection',
+      path: '/more/einvoice/connection',
+      name: 'more.einvoice.connection',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit?;
-        if (cubit == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              context.go('/more/einvoice-settings');
-            }
-          });
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        return EInvoiceConnectionPage(cubit: cubit);
+        return ProviderConnectionPage(
+          einvoiceModule: getIt<IEInvoiceModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onCancel: () => context.pop(),
+          onBack: () => context.pop(),
+        );
       },
     ),
     GoRoute(
-      path: '/more/einvoice-settings/template',
-      name: 'more.einvoice-settings.template',
+      path: '/more/einvoice/issuance',
+      name: 'more.einvoice.issuance',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit?;
-        if (cubit == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              context.go('/more/einvoice-settings');
-            }
-          });
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        return EInvoiceTemplatePage(cubit: cubit);
+        return DefaultIssuanceConfigurationPage(
+          einvoiceModule: getIt<IEInvoiceModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onCancel: () => context.pop(),
+          onBack: () => context.pop(),
+        );
       },
     ),
     GoRoute(
-      path: '/more/einvoice-settings/auto',
-      name: 'more.einvoice-settings.auto',
+      path: '/more/einvoice/automation',
+      name: 'more.einvoice.automation',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit?;
-        if (cubit == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              context.go('/more/einvoice-settings');
-            }
-          });
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        return EInvoiceAutoPage(cubit: cubit);
+        return AutomationPolicyPage(
+          einvoiceModule: getIt<IEInvoiceModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onCancel: () => context.pop(),
+          onBack: () => context.pop(),
+        );
       },
     ),
     GoRoute(

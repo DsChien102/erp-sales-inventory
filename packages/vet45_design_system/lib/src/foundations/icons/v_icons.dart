@@ -35,6 +35,7 @@ enum VIcons {
   download,
   power,
   powerOff,
+  unplug,
   check,
   logout,
   visibility,
@@ -92,6 +93,7 @@ enum VIcons {
   checkList,
   circle,
   lock,
+  key,
   settings,
   star,
   mail,
@@ -223,6 +225,11 @@ abstract final class _Lucide {
   );
   static const powerOff = IconData(
     57865,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const unplug = IconData(
+    58461,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -486,6 +493,11 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
+  static const key = IconData(
+    57597,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
   static const settings = IconData(
     57684,
     fontFamily: 'Lucide',
@@ -665,6 +677,8 @@ extension VIconsExtension on VIcons {
         return _Lucide.power;
       case VIcons.powerOff:
         return _Lucide.powerOff;
+      case VIcons.unplug:
+        return _Lucide.unplug;
       case VIcons.check:
         return _Lucide.check;
       case VIcons.logout:
@@ -774,6 +788,8 @@ extension VIconsExtension on VIcons {
         return _Lucide.circle;
       case VIcons.lock:
         return _Lucide.lock;
+      case VIcons.key:
+        return _Lucide.key;
       case VIcons.settings:
         return _Lucide.settings;
       case VIcons.star:
