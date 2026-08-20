@@ -32,7 +32,6 @@ void main() {
     expect(runtime.executionContext, isA<IExecutionContext>());
     expect(runtime.permissionChecker, isA<IPermissionChecker>());
     expect(runtime.tenantAccessChecker, isA<ITenantAccessChecker>());
-    expect(runtime.messagingModule.name, 'iam');
     expect(runtime.session.userId, isNull);
 
     final session = await runtime.module.executeQueryAsync(

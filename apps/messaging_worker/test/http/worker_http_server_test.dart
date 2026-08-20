@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:mocktail/mocktail.dart';
 import 'package:messaging_worker/http/worker_http_server.dart';
+import 'package:messaging_worker/iam_messaging_command_factory.dart';
+import 'package:messaging_worker/messaging_module_binding.dart';
 import 'package:messaging_worker/messaging_worker_bootstrap.dart';
 import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:shelf/shelf.dart';
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';
-import 'package:vet45_adapters/vet45_adapters.dart';
+import 'package:vet45_shared_application/application.dart';
 
 class _FakeSupabaseClient extends Fake implements SupabaseClient {}
 
@@ -24,9 +26,16 @@ void main() {
         tenantBatchSize: 20,
         moduleBatchSize: 10,
         maxRoundsPerTick: 5,
+        concurrency: 4,
       ),
       supabaseClient: _FakeSupabaseClient(),
-      iamMessagingModule: _NoopModule(),
+      modules: [
+        MessagingModuleBinding(
+          moduleSchema: 'iam',
+          mediator: _NoopMediator(),
+          commands: const IamMessagingCommandFactory(),
+        ),
+      ],
     );
     loop = MessagingWorkerLoop(
       context: context,
@@ -86,23 +95,22 @@ void main() {
   });
 }
 
-final class _NoopModule implements IMessagingModule {
+final class _NoopMediator implements IModuleMediator {
   @override
-  String get name => 'iam';
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
+    return false as TResult;
+  }
 
   @override
-  Future<MessagingProcessResult> processMessagingOnce({
-    required String tenantId,
-    int batchSize = 10,
-  }) async {
-    return MessagingProcessResult.empty;
-  }
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async =>
+      throw UnimplementedError();
 }
 
 final class _EmptyDiscoveryClient implements ITenantDiscoveryClient {
   @override
-  Future<List<PendingTenant>> listTenantsWithPendingMessaging({
+  Future<List<PendingMessagingWork>> listTenantsWithPendingMessaging({
     required int limit,
+    List<String>? modules,
   }) async {
     return const [];
   }

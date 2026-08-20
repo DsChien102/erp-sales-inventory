@@ -12,6 +12,7 @@ WorkerEnv _config({
     tenantBatchSize: 20,
     moduleBatchSize: 10,
     maxRoundsPerTick: 5,
+    concurrency: 4,
     environment: environment,
     resendFromDomain: resendFromDomain,
   );

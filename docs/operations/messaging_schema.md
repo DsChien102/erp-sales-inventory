@@ -72,7 +72,7 @@ Tất cả RPC worker: `SECURITY DEFINER`, grant `EXECUTE` cho `service_role` on
 | `platform.messaging_module_registry` | Danh sách module đã cài |
 | `platform.install_module_messaging(text)` | DRY installer (whitelist 8 schema) |
 | `platform.messaging_backlog_stats` | View observability (rebuild sau mỗi install) |
-| `platform.list_tenants_with_pending_messaging(int)` | Discovery cho `messaging_worker` |
+| `platform.list_tenants_with_pending_messaging(int, text[])` | Discovery cho `messaging_worker` — `p_modules` lọc module đã bind (draft `001_platform_list_pending_messaging_queues.sql`) |
 
 ## Luồng (tóm tắt)
 
@@ -126,3 +126,4 @@ apps/messaging_worker/scripts/verify_supabase.sh
 - [infrastructure_layer_skill.md](../infrastructure_layer_skill.md) §7
 - [MODULES_IMPLEMENTATION_TEMPLATE.md](../MODULES_IMPLEMENTATION_TEMPLATE.md) §12
 - [integration_event_flow.md](../integration_event_flow.md)
+- [messaging_worker_scaling.md](messaging_worker_scaling.md) — concurrency (P1) và replica shard (P3)
