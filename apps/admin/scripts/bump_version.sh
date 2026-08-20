@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Bump apps/admin version in pubspec.yaml and optionally commit/push for CI/CD.
+# Bump apps/admin version in pubspec.yaml, cut CHANGELOG [Unreleased], and optionally
+# commit/push for CI/CD.
 #
 # Flutter reads version as name+build (e.g. 1.2.1+5):
 #   - name  → iOS CFBundleShortVersionString / Android versionName
@@ -14,11 +15,13 @@
 #   --minor          Bump minor segment (x.y.z → x.(y+1).0)
 #   --major          Bump major segment (x.y.z → (x+1).0.0)
 #   --set VERSION    Set explicit version (e.g. 1.3.0+12)
-#   --commit         Stage pubspec.yaml and create a git commit
+#   --date YYYY-MM-DD  Changelog release date (default: UTC today)
+#   --skip-changelog Do not cut apps/admin/CHANGELOG.md
+#   --commit         Stage pubspec.yaml + CHANGELOG and create a git commit
 #   --push           Push commit to the current branch (implies --commit)
 #   --tag            Create an annotated git tag admin-v<version> (implies --commit)
 #   --ci             Non-interactive CI mode (skip dirty-tree check unless --allow-dirty)
-#   --allow-dirty    Allow uncommitted changes besides pubspec.yaml
+#   --allow-dirty    Allow uncommitted changes besides pubspec.yaml / CHANGELOG
 #   --dry-run        Print the new version without writing files
 #   --output-file F  Write NEW_VERSION=<version> to file (for CI artifacts)
 #
@@ -41,9 +44,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 PUBSPEC="${ROOT}/apps/admin/pubspec.yaml"
+CHANGELOG="${ROOT}/apps/admin/CHANGELOG.md"
+CUT_CHANGELOG="${ROOT}/scripts/release/cut_changelog_unreleased.py"
 
 BUMP_KIND="build"
 EXPLICIT_VERSION=""
+RELEASE_DATE=""
+SKIP_CHANGELOG=false
 DO_COMMIT=false
 DO_PUSH=false
 DO_TAG=false
@@ -53,7 +60,7 @@ DRY_RUN=false
 OUTPUT_FILE=""
 
 usage() {
-  sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 
@@ -68,6 +75,11 @@ while [[ $# -gt 0 ]]; do
       BUMP_KIND="set"
       shift 2
       ;;
+    --date)
+      RELEASE_DATE="$2"
+      shift 2
+      ;;
+    --skip-changelog) SKIP_CHANGELOG=true; shift ;;
     --commit) DO_COMMIT=true; shift ;;
     --push) DO_PUSH=true; DO_COMMIT=true; shift ;;
     --tag) DO_TAG=true; DO_COMMIT=true; shift ;;
@@ -200,6 +212,23 @@ fi
 write_pubspec_version "$new_version"
 echo "Updated ${PUBSPEC}"
 
+if [[ "$SKIP_CHANGELOG" != true ]]; then
+  if [[ ! -f "$CHANGELOG" ]]; then
+    echo "Missing changelog: ${CHANGELOG}" >&2
+    exit 1
+  fi
+  if [[ ! -f "$CUT_CHANGELOG" ]]; then
+    echo "Missing changelog helper: ${CUT_CHANGELOG}" >&2
+    exit 1
+  fi
+  if [[ -n "$RELEASE_DATE" ]]; then
+    python3 "$CUT_CHANGELOG" "$CHANGELOG" "$new_version" "$RELEASE_DATE"
+  else
+    python3 "$CUT_CHANGELOG" "$CHANGELOG" "$new_version"
+  fi
+  echo "Updated ${CHANGELOG}"
+fi
+
 if [[ -n "$OUTPUT_FILE" ]]; then
   printf 'NEW_VERSION=%s\n' "$new_version" > "$OUTPUT_FILE"
   echo "Wrote ${OUTPUT_FILE}"
@@ -215,6 +244,9 @@ if ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 git -C "$ROOT" add apps/admin/pubspec.yaml
+if [[ "$SKIP_CHANGELOG" != true ]]; then
+  git -C "$ROOT" add apps/admin/CHANGELOG.md
+fi
 
 commit_msg="chore(admin): bump version to ${new_version}"
 if [[ "$CI_MODE" == true ]]; then

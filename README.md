@@ -19,6 +19,7 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 vet45/
 ├── apps/
 │   ├── erp/                 # Flutter shell — UI, DI, feature adapters
+│   ├── admin/               # Platform admin Flutter app
 │   └── messaging_worker/    # Server-side integration event worker
 ├── modules/                 # Bounded contexts (domain / application / infrastructure / …)
 │   ├── iam/, catalog/, sales/, partner/, inventory/, …
@@ -111,6 +112,21 @@ cd apps/messaging_worker && dart test
 **AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
 
 Scaffold module mới: `./scripts/scaffold_module.sh`.
+
+## Versioning & changelog (apps)
+
+Chỉ **3 ship units** có version/changelog riêng: `erp`, `admin`, `messaging_worker`. Module/package nội bộ không bump theo release.
+
+```bash
+# Ghi note vào apps/<app>/CHANGELOG.md → ## [Unreleased] khi làm feature
+./apps/erp/scripts/bump_version.sh --patch --dry-run
+./apps/admin/scripts/bump_version.sh --build
+./apps/messaging_worker/scripts/bump_version.sh --minor --commit --tag
+```
+
+Chi tiết: [docs/operations/app_versioning.md](docs/operations/app_versioning.md).
+
+MR template (GitLab): [`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md).
 
 ## Messaging worker (tuỳ chọn)
 

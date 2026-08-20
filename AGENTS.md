@@ -186,6 +186,7 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 ## Liên kết
 
 - [docs/operations/environment-manager.md](docs/operations/environment-manager.md) — Melos env manager (`env:*`, active environment)
+- [docs/operations/app_versioning.md](docs/operations/app_versioning.md) — version + changelog cho `erp` / `admin` / `messaging_worker`
 - [docs/architecture/](docs/architecture/) — kiến trúc platform (CQRS, module layout)
 - [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md) — tiến độ harness
 - [docs/themes/](docs/themes/) — catalog theme

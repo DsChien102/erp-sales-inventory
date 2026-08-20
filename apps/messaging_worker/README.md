@@ -13,6 +13,8 @@ Infra is versioned in [`.railway/railway.ts`](../../.railway/railway.ts) (Railwa
 
 **Runtime env:** edit `.vet45/profiles/<profileId>/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync -- --target worker` (or full `env:sync`). Key deps for the `worker` target are declared in [`vet45.target.json`](vet45.target.json). See [environment-manager.md](../../docs/operations/environment-manager.md).
 
+**Version / changelog:** [`CHANGELOG.md`](CHANGELOG.md) — bump with [`scripts/bump_version.sh`](scripts/bump_version.sh) (see [app_versioning.md](../../docs/operations/app_versioning.md)). Tag: `messaging_worker-vX.Y.Z`.
+
 ## Prerequisites
 
 1. Migration `supabase/migrations/20260621100001_platform_messaging_discovery.sql` applied; expose `platform` schema in Supabase API settings.

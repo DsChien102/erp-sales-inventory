@@ -1,0 +1,47 @@
+---
+description: Always update CHANGELOG of affected shipable apps
+alwaysApply: true
+---
+
+# App changelog (ship units)
+
+Khi implement / sửa code **ảnh hưởng app ship được**, luôn ghi bullet vào `## [Unreleased]` của CHANGELOG app đó **trong cùng thay đổi** (không để sau release).
+
+## Ship units
+
+| App | Changelog | Bump |
+| --- | --------- | ---- |
+| ERP | `apps/erp/CHANGELOG.md` | `./apps/erp/scripts/bump_version.sh` |
+| Admin | `apps/admin/CHANGELOG.md` | `./apps/admin/scripts/bump_version.sh` |
+| Messaging worker | `apps/messaging_worker/CHANGELOG.md` | `./apps/messaging_worker/scripts/bump_version.sh` |
+
+Chi tiết: `docs/operations/app_versioning.md`.
+
+## Map ảnh hưởng → app nào
+
+- Đổi `apps/erp/**` hoặc UX IAM/catalog/… mà ERP ship → **erp**
+- Đổi `apps/admin/**` hoặc UI platform admin → **admin**
+- Đổi `apps/messaging_worker/**`, messaging claim/discovery RPC, worker env → **messaging_worker**
+- Đổi `modules/*` / `packages/*` dùng bởi nhiều app → ghi vào **mọi app bị ảnh hưởng lúc ship** (thường **erp** + **admin** nếu IAM presentation; **worker** nếu outbox/inbox/integration consume)
+- Chỉ docs/tooling/harness không ship → **không** bắt buộc changelog (ghi MR “None”)
+
+## Cách viết
+
+- Sections: `### Added` / `### Changed` / `### Fixed` / `### Internal`
+- User-facing → Added/Changed/Fixed; module/codegen/migration → **Internal** (kèm migration cần promote nếu có)
+- Ngắn, tiếng Việt hoặc EN nhất quán với file hiện có; 1 bullet = 1 ý
+- **Không** bump version / cắt Unreleased trừ khi user yêu cầu release
+
+```markdown
+### Added
+- Chặn login khi không còn membership active.
+
+### Internal
+- IAM: MembershipDeactivated clear last_selected_tenant; requires draft messaging discovery RPC.
+```
+
+## Checklist trước khi kết thúc task
+
+- [ ] Đã xác định app ship bị ảnh hưởng
+- [ ] Đã thêm bullet vào `## [Unreleased]` tương ứng
+- [ ] Không bỏ sót app thứ hai nếu change cross-app

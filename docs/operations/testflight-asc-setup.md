@@ -45,7 +45,14 @@ cp apps/erp/.env.staging.example apps/erp/.env.staging
 ./apps/erp/deploy-ios.sh --env staging
 ```
 
-Tăng build number (`version: x.y.z+N` trong `apps/erp/pubspec.yaml`) mỗi lần upload.
+Tăng build number mỗi lần upload bằng script của app (khuyến nghị):
+
+```bash
+./apps/erp/scripts/bump_version.sh --build
+# kèm commit/tag khi release: --commit --tag
+```
+
+Chi tiết version/changelog: [app_versioning.md](app_versioning.md). Manual: sửa `version: x.y.z+N` trong `apps/erp/pubspec.yaml`.
 
 ## 6. Checklist
 
