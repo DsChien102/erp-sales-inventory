@@ -101,6 +101,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-R02',
@@ -109,6 +110,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O01',
@@ -117,6 +119,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O02',
@@ -125,6 +128,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O03',
@@ -133,6 +137,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O04',
@@ -141,6 +146,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-D01',
@@ -149,6 +155,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen result',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_blocker_result.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-D02',
@@ -157,6 +164,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen result',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_data_blocker_result.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-T01',
@@ -165,6 +173,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/preview_failure_toast.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O05',
@@ -173,6 +182,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/post_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O06',
@@ -181,6 +191,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/post_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-03 — EP-02 / Slice S3

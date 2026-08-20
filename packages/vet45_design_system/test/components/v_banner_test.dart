@@ -90,8 +90,7 @@ void main() {
       );
 
       final titleLeft = tester.getTopLeft(find.text('Tiêu đề')).dx;
-      final descriptionLeft =
-          tester.getTopLeft(find.text('Mô tả thẳng hàng title')).dx;
+      final descriptionLeft = tester.getTopLeft(find.text('Mô tả thẳng hàng title')).dx;
       final footerLeft = tester.getTopLeft(find.text('Footer CTA')).dx;
 
       expect(descriptionLeft, moreOrLessEquals(titleLeft, epsilon: 0.5));
