@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:mocktail/mocktail.dart';
-import 'package:messaging_worker/iam_messaging_command_factory.dart';
-import 'package:messaging_worker/messaging_module_binding.dart';
 import 'package:messaging_worker/messaging_worker_bootstrap.dart';
 import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:messaging_worker/worker_tick_scheduler.dart';

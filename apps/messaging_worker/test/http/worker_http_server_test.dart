@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:mocktail/mocktail.dart';
 import 'package:messaging_worker/http/worker_http_server.dart';
-import 'package:messaging_worker/iam_messaging_command_factory.dart';
-import 'package:messaging_worker/messaging_module_binding.dart';
 import 'package:messaging_worker/messaging_worker_bootstrap.dart';
 import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:shelf/shelf.dart';
@@ -92,6 +90,10 @@ void main() {
     expect(body['errorsCount'], 0);
     expect(body['hadBacklog'], false);
     expect(body['durationMs'], isA<int>());
+    expect(body['event'], 'tick_end');
+    expect(body['tickId'], isA<String>());
+    expect(body['workDiscovered'], 0);
+    expect(body['queuesSucceeded'], 0);
   });
 }
 

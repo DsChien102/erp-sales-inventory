@@ -13,6 +13,8 @@ export 'iam_messaging_command_factory.dart' show IamMessagingCommandFactory;
 export 'messaging_module_binding.dart'
     show IMessagingCommandFactory, MessagingModuleBinding, indexMessagingModuleBindings;
 export 'messaging_worker_loop.dart' show MessagingWorkerLoop;
+export 'messaging_worker_tick_result.dart' show MessagingWorkerTickResult;
+export 'worker_structured_log.dart' show WorkerStructuredLog, createWorkerLogger, createWorkerTickId;
 export 'worker_tick_policy.dart' show WorkerTickPolicy;
 
 /// Bootstrapped worker runtime: Supabase client, shared bus, and module bindings.

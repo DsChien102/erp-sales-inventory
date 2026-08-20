@@ -1,8 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:mocktail/mocktail.dart';
-import 'package:messaging_worker/iam_messaging_command_factory.dart';
-import 'package:messaging_worker/messaging_module_binding.dart';
 import 'package:messaging_worker/messaging_worker_bootstrap.dart';
 import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:supabase/supabase.dart';
@@ -144,7 +143,7 @@ void main() {
 
     test('skips unbound module backlog rows', () async {
       final mediator = _RecordingMediator();
-      final logs = <String>[];
+      final logger = _RecordingLogger();
       final context = await MessagingWorkerBootstrap.bootstrap(
         config: _baseConfig,
         supabaseClient: _FakeSupabaseClient(),
@@ -161,19 +160,24 @@ void main() {
             oldestCreatedAt: DateTime.utc(2026, 1, 1),
           ),
         ]),
-        log: logs.add,
+        logger: logger,
       );
 
       final result = await loop.runOnce();
 
       expect(mediator.commands, isEmpty);
       expect(result.tenantsProcessed, 1);
-      expect(logs.single, contains('tick skip tenant=tenant-1 module=partner'));
+      expect(result.queuesSkipped, 1);
+      expect(result.tickId, isNotEmpty);
+      final skip = logger.infoEvents.singleWhere((e) => e['event'] == 'queue_skip');
+      expect(skip['module'], 'partner');
+      expect(skip['tenantId'], 'tenant-1');
+      expect(skip['tickId'], result.tickId);
     });
 
     test('counts unknown queue types as errors', () async {
       final mediator = _RecordingMediator();
-      final logs = <String>[];
+      final logger = _RecordingLogger();
       final context = await MessagingWorkerBootstrap.bootstrap(
         config: _baseConfig,
         supabaseClient: _FakeSupabaseClient(),
@@ -190,14 +194,64 @@ void main() {
             oldestCreatedAt: DateTime.utc(2026, 1, 1),
           ),
         ]),
-        log: logs.add,
+        logger: logger,
       );
 
       final result = await loop.runOnce();
 
       expect(mediator.commands, isEmpty);
       expect(result.errorsCount, 1);
-      expect(logs.single, contains('tick unknown queue tenant=tenant-1'));
+      expect(result.queuesUnknown, 1);
+      expect(
+        logger.warningEvents.singleWhere((e) => e['event'] == 'queue_unknown')['queue'],
+        'dead_letter',
+      );
+    });
+
+    test('enriches tick summary with queue metrics and correlation id', () async {
+      final mediator = _RecordingMediator();
+      final logger = _RecordingLogger();
+      final context = await MessagingWorkerBootstrap.bootstrap(
+        config: _baseConfig,
+        supabaseClient: _FakeSupabaseClient(),
+        modules: _iamBinding(mediator),
+      );
+      final loop = MessagingWorkerLoop(
+        context: context,
+        discoveryClient: _SingleRoundDiscoveryClient([
+          PendingMessagingWork(
+            tenantId: 'tenant-1',
+            moduleSchema: 'iam',
+            queueType: 'outbox',
+            pendingCount: 2,
+            oldestCreatedAt: DateTime.utc(2026, 1, 1),
+          ),
+          PendingMessagingWork(
+            tenantId: 'tenant-1',
+            moduleSchema: 'iam',
+            queueType: 'inbox',
+            pendingCount: 1,
+            oldestCreatedAt: DateTime.utc(2026, 1, 1, 0, 1),
+          ),
+        ]),
+        logger: logger,
+      );
+
+      final result = await loop.runOnce();
+
+      expect(result.tickId, startsWith('t'));
+      expect(result.workDiscovered, 2);
+      expect(result.partitions, 2);
+      expect(result.queuesSucceeded, 2);
+      expect(result.hadWorkTrue, 2);
+      expect(result.byModule, {'iam': 2});
+      expect(result.byQueue, {'iam.outbox': 1, 'iam.inbox': 1});
+      expect(result.discoveryMs, greaterThanOrEqualTo(0));
+      expect(result.processMs, greaterThanOrEqualTo(0));
+
+      final tickEnd = logger.infoEvents.singleWhere((e) => e['event'] == 'tick_end');
+      expect(tickEnd['tickId'], result.tickId);
+      expect(tickEnd['queuesSucceeded'], 2);
     });
 
     test('processes different partition keys concurrently', () async {
@@ -311,6 +365,33 @@ void main() {
       expect(result.hadBacklog, isTrue);
     });
   });
+}
+
+final class _RecordingLogger implements ILogger {
+  final List<Map<String, dynamic>> fineEvents = <Map<String, dynamic>>[];
+  final List<Map<String, dynamic>> infoEvents = <Map<String, dynamic>>[];
+  final List<Map<String, dynamic>> warningEvents = <Map<String, dynamic>>[];
+  final List<Map<String, dynamic>> severeEvents = <Map<String, dynamic>>[];
+
+  @override
+  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
+    fineEvents.add(jsonDecode(message! as String) as Map<String, dynamic>);
+  }
+
+  @override
+  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
+    infoEvents.add(jsonDecode(message! as String) as Map<String, dynamic>);
+  }
+
+  @override
+  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
+    warningEvents.add(jsonDecode(message! as String) as Map<String, dynamic>);
+  }
+
+  @override
+  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
+    severeEvents.add(jsonDecode(message! as String) as Map<String, dynamic>);
+  }
 }
 
 final class _RecordingMediator implements IModuleMediator {

@@ -40,25 +40,28 @@ Future<void> main(List<String> arguments) async {
   final config = WorkerEnv.fromPlatform();
   configurePackageLogging(level: config.logLevel);
 
-  final workerEnvironment = _resolveWorkerEnvironment(
-    Platform.environment,
-  );
-  stdout.writeln(
-    jsonEncode({
-      'event': 'worker_startup',
-      'environment': workerEnvironment,
-      'mode': runOnce ? 'once' : 'serve',
-      'supabaseHost': Uri.parse(config.supabaseUrl).host,
-      'resendConfigured': config.resendApiKey != null,
-      'appLinkConfigured': config.appLinkBaseUrl != null,
-      'logLevel': config.logLevel.name,
-    }),
-  );
+  final log = WorkerStructuredLog(createWorkerLogger());
+  final workerEnvironment = _resolveWorkerEnvironment(Platform.environment);
 
   final context = await MessagingWorkerBootstrap.bootstrap(
     config: config,
     loggerFactory: const LoggingLoggerFactory(),
   );
+
+  log.info('worker_startup', {
+    'environment': workerEnvironment,
+    'mode': runOnce ? 'once' : 'serve',
+    'supabaseHost': Uri.parse(config.supabaseUrl).host,
+    'resendConfigured': config.resendApiKey != null,
+    'appLinkConfigured': config.appLinkBaseUrl != null,
+    'logLevel': config.logLevel.name,
+    'concurrency': config.concurrency,
+    'tenantBatchSize': config.tenantBatchSize,
+    'moduleBatchSize': config.moduleBatchSize,
+    'maxRoundsPerTick': config.maxRoundsPerTick,
+    'boundModules': context.boundModuleSchemas,
+  });
+
   final loop = MessagingWorkerLoop(context: context);
 
   if (runOnce) {
@@ -72,7 +75,7 @@ Future<void> main(List<String> arguments) async {
       tickSecret: context.config.tickSecret,
     );
     final httpServer = await server.serve(port: port);
-    stdout.writeln('Messaging worker listening on port ${httpServer.port}');
+    log.info('worker_listening', {'port': httpServer.port});
 
     final scheduler = WorkerTickScheduler(
       loop: loop,
@@ -81,17 +84,16 @@ Future<void> main(List<String> arguments) async {
     scheduler.start();
 
     final shutdown = Completer<void>();
-    ProcessSignal.sigterm.watch().listen((_) {
+    void requestShutdown() {
       if (!shutdown.isCompleted) {
         shutdown.complete();
       }
-    });
-    ProcessSignal.sigint.watch().listen((_) {
-      if (!shutdown.isCompleted) {
-        shutdown.complete();
-      }
-    });
+    }
+
+    ProcessSignal.sigterm.watch().listen((_) => requestShutdown());
+    ProcessSignal.sigint.watch().listen((_) => requestShutdown());
     await shutdown.future;
+    log.info('worker_shutdown', {'reason': 'signal'});
     scheduler.stop();
     await httpServer.close(force: true);
   }
