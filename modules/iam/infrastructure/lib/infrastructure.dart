@@ -7,7 +7,6 @@ export 'src/adapters/notification/supabase_email_delivery_port.dart';
 export 'src/configuration/data_access/data_access_module.dart';
 export 'src/configuration/events_bus/events_bus_module.dart';
 export 'src/configuration/events_bus/events_bus_startup.dart';
-export 'src/configuration/iam_messaging_module.dart';
 export 'src/configuration/iam_runtime.dart';
 export 'src/configuration/iam_startup.dart';
 export 'src/configuration/mediation/mediation_module.dart';

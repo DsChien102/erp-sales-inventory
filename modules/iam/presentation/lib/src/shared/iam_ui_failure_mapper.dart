@@ -63,6 +63,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stateChanged,
     IamBlockedCodes.lastOwnerProtected,
     IamBlockedCodes.membershipInactive,
+    IamBlockedCodes.noActiveMembership,
     IamBlockedCodes.membershipRemoved,
     IamBlockedCodes.duplicateMembership,
     IamBlockedCodes.roleNotAssignable,
@@ -98,6 +99,8 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stateChanged: 'Dữ liệu đã thay đổi. Vui lòng tải lại rồi xác nhận lại.',
     IamBlockedCodes.lastOwnerProtected: 'Không thể thực hiện vì đây là chủ sở hữu cuối cùng.',
     IamBlockedCodes.membershipInactive: 'Thành viên đang không hoạt động.',
+    IamBlockedCodes.noActiveMembership:
+        'Tài khoản chưa thuộc tổ chức nào đang hoạt động.',
     IamBlockedCodes.membershipRemoved: 'Thành viên đã bị gỡ khỏi tổ chức.',
     IamBlockedCodes.duplicateMembership: 'Thành viên đã tồn tại trong tổ chức.',
     IamBlockedCodes.roleNotAssignable: 'Vai trò không thể gán.',

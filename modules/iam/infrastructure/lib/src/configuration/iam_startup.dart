@@ -10,7 +10,6 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import 'data_access/data_access_module.dart';
 import 'events_bus/events_bus_module.dart';
 import 'events_bus/events_bus_startup.dart';
-import 'iam_messaging_module.dart';
 import 'iam_runtime.dart';
 import 'mediation/mediation_module.dart';
 import 'outbox/outbox_module.dart';
@@ -70,10 +69,20 @@ abstract final class IamStartup {
   static Future<MessagingProcessResult> processMessagingOnce({
     required String tenantId,
     int batchSize = 10,
-  }) {
-    return IamStartupMessaging.processMessagingOnce(
-      tenantId: tenantId,
-      batchSize: batchSize,
+  }) async {
+    final outbox = await CommandsExecutor.execute(
+      ProcessOutboxCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    final inbox = await CommandsExecutor.execute(
+      ProcessInboxCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    final internal = await CommandsExecutor.execute(
+      ProcessInternalCommandsCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    return MessagingProcessResult(
+      hadOutboxWork: outbox,
+      hadInboxWork: inbox,
+      hadInternalWork: internal,
     );
   }
 
@@ -140,8 +149,6 @@ abstract final class IamStartup {
       );
     }
 
-    const messagingModule = IamMessagingModule();
-
     final module = IamModule(container);
     container.registerSingleton<IIamModule>(module);
 
@@ -151,7 +158,6 @@ abstract final class IamStartup {
       permissionChecker: container.get<IPermissionChecker>(),
       tenantAccessChecker: container.get<ITenantAccessChecker>(),
       session: session,
-      messagingModule: messagingModule,
       sessionPort: container.get<IIamSessionPort>(),
     );
   }
