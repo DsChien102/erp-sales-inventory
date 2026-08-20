@@ -59,4 +59,27 @@ abstract final class OrderEInvoiceCopy {
   // Toast
   static const previewFailureMessage =
       'Không thể tạo bản xem trước. Vui lòng thử lại.';
+
+  // SG-03 — issue confirmation + outcome toasts
+  static const issueConfirmationTitle = 'Phát hành hóa đơn điện tử?';
+  static const issueConfirmationConfirm = 'Phát hành hóa đơn điện tử';
+  static const issueConfirmationCancel = 'Hủy';
+
+  static const issueSuccessMessage =
+      'Phát hành hóa đơn điện tử thành công.';
+  static const issueFailureMessage =
+      'Phát hành hóa đơn điện tử không thành công.';
+
+  static String issueConfirmationSummaryLine1({
+    required String orderReference,
+    required String orderTotal,
+  }) =>
+      'Đơn hàng $orderReference · Tổng tiền $orderTotal';
+
+  static String issueConfirmationSummaryLine2({
+    required String templateNumber,
+    required String templateSymbol,
+    required String authorityMode,
+  }) =>
+      'Mẫu $templateNumber · Ký hiệu $templateSymbol · $authorityMode';
 }

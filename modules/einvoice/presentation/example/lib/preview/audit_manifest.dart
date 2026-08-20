@@ -211,6 +211,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_invoice_confirmation_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-O01-B',
@@ -227,6 +228,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-R02',
@@ -235,6 +237,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row + feedback',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-T01',
@@ -243,6 +246,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_success_toast.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-O02',
@@ -251,6 +255,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_invoice_confirmation_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-R03',
@@ -259,6 +264,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-T02',
@@ -267,6 +273,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_success_toast.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-06 — EP-03 / Slice S4
