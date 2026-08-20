@@ -18,6 +18,27 @@ Ship unit: this worker only. Deploy tags: `messaging_worker-vX.Y.Z`.
 
 ### Internal
 
+## [0.1.1] - 2026-08-20
+
+### Added
+
+- Module binding registry (`MessagingModuleBinding` + `IamMessagingCommandFactory`) — dispatch theo `module_schema` / `queue_type`, không hardcode IAM trong loop.
+- Partition pool concurrency (`WORKER_CONCURRENCY`, default 4) theo key `(tenant, module, queue)`.
+- Discovery RPC `list_tenants_with_pending_messaging(p_limit, p_modules)` — worker chỉ poll module đã bind.
+- Structured JSON logs + tick metrics giàu hơn (`tickId`, `queuesSucceeded`, `byQueue`, `discoveryMs`, …); `WORKER_LOG_LEVEL` điều khiển verbosity.
+
+### Changed
+
+- Bỏ `IMessagingModule` / registry trong `vet45_adapters`; worker gọi trực tiếp `IModuleMediator`.
+- Railway IaC: config chuyển sang `.railway/railway.ts` (TypeScript SDK); cập nhật README / `set_secrets.sh`.
+
+### Internal
+
+- IAM integration events: `MembershipDeactivated`, email delivery payload helpers, generated registry wiring.
+- Docs: architecture messaging P1 + ops `messaging_worker_scaling.md` (P3 replica shard — docs only).
+- Requires promoted messaging discovery migration (`platform_list_pending_messaging_queues` / tương đương).
+- Sample range: commits after `d217f0a` through `fix/theme1` (incl. `e939f308` logging).
+
 ## [0.1.0] - 2026-08-20
 
 ### Internal
