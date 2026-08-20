@@ -7,19 +7,22 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
   const PlatformOnboardingStepOrganization({
     super.key,
     required this.orgNameController,
-    required this.orgDisplayNameController,
+    this.orgDisplayNameController,
     this.orgLegalNameController,
     this.orgTaxCodeController,
+    this.orgRegisteredAddressController,
     required this.orgPhoneController,
     required this.orgEmailController,
     required this.orgAddressController,
     required this.selectedProvince,
     required this.selectedWard,
+    this.selectedEntityType,
     required this.onProvinceChanged,
     required this.onWardChanged,
     required this.onOrgNameChanged,
     this.onOrgEmailChanged,
     this.onOrgPhoneChanged,
+    this.onEntityTypeChanged,
     this.orgNameErrorText,
     this.orgEmailErrorText,
     this.orgPhoneErrorText,
@@ -27,19 +30,22 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
   });
 
   final TextEditingController orgNameController;
-  final TextEditingController orgDisplayNameController;
+  final TextEditingController? orgDisplayNameController;
   final TextEditingController? orgLegalNameController;
   final TextEditingController? orgTaxCodeController;
+  final TextEditingController? orgRegisteredAddressController;
   final TextEditingController orgPhoneController;
   final TextEditingController orgEmailController;
   final TextEditingController orgAddressController;
   final String? selectedProvince;
   final String? selectedWard;
+  final String? selectedEntityType;
   final ValueChanged<String?> onProvinceChanged;
   final ValueChanged<String?> onWardChanged;
   final ValueChanged<String> onOrgNameChanged;
   final ValueChanged<String>? onOrgEmailChanged;
   final ValueChanged<String>? onOrgPhoneChanged;
+  final ValueChanged<String?>? onEntityTypeChanged;
   final String? orgNameErrorText;
   final String? orgEmailErrorText;
   final String? orgPhoneErrorText;
@@ -63,28 +69,11 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           label: 'Tên tổ chức',
           isRequired: true,
           hintText: 'Nhập tên tổ chức (ví dụ: Thú y Minh Phát)',
+          helperText: 'Tên hiển thị',
           errorText: orgNameErrorText,
           onChanged: onOrgNameChanged,
         ),
-        const VGap.sm(),
-        VTextField(
-          controller: orgDisplayNameController,
-          label: 'Tên hiển thị',
-          hintText: 'Nhập tên hiển thị trên ứng dụng',
-        ),
-        const VGap.sm(),
-        VTextField(
-          controller: orgLegalNameController,
-          label: 'Tên pháp lý',
-          hintText: 'Nhập tên pháp lý của tổ chức',
-        ),
-        const VGap.sm(),
-        VTextField(
-          controller: orgTaxCodeController,
-          label: 'Mã số thuế',
-          hintText: 'Nhập mã số thuế',
-        ),
-        const VGap.sm(),
+        const VGap.md(),
         VTextField(
           controller: orgPhoneController,
           label: 'Số điện thoại',
@@ -93,7 +82,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           errorText: orgPhoneErrorText,
           onChanged: onOrgPhoneChanged,
         ),
-        const VGap.sm(),
+        const VGap.md(),
         VTextField(
           controller: orgEmailController,
           label: 'Email liên hệ',
@@ -102,13 +91,13 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           errorText: orgEmailErrorText,
           onChanged: onOrgEmailChanged,
         ),
-        const VGap.sm(),
+        const VGap.md(),
         VTextField(
           controller: orgAddressController,
           label: 'Địa chỉ liên hệ',
           hintText: 'Nhập địa chỉ (ví dụ: 125 Phạm Văn Thuận)',
         ),
-        const VGap.sm(),
+        const VGap.md(),
         FutureBuilder<List<VnAdministrativeUnit>>(
           future: administrativeUnitsFuture ?? VnAdministrativeUnitsLoader.load(),
           builder: (context, snapshot) {
@@ -144,7 +133,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                     onChanged: onProvinceChanged,
                   ),
                 ),
-                const VGap.sm(),
+                const VGap.md(),
                 _SearchDropdownField(
                   label: 'Xã / phường',
                   child: VCombobox<String>(
@@ -165,6 +154,48 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
               ],
             );
           },
+        ),
+        const VGap.md(),
+        _SearchDropdownField(
+          label: 'Loại chủ thể',
+          child: VCombobox<String>(
+            value: selectedEntityType,
+            hintText: 'Chọn loại chủ thể',
+            items: const [
+              DropdownMenuEntry(
+                value: 'HOUSEHOLD_BUSINESS',
+                label: 'Hộ kinh doanh',
+              ),
+              DropdownMenuEntry(
+                value: 'ENTERPRISE',
+                label: 'Doanh nghiệp',
+              ),
+              DropdownMenuEntry(
+                value: 'VETERINARY_CLINIC',
+                label: 'Phòng khám thú y',
+              ),
+            ],
+            onChanged: onEntityTypeChanged,
+          ),
+        ),
+        const VGap.md(),
+        VTextField(
+          controller: orgLegalNameController,
+          label: 'Tên pháp lý',
+          hintText: 'Nhập tên pháp lý của tổ chức',
+        ),
+        const VGap.md(),
+        VTextField(
+          controller: orgTaxCodeController,
+          label: 'Mã số thuế',
+          hintText: 'Nhập mã số thuế',
+          keyboardType: TextInputType.number,
+        ),
+        const VGap.md(),
+        VTextField(
+          controller: orgRegisteredAddressController,
+          label: 'Địa chỉ đăng ký',
+          hintText: 'Nhập địa chỉ đăng ký',
         ),
       ],
     );

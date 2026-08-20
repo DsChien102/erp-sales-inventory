@@ -12,10 +12,10 @@ final class MyIdentityProfileDto {
 
   final String userId;
 
-  /// Họ và tên đệm.
+  /// Tên.
   final String firstName;
 
-  /// Tên.
+  /// Họ và tên đệm.
   final String lastName;
 
   final String email;
@@ -23,7 +23,7 @@ final class MyIdentityProfileDto {
   final String? phoneNumber;
   final String? avatarUrl;
 
-  String get fullName => '$firstName $lastName'.trim();
+  String get fullName => '$lastName $firstName'.trim();
 
   MyIdentityProfileDto copyWith({
     String? userId,

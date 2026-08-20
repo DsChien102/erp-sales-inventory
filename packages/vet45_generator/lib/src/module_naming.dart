@@ -55,6 +55,21 @@ abstract final class ModuleNaming {
   static String internalCommandSerializerFunction(String moduleName) =>
       'createGenerated${toPascalCase(moduleName)}InternalCommandSerializer';
 
+  static String integrationEventRegistryClass(String moduleName) =>
+      '${toPascalCase(moduleName)}IntegrationEventRegistry';
+
+  static String outboxEventSerializerClass(String moduleName) =>
+      '${toPascalCase(moduleName)}OutboxEventSerializer';
+
+  static String integrationEventDispatcherFactoryFunction(String moduleName) =>
+      'createGenerated${toPascalCase(moduleName)}IntegrationEventDispatcher';
+
+  static String outboxModuleFactoryFunction(String moduleName) =>
+      'createGenerated${toPascalCase(moduleName)}OutboxModule';
+
+  static String integrationEventSubscriptionsFunction(String moduleName) =>
+      'registerGenerated${toPascalCase(moduleName)}IntegrationEventSubscriptions';
+
   static String commandRegistrationImport(String moduleName) =>
       '${moduleName}_command_registration.g.dart';
 

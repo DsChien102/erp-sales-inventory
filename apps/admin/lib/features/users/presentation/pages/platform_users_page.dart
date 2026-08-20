@@ -18,12 +18,14 @@ class PlatformUsersPage extends StatelessWidget {
     this.iamModule,
     this.hasError = false,
     this.isUnauthorized = false,
+    this.onUserCountChanged,
   });
 
   /// Optional override for widget / E2E tests. Defaults to GetIt [IIamModule].
   final IIamModule? iamModule;
   final bool hasError;
   final bool isUnauthorized;
+  final ValueChanged<int>? onUserCountChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +46,15 @@ class PlatformUsersPage extends StatelessWidget {
         }
         return cubit;
       },
-      child: const _PlatformUsersView(),
+      child: _PlatformUsersView(onUserCountChanged: onUserCountChanged),
     );
   }
 }
 
 class _PlatformUsersView extends StatefulWidget {
-  const _PlatformUsersView();
+  const _PlatformUsersView({this.onUserCountChanged});
+
+  final ValueChanged<int>? onUserCountChanged;
 
   @override
   State<_PlatformUsersView> createState() => _PlatformUsersViewState();
@@ -94,20 +98,29 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.screenMobile,
-            vertical: VSpacing.space2,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: VSearchBar(
-                  controller: _searchController,
-                  hintText: 'Tìm tên hoặc email',
-                  onChanged: (value) {
+    return BlocListener<PlatformUsersCubit, PlatformUsersState>(
+      listenWhen: (prev, curr) =>
+          prev.users.length != curr.users.length || prev.status != curr.status,
+      listener: (context, state) {
+        if (state.status == IamLoadStatus.success ||
+            state.status == IamLoadStatus.empty) {
+          widget.onUserCountChanged?.call(state.users.length);
+        }
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.screenMobile,
+              vertical: VSpacing.space2,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: VSearchBar(
+                    controller: _searchController,
+                    hintText: 'Tìm tên hoặc email',
+                    onChanged: (value) {
                     _debounceTimer?.cancel();
                     _debounceTimer = Timer(
                       const Duration(milliseconds: 300),
@@ -198,6 +211,7 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
           ),
         ),
       ],
+    ),
     );
   }
 }
@@ -301,6 +315,9 @@ class _PlatformUsersListBody extends StatelessWidget {
               }
               final user = users[index];
               final displayName = _platformUserDisplayName(user);
+              final primaryText =
+                  displayName.isNotEmpty ? displayName : user.email;
+
               return VCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: VSpacing.space4,
@@ -330,13 +347,13 @@ class _PlatformUsersListBody extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           VText(
-                            displayName,
+                            primaryText,
                             variant: VTextVariant.bodyDefault,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           const VGap.xs(),
                           VText(
-                            user.email,
+                            'Người dùng nền tảng',
                             variant: VTextVariant.bodySmall,
                             color: colors.textSecondary,
                           ),

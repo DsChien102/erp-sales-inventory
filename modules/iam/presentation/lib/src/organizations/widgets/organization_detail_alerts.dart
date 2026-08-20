@@ -18,36 +18,53 @@ class OrganizationDetailAlerts extends StatelessWidget {
 
     switch (organization.status) {
       case OrganizationStatus.settingUp:
-        return Column(
-          children: [
-            if (organization.unverifiedEmail) ...[
-              _buildAlertBox(
-                colors: colors,
-                backgroundColor: colors.warningBg,
-                border: null,
-                icon: VIcons.warning,
-                iconColor: colors.warning,
-                titleColor: colors.warning,
-                title: 'Email Chủ sở hữu chưa xác minh',
-                description:
-                    '${organization.ownerName ?? "Chủ sở hữu"} cần xác minh email trước khi kích hoạt tổ chức.',
-              ),
-              const VGap.md(),
+        final alerts = <Widget>[];
+        if (organization.unverifiedEmail) {
+          final ownerDisplayName = organization.ownerName != null &&
+                  organization.ownerName!.isNotEmpty &&
+                  organization.ownerName != 'Chưa xác định'
+              ? organization.ownerName!
+              : 'Chủ sở hữu';
+          alerts.add(
+            _buildAlertBox(
+              colors: colors,
+              backgroundColor: colors.warningBg,
+              border: null,
+              icon: VIcons.warning,
+              iconColor: colors.warning,
+              titleColor: colors.warning,
+              title: 'Email Chủ sở hữu chưa xác minh',
+              description:
+                  '$ownerDisplayName cần xác minh email trước khi kích hoạt tổ chức.',
+            ),
+          );
+        }
+        if (organization.incompleteProfile) {
+          alerts.add(
+            _buildAlertBox(
+              colors: colors,
+              backgroundColor: colors.warningBg,
+              border: null,
+              icon: VIcons.warning,
+              iconColor: colors.warning,
+              titleColor: colors.warning,
+              title: 'Hồ sơ cơ bản chưa hoàn thiện',
+              description: 'Còn thiếu tên liên hệ và địa chỉ liên hệ của tổ chức.',
+            ),
+          );
+        }
+        if (alerts.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: VSpacing.space4),
+          child: Column(
+            children: [
+              for (int i = 0; i < alerts.length; i++) ...[
+                if (i > 0) const VGap.md(),
+                alerts[i],
+              ],
             ],
-            if (organization.incompleteProfile) ...[
-              _buildAlertBox(
-                colors: colors,
-                backgroundColor: colors.warningBg,
-                border: null,
-                icon: VIcons.warning,
-                iconColor: colors.warning,
-                titleColor: colors.warning,
-                title: 'Hồ sơ cơ bản chưa hoàn thiện',
-                description: 'Còn thiếu tên liên hệ và địa chỉ liên hệ của tổ chức.',
-              ),
-              const VGap.md(),
-            ],
-          ],
+          ),
         );
 
       case OrganizationStatus.suspended:

@@ -41,12 +41,18 @@ TenantMemberDetailDto mapTenantMemberDetail(Map<String, dynamic> row) {
     membershipId: row['membership_id'] as String,
     tenantId: row['tenant_id'] as String,
     userId: row['user_id'] as String,
+    displayName: row['display_name'] as String?,
+    email: row['email'] as String?,
     role: row['role'] as String,
+    roleLabel: row['role_label'] as String?,
     isOwner: row['is_owner'] as bool? ?? false,
     isSoleOwner: row['is_sole_owner'] as bool? ?? false,
     status: _mapStatus(row['status'] as String?),
     version: (row['version'] as num?)?.toInt() ?? 1,
     joinedAt: DateTime.parse(row['joined_at'] as String),
+    lastActivityAt: row['last_activity_at'] == null
+        ? null
+        : DateTime.parse(row['last_activity_at'] as String),
     statusChangedAt: row['status_changed_at'] == null
         ? null
         : DateTime.parse(row['status_changed_at'] as String),

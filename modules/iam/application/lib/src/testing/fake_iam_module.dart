@@ -51,6 +51,7 @@ import '../identity/commands/verify_password_reset_by_email/verify_password_rese
 import '../identity/queries/get_my_identity_profile/get_my_identity_profile_query.dart';
 import '../identity/shared/my_identity_profile_dto.dart';
 import '../tenant/commands/activate_tenant/activate_tenant_command.dart';
+import '../tenant/commands/assign_member_role/assign_member_role_command.dart';
 import '../tenant/commands/deactivate_membership/deactivate_membership_command.dart';
 import '../tenant/queries/get_tenant/get_tenant_query.dart';
 import '../tenant/queries/get_tenant_audit_log/get_tenant_audit_log_query.dart';
@@ -287,12 +288,15 @@ final class FakeIamModule implements IIamModule {
         ownerUserId: 'lan-le',
         ownerName: 'Lê Thị Lan',
         ownerEmail: 'lan@gmail.com',
+        ownerRoleLabel: 'Chủ sở hữu',
+        unverifiedEmail: true,
+        incompleteProfile: true,
         members: const [
           PlatformTenantMemberDto(
             userId: 'lan-le',
             fullName: 'Lê Thị Lan',
             email: 'lan@gmail.com',
-            roleLabel: 'Chủ cửa hàng',
+            roleLabel: 'Chủ sở hữu',
             isOwner: true,
           ),
         ],
@@ -442,41 +446,56 @@ final class FakeIamModule implements IIamModule {
         membershipId: 'mem-owner-1',
         tenantId: 'org-001',
         userId: 'lan-le',
-        role: 'store_owner',
+        displayName: 'Lan Le',
+        email: 'lan@gmail.com',
+        role: 'owner',
+        roleLabel: 'Chủ cửa hàng',
         isOwner: true,
         isSoleOwner: true,
         status: MembershipStatus.active,
         version: 1,
         joinedAt: DateTime(2026, 1, 1),
+        lastActivityAt: DateTime(2026, 7, 14, 9, 18),
       ),
       TenantMemberDetailDto(
         membershipId: 'mem-staff-1',
         tenantId: 'org-001',
         userId: 'hoa-tran',
+        displayName: 'Hoa Tran',
+        email: 'hoa@example.com',
         role: 'staff',
+        roleLabel: 'Nhân viên bán hàng',
         isOwner: false,
         isSoleOwner: false,
         status: MembershipStatus.active,
         version: 1,
         joinedAt: DateTime(2026, 2, 1),
+        lastActivityAt: DateTime(2026, 7, 14, 9, 18),
       ),
       TenantMemberDetailDto(
         membershipId: 'mem-inactive-1',
         tenantId: 'org-001',
         userId: 'minh-nguyen',
+        displayName: 'Minh Nguyen',
+        email: 'minh@example.com',
         role: 'staff',
+        roleLabel: 'Nhân viên bán hàng',
         isOwner: false,
         isSoleOwner: false,
         status: MembershipStatus.inactive,
         version: 2,
         joinedAt: DateTime(2026, 3, 1),
+        lastActivityAt: DateTime(2026, 3, 15, 10, 0),
         statusChangedAt: DateTime(2026, 3, 15),
       ),
       TenantMemberDetailDto(
         membershipId: 'mem-removed-1',
         tenantId: 'org-001',
         userId: 'old-user',
+        displayName: 'Old User',
+        email: 'old@example.com',
         role: 'staff',
+        roleLabel: 'Nhân viên bán hàng',
         isOwner: false,
         isSoleOwner: false,
         status: MembershipStatus.removed,
@@ -661,6 +680,7 @@ final class FakeIamModule implements IIamModule {
       name: 'Vet45 Provisioning',
       roleLabel: 'Chủ cửa hàng',
       status: TenantLifecycleStatus.provisioning,
+      isOwner: true,
     );
     const closed = AccessibleTenantDto(
       tenantId: 'org-004',
@@ -759,20 +779,17 @@ final class FakeIamModule implements IIamModule {
       ResendMyPasswordResetCommand c => _handleResendMyPasswordReset<TResult>(c),
       VerifyMyPasswordResetCommand c => _handleVerifyMyPasswordReset<TResult>(c),
       CompleteMyPasswordResetCommand c => _handleCompleteMyPasswordReset<TResult>(c),
-      RequestPasswordResetByEmailCommand c =>
-        _handleRequestPasswordResetByEmail<TResult>(c),
-      ResendPasswordResetByEmailCommand c =>
-        _handleResendPasswordResetByEmail<TResult>(c),
-      VerifyPasswordResetByEmailCommand c =>
-        _handleVerifyPasswordResetByEmail<TResult>(c),
-      CompletePasswordResetByEmailCommand c =>
-        _handleCompletePasswordResetByEmail<TResult>(c),
+      RequestPasswordResetByEmailCommand c => _handleRequestPasswordResetByEmail<TResult>(c),
+      ResendPasswordResetByEmailCommand c => _handleResendPasswordResetByEmail<TResult>(c),
+      VerifyPasswordResetByEmailCommand c => _handleVerifyPasswordResetByEmail<TResult>(c),
+      CompletePasswordResetByEmailCommand c => _handleCompletePasswordResetByEmail<TResult>(c),
       DeactivateMembershipCommand c => _handleDeactivateMembership<TResult>(c),
       ReactivateMembershipCommand c => _handleReactivateMembership<TResult>(c),
       RemoveMembershipCommand c => _handleRemoveMembership<TResult>(c),
       UpdateTenantProfileCommand c => _handleUpdateTenantProfile<TResult>(c),
       UpsertLegalProfileCommand c => _handleUpsertLegalProfile<TResult>(c),
       ActivateTenantCommand c => _handleActivateTenant<TResult>(c),
+      AssignMemberRoleCommand c => _handleAssignMemberRole<TResult>(c),
       CreateInvitationCommand c => _handleCreateInvitation<TResult>(c),
       ResendInvitationCommand c => _handleResendInvitation<TResult>(c),
       RevokeInvitationCommand c => _handleRevokeInvitation<TResult>(c),
@@ -989,9 +1006,7 @@ final class FakeIamModule implements IIamModule {
     }
     if (scenario == FakeIamScenario.suspendStaleVersion ||
         _users[index].version != command.expectedVersion) {
-      if (scenario == FakeIamScenario.suspendStaleVersion) {
-        throw const IamBlockedException(IamBlockedCodes.stateChanged);
-      }
+      throw const IamBlockedException(IamBlockedCodes.stateChanged);
     }
     final user = _users[index];
     _users[index] = PlatformUserDetailDto(
@@ -1524,6 +1539,46 @@ final class FakeIamModule implements IIamModule {
     );
     _memberships[index] = updated;
     return Future.value(updated as TResult);
+  }
+
+  Future<TResult> _handleAssignMemberRole<TResult>(
+    AssignMemberRoleCommand command,
+  ) {
+    if (scenario == FakeIamScenario.memberForbidden) {
+      throw const IamBlockedException(IamBlockedCodes.permissionDenied);
+    }
+    final index = _memberships.indexWhere(
+      (m) => m.tenantId == command.tenantId && m.userId == command.userId,
+    );
+    if (index != -1) {
+      final current = _memberships[index];
+      final roleLabel = switch (command.role) {
+        'store_owner' => 'Chủ cửa hàng',
+        'staff' => 'Nhân viên bán hàng',
+        'accountant' => 'Kế toán',
+        'warehouse' => 'Thủ kho',
+        _ => command.role,
+      };
+      final updated = TenantMemberDetailDto(
+        membershipId: current.membershipId,
+        tenantId: current.tenantId,
+        userId: current.userId,
+        displayName: current.displayName,
+        email: current.email,
+        role: command.role,
+        roleLabel: roleLabel,
+        isOwner: current.isOwner,
+        isSoleOwner: current.isSoleOwner,
+        status: current.status,
+        version: current.version + 1,
+        joinedAt: current.joinedAt,
+        lastActivityAt: current.lastActivityAt,
+        statusChangedAt: DateTime.now(),
+        removedAt: current.removedAt,
+      );
+      _memberships[index] = updated;
+    }
+    return Future.value(null as TResult);
   }
 
   TenantMemberDetailDto _findMembership(String tenantId, String membershipId) {
@@ -2176,6 +2231,9 @@ final class FakeIamModule implements IIamModule {
       initialRoleLabel: 'Nhân viên bán hàng',
       expiresAt: DateTime.utc(2026, 8, 5),
       accountExists: accountExists,
+      givenName: accountExists ? null : 'Chiến',
+      familyName: accountExists ? null : 'Đỗ Sỹ',
+      phone: accountExists ? null : '0901234567',
     );
   }
 
@@ -2468,8 +2526,7 @@ final class FakeIamModule implements IIamModule {
   Future<TResult> _handleCompletePasswordResetByEmail<TResult>(
     CompletePasswordResetByEmailCommand command,
   ) {
-    if (!_passwordResetVerified ||
-        _passwordResetOperationId != command.operationId) {
+    if (!_passwordResetVerified || _passwordResetOperationId != command.operationId) {
       throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
     }
     if (!PasswordPolicy.isValid(command.newPassword)) {
@@ -2643,9 +2700,7 @@ final class FakeIamModule implements IIamModule {
         );
       }
 
-      final match = _accessibleTenants
-          .where((t) => t.tenantId == bootstrapTenantId)
-          .firstOrNull;
+      final match = _accessibleTenants.where((t) => t.tenantId == bootstrapTenantId).firstOrNull;
       if (match == null ||
           match.status == TenantLifecycleStatus.suspended ||
           match.status == TenantLifecycleStatus.closed) {

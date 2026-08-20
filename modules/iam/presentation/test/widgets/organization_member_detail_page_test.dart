@@ -32,7 +32,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('wgt_e03_u05_fr01_01: loads member by id and shows lifecycle actions without role change',
+  testWidgets('wgt_e03_u05_fr01_01: loads member by id and shows lifecycle actions including role change',
       (tester) async {
     await pumpPage(
       tester,
@@ -40,16 +40,31 @@ void main() {
     );
 
     expect(find.text('Chi tiết thành viên'), findsOneWidget);
-    expect(find.text('hoa-tran'), findsWidgets);
+    expect(find.text('Hoa Tran'), findsWidgets);
     expect(find.text('Thao tác'), findsOneWidget);
 
     await tester.tap(find.text('Thao tác'));
     await tester.pumpAndSettle();
 
     expect(find.text('Thao tác thành viên'), findsOneWidget);
+    expect(find.text('Thay đổi vai trò'), findsOneWidget);
     expect(find.text('Tạm ngừng thành viên'), findsOneWidget);
     expect(find.text('Loại khỏi tổ chức'), findsOneWidget);
-    expect(find.text('Thay đổi vai trò'), findsNothing);
+  });
+
+  testWidgets('tapping Thay đổi vai trò opens select role page', (tester) async {
+    await pumpPage(
+      tester,
+      scenario: FakeIamScenario.memberDeactivateOk,
+    );
+
+    await tester.tap(find.text('Thao tác'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thay đổi vai trò'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chọn vai trò mới'), findsOneWidget);
   });
 
   testWidgets('removed member is read-only without action buttons', (tester) async {
@@ -114,6 +129,54 @@ void main() {
     expect(module.commandsOf<DeactivateMembershipCommand>(), hasLength(1));
     expect(cubit.state.member?.status, MembershipStatus.inactive);
     expect(find.text('Quyền truy cập đã tạm ngừng'), findsOneWidget);
+    await cubit.close();
+  });
+
+  testWidgets('selecting new role and tapping Tiếp tục changes role immediately', (tester) async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.memberDeactivateOk),
+    );
+    final cubit = OrganizationMemberDetailCubit(
+      membershipId: 'mem-staff-1',
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+    );
+    await cubit.load();
+
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationMemberDetailPage(
+          membershipId: 'mem-staff-1',
+          cubit: cubit,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thao tác'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thay đổi vai trò'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chọn vai trò mới'), findsOneWidget);
+
+    // Tap on Kế toán option
+    await tester.tap(find.text('Kế toán'));
+    await tester.pumpAndSettle();
+
+    // Tap on Tiếp tục
+    await tester.tap(find.text('Tiếp tục'));
+    await tester.pumpAndSettle();
+
+    expect(module.commandsOf<AssignMemberRoleCommand>(), hasLength(1));
+    expect(module.commandsOf<AssignMemberRoleCommand>().first.role, 'accountant');
+    expect(find.text('Đã thay đổi vai trò thành công.'), findsOneWidget);
     await cubit.close();
   });
 }

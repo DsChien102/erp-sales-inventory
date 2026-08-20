@@ -167,6 +167,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
     String? ownerGivenName,
@@ -188,6 +189,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
           'p_org_commune_code': communeCode,
           'p_org_legal_name': legalName,
           'p_org_tax_code': taxCode,
+          'p_org_registered_address_text': registeredAddressText,
           'p_idempotency_key': idempotencyKey,
           'p_correlation_id': correlationId,
           'p_is_new_user': isNewUser,
@@ -546,17 +548,24 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       membersByUserId.putIfAbsent(member.userId, () => member);
     }
     final members = membersByUserId.values.toList(growable: false);
+    final status = _tenantStatusFromSql(json['status'] as String?);
+    final isSettingUp = status == TenantLifecycleStatus.provisioning;
+    final ownerEmail = json['owner_email'] as String?;
+    final ownerEmailVerified = json['owner_email_verified'] as bool? ?? false;
+    final unverifiedEmail = json['unverified_email'] as bool? ?? (isSettingUp && !ownerEmailVerified);
+    final incompleteProfile = json['incomplete_profile'] as bool? ?? isSettingUp;
+
     return PlatformTenantDetailDto(
       tenantId: json['tenant_id'] as String,
       name: json['name'] as String? ?? '',
       code: json['code'] as String? ?? '',
-      status: _tenantStatusFromSql(json['status'] as String?),
+      status: status,
       createdAt: DateTime.parse(json['created_at'] as String),
       version: (json['version'] as num?)?.toInt() ?? 1,
       ownerUserId: json['owner_user_id'] as String?,
       ownerName: json['owner_name'] as String?,
-      ownerEmail: json['owner_email'] as String?,
-      ownerRoleLabel: json['owner_role'] as String? ?? 'Chủ cửa hàng',
+      ownerEmail: ownerEmail,
+      ownerRoleLabel: json['owner_role'] as String? ?? 'Chủ sở hữu',
       activatedAt: _parseDate(json['activated_at']),
       lastActivityAt: _parseDate(json['last_activity_at']),
       suspendedAt: _parseDate(json['suspended_at']),
@@ -566,6 +575,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       closedBy: json['closed_by'] as String?,
       closeReason: json['close_reason'] as String?,
       members: members,
+      unverifiedEmail: unverifiedEmail,
+      incompleteProfile: incompleteProfile,
     );
   }
 

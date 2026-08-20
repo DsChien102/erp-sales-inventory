@@ -8,3 +8,4 @@ export 'package:vet45_shared_infrastructure/infrastructure.dart'
     show IIntegrationEventNotificationHandler, IntegrationEvent;
 
 export 'src/events/email_delivery_requested_integration_event.dart';
+export 'src/events/membership_deactivated_integration_event.dart';

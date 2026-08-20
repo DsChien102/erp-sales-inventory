@@ -1,7 +1,3 @@
-abstract class IntegrationEvent {
-  const IntegrationEvent();
-}
+library;
 
-final class OtherIntegrationEvent extends IntegrationEvent {
-  const OtherIntegrationEvent();
-}
+export 'src/events/other_integration_event.dart';

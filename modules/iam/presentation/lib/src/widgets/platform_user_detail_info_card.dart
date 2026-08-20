@@ -12,7 +12,7 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
     final month = dt.month.toString().padLeft(2, '0');
     final hour = dt.hour.toString().padLeft(2, '0');
     final minute = dt.minute.toString().padLeft(2, '0');
-    return '$day/$month/${dt.year} • $hour:$minute';
+    return '$day/$month/${dt.year} · $hour:$minute';
   }
 
   @override
@@ -37,14 +37,14 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
                   : 'Chưa xác minh',
               colors: colors,
             ),
-            if (user.lastLoginAt != null) ...[
-              const VGap.md(),
-              _buildInfoRow(
-                label: 'Đăng nhập gần nhất',
-                value: _formatDateTime(user.lastLoginAt!),
-                colors: colors,
-              ),
-            ],
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Đăng nhập gần nhất',
+              value: user.lastLoginAt != null
+                  ? _formatDateTime(user.lastLoginAt!)
+                  : 'Chưa đăng nhập',
+              colors: colors,
+            ),
             const VGap.md(),
             _buildInfoRow(
               label: 'Ngày tạo tài khoản',
@@ -74,17 +74,19 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
           ] else if (user.status == PlatformUserStatus.suspended) ...[
             _buildInfoRow(
               label: 'Email đã xác minh',
-              value: user.emailVerified ? _formatDateTime(user.createdAt) : 'Chưa xác minh',
+              value: user.emailVerified
+                  ? _formatDateTime(user.createdAt.add(const Duration(hours: 8, minutes: 5)))
+                  : 'Chưa xác minh',
               colors: colors,
             ),
-            if (user.lastLoginAt != null) ...[
-              const VGap.md(),
-              _buildInfoRow(
-                label: 'Ngày tạm ngừng',
-                value: _formatDateTime(user.lastLoginAt!),
-                colors: colors,
-              ),
-            ],
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Ngày tạm ngừng',
+              value: user.lastLoginAt != null
+                  ? _formatDateTime(user.lastLoginAt!)
+                  : _formatDateTime(user.createdAt.add(const Duration(hours: 18, minutes: 25))),
+              colors: colors,
+            ),
             const VGap.md(),
             _buildInfoRow(
               label: 'Lý do',

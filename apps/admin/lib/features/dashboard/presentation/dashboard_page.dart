@@ -30,6 +30,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   late AdminTab _currentTab;
+  int? _platformUsersCount;
 
   @override
   void initState() {
@@ -60,7 +61,17 @@ class _DashboardPageState extends State<DashboardPage> {
       case AdminTab.home:
         return const AdminOverviewPage();
       case AdminTab.users:
-        return const PlatformUsersPage();
+        return PlatformUsersPage(
+          onUserCountChanged: (count) {
+            if (_platformUsersCount != count) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _platformUsersCount = count);
+                }
+              });
+            }
+          },
+        );
       case AdminTab.organizations:
         return const OrganizationsPage();
       case AdminTab.audit:
@@ -85,7 +96,10 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  String? _getTabSubtitle(AdminTab _) {
+  String? _getTabSubtitle(AdminTab tab) {
+    if (tab == AdminTab.users && _platformUsersCount != null) {
+      return '$_platformUsersCount người dùng';
+    }
     return null;
   }
 

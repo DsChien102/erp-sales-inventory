@@ -46,6 +46,11 @@
       "description": "Max processing rounds inside one worker tick"
     },
     {
+      "name": "WORKER_CONCURRENCY",
+      "default": "4",
+      "description": "Max partition groups processed in parallel per tick"
+    },
+    {
       "name": "WORKER_TICK_ACTIVE_SECONDS",
       "default": "3",
       "description": "Sleep seconds between ticks while work remains"

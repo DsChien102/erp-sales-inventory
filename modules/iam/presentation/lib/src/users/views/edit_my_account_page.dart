@@ -265,7 +265,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
         final profile = state.profile;
         final fullName = profile == null
             ? ''
-            : '${profile.firstName} ${profile.lastName}'.trim();
+            : '${profile.lastName} ${profile.firstName}'.trim();
 
         return _EditFormScaffold(
           fullName: fullName,
@@ -361,7 +361,7 @@ class _EditFormScaffold extends StatelessWidget {
             label: 'Họ và tên đệm',
             isRequired: true,
             hintText: 'Nhập họ và tên đệm',
-            controller: firstNameController,
+            controller: lastNameController,
             onChanged: (_) => onChanged(),
           ),
           const VGap.md(),
@@ -369,7 +369,7 @@ class _EditFormScaffold extends StatelessWidget {
             label: 'Tên',
             isRequired: true,
             hintText: 'Nhập tên',
-            controller: lastNameController,
+            controller: firstNameController,
             onChanged: (_) => onChanged(),
           ),
           const VGap.md(),

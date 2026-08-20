@@ -52,6 +52,11 @@ void main() {
       expect(output, contains('OtherIntegrationEventHandler()'));
       expect(output, contains("import 'package:own_integration_events/integration_events.dart';"));
       expect(output, contains("import 'package:other_integration_events/integration_events.dart';"));
+      expect(output, contains('abstract final class TestIntegrationEventRegistry'));
+      expect(output, contains('abstract final class TestOutboxEventSerializer'));
+      expect(output, contains('createGeneratedTestOutboxModule()'));
+      expect(output, contains('registerGeneratedTestIntegrationEventSubscriptions'));
+      expect(output, contains('OwnIntegrationEvent.fromPayload(payload)'));
     });
 
     test('generates empty dispatcher when no handlers match bucket', () async {

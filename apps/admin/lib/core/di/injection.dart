@@ -25,7 +25,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
     integrationEventBus: getIt<IEventsBus>(),
-    requireTenantSession: false,
   );
 
   getIt

@@ -10,24 +10,27 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import 'data_access/data_access_module.dart';
 import 'events_bus/events_bus_module.dart';
 import 'events_bus/events_bus_startup.dart';
-import 'iam_messaging_module.dart';
 import 'iam_runtime.dart';
 import 'mediation/mediation_module.dart';
 import 'outbox/outbox_module.dart';
 import 'processing/commands_executor.dart';
 import 'processing/generated/iam_access_metadata.g.dart';
+import 'processing/inbox/process_inbox_command.dart';
+import 'processing/internal_commands/process_internal_commands_command.dart';
+import 'processing/outbox/process_outbox_command.dart';
 import 'processing/processing_module.dart';
 import '../iam_module.dart';
 import 'session/iam_session.dart';
 
 /// Composition root entry point for the IAM bounded context.
 abstract final class IamStartup {
+  /// Bootstrap the IAM module. Session restore is intentionally **not** done
+  /// here — callers should invoke [IamRuntime.sessionPort.restoreFromPersistedAuth]
+  /// after DI is complete so host apps control the tenant-bootstrap order.
   static Future<IamRuntime> initialize({
     required SupabaseClient supabase,
     required ILoggerFactory loggerFactory,
     IEventsBus? integrationEventBus,
-    bool restoreSession = true,
-    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final container = GetIt.asNewInstance();
@@ -36,8 +39,6 @@ abstract final class IamStartup {
       supabase,
       loggerFactory,
       integrationEventBus: integrationEventBus,
-      restoreSession: restoreSession,
-      requireTenantSession: requireTenantSession,
       resendClient: resendClient,
     );
   }
@@ -48,7 +49,9 @@ abstract final class IamStartup {
     GetIt? container,
     ILoggerFactory? loggerFactory,
     IEventsBus? integrationEventBus,
-    bool restoreSession = true,
+    /// Legacy: kept for test suites that relied on internal restore.
+    /// Prefer calling [IamRuntime.sessionPort.restoreFromPersistedAuth] instead.
+    bool restoreSession = false,
     bool requireTenantSession = true,
     IResendClient? resendClient,
   }) {
@@ -69,10 +72,20 @@ abstract final class IamStartup {
   static Future<MessagingProcessResult> processMessagingOnce({
     required String tenantId,
     int batchSize = 10,
-  }) {
-    return IamStartupMessaging.processMessagingOnce(
-      tenantId: tenantId,
-      batchSize: batchSize,
+  }) async {
+    final outbox = await CommandsExecutor.execute(
+      ProcessOutboxCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    final inbox = await CommandsExecutor.execute(
+      ProcessInboxCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    final internal = await CommandsExecutor.execute(
+      ProcessInternalCommandsCommand(tenantId: tenantId, batchSize: batchSize),
+    );
+    return MessagingProcessResult(
+      hadOutboxWork: outbox,
+      hadInboxWork: inbox,
+      hadInternalWork: internal,
     );
   }
 
@@ -81,8 +94,8 @@ abstract final class IamStartup {
     SupabaseClient supabase,
     ILoggerFactory loggerFactory, {
     IEventsBus? integrationEventBus,
-    required bool restoreSession,
-    required bool requireTenantSession,
+    bool restoreSession = false,
+    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final commandLogger = loggerFactory.named('iam.commands');
@@ -139,8 +152,6 @@ abstract final class IamStartup {
       );
     }
 
-    const messagingModule = IamMessagingModule();
-
     final module = IamModule(container);
     container.registerSingleton<IIamModule>(module);
 
@@ -150,7 +161,7 @@ abstract final class IamStartup {
       permissionChecker: container.get<IPermissionChecker>(),
       tenantAccessChecker: container.get<ITenantAccessChecker>(),
       session: session,
-      messagingModule: messagingModule,
+      sessionPort: container.get<IIamSessionPort>(),
     );
   }
 }

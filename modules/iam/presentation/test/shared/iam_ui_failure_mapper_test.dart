@@ -107,6 +107,18 @@ void main() {
       expect(failure.retryable, isFalse);
     });
 
+    test('NO_ACTIVE_MEMBERSHIP uses curated login copy', () {
+      final failure = IamUiFailureMapper.from(
+        const IamBlockedException(IamBlockedCodes.noActiveMembership),
+      );
+      expect(failure.code, IamBlockedCodes.noActiveMembership);
+      expect(
+        failure.message,
+        'Tài khoản chưa thuộc tổ chức nào đang hoạt động.',
+      );
+      expect(failure.retryable, isFalse);
+    });
+
     test('unknown error maps to SYSTEM_ERROR', () {
       final failure = IamUiFailureMapper.from(StateError('boom'));
       expect(failure.code, IamBlockedCodes.systemError);

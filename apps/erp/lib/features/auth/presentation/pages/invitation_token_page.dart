@@ -63,6 +63,12 @@ class _InvitationTokenView extends StatelessWidget {
           (prev.failure != next.failure && next.failure != null),
       listener: (context, state) {
         if (state.step == InvitationAcceptanceStep.accepted) {
+          VToast.show(
+            context,
+            title: 'Kích hoạt thành công',
+            message: 'Tài khoản đã được kích hoạt thành công.',
+            type: VToastType.success,
+          );
           context.go('/login');
           return;
         }

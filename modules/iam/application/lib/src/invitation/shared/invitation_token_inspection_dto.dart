@@ -10,6 +10,9 @@ final class InvitationTokenInspectionDto {
     required this.initialRoleLabel,
     required this.expiresAt,
     required this.accountExists,
+    this.givenName,
+    this.familyName,
+    this.phone,
   });
 
   final String tenantId;
@@ -19,4 +22,7 @@ final class InvitationTokenInspectionDto {
   final String initialRoleLabel;
   final DateTime expiresAt;
   final bool accountExists;
+  final String? givenName;
+  final String? familyName;
+  final String? phone;
 }

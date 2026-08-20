@@ -9,10 +9,8 @@ final class AccessibleTenantUiMapper {
     // Base rule: only active tenants are operational/selectable.
     // Owner exception: an owner may enter their own provisioning tenant to
     // complete activation (readiness → "Kích hoạt tổ chức") from within ERP.
-    final isOwner = dto.roleLabel.toLowerCase() == 'owner';
     final isSelectable =
-        dto.isSelectable ||
-        (dto.status == TenantLifecycleStatus.provisioning && isOwner);
+        dto.isSelectable || (dto.status == TenantLifecycleStatus.provisioning && dto.isOwner);
 
     return SelectOrganizationItemUiModel(
       id: dto.tenantId,

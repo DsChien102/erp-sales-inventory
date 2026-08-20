@@ -1,4 +1,3 @@
-import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -12,7 +11,7 @@ final class IamRuntime {
     required this.permissionChecker,
     required this.tenantAccessChecker,
     required this.session,
-    required this.messagingModule,
+    required this.sessionPort,
   });
 
   final IIamModule module;
@@ -20,5 +19,9 @@ final class IamRuntime {
   final IPermissionChecker permissionChecker;
   final ITenantAccessChecker tenantAccessChecker;
   final IamSession session;
-  final IMessagingModule messagingModule;
+
+  /// Exposed so host apps can call [IIamSessionPort.restoreFromPersistedAuth]
+  /// after DI is complete, rather than relying on [IamStartup] to do it
+  /// internally. This keeps session bootstrap outside the module boundary.
+  final IIamSessionPort sessionPort;
 }

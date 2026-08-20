@@ -9,6 +9,7 @@ IamBlockedException mapIamBlockedRpcError(RpcException error) {
     IamBlockedCodes.lastOwnerProtected,
     IamBlockedCodes.stateChanged,
     IamBlockedCodes.membershipInactive,
+    IamBlockedCodes.noActiveMembership,
     IamBlockedCodes.membershipRemoved,
     IamBlockedCodes.duplicateMembership,
     IamBlockedCodes.roleNotAssignable,

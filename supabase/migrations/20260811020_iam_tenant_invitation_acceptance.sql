@@ -294,7 +294,7 @@ begin
       end if;
 
       update iam.memberships
-      set role = 'owner',
+      set role = 'store_owner',
           status = 'active',
           is_owner = true,
           version = version + 1,
@@ -318,7 +318,7 @@ begin
         values (
           v_owner_activation.tenant_id,
           v_caller,
-          'owner',
+          'store_owner',
           'active',
           true,
           1,
@@ -417,8 +417,10 @@ begin
       and m.status = 'active'
       and (m.is_owner is true or m.role = 'owner')
   );
+  -- Ownership is the is_owner flag, not a role: the first active member gets
+  -- the operational default role store_owner (is_owner set from v_should_be_owner).
   v_effective_role := case
-    when v_should_be_owner then 'owner'
+    when v_should_be_owner then 'store_owner'
     else coalesce(v_role.code, 'staff')
   end;
 
@@ -437,7 +439,7 @@ begin
     v_caller,
     v_effective_role,
     'active',
-    v_effective_role = 'owner',
+    v_should_be_owner,
     1,
     v_now,
     v_now

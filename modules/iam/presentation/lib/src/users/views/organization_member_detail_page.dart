@@ -15,6 +15,9 @@ import '../widgets/member_lifecycle_actions.dart';
 import '../widgets/reactivate_membership_bottom_sheet.dart';
 import '../widgets/remove_membership_bottom_sheet.dart';
 
+import '../models/user_ui_model.dart';
+import 'organization_select_role_page.dart';
+
 /// Chi tiết thành viên — loads by [membershipId] via [GetTenantMemberQuery].
 class OrganizationMemberDetailPage extends StatelessWidget {
   const OrganizationMemberDetailPage({
@@ -176,13 +179,30 @@ class _MemberDetailView extends StatelessWidget {
     OrganizationMemberDetailState state,
   ) {
     final cubit = context.read<OrganizationMemberDetailCubit>();
+    final member = MemberUiMapper.fromDetail(state.member!);
     showMemberLifecycleActionsBottomSheet(
       context: context,
       state: state,
+      onChangeRole: () => _openChangeRole(context, member, cubit),
       onDeactivate: () => _confirmDeactivate(context, cubit),
       onReactivate: () => _confirmReactivate(context, cubit),
       onRemove: () => _confirmRemove(context, cubit),
     );
+  }
+
+  Future<void> _openChangeRole(
+    BuildContext context,
+    MemberUiModel member,
+    OrganizationMemberDetailCubit cubit,
+  ) async {
+    final selectedRoleCode = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => OrganizationSelectRolePage(member: member),
+      ),
+    );
+    if (selectedRoleCode != null && context.mounted) {
+      await cubit.changeRole(selectedRoleCode);
+    }
   }
 
   Future<void> _confirmDeactivate(

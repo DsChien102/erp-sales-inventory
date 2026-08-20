@@ -22,12 +22,10 @@ class PlatformUserActionCard extends StatelessWidget {
     final colors = context.vColors;
     final cardBg = isDestructive ? colors.dangerBg : colors.surface;
     final cardBorder = isDestructive
-        ? colors.danger.withValues(alpha: 0.18)
+        ? colors.danger
         : colors.borderDefault;
     final textColor = isDestructive ? colors.danger : colors.textPrimary;
-    final subtitleColor = isDestructive
-        ? colors.danger.withValues(alpha: 0.7)
-        : colors.textSecondary;
+    final subtitleColor = colors.textSecondary;
     final iconColor = isDestructive ? colors.danger : colors.textPrimary;
 
     return Material(

@@ -11,14 +11,6 @@ class PlatformUserMembershipList extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    if (memberships.isEmpty) {
-      return VText(
-        'Chưa tham gia tổ chức nào.',
-        variant: VTextVariant.bodySmall,
-        color: colors.textSecondary,
-      );
-    }
-
     return VCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,6 +21,16 @@ class PlatformUserMembershipList extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const VGap.md(),
+          if (memberships.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+              child: VText(
+                'Chưa tham gia tổ chức nào.',
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+              ),
+            )
+          else
           ...memberships.map((membership) {
             final isLast = memberships.last == membership;
             return Padding(

@@ -82,7 +82,9 @@ Registry deserialize: `IamIntegrationEventRegistry`, tương tự catalog/sales.
 ## Messaging worker
 
 - `apps/messaging_worker` — self-loop tick, service role Supabase
-- Module handlers đăng ký trong worker bootstrap
+- **P1 (triển khai):** module binding registry (`MessagingModuleBinding` + `IMessagingCommandFactory`) và pool song song theo partition key `(tenant_id, module_schema, queue_type)` với `WORKER_CONCURRENCY`
+- Discovery RPC `platform.list_tenants_with_pending_messaging(p_limit, p_modules)` — worker truyền `p_modules` từ danh sách module đã bind
+- **P3 (chưa triển khai):** replica shard theo `hashtext(tenant_id) % replica_count`; xem [operations/messaging_worker_scaling.md](../operations/messaging_worker_scaling.md)
 - **Không** khuyến nghị client POST `/tick` — xem playbook deploy
 
 ## Trạng thái module (2026-07)
@@ -93,7 +95,7 @@ Registry deserialize: `IamIntegrationEventRegistry`, tương tự catalog/sales.
 | **IAM (S-NOTIFY)** | Consume: `ProcessOutbox` → `ProcessInbox` (self-consume) → `ProcessInternalCommands` qua `IamStartup.processMessagingOnce`. Publish: **mutation RPC** `enqueue_outbox_message` (không Dart client). Folder `configuration/processing/{outbox,inbox,internal_commands}`; adapters `src/adapters/notification/` | `IIamOutboxClient` chỉ claim/complete/fail; event `iam.email.delivery_requested` → `SendEmailDeliveryCommand` qua `ICommandScheduler` |
 | Partner (working tree) | Greenfield / reboot TH-03 | Rebuild theo golden khi implement |
 
-Reference code IAM: `EmailDeliveryRequestedIntegrationEvent`, `ICommandScheduler`, `SendEmailDeliveryCommand`, `IamStartup.processMessagingOnce`, `IamRuntime.messagingModule`.
+Reference code IAM: `EmailDeliveryRequestedIntegrationEvent`, `ICommandScheduler`, `SendEmailDeliveryCommand`, `IamStartup.processMessagingOnce`, `IamMessagingCommandFactory` (worker binding).
 
 ## ERP client messaging
 
@@ -115,3 +117,4 @@ Reference code IAM: `EmailDeliveryRequestedIntegrationEvent`, `ICommandScheduler
 - [integration_event_flow.md](../integration_event_flow.md)
 - [messaging_e2e_checklist.md](../messaging_e2e_checklist.md)
 - [operations/messaging_schema.md](../operations/messaging_schema.md) — Postgres migrations + RPC reference
+- [operations/messaging_worker_scaling.md](../operations/messaging_worker_scaling.md) — worker concurrency (P1) và replica shard playbook (P3)

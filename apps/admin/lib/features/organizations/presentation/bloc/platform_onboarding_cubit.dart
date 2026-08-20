@@ -23,12 +23,11 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       ),
     );
     try {
-      final page = await _iamModule
-          .executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
-            SearchPlatformUsersQuery(
-              query: query.trim().isEmpty ? null : query.trim(),
-            ),
-          );
+      final page = await _iamModule.executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
+        SearchPlatformUsersQuery(
+          query: query.trim().isEmpty ? null : query.trim(),
+        ),
+      );
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -61,6 +60,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? registeredAddressText,
   }) async {
     if (isClosed) return null;
     emit(
@@ -71,22 +71,22 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       ),
     );
     try {
-      final result = await _iamModule
-          .executeCommandAsync<TenantOnboardingResultDto>(
-            CreateTenantOnboardingCommand(
-              owner: owner,
-              organizationName: organizationName,
-              organizationDisplayName: organizationDisplayName,
-              contactEmail: contactEmail,
-              contactPhone: contactPhone,
-              contactAddressText: contactAddressText,
-              provinceCode: provinceCode,
-              communeCode: communeCode,
-              legalName: legalName,
-              taxCode: taxCode,
-              idempotencyKey: idempotencyKey,
-            ),
-          );
+      final result = await _iamModule.executeCommandAsync<TenantOnboardingResultDto>(
+        CreateTenantOnboardingCommand(
+          owner: owner,
+          organizationName: organizationName,
+          organizationDisplayName: organizationDisplayName,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          contactAddressText: contactAddressText,
+          provinceCode: provinceCode,
+          communeCode: communeCode,
+          legalName: legalName,
+          taxCode: taxCode,
+          registeredAddressText: registeredAddressText,
+          idempotencyKey: idempotencyKey,
+        ),
+      );
       if (isClosed) return null;
       emit(
         state.copyWith(

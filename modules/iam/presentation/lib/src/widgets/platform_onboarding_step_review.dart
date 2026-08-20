@@ -82,16 +82,16 @@ class PlatformOnboardingStepReview extends StatelessWidget {
         const VGap.md(),
 
         // Organization Info Card
-        VText(
-          'Thông tin tổ chức',
-          variant: VTextVariant.bodyDefault,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const VGap.sm(),
         VCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              VText(
+                'Thông tin tổ chức',
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const VGap.md(),
               _buildReviewRow('Tên tổ chức', orgName.isEmpty ? 'Chưa khai báo' : orgName, colors),
               const VGap.sm(),
               _buildReviewRow('Điện thoại', orgPhone.isEmpty ? 'Chưa khai báo' : orgPhone, colors),
@@ -111,16 +111,16 @@ class PlatformOnboardingStepReview extends StatelessWidget {
         const VGap.md(),
 
         // Legal Info Card
-        VText(
-          'Thông tin pháp lý',
-          variant: VTextVariant.bodyDefault,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const VGap.sm(),
         VCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              VText(
+                'Thông tin pháp lý',
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const VGap.md(),
               _buildReviewRow('Loại chủ thể', 'Chưa khai báo', colors),
               const VGap.sm(),
               _buildReviewRow(

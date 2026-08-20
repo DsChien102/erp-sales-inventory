@@ -13,6 +13,7 @@ final class WorkerEnv {
     required this.tenantBatchSize,
     required this.moduleBatchSize,
     required this.maxRoundsPerTick,
+    required this.concurrency,
     this.environment = 'unknown',
     this.tickActiveSeconds = 3,
     this.tickIdleSeconds = 15,
@@ -29,6 +30,7 @@ final class WorkerEnv {
   final int tenantBatchSize;
   final int moduleBatchSize;
   final int maxRoundsPerTick;
+  final int concurrency;
   final String environment;
   final int tickActiveSeconds;
   final int tickIdleSeconds;
@@ -87,6 +89,11 @@ final class WorkerEnv {
         env['WORKER_MAX_ROUNDS_PER_TICK'],
         defaultValue: 5,
         maxValue: 50,
+      ),
+      concurrency: _parsePositiveInt(
+        env['WORKER_CONCURRENCY'],
+        defaultValue: 4,
+        maxValue: 16,
       ),
       tickActiveSeconds: _parsePositiveInt(
         env['WORKER_TICK_ACTIVE_SECONDS'],

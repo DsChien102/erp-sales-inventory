@@ -25,17 +25,16 @@ class InvitationRegistrationForm extends StatefulWidget {
     required String familyName,
     String? phone,
     required String password,
-  }) onRegister;
+  })
+  onRegister;
   final Future<void> Function() onDecline;
   final VoidCallback? onBack;
 
   @override
-  State<InvitationRegistrationForm> createState() =>
-      _InvitationRegistrationFormState();
+  State<InvitationRegistrationForm> createState() => _InvitationRegistrationFormState();
 }
 
-class _InvitationRegistrationFormState
-    extends State<InvitationRegistrationForm> {
+class _InvitationRegistrationFormState extends State<InvitationRegistrationForm> {
   late final TextEditingController _emailController;
   final _givenNameController = TextEditingController();
   final _familyNameController = TextEditingController();
@@ -54,6 +53,9 @@ class _InvitationRegistrationFormState
     _emailController = TextEditingController(
       text: widget.inspection.inviteeEmail,
     );
+    _givenNameController.text = widget.inspection.givenName ?? '';
+    _familyNameController.text = widget.inspection.familyName ?? '';
+    _phoneController.text = widget.inspection.phone ?? '';
   }
 
   @override
@@ -88,7 +90,8 @@ class _InvitationRegistrationFormState
       _confirmPasswordError = confirmPasswordError;
     });
 
-    final hasError = _givenNameError != null ||
+    final hasError =
+        _givenNameError != null ||
         _familyNameError != null ||
         _passwordError != null ||
         _confirmPasswordError != null;

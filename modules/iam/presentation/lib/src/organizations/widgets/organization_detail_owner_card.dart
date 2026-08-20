@@ -55,7 +55,7 @@ class OrganizationDetailOwnerCard extends StatelessWidget {
                 child: VText(
                   _getOwnerInitials(ownerName),
                   style: VTypography.bodyDefault.copyWith(
-                    color: colors.primary,
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -93,7 +93,9 @@ class OrganizationDetailOwnerCard extends StatelessWidget {
 
               // Owner Role Tag
               VText(
-                organization.ownerRole,
+                organization.ownerRole.toLowerCase() == 'owner' || organization.ownerRole.isEmpty
+                    ? 'Chủ sở hữu'
+                    : organization.ownerRole,
                 style: VTypography.bodySmall.copyWith(
                   color: colors.primary,
                   fontWeight: FontWeight.w500,

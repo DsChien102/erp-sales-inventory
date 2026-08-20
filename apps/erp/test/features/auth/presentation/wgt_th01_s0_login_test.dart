@@ -60,6 +60,23 @@ void main() {
     },
   );
 
+  test(
+    'wgt_th01_s0_login_blocks_when_sign_in_has_no_active_membership',
+    () async {
+      final cubit = LoginCubit(iamModule: _NoActiveMembershipModule());
+
+      await cubit.submit(email: 'lan@example.com', password: 'secret-123');
+
+      expect(cubit.state.status, LoginStatus.failure);
+      expect(cubit.state.failure?.code, IamBlockedCodes.noActiveMembership);
+      expect(
+        cubit.state.failure?.message,
+        'Tài khoản chưa thuộc tổ chức nào đang hoạt động.',
+      );
+      await cubit.close();
+    },
+  );
+
   testWidgets(
     'wgt_th01_s0_login_session_sequence navigates only after authenticated session',
     (tester) async {
@@ -240,6 +257,18 @@ void main() {
       );
     },
   );
+}
+
+final class _NoActiveMembershipModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
+    throw const IamBlockedException(IamBlockedCodes.noActiveMembership);
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    throw StateError('query should not run after sign-in failure');
+  }
 }
 
 final class _UnauthenticatedAfterSignInModule implements IIamModule {

@@ -64,6 +64,7 @@ abstract interface class IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
     String? ownerGivenName,

@@ -99,7 +99,7 @@ void main() {
   });
 
   testWidgets(
-    'review step tells the operator an invitation code will be sent',
+    'review step shows status note and owner details',
     (WidgetTester tester) async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.onboardingNewUserOk,
@@ -123,7 +123,7 @@ void main() {
       await tester.tap(find.text('Tiếp tục'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('mã mời'), findsWidgets);
+      expect(find.textContaining('Đang thiết lập'), findsWidgets);
       expect(find.textContaining('new@example.com'), findsWidgets);
     },
   );
@@ -150,12 +150,12 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).at(0), 'Phong kham moi');
-    await tester.enterText(find.byType(TextField).at(1), 'PK Moi');
-    await tester.enterText(find.byType(TextField).at(2), 'Cong ty PK Moi');
-    await tester.enterText(find.byType(TextField).at(3), '0123456789');
-    await tester.enterText(find.byType(TextField).at(4), '0909123456');
-    await tester.enterText(find.byType(TextField).at(5), 'contact@example.com');
-    await tester.enterText(find.byType(TextField).at(6), '123 Main');
+    await tester.enterText(find.byType(TextField).at(1), '0909123456');
+    await tester.enterText(find.byType(TextField).at(2), 'contact@example.com');
+    await tester.enterText(find.byType(TextField).at(3), '123 Main');
+    await tester.enterText(find.byType(TextField).at(7), 'Cong ty PK Moi');
+    await tester.enterText(find.byType(TextField).at(8), '0123456789');
+    await tester.enterText(find.byType(TextField).at(9), '456 Legal St');
     await tester.tap(find.text('Tiếp tục'));
     await tester.pumpAndSettle();
 
@@ -164,12 +164,12 @@ void main() {
 
     final command = module.commandsOf<CreateTenantOnboardingCommand>().single;
     expect(command.organizationName, 'Phong kham moi');
-    expect(command.organizationDisplayName, 'PK Moi');
-    expect(command.legalName, 'Cong ty PK Moi');
-    expect(command.taxCode, '0123456789');
     expect(command.contactPhone, '0909123456');
     expect(command.contactEmail, 'contact@example.com');
     expect(command.contactAddressText, '123 Main');
+    expect(command.legalName, 'Cong ty PK Moi');
+    expect(command.taxCode, '0123456789');
+    expect(command.registeredAddressText, '456 Legal St');
   });
 
   testWidgets('new owner invalid email is blocked before organization step', (

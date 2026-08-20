@@ -24,6 +24,8 @@ final class PlatformTenantDetailDto {
     this.closedBy,
     this.closeReason,
     this.members = const [],
+    this.unverifiedEmail = false,
+    this.incompleteProfile = false,
   });
 
   final String tenantId;
@@ -45,4 +47,6 @@ final class PlatformTenantDetailDto {
   final String? closedBy;
   final String? closeReason;
   final List<PlatformTenantMemberDto> members;
+  final bool unverifiedEmail;
+  final bool incompleteProfile;
 }

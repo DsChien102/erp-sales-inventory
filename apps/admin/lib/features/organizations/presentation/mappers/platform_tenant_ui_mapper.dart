@@ -29,7 +29,14 @@ abstract final class PlatformTenantUiMapper {
     );
   }
 
+  static String _normalizeRoleLabel(String? roleLabel) {
+    if (roleLabel == null || roleLabel.isEmpty) return 'Chủ sở hữu';
+    if (roleLabel.toLowerCase() == 'owner') return 'Chủ sở hữu';
+    return roleLabel;
+  }
+
   static OrganizationUiModel fromDetail(PlatformTenantDetailDto dto) {
+    final isSettingUp = dto.status == TenantLifecycleStatus.provisioning;
     return OrganizationUiModel(
       id: dto.tenantId,
       name: dto.name,
@@ -38,7 +45,9 @@ abstract final class PlatformTenantUiMapper {
       ownerUserId: dto.ownerUserId,
       ownerName: dto.ownerName,
       ownerEmail: dto.ownerEmail,
-      ownerRole: dto.ownerRoleLabel,
+      ownerRole: _normalizeRoleLabel(dto.ownerRoleLabel),
+      unverifiedEmail: dto.unverifiedEmail || (isSettingUp && (dto.ownerEmail == null || dto.ownerEmail!.isEmpty || dto.ownerUserId == null)),
+      incompleteProfile: dto.incompleteProfile || isSettingUp,
       createdAt: dto.createdAt,
       activatedAt: dto.activatedAt,
       lastActiveAt: dto.lastActivityAt,
@@ -55,7 +64,7 @@ abstract final class PlatformTenantUiMapper {
               id: m.userId,
               name: m.fullName,
               email: m.email,
-              role: m.roleLabel,
+              role: _normalizeRoleLabel(m.roleLabel),
               isOwner: m.isOwner,
             ),
           )

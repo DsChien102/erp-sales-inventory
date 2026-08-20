@@ -21,6 +21,9 @@ void main() {
             'initial_role_label': 'Staff',
             'expires_at': '2026-07-10T00:00:00Z',
             'account_exists': true,
+            'given_name': 'Chiến',
+            'family_name': 'Đỗ Sỹ',
+            'phone': '0901234567',
           },
         );
       final port = _port(supabase);
@@ -30,6 +33,9 @@ void main() {
       expect(supabase.calls.single.params, {'p_token': 'tok-1'});
       expect(inspection.tenantId, 't1');
       expect(inspection.accountExists, isTrue);
+      expect(inspection.givenName, 'Chiến');
+      expect(inspection.familyName, 'Đỗ Sỹ');
+      expect(inspection.phone, '0901234567');
       expect(inspection.expiresAt.toUtc().toIso8601String(), '2026-07-10T00:00:00.000Z');
     });
 
@@ -101,13 +107,13 @@ void main() {
         Future<void> call() {
           return switch (rpc) {
             'accept_invitation' => port.acceptInvitation(
-                token: 't',
-                idempotencyKey: 'k',
-              ),
+              token: 't',
+              idempotencyKey: 'k',
+            ),
             'decline_invitation' => port.declineInvitation(
-                token: 't',
-                idempotencyKey: 'k',
-              ),
+              token: 't',
+              idempotencyKey: 'k',
+            ),
             _ => port.inspectToken('t'),
           };
         }

@@ -105,6 +105,43 @@ final class OrganizationMemberDetailCubit
     );
   }
 
+  Future<void> changeRole(String newRoleCode) async {
+    if (isClosed || state.isSubmitting || !state.canChangeRole) return;
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        activeMutation: MembershipMutation.changeRole,
+        clearFailure: true,
+        clearSuccessMessage: true,
+      ),
+    );
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final member = state.member!;
+      await _iamModule.executeCommandAsync<void>(
+        AssignMemberRoleCommand(
+          tenantId: tenantId,
+          userId: member.userId,
+          role: newRoleCode,
+        ),
+      );
+      final updated = await _fetchDetail();
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          clearMutation: true,
+          status: IamLoadStatus.success,
+          member: updated,
+          successMessage: 'Đã thay đổi vai trò thành công.',
+          clearFailure: true,
+        ),
+      );
+    } catch (error) {
+      await _handleMutationError(error);
+    }
+  }
+
   void clearFeedback() {
     if (isClosed) return;
     emit(

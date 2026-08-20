@@ -116,4 +116,50 @@ void main() {
     expect(cubit.state.memberNextCursor, isNull);
     await cubit.close();
   });
+
+  test('always places owner at the top of the member list', () async {
+    final scripted = _ScriptedIamModule(
+      onCommand: (message) async => throw UnsupportedError(message.runtimeType.toString()),
+      onQuery: (message) async {
+        return CursorPageDto<TenantMemberDto>(
+          items: [
+            TenantMemberDto(
+              membershipId: 'm-regular',
+              userId: 'u-reg',
+              displayName: 'Nguyen Duong',
+              email: 'dn200422@gmail.com',
+              roleId: 'accountant',
+              roleLabel: 'Kế toán',
+              isOwner: false,
+              status: 'active',
+              joinedAt: DateTime.utc(2026, 1, 1),
+              version: 1,
+            ),
+            TenantMemberDto(
+              membershipId: 'm-owner',
+              userId: 'u-owner',
+              displayName: 'Đỗ Sỹ Chiến',
+              email: 'dosychien9@gmail.com',
+              roleId: 'store_owner',
+              roleLabel: 'Chủ cửa hàng',
+              isOwner: true,
+              status: 'active',
+              joinedAt: DateTime.utc(2026, 1, 2),
+              version: 1,
+            ),
+          ],
+        );
+      },
+    );
+    final cubit = OrganizationUsersCubit(
+      iamModule: scripted,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+    );
+    await cubit.loadMembers(reset: true);
+    expect(cubit.state.members.first.id, 'm-owner');
+    expect(cubit.state.members.first.isOwner, isTrue);
+    expect(cubit.state.members.last.id, 'm-regular');
+    await cubit.close();
+  });
 }

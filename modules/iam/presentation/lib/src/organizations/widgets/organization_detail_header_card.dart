@@ -57,7 +57,7 @@ class OrganizationDetailHeaderCard extends StatelessWidget {
                 child: VText(
                   organization.resolvedInitials,
                   style: VTypography.headingH4.copyWith(
-                    color: colors.primary,
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

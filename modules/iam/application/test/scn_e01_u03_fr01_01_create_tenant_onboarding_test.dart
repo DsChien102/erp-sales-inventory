@@ -19,6 +19,7 @@ final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
   String? lastCommuneCode;
   String? lastLegalName;
   String? lastTaxCode;
+  String? lastRegisteredAddressText;
 
   @override
   Future<TenantOnboardingResultDto> createTenantOnboarding({
@@ -33,6 +34,7 @@ final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
     String? ownerGivenName,
@@ -52,6 +54,7 @@ final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
     lastCommuneCode = communeCode;
     lastLegalName = legalName;
     lastTaxCode = taxCode;
+    lastRegisteredAddressText = registeredAddressText;
     final existing = _byKey[idempotencyKey];
     if (existing != null) return existing;
     final result = TenantOnboardingResultDto(
@@ -124,6 +127,7 @@ void main() {
           communeCode: 'Phường Ba Đình',
           legalName: 'Store Legal Co',
           taxCode: '0123456789',
+          registeredAddressText: '456 Legal St',
           idempotencyKey: 'k-profile',
         ),
       );
@@ -136,6 +140,7 @@ void main() {
       expect(gateway.lastCommuneCode, 'Phường Ba Đình');
       expect(gateway.lastLegalName, 'Store Legal Co');
       expect(gateway.lastTaxCode, '0123456789');
+      expect(gateway.lastRegisteredAddressText, '456 Legal St');
     });
 
     test('new owner issues activation without pre-provisioning identity', () async {

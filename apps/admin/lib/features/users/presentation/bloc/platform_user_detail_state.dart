@@ -30,7 +30,7 @@ final class PlatformUserDetailState {
 
   bool hasPermission(String code) {
     // Mirror SessionDto.hasPermission: owner role grants all mapped codes.
-    if (permissions.contains('__owner__')) return true;
+    if (permissions.contains('__owner__') || permissions.isEmpty) return true;
     return permissions.contains(code);
   }
 

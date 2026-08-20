@@ -5,5 +5,9 @@ publish_to: none
 environment:
   sdk: '>=3.11.1 <4.0.0'
 
+dependencies:
+  vet45_shared_infrastructure:
+    path: ../../../../vet45_shared/infrastructure
+
 dev_dependencies:
   vet45_lints: ^1.0.0

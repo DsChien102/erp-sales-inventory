@@ -77,7 +77,7 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       emit(
         state.copyWith(
           memberStatus: IamLoadStatus.success,
-          members: merged,
+          members: _sortMembers(merged),
           memberNextCursor: page.nextCursor,
           clearMemberCursor: page.nextCursor == null,
           clearMemberFailure: true,
@@ -262,6 +262,16 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       if (seen.add(item.id)) result.add(item);
     }
     return result;
+  }
+
+  List<MemberUiModel> _sortMembers(List<MemberUiModel> items) {
+    final list = List<MemberUiModel>.from(items);
+    list.sort((a, b) {
+      if (a.isOwner && !b.isOwner) return -1;
+      if (!a.isOwner && b.isOwner) return 1;
+      return 0;
+    });
+    return list;
   }
 
   List<InvitationUiModel> _dedupeInvitations(List<InvitationUiModel> items) {
