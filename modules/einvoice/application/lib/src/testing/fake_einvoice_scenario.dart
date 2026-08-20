@@ -1,9 +1,12 @@
-/// Named fake scenarios from harness/07-api-contracts.md (77 ids)
-/// plus `configurationLoadFailure` for SG01-S02 frontend preview.
+/// Named fake scenarios from harness/07-api-contracts.md
+/// plus frontend preview scenarios (`configurationLoadFailure`,
+/// `connectionScreenPending`, `connectionScreenError`).
 enum FakeEInvoiceScenario {
   // §S1a
   connectionScreenOk,
   connectionScreenDisconnected,
+  connectionScreenPending,
+  connectionScreenError,
   connectOk,
   connectAuthFailed,
   connectLegalMismatch,
@@ -100,6 +103,8 @@ extension FakeEInvoiceScenarioId on FakeEInvoiceScenario {
   String get scenarioId => switch (this) {
     FakeEInvoiceScenario.connectionScreenOk => 'connection_screen_ok',
     FakeEInvoiceScenario.connectionScreenDisconnected => 'connection_screen_disconnected',
+    FakeEInvoiceScenario.connectionScreenPending => 'connection_screen_pending',
+    FakeEInvoiceScenario.connectionScreenError => 'connection_screen_error',
     FakeEInvoiceScenario.connectOk => 'connect_ok',
     FakeEInvoiceScenario.connectAuthFailed => 'connect_auth_failed',
     FakeEInvoiceScenario.connectLegalMismatch => 'connect_legal_mismatch',

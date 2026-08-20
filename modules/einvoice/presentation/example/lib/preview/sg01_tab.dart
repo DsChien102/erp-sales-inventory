@@ -58,12 +58,26 @@ class EInvoiceSg01Tab extends StatelessWidget {
           ),
         ),
       ),
-      PreviewSection(
-        title: 'SG01-O02 — Thao tác kết nối',
-        description: 'Action sheet · showProviderConnectionActionSheet',
-        child: PreviewActionButton(
-          label: 'Mở thao tác kết nối',
-          onPressed: () => showProviderConnectionActionSheet(context),
+      const PreviewSection(
+        title: 'SG01-D04-C — Kết nối MISA — Đang chờ kết nối',
+        description:
+            'EP-01 / Slice S1 · FakeEInvoiceScenario.connectionScreenPending',
+        child: PreviewEmbedFrame(
+          height: 560,
+          child: _ConnectionPreview(
+            scenario: FakeEInvoiceScenario.connectionScreenPending,
+          ),
+        ),
+      ),
+      const PreviewSection(
+        title: 'SG01-D04-D — Kết nối MISA — Lỗi kết nối',
+        description:
+            'EP-01 / Slice S1 · FakeEInvoiceScenario.connectionScreenError',
+        child: PreviewEmbedFrame(
+          height: 620,
+          child: _ConnectionPreview(
+            scenario: FakeEInvoiceScenario.connectionScreenError,
+          ),
         ),
       ),
       PreviewSection(

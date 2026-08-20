@@ -193,6 +193,20 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
               )
               as TResult,
         );
+      case FakeEInvoiceScenario.connectionScreenPending:
+        return Future.value(
+          FakeEInvoiceFixtures.connectedScreen(
+                status: ProviderConnectionStatus.checkRequired,
+              )
+              as TResult,
+        );
+      case FakeEInvoiceScenario.connectionScreenError:
+        return Future.value(
+          FakeEInvoiceFixtures.connectedScreen(
+                status: ProviderConnectionStatus.reconnectRequired,
+              )
+              as TResult,
+        );
       default:
         return Future.value(FakeEInvoiceFixtures.connectedScreen() as TResult);
     }

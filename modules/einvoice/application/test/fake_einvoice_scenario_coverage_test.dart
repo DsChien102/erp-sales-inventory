@@ -10,6 +10,6 @@ void main() {
         reason: '${scenario.scenarioId} must be handled',
       );
     }
-    expect(FakeEInvoiceScenario.values.length, 78);
+    expect(FakeEInvoiceScenario.values.length, 80);
   });
 }

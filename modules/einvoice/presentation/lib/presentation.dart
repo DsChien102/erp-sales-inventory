@@ -33,7 +33,6 @@ export 'src/widgets/configuration_query_failure_view.dart';
 export 'src/widgets/default_issuance_configuration_view.dart';
 export 'src/widgets/disconnect_provider_sheet.dart';
 export 'src/widgets/einvoice_configuration_overview_view.dart';
-export 'src/widgets/provider_connection_action_sheet.dart';
 export 'src/widgets/provider_connection_view.dart';
 export 'src/widgets/readiness_summary.dart';
 export 'src/widgets/settings_info_row.dart';

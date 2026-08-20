@@ -1,4 +1,4 @@
-/// Single source of truth for TH-08 §6.5 screen/state specimens (38 MVP items).
+/// Single source of truth for TH-08 §6.5 screen/state specimens (39 MVP items).
 abstract final class EInvoiceAuditManifest {
   static const entries = <EInvoiceAuditEntry>[
     // SG-01 — EP-01 / Slice S1
@@ -39,6 +39,24 @@ abstract final class EInvoiceAuditManifest {
       status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
+      specimenId: 'SG01-D04-C',
+      screenGroup: EInvoiceScreenGroup.sg01,
+      title: 'Kết nối MISA — Đang chờ kết nối',
+      surfaceType: 'Full-screen editor',
+      plannedWidgetPath:
+          'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
+    ),
+    EInvoiceAuditEntry(
+      specimenId: 'SG01-D04-D',
+      screenGroup: EInvoiceScreenGroup.sg01,
+      title: 'Kết nối MISA — Lỗi kết nối',
+      surfaceType: 'Full-screen editor',
+      plannedWidgetPath:
+          'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
+    ),
+    EInvoiceAuditEntry(
       specimenId: 'SG01-D05',
       screenGroup: EInvoiceScreenGroup.sg01,
       title: 'Cấu hình phát hành mặc định',
@@ -63,15 +81,6 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/disconnect_provider_sheet.dart',
-      status: AuditStatus.done,
-    ),
-    EInvoiceAuditEntry(
-      specimenId: 'SG01-O02',
-      screenGroup: EInvoiceScreenGroup.sg01,
-      title: 'Thao tác kết nối',
-      surfaceType: 'Action Sheet',
-      plannedWidgetPath:
-          'modules/einvoice/presentation/lib/src/widgets/provider_connection_action_sheet.dart',
       status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(

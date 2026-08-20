@@ -3,6 +3,10 @@ abstract final class EInvoiceDateTimeCopy {
     return 'Kiểm tra gần nhất: ${_hm(value)}, ${_dmy(value)}';
   }
 
+  static String updatedAt(DateTime value) {
+    return 'Cập nhật gần nhất: ${_hm(value)}, ${_dmy(value)}';
+  }
+
   static String _hm(DateTime value) {
     return '${_two(value.hour)}:${_two(value.minute)}';
   }

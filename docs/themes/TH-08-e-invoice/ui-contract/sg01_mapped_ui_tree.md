@@ -81,6 +81,14 @@ planned paths in the E-Invoice Audit Manifest.
   `SG01-D04-B`   Full-screen    Kết nối MISA   App feature    `apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart`
                  editor         --- Đã kết nối page           
 
+  `SG01-D04-C`   Full-screen    Kết nối MISA   App feature    `apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart`
+                 editor         --- Đang chờ   page
+                                kết nối                        
+
+  `SG01-D04-D`   Full-screen    Kết nối MISA   App feature    `apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart`
+                 editor         --- Lỗi kết    page
+                                nối                           
+
   `SG01-D05`     Full-screen    Cấu hình phát  App feature    `apps/erp/lib/features/einvoice/presentation/pages/default_issuance_configuration_page.dart`
                  editor         hành mặc định  page           
 
@@ -89,10 +97,6 @@ planned paths in the E-Invoice Audit Manifest.
 
   `SG01-O01`     Confirmation   Xác nhận ngắt  Module         `modules/einvoice/presentation/lib/src/widgets/disconnect_provider_sheet.dart`
                  sheet          kết nối        reusable       
-                                               widget         
-
-  `SG01-O02`     Action sheet   Thao tác kết   Module         `modules/einvoice/presentation/lib/src/widgets/provider_connection_action_sheet.dart`
-                                nối            reusable       
                                                widget         
 
   `SG01-S01`     State message  Không có quyền Module         `modules/einvoice/presentation/lib/src/widgets/configuration_permission_denied_state.dart`
@@ -107,10 +111,10 @@ planned paths in the E-Invoice Audit Manifest.
 ### Variant rules
 
 -   `SG01-D01` and `SG01-D02` are states of the **same overview page**.
--   `SG01-D04-A` and `SG01-D04-B` are states of the **same provider
-    connection page**.
--   Ready/not-ready and connected/disconnected must not be implemented
-    as duplicate page identities.
+-   `SG01-D04-A`, `SG01-D04-B`, `SG01-D04-C`, and `SG01-D04-D` are
+    states of the **same provider connection page**.
+-   Ready/not-ready and provider connection states must not be
+    implemented as duplicate page identities.
 
 ------------------------------------------------------------------------
 
@@ -137,8 +141,8 @@ Configuration State
 ├── connection
 │   ├── disconnected
 │   ├── connected
-│   ├── recheckRequired
-│   └── reconnectRequired
+│   ├── pending
+│   └── error
 │
 ├── issuanceConfiguration
 │   ├── missing
@@ -259,7 +263,7 @@ Examples:
 
 ------------------------------------------------------------------------
 
-## 5.2 SG01-D04-A / SG01-D04-B --- Provider Connection
+## 5.2 SG01-D04-A / SG01-D04-B / SG01-D04-C / SG01-D04-D --- Provider Connection
 
 **Page**
 
@@ -313,49 +317,87 @@ ProviderConnectionPage
         └── content
             ├── SectionTitle: "Thông tin kết nối"
             ├── ConnectionInfoCard
-            │   ├── InfoRow: Trạng thái → "Đã kết nối"
+            │   ├── InfoRow: Trạng thái → "Đã kết nối" (success semantic)
             │   ├── InfoRow: Nhà cung cấp → "MISA meInvoice"
             │   ├── InfoRow: Tài khoản → safe display account
             │   └── InfoRow: MST đơn vị phát hành → sellerTaxCode
             ├── MetadataText
-            │   └── "Kiểm tra gần nhất: {time}, {date}"
-            └── ActionButton
-                └── "Thao tác"
-```
-
-`Thao tác` opens `SG01-O02`.
-
-------------------------------------------------------------------------
-
-## 5.3 SG01-O02 --- Provider Connection Actions
-
-**Module widget**
-
-``` text
-modules/einvoice/presentation/lib/src/widgets/
-provider_connection_action_sheet.dart
-```
-
-``` text
-ProviderConnectionActionSheet
-└── BottomSheet
-    ├── title: "Kết nối MISA"
-    └── actions
-        ├── Kiểm tra lại kết nối
-        │   └── "Xác minh trạng thái kết nối hiện tại"
-        ├── Kết nối lại
-        │   └── "Thay đổi tài khoản hoặc mật khẩu"
-        └── Ngắt kết nối
-            └── "Không thể phát hành hóa đơn điện tử mới"
+            │   └── "Cập nhật gần nhất: {time}, {date}"
+            └── BottomActions
+                └── "Ngắt kết nối"
 ```
 
 Interaction mapping:
 
 ``` text
-Kiểm tra lại kết nối → recheck action
-Kết nối lại          → D04-A / reconnect mode
-Ngắt kết nối         → O01
+Ngắt kết nối → O01
 ```
+
+### D04-C --- Đang chờ kết nối
+
+``` text
+ProviderConnectionPage
+└── VPageScaffold
+    ├── title: "Kết nối MISA"
+    └── body
+        └── content
+            ├── SectionTitle: "Thông tin kết nối"
+            ├── ConnectionInfoCard
+            │   ├── InfoRow: Trạng thái → "Chờ kết nối" (info semantic)
+            │   ├── InfoRow: Nhà cung cấp → "MISA meInvoice"
+            │   ├── InfoRow: Tài khoản → safe display account
+            │   └── InfoRow: MST đơn vị phát hành → sellerTaxCode
+            ├── VBanner
+            │   ├── status: info
+            │   ├── title: "Đang chờ kết nối"
+            │   └── description:
+            │       "Hệ thống đang tự động hoàn tất kết nối với MISA meInvoice."
+            ├── MetadataText
+            │   └── "Cập nhật gần nhất: {time}, {date}"
+            └── BottomActions
+                └── "Ngắt kết nối"
+```
+
+Interaction mapping:
+
+``` text
+Ngắt kết nối → O01
+```
+
+### D04-D --- Lỗi kết nối
+
+``` text
+ProviderConnectionPage
+└── VPageScaffold
+    ├── title: "Kết nối MISA"
+    └── body
+        └── content
+            ├── SectionTitle: "Thông tin kết nối"
+            ├── ConnectionInfoCard
+            │   ├── InfoRow: Trạng thái → "Lỗi kết nối" (error semantic)
+            │   ├── InfoRow: Nhà cung cấp → "MISA meInvoice"
+            │   ├── InfoRow: Tài khoản → safe display account
+            │   └── InfoRow: MST đơn vị phát hành → sellerTaxCode
+            ├── VBanner
+            │   ├── status: error
+            │   ├── title: "Không thể kết nối với MISA meInvoice"
+            │   └── description:
+            │       "Hãy kết nối lại để hệ thống thử lại bằng thông tin hiện có."
+            ├── MetadataText
+            │   └── "Cập nhật gần nhất: {time}, {date}"
+            └── BottomActions
+                ├── "Ngắt kết nối"
+                └── "Kết nối lại"
+```
+
+Interaction mapping:
+
+``` text
+Ngắt kết nối → O01
+Kết nối lại  → D04-A / reconnect mode
+```
+
+Reconnect mode reuses the D04-A connection form.
 
 ------------------------------------------------------------------------
 
@@ -378,6 +420,14 @@ DisconnectProviderSheet
     └── actions
         ├── "Giữ kết nối"
         └── "Ngắt kết nối"
+```
+
+Entry mapping:
+
+``` text
+D04-B → Ngắt kết nối → O01
+D04-C → Ngắt kết nối → O01
+D04-D → Ngắt kết nối → O01
 ```
 
 Interaction mapping:
@@ -533,7 +583,6 @@ Design System
 
 E-Invoice module presentation
 ├── DisconnectProviderSheet
-├── ProviderConnectionActionSheet
 ├── ConfigurationPermissionDeniedState
 └── ConfigurationLoadErrorState
 
@@ -569,6 +618,8 @@ Existing equivalent widgets take precedence.
   Readiness banner        `VBanner`
   Success semantic        `VBannerStatus.success`
   Warning semantic        `VBannerStatus.warning`
+  Info semantic           `VBannerStatus.info`
+  Error semantic          `VBannerStatus.error`
   Card                    `VCard`
   Icon container          `VIconBox`
   Icon                    `VIcon`
@@ -605,8 +656,8 @@ Ready overview
 
 Provider disconnected
 Provider connected
-Provider recheck required
-Provider reconnect required
+Provider pending
+Provider error
 
 Issuance configuration missing
 Issuance configuration valid
@@ -749,15 +800,16 @@ Overview
 ├── issuance configuration summary
 └── automation summary
 
-SG01-D04-A / D04-B
+SG01-D04-A / D04-B / D04-C / D04-D
 Provider connection
 ├── disconnected form
 ├── connected information
-└── connection actions → O02
-
-SG01-O02
-Provider actions
-└── disconnect → O01
+│   └── disconnect → O01
+├── pending information
+│   └── disconnect → O01
+└── error information
+    ├── reconnect → D04-A / reconnect mode
+    └── disconnect → O01
 
 SG01-O01
 Disconnect confirmation

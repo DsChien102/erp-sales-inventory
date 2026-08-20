@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
 
 import '../bloc/provider_connection_cubit.dart';
 import '../bloc/provider_connection_state.dart';
@@ -10,7 +9,6 @@ import '../support/provider_connection_copy.dart';
 import 'configuration_editor_bottom_bar.dart';
 import 'configuration_query_failure_view.dart';
 import 'disconnect_provider_sheet.dart';
-import 'provider_connection_action_sheet.dart';
 import 'settings_info_row.dart';
 
 class ProviderConnectionView extends StatelessWidget {
@@ -62,8 +60,9 @@ class _ProviderConnectionBody extends StatelessWidget {
         onCancel: onCancel,
       );
     }
-    return _ProviderConnectionConnected(
+    return _ProviderConnectionInfo(
       state: state,
+      kind: state.infoKind ?? ProviderConnectionInfoKind.connected,
     );
   }
 }
@@ -241,74 +240,49 @@ class _ProviderConnectionFormState extends State<_ProviderConnectionForm> {
   }
 }
 
-class _ProviderConnectionConnected extends StatelessWidget {
-  const _ProviderConnectionConnected({required this.state});
+/// D04-B / D04-C / D04-D — connected / pending / error info surfaces.
+class _ProviderConnectionInfo extends StatelessWidget {
+  const _ProviderConnectionInfo({
+    required this.state,
+    required this.kind,
+  });
 
   final ProviderConnectionLoaded state;
+  final ProviderConnectionInfoKind kind;
 
-  Future<void> _openActions(BuildContext context) async {
+  Color? _statusColor(BuildContext context) {
+    final colors = context.vColors;
+    return switch (kind) {
+      ProviderConnectionInfoKind.connected => colors.success,
+      ProviderConnectionInfoKind.pending => colors.info,
+      ProviderConnectionInfoKind.error => colors.danger,
+    };
+  }
+
+  Future<void> _disconnect(BuildContext context) async {
     final cubit = context.read<ProviderConnectionCubit>();
-    final action = await showProviderConnectionActionSheet(context);
-    if (!context.mounted || action == null) {
+    final confirmed = await showDisconnectProviderSheet(context);
+    if (!confirmed || !context.mounted) {
       return;
     }
-    switch (action) {
-      case ProviderConnectionAction.recheck:
-        final result = await cubit.recheck();
-        if (!context.mounted) {
-          return;
-        }
-        switch (result) {
-          case ProviderConnectionSubmitResult.verified:
-            VToast.show(
-              context,
-              title: ProviderConnectionCopy.recheckSuccessTitle,
-              message: ProviderConnectionCopy.recheckSuccessMessage,
-              type: VToastType.success,
-            );
-          case ProviderConnectionSubmitResult.unavailable:
-            VToast.show(
-              context,
-              title: ProviderConnectionCopy.unavailableTitle,
-              message: ProviderConnectionCopy.unavailableMessage,
-              type: VToastType.danger,
-            );
-          case ProviderConnectionSubmitResult.failed:
-            VToast.show(
-              context,
-              title: ProviderConnectionCopy.genericErrorTitle,
-              message: ProviderConnectionCopy.genericErrorMessage,
-              type: VToastType.danger,
-            );
-          default:
-            break;
-        }
-      case ProviderConnectionAction.reconnect:
-        cubit.enterReconnectMode();
-      case ProviderConnectionAction.disconnect:
-        final confirmed = await showDisconnectProviderSheet(context);
-        if (!confirmed || !context.mounted) {
-          return;
-        }
-        final result = await cubit.disconnect();
-        if (!context.mounted) {
-          return;
-        }
-        if (result == ProviderConnectionSubmitResult.disconnected) {
-          VToast.show(
-            context,
-            title: ProviderConnectionCopy.disconnectSuccessTitle,
-            message: ProviderConnectionCopy.disconnectSuccessMessage,
-            type: VToastType.success,
-          );
-        } else if (result == ProviderConnectionSubmitResult.failed) {
-          VToast.show(
-            context,
-            title: ProviderConnectionCopy.genericErrorTitle,
-            message: ProviderConnectionCopy.genericErrorMessage,
-            type: VToastType.danger,
-          );
-        }
+    final result = await cubit.disconnect();
+    if (!context.mounted) {
+      return;
+    }
+    if (result == ProviderConnectionSubmitResult.disconnected) {
+      VToast.show(
+        context,
+        title: ProviderConnectionCopy.disconnectSuccessTitle,
+        message: ProviderConnectionCopy.disconnectSuccessMessage,
+        type: VToastType.success,
+      );
+    } else if (result == ProviderConnectionSubmitResult.failed) {
+      VToast.show(
+        context,
+        title: ProviderConnectionCopy.genericErrorTitle,
+        message: ProviderConnectionCopy.genericErrorMessage,
+        type: VToastType.danger,
+      );
     }
   }
 
@@ -317,6 +291,7 @@ class _ProviderConnectionConnected extends StatelessWidget {
     final colors = context.vColors;
     final connection = state.screen.connection;
     final lastChecked = connection.lastCheckedAt;
+    final showReconnect = kind == ProviderConnectionInfoKind.error;
 
     return Column(
       children: [
@@ -333,7 +308,11 @@ class _ProviderConnectionConnected extends StatelessWidget {
                 ),
                 const VGap.md(),
                 VCard(
-                  key: const Key('wgt_e01_u01_fr02_01'),
+                  key: Key(
+                    kind == ProviderConnectionInfoKind.connected
+                        ? 'wgt_e01_u01_fr02_01'
+                        : 'wgt_e01_u01_fr02_${kind.name}',
+                  ),
                   padding: const EdgeInsets.all(VSpacing.space4),
                   child: Column(
                     children: [
@@ -342,10 +321,7 @@ class _ProviderConnectionConnected extends StatelessWidget {
                         value: ProviderConnectionCopy.statusValue(
                           connection.status,
                         ),
-                        valueColor:
-                            connection.status == ProviderConnectionStatus.connected
-                            ? colors.success
-                            : null,
+                        valueColor: _statusColor(context),
                       ),
                       const SettingsInfoRow(
                         label: ProviderConnectionCopy.providerLabel,
@@ -362,10 +338,26 @@ class _ProviderConnectionConnected extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (kind == ProviderConnectionInfoKind.pending) ...[
+                  const VGap.md(),
+                  const VBanner(
+                    status: VBannerStatus.info,
+                    title: ProviderConnectionCopy.pendingBannerTitle,
+                    description: ProviderConnectionCopy.pendingBannerDescription,
+                  ),
+                ],
+                if (kind == ProviderConnectionInfoKind.error) ...[
+                  const VGap.md(),
+                  const VBanner(
+                    status: VBannerStatus.error,
+                    title: ProviderConnectionCopy.errorBannerTitle,
+                    description: ProviderConnectionCopy.errorBannerDescription,
+                  ),
+                ],
                 if (lastChecked != null) ...[
                   const VGap.md(),
                   VText(
-                    EInvoiceDateTimeCopy.checkedAt(lastChecked),
+                    EInvoiceDateTimeCopy.updatedAt(lastChecked),
                     variant: VTextVariant.bodySmall,
                     color: colors.textSecondary,
                   ),
@@ -385,16 +377,44 @@ class _ProviderConnectionConnected extends StatelessWidget {
           ),
           child: SafeArea(
             top: false,
-            child: VButton(
-              key: const Key('provider_connection_actions'),
-              label: ProviderConnectionCopy.actionsLabel,
-              trailingIcon: VIcon(
-                icon: VIcons.chevronUp,
-                size: 20,
-                color: colors.textInverse,
-              ),
-              onPressed: state.isSubmitting ? null : () => _openActions(context),
-            ),
+            child: showReconnect
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: VButton(
+                          key: const Key('provider_connection_disconnect'),
+                          label: ProviderConnectionCopy.disconnectLabel,
+                          variant: VButtonVariant.secondary,
+                          tone: VComponentTone.danger,
+                          onPressed: state.isSubmitting
+                              ? null
+                              : () => _disconnect(context),
+                        ),
+                      ),
+                      const VGap.horizontalMd(),
+                      Expanded(
+                        child: VButton(
+                          key: const Key('provider_connection_reconnect'),
+                          label: ProviderConnectionCopy.reconnectSubmitLabel,
+                          onPressed: state.isSubmitting
+                              ? null
+                              : () => context
+                                  .read<ProviderConnectionCubit>()
+                                  .enterReconnectMode(),
+                        ),
+                      ),
+                    ],
+                  )
+                : VButton(
+                    key: const Key('provider_connection_disconnect'),
+                    label: ProviderConnectionCopy.disconnectLabel,
+                    variant: VButtonVariant.secondary,
+                    tone: VComponentTone.danger,
+                    fullWidth: true,
+                    onPressed: state.isSubmitting
+                        ? null
+                        : () => _disconnect(context),
+                  ),
           ),
         ),
       ],

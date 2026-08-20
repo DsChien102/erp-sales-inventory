@@ -58,20 +58,15 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(
-        find.text(
-          'Thông tin xác thực được lưu mã hóa. Mật khẩu không được hiển thị lại sau khi lưu.',
-        ),
-        findsNothing,
-      );
       expect(find.text('Hủy'), findsOneWidget);
       expect(find.text('Kết nối'), findsOneWidget);
       expect(find.text('App ID'), findsNothing);
+      expect(find.text('Thao tác'), findsNothing);
     },
   );
 
   testWidgets(
-    'wgt_e01_u01_fr02_01: D04-B shows connected info and Thao tác',
+    'wgt_e01_u01_fr02_01: D04-B shows connected info and Ngắt kết nối',
     (tester) async {
       await pumpConnection(
         tester,
@@ -83,8 +78,74 @@ void main() {
       expect(find.text('MISA meInvoice'), findsOneWidget);
       expect(find.text('ketoan@anphu.vn'), findsOneWidget);
       expect(find.text('0101234567'), findsOneWidget);
-      expect(find.text('Kiểm tra gần nhất: 10:40, 05/08/2026'), findsOneWidget);
-      expect(find.text('Thao tác'), findsOneWidget);
+      expect(find.text('Cập nhật gần nhất: 10:40, 05/08/2026'), findsOneWidget);
+      expect(find.text('Ngắt kết nối'), findsOneWidget);
+      expect(find.text('Thao tác'), findsNothing);
+      expect(find.text('Kết nối lại'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'D04-C shows pending status, info banner, and Ngắt kết nối',
+    (tester) async {
+      await pumpConnection(
+        tester,
+        scenario: FakeEInvoiceScenario.connectionScreenPending,
+      );
+
+      expect(find.text('Chờ kết nối'), findsOneWidget);
+      expect(find.text('Đang chờ kết nối'), findsOneWidget);
+      expect(
+        find.text(
+          'Hệ thống đang tự động hoàn tất kết nối với MISA meInvoice.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Ngắt kết nối'), findsOneWidget);
+      expect(find.text('Kết nối lại'), findsNothing);
+      expect(find.text('Thao tác'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'D04-D shows error status, error banner, disconnect and reconnect',
+    (tester) async {
+      await pumpConnection(
+        tester,
+        scenario: FakeEInvoiceScenario.connectionScreenError,
+      );
+
+      expect(find.text('Lỗi kết nối'), findsOneWidget);
+      expect(find.text('Không thể kết nối với MISA meInvoice'), findsOneWidget);
+      expect(
+        find.text(
+          'Hãy kết nối lại để hệ thống thử lại bằng thông tin hiện có.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Ngắt kết nối'), findsOneWidget);
+      expect(find.text('Kết nối lại'), findsOneWidget);
+      expect(find.text('Thao tác'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'D04-D Kết nối lại enters reconnect form (D04-A mode)',
+    (tester) async {
+      await pumpConnection(
+        tester,
+        scenario: FakeEInvoiceScenario.connectionScreenError,
+      );
+
+      await tester.tap(find.byKey(const Key('provider_connection_reconnect')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('wgt_e01_u01_fr03_01')), findsOneWidget);
+      expect(find.text('Kết nối lại'), findsOneWidget);
+      expect(
+        find.textContaining('Tài khoản MISA', findRichText: true),
+        findsOneWidget,
+      );
     },
   );
 

@@ -19,12 +19,18 @@ abstract final class ProviderConnectionCopy {
   static const cancelLabel = 'Hủy';
   static const connectLabel = 'Kết nối';
   static const reconnectSubmitLabel = 'Kết nối lại';
-  static const actionsLabel = 'Thao tác';
+  static const disconnectLabel = 'Ngắt kết nối';
   static const statusLabel = 'Trạng thái';
   static const accountInfoLabel = 'Tài khoản';
   static const statusConnected = 'Đã kết nối';
-  static const statusCheckRequired = 'Cần kiểm tra lại';
-  static const statusReconnectRequired = 'Cần kết nối lại';
+  static const statusPending = 'Chờ kết nối';
+  static const statusError = 'Lỗi kết nối';
+  static const pendingBannerTitle = 'Đang chờ kết nối';
+  static const pendingBannerDescription =
+      'Hệ thống đang tự động hoàn tất kết nối với MISA meInvoice.';
+  static const errorBannerTitle = 'Không thể kết nối với MISA meInvoice';
+  static const errorBannerDescription =
+      'Hãy kết nối lại để hệ thống thử lại bằng thông tin hiện có.';
   static const accountRequired = 'Vui lòng nhập tài khoản MISA';
   static const passwordRequired = 'Vui lòng nhập mật khẩu MISA';
   static const connectSuccessTitle = 'Đã kết nối MISA';
@@ -46,8 +52,8 @@ abstract final class ProviderConnectionCopy {
   static String statusValue(ProviderConnectionStatus status) {
     return switch (status) {
       ProviderConnectionStatus.connected => statusConnected,
-      ProviderConnectionStatus.checkRequired => statusCheckRequired,
-      ProviderConnectionStatus.reconnectRequired => statusReconnectRequired,
+      ProviderConnectionStatus.checkRequired => statusPending,
+      ProviderConnectionStatus.reconnectRequired => statusError,
       ProviderConnectionStatus.disconnected => 'Chưa kết nối',
     };
   }

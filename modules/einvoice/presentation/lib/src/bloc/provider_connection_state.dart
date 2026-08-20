@@ -19,6 +19,13 @@ final class ProviderConnectionLoading extends ProviderConnectionState {
   const ProviderConnectionLoading();
 }
 
+/// Non-form provider connection surfaces on the same page (D04-B/C/D).
+enum ProviderConnectionInfoKind {
+  connected,
+  pending,
+  error,
+}
+
 final class ProviderConnectionLoaded extends ProviderConnectionState {
   const ProviderConnectionLoaded({
     required this.screen,
@@ -34,13 +41,25 @@ final class ProviderConnectionLoaded extends ProviderConnectionState {
   final String? accountError;
   final String? passwordError;
 
+  /// D04-A form: disconnected, or reconnect mode entered from D04-D.
   bool get showsForm {
     if (reconnectMode) {
       return true;
     }
-    final status = screen.connection.status;
-    return status == ProviderConnectionStatus.disconnected ||
-        status == ProviderConnectionStatus.reconnectRequired;
+    return screen.connection.status == ProviderConnectionStatus.disconnected;
+  }
+
+  /// Presentation surface for non-form connection states.
+  ProviderConnectionInfoKind? get infoKind {
+    if (showsForm) {
+      return null;
+    }
+    return switch (screen.connection.status) {
+      ProviderConnectionStatus.connected => ProviderConnectionInfoKind.connected,
+      ProviderConnectionStatus.checkRequired => ProviderConnectionInfoKind.pending,
+      ProviderConnectionStatus.reconnectRequired => ProviderConnectionInfoKind.error,
+      ProviderConnectionStatus.disconnected => null,
+    };
   }
 
   ProviderConnectionLoaded copyWith({
