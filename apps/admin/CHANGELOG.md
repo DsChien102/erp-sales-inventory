@@ -19,6 +19,19 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+## [1.0.1+2] - 2026-08-20
+
+### Changed
+
+- Đồng bộ nút / sheet platform (onboarding, user detail, user actions/filters) với design system (`secondary` buttons và component mới).
+- Env banner dùng màu theo `BuildContext` (theme-aware).
+
+### Internal
+
+- iOS `MinimumOSVersion` → 15.6.
+- Analysis options: exclude thư mục build/platform.
+- Shared IAM: membership deactivate / session preference cleanup đi cùng ERP khi ship module presentation + infrastructure.
+
 ## [1.0.0+1] - 2026-08-20
 
 ### Internal
