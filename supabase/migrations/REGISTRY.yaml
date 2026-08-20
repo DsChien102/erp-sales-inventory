@@ -248,7 +248,7 @@ partner:
 
 platform:
   install_module_messaging: 20260623000001_platform_messaging_foundation.sql
-  list_tenants_with_pending_messaging: 20260623000001_platform_messaging_foundation.sql
+  list_tenants_with_pending_messaging: 20260820008_platform_list_pending_messaging_queues.sql
   rebuild_messaging_backlog_stats_view: 20260623000001_platform_messaging_foundation.sql
 
 pricing:
@@ -408,6 +408,7 @@ bootstrap_grandfathered:
   - 20260820005_iam_assign_member_role_fix.sql
   - 20260820006_iam_invitation_inspection_prefill_profile.sql
   - 20260820007_iam_clear_stale_last_selected_tenant.sql
+  - 20260820008_platform_list_pending_messaging_queues.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
