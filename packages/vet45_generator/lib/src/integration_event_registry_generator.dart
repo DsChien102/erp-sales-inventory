@@ -1,11 +1,13 @@
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 
 import 'codegen_module_config.dart';
 import 'constructor_dependency_parser.dart';
 import 'handler_descriptor.dart';
 import 'integration_event_dispatcher_config.dart';
+import 'module_naming.dart';
 import 'package_config_resolver.dart';
 
 final class IntegrationEventHandlerDescriptor {
@@ -24,6 +26,20 @@ final class IntegrationEventHandlerDescriptor {
   String get sortKey => '$eventTypeName::$className';
 }
 
+final class IntegrationEventDescriptor {
+  const IntegrationEventDescriptor({
+    required this.className,
+    required this.eventType,
+    required this.eventPackageName,
+  });
+
+  final String className;
+  final String eventType;
+  final String eventPackageName;
+
+  String get sortKey => '$eventType::$className';
+}
+
 abstract final class IntegrationEventRegistryGenerator {
   static Future<String> generate({
     required String packageRoot,
@@ -40,30 +56,44 @@ abstract final class IntegrationEventRegistryGenerator {
       fromDirectory: packageRoot,
     );
 
-    final dartFiles = PackageConfigResolver.listMatchingDartFiles(
+    final handlerFiles = PackageConfigResolver.listMatchingDartFiles(
       packageRoot: scanPackageRoot,
       scanGlobs: config.scanGlobs,
     );
 
+    final eventPackageNames = config.integrationEventDispatchers
+        .expand((dispatcher) => dispatcher.eventPackages)
+        .toSet();
+
+    final eventPackageRoots = eventPackageNames
+        .map(
+          (packageName) => PackageConfigResolver.findPackageRoot(
+            packageName: packageName,
+            fromDirectory: packageRoot,
+          ),
+        )
+        .toSet();
+
+    final eventFiles = eventPackageRoots
+        .expand(
+          (eventPackageRoot) => PackageConfigResolver.listMatchingDartFiles(
+            packageRoot: eventPackageRoot,
+            scanGlobs: CodegenModuleConfig.defaultIntegrationEventScanGlobs,
+          ),
+        )
+        .toSet();
+
     final includedPaths = <String>{
       scanPackageRoot,
-      ...config.integrationEventDispatchers
-          .expand((dispatcher) => dispatcher.eventPackages)
-          .map(
-            (packageName) => PackageConfigResolver.findPackageRoot(
-              packageName: packageName,
-              fromDirectory: packageRoot,
-            ),
-          ),
+      ...eventPackageRoots,
     };
 
     final collection = AnalysisContextCollection(
       includedPaths: includedPaths.toList(),
     );
 
-    final descriptors = <IntegrationEventHandlerDescriptor>[];
-
-    for (final filePath in dartFiles) {
+    final handlerDescriptors = <IntegrationEventHandlerDescriptor>[];
+    for (final filePath in handlerFiles) {
       final context = collection.contextFor(filePath);
       final result = await context.currentSession.getResolvedLibrary(filePath);
       if (result is! ResolvedLibraryResult) {
@@ -73,18 +103,41 @@ abstract final class IntegrationEventRegistryGenerator {
       for (final classElement in result.element.classes) {
         final descriptor = _describeHandler(classElement, config);
         if (descriptor != null) {
-          descriptors.add(descriptor);
+          handlerDescriptors.add(descriptor);
         }
       }
     }
 
-    descriptors.sort((a, b) => a.sortKey.compareTo(b.sortKey));
+    final eventDescriptors = <IntegrationEventDescriptor>[];
+    for (final filePath in eventFiles) {
+      final context = collection.contextFor(filePath);
+      final result = await context.currentSession.getResolvedLibrary(filePath);
+      if (result is! ResolvedLibraryResult) {
+        continue;
+      }
 
-    for (final descriptor in descriptors) {
+      for (final classElement in result.element.classes) {
+        final descriptor = _describeIntegrationEvent(classElement, eventPackageNames);
+        if (descriptor != null) {
+          eventDescriptors.add(descriptor);
+        }
+      }
+    }
+
+    handlerDescriptors.sort((a, b) => a.sortKey.compareTo(b.sortKey));
+    eventDescriptors.sort((a, b) => a.sortKey.compareTo(b.sortKey));
+
+    for (final descriptor in handlerDescriptors) {
       _resolveDispatcher(config.integrationEventDispatchers, descriptor);
     }
 
-    return _emitRegistryFile(descriptors, config);
+    _validateHandlerEventsHaveContracts(handlerDescriptors, eventDescriptors);
+
+    return _emitRegistryFile(
+      handlerDescriptors: handlerDescriptors,
+      eventDescriptors: eventDescriptors,
+      config: config,
+    );
   }
 
   static IntegrationEventHandlerDescriptor? _describeHandler(
@@ -127,6 +180,44 @@ abstract final class IntegrationEventRegistryGenerator {
     );
   }
 
+  static IntegrationEventDescriptor? _describeIntegrationEvent(
+    ClassElement classElement,
+    Set<String> configuredEventPackages,
+  ) {
+    if (classElement.isAbstract) {
+      return null;
+    }
+
+    if (!_extendsTenantScopedIntegrationEvent(classElement)) {
+      return null;
+    }
+
+    final eventType = _readStaticTypeConstant(classElement);
+    if (eventType == null) {
+      return null;
+    }
+
+    if (!_hasFromPayloadFactory(classElement)) {
+      return null;
+    }
+
+    final eventPackageName =
+        _matchConfiguredPackage(classElement.library.uri.toString(), configuredEventPackages) ??
+        PackageConfigResolver.packageNameFromImportUri(classElement.library.uri);
+
+    if (eventPackageName == null || eventPackageName.isEmpty) {
+      throw StateError(
+        'Unable to resolve integration event package for event ${classElement.name}.',
+      );
+    }
+
+    return IntegrationEventDescriptor(
+      className: classElement.name!,
+      eventType: eventType,
+      eventPackageName: eventPackageName,
+    );
+  }
+
   static ClassElement? _integrationEventTypeElement(ClassElement classElement) {
     for (final interface in classElement.interfaces) {
       if (interface.element.name != 'IIntegrationEventNotificationHandler') {
@@ -140,6 +231,42 @@ abstract final class IntegrationEventRegistryGenerator {
       final element = interface.typeArguments[0].element;
       if (element is ClassElement) {
         return element;
+      }
+    }
+
+    return null;
+  }
+
+  static bool _extendsTenantScopedIntegrationEvent(ClassElement classElement) {
+    InterfaceType? current = classElement.thisType;
+    while (current != null) {
+      if (current.element.name == 'TenantScopedIntegrationEvent') {
+        return true;
+      }
+      current = current.superclass;
+    }
+    return false;
+  }
+
+  static bool _hasFromPayloadFactory(ClassElement classElement) {
+    for (final constructor in classElement.constructors) {
+      if (constructor.isFactory && constructor.name == 'fromPayload') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String? _readStaticTypeConstant(ClassElement classElement) {
+    for (final field in classElement.fields) {
+      if (!field.isStatic || field.name != 'type') {
+        continue;
+      }
+
+      final value = field.computeConstantValue();
+      final eventType = value?.toStringValue();
+      if (eventType != null && eventType.isNotEmpty) {
+        return eventType;
       }
     }
 
@@ -173,6 +300,23 @@ abstract final class IntegrationEventRegistryGenerator {
     return matches.first;
   }
 
+  static void _validateHandlerEventsHaveContracts(
+    List<IntegrationEventHandlerDescriptor> handlers,
+    List<IntegrationEventDescriptor> events,
+  ) {
+    final eventClasses = events.map((event) => event.className).toSet();
+    for (final handler in handlers) {
+      if (!eventClasses.contains(handler.eventTypeName)) {
+        throw StateError(
+          'Handler ${handler.className} references ${handler.eventTypeName}, '
+          'but no matching integration event contract was discovered in event_packages. '
+          'Ensure the event class extends TenantScopedIntegrationEvent, '
+          'declares static const type, and provides fromPayload().',
+        );
+      }
+    }
+  }
+
   static String? _matchConfiguredPackage(
     String importUriText,
     Set<String> configuredEventPackages,
@@ -196,33 +340,43 @@ abstract final class IntegrationEventRegistryGenerator {
     return false;
   }
 
-  static String _emitRegistryFile(
-    List<IntegrationEventHandlerDescriptor> descriptors,
-    CodegenModuleConfig config,
-  ) {
+  static String _emitRegistryFile({
+    required List<IntegrationEventHandlerDescriptor> handlerDescriptors,
+    required List<IntegrationEventDescriptor> eventDescriptors,
+    required CodegenModuleConfig config,
+  }) {
+    final modulePascal = ModuleNaming.toPascalCase(config.moduleName);
+    final registryClass = ModuleNaming.integrationEventRegistryClass(config.moduleName);
+    final outboxSerializerClass = ModuleNaming.outboxEventSerializerClass(config.moduleName);
+    final outboxModuleFactory = ModuleNaming.outboxModuleFactoryFunction(config.moduleName);
+    final subscriptionsFunction =
+        ModuleNaming.integrationEventSubscriptionsFunction(config.moduleName);
+
     final handlersByDispatcher = <String, List<IntegrationEventHandlerDescriptor>>{};
     for (final dispatcher in config.integrationEventDispatchers) {
       handlersByDispatcher[dispatcher.id] = [];
     }
 
-    for (final descriptor in descriptors) {
+    for (final descriptor in handlerDescriptors) {
       final dispatcher = _resolveDispatcher(config.integrationEventDispatchers, descriptor);
       handlersByDispatcher[dispatcher.id]!.add(descriptor);
     }
 
-    final integrationEventPackages = descriptors
-        .map((descriptor) => descriptor.eventPackageName)
-        .toSet()
-      ..removeWhere((package) => package.isEmpty);
+    final integrationEventPackages = {
+      ...handlerDescriptors.map((descriptor) => descriptor.eventPackageName),
+      ...eventDescriptors.map((descriptor) => descriptor.eventPackageName),
+    }..removeWhere((package) => package.isEmpty);
 
     final buffer = StringBuffer()
       ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND')
       ..writeln('// ignore_for_file: type=lint')
       ..writeln()
       ..writeln("import 'package:get_it/get_it.dart';")
+      ..writeln("import 'package:quiver/collection.dart';")
       ..writeln(
         "import 'package:${config.resolvedApplicationPackage}/application.dart';",
-      );
+      )
+      ..writeln("import 'package:vet45_shared_infrastructure/infrastructure.dart';");
 
     for (final packageName in integrationEventPackages.toList()..sort()) {
       final dispatcher = config.integrationEventDispatchers.firstWhere(
@@ -235,6 +389,86 @@ abstract final class IntegrationEventRegistryGenerator {
       buffer.writeln("import '${dispatcher.dispatcherImport}';");
     }
 
+    final genericHandlerClass = '${modulePascal}IntegrationEventGenericHandler';
+    final inboxClientType = 'I${modulePascal}InboxClient';
+
+    buffer
+      ..writeln("import '../../events_bus/${config.moduleName}_integration_event_generic_handler.dart';")
+      ..writeln("import '../../outbox/outbox_module.dart';")
+      ..writeln("import '../inbox/i_${config.moduleName}_inbox_client.dart';")
+      ..writeln()
+      ..writeln('/// Deserialize integration events from inbox/outbox payloads.')
+      ..writeln('abstract final class $registryClass {')
+      ..writeln('  static const eventTypes = <Type, String>{');
+
+    for (final event in eventDescriptors) {
+      buffer.writeln('    ${event.className}: ${event.className}.type,');
+    }
+
+    buffer
+      ..writeln('  };')
+      ..writeln()
+      ..writeln('  static TenantScopedIntegrationEvent? fromJson({')
+      ..writeln('    required String eventType,')
+      ..writeln('    required Map<String, dynamic> payload,')
+      ..writeln('  }) {');
+
+    for (final event in eventDescriptors) {
+      buffer.writeln('    if (eventType == ${event.className}.type) {');
+      buffer.writeln('      return ${event.className}.fromPayload(payload);');
+      buffer.writeln('    }');
+    }
+
+    buffer
+      ..writeln('    return null;')
+      ..writeln('  }')
+      ..writeln('}')
+      ..writeln()
+      ..writeln('/// Deserializes outbox payloads into $modulePascal integration events.')
+      ..writeln('abstract final class $outboxSerializerClass {')
+      ..writeln('  static TenantScopedIntegrationEvent fromPayload({')
+      ..writeln('    required Type type,')
+      ..writeln('    required Map<String, dynamic> payload,')
+      ..writeln('  }) {');
+
+    for (final event in eventDescriptors) {
+      buffer.writeln('    if (type == ${event.className}) {');
+      buffer.writeln('      return ${event.className}.fromPayload(payload);');
+      buffer.writeln('    }');
+    }
+
+    buffer
+      ..writeln("    throw StateError('Unsupported outbox event type: \$type');")
+      ..writeln('  }')
+      ..writeln('}')
+      ..writeln()
+      ..writeln('OutboxModule $outboxModuleFactory() {')
+      ..writeln('  final map = BiMap<String, Type>();');
+
+    for (final event in eventDescriptors) {
+      buffer.writeln('  map[${event.className}.type] = ${event.className};');
+    }
+
+    buffer
+      ..writeln('  return OutboxModule(map);')
+      ..writeln('}')
+      ..writeln()
+      ..writeln('void $subscriptionsFunction({')
+      ..writeln('  required IEventsBus eventBus,')
+      ..writeln('  required $inboxClientType inboxClient,')
+      ..writeln('  required ILogger logger,')
+      ..writeln('}) {')
+      ..writeln('  IntegrationEventTypeRegistry.registerAll($registryClass.eventTypes);');
+
+    for (final event in eventDescriptors) {
+      buffer
+        ..writeln("  logger.info('Subscribe to inbound ${event.eventType}');")
+        ..writeln('  eventBus.subscribe(')
+        ..writeln('    $genericHandlerClass<${event.className}>(inboxClient: inboxClient),')
+        ..writeln('  );');
+    }
+
+    buffer.writeln('}');
     buffer.writeln();
 
     for (final dispatcher in config.integrationEventDispatchers) {
