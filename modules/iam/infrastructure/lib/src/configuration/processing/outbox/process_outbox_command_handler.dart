@@ -1,7 +1,7 @@
-import 'package:vet45_iam_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../generated/iam_integration_event_registry.g.dart';
 import 'i_iam_outbox_client.dart';
 import 'process_outbox_command.dart';
 
@@ -70,18 +70,5 @@ final class ProcessOutboxCommandHandler
     }
 
     return hadWork;
-  }
-}
-
-/// Deserializes outbox payloads into IAM integration events.
-abstract final class IamOutboxEventSerializer {
-  static TenantScopedIntegrationEvent fromPayload({
-    required Type type,
-    required Map<String, dynamic> payload,
-  }) {
-    if (type == EmailDeliveryRequestedIntegrationEvent) {
-      return EmailDeliveryRequestedIntegrationEvent.fromPayload(payload);
-    }
-    throw StateError('Unsupported outbox event type: $type');
   }
 }

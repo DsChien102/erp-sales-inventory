@@ -4,8 +4,8 @@ import 'package:vet45_adapters/vet45_adapters.dart'
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import 'generated/iam_integration_event_registry.g.dart';
 import 'generated/iam_internal_command_registry.g.dart';
-import 'iam_integration_event_dispatcher.dart';
 import 'inbox/i_iam_inbox_client.dart';
 import 'inbox/process_inbox_command.dart';
 import 'inbox/process_inbox_command_handler.dart';
@@ -38,12 +38,16 @@ final class ProcessingModule {
       serializer: serializer,
     );
 
-    final integrationEventDispatcher = IamIntegrationEventDispatcher()
-      ..register(
-        EmailDeliveryRequestedIntegrationEventHandler(
-          commandScheduler: commandScheduler,
-        ),
-      );
+    // Generated dispatcher resolves handler deps from GetIt eagerly.
+    container
+      ..registerSingleton<InternalCommandSerializer>(serializer)
+      ..registerSingleton<IIamOutboxClient>(outboxClient)
+      ..registerSingleton<IIamInboxClient>(inboxClient)
+      ..registerSingleton<IIamInternalCommandClient>(internalCommandClient)
+      ..registerSingleton<ICommandScheduler>(commandScheduler);
+
+    final integrationEventDispatcher =
+        createGeneratedIamIntegrationEventDispatcher(container);
 
     final processOutboxHandler = ProcessOutboxCommandHandler(
       outboxClient: outboxClient,
@@ -60,11 +64,6 @@ final class ProcessingModule {
     );
 
     container
-      ..registerSingleton<InternalCommandSerializer>(serializer)
-      ..registerSingleton<IIamOutboxClient>(outboxClient)
-      ..registerSingleton<IIamInboxClient>(inboxClient)
-      ..registerSingleton<IIamInternalCommandClient>(internalCommandClient)
-      ..registerSingleton<ICommandScheduler>(commandScheduler)
       ..registerSingleton(integrationEventDispatcher)
       ..registerSingleton(processOutboxHandler)
       ..registerSingleton(processInboxHandler)

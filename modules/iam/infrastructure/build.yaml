@@ -31,3 +31,16 @@ targets:
           module_name: iam
           scan_package: vet45_iam_infrastructure
           handler_scan_package: vet45_iam_application
+      vet45_generator|cqrs_integration_event_registry:
+        enabled: true
+        options:
+          module_name: iam
+          scan_package: vet45_iam_application
+          application_package: vet45_iam_application
+          dispatchers:
+            - id: iam
+              factory_function: createGeneratedIamIntegrationEventDispatcher
+              dispatcher_class: IamIntegrationEventDispatcher
+              dispatcher_import: ../iam_integration_event_dispatcher.dart
+              event_packages:
+                - vet45_iam_integration_events

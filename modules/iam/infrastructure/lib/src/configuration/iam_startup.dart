@@ -22,12 +22,13 @@ import 'session/iam_session.dart';
 
 /// Composition root entry point for the IAM bounded context.
 abstract final class IamStartup {
+  /// Bootstrap the IAM module. Session restore is intentionally **not** done
+  /// here — callers should invoke [IamRuntime.sessionPort.restoreFromPersistedAuth]
+  /// after DI is complete so host apps control the tenant-bootstrap order.
   static Future<IamRuntime> initialize({
     required SupabaseClient supabase,
     required ILoggerFactory loggerFactory,
     IEventsBus? integrationEventBus,
-    bool restoreSession = true,
-    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final container = GetIt.asNewInstance();
@@ -36,8 +37,6 @@ abstract final class IamStartup {
       supabase,
       loggerFactory,
       integrationEventBus: integrationEventBus,
-      restoreSession: restoreSession,
-      requireTenantSession: requireTenantSession,
       resendClient: resendClient,
     );
   }
@@ -48,7 +47,9 @@ abstract final class IamStartup {
     GetIt? container,
     ILoggerFactory? loggerFactory,
     IEventsBus? integrationEventBus,
-    bool restoreSession = true,
+    /// Legacy: kept for test suites that relied on internal restore.
+    /// Prefer calling [IamRuntime.sessionPort.restoreFromPersistedAuth] instead.
+    bool restoreSession = false,
     bool requireTenantSession = true,
     IResendClient? resendClient,
   }) {
@@ -81,8 +82,8 @@ abstract final class IamStartup {
     SupabaseClient supabase,
     ILoggerFactory loggerFactory, {
     IEventsBus? integrationEventBus,
-    required bool restoreSession,
-    required bool requireTenantSession,
+    bool restoreSession = false,
+    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final commandLogger = loggerFactory.named('iam.commands');
@@ -151,6 +152,7 @@ abstract final class IamStartup {
       tenantAccessChecker: container.get<ITenantAccessChecker>(),
       session: session,
       messagingModule: messagingModule,
+      sessionPort: container.get<IIamSessionPort>(),
     );
   }
 }

@@ -52,7 +52,6 @@ final class MessagingWorkerBootstrap {
         supabase: client,
         loggerFactory: resolvedLoggerFactory,
         integrationEventBus: sharedBus,
-        restoreSession: false,
         resendClient: ResendEmailClient(
           apiKey: resolvedConfig.resendApiKey,
           fromEmail: resolvedConfig.resendFromEmail,

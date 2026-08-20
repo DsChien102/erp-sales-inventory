@@ -210,6 +210,7 @@ export 'src/tenant/commands/assign_member_role/assign_member_role_command_handle
 export 'src/tenant/commands/assign_member_role/assign_member_role_command_validator.dart';
 export 'src/tenant/commands/deactivate_membership/deactivate_membership_command.dart';
 export 'src/tenant/commands/deactivate_membership/deactivate_membership_command_handler.dart';
+export 'src/tenant/integration_events/membership_deactivated/membership_deactivated_integration_event_handler.dart';
 export 'src/tenant/queries/get_tenant_context/get_tenant_context_query.dart';
 export 'src/tenant/queries/get_tenant_context/get_tenant_context_query_handler.dart';
 export 'src/tenant/queries/get_tenant_member/get_tenant_member_query.dart';

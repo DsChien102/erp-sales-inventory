@@ -33,6 +33,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     integrationEventBus: getIt<IEventsBus>(),
   );
 
+  // Bootstrap session identity only (no tenant context).
+  // Tenant selection is deferred to TenantContextCubit.bootstrap() which reads
+  // user_preferences and validates via get_tenant_context — ensuring the
+  // last-selected tenant (not the oldest membership) is restored on login.
+  await iamRuntime.sessionPort.restoreFromPersistedAuth(
+    requireTenantContext: false,
+  );
+
   getIt
     ..registerSingleton<IIamModule>(iamRuntime.module)
     ..registerSingleton<IExecutionContext>(iamRuntime.executionContext)

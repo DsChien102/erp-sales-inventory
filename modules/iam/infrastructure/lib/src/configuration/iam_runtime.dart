@@ -13,6 +13,7 @@ final class IamRuntime {
     required this.tenantAccessChecker,
     required this.session,
     required this.messagingModule,
+    required this.sessionPort,
   });
 
   final IIamModule module;
@@ -21,4 +22,9 @@ final class IamRuntime {
   final ITenantAccessChecker tenantAccessChecker;
   final IamSession session;
   final IMessagingModule messagingModule;
+
+  /// Exposed so host apps can call [IIamSessionPort.restoreFromPersistedAuth]
+  /// after DI is complete, rather than relying on [IamStartup] to do it
+  /// internally. This keeps session bootstrap outside the module boundary.
+  final IIamSessionPort sessionPort;
 }

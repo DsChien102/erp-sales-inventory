@@ -14,6 +14,7 @@ export 'src/configuration/mediation/mediation_module.dart';
 export 'src/configuration/outbox/outbox_module.dart';
 export 'src/configuration/processing/commands_executor.dart';
 export 'src/configuration/processing/generated/iam_internal_command_registry.g.dart';
+export 'src/configuration/processing/generated/iam_integration_event_registry.g.dart';
 export 'src/configuration/processing/iam_command_pipeline.dart';
 export 'src/configuration/processing/iam_integration_event_dispatcher.dart';
 export 'src/configuration/events_bus/iam_integration_event_generic_handler.dart';

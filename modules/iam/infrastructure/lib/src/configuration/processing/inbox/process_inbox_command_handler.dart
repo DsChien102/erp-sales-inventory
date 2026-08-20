@@ -1,7 +1,6 @@
-import 'package:vet45_iam_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../generated/iam_integration_event_registry.g.dart';
 import '../iam_integration_event_dispatcher.dart';
 import 'i_iam_inbox_client.dart';
 import 'process_inbox_command.dart';
@@ -79,23 +78,5 @@ final class ProcessInboxCommandHandler
     }
 
     return hadWork;
-  }
-}
-
-/// Manual registry for IAM integration events (single S-NOTIFY event for now).
-abstract final class IamIntegrationEventRegistry {
-  static const eventTypes = <Type, String>{
-    EmailDeliveryRequestedIntegrationEvent:
-        EmailDeliveryRequestedIntegrationEvent.type,
-  };
-
-  static TenantScopedIntegrationEvent? fromJson({
-    required String eventType,
-    required Map<String, dynamic> payload,
-  }) {
-    if (eventType == EmailDeliveryRequestedIntegrationEvent.type) {
-      return EmailDeliveryRequestedIntegrationEvent.fromPayload(payload);
-    }
-    return null;
   }
 }
