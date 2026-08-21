@@ -112,7 +112,7 @@ VSection(
   title: 'Đơn vị đo',
   subtitle: 'Quản lý đơn vị quy đổi',
   trailing: onEdit != null
-      ? VButton(label: 'Sửa', variant: VButtonVariant.ghost, onPressed: onEdit)
+      ? VButton(label: 'Sửa', variant: VButtonVariant.tertiary, onPressed: onEdit)
       : null,
   child: VCard(
     child: Row(

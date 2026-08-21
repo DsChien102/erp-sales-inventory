@@ -566,8 +566,8 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
-  static const banknote = IconData(
-    57426,
+  static const banknoteArrowDown = IconData(
+    58956,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -807,7 +807,7 @@ extension VIconsExtension on VIcons {
       case VIcons.minus:
         return _Lucide.minus;
       case VIcons.banknoteArrowDown:
-        return _Lucide.banknote;
+        return _Lucide.banknoteArrowDown;
       case VIcons.badgePercent:
         return _Lucide.badgePercent;
       case VIcons.scanLine:
