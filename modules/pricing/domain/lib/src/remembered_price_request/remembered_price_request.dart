@@ -1,6 +1,5 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
-import '../customer_price_rule/money.dart';
 import 'events/remembered_price_saved_domain_event.dart';
 import 'remembered_price_request_status.dart';
 import 'remembered_price_result_type.dart';

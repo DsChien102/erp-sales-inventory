@@ -24,7 +24,6 @@ export 'src/exceptions/not_manual_base_price_mode_exception.dart';
 export 'src/ids/product_id.dart';
 export 'src/pricing/base_price.dart';
 export 'src/pricing/base_price_mode.dart';
-export 'src/pricing/money.dart';
 export 'src/pricing/base_price/product_base_price_profile.dart';
 export 'src/pricing/base_price/events/product_base_price_updated.dart';
 export 'src/pricing/price_band/product_unit_price_band.dart';

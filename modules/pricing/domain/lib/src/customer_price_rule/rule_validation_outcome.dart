@@ -1,6 +1,5 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
-import 'money.dart';
 import 'price_check_status.dart';
 import 'rule_validation_state.dart';
 

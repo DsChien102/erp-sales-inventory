@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_pricing_infrastructure/infrastructure.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 void main() {
   final request = RememberedPriceRequest.receive(

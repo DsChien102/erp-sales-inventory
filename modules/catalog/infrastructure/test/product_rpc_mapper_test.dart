@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_infrastructure/src/domain/product/product_rpc_mapper.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 void main() {
   group('ProductRpcMapper atomic guided create', () {
@@ -480,8 +481,8 @@ void main() {
         tenantId: 'tenant-1',
         productId: 'prod-1',
         productUnitId: 'unit-box',
-        listBeforeVat: Money(120000),
-        floorBeforeVat: Money(100000),
+        listBeforeVat: Money(amountMinor: 120000, currencyCode: 'VND'),
+        floorBeforeVat: Money(amountMinor: 100000, currencyCode: 'VND'),
         effectiveFrom: DateTime.utc(2026, 1, 1),
       );
       final params = ProductRpcMapper.setInitialPriceBandParams(
@@ -504,8 +505,8 @@ void main() {
         id: 'band-1',
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        listBeforeVat: Money(120000),
-        floorBeforeVat: Money(100000),
+        listBeforeVat: Money(amountMinor: 120000, currencyCode: 'VND'),
+        floorBeforeVat: Money(amountMinor: 100000, currencyCode: 'VND'),
         effectiveFrom: DateTime.utc(2026, 1, 1),
       );
       final params = ProductRpcMapper.setInitialPriceBandParams(

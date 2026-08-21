@@ -87,10 +87,10 @@ void main() {
       expect(band.storePriceRuleId, isNull);
       expect(band.markupConfig?.listMarkupRatio, 0.35);
       expect(band.markupConfig?.floorMarkupRatio, 0.15);
-      expect(band.listBeforeVat?.amount, 67500);
-      expect(band.floorBeforeVat?.amount, 57500);
-      expect(band.listAfterVat?.amount, 67500);
-      expect(band.floorAfterVat?.amount, 57500);
+      expect(band.listBeforeVat?.amountMinor, 67500);
+      expect(band.floorBeforeVat?.amountMinor, 57500);
+      expect(band.listAfterVat?.amountMinor, 67500);
+      expect(band.floorAfterVat?.amountMinor, 57500);
     });
 
     test('manual stores absolute prices without a formula source', () {
@@ -127,8 +127,8 @@ void main() {
       expect(band.calculationMode, PriceBandCalculationMode.ruleBased);
       expect(band.storePriceRuleId, 'rule-1');
       expect(band.markupConfig, isNull);
-      expect(band.listBeforeVat?.amount, 70000);
-      expect(band.floorBeforeVat?.amount, 60000);
+      expect(band.listBeforeVat?.amountMinor, 70000);
+      expect(band.floorBeforeVat?.amountMinor, 60000);
     });
   });
 }

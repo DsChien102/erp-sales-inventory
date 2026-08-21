@@ -439,8 +439,8 @@ void main() {
       await handler.handle(command);
 
       expect(gateway.lastProductId, 'prod-1');
-      expect(gateway.lastPriceBand!.listBeforeVat!.amount, 100000.0);
-      expect(gateway.lastPriceBand!.floorBeforeVat!.amount, 80000);
+      expect(gateway.lastPriceBand!.listBeforeVat!.amountMinor, 100000.0);
+      expect(gateway.lastPriceBand!.floorBeforeVat!.amountMinor, 80000);
     });
 
     test('omitted product unit id leaves null for RPC base-unit resolution', () async {

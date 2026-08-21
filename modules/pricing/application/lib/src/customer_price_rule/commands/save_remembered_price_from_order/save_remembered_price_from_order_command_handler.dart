@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import '../../../ports/i_remembered_price_gateway.dart';
 import 'remembered_price_outcome_dto.dart';

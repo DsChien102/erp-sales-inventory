@@ -2,7 +2,6 @@ import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import '../../exceptions/floor_price_greater_than_list_price_exception.dart';
 import '../../ids/product_id.dart';
-import '../money.dart';
 import 'events/product_price_band_changed.dart';
 import 'price_band_calculation_mode.dart';
 import 'price_band_markup_calculator.dart';
@@ -222,10 +221,14 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
     PriceBandMarkupConfig? markupConfig,
     String? actorId,
   }) {
-    final listBeforeVo = Money(listBeforeVat);
-    final listAfterVo = Money(listAfterVat);
-    final floorBeforeVo = floorBeforeVat == null ? null : Money(floorBeforeVat);
-    final floorAfterVo = floorAfterVat == null ? null : Money(floorAfterVat);
+    final listBeforeVo = Money(amountMinor: listBeforeVat, currencyCode: 'VND');
+    final listAfterVo = Money(amountMinor: listAfterVat, currencyCode: 'VND');
+    final floorBeforeVo = floorBeforeVat == null
+        ? null
+        : Money(amountMinor: floorBeforeVat, currencyCode: 'VND');
+    final floorAfterVo = floorAfterVat == null
+        ? null
+        : Money(amountMinor: floorAfterVat, currencyCode: 'VND');
 
     final beforeRule = FloorBeforeVatNotGreaterThanListBeforeVatRule(
       floorBeforeVat: floorBeforeVo,
@@ -302,8 +305,8 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
       productUnitId: productUnitId,
       listBeforeVat: listBeforeVat,
       listAfterVat: listAfterVat,
-      floorBeforeVat: floorBeforeVat ?? this.floorBeforeVat?.amount,
-      floorAfterVat: floorAfterVat ?? this.floorAfterVat?.amount,
+      floorBeforeVat: floorBeforeVat ?? this.floorBeforeVat?.amountMinor,
+      floorAfterVat: floorAfterVat ?? this.floorAfterVat?.amountMinor,
       effectiveFrom: effectiveFrom ?? this.effectiveFrom,
       effectiveTo: effectiveTo ?? this.effectiveTo,
       status: status ?? this.status,

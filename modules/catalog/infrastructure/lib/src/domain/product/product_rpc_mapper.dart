@@ -164,11 +164,11 @@ abstract final class ProductRpcMapper {
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       if (priceBand.productUnitId != null) 'p_product_unit_id': priceBand.productUnitId,
-      'p_list_price_before_vat': priceBand.listBeforeVat?.amount,
-      'p_floor_price_before_vat': priceBand.floorBeforeVat?.amount,
-      'p_list_price_after_vat': priceBand.listAfterVat?.amount,
+      'p_list_price_before_vat': priceBand.listBeforeVat?.amountMinor,
+      'p_floor_price_before_vat': priceBand.floorBeforeVat?.amountMinor,
+      'p_list_price_after_vat': priceBand.listAfterVat?.amountMinor,
       if (priceBand.floorAfterVat != null)
-        'p_floor_price_after_vat': priceBand.floorAfterVat!.amount,
+        'p_floor_price_after_vat': priceBand.floorAfterVat!.amountMinor,
       'p_effective_from': priceBand.effectiveFrom.toUtc().toIso8601String(),
       if (priceBand.effectiveTo != null)
         'p_effective_to': priceBand.effectiveTo!.toUtc().toIso8601String(),

@@ -50,6 +50,48 @@ void main() {
       expect(error.toString(), 'failed');
     });
   });
+
+  group('Money', () {
+    test('accepts zero and positive amounts', () {
+      expect(Money.zero('vnd').amountMinor, 0);
+      expect(
+        Money(amountMinor: 1000, currencyCode: 'vnd').currencyCode,
+        'VND',
+      );
+    });
+
+    test('rejects negative amount and invalid currency', () {
+      expect(
+        () => Money(amountMinor: -1, currencyCode: 'VND'),
+        throwsA(isA<BusinessRuleValidationException>()),
+      );
+      expect(
+        () => Money(amountMinor: 0, currencyCode: 'VN'),
+        throwsA(isA<BusinessRuleValidationException>()),
+      );
+    });
+
+    test('adds and subtracts same currency; rejects mismatch', () {
+      final a = Money(amountMinor: 100, currencyCode: 'VND');
+      final b = Money(amountMinor: 40, currencyCode: 'VND');
+      expect((a + b).amountMinor, 140);
+      expect((a - b).amountMinor, 60);
+      expect(
+        () => a + Money(amountMinor: 1, currencyCode: 'USD'),
+        throwsA(isA<BusinessRuleValidationException>()),
+      );
+    });
+  });
+
+  group('Quantity', () {
+    test('accepts zero and rejects negative', () {
+      expect(Quantity.zero.isZero, isTrue);
+      expect(
+        () => Quantity(quantityMicros: -1),
+        throwsA(isA<BusinessRuleValidationException>()),
+      );
+    });
+  });
 }
 
 final class _Marker {}

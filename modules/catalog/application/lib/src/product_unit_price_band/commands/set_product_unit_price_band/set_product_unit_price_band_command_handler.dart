@@ -57,10 +57,10 @@ final class SetProductUnitPriceBandCommandHandler
       basePricePerBaseUnit: controlCenter?.basePriceAmount,
     );
 
-    final listBeforeVat = priceBand.listBeforeVat?.amount;
-    final listAfterVat = priceBand.listAfterVat?.amount;
-    final floorBeforeVat = priceBand.floorBeforeVat?.amount;
-    final floorAfterVat = priceBand.floorAfterVat?.amount;
+    final listBeforeVat = priceBand.listBeforeVat?.amountMinor;
+    final listAfterVat = priceBand.listAfterVat?.amountMinor;
+    final floorBeforeVat = priceBand.floorBeforeVat?.amountMinor;
+    final floorAfterVat = priceBand.floorAfterVat?.amountMinor;
 
     final warnings = listBeforeVat == null
         ? const <PriceBandValidationWarningDto>[]

@@ -169,10 +169,10 @@ void main() {
         floorAfterVat: 198000,
       );
 
-      expect(band.listBeforeVat?.amount, 200000);
-      expect(band.floorBeforeVat?.amount, 180000);
-      expect(band.listAfterVat?.amount, 220000);
-      expect(band.floorAfterVat?.amount, 198000);
+      expect(band.listBeforeVat?.amountMinor, 200000);
+      expect(band.floorBeforeVat?.amountMinor, 180000);
+      expect(band.listAfterVat?.amountMinor, 220000);
+      expect(band.floorAfterVat?.amountMinor, 198000);
       expect(band.status, ProductPriceBandStatus.active);
       expect(band.effectiveTo, isNull);
       expect(band.isComplete, isTrue);
@@ -189,8 +189,8 @@ void main() {
         listAfterVat: 200000,
       );
 
-      expect(band.listBeforeVat?.amount, 200000);
-      expect(band.listAfterVat?.amount, 200000);
+      expect(band.listBeforeVat?.amountMinor, 200000);
+      expect(band.listAfterVat?.amountMinor, 200000);
       expect(band.floorBeforeVat, isNull);
       expect(band.isComplete, isTrue);
     });

@@ -1,5 +1,6 @@
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import '../../../ports/i_customer_price_rule_command_gateway.dart';
 import '../../../ports/i_customer_price_rule_update_context_port.dart';

@@ -9,6 +9,8 @@ export 'src/domain_event_base.dart';
 export 'src/entity.dart';
 export 'src/exceptions/domain_exception.dart';
 export 'src/ids/typed_id.dart';
+export 'src/money/money.dart';
+export 'src/quantity/quantity.dart';
 export 'src/tenant_id.dart';
 export 'src/time/clock.dart';
 export 'src/value_object.dart';

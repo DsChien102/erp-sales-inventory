@@ -16,6 +16,7 @@ dependencies:
   vet45_annotations: ^0.1.0
   vet45_pricing_application: ^1.0.0
   vet45_pricing_domain: ^1.0.0
+  vet45_shared_domain: ^1.0.0
   vet45_shared_application: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1
   xml: ^6.5.0

@@ -1,5 +1,6 @@
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 const updateRuleId = '00000000-0000-4000-8000-000000000001';
 

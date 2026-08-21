@@ -11,7 +11,6 @@ import 'events/customer_price_rule_deleted_domain_event.dart';
 import 'events/customer_price_rule_disabled_domain_event.dart';
 import 'events/customer_price_rule_reenabled_domain_event.dart';
 import 'events/customer_price_rule_updated_domain_event.dart';
-import 'money.dart';
 import 'rule_validation_outcome.dart';
 import 'rule_validation_state.dart';
 import 'rules/customer_price_rule_can_be_deleted_rule.dart';

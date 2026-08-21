@@ -19,7 +19,6 @@ export 'src/customer_price_rule/events/customer_price_rule_deleted_domain_event.
 export 'src/customer_price_rule/events/customer_price_rule_disabled_domain_event.dart';
 export 'src/customer_price_rule/events/customer_price_rule_reenabled_domain_event.dart';
 export 'src/customer_price_rule/events/customer_price_rule_updated_domain_event.dart';
-export 'src/customer_price_rule/money.dart';
 export 'src/customer_price_rule/price_check_status.dart';
 export 'src/customer_price_rule/rule_validation_outcome.dart';
 export 'src/customer_price_rule/rule_validation_state.dart';

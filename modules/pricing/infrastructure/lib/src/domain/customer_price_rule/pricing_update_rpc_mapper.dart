@@ -1,5 +1,6 @@
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import 'customer_price_rule_detail_rpc_mapper.dart';
 import 'pricing_rpc_mapper.dart';

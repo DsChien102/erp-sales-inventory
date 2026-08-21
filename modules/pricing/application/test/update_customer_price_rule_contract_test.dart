@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_application/testing.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 void main() {
   group('UpdateCustomerPriceRuleCommandValidator', () {

@@ -1,9 +1,6 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
-import '../../money.dart';
-
-final class FloorBeforeVatNotGreaterThanListBeforeVatRule
-    implements IBusinessRule {
+final class FloorBeforeVatNotGreaterThanListBeforeVatRule implements IBusinessRule {
   FloorBeforeVatNotGreaterThanListBeforeVatRule({
     required Money? floorBeforeVat,
     required Money? listBeforeVat,
