@@ -426,16 +426,19 @@ Theme05SalesOrderDetail
 
 ### Interaction contract
 
-Processing row has no competing issuance affordance.
+Any control whose active status is `VBadgeStatus.processing` is non-interactive.
 
 ```text
 processing / unknown / finalizing
-→ badge "Đang xử lý"
-→ no trailing chevron for a competing destination
+→ badge "Đang xử lý" (VBadgeStatus.processing)
+→ row ignores onTap / no click interaction
+→ preserve existing row visual (including trailing chevron)
 → no issue action
 → no preview action
 → no send action
 ```
+
+Shared rule: presentation `EInvoiceStatusInteraction` — do not invent SG-03-specific row variants.
 
 The user remains on the Theme 05 source screen.
 
@@ -467,6 +470,8 @@ Theme05SalesResult
 The source screen keeps its normal order-success actions such as `Về trang chủ` / `Tạo đơn mới`; SG-03 does not replace the Sales Result page with a processing destination.
 
 Unknown/finalizing states remain visually `Đang xử lý`.
+
+Same interaction contract as SG03-R01: processing badge → non-interactive shared `OrderEInvoiceRow` (no onTap).
 
 ---
 
@@ -717,6 +722,11 @@ Background/reopen must resolve the current operation and restore the correspondi
 | Spacing / typography / radius / colors | existing DS semantic tokens |
 
 `VBadgeStatus.processing` represents an in-progress state, not a warning.
+
+**Interaction rule (shared with SG-02):** any surface whose active status is
+`VBadgeStatus.processing` must be non-interactive (`onTap` ignored / action
+disabled). Visual badge treatment stays processing; do not invent alternate
+chrome for R01/R03.
 
 Feature-specific issuance composition remains in E-Invoice presentation and does not automatically become a new Design System component.
 

@@ -58,5 +58,37 @@ void main() {
 
       expect(find.text(OrderEInvoiceCopy.deliverySendFailed), findsOneWidget);
     });
+
+    testWidgets('sending delivery disables send action and keeps badge',
+        (tester) async {
+      await tester.pumpWidget(
+        buildSubject(
+          state: const PostIssueSheetState(
+            deliveryStatus: DeliveryDisplayState.sending,
+          ),
+        ),
+      );
+
+      expect(find.text(OrderEInvoiceCopy.deliverySending), findsOneWidget);
+
+      final sendItem = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_send')),
+      );
+      expect(sendItem.enabled, isFalse);
+      expect(sendItem.onTap, isNull);
+
+      final documentsItem = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_documents')),
+      );
+      expect(documentsItem.enabled, isTrue);
+
+      final inkWell = tester.widget<InkWell>(
+        find.descendant(
+          of: find.byKey(const Key('action_send')),
+          matching: find.byType(InkWell),
+        ),
+      );
+      expect(inkWell.onTap, isNull);
+    });
   });
 }

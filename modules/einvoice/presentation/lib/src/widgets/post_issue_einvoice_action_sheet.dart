@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 
+import '../support/einvoice_status_interaction.dart';
 import '../support/order_einvoice_copy.dart';
 import 'einvoice_action_item.dart';
 
@@ -55,6 +56,8 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
     }
 
     final isActionsEnabled = !state.isOfficialViewLoading;
+    final isSendInteractive = isActionsEnabled &&
+        EInvoiceStatusInteraction.allowsTapForDelivery(state.deliveryStatus);
 
     return Material(
       color: colors.surface.withValues(alpha: 0),
@@ -102,8 +105,10 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
                 title: OrderEInvoiceCopy.sendTitle,
                 supportingText: OrderEInvoiceCopy.sendSupporting,
                 badge: _deliveryBadge,
-                enabled: isActionsEnabled,
-                onTap: () => select(PostIssueAction.send),
+                enabled: isSendInteractive,
+                onTap: isSendInteractive
+                    ? () => select(PostIssueAction.send)
+                    : null,
               ),
               const VGap.lg(),
             ],

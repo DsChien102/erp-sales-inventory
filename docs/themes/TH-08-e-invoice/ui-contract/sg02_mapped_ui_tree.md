@@ -554,12 +554,18 @@ Only delivery presentation changes:
 ```text
 deliveryStatus
 ├── notSent    → VBadge("Chưa gửi")
-├── sending    → VBadge("Đang gửi")
+├── sending    → VBadge("Đang gửi", VBadgeStatus.processing)
 ├── sent       → VBadge("Đã gửi")
 └── sendFailed → VBadge("Gửi lỗi")
 ```
 
 Do not create separate action-sheet implementations for these four frames.
+
+**Interaction rule:** when the send action's active badge is
+`VBadgeStatus.processing` (`Đang gửi`), that action item is disabled — no
+`onTap` / no click — while the processing badge visual is preserved. Other
+actions stay available unless another gate applies (e.g. official-view loading).
+Shared helper: presentation `EInvoiceStatusInteraction`.
 
 Delivery status does not change the authoritative invoice issuance result.
 
@@ -631,6 +637,7 @@ Do not collapse pre-issue and post-issue business contracts into one public widg
 | Preview loading | Disabled | Loading / no repeat | Disabled | N/A | N/A |
 | Issuance processing | No competing operation | No competing operation | No competing operation | N/A | N/A |
 | Issued | N/A | N/A | Gate independently | Gate independently | Gate independently |
+| Delivery sending (`Đang gửi`) | N/A | N/A | Disabled (processing badge, no onTap) | Enabled | Enabled |
 | Official-view loading | N/A | N/A | Temporarily disabled | Loading / no repeat | Temporarily disabled |
 
 Row visibility, preview, issue, official-view, documents and send permissions are independently gated.

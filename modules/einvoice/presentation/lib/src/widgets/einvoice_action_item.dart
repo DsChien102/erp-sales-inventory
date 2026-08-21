@@ -10,6 +10,9 @@ import 'package:vet45_design_system/design_system.dart';
 /// - Enabled: normal icon/text/chevron treatment.
 /// - Disabled: neutral100 background, muted icon/text/chevron. Chevron remains.
 /// - Loading: chevron replaced by primary600 spinner. Other actions disabled.
+/// - Callers must set [enabled] false (and omit [onTap]) when the item's
+///   active status badge is [VBadgeStatus.processing] — see
+///   `EInvoiceStatusInteraction`.
 class EInvoiceActionItem extends StatelessWidget {
   const EInvoiceActionItem({
     super.key,

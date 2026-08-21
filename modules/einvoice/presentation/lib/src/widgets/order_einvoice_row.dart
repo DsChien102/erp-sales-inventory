@@ -3,14 +3,19 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 
+import '../support/einvoice_status_interaction.dart';
 import '../support/order_einvoice_copy.dart';
 
 /// Contextual row for E-Invoice status within Theme 05 source screens.
 ///
-/// Implements SG02-R01 (Chi tiết đơn hàng) and SG02-R02 (Kết quả bán hàng).
+/// Implements SG02-R01 (Chi tiết đơn hàng) and SG02-R02 (Kết quả bán hàng),
+/// and SG03-R01/R02/R03 issuance presentation on the same shared widget.
 ///
 /// [isBuyerNotReady] drives helperText (readiness). [projection.issuanceDisplayState]
 /// drives the trailing VBadge (issuance lifecycle).
+///
+/// When issuance maps to [VBadgeStatus.processing], the row ignores [onTap]
+/// (see [EInvoiceStatusInteraction]) while preserving row and badge visuals.
 class OrderEInvoiceRow extends StatelessWidget {
   const OrderEInvoiceRow({
     super.key,
@@ -26,9 +31,15 @@ class OrderEInvoiceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final effectiveOnTap =
+        EInvoiceStatusInteraction.allowsTapForIssuance(
+              projection.issuanceDisplayState,
+            )
+            ? onTap
+            : null;
 
     return VCard(
-      onTap: onTap,
+      onTap: effectiveOnTap,
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space4,
         vertical: VSpacing.space4,

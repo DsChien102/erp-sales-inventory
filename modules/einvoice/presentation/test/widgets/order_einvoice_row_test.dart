@@ -73,6 +73,24 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.rowHelperManage), findsOneWidget);
     });
 
+    testWidgets('processing issuance ignores onTap', (tester) async {
+      var tapped = false;
+      final projection = FakeEInvoiceFixtures.projection(
+        issuance: IssuanceDisplayState.processing,
+      );
+      await tester.pumpWidget(
+        buildSubject(projection: projection, onTap: () => tapped = true),
+      );
+
+      await tester.tap(find.byType(OrderEInvoiceRow));
+      await tester.pump();
+
+      expect(tapped, isFalse);
+      expect(find.text(OrderEInvoiceCopy.badgeProcessing), findsOneWidget);
+      final card = tester.widget<VCard>(find.byType(VCard));
+      expect(card.onTap, isNull);
+    });
+
     testWidgets('failed badge shows Phát hành lỗi', (tester) async {
       final projection = FakeEInvoiceFixtures.projection(
         issuance: IssuanceDisplayState.failed,

@@ -17,6 +17,7 @@ export 'src/support/einvoice_configuration_display.dart';
 export 'src/support/einvoice_configuration_overview_copy.dart';
 export 'src/support/einvoice_datetime_copy.dart';
 export 'src/support/provider_connection_copy.dart';
+export 'src/support/einvoice_status_interaction.dart';
 export 'src/support/order_einvoice_copy.dart';
 export 'src/widgets/automation_policy_view.dart';
 export 'src/widgets/configuration_blocker_result.dart';
