@@ -10,10 +10,10 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     lifecycleSql = File(
-      '${root.path}/supabase/migrations/_drafts/005_iam_platform_user_lifecycle.sql',
+      '${root.path}/supabase/migrations/20260811005_iam_platform_user_lifecycle.sql',
     ).readAsStringSync();
     outcomeSql = File(
-      '${root.path}/supabase/migrations/_drafts/001_iam_notify_email_delivery_outcome.sql',
+      '${root.path}/supabase/migrations/20260811001_iam_notify_email_delivery_outcome.sql',
     ).readAsStringSync();
   });
 

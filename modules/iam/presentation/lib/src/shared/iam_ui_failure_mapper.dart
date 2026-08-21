@@ -98,7 +98,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.permissionDenied: 'Bạn không có quyền thực hiện thao tác này.',
     IamBlockedCodes.stateChanged: 'Dữ liệu đã thay đổi. Vui lòng tải lại rồi xác nhận lại.',
     IamBlockedCodes.lastOwnerProtected: 'Không thể thực hiện vì đây là chủ sở hữu cuối cùng.',
-    IamBlockedCodes.membershipInactive: 'Thành viên đang không hoạt động.',
+    IamBlockedCodes.membershipInactive: 'Thành viên đã tồn tại trong tổ chức.',
     IamBlockedCodes.noActiveMembership:
         'Tài khoản chưa thuộc tổ chức nào đang hoạt động.',
     IamBlockedCodes.membershipRemoved: 'Thành viên đã bị gỡ khỏi tổ chức.',

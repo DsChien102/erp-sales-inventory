@@ -7,7 +7,7 @@ void main() {
 
   setUpAll(() {
     sql = File(
-      '${_findRepoRoot().path}/supabase/migrations/_drafts/013_iam_platform_audit_read.sql',
+      '${_findRepoRoot().path}/supabase/migrations/20260811013_iam_platform_audit_read.sql',
     ).readAsStringSync();
   });
 

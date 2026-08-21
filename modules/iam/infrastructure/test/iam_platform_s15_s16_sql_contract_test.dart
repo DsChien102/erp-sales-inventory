@@ -7,17 +7,18 @@ void main() {
 
   setUpAll(() {
     final root = _findRepoRoot();
+    final mapping = {
+      '004_iam_platform_users_read.sql': '20260811004_iam_platform_users_read.sql',
+      '005_iam_platform_user_lifecycle.sql': '20260811005_iam_platform_user_lifecycle.sql',
+      '006_iam_create_tenant_onboarding.sql': '20260811006_iam_create_tenant_onboarding.sql',
+      '010_iam_platform_tenants_read.sql': '20260811010_iam_platform_tenants_read.sql',
+      '011_iam_platform_tenant_lifecycle.sql': '20260811011_iam_platform_tenant_lifecycle.sql',
+      '012_iam_platform_transfer_ownership.sql': '20260811012_iam_platform_transfer_ownership.sql',
+      '013_iam_platform_audit_read.sql': '20260811013_iam_platform_audit_read.sql',
+    };
     drafts = {
-      for (final name in [
-        '004_iam_platform_users_read.sql',
-        '005_iam_platform_user_lifecycle.sql',
-        '006_iam_create_tenant_onboarding.sql',
-        '010_iam_platform_tenants_read.sql',
-        '011_iam_platform_tenant_lifecycle.sql',
-        '012_iam_platform_transfer_ownership.sql',
-        '013_iam_platform_audit_read.sql',
-      ])
-        name: File('${root.path}/supabase/migrations/_drafts/$name').readAsStringSync(),
+      for (final entry in mapping.entries)
+        entry.key: File('${root.path}/supabase/migrations/${entry.value}').readAsStringSync(),
     };
   });
 

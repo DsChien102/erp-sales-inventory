@@ -81,19 +81,19 @@ abstract final class PriceRuleHistoryShared {
   }
 
   static String formatDateTime(DateTime d) {
-    final local = d.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/'
-        '${local.month.toString().padLeft(2, '0')}/'
-        '${local.year} '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
+    final ict = VDateTime.toIct(d);
+    return '${ict.day.toString().padLeft(2, '0')}/'
+        '${ict.month.toString().padLeft(2, '0')}/'
+        '${ict.year} '
+        '${ict.hour.toString().padLeft(2, '0')}:'
+        '${ict.minute.toString().padLeft(2, '0')}';
   }
 
   static String formatDateStr(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';
     try {
       final d = DateTime.parse(dateStr);
-      return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+      return VDateTime.date(d);
     } catch (_) {
       return dateStr;
     }

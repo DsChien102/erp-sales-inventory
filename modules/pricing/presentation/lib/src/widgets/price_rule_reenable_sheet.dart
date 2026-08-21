@@ -310,8 +310,7 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
     );
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+  String _formatDate(DateTime d) => VDateTime.date(d);
 }
 
 class _MetaRow extends StatelessWidget {

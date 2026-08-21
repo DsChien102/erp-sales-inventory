@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
 void main() {
-  testWidgets('AuditLogFilterBottomSheet renders options and handles apply & reset', (WidgetTester tester) async {
+  testWidgets('AuditLogFilterBottomSheet renders options and handles apply & reset', (
+    WidgetTester tester,
+  ) async {
     AuditLogFilterCriteria? appliedCriteria;
 
     await tester.pumpWidget(

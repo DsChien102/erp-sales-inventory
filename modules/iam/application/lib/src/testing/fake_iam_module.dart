@@ -19,10 +19,13 @@ import '../platform/shared/platform_user_status.dart';
 import '../platform/shared/platform_user_summary_dto.dart';
 import '../authentication/shared/session_dto.dart';
 import '../tenant/shared/tenant_activation_result_dto.dart';
+import '../tenant/shared/tenant_audit_actor_dto.dart';
+import '../tenant/shared/tenant_audit_display_origin.dart';
 import '../tenant/shared/tenant_audit_log_detail_dto.dart';
 import '../tenant/shared/tenant_audit_log_result.dart';
 import '../tenant/shared/tenant_audit_log_search_page_dto.dart';
 import '../tenant/shared/tenant_audit_log_summary_dto.dart';
+import '../tenant/shared/tenant_audit_subject_dto.dart';
 import '../tenant/shared/tenant_dto.dart';
 import '../tenant/shared/tenant_legal_profile_dto.dart';
 import '../tenant/shared/tenant_member_detail_dto.dart';
@@ -622,10 +625,22 @@ final class FakeIamModule implements IIamModule {
         occurredAt: DateTime.utc(2026, 7, 13, 8),
         source: 'tenant-app',
         trackingId: 'TRK-001',
-        actorUserId: 'lan-le',
-        actorDisplayName: 'Lê Thị Lan',
-        subjectType: 'tenant',
-        subjectId: 'org-001',
+        actor: const TenantAuditActorDto(
+          userId: 'lan-le',
+          displayName: 'Lê Thị Lan',
+          actorType: 'user',
+          roleCode: 'store_owner',
+          roleLabel: 'Chủ sở hữu',
+          displayOrigin: TenantAuditDisplayOrigin.snapshot,
+        ),
+        subject: const TenantAuditSubjectDto(
+          type: 'tenant',
+          id: 'org-001',
+          displayName: 'Chi nhánh Quận 1',
+          code: 'CN-Q1',
+          secondaryLabel: null,
+          displayOrigin: TenantAuditDisplayOrigin.snapshot,
+        ),
       ),
     ];
     _tenantAuditDetail = TenantAuditLogDetailDto(
@@ -639,12 +654,24 @@ final class FakeIamModule implements IIamModule {
       actorUnavailable: false,
       beforeRedacted: false,
       afterRedacted: false,
-      actorUserId: 'lan-le',
-      actorDisplayName: 'Lê Thị Lan',
-      subjectType: 'tenant',
-      subjectId: 'org-001',
-      beforeState: 'display_name: Old',
-      afterState: 'display_name: New',
+      actor: const TenantAuditActorDto(
+        userId: 'lan-le',
+        displayName: 'Lê Thị Lan',
+        actorType: 'user',
+        roleCode: 'store_owner',
+        roleLabel: 'Chủ sở hữu',
+        displayOrigin: TenantAuditDisplayOrigin.snapshot,
+      ),
+      subject: const TenantAuditSubjectDto(
+        type: 'tenant',
+        id: 'org-001',
+        displayName: 'Chi nhánh Quận 1',
+        code: 'CN-Q1',
+        secondaryLabel: null,
+        displayOrigin: TenantAuditDisplayOrigin.snapshot,
+      ),
+      beforeState: const {'display_name': 'Old'},
+      afterState: const {'display_name': 'New'},
     );
   }
 
@@ -1845,18 +1872,18 @@ final class FakeIamModule implements IIamModule {
     }
     if (scenario == FakeIamScenario.tenantAuditEmpty) {
       return Future.value(
-        const TenantAuditLogSearchPageDto(items: []) as TResult,
+        const TenantAuditLogSearchPageDto(items: [], totalCount: 0) as TResult,
       );
     }
     if (scenario == FakeIamScenario.tenantAuditCrossTenant) {
       return Future.value(
-        const TenantAuditLogSearchPageDto(items: []) as TResult,
+        const TenantAuditLogSearchPageDto(items: [], totalCount: 0) as TResult,
       );
     }
     var items = _tenantAuditSummaries.toList();
-    final eventCode = query.eventCode;
-    if (eventCode != null) {
-      items = items.where((s) => s.eventCode == eventCode).toList();
+    final eventCodes = query.eventCodes;
+    if (eventCodes != null && eventCodes.isNotEmpty) {
+      items = items.where((s) => eventCodes.contains(s.eventCode)).toList();
     }
     final result = query.result;
     if (result != null) {
@@ -1864,16 +1891,33 @@ final class FakeIamModule implements IIamModule {
     }
     final subjectType = query.subjectType;
     if (subjectType != null) {
-      items = items.where((s) => s.subjectType == subjectType).toList();
+      items = items.where((s) => s.subject.type == subjectType).toList();
     }
-    final actorUserId = query.actorUserId;
-    if (actorUserId != null) {
-      items = items.where((s) => s.actorUserId == actorUserId).toList();
+    final queryText = query.query;
+    if (queryText != null && queryText.isNotEmpty) {
+      final q = queryText.toLowerCase();
+      items = items
+          .where(
+            (s) =>
+                (s.actor.displayName?.toLowerCase().contains(q) ?? false) ||
+                (s.subject.displayName?.toLowerCase().contains(q) ?? false) ||
+                s.eventCode.toLowerCase().contains(q) ||
+                s.auditLogId.toLowerCase().contains(q) ||
+                s.trackingId.toLowerCase().contains(q) ||
+                (s.actor.userId?.toLowerCase() == q) ||
+                (s.subject.id?.toLowerCase() == q),
+          )
+          .toList();
     }
     // Cursor-paginated fake: first page exposes opaque cursor; next page clears it.
     final nextCursor = query.cursor == null && items.isNotEmpty ? 'opaque-next-cursor' : null;
     return Future.value(
-      TenantAuditLogSearchPageDto(items: items, nextCursor: nextCursor) as TResult,
+      TenantAuditLogSearchPageDto(
+            items: items,
+            totalCount: items.length,
+            nextCursor: nextCursor,
+          )
+          as TResult,
     );
   }
 
@@ -1899,8 +1943,17 @@ final class FakeIamModule implements IIamModule {
               actorUnavailable: true,
               beforeRedacted: _tenantAuditDetail.beforeRedacted,
               afterRedacted: _tenantAuditDetail.afterRedacted,
-              subjectType: _tenantAuditDetail.subjectType,
-              subjectId: _tenantAuditDetail.subjectId,
+              actor: const TenantAuditActorDto(
+                userId: 'lan-le',
+                displayName: null,
+                actorType: 'user',
+                roleCode: null,
+                roleLabel: null,
+                displayOrigin: TenantAuditDisplayOrigin.unavailable,
+              ),
+              subject: _tenantAuditDetail.subject,
+              beforeState: _tenantAuditDetail.beforeState,
+              afterState: _tenantAuditDetail.afterState,
             )
             as TResult,
       );
@@ -1921,10 +1974,10 @@ final class FakeIamModule implements IIamModule {
               actorUnavailable: false,
               beforeRedacted: true,
               afterRedacted: true,
-              actorUserId: _tenantAuditDetail.actorUserId,
-              actorDisplayName: _tenantAuditDetail.actorDisplayName,
-              subjectType: _tenantAuditDetail.subjectType,
-              subjectId: _tenantAuditDetail.subjectId,
+              actor: _tenantAuditDetail.actor,
+              subject: _tenantAuditDetail.subject,
+              beforeState: _tenantAuditDetail.beforeState,
+              afterState: _tenantAuditDetail.afterState,
             )
             as TResult,
       );

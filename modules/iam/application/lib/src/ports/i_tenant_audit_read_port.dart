@@ -1,3 +1,4 @@
+import '../tenant/shared/tenant_audit_event_category.dart';
 import '../tenant/shared/tenant_audit_log_detail_dto.dart';
 import '../tenant/shared/tenant_audit_log_search_page_dto.dart';
 
@@ -7,10 +8,11 @@ abstract interface class ITenantAuditReadPort {
     required String tenantId,
     required DateTime from,
     required DateTime to,
+    String? query,
     String? result,
-    String? actorUserId,
+    TenantAuditEventCategory? eventCategory,
     String? subjectType,
-    String? eventCode,
+    List<String>? eventCodes,
     String? cursor,
     int? limit,
   });

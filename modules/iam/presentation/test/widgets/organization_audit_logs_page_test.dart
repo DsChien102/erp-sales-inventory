@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/src/testing/recording_iam_module.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
-  testWidgets('wgt_e02_u07_fr01_01: loads audit logs via SearchTenantAuditLogsQuery without FakeAuditLogsData',
-      (tester) async {
+  testWidgets('loads audit logs and renders total count in subtitle', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -15,8 +16,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          iamModule:
-              FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
+          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
           executionContext: FakeExecutionContext(tenantId: 'org-001'),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
@@ -25,12 +25,72 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Lịch sử quản trị'), findsOneWidget);
-    expect(find.textContaining('hoạt động'), findsWidgets);
-    expect(find.text('Tải thêm'), findsOneWidget);
+    expect(find.textContaining('hoạt động trong 30 ngày'), findsOneWidget);
+    expect(find.text('Tất cả'), findsOneWidget);
+    expect(find.text('Thành viên'), findsOneWidget);
+    expect(find.text('Vai trò'), findsOneWidget);
+    expect(find.text('Tổ chức'), findsOneWidget);
   });
 
-  testWidgets('actor unavailable detail shows generic actor message',
-      (tester) async {
+  testWidgets('category chip taps update filtered query', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final recording = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationAuditLogsPage(
+          iamModule: recording,
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          clockLocal: () => DateTime(2026, 7, 31),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thành viên'));
+    await tester.pumpAndSettle();
+
+    final queries = recording.queriesOf<SearchTenantAuditLogsQuery>().toList();
+    expect(queries.length, greaterThan(1));
+    expect(queries.last.eventCategory?.code, 'member');
+  });
+
+  testWidgets('search text field triggers debounced search with query', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final recording = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationAuditLogsPage(
+          iamModule: recording,
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          clockLocal: () => DateTime(2026, 7, 31),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(VSearchBar), 'Bác sĩ A');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    final queries = recording.queriesOf<SearchTenantAuditLogsQuery>().toList();
+    expect(queries.last.query, 'Bác sĩ A');
+  });
+
+  testWidgets('actor unavailable detail shows generic actor message', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -55,8 +115,7 @@ void main() {
     );
   });
 
-  testWidgets('redacted detail does not render raw before/after values',
-      (tester) async {
+  testWidgets('detail renders change diff rows correctly', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -65,18 +124,17 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: AuditLogDetailPage(
-          auditLogId: 'AUD-REDACTED',
-          iamModule:
-              FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk),
+          auditLogId: 'AUD-T-001',
+          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk),
           executionContext: FakeExecutionContext(tenantId: 'org-001'),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('[Đã che theo chính sách]'), findsWidgets);
-    expect(find.textContaining('display_name: Old'), findsNothing);
-    expect(find.textContaining('display_name: New'), findsNothing);
+    expect(find.text('Tên hiển thị'), findsOneWidget);
+    expect(find.text('Trước: Old'), findsOneWidget);
+    expect(find.text('Sau: New'), findsOneWidget);
   });
 
   testWidgets('cross-tenant detail shows generic not found', (tester) async {

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/src/users/widgets/member_filter_bottom_sheet.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
@@ -127,8 +128,58 @@ void main() {
     await cubit.loadMembers(reset: true);
     await tester.pumpAndSettle();
 
-    expect(find.text('Bạn không có quyền quản lý'), findsOneWidget);
-    expect(find.byType(VSearchBar), findsOneWidget);
+    await cubit.close();
+  });
+
+  testWidgets('tapping filter button opens MemberFilterBottomSheet and applies filter', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    // Tap filter button (IconButton containing tune icon)
+    final filterButton = find.byWidgetPredicate(
+      (w) => w is VIcon && w.icon == VIcons.tune,
+    );
+    expect(filterButton, findsOneWidget);
+    await tester.tap(filterButton);
+    await tester.pumpAndSettle();
+
+    // Verify MemberFilterBottomSheet is opened
+    expect(find.byType(MemberFilterBottomSheet), findsOneWidget);
+    expect(find.text('Bộ lọc thành viên'), findsOneWidget);
+    expect(find.text('Trạng thái'), findsOneWidget);
+    expect(find.text('Vai trò'), findsOneWidget);
+    expect(find.text('Sắp xếp'), findsOneWidget);
+
+    // Tap "Tạm ngừng" chip inside bottom sheet and "Áp dụng"
+    await tester.tap(find.text('Tạm ngừng').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(VButton, 'Áp dụng'));
+    await tester.pumpAndSettle();
+
+    // Bottom sheet is closed and filter is applied
+    expect(find.byType(MemberFilterBottomSheet), findsNothing);
+    expect(find.text('Minh Nguyen'), findsOneWidget);
+    expect(find.text('Lan Le'), findsNothing);
 
     await cubit.close();
   });

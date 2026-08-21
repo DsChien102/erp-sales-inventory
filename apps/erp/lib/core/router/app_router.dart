@@ -232,7 +232,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/roles',
       name: 'more.roles',
-      builder: (context, state) => const OrganizationRolesPage(),
+      redirect: (context, state) => '/more/users-and-roles',
     ),
     GoRoute(
       path: '/more/roles/detail',

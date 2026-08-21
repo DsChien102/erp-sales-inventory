@@ -141,8 +141,7 @@ class PriceRuleCard extends StatelessWidget {
     return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
-  String _formatDate(DateTime date) =>
-      '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  String _formatDate(DateTime date) => VDateTime.date(date);
 
   String _formatEffective(EffectivePeriodDto period) {
     final from = _formatDate(period.effectiveFrom);

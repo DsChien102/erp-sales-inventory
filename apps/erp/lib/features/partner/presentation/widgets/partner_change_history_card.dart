@@ -87,12 +87,12 @@ class PartnerChangeHistoryCard extends StatelessWidget {
   }
 
   static String _formatDateTime(DateTime occurredAt) {
-    final local = occurredAt.toLocal();
-    final year = local.year.toString().padLeft(4, '0');
-    final month = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    final hour = local.hour.toString().padLeft(2, '0');
-    final minute = local.minute.toString().padLeft(2, '0');
+    final ict = VDateTime.toIct(occurredAt);
+    final year = ict.year.toString().padLeft(4, '0');
+    final month = ict.month.toString().padLeft(2, '0');
+    final day = ict.day.toString().padLeft(2, '0');
+    final hour = ict.hour.toString().padLeft(2, '0');
+    final minute = ict.minute.toString().padLeft(2, '0');
     return '$year-$month-$day $hour:$minute';
   }
 }

@@ -1,3 +1,4 @@
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
@@ -66,13 +67,13 @@ abstract final class PartnerDetailFormatters {
 
   static String? formatDateTime(DateTime? value, {bool dateOnly = false}) {
     if (value == null) return null;
-    final local = value.toLocal();
-    final date = '${local.day.toString().padLeft(2, '0')}/'
-        '${local.month.toString().padLeft(2, '0')}/'
-        '${local.year}';
-    if (dateOnly) return date;
-    final time = '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
+    if (dateOnly) return VDateTime.date(value);
+    final ict = VDateTime.toIct(value);
+    final date = '${ict.day.toString().padLeft(2, '0')}/'
+        '${ict.month.toString().padLeft(2, '0')}/'
+        '${ict.year}';
+    final time = '${ict.hour.toString().padLeft(2, '0')}:'
+        '${ict.minute.toString().padLeft(2, '0')}';
     return '$date $time';
   }
 

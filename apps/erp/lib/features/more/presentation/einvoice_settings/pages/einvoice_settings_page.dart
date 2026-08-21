@@ -21,9 +21,7 @@ class EInvoiceSettingsPage extends StatelessWidget {
 class _EInvoiceSettingsView extends StatelessWidget {
   const _EInvoiceSettingsView();
 
-  String _formatDateTime(DateTime dt) {
-    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDateTime(DateTime dt) => VDateTime.dateTime(dt);
 
   @override
   Widget build(BuildContext context) {

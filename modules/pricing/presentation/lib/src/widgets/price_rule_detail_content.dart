@@ -267,12 +267,7 @@ class PriceRuleDetailContent extends StatelessWidget {
     return '$amountLabel ($sign$pctLabel%)';
   }
 
-  String _formatDate(DateTime d) {
-    final local = d.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/'
-        '${local.month.toString().padLeft(2, '0')}/'
-        '${local.year}';
-  }
+  String _formatDate(DateTime d) => VDateTime.date(d);
 
   String _formatDateTime(DateTime d) =>
       PriceRuleHistoryShared.formatDateTime(d);

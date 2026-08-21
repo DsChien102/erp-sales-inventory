@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import '../../shared/iam_load_status.dart';
 import '../../shared/iam_ui_failure_mapper.dart';
+import '../catalog/tenant_audit_event_catalog.dart';
 import 'tenant_audit_filter.dart';
 import 'tenant_audit_logs_state.dart';
 
@@ -18,7 +19,8 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
        _clockLocal = clockLocal ?? DateTime.now,
        super(
          TenantAuditLogsState(
-           filters: initialFilter ??
+           filters:
+               initialFilter ??
                TenantAuditFilter.last30Days(nowLocal: (clockLocal ?? DateTime.now)()),
          ),
        );
@@ -34,6 +36,7 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
         state.copyWith(
           status: IamLoadStatus.loading,
           items: const [],
+          totalCount: 0,
           clearNextCursor: true,
           clearFailure: true,
           isLoadingMore: false,
@@ -46,28 +49,37 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
 
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final page = await _iamModule
-          .executeQueryAsync<TenantAuditLogSearchPageDto>(
-            SearchTenantAuditLogsQuery(
-              tenantId: tenantId,
-              fromUtc: toUtcStartOfLocalDay(state.filters.fromLocal),
-              toUtc: toUtcEndExclusiveOfLocalDay(state.filters.toLocal),
-              result: state.filters.result?.code,
-              actorUserId: state.filters.actorUserId,
-              subjectType: state.filters.subjectType,
-              eventCode: state.filters.eventCode,
-              cursor: reset ? null : state.nextCursor,
-            ),
-          );
+      final trimmedQuery = state.filters.query?.trim();
+      final hasQuery = trimmedQuery != null && trimmedQuery.isNotEmpty;
+      final matchingEventCodes = hasQuery
+          ? TenantAuditEventCatalog.matchingEventCodes(trimmedQuery)
+          : const <String>[];
+      final effectiveQuery = hasQuery && matchingEventCodes.isEmpty ? trimmedQuery : null;
+      final effectiveEventCodes = _mergeEventCodes(
+        structured: state.filters.eventCodes,
+        derived: matchingEventCodes,
+      );
+      final page = await _iamModule.executeQueryAsync<TenantAuditLogSearchPageDto>(
+        SearchTenantAuditLogsQuery(
+          tenantId: tenantId,
+          fromUtc: toUtcStartOfLocalDay(state.filters.fromLocal),
+          toUtc: toUtcEndExclusiveOfLocalDay(state.filters.toLocal),
+          query: effectiveQuery,
+          result: state.filters.result?.code,
+          eventCategory: state.filters.eventCategory,
+          subjectType: state.filters.subjectType,
+          eventCodes: effectiveEventCodes,
+          cursor: reset ? null : state.nextCursor,
+        ),
+      );
       if (isClosed) return;
 
-      final merged = reset
-          ? page.items
-          : _dedupeAppend(state.items, page.items);
+      final merged = reset ? page.items : _dedupeAppend(state.items, page.items);
       emit(
         state.copyWith(
           status: IamLoadStatus.success,
           items: merged,
+          totalCount: page.totalCount,
           nextCursor: page.nextCursor,
           clearNextCursor: page.nextCursor == null,
           isLoadingMore: false,
@@ -109,13 +121,12 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
     );
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final detail = await _iamModule
-          .executeQueryAsync<TenantAuditLogDetailDto>(
-            GetTenantAuditLogQuery(
-              tenantId: tenantId,
-              auditLogId: auditLogId,
-            ),
-          );
+      final detail = await _iamModule.executeQueryAsync<TenantAuditLogDetailDto>(
+        GetTenantAuditLogQuery(
+          tenantId: tenantId,
+          auditLogId: auditLogId,
+        ),
+      );
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -155,8 +166,7 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
 
   /// Local next-day midnight (end-exclusive) → UTC.
   static DateTime toUtcEndExclusiveOfLocalDay(DateTime local) {
-    final next = DateTime(local.year, local.month, local.day)
-        .add(const Duration(days: 1));
+    final next = DateTime(local.year, local.month, local.day).add(const Duration(days: 1));
     return next.toUtc();
   }
 
@@ -172,5 +182,15 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
       }
     }
     return out;
+  }
+
+  static List<String>? _mergeEventCodes({
+    required List<String>? structured,
+    required List<String> derived,
+  }) {
+    if (derived.isEmpty) return structured;
+    if (structured == null || structured.isEmpty) return derived;
+    final structuredSet = structured.toSet();
+    return derived.where(structuredSet.contains).toList(growable: false);
   }
 }

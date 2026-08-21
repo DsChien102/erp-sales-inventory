@@ -282,11 +282,26 @@ Focused verification (2026-07-23, no auto-commit):
 - Stable single match overwrites price, effective interval and note; increments version; writes one `import_updated` activity.
 - SQL remains draft-only in `017_pricing_customer_price_rule_import_auto_match_upsert.sql`; no timestamped migration was created or applied.
 
-Focused verification evidence (no auto-commit, current worktree):
-
-- `modules/pricing/application`: `dart analyze` clean; `fake_pricing_module_test` **24/24** passed.
-- `modules/pricing/infrastructure`: `dart analyze` clean; auto-match SQL contract **5/5** + S8/explicit-unit/lifecycle regression suites **16** total passed.
-- `modules/pricing/presentation`: formatter **1/1**, widgets **14/14**, cubit **9/9** passed; `flutter analyze` reports pre-existing `unused_import` in `price_rule_history_view.dart`.
-- `scripts/ci/verify_harness.sh`: TH-04 structure/traceability OK; pre-existing `guard_presentation_size` errors remain for Catalog pages / `product_guided_create_cubit.dart`.
-- GitNexus worktree `detect_changes`: risk **medium** (includes pre-existing explicit-unit V1 dirty files alongside auto-match).
 - No commit created per user request.
+
+## Phase 2.12 — IAM Tenant Audit History V2 (TH-01 S13) — 2026-08-20
+
+- [x] Application contract freeze: `SearchTenantAuditLogsQuery` V2 (`query`, `eventCategory`, `eventCodes`, `subjectType`), `TenantAuditActorDto`, `TenantAuditSubjectDto`, `TenantAuditLogDetailDto` with typed `beforeState`/`afterState`, `beforeRedacted`/`afterRedacted`, `TenantAuditDisplayOrigin` enum (`snapshot`, `current`, `system`, `unavailable`), `FakeIamModule` updated with totalCount and V2 search matching.
+- [x] Draft SQL storage: `iam_tenant_audit_history_v2_storage.sql` with immutable snapshot columns (`actor_snapshot`, `subject_snapshot`, `event_category`), trigram GIN index for search_document, deterministic `event_category` backfill for known legacy event codes, and no actor/subject snapshot backfill.
+- [x] Draft SQL read RPCs: `iam_tenant_audit_history_v2_read.sql` with `search_tenant_audit_logs_v2` (UTC `fromUtc < toUtc`, `total_count` pre-pagination, OR free text + AND structured filters) and `get_tenant_audit_log`.
+- [x] Infrastructure adapter: `SupabaseTenantAuditReadPort` mapping nested actor/subject DTOs and totalCount.
+- [x] Presentation state: `TenantAuditLogsCubit`, `TenantAuditFilterCriteria`, `TenantAuditEventCategory` chips.
+- [x] Catalogs & UI mappers: `TenantAuditEventCatalog` (19 event codes with Vietnamese titles/icons/search aliases), `TenantAuditFieldCatalog` (field names, enum values, sensitive key detection), `TenantAuditUiMapper` computing typed diff rows without UUID guessing.
+- [x] Presentation UI: `OrganizationAuditLogsPage` (debounced query search, category chips, totalCount in subtitle), `AuditLogItemCard` (actor role, subject line, legacy provenance badge), `AuditLogDetailPage` (two-column diff item cards, copy buttons, redaction banner).
+- [x] Draft SQL payload builders: `iam_tenant_audit_history_v2_payloads.sql` capturing surgical `v_audit_before` / `p_after` for `update_tenant_profile`, `upsert_legal_profile`, `update_my_platform_user_profile`, `resend_tenant_invitation`, `revoke_tenant_invitation`, `accept_invitation`.
+- [x] E2E & Documentation: `e2e_e02_u01_u03_u07_test.dart` deterministically proves count, localized search inclusion/exclusion, activation detail forensic fields/provenance, changed-only diff and authorization; `07-api-contracts.md` and `US-07.md` freeze the V2 and no-backfill contracts.
+- [!] SQL remains draft-only in `supabase/migrations/_drafts/`; no timestamped migration created or applied. `event_category` is deterministically backfilled for known legacy event codes; legacy actor/subject snapshots are never backfilled.
+
+Focused acceptance verification evidence (fresh, no auto-commit):
+- `modules/iam/application`: selected audit contract/handler/event mapping suites **18/18** passed.
+- `modules/iam/infrastructure`: audit V2 storage/read/payload, adapter and legacy producer/read/storage regression suites **62/62** passed.
+- `modules/iam/presentation`: audit catalog/Cubit/mapper/list/detail suites **43/43** passed.
+- `apps/erp`: E2E suite `e2e_e02_u01_u03_u07_test.dart` **5/5** passed.
+- Focused E2E `flutter analyze`: no issues.
+- `melos run migrate:verify-policy -- --strict`: OK (no violations).
+- `git diff --check`: clean.

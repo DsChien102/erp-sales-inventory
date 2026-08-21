@@ -10,13 +10,13 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     readSql = File(
-      '${root.path}/supabase/migrations/_drafts/004_iam_platform_users_read.sql',
+      '${root.path}/supabase/migrations/20260811004_iam_platform_users_read.sql',
     ).readAsStringSync();
     lifecycleSql = File(
-      '${root.path}/supabase/migrations/_drafts/005_iam_platform_user_lifecycle.sql',
+      '${root.path}/supabase/migrations/20260811005_iam_platform_user_lifecycle.sql',
     ).readAsStringSync();
     readinessSql = File(
-      '${root.path}/supabase/migrations/_drafts/016_iam_tenant_readiness_activate.sql',
+      '${root.path}/supabase/migrations/20260811016_iam_tenant_readiness_activate.sql',
     ).readAsStringSync();
   });
 

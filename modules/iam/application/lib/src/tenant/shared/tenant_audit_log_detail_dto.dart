@@ -1,4 +1,7 @@
+import 'tenant_audit_actor_dto.dart';
+import 'tenant_audit_event_category.dart';
 import 'tenant_audit_log_result.dart';
+import 'tenant_audit_subject_dto.dart';
 
 /// Detail row for a tenant audit log (§S13).
 final class TenantAuditLogDetailDto {
@@ -6,6 +9,7 @@ final class TenantAuditLogDetailDto {
     required this.auditLogId,
     required this.tenantId,
     required this.eventCode,
+    this.eventCategory,
     required this.result,
     required this.occurredAt,
     required this.source,
@@ -13,10 +17,8 @@ final class TenantAuditLogDetailDto {
     required this.actorUnavailable,
     required this.beforeRedacted,
     required this.afterRedacted,
-    this.actorUserId,
-    this.actorDisplayName,
-    this.subjectType,
-    this.subjectId,
+    required this.actor,
+    required this.subject,
     this.beforeState,
     this.afterState,
   });
@@ -24,6 +26,7 @@ final class TenantAuditLogDetailDto {
   final String auditLogId;
   final String tenantId;
   final String eventCode;
+  final TenantAuditEventCategory? eventCategory;
   final TenantAuditLogResult result;
   final DateTime occurredAt;
   final String source;
@@ -31,10 +34,8 @@ final class TenantAuditLogDetailDto {
   final bool actorUnavailable;
   final bool beforeRedacted;
   final bool afterRedacted;
-  final String? actorUserId;
-  final String? actorDisplayName;
-  final String? subjectType;
-  final String? subjectId;
-  final String? beforeState;
-  final String? afterState;
+  final TenantAuditActorDto actor;
+  final TenantAuditSubjectDto subject;
+  final Map<String, Object?>? beforeState;
+  final Map<String, Object?>? afterState;
 }

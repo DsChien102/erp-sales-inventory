@@ -14,7 +14,6 @@ class InvitationRegistrationForm extends StatefulWidget {
     required this.inspection,
     required this.isSubmitting,
     required this.onRegister,
-    required this.onDecline,
     this.onBack,
   });
 
@@ -27,7 +26,6 @@ class InvitationRegistrationForm extends StatefulWidget {
     required String password,
   })
   onRegister;
-  final Future<void> Function() onDecline;
   final VoidCallback? onBack;
 
   @override
@@ -50,22 +48,27 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController(
-      text: widget.inspection.inviteeEmail,
-    );
-    _givenNameController.text = widget.inspection.givenName ?? '';
-    _familyNameController.text = widget.inspection.familyName ?? '';
-    _phoneController.text = widget.inspection.phone ?? '';
+    final inspection = widget.inspection;
+    _emailController = TextEditingController(text: inspection.inviteeEmail);
+    if (inspection.givenName != null && inspection.givenName!.isNotEmpty) {
+      _givenNameController.text = inspection.givenName!;
+    }
+    if (inspection.familyName != null && inspection.familyName!.isNotEmpty) {
+      _familyNameController.text = inspection.familyName!;
+    }
+    if (inspection.phone != null && inspection.phone!.isNotEmpty) {
+      _phoneController.text = inspection.phone!;
+    }
   }
 
   @override
   void dispose() {
-    _passwordController.clear();
-    _confirmPasswordController.clear();
     _emailController.dispose();
     _givenNameController.dispose();
     _familyNameController.dispose();
     _phoneController.dispose();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -115,50 +118,6 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
     }
   }
 
-  Future<void> _decline() async {
-    final confirmed = await showVBottomSheet<bool>(
-      context: context,
-      child: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const VText(
-              'Từ chối lời mời?',
-              variant: VTextVariant.headingH3,
-            ),
-            const VGap.sm(),
-            VText(
-              'Bạn sẽ không tham gia ${widget.inspection.tenantName}.',
-              variant: VTextVariant.bodyDefault,
-            ),
-            const VGap.lg(),
-            VButton(
-              label: 'Huỷ',
-              variant: VButtonVariant.secondary,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            const VGap.sm(),
-            VButton(
-              key: const Key('invitation_decline_submit'),
-              label: 'Từ chối lời mời',
-              variant: VButtonVariant.secondary,
-              tone: VComponentTone.danger,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(true),
-            ),
-            const VGap.sm(),
-          ],
-        ),
-      ),
-    );
-    if (confirmed == true) {
-      await widget.onDecline();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final inspection = widget.inspection;
@@ -190,10 +149,10 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                 const VGap.lg(),
                 VBanner(
                   status: VBannerStatus.success,
-                  title: 'Mã lời mời hợp lệ',
+                  title: 'Mã kích hoạt hợp lệ',
                   description:
-                      'Kích hoạt tài khoản để tham gia ${inspection.tenantName} '
-                      'với vai trò ${inspection.initialRoleLabel}.',
+                      'Kích hoạt tài khoản để tiếp nhận lời mời và vào '
+                      '${inspection.tenantName}.',
                 ),
                 const VGap.xl(),
 
@@ -301,24 +260,12 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
       ),
       bottomBar: Padding(
         padding: const EdgeInsets.all(VSpacing.space4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            VButton(
-              key: const Key('invitation_accept_submit'),
-              label: 'Kích hoạt tài khoản',
-              fullWidth: true,
-              isLoading: isSubmitting,
-              onPressed: isSubmitting ? null : _submit,
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Từ chối lời mời',
-              variant: VButtonVariant.secondary,
-              fullWidth: true,
-              onPressed: isSubmitting ? null : _decline,
-            ),
-          ],
+        child: VButton(
+          key: const Key('invitation_accept_submit'),
+          label: 'Kích hoạt tài khoản',
+          fullWidth: true,
+          isLoading: isSubmitting,
+          onPressed: isSubmitting ? null : _submit,
         ),
       ),
     );

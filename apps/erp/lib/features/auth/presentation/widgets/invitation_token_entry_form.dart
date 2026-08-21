@@ -44,7 +44,6 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isSubmitting = widget.isSubmitting;
-    final canSubmit = _tokenPattern.hasMatch(_token.trim()) && !isSubmitting;
 
     return VPageScaffold(
       title: 'Kích hoạt tài khoản',
@@ -99,16 +98,6 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
               ],
             ),
           ),
-        ),
-      ),
-      bottomBar: Padding(
-        padding: const EdgeInsets.all(VSpacing.space4),
-        child: VButton(
-          key: const Key('invitation_inspect_submit'),
-          label: 'Tiếp tục',
-          fullWidth: true,
-          isLoading: isSubmitting,
-          onPressed: canSubmit ? _submit : null,
         ),
       ),
     );

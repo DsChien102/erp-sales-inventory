@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/iam_owner_activation_store_owner_role.sql',
+      '${root.path}/supabase/migrations/20260811023_iam_owner_activation.sql',
     ).readAsStringSync();
   });
 

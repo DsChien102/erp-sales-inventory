@@ -112,6 +112,17 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colors.borderDefault,
+                borderRadius: BorderRadius.circular(VRadius.pill),
+              ),
+            ),
+          ),
+          const VGap.md(),
           VText(
             'Bộ lọc thành viên',
             variant: VTextVariant.headingH3,

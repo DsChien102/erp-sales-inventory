@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/20260805021_iam_tenant_invitation_resend_revoke.sql',
+      '${root.path}/supabase/migrations/20260811018_iam_tenant_invitation_resend_revoke.sql',
     ).readAsStringSync();
   });
 
@@ -25,7 +25,7 @@ void main() {
       expect(
         sql,
         contains(
-          'Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation,',
+          'Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation',
         ),
       );
       expect(sql, contains('iam.is_current_tenant_invitation_delivery'));

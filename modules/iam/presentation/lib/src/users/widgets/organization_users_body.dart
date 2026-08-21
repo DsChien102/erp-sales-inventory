@@ -6,6 +6,7 @@ import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
 import 'invitation_list_section.dart';
+import 'member_filter_bottom_sheet.dart';
 import 'member_list_section.dart';
 
 class OrganizationUsersBody extends StatefulWidget {
@@ -53,11 +54,43 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
     _searchController.clear();
     if (cubit.state.activeTab == OrganizationUsersTab.members) {
       cubit.setMemberSearch('');
-      cubit.setMemberFilter(null);
+      cubit.applyMemberCriteria(status: null, role: null, sort: null);
     } else {
       cubit.setInvitationSearch('');
       cubit.setInvitationFilter(null);
     }
+  }
+
+  Future<void> _openFilterBottomSheet(BuildContext context) async {
+    final cubit = context.read<OrganizationUsersCubit>();
+    final isMemberTab = cubit.state.activeTab == OrganizationUsersTab.members;
+    if (!isMemberTab) return;
+
+    final currentCriteria = MemberFilterCriteria(
+      status: _memberWireToChip(cubit.state.memberFilter),
+      role: cubit.state.memberRoleFilter ?? 'Tất cả',
+      sort: cubit.state.memberSort ?? 'Tất cả',
+    );
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.vColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
+      ),
+      builder: (_) => MemberFilterBottomSheet(
+        initialCriteria: currentCriteria,
+        onApply: (criteria) {
+          cubit.applyMemberCriteria(
+            status: _memberChipToWire(criteria.status),
+            role: criteria.role == 'Tất cả' ? null : criteria.role,
+            sort: criteria.sort == 'Tất cả' ? null : criteria.sort,
+          );
+        },
+      ),
+    );
   }
 
   String? _memberChipToWire(String label) {
@@ -102,7 +135,12 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         final selectedChip = isMemberTab
             ? _memberWireToChip(state.memberFilter)
             : _invitationWireToChip(state.invitationFilter);
-        final isFilterActive = selectedChip != 'Tất cả';
+        final isFilterActive = isMemberTab
+            ? (state.memberFilter != null ||
+                (state.memberRoleFilter != null &&
+                    state.memberRoleFilter != 'Tất cả') ||
+                (state.memberSort != null && state.memberSort != 'Tất cả'))
+            : (state.invitationFilter != null);
 
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -149,9 +187,7 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                                   ? colors.primary
                                   : colors.textPrimary,
                             ),
-                            onPressed: () {
-                              // Bottom-sheet filters deferred; chips drive wire status.
-                            },
+                            onPressed: () => _openFilterBottomSheet(context),
                           ),
                         ),
                       ],

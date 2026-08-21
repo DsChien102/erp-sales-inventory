@@ -1,14 +1,10 @@
+import 'package:vet45_design_system/design_system.dart';
+
 /// Date/time labels for IAM presentation. Never uses wall clock internally.
 abstract final class IamDateFormatter {
-  static String formatDate(DateTime value) {
-    final local = value.toLocal();
-    return '${_two(local.day)}/${_two(local.month)}/${local.year}';
-  }
+  static String formatDate(DateTime value) => VDateTime.date(value);
 
-  static String formatDateTime(DateTime value) {
-    final local = value.toLocal();
-    return '${formatDate(local)} · ${_two(local.hour)}:${_two(local.minute)}';
-  }
+  static String formatDateTime(DateTime value) => VDateTime.dateTime(value);
 
   /// Remaining invitation window relative to [nowUtc].
   static String invitationExpiryDetail(DateTime expiresAt, DateTime nowUtc) {
@@ -32,6 +28,4 @@ abstract final class IamDateFormatter {
     final remaining = expiresAt.toUtc().difference(nowUtc.toUtc());
     return !remaining.isNegative && remaining <= threshold;
   }
-
-  static String _two(int n) => n.toString().padLeft(2, '0');
 }

@@ -82,13 +82,7 @@ class PriceRuleFormLastUpdatedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final local = updatedAt.toLocal();
-    final d = local.day.toString().padLeft(2, '0');
-    final m = local.month.toString().padLeft(2, '0');
-    final y = local.year;
-    final h = local.hour.toString().padLeft(2, '0');
-    final min = local.minute.toString().padLeft(2, '0');
-    final formatted = '$d/$m/$y $h:$min';
+    final formatted = VDateTime.dateTime(updatedAt);
 
     return VCard(
       padding: const EdgeInsets.all(VSpacing.space3),

@@ -65,7 +65,7 @@ void main() {
   );
 
   testWidgets(
-    'wgt_e03_u03_fr01_01: existing account shows locked email and accept CTA',
+    'wgt_e03_u03_fr01_01: existing account shows confirmation bottom sheet',
     (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1;
@@ -86,23 +86,17 @@ void main() {
 
       await _enterInvitationCode(tester, 'K7P29XQM');
       await tester.pumpAndSettle();
-      final submit = find.byKey(const Key('invitation_inspect_submit'));
-      if (submit.evaluate().isNotEmpty) {
-        final button = tester.widget<VButton>(submit);
-        if (button.onPressed != null) {
-          await tester.tap(submit);
-          await tester.pumpAndSettle();
-        }
-      }
 
-      expect(find.byKey(const Key('invitation_locked_email')), findsOneWidget);
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      expect(find.text('Mã kích hoạt đã hợp lệ.'), findsOneWidget);
       expect(
-        find.byKey(const Key('invitation_existing_password')),
+        find.byKey(const Key('invitation_confirm_sheet_accept')),
         findsOneWidget,
       );
-      expect(find.byKey(const Key('invitation_accept_submit')), findsOneWidget);
-      expect(find.text('invitee@example.com'), findsOneWidget);
-      expect(find.text('K7P29XQM'), findsNothing);
+      expect(
+        find.byKey(const Key('invitation_confirm_sheet_decline')),
+        findsOneWidget,
+      );
     },
   );
 
@@ -128,14 +122,15 @@ void main() {
 
       await _enterInvitationCode(tester, 'TOKENNEW');
       await tester.pumpAndSettle();
-      final submit = find.byKey(const Key('invitation_inspect_submit'));
-      if (submit.evaluate().isNotEmpty) {
-        final button = tester.widget<VButton>(submit);
-        if (button.onPressed != null) {
-          await tester.tap(submit);
-          await tester.pumpAndSettle();
-        }
-      }
+
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      expect(
+        find.byKey(const Key('invitation_confirm_sheet_accept')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+      await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('invitation_register_given_name')), findsOneWidget);
       expect(find.byKey(const Key('invitation_register_family_name')), findsOneWidget);
@@ -177,57 +172,74 @@ void main() {
                   phone,
                   required password,
                 }) async {},
-            onDecline: () async {},
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      final familyField = tester.widget<TextField>(
-        find
-            .descendant(
-              of: find.byKey(const Key('invitation_register_family_name')),
-              matching: find.byType(TextField),
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(
+                  const Key('invitation_register_family_name'),
+                ),
+                matching: find.byType(TextField),
+              ),
             )
-            .first,
+            .controller!
+            .text,
+        'Đỗ Sỹ',
       );
-      final givenField = tester.widget<TextField>(
-        find
-            .descendant(
-              of: find.byKey(const Key('invitation_register_given_name')),
-              matching: find.byType(TextField),
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(
+                  const Key('invitation_register_given_name'),
+                ),
+                matching: find.byType(TextField),
+              ),
             )
-            .first,
+            .controller!
+            .text,
+        'Chiến',
       );
-      final phoneField = tester.widget<TextField>(
-        find
-            .descendant(
-              of: find.byKey(const Key('invitation_register_phone')),
-              matching: find.byType(TextField),
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(const Key('invitation_register_phone')),
+                matching: find.byType(TextField),
+              ),
             )
-            .first,
+            .controller!
+            .text,
+        '0901234567',
       );
-      final emailField = tester.widget<TextField>(
-        find
-            .descendant(
-              of: find.byKey(const Key('invitation_locked_email')),
-              matching: find.byType(TextField),
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(const Key('invitation_locked_email')),
+                matching: find.byType(TextField),
+              ),
             )
-            .first,
+            .controller!
+            .text,
+        'dosychien9@gmail.com',
       );
-
-      expect(familyField.controller?.text, 'Đỗ Sỹ');
-      expect(givenField.controller?.text, 'Chiến');
-      expect(phoneField.controller?.text, '0901234567');
-      expect(familyField.enabled, isTrue);
-      expect(givenField.enabled, isTrue);
-      expect(emailField.enabled, isFalse);
-
-      await tester.enterText(
-        find.byKey(const Key('invitation_register_family_name')),
-        'Đỗ Văn',
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(const Key('invitation_locked_email')),
+                matching: find.byType(TextField),
+              ),
+            )
+            .enabled,
+        isFalse,
       );
-      expect(find.text('Đỗ Văn'), findsOneWidget);
     },
   );
 
@@ -267,13 +279,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(inspected, 'K7P29XQM');
-    final cells = find.descendant(
+    final textField = find.descendant(
       of: find.byKey(const Key('invitation_token_input')),
       matching: find.byType(TextField),
     );
-    expect(cells, findsNWidgets(8));
-    expect(tester.widget<TextField>(cells.at(0)).controller!.text, 'K');
-    expect(tester.widget<TextField>(cells.at(7)).controller!.text, 'M');
+    expect(textField, findsOneWidget);
+    expect(tester.widget<TextField>(textField).controller!.text, 'K7P29XQM');
   });
 
   testWidgets(
@@ -291,7 +302,7 @@ void main() {
             path: '/invitation',
             builder: (_, _) => InvitationTokenPage(
               iamModule: FakeIamModule(
-                scenario: FakeIamScenario.inspectNewAccount,
+                scenario: FakeIamScenario.registerAndAcceptOk,
               ),
             ),
           ),
@@ -312,11 +323,10 @@ void main() {
 
       await _enterInvitationCode(tester, 'TOKENNEW');
       await tester.pumpAndSettle();
-      final inspectSubmit = find.byKey(const Key('invitation_inspect_submit'));
-      if (inspectSubmit.evaluate().isNotEmpty) {
-        await tester.tap(inspectSubmit);
-        await tester.pumpAndSettle();
-      }
+
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+      await tester.pumpAndSettle();
 
       await tester.enterText(
         find.byKey(const Key('invitation_register_family_name')),
@@ -338,7 +348,6 @@ void main() {
       await tester.tap(find.byKey(const Key('invitation_accept_submit')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Kích hoạt thành công'), findsOneWidget);
       expect(find.text('LOGIN_PAGE'), findsOneWidget);
     },
   );

@@ -3,18 +3,26 @@ import 'dart:io';
 import 'package:test/test.dart';
 
 void main() {
-  late String sql;
+  late String activationSql;
+  late String canonicalizationSql;
+  late String lifecycleSql;
 
   setUpAll(() {
     final root = _findRepoRoot();
-    sql = File(
-      '${root.path}/supabase/migrations/_drafts/iam_owner_activation_store_owner_role.sql',
+    activationSql = File(
+      '${root.path}/supabase/migrations/20260811023_iam_owner_activation.sql',
+    ).readAsStringSync();
+    canonicalizationSql = File(
+      '${root.path}/supabase/migrations/20260811024_iam_patch_owner_role_canonicalization.sql',
+    ).readAsStringSync();
+    lifecycleSql = File(
+      '${root.path}/supabase/migrations/20260811014_iam_tenant_membership_lifecycle.sql',
     ).readAsStringSync();
   });
 
   group('owner activation membership role canonicalization', () {
     test('accept_owner_activation creates owner membership with store_owner role', () {
-      final body = _functionBody(sql, 'accept_owner_activation');
+      final body = _functionBody(activationSql, 'accept_owner_activation');
 
       expect(body, contains('insert into iam.memberships'));
       expect(body, contains("'store_owner', true, 'active'"));
@@ -22,14 +30,14 @@ void main() {
     });
 
     test('existing owner memberships are backfilled away from owner role', () {
-      expect(sql, contains("where role = 'owner'"));
-      expect(sql, contains("set role = 'store_owner'"));
+      expect(canonicalizationSql, contains("where role = 'owner'"));
+      expect(canonicalizationSql, contains("set role = 'store_owner'"));
     });
 
     test('list_accessible_tenants exposes ownership separate from role', () {
-      expect(sql, contains('drop function if exists iam.list_accessible_tenants()'));
-      expect(sql, contains('is_owner boolean'));
-      expect(sql, contains('m.is_owner'));
+      expect(lifecycleSql, contains('drop function if exists iam.list_accessible_tenants()'));
+      expect(lifecycleSql, contains('is_owner boolean'));
+      expect(lifecycleSql, contains('m.is_owner'));
     });
   });
 }

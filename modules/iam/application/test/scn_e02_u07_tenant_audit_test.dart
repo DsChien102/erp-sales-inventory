@@ -10,16 +10,17 @@ final class _RecordingTenantAuditReadPort implements ITenantAuditReadPort {
     required String tenantId,
     required DateTime from,
     required DateTime to,
+    String? query,
     String? result,
-    String? actorUserId,
+    TenantAuditEventCategory? eventCategory,
     String? subjectType,
-    String? eventCode,
+    List<String>? eventCodes,
     String? cursor,
     int? limit,
   }) async {
     receivedFrom = from;
     receivedTo = to;
-    return const TenantAuditLogSearchPageDto(items: []);
+    return const TenantAuditLogSearchPageDto(items: [], totalCount: 0);
   }
 
   @override
@@ -99,14 +100,14 @@ void main() {
       );
     });
 
-    test('search filters by eventCode', () async {
+    test('search filters by eventCodes', () async {
       final handler = SearchTenantAuditLogsQueryHandler(auditReadPort: port);
       final matched = await handler.handle(
         SearchTenantAuditLogsQuery(
           tenantId: 'org-001',
           fromUtc: DateTime.utc(2026, 7, 1),
           toUtc: DateTime.utc(2026, 7, 31),
-          eventCode: 'iam.tenant.profile.updated',
+          eventCodes: const ['iam.tenant.profile.updated'],
         ),
       );
       expect(matched.items, isNotEmpty);
@@ -116,7 +117,7 @@ void main() {
           tenantId: 'org-001',
           fromUtc: DateTime.utc(2026, 7, 1),
           toUtc: DateTime.utc(2026, 7, 31),
-          eventCode: 'iam.unknown.event',
+          eventCodes: const ['iam.unknown.event'],
         ),
       );
       expect(missed.items, isEmpty);

@@ -16,12 +16,10 @@ class AuditLogFilterBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<AuditLogFilterBottomSheet> createState() =>
-      _AuditLogFilterBottomSheetState();
+  State<AuditLogFilterBottomSheet> createState() => _AuditLogFilterBottomSheetState();
 }
 
-class _AuditLogFilterBottomSheetState
-    extends State<AuditLogFilterBottomSheet> {
+class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
   late AuditLogFilterCriteria _currentCriteria;
 
   static const List<String> _timeRangeOptions = [
@@ -98,13 +96,10 @@ class _AuditLogFilterBottomSheetState
               final isSelected = _currentCriteria.timeRange == option;
               return VChip(
                 label: option,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
                 onTap: () {
                   setState(() {
-                    _currentCriteria =
-                        _currentCriteria.copyWith(timeRange: option);
+                    _currentCriteria = _currentCriteria.copyWith(timeRange: option);
                   });
                 },
               );
@@ -122,9 +117,7 @@ class _AuditLogFilterBottomSheetState
               final isSelected = _currentCriteria.status == option.status;
               return VChip(
                 label: option.label,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
                 onTap: () {
                   setState(() {
                     _currentCriteria = _currentCriteria.copyWith(
@@ -148,13 +141,10 @@ class _AuditLogFilterBottomSheetState
               final isSelected = _currentCriteria.actorType == option;
               return VChip(
                 label: option,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
                 onTap: () {
                   setState(() {
-                    _currentCriteria =
-                        _currentCriteria.copyWith(actorType: option);
+                    _currentCriteria = _currentCriteria.copyWith(actorType: option);
                   });
                 },
               );
