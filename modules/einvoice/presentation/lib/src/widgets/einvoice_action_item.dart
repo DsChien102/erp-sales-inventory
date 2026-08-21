@@ -3,13 +3,16 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Internal reusable action-item anatomy for E-Invoice action sheets.
 ///
-/// Shared between [PreIssueEInvoiceActionSheet] and
-/// [PostIssueEInvoiceActionSheet].
+/// Shared between [PreIssueEInvoiceActionSheet],
+/// [PostIssueEInvoiceActionSheet], and [InvoiceDocumentsActionSheet].
 ///
 /// Contract:
 /// - Enabled: normal icon/text/chevron treatment.
 /// - Disabled: neutral100 background, muted icon/text/chevron. Chevron remains.
-/// - Loading: chevron replaced by primary600 spinner. Other actions disabled.
+/// - Loading: chevron replaced by primary spinner; this row is non-interactive.
+///   Whether **sibling** actions are disabled is sheet policy (e.g. PostIssue
+///   official-view loading disables siblings; SG-06 keeps the other document
+///   action normal).
 /// - Callers must set [enabled] false (and omit [onTap]) when the item's
 ///   active status badge is [VBadgeStatus.processing] — see
 ///   `EInvoiceStatusInteraction`.

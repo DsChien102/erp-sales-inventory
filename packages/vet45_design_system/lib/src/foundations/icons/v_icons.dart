@@ -52,6 +52,8 @@ enum VIcons {
   cloudUpload,
   fileUp,
   fileSpreadsheet,
+  file,
+  fileText,
 
   // Domain & Business Specific Icons
   calendar,
@@ -370,6 +372,11 @@ abstract final class _Lucide {
   );
   static const userX = IconData(
     57763,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const file = IconData(
+    57536,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -709,6 +716,11 @@ extension VIconsExtension on VIcons {
         return _Lucide.fileUp;
       case VIcons.fileSpreadsheet:
         return _Lucide.fileSpreadsheet;
+      case VIcons.file:
+        return _Lucide.file;
+      case VIcons.fileText:
+      case VIcons.description:
+        return _Lucide.fileText;
 
       // Domain & Business Specific Icons
       case VIcons.calendar:
@@ -740,8 +752,6 @@ extension VIconsExtension on VIcons {
         return _Lucide.userCheck;
       case VIcons.personRemove:
         return _Lucide.userX;
-      case VIcons.description:
-        return _Lucide.fileText;
       case VIcons.gridView:
         return _Lucide.grid;
       case VIcons.stickyNote:

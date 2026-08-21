@@ -284,6 +284,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG06-O02',
@@ -292,6 +293,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG06-O03',
@@ -300,6 +302,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-07 — EP-04 / Slice S5
