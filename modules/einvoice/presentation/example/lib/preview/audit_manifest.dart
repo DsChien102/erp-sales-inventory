@@ -313,6 +313,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-B',
@@ -321,6 +322,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-C',
@@ -329,6 +331,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-D',
@@ -337,6 +340,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O02',
@@ -345,6 +349,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Resend Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/resend_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-D01',
@@ -353,6 +358,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/invoice_delivery_history_page.dart',
+      status: AuditStatus.done,
     ),
   ];
 
