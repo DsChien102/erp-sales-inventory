@@ -64,11 +64,12 @@ class VButton extends StatelessWidget {
     return VComponentState.enabled;
   }
 
-  static TextStyle _textStyleForSize(VButtonSize size) {
-    return switch (size) {
-      VButtonSize.small => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
-      VButtonSize.medium => VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600),
-      VButtonSize.large => VTypography.headingH4.copyWith(fontWeight: FontWeight.w600),
+  static TextStyle _textStyleForVariant(VButtonVariant variant) {
+    return switch (variant) {
+      VButtonVariant.primary => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+      VButtonVariant.secondary => VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w500),
+      VButtonVariant.tertiary => VTypography.headingH4.copyWith(fontWeight: FontWeight.w600),
+      VButtonVariant.link => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w500),
     };
   }
 
@@ -87,7 +88,7 @@ class VButton extends StatelessWidget {
         showLoading: showLoading,
         leadingIcon: leadingIcon,
         trailingIcon: trailingIcon,
-        textStyle: _textStyleForSize(size),
+        textStyle: _textStyleForVariant(variant),
         foregroundColor: foregroundColor,
         semanticLabel: semanticLabel,
       );
@@ -96,23 +97,20 @@ class VButton extends StatelessWidget {
     // Size-based padding and height config
     final double height;
     final EdgeInsetsGeometry padding;
-    final TextStyle textStyle;
+    final TextStyle textStyle = _textStyleForVariant(variant);
 
     switch (size) {
       case VButtonSize.small:
         height = context.vDensity.controlHeightSmall;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space3);
-        textStyle = _textStyleForSize(size);
         break;
       case VButtonSize.medium:
         height = context.vDensity.controlHeightMedium;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space4);
-        textStyle = _textStyleForSize(size);
         break;
       case VButtonSize.large:
         height = context.vDensity.controlHeightLarge;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space6);
-        textStyle = _textStyleForSize(size);
         break;
     }
 

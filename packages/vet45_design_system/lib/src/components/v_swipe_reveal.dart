@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/v_radius.dart';
+
 /// Swipe-left shell that reveals actions behind [child].
 ///
-/// Shared by swipe record / order line — implementation detail (not barrel-exported).
+/// Public primitive for list/row swipe patterns. Compose domain content as
+/// [child]; build revealed actions via [actionsBuilder].
+///
+/// Always clips the stack with rounded corners ([clipBorderRadius], default
+/// [VRadius.card]).
 class VSwipeReveal extends StatefulWidget {
   const VSwipeReveal({
     super.key,
@@ -25,18 +31,21 @@ class VSwipeReveal extends StatefulWidget {
   final bool initiallyRevealed;
   final VoidCallback? onTap;
   final double? height;
+
+  /// Clip radius for the reveal shell. Defaults to [VRadius.card].
   final BorderRadius? clipBorderRadius;
 
   @override
   State<VSwipeReveal> createState() => _VSwipeRevealState();
 }
 
-class _VSwipeRevealState extends State<VSwipeReveal>
-    with SingleTickerProviderStateMixin {
+class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   double _dragExtent = 0;
 
   bool get _isOpen => _controller.value > 0.01;
+
+  BorderRadius get _clipRadius => widget.clipBorderRadius ?? BorderRadius.circular(VRadius.card);
 
   @override
   void initState() {
@@ -75,8 +84,7 @@ class _VSwipeRevealState extends State<VSwipeReveal>
 
   void _onDragUpdate(DragUpdateDetails details) {
     if (!widget.enabled || widget.actionExtent <= 0) return;
-    final next =
-        (_dragExtent + details.delta.dx).clamp(-widget.actionExtent, 0.0);
+    final next = (_dragExtent + details.delta.dx).clamp(-widget.actionExtent, 0.0);
     setState(() => _dragExtent = next);
     _controller.value = (-_dragExtent) / widget.actionExtent;
   }
@@ -109,9 +117,7 @@ class _VSwipeRevealState extends State<VSwipeReveal>
             onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
             onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
             child: GestureDetector(
-              onTap: !widget.enabled
-                  ? null
-                  : () => _isOpen ? _close() : widget.onTap?.call(),
+              onTap: !widget.enabled ? null : () => _isOpen ? _close() : widget.onTap?.call(),
               child: widget.child,
             ),
           ),
@@ -119,10 +125,9 @@ class _VSwipeRevealState extends State<VSwipeReveal>
       ],
     );
 
-    final clipped = widget.clipBorderRadius != null
-        ? ClipRRect(borderRadius: widget.clipBorderRadius!, child: body)
-        : ClipRect(child: body);
-
-    return SizedBox(height: widget.height, child: clipped);
+    return SizedBox(
+      height: widget.height,
+      child: ClipRRect(borderRadius: _clipRadius, child: body),
+    );
   }
 }
