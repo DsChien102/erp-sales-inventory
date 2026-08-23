@@ -113,18 +113,20 @@ cd apps/messaging_worker && dart test
 
 Scaffold module mới: `./scripts/scaffold_module.sh`.
 
-## Versioning & changelog (apps)
+## Versioning & changelog (ship units)
 
-Chỉ **3 ship units** có version/changelog riêng: `erp`, `admin`, `messaging_worker`. Module/package nội bộ không bump theo release.
+Ship units có version/changelog riêng: `erp`, `admin`, `messaging_worker`, `vet45_design_system`.
+Các module/package khác vẫn workspace-pinned — ghi note dưới **Internal** của unit ship liên quan.
 
 ```bash
-# Ghi note vào apps/<app>/CHANGELOG.md → ## [Unreleased] khi làm feature
+# Ghi note vào <unit>/CHANGELOG.md → ## [Unreleased] khi làm feature
 ./apps/erp/scripts/bump_version.sh --patch --dry-run
 ./apps/admin/scripts/bump_version.sh --build
 ./apps/messaging_worker/scripts/bump_version.sh --minor --commit --tag
+./packages/vet45_design_system/scripts/bump_version.sh --patch --dry-run
 ```
 
-Chi tiết: [docs/operations/app_versioning.md](docs/operations/app_versioning.md).
+Chi tiết (framework flat `flutter_exec` / `dart_lib` / …): [docs/operations/app_versioning.md](docs/operations/app_versioning.md).
 
 MR template (GitLab): [`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md).
 

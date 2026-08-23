@@ -5,24 +5,26 @@ alwaysApply: true
 
 # App changelog (ship units)
 
-Khi implement / sửa code **ảnh hưởng app ship được**, luôn ghi bullet vào `## [Unreleased]` của CHANGELOG app đó **trong cùng thay đổi** (không để sau release).
+Khi implement / sửa code **ảnh hưởng ship unit**, luôn ghi bullet vào `## [Unreleased]` của CHANGELOG unit đó **trong cùng thay đổi** (không để sau release).
 
 ## Ship units
 
-| App | Changelog | Bump |
-| --- | --------- | ---- |
-| ERP | `apps/erp/CHANGELOG.md` | `./apps/erp/scripts/bump_version.sh` |
-| Admin | `apps/admin/CHANGELOG.md` | `./apps/admin/scripts/bump_version.sh` |
-| Messaging worker | `apps/messaging_worker/CHANGELOG.md` | `./apps/messaging_worker/scripts/bump_version.sh` |
+| Unit | Changelog | Bump | Framework |
+| --- | --------- | ---- | --------- |
+| ERP | `apps/erp/CHANGELOG.md` | `./apps/erp/scripts/bump_version.sh` | `flutter_exec` |
+| Admin | `apps/admin/CHANGELOG.md` | `./apps/admin/scripts/bump_version.sh` | `flutter_exec` |
+| Messaging worker | `apps/messaging_worker/CHANGELOG.md` | `./apps/messaging_worker/scripts/bump_version.sh` | `dart_exec` |
+| Design system | `packages/vet45_design_system/CHANGELOG.md` | `./packages/vet45_design_system/scripts/bump_version.sh` | `flutter_lib` |
 
 Chi tiết: `docs/operations/app_versioning.md`.
 
-## Map ảnh hưởng → app nào
+## Map ảnh hưởng → unit nào
 
 - Đổi `apps/erp/**` hoặc UX IAM/catalog/… mà ERP ship → **erp**
 - Đổi `apps/admin/**` hoặc UI platform admin → **admin**
 - Đổi `apps/messaging_worker/**`, messaging claim/discovery RPC, worker env → **messaging_worker**
-- Đổi `modules/*` / `packages/*` dùng bởi nhiều app → ghi vào **mọi app bị ảnh hưởng lúc ship** (thường **erp** + **admin** nếu IAM presentation; **worker** nếu outbox/inbox/integration consume)
+- Đổi `packages/vet45_design_system/**` → **vet45_design_system**; nếu thay đổi **user-facing** trên ERP/Admin → **đồng thời** bullet app CHANGELOG
+- Đổi `modules/*` / `packages/*` khác dùng bởi nhiều app → ghi vào **mọi app bị ảnh hưởng lúc ship** (thường **erp** + **admin** nếu IAM presentation; **worker** nếu outbox/inbox/integration consume)
 - Chỉ docs/tooling/harness không ship → **không** bắt buộc changelog (ghi MR “None”)
 
 ## Cách viết
@@ -42,6 +44,6 @@ Chi tiết: `docs/operations/app_versioning.md`.
 
 ## Checklist trước khi kết thúc task
 
-- [ ] Đã xác định app ship bị ảnh hưởng
+- [ ] Đã xác định ship unit bị ảnh hưởng
 - [ ] Đã thêm bullet vào `## [Unreleased]` tương ứng
-- [ ] Không bỏ sót app thứ hai nếu change cross-app
+- [ ] Không bỏ sót app thứ hai nếu change cross-app / user-facing từ design system

@@ -41,6 +41,8 @@ VS Code: **Run and Debug** → `Design system · example` (hoặc `melos · desi
 
 **Agent rule:** khi thêm/đổi public UI trong package này, phải cover example catalog (mọi state API hiện có) — xem [`.cursor/rules/vet45-design-system-example.mdc`](../../.cursor/rules/vet45-design-system-example.mdc).
 
+**Version / changelog:** [`CHANGELOG.md`](CHANGELOG.md) — bump with [`scripts/bump_version.sh`](scripts/bump_version.sh) (framework `flutter_lib`; see [app_versioning.md](../../docs/operations/app_versioning.md)). Tag: `vet45_design_system-vX.Y.Z`.
+
 Main tabs in the preview:
 - `Tokens`: colors, typography, spacing, radius, shadows, duration
 - `Primitives`: `VBadge`, `VChip`, `VIcon`, `VIconBox` (state gallery)
