@@ -15,13 +15,22 @@ changelogs when relevant.
 
 ### Added
 
-- Ship-unit versioning: Keep a Changelog + `scripts/bump_version.sh` (`flutter_lib` framework).
+- Versioning theo ship unit: Keep a Changelog + `scripts/bump_version.sh` (framework `flutter_lib`).
 
 ### Changed
+
+- `VSwipeReveal` là primitive swipe-trái public (example + UI audit cover trực tiếp).
+- Typography của `VButton` theo variant (primary/secondary/tertiary/link) thay vì theo size.
 
 ### Fixed
 
 ### Internal
+
+- Component audit: gỡ entry `VSwipeActionRecord` sau khi xóa widget.
+
+### Removed
+
+- `VSwipeActionRecord` — compose nội dung hàng trên `VSwipeReveal`.
 
 ## [1.0.0] - 2026-08-23
 

@@ -73,7 +73,6 @@ export 'src/components/v_loading.dart';
 export 'src/components/v_steps.dart';
 export 'src/components/v_progress.dart';
 export 'src/components/v_segmented_control.dart';
-export 'src/components/v_swipe_action_record.dart';
 export 'src/components/v_numeric_keypad_sheet.dart';
 export 'src/components/v_swipe_reveal.dart';
 

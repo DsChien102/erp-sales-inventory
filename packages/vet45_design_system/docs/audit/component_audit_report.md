@@ -27,7 +27,6 @@
 | components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VSegmentedControl` | navigation_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |
 | components | `VSteps` | navigation_chrome | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
-| components | `VSwipeActionRecord` | business_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |
 | components | `VSwitch` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VTable` | container | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A (na) | Pass (optional) | Yes |

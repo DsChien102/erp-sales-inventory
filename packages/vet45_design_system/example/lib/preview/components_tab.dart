@@ -120,48 +120,76 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
-          title: 'VSwipeActionRecord',
+          title: 'VSwipeReveal',
           description:
-              'Swipe trái hiện action destructive. Vuốt / tap lại để đóng. '
-              'Consumer gắn confirmation trên onAction.',
+              'Primitive swipe-left shell. Compose foreground child + actionsBuilder.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               PreviewStateRow(
                 label: 'default — vuốt trái',
-                child: VSwipeActionRecord(
-                  title: 'Record title',
-                  supportingText1: 'Supporting information',
-                  supportingText2: 'Additional context',
-                  summary: '0 items  •  0đ',
-                  timestamp: '00:00',
-                  onAction: () {},
+                child: VSwipeReveal(
+                  height: 72,
+                  actionExtent: 76,
                   onTap: () {},
-                ),
-              ),
-              PreviewStateRow(
-                label: 'with badge',
-                child: VSwipeActionRecord(
-                  title: 'Đơn nháp cần kiểm tra',
-                  supportingText1: '0901 234 567',
-                  supportingText2: 'Ghi chú đơn',
-                  summary: '3 mặt hàng  •  450.000đ',
-                  timestamp: '14:20',
-                  badgeLabel: 'Cần kiểm tra',
-                  onAction: () {},
-                  onTap: () {},
+                  actionsBuilder: (context, close) {
+                    final actionColors = context.vColors;
+                    return Material(
+                      color: actionColors.danger,
+                      child: InkWell(
+                        onTap: close,
+                        child: SizedBox(
+                          width: 76,
+                          height: double.infinity,
+                          child: Center(
+                            child: VText(
+                              'Xóa',
+                              variant: VTextVariant.bodyDefault,
+                              color: actionColors.surface,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Material(
+                    color: colors.surface,
+                    child: const Padding(
+                      padding: EdgeInsets.all(VSpacing.space3),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: VText(
+                          'Foreground row — vuốt để hiện action',
+                          variant: VTextVariant.bodyDefault,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               PreviewStateRow(
                 label: 'disabled',
-                child: VSwipeActionRecord(
-                  title: 'Không thể vuốt',
-                  supportingText1: 'Supporting information',
-                  supportingText2: 'Additional context',
-                  summary: '1 item  •  100.000đ',
-                  timestamp: '09:30',
+                child: VSwipeReveal(
+                  height: 72,
                   enabled: false,
-                  onAction: () {},
+                  actionExtent: 76,
+                  actionsBuilder: (context, close) => const SizedBox(width: 76),
+                  child: Material(
+                    color: colors.surface,
+                    child: const Padding(
+                      padding: EdgeInsets.all(VSpacing.space3),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: VText(
+                          'Không thể vuốt',
+                          variant: VTextVariant.bodyDefault,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
