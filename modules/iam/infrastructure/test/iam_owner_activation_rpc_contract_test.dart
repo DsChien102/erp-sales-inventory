@@ -8,56 +8,25 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/20260811023_iam_owner_activation.sql',
+      '${root.path}/supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql',
     ).readAsStringSync();
   });
 
-  group('iam owner activation RPC contract (Hướng 1)', () {
-    test('accept requires a session and is authenticated-only', () {
-      expect(sql, contains('function iam.accept_owner_activation'));
-      expect(sql, contains('AUTHENTICATION_REQUIRED'));
-      expect(
-        sql,
-        contains(
-          'grant execute on function iam.accept_owner_activation(text, text) '
-          'to authenticated',
-        ),
-      );
-      // Not exposed to anon/service_role.
-      expect(
-        sql,
-        contains(
-          'revoke all on function iam.accept_owner_activation(text, text) '
-          'from public, anon',
-        ),
-      );
+  group('iam owner activation retirement contract', () {
+    test('legacy owner activation RPCs and table are dropped', () {
+      expect(sql, contains('drop function if exists iam.inspect_owner_activation(text)'));
+      expect(sql, contains('drop function if exists iam.accept_owner_activation(text, text)'));
+      expect(sql, contains('drop table if exists iam.owner_activations'));
     });
 
-    test('accept creates the owner membership and an active profile', () {
-      final body = sql.substring(
-        sql.indexOf('function iam.accept_owner_activation'),
-      );
-      expect(body, contains('insert into iam.memberships'));
-      expect(body, contains("'store_owner', true, 'active'"));
-      expect(body, isNot(contains("'owner', true, 'active'")));
-      expect(body, contains("status = 'active'"));
-      expect(body, contains("status = 'accepted'"));
-    });
-
-    test('accept guards: expiry, attempt limit, email match', () {
-      final body = sql.substring(
-        sql.indexOf('function iam.accept_owner_activation'),
-      );
-      expect(body, contains('INVITATION_EXPIRED'));
-      expect(body, contains('INVITATION_TOKEN_INVALID'));
-      expect(body, contains('attempt_count'));
-    });
-
-    test('accept never changes tenant status', () {
-      final body = sql.substring(
-        sql.indexOf('function iam.accept_owner_activation'),
-      );
-      expect(body, isNot(contains('update iam.tenants')));
+    test('onboarding issues an owner invitation via tenant_invitations', () {
+      final start = sql.indexOf('create or replace function iam.create_tenant_onboarding(');
+      final end = start < 0 ? -1 : sql.indexOf(r'$$;', start);
+      final fn = start < 0 ? '' : sql.substring(start, end < 0 ? null : end);
+      expect(fn, contains('insert into iam.tenant_invitations'));
+      expect(fn, contains('is_owner'));
+      expect(fn, isNot(contains('insert into iam.memberships')));
+      expect(fn, isNot(contains('owner_activations')));
     });
   });
 }

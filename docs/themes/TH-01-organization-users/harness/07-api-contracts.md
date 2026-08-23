@@ -532,6 +532,8 @@ Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@Re
 | `GetTenantOnboardingOperationQuery` | operationId | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, RESOURCE_NOT_FOUND |
 | `RetryTenantOnboardingOperationCommand` | operationId, idempotencyKey | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, STATE_CHANGED, IDEMPOTENCY_CONFLICT, VALIDATION_ERROR |
 
+**Ràng buộc triển khai (owner activation):** Onboarding **không** được tạo `iam.owner_activations` hay cần `inspect_owner_activation` / `accept_owner_activation`. Owner là **người dùng đầu tiên, mặc định là chủ**: onboarding tạo Owner Membership (`is_owner`, role `store_owner`, `status='active'`) ngay cùng Tenant; với owner mới, tạo pending Platform User qua `platform_identity_create_pending_user_for_onboarding` (chưa credential). Owner **không** đi qua luồng mời — `tenant_invitations` là của staff. "Kích hoạt" owner = **đặt mật khẩu qua Supabase Auth** (không có bước accept).
+
 **Locked search shape**
 
 ```text
@@ -777,6 +779,8 @@ Tenant-scoped. Activation snapshot via Platform Identity provider port (IAM khô
 ## §S13 — EP-02/US-07 — Tenant Audit history (V2)
 
 Tenant-scoped. Port: `ITenantAuditReadPort` → `SupabaseTenantAuditReadPort`. Đọc từ canonical `iam.audit_logs` (scope `tenant`); S16 platform audit dùng chung bảng này (scope `platform`).
+
+**Ràng buộc triển khai:** IAM **không** được ghi/đọc `iam.platform_audit_logs` — đó là kho legacy, phải gỡ bằng draft cleanup; `SearchPlatformAuditLogsQuery` và `GetPlatformAuditLogQuery` đọc `iam.audit_logs` với `scope = 'platform'`.
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |

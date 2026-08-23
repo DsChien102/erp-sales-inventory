@@ -24,7 +24,6 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/invitation_token_page.dart';
-import '../../features/auth/presentation/pages/owner_activation_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -125,11 +124,6 @@ final appRouter = GoRouter(
       builder: (context, state) => InvitationTokenPage(
         iamModule: getIt<IIamModule>(),
       ),
-    ),
-    GoRoute(
-      path: '/owner-activation',
-      name: 'owner-activation',
-      builder: (context, state) => const OwnerActivationPage(),
     ),
     GoRoute(
       path: '/',
