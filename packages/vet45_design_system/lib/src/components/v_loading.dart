@@ -5,6 +5,7 @@ import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VLoading extends StatelessWidget {
   final String? title;
@@ -39,43 +40,47 @@ class VLoading extends StatelessWidget {
     );
 
     if (title == null && description == null) {
-      return Semantics(
-        label: semanticLabel ?? 'Đang tải...',
-        child: spinner,
+      return vInspectorHide(
+        Semantics(
+          label: semanticLabel ?? 'Đang tải...',
+          child: spinner,
+        ),
       );
     }
 
-    return Semantics(
-      label: semanticLabel ?? 'Đang tải...',
-      explicitChildNodes: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          spinner,
-          if (title != null) ...[
-            const VGap.md(),
-            VText(
-              title!,
-              style: VTypography.bodyDefault.copyWith(
-                fontWeight: FontWeight.w600,
-                color: dynamicColors.textPrimary,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? 'Đang tải...',
+        explicitChildNodes: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            spinner,
+            if (title != null) ...[
+              const VGap.md(),
+              VText(
+                title!,
+                style: VTypography.bodyDefault.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: dynamicColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-          if (description != null) ...[
-            const VGap.xs(),
-            VText(
-              description!,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textMuted,
+            ],
+            if (description != null) ...[
+              const VGap.xs(),
+              VText(
+                description!,
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.textMuted,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

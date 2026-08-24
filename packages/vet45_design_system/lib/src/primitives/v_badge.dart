@@ -4,6 +4,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 
 enum VBadgeStatus {
   draft,
@@ -193,9 +194,11 @@ class VBadge extends StatelessWidget {
       ),
     );
 
-    return Semantics(
-      label: semanticLabel ?? label,
-      child: badge,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? label,
+        child: badge,
+      ),
     );
   }
 }

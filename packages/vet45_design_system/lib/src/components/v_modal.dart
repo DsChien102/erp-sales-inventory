@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+
+import '../foundation/v_component_contracts.dart';
+import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../tokens/v_radius.dart';
+import '../tokens/v_spacing.dart';
+import '../tokens/v_typography.dart';
+import 'v_button.dart';
 
 class VConfirmDialog extends StatelessWidget {
   final String title;
@@ -27,56 +34,58 @@ class VConfirmDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Semantics(
-      label: semanticLabel ?? title,
-      child: Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(VRadius.sheet),
-        ),
-        backgroundColor: dynamicColors.surface,
-        elevation: 24,
-        child: Padding(
-          padding: const EdgeInsets.all(VSpacing.space5),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: VTypography.headingH3.copyWith(
-                  color: dynamicColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: VSpacing.space2),
-              Text(
-                message,
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: VSpacing.space6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  VButton(
-                    label: cancelLabel,
-                    variant: VButtonVariant.tertiary,
-                    onPressed: () => Navigator.of(context).pop(),
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? title,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(VRadius.sheet),
+          ),
+          backgroundColor: dynamicColors.surface,
+          elevation: 24,
+          child: Padding(
+            padding: const EdgeInsets.all(VSpacing.space5),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: VTypography.headingH3.copyWith(
+                    color: dynamicColors.textPrimary,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(width: VSpacing.space2),
-                  VButton(
-                    label: actionLabel,
-                    variant: VButtonVariant.primary,
-                    tone: isDestructive ? VComponentTone.danger : tone,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      onAction();
-                    },
+                ),
+                const SizedBox(height: VSpacing.space2),
+                Text(
+                  message,
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.textSecondary,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: VSpacing.space6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    VButton(
+                      label: cancelLabel,
+                      variant: VButtonVariant.tertiary,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: VSpacing.space2),
+                    VButton(
+                      label: actionLabel,
+                      variant: VButtonVariant.primary,
+                      tone: isDestructive ? VComponentTone.danger : tone,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        onAction();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

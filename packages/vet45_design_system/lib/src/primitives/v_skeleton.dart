@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_duration.dart';
 import '../tokens/v_radius.dart';
 
@@ -60,9 +61,11 @@ class _VSkeletonScopeState extends State<VSkeletonScope>
 
   @override
   Widget build(BuildContext context) {
-    return _VSkeletonAnimation(
-      opacity: _opacity,
-      child: widget.child,
+    return vInspectorHide(
+      _VSkeletonAnimation(
+        opacity: _opacity,
+        child: vInspectorShow(widget.child),
+      ),
     );
   }
 }
@@ -188,10 +191,12 @@ class _VSkeletonState extends State<VSkeleton>
             child: bone,
           );
 
-    return Semantics(
-      label: widget.semanticLabel,
-      excludeSemantics: widget.semanticLabel == null,
-      child: animated,
+    return vInspectorHide(
+      Semantics(
+        label: widget.semanticLabel,
+        excludeSemantics: widget.semanticLabel == null,
+        child: animated,
+      ),
     );
   }
 }

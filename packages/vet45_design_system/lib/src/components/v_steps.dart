@@ -7,6 +7,7 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
 import '../primitives/v_icon.dart';
 import '../foundations/icons/v_icons.dart';
+import '../foundation/v_inspector_scope.dart';
 
 enum VStepStatus { completed, active, inactive }
 
@@ -344,10 +345,12 @@ class VSteps extends StatelessWidget {
       }
     }
 
-    return Semantics(
-      label: semanticLabel ?? 'Các bước tiến trình',
-      explicitChildNodes: true,
-      child: content,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? 'Các bước tiến trình',
+        explicitChildNodes: true,
+        child: content,
+      ),
     );
   }
 }

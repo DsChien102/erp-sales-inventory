@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
@@ -42,8 +43,7 @@ class VCard extends StatelessWidget {
     required this.child,
     this.padding,
     this.onTap,
-    @Deprecated('Use emphasis: VComponentEmphasis.medium instead')
-    this.elevated = false,
+    @Deprecated('Use emphasis: VComponentEmphasis.medium instead') this.elevated = false,
     this.tone,
     this.emphasis = VComponentEmphasis.subtle,
     this.backgroundColor,
@@ -81,23 +81,25 @@ class VCard extends StatelessWidget {
     final (toneBg, toneBorder) = _toneColors(dynamicColors);
     final resolvedRadius = borderRadius ?? VRadius.card;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor ?? toneBg,
-        borderRadius: BorderRadius.circular(resolvedRadius),
-        border: border ?? VBorders.all(toneBorder),
-        boxShadow: _resolveShadow(),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: onTap,
+    return vInspectorHide(
+      Container(
+        decoration: BoxDecoration(
+          color: backgroundColor ?? toneBg,
           borderRadius: BorderRadius.circular(resolvedRadius),
-          child: Padding(
-            padding: padding ?? const EdgeInsets.all(_kCardInset),
-            child: child,
+          border: border ?? VBorders.all(toneBorder),
+          boxShadow: _resolveShadow(),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            child: Padding(
+              padding: padding ?? const EdgeInsets.all(_kCardInset),
+              child: vInspectorShow(child),
+            ),
           ),
         ),
       ),
@@ -111,29 +113,35 @@ class VCardHeader extends StatelessWidget {
     super.key,
     this.title,
     this.action,
+    this.padding,
   });
 
   final Widget? title;
   final Widget? action;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        _kCardInset,
-        _kCardInset,
-        _kCardInset,
-        VSpacing.sm,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null) Expanded(child: title!),
-          if (action != null) ...[
-            const VGap.horizontalSm(),
-            action!,
+    return vInspectorHide(
+      Padding(
+        padding:
+            padding ??
+            const EdgeInsets.fromLTRB(
+              _kCardInset,
+              _kCardInset,
+              _kCardInset,
+              VSpacing.sm,
+            ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null) Expanded(child: vInspectorShow(title!)),
+            if (action != null) ...[
+              const VGap.horizontalSm(),
+              vInspectorShow(action!),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -156,12 +164,14 @@ class VCardIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VIconBox(
-      icon: icon,
-      iconData: iconData,
-      tone: tone,
-      size: size,
-      iconSize: size * 0.5,
+    return vInspectorHide(
+      VIconBox(
+        icon: icon,
+        iconData: iconData,
+        tone: tone,
+        size: size,
+        iconSize: size * 0.5,
+      ),
     );
   }
 }
@@ -180,20 +190,22 @@ class VCardTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        VText(title, variant: VTextVariant.headingH4),
-        if (description != null && description!.isNotEmpty) ...[
-          const VGap.xs(),
-          VText(
-            description!,
-            variant: VTextVariant.bodySmall,
-            color: colors.textSecondary,
-          ),
+    return vInspectorHide(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VText(title, variant: VTextVariant.headingH4),
+          if (description != null && description!.isNotEmpty) ...[
+            const VGap.xs(),
+            VText(
+              description!,
+              variant: VTextVariant.bodySmall,
+              color: colors.textSecondary,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -206,9 +218,11 @@ class VCardAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: child,
+    return vInspectorHide(
+      Align(
+        alignment: Alignment.centerRight,
+        child: vInspectorShow(child),
+      ),
     );
   }
 }
@@ -228,14 +242,16 @@ class VCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        _kCardInset,
-        denseTop ? 0 : _kCardInset,
-        _kCardInset,
-        _kCardInset,
+    return vInspectorHide(
+      Padding(
+        padding: EdgeInsets.fromLTRB(
+          _kCardInset,
+          denseTop ? 0 : _kCardInset,
+          _kCardInset,
+          _kCardInset,
+        ),
+        child: vInspectorShow(child),
       ),
-      child: child,
     );
   }
 }
@@ -253,16 +269,18 @@ class VCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        _kCardInset,
-        VSpacing.sm,
-        _kCardInset,
-        _kCardInset,
-      ),
-      child: Row(
-        mainAxisAlignment: alignment,
-        children: [child],
+    return vInspectorHide(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          _kCardInset,
+          VSpacing.sm,
+          _kCardInset,
+          _kCardInset,
+        ),
+        child: Row(
+          mainAxisAlignment: alignment,
+          children: [vInspectorShow(child)],
+        ),
       ),
     );
   }

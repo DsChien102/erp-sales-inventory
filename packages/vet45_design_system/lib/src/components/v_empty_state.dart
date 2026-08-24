@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
@@ -67,8 +68,7 @@ class VEmptyState extends StatelessWidget {
     this.emphasis = VComponentEmphasis.medium,
   }) : assert(
          child != null ||
-             (title != null &&
-                 (iconEmoji != null || icon != null || iconData != null)),
+             (title != null && (iconEmoji != null || icon != null || iconData != null)),
          'Provide child (composition) or title + icon/iconData/iconEmoji (legacy)',
        );
 
@@ -104,13 +104,10 @@ class VEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final resolvedRadius = borderRadius ?? VRadius.card;
-    final resolvedPadding =
-        padding ?? const EdgeInsets.all(VSpacing.lg);
+    final resolvedPadding = padding ?? const EdgeInsets.all(VSpacing.lg);
 
-    final Color? bg = backgroundColor ??
-        (filled ? colors.surfaceAlt : null);
-    final Border? resolvedBorder = border ??
-        (bordered ? VBorders.all(colors.borderDefault) : null);
+    final Color? bg = backgroundColor ?? (filled ? colors.surfaceAlt : null);
+    final Border? resolvedBorder = border ?? (bordered ? VBorders.all(colors.borderDefault) : null);
 
     final hasDecoration = bg != null || resolvedBorder != null;
 
@@ -120,23 +117,25 @@ class VEmptyState extends StatelessWidget {
       padding: resolvedPadding,
       child: Align(
         alignment: Alignment.center,
-        child: content,
+        child: vInspectorShow(content),
       ),
     );
 
-    return Semantics(
-      label: semanticLabel ?? title,
-      child: hasDecoration
-          ? DecoratedBox(
-              key: const ValueKey<String>('v_empty_state_shell'),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(resolvedRadius),
-                border: resolvedBorder,
-              ),
-              child: body,
-            )
-          : body,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? title,
+        child: hasDecoration
+            ? DecoratedBox(
+                key: const ValueKey<String>('v_empty_state_shell'),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(resolvedRadius),
+                  border: resolvedBorder,
+                ),
+                child: body,
+              )
+            : body,
+      ),
     );
   }
 
@@ -167,9 +166,7 @@ class VEmptyState extends StatelessWidget {
               leadingIcon: actionLeadingIcon,
               size: VButtonSize.medium,
               emphasis: emphasis,
-              tone: tone == VComponentTone.primary
-                  ? VComponentTone.primary
-                  : null,
+              tone: tone == VComponentTone.primary ? VComponentTone.primary : null,
             ),
           ),
         ],
@@ -186,18 +183,19 @@ class VEmptyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0)
-              VGap(i == 1 ? VGapSize.md : VGapSize.xs),
-            children[i],
+    return vInspectorHide(
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) i == 1 ? const VGap.md() : const VGap.xs(),
+              vInspectorShow(children[i]),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -215,10 +213,7 @@ class VEmptyMedia extends StatelessWidget {
     this.tone,
     this.size = 64,
   }) : assert(
-         child != null ||
-             icon != null ||
-             iconData != null ||
-             emoji != null,
+         child != null || icon != null || iconData != null || emoji != null,
          'Provide child, icon, iconData, or emoji',
        );
 
@@ -235,42 +230,50 @@ class VEmptyMedia extends StatelessWidget {
     final colors = context.vColors;
 
     if (emoji != null && child == null && icon == null && iconData == null) {
-      return Text(emoji!, style: const TextStyle(fontSize: 48));
+      return vInspectorHide(
+        Text(emoji!, style: const TextStyle(fontSize: 48)),
+      );
     }
 
     if (variant == VEmptyMediaVariant.plain) {
-      if (child != null) return child!;
-      return VIconBox(
-        icon: icon,
-        iconData: icon == null ? iconData : null,
-        size: size,
-        iconSize: size * 0.44,
-        tone: tone,
+      if (child != null) return vInspectorShow(child!);
+      return vInspectorHide(
+        VIconBox(
+          icon: icon,
+          iconData: icon == null ? iconData : null,
+          size: size,
+          iconSize: size * 0.44,
+          tone: tone,
+        ),
       );
     }
 
     if (child != null) {
-      return Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colors.surfaceAlt,
-          borderRadius: BorderRadius.circular(VRadius.r16),
+      return vInspectorHide(
+        Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colors.surfaceAlt,
+            borderRadius: BorderRadius.circular(VRadius.r16),
+          ),
+          child: vInspectorShow(child!),
         ),
-        child: child,
       );
     }
 
-    return VIconBox(
-      icon: icon,
-      iconData: icon == null ? iconData : null,
-      size: size,
-      iconSize: size * 0.44,
-      tone: tone ?? VComponentTone.neutral,
-      backgroundColor: tone == null ? colors.surfaceAlt : null,
-      iconColor: tone == null ? colors.textSecondary : null,
-      borderRadius: VRadius.r16,
+    return vInspectorHide(
+      VIconBox(
+        icon: icon,
+        iconData: icon == null ? iconData : null,
+        size: size,
+        iconSize: size * 0.44,
+        tone: tone ?? VComponentTone.neutral,
+        backgroundColor: tone == null ? colors.surfaceAlt : null,
+        iconColor: tone == null ? colors.textSecondary : null,
+        borderRadius: VRadius.r16,
+      ),
     );
   }
 }
@@ -283,11 +286,13 @@ class VEmptyTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VText(
-      text,
-      variant: VTextVariant.headingH3,
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontWeight: FontWeight.w700),
+    return vInspectorHide(
+      VText(
+        text,
+        variant: VTextVariant.headingH3,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
@@ -301,11 +306,13 @@ class VEmptyDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return VText(
-      text,
-      variant: VTextVariant.bodyDefault,
-      color: colors.textSecondary,
-      textAlign: TextAlign.center,
+    return vInspectorHide(
+      VText(
+        text,
+        variant: VTextVariant.bodyDefault,
+        color: colors.textSecondary,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }
@@ -318,9 +325,11 @@ class VEmptyContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360),
-      child: child,
+    return vInspectorHide(
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: vInspectorShow(child),
+      ),
     );
   }
 }

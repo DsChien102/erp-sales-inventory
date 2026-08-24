@@ -4,6 +4,7 @@ import 'package:vet45_design_system/src/patterns/v_gap.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../tokens/v_typography.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VRadio<T> extends StatelessWidget {
   const VRadio({
@@ -71,32 +72,34 @@ class VRadio<T> extends StatelessWidget {
     }
 
     if (label != null) {
-      return InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
-        borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              radio,
-              const VGap.sm(),
-              Flexible(
-                child: Text(
-                  label!,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
+      return vInspectorHide(
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                radio,
+                const VGap.sm(),
+                Flexible(
+                  child: Text(
+                    label!,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return radio;
+    return vInspectorHide(radio);
   }
 }

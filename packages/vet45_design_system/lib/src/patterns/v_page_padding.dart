@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_breakpoints.dart';
 import '../tokens/v_spacing.dart';
 
@@ -40,13 +41,13 @@ class VPagePadding extends StatelessWidget {
 
     Widget padded = Padding(
       padding: EdgeInsets.symmetric(horizontal: h, vertical: v),
-      child: child,
+      child: vInspectorShow(child),
     );
 
     if (applyBottomSafeArea) {
       padded = SafeArea(top: false, child: padded);
     }
 
-    return padded;
+    return vInspectorHide(padded);
   }
 }

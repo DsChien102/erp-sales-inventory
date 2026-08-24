@@ -6,6 +6,7 @@ import '../components/v_text_field.dart';
 import '../components/v_text_field_focus_ring.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_overlay_menu_shell.dart';
 import '../foundations/icons/v_icons.dart';
@@ -195,7 +196,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
               ),
               child: DefaultTextStyle(
                 style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
-                child: item.child,
+                child: vInspectorShow(item.child),
               ),
             ),
           ),
@@ -296,7 +297,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     child: selected != null
-                        ? selected.child
+                        ? vInspectorShow(selected.child)
                         : VText(
                             widget.hintText ?? 'Chọn...',
                             color: isEnabled ? colors.textMuted : colors.textSecondary,
@@ -340,132 +341,134 @@ class _VSelectState<T> extends State<VSelect<T>> {
             _ => isEnabled ? colors.borderStrong : colors.borderDefault,
           };
 
-    return Semantics(
-      label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Select',
-      button: true,
-      enabled: isEnabled,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: widget.label!,
-                    style: VTypography.headingH4.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  if (widget.isRequired)
+    return vInspectorHide(
+      Semantics(
+        label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Select',
+        button: true,
+        enabled: isEnabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.label != null) ...[
+              RichText(
+                text: TextSpan(
+                  children: [
                     TextSpan(
-                      text: ' *',
-                      style: TextStyle(color: colors.danger),
+                      text: widget.label!,
+                      style: VTypography.headingH4.copyWith(
+                        color: colors.textPrimary,
+                      ),
                     ),
-                ],
+                    if (widget.isRequired)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: colors.danger),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: VSpacing.space2),
-          ],
-          VTextFieldFocusRing(
-            focused: showDangerFocusChrome,
-            danger: useDanger,
-            child: Focus(
-              focusNode: _focusNode,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final menuRadius = VRadius.input;
-                  const menuPadding = VSpacing.space2;
-                  final menuWidth = constraints.maxWidth;
-                  const menuMaxHeight = VSelect._menuHeight;
-                  const menuBoxShadow = VOverlayMenuShell.menuShadow;
-                  final menuMetrics = VOverlayMenuLayout.panelMetrics(
-                    itemCount: widget.items.length,
-                    menuMaxHeight: menuMaxHeight,
-                    itemHeight: VCombobox.controlHeight,
-                    menuPadding: menuPadding,
-                  );
-                  final transparentMenuStyle = MenuStyle(
-                    elevation: const WidgetStatePropertyAll(0),
-                    backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-                    surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-                    shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                    minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-                    maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
-                  );
+              const SizedBox(height: VSpacing.space2),
+            ],
+            VTextFieldFocusRing(
+              focused: showDangerFocusChrome,
+              danger: useDanger,
+              child: Focus(
+                focusNode: _focusNode,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final menuRadius = VRadius.input;
+                    const menuPadding = VSpacing.space2;
+                    final menuWidth = constraints.maxWidth;
+                    const menuMaxHeight = VSelect._menuHeight;
+                    const menuBoxShadow = VOverlayMenuShell.menuShadow;
+                    final menuMetrics = VOverlayMenuLayout.panelMetrics(
+                      itemCount: widget.items.length,
+                      menuMaxHeight: menuMaxHeight,
+                      itemHeight: VCombobox.controlHeight,
+                      menuPadding: menuPadding,
+                    );
+                    final transparentMenuStyle = MenuStyle(
+                      elevation: const WidgetStatePropertyAll(0),
+                      backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+                      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+                      shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                      minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
+                      maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
+                    );
 
-                  return MenuButtonTheme(
-                    data: const MenuButtonThemeData(),
-                    child: MenuAnchor(
-                      controller: _menuController,
-                      childFocusNode: _focusNode,
-                      clipBehavior: Clip.none,
-                      style: transparentMenuStyle,
-                      alignmentOffset: VOverlayMenuLayout.alignmentOffset,
-                      reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
-                      crossAxisUnconstrained: false,
-                      onOpen: _handleMenuOpen,
-                      onClose: _handleMenuClose,
-                      menuChildren: [
-                        SizedBox(
-                          width: menuWidth,
-                          height: menuMetrics.shellHeight,
-                          child: VOverlayMenuShell.panel(
-                            borderRadius: BorderRadius.circular(menuRadius),
-                            borderSide: VBorders.side(colors.borderStrong),
-                            padding: const EdgeInsets.all(menuPadding),
-                            boxShadow: menuBoxShadow,
-                            child: menuMetrics.needsScroll
-                                ? SizedBox(
-                                    height: menuMetrics.listViewportHeight,
-                                    child: _buildMenuPanelBody(
+                    return MenuButtonTheme(
+                      data: const MenuButtonThemeData(),
+                      child: MenuAnchor(
+                        controller: _menuController,
+                        childFocusNode: _focusNode,
+                        clipBehavior: Clip.none,
+                        style: transparentMenuStyle,
+                        alignmentOffset: VOverlayMenuLayout.alignmentOffset,
+                        reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
+                        crossAxisUnconstrained: false,
+                        onOpen: _handleMenuOpen,
+                        onClose: _handleMenuClose,
+                        menuChildren: [
+                          SizedBox(
+                            width: menuWidth,
+                            height: menuMetrics.shellHeight,
+                            child: VOverlayMenuShell.panel(
+                              borderRadius: BorderRadius.circular(menuRadius),
+                              borderSide: VBorders.side(colors.borderStrong),
+                              padding: const EdgeInsets.all(menuPadding),
+                              boxShadow: menuBoxShadow,
+                              child: menuMetrics.needsScroll
+                                  ? SizedBox(
+                                      height: menuMetrics.listViewportHeight,
+                                      child: _buildMenuPanelBody(
+                                        context: context,
+                                        isEnabled: isEnabled,
+                                        menuItemRadius: menuRadius,
+                                        metrics: menuMetrics,
+                                      ),
+                                    )
+                                  : _buildMenuPanelBody(
                                       context: context,
                                       isEnabled: isEnabled,
-                                      menuItemRadius: menuRadius,
+                                      menuItemRadius: menuRadius - menuPadding / 2,
                                       metrics: menuMetrics,
                                     ),
-                                  )
-                                : _buildMenuPanelBody(
-                                    context: context,
-                                    isEnabled: isEnabled,
-                                    menuItemRadius: menuRadius - menuPadding / 2,
-                                    metrics: menuMetrics,
-                                  ),
+                            ),
                           ),
-                        ),
-                      ],
-                      builder: (context, controller, child) {
-                        return _buildTrigger(
-                          context: context,
-                          isEnabled: isEnabled,
-                          borderColor: borderColor,
-                          borderWidth: borderWidth,
-                        );
-                      },
-                    ),
-                  );
-                },
+                        ],
+                        builder: (context, controller, child) {
+                          return _buildTrigger(
+                            context: context,
+                            isEnabled: isEnabled,
+                            borderColor: borderColor,
+                            borderWidth: borderWidth,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          if (_effectiveError != null) ...[
-            const SizedBox(height: VSpacing.space1),
-            Text(
-              _effectiveError!,
-              style: VTypography.bodySmall.copyWith(color: colors.danger),
-            ),
-          ] else if (widget.helperText != null) ...[
-            const SizedBox(height: VSpacing.space1),
-            Text(
-              widget.helperText!,
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textSecondary,
+            if (_effectiveError != null) ...[
+              const SizedBox(height: VSpacing.space1),
+              Text(
+                _effectiveError!,
+                style: VTypography.bodySmall.copyWith(color: colors.danger),
               ),
-            ),
+            ] else if (widget.helperText != null) ...[
+              const SizedBox(height: VSpacing.space1),
+              Text(
+                widget.helperText!,
+                style: VTypography.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

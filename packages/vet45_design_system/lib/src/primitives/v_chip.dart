@@ -9,6 +9,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_icon.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Visual weight for chips — mirrors Polaris clickable-chip `color`
 /// (`subdued` / `base` / `strong`).
@@ -135,25 +136,29 @@ class VChip extends StatelessWidget {
     final semanticsLabel = semanticLabel ?? label;
 
     if (!_isInteractive) {
-      return Semantics(
-        label: semanticsLabel,
-        enabled: _isEnabled,
-        child: chipBody,
+      return vInspectorHide(
+        Semantics(
+          label: semanticsLabel,
+          enabled: _isEnabled,
+          child: chipBody,
+        ),
       );
     }
 
-    return Semantics(
-      button: onTap != null,
-      enabled: _isEnabled,
-      label: semanticsLabel,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: _isEnabled && onTap != null ? onTap : null,
-          borderRadius: BorderRadius.circular(VRadius.r16),
-          child: chipBody,
+    return vInspectorHide(
+      Semantics(
+        button: onTap != null,
+        enabled: _isEnabled,
+        label: semanticsLabel,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: _isEnabled && onTap != null ? onTap : null,
+            borderRadius: BorderRadius.circular(VRadius.r16),
+            child: chipBody,
+          ),
         ),
       ),
     );

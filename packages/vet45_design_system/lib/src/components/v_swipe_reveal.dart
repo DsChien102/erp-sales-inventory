@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_radius.dart';
 
 /// Swipe-left shell that reveals actions behind [child].
@@ -105,7 +106,7 @@ class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderSt
           right: 0,
           top: 0,
           bottom: 0,
-          child: widget.actionsBuilder(context, _close),
+          child: vInspectorShow(widget.actionsBuilder(context, _close)),
         ),
         AnimatedBuilder(
           animation: _controller,
@@ -118,16 +119,18 @@ class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderSt
             onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
             child: GestureDetector(
               onTap: !widget.enabled ? null : () => _isOpen ? _close() : widget.onTap?.call(),
-              child: widget.child,
+              child: vInspectorShow(widget.child),
             ),
           ),
         ),
       ],
     );
 
-    return SizedBox(
-      height: widget.height,
-      child: ClipRRect(borderRadius: _clipRadius, child: body),
+    return vInspectorHide(
+      SizedBox(
+        height: widget.height,
+        child: ClipRRect(borderRadius: _clipRadius, child: body),
+      ),
     );
   }
 }

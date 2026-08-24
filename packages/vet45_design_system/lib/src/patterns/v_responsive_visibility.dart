@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_breakpoints.dart';
 import 'v_responsive.dart';
 
@@ -59,17 +60,19 @@ class VResponsiveVisibility extends StatelessWidget {
     return VResponsive(
       builder: (context, breakpoint) {
         final visible = _isVisible(breakpoint);
-        if (visible) return child;
+        if (visible) return vInspectorShow(child);
         if (maintainState || maintainAnimation || maintainSize) {
-          return Visibility(
-            visible: false,
-            maintainState: maintainState,
-            maintainAnimation: maintainAnimation,
-            maintainSize: maintainSize,
-            child: child,
+          return vInspectorHide(
+            Visibility(
+              visible: false,
+              maintainState: maintainState,
+              maintainAnimation: maintainAnimation,
+              maintainSize: maintainSize,
+              child: vInspectorShow(child),
+            ),
           );
         }
-        return const SizedBox.shrink();
+        return vInspectorHide(const SizedBox.shrink());
       },
     );
   }

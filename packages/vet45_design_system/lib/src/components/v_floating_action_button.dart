@@ -4,6 +4,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundations/icons/v_icons.dart';
 import '../primitives/v_icon.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VFloatingActionButton extends StatelessWidget {
   final VIcons? icon;
@@ -55,40 +56,42 @@ class VFloatingActionButton extends StatelessWidget {
 
     final shadowAlpha = emphasis == VComponentEmphasis.strong ? 0.35 : 0.2;
 
-    return Semantics(
-      button: true,
-      enabled: isEnabled,
-      label: semanticLabel ?? 'Floating action',
-      child: Opacity(
-        opacity: isEnabled ? 1 : 0.5,
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: resolvedBgColor,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: resolvedBgColor.withValues(alpha: shadowAlpha),
-                blurRadius: emphasis == VComponentEmphasis.strong ? 16 : 8,
-                offset: const Offset(0, 8),
-              ),
-              if (emphasis == VComponentEmphasis.strong) ...VShadows.e3,
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: isEnabled ? onTap : null,
-              customBorder: const CircleBorder(),
-              child: Center(
-                child: VIcon(
-                  icon: icon,
-                  iconData: iconData,
-                  size: 28,
-                  color: resolvedIconColor,
+    return vInspectorHide(
+      Semantics(
+        button: true,
+        enabled: isEnabled,
+        label: semanticLabel ?? 'Floating action',
+        child: Opacity(
+          opacity: isEnabled ? 1 : 0.5,
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: resolvedBgColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: resolvedBgColor.withValues(alpha: shadowAlpha),
+                  blurRadius: emphasis == VComponentEmphasis.strong ? 16 : 8,
+                  offset: const Offset(0, 8),
+                ),
+                if (emphasis == VComponentEmphasis.strong) ...VShadows.e3,
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: isEnabled ? onTap : null,
+                customBorder: const CircleBorder(),
+                child: Center(
+                  child: VIcon(
+                    icon: icon,
+                    iconData: iconData,
+                    size: 28,
+                    color: resolvedIconColor,
+                  ),
                 ),
               ),
             ),

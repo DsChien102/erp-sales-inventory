@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
+import '../foundation/v_inspector_scope.dart';
 
 enum VIconSize {
   xs(16.0),
@@ -88,23 +89,27 @@ class VIcon extends StatelessWidget {
     }
 
     if (assetPath != null) {
-      return Image.asset(
-        assetPath!,
-        width: resolvedSize,
-        height: resolvedSize,
-        color: resolvedColor,
-        fit: BoxFit.contain,
-        // Since we are referencing assets within this package
-        package: 'vet45_design_system',
+      return vInspectorHide(
+        Image.asset(
+          assetPath!,
+          width: resolvedSize,
+          height: resolvedSize,
+          color: resolvedColor,
+          fit: BoxFit.contain,
+          // Since we are referencing assets within this package
+          package: 'vet45_design_system',
+        ),
       );
     }
 
     final resolvedIconData = icon?.value ?? iconData;
 
-    return Icon(
-      resolvedIconData,
-      size: resolvedSize,
-      color: resolvedColor,
+    return vInspectorHide(
+      Icon(
+        resolvedIconData,
+        size: resolvedSize,
+        color: resolvedColor,
+      ),
     );
   }
 }

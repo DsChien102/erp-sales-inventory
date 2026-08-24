@@ -3,6 +3,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VTabs extends StatelessWidget {
   final List<String> tabs;
@@ -99,19 +100,21 @@ class VTabs extends StatelessWidget {
       );
     }
 
-    return Semantics(
-      label: semanticLabel ?? 'Tabs',
-      explicitChildNodes: true,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: dynamicColors.borderDefault,
-              width: 1,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? 'Tabs',
+        explicitChildNodes: true,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: dynamicColors.borderDefault,
+                width: 1,
+              ),
             ),
           ),
+          child: content,
         ),
-        child: content,
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../components/v_app_bar.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Standard ERP page shell: [VAppBar] + scrollable/flexible body + optional bottom bar.
 class VPageScaffold extends StatelessWidget {
@@ -35,29 +36,36 @@ class VPageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TapRegion(
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        backgroundColor: context.vColors.background,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        appBar: VAppBar(
-          title: title,
-          subtitle: subtitle,
-          titleStyle: titleStyle,
-          leading: leading,
-          actions: actions,
-          showBackButton: showBackButton,
-          centerTitle: centerTitle,
+    return vInspectorHide(
+      TapRegion(
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          backgroundColor: context.vColors.background,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          appBar: VAppBar(
+            title: title,
+            subtitle: subtitle,
+            titleStyle: titleStyle,
+            leading: leading != null ? vInspectorShow(leading!) : null,
+            actions: actions?.map(vInspectorShow).toList(),
+            showBackButton: showBackButton,
+            centerTitle: centerTitle,
+          ),
+          body: vInspectorShow(body),
+          bottomNavigationBar: bottomBar != null
+              ? Material(
+                  color: context.vColors.surface,
+                  elevation: 8,
+                  child: SafeArea(
+                    top: false,
+                    child: vInspectorShow(bottomBar!),
+                  ),
+                )
+              : null,
+          floatingActionButton: floatingActionButton != null
+              ? vInspectorShow(floatingActionButton!)
+              : null,
         ),
-        body: body,
-        bottomNavigationBar: bottomBar != null
-            ? Material(
-                color: context.vColors.surface,
-                elevation: 8,
-                child: SafeArea(top: false, child: bottomBar!),
-              )
-            : null,
-        floatingActionButton: floatingActionButton,
       ),
     );
   }

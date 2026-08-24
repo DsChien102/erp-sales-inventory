@@ -4,6 +4,7 @@ import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
 import 'v_context_extensions.dart';
+import 'v_inspector_scope.dart';
 
 /// Anchored overlay menu panel with design-system chrome.
 ///
@@ -53,16 +54,23 @@ class _VOverlayMenuShellPanel extends StatelessWidget {
     final radius = borderRadius ?? BorderRadius.circular(VRadius.input);
     final side = borderSide ?? VBorders.side(colors.borderDefault);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: backgroundColor ?? colors.surface,
-        borderRadius: radius,
-        border: Border.fromBorderSide(side),
-        boxShadow: boxShadow,
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: padding == null ? child : Padding(padding: padding!, child: child),
+    return vInspectorHide(
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: backgroundColor ?? colors.surface,
+          borderRadius: radius,
+          border: Border.fromBorderSide(side),
+          boxShadow: boxShadow,
+        ),
+        child: ClipRRect(
+          borderRadius: radius,
+          child: padding == null
+              ? vInspectorShow(child)
+              : Padding(
+                  padding: padding!,
+                  child: vInspectorShow(child),
+                ),
+        ),
       ),
     );
   }

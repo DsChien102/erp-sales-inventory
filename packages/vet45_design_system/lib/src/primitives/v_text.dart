@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../tokens/v_typography.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Typography scale variants — map 1-1 to [VTypography] public styles.
 enum VTextVariant {
@@ -78,14 +79,16 @@ class VText extends StatelessWidget {
         .copyWith(color: color ?? dynamicColors.textPrimary)
         .merge(style);
 
-    return Text(
-      data,
-      style: resolved,
-      textAlign: textAlign,
-      maxLines: maxLines,
-      overflow: overflow,
-      softWrap: softWrap,
-      semanticsLabel: semanticsLabel,
+    return vInspectorHide(
+      Text(
+        data,
+        style: resolved,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: overflow,
+        softWrap: softWrap,
+        semanticsLabel: semanticsLabel,
+      ),
     );
   }
 }

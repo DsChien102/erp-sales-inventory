@@ -7,6 +7,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../primitives/v_text.dart';
 import '../patterns/v_gap.dart';
+import '../foundation/v_inspector_scope.dart';
 
 enum VButtonVariant {
   primary,
@@ -81,16 +82,18 @@ class VButton extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     if (variant == VButtonVariant.link) {
-      return _VButtonLink(
-        label: label,
-        onPressed: onPressed,
-        isEnabled: isEnabled,
-        showLoading: showLoading,
-        leadingIcon: leadingIcon,
-        trailingIcon: trailingIcon,
-        textStyle: _textStyleForVariant(variant),
-        foregroundColor: foregroundColor,
-        semanticLabel: semanticLabel,
+      return vInspectorHide(
+        _VButtonLink(
+          label: label,
+          onPressed: onPressed,
+          isEnabled: isEnabled,
+          showLoading: showLoading,
+          leadingIcon: leadingIcon,
+          trailingIcon: trailingIcon,
+          textStyle: _textStyleForVariant(variant),
+          foregroundColor: foregroundColor,
+          semanticLabel: semanticLabel,
+        ),
       );
     }
 
@@ -340,11 +343,13 @@ class VButton extends StatelessWidget {
       );
     }
 
-    return Semantics(
-      button: true,
-      enabled: isEnabled,
-      label: semanticLabel ?? label,
-      child: buttonWidget,
+    return vInspectorHide(
+      Semantics(
+        button: true,
+        enabled: isEnabled,
+        label: semanticLabel ?? label,
+        child: buttonWidget,
+      ),
     );
   }
 }

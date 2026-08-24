@@ -6,6 +6,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../primitives/v_icon.dart';
 import '../foundations/icons/v_icons.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VQuantitySelector extends StatefulWidget {
   final int value;
@@ -105,86 +106,88 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
         ? VBorders.thick
         : VBorders.medium;
 
-    return Semantics(
-      textField: true,
-      enabled: isEnabled,
-      label: widget.semanticLabel ?? widget.hintText ?? 'Quantity',
-      child: SizedBox(
-        height: 44,
-        child: TextField(
-          controller: _controller,
-          enabled: isEnabled,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: VTypography.bodyDefault.copyWith(
-            color: isEnabled ? colors.textPrimary : colors.textSecondary,
-            fontWeight: FontWeight.w700,
-          ),
-          decoration: InputDecoration(
-            hintText: widget.hintText ?? 'SL trả',
-            hintStyle: VTypography.bodyDefault.copyWith(
-              color: colors.textMuted,
-              fontWeight: FontWeight.normal,
+    return vInspectorHide(
+      Semantics(
+        textField: true,
+        enabled: isEnabled,
+        label: widget.semanticLabel ?? widget.hintText ?? 'Quantity',
+        child: SizedBox(
+          height: 44,
+          child: TextField(
+            controller: _controller,
+            enabled: isEnabled,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: VTypography.bodyDefault.copyWith(
+              color: isEnabled ? colors.textPrimary : colors.textSecondary,
+              fontWeight: FontWeight.w700,
             ),
-            contentPadding: const EdgeInsets.only(left: 12, right: 32, top: 10, bottom: 10),
-            filled: true,
-            fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
-            isDense: true,
-            suffixIconConstraints: const BoxConstraints(
-              maxWidth: 28,
-              maxHeight: 44,
-            ),
-            border: VBorders.outlineInput(
-              isEnabled ? borderColor : colors.borderDefault,
-              width: borderWidth,
-            ),
-            enabledBorder: VBorders.outlineInput(
-              isEnabled ? borderColor : colors.borderDefault,
-              width: borderWidth,
-            ),
-            focusedBorder: VBorders.outlineInput(
-              colors.primary,
-              width: focusWidth,
-            ),
-            disabledBorder: VBorders.outlineInput(colors.borderDefault),
-            errorBorder: VBorders.outlineInput(colors.danger),
-            focusedErrorBorder: VBorders.outlineInput(
-              colors.danger,
-              width: VBorders.thick,
-            ),
-            suffixIcon: Container(
-              width: 24,
-              margin: const EdgeInsets.only(right: 4),
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _increment,
-                    behavior: HitTestBehavior.opaque,
-                    child: VIcon(
-                      icon: VIcons.chevronUp,
-                      size: 16,
-                      color: isEnabled ? colors.textSecondary : colors.textMuted,
+            decoration: InputDecoration(
+              hintText: widget.hintText ?? 'SL trả',
+              hintStyle: VTypography.bodyDefault.copyWith(
+                color: colors.textMuted,
+                fontWeight: FontWeight.normal,
+              ),
+              contentPadding: const EdgeInsets.only(left: 12, right: 32, top: 10, bottom: 10),
+              filled: true,
+              fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
+              isDense: true,
+              suffixIconConstraints: const BoxConstraints(
+                maxWidth: 28,
+                maxHeight: 44,
+              ),
+              border: VBorders.outlineInput(
+                isEnabled ? borderColor : colors.borderDefault,
+                width: borderWidth,
+              ),
+              enabledBorder: VBorders.outlineInput(
+                isEnabled ? borderColor : colors.borderDefault,
+                width: borderWidth,
+              ),
+              focusedBorder: VBorders.outlineInput(
+                colors.primary,
+                width: focusWidth,
+              ),
+              disabledBorder: VBorders.outlineInput(colors.borderDefault),
+              errorBorder: VBorders.outlineInput(colors.danger),
+              focusedErrorBorder: VBorders.outlineInput(
+                colors.danger,
+                width: VBorders.thick,
+              ),
+              suffixIcon: Container(
+                width: 24,
+                margin: const EdgeInsets.only(right: 4),
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: _increment,
+                      behavior: HitTestBehavior.opaque,
+                      child: VIcon(
+                        icon: VIcons.chevronUp,
+                        size: 16,
+                        color: isEnabled ? colors.textSecondary : colors.textMuted,
+                      ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: _decrement,
-                    behavior: HitTestBehavior.opaque,
-                    child: VIcon(
-                      icon: VIcons.chevronDown,
-                      size: 16,
-                      color: isEnabled ? colors.textSecondary : colors.textMuted,
+                    GestureDetector(
+                      onTap: _decrement,
+                      behavior: HitTestBehavior.opaque,
+                      child: VIcon(
+                        icon: VIcons.chevronDown,
+                        size: 16,
+                        color: isEnabled ? colors.textSecondary : colors.textMuted,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            onChanged: (val) {
+              final parsed = int.tryParse(val) ?? 0;
+              widget.onChanged(parsed);
+            },
           ),
-          onChanged: (val) {
-            final parsed = int.tryParse(val) ?? 0;
-            widget.onChanged(parsed);
-          },
         ),
       ),
     );

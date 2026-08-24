@@ -7,6 +7,7 @@ import '../theme/v_color_scheme.dart';
 import '../foundations/icons/v_icons.dart';
 import 'v_icon.dart';
 import 'v_text.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VIconBox extends StatelessWidget {
   /// Semantic icon registry token
@@ -121,19 +122,21 @@ class VIconBox extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: onTap,
-        customBorder: isCircular
-            ? const CircleBorder()
-            : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(resolvedRadius),
-              ),
-        child: container,
+      return vInspectorHide(
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: onTap,
+          customBorder: isCircular
+              ? const CircleBorder()
+              : RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(resolvedRadius),
+                ),
+          child: container,
+        ),
       );
     }
 
-    return container;
+    return vInspectorHide(container);
   }
 }

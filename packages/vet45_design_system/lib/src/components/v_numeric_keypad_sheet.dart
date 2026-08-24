@@ -11,6 +11,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import 'v_button.dart';
 import 'v_numeric_keypad_grid.dart';
+import '../foundation/v_inspector_scope.dart';
 
 export 'v_numeric_keypad_grid.dart' show VNumericKeypadMode;
 
@@ -159,80 +160,82 @@ class _VNumericKeypadSheetState extends State<VNumericKeypadSheet> {
         ? VBorders.thick
         : VBorders.thin;
 
-    return Semantics(
-      label: widget.semanticLabel ?? _resolvedTitle,
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          VSpacing.space4,
-          VSpacing.space3,
-          VSpacing.space4,
-          VSpacing.space4 + MediaQuery.paddingOf(context).bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 48,
-                height: 4,
+    return vInspectorHide(
+      Semantics(
+        label: widget.semanticLabel ?? _resolvedTitle,
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            VSpacing.space4,
+            VSpacing.space3,
+            VSpacing.space4,
+            VSpacing.space4 + MediaQuery.paddingOf(context).bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colors.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const VGap.sm(),
+              VText(_resolvedTitle, variant: VTextVariant.headingH3),
+              VText(
+                _resolvedUnit,
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+              ),
+              const VGap.sm(),
+              Container(
+                height: 64,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: colors.borderDefault,
-                  borderRadius: BorderRadius.circular(2),
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(VRadius.card),
+                  border: VBorders.all(displayBorder, width: borderWidth),
                 ),
+                child: VText(_displayValue, variant: VTextVariant.headingH1),
               ),
-            ),
-            const VGap.sm(),
-            VText(_resolvedTitle, variant: VTextVariant.headingH3),
-            VText(
-              _resolvedUnit,
-              variant: VTextVariant.bodySmall,
-              color: colors.textSecondary,
-            ),
-            const VGap.sm(),
-            Container(
-              height: 64,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(VRadius.card),
-                border: VBorders.all(displayBorder, width: borderWidth),
+              const VGap.sm(),
+              VNumericKeypadGrid(
+                mode: widget.mode,
+                allowDecimal: _decimalAllowed,
+                onKey: _append,
+                onBackspace: _backspace,
               ),
-              child: VText(_displayValue, variant: VTextVariant.headingH1),
-            ),
-            const VGap.sm(),
-            VNumericKeypadGrid(
-              mode: widget.mode,
-              allowDecimal: _decimalAllowed,
-              onKey: _append,
-              onBackspace: _backspace,
-            ),
-            const VGap.sm(),
-            Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.secondary,
-                    size: VButtonSize.large,
-                    onPressed: widget.onCancel,
+              const VGap.sm(),
+              Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Hủy',
+                      variant: VButtonVariant.secondary,
+                      size: VButtonSize.large,
+                      onPressed: widget.onCancel,
+                    ),
                   ),
-                ),
-                const VGap.horizontalSm(),
-                Expanded(
-                  child: VButton(
-                    label: 'Lưu',
-                    size: VButtonSize.large,
-                    onPressed: () => widget.onSave(_raw),
+                  const VGap.horizontalSm(),
+                  Expanded(
+                    child: VButton(
+                      label: 'Lưu',
+                      size: VButtonSize.large,
+                      onPressed: () => widget.onSave(_raw),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

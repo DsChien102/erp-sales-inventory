@@ -8,6 +8,7 @@ import '../foundation/v_component_contracts.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../foundations/icons/v_icons.dart';
+import '../foundation/v_inspector_scope.dart';
 
 enum VSearchBarVariant { outlined, filled, header }
 
@@ -227,30 +228,32 @@ class _VSearchBarState extends State<VSearchBar> {
       ],
     );
 
-    return Semantics(
-      textField: widget.onTap == null,
-      enabled: isEnabled,
-      label: widget.semanticLabel ?? widget.hintText,
-      child: Container(
-        height: 44,
-        padding: EdgeInsets.only(
-          left: VSpacing.space4,
-          right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
+    return vInspectorHide(
+      Semantics(
+        textField: widget.onTap == null,
+        enabled: isEnabled,
+        label: widget.semanticLabel ?? widget.hintText,
+        child: Container(
+          height: 44,
+          padding: EdgeInsets.only(
+            left: VSpacing.space4,
+            right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
+          ),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(VRadius.searchBar),
+            border: border,
+          ),
+          child: widget.onTap != null
+              ? InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: widget.onTap,
+                  borderRadius: BorderRadius.circular(VRadius.searchBar),
+                  child: content,
+                )
+              : content,
         ),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(VRadius.searchBar),
-          border: border,
-        ),
-        child: widget.onTap != null
-            ? InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: widget.onTap,
-                borderRadius: BorderRadius.circular(VRadius.searchBar),
-                child: content,
-              )
-            : content,
       ),
     );
   }

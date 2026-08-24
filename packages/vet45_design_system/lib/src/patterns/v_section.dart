@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
-import '../foundation/v_context_extensions.dart';
+import '../tokens/v_spacing.dart';
 
 /// Section block: optional title row + content with standard spacing.
 class VSection extends StatelessWidget {
@@ -13,55 +15,57 @@ class VSection extends StatelessWidget {
     this.subtitle,
     this.trailing,
     required this.child,
-    this.gapAfterHeader = VGapSize.sm,
+    this.gapAfterHeader = VSpacing.sm,
   });
 
   final String? title;
   final String? subtitle;
   final Widget? trailing;
   final Widget child;
-  final VGapSize gapAfterHeader;
+  final double gapAfterHeader;
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final hasHeader = title != null || subtitle != null || trailing != null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (hasHeader) ...[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (title != null)
-                      VText(
-                        title!,
-                        variant: VTextVariant.headingH3,
-                      ),
-                    if (subtitle != null) ...[
-                      if (title != null) const VGap.xs(),
-                      VText(
-                        subtitle!,
-                        variant: VTextVariant.bodySmall,
-                        color: dynamicColors.textSecondary,
-                      ),
+    return vInspectorHide(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasHeader) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (title != null)
+                        VText(
+                          title!,
+                          variant: VTextVariant.headingH3,
+                        ),
+                      if (subtitle != null) ...[
+                        if (title != null) const VGap.xs(),
+                        VText(
+                          subtitle!,
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.textSecondary,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              ?trailing,
-            ],
-          ),
-          VGap(gapAfterHeader),
+                if (trailing != null) vInspectorShow(trailing!),
+              ],
+            ),
+            VGap(gapAfterHeader),
+          ],
+          vInspectorShow(child),
         ],
-        child,
-      ],
+      ),
     );
   }
 }

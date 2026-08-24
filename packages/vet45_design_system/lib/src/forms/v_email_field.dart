@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_duration.dart';
 import 'validators/v_email_validator.dart';
 
@@ -113,36 +114,40 @@ class _VEmailFieldState extends State<VEmailField> {
 
   @override
   Widget build(BuildContext context) {
-    return VTextField(
-      controller: widget.controller,
-      label: widget.label,
-      hintText: widget.hintText,
-      helperText: widget.helperText,
-      errorText: widget.errorText ?? _internalError,
-      prefixIcon: widget.prefixIcon,
-      suffixIcon: widget.suffixIcon,
-      suffixIconConstraints: widget.suffixIconConstraints,
-      suffixText: widget.suffixText,
-      enabled: widget.enabled,
-      keyboardType: TextInputType.emailAddress,
-      onChanged: _handleChanged,
-      isRequired: widget.isRequired,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(widget.maxLength),
-        ...?widget.inputFormatters,
-      ],
-      textStyle: widget.textStyle,
-      textAlign: widget.textAlign,
-      autofocus: widget.autofocus,
-      focusNode: widget.focusNode,
-      onSubmitted: widget.onSubmitted,
-      border: widget.border,
-      tone: widget.tone,
-      emphasis: widget.emphasis,
-      state: (widget.errorText ?? _internalError) != null
-          ? VComponentState.error
-          : (widget.enabled ? widget.state : VComponentState.disabled),
-      semanticLabel: widget.semanticLabel,
+    return vInspectorHide(
+      VTextField(
+        controller: widget.controller,
+        label: widget.label,
+        hintText: widget.hintText,
+        helperText: widget.helperText,
+        errorText: widget.errorText ?? _internalError,
+        prefixIcon:
+            widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
+        suffixIcon:
+            widget.suffixIcon != null ? vInspectorShow(widget.suffixIcon!) : null,
+        suffixIconConstraints: widget.suffixIconConstraints,
+        suffixText: widget.suffixText,
+        enabled: widget.enabled,
+        keyboardType: TextInputType.emailAddress,
+        onChanged: _handleChanged,
+        isRequired: widget.isRequired,
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(widget.maxLength),
+          ...?widget.inputFormatters,
+        ],
+        textStyle: widget.textStyle,
+        textAlign: widget.textAlign,
+        autofocus: widget.autofocus,
+        focusNode: widget.focusNode,
+        onSubmitted: widget.onSubmitted,
+        border: widget.border,
+        tone: widget.tone,
+        emphasis: widget.emphasis,
+        state: (widget.errorText ?? _internalError) != null
+            ? VComponentState.error
+            : (widget.enabled ? widget.state : VComponentState.disabled),
+        semanticLabel: widget.semanticLabel,
+      ),
     );
   }
 }

@@ -82,61 +82,63 @@ class VToast extends StatelessWidget {
       ),
     };
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: VSpacing.space1),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(VRadius.r16),
-        boxShadow: VShadows.e2,
-        border: VBorders.all(
-          type == VToastType.success
-              ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
-              : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
-          width: VBorders.widthFor(emphasis),
+    return vInspectorHide(
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: VSpacing.space1),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(VRadius.r16),
+          boxShadow: VShadows.e2,
+          border: VBorders.all(
+            type == VToastType.success
+                ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
+                : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
+            width: VBorders.widthFor(emphasis),
+          ),
         ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(VRadius.r16),
-        child: Material(
-          color: Colors.transparent,
-          child: Semantics(
-            liveRegion: true,
-            label: semanticLabel ?? title,
-            child: InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.space4,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    iconWidget,
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: VText(
-                        message.isNotEmpty ? message : title,
-                        variant: VTextVariant.bodyDefault,
-                        color: textColor,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(VRadius.r16),
+          child: Material(
+            color: Colors.transparent,
+            child: Semantics(
+              liveRegion: true,
+              label: semanticLabel ?? title,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.space4,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      iconWidget,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: VText(
+                          message.isNotEmpty ? message : title,
+                          variant: VTextVariant.bodyDefault,
+                          color: textColor,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap:
-                          onClose ??
-                          () {
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          },
-                      child: VIcon(
-                        icon: VIcons.close,
-                        color: closeIconColor,
-                        size: 20,
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap:
+                            onClose ??
+                            () {
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            },
+                        child: VIcon(
+                          icon: VIcons.close,
+                          color: closeIconColor,
+                          size: 20,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

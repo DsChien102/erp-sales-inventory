@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_inspector_scope.dart';
 import 'v_responsive.dart';
 
 /// Centers [child] and constrains max width by breakpoint.
@@ -33,11 +34,16 @@ class VContentWidth extends StatelessWidget {
       builder: (context, breakpoint) {
         final resolved =
             (maxWidth ?? defaultMaxWidth).resolve(breakpoint);
-        return Align(
-          alignment: alignment,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: resolved),
-            child: SizedBox(width: double.infinity, child: child),
+        return vInspectorHide(
+          Align(
+            alignment: alignment,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: resolved),
+              child: SizedBox(
+                width: double.infinity,
+                child: vInspectorShow(child),
+              ),
+            ),
           ),
         );
       },

@@ -15,6 +15,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_focus_ring.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Character set accepted by [VVerificationCodeField].
 enum VVerificationCodeCharset {
@@ -326,84 +327,86 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     final borderWidth = VBorders.widthFor(widget.emphasis);
     final message = _message(colors, hasError: hasError);
 
-    return Semantics(
-      textField: true,
-      enabled: isEnabled,
-      label: widget.semanticLabel ?? widget.label ?? 'Verification code',
-      value: _code,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: widget.label!,
-                    style: VTypography.headingH4.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  if (widget.isRequired)
+    return vInspectorHide(
+      Semantics(
+        textField: true,
+        enabled: isEnabled,
+        label: widget.semanticLabel ?? widget.label ?? 'Verification code',
+        value: _code,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.label != null) ...[
+              RichText(
+                text: TextSpan(
+                  children: [
                     TextSpan(
-                      text: ' *',
-                      style: TextStyle(color: colors.danger),
+                      text: widget.label!,
+                      style: VTypography.headingH4.copyWith(
+                        color: colors.textPrimary,
+                      ),
                     ),
-                ],
+                    if (widget.isRequired)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: colors.danger),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const VGap.sm(),
-          ],
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final gap = VSpacing.space2;
-              final gapsTotal = gap * (widget.length - 1);
-              final available = constraints.maxWidth.isFinite
-                  ? constraints.maxWidth
-                  : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
-              final maxCellW = (available - gapsTotal) / widget.length;
-              final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
-              final cellH = cellW < VVerificationCodeField.cellWidth
-                  ? math.max(48.0, cellW + 8)
-                  : VVerificationCodeField.cellHeight;
+              const VGap.sm(),
+            ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final gap = VSpacing.space2;
+                final gapsTotal = gap * (widget.length - 1);
+                final available = constraints.maxWidth.isFinite
+                    ? constraints.maxWidth
+                    : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
+                final maxCellW = (available - gapsTotal) / widget.length;
+                final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
+                final cellH = cellW < VVerificationCodeField.cellWidth
+                    ? math.max(48.0, cellW + 8)
+                    : VVerificationCodeField.cellHeight;
 
-              return Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  IgnorePointer(
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < widget.length; i++) ...[
-                          if (i > 0) SizedBox(width: gap),
-                          _buildCell(
-                            index: i,
-                            colors: colors,
-                            isEnabled: isEnabled,
-                            useDanger: useDanger,
-                            borderWidth: borderWidth,
-                            cellW: cellW,
-                            cellH: cellH,
-                          ),
+                return Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    IgnorePointer(
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < widget.length; i++) ...[
+                            if (i > 0) SizedBox(width: gap),
+                            _buildCell(
+                              index: i,
+                              colors: colors,
+                              isEnabled: isEnabled,
+                              useDanger: useDanger,
+                              borderWidth: borderWidth,
+                              cellW: cellW,
+                              cellH: cellH,
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: 0,
-                      child: _buildHiddenInput(isEnabled: isEnabled),
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0,
+                        child: _buildHiddenInput(isEnabled: isEnabled),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-          if (message != null) ...[
-            const VGap.sm(),
-            message,
+                  ],
+                );
+              },
+            ),
+            if (message != null) ...[
+              const VGap.sm(),
+              message,
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
