@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_duration.dart';
 import '../tokens/v_radius.dart';
 
@@ -35,40 +36,42 @@ class VTextFieldFocusRing extends StatelessWidget {
     // TODO: (tech debt) bỏ ringColor thay bằng sử dụng color scheme từ `colors`
     final ringColor = danger ? colors.danger.withValues(alpha: 0.30) : colors.focusRing;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        child,
-        Positioned(
-          left: -ringSize,
-          top: -ringSize,
-          right: -ringSize,
-          bottom: -ringSize,
-          child: IgnorePointer(
-            child: TweenAnimationBuilder<double>(
-              tween: Tween<double>(end: focused ? 1 : 0),
-              duration: VDuration.medium,
-              curve: Curves.easeInOutQuad,
-              builder: (context, t, _) {
-                final size = ringSize * t;
-                if (size <= 0) return const SizedBox.shrink();
-                // Inset shrinks as [t] grows → ring expands from the field edge.
-                final inset = ringSize - size;
-                return Padding(
-                  padding: EdgeInsets.all(inset),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(innerRadius + size),
-                      border: Border.all(color: ringColor, width: size),
+    return vInspectorHide(
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          vInspectorShow(child),
+          Positioned(
+            left: -ringSize,
+            top: -ringSize,
+            right: -ringSize,
+            bottom: -ringSize,
+            child: IgnorePointer(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: focused ? 1 : 0),
+                duration: VDuration.medium,
+                curve: Curves.easeInOutQuad,
+                builder: (context, t, _) {
+                  final size = ringSize * t;
+                  if (size <= 0) return const SizedBox.shrink();
+                  // Inset shrinks as [t] grows → ring expands from the field edge.
+                  final inset = ringSize - size;
+                  return Padding(
+                    padding: EdgeInsets.all(inset),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(innerRadius + size),
+                        border: Border.all(color: ringColor, width: size),
+                      ),
+                      child: const SizedBox.expand(),
                     ),
-                    child: const SizedBox.expand(),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

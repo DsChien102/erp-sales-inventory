@@ -21,12 +21,14 @@ changelogs when relevant.
 
 - `VSwipeReveal` là primitive swipe-trái public (example + UI audit cover trực tiếp).
 - Typography của `VButton` theo variant (primary/secondary/tertiary/link) thay vì theo size.
+- `VSegmentedControl` segment dùng `VButton` (primary/secondary) thay Material/InkWell thủ công.
 
 ### Fixed
 
 ### Internal
 
 - Component audit: gỡ entry `VSwipeActionRecord` sau khi xóa widget.
+- Inspector scope: public widgets wrap chrome bằng `vInspectorHide` (`DisableWidgetInspectorScope`); slot caller re-enable qua `vInspectorShow`.
 
 ### Removed
 

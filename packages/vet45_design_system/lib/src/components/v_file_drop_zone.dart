@@ -9,6 +9,7 @@ import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Trạng thái visual của [VFileDropZone].
 ///
@@ -158,21 +159,23 @@ class VFileDropZone extends StatelessWidget {
       ),
     );
 
-    return Semantics(
-      label: semanticLabel ?? title,
-      button: _isInteractive,
-      enabled: _componentState != VComponentState.disabled,
-      child: Material(
-        color: Colors.transparent,
-        child: _isInteractive
-            ? InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: onTap,
-                borderRadius: radius,
-                child: content,
-              )
-            : content,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? title,
+        button: _isInteractive,
+        enabled: _componentState != VComponentState.disabled,
+        child: Material(
+          color: Colors.transparent,
+          child: _isInteractive
+              ? InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: onTap,
+                  borderRadius: radius,
+                  child: content,
+                )
+              : content,
+        ),
       ),
     );
   }

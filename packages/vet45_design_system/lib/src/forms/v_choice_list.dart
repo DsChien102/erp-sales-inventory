@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'models/v_choice_option.dart';
@@ -96,46 +97,48 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
     final hasError = _effectiveError != null;
     final showTitle = widget.title != null && !widget.titleHidden;
 
-    return Semantics(
-      label: widget.semanticLabel ?? widget.title ?? 'Choice list',
-      enabled: isEnabled,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showTitle) ...[
-            RichText(
-              text: TextSpan(
-                style: VTypography.headingH4.copyWith(
-                  color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
+    return vInspectorHide(
+      Semantics(
+        label: widget.semanticLabel ?? widget.title ?? 'Choice list',
+        enabled: isEnabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showTitle) ...[
+              RichText(
+                text: TextSpan(
+                  style: VTypography.headingH4.copyWith(
+                    color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
+                  ),
+                  children: [
+                    TextSpan(text: widget.title!),
+                    if (widget.isRequired)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: dynamicColors.danger),
+                      ),
+                  ],
                 ),
-                children: [
-                  TextSpan(text: widget.title!),
-                  if (widget.isRequired)
-                    TextSpan(
-                      text: ' *',
-                      style: TextStyle(color: dynamicColors.danger),
-                    ),
-                ],
               ),
-            ),
-            const SizedBox(height: VSpacing.space2),
-          ],
-          _buildChoices(hasError),
-          if (_effectiveError != null) ...[
-            Text(
-              _effectiveError!,
-              style: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
-            ),
-          ] else if (widget.helperText != null) ...[
-            Text(
-              widget.helperText!,
-              style: VTypography.bodySmall.copyWith(
-                color: dynamicColors.textSecondary,
+              const SizedBox(height: VSpacing.space2),
+            ],
+            _buildChoices(hasError),
+            if (_effectiveError != null) ...[
+              Text(
+                _effectiveError!,
+                style: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
               ),
-            ),
+            ] else if (widget.helperText != null) ...[
+              Text(
+                widget.helperText!,
+                style: VTypography.bodySmall.copyWith(
+                  color: dynamicColors.textSecondary,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

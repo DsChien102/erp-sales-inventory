@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
@@ -108,62 +109,64 @@ class VBanner extends StatelessWidget {
     final resolvedIcon = icon ?? _defaultIcon;
     final body = _resolvedDescription;
 
-    return Semantics(
-      label: semanticLabel ?? title,
-      container: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(VRadius.r12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(VSpacing.md),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _VBannerIcon(
-                icon: resolvedIcon,
-                accent: accent,
-              ),
-              const VGap.horizontalSm(),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: VText(
-                            title,
-                            variant: VTextVariant.bodyDefault,
-                            color: accent,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        if (trailing != null) ...[
-                          const VGap.horizontalSm(),
-                          trailing!,
-                        ],
-                      ],
-                    ),
-                    if (body != null) ...[
-                      const VGap.xs(),
-                      VText(
-                        body,
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textPrimary,
-                      ),
-                    ],
-                    if (footer != null) ...[
-                      const VGap.sm(),
-                      footer!,
-                    ],
-                  ],
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? title,
+        container: true,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(VRadius.r12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(VSpacing.md),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _VBannerIcon(
+                  icon: resolvedIcon,
+                  accent: accent,
                 ),
-              ),
-            ],
+                const VGap.horizontalSm(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: VText(
+                              title,
+                              variant: VTextVariant.bodyDefault,
+                              color: accent,
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          if (trailing != null) ...[
+                            const VGap.horizontalSm(),
+                            vInspectorShow(trailing!),
+                          ],
+                        ],
+                      ),
+                      if (body != null) ...[
+                        const VGap.xs(),
+                        VText(
+                          body,
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textPrimary,
+                        ),
+                      ],
+                      if (footer != null) ...[
+                        const VGap.sm(),
+                        vInspectorShow(footer!),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

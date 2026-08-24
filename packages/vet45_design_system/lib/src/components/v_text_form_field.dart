@@ -10,6 +10,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
 import 'v_text_field_focus_ring.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Design system multiline TextFormField wrapper.
 ///
@@ -237,179 +238,182 @@ class _VTextFormFieldState extends State<VTextFormField> {
     );
     final disabledOutline = outlineOf(colors.borderDefault);
 
-    return FormField<String>(
-      initialValue: widget.initialValue,
-      validator: widget.validator,
-      onSaved: widget.onSaved,
-      autovalidateMode: widget.autovalidateMode,
-      builder: (FormFieldState<String> fieldState) {
-        final hasValidationError = fieldState.hasError;
-        final displayErrorText = hasValidationError ? fieldState.errorText : widget.errorText;
+    return vInspectorHide(
+      FormField<String>(
+        initialValue: widget.initialValue,
+        validator: widget.validator,
+        onSaved: widget.onSaved,
+        autovalidateMode: widget.autovalidateMode,
+        builder: (FormFieldState<String> fieldState) {
+          final hasValidationError = fieldState.hasError;
+          final displayErrorText = hasValidationError ? fieldState.errorText : widget.errorText;
 
-        final InputBorder activeBorder;
-        if (!showBorder) {
-          activeBorder = none;
-        } else if (displayErrorText != null) {
-          activeBorder = outlineOf(
-            colors.danger,
-            width: hasValidationError ? VBorders.medium : borderWidth,
-          );
-        } else {
-          activeBorder = outline;
-        }
+          final InputBorder activeBorder;
+          if (!showBorder) {
+            activeBorder = none;
+          } else if (displayErrorText != null) {
+            activeBorder = outlineOf(
+              colors.danger,
+              width: hasValidationError ? VBorders.medium : borderWidth,
+            );
+          } else {
+            activeBorder = outline;
+          }
 
-        final focusedErrorBorder = outlineOf(colors.danger);
+          final focusedErrorBorder = outlineOf(colors.danger);
 
-        final resolvedSuffix =
-            widget.suffixIcon ??
-            (widget.suffixText == null
-                ? null
-                : VText(
-                    widget.suffixText!,
-                    variant: VTextVariant.bodyDefault,
-                    color: colors.textSecondary,
-                  ));
+          final resolvedSuffix =
+              widget.suffixIcon != null
+                  ? vInspectorShow(widget.suffixIcon!)
+                  : (widget.suffixText == null
+                      ? null
+                      : VText(
+                          widget.suffixText!,
+                          variant: VTextVariant.bodyDefault,
+                          color: colors.textSecondary,
+                        ));
 
-        final baseTextStyle = widget.textStyle ?? defaultStyle;
-        final textFieldWidget = TextField(
-          controller: _effectiveController,
-          enabled: isEnabled,
-          obscureText: widget.obscureText,
-          keyboardType: widget.keyboardType ?? TextInputType.multiline,
-          textAlignVertical: TextAlignVertical.top,
-          onChanged: (val) {
-            fieldState.didChange(val);
-            widget.onChanged?.call(val);
-          },
-          autofocus: widget.autofocus,
-          focusNode: _focusNode,
-          minLines: minLines,
-          maxLines: maxLines,
-          inputFormatters: widget.inputFormatters,
-          textAlign: widget.textAlign,
-          onSubmitted: widget.onFieldSubmitted,
-          cursorColor: displayErrorText != null || widget.tone == VComponentTone.danger
-              ? colors.danger
-              : colors.primary,
-          style: displayErrorText != null
-              ? baseTextStyle.copyWith(color: colors.danger)
-              : baseTextStyle,
-          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            isDense: widget.isDense,
-            alignLabelWithHint: true,
-            hintStyle: VTypography.bodyDefault.copyWith(color: colors.textMuted),
-            prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-            prefixIcon: wrapVTextFieldAffix(
-              widget.prefixIcon,
-              outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
-              innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
-              isLeading: true,
-            ),
-            suffixIconConstraints:
-                widget.suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
-            suffixIcon: wrapVTextFieldAffix(
-              resolvedSuffix,
-              outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
-              innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
-              isLeading: false,
-            ),
-            filled: true,
-            fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
-            hoverColor: Colors.transparent,
-            contentPadding: vTextFieldContentPadding(
-              base: contentPadding,
-              hasPrefix: widget.prefixIcon != null,
-              hasSuffix: resolvedSuffix != null,
-            ),
-            border: activeBorder,
-            enabledBorder: displayErrorText != null ? activeBorder : outline,
-            focusedBorder: displayErrorText != null ? focusedErrorBorder : focusedOutline,
-            disabledBorder: disabledOutline,
-          ),
-        );
-
-        final focused = isEnabled && _focusNode.hasFocus;
-        Widget fieldBox = VTextFieldFocusRing(
-          focused: focused,
-          danger: displayErrorText != null,
-          child: textFieldWidget,
-        );
-
-        if (widget.showCounter && widget.maxLength != null) {
-          fieldBox = Stack(
-            children: [
-              fieldBox,
-              Positioned(
-                right: VSpacing.space3,
-                bottom: VSpacing.space2,
-                child: IgnorePointer(
-                  child: VText(
-                    '$_currentLength/${widget.maxLength}',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ),
+          final baseTextStyle = widget.textStyle ?? defaultStyle;
+          final textFieldWidget = TextField(
+            controller: _effectiveController,
+            enabled: isEnabled,
+            obscureText: widget.obscureText,
+            keyboardType: widget.keyboardType ?? TextInputType.multiline,
+            textAlignVertical: TextAlignVertical.top,
+            onChanged: (val) {
+              fieldState.didChange(val);
+              widget.onChanged?.call(val);
+            },
+            autofocus: widget.autofocus,
+            focusNode: _focusNode,
+            minLines: minLines,
+            maxLines: maxLines,
+            inputFormatters: widget.inputFormatters,
+            textAlign: widget.textAlign,
+            onSubmitted: widget.onFieldSubmitted,
+            cursorColor: displayErrorText != null || widget.tone == VComponentTone.danger
+                ? colors.danger
+                : colors.primary,
+            style: displayErrorText != null
+                ? baseTextStyle.copyWith(color: colors.danger)
+                : baseTextStyle,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              isDense: widget.isDense,
+              alignLabelWithHint: true,
+              hintStyle: VTypography.bodyDefault.copyWith(color: colors.textMuted),
+              prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+              prefixIcon: wrapVTextFieldAffix(
+                widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
+                outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
+                innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
+                isLeading: true,
               ),
-            ],
+              suffixIconConstraints:
+                  widget.suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
+              suffixIcon: wrapVTextFieldAffix(
+                resolvedSuffix,
+                outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
+                innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
+                isLeading: false,
+              ),
+              filled: true,
+              fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
+              hoverColor: Colors.transparent,
+              contentPadding: vTextFieldContentPadding(
+                base: contentPadding,
+                hasPrefix: widget.prefixIcon != null,
+                hasSuffix: resolvedSuffix != null,
+              ),
+              border: activeBorder,
+              enabledBorder: displayErrorText != null ? activeBorder : outline,
+              focusedBorder: displayErrorText != null ? focusedErrorBorder : focusedOutline,
+              disabledBorder: disabledOutline,
+            ),
           );
-        }
 
-        return Semantics(
-          textField: true,
-          enabled: isEnabled,
-          label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text form field',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.label != null) ...[
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: widget.label!,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      if (widget.isRequired)
+          final focused = isEnabled && _focusNode.hasFocus;
+          Widget fieldBox = VTextFieldFocusRing(
+            focused: focused,
+            danger: displayErrorText != null,
+            child: textFieldWidget,
+          );
+
+          if (widget.showCounter && widget.maxLength != null) {
+            fieldBox = Stack(
+              children: [
+                fieldBox,
+                Positioned(
+                  right: VSpacing.space3,
+                  bottom: VSpacing.space2,
+                  child: IgnorePointer(
+                    child: VText(
+                      '$_currentLength/${widget.maxLength}',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return Semantics(
+            textField: true,
+            enabled: isEnabled,
+            label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text form field',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.label != null) ...[
+                  RichText(
+                    text: TextSpan(
+                      children: [
                         TextSpan(
-                          text: ' *',
-                          style: TextStyle(color: colors.danger),
+                          text: widget.label!,
+                          style: VTypography.headingH4.copyWith(
+                            color: colors.textPrimary,
+                          ),
                         ),
-                    ],
+                        if (widget.isRequired)
+                          TextSpan(
+                            text: ' *',
+                            style: TextStyle(color: colors.danger),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const VGap.sm(),
+                  const VGap.sm(),
+                ],
+                fieldBox,
+                if (displayErrorText != null) ...[
+                  const VGap.xs(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: VText(
+                      displayErrorText,
+                      variant: VTextVariant.bodySmall,
+                      color: colors.danger,
+                    ),
+                  ),
+                ] else if (widget.helperText != null) ...[
+                  const VGap.xs(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: VText(
+                      widget.helperText!,
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
               ],
-              fieldBox,
-              if (displayErrorText != null) ...[
-                const VGap.xs(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: VText(
-                    displayErrorText,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.danger,
-                  ),
-                ),
-              ] else if (widget.helperText != null) ...[
-                const VGap.xs(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: VText(
-                    widget.helperText!,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 }

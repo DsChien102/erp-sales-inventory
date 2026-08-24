@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
-import '../foundations/icons/v_icons.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
-import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
@@ -147,22 +146,10 @@ class _VTextFieldState extends State<VTextField> {
     if (text == null) return null;
     return Padding(
       padding: const EdgeInsets.only(left: 4),
-      child: Row(
-        children: [
-          VIcon(
-            icon: hasError ? VIcons.error : VIcons.info,
-            color: hasError ? colors.danger : colors.textMuted,
-            iconSize: VIconSize.sm,
-          ),
-          const VGap.horizontalXs(),
-          Flexible(
-            child: VText(
-              text,
-              variant: VTextVariant.bodySmall,
-              color: hasError ? colors.danger : colors.textMuted,
-            ),
-          ),
-        ],
+      child: VText(
+        text,
+        variant: VTextVariant.bodySmall,
+        color: hasError ? colors.danger : colors.textMuted,
       ),
     );
   }
@@ -191,14 +178,15 @@ class _VTextFieldState extends State<VTextField> {
     final disabledBorder = _outline(colors.borderDefault, borderWidth);
 
     final resolvedSuffix =
-        widget.suffixIcon ??
-        (widget.suffixText == null
-            ? null
-            : VText(
-                widget.suffixText!,
-                variant: VTextVariant.bodyDefault,
-                color: colors.textMuted,
-              ));
+        widget.suffixIcon != null
+            ? vInspectorShow(widget.suffixIcon!)
+            : (widget.suffixText == null
+                ? null
+                : VText(
+                    widget.suffixText!,
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textMuted,
+                  ));
 
     final affixOuter = isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter;
     final affixInner = isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner;
@@ -233,7 +221,7 @@ class _VTextFieldState extends State<VTextField> {
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         prefixIcon: wrapVTextFieldAffix(
-          widget.prefixIcon,
+          widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
           outerInset: affixOuter,
           innerInset: affixInner,
           isLeading: true,
@@ -272,44 +260,46 @@ class _VTextFieldState extends State<VTextField> {
 
     final message = _message(colors, hasError: hasError);
 
-    return Semantics(
-      textField: true,
-      enabled: isEnabled,
-      label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text field',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: widget.label!,
-                    style: VTypography.headingH4.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  if (widget.isRequired)
+    return vInspectorHide(
+      Semantics(
+        textField: true,
+        enabled: isEnabled,
+        label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text field',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.label != null) ...[
+              RichText(
+                text: TextSpan(
+                  children: [
                     TextSpan(
-                      text: ' *',
-                      style: TextStyle(color: colors.danger),
+                      text: widget.label!,
+                      style: VTypography.headingH4.copyWith(
+                        color: colors.textPrimary,
+                      ),
                     ),
-                ],
+                    if (widget.isRequired)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: colors.danger),
+                      ),
+                  ],
+                ),
               ),
+              const VGap.sm(),
+            ],
+            VTextFieldFocusRing(
+              focused: focused,
+              danger: useDanger,
+              child: field,
             ),
-            const VGap.sm(),
+            if (message != null) ...[
+              const VGap.sm(),
+              message,
+            ],
           ],
-          VTextFieldFocusRing(
-            focused: focused,
-            danger: useDanger,
-            child: field,
-          ),
-          if (message != null) ...[
-            const VGap.sm(),
-            message,
-          ],
-        ],
+        ),
       ),
     );
   }

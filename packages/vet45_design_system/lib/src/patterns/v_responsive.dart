@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_breakpoints.dart';
 
 /// Resolves a value by [VBreakpoint] with cascade fallbacks.
@@ -49,13 +50,15 @@ class VResponsive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : MediaQuery.sizeOf(context).width;
-        return builder(context, VBreakpoints.ofWidth(width));
-      },
+    return vInspectorHide(
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth.isFinite
+              ? constraints.maxWidth
+              : MediaQuery.sizeOf(context).width;
+          return vInspectorShow(builder(context, VBreakpoints.ofWidth(width)));
+        },
+      ),
     );
   }
 }

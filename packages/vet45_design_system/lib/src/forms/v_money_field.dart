@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_duration.dart';
 import 'formatters/v_money_input_formatter.dart';
 import 'validators/v_money_validator.dart';
@@ -151,36 +152,40 @@ class _VMoneyFieldState extends State<VMoneyField> {
 
   @override
   Widget build(BuildContext context) {
-    return VTextField(
-      controller: _controller,
-      label: widget.label,
-      hintText: widget.hintText,
-      helperText: widget.helperText,
-      errorText: widget.errorText ?? _internalError,
-      prefixIcon: widget.prefixIcon,
-      suffixIcon: widget.suffixIcon,
-      suffixIconConstraints: widget.suffixIconConstraints,
-      suffixText: widget.suffixText,
-      enabled: widget.enabled,
-      keyboardType: TextInputType.number,
-      onChanged: _handleChanged,
-      isRequired: widget.isRequired,
-      inputFormatters: [
-        const VMoneyInputFormatter(),
-        ...?widget.inputFormatters,
-      ],
-      textStyle: widget.textStyle,
-      textAlign: widget.textAlign,
-      autofocus: widget.autofocus,
-      focusNode: widget.focusNode,
-      onSubmitted: widget.onSubmitted,
-      border: widget.border,
-      tone: widget.tone,
-      emphasis: widget.emphasis,
-      state: (widget.errorText ?? _internalError) != null
-          ? VComponentState.error
-          : (widget.enabled ? widget.state : VComponentState.disabled),
-      semanticLabel: widget.semanticLabel,
+    return vInspectorHide(
+      VTextField(
+        controller: _controller,
+        label: widget.label,
+        hintText: widget.hintText,
+        helperText: widget.helperText,
+        errorText: widget.errorText ?? _internalError,
+        prefixIcon:
+            widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
+        suffixIcon:
+            widget.suffixIcon != null ? vInspectorShow(widget.suffixIcon!) : null,
+        suffixIconConstraints: widget.suffixIconConstraints,
+        suffixText: widget.suffixText,
+        enabled: widget.enabled,
+        keyboardType: TextInputType.number,
+        onChanged: _handleChanged,
+        isRequired: widget.isRequired,
+        inputFormatters: [
+          const VMoneyInputFormatter(),
+          ...?widget.inputFormatters,
+        ],
+        textStyle: widget.textStyle,
+        textAlign: widget.textAlign,
+        autofocus: widget.autofocus,
+        focusNode: widget.focusNode,
+        onSubmitted: widget.onSubmitted,
+        border: widget.border,
+        tone: widget.tone,
+        emphasis: widget.emphasis,
+        state: (widget.errorText ?? _internalError) != null
+            ? VComponentState.error
+            : (widget.enabled ? widget.state : VComponentState.disabled),
+        semanticLabel: widget.semanticLabel,
+      ),
     );
   }
 }

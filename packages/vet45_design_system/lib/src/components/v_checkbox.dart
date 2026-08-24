@@ -4,6 +4,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VCheckbox extends StatelessWidget {
   final bool value;
@@ -67,34 +68,36 @@ class VCheckbox extends StatelessWidget {
     );
 
     if (label != null) {
-      return InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: isEnabled ? () => onChanged(!value) : null,
-        borderRadius: BorderRadius.circular(VRadius.r4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              checkbox,
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label!,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: isEnabled
-                        ? dynamicColors.textPrimary
-                        : dynamicColors.textMuted,
+      return vInspectorHide(
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: isEnabled ? () => onChanged(!value) : null,
+          borderRadius: BorderRadius.circular(VRadius.r4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                checkbox,
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label!,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: isEnabled
+                          ? dynamicColors.textPrimary
+                          : dynamicColors.textMuted,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return checkbox;
+    return vInspectorHide(checkbox);
   }
 }

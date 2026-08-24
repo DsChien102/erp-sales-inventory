@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_spacing.dart';
 import 'v_responsive.dart';
 
@@ -30,24 +31,26 @@ class VResponsiveGrid extends StatelessWidget {
     return VResponsive(
       builder: (context, breakpoint) {
         final columnCount = columns.resolve(breakpoint).clamp(1, 12);
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final totalSpacing = spacing * (columnCount - 1);
-            final itemWidth =
-                (constraints.maxWidth - totalSpacing) / columnCount;
+        return vInspectorHide(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final totalSpacing = spacing * (columnCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / columnCount;
 
-            return Wrap(
-              spacing: spacing,
-              runSpacing: runSpacing,
-              children: [
-                for (final child in children)
-                  SizedBox(
-                    width: itemWidth,
-                    child: child,
-                  ),
-              ],
-            );
-          },
+              return Wrap(
+                spacing: spacing,
+                runSpacing: runSpacing,
+                children: [
+                  for (final child in children)
+                    SizedBox(
+                      width: itemWidth,
+                      child: vInspectorShow(child),
+                    ),
+                ],
+              );
+            },
+          ),
         );
       },
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../primitives/v_icon_box.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Circular initials avatar for partner (KH/NCC) identities.
 ///
@@ -71,15 +72,17 @@ class VAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasColorOverride = backgroundColor != null || foregroundColor != null;
 
-    return VIconBox(
-      label: label,
-      isCircular: true,
-      size: size,
-      iconSize: textSize ?? size * 0.35,
-      backgroundColor: backgroundColor,
-      iconColor: foregroundColor,
-      tone: hasColorOverride ? null : VComponentTone.success,
-      onTap: onTap,
+    return vInspectorHide(
+      VIconBox(
+        label: label,
+        isCircular: true,
+        size: size,
+        iconSize: textSize ?? size * 0.35,
+        backgroundColor: backgroundColor,
+        iconColor: foregroundColor,
+        tone: hasColorOverride ? null : VComponentTone.success,
+        onTap: onTap,
+      ),
     );
   }
 }

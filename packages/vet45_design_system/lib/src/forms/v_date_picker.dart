@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
@@ -116,88 +117,90 @@ class _VDatePickerState extends State<VDatePicker> {
         ? dynamicColors.surfacePressed
         : dynamicColors.surface;
 
-    return Semantics(
-      button: true,
-      enabled: isEnabled,
-      label: widget.semanticLabel ?? widget.label,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              VIcon(
-                icon: VIcons.calendar,
-                size: 16,
-                color: dynamicColors.textSecondary,
-              ),
-              const VGap.sm(),
-              VText(
-                widget.label,
-                variant: VTextVariant.bodyDefault,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-                color: dynamicColors.textPrimary,
-              ),
-              if (widget.required) ...[
-                const VGap.xs(),
+    return vInspectorHide(
+      Semantics(
+        button: true,
+        enabled: isEnabled,
+        label: widget.semanticLabel ?? widget.label,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                VIcon(
+                  icon: VIcons.calendar,
+                  size: 16,
+                  color: dynamicColors.textSecondary,
+                ),
+                const VGap.sm(),
                 VText(
-                  '*',
+                  widget.label,
                   variant: VTextVariant.bodyDefault,
-                  color: dynamicColors.danger,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  color: dynamicColors.textPrimary,
                 ),
-              ],
-            ],
-          ),
-          const VGap.sm(),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: isEnabled ? _handleTap : null,
-              onHighlightChanged: isEnabled
-                  ? (highlighted) {
-                      if (_highlighted == highlighted) return;
-                      setState(() => _highlighted = highlighted);
-                    }
-                  : null,
-              borderRadius: radius,
-              child: Ink(
-                height: VTextField.controlHeight,
-                padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-                decoration: BoxDecoration(
-                  color: fillColor,
-                  border: VBorders.all(
-                    isEnabled ? borderColor : dynamicColors.borderDefault,
-                    width: borderWidth,
+                if (widget.required) ...[
+                  const VGap.xs(),
+                  VText(
+                    '*',
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.danger,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  borderRadius: radius,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VText(
-                        dateText,
-                        variant: VTextVariant.bodyDefault,
-                        color: value != null
-                            ? (isEnabled
-                                  ? dynamicColors.textPrimary
-                                  : dynamicColors.textMuted)
-                            : dynamicColors.textMuted,
+                ],
+              ],
+            ),
+            const VGap.sm(),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: isEnabled ? _handleTap : null,
+                onHighlightChanged: isEnabled
+                    ? (highlighted) {
+                        if (_highlighted == highlighted) return;
+                        setState(() => _highlighted = highlighted);
+                      }
+                    : null,
+                borderRadius: radius,
+                child: Ink(
+                  height: VTextField.controlHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+                  decoration: BoxDecoration(
+                    color: fillColor,
+                    border: VBorders.all(
+                      isEnabled ? borderColor : dynamicColors.borderDefault,
+                      width: borderWidth,
+                    ),
+                    borderRadius: radius,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: VText(
+                          dateText,
+                          variant: VTextVariant.bodyDefault,
+                          color: value != null
+                              ? (isEnabled
+                                    ? dynamicColors.textPrimary
+                                    : dynamicColors.textMuted)
+                              : dynamicColors.textMuted,
+                        ),
                       ),
-                    ),
-                    VIcon(
-                      icon: VIcons.calendar,
-                      size: 20,
-                      color: dynamicColors.textMuted,
-                    ),
-                  ],
+                      VIcon(
+                        icon: VIcons.calendar,
+                        size: 20,
+                        color: dynamicColors.textMuted,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

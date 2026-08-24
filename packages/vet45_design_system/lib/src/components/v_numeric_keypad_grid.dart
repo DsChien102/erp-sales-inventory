@@ -5,6 +5,7 @@ import '../foundation/v_context_extensions.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Keypad mode for [VNumericKeypadSheet] / [VNumericKeypadGrid].
 enum VNumericKeypadMode {
@@ -44,27 +45,29 @@ class VNumericKeypadGrid extends StatelessWidget {
       [bottomLeft, '0', '⌫'],
     ];
 
-    return Column(
-      children: [
-        for (var r = 0; r < rows.length; r++) ...[
-          if (r > 0) const VGap.sm(),
-          Row(
-            children: [
-              for (var c = 0; c < 3; c++) ...[
-                if (c > 0) const VGap.horizontalSm(),
-                Expanded(
-                  child: _Key(
-                    label: rows[r][c],
-                    onTap: rows[r][c].isEmpty
-                        ? null
-                        : () => rows[r][c] == '⌫' ? onBackspace() : onKey(rows[r][c]),
+    return vInspectorHide(
+      Column(
+        children: [
+          for (var r = 0; r < rows.length; r++) ...[
+            if (r > 0) const VGap.sm(),
+            Row(
+              children: [
+                for (var c = 0; c < 3; c++) ...[
+                  if (c > 0) const VGap.horizontalSm(),
+                  Expanded(
+                    child: _Key(
+                      label: rows[r][c],
+                      onTap: rows[r][c].isEmpty
+                          ? null
+                          : () => rows[r][c] == '⌫' ? onBackspace() : onKey(rows[r][c]),
+                    ),
                   ),
-                ),
+                ],
               ],
-            ],
-          ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

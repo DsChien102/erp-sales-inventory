@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
 
 class VProgress extends StatelessWidget {
   final double value; // Between 0.0 and 1.0
@@ -67,10 +68,12 @@ class VProgress extends StatelessWidget {
       progressWidget = buildIndicator(value);
     }
 
-    return Semantics(
-      label: semanticLabel ?? 'Tiến trình',
-      value: '${(value * 100).toStringAsFixed(0)}%',
-      child: progressWidget,
+    return vInspectorHide(
+      Semantics(
+        label: semanticLabel ?? 'Tiến trình',
+        value: '${(value * 100).toStringAsFixed(0)}%',
+        child: progressWidget,
+      ),
     );
   }
 }

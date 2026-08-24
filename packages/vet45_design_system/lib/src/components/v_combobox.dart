@@ -16,6 +16,7 @@ import '../tokens/v_typography.dart';
 import 'v_text_field.dart';
 import 'v_text_field_affix.dart';
 import 'v_text_field_focus_ring.dart';
+import '../foundation/v_inspector_scope.dart';
 
 /// Searchable single-select control (combobox).
 ///
@@ -392,131 +393,133 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     final disabledBorder = _outline(colors.borderDefault, borderWidth);
     final trailingIconColor = isEnabled ? colors.textMuted : colors.borderStrong;
 
-    return Semantics(
-      label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Combobox',
-      textField: true,
-      enabled: isEnabled,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            Text(
-              widget.label!,
-              style: VTypography.headingH4.copyWith(
-                color: colors.textPrimary,
+    return vInspectorHide(
+      Semantics(
+        label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Combobox',
+        textField: true,
+        enabled: isEnabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.label != null) ...[
+              Text(
+                widget.label!,
+                style: VTypography.headingH4.copyWith(
+                  color: colors.textPrimary,
+                ),
               ),
-            ),
-            const VGap.sm(),
-          ],
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final menuRadius = VRadius.input;
-              const menuPadding = VSpacing.space2;
-              final menuWidth = constraints.maxWidth;
-              const menuMaxHeight = VCombobox._menuHeight;
-              const menuBoxShadow = VOverlayMenuShell.menuShadow;
-              final menuMetrics = VOverlayMenuLayout.panelMetrics(
-                itemCount: _filteredEntries.length,
-                menuMaxHeight: menuMaxHeight,
-                itemHeight: VCombobox.controlHeight,
-                menuPadding: menuPadding,
-              );
-              final transparentMenuStyle = MenuStyle(
-                elevation: const WidgetStatePropertyAll(0),
-                backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-                surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-                shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-                padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-                maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
-              );
+              const VGap.sm(),
+            ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final menuRadius = VRadius.input;
+                const menuPadding = VSpacing.space2;
+                final menuWidth = constraints.maxWidth;
+                const menuMaxHeight = VCombobox._menuHeight;
+                const menuBoxShadow = VOverlayMenuShell.menuShadow;
+                final menuMetrics = VOverlayMenuLayout.panelMetrics(
+                  itemCount: _filteredEntries.length,
+                  menuMaxHeight: menuMaxHeight,
+                  itemHeight: VCombobox.controlHeight,
+                  menuPadding: menuPadding,
+                );
+                final transparentMenuStyle = MenuStyle(
+                  elevation: const WidgetStatePropertyAll(0),
+                  backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+                  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+                  shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+                  padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                  minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
+                  maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
+                );
 
-              return VTextFieldFocusRing(
-                focused: focused,
-                danger: useDanger,
-                child: MenuButtonTheme(
-                  data: const MenuButtonThemeData(),
-                  child: MenuAnchor(
-                    controller: _menuController,
-                    childFocusNode: _focusNode,
-                    clipBehavior: Clip.none,
-                    style: transparentMenuStyle,
-                    alignmentOffset: VOverlayMenuLayout.alignmentOffset,
-                    reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
-                    crossAxisUnconstrained: false,
-                    onOpen: _handleMenuOpen,
-                    onClose: _handleMenuClose,
-                    menuChildren: !_hasFilteredEntries
-                        ? const <Widget>[]
-                        : [
-                      SizedBox(
-                        width: menuWidth,
-                        height: menuMetrics.shellHeight,
-                        child: VOverlayMenuShell.panel(
-                          borderRadius: BorderRadius.circular(menuRadius),
-                          borderSide: VBorders.side(colors.borderStrong),
-                          padding: const EdgeInsets.all(menuPadding),
-                          boxShadow: menuBoxShadow,
-                          child: menuMetrics.needsScroll
-                              ? SizedBox(
-                                  height: menuMetrics.listViewportHeight,
-                                  child: _buildMenuPanelBody(
+                return VTextFieldFocusRing(
+                  focused: focused,
+                  danger: useDanger,
+                  child: MenuButtonTheme(
+                    data: const MenuButtonThemeData(),
+                    child: MenuAnchor(
+                      controller: _menuController,
+                      childFocusNode: _focusNode,
+                      clipBehavior: Clip.none,
+                      style: transparentMenuStyle,
+                      alignmentOffset: VOverlayMenuLayout.alignmentOffset,
+                      reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
+                      crossAxisUnconstrained: false,
+                      onOpen: _handleMenuOpen,
+                      onClose: _handleMenuClose,
+                      menuChildren: !_hasFilteredEntries
+                          ? const <Widget>[]
+                          : [
+                        SizedBox(
+                          width: menuWidth,
+                          height: menuMetrics.shellHeight,
+                          child: VOverlayMenuShell.panel(
+                            borderRadius: BorderRadius.circular(menuRadius),
+                            borderSide: VBorders.side(colors.borderStrong),
+                            padding: const EdgeInsets.all(menuPadding),
+                            boxShadow: menuBoxShadow,
+                            child: menuMetrics.needsScroll
+                                ? SizedBox(
+                                    height: menuMetrics.listViewportHeight,
+                                    child: _buildMenuPanelBody(
+                                      context: context,
+                                      isEnabled: isEnabled,
+                                      menuItemRadius: menuRadius,
+                                      metrics: menuMetrics,
+                                    ),
+                                  )
+                                : _buildMenuPanelBody(
                                     context: context,
                                     isEnabled: isEnabled,
-                                    menuItemRadius: menuRadius,
+                                    menuItemRadius: menuRadius - menuPadding / 2,
                                     metrics: menuMetrics,
                                   ),
-                                )
-                              : _buildMenuPanelBody(
-                                  context: context,
-                                  isEnabled: isEnabled,
-                                  menuItemRadius: menuRadius - menuPadding / 2,
-                                  metrics: menuMetrics,
-                                ),
+                          ),
                         ),
-                      ),
-                    ],
-                    builder: (context, controller, child) {
-                      return TextField(
-                        enabled: isEnabled,
-                        focusNode: _focusNode,
-                        controller: _textController,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: isEnabled ? colors.textPrimary : colors.textMuted,
-                        ),
-                        onChanged: isEnabled
-                            ? (text) {
-                                setState(() {
-                                  _applyFilter(text);
-                                });
-                                if (!_hasFilteredEntries) {
-                                  _closeMenu(keepFocus: true);
-                                } else if (!controller.isOpen) {
-                                  _openMenu(requestFocus: false);
-                                } else {
-                                  _syncMenuState();
+                      ],
+                      builder: (context, controller, child) {
+                        return TextField(
+                          enabled: isEnabled,
+                          focusNode: _focusNode,
+                          controller: _textController,
+                          style: VTypography.bodyDefault.copyWith(
+                            color: isEnabled ? colors.textPrimary : colors.textMuted,
+                          ),
+                          onChanged: isEnabled
+                              ? (text) {
+                                  setState(() {
+                                    _applyFilter(text);
+                                  });
+                                  if (!_hasFilteredEntries) {
+                                    _closeMenu(keepFocus: true);
+                                  } else if (!controller.isOpen) {
+                                    _openMenu(requestFocus: false);
+                                  } else {
+                                    _syncMenuState();
+                                  }
                                 }
-                              }
-                            : null,
-                        decoration: _buildDecoration(
-                          context,
-                          controller,
-                          isEnabled: isEnabled,
-                          restingBorder: restingBorder,
-                          focusBorder: focusBorder,
-                          disabledBorder: disabledBorder,
-                          iconColor: trailingIconColor,
-                          hoverColor: colors.surfaceHover,
-                        ),
-                      );
-                    },
+                              : null,
+                          decoration: _buildDecoration(
+                            context,
+                            controller,
+                            isEnabled: isEnabled,
+                            restingBorder: restingBorder,
+                            focusBorder: focusBorder,
+                            disabledBorder: disabledBorder,
+                            iconColor: trailingIconColor,
+                            hoverColor: colors.surfaceHover,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

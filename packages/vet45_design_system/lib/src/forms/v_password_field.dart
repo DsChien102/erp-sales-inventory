@@ -6,6 +6,7 @@ import 'package:vet45_design_system/src/primitives/v_icon.dart';
 
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../tokens/v_duration.dart';
 import 'validators/v_password_validator.dart';
@@ -124,7 +125,7 @@ class _VPasswordFieldState extends State<VPasswordField> {
   }
 
   Widget? get _resolvedSuffixIcon {
-    if (widget.suffixIcon != null) return widget.suffixIcon;
+    if (widget.suffixIcon != null) return vInspectorShow(widget.suffixIcon!);
     final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     return IconButton(
       onPressed: isEnabled ? _toggleObscured : null,
@@ -144,37 +145,40 @@ class _VPasswordFieldState extends State<VPasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return VTextField(
-      controller: widget.controller,
-      label: widget.label,
-      hintText: widget.hintText,
-      helperText: widget.helperText,
-      errorText: widget.errorText ?? _internalError,
-      prefixIcon: widget.prefixIcon,
-      suffixIcon: _resolvedSuffixIcon,
-      suffixIconConstraints: widget.suffixIconConstraints,
-      suffixText: widget.suffixText,
-      enabled: widget.enabled,
-      obscureText: _obscured,
-      keyboardType: TextInputType.visiblePassword,
-      onChanged: _handleChanged,
-      isRequired: widget.isRequired,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(widget.maxLength),
-        ...?widget.inputFormatters,
-      ],
-      textStyle: widget.textStyle,
-      textAlign: widget.textAlign,
-      autofocus: widget.autofocus,
-      focusNode: widget.focusNode,
-      onSubmitted: widget.onSubmitted,
-      border: widget.border,
-      tone: widget.tone,
-      emphasis: widget.emphasis,
-      state: (widget.errorText ?? _internalError) != null
-          ? VComponentState.error
-          : (widget.enabled ? widget.state : VComponentState.disabled),
-      semanticLabel: widget.semanticLabel,
+    return vInspectorHide(
+      VTextField(
+        controller: widget.controller,
+        label: widget.label,
+        hintText: widget.hintText,
+        helperText: widget.helperText,
+        errorText: widget.errorText ?? _internalError,
+        prefixIcon:
+            widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
+        suffixIcon: _resolvedSuffixIcon,
+        suffixIconConstraints: widget.suffixIconConstraints,
+        suffixText: widget.suffixText,
+        enabled: widget.enabled,
+        obscureText: _obscured,
+        keyboardType: TextInputType.visiblePassword,
+        onChanged: _handleChanged,
+        isRequired: widget.isRequired,
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(widget.maxLength),
+          ...?widget.inputFormatters,
+        ],
+        textStyle: widget.textStyle,
+        textAlign: widget.textAlign,
+        autofocus: widget.autofocus,
+        focusNode: widget.focusNode,
+        onSubmitted: widget.onSubmitted,
+        border: widget.border,
+        tone: widget.tone,
+        emphasis: widget.emphasis,
+        state: (widget.errorText ?? _internalError) != null
+            ? VComponentState.error
+            : (widget.enabled ? widget.state : VComponentState.disabled),
+        semanticLabel: widget.semanticLabel,
+      ),
     );
   }
 }
