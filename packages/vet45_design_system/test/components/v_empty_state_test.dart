@@ -133,4 +133,73 @@ void main() {
       expect(empty.tone, VComponentTone.danger);
     });
   });
+
+  group('VEmptyHeader tone scope', () {
+    testWidgets('inherits tone to title media description', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VEmptyState(
+            child: VEmptyHeader(
+              tone: VComponentTone.warning,
+              children: [
+                VEmptyMedia(iconData: Icons.warning_amber_outlined),
+                VEmptyTitle('Warn'),
+                VEmptyDescription('Details'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<VText>(
+        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
+      );
+      expect(title.color, VColorScheme.light.warning);
+
+      final description = tester.widget<VText>(
+        find.descendant(
+          of: find.byType(VEmptyDescription),
+          matching: find.byType(VText),
+        ),
+      );
+      expect(description.color, VColorScheme.light.warning);
+    });
+
+    testWidgets('local tone overrides header tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VEmptyState(
+            child: VEmptyHeader(
+              tone: VComponentTone.warning,
+              children: [
+                VEmptyMedia(iconData: Icons.info_outline),
+                VEmptyTitle('Danger title', tone: VComponentTone.danger),
+                VEmptyDescription('Still warning'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<VText>(
+        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
+      );
+      expect(title.color, VColorScheme.light.danger);
+
+      final description = tester.widget<VText>(
+        find.descendant(
+          of: find.byType(VEmptyDescription),
+          matching: find.byType(VText),
+        ),
+      );
+      expect(description.color, VColorScheme.light.warning);
+    });
+
+    testWidgets('throws when title used outside header', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VEmptyTitle('Orphan')),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+  });
 }

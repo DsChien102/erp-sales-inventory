@@ -23,7 +23,7 @@
 | components | `VNumericKeypadSheet` | overlay_shell | Pass (preferred) | Pass (preferred) | Pass (optional) | Pass (preferred) | Yes |
 | components | `VProgress` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VQuantitySelector` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
-| components | `VRadio` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
+| components | `VRadio` | toggle | N/A (na) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VSegmentedControl` | navigation_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |
 | components | `VSteps` | navigation_chrome | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |

@@ -257,7 +257,6 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
                           IgnorePointer(
                             child: VRadio<String>(
                               value: role.title,
-                              tone: VComponentTone.success,
                               onChanged: null,
                             ),
                           ),

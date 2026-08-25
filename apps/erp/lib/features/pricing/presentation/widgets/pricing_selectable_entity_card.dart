@@ -92,7 +92,6 @@ class PricingSelectableEntityCard<T> extends StatelessWidget {
       child: VRadio<T>(
         value: value,
         onChanged: null,
-        tone: VComponentTone.success,
       ),
     );
 

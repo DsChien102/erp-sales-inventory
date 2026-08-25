@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -19,10 +20,27 @@ void main() {
   });
 
   group('VPagePadding', () {
-    test('horizontalForWidth matches spacing tokens', () {
-      expect(VPagePadding.horizontalForWidth(400), VSpacing.screenMobile);
-      expect(VPagePadding.horizontalForWidth(800), VSpacing.screenTablet);
-      expect(VPagePadding.horizontalForWidth(1200), VSpacing.screenDesktop);
+    testWidgets('defaults horizontal inset to screenMobile', (tester) async {
+      late EdgeInsets resolved;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: VPagePadding(
+              child: Builder(
+                builder: (context) {
+                  resolved = context.findAncestorWidgetOfExactType<Padding>()!.padding
+                      as EdgeInsets;
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(resolved.left, VSpacing.screenMobile);
+      expect(resolved.right, VSpacing.screenMobile);
     });
   });
 }

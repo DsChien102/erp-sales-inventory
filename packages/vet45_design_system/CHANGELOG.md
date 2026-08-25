@@ -16,12 +16,16 @@ changelogs when relevant.
 ### Added
 
 - Versioning theo ship unit: Keep a Changelog + `scripts/bump_version.sh` (framework `flutter_lib`).
+- `VEmptyTitle.tone` (`VComponentTone`) — màu title theo tone (legacy `VEmptyState` truyền xuống).
+- `VEmptyHeader.tone` Inherited scope: `VEmptyMedia` / `VEmptyTitle` / `VEmptyDescription` inherit tone (local override); throw nếu dùng ngoài header.
 
 ### Changed
 
 - `VSwipeReveal` là primitive swipe-trái public (example + UI audit cover trực tiếp).
 - Typography của `VButton` theo variant (primary/secondary/tertiary/link) thay vì theo size.
 - `VSegmentedControl` segment dùng `VButton` (primary/secondary) thay Material/InkWell thủ công.
+- `VPagePadding` mặc định inset ngang = `VSpacing.screenMobile` (bỏ `horizontalForWidth` theo breakpoint).
+- `VRadio` bỏ `tone`; selected = `primary`, unselected = `borderDefault`.
 
 ### Fixed
 

@@ -39,14 +39,6 @@ void main() {
     });
   });
 
-  group('VPagePadding', () {
-    test('horizontalForWidth uses breakpoint tokens', () {
-      expect(VPagePadding.horizontalForWidth(390), VSpacing.screenMobile);
-      expect(VPagePadding.horizontalForWidth(800), VSpacing.screenTablet);
-      expect(VPagePadding.horizontalForWidth(1200), VSpacing.screenDesktop);
-    });
-  });
-
   group('VSection', () {
     testWidgets('renders title subtitle and child', (tester) async {
       await tester.pumpWidget(
