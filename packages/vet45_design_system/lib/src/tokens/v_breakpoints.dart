@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 /// Width-based layout breakpoints used across responsive patterns.
 ///
-/// Thresholds match historical [VPagePadding] behavior:
 /// - [mobile]: width < [VBreakpoints.tablet]
 /// - [tablet]: [VBreakpoints.tablet] ≤ width < [VBreakpoints.desktop]
 /// - [desktop]: width ≥ [VBreakpoints.desktop]

@@ -1159,6 +1159,24 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   ],
                 ),
               ),
+              const VGap.lg(),
+              VEmptyState(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VEmptyHeader(
+                      tone: VComponentTone.warning,
+                      children: [
+                        VEmptyMedia(iconData: Icons.warning_amber_outlined),
+                        const VEmptyTitle('Connection failed'),
+                        const VEmptyDescription(
+                          'Check your network and try again.',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

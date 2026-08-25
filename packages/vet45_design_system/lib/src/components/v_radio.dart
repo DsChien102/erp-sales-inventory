@@ -3,6 +3,7 @@ import 'package:vet45_design_system/src/patterns/v_gap.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
 
@@ -13,7 +14,6 @@ class VRadio<T> extends StatelessWidget {
     required this.onChanged,
     this.label,
     this.enabled = true,
-    this.tone = VComponentTone.primary,
     this.state,
     this.semanticLabel,
   });
@@ -22,7 +22,6 @@ class VRadio<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
   final String? label;
   final bool enabled;
-  final VComponentTone tone;
   final VComponentState? state;
   final String? semanticLabel;
 
@@ -39,20 +38,17 @@ class VRadio<T> extends StatelessWidget {
                   : VComponentState.disabled));
     final isEnabled = resolvedState == VComponentState.enabled;
 
-    final activeColor = switch (tone) {
-      VComponentTone.danger => dynamicColors.danger,
-      VComponentTone.success => dynamicColors.success,
-      VComponentTone.warning => dynamicColors.warning,
-      _ => dynamicColors.primary,
-    };
-
     Widget radio = Radio<T>(
       value: value,
+      side: VBorders.side(dynamicColors.borderStrong),
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
-          return dynamicColors.textMuted;
+          return dynamicColors.borderDefault;
         }
-        return activeColor;
+        if (states.contains(WidgetState.selected)) {
+          return dynamicColors.primary;
+        }
+        return dynamicColors.borderStrong;
       }),
     );
 
@@ -74,8 +70,6 @@ class VRadio<T> extends StatelessWidget {
     if (label != null) {
       return vInspectorHide(
         InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
           onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
           borderRadius: BorderRadius.circular(4),
           child: Padding(
