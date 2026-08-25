@@ -154,11 +154,15 @@ void main() {
 
       final detail = TenantAuditLogDetailDto(
         auditLogId: 'audit-1',
+        auditDisplayId: 'AUD-000982',
         tenantId: 'tenant-1',
+        activityCode: IamAuditEvents.tenantActivated,
         eventCode: IamAuditEvents.tenantActivated,
+        titleSnapshot: 'Đã kích hoạt tổ chức',
         result: TenantAuditLogResult.success,
         occurredAt: DateTime.utc(2026, 8, 20),
         source: 'iam',
+        correlationId: 'corr-1',
         trackingId: 'track-1',
         actorUnavailable: false,
         beforeRedacted: false,
@@ -170,6 +174,8 @@ void main() {
       );
 
       expect(detail.beforeState?['status'], 'pending');
+      expect(detail.auditDisplayId, 'AUD-000982');
+      expect(detail.correlationId, 'corr-1');
       expect(detail.afterState?['status'], 'active');
       expect(detail.actor.displayName, 'Nguyễn Văn A');
       expect(detail.subject.code, 'VET45-HCM');

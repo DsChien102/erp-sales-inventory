@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql',
+      '${root.path}/supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql',
     ).readAsStringSync();
   });
 
@@ -27,6 +27,51 @@ void main() {
       expect(fn, contains('is_owner'));
       expect(fn, isNot(contains('insert into iam.memberships')));
       expect(fn, isNot(contains('owner_activations')));
+    });
+
+    test('active platform profiles retain the Auth email', () {
+      final acceptStart = sql.indexOf('create or replace function iam.accept_invitation(');
+      final acceptEnd = acceptStart < 0 ? -1 : sql.indexOf(r'$$;', acceptStart);
+      final acceptFn = acceptStart < 0
+          ? ''
+          : sql.substring(acceptStart, acceptEnd < 0 ? null : acceptEnd);
+
+      expect(acceptFn, contains('user_id, email, status, email_verified'));
+      expect(acceptFn, contains("v_caller, v_email, 'active', true"));
+      expect(
+        acceptFn,
+        contains('email = coalesce(excluded.email, iam.platform_user_profiles.email)'),
+      );
+
+      final loginStart = sql.indexOf(
+        'create or replace function iam.record_my_platform_login()',
+      );
+      final loginEnd = loginStart < 0 ? -1 : sql.indexOf(r'$$;', loginStart);
+      final loginFn = loginStart < 0
+          ? ''
+          : sql.substring(loginStart, loginEnd < 0 ? null : loginEnd);
+      expect(loginFn, contains('from auth.users u'));
+      expect(loginFn, contains('user_id, email, status, last_login_at'));
+
+      expect(sql, contains('update iam.platform_user_profiles p'));
+      expect(sql, contains('p.email is distinct from lower(trim(u.email::text))'));
+    });
+
+    test('accepted invitation records immutable Audit V2 context', () {
+      final start = sql.indexOf('create or replace function iam.accept_invitation(');
+      final end = start < 0 ? -1 : sql.indexOf(r'$$;', start);
+      final fn = start < 0 ? '' : sql.substring(start, end < 0 ? null : end);
+
+      expect(fn, contains("p_actor_type => 'tenant_member'"));
+      expect(fn, contains('p_actor_membership_id => v_membership.id'));
+      expect(fn, contains('p_actor_snapshot => jsonb_build_object('));
+      expect(fn, contains('p_target_snapshot => jsonb_build_object('));
+      expect(fn, contains("p_subject_type => 'tenant'"));
+      expect(fn, contains('p_subject_id => v_inv.tenant_id::text'));
+      expect(fn, contains('p_target_display_name => v_tenant.display_name'));
+      expect(fn, contains('p_target_secondary_identifier => v_tenant.code'));
+      expect(fn, contains('p_correlation_id => p_idempotency_key'));
+      expect(fn, contains('p_detail_items => jsonb_build_array('));
     });
   });
 }

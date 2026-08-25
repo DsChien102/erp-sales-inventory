@@ -1,0 +1,1234 @@
+-- Title: iam audit_logs V2 rebuild (big-bang, dev)
+-- Kind: patch
+-- Intent: iam_audit_logs_v2_rebuild
+-- Touches: iam.audit_logs, iam._audit_redact, iam._audit_event_category, iam.append_audit_log, iam.search_platform_audit_logs, iam.get_platform_audit_log, iam.search_tenant_audit_logs_v2, iam.get_tenant_audit_log
+-- Supersedes: _drafts/003_iam_tenant_audit_history_v2_storage.sql, _drafts/005_iam_tenant_audit_history_v2_read.sql
+-- Safety: idempotent ; destructive (dev only)
+-- Depends on: 004_iam_tenant_audit_history_v2_payloads, 006_iam_audit_owner_activation_cleanup
+--
+-- BIG-BANG rebuild for the DEV database (no production data to preserve). Drops
+-- and recreates iam.audit_logs with the user-facing Audit Activity schema (the
+-- "Quyết định thiết kế: schema iam.audit_logs" section of the plan), then makes
+-- the writer (append_audit_log) write the V2 columns and rewrites the 4 read RPCs.
+--
+-- Pragmatic (option b): append_audit_log KEEPS its old signature (so the ~15
+-- existing callers need NO changes) and gains optional rich params; its body maps
+-- the old params onto the V2 columns with sensible defaults. Rich per-event
+-- mapping (nice activity_code/title/detail_items) is a later refinement.
+--
+-- This draft is complete only as one unit: schema, writer and read RPCs are rebuilt
+-- together so no active function references the removed legacy columns.
+
+-- ── Phase 1 — Schema V2 ──────────────────────────────────────────────────────
+
+-- Rebuild from scratch: append-only Audit Activity store, one row per business
+-- operation/correlation, shared by Tenant App and Platform Admin renderers.
+drop table if exists iam.audit_logs cascade;
+
+create table iam.audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  -- Số tuần tự hiển thị cho người dùng (AUD-000982). Auto-tăng, ổn định.
+  audit_no bigint generated always as identity,
+  scope text not null,
+  tenant_id uuid,
+  activity_code text not null,
+  event_code text not null,
+  event_category text,
+  result text not null,
+  title_snapshot text not null,
+  actor_type text not null,
+  actor_user_id uuid,
+  actor_membership_id uuid,
+  actor_display_name_snapshot text not null,
+  actor_context_label text,
+  actor_snapshot jsonb not null default '{}'::jsonb,
+  target_type text not null,
+  target_id text not null,
+  target_display_name_snapshot text not null,
+  target_secondary_identifier text,
+  target_snapshot jsonb not null default '{}'::jsonb,
+  source text not null,
+  correlation_id text not null,
+  tracking_id text,
+  source_event_refs jsonb not null default '[]'::jsonb,
+  detail_items jsonb not null default '[]'::jsonb,
+  redaction_flags text[] not null default '{}',
+  occurred_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  constraint audit_logs_scope_chk
+    check (scope in ('tenant', 'platform')),
+  constraint audit_logs_tenant_scope_chk
+    check (scope <> 'tenant' or tenant_id is not null),
+  constraint audit_logs_result_chk
+    check (result in ('success', 'blocked', 'error')),
+  constraint audit_logs_actor_type_chk
+    check (actor_type in ('platform_user', 'tenant_member', 'platform_operator', 'system'))
+);
+
+alter table iam.audit_logs enable row level security;
+
+create index audit_logs_tenant_occurred_idx
+  on iam.audit_logs (tenant_id, occurred_at desc, id desc)
+  where scope = 'tenant';
+
+create index audit_logs_platform_occurred_idx
+  on iam.audit_logs (occurred_at desc, id desc)
+  where scope = 'platform';
+
+create index audit_logs_correlation_idx
+  on iam.audit_logs (correlation_id);
+
+create index audit_logs_activity_idx
+  on iam.audit_logs (activity_code, occurred_at desc);
+
+create index audit_logs_actor_user_idx
+  on iam.audit_logs (actor_user_id, occurred_at desc);
+
+create index audit_logs_target_idx
+  on iam.audit_logs (target_type, target_id, occurred_at desc);
+
+-- Recursively redact credential-like payload keys before persistence.
+create or replace function iam._audit_redact(p jsonb)
+returns jsonb
+language plpgsql
+immutable
+as $$
+declare
+  v_result jsonb := '{}'::jsonb;
+  v_key text;
+  v_val jsonb;
+  v_normalized_key text;
+begin
+  if p is null then
+    return null;
+  end if;
+
+  if jsonb_typeof(p) = 'array' then
+    return (
+      select coalesce(jsonb_agg(iam._audit_redact(v)), '[]'::jsonb)
+      from jsonb_array_elements(p) as items(v)
+    );
+  end if;
+
+  if jsonb_typeof(p) <> 'object' then
+    return p;
+  end if;
+
+  for v_key, v_val in select key, value from jsonb_each(p)
+  loop
+    v_normalized_key := regexp_replace(lower(v_key), '[-_]', '', 'g');
+    if v_normalized_key like '%credential%'
+      or v_normalized_key like '%clientsecret%'
+      or v_normalized_key like '%passwordhash%'
+      or v_normalized_key like '%apikey%'
+      or v_normalized_key like '%privatekey%'
+      or v_normalized_key like '%cookie%'
+      or v_normalized_key like '%bearer%'
+      or v_normalized_key like '%secretpayloadciphertext%'
+      or v_normalized_key like '%tokenhash%'
+      or v_normalized_key like '%token%'
+      or v_normalized_key like '%password%'
+      or v_normalized_key like '%secret%'
+      or v_normalized_key like '%otp%'
+      or v_normalized_key like '%verificationcode%'
+      or v_normalized_key like '%recoverycode%'
+      or v_normalized_key like '%nonce%'
+      or v_normalized_key like '%session%'
+      or v_normalized_key like '%ciphertext%'
+      or v_normalized_key = 'code' then
+      v_result := v_result || jsonb_build_object(v_key, '[REDACTED]');
+    else
+      v_result := v_result || jsonb_build_object(v_key, iam._audit_redact(v_val));
+    end if;
+  end loop;
+
+  return v_result;
+end;
+$$;
+
+revoke all on function iam._audit_redact(jsonb) from public, anon, authenticated;
+
+-- Resolve the stable category consumed by tenant audit filters.
+create or replace function iam._audit_event_category(p_event_code text)
+returns text
+language plpgsql
+immutable
+as $$
+begin
+  case p_event_code
+    when 'iam.membership.deactivated',
+         'iam.membership.reactivated',
+         'iam.membership.removed',
+         'iam.tenant.owner_activated',
+         'iam.owner.activated' then return 'member';
+    when 'iam.tenant.member_role_assigned',
+         'iam.membership.role_changed' then return 'role';
+    when 'iam.tenant.profile_updated',
+         'iam.tenant.legal_profile_updated',
+         'iam.tenant.activated',
+         'iam.tenant.suspended',
+         'iam.tenant.restored',
+         'iam.tenant.ownership_transferred' then return 'organization';
+    when 'iam.tenant.invitation_created',
+         'tenant.invitation.created',
+         'iam.tenant.invitation_resent',
+         'tenant.invitation.resent',
+         'iam.tenant.invitation_revoked',
+         'tenant.invitation.revoked',
+         'iam.tenant.invitation_accepted',
+         'tenant.invitation.accepted' then return 'invitation';
+    when 'iam.account.profile_updated',
+         'iam.user.profile_updated' then return 'account';
+    when 'iam.account.password_reset_completed',
+         'iam.account.signed_out' then return 'security';
+    else
+      raise exception 'AUDIT_EVENT_UNREGISTERED:%', p_event_code;
+  end case;
+end;
+$$;
+
+revoke all on function iam._audit_event_category(text) from public, anon, authenticated;
+
+-- ── Phase 2 — append_audit_log writes V2 (old signature kept, callers unchanged) ──
+-- Keeps the original 12-param signature so every existing caller compiles
+-- unchanged, and appends optional rich V2 params (default null → derived).
+-- Mapping / defaults:
+--   target_type/id ← old subject_type/id;
+--   activity_code / title_snapshot ← event_code (unless overridden);
+--   actor_type ← by scope (platform→platform_operator, tenant→tenant_member);
+--   correlation_id ← coalesce(correlation, tracking, generated);
+--   source_event_refs ← [{before, after}] from the old diff (raw data preserved
+--     for later mapping); detail_items ← '[]' unless a rich caller supplies them.
+--
+-- Drop the OLD 12-param overload first. The new function below has a different
+-- arity (12 old + 14 optional rich params), so `create or replace` would NOT
+-- replace it — leaving two overloads that a 12-arg call cannot disambiguate
+-- ("function is not unique", 42725). The old one also wrote the dropped legacy
+-- columns, so it must go regardless.
+drop function if exists iam.append_audit_log(
+  text, uuid, uuid, text, text, text, text, text, text, jsonb, jsonb, text[]
+);
+
+create or replace function iam.append_audit_log(
+  p_scope text,
+  p_tenant_id uuid,
+  p_actor_user_id uuid,
+  p_event_code text,
+  p_subject_type text,
+  p_subject_id text,
+  p_result text,
+  p_source text,
+  p_tracking_id text,
+  p_before jsonb default null,
+  p_after jsonb default null,
+  p_redaction_flags text[] default '{}',
+  -- Optional rich V2 params (default null → derived from the above):
+  p_activity_code text default null,
+  p_event_category text default null,
+  p_title_snapshot text default null,
+  p_actor_type text default null,
+  p_actor_membership_id uuid default null,
+  p_actor_display_name text default null,
+  p_actor_context_label text default null,
+  p_actor_snapshot jsonb default '{}'::jsonb,
+  p_target_display_name text default null,
+  p_target_secondary_identifier text default null,
+  p_target_snapshot jsonb default '{}'::jsonb,
+  p_correlation_id text default null,
+  p_source_event_refs jsonb default null,
+  p_detail_items jsonb default null,
+  p_occurred_at timestamptz default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_id uuid;
+  v_now timestamptz := now();
+  v_request_source text := lower(nullif(trim(coalesce(
+    coalesce(
+      nullif(current_setting('request.headers', true), ''),
+      '{}'
+    )::jsonb->>'x-vet45-app',
+    ''
+  )), ''));
+  v_source text := case
+    when v_request_source in ('tenant_app', 'platform_admin_app')
+      then v_request_source
+    else p_source
+  end;
+  v_actor_type text := coalesce(
+    nullif(trim(coalesce(p_actor_type, '')), ''),
+    case
+      -- Self-service: người thực hiện chính là đối tượng (vd tự sửa hồ sơ).
+      when p_actor_user_id is not null and p_actor_user_id::text = p_subject_id
+        then 'platform_user'
+      when p_scope = 'platform' then 'platform_operator'
+      else 'tenant_member'
+    end
+  );
+  v_correlation text := coalesce(
+    nullif(trim(coalesce(p_correlation_id, '')), ''),
+    nullif(trim(coalesce(p_tracking_id, '')), ''),
+    gen_random_uuid()::text
+  );
+  v_source_event_refs jsonb := coalesce(
+    p_source_event_refs,
+    case
+      when p_before is not null or p_after is not null then
+        jsonb_build_array(jsonb_build_object(
+          'before', iam._audit_redact(p_before),
+          'after', iam._audit_redact(p_after)
+        ))
+      else '[]'::jsonb
+    end
+  );
+begin
+  insert into iam.audit_logs (
+    scope, tenant_id, activity_code, event_code, event_category, result,
+    title_snapshot, actor_type, actor_user_id, actor_membership_id,
+    actor_display_name_snapshot, actor_context_label, actor_snapshot,
+    target_type, target_id, target_display_name_snapshot,
+    target_secondary_identifier, target_snapshot, source,
+    correlation_id, tracking_id, source_event_refs, detail_items,
+    redaction_flags, occurred_at, created_at
+  )
+  values (
+    p_scope, p_tenant_id,
+    coalesce(nullif(trim(coalesce(p_activity_code, '')), ''), p_event_code),
+    p_event_code, coalesce(p_event_category, iam._audit_event_category(p_event_code)), p_result,
+    coalesce(nullif(trim(coalesce(p_title_snapshot, '')), ''), p_event_code),
+    v_actor_type, p_actor_user_id, p_actor_membership_id,
+    coalesce(p_actor_display_name, ''), p_actor_context_label,
+    iam._audit_redact(coalesce(p_actor_snapshot, '{}'::jsonb)),
+    p_subject_type, p_subject_id,
+    coalesce(nullif(trim(coalesce(p_target_display_name, '')), ''), ''),
+    p_target_secondary_identifier,
+    iam._audit_redact(coalesce(p_target_snapshot, '{}'::jsonb)),
+    v_source, v_correlation, p_tracking_id,
+    v_source_event_refs,
+    iam._audit_redact(coalesce(p_detail_items, '[]'::jsonb)),
+    coalesce(p_redaction_flags, '{}'),
+    coalesce(p_occurred_at, v_now), v_now
+  )
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+-- ── Phase 3 — Callers: NO CHANGES ────────────────────────────────────────────
+-- The 12-param call sites (p_scope, p_tenant_id, p_actor_user_id, p_event_code,
+-- p_subject_type, p_subject_id, p_result, p_source, p_tracking_id, p_before,
+-- p_after, p_redaction_flags) all resolve to the function above unchanged. No
+-- caller rewrite is required for the V2 schema. (Rich per-event data is a later
+-- refinement: callers add the optional p_activity_code/p_title_snapshot/
+-- p_detail_items/... named params when we build the Audit Activity mapping.)
+
+-- ── Phase 4 — 4 read RPC V2 (đọc cột V2, GIỮ NGUYÊN shape trả về) ──────────────
+-- subject_type/id ← target_type/id; correlation filter ← correlation_id; before/
+-- after ← source_event_refs[0].before/after. Output keys giữ nguyên → Dart khỏi vỡ.
+
+create or replace function iam.get_platform_audit_log(p_audit_log_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_row record;
+begin
+  if not iam.has_platform_permission('platform.audit.view') then
+    raise exception 'platform permission denied';
+  end if;
+
+  select
+    a.id,
+    a.audit_no,
+    a.event_code as title,
+    a.event_code as action,
+    a.result as status,
+    a.correlation_id as correlation_id,
+    a.source as source_app,
+    coalesce((a.source_event_refs->0->>'before'), '') as before_state,
+    coalesce((a.source_event_refs->0->>'after'), '') as after_state,
+    a.occurred_at as created_at,
+    coalesce(
+      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+      coalesce(u.email::text, 'Hệ thống')
+    ) as actor_name,
+    (case a.actor_type
+      when 'platform_operator' then 'Nhân viên vận hành nền tảng'
+      when 'platform_user' then 'Người dùng nền tảng'
+      when 'tenant_member' then 'Thành viên tổ chức'
+      when 'system' then 'Hệ thống'
+      else 'Nhân viên vận hành nền tảng'
+    end) as actor_role,
+    coalesce(t.name, a.target_type, '') as target_org_name,
+    coalesce(t.code, a.target_id, left(coalesce(t.id::text, ''), 8)) as target_org_code,
+    a.target_type as target_type,
+    -- Tên hiển thị của đối tượng: tenant → tên tổ chức; account/user → tên/email
+    -- người dùng resolve theo target_id; fallback snapshot lúc ghi.
+    coalesce(
+      t.name,
+      (select coalesce(
+                nullif(trim(concat_ws(' ', p2.family_middle_name, p2.given_name)), ''),
+                u2.email::text, p2.email)
+       from auth.users u2
+       left join iam.platform_user_profiles p2 on p2.user_id = u2.id
+       where u2.id::text = a.target_id
+       limit 1),
+      (select coalesce(
+                nullif(trim(concat_ws(' ', p3.family_middle_name, p3.given_name)), ''),
+                p3.email)
+       from iam.platform_user_profiles p3
+       where p3.user_id::text = a.target_id
+       limit 1),
+      nullif(a.target_display_name_snapshot, ''),
+      ''
+    ) as target_display_name,
+    a.source_event_refs->0->'before' as change_before,
+    a.source_event_refs->0->'after' as change_after,
+    -- Values were already redacted at write time; never un-redact on read.
+    coalesce(a.source_event_refs->0->'after', '{}'::jsonb) as payload
+  into v_row
+  from iam.audit_logs a
+  left join auth.users u on u.id = a.actor_user_id
+  left join iam.tenants t on t.id = a.tenant_id
+  where a.id = p_audit_log_id
+    and a.scope = 'platform';
+
+  if v_row.id is null then
+    raise exception 'audit log not found';
+  end if;
+
+  return jsonb_build_object(
+    'id', v_row.id,
+    'audit_no', v_row.audit_no,
+    'title', v_row.title,
+    'action_code', v_row.action,
+    'status', v_row.status,
+    'status_label', case v_row.status
+      when 'blocked' then 'Bị chặn'
+      when 'error' then 'Lỗi'
+      else 'Thành công'
+    end,
+    'actor_name', v_row.actor_name,
+    'actor_role', v_row.actor_role,
+    'target_org_name', v_row.target_org_name,
+    'target_org_code', v_row.target_org_code,
+    'target_type', v_row.target_type,
+    'target_display_name', v_row.target_display_name,
+    'timestamp', v_row.created_at,
+    'source_app', v_row.source_app,
+    'correlation_id', coalesce(v_row.correlation_id, ''),
+    'before_state', v_row.before_state,
+    'after_state', v_row.after_state,
+    'change_before', coalesce(v_row.change_before, '{}'::jsonb),
+    'change_after', coalesce(v_row.change_after, '{}'::jsonb),
+    'payload', v_row.payload
+  );
+end;
+$$;
+
+revoke all on function iam.get_platform_audit_log(uuid) from public, anon;
+grant execute on function iam.get_platform_audit_log(uuid) to authenticated;
+
+drop function if exists iam.search_tenant_audit_logs(
+  uuid, timestamptz, timestamptz, text, text, text, text, text, integer
+);
+
+-- 1. Versioned tenant audit log search RPC
+create or replace function iam.search_tenant_audit_logs_v2(
+  p_tenant_id uuid,
+  p_from timestamptz,
+  p_to timestamptz,
+  p_query text default null,
+  p_result text default null,
+  p_event_category text default null,
+  p_subject_type text default null,
+  p_event_codes text[] default null,
+  p_cursor text default null,
+  p_page_size integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, public
+as $$
+declare
+  v_limit integer;
+  v_cursor_time timestamptz;
+  v_cursor_id uuid;
+  v_total_count integer := 0;
+  v_query text;
+  v_items jsonb := '[]'::jsonb;
+  v_next_cursor text := null;
+  v_last_returned_time timestamptz;
+  v_last_returned_id uuid;
+  v_row record;
+  v_count integer := 0;
+  v_actor jsonb;
+  v_subject jsonb;
+begin
+  -- 1. Active membership + tenant.audit.view permission check
+  if not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = p_tenant_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+  ) or not iam.has_permission(p_tenant_id, 'tenant.audit.view') then
+    raise exception 'TENANT_PERMISSION_DENIED';
+  end if;
+
+  v_limit := least(greatest(coalesce(p_page_size, 20), 1), 100);
+  v_query := nullif(trim(p_query), '');
+
+  -- Parse cursor
+  if p_cursor is not null and p_cursor <> '' then
+    begin
+      v_cursor_time := split_part(p_cursor, '|', 1)::timestamptz;
+      v_cursor_id := split_part(p_cursor, '|', 2)::uuid;
+    exception when others then
+      v_cursor_time := null;
+      v_cursor_id := null;
+    end;
+  end if;
+
+  -- 2. Count total matches before cursor slicing
+  select count(*)
+  into v_total_count
+  from iam.audit_logs a
+  left join auth.users u on u.id = a.actor_user_id
+  left join iam.platform_user_profiles up on up.user_id = u.id
+  left join iam.tenants t on (
+    a.target_type in ('tenant', 'organization')
+    and a.target_id = t.id::text
+    and t.id = a.tenant_id
+  )
+  left join iam.tenant_invitations inv on (
+    a.target_type = 'invitation'
+    and a.target_id = inv.id::text
+    and inv.tenant_id = a.tenant_id
+  )
+  left join iam.role_definitions inv_role on inv_role.id = inv.initial_role_id
+  left join iam.memberships sm on (
+    a.target_type in ('membership', 'member')
+    and a.target_id = sm.id::text
+    and sm.tenant_id = a.tenant_id
+  )
+  left join auth.users su on (
+    (
+      a.target_type in ('user', 'account')
+      and a.target_id = su.id::text
+      and exists (
+        select 1
+        from iam.memberships sum_scope
+        where sum_scope.tenant_id = a.tenant_id
+          and sum_scope.user_id = su.id
+      )
+    ) or (
+      a.target_type in ('membership', 'member')
+      and sm.user_id = su.id
+    )
+  )
+  left join iam.platform_user_profiles sup on sup.user_id = su.id
+  where a.scope = 'tenant'
+    and a.tenant_id = p_tenant_id
+    and a.occurred_at >= p_from
+    and a.occurred_at < p_to
+    and (p_result is null or a.result = p_result)
+    and (p_event_category is null or a.event_category = p_event_category)
+    and (p_subject_type is null or a.target_type = p_subject_type)
+    and (p_event_codes is null or a.event_code = any(p_event_codes))
+    and (
+      v_query is null or
+      lower(concat_ws(' ', a.event_code, a.activity_code, a.title_snapshot, a.target_display_name_snapshot, a.correlation_id, a.tracking_id)) ilike '%' || lower(v_query) || '%' or
+      a.id::text = v_query or
+      a.actor_user_id::text = v_query or
+      a.target_id = v_query or
+      a.tracking_id ilike '%' || v_query || '%' or
+      a.event_code ilike '%' || v_query || '%' or
+      nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') ilike '%' || v_query || '%' or
+      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%' or
+      t.display_name ilike '%' || v_query || '%' or
+      t.code ilike '%' || v_query || '%' or
+      inv_role.code ilike '%' || v_query || '%' or
+      inv_role.label ilike '%' || v_query || '%' or
+      sm.role ilike '%' || v_query || '%' or
+      nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') ilike '%' || v_query || '%' or
+      nullif(trim(concat_ws(' ', su.raw_user_meta_data->>'last_name', su.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%'
+    );
+
+  -- 3. Query page items (fetch limit + 1 to detect next page)
+  for v_row in
+    select
+      a.id as audit_log_id,
+      a.event_code,
+      a.event_category,
+      a.result,
+      a.occurred_at,
+      a.source,
+      a.tracking_id,
+      a.actor_user_id,
+      a.actor_snapshot,
+      a.target_type,
+      a.target_id,
+      a.target_snapshot,
+      nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') as u_full_name,
+      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') as u_display_name,
+      m.role as m_role,
+      t.display_name as t_display_name,
+      t.code as t_code,
+      inv_role.code as inv_role,
+      inv.invitee_email as inv_email,
+      nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') as su_full_name,
+      nullif(trim(concat_ws(' ', su.raw_user_meta_data->>'last_name', su.raw_user_meta_data->>'first_name')), '') as su_display_name,
+      sm.role as sm_role
+    from iam.audit_logs a
+    left join auth.users u on u.id = a.actor_user_id
+    left join iam.platform_user_profiles up on up.user_id = u.id
+    left join lateral (
+      select am.role
+      from iam.memberships am
+      where am.tenant_id = a.tenant_id
+        and am.user_id = a.actor_user_id
+        and am.status in ('active', 'inactive')
+      order by
+        case am.status when 'active' then 0 else 1 end,
+        am.updated_at desc,
+        am.created_at desc,
+        am.id desc
+      limit 1
+    ) m on true
+    left join iam.tenants t on (
+      a.target_type in ('tenant', 'organization')
+      and a.target_id = t.id::text
+      and t.id = a.tenant_id
+    )
+    left join iam.tenant_invitations inv on (
+      a.target_type = 'invitation'
+      and a.target_id = inv.id::text
+      and inv.tenant_id = a.tenant_id
+    )
+    left join iam.role_definitions inv_role on inv_role.id = inv.initial_role_id
+    left join iam.memberships sm on (
+      a.target_type in ('membership', 'member')
+      and a.target_id = sm.id::text
+      and sm.tenant_id = a.tenant_id
+    )
+    left join auth.users su on (
+      (
+        a.target_type in ('user', 'account')
+        and a.target_id = su.id::text
+        and exists (
+          select 1
+          from iam.memberships sum_scope
+          where sum_scope.tenant_id = a.tenant_id
+            and sum_scope.user_id = su.id
+        )
+      ) or (
+        a.target_type in ('membership', 'member')
+        and sm.user_id = su.id
+      )
+    )
+    left join iam.platform_user_profiles sup on sup.user_id = su.id
+    where a.scope = 'tenant'
+      and a.tenant_id = p_tenant_id
+      and a.occurred_at >= p_from
+      and a.occurred_at < p_to
+      and (p_result is null or a.result = p_result)
+      and (p_event_category is null or a.event_category = p_event_category)
+      and (p_subject_type is null or a.target_type = p_subject_type)
+      and (p_event_codes is null or a.event_code = any(p_event_codes))
+      and (
+        v_query is null or
+        lower(concat_ws(' ', a.event_code, a.activity_code, a.title_snapshot, a.target_display_name_snapshot, a.correlation_id, a.tracking_id)) ilike '%' || lower(v_query) || '%' or
+        a.id::text = v_query or
+        a.actor_user_id::text = v_query or
+        a.target_id = v_query or
+        a.tracking_id ilike '%' || v_query || '%' or
+        a.event_code ilike '%' || v_query || '%' or
+        nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') ilike '%' || v_query || '%' or
+        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%' or
+        t.display_name ilike '%' || v_query || '%' or
+        t.code ilike '%' || v_query || '%' or
+        inv_role.code ilike '%' || v_query || '%' or
+        inv_role.label ilike '%' || v_query || '%' or
+        sm.role ilike '%' || v_query || '%' or
+        nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') ilike '%' || v_query || '%' or
+        nullif(trim(concat_ws(' ', su.raw_user_meta_data->>'last_name', su.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%'
+      )
+      and (
+        v_cursor_time is null or
+        (a.occurred_at < v_cursor_time or (a.occurred_at = v_cursor_time and a.id < v_cursor_id))
+      )
+    order by a.occurred_at desc, a.id desc
+    limit v_limit + 1
+  loop
+    v_count := v_count + 1;
+    if v_count > v_limit then
+      v_next_cursor := to_char(v_last_returned_time at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') || '|' || v_last_returned_id::text;
+      exit;
+    end if;
+
+    -- Build Actor JSON
+    if coalesce(v_row.actor_snapshot, '{}'::jsonb) <> '{}'::jsonb then
+      v_actor := jsonb_build_object(
+        'user_id', v_row.actor_user_id,
+        'display_name', v_row.actor_snapshot->>'display_name',
+        'actor_type', coalesce(v_row.actor_snapshot->>'actor_type', 'user'),
+        'role_code', v_row.actor_snapshot->>'role_code',
+        'role_label', v_row.actor_snapshot->>'role_label',
+        'display_origin', 'snapshot'
+      );
+    elsif v_row.actor_user_id is null then
+      v_actor := jsonb_build_object(
+        'user_id', null,
+        'display_name', 'Hệ thống',
+        'actor_type', 'system',
+        'role_code', null,
+        'role_label', null,
+        'display_origin', 'system'
+      );
+    elsif v_row.u_full_name is not null or v_row.u_display_name is not null then
+      v_actor := jsonb_build_object(
+        'user_id', v_row.actor_user_id,
+        'display_name', coalesce(v_row.u_full_name, v_row.u_display_name, v_row.actor_user_id::text),
+        'actor_type', 'user',
+        'role_code', v_row.m_role,
+        'role_label', case v_row.m_role
+          when 'store_owner' then 'Chủ sở hữu'
+          when 'store_manager' then 'Quản lý chi nhánh'
+          when 'veterinarian' then 'Bác sĩ thú y'
+          when 'care_staff' then 'Nhân viên chăm sóc'
+          when 'cashier' then 'Thu ngân'
+          else v_row.m_role
+        end,
+        'display_origin', 'current'
+      );
+    else
+      v_actor := jsonb_build_object(
+        'user_id', v_row.actor_user_id,
+        'display_name', null,
+        'actor_type', 'user',
+        'role_code', null,
+        'role_label', null,
+        'display_origin', 'unavailable'
+      );
+    end if;
+
+    -- Build Subject JSON
+    if coalesce(v_row.target_snapshot, '{}'::jsonb) <> '{}'::jsonb then
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', v_row.target_snapshot->>'display_name',
+        'code', v_row.target_snapshot->>'subject_code',
+        'secondary_label', v_row.target_snapshot->>'secondary_label',
+        'display_origin', 'snapshot'
+      );
+    elsif v_row.target_type in ('tenant', 'organization') and v_row.t_display_name is not null then
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', v_row.t_display_name,
+        'code', v_row.t_code,
+        'secondary_label', null,
+        'display_origin', 'current'
+      );
+    elsif v_row.target_type in ('membership', 'member') and v_row.su_full_name is not null then
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', coalesce(v_row.su_full_name, v_row.su_display_name, v_row.target_id),
+        'code', v_row.sm_role,
+        'secondary_label', case v_row.sm_role
+          when 'store_owner' then 'Chủ sở hữu'
+          when 'store_manager' then 'Quản lý chi nhánh'
+          when 'veterinarian' then 'Bác sĩ thú y'
+          when 'care_staff' then 'Nhân viên chăm sóc'
+          when 'cashier' then 'Thu ngân'
+          else v_row.sm_role
+        end,
+        'display_origin', 'current'
+      );
+    elsif v_row.target_type = 'invitation' and v_row.inv_email is not null then
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', case
+          when v_row.inv_email like '%@%' then
+            substr(v_row.inv_email, 1, 2) || '***@' || split_part(v_row.inv_email, '@', 2)
+          else '***'
+        end,
+        'code', v_row.inv_role,
+        'secondary_label', null,
+        'display_origin', 'current'
+      );
+    elsif v_row.target_type in ('user', 'account') and v_row.su_full_name is not null then
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', coalesce(v_row.su_full_name, v_row.su_display_name, v_row.target_id),
+        'code', null,
+        'secondary_label', null,
+        'display_origin', 'current'
+      );
+    else
+      v_subject := jsonb_build_object(
+        'type', v_row.target_type,
+        'id', v_row.target_id,
+        'display_name', null,
+        'code', null,
+        'secondary_label', null,
+        'display_origin', 'unavailable'
+      );
+    end if;
+
+    v_items := v_items || jsonb_build_array(
+      jsonb_build_object(
+        'audit_log_id', v_row.audit_log_id,
+        'event_code', v_row.event_code,
+        'event_category', v_row.event_category,
+        'result', v_row.result,
+        'occurred_at', to_char(v_row.occurred_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+        'source', v_row.source,
+        'tracking_id', v_row.tracking_id,
+        'actor', v_actor,
+        'subject', v_subject
+      )
+    );
+    v_last_returned_time := v_row.occurred_at;
+    v_last_returned_id := v_row.audit_log_id;
+  end loop;
+
+  return jsonb_build_object(
+    'items', v_items,
+    'total_count', v_total_count,
+    'next_cursor', v_next_cursor
+  );
+end;
+$$;
+
+revoke all on function iam.search_tenant_audit_logs_v2(uuid, timestamptz, timestamptz, text, text, text, text, text[], text, integer) from public, anon;
+grant execute on function iam.search_tenant_audit_logs_v2(uuid, timestamptz, timestamptz, text, text, text, text, text[], text, integer) to authenticated;
+
+-- 2. Detail RPC
+create or replace function iam.get_tenant_audit_log(
+  p_tenant_id uuid,
+  p_audit_log_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, public
+as $$
+declare
+  v_row record;
+  v_actor jsonb;
+  v_subject jsonb;
+  v_before_redacted boolean := false;
+  v_after_redacted boolean := false;
+begin
+  if not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = p_tenant_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+  ) or not iam.has_permission(p_tenant_id, 'tenant.audit.view') then
+    raise exception 'TENANT_PERMISSION_DENIED';
+  end if;
+
+  select
+    a.id as audit_log_id,
+    a.audit_no,
+    a.tenant_id,
+    a.activity_code,
+    a.event_code,
+    a.event_category,
+    a.result,
+    a.title_snapshot,
+    a.occurred_at,
+    a.source,
+    a.correlation_id,
+    a.tracking_id,
+    a.actor_type,
+    a.actor_user_id,
+    a.actor_membership_id,
+    a.actor_display_name_snapshot,
+    a.actor_context_label,
+    a.actor_snapshot,
+    a.target_type,
+    a.target_id,
+    a.target_display_name_snapshot,
+    a.target_secondary_identifier,
+    a.target_snapshot,
+    a.detail_items,
+    a.source_event_refs->0->'before' as before_state,
+    a.source_event_refs->0->'after' as after_state,
+    a.redaction_flags,
+    nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') as u_full_name,
+    nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') as u_display_name,
+    m.role as m_role,
+    t.display_name as t_display_name,
+    t.code as t_code,
+    inv_role.code as inv_role,
+    inv.invitee_email as inv_email,
+    nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') as su_full_name,
+    nullif(trim(concat_ws(' ', su.raw_user_meta_data->>'last_name', su.raw_user_meta_data->>'first_name')), '') as su_display_name,
+    sm.role as sm_role
+  into v_row
+  from iam.audit_logs a
+  left join auth.users u on u.id = a.actor_user_id
+  left join iam.platform_user_profiles up on up.user_id = u.id
+  left join lateral (
+    select am.role
+    from iam.memberships am
+    where am.tenant_id = a.tenant_id
+      and am.user_id = a.actor_user_id
+      and am.status in ('active', 'inactive')
+    order by
+      case am.status when 'active' then 0 else 1 end,
+      am.updated_at desc,
+      am.created_at desc,
+      am.id desc
+    limit 1
+  ) m on true
+  left join iam.tenants t on (
+    a.target_type in ('tenant', 'organization')
+    and a.target_id = t.id::text
+    and t.id = a.tenant_id
+  )
+  left join iam.tenant_invitations inv on (
+    a.target_type = 'invitation'
+    and a.target_id = inv.id::text
+    and inv.tenant_id = a.tenant_id
+  )
+  left join iam.role_definitions inv_role on inv_role.id = inv.initial_role_id
+  left join iam.memberships sm on (
+    a.target_type in ('membership', 'member')
+    and a.target_id = sm.id::text
+    and sm.tenant_id = a.tenant_id
+  )
+  left join auth.users su on (
+    (
+      a.target_type in ('user', 'account')
+      and a.target_id = su.id::text
+      and exists (
+        select 1
+        from iam.memberships sum_scope
+        where sum_scope.tenant_id = a.tenant_id
+          and sum_scope.user_id = su.id
+      )
+    ) or (
+      a.target_type in ('membership', 'member')
+      and sm.user_id = su.id
+    )
+  )
+  left join iam.platform_user_profiles sup on sup.user_id = su.id
+  where a.id = p_audit_log_id
+    and a.scope = 'tenant'
+    and a.tenant_id = p_tenant_id;
+
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  -- Redaction derivation
+  v_before_redacted := coalesce(
+    'before' = any(v_row.redaction_flags) or exists(
+      select 1 from unnest(v_row.redaction_flags) f where f like 'before.%'
+    ),
+    false
+  );
+
+  v_after_redacted := coalesce(
+    'after' = any(v_row.redaction_flags) or exists(
+      select 1 from unnest(v_row.redaction_flags) f where f like 'after.%'
+    ),
+    false
+  );
+
+  -- Build Actor JSON
+  if coalesce(v_row.actor_snapshot, '{}'::jsonb) <> '{}'::jsonb
+      or nullif(trim(coalesce(v_row.actor_display_name_snapshot, '')), '') is not null then
+    v_actor := jsonb_build_object(
+      'user_id', v_row.actor_user_id,
+      'membership_id', v_row.actor_membership_id,
+      'display_name', coalesce(
+        nullif(v_row.actor_snapshot->>'display_name', ''),
+        nullif(v_row.actor_display_name_snapshot, '')
+      ),
+      'actor_type', coalesce(
+        nullif(v_row.actor_snapshot->>'actor_type', ''),
+        v_row.actor_type,
+        'user'
+      ),
+      'role_code', v_row.actor_snapshot->>'role_code',
+      'role_label', coalesce(
+        nullif(v_row.actor_snapshot->>'role_label', ''),
+        nullif(v_row.actor_context_label, '')
+      ),
+      'display_origin', 'snapshot'
+    );
+  elsif v_row.actor_user_id is null then
+    v_actor := jsonb_build_object(
+      'user_id', null,
+      'display_name', 'Hệ thống',
+      'actor_type', 'system',
+      'role_code', null,
+      'role_label', null,
+      'display_origin', 'system'
+    );
+  elsif v_row.u_full_name is not null or v_row.u_display_name is not null then
+    v_actor := jsonb_build_object(
+      'user_id', v_row.actor_user_id,
+      'display_name', coalesce(v_row.u_full_name, v_row.u_display_name, v_row.actor_user_id::text),
+      'actor_type', 'user',
+      'role_code', v_row.m_role,
+      'role_label', case v_row.m_role
+        when 'store_owner' then 'Chủ sở hữu'
+        when 'store_manager' then 'Quản lý chi nhánh'
+        when 'veterinarian' then 'Bác sĩ thú y'
+        when 'care_staff' then 'Nhân viên chăm sóc'
+        when 'cashier' then 'Thu ngân'
+        else v_row.m_role
+      end,
+      'display_origin', 'current'
+    );
+  else
+    v_actor := jsonb_build_object(
+      'user_id', v_row.actor_user_id,
+      'display_name', null,
+      'actor_type', 'user',
+      'role_code', null,
+      'role_label', null,
+      'display_origin', 'unavailable'
+    );
+  end if;
+
+  -- Build Subject JSON
+  if coalesce(v_row.target_snapshot, '{}'::jsonb) <> '{}'::jsonb
+      or (
+        nullif(trim(coalesce(v_row.target_display_name_snapshot, '')), '') is not null
+        and v_row.target_display_name_snapshot is distinct from v_row.target_id
+      ) then
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', coalesce(
+        nullif(v_row.target_snapshot->>'display_name', ''),
+        nullif(v_row.target_display_name_snapshot, '')
+      ),
+      'code', v_row.target_snapshot->>'subject_code',
+      'secondary_label', coalesce(
+        nullif(v_row.target_snapshot->>'secondary_label', ''),
+        nullif(v_row.target_secondary_identifier, '')
+      ),
+      'display_origin', 'snapshot'
+    );
+  elsif v_row.target_type in ('tenant', 'organization') and v_row.t_display_name is not null then
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', v_row.t_display_name,
+      'code', v_row.t_code,
+      'secondary_label', null,
+      'display_origin', 'current'
+    );
+  elsif v_row.target_type in ('membership', 'member') and v_row.su_full_name is not null then
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', coalesce(v_row.su_full_name, v_row.su_display_name, v_row.target_id),
+      'code', v_row.sm_role,
+      'secondary_label', case v_row.sm_role
+        when 'store_owner' then 'Chủ sở hữu'
+        when 'store_manager' then 'Quản lý chi nhánh'
+        when 'veterinarian' then 'Bác sĩ thú y'
+        when 'care_staff' then 'Nhân viên chăm sóc'
+        when 'cashier' then 'Thu ngân'
+        else v_row.sm_role
+      end,
+      'display_origin', 'current'
+    );
+  elsif v_row.target_type = 'invitation' and v_row.inv_email is not null then
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', case
+        when v_row.inv_email like '%@%' then
+          substr(v_row.inv_email, 1, 2) || '***@' || split_part(v_row.inv_email, '@', 2)
+        else '***'
+      end,
+      'code', v_row.inv_role,
+      'secondary_label', null,
+      'display_origin', 'current'
+    );
+  elsif v_row.target_type in ('user', 'account') and v_row.su_full_name is not null then
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', coalesce(v_row.su_full_name, v_row.su_display_name, v_row.target_id),
+      'code', null,
+      'secondary_label', null,
+      'display_origin', 'current'
+    );
+  else
+    v_subject := jsonb_build_object(
+      'type', v_row.target_type,
+      'id', v_row.target_id,
+      'display_name', null,
+      'code', null,
+      'secondary_label', null,
+      'display_origin', 'unavailable'
+    );
+  end if;
+
+  return jsonb_build_object(
+    'audit_log_id', v_row.audit_log_id,
+    'audit_display_id', 'AUD-' || lpad(v_row.audit_no::text, 6, '0'),
+    'tenant_id', v_row.tenant_id,
+    'activity_code', v_row.activity_code,
+    'event_code', v_row.event_code,
+    'event_category', v_row.event_category,
+    'result', v_row.result,
+    'title_snapshot', v_row.title_snapshot,
+    'occurred_at', to_char(v_row.occurred_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+    'source', v_row.source,
+    'correlation_id', v_row.correlation_id,
+    'tracking_id', v_row.tracking_id,
+    'actor_unavailable', (v_actor->>'display_origin' = 'unavailable'),
+    'before_redacted', v_before_redacted,
+    'after_redacted', v_after_redacted,
+    'actor', v_actor,
+    'subject', v_subject,
+    'before_state', v_row.before_state,
+    'after_state', v_row.after_state,
+    'detail_items', v_row.detail_items
+  );
+end;
+$$;
+
+grant execute on function iam.get_tenant_audit_log(uuid, uuid) to authenticated;
+
+-- Task-10 contract patch: rich filters + cursor page for platform audit search
+create or replace function iam.search_platform_audit_logs(
+  p_from timestamptz default null,
+  p_to timestamptz default null,
+  p_actor_user_id text default null,
+  p_target_type text default null,
+  p_target_id text default null,
+  p_action text default null,
+  p_result text default null,
+  p_source text default null,
+  p_correlation_id text default null,
+  p_cursor text default null,
+  p_page_size integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+  v_cur_occurred timestamptz;
+  v_cur_id uuid;
+  v_items jsonb;
+  v_count int;
+  v_next text;
+begin
+  if not iam.has_platform_permission('platform.audit.view') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+
+  -- Cursor encodes (occurred_at, id) like the tenant-scoped search.
+  if p_cursor is not null and p_cursor <> '' then
+    v_cur_occurred := split_part(p_cursor, '|', 1)::timestamptz;
+    v_cur_id := split_part(p_cursor, '|', 2)::uuid;
+  end if;
+
+  -- Read from the canonical immutable store (platform scope). p_action is a
+  -- free-text search term (the FE search box "Tìm tên hoặc mã tổ chức" is wired
+  -- to this param), so it matches event_code OR the target org name/code.
+  with filtered as (
+    select
+      a.id,
+      a.event_code,
+      a.result,
+      a.occurred_at,
+      a.source,
+      coalesce(
+        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+        coalesce(u.email::text, 'Hệ thống')
+      ) as actor_name,
+      coalesce(t.name, '') as target_org_name,
+      coalesce(t.code, left(coalesce(t.id::text, ''), 8)) as target_org_code
+    from iam.audit_logs a
+    left join auth.users u on u.id = a.actor_user_id
+    left join iam.tenants t on t.id = a.tenant_id
+    where a.scope = 'platform'
+      and (p_from is null or a.occurred_at >= p_from)
+      and (p_to is null or a.occurred_at <= p_to)
+      and (p_actor_user_id is null or a.actor_user_id::text = p_actor_user_id)
+      and (p_target_type is null or a.target_type = p_target_type)
+      and (p_target_id is null or a.target_id = p_target_id)
+      and (p_result is null or a.result = p_result)
+      and (p_source is null or a.source = p_source)
+      and (p_correlation_id is null or a.correlation_id = p_correlation_id)
+      and (
+        p_action is null or p_action = ''
+        or a.event_code ilike '%' || p_action || '%'
+        or coalesce(t.name, '') ilike '%' || p_action || '%'
+        or coalesce(t.code, '') ilike '%' || p_action || '%'
+      )
+      and (
+        v_cur_occurred is null
+        or (a.occurred_at, a.id) < (v_cur_occurred, v_cur_id)
+      )
+    order by a.occurred_at desc, a.id desc
+    limit v_limit + 1
+  )
+  select
+    jsonb_agg(
+      jsonb_build_object(
+        'id', f.id,
+        'title', f.event_code,
+        'action_code', f.event_code,
+        'status', f.result,
+        'actor_name', f.actor_name,
+        'actor_role', 'Nhân viên vận hành nền tảng',
+        'target_org_name', f.target_org_name,
+        'target_org_code', f.target_org_code,
+        'created_at', f.occurred_at,
+        'source_app', f.source
+      )
+      order by f.occurred_at desc, f.id desc
+    ),
+    count(*)
+  into v_items, v_count
+  from (select * from filtered order by occurred_at desc, id desc limit v_limit) f;
+
+  -- Extra row beyond the page → emit a next cursor.
+  if v_count = v_limit then
+    select f.occurred_at::text || '|' || f.id::text into v_next
+    from (select * from filtered order by occurred_at desc, id desc limit v_limit) f
+    order by f.occurred_at asc, f.id asc
+    limit 1;
+  end if;
+
+  return jsonb_build_object(
+    'items', coalesce(v_items, '[]'::jsonb),
+    'next_cursor', v_next
+  );
+end;
+$$;
+
+revoke all on function iam.search_platform_audit_logs(timestamptz, timestamptz, text, text, text, text, text, text, text, text, integer) from public, anon;
+grant execute on function iam.search_platform_audit_logs(timestamptz, timestamptz, text, text, text, text, text, text, text, text, integer) to authenticated;

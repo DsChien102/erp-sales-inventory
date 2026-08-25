@@ -71,7 +71,7 @@ abstract final class TenantAuditUiMapper {
     );
     final localizedSubject = _localizedSubjectType(dto.subject.type);
     final subjectName = _resolveSubjectName(dto.subject);
-    final detailValue = dto.subject.code ?? dto.subject.secondaryLabel ?? '—';
+    final detailValue = _shortIdentifier(dto.subject.id);
     final changes = _computeChanges(
       dto.beforeState,
       dto.afterState,
@@ -81,6 +81,7 @@ abstract final class TenantAuditUiMapper {
 
     return AuditLogItemUiModel(
       id: dto.auditLogId,
+      auditDisplayId: dto.auditDisplayId,
       title: entry.title,
       actionCode: dto.eventCode,
       status: status,
@@ -94,16 +95,16 @@ abstract final class TenantAuditUiMapper {
       targetOrg: subjectName,
       targetOrgCode: dto.subject.code ?? '',
       timestamp: dto.occurredAt,
-      sourceApp: dto.source,
-      correlationId: dto.trackingId,
+      sourceApp: _localizedSource(dto.source),
+      correlationId: _firstNonEmpty(dto.correlationId, dto.trackingId),
       beforeState: _formatStateJson(dto.beforeState, dto.beforeRedacted),
       afterState: _formatStateJson(dto.afterState, dto.afterRedacted),
       icon: entry.icon,
       category: eventCategory.code,
       eventCategory: eventCategory,
-      targetSubjectLabel: 'Loại đối tượng',
-      targetSubjectValue: localizedSubject,
-      targetDetailLabel: 'Mã đối tượng',
+      targetSubjectLabel: localizedSubject,
+      targetSubjectValue: subjectName,
+      targetDetailLabel: 'ID đối tượng',
       targetDetailValue: detailValue,
       subjectName: subjectName,
       subjectType: dto.subject.type ?? '',
@@ -163,7 +164,43 @@ abstract final class TenantAuditUiMapper {
     if (actor.roleCode != null && actor.roleCode!.isNotEmpty) {
       return TenantAuditFieldCatalog.formatValue('role', actor.roleCode);
     }
+    if (actor.actorType != null && actor.actorType!.isNotEmpty) {
+      return _localizedActorType(actor.actorType!);
+    }
     return '—';
+  }
+
+  static String _localizedActorType(String actorType) {
+    return switch (actorType.toLowerCase()) {
+      'tenant_member' || 'user' => 'Thành viên tổ chức',
+      'platform_user' => 'Người dùng nền tảng',
+      'platform_operator' => 'Nhân viên vận hành nền tảng',
+      'service_account' => 'Tài khoản dịch vụ',
+      'system' => 'Tiến trình hệ thống',
+      _ => actorType,
+    };
+  }
+
+  static String _localizedSource(String source) {
+    return switch (source.toLowerCase()) {
+      'tenant_app' || 'erp' => 'Tenant App',
+      'platform_admin_app' || 'platform_admin' || 'admin' => 'Platform Admin App',
+      'iam' => 'Hệ thống IAM',
+      'worker' || 'system' => 'Hệ thống',
+      _ => source,
+    };
+  }
+
+  static String _firstNonEmpty(String? preferred, String fallback) {
+    final value = preferred?.trim();
+    return value == null || value.isEmpty ? fallback : value;
+  }
+
+  static String _shortIdentifier(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) return '—';
+    if (normalized.length <= 16) return normalized;
+    return '${normalized.substring(0, 8)}…${normalized.substring(normalized.length - 4)}';
   }
 
   static String _localizedSubjectType(String? subjectType) {

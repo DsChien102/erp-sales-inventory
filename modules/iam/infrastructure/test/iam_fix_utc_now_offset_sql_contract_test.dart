@@ -53,31 +53,19 @@ void main() {
         contains('alter table iam.tenant_invitations alter column updated_at set default now();'),
       );
     });
-
-    test('owner_activations created_at', () {
-      expect(
-        sql,
-        contains('alter table iam.owner_activations alter column created_at set default now();'),
-      );
-    });
   });
 
   group('key functions redefined with the fix', () {
     for (final name in [
-      'send_activation_invitation',
-      'request_platform_password_reset',
       'create_tenant_invitation',
       'list_tenant_invitations',
       'get_tenant_invitation',
       'begin_password_reset_operation',
       'resend_password_reset_operation',
-      'inspect_owner_activation',
       'begin_password_reset_operation_by_email',
       'resend_password_reset_operation_by_email',
       'resend_tenant_invitation',
       'revoke_tenant_invitation',
-      'inspect_invitation_token',
-      'accept_invitation',
       'decline_invitation',
     ]) {
       test('iam.$name is redefined exactly once', () {
@@ -105,26 +93,17 @@ void main() {
     }
   });
 
-  test('uses the latest inspect_invitation_token definition (given/family/phone prefill)', () {
-    final start = sql.indexOf(
-      'create or replace function iam.inspect_invitation_token(',
-    );
-    expect(start, isNonNegative, reason: 'inspect_invitation_token fn present');
-    final fn = sql.substring(start);
-    expect(fn, contains("'given_name', v_owner_activation.given_name"));
-    expect(fn, contains("'family_name', v_owner_activation.family_name"));
-    expect(fn, contains("'phone', v_owner_activation.phone"));
-  });
-
-  test('accept_invitation sets the profile email from the owner activation', () {
-    final start = sql.indexOf('create or replace function iam.accept_invitation(');
-    expect(start, isNonNegative, reason: 'accept_invitation fn present');
-    final fn = sql.substring(start);
-    expect(
-      fn,
-      contains('email = coalesce(email, v_owner_activation.invitee_email)'),
-    );
-    expect(fn, contains('v_caller, \'active\', true, v_owner_activation.invitee_email'));
+  test('does not recreate objects retired or owned by the final cleanup draft', () {
+    for (final name in [
+      'send_activation_invitation',
+      'request_platform_password_reset',
+      'inspect_owner_activation',
+      'inspect_invitation_token',
+      'accept_invitation',
+    ]) {
+      expect(sql, isNot(contains('create or replace function iam.$name(')));
+    }
+    expect(sql, isNot(contains('iam.owner_activations')));
   });
 }
 

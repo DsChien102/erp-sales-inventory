@@ -27,6 +27,11 @@ class AuditLogDetailBody extends StatelessWidget {
     return '$day/$month/$year · $hour:$minute';
   }
 
+  static String formatTraceId(String value) {
+    if (value.length <= 24) return value;
+    return '${value.substring(0, 12)}…${value.substring(value.length - 8)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
@@ -148,7 +153,7 @@ class AuditLogDetailBody extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       VText(
-                        'Người thực hiện & ngữ cảnh',
+                        'Ngữ cảnh',
                         variant: VTextVariant.bodyDefault,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -251,11 +256,19 @@ class AuditLogDetailBody extends StatelessWidget {
                   ),
                   const VGap.sm(),
                   AuditDetailRow(label: 'Nguồn', value: log.sourceApp),
+                  if (log.auditDisplayId != null) ...[
+                    const VGap.sm(),
+                    AuditDetailRow(
+                      label: 'Audit ID',
+                      value: log.auditDisplayId!,
+                    ),
+                  ],
                   const VGap.sm(),
                   AuditDetailRow(
                     label: 'Mã theo dõi',
-                    value: log.correlationId,
+                    value: formatTraceId(log.correlationId),
                     copyable: true,
+                    copyValue: log.correlationId,
                     copyTooltip: 'Sao chép mã theo dõi',
                   ),
                 ],
@@ -289,14 +302,24 @@ class AuditLogDetailBody extends StatelessWidget {
               const VGap.md(),
             ],
             if (log.changes.isNotEmpty) ...[
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: log.changes.length,
-                separatorBuilder: (_, _) => const VGap.md(),
-                itemBuilder: (context, index) {
-                  return AuditLogChangeDiffItem(change: log.changes[index]);
-                },
+              VCard(
+                backgroundColor: colors.surfaceAlt,
+                padding: const EdgeInsets.all(VSpacing.space4),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: log.changes.length,
+                  separatorBuilder: (_, _) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
+                    child: Divider(height: 1, color: colors.borderDefault),
+                  ),
+                  itemBuilder: (context, index) {
+                    return AuditLogChangeDiffItem(
+                      change: log.changes[index],
+                      embedded: true,
+                    );
+                  },
+                ),
               ),
             ] else if (log.beforeRedacted || log.afterRedacted) ...[
               Container(

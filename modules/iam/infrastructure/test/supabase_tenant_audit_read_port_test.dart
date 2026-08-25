@@ -105,11 +105,15 @@ void main() {
       supabase.registerHandler('get_tenant_audit_log', (params) async {
         return {
           'audit_log_id': 'aud-001',
+          'audit_display_id': 'AUD-000982',
           'tenant_id': 'tenant-001',
+          'activity_code': 'iam.tenant.activated',
           'event_code': 'iam.tenant.activated',
+          'title_snapshot': 'Đã kích hoạt tổ chức',
           'result': 'success',
           'occurred_at': '2026-08-20T10:00:00.000Z',
           'source': 'iam',
+          'correlation_id': 'corr-001',
           'tracking_id': 'trk-001',
           'actor_unavailable': false,
           'before_redacted': false,
@@ -148,6 +152,10 @@ void main() {
 
       expect(detail, isNotNull);
       expect(detail!.auditLogId, 'aud-001');
+      expect(detail.auditDisplayId, 'AUD-000982');
+      expect(detail.activityCode, 'iam.tenant.activated');
+      expect(detail.titleSnapshot, 'Đã kích hoạt tổ chức');
+      expect(detail.correlationId, 'corr-001');
       expect(detail.actor.displayName, 'Nguyễn Văn A');
       expect(detail.actor.displayOrigin, TenantAuditDisplayOrigin.snapshot);
       expect(detail.subject.code, 'VET45-HCM');

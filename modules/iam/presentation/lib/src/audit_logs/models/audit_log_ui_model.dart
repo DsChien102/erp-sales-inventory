@@ -59,8 +59,12 @@ class AuditLogItemUiModel {
   final bool beforeRedacted;
   final bool afterRedacted;
 
+  /// Mã audit hiển thị cho người dùng (vd `AUD-000982`); null nếu không có.
+  final String? auditDisplayId;
+
   const AuditLogItemUiModel({
     required this.id,
+    this.auditDisplayId,
     required this.title,
     required this.actionCode,
     required this.status,

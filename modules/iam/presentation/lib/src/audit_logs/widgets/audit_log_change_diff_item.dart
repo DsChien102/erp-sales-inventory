@@ -7,19 +7,23 @@ class AuditLogChangeDiffItem extends StatelessWidget {
   const AuditLogChangeDiffItem({
     super.key,
     required this.change,
+    this.embedded = false,
   });
 
   final AuditLogChangeRowUiModel change;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return Container(
-      padding: const EdgeInsets.all(VSpacing.space4),
-      decoration: BoxDecoration(
-        color: colors.surfaceAlt,
-        borderRadius: BorderRadius.circular(VRadius.card),
-      ),
+      padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(VSpacing.space4),
+      decoration: embedded
+          ? null
+          : BoxDecoration(
+              color: colors.surfaceAlt,
+              borderRadius: BorderRadius.circular(VRadius.card),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -57,11 +57,13 @@ void main() {
       final detail = TenantAuditUiMapper.fromDetail(
         TenantAuditLogDetailDto(
           auditLogId: 'audit-1',
+          auditDisplayId: 'AUD-000982',
           tenantId: 'tenant-1',
           eventCode: IamAuditEvents.tenantProfileUpdated,
           result: TenantAuditLogResult.success,
           occurredAt: DateTime.utc(2026, 8, 2, 8, 35),
           source: 'erp',
+          correlationId: 'corr-1',
           trackingId: 'tracking-1',
           actorUnavailable: false,
           beforeRedacted: false,
@@ -73,6 +75,7 @@ void main() {
           ),
           subject: const TenantAuditSubjectDto(
             type: 'tenant',
+            id: '7a3c8e61-1111-2222-3333-44444444b942',
             displayName: 'Chi nhánh 1',
             code: 'CN-1',
           ),
@@ -87,6 +90,12 @@ void main() {
       expect(statusChange.beforeValue, 'Tạm ngừng');
       expect(statusChange.afterValue, 'Đang hoạt động');
       expect(statusChange.isChanged, isTrue);
+      expect(detail.auditDisplayId, 'AUD-000982');
+      expect(detail.correlationId, 'corr-1');
+      expect(detail.targetSubjectLabel, 'Tổ chức');
+      expect(detail.targetDetailLabel, 'ID đối tượng');
+      expect(detail.targetDetailValue, '7a3c8e61…b942');
+      expect(detail.sourceApp, 'Tenant App');
     });
 
     test('handles unavailable actor gracefully without UUID guessing', () {

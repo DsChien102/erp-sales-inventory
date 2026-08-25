@@ -13,12 +13,14 @@ class AuditDetailRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.copyable = false,
+    this.copyValue,
     this.copyTooltip = 'Sao chép',
   });
 
   final String label;
   final String value;
   final bool copyable;
+  final String? copyValue;
   final String copyTooltip;
 
   /// Values long enough to wrap (UUIDs, tracking ids) or already multi-line
@@ -42,7 +44,11 @@ class AuditDetailRow extends StatelessWidget {
                   color: colors.textSecondary,
                 ),
               ),
-              if (copyable) AuditCopyButton(value: value, tooltip: copyTooltip),
+              if (copyable)
+                AuditCopyButton(
+                  value: copyValue ?? value,
+                  tooltip: copyTooltip,
+                ),
             ],
           ),
           const VGap.xs(),
@@ -85,7 +91,11 @@ class AuditDetailRow extends StatelessWidget {
                   ),
                 ),
               ),
-              if (copyable) AuditCopyButton(value: value, tooltip: copyTooltip),
+              if (copyable)
+                AuditCopyButton(
+                  value: copyValue ?? value,
+                  tooltip: copyTooltip,
+                ),
             ],
           ),
         ),

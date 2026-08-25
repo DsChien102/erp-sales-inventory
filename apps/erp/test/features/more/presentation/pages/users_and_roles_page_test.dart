@@ -30,7 +30,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Người dùng & vai trò'), findsWidgets);
-      expect(find.text('Cần hoàn tất'), findsOneWidget);
+      expect(find.text('Cần hoàn tất'), findsNothing);
       expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
       expect(find.text('Người dùng'), findsOneWidget);
       expect(find.text('Vai trò'), findsOneWidget);

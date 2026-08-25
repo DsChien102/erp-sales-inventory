@@ -10,6 +10,7 @@ void main() {
   ) async {
     final log = AuditLogItemUiModel(
       id: '#AUD-001',
+      auditDisplayId: 'AUD-000982',
       title: 'Cập nhật hồ sơ tổ chức',
       actionCode: 'iam.tenant.profile_updated',
       status: AuditLogStatus.success,
@@ -53,6 +54,7 @@ void main() {
     expect(find.text('Bác sĩ thú y'), findsOneWidget);
     expect(find.text('Chi nhánh Quận 1'), findsOneWidget);
     expect(find.text('VET-Q1'), findsOneWidget);
+    expect(find.text('AUD-000982'), findsOneWidget);
   });
 
   testWidgets('AuditLogDetailBody renders redacted message when redacted', (

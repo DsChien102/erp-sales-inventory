@@ -12,7 +12,7 @@ void main() {
       '${root.path}/supabase/migrations/20260811013_iam_platform_audit_read.sql',
     ).readAsStringSync();
     cleanupDraftSql = File(
-      '${root.path}/supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql',
+      '${root.path}/supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql',
     ).readAsStringSync();
   });
 

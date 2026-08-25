@@ -21,12 +21,14 @@ final class IamReadinessHubBanner {
 final class IamFeatureAccessState {
   const IamFeatureAccessState({
     this.status = IamLoadStatus.initial,
+    this.readinessStatus = IamLoadStatus.initial,
     this.session,
     this.readiness,
     this.failure,
   });
 
   final IamLoadStatus status;
+  final IamLoadStatus readinessStatus;
   final SessionDto? session;
   final TenantReadinessDto? readiness;
   final IamUiFailure? failure;
@@ -50,15 +52,9 @@ final class IamFeatureAccessState {
 
   IamReadinessHubBanner? get readinessBanner {
     if (!canViewReadiness) return null;
+    if (readinessStatus != IamLoadStatus.success) return null;
     final r = readiness;
-    if (r == null) {
-      return const IamReadinessHubBanner(
-        tone: IamReadinessHubBannerTone.warning,
-        eyebrow: 'Cần hoàn tất',
-        title: 'Tổ chức chưa hoàn tất thiết lập',
-        body: 'Còn điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
-      );
-    }
+    if (r == null) return null;
     if (r.status == TenantLifecycleStatus.active) {
       return null;
     }
@@ -108,6 +104,7 @@ final class IamFeatureAccessState {
 
   IamFeatureAccessState copyWith({
     IamLoadStatus? status,
+    IamLoadStatus? readinessStatus,
     SessionDto? session,
     TenantReadinessDto? readiness,
     IamUiFailure? failure,
@@ -117,6 +114,7 @@ final class IamFeatureAccessState {
   }) {
     return IamFeatureAccessState(
       status: status ?? this.status,
+      readinessStatus: readinessStatus ?? this.readinessStatus,
       session: clearSession ? null : (session ?? this.session),
       readiness: clearReadiness ? null : (readiness ?? this.readiness),
       failure: clearFailure ? null : (failure ?? this.failure),

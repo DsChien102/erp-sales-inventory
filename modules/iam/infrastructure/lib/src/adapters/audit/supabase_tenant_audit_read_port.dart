@@ -103,16 +103,20 @@ final class SupabaseTenantAuditReadPort implements ITenantAuditReadPort {
   TenantAuditLogDetailDto _mapDetail(Map<String, dynamic> row) {
     return TenantAuditLogDetailDto(
       auditLogId: row['audit_log_id'] as String,
+      auditDisplayId: row['audit_display_id'] as String?,
       tenantId: row['tenant_id'] as String,
+      activityCode: row['activity_code'] as String?,
       eventCode: row['event_code'] as String,
       eventCategory: TenantAuditEventCategory.fromCode(
         row['event_category'] as String?,
       ),
+      titleSnapshot: row['title_snapshot'] as String?,
       result:
           TenantAuditLogResultCodes.fromCode(row['result'] as String?) ??
           TenantAuditLogResult.success,
       occurredAt: DateTime.parse(row['occurred_at'] as String),
       source: (row['source'] as String?) ?? 'iam',
+      correlationId: row['correlation_id'] as String?,
       trackingId: (row['tracking_id'] as String?) ?? '',
       actorUnavailable: row['actor_unavailable'] as bool? ?? false,
       beforeRedacted: row['before_redacted'] as bool? ?? false,

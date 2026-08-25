@@ -1,8 +1,10 @@
 -- Title: iam audit + owner activation cleanup
 -- Kind: patch
 -- Intent: iam_audit_owner_activation_cleanup
--- Touches: iam.suspend_platform_user, iam.restore_platform_user, iam.send_activation_invitation, iam.request_platform_password_reset, iam._platform_audit_redacted_payload, iam.platform_audit_logs, iam.tenant_invitations, iam.platform_user_profiles, iam.create_tenant_onboarding, iam.accept_invitation, iam.inspect_invitation_token, iam.get_platform_user, iam.search_platform_users, iam._cleanup_pending_profile_on_auth_user, iam.owner_activations, iam.inspect_owner_activation, iam.accept_owner_activation
+-- Touches: iam.suspend_platform_user, iam.restore_platform_user, iam.send_activation_invitation, iam.request_platform_password_reset, iam._platform_audit_redacted_payload, iam.platform_audit_logs, iam.tenant_invitations, iam.platform_user_profiles, iam.create_tenant_onboarding, iam.accept_invitation, iam.inspect_invitation_token, iam.record_my_platform_login, iam.get_platform_user, iam.search_platform_users, iam._cleanup_pending_profile_on_auth_user, iam.owner_activations, iam.resend_owner_activation, iam.inspect_owner_activation, iam.accept_owner_activation
 -- Supersedes: _drafts/001_iam_pending_platform_profile_onboarding.sql (pending-profile behavior folded in here; owner-activation parts dropped). Do NOT apply 001 alongside this draft.
+-- Safety: idempotent ; medium
+-- Depends on: 002_iam_fix_utc_now_offset, 004_iam_tenant_audit_history_v2_payloads
 
 -- `iam.audit_logs` is the canonical IAM audit store for tenant and platform
 -- views. `iam.platform_audit_logs` was a mis-designed compatibility store and
@@ -70,6 +72,51 @@ alter table iam.platform_user_profiles
 alter table iam.platform_user_profiles
   add column if not exists email text;
 
+-- Active profiles keep a queryable copy of the Auth email. Auth remains the
+-- authority; this backfill repairs rows created by older activation/login paths.
+update iam.platform_user_profiles p
+set email = lower(trim(u.email::text)),
+    updated_at = now()
+from auth.users u
+where u.id = p.user_id
+  and u.email is not null
+  and p.email is distinct from lower(trim(u.email::text));
+
+create or replace function iam.record_my_platform_login()
+returns void
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_email text;
+begin
+  if v_user_id is null then
+    raise exception 'authentication required';
+  end if;
+
+  select lower(trim(u.email::text))
+  into v_email
+  from auth.users u
+  where u.id = v_user_id;
+
+  insert into iam.platform_user_profiles (
+    user_id, email, status, last_login_at, created_at, updated_at
+  )
+  values (
+    v_user_id, v_email, 'active', now(), now(), now()
+  )
+  on conflict (user_id) do update
+    set email = coalesce(excluded.email, iam.platform_user_profiles.email),
+        last_login_at = now(),
+        updated_at = now();
+end;
+$$;
+
+revoke all on function iam.record_my_platform_login() from public, anon;
+grant execute on function iam.record_my_platform_login() to authenticated;
+
 -- create_tenant_onboarding: tạo tenant + LỜI MỜI owner (is_owner) giữ mã kích
 -- hoạt; worker gửi mã. KHÔNG tạo membership (tạo lúc accept), KHÔNG pre-create
 -- auth user (owner mới signUp lúc accept), KHÔNG owner_activations.
@@ -113,7 +160,7 @@ declare
     nullif(trim(coalesce(p_org_registered_address_text, '')), '');
   v_message_id uuid := gen_random_uuid();
   v_outcome_id uuid := gen_random_uuid();
-  v_now timestamptz := timezone('utc', now());
+  v_now timestamptz := now();
   v_is_new boolean := coalesce(p_is_new_user, false);
   v_provisioned_user_id uuid;
   v_raw_code text;
@@ -358,8 +405,9 @@ declare
   v_membership iam.memberships;
   v_effective_role text;
   v_should_be_owner boolean := false;
-  v_now timestamptz := timezone('utc', now());
+  v_now timestamptz := now();
   v_result jsonb;
+  v_audit_before jsonb;
 begin
   if v_caller is null then
     raise exception 'AUTHENTICATION_REQUIRED';
@@ -433,6 +481,12 @@ begin
     raise exception 'ROLE_NOT_ASSIGNABLE';
   end if;
 
+  v_audit_before := jsonb_build_object(
+    'invitation_id', v_inv.id,
+    'status', v_inv.status,
+    'version', v_inv.version
+  );
+
   -- Người active đầu tiên của tenant là chủ: is_owner + role store_owner.
   v_should_be_owner := not exists (
     select 1
@@ -470,15 +524,16 @@ begin
   -- tên, tránh "Chưa xác định owner". Staff không có profile platform ở đây.
   if v_should_be_owner then
     insert into iam.platform_user_profiles (
-      user_id, status, email_verified, given_name, family_middle_name,
+      user_id, email, status, email_verified, given_name, family_middle_name,
       phone_number, created_at, updated_at
     )
     values (
-      v_caller, 'active', true, v_inv.given_name, v_inv.family_name, v_inv.phone,
+      v_caller, v_email, 'active', true, v_inv.given_name, v_inv.family_name, v_inv.phone,
       v_now, v_now
     )
     on conflict (user_id) do update
       set status = 'active',
+          email = coalesce(excluded.email, iam.platform_user_profiles.email),
           email_verified = true,
           given_name = coalesce(excluded.given_name, iam.platform_user_profiles.given_name),
           family_middle_name = coalesce(
@@ -494,16 +549,54 @@ begin
     p_scope => 'tenant',
     p_tenant_id => v_inv.tenant_id,
     p_actor_user_id => v_caller,
-    p_event_code => 'tenant.invitation.accepted',
-    p_subject_type => 'invitation',
-    p_subject_id => v_inv.id::text,
+    p_event_code => 'iam.tenant.invitation_accepted',
+    p_subject_type => 'tenant',
+    p_subject_id => v_inv.tenant_id::text,
     p_result => 'success',
     p_source => 'iam',
     p_tracking_id => p_idempotency_key,
-    p_before => null,
+    p_before => v_audit_before,
     p_after => jsonb_build_object(
+      'invitation_id', v_inv.id,
+      'status', v_inv.status,
       'membership_id', v_membership.id,
-      'invitation_id', v_inv.id
+      'version', v_inv.version
+    ),
+    p_actor_type => 'tenant_member',
+    p_actor_membership_id => v_membership.id,
+    p_actor_display_name => nullif(
+      trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)),
+      ''
+    ),
+    p_actor_context_label => coalesce(v_role.label, v_effective_role),
+    p_actor_snapshot => jsonb_build_object(
+      'display_name', nullif(
+        trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)),
+        ''
+      ),
+      'actor_type', 'tenant_member',
+      'role_code', v_effective_role,
+      'role_label', coalesce(v_role.label, v_effective_role)
+    ),
+    p_target_display_name => v_tenant.display_name,
+    p_target_secondary_identifier => v_tenant.code,
+    p_target_snapshot => jsonb_build_object(
+      'display_name', v_tenant.display_name,
+      'subject_code', v_tenant.code,
+      'secondary_label', v_tenant.code
+    ),
+    p_correlation_id => p_idempotency_key,
+    p_detail_items => jsonb_build_array(
+      jsonb_build_object(
+        'field_key', 'status',
+        'before', v_audit_before->'status',
+        'after', to_jsonb(v_inv.status)
+      ),
+      jsonb_build_object(
+        'field_key', 'membership_id',
+        'before', null,
+        'after', to_jsonb(v_membership.id)
+      )
     )
   );
 
@@ -530,7 +623,7 @@ declare
   v_tenant iam.tenants;
   v_account_exists boolean := false;
   v_should_be_owner boolean := false;
-  v_now timestamptz := timezone('utc', now());
+  v_now timestamptz := now();
 begin
   -- Token phải là một lời mời hợp lệ; nếu không → INVITATION_TOKEN_INVALID.
   v_inv := iam._load_invitation_by_token(p_token);
@@ -582,6 +675,117 @@ $$;
 revoke all on function iam.inspect_invitation_token(text) from public;
 grant execute on function iam.inspect_invitation_token(text) to anon, authenticated;
 
+-- resend_owner_activation: Platform Admin "Gửi lại email kích hoạt" cho owner.
+-- Owner Design A kích hoạt bằng mã trong tenant_invitations (như staff), nhưng
+-- do Platform Admin kích (không phải member trong tenant) nên cần RPC platform-
+-- level riêng. Dùng CHUNG cơ chế với resend_tenant_invitation: xoay token (mã
+-- mới) + gia hạn 7 ngày + enqueue email 'activation_invitation'. Tìm lời mời
+-- owner theo email của platform user (placeholder pending chưa có auth.users,
+-- hoặc auth.users đã có).
+create or replace function iam.resend_owner_activation(
+  p_user_id uuid,
+  p_idempotency_key text
+)
+returns void
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_email text;
+  v_inv iam.tenant_invitations;
+  v_raw_code text;
+  v_code_hash text;
+  v_ciphertext text;
+  v_now timestamptz := now();
+  v_message_id uuid := gen_random_uuid();
+  v_outcome_id uuid := gen_random_uuid();
+  v_correlation text := gen_random_uuid()::text;
+  v_masked text;
+begin
+  if not iam.has_platform_permission('platform.user.activation_invite.send') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  -- Email của user: auth.users (đã kích hoạt) HOẶC placeholder profile (pending).
+  select coalesce(lower(u.email::text), lower(p.email)) into v_email
+  from iam.platform_user_profiles p
+  full outer join auth.users u on u.id = p.user_id
+  where coalesce(u.id, p.user_id) = p_user_id
+  limit 1;
+  if v_email is null or trim(v_email) = '' then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  -- Lời mời OWNER đang pending khớp email.
+  select * into v_inv
+  from iam.tenant_invitations i
+  where i.is_owner = true
+    and i.status = 'pending'
+    and lower(i.invitee_email) = v_email
+  order by i.created_at desc
+  limit 1;
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  -- Xoay mã + gia hạn + gửi lại (giống resend_tenant_invitation).
+  v_raw_code := iam._generate_invitation_code();
+  v_code_hash := iam._invitation_token_hash(v_raw_code);
+  v_ciphertext := 'transient:' || encode(convert_to(v_raw_code, 'UTF8'), 'base64');
+  v_masked := left(v_email, 1) || '***' ||
+    substring(v_email from position('@' in v_email));
+
+  update iam.tenant_invitations
+  set token_hash = v_code_hash,
+      expires_at = v_now + interval '7 days',
+      status_changed_at = v_now,
+      version = version + 1,
+      updated_at = v_now,
+      delivery_correlation_id = v_correlation,
+      last_sent_at = v_now
+  where id = v_inv.id;
+
+  perform iam.enqueue_outbox_message(
+    v_inv.tenant_id,
+    'iam.email.delivery_requested',
+    jsonb_build_object(
+      'event_version', 1,
+      'id', v_message_id,
+      'occurred_on', v_now,
+      'tenant_id', v_inv.tenant_id,
+      'template_id', 'activation_invitation',
+      'to_email', v_email,
+      'correlation_id', v_correlation,
+      'outcome_id', v_outcome_id,
+      'locale', 'vi',
+      'refs', jsonb_build_object(
+        'tenant_id', v_inv.tenant_id::text,
+        'invitation_id', v_inv.id::text
+      ),
+      'secret_payload_ciphertext', v_ciphertext
+    ),
+    v_message_id
+  );
+  v_raw_code := null;
+
+  perform iam.record_email_delivery_outcome(
+    p_correlation_id := v_correlation,
+    p_template_id := 'activation_invitation',
+    p_status := 'queued',
+    p_tenant_id := v_inv.tenant_id,
+    p_to_email_masked := v_masked,
+    p_id := v_outcome_id
+  );
+end;
+$$;
+
+revoke all on function iam.resend_owner_activation(uuid, text) from public, anon;
+grant execute on function iam.resend_owner_activation(uuid, text) to authenticated;
+
 -- owner_activations là kho kích hoạt owner song song với tenant_invitations. Sau
 -- khi onboarding/accept/inspect đã chuyển sang tenant_invitations, drop hoàn toàn.
 drop function if exists iam.inspect_owner_activation(text);
@@ -604,6 +808,7 @@ as $$
 declare
   v_row record;
   v_memberships jsonb;
+  v_activation_expires_at timestamptz;
 begin
   if not iam.has_platform_permission('platform.user.view') then
     raise exception 'PLATFORM_PERMISSION_DENIED';
@@ -623,6 +828,7 @@ begin
       else coalesce(p.status, 'pending_activation')
     end)::text as status,
     (u.email_confirmed_at is not null) as email_verified,
+    u.email_confirmed_at as email_verified_at,
     coalesce(p.created_at, u.created_at) as created_at,
     p.last_login_at,
     coalesce(p.version, 1) as version
@@ -634,6 +840,16 @@ begin
   if v_row.user_id is null then
     raise exception 'platform user not found';
   end if;
+
+  -- Hạn kích hoạt email của owner đang chờ: lấy từ lời mời owner còn hiệu lực
+  -- khớp email (null nếu không có lời mời pending → owner đã kích hoạt/không phải owner).
+  select ti.expires_at into v_activation_expires_at
+  from iam.tenant_invitations ti
+  where ti.is_owner = true
+    and ti.status = 'pending'
+    and lower(ti.invitee_email) = lower(v_row.email)
+  order by ti.created_at desc
+  limit 1;
 
   select coalesce(
     jsonb_agg(
@@ -658,8 +874,10 @@ begin
     'email', v_row.email,
     'status', v_row.status,
     'email_verified', v_row.email_verified,
+    'email_verified_at', v_row.email_verified_at,
     'created_at', v_row.created_at,
     'last_login_at', v_row.last_login_at,
+    'activation_expires_at', v_activation_expires_at,
     'memberships', v_memberships,
     'version', v_row.version
   );
@@ -757,8 +975,8 @@ grant execute on function iam.search_platform_users(text, text, text, integer) t
 -- Path-independent orphan cleanup: whenever a real auth account is created, drop any
 -- pending onboarding placeholder for the same email. The placeholder carries a
 -- generated id (different from the auth id), and the profile is later activated by
--- multiple paths (accept_invitation, accept_owner_activation, login audit) — only some
--- of which know the placeholder. This trigger fires regardless of the activation path,
+-- multiple paths (accept_invitation, login audit) — only some of which know the
+-- placeholder. This trigger fires regardless of the activation path,
 -- so the person can never end up as two rows.
 create or replace function iam._cleanup_pending_profile_on_auth_user()
 returns trigger

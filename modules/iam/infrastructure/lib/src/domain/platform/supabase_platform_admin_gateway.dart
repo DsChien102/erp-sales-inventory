@@ -79,11 +79,13 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     required String idempotencyKey,
   }) async {
     try {
+      // Owner Design A kích hoạt qua lời mời (tenant_invitations). "Gửi lại email
+      // kích hoạt" dùng chung cơ chế resend của staff, phát lại mã mới — thay cho
+      // send_activation_invitation (chỉ hợp platform user có auth.users).
       await _rpcClient.callScalar<Object?>(
-        'send_activation_invitation',
+        'resend_owner_activation',
         params: <String, dynamic>{
           'p_user_id': userId,
-          'p_expected_version': expectedVersion,
           'p_idempotency_key': idempotencyKey,
         },
       );
@@ -489,15 +491,21 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     };
 
     final lastLoginRaw = json['last_login_at'];
+    final activationRaw = json['activation_expires_at'];
+    final emailVerifiedRaw = json['email_verified_at'];
     return PlatformUserDetailDto(
       userId: json['user_id'] as String,
       fullName: json['full_name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       status: _statusFromSql(json['status'] as String?),
       emailVerified: json['email_verified'] as bool? ?? false,
+      emailVerifiedAt:
+          emailVerifiedRaw is String ? DateTime.parse(emailVerifiedRaw) : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       version: (json['version'] as num?)?.toInt() ?? 1,
       lastLoginAt: lastLoginRaw is String ? DateTime.parse(lastLoginRaw) : null,
+      activationExpiresAt:
+          activationRaw is String ? DateTime.parse(activationRaw) : null,
       memberships: memberships,
     );
   }
@@ -621,6 +629,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   PlatformAuditLogDetailDto _mapAuditDetail(Map<String, dynamic> json) {
     return PlatformAuditLogDetailDto(
       id: json['id'] as String,
+      auditNo: (json['audit_no'] as num?)?.toInt() ?? 0,
       title: json['title'] as String? ?? '',
       actionCode: json['action_code'] as String? ?? '',
       status: _auditStatusFromSql(json['status'] as String?),
@@ -629,13 +638,21 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       actorRole: json['actor_role'] as String? ?? '',
       targetOrgName: json['target_org_name'] as String? ?? json['subject_type'] as String? ?? '',
       targetOrgCode: json['target_org_code'] as String? ?? json['subject_id'] as String? ?? '',
+      targetType: json['target_type'] as String? ?? '',
+      targetDisplayName: json['target_display_name'] as String? ?? '',
       timestamp: DateTime.parse(
         (json['timestamp'] ?? json['created_at']) as String,
       ),
       sourceApp: json['source_app'] as String? ?? '',
       correlationId: json['correlation_id'] as String? ?? '',
-      beforeState: json['before_state'] as String? ?? '',
-      afterState: json['after_state'] as String? ?? '',
+      beforeState: json['before_state']?.toString() ?? '',
+      afterState: json['after_state']?.toString() ?? '',
+      changeBefore: json['change_before'] is Map
+          ? Map<String, Object?>.from(json['change_before'] as Map)
+          : const {},
+      changeAfter: json['change_after'] is Map
+          ? Map<String, Object?>.from(json['change_after'] as Map)
+          : const {},
     );
   }
 

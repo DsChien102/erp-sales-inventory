@@ -54,6 +54,30 @@ void main() {
       expect(model.title, 'Đã tạm ngừng tổ chức');
     });
 
+    test('shows the app that produced the audit event', () {
+      PlatformAuditLogSummaryDto dto(String source) => PlatformAuditLogSummaryDto(
+        id: source,
+        title: 'Hoạt động quản trị',
+        actionCode: 'iam.tenant.profile_updated',
+        status: PlatformAuditLogStatus.success,
+        actorName: 'Admin',
+        actorRole: 'Admin',
+        targetOrgName: 'VietVet',
+        targetOrgCode: 'VET',
+        timestamp: DateTime(2026, 8, 25),
+        sourceApp: source,
+      );
+
+      expect(
+        PlatformAuditUiMapper.fromSummary(dto('platform_admin_app')).sourceApp,
+        'Platform Admin App',
+      );
+      expect(
+        PlatformAuditUiMapper.fromSummary(dto('tenant_app')).sourceApp,
+        'Tenant App',
+      );
+    });
+
     test('maps targetSubjectValue and targetDetailValue for account and tenant events', () {
       final accountDto = PlatformAuditLogDetailDto(
         id: 'eb45b531-9463-400e-8e5b-d2c46468d25e',

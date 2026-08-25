@@ -7,12 +7,16 @@ import 'tenant_audit_subject_dto.dart';
 final class TenantAuditLogDetailDto {
   const TenantAuditLogDetailDto({
     required this.auditLogId,
+    this.auditDisplayId,
     required this.tenantId,
+    this.activityCode,
     required this.eventCode,
     this.eventCategory,
+    this.titleSnapshot,
     required this.result,
     required this.occurredAt,
     required this.source,
+    this.correlationId,
     required this.trackingId,
     required this.actorUnavailable,
     required this.beforeRedacted,
@@ -24,12 +28,16 @@ final class TenantAuditLogDetailDto {
   });
 
   final String auditLogId;
+  final String? auditDisplayId;
   final String tenantId;
+  final String? activityCode;
   final String eventCode;
   final TenantAuditEventCategory? eventCategory;
+  final String? titleSnapshot;
   final TenantAuditLogResult result;
   final DateTime occurredAt;
   final String source;
+  final String? correlationId;
   final String trackingId;
   final bool actorUnavailable;
   final bool beforeRedacted;

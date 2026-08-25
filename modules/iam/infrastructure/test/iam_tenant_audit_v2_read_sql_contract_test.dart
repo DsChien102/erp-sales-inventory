@@ -10,7 +10,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     draft = File(
-      '${root.path}/supabase/migrations/_drafts/005_iam_tenant_audit_history_v2_read.sql',
+      '${root.path}/supabase/migrations/_drafts/007_iam_audit_logs_v2_rebuild.sql',
     ).readAsStringSync();
     final searchStart = draft.indexOf(
       'create or replace function iam.search_tenant_audit_logs_v2(',
@@ -27,14 +27,14 @@ void main() {
     detailBody = draft.substring(detailStart, detailEnd + 3);
   });
 
-  group('iam_tenant_audit_history_v2_read draft SQL contract', () {
+  group('iam audit_logs V2 final read SQL contract', () {
     test('declares correct patch header with touches', () {
-      expect(draft, contains('-- Title: IAM tenant audit history V2 read RPC'));
+      expect(draft, contains('-- Title: iam audit_logs V2 rebuild (big-bang, dev)'));
       expect(draft, contains('-- Kind: patch'));
-      expect(draft, contains('-- Intent: iam_tenant_audit_history_v2'));
+      expect(draft, contains('-- Intent: iam_audit_logs_v2_rebuild'));
       expect(
         draft,
-        contains('-- Touches: iam.search_tenant_audit_logs_v2, iam.get_tenant_audit_log'),
+        contains('iam.search_tenant_audit_logs_v2, iam.get_tenant_audit_log'),
       );
     });
 
@@ -113,7 +113,12 @@ void main() {
     });
 
     test('detail cannot return a platform record that happens to carry the tenant id', () {
-      expect(detailBody, contains("where a.id = p_audit_log_id\n    and a.scope = 'tenant'\n    and a.tenant_id = p_tenant_id"));
+      expect(
+        detailBody,
+        contains(
+          "where a.id = p_audit_log_id\n    and a.scope = 'tenant'\n    and a.tenant_id = p_tenant_id",
+        ),
+      );
     });
 
     test('count and page search the same tenant-scoped current subject fields', () {
@@ -160,6 +165,36 @@ void main() {
       expect(draft, contains("'current'"));
       expect(draft, contains("'system'"));
       expect(draft, contains("'unavailable'"));
+    });
+
+    test('empty snapshots fall back and detail exposes design trace fields', () {
+      expect(
+        draft,
+        contains("coalesce(v_row.actor_snapshot, '{}'::jsonb) <> '{}'::jsonb"),
+      );
+      expect(
+        draft,
+        contains("coalesce(v_row.target_snapshot, '{}'::jsonb) <> '{}'::jsonb"),
+      );
+      expect(detailBody, contains("'audit_display_id'"));
+      expect(detailBody, contains("'correlation_id'"));
+      expect(detailBody, contains("'activity_code'"));
+      expect(detailBody, contains("'title_snapshot'"));
+      expect(detailBody, contains("'detail_items'"));
+    });
+
+    test('legacy target id snapshots fall back to the current tenant name', () {
+      expect(
+        detailBody,
+        contains(
+          'v_row.target_display_name_snapshot is distinct from v_row.target_id',
+        ),
+      );
+      expect(
+        detailBody,
+        contains("v_row.target_type in ('tenant', 'organization')"),
+      );
+      expect(detailBody, contains("'display_name', v_row.t_display_name"));
     });
 
     test('grants execution to authenticated role only', () {

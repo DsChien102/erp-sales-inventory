@@ -26,6 +26,7 @@ void main() {
         ),
       );
       final log = _log(
+        correlationId: 'register-from-invitation-f8c17e2c-c550-42c8-934d-8154a92a3973',
         actorId: 'actor-uuid',
         actorType: 'service_account',
         actorRoleCode: 'tenant_owner',
@@ -56,12 +57,16 @@ void main() {
       expect(find.text('TEN-001'), findsOneWidget);
       expect(find.text('Trước: Tên cũ'), findsOneWidget);
       expect(find.text('Sau: Tên mới'), findsOneWidget);
+      expect(find.text('register-fro…a92a3973'), findsOneWidget);
 
       final trackingCopy = find.byTooltip('Sao chép mã theo dõi');
       await tester.ensureVisible(trackingCopy);
       await tester.tap(trackingCopy);
       await tester.pump();
-      expect(copiedText, 'tracking-1');
+      expect(
+        copiedText,
+        'register-from-invitation-f8c17e2c-c550-42c8-934d-8154a92a3973',
+      );
     },
   );
 
@@ -103,6 +108,7 @@ void main() {
 }
 
 AuditLogItemUiModel _log({
+  String correlationId = 'tracking-1',
   String actorId = '',
   String actorType = '',
   String actorRoleCode = '',
@@ -136,7 +142,7 @@ AuditLogItemUiModel _log({
     subjectDisplayOrigin: subjectDisplayOrigin,
     timestamp: DateTime(2026, 8, 20),
     sourceApp: 'iam',
-    correlationId: 'tracking-1',
+    correlationId: correlationId,
     beforeState: beforeState,
     afterState: '',
     icon: VIcons.history,

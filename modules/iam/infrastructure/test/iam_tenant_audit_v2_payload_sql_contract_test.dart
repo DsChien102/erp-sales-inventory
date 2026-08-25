@@ -19,7 +19,7 @@ void main() {
       expect(
         sql,
         contains(
-          '-- Touches: iam.update_tenant_profile, iam.upsert_legal_profile, iam.update_my_platform_user_profile, iam.resend_tenant_invitation, iam.revoke_tenant_invitation, iam.accept_invitation',
+          '-- Touches: iam.update_tenant_profile, iam.upsert_legal_profile, iam.update_my_platform_user_profile, iam.resend_tenant_invitation, iam.revoke_tenant_invitation',
         ),
       );
     });
@@ -30,6 +30,10 @@ void main() {
       expect(sql, contains('p_event_code => \'iam.tenant.profile_updated\''));
       expect(sql, contains('p_before => v_audit_before'));
       expect(sql, contains('p_after => jsonb_build_object('));
+      expect(sql, contains('p_actor_membership_id => v_actor_membership_id'));
+      expect(sql, contains('p_actor_display_name => v_actor_display_name'));
+      expect(sql, contains('p_target_display_name => v_row.display_name'));
+      expect(sql, contains("'display_name', v_row.display_name"));
     });
 
     test('upsert_legal_profile captures before and masks tax_code', () {
@@ -94,23 +98,24 @@ void main() {
       expect(sql, contains('p_before => v_audit_before'));
     });
 
-    test('invitation lifecycle captures before/after with canonical event codes', () {
+    test('resend and revoke capture before/after with canonical event codes', () {
       final sql = readDraft('004_iam_tenant_audit_history_v2_payloads.sql');
       expect(sql, contains('function iam.resend_tenant_invitation('));
       expect(sql, contains('p_event_code => \'iam.tenant.invitation_resent\''));
       expect(sql, contains('function iam.revoke_tenant_invitation('));
       expect(sql, contains('p_event_code => \'iam.tenant.invitation_revoked\''));
-      expect(sql, contains('function iam.accept_invitation('));
-      expect(sql, contains('p_event_code => \'iam.tenant.invitation_accepted\''));
+      expect(sql, isNot(contains('function iam.accept_invitation(')));
     });
 
-    test('accept_invitation preserves the canonical signature and behavior', () {
-      final sql = readDraft('004_iam_tenant_audit_history_v2_payloads.sql');
+    test('accept_invitation audit is owned by the final cleanup draft', () {
+      final sql = readDraft('006_iam_audit_owner_activation_cleanup.sql');
       final acceptStart = sql.indexOf(
         'create or replace function iam.accept_invitation(',
       );
       expect(acceptStart, greaterThanOrEqualTo(0));
-      final accept = sql.substring(acceptStart);
+      final acceptEnd = sql.indexOf(r'$$;', acceptStart);
+      expect(acceptEnd, greaterThan(acceptStart));
+      final accept = sql.substring(acceptStart, acceptEnd + 3);
 
       expect(
         accept,
@@ -125,13 +130,15 @@ void main() {
       expect(accept, contains('iam.tenant_invitation_token_operations'));
       expect(accept, contains("o.operation = 'accept'"));
       expect(accept, contains('return v_existing.result'));
-      expect(accept, contains('from iam.owner_activations oa'));
+      expect(accept, isNot(contains('iam.owner_activations')));
       expect(accept, contains("raise exception 'TENANT_SUSPENDED'"));
       expect(accept, contains("raise exception 'INVITATION_REVOKED'"));
       expect(accept, contains("token_hash = encode("));
-      expect(accept, contains("p_subject_type => 'invitation'"));
-      expect(accept, contains('p_subject_id => v_inv.id::text'));
+      expect(accept, contains("p_event_code => 'iam.tenant.invitation_accepted'"));
+      expect(accept, contains("p_subject_type => 'tenant'"));
+      expect(accept, contains('p_subject_id => v_inv.tenant_id::text'));
       expect(accept, contains('p_tracking_id => p_idempotency_key'));
+      expect(accept, contains('p_before => v_audit_before'));
     });
 
     test('masks contact PII before append and flags before/after independently', () {
@@ -152,10 +159,10 @@ void main() {
 
     test('uses canonical identity and invitation schema names', () {
       final sql = readDraft('004_iam_tenant_audit_history_v2_payloads.sql');
-      expect(sql, contains('from auth.users'));
+      expect(sql, contains('auth.uid()'));
       expect(sql, contains('iam.platform_user_profiles'));
-      expect(sql, contains('invitee_email'));
-      expect(sql, contains('initial_role_id'));
+      expect(sql, contains('iam.tenant_invitations'));
+      expect(sql, contains('iam.role_definitions'));
       expect(sql, isNot(contains('iam.platform_users')));
     });
 

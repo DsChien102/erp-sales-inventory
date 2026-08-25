@@ -30,8 +30,8 @@
 - Sửa `docs/themes/TH-01-organization-users/harness/07-api-contracts.md` để nêu rõ ràng buộc triển khai: không dùng `platform_audit_logs` và không dùng `owner_activations`.
 - Tạo `modules/iam/infrastructure/test/iam_audit_legacy_cleanup_sql_contract_test.dart` để khoá việc dọn dẹp kho audit.
 - Tạo `modules/iam/infrastructure/test/iam_owner_activation_retirement_sql_contract_test.dart` để khoá việc retire owner activation.
-- Tạo `supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql` chứa SQL draft-only, drop kho audit cũ và kho/RPC owner activation sau khi thay thế hành vi onboarding.
-- Sửa `supabase/migrations/_drafts/001_iam_pending_platform_profile_onboarding.sql` nếu nó vẫn còn và vẫn tham chiếu `owner_activations`; hoặc gộp phần hành vi pending-profile hữu ích vào draft cleanup mới, hoặc bỏ các phần owner-activation khỏi draft đó.
+- Tạo `supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql` chứa SQL draft-only, drop kho audit cũ và kho/RPC owner activation sau khi thay thế hành vi onboarding.
+- Archive `supabase/migrations/_drafts/_archive/001_iam_pending_platform_profile_onboarding.sql` sau khi phần pending-profile hữu ích đã được gộp vào draft cleanup.
 - Sửa `modules/iam/infrastructure/test/iam_owner_activation_rpc_contract_test.dart`, `iam_owner_activation_store_owner_role_sql_contract_test.dart`, và các SQL test liên quan owner-activation để chúng assert việc retire thay vì giữ luồng cũ.
 - Sửa `apps/erp/lib/core/router/app_router.dart` và bỏ các file UI/client của owner activation nếu không luồng nào khác dùng chúng.
 - Xoá các app test của owner activation sau khi đã bỏ route/client/page: `apps/erp/test/features/auth/presentation/owner_activation_page_test.dart` và `owner_activation_cubit_test.dart`.
@@ -230,7 +230,7 @@ KHÔNG tự chạy `git commit`. Dừng lại, tóm tắt các file đã đổi,
 
 **Files:**
 - Tạo: `modules/iam/infrastructure/test/iam_audit_legacy_cleanup_sql_contract_test.dart`
-- Tạo/Sửa: `supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql`
+- Tạo/Sửa: `supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql`
 - Giữ nguyên: `supabase/migrations/20260811013_iam_platform_audit_read.sql`, trừ khi người dùng yêu cầu promote migration một cách rõ ràng.
 
 **Interfaces:**
@@ -277,7 +277,7 @@ void main() {
       '${root.path}/supabase/migrations/20260811013_iam_platform_audit_read.sql',
     ).readAsStringSync();
     cleanupDraftSql = File(
-      '${root.path}/supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql',
+      '${root.path}/supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql',
     ).readAsStringSync();
   });
 
@@ -383,11 +383,11 @@ Chạy:
 dart test modules/iam/infrastructure/test/iam_audit_legacy_cleanup_sql_contract_test.dart
 ```
 
-Kỳ vọng: FAIL vì `supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql` chưa tồn tại.
+Kỳ vọng: FAIL vì `supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql` chưa tồn tại.
 
 - [ ] **Step 4: Tạo draft SQL cleanup**
 
-Tạo `supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql` với nội dung khởi tạo này:
+Tạo `supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql` với nội dung khởi tạo này:
 
 ```sql
 -- Title: iam audit + owner activation cleanup
@@ -452,8 +452,8 @@ CẢ cơ chế mã lẫn việc tạo membership → drop hoàn toàn.
 
 **Files:**
 - Create: `modules/iam/infrastructure/test/iam_owner_activation_retirement_sql_contract_test.dart`
-- Modify: `supabase/migrations/_drafts/iam_audit_owner_activation_cleanup.sql`
-- Modify: `supabase/migrations/_drafts/001_iam_pending_platform_profile_onboarding.sql` nếu còn và vẫn tham chiếu `owner_activations`
+- Modify: `supabase/migrations/_drafts/006_iam_audit_owner_activation_cleanup.sql`
+- Archive: `supabase/migrations/_drafts/_archive/001_iam_pending_platform_profile_onboarding.sql`
 - Modify: `modules/iam/infrastructure/test/iam_owner_activation_rpc_contract_test.dart` (repoint sang draft — Step 8)
 - Modify: `modules/iam/infrastructure/test/iam_owner_activation_store_owner_role_sql_contract_test.dart` (trim — Step 8b)
 - Giữ nguyên: `modules/iam/infrastructure/test/iam_create_tenant_onboarding_new_owner_sql_contract_test.dart` (đọc promoted `20260811006`; không mâu thuẫn)
@@ -685,10 +685,47 @@ Kỳ vọng: nếu không có thay đổi nào so với lần bàn giao trước
 
 ---
 
+### Task 5: Redesign `iam.audit_logs` sang schema V2 (big-bang, dev)
+
+**Quyết định:** Vì đang **dev (chưa production, không có data cần giữ)**, làm **big-bang** — dựng lại `iam.audit_logs` theo schema đã chốt ở mục "Quyết định thiết kế: schema `iam.audit_logs`" (không giữ cột cũ `subject_*`/`tracking_id`/`before_after`), rồi viết lại toàn bộ writer + caller + read RPC + lớp Dart. Chia **5 phase, verify từng phase**. SQL chỉ ở draft (`supabase/migrations/_drafts/007_iam_audit_logs_v2_rebuild.sql`); Dart là code thật.
+
+> **Blast radius:** `append_audit_log` có ~15 call site ở 11 migration đã promote (811011/014/015/016/017/018/020/023/005, 820005...); 4 read RPC ở 811013; lớp Dart audit (port/handler/DTO + tests). Đổi chữ ký writer ⇒ phải `create or replace` lại tất cả caller trong draft.
+
+**Files:**
+- Create: `supabase/migrations/_drafts/007_iam_audit_logs_v2_rebuild.sql` (toàn bộ SQL của Task 5).
+- Create: `modules/iam/infrastructure/test/iam_audit_logs_v2_schema_sql_contract_test.dart` (khoá schema + writer + read RPC V2).
+- Modify (Dart): read port + query handler + DTO audit (`modules/iam/application/lib/src/tenant/...audit...`, `modules/iam/infrastructure/lib/src/...audit...`) + tests tương ứng.
+
+- [ ] **Phase 1 — Schema V2**
+
+Tạo draft `007_iam_audit_logs_v2_rebuild.sql`: `drop table if exists iam.audit_logs cascade;` rồi `create table iam.audit_logs (...)` theo đúng bảng cột ở mục quyết định (id, scope, tenant_id, activity_code, event_code, event_category, result, title_snapshot, actor_type, actor_user_id, actor_membership_id, actor_display_name_snapshot, actor_context_label, actor_snapshot, target_type, target_id, target_display_name_snapshot, target_secondary_identifier, target_snapshot, source, correlation_id, tracking_id, source_event_refs, detail_items, redaction_flags, occurred_at, created_at) + 4 `check` + 6 index. Viết test schema (đỏ→xanh).
+
+- [ ] **Phase 2 — `append_audit_log` V2**
+
+`create or replace function iam.append_audit_log(...)` chữ ký V2 (nhận activity_code, event_code, event_category, result, title_snapshot, actor_type, actor_*_snapshot, target_*, source, correlation_id, detail_items, redaction_flags...). Giữ tham số hợp lý có default để caller gọn.
+
+- [ ] **Phase 3 — Viết lại ~15 caller**
+
+Trong draft, `create or replace` lại từng hàm có gọi `append_audit_log` (811011/014/015/016/017/018/020/023/005, 820005 + accept/inspect ở cleanup draft) sao cho map sang chữ ký V2 (subject→target, tracking→correlation, before/after→detail_items). Chốt: `grep -rn "append_audit_log(" draft` — mọi call site dùng đúng tham số V2.
+
+- [ ] **Phase 4 — 4 read RPC V2**
+
+`create or replace` `search_platform_audit_logs`, `get_platform_audit_log`, `search_tenant_audit_logs`, `get_tenant_audit_log` đọc cột V2 (target_*, correlation_id, detail_items...). Cập nhật shape trả về.
+
+- [ ] **Phase 5 — Dart audit layer + tests**
+
+Sửa read port + query handler + DTO (`tenant_audit_log_result`, `..._search_page_dto`, platform tương ứng) map cột V2; cập nhật contract/infra tests. Chạy `dart test modules/iam` xanh.
+
+- [ ] **Phase 6 — Verify Task 5**
+
+`melos run migrate:verify-policy -- --strict`; `dart test modules/iam`; `bash scripts/ci/verify_harness.sh`. Bàn giao (không tự commit).
+
+---
+
 ## Tự rà soát (Self-Review)
 
 **Độ phủ spec:** Task 1 ghi lại các quyết định dọn dẹp TH-01. Task 2 bỏ bảng Platform Audit dư thừa (và các overload lifecycle cũ 1-/2-tham số vốn là writer duy nhất còn lại của nó) trong khi vẫn giữ `iam.audit_logs(scope='platform')` và không đụng các overload đang chạy `(…, p_expected_version, p_idempotency_key)`. Task 3 retire `owner_activations` theo **Design A (hợp nhất owner vào luồng mời)**: `create_tenant_onboarding` phát một **lời mời owner** trên `tenant_invitations` (`is_owner`, giữ mã, `invited_by_membership_id=null`), worker gửi mã; membership tạo **lúc accept** — `accept_invitation` tự biến người active đầu tiên thành `store_owner`/`is_owner` qua `v_should_be_owner`, nên chỉ cần **gỡ fallback `owner_activations`** khỏi `accept_invitation` + `inspect_invitation_token`, rồi drop `owner_activations` + RPC. Owner và staff dùng **chung** cơ chế mã + màn hình `InvitationTokenPage`. Mỗi test owner-activation hiện có được xử lý rõ ràng — repoint sang draft cleanup (`iam_owner_activation_rpc_contract_test`, Step 8), trim bỏ assertion `accept_owner_activation` (`iam_owner_activation_store_owner_role_sql_contract_test`, Step 8b), giữ nguyên vì nó khoá onboarding promoted `20260811006` (`iam_create_tenant_onboarding_new_owner_sql_contract_test`), hoặc xoá vì nó khoá draft dựa trên `owner_activations` đã retire (`iam_pending_platform_profile_onboarding_sql_contract_test`, Step 8c). Task 4 kiểm tra phạm vi và cố ý để `platform_admins` nguyên vẹn.
 
 **Rà placeholder:** Task 3 Step 5/6 cố ý đưa *fragment* cho thân `create_tenant_onboarding` và cho việc gỡ fallback owner khỏi `accept_invitation`/`inspect_invitation_token` — agent dựng thân hàm hoàn chỉnh bằng cách sao từ bản hiện hành (`20260820003` cho onboarding, `20260811020` cho accept, `20260820006` cho inspect) rồi áp fragment/gỡ khối `exception when others`, theo lưu ý trong từng Step. Việc email/deep-link owner trỏ về `/invitation` và owner mới `signUp`/owner cũ `signInWithPassword` lúc accept là tích hợp app/worker, cố ý nằm ngoài draft SQL (đã ghi chú ở Step 10). Các task còn lại có đủ file chính xác, nội dung test, lệnh, và kết quả kỳ vọng.
 
-**Nhất quán kiểu/chữ ký:** Tên file test và tên object SQL nhất quán qua các task: `iam_audit_owner_activation_cleanup.sql`, `iam_audit_legacy_cleanup_sql_contract_test.dart`, `iam_owner_activation_retirement_sql_contract_test.dart`, `iam.search_platform_audit_logs`, `iam.get_platform_audit_log`, `iam.create_tenant_onboarding`, `iam.accept_invitation`, `iam.inspect_invitation_token`, `iam.inspect_owner_activation`, và `iam.accept_owner_activation`.
+**Nhất quán kiểu/chữ ký:** Tên file test và tên object SQL nhất quán qua các task: `006_iam_audit_owner_activation_cleanup.sql`, `iam_audit_legacy_cleanup_sql_contract_test.dart`, `iam_owner_activation_retirement_sql_contract_test.dart`, `iam.search_platform_audit_logs`, `iam.get_platform_audit_log`, `iam.create_tenant_onboarding`, `iam.accept_invitation`, `iam.inspect_invitation_token`, `iam.inspect_owner_activation`, và `iam.accept_owner_activation`.
