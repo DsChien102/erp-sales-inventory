@@ -1,39 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_presentation/presentation.dart';
 
-import 'audit_manifest.dart';
 import 'preview_helpers.dart';
 import 'preview_section.dart';
 
 class EInvoiceSg06Tab extends StatelessWidget {
   const EInvoiceSg06Tab({super.key});
 
-  static const _group = EInvoiceScreenGroup.sg06;
-
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final specimens = EInvoiceAuditManifest.forGroup(_group);
     return previewList([
       PreviewSection(
-        title: '${_group.id} — Tài liệu hóa đơn',
-        description:
-            '${_group.epicRef} / Slice ${_group.sliceRef} FE — chưa implement.',
+        title: 'SG06-O01 — Tài liệu hóa đơn / Idle',
+        description: 'InvoiceDocumentsActionSheet · idle',
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Widget preview sẽ được thêm khi slice S4 FE land.',
-              style: VTypography.bodyDefault,
+            const InvoiceDocumentsActionSheet(
+              state: InvoiceDocumentsSheetState.idle,
+              onSelectPdf: previewNoop,
+              onSelectXml: previewNoop,
             ),
-            const SizedBox(height: VSpacing.space2),
-            Text(
-              '${specimens.length} specimens trong nhóm này.',
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textSecondary,
+            Builder(
+              builder: (ctx) => PreviewActionButton(
+                label: 'Open documents sheet',
+                onPressed: () => showInvoiceDocumentsActionSheet(ctx),
               ),
             ),
           ],
+        ),
+      ),
+      const PreviewSection(
+        title: 'SG06-O02 — Đang chuẩn bị bản PDF',
+        description: 'InvoiceDocumentsActionSheet · loadingPdf',
+        child: InvoiceDocumentsActionSheet(
+          state: InvoiceDocumentsSheetState.loadingPdf,
+          onSelectPdf: previewNoop,
+          onSelectXml: previewNoop,
+        ),
+      ),
+      const PreviewSection(
+        title: 'SG06-O03 — Đang chuẩn bị tệp XML',
+        description: 'InvoiceDocumentsActionSheet · loadingXml',
+        child: InvoiceDocumentsActionSheet(
+          state: InvoiceDocumentsSheetState.loadingXml,
+          onSelectPdf: previewNoop,
+          onSelectXml: previewNoop,
         ),
       ),
     ]);

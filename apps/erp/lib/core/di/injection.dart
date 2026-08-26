@@ -84,11 +84,15 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<IPricingModule>(pricingModule);
 
+
   final salesModule = SalesStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
     permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
   );
   getIt.registerSingleton<ISalesModule>(salesModule);
-}
+
+  getIt.registerSingleton<IEInvoiceModule>(
+    FakeEInvoiceModule(
+      scenario: FakeEInvoiceScenario.configReadinessReady,
+    ),

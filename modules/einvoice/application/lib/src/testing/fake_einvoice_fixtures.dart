@@ -24,105 +24,110 @@ abstract final class FakeEInvoiceFixtures {
   static const connectionId = 'conn-fake-001';
 
   static LegalProfileSummaryDto get legalProfile => const LegalProfileSummaryDto(
-        legalName: 'Công ty TNHH Fake',
-        taxCode: '0123456789',
-        address: '123 Fake Street',
-      );
+    legalName: 'Công ty TNHH Fake',
+    taxCode: '0101234567',
+    address: '123 Fake Street',
+  );
 
   static ProviderConnectionScreenDto connectedScreen({
     ProviderConnectionStatus status = ProviderConnectionStatus.connected,
-  }) =>
-      ProviderConnectionScreenDto(
-        legalProfile: legalProfile,
-        connection: ProviderConnectionSummaryDto(
-          connectionId: connectionId,
-          status: status,
-          lastCheckedAt: DateTime.utc(2026, 1, 1),
-        ),
-      );
+  }) => ProviderConnectionScreenDto(
+    legalProfile: legalProfile,
+    connection: ProviderConnectionSummaryDto(
+      connectionId: connectionId,
+      status: status,
+      lastCheckedAt: DateTime.utc(2026, 8, 5, 10, 40),
+    ),
+  );
 
-  static ProviderConnectionResultDto get connectedResult =>
-      const ProviderConnectionResultDto(
-        connectionId: connectionId,
-        status: ProviderConnectionStatus.connected,
-      );
+  static ProviderConnectionResultDto get connectedResult => const ProviderConnectionResultDto(
+    connectionId: connectionId,
+    status: ProviderConnectionStatus.connected,
+  );
 
-  static ProviderConnectionCheckResultDto get verifyOk =>
-      ProviderConnectionCheckResultDto(
-        connectionId: connectionId,
-        status: ProviderConnectionStatus.connected,
-        checkedAt: DateTime.utc(2026, 1, 1),
-      );
+  static ProviderConnectionCheckResultDto get verifyOk => ProviderConnectionCheckResultDto(
+    connectionId: connectionId,
+    status: ProviderConnectionStatus.connected,
+    checkedAt: DateTime.utc(2026, 8, 5, 10, 40),
+  );
 
   static List<ProviderTemplateDto> get templates => const [
-        ProviderTemplateDto(
-          templateId: 'tpl-1',
-          name: 'Hóa đơn GTGT',
-          serial: 'AA',
-          symbol: '26G',
-        ),
-        ProviderTemplateDto(
-          templateId: 'tpl-2',
-          name: 'Hóa đơn bán hàng',
-          serial: 'BB',
-          symbol: '26H',
-        ),
-      ];
+    ProviderTemplateDto(
+      templateId: 'tpl-1',
+      name: 'Hóa đơn GTGT',
+      serial: '1/001',
+      symbol: 'C22TAA',
+    ),
+    ProviderTemplateDto(
+      templateId: 'tpl-2',
+      name: 'Hóa đơn bán hàng',
+      serial: '1/002',
+      symbol: 'C26TAA',
+    ),
+  ];
 
   static IssuanceProfileDto get issuanceProfile => const IssuanceProfileDto(
-        profileVersion: 1,
-        templateId: 'tpl-1',
-        signingConfigId: 'sign-hsm',
-        signingMethod: SigningMethod.hsm,
-        compatibilityWarnings: [],
-      );
+    profileVersion: 1,
+    templateId: 'tpl-1',
+    signingConfigId: 'sign-hsm',
+    signingMethod: SigningMethod.hsm,
+    compatibilityWarnings: [],
+  );
 
-  static AutomationPolicyDto get automationPolicyDisabled =>
-      const AutomationPolicyDto(
-        autoIssueEnabled: false,
-        autoSendEnabled: false,
-        policyVersion: 1,
-        blockers: [],
-      );
+  static IssuanceProfileDto get issuanceProfileMissing => const IssuanceProfileDto(
+    profileVersion: 1,
+    compatibilityWarnings: [],
+  );
+
+  static AutomationPolicyDto get automationPolicyDisabled => const AutomationPolicyDto(
+    autoIssueEnabled: false,
+    autoSendEnabled: false,
+    policyVersion: 1,
+    blockers: [],
+  );
+
+  static AutomationPolicyDto get automationPolicyEnabled => const AutomationPolicyDto(
+    autoIssueEnabled: true,
+    autoSendEnabled: true,
+    policyVersion: 1,
+    blockers: [],
+  );
 
   static ConfigurationReadinessDto configReadiness(
     ConfigurationReadinessLevel level, {
     List<ReadinessBlockerDto> blockers = const [],
     List<ReadinessWarningDto> warnings = const [],
-  }) =>
-      ConfigurationReadinessDto(
-        level: level,
-        blockers: blockers,
-        warnings: warnings,
-      );
+  }) => ConfigurationReadinessDto(
+    level: level,
+    blockers: blockers,
+    warnings: warnings,
+  );
 
   static IssuanceReadinessDto issuanceReadiness(
     IssuanceReadinessLevel level, {
     BuyerCompletionStatus buyer = BuyerCompletionStatus.locked,
     List<ReadinessBlockerDto> blockers = const [],
-  }) =>
-      IssuanceReadinessDto(
-        level: level,
-        blockers: blockers,
-        warnings: const [],
-        buyerCompletionState: buyer,
-      );
+  }) => IssuanceReadinessDto(
+    level: level,
+    blockers: blockers,
+    warnings: const [],
+    buyerCompletionState: buyer,
+  );
 
   static IssueInvoiceResultDto get issueProcessing => const IssueInvoiceResultDto(
-        issuanceId: 'iss-fake-001',
-        attemptId: 'att-fake-001',
-        status: IssuanceAttemptStatus.submitted,
-      );
+    issuanceId: 'iss-fake-001',
+    attemptId: 'att-fake-001',
+    status: IssuanceAttemptStatus.submitted,
+  );
 
   static OrderInvoiceProjectionDto projection({
     IssuanceDisplayState issuance = IssuanceDisplayState.processing,
     DeliveryDisplayState? delivery,
     List<OrderInvoiceAction> actions = const [OrderInvoiceAction.issue],
-  }) =>
-      OrderInvoiceProjectionDto(
-        salesOrderId: salesOrderId,
-        issuanceDisplayState: issuance,
-        deliveryDisplayState: delivery,
-        actions: actions,
-      );
+  }) => OrderInvoiceProjectionDto(
+    salesOrderId: salesOrderId,
+    issuanceDisplayState: issuance,
+    deliveryDisplayState: delivery,
+    actions: actions,
+  );
 }

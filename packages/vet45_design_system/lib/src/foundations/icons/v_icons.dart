@@ -35,6 +35,7 @@ enum VIcons {
   download,
   power,
   powerOff,
+  unplug,
   check,
   logout,
   visibility,
@@ -51,6 +52,8 @@ enum VIcons {
   cloudUpload,
   fileUp,
   fileSpreadsheet,
+  file,
+  fileText,
 
   // Domain & Business Specific Icons
   calendar,
@@ -92,6 +95,7 @@ enum VIcons {
   checkList,
   circle,
   lock,
+  key,
   settings,
   star,
   mail,
@@ -223,6 +227,11 @@ abstract final class _Lucide {
   );
   static const powerOff = IconData(
     57865,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const unplug = IconData(
+    58461,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -366,6 +375,11 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
+  static const file = IconData(
+    57536,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
   static const fileText = IconData(
     57548,
     fontFamily: 'Lucide',
@@ -483,6 +497,11 @@ abstract final class _Lucide {
   );
   static const lock = IconData(
     57611,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const key = IconData(
+    57597,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -665,6 +684,8 @@ extension VIconsExtension on VIcons {
         return _Lucide.power;
       case VIcons.powerOff:
         return _Lucide.powerOff;
+      case VIcons.unplug:
+        return _Lucide.unplug;
       case VIcons.check:
         return _Lucide.check;
       case VIcons.logout:
@@ -695,6 +716,11 @@ extension VIconsExtension on VIcons {
         return _Lucide.fileUp;
       case VIcons.fileSpreadsheet:
         return _Lucide.fileSpreadsheet;
+      case VIcons.file:
+        return _Lucide.file;
+      case VIcons.fileText:
+      case VIcons.description:
+        return _Lucide.fileText;
 
       // Domain & Business Specific Icons
       case VIcons.calendar:
@@ -726,8 +752,6 @@ extension VIconsExtension on VIcons {
         return _Lucide.userCheck;
       case VIcons.personRemove:
         return _Lucide.userX;
-      case VIcons.description:
-        return _Lucide.fileText;
       case VIcons.gridView:
         return _Lucide.grid;
       case VIcons.stickyNote:
@@ -774,6 +798,8 @@ extension VIconsExtension on VIcons {
         return _Lucide.circle;
       case VIcons.lock:
         return _Lucide.lock;
+      case VIcons.key:
+        return _Lucide.key;
       case VIcons.settings:
         return _Lucide.settings;
       case VIcons.star:

@@ -1,4 +1,4 @@
-/// Single source of truth for TH-08 §6.5 screen/state specimens (38 MVP items).
+/// Single source of truth for TH-08 §6.5 screen/state specimens (39 MVP items).
 abstract final class EInvoiceAuditManifest {
   static const entries = <EInvoiceAuditEntry>[
     // SG-01 — EP-01 / Slice S1
@@ -9,6 +9,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D02',
@@ -17,6 +18,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/einvoice_configuration_overview_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D04-A',
@@ -25,6 +27,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D04-B',
@@ -33,6 +36,25 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
+    ),
+    EInvoiceAuditEntry(
+      specimenId: 'SG01-D04-C',
+      screenGroup: EInvoiceScreenGroup.sg01,
+      title: 'Kết nối MISA — Đang chờ kết nối',
+      surfaceType: 'Full-screen editor',
+      plannedWidgetPath:
+          'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
+    ),
+    EInvoiceAuditEntry(
+      specimenId: 'SG01-D04-D',
+      screenGroup: EInvoiceScreenGroup.sg01,
+      title: 'Kết nối MISA — Lỗi kết nối',
+      surfaceType: 'Full-screen editor',
+      plannedWidgetPath:
+          'apps/erp/lib/features/einvoice/presentation/pages/provider_connection_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D05',
@@ -41,6 +63,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/default_issuance_configuration_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-D06',
@@ -49,6 +72,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen editor',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/automation_policy_page.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-O01',
@@ -57,14 +81,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/disconnect_provider_sheet.dart',
-    ),
-    EInvoiceAuditEntry(
-      specimenId: 'SG01-O02',
-      screenGroup: EInvoiceScreenGroup.sg01,
-      title: 'Thao tác kết nối',
-      surfaceType: 'Action Sheet',
-      plannedWidgetPath:
-          'modules/einvoice/presentation/lib/src/widgets/provider_connection_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-S01',
@@ -73,6 +90,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'State Message',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_permission_denied_state.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG01-S02',
@@ -81,6 +99,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'State Message',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_load_error_state.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-02 — EP-02+03 / Slice S2
@@ -91,6 +110,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-R02',
@@ -99,6 +119,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O01',
@@ -107,6 +128,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O02',
@@ -115,6 +137,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O03',
@@ -123,6 +146,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O04',
@@ -131,6 +155,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/pre_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-D01',
@@ -139,6 +164,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen result',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/configuration_blocker_result.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-D02',
@@ -147,6 +173,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen result',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_data_blocker_result.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-T01',
@@ -155,6 +182,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/preview_failure_toast.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O05',
@@ -163,6 +191,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/post_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG02-O06',
@@ -171,6 +200,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/post_issue_einvoice_action_sheet.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-03 — EP-02 / Slice S3
@@ -181,6 +211,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_invoice_confirmation_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-O01-B',
@@ -197,6 +228,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-R02',
@@ -205,6 +237,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row + feedback',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-T01',
@@ -213,6 +246,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_success_toast.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-O02',
@@ -221,6 +255,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Confirmation Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_invoice_confirmation_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-R03',
@@ -229,6 +264,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Contextual row',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/order_einvoice_row.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG03-T02',
@@ -237,6 +273,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Toast on source owner',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/issue_success_toast.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-06 — EP-03 / Slice S4
@@ -247,6 +284,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG06-O02',
@@ -255,6 +293,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG06-O03',
@@ -263,6 +302,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Action Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/invoice_documents_action_sheet.dart',
+      status: AuditStatus.done,
     ),
 
     // SG-07 — EP-04 / Slice S5
@@ -273,6 +313,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-B',
@@ -281,6 +322,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-C',
@@ -289,6 +331,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O01-D',
@@ -297,6 +340,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Send Sheet variant',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/send_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-O02',
@@ -305,6 +349,7 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Resend Sheet',
       plannedWidgetPath:
           'modules/einvoice/presentation/lib/src/widgets/resend_invoice_sheet.dart',
+      status: AuditStatus.done,
     ),
     EInvoiceAuditEntry(
       specimenId: 'SG07-D01',
@@ -313,11 +358,13 @@ abstract final class EInvoiceAuditManifest {
       surfaceType: 'Full-screen route',
       plannedWidgetPath:
           'apps/erp/lib/features/einvoice/presentation/pages/invoice_delivery_history_page.dart',
+      status: AuditStatus.done,
     ),
   ];
 
-  static List<EInvoiceAuditEntry> forGroup(EInvoiceScreenGroup group) =>
-      entries.where((entry) => entry.screenGroup == group).toList(growable: false);
+  static List<EInvoiceAuditEntry> forGroup(EInvoiceScreenGroup group) => entries
+      .where((entry) => entry.screenGroup == group)
+      .toList(growable: false);
 }
 
 enum AuditStatus { pending, stub, done }
@@ -354,8 +401,8 @@ class EInvoiceAuditEntry {
   final AuditStatus status;
 
   String get statusLabel => switch (status) {
-        AuditStatus.pending => 'Chưa làm',
-        AuditStatus.stub => 'Stub',
-        AuditStatus.done => 'Done',
-      };
+    AuditStatus.pending => 'Chưa làm',
+    AuditStatus.stub => 'Stub',
+    AuditStatus.done => 'Done',
+  };
 }

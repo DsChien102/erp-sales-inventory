@@ -19,7 +19,7 @@ class SystemSettingsPage extends StatelessWidget {
         ),
         children: [
           VCard(
-            onTap: () => context.push('/more/einvoice-settings'),
+            onTap: () => context.push('/more/einvoice'),
             padding: const EdgeInsets.symmetric(
               horizontal: VSpacing.space4,
               vertical: VSpacing.space3 + 2,
