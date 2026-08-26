@@ -13,11 +13,22 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- Lịch sử quản trị tổ chức (tenant audit V2): lọc theo danh mục, tìm kiếm, chi tiết sự kiện tiếng Việt kèm diff Trước/Sau, che dữ liệu nhạy cảm và badge nguồn thông tin (snapshot / hiện tại / hệ thống).
+
 ### Changed
+
+- Bỏ luồng kích hoạt owner riêng; owner onboard trực tiếp qua invitation tenant.
+- Đơn giản hóa màn invitation (xác nhận / đăng ký) cho khớp luồng invitation thống nhất.
+- Hiển thị ngày giờ theo giờ Việt Nam (ICT, UTC+7) trên lịch sử thay đổi và các màn IAM liên quan.
 
 ### Fixed
 
+- Trạng thái tải readiness IAM tách riêng khỏi session — banner/ready state không “treo” khi readiness lỗi.
+
 ### Internal
+
+- IAM: read ports / mapper / catalog tenant audit V2; gắn nguồn app qua header `X-Vet45-App: tenant_app`.
+- Draft SQL audit/owner-activation cleanup (`002`, `004`, `006`, `007`; bản cũ archive) — cần promote trước khi ship DB.
 
 ## [1.7.1+37] - 2026-08-20
 

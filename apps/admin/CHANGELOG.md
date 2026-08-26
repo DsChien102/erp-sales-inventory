@@ -13,11 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- Chi tiết audit platform: target user/tổ chức rõ hơn, bảng diff Trước/Sau và nhãn nguồn ứng dụng (ERP / Platform Admin).
+
 ### Changed
 
 ### Fixed
 
 ### Internal
+
+- Gắn nguồn app qua header `X-Vet45-App: platform_admin_app` khi init Supabase.
+- Shared IAM: DTO/platform audit fields (`auditNo`, `targetType`, change maps) đi cùng ERP khi ship module.
 
 ## [1.0.1+2] - 2026-08-20
 
