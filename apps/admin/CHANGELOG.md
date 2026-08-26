@@ -13,11 +13,17 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
-- Chi tiết audit platform: target user/tổ chức rõ hơn, bảng diff Trước/Sau và nhãn nguồn ứng dụng (ERP / Platform Admin).
-
 ### Changed
 
 ### Fixed
+
+### Internal
+
+## [1.0.2+3] - 2026-08-26
+
+### Added
+
+- Chi tiết audit platform: target user/tổ chức rõ hơn, bảng diff Trước/Sau và nhãn nguồn ứng dụng (ERP / Platform Admin).
 
 ### Internal
 
