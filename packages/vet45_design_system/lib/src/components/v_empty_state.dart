@@ -8,7 +8,6 @@ import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
-import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -21,18 +20,6 @@ enum VEmptyMediaVariant {
 
   /// Renders [VEmptyMedia.child] as-is (avatar, illustration, …).
   plain,
-}
-
-Color? _emptyToneForeground(VColorScheme colors, VComponentTone? tone) {
-  if (tone == null) return null;
-  return switch (tone) {
-    VComponentTone.primary => colors.primary,
-    VComponentTone.success => colors.success,
-    VComponentTone.warning => colors.warning,
-    VComponentTone.danger => colors.danger,
-    VComponentTone.info => colors.info,
-    VComponentTone.neutral => colors.textPrimary,
-  };
 }
 
 /// Structural marker: [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription].
@@ -440,12 +427,11 @@ class VEmptyTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _requireEmptyHeader(context, widgetName: 'VEmptyTitle');
-    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
     return vInspectorHide(
       VText(
         text,
         variant: VTextVariant.headingH3,
-        color: _emptyToneForeground(context.vColors, resolvedTone),
+        tone: tone,
         textAlign: TextAlign.center,
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),

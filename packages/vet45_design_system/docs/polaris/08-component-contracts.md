@@ -28,7 +28,7 @@ on `VButton.isLoading` (page loading → `VSkeleton`).
 | Overlay shell | Optional | Optional | N/A | Preferred | VConfirmDialog, VBottomSheet |
 | Navigation chrome | N/A | N/A | N/A | Optional | VAppBar, VBottomNav |
 | Layout pattern | N/A | N/A | N/A | N/A | VGap, VPagePadding, VPageScaffold, VSkeleton |
-| Typography primitive | N/A | N/A | N/A | Optional | VText, VIcon |
+| Typography primitive | Optional | N/A | N/A | Optional | VText, VIcon |
 | Business chrome | Preferred | Preferred | Optional | Preferred | Module presentation (e.g. TodoItem) |
 
 Levels:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_colors.dart';
 
 @immutable
@@ -328,5 +329,18 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       infoBg: Color.lerp(infoBg, other.infoBg, t)!,
       infoBgPressed: Color.lerp(infoBgPressed, other.infoBgPressed, t)!,
     );
+  }
+
+  /// Semantic foreground for [tone]. Null tone → null (caller picks fallback).
+  Color? foregroundForTone(VComponentTone? tone) {
+    if (tone == null) return null;
+    return switch (tone) {
+      VComponentTone.primary => primary,
+      VComponentTone.success => success,
+      VComponentTone.warning => warning,
+      VComponentTone.danger => danger,
+      VComponentTone.info => info,
+      VComponentTone.neutral => textPrimary,
+    };
   }
 }

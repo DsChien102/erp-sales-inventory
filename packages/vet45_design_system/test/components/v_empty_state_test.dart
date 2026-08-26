@@ -173,10 +173,8 @@ void main() {
         ),
       );
 
-      final title = tester.widget<VText>(
-        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
-      );
-      expect(title.color, VColorScheme.light.warning);
+      final title = tester.widget<Text>(find.text('Warn'));
+      expect(title.style?.color, VColorScheme.light.warning);
     });
 
     testWidgets('inherits tone to title media description', (tester) async {
@@ -195,10 +193,8 @@ void main() {
         ),
       );
 
-      final title = tester.widget<VText>(
-        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
-      );
-      expect(title.color, VColorScheme.light.warning);
+      final title = tester.widget<Text>(find.text('Warn'));
+      expect(title.style?.color, VColorScheme.light.warning);
 
       final description = tester.widget<VText>(
         find.descendant(
@@ -225,10 +221,8 @@ void main() {
         ),
       );
 
-      final title = tester.widget<VText>(
-        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
-      );
-      expect(title.color, VColorScheme.light.danger);
+      final title = tester.widget<Text>(find.text('Danger title'));
+      expect(title.style?.color, VColorScheme.light.danger);
 
       final description = tester.widget<VText>(
         find.descendant(

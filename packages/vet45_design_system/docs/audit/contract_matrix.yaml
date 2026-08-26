@@ -33,7 +33,7 @@ VIconBox:
 
 VText:
   role: typography_primitive
-  tone: na
+  tone: optional
   emphasis: na
   state: na
   semanticLabel: optional

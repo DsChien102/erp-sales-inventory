@@ -16,18 +16,6 @@ import '../tokens/v_spacing.dart';
 
 const double _kCardInset = VSpacing.md;
 
-Color? _cardToneForeground(VColorScheme colors, VComponentTone? tone) {
-  if (tone == null) return null;
-  return switch (tone) {
-    VComponentTone.primary => colors.primary,
-    VComponentTone.success => colors.success,
-    VComponentTone.warning => colors.warning,
-    VComponentTone.danger => colors.danger,
-    VComponentTone.info => colors.info,
-    VComponentTone.neutral => colors.textPrimary,
-  };
-}
-
 /// Structural marker: [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon].
 class _VCardAncestry extends InheritedWidget {
   const _VCardAncestry({required super.child});
@@ -292,7 +280,6 @@ class VCardTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     _requireCardHeader(context, widgetName: 'VCardTitle');
-    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     return vInspectorHide(
       Column(
@@ -302,7 +289,7 @@ class VCardTitle extends StatelessWidget {
           VText(
             title,
             variant: VTextVariant.headingH4,
-            color: _cardToneForeground(colors, resolvedTone),
+            tone: tone,
           ),
           if (description != null && description!.isNotEmpty) ...[
             const VGap.xs(),

@@ -190,10 +190,8 @@ void main() {
         ),
       );
 
-      final title = tester.widget<VText>(
-        find.descendant(of: find.byType(VCardTitle), matching: find.byType(VText)),
-      );
-      expect(title.color, VColorScheme.light.warning);
+      final title = tester.widget<Text>(find.text('Warn'));
+      expect(title.style?.color, VColorScheme.light.warning);
     });
 
     testWidgets('local tone overrides inherited tone', (tester) async {
@@ -216,10 +214,8 @@ void main() {
         ),
       );
 
-      final title = tester.widget<VText>(
-        find.descendant(of: find.byType(VCardTitle), matching: find.byType(VText)),
-      );
-      expect(title.color, VColorScheme.light.danger);
+      final title = tester.widget<Text>(find.text('Danger title'));
+      expect(title.style?.color, VColorScheme.light.danger);
 
       final iconBox = tester.widget<VIconBox>(find.byType(VIconBox));
       expect(iconBox.tone, VComponentTone.danger);

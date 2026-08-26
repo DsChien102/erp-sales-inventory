@@ -18,6 +18,8 @@ changelogs when relevant.
 - `VComponentScope` — ambient soft inherit (`tone` + `enabled` / `resolveTone` / `resolveEnabled`); `vProvideComponentScope` / `requireAncestor`.
 - `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
 - `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
+- `VColorScheme.foregroundForTone` — map `VComponentTone` → semantic foreground.
+- `VText.tone` — soft-inherit từ `VComponentScope` (`color` vẫn thắng).
 
 ### Changed
 
@@ -28,7 +30,7 @@ changelogs when relevant.
 - `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
 - `VCard` tone `primary`: border dùng `borderBrand` thay `primary`.
 - `VEmptyState` flat API (`title` / `icon*` / `action*`) marked `@Deprecated` — prefer `child` composition. `tone` remains on the shell and cascades via `VComponentScope`.
-
+- `VEmptyTitle` / `VCardTitle` dùng `VText.tone` thay map màu tay.
 ### Fixed
 
 ### Internal
