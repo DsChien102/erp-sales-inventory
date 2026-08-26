@@ -8,7 +8,7 @@ Tài liệu vận hành cho migrations messaging foundation. Kiến trúc luồn
 | ---- | -------- |
 | `supabase/migrations/20260623000001_platform_messaging_foundation.sql` | Schema `platform`, `install_module_messaging`, discovery RPC, backlog view |
 | `supabase/migrations/20260623000002_install_module_messaging_modules.sql` | Cài messaging cho 8 module Phase 1 |
-| `_drafts/einvoice_s1_install_module_messaging.sql` | TH-08: whitelist + `install_module_messaging('einvoice')` (chưa promote) |
+| `_drafts/002_einvoice_s1_install_module_messaging.sql` | TH-08: whitelist + `install_module_messaging('einvoice')` (chưa promote) |
 
 ## Module được cài (Phase 1)
 

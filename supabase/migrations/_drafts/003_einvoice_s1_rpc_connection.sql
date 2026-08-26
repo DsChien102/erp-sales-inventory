@@ -4,7 +4,7 @@
 -- Context: TH-08 / EP-01 / US-01
 -- Touches: connect_provider, verify_provider_connection, reconnect_provider, disconnect_provider, get_provider_connection_screen, record_connection_verified, read_provider_credentials
 -- Safety: idempotent ; medium
--- Depends on: einvoice_s1_schema_configuration.sql, einvoice_s1_install_module_messaging.sql
+-- Depends on: 001_einvoice_s1_schema_configuration.sql, 002_einvoice_s1_install_module_messaging.sql
 
 create or replace function einvoice.connect_provider(
   p_tenant_id uuid,
@@ -96,13 +96,13 @@ create or replace function einvoice.get_provider_connection_screen(
 ) returns table(legal_profile jsonb, connection jsonb)
 language sql
 security definer
-set search_path = einvoice, public
+set search_path = einvoice, iam, public
 as $$
   select
     jsonb_build_object(
-      'legal_name', coalesce(t.name, ''),
-      'tax_code', coalesce(t.tax_code, ''),
-      'address', t.address
+      'legal_name', coalesce(lp.legal_name, ''),
+      'tax_code', coalesce(lp.tax_code, ''),
+      'address', lp.registered_address_text
     ) as legal_profile,
     coalesce(
       (
@@ -118,7 +118,8 @@ as $$
       ),
       jsonb_build_object('status', 'disconnected')
     ) as connection
-  from public.tenants t
+  from iam.tenants t
+  left join iam.tenant_legal_profiles lp on lp.tenant_id = t.id
   where t.id = p_tenant_id;
 $$;
 
@@ -215,7 +216,7 @@ create or replace function einvoice.read_provider_credentials(p_tenant_id uuid)
 returns table(username text, password text, tax_code text, base_url text)
 language plpgsql
 security definer
-set search_path = einvoice, public
+set search_path = einvoice, iam, public
 as $$
 begin
   if current_setting('request.jwt.claim.role', true) is distinct from 'service_role' then
@@ -226,10 +227,11 @@ begin
   select
     c.username,
     einvoice._decrypt_credential(c.password_ciphertext) as password,
-    c.tax_code,
+    coalesce(nullif(c.tax_code, ''), lp.tax_code) as tax_code,
     null::text as base_url
   from einvoice.provider_credentials c
   join einvoice.provider_connections pc on pc.id = c.connection_id
+  left join iam.tenant_legal_profiles lp on lp.tenant_id = c.tenant_id
   where c.tenant_id = p_tenant_id and pc.status <> 'disconnected'
   limit 1;
 end;

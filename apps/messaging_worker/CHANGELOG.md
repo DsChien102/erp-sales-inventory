@@ -20,6 +20,7 @@ Ship unit: this worker only. Deploy tags: `messaging_worker-vX.Y.Z`.
 
 - Deploy script build Docker `linux/amd64` rồi push GitLab registry; Railway `redeploy --from-source` thay `railway up`.
 - Tách `publish` (registry) khỏi Railway: `vet45 run railway sync-env` (shared + secret service) và `vet45 run railway rollout`.
+- Einvoice S1: `read_provider_credentials` lấy `tax_code` từ `iam.tenant_legal_profiles` khi credential chưa có MST.
 
 ## [0.1.1] - 2026-08-20
 

@@ -4,7 +4,7 @@
 -- Context: TH-08 / S1 worker internal_commands
 -- Touches: install_module_messaging
 -- Safety: idempotent ; medium
--- Depends on: 20260623000001_platform_messaging_foundation.sql, einvoice_s1_schema_configuration.sql
+-- Depends on: 20260623000001_platform_messaging_foundation.sql, 001_einvoice_s1_schema_configuration.sql
 --
 -- Delta vs foundation: add 'einvoice' to installer whitelist, then install
 -- canonical outbox/inbox/internal_commands + claim/complete/fail RPCs.

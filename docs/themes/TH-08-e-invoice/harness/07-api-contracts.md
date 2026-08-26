@@ -655,4 +655,4 @@ FR-04: `DeliveryDisplayState` derived from authoritative history. Undetermined �
 - FE có thể fake sau khi Contract lane chốt symbol — dùng `FakeEInvoiceModule` scenarios ở trên.
 - E2E blocked by: [04-slice-roadmap.md](04-slice-roadmap.md).
 - E2E vendor: `FakeMeInvoiceClient` — không gọi MISA thật.
-- BE lane viết draft SQL: `supabase/migrations/_drafts/einvoice_*.sql` — không timestamp migration cho đến khi user promote. Messaging tables/RPC đi qua `einvoice_s1_install_module_messaging.sql` (`install_module_messaging('einvoice')`), không DDL queue tự viết.
+- BE lane viết draft SQL: `supabase/migrations/_drafts/00N_einvoice_s1_*.sql` (001 schema → 002 messaging → 003 rpc connection → 004 rpc profile) — không timestamp migration cho đến khi user promote. Messaging tables/RPC đi qua `002_einvoice_s1_install_module_messaging.sql` (`install_module_messaging('einvoice')`), không DDL queue tự viết.

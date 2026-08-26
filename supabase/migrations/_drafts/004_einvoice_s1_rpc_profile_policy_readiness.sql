@@ -4,7 +4,7 @@
 -- Context: TH-08 / EP-01 / US-02..04
 -- Touches: list_provider_templates, get_issuance_profile, set_default_issuance_configuration, get_automation_policy, update_automation_policy, get_configuration_readiness
 -- Safety: idempotent ; medium
--- Depends on: einvoice_s1_schema_configuration.sql
+-- Depends on: 001_einvoice_s1_schema_configuration.sql
 
 create or replace function einvoice.get_issuance_profile(
   p_tenant_id uuid,
