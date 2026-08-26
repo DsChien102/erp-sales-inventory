@@ -15,6 +15,16 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.0.1] - 2026-08-26
+
+### Added
+
 - `VDateTime` — format ngày/giờ cố định ICT (UTC+7), không theo timezone thiết bị.
 - Versioning theo ship unit: Keep a Changelog + `scripts/bump_version.sh` (framework `flutter_lib`).
 - `VEmptyTitle.tone` (`VComponentTone`) — màu title theo tone (legacy `VEmptyState` truyền xuống).
@@ -27,8 +37,6 @@ changelogs when relevant.
 - `VSegmentedControl` segment dùng `VButton` (primary/secondary) thay Material/InkWell thủ công.
 - `VPagePadding` mặc định inset ngang = `VSpacing.screenMobile` (bỏ `horizontalForWidth` theo breakpoint).
 - `VRadio` bỏ `tone`; selected = `primary`, unselected = `borderDefault`.
-
-### Fixed
 
 ### Internal
 
