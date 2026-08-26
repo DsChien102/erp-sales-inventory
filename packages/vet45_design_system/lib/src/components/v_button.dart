@@ -38,7 +38,7 @@ class VButton extends StatelessWidget {
   final Color? foregroundColor;
   final VComponentTone? tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
+  final bool? enabled;
   final String? semanticLabel;
 
   const VButton({
@@ -55,16 +55,9 @@ class VButton extends StatelessWidget {
     this.foregroundColor,
     this.tone,
     this.emphasis = VComponentEmphasis.strong,
-    this.state,
+    this.enabled,
     this.semanticLabel,
   });
-
-  VComponentState _resolveState() {
-    if (state != null) return state!;
-    if (isLoading) return VComponentState.loading;
-    if (onPressed == null) return VComponentState.disabled;
-    return VComponentState.enabled;
-  }
 
   static TextStyle _textStyleForVariant(VButtonVariant variant) {
     return switch (variant) {
@@ -77,9 +70,11 @@ class VButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedState = _resolveState();
-    final bool isEnabled = resolvedState == VComponentState.enabled;
-    final bool showLoading = resolvedState == VComponentState.loading || isLoading;
+    final bool isEnabled =
+        VComponentScope.resolveEnabled(context, local: enabled) &&
+        onPressed != null &&
+        !isLoading;
+    final bool showLoading = isLoading;
     final dynamicColors = context.vColors;
 
     if (variant == VButtonVariant.link) {

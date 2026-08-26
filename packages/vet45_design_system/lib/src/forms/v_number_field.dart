@@ -23,7 +23,7 @@ class VNumberField extends StatefulWidget {
     this.suffixIcon,
     this.suffixIconConstraints,
     this.suffixText,
-    this.enabled = true,
+    this.enabled,
     this.onChanged,
     this.isRequired = false,
     this.allowDecimal = false,
@@ -45,7 +45,6 @@ class VNumberField extends StatefulWidget {
     this.maxMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -59,7 +58,7 @@ class VNumberField extends StatefulWidget {
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
-  final bool enabled;
+  final bool? enabled;
   final ValueChanged<num?>? onChanged;
   final bool isRequired;
   final bool allowDecimal;
@@ -81,7 +80,6 @@ class VNumberField extends StatefulWidget {
   final String? maxMessage;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -202,9 +200,6 @@ class _VNumberFieldState extends State<VNumberField> {
         border: widget.border,
         tone: widget.tone,
         emphasis: widget.emphasis,
-        state: (widget.errorText ?? _internalError) != null
-            ? VComponentState.error
-            : (widget.enabled ? widget.state : VComponentState.disabled),
         semanticLabel: widget.semanticLabel,
       ),
     );

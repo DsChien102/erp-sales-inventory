@@ -416,7 +416,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     VButton(
                       label: 'Loading link',
                       variant: VButtonVariant.link,
-                      state: VComponentState.loading,
+                      isLoading: true,
                       onPressed: () {},
                     ),
                     VButton(
@@ -446,14 +446,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     const VButton(label: 'Disabled', onPressed: null),
                     const SizedBox(height: VSpacing.space2),
                     VButton(
-                      label: 'State disabled',
-                      state: VComponentState.disabled,
+                      label: 'Enabled false',
+                      enabled: false,
                       onPressed: () {},
                     ),
                     const SizedBox(height: VSpacing.space2),
                     VButton(
-                      label: 'State loading',
-                      state: VComponentState.loading,
+                      label: 'IsLoading',
+                      isLoading: true,
                       onPressed: () {},
                     ),
                     const SizedBox(height: VSpacing.space2),
@@ -519,7 +519,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VTextField(
                   label: 'Locked',
                   hintText: 'Cannot edit',
-                  state: VComponentState.disabled,
+                  enabled: false,
                 ),
               ),
               const PreviewStateRow(
@@ -1128,6 +1128,57 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                             ),
                           ],
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VComponentScope',
+          description:
+              'Ambient soft inherit: tone + enabled. Local prop wins; missing scope OK.',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Tone scope → Button + IconBox',
+                child: VComponentScope(
+                  tone: VComponentTone.warning,
+                  child: Row(
+                    children: [
+                      VButton(
+                        label: 'Inherit warning',
+                        onPressed: () {},
+                        size: VButtonSize.small,
+                      ),
+                      const VGap.horizontalMd(),
+                      const VIconBox(
+                        iconData: Icons.warning_amber_outlined,
+                        size: 40,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Enabled scope → children disabled',
+                child: VComponentScope(
+                  enabled: false,
+                  child: Row(
+                    children: [
+                      VButton(
+                        label: 'Inherit disabled',
+                        onPressed: () {},
+                        size: VButtonSize.small,
+                      ),
+                      const VGap.horizontalMd(),
+                      VButton(
+                        label: 'Local enabled',
+                        enabled: true,
+                        onPressed: () {},
+                        size: VButtonSize.small,
                       ),
                     ],
                   ),

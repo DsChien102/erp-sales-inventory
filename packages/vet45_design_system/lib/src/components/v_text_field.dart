@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
@@ -41,7 +42,7 @@ class VTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
-  final bool enabled;
+  final bool? enabled;
   final bool obscureText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
@@ -58,7 +59,6 @@ class VTextField extends StatefulWidget {
   final bool isDense;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   const VTextField({
@@ -72,7 +72,7 @@ class VTextField extends StatefulWidget {
     this.suffixIcon,
     this.suffixIconConstraints,
     this.suffixText,
-    this.enabled = true,
+    this.enabled,
     this.obscureText = false,
     this.keyboardType,
     this.onChanged,
@@ -87,7 +87,6 @@ class VTextField extends StatefulWidget {
     this.isDense = false,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -157,7 +156,7 @@ class _VTextFieldState extends State<VTextField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final hasError = widget.errorText != null;
     final useDanger = hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;

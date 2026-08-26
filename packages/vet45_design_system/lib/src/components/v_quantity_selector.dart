@@ -4,6 +4,7 @@ import '../tokens/v_borders.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../primitives/v_icon.dart';
 import '../foundations/icons/v_icons.dart';
 import '../foundation/v_inspector_scope.dart';
@@ -13,11 +14,10 @@ class VQuantitySelector extends StatefulWidget {
   final int min;
   final int max;
   final ValueChanged<int> onChanged;
-  final bool enabled;
+  final bool? enabled;
   final String? hintText;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
   final String? semanticLabel;
 
   const VQuantitySelector({
@@ -26,11 +26,10 @@ class VQuantitySelector extends StatefulWidget {
     this.min = 0,
     this.max = 9999,
     required this.onChanged,
-    this.enabled = true,
+    this.enabled,
     this.hintText,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
     this.semanticLabel,
   });
 
@@ -63,7 +62,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
   }
 
   void _increment() {
-    if (_resolveState() != VComponentState.enabled) return;
+    if (!_isEnabled) return;
     final currentValue = int.tryParse(_controller.text) ?? widget.min;
     if (currentValue < widget.max) {
       final newValue = currentValue + 1;
@@ -73,7 +72,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
   }
 
   void _decrement() {
-    if (_resolveState() != VComponentState.enabled) return;
+    if (!_isEnabled) return;
     final currentValue = int.tryParse(_controller.text) ?? widget.min;
     if (currentValue > widget.min) {
       final newValue = currentValue - 1;
@@ -82,16 +81,13 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
     }
   }
 
-  VComponentState _resolveState() {
-    if (widget.state != null) return widget.state!;
-    return widget.enabled ? VComponentState.enabled : VComponentState.disabled;
-  }
+  bool get _isEnabled =>
+      VComponentScope.resolveEnabled(context, local: widget.enabled);
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled = _isEnabled;
 
     final borderColor = switch (widget.tone) {
       VComponentTone.primary => colors.primary,

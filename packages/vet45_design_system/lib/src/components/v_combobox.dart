@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_dropdown_filter.dart';
 import '../foundation/v_overlay_menu_layout.dart';
@@ -36,24 +37,22 @@ class VCombobox<T> extends StatefulWidget {
     required this.value,
     required this.items,
     required this.onChanged,
-    this.enabled = true,
+    this.enabled,
     this.hintText,
     this.label,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
   final T? value;
   final List<DropdownMenuEntry<T>> items;
   final ValueChanged<T?>? onChanged;
-  final bool enabled;
+  final bool? enabled;
   final String? hintText;
   final String? label;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -70,7 +69,8 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
   /// (e.g. filter became empty while typing).
   bool _keepFocusOnMenuClose = false;
 
-  bool get _canInteract => widget.enabled && widget.state != VComponentState.disabled;
+  bool get _canInteract =>
+      VComponentScope.resolveEnabled(context, local: widget.enabled);
 
   bool get _hasFilteredEntries => _filteredEntries.isNotEmpty;
 
@@ -375,8 +375,8 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
-    final useDanger = widget.tone == VComponentTone.danger || widget.state == VComponentState.error;
+    final isEnabled = _canInteract;
+    final useDanger = widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
     final borderWidth = VBorders.widthFor(widget.emphasis);
 

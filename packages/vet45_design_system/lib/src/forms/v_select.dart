@@ -5,6 +5,7 @@ import '../components/v_combobox.dart';
 import '../components/v_text_field.dart';
 import '../components/v_text_field_focus_ring.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundation/v_overlay_menu_layout.dart';
@@ -33,12 +34,11 @@ class VSelect<T> extends StatefulWidget {
     this.hintText = 'Chọn...',
     this.helperText,
     this.errorText,
-    this.enabled = true,
+    this.enabled,
     this.isRequired = false,
     this.requiredMessage = VSelectValidator.defaultRequiredMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -49,12 +49,11 @@ class VSelect<T> extends StatefulWidget {
   final String? hintText;
   final String? helperText;
   final String? errorText;
-  final bool enabled;
+  final bool? enabled;
   final bool isRequired;
   final String requiredMessage;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -70,7 +69,8 @@ class _VSelectState<T> extends State<VSelect<T>> {
 
   bool _triggerHighlighted = false;
 
-  bool get _canInteract => widget.enabled && widget.state != VComponentState.disabled;
+  bool get _canInteract =>
+      VComponentScope.resolveEnabled(context, local: widget.enabled);
 
   @override
   void initState() {
@@ -328,7 +328,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
     final isEnabled = _canInteract;
     final hasError = _effectiveError != null;
     final useDanger =
-        hasError || widget.tone == VComponentTone.danger || widget.state == VComponentState.error;
+        hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && (_focusNode.hasFocus || _menuController.isOpen);
     // Neutral/primary: no focus chrome. Danger: keep danger border + focus ring.
     final showDangerFocusChrome = useDanger && focused;

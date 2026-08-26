@@ -50,7 +50,7 @@ Mọi public interactive component nên support (khi applicable):
 
 - `VComponentTone` — neutral, primary, success, warning, danger, info
 - `VComponentEmphasis` — subtle, medium, strong
-- `VComponentState` — enabled, disabled, loading, error
+- `enabled` (`bool?`) — soft inherit via `VComponentScope.resolveEnabled`
 - `semanticsLabel` cho accessibility
 
 Phase hiện tại: chuẩn hóa layout patterns trước; contract đồng đều là wave sau.

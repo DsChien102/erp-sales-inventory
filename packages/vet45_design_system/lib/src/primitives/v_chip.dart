@@ -23,7 +23,7 @@ enum VChipEmphasis { subdued, base, strong }
 /// - [onTap] set → clickable (Polaris `clickable-chip`)
 /// - [onRemove] set → shows a dismiss control
 ///
-/// [enabled] maps to [VComponentState.enabled] / [VComponentState.disabled].
+/// [enabled] null inherits from [VComponentScope]; false disables the chip.
 class VChip extends StatelessWidget {
   const VChip({
     super.key,
@@ -34,10 +34,9 @@ class VChip extends StatelessWidget {
     this.onRemove,
     this.icon,
     @Deprecated('Use icon instead') this.leadingIcon,
-    this.enabled = true,
+    this.enabled,
     this.semanticLabel,
     this.tone,
-    this.state,
   });
 
   final String label;
@@ -59,25 +58,17 @@ class VChip extends StatelessWidget {
   @Deprecated('Use icon instead')
   final IconData? leadingIcon;
 
-  final bool enabled;
+  final bool? enabled;
   final String? semanticLabel;
 
   /// Optional semantic tone for selected/filled chips. Defaults to success.
   final VComponentTone? tone;
 
-  /// Optional state override; defaults from [enabled].
-  final VComponentState? state;
-
-  VComponentState get _resolvedState =>
-      state ?? (enabled ? VComponentState.enabled : VComponentState.disabled);
-
-  bool get _isEnabled => _resolvedState == VComponentState.enabled;
-
-  bool get _isInteractive => _isEnabled && (onTap != null || onRemove != null);
-
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled);
+    final isInteractive = isEnabled && (onTap != null || onRemove != null);
     final resolvedTone = VComponentScope.resolveTone(context, local: tone);
     final resolved = _resolveColors(colors, tone: resolvedTone);
 
@@ -110,7 +101,7 @@ class VChip extends StatelessWidget {
           const SizedBox(width: VSpacing.space1),
           _RemoveButton(
             color: resolved.foreground,
-            onPressed: _isEnabled ? onRemove : null,
+            onPressed: isEnabled ? onRemove : null,
           ),
         ],
       ],
@@ -131,17 +122,17 @@ class VChip extends StatelessWidget {
       child: chipBody,
     );
 
-    if (!_isEnabled) {
+    if (!isEnabled) {
       chipBody = Opacity(opacity: 0.5, child: chipBody);
     }
 
     final semanticsLabel = semanticLabel ?? label;
 
-    if (!_isInteractive) {
+    if (!isInteractive) {
       return vInspectorHide(
         Semantics(
           label: semanticsLabel,
-          enabled: _isEnabled,
+          enabled: isEnabled,
           child: chipBody,
         ),
       );
@@ -150,14 +141,14 @@ class VChip extends StatelessWidget {
     return vInspectorHide(
       Semantics(
         button: onTap != null,
-        enabled: _isEnabled,
+        enabled: isEnabled,
         label: semanticsLabel,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            onTap: _isEnabled && onTap != null ? onTap : null,
+            onTap: isEnabled && onTap != null ? onTap : null,
             borderRadius: BorderRadius.circular(VRadius.r16),
             child: chipBody,
           ),

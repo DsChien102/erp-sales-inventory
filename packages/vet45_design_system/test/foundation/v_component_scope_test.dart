@@ -87,6 +87,62 @@ void main() {
     });
   });
 
+  group('VComponentScope.resolveEnabled', () {
+    testWidgets('returns local when set', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          VComponentScope(
+            enabled: false,
+            child: Builder(
+              builder: (context) {
+                resolved = VComponentScope.resolveEnabled(
+                  context,
+                  local: true,
+                );
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(resolved, isTrue);
+    });
+
+    testWidgets('falls back to nearest scope enabled', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          VComponentScope(
+            enabled: false,
+            child: Builder(
+              builder: (context) {
+                resolved = VComponentScope.resolveEnabled(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(resolved, isFalse);
+    });
+
+    testWidgets('returns fallback when no local and no scope', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          Builder(
+            builder: (context) {
+              resolved = VComponentScope.resolveEnabled(context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      expect(resolved, isTrue);
+    });
+  });
+
   group('requireAncestor', () {
     testWidgets('throws when ancestor missing', (tester) async {
       await tester.pumpWidget(

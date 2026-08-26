@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/src/patterns/v_gap.dart';
 
 import '../foundation/v_context_extensions.dart';
-import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
@@ -13,30 +13,22 @@ class VRadio<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.label,
-    this.enabled = true,
-    this.state,
+    this.enabled,
     this.semanticLabel,
   });
 
   final T value;
   final ValueChanged<T?>? onChanged;
   final String? label;
-  final bool enabled;
-  final VComponentState? state;
+  final bool? enabled;
   final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final registry = RadioGroup.maybeOf<T>(context);
-    final resolvedState =
-        state ??
-        (!enabled
-            ? VComponentState.disabled
-            : (onChanged != null || registry != null
-                  ? VComponentState.enabled
-                  : VComponentState.disabled));
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled) &&
+        (onChanged != null || registry != null);
 
     Widget radio = Radio<T>(
       value: value,

@@ -8,7 +8,7 @@ class QuickActionButton extends StatelessWidget {
   final VoidCallback? onTap;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
+  final bool? enabled;
   final String? semanticLabel;
 
   const QuickActionButton({
@@ -18,21 +18,15 @@ class QuickActionButton extends StatelessWidget {
     this.onTap,
     this.tone = VComponentTone.primary,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
+    this.enabled,
     this.semanticLabel,
   });
-
-  VComponentState _resolveState() {
-    if (state != null) return state!;
-    if (onTap == null) return VComponentState.disabled;
-    return VComponentState.enabled;
-  }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled =
+        VComponentScope.resolveEnabled(context, local: enabled) && onTap != null;
 
     final iconBg = switch (tone) {
       VComponentTone.primary => dynamicColors.surfaceBrand,

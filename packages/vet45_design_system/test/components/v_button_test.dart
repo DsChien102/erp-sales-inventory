@@ -37,7 +37,7 @@ void main() {
             label: 'Disabled link',
             variant: VButtonVariant.link,
             onPressed: () => pressed++,
-            state: VComponentState.disabled,
+            enabled: false,
           ),
         ),
       );

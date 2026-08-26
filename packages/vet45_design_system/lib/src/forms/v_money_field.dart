@@ -23,7 +23,7 @@ class VMoneyField extends StatefulWidget {
     this.suffixIcon,
     this.suffixIconConstraints,
     this.suffixText = 'đ',
-    this.enabled = true,
+    this.enabled,
     this.onChanged,
     this.isRequired = false,
     this.min,
@@ -42,7 +42,6 @@ class VMoneyField extends StatefulWidget {
     this.maxMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -56,7 +55,7 @@ class VMoneyField extends StatefulWidget {
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
-  final bool enabled;
+  final bool? enabled;
   final ValueChanged<int?>? onChanged;
   final bool isRequired;
   final int? min;
@@ -75,7 +74,6 @@ class VMoneyField extends StatefulWidget {
   final String? maxMessage;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -181,9 +179,6 @@ class _VMoneyFieldState extends State<VMoneyField> {
         border: widget.border,
         tone: widget.tone,
         emphasis: widget.emphasis,
-        state: (widget.errorText ?? _internalError) != null
-            ? VComponentState.error
-            : (widget.enabled ? widget.state : VComponentState.disabled),
         semanticLabel: widget.semanticLabel,
       ),
     );

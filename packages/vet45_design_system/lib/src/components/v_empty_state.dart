@@ -378,6 +378,7 @@ class VEmptyDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     _requireEmptyHeader(context, widgetName: 'VEmptyDescription');
+    // NOTE: don't inherit tone from parent for description
     return vInspectorHide(
       VText(
         text,

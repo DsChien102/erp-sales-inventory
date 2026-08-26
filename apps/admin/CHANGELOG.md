@@ -19,6 +19,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- Design system: bỏ `VComponentState`; interactive controls dùng `enabled` (+ soft inherit `VComponentScope`).
+
 ## [1.0.2+3] - 2026-08-26
 
 ### Added

@@ -15,13 +15,14 @@ changelogs when relevant.
 
 ### Added
 
-- `VComponentScope` — ambient soft inherit (slice 1: `tone` + `resolveTone`); `vProvideComponentScope` / `requireAncestor`.
+- `VComponentScope` — ambient soft inherit (`tone` + `enabled` / `resolveTone` / `resolveEnabled`); `vProvideComponentScope` / `requireAncestor`.
 - `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
 - `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
 
 ### Changed
 
 - `VEmptyHeader` / `VCard` dùng `VComponentScope` thay private tone InheritedWidget.
+- Interactive widgets: `bool? enabled` soft-inherit từ `VComponentScope` (local override); bỏ `VComponentState`.
 - `VButton` / `VIconBox` / `VBadge` / `VChip` resolve tone từ `VComponentScope` khi local null.
 - `VBanner` provide `VComponentScope` cho trailing/footer.
 - `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
@@ -30,6 +31,10 @@ changelogs when relevant.
 ### Fixed
 
 ### Internal
+
+### Removed
+
+- `VComponentState` enum (`enabled` / `disabled` / `loading` / `error`). Disable → `enabled`; error → `errorText`/API riêng; loading CTA → `VButton.isLoading`.
 
 ## [1.0.1] - 2026-08-26
 

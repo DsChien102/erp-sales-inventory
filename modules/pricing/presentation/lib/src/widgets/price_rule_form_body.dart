@@ -363,7 +363,6 @@ class _PickerField extends StatelessWidget {
           controller: controller,
           hintText: hintText,
           enabled: enabled,
-          state: enabled ? VComponentState.enabled : VComponentState.disabled,
           suffixIcon: VIcon(
             icon: VIcons.chevronRight,
             size: 20,

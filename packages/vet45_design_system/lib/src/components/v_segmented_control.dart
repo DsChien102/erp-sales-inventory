@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
@@ -17,30 +18,25 @@ class VSegmentedControl extends StatelessWidget {
     required this.segments,
     required this.selectedIndex,
     required this.onChanged,
-    this.enabled = true,
+    this.enabled,
     this.tone = VComponentTone.primary,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
     this.semanticLabel,
   });
 
   final List<String> segments;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
-  final bool enabled;
+  final bool? enabled;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
   final String? semanticLabel;
-
-  VComponentState _resolveState() =>
-      state ?? (enabled ? VComponentState.enabled : VComponentState.disabled);
 
   @override
   Widget build(BuildContext context) {
     assert(segments.length >= 2, 'VSegmentedControl needs at least 2 segments');
     final colors = context.vColors;
-    final isEnabled = _resolveState() == VComponentState.enabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled);
 
     return vInspectorHide(
       Semantics(

@@ -104,12 +104,12 @@ void main() {
       TextField field() => tester.widget<TextField>(find.byType(TextField));
       expect(field().obscureText, isTrue);
 
-      await tester.tap(find.byIcon(Icons.visibility_off));
+      await tester.tap(find.byTooltip('Hiện mật khẩu'));
       await tester.pump();
       expect(field().obscureText, isFalse);
-      expect(find.byIcon(Icons.visibility), findsOneWidget);
+      expect(find.byTooltip('Ẩn mật khẩu'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.visibility));
+      await tester.tap(find.byTooltip('Ẩn mật khẩu'));
       await tester.pump();
       expect(field().obscureText, isTrue);
     });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
@@ -32,7 +33,7 @@ class VNumericKeypadSheet extends StatefulWidget {
     this.maxIntegerDigits = 12,
     this.tone = VComponentTone.primary,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
+    this.enabled,
     this.semanticLabel,
   });
 
@@ -46,7 +47,7 @@ class VNumericKeypadSheet extends StatefulWidget {
   final int maxIntegerDigits;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
+  final bool? enabled;
   final String? semanticLabel;
 
   @override
@@ -56,7 +57,8 @@ class VNumericKeypadSheet extends StatefulWidget {
 class _VNumericKeypadSheetState extends State<VNumericKeypadSheet> {
   late String _raw;
 
-  bool get _isEnabled => (widget.state ?? VComponentState.enabled) == VComponentState.enabled;
+  bool get _isEnabled =>
+      VComponentScope.resolveEnabled(context, local: widget.enabled);
 
   @override
   void initState() {
