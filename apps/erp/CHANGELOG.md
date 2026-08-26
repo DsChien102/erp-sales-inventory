@@ -13,6 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.7.2+38] - 2026-08-26
+
+### Added
+
 - Lịch sử quản trị tổ chức (tenant audit V2): lọc theo danh mục, tìm kiếm, chi tiết sự kiện tiếng Việt kèm diff Trước/Sau, che dữ liệu nhạy cảm và badge nguồn thông tin (snapshot / hiện tại / hệ thống).
 
 ### Changed

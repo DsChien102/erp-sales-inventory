@@ -1,7 +1,7 @@
 name: erp
 description: "Vet45 ERP Flutter shell."
 publish_to: 'none'
-version: 1.7.1+37
+version: 1.7.2+38
 resolution: workspace
 
 environment:
