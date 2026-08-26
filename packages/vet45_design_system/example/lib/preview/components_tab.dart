@@ -121,8 +121,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VSwipeReveal',
-          description:
-              'Primitive swipe-left shell. Compose foreground child + actionsBuilder.',
+          description: 'Primitive swipe-left shell. Compose foreground child + actionsBuilder.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -964,8 +963,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VCard',
           description:
-              'tone → border + background (+ inherit to Icon/Title); emphasis → shadow. '
-              'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent scope '
+              'tone → border + background via VComponentScope; emphasis → shadow. '
+              'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent ancestry '
               '(set padding: EdgeInsets.zero).',
           child: Column(
             children: [

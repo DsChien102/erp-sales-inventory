@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
@@ -27,78 +28,36 @@ Color? _cardToneForeground(VColorScheme colors, VComponentTone? tone) {
   };
 }
 
-/// Resolves [_VCardScope]. Throws if used outside [VCard].
-_VCardScope _resolveCardScope(
-  BuildContext context, {
-  required String widgetName,
-}) {
-  final scope = _VCardScope.maybeOf(context);
-  if (scope == null) {
-    throw FlutterError.fromParts(<DiagnosticsNode>[
-      ErrorSummary('$widgetName must be used within a VCard.'),
-      ErrorDescription(
-        'Place $widgetName inside VCard so it can inherit tone '
-        '(and keep card composition consistent).',
-      ),
-    ]);
-  }
-  return scope;
-}
-
-/// Resolves [_VCardHeaderScope]. Throws if used outside [VCardHeader].
-_VCardHeaderScope _resolveCardHeaderScope(
-  BuildContext context, {
-  required String widgetName,
-}) {
-  final scope = _VCardHeaderScope.maybeOf(context);
-  if (scope == null) {
-    throw FlutterError.fromParts(<DiagnosticsNode>[
-      ErrorSummary('$widgetName must be used within a VCardHeader.'),
-      ErrorDescription(
-        'Place $widgetName inside VCardHeader so it can inherit tone '
-        '(and keep card composition consistent).',
-      ),
-    ]);
-  }
-  return scope;
-}
-
-/// Provides [tone] to [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon].
-class _VCardScope extends InheritedWidget {
-  const _VCardScope({
-    required this.tone,
-    required super.child,
-  });
-
-  final VComponentTone? tone;
-
-  static _VCardScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_VCardScope>();
-  }
+/// Structural marker: [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon].
+class _VCardAncestry extends InheritedWidget {
+  const _VCardAncestry({required super.child});
 
   @override
-  bool updateShouldNotify(covariant _VCardScope oldWidget) {
-    return tone != oldWidget.tone;
-  }
+  bool updateShouldNotify(covariant _VCardAncestry oldWidget) => false;
 }
 
-/// Provides [tone] to [VCardTitle] / [VCardAction].
-class _VCardHeaderScope extends InheritedWidget {
-  const _VCardHeaderScope({
-    required this.tone,
-    required super.child,
-  });
-
-  final VComponentTone? tone;
-
-  static _VCardHeaderScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_VCardHeaderScope>();
-  }
+/// Structural marker: [VCardTitle] / [VCardAction].
+class _VCardHeaderAncestry extends InheritedWidget {
+  const _VCardHeaderAncestry({required super.child});
 
   @override
-  bool updateShouldNotify(covariant _VCardHeaderScope oldWidget) {
-    return tone != oldWidget.tone;
-  }
+  bool updateShouldNotify(covariant _VCardHeaderAncestry oldWidget) => false;
+}
+
+void _requireCard(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VCardAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VCard',
+  );
+}
+
+void _requireCardHeader(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VCardHeaderAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VCardHeader',
+  );
 }
 
 /// Surface shell for grouped content.
@@ -123,7 +82,7 @@ class _VCardHeaderScope extends InheritedWidget {
 ///
 /// [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon] must live under
 /// [VCard]; [VCardTitle] / [VCardAction] must live under [VCardHeader]
-/// (runtime [FlutterError] otherwise). Tone flows from card → header → title/icon;
+/// (runtime [FlutterError] otherwise). Tone flows via [VComponentScope];
 /// each child may override with its own [tone].
 ///
 /// When composing with sections, set [padding] to [EdgeInsets.zero] so each
@@ -191,25 +150,27 @@ class VCard extends StatelessWidget {
     final resolvedRadius = borderRadius ?? VRadius.card;
 
     return vInspectorHide(
-      _VCardScope(
-        tone: tone,
-        child: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor ?? toneBg,
-            borderRadius: BorderRadius.circular(resolvedRadius),
-            border: border ?? VBorders.all(toneBorder),
-            boxShadow: _resolveShadow(),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: onTap,
+      _VCardAncestry(
+        child: VComponentScope(
+          tone: tone,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor ?? toneBg,
               borderRadius: BorderRadius.circular(resolvedRadius),
-              child: Padding(
-                padding: padding ?? const EdgeInsets.all(_kCardInset),
-                child: vInspectorShow(child),
+              border: border ?? VBorders.all(toneBorder),
+              boxShadow: _resolveShadow(),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(resolvedRadius),
+                child: Padding(
+                  padding: padding ?? const EdgeInsets.all(_kCardInset),
+                  child: vInspectorShow(child),
+                ),
               ),
             ),
           ),
@@ -241,30 +202,32 @@ class VCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardScope = _resolveCardScope(context, widgetName: 'VCardHeader');
-    final resolvedTone = tone ?? cardScope.tone;
+    _requireCard(context, widgetName: 'VCardHeader');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     return vInspectorHide(
-      _VCardHeaderScope(
-        tone: resolvedTone,
-        child: Padding(
-          padding:
-              padding ??
-              const EdgeInsets.fromLTRB(
-                _kCardInset,
-                _kCardInset,
-                _kCardInset,
-                VSpacing.sm,
-              ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (title != null) Expanded(child: vInspectorShow(title!)),
-              if (action != null) ...[
-                const VGap.horizontalSm(),
-                vInspectorShow(action!),
+      _VCardHeaderAncestry(
+        child: VComponentScope(
+          tone: resolvedTone,
+          child: Padding(
+            padding:
+                padding ??
+                const EdgeInsets.fromLTRB(
+                  _kCardInset,
+                  _kCardInset,
+                  _kCardInset,
+                  VSpacing.sm,
+                ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null) Expanded(child: vInspectorShow(title!)),
+                if (action != null) ...[
+                  const VGap.horizontalSm(),
+                  vInspectorShow(action!),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -287,14 +250,14 @@ class VCardIcon extends StatelessWidget {
   final VIcons? icon;
   final IconData? iconData;
 
-  /// Overrides [VCard.tone] when set.
+  /// Overrides ambient [VComponentScope.tone] when set.
   final VComponentTone? tone;
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final scope = _resolveCardScope(context, widgetName: 'VCardIcon');
-    final resolvedTone = tone ?? scope.tone;
+    _requireCard(context, widgetName: 'VCardIcon');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     return vInspectorHide(
       VIconBox(
@@ -322,14 +285,14 @@ class VCardTitle extends StatelessWidget {
   final String title;
   final String? description;
 
-  /// Overrides [VCardHeader.tone] when set.
+  /// Overrides ambient [VComponentScope.tone] when set.
   final VComponentTone? tone;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final scope = _resolveCardHeaderScope(context, widgetName: 'VCardTitle');
-    final resolvedTone = tone ?? scope.tone;
+    _requireCardHeader(context, widgetName: 'VCardTitle');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     return vInspectorHide(
       Column(
@@ -365,7 +328,7 @@ class VCardAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _resolveCardHeaderScope(context, widgetName: 'VCardAction');
+    _requireCardHeader(context, widgetName: 'VCardAction');
     return vInspectorHide(
       Align(
         alignment: Alignment.centerRight,
@@ -392,7 +355,7 @@ class VCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _resolveCardScope(context, widgetName: 'VCardContent');
+    _requireCard(context, widgetName: 'VCardContent');
     return vInspectorHide(
       Padding(
         padding: EdgeInsets.fromLTRB(
@@ -422,7 +385,7 @@ class VCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _resolveCardScope(context, widgetName: 'VCardFooter');
+    _requireCard(context, widgetName: 'VCardFooter');
     return vInspectorHide(
       Padding(
         padding: const EdgeInsets.fromLTRB(

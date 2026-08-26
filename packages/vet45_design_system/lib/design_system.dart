@@ -19,6 +19,7 @@ export 'src/theme/v_density.dart';
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
 export 'src/foundation/v_component_contracts.dart';
+export 'src/foundation/v_component_scope.dart';
 export 'src/foundation/v_inspector_scope.dart';
 export 'src/foundations/icons/v_icons.dart';
 export 'src/foundation/v_text_normalizer.dart';

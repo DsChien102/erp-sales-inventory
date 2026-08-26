@@ -4,6 +4,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
 
 enum VBadgeStatus {
@@ -78,7 +79,8 @@ class VBadge extends StatelessWidget {
     Color textColor;
 
     final dynamicColors = context.vColors;
-    final resolvedTone = tone ?? toneFromBadgeStatus(status);
+    final ambientOrLocal = VComponentScope.resolveTone(context, local: tone);
+    final resolvedTone = ambientOrLocal ?? toneFromBadgeStatus(status);
 
     switch (status) {
       case VBadgeStatus.success:
@@ -124,8 +126,8 @@ class VBadge extends StatelessWidget {
         break;
     }
 
-    // Tone override adjusts palette when explicitly set.
-    if (tone != null) {
+    // Tone override (local or ambient [VComponentScope]) adjusts palette.
+    if (ambientOrLocal != null) {
       switch (resolvedTone) {
         case VComponentTone.success:
           backgroundColor = dynamicColors.successBg;

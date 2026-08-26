@@ -3,6 +3,7 @@ import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../theme/v_color_scheme.dart';
 import '../foundations/icons/v_icons.dart';
 import 'v_icon.dart';
@@ -66,12 +67,13 @@ class VIconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     Color resolvedBgColor = backgroundColor ?? dynamicColors.surface;
     Color resolvedIconColor = iconColor ?? dynamicColors.textPrimary;
 
-    if (tone != null && backgroundColor == null && iconColor == null) {
-      final preset = _tonePreset(tone!, dynamicColors);
+    if (resolvedTone != null && backgroundColor == null && iconColor == null) {
+      final preset = _tonePreset(resolvedTone, dynamicColors);
       resolvedBgColor = preset.$1;
       resolvedIconColor = preset.$2;
     }

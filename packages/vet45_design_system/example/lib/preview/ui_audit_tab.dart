@@ -13,6 +13,8 @@ class UIAuditTab extends StatelessWidget {
     'VIconBox',
     'VSkeleton',
     'VText',
+    // Foundation ambient
+    'VComponentScope',
     // Components
     'VAvatar',
     'VButton',

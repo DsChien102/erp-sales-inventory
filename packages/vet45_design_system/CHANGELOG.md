@@ -15,11 +15,15 @@ changelogs when relevant.
 
 ### Added
 
-- `VCardHeader.tone` / `VCardTitle.tone` — Inherited scope: `VCardIcon` / `VCardTitle` inherit tone (local override); throw nếu dùng ngoài parent tương ứng (`VCard` / `VCardHeader`).
+- `VComponentScope` — ambient soft inherit (slice 1: `tone` + `resolveTone`); `vProvideComponentScope` / `requireAncestor`.
+- `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
 
 ### Changed
 
-- `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc nằm trong đúng scope parent (runtime `FlutterError`).
+- `VEmptyHeader` / `VCard` dùng `VComponentScope` thay private tone InheritedWidget.
+- `VButton` / `VIconBox` / `VBadge` / `VChip` resolve tone từ `VComponentScope` khi local null.
+- `VBanner` provide `VComponentScope` cho trailing/footer.
+- `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
 
 ### Fixed
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
@@ -34,24 +35,20 @@ Color? _emptyToneForeground(VColorScheme colors, VComponentTone? tone) {
   };
 }
 
-/// Resolves scope from local override, then [_VEmptyHeaderScope] scope.
-///
-/// Throws if used outside [VEmptyHeader].
-_VEmptyHeaderScope _resolveEmptyHeaderScope(
-  BuildContext context, {
-  required String widgetName,
-}) {
-  final scope = _VEmptyHeaderScope.maybeOf(context);
-  if (scope == null) {
-    throw FlutterError.fromParts(<DiagnosticsNode>[
-      ErrorSummary('$widgetName must be used within a VEmptyHeader.'),
-      ErrorDescription(
-        'Place $widgetName inside VEmptyHeader so it can inherit tone '
-        '(and keep empty-state composition consistent).',
-      ),
-    ]);
-  }
-  return scope;
+/// Structural marker: [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription].
+class _VEmptyHeaderAncestry extends InheritedWidget {
+  const _VEmptyHeaderAncestry({required super.child});
+
+  @override
+  bool updateShouldNotify(covariant _VEmptyHeaderAncestry oldWidget) => false;
+}
+
+void _requireEmptyHeader(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VEmptyHeaderAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VEmptyHeader',
+  );
 }
 
 /// Empty-state shell (shadcn Empty).
@@ -213,28 +210,10 @@ class VEmptyState extends StatelessWidget {
   }
 }
 
-/// Provides [tone] to [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription].
-class _VEmptyHeaderScope extends InheritedWidget {
-  const _VEmptyHeaderScope({
-    required this.tone,
-    required super.child,
-  });
-
-  final VComponentTone? tone;
-
-  static _VEmptyHeaderScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_VEmptyHeaderScope>();
-  }
-
-  @override
-  bool updateShouldNotify(covariant _VEmptyHeaderScope oldWidget) {
-    return tone != oldWidget.tone;
-  }
-}
-
 /// Groups media, title, and description (shadcn EmptyHeader).
 ///
-/// Set [tone] once; descendants inherit it unless they pass their own [tone].
+/// Set [tone] once via [VComponentScope]; descendants inherit it unless they
+/// pass their own [tone].
 class VEmptyHeader extends StatelessWidget {
   const VEmptyHeader({
     super.key,
@@ -248,19 +227,21 @@ class VEmptyHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return vInspectorHide(
-      _VEmptyHeaderScope(
-        tone: tone,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) i == 1 ? const VGap.md() : const VGap.xs(),
-                vInspectorShow(children[i]),
+      _VEmptyHeaderAncestry(
+        child: VComponentScope(
+          tone: tone,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) i == 1 ? const VGap.md() : const VGap.xs(),
+                  vInspectorShow(children[i]),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -299,11 +280,8 @@ class VEmptyMedia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final scope = _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyMedia',
-    );
-    final resolvedTone = tone ?? scope.tone;
+    _requireEmptyHeader(context, widgetName: 'VEmptyMedia');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     if (emoji != null && child == null && icon == null && iconData == null) {
       return vInspectorHide(
@@ -371,11 +349,8 @@ class VEmptyTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scope = _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyTitle',
-    );
-    final resolvedTone = tone ?? scope.tone;
+    _requireEmptyHeader(context, widgetName: 'VEmptyTitle');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
     return vInspectorHide(
       VText(
         text,
@@ -402,15 +377,13 @@ class VEmptyDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyDescription',
-    );
+    _requireEmptyHeader(context, widgetName: 'VEmptyDescription');
+    final resolvedTone = VComponentScope.resolveTone(context);
     return vInspectorHide(
       VText(
         text,
         variant: VTextVariant.bodyDefault,
-        color: colors.textSecondary,
+        color: _emptyToneForeground(colors, resolvedTone) ?? colors.textSecondary,
         textAlign: TextAlign.center,
       ),
     );

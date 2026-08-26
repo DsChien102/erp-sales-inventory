@@ -5,6 +5,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../primitives/v_text.dart';
 import '../patterns/v_gap.dart';
 import '../foundation/v_inspector_scope.dart';
@@ -117,7 +118,8 @@ class VButton extends StatelessWidget {
         break;
     }
 
-    final VComponentTone resolvedTone = tone ?? VComponentTone.primary;
+    final VComponentTone resolvedTone =
+        VComponentScope.resolveTone(context, local: tone) ?? VComponentTone.primary;
 
     // Colors mapping based on variant × tone and state
     Color? getBgColor(Set<WidgetState> states) {

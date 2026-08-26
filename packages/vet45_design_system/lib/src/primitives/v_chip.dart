@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
 import '../theme/v_color_scheme.dart';
@@ -77,7 +78,8 @@ class VChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final resolved = _resolveColors(colors);
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+    final resolved = _resolveColors(colors, tone: resolvedTone);
 
     final labelStyle = VTypography.bodySmall.copyWith(
       color: resolved.foreground,
@@ -164,7 +166,10 @@ class VChip extends StatelessWidget {
     );
   }
 
-  _ChipColors _resolveColors(VColorScheme colors) {
+  _ChipColors _resolveColors(
+    VColorScheme colors, {
+    VComponentTone? tone,
+  }) {
     if (selected) {
       final fillTone = tone ?? VComponentTone.success;
       final fill = _toneFill(colors, fillTone);
