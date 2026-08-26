@@ -964,8 +964,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VCard',
           description:
-              'tone → border + background; emphasis → shadow. '
-              'Compound: VCardHeader / Title / Icon / Action / Content / Footer '
+              'tone → border + background (+ inherit to Icon/Title); emphasis → shadow. '
+              'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent scope '
               '(set padding: EdgeInsets.zero).',
           child: Column(
             children: [
@@ -1099,6 +1099,38 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       'Chỉ body, tự quản lý inset.',
                       variant: VTextVariant.bodyDefault,
                     ),
+                  ),
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone inherit (card → icon / title)',
+                child: VCard(
+                  tone: VComponentTone.warning,
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      VCardHeader(
+                        title: VCardTitle(
+                          'Cảnh báo',
+                          description: 'Title inherit tone từ card/header.',
+                        ),
+                      ),
+                      VCardContent(
+                        child: Row(
+                          children: [
+                            VCardIcon(iconData: Icons.warning_amber_outlined),
+                            VGap.horizontalMd(),
+                            Expanded(
+                              child: VText(
+                                'Icon không truyền tone — inherit từ VCard.',
+                                variant: VTextVariant.bodyDefault,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

@@ -133,11 +133,106 @@ void main() {
 
     testWidgets('VCardTitle without description omits secondary text', (tester) async {
       await tester.pumpWidget(
-        wrap(const VCardTitle('Only title')),
+        wrap(
+          const VCard(
+            child: VCardHeader(
+              title: VCardTitle('Only title'),
+            ),
+          ),
+        ),
       );
 
       expect(find.text('Only title'), findsOneWidget);
       expect(find.byType(VText), findsOneWidget);
+    });
+  });
+
+  group('VCard tone scope', () {
+    testWidgets('inherits card tone to icon', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.warning,
+            child: VCardIcon(iconData: Icons.store),
+          ),
+        ),
+      );
+
+      final iconBox = tester.widget<VIconBox>(find.byType(VIconBox));
+      expect(iconBox.tone, VComponentTone.warning);
+    });
+
+    testWidgets('inherits header tone to title', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            child: VCardHeader(
+              tone: VComponentTone.warning,
+              title: VCardTitle('Warn'),
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<VText>(
+        find.descendant(of: find.byType(VCardTitle), matching: find.byType(VText)),
+      );
+      expect(title.color, VColorScheme.light.warning);
+    });
+
+    testWidgets('local tone overrides inherited tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.warning,
+            child: Column(
+              children: [
+                VCardHeader(
+                  title: VCardTitle('Danger title', tone: VComponentTone.danger),
+                ),
+                VCardIcon(
+                  iconData: Icons.info_outline,
+                  tone: VComponentTone.danger,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<VText>(
+        find.descendant(of: find.byType(VCardTitle), matching: find.byType(VText)),
+      );
+      expect(title.color, VColorScheme.light.danger);
+
+      final iconBox = tester.widget<VIconBox>(find.byType(VIconBox));
+      expect(iconBox.tone, VComponentTone.danger);
+    });
+
+    testWidgets('throws when title used outside header', (tester) async {
+      await tester.pumpWidget(wrap(const VCardTitle('Orphan')));
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when header used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardHeader(title: Text('Orphan'))),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when content used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardContent(child: Text('Orphan'))),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when icon used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardIcon(iconData: Icons.store)),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
     });
   });
 }

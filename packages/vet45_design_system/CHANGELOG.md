@@ -15,7 +15,11 @@ changelogs when relevant.
 
 ### Added
 
+- `VCardHeader.tone` / `VCardTitle.tone` — Inherited scope: `VCardIcon` / `VCardTitle` inherit tone (local override); throw nếu dùng ngoài parent tương ứng (`VCard` / `VCardHeader`).
+
 ### Changed
+
+- `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc nằm trong đúng scope parent (runtime `FlutterError`).
 
 ### Fixed
 
