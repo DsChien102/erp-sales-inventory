@@ -27,6 +27,7 @@ changelogs when relevant.
 - `VBanner` provide `VComponentScope` cho trailing/footer.
 - `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
 - `VCard` tone `primary`: border dùng `borderBrand` thay `primary`.
+- `VEmptyState` flat API (`title` / `icon*` / `action*`) marked `@Deprecated` — prefer `child` composition. `tone` remains on the shell and cascades via `VComponentScope`.
 
 ### Fixed
 

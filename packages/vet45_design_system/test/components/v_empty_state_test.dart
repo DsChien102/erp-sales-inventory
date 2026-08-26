@@ -24,8 +24,12 @@ void main() {
       await tester.pumpWidget(
         wrap(
           const VEmptyState(
-            iconData: Icons.inbox_outlined,
-            title: 'Empty',
+            child: VEmptyHeader(
+              children: [
+                VEmptyMedia(iconData: Icons.inbox_outlined),
+                VEmptyTitle('Empty'),
+              ],
+            ),
           ),
         ),
       );
@@ -38,8 +42,12 @@ void main() {
         wrap(
           const VEmptyState(
             bordered: true,
-            iconData: Icons.inbox_outlined,
-            title: 'Empty',
+            child: VEmptyHeader(
+              children: [
+                VEmptyMedia(iconData: Icons.inbox_outlined),
+                VEmptyTitle('Empty'),
+              ],
+            ),
           ),
         ),
       );
@@ -53,8 +61,12 @@ void main() {
         wrap(
           const VEmptyState(
             filled: true,
-            iconData: Icons.inbox_outlined,
-            title: 'Empty',
+            child: VEmptyHeader(
+              children: [
+                VEmptyMedia(iconData: Icons.inbox_outlined),
+                VEmptyTitle('Empty'),
+              ],
+            ),
           ),
         ),
       );
@@ -102,11 +114,17 @@ void main() {
       var pressed = false;
       await tester.pumpWidget(
         wrap(
+          // ignore: deprecated_member_use
           VEmptyState(
+            // ignore: deprecated_member_use
             iconData: Icons.inbox_outlined,
+            // ignore: deprecated_member_use
             title: 'No orders yet',
+            // ignore: deprecated_member_use
             description: 'Create your first order.',
+            // ignore: deprecated_member_use
             actionLabel: 'Create order',
+            // ignore: deprecated_member_use
             onActionPressed: () => pressed = true,
           ),
         ),
@@ -121,20 +139,46 @@ void main() {
     testWidgets('exposes icon and tone for existing tests', (tester) async {
       await tester.pumpWidget(
         wrap(
+          // ignore: deprecated_member_use
           const VEmptyState(
+            // ignore: deprecated_member_use
             icon: VIcons.cloudOff,
+            // ignore: deprecated_member_use
             title: 'Offline',
             tone: VComponentTone.danger,
           ),
         ),
       );
       final empty = tester.widget<VEmptyState>(find.byType(VEmptyState));
+      // ignore: deprecated_member_use
       expect(empty.icon, VIcons.cloudOff);
       expect(empty.tone, VComponentTone.danger);
     });
   });
 
   group('VEmptyHeader tone scope', () {
+    testWidgets('shell tone cascades to title without header tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VEmptyState(
+            tone: VComponentTone.warning,
+            child: VEmptyHeader(
+              children: [
+                VEmptyMedia(iconData: Icons.warning_amber_outlined),
+                VEmptyTitle('Warn'),
+                VEmptyDescription('Details'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<VText>(
+        find.descendant(of: find.byType(VEmptyTitle), matching: find.byType(VText)),
+      );
+      expect(title.color, VColorScheme.light.warning);
+    });
+
     testWidgets('inherits tone to title media description', (tester) async {
       await tester.pumpWidget(
         wrap(
@@ -162,7 +206,7 @@ void main() {
           matching: find.byType(VText),
         ),
       );
-      expect(description.color, VColorScheme.light.warning);
+      expect(description.color, VColorScheme.light.textSecondary);
     });
 
     testWidgets('local tone overrides header tone', (tester) async {
@@ -174,7 +218,7 @@ void main() {
               children: [
                 VEmptyMedia(iconData: Icons.info_outline),
                 VEmptyTitle('Danger title', tone: VComponentTone.danger),
-                VEmptyDescription('Still warning'),
+                VEmptyDescription('Still secondary'),
               ],
             ),
           ),
@@ -192,7 +236,7 @@ void main() {
           matching: find.byType(VText),
         ),
       );
-      expect(description.color, VColorScheme.light.warning);
+      expect(description.color, VColorScheme.light.textSecondary);
     });
 
     testWidgets('throws when title used outside header', (tester) async {
