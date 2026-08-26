@@ -71,3 +71,22 @@ Chỉ **maintainer hoặc khi user yêu cầu rõ**:
 6. Xóa hoặc archive draft tương ứng
 
 Agent **không** tự promote trừ khi user yêu cầu.
+
+## Active sequence và archive
+
+Chỉ các file `.sql` nằm trực tiếp trong `_drafts/` thuộc chuỗi active và được
+đọc theo numeric prefix. Thư mục `_archive/` giữ các thiết kế đã bị supersede;
+không apply, bundle hoặc promote các file trong đó.
+
+Chuỗi IAM active hiện tại:
+
+```text
+002_iam_fix_utc_now_offset.sql
+004_iam_tenant_audit_history_v2_payloads.sql
+006_iam_audit_owner_activation_cleanup.sql
+007_iam_audit_logs_v2_rebuild.sql
+```
+
+Các khoảng số là có chủ ý vì `001`, `003`, `005` đã được archive. Khi nhiều
+draft định nghĩa cùng một RPC, implementation ở file có số lớn hơn là trạng
+thái cuối cùng.

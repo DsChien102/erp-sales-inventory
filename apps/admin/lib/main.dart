@@ -17,6 +17,7 @@ Future<void> main() async {
   await Supabase.initialize(
     url: Env.supabaseConnectionUrl,
     publishableKey: Env.supabaseAnonKey,
+    headers: const {'X-Vet45-App': 'platform_admin_app'},
     debug: false,
   );
 

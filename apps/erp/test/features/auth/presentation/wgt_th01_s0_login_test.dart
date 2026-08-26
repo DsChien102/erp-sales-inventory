@@ -227,36 +227,6 @@ void main() {
     },
   );
 
-  testWidgets(
-    'wgt_th01_s0_owner_activation_redirects_to_login_until_defined',
-    (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      getIt
-        ..registerSingleton<ICurrentUser>(_NoCurrentUser())
-        ..registerSingleton<IIamModule>(
-          FakeIamModule(scenario: FakeIamScenario.authSignInOk),
-        );
-
-      await tester.pumpWidget(
-        MaterialApp.router(
-          theme: VTheme.lightTheme,
-          routerConfig: appRouter,
-        ),
-      );
-
-      appRouter.go('/owner-activation');
-      await tester.pumpAndSettle();
-
-      expect(
-        appRouter.routeInformationProvider.value.uri.toString(),
-        '/login',
-      );
-    },
-  );
 }
 
 final class _NoActiveMembershipModule implements IIamModule {
@@ -281,9 +251,4 @@ final class _UnauthenticatedAfterSignInModule implements IIamModule {
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     return const SessionDto(isAuthenticated: false) as TResult;
   }
-}
-
-final class _NoCurrentUser implements ICurrentUser {
-  @override
-  String? get userId => null;
 }

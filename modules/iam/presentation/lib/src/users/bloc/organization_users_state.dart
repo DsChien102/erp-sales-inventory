@@ -14,6 +14,8 @@ final class OrganizationUsersState {
     this.memberSearch = '',
     this.invitationSearch = '',
     this.memberFilter,
+    this.memberRoleFilter,
+    this.memberSort,
     this.invitationFilter,
     this.memberNextCursor,
     this.invitationNextCursor,
@@ -33,6 +35,12 @@ final class OrganizationUsersState {
 
   /// Wire status: `active` | `inactive` | `removed`, or null = all.
   final String? memberFilter;
+
+  /// Selected role filter label (e.g. 'Quản trị', 'Bán hàng', 'Kế toán'), or null = all.
+  final String? memberRoleFilter;
+
+  /// Selected sort option ('Tên A–Z', 'Tên Z–A'), or null = default (owner first).
+  final String? memberSort;
 
   /// Wire status or `expiring` UI sentinel, or null = all.
   final String? invitationFilter;
@@ -58,6 +66,8 @@ final class OrganizationUsersState {
     String? memberSearch,
     String? invitationSearch,
     String? memberFilter,
+    String? memberRoleFilter,
+    String? memberSort,
     String? invitationFilter,
     String? memberNextCursor,
     String? invitationNextCursor,
@@ -66,6 +76,8 @@ final class OrganizationUsersState {
     bool? loadingMoreMembers,
     bool? loadingMoreInvitations,
     bool clearMemberFilter = false,
+    bool clearMemberRoleFilter = false,
+    bool clearMemberSort = false,
     bool clearInvitationFilter = false,
     bool clearMemberCursor = false,
     bool clearInvitationCursor = false,
@@ -82,6 +94,11 @@ final class OrganizationUsersState {
       invitationSearch: invitationSearch ?? this.invitationSearch,
       memberFilter:
           clearMemberFilter ? null : (memberFilter ?? this.memberFilter),
+      memberRoleFilter: clearMemberRoleFilter
+          ? null
+          : (memberRoleFilter ?? this.memberRoleFilter),
+      memberSort:
+          clearMemberSort ? null : (memberSort ?? this.memberSort),
       invitationFilter: clearInvitationFilter
           ? null
           : (invitationFilter ?? this.invitationFilter),

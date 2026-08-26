@@ -95,8 +95,7 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
                   icon: VIcons.chevronLeft,
                   color: colors.textPrimary,
                 ),
-                onPressed: widget.onBackPressed ??
-                    () => Navigator.of(context).maybePop(),
+                onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
               ),
               title: const VText(
                 'Chi tiết hoạt động',
@@ -108,8 +107,7 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
           );
         }
 
-        if (state.detailStatus == IamLoadStatus.failure ||
-            state.selectedDetail == null) {
+        if (state.detailStatus == IamLoadStatus.failure || state.selectedDetail == null) {
           return Scaffold(
             backgroundColor: colors.surfaceAlt,
             appBar: AppBar(
@@ -120,8 +118,7 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
                   icon: VIcons.chevronLeft,
                   color: colors.textPrimary,
                 ),
-                onPressed: widget.onBackPressed ??
-                    () => Navigator.of(context).maybePop(),
+                onPressed: widget.onBackPressed ?? () => Navigator.of(context).maybePop(),
               ),
               title: const VText(
                 'Chi tiết hoạt động',
@@ -150,9 +147,8 @@ class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
                     const VGap.lg(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () => context
-                          .read<TenantAuditLogsCubit>()
-                          .loadDetail(widget.auditLogId),
+                      onPressed: () =>
+                          context.read<TenantAuditLogsCubit>().loadDetail(widget.auditLogId),
                     ),
                   ],
                 ),

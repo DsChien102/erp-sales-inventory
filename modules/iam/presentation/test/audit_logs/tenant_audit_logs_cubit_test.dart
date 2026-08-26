@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
-import 'package:vet45_iam_presentation/testing.dart';
+import 'package:vet45_iam_presentation/src/audit_logs/bloc/tenant_audit_filter.dart';
+import 'package:vet45_iam_presentation/src/audit_logs/bloc/tenant_audit_logs_cubit.dart';
+import 'package:vet45_iam_presentation/src/shared/iam_load_status.dart';
+import 'package:vet45_iam_presentation/src/testing/recording_iam_module.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
@@ -15,7 +17,7 @@ void main() {
     );
   }
 
-  test('search sends UTC end-exclusive range', () async {
+  test('search sends UTC end-exclusive range and populates totalCount', () async {
     final module = RecordingIamModule(
       FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
     );
@@ -37,6 +39,32 @@ void main() {
       ),
     );
     expect(cubit.state.items, isNotEmpty);
+    expect(cubit.state.totalCount, greaterThan(0));
+    await cubit.close();
+  });
+
+  test('applyFilter forwards structured category, eventCodes, and subjectType', () async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
+    );
+    final cubit = buildCubit(module);
+    await cubit.applyFilter(
+      TenantAuditFilter(
+        fromLocal: DateTime(2026, 7, 1),
+        toLocal: DateTime(2026, 7, 31),
+        result: TenantAuditLogResult.success,
+        eventCategory: TenantAuditEventCategory.member,
+        subjectType: 'membership',
+        eventCodes: const ['iam.membership.deactivated'],
+      ),
+    );
+
+    final query = module.queriesOf<SearchTenantAuditLogsQuery>().single;
+    expect(query.query, isNull);
+    expect(query.result, 'success');
+    expect(query.eventCategory, TenantAuditEventCategory.member);
+    expect(query.subjectType, 'membership');
+    expect(query.eventCodes, ['iam.membership.deactivated']);
     await cubit.close();
   });
 
@@ -54,12 +82,13 @@ void main() {
     await cubit.close();
   });
 
-  test('tenantAuditEmpty yields empty list', () async {
+  test('tenantAuditEmpty yields empty list and zero totalCount', () async {
     final cubit = buildCubit(
       FakeIamModule(scenario: FakeIamScenario.tenantAuditEmpty),
     );
     await cubit.search();
     expect(cubit.state.items, isEmpty);
+    expect(cubit.state.totalCount, 0);
     expect(cubit.state.status, IamLoadStatus.success);
     await cubit.close();
   });

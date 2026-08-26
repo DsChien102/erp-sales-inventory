@@ -67,6 +67,7 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | 2026-07-20 | Dart client gọi `enqueue_outbox_message` (vi phạm RPC same-txn) | **Closed:** bỏ `enqueue` khỏi `IIamOutboxClient`; port production chỉ đọc outcome; docs/tests seed outbox như RPC |
 | 2026-07-24 | Admin chưa có Login — mở thẳng dashboard | LoginPage + router guard + platform.user.view gate; ops bootstrap `iam.platform_admins` ghi trong notes |
 | 2026-07-27 | Bootstrap platform admin thủ công dễ quên | `vet45 admin create\|grant\|list` (service role + Auth Admin API) |
+| 2026-08-23 | IAM audit + owner activation trôi khỏi thiết kế | Cleanup: bỏ legacy `iam.platform_audit_logs`; retire `iam.owner_activations`; platform audit đọc canonical `iam.audit_logs(scope='platform')`. Owner = **người dùng đầu tiên, mặc định là chủ** — membership tạo ngay ở onboarding (không dùng bảng activation), kích hoạt = đặt mật khẩu qua Auth; staff mới đi luồng mời `tenant_invitations`. `iam.platform_admins` bàn riêng. Plan: `docs/superpowers/plans/2026-08-21-iam-audit-owner-activation-cleanup.md`. |
 
 ## Liên kết
 

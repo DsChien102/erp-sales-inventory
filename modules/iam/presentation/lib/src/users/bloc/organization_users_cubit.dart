@@ -77,7 +77,7 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       emit(
         state.copyWith(
           memberStatus: IamLoadStatus.success,
-          members: _sortMembers(merged),
+          members: _filterAndSortMembers(merged),
           memberNextCursor: page.nextCursor,
           clearMemberCursor: page.nextCursor == null,
           clearMemberFailure: true,
@@ -227,6 +227,24 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
     await loadMembers(reset: true);
   }
 
+  Future<void> applyMemberCriteria({
+    String? status,
+    String? role,
+    String? sort,
+  }) async {
+    emit(
+      state.copyWith(
+        memberFilter: status,
+        clearMemberFilter: status == null,
+        memberRoleFilter: role,
+        clearMemberRoleFilter: role == null,
+        memberSort: sort,
+        clearMemberSort: sort == null,
+      ),
+    );
+    await loadMembers(reset: true);
+  }
+
   Future<void> setInvitationFilter(String? status) async {
     emit(
       state.copyWith(
@@ -260,6 +278,26 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
     final result = <MemberUiModel>[];
     for (final item in items) {
       if (seen.add(item.id)) result.add(item);
+    }
+    return result;
+  }
+
+  List<MemberUiModel> _filterAndSortMembers(List<MemberUiModel> items) {
+    var result = List<MemberUiModel>.from(items);
+    if (state.memberRoleFilter != null && state.memberRoleFilter != 'Tất cả') {
+      final query = state.memberRoleFilter!.toLowerCase();
+      result = result
+          .where((m) =>
+              m.role.toLowerCase().contains(query) ||
+              m.identityText.toLowerCase().contains(query))
+          .toList();
+    }
+    if (state.memberSort == 'Tên A–Z') {
+      result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    } else if (state.memberSort == 'Tên Z–A') {
+      result.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+    } else {
+      result = _sortMembers(result);
     }
     return result;
   }

@@ -24,7 +24,6 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/invitation_token_page.dart';
-import '../../features/auth/presentation/pages/owner_activation_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -127,11 +126,6 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/owner-activation',
-      name: 'owner-activation',
-      builder: (context, state) => const OwnerActivationPage(),
-    ),
-    GoRoute(
       path: '/',
       name: 'dashboard',
       builder: (context, state) {
@@ -232,7 +226,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/roles',
       name: 'more.roles',
-      builder: (context, state) => const OrganizationRolesPage(),
+      redirect: (context, state) => '/more/users-and-roles',
     ),
     GoRoute(
       path: '/more/roles/detail',

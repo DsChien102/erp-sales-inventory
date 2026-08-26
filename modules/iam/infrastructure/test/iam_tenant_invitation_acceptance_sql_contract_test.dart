@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/020_iam_tenant_invitation_acceptance.sql',
+      '${root.path}/supabase/migrations/20260811020_iam_tenant_invitation_acceptance.sql',
     ).readAsStringSync();
   });
 
@@ -102,8 +102,8 @@ void main() {
         sql.indexOf('create or replace function iam.decline_invitation('),
       );
       expect(acceptFn, contains('v_effective_role := case'));
-      expect(acceptFn, contains("when v_should_be_owner then 'owner'"));
-      expect(acceptFn, contains('v_effective_role = \'owner\''));
+      expect(acceptFn, contains("when v_should_be_owner then 'store_owner'"));
+      expect(acceptFn, contains('v_should_be_owner'));
       expect(acceptFn, isNot(contains("status = 'active',\n          activated_at")));
       expect(acceptFn, isNot(contains("status = case when status = 'provisioning'")));
     });

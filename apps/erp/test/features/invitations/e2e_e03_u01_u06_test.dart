@@ -45,14 +45,6 @@ void main() {
 
   Future<void> submitInvitationCode(WidgetTester tester, String code) async {
     await enterInvitationCode(tester, code);
-    final submit = find.byKey(const Key('invitation_inspect_submit'));
-    if (submit.evaluate().isNotEmpty) {
-      final button = tester.widget<VButton>(submit);
-      if (button.onPressed != null) {
-        await tester.tap(submit);
-        await tester.pump();
-      }
-    }
   }
 
   void register(IIamModule module) {
@@ -154,12 +146,12 @@ void main() {
       await submitInvitationCode(tester, 'K7P29XQM');
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('invitation_locked_email')), findsOneWidget);
-      await tester.enterText(
-        find.byKey(const Key('invitation_existing_password')),
-        'secret-123',
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      expect(
+        find.byKey(const Key('invitation_confirm_sheet_accept')),
+        findsOneWidget,
       );
-      await tester.tap(find.byKey(const Key('invitation_accept_submit')));
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
       await tester.pumpAndSettle();
 
       expect(router.routeInformationProvider.value.uri.toString(), '/login');
@@ -198,6 +190,10 @@ void main() {
       await tester.pumpAndSettle();
 
       await submitInvitationCode(tester, 'OPAQUENE');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('invitation_register_given_name')), findsOneWidget);

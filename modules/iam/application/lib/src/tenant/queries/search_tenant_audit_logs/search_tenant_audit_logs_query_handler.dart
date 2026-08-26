@@ -19,7 +19,7 @@ final class SearchTenantAuditLogsQueryHandler
   Future<TenantAuditLogSearchPageDto> handle(
     SearchTenantAuditLogsQuery query,
   ) async {
-    if (query.fromUtc.isAfter(query.toUtc)) {
+    if (!query.fromUtc.isBefore(query.toUtc)) {
       throw const IamBlockedException(IamBlockedCodes.validationError);
     }
     final limit = query.limit ?? 20;
@@ -30,10 +30,11 @@ final class SearchTenantAuditLogsQueryHandler
       tenantId: query.tenantId,
       from: query.fromUtc,
       to: query.toUtc,
+      query: query.query,
       result: query.result,
-      actorUserId: query.actorUserId,
+      eventCategory: query.eventCategory,
       subjectType: query.subjectType,
-      eventCode: query.eventCode,
+      eventCodes: query.eventCodes,
       cursor: query.cursor,
       limit: limit,
     );

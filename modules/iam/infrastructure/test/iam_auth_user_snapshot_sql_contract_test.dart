@@ -9,7 +9,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/016_iam_tenant_readiness_activate.sql',
+      '${root.path}/supabase/migrations/20260811016_iam_tenant_readiness_activate.sql',
     ).readAsStringSync();
     final start = sql.indexOf('iam.get_auth_user_snapshot(p_user_id uuid)');
     final bodyStart = sql.indexOf(r'as $$', start);

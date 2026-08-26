@@ -13,8 +13,7 @@ class AuditLogFilterCriteria {
   });
 
   /// Kiểm tra xem có tiêu chí lọc nào khác mặc định không.
-  bool get isFilterActive =>
-      timeRange != '24 giờ' || status != null || actorType != 'Tất cả';
+  bool get isFilterActive => timeRange != '24 giờ' || status != null || actorType != 'Tất cả';
 
   AuditLogFilterCriteria copyWith({
     String? timeRange,

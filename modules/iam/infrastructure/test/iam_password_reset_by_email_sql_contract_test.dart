@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/026_iam_password_reset_by_email.sql',
+      '${root.path}/supabase/migrations/20260811025_iam_password_reset_by_email.sql',
     ).readAsStringSync();
   });
 

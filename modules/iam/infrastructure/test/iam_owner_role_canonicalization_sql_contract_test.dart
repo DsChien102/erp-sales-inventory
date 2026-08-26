@@ -9,8 +9,8 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '002_iam_patch_owner_role_canonicalization_rpc.sql',
+      '${root.path}/supabase/migrations/'
+      '20260811024_iam_patch_owner_role_canonicalization.sql',
     ).readAsStringSync();
     hasPermissionBody = _functionBody(
       sql,

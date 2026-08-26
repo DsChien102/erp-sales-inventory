@@ -1,66 +1,218 @@
-import 'package:vet45_design_system/design_system.dart';
+import 'dart:convert';
+
 import 'package:vet45_iam_application/application.dart';
 
+import '../catalog/tenant_audit_event_catalog.dart';
+import '../catalog/tenant_audit_field_catalog.dart';
 import '../models/audit_log_ui_model.dart';
 
+/// Maps Application audit DTOs to Presentation UI models using event & field catalogs.
 abstract final class TenantAuditUiMapper {
+  static const _redactedValue = '[Đã che theo chính sách]';
+
   static AuditLogItemUiModel fromSummary(TenantAuditLogSummaryDto dto) {
+    final entry = TenantAuditEventCatalog.entryFor(dto.eventCode);
+    final eventCategory = dto.eventCategory ?? entry.category;
     final status = _status(dto.result);
+    final actorName = _resolveActorName(dto.actor);
+    final actorRole = _resolveActorRole(dto.actor);
+    final localizedSubject = _localizedSubjectType(dto.subject.type);
+    final subjectName = _resolveSubjectName(dto.subject);
+    final detailValue = dto.subject.code ?? dto.subject.secondaryLabel ?? '—';
+
     return AuditLogItemUiModel(
       id: dto.auditLogId,
-      title: _titleFromEvent(dto.eventCode),
+      title: entry.title,
       actionCode: dto.eventCode,
       status: status,
       statusLabel: _statusLabel(status),
-      actorName: dto.actorDisplayName ?? dto.actorUserId ?? '—',
-      actorRole: dto.subjectType ?? '—',
-      targetOrg: dto.subjectId ?? '',
-      targetOrgCode: dto.subjectId ?? '',
-      timestamp: dto.occurredAt.toLocal(),
+      actorName: actorName,
+      actorRole: actorRole,
+      actorId: dto.actor.userId ?? '',
+      actorType: dto.actor.actorType ?? '',
+      actorRoleCode: dto.actor.roleCode ?? '',
+      actorDisplayOrigin: dto.actor.displayOrigin ?? TenantAuditDisplayOrigin.unavailable,
+      targetOrg: subjectName,
+      targetOrgCode: dto.subject.code ?? '',
+      timestamp: dto.occurredAt,
       sourceApp: dto.source,
       correlationId: dto.trackingId,
       beforeState: '',
       afterState: '',
-      icon: VIcons.history,
-      category: dto.subjectType,
-      targetSubjectLabel: 'Đối tượng',
-      targetSubjectValue: dto.subjectType ?? '—',
+      icon: entry.icon,
+      category: eventCategory.code,
+      eventCategory: eventCategory,
+      targetSubjectLabel: 'Loại đối tượng',
+      targetSubjectValue: localizedSubject,
       targetDetailLabel: 'Mã đối tượng',
-      targetDetailValue: dto.subjectId ?? '—',
+      targetDetailValue: detailValue,
+      subjectName: subjectName,
+      subjectType: dto.subject.type ?? '',
+      subjectId: dto.subject.id ?? '',
+      subjectCode: dto.subject.code ?? '',
+      subjectDisplayOrigin: dto.subject.displayOrigin ?? TenantAuditDisplayOrigin.unavailable,
+      isActorUnavailable: dto.actor.displayOrigin == TenantAuditDisplayOrigin.unavailable,
     );
   }
 
   static AuditLogItemUiModel fromDetail(TenantAuditLogDetailDto dto) {
+    final entry = TenantAuditEventCatalog.entryFor(dto.eventCode);
+    final eventCategory = dto.eventCategory ?? entry.category;
     final status = _status(dto.result);
-    final actorUnavailable = dto.actorUnavailable;
+    final actorUnavailable =
+        dto.actorUnavailable || dto.actor.displayOrigin == TenantAuditDisplayOrigin.unavailable;
+    final actorName = _resolveActorName(
+      dto.actor,
+      actorUnavailable: actorUnavailable,
+    );
+    final actorRole = _resolveActorRole(
+      dto.actor,
+      actorUnavailable: actorUnavailable,
+    );
+    final localizedSubject = _localizedSubjectType(dto.subject.type);
+    final subjectName = _resolveSubjectName(dto.subject);
+    final detailValue = _shortIdentifier(dto.subject.id);
+    final changes = _computeChanges(
+      dto.beforeState,
+      dto.afterState,
+      beforeRedacted: dto.beforeRedacted,
+      afterRedacted: dto.afterRedacted,
+    );
+
     return AuditLogItemUiModel(
       id: dto.auditLogId,
-      title: _titleFromEvent(dto.eventCode),
+      auditDisplayId: dto.auditDisplayId,
+      title: entry.title,
       actionCode: dto.eventCode,
       status: status,
       statusLabel: _statusLabel(status),
-      actorName: actorUnavailable
-          ? 'Không còn thông tin người thực hiện'
-          : (dto.actorDisplayName ?? dto.actorUserId ?? '—'),
-      actorRole: dto.subjectType ?? '—',
-      targetOrg: dto.subjectId ?? '',
-      targetOrgCode: dto.subjectId ?? '',
-      timestamp: dto.occurredAt.toLocal(),
-      sourceApp: dto.source,
-      correlationId: dto.trackingId,
-      beforeState: dto.beforeRedacted ? '' : (dto.beforeState ?? ''),
-      afterState: dto.afterRedacted ? '' : (dto.afterState ?? ''),
-      icon: VIcons.history,
-      category: dto.subjectType,
-      targetSubjectLabel: 'Loại đối tượng',
-      targetSubjectValue: dto.subjectType ?? '—',
-      targetDetailLabel: 'Mã đối tượng',
-      targetDetailValue: dto.subjectId ?? '—',
+      actorName: actorName,
+      actorRole: actorRole,
+      actorId: dto.actor.userId ?? '',
+      actorType: dto.actor.actorType ?? '',
+      actorRoleCode: dto.actor.roleCode ?? '',
+      actorDisplayOrigin: dto.actor.displayOrigin ?? TenantAuditDisplayOrigin.unavailable,
+      targetOrg: subjectName,
+      targetOrgCode: dto.subject.code ?? '',
+      timestamp: dto.occurredAt,
+      sourceApp: _localizedSource(dto.source),
+      correlationId: _firstNonEmpty(dto.correlationId, dto.trackingId),
+      beforeState: _formatStateJson(dto.beforeState, dto.beforeRedacted),
+      afterState: _formatStateJson(dto.afterState, dto.afterRedacted),
+      icon: entry.icon,
+      category: eventCategory.code,
+      eventCategory: eventCategory,
+      targetSubjectLabel: localizedSubject,
+      targetSubjectValue: subjectName,
+      targetDetailLabel: 'ID đối tượng',
+      targetDetailValue: detailValue,
+      subjectName: subjectName,
+      subjectType: dto.subject.type ?? '',
+      subjectId: dto.subject.id ?? '',
+      subjectCode: dto.subject.code ?? '',
+      subjectDisplayOrigin: dto.subject.displayOrigin ?? TenantAuditDisplayOrigin.unavailable,
       changeSectionTitle: 'Dữ liệu thay đổi',
+      changes: changes,
       isActorUnavailable: actorUnavailable,
       beforeRedacted: dto.beforeRedacted,
       afterRedacted: dto.afterRedacted,
     );
+  }
+
+  static String _resolveActorName(
+    TenantAuditActorDto actor, {
+    bool actorUnavailable = false,
+  }) {
+    if (actorUnavailable || actor.displayOrigin == TenantAuditDisplayOrigin.unavailable) {
+      return 'Không còn thông tin người thực hiện';
+    }
+    if (actor.displayOrigin == TenantAuditDisplayOrigin.system) {
+      return 'Hệ thống';
+    }
+    if (actor.displayName != null && actor.displayName!.isNotEmpty) {
+      return actor.displayName!;
+    }
+    return 'Người dùng không xác định';
+  }
+
+  static String _resolveSubjectName(TenantAuditSubjectDto subject) {
+    if (subject.displayName != null && subject.displayName!.isNotEmpty) {
+      return subject.displayName!;
+    }
+    if (subject.displayOrigin == TenantAuditDisplayOrigin.unavailable) {
+      return 'Không còn thông tin đối tượng';
+    }
+    if (subject.displayOrigin == TenantAuditDisplayOrigin.system) {
+      return 'Hệ thống';
+    }
+    return 'Đối tượng không xác định';
+  }
+
+  static String _resolveActorRole(
+    TenantAuditActorDto actor, {
+    bool actorUnavailable = false,
+  }) {
+    if (actorUnavailable || actor.displayOrigin == TenantAuditDisplayOrigin.unavailable) {
+      return '—';
+    }
+    if (actor.displayOrigin == TenantAuditDisplayOrigin.system) {
+      return 'Tiến trình hệ thống';
+    }
+    if (actor.roleLabel != null && actor.roleLabel!.isNotEmpty) {
+      return actor.roleLabel!;
+    }
+    if (actor.roleCode != null && actor.roleCode!.isNotEmpty) {
+      return TenantAuditFieldCatalog.formatValue('role', actor.roleCode);
+    }
+    if (actor.actorType != null && actor.actorType!.isNotEmpty) {
+      return _localizedActorType(actor.actorType!);
+    }
+    return '—';
+  }
+
+  static String _localizedActorType(String actorType) {
+    return switch (actorType.toLowerCase()) {
+      'tenant_member' || 'user' => 'Thành viên tổ chức',
+      'platform_user' => 'Người dùng nền tảng',
+      'platform_operator' => 'Nhân viên vận hành nền tảng',
+      'service_account' => 'Tài khoản dịch vụ',
+      'system' => 'Tiến trình hệ thống',
+      _ => actorType,
+    };
+  }
+
+  static String _localizedSource(String source) {
+    return switch (source.toLowerCase()) {
+      'tenant_app' || 'erp' => 'Tenant App',
+      'platform_admin_app' || 'platform_admin' || 'admin' => 'Platform Admin App',
+      'iam' => 'Hệ thống IAM',
+      'worker' || 'system' => 'Hệ thống',
+      _ => source,
+    };
+  }
+
+  static String _firstNonEmpty(String? preferred, String fallback) {
+    final value = preferred?.trim();
+    return value == null || value.isEmpty ? fallback : value;
+  }
+
+  static String _shortIdentifier(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) return '—';
+    if (normalized.length <= 16) return normalized;
+    return '${normalized.substring(0, 8)}…${normalized.substring(normalized.length - 4)}';
+  }
+
+  static String _localizedSubjectType(String? subjectType) {
+    if (subjectType == null || subjectType.isEmpty) return '—';
+    return switch (subjectType.toLowerCase()) {
+      'tenant' || 'organization' => 'Tổ chức',
+      'membership' || 'member' => 'Thành viên',
+      'role' => 'Vai trò',
+      'account' || 'user' => 'Tài khoản',
+      'invitation' => 'Lời mời',
+      _ => subjectType,
+    };
   }
 
   static AuditLogStatus _status(TenantAuditLogResult result) {
@@ -79,37 +231,115 @@ abstract final class TenantAuditUiMapper {
     };
   }
 
-  static String _titleFromEvent(String eventCode) {
-    final localized = _localizedEventTitles[eventCode];
-    if (localized != null) return localized;
+  static List<AuditLogChangeRowUiModel> _computeChanges(
+    Map<String, Object?>? before,
+    Map<String, Object?>? after, {
+    required bool beforeRedacted,
+    required bool afterRedacted,
+  }) {
+    final visibleBefore = beforeRedacted ? null : before;
+    final visibleAfter = afterRedacted ? null : after;
+    if (visibleBefore == null && visibleAfter == null) return const [];
 
-    final parts = eventCode.split('.');
-    if (parts.isEmpty) return eventCode;
-    return parts.last.replaceAll('_', ' ');
+    final keys = <String>{
+      if (visibleBefore != null) ...visibleBefore.keys,
+      if (visibleAfter != null) ...visibleAfter.keys,
+    }.toList()..sort();
+
+    final rows = <AuditLogChangeRowUiModel>[];
+    for (final key in keys) {
+      final beforeVal = visibleBefore?[key];
+      final afterVal = visibleAfter?[key];
+      if (!beforeRedacted && !afterRedacted && _deepEquals(beforeVal, afterVal)) {
+        continue;
+      }
+      rows.add(
+        AuditLogChangeRowUiModel(
+          fieldKey: key,
+          fieldLabel: TenantAuditFieldCatalog.labelFor(key),
+          beforeValue: _formatSanitizedValue(
+            key,
+            beforeVal,
+            isRedacted: beforeRedacted,
+          ),
+          afterValue: _formatSanitizedValue(
+            key,
+            afterVal,
+            isRedacted: afterRedacted,
+          ),
+          isChanged: true,
+        ),
+      );
+    }
+    return rows;
   }
 
-  static const Map<String, String> _localizedEventTitles = {
-    IamAuditEvents.membershipDeactivated: 'Tạm ngừng thành viên',
-    IamAuditEvents.membershipReactivated: 'Kích hoạt lại thành viên',
-    IamAuditEvents.membershipRemoved: 'Loại thành viên khỏi tổ chức',
-    IamAuditEvents.tenantProfileUpdated: 'Cập nhật hồ sơ tổ chức',
-    'iam.tenant.profile.updated': 'Cập nhật hồ sơ tổ chức',
-    IamAuditEvents.tenantLegalProfileUpdated: 'Cập nhật hồ sơ pháp lý',
-    IamAuditEvents.tenantActivated: 'Kích hoạt tổ chức',
-    IamAuditEvents.tenantSuspended: 'Tạm ngừng tổ chức',
-    IamAuditEvents.tenantRestored: 'Khôi phục tổ chức',
-    IamAuditEvents.tenantOwnershipTransferred: 'Chuyển chủ sở hữu tổ chức',
-    IamAuditEvents.accountProfileUpdated: 'Cập nhật hồ sơ cá nhân',
-    IamAuditEvents.accountPasswordResetCompleted: 'Đặt lại mật khẩu',
-    IamAuditEvents.accountSignedOut: 'Đăng xuất tài khoản',
-    'tenant.invitation.created': 'Tạo lời mời',
-    'tenant.invitation.resent': 'Gửi lại lời mời',
-    'tenant.invitation.accepted': 'Chấp nhận lời mời',
-    'tenant.invitation.revoked': 'Thu hồi lời mời',
-    'platform.tenant.suspend': 'Tạm ngừng tổ chức',
-    'platform.tenant.restore': 'Khôi phục tổ chức',
-    'platform.tenant.onboard': 'Khởi tạo tổ chức',
-    'platform.access.denied': 'Từ chối thao tác không đủ quyền',
-    'platform.policy.refresh': 'Làm mới chính sách quyền',
-  };
+  static String _formatStateJson(Map<String, Object?>? state, bool isRedacted) {
+    return _formatSanitizedValue(
+      '',
+      state,
+      isRedacted: isRedacted,
+      prettyJson: true,
+    );
+  }
+
+  static String _formatSanitizedValue(
+    String fieldKey,
+    Object? value, {
+    required bool isRedacted,
+    bool prettyJson = false,
+  }) {
+    if (isRedacted) return _redactedValue;
+    if (prettyJson && (value == null || (value is Map && value.isEmpty))) {
+      return '';
+    }
+    final sanitized = _sanitizeFieldValue(fieldKey, value);
+    if (!prettyJson) {
+      return TenantAuditFieldCatalog.formatValue(fieldKey, sanitized);
+    }
+    try {
+      return const JsonEncoder.withIndent('  ').convert(sanitized);
+    } catch (_) {
+      return sanitized.toString();
+    }
+  }
+
+  static Object? _sanitizeFieldValue(String key, Object? value) {
+    if (TenantAuditFieldCatalog.isSensitive(key)) return _redactedValue;
+    return _sanitizeValue(value);
+  }
+
+  static Object? _sanitizeValue(Object? value) {
+    if (value is Map) {
+      return value.map(
+        (key, item) => MapEntry(
+          key.toString(),
+          _sanitizeFieldValue(key.toString(), item),
+        ),
+      );
+    }
+    if (value is List) return value.map(_sanitizeValue).toList(growable: false);
+    return value;
+  }
+
+  static bool _deepEquals(Object? left, Object? right) {
+    if (identical(left, right)) return true;
+    if (left is List && right is List) {
+      if (left.length != right.length) return false;
+      for (var index = 0; index < left.length; index++) {
+        if (!_deepEquals(left[index], right[index])) return false;
+      }
+      return true;
+    }
+    if (left is Map && right is Map) {
+      if (left.length != right.length) return false;
+      for (final key in left.keys) {
+        if (!right.containsKey(key) || !_deepEquals(left[key], right[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return left == right;
+  }
 }

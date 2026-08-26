@@ -532,6 +532,8 @@ Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@Re
 | `GetTenantOnboardingOperationQuery` | operationId | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, RESOURCE_NOT_FOUND |
 | `RetryTenantOnboardingOperationCommand` | operationId, idempotencyKey | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, STATE_CHANGED, IDEMPOTENCY_CONFLICT, VALIDATION_ERROR |
 
+**Ràng buộc triển khai (owner activation):** Onboarding **không** được tạo `iam.owner_activations` hay cần `inspect_owner_activation` / `accept_owner_activation`. Owner là **người dùng đầu tiên, mặc định là chủ**: onboarding tạo Owner Membership (`is_owner`, role `store_owner`, `status='active'`) ngay cùng Tenant; với owner mới, tạo pending Platform User qua `platform_identity_create_pending_user_for_onboarding` (chưa credential). Owner **không** đi qua luồng mời — `tenant_invitations` là của staff. "Kích hoạt" owner = **đặt mật khẩu qua Supabase Auth** (không có bước accept).
+
 **Locked search shape**
 
 ```text
@@ -774,42 +776,137 @@ Tenant-scoped. Activation snapshot via Platform Identity provider port (IAM khô
 
 ---
 
-## §S13 — EP-02/US-07 — Tenant Audit history
+## §S13 — EP-02/US-07 — Tenant Audit history (V2)
 
-Tenant-scoped. Port: `ITenantAuditReadPort` → `SupabaseTenantAuditReadPort`. Đọc từ canonical `iam.audit_logs` (scope `tenant`); S16 platform audit dùng chung bảng này (scope `platform`). Interim `iam.platform_audit_logs` giữ để tương thích một vòng rollout, không dual-write.
+Tenant-scoped. Port: `ITenantAuditReadPort` → `SupabaseTenantAuditReadPort`. Đọc từ canonical `iam.audit_logs` (scope `tenant`); S16 platform audit dùng chung bảng này (scope `platform`).
+
+**Ràng buộc triển khai:** IAM **không** được ghi/đọc `iam.platform_audit_logs` — đó là kho legacy, phải gỡ bằng draft cleanup; `SearchPlatformAuditLogsQuery` và `GetPlatformAuditLogQuery` đọc `iam.audit_logs` với `scope = 'platform'`.
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `SearchTenantAuditLogsQuery` | tenantId, fromUtc, toUtc, result?, actorUserId?, subjectType?, eventCode?, cursor?, limit? | `TenantAuditLogSearchPageDto` | PERMISSION_DENIED, VALIDATION_ERROR, SYSTEM_ERROR |
-| `GetTenantAuditLogQuery` | tenantId, auditLogId | `TenantAuditLogDetailDto` | PERMISSION_DENIED, RESOURCE_NOT_FOUND, SYSTEM_ERROR |
+| `SearchTenantAuditLogsQuery` | `tenantId: String`, `fromUtc: DateTime`, `toUtc: DateTime`, `query: String?`, `result: String?`, `eventCategory: TenantAuditEventCategory?`, `subjectType: String?`, `eventCodes: List<String>?`, `cursor: String?`, `limit: int?` | `TenantAuditLogSearchPageDto` | PERMISSION_DENIED, VALIDATION_ERROR, SYSTEM_ERROR |
+| `GetTenantAuditLogQuery` | `tenantId: String`, `auditLogId: String` | `TenantAuditLogDetailDto` | PERMISSION_DENIED, RESOURCE_NOT_FOUND, SYSTEM_ERROR |
 
-**Locked search shape**
+**Locked search shape (V2)**
 
 ```text
-tenantId, fromUtc, toUtc, result?, actorUserId?, subjectType?,
-eventCode?, cursor?, limit?
+tenantId, fromUtc, toUtc, result?, query?, eventCategory?, eventCodes?,
+subjectType?, cursor?, limit?
 ```
 
-**Detail fields:** auditLogId, tenantId, eventCode, actor (nullable + `actorUnavailable`), subjectType/subjectId, occurredAt, source, trackingId, redacted before/after (`beforeRedacted`/`afterRedacted` + optional `beforeState`/`afterState`).
+**Locked Dart DTO fields/types (V2):**
+
+```text
+TenantAuditLogSearchPageDto
+  items: List<TenantAuditLogSummaryDto>
+  totalCount: int
+  nextCursor: String?
+
+TenantAuditLogSummaryDto
+  auditLogId: String
+  eventCode: String
+  eventCategory: TenantAuditEventCategory?
+  result: TenantAuditLogResult
+  occurredAt: DateTime
+  source: String
+  trackingId: String
+  actor: TenantAuditActorDto
+  subject: TenantAuditSubjectDto
+
+TenantAuditLogDetailDto
+  auditLogId: String
+  tenantId: String
+  eventCode: String
+  eventCategory: TenantAuditEventCategory?
+  result: TenantAuditLogResult
+  occurredAt: DateTime
+  source: String
+  trackingId: String
+  actorUnavailable: bool
+  beforeRedacted: bool
+  afterRedacted: bool
+  actor: TenantAuditActorDto
+  subject: TenantAuditSubjectDto
+  beforeState: Map<String, Object?>?
+  afterState: Map<String, Object?>?
+
+TenantAuditActorDto
+  userId: String?
+  displayName: String?
+  actorType: String?
+  roleCode: String?
+  roleLabel: String?
+  displayOrigin: TenantAuditDisplayOrigin?
+
+TenantAuditSubjectDto
+  type: String?
+  id: String?
+  displayName: String?
+  code: String?
+  secondaryLabel: String?
+  displayOrigin: TenantAuditDisplayOrigin?
+```
+
+`TenantAuditDisplayOrigin` có đúng bốn wire code: `snapshot | current | system | unavailable`. `TenantAuditEventCategory?` nullable cho legacy/unknown rows; non-null category codes: `member | role | organization | invitation | account | security | system`.
 
 **Notes**
-- Default page size 20, max 100. Time range UTC, `from <= to`.
+- Default page size 20, max 100. Time range UTC, `fromUtc < toUtc` (start-inclusive, end-exclusive).
+- `totalCount` được tính trên toàn bộ bộ lọc trong khoảng thời gian trước khi phân trang cursor.
 - Detail luôn kèm tenantId + auditLogId (chống cross-tenant enumeration). Unknown/cross-tenant detail → `RESOURCE_NOT_FOUND`.
-- Actor unavailable → actor nullable + `actorUnavailable=true`. Redacted before/after không khôi phục ở IAM.
+- `displayOrigin`: `snapshot` (snapshot bất biến), `current` (fallback lookup tại thời điểm đọc), `system` (actor/subject hệ thống), `unavailable` (không còn khả dụng).
+- Legacy `actor_snapshot` / `subject_snapshot` **không bao giờ backfill**. Lookup IAM hiện tại chỉ enrich response với `displayOrigin=current`, không ghi ngược vào audit row; chỉ `event_category` được phép backfill deterministic từ `event_code` bất biến.
+- Redacted before/after không khôi phục ở IAM.
 - Cursor encode `(occurred_at, id)`; opaque and stable.
-- **OQ-05 (closed):** S13 chỉ hiển thị IAM-owned audit events (scope `tenant`); token, OTP, credential và PII ngoài allowlist bị redact trước persistence (`AuditPayloadRedactor`).
-- BE `done`: real `SupabaseTenantAuditReadPort` nối `iam.search_tenant_audit_logs` / `iam.get_tenant_audit_log`.
+- **OQ-05 (closed):** S13 chỉ hiển thị IAM-owned audit events (scope `tenant`); token, OTP, credential và PII ngoài allowlist bị redact trước persistence.
+- BE `done`: real `SupabaseTenantAuditReadPort` nối `iam.search_tenant_audit_logs_v2` / `iam.get_tenant_audit_log`.
 
-**RPCs (draft):** `iam.audit_logs` (canonical storage), `iam.append_audit_log`, `iam.record_account_security_event`, `iam.search_tenant_audit_logs`, `iam.get_tenant_audit_log`, `iam.search_platform_audit_logs`, `iam.get_platform_audit_log` — [`_drafts/013_iam_platform_audit_read.sql`](../../../../supabase/migrations/_drafts/013_iam_platform_audit_read.sql)
+**Locked RPC wire contract (drafts, unapplied):**
+
+```sql
+iam.search_tenant_audit_logs_v2(
+  p_tenant_id uuid,
+  p_from timestamptz,
+  p_to timestamptz,
+  p_query text default null,
+  p_result text default null,
+  p_event_category text default null,
+  p_subject_type text default null,
+  p_event_codes text[] default null,
+  p_cursor text default null,
+  p_page_size integer default 20
+) returns jsonb
+
+iam.get_tenant_audit_log(
+  p_tenant_id uuid,
+  p_audit_log_id uuid
+) returns jsonb
+```
+
+Adapter search request keys đúng thứ tự contract: `p_tenant_id`, `p_from`, `p_to`, `p_query`, `p_result`, `p_event_category`, `p_subject_type`, `p_event_codes`, `p_cursor`, `p_page_size`. Detail request keys: `p_tenant_id`, `p_audit_log_id`.
+
+Search response top-level keys: `items`, `total_count`, `next_cursor`. Mỗi item có: `audit_log_id`, `event_code`, `event_category` (nullable), `result`, `occurred_at`, `source`, `tracking_id`, `actor`, `subject`.
+
+`actor` keys: `user_id`, `display_name`, `actor_type`, `role_code`, `role_label`, `display_origin`. `subject` keys: `type`, `id`, `display_name`, `code`, `secondary_label`, `display_origin`.
+
+Detail response keys: `audit_log_id`, `tenant_id`, `event_code`, `event_category` (nullable), `result`, `occurred_at`, `source`, `tracking_id`, `actor_unavailable`, `before_redacted`, `after_redacted`, `actor`, `subject`, `before_state`, `after_state`.
+
+**SQL draft files:**
+- Storage & helper snapshot: [`_drafts/iam_tenant_audit_history_v2_storage.sql`](../../../../supabase/migrations/_drafts/iam_tenant_audit_history_v2_storage.sql)
+- Read RPCs: [`_drafts/iam_tenant_audit_history_v2_read.sql`](../../../../supabase/migrations/_drafts/iam_tenant_audit_history_v2_read.sql)
+- Payload builders: [`_drafts/iam_tenant_audit_history_v2_payloads.sql`](../../../../supabase/migrations/_drafts/iam_tenant_audit_history_v2_payloads.sql)
+
+Ba SQL V2 trên vẫn chỉ ở `_drafts/`, chưa promote và chưa apply. Vì vậy evidence hiện tại là contract/adapter/presentation/ERP test; không phải live-DB hay snapshot-backfill evidence.
+
+**Acceptance verification 2026-08-20 (fresh, no auto-commit):** application audit **18/18**, infrastructure audit/V2 SQL contracts + adapter **62/62**, presentation catalog/Cubit/mapper/list/detail **43/43**, ERP E02/U01/U03/U07 **5/5**; strict migration policy, focused E2E analyze và `git diff --check` đều exit 0.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `tenant_audit_search_ok` | filters | summaries page |
-| `tenant_audit_detail_ok` | known id | detail (+ redaction state) |
-| `tenant_audit_empty` | no matches | empty page |
+| `tenant_audit_search_ok` | filters | summaries page (với totalCount) |
+| `tenant_audit_detail_ok` | known id | detail (+ typed before/after & redaction state) |
+| `tenant_audit_empty` | no matches | empty page (totalCount = 0) |
 | `tenant_audit_forbidden` | missing permission | PERMISSION_DENIED |
 | `tenant_audit_provider_error` | adapter unavailable | SYSTEM_ERROR |
-| `tenant_audit_actor_unavailable` | deleted actor | actorUnavailable=true |
+| `tenant_audit_actor_unavailable` | deleted actor | actorUnavailable=true, displayOrigin=unavailable |
 | `tenant_audit_cross_tenant` | foreign auditLogId | RESOURCE_NOT_FOUND |
 
 ---

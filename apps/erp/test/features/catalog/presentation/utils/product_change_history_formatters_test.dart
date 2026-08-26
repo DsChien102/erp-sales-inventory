@@ -4,17 +4,11 @@ import 'package:vet45_catalog_application/application.dart';
 
 void main() {
   group('formatProductChangeHistoryDateTime', () {
-    test('converts UTC to local device time', () {
+    test('converts UTC to fixed ICT (UTC+7), not device local time', () {
       final utc = DateTime.utc(2026, 7, 6, 1, 18);
       final formatted = formatProductChangeHistoryDateTime(utc);
-      final local = utc.toLocal();
-      final expected =
-          '${local.year.toString().padLeft(4, '0')}-'
-          '${local.month.toString().padLeft(2, '0')}-'
-          '${local.day.toString().padLeft(2, '0')} '
-          '${local.hour.toString().padLeft(2, '0')}:'
-          '${local.minute.toString().padLeft(2, '0')}';
-      expect(formatted, expected);
+      // 01:18 UTC + 7h = 08:18 ICT, same calendar day.
+      expect(formatted, '2026-07-06 08:18');
     });
   });
 

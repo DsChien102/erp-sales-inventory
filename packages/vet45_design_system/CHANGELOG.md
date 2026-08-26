@@ -15,6 +15,7 @@ changelogs when relevant.
 
 ### Added
 
+- `VDateTime` — format ngày/giờ cố định ICT (UTC+7), không theo timezone thiết bị.
 - Versioning theo ship unit: Keep a Changelog + `scripts/bump_version.sh` (framework `flutter_lib`).
 - `VEmptyTitle.tone` (`VComponentTone`) — màu title theo tone (legacy `VEmptyState` truyền xuống).
 - `VEmptyHeader.tone` Inherited scope: `VEmptyMedia` / `VEmptyTitle` / `VEmptyDescription` inherit tone (local override); throw nếu dùng ngoài header.

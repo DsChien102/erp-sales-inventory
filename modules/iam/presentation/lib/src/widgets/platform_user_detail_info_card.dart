@@ -7,13 +7,7 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
 
   final PlatformUserDetailDto user;
 
-  String _formatDateTime(DateTime dt) {
-    final day = dt.day.toString().padLeft(2, '0');
-    final month = dt.month.toString().padLeft(2, '0');
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    return '$day/$month/${dt.year} · $hour:$minute';
-  }
+  String _formatDateTime(DateTime dt) => VDateTime.dateTime(dt);
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +26,8 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
           if (user.status == PlatformUserStatus.active) ...[
             _buildInfoRow(
               label: 'Email đã xác minh',
-              value: user.emailVerified
-                  ? _formatDateTime(user.createdAt.add(const Duration(hours: 8, minutes: 5)))
+              value: user.emailVerifiedAt != null
+                  ? _formatDateTime(user.emailVerifiedAt!)
                   : 'Chưa xác minh',
               colors: colors,
             ),
@@ -66,16 +60,16 @@ class PlatformUserDetailInfoCard extends StatelessWidget {
             const VGap.md(),
             _buildInfoRow(
               label: 'Email kích hoạt hết hạn',
-              value: _formatDateTime(
-                user.createdAt.add(const Duration(days: 3)),
-              ),
+              value: user.activationExpiresAt != null
+                  ? _formatDateTime(user.activationExpiresAt!)
+                  : '—',
               colors: colors,
             ),
           ] else if (user.status == PlatformUserStatus.suspended) ...[
             _buildInfoRow(
               label: 'Email đã xác minh',
-              value: user.emailVerified
-                  ? _formatDateTime(user.createdAt.add(const Duration(hours: 8, minutes: 5)))
+              value: user.emailVerifiedAt != null
+                  ? _formatDateTime(user.emailVerifiedAt!)
                   : 'Chưa xác minh',
               colors: colors,
             ),

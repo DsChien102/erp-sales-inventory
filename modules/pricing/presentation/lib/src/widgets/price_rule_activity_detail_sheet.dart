@@ -301,7 +301,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
     if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';
     try {
       final d = DateTime.parse(dateStr);
-      return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+      return VDateTime.date(d);
     } catch (_) {
       return dateStr;
     }

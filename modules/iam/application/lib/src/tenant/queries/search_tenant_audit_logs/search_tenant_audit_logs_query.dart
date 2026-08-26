@@ -1,6 +1,7 @@
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/tenant_audit_event_category.dart';
 import '../../shared/tenant_audit_log_search_page_dto.dart';
 
 @RequiresPermission(IamPermissions.tenantAuditView)
@@ -12,10 +13,11 @@ final class SearchTenantAuditLogsQuery extends QueryBase<TenantAuditLogSearchPag
     required this.tenantId,
     required this.fromUtc,
     required this.toUtc,
+    this.query,
     this.result,
-    this.actorUserId,
+    this.eventCategory,
     this.subjectType,
-    this.eventCode,
+    this.eventCodes,
     this.cursor,
     this.limit,
   }) : super(id);
@@ -24,10 +26,11 @@ final class SearchTenantAuditLogsQuery extends QueryBase<TenantAuditLogSearchPag
   final String tenantId;
   final DateTime fromUtc;
   final DateTime toUtc;
+  final String? query;
   final String? result;
-  final String? actorUserId;
+  final TenantAuditEventCategory? eventCategory;
   final String? subjectType;
-  final String? eventCode;
+  final List<String>? eventCodes;
   final String? cursor;
   final int? limit;
 }

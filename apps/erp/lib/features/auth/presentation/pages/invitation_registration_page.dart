@@ -39,7 +39,6 @@ class InvitationRegistrationPage extends StatelessWidget {
               password: password,
             );
           },
-          onDecline: cubit.decline,
         );
       },
     );

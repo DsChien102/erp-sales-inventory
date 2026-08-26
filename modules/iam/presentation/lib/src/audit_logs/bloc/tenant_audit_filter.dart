@@ -5,18 +5,20 @@ final class TenantAuditFilter {
   const TenantAuditFilter({
     required this.fromLocal,
     required this.toLocal,
+    this.query,
     this.result,
-    this.actorUserId,
+    this.eventCategory,
     this.subjectType,
-    this.eventCode,
+    this.eventCodes,
   });
 
   final DateTime fromLocal;
   final DateTime toLocal;
+  final String? query;
   final TenantAuditLogResult? result;
-  final String? actorUserId;
+  final TenantAuditEventCategory? eventCategory;
   final String? subjectType;
-  final String? eventCode;
+  final List<String>? eventCodes;
 
   /// Default: last 30 local calendar days (inclusive start, exclusive end day).
   factory TenantAuditFilter.last30Days({DateTime? nowLocal}) {
@@ -31,30 +33,32 @@ final class TenantAuditFilter {
   TenantAuditFilter copyWith({
     DateTime? fromLocal,
     DateTime? toLocal,
+    String? query,
     TenantAuditLogResult? result,
-    String? actorUserId,
+    TenantAuditEventCategory? eventCategory,
     String? subjectType,
-    String? eventCode,
+    List<String>? eventCodes,
+    bool clearQuery = false,
     bool clearResult = false,
-    bool clearActorUserId = false,
+    bool clearEventCategory = false,
     bool clearSubjectType = false,
-    bool clearEventCode = false,
+    bool clearEventCodes = false,
   }) {
     return TenantAuditFilter(
       fromLocal: fromLocal ?? this.fromLocal,
       toLocal: toLocal ?? this.toLocal,
+      query: clearQuery ? null : (query ?? this.query),
       result: clearResult ? null : (result ?? this.result),
-      actorUserId:
-          clearActorUserId ? null : (actorUserId ?? this.actorUserId),
-      subjectType:
-          clearSubjectType ? null : (subjectType ?? this.subjectType),
-      eventCode: clearEventCode ? null : (eventCode ?? this.eventCode),
+      eventCategory: clearEventCategory ? null : (eventCategory ?? this.eventCategory),
+      subjectType: clearSubjectType ? null : (subjectType ?? this.subjectType),
+      eventCodes: clearEventCodes ? null : (eventCodes ?? this.eventCodes),
     );
   }
 
   bool get hasAdvancedFilters =>
+      (query != null && query!.trim().isNotEmpty) ||
       result != null ||
-      (actorUserId != null && actorUserId!.isNotEmpty) ||
+      eventCategory != null ||
       (subjectType != null && subjectType!.isNotEmpty) ||
-      (eventCode != null && eventCode!.isNotEmpty);
+      (eventCodes != null && eventCodes!.isNotEmpty);
 }

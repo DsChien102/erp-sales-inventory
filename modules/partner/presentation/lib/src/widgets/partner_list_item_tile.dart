@@ -13,9 +13,7 @@ class PartnerListItemTile extends StatelessWidget {
   final PartnerListItemDto item;
   final VoidCallback onTap;
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
+  String _formatDate(DateTime date) => VDateTime.date(date);
 
   @override
   Widget build(BuildContext context) {

@@ -8,6 +8,7 @@ final class TenantAuditLogsState {
   const TenantAuditLogsState({
     this.status = IamLoadStatus.initial,
     this.items = const [],
+    this.totalCount = 0,
     this.nextCursor,
     required this.filters,
     this.isLoadingMore = false,
@@ -19,6 +20,7 @@ final class TenantAuditLogsState {
 
   final IamLoadStatus status;
   final List<TenantAuditLogSummaryDto> items;
+  final int totalCount;
   final String? nextCursor;
   final TenantAuditFilter filters;
   final bool isLoadingMore;
@@ -32,6 +34,7 @@ final class TenantAuditLogsState {
   TenantAuditLogsState copyWith({
     IamLoadStatus? status,
     List<TenantAuditLogSummaryDto>? items,
+    int? totalCount,
     String? nextCursor,
     TenantAuditFilter? filters,
     bool? isLoadingMore,
@@ -47,16 +50,14 @@ final class TenantAuditLogsState {
     return TenantAuditLogsState(
       status: status ?? this.status,
       items: items ?? this.items,
+      totalCount: totalCount ?? this.totalCount,
       nextCursor: clearNextCursor ? null : (nextCursor ?? this.nextCursor),
       filters: filters ?? this.filters,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       failure: clearFailure ? null : (failure ?? this.failure),
-      selectedDetail:
-          clearDetail ? null : (selectedDetail ?? this.selectedDetail),
+      selectedDetail: clearDetail ? null : (selectedDetail ?? this.selectedDetail),
       detailStatus: detailStatus ?? this.detailStatus,
-      detailFailure: clearDetailFailure
-          ? null
-          : (detailFailure ?? this.detailFailure),
+      detailFailure: clearDetailFailure ? null : (detailFailure ?? this.detailFailure),
     );
   }
 }

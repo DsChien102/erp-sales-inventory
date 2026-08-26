@@ -9,7 +9,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/invitation_acceptance_cubit.dart';
 import '../bloc/invitation_acceptance_state.dart';
-import '../widgets/invitation_existing_account_form.dart';
+import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
 import 'invitation_registration_page.dart';
@@ -44,8 +44,15 @@ class InvitationTokenPage extends StatelessWidget {
   }
 }
 
-class _InvitationTokenView extends StatelessWidget {
+class _InvitationTokenView extends StatefulWidget {
   const _InvitationTokenView();
+
+  @override
+  State<_InvitationTokenView> createState() => _InvitationTokenViewState();
+}
+
+class _InvitationTokenViewState extends State<_InvitationTokenView> {
+  bool _confirmedNewAccount = false;
 
   static const _mobileLayoutWidth = VResponsiveValue<double>(
     mobile: 500,
@@ -60,16 +67,52 @@ class _InvitationTokenView extends StatelessWidget {
     return BlocConsumer<InvitationAcceptanceCubit, InvitationAcceptanceState>(
       listenWhen: (prev, next) =>
           (prev.step != next.step && next.step == InvitationAcceptanceStep.accepted) ||
+          (prev.step != next.step && next.step == InvitationAcceptanceStep.existingAccountLogin) ||
+          (prev.step != next.step && next.step == InvitationAcceptanceStep.newAccountRegistration) ||
           (prev.failure != next.failure && next.failure != null),
       listener: (context, state) {
+        if (state.step == InvitationAcceptanceStep.tokenEntry) {
+          setState(() => _confirmedNewAccount = false);
+        }
+
         if (state.step == InvitationAcceptanceStep.accepted) {
-          VToast.show(
-            context,
-            title: 'Kích hoạt thành công',
-            message: 'Tài khoản đã được kích hoạt thành công.',
-            type: VToastType.success,
+          context.go(
+            '/login',
+            extra: {
+              if (state.inspection?.inviteeEmail != null)
+                'prefilledEmail': state.inspection!.inviteeEmail,
+              'showSuccessBanner': true,
+            },
           );
-          context.go('/login');
+          return;
+        }
+
+        if ((state.step == InvitationAcceptanceStep.existingAccountLogin ||
+             state.step == InvitationAcceptanceStep.newAccountRegistration) &&
+            state.inspection != null) {
+          final inspection = state.inspection!;
+          final cubit = context.read<InvitationAcceptanceCubit>();
+          () async {
+            final confirmed = await showInvitationConfirmBottomSheet(
+              context: context,
+            );
+            if (!context.mounted) return;
+            if (confirmed == true) {
+              if (inspection.accountExists) {
+                context.go(
+                  '/login',
+                  extra: {
+                    'prefilledEmail': inspection.inviteeEmail,
+                    'showSuccessBanner': true,
+                  },
+                );
+              } else {
+                setState(() => _confirmedNewAccount = true);
+              }
+            } else if (confirmed == false) {
+              await cubit.decline();
+            }
+          }();
           return;
         }
 
@@ -120,14 +163,14 @@ class _InvitationTokenView extends StatelessWidget {
 
   /// Steps that render the token-entry page — including the guard paths where
   /// a later step lost its inspection and has to fall back to entry.
-  static bool _isEntryStep(InvitationAcceptanceState state) {
+  bool _isEntryStep(InvitationAcceptanceState state) {
     switch (state.step) {
       case InvitationAcceptanceStep.tokenEntry:
       case InvitationAcceptanceStep.inspecting:
-        return true;
       case InvitationAcceptanceStep.existingAccountLogin:
+        return true;
       case InvitationAcceptanceStep.newAccountRegistration:
-        return state.inspection == null;
+        return state.inspection == null || !_confirmedNewAccount;
       case InvitationAcceptanceStep.submitting:
       case InvitationAcceptanceStep.accepted:
       case InvitationAcceptanceStep.declined:
@@ -163,9 +206,9 @@ class _InvitationTokenView extends StatelessWidget {
     };
   }
 
-  static bool _isRegistrationStep(InvitationAcceptanceState state) {
+  bool _isRegistrationStep(InvitationAcceptanceState state) {
     if (state.inspection == null) return false;
-    return state.step == InvitationAcceptanceStep.newAccountRegistration ||
+    return (state.step == InvitationAcceptanceStep.newAccountRegistration && _confirmedNewAccount) ||
         (state.step == InvitationAcceptanceStep.submitting &&
             state.inspection!.accountExists == false);
   }
@@ -175,37 +218,23 @@ class _InvitationTokenView extends StatelessWidget {
     switch (state.step) {
       case InvitationAcceptanceStep.tokenEntry:
       case InvitationAcceptanceStep.inspecting:
+      case InvitationAcceptanceStep.existingAccountLogin:
         return InvitationTokenEntryForm(
           isSubmitting: state.step == InvitationAcceptanceStep.inspecting || state.isSubmitting,
           onInspect: cubit.inspect,
         );
-      case InvitationAcceptanceStep.existingAccountLogin:
-        final inspection = state.inspection;
-        if (inspection == null) {
+      case InvitationAcceptanceStep.newAccountRegistration:
+        if (!_confirmedNewAccount) {
           return InvitationTokenEntryForm(
-            isSubmitting: false,
+            isSubmitting: state.isSubmitting,
             onInspect: cubit.inspect,
           );
         }
-        return InvitationExistingAccountForm(
-          inspection: inspection,
-          isSubmitting: state.isSubmitting,
-          onAccept: (password) => cubit.loginAndAccept(password: password),
-          onDecline: cubit.decline,
-        );
-      case InvitationAcceptanceStep.newAccountRegistration:
         return const InvitationRegistrationPage();
       case InvitationAcceptanceStep.submitting:
-        if (state.inspection?.accountExists == true) {
-          return InvitationExistingAccountForm(
-            inspection: state.inspection!,
-            isSubmitting: true,
-            onAccept: (password) => cubit.loginAndAccept(password: password),
-            onDecline: cubit.decline,
-          );
-        }
         return const InvitationRegistrationPage();
       case InvitationAcceptanceStep.accepted:
+        return const SizedBox.shrink();
       case InvitationAcceptanceStep.declined:
       case InvitationAcceptanceStep.blocked:
         final keepToken =
@@ -213,9 +242,7 @@ class _InvitationTokenView extends StatelessWidget {
         return InvitationOutcomeView(
           step: state.step,
           message: state.failure?.message,
-          onEnterWorkspace: state.step == InvitationAcceptanceStep.accepted
-              ? () => context.go('/')
-              : null,
+          onEnterWorkspace: null,
           onEnterOtherToken: keepToken ? null : () => cubit.reset(),
           onRetryLater: keepToken
               ? () {

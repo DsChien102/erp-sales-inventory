@@ -8,7 +8,7 @@ void main() {
   setUpAll(() {
     final root = _findRepoRoot();
     sql = File(
-      '${root.path}/supabase/migrations/_drafts/006_iam_create_tenant_onboarding.sql',
+      '${root.path}/supabase/migrations/20260811006_iam_create_tenant_onboarding.sql',
     ).readAsStringSync();
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import '../models/audit_log_ui_model.dart';
 
 /// Card hiển thị từng nhật ký thao tác trong danh sách (PA-D-02).
@@ -14,17 +15,21 @@ class AuditLogItemCard extends StatelessWidget {
   });
 
   String _formatTimestamp(DateTime dt) {
-    final day = dt.day.toString().padLeft(2, '0');
-    final month = dt.month.toString().padLeft(2, '0');
-    final year = dt.year;
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
+    final ict = VDateTime.toIct(dt);
+    final day = ict.day.toString().padLeft(2, '0');
+    final month = ict.month.toString().padLeft(2, '0');
+    final year = ict.year;
+    final hour = ict.hour.toString().padLeft(2, '0');
+    final minute = ict.minute.toString().padLeft(2, '0');
     return '$day/$month/$year $hour:$minute';
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final isLegacy =
+        log.actorDisplayOrigin == TenantAuditDisplayOrigin.current ||
+        log.subjectDisplayOrigin == TenantAuditDisplayOrigin.current;
     final Color iconColor = log.icon == VIcons.info ? colors.info : colors.textPrimary;
 
     return VCard(
@@ -44,20 +49,45 @@ class AuditLogItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VText(
-                  log.title,
-                  variant: VTextVariant.bodyDefault,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: VText(
+                        log.title,
+                        variant: VTextVariant.bodyDefault,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    if (isLegacy) ...[
+                      const SizedBox(width: VSpacing.space2),
+                      const VBadge(
+                        label: 'Thông tin hiện tại',
+                        status: VBadgeStatus.draft,
+                        isSmall: true,
+                      ),
+                    ],
+                  ],
                 ),
                 const VGap.xs(),
                 VText(
-                  '${log.actorName} · ${_formatTimestamp(log.timestamp)}',
+                  log.actorRole.isNotEmpty && log.actorRole != '—'
+                      ? '${log.actorName} (${log.actorRole}) · ${_formatTimestamp(log.timestamp)}'
+                      : '${log.actorName} · ${_formatTimestamp(log.timestamp)}',
                   variant: VTextVariant.bodySmall,
                   color: colors.textSecondary,
                 ),
+                if (log.targetOrg.isNotEmpty && log.targetOrg != '—') ...[
+                  const VGap.xs(),
+                  VText(
+                    '${log.targetSubjectLabel ?? 'Đối tượng'}: ${log.targetOrg}',
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
+                  ),
+                ],
               ],
             ),
           ),

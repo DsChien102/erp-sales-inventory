@@ -15,7 +15,9 @@ final class IamFeatureAccessCubit extends Cubit<IamFeatureAccessState> {
     emit(
       state.copyWith(
         status: IamLoadStatus.loading,
+        readinessStatus: IamLoadStatus.loading,
         clearFailure: true,
+        clearReadiness: true,
       ),
     );
 
@@ -41,24 +43,34 @@ final class IamFeatureAccessCubit extends Cubit<IamFeatureAccessState> {
         state.copyWith(
           status: IamLoadStatus.success,
           session: session,
+          readinessStatus: IamLoadStatus.initial,
           clearFailure: true,
           clearReadiness: true,
         ),
       );
 
       final tenantId = session.tenantId;
-      if (tenantId != null &&
-          tenantId.isNotEmpty &&
-          state.canViewReadiness) {
+      if (tenantId != null && tenantId.isNotEmpty && state.canViewReadiness) {
+        emit(state.copyWith(readinessStatus: IamLoadStatus.loading));
         try {
-          final readiness = await _iamModule
-              .executeQueryAsync<TenantReadinessDto>(
-                GetTenantReadinessQuery(tenantId: tenantId),
-              );
+          final readiness = await _iamModule.executeQueryAsync<TenantReadinessDto>(
+            GetTenantReadinessQuery(tenantId: tenantId),
+          );
           if (isClosed) return;
-          emit(state.copyWith(readiness: readiness));
+          emit(
+            state.copyWith(
+              readinessStatus: IamLoadStatus.success,
+              readiness: readiness,
+            ),
+          );
         } catch (_) {
-          // Soft banner without DTO counts when readiness load fails.
+          if (isClosed) return;
+          emit(
+            state.copyWith(
+              readinessStatus: IamLoadStatus.failure,
+              clearReadiness: true,
+            ),
+          );
         }
       }
     } catch (error) {

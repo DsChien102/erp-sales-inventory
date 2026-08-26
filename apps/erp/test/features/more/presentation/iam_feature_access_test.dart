@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:erp/features/more/presentation/bloc/iam_feature_access_cubit.dart';
 import 'package:erp/features/more/presentation/bloc/iam_feature_access_state.dart';
 import 'package:erp/features/more/presentation/pages/more_page.dart';
@@ -92,7 +94,7 @@ void main() {
   });
 
   testWidgets(
-    'UsersAndRolesPage shows role and ownership entries for owner',
+    'UsersAndRolesPage shows owner entries without an unverified readiness banner',
     (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1;
@@ -125,7 +127,47 @@ void main() {
       expect(find.text('Vai trò'), findsOneWidget);
       expect(find.text('Quyền sở hữu'), findsOneWidget);
       expect(find.text('Lịch sử quản trị'), findsOneWidget);
-      expect(find.text('Cần hoàn tất'), findsOneWidget);
+      expect(find.text('Cần hoàn tất'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'UsersAndRolesPage never flashes readiness banner while active state loads',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = _DelayedReadinessModule();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: UsersAndRolesPage(iamModule: module),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
+      expect(find.byKey(const Key('iam_readiness_hub_banner')), findsNothing);
+      expect(find.text('Cần hoàn tất'), findsNothing);
+
+      module.completeReadiness(
+        TenantReadinessDto(
+          tenantId: 'org-001',
+          status: TenantLifecycleStatus.active,
+          blockers: const [],
+          warnings: const [],
+          evaluatedAt: DateTime.utc(2026, 8, 25),
+          tenantVersion: 3,
+          canActivate: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('iam_readiness_hub_banner')), findsNothing);
+      expect(find.text('Cần hoàn tất'), findsNothing);
     },
   );
 
@@ -396,6 +438,37 @@ final class _SessionWithReadinessModule implements IIamModule {
     }
     if (query is GetTenantReadinessQuery) {
       return readiness as TResult;
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
+}
+
+final class _DelayedReadinessModule implements IIamModule {
+  final Completer<TenantReadinessDto> _readiness = Completer<TenantReadinessDto>();
+
+  void completeReadiness(TenantReadinessDto readiness) {
+    _readiness.complete(readiness);
+  }
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is GetCurrentSessionQuery) {
+      return const SessionDto(
+            isAuthenticated: true,
+            userId: 'owner-1',
+            role: 'store_owner',
+            isOwner: true,
+            tenantId: 'org-001',
+          )
+          as TResult;
+    }
+    if (query is GetTenantReadinessQuery) {
+      return await _readiness.future as TResult;
     }
     throw UnsupportedError(query.runtimeType.toString());
   }
