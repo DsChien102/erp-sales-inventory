@@ -121,7 +121,7 @@ class VCard extends StatelessWidget {
 
   (Color background, Color borderColor) _toneColors(VColorScheme colors) {
     return switch (tone) {
-      VComponentTone.primary => (colors.surfaceBrand, colors.primary),
+      VComponentTone.primary => (colors.surfaceBrand, colors.borderBrand),
       VComponentTone.success => (colors.successBg, colors.success),
       VComponentTone.warning => (colors.warningBg, colors.warning),
       VComponentTone.danger => (colors.dangerBg, colors.danger),

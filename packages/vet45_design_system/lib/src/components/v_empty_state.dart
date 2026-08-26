@@ -378,12 +378,11 @@ class VEmptyDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     _requireEmptyHeader(context, widgetName: 'VEmptyDescription');
-    final resolvedTone = VComponentScope.resolveTone(context);
     return vInspectorHide(
       VText(
         text,
         variant: VTextVariant.bodyDefault,
-        color: _emptyToneForeground(colors, resolvedTone) ?? colors.textSecondary,
+        color: colors.textSecondary,
         textAlign: TextAlign.center,
       ),
     );

@@ -17,6 +17,7 @@ changelogs when relevant.
 
 - `VComponentScope` — ambient soft inherit (slice 1: `tone` + `resolveTone`); `vProvideComponentScope` / `requireAncestor`.
 - `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
+- `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
 
 ### Changed
 
@@ -24,6 +25,7 @@ changelogs when relevant.
 - `VButton` / `VIconBox` / `VBadge` / `VChip` resolve tone từ `VComponentScope` khi local null.
 - `VBanner` provide `VComponentScope` cho trailing/footer.
 - `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
+- `VCard` tone `primary`: border dùng `borderBrand` thay `primary`.
 
 ### Fixed
 

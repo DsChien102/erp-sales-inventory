@@ -47,6 +47,22 @@ void main() {
       expect(cardDecoration(tester)!.boxShadow, VShadows.e2);
     });
 
+    testWidgets('tone primary uses surfaceBrand and borderBrand', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.primary,
+            child: Text('body'),
+          ),
+        ),
+      );
+
+      final decoration = cardDecoration(tester)!;
+      expect(decoration.color, VColorScheme.light.surfaceBrand);
+      final border = decoration.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderBrand);
+    });
+
     testWidgets('tone danger uses dangerBg and danger border', (tester) async {
       await tester.pumpWidget(
         wrap(
