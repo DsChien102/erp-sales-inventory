@@ -16,10 +16,12 @@ changelogs when relevant.
 ### Added
 
 - `VField` / `VFieldLabel` / `VFieldDescription` / `VFieldError` — compound field shell; control là child trực tiếp; `vFieldShell` legacy bridge.
+- `VDatePicker.iconPosition` (`left` | `right`, mặc định `left`).
 - `VCard.enabled` — soft-inherit `VComponentScope`; disabled → border `borderDefault`, bỏ `onTap`, cascade `enabled: false`.
 
 ### Changed
 
+- `VDatePicker` calendar icon mặc định bên trái (trước đây bên phải); dùng `iconPosition: right` để giữ layout cũ.
 - Flat field chrome (`label` / `helperText` / `errorText` / `isRequired`, plus `VChoiceList.title` / `VDatePicker.required`) marked `@Deprecated` — prefer `VField` + `VFieldLabel` / `VFieldDescription` / `VFieldError`; bridge vẫn hoạt động.
 - `VSearchBar`: height = `VTextField.controlHeight`, radius `VRadius.card`; variant `filled` luôn có border (`borderDefault` / focus `borderStrong`); icon muted hơn.
 

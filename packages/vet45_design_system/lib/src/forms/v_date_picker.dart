@@ -9,11 +9,21 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_field.dart';
+import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
+
+/// Calendar icon placement inside [VDatePicker] control.
+enum VDatePickerIconPosition {
+  /// Leading (LTR left). Default.
+  left,
+
+  /// Trailing (LTR right).
+  right,
+}
 
 class VDatePicker extends StatefulWidget {
   final DateTime? value;
@@ -35,6 +45,9 @@ class VDatePicker extends StatefulWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
+  /// Calendar icon side. Defaults to [VDatePickerIconPosition.left].
+  final VDatePickerIconPosition iconPosition;
+
   const VDatePicker({
     super.key,
     this.value,
@@ -50,6 +63,7 @@ class VDatePicker extends StatefulWidget {
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
+    this.iconPosition = VDatePickerIconPosition.left,
   });
 
   @override
@@ -131,7 +145,7 @@ class _VDatePickerState extends State<VDatePicker> {
         borderRadius: radius,
         child: Ink(
           height: VTextField.controlHeight,
-          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
           decoration: BoxDecoration(
             color: fillColor,
             border: VBorders.all(
@@ -142,6 +156,14 @@ class _VDatePickerState extends State<VDatePicker> {
           ),
           child: Row(
             children: [
+              if (widget.iconPosition == VDatePickerIconPosition.left) ...[
+                VIcon(
+                  icon: VIcons.calendar,
+                  size: 20,
+                  color: dynamicColors.textMuted,
+                ),
+                const VGap(VSpacing.space2, axis: Axis.horizontal),
+              ],
               Expanded(
                 child: VText(
                   dateText,
@@ -151,11 +173,14 @@ class _VDatePickerState extends State<VDatePicker> {
                       : dynamicColors.textMuted,
                 ),
               ),
-              VIcon(
-                icon: VIcons.calendar,
-                size: 20,
-                color: dynamicColors.textMuted,
-              ),
+              if (widget.iconPosition == VDatePickerIconPosition.right) ...[
+                const VGap(VSpacing.space2, axis: Axis.horizontal),
+                VIcon(
+                  icon: VIcons.calendar,
+                  size: 20,
+                  color: dynamicColors.textMuted,
+                ),
+              ],
             ],
           ),
         ),

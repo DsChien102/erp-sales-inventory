@@ -390,7 +390,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
           child: Column(
             children: [
               PreviewStateRow(
-                label: 'Empty',
+                label: 'Empty (icon left — default)',
                 child: VDatePicker(
                   value: null,
                   label: 'Invoice date',
@@ -399,10 +399,11 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                 ),
               ),
               PreviewStateRow(
-                label: 'Filled',
+                label: 'Filled (icon right)',
                 child: VDatePicker(
                   value: _date ?? DateTime(2026, 6, 3),
                   label: 'Invoice date',
+                  iconPosition: VDatePickerIconPosition.right,
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2035),
                   onChanged: (picked) => setState(() => _date = picked),

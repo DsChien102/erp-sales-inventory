@@ -19,6 +19,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: text chính light dùng `neutral900` thay `primary900`.
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
 - Design system: `VSearchBar` cao/radius khớp field; variant filled luôn có viền (`borderDefault` / focus `borderStrong`).
+- Design system: `VDatePicker` icon lịch mặc định bên trái (`iconPosition`); dùng `right` nếu cần layout cũ.
 
 ### Fixed
 
