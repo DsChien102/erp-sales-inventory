@@ -69,8 +69,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
 
   bool _triggerHighlighted = false;
 
-  bool get _canInteract =>
-      VComponentScope.resolveEnabled(context, local: widget.enabled);
+  bool get _canInteract => VComponentScope.resolveEnabled(context, local: widget.enabled);
 
   @override
   void initState() {
@@ -327,8 +326,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
     final colors = context.vColors;
     final isEnabled = _canInteract;
     final hasError = _effectiveError != null;
-    final useDanger =
-        hasError || widget.tone == VComponentTone.danger;
+    final useDanger = hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && (_focusNode.hasFocus || _menuController.isOpen);
     // Neutral/primary: no focus chrome. Danger: keep danger border + focus ring.
     final showDangerFocusChrome = useDanger && focused;
@@ -338,7 +336,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
             VComponentTone.danger => colors.danger,
-            _ => isEnabled ? colors.borderStrong : colors.borderDefault,
+            _ => colors.borderDefault,
           };
 
     return vInspectorHide(

@@ -114,7 +114,7 @@ class VCard extends StatelessWidget {
       VComponentTone.warning => (colors.warningBg, colors.warning),
       VComponentTone.danger => (colors.dangerBg, colors.danger),
       VComponentTone.info => (colors.infoBg, colors.info),
-      VComponentTone.neutral || null => (colors.surface, colors.borderDefault),
+      VComponentTone.neutral || null => (colors.surface, colors.borderStrong),
     };
   }
 

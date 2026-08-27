@@ -31,6 +31,7 @@ changelogs when relevant.
 - `VCard` tone `primary`: border dùng `borderBrand` thay `primary`.
 - `VEmptyState` flat API (`title` / `icon*` / `action*`) marked `@Deprecated` — prefer `child` composition. `tone` remains on the shell and cascades via `VComponentScope`.
 - `VEmptyTitle` / `VCardTitle` dùng `VText.tone` thay map màu tay.
+- `VCard` default border → `borderStrong`; `VTextField` / `VTextFormField` / `VSelect` / `VCombobox` resting và `VButton` secondary → `borderDefault`.
 ### Fixed
 
 ### Internal

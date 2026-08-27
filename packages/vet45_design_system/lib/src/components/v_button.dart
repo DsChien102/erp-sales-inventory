@@ -244,7 +244,7 @@ class VButton extends StatelessWidget {
           }
           return VBorders.side(dynamicColors.warning);
         }
-        return VBorders.side(dynamicColors.borderStrong);
+        return VBorders.side(dynamicColors.borderDefault);
       }
 
       if (variant == VButtonVariant.primary && resolvedTone == VComponentTone.danger && disabled) {

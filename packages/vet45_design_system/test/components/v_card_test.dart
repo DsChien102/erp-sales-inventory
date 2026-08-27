@@ -23,6 +23,12 @@ void main() {
       expect(cardDecoration(tester)!.boxShadow, isNull);
     });
 
+    testWidgets('default border uses borderStrong', (tester) async {
+      await tester.pumpWidget(wrap(const VCard(child: Text('body'))));
+      final border = cardDecoration(tester)!.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderStrong);
+    });
+
     testWidgets('emphasis medium applies e1 shadow', (tester) async {
       await tester.pumpWidget(
         wrap(

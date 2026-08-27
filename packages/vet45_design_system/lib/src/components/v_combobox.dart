@@ -385,7 +385,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
             VComponentTone.danger => colors.danger,
-            _ => colors.borderStrong,
+            _ => colors.borderDefault,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
     final restingBorder = _outline(restingBorderColor, borderWidth);

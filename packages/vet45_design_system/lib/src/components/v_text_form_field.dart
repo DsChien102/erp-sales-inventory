@@ -203,7 +203,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
     final toneBorderColor = switch (widget.tone) {
       VComponentTone.primary => colors.primary,
       VComponentTone.danger => colors.danger,
-      _ => colors.borderStrong,
+      _ => colors.borderDefault,
     };
     final borderWidth = VBorders.widthFor(widget.emphasis);
 
