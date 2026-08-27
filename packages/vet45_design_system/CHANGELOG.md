@@ -20,6 +20,7 @@ changelogs when relevant.
 - `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
 - `VColorScheme.foregroundForTone` — map `VComponentTone` → semantic foreground.
 - `VText.tone` — soft-inherit từ `VComponentScope` (`color` vẫn thắng).
+- `VDivider` — separator horizontal/vertical; thickness mặc định `VBorders.thin` (1), màu `borderDefault`.
 
 ### Changed
 

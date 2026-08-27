@@ -45,6 +45,13 @@ VSkeleton:
   state: na
   semanticLabel: preferred
 
+VDivider:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
+
 # --- Action ---
 VButton:
   role: action

@@ -9,6 +9,7 @@ class UIAuditTab extends StatelessWidget {
     // Primitives
     'VBadge',
     'VChip',
+    'VDivider',
     'VIcon',
     'VIconBox',
     'VSkeleton',

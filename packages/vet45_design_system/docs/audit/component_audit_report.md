@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-27T10:07:28.043474`
+- Generated at: `2026-08-27T10:34:10.661700`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -51,6 +51,7 @@
 | patterns | `VSection` | container | — (optional) | — (optional) | N/A (na) | — (optional) | No |
 | primitives | `VBadge` | status_display | Pass (required) | — (optional) | N/A (na) | Pass (preferred) | Yes |
 | primitives | `VChip` | status_display | Pass (required) | Pass (required) | Pass (optional) | Pass (required) | Yes |
+| primitives | `VDivider` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | primitives | `VIcon` | typography_primitive | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | primitives | `VIconBox` | status_display | Pass (optional) | — (optional) | N/A (na) | — (optional) | No |
 | primitives | `VSkeleton` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | Pass (preferred) | Yes |

@@ -43,6 +43,7 @@ export 'src/patterns/v_responsive_grid.dart';
 // Primitives
 export 'src/primitives/v_badge.dart';
 export 'src/primitives/v_chip.dart';
+export 'src/primitives/v_divider.dart';
 export 'src/primitives/v_icon.dart';
 export 'src/primitives/v_icon_box.dart';
 export 'src/primitives/v_skeleton.dart';

@@ -206,6 +206,49 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'VDivider',
+          description: 'Horizontal / vertical separator; default thickness 1, color borderDefault.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PreviewStateRow(
+                label: 'Horizontal (default)',
+                child: VDivider(),
+              ),
+              PreviewStateRow(
+                label: 'Horizontal + indent',
+                child: const VDivider(indent: VSpacing.md, endIndent: VSpacing.md),
+              ),
+              PreviewStateRow(
+                label: 'Custom color / thickness',
+                child: Builder(
+                  builder: (context) {
+                    return VDivider(
+                      thickness: 2,
+                      color: context.vColors.borderStrong,
+                    );
+                  },
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Vertical',
+                child: SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      const VText('Left'),
+                      const VGap.horizontalSm(),
+                      const VDivider(axis: Axis.vertical),
+                      const VGap.horizontalSm(),
+                      const VText('Right'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VSkeleton',
           description: 'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
           child: Column(

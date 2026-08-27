@@ -5,6 +5,7 @@ import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../primitives/v_divider.dart';
 
 class VBottomSheet extends StatelessWidget {
   final String? title;
@@ -79,7 +80,7 @@ class VBottomSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Divider(color: dynamicColors.borderDefault, height: 1),
+                  const VDivider(),
                 ],
                 vInspectorShow(child),
               ],
