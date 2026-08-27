@@ -33,7 +33,7 @@ VIconBox:
 
 VText:
   role: typography_primitive
-  tone: na
+  tone: optional
   emphasis: na
   state: na
   semanticLabel: optional
@@ -44,6 +44,13 @@ VSkeleton:
   emphasis: na
   state: na
   semanticLabel: preferred
+
+VDivider:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: optional
 
 # --- Action ---
 VButton:
@@ -97,13 +104,6 @@ VCompactSearchableDropdown:
   semanticLabel: required
 
 VDatePicker:
-  role: input
-  tone: preferred
-  emphasis: preferred
-  state: required
-  semanticLabel: required
-
-VQuantitySelector:
   role: input
   tone: preferred
   emphasis: preferred

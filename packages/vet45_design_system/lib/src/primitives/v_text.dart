@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
-import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../tokens/v_typography.dart';
 
 /// Typography scale variants — map 1-1 to [VTypography] public styles.
 enum VTextVariant {
@@ -26,12 +28,16 @@ enum VTextVariant {
 }
 
 /// Design-system text primitive. Resolves style from [VTextVariant] + theme color.
+///
+/// Color precedence: [color] → [tone] / ambient [VComponentScope] →
+/// [VColorScheme.textPrimary].
 class VText extends StatelessWidget {
   const VText(
     this.data, {
     super.key,
     this.variant = VTextVariant.bodyDefault,
     this.color,
+    this.tone,
     this.textAlign,
     this.maxLines,
     this.overflow,
@@ -42,7 +48,13 @@ class VText extends StatelessWidget {
 
   final String data;
   final VTextVariant variant;
+
+  /// Explicit color; wins over [tone] and ambient scope.
   final Color? color;
+
+  /// Soft-inherit via [VComponentScope.resolveTone] when [color] is null.
+  final VComponentTone? tone;
+
   final TextAlign? textAlign;
   final int? maxLines;
   final TextOverflow? overflow;
@@ -74,9 +86,12 @@ class VText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
+    final colors = context.vColors;
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+    final resolvedColor =
+        color ?? colors.foregroundForTone(resolvedTone) ?? colors.textPrimary;
     final resolved = _baseStyle(variant)
-        .copyWith(color: color ?? dynamicColors.textPrimary)
+        .copyWith(color: resolvedColor)
         .merge(style);
 
     return vInspectorHide(

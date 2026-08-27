@@ -16,7 +16,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   bool _checkbox = true;
   bool _switch = false;
   String? _radio = 'a';
-  int _quantity = 2;
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
   double _progressValue = 0.4;
@@ -121,8 +120,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VSwipeReveal',
-          description:
-              'Primitive swipe-left shell. Compose foreground child + actionsBuilder.',
+          description: 'Primitive swipe-left shell. Compose foreground child + actionsBuilder.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -417,7 +415,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     VButton(
                       label: 'Loading link',
                       variant: VButtonVariant.link,
-                      state: VComponentState.loading,
+                      isLoading: true,
                       onPressed: () {},
                     ),
                     VButton(
@@ -447,14 +445,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     const VButton(label: 'Disabled', onPressed: null),
                     const SizedBox(height: VSpacing.space2),
                     VButton(
-                      label: 'State disabled',
-                      state: VComponentState.disabled,
+                      label: 'Enabled false',
+                      enabled: false,
                       onPressed: () {},
                     ),
                     const SizedBox(height: VSpacing.space2),
                     VButton(
-                      label: 'State loading',
-                      state: VComponentState.loading,
+                      label: 'IsLoading',
+                      isLoading: true,
                       onPressed: () {},
                     ),
                     const SizedBox(height: VSpacing.space2),
@@ -520,7 +518,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VTextField(
                   label: 'Locked',
                   hintText: 'Cannot edit',
-                  state: VComponentState.disabled,
+                  enabled: false,
                 ),
               ),
               const PreviewStateRow(
@@ -713,30 +711,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   value: _switch,
                   label: 'Send digital receipt',
                   onChanged: (v) => setState(() => _switch = v),
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VQuantitySelector',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Interactive (0–10)',
-                child: VQuantitySelector(
-                  value: _quantity,
-                  min: 0,
-                  max: 10,
-                  onChanged: (v) => setState(() => _quantity = v),
-                ),
-              ),
-              const PreviewStateRow(
-                label: 'Disabled',
-                child: VQuantitySelector(
-                  value: 3,
-                  enabled: false,
-                  onChanged: _noopInt,
                 ),
               ),
             ],
@@ -964,8 +938,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VCard',
           description:
-              'tone → border + background; emphasis → shadow. '
-              'Compound: VCardHeader / Title / Icon / Action / Content / Footer '
+              'tone → border + background via VComponentScope; emphasis → shadow. '
+              'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent ancestry '
               '(set padding: EdgeInsets.zero).',
           child: Column(
             children: [
@@ -1099,6 +1073,89 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       'Chỉ body, tự quản lý inset.',
                       variant: VTextVariant.bodyDefault,
                     ),
+                  ),
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone inherit (card → icon / title)',
+                child: VCard(
+                  tone: VComponentTone.warning,
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      VCardHeader(
+                        title: VCardTitle(
+                          'Cảnh báo',
+                          description: 'Title inherit tone từ card/header.',
+                        ),
+                      ),
+                      VCardContent(
+                        child: Row(
+                          children: [
+                            VCardIcon(iconData: Icons.warning_amber_outlined),
+                            VGap.horizontalMd(),
+                            Expanded(
+                              child: VText(
+                                'Icon không truyền tone — inherit từ VCard.',
+                                variant: VTextVariant.bodyDefault,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VComponentScope',
+          description:
+              'Ambient soft inherit: tone + enabled. Local prop wins; missing scope OK.',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Tone scope → Button + IconBox',
+                child: VComponentScope(
+                  tone: VComponentTone.warning,
+                  child: Row(
+                    children: [
+                      VButton(
+                        label: 'Inherit warning',
+                        onPressed: () {},
+                        size: VButtonSize.small,
+                      ),
+                      const VGap.horizontalMd(),
+                      const VIconBox(
+                        iconData: Icons.warning_amber_outlined,
+                        size: 40,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Enabled scope → children disabled',
+                child: VComponentScope(
+                  enabled: false,
+                  child: Row(
+                    children: [
+                      VButton(
+                        label: 'Inherit disabled',
+                        onPressed: () {},
+                        size: VButtonSize.small,
+                      ),
+                      const VGap.horizontalMd(),
+                      VButton(
+                        label: 'Local enabled',
+                        enabled: true,
+                        onPressed: () {},
+                        size: VButtonSize.small,
+                      ),
+                    ],
                   ),
                 ),
               ),

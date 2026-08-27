@@ -23,6 +23,12 @@ void main() {
       expect(cardDecoration(tester)!.boxShadow, isNull);
     });
 
+    testWidgets('default border uses borderStrong', (tester) async {
+      await tester.pumpWidget(wrap(const VCard(child: Text('body'))));
+      final border = cardDecoration(tester)!.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderStrong);
+    });
+
     testWidgets('emphasis medium applies e1 shadow', (tester) async {
       await tester.pumpWidget(
         wrap(
@@ -45,6 +51,22 @@ void main() {
         ),
       );
       expect(cardDecoration(tester)!.boxShadow, VShadows.e2);
+    });
+
+    testWidgets('tone primary uses surfaceBrand and borderBrand', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.primary,
+            child: Text('body'),
+          ),
+        ),
+      );
+
+      final decoration = cardDecoration(tester)!;
+      expect(decoration.color, VColorScheme.light.surfaceBrand);
+      final border = decoration.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderBrand);
     });
 
     testWidgets('tone danger uses dangerBg and danger border', (tester) async {
@@ -133,11 +155,102 @@ void main() {
 
     testWidgets('VCardTitle without description omits secondary text', (tester) async {
       await tester.pumpWidget(
-        wrap(const VCardTitle('Only title')),
+        wrap(
+          const VCard(
+            child: VCardHeader(
+              title: VCardTitle('Only title'),
+            ),
+          ),
+        ),
       );
 
       expect(find.text('Only title'), findsOneWidget);
       expect(find.byType(VText), findsOneWidget);
+    });
+  });
+
+  group('VCard tone scope', () {
+    testWidgets('inherits card tone to icon', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.warning,
+            child: VCardIcon(iconData: Icons.store),
+          ),
+        ),
+      );
+
+      final iconBox = tester.widget<VIconBox>(find.byType(VIconBox));
+      expect(iconBox.tone, VComponentTone.warning);
+    });
+
+    testWidgets('inherits header tone to title', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            child: VCardHeader(
+              tone: VComponentTone.warning,
+              title: VCardTitle('Warn'),
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<Text>(find.text('Warn'));
+      expect(title.style?.color, VColorScheme.light.warning);
+    });
+
+    testWidgets('local tone overrides inherited tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            tone: VComponentTone.warning,
+            child: Column(
+              children: [
+                VCardHeader(
+                  title: VCardTitle('Danger title', tone: VComponentTone.danger),
+                ),
+                VCardIcon(
+                  iconData: Icons.info_outline,
+                  tone: VComponentTone.danger,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<Text>(find.text('Danger title'));
+      expect(title.style?.color, VColorScheme.light.danger);
+
+      final iconBox = tester.widget<VIconBox>(find.byType(VIconBox));
+      expect(iconBox.tone, VComponentTone.danger);
+    });
+
+    testWidgets('throws when title used outside header', (tester) async {
+      await tester.pumpWidget(wrap(const VCardTitle('Orphan')));
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when header used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardHeader(title: Text('Orphan'))),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when content used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardContent(child: Text('Orphan'))),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
+    });
+
+    testWidgets('throws when icon used outside card', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCardIcon(iconData: Icons.store)),
+      );
+      expect(tester.takeException(), isA<FlutterError>());
     });
   });
 }

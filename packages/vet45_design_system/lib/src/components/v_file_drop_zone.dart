@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
@@ -22,7 +21,7 @@ enum VFileDropZoneState { empty, valid, invalid, disabled }
 
 /// Drop zone chọn / kéo thả file (UI only — không chứa file_picker).
 ///
-/// Role: input. State derive → [VComponentState].
+/// Role: input. Disabled when [state] is [VFileDropZoneState.disabled].
 ///
 /// Khi có [action] (vd. nút "Chọn file từ thiết bị"), vùng chỉ là visual +
 /// drag target; tap chọn file nên gắn vào [action], không bọc cả zone bằng
@@ -61,14 +60,6 @@ class VFileDropZone extends StatelessWidget {
 
   final double minHeight;
   final String? semanticLabel;
-
-  VComponentState get _componentState => switch (state) {
-        VFileDropZoneState.disabled => VComponentState.disabled,
-        VFileDropZoneState.invalid => VComponentState.error,
-        VFileDropZoneState.empty ||
-        VFileDropZoneState.valid =>
-          VComponentState.enabled,
-      };
 
   bool get _isInteractive =>
       state != VFileDropZoneState.disabled && onTap != null && action == null;
@@ -163,7 +154,7 @@ class VFileDropZone extends StatelessWidget {
       Semantics(
         label: semanticLabel ?? title,
         button: _isInteractive,
-        enabled: _componentState != VComponentState.disabled,
+        enabled: state != VFileDropZoneState.disabled,
         child: Material(
           color: Colors.transparent,
           child: _isInteractive

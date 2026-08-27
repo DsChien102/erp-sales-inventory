@@ -15,9 +15,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
+- Design system: text chính light dùng `neutral900` thay `primary900`.
+
 ### Fixed
 
 ### Internal
+
+- Design system: bỏ `VComponentState`; dashboard `QuickActionButton` / pricing form dùng `enabled` inherit qua `VComponentScope`.
 
 ## [1.7.2+38] - 2026-08-26
 

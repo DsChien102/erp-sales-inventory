@@ -21,7 +21,7 @@ class VEmailField extends StatefulWidget {
     this.suffixIcon,
     this.suffixIconConstraints,
     this.suffixText,
-    this.enabled = true,
+    this.enabled,
     this.onChanged,
     this.isRequired = false,
     this.inputFormatters,
@@ -41,7 +41,6 @@ class VEmailField extends StatefulWidget {
     this.maxLengthEmailMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -54,7 +53,7 @@ class VEmailField extends StatefulWidget {
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
   final String? suffixText;
-  final bool enabled;
+  final bool? enabled;
   final ValueChanged<String>? onChanged;
   final bool isRequired;
   final List<TextInputFormatter>? inputFormatters;
@@ -74,7 +73,6 @@ class VEmailField extends StatefulWidget {
   final String? maxLengthEmailMessage;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -143,9 +141,6 @@ class _VEmailFieldState extends State<VEmailField> {
         border: widget.border,
         tone: widget.tone,
         emphasis: widget.emphasis,
-        state: (widget.errorText ?? _internalError) != null
-            ? VComponentState.error
-            : (widget.enabled ? widget.state : VComponentState.disabled),
         semanticLabel: widget.semanticLabel,
       ),
     );

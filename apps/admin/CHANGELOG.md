@@ -15,9 +15,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
+- Design system: text chính light dùng `neutral900` thay `primary900`.
+
 ### Fixed
 
 ### Internal
+
+- Design system: bỏ `VComponentState`; interactive controls dùng `enabled` (+ soft inherit `VComponentScope`).
 
 ## [1.0.2+3] - 2026-08-26
 

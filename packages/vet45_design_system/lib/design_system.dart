@@ -19,6 +19,7 @@ export 'src/theme/v_density.dart';
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
 export 'src/foundation/v_component_contracts.dart';
+export 'src/foundation/v_component_scope.dart';
 export 'src/foundation/v_inspector_scope.dart';
 export 'src/foundations/icons/v_icons.dart';
 export 'src/foundation/v_text_normalizer.dart';
@@ -42,6 +43,7 @@ export 'src/patterns/v_responsive_grid.dart';
 // Primitives
 export 'src/primitives/v_badge.dart';
 export 'src/primitives/v_chip.dart';
+export 'src/primitives/v_divider.dart';
 export 'src/primitives/v_icon.dart';
 export 'src/primitives/v_icon_box.dart';
 export 'src/primitives/v_skeleton.dart';
@@ -65,7 +67,6 @@ export 'src/components/v_empty_state.dart';
 export 'src/components/v_file_drop_zone.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_combobox.dart';
-export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_bottom_navigation_bar.dart';
 export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';

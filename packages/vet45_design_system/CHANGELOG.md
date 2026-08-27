@@ -15,11 +15,34 @@ changelogs when relevant.
 
 ### Added
 
+- `VComponentScope` — ambient soft inherit (`tone` + `enabled` / `resolveTone` / `resolveEnabled`); `vProvideComponentScope` / `requireAncestor`.
+- `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
+- `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
+- `VColorScheme.foregroundForTone` — map `VComponentTone` → semantic foreground.
+- `VText.tone` — soft-inherit từ `VComponentScope` (`color` vẫn thắng).
+- `VDivider` — separator horizontal/vertical; thickness mặc định `VBorders.thin` (1), màu `borderDefault`.
+
 ### Changed
+
+- `VEmptyHeader` / `VCard` dùng `VComponentScope` thay private tone InheritedWidget.
+- Interactive widgets: `bool? enabled` soft-inherit từ `VComponentScope` (local override); bỏ `VComponentState`.
+- `VButton` / `VIconBox` / `VBadge` / `VChip` resolve tone từ `VComponentScope` khi local null.
+- `VBanner` provide `VComponentScope` cho trailing/footer.
+- `VCardHeader` / `VCardContent` / `VCardFooter` / `VCardIcon` / `VCardAction` bắt buộc đúng ancestry parent (runtime `FlutterError`).
+- `VCard` tone `primary`: border dùng `borderBrand` thay `primary`.
+- `VEmptyState` flat API (`title` / `icon*` / `action*`) marked `@Deprecated` — prefer `child` composition. `tone` remains on the shell and cascades via `VComponentScope`.
+- `VEmptyTitle` / `VCardTitle` dùng `VText.tone` thay map màu tay.
+- `VCard` default border → `borderStrong`; `VTextField` / `VTextFormField` / `VSelect` / `VCombobox` resting và `VButton` secondary → `borderDefault`.
+- Light `textPrimary` → `neutral900` (dark giữ `neutral0`).
 
 ### Fixed
 
 ### Internal
+
+### Removed
+
+- `VComponentState` enum (`enabled` / `disabled` / `loading` / `error`). Disable → `enabled`; error → `errorText`/API riêng; loading CTA → `VButton.isLoading`.
+- `VQuantitySelector` component (export + example + audit matrix).
 
 ## [1.0.1] - 2026-08-26
 

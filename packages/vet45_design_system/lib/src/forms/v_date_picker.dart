@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
@@ -27,10 +28,9 @@ class VDatePicker extends StatefulWidget {
   final DateTime? firstDate;
   final DateTime? lastDate;
   final DateTime? initialDate;
-  final bool enabled;
+  final bool? enabled;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
   final String? semanticLabel;
 
   const VDatePicker({
@@ -44,10 +44,9 @@ class VDatePicker extends StatefulWidget {
     this.firstDate,
     this.lastDate,
     this.initialDate,
-    this.enabled = true,
+    this.enabled,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
     this.semanticLabel,
   });
 
@@ -57,12 +56,6 @@ class VDatePicker extends StatefulWidget {
 
 class _VDatePickerState extends State<VDatePicker> {
   bool _highlighted = false;
-
-  VComponentState _resolveState() {
-    if (widget.state != null) return widget.state!;
-    if (!widget.enabled) return VComponentState.disabled;
-    return VComponentState.enabled;
-  }
 
   void _handleTap() {
     // Keep this sync — do not await in the InkWell gesture callback.
@@ -96,8 +89,7 @@ class _VDatePickerState extends State<VDatePicker> {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final value = widget.value;
     final dateText = value != null
         ? '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}'

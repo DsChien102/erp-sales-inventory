@@ -9,10 +9,13 @@ class UIAuditTab extends StatelessWidget {
     // Primitives
     'VBadge',
     'VChip',
+    'VDivider',
     'VIcon',
     'VIconBox',
     'VSkeleton',
     'VText',
+    // Foundation ambient
+    'VComponentScope',
     // Components
     'VAvatar',
     'VButton',
@@ -44,7 +47,6 @@ class UIAuditTab extends StatelessWidget {
     'VSteps',
     'VProgress',
     'VCombobox',
-    'VQuantitySelector',
     'VSegmentedControl',
     'VSwipeReveal',
     'VNumericKeypadSheet',

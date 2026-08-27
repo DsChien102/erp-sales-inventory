@@ -83,5 +83,56 @@ void main() {
       expect(text.maxLines, 1);
       expect(text.overflow, TextOverflow.ellipsis);
     });
+
+    testWidgets('local tone maps to semantic color', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VText('Danger', tone: VComponentTone.danger)),
+      );
+
+      final text = tester.widget<Text>(find.text('Danger'));
+      expect(text.style?.color, VColorScheme.light.danger);
+    });
+
+    testWidgets('inherits tone from VComponentScope', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VComponentScope(
+            tone: VComponentTone.warning,
+            child: VText('Warn'),
+          ),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Warn'));
+      expect(text.style?.color, VColorScheme.light.warning);
+    });
+
+    testWidgets('explicit color wins over ambient tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          VComponentScope(
+            tone: VComponentTone.warning,
+            child: VText('Escape', color: VColorScheme.light.textSecondary),
+          ),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Escape'));
+      expect(text.style?.color, VColorScheme.light.textSecondary);
+    });
+
+    testWidgets('local tone wins over ambient tone', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VComponentScope(
+            tone: VComponentTone.warning,
+            child: VText('Local', tone: VComponentTone.danger),
+          ),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Local'));
+      expect(text.style?.color, VColorScheme.light.danger);
+    });
   });
 }

@@ -5,6 +5,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../foundations/icons/v_icons.dart';
@@ -24,10 +25,9 @@ class VSearchBar extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final Widget? suffix;
-  final bool enabled;
+  final bool? enabled;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
   final String? semanticLabel;
 
   const VSearchBar({
@@ -43,10 +43,9 @@ class VSearchBar extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.suffix,
-    this.enabled = true,
+    this.enabled,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state,
     this.semanticLabel,
   });
 
@@ -110,9 +109,7 @@ class _VSearchBarState extends State<VSearchBar> {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isFocused = _focusNode.hasFocus;
-    final resolvedState =
-        widget.state ?? (widget.enabled ? VComponentState.enabled : VComponentState.disabled);
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
 
     Color bg;
     Border? border;

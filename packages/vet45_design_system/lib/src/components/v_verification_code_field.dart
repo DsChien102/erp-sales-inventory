@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
@@ -52,12 +53,11 @@ class VVerificationCodeField extends StatefulWidget {
   final String? label;
   final String? helperText;
   final String? errorText;
-  final bool enabled;
+  final bool? enabled;
   final bool autofocus;
   final bool isRequired;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
   final String? semanticLabel;
 
   /// When true (default), the hidden field advertises [AutofillHints.oneTimeCode].
@@ -72,12 +72,11 @@ class VVerificationCodeField extends StatefulWidget {
     this.label,
     this.helperText,
     this.errorText,
-    this.enabled = true,
+    this.enabled,
     this.autofocus = false,
     this.isRequired = false,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
     this.semanticLabel,
     this.enableAutofill = true,
   }) : assert(length > 0, 'length must be greater than 0');
@@ -109,7 +108,8 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     _focusNode = FocusNode()..addListener(_handleFocusChange);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && widget.enabled) {
+        if (mounted &&
+            VComponentScope.resolveEnabled(context, local: widget.enabled)) {
           _focusNode.requestFocus();
         }
       });
@@ -321,7 +321,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final hasError = widget.errorText != null;
     final useDanger = hasError || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);

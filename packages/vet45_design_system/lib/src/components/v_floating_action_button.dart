@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../tokens/v_shadows.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../primitives/v_icon.dart';
 import '../foundation/v_inspector_scope.dart';
@@ -17,7 +18,7 @@ class VFloatingActionButton extends StatelessWidget {
   final Color? iconColor;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState? state;
+  final bool? enabled;
   final String? semanticLabel;
 
   const VFloatingActionButton({
@@ -29,21 +30,15 @@ class VFloatingActionButton extends StatelessWidget {
     this.iconColor,
     this.tone = VComponentTone.primary,
     this.emphasis = VComponentEmphasis.strong,
-    this.state,
+    this.enabled,
     this.semanticLabel,
   }) : assert(icon != null || iconData != null, 'Either icon or iconData must be provided');
-
-  VComponentState _resolveState() {
-    if (state != null) return state!;
-    if (onTap == null) return VComponentState.disabled;
-    return VComponentState.enabled;
-  }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled =
+        VComponentScope.resolveEnabled(context, local: enabled) && onTap != null;
 
     final resolvedBgColor = backgroundColor ??
         switch (tone) {

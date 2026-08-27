@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
 
 class VSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
   final String? label;
-  final bool enabled;
+  final bool? enabled;
   final VComponentTone tone;
-  final VComponentState? state;
   final String? semanticLabel;
 
   const VSwitch({
@@ -18,23 +18,16 @@ class VSwitch extends StatelessWidget {
     required this.value,
     this.onChanged,
     this.label,
-    this.enabled = true,
+    this.enabled,
     this.tone = VComponentTone.primary,
-    this.state,
     this.semanticLabel,
   });
-
-  VComponentState _resolveState() {
-    if (state != null) return state!;
-    if (!enabled || onChanged == null) return VComponentState.disabled;
-    return VComponentState.enabled;
-  }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled =
+        VComponentScope.resolveEnabled(context, local: enabled) && onChanged != null;
 
     final trackColor = switch (tone) {
       VComponentTone.danger => dynamicColors.danger,

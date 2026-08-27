@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
-import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -22,36 +22,20 @@ enum VEmptyMediaVariant {
   plain,
 }
 
-Color? _emptyToneForeground(VColorScheme colors, VComponentTone? tone) {
-  if (tone == null) return null;
-  return switch (tone) {
-    VComponentTone.primary => colors.primary,
-    VComponentTone.success => colors.success,
-    VComponentTone.warning => colors.warning,
-    VComponentTone.danger => colors.danger,
-    VComponentTone.info => colors.info,
-    VComponentTone.neutral => colors.textPrimary,
-  };
+/// Structural marker: [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription].
+class _VEmptyHeaderAncestry extends InheritedWidget {
+  const _VEmptyHeaderAncestry({required super.child});
+
+  @override
+  bool updateShouldNotify(covariant _VEmptyHeaderAncestry oldWidget) => false;
 }
 
-/// Resolves scope from local override, then [_VEmptyHeaderScope] scope.
-///
-/// Throws if used outside [VEmptyHeader].
-_VEmptyHeaderScope _resolveEmptyHeaderScope(
-  BuildContext context, {
-  required String widgetName,
-}) {
-  final scope = _VEmptyHeaderScope.maybeOf(context);
-  if (scope == null) {
-    throw FlutterError.fromParts(<DiagnosticsNode>[
-      ErrorSummary('$widgetName must be used within a VEmptyHeader.'),
-      ErrorDescription(
-        'Place $widgetName inside VEmptyHeader so it can inherit tone '
-        '(and keep empty-state composition consistent).',
-      ),
-    ]);
-  }
-  return scope;
+void _requireEmptyHeader(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VEmptyHeaderAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VEmptyHeader',
+  );
 }
 
 /// Empty-state shell (shadcn Empty).
@@ -60,11 +44,11 @@ _VEmptyHeaderScope _resolveEmptyHeaderScope(
 /// ```dart
 /// VEmptyState(
 ///   bordered: true,
+///   tone: VComponentTone.warning,
 ///   child: Column(
 ///     mainAxisSize: MainAxisSize.min,
 ///     children: [
 ///       VEmptyHeader(
-///         tone: VComponentTone.warning,
 ///         children: [
 ///           VEmptyMedia(iconData: Icons.inbox_outlined),
 ///           const VEmptyTitle('No data'),
@@ -78,10 +62,10 @@ _VEmptyHeaderScope _resolveEmptyHeaderScope(
 /// ```
 ///
 /// [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription] must live under
-/// [VEmptyHeader] (runtime [FlutterError] otherwise). Tone flows from the
-/// header; each child may override with its own [tone].
+/// [VEmptyHeader] (runtime [FlutterError] otherwise). [tone] cascades to
+/// descendants via [VComponentScope]; [VEmptyHeader] / children may override.
 ///
-/// Flat `title` / `icon*` / `actionLabel` args remain for existing call sites.
+/// Flat `title` / `icon*` / `actionLabel` args are deprecated — prefer [child].
 class VEmptyState extends StatelessWidget {
   /// Composition shell. When [child] is null, builds from legacy flat fields.
   const VEmptyState({
@@ -94,15 +78,42 @@ class VEmptyState extends StatelessWidget {
     this.borderRadius,
     this.padding,
     this.semanticLabel,
-    this.iconEmoji,
-    this.icon,
-    this.iconData,
-    this.title,
-    this.description,
-    this.actionLabel,
-    this.actionLeadingIcon,
-    this.onActionPressed,
     this.tone,
+    @Deprecated(
+      'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+    )
+    this.iconEmoji,
+    @Deprecated(
+      'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+    )
+    this.icon,
+    @Deprecated(
+      'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+    )
+    this.iconData,
+    @Deprecated(
+      'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+    )
+    this.title,
+    @Deprecated(
+      'Use child with VEmptyHeader / VEmptyDescription instead',
+    )
+    this.description,
+    @Deprecated(
+      'Use child with VEmptyContent + VButton instead',
+    )
+    this.actionLabel,
+    @Deprecated(
+      'Use child with VEmptyContent + VButton instead',
+    )
+    this.actionLeadingIcon,
+    @Deprecated(
+      'Use child with VEmptyContent + VButton instead',
+    )
+    this.onActionPressed,
+    @Deprecated(
+      'Pass emphasis on VButton inside VEmptyContent instead',
+    )
     this.emphasis = VComponentEmphasis.medium,
   }) : assert(
          child != null ||
@@ -125,17 +136,55 @@ class VEmptyState extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final String? semanticLabel;
 
-  // ── Legacy flat API (kept for ERP call sites / tests) ───────────────────
-
-  final String? iconEmoji;
-  final VIcons? icon;
-  final IconData? iconData;
-  final String? title;
-  final String? description;
-  final String? actionLabel;
-  final Widget? actionLeadingIcon;
-  final VoidCallback? onActionPressed;
+  /// Cascades to descendants via [VComponentScope] (header / media / title /
+  /// buttons, …). Header or child may override locally.
   final VComponentTone? tone;
+
+  // ── Legacy flat API (deprecated — prefer [child] composition) ───────────
+
+  @Deprecated(
+    'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+  )
+  final String? iconEmoji;
+
+  @Deprecated(
+    'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+  )
+  final VIcons? icon;
+
+  @Deprecated(
+    'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+  )
+  final IconData? iconData;
+
+  @Deprecated(
+    'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead',
+  )
+  final String? title;
+
+  @Deprecated(
+    'Use child with VEmptyHeader / VEmptyDescription instead',
+  )
+  final String? description;
+
+  @Deprecated(
+    'Use child with VEmptyContent + VButton instead',
+  )
+  final String? actionLabel;
+
+  @Deprecated(
+    'Use child with VEmptyContent + VButton instead',
+  )
+  final Widget? actionLeadingIcon;
+
+  @Deprecated(
+    'Use child with VEmptyContent + VButton instead',
+  )
+  final VoidCallback? onActionPressed;
+
+  @Deprecated(
+    'Pass emphasis on VButton inside VEmptyContent instead',
+  )
   final VComponentEmphasis emphasis;
 
   @override
@@ -149,6 +198,7 @@ class VEmptyState extends StatelessWidget {
 
     final hasDecoration = bg != null || resolvedBorder != null;
 
+    // ignore: deprecated_member_use_from_same_package
     final content = child ?? _legacyContent();
 
     final body = Padding(
@@ -159,52 +209,72 @@ class VEmptyState extends StatelessWidget {
       ),
     );
 
+    final shell = hasDecoration
+        ? DecoratedBox(
+            key: const ValueKey<String>('v_empty_state_shell'),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(resolvedRadius),
+              border: resolvedBorder,
+            ),
+            child: body,
+          )
+        : body;
+
     return vInspectorHide(
-      Semantics(
-        label: semanticLabel ?? title,
-        child: hasDecoration
-            ? DecoratedBox(
-                key: const ValueKey<String>('v_empty_state_shell'),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(resolvedRadius),
-                  border: resolvedBorder,
-                ),
-                child: body,
-              )
-            : body,
+      VComponentScope(
+        tone: tone,
+        child: Semantics(
+          // ignore: deprecated_member_use_from_same_package
+          label: semanticLabel ?? title,
+          child: shell,
+        ),
       ),
     );
   }
 
   Widget _legacyContent() {
+    // ignore: deprecated_member_use_from_same_package
+    final legacyEmphasis = emphasis;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyTitle = title!;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyDescription = description;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyActionLabel = actionLabel;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyOnAction = onActionPressed;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyActionLeading = actionLeadingIcon;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         VEmptyHeader(
-          tone: tone,
           children: [
             VEmptyMedia(
+              // ignore: deprecated_member_use_from_same_package
               icon: icon,
+              // ignore: deprecated_member_use_from_same_package
               iconData: iconData,
+              // ignore: deprecated_member_use_from_same_package
               emoji: iconEmoji,
             ),
-            VEmptyTitle(title!),
-            if (description != null) VEmptyDescription(description!),
+            VEmptyTitle(legacyTitle),
+            if (legacyDescription != null) VEmptyDescription(legacyDescription),
           ],
         ),
-        if (actionLabel != null && onActionPressed != null) ...[
+        if (legacyActionLabel != null && legacyOnAction != null) ...[
           const VGap.xl(),
           VEmptyContent(
             child: VButton(
-              label: actionLabel!,
-              onPressed: onActionPressed!,
-              leadingIcon: actionLeadingIcon,
+              label: legacyActionLabel,
+              onPressed: legacyOnAction,
+              leadingIcon: legacyActionLeading,
               size: VButtonSize.medium,
-              emphasis: emphasis,
-              tone: tone == VComponentTone.primary ? VComponentTone.primary : null,
+              emphasis: legacyEmphasis,
             ),
           ),
         ],
@@ -213,28 +283,10 @@ class VEmptyState extends StatelessWidget {
   }
 }
 
-/// Provides [tone] to [VEmptyMedia] / [VEmptyTitle] / [VEmptyDescription].
-class _VEmptyHeaderScope extends InheritedWidget {
-  const _VEmptyHeaderScope({
-    required this.tone,
-    required super.child,
-  });
-
-  final VComponentTone? tone;
-
-  static _VEmptyHeaderScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_VEmptyHeaderScope>();
-  }
-
-  @override
-  bool updateShouldNotify(covariant _VEmptyHeaderScope oldWidget) {
-    return tone != oldWidget.tone;
-  }
-}
-
 /// Groups media, title, and description (shadcn EmptyHeader).
 ///
-/// Set [tone] once; descendants inherit it unless they pass their own [tone].
+/// [tone] overrides ambient [VEmptyState.tone] for header descendants; falls
+/// back to [VComponentScope] from the shell when null.
 class VEmptyHeader extends StatelessWidget {
   const VEmptyHeader({
     super.key,
@@ -243,24 +295,30 @@ class VEmptyHeader extends StatelessWidget {
   });
 
   final List<Widget> children;
+
+  /// Overrides [VEmptyState.tone] for header descendants when set.
   final VComponentTone? tone;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+
     return vInspectorHide(
-      _VEmptyHeaderScope(
-        tone: tone,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) i == 1 ? const VGap.md() : const VGap.xs(),
-                vInspectorShow(children[i]),
+      _VEmptyHeaderAncestry(
+        child: VComponentScope(
+          tone: resolvedTone,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) i == 1 ? const VGap.md() : const VGap.xs(),
+                  vInspectorShow(children[i]),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -292,18 +350,15 @@ class VEmptyMedia extends StatelessWidget {
   final String? emoji;
   final VEmptyMediaVariant variant;
 
-  /// Overrides [VEmptyHeader.tone] when set.
+  /// Overrides ambient [VComponentScope.tone] when set.
   final VComponentTone? tone;
   final double size;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final scope = _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyMedia',
-    );
-    final resolvedTone = tone ?? scope.tone;
+    _requireEmptyHeader(context, widgetName: 'VEmptyMedia');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
 
     if (emoji != null && child == null && icon == null && iconData == null) {
       return vInspectorHide(
@@ -366,21 +421,17 @@ class VEmptyTitle extends StatelessWidget {
 
   final String text;
 
-  /// Overrides [VEmptyHeader.tone] when set.
+  /// Overrides ambient [VComponentScope.tone] when set.
   final VComponentTone? tone;
 
   @override
   Widget build(BuildContext context) {
-    final scope = _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyTitle',
-    );
-    final resolvedTone = tone ?? scope.tone;
+    _requireEmptyHeader(context, widgetName: 'VEmptyTitle');
     return vInspectorHide(
       VText(
         text,
         variant: VTextVariant.headingH3,
-        color: _emptyToneForeground(context.vColors, resolvedTone),
+        tone: tone,
         textAlign: TextAlign.center,
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),
@@ -402,10 +453,8 @@ class VEmptyDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    _resolveEmptyHeaderScope(
-      context,
-      widgetName: 'VEmptyDescription',
-    );
+    _requireEmptyHeader(context, widgetName: 'VEmptyDescription');
+    // NOTE: don't inherit tone from parent for description
     return vInspectorHide(
       VText(
         text,

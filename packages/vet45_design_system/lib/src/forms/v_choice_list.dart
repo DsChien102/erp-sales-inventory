@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -17,7 +18,7 @@ class VChoiceList<T> extends StatefulWidget {
     required this.selected,
     required this.onChanged,
     this.allowMultiple = false,
-    this.enabled = true,
+    this.enabled,
     this.titleHidden = false,
     this.helperText,
     this.errorText,
@@ -30,7 +31,6 @@ class VChoiceList<T> extends StatefulWidget {
     this.semanticLabel,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
-    this.state = VComponentState.enabled,
   });
 
   final String? title;
@@ -38,7 +38,7 @@ class VChoiceList<T> extends StatefulWidget {
   final List<T> selected;
   final ValueChanged<List<T>>? onChanged;
   final bool allowMultiple;
-  final bool enabled;
+  final bool? enabled;
   final bool titleHidden;
   final String? helperText;
   final String? errorText;
@@ -51,7 +51,6 @@ class VChoiceList<T> extends StatefulWidget {
   final String? semanticLabel;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
-  final VComponentState state;
 
   @override
   State<VChoiceList<T>> createState() => _VChoiceListState<T>();
@@ -93,7 +92,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final hasError = _effectiveError != null;
     final showTitle = widget.title != null && !widget.titleHidden;
 
@@ -123,7 +122,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
               ),
               const SizedBox(height: VSpacing.space2),
             ],
-            _buildChoices(hasError),
+            _buildChoices(hasError, isEnabled),
             if (_effectiveError != null) ...[
               Text(
                 _effectiveError!,
@@ -143,7 +142,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
     );
   }
 
-  Widget _buildChoices(bool hasError) {
+  Widget _buildChoices(bool hasError, bool isEnabled) {
     final tiles = widget.choices.map((option) {
       final isSelected = _isSelected(option.value);
       return Padding(
@@ -152,7 +151,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
           option: option,
           isSelected: isSelected,
           allowMultiple: widget.allowMultiple,
-          enabled: widget.enabled,
+          enabled: isEnabled,
           hasError: hasError,
           onChanged: (checked) => _handleChoiceChanged(option, checked),
         ),
@@ -165,7 +164,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
 
     return RadioGroup<T>(
       groupValue: _groupValue,
-      onChanged: widget.enabled
+      onChanged: isEnabled
           ? (value) {
               if (value == null) {
                 widget.onChanged?.call([]);

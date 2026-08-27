@@ -4,15 +4,15 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
 
 class VCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool?> onChanged;
   final String? label;
-  final bool enabled;
+  final bool? enabled;
   final VComponentTone tone;
-  final VComponentState? state;
   final String? semanticLabel;
 
   const VCheckbox({
@@ -20,16 +20,10 @@ class VCheckbox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.label,
-    this.enabled = true,
+    this.enabled,
     this.tone = VComponentTone.primary,
-    this.state,
     this.semanticLabel,
   });
-
-  VComponentState _resolveState() {
-    if (state != null) return state!;
-    return enabled ? VComponentState.enabled : VComponentState.disabled;
-  }
 
   Color _activeColor(dynamic dynamicColors) {
     return switch (tone) {
@@ -43,8 +37,7 @@ class VCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedState = _resolveState();
-    final isEnabled = resolvedState == VComponentState.enabled;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled);
 
     Widget checkbox = Checkbox(
       value: value,

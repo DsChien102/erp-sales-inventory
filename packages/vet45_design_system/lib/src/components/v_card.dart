@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
@@ -15,12 +16,67 @@ import '../tokens/v_spacing.dart';
 
 const double _kCardInset = VSpacing.md;
 
+/// Structural marker: [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon].
+class _VCardAncestry extends InheritedWidget {
+  const _VCardAncestry({required super.child});
+
+  @override
+  bool updateShouldNotify(covariant _VCardAncestry oldWidget) => false;
+}
+
+/// Structural marker: [VCardTitle] / [VCardAction].
+class _VCardHeaderAncestry extends InheritedWidget {
+  const _VCardHeaderAncestry({required super.child});
+
+  @override
+  bool updateShouldNotify(covariant _VCardHeaderAncestry oldWidget) => false;
+}
+
+void _requireCard(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VCardAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VCard',
+  );
+}
+
+void _requireCardHeader(BuildContext context, {required String widgetName}) {
+  requireAncestor<_VCardHeaderAncestry>(
+    context,
+    widgetName: widgetName,
+    ancestorName: 'VCardHeader',
+  );
+}
+
 /// Surface shell for grouped content.
 ///
-/// When composing with [VCardHeader] / [VCardContent] / [VCardFooter], set
-/// [padding] to [EdgeInsets.zero] so each section owns its inset (shadcn-style).
+/// Prefer composition:
+/// ```dart
+/// VCard(
+///   padding: EdgeInsets.zero,
+///   tone: VComponentTone.warning,
+///   child: Column(
+///     children: [
+///       VCardHeader(
+///         title: VCardTitle('Title', description: 'Subtitle'),
+///         action: VCardAction(child: Text('Edit')),
+///       ),
+///       VCardContent(child: VCardIcon(iconData: Icons.store)),
+///       VCardFooter(child: Text('Save')),
+///     ],
+///   ),
+/// )
+/// ```
 ///
-/// - [tone] resolves background tint + border color.
+/// [VCardHeader] / [VCardContent] / [VCardFooter] / [VCardIcon] must live under
+/// [VCard]; [VCardTitle] / [VCardAction] must live under [VCardHeader]
+/// (runtime [FlutterError] otherwise). Tone flows via [VComponentScope];
+/// each child may override with its own [tone].
+///
+/// When composing with sections, set [padding] to [EdgeInsets.zero] so each
+/// section owns its inset (shadcn-style).
+///
+/// - [tone] resolves background tint + border color (and inherits to children).
 /// - [emphasis] resolves elevation shadow (`subtle` none, `medium` e1, `strong` e2).
 /// - [elevated] is a legacy alias: when `true`, shadow is at least [VShadows.e1].
 class VCard extends StatelessWidget {
@@ -53,12 +109,12 @@ class VCard extends StatelessWidget {
 
   (Color background, Color borderColor) _toneColors(VColorScheme colors) {
     return switch (tone) {
-      VComponentTone.primary => (colors.surfaceBrand, colors.primary),
+      VComponentTone.primary => (colors.surfaceBrand, colors.borderBrand),
       VComponentTone.success => (colors.successBg, colors.success),
       VComponentTone.warning => (colors.warningBg, colors.warning),
       VComponentTone.danger => (colors.dangerBg, colors.danger),
       VComponentTone.info => (colors.infoBg, colors.info),
-      VComponentTone.neutral || null => (colors.surface, colors.borderDefault),
+      VComponentTone.neutral || null => (colors.surface, colors.borderStrong),
     };
   }
 
@@ -82,23 +138,28 @@ class VCard extends StatelessWidget {
     final resolvedRadius = borderRadius ?? VRadius.card;
 
     return vInspectorHide(
-      Container(
-        decoration: BoxDecoration(
-          color: backgroundColor ?? toneBg,
-          borderRadius: BorderRadius.circular(resolvedRadius),
-          border: border ?? VBorders.all(toneBorder),
-          boxShadow: _resolveShadow(),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(resolvedRadius),
-            child: Padding(
-              padding: padding ?? const EdgeInsets.all(_kCardInset),
-              child: vInspectorShow(child),
+      _VCardAncestry(
+        child: VComponentScope(
+          tone: tone,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor ?? toneBg,
+              borderRadius: BorderRadius.circular(resolvedRadius),
+              border: border ?? VBorders.all(toneBorder),
+              boxShadow: _resolveShadow(),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(resolvedRadius),
+                child: Padding(
+                  padding: padding ?? const EdgeInsets.all(_kCardInset),
+                  child: vInspectorShow(child),
+                ),
+              ),
             ),
           ),
         ),
@@ -108,39 +169,54 @@ class VCard extends StatelessWidget {
 }
 
 /// Header row: optional title block and trailing action.
+///
+/// Must be a descendant of [VCard]. Set [tone] once; [VCardTitle] inherits it
+/// unless it passes its own [VCardTitle.tone]. Falls back to [VCard.tone].
 class VCardHeader extends StatelessWidget {
   const VCardHeader({
     super.key,
     this.title,
     this.action,
     this.padding,
+    this.tone,
   });
 
   final Widget? title;
   final Widget? action;
   final EdgeInsetsGeometry? padding;
 
+  /// Overrides [VCard.tone] for header descendants when set.
+  final VComponentTone? tone;
+
   @override
   Widget build(BuildContext context) {
+    _requireCard(context, widgetName: 'VCardHeader');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+
     return vInspectorHide(
-      Padding(
-        padding:
-            padding ??
-            const EdgeInsets.fromLTRB(
-              _kCardInset,
-              _kCardInset,
-              _kCardInset,
-              VSpacing.sm,
+      _VCardHeaderAncestry(
+        child: VComponentScope(
+          tone: resolvedTone,
+          child: Padding(
+            padding:
+                padding ??
+                const EdgeInsets.fromLTRB(
+                  _kCardInset,
+                  _kCardInset,
+                  _kCardInset,
+                  VSpacing.sm,
+                ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null) Expanded(child: vInspectorShow(title!)),
+                if (action != null) ...[
+                  const VGap.horizontalSm(),
+                  vInspectorShow(action!),
+                ],
+              ],
             ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null) Expanded(child: vInspectorShow(title!)),
-            if (action != null) ...[
-              const VGap.horizontalSm(),
-              vInspectorShow(action!),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -148,6 +224,8 @@ class VCardHeader extends StatelessWidget {
 }
 
 /// Decorative icon for card composition, wrapping [VIconBox].
+///
+/// Must be a descendant of [VCard]. Inherits [VCard.tone] unless [tone] is set.
 class VCardIcon extends StatelessWidget {
   const VCardIcon({
     super.key,
@@ -159,16 +237,21 @@ class VCardIcon extends StatelessWidget {
 
   final VIcons? icon;
   final IconData? iconData;
+
+  /// Overrides ambient [VComponentScope.tone] when set.
   final VComponentTone? tone;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    _requireCard(context, widgetName: 'VCardIcon');
+    final resolvedTone = VComponentScope.resolveTone(context, local: tone);
+
     return vInspectorHide(
       VIconBox(
         icon: icon,
         iconData: iconData,
-        tone: tone,
+        tone: resolvedTone,
         size: size,
         iconSize: size * 0.5,
       ),
@@ -177,25 +260,37 @@ class VCardIcon extends StatelessWidget {
 }
 
 /// Card title with optional description (shadcn CardTitle + CardDescription).
+///
+/// Must be a descendant of [VCardHeader]. Inherits header tone unless [tone] is set.
 class VCardTitle extends StatelessWidget {
   const VCardTitle(
     this.title, {
     super.key,
     this.description,
+    this.tone,
   });
 
   final String title;
   final String? description;
 
+  /// Overrides ambient [VComponentScope.tone] when set.
+  final VComponentTone? tone;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    _requireCardHeader(context, widgetName: 'VCardTitle');
+
     return vInspectorHide(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          VText(title, variant: VTextVariant.headingH4),
+          VText(
+            title,
+            variant: VTextVariant.headingH4,
+            tone: tone,
+          ),
           if (description != null && description!.isNotEmpty) ...[
             const VGap.xs(),
             VText(
@@ -211,6 +306,8 @@ class VCardTitle extends StatelessWidget {
 }
 
 /// Trailing action slot for [VCardHeader] (shadcn CardAction).
+///
+/// Must be a descendant of [VCardHeader].
 class VCardAction extends StatelessWidget {
   const VCardAction({super.key, required this.child});
 
@@ -218,6 +315,7 @@ class VCardAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _requireCardHeader(context, widgetName: 'VCardAction');
     return vInspectorHide(
       Align(
         alignment: Alignment.centerRight,
@@ -228,6 +326,8 @@ class VCardAction extends StatelessWidget {
 }
 
 /// Main body area (shadcn CardContent).
+///
+/// Must be a descendant of [VCard].
 class VCardContent extends StatelessWidget {
   const VCardContent({
     super.key,
@@ -242,6 +342,7 @@ class VCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _requireCard(context, widgetName: 'VCardContent');
     return vInspectorHide(
       Padding(
         padding: EdgeInsets.fromLTRB(
@@ -257,6 +358,8 @@ class VCardContent extends StatelessWidget {
 }
 
 /// Footer / CTA row (shadcn CardFooter).
+///
+/// Must be a descendant of [VCard].
 class VCardFooter extends StatelessWidget {
   const VCardFooter({
     super.key,
@@ -269,6 +372,7 @@ class VCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _requireCard(context, widgetName: 'VCardFooter');
     return vInspectorHide(
       Padding(
         padding: const EdgeInsets.fromLTRB(

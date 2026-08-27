@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_colors.dart';
 
 @immutable
@@ -10,6 +11,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color surfaceBrand;
   final Color borderDefault;
   final Color borderStrong;
+  final Color borderBrand;
   final Color textPrimary;
   final Color textSecondary;
   final Color textMuted;
@@ -57,6 +59,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.surfaceBrand,
     required this.borderDefault,
     required this.borderStrong,
+    required this.borderBrand,
     required this.textPrimary,
     required this.textSecondary,
     required this.textMuted,
@@ -102,7 +105,8 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     surfaceBrand: VColors.primary50,
     borderDefault: VColors.neutral200,
     borderStrong: VColors.neutral300,
-    textPrimary: VColors.primary900,
+    borderBrand: VColors.primary200,
+    textPrimary: VColors.neutral900,
     textSecondary: VColors.neutral500,
     textMuted: VColors.neutral400,
     textBrand: VColors.primary700,
@@ -147,6 +151,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     surfaceBrand: VColors.primary900,
     borderDefault: VColors.neutral600,
     borderStrong: VColors.neutral500,
+    borderBrand: VColors.primary700,
     textPrimary: VColors.neutral0,
     textSecondary: VColors.neutral300,
     textMuted: VColors.neutral400,
@@ -192,6 +197,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? surfaceBrand,
     Color? borderDefault,
     Color? borderStrong,
+    Color? borderBrand,
     Color? textPrimary,
     Color? textSecondary,
     Color? textMuted,
@@ -235,6 +241,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       surfaceBrand: surfaceBrand ?? this.surfaceBrand,
       borderDefault: borderDefault ?? this.borderDefault,
       borderStrong: borderStrong ?? this.borderStrong,
+      borderBrand: borderBrand ?? this.borderBrand,
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
@@ -285,6 +292,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       surfaceBrand: Color.lerp(surfaceBrand, other.surfaceBrand, t)!,
       borderDefault: Color.lerp(borderDefault, other.borderDefault, t)!,
       borderStrong: Color.lerp(borderStrong, other.borderStrong, t)!,
+      borderBrand: Color.lerp(borderBrand, other.borderBrand, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
@@ -321,5 +329,18 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       infoBg: Color.lerp(infoBg, other.infoBg, t)!,
       infoBgPressed: Color.lerp(infoBgPressed, other.infoBgPressed, t)!,
     );
+  }
+
+  /// Semantic foreground for [tone]. Null tone → null (caller picks fallback).
+  Color? foregroundForTone(VComponentTone? tone) {
+    if (tone == null) return null;
+    return switch (tone) {
+      VComponentTone.primary => primary,
+      VComponentTone.success => success,
+      VComponentTone.warning => warning,
+      VComponentTone.danger => danger,
+      VComponentTone.info => info,
+      VComponentTone.neutral => textPrimary,
+    };
   }
 }

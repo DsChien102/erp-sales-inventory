@@ -110,7 +110,10 @@ void main(List<String> args) {
     final expect = matrix[primary];
     final hasTone = content.contains('VComponentTone');
     final hasEmphasis = content.contains('VComponentEmphasis');
-    final hasState = content.contains('VComponentState');
+    // "state" contract column now means enabled (bool / resolveEnabled), not VComponentState.
+    final hasState = content.contains('resolveEnabled') ||
+        content.contains('final bool? enabled') ||
+        content.contains('final bool enabled');
     final hasSemanticLabel = content.contains('semanticLabel');
     final hasSemantics = content.contains('Semantics(');
 
