@@ -15,6 +15,16 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.1.0] - 2026-08-27
+
+### Added
+
 - `VComponentScope` — ambient soft inherit (`tone` + `enabled` / `resolveTone` / `resolveEnabled`); `vProvideComponentScope` / `requireAncestor`.
 - `VCardHeader.tone` / `VCardTitle.tone` — inherit via `VComponentScope`; structural assert nếu ngoài `VCard` / `VCardHeader`.
 - `VColorScheme.borderBrand` — border brand (light `primary200`, dark `primary700`).
@@ -34,10 +44,6 @@ changelogs when relevant.
 - `VEmptyTitle` / `VCardTitle` dùng `VText.tone` thay map màu tay.
 - `VCard` default border → `borderStrong`; `VTextField` / `VTextFormField` / `VSelect` / `VCombobox` resting và `VButton` secondary → `borderDefault`.
 - Light `textPrimary` → `neutral900` (dark giữ `neutral0`).
-
-### Fixed
-
-### Internal
 
 ### Removed
 
