@@ -16,6 +16,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Changed
 
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
+- Design system: text chính light dùng `neutral900` thay `primary900`.
 
 ### Fixed
 

@@ -106,7 +106,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     borderDefault: VColors.neutral200,
     borderStrong: VColors.neutral300,
     borderBrand: VColors.primary200,
-    textPrimary: VColors.primary900,
+    textPrimary: VColors.neutral900,
     textSecondary: VColors.neutral500,
     textMuted: VColors.neutral400,
     textBrand: VColors.primary700,

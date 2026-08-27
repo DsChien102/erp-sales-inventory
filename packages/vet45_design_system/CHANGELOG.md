@@ -32,6 +32,8 @@ changelogs when relevant.
 - `VEmptyState` flat API (`title` / `icon*` / `action*`) marked `@Deprecated` — prefer `child` composition. `tone` remains on the shell and cascades via `VComponentScope`.
 - `VEmptyTitle` / `VCardTitle` dùng `VText.tone` thay map màu tay.
 - `VCard` default border → `borderStrong`; `VTextField` / `VTextFormField` / `VSelect` / `VCombobox` resting và `VButton` secondary → `borderDefault`.
+- Light `textPrimary` → `neutral900` (dark giữ `neutral0`).
+
 ### Fixed
 
 ### Internal
