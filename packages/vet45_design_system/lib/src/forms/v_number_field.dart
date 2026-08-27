@@ -15,9 +15,12 @@ class VNumberField extends StatefulWidget {
     super.key,
     this.controller,
     this.value,
-    this.label,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
     this.hintText,
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.prefixIcon,
     this.suffixIcon,
@@ -25,7 +28,7 @@ class VNumberField extends StatefulWidget {
     this.suffixText,
     this.enabled,
     this.onChanged,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.allowDecimal = false,
     this.allowNegative = false,
     this.decimalPlaces = 2,
@@ -50,9 +53,14 @@ class VNumberField extends StatefulWidget {
 
   final TextEditingController? controller;
   final num? value;
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
   final String? hintText;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -60,6 +68,7 @@ class VNumberField extends StatefulWidget {
   final String? suffixText;
   final bool? enabled;
   final ValueChanged<num?>? onChanged;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final bool allowDecimal;
   final bool allowNegative;
@@ -150,6 +159,7 @@ class _VNumberFieldState extends State<VNumberField> {
       setState(() {
         _internalError = VNumberValidator.validate(
           displayValue,
+          // ignore: deprecated_member_use_from_same_package
           isRequired: widget.isRequired,
           allowDecimal: widget.allowDecimal,
           min: widget.min,
@@ -168,9 +178,12 @@ class _VNumberFieldState extends State<VNumberField> {
     return vInspectorHide(
       VTextField(
         controller: _controller,
+        // ignore: deprecated_member_use_from_same_package
         label: widget.label,
         hintText: widget.hintText,
+        // ignore: deprecated_member_use_from_same_package
         helperText: widget.helperText,
+        // ignore: deprecated_member_use_from_same_package
         errorText: widget.errorText ?? _internalError,
         prefixIcon:
             widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
@@ -183,6 +196,7 @@ class _VNumberFieldState extends State<VNumberField> {
             ? const TextInputType.numberWithOptions(decimal: true)
             : TextInputType.number,
         onChanged: _handleChanged,
+        // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
         inputFormatters: [
           VNumberInputFormatter(

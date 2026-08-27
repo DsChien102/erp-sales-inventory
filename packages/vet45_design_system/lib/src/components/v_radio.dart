@@ -27,12 +27,14 @@ class VRadio<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final registry = RadioGroup.maybeOf<T>(context);
-    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled) &&
+    final isEnabled =
+        VComponentScope.resolveEnabled(context, local: enabled) &&
         (onChanged != null || registry != null);
 
     Widget radio = Radio<T>(
       value: value,
       side: VBorders.side(dynamicColors.borderStrong),
+      enabled: isEnabled,
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
           return dynamicColors.borderDefault;

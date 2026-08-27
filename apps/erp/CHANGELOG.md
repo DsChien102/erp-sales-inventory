@@ -25,6 +25,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Internal
 
 - Design system: bỏ `VComponentState`; dashboard `QuickActionButton` / pricing form dùng `enabled` inherit qua `VComponentScope`.
+- Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 
 ## [1.7.2+38] - 2026-08-26
 

@@ -292,6 +292,34 @@ VBottomNavigationBar:
   semanticLabel: optional
 
 # --- Layout patterns ---
+VField:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldLabel:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldDescription:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldError:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
 VGap:
   role: layout_pattern
   tone: na

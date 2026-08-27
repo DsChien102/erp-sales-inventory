@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-27T14:10:13.449185`
+- Generated at: `2026-08-28T01:18:07.706857`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -42,6 +42,7 @@
 | forms | `VPasswordField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | No |
 | forms | `VSelect` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | patterns | `VContentWidth` | unmapped | — (optional) | — (optional) | — (optional) | — (optional) | No |
+| patterns | `VField` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VGap` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VPagePadding` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VPageScaffold` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |

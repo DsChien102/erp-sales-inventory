@@ -6,17 +6,14 @@ import 'package:flutter/services.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
-import '../foundations/icons/v_icons.dart';
-import '../patterns/v_gap.dart';
-import '../primitives/v_icon.dart';
-import '../primitives/v_text.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_field.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_focus_ring.dart';
-import '../foundation/v_inspector_scope.dart';
 
 /// Character set accepted by [VVerificationCodeField].
 enum VVerificationCodeCharset {
@@ -29,6 +26,7 @@ enum VVerificationCodeCharset {
 
 /// Multi-box field for OTP or alphanumeric verification codes.
 ///
+/// Prefer [VField] + [VFieldLabel] / [VFieldDescription] / [VFieldError] for chrome.
 /// Uses one hidden [TextField] for IME input (backspace / paste / autofill) and
 /// paints digit slots as display-only cells.
 class VVerificationCodeField extends StatefulWidget {
@@ -50,11 +48,17 @@ class VVerificationCodeField extends StatefulWidget {
   /// Called whenever the current code string changes.
   final ValueChanged<String>? onChanged;
 
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final bool? enabled;
   final bool autofocus;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
@@ -69,12 +73,15 @@ class VVerificationCodeField extends StatefulWidget {
     this.charset = VVerificationCodeCharset.numeric,
     this.onCompleted,
     this.onChanged,
-    this.label,
-    this.helperText,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.enabled,
     this.autofocus = false,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -196,31 +203,6 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     _notifyChanged(cleaned);
   }
 
-  Widget? _message(VColorScheme colors, {required bool hasError}) {
-    final text = hasError ? widget.errorText : widget.helperText;
-    if (text == null) return null;
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Row(
-        children: [
-          VIcon(
-            icon: hasError ? VIcons.error : VIcons.info,
-            color: hasError ? colors.danger : colors.textMuted,
-            iconSize: VIconSize.sm,
-          ),
-          const VGap.horizontalXs(),
-          Flexible(
-            child: VText(
-              text,
-              variant: VTextVariant.bodySmall,
-              color: hasError ? colors.danger : colors.textMuted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCell({
     required int index,
     required VColorScheme colors,
@@ -234,7 +216,9 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     final char = index < code.length ? code[index] : '';
     final focused = isEnabled && _focusNode.hasFocus && index == _activeIndex;
 
-    final restingBorderColor = widget.errorText != null
+    // ignore: deprecated_member_use_from_same_package
+    final legacyError = widget.errorText;
+    final restingBorderColor = legacyError != null
         ? colors.danger
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
@@ -250,7 +234,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
 
     final textStyle = VTypography.headingH3.copyWith(
       color: isEnabled
-          ? (useDanger && widget.errorText != null ? colors.danger : colors.textPrimary)
+          ? (useDanger && legacyError != null ? colors.danger : colors.textPrimary)
           : colors.textMuted,
       fontWeight: FontWeight.w700,
       fontSize: cellW < VVerificationCodeField.cellWidth
@@ -322,91 +306,84 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
-    final hasError = widget.errorText != null;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyError = widget.errorText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyHelper = widget.helperText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyLabel = widget.label;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyRequired = widget.isRequired;
+    final hasError = legacyError != null;
     final useDanger = hasError || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
-    final message = _message(colors, hasError: hasError);
+
+    final control = LayoutBuilder(
+      builder: (context, constraints) {
+        final gap = VSpacing.space2;
+        final gapsTotal = gap * (widget.length - 1);
+        final available = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
+        final maxCellW = (available - gapsTotal) / widget.length;
+        final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
+        final cellH = cellW < VVerificationCodeField.cellWidth
+            ? math.max(48.0, cellW + 8)
+            : VVerificationCodeField.cellHeight;
+
+        return Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            IgnorePointer(
+              child: Row(
+                children: [
+                  for (var i = 0; i < widget.length; i++) ...[
+                    if (i > 0) SizedBox(width: gap),
+                    _buildCell(
+                      index: i,
+                      colors: colors,
+                      isEnabled: isEnabled,
+                      useDanger: useDanger,
+                      borderWidth: borderWidth,
+                      cellW: cellW,
+                      cellH: cellH,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0,
+                child: _buildHiddenInput(isEnabled: isEnabled),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    final useShell = legacyLabel != null ||
+        legacyHelper != null ||
+        legacyError != null ||
+        legacyRequired;
+    final body = useShell
+        ? vFieldShell(
+            control: control,
+            label: legacyLabel,
+            isRequired: legacyRequired,
+            helperText: legacyHelper,
+            errorText: legacyError,
+          )
+        : control;
 
     return vInspectorHide(
       Semantics(
         textField: true,
         enabled: isEnabled,
-        label: widget.semanticLabel ?? widget.label ?? 'Verification code',
+        label: widget.semanticLabel ?? legacyLabel ?? 'Verification code',
         value: _code,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.label != null) ...[
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: widget.label!,
-                      style: VTypography.headingH4.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    if (widget.isRequired)
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: colors.danger),
-                      ),
-                  ],
-                ),
-              ),
-              const VGap.sm(),
-            ],
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final gap = VSpacing.space2;
-                final gapsTotal = gap * (widget.length - 1);
-                final available = constraints.maxWidth.isFinite
-                    ? constraints.maxWidth
-                    : VVerificationCodeField.cellWidth * widget.length + gapsTotal;
-                final maxCellW = (available - gapsTotal) / widget.length;
-                final cellW = math.min(VVerificationCodeField.cellWidth, maxCellW);
-                final cellH = cellW < VVerificationCodeField.cellWidth
-                    ? math.max(48.0, cellW + 8)
-                    : VVerificationCodeField.cellHeight;
-
-                return Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    IgnorePointer(
-                      child: Row(
-                        children: [
-                          for (var i = 0; i < widget.length; i++) ...[
-                            if (i > 0) SizedBox(width: gap),
-                            _buildCell(
-                              index: i,
-                              colors: colors,
-                              isEnabled: isEnabled,
-                              useDanger: useDanger,
-                              borderWidth: borderWidth,
-                              cellW: cellW,
-                              cellH: cellH,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: 0,
-                        child: _buildHiddenInput(isEnabled: isEnabled),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            if (message != null) ...[
-              const VGap.sm(),
-              message,
-            ],
-          ],
-        ),
+        child: body,
       ),
     );
   }

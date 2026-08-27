@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore_for_file: deprecated_member_use
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -124,15 +125,8 @@ void main() {
         ),
       );
 
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is RichText &&
-              widget.text.toPlainText().startsWith('Thanh toán') &&
-              widget.text.toPlainText().contains('*'),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Thanh toán'), findsOneWidget);
+      expect(find.text(' *'), findsOneWidget);
     });
   });
 }

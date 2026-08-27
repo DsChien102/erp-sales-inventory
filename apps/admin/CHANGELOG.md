@@ -25,6 +25,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Internal
 
 - Design system: bỏ `VComponentState`; interactive controls dùng `enabled` (+ soft inherit `VComponentScope`).
+- Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 
 ## [1.0.2+3] - 2026-08-26
 

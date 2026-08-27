@@ -21,13 +21,10 @@ void main() {
         ),
       );
 
-      final fields = find.byType(TextField);
-      expect(fields, findsNWidgets(6));
-
-      for (var i = 0; i < 6; i++) {
-        await tester.enterText(fields.at(i), '${i + 1}');
-        await tester.pump();
-      }
+      // Single hidden TextField drives all cells.
+      expect(find.byType(TextField), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '123456');
+      await tester.pump();
 
       expect(completed, '123456');
     });
@@ -48,14 +45,9 @@ void main() {
         ),
       );
 
-      final fields = find.byType(TextField);
-      expect(fields, findsNWidgets(8));
-
-      const chars = 'k7p29xqm';
-      for (var i = 0; i < chars.length; i++) {
-        await tester.enterText(fields.at(i), chars[i]);
-        await tester.pump();
-      }
+      expect(find.byType(TextField), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'k7p29xqm');
+      await tester.pump();
 
       expect(latest, 'K7P29XQM');
       expect(completed, 'K7P29XQM');
@@ -73,11 +65,30 @@ void main() {
         ),
       );
 
-      await tester.enterText(find.byType(TextField).first, '@');
+      await tester.enterText(find.byType(TextField), '@');
       await tester.pump();
-      final firstField = tester.widget<TextField>(find.byType(TextField).first);
-      expect(firstField.controller?.text ?? '', isEmpty);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.controller?.text ?? '', isEmpty);
       expect(latest == 'unset' || latest.isEmpty, isTrue);
+    });
+
+    testWidgets('legacy flat label and helper still render', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          // ignore: deprecated_member_use
+          const VVerificationCodeField(
+            // ignore: deprecated_member_use
+            label: 'OTP',
+            // ignore: deprecated_member_use
+            helperText: 'From SMS',
+            // ignore: deprecated_member_use
+            isRequired: true,
+          ),
+        ),
+      );
+      expect(find.text('OTP'), findsOneWidget);
+      expect(find.text('From SMS'), findsOneWidget);
+      expect(find.text(' *'), findsOneWidget);
     });
   });
 }

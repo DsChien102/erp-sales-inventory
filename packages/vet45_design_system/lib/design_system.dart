@@ -32,6 +32,7 @@ export 'src/audit/v_component_audit_snapshot.dart';
 
 // Patterns (layout)
 export 'src/patterns/v_gap.dart';
+export 'src/patterns/v_field.dart';
 export 'src/patterns/v_page_padding.dart';
 export 'src/patterns/v_section.dart';
 export 'src/patterns/v_page_scaffold.dart';
