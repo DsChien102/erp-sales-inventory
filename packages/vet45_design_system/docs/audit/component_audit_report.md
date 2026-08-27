@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-26T22:06:23.020282`
+- Generated at: `2026-08-27T10:07:28.043474`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -22,7 +22,6 @@
 | components | `VConfirmDialog` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VNumericKeypadSheet` | overlay_shell | Pass (preferred) | Pass (preferred) | Pass (optional) | Pass (preferred) | Yes |
 | components | `VProgress` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
-| components | `VQuantitySelector` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VRadio` | toggle | — (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VSegmentedControl` | navigation_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |

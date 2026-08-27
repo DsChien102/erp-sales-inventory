@@ -16,7 +16,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   bool _checkbox = true;
   bool _switch = false;
   String? _radio = 'a';
-  int _quantity = 2;
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
   double _progressValue = 0.4;
@@ -712,30 +711,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   value: _switch,
                   label: 'Send digital receipt',
                   onChanged: (v) => setState(() => _switch = v),
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VQuantitySelector',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Interactive (0–10)',
-                child: VQuantitySelector(
-                  value: _quantity,
-                  min: 0,
-                  max: 10,
-                  onChanged: (v) => setState(() => _quantity = v),
-                ),
-              ),
-              const PreviewStateRow(
-                label: 'Disabled',
-                child: VQuantitySelector(
-                  value: 3,
-                  enabled: false,
-                  onChanged: _noopInt,
                 ),
               ),
             ],

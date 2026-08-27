@@ -41,6 +41,7 @@ changelogs when relevant.
 ### Removed
 
 - `VComponentState` enum (`enabled` / `disabled` / `loading` / `error`). Disable → `enabled`; error → `errorText`/API riêng; loading CTA → `VButton.isLoading`.
+- `VQuantitySelector` component (export + example + audit matrix).
 
 ## [1.0.1] - 2026-08-26
 

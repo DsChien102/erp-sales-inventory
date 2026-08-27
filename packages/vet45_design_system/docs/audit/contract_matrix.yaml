@@ -103,13 +103,6 @@ VDatePicker:
   state: required
   semanticLabel: required
 
-VQuantitySelector:
-  role: input
-  tone: preferred
-  emphasis: preferred
-  state: required
-  semanticLabel: required
-
 VEmailField:
   role: input
   tone: preferred
