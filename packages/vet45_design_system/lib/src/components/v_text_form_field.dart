@@ -261,16 +261,15 @@ class _VTextFormFieldState extends State<VTextFormField> {
 
           final focusedErrorBorder = outlineOf(colors.danger);
 
-          final resolvedSuffix =
-              widget.suffixIcon != null
-                  ? vInspectorShow(widget.suffixIcon!)
-                  : (widget.suffixText == null
-                      ? null
-                      : VText(
-                          widget.suffixText!,
-                          variant: VTextVariant.bodyDefault,
-                          color: colors.textSecondary,
-                        ));
+          final resolvedSuffix = widget.suffixIcon != null
+              ? vInspectorShow(widget.suffixIcon!)
+              : (widget.suffixText == null
+                    ? null
+                    : VText(
+                        widget.suffixText!,
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.textSecondary,
+                      ));
 
           final baseTextStyle = widget.textStyle ?? defaultStyle;
           final textFieldWidget = TextField(
@@ -404,7 +403,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
                     child: VText(
                       widget.helperText!,
                       variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
+                      color: colors.textMuted,
                     ),
                   ),
                 ],

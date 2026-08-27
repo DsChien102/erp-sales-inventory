@@ -15,9 +15,11 @@ changelogs when relevant.
 
 ### Added
 
+- `VCard.enabled` — soft-inherit `VComponentScope`; disabled → border `borderDefault`, bỏ `onTap`, cascade `enabled: false`.
+
 ### Changed
 
-### Fixed
+- `VSearchBar`: height = `VTextField.controlHeight`, radius `VRadius.card`; variant `filled` luôn có border (`borderDefault` / focus `borderStrong`); icon muted hơn.
 
 ### Internal
 

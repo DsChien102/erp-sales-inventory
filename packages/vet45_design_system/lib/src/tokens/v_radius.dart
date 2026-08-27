@@ -13,6 +13,5 @@ class VRadius {
   static const double button = r8;
   static const double card = r12;
   static const double sheet = r16;
-  static const double searchBar = pill;
   static const double iconBox = r12;
 }

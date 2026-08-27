@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../patterns/v_gap.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -10,6 +11,8 @@ import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../foundations/icons/v_icons.dart';
 import '../foundation/v_inspector_scope.dart';
+
+import 'v_text_field.dart';
 
 enum VSearchBarVariant { outlined, filled, header }
 
@@ -139,17 +142,15 @@ class _VSearchBarState extends State<VSearchBar> {
       case VSearchBarVariant.filled:
         bg = dynamicColors.surfaceAlt;
         border = isFocused
-            ? VBorders.all(dynamicColors.primary, width: VBorders.medium)
-            : null;
-        iconColor = dynamicColors.textSecondary;
+            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.medium)
+            : VBorders.all(dynamicColors.borderDefault, width: VBorders.medium);
+        iconColor = dynamicColors.textMuted;
         textColor = dynamicColors.textPrimary;
         hintColor = dynamicColors.textSecondary;
         break;
       case VSearchBarVariant.header:
         bg = Colors.white.withValues(alpha: 0.15);
-        border = isFocused
-            ? VBorders.all(Colors.white, width: VBorders.medium)
-            : null;
+        border = isFocused ? VBorders.all(Colors.white, width: VBorders.medium) : null;
         iconColor = Colors.white;
         textColor = Colors.white;
         hintColor = Colors.white.withValues(alpha: 0.8);
@@ -177,7 +178,7 @@ class _VSearchBarState extends State<VSearchBar> {
     Widget content = Row(
       children: [
         VIcon(icon: VIcons.search, color: iconColor, size: 20),
-        const SizedBox(width: VSpacing.space2),
+        const VGap(VSpacing.space2, axis: Axis.horizontal),
         Expanded(
           child: widget.readOnly || widget.onTap != null
               ? Align(
@@ -200,7 +201,7 @@ class _VSearchBarState extends State<VSearchBar> {
                   enabled: isEnabled,
                   onTapOutside: (event) {
                     FocusManager.instance.primaryFocus?.unfocus();
-                  }, 
+                  },
                   style: VTypography.bodyDefault.copyWith(color: textColor),
                   decoration: InputDecoration(
                     hintText: widget.hintText,
@@ -231,14 +232,14 @@ class _VSearchBarState extends State<VSearchBar> {
         enabled: isEnabled,
         label: widget.semanticLabel ?? widget.hintText,
         child: Container(
-          height: 44,
+          height: VTextField.controlHeight,
           padding: EdgeInsets.only(
-            left: VSpacing.space4,
+            left: VSpacing.space3,
             right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
           ),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(VRadius.searchBar),
+            borderRadius: BorderRadius.circular(VRadius.card),
             border: border,
           ),
           child: widget.onTap != null
@@ -246,7 +247,7 @@ class _VSearchBarState extends State<VSearchBar> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTap: widget.onTap,
-                  borderRadius: BorderRadius.circular(VRadius.searchBar),
+                  borderRadius: BorderRadius.circular(VRadius.card),
                   child: content,
                 )
               : content,

@@ -209,7 +209,7 @@ VCard:
   role: container
   tone: optional
   emphasis: optional
-  state: na
+  state: optional
   semanticLabel: optional
 
 VSection:

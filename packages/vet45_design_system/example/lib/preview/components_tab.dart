@@ -939,6 +939,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           title: 'VCard',
           description:
               'tone → border + background via VComponentScope; emphasis → shadow. '
+              'enabled soft-inherit; disabled → borderDefault + onTap off + cascade. '
               'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent ancestry '
               '(set padding: EdgeInsets.zero).',
           child: Column(
@@ -946,6 +947,13 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               const PreviewStateRow(
                 label: 'Default (subtle, neutral)',
                 child: VCard(child: Text('Card content')),
+              ),
+              const PreviewStateRow(
+                label: 'Disabled (enabled: false)',
+                child: VCard(
+                  enabled: false,
+                  child: Text('Disabled card'),
+                ),
               ),
               PreviewStateRow(
                 label: 'Tappable',

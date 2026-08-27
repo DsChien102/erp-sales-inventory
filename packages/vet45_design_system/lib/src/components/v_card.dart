@@ -78,6 +78,9 @@ void _requireCardHeader(BuildContext context, {required String widgetName}) {
 ///
 /// - [tone] resolves background tint + border color (and inherits to children).
 /// - [emphasis] resolves elevation shadow (`subtle` none, `medium` e1, `strong` e2).
+/// - [enabled] soft-inherits via [VComponentScope]; when false, border is
+///   [VColorScheme.borderDefault], [onTap] is ignored, and children inherit
+///   `enabled: false`.
 /// - [elevated] is a legacy alias: when `true`, shadow is at least [VShadows.e1].
 class VCard extends StatelessWidget {
   final Widget child;
@@ -90,6 +93,10 @@ class VCard extends StatelessWidget {
 
   final VComponentTone? tone;
   final VComponentEmphasis emphasis;
+
+  /// Soft-inherit via [VComponentScope.resolveEnabled]. Null = no local opinion.
+  final bool? enabled;
+
   final Color? backgroundColor;
   final Border? border;
   final double? borderRadius;
@@ -102,6 +109,7 @@ class VCard extends StatelessWidget {
     @Deprecated('Use emphasis: VComponentEmphasis.medium instead') this.elevated = false,
     this.tone,
     this.emphasis = VComponentEmphasis.subtle,
+    this.enabled,
     this.backgroundColor,
     this.border,
     this.borderRadius,
@@ -134,18 +142,22 @@ class VCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled);
     final (toneBg, toneBorder) = _toneColors(dynamicColors);
+    final resolvedBorderColor =
+        isEnabled ? toneBorder : dynamicColors.borderDefault;
     final resolvedRadius = borderRadius ?? VRadius.card;
 
     return vInspectorHide(
       _VCardAncestry(
         child: VComponentScope(
           tone: tone,
+          enabled: isEnabled ? enabled : false,
           child: Container(
             decoration: BoxDecoration(
               color: backgroundColor ?? toneBg,
               borderRadius: BorderRadius.circular(resolvedRadius),
-              border: border ?? VBorders.all(toneBorder),
+              border: border ?? VBorders.all(resolvedBorderColor),
               boxShadow: _resolveShadow(),
             ),
             child: Material(
@@ -153,7 +165,7 @@ class VCard extends StatelessWidget {
               child: InkWell(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                onTap: onTap,
+                onTap: isEnabled ? onTap : null,
                 borderRadius: BorderRadius.circular(resolvedRadius),
                 child: Padding(
                   padding: padding ?? const EdgeInsets.all(_kCardInset),
