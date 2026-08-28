@@ -15,6 +15,16 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.2.0] - 2026-08-28
+
+### Added
+
 - `VField` / `VFieldLabel` / `VFieldDescription` / `VFieldError` — compound field shell; control là child trực tiếp; `vFieldShell` legacy bridge.
 - `VDatePicker.iconPosition` (`left` | `right`, mặc định `left`).
 - `VCard.enabled` — soft-inherit `VComponentScope`; disabled → border `borderDefault`, bỏ `onTap`, cascade `enabled: false`.
@@ -32,8 +42,6 @@ changelogs when relevant.
 - `VChip` lấy toàn bộ màu từ `VComponentTone` (+ ambient `VComponentScope`), một kiểu soft duy nhất: nền tint + chữ theo tone + border đặc; tone mặc định `neutral`, `primary` dùng `surfaceBrand` / `textBrand`.
 - `VChip` icon và nút xóa bị chặn theo line height của label (20px) — trước đây nút xóa 24x24 làm chip cao hơn một dòng chữ.
 - `VChip.selected` và `VChip.emphasis` marked `@Deprecated` — bridge `selected: true` → tone `primary`, `emphasis: strong` → `primary`, `subtle`/`medium` → `neutral`. Chip đang chọn giờ là soft brand thay vì fill xanh lá + chữ trắng.
-
-### Internal
 
 ## [1.1.0] - 2026-08-27
 

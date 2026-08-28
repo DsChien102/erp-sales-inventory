@@ -1,6 +1,6 @@
 name: vet45_design_system
 description: "VET45 Company Design System Package"
-version: 1.1.0
+version: 1.2.0
 publish_to: none
 resolution: workspace
 
