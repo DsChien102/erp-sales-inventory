@@ -33,7 +33,6 @@ class VRadio<T> extends StatelessWidget {
 
     Widget radio = Radio<T>(
       value: value,
-      side: VBorders.side(dynamicColors.borderStrong),
       enabled: isEnabled,
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
