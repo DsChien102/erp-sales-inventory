@@ -83,56 +83,134 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VBadge',
-          description: 'All VBadgeStatus values.',
-          child: PreviewStateWrap(
+          description: 'Every VComponentTone in soft and strong variant.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final status in VBadgeStatus.values) VBadge(label: status.name, status: status),
-              const VBadge(
-                label: 'with dot',
-                status: VBadgeStatus.info,
-                showDot: true,
+              PreviewStateRow(
+                label: 'soft — tinted surface + tone foreground',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values) VBadge(label: tone.name, tone: tone),
+                  ],
+                ),
               ),
-              const VBadge(
-                label: 'small',
-                status: VBadgeStatus.success,
-                isSmall: true,
+              PreviewStateRow(
+                label: 'strong — tone fill + inverted foreground',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VBadge(
+                        label: tone.name,
+                        tone: tone,
+                        variant: VBadgeVariant.strong,
+                      ),
+                  ],
+                ),
               ),
-              const VBadge(
-                label: 'tone override',
-                status: VBadgeStatus.draft,
-                tone: VComponentTone.danger,
+              PreviewStateRow(
+                label: 'small (isSmall) — soft then strong',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final variant in VBadgeVariant.values)
+                      for (final tone in VComponentTone.values)
+                        VBadge(
+                          label: tone.name,
+                          tone: tone,
+                          variant: variant,
+                          isSmall: true,
+                        ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'dot / icon / ambient tone',
+                child: PreviewStateWrap(
+                  children: [
+                    const VBadge(
+                      label: 'with dot',
+                      tone: VComponentTone.info,
+                      showDot: true,
+                    ),
+                    const VBadge(
+                      label: 'with dot',
+                      tone: VComponentTone.info,
+                      variant: VBadgeVariant.strong,
+                      showDot: true,
+                    ),
+                    const VBadge(
+                      label: 'with icon',
+                      tone: VComponentTone.success,
+                      iconData: Icons.check_rounded,
+                    ),
+                    const VBadge(
+                      label: 'with icon',
+                      tone: VComponentTone.success,
+                      variant: VBadgeVariant.strong,
+                      iconData: Icons.check_rounded,
+                    ),
+                    vProvideComponentScope(
+                      tone: VComponentTone.danger,
+                      child: const VBadge(label: 'ambient tone'),
+                    ),
+                    vProvideComponentScope(
+                      tone: VComponentTone.danger,
+                      child: const VBadge(
+                        label: 'ambient tone',
+                        variant: VBadgeVariant.strong,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         PreviewSection(
           title: 'VChip',
-          description: 'Static, selectable, removable, disabled, emphasis.',
+          description: 'Every VComponentTone, plus selectable, removable, disabled.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PreviewStateRow(
-                label: 'Static (no onTap)',
+                label: 'All tones (static)',
                 child: PreviewStateWrap(
-                  children: const [
-                    VChip(label: 'Subtle', emphasis: VComponentEmphasis.subtle),
-                    VChip(label: 'Medium', emphasis: VComponentEmphasis.medium),
-                    VChip(label: 'Strong', emphasis: VComponentEmphasis.strong),
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VChip(label: tone.name, tone: tone),
                   ],
                 ),
               ),
               PreviewStateRow(
-                label: 'Selectable',
+                label: 'All tones (with icon, clickable)',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VChip(
+                        label: tone.name,
+                        tone: tone,
+                        icon: VIcons.tag,
+                        onTap: () {},
+                      ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Selectable — tone primary when selected',
                 child: PreviewStateWrap(
                   children: [
                     VChip(
                       label: 'Filter A',
-                      selected: _chipSelected,
+                      tone: _chipSelected
+                          ? VComponentTone.primary
+                          : VComponentTone.neutral,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
                     ),
                     VChip(
                       label: 'Filter B',
-                      selected: !_chipSelected,
+                      tone: _chipSelected
+                          ? VComponentTone.neutral
+                          : VComponentTone.primary,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
                       icon: VIcons.tag,
                     ),
@@ -140,11 +218,32 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 ),
               ),
               PreviewStateRow(
+                label: 'Ambient tone via VComponentScope',
+                child: vProvideComponentScope(
+                  tone: VComponentTone.info,
+                  child: const PreviewStateWrap(
+                    children: [
+                      VChip(label: 'inherits info'),
+                      VChip(label: 'local danger', tone: VComponentTone.danger),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
                 label: 'Removable',
-                child: VChip(
-                  label: 'Tag removable',
-                  onRemove: () {},
-                  icon: VIcons.tag,
+                child: PreviewStateWrap(
+                  children: [
+                    VChip(
+                      label: 'Tag removable',
+                      onRemove: () {},
+                      icon: VIcons.tag,
+                    ),
+                    VChip(
+                      label: 'Danger removable',
+                      tone: VComponentTone.danger,
+                      onRemove: () {},
+                    ),
+                  ],
                 ),
               ),
               PreviewStateRow(
@@ -168,14 +267,43 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           child: Builder(
             builder: (context) {
               final colors = context.vColors;
-              return PreviewStateWrap(
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const VIcon(icon: VIcons.home),
-                  const VIcon(icon: VIcons.person, size: 18),
-                  VIcon(icon: VIcons.warning, color: colors.warning),
-                  VIcon(icon: VIcons.success, color: colors.success, size: 28),
-                  VIcon(icon: VIcons.check, color: colors.success, size: 28),
-                  VIcon(icon: VIcons.error, color: colors.danger, size: 28),
+                  PreviewStateRow(
+                    label: 'Sizes and colors',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.home),
+                        const VIcon(icon: VIcons.person, size: 18),
+                        VIcon(icon: VIcons.warning, color: colors.warning),
+                        VIcon(icon: VIcons.success, color: colors.success, size: 28),
+                        VIcon(icon: VIcons.check, color: colors.success, size: 28),
+                        VIcon(icon: VIcons.error, color: colors.danger, size: 28),
+                      ],
+                    ),
+                  ),
+                  PreviewStateRow(
+                    label:
+                        'Weight — default (null) rồi thin → semiBold, cùng icon ở size 32',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.search, size: 32),
+                        for (final weight in VIconWeight.values)
+                          VIcon(icon: VIcons.search, size: 32, weight: weight),
+                      ],
+                    ),
+                  ),
+                  PreviewStateRow(
+                    label: 'Weight ở size nhỏ (16) — cùng thứ tự',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.calendar, size: 16),
+                        for (final weight in VIconWeight.values)
+                          VIcon(icon: VIcons.calendar, size: 16, weight: weight),
+                      ],
+                    ),
+                  ),
                 ],
               );
             },

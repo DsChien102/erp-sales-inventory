@@ -3,6 +3,9 @@ import 'package:vet45_design_system/design_system.dart';
 
 import 'preview_section.dart';
 
+// Flat field chrome is deprecated; demos below still exercise the bridge.
+// ignore_for_file: deprecated_member_use
+
 class FormsPreviewTab extends StatefulWidget {
   const FormsPreviewTab({super.key});
 
@@ -54,6 +57,49 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
+        PreviewSection(
+          title: 'VField (preferred)',
+          description:
+              'Compose Label + input child + Description/Error. '
+              'Flat label/helper/error on inputs is deprecated.',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Compose + helper',
+                child: VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Email', isRequired: true),
+                      VTextField(
+                        controller: _optionalEmail,
+                        hintText: 'customer@company.com',
+                      ),
+                      const VFieldDescription('Dùng email công ty'),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Compose + invalid',
+                child: VField(
+                  invalid: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Tax code'),
+                      const VTextField(
+                        hintText: 'Required',
+                        tone: VComponentTone.danger,
+                      ),
+                      const VFieldError('Thiếu mã số thuế'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         PreviewSection(
           title: 'VVerificationCodeField',
           child: Column(
@@ -344,7 +390,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
           child: Column(
             children: [
               PreviewStateRow(
-                label: 'Empty',
+                label: 'Empty (icon left — default)',
                 child: VDatePicker(
                   value: null,
                   label: 'Invoice date',
@@ -353,10 +399,11 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                 ),
               ),
               PreviewStateRow(
-                label: 'Filled',
+                label: 'Filled (icon right)',
                 child: VDatePicker(
                   value: _date ?? DateTime(2026, 6, 3),
                   label: 'Invoice date',
+                  iconPosition: VDatePickerIconPosition.right,
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2035),
                   onChanged: (picked) => setState(() => _date = picked),

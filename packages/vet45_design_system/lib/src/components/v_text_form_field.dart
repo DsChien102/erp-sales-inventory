@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
-import '../patterns/v_gap.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_field.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
 import 'v_text_field_focus_ring.dart';
-import '../foundation/v_inspector_scope.dart';
 
 /// Design system multiline TextFormField wrapper.
 ///
@@ -33,9 +33,14 @@ class VTextFormField extends StatefulWidget {
   );
 
   final TextEditingController? controller;
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
   final String? hintText;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -45,6 +50,7 @@ class VTextFormField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final int? minLines;
   final int? maxLines;
@@ -73,9 +79,12 @@ class VTextFormField extends StatefulWidget {
   const VTextFormField({
     super.key,
     this.controller,
-    this.label,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
     this.hintText,
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.prefixIcon,
     this.suffixIcon,
@@ -85,7 +94,7 @@ class VTextFormField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.onChanged,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.minLines = defaultMinLines,
     this.maxLines,
     this.inputFormatters,
@@ -245,7 +254,16 @@ class _VTextFormFieldState extends State<VTextFormField> {
         autovalidateMode: widget.autovalidateMode,
         builder: (FormFieldState<String> fieldState) {
           final hasValidationError = fieldState.hasError;
-          final displayErrorText = hasValidationError ? fieldState.errorText : widget.errorText;
+          // ignore: deprecated_member_use_from_same_package
+          final legacyError = widget.errorText;
+          // ignore: deprecated_member_use_from_same_package
+          final legacyHelper = widget.helperText;
+          // ignore: deprecated_member_use_from_same_package
+          final legacyLabel = widget.label;
+          // ignore: deprecated_member_use_from_same_package
+          final legacyRequired = widget.isRequired;
+          final displayErrorText =
+              hasValidationError ? fieldState.errorText : legacyError;
 
           final InputBorder activeBorder;
           if (!showBorder) {
@@ -261,16 +279,15 @@ class _VTextFormFieldState extends State<VTextFormField> {
 
           final focusedErrorBorder = outlineOf(colors.danger);
 
-          final resolvedSuffix =
-              widget.suffixIcon != null
-                  ? vInspectorShow(widget.suffixIcon!)
-                  : (widget.suffixText == null
-                      ? null
-                      : VText(
-                          widget.suffixText!,
-                          variant: VTextVariant.bodyDefault,
-                          color: colors.textSecondary,
-                        ));
+          final resolvedSuffix = widget.suffixIcon != null
+              ? vInspectorShow(widget.suffixIcon!)
+              : (widget.suffixText == null
+                    ? null
+                    : VText(
+                        widget.suffixText!,
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.textSecondary,
+                      ));
 
           final baseTextStyle = widget.textStyle ?? defaultStyle;
           final textFieldWidget = TextField(
@@ -358,58 +375,26 @@ class _VTextFormFieldState extends State<VTextFormField> {
             );
           }
 
+          final useShell = legacyLabel != null ||
+              legacyHelper != null ||
+              displayErrorText != null ||
+              legacyRequired;
+
+          final body = useShell
+              ? vFieldShell(
+                  control: fieldBox,
+                  label: legacyLabel,
+                  isRequired: legacyRequired,
+                  helperText: legacyHelper,
+                  errorText: displayErrorText,
+                )
+              : fieldBox;
+
           return Semantics(
             textField: true,
             enabled: isEnabled,
-            label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text form field',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.label != null) ...[
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: widget.label!,
-                          style: VTypography.headingH4.copyWith(
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                        if (widget.isRequired)
-                          TextSpan(
-                            text: ' *',
-                            style: TextStyle(color: colors.danger),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const VGap.sm(),
-                ],
-                fieldBox,
-                if (displayErrorText != null) ...[
-                  const VGap.xs(),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: VText(
-                      displayErrorText,
-                      variant: VTextVariant.bodySmall,
-                      color: colors.danger,
-                    ),
-                  ),
-                ] else if (widget.helperText != null) ...[
-                  const VGap.xs(),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: VText(
-                      widget.helperText!,
-                      variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Text form field',
+            child: body,
           );
         },
       ),

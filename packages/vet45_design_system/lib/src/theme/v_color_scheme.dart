@@ -331,11 +331,37 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     );
   }
 
+  /// Tinted surface for [tone] (shade 50 in light theme).
+  Color? backgroundForTone(VComponentTone? tone) {
+    if (tone == null) return null;
+    return switch (tone) {
+      VComponentTone.primary => surfaceBrand,
+      VComponentTone.success => successBg,
+      VComponentTone.warning => warningBg,
+      VComponentTone.danger => dangerBg,
+      VComponentTone.info => infoBg,
+      VComponentTone.neutral => surfaceAlt,
+    };
+  }
+
+  /// Border for [tone] on tinted surfaces; solid, no alpha.
+  Color? borderForTone(VComponentTone? tone) {
+    if (tone == null) return null;
+    return switch (tone) {
+      VComponentTone.neutral => borderStrong,
+      VComponentTone.primary => borderBrand,
+      VComponentTone.success => success,
+      VComponentTone.warning => warning,
+      VComponentTone.danger => danger,
+      VComponentTone.info => info,
+    };
+  }
+
   /// Semantic foreground for [tone]. Null tone → null (caller picks fallback).
   Color? foregroundForTone(VComponentTone? tone) {
     if (tone == null) return null;
     return switch (tone) {
-      VComponentTone.primary => primary,
+      VComponentTone.primary => textBrand,
       VComponentTone.success => success,
       VComponentTone.warning => warning,
       VComponentTone.danger => danger,

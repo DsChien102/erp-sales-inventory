@@ -11,6 +11,7 @@ import '../foundation/v_inspector_scope.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_overlay_menu_shell.dart';
 import '../foundations/icons/v_icons.dart';
+import '../patterns/v_field.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
@@ -19,8 +20,9 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'validators/v_select_validator.dart';
 
-/// Non-searchable form select with label / required / helper / error chrome.
+/// Non-searchable form select.
 ///
+/// Prefer [VField] + [VFieldLabel] / [VFieldDescription] / [VFieldError] for chrome.
 /// Overlay menu matches [VCombobox] (MenuAnchor + [VOverlayMenuShell]).
 class VSelect<T> extends StatefulWidget {
   static const double _menuHeight = 300;
@@ -30,12 +32,15 @@ class VSelect<T> extends StatefulWidget {
     required this.value,
     required this.items,
     required this.onChanged,
-    this.label,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
     this.hintText = 'Chọn...',
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.enabled,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.requiredMessage = VSelectValidator.defaultRequiredMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
@@ -45,11 +50,17 @@ class VSelect<T> extends StatefulWidget {
   final T? value;
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T?>? onChanged;
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
   final String? hintText;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final bool? enabled;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final String requiredMessage;
   final VComponentTone tone;
@@ -65,6 +76,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
   late final MenuController _menuController;
   String? _internalError;
 
+  // ignore: deprecated_member_use_from_same_package
   String? get _effectiveError => widget.errorText ?? _internalError;
 
   bool _triggerHighlighted = false;
@@ -100,6 +112,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
     setState(() {
       _internalError = VSelectValidator.validate(
         newValue,
+        // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
         requiredMessage: widget.requiredMessage,
       );
@@ -339,134 +352,116 @@ class _VSelectState<T> extends State<VSelect<T>> {
             _ => colors.borderDefault,
           };
 
+    // ignore: deprecated_member_use_from_same_package
+    final legacyLabel = widget.label;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyHelper = widget.helperText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyRequired = widget.isRequired;
+
+    final control = VTextFieldFocusRing(
+      focused: showDangerFocusChrome,
+      danger: useDanger,
+      child: Focus(
+        focusNode: _focusNode,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final menuRadius = VRadius.input;
+            const menuPadding = VSpacing.space2;
+            final menuWidth = constraints.maxWidth;
+            const menuMaxHeight = VSelect._menuHeight;
+            const menuBoxShadow = VOverlayMenuShell.menuShadow;
+            final menuMetrics = VOverlayMenuLayout.panelMetrics(
+              itemCount: widget.items.length,
+              menuMaxHeight: menuMaxHeight,
+              itemHeight: VCombobox.controlHeight,
+              menuPadding: menuPadding,
+            );
+            final transparentMenuStyle = MenuStyle(
+              elevation: const WidgetStatePropertyAll(0),
+              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+              surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+              shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+              minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
+              maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
+            );
+
+            return MenuButtonTheme(
+              data: const MenuButtonThemeData(),
+              child: MenuAnchor(
+                controller: _menuController,
+                childFocusNode: _focusNode,
+                clipBehavior: Clip.none,
+                style: transparentMenuStyle,
+                alignmentOffset: VOverlayMenuLayout.alignmentOffset,
+                reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
+                crossAxisUnconstrained: false,
+                onOpen: _handleMenuOpen,
+                onClose: _handleMenuClose,
+                menuChildren: [
+                  SizedBox(
+                    width: menuWidth,
+                    height: menuMetrics.shellHeight,
+                    child: VOverlayMenuShell.panel(
+                      borderRadius: BorderRadius.circular(menuRadius),
+                      borderSide: VBorders.side(colors.borderStrong),
+                      padding: const EdgeInsets.all(menuPadding),
+                      boxShadow: menuBoxShadow,
+                      child: menuMetrics.needsScroll
+                          ? SizedBox(
+                              height: menuMetrics.listViewportHeight,
+                              child: _buildMenuPanelBody(
+                                context: context,
+                                isEnabled: isEnabled,
+                                menuItemRadius: menuRadius,
+                                metrics: menuMetrics,
+                              ),
+                            )
+                          : _buildMenuPanelBody(
+                              context: context,
+                              isEnabled: isEnabled,
+                              menuItemRadius: menuRadius - menuPadding / 2,
+                              metrics: menuMetrics,
+                            ),
+                    ),
+                  ),
+                ],
+                builder: (context, controller, child) {
+                  return _buildTrigger(
+                    context: context,
+                    isEnabled: isEnabled,
+                    borderColor: borderColor,
+                    borderWidth: borderWidth,
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    final useShell = legacyLabel != null ||
+        legacyHelper != null ||
+        _effectiveError != null ||
+        legacyRequired;
+    final body = useShell
+        ? vFieldShell(
+            control: control,
+            label: legacyLabel,
+            isRequired: legacyRequired,
+            helperText: legacyHelper,
+            errorText: _effectiveError,
+          )
+        : control;
+
     return vInspectorHide(
       Semantics(
-        label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Select',
+        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Select',
         button: true,
         enabled: isEnabled,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.label != null) ...[
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: widget.label!,
-                      style: VTypography.headingH4.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    if (widget.isRequired)
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: colors.danger),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: VSpacing.space2),
-            ],
-            VTextFieldFocusRing(
-              focused: showDangerFocusChrome,
-              danger: useDanger,
-              child: Focus(
-                focusNode: _focusNode,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final menuRadius = VRadius.input;
-                    const menuPadding = VSpacing.space2;
-                    final menuWidth = constraints.maxWidth;
-                    const menuMaxHeight = VSelect._menuHeight;
-                    const menuBoxShadow = VOverlayMenuShell.menuShadow;
-                    final menuMetrics = VOverlayMenuLayout.panelMetrics(
-                      itemCount: widget.items.length,
-                      menuMaxHeight: menuMaxHeight,
-                      itemHeight: VCombobox.controlHeight,
-                      menuPadding: menuPadding,
-                    );
-                    final transparentMenuStyle = MenuStyle(
-                      elevation: const WidgetStatePropertyAll(0),
-                      backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-                      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-                      shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                      minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-                      maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
-                    );
-
-                    return MenuButtonTheme(
-                      data: const MenuButtonThemeData(),
-                      child: MenuAnchor(
-                        controller: _menuController,
-                        childFocusNode: _focusNode,
-                        clipBehavior: Clip.none,
-                        style: transparentMenuStyle,
-                        alignmentOffset: VOverlayMenuLayout.alignmentOffset,
-                        reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
-                        crossAxisUnconstrained: false,
-                        onOpen: _handleMenuOpen,
-                        onClose: _handleMenuClose,
-                        menuChildren: [
-                          SizedBox(
-                            width: menuWidth,
-                            height: menuMetrics.shellHeight,
-                            child: VOverlayMenuShell.panel(
-                              borderRadius: BorderRadius.circular(menuRadius),
-                              borderSide: VBorders.side(colors.borderStrong),
-                              padding: const EdgeInsets.all(menuPadding),
-                              boxShadow: menuBoxShadow,
-                              child: menuMetrics.needsScroll
-                                  ? SizedBox(
-                                      height: menuMetrics.listViewportHeight,
-                                      child: _buildMenuPanelBody(
-                                        context: context,
-                                        isEnabled: isEnabled,
-                                        menuItemRadius: menuRadius,
-                                        metrics: menuMetrics,
-                                      ),
-                                    )
-                                  : _buildMenuPanelBody(
-                                      context: context,
-                                      isEnabled: isEnabled,
-                                      menuItemRadius: menuRadius - menuPadding / 2,
-                                      metrics: menuMetrics,
-                                    ),
-                            ),
-                          ),
-                        ],
-                        builder: (context, controller, child) {
-                          return _buildTrigger(
-                            context: context,
-                            isEnabled: isEnabled,
-                            borderColor: borderColor,
-                            borderWidth: borderWidth,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            if (_effectiveError != null) ...[
-              const SizedBox(height: VSpacing.space1),
-              Text(
-                _effectiveError!,
-                style: VTypography.bodySmall.copyWith(color: colors.danger),
-              ),
-            ] else if (widget.helperText != null) ...[
-              const SizedBox(height: VSpacing.space1),
-              Text(
-                widget.helperText!,
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
-          ],
-        ),
+        child: body,
       ),
     );
   }

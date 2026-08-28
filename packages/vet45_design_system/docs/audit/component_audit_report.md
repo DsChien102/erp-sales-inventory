@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-27T10:34:10.661700`
+- Generated at: `2026-08-28T01:18:07.706857`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -12,7 +12,7 @@
 | components | `VBottomNavigationBar` | navigation_chrome | N/A (na) | N/A (na) | N/A+ (na) | — (optional) | No |
 | components | `VBottomSheet` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VButton` | action | Pass (required) | Pass (required) | Pass (preferred) | Pass (required) | Yes |
-| components | `VCard` | container | Pass (optional) | Pass (optional) | N/A (na) | — (optional) | No |
+| components | `VCard` | container | Pass (optional) | Pass (optional) | Pass (optional) | — (optional) | No |
 | components | `VCheckbox` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VCombobox` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
@@ -42,6 +42,7 @@
 | forms | `VPasswordField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | No |
 | forms | `VSelect` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | patterns | `VContentWidth` | unmapped | — (optional) | — (optional) | — (optional) | — (optional) | No |
+| patterns | `VField` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VGap` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VPagePadding` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VPageScaffold` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |

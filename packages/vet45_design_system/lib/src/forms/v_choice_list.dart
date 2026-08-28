@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_field.dart';
 import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
 import 'models/v_choice_option.dart';
 import 'validators/v_choice_list_validator.dart';
 import 'widgets/v_choice_list_tile.dart';
@@ -13,16 +12,19 @@ import 'widgets/v_choice_list_tile.dart';
 class VChoiceList<T> extends StatefulWidget {
   const VChoiceList({
     super.key,
-    this.title,
+    @Deprecated('Use VField + VFieldLabel instead') this.title,
     required this.choices,
     required this.selected,
     required this.onChanged,
     this.allowMultiple = false,
     this.enabled,
     this.titleHidden = false,
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.minSelections,
     this.maxSelections,
     this.requiredMessage = VChoiceListValidator.defaultRequiredMessage,
@@ -33,6 +35,7 @@ class VChoiceList<T> extends StatefulWidget {
     this.emphasis = VComponentEmphasis.medium,
   });
 
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? title;
   final List<VChoiceOption<T>> choices;
   final List<T> selected;
@@ -40,8 +43,13 @@ class VChoiceList<T> extends StatefulWidget {
   final bool allowMultiple;
   final bool? enabled;
   final bool titleHidden;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final int? minSelections;
   final int? maxSelections;
@@ -59,6 +67,7 @@ class VChoiceList<T> extends StatefulWidget {
 class _VChoiceListState<T> extends State<VChoiceList<T>> {
   String? _internalError;
 
+  // ignore: deprecated_member_use_from_same_package
   String? get _effectiveError => widget.errorText ?? _internalError;
 
   bool _isSelected(T value) => widget.selected.contains(value);
@@ -79,6 +88,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
     setState(() {
       _internalError = VChoiceListValidator.validate(
         updated,
+        // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
         minSelections: widget.minSelections,
         maxSelections: widget.maxSelections,
@@ -91,53 +101,37 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final hasError = _effectiveError != null;
-    final showTitle = widget.title != null && !widget.titleHidden;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyTitle = widget.title;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyHelper = widget.helperText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyRequired = widget.isRequired;
+    final showTitle = legacyTitle != null && !widget.titleHidden;
+    final shellLabel = showTitle ? legacyTitle : null;
+
+    final control = _buildChoices(hasError, isEnabled);
+    final useShell = shellLabel != null ||
+        legacyHelper != null ||
+        _effectiveError != null ||
+        (legacyRequired && showTitle);
+    final body = useShell
+        ? vFieldShell(
+            control: control,
+            label: shellLabel,
+            isRequired: legacyRequired && showTitle,
+            helperText: legacyHelper,
+            errorText: _effectiveError,
+          )
+        : control;
 
     return vInspectorHide(
       Semantics(
-        label: widget.semanticLabel ?? widget.title ?? 'Choice list',
+        label: widget.semanticLabel ?? legacyTitle ?? 'Choice list',
         enabled: isEnabled,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showTitle) ...[
-              RichText(
-                text: TextSpan(
-                  style: VTypography.headingH4.copyWith(
-                    color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
-                  ),
-                  children: [
-                    TextSpan(text: widget.title!),
-                    if (widget.isRequired)
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: dynamicColors.danger),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: VSpacing.space2),
-            ],
-            _buildChoices(hasError, isEnabled),
-            if (_effectiveError != null) ...[
-              Text(
-                _effectiveError!,
-                style: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
-              ),
-            ] else if (widget.helperText != null) ...[
-              Text(
-                widget.helperText!,
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
-              ),
-            ],
-          ],
-        ),
+        child: body,
       ),
     );
   }
@@ -171,6 +165,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
                 setState(() {
                   _internalError = VChoiceListValidator.validate(
                     [],
+                    // ignore: deprecated_member_use_from_same_package
                     isRequired: widget.isRequired,
                     minSelections: widget.minSelections,
                     maxSelections: widget.maxSelections,

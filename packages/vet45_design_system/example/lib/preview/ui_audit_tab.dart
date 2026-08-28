@@ -31,6 +31,10 @@ class UIAuditTab extends StatelessWidget {
     'VSwitch',
     'VFloatingActionButton',
     'VTextField',
+    'VField',
+    'VFieldLabel',
+    'VFieldDescription',
+    'VFieldError',
     'VVerificationCodeField',
     'VSearchBar',
     'VTabs',
@@ -199,22 +203,22 @@ class UIAuditTab extends StatelessWidget {
   Widget _exampleBadge(bool yes) {
     return VBadge(
       label: yes ? 'Yes' : 'No',
-      status: yes ? VBadgeStatus.success : VBadgeStatus.draft,
+      tone: yes ? VComponentTone.success : VComponentTone.neutral,
       isSmall: true,
     );
   }
 
   Widget _contractBadge(String status) {
-    final (label, badgeStatus) = switch (status) {
-      'pass' => ('Pass', VBadgeStatus.success),
-      'missing_required' => ('Missing', VBadgeStatus.danger),
-      'missing_preferred' => ('Pref↓', VBadgeStatus.warning),
-      'optional_absent' => ('—', VBadgeStatus.draft),
-      'na' => ('N/A', VBadgeStatus.draft),
-      'na_present' => ('N/A+', VBadgeStatus.info),
-      _ => (status, VBadgeStatus.draft),
+    final (label, tone) = switch (status) {
+      'pass' => ('Pass', VComponentTone.success),
+      'missing_required' => ('Missing', VComponentTone.danger),
+      'missing_preferred' => ('Pref↓', VComponentTone.warning),
+      'optional_absent' => ('—', VComponentTone.neutral),
+      'na' => ('N/A', VComponentTone.neutral),
+      'na_present' => ('N/A+', VComponentTone.info),
+      _ => (status, VComponentTone.neutral),
     };
-    return VBadge(label: label, status: badgeStatus, isSmall: true);
+    return VBadge(label: label, tone: tone, isSmall: true);
   }
 }
 

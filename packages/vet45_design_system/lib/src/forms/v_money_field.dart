@@ -15,9 +15,12 @@ class VMoneyField extends StatefulWidget {
     super.key,
     this.controller,
     this.value,
-    this.label,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
     this.hintText,
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.prefixIcon,
     this.suffixIcon,
@@ -25,7 +28,7 @@ class VMoneyField extends StatefulWidget {
     this.suffixText = 'đ',
     this.enabled,
     this.onChanged,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.min,
     this.max,
     this.inputFormatters,
@@ -47,9 +50,14 @@ class VMoneyField extends StatefulWidget {
 
   final TextEditingController? controller;
   final int? value;
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
   final String? hintText;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -57,6 +65,7 @@ class VMoneyField extends StatefulWidget {
   final String? suffixText;
   final bool? enabled;
   final ValueChanged<int?>? onChanged;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final int? min;
   final int? max;
@@ -136,6 +145,7 @@ class _VMoneyFieldState extends State<VMoneyField> {
       setState(() {
         _internalError = VMoneyValidator.validate(
           displayValue,
+          // ignore: deprecated_member_use_from_same_package
           isRequired: widget.isRequired,
           min: widget.min,
           max: widget.max,
@@ -153,9 +163,12 @@ class _VMoneyFieldState extends State<VMoneyField> {
     return vInspectorHide(
       VTextField(
         controller: _controller,
+        // ignore: deprecated_member_use_from_same_package
         label: widget.label,
         hintText: widget.hintText,
+        // ignore: deprecated_member_use_from_same_package
         helperText: widget.helperText,
+        // ignore: deprecated_member_use_from_same_package
         errorText: widget.errorText ?? _internalError,
         prefixIcon:
             widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
@@ -166,6 +179,7 @@ class _VMoneyFieldState extends State<VMoneyField> {
         enabled: widget.enabled,
         keyboardType: TextInputType.number,
         onChanged: _handleChanged,
+        // ignore: deprecated_member_use_from_same_package
         isRequired: widget.isRequired,
         inputFormatters: [
           const VMoneyInputFormatter(),

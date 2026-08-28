@@ -8,6 +8,7 @@ import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
+import '../patterns/v_field.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
@@ -15,10 +16,21 @@ import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 
+/// Calendar icon placement inside [VDatePicker] control.
+enum VDatePickerIconPosition {
+  /// Leading (LTR left). Default.
+  left,
+
+  /// Trailing (LTR right).
+  right,
+}
+
 class VDatePicker extends StatefulWidget {
   final DateTime? value;
+  @Deprecated('Use VField + VFieldLabel instead')
   final String label;
   final String hintText;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool required;
   final ValueChanged<DateTime>? onChanged;
 
@@ -33,12 +45,15 @@ class VDatePicker extends StatefulWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
+  /// Calendar icon side. Defaults to [VDatePickerIconPosition.left].
+  final VDatePickerIconPosition iconPosition;
+
   const VDatePicker({
     super.key,
     this.value,
-    required this.label,
+    @Deprecated('Use VField + VFieldLabel instead') required this.label,
     this.hintText = 'Chọn ngày',
-    this.required = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.required = false,
     this.onChanged,
     this.onTap,
     this.firstDate,
@@ -48,6 +63,7 @@ class VDatePicker extends StatefulWidget {
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
+    this.iconPosition = VDatePickerIconPosition.left,
   });
 
   @override
@@ -109,89 +125,77 @@ class _VDatePickerState extends State<VDatePicker> {
         ? dynamicColors.surfacePressed
         : dynamicColors.surface;
 
+    // ignore: deprecated_member_use_from_same_package
+    final legacyLabel = widget.label;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyRequired = widget.required;
+
+    final control = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: isEnabled ? _handleTap : null,
+        onHighlightChanged: isEnabled
+            ? (highlighted) {
+                if (_highlighted == highlighted) return;
+                setState(() => _highlighted = highlighted);
+              }
+            : null,
+        borderRadius: radius,
+        child: Ink(
+          height: VTextField.controlHeight,
+          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
+          decoration: BoxDecoration(
+            color: fillColor,
+            border: VBorders.all(
+              isEnabled ? borderColor : dynamicColors.borderDefault,
+              width: borderWidth,
+            ),
+            borderRadius: radius,
+          ),
+          child: Row(
+            children: [
+              if (widget.iconPosition == VDatePickerIconPosition.left) ...[
+                VIcon(
+                  icon: VIcons.calendar,
+                  size: 20,
+                  color: dynamicColors.textMuted,
+                ),
+                const VGap(VSpacing.space2, axis: Axis.horizontal),
+              ],
+              Expanded(
+                child: VText(
+                  dateText,
+                  variant: VTextVariant.bodyDefault,
+                  color: value != null
+                      ? (isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted)
+                      : dynamicColors.textMuted,
+                ),
+              ),
+              if (widget.iconPosition == VDatePickerIconPosition.right) ...[
+                const VGap(VSpacing.space2, axis: Axis.horizontal),
+                VIcon(
+                  icon: VIcons.calendar,
+                  size: 20,
+                  color: dynamicColors.textMuted,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+
     return vInspectorHide(
       Semantics(
         button: true,
         enabled: isEnabled,
-        label: widget.semanticLabel ?? widget.label,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                VIcon(
-                  icon: VIcons.calendar,
-                  size: 16,
-                  color: dynamicColors.textSecondary,
-                ),
-                const VGap.sm(),
-                VText(
-                  widget.label,
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                  color: dynamicColors.textPrimary,
-                ),
-                if (widget.required) ...[
-                  const VGap.xs(),
-                  VText(
-                    '*',
-                    variant: VTextVariant.bodyDefault,
-                    color: dynamicColors.danger,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ],
-            ),
-            const VGap.sm(),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: isEnabled ? _handleTap : null,
-                onHighlightChanged: isEnabled
-                    ? (highlighted) {
-                        if (_highlighted == highlighted) return;
-                        setState(() => _highlighted = highlighted);
-                      }
-                    : null,
-                borderRadius: radius,
-                child: Ink(
-                  height: VTextField.controlHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-                  decoration: BoxDecoration(
-                    color: fillColor,
-                    border: VBorders.all(
-                      isEnabled ? borderColor : dynamicColors.borderDefault,
-                      width: borderWidth,
-                    ),
-                    borderRadius: radius,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: VText(
-                          dateText,
-                          variant: VTextVariant.bodyDefault,
-                          color: value != null
-                              ? (isEnabled
-                                    ? dynamicColors.textPrimary
-                                    : dynamicColors.textMuted)
-                              : dynamicColors.textMuted,
-                        ),
-                      ),
-                      VIcon(
-                        icon: VIcons.calendar,
-                        size: 20,
-                        color: dynamicColors.textMuted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+        label: widget.semanticLabel ?? legacyLabel,
+        child: vFieldShell(
+          control: control,
+          label: legacyLabel,
+          isRequired: legacyRequired,
         ),
       ),
     );

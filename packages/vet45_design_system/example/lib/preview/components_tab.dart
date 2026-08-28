@@ -3,6 +3,9 @@ import 'package:vet45_design_system/design_system.dart';
 
 import 'preview_section.dart';
 
+// Flat field chrome is deprecated; demos below still exercise the bridge.
+// ignore_for_file: deprecated_member_use
+
 class ComponentsPreviewTab extends StatefulWidget {
   const ComponentsPreviewTab({super.key});
 
@@ -471,16 +474,33 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VTextField',
           description:
-              'States: enabled / disabled / error. '
-              'Tone, emphasis, prefix/suffix icon & suffixText, required, dense, border toggle.',
+              'Prefer VField + VFieldLabel / VFieldDescription / VFieldError. '
+              'Flat label/helper/error is deprecated (legacy rows below). '
+              'States: enabled / disabled / error. Tone, emphasis, affixes, dense, border.',
           child: Column(
             children: [
+              PreviewStateRow(
+                label: 'Compose (preferred)',
+                child: VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Customer phone'),
+                      VTextField(
+                        controller: _textController,
+                        hintText: '0901234567',
+                      ),
+                      const VFieldDescription('We will send SMS.'),
+                    ],
+                  ),
+                ),
+              ),
               const PreviewStateRow(
-                label: 'Default',
+                label: 'Default (bare control)',
                 child: VTextField(hintText: 'Enter text…'),
               ),
               PreviewStateRow(
-                label: 'Label + helper + value',
+                label: 'Legacy flat label + helper',
                 child: VTextField(
                   controller: _textController,
                   label: 'Customer phone',
@@ -489,7 +509,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ),
               const PreviewStateRow(
-                label: 'Required',
+                label: 'Required (legacy)',
                 child: VTextField(
                   label: 'Tax code',
                   hintText: 'Required field',
@@ -497,7 +517,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ),
               const PreviewStateRow(
-                label: 'Error',
+                label: 'Error (legacy)',
                 child: VTextField(
                   label: 'Email',
                   hintText: 'name@company.com',
@@ -939,6 +959,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           title: 'VCard',
           description:
               'tone → border + background via VComponentScope; emphasis → shadow. '
+              'enabled soft-inherit; disabled → borderDefault + onTap off + cascade. '
               'Compound: Header/Title/Icon/Action/Content/Footer must sit in parent ancestry '
               '(set padding: EdgeInsets.zero).',
           child: Column(
@@ -946,6 +967,13 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               const PreviewStateRow(
                 label: 'Default (subtle, neutral)',
                 child: VCard(child: Text('Card content')),
+              ),
+              const PreviewStateRow(
+                label: 'Disabled (enabled: false)',
+                child: VCard(
+                  enabled: false,
+                  child: Text('Disabled card'),
+                ),
               ),
               PreviewStateRow(
                 label: 'Tappable',

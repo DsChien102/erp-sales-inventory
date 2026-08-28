@@ -5,9 +5,8 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
-import '../patterns/v_gap.dart';
+import '../patterns/v_field.dart';
 import '../primitives/v_text.dart';
-import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -34,9 +33,15 @@ class VTextField extends StatefulWidget {
   static const double controlHeight = 48;
 
   final TextEditingController? controller;
+
+  @Deprecated('Use VField + VFieldLabel instead')
   final String? label;
   final String? hintText;
+  @Deprecated('Use VFieldDescription instead')
   final String? helperText;
+  @Deprecated(
+    'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+  )
   final String? errorText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -46,6 +51,7 @@ class VTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final List<TextInputFormatter>? inputFormatters;
   final TextStyle? textStyle;
@@ -64,9 +70,12 @@ class VTextField extends StatefulWidget {
   const VTextField({
     super.key,
     this.controller,
-    this.label,
+    @Deprecated('Use VField + VFieldLabel instead') this.label,
     this.hintText,
-    this.helperText,
+    @Deprecated('Use VFieldDescription instead') this.helperText,
+    @Deprecated(
+      'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain',
+    )
     this.errorText,
     this.prefixIcon,
     this.suffixIcon,
@@ -76,7 +85,7 @@ class VTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.onChanged,
-    this.isRequired = false,
+    @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
@@ -140,24 +149,20 @@ class _VTextFieldState extends State<VTextField> {
     return VBorders.outlineInput(color, width: width);
   }
 
-  Widget? _message(VColorScheme colors, {required bool hasError}) {
-    final text = hasError ? widget.errorText : widget.helperText;
-    if (text == null) return null;
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: VText(
-        text,
-        variant: VTextVariant.bodySmall,
-        color: hasError ? colors.danger : colors.textMuted,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
-    final hasError = widget.errorText != null;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyError = widget.errorText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyHelper = widget.helperText;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyLabel = widget.label;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyRequired = widget.isRequired;
+
+    final hasError = legacyError != null;
     final useDanger = hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
     final isDense = widget.isDense;
@@ -251,54 +256,36 @@ class _VTextFieldState extends State<VTextField> {
         enabledBorder: restingBorder,
         focusedBorder: focusBorder,
         disabledBorder: disabledBorder,
-        // Keep error chrome on the input only; message is rendered below the ring.
         errorBorder: dangerBorder,
         focusedErrorBorder: dangerBorder,
       ),
     );
 
-    final message = _message(colors, hasError: hasError);
+    final control = VTextFieldFocusRing(
+      focused: focused,
+      danger: useDanger,
+      child: field,
+    );
+
+    final useShell =
+        legacyLabel != null || legacyHelper != null || legacyError != null || legacyRequired;
+
+    final body = useShell
+        ? vFieldShell(
+            control: control,
+            label: legacyLabel,
+            isRequired: legacyRequired,
+            helperText: legacyHelper,
+            errorText: legacyError,
+          )
+        : control;
 
     return vInspectorHide(
       Semantics(
         textField: true,
         enabled: isEnabled,
-        label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text field',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.label != null) ...[
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: widget.label!,
-                      style: VTypography.headingH4.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    if (widget.isRequired)
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: colors.danger),
-                      ),
-                  ],
-                ),
-              ),
-              const VGap.sm(),
-            ],
-            VTextFieldFocusRing(
-              focused: focused,
-              danger: useDanger,
-              child: field,
-            ),
-            if (message != null) ...[
-              const VGap.sm(),
-              message,
-            ],
-          ],
-        ),
+        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Text field',
+        child: body,
       ),
     );
   }

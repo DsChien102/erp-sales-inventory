@@ -13,7 +13,7 @@ VBadge:
 VChip:
   role: status_display
   tone: required
-  emphasis: required
+  emphasis: optional
   state: optional
   semanticLabel: required
 
@@ -209,7 +209,7 @@ VCard:
   role: container
   tone: optional
   emphasis: optional
-  state: na
+  state: optional
   semanticLabel: optional
 
 VSection:
@@ -292,6 +292,34 @@ VBottomNavigationBar:
   semanticLabel: optional
 
 # --- Layout patterns ---
+VField:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldLabel:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldDescription:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
+VFieldError:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: na
+
 VGap:
   role: layout_pattern
   tone: na

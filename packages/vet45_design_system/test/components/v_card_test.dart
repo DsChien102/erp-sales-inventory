@@ -29,6 +29,43 @@ void main() {
       expect(border.top.color, VColorScheme.light.borderStrong);
     });
 
+    testWidgets('enabled false uses borderDefault', (tester) async {
+      await tester.pumpWidget(
+        wrap(const VCard(enabled: false, child: Text('body'))),
+      );
+      final border = cardDecoration(tester)!.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderDefault);
+    });
+
+    testWidgets('enabled false overrides tone border to borderDefault', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VCard(
+            enabled: false,
+            tone: VComponentTone.danger,
+            child: Text('body'),
+          ),
+        ),
+      );
+      final decoration = cardDecoration(tester)!;
+      expect(decoration.color, VColorScheme.light.dangerBg);
+      final border = decoration.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderDefault);
+    });
+
+    testWidgets('inherits disabled from ambient VComponentScope', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VComponentScope(
+            enabled: false,
+            child: VCard(child: Text('body')),
+          ),
+        ),
+      );
+      final border = cardDecoration(tester)!.border! as Border;
+      expect(border.top.color, VColorScheme.light.borderDefault);
+    });
+
     testWidgets('emphasis medium applies e1 shadow', (tester) async {
       await tester.pumpWidget(
         wrap(
