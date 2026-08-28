@@ -6,8 +6,7 @@ import 'reconnect_provider_command.dart';
 
 @CommandHandlerFor(ReconnectProviderCommand)
 final class ReconnectProviderCommandHandler
-    implements
-        ICommandHandler<ReconnectProviderCommand, ProviderConnectionResultDto> {
+    implements ICommandHandler<ReconnectProviderCommand, ProviderConnectionResultDto> {
   ReconnectProviderCommandHandler({
     required IProviderConnectionCommandGateway commandGateway,
   }) : _commandGateway = commandGateway;

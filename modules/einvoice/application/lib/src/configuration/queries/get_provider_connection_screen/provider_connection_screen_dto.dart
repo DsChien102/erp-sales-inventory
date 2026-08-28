@@ -3,7 +3,8 @@ import '../../shared/provider_connection_summary_dto.dart';
 
 final class ProviderConnectionScreenDto {
   const ProviderConnectionScreenDto({
-    required this.legalProfile, required this.connection,
+    required this.legalProfile,
+    required this.connection,
   });
 
   final LegalProfileSummaryDto legalProfile;

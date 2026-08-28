@@ -86,6 +86,11 @@ final class EinvoiceOutboxModule {
     final map = BiMap<String, Type>();
     map[ConfigurationReadinessChangedIntegrationEvent.type] =
         ConfigurationReadinessChangedIntegrationEvent;
+    map[IssuanceProcessingIntegrationEvent.type] =
+        IssuanceProcessingIntegrationEvent;
+    map[IssuanceFailedIntegrationEvent.type] = IssuanceFailedIntegrationEvent;
+    map[ElectronicInvoiceRegisteredIntegrationEvent.type] =
+        ElectronicInvoiceRegisteredIntegrationEvent;
     return EinvoiceOutboxModule(map);
   }
 

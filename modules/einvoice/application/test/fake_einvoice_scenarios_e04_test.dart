@@ -20,8 +20,7 @@ void main() {
     });
 
     test('send_sheet_resend uses resend mode', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.sendSheetResend);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.sendSheetResend);
       final result = await module.executeQueryAsync(
         GetSendInvoiceSheetContextQuery(
           tenantId: 't1',
@@ -33,8 +32,7 @@ void main() {
     });
 
     test('auto_send_not_supported throws DeliveryNotSupportedException', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.autoSendNotSupported);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.autoSendNotSupported);
       expect(
         () => module.executeCommandAsync(
           StartAutoDeliveryCommand(

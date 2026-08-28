@@ -11,8 +11,17 @@ import 'einvoice_command_registration.g.dart';
 
 void registerGeneratedEinvoiceValidators(GetIt container) {
   container
+    ..registerFactory<ICommandValidator<CompleteBuyerInvoiceDataCommand>>(
+      CompleteBuyerInvoiceDataCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<ConnectProviderCommand>>(
       ConnectProviderCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<IssueInvoiceCommand>>(
+      IssueInvoiceCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<RequestInvoicePreviewCommand>>(
+      RequestInvoicePreviewCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<SetDefaultIssuanceConfigurationCommand>>(
       SetDefaultIssuanceConfigurationCommandValidator.new,
@@ -30,6 +39,15 @@ void registerGeneratedEinvoiceHandlers({
   ILogger? logger,
 }) {
   registerGeneratedEinvoiceValidators(container);
+
+  EinvoiceCommandRegistration.registerBusinessHandler<CompleteBuyerInvoiceDataCommand, BuyerCompletionResultDto, CompleteBuyerInvoiceDataCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => CompleteBuyerInvoiceDataCommandHandler(
+      gateway: container.get<IBuyerInvoiceDataGateway>(),
+    ),
+  );
 
   EinvoiceCommandRegistration.registerBusinessHandler<ConnectProviderCommand, ProviderConnectionResultDto, ConnectProviderCommandHandler>(
     container: container,
@@ -49,12 +67,31 @@ void registerGeneratedEinvoiceHandlers({
     ),
   );
 
+  EinvoiceCommandRegistration.registerBusinessHandler<IssueInvoiceCommand, IssueInvoiceResultDto, IssueInvoiceCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => IssueInvoiceCommandHandler(
+      gateway: container.get<IIssuanceCommandGateway>(),
+    ),
+  );
+
   EinvoiceCommandRegistration.registerBusinessHandler<ReconnectProviderCommand, ProviderConnectionResultDto, ReconnectProviderCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
     factory: () => ReconnectProviderCommandHandler(
       commandGateway: container.get<IProviderConnectionCommandGateway>(),
+    ),
+  );
+
+  EinvoiceCommandRegistration.registerBusinessHandler<RequestInvoicePreviewCommand, InvoicePreviewResultDto, RequestInvoicePreviewCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestInvoicePreviewCommandHandler(
+      readinessGateway: container.get<IIssuanceReadinessReadGateway>(),
+      previewGateway: container.get<IInvoicePreviewGateway>(),
     ),
   );
 
@@ -83,6 +120,30 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => VerifyProviderConnectionCommandHandler(
       commandGateway: container.get<IProviderConnectionCommandGateway>(),
     ),
+  );
+
+  EinvoiceCommandRegistration.registerInternalHandler<PreviewInvoiceCommand, PreviewInvoiceCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => PreviewInvoiceCommandHandler(
+      providerPort: container.get<IMeInvoiceProviderPort>(),
+      previewGateway: container.get<IInvoicePreviewGateway>(),
+    ),
+    inner: (command) => container.get<PreviewInvoiceCommandHandler>().handle(command),
+    commandClient: internalCommandClient,
+  );
+
+  EinvoiceCommandRegistration.registerInternalHandler<PublishInvoiceCommand, PublishInvoiceCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => PublishInvoiceCommandHandler(
+      providerPort: container.get<IMeInvoiceProviderPort>(),
+      resultGateway: container.get<IIssuanceResultGateway>(),
+    ),
+    inner: (command) => container.get<PublishInvoiceCommandHandler>().handle(command),
+    commandClient: internalCommandClient,
   );
 
   EinvoiceCommandRegistration.registerInternalHandler<RecordConnectionVerifiedCommand, RecordConnectionVerifiedCommandHandler>(
@@ -130,10 +191,34 @@ void registerGeneratedEinvoiceQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  EinvoiceCommandRegistration.registerQueryHandler<GetInvoicePreviewQuery, InvoicePreviewResultDto, GetInvoicePreviewQueryHandler>(
+    bus: bus,
+    factory: () => GetInvoicePreviewQueryHandler(
+      previewGateway: container.get<IInvoicePreviewGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   EinvoiceCommandRegistration.registerQueryHandler<GetIssuanceProfileQuery, IssuanceProfileDto, GetIssuanceProfileQueryHandler>(
     bus: bus,
     factory: () => GetIssuanceProfileQueryHandler(
       profileGateway: container.get<IIssuanceProfileGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  EinvoiceCommandRegistration.registerQueryHandler<GetIssuanceReadinessQuery, IssuanceReadinessDto, GetIssuanceReadinessQueryHandler>(
+    bus: bus,
+    factory: () => GetIssuanceReadinessQueryHandler(
+      readinessGateway: container.get<IIssuanceReadinessReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  EinvoiceCommandRegistration.registerQueryHandler<GetOrderInvoiceProjectionQuery, OrderInvoiceProjectionDto, GetOrderInvoiceProjectionQueryHandler>(
+    bus: bus,
+    factory: () => GetOrderInvoiceProjectionQueryHandler(
+      projectionGateway: container.get<IOrderInvoiceProjectionReadGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

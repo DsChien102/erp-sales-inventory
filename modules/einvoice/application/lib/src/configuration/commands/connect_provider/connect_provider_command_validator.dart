@@ -2,8 +2,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'connect_provider_command.dart';
 
-final class ConnectProviderCommandValidator
-    implements ICommandValidator<ConnectProviderCommand> {
+final class ConnectProviderCommandValidator implements ICommandValidator<ConnectProviderCommand> {
   @override
   Future<void> validate(ConnectProviderCommand command) async {
     if (command.tenantId.trim().isEmpty) {

@@ -16,10 +16,15 @@ Ship unit: this worker only. Deploy tags: `messaging_worker-vX.Y.Z`.
 
 ### Fixed
 
+- Binding einvoice dùng `moduleSchema: 'einvoice'` + `EinvoiceMessagingCommandFactory` — tránh ghi đè IAM và mismatch `ProcessOutboxCommand` type.
+
 ### Internal
 
 - Deploy script build Docker `linux/amd64` rồi push GitLab registry; Railway `redeploy --from-source` thay `railway up`.
 - Tách `publish` (registry) khỏi Railway: `vet45 run railway sync-env` (shared + secret service) và `vet45 run railway rollout`.
+- Einvoice S2b: Supabase issuance result/command gateways + fail-closed `IssuanceRpcMapper` (typed evidence, dispatch barrier actions, projection read).
+- Einvoice S2b: Typed issuance result gateway contract (`IIssuanceResultGateway`, `IssuanceResultEvidenceDto`, `PublishPreparationAction`) cho worker publish path.
+- Einvoice S2a: Worker preview command/handler mapping và dispatch `einvoice.preview_invoice` qua `EinvoiceMessagingCommandFactory`.
 - Einvoice S1: `read_provider_credentials` lấy `tax_code` từ `iam.tenant_legal_profiles` khi credential chưa có MST.
 
 ## [0.1.1] - 2026-08-20

@@ -15,5 +15,4 @@ final class GetAutomationPolicyQuery extends QueryBase<AutomationPolicyDto>
   @override
   final String tenantId;
   final String actorId;
-
 }

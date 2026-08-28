@@ -15,5 +15,4 @@ final class GetIssuanceProfileQuery extends QueryBase<IssuanceProfileDto>
   @override
   final String tenantId;
   final String actorId;
-
 }

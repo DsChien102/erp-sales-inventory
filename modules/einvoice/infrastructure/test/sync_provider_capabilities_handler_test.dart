@@ -16,6 +16,24 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
     calls++;
     return outcome;
   }
+
+  @override
+  Future<MeInvoicePreviewOutcome> previewUnpublished({
+    required String tenantId,
+    required Map<String, Object?> canonicalInvoice,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  void validateCanonical({required Map<String, Object?> canonicalInvoice}) {}
+
+  @override
+  Future<MeInvoicePublishOutcome> publish({
+    required String tenantId,
+    required Map<String, Object?> canonicalInvoice,
+    required String idempotencyKey,
+  }) =>
+      throw UnimplementedError();
 }
 
 final class _RecordingConnectionGateway

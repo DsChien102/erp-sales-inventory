@@ -24,10 +24,6 @@ abstract final class MeInvoiceApiResponseParser {
       if (envelope.errorCode != null && envelope.errorCode!.isNotEmpty) {
         return MeInvoiceErrorMapper.fromVendorPayload(map);
       }
-      final publishError = _firstPublishError(envelope.publishInvoiceResult);
-      if (publishError != null) {
-        return MeInvoiceResult.failed(publishError);
-      }
       return MeInvoiceResult.ok(envelope);
     } on Object catch (e) {
       return MeInvoiceResult.failed('meinvoice_invalid_response: $e');
@@ -52,6 +48,12 @@ abstract final class MeInvoiceApiResponseParser {
     }
     return null;
   }
+
+  /// Returns the first publish-item error string, if any.
+  static String? firstPublishItemError(
+    List<MeInvoicePublishInvoiceResultItem>? items,
+  ) =>
+      _firstPublishError(items);
 
   static List<T> parseDataList<T>(
     Object? data,

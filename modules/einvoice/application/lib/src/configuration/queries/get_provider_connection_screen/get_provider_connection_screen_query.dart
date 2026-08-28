@@ -15,5 +15,4 @@ final class GetProviderConnectionScreenQuery extends QueryBase<ProviderConnectio
   @override
   final String tenantId;
   final String actorId;
-
 }

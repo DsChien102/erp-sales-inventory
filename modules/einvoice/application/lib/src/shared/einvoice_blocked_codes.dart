@@ -19,4 +19,5 @@ abstract final class EInvoiceBlockedCodes {
   static const resultUndetermined = 'RESULT_UNDETERMINED';
   static const documentUnavailable = 'DOCUMENT_UNAVAILABLE';
   static const deliveryNotSupported = 'DELIVERY_NOT_SUPPORTED';
+  static const idempotencyConflict = 'IDEMPOTENCY_CONFLICT';
 }

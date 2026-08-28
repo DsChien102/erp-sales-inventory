@@ -6,8 +6,7 @@ import 'package:vet45_einvoice_application/testing.dart';
 void main() {
   group('EP-03 fake scenarios', () {
     test('official_view_ok returns viewer URL', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.officialViewOk);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.officialViewOk);
       final result = await module.executeCommandAsync(
         RequestOfficialInvoiceViewCommand(
           tenantId: 't1',
@@ -19,8 +18,7 @@ void main() {
     });
 
     test('download_pdf_ok returns download URL', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadPdfOk);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadPdfOk);
       final result = await module.executeCommandAsync(
         RequestInvoiceDocumentCommand(
           tenantId: 't1',
@@ -34,8 +32,7 @@ void main() {
     });
 
     test('download_unavailable throws DocumentUnavailableException', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadUnavailable);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadUnavailable);
       expect(
         () => module.executeCommandAsync(
           RequestInvoiceDocumentCommand(

@@ -181,4 +181,124 @@ abstract final class EinvoiceRpcMapper {
       warnings: warnings,
     );
   }
+
+  // --- S2a Mappers ---
+
+  static IssuanceReadinessInput issuanceReadinessInputFromRow(
+    Map<String, dynamic> row,
+  ) {
+    final warnings = (row['config_warnings'] as List<dynamic>? ?? const [])
+        .map(
+          (raw) => raw is Map
+              ? ReadinessWarning(
+                  code: (raw['code'] as String?) ?? '',
+                  message: (raw['message'] as String?) ?? '',
+                )
+              : ReadinessWarning(
+                  code: raw.toString(),
+                  message: raw.toString(),
+                ),
+        )
+        .toList(growable: false);
+
+    final buyerTypeStr = row['buyer_type'] as String? ?? 'retail';
+    final buyerType = BuyerType.values.firstWhere(
+      (e) => e.name == buyerTypeStr,
+      orElse: () => BuyerType.retail,
+    );
+
+    final buyer = EffectiveBuyerInvoiceData(
+      buyerType: buyerType,
+      name: row['buyer_name'] as String? ?? '',
+      email: row['buyer_email'] as String?,
+      taxCode: row['buyer_tax_code'] as String?,
+      address: row['buyer_address'] as String?,
+    );
+
+    // No completion row → buyer data already settled from snapshot; within the
+    // frozen open/locked enum this maps to `locked` (settled), not `open`.
+    final completionStateStr =
+        row['buyer_completion_state'] as String? ?? 'locked';
+    final buyerCompletionState = BuyerCompletionStatus.values.firstWhere(
+      (e) => e.name == completionStateStr,
+      orElse: () => BuyerCompletionStatus.locked,
+    );
+
+    return IssuanceReadinessInput(
+      orderCompleted: row['order_completed'] as bool? ?? false,
+      hasElectronicInvoice: row['has_electronic_invoice'] as bool? ?? false,
+      hasActiveOperation: row['has_active_operation'] as bool? ?? false,
+      configReady: row['config_ready'] as bool? ?? false,
+      providerConnected: row['provider_connected'] as bool? ?? false,
+      providerSupportsPreview:
+          row['provider_supports_preview'] as bool? ?? false,
+      buyer: buyer,
+      buyerCompletionState: buyerCompletionState,
+      commercialDataMappable:
+          row['commercial_data_mappable'] as bool? ?? true,
+      configWarnings: warnings,
+    );
+  }
+
+  static BuyerCompletionContext buyerCompletionContextFromRow(
+    Map<String, dynamic> row,
+  ) {
+    final buyerTypeStr = row['buyer_type'] as String? ?? 'retail';
+    final buyerType = BuyerType.values.firstWhere(
+      (e) => e.name == buyerTypeStr,
+      orElse: () => BuyerType.retail,
+    );
+
+    final base = BuyerInvoiceSourceFields(
+      buyerType: buyerType,
+      name: row['base_name'] as String?,
+      email: row['base_email'] as String?,
+      taxCode: row['base_tax_code'] as String?,
+      address: row['base_address'] as String?,
+    );
+
+    BuyerInvoiceSourceFields? completionSource;
+    if (row['resolved_values'] != null && row['resolved_values'] is Map) {
+      final res = Map<String, dynamic>.from(row['resolved_values'] as Map);
+      completionSource = BuyerInvoiceSourceFields(
+        buyerType: buyerType,
+        name: res['name'] as String?,
+        email: res['email'] as String?,
+        taxCode: res['taxCode'] as String?,
+        address: res['address'] as String?,
+      );
+    }
+
+    final statusStr = row['status'] as String? ?? 'open';
+    final status = BuyerCompletionStatus.values.firstWhere(
+      (e) => e.name == statusStr,
+      orElse: () => BuyerCompletionStatus.open,
+    );
+
+    final eligibleFields = (row['eligible_fields'] as List<dynamic>? ?? const [])
+        .map((e) => e.toString())
+        .toList(growable: false);
+
+    return BuyerCompletionContext(
+      base: base,
+      completionSource: completionSource,
+      status: status,
+      salesOrderVersion: (row['sales_order_version'] ?? '').toString(),
+      buyerPartnerId: (row['buyer_partner_id'] ?? '').toString(),
+      eligibleFields: eligibleFields,
+    );
+  }
+
+  static InvoicePreviewResultDto invoicePreviewResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    final payload = row['preview_payload'];
+    return InvoicePreviewResultDto(
+      viewerRef: row['viewer_ref'] as String?,
+      previewPayload: payload is Map
+          ? Map<String, Object?>.from(payload)
+          : null,
+      warnings: const [],
+    );
+  }
 }

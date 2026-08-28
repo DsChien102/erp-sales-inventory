@@ -1,6 +1,9 @@
 final class AutomationPolicyDto {
   const AutomationPolicyDto({
-    required this.autoIssueEnabled, required this.autoSendEnabled, required this.policyVersion, required this.blockers,
+    required this.autoIssueEnabled,
+    required this.autoSendEnabled,
+    required this.policyVersion,
+    required this.blockers,
   });
 
   final bool autoIssueEnabled;

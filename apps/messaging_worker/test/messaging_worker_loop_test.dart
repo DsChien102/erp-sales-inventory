@@ -6,7 +6,9 @@ import 'package:messaging_worker/messaging_worker_bootstrap.dart';
 import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_einvoice_infrastructure/infrastructure.dart' as einvoice;
+import 'package:vet45_einvoice_infrastructure/src/configuration/processing/generated/einvoice_internal_command_registry.g.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart' as iam;
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -18,6 +20,24 @@ List<MessagingModuleBinding> _iamBinding(IModuleMediator mediator) {
       moduleSchema: 'iam',
       mediator: mediator,
       commands: const IamMessagingCommandFactory(),
+    ),
+  ];
+}
+
+List<MessagingModuleBinding> _iamAndEinvoiceBindings({
+  required IModuleMediator iamMediator,
+  required IModuleMediator einvoiceMediator,
+}) {
+  return [
+    MessagingModuleBinding(
+      moduleSchema: 'iam',
+      mediator: iamMediator,
+      commands: const IamMessagingCommandFactory(),
+    ),
+    MessagingModuleBinding(
+      moduleSchema: 'einvoice',
+      mediator: einvoiceMediator,
+      commands: const EinvoiceMessagingCommandFactory(),
     ),
   ];
 }
@@ -113,17 +133,67 @@ void main() {
       final result = await loop.runOnce();
 
       expect(mediator.commands, hasLength(3));
-      expect(mediator.commands[0], isA<ProcessOutboxCommand>());
-      expect((mediator.commands[0] as ProcessOutboxCommand).tenantId, 'tenant-1');
-      expect(mediator.commands[1], isA<ProcessInboxCommand>());
-      expect((mediator.commands[1] as ProcessInboxCommand).tenantId, 'tenant-1');
-      expect(mediator.commands[2], isA<ProcessInternalCommandsCommand>());
+      expect(mediator.commands[0], isA<iam.ProcessOutboxCommand>());
       expect(
-        (mediator.commands[2] as ProcessInternalCommandsCommand).tenantId,
+        (mediator.commands[0] as iam.ProcessOutboxCommand).tenantId,
+        'tenant-1',
+      );
+      expect(mediator.commands[1], isA<iam.ProcessInboxCommand>());
+      expect(
+        (mediator.commands[1] as iam.ProcessInboxCommand).tenantId,
+        'tenant-1',
+      );
+      expect(mediator.commands[2], isA<iam.ProcessInternalCommandsCommand>());
+      expect(
+        (mediator.commands[2] as iam.ProcessInternalCommandsCommand).tenantId,
         'tenant-2',
       );
       expect(result.tenantsProcessed, 2);
       expect(result.errorsCount, 0);
+    });
+
+    test('routes iam and einvoice queues to their own mediators', () async {
+      final iamMediator = _RecordingMediator();
+      final einvoiceMediator = _RecordingMediator();
+      final context = await MessagingWorkerBootstrap.bootstrap(
+        config: _baseConfig,
+        supabaseClient: _FakeSupabaseClient(),
+        modules: _iamAndEinvoiceBindings(
+          iamMediator: iamMediator,
+          einvoiceMediator: einvoiceMediator,
+        ),
+      );
+      final loop = MessagingWorkerLoop(
+        context: context,
+        discoveryClient: _SingleRoundDiscoveryClient([
+          PendingMessagingWork(
+            tenantId: 'tenant-1',
+            moduleSchema: 'iam',
+            queueType: 'outbox',
+            pendingCount: 1,
+            oldestCreatedAt: DateTime.utc(2026, 1, 1),
+          ),
+          PendingMessagingWork(
+            tenantId: 'tenant-1',
+            moduleSchema: 'einvoice',
+            queueType: 'outbox',
+            pendingCount: 2,
+            oldestCreatedAt: DateTime.utc(2026, 1, 1, 0, 1),
+          ),
+        ]),
+      );
+
+      final result = await loop.runOnce();
+
+      expect(result.errorsCount, 0);
+      expect(iamMediator.commands, hasLength(1));
+      expect(iamMediator.commands.single, isA<iam.ProcessOutboxCommand>());
+      expect(einvoiceMediator.commands, hasLength(1));
+      expect(
+        einvoiceMediator.commands.single,
+        isA<einvoice.ProcessOutboxCommand>(),
+      );
+      expect(context.boundModuleSchemas, ['iam', 'einvoice']);
     });
 
     test('passes bound module schemas to discovery client', () async {
@@ -371,6 +441,21 @@ void main() {
       expect(result.rounds, 2);
       expect(discoveryCalls, 2);
       expect(result.hadBacklog, isTrue);
+    });
+  });
+
+  group('S3b handoff boundary', () {
+    test('einvoice internal command registry does not recognize poll_issuance_status', () {
+      final serializer = createGeneratedEinvoiceInternalCommandSerializer();
+
+      expect(
+        () => serializer.deserialize(
+          commandType: 'einvoice.poll_issuance_status',
+          payload: const {},
+          id: 'unknown',
+        ),
+        throwsA(isA<StateError>()),
+      );
     });
   });
 }

@@ -6,11 +6,7 @@ import 'set_default_issuance_configuration_command.dart';
 
 @CommandHandlerFor(SetDefaultIssuanceConfigurationCommand)
 final class SetDefaultIssuanceConfigurationCommandHandler
-    implements
-        ICommandHandler<
-          SetDefaultIssuanceConfigurationCommand,
-          IssuanceProfileDto
-        > {
+    implements ICommandHandler<SetDefaultIssuanceConfigurationCommand, IssuanceProfileDto> {
   SetDefaultIssuanceConfigurationCommandHandler({
     required IIssuanceProfileGateway profileGateway,
   }) : _profileGateway = profileGateway;

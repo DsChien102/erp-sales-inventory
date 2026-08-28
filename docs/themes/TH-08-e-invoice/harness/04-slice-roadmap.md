@@ -11,7 +11,7 @@ Contracts: [07-api-contracts.md](07-api-contracts.md) · Traceability: [05-trace
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | ---- | ---- | ---- | -------------- | ------------------- |
 | S0  | Docs ingest (canonical → Epic/US + harness)                                                                                                                                                                                                                                       | docs     | done     | n/a  | n/a  | n/a  | —              | —                   |
 | S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | done     | done | todo | todo | A              | —                   |
-| S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | done     | todo | todo | todo | B              | S1 Contract+BE      |
+| S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | done     | in_progress | todo | todo | B              | S1 Contract+BE      |
 | S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | done     | todo | todo | todo | B              | S2                  |
 | S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
 | S5  | EP-04 — [US-01](../Epic-04-send-resend-einvoice/US-01.md) auto send + [US-02](../Epic-04-send-resend-einvoice/US-02.md) manual send + [US-03](../Epic-04-send-resend-einvoice/US-03.md) delivery result                                                                           | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
@@ -60,6 +60,14 @@ Việc cụ thể trong S2:
 - [ ] Thêm `refetchInterval` vào `packages/vet45_async_query` (`QueryOptions` + `QueryObserver`) — mechanism dùng chung, không dựng `Timer.periodic` từng màn
 
 Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast signal → invalidate; kick worker tick server-side sau enqueue.
+
+## S2b BE closeout (honest)
+
+S2b verifies manual start and immediate provider-result landing through Dart fakes, RPC-shape/SQL contract tests and worker tests. Production remains fail-closed until authoritative Theme 05/Theme 03 source contracts and the approved SQL migration land. Unknown-result cases land as pending ReconciliationCases with `next_check_at` and are inert until the S3b poll consumer scans them, so S2b carries no poison-row risk; those cases are only acted on once S3b ships its poll consumer.
+
+- **BE lane `in_progress`:** draft SQL `007_einvoice_s2b_schema_and_rpc.sql` chưa promote; authoritative sales/partner source contracts chưa có; S3b poll consumer chưa deploy.
+- **Traceability:** EP-02/US-02 FR-01..08 + EP-02/US-04 immediate-result subset = `done` (focused package tests pass).
+- **Out of scope S2b:** poll execution, callback ingestion, case resolution, finalization recovery → S3b.
 
 ## Definition of Done
 

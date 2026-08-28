@@ -3,7 +3,8 @@ import 'package:vet45_shared_application/application.dart';
 import 'recover_internal_finalization_result.dart';
 
 @RequiresTenant()
-final class RecoverInternalFinalizationCommand extends CommandBase<RecoverInternalFinalizationResultDto>
+final class RecoverInternalFinalizationCommand
+    extends CommandBase<RecoverInternalFinalizationResultDto>
     implements ICommand<RecoverInternalFinalizationResultDto>, ITenantScopedCommand {
   RecoverInternalFinalizationCommand({
     String? id,

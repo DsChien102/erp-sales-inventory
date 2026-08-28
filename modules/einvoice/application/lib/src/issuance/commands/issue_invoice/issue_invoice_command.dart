@@ -12,7 +12,7 @@ final class IssueInvoiceCommand extends CommandBase<IssueInvoiceResultDto>
     required this.tenantId,
     required this.actorId,
     required this.salesOrderId,
-    required this.expectedOrderVersion,
+    required this.sourceVersion,
     required this.idempotencyKey,
     this.acknowledgeWarnings,
   }) : super(id);
@@ -21,7 +21,7 @@ final class IssueInvoiceCommand extends CommandBase<IssueInvoiceResultDto>
   final String tenantId;
   final String actorId;
   final String salesOrderId;
-  final int expectedOrderVersion;
+  final String sourceVersion;
   final String idempotencyKey;
   final bool? acknowledgeWarnings;
 }

@@ -4,7 +4,10 @@ import '../../../configuration/shared/readiness_warning_dto.dart';
 
 final class IssuanceReadinessDto {
   const IssuanceReadinessDto({
-    required this.level, required this.blockers, required this.warnings, required this.buyerCompletionState,
+    required this.level,
+    required this.blockers,
+    required this.warnings,
+    required this.buyerCompletionState,
   });
 
   final IssuanceReadinessLevel level;

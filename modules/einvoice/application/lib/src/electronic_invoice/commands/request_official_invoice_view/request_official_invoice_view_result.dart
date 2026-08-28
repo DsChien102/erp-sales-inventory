@@ -1,6 +1,8 @@
 final class OfficialInvoiceViewDto {
   const OfficialInvoiceViewDto({
-    this.viewerUrl, this.token, this.expiresAt,
+    this.viewerUrl,
+    this.token,
+    this.expiresAt,
   });
 
   final String? viewerUrl;

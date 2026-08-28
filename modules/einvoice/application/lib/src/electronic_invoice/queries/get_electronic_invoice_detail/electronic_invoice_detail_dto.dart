@@ -1,6 +1,10 @@
 final class ElectronicInvoiceDetailDto {
   const ElectronicInvoiceDetailDto({
-    required this.electronicInvoiceId, required this.salesOrderId, this.invoiceNumber, this.providerRef, this.issuedAt,
+    required this.electronicInvoiceId,
+    required this.salesOrderId,
+    this.invoiceNumber,
+    this.providerRef,
+    this.issuedAt,
   });
 
   final String electronicInvoiceId;

@@ -6,8 +6,7 @@ import 'provider_template_dto.dart';
 
 @QueryHandlerFor(ListProviderTemplatesQuery)
 final class ListProviderTemplatesQueryHandler
-    implements
-        IQueryHandler<ListProviderTemplatesQuery, List<ProviderTemplateDto>> {
+    implements IQueryHandler<ListProviderTemplatesQuery, List<ProviderTemplateDto>> {
   ListProviderTemplatesQueryHandler({
     required IProviderConnectionReadGateway readGateway,
   }) : _readGateway = readGateway;

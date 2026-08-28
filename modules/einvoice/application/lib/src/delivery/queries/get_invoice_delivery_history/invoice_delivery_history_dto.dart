@@ -3,7 +3,8 @@ import 'invoice_delivery_item_dto.dart';
 
 final class InvoiceDeliveryHistoryDto {
   const InvoiceDeliveryHistoryDto({
-    required this.deliveries, required this.displayState,
+    required this.deliveries,
+    required this.displayState,
   });
 
   final List<InvoiceDeliveryItemDto> deliveries;

@@ -6,8 +6,7 @@ import 'disconnect_provider_command.dart';
 
 @CommandHandlerFor(DisconnectProviderCommand)
 final class DisconnectProviderCommandHandler
-    implements
-        ICommandHandler<DisconnectProviderCommand, ProviderConnectionResultDto> {
+    implements ICommandHandler<DisconnectProviderCommand, ProviderConnectionResultDto> {
   DisconnectProviderCommandHandler({
     required IProviderConnectionCommandGateway commandGateway,
   }) : _commandGateway = commandGateway;

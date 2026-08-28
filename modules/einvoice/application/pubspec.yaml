@@ -8,6 +8,7 @@ environment:
   sdk: '>=3.11.1 <4.0.0'
 
 dependencies:
+  uuid: ^4.5.3
   vet45_einvoice_domain: ^1.0.0
   vet45_einvoice_integration_events: ^1.0.0
   vet45_shared_application: ^1.0.0

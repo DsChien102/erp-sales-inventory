@@ -2,7 +2,9 @@ import 'package:vet45_einvoice_domain/domain.dart';
 
 final class InvoiceDocumentsDto {
   const InvoiceDocumentsDto({
-    required this.pdfAvailable, required this.xmlAvailable, required this.retrievalStatus,
+    required this.pdfAvailable,
+    required this.xmlAvailable,
+    required this.retrievalStatus,
   });
 
   final bool pdfAvailable;

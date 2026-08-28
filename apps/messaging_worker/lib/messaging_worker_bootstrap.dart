@@ -6,11 +6,13 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'config/worker_env.dart';
+import 'einvoice_messaging_command_factory.dart';
 import 'iam_messaging_command_factory.dart';
 import 'messaging_module_binding.dart';
 import 'service_role_supabase_client.dart';
 
 export 'config/worker_env.dart';
+export 'einvoice_messaging_command_factory.dart';
 export 'iam_messaging_command_factory.dart';
 export 'messaging_module_binding.dart';
 export 'messaging_worker_loop.dart';
@@ -83,9 +85,9 @@ final class MessagingWorkerBootstrap {
             commands: const IamMessagingCommandFactory(),
           ),
           MessagingModuleBinding(
-            moduleSchema: 'iam',
+            moduleSchema: 'einvoice',
             mediator: eInvoiceRuntime.module,
-            commands: const IamMessagingCommandFactory(),
+            commands: const EinvoiceMessagingCommandFactory(),
           ),
         ];
 

@@ -367,6 +367,112 @@ void main() {
       expect(result.error, 'meinvoice_429_rate_limited');
     });
 
+    test('publish returns item-level DuplicateInvoiceRefID without failing envelope',
+        () async {
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/token')) {
+          return http.Response(
+            jsonEncode(<String, dynamic>{'Success': true, 'Data': 'tok'}),
+            200,
+          );
+        }
+        expect(request.url.path, '/api/integration/invoice');
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'success': true,
+            'publishInvoiceResult': [
+              <String, dynamic>{
+                'RefID': 'ref-9',
+                'TransactionID': 'tx-dup',
+                'InvNo': '0000123',
+                'ErrorCode': MeInvoicePublishErrorCodes.duplicateInvoiceRefId,
+                'DescriptionErrorCode': 'RefID already exists',
+              },
+            ],
+          }),
+          200,
+        );
+      });
+
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+      final result = await client.publish(_samplePublishRequest());
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data, hasLength(1));
+      expect(
+        result.data!.single.errorCode,
+        MeInvoicePublishErrorCodes.duplicateInvoiceRefId,
+      );
+      expect(result.data!.single.invNo, '0000123');
+    });
+
+    test('publish returns item-level definite failure without envelope failure',
+        () async {
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/token')) {
+          return http.Response(
+            jsonEncode(<String, dynamic>{'Success': true, 'Data': 'tok'}),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'success': true,
+            'publishInvoiceResult': [
+              <String, dynamic>{
+                'RefID': 'ref-9',
+                'ErrorCode': 'InvalidInvSeries',
+                'DescriptionErrorCode': 'Invalid invoice series',
+              },
+            ],
+          }),
+          200,
+        );
+      });
+
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+      final result = await client.publish(_samplePublishRequest());
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data!.single.errorCode, 'InvalidInvSeries');
+    });
+
+    test('publish malformed JSON body returns invalid response error', () async {
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/token')) {
+          return http.Response(
+            jsonEncode(<String, dynamic>{'Success': true, 'Data': 'tok'}),
+            200,
+          );
+        }
+        return http.Response('<<not-json>>', 200);
+      });
+
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+      final result = await client.publish(_samplePublishRequest());
+
+      expect(result.isSuccess, isFalse);
+      expect(result.error, startsWith('meinvoice_invalid_response'));
+    });
+
+    test('publish network failure returns meinvoice_network error', () async {
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/token')) {
+          return http.Response(
+            jsonEncode(<String, dynamic>{'Success': true, 'Data': 'tok'}),
+            200,
+          );
+        }
+        throw http.ClientException('Connection reset by peer');
+      });
+
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+      final result = await client.publish(_samplePublishRequest());
+
+      expect(result.isSuccess, isFalse);
+      expect(result.error, startsWith('meinvoice_network'));
+    });
+
     test('token expired triggers refresh then retries', () async {
       var authCalls = 0;
       var refreshCalls = 0;

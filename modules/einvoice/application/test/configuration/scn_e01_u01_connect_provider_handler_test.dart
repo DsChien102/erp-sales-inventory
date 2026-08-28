@@ -20,26 +20,22 @@ final class _RecordingProviderConnectionCommandGateway
   @override
   Future<ProviderConnectionCheckResultDto> verify(
     VerifyProviderConnectionCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> reconnect(
     ReconnectProviderCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> disconnect(
     DisconnectProviderCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> recordConnectionVerified(
     RecordConnectionVerifiedCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 }
 
 void main() {

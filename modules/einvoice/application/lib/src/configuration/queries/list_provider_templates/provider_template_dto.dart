@@ -1,6 +1,9 @@
 final class ProviderTemplateDto {
   const ProviderTemplateDto({
-    required this.templateId, required this.name, this.serial, this.symbol,
+    required this.templateId,
+    required this.name,
+    this.serial,
+    this.symbol,
   });
 
   final String templateId;

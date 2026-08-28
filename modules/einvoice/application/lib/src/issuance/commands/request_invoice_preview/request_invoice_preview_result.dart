@@ -1,6 +1,8 @@
 final class InvoicePreviewResultDto {
   const InvoicePreviewResultDto({
-    this.viewerRef, this.previewPayload, required this.warnings,
+    this.viewerRef,
+    this.previewPayload,
+    required this.warnings,
   });
 
   final String? viewerRef;

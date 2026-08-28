@@ -18,9 +18,10 @@ Source of truth FE↔BE khi implement. Domain symbols: [01-domain-model.md](01-d
 | `PROVIDER_AUTH_FAILED` | Credential bị từ chối | Reconnect flow |
 | `PROVIDER_UNAVAILABLE` | Vendor timeout / 5xx tạm thời | Retry later message |
 | `CONFIG_NOT_READY` | Configuration readiness NOT_READY | Blocker list SG-01 |
-| `ISSUANCE_NOT_READY` | Order readiness NOT_READY | Blocker list trên order |
-| `BUYER_DATA_INCOMPLETE` | Buyer field bắt buộc thiếu | Completion prompt |
-| `BUYER_TAX_CODE_REQUIRED` | Org buyer thiếu MST | Blocker trên order |
+| `ISSUANCE_NOT_READY` | Order readiness NOT_READY; nested `details.blockers[]` có thể chứa `SOURCE_SNAPSHOT_UNAVAILABLE`, `BUYER_SOURCE_UNAVAILABLE` (không phải top-level codes) | Blocker list trên order |
+| `BUYER_DATA_INCOMPLETE` | Buyer field bắt buộc thiếu (sub-detail `BUYER_TAX_CODE_REQUIRED` khi org thiếu MST) | Completion prompt |
+| `BUYER_TAX_CODE_REQUIRED` | Org buyer thiếu MST — **sub-detail** của `BUYER_DATA_INCOMPLETE` trên `IssueInvoiceCommand`; vẫn top-level trên `CompleteBuyerInvoiceDataCommand` | Blocker trên order |
+| `IDEMPOTENCY_CONFLICT` | Cùng `idempotencyKey` nhưng `intent_hash` khác | Refresh + new key |
 | `ORDER_NOT_COMPLETED` | SalesOrder chưa Hoàn tất | Hide issue actions |
 | `ALREADY_ISSUED` | Đã có ElectronicInvoice gốc | Hide issue, show view |
 | `OPERATION_IN_PROGRESS` | Attempt/delivery đang chạy / reconciling | Show processing state |
@@ -252,31 +253,53 @@ Spec: [Epic-02-issue-from-sales-order/US-02.md](../Epic-02-issue-from-sales-orde
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `IssueInvoiceCommand` | tenantId, actorId, salesOrderId, expectedOrderVersion, idempotencyKey, acknowledgeWarnings? | `IssueInvoiceResultDto` (issuanceId, attemptId, status=PROCESSING) | NO_PERMISSION, NOT_FOUND, ORDER_NOT_COMPLETED, CONFIG_NOT_READY, ISSUANCE_NOT_READY, BUYER_DATA_INCOMPLETE, ALREADY_ISSUED, OPERATION_IN_PROGRESS, STATE_CHANGED |
+| `IssueInvoiceCommand` | tenantId, actorId, salesOrderId, sourceVersion (opaque String), idempotencyKey, acknowledgeWarnings? | `IssueInvoiceResultDto` (issuanceId, attemptId, status: `IssuanceAttemptStatus` — `preparing` on a fresh start, or the existing attempt status on replay) | NO_PERMISSION, NOT_FOUND, ORDER_NOT_COMPLETED, CONFIG_NOT_READY, ISSUANCE_NOT_READY, BUYER_DATA_INCOMPLETE, ALREADY_ISSUED, OPERATION_IN_PROGRESS, STATE_CHANGED, IDEMPOTENCY_CONFLICT |
 | `GetOrderInvoiceProjectionQuery` | tenantId, actorId, salesOrderId | `OrderInvoiceProjectionDto` (displayState, actions[]) | NO_PERMISSION, NOT_FOUND |
 
-FR-01..08: issue command orchestrates issuance + attempt + snapshot + enqueue publish. Idempotent replay returns existing attempt (EC-03).
+> `status` on the command result is the `IssuanceAttemptStatus` enum (see `issue_invoice_result.dart`), **not** the string `PROCESSING`. `PROCESSING` is projection vocabulary only (`get_order_invoice_projection`); do not return it as a command-result status.
+>
+> This error list is the single canonical set (align design §9 to it). `BUYER_TAX_CODE_REQUIRED` is a **sub-detail** of `BUYER_DATA_INCOMPLETE`, not a separate top-level code. `CONFIG_NOT_READY` is included. `SOURCE_SNAPSHOT_UNAVAILABLE`/`BUYER_SOURCE_UNAVAILABLE` are nested `ISSUANCE_NOT_READY.details.blockers[]`, never top-level.
+
+Nested blocker envelope (blocker values are **not** top-level exception codes):
+
+```json
+{"code":"ISSUANCE_NOT_READY","details":{"blockers":["SOURCE_SNAPSHOT_UNAVAILABLE","BUYER_SOURCE_UNAVAILABLE"]}}
+```
+
+FR-01..08: issue command orchestrates issuance + attempt + snapshot + enqueue publish. Idempotent replay returns existing attempt (EC-03). Sibling commands (`CompleteBuyerInvoiceDataCommand`, `RequestInvoicePreviewCommand`, `RetryIssuanceCommand`) retain `int expectedOrderVersion`; only `IssueInvoiceCommand` uses opaque `sourceVersion`.
 
 ### RPC mapping (BE) — drafted
 
-| Use case | RPC | Status |
-| -------- | --- | ------ |
-| Issue | `einvoice.issue_invoice` | drafted |
-| Projection | `einvoice.get_order_invoice_projection` | drafted |
+| Use case | RPC | Result |
+| --- | --- | --- |
+| Start/replay | `einvoice.issue_invoice` | fresh attempt (`preparing`) or replayed attempt status |
+| Cross dispatch barrier | `einvoice.prepare_issuance_publish` | `callProvider` \| `reconcileOnly` \| `skip` |
+| Success | `einvoice.record_issuance_success` | SUCCEEDED + COMPLETED/UNRESOLVED |
+| Definite rejection | `einvoice.record_issuance_failure` | FAILED |
+| Unknown | `einvoice.record_issuance_undetermined` | RECONCILING + pending case (`next_check_at` = durable handoff; no internal command) |
+| Command integrity (dead-letter) | `einvoice.record_issuance_command_integrity_failure` | FAILED (`failure_code=COMMAND_INTEGRITY`) |
+| Projection | `einvoice.get_order_invoice_projection` | display projection |
+
+> `issuance_attempts.idempotency_key` maps to MISA `RefID` as the provider correlation/duplicate-lookup key. Same key + same `intent_hash` replays; same key + different intent returns `IDEMPOTENCY_CONFLICT`. A `WAITING_RESULT` replay never calls publish again.
 
 ### Worker mapping
 
 | Step | Job type | Client method |
 | ---- | -------- | ------------- |
-| Publish after snapshot commit | `einvoice.publish_invoice` | `IMeInvoiceClient.publish` |
+| Publish after snapshot commit | `einvoice.publish_invoice` (internal command) | `IMeInvoiceProviderPort.publish` |
+| Pre-barrier validation | — | `IMeInvoiceProviderPort.validateCanonical` |
+| Barrier dispatch | `einvoice.prepare_issuance_publish` RPC | — |
+| Immediate result landing | typed result RPCs above | — |
 
-Idempotency key: `{tenantId}:{salesOrderId}:original:{attemptSequence}`.
+`idempotencyKey` on the command is a canonical UUID transported unchanged as MISA `RefID`.
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `issue_ok` | IssueInvoiceCommand | PROCESSING + attemptId |
+| `issue_ok` | IssueInvoiceCommand | `preparing` + attemptId |
+| `issue_idempotency_conflict` | same idempotencyKey, different intent | IDEMPOTENCY_CONFLICT |
+| `issue_source_unavailable` | authoritative snapshot missing | ISSUANCE_NOT_READY + nested blockers |
 | `issue_already_issued` | has ElectronicInvoice | ALREADY_ISSUED |
 | `issue_in_progress` | reconciling attempt | OPERATION_IN_PROGRESS |
 | `issue_not_ready` | ISSUANCE_NOT_READY | blockers |
@@ -294,7 +317,7 @@ Quyết định kiến trúc: [03-architecture-and-flows.md §11](03-architectur
 | --------- | ------- |
 | Query | `GetOrderInvoiceProjectionQuery` |
 | Query key | `['einvoice', 'orderInvoice', salesOrderId]` |
-| Trigger bắt đầu | `IssueInvoiceCommand` trả `status=PROCESSING` (không chờ poll để hiện `Đang xử lý`) |
+| Trigger bắt đầu | `IssueInvoiceCommand` trả non-terminal `IssuanceAttemptStatus` (e.g. `preparing`) → UI hiện `Đang xử lý` ngay qua projection mapping, không chờ vòng poll đầu |
 | Interval khi `Đang xử lý` | 3–5s (`refetchInterval`) |
 | Điều kiện dừng | `displayState` ∈ {`Đã phát hành`, `Phát hành lỗi`} → `refetchInterval = null` |
 | Sau resume app | `AppLifecycleRefetch` — không cần logic riêng |
@@ -344,24 +367,30 @@ Spec: [Epic-02-issue-from-sales-order/US-04.md](../Epic-02-issue-from-sales-orde
 
 **Server/worker-only** — SG-04 no UI MVP.
 
+S2b owns the **immediate-result subset**: direct `publish` outcome normalization via typed result RPCs (`record_issuance_success`, `record_issuance_failure`, `record_issuance_undetermined`) and atomic pending-case handoff on unknown. S3b owns poll execution, callback ingestion, case resolution, and explicit recovery. The consolidated `einvoice.record_issuance_result` name is **not** used — typed RPCs make definite-failure vs undetermined impossible to confuse at the call site.
+
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `RecordIssuanceResultCommand` | tenantId, attemptId, providerResult, correlationId | `RecordIssuanceResultDto` (attemptStatus, electronicInvoiceId?) | NOT_FOUND, INVALID_STATUS, SYSTEM_ERROR |
-| `OpenReconciliationCaseCommand` | tenantId, attemptId, reason | `ReconciliationCaseDto` | NOT_FOUND, OPERATION_IN_PROGRESS |
+| `RecordIssuanceResultCommand` | tenantId, attemptId, typed evidence envelope, correlationId (S3b poll/callback entry — **dormant in S2b**) | `RecordIssuanceResultDto` (attemptStatus, electronicInvoiceId?) | NOT_FOUND, INVALID_STATUS, SYSTEM_ERROR |
+| `OpenReconciliationCaseCommand` | tenantId, attemptId, reason (S3b — S2b creates pending case atomically via `record_issuance_undetermined`) | `ReconciliationCaseDto` | NOT_FOUND, OPERATION_IN_PROGRESS |
 | `ResolveReconciliationCaseCommand` | tenantId, caseId, outcome | `ReconciliationCaseDto` | NOT_FOUND, INVALID_STATUS |
 | `RecoverInternalFinalizationCommand` | tenantId, attemptId | `ElectronicInvoiceDto` | NOT_FOUND, INVALID_STATUS, SYSTEM_ERROR |
 | `GetIssuanceAttemptStatusQuery` | tenantId, actorId, salesOrderId | `IssuanceAttemptStatusDto` | NO_PERMISSION, NOT_FOUND |
 
-FR-01..08: normalize success / definite failure / undetermined. Success path registers ElectronicInvoice + InvoiceSnapshot. Undetermined → RECONCILING + lock.
+FR-01..08: normalize success / definite failure / undetermined. Success path registers ElectronicInvoice + InvoiceSnapshot. Undetermined → RECONCILING + lock. S2b FR-01..07: immediate path only; S3b: poll consumer discovers pending cases via `next_check_at`, callbacks, resolution, finalization recovery.
 
 ### RPC mapping (BE) — drafted
 
 | Use case | RPC | Status |
 | -------- | --- | ------ |
-| Record result | `einvoice.record_issuance_result` | drafted |
-| Open reconciliation | `einvoice.open_reconciliation_case` | drafted |
+| Success (S2b immediate + S3b poll) | `einvoice.record_issuance_success` | drafted |
+| Definite failure (S2b immediate + S3b poll) | `einvoice.record_issuance_failure` | drafted |
+| Unknown / handoff (S2b immediate) | `einvoice.record_issuance_undetermined` | drafted |
+| Command integrity dead-letter (S2b) | `einvoice.record_issuance_command_integrity_failure` | drafted |
+| Dispatch barrier (S2b) | `einvoice.prepare_issuance_publish` | drafted |
+| Open reconciliation (S3b explicit) | `einvoice.open_reconciliation_case` | drafted |
 | Resolve reconciliation | `einvoice.resolve_reconciliation_case` | drafted |
 | Recover finalization | `einvoice.recover_internal_finalization` | drafted |
 | Attempt status | `einvoice.get_issuance_attempt_status` | drafted |
@@ -370,8 +399,9 @@ FR-01..08: normalize success / definite failure / undetermined. Success path reg
 
 | Step | Job type | Client method |
 | ---- | -------- | ------------- |
-| Poll status | `einvoice.poll_issuance_status` | `IMeInvoiceClient.getStatus` |
-| Callback ingest | inbox → RecordIssuanceResultCommand | — |
+| Poll status (S3b — **not enqueued by S2b**) | `einvoice.poll_issuance_status` | `IMeInvoiceClient.getStatus` |
+| Callback ingest (S3b) | inbox → `RecordIssuanceResultCommand` | — |
+| Immediate publish result (S2b) | `einvoice.publish_invoice` → typed result RPCs | `IMeInvoiceProviderPort.publish` |
 
 ### Fake scenarios (BE)
 

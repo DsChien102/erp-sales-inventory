@@ -6,8 +6,7 @@ import 'update_automation_policy_command.dart';
 
 @CommandHandlerFor(UpdateAutomationPolicyCommand)
 final class UpdateAutomationPolicyCommandHandler
-    implements
-        ICommandHandler<UpdateAutomationPolicyCommand, AutomationPolicyDto> {
+    implements ICommandHandler<UpdateAutomationPolicyCommand, AutomationPolicyDto> {
   UpdateAutomationPolicyCommandHandler({
     required IAutomationPolicyGateway policyGateway,
   }) : _policyGateway = policyGateway;

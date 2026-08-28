@@ -40,8 +40,7 @@ final class RecordConnectionVerifiedCommand extends InternalCommandBase<void>
           if (capabilities!.syncedAt != null)
             'synced_at': capabilities!.syncedAt!.toUtc().toIso8601String(),
         },
-      if (verifiedAt != null)
-        'verified_at': verifiedAt!.toUtc().toIso8601String(),
+      if (verifiedAt != null) 'verified_at': verifiedAt!.toUtc().toIso8601String(),
       if (correlationId != null) 'correlation_id': correlationId,
     });
   }

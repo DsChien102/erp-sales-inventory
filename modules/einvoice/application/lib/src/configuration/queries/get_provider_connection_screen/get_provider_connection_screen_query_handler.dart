@@ -6,11 +6,7 @@ import 'provider_connection_screen_dto.dart';
 
 @QueryHandlerFor(GetProviderConnectionScreenQuery)
 final class GetProviderConnectionScreenQueryHandler
-    implements
-        IQueryHandler<
-          GetProviderConnectionScreenQuery,
-          ProviderConnectionScreenDto
-        > {
+    implements IQueryHandler<GetProviderConnectionScreenQuery, ProviderConnectionScreenDto> {
   GetProviderConnectionScreenQueryHandler({
     required IProviderConnectionReadGateway readGateway,
   }) : _readGateway = readGateway;

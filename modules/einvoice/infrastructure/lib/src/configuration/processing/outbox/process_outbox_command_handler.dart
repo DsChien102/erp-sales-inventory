@@ -103,6 +103,33 @@ abstract final class EinvoiceOutboxEventSerializer {
         level: payload['level'] as String,
       );
     }
+    if (eventType == IssuanceProcessingIntegrationEvent.type) {
+      return IssuanceProcessingIntegrationEvent(
+        id: payload['id'] as String,
+        occurredOn: DateTime.parse(payload['occurred_on'] as String),
+        tenantId: payload['tenant_id'] as String,
+        salesOrderId: payload['sales_order_id'] as String,
+        attemptId: payload['attempt_id'] as String,
+      );
+    }
+    if (eventType == IssuanceFailedIntegrationEvent.type) {
+      return IssuanceFailedIntegrationEvent(
+        id: payload['id'] as String,
+        occurredOn: DateTime.parse(payload['occurred_on'] as String),
+        tenantId: payload['tenant_id'] as String,
+        salesOrderId: payload['sales_order_id'] as String,
+        attemptId: payload['attempt_id'] as String,
+      );
+    }
+    if (eventType == ElectronicInvoiceRegisteredIntegrationEvent.type) {
+      return ElectronicInvoiceRegisteredIntegrationEvent(
+        id: payload['id'] as String,
+        occurredOn: DateTime.parse(payload['occurred_on'] as String),
+        tenantId: payload['tenant_id'] as String,
+        electronicInvoiceId: payload['electronic_invoice_id'] as String,
+        salesOrderId: payload['sales_order_id'] as String,
+      );
+    }
     return null;
   }
 }

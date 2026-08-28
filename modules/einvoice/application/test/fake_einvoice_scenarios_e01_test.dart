@@ -19,8 +19,7 @@ void main() {
     });
 
     test('connect_auth_failed throws ProviderAuthFailedException', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.connectAuthFailed);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.connectAuthFailed);
       expect(
         () => module.executeCommandAsync(
           ConnectProviderCommand(
@@ -34,8 +33,7 @@ void main() {
       );
     });
 
-    test('config_readiness_blocked returns NOT_READY with disconnected screen',
-        () async {
+    test('config_readiness_blocked returns NOT_READY with disconnected screen', () async {
       final module = FakeEInvoiceModule(
         scenario: FakeEInvoiceScenario.configReadinessBlocked,
       );
@@ -57,8 +55,7 @@ void main() {
     });
 
     test('config_readiness_ready returns READY', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessReady);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessReady);
       final result = await module.executeQueryAsync(
         GetConfigurationReadinessQuery(tenantId: 't1', actorId: 'a1'),
       );
@@ -66,8 +63,7 @@ void main() {
     });
 
     test('list_templates_ok returns 2 templates', () async {
-      final module =
-          FakeEInvoiceModule(scenario: FakeEInvoiceScenario.listTemplatesOk);
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.listTemplatesOk);
       final result = await module.executeQueryAsync(
         ListProviderTemplatesQuery(tenantId: 't1', actorId: 'a1'),
       );

@@ -6,11 +6,7 @@ import 'verify_provider_connection_result.dart';
 
 @CommandHandlerFor(VerifyProviderConnectionCommand)
 final class VerifyProviderConnectionCommandHandler
-    implements
-        ICommandHandler<
-          VerifyProviderConnectionCommand,
-          ProviderConnectionCheckResultDto
-        > {
+    implements ICommandHandler<VerifyProviderConnectionCommand, ProviderConnectionCheckResultDto> {
   VerifyProviderConnectionCommandHandler({
     required IProviderConnectionCommandGateway commandGateway,
   }) : _commandGateway = commandGateway;

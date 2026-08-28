@@ -4,7 +4,9 @@ import '../../shared/readiness_warning_dto.dart';
 
 final class ConfigurationReadinessDto {
   const ConfigurationReadinessDto({
-    required this.level, required this.blockers, required this.warnings,
+    required this.level,
+    required this.blockers,
+    required this.warnings,
   });
 
   final ConfigurationReadinessLevel level;

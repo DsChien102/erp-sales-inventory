@@ -1,6 +1,6 @@
 # TH-08: Hóa đơn điện tử
 
-**Trạng thái deliver:** `in_progress` (Contract + BE S1 done; FE/E2E todo)
+**Trạng thái deliver:** `in_progress` (Contract + BE S1/S2a done; **S2b BE verified, lane still in_progress** pending migration promote + S3b poll consumer; FE/E2E todo)
 
 ## Mục tiêu
 
@@ -36,7 +36,7 @@ Chi tiết boundary: [harness/02-module-map.md](harness/02-module-map.md), [OVER
 | Epic | Folder | US | Status |
 | ---- | ------ | -- | ------ |
 | EP-01 Kết nối NCC & cấu hình phát hành | [Epic-01-provider-connection-config/](Epic-01-provider-connection-config/) | 4 | in_progress (Contract+BE done) |
-| EP-02 Phát hành từ đơn hàng | [Epic-02-issue-from-sales-order/](Epic-02-issue-from-sales-order/) | 5 | planned |
+| EP-02 Phát hành từ đơn hàng | [Epic-02-issue-from-sales-order/](Epic-02-issue-from-sales-order/) | 5 | in_progress (S2a BE done; S2b BE verified, lane in_progress) |
 | EP-03 Hồ sơ & tài liệu đã phát hành | [Epic-03-issued-invoice-documents/](Epic-03-issued-invoice-documents/) | 3 | planned |
 | EP-04 Gửi & gửi lại HĐĐT | [Epic-04-send-resend-einvoice/](Epic-04-send-resend-einvoice/) | 3 | planned |
 
@@ -52,9 +52,15 @@ FR/BR/SC **local theo US** (FR-01 lặp giữa các US). Trace harness: `EP-0n/U
 
 ## Việc tiếp theo
 
-1. Slice **S1 FE/E2E** — [harness/04-slice-roadmap.md](harness/04-slice-roadmap.md) (Contract + BE done).
-2. Contract §S1–S5 đã freeze trong [harness/07-api-contracts.md](harness/07-api-contracts.md); hàng CONTRACT trong [05-traceability.md](harness/05-traceability.md) = `done`.
-3. Verify: `./scripts/ci/guard_theme_structure.sh` + `./scripts/ci/guard_theme_traceability.sh`
+1. **Promote** draft `supabase/migrations/_drafts/007_einvoice_s2b_schema_and_rpc.sql` khi sẵn sàng ship DB.
+2. **S3b BE** — poll consumer, callback ingestion, reconciliation resolution/recovery (ReconciliationCase `next_check_at` handoff từ S2b).
+3. **Authoritative source contracts** — Theme 05 sales order projection + Theme 03 partner buyer data (S2b hiện dùng fake/read-port seam).
+4. Slice **S2 FE/E2E** — confirmation sheet, processing poll projection ([04-slice-roadmap.md](harness/04-slice-roadmap.md)).
+5. Verify: `./scripts/ci/guard_theme_structure.sh` + `./scripts/ci/guard_theme_traceability.sh`
+
+### S2b closeout (honest)
+
+S2b verifies manual start and immediate provider-result landing through Dart fakes, RPC-shape/SQL contract tests and worker tests. Production remains fail-closed until authoritative Theme 05/Theme 03 source contracts and the approved SQL migration land. Unknown-result cases land as pending ReconciliationCases with `next_check_at` and are inert until the S3b poll consumer scans them, so S2b carries no poison-row risk; those cases are only acted on once S3b ships its poll consumer.
 
 ## Platform
 

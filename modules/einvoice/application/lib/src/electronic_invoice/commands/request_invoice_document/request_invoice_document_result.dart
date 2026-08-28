@@ -1,6 +1,8 @@
 final class InvoiceDocumentRetrievalDto {
   const InvoiceDocumentRetrievalDto({
-    this.downloadUrl, this.fileRef, this.checksum,
+    this.downloadUrl,
+    this.fileRef,
+    this.checksum,
   });
 
   final String? downloadUrl;

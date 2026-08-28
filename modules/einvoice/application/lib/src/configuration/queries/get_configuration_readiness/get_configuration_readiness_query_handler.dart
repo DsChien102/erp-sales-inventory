@@ -6,11 +6,7 @@ import 'get_configuration_readiness_query.dart';
 
 @QueryHandlerFor(GetConfigurationReadinessQuery)
 final class GetConfigurationReadinessQueryHandler
-    implements
-        IQueryHandler<
-          GetConfigurationReadinessQuery,
-          ConfigurationReadinessDto
-        > {
+    implements IQueryHandler<GetConfigurationReadinessQuery, ConfigurationReadinessDto> {
   GetConfigurationReadinessQueryHandler({
     required IConfigurationReadinessReadGateway readinessGateway,
   }) : _readinessGateway = readinessGateway;

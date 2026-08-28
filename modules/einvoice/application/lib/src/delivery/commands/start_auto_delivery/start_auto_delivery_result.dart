@@ -1,6 +1,8 @@
 final class AutoDeliveryResultDto {
   const AutoDeliveryResultDto({
-    required this.started, required this.skipped, this.reason,
+    required this.started,
+    required this.skipped,
+    this.reason,
   });
 
   final bool started;

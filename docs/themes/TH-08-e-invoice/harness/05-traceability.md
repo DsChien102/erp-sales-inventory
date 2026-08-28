@@ -57,7 +57,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-02/US-01 | CONTRACT | §S2a | application | `RequestInvoicePreviewCommand`, `GetIssuanceReadinessQuery` | — | done |
-| EP-02/US-01/FR-01..09 | BE | §S2a | application + worker | Preview handler + `previewUnpublished` job | scn_e02_u01_fr07_01 | todo |
+| EP-02/US-01/FR-01..09 | BE | §S2a | application + worker | Readiness/Buyer/Preview handlers + `previewUnpublished` job (fake read-port seam; sales.* deferred to Theme 05) | scn_e02_u01_fr01_01, scn_e02_u01_fr04_01, scn_e02_u01_fr07_01, scn_e02_u01_fr08_01 | done |
 | EP-02/US-01/FR-01..09 | FE | §S2a | presentation | SG-02 preview entry on order detail | wgt_e02_u01_fr09_01 | todo |
 | EP-02/US-01/SC-01 | E2E | §S2a | integration | Open preview when ready | e2e_e02_u01_sc01_01 | todo |
 
@@ -66,7 +66,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-02/US-02 | CONTRACT | §S2b | application | `IssueInvoiceCommand`, `GetOrderInvoiceProjectionQuery` | — | done |
-| EP-02/US-02/FR-01..08 | BE | §S2b | application + worker | Issue handler + `publish` job + idempotency | scn_e02_u02_fr04_01 | todo |
+| EP-02/US-02/FR-01..08 | BE | §S2b / S2b | application + worker | Manual start, immutable attempt snapshot/hash, durable publish command | scn_e02_u02_fr04_01 | done |
 | EP-02/US-02/FR-01..08 | FE | §S2b | presentation | SG-03 confirmation sheet + processing state | wgt_e02_u02_fr01_01 | todo |
 | EP-02/US-02/SC-01 | E2E | §S2b | integration | Confirm issue → processing projection | e2e_e02_u02_sc01_01 | todo |
 
@@ -86,7 +86,8 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-02/US-04 | CONTRACT | §S3b | application | `RecordIssuanceResultCommand`, reconciliation commands | — | done |
-| EP-02/US-04/FR-01..08 | BE | §S3b | application + worker | Result handler + `getStatus` poll job | scn_e02_u04_fr02_01 | todo |
+| EP-02/US-04/FR-01..07 | BE | §S2b / S2b immediate-result subset | application + worker | Direct outcome normalization, success/failure landing, unknown case/handoff | scn_e02_u04_fr02_01 | done |
+| EP-02/US-04 reconciliation execution/recovery | BE | §S3b / S3b | application + worker | Poll consumer, callbacks, case resolution, finalization recovery | scn_e02_u04_fr08_01 | todo |
 | EP-02/US-04/FR-01..08 | FE | §S3b | presentation | n/a — SG-04 reconciliation server-side only | — | todo |
 | EP-02/US-04/SC-01 | E2E | §S3b | integration | Success path registers ElectronicInvoice | e2e_e02_u04_sc01_01 | todo |
 
@@ -158,3 +159,5 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | EP-04/US-03/SC-01 | E2E | §S5c | integration | Delivery success updates projection | e2e_e04_u03_sc01_01 | todo |
 
 Mở rộng từng dòng FR khi slice chuyển `in_progress` (pattern TH-03 S4).
+
+**S2b deployment note:** S2b verifies manual start and immediate provider-result landing through Dart fakes, RPC-shape/SQL contract tests and worker tests. Production remains fail-closed until authoritative Theme 05/Theme 03 source contracts and the approved SQL migration land. Unknown-result cases land as pending ReconciliationCases with `next_check_at` and are inert until the S3b poll consumer scans them, so S2b carries no poison-row risk; those cases are only acted on once S3b ships its poll consumer. Slice S2 **BE lane** stays `in_progress` until migration promotion and S3b poll-consumer deployment; US-02 + US-04 immediate-result BE rows above are `done` after focused verification.
