@@ -19,6 +19,7 @@ changelogs when relevant.
 - `VDatePicker.iconPosition` (`left` | `right`, mặc định `left`).
 - `VCard.enabled` — soft-inherit `VComponentScope`; disabled → border `borderDefault`, bỏ `onTap`, cascade `enabled: false`.
 - `VBadgeVariant` (`soft` | `strong`) — `soft` giữ nền tint (shade 50) + foreground theo tone; `strong` nền màu 500 của tone + foreground `textInverse`.
+- `VColorScheme.backgroundForTone` / `borderForTone` — nền tint (shade 50) và border đặc theo tone (`neutral` → `borderStrong`, `primary` → `borderBrand`, còn lại dùng chính màu tone); dùng chung bởi `VBadge` và `VChip`.
 
 ### Changed
 
@@ -27,6 +28,9 @@ changelogs when relevant.
 - `VSearchBar`: height = `VTextField.controlHeight`, radius `VRadius.card`; variant `filled` luôn có border (`borderDefault` / focus `borderStrong`); icon muted hơn.
 - `VBadge` dùng `VComponentTone` (+ ambient `VComponentScope`) cho màu; `VBadgeStatus`, `VBadge.status` và `toneFromBadgeStatus` marked `@Deprecated` — bridge status → tone vẫn hoạt động, `status` giờ optional.
 - `VBadge` tone `neutral`: soft = `surfaceAlt` + `textPrimary` (trước là `textSecondary`); status `locked` đổi nền `background` → `surfaceAlt`.
+- `VChip` lấy toàn bộ màu từ `VComponentTone` (+ ambient `VComponentScope`), một kiểu soft duy nhất: nền tint + chữ theo tone + border đặc; tone mặc định `neutral`, `primary` dùng `surfaceBrand` / `textBrand`.
+- `VChip` icon và nút xóa bị chặn theo line height của label (20px) — trước đây nút xóa 24x24 làm chip cao hơn một dòng chữ.
+- `VChip.selected` và `VChip.emphasis` marked `@Deprecated` — bridge `selected: true` → tone `primary`, `emphasis: strong` → `primary`, `subtle`/`medium` → `neutral`. Chip đang chọn giờ là soft brand thay vì fill xanh lá + chữ trắng.
 
 ### Internal
 

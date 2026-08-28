@@ -168,32 +168,49 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VChip',
-          description: 'Static, selectable, removable, disabled, emphasis.',
+          description: 'Every VComponentTone, plus selectable, removable, disabled.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PreviewStateRow(
-                label: 'Static (no onTap)',
+                label: 'All tones (static)',
                 child: PreviewStateWrap(
-                  children: const [
-                    VChip(label: 'Subtle', emphasis: VComponentEmphasis.subtle),
-                    VChip(label: 'Medium', emphasis: VComponentEmphasis.medium),
-                    VChip(label: 'Strong', emphasis: VComponentEmphasis.strong),
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VChip(label: tone.name, tone: tone),
                   ],
                 ),
               ),
               PreviewStateRow(
-                label: 'Selectable',
+                label: 'All tones (with icon, clickable)',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VChip(
+                        label: tone.name,
+                        tone: tone,
+                        icon: VIcons.tag,
+                        onTap: () {},
+                      ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Selectable — tone primary when selected',
                 child: PreviewStateWrap(
                   children: [
                     VChip(
                       label: 'Filter A',
-                      selected: _chipSelected,
+                      tone: _chipSelected
+                          ? VComponentTone.primary
+                          : VComponentTone.neutral,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
                     ),
                     VChip(
                       label: 'Filter B',
-                      selected: !_chipSelected,
+                      tone: _chipSelected
+                          ? VComponentTone.neutral
+                          : VComponentTone.primary,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
                       icon: VIcons.tag,
                     ),
@@ -201,11 +218,32 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 ),
               ),
               PreviewStateRow(
+                label: 'Ambient tone via VComponentScope',
+                child: vProvideComponentScope(
+                  tone: VComponentTone.info,
+                  child: const PreviewStateWrap(
+                    children: [
+                      VChip(label: 'inherits info'),
+                      VChip(label: 'local danger', tone: VComponentTone.danger),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
                 label: 'Removable',
-                child: VChip(
-                  label: 'Tag removable',
-                  onRemove: () {},
-                  icon: VIcons.tag,
+                child: PreviewStateWrap(
+                  children: [
+                    VChip(
+                      label: 'Tag removable',
+                      onRemove: () {},
+                      icon: VIcons.tag,
+                    ),
+                    VChip(
+                      label: 'Danger removable',
+                      tone: VComponentTone.danger,
+                      onRemove: () {},
+                    ),
+                  ],
                 ),
               ),
               PreviewStateRow(

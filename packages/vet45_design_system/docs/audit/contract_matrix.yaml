@@ -13,7 +13,7 @@ VBadge:
 VChip:
   role: status_display
   tone: required
-  emphasis: required
+  emphasis: optional
   state: optional
   semanticLabel: required
 

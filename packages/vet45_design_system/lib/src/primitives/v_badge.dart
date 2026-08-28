@@ -74,18 +74,6 @@ VComponentTone toneFromBadgeStatus(VBadgeStatus status) {
 }
 
 /// Tinted surface of a tone (shade 50 in light theme).
-Color _softBackground(VColorScheme colors, VComponentTone tone) {
-  return switch (tone) {
-    VComponentTone.primary => colors.surfaceBrand,
-    VComponentTone.success => colors.successBg,
-    VComponentTone.warning => colors.warningBg,
-    VComponentTone.danger => colors.dangerBg,
-    VComponentTone.info => colors.infoBg,
-    VComponentTone.neutral => colors.surfaceAlt,
-  };
-}
-
-/// Tinted surface of a tone (shade 50 in light theme).
 Color _strongBackground(VColorScheme colors, VComponentTone tone) {
   return switch (tone) {
     VComponentTone.primary || VComponentTone.success => colors.success,
@@ -147,7 +135,7 @@ class VBadge extends StatelessWidget {
     final Color textColor;
     switch (variant) {
       case VBadgeVariant.soft:
-        backgroundColor = _softBackground(dynamicColors, resolvedTone);
+        backgroundColor = dynamicColors.backgroundForTone(resolvedTone)!;
         textColor = toneColor;
       case VBadgeVariant.strong:
         backgroundColor = _strongBackground(dynamicColors, resolvedTone);
