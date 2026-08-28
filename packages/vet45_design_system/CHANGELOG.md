@@ -20,6 +20,7 @@ changelogs when relevant.
 - `VCard.enabled` — soft-inherit `VComponentScope`; disabled → border `borderDefault`, bỏ `onTap`, cascade `enabled: false`.
 - `VBadgeVariant` (`soft` | `strong`) — `soft` giữ nền tint (shade 50) + foreground theo tone; `strong` nền màu 500 của tone + foreground `textInverse`.
 - `VColorScheme.backgroundForTone` / `borderForTone` — nền tint (shade 50) và border đặc theo tone (`neutral` → `borderStrong`, `primary` → `borderBrand`, còn lại dùng chính màu tone); dùng chung bởi `VBadge` và `VChip`.
+- `VIconWeight` (`thin` → `semiBold`) + `VIcon.weight` — chọn độ dày stroke của icon Lucide bằng cách đổi font family (`Lucide100`..`Lucide600`). Mặc định `null` = giữ family `Lucide` như trước nên không đổi giao diện hiện có; bỏ qua với `assetPath` và với Material `iconData` (deprecated). Icon có `weight` render qua `Text` thay vì `Icon` để không tạo `IconData` runtime (giữ được `--tree-shake-icons`).
 
 ### Changed
 

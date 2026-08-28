@@ -267,14 +267,43 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           child: Builder(
             builder: (context) {
               final colors = context.vColors;
-              return PreviewStateWrap(
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const VIcon(icon: VIcons.home),
-                  const VIcon(icon: VIcons.person, size: 18),
-                  VIcon(icon: VIcons.warning, color: colors.warning),
-                  VIcon(icon: VIcons.success, color: colors.success, size: 28),
-                  VIcon(icon: VIcons.check, color: colors.success, size: 28),
-                  VIcon(icon: VIcons.error, color: colors.danger, size: 28),
+                  PreviewStateRow(
+                    label: 'Sizes and colors',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.home),
+                        const VIcon(icon: VIcons.person, size: 18),
+                        VIcon(icon: VIcons.warning, color: colors.warning),
+                        VIcon(icon: VIcons.success, color: colors.success, size: 28),
+                        VIcon(icon: VIcons.check, color: colors.success, size: 28),
+                        VIcon(icon: VIcons.error, color: colors.danger, size: 28),
+                      ],
+                    ),
+                  ),
+                  PreviewStateRow(
+                    label:
+                        'Weight — default (null) rồi thin → semiBold, cùng icon ở size 32',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.search, size: 32),
+                        for (final weight in VIconWeight.values)
+                          VIcon(icon: VIcons.search, size: 32, weight: weight),
+                      ],
+                    ),
+                  ),
+                  PreviewStateRow(
+                    label: 'Weight ở size nhỏ (16) — cùng thứ tự',
+                    child: PreviewStateWrap(
+                      children: [
+                        const VIcon(icon: VIcons.calendar, size: 16),
+                        for (final weight in VIconWeight.values)
+                          VIcon(icon: VIcons.calendar, size: 16, weight: weight),
+                      ],
+                    ),
+                  ),
                 ],
               );
             },

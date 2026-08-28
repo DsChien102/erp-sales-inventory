@@ -25,6 +25,56 @@ enum VIconColor {
   white,
 }
 
+/// Stroke weight for Lucide glyphs.
+///
+/// Lucide fonts are static instances, so `Icon(weight:)` has no effect on them.
+/// `lucide_icons_flutter` instead ships one font family per weight sharing the
+/// same code points, so a weight is applied by swapping [fontFamily].
+enum VIconWeight {
+  thin('Lucide100'),
+  extraLight('Lucide200'),
+  light('Lucide300'),
+  regular('Lucide400'),
+  medium('Lucide500'),
+  semiBold('Lucide600');
+
+  const VIconWeight(this.fontFamily);
+  final String fontFamily;
+}
+
+/// Default Lucide family shipped by [VIcons]; the only one weight applies to.
+const String _lucideFamily = 'Lucide';
+
+/// Renders [base] from a per-weight Lucide family.
+///
+/// Mirrors what [Icon] does internally instead of rebuilding [IconData] at
+/// runtime, which would break `--tree-shake-icons` on release builds.
+Widget _weightedGlyph(
+  IconData base,
+  VIconWeight weight, {
+  required double size,
+  required Color color,
+}) {
+  return SizedBox(
+    width: size,
+    height: size,
+    child: Center(
+      child: Text(
+        String.fromCharCode(base.codePoint),
+        style: TextStyle(
+          inherit: false,
+          fontFamily: weight.fontFamily,
+          package: base.fontPackage,
+          fontSize: size,
+          color: color,
+          height: 1,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ),
+  );
+}
+
 class VIcon extends StatelessWidget {
   /// Semantic icon registry token
   final VIcons? icon;
@@ -48,6 +98,12 @@ class VIcon extends StatelessWidget {
   /// Semantic icon color token
   final VIconColor? iconColor;
 
+  /// Stroke weight for [icon]. Null keeps the default Lucide family.
+  ///
+  /// Ignored for [assetPath] and for legacy Material [iconData], which have no
+  /// per-weight font families.
+  final VIconWeight? weight;
+
   const VIcon({
     super.key,
     this.icon,
@@ -57,6 +113,7 @@ class VIcon extends StatelessWidget {
     this.color,
     this.iconSize,
     this.iconColor,
+    this.weight,
   }) : assert(
          icon != null || iconData != null || assetPath != null,
          'Either icon, iconData, or assetPath must be provided',
@@ -103,6 +160,21 @@ class VIcon extends StatelessWidget {
     }
 
     final resolvedIconData = icon?.value ?? iconData;
+
+    if (weight != null &&
+        resolvedIconData != null &&
+        resolvedIconData.fontFamily == _lucideFamily) {
+      return vInspectorHide(
+        ExcludeSemantics(
+          child: _weightedGlyph(
+            resolvedIconData,
+            weight!,
+            size: resolvedSize,
+            color: resolvedColor,
+          ),
+        ),
+      );
+    }
 
     return vInspectorHide(
       Icon(
