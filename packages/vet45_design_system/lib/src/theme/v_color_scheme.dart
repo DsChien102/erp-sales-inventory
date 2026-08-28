@@ -335,7 +335,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   Color? foregroundForTone(VComponentTone? tone) {
     if (tone == null) return null;
     return switch (tone) {
-      VComponentTone.primary => primary,
+      VComponentTone.primary => textBrand,
       VComponentTone.success => success,
       VComponentTone.warning => warning,
       VComponentTone.danger => danger,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../patterns/v_gap.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -6,7 +7,13 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../theme/v_color_scheme.dart';
 
+/// Visual emphasis of [VBadge]. [soft] uses the tinted surface of the tone,
+/// [strong] fills with the tone color and inverts the foreground.
+enum VBadgeVariant { soft, strong }
+
+@Deprecated('Use VComponentTone + VBadgeVariant instead. Will be removed in a future release.')
 enum VBadgeStatus {
   draft,
   pending,
@@ -24,130 +31,127 @@ enum VBadgeStatus {
   info,
 }
 
-/// Maps [VBadgeStatus] to semantic [VComponentTone] when no explicit override.
+/// Maps the deprecated [VBadgeStatus] to a semantic [VComponentTone].
+@Deprecated('Pass VComponentTone directly. Will be removed in a future release.')
+// ignore: deprecated_member_use_from_same_package
 VComponentTone toneFromBadgeStatus(VBadgeStatus status) {
   switch (status) {
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.success:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.completed:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.paid:
       return VComponentTone.success;
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.warning:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.partiallyPaid:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.outstanding:
       return VComponentTone.warning;
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.danger:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.overdue:
       return VComponentTone.danger;
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.info:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.pending:
       return VComponentTone.info;
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.processing:
       return VComponentTone.primary;
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.draft:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.cancelled:
+    // ignore: deprecated_member_use_from_same_package
     case VBadgeStatus.locked:
       return VComponentTone.neutral;
   }
 }
 
+/// Tinted surface of a tone (shade 50 in light theme).
+Color _softBackground(VColorScheme colors, VComponentTone tone) {
+  return switch (tone) {
+    VComponentTone.primary => colors.surfaceBrand,
+    VComponentTone.success => colors.successBg,
+    VComponentTone.warning => colors.warningBg,
+    VComponentTone.danger => colors.dangerBg,
+    VComponentTone.info => colors.infoBg,
+    VComponentTone.neutral => colors.surfaceAlt,
+  };
+}
+
+/// Tinted surface of a tone (shade 50 in light theme).
+Color _strongBackground(VColorScheme colors, VComponentTone tone) {
+  return switch (tone) {
+    VComponentTone.primary || VComponentTone.success => colors.success,
+    VComponentTone.warning => colors.warning,
+    VComponentTone.danger => colors.danger,
+    VComponentTone.info => colors.info,
+    VComponentTone.neutral => colors.textPrimary,
+  };
+}
+
 class VBadge extends StatelessWidget {
   final String label;
-  final VBadgeStatus status;
+
+  @Deprecated('Use tone + variant instead. Will be removed in a future release.')
+  // ignore: deprecated_member_use_from_same_package
+  final VBadgeStatus? status;
+
   final bool showDot;
   final IconData? iconData;
   final bool isSmall;
 
-  /// Optional semantic tone override; defaults to [toneFromBadgeStatus].
+  /// Semantic tone; falls back to ambient [VComponentScope] then [neutral].
   final VComponentTone? tone;
+
+  /// Emphasis of the tone palette. Defaults to [VBadgeVariant.soft].
+  final VBadgeVariant variant;
 
   final String? semanticLabel;
 
   const VBadge({
     super.key,
     required this.label,
-    required this.status,
+    // ignore: deprecated_member_use_from_same_package
+    @Deprecated('Use tone + variant instead. Will be removed in a future release.') this.status,
     this.showDot = false,
     this.iconData,
     this.isSmall = false,
     this.tone,
+    this.variant = VBadgeVariant.soft,
     this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor;
-    Color textColor;
-
     final dynamicColors = context.vColors;
-    final ambientOrLocal = VComponentScope.resolveTone(context, local: tone);
-    final resolvedTone = ambientOrLocal ?? toneFromBadgeStatus(status);
 
-    switch (status) {
-      case VBadgeStatus.success:
-      case VBadgeStatus.completed:
-      case VBadgeStatus.paid:
-        backgroundColor = dynamicColors.successBg;
-        textColor = dynamicColors.success;
-        break;
+    // ignore: deprecated_member_use_from_same_package
+    final legacyStatus = status;
+    final resolvedTone =
+        VComponentScope.resolveTone(context, local: tone) ??
+        // ignore: deprecated_member_use_from_same_package
+        (legacyStatus != null ? toneFromBadgeStatus(legacyStatus) : null) ??
+        VComponentTone.neutral;
 
-      case VBadgeStatus.warning:
-      case VBadgeStatus.partiallyPaid:
-      case VBadgeStatus.outstanding:
-        backgroundColor = dynamicColors.warningBg;
-        textColor = dynamicColors.warning;
-        break;
+    // Shade 500 of the tone (neutral maps to textPrimary).
+    final toneColor = dynamicColors.foregroundForTone(resolvedTone)!;
 
-      case VBadgeStatus.danger:
-      case VBadgeStatus.overdue:
-        backgroundColor = dynamicColors.dangerBg;
-        textColor = dynamicColors.danger;
-        break;
-
-      case VBadgeStatus.info:
-      case VBadgeStatus.pending:
-        backgroundColor = dynamicColors.infoBg;
-        textColor = dynamicColors.info;
-        break;
-
-      case VBadgeStatus.processing:
-        backgroundColor = dynamicColors.surfaceBrand;
-        textColor = dynamicColors.primary;
-        break;
-
-      case VBadgeStatus.draft:
-      case VBadgeStatus.cancelled:
-        backgroundColor = dynamicColors.surfaceAlt;
-        textColor = dynamicColors.textSecondary;
-        break;
-
-      case VBadgeStatus.locked:
-        backgroundColor = dynamicColors.background;
-        textColor = dynamicColors.textPrimary;
-        break;
-    }
-
-    // Tone override (local or ambient [VComponentScope]) adjusts palette.
-    if (ambientOrLocal != null) {
-      switch (resolvedTone) {
-        case VComponentTone.success:
-          backgroundColor = dynamicColors.successBg;
-          textColor = dynamicColors.success;
-        case VComponentTone.warning:
-          backgroundColor = dynamicColors.warningBg;
-          textColor = dynamicColors.warning;
-        case VComponentTone.danger:
-          backgroundColor = dynamicColors.dangerBg;
-          textColor = dynamicColors.danger;
-        case VComponentTone.info:
-          backgroundColor = dynamicColors.infoBg;
-          textColor = dynamicColors.info;
-        case VComponentTone.primary:
-          backgroundColor = dynamicColors.surfaceBrand;
-          textColor = dynamicColors.primary;
-        case VComponentTone.neutral:
-          backgroundColor = dynamicColors.surfaceAlt;
-          textColor = dynamicColors.textSecondary;
-      }
+    final Color backgroundColor;
+    final Color textColor;
+    switch (variant) {
+      case VBadgeVariant.soft:
+        backgroundColor = _softBackground(dynamicColors, resolvedTone);
+        textColor = toneColor;
+      case VBadgeVariant.strong:
+        backgroundColor = _strongBackground(dynamicColors, resolvedTone);
+        textColor = dynamicColors.textInverse;
     }
 
     final badge = Container(
@@ -169,7 +173,7 @@ class VBadge extends StatelessWidget {
               size: isSmall ? 12 : 16,
               color: textColor,
             ),
-            const SizedBox(width: VSpacing.space1),
+            const VGap(VSpacing.space1, axis: Axis.horizontal),
           ] else if (showDot) ...[
             Container(
               width: 8,
@@ -179,7 +183,7 @@ class VBadge extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: VSpacing.space1),
+            const VGap(VSpacing.space1, axis: Axis.horizontal),
           ],
           Flexible(
             child: Text(

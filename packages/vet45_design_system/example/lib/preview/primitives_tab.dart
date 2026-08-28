@@ -83,24 +83,85 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VBadge',
-          description: 'All VBadgeStatus values.',
-          child: PreviewStateWrap(
+          description: 'Every VComponentTone in soft and strong variant.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final status in VBadgeStatus.values) VBadge(label: status.name, status: status),
-              const VBadge(
-                label: 'with dot',
-                status: VBadgeStatus.info,
-                showDot: true,
+              PreviewStateRow(
+                label: 'soft — tinted surface + tone foreground',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values) VBadge(label: tone.name, tone: tone),
+                  ],
+                ),
               ),
-              const VBadge(
-                label: 'small',
-                status: VBadgeStatus.success,
-                isSmall: true,
+              PreviewStateRow(
+                label: 'strong — tone fill + inverted foreground',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      VBadge(
+                        label: tone.name,
+                        tone: tone,
+                        variant: VBadgeVariant.strong,
+                      ),
+                  ],
+                ),
               ),
-              const VBadge(
-                label: 'tone override',
-                status: VBadgeStatus.draft,
-                tone: VComponentTone.danger,
+              PreviewStateRow(
+                label: 'small (isSmall) — soft then strong',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final variant in VBadgeVariant.values)
+                      for (final tone in VComponentTone.values)
+                        VBadge(
+                          label: tone.name,
+                          tone: tone,
+                          variant: variant,
+                          isSmall: true,
+                        ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'dot / icon / ambient tone',
+                child: PreviewStateWrap(
+                  children: [
+                    const VBadge(
+                      label: 'with dot',
+                      tone: VComponentTone.info,
+                      showDot: true,
+                    ),
+                    const VBadge(
+                      label: 'with dot',
+                      tone: VComponentTone.info,
+                      variant: VBadgeVariant.strong,
+                      showDot: true,
+                    ),
+                    const VBadge(
+                      label: 'with icon',
+                      tone: VComponentTone.success,
+                      iconData: Icons.check_rounded,
+                    ),
+                    const VBadge(
+                      label: 'with icon',
+                      tone: VComponentTone.success,
+                      variant: VBadgeVariant.strong,
+                      iconData: Icons.check_rounded,
+                    ),
+                    vProvideComponentScope(
+                      tone: VComponentTone.danger,
+                      child: const VBadge(label: 'ambient tone'),
+                    ),
+                    vProvideComponentScope(
+                      tone: VComponentTone.danger,
+                      child: const VBadge(
+                        label: 'ambient tone',
+                        variant: VBadgeVariant.strong,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

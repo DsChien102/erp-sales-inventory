@@ -20,6 +20,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
 - Design system: `VSearchBar` cao/radius khớp field; variant filled luôn có viền (`borderDefault` / focus `borderStrong`).
 - Design system: `VDatePicker` icon lịch mặc định bên trái (`iconPosition`); dùng `right` nếu cần layout cũ.
+- Design system: badge trạng thái `draft` / `cancelled` chữ đậm hơn (`textPrimary`), `locked` đổi nền sang `surfaceAlt`.
 
 ### Fixed
 
@@ -27,6 +28,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 - Design system: bỏ `VComponentState`; dashboard `QuickActionButton` / pricing form dùng `enabled` inherit qua `VComponentScope`.
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
+- Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.
 
 ## [1.7.2+38] - 2026-08-26
 
