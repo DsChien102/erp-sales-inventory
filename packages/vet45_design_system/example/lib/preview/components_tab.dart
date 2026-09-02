@@ -21,6 +21,11 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   String? _radio = 'a';
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
+  int _compoundTabIndex = 0;
+  int _compoundPlainTabIndex = 0;
+  int _compoundVerticalTabIndex = 0;
+  int _compoundScrollTabIndex = 0;
+  int _compoundNoSwipeTabIndex = 0;
   double _progressValue = 0.4;
   int _currentStepIndex = 1;
   int _navIndex = 0;
@@ -782,6 +787,159 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'VTabs compound (line + swipe)',
+          description:
+              'VTabsList + VTabsTrigger + VTabsContent — vuốt trên bar hoặc body để đổi tab.',
+          child: SizedBox(
+            height: 220,
+            child: VTabs(
+              selectedIndex: _compoundTabIndex,
+              onTabSelected: (i) => setState(() => _compoundTabIndex = i),
+              child: Column(
+                children: [
+                  VTabsList(
+                    children: [
+                      VTabsTrigger(
+                        label: 'Overview',
+                        icon: VIcons.home,
+                      ),
+                      VTabsTrigger(label: 'Items', icon: VIcons.inventory),
+                      VTabsTrigger(label: 'Payments', icon: VIcons.creditCard),
+                    ],
+                  ),
+                  VTabsContent(
+                    children: [
+                      _TabPanel(label: 'Overview', index: 0),
+                      _TabPanel(label: 'Items', index: 1),
+                      _TabPanel(label: 'Payments', index: 2),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VTabs compound (plain + disabled)',
+          child: SizedBox(
+            height: 220,
+            child: VTabs(
+              selectedIndex: _compoundPlainTabIndex,
+              disabledIndices: const {1},
+              onTabSelected: (i) => setState(() => _compoundPlainTabIndex = i),
+              child: Column(
+                children: [
+                  VTabsList(
+                    variant: VTabsListVariant.plain,
+                    children: const [
+                      VTabsTrigger(label: 'Hoạt động'),
+                      VTabsTrigger(label: 'Thành viên (Disable)'),
+                      VTabsTrigger(label: 'Cấu hình'),
+                    ],
+                  ),
+                  VTabsContent(
+                    children: [
+                      _TabPanel(label: 'Hoạt động', index: 0),
+                      _TabPanel(label: 'Thành viên', index: 1),
+                      _TabPanel(label: 'Cấu hình', index: 2),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VTabs compound (vertical)',
+          child: SizedBox(
+            height: 220,
+            child: VTabs(
+              selectedIndex: _compoundVerticalTabIndex,
+              orientation: VTabsOrientation.vertical,
+              onTabSelected: (i) => setState(() => _compoundVerticalTabIndex = i),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  VTabsList(
+                    children: const [
+                      VTabsTrigger(label: 'Tổng quan'),
+                      VTabsTrigger(label: 'Liên hệ'),
+                      VTabsTrigger(label: 'Lịch sử'),
+                    ],
+                  ),
+                  VTabsContent(
+                    children: [
+                      _TabPanel(label: 'Tổng quan', index: 0),
+                      _TabPanel(label: 'Liên hệ', index: 1),
+                      _TabPanel(label: 'Lịch sử', index: 2),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VTabs compound (scrollable list)',
+          child: SizedBox(
+            height: 220,
+            child: VTabs(
+              selectedIndex: _compoundScrollTabIndex,
+              onTabSelected: (i) => setState(() => _compoundScrollTabIndex = i),
+              child: Column(
+                children: [
+                  VTabsList(
+                    isScrollable: true,
+                    children: const [
+                      VTabsTrigger(label: 'Tab A'),
+                      VTabsTrigger(label: 'Tab B'),
+                      VTabsTrigger(label: 'Tab C'),
+                      VTabsTrigger(label: 'Tab D'),
+                      VTabsTrigger(label: 'Tab E'),
+                      VTabsTrigger(label: 'Tab F'),
+                    ],
+                  ),
+                  VTabsContent(
+                    children: [
+                      for (var i = 0; i < 6; i++)
+                        _TabPanel(label: 'Tab ${String.fromCharCode(65 + i)}', index: i),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VTabs compound (swipe disabled on body)',
+          child: SizedBox(
+            height: 220,
+            child: VTabs(
+              selectedIndex: _compoundNoSwipeTabIndex,
+              onTabSelected: (i) => setState(() => _compoundNoSwipeTabIndex = i),
+              child: Column(
+                children: [
+                  VTabsList(
+                    children: const [
+                      VTabsTrigger(label: 'Một'),
+                      VTabsTrigger(label: 'Hai'),
+                      VTabsTrigger(label: 'Ba'),
+                    ],
+                  ),
+                  VTabsContent(
+                    swipeEnabled: false,
+                    children: [
+                      _TabPanel(label: 'Một', index: 0),
+                      _TabPanel(label: 'Hai', index: 1),
+                      _TabPanel(label: 'Ba', index: 2),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PreviewSection(
           title: 'VLoading',
           description:
               'Xoay tròn thông thường, chế độ hiển thị nhiệm vụ và dạng hộp thoại overlay.',
@@ -1141,8 +1299,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VComponentScope',
-          description:
-              'Ambient soft inherit: tone + enabled. Local prop wins; missing scope OK.',
+          description: 'Ambient soft inherit: tone + enabled. Local prop wins; missing scope OK.',
           child: Column(
             children: [
               PreviewStateRow(
@@ -1622,6 +1779,32 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TabPanel extends StatelessWidget {
+  const _TabPanel({required this.label, required this.index});
+
+  final String label;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          VText(label, variant: VTextVariant.headingH4),
+          const VGap.sm(),
+          VText(
+            'Tab $index — vuốt trái/phải để chuyển',
+            variant: VTextVariant.bodySmall,
+            color: colors.textSecondary,
+          ),
+        ],
+      ),
     );
   }
 }

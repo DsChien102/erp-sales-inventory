@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-28T01:18:07.706857`
+- Generated at: `2026-09-02T16:27:05.039235`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -29,7 +29,7 @@
 | components | `VSwipeReveal` | unmapped | — (optional) | — (optional) | Pass (optional) | — (optional) | No |
 | components | `VSwitch` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VTable` | container | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
-| components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A (na) | Pass (optional) | Yes |
+| components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A+ (na) | Pass (optional) | Yes |
 | components | `VTextField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VTextFormField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | components | `VToast` | status_display | Pass (required) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
@@ -51,9 +51,9 @@
 | patterns | `VResponsiveVisibility` | unmapped | — (optional) | — (optional) | — (optional) | — (optional) | No |
 | patterns | `VSection` | container | — (optional) | — (optional) | N/A (na) | — (optional) | No |
 | primitives | `VBadge` | status_display | Pass (required) | — (optional) | N/A (na) | Pass (preferred) | Yes |
-| primitives | `VChip` | status_display | Pass (required) | Pass (required) | Pass (optional) | Pass (required) | Yes |
+| primitives | `VChip` | status_display | Pass (required) | Pass (optional) | Pass (optional) | Pass (required) | Yes |
 | primitives | `VDivider` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
-| primitives | `VIcon` | typography_primitive | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| primitives | `VIcon` | typography_primitive | N/A (na) | N/A (na) | N/A (na) | — (optional) | Yes |
 | primitives | `VIconBox` | status_display | Pass (optional) | — (optional) | N/A (na) | — (optional) | No |
 | primitives | `VSkeleton` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | Pass (preferred) | Yes |
 | primitives | `VText` | typography_primitive | Pass (optional) | N/A (na) | N/A (na) | — (optional) | No |
