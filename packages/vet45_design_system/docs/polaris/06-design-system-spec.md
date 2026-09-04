@@ -54,8 +54,10 @@ Source of truth cho tokens, typography roles, và 5 recipes vàng.
 | Body | `bodyDefault` |
 | Subtitle / secondary | `bodySmall` + `color: context.vColors.textSecondary` |
 | Caption / meta | `caption` |
-| Form label | `labelSmall` |
-| Mono cùng role (SKU, code) | `displayD1Mono` / `headingH3Mono` / `headingH4Mono` / `bodyDefaultMono` / `bodySmallMono` |
+| Form label (tight) | `labelSmall` |
+| Form / highlight label | `labelDefault` |
+| Action / CTA text | `actionDefault` |
+| Mono cùng role (SKU, code) | `displayD1Mono` / `headingH1Mono` / `headingH2Mono` / `headingH3Mono` / `headingH4Mono` / `bodyDefaultMono` / `bodySmallMono` / `labelDefaultMono` |
 | Số tiền tabular | `monoNumeric` |
 
 Sans = Inter (`VTypography.*` không suffix). Mono = JetBrains Mono (`*Mono` / `monoNumeric`).

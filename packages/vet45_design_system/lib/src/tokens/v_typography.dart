@@ -61,12 +61,12 @@ class VTypography {
     fontWeight: FontWeight.w500,
   );
 
-  static const TextStyle caption = TextStyle(
+  /// 14px / 20 line — semibold label (form rows, highlight labels).
+  static const TextStyle labelDefault = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 12,
-    height: 16 / 12,
+    fontSize: 14,
+    height: 20 / 14,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.1,
   );
 
   /// 11px — for status badges, chips, and tight label text.
@@ -75,7 +75,21 @@ class VTypography {
     fontSize: 11,
     height: 14 / 11,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.2,
+  );
+
+  static const TextStyle caption = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    height: 16 / 12,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// 14px / 20 line — semibold action text (buttons, links, CTAs).
+  static const TextStyle actionDefault = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    height: 20 / 14,
+    fontWeight: FontWeight.w600,
   );
 
   // --- Mono (JetBrains Mono) — same size/role as sans counterpart ---
@@ -86,6 +100,22 @@ class VTypography {
     height: 44 / 40,
     fontWeight: FontWeight.w800,
     letterSpacing: -1,
+  );
+
+  static const TextStyle headingH1Mono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 28,
+    height: 34 / 28,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.5,
+  );
+
+  static const TextStyle headingH2Mono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 22,
+    height: 28 / 22,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.3,
   );
 
   static const TextStyle headingH3Mono = TextStyle(
@@ -107,14 +137,22 @@ class VTypography {
     fontFamily: monoFontFamily,
     fontSize: 14,
     height: 22 / 14,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const TextStyle bodySmallMono = TextStyle(
     fontFamily: monoFontFamily,
     fontSize: 13,
     height: 20 / 13,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Mono counterpart of [labelDefault].
+  static const TextStyle labelDefaultMono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 14,
+    height: 20 / 14,
+    fontWeight: FontWeight.w600,
   );
 
   /// Tabular figures for amounts / SKUs.
@@ -122,7 +160,7 @@ class VTypography {
     fontFamily: monoFontFamily,
     fontSize: 14,
     height: 20 / 14,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 }

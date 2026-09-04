@@ -15,6 +15,10 @@ changelogs when relevant.
 
 ### Added
 
+- `VTypography.labelDefault` / `labelDefaultMono` (14px / height 20 / w600) + `VTextVariant` tương ứng.
+- `VTypography.headingH1Mono` / `headingH2Mono` + `VTextVariant` tương ứng.
+- `VTypography.actionDefault` (14px / height 20 / w600, sans) + `VTextVariant` tương ứng.
+
 ### Changed
 
 ### Fixed
