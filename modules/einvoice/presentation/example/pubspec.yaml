@@ -50,6 +50,14 @@ dependency_overrides:
     path: ../../../../packages/vet45_shared/infrastructure
   vet45_shared_testing:
     path: ../../../../packages/vet45_shared/testing
+  vet45_partner_integration_events:
+    path: ../../../partner/integration_events
+  vet45_sales_integration_events:
+    path: ../../../sales/integration_events
+  async_query:
+    path: ../../../../packages/vet45_async_query
+  async_query_flutter:
+    path: ../../../../packages/vet45_async_query/packages/async_query_flutter
 
 flutter:
   uses-material-design: true

@@ -5,8 +5,7 @@ import 'package:vet45_einvoice_presentation/presentation.dart';
 
 void main() {
   group('ResendInvoiceSheet', () {
-    testWidgets('shows resend title, latest summary, history link, CTA',
-        (tester) async {
+    testWidgets('shows resend title, latest summary, history link, CTA', (tester) async {
       var historyTapped = false;
       await tester.pumpWidget(
         MaterialApp(

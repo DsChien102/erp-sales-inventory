@@ -4,11 +4,14 @@ import 'package:vet45_einvoice_domain/domain.dart';
 void main() {
   group('BuyerType', () {
     test('contains retail, individual, and organization', () {
-      expect(BuyerType.values, containsAll([
-        BuyerType.retail,
-        BuyerType.individual,
-        BuyerType.organization,
-      ]));
+      expect(
+        BuyerType.values,
+        containsAll([
+          BuyerType.retail,
+          BuyerType.individual,
+          BuyerType.organization,
+        ]),
+      );
       expect(BuyerType.values.length, 3);
     });
   });
@@ -65,31 +68,34 @@ void main() {
       expect(data.isMissingOnlyOrgTaxCode, isFalse);
     });
 
-    test('organization with name but missing/empty taxCode is incomplete and isMissingOnlyOrgTaxCode is true', () {
-      const dataNullTax = EffectiveBuyerInvoiceData(
-        buyerType: BuyerType.organization,
-        name: 'Công ty TNHH ABC',
-      );
-      const dataEmptyTax = EffectiveBuyerInvoiceData(
-        buyerType: BuyerType.organization,
-        name: 'Công ty TNHH ABC',
-        taxCode: '',
-      );
-      const dataWhitespaceTax = EffectiveBuyerInvoiceData(
-        buyerType: BuyerType.organization,
-        name: 'Công ty TNHH ABC',
-        taxCode: '   ',
-      );
+    test(
+      'organization with name but missing/empty taxCode is incomplete and isMissingOnlyOrgTaxCode is true',
+      () {
+        const dataNullTax = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+        );
+        const dataEmptyTax = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+          taxCode: '',
+        );
+        const dataWhitespaceTax = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+          taxCode: '   ',
+        );
 
-      expect(dataNullTax.isComplete, isFalse);
-      expect(dataNullTax.isMissingOnlyOrgTaxCode, isTrue);
+        expect(dataNullTax.isComplete, isFalse);
+        expect(dataNullTax.isMissingOnlyOrgTaxCode, isTrue);
 
-      expect(dataEmptyTax.isComplete, isFalse);
-      expect(dataEmptyTax.isMissingOnlyOrgTaxCode, isTrue);
+        expect(dataEmptyTax.isComplete, isFalse);
+        expect(dataEmptyTax.isMissingOnlyOrgTaxCode, isTrue);
 
-      expect(dataWhitespaceTax.isComplete, isFalse);
-      expect(dataWhitespaceTax.isMissingOnlyOrgTaxCode, isTrue);
-    });
+        expect(dataWhitespaceTax.isComplete, isFalse);
+        expect(dataWhitespaceTax.isMissingOnlyOrgTaxCode, isTrue);
+      },
+    );
 
     test('organization with empty name is incomplete and isMissingOnlyOrgTaxCode is false', () {
       const data = EffectiveBuyerInvoiceData(
@@ -134,13 +140,16 @@ void main() {
       expect(data1, equals(data2));
       expect(data1.hashCode, equals(data2.hashCode));
       expect(data1, isNot(equals(data3)));
-      expect(data1.props, equals([
-        BuyerType.organization,
-        'Công ty ABC',
-        'abc@example.com',
-        '0123456789',
-        '123 Wall St',
-      ]));
+      expect(
+        data1.props,
+        equals([
+          BuyerType.organization,
+          'Công ty ABC',
+          'abc@example.com',
+          '0123456789',
+          '123 Wall St',
+        ]),
+      );
     });
   });
 }

@@ -10,10 +10,12 @@ final class ResolveReconciliationCaseCommand extends CommandBase<ReconciliationC
     required this.tenantId,
     required this.caseId,
     required this.outcome,
+    this.evidence,
   }) : super(id);
 
   @override
   final String tenantId;
   final String caseId;
   final String outcome;
+  final Map<String, Object?>? evidence;
 }

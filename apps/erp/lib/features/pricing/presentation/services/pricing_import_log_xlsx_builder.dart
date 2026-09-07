@@ -43,8 +43,7 @@ abstract final class PricingImportLogXlsxBuilder {
         )
         .toList(growable: false);
 
-    const instructionsText =
-        'Nhật ký kết quả nhập — mỗi dòng tương ứng một dòng trong file Excel.';
+    const instructionsText = 'Nhật ký kết quả nhập — mỗi dòng tương ứng một dòng trong file Excel.';
     final archive = Archive();
     final sharedStrings = <String>[instructionsText, ...headers];
     for (final row in dataRows) {
@@ -68,53 +67,53 @@ abstract final class PricingImportLogXlsxBuilder {
     addXml(
       '[Content_Types].xml',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-      '<Default Extension="xml" ContentType="application/xml"/>'
-      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-      '<Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
-      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
-      '</Types>',
+          '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+          '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+          '<Default Extension="xml" ContentType="application/xml"/>'
+          '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+          '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+          '<Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+          '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+          '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+          '</Types>',
     );
     addXml(
       '_rels/.rels',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-      '</Relationships>',
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+          '</Relationships>',
     );
     addXml(
       'xl/workbook.xml',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-      '<sheets>'
-      '<sheet name="import_log" sheetId="1" r:id="rId1"/>'
-      '<sheet name="summary" sheetId="2" r:id="rId2"/>'
-      '</sheets></workbook>',
+          '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+          'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+          '<sheets>'
+          '<sheet name="import_log" sheetId="1" r:id="rId1"/>'
+          '<sheet name="summary" sheetId="2" r:id="rId2"/>'
+          '</sheets></workbook>',
     );
     addXml(
       'xl/_rels/workbook.xml.rels',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>'
-      '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
-      '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
-      '</Relationships>',
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+          '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>'
+          '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+          '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+          '</Relationships>',
     );
     addXml(
       'xl/styles.xml',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-      '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>'
-      '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
-      '<borders count="1"><border/></borders>'
-      '<cellStyleXfs count="1"><xf/></cellStyleXfs>'
-      '<cellXfs count="1"><xf/></cellXfs>'
-      '</styleSheet>',
+          '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+          '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>'
+          '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
+          '<borders count="1"><border/></borders>'
+          '<cellStyleXfs count="1"><xf/></cellStyleXfs>'
+          '<cellXfs count="1"><xf/></cellXfs>'
+          '</styleSheet>',
     );
 
     final sharedXml = StringBuffer(
@@ -141,9 +140,9 @@ abstract final class PricingImportLogXlsxBuilder {
     addXml(
       'xl/worksheets/sheet2.xml',
       '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-      '<sheetData><row r="1">'
-      '<c r="A1" t="s"><v>${sharedIndex(instructionsText)}</v></c>'
-      '</row></sheetData></worksheet>',
+          '<sheetData><row r="1">'
+          '<c r="A1" t="s"><v>${sharedIndex(instructionsText)}</v></c>'
+          '</row></sheetData></worksheet>',
     );
 
     return Uint8List.fromList(ZipEncoder().encode(archive));

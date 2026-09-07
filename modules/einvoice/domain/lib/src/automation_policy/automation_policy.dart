@@ -6,8 +6,7 @@ import 'rules/auto_issue_requires_ready_configuration_rule.dart';
 import '../shared/rules/predicate_business_rule.dart';
 
 /// AutomationPolicy aggregate — auto-issue / auto-send flags per tenant.
-final class AutomationPolicy extends Entity<AutomationPolicyId>
-    implements IAggregateRoot {
+final class AutomationPolicy extends Entity<AutomationPolicyId> implements IAggregateRoot {
   AutomationPolicy._({
     required super.id,
     required TenantId tenantId,
@@ -55,13 +54,11 @@ final class AutomationPolicy extends Entity<AutomationPolicyId>
     bool? autoIssueEnabled,
     bool? autoSendEnabled,
     required int expectedPolicyVersion,
-    ConfigurationReadinessLevel readinessForAutoIssue =
-        ConfigurationReadinessLevel.ready,
+    ConfigurationReadinessLevel readinessForAutoIssue = ConfigurationReadinessLevel.ready,
     bool providerSupportsEmail = true,
   }) {
     assertExpectedVersion(expectedPolicyVersion);
-    final enablingAutoIssue =
-        autoIssueEnabled == true && !_autoIssueEnabled;
+    final enablingAutoIssue = autoIssueEnabled == true && !_autoIssueEnabled;
     if (enablingAutoIssue) {
       checkRule(
         AutoIssueRequiresReadyConfigurationRule(
@@ -70,14 +67,11 @@ final class AutomationPolicy extends Entity<AutomationPolicyId>
         ),
       );
     }
-    if (autoSendEnabled == true &&
-        !providerSupportsEmail &&
-        !_autoSendEnabled) {
+    if (autoSendEnabled == true && !providerSupportsEmail && !_autoSendEnabled) {
       checkRule(
         PredicateBusinessRule(
           predicate: !providerSupportsEmail,
-          ruleMessage:
-              'Provider does not support email delivery for auto-send',
+          ruleMessage: 'Provider does not support email delivery for auto-send',
         ),
       );
     }
@@ -88,8 +82,7 @@ final class AutomationPolicy extends Entity<AutomationPolicyId>
       _autoSendEnabled = autoSendEnabled;
     }
     _blockers.clear();
-    if (_autoIssueEnabled &&
-        readinessForAutoIssue != ConfigurationReadinessLevel.ready) {
+    if (_autoIssueEnabled && readinessForAutoIssue != ConfigurationReadinessLevel.ready) {
       _blockers.add('config_not_ready_for_auto_issue');
     }
     if (_autoSendEnabled && !providerSupportsEmail) {

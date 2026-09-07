@@ -242,8 +242,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
             PriceRuleImportResult() => true,
             PriceRuleImportPreview(:final readOnly) => readOnly,
             PriceRuleImportLoading(:final step) =>
-              step == PriceRuleImportStep.chooseFile ||
-                  step == PriceRuleImportStep.result,
+              step == PriceRuleImportStep.chooseFile || step == PriceRuleImportStep.result,
             _ => false,
           };
           final acceptDrop = _canAcceptDrop(state);
@@ -271,8 +270,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
                 },
                 child: Column(
                   children: [
-                    if (!hideSteps)
-                      PriceRuleImportStepIndicator(step: state.step),
+                    if (!hideSteps) PriceRuleImportStepIndicator(step: state.step),
                     Expanded(
                       child: PriceRuleImportWizard(
                         cubit: _cubit,
@@ -287,8 +285,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
                         invalidFileName: _invalidDroppedFileName,
                         onDownloadLog: _downloadImportLog,
                         isDownloadingLog: _isDownloadingLog,
-                        onBackToChooseFile: () =>
-                            _requestCancel(popAfterCancel: false),
+                        onBackToChooseFile: () => _requestCancel(popAfterCancel: false),
                         onFinish: () => context.pop(),
                       ),
                     ),

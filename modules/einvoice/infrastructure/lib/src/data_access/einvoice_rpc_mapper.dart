@@ -34,6 +34,8 @@ abstract final class EinvoiceRpcMapper {
       'p_connection_id': command.connectionId,
       'p_username': command.username.trim(),
       'p_password': command.password,
+      if (command.expectedConnectionVersion != null)
+        'p_expected_connection_version': command.expectedConnectionVersion,
     };
   }
 
@@ -54,13 +56,38 @@ abstract final class EinvoiceRpcMapper {
     return {
       'p_tenant_id': command.tenantId,
       'p_connection_id': command.connectionId,
+      'p_expected_connection_version': command.expectedConnectionVersion,
       'p_status': command.status.name,
       if (command.capabilities != null)
         'p_capabilities': {
-          'supports_email_delivery': command.capabilities!.supportsEmailDelivery,
+          'supports_email_delivery':
+              command.capabilities!.supportsEmailDelivery,
+          'supports_preview': command.capabilities!.supportsPreview,
+          'supports_delivery_result_observation':
+              command.capabilities!.supportsDeliveryResultObservation,
           'template_count': command.capabilities!.templateCount,
+          'supported_document_types': [
+            for (final type in command.capabilities!.supportedDocumentTypes)
+              switch (type) {
+                InvoiceDocumentType.pdf => 'PDF',
+                InvoiceDocumentType.xml => 'XML',
+              },
+          ],
+          'templates': [
+            for (final t in command.capabilities!.templates)
+              {
+                'template_id': t.templateId,
+                'name': t.name,
+                'serial': t.serial,
+                'symbol': t.symbol,
+                'is_mtt': t.isMtt,
+                'is_available': t.isAvailable,
+              },
+          ],
           if (command.capabilities!.syncedAt != null)
-            'synced_at': command.capabilities!.syncedAt!.toUtc().toIso8601String(),
+            'synced_at': command.capabilities!.syncedAt!
+                .toUtc()
+                .toIso8601String(),
         },
       if (command.verifiedAt != null)
         'p_verified_at': command.verifiedAt!.toUtc().toIso8601String(),
@@ -92,8 +119,7 @@ abstract final class EinvoiceRpcMapper {
     Map<String, dynamic> row,
   ) {
     final legal = row['legal_profile'] as Map<String, dynamic>? ?? const {};
-    final connection =
-        row['connection'] as Map<String, dynamic>? ?? const {};
+    final connection = row['connection'] as Map<String, dynamic>? ?? const {};
     return ProviderConnectionScreenDto(
       legalProfile: LegalProfileSummaryDto(
         legalName: legal['legal_name'] as String? ?? '',
@@ -110,6 +136,8 @@ abstract final class EinvoiceRpcMapper {
         lastCheckedAt: connection['last_checked_at'] != null
             ? DateTime.parse(connection['last_checked_at'] as String)
             : null,
+        maskedAccount: connection['masked_account'] as String?,
+        connectionVersion: connection['connection_version'] as int?,
       ),
     );
   }
@@ -135,7 +163,8 @@ abstract final class EinvoiceRpcMapper {
       signingMethod: row['signing_method'] != null
           ? SigningMethod.values.byName(row['signing_method'] as String)
           : null,
-      compatibilityWarnings: (row['compatibility_warnings'] as List<dynamic>?)
+      compatibilityWarnings:
+          (row['compatibility_warnings'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList(growable: false) ??
           const [],
@@ -147,7 +176,8 @@ abstract final class EinvoiceRpcMapper {
       autoIssueEnabled: row['auto_issue_enabled'] as bool? ?? false,
       autoSendEnabled: row['auto_send_enabled'] as bool? ?? false,
       policyVersion: row['policy_version'] as int? ?? 0,
-      blockers: (row['blockers'] as List<dynamic>?)
+      blockers:
+          (row['blockers'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList(growable: false) ??
           const [],
@@ -157,24 +187,22 @@ abstract final class EinvoiceRpcMapper {
   static ConfigurationReadinessDto mapConfigurationReadiness(
     Map<String, dynamic> row,
   ) {
-    final blockers =
-        (row['blockers'] as List<dynamic>? ?? const [])
-            .map(
-              (raw) => ReadinessBlockerDto(
-                code: (raw as Map)['code'] as String,
-                message: raw['message'] as String,
-              ),
-            )
-            .toList(growable: false);
-    final warnings =
-        (row['warnings'] as List<dynamic>? ?? const [])
-            .map(
-              (raw) => ReadinessWarningDto(
-                code: (raw as Map)['code'] as String,
-                message: raw['message'] as String,
-              ),
-            )
-            .toList(growable: false);
+    final blockers = (row['blockers'] as List<dynamic>? ?? const [])
+        .map(
+          (raw) => ReadinessBlockerDto(
+            code: (raw as Map)['code'] as String,
+            message: raw['message'] as String,
+          ),
+        )
+        .toList(growable: false);
+    final warnings = (row['warnings'] as List<dynamic>? ?? const [])
+        .map(
+          (raw) => ReadinessWarningDto(
+            code: (raw as Map)['code'] as String,
+            message: raw['message'] as String,
+          ),
+        )
+        .toList(growable: false);
     return ConfigurationReadinessDto(
       level: ConfigurationReadinessLevel.values.byName(row['level'] as String),
       blockers: blockers,
@@ -194,10 +222,7 @@ abstract final class EinvoiceRpcMapper {
                   code: (raw['code'] as String?) ?? '',
                   message: (raw['message'] as String?) ?? '',
                 )
-              : ReadinessWarning(
-                  code: raw.toString(),
-                  message: raw.toString(),
-                ),
+              : ReadinessWarning(code: raw.toString(), message: raw.toString()),
         )
         .toList(growable: false);
 
@@ -234,8 +259,7 @@ abstract final class EinvoiceRpcMapper {
           row['provider_supports_preview'] as bool? ?? false,
       buyer: buyer,
       buyerCompletionState: buyerCompletionState,
-      commercialDataMappable:
-          row['commercial_data_mappable'] as bool? ?? true,
+      commercialDataMappable: row['commercial_data_mappable'] as bool? ?? true,
       configWarnings: warnings,
     );
   }
@@ -275,9 +299,10 @@ abstract final class EinvoiceRpcMapper {
       orElse: () => BuyerCompletionStatus.open,
     );
 
-    final eligibleFields = (row['eligible_fields'] as List<dynamic>? ?? const [])
-        .map((e) => e.toString())
-        .toList(growable: false);
+    final eligibleFields =
+        (row['eligible_fields'] as List<dynamic>? ?? const [])
+            .map((e) => e.toString())
+            .toList(growable: false);
 
     return BuyerCompletionContext(
       base: base,

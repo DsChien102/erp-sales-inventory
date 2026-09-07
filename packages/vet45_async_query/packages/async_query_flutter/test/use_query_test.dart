@@ -127,4 +127,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('done-x'), findsOneWidget);
   });
+
+  testWidgets('UseQuery automatically refetches when refetchInterval is set', (tester) async {
+    final client = createTestClient();
+    addTearDown(client.dispose);
+    var callCount = 0;
+
+    await tester.pumpWidget(
+      QueryClientProvider(
+        client: client,
+        child: MaterialApp(
+          home: UseQuery<int>(
+            queryKey: const ['interval-widget-test'],
+            queryFn: () async {
+              callCount++;
+              return callCount;
+            },
+            refetchInterval: const Duration(milliseconds: 100),
+            builder: (context, result) => Text('count-${result.data ?? 0}'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    expect(find.text('count-1'), findsOneWidget);
+    expect(callCount, 1);
+
+    await tester.pump(const Duration(milliseconds: 110));
+    expect(find.text('count-2'), findsOneWidget);
+    expect(callCount, 2);
+  });
 }

@@ -1,9 +1,12 @@
+import 'package:async_query/async_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
+
+import '../../../../core/di/injection.dart';
 
 class ProviderConnectionPage extends StatelessWidget {
   const ProviderConnectionPage({
@@ -25,6 +28,7 @@ class ProviderConnectionPage extends StatelessWidget {
       create: (_) => ProviderConnectionCubit(
         einvoiceModule: einvoiceModule,
         executionContext: executionContext,
+        queryClient: getIt.isRegistered<QueryClient>() ? getIt<QueryClient>() : null,
       )..load(),
       child: VPageScaffold(
         title: ProviderConnectionCopy.pageTitle,

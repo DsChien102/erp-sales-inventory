@@ -50,8 +50,7 @@ class _PricingDetailPageState extends State<PricingDetailPage> {
             title: 'Chi tiết giá riêng',
             subtitle: switch (state) {
               PriceRuleDetailLoaded(:final rule) ||
-              PriceRuleDetailActionSuccess(:final rule) =>
-                rule.customer.displayName,
+              PriceRuleDetailActionSuccess(:final rule) => rule.customer.displayName,
               _ => null,
             },
             showBackButton: false,
@@ -69,12 +68,10 @@ class _PricingDetailPageState extends State<PricingDetailPage> {
               state: state,
               ruleId: widget.ruleId,
               onRetry: () => _cubit.loadDetail(ruleId: widget.ruleId),
-              onViewHistory: (ruleId) =>
-                  context.push('/pricing/$ruleId/history'),
+              onViewHistory: (ruleId) => context.push('/pricing/$ruleId/history'),
             ),
             bottomBar: switch (state) {
-              PriceRuleDetailLoaded(:final rule) ||
-              PriceRuleDetailActionSuccess(:final rule)
+              PriceRuleDetailLoaded(:final rule) || PriceRuleDetailActionSuccess(:final rule)
                   when rule.availableActions.isNotEmpty =>
                 _BottomBar(rule: rule, cubit: _cubit),
               _ => null,
@@ -102,46 +99,44 @@ class _PriceRuleDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (state) {
-      PriceRuleDetailInitial() || PriceRuleDetailLoading() =>
-        const VSkeletonScope(
-          child: Padding(
-            padding: EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VSkeleton(width: double.infinity, height: 120),
-                VGap.md(),
-                VSkeleton(width: double.infinity, height: 160),
-                VGap.md(),
-                VSkeleton(width: double.infinity, height: 100),
-              ],
-            ),
+      PriceRuleDetailInitial() || PriceRuleDetailLoading() => const VSkeletonScope(
+        child: Padding(
+          padding: EdgeInsets.all(VSpacing.space4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VSkeleton(width: double.infinity, height: 120),
+              VGap.md(),
+              VSkeleton(width: double.infinity, height: 160),
+              VGap.md(),
+              VSkeleton(width: double.infinity, height: 100),
+            ],
           ),
         ),
+      ),
       PriceRuleDetailNotFound() => const VEmptyState(
-          icon: VIcons.search,
-          title: 'Không tìm thấy',
-          description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
-        ),
+        icon: VIcons.search,
+        title: 'Không tìm thấy',
+        description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
+      ),
       PriceRuleDetailNoPermission() => const VEmptyState(
-          icon: VIcons.lock,
-          title: 'Không có quyền truy cập',
-          description: 'Bạn không có quyền xem mức giá riêng này.',
-        ),
+        icon: VIcons.lock,
+        title: 'Không có quyền truy cập',
+        description: 'Bạn không có quyền xem mức giá riêng này.',
+      ),
       PriceRuleDetailError(:final message) => VEmptyState(
-          icon: VIcons.error,
-          title: 'Đã xảy ra lỗi',
-          description: message,
-          actionLabel: 'Thử lại',
-          onActionPressed: onRetry,
-        ),
+        icon: VIcons.error,
+        title: 'Đã xảy ra lỗi',
+        description: message,
+        actionLabel: 'Thử lại',
+        onActionPressed: onRetry,
+      ),
       PriceRuleDetailLoaded(:final rule, :final recentActivities) ||
-      PriceRuleDetailActionSuccess(:final rule, :final recentActivities) =>
-        PriceRuleDetailContent(
-          rule: rule,
-          recentActivities: recentActivities,
-          onViewHistory: () => onViewHistory(rule.id),
-        ),
+      PriceRuleDetailActionSuccess(:final rule, :final recentActivities) => PriceRuleDetailContent(
+        rule: rule,
+        recentActivities: recentActivities,
+        onViewHistory: () => onViewHistory(rule.id),
+      ),
     };
   }
 }

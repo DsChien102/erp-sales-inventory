@@ -10,7 +10,9 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../einvoice_module.dart';
 import 'data_access/data_access_module.dart';
 import 'einvoice_runtime.dart';
+import 'events_bus/events_bus_startup.dart';
 import 'mediation/mediation_module.dart';
+import 'outbox/outbox_module.dart';
 import 'processing/commands_executor.dart';
 import 'processing/generated/einvoice_access_metadata.g.dart';
 import 'processing/processing_module.dart';
@@ -23,8 +25,10 @@ abstract final class EinvoiceStartup {
     required IPermissionChecker permissionChecker,
     required ITenantAccessChecker tenantAccessChecker,
     IEventsBus? integrationEventBus,
-    required String misaAppId,
+    String misaAppId = '',
     String misaBaseUrl = MeInvoiceConfig.testBaseUrl,
+    bool enableMisaHttp = false,
+    bool misaEmailDeliveryEnabled = false,
   }) {
     final container = GetIt.asNewInstance();
     return _configure(
@@ -36,6 +40,8 @@ abstract final class EinvoiceStartup {
       integrationEventBus: integrationEventBus ?? InMemoryEventBusClient(),
       misaAppId: misaAppId,
       misaBaseUrl: misaBaseUrl,
+      enableMisaHttp: enableMisaHttp,
+      misaEmailDeliveryEnabled: misaEmailDeliveryEnabled,
     );
   }
 
@@ -49,6 +55,8 @@ abstract final class EinvoiceStartup {
     IEventsBus? integrationEventBus,
     String misaAppId = 'test-app-id',
     String misaBaseUrl = MeInvoiceConfig.testBaseUrl,
+    bool enableMisaHttp = false,
+    bool misaEmailDeliveryEnabled = false,
   }) {
     final resolvedContainer = container ?? GetIt.asNewInstance();
     return _configure(
@@ -61,6 +69,8 @@ abstract final class EinvoiceStartup {
       integrationEventBus: integrationEventBus ?? InMemoryEventBusClient(),
       misaAppId: misaAppId,
       misaBaseUrl: misaBaseUrl,
+      enableMisaHttp: enableMisaHttp,
+      misaEmailDeliveryEnabled: misaEmailDeliveryEnabled,
     );
   }
 
@@ -73,6 +83,8 @@ abstract final class EinvoiceStartup {
     required IEventsBus integrationEventBus,
     required String misaAppId,
     required String misaBaseUrl,
+    required bool enableMisaHttp,
+    required bool misaEmailDeliveryEnabled,
   }) {
     final commandLogger = loggerFactory.named('einvoice.commands');
 
@@ -88,7 +100,7 @@ abstract final class EinvoiceStartup {
 
     EinvoiceCommandsExecutor.bind(container.get<CommandBus>());
 
-    EinvoiceOutboxModule.createDefault().load(container);
+    OutboxModule.createDefault().load(container);
 
     EinvoiceDataAccessModule().load(
       container: container,
@@ -96,6 +108,8 @@ abstract final class EinvoiceStartup {
       loggerFactory: loggerFactory,
       misaAppId: misaAppId,
       misaBaseUrl: misaBaseUrl,
+      enableMisaHttp: enableMisaHttp,
+      misaEmailDeliveryEnabled: misaEmailDeliveryEnabled,
     );
 
     EinvoiceProcessingModule().load(
@@ -119,6 +133,11 @@ abstract final class EinvoiceStartup {
     EinvoiceProcessingModule().registerProcessHandlers(
       commandBus: container.get<CommandBus>(),
       container: container,
+    );
+
+    EventsBusStartup.initialize(
+      container,
+      loggerFactory.named('einvoice.events_bus'),
     );
 
     final module = EinvoiceModule(container);

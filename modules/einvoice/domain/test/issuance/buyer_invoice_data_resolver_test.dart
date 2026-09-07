@@ -16,44 +16,49 @@ void main() {
 
       expect(
         result,
-        equals(const EffectiveBuyerInvoiceData(
-          buyerType: BuyerType.organization,
-          name: 'Công ty TNHH Thú Y PetCare',
-          email: 'petcare@example.com',
-          taxCode: '0109998888',
-          address: '100 Lê Duẩn, Hà Nội',
-        )),
+        equals(
+          const EffectiveBuyerInvoiceData(
+            buyerType: BuyerType.organization,
+            name: 'Công ty TNHH Thú Y PetCare',
+            email: 'petcare@example.com',
+            taxCode: '0109998888',
+            address: '100 Lê Duẩn, Hà Nội',
+          ),
+        ),
       );
       expect(result.isComplete, isTrue);
     });
 
-    test('uses base snapshot as-is when complete and ignores completionSource non-empty fields', () {
-      const base = BuyerInvoiceSourceFields(
-        buyerType: BuyerType.organization,
-        name: 'Công ty A',
-        email: 'a@example.com',
-        taxCode: '0101112222',
-        address: '123 Base Street',
-      );
-      const completion = BuyerInvoiceSourceFields(
-        buyerType: BuyerType.individual,
-        name: 'Công ty B Override',
-        email: 'b@example.com',
-        taxCode: '0999999999',
-        address: '456 Source Street',
-      );
+    test(
+      'uses base snapshot as-is when complete and ignores completionSource non-empty fields',
+      () {
+        const base = BuyerInvoiceSourceFields(
+          buyerType: BuyerType.organization,
+          name: 'Công ty A',
+          email: 'a@example.com',
+          taxCode: '0101112222',
+          address: '123 Base Street',
+        );
+        const completion = BuyerInvoiceSourceFields(
+          buyerType: BuyerType.individual,
+          name: 'Công ty B Override',
+          email: 'b@example.com',
+          taxCode: '0999999999',
+          address: '456 Source Street',
+        );
 
-      final result = BuyerInvoiceDataResolver.resolve(
-        base: base,
-        completionSource: completion,
-      );
+        final result = BuyerInvoiceDataResolver.resolve(
+          base: base,
+          completionSource: completion,
+        );
 
-      expect(result.name, equals('Công ty A'));
-      expect(result.email, equals('a@example.com'));
-      expect(result.taxCode, equals('0101112222'));
-      expect(result.address, equals('123 Base Street'));
-      expect(result.buyerType, equals(BuyerType.organization));
-    });
+        expect(result.name, equals('Công ty A'));
+        expect(result.email, equals('a@example.com'));
+        expect(result.taxCode, equals('0101112222'));
+        expect(result.address, equals('123 Base Street'));
+        expect(result.buyerType, equals(BuyerType.organization));
+      },
+    );
 
     test('base buyerType is authoritative even if completion source has different buyerType', () {
       const base = BuyerInvoiceSourceFields(

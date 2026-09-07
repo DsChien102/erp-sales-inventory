@@ -12,27 +12,53 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ## [Unreleased]
 
 ### Added
+- Thêm `OrderEInvoiceSection` và `OrderEInvoiceCubit` trong sales presentation, tích hợp luồng phát hành lại hóa đơn điện tử khi thất bại (retry issuance) qua `IModuleMediator` và `IExecutionContext`.
 
 ### Changed
 
+- Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `vet45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
+- Hồ sơ pháp lý tổ chức: Mã số thuế hỗ trợ linh hoạt 10–13 chữ số và định dạng chi nhánh có gạch nối (`0123456789-001`) cho cả doanh nghiệp và hộ kinh doanh.
+
 ### Fixed
+- HĐĐT xem trước: kéo dài cửa sổ poll worker/MISA (~45s), bỏ clear URL khi bấm lại, và chặn double-tap khi đang previewing — giảm báo lỗi giả "chưa sẵn sàng" dù preview đã mở.
+- HĐĐT sheet xác nhận phát hành: lấy mẫu/ký hiệu/hình thức ký từ issuance profile + template MISA đã sync, không hardcode `1C26TAA`.
 
 - Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
 
 ### Internal
 
-- IAM draft SQL: ensure default store + `membership_store_scopes` trên onboarding / invite / accept / activate; backfill dữ liệu legacy.
+- TH-08: gỡ UI Dev Acceptance (task card Dashboard + route `/dev/einvoice-acceptance` + page/widgets/tests); giữ fixture SQL/checklist harness.
+- TH-08: gỡ email mock + nhãn mô phỏng / `is_simulated` trên UI delivery (Option B).
+- TH-08 email mock: hoàn tất contract `is_simulated` (draft 013/014 + load context), mock HTTP sendemail, polling UI nhãn mô phỏng, và worker log an toàn (mode/scenario không email/token).
+- Einvoice: grant `authenticated` execute trên `issue_invoice` / `retry_issuance` + access gate (actor / `einvoice.issue`|`manage_issuance` / sales scope); script repair local cho lỗi 42501 khi phát hành từ ERP.
+- Einvoice: thêm schema `extensions` vào `search_path` các RPC phát hành dùng `digest()` (pgcrypto); script repair `ALTER FUNCTION` cho lỗi 42883 `digest(bytea, unknown) does not exist`.
+- Einvoice: so sánh `provider_connections.status` với enum `connected` (không `'CONNECTED'`); script repair rewrite function body cho lỗi 22P02 khi `issue_invoice`.
+- Einvoice: persist `supports_preview` trong capability snapshot khi sync MISA (command JSON + RPC mapper); readiness surface blocker `PREVIEW_UNSUPPORTED` khi thiếu capability (fix fail-closed chặn preview live acceptance).
+- Einvoice: `get_invoice_preview` truyền đúng `p_actor_id` (trước đó nhầm `tenantId` → `NO_PERMISSION: actor mismatch` khi poll preview).
+- Einvoice: canonical→MISA mapper mirror field `*Oc` / `VATRateName` / `ItemType` cho payload kiểu seed VND; bổ sung `RefID`, `TotalAmountInWords`, discount defaults; log reason+detail khi unpublished preview fail.
 
-## [1.7.4+41] - 2026-09-14
-
-### Fixed
-
-- Multi-tenant session: không còn `CONTEXT_INVALID` “Exactly one tenant context” khi user có ≥2 membership; `IamActiveStoreContext` không gọi RPC khi chưa chọn tenant.
-
-### Internal
-
-- IAM: tách `SignInTenantUser` / `SignInPlatformAdmin`; bỏ `IamSessionCoordinator`; restore persisted auth thuộc app DI.
-- Draft SQL `019_iam_get_session_context_multi_tenant` (filter active; multi-tenant → null; `bootstrap_owner` theo `p_tenant_id`) — cần apply local.
+- Einvoice S5 Task 9: wire delivery worker DI (worker-only MISA send on ERP), inbox subscriptions for registered→auto delivery, send/reconcile dead-letter handlers + max-3 attempt policy.
+- Einvoice S5 Task 8: MISA delivery provider adapter + safe classifier for invoice email send (typed outcomes; worker HTTP wiring in Task 9).
+- Einvoice S5 Task 7: capability-aware delivery reconciliation (`supportsDeliveryResultObservation` fail-closed, `ReconcileInvoiceDeliveryCommand`, draft 015 load/record RPCs, unsupported MISA observation adapter).
+- Einvoice S5 Task 6: delivery result RPCs (prepare/record/dead-letter), UNKNOWN→PENDING VERIFY_DELIVERY handoff, projection `delivery_display_state`/`has_secondary_attention`, Supabase delivery gateways/mappers.
+- Einvoice S5 Task 5: draft delivery schema (`invoice_deliveries` / `delivery_attempts`) + start/read/load RPCs (`start_auto_delivery`, `send_electronic_invoice`, sheet/history, `load_delivery_attempt_context`).
+- Einvoice S5 Task 4: Partner source-owned `partner.get_einvoice_recipient_snapshot` draft contract (service_role only).
+- Einvoice S5 Task 3: delivery application ports/handlers, `einvoice.send_invoice_email` internal command, registered→auto delivery event handler, safe delivery integration events.
+- Einvoice S5 Task 2: domain InvoiceDelivery lifecycle, recipient/display policies, and pure delivery invariants.
+- Einvoice S5 Task 0: freeze EP-04 delivery contracts (typed evidence, recipient provenance enums, BuyerInvoiceSnapshot lineage in S2/S3 attempt snapshots).
+- Einvoice S4c: durable worker commands (`fetch_official_view`, `download_invoice_document`, `poll_provider_observation`), provider-call audit, same-operation retry/dead-letter CHECK_REQUIRED, preview interaction wiring.
+- Einvoice S4 integration tests: end-to-end official view, document download, observation flows with `FakeMeInvoiceClient` (no live MISA).
+- Einvoice S4b: draft `invoice_document_operations` + `invoice_documents`, RPC document retrieval, private bucket `einvoice-documents`, storage port và signed URL read path.
+- Einvoice S5: MISA electronic-invoice provider adapter (`previewPublished`, `download`, `getStatus`) + classifiers + worker-only guard.
+- Einvoice S6: provider interaction audit, observation RPCs, attention outbox event `einvoice.provider_observation_attention_required`.
+- Einvoice S4a: draft `official_invoice_view_operations` + RPC official view (`request_official_invoice_view`, `get_electronic_invoice_detail`); Supabase electronic-invoice gateways (detail/read path).
+- Einvoice S3c: `RetryIssuanceCommand` + `RetryIssuanceCommandHandler` và `SupabaseIssuanceCommandGateway.retryIssuance` cho definite failure retry với integer version và idempotent rerun.
+- Einvoice S2b: Supabase issuance gateways (`SupabaseIssuanceCommandGateway`, `SupabaseIssuanceResultGateway`, `SupabaseOrderInvoiceProjectionReadGateway`) + `IssuanceRpcMapper`; nested `ISSUANCE_NOT_READY` blockers và `IDEMPOTENCY_CONFLICT` error mapping.
+- Einvoice S2b: `IssueInvoiceCommand` dùng opaque `sourceVersion`; thêm typed gateways (`IIssuanceCommandGateway`, `IIssuanceResultGateway`), `EInvoiceIssuanceBlockers`, `PublishPreparationAction`, `IssuanceResultEvidenceDto`, và `IDEMPOTENCY_CONFLICT`.
+- Einvoice S2a: Backend support kiểm tra sẵn sàng phát hành, hoàn thiện thông tin người mua và xem trước hóa đơn MISA (draft RPCs & schema seam).
+- Einvoice S1: `get_provider_connection_screen` đọc hồ sơ pháp lý từ `iam.tenant_legal_profiles` (không còn `public.tenants`); schema configuration apply trước RPC connection.
+- Async Query: mở rộng `refetchInterval` cho `QueryOptions`, `QueryObserver` và `UseQuery` trong `packages/vet45_async_query`.
+- Einvoice: đăng ký `QueryClient` trong DI ERP, đồng bộ query cache trực tiếp qua `setQueryData` trong `ProviderConnectionCubit` và tích hợp polling kết nối nhà cung cấp vào `ProviderConnectionView`.
 
 ## [1.7.3+40] - 2026-09-14
 

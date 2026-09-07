@@ -78,25 +78,16 @@ final einvoiceAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'einvoice.manage_configuration',
     requiresTenant: true,
   ),
-  OpenReconciliationCaseCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
+  OpenReconciliationCaseCommand: AccessMetadata(requiresTenant: true),
   ReconnectProviderCommand: AccessMetadata(
     permission: 'einvoice.manage_configuration',
     requiresTenant: true,
   ),
-  RecordDeliveryResultCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
-  RecordIssuanceResultCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
-  RecordProviderObservationCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
-  RecoverInternalFinalizationCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
+  RecordDeliveryResultCommand: AccessMetadata(requiresTenant: true),
+  RecordIssuanceResultCommand: AccessMetadata(requiresTenant: true),
+  RecordProviderObservationCommand: AccessMetadata(requiresTenant: true),
+  RecoverInternalFinalizationCommand: AccessMetadata(requiresTenant: true),
+  ReevaluateAutoIssuanceCommand: AccessMetadata(requiresTenant: true),
   RequestInvoiceDocumentCommand: AccessMetadata(
     permission: 'einvoice.download_document',
     requiresTenant: true,
@@ -109,9 +100,7 @@ final einvoiceAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'einvoice.view',
     requiresTenant: true,
   ),
-  ResolveReconciliationCaseCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
+  ResolveReconciliationCaseCommand: AccessMetadata(requiresTenant: true),
   RetryIssuanceCommand: AccessMetadata(
     permission: 'einvoice.issue',
     requiresTenant: true,
@@ -124,12 +113,8 @@ final einvoiceAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'einvoice.manage_configuration',
     requiresTenant: true,
   ),
-  StartAutoDeliveryCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
-  StartAutoIssuanceCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
+  StartAutoDeliveryCommand: AccessMetadata(requiresTenant: true),
+  StartAutoIssuanceCommand: AccessMetadata(requiresTenant: true),
   UpdateAutomationPolicyCommand: AccessMetadata(
     permission: 'einvoice.manage_configuration',
     requiresTenant: true,
@@ -139,4 +124,3 @@ final einvoiceAccessMetadataRegistry = AccessMetadataRegistry({
     requiresTenant: true,
   ),
 });
-

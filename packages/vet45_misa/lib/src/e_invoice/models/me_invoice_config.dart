@@ -1,8 +1,8 @@
 /// Connection settings for [MeInvoiceClient].
 ///
 /// Auth modes:
-/// - **Login:** [appId], [taxCode], [username], [password] (MISA warns against
-///   frequent `/auth/token` — prefer caching Bearer ~14 days).
+/// - **Login:** [appId], [taxCode], [username], [password] (MISA documents Bearer
+///   validity ~14 days and recommends refreshing every ~7 days; avoid login-per-request).
 /// - **Bearer:** [accessToken] (+ optional [accessTokenExpiresAt]) skips login
 ///   until expiry; used by smoke / worker token store.
 final class MeInvoiceConfig {
@@ -25,6 +25,10 @@ final class MeInvoiceConfig {
 
   /// MISA documents Bearer validity ~14 days; avoid login-per-request.
   static const Duration defaultTokenTtl = Duration(days: 14);
+
+  /// MISA recommends refreshing token every 7 days (or at session start)
+  /// to avoid expiration during active business hours.
+  static const Duration recommendedTokenTtl = Duration(days: 7);
 
   final String baseUrl;
   final String? appId;

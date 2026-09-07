@@ -74,7 +74,7 @@ erDiagram
         uuid invoice_issuance_id FK
         enum status "preparing|submitted|waiting_result|reconciling|succeeded|failed"
         json attempt_snapshot
-        json provider_result
+        json provider_result_snapshot
         string idempotency_key UK
     }
 
@@ -82,9 +82,9 @@ erDiagram
         uuid id PK
         uuid tenant_id FK
         uuid sales_order_id FK
-        uuid issuance_attempt_id FK
+        uuid successful_attempt_id FK
         json invoice_snapshot
-        string provider_transaction_id
+        string provider_invoice_reference
         enum document_status "pending|available|failed|check_required"
     }
 
@@ -179,6 +179,14 @@ Canonical §3.2.5. Display state (Issuance / Delivery trên Theme 05) là **proj
 
 ### Issuance attempt
 
+```text
+PREPARING --prepare_issuance_publish--> SUBMITTED
+  status SUBMITTED is the durable no-republish barrier; does not set submitted_at
+SUBMITTED --mark_issuance_provider_call_started immediately before HTTP--> SUBMITTED
+  sets submitted_at once
+provider accepted/pending --> WAITING_RESULT
+replay at SUBMITTED/WAITING_RESULT --> RECONCILING; never publish again
+```
 
 | From             | To               | Allowed | Ghi chú                                |
 | ---------------- | ---------------- | ------- | -------------------------------------- |
@@ -206,6 +214,8 @@ Canonical §3.2.5. Display state (Issuance / Delivery trên Theme 05) là **proj
 | `COMPLETED`  | `*`          | No      | Terminal                                                 |
 | `UNRESOLVED` | `COMPLETED`  | Yes     | Internal recovery — **không** gọi lại publish            |
 
+`IssuanceAttempt.providerResultSnapshot` lưu **allow-listed typed success/failure evidence** đã chuẩn hóa. Nó là nguồn recovery khi provider đã xác nhận nhưng local `ElectronicInvoice` commit thất bại; không lưu raw provider payload và không được dùng để publish lại.
+
 
 
 
@@ -219,23 +229,52 @@ Canonical §3.2.5. Display state (Issuance / Delivery trên Theme 05) là **proj
 | `FAILED`         | Definite fetch failure          |
 | `CHECK_REQUIRED` | Unknown / retry needed          |
 
+Official view và PDF/XML đều dùng async resource operation. Request persist operation + enqueue job; query trả trạng thái và chỉ trả URL/token/fileRef khi `AVAILABLE`. Identity active là `{electronicInvoiceId}:official_view` hoặc `{electronicInvoiceId}:{documentType}`; generation mới chỉ dùng khi refresh resource hết hạn/retry terminal.
+
 
 
 
 ### Delivery & delivery attempt
 
-**InvoiceDelivery:** `PROCESSING` → `SUCCEEDED` | `FAILED` | `UNKNOWN`.
+**InvoiceDelivery:** `PROCESSING` → `SUCCEEDED` | `FAILED` | `UNKNOWN`. `UNKNOWN` → `SUCCEEDED` | `FAILED` chỉ khi có evidence authenticated/authoritative đến sau cho **cùng attempt**. `SUCCEEDED` không bao giờ đảo ngược; failure đến muộn không ghi đè success.
 
-**DeliveryAttempt:** `QUEUED` → `SUBMITTED` → `SUCCEEDED` | `FAILED` | `UNKNOWN`.
+**DeliveryAttempt:** `QUEUED` → `SUBMITTED` → `SUCCEEDED` | `FAILED` | `UNKNOWN`. Attempt cạn kiệt trước dispatch được phép `QUEUED` → `FAILED`. `UNKNOWN` chỉ resolve bằng evidence authoritative đến sau cho cùng attempt.
+
+**Invariant delivery (S5 frozen):**
+
+- Tối đa **một** business delivery `INITIAL_SEND` / ElectronicInvoice. Auto và manual race hội tụ về cùng invariant; các lần gửi có chủ đích sau đó là `RESEND`.
+- `DeliveryKind` là **server-derived** — client không chọn initial/resend.
+- Delivery ở `PROCESSING` hoặc `UNKNOWN` **khóa** business delivery khác cho invoice đó. `UNKNOWN` nghĩa là kết quả chưa xác lập; reconciliation case của nó bắt đầu ở `PENDING` (không phải `UNRESOLVED`) và delivery không được coi là retryable failure.
+- Một attempt kỹ thuật active (`QUEUED` hoặc `SUBMITTED`) / delivery. Rejection retryable, chắc chắn chưa gửi, hoàn tất attempt hiện tại là failed và có thể thêm đúng một attempt queued kế tiếp trong cùng business delivery — **tối đa 3 attempt**.
+- Recipient email/name là snapshot bất biến trên delivery; retry attempt không bao giờ resolve lại hay ghi đè recipient.
+- Result trùng lặp / đảo thứ tự là idempotent và không bao giờ đảo ngược success.
+- Recipient fallback tự động: current Partner invoice email → `attemptSnapshot.buyer_lineage.buyerInvoiceSnapshot.email` (base snapshot Theme-05 bất biến). `attemptSnapshot.buyer` là `EffectiveBuyerInvoiceData`, **không** thay thế được base snapshot. Không có `buyerPartnerId` ổn định → chỉ còn fallback base snapshot; cấm history tenant-wide / cross-customer.
+- Delivery state không mutate issuance status, registration fact, số hóa đơn, mã tra cứu hay official document state.
 
 ### Reconciliation case
 
 
-| From       | To           | Allowed |
-| ---------- | ------------ | ------- |
-| `PENDING`  | `RESOLVED`   | Yes     |
-| `PENDING`  | `UNRESOLVED` | Yes     |
-| `RESOLVED` | `*`          | No      |
+| From         | To           | Allowed | Ghi chú                                                                                     |
+| ------------ | ------------ | ------- | ------------------------------------------------------------------------------------------- |
+| `PENDING`    | `RESOLVED`   | Yes     | Poll/callback xác lập kết quả terminal (success hoặc definite failure)                      |
+| `PENDING`    | `UNRESOLVED` | Yes     | Hết 5 lần poll ([30s, 2m, 10m, 30m, 2h]) mà kết quả vẫn không xác định; giữ business lock  |
+| `UNRESOLVED` | `RESOLVED`   | Yes     | **Contract amendment**: Callback terminal hợp lệ từ provider đến muộn; tuyệt đối không republish |
+| `RESOLVED`   | `*`          | No      | Terminal                                                                                    |
+
+**Quy tắc đối soát & Invariant:**
+- Lịch poll cố định gồm 5 lần kiểm tra với khoảng lùi: `[30s, 2m, 10m, 30m, 2h]`. Worker claim case theo claim-token và kiểm tra qua `IMeInvoiceClient.getStatus`.
+- Bảng `invoice_reconciliation_cases` là nguồn authoritative của lịch đối soát; scheduled internal commands dùng due-time qua `internal_commands.enqueued_at` và có thể tái tạo tự động (idempotent seed/sweeper).
+- Invariant race condition: Callback và poll có thể diễn ra đồng thời, nhưng chỉ một transition terminal đầu tiên thắng; bên đến sau nhận lại kết quả đã ghi (idempotent/no-op) và không đảo ngược kết quả.
+- Trạng thái `UNRESOLVED` kết thúc chu kỳ poll tự động nhưng không loại bỏ evidence; nếu callback terminal hợp lệ đến muộn, case chuyển `UNRESOLVED -> RESOLVED` và hoàn tất kết quả mà không gọi lại provider.
+
+**Amendment — delivery reconciliation là capability-aware (S5):**
+
+- Delivery case dùng lại chính bảng `invoice_reconciliation_cases` với `target_type = 'DELIVERY_ATTEMPT'`, `target_id = delivery_attempts.id`, `reconciliation_purpose = 'VERIFY_DELIVERY'`. **Không** tạo bảng case riêng cho delivery.
+- Lifecycle delivery case đúng bằng `PENDING -> RESOLVED | UNRESOLVED`, cộng amendment evidence-đến-muộn `UNRESOLVED -> RESOLVED`.
+- Nếu `provider_connections.capabilities_snapshot.supports_delivery_result_observation = true`: mỗi check sequence thực hiện đúng một typed observation. Evidence terminal resolve delivery/attempt/case; evidence undetermined lên lịch sequence kế theo `[30s, 2m, 10m, 30m, 2h]`, lần thứ 5 undetermined chuyển `UNRESOLVED` + emit attention.
+- Nếu `supports_delivery_result_observation = false`: **không** outbound HTTP. Check đầu tiên ghi safe code `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, chuyển case sang `UNRESOLVED`, clear `next_check_at`, emit attention.
+- **MISA hiện tại luôn `supports_delivery_result_observation = false`.** Không bao giờ suy ra kết quả gửi email từ trạng thái phát hành invoice: `getStatus` không phải delivery-status API và không được gọi từ delivery reconciliation; `/invoice/status` hay API invoice/document khác cũng không phải evidence gửi email.
+- Sau `UNKNOWN` tuyệt đối không enqueue thêm một lần gửi email nào nữa.
 
 
 
@@ -277,16 +316,54 @@ Canonical §3.2.5. Display state (Issuance / Delivery trên Theme 05) là **proj
 | `invoice_automation_policies`   | Auto-issue / auto-send flags + version       |
 | `buyer_invoice_completions`     | Controlled completion per SalesOrder/version |
 | `invoice_issuances`             | Issuance root per SalesOrder ORIGINAL        |
-| `issuance_attempts`             | Attempt + immutable AttemptSnapshot          |
+| `issuance_attempts`             | 32 canonical fields (5 convention + 27 business) + immutable AttemptSnapshot |
 | `electronic_invoices`           | Authoritative invoice + InvoiceSnapshot      |
 | `invoice_documents`             | PDF/XML retrieval metadata                   |
 | `invoice_provider_observations` | Append-only provider status history          |
+| `invoice_preview_operations`    | S2 technical preview operation (not interaction audit) |
 | `invoice_deliveries`            | Business delivery intent                     |
 | `delivery_attempts`             | Technical send attempts                      |
 | `invoice_reconciliation_cases`  | Result reconciliation process state          |
 
 
-Shared technical (không authoritative business state): `provider_interaction_records`, `idempotency_records`, `inbox_messages`, `outbox_messages`, `automatic_trigger_process_records`, `audit_logs`, `order_invoice_projections`.
+Shared technical (không authoritative business state): `provider_interaction_records`, `invoice_preview_operations`, `idempotency_records`, `inbox_messages`, `outbox_messages`, `automatic_trigger_process_records`, `audit_logs`, `order_invoice_projections`.
+
+### ProviderInteractionRecord (frozen S4 repair)
+
+Cardinality: one row per outbound provider-call attempt or inbound callback. Immutable after start: tenant, provider connection, direction, operation type, target, correlation (`uuid`), request reference, started time. Finalize once: response reference, provider reference, outcome, safe error code, completed time, status and optimistic version. `request_reference` = Vet45 command/message ID; `response_reference` = provider HTTP trace when safely available; `provider_reference` = provider business identity (never credential/token). Không lưu request/response body, headers, viewer payload, credential hoặc token. S2 preview state lives in `invoice_preview_operations`, not this table.
+
+**S4 implementation:** handlers wrap outbound MISA calls via `IProviderInteractionGateway`; worker-only path verified in `s4_worker_handlers_test` + `einvoice_slice4_integration_test`. Observation append references interaction via `provider_interaction_reference`; attention outbox `einvoice.provider_observation_attention_required` on NOT_FOUND/MISMATCH.
+
+### ProviderCapabilitiesSnapshot.document types
+
+`supported_document_types = ['PDF','XML']` wire values; missing field deserializes to empty set (fail closed before document operation creation).
+
+### Canonical fields: `issuance_attempts` (32 fields)
+
+1. **Convention (5):** `id`, `tenant_id`, `created_at`, `updated_at`, `version` (bigint).
+2. **Business (27):** `invoice_issuance_id`, `attempt_no`, `trigger_type`, `status`, `provider_connection_id`, `issuance_profile_id`, `idempotency_key`, `intent_hash`, `snapshot_schema_version`, `attempt_snapshot`, `canonical_model_version`, `canonical_payload_hash`, `provider_interaction_reference`, `provider_request_reference`, `provider_invoice_reference`, `provider_result_code`, `provider_result_message`, `provider_result_snapshot`, `failure_code`, `failure_message`, `internal_finalization_state`, `started_at`, `submitted_at`, `provider_confirmed_at`, `completed_at`, `initiated_by_actor_type`, `initiated_by_actor_id`.
+
+*Không thêm field barrier hoặc failure-origin vào entity.* `status = SUBMITTED` đóng vai trò dispatch barrier; `submitted_at` được ghi một lần duy nhất ngay trước HTTP call qua RPC `mark_issuance_provider_call_started`.
+
+### Embedded `AttemptSnapshot` (11 components)
+
+1. `source_order` (SalesOrder reference, version, status)
+2. `seller` (Seller snapshot từ Theme 01)
+3. `buyer` (Buyer snapshot từ EffectiveBuyerInvoiceData)
+4. `buyer_lineage` (BuyerInvoiceSnapshot source, buyer_partner_id, BuyerInvoiceCompletion reference khi có)
+5. `invoice_context` (Loại hóa đơn, mẫu, ký hiệu, tax authority code mode, signing method)
+6. `lines` (Dòng hàng và source line references)
+7. `totals` (Tiền hàng, chiết khấu, thuế, làm tròn, thanh toán)
+8. `payment_information` (Thông tin thanh toán, optional)
+9. `automation_policy` (Policy version & flags áp dụng)
+10. `readiness_result` (Readiness level, warnings, blockers)
+11. `mapping_schema_version` (Phiên bản canonical mapping)
+
+### Shared technical: `AutomaticTriggerProcessRecord`
+
+Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `tenant_id`, `process_type`, `sales_order_id`, `sales_order_version`, `trigger_key`, `process_status`, `retry_count`, `next_retry_at`, `blocker_code`, `buyer_invoice_completion_id` (khi có), `claim_lock`, `idempotency_key` (stable provider idempotency key), `created_at`, `updated_at`.
+- Chỉ `sales.order.completed` được insert record này.
+- Tín hiệu cập nhật từ Partner (`partner.partner.profile_updated`) hoặc readiness chỉ claim/update record ở trạng thái `PENDING_REEVALUATION` hiện có, tuyệt đối không tạo record hoặc business identity mới.
 
 ## Value objects & enums
 
@@ -305,7 +382,11 @@ Shared technical (không authoritative business state): `provider_interaction_re
 | `InvoiceDocumentType`            | `pdf`, `xml`                                                                    |
 | `DeliveryStatus`                 | `processing`, `succeeded`, `failed`, `unknown`                                  |
 | `DeliveryAttemptStatus`          | `queued`, `submitted`, `succeeded`, `failed`, `unknown`                         |
-| `DeliveryKind`                   | `initial`, `resend`                                                             |
+| `DeliveryKind`                   | `initial`, `resend` — **server-derived**, không nhận từ client                  |
+| `DeliveryTriggerType`            | `automatic`, `manual`                                                           |
+| `DeliveryActorType`              | `system`, `user`                                                                |
+| `DeliveryRecipientSource`        | `currentPartnerProfile`, `buyerInvoiceSnapshot`, `lastSuccessfulPartnerDelivery`, `lastInvoiceDelivery`, `userInput` |
+| `DeliveryResultKind`             | `success`, `definiteFailure`, `retryableFailure`, `undetermined` (application)  |
 | `ReconciliationCaseStatus`       | `pending`, `resolved`, `unresolved`                                             |
 | `IssuanceDisplayState`           | projection — 4 giá trị hiển thị                                                 |
 | `DeliveryDisplayState`           | projection — 4+ giá trị hiển thị                                                |
@@ -340,7 +421,8 @@ Shared technical (không authoritative business state): `provider_interaction_re
 | `CompleteBuyerInvoiceDataCommand`        | CMD-09 | EP-02/US-01,02 | Controlled completion → LOCKED              |
 | `IssueInvoiceCommand`                    | CMD-10 | EP-02/US-02    | Phát hành thủ công                          |
 | `StartAutoIssuanceCommand`               | CMD-11 | EP-02/US-03    | Internal — trigger từ sales.order.completed |
-| `RecordIssuanceResultCommand`            | CMD-12 | EP-02/US-04    | Internal/worker — finalize attempt          |
+| `ReevaluateAutoIssuanceCommand`          | CMD-11b| EP-02/US-03    | Internal — re-evaluate process PENDING_REEVALUATION từ partner update |
+| `RecordIssuanceResultCommand`            | CMD-12 | EP-02/US-04    | Internal/worker — finalize attempt với typed evidence |
 | `RetryIssuanceCommand`                   | CMD-13 | EP-02/US-05    | Attempt mới sau definite failure            |
 | `OpenReconciliationCaseCommand`          | CMD-14 | EP-02/US-04,05 | Internal — unknown result                   |
 | `ResolveReconciliationCaseCommand`       | CMD-15 | EP-02/US-04,05 | Internal — apply reconciled outcome         |
@@ -413,7 +495,8 @@ Shared technical (không authoritative business state): `provider_interaction_re
 | `einvoice.electronic_invoice.registered`   | ElectronicInvoiceRegistered — Theme 05 projection + EP-04 auto-send |
 | `einvoice.issuance.failed`                 | Definite issuance failure — Theme 05 projection                     |
 | `einvoice.issuance.processing`             | Attempt in progress — Theme 05 projection                           |
-| `einvoice.delivery.result_recorded`        | Delivery terminal or updated — Theme 05 projection                  |
+| `einvoice.delivery.result_recorded`        | Delivery terminal or updated — payload safe: `salesOrderId`, `deliveryId`, `deliveryStatus`, `deliveryDisplayState`, `deliveryVersion`, `hasSecondaryAttention` |
+| `einvoice.delivery.attention_required`     | Chỉ khi delivery reconciliation đạt `UNRESOLVED` — payload: tenant/invoice/SalesOrder/delivery/attempt/case id + safe error code |
 | `einvoice.configuration.readiness_changed` | Config readiness level changed (optional)                           |
 
 
@@ -422,10 +505,17 @@ Shared technical (không authoritative business state): `provider_interaction_re
 ## Integration events — consume
 
 
-| Source | Event                       | Mục đích                                                |
-| ------ | --------------------------- | ------------------------------------------------------- |
-| sales  | `sales.order.completed`     | Auto-issue trigger (EP-02/US-03)                        |
-| iam    | `iam.legal_profile.updated` | Mark connection CHECK_REQUIRED (không mutate snapshots) |
+| Source | Event | Payload | Mục đích |
+| ------ | ----- | ------- | -------- |
+| sales  | `sales.order.completed`     | tenantId, salesOrderId, sourceVersion, occurredAt | Auto-issue trigger (EP-02/US-03) → `StartAutoIssuanceCommand` |
+| partner| `partner.partner.profile_updated` | tenantId, partnerId, occurredAt | Tìm process `PENDING_REEVALUATION` đúng buyer và dispatch `ReevaluateAutoIssuanceCommand`; không tạo process mới |
+| provider (inbox) | `einvoice.provider.issuance_result_received` | tenantId, attemptId, correlationId, typedEvidence | Finalize attempt (EP-02/US-04) → `RecordIssuanceResultCommand` |
+| einvoice (inbox) | `einvoice.electronic_invoice.registered` | tenantId, electronicInvoiceId, salesOrderId, occurredAt | Auto initial delivery (EP-04/US-01) → `StartAutoDeliveryCommand`; business key UUIDv5 `<tenantId>\|<electronicInvoiceId>\|auto_initial`, event id chỉ là `triggerId` traceability |
+| iam    | `iam.legal_profile.updated` | tenantId, occurredAt | Mark connection CHECK_REQUIRED (không mutate snapshots) |
+
+**Quy định Stable Identity:**
+- Sales completion tạo process với `triggerKey = sales.order.completed:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
+- Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 
 
@@ -458,8 +548,14 @@ Shared technical (không authoritative business state): `provider_interaction_re
 | DR-21   | Token cache keyed by `tenantId` — cấm singleton client mọi tenant                                              |
 | DR-22   | Official view / PDF / XML từ provider — không tự dựng tài liệu pháp lý                                         |
 | DR-23   | Delivery display state tính từ authoritative delivery history                                                  |
-| DR-24   | Resend tạo `InvoiceDelivery` mới với `deliveryKind=resend` — giữ history cũ                                    |
+| DR-24   | Resend tạo `InvoiceDelivery` mới với kind `resend` **server-derived** — giữ history cũ                         |
 | DR-25   | `OrderInvoiceProjection` là read model — không thuộc aggregate issuance                                        |
+| DR-26   | ≤ một business delivery `INITIAL_SEND` / ElectronicInvoice; auto và manual race hội tụ cùng invariant          |
+| DR-27   | Delivery `PROCESSING` hoặc `UNKNOWN` khóa business delivery khác; `UNKNOWN` không phải retryable failure       |
+| DR-28   | Success trước đó giữ display chính `sent`; failure/unknown sau đó lộ qua secondary attention                   |
+| DR-29   | `attemptSnapshot.buyer_lineage.buyerInvoiceSnapshot` giữ nguyên base snapshot Theme 05 (source-owned `p_buyer_snapshot`), tách khỏi `attemptSnapshot.buyer` effective; giữ `buyerPartnerId`, completion id, source version |
+| DR-30   | Recipient snapshot bất biến / delivery — technical retry không resolve lại recipient; tối đa 3 attempt         |
+| DR-31   | Không suy ra kết quả gửi email từ trạng thái phát hành invoice của provider (`getStatus` ≠ delivery status)    |
 
 
 

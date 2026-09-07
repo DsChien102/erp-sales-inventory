@@ -183,9 +183,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
       final trimmed = error.message.trim();
       // Preserve stable switch codes (e.g. TENANT_ACCESS_DENIED / TENANT_CLOSED)
       // that are not yet in IamBlockedCodes catalog.
-      if (trimmed.isNotEmpty &&
-          trimmed == trimmed.toUpperCase() &&
-          trimmed.contains('_')) {
+      if (trimmed.isNotEmpty && trimmed == trimmed.toUpperCase() && trimmed.contains('_')) {
         return IamUiFailure(code: trimmed, message: trimmed);
       }
     }
@@ -193,8 +191,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
   }
 
   bool _shouldReloadTenantsAfterSwitchFailure(IamUiFailure failure) {
-    return failure.code == IamBlockedCodes.tenantSuspended ||
-        failure.code == 'TENANT_CLOSED';
+    return failure.code == IamBlockedCodes.tenantSuspended || failure.code == 'TENANT_CLOSED';
   }
 
   void _emitResolvedContext(TenantContextDto context) {
@@ -228,10 +225,8 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
         break;
       case TenantContextStatus.invalidated:
         final inaccessible =
-            context.invalidationReason ==
-                TenantContextInvalidationReason.tenantSuspended ||
-            context.invalidationReason ==
-                TenantContextInvalidationReason.tenantClosed ||
+            context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
+            context.invalidationReason == TenantContextInvalidationReason.tenantClosed ||
             context.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
             context.blockedErrorCode == 'TENANT_CLOSED';
         emit(

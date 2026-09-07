@@ -31,20 +31,19 @@ void main() {
       expect(result.downloadUrl, contains('pdf'));
     });
 
-    test('download_unavailable throws DocumentUnavailableException', () async {
+    test('download_unavailable returns failed operation without sync provider call', () async {
       final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadUnavailable);
-      expect(
-        () => module.executeCommandAsync(
-          RequestInvoiceDocumentCommand(
-            tenantId: 't1',
-            actorId: 'a1',
-            salesOrderId: 'so-1',
-            documentType: InvoiceDocumentType.pdf,
-            idempotencyKey: 'doc-1',
-          ),
+      final result = await module.executeCommandAsync(
+        RequestInvoiceDocumentCommand(
+          tenantId: 't1',
+          actorId: 'a1',
+          salesOrderId: 'so-1',
+          documentType: InvoiceDocumentType.pdf,
+          idempotencyKey: 'doc-1',
         ),
-        throwsA(isA<DocumentUnavailableException>()),
       );
+      expect(result.operationId, 'op-doc-failed-1');
+      expect(result.status, InvoiceDocumentStatus.failed);
     });
   });
 }

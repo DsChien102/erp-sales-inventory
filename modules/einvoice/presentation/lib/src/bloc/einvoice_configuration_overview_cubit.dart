@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../support/configuration_query_failure.dart';
@@ -31,9 +32,11 @@ final class EInvoiceConfigurationOverviewCubit extends Cubit<EInvoiceConfigurati
       final profile = await _einvoiceModule.executeQueryAsync(
         GetIssuanceProfileQuery(tenantId: tenantId, actorId: actorId),
       );
-      final templates = await _einvoiceModule.executeQueryAsync(
-        ListProviderTemplatesQuery(tenantId: tenantId, actorId: actorId),
-      );
+      final templates = screen.connection.status == ProviderConnectionStatus.connected
+          ? await _einvoiceModule.executeQueryAsync(
+              ListProviderTemplatesQuery(tenantId: tenantId, actorId: actorId),
+            )
+          : const <ProviderTemplateDto>[];
       final policy = await _einvoiceModule.executeQueryAsync(
         GetAutomationPolicyQuery(tenantId: tenantId, actorId: actorId),
       );

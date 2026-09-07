@@ -1,3 +1,5 @@
+enum InternalCommandDisposition { retry, deadLetter }
+
 /// Claimed internal-command row for worker processing.
 final class ClaimedInternalCommand {
   const ClaimedInternalCommand({
@@ -7,6 +9,7 @@ final class ClaimedInternalCommand {
     required this.enqueuedAt,
     required this.claimToken,
     this.sourceEventId,
+    this.retryCount = 0,
   });
 
   final String commandId;
@@ -15,6 +18,7 @@ final class ClaimedInternalCommand {
   final DateTime enqueuedAt;
   final String claimToken;
   final String? sourceEventId;
+  final int retryCount;
 
   /// Row shape expected by [InternalCommandSerializer.deserializeRow].
   Map<String, dynamic> toSerializerRow() {
@@ -25,12 +29,18 @@ final class ClaimedInternalCommand {
       if (sourceEventId != null) 'source_event_id': sourceEventId,
       'enqueued_at': enqueuedAt.toIso8601String(),
       'claim_token': claimToken,
+      'retry_count': retryCount,
     };
   }
 }
 
-/// Claim / complete / fail RPCs for `einvoice.internal_commands`.
+/// Claim / complete / fail / retry RPCs for `einvoice.internal_commands`.
 abstract interface class IEinvoiceInternalCommandClient {
+  Future<int> seedDueReconciliationCommands({
+    required String tenantId,
+    int limit = 50,
+  });
+
   Future<List<ClaimedInternalCommand>> claimBatch({
     required String tenantId,
     required int limit,
@@ -40,6 +50,13 @@ abstract interface class IEinvoiceInternalCommandClient {
     required String tenantId,
     required String commandId,
     required String claimToken,
+  });
+
+  Future<InternalCommandDisposition> retryOrDeadLetter({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required String error,
   });
 
   Future<void> fail({

@@ -122,8 +122,7 @@ abstract final class ConfigurationReadinessEvaluator {
           message: 'Signing configuration is missing or unavailable',
         ),
       );
-    } else if (input.signingMethod == SigningMethod.noSign &&
-        !input.templateIsMtt) {
+    } else if (input.signingMethod == SigningMethod.noSign && !input.templateIsMtt) {
       blockers.add(
         const ReadinessBlocker(
           code: 'signing_incompatible',

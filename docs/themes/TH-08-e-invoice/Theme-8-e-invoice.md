@@ -1849,9 +1849,15 @@ Nếu field bắt buộc vẫn không có giá trị
 |Invoice document|`PENDING`, `AVAILABLE`, `FAILED`, `CHECK_REQUIRED`|Electronic Invoice|
 |Delivery|`PROCESSING`, `SUCCEEDED`, `FAILED`, `UNKNOWN`|Invoice Delivery|
 |Delivery attempt|`QUEUED`, `SUBMITTED`, `SUCCEEDED`, `FAILED`, `UNKNOWN`|Invoice Delivery|
-|Reconciliation case|`PENDING`, `RESOLVED`, `UNRESOLVED`|Cross\-cutting Foundations|
+|Reconciliation case|`PENDING`, `RESOLVED`, `UNRESOLVED` (kèm chuyển tiếp `UNRESOLVED -> RESOLVED` khi nhận callback terminal hợp lệ)|Cross-cutting Foundations|
 
 `READY_WITH_WARNINGS` được phép tiếp tục phát hành\. `NOT_READY` có ít nhất một blocker\.
+
+**Chuyển trạng thái ReconciliationCase:**
+- `PENDING -> RESOLVED`: Khi poll hoặc callback xác lập kết quả thành công hoặc thất bại xác định.
+- `PENDING -> UNRESOLVED`: Khi hoàn tất chu kỳ 5 lần poll tự động ([30s, 2m, 10m, 30m, 2h]) mà kết quả vẫn không xác định.
+- `UNRESOLVED -> RESOLVED` (*Contract Amendment*): Chỉ khi có callback terminal đã xác thực và correlate đúng danh tính từ nhà cung cấp đến muộn; tuyệt đối không tái phát hành (republish).
+- Callback đến sau khi attempt đã đạt trạng thái terminal hoặc case đã `RESOLVED` được xử lý idempotent/no-op, không đảo ngược kết quả.
 
 Issuance display state:
 
@@ -2395,17 +2401,21 @@ InvoiceDelivery
 
 - Initial send và resend tạo các InvoiceDelivery riêng\.
 
-- Retry kỹ thuật tiếp tục trong cùng InvoiceDelivery\.
+- Retry kỹ thuật tiếp tục trong cùng InvoiceDelivery, tối đa ba technical attempt; sau `UNKNOWN` không enqueue thêm lần gửi email\.
 
 - Recipient snapshot bất biến trong một delivery\.
 
 - Email nhập khi gửi không cập nhật dữ liệu nguồn\.
 
-- Không bắt đầu delivery cạnh tranh khi kết quả chưa được xác lập\.
+- Delivery `PROCESSING` hoặc `UNKNOWN` khóa business delivery cạnh tranh; `UNKNOWN` không phải retryable failure\.
 
 - Delivery lỗi không thay đổi issuance result\.
 
-- Successful history không bị mất do resend thất bại\.
+- Successful history không bị mất do resend thất bại; prior success giữ display chính `Đã gửi` và vấn đề sau lộ qua secondary attention\.
+
+- Reconciliation delivery là capability\-aware: nếu `supports_delivery_result_observation = false` (MISA hiện tại), check đầu tiên ghi `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, chuyển case `UNRESOLVED` và emit attention — không gọi API invoice/status như evidence gửi email\.
+
+- Manual send không nhận `deliveryKind` từ client; `INITIAL_SEND` / `RESEND` do server suy ra\.
 
 **Commands**
 
@@ -3154,11 +3164,13 @@ Constraints:
 
 - Unique `(invoice_delivery_id, attempt_no)`\.
 
-- Tối đa một technical attempt đang hoạt động\.
+- Tối đa một technical attempt đang hoạt động (`QUEUED` hoặc `SUBMITTED`)\.
 
-- Technical retry không thay recipient hoặc business intent\.
+- Technical retry không thay recipient hoặc business intent; tối đa ba attempt / delivery\.
 
 - Delivery status được áp dụng từ kết quả attempt đủ tin cậy\.
+
+- `provider_result_message` / `failure_message` chỉ chứa safe text Vet45 allow\-listed; không copy body/exception/credential nhà cung cấp\.
 
 ### 4\.4\.6 Provider Reconciliation entity
 
@@ -3199,6 +3211,10 @@ Constraints:
 
 - Domain owner của target áp dụng business result cuối cùng\.
 
+- Chu kỳ poll tự động gồm 5 lần kiểm tra với các khoảng lùi cố định: `30s`, `2m`, `10m`, `30m`, `2h`. Lần kiểm tra thứ 5 không xác định sẽ chuyển case sang `UNRESOLVED` và dừng poll tự động nhưng vẫn giữ business lock.
+
+- Chuyển tiếp `UNRESOLVED -> RESOLVED` chỉ diễn ra khi callback terminal hợp lệ từ nhà cung cấp đến muộn và xác thực thành công. Callback không xác định hoặc không hợp lệ không làm thay đổi trạng thái `UNRESOLVED`.
+
 ### 4\.4\.7 Embedded structures
 
 #### ProviderCapabilitiesSnapshot
@@ -3220,8 +3236,8 @@ Constraints:
 |---|---|---|
 |source\_order|Yes|SalesOrder reference, version và trạng thái|
 |seller|Yes|Seller snapshot từ Theme 01|
-|buyer|Yes|Buyer snapshot sao chép từ EffectiveBuyerInvoiceData|
-|buyer\_lineage|Yes|BuyerInvoiceSnapshot source, buyer\_partner\_id và BuyerInvoiceCompletion reference khi có|
+|buyer|Yes|EffectiveBuyerInvoiceData của attempt (sau controlled completion merge khi có)|
+|buyer\_lineage|Yes|`buyerPartnerId`, `buyerInvoiceCompletionId`, `buyerInvoiceSnapshotSourceVersion`, và `buyerInvoiceSnapshot` = Theme\-05 base snapshot **không** bị merge; tách biệt khỏi `buyer` hiệu lực|
 |invoice\_context|Yes|Loại hóa đơn, mẫu, ký hiệu, chế độ mã và signing method|
 |lines|Yes|Dòng hàng và source line reference|
 |totals|Yes|Tiền hàng, chiết khấu, thuế, làm tròn và thanh toán|
@@ -3252,13 +3268,13 @@ Buyer lineage phải bảo toàn:
 
 - SalesOrder và SalesOrder version\.
 
-- `buyer_partner_id` khi có\.
+- `buyerPartnerId` khi có\.
 
-- Dấu vết `BuyerInvoiceSnapshot`\.
+- `buyerInvoiceSnapshot` = bản sao không đổi của Theme\-05 `BuyerInvoiceSnapshot` (source\-owned `p_buyer_snapshot` / `buyer_snapshot`), chụp **trước** mọi completion merge; không suy ra từ `buyer` hiệu lực hay hồ sơ Partner hiện hành\.
 
-- `BuyerInvoiceCompletion` reference khi có\.
+- `buyerInvoiceCompletionId` khi có\.
 
-- Source partner revision/timestamp của completion khi có\.
+- `buyerInvoiceSnapshotSourceVersion`\.
 
     
 
@@ -3297,7 +3313,8 @@ InvoiceSnapshot phải bảo toàn buyer lineage từ successful AttemptSnapshot
 
 |**Shared record**|**Contract tối thiểu**|**Purpose**|
 |---|---|---|
-|ProviderInteractionRecord|Tenant, connection, operation, target, request/response reference, correlation, provider reference, timestamps, outcome|Truy vết tương tác provider|
+|ProviderInteractionRecord|One row per outbound provider-call attempt or inbound callback; immutable start fields; finalize-once outcome; UUID correlation; no request/response body or credentials|Truy vết tương tác provider (không chứa S2 preview state)|
+|InvoicePreviewOperation|S2 technical preview operation: viewer_ref, allow-listed preview_payload, 15-minute expiry|Preview handoff tách khỏi interaction audit|
 |IdempotencyRecord|Tenant, operation scope, key, intent hash, status, result reference|Chống trùng và key conflict|
 |InboxMessage|Consumer, message ID, tenant, type, received time, processing result|Deduplicate inbound message|
 |OutboxMessage|Tenant, aggregate reference, event type, payload reference, publish status, timestamps|Publish event sau local commit|
@@ -5505,7 +5522,7 @@ Tôi muốn tiếp tục sử dụng action “Phát hành HĐĐT” sau khi l�
 
 - EC\-06\. Reconciliation chưa đủ bằng chứng sau một lần kiểm tra: tiếp tục xử lý tự động, không mở action phát hành mới\.
 
-- EC\-07\. Reconciliation chuyển UNRESOLVED: hiển thị trạng thái cần hỗ trợ xử lý, không cung cấp action kỹ thuật cho người dùng thông thường\.
+- EC\-07\. Reconciliation chuyển UNRESOLVED: hiển thị trạng thái cần hỗ trợ xử lý, không cung cấp action kỹ thuật cho người dùng thông thường\. Nếu sau đó nhận được callback terminal hợp lệ và xác thực đúng từ nhà cung cấp, case chuyển sang RESOLVED và hoàn tất kết quả mà không tái phát hành\.
 
 - EC\-08\. SalesOrder đã có ElectronicInvoice trước khi người dùng xác nhận phát hành lại: từ chối tạo attempt và điều hướng đến hồ sơ hóa đơn hiện có\.
 
@@ -6472,7 +6489,7 @@ EP\-04 gồm ba User Story:
 
 Khi gửi tự động được bật, hệ thống đánh giá khả năng gửi ngay sau khi ElectronicInvoice được đăng ký thành công\.
 
-Việc phát hành thành công không đồng nghĩa bắt buộc tạo delivery\. Hệ thống chỉ bắt đầu gửi tự động khi policy đang bật, nhà cung cấp hỗ trợ gửi email và BuyerInvoiceSnapshot có email hợp lệ\.
+Việc phát hành thành công không đồng nghĩa bắt buộc tạo delivery\. Hệ thống chỉ bắt đầu gửi tự động khi policy đang bật, nhà cung cấp hỗ trợ gửi email và có recipient email hợp lệ theo thứ tự: email hiện hành của Partner → email trong immutable `BuyerInvoiceSnapshot` lineage của invoice\.
 
 Trigger gửi tự động có thể được phát hoặc xử lý nhiều lần\. Duplicate prevention phải bảo đảm cùng một business intent không tạo nhiều InvoiceDelivery\.
 
@@ -6492,7 +6509,7 @@ Tôi muốn hệ thống tự động gửi hóa đơn sau khi phát hành thàn
 
 - FR\-03\. Kiểm tra capability gửi email của nhà cung cấp\.
 
-- FR\-04\. Lấy email đề xuất từ BuyerInvoiceSnapshot của SalesOrder\.
+- FR\-04\. Resolve recipient theo thứ tự: email hóa đơn hiện hành của Partner (source\-owned `partner.get_einvoice_recipient_snapshot`) → email trong `invoice_snapshot.attemptSnapshot.buyer_lineage.buyerInvoiceSnapshot`; không dùng `attemptSnapshot.buyer` (EffectiveBuyerInvoiceData) làm fallback\.
 
 - FR\-05\. Kiểm tra định dạng email\.
 
@@ -6510,13 +6527,13 @@ Tôi muốn hệ thống tự động gửi hóa đơn sau khi phát hành thàn
 
 - BR\-03\. Nhà cung cấp phải hỗ trợ gửi hóa đơn qua email\.
 
-- BR\-04\. Khi bắt đầu gửi tự động, hệ thống xác định email người nhận từ hồ sơ hiện hành của Partner trong Theme 03\.
+- BR\-04\. Khi bắt đầu gửi tự động, hệ thống xác định email người nhận từ hồ sơ hiện hành của Partner qua RPC source\-owned `partner.get_einvoice_recipient_snapshot`\.
 
-- BR\-05\. Nếu hóa đơn không có Partner reference ổn định hoặc hồ sơ Partner không có email hợp lệ, hệ thống sử dụng email hợp lệ trong BuyerInvoiceSnapshot làm nguồn dự phòng\. Nếu cả hai nguồn đều không có email hợp lệ thì không tạo InvoiceDelivery\.
+- BR\-05\. Nếu không có `buyerPartnerId` ổn định hoặc hồ sơ Partner không có email hợp lệ, hệ thống dùng email hợp lệ trong immutable `buyer_lineage.buyerInvoiceSnapshot` (Theme\-05 base đã chụp trong AttemptSnapshot). Không được suy ra từ `attemptSnapshot.buyer` hay refresh SalesOrder/Partner hiện hành. Nếu cả hai nguồn đều thiếu email hợp lệ thì không tạo InvoiceDelivery\.
 
 - BR\-06\. Không có email hoặc email không hợp lệ thì không tạo InvoiceDelivery\.
 
-- BR\-07\. Mỗi trigger phát hành thành công chỉ tạo tối đa một business delivery tự động ban đầu\.
+- BR\-07\. Mỗi ElectronicInvoice chỉ có tối đa một business delivery `INITIAL_SEND` (auto hoặc manual thắng race)\.
 
 - BR\-08\. Trigger lặp hoặc worker chạy lại không tạo delivery trùng\.
 
@@ -6991,11 +7008,11 @@ Tôi muốn xem và xác lập kết quả của từng lần gửi,
 
 - BR\-04\. Thất bại xác định chỉ được ghi nhận khi nhà cung cấp xác nhận request bị từ chối hoặc không gửi\.
 
-- BR\-05\. Timeout, mất callback hoặc phản hồi không đầy đủ được ghi nhận là chưa xác định\.
+- BR\-05\. Timeout, mất callback hoặc phản hồi không đầy đủ được ghi nhận là chưa xác định (`UNKNOWN`) và atomically mở/reuse case `PENDING` `VERIFY_DELIVERY`\.
 
-- BR\-06\. Delivery chưa xác định khóa operation gửi cạnh tranh\.
+- BR\-06\. Delivery `PROCESSING` hoặc `UNKNOWN` khóa operation gửi cạnh tranh; sau `UNKNOWN` không enqueue thêm lần gửi email\.
 
-- BR\-07\. Retry kỹ thuật tiếp tục trong cùng InvoiceDelivery và sử dụng DeliveryRecipientSnapshot đã lưu\.
+- BR\-07\. Retry kỹ thuật tiếp tục trong cùng InvoiceDelivery, dùng DeliveryRecipientSnapshot đã lưu, tối đa ba technical attempt\.
 
 - BR\-08\. Gửi lại nghiệp vụ sau thất bại xác định tạo InvoiceDelivery mới\.
 
@@ -7007,9 +7024,15 @@ Tôi muốn xem và xác lập kết quả của từng lần gửi,
 
 - BR\-12\. Trạng thái Gửi lỗi áp dụng khi chưa từng gửi thành công và delivery gần nhất thất bại xác định\.
 
-- BR\-13\. Nếu đã từng gửi thành công, delivery gửi lại thất bại hoặc chưa xác định chỉ tạo cảnh báo phụ\.
+- BR\-13\. Nếu đã từng gửi thành công, delivery gửi lại thất bại hoặc chưa xác định chỉ tạo cảnh báo phụ (`hasSecondaryAttention`); display chính vẫn Đã gửi\.
 
 - BR\-14\. Kết quả delivery không thay đổi kết quả phát hành\.
+
+- BR\-15\. Reconciliation delivery là capability\-aware: `supports_delivery_result_observation = true` chạy typed observation theo lịch `[30s, 2m, 10m, 30m, 2h]`; `= false` (MISA hiện tại) thì check đầu tiên ghi `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, chuyển `UNRESOLVED`, clear `next_check_at`, emit attention — không dùng `/invoice/status` hay API invoice/document làm evidence gửi email\.
+
+- BR\-16\. Evidence kết quả là typed (`DeliveryResultEvidence` / `DeliveryResultKind`); không persist raw provider payload trên command/public contract\.
+
+- BR\-17\. Projection event `einvoice.delivery.result_recorded` mang safe payload: `salesOrderId`, `deliveryId`, `deliveryStatus`, `deliveryDisplayState`, `deliveryVersion`, `hasSecondaryAttention`\.
 
 **Edge cases**
 
@@ -7021,11 +7044,15 @@ Tôi muốn xem và xác lập kết quả của từng lần gửi,
 
 - EC\-04\. Callback không xác định được delivery: lưu evidence và chuyển kiểm tra, không tự tạo delivery\.
 
-- EC\-05\. Reconciliation không đủ bằng chứng: tiếp tục khóa operation cạnh tranh\.
+- EC\-05\. Reconciliation không đủ bằng chứng (observation undetermined hoặc unsupported): giữ khóa / chuyển `UNRESOLVED` theo capability; không tạo delivery mới\.
 
 - EC\-06\. Hóa đơn đã từng gửi thành công nhưng resend thất bại: trạng thái chính vẫn Đã gửi\.
 
 - EC\-07\. Projection cập nhật lỗi: rebuild từ authoritative delivery history\.
+
+- EC\-08\. MISA không hỗ trợ delivery\-result observation: check đầu tiên ghi `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED` và case `UNRESOLVED`\.
+
+- EC\-09\. Evidence terminal authenticated đến muộn cho cùng attempt: có thể chuyển `PENDING`/`UNRESOLVED` → `RESOLVED` mà không gửi lại email\.
 
 **User interface**
 

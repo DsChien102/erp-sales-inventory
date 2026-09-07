@@ -78,7 +78,9 @@ void main() {
     expect(find.text('Sửa'), findsWidgets);
   });
 
-  testWidgets('e2e_e06_u01_fr01_02: costing mode does not open manual base price page', (tester) async {
+  testWidgets('e2e_e06_u01_fr01_02: costing mode does not open manual base price page', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E();
 
     await tester.pumpWidget(_buildPccRouter(_product8()));
@@ -122,7 +124,9 @@ void main() {
     expect(find.textContaining('Thiếu Giá cơ sở định giá'), findsNothing);
   });
 
-  testWidgets('e2e_e06_u01_fr02_02: missing base unit cannot open manual base price page', (tester) async {
+  testWidgets('e2e_e06_u01_fr02_02: missing base unit cannot open manual base price page', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E();
 
     await tester.pumpWidget(_buildPccRouter(productWithoutBaseUnit()));
@@ -150,7 +154,9 @@ void main() {
 
     await createMinimalProduct(tester, name: 'Thuốc readiness giá', baseUnit: 'Vỉ');
     await tester.pumpAndSettle();
-    ScaffoldMessenger.of(tester.element(find.byType(ProductControlCenterPage).first)).clearSnackBars();
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ProductControlCenterPage).first),
+    ).clearSnackBars();
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thiếu Giá cơ sở định giá'), findsWidgets);

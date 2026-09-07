@@ -44,8 +44,7 @@ final class TenantContextState {
   final bool openSelectorRequested;
 
   bool get isValid =>
-      status == TenantContextLoadStatus.ready &&
-      current?.status == TenantContextStatus.valid;
+      status == TenantContextLoadStatus.ready && current?.status == TenantContextStatus.valid;
 
   bool get isBlocked => status == TenantContextLoadStatus.blocked;
 
@@ -76,28 +75,15 @@ final class TenantContextState {
       tenants: tenants ?? this.tenants,
       branchDisplayName: branchDisplayName ?? this.branchDisplayName,
       userDisplayName: userDisplayName ?? this.userDisplayName,
-      contextFailure: clearContextFailure
-          ? null
-          : (contextFailure ?? this.contextFailure),
-      selectorFailure: clearSelectorFailure
-          ? null
-          : (selectorFailure ?? this.selectorFailure),
-      switchFailure: clearSwitchFailure
-          ? null
-          : (switchFailure ?? this.switchFailure),
-      blockedErrorCode: clearContextFailure
-          ? null
-          : (blockedErrorCode ?? this.blockedErrorCode),
-      emptyStateType: clearEmptyState
-          ? null
-          : (emptyStateType ?? this.emptyStateType),
-      suspendedOrgName: clearEmptyState
-          ? null
-          : (suspendedOrgName ?? this.suspendedOrgName),
+      contextFailure: clearContextFailure ? null : (contextFailure ?? this.contextFailure),
+      selectorFailure: clearSelectorFailure ? null : (selectorFailure ?? this.selectorFailure),
+      switchFailure: clearSwitchFailure ? null : (switchFailure ?? this.switchFailure),
+      blockedErrorCode: clearContextFailure ? null : (blockedErrorCode ?? this.blockedErrorCode),
+      emptyStateType: clearEmptyState ? null : (emptyStateType ?? this.emptyStateType),
+      suspendedOrgName: clearEmptyState ? null : (suspendedOrgName ?? this.suspendedOrgName),
       tenantsLoading: tenantsLoading ?? this.tenantsLoading,
       isSwitching: isSwitching ?? this.isSwitching,
-      openSelectorRequested:
-          openSelectorRequested ?? this.openSelectorRequested,
+      openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,
     );
   }
 }

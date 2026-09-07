@@ -76,38 +76,40 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| EP-02/US-03 | CONTRACT | §S3a | application | `StartAutoIssuanceCommand` (internal) | — | done |
-| EP-02/US-03/FR-01..09 | BE | §S3a | application + integration | Inbox `sales.order.completed` handler | scn_e02_u03_fr01_01 | todo |
-| EP-02/US-03/FR-01..09 | FE | §S3a | presentation | n/a — server-only; UF-04 contextual on Theme 05 row | — | todo |
-| EP-02/US-03/SC-01 | E2E | §S3a | integration | Order complete → auto issue started | e2e_e02_u03_sc01_01 | todo |
+| EP-02/US-03 | CONTRACT | §S3a | application | `StartAutoIssuanceCommand`, `ReevaluateAutoIssuanceCommand` | — | done |
+| EP-02/US-03/FR-01..09 | BE | §S3a | application + integration | Inbox `sales.order.completed` handler + `partner.partner.profile_updated` re-evaluation | scn_e02_u03_fr01_01, scn_e02_u03_fr09_01 | done |
+| EP-02/US-03/FR-01..09 | FE | §S3a | presentation | n/a — server-only; UF-04 contextual on Theme 05 row | — | done |
+| EP-02/US-03/SC-01 | E2E | §S3a | integration | Order complete → auto issue started → publish | e2e_e02_u03_sc01_01 | done |
 
 ### EP-02 / US-04 — Xác lập kết quả phát hành
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-02/US-04 | CONTRACT | §S3b | application | `RecordIssuanceResultCommand`, reconciliation commands | — | done |
-| EP-02/US-04/FR-01..07 | BE | §S2b / S2b immediate-result subset | application + worker | Direct outcome normalization, success/failure landing, unknown case/handoff | scn_e02_u04_fr02_01 | done |
-| EP-02/US-04 reconciliation execution/recovery | BE | §S3b / S3b | application + worker | Poll consumer, callbacks, case resolution, finalization recovery | scn_e02_u04_fr08_01 | todo |
-| EP-02/US-04/FR-01..08 | FE | §S3b | presentation | n/a — SG-04 reconciliation server-side only | — | todo |
-| EP-02/US-04/SC-01 | E2E | §S3b | integration | Success path registers ElectronicInvoice | e2e_e02_u04_sc01_01 | todo |
+| EP-02/US-04/FR-01..07 | BE | §S2b / S2b immediate-result subset | application + worker | Direct outcome normalization, success/failure landing, unknown case/handoff, command integrity dead-letter | scn_e02_u04_fr02_01, s2b_command_integrity_dead_letter_01 | done |
+| EP-02/US-04 reconciliation execution/recovery | BE | §S3b / S3b | application + worker | Poll consumer ([30s, 2m, 10m, 30m, 2h]), callbacks, case resolution, finalization recovery, late-callback amendment | scn_e02_u04_fr08_01, scn_e02_u04_fr08_02, scn_e02_u04_fr08_03, scn_e02_u04_fr01_02 | done |
+| EP-02/US-04/FR-01..08 | FE | §S3b | presentation | n/a — SG-04 reconciliation server-side only | — | done |
+| EP-02/US-04/SC-01 | E2E | §S3b | integration | Success path registers ElectronicInvoice via poll | e2e_e02_u04_sc01_01 | done |
 
 ### EP-02 / US-05 — Phát hành lại sau thất bại
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-02/US-05 | CONTRACT | §S3c | application | `RetryIssuanceCommand` | — | done |
-| EP-02/US-05/FR-01..09 | BE | §S3c | application | Retry handler preserves prior attempts | scn_e02_u05_fr04_01 | todo |
-| EP-02/US-05/FR-01..09 | FE | §S3c | presentation | SG-02/03 issue action after failed state | wgt_e02_u05_fr02_01 | todo |
-| EP-02/US-05/SC-01 | E2E | §S3c | integration | Retry after definite failure | e2e_e02_u05_sc01_01 | todo |
+| EP-02/US-05/FR-01..09 | BE | §S3c | application | Retry handler preserves prior attempts, version-bound completion check | scn_e02_u05_fr04_01, scn_e02_u05_sc11_01, scn_e02_u05_sc12_01 | done |
+| EP-02/US-05/FR-01..09 | FE | §S3c | presentation | SG-02/03 issue action after failed state | wgt_e02_u05_fr02_01 | in_progress |
+| EP-02/US-05/SC-01 | E2E | §S3c | integration | Definite failure → retry creates new attempt | e2e_e02_u05_sc01_01 | done |
 
 ## S4 — EP-03 — Official view + documents + observation
+
+**S4 Task 0 repair:** frozen `ProviderInteractionRecord`, `invoice_preview_operations`, capability `supportedDocumentTypes`, scope gate `sales.can_access_sales_order`, observation `triggerId` idempotency — see [04-slice-roadmap.md](04-slice-roadmap.md) §S4 Task 0 repair gate.
 
 ### EP-03 / US-01 — Xem hồ sơ hóa đơn đã phát hành
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-03/US-01 | CONTRACT | §S4a | application | `RequestOfficialInvoiceViewCommand` | — | done |
-| EP-03/US-01/FR-01..08 | BE | §S4a | application + worker | View handler + `previewPublished` | scn_e03_u01_fr06_01 | todo |
+| EP-03/US-01/FR-01..08 | BE | §S4a | application + worker | View handler + `previewPublished`; official-view operation lock + CHECK_REQUIRED | scn_e03_u01_fr06_01, einvoice_slice4_integration_official_view | done |
 | EP-03/US-01/FR-01..08 | FE | §S4a | presentation | SG-02 view action from order row | wgt_e03_u01_fr01_01 | todo |
 | EP-03/US-01/SC-01 | E2E | §S4a | integration | Open official view from order detail | e2e_e03_u01_sc01_01 | todo |
 
@@ -116,7 +118,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-03/US-02 | CONTRACT | §S4b | application | `RequestInvoiceDocumentCommand` | — | done |
-| EP-03/US-02/FR-01..08 | BE | §S4b | application + worker | Document handler + `download` job | scn_e03_u02_fr03_01 | todo |
+| EP-03/US-02/FR-01..08 | BE | §S4b | application + worker | Document handler + `download` job; PDF/XML checksum + generation | scn_e03_u02_fr03_01, einvoice_slice4_integration_documents | done |
 | EP-03/US-02/FR-01..08 | FE | §S4b | presentation | SG-06 document action sheet | wgt_e03_u02_fr01_01 | todo |
 | EP-03/US-02/SC-01 | E2E | §S4b | integration | Save PDF from action sheet | e2e_e03_u02_sc01_01 | todo |
 
@@ -125,7 +127,7 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-03/US-03 | CONTRACT | §S4c | application | `RecordProviderObservationCommand` | — | done |
-| EP-03/US-03/FR-01..07 | BE | §S4c | application + worker | Observation append + poll | scn_e03_u03_fr02_01 | todo |
+| EP-03/US-03/FR-01..07 | BE | §S4c | application + worker | Observation append + poll; attention outbox on NOT_FOUND | scn_e03_u03_fr02_01, einvoice_slice4_integration_observation | done |
 | EP-03/US-03/FR-01..07 | FE | §S4c | presentation | n/a — no dedicated observation UI MVP | — | todo |
 | EP-03/US-03/SC-01 | E2E | §S4c | integration | Poll records observation row | e2e_e03_u03_sc01_01 | todo |
 
@@ -136,27 +138,27 @@ FR IDs **local theo US** — luôn qualify `EP-0n/US-0m/FR-0k`. Contracts: [07-a
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-04/US-01 | CONTRACT | §S5a | application | `StartAutoDeliveryCommand` (internal) | — | done |
-| EP-04/US-01/FR-01..08 | BE | §S5a | application + integration | Handler on `electronic_invoice.registered` | scn_e04_u01_fr01_01 | todo |
+| EP-04/US-01/FR-01..08 | BE | §S5a | application + integration | Handler on `electronic_invoice.registered` | scn_e04_u01_fr01_01 | done |
 | EP-04/US-01/FR-01..08 | FE | §S5a | presentation | n/a — server-only auto-send | — | todo |
-| EP-04/US-01/SC-01 | E2E | §S5a | integration | Registered event → delivery started | e2e_e04_u01_sc01_01 | todo |
+| EP-04/US-01/SC-01 | E2E | §S5a | integration | Registered event → delivery started | e2e_e04_u01_sc01_01 | done |
 
 ### EP-04 / US-02 — Gửi và gửi lại thủ công
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-04/US-02 | CONTRACT | §S5b | application | `SendElectronicInvoiceCommand`, `GetSendInvoiceSheetContextQuery` | — | done |
-| EP-04/US-02/FR-01..12 | BE | §S5b | application + worker | Send handler + `sendEmail` job | scn_e04_u02_fr08_01 | todo |
+| EP-04/US-02/FR-01..12 | BE | §S5b | application + worker | Send handler + `sendEmail` job | scn_e04_u02_fr08_01 | done |
 | EP-04/US-02/FR-01..12 | FE | §S5b | presentation | SG-07 send/resend sheet | wgt_e04_u02_fr01_01 | todo |
-| EP-04/US-02/SC-01 | E2E | §S5b | integration | Manual send with buyer email | e2e_e04_u02_sc01_01 | todo |
+| EP-04/US-02/SC-01 | E2E | §S5b | integration | Manual send with buyer email | e2e_e04_u02_sc01_01 | done |
 
 ### EP-04 / US-03 — Xác lập kết quả gửi
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | EP-04/US-03 | CONTRACT | §S5c | application | `RecordDeliveryResultCommand` | — | done |
-| EP-04/US-03/FR-01..08 | BE | §S5c | application + worker | Delivery result + display state projection | scn_e04_u03_fr04_01 | todo |
+| EP-04/US-03/FR-01..08 | BE | §S5c | application + worker | Delivery result + display state projection | scn_e04_u03_fr04_01 | done |
 | EP-04/US-03/FR-01..08 | FE | §S5c | presentation | n/a — display state via Theme 05 projection only | — | todo |
-| EP-04/US-03/SC-01 | E2E | §S5c | integration | Delivery success updates projection | e2e_e04_u03_sc01_01 | todo |
+| EP-04/US-03/SC-01 | E2E | §S5c | integration | Delivery success updates projection | e2e_e04_u03_sc01_01 | done |
 
 Mở rộng từng dòng FR khi slice chuyển `in_progress` (pattern TH-03 S4).
 

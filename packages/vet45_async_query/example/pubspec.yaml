@@ -7,12 +7,16 @@ environment:
   flutter: '>=3.27.0'
 
 dependencies:
+  async_query: ^0.1.0
+  async_query_flutter: ^0.1.0
+  flutter:
+    sdk: flutter
+
+dependency_overrides:
   async_query:
     path: ..
   async_query_flutter:
     path: ../packages/async_query_flutter
-  flutter:
-    sdk: flutter
 
 dev_dependencies:
   flutter_test:

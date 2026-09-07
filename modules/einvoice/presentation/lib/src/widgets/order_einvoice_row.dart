@@ -33,10 +33,10 @@ class OrderEInvoiceRow extends StatelessWidget {
     final colors = context.vColors;
     final effectiveOnTap =
         EInvoiceStatusInteraction.allowsTapForIssuance(
-              projection.issuanceDisplayState,
-            )
-            ? onTap
-            : null;
+          projection.issuanceDisplayState,
+        )
+        ? onTap
+        : null;
 
     return VCard(
       onTap: effectiveOnTap,
@@ -82,9 +82,7 @@ class OrderEInvoiceRow extends StatelessWidget {
   }
 
   String get _helperText =>
-      isBuyerNotReady
-          ? OrderEInvoiceCopy.rowHelperNotReady
-          : OrderEInvoiceCopy.rowHelperManage;
+      isBuyerNotReady ? OrderEInvoiceCopy.rowHelperNotReady : OrderEInvoiceCopy.rowHelperManage;
 
   Color _helperColor(BuildContext context) {
     final colors = context.vColors;

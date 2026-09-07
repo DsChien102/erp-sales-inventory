@@ -57,29 +57,49 @@ abstract final class OrderEInvoiceCopy {
   static const orderBlockerAction = 'Cập nhật hồ sơ';
 
   // Toast
-  static const previewFailureMessage =
-      'Không thể tạo bản xem trước. Vui lòng thử lại.';
+  static const previewFailureMessage = 'Không thể tạo bản xem trước. Vui lòng thử lại.';
 
   // SG-03 — issue confirmation + outcome toasts
   static const issueConfirmationTitle = 'Phát hành hóa đơn điện tử?';
   static const issueConfirmationConfirm = 'Phát hành hóa đơn điện tử';
   static const issueConfirmationCancel = 'Hủy';
 
-  static const issueSuccessMessage =
-      'Phát hành hóa đơn điện tử thành công.';
-  static const issueFailureMessage =
-      'Phát hành hóa đơn điện tử không thành công.';
+  static const issueSuccessMessage = 'Phát hành hóa đơn điện tử thành công.';
+  static const issueFailureMessage = 'Phát hành hóa đơn điện tử không thành công.';
+
+  // Failure banner
+  static const failureBannerTitle = 'Phát hành hóa đơn điện tử không thành công';
+  static const failureBannerDefaultMessage =
+      'Đã xảy ra lỗi khi phát hành hóa đơn điện tử. Vui lòng kiểm tra và thử lại.';
+  static const failureBannerIntegrityMessage =
+      'Dữ liệu đơn hàng hoặc cấu hình không khớp. Vui lòng kiểm tra lại.';
+  static const failureBannerProviderRejectedMessage =
+      'Nhà cung cấp từ chối phát hành hóa đơn điện tử.';
+
+  static String safeFailureMessage({
+    String? failureCode,
+    String? lastFailureMessage,
+  }) {
+    if (failureCode == 'COMMAND_INTEGRITY') {
+      return failureBannerIntegrityMessage;
+    }
+    if (failureCode == 'PROVIDER_REJECTED') {
+      return failureBannerProviderRejectedMessage;
+    }
+    if (lastFailureMessage != null && lastFailureMessage.trim().isNotEmpty) {
+      return lastFailureMessage.trim();
+    }
+    return failureBannerDefaultMessage;
+  }
 
   static String issueConfirmationSummaryLine1({
     required String orderReference,
     required String orderTotal,
-  }) =>
-      'Đơn hàng $orderReference · Tổng tiền $orderTotal';
+  }) => 'Đơn hàng $orderReference · Tổng tiền $orderTotal';
 
   static String issueConfirmationSummaryLine2({
     required String templateNumber,
     required String templateSymbol,
     required String authorityMode,
-  }) =>
-      'Mẫu $templateNumber · Ký hiệu $templateSymbol · $authorityMode';
+  }) => 'Mẫu $templateNumber · Ký hiệu $templateSymbol · $authorityMode';
 }

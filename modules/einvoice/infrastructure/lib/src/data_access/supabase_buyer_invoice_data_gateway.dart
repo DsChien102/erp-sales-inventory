@@ -6,9 +6,8 @@ import '../errors/einvoice_error_mapper.dart';
 
 final class SupabaseBuyerInvoiceDataGateway
     implements IBuyerInvoiceDataGateway {
-  SupabaseBuyerInvoiceDataGateway({
-    required SupabaseSchemaRpcClient rpcClient,
-  }) : _rpcClient = rpcClient;
+  SupabaseBuyerInvoiceDataGateway({required SupabaseSchemaRpcClient rpcClient})
+    : _rpcClient = rpcClient;
 
   final SupabaseSchemaRpcClient _rpcClient;
 

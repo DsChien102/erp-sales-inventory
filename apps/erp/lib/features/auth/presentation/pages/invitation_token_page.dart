@@ -68,7 +68,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
       listenWhen: (prev, next) =>
           (prev.step != next.step && next.step == InvitationAcceptanceStep.accepted) ||
           (prev.step != next.step && next.step == InvitationAcceptanceStep.existingAccountLogin) ||
-          (prev.step != next.step && next.step == InvitationAcceptanceStep.newAccountRegistration) ||
+          (prev.step != next.step &&
+              next.step == InvitationAcceptanceStep.newAccountRegistration) ||
           (prev.failure != next.failure && next.failure != null),
       listener: (context, state) {
         if (state.step == InvitationAcceptanceStep.tokenEntry) {
@@ -90,7 +91,7 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         }
 
         if ((state.step == InvitationAcceptanceStep.existingAccountLogin ||
-             state.step == InvitationAcceptanceStep.newAccountRegistration) &&
+                state.step == InvitationAcceptanceStep.newAccountRegistration) &&
             state.inspection != null &&
             state.failure == null) {
           final inspection = state.inspection!;
@@ -206,7 +207,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
 
   bool _isRegistrationStep(InvitationAcceptanceState state) {
     if (state.inspection == null) return false;
-    return (state.step == InvitationAcceptanceStep.newAccountRegistration && _confirmedNewAccount) ||
+    return (state.step == InvitationAcceptanceStep.newAccountRegistration &&
+            _confirmedNewAccount) ||
         (state.step == InvitationAcceptanceStep.submitting &&
             state.inspection!.accountExists == false);
   }

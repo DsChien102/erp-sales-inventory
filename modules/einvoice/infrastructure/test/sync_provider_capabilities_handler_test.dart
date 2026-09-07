@@ -21,19 +21,25 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   Future<MeInvoicePreviewOutcome> previewUnpublished({
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   void validateCanonical({required Map<String, Object?> canonicalInvoice}) {}
+
+  @override
+  Future<MeInvoiceIssuanceStatusOutcome> getStatus({
+    required String tenantId,
+    required String idempotencyKey,
+    required String payloadHash,
+    String? providerReference,
+  }) => throw UnimplementedError();
 
   @override
   Future<MeInvoicePublishOutcome> publish({
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
     required String idempotencyKey,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 }
 
 final class _RecordingConnectionGateway
@@ -41,28 +47,23 @@ final class _RecordingConnectionGateway
   RecordConnectionVerifiedCommand? lastVerified;
 
   @override
-  Future<ProviderConnectionResultDto> connect(
-    ConnectProviderCommand command,
-  ) =>
+  Future<ProviderConnectionResultDto> connect(ConnectProviderCommand command) =>
       throw UnimplementedError();
 
   @override
   Future<ProviderConnectionCheckResultDto> verify(
     VerifyProviderConnectionCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> reconnect(
     ReconnectProviderCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> disconnect(
     DisconnectProviderCommand command,
-  ) =>
-      throw UnimplementedError();
+  ) => throw UnimplementedError();
 
   @override
   Future<ProviderConnectionResultDto> recordConnectionVerified(
@@ -85,6 +86,20 @@ void main() {
           const MeInvoiceAuthOutcome.success(
             templateCount: 2,
             supportsEmailDelivery: true,
+            templates: [
+              ProviderTemplateRef(
+                templateId: 'tpl-1',
+                name: 'Mẫu 1',
+                serial: '1/001',
+                symbol: 'C26TAA',
+              ),
+              ProviderTemplateRef(
+                templateId: 'tpl-2',
+                name: 'Mẫu 2',
+                serial: '1/002',
+                symbol: 'C26TAB',
+              ),
+            ],
           ),
         ),
         commandGateway: gateway,
@@ -94,16 +109,108 @@ void main() {
         SyncProviderCapabilitiesCommand(
           tenantId: 'tenant-1',
           connectionId: 'conn-1',
+          expectedConnectionVersion: 7,
         ),
       );
 
       expect(gateway.lastVerified?.status, ProviderConnectionStatus.connected);
+      expect(gateway.lastVerified?.expectedConnectionVersion, 7);
+      expect(gateway.lastVerified?.capabilities?.templateCount, 2);
+      expect(gateway.lastVerified?.capabilities?.templates.length, 2);
+      expect(gateway.lastVerified?.capabilities?.templates.first.name, 'Mẫu 1');
       expect(
-        gateway.lastVerified?.capabilities?.templateCount,
-        2,
+        gateway.lastVerified?.capabilities?.supportsDeliveryResultObservation,
+        isFalse,
       );
+      expect(gateway.lastVerified?.capabilities?.supportsPreview, isFalse);
     });
 
+    test('records supportsPreview when MISA advertises it', () async {
+      final gateway = _RecordingConnectionGateway();
+      final handler = SyncProviderCapabilitiesCommandHandler(
+        meInvoiceProviderPort: _FakeMeInvoiceProviderPort(
+          const MeInvoiceAuthOutcome.success(
+            templateCount: 1,
+            supportsEmailDelivery: false,
+            supportsPreview: true,
+            templates: [],
+          ),
+        ),
+        commandGateway: gateway,
+      );
+
+      await handler.handle(
+        SyncProviderCapabilitiesCommand(
+          tenantId: 'tenant-1',
+          connectionId: 'conn-1',
+          expectedConnectionVersion: 1,
+        ),
+      );
+
+      final caps = gateway.lastVerified!.capabilities!;
+      expect(caps.supportsPreview, isTrue);
+      final json = RecordConnectionVerifiedCommand(
+        tenantId: 'tenant-1',
+        connectionId: 'conn-1',
+        expectedConnectionVersion: 1,
+        status: ProviderConnectionStatus.connected,
+        capabilities: caps,
+      ).toJson();
+      final capsJson = json['capabilities'] as Map<String, dynamic>;
+      expect(capsJson['supports_preview'], isTrue);
+
+      final restored = RecordConnectionVerifiedCommand.fromJson(
+        json,
+        id: 'cmd-1',
+      );
+      expect(restored.capabilities!.supportsPreview, isTrue);
+    });
+
+    test(
+      'MISA capability sync never advertises delivery-result observation',
+      () async {
+        final gateway = _RecordingConnectionGateway();
+        final handler = SyncProviderCapabilitiesCommandHandler(
+          meInvoiceProviderPort: _FakeMeInvoiceProviderPort(
+            const MeInvoiceAuthOutcome.success(
+              templateCount: 1,
+              supportsEmailDelivery: true,
+              templates: [],
+            ),
+          ),
+          commandGateway: gateway,
+        );
+
+        await handler.handle(
+          SyncProviderCapabilitiesCommand(
+            tenantId: 'tenant-1',
+            connectionId: 'conn-1',
+            expectedConnectionVersion: 1,
+          ),
+        );
+
+        final caps = gateway.lastVerified!.capabilities!;
+        expect(caps.supportsDeliveryResultObservation, isFalse);
+        final json = RecordConnectionVerifiedCommand(
+          tenantId: 'tenant-1',
+          connectionId: 'conn-1',
+          expectedConnectionVersion: 1,
+          status: ProviderConnectionStatus.connected,
+          capabilities: caps,
+        ).toJson();
+        final capsJson = json['capabilities'] as Map<String, dynamic>;
+        expect(capsJson['supports_delivery_result_observation'], isFalse);
+
+        final restored = RecordConnectionVerifiedCommand.fromJson(
+          json,
+          id: 'cmd-1',
+        );
+        expect(
+          restored.capabilities!.supportsDeliveryResultObservation,
+          isFalse,
+        );
+      },
+    );
     test('soft-fails auth without throwing', () async {
       final gateway = _RecordingConnectionGateway();
       final handler = SyncProviderCapabilitiesCommandHandler(
@@ -117,6 +224,7 @@ void main() {
         SyncProviderCapabilitiesCommand(
           tenantId: 'tenant-1',
           connectionId: 'conn-1',
+          expectedConnectionVersion: 8,
         ),
       );
 
@@ -124,9 +232,10 @@ void main() {
         gateway.lastVerified?.status,
         ProviderConnectionStatus.reconnectRequired,
       );
+      expect(gateway.lastVerified?.expectedConnectionVersion, 8);
     });
 
-    test('provider unavailable keeps status unchanged', () async {
+    test('provider unavailable throws so queue schedules a retry', () async {
       final gateway = _RecordingConnectionGateway();
       final port = _FakeMeInvoiceProviderPort(
         const MeInvoiceAuthOutcome.providerUnavailable(),
@@ -136,11 +245,15 @@ void main() {
         commandGateway: gateway,
       );
 
-      await handler.handle(
-        SyncProviderCapabilitiesCommand(
-          tenantId: 'tenant-1',
-          connectionId: 'conn-1',
+      await expectLater(
+        handler.handle(
+          SyncProviderCapabilitiesCommand(
+            tenantId: 'tenant-1',
+            connectionId: 'conn-1',
+            expectedConnectionVersion: 9,
+          ),
         ),
+        throwsA(isA<ProviderUnavailableException>()),
       );
 
       expect(gateway.lastVerified, isNull);

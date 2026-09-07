@@ -12,6 +12,7 @@ abstract interface class IInvoicePreviewGateway {
 
   Future<InvoicePreviewResultDto?> readCached({
     required String tenantId,
+    required String actorId,
     required String salesOrderId,
   });
 

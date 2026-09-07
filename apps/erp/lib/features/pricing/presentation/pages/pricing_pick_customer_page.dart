@@ -18,8 +18,7 @@ class PricingPickCustomerPage extends StatefulWidget {
   const PricingPickCustomerPage({super.key});
 
   @override
-  State<PricingPickCustomerPage> createState() =>
-      _PricingPickCustomerPageState();
+  State<PricingPickCustomerPage> createState() => _PricingPickCustomerPageState();
 }
 
 class _PricingPickCustomerPageState extends State<PricingPickCustomerPage> {
@@ -80,8 +79,7 @@ class _PricingPickCustomerPageState extends State<PricingPickCustomerPage> {
       setState(() {
         _items = result.items;
         _isLoading = false;
-        if (_selectedId != null &&
-            !_items.any((e) => e.partnerId == _selectedId)) {
+        if (_selectedId != null && !_items.any((e) => e.partnerId == _selectedId)) {
           _selectedId = null;
         }
       });

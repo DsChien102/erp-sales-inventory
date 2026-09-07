@@ -57,8 +57,7 @@ class PartnerContactTile extends StatelessWidget {
                       ],
                     ],
                   ),
-                  if (contact.contactRole != null &&
-                      contact.contactRole!.isNotEmpty) ...[
+                  if (contact.contactRole != null && contact.contactRole!.isNotEmpty) ...[
                     const SizedBox(height: VSpacing.space1),
                     VText(
                       contact.contactRole!,

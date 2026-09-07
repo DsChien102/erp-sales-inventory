@@ -322,6 +322,8 @@ void main() {
             {
               'sales_order_id': 'order-1',
               'issuance_display_state': 'processing',
+              'delivery_display_state': 'NOT_SENT',
+              'has_secondary_attention': false,
               'actions': <String>[],
             },
           ];
@@ -338,6 +340,8 @@ void main() {
 
       expect(projection.salesOrderId, 'order-1');
       expect(projection.issuanceDisplayState, IssuanceDisplayState.processing);
+      expect(projection.deliveryDisplayState, DeliveryDisplayState.notSent);
+      expect(projection.hasSecondaryAttention, isFalse);
       expect(projection.actions, isEmpty);
     });
 

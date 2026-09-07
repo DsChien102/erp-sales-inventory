@@ -24,6 +24,7 @@ class UseQuery<T> extends StatefulWidget {
     this.retryDelay,
     this.retryOn,
     this.refetchOnMount,
+    this.refetchInterval,
     this.enabled = true,
     this.initialData,
     this.placeholderData,
@@ -41,6 +42,7 @@ class UseQuery<T> extends StatefulWidget {
   final Duration Function(int attempt)? retryDelay;
   final bool Function(Object error)? retryOn;
   final bool? refetchOnMount;
+  final Duration? refetchInterval;
   final bool enabled;
   final T? initialData;
   final T? placeholderData;
@@ -69,14 +71,16 @@ class _UseQueryState<T> extends State<UseQuery<T>> {
   void didUpdateWidget(covariant UseQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.queryKey != widget.queryKey ||
-        oldWidget.enabled != widget.enabled) {
+        oldWidget.enabled != widget.enabled ||
+        oldWidget.refetchInterval != widget.refetchInterval) {
       _unsubscribe();
       _subscribe();
     }
   }
 
   void _subscribe() {
-    final client = widget.client ?? QueryClientProvider.of(context);
+    final client = widget.client ?? QueryClientProvider.maybeOf(context);
+    if (client == null) return;
     _observer = client.watchQuery<T>(
       queryKey: widget.queryKey,
       queryFn: widget.queryFn,
@@ -86,6 +90,7 @@ class _UseQueryState<T> extends State<UseQuery<T>> {
       retryDelay: widget.retryDelay,
       retryOn: widget.retryOn,
       refetchOnMount: widget.refetchOnMount,
+      refetchInterval: widget.refetchInterval,
       enabled: widget.enabled,
       initialData: widget.initialData,
       placeholderData: widget.placeholderData,

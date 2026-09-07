@@ -33,8 +33,7 @@ class ProductCatalogListBody extends StatelessWidget {
 
     return BlocBuilder<ProductListCubit, ProductListState>(
       builder: (context, state) {
-        if (state is ProductListInitial ||
-            (state is ProductListLoading && state.isFirstLoad)) {
+        if (state is ProductListInitial || (state is ProductListLoading && state.isFirstLoad)) {
           return VSkeletonScope(
             child: ListView.builder(
               controller: scrollController,
@@ -69,9 +68,13 @@ class ProductCatalogListBody extends StatelessWidget {
         var items = state is ProductListLoaded ? state.items : (state as ProductListLoading).items;
 
         if (selectedFilter == ProductListFilter.inStock) {
-          items = items.where((item) => item.stockQuantity != null && item.stockQuantity! > 0).toList();
+          items = items
+              .where((item) => item.stockQuantity != null && item.stockQuantity! > 0)
+              .toList();
         } else if (selectedFilter == ProductListFilter.outOfStock) {
-          items = items.where((item) => item.stockQuantity != null && item.stockQuantity == 0).toList();
+          items = items
+              .where((item) => item.stockQuantity != null && item.stockQuantity == 0)
+              .toList();
         }
 
         if (items.isEmpty && state is! ProductListLoading) {

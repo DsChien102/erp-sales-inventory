@@ -45,6 +45,7 @@ class QueryClient implements IMutationClient {
     Duration Function(int attempt)? retryDelay,
     bool Function(Object error)? retryOn,
     bool? refetchOnMount,
+    Duration? refetchInterval,
     bool enabled = true,
     T? initialData,
     T? placeholderData,
@@ -59,6 +60,7 @@ class QueryClient implements IMutationClient {
       retryDelay: retryDelay,
       retryOn: retryOn,
       refetchOnMount: refetchOnMount,
+      refetchInterval: refetchInterval,
       enabled: enabled,
       initialData: initialData,
       placeholderData: placeholderData,
@@ -69,6 +71,7 @@ class QueryClient implements IMutationClient {
     return QueryObserver<T>(
       query: query,
       refetchOnMount: options.refetchOnMount ?? true,
+      refetchInterval: options.refetchInterval,
     );
   }
 
@@ -239,6 +242,7 @@ class QueryClient implements IMutationClient {
     Duration Function(int attempt)? retryDelay,
     bool Function(Object error)? retryOn,
     bool? refetchOnMount,
+    Duration? refetchInterval,
     bool enabled = true,
     T? initialData,
     T? placeholderData,
@@ -253,6 +257,7 @@ class QueryClient implements IMutationClient {
       retryDelay: retryDelay,
       retryOn: retryOn,
       refetchOnMount: refetchOnMount,
+      refetchInterval: refetchInterval,
       enabled: enabled,
       initialData: initialData,
       placeholderData: placeholderData,

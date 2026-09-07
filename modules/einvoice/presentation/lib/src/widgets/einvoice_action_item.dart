@@ -42,12 +42,9 @@ class EInvoiceActionItem extends StatelessWidget {
     final isInteractive = enabled && !loading;
 
     final titleColor = isInteractive ? colors.textPrimary : colors.textMuted;
-    final subtitleColor =
-        isInteractive ? colors.textSecondary : colors.textMuted;
-    final effectiveIconColor =
-        isInteractive ? colors.textSecondary : colors.textMuted;
-    final effectiveIconBg =
-        isInteractive ? colors.surfaceAlt : colors.disabledBg;
+    final subtitleColor = isInteractive ? colors.textSecondary : colors.textMuted;
+    final effectiveIconColor = isInteractive ? colors.textSecondary : colors.textMuted;
+    final effectiveIconBg = isInteractive ? colors.surfaceAlt : colors.disabledBg;
     final cardBg = isInteractive ? colors.surface : colors.disabledBg;
     final chevronColor = isInteractive ? colors.textMuted : colors.textMuted;
 

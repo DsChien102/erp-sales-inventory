@@ -24,8 +24,7 @@ Future<PartnerSoftDeleteFlowResult> runPartnerDetailSoftDeleteFlow({
 }) async {
   try {
     final tenantId = await executionContext.requireTenantId();
-    final eligibility =
-        await partnerModule.executeQueryAsync<DeleteEligibilityDto>(
+    final eligibility = await partnerModule.executeQueryAsync<DeleteEligibilityDto>(
       CheckDeleteEligibilityQuery(
         tenantId: tenantId,
         partnerId: dto.partnerId,
@@ -33,7 +32,8 @@ Future<PartnerSoftDeleteFlowResult> runPartnerDetailSoftDeleteFlow({
     );
     if (!context.mounted) return PartnerSoftDeleteFlowResult.done;
     if (!eligibility.eligible) {
-      final canDeactivate = dto.status == PartnerStatus.active &&
+      final canDeactivate =
+          dto.status == PartnerStatus.active &&
           dto.availableActions.contains(PartnerAvailableAction.deactivate);
       final blocked = await showPartnerDeleteBlockedSheet(
         context,

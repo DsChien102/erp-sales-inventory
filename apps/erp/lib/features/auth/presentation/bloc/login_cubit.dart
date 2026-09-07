@@ -5,9 +5,7 @@ import 'package:erp/features/iam/presentation.dart';
 import 'login_state.dart';
 
 final class LoginCubit extends Cubit<LoginState> {
-  LoginCubit({required IIamModule iamModule})
-    : _iamModule = iamModule,
-      super(const LoginState());
+  LoginCubit({required IIamModule iamModule}) : _iamModule = iamModule, super(const LoginState());
 
   final IIamModule _iamModule;
 

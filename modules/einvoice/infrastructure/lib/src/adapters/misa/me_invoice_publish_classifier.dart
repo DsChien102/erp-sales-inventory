@@ -19,7 +19,9 @@ abstract final class MeInvoicePublishClassifier {
     if (items.isEmpty) {
       return MeInvoicePublishUndetermined(
         reasonCode: 'PROVIDER_EMPTY_RESULT',
-        safeProviderEvidence: MeInvoiceSafeProviderEvidence(refId: idempotencyKey),
+        safeProviderEvidence: MeInvoiceSafeProviderEvidence(
+          refId: idempotencyKey,
+        ),
       );
     }
 
@@ -86,20 +88,26 @@ abstract final class MeInvoicePublishClassifier {
         normalized.contains('connection')) {
       return MeInvoicePublishUndetermined(
         reasonCode: 'PROVIDER_TIMEOUT',
-        safeProviderEvidence: MeInvoiceSafeProviderEvidence(refId: idempotencyKey),
+        safeProviderEvidence: MeInvoiceSafeProviderEvidence(
+          refId: idempotencyKey,
+        ),
       );
     }
     if (normalized.contains('meinvoice_invalid_response') ||
         normalized.contains('not a json object')) {
       return MeInvoicePublishUndetermined(
         reasonCode: 'PROVIDER_MALFORMED_RESPONSE',
-        safeProviderEvidence: MeInvoiceSafeProviderEvidence(refId: idempotencyKey),
+        safeProviderEvidence: MeInvoiceSafeProviderEvidence(
+          refId: idempotencyKey,
+        ),
       );
     }
     if (_isEnvelopeDefiniteFailure(error)) {
       final parts = error.split(':');
       final code = parts.first.trim();
-      final message = parts.length > 1 ? parts.sublist(1).join(':').trim() : code;
+      final message = parts.length > 1
+          ? parts.sublist(1).join(':').trim()
+          : code;
       return MeInvoicePublishDefiniteFailure(
         providerCode: code,
         providerMessage: message,
@@ -112,7 +120,9 @@ abstract final class MeInvoicePublishClassifier {
     }
     return MeInvoicePublishUndetermined(
       reasonCode: 'PROVIDER_TRANSPORT_ERROR',
-      safeProviderEvidence: MeInvoiceSafeProviderEvidence(refId: idempotencyKey),
+      safeProviderEvidence: MeInvoiceSafeProviderEvidence(
+        refId: idempotencyKey,
+      ),
     );
   }
 
@@ -164,5 +174,6 @@ abstract final class MeInvoicePublishClassifier {
     return DateTime.now().toUtc();
   }
 
-  static bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
+  static bool _hasText(String? value) =>
+      value != null && value.trim().isNotEmpty;
 }

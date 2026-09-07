@@ -29,3 +29,4 @@ export 'src/e_invoice/models/responses/api_response.dart';
 export 'src/e_invoice/models/responses/create_invoice_result.dart';
 export 'src/e_invoice/models/responses/invoice_data_published.dart';
 export 'src/e_invoice/models/responses/publish_invoice_result.dart';
+export 'src/e_invoice/models/responses/send_email_result.dart';

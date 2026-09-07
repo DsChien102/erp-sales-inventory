@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/me_invoice_config.dart';
+import 'error_mapper.dart';
 
 /// Cached access token for meInvoice API.
 final class MeInvoiceAuthToken {
@@ -19,7 +20,7 @@ final class MeInvoiceAuthToken {
 
 /// Obtains and caches Bearer tokens; supports one refresh on expiry.
 ///
-/// Prefer [seed] / constructor [initialToken] and reuse for ~14 days.
+/// Prefer [seed] / constructor [initialToken] and reuse for ~7 days (MISA recommendation; max validity ~14 days).
 /// Calling [/auth/token] on every invoice risks MISA IP blocks.
 final class MeInvoiceAuth {
   MeInvoiceAuth({
@@ -30,7 +31,7 @@ final class MeInvoiceAuth {
     this.password,
     required http.Client httpClient,
     MeInvoiceAuthToken? initialToken,
-    Duration defaultTtl = MeInvoiceConfig.defaultTokenTtl,
+    Duration defaultTtl = MeInvoiceConfig.recommendedTokenTtl,
   }) : _http = httpClient,
        _defaultTtl = defaultTtl,
        _cached = initialToken;
@@ -113,14 +114,22 @@ final class MeInvoiceAuth {
       }),
     );
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      final vendorCode = MeInvoiceErrorMapper.tryReadAuthErrorCode(
+        response.body,
+      );
       throw MeInvoiceAuthException(
-        'meinvoice_auth_${response.statusCode}: ${_truncate(response.body)}',
+        'meinvoice_auth_http_${response.statusCode}:${vendorCode ?? 'request_failed'}',
       );
     }
     final token = _parseTokenResponse(response.body);
     if (token == null) {
+      final vendorCode = MeInvoiceErrorMapper.tryReadAuthErrorCode(
+        response.body,
+      );
       throw MeInvoiceAuthException(
-        'meinvoice_auth_invalid_response: ${_truncate(response.body)}',
+        vendorCode == null
+            ? 'meinvoice_auth_invalid_response'
+            : 'meinvoice_auth_rejected:$vendorCode',
       );
     }
     return token;
@@ -147,13 +156,6 @@ final class MeInvoiceAuth {
     } on Object {
       return null;
     }
-  }
-
-  static String _truncate(String value, [int max = 200]) {
-    if (value.length <= max) {
-      return value;
-    }
-    return '${value.substring(0, max)}…';
   }
 }
 

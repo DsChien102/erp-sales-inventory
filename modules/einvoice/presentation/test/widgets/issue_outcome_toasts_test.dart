@@ -31,8 +31,7 @@ void main() {
   });
 
   group('IssueFailureToast', () {
-    testWidgets('shows approved failure message with danger toast',
-        (tester) async {
+    testWidgets('shows approved failure message with danger toast', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,

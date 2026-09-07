@@ -4,6 +4,7 @@ description: >
   Pure Dart core with caching, deduplication, and invalidation.
 version: 0.1.0
 publish_to: none
+resolution: workspace
 
 environment:
   sdk: ^3.11.0

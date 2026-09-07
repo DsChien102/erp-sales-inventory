@@ -46,8 +46,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Đồng bộ gần nhất: 10:38, 05/08/2026'), findsOneWidget);
+      expect(find.text('Thông tin mẫu'), findsOneWidget);
       expect(find.text('Ký hiệu'), findsOneWidget);
-      expect(find.text('C22TAA'), findsOneWidget);
+      expect(find.text('C22TAA'), findsWidgets);
       expect(find.text('Cấp mã'), findsOneWidget);
       expect(find.text('Có mã của cơ quan thuế'), findsOneWidget);
       expect(find.text('Loại hóa đơn'), findsOneWidget);

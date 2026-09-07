@@ -7,6 +7,7 @@ import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
+import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/core/di/injection.dart';
@@ -42,6 +43,7 @@ void main() {
     expect(getIt.isRegistered<IPartnerModule>(), isTrue);
     expect(getIt<IPartnerModule>(), isNot(isA<FakePartnerModule>()));
     expect(getIt.isRegistered<IEInvoiceModule>(), isTrue);
-    expect(getIt<IEInvoiceModule>(), isA<FakeEInvoiceModule>());
+    expect(getIt<IEInvoiceModule>(), isA<EinvoiceModule>());
+    expect(getIt<IEInvoiceModule>(), isNot(isA<FakeEInvoiceModule>()));
   });
 }

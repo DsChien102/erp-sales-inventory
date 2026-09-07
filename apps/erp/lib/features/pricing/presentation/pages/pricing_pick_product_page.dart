@@ -78,8 +78,7 @@ class _PricingPickProductPageState extends State<PricingPickProductPage> {
       setState(() {
         _items = result.items;
         _isLoading = false;
-        if (_selectedId != null &&
-            !_items.any((e) => e.id == _selectedId)) {
+        if (_selectedId != null && !_items.any((e) => e.id == _selectedId)) {
           _selectedId = null;
         }
       });
@@ -248,9 +247,7 @@ class _PricingPickProductBody extends StatelessWidget {
                       ],
                     ),
                   ),
-            caption: item.baseUnit == null
-                ? null
-                : 'Đơn vị cơ bản: ${item.baseUnit}',
+            caption: item.baseUnit == null ? null : 'Đơn vị cơ bản: ${item.baseUnit}',
           );
         },
       ),

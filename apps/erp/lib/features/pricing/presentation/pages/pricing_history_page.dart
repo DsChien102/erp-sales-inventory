@@ -57,8 +57,7 @@ class _PricingHistoryPageState extends State<PricingHistoryPage> {
                   ? null
                   : '${rule.productUnit.productName} · ${rule.productUnit.unitName}',
               status: rule?.derivedStatus,
-              isLoading:
-                  state is PriceRuleHistoryLoading && state.isFirstLoad,
+              isLoading: state is PriceRuleHistoryLoading && state.isFirstLoad,
               errorMessage: state is PriceRuleHistoryError ? state.message : null,
               hasPermission: state.hasPermission,
               hasSensitivePermission: state.hasSensitivePermission,

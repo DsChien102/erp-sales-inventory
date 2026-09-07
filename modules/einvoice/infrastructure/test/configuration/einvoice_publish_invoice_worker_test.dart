@@ -39,6 +39,14 @@ final class _RecordingInternalCommandClient
   }
 
   @override
+  Future<int> seedDueReconciliationCommands({
+    required String tenantId,
+    int limit = 50,
+  }) async {
+    return 0;
+  }
+
+  @override
   Future<List<ClaimedInternalCommand>> claimBatch({
     required String tenantId,
     required int limit,
@@ -92,6 +100,31 @@ final class _RecordingInternalCommandClient
   }
 
   @override
+  Future<InternalCommandDisposition> retryOrDeadLetter({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required String error,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) {
+      throw StateError('Command not found');
+    }
+    command.retryCount++;
+    command.lastError = error;
+    command.claimToken = null;
+    if (command.retryCount >= 3) {
+      command.failedAt = DateTime.now().toUtc();
+      return InternalCommandDisposition.deadLetter;
+    }
+    return InternalCommandDisposition.retry;
+  }
+
+  @override
   Future<void> fail({
     required String tenantId,
     required String commandId,
@@ -141,6 +174,7 @@ final class _StoredInternalCommand {
   final String commandType;
   final Map<String, dynamic> payload;
   final DateTime enqueuedAt;
+  int retryCount = 0;
   String? claimToken;
   DateTime? processedAt;
   DateTime? failedAt;
@@ -156,18 +190,24 @@ final class _WorkerMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   Future<MeInvoiceAuthOutcome> authenticateAndListTemplates({
     required String tenantId,
     required String connectionId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<MeInvoicePreviewOutcome> previewUnpublished({
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   void validateCanonical({required Map<String, Object?> canonicalInvoice}) {}
+
+  @override
+  Future<MeInvoiceIssuanceStatusOutcome> getStatus({
+    required String tenantId,
+    required String idempotencyKey,
+    required String payloadHash,
+    String? providerReference,
+  }) async => throw UnimplementedError();
 
   @override
   Future<MeInvoicePublishOutcome> publish({
@@ -206,6 +246,14 @@ final class _WorkerIssuanceResultGateway implements IIssuanceResultGateway {
   }
 
   @override
+  Future<void> markProviderCallStarted({
+    required String tenantId,
+    required String attemptId,
+  }) async {
+    events.add('markProviderCallStarted-$attemptId');
+  }
+
+  @override
   Future<RecordIssuanceResultDto> recordSuccess({
     required String tenantId,
     required String attemptId,
@@ -239,6 +287,30 @@ final class _WorkerIssuanceResultGateway implements IIssuanceResultGateway {
     events.add('result-$attemptId');
     return const RecordIssuanceResultDto(
       attemptStatus: IssuanceAttemptStatus.reconciling,
+    );
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
+  }) async {
+    events.add('integrityFailure-$attemptId');
+    return const RecordIssuanceResultDto(
+      attemptStatus: IssuanceAttemptStatus.failed,
+    );
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordPublishCommandDeadLetter({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
+  }) async {
+    events.add('deadLetter-$attemptId');
+    return const RecordIssuanceResultDto(
+      attemptStatus: IssuanceAttemptStatus.failed,
     );
   }
 }
@@ -292,7 +364,8 @@ void main() {
         final bus = CommandBus(container: container);
         EinvoiceCommandsExecutor.bind(bus);
         bus.register<PublishInvoiceCommand, void>(
-          (command) => container.get<PublishInvoiceCommandHandler>().handle(command),
+          (command) =>
+              container.get<PublishInvoiceCommandHandler>().handle(command),
         );
         bus.register<ProcessInternalCommandsCommand, bool>(
           (command) => ProcessInternalCommandsCommandHandler(
@@ -341,19 +414,18 @@ void main() {
           isFalse,
         );
 
-        expect(
-          events,
-          [
-            'prepare-1',
-            'publish-1',
-            'result-1',
-            'complete-1',
-            'prepare-2',
-            'publish-2',
-            'result-2',
-            'complete-2',
-          ],
-        );
+        expect(events, [
+          'prepare-1',
+          'markProviderCallStarted-1',
+          'publish-1',
+          'result-1',
+          'complete-1',
+          'prepare-2',
+          'markProviderCallStarted-2',
+          'publish-2',
+          'result-2',
+          'complete-2',
+        ]);
       },
     );
   });

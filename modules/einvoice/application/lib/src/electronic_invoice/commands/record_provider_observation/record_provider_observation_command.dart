@@ -1,6 +1,6 @@
 import 'package:vet45_shared_application/application.dart';
 
-import 'record_provider_observation_result.dart';
+import '../../shared/provider_observation_dto.dart';
 
 @RequiresTenant()
 final class RecordProviderObservationCommand extends CommandBase<ProviderObservationDto>
@@ -9,13 +9,25 @@ final class RecordProviderObservationCommand extends CommandBase<ProviderObserva
     String? id,
     required this.tenantId,
     required this.electronicInvoiceId,
-    required this.observationPayload,
+    required this.providerStateCode,
+    this.safeDescription,
+    this.providerReference,
+    required this.observedAt,
+    required this.deduplicationKey,
+    required this.detailsSnapshot,
+    required this.providerInteractionReference,
     required this.source,
   }) : super(id);
 
   @override
   final String tenantId;
   final String electronicInvoiceId;
-  final Map<String, Object?> observationPayload;
+  final String providerStateCode;
+  final String? safeDescription;
+  final String? providerReference;
+  final DateTime observedAt;
+  final String deduplicationKey;
+  final Map<String, Object?> detailsSnapshot;
+  final String providerInteractionReference;
   final String source;
 }

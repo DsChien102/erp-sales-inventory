@@ -30,8 +30,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
     return VPageScaffold(
       title: 'Giá sàn & Giá niêm yết',
       showBackButton: true,
-      body: BlocConsumer<StorePriceRuleSettingsCubit,
-          StorePriceRuleSettingsState>(
+      body: BlocConsumer<StorePriceRuleSettingsCubit, StorePriceRuleSettingsState>(
         listener: (context, state) {
           if (state is StorePriceRuleSettingsError) {
             VToast.show(
@@ -43,8 +42,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (state is StorePriceRuleSettingsLoading ||
-              state is StorePriceRuleSettingsInitial) {
+          if (state is StorePriceRuleSettingsLoading || state is StorePriceRuleSettingsInitial) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -205,15 +203,12 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentConfigSection(
-      BuildContext context, StorePriceRuleDto? rule) {
+  Widget _buildCurrentConfigSection(BuildContext context, StorePriceRuleDto? rule) {
     final colors = context.vColors;
 
     final hasRule = rule != null;
-    final listMarkupPercent =
-        hasRule ? (rule.listMarkupRatio * 100).toStringAsFixed(1) : null;
-    final floorMarkupPercent =
-        hasRule ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : null;
+    final listMarkupPercent = hasRule ? (rule.listMarkupRatio * 100).toStringAsFixed(1) : null;
+    final floorMarkupPercent = hasRule ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : null;
 
     return Container(
       padding: const EdgeInsets.all(VSpacing.space4),
@@ -256,8 +251,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      VIcon(icon: VIcons.edit,
-                          size: 16, color: colors.primary),
+                      VIcon(icon: VIcons.edit, size: 16, color: colors.primary),
                       const VGap.horizontalXs(),
                       VText(
                         'Sửa',
@@ -290,8 +284,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             iconBgColor: colors.successBg,
             label: 'Giá niêm yết',
             sublabel: 'Tỷ lệ lãi so với Giá cơ sở',
-            valueText:
-                listMarkupPercent != null ? '+$listMarkupPercent%' : '—',
+            valueText: listMarkupPercent != null ? '+$listMarkupPercent%' : '—',
             valueColor: colors.success,
           ),
           Padding(
@@ -445,19 +438,23 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
     ];
 
     if (boldPart != null) {
-      spans.add(TextSpan(
-        text: boldPart,
-        style: const TextStyle(fontWeight: FontWeight.w700),
-      ));
+      spans.add(
+        TextSpan(
+          text: boldPart,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      );
     }
     if (afterBold != null) {
       spans.add(TextSpan(text: afterBold));
     }
     if (boldPart2 != null) {
-      spans.add(TextSpan(
-        text: boldPart2,
-        style: const TextStyle(fontWeight: FontWeight.w700),
-      ));
+      spans.add(
+        TextSpan(
+          text: boldPart2,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      );
     }
     if (afterBold2 != null) {
       spans.add(TextSpan(text: afterBold2));

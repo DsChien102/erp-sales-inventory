@@ -25,6 +25,8 @@ import '../delivery/commands/send_electronic_invoice/send_electronic_invoice_com
 import '../delivery/commands/send_electronic_invoice/send_electronic_invoice_result.dart';
 import '../delivery/commands/start_auto_delivery/start_auto_delivery_command.dart';
 import '../delivery/commands/start_auto_delivery/start_auto_delivery_result.dart';
+import '../delivery/shared/auto_delivery_disposition.dart';
+import '../delivery/shared/auto_delivery_skip_reason.dart';
 import '../delivery/queries/get_invoice_delivery_history/get_invoice_delivery_history_query.dart';
 import '../delivery/queries/get_invoice_delivery_history/invoice_delivery_history_dto.dart';
 import '../delivery/queries/get_invoice_delivery_history/invoice_delivery_item_dto.dart';
@@ -46,7 +48,6 @@ import '../electronic_invoice/shared/provider_observation_dto.dart';
 import '../exceptions/already_issued_exception.dart';
 import '../exceptions/config_not_ready_exception.dart';
 import '../exceptions/delivery_not_supported_exception.dart';
-import '../exceptions/document_unavailable_exception.dart';
 import '../exceptions/issuance_not_ready_exception.dart';
 import '../exceptions/operation_in_progress_exception.dart';
 import '../exceptions/provider_auth_failed_exception.dart';
@@ -66,6 +67,7 @@ import '../issuance/commands/request_invoice_preview/request_invoice_preview_com
 import '../issuance/commands/request_invoice_preview/request_invoice_preview_result.dart';
 import '../issuance/commands/resolve_reconciliation_case/resolve_reconciliation_case_command.dart';
 import '../issuance/commands/resolve_reconciliation_case/resolve_reconciliation_case_result.dart';
+import '../issuance/commands/reevaluate_auto_issuance/reevaluate_auto_issuance_command.dart';
 import '../issuance/commands/retry_issuance/retry_issuance_command.dart';
 import '../issuance/commands/start_auto_issuance/start_auto_issuance_command.dart';
 import '../issuance/commands/start_auto_issuance/start_auto_issuance_result.dart';
@@ -118,6 +120,7 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       RequestInvoicePreviewCommand _ => _previewCommand<TResult>(),
       IssueInvoiceCommand c => _issueInvoice<TResult>(c),
       StartAutoIssuanceCommand _ => _startAutoIssuance<TResult>(),
+      ReevaluateAutoIssuanceCommand _ => _startAutoIssuance<TResult>(),
       RecordIssuanceResultCommand _ => _recordIssuanceResult<TResult>(),
       RetryIssuanceCommand _ => _retryIssuance<TResult>(),
       OpenReconciliationCaseCommand _ => _openReconciliation<TResult>(),
@@ -642,6 +645,10 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       const IssuanceAttemptStatusDto(
             attemptId: 'att-fake-001',
             status: IssuanceAttemptStatus.failed,
+            internalFinalizationStatus: InternalFinalizationStatus.pending,
+            hasElectronicInvoice: false,
+            hasActiveOperation: false,
+            failureCode: 'PROVIDER_REJECTED',
             lastErrorMessage: 'Provider rejected',
           )
           as TResult,
@@ -681,7 +688,13 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
   Future<TResult> _requestDocument<TResult>(RequestInvoiceDocumentCommand c) {
     switch (scenario) {
       case FakeEInvoiceScenario.downloadUnavailable:
-        throw const DocumentUnavailableException();
+        return Future.value(
+          InvoiceDocumentRetrievalDto(
+                operationId: 'op-doc-failed-1',
+                status: InvoiceDocumentStatus.failed,
+              )
+              as TResult,
+        );
       case FakeEInvoiceScenario.downloadPermissionDenied:
         throw const EInvoiceBlockedException(EInvoiceBlockedCodes.noPermission);
       default:
@@ -726,8 +739,11 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       ProviderObservationDto(
             observationId: 'obs-fake-001',
             electronicInvoiceId: 'ei-fake-001',
-            payload: const {'status': 'accepted'},
+            providerStateCode: 'PUBLISHED',
             observedAt: DateTime.utc(2026, 1, 1),
+            source: 'worker',
+            correlationId: 'corr-fake-001',
+            detailsSnapshot: const {'publishStatus': 1},
           )
           as TResult,
     );
@@ -738,8 +754,11 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       ProviderObservationDto(
             observationId: 'obs-fake-001',
             electronicInvoiceId: 'ei-fake-001',
-            payload: const {'status': 'accepted'},
+            providerStateCode: 'PUBLISHED',
             observedAt: DateTime.utc(2026, 1, 1),
+            source: 'worker',
+            correlationId: 'corr-fake-001',
+            detailsSnapshot: const {'publishStatus': 1},
           )
           as TResult,
     );
@@ -750,18 +769,16 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       case FakeEInvoiceScenario.autoSendSkippedNoEmail:
         return Future.value(
           const AutoDeliveryResultDto(
-                started: false,
-                skipped: true,
-                reason: 'no_email',
+                disposition: AutoDeliveryDisposition.skipped,
+                skipReason: AutoDeliverySkipReason.invalidOrMissingEmail,
               )
               as TResult,
         );
       case FakeEInvoiceScenario.autoSendSkippedPolicyOff:
         return Future.value(
           const AutoDeliveryResultDto(
-                started: false,
-                skipped: true,
-                reason: 'policy',
+                disposition: AutoDeliveryDisposition.skipped,
+                skipReason: AutoDeliverySkipReason.policyOff,
               )
               as TResult,
         );
@@ -769,7 +786,11 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
         throw const DeliveryNotSupportedException();
       default:
         return Future.value(
-          const AutoDeliveryResultDto(started: true, skipped: false) as TResult,
+          const AutoDeliveryResultDto(
+                disposition: AutoDeliveryDisposition.started,
+                deliveryId: 'del-fake-001',
+              )
+              as TResult,
         );
     }
   }
@@ -781,13 +802,10 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           SendInvoiceSheetContextDto(
                 mode: SendInvoiceSheetMode.resend,
                 suggestedEmail: 'buyer@fake.test',
-                history: const [
-                  InvoiceDeliveryItemDto(
-                    deliveryId: 'del-1',
-                    recipientEmail: 'buyer@fake.test',
-                    status: DeliveryStatus.succeeded,
-                  ),
-                ],
+                suggestedEmailSource: DeliveryRecipientSource.lastInvoiceDelivery,
+                history: [_fakeDelivery(no: 1, kind: DeliveryKind.initial)],
+                operationLocked: false,
+                displayState: DeliveryDisplayState.sent,
               )
               as TResult,
         );
@@ -796,11 +814,39 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           const SendInvoiceSheetContextDto(
                 mode: SendInvoiceSheetMode.send,
                 suggestedEmail: 'buyer@fake.test',
+                suggestedEmailSource: DeliveryRecipientSource.currentPartnerProfile,
                 history: [],
+                operationLocked: false,
+                displayState: DeliveryDisplayState.notSent,
               )
               as TResult,
         );
     }
+  }
+
+  InvoiceDeliveryItemDto _fakeDelivery({
+    required int no,
+    required DeliveryKind kind,
+    DeliveryStatus status = DeliveryStatus.succeeded,
+  }) {
+    final startedAt = DateTime.utc(2026, 1, no);
+    return InvoiceDeliveryItemDto(
+      deliveryId: 'del-$no',
+      deliveryNo: no,
+      kind: kind,
+      triggerType: kind == DeliveryKind.initial
+          ? DeliveryTriggerType.automatic
+          : DeliveryTriggerType.manual,
+      recipientEmail: 'buyer@fake.test',
+      status: status,
+      initiatedByActorType: kind == DeliveryKind.initial
+          ? DeliveryActorType.system
+          : DeliveryActorType.user,
+      initiatedByActorId: kind == DeliveryKind.initial ? null : 'a1',
+      startedAt: startedAt,
+      completedAt: status == DeliveryStatus.processing ? null : startedAt,
+      failureCode: null,
+    );
   }
 
   Future<TResult> _sendInvoice<TResult>() {
@@ -827,19 +873,16 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
       case FakeEInvoiceScenario.deliveryHistoryMulti:
         return Future.value(
           InvoiceDeliveryHistoryDto(
-                deliveries: const [
-                  InvoiceDeliveryItemDto(
-                    deliveryId: 'del-1',
-                    recipientEmail: 'buyer@fake.test',
-                    status: DeliveryStatus.succeeded,
-                  ),
-                  InvoiceDeliveryItemDto(
-                    deliveryId: 'del-2',
-                    recipientEmail: 'buyer@fake.test',
+                deliveries: [
+                  _fakeDelivery(no: 1, kind: DeliveryKind.initial),
+                  _fakeDelivery(
+                    no: 2,
+                    kind: DeliveryKind.resend,
                     status: DeliveryStatus.processing,
                   ),
                 ],
                 displayState: DeliveryDisplayState.sent,
+                hasSecondaryAttention: false,
               )
               as TResult,
         );
@@ -848,6 +891,7 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           const InvoiceDeliveryHistoryDto(
                 deliveries: [],
                 displayState: DeliveryDisplayState.notSent,
+                hasSecondaryAttention: false,
               )
               as TResult,
         );
@@ -861,6 +905,7 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           const RecordDeliveryResultDto(
                 deliveryStatus: DeliveryStatus.failed,
                 displayState: DeliveryDisplayState.failed,
+                hasSecondaryAttention: false,
               )
               as TResult,
         );
@@ -869,6 +914,7 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           const RecordDeliveryResultDto(
                 deliveryStatus: DeliveryStatus.unknown,
                 displayState: DeliveryDisplayState.sending,
+                hasSecondaryAttention: true,
               )
               as TResult,
         );
@@ -877,6 +923,7 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
           const RecordDeliveryResultDto(
                 deliveryStatus: DeliveryStatus.succeeded,
                 displayState: DeliveryDisplayState.sent,
+                hasSecondaryAttention: false,
               )
               as TResult,
         );

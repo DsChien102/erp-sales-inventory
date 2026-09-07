@@ -95,8 +95,7 @@ class _DashboardPageState extends State<_DashboardPageBody> {
     context.goNamed('dashboard', extra: tab);
   }
 
-  Future<void> _openSelector(BuildContext context) =>
-      openTenantContextSelector(context);
+  Future<void> _openSelector(BuildContext context) => openTenantContextSelector(context);
 
   Widget _buildHomeBody(BuildContext context, TenantContextState state) {
     if (state.status == TenantContextLoadStatus.loading ||

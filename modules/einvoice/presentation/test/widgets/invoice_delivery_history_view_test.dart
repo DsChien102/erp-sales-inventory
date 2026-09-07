@@ -5,8 +5,7 @@ import 'package:vet45_einvoice_presentation/presentation.dart';
 
 void main() {
   group('InvoiceDeliveryHistoryView', () {
-    testWidgets('shows issued badge, section, success/failure/auto rows',
-        (tester) async {
+    testWidgets('shows issued badge, section, success/failure/auto rows', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,

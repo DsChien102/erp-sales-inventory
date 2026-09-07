@@ -15,7 +15,7 @@ class DashedBorderContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    
+
     return CustomPaint(
       painter: _DashedBorderPainter(
         color: dynamicColors.borderDefault,
@@ -55,10 +55,12 @@ class _DashedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final path = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Radius.circular(radius),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          Radius.circular(radius),
+        ),
+      );
 
     // A simple dashed path implementation
     final dashPath = Path();

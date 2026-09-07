@@ -12,10 +12,8 @@ abstract final class ProviderConnectionCopy {
   static const passwordLabel = 'Mật khẩu MISA';
   static const accountHint = 'Nhập tài khoản MISA';
   static const passwordHint = 'Nhập mật khẩu MISA';
-  static const taxCodeCaption =
-      'Mã số thuế được lấy từ Hồ sơ pháp lý của Tổ chức.';
-  static const passwordCaption =
-      'Mật khẩu được bảo mật và không hiển thị lại sau khi kết nối.';
+  static const taxCodeCaption = 'Mã số thuế được lấy từ Hồ sơ pháp lý của Tổ chức.';
+  static const passwordCaption = 'Mật khẩu được bảo mật và không hiển thị lại sau khi kết nối.';
   static const cancelLabel = 'Hủy';
   static const connectLabel = 'Kết nối';
   static const reconnectSubmitLabel = 'Kết nối lại';
@@ -28,6 +26,10 @@ abstract final class ProviderConnectionCopy {
   static const pendingBannerTitle = 'Đang chờ kết nối';
   static const pendingBannerDescription =
       'Hệ thống đang tự động hoàn tất kết nối với MISA meInvoice.';
+  static const refreshStatusLabel = 'Tải lại trạng thái';
+  static const pendingSubmitTitle = 'Đang kiểm tra kết nối';
+  static const pendingSubmitMessage =
+      'Thông tin đã được lưu an toàn. Hãy đợi worker xử lý rồi tải lại trạng thái.';
   static const errorBannerTitle = 'Không thể kết nối với MISA meInvoice';
   static const errorBannerDescription =
       'Hãy kết nối lại để hệ thống thử lại bằng thông tin hiện có.';
@@ -59,5 +61,15 @@ abstract final class ProviderConnectionCopy {
   }
 
   static const providerValue = EInvoiceConfigurationDisplay.providerName;
-  static const displayAccount = EInvoiceConfigurationDisplay.displayAccount;
+  static String maskAccount(String account) {
+    final value = account.trim();
+    final at = value.indexOf('@');
+    if (at > 1) {
+      return '${value.substring(0, 2)}***${value.substring(at)}';
+    }
+    if (value.length > 2) {
+      return '${value.substring(0, 2)}***';
+    }
+    return '***';
+  }
 }

@@ -17,6 +17,7 @@ final class GetInvoicePreviewQueryHandler
   Future<InvoicePreviewResultDto> handle(GetInvoicePreviewQuery query) async {
     final cached = await _previewGateway.readCached(
       tenantId: query.tenantId,
+      actorId: query.actorId,
       salesOrderId: query.salesOrderId,
     );
 

@@ -9,8 +9,10 @@ final class PreviewInvoiceCommand extends InternalCommandBase<void>
     required this.tenantId,
     required this.salesOrderId,
     required this.previewRequestId,
+    required this.providerConnectionId,
     required this.orderVersion,
     required this.canonicalInvoice,
+    this.workerAttemptNumber = 1,
   }) : super(id);
 
   static const type = 'einvoice.preview_invoice';
@@ -22,8 +24,10 @@ final class PreviewInvoiceCommand extends InternalCommandBase<void>
   final String tenantId;
   final String salesOrderId;
   final String previewRequestId;
+  final String providerConnectionId;
   final int orderVersion;
   final Map<String, Object?> canonicalInvoice;
+  final int workerAttemptNumber;
 
   @override
   Map<String, dynamic> toJson() {
@@ -31,6 +35,7 @@ final class PreviewInvoiceCommand extends InternalCommandBase<void>
       'tenant_id': tenantId,
       'sales_order_id': salesOrderId,
       'preview_request_id': previewRequestId,
+      'provider_connection_id': providerConnectionId,
       'order_version': orderVersion,
       'canonical_invoice': canonicalInvoice,
     });
@@ -46,8 +51,10 @@ final class PreviewInvoiceCommand extends InternalCommandBase<void>
       tenantId: n['tenant_id'] as String,
       salesOrderId: n['sales_order_id'] as String,
       previewRequestId: n['preview_request_id'] as String,
+      providerConnectionId: n['provider_connection_id'] as String,
       orderVersion: (n['order_version'] as num).toInt(),
       canonicalInvoice: Map<String, Object?>.from(n['canonical_invoice'] as Map),
+      workerAttemptNumber: readInternalCommandWorkerAttemptNumber(n),
     );
   }
 }

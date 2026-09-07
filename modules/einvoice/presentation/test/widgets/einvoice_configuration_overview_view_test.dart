@@ -2,9 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+final class _DisconnectedOverviewModule implements IEInvoiceModule {
+  var templateQueryCount = 0;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    final Object result = switch (query) {
+      GetConfigurationReadinessQuery() => const ConfigurationReadinessDto(
+        level: ConfigurationReadinessLevel.notReady,
+        blockers: [],
+        warnings: [],
+      ),
+      GetProviderConnectionScreenQuery() => const ProviderConnectionScreenDto(
+        legalProfile: LegalProfileSummaryDto(
+          legalName: 'Công ty An Phú',
+          taxCode: '0101234567',
+        ),
+        connection: ProviderConnectionSummaryDto(
+          status: ProviderConnectionStatus.disconnected,
+        ),
+      ),
+      GetIssuanceProfileQuery() => const IssuanceProfileDto(
+        profileVersion: 0,
+        compatibilityWarnings: [],
+      ),
+      GetAutomationPolicyQuery() => const AutomationPolicyDto(
+        autoIssueEnabled: false,
+        autoSendEnabled: false,
+        policyVersion: 0,
+        blockers: [],
+      ),
+      ListProviderTemplatesQuery() => throw StateError(
+        'template query must not run before provider is connected',
+      ),
+      _ => throw UnimplementedError(),
+    };
+    if (query is ListProviderTemplatesQuery) {
+      templateQueryCount += 1;
+    }
+    return result as TResult;
+  }
+}
 
 void main() {
   Future<void> pumpOverview(
@@ -59,6 +109,26 @@ void main() {
       );
     },
   );
+
+  testWidgets('disconnected overview does not query provider templates', (tester) async {
+    final module = _DisconnectedOverviewModule();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: BlocProvider(
+          create: (_) => EInvoiceConfigurationOverviewCubit(
+            einvoiceModule: module,
+            executionContext: FakeExecutionContext(),
+          )..load(),
+          child: const Scaffold(body: EInvoiceConfigurationOverviewView()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chưa kết nối MISA meInvoice'), findsOneWidget);
+    expect(module.templateQueryCount, 0);
+  });
 
   testWidgets(
     'wgt_e01_u04_fr09_02: D02 shows ready banner and configured nav copy',

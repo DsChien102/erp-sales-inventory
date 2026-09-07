@@ -60,6 +60,7 @@ Future<void> main(List<String> arguments) async {
     'moduleBatchSize': config.moduleBatchSize,
     'maxRoundsPerTick': config.maxRoundsPerTick,
     'boundModules': context.boundModuleSchemas,
+    'misaEmailDeliveryEnabled': config.misaEmailDeliveryEnabled,
   });
 
   final loop = MessagingWorkerLoop(context: context);

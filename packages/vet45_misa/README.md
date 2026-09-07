@@ -76,7 +76,7 @@ dart run tool/smoke_me_invoice.dart preview
 dart run tool/smoke_me_invoice.dart status --tx=<TRANSACTION_ID>
 ```
 
-Publish requires `MISA_SMOKE_CONFIRM_PUBLISH=1`. Token cache: `.meinvoice_token.local` (~14 days).
+Publish requires `MISA_SMOKE_CONFIRM_PUBLISH=1`. Token cache: `.meinvoice_token.local` (~7 days refresh; ~14 days MISA TTL).
 
 ## Out of scope (Phase A)
 

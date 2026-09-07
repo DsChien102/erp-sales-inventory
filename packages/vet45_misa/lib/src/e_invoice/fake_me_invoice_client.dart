@@ -1,4 +1,6 @@
+import 'models/responses/send_email_result.dart';
 import 'i_me_invoice_client.dart';
+import 'models/me_invoice_session_token.dart';
 import 'models/me_invoice_result.dart';
 import 'models/misa/invoice_data.dart';
 import 'models/misa/invoice_status.dart';
@@ -21,9 +23,22 @@ enum FakeMeInvoiceScenario {
 
 /// Test double for [IMeInvoiceClient] — no network.
 final class FakeMeInvoiceClient implements IMeInvoiceClient {
-  FakeMeInvoiceClient({this.scenario = FakeMeInvoiceScenario.ok});
+  FakeMeInvoiceClient({
+    this.scenario = FakeMeInvoiceScenario.ok,
+    List<MeInvoiceResult<List<MeInvoiceInvoiceStatus>>>? getStatusQueue,
+  }) : _getStatusQueue = getStatusQueue != null
+           ? List<MeInvoiceResult<List<MeInvoiceInvoiceStatus>>>.from(
+               getStatusQueue,
+             )
+           : <MeInvoiceResult<List<MeInvoiceInvoiceStatus>>>[];
 
   FakeMeInvoiceScenario scenario;
+  final List<MeInvoiceResult<List<MeInvoiceInvoiceStatus>>> _getStatusQueue;
+
+  /// Enqueue a scripted FIFO result for subsequent [getStatus] calls.
+  void enqueueGetStatusResult(MeInvoiceResult<List<MeInvoiceInvoiceStatus>> result) {
+    _getStatusQueue.add(result);
+  }
 
   int listInvoiceTemplatesCount = 0;
   int listTicketTemplatesCount = 0;
@@ -38,9 +53,51 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   MeInvoicePublishRequest? lastPublishRequest;
   MeInvoiceInvoiceData? lastPreviewInvoice;
   List<String>? lastTransactionIds;
+  String? lastCompanyTaxCode;
+  MeInvoiceInvoiceQuery? lastDownloadQuery;
+  MeInvoiceDownloadDataType? lastDownloadDataType;
+  MeInvoiceStatusInputType? lastStatusInputType;
+  MeInvoiceInvoiceQuery? lastStatusQuery;
   MeInvoiceSendEmailRequest? lastSendEmailRequest;
 
+  final List<MeInvoiceResult<String>> _previewPublishedQueue = <MeInvoiceResult<String>>[];
+  final List<MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>>> _downloadQueue =
+      <MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>>>[];
+  final List<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> _sendEmailQueue =
+      <MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>>[];
+
+  void enqueuePreviewPublishedResult(MeInvoiceResult<String> result) {
+    _previewPublishedQueue.add(result);
+  }
+
+  void enqueueDownloadResult(
+    MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>> result,
+  ) {
+    _downloadQueue.add(result);
+  }
+
+  /// Enqueue a scripted FIFO result for subsequent [sendEmail] calls.
+  void enqueueSendEmailResult(MeInvoiceResult<List<MeInvoiceSendEmailResultItem>> result) {
+    _sendEmailQueue.add(result);
+  }
+
   int _tokenExpiredHits = 0;
+
+  @override
+  Future<MeInvoiceResult<MeInvoiceSessionToken>> obtainAccessToken({
+    bool forceLogin = false,
+  }) async {
+    final early = _scenarioResult<MeInvoiceSessionToken>();
+    if (early != null) {
+      return early;
+    }
+    return MeInvoiceResult.ok(
+      MeInvoiceSessionToken(
+        value: 'fake-token',
+        expiresAt: DateTime.utc(2099, 1, 1),
+      ),
+    );
+  }
 
   @override
   Future<MeInvoiceResult<List<MeInvoiceTemplate>>> listInvoiceTemplates({
@@ -123,6 +180,10 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }) async {
     previewPublishedCount++;
     lastTransactionIds = List<String>.from(transactionIds);
+    lastCompanyTaxCode = companyTaxCode;
+    if (_previewPublishedQueue.isNotEmpty) {
+      return _previewPublishedQueue.removeAt(0);
+    }
     final early = _scenarioResult<String>();
     if (early != null) {
       return early;
@@ -138,6 +199,11 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }) async {
     downloadCount++;
     lastTransactionIds = List<String>.from(transactionIds);
+    lastDownloadQuery = query;
+    lastDownloadDataType = downloadDataType;
+    if (_downloadQueue.isNotEmpty) {
+      return _downloadQueue.removeAt(0);
+    }
     final early = _scenarioResult<List<MeInvoiceInvoiceDataPublished>>();
     if (early != null) {
       return early;
@@ -147,8 +213,8 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
           .map(
             (id) => MeInvoiceInvoiceDataPublished(
               transactionId: id,
-              data: 'ZmFrZQ==',
-              bytes: const <int>[102, 97, 107, 101],
+              data: 'JVBERi0xLjQ=',
+              bytes: '%PDF-1.4 fake'.codeUnits,
             ),
           )
           .toList(),
@@ -163,6 +229,11 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }) async {
     getStatusCount++;
     lastTransactionIds = List<String>.from(ids);
+    lastStatusInputType = inputType;
+    lastStatusQuery = query;
+    if (_getStatusQueue.isNotEmpty) {
+      return _getStatusQueue.removeAt(0);
+    }
     final early = _scenarioResult<List<MeInvoiceInvoiceStatus>>();
     if (early != null) {
       return early;
@@ -181,16 +252,26 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }
 
   @override
-  Future<MeInvoiceResult<void>> sendEmail(
+  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
     MeInvoiceSendEmailRequest request,
   ) async {
     sendEmailCount++;
     lastSendEmailRequest = request;
-    final early = _scenarioResult<void>();
+    if (_sendEmailQueue.isNotEmpty) {
+      return _sendEmailQueue.removeAt(0);
+    }
+    final early = _scenarioResult<List<MeInvoiceSendEmailResultItem>>();
     if (early != null) {
       return early;
     }
-    return const MeInvoiceResult.ok(null);
+    return MeInvoiceResult.ok(
+      request.sendEmailDatas
+          .map(
+            (item) =>
+                MeInvoiceSendEmailResultItem(transactionId: item.transactionId, sendEmailStatus: 3),
+          )
+          .toList(),
+    );
   }
 
   @override

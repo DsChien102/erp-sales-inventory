@@ -42,6 +42,24 @@ final class SupabaseIssuanceResultGateway implements IIssuanceResultGateway {
   }
 
   @override
+  Future<void> markProviderCallStarted({
+    required String tenantId,
+    required String attemptId,
+  }) async {
+    try {
+      await _rpcClient.callScalar<Object?>(
+        'mark_issuance_provider_call_started',
+        params: IssuanceRpcMapper.markProviderCallStartedParams(
+          tenantId: tenantId,
+          attemptId: attemptId,
+        ),
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
+
+  @override
   Future<RecordIssuanceResultDto> recordSuccess({
     required String tenantId,
     required String attemptId,
@@ -113,6 +131,62 @@ final class SupabaseIssuanceResultGateway implements IIssuanceResultGateway {
       );
       if (rows.isEmpty) {
         throw RpcException('record_issuance_undetermined returned no rows');
+      }
+      return IssuanceRpcMapper.recordIssuanceResultFromRow(
+        Map<String, dynamic>.from(rows.first),
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
+  }) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'record_issuance_command_integrity_failure',
+        params: IssuanceRpcMapper.recordCommandIntegrityFailureParams(
+          tenantId: tenantId,
+          attemptId: attemptId,
+          reasonCode: reasonCode,
+        ),
+      );
+      if (rows.isEmpty) {
+        throw RpcException(
+          'record_issuance_command_integrity_failure returned no rows',
+        );
+      }
+      return IssuanceRpcMapper.recordIssuanceResultFromRow(
+        Map<String, dynamic>.from(rows.first),
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordPublishCommandDeadLetter({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
+  }) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'record_publish_command_dead_letter',
+        params: IssuanceRpcMapper.recordPublishCommandDeadLetterParams(
+          tenantId: tenantId,
+          attemptId: attemptId,
+          reasonCode: reasonCode,
+        ),
+      );
+      if (rows.isEmpty) {
+        throw RpcException(
+          'record_publish_command_dead_letter returned no rows',
+        );
       }
       return IssuanceRpcMapper.recordIssuanceResultFromRow(
         Map<String, dynamic>.from(rows.first),

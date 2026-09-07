@@ -33,9 +33,8 @@ class InvoiceDeliveryRecipientForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canSubmit = !isLoading &&
-        !showValidationError &&
-        SendInvoiceCopy.isValidEmail(emailController.text);
+    final canSubmit =
+        !isLoading && !showValidationError && SendInvoiceCopy.isValidEmail(emailController.text);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -51,10 +50,8 @@ class InvoiceDeliveryRecipientForm extends StatelessWidget {
           label: SendInvoiceCopy.recipientLabel,
           isRequired: true,
           hintText: SendInvoiceCopy.recipientPlaceholder,
-          helperText:
-              showValidationError ? null : SendInvoiceCopy.recipientHelper,
-          errorText:
-              showValidationError ? SendInvoiceCopy.recipientInvalid : null,
+          helperText: showValidationError ? null : SendInvoiceCopy.recipientHelper,
+          errorText: showValidationError ? SendInvoiceCopy.recipientInvalid : null,
           enabled: !isLoading,
           keyboardType: TextInputType.emailAddress,
           onChanged: onEmailChanged,

@@ -12,9 +12,9 @@ class ProductChangeHistoryCubit extends Cubit<ProductChangeHistoryState> {
   ProductChangeHistoryCubit({
     required ICatalogModule catalogModule,
     required IExecutionContext executionContext,
-  })  : _catalogModule = catalogModule,
-        _executionContext = executionContext,
-        super(const ProductChangeHistoryState());
+  }) : _catalogModule = catalogModule,
+       _executionContext = executionContext,
+       super(const ProductChangeHistoryState());
 
   Future<void> loadHistory(String productId) async {
     if (state.hasReachedMax) return;
@@ -35,25 +35,31 @@ class ProductChangeHistoryCubit extends Cubit<ProductChangeHistoryState> {
       final result = await _catalogModule.executeQueryAsync<ProductChangeHistoryResultDto>(query);
 
       final newItems = List.of(state.items)..addAll(result.items);
-      
-      emit(state.copyWith(
-        status: ProductChangeHistoryStatus.success,
-        items: newItems,
-        totalCount: result.totalCount,
-        hasReachedMax: result.items.length < _limit,
-        offset: state.offset + _limit,
-        errorMessage: null,
-      ));
+
+      emit(
+        state.copyWith(
+          status: ProductChangeHistoryStatus.success,
+          items: newItems,
+          totalCount: result.totalCount,
+          hasReachedMax: result.items.length < _limit,
+          offset: state.offset + _limit,
+          errorMessage: null,
+        ),
+      );
     } on ApplicationException catch (e) {
-      emit(state.copyWith(
-        status: ProductChangeHistoryStatus.failure,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductChangeHistoryStatus.failure,
+          errorMessage: e.message,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductChangeHistoryStatus.failure,
-        errorMessage: 'Đã xảy ra lỗi không xác định',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductChangeHistoryStatus.failure,
+          errorMessage: 'Đã xảy ra lỗi không xác định',
+        ),
+      );
     }
   }
 

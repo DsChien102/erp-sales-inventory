@@ -10,20 +10,28 @@ import '../einvoice_command_pipeline.dart';
 
 extension EinvoiceCommandBusBusinessCommands on CommandBus {
   void registerBusinessCommand<
-      TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
+    TCommand extends ICommand<TResult>,
+    TResult,
+    THandler extends Object
+  >({
     required GetIt container,
-    required Future<TResult> Function(TCommand command, THandler handler) invoke,
+    required Future<TResult> Function(TCommand command, THandler handler)
+    invoke,
     ILogger? logger,
   }) {
     register<TCommand, TResult>((command) {
       final handler = container.get<THandler>();
-      final pipeline = EinvoiceCommandPipeline.buildBusinessPipeline<
-          TCommand, TResult, THandler>(
-        container: container,
-        handler: handler,
-        invoke: invoke,
-        logger: logger,
-      );
+      final pipeline =
+          EinvoiceCommandPipeline.buildBusinessPipeline<
+            TCommand,
+            TResult,
+            THandler
+          >(
+            container: container,
+            handler: handler,
+            invoke: invoke,
+            logger: logger,
+          );
       return pipeline(command);
     });
   }

@@ -25,8 +25,7 @@ void main() {
   }
 
   group('OrderEInvoiceRow', () {
-    testWidgets('R01: buyer not ready shows helper and not-issued badge',
-        (tester) async {
+    testWidgets('R01: buyer not ready shows helper and not-issued badge', (tester) async {
       final projection = FakeEInvoiceFixtures.projection(
         issuance: IssuanceDisplayState.notIssued,
       );
@@ -40,8 +39,7 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.rowHelperManage), findsNothing);
     });
 
-    testWidgets('ready buyer shows manage helper regardless of issuance badge',
-        (tester) async {
+    testWidgets('ready buyer shows manage helper regardless of issuance badge', (tester) async {
       final projection = FakeEInvoiceFixtures.projection(
         issuance: IssuanceDisplayState.notIssued,
       );
@@ -62,8 +60,7 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.badgeIssued), findsOneWidget);
     });
 
-    testWidgets('processing badge shows Phát hành lifecycle label',
-        (tester) async {
+    testWidgets('processing badge shows Phát hành lifecycle label', (tester) async {
       final projection = FakeEInvoiceFixtures.projection(
         issuance: IssuanceDisplayState.processing,
       );

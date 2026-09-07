@@ -26,19 +26,20 @@ class InvitationRegistrationPage extends StatelessWidget {
           inspection: inspection,
           isSubmitting: state.isSubmitting,
           onBack: cubit.reset,
-          onRegister: ({
-            required String givenName,
-            required String familyName,
-            String? phone,
-            required String password,
-          }) {
-            return cubit.registerAndAccept(
-              givenName: givenName,
-              familyName: familyName,
-              phone: phone,
-              password: password,
-            );
-          },
+          onRegister:
+              ({
+                required String givenName,
+                required String familyName,
+                String? phone,
+                required String password,
+              }) {
+                return cubit.registerAndAccept(
+                  givenName: givenName,
+                  familyName: familyName,
+                  phone: phone,
+                  password: password,
+                );
+              },
         );
       },
     );

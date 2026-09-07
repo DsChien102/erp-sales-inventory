@@ -1,3 +1,5 @@
+import 'package:async_query/async_query.dart';
+import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -31,15 +33,18 @@ class ErpApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: Env.appTitle,
-      debugShowCheckedModeBanner: false,
-      theme: VTheme.lightTheme,
-      darkTheme: VTheme.darkTheme,
-      themeMode: ThemeMode.light,
-      routerConfig: appRouter,
-      builder: (context, child) => EnvBanner(
-        child: child ?? const SizedBox.shrink(),
+    return QueryClientProvider(
+      client: getIt<QueryClient>(),
+      child: MaterialApp.router(
+        title: Env.appTitle,
+        debugShowCheckedModeBanner: false,
+        theme: VTheme.lightTheme,
+        darkTheme: VTheme.darkTheme,
+        themeMode: ThemeMode.light,
+        routerConfig: appRouter,
+        builder: (context, child) => EnvBanner(
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }

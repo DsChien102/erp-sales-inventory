@@ -24,9 +24,7 @@ class PartnerContactsErrorBody extends StatelessWidget {
             Icon(Icons.error_outline_rounded, color: colors.danger, size: 48),
             const SizedBox(height: VSpacing.space3),
             VText(
-              isNoPermission
-                  ? 'Không có quyền quản lý người liên hệ'
-                  : 'Đã xảy ra lỗi',
+              isNoPermission ? 'Không có quyền quản lý người liên hệ' : 'Đã xảy ra lỗi',
               variant: VTextVariant.headingH3,
               color: colors.textPrimary,
             ),

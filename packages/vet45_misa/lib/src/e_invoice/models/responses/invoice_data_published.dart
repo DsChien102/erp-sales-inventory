@@ -15,19 +15,26 @@ final class MeInvoiceInvoiceDataPublished {
   final List<int>? bytes;
 
   factory MeInvoiceInvoiceDataPublished.fromJson(Map<String, dynamic> json) {
-    final b64 = MeInvoiceJsonHelpers.readString(json, 'Data');
+    final rawData = MeInvoiceJsonHelpers.readString(json, 'Data');
     List<int>? bytes;
-    if (b64 != null && b64.isNotEmpty) {
-      try {
-        bytes = base64Decode(b64);
-      } on FormatException {
-        bytes = null;
+    if (rawData != null && rawData.isNotEmpty) {
+      final trimmed = rawData.trim();
+      if (trimmed.startsWith('<')) {
+        // MISA returns raw XML text for invoice documents (not base64 encoded).
+        bytes = utf8.encode(rawData);
+      } else {
+        try {
+          bytes = base64Decode(trimmed);
+        } on FormatException {
+          // Fallback to UTF-8 bytes if base64 decoding fails.
+          bytes = utf8.encode(rawData);
+        }
       }
     }
     return MeInvoiceInvoiceDataPublished(
       transactionId:
           MeInvoiceJsonHelpers.readString(json, 'TransactionID') ?? '',
-      data: b64,
+      data: rawData,
       bytes: bytes,
     );
   }

@@ -24,6 +24,7 @@ final class WorkerEnv {
     this.resendApiKey,
     this.resendFromDomain = 'resend.dev',
     this.appLinkBaseUrl,
+    this.misaEmailDeliveryEnabled = false,
   });
 
   final String supabaseUrl;
@@ -52,6 +53,9 @@ final class WorkerEnv {
   /// MISA meInvoice API base URL for e-invoice worker jobs.
   final String misaBaseUrl;
 
+  /// Whether MISA meInvoice email delivery capability is enabled.
+  final bool misaEmailDeliveryEnabled;
+
   String get resendFromEmail {
     final normalized = environment.trim().toLowerCase();
     final environmentLabel = switch (normalized) {
@@ -60,9 +64,7 @@ final class WorkerEnv {
       'production' || 'prod' => null,
       _ => normalized.isEmpty ? 'unknown' : normalized,
     };
-    final displayName = environmentLabel == null
-        ? 'VET45'
-        : 'VET45 ($environmentLabel)';
+    final displayName = environmentLabel == null ? 'VET45' : 'VET45 ($environmentLabel)';
     return '$displayName <noreply@$resendFromDomain>';
   }
 
@@ -75,7 +77,10 @@ final class WorkerEnv {
   }
 
   factory WorkerEnv.fromPlatform() {
-    final env = Platform.environment;
+    return WorkerEnv.fromEnvironment(Platform.environment);
+  }
+
+  factory WorkerEnv.fromEnvironment(Map<String, String> env) {
     return WorkerEnv(
       supabaseUrl: _require(env, 'SUPABASE_URL'),
       supabaseServiceRoleKey: _require(env, 'SUPABASE_SERVICE_ROLE_KEY'),
@@ -122,6 +127,10 @@ final class WorkerEnv {
       appLinkBaseUrl: _optional(env, 'APP_LINK_BASE_URL'),
       misaAppId: _require(env, 'MISA_MEINVOICE_APP_ID'),
       misaBaseUrl: _require(env, 'MISA_MEINVOICE_BASE_URL'),
+      misaEmailDeliveryEnabled: _parseBoolean(
+        env['MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED'],
+        defaultValue: false,
+      ),
     );
   }
 
@@ -186,5 +195,24 @@ final class WorkerEnv {
       throw FormatException('Value $parsed exceeds maximum $maxValue.');
     }
     return parsed;
+  }
+
+  static bool _parseBoolean(
+    String? raw, {
+    required bool defaultValue,
+  }) {
+    if (raw == null || raw.trim().isEmpty) {
+      return defaultValue;
+    }
+    final normalized = raw.trim().toLowerCase();
+    if (normalized == 'true') {
+      return true;
+    }
+    if (normalized == 'false') {
+      return false;
+    }
+    throw FormatException(
+      'Expected boolean "true" or "false", got "$raw".',
+    );
   }
 }

@@ -31,3 +31,18 @@ targets:
           module_name: einvoice
           scan_package: vet45_einvoice_infrastructure
           handler_scan_package: vet45_einvoice_application
+      vet45_generator|cqrs_integration_event_registry:
+        enabled: true
+        options:
+          module_name: einvoice
+          scan_package: vet45_einvoice_application
+          application_package: vet45_einvoice_application
+          dispatchers:
+            - id: einvoice
+              factory_function: createGeneratedEinvoiceIntegrationEventDispatcher
+              dispatcher_class: EinvoiceIntegrationEventDispatcher
+              dispatcher_import: ../einvoice_integration_event_dispatcher.dart
+              event_packages:
+                - vet45_sales_integration_events
+                - vet45_partner_integration_events
+                - vet45_einvoice_integration_events

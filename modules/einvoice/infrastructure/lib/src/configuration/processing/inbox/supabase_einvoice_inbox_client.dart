@@ -43,10 +43,7 @@ final class SupabaseEinvoiceInboxClient implements IEinvoiceInboxClient {
     try {
       final rows = await _rpcClient.callList(
         'claim_inbox_batch',
-        params: <String, dynamic>{
-          'p_tenant_id': tenantId,
-          'p_limit': limit,
-        },
+        params: <String, dynamic>{'p_tenant_id': tenantId, 'p_limit': limit},
       );
       return rows
           .map(

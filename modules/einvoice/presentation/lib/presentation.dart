@@ -26,6 +26,7 @@ export 'src/widgets/configuration_blocker_result.dart';
 export 'src/widgets/einvoice_action_item.dart';
 export 'src/widgets/invoice_delivery_history_view.dart';
 export 'src/widgets/invoice_documents_action_sheet.dart';
+export 'src/widgets/issuance_failure_banner.dart';
 export 'src/widgets/order_data_blocker_result.dart';
 export 'src/widgets/order_einvoice_row.dart';
 export 'src/widgets/post_issue_einvoice_action_sheet.dart';

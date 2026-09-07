@@ -44,13 +44,13 @@ final class SupabaseSchemaRpcClient {
     try {
       final result = await _rpc(functionName, params: params);
       if (result == null) {
-        _logger?.info(
+        _logger?.fine(
           'RPC success fn=$functionName elapsedMs=${stopwatch.elapsedMilliseconds}',
         );
         return <String, dynamic>{};
       }
 
-      _logger?.info(
+      _logger?.fine(
         'RPC success fn=$functionName elapsedMs=${stopwatch.elapsedMilliseconds}',
       );
       return Map<String, dynamic>.from(result as Map);
@@ -78,7 +78,7 @@ final class SupabaseSchemaRpcClient {
       }
 
       if (result is List<dynamic>) {
-        _logger?.info(
+        _logger?.fine(
           'RPC list success fn=$functionName rows=${result.length} '
           'elapsedMs=${stopwatch.elapsedMilliseconds}',
         );
@@ -109,7 +109,7 @@ final class SupabaseSchemaRpcClient {
 
     try {
       final result = await _rpc(functionName, params: params);
-      _logger?.info(
+      _logger?.fine(
         'RPC scalar success fn=$functionName elapsedMs=${stopwatch.elapsedMilliseconds}',
       );
       return result as T?;

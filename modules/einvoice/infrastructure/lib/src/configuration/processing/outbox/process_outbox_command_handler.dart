@@ -2,6 +2,8 @@ import 'package:vet45_einvoice_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../generated/einvoice_integration_event_registry.g.dart'
+    show EinvoiceIntegrationEventRegistry;
 import 'i_einvoice_outbox_client.dart';
 import 'process_outbox_command.dart';
 
@@ -95,6 +97,15 @@ abstract final class EinvoiceOutboxEventSerializer {
     required String eventType,
     required Map<String, dynamic> payload,
   }) {
+    // Prefer generated registry (registered + delivery + inbound types).
+    final generated = EinvoiceIntegrationEventRegistry.fromJson(
+      eventType: eventType,
+      payload: payload,
+    );
+    if (generated != null) {
+      return generated;
+    }
+
     if (eventType == ConfigurationReadinessChangedIntegrationEvent.type) {
       return ConfigurationReadinessChangedIntegrationEvent(
         id: payload['id'] as String,
@@ -119,15 +130,6 @@ abstract final class EinvoiceOutboxEventSerializer {
         tenantId: payload['tenant_id'] as String,
         salesOrderId: payload['sales_order_id'] as String,
         attemptId: payload['attempt_id'] as String,
-      );
-    }
-    if (eventType == ElectronicInvoiceRegisteredIntegrationEvent.type) {
-      return ElectronicInvoiceRegisteredIntegrationEvent(
-        id: payload['id'] as String,
-        occurredOn: DateTime.parse(payload['occurred_on'] as String),
-        tenantId: payload['tenant_id'] as String,
-        electronicInvoiceId: payload['electronic_invoice_id'] as String,
-        salesOrderId: payload['sales_order_id'] as String,
       );
     }
     return null;

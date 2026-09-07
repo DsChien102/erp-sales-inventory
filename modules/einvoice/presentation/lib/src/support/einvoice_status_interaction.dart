@@ -8,28 +8,23 @@ import 'package:vet45_einvoice_domain/domain.dart';
 /// unchanged — only interaction is gated.
 abstract final class EInvoiceStatusInteraction {
   /// Whether a control presenting [status] may accept taps.
-  static bool allowsTap(VBadgeStatus status) =>
-      status != VBadgeStatus.processing;
+  static bool allowsTap(VBadgeStatus status) => status != VBadgeStatus.processing;
 
-  static VBadgeStatus forIssuance(IssuanceDisplayState state) =>
-      switch (state) {
-        IssuanceDisplayState.notIssued => VBadgeStatus.draft,
-        IssuanceDisplayState.processing => VBadgeStatus.processing,
-        IssuanceDisplayState.issued => VBadgeStatus.success,
-        IssuanceDisplayState.failed => VBadgeStatus.danger,
-      };
+  static VBadgeStatus forIssuance(IssuanceDisplayState state) => switch (state) {
+    IssuanceDisplayState.notIssued => VBadgeStatus.draft,
+    IssuanceDisplayState.processing => VBadgeStatus.processing,
+    IssuanceDisplayState.issued => VBadgeStatus.success,
+    IssuanceDisplayState.failed => VBadgeStatus.danger,
+  };
 
-  static VBadgeStatus forDelivery(DeliveryDisplayState state) =>
-      switch (state) {
-        DeliveryDisplayState.notSent => VBadgeStatus.draft,
-        DeliveryDisplayState.sending => VBadgeStatus.processing,
-        DeliveryDisplayState.sent => VBadgeStatus.success,
-        DeliveryDisplayState.failed => VBadgeStatus.danger,
-      };
+  static VBadgeStatus forDelivery(DeliveryDisplayState state) => switch (state) {
+    DeliveryDisplayState.notSent => VBadgeStatus.draft,
+    DeliveryDisplayState.sending => VBadgeStatus.processing,
+    DeliveryDisplayState.sent => VBadgeStatus.success,
+    DeliveryDisplayState.failed => VBadgeStatus.danger,
+  };
 
-  static bool allowsTapForIssuance(IssuanceDisplayState state) =>
-      allowsTap(forIssuance(state));
+  static bool allowsTapForIssuance(IssuanceDisplayState state) => allowsTap(forIssuance(state));
 
-  static bool allowsTapForDelivery(DeliveryDisplayState state) =>
-      allowsTap(forDelivery(state));
+  static bool allowsTapForDelivery(DeliveryDisplayState state) => allowsTap(forDelivery(state));
 }

@@ -1,3 +1,5 @@
+import 'models/responses/send_email_result.dart';
+import 'models/me_invoice_session_token.dart';
 import 'models/me_invoice_result.dart';
 import 'models/misa/invoice_data.dart';
 import 'models/misa/invoice_status.dart';
@@ -11,6 +13,10 @@ import 'models/responses/publish_invoice_result.dart';
 
 /// Blackbox HTTP port for MISA meInvoice outbound (phát hành HĐĐT).
 abstract interface class IMeInvoiceClient {
+  Future<MeInvoiceResult<MeInvoiceSessionToken>> obtainAccessToken({
+    bool forceLogin = false,
+  });
+
   Future<MeInvoiceResult<List<MeInvoiceTemplate>>> listInvoiceTemplates({
     required bool invoiceWithCode,
     int? year,
@@ -46,7 +52,9 @@ abstract interface class IMeInvoiceClient {
     required MeInvoiceInvoiceQuery query,
   });
 
-  Future<MeInvoiceResult<void>> sendEmail(MeInvoiceSendEmailRequest request);
+  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
+    MeInvoiceSendEmailRequest request,
+  );
 
   Future<MeInvoiceResult<String>> convertToPaper({
     required List<String> transactionIds,

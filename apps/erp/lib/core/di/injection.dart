@@ -1,3 +1,4 @@
+import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
@@ -7,8 +8,13 @@ import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_infrastructure/infrastructure.dart';
+<<<<<<< HEAD
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_infrastructure/infrastructure.dart';
+=======
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
+>>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -23,6 +29,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   }
 
   getIt.registerSingleton<SupabaseModule>(supabaseModule);
+
+  getIt.registerLazySingleton<QueryClient>(() => QueryClient());
 
   getIt.registerLazySingleton<ILoggerFactory>(
     () => const LoggingLoggerFactory(),
@@ -84,6 +92,7 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<IPricingModule>(pricingModule);
 
+<<<<<<< HEAD
 
   final salesModule = SalesStartup.initialize(
     supabase: supabaseModule.client,
@@ -96,3 +105,15 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     FakeEInvoiceModule(
       scenario: FakeEInvoiceScenario.configReadinessReady,
     ),
+=======
+  final einvoiceRuntime = EinvoiceStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    permissionChecker: iamRuntime.permissionChecker,
+    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    integrationEventBus: getIt<IEventsBus>(),
+  );
+
+  getIt.registerSingleton<IEInvoiceModule>(einvoiceRuntime.module);
+}
+>>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)

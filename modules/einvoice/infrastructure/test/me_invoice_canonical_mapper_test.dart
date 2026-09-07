@@ -11,11 +11,7 @@ void main() {
         'buyerAddress': 'HN',
         'totalAmount': 110000,
         'originalInvoiceDetail': [
-          {
-            'itemName': 'Svc',
-            'quantity': 1,
-            'unitPrice': 100000,
-          },
+          {'itemName': 'Svc', 'quantity': 1, 'unitPrice': 100000},
         ],
         'taxRateInfo': [
           {'vatRateName': '10%'},

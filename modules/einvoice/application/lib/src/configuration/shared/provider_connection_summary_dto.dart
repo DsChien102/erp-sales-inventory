@@ -6,9 +6,13 @@ final class ProviderConnectionSummaryDto {
     this.connectionId,
     required this.status,
     this.lastCheckedAt,
+    this.maskedAccount,
+    this.connectionVersion,
   });
 
   final String? connectionId;
   final ProviderConnectionStatus status;
   final DateTime? lastCheckedAt;
+  final String? maskedAccount;
+  final int? connectionVersion;
 }

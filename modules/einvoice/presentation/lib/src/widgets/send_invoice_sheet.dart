@@ -96,8 +96,7 @@ class _SendInvoiceSheetState extends State<SendInvoiceSheet> {
     if (oldWidget.state != widget.state) {
       _isLoading = widget.state == SendInvoiceSheetState.loading;
       _showValidationError = widget.state == SendInvoiceSheetState.invalid;
-      if (oldWidget.initialEmail != widget.initialEmail ||
-          oldWidget.state != widget.state) {
+      if (oldWidget.initialEmail != widget.initialEmail || oldWidget.state != widget.state) {
         _emailController.text = _initialEmailForState();
       }
     }
@@ -112,16 +111,12 @@ class _SendInvoiceSheetState extends State<SendInvoiceSheet> {
   String _initialEmailForState() {
     return switch (widget.state) {
       SendInvoiceSheetState.suggested =>
-        widget.initialEmail.isEmpty
-            ? SendInvoiceSheet.previewSuggestedEmail
-            : widget.initialEmail,
+        widget.initialEmail.isEmpty ? SendInvoiceSheet.previewSuggestedEmail : widget.initialEmail,
       SendInvoiceSheetState.empty => '',
       SendInvoiceSheetState.invalid =>
         widget.initialEmail.isEmpty ? 'not-an-email' : widget.initialEmail,
       SendInvoiceSheetState.loading =>
-        widget.initialEmail.isEmpty
-            ? SendInvoiceSheet.previewSuggestedEmail
-            : widget.initialEmail,
+        widget.initialEmail.isEmpty ? SendInvoiceSheet.previewSuggestedEmail : widget.initialEmail,
     };
   }
 

@@ -34,4 +34,23 @@ final class LegalProfileFormInput {
   final String? registeredAddressText;
   final String? provinceCode;
   final String? communeCode;
+
+  LegalProfileFormInput copyWith({
+    String? legalEntityType,
+    String? legalName,
+    String? taxCode,
+    String? registeredAddressText,
+    String? provinceCode,
+    String? communeCode,
+  }) {
+    return LegalProfileFormInput(
+      legalEntityType: legalEntityType ?? this.legalEntityType,
+      legalName: legalName ?? this.legalName,
+      taxCode: taxCode ?? this.taxCode,
+      registeredAddressText:
+          registeredAddressText ?? this.registeredAddressText,
+      provinceCode: provinceCode ?? this.provinceCode,
+      communeCode: communeCode ?? this.communeCode,
+    );
+  }
 }

@@ -6,9 +6,8 @@ import '../errors/einvoice_error_mapper.dart';
 import 'einvoice_rpc_mapper.dart';
 
 final class SupabaseInvoicePreviewGateway implements IInvoicePreviewGateway {
-  SupabaseInvoicePreviewGateway({
-    required SupabaseSchemaRpcClient rpcClient,
-  }) : _rpcClient = rpcClient;
+  SupabaseInvoicePreviewGateway({required SupabaseSchemaRpcClient rpcClient})
+    : _rpcClient = rpcClient;
 
   final SupabaseSchemaRpcClient _rpcClient;
 
@@ -41,6 +40,7 @@ final class SupabaseInvoicePreviewGateway implements IInvoicePreviewGateway {
   @override
   Future<InvoicePreviewResultDto?> readCached({
     required String tenantId,
+    required String actorId,
     required String salesOrderId,
   }) async {
     try {
@@ -48,7 +48,7 @@ final class SupabaseInvoicePreviewGateway implements IInvoicePreviewGateway {
         'get_invoice_preview',
         params: {
           'p_tenant_id': tenantId,
-          'p_actor_id': tenantId,
+          'p_actor_id': actorId,
           'p_sales_order_id': salesOrderId,
         },
       );

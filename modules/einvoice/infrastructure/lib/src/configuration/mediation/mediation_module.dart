@@ -20,9 +20,6 @@ final class EinvoiceMediationModule {
       logger: commandLogger,
     );
 
-    registerGeneratedEinvoiceQueries(
-      bus: queryBus,
-      container: container,
-    );
+    registerGeneratedEinvoiceQueries(bus: queryBus, container: container);
   }
 }

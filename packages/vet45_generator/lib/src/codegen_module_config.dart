@@ -46,6 +46,7 @@ final class CodegenModuleConfig {
 
   static const defaultIntegrationEventScanGlobs = <String>[
     'lib/src/events/**/*_integration_event.dart',
+    'lib/src/**/*_integration_event.dart',
   ];
 
   static const defaultModuleManifestScanGlobs = <String>[

@@ -201,21 +201,34 @@ Mọi vendor call qua outbox/internal job — **không giữ DB transaction mở
 | Job type                             | Payload (summary)                        | Idempotency key                                    | IMeInvoiceClient       | Retry                   | Terminal                         |
 | ------------------------------------ | ---------------------------------------- | -------------------------------------------------- | ---------------------- | ----------------------- | -------------------------------- |
 | `einvoice.sync_capabilities`         | tenantId, connectionId                   | `{tenantId}:sync_cap:{connectionId}:{day}`         | `listInvoiceTemplates` | 3x backoff              | success / fail job               |
-| `einvoice.preview_invoice`           | tenantId, salesOrderId, previewRequestId | `{tenantId}:preview:{salesOrderId}:{orderVersion}` | `previewUnpublished`   | 2x                      | success / fail                   |
+| `einvoice.preview_invoice`           | tenantId, salesOrderId, previewRequestId, providerConnectionId | `{tenantId}:preview:{salesOrderId}:{orderVersion}` | `previewUnpublished`   | 2x                      | success / fail                   |
 | `einvoice.publish_invoice`           | tenantId, attemptId, canonicalPayload    | `{tenantId}:publish:{attemptId}`                   | `publish`              | none (poll instead)     | enqueued → poll                  |
 | `einvoice.poll_issuance_status`      | tenantId, attemptId, providerRef         | `{tenantId}:poll_issue:{attemptId}:{tick}`         | `getStatus`            | schedule until resolved | SUCCEEDED / FAILED / RECONCILING |
-| `einvoice.download_invoice_document` | tenantId, documentId, type               | `{tenantId}:download:{documentId}:{type}`          | `download`             | 3x                      | AVAILABLE / FAILED               |
-| `einvoice.fetch_official_view`       | tenantId, invoiceId                      | `{tenantId}:view:{invoiceId}:{hour}`               | `previewPublished`     | 2x                      | URL issued / fail                |
+| `einvoice.download_invoice_document` | tenantId, operationId, invoiceId, type  | `{tenantId}:download:{invoiceId}:{type}:{generation}` | `download`          | 3x                      | AVAILABLE / FAILED / CHECK_REQUIRED |
+| `einvoice.fetch_official_view`       | tenantId, operationId, invoiceId         | `{tenantId}:view:{invoiceId}:{generation}`         | `previewPublished`     | 2x                      | AVAILABLE / FAILED / CHECK_REQUIRED |
 | `einvoice.send_invoice_email`        | tenantId, deliveryAttemptId              | `{tenantId}:send:{deliveryAttemptId}`              | `sendEmail`            | poll on unknown         | SUCCEEDED / FAILED / UNKNOWN     |
-| `einvoice.poll_provider_observation` | tenantId, electronicInvoiceId            | `{tenantId}:observe:{invoiceId}:{day}`             | `getStatus`            | schedule                | observation recorded             |
+| `einvoice.poll_provider_observation` | tenantId, electronicInvoiceId, triggerId | `{tenantId}:observe:{invoiceId}:{triggerId}` | `getStatus`            | explicit trigger + backoff | interaction audit; observation on provider fact only |
 
 
-**Commit points (RPC trước enqueue):**
+S2 preview handoff persists in `invoice_preview_operations` (technical operation), not `provider_interaction_records`. Provider-call audit uses canonical `ProviderInteractionRecord` (Task 7 wraps `previewUnpublished`).
+
+**Commit points & Dispatch Barrier:**
+
+```text
+PREPARING --prepare_issuance_publish--> SUBMITTED
+  status SUBMITTED is the durable no-republish barrier; does not set submitted_at
+SUBMITTED --mark_issuance_provider_call_started immediately before HTTP--> SUBMITTED
+  sets submitted_at once
+provider accepted/pending --> WAITING_RESULT
+replay at SUBMITTED/WAITING_RESULT --> RECONCILING; never publish again
+```
 
 1. Persist AttemptSnapshot / DeliveryRecipientSnapshot locally.
-2. Commit transaction (attempt status → SUBMITTED).
-3. Enqueue job — worker calls MISA outside transaction.
-4. Worker invokes `RecordIssuanceResultCommand` / `RecordDeliveryResultCommand` via internal path.
+2. Commit transaction (`status` → `SUBMITTED`). Đây là dispatch barrier bền vững; không set `submitted_at` tại bước này.
+3. Enqueue job — worker chuẩn bị gọi MISA.
+4. Ngay trước lời gọi HTTP tới provider, worker gọi RPC `einvoice.mark_issuance_provider_call_started` để ghi `submitted_at` một lần duy nhất.
+5. Worker gọi MISA outside transaction.
+6. Worker chuẩn hóa kết quả thành `IssuanceResultEvidenceDto` và dispatch `RecordIssuanceResultCommand` (hoặc gọi typed result RPCs) qua internal path; raw provider payload không phải là input của command và không được lưu trực tiếp vào evidence.
 
 **Soft-fail:** missing tenant credential → job fails with stable code `PROVIDER_NOT_CONNECTED`; worker tick continues.
 
@@ -321,12 +334,22 @@ sequenceDiagram
   participant W as Worker
 
   UI->>App: RequestOfficialInvoiceViewCommand
+  App->>App: persist operation + enqueue atomically
+  App-->>UI: operationId + PENDING/AVAILABLE
   App->>W: enqueue fetch_official_view
   W->>W: previewPublished
+  W->>App: record official-view result
+  UI->>App: poll GetElectronicInvoiceDetailQuery
   UI->>App: RequestInvoiceDocumentCommand pdf
+  App->>App: persist per-type operation + enqueue atomically
+  App-->>UI: operationId + PENDING/AVAILABLE
   App->>W: enqueue download_invoice_document
   W->>W: download
+  W->>App: record document result
+  UI->>App: poll GetInvoiceDocumentsQuery
 ```
+
+Signed URL/token chỉ được trả từ read RPC sau khi recheck tenant + permission; URL hết hạn được re-arm bằng generation mới. Provider HTTP không nằm trong DB transaction hoặc command handler.
 
 
 
@@ -355,10 +378,17 @@ Result: RecordDeliveryResultCommand → OrderInvoiceProjection delivery display
 | Duplicate/conflicting provider response | case PENDING; correlate by idempotency key      |
 | Poll resolves success                   | `RecordIssuanceResultCommand` → SUCCEEDED       |
 | Poll resolves failure                   | FAILED — user may RetryIssuance (new attempt)   |
-| Unresolved after policy                 | case UNRESOLVED — ops tooling (Theme 11 future) |
+| Unresolved after 5 checks               | case UNRESOLVED ([30s, 2m, 10m, 30m, 2h]) — ops review |
+| Late terminal callback on UNRESOLVED    | case UNRESOLVED -> RESOLVED (Contract Amendment) |
 
 
-Competing operations **locked** while case PENDING (DR-17).
+**Chính sách Poll và Invariant Đối soát:**
+- **Lịch Poll cố định:** Các khoảng thời gian chờ `[30s, 2m, 10m, 30m, 2h]`. Sau lần kiểm tra thứ 5 không xác định, case được đánh dấu `UNRESOLVED`, dừng poll tự động và vẫn giữ business lock.
+- **Authoritative Case & Sweeper Seed:** `invoice_reconciliation_cases` là nguồn authoritative của lịch đối soát; scheduled internal commands sử dụng due-time qua `internal_commands.enqueued_at` và được seed tự động, idempotent bởi sweeper.
+- **Race Condition Invariant:** Callback và poll có thể race, nhưng chỉ một terminal transition thắng; bên đến sau nhận lại kết quả đã ghi trước đó (idempotent/no-op).
+- **Late Callback Amendment:** Transition `ReconciliationCase UNRESOLVED -> RESOLVED` diễn ra khi có callback terminal từ provider đã xác thực và correlate đúng danh tính. Callback success muộn hoàn tất attempt/invoice/finalization mà không publish lại; callback definite failure muộn kết thúc attempt/case rồi projection mới mở lại action `issue`. Callback không xác định/không hợp lệ không đổi state `UNRESOLVED`.
+
+Competing operations **locked** while case PENDING hoặc UNRESOLVED (DR-17).
 
 ### Internal finalization recovery
 
@@ -425,4 +455,3 @@ Ghi lại để không phải phân tích lại, **không** thuộc phạm vi S2
 - **Giảm latency chặng 2:** kick `POST /tick` từ server-side (`pg_net` hoặc Edge Function) sau khi enqueue — đây là chỗ `IMessagingFlushPort.flushAfterMutation()` được thiết kế để cắm vào; hoặc hạ `WORKER_TICK_ACTIVE_SECONDS`.
 
 Điều kiện xem xét: sau khi S2 chạy thật và đo được latency từ `SUBMITTED` đến lúc UI thấy terminal state.
-

@@ -1,10 +1,9 @@
 import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/issuance_result_evidence_dto.dart';
 import 'record_issuance_result_result.dart';
 
-/// Internal — worker/inbox finalize issuance attempt.
-/// dormant until S3b — S2b routes publish outcomes via [IIssuanceResultGateway]
-/// directly in [PublishInvoiceCommandHandler]; do not dispatch from publish path.
+/// Internal — worker/inbox finalize issuance attempt with typed evidence.
 @RequiresTenant()
 final class RecordIssuanceResultCommand extends CommandBase<RecordIssuanceResultDto>
     implements ICommand<RecordIssuanceResultDto>, ITenantScopedCommand {
@@ -12,13 +11,13 @@ final class RecordIssuanceResultCommand extends CommandBase<RecordIssuanceResult
     String? id,
     required this.tenantId,
     required this.attemptId,
-    required this.providerResult,
     required this.correlationId,
+    required this.evidence,
   }) : super(id);
 
   @override
   final String tenantId;
   final String attemptId;
-  final Map<String, Object?> providerResult;
   final String correlationId;
+  final IssuanceResultEvidenceDto evidence;
 }

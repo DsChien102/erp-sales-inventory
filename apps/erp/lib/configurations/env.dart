@@ -22,8 +22,7 @@ abstract final class Env {
     defaultValue: 'false',
   );
 
-  static AppEnvironment get appEnvironment =>
-      AppEnvironment.fromString(_appEnv);
+  static AppEnvironment get appEnvironment => AppEnvironment.fromString(_appEnv);
 
   static bool get isDevelopment => appEnvironment.isDevelopment;
   static bool get isStaging => appEnvironment.isStaging;
@@ -40,9 +39,9 @@ abstract final class Env {
   static String get logLevel => _logLevel;
 
   static bool get messagingClientPollEnabled => _parseBool(
-        _messagingClientPollEnabled,
-        defaultValue: appEnvironment.isDevelopment,
-      );
+    _messagingClientPollEnabled,
+    defaultValue: appEnvironment.isDevelopment,
+  );
 
   static bool _parseBool(String raw, {required bool defaultValue}) {
     if (raw.isEmpty) {

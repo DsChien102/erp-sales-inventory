@@ -14,6 +14,7 @@ final class ReconnectProviderCommand extends CommandBase<ProviderConnectionResul
     required this.connectionId,
     required this.username,
     required this.password,
+    this.expectedConnectionVersion,
   }) : super(id);
 
   @override
@@ -22,4 +23,5 @@ final class ReconnectProviderCommand extends CommandBase<ProviderConnectionResul
   final String connectionId;
   final String username;
   final String password;
+  final int? expectedConnectionVersion;
 }

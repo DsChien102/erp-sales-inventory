@@ -1,0 +1,59 @@
+-- Title: Partner e-invoice recipient snapshot (source-owned)
+-- Kind: surgical
+-- Intent: partner_einvoice_recipient_snapshot
+-- Context: TH-08 EP-04 S5 — source-owned Partner recipient contract for E-invoice delivery
+-- Touches: get_einvoice_recipient_snapshot
+-- Safety: read-only security-definer; revoke client execute; grant service_role only
+-- Depends on: 20260714001_partner_v2_schema.sql
+
+create or replace function partner.get_einvoice_recipient_snapshot(
+  p_tenant_id uuid,
+  p_partner_id uuid
+)
+returns table (
+  partner_id uuid,
+  invoice_email text,
+  recipient_name text,
+  source_version bigint,
+  is_active boolean
+)
+language sql
+stable
+security definer
+set search_path = partner, pg_temp
+as $$
+  select
+    p.partner_id,
+    nullif(btrim(coalesce(pp.invoice_email, op.invoice_email)), '') as invoice_email,
+    coalesce(
+      nullif(btrim(coalesce(pp.invoice_name, op.invoice_name)), ''),
+      p.display_name
+    ) as recipient_name,
+    p.version::bigint as source_version,
+    (
+      p.status = 'active'::partner.partner_status
+      and exists (
+        select 1
+        from partner.partner_roles pr
+        where pr.tenant_id = p.tenant_id
+          and pr.partner_id = p.partner_id
+          and pr.is_active = true
+      )
+    ) as is_active
+  from partner.partners p
+  left join partner.person_profiles pp
+    on pp.partner_id = p.partner_id
+   and pp.tenant_id = p.tenant_id
+  left join partner.organization_profiles op
+    on op.partner_id = p.partner_id
+   and op.tenant_id = p.tenant_id
+  where p.tenant_id = p_tenant_id
+    and p.partner_id = p_partner_id;
+$$;
+
+-- Only E-invoice security-definer callers (owner) and service_role may execute.
+-- Do not grant authenticated-client execution.
+revoke all on function partner.get_einvoice_recipient_snapshot(uuid, uuid)
+  from public, anon, authenticated;
+grant execute on function partner.get_einvoice_recipient_snapshot(uuid, uuid)
+  to service_role;

@@ -30,4 +30,24 @@ final class SupabaseIssuanceCommandGateway implements IIssuanceCommandGateway {
       throw mapEinvoiceRpcError(error);
     }
   }
+
+  @override
+  Future<IssueInvoiceResultDto> retryIssuance(
+    RetryIssuanceStartRequest request,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'retry_issuance',
+        params: IssuanceRpcMapper.retryIssuanceParams(request),
+      );
+      if (rows.isEmpty) {
+        throw RpcException('retry_issuance returned no rows');
+      }
+      return IssuanceRpcMapper.issueInvoiceResultFromRow(
+        Map<String, dynamic>.from(rows.first),
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
 }

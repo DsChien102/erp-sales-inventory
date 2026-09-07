@@ -40,7 +40,7 @@ void main() {
   setUpAll(() {
     final draft = File(
       '${_repoRoot().path}/supabase/migrations/_drafts/'
-      '007_einvoice_s2b_schema_and_rpc.sql',
+      '007_einvoice_issuance_schema_and_publish_rpcs.sql',
     );
     expect(
       draft.existsSync(),
@@ -126,8 +126,11 @@ void main() {
       );
       expect(preparePublishFn, contains('v_recomputed_hash'));
       expect(preparePublishFn, contains("status = 'PREPARING'"));
-      expect(preparePublishFn, contains("status = 'WAITING_RESULT'"));
-      expect(preparePublishFn, contains('submitted_at'));
+      expect(preparePublishFn, contains("status = 'SUBMITTED'"));
+      expect(
+        preparePublishFn,
+        isNot(contains("submitted_at = coalesce(submitted_at, now())")),
+      );
       expect(preparePublishFn, contains('STATE_CHANGED'));
     });
 

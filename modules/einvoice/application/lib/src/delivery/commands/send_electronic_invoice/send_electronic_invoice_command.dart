@@ -3,6 +3,10 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'send_electronic_invoice_result.dart';
 
+/// Manual send/resend intent.
+///
+/// Initial versus resend is server-derived from the invoice's delivery
+/// history; the client never chooses it.
 @RequiresPermission(EInvoicePermissions.send)
 @RequiresTenant()
 final class SendElectronicInvoiceCommand extends CommandBase<SendInvoiceResultDto>
@@ -14,7 +18,6 @@ final class SendElectronicInvoiceCommand extends CommandBase<SendInvoiceResultDt
     required this.salesOrderId,
     required this.recipientEmail,
     required this.idempotencyKey,
-    this.deliveryKind,
   }) : super(id);
 
   @override
@@ -23,5 +26,4 @@ final class SendElectronicInvoiceCommand extends CommandBase<SendInvoiceResultDt
   final String salesOrderId;
   final String recipientEmail;
   final String idempotencyKey;
-  final DeliveryKind? deliveryKind;
 }

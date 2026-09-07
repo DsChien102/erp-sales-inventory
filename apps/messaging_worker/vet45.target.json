@@ -94,6 +94,11 @@
       "name": "MISA_MEINVOICE_APP_ID",
       "required": true,
       "description": "MISA meInvoice app ID"
+    },
+    {
+      "name": "MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED",
+      "default": "false",
+      "description": "Enable MISA meInvoice email delivery capability"
     }
   ],
   "environments": {

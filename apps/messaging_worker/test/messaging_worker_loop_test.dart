@@ -444,18 +444,24 @@ void main() {
     });
   });
 
-  group('S3b handoff boundary', () {
-    test('einvoice internal command registry does not recognize poll_issuance_status', () {
+  group('S3b internal command registration', () {
+    test('einvoice internal command registry recognizes poll_issuance_status', () {
       final serializer = createGeneratedEinvoiceInternalCommandSerializer();
 
-      expect(
-        () => serializer.deserialize(
-          commandType: 'einvoice.poll_issuance_status',
-          payload: const {},
-          id: 'unknown',
-        ),
-        throwsA(isA<StateError>()),
+      final cmd = serializer.deserialize(
+        commandType: 'einvoice.poll_issuance_status',
+        payload: const {
+          'tenant_id': 'tenant-1',
+          'case_id': 'case-1',
+          'attempt_id': 'att-1',
+          'correlation_id': 'corr-1',
+          'check_ordinal': 1,
+        },
+        id: 'cmd-1',
       );
+
+      expect(cmd.commandType, 'einvoice.poll_issuance_status');
+      expect(cmd.tenantId, 'tenant-1');
     });
   });
 }

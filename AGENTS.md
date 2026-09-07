@@ -221,7 +221,11 @@ Theme package: [docs/themes/TH-05-sales-orders/](docs/themes/TH-05-sales-orders/
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
+<<<<<<< HEAD
 This project is indexed by GitNexus as **vet45** (40935 symbols, 95804 relationships, 325 execution flows).
+=======
+This project is indexed by GitNexus as **vet45** (36324 symbols, 83015 relationships, 273 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+>>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)
 
 > Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
 

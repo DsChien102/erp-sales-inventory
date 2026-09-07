@@ -23,8 +23,7 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.sendTitle), findsOneWidget);
     });
 
-    testWidgets('preview loading shows spinner and disabled items keep chevron',
-        (tester) async {
+    testWidgets('preview loading shows spinner and disabled items keep chevron', (tester) async {
       await tester.pumpWidget(
         buildSubject(state: PreIssueSheetState.previewLoading),
       );
@@ -38,8 +37,7 @@ void main() {
       expect(chevrons, findsAtLeast(2));
     });
 
-    testWidgets('buyer not ready shows warning banner and link button',
-        (tester) async {
+    testWidgets('buyer not ready shows warning banner and link button', (tester) async {
       await tester.pumpWidget(
         buildSubject(state: PreIssueSheetState.buyerNotReady),
       );
@@ -54,6 +52,23 @@ void main() {
         find.text(OrderEInvoiceCopy.issueDisabledSupporting),
         findsOneWidget,
       );
+    });
+
+    testWidgets('failed state shows failure banner while keeping issue action enabled', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildSubject(
+          state: const PreIssueSheetState(
+            isFailed: true,
+            failureCode: 'COMMAND_INTEGRITY',
+          ),
+        ),
+      );
+
+      expect(find.byType(IssuanceFailureBanner), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.failureBannerIntegrityMessage), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.issueTitle), findsOneWidget);
     });
   });
 }

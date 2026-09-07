@@ -84,9 +84,11 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     required this.productId,
     required List<String> initialImages,
   }) : _initialSignature = _signatureOf(_initialImageItems(initialImages)),
-       super(ProductImagesMaintenanceState(
-          images: _initialImageItems(initialImages),
-        ));
+       super(
+         ProductImagesMaintenanceState(
+           images: _initialImageItems(initialImages),
+         ),
+       );
 
   final ICatalogModule catalogModule;
   final IExecutionContext executionContext;
@@ -97,9 +99,7 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
   bool get hasChanges => _signatureOf(state.images) != _initialSignature;
 
   static String _signatureOf(List<ProductImageStateItem> images) {
-    return images
-        .map((image) => '${image.storageKey}|${image.isPrimary}')
-        .join(';');
+    return images.map((image) => '${image.storageKey}|${image.isPrimary}').join(';');
   }
 
   static List<ProductImageStateItem> _initialImageItems(List<String> initialImages) {
@@ -107,17 +107,21 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
       return const [];
     }
 
-    return initialImages.asMap().entries.map((entry) {
-      final index = entry.key;
-      final reference = entry.value;
-      final storageKey =
-          ProductImageDisplayResolver.normalizeToStorageKey(reference) ?? reference;
+    return initialImages
+        .asMap()
+        .entries
+        .map((entry) {
+          final index = entry.key;
+          final reference = entry.value;
+          final storageKey =
+              ProductImageDisplayResolver.normalizeToStorageKey(reference) ?? reference;
 
-      return ProductImageStateItem(
-        storageKey: storageKey,
-        isPrimary: index == 0,
-      );
-    }).toList(growable: false);
+          return ProductImageStateItem(
+            storageKey: storageKey,
+            isPrimary: index == 0,
+          );
+        })
+        .toList(growable: false);
   }
 
   void addImage({
@@ -126,10 +130,12 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     String? localPath,
   }) {
     if (state.images.length >= 8) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: 'Chỉ được tải lên tối đa 8 ảnh.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: 'Chỉ được tải lên tối đa 8 ảnh.',
+        ),
+      );
       emit(state.copyWith(status: ProductImagesMaintenanceStatus.initial, clearError: true));
       return;
     }
@@ -142,11 +148,13 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
       isPrimary: isFirst,
     );
 
-    emit(state.copyWith(
-      images: [...state.images, newItem],
-      status: ProductImagesMaintenanceStatus.initial,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        images: [...state.images, newItem],
+        status: ProductImagesMaintenanceStatus.initial,
+        clearError: true,
+      ),
+    );
   }
 
   void removeImage(int index) {
@@ -193,10 +201,12 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
   Future<void> pickImages(ProductImageSource source) async {
     final maxAllowed = 8 - state.images.length;
     if (maxAllowed <= 0) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: 'Chỉ được tải lên tối đa 8 ảnh.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: 'Chỉ được tải lên tối đa 8 ảnh.',
+        ),
+      );
       emit(state.copyWith(status: ProductImagesMaintenanceStatus.initial, clearError: true));
       return;
     }
@@ -230,10 +240,12 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
       final toAdd = paths.take(maxAllowed).map((p) => XFile(p)).toList();
       await _uploadPickedFiles(toAdd);
     } catch (_) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: 'Không mở được trình chọn ảnh.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: 'Không mở được trình chọn ảnh.',
+        ),
+      );
     }
   }
 
@@ -274,13 +286,22 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
           localPath: file.path,
         );
       } on ValidationException catch (e) {
-        emit(state.copyWith(status: ProductImagesMaintenanceStatus.failure, errorMessage: e.message));
+        emit(
+          state.copyWith(status: ProductImagesMaintenanceStatus.failure, errorMessage: e.message),
+        );
         return;
       } on ApplicationException catch (e) {
-        emit(state.copyWith(status: ProductImagesMaintenanceStatus.failure, errorMessage: e.message));
+        emit(
+          state.copyWith(status: ProductImagesMaintenanceStatus.failure, errorMessage: e.message),
+        );
         return;
       } catch (e) {
-        emit(state.copyWith(status: ProductImagesMaintenanceStatus.failure, errorMessage: 'Lỗi tải ảnh'));
+        emit(
+          state.copyWith(
+            status: ProductImagesMaintenanceStatus.failure,
+            errorMessage: 'Lỗi tải ảnh',
+          ),
+        );
         return;
       }
     }
@@ -317,20 +338,26 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
 
       emit(state.copyWith(status: ProductImagesMaintenanceStatus.success));
     } on ValidationException catch (e) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: e.message,
+        ),
+      );
     } on ApplicationException catch (e) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: e.message,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductImagesMaintenanceStatus.failure,
+          errorMessage: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+        ),
+      );
     }
   }
 }

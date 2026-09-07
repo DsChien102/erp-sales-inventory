@@ -117,7 +117,7 @@ class Query<T> {
 
   void _scheduleGc() {
     _cancelGcTimer();
-    final gcTime = _options.gcTime ?? const Duration(minutes: 5);
+    final gcTime = _options.gcTime ?? Duration.zero;
     if (gcTime <= Duration.zero) return;
     _gcTimer = Timer(gcTime, () {
       onGcDue?.call(this);

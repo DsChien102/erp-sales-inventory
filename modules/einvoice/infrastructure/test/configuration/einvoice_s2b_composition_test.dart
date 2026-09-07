@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
@@ -47,6 +49,52 @@ void main() {
       );
     });
 
+    test(
+      'client composition refuses worker-only MISA HTTP operations',
+      () async {
+        await expectLater(
+          container.get<IMeInvoiceProviderPort>().authenticateAndListTemplates(
+            tenantId: 'tenant-1',
+            connectionId: 'connection-1',
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('worker-only'),
+            ),
+          ),
+        );
+      },
+    );
+
+    test('deserializes einvoice.fetch_official_view internal command', () {
+      final serializer = container.get<InternalCommandSerializer>();
+
+      final command = serializer.deserialize(
+        commandType: FetchOfficialInvoiceViewCommand.type,
+        payload: {
+          'tenant_id': 'tenant-1',
+          'operation_id': 'op-1',
+          'electronic_invoice_id': 'ei-1',
+          'attempt_ordinal': 1,
+          'correlation_id': 'corr-1',
+        },
+        id: 'cmd-official-1',
+      );
+
+      expect(command, isA<FetchOfficialInvoiceViewCommand>());
+      expect((command as FetchOfficialInvoiceViewCommand).operationId, 'op-1');
+    });
+
+    test('internal command client has no observation seeder', () {
+      final source = File(
+        'lib/src/configuration/processing/internal_commands/i_einvoice_internal_command_client.dart',
+      ).readAsStringSync();
+      expect(source, contains('seedDueReconciliationCommands'));
+      expect(source, isNot(contains('seedDueProviderObservationCommands')));
+    });
+
     test('deserializes einvoice.publish_invoice internal command', () {
       final serializer = container.get<InternalCommandSerializer>();
       const commandId = 'cmd-1';
@@ -68,12 +116,12 @@ void main() {
       expect(command.idempotencyKey, 'idem-1');
     });
 
-    test('internal command registry excludes poll_issuance_status', () {
+    test('internal command registry rejects unknown command type', () {
       final serializer = createGeneratedEinvoiceInternalCommandSerializer();
 
       expect(
         () => serializer.deserialize(
-          commandType: 'einvoice.poll_issuance_status',
+          commandType: 'einvoice.unknown_command',
           payload: const {},
           id: 'unknown',
         ),
@@ -120,39 +168,43 @@ void main() {
         ];
       });
 
-      final result = await container.get<IIssuanceResultGateway>().recordUndetermined(
-        tenantId: tenantId,
-        attemptId: attemptId,
-        evidence: IssuanceResultEvidenceDto.undetermined(
-          idempotencyKey: idempotencyKey,
-          payloadHash: payloadHash,
-          reasonCode: 'PROVIDER_TIMEOUT',
-        ),
-      );
+      final result = await container
+          .get<IIssuanceResultGateway>()
+          .recordUndetermined(
+            tenantId: tenantId,
+            attemptId: attemptId,
+            evidence: IssuanceResultEvidenceDto.undetermined(
+              idempotencyKey: idempotencyKey,
+              payloadHash: payloadHash,
+              reasonCode: 'PROVIDER_TIMEOUT',
+            ),
+          );
 
       expect(result.attemptStatus, IssuanceAttemptStatus.reconciling);
-      expect(
-        supabase.calls.map((call) => call.functionName),
-        ['record_issuance_undetermined'],
-      );
+      expect(supabase.calls.map((call) => call.functionName), [
+        'record_issuance_undetermined',
+      ]);
     });
 
-    test('outbox module maps issuance processing, failed, and registered events', () {
-      final mapper = EinvoiceOutboxModule.createDefault().mapper;
+    test(
+      'outbox module maps issuance processing, failed, and registered events',
+      () {
+        final mapper = EinvoiceOutboxModule.createDefault().mapper;
 
-      expect(
-        mapper.getType(IssuanceProcessingIntegrationEvent.type),
-        IssuanceProcessingIntegrationEvent,
-      );
-      expect(
-        mapper.getType(IssuanceFailedIntegrationEvent.type),
-        IssuanceFailedIntegrationEvent,
-      );
-      expect(
-        mapper.getType(ElectronicInvoiceRegisteredIntegrationEvent.type),
-        ElectronicInvoiceRegisteredIntegrationEvent,
-      );
-    });
+        expect(
+          mapper.getType(IssuanceProcessingIntegrationEvent.type),
+          IssuanceProcessingIntegrationEvent,
+        );
+        expect(
+          mapper.getType(IssuanceFailedIntegrationEvent.type),
+          IssuanceFailedIntegrationEvent,
+        );
+        expect(
+          mapper.getType(ElectronicInvoiceRegisteredIntegrationEvent.type),
+          ElectronicInvoiceRegisteredIntegrationEvent,
+        );
+      },
+    );
 
     test('outbox serializer maps issuance integration events from payload', () {
       final occurredOn = DateTime.utc(2026, 8, 1, 12);

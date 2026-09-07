@@ -60,16 +60,16 @@ class ProductProfileMaintenanceState extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
-        tradeName,
-        sku,
-        barcode,
-        status,
-        errorMessage,
-        skuError,
-        barcodeError,
-        nameError,
-      ];
+    name,
+    tradeName,
+    sku,
+    barcode,
+    status,
+    errorMessage,
+    skuError,
+    barcodeError,
+    nameError,
+  ];
 }
 
 class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceState> {
@@ -85,12 +85,14 @@ class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceStat
        _initialTradeName = initialTradeName ?? '',
        _initialSku = initialSku ?? '',
        _initialBarcode = initialBarcode ?? '',
-       super(ProductProfileMaintenanceState(
-          name: initialName,
-          tradeName: initialTradeName ?? '',
-          sku: initialSku ?? '',
-          barcode: initialBarcode ?? '',
-        ));
+       super(
+         ProductProfileMaintenanceState(
+           name: initialName,
+           tradeName: initialTradeName ?? '',
+           sku: initialSku ?? '',
+           barcode: initialBarcode ?? '',
+         ),
+       );
 
   final ICatalogModule catalogModule;
   final IExecutionContext executionContext;
@@ -107,46 +109,56 @@ class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceStat
       state.barcode.trim() != _initialBarcode.trim();
 
   void nameChanged(String value) {
-    emit(state.copyWith(
-      name: value,
-      nameError: null,
-      status: ProductProfileMaintenanceStatus.initial,
-      clearErrors: true,
-    ));
+    emit(
+      state.copyWith(
+        name: value,
+        nameError: null,
+        status: ProductProfileMaintenanceStatus.initial,
+        clearErrors: true,
+      ),
+    );
   }
 
   void tradeNameChanged(String value) {
-    emit(state.copyWith(
-      tradeName: value,
-      status: ProductProfileMaintenanceStatus.initial,
-      clearErrors: true,
-    ));
+    emit(
+      state.copyWith(
+        tradeName: value,
+        status: ProductProfileMaintenanceStatus.initial,
+        clearErrors: true,
+      ),
+    );
   }
 
   void skuChanged(String value) {
-    emit(state.copyWith(
-      sku: value,
-      skuError: null,
-      status: ProductProfileMaintenanceStatus.initial,
-      clearErrors: true,
-    ));
+    emit(
+      state.copyWith(
+        sku: value,
+        skuError: null,
+        status: ProductProfileMaintenanceStatus.initial,
+        clearErrors: true,
+      ),
+    );
   }
 
   void barcodeChanged(String value) {
-    emit(state.copyWith(
-      barcode: value,
-      barcodeError: null,
-      status: ProductProfileMaintenanceStatus.initial,
-      clearErrors: true,
-    ));
+    emit(
+      state.copyWith(
+        barcode: value,
+        barcodeError: null,
+        status: ProductProfileMaintenanceStatus.initial,
+        clearErrors: true,
+      ),
+    );
   }
 
   Future<void> submit() async {
     if (state.name.trim().isEmpty) {
-      emit(state.copyWith(
-        nameError: 'Tên sản phẩm là bắt buộc',
-        status: ProductProfileMaintenanceStatus.failure,
-      ));
+      emit(
+        state.copyWith(
+          nameError: 'Tên sản phẩm là bắt buộc',
+          status: ProductProfileMaintenanceStatus.failure,
+        ),
+      );
       return;
     }
 
@@ -172,30 +184,40 @@ class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceStat
 
       emit(state.copyWith(status: ProductProfileMaintenanceStatus.success));
     } on DuplicateSkuException {
-      emit(state.copyWith(
-        status: ProductProfileMaintenanceStatus.failure,
-        skuError: 'Mã SKU đã được sử dụng',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductProfileMaintenanceStatus.failure,
+          skuError: 'Mã SKU đã được sử dụng',
+        ),
+      );
     } on DuplicateBarcodeException {
-      emit(state.copyWith(
-        status: ProductProfileMaintenanceStatus.failure,
-        barcodeError: 'Mã vạch đã được sử dụng',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductProfileMaintenanceStatus.failure,
+          barcodeError: 'Mã vạch đã được sử dụng',
+        ),
+      );
     } on ValidationException catch (e) {
-      emit(state.copyWith(
-        status: ProductProfileMaintenanceStatus.failure,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductProfileMaintenanceStatus.failure,
+          errorMessage: e.message,
+        ),
+      );
     } on ApplicationException catch (e) {
-      emit(state.copyWith(
-        status: ProductProfileMaintenanceStatus.failure,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductProfileMaintenanceStatus.failure,
+          errorMessage: e.message,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductProfileMaintenanceStatus.failure,
-        errorMessage: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductProfileMaintenanceStatus.failure,
+          errorMessage: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+        ),
+      );
     }
   }
 }

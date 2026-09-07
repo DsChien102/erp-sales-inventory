@@ -14,10 +14,12 @@ class PostIssueSheetState {
   const PostIssueSheetState({
     this.deliveryStatus = DeliveryDisplayState.notSent,
     this.isOfficialViewLoading = false,
+    this.isDeliveryPending = false,
   });
 
   final DeliveryDisplayState deliveryStatus;
   final bool isOfficialViewLoading;
+  final bool isDeliveryPending;
 
   static const idle = PostIssueSheetState();
   static const officialViewLoading = PostIssueSheetState(
@@ -29,10 +31,17 @@ class PostIssueSheetState {
 Future<PostIssueAction?> showPostIssueEInvoiceActionSheet(
   BuildContext context, {
   PostIssueSheetState state = const PostIssueSheetState(),
+  Stream<PostIssueSheetState>? states,
 }) {
   return showVBottomSheet<PostIssueAction>(
     context: context,
-    child: PostIssueEInvoiceActionSheet(state: state),
+    child: StreamBuilder<PostIssueSheetState>(
+      initialData: state,
+      stream: states,
+      builder: (context, snapshot) => PostIssueEInvoiceActionSheet(
+        state: snapshot.data ?? state,
+      ),
+    ),
   );
 }
 
@@ -56,7 +65,9 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
     }
 
     final isActionsEnabled = !state.isOfficialViewLoading;
-    final isSendInteractive = isActionsEnabled &&
+    final isSendInteractive =
+        isActionsEnabled &&
+        !state.isDeliveryPending &&
         EInvoiceStatusInteraction.allowsTapForDelivery(state.deliveryStatus);
 
     return Material(
@@ -106,9 +117,7 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
                 supportingText: OrderEInvoiceCopy.sendSupporting,
                 badge: _deliveryBadge,
                 enabled: isSendInteractive,
-                onTap: isSendInteractive
-                    ? () => select(PostIssueAction.send)
-                    : null,
+                onTap: isSendInteractive ? () => select(PostIssueAction.send) : null,
               ),
               const VGap.lg(),
             ],
@@ -121,25 +130,25 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
   VBadge get _deliveryBadge {
     return switch (state.deliveryStatus) {
       DeliveryDisplayState.notSent => const VBadge(
-          label: OrderEInvoiceCopy.deliveryNotSent,
-          status: VBadgeStatus.draft,
-          isSmall: true,
-        ),
+        label: OrderEInvoiceCopy.deliveryNotSent,
+        status: VBadgeStatus.draft,
+        isSmall: true,
+      ),
       DeliveryDisplayState.sending => const VBadge(
-          label: OrderEInvoiceCopy.deliverySending,
-          status: VBadgeStatus.processing,
-          isSmall: true,
-        ),
+        label: OrderEInvoiceCopy.deliverySending,
+        status: VBadgeStatus.processing,
+        isSmall: true,
+      ),
       DeliveryDisplayState.sent => const VBadge(
-          label: OrderEInvoiceCopy.deliverySent,
-          status: VBadgeStatus.success,
-          isSmall: true,
-        ),
+        label: OrderEInvoiceCopy.deliverySent,
+        status: VBadgeStatus.success,
+        isSmall: true,
+      ),
       DeliveryDisplayState.failed => const VBadge(
-          label: OrderEInvoiceCopy.deliverySendFailed,
-          status: VBadgeStatus.danger,
-          isSmall: true,
-        ),
+        label: OrderEInvoiceCopy.deliverySendFailed,
+        status: VBadgeStatus.danger,
+        isSmall: true,
+      ),
     };
   }
 }

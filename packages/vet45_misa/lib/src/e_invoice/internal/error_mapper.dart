@@ -5,6 +5,18 @@ import '../models/me_invoice_result.dart';
 /// Maps HTTP / vendor error payloads to [MeInvoiceResult] failures.
 abstract final class MeInvoiceErrorMapper {
   static const tokenExpiredCode = 'TokenExpiredCode';
+  static const _authErrorCodes = <String>{
+    'InvalidAppID',
+    'InactiveAppID',
+    'TaxCodeNotExist',
+    'InactiveTaxCode',
+    'UserNotExist',
+    'WrongPassWord',
+    'InactiveUser',
+    'MisaIdError',
+    'TwoFactorAuthen',
+    'UnAuthorize',
+  };
 
   static MeInvoiceResult<T> fromHttp<T>({
     required int statusCode,
@@ -25,8 +37,7 @@ abstract final class MeInvoiceErrorMapper {
   }
 
   static MeInvoiceResult<T> fromVendorPayload<T>(Map<Object?, Object?> map) {
-    final code =
-        (map['ErrorCode'] ?? map['errorCode'] ?? map['code'])?.toString();
+    final code = (map['ErrorCode'] ?? map['errorCode'] ?? map['code'])?.toString();
     final message =
         (map['ErrorMessage'] ??
                 map['descriptionErrorCode'] ??
@@ -56,6 +67,35 @@ abstract final class MeInvoiceErrorMapper {
       // ignore parse errors
     }
     return null;
+  }
+
+  /// Reads the most specific documented authentication code without exposing
+  /// MISA's full response body. `UnAuthorize` can wrap a detailed code in the
+  /// `Errors` string list (for example `WrongPassWord` or `InactiveUser`).
+  static String? tryReadAuthErrorCode(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is! Map) {
+        return null;
+      }
+
+      final errors = decoded['Errors'] ?? decoded['errors'];
+      if (errors is List) {
+        for (final error in errors) {
+          final text = error?.toString() ?? '';
+          for (final code in _authErrorCodes) {
+            if (code != 'UnAuthorize' && text.contains(code)) {
+              return code;
+            }
+          }
+        }
+      }
+
+      final outerCode = (decoded['ErrorCode'] ?? decoded['errorCode'])?.toString();
+      return _authErrorCodes.contains(outerCode) ? outerCode : null;
+    } on Object {
+      return null;
+    }
   }
 
   static String _truncate(String value, [int max = 200]) {

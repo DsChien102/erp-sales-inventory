@@ -36,8 +36,7 @@ void main() {
     expect(find.textContaining('Paracetamol'), findsNothing);
   });
 
-  testWidgets('e2e_e01_u02_fr01_01: list to PCC shows operational cards',
-      (tester) async {
+  testWidgets('e2e_e01_u02_fr01_01: list to PCC shows operational cards', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccIncomplete);
 
     await tester.pumpWidget(buildCatalogDiscoveryRouter());

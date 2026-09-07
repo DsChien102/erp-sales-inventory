@@ -43,8 +43,7 @@ final class _FakeEinvoiceQuerySchema implements SupabaseQuerySchema {
     String fn, {
     Map<String, dynamic>? params,
     bool get = false,
-  }) =>
-      _FakePostgrestRpc<T>(client, fn, params);
+  }) => _FakePostgrestRpc<T>(client, fn, params);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -64,8 +63,7 @@ final class _FakePostgrestRpc<T> implements PostgrestFilterBuilder<T> {
   Future<R> then<R>(
     FutureOr<R> Function(T value) onValue, {
     Function? onError,
-  }) =>
-      _execute().then(onValue, onError: onError);
+  }) => _execute().then(onValue, onError: onError);
 
   Future<T> _execute() async {
     final handler = client._handlers[functionName];
@@ -80,7 +78,9 @@ final class _FakePostgrestRpc<T> implements PostgrestFilterBuilder<T> {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
-Map<String, Object?> _sampleCanonicalInvoice({String refId = 'ref-should-be-overridden'}) {
+Map<String, Object?> _sampleCanonicalInvoice({
+  String refId = 'ref-should-be-overridden',
+}) {
   return <String, Object?>{
     'refId': refId,
     'invSeries': '1C25TYY',
@@ -125,9 +125,7 @@ Map<String, Object?> _sampleCanonicalInvoice({String refId = 'ref-should-be-over
   };
 }
 
-MeInvoiceProviderAdapter _buildAdapter({
-  required http.Client httpClient,
-}) {
+MeInvoiceProviderAdapter _buildAdapter({required http.Client httpClient}) {
   final fakeSupabase = _FakeEinvoiceRpcSupabase()
     ..registerHandler('read_provider_credentials', (_) async {
       return [
@@ -157,10 +155,7 @@ MeInvoiceProviderAdapter _buildAdapter({
 
 http.Response _authOkResponse() {
   return http.Response(
-    jsonEncode({
-      'Success': true,
-      'Data': 'test-bearer-token',
-    }),
+    jsonEncode({'Success': true, 'Data': 'test-bearer-token'}),
     200,
   );
 }
@@ -203,27 +198,30 @@ void main() {
   });
 
   group('MeInvoiceProviderAdapter.publish', () {
-    test('throws MeInvoiceCanonicalValidationException on invalid canonical', () async {
-      final adapter = _buildAdapter(
-        httpClient: MockClient((_) async => http.Response('{}', 200)),
-      );
-      final invalid = _sampleCanonicalInvoice()..remove('buyerLegalName');
+    test(
+      'throws MeInvoiceCanonicalValidationException on invalid canonical',
+      () async {
+        final adapter = _buildAdapter(
+          httpClient: MockClient((_) async => http.Response('{}', 200)),
+        );
+        final invalid = _sampleCanonicalInvoice()..remove('buyerLegalName');
 
-      await expectLater(
-        adapter.publish(
-          tenantId: tenantId,
-          canonicalInvoice: invalid,
-          idempotencyKey: idempotencyKey,
-        ),
-        throwsA(
-          isA<MeInvoiceCanonicalValidationException>().having(
-            (e) => e.reasonCode,
-            'reasonCode',
-            'CANONICAL_MISSING_buyerLegalName',
+        await expectLater(
+          adapter.publish(
+            tenantId: tenantId,
+            canonicalInvoice: invalid,
+            idempotencyKey: idempotencyKey,
           ),
-        ),
-      );
-    });
+          throwsA(
+            isA<MeInvoiceCanonicalValidationException>().having(
+              (e) => e.reasonCode,
+              'reasonCode',
+              'CANONICAL_MISSING_buyerLegalName',
+            ),
+          ),
+        );
+      },
+    );
 
     test('maps correlated success to MeInvoicePublishSuccess', () async {
       String? capturedRefId;
@@ -271,43 +269,46 @@ void main() {
       expect(success.safeProviderEvidence?.refId, idempotencyKey);
     });
 
-    test('maps explicit proven no-side-effect rejection to definiteFailure', () async {
-      final httpClient = MockClient((request) async {
-        if (request.url.path.endsWith('/auth/token')) {
-          return _authOkResponse();
-        }
-        if (request.url.path.contains('/invoice') &&
-            !request.url.path.contains('unpublish')) {
-          return http.Response(
-            jsonEncode({
-              'success': true,
-              'publishInvoiceResult': [
-                {
-                  'RefID': idempotencyKey,
-                  'ErrorCode': 'InvalidInvSeries',
-                  'DescriptionErrorCode': 'Invalid invoice series',
-                },
-              ],
-            }),
-            200,
-          );
-        }
-        return http.Response('Not Found ${request.url}', 404);
-      });
+    test(
+      'maps explicit proven no-side-effect rejection to definiteFailure',
+      () async {
+        final httpClient = MockClient((request) async {
+          if (request.url.path.endsWith('/auth/token')) {
+            return _authOkResponse();
+          }
+          if (request.url.path.contains('/invoice') &&
+              !request.url.path.contains('unpublish')) {
+            return http.Response(
+              jsonEncode({
+                'success': true,
+                'publishInvoiceResult': [
+                  {
+                    'RefID': idempotencyKey,
+                    'ErrorCode': 'InvalidInvSeries',
+                    'DescriptionErrorCode': 'Invalid invoice series',
+                  },
+                ],
+              }),
+              200,
+            );
+          }
+          return http.Response('Not Found ${request.url}', 404);
+        });
 
-      final adapter = _buildAdapter(httpClient: httpClient);
-      final outcome = await adapter.publish(
-        tenantId: tenantId,
-        canonicalInvoice: _sampleCanonicalInvoice(),
-        idempotencyKey: idempotencyKey,
-      );
+        final adapter = _buildAdapter(httpClient: httpClient);
+        final outcome = await adapter.publish(
+          tenantId: tenantId,
+          canonicalInvoice: _sampleCanonicalInvoice(),
+          idempotencyKey: idempotencyKey,
+        );
 
-      expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
-      final failure = outcome as MeInvoicePublishDefiniteFailure;
-      expect(failure.providerCode, 'InvalidInvSeries');
-      expect(failure.providerMessage, 'Invalid invoice series');
-      expect(outcome, isNot(isA<MeInvoicePublishUndetermined>()));
-    });
+        expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
+        final failure = outcome as MeInvoicePublishDefiniteFailure;
+        expect(failure.providerCode, 'InvalidInvSeries');
+        expect(failure.providerMessage, 'Invalid invoice series');
+        expect(outcome, isNot(isA<MeInvoicePublishUndetermined>()));
+      },
+    );
 
     test('maps timeout/network errors to undetermined', () async {
       final httpClient = MockClient((request) async {
@@ -404,7 +405,7 @@ void main() {
             return _authOkResponse();
           }
           if (request.url.path.contains('/invoice') &&
-            !request.url.path.contains('unpublish')) {
+              !request.url.path.contains('unpublish')) {
             return http.Response(
               jsonEncode({
                 'success': true,
@@ -414,7 +415,8 @@ void main() {
                     'TransactionID': 'tx-dup',
                     'InvSeries': '1C25TYY',
                     'InvNo': '0000999',
-                    'ErrorCode': MeInvoicePublishErrorCodes.duplicateInvoiceRefId,
+                    'ErrorCode':
+                        MeInvoicePublishErrorCodes.duplicateInvoiceRefId,
                     'DescriptionErrorCode': 'RefID already exists',
                   },
                 ],

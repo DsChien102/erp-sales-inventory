@@ -7,6 +7,7 @@ final class SyncProviderCapabilitiesCommand extends InternalCommandBase<void>
     String? id,
     required this.tenantId,
     required this.connectionId,
+    required this.expectedConnectionVersion,
     this.correlationId,
   }) : super(id);
 
@@ -18,6 +19,7 @@ final class SyncProviderCapabilitiesCommand extends InternalCommandBase<void>
   @override
   final String tenantId;
   final String connectionId;
+  final int expectedConnectionVersion;
   final String? correlationId;
 
   @override
@@ -25,6 +27,7 @@ final class SyncProviderCapabilitiesCommand extends InternalCommandBase<void>
     return stripInternalCommandRowId(<String, dynamic>{
       'tenant_id': tenantId,
       'connection_id': connectionId,
+      'expected_connection_version': expectedConnectionVersion,
       if (correlationId != null) 'correlation_id': correlationId,
     });
   }
@@ -41,6 +44,7 @@ final class SyncProviderCapabilitiesCommand extends InternalCommandBase<void>
       id: id,
       tenantId: normalized['tenant_id'] as String,
       connectionId: normalized['connection_id'] as String,
+      expectedConnectionVersion: normalized['expected_connection_version'] as int? ?? -1,
       correlationId: normalized['correlation_id'] as String?,
     );
   }

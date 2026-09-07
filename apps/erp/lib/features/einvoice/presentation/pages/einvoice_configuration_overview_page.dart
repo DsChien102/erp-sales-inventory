@@ -5,7 +5,7 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
-class EInvoiceConfigurationOverviewPage extends StatelessWidget {
+class EInvoiceConfigurationOverviewPage extends StatefulWidget {
   const EInvoiceConfigurationOverviewPage({
     super.key,
     required this.einvoiceModule,
@@ -18,26 +18,53 @@ class EInvoiceConfigurationOverviewPage extends StatelessWidget {
 
   final IEInvoiceModule einvoiceModule;
   final IExecutionContext executionContext;
-  final VoidCallback? onConnectionTap;
+  final Future<void> Function()? onConnectionTap;
   final VoidCallback? onIssuanceTap;
   final VoidCallback? onAutomationTap;
   final VoidCallback? onBack;
 
   @override
+  State<EInvoiceConfigurationOverviewPage> createState() =>
+      _EInvoiceConfigurationOverviewPageState();
+}
+
+class _EInvoiceConfigurationOverviewPageState extends State<EInvoiceConfigurationOverviewPage> {
+  late final EInvoiceConfigurationOverviewCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = EInvoiceConfigurationOverviewCubit(
+      einvoiceModule: widget.einvoiceModule,
+      executionContext: widget.executionContext,
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  Future<void> _openConnection() async {
+    await widget.onConnectionTap?.call();
+    if (mounted) {
+      await _cubit.load();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => EInvoiceConfigurationOverviewCubit(
-        einvoiceModule: einvoiceModule,
-        executionContext: executionContext,
-      )..load(),
+    return BlocProvider.value(
+      value: _cubit,
       child: VPageScaffold(
         title: 'Hóa đơn điện tử',
         showBackButton: true,
         body: EInvoiceConfigurationOverviewView(
-          onConnectionTap: onConnectionTap,
-          onIssuanceTap: onIssuanceTap,
-          onAutomationTap: onAutomationTap,
-          onBack: onBack,
+          onConnectionTap: _openConnection,
+          onIssuanceTap: widget.onIssuanceTap,
+          onAutomationTap: widget.onAutomationTap,
+          onBack: widget.onBack,
         ),
       ),
     );

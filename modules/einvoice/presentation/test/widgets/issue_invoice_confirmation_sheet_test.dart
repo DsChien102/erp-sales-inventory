@@ -59,8 +59,7 @@ void main() {
       );
     });
 
-    testWidgets('cancel callback does not require navigator pop',
-        (tester) async {
+    testWidgets('cancel callback does not require navigator pop', (tester) async {
       var cancelled = false;
       await tester.pumpWidget(
         buildSubject(onConfirm: () {}, onCancel: () => cancelled = true),

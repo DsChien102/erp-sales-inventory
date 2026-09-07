@@ -38,6 +38,5 @@ final class ProviderConnectionStatusTransitionAllowedRule implements IBusinessRu
   bool isBroken() => !(_allowed[from]?.contains(to) ?? false);
 
   @override
-  String get message =>
-      'Provider connection transition from $from to $to is not allowed';
+  String get message => 'Provider connection transition from $from to $to is not allowed';
 }

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
+import 'package:vet45_misa/e_invoice.dart';
 import 'package:vet45_misa/src/e_invoice/internal/me_invoice_auth.dart';
 
 void main() {
@@ -130,6 +131,78 @@ void main() {
         token.isExpired(now: DateTime.utc(2026, 1, 1, 11, 59, 30)),
         isTrue,
       );
+    });
+
+    test('defaultTokenTtl is 14 days and recommendedTokenTtl is 7 days', () {
+      expect(MeInvoiceConfig.defaultTokenTtl, const Duration(days: 14));
+      expect(MeInvoiceConfig.recommendedTokenTtl, const Duration(days: 7));
+    });
+
+    test('newly minted token defaults to 7 days TTL (recommendedTokenTtl)', () async {
+      final httpClient = MockClient((request) async {
+        return http.Response(
+          jsonEncode(<String, dynamic>{'Success': true, 'Data': 'token-7d'}),
+          200,
+        );
+      });
+
+      final auth = MeInvoiceAuth(
+        baseUrl: 'https://example.test/api/integration',
+        appId: 'a',
+        taxCode: 't',
+        username: 'u',
+        password: 'p',
+        httpClient: httpClient,
+      );
+
+      final token = await auth.getToken();
+      expect(token.value, 'token-7d');
+
+      final diff = token.expiresAt.difference(DateTime.now().toUtc());
+      expect(diff.inDays, greaterThanOrEqualTo(6));
+      expect(diff.inDays, lessThanOrEqualTo(7));
+    });
+
+    test('token automatically re-logins after 7 days expiry', () async {
+      var loginCount = 0;
+      final httpClient = MockClient((request) async {
+        loginCount++;
+        return http.Response(
+          jsonEncode(<String, dynamic>{'Success': true, 'Data': 'token-$loginCount'}),
+          200,
+        );
+      });
+
+      final auth = MeInvoiceAuth(
+        baseUrl: 'https://example.test/api/integration',
+        appId: 'a',
+        taxCode: 't',
+        username: 'u',
+        password: 'p',
+        httpClient: httpClient,
+      );
+
+      final first = await auth.getToken();
+      expect(first.value, 'token-1');
+      expect(loginCount, 1);
+
+      // Verify still valid right before 7 days
+      final sixDaysLater = DateTime.now().toUtc().add(const Duration(days: 6));
+      expect(first.isExpired(now: sixDaysLater), isFalse);
+
+      // Verify expired at 7 days
+      final sevenDaysLater = DateTime.now().toUtc().add(const Duration(days: 7, minutes: 1));
+      expect(first.isExpired(now: sevenDaysLater), isTrue);
+
+      // Simulating expiry in cache to verify seamless re-login
+      auth.seed(MeInvoiceAuthToken(
+        value: 'old-token',
+        expiresAt: DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
+      ));
+
+      final refreshed = await auth.getToken();
+      expect(refreshed.value, 'token-2');
+      expect(loginCount, 2);
     });
   });
 }

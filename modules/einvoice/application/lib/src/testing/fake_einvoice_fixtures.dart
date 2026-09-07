@@ -37,12 +37,14 @@ abstract final class FakeEInvoiceFixtures {
       connectionId: connectionId,
       status: status,
       lastCheckedAt: DateTime.utc(2026, 8, 5, 10, 40),
+      maskedAccount: 'ke***@anphu.vn',
+      connectionVersion: 1,
     ),
   );
 
   static ProviderConnectionResultDto get connectedResult => const ProviderConnectionResultDto(
     connectionId: connectionId,
-    status: ProviderConnectionStatus.connected,
+    status: ProviderConnectionStatus.checkRequired,
   );
 
   static ProviderConnectionCheckResultDto get verifyOk => ProviderConnectionCheckResultDto(
@@ -123,11 +125,13 @@ abstract final class FakeEInvoiceFixtures {
   static OrderInvoiceProjectionDto projection({
     IssuanceDisplayState issuance = IssuanceDisplayState.processing,
     DeliveryDisplayState? delivery,
+    bool hasSecondaryAttention = false,
     List<OrderInvoiceAction> actions = const [OrderInvoiceAction.issue],
   }) => OrderInvoiceProjectionDto(
     salesOrderId: salesOrderId,
     issuanceDisplayState: issuance,
     deliveryDisplayState: delivery,
+    hasSecondaryAttention: hasSecondaryAttention,
     actions: actions,
   );
 }

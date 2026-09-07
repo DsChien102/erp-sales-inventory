@@ -1,8 +1,7 @@
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 /// Base fields for einvoice publish integration events.
-abstract base class EInvoiceIntegrationEvent
-    extends TenantScopedIntegrationEvent {
+abstract base class EInvoiceIntegrationEvent extends TenantScopedIntegrationEvent {
   const EInvoiceIntegrationEvent({
     required super.id,
     required super.occurredOn,

@@ -7,11 +7,12 @@ typedef QueryFn<T> = Future<T> Function();
 class QueryOptionsDefaults {
   const QueryOptionsDefaults({
     this.staleTime = Duration.zero,
-    this.gcTime = const Duration(minutes: 5),
+    this.gcTime = Duration.zero,
     this.retry = 3,
     this.retryDelay = _defaultRetryDelay,
     this.retryOn = _defaultRetryOn,
     this.refetchOnMount = true,
+    this.refetchInterval,
     this.enabled = true,
   });
 
@@ -21,6 +22,7 @@ class QueryOptionsDefaults {
   final Duration Function(int attempt) retryDelay;
   final bool Function(Object error) retryOn;
   final bool refetchOnMount;
+  final Duration? refetchInterval;
   final bool enabled;
 
   static Duration _defaultRetryDelay(int attempt) {
@@ -41,6 +43,7 @@ class QueryOptions<T> {
     this.retryDelay,
     this.retryOn,
     this.refetchOnMount,
+    this.refetchInterval,
     this.enabled = true,
     this.initialData,
     this.placeholderData,
@@ -55,6 +58,7 @@ class QueryOptions<T> {
   final Duration Function(int attempt)? retryDelay;
   final bool Function(Object error)? retryOn;
   final bool? refetchOnMount;
+  final Duration? refetchInterval;
   final bool enabled;
   final T? initialData;
   final T? placeholderData;
@@ -70,6 +74,7 @@ class QueryOptions<T> {
       retryDelay: retryDelay ?? defaults.retryDelay,
       retryOn: retryOn ?? defaults.retryOn,
       refetchOnMount: refetchOnMount ?? defaults.refetchOnMount,
+      refetchInterval: refetchInterval ?? defaults.refetchInterval,
       enabled: enabled && defaults.enabled,
       initialData: initialData,
       placeholderData: placeholderData,

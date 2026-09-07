@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../support/order_einvoice_copy.dart';
 import 'einvoice_action_item.dart';
+import 'issuance_failure_banner.dart';
 
 /// Actions returned by [showPreIssueEInvoiceActionSheet].
 enum PreIssueAction { issue, preview, correctBuyer }
@@ -14,11 +15,17 @@ class PreIssueSheetState {
     this.isPreviewLoading = false,
     this.isBuyerNotReady = false,
     this.isPreviewEnabled = true,
+    this.isFailed = false,
+    this.failureCode,
+    this.lastFailureMessage,
   });
 
   final bool isPreviewLoading;
   final bool isBuyerNotReady;
   final bool isPreviewEnabled;
+  final bool isFailed;
+  final String? failureCode;
+  final String? lastFailureMessage;
 
   static const idle = PreIssueSheetState();
   static const previewLoading = PreIssueSheetState(isPreviewLoading: true);
@@ -58,10 +65,8 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
       Navigator.of(context).pop(action);
     }
 
-    final isIssueEnabled =
-        !state.isBuyerNotReady && !state.isPreviewLoading;
-    final isPreviewEnabled =
-        state.isPreviewEnabled && !state.isPreviewLoading;
+    final isIssueEnabled = !state.isBuyerNotReady && !state.isPreviewLoading;
+    final isPreviewEnabled = state.isPreviewEnabled && !state.isPreviewLoading;
     final isSendEnabled = false; // always disabled pre-issue
 
     return Material(
@@ -87,6 +92,18 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
+              if (state.isFailed) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.space4,
+                    vertical: VSpacing.space2,
+                  ),
+                  child: IssuanceFailureBanner(
+                    failureCode: state.failureCode,
+                    lastFailureMessage: state.lastFailureMessage,
+                  ),
+                ),
+              ],
               if (state.isBuyerNotReady) ...[
                 _BuyerNotReadyWarning(
                   onCorrect: () => select(PreIssueAction.correctBuyer),

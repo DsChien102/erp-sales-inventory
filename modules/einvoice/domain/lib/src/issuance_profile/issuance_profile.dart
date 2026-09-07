@@ -10,8 +10,7 @@ import 'provider_template_ref.dart';
 import 'signing_configuration_ref.dart';
 
 /// IssuanceProfile aggregate — default template + signing per tenant.
-final class IssuanceProfile extends Entity<IssuanceProfileId>
-    implements IAggregateRoot {
+final class IssuanceProfile extends Entity<IssuanceProfileId> implements IAggregateRoot {
   IssuanceProfile._({
     required super.id,
     required TenantId tenantId,
@@ -33,11 +32,9 @@ final class IssuanceProfile extends Entity<IssuanceProfileId>
 
   TenantId get tenantId => _tenantId;
   ProviderConnectionId get connectionId => _connectionId;
-  EffectiveIssuanceConfiguration? get defaultConfiguration =>
-      _defaultConfiguration;
+  EffectiveIssuanceConfiguration? get defaultConfiguration => _defaultConfiguration;
   int get profileVersion => _profileVersion;
-  List<String> get compatibilityWarnings =>
-      List.unmodifiable(_compatibilityWarnings);
+  List<String> get compatibilityWarnings => List.unmodifiable(_compatibilityWarnings);
 
   factory IssuanceProfile.reconstitute({
     required IssuanceProfileId id,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'models/responses/send_email_result.dart';
 import 'package:http/http.dart' as http;
 
 import 'i_me_invoice_client.dart';
@@ -33,7 +35,7 @@ final class MeInvoiceClient implements IMeInvoiceClient {
           value: bearer,
           expiresAt:
               config.accessTokenExpiresAt?.toUtc() ??
-              DateTime.now().toUtc().add(MeInvoiceConfig.defaultTokenTtl),
+              DateTime.now().toUtc().add(MeInvoiceConfig.recommendedTokenTtl),
         );
       }
       _auth = MeInvoiceAuth(
@@ -44,6 +46,7 @@ final class MeInvoiceClient implements IMeInvoiceClient {
         password: config.password,
         httpClient: _httpClient,
         initialToken: initial,
+        defaultTtl: MeInvoiceConfig.recommendedTokenTtl,
       );
       _api = MeInvoiceHttp(auth: _auth!, httpClient: _httpClient);
     }
@@ -56,8 +59,9 @@ final class MeInvoiceClient implements IMeInvoiceClient {
 
   static const maxTransactionIdsPerCall = 50;
 
-  /// Login or return cached Bearer. Prefer rare calls (~14 day TTL); MISA may
+  /// Login or return cached Bearer. Prefer rare calls (~7 day refresh; ~14 day MISA TTL); MISA may
   /// block IPs that hit `/auth/token` per invoice.
+  @override
   Future<MeInvoiceResult<MeInvoiceSessionToken>> obtainAccessToken({
     bool forceLogin = false,
   }) async {
@@ -283,10 +287,10 @@ final class MeInvoiceClient implements IMeInvoiceClient {
   }
 
   @override
-  Future<MeInvoiceResult<void>> sendEmail(
+  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
     MeInvoiceSendEmailRequest request,
   ) async {
-    final gate = _guard<void>();
+    final gate = _guard<List<MeInvoiceSendEmailResultItem>>();
     if (gate != null) {
       return gate;
     }
@@ -300,7 +304,30 @@ final class MeInvoiceClient implements IMeInvoiceClient {
         rateLimited: raw.rateLimited,
       );
     }
-    return const MeInvoiceResult.ok(null);
+    try {
+      final envelope = raw.data!;
+      final errors = envelope.errors;
+      if (errors != null &&
+          errors != '' &&
+          !(errors is List && errors.isEmpty) &&
+          !(errors is Map && errors.isEmpty)) {
+        return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');
+      }
+      final data = envelope.data is String ? jsonDecode(envelope.data as String) : envelope.data;
+      if (data is! List || data.isEmpty || data.any((item) => item is! Map)) {
+        return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');
+      }
+      return MeInvoiceResult.ok(
+        data
+            .map(
+              (item) =>
+                  MeInvoiceSendEmailResultItem.fromJson(Map<String, dynamic>.from(item as Map)),
+            )
+            .toList(),
+      );
+    } on Object {
+      return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');
+    }
   }
 
   @override

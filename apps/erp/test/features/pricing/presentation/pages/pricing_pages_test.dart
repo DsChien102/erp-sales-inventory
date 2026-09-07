@@ -271,16 +271,12 @@ void main() {
       await tester.tap(find.text('Open form'));
       await tester.pumpAndSettle();
 
-      tester
-          .element(find.byType(PriceRuleFormBody))
-          .read<PriceRuleFormCubit>()
-          .updatePrice(100000);
+      tester.element(find.byType(PriceRuleFormBody)).read<PriceRuleFormCubit>().updatePrice(100000);
       await tester.pumpAndSettle();
 
       final formContext = tester.element(find.byType(PriceRuleFormBody));
       expect(
-        (formContext.read<PriceRuleFormCubit>().state as PriceRuleFormEditing)
-            .isDirty,
+        (formContext.read<PriceRuleFormCubit>().state as PriceRuleFormEditing).isDirty,
         isTrue,
       );
 

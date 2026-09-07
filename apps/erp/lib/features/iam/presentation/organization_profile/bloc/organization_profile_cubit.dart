@@ -337,17 +337,12 @@ final class OrganizationProfileCubit extends Cubit<OrganizationProfileState> {
         message: 'Vui lòng nhập tên pháp lý.',
       );
     }
-    final digits = input.taxCode.replaceAll(RegExp(r'\D'), '');
-    final expected = switch (type) {
-      LegalEntityType.enterprise => 10,
-      LegalEntityType.householdBusiness => 12,
-    };
-    if (digits.length != expected || digits != input.taxCode.trim()) {
-      return IamUiFailure(
+    final tax = input.taxCode.trim();
+    if (!RegExp(r'^(\d{10,13}|\d{10}-\d{3})$').hasMatch(tax)) {
+      return const IamUiFailure(
         code: IamBlockedCodes.validationError,
-        message: type == LegalEntityType.enterprise
-            ? 'Mã số thuế doanh nghiệp phải đúng 10 chữ số.'
-            : 'Mã số thuế hộ kinh doanh phải đúng 12 chữ số.',
+        message:
+            'Mã số thuế phải từ 10 đến 13 chữ số (VD: 0123456789 hoặc 0123456789-001).',
       );
     }
     return null;

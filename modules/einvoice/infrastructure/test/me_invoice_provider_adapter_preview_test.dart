@@ -43,8 +43,7 @@ final class _FakeEinvoiceQuerySchema implements SupabaseQuerySchema {
     String fn, {
     Map<String, dynamic>? params,
     bool get = false,
-  }) =>
-      _FakePostgrestRpc<T>(client, fn, params);
+  }) => _FakePostgrestRpc<T>(client, fn, params);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -64,8 +63,7 @@ final class _FakePostgrestRpc<T> implements PostgrestFilterBuilder<T> {
   Future<R> then<R>(
     FutureOr<R> Function(T value) onValue, {
     Function? onError,
-  }) =>
-      _execute().then(onValue, onError: onError);
+  }) => _execute().then(onValue, onError: onError);
 
   Future<T> _execute() async {
     client.calls.add((functionName: functionName, params: params));
@@ -79,6 +77,24 @@ final class _FakePostgrestRpc<T> implements PostgrestFilterBuilder<T> {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+final class _RecordingTextLogger implements ILogger {
+  final List<String> warnings = <String>[];
+
+  @override
+  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void info(Object? message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
+    warnings.add(message.toString());
+  }
 }
 
 void main() {
@@ -127,6 +143,131 @@ void main() {
       },
     ],
   };
+
+  group('MeInvoiceProviderAdapter.authenticateAndListTemplates', () {
+    test('logs a safe vendor reason when MISA rejects authentication', () async {
+      final fakeSupabase = _FakeEinvoiceRpcSupabase()
+        ..registerHandler('read_provider_credentials', (_) async {
+          return [
+            {
+              'base_url': defaultBaseUrl,
+              'tax_code': '0100000000',
+              'username': 'misa_user',
+              'password': 'do-not-log-this-password',
+            },
+          ];
+        });
+      final rpcClient = SupabaseSchemaRpcClient(
+        supabase: fakeSupabase,
+        schema: 'einvoice',
+        mapError: (error, [stackTrace]) => RpcException(error.toString()),
+      );
+      final logger = _RecordingTextLogger();
+      final httpClient = MockClient((request) async {
+        expect(request.url.path, endsWith('/auth/token'));
+        return http.Response(
+          jsonEncode({
+            'Success': false,
+            'ErrorCode': 'UnAuthorize',
+            'Errors': <Object>[],
+            'Data': null,
+          }),
+          200,
+        );
+      });
+      final adapter = MeInvoiceProviderAdapter(
+        rpcClient: rpcClient,
+        clientFactory: TenantMeInvoiceClientFactory(),
+        defaultAppId: defaultAppId,
+        defaultBaseUrl: defaultBaseUrl,
+        httpClient: httpClient,
+        logger: logger,
+      );
+
+      final outcome = await adapter.authenticateAndListTemplates(
+        tenantId: 'tenant-1',
+        connectionId: 'connection-1',
+      );
+
+      expect(outcome.authFailed, isTrue);
+      expect(
+        logger.warnings,
+        contains(
+          'MISA connection verification failed stage=token reason=UnAuthorize',
+        ),
+      );
+      expect(
+        logger.warnings.join(),
+        isNot(contains('do-not-log-this-password')),
+      );
+      expect(logger.warnings.join(), isNot(contains('"Success"')));
+    });
+
+    test('uses new credentials when a connected tenant reconnects', () async {
+      var password = 'old-password';
+      final fakeSupabase = _FakeEinvoiceRpcSupabase()
+        ..registerHandler('read_provider_credentials', (_) async {
+          return [
+            {
+              'base_url': defaultBaseUrl,
+              'tax_code': '0100000000',
+              'username': 'misa_user',
+              'password': password,
+            },
+          ];
+        });
+      final rpcClient = SupabaseSchemaRpcClient(
+        supabase: fakeSupabase,
+        schema: 'einvoice',
+        mapError: (error, [stackTrace]) => RpcException(error.toString()),
+      );
+      final loginPasswords = <String>[];
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refreshtoken')) {
+          return http.Response('{}', 401);
+        }
+        if (request.url.path.endsWith('/auth/token')) {
+          final body = jsonDecode(request.body) as Map<String, dynamic>;
+          loginPasswords.add(body['password']! as String);
+          return http.Response(
+            jsonEncode({
+              'Success': true,
+              'Data': 'token-${loginPasswords.length}',
+            }),
+            200,
+          );
+        }
+        if (request.url.path.endsWith('/invoice/templates')) {
+          return http.Response(
+            jsonEncode({'Success': true, 'Data': '[]'}),
+            200,
+          );
+        }
+        return http.Response('Not Found', 404);
+      });
+      final adapter = MeInvoiceProviderAdapter(
+        rpcClient: rpcClient,
+        clientFactory: TenantMeInvoiceClientFactory(),
+        defaultAppId: defaultAppId,
+        defaultBaseUrl: defaultBaseUrl,
+        httpClient: httpClient,
+      );
+
+      final first = await adapter.authenticateAndListTemplates(
+        tenantId: 'tenant-1',
+        connectionId: 'connection-1',
+      );
+      password = 'new-password';
+      final second = await adapter.authenticateAndListTemplates(
+        tenantId: 'tenant-1',
+        connectionId: 'connection-1',
+      );
+
+      expect(first.isSuccess, isTrue);
+      expect(second.isSuccess, isTrue);
+      expect(loginPasswords, ['old-password', 'new-password']);
+    });
+  });
 
   group('MeInvoiceProviderAdapter.previewUnpublished', () {
     test('successful preview returns viewerRef', () async {
@@ -190,7 +331,10 @@ void main() {
       expect(outcome.isSuccess, isTrue);
       expect(outcome.authFailed, isFalse);
       expect(outcome.providerUnavailable, isFalse);
-      expect(outcome.viewerRef, 'https://meinvoice.vn/viewer/preview-uuid-12345');
+      expect(
+        outcome.viewerRef,
+        'https://meinvoice.vn/viewer/preview-uuid-12345',
+      );
     });
 
     test('auth failure when credentials missing in database', () async {

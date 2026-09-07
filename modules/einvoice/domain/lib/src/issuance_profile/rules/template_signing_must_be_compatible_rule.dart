@@ -12,6 +12,5 @@ final class TemplateSigningMustBeCompatibleRule implements IBusinessRule {
   bool isBroken() => !configuration.isCompatible();
 
   @override
-  String get message =>
-      'Selected template and signing configuration are not compatible';
+  String get message => 'Selected template and signing configuration are not compatible';
 }

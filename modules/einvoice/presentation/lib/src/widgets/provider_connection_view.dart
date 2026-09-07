@@ -1,10 +1,14 @@
+import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 
 import '../bloc/provider_connection_cubit.dart';
 import '../bloc/provider_connection_state.dart';
 import '../support/einvoice_datetime_copy.dart';
+import '../support/einvoice_query_keys.dart';
 import '../support/provider_connection_copy.dart';
 import 'configuration_editor_bottom_bar.dart';
 import 'configuration_query_failure_view.dart';
@@ -33,11 +37,68 @@ class ProviderConnectionView extends StatelessWidget {
             onBack: onBack,
             onRetry: () => context.read<ProviderConnectionCubit>().load(),
           ),
-          ProviderConnectionLoaded() => _ProviderConnectionBody(
+          ProviderConnectionLoaded() => _ProviderConnectionPollingWrapper(
             state: state,
             onCancel: onCancel,
           ),
         };
+      },
+    );
+  }
+}
+
+class _ProviderConnectionPollingWrapper extends StatelessWidget {
+  const _ProviderConnectionPollingWrapper({
+    required this.state,
+    this.onCancel,
+  });
+
+  final ProviderConnectionLoaded state;
+  final VoidCallback? onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<ProviderConnectionCubit>();
+    final isPending = state.screen.connection.status == ProviderConnectionStatus.checkRequired;
+
+    if (!isPending) {
+      return _ProviderConnectionBody(
+        state: state,
+        onCancel: onCancel,
+      );
+    }
+
+    return UseQuery<ProviderConnectionScreenDto>(
+      queryKey: EinvoiceQueryKeys.providerConnection('current-tenant'),
+      enabled: isPending,
+      refetchInterval: const Duration(seconds: 2),
+      refetchOnMount: false,
+      initialData: state.screen,
+      queryFn: () async {
+        final tenantId = await cubit.executionContext.requireTenantId();
+        final actorId = await cubit.executionContext.requireUserId();
+        return cubit.einvoiceModule.executeQueryAsync(
+          GetProviderConnectionScreenQuery(
+            tenantId: tenantId,
+            actorId: actorId,
+          ),
+        );
+      },
+      builder: (context, result) {
+        final data = result.data;
+        if (data != null && isPending && data.connection.status != state.screen.connection.status) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            cubit.updateScreenFromQuery(data);
+          });
+        }
+        final effectiveState =
+            (data != null && data.connection.status != state.screen.connection.status)
+            ? state.copyWith(screen: data)
+            : state;
+        return _ProviderConnectionBody(
+          state: effectiveState,
+          onCancel: onCancel,
+        );
       },
     );
   }
@@ -113,6 +174,8 @@ class _ProviderConnectionFormState extends State<_ProviderConnectionForm> {
       return;
     }
     switch (result) {
+      case ProviderConnectionSubmitResult.verificationPending:
+        break;
       case ProviderConnectionSubmitResult.connected:
         VToast.show(
           context,
@@ -180,11 +243,7 @@ class _ProviderConnectionFormState extends State<_ProviderConnectionForm> {
                         label: ProviderConnectionCopy.providerLabel,
                         value: ProviderConnectionCopy.providerValue,
                       ),
-                      Divider(
-                        height: VSpacing.space4,
-                        thickness: VBorders.thin,
-                        color: colors.borderDefault,
-                      ),
+                      const VDivider(),
                       SettingsInfoRow(
                         label: ProviderConnectionCopy.taxCodeLabel,
                         value: taxCode,
@@ -322,15 +381,27 @@ class _ProviderConnectionInfo extends StatelessWidget {
                           connection.status,
                         ),
                         valueColor: _statusColor(context),
+                        trailing: kind == ProviderConnectionInfoKind.pending
+                            ? VLoading(
+                                size: 14.0,
+                                strokeWidth: 2.0,
+                                color: _statusColor(context),
+                              )
+                            : null,
                       ),
+                      const VDivider(),
                       const SettingsInfoRow(
                         label: ProviderConnectionCopy.providerLabel,
                         value: ProviderConnectionCopy.providerValue,
                       ),
-                      const SettingsInfoRow(
-                        label: ProviderConnectionCopy.accountInfoLabel,
-                        value: ProviderConnectionCopy.displayAccount,
-                      ),
+                      if (connection.maskedAccount case final account?) ...[
+                        const VDivider(),
+                        SettingsInfoRow(
+                          label: ProviderConnectionCopy.accountInfoLabel,
+                          value: account,
+                        ),
+                      ],
+                      const VDivider(),
                       SettingsInfoRow(
                         label: ProviderConnectionCopy.taxCodeShortLabel,
                         value: state.screen.legalProfile.taxCode,
@@ -386,9 +457,7 @@ class _ProviderConnectionInfo extends StatelessWidget {
                           label: ProviderConnectionCopy.disconnectLabel,
                           variant: VButtonVariant.secondary,
                           tone: VComponentTone.danger,
-                          onPressed: state.isSubmitting
-                              ? null
-                              : () => _disconnect(context),
+                          onPressed: state.isSubmitting ? null : () => _disconnect(context),
                         ),
                       ),
                       const VGap.horizontalMd(),
@@ -398,9 +467,7 @@ class _ProviderConnectionInfo extends StatelessWidget {
                           label: ProviderConnectionCopy.reconnectSubmitLabel,
                           onPressed: state.isSubmitting
                               ? null
-                              : () => context
-                                  .read<ProviderConnectionCubit>()
-                                  .enterReconnectMode(),
+                              : () => context.read<ProviderConnectionCubit>().enterReconnectMode(),
                         ),
                       ),
                     ],
@@ -411,9 +478,7 @@ class _ProviderConnectionInfo extends StatelessWidget {
                     variant: VButtonVariant.secondary,
                     tone: VComponentTone.danger,
                     fullWidth: true,
-                    onPressed: state.isSubmitting
-                        ? null
-                        : () => _disconnect(context),
+                    onPressed: state.isSubmitting ? null : () => _disconnect(context),
                   ),
           ),
         ),

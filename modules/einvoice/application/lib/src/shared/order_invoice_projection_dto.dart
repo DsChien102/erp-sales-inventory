@@ -8,11 +8,17 @@ final class OrderInvoiceProjectionDto {
     required this.salesOrderId,
     required this.issuanceDisplayState,
     this.deliveryDisplayState,
+    this.hasSecondaryAttention = false,
+    this.deliveryPending = false,
     required this.actions,
   });
 
+  final bool deliveryPending;
   final String salesOrderId;
   final IssuanceDisplayState issuanceDisplayState;
   final DeliveryDisplayState? deliveryDisplayState;
+
+  /// Later failed/unknown delivery attention while main display stays `sent`.
+  final bool hasSecondaryAttention;
   final List<OrderInvoiceAction> actions;
 }

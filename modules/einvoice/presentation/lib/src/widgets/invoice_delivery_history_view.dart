@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 
 import '../support/send_invoice_copy.dart';
 
@@ -11,8 +13,26 @@ class InvoiceDeliveryHistoryRowData {
     required this.date,
     required this.time,
     required this.actor,
+    this.deliveryStatus,
   });
 
+  factory InvoiceDeliveryHistoryRowData.fromDelivery(
+    InvoiceDeliveryItemDto delivery, {
+    required String actor,
+  }) {
+    final date = (delivery.completedAt ?? delivery.startedAt).toLocal();
+    String two(int value) => value.toString().padLeft(2, '0');
+    return InvoiceDeliveryHistoryRowData(
+      success: delivery.status == DeliveryStatus.succeeded,
+      email: delivery.recipientEmail,
+      date: '${two(date.day)}/${two(date.month)}/${date.year}',
+      time: '${two(date.hour)}:${two(date.minute)}',
+      actor: actor,
+      deliveryStatus: delivery.status,
+    );
+  }
+
+  final DeliveryStatus? deliveryStatus;
   final bool success;
   final String email;
   final String date;
@@ -145,8 +165,7 @@ class InvoiceDeliveryHistoryView extends StatelessWidget {
           child: Column(
             children: [
               for (var i = 0; i < rows.length; i++) ...[
-                if (i > 0)
-                  Divider(height: 1, color: colors.borderDefault),
+                if (i > 0) Divider(height: 1, color: colors.borderDefault),
                 _DeliveryHistoryRow(data: rows[i]),
               ],
             ],
@@ -183,10 +202,13 @@ class _DeliveryHistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 VText(
-                  SendInvoiceCopy.deliveryMainText(
-                    success: data.success,
-                    email: data.email,
-                  ),
+                  data.deliveryStatus == DeliveryStatus.processing ||
+                          data.deliveryStatus == DeliveryStatus.unknown
+                      ? 'Đang gửi · ${data.email}'
+                      : SendInvoiceCopy.deliveryMainText(
+                          success: data.success,
+                          email: data.email,
+                        ),
                   variant: VTextVariant.bodyDefault,
                   color: colors.textPrimary,
                   style: const TextStyle(fontWeight: FontWeight.w600),

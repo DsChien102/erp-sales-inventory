@@ -165,4 +165,51 @@ void main() {
     expect(cubit.state.failure?.message, contains('địa chỉ liên hệ'));
     await cubit.close();
   });
+
+  test('upsertLegal accepts 10 to 13 digits and branch dash format', () async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.legalDuplicateWarning),
+    );
+    final cubit = buildCubit(module);
+    await cubit.load();
+
+    // 10 digits
+    var ok = await cubit.upsertLegal(
+      legalInput.copyWith(taxCode: '0123456789'),
+      allowDuplicateTaxCode: false,
+    );
+    expect(cubit.state.failure, isNull);
+
+    // 12 digits
+    ok = await cubit.upsertLegal(
+      legalInput.copyWith(taxCode: '012345678901'),
+      allowDuplicateTaxCode: false,
+    );
+    expect(cubit.state.failure, isNull);
+
+    // 13 digits
+    ok = await cubit.upsertLegal(
+      legalInput.copyWith(taxCode: '0123456789012'),
+      allowDuplicateTaxCode: false,
+    );
+    expect(cubit.state.failure, isNull);
+
+    // 10 digits with 3-digit branch
+    ok = await cubit.upsertLegal(
+      legalInput.copyWith(taxCode: '0123456789-001'),
+      allowDuplicateTaxCode: false,
+    );
+    expect(cubit.state.failure, isNull);
+
+    // Invalid format (< 10 digits)
+    ok = await cubit.upsertLegal(
+      legalInput.copyWith(taxCode: '123456789'),
+      allowDuplicateTaxCode: false,
+    );
+    expect(ok, isFalse);
+    expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
+    expect(cubit.state.failure?.message, contains('10 đến 13 chữ số'));
+
+    await cubit.close();
+  });
 }

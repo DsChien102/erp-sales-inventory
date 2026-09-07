@@ -251,4 +251,36 @@ void main() {
       client.dispose();
     });
   });
+
+  group('refetchInterval', () {
+    test('automatically refetches periodically when refetchInterval is set', () async {
+      final client = QueryClient();
+      var fetchCount = 0;
+
+      final observer = client.watchQuery<int>(
+        queryKey: const ['interval-test'],
+        queryFn: () async {
+          fetchCount++;
+          return fetchCount;
+        },
+        refetchInterval: const Duration(milliseconds: 50),
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(fetchCount, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 65));
+      expect(fetchCount, greaterThanOrEqualTo(2));
+
+      await Future<void>.delayed(const Duration(milliseconds: 65));
+      expect(fetchCount, greaterThanOrEqualTo(3));
+
+      observer.dispose();
+      final countAtDispose = fetchCount;
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(fetchCount, countAtDispose);
+
+      client.dispose();
+    });
+  });
 }

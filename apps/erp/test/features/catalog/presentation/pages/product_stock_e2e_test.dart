@@ -198,7 +198,7 @@ void main() {
     // Verify PCC note section exists
     final noteCardFinder = find.text('Ghi chú');
     expect(noteCardFinder, findsOneWidget);
-    
+
     // Tap on Ghi chú card
     await tester.ensureVisible(noteCardFinder);
     await tester.tap(noteCardFinder);
@@ -206,7 +206,10 @@ void main() {
 
     // Verify Note Edit page is shown
     expect(find.byKey(const Key('wgt_note_edit_page')), findsOneWidget);
-    expect(find.text('Ghi chú riêng cho chính bạn. Không hiển thị cho khách hàng.'), findsOneWidget);
+    expect(
+      find.text('Ghi chú riêng cho chính bạn. Không hiển thị cho khách hàng.'),
+      findsOneWidget,
+    );
 
     // Enter note text
     await tester.enterText(find.byKey(const Key('input_product_note')), 'Ghi chu moi tu PCC');

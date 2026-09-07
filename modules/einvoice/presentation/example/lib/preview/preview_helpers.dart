@@ -31,21 +31,14 @@ class PreviewActionButton extends StatelessWidget {
 /// Back chrome matching [VAppBar] when the catalog Navigator cannot pop.
 Widget previewScaffoldBackButton(BuildContext context) {
   return IconButton(
-    icon: VIcon(
-      icon: VIcons.chevronLeft,
-      color: context.vColors.textPrimary,
-    ),
+    icon: VIcon(icon: VIcons.chevronLeft, color: context.vColors.textPrimary),
     onPressed: previewNoop,
   );
 }
 
 /// Fixed-height scroll host for large forms / detail compositions.
 class PreviewEmbedFrame extends StatelessWidget {
-  const PreviewEmbedFrame({
-    super.key,
-    required this.child,
-    this.height = 420,
-  });
+  const PreviewEmbedFrame({super.key, required this.child, this.height = 420});
 
   final Widget child;
   final double height;

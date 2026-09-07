@@ -65,8 +65,7 @@ void main() {
       expect(find.text(SendInvoiceCopy.recipientHelper), findsOneWidget);
     });
 
-    testWidgets('O01-C shows invalid helper and disables submit',
-        (tester) async {
+    testWidgets('O01-C shows invalid helper and disables submit', (tester) async {
       await tester.pumpWidget(
         buildSubject(
           state: SendInvoiceSheetState.invalid,
@@ -81,8 +80,7 @@ void main() {
       expect(send.onPressed, isNull);
     });
 
-    testWidgets('O01-D locks field, shows loading, blocks repeat submit',
-        (tester) async {
+    testWidgets('O01-D locks field, shows loading, blocks repeat submit', (tester) async {
       var submitted = 0;
       await tester.pumpWidget(
         buildSubject(

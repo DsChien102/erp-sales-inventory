@@ -6,8 +6,7 @@ Future<bool> showPricingImportCancelDialog(BuildContext context) async {
   await showVConfirmDialog(
     context: context,
     title: 'Hủy lần nhập?',
-    message:
-        'Lô dữ liệu đang chờ xác nhận sẽ bị hủy. Bạn có chắc muốn quay lại không?',
+    message: 'Lô dữ liệu đang chờ xác nhận sẽ bị hủy. Bạn có chắc muốn quay lại không?',
     cancelLabel: 'Tiếp tục nhập',
     actionLabel: 'Hủy lần nhập',
     isDestructive: true,

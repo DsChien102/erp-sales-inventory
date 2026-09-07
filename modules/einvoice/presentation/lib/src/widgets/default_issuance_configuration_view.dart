@@ -134,15 +134,25 @@ class _DefaultIssuanceBody extends StatelessWidget {
                   VCard(
                     padding: const EdgeInsets.all(VSpacing.space4),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        VText(
+                          DefaultIssuanceConfigurationCopy.templateInfoTitle,
+                          variant: VTextVariant.headingH4,
+                          color: colors.textPrimary,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const VGap.sm(),
                         SettingsInfoRow(
                           label: DefaultIssuanceConfigurationCopy.symbolLabel,
                           value: selected.symbol ?? selected.serial ?? selected.templateId,
                         ),
+                        const VDivider(),
                         const SettingsInfoRow(
                           label: DefaultIssuanceConfigurationCopy.authorityLabel,
                           value: EInvoiceConfigurationDisplay.authorityWithTaxCode,
                         ),
+                        const VDivider(),
                         SettingsInfoRow(
                           label: DefaultIssuanceConfigurationCopy.invoiceTypeLabel,
                           value: selected.name,
@@ -168,10 +178,9 @@ class _DefaultIssuanceBody extends StatelessWidget {
   }
 
   String _templateOptionLabel(ProviderTemplateDto template) {
-    final serial = template.serial;
-    final symbol = template.symbol;
-    if (serial != null && serial.isNotEmpty && symbol != null && symbol.isNotEmpty) {
-      return '$serial · $symbol';
+    final symbol = template.symbol?.trim();
+    if (symbol != null && symbol.isNotEmpty) {
+      return symbol;
     }
     return template.name;
   }

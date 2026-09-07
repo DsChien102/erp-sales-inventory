@@ -117,6 +117,15 @@ abstract final class IssuanceReadinessEvaluator {
       previewForbidden = true;
     }
 
+    if (!input.providerSupportsPreview) {
+      blockers.add(
+        const ReadinessBlocker(
+          code: 'PREVIEW_UNSUPPORTED',
+          message: 'Nhà cung cấp không hỗ trợ xem trước',
+        ),
+      );
+    }
+
     final canPreview = !previewForbidden && input.providerSupportsPreview;
     final warnings = List<ReadinessWarning>.unmodifiable(input.configWarnings);
 

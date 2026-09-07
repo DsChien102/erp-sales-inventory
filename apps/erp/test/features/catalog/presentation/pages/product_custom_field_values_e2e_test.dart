@@ -57,8 +57,7 @@ void main() {
     expect(find.textContaining('0/1 trường đã điền'), findsOneWidget);
   });
 
-  testWidgets('e2e_e03_u02_fr02_01: save text custom field value and refresh PCC',
-      (tester) async {
+  testWidgets('e2e_e03_u02_fr02_01: save text custom field value and refresh PCC', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesSaveOk);
 
     await _openAmoxicillinFromDiscovery(tester);
@@ -71,8 +70,7 @@ void main() {
     expect(find.textContaining('1/3 trường đã điền'), findsOneWidget);
   });
 
-  testWidgets('e2e_e03_u02_fr02_02: invalid number value shows field-level error',
-      (tester) async {
+  testWidgets('e2e_e03_u02_fr02_02: invalid number value shows field-level error', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesSaveOk);
 
     await _openAmoxicillinFromDiscovery(tester);
@@ -85,8 +83,9 @@ void main() {
     expect(find.text('Lưu thay đổi'), findsOneWidget);
   });
 
-  testWidgets('e2e_e03_u02_fr03_01: optional field saves while required sibling empty',
-      (tester) async {
+  testWidgets('e2e_e03_u02_fr03_01: optional field saves while required sibling empty', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesRequired);
 
     await _openAmoxicillinFromDiscovery(tester);
@@ -101,8 +100,9 @@ void main() {
     expect(find.text('Thiếu dữ liệu'), findsOneWidget);
   });
 
-  testWidgets('e2e_e03_u02_fr03_02: filling required custom field clears readiness blocker',
-      (tester) async {
+  testWidgets('e2e_e03_u02_fr03_02: filling required custom field clears readiness blocker', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesRequired);
 
     await _openAmoxicillinFromDiscovery(tester);

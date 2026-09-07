@@ -17,8 +17,7 @@ class DashboardHeader extends StatelessWidget {
     return BlocBuilder<TenantContextCubit, TenantContextState>(
       builder: (context, state) {
         final branchName =
-            state.branchDisplayName ??
-            (state.isBlocked ? 'Chọn tổ chức' : 'Đang tải…');
+            state.branchDisplayName ?? (state.isBlocked ? 'Chọn tổ chức' : 'Đang tải…');
 
         return Container(
           color: dynamicColors.primary,

@@ -24,8 +24,7 @@ void main() {
     });
 
     test('markVerified moves to connected with capabilities', () {
-      final conn =
-          connection(status: ProviderConnectionStatus.checkRequired);
+      final conn = connection(status: ProviderConnectionStatus.checkRequired);
       final now = DateTime.utc(2026, 1, 1);
       conn.markVerified(
         capabilities: const ProviderCapabilitiesSnapshot(
@@ -64,4 +63,3 @@ void main() {
     });
   });
 }
-

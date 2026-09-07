@@ -27,14 +27,15 @@ class InvitationOutcomeView extends StatelessWidget {
     final title = isAccepted
         ? 'Đã tham gia tổ chức'
         : isDeclined
-            ? 'Đã từ chối lời mời'
-            : 'Không thể tiếp tục';
-    final body = message ??
+        ? 'Đã từ chối lời mời'
+        : 'Không thể tiếp tục';
+    final body =
+        message ??
         (isAccepted
             ? 'Bạn đã trở thành thành viên và có thể vào không gian làm việc.'
             : isDeclined
-                ? 'Lời mời đã được từ chối.'
-                : 'Mã lời mời không dùng được. Bạn có thể nhập mã khác.');
+            ? 'Lời mời đã được từ chối.'
+            : 'Mã lời mời không dùng được. Bạn có thể nhập mã khác.');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,8 +68,7 @@ class InvitationOutcomeView extends StatelessWidget {
             onPressed: onEnterOtherToken,
           ),
         ],
-        if (step == InvitationAcceptanceStep.blocked &&
-            onRetryLater != null) ...[
+        if (step == InvitationAcceptanceStep.blocked && onRetryLater != null) ...[
           const VGap.sm(),
           VButton(
             label: 'Thử lại sau',

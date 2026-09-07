@@ -1,5 +1,4 @@
-import '../../shared/services/configuration_readiness_evaluator.dart'
-    show ReadinessWarning;
+import '../../shared/services/configuration_readiness_evaluator.dart' show ReadinessWarning;
 import '../buyer_completion/effective_buyer_invoice_data.dart';
 import '../enums/buyer_completion_status.dart';
 

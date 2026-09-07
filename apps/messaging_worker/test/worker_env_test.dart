@@ -43,4 +43,27 @@ void main() {
       );
     });
   });
+
+  group('WorkerEnv misaEmailDeliveryEnabled', () {
+    test('defaults to false when environment variable is absent', () {
+      final config = _config(environment: 'development');
+      expect(config.misaEmailDeliveryEnabled, isFalse);
+    });
+
+    test('parses true case-insensitively', () {
+      const config = WorkerEnv(
+        supabaseUrl: 'https://example.supabase.co',
+        supabaseServiceRoleKey: 'service-role-key',
+        tickSecret: 'tick-secret',
+        tenantBatchSize: 20,
+        moduleBatchSize: 10,
+        maxRoundsPerTick: 5,
+        concurrency: 4,
+        misaAppId: 'test-app-id',
+        misaBaseUrl: 'https://api.meinvoice.vn/api/integration',
+        misaEmailDeliveryEnabled: true,
+      );
+      expect(config.misaEmailDeliveryEnabled, isTrue);
+    });
+  });
 }

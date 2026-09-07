@@ -1,12 +1,16 @@
+import 'package:async_query/async_query.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../support/configuration_query_failure.dart';
+import '../support/einvoice_query_keys.dart';
 import '../support/provider_connection_copy.dart';
 import 'provider_connection_state.dart';
 
 enum ProviderConnectionSubmitResult {
+  verificationPending,
   connected,
   reconnected,
   disconnected,
@@ -21,12 +25,71 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
   ProviderConnectionCubit({
     required IEInvoiceModule einvoiceModule,
     required IExecutionContext executionContext,
+    QueryClient? queryClient,
   }) : _einvoiceModule = einvoiceModule,
        _executionContext = executionContext,
+       _queryClient = queryClient,
        super(const ProviderConnectionInitial());
 
   final IEInvoiceModule _einvoiceModule;
   final IExecutionContext _executionContext;
+  final QueryClient? _queryClient;
+
+  IEInvoiceModule get einvoiceModule => _einvoiceModule;
+  IExecutionContext get executionContext => _executionContext;
+
+  Future<void> _setConnectionQueryData(ProviderConnectionScreenDto screen) async {
+    final client = _queryClient;
+    if (client == null) return;
+    try {
+      client.setQueryData(
+        EinvoiceQueryKeys.providerConnection('current-tenant'),
+        screen,
+      );
+    } catch (_) {}
+  }
+
+  Future<void> _invalidateConnectionQuery() async {
+    final client = _queryClient;
+    if (client == null) return;
+    try {
+      await client.invalidateQueries(
+        queryKey: EinvoiceQueryKeys.providerConnection('current-tenant'),
+      );
+    } catch (_) {}
+  }
+
+  void updateScreenFromQuery(ProviderConnectionScreenDto screen) {
+    if (isClosed) return;
+    final current = state;
+    if (current is ProviderConnectionLoaded) {
+      // Keep reconnectMode and errors if user is currently typing in form
+      if (current.reconnectMode) {
+        emit(
+          current.copyWith(
+            screen: screen,
+          ),
+        );
+      } else {
+        emit(
+          current.copyWith(
+            screen: screen,
+            isSubmitting: false,
+          ),
+        );
+      }
+    } else {
+      emit(ProviderConnectionLoaded(screen: screen));
+    }
+  }
+
+  void updateErrorFromQuery(Object error) {
+    if (isClosed) return;
+    final current = state;
+    if (current is! ProviderConnectionLoaded) {
+      emit(ProviderConnectionError(mapConfigurationQueryFailure(error)));
+    }
+  }
 
   Future<void> load() async {
     emit(const ProviderConnectionLoading());
@@ -39,6 +102,7 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
       if (isClosed) {
         return;
       }
+      await _setConnectionQueryData(screen);
       emit(ProviderConnectionLoaded(screen: screen));
     } catch (error) {
       if (isClosed) {
@@ -102,19 +166,24 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
       if (isClosed) {
         return ProviderConnectionSubmitResult.failed;
       }
+      final updatedScreen = ProviderConnectionScreenDto(
+        legalProfile: current.screen.legalProfile,
+        connection: ProviderConnectionSummaryDto(
+          connectionId: result.connectionId,
+          status: result.status,
+          lastCheckedAt: result.checkedAt,
+          maskedAccount: current.screen.connection.maskedAccount,
+          connectionVersion: current.screen.connection.connectionVersion,
+        ),
+      );
       emit(
         current.copyWith(
           isSubmitting: false,
-          screen: ProviderConnectionScreenDto(
-            legalProfile: current.screen.legalProfile,
-            connection: ProviderConnectionSummaryDto(
-              connectionId: result.connectionId,
-              status: result.status,
-              lastCheckedAt: result.checkedAt,
-            ),
-          ),
+          screen: updatedScreen,
         ),
       );
+      await _setConnectionQueryData(updatedScreen);
+      await _invalidateConnectionQuery();
       return ProviderConnectionSubmitResult.verified;
     } on ProviderUnavailableException {
       _emitIdle(current);
@@ -150,21 +219,26 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
       if (isClosed) {
         return ProviderConnectionSubmitResult.failed;
       }
+      final updatedScreen = ProviderConnectionScreenDto(
+        legalProfile: current.screen.legalProfile,
+        connection: ProviderConnectionSummaryDto(
+          connectionId: result.connectionId,
+          status: result.status,
+          lastCheckedAt: current.screen.connection.lastCheckedAt,
+          maskedAccount: null,
+          connectionVersion: null,
+        ),
+      );
       emit(
         current.copyWith(
           isSubmitting: false,
           reconnectMode: false,
           clearFieldErrors: true,
-          screen: ProviderConnectionScreenDto(
-            legalProfile: current.screen.legalProfile,
-            connection: ProviderConnectionSummaryDto(
-              connectionId: result.connectionId,
-              status: result.status,
-              lastCheckedAt: current.screen.connection.lastCheckedAt,
-            ),
-          ),
+          screen: updatedScreen,
         ),
       );
+      await _setConnectionQueryData(updatedScreen);
+      await _invalidateConnectionQuery();
       return ProviderConnectionSubmitResult.disconnected;
     } catch (_) {
       _emitIdle(current);
@@ -214,6 +288,7 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
             connectionId: connectionId,
             username: trimmedAccount,
             password: password,
+            expectedConnectionVersion: current.screen.connection.connectionVersion,
           ),
         );
       } else {
@@ -229,21 +304,29 @@ final class ProviderConnectionCubit extends Cubit<ProviderConnectionState> {
       if (isClosed) {
         return ProviderConnectionSubmitResult.failed;
       }
+      final updatedScreen = ProviderConnectionScreenDto(
+        legalProfile: current.screen.legalProfile,
+        connection: ProviderConnectionSummaryDto(
+          connectionId: result.connectionId,
+          status: result.status,
+          lastCheckedAt: current.screen.connection.lastCheckedAt,
+          maskedAccount: ProviderConnectionCopy.maskAccount(trimmedAccount),
+          connectionVersion: current.screen.connection.connectionVersion,
+        ),
+      );
       emit(
         current.copyWith(
           isSubmitting: false,
           reconnectMode: false,
           clearFieldErrors: true,
-          screen: ProviderConnectionScreenDto(
-            legalProfile: current.screen.legalProfile,
-            connection: ProviderConnectionSummaryDto(
-              connectionId: result.connectionId,
-              status: result.status,
-              lastCheckedAt: DateTime.now(),
-            ),
-          ),
+          screen: updatedScreen,
         ),
       );
+      await _setConnectionQueryData(updatedScreen);
+      await _invalidateConnectionQuery();
+      if (result.status == ProviderConnectionStatus.checkRequired) {
+        return ProviderConnectionSubmitResult.verificationPending;
+      }
       return reconnect
           ? ProviderConnectionSubmitResult.reconnected
           : ProviderConnectionSubmitResult.connected;

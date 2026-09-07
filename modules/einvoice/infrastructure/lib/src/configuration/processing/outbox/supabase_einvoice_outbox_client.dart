@@ -22,10 +22,7 @@ final class SupabaseEinvoiceOutboxClient implements IEinvoiceOutboxClient {
     try {
       final rows = await _rpcClient.callList(
         'claim_outbox_batch',
-        params: <String, dynamic>{
-          'p_tenant_id': tenantId,
-          'p_limit': limit,
-        },
+        params: <String, dynamic>{'p_tenant_id': tenantId, 'p_limit': limit},
       );
       return rows
           .map(

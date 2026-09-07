@@ -12,9 +12,9 @@ Contracts: [07-api-contracts.md](07-api-contracts.md) · Traceability: [05-trace
 | S0  | Docs ingest (canonical → Epic/US + harness)                                                                                                                                                                                                                                       | docs     | done     | n/a  | n/a  | n/a  | —              | —                   |
 | S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | done     | done | todo | todo | A              | —                   |
 | S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | done     | in_progress | todo | todo | B              | S1 Contract+BE      |
-| S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | done     | todo | todo | todo | B              | S2                  |
-| S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
-| S5  | EP-04 — [US-01](../Epic-04-send-resend-einvoice/US-01.md) auto send + [US-02](../Epic-04-send-resend-einvoice/US-02.md) manual send + [US-03](../Epic-04-send-resend-einvoice/US-03.md) delivery result                                                                           | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
+| S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | done     | in_progress | in_progress | done | B              | S2                  |
+| S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | done     | in_progress | todo | todo | C              | S2 (issued invoice) |
+| S5  | EP-04 — [US-01](../Epic-04-send-resend-einvoice/US-01.md) auto send + [US-02](../Epic-04-send-resend-einvoice/US-02.md) manual send + [US-03](../Epic-04-send-resend-einvoice/US-03.md) delivery result                                                                           | vertical | done     | done | todo | todo | C              | S2 (issued invoice) |
 
 
 
@@ -55,7 +55,7 @@ ERP quan sát trạng thái async bằng **poll projection qua RPC**, không dù
 
 Việc cụ thể trong S2:
 
-- [ ] `IssueInvoiceCommand` trả `PROCESSING` → UI hiện `Đang xử lý` ngay, không chờ vòng poll đầu
+- [ ] `IssueInvoiceCommand` trả `PREPARING` (hoặc attempt status hiện tại khi replay) → UI hiện projection `Đang xử lý` ngay, không chờ vòng poll đầu
 - [ ] Poll `GetOrderInvoiceProjectionQuery` 3–5s khi chưa terminal; dừng hẳn khi terminal
 - [ ] Thêm `refetchInterval` vào `packages/vet45_async_query` (`QueryOptions` + `QueryObserver`) — mechanism dùng chung, không dựng `Timer.periodic` từng màn
 
@@ -63,13 +63,96 @@ Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast s
 
 ## S2b BE closeout (honest)
 
-S2b verifies manual start and immediate provider-result landing through Dart fakes, RPC-shape/SQL contract tests and worker tests. Production remains fail-closed until authoritative Theme 05/Theme 03 source contracts and the approved SQL migration land. Unknown-result cases land as pending ReconciliationCases with `next_check_at` and are inert until the S3b poll consumer scans them, so S2b carries no poison-row risk; those cases are only acted on once S3b ships its poll consumer.
+S2b verifies manual start and immediate provider-result landing through Dart fakes, RPC-shape/SQL contract tests and worker tests. Production remains fail-closed until authoritative Theme 05/Theme 03 source contracts and the approved SQL migrations land. Unknown-result cases hand off durably to the implemented S3b poll consumer; production activation still waits for draft promotion/application.
 
-- **BE lane `in_progress`:** draft SQL `007_einvoice_s2b_schema_and_rpc.sql` chưa promote; authoritative sales/partner source contracts chưa có; S3b poll consumer chưa deploy.
+- **BE lane `in_progress`:** draft SQL `007_einvoice_issuance_schema_and_publish_rpcs.sql` chưa promote; authoritative sales/partner source contracts chưa có. S3b poll consumer đã implement/test nhưng chưa active trên production DB khi draft chưa promote.
 - **Traceability:** EP-02/US-02 FR-01..08 + EP-02/US-04 immediate-result subset = `done` (focused package tests pass).
 - **Out of scope S2b:** poll execution, callback ingestion, case resolution, finalization recovery → S3b.
 
+## S3 Closeout & Lane Status (honest)
+
+Slice 3 covers auto issuance trigger/re-evaluation (S3a), async result polling/reconciliation/recovery (S3b), and manual retry upon definite failure (S3c).
+
+- **Contract lane `done`:** Symbol Dart, DTOs, RPC contracts, and error codes defined and frozen in `07-api-contracts.md`.
+- **BE lane `in_progress`:** Handlers, domain services, gateways, serializers, dead-letter handlers, and unit/integration tests verified across application/infrastructure layers. Draft SQL `007_einvoice_issuance_schema_and_publish_rpcs.sql`, `008_einvoice_auto_issuance_and_retry_rpcs.sql`, and `009_einvoice_issuance_reconciliation_rpcs.sql` are in `supabase/migrations/_drafts/` and not yet promoted to timestamped migrations.
+- **Pre-S4 repair gate:** S3b now composes against the canonical S2b schema, persists typed provider-result evidence, closes terminal reconciliation cases, uses the frozen 30-second first poll, recovers a complete `ElectronicInvoice` without fabricated legal identity, and emits `einvoice.electronic_invoice.registered` through the outbox helper. Focused compatibility guards cover these invariants.
+- **Worker sub-lane `done`:** Internal command processing, reconciliation polling ticks with backoff schedule `[30s, 2m, 10m, 30m, 2h]`, status queries, dead-letter routing, and fake client tests verified in `messaging_worker`.
+- **FE lane `in_progress`:** Presentation components (`OrderEInvoiceSection`, `OrderEInvoiceCubit`, `OrderEInvoiceIdempotencyKeyFactory`) and widget tests (`order_einvoice_section_test.dart`) are implemented and verified in isolation; full integration remains `in_progress` pending the concrete Theme 05 Sales Order host page.
+- **E2E lane `done`:** All 11 boundary scenarios (`e2e_e02_u03_sc01_01`, `scn_e02_u03_fr09_01`, `e2e_e02_u04_sc01_01`, `pending_handoff_existing_case_01`, `scn_e02_u04_fr08_02`, `scn_e02_u04_fr08_03`, `scn_e02_u04_fr01_02`, `e2e_e02_u05_sc01_01`, `scn_e02_u05_sc11_01`, `scn_e02_u05_sc12_01`, `s2b_command_integrity_dead_letter_01`) pass completely against mediator, inbox, worker, and provider ports in `einvoice_slice3_integration_test.dart`.
+
+## S4 BE entry contract
+
+S4 starts from the async resource contract frozen in [07-api-contracts.md](07-api-contracts.md): request RPC persists operation + internal command atomically, worker alone calls MISA, and UI polls detail/document read models. Official-view/document DTO additions are backward-compatible; migration promotion and live MISA sandbox evidence remain release/integration gates, not reasons to put provider HTTP inside S4 handlers.
+
+## S5 Task 0 contract freeze (honest)
+
+- [x] Frozen delivery enums + typed `DeliveryResultEvidence` (no client `deliveryKind`, no raw `Map` providerResult).
+- [x] Public read DTOs expose trigger/actor/recipient-source + display-state secondary attention.
+- [x] S2/S3 `attempt_snapshot.buyer_lineage.buyerInvoiceSnapshot` = source-owned Theme-05 base, captured before completion merge.
+- [x] Theme + EP-04 US-01/US-03 + harness 01–05/07: BuyerInvoiceSnapshot fallback, one initial delivery, UNKNOWN lock, capability-aware reconciliation, MISA observation unsupported, max 3 technical attempts, display-state precedence, safe event payloads, source-owned `partner.get_einvoice_recipient_snapshot`.
+- [x] Contract tests: `s5_contract_test.dart`, S2b/S3a SQL buyer_lineage assertions.
+
+## S4 Task 0 repair gate (contract freeze)
+
+- [x] `ProviderInteractionRecord` canonical schema in draft `001` (payload-free audit; UUID `correlation_id`).
+- [x] S2 preview moved to `invoice_preview_operations` (draft `005`/`006`); preview RPC names unchanged.
+- [x] `ProviderCapabilitiesSnapshot.supportedDocumentTypes` + fail-closed capability gate documented.
+- [x] `CHECK_REQUIRED` unresolved lock + `sales.can_access_sales_order` scope gate in 07.
+- [x] Observation explicit `triggerId` idempotency; no daily scan / due-command seeder RPC.
+- [x] Executable contract tests in `modules/einvoice/infrastructure/test/electronic_invoice/`.
+
+## S4 closeout (honest)
+
+S4 BE Dart + worker paths verified: `einvoice_slice4_integration_test.dart` (17 scenarios), `s4_worker_handlers_test.dart`, `einvoice_worker_slice4_test.dart`, SQL contract tests `einvoice_s4a`/`s4b`/`s4c`. Internal commands: `einvoice.fetch_official_view` (attempt limit 2), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation` (trigger-scoped). `CHECK_REQUIRED` unresolved lock; definite empty/rejection → `FAILED`; ambiguous timeout exhaustion → `CHECK_REQUIRED` + `PROVIDER_RESULT_UNDETERMINED`. Signed URL TTL 5 minutes; private bucket + scoped Storage SELECT.
+
+| Sub-lane | Status | Evidence / blocker |
+| -------- | ------ | ------------------ |
+| Worker | done | Worker handler tests + `ProcessInternalCommandsCommandHandler` attempt injection |
+| BE Dart | done | Integration harness + handler/registration tests |
+| BE DB | in_progress | Drafts `010`/`011`/`012` in `_drafts/` only; `sales.can_access_sales_order` not source-owned in Sales |
+| FE | todo | SG-02 view + SG-06 document sheet |
+| E2E | todo | UI flow + promoted migration |
+
+Aggregate **S4 BE** lane `in_progress` until Sales scope gate is source-owned and drafts promoted. Observation: `triggerId` idempotency; `NOT_FOUND`/`MISMATCH` → observation + outbox `einvoice.provider_observation_attention_required`; no tenant-wide scan/seeder.
+
+## S5 closeout (honest)
+
+S5 covers EP-04 auto send after registration (S5a), manual send/resend (S5b), and delivery result + capability-aware reconciliation (S5c). BE Dart + worker paths verified in-process with fake RPC/state, real handlers, inbox/outbox/internal-command loop, and `FakeMeInvoiceClient`.
+
+Verified: `einvoice_slice5_integration_test.dart` (26), `fake_einvoice_scenarios_e04_test.dart` (6), SQL contract tests `einvoice_s5_*` + partner recipient snapshot (84), config `einvoice_s5_*.dart` (17), `messaging_worker` (32). Internal commands: `einvoice.send_invoice_email`, `einvoice.reconcile_invoice_delivery`. Auto trigger via `electronic_invoice.registered` inbox handler; server derives INITIAL/RESEND; current MISA observation unsupported → first reconciliation `UNRESOLVED` + one attention event.
+
+| Sub-lane | Status | Evidence / blocker |
+| -------- | ------ | ------------------ |
+| Contract | done | Task 0 freeze + `s5_contract_test.dart`; §S5 in 07 |
+| Worker | done | `enableMisaHttp` MISA send adapter; dead-letter handlers; `einvoice_s5_worker_composition_test` |
+| BE Dart | done | Integration (26) + application (192) + domain (96) + fake EP-04 (6) |
+| BE DB | in_progress | Drafts `013`/`014`/`015` + `016_partner_einvoice_recipient_snapshot.sql` in `_drafts/` only |
+| FE | todo | SG-07 send/resend sheet (`wgt_e04_u02_fr01_01`) |
+| E2E (UI) | todo | Real Theme 05 host + promoted migration; in-process `e2e_e04_*` rows `done` in 05 |
+
+- **Traceability:** six trace ids (`scn_e04_u01_fr01_01`, `e2e_e04_u01_sc01_01`, `scn_e04_u02_fr08_01`, `e2e_e04_u02_sc01_01`, `scn_e04_u03_fr04_01`, `e2e_e04_u03_sc01_01`) plus supplemental `scn_e04_*` groups.
+- **Production gate:** draft promotion; live MISA sandbox optional per `S1-MISA-SANDBOX-CHECKLIST.md`.
+- **Follow-up hardening (non-blocking):** submitted dead-letter depth, auto/manual race proxy, UNRESOLVED late-terminal — Task 10 review.
+
+Aggregate **S5 BE** lane `done` for Dart/worker implementation; **BE DB** remains `in_progress` until draft SQL promotes.
+
+## Dev Live Acceptance & Verification
+
+Quy trình kiểm thử live acceptance end-to-end trên môi trường dev (đơn hàng cố định `TEST-HDDT-001`, MISA sandbox, Supabase dev, worker) được theo dõi tại [DEV-LIVE-ACCEPTANCE-CHECKLIST.md](DEV-LIVE-ACCEPTANCE-CHECKLIST.md).
+
+| Milestones / Thành phần | Trạng thái | Bằng chứng kiểm thử & Ghi chú |
+| :--- | :---: | :--- |
+| **Fixed Fixture & Seed** | `done` | `sales.einvoice_acceptance_orders`, mã đơn `TEST-HDDT-001`, tổng tiền 1.100.000đ; scripts `seed_einvoice_dev_acceptance_order.sh` & `trigger_einvoice_dev_acceptance_observation.sh` |
+| **SQL Parity & Bundle** | `done` | RPC helper `einvoice.build_canonical_invoice` (draft 006); bundle scripts `build_theme8_bundle.sh` & `apply_einvoice_dev_acceptance_bundle.sh`; 17/17 SQL contract tests passed |
+| **MISA Provider Adapter** | `done` | Truthful capabilities (`enableMisaHttp`), meInvoice sandbox preview mapper, email flagged as unsupported on test host; 483/483 infra tests passed |
+| **Live Sales Section** | `done` | `OrderEInvoiceSection` hỗ trợ `orderCode` linh hoạt, `OrderEInvoiceCubit` đầy đủ lifecycle + URL viewer + Document exporter; 7 cubit tests + 4 section widget tests passed |
+| **Dev Acceptance Page** | `removed` | UI ERP retired — `EinvoiceDevAcceptancePage` / checklist / diagnostics widgets đã gỡ; nghiệm thu tiếp tục qua checklist docs + `OrderEInvoiceSection` |
+| **Route & Dev Gate** | `removed` | Route `/dev/einvoice-acceptance` và `EinvoiceDevTaskCard` trên Dashboard đã gỡ |
+
+> **Lưu ý kiến trúc:** Dev acceptance harness là công cụ phục vụ kiểm thử live end-to-end trên dev với fixture cố định do schema `sales` sở hữu (`sales.einvoice_acceptance_orders`). Harness này **không** thay thế hoặc đánh dấu hoàn thành cho màn hình chi tiết đơn hàng production (phụ thuộc vào Theme 05 host page - SG-02/03).
+
 ## Definition of Done
+
 
 
 

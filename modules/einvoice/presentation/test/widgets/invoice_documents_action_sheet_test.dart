@@ -40,8 +40,7 @@ void main() {
       expect(chevrons, findsNWidgets(2));
     });
 
-    testWidgets('loadingPdf locks PDF only and keeps XML normal',
-        (tester) async {
+    testWidgets('loadingPdf locks PDF only and keeps XML normal', (tester) async {
       var pdfTapped = false;
       var xmlTapped = false;
       await tester.pumpWidget(
@@ -78,8 +77,7 @@ void main() {
       expect(find.text(InvoiceDocumentsCopy.saveXmlTitle), findsOneWidget);
     });
 
-    testWidgets('loadingXml locks XML only and keeps PDF normal',
-        (tester) async {
+    testWidgets('loadingXml locks XML only and keeps PDF normal', (tester) async {
       var pdfTapped = false;
       var xmlTapped = false;
       await tester.pumpWidget(
@@ -107,8 +105,7 @@ void main() {
       expect(pdfTapped, isTrue);
     });
 
-    testWidgets('show helper returns selected action and dismiss returns null',
-        (tester) async {
+    testWidgets('show helper returns selected action and dismiss returns null', (tester) async {
       InvoiceDocumentsAction? result;
 
       await tester.pumpWidget(

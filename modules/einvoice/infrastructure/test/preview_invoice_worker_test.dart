@@ -13,8 +13,7 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   Future<MeInvoiceAuthOutcome> authenticateAndListTemplates({
     required String tenantId,
     required String connectionId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<MeInvoicePreviewOutcome> previewUnpublished({
@@ -30,12 +29,19 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   void validateCanonical({required Map<String, Object?> canonicalInvoice}) {}
 
   @override
+  Future<MeInvoiceIssuanceStatusOutcome> getStatus({
+    required String tenantId,
+    required String idempotencyKey,
+    required String payloadHash,
+    String? providerReference,
+  }) => throw UnimplementedError();
+
+  @override
   Future<MeInvoicePublishOutcome> publish({
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
     required String idempotencyKey,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 }
 
 void main() {
@@ -54,10 +60,12 @@ void main() {
           viewerRef: 'https://meinvoice.vn/viewer/preview-123',
         ),
       );
+      final interactionGateway = FakeProviderInteractionGateway();
 
       final handler = PreviewInvoiceCommandHandler(
         providerPort: port,
         previewGateway: gateway,
+        interactionGateway: interactionGateway,
       );
 
       await handler.handle(
@@ -65,6 +73,7 @@ void main() {
           tenantId: 'tenant-1',
           salesOrderId: 'order-1',
           previewRequestId: 'req-1',
+          providerConnectionId: 'conn-1',
           orderVersion: 1,
           canonicalInvoice: sampleInvoice,
         ),
@@ -73,6 +82,7 @@ void main() {
       expect(port.calls, 1);
       expect(port.lastCanonicalInvoice, sampleInvoice);
       expect(gateway.storedRequestId, 'req-1');
+      expect(interactionGateway.startCalls, hasLength(1));
     });
 
     test('throws PROVIDER_NOT_CONNECTED when auth fails', () async {
@@ -80,10 +90,12 @@ void main() {
       final port = _FakeMeInvoiceProviderPort(
         const MeInvoicePreviewOutcome.authFailed(),
       );
+      final interactionGateway = FakeProviderInteractionGateway();
 
       final handler = PreviewInvoiceCommandHandler(
         providerPort: port,
         previewGateway: gateway,
+        interactionGateway: interactionGateway,
       );
 
       expect(
@@ -92,6 +104,7 @@ void main() {
             tenantId: 'tenant-1',
             salesOrderId: 'order-1',
             previewRequestId: 'req-1',
+            providerConnectionId: 'conn-1',
             orderVersion: 1,
             canonicalInvoice: sampleInvoice,
           ),
@@ -112,10 +125,12 @@ void main() {
       final port = _FakeMeInvoiceProviderPort(
         const MeInvoicePreviewOutcome.providerUnavailable(),
       );
+      final interactionGateway = FakeProviderInteractionGateway();
 
       final handler = PreviewInvoiceCommandHandler(
         providerPort: port,
         previewGateway: gateway,
+        interactionGateway: interactionGateway,
       );
 
       expect(
@@ -124,6 +139,7 @@ void main() {
             tenantId: 'tenant-1',
             salesOrderId: 'order-1',
             previewRequestId: 'req-1',
+            providerConnectionId: 'conn-1',
             orderVersion: 1,
             canonicalInvoice: sampleInvoice,
           ),

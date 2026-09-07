@@ -15,8 +15,7 @@ final class MessagingWorkerLoop {
   }) : _bindings = indexMessagingModuleBindings(context.modules),
        _boundModuleSchemas = context.boundModuleSchemas,
        _config = context.config,
-       _discoveryClient =
-           discoveryClient ?? SupabaseTenantDiscoveryClient(context.supabaseClient),
+       _discoveryClient = discoveryClient ?? SupabaseTenantDiscoveryClient(context.supabaseClient),
        _pool = WorkConcurrencyPool(context.config.concurrency),
        _log = WorkerStructuredLog(logger ?? createWorkerLogger('loop'));
 

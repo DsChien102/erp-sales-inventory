@@ -26,7 +26,8 @@ class EInvoiceSg02Tab extends StatelessWidget {
       ),
       PreviewSection(
         title: 'SG02-R02 — Kết quả bán hàng — Chưa phát hành',
-        description: 'OrderEInvoiceRow · notIssued (same widget, salesResult context)',
+        description:
+            'OrderEInvoiceRow · notIssued (same widget, salesResult context)',
         child: OrderEInvoiceRow(
           projection: FakeEInvoiceFixtures.projection(
             issuance: IssuanceDisplayState.notIssued,
@@ -79,6 +80,16 @@ class EInvoiceSg02Tab extends StatelessWidget {
           state: PreIssueSheetState.buyerNotReady,
         ),
       ),
+      PreviewSection(
+        title: 'SG02-O08 — Phát hành lỗi (Retry scenario banner)',
+        description: 'PreIssueEInvoiceActionSheet · isFailed + failureCode',
+        child: const PreIssueEInvoiceActionSheet(
+          state: PreIssueSheetState(
+            isFailed: true,
+            failureCode: 'COMMAND_INTEGRITY',
+          ),
+        ),
+      ),
 
       // --- D01 / D02 ---
       PreviewSection(
@@ -116,13 +127,24 @@ class EInvoiceSg02Tab extends StatelessWidget {
         ),
       ),
 
+      for (final status in [
+        DeliveryDisplayState.sending,
+        DeliveryDisplayState.sent,
+        DeliveryDisplayState.failed,
+      ])
+        PreviewSection(
+          title: 'SG02-O05 — Email · ${status.name}',
+          child: PostIssueEInvoiceActionSheet(
+            state: PostIssueSheetState(
+              deliveryStatus: status,
+            ),
+          ),
+        ),
       // --- O05 (delivery variants) ---
       const PreviewSection(
         title: 'SG02-O05-A — Đã phát hành · Chưa gửi',
         description: 'PostIssueEInvoiceActionSheet · notSent',
-        child: PostIssueEInvoiceActionSheet(
-          state: PostIssueSheetState.idle,
-        ),
+        child: PostIssueEInvoiceActionSheet(state: PostIssueSheetState.idle),
       ),
       const PreviewSection(
         title: 'SG02-O05-B — Đã phát hành · Đang gửi',
@@ -137,9 +159,7 @@ class EInvoiceSg02Tab extends StatelessWidget {
         title: 'SG02-O05-C — Đã phát hành · Đã gửi',
         description: 'PostIssueEInvoiceActionSheet · sent',
         child: PostIssueEInvoiceActionSheet(
-          state: PostIssueSheetState(
-            deliveryStatus: DeliveryDisplayState.sent,
-          ),
+          state: PostIssueSheetState(deliveryStatus: DeliveryDisplayState.sent),
         ),
       ),
       const PreviewSection(

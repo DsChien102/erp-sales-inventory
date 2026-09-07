@@ -13,10 +13,8 @@ final class AutoIssueRequiresReadyConfigurationRule implements IBusinessRule {
   final bool enablingAutoIssue;
 
   @override
-  bool isBroken() =>
-      enablingAutoIssue && readinessLevel != ConfigurationReadinessLevel.ready;
+  bool isBroken() => enablingAutoIssue && readinessLevel != ConfigurationReadinessLevel.ready;
 
   @override
-  String get message =>
-      'Configuration is not ready for auto-issue; resolve blockers first';
+  String get message => 'Configuration is not ready for auto-issue; resolve blockers first';
 }

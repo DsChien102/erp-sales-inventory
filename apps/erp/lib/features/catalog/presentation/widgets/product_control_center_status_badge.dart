@@ -16,10 +16,8 @@ class ProductControlCenterStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
       builder: (context, state) {
-        final isReady =
-            state.controlCenter?.readinessSummary.status == ReadinessStatus.readyToSell;
-        final isSoftDeleted =
-            state.controlCenter?.profile.isSoftDeleted ?? fallbackIsSoftDeleted;
+        final isReady = state.controlCenter?.readinessSummary.status == ReadinessStatus.readyToSell;
+        final isSoftDeleted = state.controlCenter?.profile.isSoftDeleted ?? fallbackIsSoftDeleted;
 
         return Center(
           child: Padding(

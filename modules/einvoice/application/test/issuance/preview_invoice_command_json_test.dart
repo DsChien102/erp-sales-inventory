@@ -19,6 +19,7 @@ void main() {
         tenantId: 'tenant-123',
         salesOrderId: 'order-456',
         previewRequestId: 'req-789',
+        providerConnectionId: 'conn-abc',
         orderVersion: 2,
         canonicalInvoice: canonicalInvoice,
       );
@@ -32,7 +33,7 @@ void main() {
       expect(payload['sales_order_id'], 'order-456');
       expect(payload['preview_request_id'], 'req-789');
       expect(payload['order_version'], 2);
-      expect(payload['canonical_invoice'], canonicalInvoice);
+      expect(payload['provider_connection_id'], 'conn-abc');
 
       final restored = PreviewInvoiceCommand.fromJson(
         payload,
@@ -43,6 +44,7 @@ void main() {
       expect(restored.salesOrderId, command.salesOrderId);
       expect(restored.previewRequestId, command.previewRequestId);
       expect(restored.orderVersion, command.orderVersion);
+      expect(restored.providerConnectionId, command.providerConnectionId);
       expect(restored.canonicalInvoice, command.canonicalInvoice);
     });
   });

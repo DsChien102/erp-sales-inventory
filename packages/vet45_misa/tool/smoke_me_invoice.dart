@@ -7,7 +7,7 @@ import 'smoke_token_store.dart';
 
 /// Live smoke against MISA meInvoice (templates / publish / status / download).
 ///
-/// MISA: Bearer ~14 days — **do not** call `/auth/token` per invoice/smoke.
+/// MISA: Bearer ~14 days (recommended refresh: 7 days) — **do not** call `/auth/token` per invoice/smoke.
 Future<void> main(List<String> args) async {
   if (args.isEmpty || hasFlag(args, 'help') || hasFlag(args, 'h')) {
     _printUsage();
@@ -75,7 +75,7 @@ void _printUsage() {
   stdout.writeln('''
 Smoke meInvoice outbound API (live network).
 
-MISA: token ~14 days. Do NOT login on every smoke/invoice (IP block risk).
+MISA: token ~14 days (recommended refresh: 7 days). Do NOT login on every smoke/invoice (IP block risk).
 
 Commands:
   token       POST /auth/token once → save .meinvoice_token.local

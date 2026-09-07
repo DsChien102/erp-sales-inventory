@@ -10,13 +10,13 @@ final class StartAutoIssuanceCommand extends CommandBase<AutoIssuanceResultDto>
     String? id,
     required this.tenantId,
     required this.salesOrderId,
-    required this.triggerId,
+    required this.triggerKey,
     required this.idempotencyKey,
   }) : super(id);
 
   @override
   final String tenantId;
   final String salesOrderId;
-  final String triggerId;
+  final String triggerKey;
   final String idempotencyKey;
 }

@@ -5,7 +5,7 @@ import 'package:vet45_einvoice_domain/domain.dart';
 
 void main() {
   group('EP-01 fake scenarios', () {
-    test('connect_ok returns CONNECTED', () async {
+    test('connect_ok returns checkRequired for worker verification', () async {
       final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.connectOk);
       final result = await module.executeCommandAsync(
         ConnectProviderCommand(
@@ -15,7 +15,7 @@ void main() {
           password: 'p',
         ),
       );
-      expect(result.status, ProviderConnectionStatus.connected);
+      expect(result.status, ProviderConnectionStatus.checkRequired);
     });
 
     test('connect_auth_failed throws ProviderAuthFailedException', () async {

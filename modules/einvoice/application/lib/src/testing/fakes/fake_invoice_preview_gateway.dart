@@ -23,6 +23,7 @@ final class FakeInvoicePreviewGateway implements IInvoicePreviewGateway {
   @override
   Future<InvoicePreviewResultDto?> readCached({
     required String tenantId,
+    required String actorId,
     required String salesOrderId,
   }) async => cached;
 

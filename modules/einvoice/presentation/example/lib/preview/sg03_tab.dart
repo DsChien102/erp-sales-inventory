@@ -65,7 +65,8 @@ class EInvoiceSg03Tab extends StatelessWidget {
       ),
       PreviewSection(
         title: 'SG03-O01-B — Cảnh báo thiếu mã số thuế',
-        description: 'GAP-01 unresolved — do not invent warning confirmation UI',
+        description:
+            'GAP-01 unresolved — do not invent warning confirmation UI',
         child: Text(
           'Unresolved: SRS/Audit yêu cầu warning confirmation; '
           'approved design không có frame và chỉ confirm khi READY.',
@@ -96,6 +97,8 @@ class EInvoiceSg03Tab extends StatelessWidget {
               ),
               onTap: previewNoop,
             ),
+            const SizedBox(height: VSpacing.space2),
+            const IssuanceFailureBanner(failureCode: 'COMMAND_INTEGRITY'),
             const SizedBox(height: VSpacing.space2),
             Builder(
               builder: (ctx) => PreviewActionButton(

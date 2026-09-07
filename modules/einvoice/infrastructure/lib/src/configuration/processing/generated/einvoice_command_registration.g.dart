@@ -10,7 +10,10 @@ import 'einvoice_command_bus_extensions.g.dart';
 
 abstract final class EinvoiceCommandRegistration {
   static void registerBusinessHandler<
-      TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
+    TCommand extends ICommand<TResult>,
+    TResult,
+    THandler extends Object
+  >({
     required GetIt container,
     required CommandBus bus,
     required THandler Function() factory,
@@ -29,10 +32,10 @@ abstract final class EinvoiceCommandRegistration {
   }
 
   static Future<TResult> _defaultInvoke<
-      TCommand extends ICommand<TResult>, TResult, THandler>(
-    TCommand command,
-    THandler handler,
-  ) {
+    TCommand extends ICommand<TResult>,
+    TResult,
+    THandler
+  >(TCommand command, THandler handler) {
     if (handler is ICommandHandler<TCommand, TResult>) {
       return handler.handle(command);
     }
@@ -44,7 +47,9 @@ abstract final class EinvoiceCommandRegistration {
   }
 
   static void registerInternalHandler<
-      TCommand extends InternalCommandBase<void>, THandler extends Object>({
+    TCommand extends InternalCommandBase<void>,
+    THandler extends Object
+  >({
     required GetIt container,
     required CommandBus bus,
     required THandler Function() factory,
@@ -65,7 +70,10 @@ abstract final class EinvoiceCommandRegistration {
   }
 
   static void registerQueryHandler<
-      TQuery extends IQuery<TResult>, TResult, THandler extends Object>({
+    TQuery extends IQuery<TResult>,
+    TResult,
+    THandler extends Object
+  >({
     required QueryBus bus,
     required THandler Function() factory,
     required Future<TResult> Function(TQuery query, THandler handler) invoke,

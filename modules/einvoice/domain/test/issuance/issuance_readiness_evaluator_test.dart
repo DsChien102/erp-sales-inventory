@@ -226,46 +226,45 @@ void main() {
     });
 
     test(
-        'blocks with BUYER_TAX_CODE_REQUIRED and allows preview when org buyer lacks tax code (BR-08 / UI-06)',
-        () {
-      const orgWithoutTaxCode = EffectiveBuyerInvoiceData(
-        buyerType: BuyerType.organization,
-        name: 'Công ty XYZ',
-        taxCode: null,
-      );
-      final input = IssuanceReadinessInput(
-        orderCompleted: true,
-        hasElectronicInvoice: false,
-        hasActiveOperation: false,
-        configReady: true,
-        providerConnected: true,
-        providerSupportsPreview: true,
-        buyer: orgWithoutTaxCode,
-        buyerCompletionState: BuyerCompletionStatus.open,
-      );
+      'blocks with BUYER_TAX_CODE_REQUIRED and allows preview when org buyer lacks tax code (BR-08 / UI-06)',
+      () {
+        const orgWithoutTaxCode = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty XYZ',
+          taxCode: null,
+        );
+        final input = IssuanceReadinessInput(
+          orderCompleted: true,
+          hasElectronicInvoice: false,
+          hasActiveOperation: false,
+          configReady: true,
+          providerConnected: true,
+          providerSupportsPreview: true,
+          buyer: orgWithoutTaxCode,
+          buyerCompletionState: BuyerCompletionStatus.open,
+        );
 
-      final result = IssuanceReadinessEvaluator.evaluate(input);
+        final result = IssuanceReadinessEvaluator.evaluate(input);
 
-      expect(result.level, equals(IssuanceReadinessLevel.notReady));
-      expect(result.canPreview, isTrue);
-      expect(
-        result.blockers,
-        equals([
-          const ReadinessBlocker(
-            code: 'BUYER_TAX_CODE_REQUIRED',
-            message: 'Khách tổ chức thiếu mã số thuế',
-          ),
-        ]),
-      );
-      expect(
-        result.buyerCompletionState,
-        equals(BuyerCompletionStatus.open),
-      );
-    });
+        expect(result.level, equals(IssuanceReadinessLevel.notReady));
+        expect(result.canPreview, isTrue);
+        expect(
+          result.blockers,
+          equals([
+            const ReadinessBlocker(
+              code: 'BUYER_TAX_CODE_REQUIRED',
+              message: 'Khách tổ chức thiếu mã số thuế',
+            ),
+          ]),
+        );
+        expect(
+          result.buyerCompletionState,
+          equals(BuyerCompletionStatus.open),
+        );
+      },
+    );
 
-    test(
-        'blocks with BUYER_DATA_INCOMPLETE and forbids preview when buyer data is incomplete',
-        () {
+    test('blocks with BUYER_DATA_INCOMPLETE and forbids preview when buyer data is incomplete', () {
       const invalidBuyer = EffectiveBuyerInvoiceData(
         buyerType: BuyerType.retail,
         name: '   ',
@@ -301,13 +300,50 @@ void main() {
     });
 
     test(
-        'cannot preview when provider does not support preview even if missing only org tax code',
-        () {
-      const orgWithoutTaxCode = EffectiveBuyerInvoiceData(
-        buyerType: BuyerType.organization,
-        name: 'Công ty XYZ',
-        taxCode: '',
-      );
+      'cannot preview when provider does not support preview even if missing only org tax code',
+      () {
+        const orgWithoutTaxCode = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty XYZ',
+          taxCode: '',
+        );
+        final input = IssuanceReadinessInput(
+          orderCompleted: true,
+          hasElectronicInvoice: false,
+          hasActiveOperation: false,
+          configReady: true,
+          providerConnected: true,
+          providerSupportsPreview: false,
+          buyer: orgWithoutTaxCode,
+          buyerCompletionState: BuyerCompletionStatus.open,
+        );
+
+        final result = IssuanceReadinessEvaluator.evaluate(input);
+
+        expect(result.level, equals(IssuanceReadinessLevel.notReady));
+        expect(result.canPreview, isFalse);
+        expect(
+          result.blockers,
+          contains(
+            const ReadinessBlocker(
+              code: 'BUYER_TAX_CODE_REQUIRED',
+              message: 'Khách tổ chức thiếu mã số thuế',
+            ),
+          ),
+        );
+        expect(
+          result.blockers,
+          contains(
+            const ReadinessBlocker(
+              code: 'PREVIEW_UNSUPPORTED',
+              message: 'Nhà cung cấp không hỗ trợ xem trước',
+            ),
+          ),
+        );
+      },
+    );
+
+    test('adds PREVIEW_UNSUPPORTED when provider does not support preview', () {
       final input = IssuanceReadinessInput(
         orderCompleted: true,
         hasElectronicInvoice: false,
@@ -315,22 +351,24 @@ void main() {
         configReady: true,
         providerConnected: true,
         providerSupportsPreview: false,
-        buyer: orgWithoutTaxCode,
-        buyerCompletionState: BuyerCompletionStatus.open,
+        buyer: const EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.retail,
+          name: 'Nguyễn Văn A',
+        ),
+        buyerCompletionState: BuyerCompletionStatus.locked,
       );
 
       final result = IssuanceReadinessEvaluator.evaluate(input);
 
-      expect(result.level, equals(IssuanceReadinessLevel.notReady));
       expect(result.canPreview, isFalse);
       expect(
         result.blockers,
-        contains(
+        equals([
           const ReadinessBlocker(
-            code: 'BUYER_TAX_CODE_REQUIRED',
-            message: 'Khách tổ chức thiếu mã số thuế',
+            code: 'PREVIEW_UNSUPPORTED',
+            message: 'Nhà cung cấp không hỗ trợ xem trước',
           ),
-        ),
+        ]),
       );
     });
 

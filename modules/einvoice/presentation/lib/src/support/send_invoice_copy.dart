@@ -22,42 +22,35 @@ abstract final class SendInvoiceCopy {
   static const deliveryFailedPrefix = 'Gửi lỗi';
 
   static const sendSuccessMessage = 'Đã gửi hóa đơn.';
-  static const sendFailureMessage =
-      'Không thể gửi hóa đơn. Vui lòng thử lại.';
+  static const sendFailureMessage = 'Không thể gửi hóa đơn. Vui lòng thử lại.';
 
   static String invoiceIdentity({
     required String invoiceNumber,
     required String invoiceSymbol,
-  }) =>
-      'Hóa đơn số $invoiceNumber · Ký hiệu $invoiceSymbol';
+  }) => 'Hóa đơn số $invoiceNumber · Ký hiệu $invoiceSymbol';
 
   static String latestDeliverySummary({
     required String email,
     required String dateTime,
-  }) =>
-      'Đã gửi gần nhất đến $email · $dateTime';
+  }) => 'Đã gửi gần nhất đến $email · $dateTime';
 
-  static String invoiceSummaryTitle(String invoiceNumber) =>
-      'Hóa đơn số $invoiceNumber';
+  static String invoiceSummaryTitle(String invoiceNumber) => 'Hóa đơn số $invoiceNumber';
 
   static String invoiceMetadata({
     required String templateNumber,
     required String invoiceSymbol,
-  }) =>
-      'Mẫu $templateNumber · Ký hiệu $invoiceSymbol';
+  }) => 'Mẫu $templateNumber · Ký hiệu $invoiceSymbol';
 
   static String issuedAt({
     required String issuedTime,
     required String issuedDate,
-  }) =>
-      'Phát hành lúc $issuedTime, $issuedDate';
+  }) => 'Phát hành lúc $issuedTime, $issuedDate';
 
   static String deliveryMainText({
     required bool success,
     required String email,
   }) {
-    final prefix =
-        success ? deliverySuccessPrefix : deliveryFailedPrefix;
+    final prefix = success ? deliverySuccessPrefix : deliveryFailedPrefix;
     return '$prefix · $email';
   }
 
@@ -65,8 +58,7 @@ abstract final class SendInvoiceCopy {
     required String date,
     required String time,
     required String actor,
-  }) =>
-      '$date · $time · $actor';
+  }) => '$date · $time · $actor';
 
   /// Lightweight email format check for sheet validation (presentation only).
   static bool isValidEmail(String value) {

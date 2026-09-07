@@ -78,8 +78,9 @@ void main() {
     expect(find.text('Lỗi'), findsNothing);
   });
 
-  testWidgets('e2e_e03_u01_fr04_02: single select field requires at least one option',
-      (tester) async {
+  testWidgets('e2e_e03_u01_fr04_02: single select field requires at least one option', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.cfFieldSingleSelectNoOptions);
 
     await tester.pumpWidget(buildCustomFieldSettingsRouter());

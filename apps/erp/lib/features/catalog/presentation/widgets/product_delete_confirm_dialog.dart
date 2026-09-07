@@ -113,23 +113,25 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                 color: dynamicColors.textSecondary,
               ),
               const SizedBox(height: VSpacing.space3),
-              ...eligibility.issues.map((issue) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VIcon(icon: VIcons.error, size: 16, color: dynamicColors.danger),
-                        const VGap.horizontalSm(),
-                        Expanded(
-                          child: VText(
-                            issue.message,
-                            variant: VTextVariant.bodySmall,
-                            color: dynamicColors.danger,
-                          ),
+              ...eligibility.issues.map(
+                (issue) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VIcon(icon: VIcons.error, size: 16, color: dynamicColors.danger),
+                      const VGap.horizontalSm(),
+                      Expanded(
+                        child: VText(
+                          issue.message,
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.danger,
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: VSpacing.space6),
               VButton(
                 label: 'Đóng',

@@ -85,6 +85,8 @@ final class ProviderConnectionLoaded extends ProviderConnectionState {
     screen.connection.connectionId,
     screen.connection.status,
     screen.connection.lastCheckedAt,
+    screen.connection.maskedAccount,
+    screen.connection.connectionVersion,
     reconnectMode,
     isSubmitting,
     accountError,

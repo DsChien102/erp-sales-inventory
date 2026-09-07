@@ -74,6 +74,8 @@ final class MessagingWorkerBootstrap {
       integrationEventBus: sharedBus,
       misaAppId: resolvedConfig.misaAppId,
       misaBaseUrl: resolvedConfig.misaBaseUrl,
+      enableMisaHttp: true,
+      misaEmailDeliveryEnabled: resolvedConfig.misaEmailDeliveryEnabled,
     );
 
     final resolvedModules =

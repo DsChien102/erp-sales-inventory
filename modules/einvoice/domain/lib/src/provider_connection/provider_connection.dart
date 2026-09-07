@@ -8,8 +8,7 @@ import 'rules/provider_connection_status_transition_allowed_rule.dart';
 import 'provider_capabilities_snapshot.dart';
 
 /// ProviderConnection aggregate — tenant-scoped MISA connection lifecycle.
-final class ProviderConnection extends Entity<ProviderConnectionId>
-    implements IAggregateRoot {
+final class ProviderConnection extends Entity<ProviderConnectionId> implements IAggregateRoot {
   ProviderConnection._({
     required super.id,
     required TenantId tenantId,
@@ -35,13 +34,11 @@ final class ProviderConnection extends Entity<ProviderConnectionId>
   TenantId get tenantId => _tenantId;
   ProviderCode get providerCode => _providerCode;
   ProviderConnectionStatus get status => _status;
-  ProviderCapabilitiesSnapshot? get capabilitiesSnapshot =>
-      _capabilitiesSnapshot;
+  ProviderCapabilitiesSnapshot? get capabilitiesSnapshot => _capabilitiesSnapshot;
   DateTime? get lastVerifiedAt => _lastVerifiedAt;
   int get connectionVersion => _connectionVersion;
 
-  bool get isActive =>
-      _status != ProviderConnectionStatus.disconnected;
+  bool get isActive => _status != ProviderConnectionStatus.disconnected;
 
   factory ProviderConnection.reconstitute({
     required ProviderConnectionId id,

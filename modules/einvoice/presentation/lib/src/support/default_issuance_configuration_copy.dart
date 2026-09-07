@@ -8,6 +8,7 @@ abstract final class DefaultIssuanceConfigurationCopy {
   static const symbolLabel = 'Ký hiệu';
   static const authorityLabel = 'Cấp mã';
   static const invoiceTypeLabel = 'Loại hóa đơn';
+  static const templateInfoTitle = 'Thông tin mẫu';
   static const cancelLabel = 'Hủy';
   static const saveLabel = 'Lưu';
   static const saveSuccessTitle = 'Đã lưu cấu hình phát hành';

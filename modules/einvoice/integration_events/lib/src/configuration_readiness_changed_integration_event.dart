@@ -1,8 +1,7 @@
 import 'einvoice_integration_event.dart';
 
 /// Published when configuration readiness level changes.
-final class ConfigurationReadinessChangedIntegrationEvent
-    extends EInvoiceIntegrationEvent {
+final class ConfigurationReadinessChangedIntegrationEvent extends EInvoiceIntegrationEvent {
   const ConfigurationReadinessChangedIntegrationEvent({
     required super.id,
     required super.occurredOn,
@@ -16,6 +15,6 @@ final class ConfigurationReadinessChangedIntegrationEvent
 
   @override
   Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
-        'level': level,
-      });
+    'level': level,
+  });
 }

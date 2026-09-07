@@ -7,11 +7,17 @@ class SettingsInfoRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.valueColor,
+    this.maxLines,
+    this.overflow,
+    this.trailing,
   });
 
   final String label;
   final String value;
   final Color? valueColor;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -20,24 +26,36 @@ class SettingsInfoRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: VText(
-              label,
-              variant: VTextVariant.bodySmall,
-              color: colors.textSecondary,
-            ),
+          VText(
+            label,
+            variant: VTextVariant.bodySmall,
+            color: colors.textSecondary,
           ),
           const VGap.horizontalMd(),
           Expanded(
-            child:               VText(
-                value,
-                variant: VTextVariant.bodyDefault,
-                color: valueColor ?? colors.textPrimary,
-                textAlign: TextAlign.end,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: VText(
+                    value,
+                    variant: VTextVariant.bodyDefault,
+                    color: valueColor ?? colors.textPrimary,
+                    textAlign: TextAlign.end,
+                    maxLines: maxLines,
+                    overflow: overflow,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                if (trailing != null) ...[
+                  const VGap.horizontalSm(),
+                  trailing!,
+                ],
+              ],
+            ),
           ),
         ],
       ),

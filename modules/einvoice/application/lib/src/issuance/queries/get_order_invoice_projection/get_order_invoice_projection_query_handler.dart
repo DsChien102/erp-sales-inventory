@@ -6,8 +6,7 @@ import 'get_order_invoice_projection_query.dart';
 
 @QueryHandlerFor(GetOrderInvoiceProjectionQuery)
 final class GetOrderInvoiceProjectionQueryHandler
-    implements
-        IQueryHandler<GetOrderInvoiceProjectionQuery, OrderInvoiceProjectionDto> {
+    implements IQueryHandler<GetOrderInvoiceProjectionQuery, OrderInvoiceProjectionDto> {
   GetOrderInvoiceProjectionQueryHandler({
     required IOrderInvoiceProjectionReadGateway projectionGateway,
   }) : _projectionGateway = projectionGateway;

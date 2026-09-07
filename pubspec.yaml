@@ -57,6 +57,8 @@ workspace:
   - modules/accounting/integration_events
   - tools/vet45_env
   - tools/vet45_supabase_migrate
+  - packages/vet45_async_query
+  - packages/vet45_async_query/packages/async_query_flutter
 
 dev_dependencies:
   melos: ^7.8.0

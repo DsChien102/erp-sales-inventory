@@ -3,13 +3,13 @@ import 'package:vet45_shared_application/application.dart';
 import '../../../ports/i_issuance_result_gateway.dart';
 import '../../../ports/i_me_invoice_provider_port.dart';
 import '../../../ports/me_invoice_publish_outcome.dart';
+import '../../shared/canonical_invoice_integrity_exception.dart';
 import '../../shared/issuance_result_evidence_dto.dart';
 import '../../shared/publish_preparation_action.dart';
 import 'publish_invoice_command.dart';
 
 @CommandHandlerFor(PublishInvoiceCommand)
-final class PublishInvoiceCommandHandler
-    implements ICommandHandler<PublishInvoiceCommand, void> {
+final class PublishInvoiceCommandHandler implements ICommandHandler<PublishInvoiceCommand, void> {
   PublishInvoiceCommandHandler({
     required IMeInvoiceProviderPort providerPort,
     required IIssuanceResultGateway resultGateway,
@@ -21,7 +21,18 @@ final class PublishInvoiceCommandHandler
 
   @override
   Future<void> handle(PublishInvoiceCommand command) async {
-    _providerPort.validateCanonical(canonicalInvoice: command.canonicalInvoice);
+    try {
+      _providerPort.validateCanonical(canonicalInvoice: command.canonicalInvoice);
+    } catch (error) {
+      if (error is CanonicalInvoiceIntegrityException) {
+        rethrow;
+      }
+      throw CanonicalInvoiceIntegrityException(
+        attemptId: command.attemptId,
+        reasonCode: 'COMMAND_INTEGRITY',
+        message: error.toString(),
+      );
+    }
 
     final preparation = await _resultGateway.preparePublish(
       tenantId: command.tenantId,
@@ -48,6 +59,11 @@ final class PublishInvoiceCommandHandler
       case PublishPreparationAction.callProvider:
         break;
     }
+
+    await _resultGateway.markProviderCallStarted(
+      tenantId: command.tenantId,
+      attemptId: command.attemptId,
+    );
 
     final outcome = await _providerPort.publish(
       tenantId: command.tenantId,

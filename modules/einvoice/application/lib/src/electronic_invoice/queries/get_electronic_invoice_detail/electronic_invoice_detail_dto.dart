@@ -1,3 +1,5 @@
+import 'package:vet45_einvoice_domain/domain.dart';
+
 final class ElectronicInvoiceDetailDto {
   const ElectronicInvoiceDetailDto({
     required this.electronicInvoiceId,
@@ -5,6 +7,11 @@ final class ElectronicInvoiceDetailDto {
     this.invoiceNumber,
     this.providerRef,
     this.issuedAt,
+    this.officialViewOperationId,
+    this.officialViewStatus,
+    this.officialViewerUrl,
+    this.officialViewerToken,
+    this.officialViewerExpiresAt,
   });
 
   final String electronicInvoiceId;
@@ -12,4 +19,9 @@ final class ElectronicInvoiceDetailDto {
   final String? invoiceNumber;
   final String? providerRef;
   final DateTime? issuedAt;
+  final String? officialViewOperationId;
+  final InvoiceDocumentStatus? officialViewStatus;
+  final String? officialViewerUrl;
+  final String? officialViewerToken;
+  final DateTime? officialViewerExpiresAt;
 }

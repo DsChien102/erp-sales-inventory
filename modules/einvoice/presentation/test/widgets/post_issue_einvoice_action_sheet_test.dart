@@ -16,6 +16,44 @@ void main() {
     );
   }
 
+  testWidgets('open sheet updates delivery without remounting', (
+    tester,
+  ) async {
+    final state = ValueNotifier(
+      const PostIssueSheetState(
+        deliveryStatus: DeliveryDisplayState.sending,
+      ),
+    );
+    addTearDown(state.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: ValueListenableBuilder<PostIssueSheetState>(
+            valueListenable: state,
+            builder: (_, value, _) => PostIssueEInvoiceActionSheet(state: value),
+          ),
+        ),
+      ),
+    );
+    expect(find.text(OrderEInvoiceCopy.deliverySending), findsOneWidget);
+    state.value = const PostIssueSheetState(
+      deliveryStatus: DeliveryDisplayState.sent,
+    );
+    await tester.pump();
+    expect(find.text(OrderEInvoiceCopy.deliverySent), findsOneWidget);
+    expect(find.text(OrderEInvoiceCopy.deliverySending), findsNothing);
+  });
+
+  testWidgets('pending resend disables send even when prior delivery was sent', (tester) async {
+    await tester.pumpWidget(buildSubject(state: const PostIssueSheetState(
+      deliveryStatus: DeliveryDisplayState.sent, isDeliveryPending: true,
+    )));
+    final action = tester.widget<EInvoiceActionItem>(find.byKey(const Key('action_send')));
+    expect(action.enabled, isFalse);
+    expect(action.onTap, isNull);
+  });
+
   group('PostIssueEInvoiceActionSheet', () {
     testWidgets('idle shows all actions and delivery badge', (tester) async {
       await tester.pumpWidget(buildSubject());
@@ -46,8 +84,7 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.deliverySent), findsOneWidget);
     });
 
-    testWidgets('sendFailed delivery status shows danger badge',
-        (tester) async {
+    testWidgets('sendFailed delivery status shows danger badge', (tester) async {
       await tester.pumpWidget(
         buildSubject(
           state: const PostIssueSheetState(
@@ -59,8 +96,7 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.deliverySendFailed), findsOneWidget);
     });
 
-    testWidgets('sending delivery disables send action and keeps badge',
-        (tester) async {
+    testWidgets('sending delivery disables send action and keeps badge', (tester) async {
       await tester.pumpWidget(
         buildSubject(
           state: const PostIssueSheetState(

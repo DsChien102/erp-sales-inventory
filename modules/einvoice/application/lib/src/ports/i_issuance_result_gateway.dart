@@ -11,6 +11,11 @@ abstract interface class IIssuanceResultGateway {
     required Map<String, Object?> canonicalInvoice,
   });
 
+  Future<void> markProviderCallStarted({
+    required String tenantId,
+    required String attemptId,
+  });
+
   Future<RecordIssuanceResultDto> recordSuccess({
     required String tenantId,
     required String attemptId,
@@ -27,5 +32,17 @@ abstract interface class IIssuanceResultGateway {
     required String tenantId,
     required String attemptId,
     required IssuanceResultEvidenceDto evidence,
+  });
+
+  Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
+  });
+
+  Future<RecordIssuanceResultDto> recordPublishCommandDeadLetter({
+    required String tenantId,
+    required String attemptId,
+    required String reasonCode,
   });
 }

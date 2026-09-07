@@ -84,8 +84,7 @@ class _PricingPickUnitPageState extends State<PricingPickUnitPage> {
         _units = units;
         _priceByUnitId = priceByUnitId;
         _isLoading = false;
-        if (_selectedId != null &&
-            !_units.any((e) => e.id == _selectedId)) {
+        if (_selectedId != null && !_units.any((e) => e.id == _selectedId)) {
           _selectedId = null;
         }
       });
@@ -109,9 +108,7 @@ class _PricingPickUnitPageState extends State<PricingPickUnitPage> {
     if (price != null && !price.listBeforeVatMissing) {
       payload['listPriceDong'] = price.listBeforeVat!.toString();
     }
-    if (price != null &&
-        !price.floorBeforeVatHidden &&
-        !price.floorBeforeVatMissing) {
+    if (price != null && !price.floorBeforeVatHidden && !price.floorBeforeVatMissing) {
       payload['floorPriceDong'] = price.floorBeforeVat!.toString();
     }
     context.pop(payload);
@@ -233,9 +230,7 @@ class _PricingPickUnitBody extends StatelessWidget {
     if (price == null) return null;
 
     final colors = context.vColors;
-    final listLabel = price.listBeforeVatMissing
-        ? '--'
-        : _formatDong(price.listBeforeVat!);
+    final listLabel = price.listBeforeVatMissing ? '--' : _formatDong(price.listBeforeVat!);
     final showFloor = !price.floorBeforeVatHidden && !price.floorBeforeVatMissing;
     final floorLabel = showFloor ? _formatDong(price.floorBeforeVat!) : null;
 

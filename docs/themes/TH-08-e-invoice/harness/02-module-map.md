@@ -57,9 +57,11 @@ flowchart TB
 | -------------- | ------------ | ---------------------- |
 | iam / TH-01 | Hồ sơ pháp lý hiện hành (read); permission check | — |
 | sales / TH-05 | SalesOrder, status, `BuyerInvoiceSnapshot`, `buyer_partner_id`, `sales_order_version`, line items | `OrderInvoiceProjection` via integration events |
-| partner / TH-03 | Hồ sơ buyer hiện hành **chỉ** khi completion OPEN + field thiếu | — |
+| partner / TH-03 | Hồ sơ buyer hiện hành **chỉ** khi completion OPEN + field thiếu; recipient email qua public function source-owned `partner.get_einvoice_recipient_snapshot(...)` | — |
 | catalog | Lineage SKU/thuế qua SalesOrder snapshot | — |
-| messaging_worker | Enqueue/claim jobs | Job results via internal commands |
+| messaging_worker | Enqueue/claim jobs | Job results via internal commands; S4: `fetch_official_view`, `download_invoice_document`, `poll_provider_observation`; S5: `send_invoice_email`, `reconcile_invoice_delivery` |
+
+E-invoice **không** query bảng của Partner/Sales. Chỉ gọi public function source-owned: `partner.get_einvoice_recipient_snapshot(...)` và `sales.can_access_sales_order(...)`.
 
 ## Snapshot DTO (cross-theme read)
 
@@ -98,15 +100,24 @@ Hardcode permission string trong UI/handler — luôn dùng constant.
 | `einvoice.electronic_invoice.registered` | sales (TH-05) | Cập nhật row HĐĐT + actions |
 | `einvoice.issuance.failed` | sales | Display state Phát hành lỗi |
 | `einvoice.issuance.processing` | sales | Display state Đang xử lý |
-| `einvoice.delivery.result_recorded` | sales | Delivery display state |
+| `einvoice.delivery.result_recorded` | sales | Delivery display state — payload safe `salesOrderId`, `deliveryId`, `deliveryStatus`, `deliveryDisplayState`, `deliveryVersion`, `hasSecondaryAttention` |
+| `einvoice.delivery.attention_required` | TH-10 alerts (downstream) | Delivery reconciliation đạt `UNRESOLVED` — id + safe error code |
 | `einvoice.configuration.readiness_changed` | optional internal | Invalidate config cache |
+| `einvoice.provider_observation_attention_required` | TH-10 alerts (downstream) | NOT_FOUND/MISMATCH observation — neutral attention signal |
 
 ### Consume (→ einvoice)
 
-| Source | Event type | Handler mục đích |
-| ------ | ---------- | ---------------- |
-| sales | `sales.order.completed` | `StartAutoIssuanceCommand` (EP-02/US-03) |
-| iam | `iam.legal_profile.updated` | Mark `ProviderConnection` CHECK_REQUIRED |
+| Source | Event type | Payload | Handler mục đích |
+| ------ | ---------- | ------- | ---------------- |
+| sales | `sales.order.completed` | tenantId, salesOrderId, sourceVersion, occurredAt | `StartAutoIssuanceCommand` (EP-02/US-03) |
+| partner | `partner.partner.profile_updated` | tenantId, partnerId, occurredAt | Tìm process `PENDING_REEVALUATION` đúng buyer và dispatch `ReevaluateAutoIssuanceCommand`; không tạo process mới |
+| provider (inbox) | `einvoice.provider.issuance_result_received` | tenantId, attemptId, correlationId, typedEvidence | `RecordIssuanceResultCommand` (EP-02/US-04) |
+| einvoice (inbox) | `einvoice.electronic_invoice.registered` | tenantId, electronicInvoiceId, salesOrderId, occurredAt | `StartAutoDeliveryCommand` (EP-04/US-01) — một initial delivery / invoice |
+| iam | `iam.legal_profile.updated` | tenantId, occurredAt | Mark `ProviderConnection` CHECK_REQUIRED |
+
+**Quy định Stable Identity:**
+- Sales completion tạo process với `triggerKey = sales.order.completed:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên `<tenantId>|<salesOrderId>|<sourceVersion>`.
+- Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 Cross-module: package `einvoice_integration_events` only — không import domain module khác.
 

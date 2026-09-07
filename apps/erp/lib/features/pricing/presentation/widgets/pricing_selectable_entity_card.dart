@@ -114,12 +114,8 @@ class PricingSelectableEntityCard<T> extends StatelessWidget {
 
     return VCard(
       tone: isSelected ? VComponentTone.success : null,
-      emphasis: isSelected
-          ? VComponentEmphasis.strong
-          : VComponentEmphasis.medium,
-      backgroundColor: isSelected && selectedSurfaceFill
-          ? colors.successBg
-          : null,
+      emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
+      backgroundColor: isSelected && selectedSurfaceFill ? colors.successBg : null,
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

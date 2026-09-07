@@ -109,6 +109,47 @@ void main() {
       );
     });
 
+    test('token rejection preserves only the safe MISA error code', () async {
+      final httpClient = MockClient((request) async {
+        expect(request.url.path, '/api/integration/auth/token');
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'Success': false,
+            'ErrorCode': 'InvalidAppID',
+            'Errors': <Object>[],
+            'Data': null,
+          }),
+          200,
+        );
+      });
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+
+      final result = await client.obtainAccessToken(forceLogin: true);
+
+      expect(result.isSuccess, isFalse);
+      expect(result.error, 'meinvoice_auth_rejected:InvalidAppID');
+      expect(result.error, isNot(contains('"Success"')));
+    });
+
+    test('token rejection prefers the detailed safe auth error', () async {
+      final httpClient = MockClient((request) async {
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'Success': false,
+            'ErrorCode': 'UnAuthorize',
+            'Errors': <String>['WrongPassWord'],
+            'Data': null,
+          }),
+          200,
+        );
+      });
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+
+      final result = await client.obtainAccessToken(forceLogin: true);
+
+      expect(result.error, 'meinvoice_auth_rejected:WrongPassWord');
+    });
+
     test('seeded bearer skips /auth/token', () async {
       var authCalls = 0;
       final httpClient = MockClient((request) async {
@@ -367,8 +408,7 @@ void main() {
       expect(result.error, 'meinvoice_429_rate_limited');
     });
 
-    test('publish returns item-level DuplicateInvoiceRefID without failing envelope',
-        () async {
+    test('publish returns item-level DuplicateInvoiceRefID without failing envelope', () async {
       final httpClient = MockClient((request) async {
         if (request.url.path.endsWith('/auth/token')) {
           return http.Response(
@@ -406,8 +446,7 @@ void main() {
       expect(result.data!.single.invNo, '0000123');
     });
 
-    test('publish returns item-level definite failure without envelope failure',
-        () async {
+    test('publish returns item-level definite failure without envelope failure', () async {
       final httpClient = MockClient((request) async {
         if (request.url.path.endsWith('/auth/token')) {
           return http.Response(
@@ -471,6 +510,45 @@ void main() {
 
       expect(result.isSuccess, isFalse);
       expect(result.error, startsWith('meinvoice_network'));
+    });
+
+    test('sendEmail success preserves per-invoice result', () async {
+      final httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/token')) {
+          return http.Response(
+            jsonEncode(<String, dynamic>{'Success': true, 'Data': 'tok'}),
+            200,
+          );
+        }
+        expect(request.url.path.endsWith('/invoice/sendemail'), isTrue);
+        expect(request.method, 'POST');
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'Success': true,
+            'Data': [
+              {'TransactionID': 'tx-send-1', 'SendEmailStatus': 3},
+            ],
+          }),
+          200,
+        );
+      });
+
+      final client = MeInvoiceClient(config: config, httpClient: httpClient);
+      final result = await client.sendEmail(
+        const MeInvoiceSendEmailRequest(
+          sendEmailDatas: [
+            MeInvoiceSendEmailData(
+              transactionId: 'tx-send-1',
+              receiverEmail: 'buyer@example.com',
+            ),
+          ],
+          isInvoiceCode: true,
+          isInvoiceCalculatingMachine: false,
+        ),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data, isA<List<Object?>>());
     });
 
     test('token expired triggers refresh then retries', () async {

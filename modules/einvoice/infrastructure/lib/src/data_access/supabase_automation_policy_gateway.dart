@@ -5,7 +5,8 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../errors/einvoice_error_mapper.dart';
 import 'einvoice_rpc_mapper.dart';
 
-final class SupabaseAutomationPolicyGateway implements IAutomationPolicyGateway {
+final class SupabaseAutomationPolicyGateway
+    implements IAutomationPolicyGateway {
   SupabaseAutomationPolicyGateway({required SupabaseSchemaRpcClient rpcClient})
     : _rpcClient = rpcClient;
 

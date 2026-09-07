@@ -3,10 +3,19 @@ import 'package:logging/logging.dart';
 import 'i_logger.dart';
 import 'i_logger_factory.dart';
 
-/// Wires [Logger.root] once so [LoggingLogger] output is routed to stdout.
+/// Custom handler for emitted log records.
+typedef LogRecordHandler = void Function(LogRecord record);
+
+LogRecordHandler? _customOnRecord;
+
+/// Wires [Logger.root] once so [LoggingLogger] output is routed to stdout or [onRecord].
 ///
 /// Call from `main()` before creating any [LoggingLoggerFactory] instances.
-void configurePackageLogging({Level level = Level.INFO}) {
+void configurePackageLogging({
+  Level level = Level.INFO,
+  LogRecordHandler? onRecord,
+}) {
+  _customOnRecord = onRecord ?? _customOnRecord;
   if (_loggingConfigured) {
     Logger.root.level = level;
     return;
@@ -38,9 +47,17 @@ Level parseLogLevel(String name) {
 bool _loggingConfigured = false;
 
 void _emitLogRecord(LogRecord record) {
-  // ignore: avoid_print
-  print(_formatLine(record));
+  final custom = _customOnRecord;
+  if (custom != null) {
+    custom(record);
+  } else {
+    // ignore: avoid_print
+    print(_formatLine(record));
+  }
 }
+
+/// Formats a [LogRecord] into a single structured line.
+String formatLogRecord(LogRecord r) => _formatLine(r);
 
 String _formatLine(LogRecord r) {
   final ts = r.time.toUtc().toIso8601String();
