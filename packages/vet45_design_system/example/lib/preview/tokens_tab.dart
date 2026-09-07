@@ -30,7 +30,6 @@ class TokensPreviewTab extends StatelessWidget {
           title: 'Colors — Neutrals',
           child: _colorGrid([
             _tile('neutral0', VColors.neutral0, VColors.neutral900),
-            _tile('neutral25', VColors.neutral25, VColors.neutral900),
             _tile('neutral50', VColors.neutral50, VColors.neutral900),
             _tile('neutral100', VColors.neutral100, VColors.neutral900),
             _tile('neutral200', VColors.neutral200, VColors.neutral900),

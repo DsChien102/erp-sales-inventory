@@ -99,7 +99,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
 
   // Light theme color scheme mapping
   static final VColorScheme light = VColorScheme(
-    background: VColors.neutral25,
+    background: VColors.neutral100,
     surface: VColors.neutral0,
     surfaceAlt: VColors.neutral100,
     surfaceBrand: VColors.primary50,

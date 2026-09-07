@@ -21,6 +21,8 @@ changelogs when relevant.
 
 ### Changed
 
+- Bỏ `VColors.neutral25`; `VColors.neutral100` lấy giá trị cũ của `neutral25` (`#F6F8F9`) — ảnh hưởng light `background` / scaffold và `surfaceAlt` / `surfacePressed` / `disabledBg`.
+
 ### Fixed
 
 ### Internal

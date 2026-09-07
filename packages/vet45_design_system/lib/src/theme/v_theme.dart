@@ -17,7 +17,7 @@ class VTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: VColors.neutral25,
+      scaffoldBackgroundColor: VColors.neutral100,
       fontFamily: VTypography.fontFamily,
       splashFactory: NoSplash.splashFactory,
       splashColor: Colors.transparent,
