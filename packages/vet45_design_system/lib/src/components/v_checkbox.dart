@@ -49,7 +49,7 @@ class VCheckbox extends StatelessWidget {
       ),
       side: VBorders.side(
         dynamicColors.borderStrong,
-        width: VBorders.medium,
+        width: VBorders.thin,
       ),
     );
 

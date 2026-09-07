@@ -133,7 +133,7 @@ class _VSearchBarState extends State<VSearchBar> {
         bg = isEnabled ? dynamicColors.surface : dynamicColors.surfaceAlt;
         border = VBorders.all(
           isFocused ? focusBorderColor : dynamicColors.borderDefault,
-          width: isFocused ? VBorders.medium : borderWidth,
+          width: isFocused ? VBorders.thin : borderWidth,
         );
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
@@ -142,15 +142,15 @@ class _VSearchBarState extends State<VSearchBar> {
       case VSearchBarVariant.filled:
         bg = dynamicColors.surfaceAlt;
         border = isFocused
-            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.medium)
-            : VBorders.all(dynamicColors.borderDefault, width: VBorders.medium);
+            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.thin)
+            : VBorders.all(dynamicColors.borderDefault, width: VBorders.thin);
         iconColor = dynamicColors.textMuted;
         textColor = dynamicColors.textPrimary;
         hintColor = dynamicColors.textSecondary;
         break;
       case VSearchBarVariant.header:
         bg = Colors.white.withValues(alpha: 0.15);
-        border = isFocused ? VBorders.all(Colors.white, width: VBorders.medium) : null;
+        border = isFocused ? VBorders.all(Colors.white, width: VBorders.thin) : null;
         iconColor = Colors.white;
         textColor = Colors.white;
         hintColor = Colors.white.withValues(alpha: 0.8);

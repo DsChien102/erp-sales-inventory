@@ -271,7 +271,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
           } else if (displayErrorText != null) {
             activeBorder = outlineOf(
               colors.danger,
-              width: hasValidationError ? VBorders.medium : borderWidth,
+              width: hasValidationError ? VBorders.thin : borderWidth,
             );
           } else {
             activeBorder = outline;
