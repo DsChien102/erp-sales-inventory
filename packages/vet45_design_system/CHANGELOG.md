@@ -15,15 +15,21 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.2.1] - 2026-09-07
+
+### Added
+
 - `VTabsList` / `VTabsTrigger` / `VTabsContent` — compound tabs: bar + body đồng bộ qua `selectedIndex`/`onTabSelected`; vuốt trên bar (khi không scrollable) hoặc body (PageView) để đổi tab; `VTabsListVariant` (`line` | `plain`); `VTabsOrientation` (`horizontal` | `vertical`); tab disabled bị bỏ qua khi swipe.
 
 ### Changed
 
 - `VTabs` chuyển sang compound API — prefer `VTabs` + `VTabsList` + `VTabsTrigger` + `VTabsContent`; `VTabs.tabs` và `VTabs.isScrollable` marked `@Deprecated` với bridge tự dựng `VTabsList` để call site cũ không vỡ.
-
-### Fixed
-
-### Internal
 
 ## [1.2.0] - 2026-08-28
 
