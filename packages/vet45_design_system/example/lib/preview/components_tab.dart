@@ -631,7 +631,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
-          title: 'VTextFormField',
+          title: 'VTextArea',
           child: Form(
             key: _formKey,
             child: Column(
@@ -639,13 +639,13 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               children: [
                 const PreviewStateRow(
                   label: 'DefaultFormField',
-                  child: VTextFormField(
+                  child: VTextArea(
                     hintText: 'Enter value...',
                   ),
                 ),
                 PreviewStateRow(
                   label: 'Required with Validator',
-                  child: VTextFormField(
+                  child: VTextArea(
                     label: 'Required Field',
                     isRequired: true,
                     hintText: 'Type something to pass validation',
@@ -659,7 +659,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
                 const PreviewStateRow(
                   label: 'Max Lines & Initial Value',
-                  child: VTextFormField(
+                  child: VTextArea(
                     label: 'Description',
                     initialValue: 'This is the initial description text.',
                     maxLines: 3,
@@ -667,7 +667,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
                 const PreviewStateRow(
                   label: 'With Character Counter (0/100)',
-                  child: VTextFormField(
+                  child: VTextArea(
                     label: 'Short Bio',
                     hintText: 'Tell us about yourself...',
                     maxLength: 100,

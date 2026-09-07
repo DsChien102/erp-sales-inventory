@@ -23,6 +23,7 @@ changelogs when relevant.
 
 - Bỏ `VColors.neutral25`; `VColors.neutral100` lấy giá trị cũ của `neutral25` (`#F6F8F9`) — ảnh hưởng light `background` / scaffold và `surfaceAlt` / `surfacePressed` / `disabledBg`.
 - Bỏ `VBorders.medium` (1.3); `VBorders.thick` `1.6` → `2.0`; `widthFor` non-strong và call site cũ dùng `medium` → `thin`.
+- `VTextFormField` marked `@Deprecated` — bridge `extends VTextArea`; prefer `VTextArea`.
 
 ### Fixed
 
@@ -33,6 +34,7 @@ changelogs when relevant.
 ### Added
 
 - `VTabsList` / `VTabsTrigger` / `VTabsContent` — compound tabs: bar + body đồng bộ qua `selectedIndex`/`onTabSelected`; vuốt trên bar (khi không scrollable) hoặc body (PageView) để đổi tab; `VTabsListVariant` (`line` | `plain`); `VTabsOrientation` (`horizontal` | `vertical`); tab disabled bị bỏ qua khi swipe.
+- `VTextArea` — canonical multiline form control (copy từ `VTextFormField`).
 
 ### Changed
 

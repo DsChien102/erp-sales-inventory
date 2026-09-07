@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-09-02T16:27:05.039235`
+- Generated at: `2026-09-07T15:12:05.617329`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -30,8 +30,9 @@
 | components | `VSwitch` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VTable` | container | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A+ (na) | Pass (optional) | Yes |
+| components | `VTextArea` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | components | `VTextField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
-| components | `VTextFormField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
+| components | `VTextFormField` | unmapped | Pass (optional) | Pass (optional) | — (optional) | Pass (optional) | No |
 | components | `VToast` | status_display | Pass (required) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VVerificationCodeField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | forms | `VChoiceList` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
