@@ -10,6 +10,7 @@ export 'src/tokens/v_typography.dart';
 export 'src/tokens/v_shadows.dart';
 export 'src/tokens/v_assets.dart';
 export 'src/tokens/v_duration.dart';
+export 'src/tokens/v_opacity.dart';
 
 // Theme
 export 'src/theme/v_theme.dart';

@@ -10,6 +10,7 @@ import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
 import '../tokens/v_spacing.dart';
@@ -144,8 +145,6 @@ class VCard extends StatelessWidget {
     final dynamicColors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: enabled);
     final (toneBg, toneBorder) = _toneColors(dynamicColors);
-    final resolvedBorderColor =
-        isEnabled ? toneBorder : dynamicColors.borderDefault;
     final resolvedRadius = borderRadius ?? VRadius.card;
 
     return vInspectorHide(
@@ -153,23 +152,26 @@ class VCard extends StatelessWidget {
         child: VComponentScope(
           tone: tone,
           enabled: isEnabled ? enabled : false,
-          child: Container(
-            decoration: BoxDecoration(
-              color: backgroundColor ?? toneBg,
-              borderRadius: BorderRadius.circular(resolvedRadius),
-              border: border ?? VBorders.all(resolvedBorderColor),
-              boxShadow: _resolveShadow(),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: isEnabled ? onTap : null,
+          child: vDisabledOpacity(
+            enabled: isEnabled,
+            child: Container(
+              decoration: BoxDecoration(
+                color: backgroundColor ?? toneBg,
                 borderRadius: BorderRadius.circular(resolvedRadius),
-                child: Padding(
-                  padding: padding ?? const EdgeInsets.all(_kCardInset),
-                  child: vInspectorShow(child),
+                border: border ?? VBorders.all(toneBorder),
+                boxShadow: _resolveShadow(),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: isEnabled ? onTap : null,
+                  borderRadius: BorderRadius.circular(resolvedRadius),
+                  child: Padding(
+                    padding: padding ?? const EdgeInsets.all(_kCardInset),
+                    child: vInspectorShow(child),
+                  ),
                 ),
               ),
             ),

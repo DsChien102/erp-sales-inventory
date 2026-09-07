@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -62,35 +63,38 @@ class VCheckbox extends StatelessWidget {
 
     if (label != null) {
       return vInspectorHide(
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: isEnabled ? () => onChanged(!value) : null,
-          borderRadius: BorderRadius.circular(VRadius.r4),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                checkbox,
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label!,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: isEnabled
-                          ? dynamicColors.textPrimary
-                          : dynamicColors.textMuted,
+        vDisabledOpacity(
+          enabled: isEnabled,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: isEnabled ? () => onChanged(!value) : null,
+            borderRadius: BorderRadius.circular(VRadius.r4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  checkbox,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      label!,
+                      style: VTypography.bodyDefault.copyWith(
+                        color: dynamicColors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       );
     }
 
-    return vInspectorHide(checkbox);
+    return vInspectorHide(
+      vDisabledOpacity(enabled: isEnabled, child: checkbox),
+    );
   }
 }

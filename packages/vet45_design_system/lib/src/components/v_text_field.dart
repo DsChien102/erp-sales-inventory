@@ -8,6 +8,7 @@ import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_field.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
@@ -198,7 +199,7 @@ class _VTextFieldState extends State<VTextField> {
     final baseTextStyle =
         widget.textStyle ??
         VTypography.bodyDefault.copyWith(
-          color: isEnabled ? colors.textPrimary : colors.textSecondary,
+          color: colors.textPrimary,
         );
 
     final field = TextField(
@@ -239,7 +240,7 @@ class _VTextFieldState extends State<VTextField> {
           isLeading: false,
         ),
         filled: true,
-        fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
+        fillColor: colors.surface,
         hoverColor: Colors.transparent,
         contentPadding: vTextFieldContentPadding(
           base: isDense ? VTextField.densePadding : VTextField.padding,
@@ -285,7 +286,7 @@ class _VTextFieldState extends State<VTextField> {
         textField: true,
         enabled: isEnabled,
         label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Text field',
-        child: body,
+        child: vDisabledOpacity(enabled: isEnabled, child: body),
       ),
     );
   }

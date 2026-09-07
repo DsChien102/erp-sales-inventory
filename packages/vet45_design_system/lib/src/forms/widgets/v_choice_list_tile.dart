@@ -4,6 +4,7 @@ import '../../components/v_checkbox.dart';
 import '../../foundation/v_context_extensions.dart';
 import '../../foundation/v_inspector_scope.dart';
 import '../../tokens/v_borders.dart';
+import '../../tokens/v_opacity.dart';
 import '../../tokens/v_radius.dart';
 import '../../tokens/v_spacing.dart';
 import '../../tokens/v_typography.dart';
@@ -50,70 +51,71 @@ class VChoiceListTile<T> extends StatelessWidget {
       Semantics(
         checked: isSelected,
         enabled: isInteractive,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            border: hasError
-                ? VBorders.all(dynamicColors.danger.withValues(alpha: 0.5))
-                : null,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: isInteractive ? () => onChanged(!isSelected) : null,
-                borderRadius: BorderRadius.circular(VRadius.input),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      IgnorePointer(
-                        ignoring: true,
-                        child: control,
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              option.label,
-                              style: VTypography.bodyDefault.copyWith(
-                                color: isInteractive
-                                    ? dynamicColors.textPrimary
-                                    : dynamicColors.textMuted,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (option.helpText != null) ...[
-                              const SizedBox(height: VSpacing.space1),
+        child: vDisabledOpacity(
+          enabled: isInteractive,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(VRadius.input),
+              border: hasError
+                  ? VBorders.all(dynamicColors.danger.withValues(alpha: 0.5))
+                  : null,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: isInteractive ? () => onChanged(!isSelected) : null,
+                  borderRadius: BorderRadius.circular(VRadius.input),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IgnorePointer(
+                          ignoring: true,
+                          child: control,
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                option.helpText!,
-                                style: VTypography.bodySmall.copyWith(
-                                  color: dynamicColors.textSecondary,
+                                option.label,
+                                style: VTypography.bodyDefault.copyWith(
+                                  color: dynamicColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (option.helpText != null) ...[
+                                const SizedBox(height: VSpacing.space1),
+                                Text(
+                                  option.helpText!,
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (child != null)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 40,
-                    top: VSpacing.space2,
-                    bottom: VSpacing.space1,
+                if (child != null)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 40,
+                      top: VSpacing.space2,
+                      bottom: VSpacing.space1,
+                    ),
+                    child: vInspectorShow(child),
                   ),
-                  child: vInspectorShow(child),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

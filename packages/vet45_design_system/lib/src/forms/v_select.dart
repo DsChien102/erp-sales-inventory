@@ -15,6 +15,7 @@ import '../patterns/v_field.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -281,9 +282,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
         child: Ink(
           height: VTextField.controlHeight,
           decoration: BoxDecoration(
-            color: !isEnabled
-                ? colors.surfaceAlt
-                : _triggerHighlighted
+            color: _triggerHighlighted
                 ? colors.surfacePressed
                 : colors.surface,
             borderRadius: BorderRadius.circular(VRadius.input),
@@ -299,9 +298,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
                   ),
                   child: DefaultTextStyle(
                     style: VTypography.bodyDefault.copyWith(
-                      color: !isEnabled
-                          ? colors.textMuted
-                          : selected != null
+                      color: selected != null
                           ? colors.textPrimary
                           : colors.textMuted,
                       fontWeight: FontWeight.w500,
@@ -312,7 +309,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
                         ? vInspectorShow(selected.child)
                         : VText(
                             widget.hintText ?? 'Chọn...',
-                            color: isEnabled ? colors.textMuted : colors.textSecondary,
+                            color: colors.textMuted,
                           ),
                   ),
                 ),
@@ -321,9 +318,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
                 backgroundColor: Colors.transparent,
                 icon: VIcons.arrowDropDown,
                 borderRadius: VRadius.input - VSpacing.space1 / 2,
-                iconColor: !isEnabled
-                    ? colors.borderStrong
-                    : open
+                iconColor: open
                     ? colors.textBrand
                     : colors.textMuted,
               ),
@@ -461,7 +456,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
         label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Select',
         button: true,
         enabled: isEnabled,
-        child: body,
+        child: vDisabledOpacity(enabled: isEnabled, child: body),
       ),
     );
   }

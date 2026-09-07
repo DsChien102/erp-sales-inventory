@@ -6,6 +6,7 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../foundation/v_inspector_scope.dart';
@@ -71,7 +72,9 @@ class VFileDropZone extends StatelessWidget {
     final resolvedIcon = icon ?? style.icon;
     final radius = BorderRadius.circular(VRadius.card);
 
-    final content = ConstrainedBox(
+    final content = vDisabledOpacity(
+      enabled: state != VFileDropZoneState.disabled,
+      child: ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
       child: Stack(
         children: [
@@ -148,6 +151,7 @@ class VFileDropZone extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
 
     return vInspectorHide(
@@ -198,12 +202,12 @@ class VFileDropZone extends StatelessWidget {
           subtitleColor: colors.danger,
         ),
       VFileDropZoneState.disabled => _DropZoneStyle(
-          background: colors.disabledBg,
-          borderColor: colors.disabledBorder,
+          background: colors.surface,
+          borderColor: colors.borderDefault,
           icon: VIcons.cloudUpload,
-          iconColor: colors.disabledFg,
-          titleColor: colors.disabledFg,
-          subtitleColor: colors.disabledFg,
+          iconColor: colors.success,
+          titleColor: colors.textPrimary,
+          subtitleColor: colors.textSecondary,
         ),
     };
   }

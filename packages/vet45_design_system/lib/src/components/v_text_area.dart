@@ -8,6 +8,7 @@ import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_field.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
@@ -217,7 +218,7 @@ class _VTextAreaState extends State<VTextArea> {
     final borderWidth = VBorders.widthFor(widget.emphasis);
 
     final defaultStyle = VTypography.bodyDefault.copyWith(
-      color: isEnabled ? colors.textPrimary : colors.textSecondary,
+      color: colors.textPrimary,
     );
 
     final minLines = widget.effectiveMinLines;
@@ -335,7 +336,7 @@ class _VTextAreaState extends State<VTextArea> {
                 isLeading: false,
               ),
               filled: true,
-              fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
+              fillColor: colors.surface,
               hoverColor: Colors.transparent,
               contentPadding: vTextFieldContentPadding(
                 base: contentPadding,
@@ -394,7 +395,7 @@ class _VTextAreaState extends State<VTextArea> {
             textField: true,
             enabled: isEnabled,
             label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Text area',
-            child: body,
+            child: vDisabledOpacity(enabled: isEnabled, child: body),
           );
         },
       ),

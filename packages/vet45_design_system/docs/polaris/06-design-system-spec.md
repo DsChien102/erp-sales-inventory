@@ -27,7 +27,8 @@ Source of truth cho tokens, typography roles, và 5 recipes vàng.
 |------|----------|----------|
 | Primary text | `textPrimary` | Tiêu đề, body chính |
 | Secondary text | `textSecondary` | Subtitle, meta |
-| Muted | `textMuted` | Placeholder, disabled hint |
+| Muted | `textMuted` | Placeholder, hint |
+| Disabled | `VOpacity.disabled` (0.4) via `vDisabledOpacity` | Toàn control khi disabled — giữ màu enabled |
 | Surface | `surface` | Card, sheet background |
 | Surface alt | `surfaceAlt` | Icon box, zebra |
 | Border | `borderDefault` / `borderStrong` | Card border, input |

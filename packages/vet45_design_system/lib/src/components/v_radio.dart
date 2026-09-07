@@ -3,7 +3,7 @@ import 'package:vet45_design_system/src/patterns/v_gap.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_scope.dart';
-import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
 
@@ -35,9 +35,6 @@ class VRadio<T> extends StatelessWidget {
       value: value,
       enabled: isEnabled,
       fillColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) {
-          return dynamicColors.borderDefault;
-        }
         if (states.contains(WidgetState.selected)) {
           return dynamicColors.primary;
         }
@@ -60,33 +57,36 @@ class VRadio<T> extends StatelessWidget {
       registry?.onChanged(value);
     }
 
+    final Widget body;
     if (label != null) {
-      return vInspectorHide(
-        InkWell(
-          onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
-          borderRadius: BorderRadius.circular(4),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                radio,
-                const VGap.sm(),
-                Flexible(
-                  child: Text(
-                    label!,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
-                    ),
+      body = InkWell(
+        onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              radio,
+              const VGap.sm(),
+              Flexible(
+                child: Text(
+                  label!,
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.textPrimary,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
+    } else {
+      body = radio;
     }
 
-    return vInspectorHide(radio);
+    return vInspectorHide(
+      vDisabledOpacity(enabled: isEnabled, child: body),
+    );
   }
 }

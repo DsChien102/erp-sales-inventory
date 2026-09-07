@@ -29,15 +29,17 @@ void main() {
       expect(border.top.color, VColorScheme.light.borderStrong);
     });
 
-    testWidgets('enabled false uses borderDefault', (tester) async {
+    testWidgets('enabled false keeps tone border and applies disabled opacity', (tester) async {
       await tester.pumpWidget(
         wrap(const VCard(enabled: false, child: Text('body'))),
       );
       final border = cardDecoration(tester)!.border! as Border;
-      expect(border.top.color, VColorScheme.light.borderDefault);
+      expect(border.top.color, VColorScheme.light.borderStrong);
+      final opacity = tester.widget<Opacity>(find.byType(Opacity));
+      expect(opacity.opacity, VOpacity.disabled);
     });
 
-    testWidgets('enabled false overrides tone border to borderDefault', (tester) async {
+    testWidgets('enabled false keeps tone border for danger', (tester) async {
       await tester.pumpWidget(
         wrap(
           const VCard(
@@ -50,7 +52,9 @@ void main() {
       final decoration = cardDecoration(tester)!;
       expect(decoration.color, VColorScheme.light.dangerBg);
       final border = decoration.border! as Border;
-      expect(border.top.color, VColorScheme.light.borderDefault);
+      expect(border.top.color, VColorScheme.light.danger);
+      final opacity = tester.widget<Opacity>(find.byType(Opacity));
+      expect(opacity.opacity, VOpacity.disabled);
     });
 
     testWidgets('inherits disabled from ambient VComponentScope', (tester) async {
@@ -63,7 +67,9 @@ void main() {
         ),
       );
       final border = cardDecoration(tester)!.border! as Border;
-      expect(border.top.color, VColorScheme.light.borderDefault);
+      expect(border.top.color, VColorScheme.light.borderStrong);
+      final opacity = tester.widget<Opacity>(find.byType(Opacity));
+      expect(opacity.opacity, VOpacity.disabled);
     });
 
     testWidgets('emphasis medium applies e1 shadow', (tester) async {

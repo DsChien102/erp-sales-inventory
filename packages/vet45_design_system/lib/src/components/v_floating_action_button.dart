@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_shadows.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
@@ -56,8 +57,8 @@ class VFloatingActionButton extends StatelessWidget {
         button: true,
         enabled: isEnabled,
         label: semanticLabel ?? 'Floating action',
-        child: Opacity(
-          opacity: isEnabled ? 1 : 0.5,
+        child: vDisabledOpacity(
+          enabled: isEnabled,
           child: Container(
             width: 56,
             height: 56,
