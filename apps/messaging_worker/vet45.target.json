@@ -140,9 +140,9 @@
       },
       "requireEnvFile": true
     },
-    "deploy": {
-      "description": "Deploy worker to Railway (staging/production)",
-      "command": "./scripts/deploy.sh",
+    "publish": {
+      "description": "Build linux/amd64 image and push registry (no Railway redeploy)",
+      "command": "./scripts/publish.sh",
       "args": [
         "--env",
         "{{railwayEnvironment}}"

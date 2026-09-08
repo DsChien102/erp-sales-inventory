@@ -110,19 +110,23 @@ Phase 1: chỉ bật `verify` nếu chưa có macOS executor / signing.
 
 ## Đồng bộ messaging worker
 
-Infra (knobs, healthcheck, Dockerfile watch patterns): [`.railway/railway.ts`](../../.railway/railway.ts). Code image: `deploy.sh` / `railway up`. Secrets: `set_secrets.sh` (Supabase, tick, Resend) — không set knobs.
+Project Railway sạch / chuyển giao: [railway_messaging_worker.md](railway_messaging_worker.md). Nguồn image: [ADR 12](../architecture/12-railway-image-source.md) (Accepted).
+
+Infra (knobs, healthcheck): [`.railway/railway.ts`](../../.railway/railway.ts). Image: `vet45 run worker publish`. Secrets: `vet45 run railway sync-env`. Pull: `vet45 run railway rollout`.
 
 ```bash
-melos run env:use:staging
-melos run deploy:worker              # code-only redeploy
-melos run deploy:worker -- --secrets # push Railway secrets + deploy
-./scripts/railway-config.sh plan     # preview IaC (Node 22)
+vet45 use staging
+vet45 run worker publish
+vet45 run railway sync-env
+vet45 run railway rollout
+vet45 run railway plan              # preview IaC (Node 22)
 ```
 
-Trước khi tắt `MESSAGING_CLIENT_POLL_ENABLED` trên staging ERP, deploy worker:
+Trước khi tắt `MESSAGING_CLIENT_POLL_ENABLED` trên staging ERP, publish và rollout worker:
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh --env staging --secrets
+vet45 run worker publish
+vet45 run railway rollout
 ```
 
 ## iOS flavors

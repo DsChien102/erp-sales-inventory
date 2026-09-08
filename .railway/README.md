@@ -1,41 +1,44 @@
 # Railway configuration (VET45)
 
+Handover (project sạch, secrets, first deploy): [docs/operations/railway_messaging_worker.md](../docs/operations/railway_messaging_worker.md).
+
+Nguồn image: [ADR 12](../docs/architecture/12-railway-image-source.md) (Accepted). Service đã `source: image` thì không `railway up`.
+
 SSOT for the Railway **project** (services, knobs, healthcheck) is:
 
 ```txt
 .railway/railway.ts
 ```
 
-Evaluate it with the Railway CLI. The TypeScript SDK lives in the repo-root
-`package.json` (`railway` / `railway-iac-ts`). Dart/Flutter apps do not use it.
+Evaluate it with the Railway CLI. The TypeScript SDK lives in
+[`.railway/package.json`](package.json) (`railway` / `railway-iac-ts`). Dart/Flutter apps do not use it.
 
 **Node 22 required.** `tsx` (used by `railway-iac-ts`) cannot resolve
-`railway/iac` on Node 24. From the repo root:
+`railway/iac` on Node 24.
 
 ```bash
-npm install
-./scripts/railway-config.sh plan
-./scripts/railway-config.sh apply
+cd .railway && npm install          # once
+vet45 run railway plan              # active env must be staging or production
+vet45 run railway apply
 ```
-
-Or: `nvm exec 22 -- railway config plan`.
 
 ## Infra vs code deploy
 
 | Việc | Lệnh |
 |------|------|
-| Đổi infra (env knobs, healthcheck, watchPatterns, replicas) | `./scripts/railway-config.sh plan` rồi `apply` |
-| Đẩy image/code worker | `./apps/messaging_worker/scripts/deploy.sh` (`railway up`) |
-| Đẩy secrets (Supabase, tick, Resend) | `./apps/messaging_worker/scripts/set_secrets.sh` |
+| Đổi infra (env knobs, healthcheck, replicas) | `vet45 run railway plan` rồi `apply` |
+| Publish image worker | `vet45 run worker publish` |
+| Đẩy secrets | `vet45 run railway sync-env` |
+| Pull image | `vet45 run railway rollout` |
 
-`apply` không thay `deploy.sh`. Secrets không commit vào `railway.ts` — dùng `preserve()` và inject qua `set_secrets.sh`.
+`apply` không publish image. Secret không commit vào `railway.ts` — shared qua `ctx.shared`, secret service `preserve()` + `sync-env`.
 
 ## Commands
 
 ```bash
 railway config pull          # import live project (overwrites railway.ts)
-./scripts/railway-config.sh plan
-./scripts/railway-config.sh apply
+vet45 run railway plan
+vet45 run railway apply
 ```
 
 - `plan` is safe and does not change Railway.

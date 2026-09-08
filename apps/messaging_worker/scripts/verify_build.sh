@@ -20,14 +20,16 @@ if command -v docker >/dev/null 2>&1; then
   echo "==> docker build (optional)"
   cd "$ROOT"
   docker_build_ok=false
-  if docker build -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
+  if docker build --platform linux/amd64 --provenance=false --sbom=false \
+    -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
     docker_build_ok=true
     echo "    OK: messaging-worker:local"
   else
     # Work around broken docker-credential-desktop on some macOS setups.
     DOCKER_NOCREDS="$(mktemp -d)"
     printf '{"auths":{}}' > "${DOCKER_NOCREDS}/config.json"
-    if DOCKER_CONFIG="${DOCKER_NOCREDS}" docker build -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
+    if DOCKER_CONFIG="${DOCKER_NOCREDS}" docker build --platform linux/amd64 --provenance=false --sbom=false \
+      -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
       docker_build_ok=true
       echo "    OK: messaging-worker:local (no credential helper)"
     fi

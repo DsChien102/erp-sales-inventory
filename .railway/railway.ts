@@ -1,25 +1,13 @@
-import { defineRailway, preserve, project, service } from "railway/iac";
+import { defineRailway, image, preserve, project, service } from "railway/iac";
 
-const workerWatchPatterns = [
-  "apps/messaging_worker/**",
-  "modules/partner/**",
-  "packages/vet45_generator/**",
-  "packages/vet45_lints/**",
-  "packages/vet45_adapters/**",
-  "packages/vet45_annotations/**",
-  "packages/vet45_shared/**",
-  "pubspec.yaml",
-  "pubspec.lock",
-];
+const workerImage =
+  "registry.gitlab.hamsa.co/vet45/vet45/messaging-worker";
 
 export default defineRailway((ctx) => {
+  const env = ctx.environment ?? "staging";
+
   const messagingWorker = service("messaging-worker", {
-    build: {
-      builder: "DOCKERFILE",
-      buildEnvironment: "V3",
-      dockerfilePath: "apps/messaging_worker/Dockerfile",
-      watchPatterns: workerWatchPatterns,
-    },
+    source: image(`${workerImage}:${env}`),
     healthcheck: "/health",
     healthcheckTimeout: 90,
     // restartPolicyType ON_FAILURE is the platform default; setting it in IaC
@@ -34,12 +22,12 @@ export default defineRailway((ctx) => {
       WORKER_TICK_ACTIVE_SECONDS: "3",
       WORKER_TICK_IDLE_SECONDS: "15",
       WORKER_TICK_MAX_IDLE_SECONDS: "30",
-      SUPABASE_URL: preserve(),
+      SUPABASE_URL: ctx.shared.SUPABASE_URL,
+      APP_LINK_BASE_URL: ctx.shared.APP_LINK_BASE_URL,
       SUPABASE_SERVICE_ROLE_KEY: preserve(),
       WORKER_TICK_SECRET: preserve(),
       RESEND_API_KEY: preserve(),
       RESEND_FROM_DOMAIN: preserve(),
-      APP_LINK_BASE_URL: preserve(),
     },
   });
 

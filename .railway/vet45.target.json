@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "railway",
+  "description": "Railway IaC, env sync, and image rollout",
+  "writeEnvFile": false,
+  "keys": [],
+  "environments": {
+    "development": {},
+    "local": {},
+    "staging": {},
+    "production": {}
+  },
+  "actions": {
+    "plan": {
+      "description": "Preview Railway IaC (no changes)",
+      "command": "./scripts/config.sh",
+      "args": ["plan"],
+      "cwd": ".",
+      "requireRailwayEnvironment": true
+    },
+    "apply": {
+      "description": "Apply Railway IaC to the linked environment",
+      "command": "./scripts/config.sh",
+      "args": ["apply"],
+      "cwd": ".",
+      "requireRailwayEnvironment": true
+    },
+    "sync-env": {
+      "description": "Push profile secrets to Railway shared + service variables",
+      "command": "./scripts/sync-env.sh",
+      "args": [
+        "--env",
+        "{{railwayEnvironment}}"
+      ],
+      "cwd": ".",
+      "requireRailwayEnvironment": true
+    },
+    "rollout": {
+      "description": "Redeploy published images (no build)",
+      "command": "./scripts/rollout.sh",
+      "args": [
+        "--env",
+        "{{railwayEnvironment}}"
+      ],
+      "cwd": ".",
+      "requireRailwayEnvironment": true
+    }
+  }
+}

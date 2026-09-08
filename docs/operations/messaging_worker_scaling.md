@@ -106,4 +106,5 @@ Discovery RPC (tương lai) có thể thêm `p_replica_index` / `p_replica_count
 
 - [messaging_schema.md](messaging_schema.md) — RPC và view backlog
 - [apps/messaging_worker/README.md](../../apps/messaging_worker/README.md) — deploy và local dev
+- [railway_messaging_worker.md](railway_messaging_worker.md) — bootstrap project Railway sạch
 - [environment-manager.md](environment-manager.md) — sync env profile

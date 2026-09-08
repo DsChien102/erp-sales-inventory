@@ -56,7 +56,8 @@ Each **target** (registered directory/app) declares which secrets it needs. Sync
 | ------ | -------- | ------ | ---------------------------- |
 | `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
 | `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
-| `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
+| `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning). Action `publish` only builds/pushes the registry image |
+| `railway` | `.railway/vet45.target.json` | none (`writeEnvFile: false`) | Reads the same profile file. `sync-env` pushes shared keys + per-service secrets; `rollout` pulls images. Does not build |
 | `deploy` | `deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `deploy/deploy.env` |
 | `design_system` | `packages/vet45_design_system/example/vet45.target.json` | none (`writeEnvFile: false`) | — |
 
@@ -247,8 +248,9 @@ melos run supabase -- db push
 # Deploy (active env must be staging|production)
 melos run build:ios
 melos run deploy:ios
-melos run deploy:worker
-melos run deploy:worker -- --secrets
+vet45 run worker publish
+vet45 run railway sync-env
+vet45 run railway rollout
 ```
 
 ## Canonical secrets keys
@@ -332,7 +334,7 @@ Melos scripts call `dart run …/run.dart` (spawns AOT if built).
 | ----------- | ----- |
 | Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45 resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
 | Supabase CLI | `supabase` on PATH for `env:local` |
-| Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
+| Git Bash | Optional; needed for `worker publish` / legacy `.sh` scripts via `bash` |
 | Prompt activate | `scripts\env\activate.bat` (CMD) or `. .\scripts\env\activate.ps1` (PowerShell) |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
 | Docker Desktop | For `melos run worker:docker`; `host.docker.internal` only on env `local` |
@@ -370,13 +372,16 @@ melos run worker:docker
 
 ## Railway deploy
 
-Deploy scripts read worker config from **`.vet45/profiles/<profileId>/<env>.env`** (via `SECRETS_FILE` / `env:sync --target worker`):
+App target publishes the image. Railway target reads the same profile file (`writeEnvFile: false`) and pushes shared + service secrets, then pulls.
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh --env staging --secrets
+vet45 use staging
+vet45 run worker publish
+vet45 run railway sync-env
+vet45 run railway rollout
 ```
 
-`WORKER_LOG_LEVEL=WARNING` in secrets keeps Railway logs quiet (RPC/command `INFO` suppressed). Tick summary lines still print.
+Knobs (`WORKER_LOG_LEVEL`, batch, tick) stay in `.railway/railway.ts` — not the profile. `WORKER_LOG_LEVEL=WARNING` in IaC keeps Railway logs quiet (RPC/command `INFO` suppressed). Tick summary lines still print.
 
 ## Platform admin bootstrap
 

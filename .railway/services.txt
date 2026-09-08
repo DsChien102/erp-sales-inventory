@@ -1,0 +1,3 @@
+# Railway services pulled by `vet45 run railway rollout`.
+# One service name per line. Image publish stays on the app target.
+messaging-worker

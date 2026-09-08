@@ -23,6 +23,7 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [09-application-commands.md](09-application-commands.md) | Business command vs internal command, pipeline, durable queue |
 | [06-cross-cutting-concerns.md](06-cross-cutting-concerns.md) | IAM, tenant, DI, module settings |
 | [07-integration-and-messaging.md](07-integration-and-messaging.md) | Integration events, outbox, worker |
+| [12-railway-image-source.md](12-railway-image-source.md) | ADR Accepted: Railway pull image từ GitLab registry |
 | [08-data-and-security.md](08-data-and-security.md) | Postgres schema, RLS, multi-tenant |
 | [app-link-in-depth.md](app-link-in-depth.md) | Cơ chế App Links (Android) / Universal Links (iOS): verify + handoff |
 | [harness-engineering.md](harness-engineering.md) | Harness Engineering — context, constraints, verification, flywheel |

@@ -3,12 +3,13 @@
 # `railway/iac` on Node 24.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+RAILWAY_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "${RAILWAY_DIR}/.." && pwd)"
 cd "$ROOT"
-export PATH="$ROOT/node_modules/.bin:$PATH"
+export PATH="${RAILWAY_DIR}/node_modules/.bin:${PATH}"
 
-if [[ ! -x "$ROOT/node_modules/.bin/railway-iac-ts" ]]; then
-  echo "Missing railway-iac-ts. From repo root: npm install"
+if [[ ! -x "${RAILWAY_DIR}/node_modules/.bin/railway-iac-ts" ]]; then
+  echo "Missing railway-iac-ts. From .railway: npm install"
   exit 1
 fi
 

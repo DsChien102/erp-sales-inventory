@@ -19,11 +19,15 @@ Infra is versioned in [`.railway/railway.ts`](../../.railway/railway.ts) (Railwa
 
 ## Prerequisites
 
-1. Migration `supabase/migrations/20260621100001_platform_messaging_discovery.sql` applied; expose `platform` schema in Supabase API settings.
+1. Messaging migrations applied on the target Supabase project; expose `platform` schema in API settings — [messaging_schema.md](../../docs/operations/messaging_schema.md).
 2. [Railway CLI](https://docs.railway.com/develop/cli): `railway login`
 3. Repo linked once: `railway link --project VET45`
 
+**Project Railway sạch** (chưa có project/service): làm theo [railway_messaging_worker.md](../../docs/operations/railway_messaging_worker.md) trước khi `publish`.
+
 ## First-time setup (staging)
+
+Khi project `VET45` + service `messaging-worker` đã tồn tại. Greenfield: [railway_messaging_worker.md](../../docs/operations/railway_messaging_worker.md).
 
 From the repo root:
 
@@ -31,40 +35,43 @@ From the repo root:
 cp .vet45/profiles/<profileId>/staging.env.example .vet45/profiles/<profileId>/staging.env
 # Điền Supabase URL + keys
 
-melos run env:use:staging
-melos run env:sync
-./apps/messaging_worker/scripts/deploy.sh --env staging --verify --secrets
+vet45 use staging
+vet45 run worker publish
+vet45 run railway sync-env
+vet45 run railway rollout
 ```
 
-## Redeploy (daily)
+First publish can also pass verify: `./apps/messaging_worker/scripts/publish.sh --env staging --verify`.
 
-Code-only redeploy (no secret push) — active env phải là `staging` hoặc `production`:
+## Publish (daily)
+
+App target only builds and pushes. Tag version comes from `pubspec.yaml`; the script also pushes the `:staging` / `:production` pointer that IaC pulls. No `railway up`, no secret push.
 
 ```bash
-melos run env:use:staging
-melos run deploy:worker
+vet45 use staging
+vet45 run worker publish
+vet45 run railway rollout
 ```
 
-Hoặc:
+Or:
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh
-./apps/messaging_worker/scripts/deploy.sh --env production
+./apps/messaging_worker/scripts/publish.sh --env staging
+./apps/messaging_worker/scripts/publish.sh --env production
 ```
 
-Push **secrets** when they change (Supabase, tick secret, Resend). Worker knobs are owned by IaC — do not set them via `set_secrets.sh`:
+Push **secrets** from the profile (not from the worker deploy script). Knobs stay in `.railway/railway.ts`:
 
 ```bash
-melos run deploy:worker -- --secrets
-./apps/messaging_worker/scripts/deploy.sh --env production --secrets
+vet45 run railway sync-env
 ```
 
 Infra-only change (no image rebuild):
 
 ```bash
-npm install                          # once: railway TypeScript SDK
-./scripts/railway-config.sh plan     # Node 22
-./scripts/railway-config.sh apply    # staging linked environment
+cd .railway && npm install          # once: railway TypeScript SDK
+vet45 run railway plan              # Node 22; active env staging/production
+vet45 run railway apply
 ```
 
 ## Validate
@@ -109,10 +116,14 @@ Verify build without deploy:
 
 ## GitLab CI (draft)
 
-See [`.gitlab-ci.yml`](../../.gitlab-ci.yml). Jobs:
+CI (khi có file) gọi `deploy.sh`: build/push registry rồi `redeploy --from-source`. File `.gitlab-ci.yml` **không** có trên branch này.
 
-- `verify:messaging_worker` — runs on relevant MR changes (AOT compile).
+Jobs dự kiến:
+
+- `verify:messaging_worker` — AOT compile trên thay đổi liên quan.
 - `deploy:messaging_worker:staging` / `production` — **manual** deploy.
+
+Hướng **Accepted:** GitLab build/push, Railway pull — [ADR 12](../../docs/architecture/12-railway-image-source.md). [`.railway/railway.ts`](../../.railway/railway.ts) đã `source: image`. Không `railway up` service này.
 
 ### CI/CD variables (per environment)
 
@@ -137,26 +148,30 @@ Use CircleCI **contexts** `vet45-staging` / `vet45-production` for staging vs pr
 | `staging` | `staging` (`com.agapi.vet45.staging`) | Staging |
 | `production` | `production` (`com.agapi.vet45`) | Production |
 
-Trước khi set `MESSAGING_CLIENT_POLL_ENABLED=false` trên ERP staging/production, deploy worker tương ứng:
+Trước khi set `MESSAGING_CLIENT_POLL_ENABLED=false` trên ERP staging/production, publish và rollout worker:
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh --env staging --secrets
+vet45 run worker publish
+vet45 run railway rollout
 ```
 
 ## Rollback
 
 | Situation | Action |
 |-----------|--------|
-| Bad deploy | Redeploy previous commit: `./scripts/deploy.sh --env <env>` |
+| Bad deploy | Publish image version trước, rồi `vet45 run railway rollout` |
 | Disable worker | `railway down --service messaging-worker --environment <env> -y` |
-| Wrong secrets | `./scripts/deploy.sh --env <env> --secrets` |
+| Wrong secrets | `vet45 run railway sync-env` |
 
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/set_secrets.sh` | Push secrets only to Railway (`--ci` for CircleCI) |
+| `scripts/publish.sh` | Docker build `linux/amd64`, push registry only |
+| `scripts/deploy.sh` | Wrapper around `publish.sh` (no Railway redeploy) |
+| `scripts/set_secrets.sh` | Wrapper → `.railway/scripts/sync-env.sh` |
 | `scripts/verify_supabase.sh` | Check platform RPC + view |
 | `scripts/verify_build.sh` | Local AOT compile (+ optional Docker) |
-| `scripts/deploy.sh` | Code deploy (`railway up`) |
-| [`scripts/railway-config.sh`](../../scripts/railway-config.sh) | `railway config plan` / `apply` (Node 22) |
+| [`.railway/scripts/sync-env.sh`](../../.railway/scripts/sync-env.sh) | Profile → Railway shared + service secrets |
+| [`.railway/scripts/rollout.sh`](../../.railway/scripts/rollout.sh) | Pull published images (`services.txt`) |
+| [`.railway/scripts/config.sh`](../../.railway/scripts/config.sh) | `railway config plan` / `apply` via `vet45 run railway plan\|apply` |
