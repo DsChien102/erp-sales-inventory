@@ -7,31 +7,22 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_field.dart';
 import '../primitives/v_text.dart';
-import '../tokens/v_borders.dart';
 import '../tokens/v_opacity.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
-import 'v_text_field_affix.dart';
+import 'v_input.dart';
 import 'v_text_field_focus_ring.dart';
 
 class VTextField extends StatefulWidget {
   /// Default inset — horizontal [VSpacing.space3], vertical [VSpacing.space2].
-  static const EdgeInsets padding = EdgeInsets.symmetric(
-    horizontal: VSpacing.space3,
-    vertical: VSpacing.space2,
-  );
+  static const EdgeInsets padding = VInput.defaultPadding;
 
   /// Dense inset — horizontal [VSpacing.space2], vertical [VSpacing.space1].
-  static const EdgeInsets densePadding = EdgeInsets.symmetric(
-    horizontal: VSpacing.space2,
-    vertical: VSpacing.space1,
-  );
+  static const EdgeInsets densePadding = VInput.densePadding;
 
   /// Single-line control height shared with [VSelect] / [VCombobox].
   ///
   /// Matches the measured default [TextField] + outlined decoration height under
   /// [VTheme] (Material interactive minimum), so form rows align.
-  static const double controlHeight = 48;
+  static const double controlHeight = VInput.controlHeight;
 
   final TextEditingController? controller;
 
@@ -145,11 +136,6 @@ class _VTextFieldState extends State<VTextField> {
     if (mounted) setState(() {});
   }
 
-  InputBorder _outline(Color color, double width) {
-    if (!widget.border) return InputBorder.none;
-    return VBorders.outlineInput(color, width: width);
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
@@ -166,100 +152,38 @@ class _VTextFieldState extends State<VTextField> {
     final hasError = legacyError != null;
     final useDanger = hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
-    final isDense = widget.isDense;
-    final borderWidth = VBorders.widthFor(widget.emphasis);
 
-    final restingBorderColor = hasError
-        ? colors.danger
-        : switch (widget.tone) {
-            VComponentTone.primary => colors.primary,
-            VComponentTone.danger => colors.danger,
-            _ => colors.borderDefault,
-          };
-    final focusBorderColor = useDanger ? colors.danger : colors.primary;
-    final restingBorder = _outline(restingBorderColor, borderWidth);
-    final focusBorder = _outline(focusBorderColor, borderWidth);
-    final dangerBorder = _outline(colors.danger, borderWidth);
-    final disabledBorder = _outline(colors.borderDefault, borderWidth);
+    final suffix =
+        widget.suffixIcon ??
+        (widget.suffixText == null
+            ? null
+            : VText(
+                widget.suffixText!,
+                variant: VTextVariant.bodyDefault,
+                color: colors.textMuted,
+              ));
 
-    final resolvedSuffix =
-        widget.suffixIcon != null
-            ? vInspectorShow(widget.suffixIcon!)
-            : (widget.suffixText == null
-                ? null
-                : VText(
-                    widget.suffixText!,
-                    variant: VTextVariant.bodyDefault,
-                    color: colors.textMuted,
-                  ));
-
-    final affixOuter = isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter;
-    final affixInner = isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner;
-
-    final baseTextStyle =
-        widget.textStyle ??
-        VTypography.bodyDefault.copyWith(
-          color: colors.textPrimary,
-        );
-
-    final field = TextField(
+    final field = VInput(
       controller: widget.controller,
-      enabled: isEnabled,
+      focusNode: _focusNode,
+      hintText: widget.hintText,
+      prefix: widget.prefixIcon,
+      suffix: suffix,
+      enabled: widget.enabled,
       obscureText: widget.obscureText,
       keyboardType: widget.keyboardType,
       onChanged: widget.onChanged,
-      autofocus: widget.autofocus,
-      focusNode: _focusNode,
-      maxLines: 1,
       inputFormatters: widget.inputFormatters,
+      textStyle: widget.textStyle,
       textAlign: widget.textAlign,
+      autofocus: widget.autofocus,
       onSubmitted: widget.onSubmitted,
-      cursorColor: useDanger ? colors.danger : colors.primary,
-      style: hasError ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        isDense: isDense,
-        hintStyle: VTypography.bodyDefault.copyWith(
-          color: colors.textMuted,
-          fontWeight: FontWeight.w500,
-        ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        prefixIcon: wrapVTextFieldAffix(
-          widget.prefixIcon != null ? vInspectorShow(widget.prefixIcon!) : null,
-          outerInset: affixOuter,
-          innerInset: affixInner,
-          isLeading: true,
-        ),
-        suffixIconConstraints:
-            widget.suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: wrapVTextFieldAffix(
-          resolvedSuffix,
-          outerInset: affixOuter,
-          innerInset: affixInner,
-          isLeading: false,
-        ),
-        filled: true,
-        fillColor: colors.surface,
-        hoverColor: Colors.transparent,
-        contentPadding: vTextFieldContentPadding(
-          base: isDense ? VTextField.densePadding : VTextField.padding,
-          hasPrefix: widget.prefixIcon != null,
-          hasSuffix: resolvedSuffix != null,
-        ),
-        constraints: isDense
-            ? null
-            : const BoxConstraints(
-                minHeight: VTextField.controlHeight,
-                maxHeight: VTextField.controlHeight,
-              ),
-        border: restingBorder,
-        enabledBorder: restingBorder,
-        focusedBorder: focusBorder,
-        disabledBorder: disabledBorder,
-        errorBorder: dangerBorder,
-        focusedErrorBorder: dangerBorder,
-      ),
+      border: widget.border,
+      padding: widget.isDense ? VInput.densePadding : VInput.defaultPadding,
+      lockControlHeight: !widget.isDense,
+      invalid: hasError,
+      tone: widget.tone,
+      emphasis: widget.emphasis,
     );
 
     final control = VTextFieldFocusRing(

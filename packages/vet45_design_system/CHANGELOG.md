@@ -33,6 +33,8 @@ changelogs when relevant.
 
 ### Internal
 
+- `VInput` — package-internal TextField chrome
+
 ## [1.2.1] - 2026-09-07
 
 ### Added
