@@ -28,7 +28,7 @@ void main() {
 
     // Verify chip options
     expect(find.text('Đang chờ'), findsOneWidget);
-    expect(find.text('Sắp hết hạn'), findsOneWidget);
+    expect(find.text('Hết hạn'), findsOneWidget);
     expect(find.text('Đã gửi'), findsOneWidget);
     expect(find.text('Gửi lỗi'), findsOneWidget);
     expect(find.text('Thu hồi'), findsOneWidget);
@@ -63,7 +63,7 @@ void main() {
         home: Scaffold(
           body: InvitationFilterBottomSheet(
             initialCriteria: const InvitationFilterCriteria(
-              status: 'Sắp hết hạn',
+              status: 'Hết hạn',
               sendResult: 'Gửi lỗi',
               timeRange: '30 ngày',
             ),

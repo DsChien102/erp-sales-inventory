@@ -146,6 +146,7 @@ void main() {
             'full_name': 'Lê Thị Lan',
             'email': 'lan@gmail.com',
             'status': 'active',
+            'phone_number': '0901234567',
             'created_at': '2026-01-01T00:00:00.000Z',
           },
         ],
@@ -168,5 +169,6 @@ void main() {
     expect(page.items, hasLength(1));
     expect(page.items.single.fullName, 'Lê Thị Lan');
     expect(page.items.single.email, 'lan@gmail.com');
+    expect(page.items.single.phoneNumber, '0901234567');
   });
 }

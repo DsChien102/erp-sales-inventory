@@ -469,6 +469,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       email: row['email'] as String? ?? '',
       status: _statusFromSql(row['status'] as String?),
       createdAt: DateTime.parse(row['created_at'] as String),
+      phoneNumber: row['phone_number'] as String?,
     );
   }
 

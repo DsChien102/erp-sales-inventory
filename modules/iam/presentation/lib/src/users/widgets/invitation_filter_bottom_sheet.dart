@@ -3,7 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Filter criteria model for invitations list.
 class InvitationFilterCriteria {
-  final String status; // 'Tất cả', 'Đang chờ', 'Sắp hết hạn'
+  final String status; // 'Tất cả', 'Đang chờ', 'Hết hạn'
   final String sendResult; // 'Tất cả', 'Đã gửi', 'Gửi lỗi', 'Thu hồi'
   final String timeRange; // 'Tất cả', '7 ngày', '30 ngày', 'Tùy chọn'
 
@@ -61,7 +61,7 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
   static const List<String> _statusOptions = [
     'Tất cả',
     'Đang chờ',
-    'Sắp hết hạn',
+    'Hết hạn',
   ];
 
   static const List<String> _sendResultOptions = [
@@ -113,6 +113,17 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colors.borderDefault,
+                borderRadius: BorderRadius.circular(VRadius.pill),
+              ),
+            ),
+          ),
+          const VGap.md(),
           VText(
             'Bộ lọc lời mời',
             variant: VTextVariant.headingH3,

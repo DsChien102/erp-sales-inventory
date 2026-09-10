@@ -23,8 +23,11 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: badge trạng thái `draft` / `cancelled` chữ đậm hơn (`textPrimary`), `locked` đổi nền sang `surfaceAlt`.
 - Design system: filter chip đổi sang một kiểu soft theo tone — chip đang chọn dùng màu brand nhạt (`surfaceBrand` + `textBrand`) thay vì fill xanh lá chữ trắng; chip thường nền `surfaceAlt` + viền `borderStrong`.
 - Design system: chip có nút xóa thấp lại, không còn cao hơn một dòng chữ.
+- Onboarding tổ chức: tìm chủ sở hữu chỉ trả user `active`.
 
 ### Fixed
+
+- Onboarding tổ chức: card chủ sở hữu đã chọn hiện SĐT thật (ẩn nếu thiếu), bỏ hardcode.
 
 ### Internal
 
@@ -32,6 +35,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.
 - Design system: `VChip.selected` / `VChip.emphasis` → `@Deprecated`; dùng `tone` (`primary` cho chip đang chọn); bridge vẫn hoạt động, call sites chưa migrate sẽ thấy analyze warning.
+- IAM: `PlatformUserSummaryDto.phoneNumber` + draft RPC `search_platform_users` trả `phone_number`; draft enum `iam.platform_user_status` cho `platform_user_profiles.status`.
 
 ## [1.0.2+3] - 2026-08-26
 

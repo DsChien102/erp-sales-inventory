@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/src/users/widgets/invitation_filter_bottom_sheet.dart';
 import 'package:vet45_iam_presentation/src/users/widgets/member_filter_bottom_sheet.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -180,6 +181,63 @@ void main() {
     expect(find.byType(MemberFilterBottomSheet), findsNothing);
     expect(find.text('Minh Nguyen'), findsOneWidget);
     expect(find.text('Lan Le'), findsNothing);
+
+    await cubit.close();
+  });
+
+  testWidgets(
+      'OrganizationUsersPage opens InvitationFilterBottomSheet on invitation tab and applies filter',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.invitationsSearchOk);
+    final cubit = OrganizationUsersCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+      clock: () => DateTime.utc(2026, 7, 31),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    // Switch to invitation tab
+    await tester.tap(find.text('Lời mời'));
+    await tester.pumpAndSettle();
+
+    // Tap filter button (IconButton containing tune icon)
+    final filterButton = find.byWidgetPredicate(
+      (w) => w is VIcon && w.icon == VIcons.tune,
+    );
+    expect(filterButton, findsOneWidget);
+    await tester.tap(filterButton);
+    await tester.pumpAndSettle();
+
+    // Verify InvitationFilterBottomSheet is opened
+    expect(find.byType(InvitationFilterBottomSheet), findsOneWidget);
+    expect(find.text('Bộ lọc lời mời'), findsOneWidget);
+    expect(find.text('Trạng thái'), findsOneWidget);
+    expect(find.text('Kết quả gửi'), findsOneWidget);
+    expect(find.text('Thời gian'), findsOneWidget);
+
+    // Tap "Hết hạn" chip inside bottom sheet and "Áp dụng"
+    await tester.tap(find.text('Hết hạn').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(VButton, 'Áp dụng'));
+    await tester.pumpAndSettle();
+
+    // Bottom sheet is closed and filter is applied
+    expect(find.byType(InvitationFilterBottomSheet), findsNothing);
+    expect(cubit.state.invitationFilter, equals('expired'));
 
     await cubit.close();
   });

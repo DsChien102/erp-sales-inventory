@@ -67,6 +67,61 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Chức năng làm sau'), findsWidgets);
   });
+
+  testWidgets('UsersAndRolesPage supports pull-to-refresh', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    var queryCount = 0;
+    final cubit = IamFeatureAccessCubit(
+      iamModule: _CountingSessionModule(onQuery: () => queryCount++),
+    );
+    await cubit.load();
+    addTearDown(cubit.close);
+    final initialCount = queryCount;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: UsersAndRolesPage(accessCubit: cubit),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final refreshIndicator = tester.widget<RefreshIndicator>(find.byType(RefreshIndicator));
+    expect(refreshIndicator, isNotNull);
+    await refreshIndicator.onRefresh();
+    await tester.pumpAndSettle();
+
+    expect(queryCount, greaterThan(initialCount));
+  });
+}
+
+final class _CountingSessionModule implements IIamModule {
+  _CountingSessionModule({required this.onQuery});
+
+  final VoidCallback onQuery;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    onQuery();
+    return const SessionDto(
+          isAuthenticated: true,
+          userId: 'owner-1',
+          role: 'store_owner',
+          isOwner: true,
+        )
+        as TResult;
+  }
 }
 
 final class _OwnerSessionModule implements IIamModule {

@@ -6,6 +6,8 @@ void main() {
   late String readSql;
   late String lifecycleSql;
   late String readinessSql;
+  late String statusEnumDraftSql;
+  late String searchPhoneDraftSql;
 
   setUpAll(() {
     final root = _findRepoRoot();
@@ -17,6 +19,12 @@ void main() {
     ).readAsStringSync();
     readinessSql = File(
       '${root.path}/supabase/migrations/20260811016_iam_tenant_readiness_activate.sql',
+    ).readAsStringSync();
+    statusEnumDraftSql = File(
+      '${root.path}/supabase/migrations/_drafts/001_iam_patch_platform_user_status_enum.sql',
+    ).readAsStringSync();
+    searchPhoneDraftSql = File(
+      '${root.path}/supabase/migrations/_drafts/002_iam_patch_search_phone_status_casts.sql',
     ).readAsStringSync();
   });
 
@@ -175,6 +183,59 @@ void main() {
       );
       expect(readinessBody, isNot(contains('select p.status')));
       expect(readinessBody, isNot(contains("coalesce(v_owner_profile_status, '')")));
+    });
+  });
+
+  group('draft iam_platform_user_phone_and_status_enum', () {
+    test('creates platform_user_status enum and alters profiles.status', () {
+      expect(
+        statusEnumDraftSql,
+        contains("create type iam.platform_user_status as enum"),
+      );
+      expect(statusEnumDraftSql, contains("'pending_activation'"));
+      expect(statusEnumDraftSql, contains("'active'"));
+      expect(statusEnumDraftSql, contains("'suspended'"));
+      expect(statusEnumDraftSql, contains("c.contype = 'c'"));
+      expect(statusEnumDraftSql, contains('add column status_enum iam.platform_user_status'));
+      expect(statusEnumDraftSql, contains('rename column status_enum to status'));
+      expect(
+        statusEnumDraftSql,
+        isNot(contains('alter column status type iam.platform_user_status')),
+      );
+    });
+
+    test('search returns phone_number and casts profile status to text', () {
+      final searchBody = _functionBody(
+        searchPhoneDraftSql,
+        'iam.search_platform_users(\n  p_query text default null,\n'
+        '  p_status text default null,\n  p_cursor text default null,',
+      );
+      expect(searchBody, contains('p.phone_number'));
+      expect(searchBody, contains('p.status::text'));
+      expect(
+        searchBody,
+        contains('iam._platform_user_effective_status(u.email_confirmed_at)'),
+      );
+    });
+
+    test('get_platform_user casts profile status to text in CASE', () {
+      final detailBody = _functionBody(
+        searchPhoneDraftSql,
+        'iam.get_platform_user(p_user_id uuid)',
+      );
+      expect(detailBody, contains('p.status::text'));
+      expect(
+        detailBody,
+        contains('iam._platform_user_effective_status(u.email_confirmed_at)'),
+      );
+    });
+
+    test('get_my_platform_user_profile returns status as text', () {
+      final fnBody = _functionBody(
+        searchPhoneDraftSql,
+        'iam.get_my_platform_user_profile()',
+      );
+      expect(fnBody, contains('p.status::text'));
     });
   });
 

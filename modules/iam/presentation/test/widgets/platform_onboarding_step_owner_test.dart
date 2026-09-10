@@ -12,6 +12,7 @@ void main() {
       email: 'lan@gmail.com',
       status: PlatformUserStatus.active,
       createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+      phoneNumber: '0901234567',
     ),
     PlatformUserSummaryDto(
       userId: 'u2',
@@ -116,6 +117,8 @@ void main() {
     expect(find.text('Người dùng đã chọn'), findsOneWidget);
     expect(find.text('Lê Thị Lan'), findsOneWidget);
     expect(find.text('lan@gmail.com'), findsOneWidget);
+    expect(find.text('0901234567'), findsOneWidget);
+    expect(find.text('0901 234 567'), findsNothing);
     expect(find.text('Trần Thị Hoa'), findsNothing);
 
     // Tapping VSearchBar again resets search and re-opens overlay
@@ -157,5 +160,19 @@ void main() {
     expect(find.text('Người dùng đã chọn'), findsOneWidget);
     expect(find.text('Không có tên'), findsNothing);
     expect(find.text('longhjk345@gmail.com'), findsOneWidget);
+  });
+
+  testWidgets('hides phone row when selected owner has no phoneNumber', (tester) async {
+    await tester.pumpWidget(
+      buildTestableWidget(
+        selectedOwner: sampleUsers[1],
+        searchResults: sampleUsers,
+      ),
+    );
+
+    expect(find.text('Người dùng đã chọn'), findsOneWidget);
+    expect(find.text('hoa@gmail.com'), findsOneWidget);
+    expect(find.text('0901234567'), findsNothing);
+    expect(find.text('0901 234 567'), findsNothing);
   });
 }

@@ -296,22 +296,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
             const VGap.sm(),
             VCard(
               backgroundColor: colors.surfaceBrand,
-              border: Border.all(
-                color: colors.primary,
-                width: 1.5,
-              ),
-              padding: const EdgeInsets.all(VSpacing.space4),
-              borderRadius: VRadius.card,
+              tone: VComponentTone.primary,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   VText(
                     _platformUserDisplayName(widget.selectedOwner!),
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
+                    tone: VComponentTone.neutral,
+                    variant: VTextVariant.headingH4,
                   ),
                   const VGap.xs(),
                   VText(
@@ -319,12 +311,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
                     variant: VTextVariant.bodySmall,
                     color: colors.textSecondary,
                   ),
-                  const VGap.xs(),
-                  VText(
-                    '0901 234 567',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
+                  if ((widget.selectedOwner!.phoneNumber ?? '').trim().isNotEmpty) ...[
+                    const VGap.xs(),
+                    VText(
+                      widget.selectedOwner!.phoneNumber!.trim(),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ],
                 ],
               ),
             ),

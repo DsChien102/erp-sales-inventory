@@ -26,6 +26,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       final page = await _iamModule.executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
         SearchPlatformUsersQuery(
           query: query.trim().isEmpty ? null : query.trim(),
+          status: PlatformUserStatus.active,
         ),
       );
       if (isClosed) return;

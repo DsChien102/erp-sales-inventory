@@ -954,6 +954,7 @@ final class FakeIamModule implements IIamModule {
             email: u.email,
             status: u.status,
             createdAt: u.createdAt,
+            phoneNumber: null,
           ),
         )
         .toList();
