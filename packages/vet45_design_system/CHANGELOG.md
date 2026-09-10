@@ -23,6 +23,7 @@ changelogs when relevant.
 
 ### Changed
 
+- `VNumericKeypadSheet` display → editable `VInput` (caret/select, `readOnly` + custom keypad); money format nghìn `,` live + suffix `đ`; `onSave` vẫn raw digits.
 - Bỏ `VColors.neutral25`; `VColors.neutral100` lấy giá trị cũ của `neutral25` (`#F6F8F9`) — ảnh hưởng light `background` / scaffold và `surfaceAlt` / `surfacePressed` / `disabledBg`.
 - Bỏ `VBorders.medium` (1.3); `VBorders.thick` `1.6` → `2.0`; `widthFor` non-strong và call site cũ dùng `medium` → `thin`.
 - `VTextFormField` marked `@Deprecated` — bridge `extends VTextArea`; prefer `VTextArea`.
@@ -31,9 +32,12 @@ changelogs when relevant.
 
 ### Fixed
 
+- `VNumericKeypadSheet` — tap trong sheet không cướp focus display (`TapRegion` + `VInput.groupId`); outside = ngoài sheet.
+
 ### Internal
 
 - `VInput` — package-internal TextField chrome
+- `VNumericKeypadGrid` key cell dùng `VCard` thay Material/InkWell thủ công; bọc `ExcludeFocus` để không nhận focus.
 
 ## [1.2.1] - 2026-09-07
 

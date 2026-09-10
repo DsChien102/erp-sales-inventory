@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../patterns/v_gap.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
-import '../tokens/v_radius.dart';
-import '../foundation/v_inspector_scope.dart';
+import 'v_card.dart';
 
 /// Keypad mode for [VNumericKeypadSheet] / [VNumericKeypadGrid].
 enum VNumericKeypadMode {
@@ -46,27 +46,30 @@ class VNumericKeypadGrid extends StatelessWidget {
     ];
 
     return vInspectorHide(
-      Column(
-        children: [
-          for (var r = 0; r < rows.length; r++) ...[
-            if (r > 0) const VGap.sm(),
-            Row(
-              children: [
-                for (var c = 0; c < 3; c++) ...[
-                  if (c > 0) const VGap.horizontalSm(),
-                  Expanded(
-                    child: _Key(
-                      label: rows[r][c],
-                      onTap: rows[r][c].isEmpty
-                          ? null
-                          : () => rows[r][c] == '⌫' ? onBackspace() : onKey(rows[r][c]),
+      // Keep soft-keyboard-free VInput focused while tapping keys.
+      ExcludeFocus(
+        child: Column(
+          children: [
+            for (var r = 0; r < rows.length; r++) ...[
+              if (r > 0) const VGap.sm(),
+              Row(
+                children: [
+                  for (var c = 0; c < 3; c++) ...[
+                    if (c > 0) const VGap.horizontalSm(),
+                    Expanded(
+                      child: _Key(
+                        label: rows[r][c],
+                        onTap: rows[r][c].isEmpty
+                            ? null
+                            : () => rows[r][c] == '⌫' ? onBackspace() : onKey(rows[r][c]),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
-            ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -83,21 +86,14 @@ class _Key extends StatelessWidget {
     final colors = context.vColors;
     final isSpecial = label == '000' || label == '⌫' || label == '.';
 
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(VRadius.card),
-      child: InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(VRadius.card),
-        child: Container(
-          height: 52,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(VRadius.card),
-            border: VBorders.all(colors.borderDefault),
-          ),
+    return VCard(
+      onTap: onTap,
+      padding: EdgeInsets.zero,
+      backgroundColor: colors.surface,
+      border: VBorders.all(colors.borderDefault),
+      child: SizedBox(
+        height: context.vDensity.controlHeightLarge,
+        child: Center(
           child: VText(
             label,
             variant: isSpecial ? VTextVariant.headingH4 : VTextVariant.headingH2,
