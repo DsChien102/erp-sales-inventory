@@ -15,6 +15,8 @@ changelogs when relevant.
 
 ### Added
 
+- `VPhoneField` + `VPhoneValidator` — input SĐT (9–11 chữ số, cho phép space); reject ký tự không hợp lệ; validate debounce; message required/invalid tùy chỉnh; preview forms + tests.
+- `VDateTime.calendarDate` / `parseAndFormatCalendarDate` / `currentBusinessDate` / `businessDayRangeUtc` — format/parse ngày lịch không lệch timezone + khoảng business day ICT → UTC.
 - `VTypography.labelDefault` / `labelDefaultMono` (14px / height 20 / w600) + `VTextVariant` tương ứng.
 - `VTypography.headingH1Mono` / `headingH2Mono` + `VTextVariant` tương ứng.
 - `VTypography.actionDefault` (14px / height 20 / w600, sans) + `VTextVariant` tương ứng.

@@ -84,6 +84,8 @@ export 'src/components/v_swipe_reveal.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';
+export 'src/forms/v_phone_field.dart';
+export 'src/forms/validators/v_phone_validator.dart';
 export 'src/forms/validators/v_password_validator.dart';
 export 'src/forms/validators/v_money_validator.dart';
 export 'src/forms/validators/v_number_validator.dart';

@@ -40,5 +40,64 @@ abstract final class VDateTime {
     return '${_pad2(t.day)}/${_pad2(t.month)}/${t.year} · ${_pad2(t.hour)}:${_pad2(t.minute)}';
   }
 
+  /// Formats a pure calendar date (`DateTime`) as `dd/MM/yyyy` without timezone shifting.
+  ///
+  /// Use this for pure dates like `dueAt`, `effectiveFrom`, where year/month/day
+  /// must not be shifted by any offset.
+  static String calendarDate(DateTime value) {
+    return '${_pad2(value.day)}/${_pad2(value.month)}/${value.year}';
+  }
+
+  /// Parses a calendar date string (e.g. `YYYY-MM-DD`) and formats as `dd/MM/yyyy`
+  /// without timezone interference.
+  static String parseAndFormatCalendarDate(
+    String? dateStr, {
+    String fallback = 'Không giới hạn',
+  }) {
+    if (dateStr == null || dateStr.trim().isEmpty) return fallback;
+    final trimmed = dateStr.trim();
+    final parts = trimmed.split('-');
+    if (parts.length == 3) {
+      final year = parts[0];
+      final month = parts[1].padLeft(2, '0');
+      final day = parts[2].split('T').first.split(' ').first.padLeft(2, '0');
+      return '$day/$month/$year';
+    }
+    try {
+      final d = DateTime.parse(trimmed);
+      return '${_pad2(d.day)}/${_pad2(d.month)}/${d.year}';
+    } catch (_) {
+      return trimmed;
+    }
+  }
+
+  /// Returns the current business date in Vietnam (ICT).
+  ///
+  /// The returned `DateTime` has `hour = 0, minute = 0, second = 0` in UTC,
+  /// carrying the Vietnam calendar date.
+  static DateTime currentBusinessDate([DateTime? now]) {
+    final t = toIct(now ?? DateTime.now());
+    return DateTime.utc(t.year, t.month, t.day);
+  }
+
+  /// Returns the UTC instant range `[fromUtc, toUtc)` corresponding to
+  /// full Vietnam business day(s).
+  ///
+  /// For example, for a single day in ICT (00:00:00 to 23:59:59.999),
+  /// [fromUtc] is 17:00:00 UTC of the previous day, and [toUtc] is 17:00:00 UTC
+  /// of the target day.
+  static ({DateTime fromUtc, DateTime toUtc}) businessDayRangeUtc({
+    DateTime? now,
+    int days = 1,
+  }) {
+    final ict = toIct(now ?? DateTime.now());
+    final endIctDate = DateTime.utc(ict.year, ict.month, ict.day + 1);
+    final startIctDate = DateTime.utc(ict.year, ict.month, ict.day - (days - 1));
+    return (
+      fromUtc: startIctDate.subtract(ictOffset),
+      toUtc: endIctDate.subtract(ictOffset),
+    );
+  }
+
   static String _pad2(int n) => n.toString().padLeft(2, '0');
 }
