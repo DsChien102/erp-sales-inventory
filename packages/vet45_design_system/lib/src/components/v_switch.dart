@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
@@ -55,33 +56,36 @@ class VSwitch extends StatelessWidget {
 
     if (label != null) {
       return vInspectorHide(
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: isEnabled ? () => onChanged!(!value) : null,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    label!,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: isEnabled
-                          ? dynamicColors.textPrimary
-                          : dynamicColors.textMuted,
+        vDisabledOpacity(
+          enabled: isEnabled,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: isEnabled ? () => onChanged!(!value) : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      label!,
+                      style: VTypography.bodyDefault.copyWith(
+                        color: dynamicColors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-                toggle,
-              ],
+                  toggle,
+                ],
+              ),
             ),
           ),
         ),
       );
     }
 
-    return vInspectorHide(toggle);
+    return vInspectorHide(
+      vDisabledOpacity(enabled: isEnabled, child: toggle),
+    );
   }
 }

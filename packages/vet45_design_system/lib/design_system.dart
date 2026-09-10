@@ -10,6 +10,7 @@ export 'src/tokens/v_typography.dart';
 export 'src/tokens/v_shadows.dart';
 export 'src/tokens/v_assets.dart';
 export 'src/tokens/v_duration.dart';
+export 'src/tokens/v_opacity.dart';
 
 // Theme
 export 'src/theme/v_theme.dart';
@@ -60,6 +61,7 @@ export 'src/components/v_radio.dart';
 export 'src/components/v_switch.dart';
 export 'src/components/v_floating_action_button.dart';
 export 'src/components/v_text_field.dart';
+export 'src/components/v_text_area.dart';
 export 'src/components/v_text_form_field.dart';
 export 'src/components/v_verification_code_field.dart';
 export 'src/components/v_search_bar.dart';
@@ -82,6 +84,8 @@ export 'src/components/v_swipe_reveal.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';
+export 'src/forms/v_phone_field.dart';
+export 'src/forms/validators/v_phone_validator.dart';
 export 'src/forms/validators/v_password_validator.dart';
 export 'src/forms/validators/v_money_validator.dart';
 export 'src/forms/validators/v_number_validator.dart';

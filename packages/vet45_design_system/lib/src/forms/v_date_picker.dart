@@ -13,6 +13,7 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 
@@ -119,9 +120,7 @@ class _VDatePickerState extends State<VDatePicker> {
 
     final borderWidth = VBorders.widthFor(widget.emphasis);
     final radius = BorderRadius.circular(VRadius.input);
-    final fillColor = !isEnabled
-        ? dynamicColors.surfaceAlt
-        : _highlighted
+    final fillColor = _highlighted
         ? dynamicColors.surfacePressed
         : dynamicColors.surface;
 
@@ -149,7 +148,7 @@ class _VDatePickerState extends State<VDatePicker> {
           decoration: BoxDecoration(
             color: fillColor,
             border: VBorders.all(
-              isEnabled ? borderColor : dynamicColors.borderDefault,
+              borderColor,
               width: borderWidth,
             ),
             borderRadius: radius,
@@ -169,7 +168,7 @@ class _VDatePickerState extends State<VDatePicker> {
                   dateText,
                   variant: VTextVariant.bodyDefault,
                   color: value != null
-                      ? (isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted)
+                      ? dynamicColors.textPrimary
                       : dynamicColors.textMuted,
                 ),
               ),
@@ -192,10 +191,13 @@ class _VDatePickerState extends State<VDatePicker> {
         button: true,
         enabled: isEnabled,
         label: widget.semanticLabel ?? legacyLabel,
-        child: vFieldShell(
-          control: control,
-          label: legacyLabel,
-          isRequired: legacyRequired,
+        child: vDisabledOpacity(
+          enabled: isEnabled,
+          child: vFieldShell(
+            control: control,
+            label: legacyLabel,
+            isRequired: legacyRequired,
+          ),
         ),
       ),
     );

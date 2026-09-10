@@ -47,11 +47,13 @@ final isEnabled = VComponentScope.resolveEnabled(context, local: enabled) &&
 
 | Signals | Effect |
 |---------|--------|
-| `enabled: false` (local or ambient scope) | disabled |
-| `onPressed` / `onChanged` / `onTap` null | disabled |
+| `enabled: false` (local or ambient scope) | disabled — keep enabled colors + `vDisabledOpacity` (0.4) |
+| `onPressed` / `onChanged` / `onTap` null | disabled — same opacity treatment |
 | `VButton.isLoading == true` | non-interactive + spinner |
 | `errorText != null` | error chrome (not a shared state enum) |
 | else | enabled |
+
+Do **not** paint with deprecated `disabledBg` / `disabledFg` / `disabledBorder` / `primaryDisabled`.
 
 ## Domain enum → Tone bridges
 

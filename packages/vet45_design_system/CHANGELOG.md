@@ -15,17 +15,37 @@ changelogs when relevant.
 
 ### Added
 
+- `VPhoneField` + `VPhoneValidator` — input SĐT (9–11 chữ số, cho phép space); reject ký tự không hợp lệ; validate debounce; message required/invalid tùy chỉnh; preview forms + tests.
+- `VDateTime.calendarDate` / `parseAndFormatCalendarDate` / `currentBusinessDate` / `businessDayRangeUtc` — format/parse ngày lịch không lệch timezone + khoảng business day ICT → UTC.
+- `VTypography.labelDefault` / `labelDefaultMono` (14px / height 20 / w600) + `VTextVariant` tương ứng.
+- `VTypography.headingH1Mono` / `headingH2Mono` + `VTextVariant` tương ứng.
+- `VTypography.actionDefault` (14px / height 20 / w600, sans) + `VTextVariant` tương ứng.
+
 ### Changed
+
+- `VNumericKeypadSheet` display → editable `VInput` (caret/select, `readOnly` + custom keypad); money format nghìn `,` live + suffix `đ`; `onSave` vẫn raw digits.
+- Bỏ `VColors.neutral25`; `VColors.neutral100` lấy giá trị cũ của `neutral25` (`#F6F8F9`) — ảnh hưởng light `background` / scaffold và `surfaceAlt` / `surfacePressed` / `disabledBg`.
+- Bỏ `VBorders.medium` (1.3); `VBorders.thick` `1.6` → `2.0`; `widthFor` non-strong và call site cũ dùng `medium` → `thin`.
+- `VTextFormField` marked `@Deprecated` — bridge `extends VTextArea`; prefer `VTextArea`.
+- Disabled state: giữ màu enabled + opacity 0.4 (`vDisabledOpacity`); ngừng dùng palette `primaryDisabled` / `disabledBg` / `disabledBorder` / `disabledFg` trong package.
+- `VColorScheme.primaryDisabled` / `disabledBg` / `disabledBorder` / `disabledFg` marked `@Deprecated` — prefer `vDisabledOpacity` / `VOpacity.disabled` (bridge vẫn gán giá trị).
 
 ### Fixed
 
+- `VNumericKeypadSheet` — tap trong sheet không cướp focus display (`TapRegion` + `VInput.groupId`); outside = ngoài sheet.
+
 ### Internal
+
+- `VInput` — package-internal TextField chrome
+- `VNumericKeypadGrid` key cell dùng `VCard` thay Material/InkWell thủ công; bọc `ExcludeFocus` để không nhận focus.
 
 ## [1.2.1] - 2026-09-07
 
 ### Added
 
 - `VTabsList` / `VTabsTrigger` / `VTabsContent` — compound tabs: bar + body đồng bộ qua `selectedIndex`/`onTabSelected`; vuốt trên bar (khi không scrollable) hoặc body (PageView) để đổi tab; `VTabsListVariant` (`line` | `plain`); `VTabsOrientation` (`horizontal` | `vertical`); tab disabled bị bỏ qua khi swipe.
+- `VTextArea` — canonical multiline form control (copy từ `VTextFormField`).
+- `VOpacity.disabled` (0.4) + `vDisabledOpacity` — chuẩn disabled state toàn control.
 
 ### Changed
 

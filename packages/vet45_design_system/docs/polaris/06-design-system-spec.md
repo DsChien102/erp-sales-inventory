@@ -27,7 +27,8 @@ Source of truth cho tokens, typography roles, và 5 recipes vàng.
 |------|----------|----------|
 | Primary text | `textPrimary` | Tiêu đề, body chính |
 | Secondary text | `textSecondary` | Subtitle, meta |
-| Muted | `textMuted` | Placeholder, disabled hint |
+| Muted | `textMuted` | Placeholder, hint |
+| Disabled | `VOpacity.disabled` (0.4) via `vDisabledOpacity` | Toàn control khi disabled — giữ màu enabled |
 | Surface | `surface` | Card, sheet background |
 | Surface alt | `surfaceAlt` | Icon box, zebra |
 | Border | `borderDefault` / `borderStrong` | Card border, input |
@@ -54,8 +55,10 @@ Source of truth cho tokens, typography roles, và 5 recipes vàng.
 | Body | `bodyDefault` |
 | Subtitle / secondary | `bodySmall` + `color: context.vColors.textSecondary` |
 | Caption / meta | `caption` |
-| Form label | `labelSmall` |
-| Mono cùng role (SKU, code) | `displayD1Mono` / `headingH3Mono` / `headingH4Mono` / `bodyDefaultMono` / `bodySmallMono` |
+| Form label (tight) | `labelSmall` |
+| Form / highlight label | `labelDefault` |
+| Action / CTA text | `actionDefault` |
+| Mono cùng role (SKU, code) | `displayD1Mono` / `headingH1Mono` / `headingH2Mono` / `headingH3Mono` / `headingH4Mono` / `bodyDefaultMono` / `bodySmallMono` / `labelDefaultMono` |
 | Số tiền tabular | `monoNumeric` |
 
 Sans = Inter (`VTypography.*` không suffix). Mono = JetBrains Mono (`*Mono` / `monoNumeric`).

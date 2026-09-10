@@ -8,6 +8,7 @@ import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 
@@ -387,26 +388,20 @@ class VTabsTrigger extends StatelessWidget {
     final indicatorWidth = scope.emphasis == VComponentEmphasis.strong ? 3.0 : 2.0;
     final isHorizontal = scope.orientation == VTabsOrientation.horizontal;
 
-    final foreground = isDisabled
-        ? colors.disabledFg
-        : (isSelected ? activeColor : colors.textSecondary);
+    final foreground = isSelected ? activeColor : colors.textSecondary;
 
     Border? indicatorBorder;
     if (variant == VTabsListVariant.line) {
       indicatorBorder = isHorizontal
           ? Border(
               bottom: BorderSide(
-                color: isSelected
-                    ? (isDisabled ? colors.disabledFg : activeColor)
-                    : Colors.transparent,
+                color: isSelected ? activeColor : Colors.transparent,
                 width: indicatorWidth,
               ),
             )
           : Border(
               right: BorderSide(
-                color: isSelected
-                    ? (isDisabled ? colors.disabledFg : activeColor)
-                    : Colors.transparent,
+                color: isSelected ? activeColor : Colors.transparent,
                 width: indicatorWidth,
               ),
             );
@@ -429,42 +424,45 @@ class VTabsTrigger extends StatelessWidget {
       selected: isSelected,
       enabled: !isDisabled,
       label: label,
-      child: InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: isDisabled ? null : () => scope.onTabSelected(index),
-        child: Container(
-          width: fillsCrossAxis ? double.infinity : null,
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.space4,
-            vertical: VSpacing.space3,
-          ),
-          decoration: BoxDecoration(border: indicatorBorder),
-          child: Row(
-            mainAxisSize: fillsCrossAxis ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                VIcon(
-                  icon: icon,
-                  weight: VIconWeight.medium,
-                  size: 16,
-                  color: foreground,
-                ),
-                const VGap.sm(axis: Axis.horizontal),
+      child: vDisabledOpacity(
+        enabled: !isDisabled,
+        child: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: isDisabled ? null : () => scope.onTabSelected(index),
+          child: Container(
+            width: fillsCrossAxis ? double.infinity : null,
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space4,
+              vertical: VSpacing.space3,
+            ),
+            decoration: BoxDecoration(border: indicatorBorder),
+            child: Row(
+              mainAxisSize: fillsCrossAxis ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  VIcon(
+                    icon: icon,
+                    weight: VIconWeight.medium,
+                    size: 16,
+                    color: foreground,
+                  ),
+                  const VGap.sm(axis: Axis.horizontal),
+                ],
+                if (fillsCrossAxis)
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: labelWidget,
+                  )
+                else
+                  labelWidget,
+                if (trailing != null) ...[
+                  const VGap.sm(axis: Axis.horizontal),
+                  trailing!,
+                ],
               ],
-              if (fillsCrossAxis)
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: labelWidget,
-                )
-              else
-                labelWidget,
-              if (trailing != null) ...[
-                const VGap.sm(axis: Axis.horizontal),
-                trailing!,
-              ],
-            ],
+            ),
           ),
         ),
       ),

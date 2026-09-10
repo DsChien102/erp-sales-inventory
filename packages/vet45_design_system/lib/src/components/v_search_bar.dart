@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../patterns/v_gap.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -130,10 +131,10 @@ class _VSearchBarState extends State<VSearchBar> {
 
     switch (widget.variant) {
       case VSearchBarVariant.outlined:
-        bg = isEnabled ? dynamicColors.surface : dynamicColors.surfaceAlt;
+        bg = dynamicColors.surface;
         border = VBorders.all(
           isFocused ? focusBorderColor : dynamicColors.borderDefault,
-          width: isFocused ? VBorders.medium : borderWidth,
+          width: isFocused ? VBorders.thin : borderWidth,
         );
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
@@ -142,15 +143,15 @@ class _VSearchBarState extends State<VSearchBar> {
       case VSearchBarVariant.filled:
         bg = dynamicColors.surfaceAlt;
         border = isFocused
-            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.medium)
-            : VBorders.all(dynamicColors.borderDefault, width: VBorders.medium);
+            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.thin)
+            : VBorders.all(dynamicColors.borderDefault, width: VBorders.thin);
         iconColor = dynamicColors.textMuted;
         textColor = dynamicColors.textPrimary;
         hintColor = dynamicColors.textSecondary;
         break;
       case VSearchBarVariant.header:
         bg = Colors.white.withValues(alpha: 0.15);
-        border = isFocused ? VBorders.all(Colors.white, width: VBorders.medium) : null;
+        border = isFocused ? VBorders.all(Colors.white, width: VBorders.thin) : null;
         iconColor = Colors.white;
         textColor = Colors.white;
         hintColor = Colors.white.withValues(alpha: 0.8);
@@ -231,26 +232,29 @@ class _VSearchBarState extends State<VSearchBar> {
         textField: widget.onTap == null,
         enabled: isEnabled,
         label: widget.semanticLabel ?? widget.hintText,
-        child: Container(
-          height: VTextField.controlHeight,
-          padding: EdgeInsets.only(
-            left: VSpacing.space3,
-            right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
+        child: vDisabledOpacity(
+          enabled: isEnabled,
+          child: Container(
+            height: VTextField.controlHeight,
+            padding: EdgeInsets.only(
+              left: VSpacing.space3,
+              right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
+            ),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(VRadius.card),
+              border: border,
+            ),
+            child: widget.onTap != null
+                ? InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: widget.onTap,
+                    borderRadius: BorderRadius.circular(VRadius.card),
+                    child: content,
+                  )
+                : content,
           ),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(VRadius.card),
-            border: border,
-          ),
-          child: widget.onTap != null
-              ? InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onTap: widget.onTap,
-                  borderRadius: BorderRadius.circular(VRadius.card),
-                  child: content,
-                )
-              : content,
         ),
       ),
     );

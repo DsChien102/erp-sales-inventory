@@ -11,7 +11,7 @@ const double kVTextFieldAffixOuterDense = VSpacing.space2;
 const double kVTextFieldAffixInner = VSpacing.space1;
 const double kVTextFieldAffixInnerDense = VSpacing.space0;
 
-/// Shared affix inset for [VTextField] / [VTextFormField] prefix & suffix.
+/// Shared affix inset for [VTextField] / [VTextArea] prefix & suffix.
 ///
 /// [outerInset] = field edge → icon; [innerInset] = icon → text.
 Widget? wrapVTextFieldAffix(

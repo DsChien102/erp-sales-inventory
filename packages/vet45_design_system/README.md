@@ -56,7 +56,7 @@ Component coverage in example includes:
 - Layout / responsive: `VBreakpoint` (mobile under 600, tablet 600+, desktop 1024+), `VResponsive`, `VResponsiveValue`, `VResponsiveVisibility`, `VContentWidth`, `VResponsiveGrid`, `VPagePadding`, `VGap`, `VSection`, `VPageScaffold`
 - Forms: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`, `VDatePicker`
 
-Product/business chrome (dashboard cards, todo rows, …) lives in module presentation packages (e.g. `vet45_dashboard_presentation`), not in this design system.
+Product/business chrome (dashboard cards, todo rows, …) lives in app feature presentation (e.g. `apps/erp/lib/features/dashboard/`), not in this design system.
 
 ## Tài liệu roadmap theo hướng Polaris
 

@@ -15,6 +15,8 @@ class FormsPreviewTab extends StatefulWidget {
 
 class _FormsPreviewTabState extends State<FormsPreviewTab> {
   final _optionalEmail = TextEditingController();
+  final _filledPhone = TextEditingController(text: '0988 123 456');
+  final _disabledPhone = TextEditingController(text: '028 3822 1122');
   final _requiredEmail = TextEditingController();
   final _externalEmail = TextEditingController();
   final _optionalPassword = TextEditingController();
@@ -41,6 +43,8 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
 
   @override
   void dispose() {
+    _filledPhone.dispose();
+    _disabledPhone.dispose();
     _optionalEmail.dispose();
     _requiredEmail.dispose();
     _externalEmail.dispose();
@@ -57,6 +61,63 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
+        PreviewSection(
+          title: 'VPhoneField',
+          description: '9–11 chữ số, cho phép dấu cách. Chữ và ký tự khác bị từ chối khi nhập/dán.',
+          child: Column(
+            children: [
+              const PreviewStateRow(
+                label: 'Optional / empty',
+                child: VPhoneField(
+                  label: 'Số điện thoại',
+                  hintText: 'Ví dụ: 0988123456',
+                  helperText: 'Không bắt buộc',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Filled / spaces',
+                child: VPhoneField(controller: _filledPhone, label: 'Số điện thoại'),
+              ),
+              const PreviewStateRow(
+                label: 'Required / live validation',
+                child: VPhoneField(
+                  label: 'Số điện thoại',
+                  isRequired: true,
+                  helperText: 'Thử nhập dưới 9 chữ số hoặc xóa hết nội dung.',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Disabled',
+                child: VPhoneField(
+                  controller: _disabledPhone,
+                  label: 'Số điện thoại',
+                  enabled: false,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'External error',
+                child: VPhoneField(label: 'Số điện thoại', errorText: 'Số điện thoại đã tồn tại'),
+              ),
+              const PreviewStateRow(
+                label: 'Manual validation',
+                child: VPhoneField(
+                  label: 'Số điện thoại',
+                  validateOnChanged: false,
+                  helperText: 'Ứng dụng gọi VPhoneValidator khi gửi form.',
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Initial value / sync',
+                child: VPhoneField(
+                  initialValue: '0901 234 567',
+                  label: 'Số điện thoại',
+                  validateOnChanged: false,
+                  helperText: 'Khởi tạo từ chuỗi, không dùng controller ngoài',
+                ),
+              ),
+            ],
+          ),
+        ),
         PreviewSection(
           title: 'VField (preferred)',
           description:

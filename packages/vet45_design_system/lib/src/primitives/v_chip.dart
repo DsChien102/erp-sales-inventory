@@ -8,6 +8,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -140,9 +141,7 @@ class VChip extends StatelessWidget {
       child: chipBody,
     );
 
-    if (!isEnabled) {
-      chipBody = Opacity(opacity: 0.5, child: chipBody);
-    }
+    chipBody = vDisabledOpacity(enabled: isEnabled, child: chipBody);
 
     final semanticsLabel = semanticLabel ?? label;
 

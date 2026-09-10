@@ -81,7 +81,7 @@ class VSteps extends StatelessWidget {
               shape: BoxShape.circle,
               border: VBorders.all(
                 dynamicColors.success,
-                width: VBorders.medium,
+                width: VBorders.thin,
               ),
             ),
             child: Center(
@@ -100,7 +100,7 @@ class VSteps extends StatelessWidget {
             width: circleSize,
             height: circleSize,
             decoration: BoxDecoration(
-              color: dynamicColors.disabledBg,
+              color: dynamicColors.surfaceAlt,
               shape: BoxShape.circle,
             ),
             child: Center(

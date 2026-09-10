@@ -17,13 +17,18 @@ enum VTextVariant {
   bodyDefault,
   bodySmall,
   caption,
+  labelDefault,
   labelSmall,
+  actionDefault,
   // Mono
   displayD1Mono,
+  headingH1Mono,
+  headingH2Mono,
   headingH3Mono,
   headingH4Mono,
   bodyDefaultMono,
   bodySmallMono,
+  labelDefaultMono,
   monoNumeric,
 }
 
@@ -74,12 +79,17 @@ class VText extends StatelessWidget {
       VTextVariant.bodyDefault => VTypography.bodyDefault,
       VTextVariant.bodySmall => VTypography.bodySmall,
       VTextVariant.caption => VTypography.caption,
+      VTextVariant.labelDefault => VTypography.labelDefault,
       VTextVariant.labelSmall => VTypography.labelSmall,
+      VTextVariant.actionDefault => VTypography.actionDefault,
       VTextVariant.displayD1Mono => VTypography.displayD1Mono,
+      VTextVariant.headingH1Mono => VTypography.headingH1Mono,
+      VTextVariant.headingH2Mono => VTypography.headingH2Mono,
       VTextVariant.headingH3Mono => VTypography.headingH3Mono,
       VTextVariant.headingH4Mono => VTypography.headingH4Mono,
       VTextVariant.bodyDefaultMono => VTypography.bodyDefaultMono,
       VTextVariant.bodySmallMono => VTypography.bodySmallMono,
+      VTextVariant.labelDefaultMono => VTypography.labelDefaultMono,
       VTextVariant.monoNumeric => VTypography.monoNumeric,
     };
   }

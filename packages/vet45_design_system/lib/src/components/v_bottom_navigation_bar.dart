@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 import '../foundation/v_context_extensions.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../foundation/v_inspector_scope.dart';
 
 class VBottomNavigationItem {
@@ -51,30 +52,31 @@ class VBottomNavigationBar extends StatelessWidget {
             final isSelected = index == currentIndex;
             final item = items[index];
             final isEnabled = item.enabled;
-            final color = !isEnabled
-                ? dynamicColors.textMuted
-                : isSelected
+            final color = isSelected
                 ? dynamicColors.primary
                 : dynamicColors.textSecondary;
 
             return Expanded(
-              child: InkWell(
-                onTap: isEnabled ? () => onTap(index) : null,
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 50,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconTheme(
-                        data: IconThemeData(color: color, size: 29),
-                        child: item.icon,
-                      ),
-                    ],
+              child: vDisabledOpacity(
+                enabled: isEnabled,
+                child: InkWell(
+                  onTap: isEnabled ? () => onTap(index) : null,
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 50,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconTheme(
+                          data: IconThemeData(color: color, size: 29),
+                          child: item.icon,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

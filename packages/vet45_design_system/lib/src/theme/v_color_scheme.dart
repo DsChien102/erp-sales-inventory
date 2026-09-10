@@ -21,12 +21,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color primaryHover;
   final Color primaryPressed;
   final Color primaryFocus;
+  @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
   final Color primaryDisabled;
   final Color surfaceHover;
   final Color surfacePressed;
   final Color focusRing;
+  @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
   final Color disabledBg;
+  @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
   final Color disabledBorder;
+  @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
   final Color disabledFg;
 
   /// Inverted surface for toast / snackbar chrome (not text).
@@ -69,12 +73,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.primaryHover,
     required this.primaryPressed,
     required this.primaryFocus,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
     required this.primaryDisabled,
     required this.surfaceHover,
     required this.surfacePressed,
     required this.focusRing,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
     required this.disabledBg,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
     required this.disabledBorder,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled')
     required this.disabledFg,
     required this.toastSurface,
     required this.success,
@@ -98,8 +106,9 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   });
 
   // Light theme color scheme mapping
+  // ignore: deprecated_member_use_from_same_package
   static final VColorScheme light = VColorScheme(
-    background: VColors.neutral25,
+    background: VColors.neutral100,
     surface: VColors.neutral0,
     surfaceAlt: VColors.neutral100,
     surfaceBrand: VColors.primary50,
@@ -115,12 +124,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     primaryHover: VColors.primary600,
     primaryPressed: VColors.primary700,
     primaryFocus: VColors.primary500,
+    // ignore: deprecated_member_use_from_same_package
     primaryDisabled: VColors.neutral200,
     surfaceHover: VColors.neutral50,
     surfacePressed: VColors.neutral100,
     focusRing: VColors.primary200,
+    // ignore: deprecated_member_use_from_same_package
     disabledBg: VColors.neutral100,
+    // ignore: deprecated_member_use_from_same_package
     disabledBorder: VColors.neutral200,
+    // ignore: deprecated_member_use_from_same_package
     disabledFg: VColors.neutral400,
     toastSurface: VColors.neutral900,
     success: VColors.primary500,
@@ -144,6 +157,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   );
 
   // Dark theme color scheme mapping
+  // ignore: deprecated_member_use_from_same_package
   static final VColorScheme dark = VColorScheme(
     background: VColors.neutral900,
     surface: VColors.neutral700,
@@ -161,12 +175,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     primaryHover: VColors.primary300,
     primaryPressed: VColors.primary300,
     primaryFocus: VColors.primary400,
+    // ignore: deprecated_member_use_from_same_package
     primaryDisabled: VColors.primary800,
     surfaceHover: VColors.neutral600,
     surfacePressed: VColors.neutral500,
     focusRing: VColors.primary700,
+    // ignore: deprecated_member_use_from_same_package
     disabledBg: VColors.neutral700,
+    // ignore: deprecated_member_use_from_same_package
     disabledBorder: VColors.neutral600,
+    // ignore: deprecated_member_use_from_same_package
     disabledFg: VColors.neutral500,
     toastSurface: VColors.neutral0,
     success: VColors.primary500,
@@ -207,13 +225,13 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? primaryHover,
     Color? primaryPressed,
     Color? primaryFocus,
-    Color? primaryDisabled,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? primaryDisabled,
     Color? surfaceHover,
     Color? surfacePressed,
     Color? focusRing,
-    Color? disabledBg,
-    Color? disabledBorder,
-    Color? disabledFg,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? disabledBg,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? disabledBorder,
+    @Deprecated('Use vDisabledOpacity / VOpacity.disabled') Color? disabledFg,
     Color? toastSurface,
     Color? success,
     Color? successBg,
@@ -251,12 +269,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       primaryHover: primaryHover ?? this.primaryHover,
       primaryPressed: primaryPressed ?? this.primaryPressed,
       primaryFocus: primaryFocus ?? this.primaryFocus,
+      // ignore: deprecated_member_use_from_same_package
       primaryDisabled: primaryDisabled ?? this.primaryDisabled,
       surfaceHover: surfaceHover ?? this.surfaceHover,
       surfacePressed: surfacePressed ?? this.surfacePressed,
       focusRing: focusRing ?? this.focusRing,
+      // ignore: deprecated_member_use_from_same_package
       disabledBg: disabledBg ?? this.disabledBg,
+      // ignore: deprecated_member_use_from_same_package
       disabledBorder: disabledBorder ?? this.disabledBorder,
+      // ignore: deprecated_member_use_from_same_package
       disabledFg: disabledFg ?? this.disabledFg,
       toastSurface: toastSurface ?? this.toastSurface,
       success: success ?? this.success,
@@ -302,12 +324,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
       primaryPressed: Color.lerp(primaryPressed, other.primaryPressed, t)!,
       primaryFocus: Color.lerp(primaryFocus, other.primaryFocus, t)!,
+      // ignore: deprecated_member_use_from_same_package
       primaryDisabled: Color.lerp(primaryDisabled, other.primaryDisabled, t)!,
       surfaceHover: Color.lerp(surfaceHover, other.surfaceHover, t)!,
       surfacePressed: Color.lerp(surfacePressed, other.surfacePressed, t)!,
       focusRing: Color.lerp(focusRing, other.focusRing, t)!,
+      // ignore: deprecated_member_use_from_same_package
       disabledBg: Color.lerp(disabledBg, other.disabledBg, t)!,
+      // ignore: deprecated_member_use_from_same_package
       disabledBorder: Color.lerp(disabledBorder, other.disabledBorder, t)!,
+      // ignore: deprecated_member_use_from_same_package
       disabledFg: Color.lerp(disabledFg, other.disabledFg, t)!,
       toastSurface: Color.lerp(toastSurface, other.toastSurface, t)!,
       success: Color.lerp(success, other.success, t)!,

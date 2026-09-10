@@ -5,6 +5,7 @@ import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import 'v_button.dart';
@@ -41,40 +42,43 @@ class VSegmentedControl extends StatelessWidget {
     return vInspectorHide(
       Semantics(
         label: semanticLabel ?? 'Segmented control',
-        child: Opacity(
-          opacity: isEnabled ? 1 : 0.5,
-          child: Container(
-            padding: const EdgeInsets.all(VSpacing.space1),
-            decoration: BoxDecoration(
-              color: colors.surfaceAlt,
-              borderRadius: BorderRadius.circular(VRadius.r8 + 2),
-            ),
-            child: Row(
-              children: [
-                for (var i = 0; i < segments.length; i++) ...[
-                  if (i > 0) const VGap.horizontalXs(),
-                  Expanded(
-                    child: Semantics(
-                      button: true,
-                      selected: i == selectedIndex,
-                      enabled: isEnabled,
-                      label: segments[i],
-                      child: VButton(
+        child: vDisabledOpacity(
+          enabled: isEnabled,
+          child: IgnorePointer(
+            ignoring: !isEnabled,
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.space1),
+              decoration: BoxDecoration(
+                color: colors.surfaceAlt,
+                borderRadius: BorderRadius.circular(VRadius.r8 + 2),
+              ),
+              child: Row(
+                children: [
+                  for (var i = 0; i < segments.length; i++) ...[
+                    if (i > 0) const VGap.horizontalXs(),
+                    Expanded(
+                      child: Semantics(
+                        button: true,
+                        selected: i == selectedIndex,
+                        enabled: isEnabled,
                         label: segments[i],
-                        fullWidth: true,
-                        size: VButtonSize.medium,
-                        variant: i == selectedIndex
-                            ? VButtonVariant.primary
-                            : VButtonVariant.secondary,
-                        tone: tone,
-                        emphasis: emphasis,
-                        onPressed: isEnabled ? () => onChanged(i) : null,
-                        semanticLabel: segments[i],
+                        child: VButton(
+                          label: segments[i],
+                          fullWidth: true,
+                          size: VButtonSize.medium,
+                          variant: i == selectedIndex
+                              ? VButtonVariant.primary
+                              : VButtonVariant.secondary,
+                          tone: tone,
+                          emphasis: emphasis,
+                          onPressed: () => onChanged(i),
+                          semanticLabel: segments[i],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

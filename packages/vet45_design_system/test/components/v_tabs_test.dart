@@ -275,8 +275,12 @@ void main() {
         ),
       );
 
-      final shortTab = tester.getRect(find.text('Ngắn'));
-      final longTab = tester.getRect(find.text('Nhãn dài hơn'));
+      final shortTab = tester.getRect(
+        find.ancestor(of: find.text('Ngắn'), matching: find.byType(InkWell)),
+      );
+      final longTab = tester.getRect(
+        find.ancestor(of: find.text('Nhãn dài hơn'), matching: find.byType(InkWell)),
+      );
       expect(shortTab.width, closeTo(longTab.width, 0.01));
     });
   });

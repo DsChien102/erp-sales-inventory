@@ -10,6 +10,7 @@ import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_field.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -226,16 +227,10 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
             _ => colors.borderStrong,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
-    final borderColor = !isEnabled
-        ? colors.borderDefault
-        : focused
-        ? focusBorderColor
-        : restingBorderColor;
+    final borderColor = focused ? focusBorderColor : restingBorderColor;
 
     final textStyle = VTypography.headingH3.copyWith(
-      color: isEnabled
-          ? (useDanger && legacyError != null ? colors.danger : colors.textPrimary)
-          : colors.textMuted,
+      color: useDanger && legacyError != null ? colors.danger : colors.textPrimary,
       fontWeight: FontWeight.w700,
       fontSize: cellW < VVerificationCodeField.cellWidth
           ? VTypography.headingH4.fontSize
@@ -247,7 +242,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       height: cellH,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: isEnabled ? colors.surface : colors.surfaceAlt,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(VRadius.input),
           border: Border.fromBorderSide(
             VBorders.side(borderColor, width: borderWidth),
@@ -383,7 +378,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
         enabled: isEnabled,
         label: widget.semanticLabel ?? legacyLabel ?? 'Verification code',
         value: _code,
-        child: body,
+        child: vDisabledOpacity(enabled: isEnabled, child: body),
       ),
     );
   }

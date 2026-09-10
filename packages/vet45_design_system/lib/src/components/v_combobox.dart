@@ -11,6 +11,7 @@ import '../foundations/icons/v_icons.dart';
 import '../patterns/v_field.dart';
 import '../primitives/v_icon_box.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -256,7 +257,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     ).applyDefaults(
       InputDecorationTheme(
         filled: true,
-        fillColor: isEnabled ? context.vColors.surface : context.vColors.surfaceAlt,
+        fillColor: context.vColors.surface,
         hoverColor: Colors.transparent,
         contentPadding: vTextFieldContentPadding(
           base: VCombobox.contentPadding,
@@ -393,7 +394,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     final restingBorder = _outline(restingBorderColor, borderWidth);
     final focusBorder = _outline(focusBorderColor, borderWidth);
     final disabledBorder = _outline(colors.borderDefault, borderWidth);
-    final trailingIconColor = isEnabled ? colors.textMuted : colors.borderStrong;
+    final trailingIconColor = colors.textMuted;
 
     // ignore: deprecated_member_use_from_same_package
     final legacyLabel = widget.label;
@@ -472,7 +473,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
                   focusNode: _focusNode,
                   controller: _textController,
                   style: VTypography.bodyDefault.copyWith(
-                    color: isEnabled ? colors.textPrimary : colors.textMuted,
+                    color: colors.textPrimary,
                   ),
                   onChanged: isEnabled
                       ? (text) {
@@ -513,7 +514,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
         label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Combobox',
         textField: true,
         enabled: isEnabled,
-        child: body,
+        child: vDisabledOpacity(enabled: isEnabled, child: body),
       ),
     );
   }

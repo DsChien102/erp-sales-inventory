@@ -10,12 +10,11 @@ class VBorders {
   VBorders._();
 
   static const double thin = 1.0;
-  static const double medium = 1.3;
-  static const double thick = 1.6;
+  static const double thick = 2.0;
 
-  /// Strong emphasis → [thick]; otherwise [medium].
+  /// Strong emphasis → [thick]; otherwise [thin].
   static double widthFor(VComponentEmphasis emphasis) =>
-      emphasis == VComponentEmphasis.strong ? thick : medium;
+      emphasis == VComponentEmphasis.strong ? thick : thin;
 
   static BorderSide side(Color color, {double width = thin}) =>
       BorderSide(color: color, width: width);

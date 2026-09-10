@@ -73,6 +73,7 @@ class UIAuditTab extends StatelessWidget {
     'VResponsiveGrid',
     // Forms (tracked in example even if audit CLI skips forms)
     'VEmailField',
+    'VPhoneField',
     'VPasswordField',
     'VMoneyField',
     'VNumberField',

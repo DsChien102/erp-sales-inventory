@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -116,29 +117,10 @@ class VButton extends StatelessWidget {
     final VComponentTone resolvedTone =
         VComponentScope.resolveTone(context, local: tone) ?? VComponentTone.primary;
 
-    // Colors mapping based on variant × tone and state
+    // Colors mapping based on variant × tone and interaction (not disabled palette).
     Color? getBgColor(Set<WidgetState> states) {
-      final disabled = states.contains(WidgetState.disabled);
       final pressed = states.contains(WidgetState.pressed);
       final hovered = states.contains(WidgetState.hovered);
-
-      if (disabled) {
-        switch (variant) {
-          case VButtonVariant.secondary:
-          case VButtonVariant.tertiary:
-            return Colors.transparent;
-          case VButtonVariant.primary:
-            if (resolvedTone == VComponentTone.danger) {
-              return dynamicColors.dangerBg;
-            }
-            if (resolvedTone == VComponentTone.warning) {
-              return dynamicColors.warningBg;
-            }
-            return dynamicColors.primaryDisabled;
-          case VButtonVariant.link:
-            return Colors.transparent;
-        }
-      }
 
       // pressed && hovered is for web behavior
       // pressed || hovered is for mobile behavior
@@ -192,15 +174,6 @@ class VButton extends StatelessWidget {
     }
 
     Color getFgColor(Set<WidgetState> states) {
-      if (states.contains(WidgetState.disabled)) {
-        if (variant == VButtonVariant.primary && resolvedTone == VComponentTone.danger) {
-          return dynamicColors.danger.withValues(alpha: 0.5);
-        }
-        if (variant == VButtonVariant.secondary && resolvedTone == VComponentTone.danger) {
-          return dynamicColors.danger.withValues(alpha: 0.6);
-        }
-        return dynamicColors.textMuted;
-      }
       if (foregroundColor != null) {
         return foregroundColor!;
       }
@@ -229,30 +202,20 @@ class VButton extends StatelessWidget {
     }
 
     BorderSide getBorderSide(Set<WidgetState> states) {
-      final disabled = states.contains(WidgetState.disabled);
-
       if (variant == VButtonVariant.secondary) {
         if (resolvedTone == VComponentTone.danger) {
-          if (disabled) {
-            return VBorders.side(dynamicColors.danger.withValues(alpha: 0.2));
-          }
           return VBorders.side(dynamicColors.danger);
         }
         if (resolvedTone == VComponentTone.warning) {
-          if (disabled) {
-            return VBorders.side(dynamicColors.warning.withValues(alpha: 0.2));
-          }
           return VBorders.side(dynamicColors.warning);
         }
         return VBorders.side(dynamicColors.borderDefault);
       }
 
-      if (variant == VButtonVariant.primary && resolvedTone == VComponentTone.danger && disabled) {
-        return VBorders.side(dynamicColors.danger.withValues(alpha: 0.15));
-      }
-
       return BorderSide.none;
     }
+
+    final enabledFg = getFgColor(const {});
 
     Widget buttonChild = Row(
       mainAxisSize: MainAxisSize.min,
@@ -264,9 +227,7 @@ class VButton extends StatelessWidget {
             height: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                getFgColor(isEnabled ? {} : {WidgetState.disabled}),
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(enabledFg),
             ),
           ),
           const VGap.horizontalSm(),
@@ -281,17 +242,13 @@ class VButton extends StatelessWidget {
                   alignment: Alignment.center,
                   child: VText(
                     label,
-                    style: textStyle.copyWith(
-                      color: getFgColor(isEnabled ? {} : {WidgetState.disabled}),
-                    ),
+                    style: textStyle.copyWith(color: enabledFg),
                     maxLines: 1,
                   ),
                 )
               : VText(
                   label,
-                  style: textStyle.copyWith(
-                    color: getFgColor(isEnabled ? {} : {WidgetState.disabled}),
-                  ),
+                  style: textStyle.copyWith(color: enabledFg),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
@@ -345,7 +302,10 @@ class VButton extends StatelessWidget {
         button: true,
         enabled: isEnabled,
         label: semanticLabel ?? label,
-        child: buttonWidget,
+        child: vDisabledOpacity(
+          enabled: isEnabled,
+          child: buttonWidget,
+        ),
       ),
     );
   }
@@ -388,7 +348,6 @@ final class _VButtonLinkState extends State<_VButtonLink> {
 
   Color _resolveForeground(BuildContext context) {
     final colors = context.vColors;
-    if (!widget.isEnabled) return colors.textMuted;
     return widget.foregroundColor ?? colors.primary;
   }
 
@@ -438,36 +397,39 @@ final class _VButtonLinkState extends State<_VButtonLink> {
       button: true,
       enabled: widget.isEnabled,
       label: widget.semanticLabel ?? widget.label,
-      child: FocusableActionDetector(
+      child: vDisabledOpacity(
         enabled: widget.isEnabled,
-        mouseCursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        onShowHoverHighlight: (show) {
-          if (_hovered == show) return;
-          setState(() => _hovered = show);
-        },
-        onShowFocusHighlight: (show) {
-          if (_focused == show) return;
-          setState(() => _focused = show);
-        },
-        actions: <Type, Action<Intent>>{
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.onPressed?.call();
-              return null;
-            },
-          ),
-        },
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: widget.isEnabled ? (_) => _setPressed(true) : null,
-          onTapUp: widget.isEnabled ? (_) => _setPressed(false) : null,
-          onTapCancel: widget.isEnabled ? () => _setPressed(false) : null,
-          onTap: widget.isEnabled ? widget.onPressed : null,
-          child: Align(
-            alignment: Alignment.center,
-            widthFactor: 1,
-            heightFactor: 1,
-            child: content,
+        child: FocusableActionDetector(
+          enabled: widget.isEnabled,
+          mouseCursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          onShowHoverHighlight: (show) {
+            if (_hovered == show) return;
+            setState(() => _hovered = show);
+          },
+          onShowFocusHighlight: (show) {
+            if (_focused == show) return;
+            setState(() => _focused = show);
+          },
+          actions: <Type, Action<Intent>>{
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (_) {
+                widget.onPressed?.call();
+                return null;
+              },
+            ),
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: widget.isEnabled ? (_) => _setPressed(true) : null,
+            onTapUp: widget.isEnabled ? (_) => _setPressed(false) : null,
+            onTapCancel: widget.isEnabled ? () => _setPressed(false) : null,
+            onTap: widget.isEnabled ? widget.onPressed : null,
+            child: Align(
+              alignment: Alignment.center,
+              widthFactor: 1,
+              heightFactor: 1,
+              child: content,
+            ),
           ),
         ),
       ),
