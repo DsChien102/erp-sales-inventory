@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:admin/features/iam/presentation.dart';
@@ -10,7 +11,6 @@ import '../../../../core/di/injection.dart';
 import '../bloc/platform_tenants_cubit.dart';
 import '../bloc/platform_tenants_state.dart';
 import 'platform_onboarding_page.dart';
-import 'platform_tenant_detail_page.dart';
 
 /// Thin Composition Page — danh sách tổ chức nền tảng (Admin / EP-02 US-08).
 class OrganizationsPage extends StatelessWidget {
@@ -186,15 +186,10 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
                       onRefresh: () => cubit.load(),
                       onEmptyAction: onEmptyAction,
                       onItemTap: (organization) async {
-                        final shouldRefresh = await Navigator.of(context)
-                            .push<bool>(
-                              MaterialPageRoute(
-                                builder: (context) => PlatformTenantDetailPage(
-                                  tenantId: organization.id,
-                                  iamModule: widget.iamModule,
-                                ),
-                              ),
-                            );
+                        final shouldRefresh = await context.pushNamed<bool>(
+                          'organization_detail',
+                          pathParameters: {'tenantId': organization.id},
+                        );
                         if (shouldRefresh == true && mounted) {
                           await cubit.load();
                         }

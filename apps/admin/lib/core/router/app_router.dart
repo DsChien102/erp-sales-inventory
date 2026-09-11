@@ -6,6 +6,7 @@ import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/admin_tab.dart';
 import '../../features/users/presentation/pages/platform_user_detail_page.dart';
 import '../../features/organizations/presentation/pages/platform_onboarding_page.dart';
+import '../../features/organizations/presentation/pages/platform_tenant_detail_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -65,6 +66,14 @@ final appRouter = GoRouter(
           path: 'dashboard/organizations/new',
           name: 'onboarding_wizard',
           builder: (context, state) => const PlatformOnboardingPage(),
+        ),
+        GoRoute(
+          path: 'dashboard/organizations/:tenantId',
+          name: 'organization_detail',
+          builder: (context, state) {
+            final tenantId = state.pathParameters['tenantId']!;
+            return PlatformTenantDetailPage(tenantId: tenantId);
+          },
         ),
         GoRoute(
           path: 'dashboard/audit',

@@ -17,6 +17,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Chi tiết người dùng: tap tổ chức đang tham gia mở chi tiết tổ chức (`pushNamed`).
+- Danh sách tổ chức: mở chi tiết qua GoRouter `organization_detail` thay vì `Navigator.push`.
 - Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
 
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).

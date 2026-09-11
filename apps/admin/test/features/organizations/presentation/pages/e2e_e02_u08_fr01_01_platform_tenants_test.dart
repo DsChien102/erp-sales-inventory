@@ -4,6 +4,7 @@ import 'package:admin/features/organizations/presentation/pages/platform_tenant_
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -54,11 +55,27 @@ void main() {
         ..registerSingleton<IExecutionContext>(FakeExecutionContext())
         ..registerSingleton<IIamModule>(module);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: OrganizationsPage(iamModule: module)),
-        ),
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) =>
+                Scaffold(body: OrganizationsPage(iamModule: module)),
+            routes: [
+              GoRoute(
+                path: 'dashboard/organizations/:tenantId',
+                name: 'organization_detail',
+                builder: (context, state) => PlatformTenantDetailPage(
+                  tenantId: state.pathParameters['tenantId']!,
+                  iamModule: module,
+                ),
+              ),
+            ],
+          ),
+        ],
       );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Mậu Hiên'));
