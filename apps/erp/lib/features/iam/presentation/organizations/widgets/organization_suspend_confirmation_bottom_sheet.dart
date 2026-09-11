@@ -65,16 +65,27 @@ class _OrganizationSuspendConfirmationBottomSheetState
             variant: VTextVariant.bodyDefault,
             color: colors.textSecondary,
           ),
-          const VGap.md(),
-          VTextField(
-            controller: _reasonController,
-            label: 'Lý do',
-            hintText: 'Nhập lý do',
-            helperText: 'Lý do được lưu trong lịch sử quản trị.',
-            errorText: _error,
-            onChanged: (_) {
-              if (_error != null) setState(() => _error = null);
-            },
+          VField(
+            invalid: _error != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Lý do'),
+                VTextField(
+                  controller: _reasonController,
+                  hintText: 'Nhập lý do',
+                  onChanged: (_) {
+                    if (_error != null) setState(() => _error = null);
+                  },
+                ),
+                if (_error != null)
+                  VFieldError(_error!)
+                else
+                  const VFieldDescription(
+                    'Lý do được lưu trong lịch sử quản trị.',
+                  ),
+              ],
+            ),
           ),
           const VGap.lg(),
           VButton(

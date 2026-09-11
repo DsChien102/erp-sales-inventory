@@ -46,13 +46,7 @@ class PlatformOnboardingStepReview extends StatelessWidget {
       children: [
         // Owner Summary Card (Matching design image 2)
         VCard(
-          backgroundColor: colors.surfaceBrand,
-          border: Border.all(
-            color: colors.primary,
-            width: 1.5,
-          ),
-          padding: const EdgeInsets.all(VSpacing.space4),
-          borderRadius: VRadius.card,
+          tone: VComponentTone.primary,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -71,11 +65,12 @@ class PlatformOnboardingStepReview extends StatelessWidget {
                 color: colors.textSecondary,
               ),
               const VGap.xs(),
-              VText(
-                phone.isEmpty ? '0901 234 567' : phone,
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-              ),
+              if (phone.isNotEmpty)
+                VText(
+                  phone,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
             ],
           ),
         ),

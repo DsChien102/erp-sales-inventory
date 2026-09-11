@@ -202,7 +202,8 @@ class _OrganizationProfileView extends StatelessWidget {
                     ),
                     VBadge(
                       label: profile.statusLabel,
-                      status: VBadgeStatus.success,
+                      tone: VComponentTone.success,
+                      variant: VBadgeVariant.soft,
                     ),
                   ],
                 ),

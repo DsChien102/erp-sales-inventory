@@ -154,7 +154,8 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
                       ),
                       VBadge(
                         label: isActive ? 'Hoạt động' : 'Tạm ngừng',
-                        status: isActive ? VBadgeStatus.success : VBadgeStatus.danger,
+                        tone: isActive ? VComponentTone.success : VComponentTone.danger,
+                        variant: VBadgeVariant.soft,
                         isSmall: true,
                       ),
                     ],
@@ -250,7 +251,8 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
                         if (isCurrent)
                           const VBadge(
                             label: 'Hiện tại',
-                            status: VBadgeStatus.success,
+                            tone: VComponentTone.success,
+                            variant: VBadgeVariant.soft,
                             isSmall: true,
                           )
                         else

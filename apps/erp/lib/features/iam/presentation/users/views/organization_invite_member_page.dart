@@ -230,36 +230,51 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                   color: colors.textSecondary,
                 ),
                 const VGap.md(),
-                VTextField(
-                  label: 'Email',
-                  isRequired: true,
-                  hintText: 'nhanvien@minhphat.vn',
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  helperText: 'Người nhận phải đăng nhập đúng email.',
-                  onChanged: context
-                      .read<OrganizationInviteMemberCubit>()
-                      .emailChanged,
+                VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Email', isRequired: true),
+                      VTextField(
+                        hintText: 'nhanvien@minhphat.vn',
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: context
+                            .read<OrganizationInviteMemberCubit>()
+                            .emailChanged,
+                      ),
+                      const VFieldDescription(
+                        'Người nhận phải đăng nhập đúng email.',
+                      ),
+                    ],
+                  ),
                 ),
                 const VGap.md(),
-                VSelect<String>(
-                  label: 'Vai trò ban đầu',
-                  hintText: 'Chọn vai trò',
-                  value: state.selectedRoleId,
-                  items: [
-                    for (final option in state.roleOptions)
-                      DropdownMenuItem(
-                        value: option.roleId,
-                        child: VText(option.label),
+                VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Vai trò ban đầu'),
+                      VSelect<String>(
+                        hintText: 'Chọn vai trò',
+                        value: state.selectedRoleId,
+                        items: [
+                          for (final option in state.roleOptions)
+                            DropdownMenuItem(
+                              value: option.roleId,
+                              child: VText(option.label),
+                            ),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            context
+                                .read<OrganizationInviteMemberCubit>()
+                                .roleSelected(val);
+                          }
+                        },
                       ),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      context
-                          .read<OrganizationInviteMemberCubit>()
-                          .roleSelected(val);
-                    }
-                  },
+                    ],
+                  ),
                 ),
                 const VGap.xs(),
                 VText(

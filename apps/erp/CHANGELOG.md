@@ -15,6 +15,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- IAM ERP: migrate badge/chip sang `VComponentTone`; form field sang `VField` composition; tách `AdministrativeUnitsFormSection`.
+
 - Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
 
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
