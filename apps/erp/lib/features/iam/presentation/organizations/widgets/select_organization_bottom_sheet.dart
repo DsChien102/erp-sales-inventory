@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_domain/domain.dart';
+import '../../shared/iam_role_label_mapper.dart';
 import 'confirm_switch_organization_bottom_sheet.dart';
 import 'organization_empty_view.dart';
 
@@ -49,12 +50,10 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<SelectOrganizationBottomSheet> createState() =>
-      _SelectOrganizationBottomSheetState();
+  State<SelectOrganizationBottomSheet> createState() => _SelectOrganizationBottomSheetState();
 }
 
-class _SelectOrganizationBottomSheetState
-    extends State<SelectOrganizationBottomSheet> {
+class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   late List<SelectOrganizationItemUiModel> _organizations;
@@ -89,8 +88,7 @@ class _SelectOrganizationBottomSheetState
   }
 
   Future<void> _handleEmptyAction() async {
-    if (_emptyStateType == OrganizationEmptyStateType.loadError &&
-        widget.onRetryLoad != null) {
+    if (_emptyStateType == OrganizationEmptyStateType.loadError && widget.onRetryLoad != null) {
       if (_retrying) return;
       setState(() => _retrying = true);
       try {
@@ -177,15 +175,25 @@ class _SelectOrganizationBottomSheetState
                   )
           else
             Flexible(
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                separatorBuilder: (context, index) => const VGap.sm(),
-                itemBuilder: (context, index) {
-                  final org = items[index];
-                  return _buildOrganizationCard(colors, org);
+              child: RadioGroup<String>(
+                groupValue: items.where((o) => o.isCurrent).map((o) => o.id).firstOrNull,
+                onChanged: (selectedId) {
+                  if (selectedId == null) return;
+                  final org = items.where((o) => o.id == selectedId).firstOrNull;
+                  if (org != null && org.isSelectable && !org.isCurrent) {
+                    _handleSelectOrganization(org);
+                  }
                 },
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: items.length,
+                  separatorBuilder: (context, index) => const VGap.sm(),
+                  itemBuilder: (context, index) {
+                    final org = items[index];
+                    return _buildOrganizationCard(colors, org);
+                  },
+                ),
               ),
             ),
           const VGap.lg(),
@@ -202,138 +210,80 @@ class _SelectOrganizationBottomSheetState
     final canTap = !isCurrent && org.isSelectable;
     final muted = !canTap && !isCurrent;
 
-    final Color bgColor = isCurrent ? colors.successBg : colors.surface;
-
-    final Border border = isCurrent
-        ? Border.all(color: colors.success, width: 1.5)
-        : Border.all(color: colors.borderDefault);
-
     final Color iconColor = isCurrent
         ? colors.success
         : muted
-            ? colors.disabledFg
-            : colors.textSecondary;
+        ? colors.disabledFg
+        : colors.textSecondary;
 
     final Color titleColor = muted ? colors.disabledFg : colors.textPrimary;
 
-    final Color subtitleColor =
-        muted ? colors.disabledFg : colors.textSecondary;
+    final Color subtitleColor = muted ? colors.disabledFg : colors.textSecondary;
 
     final String statusSuffix = _statusSuffix(org);
+    final String displayRole = IamRoleLabelMapper.toDisplayLabel(org.roleLabel);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: canTap ? () => _handleSelectOrganization(org) : null,
-        borderRadius: BorderRadius.circular(VRadius.card),
-        child: Container(
-          padding: const EdgeInsets.all(VSpacing.space4),
-          decoration: BoxDecoration(
-            color: bgColor,
-            border: border,
-            borderRadius: BorderRadius.circular(VRadius.card),
+    return VCard(
+      padding: const EdgeInsets.all(VSpacing.space4),
+      tone: isCurrent ? VComponentTone.success : null,
+      enabled: canTap || isCurrent,
+      onTap: canTap ? () => _handleSelectOrganization(org) : null,
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isCurrent ? colors.success.withValues(alpha: 0.1) : colors.surfaceAlt,
+              borderRadius: BorderRadius.circular(VRadius.card),
+            ),
+            child: Center(
+              child: VIcon(
+                icon: isCurrent ? VIcons.store : VIcons.person,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: isCurrent
-                      ? colors.success.withValues(alpha: 0.1)
-                      : colors.surfaceAlt,
-                  borderRadius: BorderRadius.circular(VRadius.card),
+          const VGap.horizontalSm(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VText(
+                  org.name,
+                  variant: VTextVariant.bodyDefault,
+                  color: titleColor,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                child: Center(
-                  child: VIcon(
-                    icon: isCurrent ? VIcons.store : VIcons.person,
-                    color: iconColor,
-                    size: 20,
-                  ),
+                const VGap.xs(),
+                VText(
+                  '${org.code} · $displayRole$statusSuffix',
+                  variant: VTextVariant.bodySmall,
+                  color: subtitleColor,
                 ),
-              ),
-              const VGap.horizontalSm(),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    VText(
-                      org.name,
-                      variant: VTextVariant.bodyDefault,
-                      color: titleColor,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const VGap.xs(),
-                    VText(
-                      '${org.code} · ${org.roleLabel}$statusSuffix',
-                      variant: VTextVariant.bodySmall,
-                      color: subtitleColor,
-                    ),
-                  ],
-                ),
-              ),
-              const VGap.horizontalSm(),
-              _buildRadioIndicator(
-                colors,
-                isCurrent: isCurrent,
-                muted: muted,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          const VGap.horizontalSm(),
+          VRadio<String>(
+            value: org.id,
+            enabled: canTap || isCurrent,
+            onChanged: canTap ? (_) => _handleSelectOrganization(org) : null,
+          ),
+        ],
       ),
     );
   }
 
   String _statusSuffix(SelectOrganizationItemUiModel org) {
-    if (org.isCurrent) return ' · Hiện tại';
     return switch (org.status) {
       TenantLifecycleStatus.suspended => ' · Tạm ngừng',
       TenantLifecycleStatus.closed => ' · Đã đóng',
-      TenantLifecycleStatus.provisioning => ' · Đang thiết lập',
+      TenantLifecycleStatus.provisioning => '',
       TenantLifecycleStatus.active => '',
     };
-  }
-
-  Widget _buildRadioIndicator(
-    dynamic colors, {
-    required bool isCurrent,
-    required bool muted,
-  }) {
-    if (isCurrent) {
-      return Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: colors.success,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: VColors.neutral0,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: colors.borderDefault,
-          width: 1.5,
-        ),
-      ),
-    );
   }
 }
 
@@ -375,8 +325,7 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
     VLoading.show(
       context: context,
       title: 'Đang chuyển tổ chức',
-      description:
-          'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
+      description: 'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
     );
 
     var success = true;
@@ -407,8 +356,7 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
       return selectedOrg;
     }
 
-    final message = switchError?.toString() ??
-        'Không thể chuyển sang ${selectedOrg.name}.';
+    final message = switchError?.toString() ?? 'Không thể chuyển sang ${selectedOrg.name}.';
     VToast.show(
       context,
       title: 'Không thành công',

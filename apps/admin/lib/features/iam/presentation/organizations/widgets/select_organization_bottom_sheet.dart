@@ -50,12 +50,10 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<SelectOrganizationBottomSheet> createState() =>
-      _SelectOrganizationBottomSheetState();
+  State<SelectOrganizationBottomSheet> createState() => _SelectOrganizationBottomSheetState();
 }
 
-class _SelectOrganizationBottomSheetState
-    extends State<SelectOrganizationBottomSheet> {
+class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   late List<SelectOrganizationItemUiModel> _organizations;
@@ -90,8 +88,7 @@ class _SelectOrganizationBottomSheetState
   }
 
   Future<void> _handleEmptyAction() async {
-    if (_emptyStateType == OrganizationEmptyStateType.loadError &&
-        widget.onRetryLoad != null) {
+    if (_emptyStateType == OrganizationEmptyStateType.loadError && widget.onRetryLoad != null) {
       if (_retrying) return;
       setState(() => _retrying = true);
       try {
@@ -216,13 +213,12 @@ class _SelectOrganizationBottomSheetState
     final Color iconColor = isCurrent
         ? colors.success
         : muted
-            ? colors.disabledFg
-            : colors.textSecondary;
+        ? colors.disabledFg
+        : colors.textSecondary;
 
     final Color titleColor = muted ? colors.disabledFg : colors.textPrimary;
 
-    final Color subtitleColor =
-        muted ? colors.disabledFg : colors.textSecondary;
+    final Color subtitleColor = muted ? colors.disabledFg : colors.textSecondary;
 
     final String statusSuffix = _statusSuffix(org);
     final String displayRole = IamRoleLabelMapper.toDisplayLabel(org.roleLabel);
@@ -238,9 +234,7 @@ class _SelectOrganizationBottomSheetState
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isCurrent
-                  ? colors.success.withValues(alpha: 0.1)
-                  : colors.surfaceAlt,
+              color: isCurrent ? colors.success.withValues(alpha: 0.1) : colors.surfaceAlt,
               borderRadius: BorderRadius.circular(VRadius.card),
             ),
             child: Center(
@@ -331,8 +325,7 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
     VLoading.show(
       context: context,
       title: 'Đang chuyển tổ chức',
-      description:
-          'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
+      description: 'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
     );
 
     var success = true;
@@ -363,8 +356,7 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
       return selectedOrg;
     }
 
-    final message = switchError?.toString() ??
-        'Không thể chuyển sang ${selectedOrg.name}.';
+    final message = switchError?.toString() ?? 'Không thể chuyển sang ${selectedOrg.name}.';
     VToast.show(
       context,
       title: 'Không thành công',
