@@ -29,6 +29,9 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CreateTenantOnboardingCommand>>(
       CreateTenantOnboardingCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<ReinviteProvisioningOwnerCommand>>(
+      ReinviteProvisioningOwnerCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<RequestPasswordResetByEmailCommand>>(
       RequestPasswordResetByEmailCommandValidator.new,
     )
@@ -179,6 +182,15 @@ void registerGeneratedIamHandlers({
     factory: () => RegisterFromInvitationCommandHandler(
       acceptancePort: container.get<ITenantInvitationAcceptancePort>(),
       identityPort: container.get<IInvitationIdentityPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<ReinviteProvisioningOwnerCommand, TenantOnboardingResultDto, ReinviteProvisioningOwnerCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ReinviteProvisioningOwnerCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
 

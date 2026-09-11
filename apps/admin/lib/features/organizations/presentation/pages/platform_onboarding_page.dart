@@ -43,6 +43,8 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   int _currentStep = 0;
 
   bool _isNewOwner = false;
+  bool _hasDuplicateEmail = false;
+  bool _isCheckingEmail = false;
   PlatformUserSummaryDto? _selectedOwner;
   final _lastNameController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -183,9 +185,51 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
     return true;
   }
 
-  void _handleNext() {
+  Future<void> _handleNext() async {
     if (_currentStep == 0) {
-      if (_validateStep1()) setState(() => _currentStep = 1);
+      if (!_validateStep1()) return;
+
+      if (_isNewOwner) {
+        final email = _emailController.text.trim().toLowerCase();
+        setState(() => _isCheckingEmail = true);
+
+        final exists =
+            await context.read<PlatformOnboardingCubit>().checkEmailExists(email);
+        if (!mounted) return;
+
+        // (V2) Người dùng đã sửa email trong lúc chờ → bỏ kết quả cũ.
+        if (_emailController.text.trim().toLowerCase() != email) {
+          setState(() => _isCheckingEmail = false);
+          return;
+        }
+
+        // (V1) Không kiểm tra được → CHẶN, tuyệt đối không coi như hợp lệ.
+        if (exists == null) {
+          setState(() => _isCheckingEmail = false);
+          VToast.show(
+            context,
+            title: 'Không kiểm tra được email',
+            message: 'Vui lòng kiểm tra kết nối và thử lại.',
+            type: VToastType.danger,
+          );
+          return;
+        }
+
+        if (exists) {
+          setState(() {
+            _isCheckingEmail = false;
+            _hasDuplicateEmail = true;
+          });
+          return;
+        }
+
+        setState(() {
+          _isCheckingEmail = false;
+          _hasDuplicateEmail = false;
+        });
+      }
+
+      setState(() => _currentStep = 1);
     } else if (_currentStep == 1) {
       if (_validateStep2()) setState(() => _currentStep = 2);
     }
@@ -343,20 +387,25 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                     buildWhen: (p, c) => p.status != c.status,
                     builder: (context, state) {
                       final submitting = state.status == PlatformOnboardingLoadStatus.submitting;
+                      final isNextDisabled = submitting ||
+                          _isCheckingEmail ||
+                          (_currentStep == 0 && _isNewOwner && _hasDuplicateEmail);
+
                       return Row(
                         children: [
                           Expanded(
                             child: VButton(
                               label: 'Quay lại',
                               variant: VButtonVariant.secondary,
-                              onPressed: submitting ? null : _onBackPressed,
+                              onPressed: submitting || _isCheckingEmail ? null : _onBackPressed,
                             ),
                           ),
                           const VGap.horizontalSm(),
                           Expanded(
                             child: VButton(
                               label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
-                              onPressed: submitting
+                              isLoading: _isCheckingEmail,
+                              onPressed: isNextDisabled
                                   ? null
                                   : (_currentStep == 2 ? _handleSubmit : _handleNext),
                             ),
@@ -382,6 +431,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           builder: (context, state) {
             return PlatformOnboardingStepOwner(
               isNewOwner: _isNewOwner,
+              hasDuplicateEmail: _hasDuplicateEmail,
               selectedOwner: _selectedOwner,
               lastNameController: _lastNameController,
               firstNameController: _firstNameController,
@@ -406,6 +456,9 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                 if (_emailErrorText != null) {
                   setState(() => _emailErrorText = null);
                 }
+                if (_hasDuplicateEmail) {
+                  setState(() => _hasDuplicateEmail = false);
+                }
               },
               onPhoneChanged: (_) {
                 if (_phoneErrorText != null) {
@@ -416,7 +469,10 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                 setState(() => _selectedOwner = user);
               },
               onToggleNewOwner: (val) {
-                setState(() => _isNewOwner = val);
+                setState(() {
+                  _isNewOwner = val;
+                  _hasDuplicateEmail = false;
+                });
               },
               onSearchQueryChanged: (query) {
                 context.read<PlatformOnboardingCubit>().searchOwners(query);

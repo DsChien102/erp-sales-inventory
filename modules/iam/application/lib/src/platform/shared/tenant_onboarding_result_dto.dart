@@ -1,9 +1,9 @@
 /// Result of tenant + first-owner onboarding (EP-01/US-03).
 ///
-/// Hướng 1: for a NEW owner, the account is not created here — an activation code
-/// is issued instead, so [ownerUserId]/[ownerMembershipId] are null and
-/// [activationIssued] is true. For an existing owner, the membership is created
-/// immediately and those ids are present.
+/// Hybrid: onboarding always creates Owner Membership immediately (new and
+/// existing owners) and issues an activation invitation. [ownerMembershipId]
+/// / [ownerUserId] are set when the RPC returns them; [activationIssued] is
+/// true when an activation invitation was queued.
 final class TenantOnboardingResultDto {
   const TenantOnboardingResultDto({
     required this.tenantId,
@@ -22,10 +22,10 @@ final class TenantOnboardingResultDto {
   final String correlationId;
   final bool isNewUser;
 
-  /// Present only for an existing owner (membership created immediately).
+  /// Owner membership created at onboarding (hybrid).
   final String? ownerMembershipId;
   final String? ownerUserId;
 
-  /// True when a new-owner activation code was issued (no account yet).
+  /// True when an activation invitation / code was queued.
   final bool activationIssued;
 }

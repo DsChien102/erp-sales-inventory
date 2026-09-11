@@ -8,6 +8,7 @@ final class PlatformUserSummaryDto {
     required this.email,
     required this.status,
     required this.createdAt,
+    this.phoneNumber,
   });
 
   final String userId;
@@ -15,4 +16,5 @@ final class PlatformUserSummaryDto {
   final String email;
   final PlatformUserStatus status;
   final DateTime createdAt;
+  final String? phoneNumber;
 }

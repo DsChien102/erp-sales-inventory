@@ -25,13 +25,11 @@ class DashboardPage extends StatelessWidget {
     super.key,
     this.initialTab = DashboardTab.home,
     this.iamModule,
-    this.userDisplayName = 'Lan',
     this.autoBootstrap = true,
   });
 
   final DashboardTab initialTab;
   final IIamModule? iamModule;
-  final String userDisplayName;
   final bool autoBootstrap;
 
   static void navigateToTab(BuildContext context, DashboardTab tab) {
@@ -50,7 +48,6 @@ class DashboardPage extends StatelessWidget {
       create: (_) {
         final cubit = TenantContextCubit(
           iamModule: module,
-          userDisplayName: userDisplayName,
           applyPermissions: applyTenantContextPermissions,
         );
         if (autoBootstrap) {

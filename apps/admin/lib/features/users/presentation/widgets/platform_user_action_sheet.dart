@@ -200,19 +200,29 @@ class _PlatformUserConfirmSheetBodyState
             color: colors.textSecondary,
           ),
           if (widget.requireReason) ...[
-            const VGap.md(),
-            VTextFormField(
-              controller: _reasonController,
-              label: 'Lý do',
-              hintText: 'Nhập lý do',
-              isRequired: true,
-              enabled: !_submitting,
-              maxLines: 2,
-              errorText: _error,
-              helperText: 'Lý do được lưu trong lịch sử quản trị.',
-              onChanged: (_) {
-                if (_error != null) setState(() => _error = null);
-              },
+            VField(
+              invalid: _error != null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VFieldLabel('Lý do', isRequired: true),
+                  VTextFormField(
+                    controller: _reasonController,
+                    hintText: 'Nhập lý do',
+                    enabled: !_submitting,
+                    maxLines: 2,
+                    onChanged: (_) {
+                      if (_error != null) setState(() => _error = null);
+                    },
+                  ),
+                  if (_error != null)
+                    VFieldError(_error!)
+                  else
+                    const VFieldDescription(
+                      'Lý do được lưu trong lịch sử quản trị.',
+                    ),
+                ],
+              ),
             ),
           ] else if (_error != null) ...[
             const VGap.sm(),

@@ -82,6 +82,19 @@ abstract interface class IPlatformAdminGateway {
     required String idempotencyKey,
   });
 
+  /// Re-assign owner on a provisioning tenant with no active owner membership.
+  Future<TenantOnboardingResultDto> reinviteProvisioningOwner({
+    required String tenantId,
+    required bool isNewUser,
+    required String idempotencyKey,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
+    String? correlationId,
+  });
+
   // ── S16: platform tenants / audit ──────────────────────────
 
   Future<CursorPageDto<PlatformTenantSummaryDto>> searchPlatformTenants({

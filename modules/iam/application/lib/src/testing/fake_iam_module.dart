@@ -66,6 +66,7 @@ import '../tenant/queries/search_tenant_audit_logs/search_tenant_audit_logs_quer
 import '../tenant/commands/update_tenant_profile/update_tenant_profile_command.dart';
 import '../tenant/commands/upsert_legal_profile/upsert_legal_profile_command.dart';
 import '../platform/commands/create_tenant_onboarding/create_tenant_onboarding_command.dart';
+import '../platform/commands/reinvite_provisioning_owner/reinvite_provisioning_owner_command.dart';
 import '../platform/queries/get_tenant_onboarding_operation/get_tenant_onboarding_operation_query.dart';
 import '../platform/commands/retry_tenant_onboarding_operation/retry_tenant_onboarding_operation_command.dart';
 import '../platform/queries/get_platform_audit_log/get_platform_audit_log_query.dart';
@@ -796,6 +797,8 @@ final class FakeIamModule implements IIamModule {
       SuspendPlatformUserCommand c => _handleSuspendUser<TResult>(c),
       RestorePlatformUserCommand c => _handleRestoreUser<TResult>(c),
       CreateTenantOnboardingCommand c => _handleOnboarding<TResult>(c),
+      ReinviteProvisioningOwnerCommand c =>
+          _handleReinviteProvisioningOwner<TResult>(c),
       RetryTenantOnboardingOperationCommand c => _handleRetryOnboardingOperation<TResult>(c),
       SuspendPlatformTenantCommand c => _handleSuspendTenant<TResult>(c),
       RestorePlatformTenantCommand c => _handleRestoreTenant<TResult>(c),
@@ -954,6 +957,7 @@ final class FakeIamModule implements IIamModule {
             email: u.email,
             status: u.status,
             createdAt: u.createdAt,
+            phoneNumber: null,
           ),
         )
         .toList();
@@ -1101,8 +1105,9 @@ final class FakeIamModule implements IIamModule {
 
     final result = isNewUserScenario
         ? TenantOnboardingResultDto(
-            // Hướng 1: new owner is not created — an activation code is issued.
             tenantId: 'tenant-new-1',
+            ownerMembershipId: 'mem-new-1',
+            ownerUserId: 'owner-pending-1',
             tenantStatus: 'provisioning',
             correlationId: command.correlationId ?? 'corr-new-1',
             isNewUser: true,
@@ -1115,6 +1120,7 @@ final class FakeIamModule implements IIamModule {
             tenantStatus: 'provisioning',
             correlationId: command.correlationId ?? 'corr-exist-1',
             isNewUser: false,
+            activationIssued: true,
           );
 
     if (!_tenants.any((tenant) => tenant.tenantId == result.tenantId)) {
@@ -1128,48 +1134,37 @@ final class FakeIamModule implements IIamModule {
           }
         }
       }
-      final ownerUserId = result.ownerUserId;
-      // Hướng 1: a new owner has no account/membership yet (activation pending),
-      // so the tenant shows no owner until the owner activates.
-      if (ownerUserId == null) {
-        _tenants.add(
-          PlatformTenantDetailDto(
-            tenantId: result.tenantId,
-            name: command.organizationName.trim(),
-            code: 'TEN-NEW',
-            status: TenantLifecycleStatus.provisioning,
-            createdAt: DateTime(2026, 8, 3, 9),
-            ownerUserId: null,
-            ownerName: '',
-            ownerEmail: '',
-            members: const [],
-          ),
-        );
-      } else {
-        final ownerName = existingOwner?.fullName ?? 'Chủ sở hữu';
-        final ownerEmail = existingOwner?.email ?? 'owner@example.local';
-        _tenants.add(
-          PlatformTenantDetailDto(
-            tenantId: result.tenantId,
-            name: command.organizationName.trim(),
-            code: 'TEN-NEW',
-            status: TenantLifecycleStatus.provisioning,
-            createdAt: DateTime(2026, 8, 3, 9),
-            ownerUserId: ownerUserId,
-            ownerName: ownerName,
-            ownerEmail: ownerEmail,
-            members: [
-              PlatformTenantMemberDto(
-                userId: ownerUserId,
-                fullName: ownerName,
-                email: ownerEmail,
-                roleLabel: 'Chủ cửa hàng',
-                isOwner: true,
-              ),
-            ],
-          ),
-        );
-      }
+      final ownerUserId = result.ownerUserId!;
+      final ownerName = existingOwner?.fullName ??
+          [
+            command.owner.lastName,
+            command.owner.firstName,
+          ].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ');
+      final resolvedOwnerName =
+          ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu';
+      final ownerEmail =
+          existingOwner?.email ?? command.owner.email ?? 'owner@example.local';
+      _tenants.add(
+        PlatformTenantDetailDto(
+          tenantId: result.tenantId,
+          name: command.organizationName.trim(),
+          code: 'TEN-NEW',
+          status: TenantLifecycleStatus.provisioning,
+          createdAt: DateTime(2026, 8, 3, 9),
+          ownerUserId: ownerUserId,
+          ownerName: resolvedOwnerName,
+          ownerEmail: ownerEmail,
+          members: [
+            PlatformTenantMemberDto(
+              userId: ownerUserId,
+              fullName: resolvedOwnerName,
+              email: ownerEmail,
+              roleLabel: 'Chủ cửa hàng',
+              isOwner: true,
+            ),
+          ],
+        ),
+      );
     }
 
     if (scenario == FakeIamScenario.onboardingRetryIdempotent ||
@@ -1178,6 +1173,63 @@ final class FakeIamModule implements IIamModule {
         scenario == FakeIamScenario.usersSearchOk ||
         scenario == FakeIamScenario.userDetailOk) {
       _onboardingByKey[command.idempotencyKey] = result;
+    }
+
+    return Future.value(result as TResult);
+  }
+
+  Future<TResult> _handleReinviteProvisioningOwner<TResult>(
+    ReinviteProvisioningOwnerCommand command,
+  ) {
+    _requirePlatformView();
+    if (command.idempotencyKey.trim().isEmpty) {
+      throw ValidationException('Idempotency key is required');
+    }
+    final existing = _onboardingByKey[command.idempotencyKey];
+    if (existing != null) {
+      return Future.value(existing as TResult);
+    }
+
+    final owner = command.owner;
+    final result = TenantOnboardingResultDto(
+      tenantId: command.tenantId,
+      ownerMembershipId: 'mem-reinvite-1',
+      ownerUserId: owner.isNewUser
+          ? 'owner-reinvite-pending'
+          : (owner.existingUserId ?? 'owner-reinvite'),
+      tenantStatus: 'provisioning',
+      correlationId: command.correlationId ?? 'corr-reinvite-1',
+      isNewUser: owner.isNewUser,
+      activationIssued: true,
+    );
+    _onboardingByKey[command.idempotencyKey] = result;
+
+    final idx = _tenants.indexWhere((t) => t.tenantId == command.tenantId);
+    if (idx >= 0) {
+      final current = _tenants[idx];
+      final ownerName = [
+        owner.lastName,
+        owner.firstName,
+      ].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ');
+      _tenants[idx] = PlatformTenantDetailDto(
+        tenantId: current.tenantId,
+        name: current.name,
+        code: current.code,
+        status: current.status,
+        createdAt: current.createdAt,
+        ownerUserId: result.ownerUserId,
+        ownerName: ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu',
+        ownerEmail: owner.email ?? current.ownerEmail,
+        members: [
+          PlatformTenantMemberDto(
+            userId: result.ownerUserId!,
+            fullName: ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu',
+            email: owner.email ?? '',
+            roleLabel: 'Chủ cửa hàng',
+            isOwner: true,
+          ),
+        ],
+      );
     }
 
     return Future.value(result as TResult);

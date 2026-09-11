@@ -163,13 +163,15 @@ class AuditLogDetailBody extends StatelessWidget {
                       if (log.isActorUnavailable)
                         const VBadge(
                           label: 'Không còn dữ liệu',
-                          status: VBadgeStatus.warning,
+                          tone: VComponentTone.warning,
+                          variant: VBadgeVariant.soft,
                           isSmall: true,
                         )
                       else if (isActorLegacy)
                         const VBadge(
                           label: 'Thông tin hiện tại',
-                          status: VBadgeStatus.draft,
+                          tone: VComponentTone.neutral,
+                          variant: VBadgeVariant.soft,
                           isSmall: true,
                         ),
                     ],
@@ -208,13 +210,15 @@ class AuditLogDetailBody extends StatelessWidget {
                       if (log.subjectDisplayOrigin == TenantAuditDisplayOrigin.unavailable)
                         const VBadge(
                           label: 'Không còn dữ liệu',
-                          status: VBadgeStatus.warning,
+                          tone: VComponentTone.warning,
+                          variant: VBadgeVariant.soft,
                           isSmall: true,
                         )
                       else if (isSubjectLegacy)
                         const VBadge(
                           label: 'Thông tin hiện tại',
-                          status: VBadgeStatus.draft,
+                          tone: VComponentTone.neutral,
+                          variant: VBadgeVariant.soft,
                           isSmall: true,
                         ),
                     ],
@@ -321,7 +325,10 @@ class AuditLogDetailBody extends StatelessWidget {
                   },
                 ),
               ),
-            ] else if (log.beforeRedacted || log.afterRedacted) ...[
+            ] else if (log.beforeRedacted ||
+                log.afterRedacted ||
+                log.beforeState.isNotEmpty ||
+                log.afterState.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(VSpacing.space4),
                 decoration: BoxDecoration(
@@ -341,25 +348,27 @@ class AuditLogDetailBody extends StatelessWidget {
                     ),
                     const VGap.xs(),
                     VText(
-                      'Trước: ${log.beforeRedacted ? '[Đã che theo chính sách]' : '—'}',
+                      'Trước: ${log.beforeRedacted ? '[Đã che theo chính sách]' : (log.beforeState.isNotEmpty ? log.beforeState : '—')}',
                       variant: VTextVariant.bodySmall,
                       color: colors.textSecondary,
                     ),
                     const SizedBox(height: 2),
                     VText(
-                      'Sau: ${log.afterRedacted ? '[Đã che theo chính sách]' : '—'}',
+                      'Sau: ${log.afterRedacted ? '[Đã che theo chính sách]' : (log.afterState.isNotEmpty ? log.afterState : '—')}',
                       variant: VTextVariant.bodySmall,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: colors.textPrimary,
                       ),
                     ),
-                    const VGap.xs(),
-                    VText(
-                      'Dữ liệu nhạy cảm đã được che theo chính sách.',
-                      variant: VTextVariant.caption,
-                      color: colors.textSecondary,
-                    ),
+                    if (log.beforeRedacted || log.afterRedacted) ...[
+                      const VGap.xs(),
+                      VText(
+                        'Dữ liệu nhạy cảm đã được che theo chính sách.',
+                        variant: VTextVariant.caption,
+                        color: colors.textSecondary,
+                      ),
+                    ],
                   ],
                 ),
               ),

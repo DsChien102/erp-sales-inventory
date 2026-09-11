@@ -18,10 +18,10 @@ class MemberCard extends StatelessWidget {
     final colors = context.vColors;
     // Keep labels aligned with the member detail badge so a removed member
     // never reads as merely "Tạm ngừng" in the list.
-    final (badgeLabel, badgeStatus) = switch (member.status) {
-      MemberStatus.active => ('Hoạt động', VBadgeStatus.success),
-      MemberStatus.suspended => ('Tạm ngừng', VBadgeStatus.danger),
-      MemberStatus.removed => ('Đã loại', VBadgeStatus.danger),
+    final (badgeLabel, badgeTone) = switch (member.status) {
+      MemberStatus.active => ('Hoạt động', VComponentTone.success),
+      MemberStatus.suspended => ('Tạm ngừng', VComponentTone.danger),
+      MemberStatus.removed => ('Đã loại', VComponentTone.danger),
     };
 
     return VCard(
@@ -53,7 +53,8 @@ class MemberCard extends StatelessWidget {
                       const VGap.horizontalSm(),
                       const VBadge(
                         label: 'Chủ sở hữu',
-                        status: VBadgeStatus.success,
+                        tone: VComponentTone.success,
+                        variant: VBadgeVariant.soft,
                         isSmall: true,
                       ),
                     ],
@@ -71,7 +72,8 @@ class MemberCard extends StatelessWidget {
           const VGap.horizontalSm(),
           VBadge(
             label: badgeLabel,
-            status: badgeStatus,
+            tone: badgeTone,
+            variant: VBadgeVariant.soft,
             isSmall: true,
           ),
         ],

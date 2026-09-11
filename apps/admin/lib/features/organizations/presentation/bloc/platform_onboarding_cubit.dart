@@ -26,6 +26,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       final page = await _iamModule.executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
         SearchPlatformUsersQuery(
           query: query.trim().isEmpty ? null : query.trim(),
+          status: PlatformUserStatus.active,
         ),
       );
       if (isClosed) return;
@@ -45,6 +46,20 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
           searchResults: const [],
         ),
       );
+    }
+  }
+
+  /// Trả null khi không kiểm tra được — tránh fail-open cho đi tiếp.
+  Future<bool?> checkEmailExists(String email) async {
+    final trimmedEmail = email.trim().toLowerCase();
+    if (trimmedEmail.isEmpty) return false;
+    try {
+      final page = await _iamModule.executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
+        SearchPlatformUsersQuery(query: trimmedEmail, limit: 10),
+      );
+      return page.items.any((u) => u.email.trim().toLowerCase() == trimmedEmail);
+    } catch (_) {
+      return null;
     }
   }
 

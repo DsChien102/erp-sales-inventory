@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_domain/domain.dart';
 
 import 'package:vet45_iam_presentation/src/organizations/widgets/select_organization_bottom_sheet.dart';
@@ -56,9 +57,11 @@ void main() {
 
       expect(find.text('Thú y Minh Phát'), findsOneWidget);
       expect(
-        find.textContaining('TEN-000138 · Chủ cửa hàng · Hiện tại'),
+        find.textContaining('TEN-000138 · Chủ cửa hàng'),
         findsOneWidget,
       );
+      // Đã bỏ hậu tố 'Hiện tại'
+      expect(find.textContaining('Hiện tại'), findsNothing);
 
       expect(find.text('Phòng khám Minh Tâm'), findsOneWidget);
       expect(find.textContaining('TEN-000204 · Kế toán'), findsOneWidget);
@@ -68,6 +71,46 @@ void main() {
         find.textContaining('TEN-000095 · Nhân viên bán hàng · Tạm ngừng'),
         findsOneWidget,
       );
+
+      // Xác minh sử dụng component chuẩn VCard và VRadio
+      expect(find.byType(VCard), findsNWidgets(3));
+      expect(find.byType(VRadio<String>), findsNWidgets(3));
+    },
+  );
+
+  testWidgets(
+    'SelectOrganizationBottomSheet maps technical roleCode store_owner to Chủ cửa hàng',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SelectOrganizationBottomSheet(
+              organizations: [
+                SelectOrganizationItemUiModel(
+                  id: 'org-raw',
+                  name: 'Sỹ Chiến',
+                  code: 'TEN-DA84BD',
+                  roleLabel: 'store_owner',
+                  status: TenantLifecycleStatus.provisioning,
+                  isCurrent: false,
+                  isSelectable: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Sỹ Chiến'), findsOneWidget);
+      // Hiển thị 'Chủ cửa hàng' thay vì 'store_owner' và không còn 'Đang thiết lập'
+      expect(find.text('TEN-DA84BD · Chủ cửa hàng'), findsOneWidget);
+      expect(find.textContaining('store_owner'), findsNothing);
+      expect(find.textContaining('Đang thiết lập'), findsNothing);
     },
   );
 

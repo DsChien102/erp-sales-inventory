@@ -115,10 +115,9 @@ class _PlatformUserDetailView extends StatelessWidget {
               PlatformUserActionCard(
                 icon: VIcons.pause,
                 title: 'Tạm ngừng người dùng',
-                subtitle:
-                    state.user?.status == PlatformUserStatus.pendingActivation
-                        ? 'Chặn kích hoạt và đăng nhập'
-                        : 'Chặn đăng nhập trên toàn nền tảng',
+                subtitle: state.user?.status == PlatformUserStatus.pendingActivation
+                    ? 'Chặn kích hoạt và đăng nhập'
+                    : 'Chặn đăng nhập trên toàn nền tảng',
                 isDestructive: true,
                 onTap: () {
                   Navigator.pop(context);
@@ -150,8 +149,7 @@ class _PlatformUserDetailView extends StatelessWidget {
                     context: context,
                     title: 'Khôi phục người dùng?',
                     titleColor: colors.textPrimary,
-                    description:
-                        'Người dùng có thể đăng nhập lại theo quyền hiện hành.',
+                    description: 'Người dùng có thể đăng nhập lại theo quyền hiện hành.',
                     actionLabel: 'Khôi phục',
                     actionVariant: VButtonVariant.primary,
                     onConfirm: (_) => cubit.restore(),
@@ -205,8 +203,7 @@ class _PlatformUserDetailView extends StatelessWidget {
     }
     final failure = cubit.state.failure;
     if (failure != null) {
-      final isStepUp =
-          failure.code == IamBlockedCodes.stepUpAuthRequired;
+      final isStepUp = failure.code == IamBlockedCodes.stepUpAuthRequired;
       VToast.show(
         context,
         title: isStepUp ? 'Cần xác thực bổ sung' : 'Không hoàn tất',
@@ -223,8 +220,7 @@ class _PlatformUserDetailView extends StatelessWidget {
 
     return BlocBuilder<PlatformUserDetailCubit, PlatformUserDetailState>(
       builder: (context, state) {
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return Scaffold(
             appBar: VAppBar(title: 'Chi tiết người dùng', showBackButton: true),
             body: const Center(child: CircularProgressIndicator()),
@@ -262,8 +258,7 @@ class _PlatformUserDetailView extends StatelessWidget {
                     const VGap.md(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () =>
-                          context.read<PlatformUserDetailCubit>().load(),
+                      onPressed: () => context.read<PlatformUserDetailCubit>().load(),
                     ),
                   ],
                 ],
@@ -287,8 +282,7 @@ class _PlatformUserDetailView extends StatelessWidget {
                   const VGap.md(),
                   VButton(
                     label: 'Thử lại',
-                    onPressed: () =>
-                        context.read<PlatformUserDetailCubit>().load(),
+                    onPressed: () => context.read<PlatformUserDetailCubit>().load(),
                   ),
                 ],
               ),
@@ -297,11 +291,13 @@ class _PlatformUserDetailView extends StatelessWidget {
         }
 
         final user = state.user!;
-        final badgeStatus = user.status == PlatformUserStatus.active
-            ? VBadgeStatus.success
+        final displayName = user.fullName.trim();
+
+        final badgeTone = user.status == PlatformUserStatus.active
+            ? VComponentTone.success
             : user.status == PlatformUserStatus.pendingActivation
-            ? VBadgeStatus.warning
-            : VBadgeStatus.danger;
+            ? VComponentTone.warning
+            : VComponentTone.danger;
 
         final badgeLabel = user.status == PlatformUserStatus.active
             ? 'Đang hoạt động'
@@ -309,7 +305,8 @@ class _PlatformUserDetailView extends StatelessWidget {
             ? 'Chờ kích hoạt'
             : 'Đã tạm ngừng';
 
-        final canAct = state.showActivationInvite ||
+        final canAct =
+            state.showActivationInvite ||
             state.showPasswordReset ||
             state.showSuspend ||
             state.showRestore;
@@ -339,7 +336,8 @@ class _PlatformUserDetailView extends StatelessWidget {
                         children: [
                           VBadge(
                             label: badgeLabel,
-                            status: badgeStatus,
+                            tone: badgeTone,
+                            variant: VBadgeVariant.soft,
                             isSmall: true,
                           ),
                           const VGap.md(),
@@ -357,11 +355,10 @@ class _PlatformUserDetailView extends StatelessWidget {
                                 const VGap.horizontalMd(),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       VText(
-                                        user.fullName,
+                                        displayName.isEmpty ? 'Chưa đặt tên' : displayName,
                                         variant: VTextVariant.headingH4,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
@@ -391,8 +388,7 @@ class _PlatformUserDetailView extends StatelessWidget {
                     PlatformUserDetailInfoCard(user: user),
                     const VGap.md(),
                     PlatformUserStatusAlert(status: user.status),
-                    if (user.status != PlatformUserStatus.active)
-                      const VGap.md(),
+                    if (user.status != PlatformUserStatus.active) const VGap.md(),
                     PlatformUserMembershipList(memberships: user.memberships),
                   ],
                 ),

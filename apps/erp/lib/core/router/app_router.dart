@@ -101,6 +101,7 @@ final appRouter = GoRouter(
         return LoginPage(
           iamModule: getIt<IIamModule>(),
           prefilledEmail: extra?['prefilledEmail'] as String?,
+          organizationName: extra?['organizationName'] as String?,
           showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
         );
       },

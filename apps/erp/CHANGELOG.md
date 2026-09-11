@@ -23,8 +23,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: badge trạng thái `draft` / `cancelled` chữ đậm hơn (`textPrimary`), `locked` đổi nền sang `surfaceAlt`.
 - Design system: filter chip đổi sang một kiểu soft theo tone — chip đang chọn dùng màu brand nhạt (`surfaceBrand` + `textBrand`) thay vì fill xanh lá chữ trắng; chip thường nền `surfaceAlt` + viền `borderStrong`.
 - Design system: chip có nút xóa thấp lại, không còn cao hơn một dòng chữ.
+- Lời mời tổ chức: banner sau khi tiếp nhận nêu rõ tên tổ chức vừa tham gia (`Đã tham gia tổ chức "X" thành công`), áp dụng cho cả luồng tài khoản mới lẫn tài khoản đã có.
 
 ### Fixed
+
+- Dashboard: lời chào theo buổi không kèm tên user (tránh trùng với tên tổ chức); bỏ hardcode tên/chi nhánh trên header.
+- Lời mời tổ chức (tài khoản đã tồn tại): bấm "Xác nhận" là trở thành thành viên ngay — lời mời hết kẹt "Đang chờ" phía người mời, và đăng nhập xong vào thẳng tổ chức vừa tham gia thay vì rơi về tổ chức cũ. Trước đây màn xác nhận chỉ điều hướng sang đăng nhập mà không hề gọi lệnh tiếp nhận.
+- Lời mời tổ chức: lỗi khi tiếp nhận (mã hết hạn / bị thu hồi / đã dùng) hiện toast rõ ràng thay vì bị nuốt, và bottom sheet xác nhận không tự bật lại thành vòng lặp.
+- Lời mời tổ chức: tài khoản đã có không còn thoáng thấy form đăng ký tài khoản mới trong lúc hệ thống đang tiếp nhận lời mời.
 
 ### Internal
 
@@ -32,6 +38,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.
 - Design system: `VChip.selected` / `VChip.emphasis` → `@Deprecated`; dùng `tone` (`primary` cho chip đang chọn); bridge vẫn hoạt động, call sites chưa migrate sẽ thấy analyze warning.
+- IAM: `InvitationAcceptanceCubit.acceptExistingAccount()` — tiếp nhận lời mời ngay khi xác nhận, không cần session; token vẫn không rời cubit.
+- Route `/login` nhận thêm `organizationName` qua `extra` để dựng banner; không truyền token hay `targetTenantId` qua điều hướng.
+- Draft SQL `004_iam_patch_accept_invitation_anon` (`accept_invitation` cho phép gọi ẩn danh theo `invitee_email`, tái dùng membership sẵn có thay vì `DUPLICATE_MEMBERSHIP`, ghi `user_preferences.last_selected_tenant_id`) — cần promote trước khi ship DB, và phải kiểm chứng bằng `set local role anon;` vì đây là hàm `anon` đầu tiên ghi vào bảng có RLS.
 
 ## [1.7.2+38] - 2026-08-26
 

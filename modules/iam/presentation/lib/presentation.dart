@@ -4,6 +4,7 @@ export 'src/iam_presentation_module.dart';
 export 'src/shared/iam_ui_failure.dart';
 export 'src/shared/iam_ui_failure_mapper.dart';
 export 'src/shared/iam_load_status.dart';
+export 'src/shared/iam_role_label_mapper.dart';
 export 'src/shared/idempotency_key_factory.dart';
 export 'src/widgets/platform_user_detail_info_card.dart';
 export 'src/widgets/platform_user_status_alert.dart';

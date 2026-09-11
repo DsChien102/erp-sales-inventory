@@ -12,6 +12,7 @@ void main() {
       email: 'lan@gmail.com',
       status: PlatformUserStatus.active,
       createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+      phoneNumber: '0901234567',
     ),
     PlatformUserSummaryDto(
       userId: 'u2',
@@ -24,6 +25,7 @@ void main() {
 
   Widget buildTestableWidget({
     bool isNewOwner = false,
+    bool hasDuplicateEmail = false,
     PlatformUserSummaryDto? selectedOwner,
     List<PlatformUserSummaryDto>? searchResults,
     ValueChanged<PlatformUserSummaryDto?>? onOwnerSelected,
@@ -32,17 +34,20 @@ void main() {
   }) {
     return MaterialApp(
       home: Scaffold(
-        body: PlatformOnboardingStepOwner(
-          isNewOwner: isNewOwner,
-          selectedOwner: selectedOwner,
-          lastNameController: TextEditingController(),
-          firstNameController: TextEditingController(),
-          emailController: TextEditingController(),
-          phoneController: TextEditingController(),
-          searchResults: searchResults ?? sampleUsers,
-          onOwnerSelected: onOwnerSelected ?? (_) {},
-          onToggleNewOwner: onToggleNewOwner ?? (_) {},
-          onSearchQueryChanged: onSearchQueryChanged ?? (_) {},
+        body: SingleChildScrollView(
+          child: PlatformOnboardingStepOwner(
+            isNewOwner: isNewOwner,
+            hasDuplicateEmail: hasDuplicateEmail,
+            selectedOwner: selectedOwner,
+            lastNameController: TextEditingController(),
+            firstNameController: TextEditingController(),
+            emailController: TextEditingController(),
+            phoneController: TextEditingController(),
+            searchResults: searchResults ?? sampleUsers,
+            onOwnerSelected: onOwnerSelected ?? (_) {},
+            onToggleNewOwner: onToggleNewOwner ?? (_) {},
+            onSearchQueryChanged: onSearchQueryChanged ?? (_) {},
+          ),
         ),
       ),
     );
@@ -116,6 +121,8 @@ void main() {
     expect(find.text('Người dùng đã chọn'), findsOneWidget);
     expect(find.text('Lê Thị Lan'), findsOneWidget);
     expect(find.text('lan@gmail.com'), findsOneWidget);
+    expect(find.text('0901234567'), findsOneWidget);
+    expect(find.text('0901 234 567'), findsNothing);
     expect(find.text('Trần Thị Hoa'), findsNothing);
 
     // Tapping VSearchBar again resets search and re-opens overlay
@@ -157,5 +164,51 @@ void main() {
     expect(find.text('Người dùng đã chọn'), findsOneWidget);
     expect(find.text('Không có tên'), findsNothing);
     expect(find.text('longhjk345@gmail.com'), findsOneWidget);
+  });
+
+  testWidgets('hides phone row when selected owner has no phoneNumber', (tester) async {
+    await tester.pumpWidget(
+      buildTestableWidget(
+        selectedOwner: sampleUsers[1],
+        searchResults: sampleUsers,
+      ),
+    );
+
+    expect(find.text('Người dùng đã chọn'), findsOneWidget);
+    expect(find.text('hoa@gmail.com'), findsOneWidget);
+    expect(find.text('0901234567'), findsNothing);
+    expect(find.text('0901 234 567'), findsNothing);
+  });
+
+  testWidgets('renders warning VBanner when isNewOwner and hasDuplicateEmail is true', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestableWidget(
+        isNewOwner: true,
+        hasDuplicateEmail: true,
+      ),
+    );
+
+    expect(find.byType(VBanner), findsOneWidget);
+    expect(find.text('Email đã có tài khoản'), findsOneWidget);
+    expect(
+      find.text('Vui lòng quay lại để chọn tài khoản hiện có.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('does not render warning VBanner when hasDuplicateEmail is false', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestableWidget(
+        isNewOwner: true,
+        hasDuplicateEmail: false,
+      ),
+    );
+
+    expect(find.byType(VBanner), findsNothing);
+    expect(find.text('Email đã có tài khoản'), findsNothing);
   });
 }

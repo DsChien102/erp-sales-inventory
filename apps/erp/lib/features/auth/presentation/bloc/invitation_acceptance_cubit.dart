@@ -145,6 +145,53 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     }
   }
 
+  Future<void> acceptExistingAccount() async {
+    if (isClosed || state.isSubmitting) return;
+    final token = _token;
+    final inspection = state.inspection;
+    if (token == null || inspection == null) {
+      emit(
+        state.copyWith(
+          step: InvitationAcceptanceStep.tokenEntry,
+          failure: const IamUiFailure(
+            code: IamBlockedCodes.invitationTokenInvalid,
+            message: 'Mã lời mời không hợp lệ.',
+          ),
+          tokenPresent: false,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        step: InvitationAcceptanceStep.submitting,
+        isSubmitting: true,
+        clearFailure: true,
+      ),
+    );
+
+    try {
+      final key = _acceptKey ??= _keyFactory.next('accept-invitation');
+      final membership = await _iamModule.executeCommandAsync<TenantMemberDetailDto>(
+        AcceptInvitationCommand(token: token, idempotencyKey: key),
+      );
+      if (isClosed) return;
+      _clearSecrets();
+      emit(
+        state.copyWith(
+          step: InvitationAcceptanceStep.accepted,
+          isSubmitting: false,
+          acceptedMembership: membership,
+          tokenPresent: false,
+          clearFailure: true,
+        ),
+      );
+    } catch (error) {
+      _handleAcceptError(error, fallbackStep: InvitationAcceptanceStep.existingAccountLogin);
+    }
+  }
+
   Future<void> registerAndAccept({
     required String givenName,
     required String familyName,

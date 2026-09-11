@@ -80,6 +80,19 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
   }) async => throw UnimplementedError();
 
   @override
+  Future<TenantOnboardingResultDto> reinviteProvisioningOwner({
+    required String tenantId,
+    required bool isNewUser,
+    required String idempotencyKey,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
+    String? correlationId,
+  }) async => throw UnimplementedError();
+
+  @override
   Future<CursorPageDto<PlatformTenantSummaryDto>> searchPlatformTenants({
     String? query,
     TenantLifecycleStatus? status,

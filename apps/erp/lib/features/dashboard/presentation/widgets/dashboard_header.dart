@@ -25,7 +25,6 @@ class DashboardHeader extends StatelessWidget {
           child: SafeArea(
             bottom: false,
             child: HomeHeader(
-              userName: state.userDisplayName,
               branchName: branchName,
               hasNotification: true,
               onBranchTap: () => openTenantContextSelector(context),

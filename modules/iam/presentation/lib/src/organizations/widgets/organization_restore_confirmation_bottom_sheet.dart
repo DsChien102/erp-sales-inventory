@@ -55,11 +55,20 @@ class _OrganizationRestoreConfirmationBottomSheetState
             color: colors.textSecondary,
           ),
           const VGap.md(),
-          VTextField(
-            controller: _reasonController,
-            label: 'Lý do',
-            hintText: 'Nhập lý do',
-            helperText: 'Lý do được lưu trong lịch sử quản trị.',
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Lý do'),
+                VTextField(
+                  controller: _reasonController,
+                  hintText: 'Nhập lý do',
+                ),
+                const VFieldDescription(
+                  'Lý do được lưu trong lịch sử quản trị.',
+                ),
+              ],
+            ),
           ),
           const VGap.lg(),
           VButton(

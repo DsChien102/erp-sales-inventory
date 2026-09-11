@@ -35,22 +35,38 @@ class ResetPasswordCreatePasswordStep extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         const VGap.md(),
-        VPasswordField(
-          label: 'Mật khẩu mới',
-          isRequired: true,
-          hintText: '••••••••••••',
-          controller: newPasswordController,
-          errorText: newPasswordError,
-          onChanged: (_) => onChanged(),
+        VField(
+          invalid: newPasswordError != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Mật khẩu mới', isRequired: true),
+              VPasswordField(
+                hintText: '••••••••••••',
+                controller: newPasswordController,
+                onChanged: (_) => onChanged(),
+              ),
+              if (newPasswordError != null)
+                VFieldError(newPasswordError!),
+            ],
+          ),
         ),
         const VGap.md(),
-        VPasswordField(
-          label: 'Nhập lại mật khẩu mới',
-          isRequired: true,
-          hintText: '••••••••••••',
-          controller: confirmPasswordController,
-          errorText: confirmPasswordError,
-          onChanged: (_) => onChanged(),
+        VField(
+          invalid: confirmPasswordError != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Nhập lại mật khẩu mới', isRequired: true),
+              VPasswordField(
+                hintText: '••••••••••••',
+                controller: confirmPasswordController,
+                onChanged: (_) => onChanged(),
+              ),
+              if (confirmPasswordError != null)
+                VFieldError(confirmPasswordError!),
+            ],
+          ),
         ),
         const VGap.lg(),
         VCard(

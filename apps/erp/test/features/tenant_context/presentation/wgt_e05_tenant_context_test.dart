@@ -99,6 +99,18 @@ void main() {
       expect(closedUi.code, startsWith('TEN-'));
     });
 
+    test('mapper: maps technical roleCode store_owner to Chủ cửa hàng', () {
+      const dto = AccessibleTenantDto(
+        tenantId: 'org-store-owner',
+        name: 'Sỹ Chiến',
+        roleLabel: 'store_owner',
+        status: TenantLifecycleStatus.provisioning,
+        isOwner: true,
+      );
+      final ui = AccessibleTenantUiMapper.fromDto(dto);
+      expect(ui.roleLabel, 'Chủ cửa hàng');
+    });
+
     testWidgets('selector: suspended not tappable', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
@@ -372,12 +384,12 @@ void main() {
 
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      expect(find.text('Không thể tải danh sách tổ chức'), findsOneWidget);
+      expect(find.text('Không thể tải danh sách'), findsOneWidget);
 
       await tester.tap(find.text('Thử lại'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Không thể tải danh sách tổ chức'), findsNothing);
+      expect(find.text('Không thể tải danh sách'), findsNothing);
       expect(find.text('Thú y Minh Phát'), findsOneWidget);
       expect(cubit.state.selectorFailure, isNull);
 

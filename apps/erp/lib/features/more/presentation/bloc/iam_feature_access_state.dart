@@ -58,13 +58,14 @@ final class IamFeatureAccessState {
     if (r.status == TenantLifecycleStatus.active) {
       return null;
     }
-    if (r.blockers.isNotEmpty) {
+    final blockerCount = _unmetBlockerGroupsCount(r.blockers);
+    if (blockerCount > 0) {
       return IamReadinessHubBanner(
         tone: IamReadinessHubBannerTone.warning,
         eyebrow: 'Cần hoàn tất',
         title: 'Tổ chức chưa hoàn tất thiết lập',
         body:
-            'Còn ${r.blockers.length} điều kiện bắt buộc trước khi có thể '
+            'Còn $blockerCount điều kiện bắt buộc trước khi có thể '
             'bắt đầu vận hành.',
       );
     }
@@ -100,6 +101,13 @@ final class IamFeatureAccessState {
   /// Soft banner when view permission; hide once tenant is fully ready/active.
   bool get showReadinessBanner => readinessBanner != null;
 
+  /// Whether to show placeholder skeleton while readiness status is resolving.
+  bool get showReadinessSkeleton =>
+      canViewReadiness &&
+      (session?.tenantId?.isNotEmpty ?? false) &&
+      readiness == null &&
+      readinessStatus == IamLoadStatus.loading;
+
   String get readinessBannerBody => readinessBanner?.body ?? '';
 
   IamFeatureAccessState copyWith({
@@ -120,4 +128,39 @@ final class IamFeatureAccessState {
       failure: clearFailure ? null : (failure ?? this.failure),
     );
   }
+}
+
+const _profileBlockerCodes = {
+  TenantReadinessIssueCodes.displayNameMissing,
+  TenantReadinessIssueCodes.contactEmailMissingOrInvalid,
+  TenantReadinessIssueCodes.contactPhoneMissingOrInvalid,
+  TenantReadinessIssueCodes.contactAddressMissing,
+};
+
+const _ownerBlockerCodes = {
+  TenantReadinessIssueCodes.ownerMembershipInvalid,
+  TenantReadinessIssueCodes.ownerIdentityInactive,
+  TenantReadinessIssueCodes.ownerIdentityUnavailable,
+  TenantReadinessIssueCodes.ownerEmailUnverified,
+};
+
+const _roleBlockerCodes = {
+  TenantReadinessIssueCodes.ownerRoleInvalid,
+};
+
+int _unmetBlockerGroupsCount(List<String> blockers) {
+  if (blockers.isEmpty) return 0;
+  var count = 0;
+  if (blockers.any(_profileBlockerCodes.contains)) count++;
+  if (blockers.any(_ownerBlockerCodes.contains)) count++;
+  if (blockers.any(_roleBlockerCodes.contains)) count++;
+
+  const knownCodes = {
+    ..._profileBlockerCodes,
+    ..._ownerBlockerCodes,
+    ..._roleBlockerCodes,
+  };
+  final remaining = blockers.where((b) => !knownCodes.contains(b)).toSet();
+  count += remaining.length;
+  return count;
 }

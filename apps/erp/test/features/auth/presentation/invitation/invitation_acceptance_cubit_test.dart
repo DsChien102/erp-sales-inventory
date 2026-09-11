@@ -84,6 +84,60 @@ void main() {
     await cubit.close();
   });
 
+  test('acceptExistingAccount accepts immediately without signing in', () async {
+    final keys = FakeIdempotencyKeyFactory();
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+    );
+    final cubit = buildCubit(module: module, keyFactory: keys);
+    await cubit.inspect('tok-1');
+    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
+
+    await cubit.acceptExistingAccount();
+
+    expect(cubit.state.step, InvitationAcceptanceStep.accepted);
+    expect(cubit.state.acceptedMembership?.status, MembershipStatus.active);
+    expect(cubit.state.tokenPresent, isFalse);
+    expect(cubit.state.failure, isNull);
+
+    expect(module.commandsOf<SignInCommand>(), isEmpty);
+    expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
+    final accept = module.commandsOf<AcceptInvitationCommand>().single;
+    expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
+
+    await cubit.close();
+  });
+
+  test('acceptExistingAccount error falls back to existingAccountLogin with failure', () async {
+    final module = _FailAcceptModule();
+    final cubit = buildCubit(module: module);
+    await cubit.inspect('tok-1');
+    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
+
+    await cubit.acceptExistingAccount();
+
+    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
+    expect(cubit.state.failure?.code, IamBlockedCodes.idempotencyConflict);
+    expect(cubit.state.tokenPresent, isTrue);
+
+    await cubit.close();
+  });
+
+  test('acceptExistingAccount terminal error transitions to blocked', () async {
+    final module = _TerminalFailAcceptModule();
+    final cubit = buildCubit(module: module);
+    await cubit.inspect('tok-1');
+    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
+
+    await cubit.acceptExistingAccount();
+
+    expect(cubit.state.step, InvitationAcceptanceStep.blocked);
+    expect(cubit.state.failure?.code, IamBlockedCodes.invitationAlreadyUsed);
+    expect(cubit.state.tokenPresent, isFalse);
+
+    await cubit.close();
+  });
+
   test('registerAndAcceptOk registers without email in profile', () async {
     final module = RecordingIamModule(
       FakeIamModule(scenario: FakeIamScenario.registerAndAcceptOk),
@@ -311,3 +365,60 @@ final class _FailThenSucceedDeclineModule implements IIamModule {
     throw UnsupportedError(query.runtimeType.toString());
   }
 }
+
+final class _FailAcceptModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    if (command is AcceptInvitationCommand) {
+      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
+    }
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    if (query is InspectInvitationTokenQuery) {
+      return Future.value(
+        InvitationTokenInspectionDto(
+          tenantId: 'org-001',
+          tenantName: 'Org',
+          inviteeEmail: 'invitee@example.com',
+          initialRoleId: 'role-staff',
+          initialRoleLabel: 'Staff',
+          expiresAt: DateTime.utc(2026, 8, 5),
+          accountExists: true,
+        ) as TResult,
+      );
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
+}
+
+final class _TerminalFailAcceptModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    if (command is AcceptInvitationCommand) {
+      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
+    }
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    if (query is InspectInvitationTokenQuery) {
+      return Future.value(
+        InvitationTokenInspectionDto(
+          tenantId: 'org-001',
+          tenantName: 'Org',
+          inviteeEmail: 'invitee@example.com',
+          initialRoleId: 'role-staff',
+          initialRoleLabel: 'Staff',
+          expiresAt: DateTime.utc(2026, 8, 5),
+          accountExists: true,
+        ) as TResult,
+      );
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
+}
+

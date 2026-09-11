@@ -59,12 +59,12 @@ final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
     if (existing != null) return existing;
     final result = TenantOnboardingResultDto(
       tenantId: 't-1',
-      ownerMembershipId: isNewUser ? null : 'm-1',
-      ownerUserId: ownerUserId,
+      ownerMembershipId: 'm-1',
+      ownerUserId: ownerUserId ?? (isNewUser ? 'u-pending' : null),
       tenantStatus: 'provisioning',
       correlationId: correlationId ?? 'c-1',
       isNewUser: isNewUser,
-      activationIssued: isNewUser,
+      activationIssued: true,
     );
     _byKey[idempotencyKey] = result;
     return result;
@@ -163,14 +163,14 @@ void main() {
         ),
       );
 
-      // Hướng 1: no identity resolution — gateway is called directly with the
-      // new-owner email; the account is created later at activation.
+      // Hybrid: gateway gets new-owner email; membership + invitation issued now.
       expect(gateway.lastIsNewUser, isTrue);
       expect(gateway.lastOwnerEmail, 'new@example.com');
       expect(gateway.lastOwnerUserId, isNull);
       expect(result.isNewUser, isTrue);
       expect(result.activationIssued, isTrue);
-      expect(result.ownerUserId, isNull);
+      expect(result.ownerMembershipId, 'm-1');
+      expect(result.ownerUserId, 'u-pending');
     });
 
     test('get + retry onboarding operation', () async {

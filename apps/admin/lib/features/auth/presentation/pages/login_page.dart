@@ -225,34 +225,51 @@ class _LoginPageState extends State<LoginPage> {
                           variant: VTextVariant.bodyDefault,
                           color: dynamicColors.textSecondary,
                         ),
-                        const VGap.xl(),
-                        VEmailField(
-                          label: 'Email',
-                          hintText: 'Nhập email',
-                          controller: _emailController,
-                          enabled: !_isSubmitting,
-                          validateOnChanged: false,
-                          errorText: _emailError,
-                          onChanged: (_) {
-                            if (_emailError != null) {
-                              setState(() => _emailError = null);
-                            }
-                          },
+                        VField(
+                          invalid: _emailError != null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const VFieldLabel('Email'),
+                              VEmailField(
+                                hintText: 'Nhập email',
+                                controller: _emailController,
+                                enabled: !_isSubmitting,
+                                validateOnChanged: false,
+                                onChanged: (_) {
+                                  if (_emailError != null) {
+                                    setState(() => _emailError = null);
+                                  }
+                                },
+                              ),
+                              if (_emailError != null)
+                                VFieldError(_emailError!),
+                            ],
+                          ),
                         ),
                         const VGap.md(),
-                        VPasswordField(
-                          label: 'Mật khẩu',
-                          hintText: 'Nhập mật khẩu',
-                          controller: _passwordController,
-                          enabled: !_isSubmitting,
-                          validateOnChanged: false,
-                          errorText: _passwordError,
-                          requiredPasswordMessage: 'Vui lòng nhập mật khẩu',
-                          onChanged: (_) {
-                            if (_passwordError != null) {
-                              setState(() => _passwordError = null);
-                            }
-                          },
+                        VField(
+                          invalid: _passwordError != null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const VFieldLabel('Mật khẩu'),
+                              VPasswordField(
+                                hintText: 'Nhập mật khẩu',
+                                controller: _passwordController,
+                                enabled: !_isSubmitting,
+                                validateOnChanged: false,
+                                requiredPasswordMessage: 'Vui lòng nhập mật khẩu',
+                                onChanged: (_) {
+                                  if (_passwordError != null) {
+                                    setState(() => _passwordError = null);
+                                  }
+                                },
+                              ),
+                              if (_passwordError != null)
+                                VFieldError(_passwordError!),
+                            ],
+                          ),
                         ),
                         const VGap.lg(),
                         VButton(

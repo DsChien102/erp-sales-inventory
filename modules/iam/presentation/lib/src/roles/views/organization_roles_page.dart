@@ -190,7 +190,8 @@ class _OrganizationRolesPageState extends State<OrganizationRolesPage> {
                               if (role.isCurrent)
                                 const VBadge(
                                   label: 'Đang dùng',
-                                  status: VBadgeStatus.success,
+                                  tone: VComponentTone.success,
+                                  variant: VBadgeVariant.soft,
                                   isSmall: true,
                                 )
                               else

@@ -42,33 +42,33 @@ Future<PlatformUsersFilterResult?> showPlatformUsersFilterSheet({
                 children: [
                   VChip(
                     label: 'Tất cả',
-                    emphasis: temp == null
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
+                    tone: temp == null
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setSheetState(() => temp = null),
                   ),
                   VChip(
                     label: 'Chờ kích hoạt',
-                    emphasis: temp == PlatformUserStatus.pendingActivation
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
+                    tone: temp == PlatformUserStatus.pendingActivation
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setSheetState(
                       () => temp = PlatformUserStatus.pendingActivation,
                     ),
                   ),
                   VChip(
                     label: 'Hoạt động',
-                    emphasis: temp == PlatformUserStatus.active
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
+                    tone: temp == PlatformUserStatus.active
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () =>
                         setSheetState(() => temp = PlatformUserStatus.active),
                   ),
                   VChip(
                     label: 'Tạm ngừng',
-                    emphasis: temp == PlatformUserStatus.suspended
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
+                    tone: temp == PlatformUserStatus.suspended
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setSheetState(
                       () => temp = PlatformUserStatus.suspended,
                     ),

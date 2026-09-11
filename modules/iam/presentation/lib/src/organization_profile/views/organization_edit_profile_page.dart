@@ -249,52 +249,85 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 color: colors.textSecondary,
               ),
               const VGap.md(),
-              VTextField(
-                label: 'Tên tổ chức',
-                isRequired: true,
-                controller: _nameController,
-                helperText: 'Tên hiển thị.',
-                errorText: _nameError,
-                onChanged: (_) {
-                  if (_nameError != null) setState(() => _nameError = null);
-                },
+              VField(
+                invalid: _nameError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Tên tổ chức', isRequired: true),
+                    VTextField(
+                      controller: _nameController,
+                      onChanged: (_) {
+                        if (_nameError != null) setState(() => _nameError = null);
+                      },
+                    ),
+                    if (_nameError != null)
+                      VFieldError(_nameError!)
+                    else
+                      const VFieldDescription('Tên hiển thị.'),
+                  ],
+                ),
               ),
               const VGap.md(),
-              VTextField(
-                label: 'Số điện thoại',
-                isRequired: true,
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                // Chỉ cho nhập chữ số và dấu '+' (đầu số quốc gia) — chặn chữ cái.
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
-                  LengthLimitingTextInputFormatter(16),
-                ],
-                errorText: _phoneError,
-                onChanged: (_) {
-                  if (_phoneError != null) setState(() => _phoneError = null);
-                },
+              VField(
+                invalid: _phoneError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Số điện thoại', isRequired: true),
+                    VTextField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      // Chỉ cho nhập chữ số và dấu '+' (đầu số quốc gia) — chặn chữ cái.
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                        LengthLimitingTextInputFormatter(16),
+                      ],
+                      onChanged: (_) {
+                        if (_phoneError != null) setState(() => _phoneError = null);
+                      },
+                    ),
+                    if (_phoneError != null)
+                      VFieldError(_phoneError!),
+                  ],
+                ),
               ),
               const VGap.md(),
-              VEmailField(
-                label: 'Email liên hệ',
-                isRequired: true,
-                controller: _emailController,
-                validateOnChanged: false,
-                errorText: _emailError,
-                onChanged: (_) {
-                  if (_emailError != null) setState(() => _emailError = null);
-                },
+              VField(
+                invalid: _emailError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Email liên hệ', isRequired: true),
+                    VEmailField(
+                      controller: _emailController,
+                      validateOnChanged: false,
+                      onChanged: (_) {
+                        if (_emailError != null) setState(() => _emailError = null);
+                      },
+                    ),
+                    if (_emailError != null)
+                      VFieldError(_emailError!),
+                  ],
+                ),
               ),
               const VGap.md(),
-              VTextField(
-                label: 'Địa chỉ liên hệ',
-                isRequired: true,
-                controller: _addressController,
-                errorText: _addressError,
-                onChanged: (_) {
-                  if (_addressError != null) setState(() => _addressError = null);
-                },
+              VField(
+                invalid: _addressError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Địa chỉ liên hệ', isRequired: true),
+                    VTextField(
+                      controller: _addressController,
+                      onChanged: (_) {
+                        if (_addressError != null) setState(() => _addressError = null);
+                      },
+                    ),
+                    if (_addressError != null)
+                      VFieldError(_addressError!),
+                  ],
+                ),
               ),
               const VGap.md(),
               FutureBuilder<List<VnAdministrativeUnit>>(

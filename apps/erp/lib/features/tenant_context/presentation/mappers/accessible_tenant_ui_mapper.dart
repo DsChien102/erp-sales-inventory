@@ -16,7 +16,7 @@ final class AccessibleTenantUiMapper {
       id: dto.tenantId,
       name: dto.name,
       code: _codeFor(dto.tenantId),
-      roleLabel: dto.roleLabel,
+      roleLabel: IamRoleLabelMapper.toDisplayLabel(dto.roleLabel),
       status: dto.status,
       isCurrent: dto.isCurrent,
       isSelectable: isSelectable,

@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_presentation/testing.dart';
+import 'package:vet45_shared_application/application.dart';
 
 Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
   expect(find.byType(VVerificationCodeField), findsOneWidget);
@@ -97,6 +99,94 @@ void main() {
         find.byKey(const Key('invitation_confirm_sheet_decline')),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    'existing account confirm sheet accept executes accept and navigates to login with prefilledEmail',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = RecordingIamModule(
+        FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+      );
+      Object? receivedExtra;
+      final router = GoRouter(
+        initialLocation: '/invitation',
+        routes: <RouteBase>[
+          GoRoute(
+            path: '/invitation',
+            builder: (_, _) => InvitationTokenPage(iamModule: module),
+          ),
+          GoRoute(
+            path: '/login',
+            builder: (_, state) {
+              receivedExtra = state.extra;
+              return const Scaffold(body: Text('LOGIN_PAGE'));
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: VTheme.lightTheme,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _enterInvitationCode(tester, 'K7P29XQM');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('LOGIN_PAGE'), findsOneWidget);
+      expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
+      expect(receivedExtra, isA<Map<String, dynamic>>());
+      final map = receivedExtra as Map<String, dynamic>;
+      expect(map['prefilledEmail'], 'invitee@example.com');
+      expect(map['showSuccessBanner'], true);
+      expect(map['organizationName'], 'Mậu Hiên');
+    },
+  );
+
+  testWidgets(
+    'existing account confirm sheet accept failure shows danger toast and does not reopen bottom sheet',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = _FailAcceptModule();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: InvitationTokenPage(iamModule: module),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _enterInvitationCode(tester, 'K7P29XQM');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('invitation_confirm_sheet_accept')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(VToast), findsOneWidget);
+      expect(tester.widget<VToast>(find.byType(VToast)).type, VToastType.danger);
+      expect(tester.widget<VToast>(find.byType(VToast)).title, 'Không hoàn tất');
+      expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsNothing);
+      expect(find.byKey(const Key('invitation_confirm_sheet_accept')), findsNothing);
     },
   );
 
@@ -295,6 +385,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
+      Object? receivedExtra;
       final router = GoRouter(
         initialLocation: '/invitation',
         routes: <RouteBase>[
@@ -308,7 +399,10 @@ void main() {
           ),
           GoRoute(
             path: '/login',
-            builder: (_, _) => const Scaffold(body: Text('LOGIN_PAGE')),
+            builder: (_, state) {
+              receivedExtra = state.extra;
+              return const Scaffold(body: Text('LOGIN_PAGE'));
+            },
           ),
         ],
       );
@@ -349,6 +443,38 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('LOGIN_PAGE'), findsOneWidget);
+      expect(receivedExtra, isA<Map<String, dynamic>>());
+      final map = receivedExtra as Map<String, dynamic>;
+      expect(map['organizationName'], 'Mậu Hiên');
+      expect(map['showSuccessBanner'], true);
     },
   );
+}
+
+final class _FailAcceptModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    if (command is AcceptInvitationCommand) {
+      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
+    }
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    if (query is InspectInvitationTokenQuery) {
+      return Future.value(
+        InvitationTokenInspectionDto(
+          tenantId: 'org-001',
+          tenantName: 'Org',
+          inviteeEmail: 'invitee@example.com',
+          initialRoleId: 'role-staff',
+          initialRoleLabel: 'Staff',
+          expiresAt: DateTime.utc(2026, 8, 5),
+          accountExists: true,
+        ) as TResult,
+      );
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
 }

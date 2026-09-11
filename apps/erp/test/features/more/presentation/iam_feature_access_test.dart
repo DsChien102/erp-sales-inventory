@@ -152,6 +152,11 @@ void main() {
       expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
       expect(find.byKey(const Key('iam_readiness_hub_banner')), findsNothing);
       expect(find.text('Cần hoàn tất'), findsNothing);
+      final skeletonFinder = find.byKey(const Key('iam_readiness_hub_banner_skeleton'));
+      expect(skeletonFinder, findsOneWidget);
+      final skeletonWidget = tester.widget<VSkeleton>(skeletonFinder);
+      expect(skeletonWidget.height, 148);
+      expect(skeletonWidget.borderRadius, VRadius.card);
 
       module.completeReadiness(
         TenantReadinessDto(
@@ -166,6 +171,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.byKey(const Key('iam_readiness_hub_banner_skeleton')), findsNothing);
       expect(find.byKey(const Key('iam_readiness_hub_banner')), findsNothing);
       expect(find.text('Cần hoàn tất'), findsNothing);
     },
@@ -217,6 +223,59 @@ void main() {
       expect(
         find.text(
           'Còn 2 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'UsersAndRolesPage groups multiple profile blockers into a single unmet condition on banner',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = IamFeatureAccessCubit(
+        iamModule: _SessionWithReadinessModule(
+          session: const SessionDto(
+            isAuthenticated: true,
+            userId: 'owner-1',
+            role: 'store_owner',
+            isOwner: true,
+            tenantId: 'org-001',
+          ),
+          readiness: TenantReadinessDto(
+            tenantId: 'org-001',
+            status: TenantLifecycleStatus.provisioning,
+            blockers: const [
+              TenantReadinessIssueCodes.contactEmailMissingOrInvalid,
+              TenantReadinessIssueCodes.contactPhoneMissingOrInvalid,
+              TenantReadinessIssueCodes.contactAddressMissing,
+            ],
+            warnings: const [],
+            evaluatedAt: DateTime.utc(2026, 7, 31),
+            tenantVersion: 1,
+            canActivate: false,
+          ),
+        ),
+      );
+      await cubit.load();
+      addTearDown(cubit.close);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: UsersAndRolesPage(accessCubit: cubit),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('iam_readiness_hub_banner')), findsOneWidget);
+      expect(
+        find.text(
+          'Còn 1 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
         ),
         findsOneWidget,
       );

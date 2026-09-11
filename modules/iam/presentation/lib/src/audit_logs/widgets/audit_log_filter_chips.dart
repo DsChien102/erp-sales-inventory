@@ -38,7 +38,7 @@ class AuditLogFilterChips extends StatelessWidget {
               padding: const EdgeInsets.only(right: VSpacing.space2),
               child: VChip(
                 label: option.label,
-                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
+                tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
                 onTap: () => onStatusSelected(option.status),
               ),
             );

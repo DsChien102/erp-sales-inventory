@@ -105,6 +105,10 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     isPublic: true,
     idempotencyKeyField: 'idempotencyKey',
   ),
+  ReinviteProvisioningOwnerCommand: AccessMetadata(
+    permission: 'platform.tenant.create',
+    idempotencyKeyField: 'idempotencyKey',
+  ),
   RemoveMembershipCommand: AccessMetadata(
     permission: 'tenant.member.remove',
     requiresTenant: true,
