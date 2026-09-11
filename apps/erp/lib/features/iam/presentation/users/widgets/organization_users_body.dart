@@ -5,6 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
+import 'invitation_filter_bottom_sheet.dart';
 import 'invitation_list_section.dart';
 import 'member_filter_bottom_sheet.dart';
 import 'member_list_section.dart';
@@ -64,33 +65,54 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
   Future<void> _openFilterBottomSheet(BuildContext context) async {
     final cubit = context.read<OrganizationUsersCubit>();
     final isMemberTab = cubit.state.activeTab == OrganizationUsersTab.members;
-    if (!isMemberTab) return;
 
-    final currentCriteria = MemberFilterCriteria(
-      status: _memberWireToChip(cubit.state.memberFilter),
-      role: cubit.state.memberRoleFilter ?? 'Tất cả',
-      sort: cubit.state.memberSort ?? 'Tất cả',
-    );
+    if (isMemberTab) {
+      final currentCriteria = MemberFilterCriteria(
+        status: _memberWireToChip(cubit.state.memberFilter),
+        role: cubit.state.memberRoleFilter ?? 'Tất cả',
+        sort: cubit.state.memberSort ?? 'Tất cả',
+      );
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: context.vColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
-      ),
-      builder: (_) => MemberFilterBottomSheet(
-        initialCriteria: currentCriteria,
-        onApply: (criteria) {
-          cubit.applyMemberCriteria(
-            status: _memberChipToWire(criteria.status),
-            role: criteria.role == 'Tất cả' ? null : criteria.role,
-            sort: criteria.sort == 'Tất cả' ? null : criteria.sort,
-          );
-        },
-      ),
-    );
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: context.vColors.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
+        ),
+        builder: (_) => MemberFilterBottomSheet(
+          initialCriteria: currentCriteria,
+          onApply: (criteria) {
+            cubit.applyMemberCriteria(
+              status: _memberChipToWire(criteria.status),
+              role: criteria.role == 'Tất cả' ? null : criteria.role,
+              sort: criteria.sort == 'Tất cả' ? null : criteria.sort,
+            );
+          },
+        ),
+      );
+    } else {
+      final currentCriteria = InvitationFilterCriteria(
+        status: _invitationWireToChip(cubit.state.invitationFilter),
+      );
+
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: context.vColors.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
+        ),
+        builder: (_) => InvitationFilterBottomSheet(
+          initialCriteria: currentCriteria,
+          onApply: (criteria) {
+            cubit.setInvitationFilter(_invitationChipToWire(criteria.status));
+          },
+        ),
+      );
+    }
   }
 
   String? _memberChipToWire(String label) {
@@ -104,6 +126,7 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
   String? _invitationChipToWire(String label) {
     return switch (label) {
       'Đang chờ' => 'pending',
+      'Hết hạn' => 'expired',
       'Sắp hết hạn' => 'expiring',
       _ => null,
     };
@@ -120,7 +143,8 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
   String _invitationWireToChip(String? wire) {
     return switch (wire) {
       'pending' => 'Đang chờ',
-      'expiring' => 'Sắp hết hạn',
+      'expired' => 'Hết hạn',
+      'expiring' => 'Hết hạn',
       _ => 'Tất cả',
     };
   }
@@ -256,7 +280,7 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                               for (final label in const [
                                 'Tất cả',
                                 'Đang chờ',
-                                'Sắp hết hạn',
+                                'Hết hạn',
                               ]) ...[
                                 if (label != 'Tất cả') const VGap.horizontalSm(),
                                 _FilterChip(
@@ -382,7 +406,7 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return VChip(
       label: label,
-      selected: selected,
+      tone: selected ? VComponentTone.primary : null,
       onTap: onSelected,
     );
   }

@@ -153,8 +153,7 @@ void main() {
           }
           throw UnsupportedError(message.runtimeType.toString());
         },
-        onQuery: (message) async =>
-            throw UnsupportedError(message.runtimeType.toString()),
+        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
       );
       final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(

@@ -130,6 +130,7 @@ class FakePlatformUserService extends ChangeNotifier {
               email: u.email,
               status: u.status,
               createdAt: u.createdAt,
+              phoneNumber: null,
             ))
         .toList();
   }

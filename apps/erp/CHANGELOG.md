@@ -15,6 +15,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Lời mời: filter status dùng nhãn "Hết hạn"; cải thiện sheet filter / member tab body.
+
 - IAM ERP: migrate badge/chip sang `VComponentTone`; form field sang `VField` composition; tách `AdministrativeUnitsFormSection`.
 
 - Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
