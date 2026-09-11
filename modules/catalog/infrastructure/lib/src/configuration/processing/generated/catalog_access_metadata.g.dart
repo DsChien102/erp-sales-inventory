@@ -166,13 +166,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view',
     requiresTenant: true,
   ),
-<<<<<<< HEAD
   SearchSellableProductsQuery: AccessMetadata(
     permission: 'catalog.product.view',
     requiresTenant: true,
   ),
-=======
->>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)
   SetBasicStockQuantityBaseCommand: AccessMetadata(
     permission: 'catalog.product.manage_stock',
     requiresTenant: true,

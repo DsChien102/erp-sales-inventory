@@ -4,17 +4,14 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_infrastructure/infrastructure.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_infrastructure/infrastructure.dart';
-<<<<<<< HEAD
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_sales_infrastructure/infrastructure.dart';
-=======
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
->>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -92,20 +89,15 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<IPricingModule>(pricingModule);
 
-<<<<<<< HEAD
-
   final salesModule = SalesStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
     permissionChecker: iamRuntime.permissionChecker,
+    tenantAccessChecker: iamRuntime.tenantAccessChecker,
   );
+
   getIt.registerSingleton<ISalesModule>(salesModule);
 
-  getIt.registerSingleton<IEInvoiceModule>(
-    FakeEInvoiceModule(
-      scenario: FakeEInvoiceScenario.configReadinessReady,
-    ),
-=======
   final einvoiceRuntime = EinvoiceStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
@@ -116,4 +108,3 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<IEInvoiceModule>(einvoiceRuntime.module);
 }
->>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)

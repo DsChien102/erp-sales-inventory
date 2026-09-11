@@ -36,6 +36,11 @@ workspace:
   - modules/partner/application
   - modules/partner/infrastructure
   - modules/partner/integration_events
+  - modules/einvoice/domain
+  - modules/einvoice/application
+  - modules/einvoice/infrastructure
+  - modules/einvoice/integration_events
+  - modules/einvoice/presentation
   - modules/pricing/domain
   - modules/pricing/application
   - modules/pricing/infrastructure

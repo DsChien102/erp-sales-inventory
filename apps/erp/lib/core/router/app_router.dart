@@ -10,17 +10,13 @@ import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart';
-<<<<<<< HEAD
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:vet45_einvoice_presentation/presentation.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 // Sales (typed routes via go_router_builder)
 import '../../features/sales/presentation/navigation/sales_typed_routes.dart';
-=======
-import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
->>>>>>> b250334bc (feat(einvoice): update GitNexus indexing and enhance async query integration)
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
