@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
@@ -30,14 +31,87 @@ void main() {
 
     expect(authenticator.sessionState, AuthSessionState.expired);
   });
+
+  test('signIn maps invalid_credentials AuthException to IamBlockedException', () async {
+    final supabase = _buildClient(
+      mockResponse: {
+        'code': 'invalid_credentials',
+        'error_code': 'invalid_credentials',
+        'msg': 'Invalid login credentials',
+      },
+      mockStatusCode: 400,
+    );
+    final authenticator = SupabaseAuthenticator(supabase);
+
+    expect(
+      () => authenticator.signIn(email: 'test@example.com', password: 'wrong'),
+      throwsA(
+        isA<IamBlockedException>().having(
+          (e) => e.code,
+          'code',
+          IamBlockedCodes.invalidCredentials,
+        ),
+      ),
+    );
+  });
+
+  test('signIn maps email_not_confirmed to identityEmailNotVerified', () async {
+    final supabase = _buildClient(
+      mockResponse: {
+        'code': 'email_not_confirmed',
+        'error_code': 'email_not_confirmed',
+        'msg': 'Email not confirmed',
+      },
+      mockStatusCode: 400,
+    );
+    final authenticator = SupabaseAuthenticator(supabase);
+
+    expect(
+      () => authenticator.signIn(email: 'test@example.com', password: 'wrong'),
+      throwsA(
+        isA<IamBlockedException>().having(
+          (e) => e.code,
+          'code',
+          IamBlockedCodes.identityEmailNotVerified,
+        ),
+      ),
+    );
+  });
 }
 
-SupabaseClient _buildClient() {
+SupabaseClient _buildClient({
+  Map<String, dynamic>? mockResponse,
+  int mockStatusCode = 200,
+}) {
   return SupabaseClient(
     'https://example.supabase.co',
     'anon-key',
+    httpClient: mockResponse != null
+        ? _MockHttpClient((_) async => _MockResponse(jsonEncode(mockResponse), mockStatusCode))
+        : null,
     authOptions: const AuthClientOptions(autoRefreshToken: false),
   );
+}
+
+final class _MockResponse {
+  const _MockResponse(this.body, this.statusCode);
+  final String body;
+  final int statusCode;
+}
+
+final class _MockHttpClient extends http.BaseClient {
+  _MockHttpClient(this._handler);
+  final Future<_MockResponse> Function(http.BaseRequest request) _handler;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final resp = await _handler(request);
+    return http.StreamedResponse(
+      Stream.value(utf8.encode(resp.body)),
+      resp.statusCode,
+      headers: {'content-type': 'application/json; charset=utf-8'},
+    );
+  }
 }
 
 String _sessionJson({required int expSecondsFromNow}) {

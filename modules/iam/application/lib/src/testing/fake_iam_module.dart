@@ -865,7 +865,10 @@ final class FakeIamModule implements IIamModule {
 
   Future<TResult> _handleSignIn<TResult>(SignInCommand command) {
     if (scenario == FakeIamScenario.authInvalid) {
-      throw ApplicationException('Invalid login credentials');
+      throw const IamBlockedException(
+        IamBlockedCodes.invalidCredentials,
+        message: 'Invalid login credentials',
+      );
     }
     signInCount++;
     lastSignedInEmail = command.email;
