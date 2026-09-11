@@ -15,6 +15,7 @@ class LoginPage extends StatelessWidget {
     this.iamModule,
     this.cubit,
     this.prefilledEmail,
+    this.organizationName,
     this.showSuccessBanner = false,
   });
 
@@ -22,6 +23,7 @@ class LoginPage extends StatelessWidget {
   final IIamModule? iamModule;
   final LoginCubit? cubit;
   final String? prefilledEmail;
+  final String? organizationName;
   final bool showSuccessBanner;
 
   @override
@@ -31,6 +33,7 @@ class LoginPage extends StatelessWidget {
         value: cubit!,
         child: _LoginView(
           prefilledEmail: prefilledEmail,
+          organizationName: organizationName,
           showSuccessBanner: showSuccessBanner,
         ),
       );
@@ -40,6 +43,7 @@ class LoginPage extends StatelessWidget {
       create: (_) => LoginCubit(iamModule: iamModule ?? getIt<IIamModule>()),
       child: _LoginView(
         prefilledEmail: prefilledEmail,
+        organizationName: organizationName,
         showSuccessBanner: showSuccessBanner,
       ),
     );
@@ -49,10 +53,12 @@ class LoginPage extends StatelessWidget {
 class _LoginView extends StatefulWidget {
   const _LoginView({
     this.prefilledEmail,
+    this.organizationName,
     this.showSuccessBanner = false,
   });
 
   final String? prefilledEmail;
+  final String? organizationName;
   final bool showSuccessBanner;
 
   @override
@@ -168,6 +174,10 @@ class _LoginViewState extends State<_LoginView> {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final orgName = widget.organizationName?.trim();
+    final joinedMessage = (orgName != null && orgName.isNotEmpty)
+        ? 'Đã tham gia tổ chức "$orgName" thành công. Đăng nhập để vào VET45.'
+        : 'Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.';
 
     return BlocConsumer<LoginCubit, LoginState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -181,12 +191,6 @@ class _LoginViewState extends State<_LoginView> {
           );
         }
         if (state.status == LoginStatus.success && state.session?.isAuthenticated == true) {
-          VToast.show(
-            context,
-            title: 'Đăng nhập thành công',
-            message: 'Chào mừng bạn quay trở lại!',
-            type: VToastType.success,
-          );
           context.go('/');
         }
       },
@@ -263,35 +267,10 @@ class _LoginViewState extends State<_LoginView> {
                           ),
                           const VGap.xl(),
                           if (widget.showSuccessBanner) ...[
-                            VCard(
-                              tone: VComponentTone.success,
-                              child: Row(
-                                children: [
-                                  const VCardIcon(
-                                    icon: VIcons.success,
-                                    tone: VComponentTone.success,
-                                  ),
-                                  const VGap.horizontalMd(),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        VText(
-                                          'Mã kích hoạt hợp lệ',
-                                          variant: VTextVariant.headingH4,
-                                          color: dynamicColors.success,
-                                        ),
-                                        const VGap.xs(),
-                                        VText(
-                                          'Đăng nhập đúng tài khoản để tiếp nhận lời mời và vào VET45.',
-                                          variant: VTextVariant.bodySmall,
-                                          color: dynamicColors.textSecondary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            VBanner(
+                              status: VBannerStatus.success,
+                              title: 'Tham gia tổ chức thành công',
+                              description: joinedMessage,
                             ),
                             const VGap.lg(),
                           ],

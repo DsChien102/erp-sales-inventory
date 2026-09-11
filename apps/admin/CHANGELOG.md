@@ -13,6 +13,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- Onboarding tổ chức: tạo chủ sở hữu mới bằng email đã có tài khoản sẽ hiện cảnh báo "Email đã có tài khoản" và khóa nút "Tiếp tục" cho tới khi đổi email. Không kiểm tra được (mất mạng / thiếu quyền xem user) thì chặn kèm thông báo, không cho đi tiếp.
+
 ### Changed
 
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
@@ -28,6 +30,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Fixed
 
 - Onboarding tổ chức: card chủ sở hữu đã chọn hiện SĐT thật (ẩn nếu thiếu), bỏ hardcode.
+- Chi tiết tổ chức: hết báo nhầm "Email Chủ sở hữu chưa xác minh" khi email đã xác minh — RPC trả thẳng trạng thái thật thay vì để client tự suy đoán từ trạng thái "Đang thiết lập" (cần promote draft SQL `003`).
 
 ### Internal
 
@@ -36,6 +39,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.
 - Design system: `VChip.selected` / `VChip.emphasis` → `@Deprecated`; dùng `tone` (`primary` cho chip đang chọn); bridge vẫn hoạt động, call sites chưa migrate sẽ thấy analyze warning.
 - IAM: `PlatformUserSummaryDto.phoneNumber` + draft RPC `search_platform_users` trả `phone_number`; draft enum `iam.platform_user_status` cho `platform_user_profiles.status`.
+- IAM presentation: `PlatformOnboardingStepOwner` nhận `hasDuplicateEmail` để hiện banner cảnh báo ở form tạo chủ sở hữu.
+- Onboarding tổ chức: `PlatformOnboardingCubit.checkEmailExists` trả `bool?` — `null` nghĩa là không kiểm tra được, caller phải chặn (fail-closed) thay vì coi như email hợp lệ.
+- Draft SQL `003_iam_patch_get_platform_tenant_owner_email_verified` (`get_platform_tenant` trả thêm `owner_email_verified`) — cần promote trước khi ship DB.
 
 ## [1.0.2+3] - 2026-08-26
 

@@ -3,7 +3,6 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Dashboard greeting / branch / notification chrome (feature-specific).
 class HomeHeader extends StatelessWidget {
-  final String userName;
   final String branchName;
   final bool hasNotification;
   final VoidCallback? onBranchTap;
@@ -12,17 +11,23 @@ class HomeHeader extends StatelessWidget {
 
   const HomeHeader({
     super.key,
-    this.userName = 'Lan',
-    this.branchName = 'Thú y Minh Phát · CN Biên Hoà',
-    this.hasNotification = true,
+    required this.branchName,
+    this.hasNotification = false,
     this.onBranchTap,
     this.onNotificationTap,
     this.searchBar,
   });
 
+  static String _greetingForHour(int hour) {
+    if (hour >= 5 && hour < 12) return 'Chào buổi sáng';
+    if (hour >= 12 && hour < 18) return 'Chào buổi chiều';
+    return 'Chào buổi tối';
+  }
+
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final greeting = _greetingForHour(TimeOfDay.now().hour);
 
     return Container(
       color: dynamicColors.primary,
@@ -41,7 +46,7 @@ class HomeHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Chào buổi sáng, $userName 👋',
+                      '$greeting 👋',
                       style: VTypography.bodySmall.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                       ),

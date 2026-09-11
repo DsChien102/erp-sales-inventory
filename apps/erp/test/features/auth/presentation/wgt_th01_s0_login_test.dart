@@ -227,6 +227,156 @@ void main() {
     },
   );
 
+  testWidgets(
+    'LoginPage displays organization name in success banner when showSuccessBanner is true (cubit branch)',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = LoginCubit(
+        iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+      );
+      addTearDown(cubit.close);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: LoginPage(
+              cubit: cubit,
+              showSuccessBanner: true,
+              organizationName: 'Mậu Hiên',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
+      expect(
+        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào VET45.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'LoginPage displays organization name in success banner when showSuccessBanner is true (BlocProvider production branch)',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: LoginPage(
+              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              showSuccessBanner: true,
+              organizationName: 'Mậu Hiên',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
+      expect(
+        find.text('Đã tham gia tổ chức "Mậu Hiên" thành công. Đăng nhập để vào VET45.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'LoginPage falls back to default message when organizationName is null',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: LoginPage(
+              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              showSuccessBanner: true,
+              organizationName: null,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
+      expect(
+        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'LoginPage falls back to default message when organizationName is empty string',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: LoginPage(
+              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              showSuccessBanner: true,
+              organizationName: '   ',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tham gia tổ chức thành công'), findsOneWidget);
+      expect(
+        find.text('Đã tham gia tổ chức thành công. Đăng nhập để vào VET45.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'LoginPage does not render success banner when showSuccessBanner is false',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: LoginPage(
+              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              showSuccessBanner: false,
+              organizationName: 'Mậu Hiên',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tham gia tổ chức thành công'), findsNothing);
+    },
+  );
 }
 
 final class _NoActiveMembershipModule implements IIamModule {

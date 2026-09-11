@@ -561,7 +561,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     final isSettingUp = status == TenantLifecycleStatus.provisioning;
     final ownerEmail = json['owner_email'] as String?;
     final ownerEmailVerified = json['owner_email_verified'] as bool? ?? false;
-    final unverifiedEmail = json['unverified_email'] as bool? ?? (isSettingUp && !ownerEmailVerified);
+    final unverifiedEmail = isSettingUp && !ownerEmailVerified;
     final incompleteProfile = json['incomplete_profile'] as bool? ?? isSettingUp;
 
     return PlatformTenantDetailDto(

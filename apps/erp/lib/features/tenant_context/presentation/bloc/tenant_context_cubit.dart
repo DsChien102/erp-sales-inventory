@@ -13,7 +13,7 @@ typedef TenantContextPermissionsApplier = void Function(TenantContextDto context
 final class TenantContextCubit extends Cubit<TenantContextState> {
   TenantContextCubit({
     required IIamModule iamModule,
-    required String userDisplayName,
+    String userDisplayName = '',
     TenantContextState? initialState,
     TenantContextPermissionsApplier? applyPermissions,
   }) : _iamModule = iamModule,

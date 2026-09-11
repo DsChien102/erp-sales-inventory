@@ -49,6 +49,20 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
     }
   }
 
+  /// Trả null khi không kiểm tra được — tránh fail-open cho đi tiếp.
+  Future<bool?> checkEmailExists(String email) async {
+    final trimmedEmail = email.trim().toLowerCase();
+    if (trimmedEmail.isEmpty) return false;
+    try {
+      final page = await _iamModule.executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
+        SearchPlatformUsersQuery(query: trimmedEmail, limit: 10),
+      );
+      return page.items.any((u) => u.email.trim().toLowerCase() == trimmedEmail);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<TenantOnboardingResultDto?> submit({
     required OnboardingOwnerInput owner,
     required String organizationName,

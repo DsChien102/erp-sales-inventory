@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_iam_infrastructure/src/domain/platform/supabase_platform_admin_gateway.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -170,5 +171,38 @@ void main() {
     expect(page.items.single.fullName, 'Lê Thị Lan');
     expect(page.items.single.email, 'lan@gmail.com');
     expect(page.items.single.phoneNumber, '0901234567');
+  });
+
+  test('getPlatformTenant maps owner_email_verified false unverifiedEmail on provisioning', () async {
+    final supabase = FakeIamRpcSupabase();
+    supabase.registerHandler('get_platform_tenant', (params) async {
+      return {
+        'tenant_id': 'tenant-prov',
+        'name': 'Sỹ Chiến',
+        'code': 'da84bd3c',
+        'status': 'provisioning',
+        'created_at': '2026-09-10T14:47:00.000Z',
+        'version': 1,
+        'owner_user_id': 'user-chien',
+        'owner_name': 'Sỹ Chiến',
+        'owner_email': 'sychien212@gmail.com',
+        'owner_role': 'store_owner',
+        'owner_email_verified': true,
+        'members': const <Map<String, dynamic>>[],
+      };
+    });
+    final gateway = SupabasePlatformAdminGateway(
+      rpcClient: SupabaseSchemaRpcClient(
+        supabase: supabase,
+        schema: 'iam',
+        mapError: (error, [stackTrace]) => RpcException(error.toString()),
+      ),
+    );
+
+    final detail = await gateway.getPlatformTenant('tenant-prov');
+
+    expect(detail.status, TenantLifecycleStatus.provisioning);
+    expect(detail.unverifiedEmail, isFalse);
+    expect(detail.ownerEmail, 'sychien212@gmail.com');
   });
 }

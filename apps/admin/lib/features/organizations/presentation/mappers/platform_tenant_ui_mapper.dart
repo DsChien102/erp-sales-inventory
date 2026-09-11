@@ -32,7 +32,7 @@ abstract final class PlatformTenantUiMapper {
   static String _normalizeRoleLabel(String? roleLabel) {
     if (roleLabel == null || roleLabel.isEmpty) return 'Chủ sở hữu';
     if (roleLabel.toLowerCase() == 'owner') return 'Chủ sở hữu';
-    return roleLabel;
+    return IamRoleLabelMapper.toDisplayLabel(roleLabel);
   }
 
   static OrganizationUiModel fromDetail(PlatformTenantDetailDto dto) {

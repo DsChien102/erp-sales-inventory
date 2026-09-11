@@ -82,6 +82,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
               if (state.inspection?.inviteeEmail != null)
                 'prefilledEmail': state.inspection!.inviteeEmail,
               'showSuccessBanner': true,
+              if (state.inspection?.tenantName != null)
+                'organizationName': state.inspection!.tenantName,
             },
           );
           return;
@@ -89,7 +91,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
 
         if ((state.step == InvitationAcceptanceStep.existingAccountLogin ||
              state.step == InvitationAcceptanceStep.newAccountRegistration) &&
-            state.inspection != null) {
+            state.inspection != null &&
+            state.failure == null) {
           final inspection = state.inspection!;
           final cubit = context.read<InvitationAcceptanceCubit>();
           () async {
@@ -99,13 +102,7 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
             if (!context.mounted) return;
             if (confirmed == true) {
               if (inspection.accountExists) {
-                context.go(
-                  '/login',
-                  extra: {
-                    'prefilledEmail': inspection.inviteeEmail,
-                    'showSuccessBanner': true,
-                  },
-                );
+                await cubit.acceptExistingAccount();
               } else {
                 setState(() => _confirmedNewAccount = true);
               }
@@ -172,6 +169,7 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
       case InvitationAcceptanceStep.newAccountRegistration:
         return state.inspection == null || !_confirmedNewAccount;
       case InvitationAcceptanceStep.submitting:
+        return state.inspection?.accountExists == true;
       case InvitationAcceptanceStep.accepted:
       case InvitationAcceptanceStep.declined:
       case InvitationAcceptanceStep.blocked:
@@ -232,6 +230,12 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         }
         return const InvitationRegistrationPage();
       case InvitationAcceptanceStep.submitting:
+        if (state.inspection?.accountExists == true) {
+          return InvitationTokenEntryForm(
+            isSubmitting: true,
+            onInspect: cubit.inspect,
+          );
+        }
         return const InvitationRegistrationPage();
       case InvitationAcceptanceStep.accepted:
         return const SizedBox.shrink();

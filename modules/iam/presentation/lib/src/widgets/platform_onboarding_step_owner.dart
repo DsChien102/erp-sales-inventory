@@ -24,6 +24,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
     this.emailErrorText,
     this.phoneErrorText,
     this.allowNewOwnerCreation = true,
+    this.hasDuplicateEmail = false,
   });
 
   final bool isNewOwner;
@@ -45,6 +46,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
   final String? emailErrorText;
   final String? phoneErrorText;
   final bool allowNewOwnerCreation;
+  final bool hasDuplicateEmail;
 
   @override
   State<PlatformOnboardingStepOwner> createState() => _PlatformOnboardingStepOwnerState();
@@ -94,6 +96,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.hasDuplicateEmail) ...[
+            const VBanner(
+              status: VBannerStatus.warning,
+              title: 'Email đã có tài khoản',
+              description: 'Vui lòng quay lại để chọn tài khoản hiện có.',
+            ),
+            const VGap.md(),
+          ],
           VTextField(
             controller: widget.lastNameController,
             label: 'Họ và tên đệm',

@@ -155,6 +155,16 @@ void main() {
     expect(sql, contains('completed_steps'));
     expect(sql, contains('failed_step'));
   });
+
+  test('003 draft patch get_platform_tenant returns owner_email_verified', () {
+    final root = _findRepoRoot();
+    final draftFile = File('${root.path}/supabase/migrations/_drafts/003_iam_patch_get_platform_tenant_owner_email_verified.sql');
+    expect(draftFile.existsSync(), isTrue);
+    final sql = draftFile.readAsStringSync();
+    expect(sql, contains('(u.email_confirmed_at is not null) as owner_email_verified'));
+    expect(sql, contains("'owner_email_verified', coalesce(v_owner.owner_email_verified, false)"));
+    expect(sql, isNot(contains("'unverified_email'")));
+  });
 }
 
 Directory _findRepoRoot() {
