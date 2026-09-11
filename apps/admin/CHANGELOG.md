@@ -38,6 +38,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- IAM audit logs: filter theo ngày dùng mốc ICT (`VDateTime.ictOffset`) thay vì local→UTC thuần.
+
 - App-owned presentation (ADR 11): IAM UI widgets/views chuyển vào `apps/admin/lib/features/iam/`; bỏ dependency `vet45_iam_presentation`.
 
 - Design system: bỏ `VComponentState`; interactive controls dùng `enabled` (+ soft inherit `VComponentScope`).

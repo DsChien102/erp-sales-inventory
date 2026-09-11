@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -158,16 +159,14 @@ final class TenantAuditLogsCubit extends Cubit<TenantAuditLogsState> {
     );
   }
 
-  /// Local calendar day start → UTC.
+  /// Business calendar day start (ICT) → UTC.
   static DateTime toUtcStartOfLocalDay(DateTime local) {
-    final start = DateTime(local.year, local.month, local.day);
-    return start.toUtc();
+    return DateTime.utc(local.year, local.month, local.day).subtract(VDateTime.ictOffset);
   }
 
-  /// Local next-day midnight (end-exclusive) → UTC.
+  /// Business next-day midnight (ICT, end-exclusive) → UTC.
   static DateTime toUtcEndExclusiveOfLocalDay(DateTime local) {
-    final next = DateTime(local.year, local.month, local.day).add(const Duration(days: 1));
-    return next.toUtc();
+    return DateTime.utc(local.year, local.month, local.day + 1).subtract(VDateTime.ictOffset);
   }
 
   List<TenantAuditLogSummaryDto> _dedupeAppend(
