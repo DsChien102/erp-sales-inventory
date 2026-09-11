@@ -12,6 +12,7 @@ import '../bloc/organization_profile_form_input.dart';
 import '../bloc/organization_profile_state.dart';
 import '../data/vn_administrative_units_loader.dart';
 import '../mappers/organization_profile_ui_mapper.dart';
+import '../widgets/administrative_units_form_section.dart';
 import '../widgets/tax_code_duplicate_warning_bottom_sheet.dart';
 
 /// Trang Thêm / Chỉnh sửa hồ sơ pháp lý (TA-D-03 & TA-D-04 / S12).
@@ -111,17 +112,6 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
       _selectedCommuneCode = ui.communeCode;
     }
     _seeded = true;
-  }
-
-  VnAdministrativeUnit? _findProvinceByCode(
-    List<VnAdministrativeUnit> units,
-    String? code,
-  ) {
-    if (code == null || code.isEmpty) return null;
-    for (final unit in units) {
-      if (unit.code == code) return unit;
-    }
-    return null;
   }
 
   bool _validateLocal() {
@@ -330,122 +320,105 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                 color: colors.textSecondary,
               ),
               const VGap.md(),
-              VSelect<String>(
-                label: 'Loại chủ thể',
-                hintText: 'Chọn loại chủ thể',
-                value: _selectedEntityType,
-                errorText: _entityTypeError,
-                tone: _entityTypeError != null
-                    ? VComponentTone.danger
-                    : VComponentTone.neutral,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'ENTERPRISE',
-                    child: VText('Doanh nghiệp'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'HOUSEHOLD_BUSINESS',
-                    child: VText('Hộ kinh doanh'),
-                  ),
-                ],
-                onChanged: (val) {
+              VField(
+                invalid: _entityTypeError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Loại chủ thể'),
+                    VSelect<String>(
+                      hintText: 'Chọn loại chủ thể',
+                      value: _selectedEntityType,
+                      tone: _entityTypeError != null
+                          ? VComponentTone.danger
+                          : VComponentTone.neutral,
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'ENTERPRISE',
+                          child: VText('Doanh nghiệp'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'HOUSEHOLD_BUSINESS',
+                          child: VText('Hộ kinh doanh'),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedEntityType = val;
+                          _entityTypeError = null;
+                        });
+                      },
+                    ),
+                    if (_entityTypeError != null)
+                      VFieldError(_entityTypeError!),
+                  ],
+                ),
+              ),
+              const VGap.md(),
+              VField(
+                invalid: _legalNameError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Tên pháp lý', isRequired: true),
+                    VTextField(
+                      hintText: 'Nhập tên pháp lý',
+                      controller: _legalNameController,
+                      tone: _legalNameError != null
+                          ? VComponentTone.danger
+                          : VComponentTone.neutral,
+                    ),
+                    if (_legalNameError != null)
+                      VFieldError(_legalNameError!),
+                  ],
+                ),
+              ),
+              const VGap.md(),
+              VField(
+                invalid: _taxCodeError != null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Mã số thuế', isRequired: true),
+                    VTextField(
+                      hintText: 'Nhập mã số thuế',
+                      controller: _taxCodeController,
+                      keyboardType: TextInputType.number,
+                      tone: _taxCodeError != null
+                          ? VComponentTone.danger
+                          : VComponentTone.neutral,
+                    ),
+                    if (_taxCodeError != null)
+                      VFieldError(_taxCodeError!),
+                  ],
+                ),
+              ),
+              const VGap.md(),
+              VField(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VFieldLabel('Địa chỉ đăng ký'),
+                    VTextField(
+                      hintText: 'Nhập địa chỉ đăng ký',
+                      controller: _addressController,
+                    ),
+                  ],
+                ),
+              ),
+              const VGap.md(),
+              AdministrativeUnitsFormSection(
+                unitsFuture: _unitsFuture,
+                selectedProvinceCode: _selectedProvinceCode,
+                selectedCommuneCode: _selectedCommuneCode,
+                onProvinceChanged: (code) {
                   setState(() {
-                    _selectedEntityType = val;
-                    _entityTypeError = null;
+                    _selectedProvinceCode = code;
+                    _selectedCommuneCode = null;
                   });
                 },
-              ),
-              const VGap.md(),
-              VTextField(
-                label: 'Tên pháp lý',
-                isRequired: true,
-                hintText: 'Nhập tên pháp lý',
-                controller: _legalNameController,
-                errorText: _legalNameError,
-                tone: _legalNameError != null
-                    ? VComponentTone.danger
-                    : VComponentTone.neutral,
-              ),
-              const VGap.md(),
-              VTextField(
-                label: 'Mã số thuế',
-                isRequired: true,
-                hintText: 'Nhập mã số thuế',
-                controller: _taxCodeController,
-                keyboardType: TextInputType.number,
-                errorText: _taxCodeError,
-                tone: _taxCodeError != null
-                    ? VComponentTone.danger
-                    : VComponentTone.neutral,
-              ),
-              const VGap.md(),
-              VTextField(
-                label: 'Địa chỉ đăng ký',
-                hintText: 'Nhập địa chỉ đăng ký',
-                controller: _addressController,
-              ),
-              const VGap.md(),
-              FutureBuilder<List<VnAdministrativeUnit>>(
-                future: _unitsFuture,
-                builder: (context, snapshot) {
-                  final units = snapshot.data ?? const [];
-                  final selectedProvince =
-                      _findProvinceByCode(units, _selectedProvinceCode);
-                  final provinceItems = units
-                      .map(
-                        (u) => DropdownMenuEntry<String>(
-                          value: u.code,
-                          label: u.fullName,
-                        ),
-                      )
-                      .toList(growable: false);
-                  final wardList =
-                      selectedProvince?.wards ?? const <VnWard>[];
-                  final wardItems = wardList
-                      .map(
-                        (w) => DropdownMenuEntry<String>(
-                          value: w.code,
-                          label: w.fullName,
-                        ),
-                      )
-                      .toList(growable: false);
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SearchDropdownField(
-                        label: 'Tỉnh / thành phố',
-                        child: VCombobox<String>(
-                          value: selectedProvince?.code,
-                          hintText: 'Chọn tỉnh / thành phố',
-                          items: provinceItems,
-                          onChanged: (code) {
-                            setState(() {
-                              _selectedProvinceCode = code;
-                              _selectedCommuneCode = null;
-                            });
-                          },
-                        ),
-                      ),
-                      const VGap.md(),
-                      _SearchDropdownField(
-                        label: 'Xã / phường',
-                        child: VCombobox<String>(
-                          value: wardItems.any((i) => i.value == _selectedCommuneCode)
-                              ? _selectedCommuneCode
-                              : null,
-                          hintText: _selectedProvinceCode != null
-                              ? 'Chọn xã / phường'
-                              : 'Chọn tỉnh / thành phố trước',
-                          enabled: _selectedProvinceCode != null,
-                          items: wardItems,
-                          onChanged: (code) {
-                            setState(() => _selectedCommuneCode = code);
-                          },
-                        ),
-                      ),
-                    ],
-                  );
+                onCommuneChanged: (code) {
+                  setState(() => _selectedCommuneCode = code);
                 },
               ),
               const VGap.md(),
@@ -453,33 +426,6 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
           ),
         );
       },
-    );
-  }
-}
-
-class _SearchDropdownField extends StatelessWidget {
-  const _SearchDropdownField({
-    required this.label,
-    required this.child,
-  });
-
-  final String label;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        VText(
-          label,
-          variant: VTextVariant.bodySmall,
-          color: context.vColors.textPrimary,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-        const VGap.sm(),
-        child,
-      ],
     );
   }
 }

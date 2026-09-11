@@ -140,9 +140,9 @@ class _OrganizationFilterBottomSheetState
               final isSelected = _currentCriteria.status == status;
               return VChip(
                 label: status.filterLabel,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: isSelected
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria =
@@ -164,9 +164,9 @@ class _OrganizationFilterBottomSheetState
               final isSelected = _currentCriteria.lifecycle == option;
               return VChip(
                 label: option,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: isSelected
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria =
@@ -188,9 +188,9 @@ class _OrganizationFilterBottomSheetState
               final isSelected = _currentCriteria.completion == option;
               return VChip(
                 label: option,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: isSelected
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria =

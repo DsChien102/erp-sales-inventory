@@ -87,19 +87,27 @@ class _RevokeInvitationSheetBodyState extends State<_RevokeInvitationSheetBody> 
             variant: VTextVariant.bodyDefault,
             color: colors.textSecondary,
           ),
-          const VGap.md(),
-          VTextFormField(
-            controller: _reasonController,
-            label: 'Lý do thu hồi',
-            hintText: 'Ví dụ: Sai email người nhận',
-            enabled: !_submitting,
-            maxLines: 3,
-            errorText: _localError,
-            onChanged: (_) {
-              if (_localError != null) {
-                setState(() => _localError = null);
-              }
-            },
+          VField(
+            invalid: _localError != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Lý do thu hồi'),
+                VTextFormField(
+                  controller: _reasonController,
+                  hintText: 'Ví dụ: Sai email người nhận',
+                  enabled: !_submitting,
+                  maxLines: 3,
+                  onChanged: (_) {
+                    if (_localError != null) {
+                      setState(() => _localError = null);
+                    }
+                  },
+                ),
+                if (_localError != null)
+                  VFieldError(_localError!),
+              ],
+            ),
           ),
           const VGap.lg(),
           VButton(

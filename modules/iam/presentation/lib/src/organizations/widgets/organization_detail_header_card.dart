@@ -14,13 +14,13 @@ class OrganizationDetailHeaderCard extends StatelessWidget {
     this.onTap,
   });
 
-  VBadgeStatus _resolveBadgeStatus(OrganizationStatus status) {
+  VComponentTone _resolveBadgeTone(OrganizationStatus status) {
     return switch (status) {
-      OrganizationStatus.settingUp => VBadgeStatus.warning,
-      OrganizationStatus.active => VBadgeStatus.success,
-      OrganizationStatus.suspended => VBadgeStatus.danger,
-      OrganizationStatus.closed => VBadgeStatus.danger,
-      OrganizationStatus.all => VBadgeStatus.info,
+      OrganizationStatus.settingUp => VComponentTone.warning,
+      OrganizationStatus.active => VComponentTone.success,
+      OrganizationStatus.suspended => VComponentTone.danger,
+      OrganizationStatus.closed => VComponentTone.danger,
+      OrganizationStatus.all => VComponentTone.info,
     };
   }
 
@@ -37,7 +37,8 @@ class OrganizationDetailHeaderCard extends StatelessWidget {
           // Status Badge
           VBadge(
             label: organization.status.label,
-            status: _resolveBadgeStatus(organization.status),
+            tone: _resolveBadgeTone(organization.status),
+            variant: VBadgeVariant.soft,
             isSmall: true,
           ),
           const VGap.md(),

@@ -297,11 +297,11 @@ class _PlatformUserDetailView extends StatelessWidget {
         }
 
         final user = state.user!;
-        final badgeStatus = user.status == PlatformUserStatus.active
-            ? VBadgeStatus.success
+        final badgeTone = user.status == PlatformUserStatus.active
+            ? VComponentTone.success
             : user.status == PlatformUserStatus.pendingActivation
-            ? VBadgeStatus.warning
-            : VBadgeStatus.danger;
+            ? VComponentTone.warning
+            : VComponentTone.danger;
 
         final badgeLabel = user.status == PlatformUserStatus.active
             ? 'Đang hoạt động'
@@ -339,7 +339,8 @@ class _PlatformUserDetailView extends StatelessWidget {
                         children: [
                           VBadge(
                             label: badgeLabel,
-                            status: badgeStatus,
+                            tone: badgeTone,
+                            variant: VBadgeVariant.soft,
                             isSmall: true,
                           ),
                           const VGap.md(),

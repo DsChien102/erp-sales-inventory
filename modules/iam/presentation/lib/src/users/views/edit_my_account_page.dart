@@ -357,34 +357,60 @@ class _EditFormScaffold extends StatelessWidget {
             ),
           ),
           const VGap.lg(),
-          VTextField(
-            label: 'Họ và tên đệm',
-            isRequired: true,
-            hintText: 'Nhập họ và tên đệm',
-            controller: lastNameController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Họ và tên đệm', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập họ và tên đệm',
+                  controller: lastNameController,
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Tên',
-            isRequired: true,
-            hintText: 'Nhập tên',
-            controller: firstNameController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Tên', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập tên',
+                  controller: firstNameController,
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Số điện thoại',
-            hintText: 'Nhập số điện thoại',
-            keyboardType: TextInputType.phone,
-            controller: phoneNumberController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Số điện thoại'),
+                VTextField(
+                  hintText: 'Nhập số điện thoại',
+                  keyboardType: TextInputType.phone,
+                  controller: phoneNumberController,
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Email đăng nhập',
-            controller: emailController,
-            enabled: false,
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Email đăng nhập'),
+                VTextField(
+                  controller: emailController,
+                  enabled: false,
+                ),
+              ],
+            ),
           ),
           const VGap.xl(),
         ],

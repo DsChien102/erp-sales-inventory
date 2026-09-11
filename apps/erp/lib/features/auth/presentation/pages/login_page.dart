@@ -274,32 +274,50 @@ class _LoginViewState extends State<_LoginView> {
                             ),
                             const VGap.lg(),
                           ],
-                          VEmailField(
-                            controller: _emailController,
-                            label: 'Email',
-                            hintText: 'Nhập email',
-                            validateOnChanged: false,
-                            errorText: _emailError,
-                            onChanged: (_) {
-                              if (_emailError != null) {
-                                setState(() => _emailError = null);
-                              }
-                            },
+                          VField(
+                            invalid: _emailError != null,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const VFieldLabel('Email'),
+                                VEmailField(
+                                  controller: _emailController,
+                                  hintText: 'Nhập email',
+                                  validateOnChanged: false,
+                                  onChanged: (_) {
+                                    if (_emailError != null) {
+                                      setState(() => _emailError = null);
+                                    }
+                                  },
+                                ),
+                                if (_emailError != null)
+                                  VFieldError(_emailError!),
+                              ],
+                            ),
                           ),
                           const VGap.md(),
-                          VPasswordField(
-                            controller: _passwordController,
-                            label: 'Mật khẩu',
-                            hintText: 'Nhập mật khẩu',
-                            minLength: 1,
-                            validateOnChanged: false,
-                            errorText: _passwordError,
-                            onChanged: (_) {
-                              if (_passwordError != null) {
-                                setState(() => _passwordError = null);
-                              }
-                            },
-                            onSubmitted: (_) => _submit(),
+                          VField(
+                            invalid: _passwordError != null,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const VFieldLabel('Mật khẩu'),
+                                VPasswordField(
+                                  controller: _passwordController,
+                                  hintText: 'Nhập mật khẩu',
+                                  minLength: 1,
+                                  validateOnChanged: false,
+                                  onChanged: (_) {
+                                    if (_passwordError != null) {
+                                      setState(() => _passwordError = null);
+                                    }
+                                  },
+                                  onSubmitted: (_) => _submit(),
+                                ),
+                                if (_passwordError != null)
+                                  VFieldError(_passwordError!),
+                              ],
+                            ),
                           ),
                           const VGap.md(),
                           Align(

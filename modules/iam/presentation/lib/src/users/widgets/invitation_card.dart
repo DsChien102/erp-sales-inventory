@@ -17,14 +17,14 @@ class InvitationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    final (badgeLabel, badgeStatus) = switch (invitation.status) {
-      InvitationStatus.failed => ('Lỗi gửi', VBadgeStatus.danger),
-      InvitationStatus.pending => ('Đang chờ', VBadgeStatus.warning),
-      InvitationStatus.expiring => ('Sắp hết hạn', VBadgeStatus.danger),
-      InvitationStatus.accepted => ('Đã chấp nhận', VBadgeStatus.success),
-      InvitationStatus.declined => ('Đã từ chối', VBadgeStatus.cancelled),
-      InvitationStatus.revoked => ('Đã thu hồi', VBadgeStatus.cancelled),
-      InvitationStatus.expired => ('Hết hạn', VBadgeStatus.locked),
+    final (badgeLabel, badgeTone) = switch (invitation.status) {
+      InvitationStatus.failed => ('Lỗi gửi', VComponentTone.danger),
+      InvitationStatus.pending => ('Đang chờ', VComponentTone.warning),
+      InvitationStatus.expiring => ('Sắp hết hạn', VComponentTone.danger),
+      InvitationStatus.accepted => ('Đã chấp nhận', VComponentTone.success),
+      InvitationStatus.declined => ('Đã từ chối', VComponentTone.neutral),
+      InvitationStatus.revoked => ('Đã thu hồi', VComponentTone.neutral),
+      InvitationStatus.expired => ('Hết hạn', VComponentTone.neutral),
     };
 
     return VCard(
@@ -60,7 +60,8 @@ class InvitationCard extends StatelessWidget {
           const VGap.horizontalSm(),
           VBadge(
             label: badgeLabel,
-            status: badgeStatus,
+            tone: badgeTone,
+            variant: VBadgeVariant.soft,
             isSmall: true,
           ),
         ],

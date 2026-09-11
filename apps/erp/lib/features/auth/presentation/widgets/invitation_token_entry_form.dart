@@ -75,24 +75,35 @@ class _InvitationTokenEntryFormState extends State<InvitationTokenEntryForm> {
                       'trường bên dưới.',
                 ),
                 const VGap.xl(),
-                KeyedSubtree(
-                  key: const Key('invitation_token_input'),
-                  child: VVerificationCodeField(
-                    length: 8,
-                    charset: VVerificationCodeCharset.alphanumeric,
-                    label: 'Mã lời mời',
-                    isRequired: true,
-                    autofocus: true,
-                    enabled: !isSubmitting,
-                    errorText: _error,
-                    helperText: 'Mã không phân biệt chữ hoa và chữ thường.',
-                    onChanged: (value) {
-                      setState(() {
-                        _token = value;
-                        if (_error != null) _error = null;
-                      });
-                    },
-                    onCompleted: (_) => _submit(),
+                VField(
+                  invalid: _error != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Mã lời mời', isRequired: true),
+                      KeyedSubtree(
+                        key: const Key('invitation_token_input'),
+                        child: VVerificationCodeField(
+                          length: 8,
+                          charset: VVerificationCodeCharset.alphanumeric,
+                          autofocus: true,
+                          enabled: !isSubmitting,
+                          onChanged: (value) {
+                            setState(() {
+                              _token = value;
+                              if (_error != null) _error = null;
+                            });
+                          },
+                          onCompleted: (_) => _submit(),
+                        ),
+                      ),
+                      if (_error != null)
+                        VFieldError(_error!)
+                      else
+                        const VFieldDescription(
+                          'Mã không phân biệt chữ hoa và chữ thường.',
+                        ),
+                    ],
                   ),
                 ),
               ],

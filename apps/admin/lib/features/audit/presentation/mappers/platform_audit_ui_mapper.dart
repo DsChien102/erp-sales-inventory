@@ -32,11 +32,11 @@ abstract final class PlatformAuditUiMapper {
     if (title.isNotEmpty && _localizedEventTitles.containsKey(title)) {
       return _localizedEventTitles[title]!;
     }
-    if (actionCode != null && _localizedEventTitles.containsKey(actionCode)) {
-      return _localizedEventTitles[actionCode]!;
-    }
     if (title.isNotEmpty && !title.contains('.')) {
       return title;
+    }
+    if (actionCode != null && _localizedEventTitles.containsKey(actionCode)) {
+      return _localizedEventTitles[actionCode]!;
     }
     final code = title.isNotEmpty ? title : (actionCode ?? '');
     if (code.isEmpty) return '—';

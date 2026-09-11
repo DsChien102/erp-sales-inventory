@@ -1,7 +1,6 @@
 import 'package:admin/features/organizations/presentation/bloc/platform_onboarding_cubit.dart';
 import 'package:admin/features/organizations/presentation/bloc/platform_onboarding_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 
 void main() {

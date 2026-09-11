@@ -62,7 +62,8 @@ class OrganizationRoleDetailPage extends StatelessWidget {
                               ),
                               VBadge(
                                 label: '${role.permissionCount} quyền',
-                                status: VBadgeStatus.info,
+                                tone: VComponentTone.info,
+                                variant: VBadgeVariant.soft,
                                 isSmall: true,
                               ),
                             ],

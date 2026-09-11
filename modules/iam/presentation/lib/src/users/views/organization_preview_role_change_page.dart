@@ -105,7 +105,8 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
                     ),
                     VBadge(
                       label: isActive ? 'Hoạt động' : 'Tạm ngừng',
-                      status: isActive ? VBadgeStatus.success : VBadgeStatus.danger,
+                      tone: isActive ? VComponentTone.success : VComponentTone.danger,
+                      variant: VBadgeVariant.soft,
                       isSmall: true,
                     ),
                   ],

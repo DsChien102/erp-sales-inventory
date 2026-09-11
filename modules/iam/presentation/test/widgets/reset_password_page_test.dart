@@ -33,11 +33,10 @@ final class _ScriptedIamModule implements IIamModule {
 final class _RecordingPageIamModule implements IIamModule {
   _RecordingPageIamModule({
     this.verifyResult = true,
-    this.resendAvailableAfter = const Duration(seconds: 2),
   });
 
   final bool verifyResult;
-  final Duration resendAvailableAfter;
+  Duration resendAvailableAfter = const Duration(seconds: 3);
   final List<Type> commandTypes = <Type>[];
   DateTime Function() clock = DateTime.now;
 

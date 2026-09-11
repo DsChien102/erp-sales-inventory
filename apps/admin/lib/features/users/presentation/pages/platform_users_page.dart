@@ -186,9 +186,9 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
                       padding: const EdgeInsets.only(right: VSpacing.space2),
                       child: VChip(
                         label: entry.$1,
-                        emphasis: state.statusFilter == entry.$2
-                            ? VComponentEmphasis.strong
-                            : VComponentEmphasis.medium,
+                        tone: state.statusFilter == entry.$2
+                            ? VComponentTone.primary
+                            : VComponentTone.neutral,
                         onTap: () => context
                             .read<PlatformUsersCubit>()
                             .setStatusFilter(entry.$2),
