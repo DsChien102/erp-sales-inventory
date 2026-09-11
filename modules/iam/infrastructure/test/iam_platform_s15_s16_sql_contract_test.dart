@@ -19,6 +19,18 @@ void main() {
     drafts = {
       for (final entry in mapping.entries)
         entry.key: File('${root.path}/supabase/migrations/${entry.value}').readAsStringSync(),
+      '005_iam_get_platform_tenant_owner_from_invitation.sql': File(
+        '${root.path}/supabase/migrations/_drafts/005_iam_get_platform_tenant_owner_from_invitation.sql',
+      ).readAsStringSync(),
+      '006_iam_onboarding_owner_membership_with_invitation.sql': File(
+        '${root.path}/supabase/migrations/_drafts/006_iam_onboarding_owner_membership_with_invitation.sql',
+      ).readAsStringSync(),
+      '007_iam_hybrid_owner_accept_decline_unwind.sql': File(
+        '${root.path}/supabase/migrations/_drafts/007_iam_hybrid_owner_accept_decline_unwind.sql',
+      ).readAsStringSync(),
+      '008_iam_reinvite_provisioning_owner.sql': File(
+        '${root.path}/supabase/migrations/_drafts/008_iam_reinvite_provisioning_owner.sql',
+      ).readAsStringSync(),
     };
   });
 
@@ -117,6 +129,61 @@ void main() {
     );
   });
 
+  test(
+    'draft get_platform_tenant owner from membership + profiles '
+    '(no invitation path)',
+    () {
+      final sql =
+          drafts['005_iam_get_platform_tenant_owner_from_invitation.sql']!;
+
+      expect(sql, contains('create or replace function iam.get_platform_tenant'));
+      expect(sql, contains('Touches: iam.get_platform_tenant'));
+      expect(sql, contains('iam.platform_user_profiles'));
+      expect(
+        sql,
+        contains("concat_ws(' ', p.family_middle_name, p.given_name)"),
+      );
+      expect(
+        sql,
+        contains('join iam.platform_user_profiles p on p.user_id = m.user_id'),
+      );
+      expect(sql, isNot(contains('iam.tenant_invitations')));
+      expect(sql, isNot(contains('invitee_email')));
+      expect(sql, isNot(contains("v_tenant.status = 'provisioning'")));
+    },
+  );
+
+  test('draft onboarding creates owner membership with invitation', () {
+    final sql =
+        drafts['006_iam_onboarding_owner_membership_with_invitation.sql']!;
+
+    expect(sql, contains('create or replace function iam.create_tenant_onboarding'));
+    expect(sql, contains("'store_owner'"));
+    expect(sql, contains('is_owner'));
+    expect(sql, contains("'owner_membership_id', v_membership_id"));
+    expect(sql, contains('iam.tenant_invitations'));
+    expect(sql, contains('drop constraint if exists memberships_user_id_fkey'));
+  });
+
+  test('draft accept/decline unwind provisioning owner membership', () {
+    final sql = drafts['007_iam_hybrid_owner_accept_decline_unwind.sql']!;
+
+    expect(sql, contains('iam._unwind_provisioning_owner_membership'));
+    expect(sql, contains("status = 'removed'"));
+    expect(sql, contains("v_status <> 'provisioning'"));
+    expect(sql, contains('v_inv.is_owner is true'));
+    expect(sql, contains('v_linked_existing'));
+  });
+
+  test('draft reinvite_provisioning_owner assigns owner again', () {
+    final sql = drafts['008_iam_reinvite_provisioning_owner.sql']!;
+
+    expect(sql, contains('create or replace function iam.reinvite_provisioning_owner'));
+    expect(sql, contains('OWNER_ALREADY_ASSIGNED'));
+    expect(sql, contains("'tenant_status', 'provisioning'"));
+    expect(sql, contains("'owner_membership_id', v_membership_id"));
+  });
+
   test('005/011/012 lifecycle include version + idempotency', () {
     expect(
       drafts['005_iam_platform_user_lifecycle.sql'],
@@ -156,14 +223,29 @@ void main() {
     expect(sql, contains('failed_step'));
   });
 
-  test('003 draft patch get_platform_tenant returns owner_email_verified', () {
-    final root = _findRepoRoot();
-    final draftFile = File('${root.path}/supabase/migrations/_drafts/003_iam_patch_get_platform_tenant_owner_email_verified.sql');
-    expect(draftFile.existsSync(), isTrue);
-    final sql = draftFile.readAsStringSync();
-    expect(sql, contains('(u.email_confirmed_at is not null) as owner_email_verified'));
+  test('005 draft get_platform_tenant keeps owner_email_verified (merged 003)', () {
+    final sql = drafts['005_iam_get_platform_tenant_owner_from_invitation.sql']!;
+    expect(sql, contains('coalesce(p.email_verified, false) as owner_email_verified'));
     expect(sql, contains("'owner_email_verified', coalesce(v_owner.owner_email_verified, false)"));
+    expect(sql, isNot(contains('email_confirmed_at')));
     expect(sql, isNot(contains("'unverified_email'")));
+  });
+
+  test('007 draft accept_invitation keeps anon grant and resolve (merged 004)', () {
+    final sql = drafts['007_iam_hybrid_owner_accept_decline_unwind.sql']!;
+    final acceptFn = sql.substring(
+      sql.indexOf('create or replace function iam.accept_invitation('),
+      sql.indexOf('create or replace function iam.decline_invitation('),
+    );
+    expect(acceptFn, isNot(contains("raise exception 'AUTHENTICATION_REQUIRED'")));
+    expect(acceptFn, contains('Resolve caller'));
+    expect(acceptFn, contains('iam.user_preferences'));
+    expect(
+      sql,
+      contains(
+        'grant execute on function iam.accept_invitation(text, text) to anon, authenticated',
+      ),
+    );
   });
 }
 

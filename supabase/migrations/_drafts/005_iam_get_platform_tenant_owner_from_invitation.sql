@@ -1,10 +1,10 @@
--- Title: iam patch get_platform_tenant returns owner_email_verified
--- Kind: surgical
--- Intent: iam_platform_tenant_owner_email_verified
--- Context: TH-01 / platform tenant detail owner email verified status
+-- Title: iam get_platform_tenant owner from platform_user_profiles
+-- Kind: patch
+-- Intent: iam_get_platform_tenant_owner_from_profile
+-- Context: TH-01 / platform tenant detail — owner luôn từ membership is_owner + platform_user_profiles (family_middle_name + given_name); KHÔNG resolve qua tenant_invitations (hybrid: membership tạo lúc invite). owner_email_verified chỉ từ platform_user_profiles.email_verified (app-owned activation), không phụ thuộc Auth email confirmation.
 -- Touches: iam.get_platform_tenant
--- Safety: idempotent ; low
--- Depends on: 20260811010_iam_platform_tenants_read
+-- Safety: idempotent; medium
+-- Depends on: 20260811010_iam_platform_tenants_read.sql, 003_iam_patch_get_platform_tenant_owner_email_verified.sql, 006_iam_onboarding_owner_membership_with_invitation.sql
 
 create or replace function iam.get_platform_tenant(p_tenant_id uuid)
 returns jsonb
@@ -76,18 +76,21 @@ begin
     order by m.user_id, m.is_owner desc, m.created_at desc
   ) m;
 
+  -- Owner: membership is_owner + platform_user_profiles (mọi status, kể cả provisioning).
+  -- Verified: chỉ platform_user_profiles.email_verified (set khi accept/kích hoạt app).
   select
-    m.user_id,
+    p.user_id,
     coalesce(
-      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email::text, '')
+      nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
+      nullif(trim(p.email), ''),
+      ''
     )::text as owner_name,
-    coalesce(u.email::text, '')::text as owner_email,
+    coalesce(nullif(trim(p.email), ''), '')::text as owner_email,
     coalesce(rd.label, m.role::text) as owner_role,
-    (u.email_confirmed_at is not null) as owner_email_verified
+    coalesce(p.email_verified, false) as owner_email_verified
   into v_owner
   from iam.memberships m
-  join auth.users u on u.id = m.user_id
+  join iam.platform_user_profiles p on p.user_id = m.user_id
   left join iam.role_definitions rd on rd.code = m.role
   where m.tenant_id = p_tenant_id
     and m.is_owner

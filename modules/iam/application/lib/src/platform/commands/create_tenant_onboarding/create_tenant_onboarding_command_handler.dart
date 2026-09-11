@@ -4,9 +4,8 @@ import '../../shared/tenant_onboarding_result_dto.dart';
 import '../../../ports/i_platform_admin_gateway.dart';
 import 'create_tenant_onboarding_command.dart';
 
-/// Hướng 1: for a NEW owner the account is NOT created here — onboarding issues an
-/// activation code (the owner signs up + accepts later). For an existing owner the
-/// membership is created immediately. No identity pre-provisioning either way.
+/// Hybrid: creates Owner Membership immediately for new and existing owners,
+/// and queues an activation invitation for the designated owner.
 @CommandHandlerFor(CreateTenantOnboardingCommand)
 final class CreateTenantOnboardingCommandHandler
     implements ICommandHandler<CreateTenantOnboardingCommand, TenantOnboardingResultDto> {

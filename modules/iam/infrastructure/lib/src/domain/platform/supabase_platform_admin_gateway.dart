@@ -216,6 +216,47 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
+  Future<TenantOnboardingResultDto> reinviteProvisioningOwner({
+    required String tenantId,
+    required bool isNewUser,
+    required String idempotencyKey,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
+    String? correlationId,
+  }) async {
+    try {
+      final result = await _rpcClient.callMap(
+        'reinvite_provisioning_owner',
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_idempotency_key': idempotencyKey,
+          'p_is_new_user': isNewUser,
+          'p_owner_user_id': ownerUserId,
+          'p_owner_email': ownerEmail,
+          'p_owner_given_name': ownerGivenName,
+          'p_owner_family_name': ownerFamilyName,
+          'p_owner_phone': ownerPhone,
+          'p_correlation_id': correlationId,
+        },
+      );
+      return TenantOnboardingResultDto(
+        tenantId: result['tenant_id'] as String,
+        ownerMembershipId: result['owner_membership_id'] as String?,
+        ownerUserId: result['owner_user_id'] as String?,
+        tenantStatus: result['tenant_status'] as String,
+        correlationId: result['correlation_id'] as String,
+        isNewUser: result['is_new_user'] as bool? ?? isNewUser,
+        activationIssued: result['activation_issued'] as bool? ?? false,
+      );
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
   Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
     String operationId,
   ) async {

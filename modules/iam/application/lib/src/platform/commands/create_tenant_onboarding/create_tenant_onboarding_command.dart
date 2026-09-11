@@ -4,11 +4,8 @@ import 'package:vet45_shared_application/application.dart';
 import '../../shared/onboarding_owner_input.dart';
 import '../../shared/tenant_onboarding_result_dto.dart';
 
-/// Atomic tenant + first-owner onboarding (EP-01/US-03).
-///
-/// Creates Tenant (provisioning), Owner Membership (`is_owner=true`,
-/// role Chủ cửa hàng), and optionally a pending Platform User.
-/// Retry-safe via [idempotencyKey] (BR-05).
+/// Hybrid: creates Tenant (provisioning), Owner Membership immediately, and
+/// an owner activation invitation. Retry-safe via [idempotencyKey] (BR-05).
 @RequiresPermission(IamPlatformPermissions.tenantCreate)
 @Idempotent(keyField: 'idempotencyKey')
 final class CreateTenantOnboardingCommand extends CommandBase<TenantOnboardingResultDto>

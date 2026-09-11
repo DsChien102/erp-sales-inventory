@@ -30,7 +30,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Fixed
 
 - Onboarding tổ chức: card chủ sở hữu đã chọn hiện SĐT thật (ẩn nếu thiếu), bỏ hardcode.
-- Chi tiết tổ chức: hết báo nhầm "Email Chủ sở hữu chưa xác minh" khi email đã xác minh — RPC trả thẳng trạng thái thật thay vì để client tự suy đoán từ trạng thái "Đang thiết lập" (cần promote draft SQL `003`).
+- Chi tiết tổ chức: hết báo nhầm "Email Chủ sở hữu chưa xác minh" khi email đã xác minh — RPC trả thẳng trạng thái thật thay vì để client tự suy đoán từ trạng thái "Đang thiết lập" (cần promote draft SQL `003`→`005`).
+- Chi tiết người dùng nền tảng: hiện "Chưa đặt tên" khi `fullName` trống.
+- Chi tiết tổ chức: tên chủ lấy từ `platform_user_profiles` (họ + tên) qua membership; onboarding gắn membership owner ngay cùng lời mời; khi chủ từ chối/hết hạn/thu hồi lời mời thì gỡ membership, tổ chức vẫn đang thiết lập.
 
 ### Internal
 

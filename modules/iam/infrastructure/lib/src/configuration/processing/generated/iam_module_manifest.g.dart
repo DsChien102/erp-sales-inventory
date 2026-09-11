@@ -48,6 +48,7 @@ final iamModuleManifest = GeneratedModuleManifest(
     DeclineInvitationCommand,
     ReactivateMembershipCommand,
     RegisterFromInvitationCommand,
+    ReinviteProvisioningOwnerCommand,
     RemoveMembershipCommand,
     RequestMyPasswordResetCommand,
     RequestPasswordResetByEmailCommand,
