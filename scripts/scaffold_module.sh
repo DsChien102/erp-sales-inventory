@@ -280,17 +280,8 @@ EOF
 }
 
 scaffold_presentation_only() {
-  local module="$1"
-  if [[ -d "$MODULES_ROOT/$module/presentation" ]]; then
-    echo "Skip ${module}/presentation — already exists."
-    return 0
-  fi
-  if [[ ! -d "$MODULES_ROOT/$module/application" ]]; then
-    echo "Error: ${module}/application missing — scaffold full module first." >&2
-    return 1
-  fi
-  create_presentation "$module"
-  echo "Scaffolded ${module}/presentation"
+  echo "Error: module presentation packages are removed (ADR 11). Put UI in apps/erp or apps/admin." >&2
+  return 1
 }
 
 scaffold_module() {
@@ -301,7 +292,7 @@ scaffold_module() {
   create_integration_events "$module"
   create_infrastructure "$module"
   if [[ "$with_presentation" == "true" ]]; then
-    create_presentation "$module"
+    echo "Skip presentation layer — UI lives in apps/erp|admin (ADR 11). Not scaffolding modules/*/presentation."
   fi
 }
 
@@ -316,7 +307,7 @@ Usage:
       Pass "true" as third arg to include presentation.
 
   scaffold_module.sh presentation <name>...
-      Add presentation layer only (skips if already present).
+      Deprecated — exits with error (UI belongs in apps, not modules).
 
 Examples:
   scaffold_module.sh module dashboard true

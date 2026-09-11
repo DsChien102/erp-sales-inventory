@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../mappers/accessible_tenant_ui_mapper.dart';

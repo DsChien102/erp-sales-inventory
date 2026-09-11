@@ -43,7 +43,7 @@ while IFS= read -r -d '' file; do
 done < <(find "$root/apps/erp/lib" \( -name '*_page.dart' -o -name '*_screen.dart' \) -print0 2>/dev/null)
 
 if [[ "$failed" -ne 0 ]]; then
-  echo "Hint: extract dialog to modules/<module>/presentation/lib/src/widgets/ or apps/erp/.../widgets/"
+  echo "Hint: extract dialog to apps/erp/.../presentation/widgets/ (or apps/admin/...)"
   echo "Legacy: set GUARD_PRESENTATION_DIALOGS_LEGACY=1 or add // harness:allow-inline-dialog at top of file"
   exit 1
 fi

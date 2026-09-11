@@ -1,6 +1,6 @@
 ---
 name: presentation-layer
-description: Designs, generates, reviews, and refactors Flutter presentation UI for ERP features and module presentation packages — pages, dialogs, sections, widget decomposition, and IModuleMediator wiring. Use when working on *_page.dart, *_screen.dart, Dialog, BottomSheet, apps/erp/features/*/presentation, modules/*/presentation, or when the user mentions presentation layer, God Widget, widget decomposition, or Flutter UI harness rules.
+description: Designs, generates, reviews, and refactors Flutter presentation UI for ERP/Admin features — pages, dialogs, sections, widget decomposition, and IModuleMediator wiring. Use when working on *_page.dart, *_screen.dart, Dialog, BottomSheet, apps/erp/features/*/presentation, apps/admin/features/*/presentation, or when the user mentions presentation layer, God Widget, widget decomposition, or Flutter UI harness rules.
 ---
 
 # Presentation Layer
@@ -16,55 +16,67 @@ Domain quyết định hành vi nghiệp vụ hợp lệ.
 Infrastructure triển khai kỹ thuật (RPC, views, cache, workers).
 ```
 
-**Đọc trước:** [reference.md](reference.md) · **Canonical spec:** [docs/presentation_layer_skill.md](../../../docs/presentation_layer_skill.md) · **Design System Polaris:** [packages/vet45_design_system/docs/polaris/README.md](../../../packages/vet45_design_system/docs/polaris/README.md) · **Golden reference:** `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`
+**Đọc trước:** [reference.md](reference.md) · **Canonical spec:** [docs/presentation_layer_skill.md](../../../docs/presentation_layer_skill.md) · **Design System Polaris:** [packages/vet45_design_system/docs/polaris/README.md](../../../packages/vet45_design_system/docs/polaris/README.md) · **Golden reference:** `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart` · **Ownership ADR:** [docs/architecture/11-app-owned-presentation.md](../../../docs/architecture/11-app-owned-presentation.md)
 
 ---
 
 ## Khi nào dùng
 
-- Scaffold hoặc mở rộng UI feature trong `apps/erp/lib/features/<feature>/presentation/`
-- Tạo dialog/section tái dùng trong `modules/<module>/presentation/lib/src/widgets/`
+- Scaffold hoặc mở rộng UI feature trong `apps/erp/lib/features/<feature>/presentation/` (hoặc `apps/admin/...`)
 - Review PR UI — phát hiện God Widget, inline dialog, Supabase leak
-- Implement FR slice có UI/Dialog/SCN (TH-03 partner, v.v.)
+- Implement FR slice có UI/Dialog/SCN
 
 ---
 
-## Dual path (canonical)
+## App-owned presentation (canonical)
 
 | Loại | Path | Ví dụ |
 | ---- | ---- | ----- |
 | Page / screen (route) | `apps/erp/lib/features/<feature>/presentation/pages/` | `partner_detail_page.dart` |
-| Feature state (optional) | `apps/erp/lib/features/<feature>/presentation/bloc/` | `partner_detail_cubit.dart` |
-| Dialog / widget tái dùng | `modules/<module>/presentation/lib/src/widgets/` | `deactivate_partner_dialog.dart` |
-| Widget chỉ dùng trong feature | `apps/erp/lib/features/<feature>/presentation/widgets/` | `partner_profile_header.dart` |
-| Module example catalog | `modules/<module>/presentation/example/` | `modules/partner/presentation/example/` |
+| Feature cubit / orchestration | `apps/erp/lib/features/<feature>/presentation/bloc/` — multi-aggregate: `bloc/<aggregate>/` | `sales_order_draft/sales_compose_cubit.dart` |
+| Widgets / sheets / dialogs | `apps/erp/lib/features/<feature>/presentation/widgets/` | `deactivate_partner_dialog.dart` |
+| Display VMs | `models/<aggregate>/` → `*_vm.dart` | `sales_order/sales_order_detail_vm.dart` |
+| Flow result | `bloc/<aggregate>/` hoặc `models/<aggregate>/` → `*_result.dart` only | `sales_checkout_prepare_result.dart` |
+| Handoff / nav args | `models/<aggregate>/` → `*_args.dart` only | `sales_checkout_draft_args.dart` |
+| Cubit contracts | `bloc/<aggregate>/` (không đặt trong `support/`) | `sales_draft_contracts.dart` |
+| Helpers (mapper/factory) | `presentation/support/` | `sales_checkout_draft_args_mapper.dart` |
+| Cross-aggregate UI state | `bloc/shared/`, `models/shared/` | `sales_product_picker_cubit.dart` |
+| Feature typed routes | `presentation/navigation/sales_typed_routes.dart` (+ `.g.dart` via `go_router_builder`) | `SalesOrderDetailRoute(orderId: id).push(context)` |
+| Preview catalog | `apps/erp/example/` | Sales / Partner sections |
+
+**Cấm shape presentation mới:** `*_outcome.dart`, handoff `*_snapshot.dart`. Từ “snapshot” giữ cho persistence/domain (vd. `order_snapshot`). Chi tiết: [docs/presentation_layer_skill.md](../../../docs/presentation_layer_skill.md) §2.1. Pricing `cubit/` phẳng — mirror khi refactor.
+
+**Ownership:**
+
+- Toàn bộ UI của feature thuộc **ship unit** (`erp` hoặc `admin`) — **không** `modules/*/presentation`.
+- App được import nhiều `vet45_*_application` (composition root).
+- Module chỉ còn domain / application / infrastructure / integration_events.
+- UI dùng chung ERP+Admin: **duplicate** trong từng app — không tái tạo package presentation shared.
 
 **Import rule:**
 
 ```text
-apps/erp MAY import vet45_<module>_presentation
-modules/<module>/presentation MUST NOT import apps/erp
-modules/<module>/presentation MAY import vet45_<module>_application (DTO, facade)
-modules/<module>/presentation/example MAY import presentation + design_system (+ application testing/fakes)
-modules/<module>/presentation/example MUST NOT import apps/erp or live Supabase
+apps/erp|admin MAY import vet45_<module>_application (+ domain as needed)
+apps MUST NOT depend on vet45_<module>_presentation (package removed)
+modules/* MUST NOT contain a presentation package
+apps/erp/example MAY import package:erp features + design_system (+ application testing/fakes)
+apps/erp/example MUST NOT import live Supabase
 ```
 
 Mutations/reads: `IExecutionContext` → `IModuleMediator` — không bypass qua Supabase từ widget.
 
-**DS vs module catalog:** `packages/vet45_design_system/example` = primitives; module `example/` = BC widgets. Clone partner example khi module mới bắt đầu FE.
+**DS vs ERP catalog:** `packages/vet45_design_system/example` = primitives; `apps/erp/example` = feature widgets. Public reusable widget mới → cùng PR thêm `PreviewSection` trong `apps/erp/example`.
 
 ---
 
 ## Quy tắc cứng
 
-1. **Bắt buộc dùng Design System**: Mọi thành phần UI (Button, TextField, Typography, Colors...) **phải** được sử dụng từ package `vet45_design_system`. Ưu tiên **layout patterns** (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) trước khi invent widget mới — xem [06-design-system-spec.md](../../../packages/vet45_design_system/docs/polaris/06-design-system-spec.md). Tuyệt đối không tự custom UI từ đầu nếu design system đã có sẵn.
-2. **Page/screen ≤ 500 dòng** — enforce bởi `scripts/ci/guard_presentation_size.sh`. Quy định này bắt buộc bạn phải phân nhỏ UI thành các widget nhỏ hơn (component) ở các file riêng biệt để tránh tình trạng code trải dài, khó bảo trì.
-3. **1 dialog = 1 file** — `StatelessWidget` (ưu tiên `const`) trong `widgets/`, không inline `AlertDialog` trong page
-4. **Không `Widget _buildXxx()`** cho subtree lớn trong `State` — bắt buộc phải tách thành các class widget riêng biệt hoặc tạo file riêng để chia nhỏ giao diện.
-5. **Page = composition root** — compose widgets, wire Bloc/Cubit, navigate; logic nghiệp vụ ở application. Page chỉ nên đóng vai trò là một khung sườn (scaffold) gọi đến các widget con.
-6. **Ưu tiên `const`** khi params immutable — giảm rebuild subtree
-
-Ngoại lệ nhỏ: private widget cục bộ (vd. `_SectionHeader`) OK nếu file page vẫn ≤ 500 dòng và subtree nhỏ.
+1. **Bắt buộc dùng Design System**: Mọi thành phần UI **phải** từ `vet45_design_system`. Ưu tiên layout patterns (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) — xem [06-design-system-spec.md](../../../packages/vet45_design_system/docs/polaris/06-design-system-spec.md).
+2. **Page/screen ≤ 500 dòng** — `scripts/ci/guard_presentation_size.sh`.
+3. **1 dialog = 1 file** — `StatelessWidget` trong `widgets/`, không inline `AlertDialog` trong page.
+4. **Không `Widget _buildXxx()`** cho subtree lớn trong `State` — tách class/file.
+5. **Page = composition root** — compose widgets, wire Bloc/Cubit, navigate.
+6. **Ưu tiên `const`** khi params immutable.
 
 ---
 
@@ -72,86 +84,40 @@ Ngoại lệ nhỏ: private widget cục bộ (vd. `_SectionHeader`) OK nếu fi
 
 ### 1. Đọc FR + UI artifacts
 
-Từ product spec (`US/FR` hoặc Epic/US `README.md`), lấy bảng **UI artifacts** — danh sách widget và path file. Nếu chưa có, tạo manifest trước khi code.
-
 ### 2. Widget manifest (bắt buộc trước implement)
-
-Đọc `harness/07-api-contracts.md` (fake scenario ids) khi slice mới — FE có thể implement song song BE sau CONTRACT.
 
 ```text
 PartnerDetailPage          → apps/erp/.../pages/partner_detail_page.dart
-DeactivatePartnerDialog    → modules/partner/presentation/.../deactivate_partner_dialog.dart
-ReactivatePartnerDialog    → modules/partner/presentation/.../reactivate_partner_dialog.dart
+DeactivatePartnerDialog    → apps/erp/.../widgets/deactivate_partner_dialog.dart
 ```
 
-### 3. Scaffold files
+### 3. Scaffold → widgets → PreviewSection trong `apps/erp/example` → page
 
-Tạo file rỗng / class stub theo manifest — tránh gom tất cả vào một file rồi tách sau.
-
-### 4. Implement widgets trước, page cuối
-
-```text
-dialogs/sections (modules/<module>/presentation + apps/erp/widgets)
-  → PreviewSection trong modules/<module>/presentation/example/
-  → page compose imports
-  → bloc/cubit wire mediator calls
-```
-
-Public reusable widget mới → cùng PR cập nhật module example catalog (loading/empty/error/filled khi API có).
-
-### 5. Widget test (khi FR có SCN dialog)
-
-Dùng `FakePartnerModule` / `FakeExecutionContext` từ `vet45_partner_application/testing.dart` + `vet45_shared_testing` — scenario ids khớp `07-api-contracts.md`.
-
-```text
-modules/partner/presentation/test/widgets/<dialog>_test.dart
-apps/erp/test/features/<feature>/...
-Test id: wgt_e{epic}_u{us}_fr{fr}_{nn}
-```
-
-### 6. Verify
+### 4. Verify
 
 ```bash
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/<feature>/
-# khi đổi module widgets / example catalog:
-vet45 run partner_presentation debug   # hoặc target tương ứng khi module có example
-cd modules/<module>/presentation/example && flutter analyze
+cd apps/erp/example && flutter analyze
 ```
 
 ---
 
 ## Golden reference
 
-Copy pattern từ Product Control Center (DS-compliant page + widgets tách file):
-
-| File | Vai trò |
-| ---- | ------- |
-| `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart` | `VPageScaffold`, Bloc wire |
-| `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_body.dart` | Scroll body + `VGap` |
-| `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_section_card.dart` | Section card pattern |
-| `modules/partner/presentation/example/` | Per-module widget preview catalog (template) |
-
-Dashboard (page mỏng cũ): `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
+| File | Role |
+| ---- | ---- |
+| `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart` | Thin page |
+| `apps/erp/example/` | Feature widget preview catalog |
 
 ---
 
-## Anti-patterns (từ chối)
+## Anti-patterns
 
-- God Widget — page > 500 dòng, layout + dialog + form trong một file
-- Inline `showDialog` + `AlertDialog` trong `*_page.dart` (guard fail)
-- `Widget _buildLargeSection()` trong State thay vì class widget
-- Direct PostgREST / `Supabase.instance` từ widget
-- Business rule trong `build()` hoặc dialog callback (thuộc domain/application)
-- Import `package:.../src/...` từ package khác
-- Widget BC demo trong `vet45_design_system/example` (sai boundary)
-- Module example phụ thuộc `apps/erp` / live Supabase / `env:doctor`
-
----
-
-## Liên kết
-
-- [reference.md](reference.md) — folder layout, naming, agent prompt template
-- [application-layer](../application-layer/SKILL.md) — mediator, commands, DTOs
-- [docs/architecture/harness-engineering.md](../../../docs/architecture/harness-engineering.md)
-- TH-03 ritual: `docs/themes/TH-03-partner/harness/00-agent-ritual.md`
+- God Widget / inline dialog / `_buildXxx` lớn
+- Direct PostgREST từ widget
+- Tạo hoặc mở rộng `modules/*/presentation`
+- Business rules trong `build()`
+- Flat `presentation/bloc/*.dart` / `presentation/models/*.dart` mới khi feature đã nhóm theo domain aggregate (Sales: dùng `bloc/<aggregate>/`, `models/<aggregate>/`; chỉ `shared/` cho cross-aggregate)
+- Literal `'/sales/...'` (hoặc tương đương feature path) trong pages/widgets — dùng `*Route(...).push/go` (`go_router_builder`); tab recovery `/orders` qua `SalesNav`
+- `*_outcome.dart` / handoff `*_snapshot.dart` mới; result/args/contracts trong `support/`

@@ -2,7 +2,7 @@ import 'package:erp/core/di/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
 

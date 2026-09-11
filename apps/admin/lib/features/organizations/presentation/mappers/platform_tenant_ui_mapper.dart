@@ -1,6 +1,6 @@
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:admin/features/iam/presentation.dart';
 
 /// Maps platform tenant DTOs to presentation UI models.
 abstract final class PlatformTenantUiMapper {
@@ -46,7 +46,10 @@ abstract final class PlatformTenantUiMapper {
       ownerName: dto.ownerName,
       ownerEmail: dto.ownerEmail,
       ownerRole: _normalizeRoleLabel(dto.ownerRoleLabel),
-      unverifiedEmail: dto.unverifiedEmail || (isSettingUp && (dto.ownerEmail == null || dto.ownerEmail!.isEmpty || dto.ownerUserId == null)),
+      unverifiedEmail:
+          dto.unverifiedEmail ||
+          (isSettingUp &&
+              (dto.ownerEmail == null || dto.ownerEmail!.isEmpty || dto.ownerUserId == null)),
       incompleteProfile: dto.incompleteProfile || isSettingUp,
       createdAt: dto.createdAt,
       activatedAt: dto.activatedAt,

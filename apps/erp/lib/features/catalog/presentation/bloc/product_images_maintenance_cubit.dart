@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 enum ProductImagesMaintenanceStatus {

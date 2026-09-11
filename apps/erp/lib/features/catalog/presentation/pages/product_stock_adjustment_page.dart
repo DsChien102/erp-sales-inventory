@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 
 import '../widgets/dashed_border_container.dart';
 import '../widgets/product_form_bottom_bar.dart';

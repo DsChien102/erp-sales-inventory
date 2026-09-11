@@ -1,0 +1,112 @@
+name: erp_presentation_example
+description: Preview catalog for ERP feature presentation widgets.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  erp:
+    path: ../
+  vet45_design_system:
+    path: ../../../packages/vet45_design_system
+  vet45_partner_application:
+    path: ../../../modules/partner/application
+  vet45_shared_testing:
+    path: ../../../packages/vet45_shared/testing
+  vet45_partner_domain:
+    path: ../../../modules/partner/domain
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+dependency_overrides:
+  vet45_accounting_application:
+    path: ../../../modules/accounting/application
+  vet45_accounting_domain:
+    path: ../../../modules/accounting/domain
+  vet45_accounting_infrastructure:
+    path: ../../../modules/accounting/infrastructure
+  vet45_accounting_integration_events:
+    path: ../../../modules/accounting/integration_events
+  vet45_adapters:
+    path: ../../../packages/vet45_adapters
+  vet45_annotations:
+    path: ../../../packages/vet45_annotations
+  vet45_catalog_application:
+    path: ../../../modules/catalog/application
+  vet45_catalog_domain:
+    path: ../../../modules/catalog/domain
+  vet45_catalog_infrastructure:
+    path: ../../../modules/catalog/infrastructure
+  vet45_catalog_integration_events:
+    path: ../../../modules/catalog/integration_events
+  vet45_costing_application:
+    path: ../../../modules/costing/application
+  vet45_costing_domain:
+    path: ../../../modules/costing/domain
+  vet45_costing_infrastructure:
+    path: ../../../modules/costing/infrastructure
+  vet45_costing_integration_events:
+    path: ../../../modules/costing/integration_events
+  vet45_dashboard_application:
+    path: ../../../modules/dashboard/application
+  vet45_dashboard_domain:
+    path: ../../../modules/dashboard/domain
+  vet45_dashboard_infrastructure:
+    path: ../../../modules/dashboard/infrastructure
+  vet45_dashboard_integration_events:
+    path: ../../../modules/dashboard/integration_events
+  vet45_design_system:
+    path: ../../../packages/vet45_design_system
+  vet45_iam_application:
+    path: ../../../modules/iam/application
+  vet45_iam_domain:
+    path: ../../../modules/iam/domain
+  vet45_iam_infrastructure:
+    path: ../../../modules/iam/infrastructure
+  vet45_iam_integration_events:
+    path: ../../../modules/iam/integration_events
+  vet45_inventory_application:
+    path: ../../../modules/inventory/application
+  vet45_inventory_domain:
+    path: ../../../modules/inventory/domain
+  vet45_inventory_infrastructure:
+    path: ../../../modules/inventory/infrastructure
+  vet45_inventory_integration_events:
+    path: ../../../modules/inventory/integration_events
+  vet45_lints:
+    path: ../../../packages/vet45_lints
+  vet45_partner_application:
+    path: ../../../modules/partner/application
+  vet45_partner_domain:
+    path: ../../../modules/partner/domain
+  vet45_partner_infrastructure:
+    path: ../../../modules/partner/infrastructure
+  vet45_partner_integration_events:
+    path: ../../../modules/partner/integration_events
+  vet45_pricing_application:
+    path: ../../../modules/pricing/application
+  vet45_pricing_domain:
+    path: ../../../modules/pricing/domain
+  vet45_pricing_infrastructure:
+    path: ../../../modules/pricing/infrastructure
+  vet45_resend:
+    path: ../../../packages/vet45_resend
+  vet45_shared_application:
+    path: ../../../packages/vet45_shared/application
+  vet45_shared_domain:
+    path: ../../../packages/vet45_shared/domain
+  vet45_shared_infrastructure:
+    path: ../../../packages/vet45_shared/infrastructure
+  vet45_shared_testing:
+    path: ../../../packages/vet45_shared/testing
+
+flutter:
+  uses-material-design: true

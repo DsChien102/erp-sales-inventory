@@ -8,8 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
-import 'package:vet45_iam_presentation/testing.dart';
+import 'package:erp/features/iam/presentation.dart';
+import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {

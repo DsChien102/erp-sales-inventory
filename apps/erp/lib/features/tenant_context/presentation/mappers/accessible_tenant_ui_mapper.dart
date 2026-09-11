@@ -1,6 +1,6 @@
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:erp/features/iam/presentation.dart';
 
 final class AccessibleTenantUiMapper {
   const AccessibleTenantUiMapper._();

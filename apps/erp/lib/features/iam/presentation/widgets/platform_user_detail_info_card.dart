@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+
+class PlatformUserDetailInfoCard extends StatelessWidget {
+  const PlatformUserDetailInfoCard({super.key, required this.user});
+
+  final PlatformUserDetailDto user;
+
+  String _formatDateTime(DateTime dt) => VDateTime.dateTime(dt);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return VCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          VText(
+            'Thông tin tài khoản',
+            variant: VTextVariant.bodyDefault,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const VGap.md(),
+          if (user.status == PlatformUserStatus.active) ...[
+            _buildInfoRow(
+              label: 'Email đã xác minh',
+              value: user.emailVerifiedAt != null
+                  ? _formatDateTime(user.emailVerifiedAt!)
+                  : 'Chưa xác minh',
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Đăng nhập gần nhất',
+              value: user.lastLoginAt != null
+                  ? _formatDateTime(user.lastLoginAt!)
+                  : 'Chưa đăng nhập',
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Ngày tạo tài khoản',
+              value: _formatDateTime(user.createdAt),
+              colors: colors,
+            ),
+          ] else if (user.status == PlatformUserStatus.pendingActivation) ...[
+            _buildInfoRow(
+              label: 'Email đã xác minh',
+              value: 'Chưa xác minh',
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Ngày tạo tài khoản',
+              value: _formatDateTime(user.createdAt),
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Email kích hoạt hết hạn',
+              value: user.activationExpiresAt != null
+                  ? _formatDateTime(user.activationExpiresAt!)
+                  : '—',
+              colors: colors,
+            ),
+          ] else if (user.status == PlatformUserStatus.suspended) ...[
+            _buildInfoRow(
+              label: 'Email đã xác minh',
+              value: user.emailVerifiedAt != null
+                  ? _formatDateTime(user.emailVerifiedAt!)
+                  : 'Chưa xác minh',
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Ngày tạm ngừng',
+              value: user.lastLoginAt != null
+                  ? _formatDateTime(user.lastLoginAt!)
+                  : _formatDateTime(user.createdAt.add(const Duration(hours: 18, minutes: 25))),
+              colors: colors,
+            ),
+            const VGap.md(),
+            _buildInfoRow(
+              label: 'Lý do',
+              value: 'Theo yêu cầu quản trị',
+              colors: colors,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required String label,
+    required String value,
+    required VColorScheme colors,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        VText(
+          label,
+          variant: VTextVariant.bodyDefault,
+          color: colors.textSecondary,
+        ),
+        VText(
+          value,
+          variant: VTextVariant.bodyDefault,
+          color: colors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}

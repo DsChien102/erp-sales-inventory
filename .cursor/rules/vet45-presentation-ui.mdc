@@ -1,37 +1,33 @@
 ---
 description: Flutter presentation UI rules — widget decomposition, dialog extraction, and async query integration
-globs: apps/erp/lib/**/presentation/**,modules/*/presentation/**,packages/vet45_async_query/**
+globs: apps/erp/lib/**/presentation/**,apps/erp/example/**,apps/admin/lib/**/presentation/**,packages/vet45_async_query/**
 alwaysApply: false
 ---
 
 # Vet45 Presentation UI
 
-## Dual path
+## App-owned (canonical)
 
-- **Pages/screens:** `apps/erp/lib/features/<feature>/presentation/pages/`
-- **Reusable dialogs/widgets:** `modules/<module>/presentation/lib/src/widgets/`
-- **Module presentation example (preview/audit):** `modules/<module>/presentation/example/` — Flutter catalog app; xem widget trước khi gắn ERP page
+- **Pages / cubits / widgets / display VMs:** `apps/erp/lib/features/<feature>/presentation/` (Admin: `apps/admin/...`)
+- **Preview catalog:** `apps/erp/example/`
+- **Do not** add files under `modules/*/presentation`
 
-`apps/erp` may import `vet45_<module>_presentation`. Module presentation must not import `apps/erp`.
+Apps import `vet45_*_application` directly. See `docs/architecture/11-app-owned-presentation.md`.
 
-## Module presentation example
+## Example catalog
 
-Path: `modules/<module>/presentation/example/` (app name `vet45_<module>_presentation_example`). **Không** thêm vào root Melos `workspace:` — path-dep tới `../` presentation + `vet45_design_system` (giống DS example).
+Path: `apps/erp/example/` (app name `erp_presentation_example`). **Không** thêm vào root Melos `workspace:`.
 
 | Layer | Catalog |
 | --- | --- |
 | Design system primitives | `packages/vet45_design_system/example` — `melos run design-system:example` |
-| Bounded-context widgets | `modules/<module>/presentation/example` — vd. `vet45 run partner_presentation debug` |
+| Feature widgets | `apps/erp/example` |
 
 Hard rules:
 
-1. Public reusable widget mới trong `modules/*/presentation/lib` → cùng PR thêm `PreviewSection` (+ states loading/empty/error/filled nếu API có) trong `example/`.
-2. Example chỉ import `vet45_<module>_presentation` + `vet45_design_system` (+ application **testing/fakes** nếu cần). **Cấm** `apps/erp`, live Supabase, `env:doctor`.
-3. DS example = primitives only; module example = BC widgets — không nhét domain widget vào DS example.
-4. Clone layout từ `modules/partner/presentation/example` khi module bắt đầu ship FE widgets (catalog/pricing/sales).
-5. Preview helpers (`PreviewSection` / `PreviewStateRow`) hiện local trong từng example; extract shared kit khi ≥2 module có example.
-
-Golden: `modules/partner/presentation/example/`.
+1. Public reusable widget mới trong `apps/erp/lib/features/*/presentation` → cùng PR thêm `PreviewSection` trong `apps/erp/example`.
+2. Example chỉ import `package:erp` features + `vet45_design_system` (+ application **testing/fakes** nếu cần). **Cấm** live Supabase, `env:doctor`.
+3. DS example = primitives only; ERP example = feature widgets.
 
 ## Hard rules
 
@@ -39,35 +35,11 @@ Golden: `modules/partner/presentation/example/`.
 2. **One dialog = one file** — `StatelessWidget` in `widgets/`; no inline `AlertDialog` in pages (`guard_presentation_dialogs.sh`)
 3. No large `Widget _buildXxx()` in `State` — extract class widget or separate file
 4. Page = thin composition: widgets + Bloc/Cubit + `IModuleMediator` — no direct Supabase/PostgREST
-5. Prefer `const` constructors when params are immutable
+5. Prefer `const` constructors when parameters are immutable
 6. Khi dùng `vet45_async_query`, query/mutation function phải đi qua module facade (`executeQueryAsync`/`executeCommandAsync`)
 7. Query key phải stable, serializable, có tenant scope cho tenant data; không dùng UUID/random làm key
 8. Sau mutation, ưu tiên `invalidateQueries` thay vì gọi `load()` thủ công lặp lại
-9. Không force unwrap `result.data!` trước khi đảm bảo `hasData` (tránh null ở pending+idle)
-10. Tránh duplicate state machine: đã dùng `UseQuery` thì không tạo thêm loading/error machine trùng lặp trong widget tree
-
-## Golden reference
-
-- Catalog (DS-compliant): `apps/erp/lib/features/catalog/presentation/pages/product_catalog_tab_page.dart`
-- Control center: `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`
-- Dashboard (page mỏng): `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
-
-## Design System (Polaris)
-
-- Spec: `packages/vet45_design_system/docs/polaris/06-design-system-spec.md`
-- PR checklist: `packages/vet45_design_system/docs/polaris/07-token-migration-checklist.md`
-- Adoption + CI tiers: `packages/vet45_design_system/docs/polaris/09-adoption-checklist.md`
-- Ưu tiên layout patterns (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) trước khi invent widget mới
-- Không magic spacing (`EdgeInsets` literal) — dùng `VSpacing` / layout primitives
-- Typography qua `VText`; overlay qua `showVConfirmDialog` / `showVBottomSheet`
-- CI: ENFORCED fail trên `product_control_center*` + `product_catalog*`; MONITORED WARN trên presentation còn lại
-
-## Before implementing UI slice
-
-1. Read `.cursor/skills/presentation-layer/SKILL.md`
-2. Read Polaris spec + checklist (links above)
-3. Read UI artifacts in FR/US spec — create widget manifest first
-4. Implement widgets/dialogs before the page
-5. Thêm / cập nhật `PreviewSection` trong `modules/<module>/presentation/example/` trước hoặc cùng PR với widget public
-6. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
-7. Verify: `./scripts/ci/verify_harness.sh` + `./scripts/ci/guard_design_system_usage.sh` (+ `vet45 run <module>_presentation debug` smoke khi đổi catalog)
+9. Không force unwrap `result.data!` trước khi đảm bảo `hasData`
+10. Tránh duplicate state machine: đã dùng `UseQuery` thì không tạo thêm loading/error machine trùng lặp
+11. **Aggregate folders (multi-aggregate features):** khi feature map nhiều domain aggregate (vd. Sales), nhóm `presentation/bloc/<aggregate>/` và `presentation/models/<aggregate>/` đúng tên snake_case domain (`sales_order`, `sales_order_draft`, …). `shared/` chỉ cho cubit/VM cross-aggregate (picker, pricing helpers). **Cấm** thêm file flat mới vào `bloc/*.dart` / `models/*.dart` khi feature đã có map aggregate.
+12. **Feature typed routes (Sales):** navigate bằng `*Route(...).push/go/pushReplacement` từ `presentation/navigation/sales_typed_routes.dart` (`go_router_builder`). **Cấm** literal `'/sales/...'` và **cấm** quay lại string location builders kiểu `SalesRoutes.*`. Tab `/orders` dùng `SalesNav.ordersList`. Codegen: `cd apps/erp && dart run build_runner build --build-filter="lib/features/sales/presentation/navigation/*"`.

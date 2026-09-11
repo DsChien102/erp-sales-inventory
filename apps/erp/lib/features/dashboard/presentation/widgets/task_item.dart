@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_dashboard_presentation/presentation.dart';
+import 'package:erp/features/dashboard/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class TaskItem extends StatelessWidget {

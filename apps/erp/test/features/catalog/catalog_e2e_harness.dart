@@ -22,7 +22,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 
 import 'package:erp/features/catalog/presentation/pages/product_change_history_page.dart';
 import 'package:vet45_shared_application/application.dart';

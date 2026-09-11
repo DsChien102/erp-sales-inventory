@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_dashboard_presentation/presentation.dart';
+import 'package:erp/features/dashboard/presentation.dart';
 
 class RevenueSummaryCard extends StatelessWidget {
   const RevenueSummaryCard({super.key});

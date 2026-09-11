@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:admin/features/overview/presentation/pages/admin_overview_page.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_iam_presentation/testing.dart';
+import 'package:admin/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {

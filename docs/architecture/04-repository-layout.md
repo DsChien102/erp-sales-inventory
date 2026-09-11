@@ -6,16 +6,15 @@
 vet45/
 ├── apps/
 │   ├── erp/                    # Flutter shell — UI, DI, adapters
+│   │   └── example/            # Feature widget preview catalog
+│   ├── admin/                  # Platform admin UI
 │   └── messaging_worker/       # Server-side messaging loop (shell)
 ├── modules/
 │   ├── {bounded_context}/
 │   │   ├── domain/
 │   │   ├── application/
 │   │   ├── infrastructure/
-│   │   ├── integration_events/
-│   │   └── presentation/       # optional (catalog, sales, partner)
-│   │       ├── lib/            # reusable BC widgets / cubits
-│   │       └── example/        # Flutter catalog — preview/audit widgets (not in Melos workspace)
+│   │   └── integration_events/
 │   ├── iam/
 │   ├── catalog/
 │   ├── sales/
@@ -45,7 +44,7 @@ vet45/
 
 | Module | Layers |
 | ------ | ------ |
-| catalog, sales, partner, iam, inventory, costing, dashboard, accounting | domain, application, infrastructure, integration_events, presentation |
+| catalog, sales, partner, iam, inventory, costing, dashboard, accounting | domain, application, infrastructure, integration_events |
 
 Tenant (multi-tenant identity, membership) nằm trong module **iam**, không có bounded context `tenant` riêng.
 

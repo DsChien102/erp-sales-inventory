@@ -197,11 +197,11 @@
       "problemMatcher": []
     },
     {
-      "label": "partner-presentation:example pub get",
+      "label": "erp:example pub get",
       "type": "shell",
       "command": "flutter pub get",
       "options": {
-        "cwd": "${workspaceFolder}/modules/partner/presentation/example"
+        "cwd": "${workspaceFolder}/apps/erp/example"
       },
       "presentation": {
         "reveal": "silent",
@@ -211,33 +211,5 @@
       },
       "problemMatcher": []
     },
-    {
-      "label": "melos run design-system:example",
-      "type": "shell",
-      "command": "melos run design-system:example",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "focus": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "melos run design-system:example:web",
-      "type": "shell",
-      "command": "melos run design-system:example:web",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "focus": true
-      },
-      "problemMatcher": []
-    }
   ]
 }

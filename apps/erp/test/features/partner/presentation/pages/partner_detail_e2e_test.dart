@@ -10,7 +10,7 @@ import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:erp/features/partner/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:erp/features/partner/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// Shared create / edit page for partner profile (SG-02).

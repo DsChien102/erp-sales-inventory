@@ -1536,7 +1536,7 @@ communication.notification_created
 Dependency direction phải đi từ ngoài vào trong:
 
 ```text
-presentation
+apps/erp|admin presentation
   -> application
       -> domain
 
@@ -1553,7 +1553,7 @@ Domain không phụ thuộc:
 ```text
 - application
 - infrastructure
-- presentation
+- presentation / Flutter UI
 - Flutter
 - Supabase
 ```
@@ -1561,7 +1561,7 @@ Domain không phụ thuộc:
 Application không phụ thuộc:
 
 ```text
-- presentation
+- apps presentation
 - concrete infrastructure implementation
 ```
 
@@ -1706,7 +1706,7 @@ packages/
 
         integration_events/
 
-        presentation/
+# Presentation UI lives in apps/erp|admin — do not add modules/*/presentation
 ```
 
 Chỉ thêm các phần sau khi thật sự cần:

@@ -10,13 +10,13 @@ Modular monolith ERP: Flutter client + Postgres/Supabase RPC-first + bounded con
 ## Layer map (never violate)
 
 ```
-apps/erp/features     → module application (via IModuleMediator)
-module presentation   → module application → module domain → packages/vet45_shared/domain
-module infrastructure → module application + packages/vet45_shared/infrastructure
-packages/vet45_shared/*     → never import modules/
+apps/erp|admin/features → module application (via IModuleMediator)
+module infrastructure   → module application + packages/vet45_shared/infrastructure
+module application      → module domain → packages/vet45_shared/domain
+packages/vet45_shared/* → never import modules/
 ```
 
-Each bounded context: `domain`, `application`, `infrastructure`, `integration_events`, optional `presentation`.
+Each bounded context: `domain`, `application`, `infrastructure`, `integration_events`. Presentation lives in `apps/erp` / `apps/admin` — see `docs/architecture/11-app-owned-presentation.md`.
 
 ## Shared toolkit (`packages/vet45_shared/*`) — mechanisms only
 
@@ -46,7 +46,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - **Validators**: pipeline only — not inline in handlers.
 - **Queries**: return DTOs, never aggregates.
 - **Mutations**: domain invariants in Dart + defense in depth in Postgres RPC/RLS.
-- **Cross-module**: `integration_events` package only — no cross-module domain/repository imports.
+- **Cross-module**: publish **integration events (facts)** via outbox; issue **commands/handoffs** via `integration_commands` (and module intent tables). Never import another module’s domain/repository. See `.cursor/rules/vet45-integration-events.mdc`.
 
 ## Module wiring (mirror iam/; partner greenfield — rebuild from TH-03 harness)
 
@@ -68,6 +68,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - Patch migration touching RPC not listed in `-- Touches:` or copying unchanged RPC bodies from older migrations
 - God aggregate, cross-module table access, anemic domain-only-in-SQL
 - Direct PostgREST writes from UI, Flutter bus for durable messaging
+- **Outbox / integration_events used for commands or requests** (`*.requested`, apply/retry/reconcile as “events”) — facts only on outbox; handoffs use `integration_commands` (+ intent tables). See `.cursor/rules/vet45-integration-events.mdc`
 - New framework abstractions (generic Repository<T>, plugin DSL)
 - Either/Result inside command handlers (map at presentation boundary)
 - Hand-maintaining `.g.dart` — run `melos run codegen`

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class ProductControlCenterStatusBadge extends StatelessWidget {

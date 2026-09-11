@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:erp/features/partner/presentation.dart';
 
 /// Result count label + sort control for partner list.
 class PartnerListHeaderRow extends StatelessWidget {

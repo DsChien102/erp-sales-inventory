@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:erp/features/partner/presentation.dart';
 
 import 'partner_change_history_card.dart';
 

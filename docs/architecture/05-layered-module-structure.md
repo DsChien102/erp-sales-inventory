@@ -1,6 +1,6 @@
 # Cấu trúc layer trong module
 
-## Bốn layer (+ presentation tùy chọn)
+## Bốn layer (presentation thuộc app)
 
 | Layer | Package | Trách nhiệm |
 | ----- | ------- | ----------- |
@@ -8,7 +8,8 @@
 | **Application** | `vet45_{m}_application` | Commands, queries, handlers, DTOs, **gateway ports**, `I{X}Module` |
 | **Infrastructure** | `vet45_{m}_infrastructure` | Supabase gateways, repos, `MediationModule`, `DataAccessModule`, startup |
 | **Integration events** | `vet45_{m}_integration_events` | Event types public cho module khác |
-| **Presentation** | `vet45_{m}_presentation` | Widget/screen tái sử dụng (optional) |
+
+UI: `apps/erp/lib/features/<feature>/presentation/` (Admin tương ứng). Không tạo `vet45_{m}_presentation`. Xem [11-app-owned-presentation.md](11-app-owned-presentation.md).
 
 **Application không import Infrastructure.** Infrastructure import Application + Domain.
 

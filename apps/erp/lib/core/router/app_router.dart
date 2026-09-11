@@ -6,11 +6,11 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:erp/features/iam/presentation.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';

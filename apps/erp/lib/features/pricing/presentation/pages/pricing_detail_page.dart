@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_presentation/presentation.dart';
+import 'package:erp/features/pricing/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// S3 — Chi tiết & Thao tác (US-02).

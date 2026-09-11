@@ -34,6 +34,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- App-owned presentation (ADR 11): UI Partner/Pricing/Catalog/Dashboard/IAM chuyển vào `apps/erp`; xóa package `modules/*/presentation` (trừ Sales). Catalog widget preview: `apps/erp/example`.
+
 - Design system: bỏ `VComponentState`; dashboard `QuickActionButton` / pricing form dùng `enabled` inherit qua `VComponentScope`.
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.

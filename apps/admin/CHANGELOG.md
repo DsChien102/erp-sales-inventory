@@ -36,6 +36,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- App-owned presentation (ADR 11): IAM UI widgets/views chuyển vào `apps/admin/lib/features/iam/`; bỏ dependency `vet45_iam_presentation`.
+
 - Design system: bỏ `VComponentState`; interactive controls dùng `enabled` (+ soft inherit `VComponentScope`).
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.

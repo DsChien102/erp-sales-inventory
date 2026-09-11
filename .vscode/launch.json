@@ -43,20 +43,6 @@
       ]
     },
     {
-      "name": "ERP · iOS · development",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/apps/erp",
-      "program": "lib/main.dart",
-      "deviceId": "ios",
-      "preLaunchTask": "env:sync erp · development",
-      "args": [
-        "--flavor",
-        "development",
-        "--dart-define-from-file=.env"
-      ]
-    },
-    {
       "name": "ERP · staging",
       "type": "dart",
       "request": "launch",
@@ -81,6 +67,23 @@
         "production",
         "--dart-define-from-file=.env.production"
       ]
+    },
+    {
+      "name": "ERP · example",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp/example",
+      "program": "lib/main.dart",
+      "preLaunchTask": "erp:example pub get"
+    },
+    {
+      "name": "ERP · example · web",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp/example",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "preLaunchTask": "erp:example pub get"
     },
     // ── Admin · Dart (preLaunchTask syncs target admin only) ──
     {
@@ -124,20 +127,6 @@
       ]
     },
     {
-      "name": "Admin · iOS · development",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/apps/admin",
-      "program": "lib/main.dart",
-      "deviceId": "ios",
-      "preLaunchTask": "env:sync admin · development",
-      "args": [
-        "--flavor",
-        "development",
-        "--dart-define-from-file=.env"
-      ]
-    },
-    {
       "name": "Admin · staging",
       "type": "dart",
       "request": "launch",
@@ -170,7 +159,9 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/messaging_worker",
       "program": "bin/worker.dart",
-      "args": ["--serve"],
+      "args": [
+        "--serve"
+      ],
       "preLaunchTask": "env:sync worker · development",
     },
     {
@@ -179,7 +170,9 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/messaging_worker",
       "program": "bin/worker.dart",
-      "args": ["--serve"],
+      "args": [
+        "--serve"
+      ],
       "preLaunchTask": "env:sync worker · local",
     },
     {
@@ -188,7 +181,9 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/messaging_worker",
       "program": "bin/worker.dart",
-      "args": ["--serve"],
+      "args": [
+        "--serve"
+      ],
       "preLaunchTask": "env:sync worker · staging",
     },
     {
@@ -197,7 +192,9 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/messaging_worker",
       "program": "bin/worker.dart",
-      "args": ["--serve"],
+      "args": [
+        "--serve"
+      ],
       "preLaunchTask": "env:sync worker · production",
     },
     // ── Design system example (no env sync required) ─────────────────────────
@@ -218,183 +215,5 @@
       "deviceId": "chrome",
       "preLaunchTask": "design-system:example pub get"
     },
-    {
-      "name": "Design system · example · iOS",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
-      "program": "lib/main.dart",
-      "deviceId": "ios",
-      "preLaunchTask": "design-system:example pub get"
-    },
-    // ── Partner presentation example (no env sync required) ──────────────────
-    {
-      "name": "Partner presentation · example",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
-      "program": "lib/main.dart",
-      "preLaunchTask": "partner-presentation:example pub get"
-    },
-    {
-      "name": "Partner presentation · example · web",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
-      "program": "lib/main.dart",
-      "deviceId": "chrome",
-      "preLaunchTask": "partner-presentation:example pub get"
-    },
-    {
-      "name": "Partner presentation · example · iOS",
-      "type": "dart",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
-      "program": "lib/main.dart",
-      "deviceId": "ios",
-      "preLaunchTask": "partner-presentation:example pub get"
-    },
-    // ── melos built-in ────────────────────────────────────────────────────────
-    {
-      "name": "melos · bootstrap",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos bootstrap",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · clean",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos clean",
-      "cwd": "${workspaceFolder}"
-    },
-    // ── melos scripts (already enforce env via vet45_env.sh) ─────────────────
-    {
-      "name": "melos · debug",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:web",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:web",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:ios",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:ios",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:dev",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:dev",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:staging",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:staging",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:prod",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:prod",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · worker:serve",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run worker:serve",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · codegen",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run codegen",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · analyze",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run analyze",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · test",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run test",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · design-system:example",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run design-system:example",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · design-system:example:web",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run design-system:example:web",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · build:ios",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run build:ios",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · build:ios:staging",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run build:ios:staging",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · build:ios:production",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run build:ios:production",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · deploy:ios",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run deploy:ios",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · deploy:ios:staging",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run deploy:ios:staging",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "CI · analyze → test",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run analyze && melos run test",
-      "cwd": "${workspaceFolder}"
-    }
   ]
 }

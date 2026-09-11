@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_dashboard_presentation/presentation.dart';
+import 'package:erp/features/dashboard/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../../tenant_context/presentation/bloc/tenant_context_cubit.dart';

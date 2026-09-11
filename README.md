@@ -182,7 +182,7 @@ CircleCI (`.circleci/config.yml`):
 - **Theme ≠ module** — một theme có thể span nhiều bounded context.
 - Module **không import** implementation nội bộ module khác; giao tiếp qua integration events và snapshot ports.
 - **Domain** thuần Dart; **Application** điều phối command/query; **Infrastructure** gọi Supabase RPC.
-- UI có thể nằm trong `modules/*/presentation` hoặc `apps/erp/lib/features/`.
+- UI thuộc ship unit: `apps/erp/lib/features/` (Admin: `apps/admin/lib/features/`). Xem [ADR 11](docs/architecture/11-app-owned-presentation.md).
 
 Đọc thêm: [docs/architecture/01-vision-and-principles.md](docs/architecture/01-vision-and-principles.md).
 

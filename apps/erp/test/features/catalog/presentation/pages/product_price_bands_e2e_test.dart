@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:erp/features/catalog/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 
 final class _FakeExecutionContext implements IExecutionContext {

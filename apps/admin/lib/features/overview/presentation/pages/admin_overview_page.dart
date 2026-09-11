@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:admin/features/iam/presentation.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../audit/presentation/mappers/platform_audit_ui_mapper.dart';

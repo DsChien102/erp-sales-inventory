@@ -27,6 +27,8 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [08-data-and-security.md](08-data-and-security.md) | Postgres schema, RLS, multi-tenant |
 | [app-link-in-depth.md](app-link-in-depth.md) | Cơ chế App Links (Android) / Universal Links (iOS): verify + handoff |
 | [harness-engineering.md](harness-engineering.md) | Harness Engineering — context, constraints, verification, flywheel |
+| [10-hybrid-presentation-ownership.md](10-hybrid-presentation-ownership.md) | **Superseded** — hybrid pages@ERP / widgets@module |
+| [11-app-owned-presentation.md](11-app-owned-presentation.md) | Presentation thuộc `apps/erp` / `apps/admin`; không package `modules/*/presentation` |
 
 ## Diagrams
 

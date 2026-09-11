@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_presentation/testing.dart';
+import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
@@ -465,14 +465,15 @@ final class _FailAcceptModule implements IIamModule {
     if (query is InspectInvitationTokenQuery) {
       return Future.value(
         InvitationTokenInspectionDto(
-          tenantId: 'org-001',
-          tenantName: 'Org',
-          inviteeEmail: 'invitee@example.com',
-          initialRoleId: 'role-staff',
-          initialRoleLabel: 'Staff',
-          expiresAt: DateTime.utc(2026, 8, 5),
-          accountExists: true,
-        ) as TResult,
+              tenantId: 'org-001',
+              tenantName: 'Org',
+              inviteeEmail: 'invitee@example.com',
+              initialRoleId: 'role-staff',
+              initialRoleLabel: 'Staff',
+              expiresAt: DateTime.utc(2026, 8, 5),
+              accountExists: true,
+            )
+            as TResult,
       );
     }
     throw UnsupportedError(query.runtimeType.toString());

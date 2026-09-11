@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_application/testing.dart';
-import 'package:vet45_pricing_presentation/presentation.dart';
+import 'package:erp/features/pricing/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/pricing/presentation/pages/pricing_list_page.dart';

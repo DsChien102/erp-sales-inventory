@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/testing.dart';
-import 'package:vet45_pricing_presentation/presentation.dart';
+import 'package:erp/features/pricing/presentation.dart';
 
 import '../../pricing_e2e_harness.dart';
 

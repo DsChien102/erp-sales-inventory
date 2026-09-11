@@ -1,8 +1,8 @@
 import 'package:admin/features/users/presentation/bloc/platform_user_detail_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
-import 'package:vet45_iam_presentation/testing.dart';
+import 'package:admin/features/iam/presentation.dart';
+import 'package:admin/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {

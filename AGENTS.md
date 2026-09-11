@@ -32,11 +32,13 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 Layer map (không vi phạm):
 
 ```text
-apps/erp/features     → module application (via IModuleMediator)
-module presentation   → module application → module domain → packages/vet45_shared/domain
-module infrastructure → module application + packages/vet45_shared/infrastructure
-packages/vet45_shared/*     → never import modules/
+apps/erp|admin/features → module application (via IModuleMediator)
+module infrastructure   → module application + packages/vet45_shared/infrastructure
+module application      → module domain → packages/vet45_shared/domain
+packages/vet45_shared/* → never import modules/
 ```
+
+Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog `apps/erp/example/`) — không mở rộng `modules/*/presentation` (Sales presentation còn tạm đến khi migrate). ADR: [docs/architecture/11-app-owned-presentation.md](docs/architecture/11-app-owned-presentation.md).
 
 
 
@@ -65,7 +67,7 @@ packages/vet45_shared/*     → never import modules/
 | Domain code implement (`modules/*/domain/`)             | `.cursor/skills/domain-layer/SKILL.md`                                                                      |
 | Application layer (handlers, ports, DTOs)               | `.cursor/skills/application-layer/SKILL.md`                                                                 |
 | Infrastructure (RPC, gateways, startup)                 | `.cursor/skills/infrastructure-layer/SKILL.md`                                                              |
-| Presentation UI (pages, dialogs, widgets)               | `.cursor/skills/presentation-layer/SKILL.md`                                                                |
+| Presentation UI (pages, dialogs, widgets)               | `.cursor/skills/presentation-layer/SKILL.md` + ADR [11-app-owned-presentation.md](docs/architecture/11-app-owned-presentation.md) |
 | Design system + example catalog coverage                | `.cursor/rules/vet45-design-system-example.mdc` + `packages/vet45_design_system/example/lib/preview/`        |
 | Tích hợp async server-state cache (`vet45_async_query`) | `.cursor/rules/vet45-presentation-ui.mdc` + `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md` |
 | Harness approach                                        | `docs/architecture/harness-engineering.md`                                                                  |
@@ -216,7 +218,7 @@ This project is indexed by GitNexus as **vet45** (28681 symbols, 67320 relations
 - NEVER edit a function, class, or method without first running `impact` on it.
 - NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
 - NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
-- NEVER commit changes without running `detect_changes()` to check affected scope.
+- NEVER commit before MCP/CLI graph change analysis.
 
 ## Resources
 

@@ -25,7 +25,7 @@ Location: `assets/data/` at the **vet45 repo root** (not under `modules/` or `pa
 
 ## Flutter bundle
 
-Declared in `apps/erp/pubspec.yaml` and `modules/partner/presentation/pubspec.yaml` via symlink `assets/` → repo root `assets/`.
+Declared in `apps/erp/pubspec.yaml` (and formerly partner presentation — UI now lives under `apps/erp/lib/features/partner/`) via symlink `assets/` → repo root `assets/`.
 
 Load with:
 
