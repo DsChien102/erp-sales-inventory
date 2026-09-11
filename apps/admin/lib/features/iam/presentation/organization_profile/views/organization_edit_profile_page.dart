@@ -115,18 +115,13 @@ class _EditProfileViewState extends State<_EditProfileView> {
   /// Client-side validation — chỉ chạy khi bấm "Lưu thay đổi".
   bool _validate() {
     final name = _nameController.text.trim();
-    final phone = _phoneController.text.trim();
     final address = _addressController.text.trim();
 
     final nameError = name.isEmpty ? 'Vui lòng nhập tên tổ chức' : null;
-    String? phoneError;
-    // Đếm theo chữ số để chấp nhận cả định dạng nội địa (0xxx) lẫn quốc tế (+84xxx).
-    final phoneDigits = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    if (phone.isEmpty) {
-      phoneError = 'Vui lòng nhập số điện thoại';
-    } else if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-      phoneError = 'Số điện thoại không hợp lệ';
-    }
+    final phoneError = VPhoneValidator.validate(
+      _phoneController.text,
+      isRequired: true,
+    );
     final emailError = VEmailValidator.validate(
       _emailController.text,
       isRequired: true,
@@ -141,10 +136,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
       _addressError = addressError;
     });
 
-    return nameError == null &&
-        phoneError == null &&
-        emailError == null &&
-        addressError == null;
+    return nameError == null && phoneError == null && emailError == null && addressError == null;
   }
 
   Future<void> _save(BuildContext context) async {
@@ -275,20 +267,15 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const VFieldLabel('Số điện thoại', isRequired: true),
-                    VTextField(
+                    VPhoneField(
+                      isRequired: true,
                       controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      // Chỉ cho nhập chữ số và dấu '+' (đầu số quốc gia) — chặn chữ cái.
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
-                        LengthLimitingTextInputFormatter(16),
-                      ],
+                      validateOnChanged: false,
                       onChanged: (_) {
                         if (_phoneError != null) setState(() => _phoneError = null);
                       },
                     ),
-                    if (_phoneError != null)
-                      VFieldError(_phoneError!),
+                    if (_phoneError != null) VFieldError(_phoneError!),
                   ],
                 ),
               ),
@@ -306,8 +293,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                         if (_emailError != null) setState(() => _emailError = null);
                       },
                     ),
-                    if (_emailError != null)
-                      VFieldError(_emailError!),
+                    if (_emailError != null) VFieldError(_emailError!),
                   ],
                 ),
               ),
@@ -324,8 +310,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                         if (_addressError != null) setState(() => _addressError = null);
                       },
                     ),
-                    if (_addressError != null)
-                      VFieldError(_addressError!),
+                    if (_addressError != null) VFieldError(_addressError!),
                   ],
                 ),
               ),

@@ -50,8 +50,7 @@ class _EditMyAccountSampleBody extends StatefulWidget {
   final MyAccountUiModel data;
 
   @override
-  State<_EditMyAccountSampleBody> createState() =>
-      _EditMyAccountSampleBodyState();
+  State<_EditMyAccountSampleBody> createState() => _EditMyAccountSampleBodyState();
 }
 
 class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
@@ -59,14 +58,14 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneNumberController;
   late final TextEditingController _emailController;
+  String? _phoneErrorText;
 
   @override
   void initState() {
     super.initState();
     _firstNameController = TextEditingController(text: widget.data.firstName);
     _lastNameController = TextEditingController(text: widget.data.lastName);
-    _phoneNumberController =
-        TextEditingController(text: widget.data.phoneNumber);
+    _phoneNumberController = TextEditingController(text: widget.data.phoneNumber);
     _emailController = TextEditingController(text: widget.data.email);
   }
 
@@ -92,6 +91,11 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
   }
 
   void _handleSave() {
+    final phoneError = VPhoneValidator.validate(_phoneNumberController.text, isRequired: false);
+    if (phoneError != null) {
+      setState(() => _phoneErrorText = phoneError);
+      return;
+    }
     if (!_isValid) return;
     Navigator.of(context).pop(
       MyAccountUiModel(
@@ -113,9 +117,16 @@ class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
       lastNameController: _lastNameController,
       phoneNumberController: _phoneNumberController,
       emailController: _emailController,
+      phoneErrorText: _phoneErrorText,
       isSaving: false,
       isValid: _isValid,
-      onChanged: () => setState(() {}),
+      onChanged: () {
+        if (_phoneErrorText != null) {
+          setState(() => _phoneErrorText = null);
+        } else {
+          setState(() {});
+        }
+      },
       onSave: _handleSave,
       onCancel: () => Navigator.of(context).pop(),
     );
@@ -138,6 +149,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
   String? _baselineLastName;
   String? _baselinePhone;
   String? _avatarUrl;
+  String? _phoneErrorText;
   bool _controllersSeeded = false;
 
   @override
@@ -185,6 +197,11 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
   }
 
   Future<void> _handleSave() async {
+    final phoneError = VPhoneValidator.validate(_phoneNumberController.text, isRequired: false);
+    if (phoneError != null) {
+      setState(() => _phoneErrorText = phoneError);
+      return;
+    }
     if (!_isValid) return;
     final cubit = context.read<MyAccountEditCubit>();
     final ok = await cubit.save(
@@ -221,8 +238,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
       },
       builder: (context, state) {
         final colors = context.vColors;
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return const VPageScaffold(
             title: 'Chỉnh sửa thông tin',
             body: Center(child: VLoading(size: 40)),
@@ -252,8 +268,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
                     const VGap.lg(),
                     VButton(
                       label: 'Thử lại',
-                      onPressed: () =>
-                          context.read<MyAccountEditCubit>().load(),
+                      onPressed: () => context.read<MyAccountEditCubit>().load(),
                     ),
                   ],
                 ),
@@ -263,9 +278,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
         }
 
         final profile = state.profile;
-        final fullName = profile == null
-            ? ''
-            : '${profile.lastName} ${profile.firstName}'.trim();
+        final fullName = profile == null ? '' : '${profile.lastName} ${profile.firstName}'.trim();
 
         return _EditFormScaffold(
           fullName: fullName,
@@ -273,9 +286,16 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
           lastNameController: _lastNameController,
           phoneNumberController: _phoneNumberController,
           emailController: _emailController,
+          phoneErrorText: _phoneErrorText,
           isSaving: state.isSubmitting,
           isValid: _isValid,
-          onChanged: () => setState(() {}),
+          onChanged: () {
+            if (_phoneErrorText != null) {
+              setState(() => _phoneErrorText = null);
+            } else {
+              setState(() {});
+            }
+          },
           onSave: _handleSave,
           onCancel: () => Navigator.of(context).pop(),
         );
@@ -291,6 +311,7 @@ class _EditFormScaffold extends StatelessWidget {
     required this.lastNameController,
     required this.phoneNumberController,
     required this.emailController,
+    this.phoneErrorText,
     required this.isSaving,
     required this.isValid,
     required this.onChanged,
@@ -303,6 +324,7 @@ class _EditFormScaffold extends StatelessWidget {
   final TextEditingController lastNameController;
   final TextEditingController phoneNumberController;
   final TextEditingController emailController;
+  final String? phoneErrorText;
   final bool isSaving;
   final bool isValid;
   final VoidCallback onChanged;
@@ -357,34 +379,61 @@ class _EditFormScaffold extends StatelessWidget {
             ),
           ),
           const VGap.lg(),
-          VTextField(
-            label: 'Họ và tên đệm',
-            isRequired: true,
-            hintText: 'Nhập họ và tên đệm',
-            controller: lastNameController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Họ và tên đệm', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập họ và tên đệm',
+                  controller: lastNameController,
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Tên',
-            isRequired: true,
-            hintText: 'Nhập tên',
-            controller: firstNameController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Tên', isRequired: true),
+                VTextField(
+                  hintText: 'Nhập tên',
+                  controller: firstNameController,
+                  onChanged: (_) => onChanged(),
+                ),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Số điện thoại',
-            hintText: 'Nhập số điện thoại',
-            keyboardType: TextInputType.phone,
-            controller: phoneNumberController,
-            onChanged: (_) => onChanged(),
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Số điện thoại'),
+                VPhoneField(
+                  hintText: 'Nhập số điện thoại',
+                  controller: phoneNumberController,
+                  validateOnChanged: false,
+                  onChanged: (_) => onChanged(),
+                ),
+                if (phoneErrorText != null) VFieldError(phoneErrorText!),
+              ],
+            ),
           ),
           const VGap.md(),
-          VTextField(
-            label: 'Email đăng nhập',
-            controller: emailController,
-            enabled: false,
+          VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Email đăng nhập'),
+                VTextField(
+                  controller: emailController,
+                  enabled: false,
+                ),
+              ],
+            ),
           ),
           const VGap.xl(),
         ],

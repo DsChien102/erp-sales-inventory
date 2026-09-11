@@ -78,9 +78,6 @@ void main() {
 
 Finder _fieldLabel(String text, {bool isRequired = false}) {
   return find.byWidgetPredicate(
-    (widget) =>
-        widget is VFieldLabel &&
-        widget.text == text &&
-        widget.isRequired == isRequired,
+    (widget) => widget is VFieldLabel && widget.text == text && widget.isRequired == isRequired,
   );
 }

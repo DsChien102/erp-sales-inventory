@@ -17,6 +17,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
+
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
 - Design system: text chính light dùng `neutral900` thay `primary900`.
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
