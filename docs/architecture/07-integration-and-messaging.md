@@ -1,15 +1,47 @@
 # Integration và messaging
 
 > Nội dung chi tiết luồng event: [integration_event_flow.md](../integration_event_flow.md)
+>
+> **Agent rule (mandatory):** [.cursor/rules/vet45-integration-events.mdc](../../.cursor/rules/vet45-integration-events.mdc) — outbox = facts only; never disguise commands as integration events.
 
 ## Mô hình
 
 | Loại | Mục đích | Nơi chạy |
 | ---- | -------- | -------- |
-| **Integration event** | Contract liên module (JSON, versioned type) | Package `integration_events` |
-| **Domain event** | Nội bộ aggregate | Domain layer — map ra integration ở handler |
-| **Outbox/Inbox** | Durable delivery | Postgres + `messaging_worker` |
+| **Integration event** | Contract liên module — **business fact đã xảy ra** (JSON, versioned type) | Package `integration_events` + `{module}.outbox_messages` |
+| **Domain event** | Nội bộ aggregate | Domain layer — map ra integration fact ở boundary sau commit |
+| **Integration command** | Yêu cầu module khác (hoặc async cùng module) **thực hiện việc** | `{module}.integration_commands` (+ bảng intent nếu có, vd. impact requests) |
+| **Internal command** | Việc trì hoãn trong cùng module | `{module}.internal_commands` + `ICommandScheduler` |
+| **Outbox/Inbox** | Durable delivery của **events (facts)** | Postgres + `messaging_worker` |
 | **App event bus** | UI refresh local | Flutter — không thay outbox |
+
+## Fact vs command (không được trộn)
+
+Integration event và outbox **không** phải RPC giả. Tên và semantics phải là **past fact**.
+
+| Được phép trên outbox / `integration_events` | Cấm (đưa sang `integration_commands`) |
+| --- | --- |
+| `sales_order_finalized.v1` | `*.requested` / `*_requested` |
+| `sales_payment_recorded.v1` | `*.apply_*` / retry / reconcile / reverse làm “event” |
+| `return_exchange_completed.v1` | Mọi payload chủ yếu là “hãy làm X giúp tôi” |
+
+**Luồng đúng khi Sales cần Kho / Công nợ (platform target):**
+
+```text
+Mutation Sales (cùng transaction)
+  → đổi state Sales + emit lifecycle FACT trên outbox (nếu có consumer)
+  → ghi intent (vd. inventory_impact_requests) + integration_commands (imperative command_name)
+  → KHÔNG insert outbox kiểu inventory_impact.requested
+```
+
+Owner (TH-06/TH-07) consume **command/intent**, không bị bắt buộc hiểu “request event” đội lốt fact.
+
+**TH-05 current phase (option B — reactive, 2026-09):** Sales **chỉ** emit lifecycle outbox facts trong phase hiện tại — **không** sở hữu `*_impact_requests`, `integration_commands`, apply/retry enqueue. TH-06/07/08 consume Sales facts qua inbox handlers khi owner modules sẵn sàng. Integration status UI (EP-03/US-06) giữ SQL stub `notRequired`; thin outcome projection = future slice. Luồng command/intent ở trên vẫn là platform pattern cho modules **owner** hoặc cho Sales khi/h nếu durable handoff được reopen — không phải deliverable TH-05 hiện tại.
+
+Naming gợi ý:
+
+- Fact: `{context}_{aggregate}_{past_participle}.v1`
+- Command: `{context}.{owner}.{imperative}.v1`
 
 ## Luồng publish (target)
 

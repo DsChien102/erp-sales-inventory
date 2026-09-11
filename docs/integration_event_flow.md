@@ -5,9 +5,13 @@
 ## Nguyên tắc
 
 1. **Domain event** không publish trực tiếp ra module khác.
-2. **Command handler** map domain event → integration event **sau khi** gateway/RPC thành công.
-3. **Outbox** ghi cùng transaction với mutation (Postgres) — worker deliver.
-4. **Consumer** implement integration event handler trong module đích (application layer).
+2. **Integration event** = **business fact đã xảy ra** ở publisher (past tense). Không dùng outbox để gửi “yêu cầu làm việc”.
+3. **Command handler / RPC** sau khi mutation thành công:
+   - map sang **integration event (fact)** trên outbox khi cần thông báo liên module;
+   - ghi **integration_commands** (+ bảng intent) khi cần nhờ module khác thực thi.
+4. **Outbox** ghi cùng transaction với mutation (Postgres) — worker deliver **events**.
+5. **Consumer** implement integration event handler trong module đích (application layer) → enqueue internal command; không coi outbox như RPC.
+6. **Cấm** đặt tên / contract IE dạng `*.requested`, apply/retry/reconcile/reverse làm event — xem [vet45-integration-events rule](../.cursor/rules/vet45-integration-events.mdc) và [architecture/07-integration-and-messaging.md](architecture/07-integration-and-messaging.md).
 
 ## Luồng end-to-end
 
@@ -48,7 +52,9 @@ sequenceDiagram
 
 ## Checklist triển khai event mới
 
+- [ ] Type là **fact** (đã xảy ra) — không phải request/command đội lốt event
 - [ ] Type trong `modules/{publisher}/integration_events` (+ entry trong `{Module}IntegrationEventRegistry`)
+- [ ] Handoff sang module khác (nếu cần) dùng `integration_commands` / intent table — **không** thêm `*.requested` outbox
 - [ ] Consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`) — map event → internal command
 - [ ] Dispatcher registry entry (codegen `cqrs_integration_event_registry`)
 - [ ] Command chạy qua `CommandBus` + pipeline (không gọi handler trực tiếp)
