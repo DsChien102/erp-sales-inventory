@@ -64,38 +64,70 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           color: colors.textSecondary,
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgNameController,
-          label: 'Tên tổ chức',
-          isRequired: true,
-          hintText: 'Nhập tên tổ chức (ví dụ: Thú y Minh Phát)',
-          helperText: 'Tên hiển thị',
-          errorText: orgNameErrorText,
-          onChanged: onOrgNameChanged,
+        VField(
+          invalid: orgNameErrorText != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Tên tổ chức', isRequired: true),
+              VTextField(
+                controller: orgNameController,
+                hintText: 'Nhập tên tổ chức (ví dụ: Thú y Minh Phát)',
+                onChanged: onOrgNameChanged,
+              ),
+              if (orgNameErrorText != null)
+                VFieldError(orgNameErrorText!)
+              else
+                const VFieldDescription('Tên hiển thị'),
+            ],
+          ),
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgPhoneController,
-          label: 'Số điện thoại',
-          hintText: 'Nhập số điện thoại liên hệ',
-          keyboardType: TextInputType.phone,
-          errorText: orgPhoneErrorText,
-          onChanged: onOrgPhoneChanged,
+        VField(
+          invalid: orgPhoneErrorText != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Số điện thoại'),
+              VPhoneField(
+                controller: orgPhoneController,
+                hintText: 'Nhập số điện thoại liên hệ',
+                validateOnChanged: false,
+                onChanged: onOrgPhoneChanged,
+              ),
+              if (orgPhoneErrorText != null) VFieldError(orgPhoneErrorText!),
+            ],
+          ),
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgEmailController,
-          label: 'Email liên hệ',
-          hintText: 'Nhập email liên hệ',
-          keyboardType: TextInputType.emailAddress,
-          errorText: orgEmailErrorText,
-          onChanged: onOrgEmailChanged,
+        VField(
+          invalid: orgEmailErrorText != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Email liên hệ'),
+              VTextField(
+                controller: orgEmailController,
+                hintText: 'Nhập email liên hệ',
+                keyboardType: TextInputType.emailAddress,
+                onChanged: onOrgEmailChanged,
+              ),
+              if (orgEmailErrorText != null) VFieldError(orgEmailErrorText!),
+            ],
+          ),
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgAddressController,
-          label: 'Địa chỉ liên hệ',
-          hintText: 'Nhập địa chỉ (ví dụ: 125 Phạm Văn Thuận)',
+        VField(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Địa chỉ liên hệ'),
+              VTextField(
+                controller: orgAddressController,
+                hintText: 'Nhập địa chỉ (ví dụ: 125 Phạm Văn Thuận)',
+              ),
+            ],
+          ),
         ),
         const VGap.md(),
         FutureBuilder<List<VnAdministrativeUnit>>(
@@ -178,24 +210,44 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
             onChanged: onEntityTypeChanged,
           ),
         ),
-        const VGap.md(),
-        VTextField(
-          controller: orgLegalNameController,
-          label: 'Tên pháp lý',
-          hintText: 'Nhập tên pháp lý của tổ chức',
+        VField(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Tên pháp lý'),
+              VTextField(
+                controller: orgLegalNameController,
+                hintText: 'Nhập tên pháp lý của tổ chức',
+              ),
+            ],
+          ),
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgTaxCodeController,
-          label: 'Mã số thuế',
-          hintText: 'Nhập mã số thuế',
-          keyboardType: TextInputType.number,
+        VField(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Mã số thuế'),
+              VTextField(
+                controller: orgTaxCodeController,
+                hintText: 'Nhập mã số thuế',
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
         ),
         const VGap.md(),
-        VTextField(
-          controller: orgRegisteredAddressController,
-          label: 'Địa chỉ đăng ký',
-          hintText: 'Nhập địa chỉ đăng ký',
+        VField(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Địa chỉ đăng ký'),
+              VTextField(
+                controller: orgRegisteredAddressController,
+                hintText: 'Nhập địa chỉ đăng ký',
+              ),
+            ],
+          ),
         ),
       ],
     );

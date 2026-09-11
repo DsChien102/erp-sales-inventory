@@ -39,9 +39,9 @@ class OrganizationFilterChips extends StatelessWidget {
               padding: const EdgeInsets.only(right: VSpacing.space2),
               child: VChip(
                 label: status.filterLabel,
-                emphasis: isSelected
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: isSelected
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () => onStatusSelected(status),
               ),
             );

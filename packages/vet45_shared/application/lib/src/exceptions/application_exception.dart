@@ -1,6 +1,6 @@
 /// Application-layer failures surfaced to callers.
 class ApplicationException implements Exception {
-  ApplicationException(this.message, {this.cause});
+  const ApplicationException(this.message, {this.cause});
 
   final String message;
   final Object? cause;

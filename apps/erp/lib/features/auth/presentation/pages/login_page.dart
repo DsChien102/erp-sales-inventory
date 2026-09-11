@@ -183,10 +183,19 @@ class _LoginViewState extends State<_LoginView> {
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
         if (state.status == LoginStatus.failure && state.failure != null) {
+          final failure = state.failure!;
+          // Sai email/mật khẩu: hiện trên field email, không toast.
+          if (failure.code == IamBlockedCodes.invalidCredentials) {
+            setState(() {
+              _emailError = failure.message;
+              _passwordError = null;
+            });
+            return;
+          }
           VToast.show(
             context,
             title: 'Đăng nhập thất bại',
-            message: state.failure!.message,
+            message: failure.message,
             type: VToastType.danger,
           );
         }
@@ -290,8 +299,7 @@ class _LoginViewState extends State<_LoginView> {
                                     }
                                   },
                                 ),
-                                if (_emailError != null)
-                                  VFieldError(_emailError!),
+                                if (_emailError != null) VFieldError(_emailError!),
                               ],
                             ),
                           ),
@@ -314,8 +322,7 @@ class _LoginViewState extends State<_LoginView> {
                                   },
                                   onSubmitted: (_) => _submit(),
                                 ),
-                                if (_passwordError != null)
-                                  VFieldError(_passwordError!),
+                                if (_passwordError != null) VFieldError(_passwordError!),
                               ],
                             ),
                           ),

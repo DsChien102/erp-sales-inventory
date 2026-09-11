@@ -1,6 +1,7 @@
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
 
+import '../../shared/iam_role_label_mapper.dart';
 import '../models/user_ui_model.dart';
 import 'iam_date_formatter.dart';
 
@@ -12,7 +13,9 @@ abstract final class MemberUiMapper {
           ? dto.displayName
           : (dto.email.isNotEmpty ? dto.email : dto.userId),
       email: dto.email,
-      role: dto.roleLabel.isNotEmpty ? dto.roleLabel : _roleLabel(dto.roleId),
+      role: IamRoleLabelMapper.toDisplayLabel(
+        dto.roleLabel.isNotEmpty ? dto.roleLabel : dto.roleId,
+      ),
       status: _status(dto.status),
       isOwner: dto.isOwner,
       identityText: dto.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc',
@@ -33,9 +36,11 @@ abstract final class MemberUiMapper {
     final name = (displayName != null && displayName.isNotEmpty)
         ? displayName
         : (email.isNotEmpty ? email : dto.userId);
-    final role = (dto.roleLabel != null && dto.roleLabel!.trim().isNotEmpty)
-        ? dto.roleLabel!.trim()
-        : _roleLabel(dto.role);
+    final role = IamRoleLabelMapper.toDisplayLabel(
+      (dto.roleLabel != null && dto.roleLabel!.trim().isNotEmpty)
+          ? dto.roleLabel!.trim()
+          : dto.role,
+    );
 
     return MemberUiModel(
       id: dto.membershipId,
@@ -66,17 +71,6 @@ abstract final class MemberUiMapper {
     );
   }
 
-  static String _roleLabel(String roleCode) {
-    return switch (roleCode.toLowerCase()) {
-      'owner' => 'Chủ sở hữu',
-      'admin' => 'Quản trị viên',
-      'staff' || 'sales' => 'Nhân viên bán hàng',
-      'vet' || 'doctor' => 'Bác sĩ thú y',
-      'technician' => 'Kỹ thuật viên',
-      'accountant' => 'Kế toán',
-      _ => roleCode,
-    };
-  }
 
   static MemberStatus _status(String wire) {
     return switch (wire) {

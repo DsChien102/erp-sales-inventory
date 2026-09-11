@@ -338,11 +338,9 @@ class _PlatformUserDetailView extends StatelessWidget {
                             label: badgeLabel,
                             tone: badgeTone,
                             variant: VBadgeVariant.soft,
-                            isSmall: true,
                           ),
                           const VGap.md(),
                           VCard(
-                            onTap: () {},
                             child: Row(
                               children: [
                                 VIconBox(

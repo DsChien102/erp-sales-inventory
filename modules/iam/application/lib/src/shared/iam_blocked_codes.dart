@@ -35,4 +35,6 @@ abstract final class IamBlockedCodes {
   static const stepUpAuthRequired = 'STEP_UP_AUTH_REQUIRED';
   static const ownerTargetInvalid = 'OWNER_TARGET_INVALID';
   static const platformPermissionDenied = 'PLATFORM_PERMISSION_DENIED';
+  static const invalidCredentials = 'INVALID_CREDENTIALS';
+  static const identityEmailNotVerified = 'IDENTITY_EMAIL_NOT_VERIFIED';
 }

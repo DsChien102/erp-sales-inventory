@@ -66,7 +66,8 @@ class AuditLogItemCard extends StatelessWidget {
                       const SizedBox(width: VSpacing.space2),
                       const VBadge(
                         label: 'Thông tin hiện tại',
-                        status: VBadgeStatus.draft,
+                        tone: VComponentTone.neutral,
+                        variant: VBadgeVariant.soft,
                         isSmall: true,
                       ),
                     ],

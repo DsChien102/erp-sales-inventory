@@ -54,17 +54,24 @@ class ResetPasswordVerifyCodeStep extends StatelessWidget {
             ],
           ),
         ),
-        const VGap.lg(),
-        VVerificationCodeField(
-          length: 6,
-          charset: VVerificationCodeCharset.numeric,
-          label: 'Mã xác nhận',
-          isRequired: true,
-          autofocus: true,
-          enabled: !isVerifying,
-          errorText: errorText,
-          onChanged: onCodeChanged,
-          onCompleted: (_) => onVerify?.call(),
+        VField(
+          invalid: errorText != null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const VFieldLabel('Mã xác nhận', isRequired: true),
+              VVerificationCodeField(
+                length: 6,
+                charset: VVerificationCodeCharset.numeric,
+                autofocus: true,
+                enabled: !isVerifying,
+                onChanged: onCodeChanged,
+                onCompleted: (_) => onVerify?.call(),
+              ),
+              if (errorText != null)
+                VFieldError(errorText!),
+            ],
+          ),
         ),
         const VGap.lg(),
         VButton(

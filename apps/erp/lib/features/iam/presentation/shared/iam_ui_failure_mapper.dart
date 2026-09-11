@@ -1,3 +1,4 @@
+import 'package:supabase/supabase.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -20,6 +21,44 @@ abstract final class IamUiFailureMapper {
       if (_knownCodes.contains(trimmed)) {
         return _fromCode(trimmed, fallbackMessage: error.message);
       }
+      final lower = trimmed.toLowerCase();
+      if (lower.contains('invalid login') || lower.contains('invalid credential')) {
+        return _fromCode(IamBlockedCodes.invalidCredentials);
+      }
+    }
+    if (error is AuthException) {
+      final code = error.code?.toLowerCase();
+      final msg = error.message.toLowerCase();
+      if (code == 'invalid_credentials' ||
+          msg.contains('invalid login') ||
+          msg.contains('invalid credential')) {
+        return _fromCode(IamBlockedCodes.invalidCredentials);
+      }
+      if (code == 'email_not_confirmed' || msg.contains('not confirmed')) {
+        return _fromCode(IamBlockedCodes.identityEmailNotVerified);
+      }
+      if (code == 'over_email_send_rate_limit' || error.statusCode == '429') {
+        return _fromCode(IamBlockedCodes.resetRateLimited);
+      }
+      return IamUiFailure(
+        code: IamBlockedCodes.systemError,
+        message: error.message.isNotEmpty
+            ? error.message
+            : _messageFor(IamBlockedCodes.systemError),
+        retryable: true,
+      );
+    }
+    final errorString = error.toString().toLowerCase();
+    if (errorString.contains('socketexception') ||
+        errorString.contains('connection refused') ||
+        errorString.contains('clientexception') ||
+        errorString.contains('failed host lookup') ||
+        errorString.contains('network is unreachable')) {
+      return const IamUiFailure(
+        code: IamBlockedCodes.systemError,
+        message: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
+        retryable: true,
+      );
     }
     return IamUiFailure(
       code: IamBlockedCodes.systemError,
@@ -90,6 +129,8 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stepUpAuthRequired,
     IamBlockedCodes.ownerTargetInvalid,
     IamBlockedCodes.platformPermissionDenied,
+    IamBlockedCodes.invalidCredentials,
+    IamBlockedCodes.identityEmailNotVerified,
   };
 
   static const Map<String, String> _localizedMessages = <String, String>{
@@ -127,5 +168,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stepUpAuthRequired: 'Cần xác thực bổ sung để tiếp tục thao tác.',
     IamBlockedCodes.ownerTargetInvalid: 'Đối tượng chủ sở hữu không hợp lệ.',
     IamBlockedCodes.platformPermissionDenied: 'Bạn không có quyền nền tảng cho thao tác này.',
+    IamBlockedCodes.invalidCredentials: 'Email hoặc mật khẩu không chính xác.',
+    IamBlockedCodes.identityEmailNotVerified: 'Email chưa được xác thực hoặc kích hoạt.',
   };
 }

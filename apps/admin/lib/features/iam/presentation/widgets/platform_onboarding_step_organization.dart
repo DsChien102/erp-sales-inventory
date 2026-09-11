@@ -89,14 +89,13 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const VFieldLabel('Số điện thoại'),
-              VTextField(
+              VPhoneField(
                 controller: orgPhoneController,
                 hintText: 'Nhập số điện thoại liên hệ',
-                keyboardType: TextInputType.phone,
+                validateOnChanged: false,
                 onChanged: onOrgPhoneChanged,
               ),
-              if (orgPhoneErrorText != null)
-                VFieldError(orgPhoneErrorText!),
+              if (orgPhoneErrorText != null) VFieldError(orgPhoneErrorText!),
             ],
           ),
         ),
@@ -113,8 +112,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
                 onChanged: onOrgEmailChanged,
               ),
-              if (orgEmailErrorText != null)
-                VFieldError(orgEmailErrorText!),
+              if (orgEmailErrorText != null) VFieldError(orgEmailErrorText!),
             ],
           ),
         ),

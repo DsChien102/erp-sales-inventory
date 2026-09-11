@@ -24,6 +24,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
     this.emailErrorText,
     this.phoneErrorText,
     this.allowNewOwnerCreation = true,
+    this.hasDuplicateEmail = false,
   });
 
   final bool isNewOwner;
@@ -45,6 +46,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
   final String? emailErrorText;
   final String? phoneErrorText;
   final bool allowNewOwnerCreation;
+  final bool hasDuplicateEmail;
 
   @override
   State<PlatformOnboardingStepOwner> createState() => _PlatformOnboardingStepOwnerState();
@@ -94,42 +96,81 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          VTextField(
-            controller: widget.lastNameController,
-            label: 'Họ và tên đệm',
-            isRequired: true,
-            hintText: 'Nhập họ và tên đệm',
-            errorText: widget.lastNameErrorText,
-            onChanged: widget.onLastNameChanged,
+          if (widget.hasDuplicateEmail) ...[
+            const VBanner(
+              status: VBannerStatus.warning,
+              title: 'Email đã có tài khoản',
+              description: 'Vui lòng quay lại để chọn tài khoản hiện có.',
+            ),
+            const VGap.md(),
+          ],
+          VField(
+            invalid: widget.lastNameErrorText != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Họ và tên đệm', isRequired: true),
+                VTextField(
+                  controller: widget.lastNameController,
+                  hintText: 'Nhập họ và tên đệm',
+                  onChanged: widget.onLastNameChanged,
+                ),
+                if (widget.lastNameErrorText != null) VFieldError(widget.lastNameErrorText!),
+              ],
+            ),
           ),
           const VGap.sm(),
-          VTextField(
-            controller: widget.firstNameController,
-            label: 'Tên',
-            isRequired: true,
-            hintText: 'Nhập tên',
-            errorText: widget.firstNameErrorText,
-            onChanged: widget.onFirstNameChanged,
+          VField(
+            invalid: widget.firstNameErrorText != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Tên', isRequired: true),
+                VTextField(
+                  controller: widget.firstNameController,
+                  hintText: 'Nhập tên',
+                  onChanged: widget.onFirstNameChanged,
+                ),
+                if (widget.firstNameErrorText != null) VFieldError(widget.firstNameErrorText!),
+              ],
+            ),
           ),
           const VGap.sm(),
-          VTextField(
-            controller: widget.emailController,
-            label: 'Email',
-            isRequired: true,
-            hintText: 'Nhập email',
-            keyboardType: TextInputType.emailAddress,
-            errorText: widget.emailErrorText,
-            onChanged: widget.onEmailChanged,
+          VField(
+            invalid: widget.emailErrorText != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Email', isRequired: true),
+                VTextField(
+                  controller: widget.emailController,
+                  hintText: 'Nhập email',
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: widget.onEmailChanged,
+                ),
+                if (widget.emailErrorText != null) VFieldError(widget.emailErrorText!),
+              ],
+            ),
           ),
           const VGap.sm(),
-          VTextField(
-            controller: widget.phoneController,
-            label: 'Số điện thoại',
-            hintText: 'Nhập số điện thoại',
-            helperText: 'Không bắt buộc',
-            keyboardType: TextInputType.phone,
-            errorText: widget.phoneErrorText,
-            onChanged: widget.onPhoneChanged,
+          VField(
+            invalid: widget.phoneErrorText != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Số điện thoại'),
+                VPhoneField(
+                  controller: widget.phoneController,
+                  hintText: 'Nhập số điện thoại',
+                  validateOnChanged: false,
+                  onChanged: widget.onPhoneChanged,
+                ),
+                if (widget.phoneErrorText != null)
+                  VFieldError(widget.phoneErrorText!)
+                else
+                  const VFieldDescription('Không bắt buộc'),
+              ],
+            ),
           ),
           const VGap.md(),
           VCard(
@@ -296,22 +337,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
             const VGap.sm(),
             VCard(
               backgroundColor: colors.surfaceBrand,
-              border: Border.all(
-                color: colors.primary,
-                width: 1.5,
-              ),
-              padding: const EdgeInsets.all(VSpacing.space4),
-              borderRadius: VRadius.card,
+              tone: VComponentTone.primary,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   VText(
                     _platformUserDisplayName(widget.selectedOwner!),
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
+                    tone: VComponentTone.neutral,
+                    variant: VTextVariant.headingH4,
                   ),
                   const VGap.xs(),
                   VText(
@@ -319,12 +352,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
                     variant: VTextVariant.bodySmall,
                     color: colors.textSecondary,
                   ),
-                  const VGap.xs(),
-                  VText(
-                    '0901 234 567',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
+                  if ((widget.selectedOwner!.phoneNumber ?? '').trim().isNotEmpty) ...[
+                    const VGap.xs(),
+                    VText(
+                      widget.selectedOwner!.phoneNumber!.trim(),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ],
                 ],
               ),
             ),

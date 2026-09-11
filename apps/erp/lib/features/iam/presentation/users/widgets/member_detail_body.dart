@@ -22,10 +22,10 @@ class MemberDetailBody extends StatelessWidget {
     final isInactive = detailStatus == MembershipStatus.inactive;
     final isRemoved = detailStatus == MembershipStatus.removed;
 
-    final (badgeLabel, badgeStatus) = switch (detailStatus) {
-      MembershipStatus.active => ('Hoạt động', VBadgeStatus.success),
-      MembershipStatus.inactive => ('Tạm ngừng', VBadgeStatus.danger),
-      MembershipStatus.removed => ('Đã loại', VBadgeStatus.danger),
+    final (badgeLabel, badgeTone) = switch (detailStatus) {
+      MembershipStatus.active => ('Hoạt động', VComponentTone.success),
+      MembershipStatus.inactive => ('Tạm ngừng', VComponentTone.danger),
+      MembershipStatus.removed => ('Đã loại', VComponentTone.danger),
     };
 
     return ListView(
@@ -51,7 +51,8 @@ class MemberDetailBody extends StatelessWidget {
                     ),
                     VBadge(
                       label: badgeLabel,
-                      status: badgeStatus,
+                      tone: badgeTone,
+                      variant: VBadgeVariant.soft,
                       isSmall: true,
                     ),
                   ],

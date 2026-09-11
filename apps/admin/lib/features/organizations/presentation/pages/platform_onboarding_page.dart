@@ -94,7 +94,6 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
       final lastName = _lastNameController.text.trim();
       final firstName = _firstNameController.text.trim();
       final email = _emailController.text.trim();
-      final phone = _phoneController.text.trim();
 
       String? lastNameError;
       String? firstNameError;
@@ -112,9 +111,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
       } else if (!VEmailValidator.isValid(email)) {
         emailError = 'Email không hợp lệ.';
       }
-      if (phone.isNotEmpty && phone.length < 8) {
-        phoneError = 'Số điện thoại không hợp lệ.';
-      }
+      phoneError = VPhoneValidator.validate(_phoneController.text, isRequired: false);
 
       if (lastNameError != null ||
           firstNameError != null ||
@@ -152,7 +149,6 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   bool _validateStep2() {
     final orgName = _orgNameController.text.trim();
     final orgEmail = _orgEmailController.text.trim();
-    final orgPhone = _orgPhoneController.text.trim();
 
     String? nameError;
     String? emailError;
@@ -164,9 +160,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
     if (orgEmail.isNotEmpty && !VEmailValidator.isValid(orgEmail)) {
       emailError = 'Email liên hệ không hợp lệ.';
     }
-    if (orgPhone.isNotEmpty && orgPhone.length < 8) {
-      phoneError = 'Số điện thoại không hợp lệ.';
-    }
+    phoneError = VPhoneValidator.validate(_orgPhoneController.text, isRequired: false);
 
     if (nameError != null || emailError != null || phoneError != null) {
       setState(() {
@@ -193,8 +187,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
         final email = _emailController.text.trim().toLowerCase();
         setState(() => _isCheckingEmail = true);
 
-        final exists =
-            await context.read<PlatformOnboardingCubit>().checkEmailExists(email);
+        final exists = await context.read<PlatformOnboardingCubit>().checkEmailExists(email);
         if (!mounted) return;
 
         // (V2) Người dùng đã sửa email trong lúc chờ → bỏ kết quả cũ.
@@ -246,6 +239,15 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   }
 
   Future<void> _handleSubmit() async {
+    if (_isNewOwner && !_validateStep1()) {
+      setState(() => _currentStep = 0);
+      return;
+    }
+    if (!_validateStep2()) {
+      setState(() => _currentStep = 1);
+      return;
+    }
+
     final orgName = _orgNameController.text.trim();
 
     if (orgName.toLowerCase().contains('error') || orgName.toLowerCase().contains('lỗi')) {
@@ -371,53 +373,54 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                 ),
               ),
             ),
-            Container(
-              color: colors.surface,
-              child: SafeArea(
-                top: false,
-                child: Container(
-                  padding: const EdgeInsets.all(VSpacing.screenMobile),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    border: Border(
-                      top: BorderSide(color: colors.borderDefault),
-                    ),
-                  ),
-                  child: BlocBuilder<PlatformOnboardingCubit, PlatformOnboardingState>(
-                    buildWhen: (p, c) => p.status != c.status,
-                    builder: (context, state) {
-                      final submitting = state.status == PlatformOnboardingLoadStatus.submitting;
-                      final isNextDisabled = submitting ||
-                          _isCheckingEmail ||
-                          (_currentStep == 0 && _isNewOwner && _hasDuplicateEmail);
-
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: VButton(
-                              label: 'Quay lại',
-                              variant: VButtonVariant.secondary,
-                              onPressed: submitting || _isCheckingEmail ? null : _onBackPressed,
-                            ),
-                          ),
-                          const VGap.horizontalSm(),
-                          Expanded(
-                            child: VButton(
-                              label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
-                              isLoading: _isCheckingEmail,
-                              onPressed: isNextDisabled
-                                  ? null
-                                  : (_currentStep == 2 ? _handleSubmit : _handleNext),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+          ],
+        ),
+        bottomNavigationBar: Container(
+          color: colors.surface,
+          child: SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                border: Border(
+                  top: BorderSide(color: colors.borderDefault),
                 ),
               ),
+              child: BlocBuilder<PlatformOnboardingCubit, PlatformOnboardingState>(
+                buildWhen: (p, c) => p.status != c.status,
+                builder: (context, state) {
+                  final submitting = state.status == PlatformOnboardingLoadStatus.submitting;
+                  final isNextDisabled =
+                      submitting ||
+                      _isCheckingEmail ||
+                      (_currentStep == 0 && _isNewOwner && _hasDuplicateEmail);
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: VButton(
+                          label: 'Quay lại',
+                          variant: VButtonVariant.secondary,
+                          onPressed: submitting || _isCheckingEmail ? null : _onBackPressed,
+                        ),
+                      ),
+                      const VGap.horizontalSm(),
+                      Expanded(
+                        child: VButton(
+                          label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
+                          isLoading: _isCheckingEmail,
+                          onPressed: isNextDisabled
+                              ? null
+                              : (_currentStep == 2 ? _handleSubmit : _handleNext),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );

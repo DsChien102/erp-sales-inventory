@@ -15,6 +15,12 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Lời mời: filter status dùng nhãn "Hết hạn"; cải thiện sheet filter / member tab body.
+
+- IAM ERP: migrate badge/chip sang `VComponentTone`; form field sang `VField` composition; tách `AdministrativeUnitsFormSection`.
+
+- Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
+
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
 - Design system: text chính light dùng `neutral900` thay `primary900`.
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
@@ -27,12 +33,18 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+- Login: sai email/mật khẩu (`invalidCredentials`) hiện trên `VFieldError` của field email; các lỗi login khác vẫn dùng toast.
+
 - Dashboard: lời chào theo buổi không kèm tên user (tránh trùng với tên tổ chức); bỏ hardcode tên/chi nhánh trên header.
 - Lời mời tổ chức (tài khoản đã tồn tại): bấm "Xác nhận" là trở thành thành viên ngay — lời mời hết kẹt "Đang chờ" phía người mời, và đăng nhập xong vào thẳng tổ chức vừa tham gia thay vì rơi về tổ chức cũ. Trước đây màn xác nhận chỉ điều hướng sang đăng nhập mà không hề gọi lệnh tiếp nhận.
 - Lời mời tổ chức: lỗi khi tiếp nhận (mã hết hạn / bị thu hồi / đã dùng) hiện toast rõ ràng thay vì bị nuốt, và bottom sheet xác nhận không tự bật lại thành vòng lặp.
 - Lời mời tổ chức: tài khoản đã có không còn thoáng thấy form đăng ký tài khoản mới trong lúc hệ thống đang tiếp nhận lời mời.
 
 ### Internal
+
+- IAM: dùng IamRoleLabelMapper cho nhãn role trên member mapper / select organization.
+
+- IAM audit logs: filter theo ngày dùng mốc ICT (`VDateTime.ictOffset`) thay vì local→UTC thuần.
 
 - App-owned presentation (ADR 11): UI Partner/Pricing/Catalog/Dashboard/IAM chuyển vào `apps/erp`; xóa package `modules/*/presentation` (trừ Sales). Catalog widget preview: `apps/erp/example`.
 

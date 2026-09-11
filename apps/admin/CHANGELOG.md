@@ -17,6 +17,11 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Chi tiết người dùng: tap tổ chức đang tham gia mở chi tiết tổ chức (`pushNamed`).
+- Chi tiết người dùng: badge trạng thái dùng size mặc định; card hồ sơ không còn `onTap` rỗng.
+- Danh sách tổ chức: mở chi tiết qua GoRouter `organization_detail` thay vì `Navigator.push`.
+- Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
+
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
 - Design system: text chính light dùng `neutral900` thay `primary900`.
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
@@ -29,12 +34,18 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+- Login: map AuthException / invalid credentials sang thông báo IAM rõ ràng.
+
 - Onboarding tổ chức: card chủ sở hữu đã chọn hiện SĐT thật (ẩn nếu thiếu), bỏ hardcode.
 - Chi tiết tổ chức: hết báo nhầm "Email Chủ sở hữu chưa xác minh" khi email đã xác minh — RPC trả thẳng trạng thái thật thay vì để client tự suy đoán từ trạng thái "Đang thiết lập" (cần promote draft SQL `003`→`005`).
 - Chi tiết người dùng nền tảng: hiện "Chưa đặt tên" khi `fullName` trống.
 - Chi tiết tổ chức: tên chủ lấy từ `platform_user_profiles` (họ + tên) qua membership; onboarding gắn membership owner ngay cùng lời mời; khi chủ từ chối/hết hạn/thu hồi lời mời thì gỡ membership, tổ chức vẫn đang thiết lập.
 
 ### Internal
+
+- IAM: dùng IamRoleLabelMapper cho nhãn role trên member mapper / select organization.
+
+- IAM audit logs: filter theo ngày dùng mốc ICT (`VDateTime.ictOffset`) thay vì local→UTC thuần.
 
 - App-owned presentation (ADR 11): IAM UI widgets/views chuyển vào `apps/admin/lib/features/iam/`; bỏ dependency `vet45_iam_presentation`.
 

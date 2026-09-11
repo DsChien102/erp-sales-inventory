@@ -96,7 +96,7 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
               final isSelected = _currentCriteria.timeRange == option;
               return VChip(
                 label: option,
-                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
+                tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria = _currentCriteria.copyWith(timeRange: option);
@@ -117,7 +117,7 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
               final isSelected = _currentCriteria.status == option.status;
               return VChip(
                 label: option.label,
-                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
+                tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria = _currentCriteria.copyWith(
@@ -141,7 +141,7 @@ class _AuditLogFilterBottomSheetState extends State<AuditLogFilterBottomSheet> {
               final isSelected = _currentCriteria.actorType == option;
               return VChip(
                 label: option,
-                emphasis: isSelected ? VComponentEmphasis.strong : VComponentEmphasis.medium,
+                tone: isSelected ? VComponentTone.primary : VComponentTone.neutral,
                 onTap: () {
                   setState(() {
                     _currentCriteria = _currentCriteria.copyWith(actorType: option);
