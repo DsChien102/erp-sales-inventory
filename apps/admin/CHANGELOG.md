@@ -13,6 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.0.3+4] - 2026-09-12
+
+### Added
+
 - Onboarding tổ chức: tạo chủ sở hữu mới bằng email đã có tài khoản sẽ hiện cảnh báo "Email đã có tài khoản" và khóa nút "Tiếp tục" cho tới khi đổi email. Không kiểm tra được (mất mạng / thiếu quyền xem user) thì chặn kèm thông báo, không cho đi tiếp.
 
 ### Changed
