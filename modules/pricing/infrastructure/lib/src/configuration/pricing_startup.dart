@@ -90,6 +90,12 @@ abstract final class PricingStartup {
     container.registerFactory<ResolveApplicableCustomerPriceRuleQueryValidator>(
       ResolveApplicableCustomerPriceRuleQueryValidator.new,
     );
+    container.registerFactory<PreviewSalesWorkingStatePricingQueryValidator>(
+      PreviewSalesWorkingStatePricingQueryValidator.new,
+    );
+    container.registerFactory<EvaluateSalesManualPriceQueryValidator>(
+      EvaluateSalesManualPriceQueryValidator.new,
+    );
     container.registerSingleton<PricingQueryAccessGuard>(
       PricingQueryAccessGuard(
         executionContext: executionContext,

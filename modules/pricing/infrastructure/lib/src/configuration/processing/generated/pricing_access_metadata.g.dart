@@ -26,6 +26,10 @@ final pricingAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'pricing.customer_price_rule.disable',
     requiresTenant: true,
   ),
+  EvaluateSalesManualPriceQuery: AccessMetadata(
+    permission: 'pricing.sales.manual_price.adjust',
+    requiresTenant: true,
+  ),
   GetCustomerPriceRuleDetailQuery: AccessMetadata(
     permission: 'pricing.customer_price_rule.view',
     requiresTenant: true,
@@ -44,6 +48,10 @@ final pricingAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   PrecheckCustomerPriceRuleReenableQuery: AccessMetadata(
     permission: 'pricing.customer_price_rule.reenable',
+    requiresTenant: true,
+  ),
+  PreviewSalesWorkingStatePricingQuery: AccessMetadata(
+    permission: 'pricing.sales.preview',
     requiresTenant: true,
   ),
   ReenableCustomerPriceRuleCommand: AccessMetadata(

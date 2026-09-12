@@ -139,6 +139,16 @@ void registerGeneratedPricingQueries({
   required QueryBus bus,
   required GetIt container,
 }) {
+  PricingCommandRegistration.registerQueryHandler<EvaluateSalesManualPriceQuery, SalesManualPriceEvaluationDto, EvaluateSalesManualPriceQueryHandler>(
+    bus: bus,
+    factory: () => EvaluateSalesManualPriceQueryHandler(
+      readGateway: container.get<ISalesPricingReadGateway>(),
+      validator: container.get<EvaluateSalesManualPriceQueryValidator>(),
+      permissionChecker: container.get<IPermissionChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   PricingCommandRegistration.registerQueryHandler<GetCustomerPriceRuleDetailQuery, CustomerPriceRuleDetailDto, GetCustomerPriceRuleDetailQueryHandler>(
     bus: bus,
     factory: () => GetCustomerPriceRuleDetailQueryHandler(
@@ -178,6 +188,15 @@ void registerGeneratedPricingQueries({
     factory: () => PrecheckCustomerPriceRuleReenableQueryHandler(
       precheckPort: container.get<ICustomerPriceRuleReenablePrecheckPort>(),
       validator: container.get<PrecheckCustomerPriceRuleReenableQueryValidator>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  PricingCommandRegistration.registerQueryHandler<PreviewSalesWorkingStatePricingQuery, SalesWorkingStatePricingPreviewDto, PreviewSalesWorkingStatePricingQueryHandler>(
+    bus: bus,
+    factory: () => PreviewSalesWorkingStatePricingQueryHandler(
+      readGateway: container.get<ISalesPricingReadGateway>(),
+      validator: container.get<PreviewSalesWorkingStatePricingQueryValidator>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
