@@ -114,6 +114,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
   ),
+  ListSellableProductUnitsQuery: AccessMetadata(
+    permission: 'catalog.product.view',
+    requiresTenant: true,
+  ),
   ListTenantMeasurementUnitsQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
@@ -142,6 +146,14 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.update',
     requiresTenant: true,
   ),
+  ResolveSellableBarcodeQuery: AccessMetadata(
+    permission: 'catalog.product.view',
+    requiresTenant: true,
+  ),
+  ResolveSellableProductsQuery: AccessMetadata(
+    permission: 'catalog.product.view',
+    requiresTenant: true,
+  ),
   RestoreProductCommand: AccessMetadata(
     permission: 'catalog.product.delete',
     requiresTenant: true,
@@ -154,12 +166,16 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view',
     requiresTenant: true,
   ),
-  SetInitialPriceBandCommand: AccessMetadata(
-    permission: 'catalog.product.manage_pricing',
+  SearchSellableProductsQuery: AccessMetadata(
+    permission: 'catalog.product.view',
     requiresTenant: true,
   ),
   SetBasicStockQuantityBaseCommand: AccessMetadata(
     permission: 'catalog.product.manage_stock',
+    requiresTenant: true,
+  ),
+  SetInitialPriceBandCommand: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
     requiresTenant: true,
   ),
   SetManualBasePriceCommand: AccessMetadata(
