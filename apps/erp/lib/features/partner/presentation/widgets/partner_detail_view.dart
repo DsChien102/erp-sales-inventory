@@ -39,9 +39,13 @@ class PartnerDetailView extends StatelessWidget {
                 Material(
                   color: colors.surface,
                   child: VTabs(
-                    tabs: _tabs,
                     selectedIndex: selectedTabIndex,
                     onTabSelected: context.read<PartnerDetailCubit>().selectTab,
+                    child: VTabsList(
+                      children: [
+                        for (final label in _tabs) VTabsTrigger(label: label),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(child: _tabBody(selectedTabIndex, detail)),

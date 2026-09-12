@@ -181,13 +181,20 @@ class _DeliveryDetailAddressFieldState
 
   @override
   Widget build(BuildContext context) {
-    return VTextFormField(
-      controller: _controller,
-      label: 'Địa chỉ chi tiết',
-      hintText: 'Số nhà, tên đường...',
-      minLines: 3,
-      maxLines: 5,
-      onChanged: widget.onChanged,
+    return VField(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VFieldLabel('Địa chỉ chi tiết'),
+          VTextArea(
+            controller: _controller,
+            hintText: 'Số nhà, tên đường...',
+            minLines: 3,
+            maxLines: 5,
+            onChanged: widget.onChanged,
+          ),
+        ],
+      ),
     );
   }
 }

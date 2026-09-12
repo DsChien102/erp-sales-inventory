@@ -146,38 +146,52 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 ],
 
                 // 1. Họ và tên
-                VTextField(
-                  key: const Key('input_contact_fullname'),
-                  controller: _fullNameController,
-                  label: 'Họ và tên',
-                  hintText: 'Nhập họ và tên người liên hệ',
-                  errorText: _fullNameError,
-                  enabled: !widget.isSubmitting,
-                  isRequired: true,
+                VField(
+                  invalid: _fullNameError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Họ và tên', isRequired: true),
+                      VTextField(
+                        key: const Key('input_contact_fullname'),
+                        controller: _fullNameController,
+                        hintText: 'Nhập họ và tên người liên hệ',
+                        enabled: !widget.isSubmitting,
+                      ),
+                      if (_fullNameError != null) VFieldError(_fullNameError!),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: VSpacing.space4),
 
                 // 2. Vai trò liên hệ
-                VSelect<String>(
-                  key: const Key('input_contact_role'),
-                  value: _selectedRole,
-                  label: 'Vai trò liên hệ',
-                  hintText: 'Chọn vai trò',
-                  errorText: _roleError,
-                  isRequired: true,
-                  items: _roleOptions.map((role) {
-                    return DropdownMenuItem<String>(
-                      value: role,
-                      child: VText(role),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
-                    setState(() {
-                      _selectedRole = val;
-                      _roleError = null;
-                    });
-                  },
-                  enabled: !widget.isSubmitting,
+                VField(
+                  invalid: _roleError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Vai trò liên hệ', isRequired: true),
+                      VSelect<String>(
+                        key: const Key('input_contact_role'),
+                        value: _selectedRole,
+                        hintText: 'Chọn vai trò',
+                        items: _roleOptions.map((role) {
+                          return DropdownMenuItem<String>(
+                            value: role,
+                            child: VText(role),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedRole = val;
+                            _roleError = null;
+                          });
+                        },
+                        enabled: !widget.isSubmitting,
+                      ),
+                      if (_roleError != null) VFieldError(_roleError!),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: VSpacing.space4),
 
@@ -198,14 +212,22 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 const SizedBox(height: VSpacing.space4),
 
                 // 4. Email
-                VTextField(
-                  key: const Key('input_contact_email'),
-                  controller: _emailController,
-                  label: 'Email',
-                  hintText: 'Nhập địa chỉ email',
-                  keyboardType: TextInputType.emailAddress,
-                  errorText: _emailError,
-                  enabled: !widget.isSubmitting,
+                VField(
+                  invalid: _emailError != null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Email'),
+                      VTextField(
+                        key: const Key('input_contact_email'),
+                        controller: _emailController,
+                        hintText: 'Nhập địa chỉ email',
+                        keyboardType: TextInputType.emailAddress,
+                        enabled: !widget.isSubmitting,
+                      ),
+                      if (_emailError != null) VFieldError(_emailError!),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: VSpacing.space4),
 
@@ -262,13 +284,20 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 const SizedBox(height: VSpacing.space4),
 
                 // 6. Ghi chú
-                VTextFormField(
-                  key: const Key('input_contact_note'),
-                  controller: _noteController,
-                  label: 'Ghi chú',
-                  hintText: 'Nhập ghi chú liên quan',
-                  maxLines: 3,
-                  enabled: !widget.isSubmitting,
+                VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Ghi chú'),
+                      VTextArea(
+                        key: const Key('input_contact_note'),
+                        controller: _noteController,
+                        hintText: 'Nhập ghi chú liên quan',
+                        maxLines: 3,
+                        enabled: !widget.isSubmitting,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
