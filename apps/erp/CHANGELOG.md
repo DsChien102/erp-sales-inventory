@@ -13,6 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- SG-05: `SalesPaymentQrCard` nhận `qrImage` (`ImageProvider`) hiển thị ảnh QR vuông, cạnh bằng chiều cao cột thông tin; null → placeholder icon.
+- SG-02: bấm vùng tên/giá trên dòng soạn đơn để chọn lại đơn vị bán (giữ SL; trùng unit thì merge dòng).
+
+### Fixed
+
+- SG-02: unfocus ô tìm SP trong lúc fetch đang treo thì hủy kết quả inflight — không mở menu pick sản phẩm sau khi future hoàn tất.
+- SG-02: chặn bấm nhanh mở trùng sheet chọn đơn vị bán.
+- SG-02: tóm tắt thanh toán — tổng tiền hàng = Σ max(niêm yết, tiền bán); phần giá riêng thấp hơn list vào “Giảm giá”; thành tiền = tổng − giảm.
+- SG-02: `SalesSpecialPriceBanner` — dải góc kiểu Banner (không shadow) gắn trên `SalesOrderLineRow`; thumbnail không còn sở hữu badge.
+
 ### Changed
 
 - Catalog: migrate chip/badge/empty/field sang API design system mới (`tone`, `VBadgeVariant`, `VEmptyHeader`, `VField` + `VTextArea`).
@@ -39,6 +49,13 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 - Profile / onboarding: validate SĐT qua `VPhoneValidator` + `VPhoneField` (thay logic đếm chữ số thủ công).
 
+- SG-08: chi tiết thanh toán dùng chữ "Hoàn một phần" và "Đã hoàn" như danh sách; khối hiện tại cộng mọi khoản đã thu kể cả thu thêm, không trừ hoàn; dòng giao dịch gắn "Thu tiền" hoặc "Hoàn tiền".
+- US-06 theo dõi integration deferred; ERP không còn load/retry impact status
+- Gỡ chỉnh ghi chú đơn hàng sau bán (SG-09 / EP-04).
+- SG-05 / SG-06: tách `SalesLabelHighlightRow` (label + value string); `SalesAmountHighlightRow` chỉ format minor rồi ủy quyền render.
+- SG-08: tab Đơn gốc / Sau đổi/trả cố định ngoài scroll; dùng compound `VTabs` + `VTabsList` + `VTabsTrigger`.
+- SG-03: sheet chọn đơn vị bán dùng radio + Hủy/Xác nhận, mặc định chọn đơn vị cơ sở.
+- SG-02: tóm tắt thanh toán (tổng tiền hàng / giảm giá / thành tiền) dùng số pricing preview trả về theo từng dòng thay vì suy diễn giảm giá từ chênh lệch giá ở widget.
 - Design system: card border đậm hơn (`borderStrong`); input / select / combobox / nút secondary outline nhẹ hơn (`borderDefault`).
 - Design system: text chính light dùng `neutral900` thay `primary900`.
 - Design system: `VCard` hỗ trợ `enabled` (disabled → border nhẹ hơn, không tap).
@@ -50,6 +67,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Lời mời tổ chức: banner sau khi tiếp nhận nêu rõ tên tổ chức vừa tham gia (`Đã tham gia tổ chức "X" thành công`), áp dụng cho cả luồng tài khoản mới lẫn tài khoản đã có.
 
 ### Fixed
+- SG-01: `SalesDraftListCard` compose `VSwipeReveal` trực tiếp; bỏ `VSwipeActionRecord` khỏi design system.
 
 - Login: sai email/mật khẩu (`invalidCredentials`) hiện trên `VFieldError` của field email; các lỗi login khác vẫn dùng toast.
 - Partner / lời mời: dùng `VPhoneField` + `VPhoneValidator` cho SĐT (định dạng VN, từ chối ký tự không hợp lệ).
@@ -65,7 +83,63 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - IAM audit logs: filter theo ngày dùng mốc ICT (`VDateTime.ictOffset`) thay vì local→UTC thuần.
 
 - App-owned presentation (ADR 11): UI Partner/Pricing/Catalog/Dashboard/IAM chuyển vào `apps/erp`; xóa package `modules/*/presentation` (trừ Sales). Catalog widget preview: `apps/erp/example`.
+- Sales: `20260830005` drop legacy `sales_order_cancellations.reason_code` (còn sót sau rebuild `IF NOT EXISTS`); `confirm_sales_order_cancellation` chỉ ghi `reason`.
+- Sales C1: draft `017` summary outstanding/dueAt/checkout cash và `027_sales_review_inquiry.sql` truyền type/direction giao dịch. Chưa promote.
+- Sales C2: draft `028_sales_review_inquiry_filters.sql` lọc/search trước cursor; trạng thái trả từ projection; timeline actor không lấy người đang xem. Chưa promote.
+- Sales C3: draft `029_sales_review_receipt.sql` giữ `orderTotal` là giá trị đơn gốc; `settlementSnapshot` tách điều chỉnh sau bán; `content_hash` từ snapshot. Chưa promote.
+- Sales C4: draft `030_sales_review_receipt_lifecycle.sql` khóa đơn rồi settlement trước khi đọc tiền; phiếu mới thay phiếu `generated` cùng đơn; in/chia sẻ không đổi snapshot. Chưa promote. Concurrency hai session chưa xác minh.
+- Sales M1: draft `031_sales_review_facts.sql` phát `sales_settlement_changed.v1` là snapshot tiền sau recompute. Owner consumer còn `MISSING`. Chưa promote.
+- Sales M2: draft `032_sales_review_constraints.sql` thêm CHECK/FK `NOT VALID` và audit SELECT. Không sửa dữ liệu cũ, không validate. Chưa promote.
+- Sales M3: ghi evidence review. Draft SQL chưa apply. Owner consumer còn thiếu. Chưa promote.
+- Sales: re-baseline migration — gỡ bốn bảng policy/reservation không dùng; form-policy trả catalog rỗng; Dart bỏ reserve/release + payload `reservation_ids`; UI lưu phiếu không đòi policy.
+- Sales: gỡ OrderAdjustment CQRS, RPC S22, bảng order_adjustments; inquiry/list bỏ hasAdjustment; available-actions bỏ canAdjust.
+- Presentation data shapes: chuẩn hóa Sales `*_result` / `*_args` / `*_contracts` (bỏ `*_outcome` / handoff `*_snapshot` / compose `*_ports`); sync presentation skill.
+- Extract `MoneyFormatter` (`core/formatting`) — Sales/Pricing dùng chung; bỏ `SalesMoneyFormat` và formatter money local ở Pricing.
+- Sales compose: chuyển prepare/result + draft/manual-price contracts vào `bloc/sales_order_draft/` (bỏ khỏi `support/`).
+- Sales presentation: tối giản readability — gộp document action sheets; ports rename (`sales_*_ports`); bỏ dual-path compose products route/page/cubit; xóa `SalesReceiptCard`/`SalesSlipCard` và UI `SalesOrderIntegrationSection` (giữ load integration cho e-invoice).
+- SG-10: gộp confirm hủy đơn vào `SalesOrderDetailCubit` / `PostSaleActions`; xóa `SalesOrderCancelCubit` orphan (sheet vẫn dumb + callback).
+- Sales presentation: dead-code cleanup an toàn — bỏ `SalesPresentationModule`, `showSalesCheckoutBlockedSheet`, typedef `VOrderLineSwipeIconAction`, extension `isAll`, getter discount chết trên compose line; sửa overview catalog ghosts.
+- Sales: migrate GoRouter sang `go_router_builder` (`TypedShellRoute` drafts/compose + `*Route.push/go`); xóa `SalesRoutes` string builders.
+- Sales messaging: outbox chỉ lifecycle facts (canonical `*.v1`).
+- Sales SQL: gỡ handoff Model B khỏi migration 20260827/20260830 + 20260904001 — bỏ bảng `integration_commands` / `*_impact_requests`, helper `_enqueue_*`, RPC 015 (retry/reconcile/status); `get_order_integration_status` trả stub `notRequired`; completion return/exchange không còn gate `IMPACT_PENDING`. Handoff sẽ dựng lại cùng module Inventory/Receivable/e-Invoice.
+- SG-01: card nháp dùng `VCardHeader` / `VCardTitle` / `VCardAction` / `VCardContent` / `VCardFooter`.
+- SG-01: first-load đơn nháp dùng `VSkeleton` (mimic card) thay spinner.
+- SG-02: `SalesComposeOrderNoteTile` dùng `VCard` / `VCardHeader` / `VCardContent` thay Material shell thủ công.
+- SG-02: sheet điều chỉnh giá dùng `VMoneyField` (tiền) / `VNumberField` (%).
+- SG-02: summary bar khi refresh giá hiện `VSkeleton` thay text “Đang làm mới giá…”.
+- SG-04: sheet chọn KH dùng `SalesCustomerPickerBody.sheet` (bỏ `_SheetBody` trùng).
+- SG-04: bỏ floating banner; empty/no-result/error hiện qua `SalesCustomerPickerBody*State`; CTA tạo nhanh chỉ nút đáy sheet.
+- SG-05: badge “Nợ cũ” trên `SalesCheckoutSummaryCard` dùng `VBadge` (`outstanding`).
+- SG-05: `SalesCheckoutReceivableCard` chọn ngày hẹn bằng `VDatePicker`.
+- SG-05: khối “Công nợ phát sinh” dùng `VCard` tone success thay `Container`.
+- SG-06: `SalesResultFailureView` dùng `VEmptyState` tone danger thay Column icon/text thủ công.
+- SG-06: bỏ `SalesResultSuccessBanner` (dead code, không page nào dùng) khỏi sales presentation + preview catalog.
+- SG-05 / SG-06: tách `SalesAmountHighlightRow` dùng chung cho hàng tiền nổi bật (công nợ phát sinh, tổng đơn).
+- SG-07: `SalesOrderListEmptyState` dùng composition `VEmptyState` (header + content) thay API `title`/`description`/`actionLabel` deprecated.
+- SG-07: `SalesOrderListNoResultState` dùng composition `VEmptyState` thay Column icon/text tự dựng.
+- SG-07: bỏ `SalesOrderListResultSummary` (dead code, không page nào dùng) khỏi sales presentation + preview catalog.
+- SG-02: search sản phẩm hiện spinner ngay trong ô tìm kiếm khi đang tải; không tìm thấy / lỗi hiển thị empty state trong overlay dưới ô tìm kiếm kèm nút Thử lại, thay cho toast đáy màn hình.
+- SG-01 / SG-02: hai màn dùng chung một `SalesDraftListCubit` (`ShellRoute` bọc `/sales/drafts` + `/sales/compose`), nên số "Đơn nháp (n)" ở compose đọc `totalCount` từ cache chung thay vì tự chạy `ListSalesOrderDraftsQuery`; mở lại danh sách nháp hiện cache ngay rồi làm mới nền.
+- SG-04: trạng thái đang tải / tìm kiếm khách hàng nằm trong `SalesCustomerPickerBody` (state `SalesCustomerPickerLoading` + `SalesCustomerPickerLoadingState`), skeleton phủ cả nhãn đếm kết quả; sheet chọn khách không còn cờ loading cục bộ.
+- SG-02: chạm vào ô tìm kiếm sản phẩm mở overlay ngay với danh sách gợi ý mặc định (không cần gõ); overlay dùng chrome giống `VCombobox` (viền `borderStrong`, radius input, shadow design system).
+- SG-06 / SG-08: hub chứng từ dùng chung `SalesReceiptEntryCard` / `SalesEInvoiceEntryCard` (base row nội bộ); badge HĐĐT chuyển sang `VBadge` theo tone, bỏ `VBadgeStatus` deprecated và pill tự dựng.
 
+### Fixed
+
+- Tab "Tất cả đơn nháp" hiện đúng đơn nháp của mọi người trong cửa hàng.
+- Swipe draft cards: border quanh foreground (opt-in trên reveal), không bị cắt khi vuốt.
+- SG-02: `Expanded` bọc ngoài `VPagePadding` cho lines section (tránh ParentData lỗi với Padding).
+- SG-02: lỗi tra cứu Catalog khi lưu / khôi phục đơn nháp không còn bị báo là "Sản phẩm không còn bán được" — nay hiện thông báo thử lại; sản phẩm đã bị xóa khỏi danh mục có thông báo riêng.
+- SG-02: lookup sản phẩm khi lưu / khôi phục đơn nháp gộp thành một request cho cả đơn (trước đây mỗi dòng hàng một request khi khôi phục).
+
+### Internal
+
+- SG-08: redesign `SalesOrderDetailPaymentSummaryCard` — `SalesOrderDetailPaymentDisplayData` + flag `enabled` thay enum variant/override params.
+- Hybrid presentation: `SalesComposeCubit` chuyển lên `apps/erp/.../bloc/`; pricing preview/evaluate/save typedefs thuộc ERP (`sales_pricing_ports`); module sales presentation giữ widgets + `SalesComposeState` / display VMs. ADR: `docs/architecture/10-hybrid-presentation-ownership.md`.
+- App-owned presentation (ADR 11): UI Sales/Partner/Pricing/Catalog/Dashboard/IAM chuyển vào `apps/erp` (IAM Admin → `apps/admin`); xóa package `modules/*/presentation`. Catalog widget preview: `apps/erp/example`.
+- Sales compose: tách checkout + điều chỉnh giá ra orchestration layer, busy state vào cubit, typed navigation result cho drafts.
+- SG-02: sau lưu nháp thành công, working state reconcile `lineId` và số tiền đã persist từ response server.
+- Catalog: `ResolveSellableProductsQuery` (lookup-by-ids theo lô, phân biệt `sellable` / `notSellable` / `notFound`); Sales draft orchestration chuyển sang query này thay vì mượn `SearchSellableProductsQuery`. Cần promote draft `_drafts/016_catalog_sellable_lookup_by_ids.sql` trước khi ship DB.
 - Design system: bỏ `VComponentState`; dashboard `QuickActionButton` / pricing form dùng `enabled` inherit qua `VComponentScope`.
 - Design system: flat `label`/`helperText`/`errorText`/`isRequired` trên fields → `@Deprecated` (prefer `VField`); call sites chưa migrate sẽ thấy analyze warning.
 - Design system: `VBadgeStatus` / `VBadge.status` → `@Deprecated`; dùng `tone` + `variant` (`VBadgeVariant.soft` | `strong`); call sites hiện tại vẫn chạy qua bridge nhưng sẽ thấy analyze warning.

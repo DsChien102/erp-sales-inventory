@@ -14,6 +14,8 @@ dependencies:
     path: ../
   vet45_design_system:
     path: ../../../packages/vet45_design_system
+  vet45_sales_application:
+    path: ../../../modules/sales/application
   vet45_partner_application:
     path: ../../../modules/partner/application
   vet45_shared_testing:
@@ -99,6 +101,14 @@ dependency_overrides:
     path: ../../../modules/pricing/infrastructure
   vet45_resend:
     path: ../../../packages/vet45_resend
+  vet45_sales_application:
+    path: ../../../modules/sales/application
+  vet45_sales_domain:
+    path: ../../../modules/sales/domain
+  vet45_sales_infrastructure:
+    path: ../../../modules/sales/infrastructure
+  vet45_sales_integration_events:
+    path: ../../../modules/sales/integration_events
   vet45_shared_application:
     path: ../../../packages/vet45_shared/application
   vet45_shared_domain:

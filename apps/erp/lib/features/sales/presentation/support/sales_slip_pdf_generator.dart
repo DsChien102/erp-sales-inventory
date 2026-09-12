@@ -1,0 +1,556 @@
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_sales_application/application.dart';
+
+import '../models/return_exchange_order/sales_return_exchange_detail_vm.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
+
+enum SalesSlipType { sales, returnExchange }
+
+/// Generates PDF document bytes for Return/Exchange slips from authoritative detail.
+///
+/// Sales receipt rendering moved to `SalesReceiptPdfGenerator`.
+class SalesSlipPdfGenerator {
+  static Future<Uint8List> generateReturnExchange({
+    required SalesReturnExchangeDetailVm detail,
+    required String orderNumber,
+    required String customerDisplayName,
+    String? storeName,
+    String? storeCode,
+    String? customerPhoneNumber,
+    int? existingCustomerDebtMinor,
+  }) async {
+    final fonts = await _loadFonts();
+    final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a5,
+        theme: theme,
+        margin: const pw.EdgeInsets.all(10),
+        build: (_) => pw.Container(
+          padding: const pw.EdgeInsets.all(14),
+          decoration: pw.BoxDecoration(
+            color: PdfColors.white,
+            borderRadius: pw.BorderRadius.circular(16),
+          ),
+          child: _buildReturnSlipBody(
+            detail: detail,
+            orderNumber: orderNumber,
+            customerDisplayName: customerDisplayName,
+            storeName: storeName,
+            storeCode: storeCode,
+            customerPhoneNumber: customerPhoneNumber,
+            existingCustomerDebtMinor: existingCustomerDebtMinor,
+            fonts: fonts,
+          ),
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  /// Legacy entry — sales receipts are unsupported; return exchange requires
+  /// [generateReturnExchange].
+  static Future<Uint8List> generate({
+    required SalesSlipType type,
+    SalesReturnExchangeDetailVm? detail,
+    String? orderNumber,
+    String? customerDisplayName,
+    String? storeName,
+    String? storeCode,
+    String? customerPhoneNumber,
+    int? existingCustomerDebtMinor,
+  }) async {
+    if (type == SalesSlipType.sales) {
+      throw UnsupportedError(
+        'SalesSlipPdfGenerator no longer supports sales receipts. '
+        'Use SalesReceiptPdfGenerator instead.',
+      );
+    }
+    final resolved = detail;
+    if (resolved == null) {
+      throw ArgumentError.value(
+        detail,
+        'detail',
+        'Return-exchange PDF requires SalesReturnExchangeDetailVm.',
+      );
+    }
+    return generateReturnExchange(
+      detail: resolved,
+      orderNumber: orderNumber ?? '',
+      customerDisplayName: customerDisplayName ?? '',
+      storeName: storeName,
+      storeCode: storeCode,
+      customerPhoneNumber: customerPhoneNumber,
+      existingCustomerDebtMinor: existingCustomerDebtMinor,
+    );
+  }
+
+  static String sanitizeFileName(String referenceNumber) {
+    final sanitized = referenceNumber.replaceAll(RegExp(r'[^\w\-.]'), '_');
+    final compacted = sanitized.replaceAll(RegExp(r'_+'), '_');
+    return compacted.isEmpty ? 'return_exchange.pdf' : '$compacted.pdf';
+  }
+
+  static pw.Widget _buildReturnSlipBody({
+    required SalesReturnExchangeDetailVm detail,
+    required String orderNumber,
+    required String customerDisplayName,
+    String? storeName,
+    String? storeCode,
+    String? customerPhoneNumber,
+    int? existingCustomerDebtMinor,
+    required _PdfFonts fonts,
+  }) {
+    final plan = detail.settlementPlan;
+    final netMinor = plan.netDifferenceMinor;
+    String outcomeLabel = 'Không chênh lệch';
+    PdfColor outcomeColor = PdfColor.fromHex('#1F7A36');
+    if (netMinor > 0) {
+      outcomeLabel = 'Phải thu thêm';
+      outcomeColor = PdfColor.fromHex('#1F7A36');
+    } else if (netMinor < 0) {
+      outcomeLabel = 'Cần hoàn tiền';
+      outcomeColor = PdfColor.fromHex('#1F7A36');
+    }
+
+    final processedCollect = plan.processedCollectMinor;
+    final pendingReceivable = plan.receivableCreateAmountMinor > 0
+        ? plan.receivableCreateAmountMinor
+        : plan.pendingReceivableCreateMinor;
+    final newlyIncurredDebt = pendingReceivable > 0
+        ? pendingReceivable
+        : (netMinor > 0 && processedCollect < netMinor ? netMinor - processedCollect : 0);
+
+    final offsetMinor = plan.receivableReverseAmountMinor > 0
+        ? plan.receivableReverseAmountMinor
+        : plan.pendingReceivableReverseMinor;
+    final isOffsetScenario = netMinor < 0 && offsetMinor > 0;
+    final remainingRefund = netMinor < 0
+        ? (netMinor.abs() - offsetMinor > 0 ? netMinor.abs() - offsetMinor : 0)
+        : 0;
+    final processedRefund = plan.processedRefundMinor > 0
+        ? plan.processedRefundMinor
+        : (remainingRefund > 0
+              ? remainingRefund
+              : (offsetMinor == 0 && netMinor < 0 ? netMinor.abs() : 0));
+
+    final existingDebt = existingCustomerDebtMinor ?? 0;
+    final finalDebt = isOffsetScenario
+        ? (existingDebt - offsetMinor > 0 ? existingDebt - offsetMinor : 0)
+        : (existingDebt + newlyIncurredDebt);
+
+    final returnItems = detail.lines
+        .where((line) => line.kind == ReturnExchangeLineKind.returnLine)
+        .toList(growable: false);
+    final exchangeItems = detail.lines
+        .where((line) => line.kind == ReturnExchangeLineKind.exchangeLine)
+        .toList(growable: false);
+
+    final confirmedAt = detail.confirmedAt ?? detail.completedAt ?? detail.createdAt;
+    final orderNo = orderNumber.replaceAll('#', '');
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        _buildHeader(storeName: storeName, storeCode: storeCode, fonts: fonts),
+        pw.SizedBox(height: 6),
+        pw.Center(
+          child: pw.Column(
+            children: [
+              pw.Text(
+                'PHIẾU ĐỔI/TRẢ',
+                style: pw.TextStyle(font: fonts.bold, fontSize: 16),
+              ),
+              pw.SizedBox(height: 3),
+              pw.Text(
+                '${detail.referenceNumber}  ·  Đơn $orderNo',
+                style: pw.TextStyle(
+                  font: fonts.mono,
+                  fontSize: 10,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        pw.SizedBox(height: 8),
+        _row(
+          'Ngày xác nhận',
+          confirmedAt == null ? '—' : _formatDateTime(confirmedAt),
+          fonts,
+        ),
+        if (customerDisplayName.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 3),
+          _row('Khách hàng', customerDisplayName, fonts),
+          if (customerPhoneNumber != null && customerPhoneNumber.trim().isNotEmpty) ...[
+            pw.SizedBox(height: 3),
+            _row('Số điện thoại', customerPhoneNumber, fonts),
+          ],
+        ],
+        pw.SizedBox(height: 6),
+        pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+        pw.SizedBox(height: 6),
+        pw.Text(
+          'Hàng trả',
+          style: pw.TextStyle(font: fonts.bold, fontSize: 11),
+        ),
+        pw.SizedBox(height: 6),
+        if (returnItems.isEmpty)
+          pw.Text(
+            'Không có dòng trả',
+            style: pw.TextStyle(
+              font: fonts.regular,
+              fontSize: 10,
+              color: PdfColors.grey700,
+            ),
+          )
+        else
+          for (var i = 0; i < returnItems.length; i++) ...[
+            if (i > 0) pw.SizedBox(height: 4),
+            _productRow(returnItems[i], fonts),
+          ],
+        if (exchangeItems.isNotEmpty) ...[
+          pw.SizedBox(height: 6),
+          pw.Text(
+            'Hàng đổi',
+            style: pw.TextStyle(font: fonts.bold, fontSize: 11),
+          ),
+          pw.SizedBox(height: 6),
+          for (var i = 0; i < exchangeItems.length; i++) ...[
+            if (i > 0) pw.SizedBox(height: 4),
+            _productRow(exchangeItems[i], fonts),
+          ],
+        ],
+        pw.SizedBox(height: 6),
+        pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+        pw.SizedBox(height: 6),
+        _row(
+          outcomeLabel,
+          MoneyFormatter.formatMinor(netMinor.abs()),
+          fonts,
+          isBoldLabel: true,
+          isBoldValue: true,
+          valueColor: outcomeColor,
+        ),
+        if (netMinor > 0) ...[
+          pw.SizedBox(height: 3),
+          _row(
+            'Đã thu',
+            MoneyFormatter.formatMinor(processedCollect),
+            fonts,
+          ),
+          pw.SizedBox(height: 3),
+          _row(
+            'Công nợ phát sinh',
+            MoneyFormatter.formatMinor(newlyIncurredDebt),
+            fonts,
+          ),
+        ] else if (netMinor < 0) ...[
+          if (offsetMinor > 0) ...[
+            pw.SizedBox(height: 3),
+            _row(
+              'Đã cấn trừ',
+              MoneyFormatter.formatMinor(offsetMinor),
+              fonts,
+            ),
+          ],
+          if (processedRefund > 0 || (offsetMinor == 0 && netMinor < 0)) ...[
+            pw.SizedBox(height: 3),
+            _row(
+              'Đã hoàn',
+              MoneyFormatter.formatMinor(processedRefund),
+              fonts,
+            ),
+          ],
+        ],
+        if (customerDisplayName.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 6),
+          pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+          pw.SizedBox(height: 6),
+          _row(
+            isOffsetScenario ? 'Công nợ trước cấn trừ' : 'Công nợ cũ của khách',
+            MoneyFormatter.formatMinor(existingDebt),
+            fonts,
+          ),
+          pw.SizedBox(height: 3),
+          _row(
+            isOffsetScenario ? 'Công nợ sau cấn trừ' : 'Tổng công nợ',
+            MoneyFormatter.formatMinor(finalDebt),
+            fonts,
+            isBoldLabel: true,
+            isBoldValue: true,
+          ),
+        ],
+        pw.SizedBox(height: 8),
+        pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+        pw.SizedBox(height: 6),
+        pw.Center(
+          child: pw.Text(
+            'Cảm ơn quý khách!',
+            style: pw.TextStyle(
+              font: fonts.regular,
+              fontSize: 10,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _buildHeader({
+    String? storeName,
+    String? storeCode,
+    required _PdfFonts fonts,
+  }) {
+    final resolvedStoreName = storeName?.trim().isNotEmpty == true
+        ? storeName!.trim().toUpperCase()
+        : 'CỬA HÀNG';
+    final resolvedStoreCode = storeCode?.trim() ?? '';
+
+    return pw.Column(
+      children: [
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Container(
+              width: 44,
+              height: 44,
+              alignment: pw.Alignment.center,
+              decoration: pw.BoxDecoration(
+                color: PdfColor.fromHex('#1F7A36'),
+                borderRadius: pw.BorderRadius.circular(8),
+              ),
+              child: pw.Text(
+                'V45',
+                style: pw.TextStyle(
+                  font: fonts.bold,
+                  color: PdfColors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    resolvedStoreName,
+                    style: pw.TextStyle(font: fonts.bold, fontSize: 12),
+                    textAlign: pw.TextAlign.right,
+                  ),
+                  if (resolvedStoreCode.isNotEmpty) ...[
+                    pw.SizedBox(height: 2),
+                    pw.Text(
+                      resolvedStoreCode,
+                      style: pw.TextStyle(
+                        font: fonts.regular,
+                        color: PdfColors.grey700,
+                        fontSize: 10,
+                      ),
+                      textAlign: pw.TextAlign.right,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 6),
+        pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+      ],
+    );
+  }
+
+  static pw.Widget _row(
+    String label,
+    String value,
+    _PdfFonts fonts, {
+    bool isBoldLabel = false,
+    bool isBoldValue = false,
+    PdfColor? valueColor,
+  }) {
+    final isValueNumber = RegExp(r'[0-9]').hasMatch(value);
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Text(
+          label,
+          style: pw.TextStyle(
+            font: isBoldLabel ? fonts.bold : fonts.regular,
+            fontSize: 10.5,
+            color: isBoldLabel ? PdfColors.black : PdfColors.grey800,
+          ),
+        ),
+        pw.Text(
+          value,
+          style: pw.TextStyle(
+            font: isValueNumber
+                ? (isBoldValue ? fonts.monoBold : fonts.mono)
+                : (isBoldValue ? fonts.bold : fonts.regular),
+            fontSize: 10.5,
+            color: valueColor ?? (isBoldValue ? PdfColors.black : PdfColors.grey900),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _productRow(
+    ReturnExchangeDetailLineDto item,
+    _PdfFonts fonts,
+  ) {
+    final qty = _formatQuantity(item.quantity);
+    final unit = item.unit.unitName;
+    final amountText = MoneyFormatter.formatMinor(item.lineTotal.amountMinor);
+    final priceText = MoneyFormatter.formatMinor(item.unitPrice.amountMinor);
+    final qtyMicros = item.quantity.quantityMicros;
+    final qtyValue = qtyMicros / QuantityDto.scale;
+    final isDiscounted =
+        qtyValue > 0 &&
+        item.lineTotal.amountMinor < (item.unitPrice.amountMinor * qtyValue).round();
+    final actualUnitPriceMinor = qtyValue > 0
+        ? (item.lineTotal.amountMinor / qtyValue).round()
+        : item.unitPrice.amountMinor;
+
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Expanded(
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                item.product.displayName,
+                style: pw.TextStyle(font: fonts.bold, fontSize: 10.5),
+              ),
+              pw.SizedBox(height: 2),
+              if (isDiscounted)
+                pw.Row(
+                  children: [
+                    pw.Text(
+                      '$qty $unit × ',
+                      style: pw.TextStyle(
+                        font: fonts.mono,
+                        fontSize: 9.5,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                    pw.Text(
+                      priceText,
+                      style: pw.TextStyle(
+                        font: fonts.mono,
+                        fontSize: 9.5,
+                        color: PdfColors.grey500,
+                        decoration: pw.TextDecoration.lineThrough,
+                      ),
+                    ),
+                    pw.SizedBox(width: 4),
+                    pw.Text(
+                      MoneyFormatter.formatMinor(actualUnitPriceMinor),
+                      style: pw.TextStyle(
+                        font: fonts.monoBold,
+                        fontSize: 9.5,
+                        color: PdfColors.grey900,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                pw.Text(
+                  '$qty $unit × $priceText',
+                  style: pw.TextStyle(
+                    font: fonts.mono,
+                    fontSize: 9.5,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        pw.SizedBox(width: 10),
+        pw.Text(
+          amountText,
+          style: pw.TextStyle(font: fonts.monoBold, fontSize: 10.5),
+        ),
+      ],
+    );
+  }
+
+  static String _formatQuantity(QuantityDto quantity) {
+    final value = quantity.quantityMicros / QuantityDto.scale;
+    if (value == value.roundToDouble()) {
+      return value.round().toString();
+    }
+    return value
+        .toStringAsFixed(3)
+        .replaceFirst(RegExp(r'0+$'), '')
+        .replaceFirst(RegExp(r'\.$'), '');
+  }
+
+  static String _formatDateTime(DateTime value) => VDateTime.dateTime(value);
+
+  static Future<_PdfFonts> _loadFonts() async {
+    try {
+      final regular = await rootBundle.load(
+        'packages/vet45_design_system/assets/fonts/ttf_Inter/Inter-Regular.ttf',
+      );
+      final bold = await rootBundle.load(
+        'packages/vet45_design_system/assets/fonts/ttf_Inter/Inter-Bold.ttf',
+      );
+      final mono = await rootBundle.load(
+        'packages/vet45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf',
+      );
+      final monoBold = await rootBundle.load(
+        'packages/vet45_design_system/assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Bold.ttf',
+      );
+      return _PdfFonts(
+        regular: pw.Font.ttf(regular),
+        bold: pw.Font.ttf(bold),
+        mono: pw.Font.ttf(mono),
+        monoBold: pw.Font.ttf(monoBold),
+      );
+    } catch (_) {
+      try {
+        return _PdfFonts(
+          regular: await PdfGoogleFonts.robotoRegular(),
+          bold: await PdfGoogleFonts.robotoBold(),
+          mono: await PdfGoogleFonts.robotoMonoRegular(),
+          monoBold: await PdfGoogleFonts.robotoMonoBold(),
+        );
+      } catch (_) {
+        return _PdfFonts(
+          regular: pw.Font.helvetica(),
+          bold: pw.Font.helveticaBold(),
+          mono: pw.Font.courier(),
+          monoBold: pw.Font.courierBold(),
+        );
+      }
+    }
+  }
+}
+
+final class _PdfFonts {
+  const _PdfFonts({
+    required this.regular,
+    required this.bold,
+    required this.mono,
+    required this.monoBold,
+  });
+
+  final pw.Font regular;
+  final pw.Font bold;
+  final pw.Font mono;
+  final pw.Font monoBold;
+}

@@ -1,0 +1,103 @@
+import 'package:get_it/get_it.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_sales_application/application.dart';
+import 'package:erp/features/sales/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
+
+abstract final class SalesCheckoutOrchestrator {
+  static SalesCheckoutPrepareFn bind() {
+    return (SalesComposeState state) async {
+      try {
+        final executionContext = GetIt.instance<IExecutionContext>();
+        final activeStoreContext = GetIt.instance<IActiveStoreContext>();
+        final iamModule = GetIt.instance<IIamModule>();
+        final salesModule = GetIt.instance<ISalesModule>();
+        final tenantId = (await executionContext.requireTenantId()).trim();
+        final actorId = (await executionContext.requireUserId()).trim();
+        final activeStoreId = (await activeStoreContext.requireActiveStoreId()).trim();
+        if (tenantId.isEmpty || actorId.isEmpty || activeStoreId.isEmpty) {
+          throw StateError('Checkout identity context is incomplete.');
+        }
+
+        final storeContext = await iamModule.executeQueryAsync(
+          GetActiveStoreContextQuery(tenantId: tenantId),
+        );
+        final sellerProfile = await iamModule.executeQueryAsync(
+          GetMyIdentityProfileQuery(),
+        );
+        final storeCode = storeContext.storeCode.trim();
+        final storeDisplayName = storeContext.displayName.trim();
+        final sellerDisplayName = _sellerDisplayName(
+          sellerProfile: sellerProfile,
+          actorId: actorId,
+        );
+        if (storeContext.tenantId.trim() != tenantId ||
+            storeContext.userId.trim() != actorId ||
+            storeContext.storeId.trim() != activeStoreId ||
+            sellerProfile.userId.trim() != actorId ||
+            storeCode.isEmpty ||
+            storeDisplayName.isEmpty ||
+            sellerDisplayName.isEmpty) {
+          throw StateError('Checkout identity context is inconsistent.');
+        }
+
+        final args = SalesCheckoutDraftArgsMapper.fromCompose(
+          state,
+          store: StoreSnapshotDto(
+            storeId: activeStoreId,
+            storeCode: storeCode,
+            displayName: storeDisplayName,
+          ),
+          seller: ActorSnapshotDto(
+            actorId: actorId,
+            displayName: sellerDisplayName,
+          ),
+        );
+
+        final precheck = await salesModule.executeQueryAsync<CheckoutPrecheckDto>(
+          PrecheckSalesOrderCheckoutQuery(
+            tenantId: tenantId,
+            actorId: actorId,
+            storeId: activeStoreId,
+            customerId: args.customerId,
+            currencyCode: args.currencyCode,
+            lines: args.lines,
+            paymentIntents: [
+              PaymentIntentInput(
+                method: SalesPaymentMethod.cash,
+                amount: MoneyDto(
+                  amountMinor: args.provisionalTotalAmountMinor,
+                  currencyCode: args.currencyCode,
+                ),
+              ),
+            ],
+            expectedSourceVersion: args.expectedSourceVersion,
+          ),
+        );
+        if (!precheck.canFinalize || precheck.blockers.isNotEmpty) {
+          final message = precheck.blockers.isNotEmpty
+              ? precheck.blockers.first.message
+              : 'Đơn chưa đủ điều kiện thanh toán.';
+          return SalesCheckoutPrepareBlocked(message: message);
+        }
+        return SalesCheckoutPrepareReady(args);
+      } catch (_) {
+        return const SalesCheckoutPrepareFailed(
+          message:
+              'Không thể xác thực hoặc kiểm tra điều kiện thanh toán. Vui lòng thử lại.',
+        );
+      }
+    };
+  }
+
+  static String _sellerDisplayName({
+    required MyIdentityProfileDto sellerProfile,
+    required String actorId,
+  }) {
+    final fullName = sellerProfile.fullName.trim();
+    if (fullName.isNotEmpty) return fullName;
+    final email = sellerProfile.email.trim();
+    if (email.isNotEmpty) return email;
+    return actorId;
+  }
+}
