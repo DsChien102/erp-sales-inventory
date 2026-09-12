@@ -15,6 +15,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+### Fixed
+
+### Internal
+
+## [1.7.3+39] - 2026-09-12
+
+### Changed
+
 - Partner: migrate chip/badge/empty/tabs/field sang API design system mới (`tone`, `VEmptyHeader`, `VTabsList`, `VField` + `VTextArea`).
 - Partner list: tile dùng `VCard` + `VBadge` thay container/`_StatusBadge` tùy chỉnh; skeleton rút còn một `VSkeleton`.
 - Lời mời: filter status dùng nhãn "Hết hạn"; cải thiện sheet filter / member tab body.
