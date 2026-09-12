@@ -16,7 +16,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Changed
 
 - Partner: migrate chip/badge/empty/tabs/field sang API design system mới (`tone`, `VEmptyHeader`, `VTabsList`, `VField` + `VTextArea`).
-- Partner list: tile dùng `VCard` + `VBadge` thay container/`_StatusBadge` tùy chỉnh.
+- Partner list: tile dùng `VCard` + `VBadge` thay container/`_StatusBadge` tùy chỉnh; skeleton rút còn một `VSkeleton`.
 - Lời mời: filter status dùng nhãn "Hết hạn"; cải thiện sheet filter / member tab body.
 
 - IAM ERP: migrate badge/chip sang `VComponentTone`; form field sang `VField` composition; tách `AdministrativeUnitsFormSection`.
