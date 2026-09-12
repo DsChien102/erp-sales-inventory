@@ -56,7 +56,7 @@ class _PricingChooseMethodPageState extends State<PricingChooseMethodPage> {
       final result = await GetIt.instance<IPricingModule>().executeQueryAsync(
         SearchCustomerPriceRulesQuery(
           tenantId: tenantId,
-          businessDate: DateTime.now().toUtc(),
+          businessDate: VDateTime.currentBusinessDate(),
           limit: 1,
         ),
       );

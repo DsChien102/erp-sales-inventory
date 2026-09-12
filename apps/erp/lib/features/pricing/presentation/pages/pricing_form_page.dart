@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/pricing/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -249,9 +250,7 @@ class _BottomBar extends StatelessWidget {
   final VoidCallback onCancel;
   final CustomerPriceRuleDetailDto? initialRule;
 
-  String _formatMinor(int amountMinor) {
-    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
-  }
+  String _formatMinor(int amountMinor) => MoneyFormatter.formatMinor(amountMinor);
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Không giới hạn';

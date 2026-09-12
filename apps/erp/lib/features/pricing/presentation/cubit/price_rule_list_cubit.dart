@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -262,7 +263,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
       quickFilter: _resolveQuickFilter(),
       statuses: _resolveStatuses(),
       sources: _resolveSources(),
-      businessDate: DateTime.now().toUtc(),
+      businessDate: VDateTime.currentBusinessDate(),
       cursor: cursor,
       limit: _pageSize,
     );

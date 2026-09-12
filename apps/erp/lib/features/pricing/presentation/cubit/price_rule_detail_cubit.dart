@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -90,7 +91,7 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
       GetCustomerPriceRuleDetailQuery(
         tenantId: tenantId,
         ruleId: ruleId,
-        businessDate: DateTime.now().toUtc(),
+        businessDate: VDateTime.currentBusinessDate(),
       ),
     );
 
@@ -168,7 +169,7 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
           tenantId: tenantId,
           ruleId: ruleId,
           expectedVersion: expectedVersion,
-          businessDate: DateTime.now().toUtc(),
+          businessDate: VDateTime.currentBusinessDate(),
         ),
       );
     } on PricingBlockedException catch (e) {
@@ -201,7 +202,7 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
         ReenableCustomerPriceRuleCommand(
           ruleId: ruleId,
           expectedVersion: expectedVersion,
-          businessDate: DateTime.now().toUtc(),
+          businessDate: VDateTime.currentBusinessDate(),
           acknowledgeFloorWarning: acknowledgeFloorWarning,
           acknowledgeOverwrite: true,
           precheckToken: precheckToken,

@@ -50,6 +50,7 @@ app.*.map.json
 !.env.production.example
 
 *.g.dart
+!*routes.g.dart
 
 # Android local secrets (keep flavor gradle config versioned)
 android/local.properties

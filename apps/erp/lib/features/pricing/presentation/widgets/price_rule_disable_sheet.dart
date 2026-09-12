@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import '../cubit/price_rule_detail_cubit.dart';
 
@@ -52,9 +53,7 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
     final result = await widget.cubit.disableRule(
       ruleId: widget.rule.id,
       expectedVersion: widget.rule.version,
-      reason: _reasonController.text.trim().isEmpty
-          ? null
-          : _reasonController.text.trim(),
+      reason: _reasonController.text.trim().isEmpty ? null : _reasonController.text.trim(),
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
@@ -157,9 +156,7 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
                       label: 'Giữ giá riêng',
                       variant: VButtonVariant.secondary,
                       fullWidth: true,
-                      onPressed: _isSubmitting
-                          ? null
-                          : () => Navigator.of(context).pop(false),
+                      onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(false),
                     ),
                   ),
                   const VGap.horizontalMd(),
@@ -182,6 +179,10 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
   }
 
   String _formatMoney(MoneyDto money) {
-    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ / ${widget.rule.productUnit.unitName}';
+    final formatted = MoneyFormatter.format(
+      amountMinor: money.amountMinor,
+      currencyCode: money.currencyCode,
+    );
+    return '$formatted / ${widget.rule.productUnit.unitName}';
   }
 }

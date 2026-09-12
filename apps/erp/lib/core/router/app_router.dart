@@ -12,6 +12,9 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
+// Sales (typed routes via go_router_builder)
+import '../../features/sales/presentation/navigation/sales_typed_routes.dart';
+
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/pages/users_and_roles_page.dart';
@@ -457,6 +460,13 @@ final appRouter = GoRouter(
       name: 'products.items',
       builder: (context, state) => const DashboardPage(initialTab: DashboardTab.products),
     ),
+    GoRoute(
+      path: SalesNav.ordersList,
+      name: SalesNav.ordersListName,
+      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.orders),
+    ),
+    // Sales typed routes: ShellRoute(drafts+compose) + remaining /sales/* ($appRoutes).
+    ...$appRoutes,
     GoRoute(
       path: '/partner',
       name: 'partner.list',

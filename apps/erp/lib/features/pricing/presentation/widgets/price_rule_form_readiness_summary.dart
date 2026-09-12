@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import '../cubit/price_rule_form_state.dart';
 
@@ -44,14 +45,11 @@ class PriceRuleFormReadinessSummary extends StatelessWidget {
     );
   }
 
-  String _formatMinor(int amountMinor) {
-    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
-  }
+  String _formatMinor(int amountMinor) => MoneyFormatter.formatMinor(amountMinor);
 
   String _formatDiffWithPercent(int diffMinor, {required int baseMinor}) {
     final sign = diffMinor > 0 ? '+' : '';
-    final diffLabel =
-        '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    final diffLabel = '$sign${MoneyFormatter.formatMinor(diffMinor.abs())}';
     if (baseMinor == 0) return diffLabel;
     final pct = (diffMinor / baseMinor) * 100;
     final pctLabel = pct.toStringAsFixed(1).replaceAll('.', ',');
