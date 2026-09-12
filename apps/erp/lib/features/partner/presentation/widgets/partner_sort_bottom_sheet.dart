@@ -73,14 +73,21 @@ class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-          child: VChoiceList<PartnerSortOption>(
-            title: 'Sắp xếp danh sách',
-            choices: _choices,
-            selected: [_selectedSort],
-            onChanged: (selected) {
-              if (selected.isEmpty) return;
-              setState(() => _selectedSort = selected.first);
-            },
+          child: VField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VFieldLabel('Sắp xếp danh sách'),
+                VChoiceList<PartnerSortOption>(
+                  choices: _choices,
+                  selected: [_selectedSort],
+                  onChanged: (selected) {
+                    if (selected.isEmpty) return;
+                    setState(() => _selectedSort = selected.first);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         const VGap.sm(),

@@ -69,15 +69,14 @@ class PartnerOrganizationSection extends StatelessWidget {
             onChanged: cubit.updateInternationalName,
           ),
           const SizedBox(height: VSpacing.space2),
-          PartnerOutlinedTextField(
+          VPhoneField(
             key: const Key('input_phone'),
             label: 'SĐT chính',
             hintText: 'Nhập SĐT chính',
             initialValue: state.phone,
             isRequired: true,
             errorText: state.errors['phone'],
-            keyboardType: TextInputType.phone,
-            digitsOnly: true,
+            validateOnChanged: false,
             onChanged: cubit.updatePhone,
           ),
           const SizedBox(height: VSpacing.space2),

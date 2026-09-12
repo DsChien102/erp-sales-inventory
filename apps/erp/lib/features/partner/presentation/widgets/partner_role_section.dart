@@ -40,19 +40,17 @@ class PartnerRoleSection extends StatelessWidget {
               VChip(
                 key: const Key('role_customer'),
                 label: 'Khách hàng',
-                selected: false,
-                emphasis: selected.contains(PartnerRoleType.customer)
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: selected.contains(PartnerRoleType.customer)
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () => cubit.toggleRole(PartnerRoleType.customer),
               ),
               VChip(
                 key: const Key('role_supplier'),
                 label: 'Nhà cung cấp',
-                selected: false,
-                emphasis: selected.contains(PartnerRoleType.supplier)
-                    ? VComponentEmphasis.strong
-                    : VComponentEmphasis.medium,
+                tone: selected.contains(PartnerRoleType.supplier)
+                    ? VComponentTone.primary
+                    : VComponentTone.neutral,
                 onTap: () => cubit.toggleRole(PartnerRoleType.supplier),
               ),
             ],

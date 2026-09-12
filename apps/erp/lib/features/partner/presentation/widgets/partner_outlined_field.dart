@@ -60,23 +60,31 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return VTextField(
-      controller: _controller,
-      label: widget.label,
-      isRequired: widget.isRequired,
-      errorText: widget.errorText,
-      hintText: widget.hintText,
-      enabled: widget.enabled,
-      keyboardType: widget.keyboardType,
-      inputFormatters: widget.digitsOnly
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : null,
-      onChanged: widget.onChanged,
+    final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+    return VField(
+      invalid: hasError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          VFieldLabel(widget.label, isRequired: widget.isRequired),
+          VTextField(
+            controller: _controller,
+            hintText: widget.hintText,
+            enabled: widget.enabled,
+            keyboardType: widget.keyboardType,
+            inputFormatters: widget.digitsOnly
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
+            onChanged: widget.onChanged,
+          ),
+          if (hasError) VFieldError(widget.errorText!),
+        ],
+      ),
     );
   }
 }
 
-/// Multiline outlined field — wraps [VTextField].
+/// Multiline outlined field — wraps [VTextArea].
 class PartnerOutlinedMultilineTextField extends StatefulWidget {
   const PartnerOutlinedMultilineTextField({
     super.key,
@@ -134,15 +142,23 @@ class _PartnerOutlinedMultilineTextFieldState
 
   @override
   Widget build(BuildContext context) {
-    return VTextFormField(
-      controller: _controller,
-      label: widget.label,
-      isRequired: widget.isRequired,
-      errorText: widget.errorText,
-      hintText: widget.hintText,
-      minLines: widget.minLines,
-      maxLines: widget.maxLines,
-      onChanged: widget.onChanged,
+    final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+    return VField(
+      invalid: hasError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          VFieldLabel(widget.label, isRequired: widget.isRequired),
+          VTextArea(
+            controller: _controller,
+            hintText: widget.hintText,
+            minLines: widget.minLines,
+            maxLines: widget.maxLines,
+            onChanged: widget.onChanged,
+          ),
+          if (hasError) VFieldError(widget.errorText!),
+        ],
+      ),
     );
   }
 }
@@ -172,15 +188,23 @@ class PartnerOutlinedDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VSelect<T>(
-      label: label,
-      value: value,
-      items: items,
-      onChanged: onChanged,
-      isRequired: isRequired,
-      errorText: errorText,
-      hintText: hintText,
-      enabled: enabled,
+    final hasError = errorText != null && errorText!.isNotEmpty;
+    return VField(
+      invalid: hasError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          VFieldLabel(label, isRequired: isRequired),
+          VSelect<T>(
+            value: value,
+            items: items,
+            onChanged: onChanged,
+            hintText: hintText,
+            enabled: enabled,
+          ),
+          if (hasError) VFieldError(errorText!),
+        ],
+      ),
     );
   }
 }

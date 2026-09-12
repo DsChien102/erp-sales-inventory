@@ -14,6 +14,7 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
     this.digitsOnly = false,
     this.isEmail = false,
     this.emailValidateOnChanged = true,
+    this.isPhone = false,
     this.hintText,
     this.errorText,
   });
@@ -27,14 +28,17 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
   final bool digitsOnly;
   final bool isEmail;
   final bool emailValidateOnChanged;
+  final bool isPhone;
   final String? hintText;
   final String? errorText;
 
   @override
-  State<PartnerTransformLabeledTextField> createState() => _PartnerTransformLabeledTextFieldState();
+  State<PartnerTransformLabeledTextField> createState() =>
+      _PartnerTransformLabeledTextFieldState();
 }
 
-class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabeledTextField> {
+class _PartnerTransformLabeledTextFieldState
+    extends State<PartnerTransformLabeledTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -46,7 +50,8 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
   @override
   void didUpdateWidget(covariant PartnerTransformLabeledTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialValue != widget.initialValue && _controller.text != widget.initialValue) {
+    if (oldWidget.initialValue != widget.initialValue &&
+        _controller.text != widget.initialValue) {
       _controller.value = TextEditingValue(
         text: widget.initialValue,
         selection: TextSelection.collapsed(offset: widget.initialValue.length),
@@ -62,33 +67,60 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        PartnerTransformFieldLabel(
-          key: widget.labelKey,
-          label: widget.label,
-          isRequired: widget.isRequired,
-        ),
-        const VGap.sm(),
-        if (widget.isEmail)
-          VEmailField(
-            controller: _controller,
-            hintText: widget.hintText,
-            errorText: widget.errorText,
-            onChanged: widget.onChanged,
-            validateOnChanged: widget.emailValidateOnChanged,
-          )
-        else
-          VTextField(
-            controller: _controller,
-            keyboardType: widget.keyboardType,
-            hintText: widget.hintText,
-            errorText: widget.errorText,
-            onChanged: widget.onChanged,
-            inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+    final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+
+    // VPhoneField still owns its own label/error chrome (not deprecated yet).
+    if (widget.isPhone) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          PartnerTransformFieldLabel(
+            key: widget.labelKey,
+            label: widget.label,
+            isRequired: widget.isRequired,
           ),
-      ],
+          const VGap.sm(),
+          VPhoneField(
+            controller: _controller,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            onChanged: widget.onChanged,
+            validateOnChanged: false,
+          ),
+        ],
+      );
+    }
+
+    return VField(
+      invalid: hasError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          PartnerTransformFieldLabel(
+            key: widget.labelKey,
+            label: widget.label,
+            isRequired: widget.isRequired,
+          ),
+          const VGap.sm(),
+          if (widget.isEmail)
+            VEmailField(
+              controller: _controller,
+              hintText: widget.hintText,
+              onChanged: widget.onChanged,
+              validateOnChanged: widget.emailValidateOnChanged,
+            )
+          else
+            VTextField(
+              controller: _controller,
+              keyboardType: widget.keyboardType,
+              hintText: widget.hintText,
+              onChanged: widget.onChanged,
+              inputFormatters:
+                  widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+            ),
+          if (hasError) VFieldError(widget.errorText!),
+        ],
+      ),
     );
   }
 }
@@ -118,32 +150,27 @@ class PartnerTransformLabeledDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasError = errorText != null && errorText!.isNotEmpty;
-    final colors = context.vColors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        PartnerTransformFieldLabel(
-          key: labelKey,
-          label: label,
-          isRequired: isRequired,
-        ),
-        const VGap.sm(),
-        VSelect<T>(
-          value: value,
-          items: items,
-          hintText: hintText ?? 'Chọn...',
-          tone: hasError ? VComponentTone.danger : VComponentTone.neutral,
-          onChanged: onChanged,
-        ),
-        if (hasError) ...[
-          const VGap.sm(),
-          VText(
-            errorText!,
-            variant: VTextVariant.bodySmall,
-            color: colors.danger,
+    return VField(
+      invalid: hasError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          PartnerTransformFieldLabel(
+            key: labelKey,
+            label: label,
+            isRequired: isRequired,
           ),
+          const VGap.sm(),
+          VSelect<T>(
+            value: value,
+            items: items,
+            hintText: hintText ?? 'Chọn...',
+            tone: hasError ? VComponentTone.danger : VComponentTone.neutral,
+            onChanged: onChanged,
+          ),
+          if (hasError) VFieldError(errorText!),
         ],
-      ],
+      ),
     );
   }
 }

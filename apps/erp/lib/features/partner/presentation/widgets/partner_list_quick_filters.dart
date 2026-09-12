@@ -22,22 +22,30 @@ class PartnerListQuickFilters extends StatelessWidget {
           children: [
             VChip(
               label: 'Tất cả',
-              selected: selectedRole == null,
+              tone: selectedRole == null
+                  ? VComponentTone.primary
+                  : VComponentTone.neutral,
               onTap: () => onRoleSelected(null),
             ),
             VChip(
               label: 'Khách hàng',
-              selected: selectedRole == PartnerRoleFilter.customer,
+              tone: selectedRole == PartnerRoleFilter.customer
+                  ? VComponentTone.primary
+                  : VComponentTone.neutral,
               onTap: () => onRoleSelected(PartnerRoleFilter.customer),
             ),
             VChip(
               label: 'Nhà cung cấp',
-              selected: selectedRole == PartnerRoleFilter.supplier,
+              tone: selectedRole == PartnerRoleFilter.supplier
+                  ? VComponentTone.primary
+                  : VComponentTone.neutral,
               onTap: () => onRoleSelected(PartnerRoleFilter.supplier),
             ),
             VChip(
               label: 'KH & NCC',
-              selected: selectedRole == PartnerRoleFilter.both,
+              tone: selectedRole == PartnerRoleFilter.both
+                  ? VComponentTone.primary
+                  : VComponentTone.neutral,
               onTap: () => onRoleSelected(PartnerRoleFilter.both),
             ),
           ],

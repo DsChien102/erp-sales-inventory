@@ -130,7 +130,7 @@ void main() {
       expect(find.text('Trước khi chuyển'), findsOneWidget);
       expect(find.text('Sau khi chuyển'), findsOneWidget);
       expect(find.text('Công ty TNHH An Phát'), findsOneWidget);
-      expect(find.text('02838225511'), findsOneWidget);
+      expect(find.text('028 3822 5511'), findsOneWidget);
 
       await tester.ensureVisible(
         find.byKey(const Key('transform_preview_continue')),

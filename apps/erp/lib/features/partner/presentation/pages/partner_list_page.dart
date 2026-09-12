@@ -127,9 +127,20 @@ class _PartnerListPageState extends State<PartnerListPage> {
         showBackButton: false,
         body: const Center(
           child: VEmptyState(
-            icon: VIcons.lock,
-            title: 'Bạn không có quyền xem\nKH & NCC',
-            description: 'Liên hệ quản trị viên để được cấp quyền.',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VEmptyHeader(
+                  children: [
+                    VEmptyMedia(icon: VIcons.lock),
+                    VEmptyTitle('Bạn không có quyền xem\nKH & NCC'),
+                    VEmptyDescription(
+                      'Liên hệ quản trị viên để được cấp quyền.',
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       );

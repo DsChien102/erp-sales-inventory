@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
@@ -42,6 +41,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
 
   String? _givenNameError;
   String? _familyNameError;
+  String? _phoneError;
   String? _passwordError;
   String? _confirmPasswordError;
 
@@ -77,6 +77,10 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
   bool _validateForm() {
     final given = _givenNameController.text.trim();
     final family = _familyNameController.text.trim();
+    final phoneError = VPhoneValidator.validate(
+      _phoneController.text,
+      isRequired: false,
+    );
     final passwordError = PasswordPolicy.validate(_passwordController.text);
 
     String? confirmPasswordError;
@@ -89,6 +93,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
     setState(() {
       _givenNameError = given.isEmpty ? 'Vui lòng nhập tên' : null;
       _familyNameError = family.isEmpty ? 'Vui lòng nhập họ và tên đệm' : null;
+      _phoneError = phoneError;
       _passwordError = passwordError;
       _confirmPasswordError = confirmPasswordError;
     });
@@ -96,6 +101,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
     final hasError =
         _givenNameError != null ||
         _familyNameError != null ||
+        _phoneError != null ||
         _passwordError != null ||
         _confirmPasswordError != null;
 
@@ -174,8 +180,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                           }
                         },
                       ),
-                      if (_familyNameError != null)
-                        VFieldError(_familyNameError!),
+                      if (_familyNameError != null) VFieldError(_familyNameError!),
                     ],
                   ),
                 ),
@@ -199,8 +204,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                           }
                         },
                       ),
-                      if (_givenNameError != null)
-                        VFieldError(_givenNameError!),
+                      if (_givenNameError != null) VFieldError(_givenNameError!),
                     ],
                   ),
                 ),
@@ -228,17 +232,19 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const VFieldLabel('Số điện thoại'),
-                      VTextField(
+                      VPhoneField(
                         key: const Key('invitation_register_phone'),
                         controller: _phoneController,
                         hintText: 'Nhập số điện thoại',
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(11),
-                        ],
+                        validateOnChanged: false,
                         enabled: !isSubmitting,
+                        onChanged: (_) {
+                          if (_phoneError != null) {
+                            setState(() => _phoneError = null);
+                          }
+                        },
                       ),
+                      if (_phoneError != null) VFieldError(_phoneError!),
                     ],
                   ),
                 ),
@@ -294,8 +300,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                         },
                         onSubmitted: (_) => _submit(),
                       ),
-                      if (_confirmPasswordError != null)
-                        VFieldError(_confirmPasswordError!),
+                      if (_confirmPasswordError != null) VFieldError(_confirmPasswordError!),
                     ],
                   ),
                 ),

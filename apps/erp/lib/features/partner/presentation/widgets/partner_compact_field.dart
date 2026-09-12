@@ -130,7 +130,7 @@ class _PartnerCompactMultilineTextFieldState extends State<PartnerCompactMultili
       if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
     ];
 
-    return VTextFormField(
+    return VTextArea(
       controller: _controller,
       hintText: widget.hintText,
       minLines: widget.minLines,

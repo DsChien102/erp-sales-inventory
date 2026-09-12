@@ -118,7 +118,7 @@ void main() {
     expect(find.text('Phường Đại Mỗ'), findsWidgets);
   });
 
-  testWidgets('detail address uses VTextFormField', (tester) async {
+  testWidgets('detail address uses VTextArea', (tester) async {
     await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
@@ -126,7 +126,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('input_delivery_address')),
-        matching: find.byType(VTextFormField),
+        matching: find.byType(VTextArea),
       ),
       findsOneWidget,
     );

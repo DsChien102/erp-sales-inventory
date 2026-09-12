@@ -125,7 +125,7 @@ void main() {
     cubit
       ..updateRoles(const [PartnerRoleType.customer])
       ..updateFullName('  Nguyễn Văn Minh  ')
-      ..updatePhone('+84 901 234 567')
+      ..updatePhone('090 123 4567')
       ..updateEmail('minh@example.com');
 
     await cubit.submit();
@@ -134,7 +134,7 @@ void main() {
     expect(command.tenantId, 'tenant-1');
     expect(command.actorId, 'user-1');
     expect(command.personProfile?.fullName, 'Nguyễn Văn Minh');
-    expect(command.personProfile?.phone, '+84901234567');
+    expect(command.personProfile?.phone, '0901234567');
     expect(command.organizationPrimaryContact, isNull);
     expect(cubit.state.createdPartnerId, 'p-created');
   });

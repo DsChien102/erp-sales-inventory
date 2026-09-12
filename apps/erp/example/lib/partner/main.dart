@@ -59,12 +59,16 @@ class _PartnerPreviewHomeScreenState extends State<PartnerPreviewHomeScreen> {
           child: Container(
             color: colors.surface,
             child: VTabs(
-              tabs: _tabs,
               selectedIndex: _currentTab,
-              isScrollable: true,
               onTabSelected: (index) {
                 setState(() => _currentTab = index);
               },
+              child: VTabsList(
+                isScrollable: true,
+                children: [
+                  for (final label in _tabs) VTabsTrigger(label: label),
+                ],
+              ),
             ),
           ),
         ),

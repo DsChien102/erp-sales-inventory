@@ -64,7 +64,8 @@ class PartnerDetailSummaryCard extends StatelessWidget {
             const SizedBox(width: VSpacing.space2),
             VBadge(
               label: roleLabel,
-              status: VBadgeStatus.success,
+              tone: VComponentTone.success,
+              variant: VBadgeVariant.soft,
               isSmall: true,
             ),
           ],

@@ -52,12 +52,28 @@ class PartnerListBody extends StatelessWidget {
         if (state is PartnerListError) {
           return Center(
             child: VEmptyState(
-              icon: VIcons.cloudOff,
               tone: VComponentTone.danger,
-              title: 'Không tải được danh sách',
-              description: 'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
-              actionLabel: 'Thử lại',
-              onActionPressed: onRetry,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const VEmptyHeader(
+                    children: [
+                      VEmptyMedia(icon: VIcons.cloudOff),
+                      VEmptyTitle('Không tải được danh sách'),
+                      VEmptyDescription(
+                        'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
+                      ),
+                    ],
+                  ),
+                  const VGap.xl(),
+                  VEmptyContent(
+                    child: VButton(
+                      label: 'Thử lại',
+                      onPressed: onRetry,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -71,27 +87,72 @@ class PartnerListBody extends StatelessWidget {
         if (items.isEmpty && state is! PartnerListLoading) {
           final hasQuery = state.query != null && state.query!.isNotEmpty;
           if (hasQuery) {
-            return Center(
-              child: VEmptyState(
-                icon: VIcons.search,
-                title: 'Không tìm thấy kết quả',
-                description: 'Thử kiểm tra lại từ khóa "${state.query}"\nhoặc bộ lọc.',
-                actionLabel: 'Xóa từ khóa',
-                onActionPressed: onClearQuery,
-              ),
+            return Column(
+              children: [
+                VPagePadding(
+                  child: VEmptyState(
+                    backgroundColor: colors.surface,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        VEmptyHeader(
+                          children: [
+                            const VEmptyMedia(icon: VIcons.search),
+                            const VEmptyTitle('Không tìm thấy kết quả'),
+                            const VGap(VSpacing.space2),
+                            VEmptyDescription(
+                              'Thử kiểm tra lại từ khóa "${state.query}"\nhoặc bộ lọc.',
+                            ),
+                          ],
+                        ),
+                        const VGap(VSpacing.space2),
+                        VEmptyContent(
+                          child: VButton(
+                            label: 'Xóa từ khóa',
+                            onPressed: onClearQuery,
+                            variant: VButtonVariant.tertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           }
-          return Center(
-            child: VEmptyState(
-              icon: VIcons.description,
-              title: 'Chưa có KH & NCC',
-              description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
-              actionLabel: canCreate ? 'Thêm KH & NCC' : null,
-              actionLeadingIcon: canCreate
-                  ? VIcon(icon: VIcons.add, size: 18, color: colors.surface)
-                  : null,
-              onActionPressed: canCreate ? onCreate : null,
-            ),
+          return Column(
+            children: [
+              VPagePadding(
+                child: VEmptyState(
+                  backgroundColor: colors.surface,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const VEmptyHeader(
+                        children: [
+                          VEmptyMedia(icon: VIcons.people),
+                          VEmptyTitle('Chưa có KH & NCC'),
+                          VGap(VSpacing.space2),
+                          VEmptyDescription(
+                            'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
+                          ),
+                        ],
+                      ),
+                      if (canCreate) ...[
+                        const VGap(VSpacing.space2),
+                        VEmptyContent(
+                          child: VButton(
+                            label: 'Thêm KH & NCC',
+                            onPressed: onCreate,
+                            variant: VButtonVariant.tertiary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         }
 
@@ -110,39 +171,39 @@ class PartnerListBody extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: onRefresh,
           displacement: VSpacing.md,
-          child: VSkeletonScope(
-            child: VPagePadding(
-              child: ListView.separated(
-                controller: scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: VSpacing.md),
-                itemCount: items.length + trailingCount,
-                separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
-                itemBuilder: (context, index) {
-                  if (index >= items.length) {
-                    if (isLoadingMore) {
-                      return const PartnerListItemSkeletonTile();
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: VSpacing.space2,
-                      ),
-                      child: Center(
-                        child: VText(
-                          'Đã ở cuối danh sách',
-                          variant: VTextVariant.labelSmall,
-                          color: colors.textMuted,
-                        ),
-                      ),
-                    );
+          child: VPagePadding(
+            child: ListView.separated(
+              controller: scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: VSpacing.md),
+              itemCount: items.length + trailingCount,
+              separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+              itemBuilder: (context, index) {
+                if (index >= items.length) {
+                  if (isLoadingMore) {
+                    // Local VSkeleton controllers — avoid wrapping the whole
+                    // list in VSkeletonScope (blocks pumpAndSettle in tests).
+                    return const PartnerListItemSkeletonTile();
                   }
-                  final item = items[index];
-                  return PartnerListItemTile(
-                    item: item,
-                    onTap: () => onTapPartner(item.partnerId),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: VSpacing.space2,
+                    ),
+                    child: Center(
+                      child: VText(
+                        'Đã ở cuối danh sách',
+                        variant: VTextVariant.labelSmall,
+                        color: colors.textMuted,
+                      ),
+                    ),
                   );
-                },
-              ),
+                }
+                final item = items[index];
+                return PartnerListItemTile(
+                  item: item,
+                  onTap: () => onTapPartner(item.partnerId),
+                );
+              },
             ),
           ),
         );

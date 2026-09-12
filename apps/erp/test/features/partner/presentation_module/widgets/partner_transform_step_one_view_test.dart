@@ -161,7 +161,7 @@ void main() {
       );
       expect(find.text('Vui lòng chọn loại tổ chức'), findsOneWidget);
       expect(find.text('Vui lòng nhập tên tổ chức'), findsOneWidget);
-      expect(find.text('Số điện thoại không hợp lệ'), findsOneWidget);
+      expect(find.text('Vui lòng nhập số điện thoại'), findsOneWidget);
       expect(
         tester.widget<VButton>(find.byKey(const Key('transform_continue'))).onPressed,
         isNull,
@@ -197,15 +197,27 @@ void main() {
 
     final nameField = find.descendant(
       of: find.byKey(const Key('transform_organization_name')),
-      matching: find.byType(TextField),
+      matching: find.byType(VTextField),
     );
     final phoneField = find.descendant(
       of: find.byKey(const Key('transform_phone')),
-      matching: find.byType(TextField),
+      matching: find.byType(VPhoneField),
     );
 
-    expect(tester.widget<TextField>(nameField).decoration?.label, isNull);
-    expect(tester.getSize(nameField).height, 48);
+    expect(
+      tester
+          .widgetList<TextField>(
+            find.descendant(
+              of: nameField,
+              matching: find.byType(TextField),
+            ),
+          )
+          .first
+          .decoration
+          ?.label,
+      isNull,
+    );
+    expect(tester.getSize(nameField).height, VTextField.controlHeight);
     expect(tester.getSize(nameField).width, tester.getSize(phoneField).width);
     expect(
       find.byKey(const Key('transform_organization_name_label')),

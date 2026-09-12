@@ -26,12 +26,26 @@ class PartnerChangeHistoryBody extends StatelessWidget {
     if (state.status == PartnerChangeHistoryStatus.failure) {
       return Center(
         child: VEmptyState(
-          icon: VIcons.warning,
-          title: 'Không thể tải lịch sử thao tác',
-          description: state.errorMessage ?? 'Đã xảy ra lỗi',
-          actionLabel: 'Thử lại',
-          onActionPressed: onRetry,
           tone: VComponentTone.danger,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              VEmptyHeader(
+                children: [
+                  const VEmptyMedia(icon: VIcons.warning),
+                  const VEmptyTitle('Không thể tải lịch sử thao tác'),
+                  VEmptyDescription(state.errorMessage ?? 'Đã xảy ra lỗi'),
+                ],
+              ),
+              const VGap.xl(),
+              VEmptyContent(
+                child: VButton(
+                  label: 'Thử lại',
+                  onPressed: onRetry,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -39,9 +53,20 @@ class PartnerChangeHistoryBody extends StatelessWidget {
     if (state.items.isEmpty) {
       return const Center(
         child: VEmptyState(
-          icon: VIcons.history,
-          title: 'Chưa có lịch sử thao tác nào',
-          description: 'Các thay đổi của KH & NCC sẽ xuất hiện tại đây.',
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              VEmptyHeader(
+                children: [
+                  VEmptyMedia(icon: VIcons.history),
+                  VEmptyTitle('Chưa có lịch sử thao tác nào'),
+                  VEmptyDescription(
+                    'Các thay đổi của KH & NCC sẽ xuất hiện tại đây.',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }

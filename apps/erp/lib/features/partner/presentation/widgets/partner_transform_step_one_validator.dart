@@ -5,7 +5,6 @@ import 'package:vet45_partner_domain/domain.dart';
 abstract final class PartnerTransformStepOneValidator {
   static const organizationTypeRequired = 'Vui lòng chọn loại tổ chức';
   static const organizationNameRequired = 'Vui lòng nhập tên tổ chức';
-  static const phoneInvalid = 'Số điện thoại không hợp lệ';
   static const taxCodeInvalid = 'MST phải có 10 hoặc 13 chữ số';
 
   static Map<String, String> validate({
@@ -22,8 +21,9 @@ abstract final class PartnerTransformStepOneValidator {
     if (organizationName.trim().isEmpty) {
       errors['organizationName'] = organizationNameRequired;
     }
-    if (!_isValidPhone(phone)) {
-      errors['phone'] = phoneInvalid;
+    final phoneError = VPhoneValidator.validate(phone, isRequired: true);
+    if (phoneError != null) {
+      errors['phone'] = phoneError;
     }
     if (!VEmailValidator.isValid(email)) {
       errors['email'] = VEmailValidator.defaultInvalidEmailMessage;
@@ -32,12 +32,6 @@ abstract final class PartnerTransformStepOneValidator {
       errors['taxCode'] = taxCodeInvalid;
     }
     return errors;
-  }
-
-  static bool _isValidPhone(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return false;
-    return RegExp(r'^[0-9]{8,15}$').hasMatch(trimmed);
   }
 
   static bool _isValidTaxCode(String value) {

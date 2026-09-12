@@ -118,20 +118,23 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                 children: [
                   VChip(
                     label: 'Khách hàng',
-                    selected: _selectedRole == PartnerRoleFilter.customer,
-                    tone: VComponentTone.primary,
+                    tone: _selectedRole == PartnerRoleFilter.customer
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => _toggleRole(PartnerRoleFilter.customer),
                   ),
                   VChip(
                     label: 'Nhà cung cấp',
-                    selected: _selectedRole == PartnerRoleFilter.supplier,
-                    tone: VComponentTone.primary,
+                    tone: _selectedRole == PartnerRoleFilter.supplier
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => _toggleRole(PartnerRoleFilter.supplier),
                   ),
                   VChip(
                     label: 'KH & NCC',
-                    selected: _selectedRole == PartnerRoleFilter.both,
-                    tone: VComponentTone.primary,
+                    tone: _selectedRole == PartnerRoleFilter.both
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => _toggleRole(PartnerRoleFilter.both),
                   ),
                 ],
@@ -145,14 +148,16 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                 children: [
                   VChip(
                     label: 'Cá nhân',
-                    selected: _selectedPartnerType == PartnerType.person,
-                    tone: VComponentTone.primary,
+                    tone: _selectedPartnerType == PartnerType.person
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => _togglePartnerType(PartnerType.person),
                   ),
                   VChip(
                     label: 'Tổ chức',
-                    selected: _selectedPartnerType == PartnerType.organization,
-                    tone: VComponentTone.primary,
+                    tone: _selectedPartnerType == PartnerType.organization
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => _togglePartnerType(PartnerType.organization),
                   ),
                 ],
@@ -166,22 +171,25 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                 children: [
                   VChip(
                     label: 'Tất cả',
-                    selected: _selectedStatus == null,
-                    tone: VComponentTone.primary,
+                    tone: _selectedStatus == null
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setState(() => _selectedStatus = null),
                   ),
                   VChip(
                     label: 'Đang hoạt động',
-                    selected: _selectedStatus == PartnerStatus.active,
-                    tone: VComponentTone.primary,
+                    tone: _selectedStatus == PartnerStatus.active
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setState(
                       () => _selectedStatus = PartnerStatus.active,
                     ),
                   ),
                   VChip(
                     label: 'Ngừng hoạt động',
-                    selected: _selectedStatus == PartnerStatus.inactive,
-                    tone: VComponentTone.primary,
+                    tone: _selectedStatus == PartnerStatus.inactive
+                        ? VComponentTone.primary
+                        : VComponentTone.neutral,
                     onTap: () => setState(
                       () => _selectedStatus = PartnerStatus.inactive,
                     ),
@@ -197,8 +205,10 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                   Expanded(
                     child: VChip(
                       label: '7 ngày gần đây',
-                      selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
-                      tone: VComponentTone.primary,
+                      tone: _selectedUpdatedTimeFilter ==
+                              PartnerUpdatedTimeFilter.last7Days
+                          ? VComponentTone.primary
+                          : VComponentTone.neutral,
                       onTap: () => _toggleUpdatedTime(
                         PartnerUpdatedTimeFilter.last7Days,
                       ),
@@ -208,8 +218,10 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                   Expanded(
                     child: VChip(
                       label: '30 ngày gần đây',
-                      selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
-                      tone: VComponentTone.primary,
+                      tone: _selectedUpdatedTimeFilter ==
+                              PartnerUpdatedTimeFilter.last30Days
+                          ? VComponentTone.primary
+                          : VComponentTone.neutral,
                       onTap: () => _toggleUpdatedTime(
                         PartnerUpdatedTimeFilter.last30Days,
                       ),
