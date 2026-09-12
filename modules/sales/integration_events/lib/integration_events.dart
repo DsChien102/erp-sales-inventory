@@ -1,2 +1,2 @@
-/// sales integration events — add contracts here.
+/// sales integration_events — (future) fact IE contracts.
 library;
