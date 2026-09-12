@@ -101,4 +101,4 @@ modules/catalog/presentation/
 
 Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)
 
-Cross-theme: [TH-04 module map](../../TH-04-pricing-promotions/harness/02-module-map.md) · [TH-06 module map](../../TH-06-inventory-and-costing/02-module-map.md)
+Cross-theme: [TH-04 module map](../../TH-04-pricing-promotions/harness/02-module-map.md) · TH-07 Inventory & Costing (planned; chưa có theme package canonical)
