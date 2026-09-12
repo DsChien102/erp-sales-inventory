@@ -34,6 +34,7 @@ import '../../domain/tenant/supabase_tenant_activation_command_gateway.dart';
 import '../../domain/tenant/supabase_tenant_profile_command_gateway.dart';
 import '../../domain/tenant/supabase_tenant_profile_read_gateway.dart';
 import '../../domain/tenant/supabase_tenant_readiness_gateway.dart';
+import '../session/iam_active_store_context.dart';
 import '../session/iam_execution_context.dart';
 import '../session/iam_session.dart';
 import '../session/iam_session_coordinator.dart';
@@ -173,6 +174,12 @@ final class IamDataAccessModule {
           session: container.get<IamSession>(),
           accessGateway: container.get<IIamAccessGateway>(),
           authenticator: container.get<IAuthenticator>(),
+        ),
+      )
+      ..registerSingleton<IActiveStoreContext>(
+        IamActiveStoreContext(
+          session: container.get<IamSession>(),
+          accessGateway: container.get<IIamAccessGateway>(),
         ),
       )
       ..registerSingleton<IPrincipalSnapshot>(container.get<IamSession>())

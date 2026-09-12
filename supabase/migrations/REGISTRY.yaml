@@ -151,6 +151,7 @@ iam:
   assign_member_role: 20260820005_iam_assign_member_role_fix.sql
   begin_password_reset_operation: 20260826001_iam_fix_utc_now_offset.sql
   begin_password_reset_operation_by_email: 20260826001_iam_fix_utc_now_offset.sql
+  bootstrap_owner: 20260830001_iam_active_store_context_group_a.sql
   complete_password_reset_operation_by_email: 20260811025_iam_password_reset_by_email.sql
   create_tenant_invitation: 20260826001_iam_fix_utc_now_offset.sql
   create_tenant_onboarding: 20260911004_iam_onboarding_owner_membership_with_invitation.sql
@@ -425,6 +426,7 @@ bootstrap_grandfathered:
   - 20260911004_iam_onboarding_owner_membership_with_invitation.sql
   - 20260911005_iam_hybrid_owner_accept_decline_unwind.sql
   - 20260911006_iam_reinvite_provisioning_owner.sql
+  - 20260830001_iam_active_store_context_group_a.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql

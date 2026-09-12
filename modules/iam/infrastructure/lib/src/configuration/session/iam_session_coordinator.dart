@@ -34,24 +34,38 @@ final class IamSessionCoordinator implements IIamSessionPort {
       return;
     }
 
-    if (tenantId != null) {
-      final context = await _accessGateway.getSessionContext(
-        tenantId: tenantId,
-      );
-      if (context == null) {
-        throw ApplicationException('Tenant access denied');
+    try {
+      if (tenantId != null) {
+        final context = await _accessGateway.getSessionContext(
+          tenantId: tenantId,
+        );
+        if (context == null) {
+          throw ApplicationException('Tenant access denied');
+        }
+        _session.apply(context);
+        _requireActiveStoreWhenTenantBound();
+        return;
       }
+
+      await _ensureActiveMembershipOrSignOut(throwOnEmpty: true);
+
+      final context = await _accessGateway.getSessionContext(tenantId: tenantId);
+      if (context == null) {
+        await _signOutAndThrowNoActiveMembership();
+      }
+
       _session.apply(context);
-      return;
+      _requireActiveStoreWhenTenantBound();
+    } catch (_) {
+      _session.clear();
+      rethrow;
     }
+  }
 
-    await _ensureActiveMembershipOrSignOut(throwOnEmpty: true);
-
-    final context = await _accessGateway.getSessionContext(tenantId: tenantId);
-    if (context == null) {
-      await _signOutAndThrowNoActiveMembership();
-    } else {
-      _session.apply(context);
+  void _requireActiveStoreWhenTenantBound() {
+    final storeId = _session.activeStoreId?.trim();
+    if (storeId == null || storeId.isEmpty) {
+      throw ApplicationException('Active store context is required.');
     }
   }
 

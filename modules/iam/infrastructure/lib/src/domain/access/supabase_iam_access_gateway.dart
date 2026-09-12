@@ -205,10 +205,25 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
     return PrincipalAccessDto(
       userId: json['user_id'] as String,
       tenantId: json['tenant_id'] as String,
+      activeStoreId: _optionalId(json['active_store_id']),
+      activeStoreCode: _optionalId(json['active_store_code']),
+      activeStoreDisplayName: _optionalId(
+        json['active_store_display_name'],
+      ),
       role: json['role'] as String,
       isOwner: json['is_owner'] as bool? ?? false,
       permissions: permissions,
     );
+  }
+
+  static String? _optionalId(Object? value) {
+    if (value == null) return null;
+    if (value is String) {
+      final trimmed = value.trim();
+      return trimmed.isEmpty ? null : trimmed;
+    }
+    final trimmed = value.toString().trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   TenantContextDto _mapTenantContext(Map<String, dynamic> json) {

@@ -160,6 +160,7 @@ abstract final class IamStartup {
       executionContext: container.get<IExecutionContext>(),
       permissionChecker: container.get<IPermissionChecker>(),
       tenantAccessChecker: container.get<ITenantAccessChecker>(),
+      activeStoreContext: container.get<IActiveStoreContext>(),
       session: session,
       sessionPort: container.get<IIamSessionPort>(),
     );

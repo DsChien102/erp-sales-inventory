@@ -424,6 +424,14 @@ void registerGeneratedIamQueries({
   required QueryBus bus,
   required GetIt container,
 }) {
+  IamCommandRegistration.registerQueryHandler<GetActiveStoreContextQuery, ActiveStoreContextDto, GetActiveStoreContextQueryHandler>(
+    bus: bus,
+    factory: () => GetActiveStoreContextQueryHandler(
+      accessGateway: container.get<IIamAccessGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<GetCurrentSessionQuery, SessionDto, GetCurrentSessionQueryHandler>(
     bus: bus,
     factory: () => GetCurrentSessionQueryHandler(

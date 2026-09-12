@@ -5,6 +5,7 @@ final class SessionDto {
     this.userId,
     this.email,
     this.tenantId,
+    this.activeStoreId,
     this.role,
     this.isOwner = false,
     this.permissions = const [],
@@ -14,6 +15,7 @@ final class SessionDto {
   final String? userId;
   final String? email;
   final String? tenantId;
+  final String? activeStoreId;
   final String? role;
 
   /// Ownership is orthogonal to [role] (Owner ≠ role); owner keeps full bypass.
