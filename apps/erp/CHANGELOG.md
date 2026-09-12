@@ -34,7 +34,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ### Fixed
 
 - Login: sai email/mật khẩu (`invalidCredentials`) hiện trên `VFieldError` của field email; các lỗi login khác vẫn dùng toast.
-
+- Partner / lời mời: dùng `VPhoneField` + `VPhoneValidator` cho SĐT (định dạng VN, từ chối ký tự không hợp lệ).
 - Dashboard: lời chào theo buổi không kèm tên user (tránh trùng với tên tổ chức); bỏ hardcode tên/chi nhánh trên header.
 - Lời mời tổ chức (tài khoản đã tồn tại): bấm "Xác nhận" là trở thành thành viên ngay — lời mời hết kẹt "Đang chờ" phía người mời, và đăng nhập xong vào thẳng tổ chức vừa tham gia thay vì rơi về tổ chức cũ. Trước đây màn xác nhận chỉ điều hướng sang đăng nhập mà không hề gọi lệnh tiếp nhận.
 - Lời mời tổ chức: lỗi khi tiếp nhận (mã hết hạn / bị thu hồi / đã dùng) hiện toast rõ ràng thay vì bị nuốt, và bottom sheet xác nhận không tự bật lại thành vòng lặp.

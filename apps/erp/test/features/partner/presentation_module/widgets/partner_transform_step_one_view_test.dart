@@ -161,7 +161,7 @@ void main() {
       );
       expect(find.text('Vui lòng chọn loại tổ chức'), findsOneWidget);
       expect(find.text('Vui lòng nhập tên tổ chức'), findsOneWidget);
-      expect(find.text('Số điện thoại không hợp lệ'), findsOneWidget);
+      expect(find.text('Vui lòng nhập số điện thoại'), findsOneWidget);
       expect(
         tester.widget<VButton>(find.byKey(const Key('transform_continue'))).onPressed,
         isNull,

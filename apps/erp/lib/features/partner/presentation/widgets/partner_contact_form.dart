@@ -91,7 +91,7 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
       _fullNameError = fullName.isEmpty ? 'Vui lòng nhập họ tên' : null;
 
       final phone = _phoneController.text.trim();
-      _phoneError = phone.isEmpty ? 'Vui lòng nhập số điện thoại' : null;
+      _phoneError = VPhoneValidator.validate(phone, isRequired: true);
 
       final role = _selectedRole;
       _roleError = (role == null || role.isEmpty) ? 'Vui lòng chọn vai trò' : null;
@@ -182,15 +182,18 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 const SizedBox(height: VSpacing.space4),
 
                 // 3. SĐT chính
-                VTextField(
+                VPhoneField(
                   key: const Key('input_contact_phone'),
                   controller: _phoneController,
                   label: 'SĐT chính',
                   hintText: 'Nhập số điện thoại',
-                  keyboardType: TextInputType.phone,
                   errorText: _phoneError,
                   enabled: !widget.isSubmitting,
                   isRequired: true,
+                  validateOnChanged: false,
+                  onChanged: (_) {
+                    if (_phoneError != null) setState(() => _phoneError = null);
+                  },
                 ),
                 const SizedBox(height: VSpacing.space4),
 

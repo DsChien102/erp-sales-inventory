@@ -79,16 +79,8 @@ abstract final class PartnerCreateFormValidator {
     Map<String, String> errors, {
     bool required = false,
   }) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) {
-      if (required) errors[key] = 'Vui lòng nhập số điện thoại';
-      return;
-    }
-    final allowed = RegExp(r'^\+?[0-9\s.\-()]+$').hasMatch(trimmed);
-    final digits = digitsOnly(trimmed);
-    if (!allowed || digits.length < 8 || digits.length > 15) {
-      errors[key] = 'Số điện thoại phải có từ 8 đến 15 chữ số';
-    }
+    final error = VPhoneValidator.validate(value, isRequired: required);
+    if (error != null) errors[key] = error;
   }
 
   static void validateEmail(

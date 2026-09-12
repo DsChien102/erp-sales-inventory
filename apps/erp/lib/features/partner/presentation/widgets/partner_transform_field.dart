@@ -14,6 +14,7 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
     this.digitsOnly = false,
     this.isEmail = false,
     this.emailValidateOnChanged = true,
+    this.isPhone = false,
     this.hintText,
     this.errorText,
   });
@@ -27,6 +28,7 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
   final bool digitsOnly;
   final bool isEmail;
   final bool emailValidateOnChanged;
+  final bool isPhone;
   final String? hintText;
   final String? errorText;
 
@@ -78,6 +80,14 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
             errorText: widget.errorText,
             onChanged: widget.onChanged,
             validateOnChanged: widget.emailValidateOnChanged,
+          )
+        else if (widget.isPhone)
+          VPhoneField(
+            controller: _controller,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            onChanged: widget.onChanged,
+            validateOnChanged: false,
           )
         else
           VTextField(

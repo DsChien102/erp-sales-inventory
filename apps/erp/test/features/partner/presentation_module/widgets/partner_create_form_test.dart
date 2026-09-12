@@ -228,7 +228,7 @@ void main() {
     expect(personCubit.state.personTitle, 'Giáo sư');
   });
 
-  testWidgets('person phone fields accept digits only', (tester) async {
+  testWidgets('person phone fields reject invalid characters and accept digits with spaces', (tester) async {
     await tester.pumpWidget(buildForm(type: PartnerType.person));
     await tester.tap(find.byKey(const Key('role_customer')));
     await tester.tap(find.byKey(const Key('btn_next')));
@@ -238,18 +238,25 @@ void main() {
       find.byKey(const Key('input_phone')),
       '09ab 1+-2',
     );
+    final state = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>().state;
+    expect(state.phone, '');
+
+    await tester.enterText(
+      find.byKey(const Key('input_phone')),
+      '090 123 4567',
+    );
     await tester.enterText(
       find.byKey(const Key('input_secondary_phone')),
-      '08x.3-4',
+      '088 345 6789',
     );
     await tester.pump();
 
-    final state = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>().state;
-    expect(state.phone, '0912');
-    expect(state.secondaryPhone, '0834');
+    final nextState = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>().state;
+    expect(nextState.phone, '090 123 4567');
+    expect(nextState.secondaryPhone, '088 345 6789');
   });
 
-  testWidgets('organization and contact phone fields accept digits only', (
+  testWidgets('organization and contact phone fields reject invalid characters and accept digits with spaces', (
     tester,
   ) async {
     await tester.pumpWidget(buildForm(type: PartnerType.organization));
@@ -257,9 +264,13 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_next')));
     await tester.pumpAndSettle();
 
+    // Invalid characters are rejected entirely by VPhoneField formatter
     await tester.enterText(find.byKey(const Key('input_phone')), '02a8-12');
-
     final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
+    expect(cubit.state.phone, '');
+
+    await tester.enterText(find.byKey(const Key('input_phone')), '028 123 4567');
+
     cubit.setPrimaryContactEnabled(true);
     cubit.setActiveSection(PartnerCreateSection.primaryContact);
     await tester.pump();
@@ -267,16 +278,22 @@ void main() {
       find.byKey(const Key('input_primary_contact_phone')),
       '09a0 12',
     );
+    expect(cubit.state.primaryContactPhone, '');
+
+    await tester.enterText(
+      find.byKey(const Key('input_primary_contact_phone')),
+      '090 123 4567',
+    );
     await tester.enterText(
       find.byKey(const Key('input_primary_contact_secondary_phone')),
-      '08b8-34',
+      '088 345 6789',
     );
     await tester.pump();
 
     final state = cubit.state;
-    expect(state.phone, '02812');
-    expect(state.primaryContactPhone, '09012');
-    expect(state.primaryContactSecondaryPhone, '08834');
+    expect(state.phone, '028 123 4567');
+    expect(state.primaryContactPhone, '090 123 4567');
+    expect(state.primaryContactSecondaryPhone, '088 345 6789');
   });
 
   testWidgets('tax code accepts digits only', (tester) async {
@@ -349,8 +366,9 @@ void main() {
 
     expect(find.byKey(const Key('input_primary_contact_name')), findsOneWidget);
     expect(find.byKey(const Key('input_primary_contact_phone')), findsOneWidget);
-    expect(find.text('Họ và tên *', findRichText: true), findsOneWidget);
-    expect(find.text('SĐT chính *', findRichText: true), findsOneWidget);
+    expect(find.text('Họ và tên'), findsOneWidget);
+    expect(find.text('SĐT chính'), findsOneWidget);
+    expect(find.text(' *'), findsWidgets);
   });
 
   testWidgets(
