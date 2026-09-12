@@ -9,26 +9,58 @@ Thư mục này chứa **SQL thiết kế tạm** — **không** được Supaba
 
 ## Đặt tên file
 
-### Draft thường (1 file = 1 concern khi authoring)
+### Draft đang active (bắt buộc có số thứ tự)
+
+Mọi file SQL còn nằm trong `_drafts/` phải có prefix `NNN_` theo **thứ tự thời gian viết** (git first-add / authoring order), rồi mới đến tên mô tả:
 
 ```
-<scope>_<short_description>.sql
+NNN_<scope>_<short_description>.sql
 ```
 
-Ví dụ: `partner_transaction_history_read.sql`, `iam_tenant_membership_ops.sql`
+**TH-05 Sales clean bootstrap (active authority, 2026-08-14):**
 
-### Draft patch cohesive (khuyến nghị cho US/FR lớn)
+Manual prerequisite: the user removes the existing `sales` schema.
+`005` refuses to run while `sales` exists, installs platform messaging, and creates all Sales DDL.
+`006`–`015` contain helpers/RPCs only.
 
-Tách **atomic khi viết**, gom **1 intent khi promote**:
+| Band | Files | Role |
+|------|-------|------|
+| `001`–`004` | IAM / Catalog / Pricing Group A | Cross-module owners — **không** xoá khi dọn Sales |
+| `005` | `005_sales_rebuild_schema.sql` | Sales DDL clean bootstrap (sole table/column owner) |
+| `006` | `006_sales_shared_rpc_helpers.sql` | Shared Sales RPC helpers |
+| `007`–`015` | draft → integration RPCs | Single-owner public Sales RPCs (no DDL) |
+
+Ví dụ:
+
+- `007_sales_draft_rpcs.sql`
+- `008_sales_checkout_rpcs.sql`
+- …
+- `015_sales_integration_rpcs.sql`
+
+Sau full reset được user phê duyệt, toàn bộ active draft sequence đã được re-baseline thành `001`–`015`. Từ baseline này, số mới = max hiện có + 1 và **không** tái dùng số đã promote/xóa. Generation Sales Group B–I cũ và intermediate `600_draft`/`601`–`604` đã được gỡ khỏi thư mục này.
+
+**Intent đã consume:** `016_sales_remove_unused_policy_tables.sql` đã được apply
+thủ công trên test DB và re-baseline vào các migration timestamp `20260827*`,
+`20260830*` cùng owner `20260904001`. Draft đã xoá; verification:
+`docs/operations/sales-remove-unused-policy-tables-verification.md`.
+
+`017_sales_patch_payment_summary_original_order.sql` đã được consume trong working tree.
+Thay đổi cancellation optional reason đã sửa trực tiếp trong các migration gốc
+`20260830005`, `20260830011`, `20260904001` theo yêu cầu maintainer.
+Draft `018` đã gỡ; không giữ migration mới cho intent này. Số kế tiếp: `019`.
+
+**Sales outbox (đã promote):** `20260904001_sales_normalize_outbox_and_commands.sql` — outbox chỉ chứa lifecycle facts. Handoff Model B (`integration_commands` + `*_impact_requests`) đã được gỡ, sẽ dựng lại cùng module Inventory/Receivable/e-Invoice.
+
+### Draft patch cohesive (US/FR lớn, nhiều phần cùng intent)
 
 ```
 NNN_<scope>_patch_<intent>_<part>.sql
 ```
 
-Ví dụ (sku/barcode — phase 2 pilot):
+Ví dụ (sku/barcode — phase 2 pilot, đã promote):
 
-- `001_catalog_patch_sku_barcode_schema.sql` — helpers, trigger, indexes, drop columns
-- `002_catalog_patch_sku_barcode_rpcs.sql` — chỉ RPC trong `-- Touches:`
+- `001_catalog_patch_sku_barcode_schema.sql`
+- `002_catalog_patch_sku_barcode_rpcs.sql`
 
 **Không** dùng prefix `YYYYMMDDxxx_` — format đó chỉ dành cho migration chính thức ở thư mục cha `supabase/migrations/`.
 

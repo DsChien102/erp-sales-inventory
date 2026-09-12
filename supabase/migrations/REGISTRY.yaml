@@ -47,7 +47,7 @@ catalog:
   _product_matches_custom_field_filters: 20260709015_catalog_custom_field_search.sql
   _product_matches_custom_field_keyword: 20260709015_catalog_custom_field_search.sql
   _product_operational_facts: 20260722001_catalog_pending_automatic_price_bands.sql
-  _product_readiness_is_ready: 20260709004_catalog_product_discovery.sql
+  _product_readiness_is_ready: 20260830004_catalog_align_ready_to_sell_exclude_images.sql
   _product_readiness_summary_json: 20260709014_catalog_custom_field_values.sql
   _product_reference_id_from_uuid: 20260710001_catalog_product_reference_id.sql
   _product_soft_delete_result_row: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
@@ -103,6 +103,7 @@ catalog:
   list_custom_field_filter_options: 20260709015_catalog_custom_field_search.sql
   list_product_unit_price_bands: 20260717003_catalog_price_band_calculation_modes_rpcs.sql
   list_product_units: 20260709005_catalog_units.sql
+  list_sellable_product_units: 20260830002_catalog_sales_sellable_lookup_group_a.sql
   list_tenant_measurement_units: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
   reactivate_product: 20260712007_catalog_patch_business_status_soft_deleted_status_rpcs.sql
   reactivate_product_conversion_unit: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
@@ -110,8 +111,11 @@ catalog:
   reorder_custom_fields: 20260709013_catalog_custom_fields.sql
   request_product_image_upload: 20260709001_catalog_guided_create.sql
   request_product_maintenance_image_upload: 20260709010_catalog_product_profile_maintenance.sql
+  resolve_sellable_barcode: 20260830002_catalog_sales_sellable_lookup_group_a.sql
+  resolve_sellable_products: 20260831001_catalog_sellable_lookup_by_ids.sql
   restore_product: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
   search_products: 20260805003_catalog_search_products_summary_counts.sql
+  search_sellable_products: 20260830002_catalog_sales_sellable_lookup_group_a.sql
   set_basic_stock_quantity_base: 20260712003_catalog_rename_basic_stock_quantity_base.sql
   set_initial_price_band: 20260717007_catalog_product_price_band_change_history_direct.sql
   set_initial_stock: 20260709006_catalog_basic_stock.sql
@@ -276,17 +280,75 @@ pricing:
   create_customer_price_rule_import: 20260725016_pricing_customer_price_rule_import_explicit_unit.sql
   delete_customer_price_rule: 20260725014_pricing_customer_price_rule_lifecycle_eligibility.sql
   disable_customer_price_rule: 20260725008_pricing_customer_price_rule_disable_s6.sql
+  evaluate_sales_manual_price: 20260830003_pricing_sales_working_state_preview_group_a.sql
   get_customer_price_rule_create_context: 20260810001_pricing_patch_overwrite_disabled_rules.sql
   get_customer_price_rule_detail: 20260725011_pricing_remembered_price_from_order_s9.sql
   get_customer_price_rule_history: 20260725012_pricing_customer_price_rule_history_s10.sql
   get_customer_price_rule_import: 20260725010_pricing_customer_price_rule_import_s8.sql
   get_customer_price_rule_update_context: 20260725007_pricing_customer_price_rule_update_s5.sql
   precheck_customer_price_rule_reenable: 20260725009_pricing_customer_price_rule_reenable_s7.sql
+  preview_sales_working_state_pricing: 20260830003_pricing_sales_working_state_preview_group_a.sql
   reenable_customer_price_rule: 20260805002_pricing_patch_overwrite_confirm.sql
   resolve_applicable_customer_price_rule: 20260725014_pricing_customer_price_rule_lifecycle_eligibility.sql
   save_remembered_price_from_order: 20260725011_pricing_remembered_price_from_order_s9.sql
   search_customer_price_rules: 20260805001_pricing_patch_customer_phone_snapshot.sql
   update_customer_price_rule: 20260810001_pricing_patch_overwrite_disabled_rules.sql
+
+sales:
+  _apply_settlement_obligation_adjustment: 20260830006_sales_shared_rpc_helpers.sql
+  _assert_sales_actor: 20260830006_sales_shared_rpc_helpers.sql
+  _begin_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
+  _complete_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
+  _draft_payload: 20260830007_sales_draft_rpcs.sql
+  _draft_preview_snapshot: 20260830007_sales_draft_rpcs.sql
+  _emit_sales_settlement_changed: 20260830006_sales_shared_rpc_helpers.sql
+  _get_return_exchange_context: 20260830012_sales_return_exchange_session_rpcs.sql
+  _recompute_sales_settlement: 20260830006_sales_shared_rpc_helpers.sql
+  _sales_receipt_envelope: 20260830010_sales_inquiry_receipt_rpcs.sql
+  _settlement_id_for_order: 20260830009_sales_settlement_rpcs.sql
+  _settlement_mutation_snapshot: 20260830009_sales_settlement_rpcs.sql
+  _write_draft_lines: 20260830007_sales_draft_rpcs.sql
+  audit_sales_review_invariants: 20260830006_sales_shared_rpc_helpers.sql
+  cancel_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
+  cancel_sales_order_draft: 20260830007_sales_draft_rpcs.sql
+  complete_return_exchange: 20260830014_sales_return_exchange_confirmation_rpcs.sql
+  confirm_return_exchange: 20260904001_sales_normalize_outbox_and_commands.sql
+  confirm_sales_order_cancellation: 20260904001_sales_normalize_outbox_and_commands.sql
+  evaluate_return_exchange_valuation: 20260830013_sales_return_exchange_settlement_rpcs.sql
+  finalize_sales_order: 20260830008_sales_checkout_rpcs.sql
+  generate_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_available_post_sale_actions: 20260830011_sales_adjustment_cancellation_rpcs.sql
+  get_checkout_result: 20260830008_sales_checkout_rpcs.sql
+  get_order_integration_status: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_return_exchange_detail: 20260830012_sales_return_exchange_session_rpcs.sql
+  get_return_exchange_form_policy: 20260830012_sales_return_exchange_session_rpcs.sql
+  get_returnable_order_lines: 20260830012_sales_return_exchange_session_rpcs.sql
+  get_sales_order: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_cancellation: 20260830011_sales_adjustment_cancellation_rpcs.sql
+  get_sales_order_detail: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_draft_for_restore: 20260830007_sales_draft_rpcs.sql
+  get_sales_order_payment_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_payment_transactions: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_return_summary: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_settlement: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_order_timeline: 20260830010_sales_inquiry_receipt_rpcs.sql
+  get_sales_receipt: 20260830010_sales_inquiry_receipt_rpcs.sql
+  list_sales_order_cancellation_reasons: 20260830011_sales_adjustment_cancellation_rpcs.sql
+  list_sales_order_drafts: 20260830007_sales_draft_rpcs.sql
+  list_sales_orders: 20260830010_sales_inquiry_receipt_rpcs.sql
+  precheck_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
+  precheck_sales_order_cancellation: 20260830011_sales_adjustment_cancellation_rpcs.sql
+  precheck_sales_order_checkout: 20260830008_sales_checkout_rpcs.sql
+  record_sales_payment: 20260904001_sales_normalize_outbox_and_commands.sql
+  record_sales_receipt_activity: 20260830010_sales_inquiry_receipt_rpcs.sql
+  record_sales_refund: 20260904001_sales_normalize_outbox_and_commands.sql
+  save_sales_order_draft: 20260830007_sales_draft_rpcs.sql
+  search_sales_orders: 20260830010_sales_inquiry_receipt_rpcs.sql
+  settle_return_exchange_difference: 20260830013_sales_return_exchange_settlement_rpcs.sql
+  start_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
+  update_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
+  update_sales_order_draft: 20260830007_sales_draft_rpcs.sql
+  void_sales_payment: 20260830009_sales_settlement_rpcs.sql
 
 bootstrap_grandfathered:
   - 20260623000001_platform_messaging_foundation.sql
@@ -426,7 +488,38 @@ bootstrap_grandfathered:
   - 20260911004_iam_onboarding_owner_membership_with_invitation.sql
   - 20260911005_iam_hybrid_owner_accept_decline_unwind.sql
   - 20260911006_iam_reinvite_provisioning_owner.sql
+  - 20260827001_iam_active_store_context_group_a.sql
+  - 20260827002_catalog_sales_sellable_lookup_group_a.sql
+  - 20260827003_pricing_sales_working_state_preview_group_a.sql
+  - 20260827004_catalog_align_ready_to_sell_exclude_images.sql
+  - 20260827005_sales_rebuild_schema.sql
+  - 20260827006_sales_shared_rpc_helpers.sql
+  - 20260827007_sales_draft_rpcs.sql
+  - 20260827008_sales_checkout_rpcs.sql
+  - 20260827009_sales_settlement_rpcs.sql
+  - 20260827010_sales_inquiry_receipt_rpcs.sql
+  - 20260827011_sales_adjustment_cancellation_rpcs.sql
+  - 20260827012_sales_return_exchange_session_rpcs.sql
+  - 20260827013_sales_return_exchange_settlement_rpcs.sql
+  - 20260827014_sales_return_exchange_confirmation_rpcs.sql
+  - 20260827015_sales_integration_rpcs.sql
   - 20260830001_iam_active_store_context_group_a.sql
+  - 20260830002_catalog_sales_sellable_lookup_group_a.sql
+  - 20260830003_pricing_sales_working_state_preview_group_a.sql
+  - 20260830004_catalog_align_ready_to_sell_exclude_images.sql
+  - 20260830005_sales_rebuild_schema.sql
+  - 20260830006_sales_shared_rpc_helpers.sql
+  - 20260830007_sales_draft_rpcs.sql
+  - 20260830008_sales_checkout_rpcs.sql
+  - 20260830009_sales_settlement_rpcs.sql
+  - 20260830010_sales_inquiry_receipt_rpcs.sql
+  - 20260830011_sales_adjustment_cancellation_rpcs.sql
+  - 20260830012_sales_return_exchange_session_rpcs.sql
+  - 20260830013_sales_return_exchange_settlement_rpcs.sql
+  - 20260830014_sales_return_exchange_confirmation_rpcs.sql
+  - 20260830015_sales_integration_rpcs.sql
+  - 20260831001_catalog_sellable_lookup_by_ids.sql
+  - 20260904001_sales_normalize_outbox_and_commands.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
