@@ -507,7 +507,9 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
         ),
         PreviewSection(
           title: 'VCombobox',
-          description: 'Searchable single-select; input chrome matches VTextField.',
+          description:
+              'Searchable single-select; input chrome matches VTextField. '
+              'Filter 0 match → empty overlay (VComboboxEmpty).',
           child: Column(
             children: [
               PreviewStateRow(
@@ -535,6 +537,10 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                   ],
                   onChanged: (_) {},
                 ),
+              ),
+              const PreviewStateRow(
+                label: 'Empty overlay',
+                child: VComboboxEmpty(),
               ),
             ],
           ),

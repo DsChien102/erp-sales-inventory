@@ -368,7 +368,13 @@ void main() {
     expect(focusNode.hasFocus, isFalse);
   });
 
-  testWidgets('VCombobox hides menu when search matches no items', (tester) async {
+  testWidgets('VCombobox shows empty overlay when search matches no items', (
+    tester,
+  ) async {
+    const menuPadding = VSpacing.space2;
+    const emptyShellHeight =
+        menuPadding * 2 + VComboboxEmpty.preferredHeight;
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -401,6 +407,33 @@ void main() {
     final focusNode = tester.widget<TextField>(textField).focusNode!;
     expect(focusNode.hasFocus, isTrue);
     expect(find.byType(MenuItemButton), findsNothing);
+    expect(find.byType(VComboboxEmpty), findsOneWidget);
+    expect(find.text('Không tìm thấy kết quả'), findsOneWidget);
+
+    final shellBox = tester.renderObject<RenderBox>(
+      find.ancestor(
+        of: find.byType(VComboboxEmpty),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is SizedBox && widget.height == emptyShellHeight,
+        ),
+      ),
+    );
+    expect(shellBox.size.height, emptyShellHeight);
+    expect(shellBox.size.height, lessThan(120));
+  });
+
+  testWidgets('VComboboxEmpty uses custom message when provided', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: VComboboxEmpty(message: 'Khong co ket qua'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Khong co ket qua'), findsOneWidget);
+    expect(VComboboxEmpty.preferredHeight, VSpacing.space2 * 2 + 22);
   });
 
   test(

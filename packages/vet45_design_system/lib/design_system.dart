@@ -70,6 +70,7 @@ export 'src/components/v_empty_state.dart';
 export 'src/components/v_file_drop_zone.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_combobox.dart';
+export 'src/components/v_combobox_empty.dart';
 export 'src/components/v_bottom_navigation_bar.dart';
 export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';

@@ -15,7 +15,11 @@ changelogs when relevant.
 
 ### Added
 
+- `VComboboxEmpty` — empty overlay copy khi filter không khớp; `preferredHeight` ổn định cho shell.
+
 ### Changed
+
+- `VCombobox` giữ menu mở khi 0 match và hiển thị slot `empty` (mặc định `VComboboxEmpty`); chiều cao panel theo empty, không ép `_menuHeight` (300).
 
 ### Fixed
 

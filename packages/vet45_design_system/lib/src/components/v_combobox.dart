@@ -15,6 +15,7 @@ import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
+import 'v_combobox_empty.dart';
 import 'v_text_field.dart';
 import 'v_text_field_affix.dart';
 import 'v_text_field_focus_ring.dart';
@@ -25,6 +26,10 @@ import '../foundation/v_inspector_scope.dart';
 /// Prefer [VField] + [VFieldLabel] for chrome.
 /// Input chrome matches [VTextField] (borders + [VTextFieldFocusRing]).
 /// Menu panel uses [VOverlayMenuShell] for pixel-perfect bottom shadow.
+///
+/// When the search filter matches no items, the overlay stays open and shows
+/// [empty] (default [VComboboxEmpty]) at [VComboboxEmpty.preferredHeight]
+/// rather than collapsing or forcing the full [_menuHeight] panel.
 class VCombobox<T> extends StatefulWidget {
   /// Control height — matches [VTextField.controlHeight].
   static const double controlHeight = VTextField.controlHeight;
@@ -45,6 +50,7 @@ class VCombobox<T> extends StatefulWidget {
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
+    this.empty = const VComboboxEmpty(),
   });
 
   final T? value;
@@ -58,6 +64,11 @@ class VCombobox<T> extends StatefulWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
+  /// Overlay body when [items] filter to zero matches.
+  ///
+  /// Custom widgets should be about [VComboboxEmpty.preferredHeight] tall.
+  final Widget empty;
+
   @override
   State<VCombobox<T>> createState() => _VComboboxState<T>();
 }
@@ -68,10 +79,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
   late final MenuController _menuController;
   List<DropdownMenuEntry<T>> _filteredEntries = [];
   bool _syncingFocusAndMenu = false;
-
-  /// When true, [MenuController.close] must not unfocus the search field
-  /// (e.g. filter became empty while typing).
-  bool _keepFocusOnMenuClose = false;
 
   bool get _canInteract => VComponentScope.resolveEnabled(context, local: widget.enabled);
 
@@ -132,11 +139,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     setState(() {
       _applyFilter(_textController.text);
     });
-    if (!_hasFilteredEntries) {
-      _closeMenu(keepFocus: true);
-      _syncMenuState();
-      return;
-    }
     if (!_menuController.isOpen) {
       _menuController.open();
     }
@@ -148,20 +150,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     _syncMenuState();
   }
 
-  void _closeMenu({required bool keepFocus}) {
-    if (!_menuController.isOpen) {
-      _syncMenuState();
-      return;
-    }
-    _keepFocusOnMenuClose = keepFocus;
-    _menuController.close();
-  }
-
   void _handleMenuOpen() {
-    if (!_hasFilteredEntries) {
-      _closeMenu(keepFocus: true);
-      return;
-    }
     if (!_focusNode.hasFocus) {
       _syncingFocusAndMenu = true;
       _focusNode.requestFocus();
@@ -171,9 +160,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
   }
 
   void _handleMenuClose() {
-    final keepFocus = _keepFocusOnMenuClose;
-    _keepFocusOnMenuClose = false;
-    if (!keepFocus && _focusNode.hasFocus) {
+    if (_focusNode.hasFocus) {
       _syncingFocusAndMenu = true;
       _focusNode.unfocus();
       _syncingFocusAndMenu = false;
@@ -406,12 +393,19 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
         final menuWidth = constraints.maxWidth;
         const menuMaxHeight = VCombobox._menuHeight;
         const menuBoxShadow = VOverlayMenuShell.menuShadow;
+        final showEmpty = !_hasFilteredEntries;
+        final emptyShellHeight =
+            menuPadding * 2 + VComboboxEmpty.preferredHeight;
         final menuMetrics = VOverlayMenuLayout.panelMetrics(
           itemCount: _filteredEntries.length,
           menuMaxHeight: menuMaxHeight,
           itemHeight: VCombobox.controlHeight,
           menuPadding: menuPadding,
         );
+        final shellHeight =
+            showEmpty ? emptyShellHeight : menuMetrics.shellHeight;
+        final menuStyleMaxHeight =
+            showEmpty ? emptyShellHeight : menuMaxHeight;
         final transparentMenuStyle = MenuStyle(
           elevation: const WidgetStatePropertyAll(0),
           backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -419,7 +413,9 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
           shadowColor: const WidgetStatePropertyAll(Colors.transparent),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-          maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
+          maximumSize: WidgetStatePropertyAll(
+            Size(menuWidth, menuStyleMaxHeight),
+          ),
         );
 
         return VTextFieldFocusRing(
@@ -437,36 +433,36 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
               crossAxisUnconstrained: false,
               onOpen: _handleMenuOpen,
               onClose: _handleMenuClose,
-              menuChildren: !_hasFilteredEntries
-                  ? const <Widget>[]
-                  : [
-                      SizedBox(
-                        width: menuWidth,
-                        height: menuMetrics.shellHeight,
-                        child: VOverlayMenuShell.panel(
-                          borderRadius: BorderRadius.circular(menuRadius),
-                          borderSide: VBorders.side(colors.borderStrong),
-                          padding: const EdgeInsets.all(menuPadding),
-                          boxShadow: menuBoxShadow,
-                          child: menuMetrics.needsScroll
-                              ? SizedBox(
-                                  height: menuMetrics.listViewportHeight,
-                                  child: _buildMenuPanelBody(
-                                    context: context,
-                                    isEnabled: isEnabled,
-                                    menuItemRadius: menuRadius,
-                                    metrics: menuMetrics,
-                                  ),
-                                )
-                              : _buildMenuPanelBody(
+              menuChildren: [
+                SizedBox(
+                  width: menuWidth,
+                  height: shellHeight,
+                  child: VOverlayMenuShell.panel(
+                    borderRadius: BorderRadius.circular(menuRadius),
+                    borderSide: VBorders.side(colors.borderStrong),
+                    padding: const EdgeInsets.all(menuPadding),
+                    boxShadow: menuBoxShadow,
+                    child: showEmpty
+                        ? widget.empty
+                        : menuMetrics.needsScroll
+                            ? SizedBox(
+                                height: menuMetrics.listViewportHeight,
+                                child: _buildMenuPanelBody(
                                   context: context,
                                   isEnabled: isEnabled,
-                                  menuItemRadius: menuRadius - menuPadding / 2,
+                                  menuItemRadius: menuRadius,
                                   metrics: menuMetrics,
                                 ),
-                        ),
-                      ),
-                    ],
+                              )
+                            : _buildMenuPanelBody(
+                                context: context,
+                                isEnabled: isEnabled,
+                                menuItemRadius: menuRadius - menuPadding / 2,
+                                metrics: menuMetrics,
+                              ),
+                  ),
+                ),
+              ],
               builder: (context, controller, child) {
                 return TextField(
                   enabled: isEnabled,
@@ -480,9 +476,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
                           setState(() {
                             _applyFilter(text);
                           });
-                          if (!_hasFilteredEntries) {
-                            _closeMenu(keepFocus: true);
-                          } else if (!controller.isOpen) {
+                          if (!controller.isOpen) {
                             _openMenu(requestFocus: false);
                           } else {
                             _syncMenuState();
