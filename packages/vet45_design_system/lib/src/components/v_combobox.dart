@@ -5,6 +5,7 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_dropdown_filter.dart';
+import '../foundation/v_inspector_scope.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_overlay_menu_shell.dart';
 import '../foundations/icons/v_icons.dart';
@@ -16,26 +17,24 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_combobox_empty.dart';
-import 'v_text_field.dart';
-import 'v_text_field_affix.dart';
+import 'v_input.dart';
 import 'v_text_field_focus_ring.dart';
-import '../foundation/v_inspector_scope.dart';
 
 /// Searchable single-select control (combobox).
 ///
 /// Prefer [VField] + [VFieldLabel] for chrome.
-/// Input chrome matches [VTextField] (borders + [VTextFieldFocusRing]).
+/// Trigger chrome matches [VTextField] via [VInput] + [VTextFieldFocusRing].
 /// Menu panel uses [VOverlayMenuShell] for pixel-perfect bottom shadow.
 ///
 /// When the search filter matches no items, the overlay stays open and shows
 /// [empty] (default [VComboboxEmpty]) at [VComboboxEmpty.preferredHeight]
 /// rather than collapsing or forcing the full [_menuHeight] panel.
 class VCombobox<T> extends StatefulWidget {
-  /// Control height — matches [VTextField.controlHeight].
-  static const double controlHeight = VTextField.controlHeight;
+  /// Control height — matches [VInput.controlHeight].
+  static const double controlHeight = VInput.controlHeight;
 
-  /// Same inset as [VTextField.padding].
-  static const EdgeInsets contentPadding = VTextField.padding;
+  /// Same inset as [VInput.defaultPadding].
+  static const EdgeInsets contentPadding = VInput.defaultPadding;
 
   static const double _menuHeight = 300;
 
@@ -79,6 +78,9 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
   late final MenuController _menuController;
   List<DropdownMenuEntry<T>> _filteredEntries = [];
   bool _syncingFocusAndMenu = false;
+
+  /// Keeps menu scroll/taps from counting as [VInput] tap-outside (unfocus).
+  final Object _tapRegionGroupId = Object();
 
   bool get _canInteract => VComponentScope.resolveEnabled(context, local: widget.enabled);
 
@@ -176,10 +178,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     return '';
   }
 
-  OutlineInputBorder _outline(Color color, double width) {
-    return VBorders.outlineInput(color, width: width);
-  }
-
   void _toggleMenu(MenuController controller) {
     if (controller.isOpen) {
       controller.close();
@@ -216,54 +214,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
       borderRadius: VRadius.input - VSpacing.space1 / 2,
       iconColor: open ? colors.textBrand : colors.textMuted,
       onTap: isEnabled ? () => _toggleMenu(controller) : null,
-    );
-  }
-
-  InputDecoration _buildDecoration(
-    BuildContext context,
-    MenuController controller, {
-    required bool isEnabled,
-    required OutlineInputBorder restingBorder,
-    required OutlineInputBorder focusBorder,
-    required OutlineInputBorder disabledBorder,
-    required Color iconColor,
-    required Color hoverColor,
-  }) {
-    return InputDecoration(
-      hintText: widget.hintText,
-      suffixIcon: _buildTrailingIcon(
-        context,
-        controller,
-        isEnabled: isEnabled,
-      ),
-      contentPadding: vTextFieldContentPadding(
-        base: VCombobox.contentPadding,
-        hasPrefix: false,
-        hasSuffix: true,
-      ),
-    ).applyDefaults(
-      InputDecorationTheme(
-        filled: true,
-        fillColor: context.vColors.surface,
-        hoverColor: Colors.transparent,
-        contentPadding: vTextFieldContentPadding(
-          base: VCombobox.contentPadding,
-          hasPrefix: false,
-          hasSuffix: true,
-        ),
-        hintStyle: VTypography.bodyDefault.copyWith(
-          color: context.vColors.textMuted,
-          fontWeight: FontWeight.w500,
-        ),
-        border: restingBorder,
-        enabledBorder: restingBorder,
-        focusedBorder: focusBorder,
-        disabledBorder: disabledBorder,
-        constraints: const BoxConstraints(
-          minHeight: VCombobox.controlHeight,
-          maxHeight: VCombobox.controlHeight,
-        ),
-      ),
     );
   }
 
@@ -368,20 +318,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     final isEnabled = _canInteract;
     final useDanger = widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
-    final borderWidth = VBorders.widthFor(widget.emphasis);
-
-    final restingBorderColor = useDanger
-        ? colors.danger
-        : switch (widget.tone) {
-            VComponentTone.primary => colors.primary,
-            VComponentTone.danger => colors.danger,
-            _ => colors.borderDefault,
-          };
-    final focusBorderColor = useDanger ? colors.danger : colors.primary;
-    final restingBorder = _outline(restingBorderColor, borderWidth);
-    final focusBorder = _outline(focusBorderColor, borderWidth);
-    final disabledBorder = _outline(colors.borderDefault, borderWidth);
-    final trailingIconColor = colors.textMuted;
 
     // ignore: deprecated_member_use_from_same_package
     final legacyLabel = widget.label;
@@ -434,42 +370,54 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
               onOpen: _handleMenuOpen,
               onClose: _handleMenuClose,
               menuChildren: [
-                SizedBox(
-                  width: menuWidth,
-                  height: shellHeight,
-                  child: VOverlayMenuShell.panel(
-                    borderRadius: BorderRadius.circular(menuRadius),
-                    borderSide: VBorders.side(colors.borderStrong),
-                    padding: const EdgeInsets.all(menuPadding),
-                    boxShadow: menuBoxShadow,
-                    child: showEmpty
-                        ? widget.empty
-                        : menuMetrics.needsScroll
-                            ? SizedBox(
-                                height: menuMetrics.listViewportHeight,
-                                child: _buildMenuPanelBody(
+                TapRegion(
+                  groupId: _tapRegionGroupId,
+                  child: SizedBox(
+                    width: menuWidth,
+                    height: shellHeight,
+                    child: VOverlayMenuShell.panel(
+                      borderRadius: BorderRadius.circular(menuRadius),
+                      borderSide: VBorders.side(colors.borderStrong),
+                      padding: const EdgeInsets.all(menuPadding),
+                      boxShadow: menuBoxShadow,
+                      child: showEmpty
+                          ? widget.empty
+                          : menuMetrics.needsScroll
+                              ? SizedBox(
+                                  height: menuMetrics.listViewportHeight,
+                                  child: _buildMenuPanelBody(
+                                    context: context,
+                                    isEnabled: isEnabled,
+                                    menuItemRadius: menuRadius,
+                                    metrics: menuMetrics,
+                                  ),
+                                )
+                              : _buildMenuPanelBody(
                                   context: context,
                                   isEnabled: isEnabled,
-                                  menuItemRadius: menuRadius,
+                                  menuItemRadius: menuRadius - menuPadding / 2,
                                   metrics: menuMetrics,
                                 ),
-                              )
-                            : _buildMenuPanelBody(
-                                context: context,
-                                isEnabled: isEnabled,
-                                menuItemRadius: menuRadius - menuPadding / 2,
-                                metrics: menuMetrics,
-                              ),
+                    ),
                   ),
                 ),
               ],
               builder: (context, controller, child) {
-                return TextField(
+                return VInput(
                   enabled: isEnabled,
                   focusNode: _focusNode,
                   controller: _textController,
-                  style: VTypography.bodyDefault.copyWith(
+                  hintText: widget.hintText,
+                  tone: widget.tone,
+                  emphasis: widget.emphasis,
+                  groupId: _tapRegionGroupId,
+                  textStyle: VTypography.bodyDefault.copyWith(
                     color: colors.textPrimary,
+                  ),
+                  suffix: _buildTrailingIcon(
+                    context,
+                    controller,
+                    isEnabled: isEnabled,
                   ),
                   onChanged: isEnabled
                       ? (text) {
@@ -483,16 +431,6 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
                           }
                         }
                       : null,
-                  decoration: _buildDecoration(
-                    context,
-                    controller,
-                    isEnabled: isEnabled,
-                    restingBorder: restingBorder,
-                    focusBorder: focusBorder,
-                    disabledBorder: disabledBorder,
-                    iconColor: trailingIconColor,
-                    hoverColor: colors.surfaceHover,
-                  ),
                 );
               },
             ),
