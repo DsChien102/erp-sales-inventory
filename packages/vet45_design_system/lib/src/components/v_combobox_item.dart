@@ -15,7 +15,7 @@ import 'v_combobox.dart';
 /// [VComboboxController.labelFor]. Never parses [child].
 ///
 /// Row height follows [child] layout with a minimum tap target of
-/// [kVComboboxControlHeight].
+/// ambient [VDensity.controlHeightMedium].
 class VComboboxItem<T> extends StatelessWidget {
   const VComboboxItem({
     super.key,
@@ -46,9 +46,11 @@ class VComboboxItem<T> extends StatelessWidget {
     final colors = context.vColors;
     final isEnabled = enabled && root.canInteract;
 
+    final controlHeight = context.vDensity.controlHeightMedium;
+
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minHeight: kVComboboxControlHeight,
+      constraints: BoxConstraints(
+        minHeight: controlHeight,
         minWidth: double.infinity,
       ),
       child: ExcludeFocus(

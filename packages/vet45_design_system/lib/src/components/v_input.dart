@@ -22,6 +22,9 @@ import '../tokens/v_typography.dart';
 ///
 /// For a denser control, pass a tighter [padding] (e.g. [densePadding] or
 /// [EdgeInsets.zero]) and set [lockControlHeight] to false when needed.
+///
+/// Single-line locked height follows ambient [VDensity.controlHeightMedium]
+/// (shared with [VButton] size medium, [VTextField], [VSelect], [VCombobox]).
 class VInput extends StatefulWidget {
   /// Default inset — horizontal [VSpacing.space3], vertical [VSpacing.space2].
   static const EdgeInsets defaultPadding = EdgeInsets.symmetric(
@@ -34,9 +37,6 @@ class VInput extends StatefulWidget {
     horizontal: VSpacing.space2,
     vertical: VSpacing.space1,
   );
-
-  /// Single-line control height shared with [VTextField] / [VSelect] / [VCombobox].
-  static const double controlHeight = 48;
 
   /// Gap between [prefix]/[suffix] and the text field.
   static const double affixGap = VSpacing.space1;
@@ -119,7 +119,8 @@ class VInput extends StatefulWidget {
   /// [VField.resolveInvalid].
   final bool? invalid;
 
-  /// When true (default), clamps height to [controlHeight].
+  /// When true (default), clamps height to
+  /// [VDensity.controlHeightMedium] from the ambient theme.
   final bool lockControlHeight;
   final int? maxLines;
   final int? minLines;
@@ -284,10 +285,11 @@ class _VInputState extends State<VInput> {
     );
 
     if (widget.lockControlHeight) {
+      final controlHeight = context.vDensity.controlHeightMedium;
       field = ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: VInput.controlHeight,
-          maxHeight: VInput.controlHeight,
+        constraints: BoxConstraints(
+          minHeight: controlHeight,
+          maxHeight: controlHeight,
         ),
         child: field,
       );

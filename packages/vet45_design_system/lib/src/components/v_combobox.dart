@@ -9,8 +9,12 @@ import '../foundation/v_dropdown_filter.dart';
 import '../foundation/v_text_normalizer.dart';
 import 'v_input.dart';
 
-/// Control height shared with [VInput].
-const double kVComboboxControlHeight = VInput.controlHeight;
+/// Control height fallback matching default [VTheme] comfortable density
+/// (`VDensity.comfortable.controlHeightMedium` == 44).
+///
+/// Prefer [BuildContext.vDensity].controlHeightMedium when a [BuildContext]
+/// is available (respects compact / comfortable).
+const double kVComboboxControlHeight = 44;
 
 /// Composition host for searchable single-select.
 ///
@@ -19,8 +23,11 @@ const double kVComboboxControlHeight = VInput.controlHeight;
 /// (e.g. Content then Input in a [Column] / [Stack]) so the overlay registers
 /// in the same frame.
 class VCombobox<T> extends StatefulWidget {
-  /// Control height — matches [VInput.controlHeight].
-  static const double controlHeight = VInput.controlHeight;
+  /// Fallback control height — comfortable density medium (44).
+  ///
+  /// Runtime chrome (input lock, menu rows with context) uses
+  /// `context.vDensity.controlHeightMedium`.
+  static const double controlHeight = kVComboboxControlHeight;
 
   /// Same inset as [VInput.defaultPadding].
   static const EdgeInsets contentPadding = VInput.defaultPadding;

@@ -18,11 +18,11 @@ class VTextField extends StatefulWidget {
   /// Dense inset — horizontal [VSpacing.space2], vertical [VSpacing.space1].
   static const EdgeInsets densePadding = VInput.densePadding;
 
-  /// Single-line control height shared with [VSelect] / [VCombobox].
+  /// Fallback single-line height — comfortable density medium (44).
   ///
-  /// Matches the measured default [TextField] + outlined decoration height under
-  /// [VTheme] (Material interactive minimum), so form rows align.
-  static const double controlHeight = VInput.controlHeight;
+  /// Prefer `context.vDensity.controlHeightMedium` at runtime ([VInput] locks
+  /// to ambient density automatically).
+  static const double controlHeight = 44;
 
   final TextEditingController? controller;
 

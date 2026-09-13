@@ -1,8 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../components/v_combobox.dart';
-import '../components/v_text_field.dart';
 import '../components/v_text_field_focus_ring.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
@@ -175,26 +173,27 @@ class _VSelectState<T> extends State<VSelect<T>> {
     required double menuItemRadius,
   }) {
     final colors = context.vColors;
+    final controlHeight = context.vDensity.controlHeightMedium;
     final itemShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(menuItemRadius));
 
     return [
       for (final item in widget.items)
         SizedBox(
-          height: VCombobox.controlHeight,
+          height: controlHeight,
           width: double.infinity,
           child: ExcludeFocus(
             child: MenuItemButton(
               requestFocusOnHover: false,
               onPressed: isEnabled && item.enabled ? () => _selectItem(item) : null,
               style: ButtonStyle(
-                fixedSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
+                fixedSize: WidgetStatePropertyAll(
+                  Size(double.infinity, controlHeight),
                 ),
-                minimumSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
+                minimumSize: WidgetStatePropertyAll(
+                  Size(double.infinity, controlHeight),
                 ),
-                maximumSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
+                maximumSize: WidgetStatePropertyAll(
+                  Size(double.infinity, controlHeight),
                 ),
                 padding: const WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: VSpacing.space2),
@@ -284,7 +283,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
             : null,
         borderRadius: BorderRadius.circular(VRadius.input),
         child: Ink(
-          height: VTextField.controlHeight,
+          height: context.vDensity.controlHeightMedium,
           decoration: BoxDecoration(
             color: _triggerHighlighted
                 ? colors.surfacePressed
@@ -375,7 +374,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
             final menuMetrics = VOverlayMenuLayout.panelMetrics(
               itemCount: widget.items.length,
               menuMaxHeight: menuMaxHeight,
-              itemHeight: VCombobox.controlHeight,
+              itemHeight: context.vDensity.controlHeightMedium,
               menuPadding: menuPadding,
             );
             final transparentMenuStyle = MenuStyle(

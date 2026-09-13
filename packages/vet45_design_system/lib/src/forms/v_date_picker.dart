@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
@@ -143,7 +142,7 @@ class _VDatePickerState extends State<VDatePicker> {
             : null,
         borderRadius: radius,
         child: Ink(
-          height: VTextField.controlHeight,
+          height: context.vDensity.controlHeightMedium,
           padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
           decoration: BoxDecoration(
             color: fillColor,
