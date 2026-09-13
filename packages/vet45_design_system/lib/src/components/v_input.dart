@@ -64,6 +64,8 @@ class VInput extends StatefulWidget {
     this.onTapUpOutside,
     this.groupId,
     this.border = true,
+    this.fillColor,
+    this.hintColor,
     this.padding = defaultPadding,
     this.invalid,
     this.lockControlHeight = true,
@@ -111,6 +113,12 @@ class VInput extends StatefulWidget {
   /// "outside" for [onTapOutside] (see [TextField.groupId]).
   final Object? groupId;
   final bool border;
+
+  /// Fill behind the control. Null uses ambient surface.
+  final Color? fillColor;
+
+  /// Hint text color. Null uses muted text.
+  final Color? hintColor;
 
   /// Content inset around prefix + text + suffix.
   final EdgeInsets padding;
@@ -251,7 +259,9 @@ class _VInputState extends State<VInput> {
         focusedErrorBorder: InputBorder.none,
         filled: false,
         hintText: widget.hintText,
-        hintStyle: baseTextStyle.copyWith(color: colors.textMuted),
+        hintStyle: baseTextStyle.copyWith(
+          color: widget.hintColor ?? colors.textMuted,
+        ),
         contentPadding: EdgeInsets.zero,
         isDense: true,
       ),
@@ -277,7 +287,7 @@ class _VInputState extends State<VInput> {
 
     field = DecoratedBox(
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: widget.fillColor ?? colors.surface,
         borderRadius: BorderRadius.circular(VRadius.input),
         border: widget.border ? Border.all(color: borderColor, width: borderWidth) : null,
       ),

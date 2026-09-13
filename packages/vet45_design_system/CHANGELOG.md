@@ -17,6 +17,8 @@ changelogs when relevant.
 
 ### Changed
 
+- `VSearchBar` compose trên `VInput` + `VTextFieldFocusRing` (parity TextField); `VInput` thêm `fillColor` / `hintColor` optional.
+
 ### Fixed
 
 ### Internal

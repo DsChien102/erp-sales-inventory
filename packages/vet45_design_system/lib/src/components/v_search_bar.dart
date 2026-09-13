@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import '../patterns/v_gap.dart';
+
+import '../foundation/v_component_contracts.dart';
+import '../foundation/v_component_scope.dart';
+import '../foundation/v_context_extensions.dart';
+import '../foundation/v_inspector_scope.dart';
+import '../foundations/icons/v_icons.dart';
+import '../primitives/v_icon.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
-import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
-import '../foundation/v_context_extensions.dart';
-import '../foundation/v_component_contracts.dart';
-import '../foundation/v_component_scope.dart';
-import '../primitives/v_icon.dart';
-import '../primitives/v_text.dart';
-import '../foundations/icons/v_icons.dart';
-import '../foundation/v_inspector_scope.dart';
+import 'v_input.dart';
+import 'v_text_field_focus_ring.dart';
 
 enum VSearchBarVariant { outlined, filled, header }
 
@@ -56,38 +56,40 @@ class VSearchBar extends StatefulWidget {
 }
 
 class _VSearchBarState extends State<VSearchBar> {
-  late FocusNode _focusNode;
+  FocusNode? _ownedFocusNode;
+
+  FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = widget.focusNode ?? FocusNode();
+    if (widget.focusNode == null) {
+      _ownedFocusNode = FocusNode();
+    }
     _focusNode.addListener(_handleFocusChange);
     widget.controller?.addListener(_handleControllerChange);
   }
 
   void _handleFocusChange() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   void _handleControllerChange() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   @override
   void didUpdateWidget(VSearchBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
-      if (oldWidget.focusNode == null) {
-        _focusNode.dispose();
+      oldWidget.focusNode?.removeListener(_handleFocusChange);
+      _ownedFocusNode?.removeListener(_handleFocusChange);
+      if (widget.focusNode == null) {
+        _ownedFocusNode ??= FocusNode();
       } else {
-        oldWidget.focusNode?.removeListener(_handleFocusChange);
+        _ownedFocusNode?.dispose();
+        _ownedFocusNode = null;
       }
-      _focusNode = widget.focusNode ?? FocusNode();
       _focusNode.addListener(_handleFocusChange);
     }
     if (widget.controller != oldWidget.controller) {
@@ -99,72 +101,47 @@ class _VSearchBarState extends State<VSearchBar> {
   @override
   void dispose() {
     widget.controller?.removeListener(_handleControllerChange);
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    } else {
-      widget.focusNode?.removeListener(_handleFocusChange);
-    }
+    _focusNode.removeListener(_handleFocusChange);
+    _ownedFocusNode?.dispose();
     super.dispose();
+  }
+
+  void _clear() {
+    widget.controller?.value = TextEditingValue.empty;
+    widget.onClear?.call();
   }
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
-    final isFocused = _focusNode.hasFocus;
+    final colors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
+    final focused = isEnabled && _focusNode.hasFocus;
+    final useDanger = widget.tone == VComponentTone.danger;
+    final isHeader = widget.variant == VSearchBarVariant.header;
+    final tapOnly = widget.onTap != null;
 
-    Color bg;
-    Border? border;
-    Color iconColor;
-    Color textColor;
-    Color hintColor;
-
-    final focusBorderColor = switch (widget.tone) {
-      VComponentTone.primary => dynamicColors.primary,
-      VComponentTone.danger => dynamicColors.danger,
-      _ => dynamicColors.primary,
-    };
-
-    final borderWidth = VBorders.widthFor(widget.emphasis);
-
+    final Color iconColor;
+    final Color textColor;
+    final Color? fillColor;
     switch (widget.variant) {
       case VSearchBarVariant.outlined:
-        bg = dynamicColors.surface;
-        border = VBorders.all(
-          isFocused ? focusBorderColor : dynamicColors.borderDefault,
-          width: isFocused ? VBorders.thin : borderWidth,
-        );
-        iconColor = dynamicColors.textSecondary;
-        textColor = dynamicColors.textPrimary;
-        hintColor = dynamicColors.textSecondary;
-        break;
+        iconColor = colors.textSecondary;
+        textColor = colors.textPrimary;
+        fillColor = null;
       case VSearchBarVariant.filled:
-        bg = dynamicColors.surfaceAlt;
-        border = isFocused
-            ? VBorders.all(dynamicColors.borderStrong, width: VBorders.thin)
-            : VBorders.all(dynamicColors.borderDefault, width: VBorders.thin);
-        iconColor = dynamicColors.textMuted;
-        textColor = dynamicColors.textPrimary;
-        hintColor = dynamicColors.textSecondary;
-        break;
+        iconColor = colors.textMuted;
+        textColor = colors.textPrimary;
+        fillColor = colors.surfaceAlt;
       case VSearchBarVariant.header:
-        bg = Colors.white.withValues(alpha: 0.15);
-        border = isFocused ? VBorders.all(Colors.white, width: VBorders.thin) : null;
         iconColor = Colors.white;
         textColor = Colors.white;
-        hintColor = Colors.white.withValues(alpha: 0.8);
-        break;
+        fillColor = null;
     }
 
     final hasText = widget.controller?.text.isNotEmpty ?? false;
     final clearButton = widget.onClear != null && hasText
         ? GestureDetector(
-            onTap: () {
-              if (widget.controller != null) {
-                widget.controller!.value = TextEditingValue.empty;
-              }
-              widget.onClear?.call();
-            },
+            onTap: _clear,
             child: VIcon(
               icon: VIcons.close,
               color: iconColor,
@@ -174,53 +151,51 @@ class _VSearchBarState extends State<VSearchBar> {
         : null;
     final effectiveSuffix = widget.suffix ?? clearButton;
 
-    Widget content = Row(
-      children: [
-        VIcon(icon: VIcons.search, color: iconColor, size: 20),
-        const VGap(VSpacing.space2, axis: Axis.horizontal),
-        Expanded(
-          child: widget.readOnly || widget.onTap != null
-              ? Align(
-                  alignment: Alignment.centerLeft,
-                  child: VText(
-                    widget.hintText,
-                    variant: VTextVariant.bodyDefault,
-                    color: hintColor,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )
-              : TextField(
-                  controller: widget.controller,
-                  onChanged: widget.onChanged,
-                  onSubmitted: widget.onSubmitted,
-                  focusNode: _focusNode,
-                  autofocus: widget.autofocus,
-                  readOnly: widget.readOnly,
-                  enabled: isEnabled,
-                  style: VTypography.bodyDefault.copyWith(color: textColor),
-                  decoration: InputDecoration(
-                    hintText: widget.hintText,
-                    hintStyle: VTypography.bodyDefault.copyWith(
-                      color: hintColor,
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    filled: false,
-                    fillColor: Colors.transparent,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-        ),
-        if (effectiveSuffix != null) ...[
-          const SizedBox(width: VSpacing.space2),
-          effectiveSuffix,
-        ],
-      ],
+    final textStyle = isHeader
+        ? VTypography.bodyDefault.copyWith(color: textColor)
+        : null;
+    final hintColor = isHeader ? Colors.white.withValues(alpha: 0.8) : null;
+
+    Widget field = VInput(
+      controller: widget.controller,
+      focusNode: _focusNode,
+      hintText: widget.hintText,
+      prefix: VIcon(icon: VIcons.search, color: iconColor, size: 20),
+      suffix: effectiveSuffix,
+      enabled: widget.enabled,
+      readOnly: widget.readOnly || tapOnly,
+      showCursor: tapOnly || widget.readOnly ? false : null,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
+      autofocus: widget.autofocus,
+      textStyle: textStyle,
+      hintColor: hintColor,
+      fillColor: isHeader ? Colors.transparent : fillColor,
+      border: !isHeader,
+      tone: widget.tone,
+      emphasis: widget.emphasis,
+      padding: VInput.defaultPadding,
     );
+
+    if (!isHeader) {
+      field = VTextFieldFocusRing(
+        focused: focused,
+        danger: useDanger,
+        child: field,
+      );
+    } else {
+      field = DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(VRadius.input),
+          border: focused
+              ? VBorders.all(Colors.white, width: VBorders.thin)
+              : null,
+        ),
+        child: field,
+      );
+    }
 
     return vInspectorHide(
       Semantics(
@@ -229,27 +204,7 @@ class _VSearchBarState extends State<VSearchBar> {
         label: widget.semanticLabel ?? widget.hintText,
         child: vDisabledOpacity(
           enabled: isEnabled,
-          child: Container(
-            height: context.vDensity.controlHeightMedium,
-            padding: EdgeInsets.only(
-              left: VSpacing.space3,
-              right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
-            ),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(VRadius.card),
-              border: border,
-            ),
-            child: widget.onTap != null
-                ? InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: widget.onTap,
-                    borderRadius: BorderRadius.circular(VRadius.card),
-                    child: content,
-                  )
-                : content,
-          ),
+          child: field,
         ),
       ),
     );
