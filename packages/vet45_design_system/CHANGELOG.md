@@ -17,16 +17,23 @@ changelogs when relevant.
 
 ### Changed
 
+### Fixed
+
+### Internal
+
+## [1.4.1] - 2026-09-13
+
+### Changed
+
 - `VSearchBar` compose trên `VInput` + `VTextFieldFocusRing` (parity TextField); `VInput` thêm `fillColor` / `hintColor` optional.
 - `VButton` secondary: map `tone: success` (fill/hover/press + chữ + border); idle fill danger/warning/success dùng `surface` thay `transparent`.
 - `VSearchBar`: thêm khoảng cách ngang sau icon search (prefix).
 - `VTextFieldFocusRing`: ring danger dùng `dangerBg`, ring mặc định dùng `successBg` (bỏ `focusRing` + alpha thủ công).
 
-### Fixed
-
 ### Internal
 
 - `VBanner`: bỏ import barrel thừa.
+
 ## [1.4.0] - 2026-09-13
 
 ### Added
