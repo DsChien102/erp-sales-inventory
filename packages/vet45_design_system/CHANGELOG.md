@@ -15,6 +15,16 @@ changelogs when relevant.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.4.0] - 2026-09-13
+
+### Added
+
 - `VComboboxEmpty` — empty overlay copy khi filter không khớp; `preferredHeight` ổn định cho shell.
 - `VCombobox` composition: host `VCombobox` + `Input` / `Content` / `List` / `Item` / `Footer`; `VComboboxItem` nhận `child` Widget; `searchText` optional (filter); label input qua `displayTextForValue`.
 
@@ -32,8 +42,6 @@ changelogs when relevant.
 
 - Input (`VInput` / `VTextField`): dismiss ngoài field bằng `onTapUpOutside` + touch-slop — tap thật thì unfocus; drag scroll parent giữ focus/IME. `VTextArea` / `VSearchBar` / `VVerificationCodeField`: mặc định `onTapOutside` theo Flutter.
 - `VCombobox`: không unfocus khi ancestor scroll đóng overlay; dismiss ngoài field qua `onTapUpOutside` (+ touch-slop); giữ text/query khi vẫn focus. `VInput` expose `onTapUpOutside`.
-
-### Internal
 
 ## [1.3.0] - 2026-09-10
 
