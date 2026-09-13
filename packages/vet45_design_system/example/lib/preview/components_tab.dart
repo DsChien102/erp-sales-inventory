@@ -59,15 +59,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   child: VBanner(
                     status: status,
                     title: 'Tiêu đề thông báo',
-                    description: 'Mô tả ngắn có thể gồm một hành động tiếp theo.',
                   ),
                 ),
               PreviewStateRow(
-                label: 'tone + message alias',
+                label: 'tone + description',
                 child: const VBanner(
                   tone: VComponentTone.warning,
                   title: 'Cần kiểm tra',
-                  message: '• Giá riêng đang thấp hơn giá sàn hiện tại',
+                  description: 'Giá riêng đang thấp hơn giá sàn hiện tại',
                 ),
               ),
               PreviewStateRow(

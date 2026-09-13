@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
@@ -9,28 +10,39 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 
 /// Semantic status for inline [VBanner] notifications.
 enum VBannerStatus { info, success, warning, error }
 
-/// Inline status banner with icon, title, and optional description.
+/// Inline status banner with status icon, title, and optional description.
 ///
 /// Use for persistent in-page feedback (not transient toasts).
 ///
 /// Prefer [status]. [tone] is accepted as a convenience alias used by feature
 /// modules (`VComponentTone.danger` → [VBannerStatus.error], etc.).
-/// [message] is an alias for [description].
+///
+/// Icon is fixed from [status] / [tone] (no manual override). Description and
+/// footer indent to align with the title after the icon column.
 class VBanner extends StatelessWidget {
+  /// Circular icon chrome size (matches [_VBannerIcon]).
+  static const double iconSize = 20;
+
+  /// Horizontal gap between icon and title ([VGap.horizontalSm]).
+  static const double iconTitleGap = VSpacing.space3;
+
+  /// Left inset for description / footer so they line up with the title.
+  static const double contentIndent = iconSize + iconTitleGap;
+
   const VBanner({
     super.key,
     required this.title,
     this.status,
     this.tone,
     this.description,
-    this.message,
-    this.icon,
+    @Deprecated('Use description instead') this.message,
     this.trailing,
     this.footer,
     this.semanticLabel,
@@ -50,11 +62,9 @@ class VBanner extends StatelessWidget {
   /// Body copy under the title.
   final String? description;
 
-  /// Alias for [description] (Theme 4 call-sites).
+  /// Deprecated alias for [description].
+  @Deprecated('Use description instead')
   final String? message;
-
-  /// Optional icon override; defaults to status icon.
-  final VIcons? icon;
 
   /// Optional trailing widget aligned with the title row.
   final Widget? trailing;
@@ -67,8 +77,7 @@ class VBanner extends StatelessWidget {
   VBannerStatus get _resolvedStatus {
     if (status != null) return status!;
     return switch (tone!) {
-      VComponentTone.info || VComponentTone.primary || VComponentTone.neutral =>
-        VBannerStatus.info,
+      VComponentTone.info || VComponentTone.primary || VComponentTone.neutral => VBannerStatus.info,
       VComponentTone.success => VBannerStatus.success,
       VComponentTone.warning => VBannerStatus.warning,
       VComponentTone.danger => VBannerStatus.error,
@@ -80,6 +89,7 @@ class VBanner extends StatelessWidget {
     if (fromDescription != null && fromDescription.isNotEmpty) {
       return fromDescription;
     }
+    // ignore: deprecated_member_use_from_same_package
     final fromMessage = message?.trim();
     if (fromMessage != null && fromMessage.isNotEmpty) {
       return fromMessage;
@@ -87,11 +97,11 @@ class VBanner extends StatelessWidget {
     return null;
   }
 
-  VIcons get _defaultIcon => switch (_resolvedStatus) {
+  VIcons get _statusIcon => switch (_resolvedStatus) {
     VBannerStatus.info => VIcons.info,
     VBannerStatus.success => VIcons.success,
     VBannerStatus.warning => VIcons.warning,
-    VBannerStatus.error => VIcons.close,
+    VBannerStatus.error => VIcons.error,
   };
 
   (Color background, Color accent) _colors(VColorScheme colors) {
@@ -117,7 +127,6 @@ class VBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final (background, accent) = _colors(colors);
-    final resolvedIcon = icon ?? _defaultIcon;
     final body = _resolvedDescription;
 
     return vInspectorHide(
@@ -130,31 +139,32 @@ class VBanner extends StatelessWidget {
             decoration: BoxDecoration(
               color: background,
               borderRadius: BorderRadius.circular(VRadius.r12),
+              border: VBorders.all(accent),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(VSpacing.md),
-              child: Row(
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _VBannerIcon(
-                    icon: resolvedIcon,
-                    accent: accent,
-                  ),
-                  const VGap.horizontalSm(),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      VIcon(
+                        icon: _statusIcon,
+                        size: iconSize,
+                        color: accent,
+                      ),
+                      const SizedBox(width: iconTitleGap),
+                      Expanded(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: VText(
                                 title,
-                                variant: VTextVariant.bodyDefault,
+                                variant: VTextVariant.labelDefault,
                                 color: accent,
-                                style: const TextStyle(fontWeight: FontWeight.w700),
                               ),
                             ),
                             if (trailing != null) ...[
@@ -163,55 +173,30 @@ class VBanner extends StatelessWidget {
                             ],
                           ],
                         ),
-                        if (body != null) ...[
-                          const VGap.xs(),
-                          VText(
-                            body,
-                            variant: VTextVariant.bodySmall,
-                            color: colors.textPrimary,
-                          ),
-                        ],
-                        if (footer != null) ...[
-                          const VGap.sm(),
-                          vInspectorShow(footer!),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  if (body != null) ...[
+                    const VGap(VSpacing.space1),
+                    Padding(
+                      padding: const EdgeInsets.only(left: contentIndent),
+                      child: VText(
+                        body,
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                  ],
+                  if (footer != null) ...[
+                    const VGap(VSpacing.space1),
+                    Padding(
+                      padding: const EdgeInsets.only(left: contentIndent),
+                      child: vInspectorShow(footer!),
+                    ),
+                  ],
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _VBannerIcon extends StatelessWidget {
-  const _VBannerIcon({
-    required this.icon,
-    required this.accent,
-  });
-
-  final VIcons icon;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        shape: BoxShape.circle,
-      ),
-      child: SizedBox(
-        width: 28,
-        height: 28,
-        child: Center(
-          child: VIcon(
-            icon: icon,
-            size: 16,
-            color: accent,
           ),
         ),
       ),
