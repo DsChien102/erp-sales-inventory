@@ -42,6 +42,7 @@ class VEmailField extends StatefulWidget {
     this.maxLength = VEmailValidator.defaultMaxLength,
     this.minLengthEmailMessage,
     this.maxLengthEmailMessage,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -80,6 +81,8 @@ class VEmailField extends StatefulWidget {
   final int maxLength;
   final String? minLengthEmailMessage;
   final String? maxLengthEmailMessage;
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -153,6 +156,7 @@ class _VEmailFieldState extends State<VEmailField> {
         focusNode: widget.focusNode,
         onSubmitted: widget.onSubmitted,
         border: widget.border,
+        invalid: widget.invalid,
         tone: widget.tone,
         emphasis: widget.emphasis,
         semanticLabel: widget.semanticLabel,

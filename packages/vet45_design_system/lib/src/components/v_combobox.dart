@@ -36,6 +36,7 @@ class VCombobox<T> extends StatefulWidget {
     this.onOpenChange,
     this.filter,
     this.displayTextForValue,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -56,6 +57,8 @@ class VCombobox<T> extends StatefulWidget {
   /// Label shown in the input for [value] when not filtering.
   final String Function(T? value)? displayTextForValue;
 
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -81,6 +84,7 @@ class VComboboxController extends ChangeNotifier {
   EdgeInsetsGeometry? get overlayPadding => _host.overlayPadding;
   bool get canInteract => _host.canInteract;
   bool get isOpen => _host.isOpen;
+  bool? get invalid => _host.invalid;
   VComponentTone get tone => _host.tone;
   VComponentEmphasis get emphasis => _host.emphasis;
   Object? get selectedValue => _host.selectedValue;
@@ -135,6 +139,7 @@ abstract class _VComboboxHost {
   EdgeInsetsGeometry? get overlayPadding;
   bool get canInteract;
   bool get isOpen;
+  bool? get invalid;
   VComponentTone get tone;
   VComponentEmphasis get emphasis;
   Object? get selectedValue;
@@ -199,6 +204,9 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
     if (controlled != null) return controlled;
     return _uncontrolledOpen || menuController.isOpen;
   }
+
+  @override
+  bool? get invalid => widget.invalid;
 
   @override
   VComponentTone get tone => widget.tone;

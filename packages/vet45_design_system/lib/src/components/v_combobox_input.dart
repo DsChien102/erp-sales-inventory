@@ -6,6 +6,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_overlay_menu_shell.dart';
 import '../foundations/icons/v_icons.dart';
+import '../patterns/v_field.dart';
 import '../primitives/v_icon_box.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -60,7 +61,9 @@ class _VComboboxInputState extends State<VComboboxInput> {
     final root = vComboboxOf(context);
     final colors = context.vColors;
     final isEnabled = root.canInteract;
-    final useDanger = root.tone == VComponentTone.danger;
+    final isInvalid = VField.resolveInvalid(context, local: root.invalid);
+    final useDanger =
+        isInvalid || root.tone == VComponentTone.danger;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -122,6 +125,7 @@ class _VComboboxInputState extends State<VComboboxInput> {
                 hintText: widget.hintText,
                 tone: root.tone,
                 emphasis: root.emphasis,
+                invalid: isInvalid,
                 groupId: root.tapRegionGroupId,
                 textStyle: VTypography.bodyDefault.copyWith(
                   color: colors.textPrimary,

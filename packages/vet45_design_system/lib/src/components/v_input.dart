@@ -6,6 +6,7 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_field.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -64,7 +65,7 @@ class VInput extends StatefulWidget {
     this.groupId,
     this.border = true,
     this.padding = defaultPadding,
-    this.invalid = false,
+    this.invalid,
     this.lockControlHeight = true,
     this.maxLines = 1,
     this.minLines,
@@ -113,7 +114,10 @@ class VInput extends StatefulWidget {
 
   /// Content inset around prefix + text + suffix.
   final EdgeInsets padding;
-  final bool invalid;
+
+  /// Local invalid override. Null inherits [VField.invalid] via
+  /// [VField.resolveInvalid].
+  final bool? invalid;
 
   /// When true (default), clamps height to [controlHeight].
   final bool lockControlHeight;
@@ -187,11 +191,12 @@ class _VInputState extends State<VInput> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
-    final useDanger = widget.invalid || widget.tone == VComponentTone.danger;
+    final isInvalid = VField.resolveInvalid(context, local: widget.invalid);
+    final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
     final focused = isEnabled && _focusNode.hasFocus;
 
-    final restingBorderColor = widget.invalid
+    final restingBorderColor = isInvalid
         ? colors.danger
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
@@ -231,7 +236,7 @@ class _VInputState extends State<VInput> {
       onSubmitted: widget.onSubmitted,
       onTap: widget.onTap,
       cursorColor: useDanger ? colors.danger : colors.primary,
-      style: widget.invalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
+      style: isInvalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
       groupId: widget.groupId ?? EditableText,
       onTapOutside: widget.onTapOutside ?? _rememberOutsidePointerDown,
       onTapUpOutside: widget.onTapUpOutside ?? _unfocusOnOutsideTapUp,

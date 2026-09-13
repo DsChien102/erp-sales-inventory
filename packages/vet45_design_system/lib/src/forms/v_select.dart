@@ -43,6 +43,7 @@ class VSelect<T> extends StatefulWidget {
     this.enabled,
     @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
     this.requiredMessage = VSelectValidator.defaultRequiredMessage,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -64,6 +65,9 @@ class VSelect<T> extends StatefulWidget {
   @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
   final String requiredMessage;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -334,7 +338,9 @@ class _VSelectState<T> extends State<VSelect<T>> {
     final colors = context.vColors;
     final isEnabled = _canInteract;
     final hasError = _effectiveError != null;
-    final useDanger = hasError || widget.tone == VComponentTone.danger;
+    final isInvalid =
+        VField.resolveInvalid(context, local: widget.invalid) || hasError;
+    final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final focused = isEnabled && (_focusNode.hasFocus || _menuController.isOpen);
     // Neutral/primary: no focus chrome. Danger: keep danger border + focus ring.
     final showDangerFocusChrome = useDanger && focused;

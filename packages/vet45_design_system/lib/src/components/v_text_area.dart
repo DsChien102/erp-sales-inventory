@@ -65,6 +65,11 @@ class VTextArea extends StatefulWidget {
   /// When false, field has no outline ([InputBorder.none]). Default true.
   final bool border;
   final bool isDense;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  ///
+  /// Legacy [errorText] and FormField validation errors still force invalid chrome.
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -106,6 +111,7 @@ class VTextArea extends StatefulWidget {
     this.onFieldSubmitted,
     this.border = true,
     this.isDense = false,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -265,11 +271,16 @@ class _VTextAreaState extends State<VTextArea> {
           final legacyRequired = widget.isRequired;
           final displayErrorText =
               hasValidationError ? fieldState.errorText : legacyError;
+          final isInvalid =
+              VField.resolveInvalid(context, local: widget.invalid) ||
+              displayErrorText != null;
+          final useDanger =
+              isInvalid || widget.tone == VComponentTone.danger;
 
           final InputBorder activeBorder;
           if (!showBorder) {
             activeBorder = none;
-          } else if (displayErrorText != null) {
+          } else if (isInvalid) {
             activeBorder = outlineOf(
               colors.danger,
               width: hasValidationError ? VBorders.thin : borderWidth,
@@ -308,10 +319,8 @@ class _VTextAreaState extends State<VTextArea> {
             inputFormatters: widget.inputFormatters,
             textAlign: widget.textAlign,
             onSubmitted: widget.onFieldSubmitted,
-            cursorColor: displayErrorText != null || widget.tone == VComponentTone.danger
-                ? colors.danger
-                : colors.primary,
-            style: displayErrorText != null
+            cursorColor: useDanger ? colors.danger : colors.primary,
+            style: isInvalid
                 ? baseTextStyle.copyWith(color: colors.danger)
                 : baseTextStyle,
             decoration: InputDecoration(
@@ -343,8 +352,8 @@ class _VTextAreaState extends State<VTextArea> {
                 hasSuffix: resolvedSuffix != null,
               ),
               border: activeBorder,
-              enabledBorder: displayErrorText != null ? activeBorder : outline,
-              focusedBorder: displayErrorText != null ? focusedErrorBorder : focusedOutline,
+              enabledBorder: isInvalid ? activeBorder : outline,
+              focusedBorder: isInvalid ? focusedErrorBorder : focusedOutline,
               disabledBorder: disabledOutline,
             ),
           );
@@ -352,7 +361,7 @@ class _VTextAreaState extends State<VTextArea> {
           final focused = isEnabled && _focusNode.hasFocus;
           Widget fieldBox = VTextFieldFocusRing(
             focused: focused,
-            danger: displayErrorText != null,
+            danger: useDanger,
             child: textFieldWidget,
           );
 

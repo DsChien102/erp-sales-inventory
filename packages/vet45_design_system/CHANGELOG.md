@@ -22,6 +22,7 @@ changelogs when relevant.
 
 - `VCombobox` giữ menu mở khi 0 match và hiển thị slot `empty` (mặc định `VComboboxEmpty`); chiều cao panel theo empty, không ép `_menuHeight` (300).
 - `VCombobox` trigger dùng `VInput` + `VTextFieldFocusRing` (parity `VTextField`; bỏ `TextField` + decoration thủ công); `TapRegion`/`groupId` giữ focus khi scroll menu.
+- `VField.resolveInvalid` + `VFieldScope`: V*Field (`VTextField` / `VTextArea` / wrappers / `VSelect` / `VCombobox` / OTP / `VChoiceList` / `VPhoneField`) nhận `bool? invalid` và inherit chrome danger từ `VField(invalid:)`.
 
 ### Fixed
 
