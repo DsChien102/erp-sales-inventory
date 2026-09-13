@@ -454,11 +454,8 @@ class _MyAccountScaffold extends StatelessWidget {
               variant: VButtonVariant.primary,
               tone: VComponentTone.primary,
               fullWidth: true,
-              trailingIcon: VIcon(
-                icon: isActionsOpen ? VIcons.chevronDown : VIcons.chevronUp,
-                color: VColors.neutral0,
-                size: 18,
-              ),
+              trailing:
+                  isActionsOpen ? VIcons.chevronDown : VIcons.chevronUp,
               onPressed: onShowActions,
             ),
           ),

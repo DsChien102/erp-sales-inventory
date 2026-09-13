@@ -444,11 +444,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                 child: VButton(
                                   label: 'Thao tác',
                                   variant: VButtonVariant.primary,
-                                  trailingIcon: const VIcon(
-                                    icon: VIcons.expandLess,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
+                                  trailing: VIcons.expandLess,
                                   onPressed: () => _showActionSheet(context, dto),
                                 ),
                               ),

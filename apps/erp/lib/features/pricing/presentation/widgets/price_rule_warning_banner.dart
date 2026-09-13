@@ -12,7 +12,7 @@ class PriceRuleBelowFloorBanner extends StatelessWidget {
     return const VBanner(
       tone: VComponentTone.warning,
       title: 'Giá riêng thấp hơn giá sàn',
-      message: 'Bạn vẫn có thể lưu nếu có quyền ghi đè giá sàn.',
+      description: 'Bạn vẫn có thể lưu nếu có quyền ghi đè giá sàn.',
     );
   }
 }
@@ -32,7 +32,7 @@ class PriceRuleDuplicateBanner extends StatelessWidget {
     return VBanner(
       tone: VComponentTone.danger,
       title: 'Trùng giá riêng đang áp dụng',
-      message:
+      description:
           'Đã có giá riêng cho khách hàng, sản phẩm, đơn vị '
           'trong khoảng thời gian. Không thể lưu rule mới; vui lòng '
           'điều chỉnh khoảng hiệu lực hoặc đối tượng áp dụng.',
@@ -61,13 +61,13 @@ class PriceRuleReviewBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = issues.isEmpty
+    final description = issues.isEmpty
         ? null
         : issues.map((issue) => '• $issue').join('\n');
     return VBanner(
       tone: VComponentTone.warning,
       title: 'Cần kiểm tra',
-      message: message,
+      description: description,
     );
   }
 }
@@ -79,7 +79,6 @@ class PriceRuleBanner extends StatelessWidget {
     required this.tone,
     required this.title,
     this.message,
-    this.icon,
     this.trailing,
     this.footer,
   });
@@ -87,7 +86,6 @@ class PriceRuleBanner extends StatelessWidget {
   final VComponentTone tone;
   final String title;
   final String? message;
-  final VIcons? icon;
   final Widget? trailing;
   final Widget? footer;
 
@@ -96,8 +94,7 @@ class PriceRuleBanner extends StatelessWidget {
     return VBanner(
       tone: tone,
       title: title,
-      message: message,
-      icon: icon,
+      description: message,
       trailing: trailing,
       footer: footer,
     );

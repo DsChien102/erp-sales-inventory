@@ -84,7 +84,6 @@ class _InvoiceWarning extends StatelessWidget {
     return VBanner(
       status: VBannerStatus.warning,
       title: message,
-      icon: VIcons.warning,
     );
   }
 }

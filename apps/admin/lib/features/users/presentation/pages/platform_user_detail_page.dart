@@ -407,11 +407,7 @@ class _PlatformUserDetailView extends StatelessWidget {
                     child: VButton(
                       label: 'Thao tác',
                       fullWidth: true,
-                      trailingIcon: const VIcon(
-                        icon: VIcons.chevronUp,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                      trailing: VIcons.chevronUp,
                       onPressed: () => _showActionsBottomSheet(context),
                     ),
                   ),

@@ -16,7 +16,6 @@ class PartnerTransformBlockingBanner extends StatelessWidget {
       key: const Key('transform_blocking_banner'),
       status: VBannerStatus.warning,
       title: message,
-      icon: VIcons.warning,
     );
   }
 }

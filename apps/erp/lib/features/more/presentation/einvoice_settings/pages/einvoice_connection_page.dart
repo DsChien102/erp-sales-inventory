@@ -320,11 +320,7 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                         const SizedBox(height: VSpacing.space4),
                         VButton(
                           label: 'Kiểm tra lại kết nối',
-                          leadingIcon: VIcon(
-                            icon: VIcons.refresh,
-                            color: colors.textPrimary,
-                            size: 18,
-                          ),
+                          leading: VIcons.refresh,
                           variant: VButtonVariant.secondary,
                           fullWidth: true,
                           isLoading: state.isSubmitting,

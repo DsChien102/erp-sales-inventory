@@ -32,7 +32,6 @@ class PartnerDetailInactiveBanner extends StatelessWidget {
       key: Key('wgt_e02_u01_fr02_01'),
       status: VBannerStatus.warning,
       title: message,
-      icon: VIcons.warning,
     );
   }
 }

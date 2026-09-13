@@ -150,11 +150,7 @@ class _MemberDetailView extends StatelessWidget {
                   padding: const EdgeInsets.all(VSpacing.screenMobile),
                   child: VButton(
                     label: 'Thao tác',
-                    trailingIcon: const VIcon(
-                      icon: VIcons.chevronUp,
-                      size: 18,
-                      color: Colors.white,
-                    ),
+                    trailing: VIcons.chevronUp,
                     variant: VButtonVariant.primary,
                     tone: VComponentTone.success,
                     fullWidth: true,

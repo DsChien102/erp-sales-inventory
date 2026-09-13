@@ -78,9 +78,8 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
               if (!hasSensitivePermission) ...[
                 VBanner(
                   tone: VComponentTone.info,
-                  icon: VIcons.info,
                   title: 'Quyền hạn chế',
-                  message: 'Bạn không có quyền xem một số dữ liệu nhạy cảm.',
+                  description: 'Bạn không có quyền xem một số dữ liệu nhạy cảm.',
                 ),
                 const VGap.md(),
               ],

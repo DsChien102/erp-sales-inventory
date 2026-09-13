@@ -390,9 +390,8 @@ class _FormWarnings extends StatelessWidget {
       if (form.hasConflictingRule)
         const VBanner(
           tone: VComponentTone.info,
-          icon: VIcons.info,
           title: 'Lưu ý tự động ghi đè giá trùng',
-          message:
+          description:
               'Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, hệ thống sẽ tự động ghi đè giá riêng cũ.',
         ),
     ];

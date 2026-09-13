@@ -67,9 +67,8 @@ class _PriceRuleOverwriteConfirmSheet extends StatelessWidget {
               const VGap.md(),
               const VBanner(
                 tone: VComponentTone.info,
-                icon: VIcons.info,
                 title: 'Lưu ý tự động ghi đè',
-                message:
+                description:
                     'Tạo giá riêng này sẽ tự động ghi đè giá riêng đang áp dụng trùng khoảng thời gian (nếu có).',
               ),
               const VGap.lg(),

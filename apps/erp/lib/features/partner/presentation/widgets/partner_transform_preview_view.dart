@@ -98,7 +98,6 @@ class PartnerTransformPreviewView extends StatelessWidget {
           const VBanner(
             status: VBannerStatus.info,
             title: 'Lịch sử giao dịch và dữ liệu liên quan sẽ được giữ nguyên.',
-            icon: VIcons.info,
           ),
           const SizedBox(height: VSpacing.space4),
           SafeArea(
