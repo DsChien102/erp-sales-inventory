@@ -16,6 +16,7 @@ changelogs when relevant.
 ### Added
 
 - `VComboboxEmpty` — empty overlay copy khi filter không khớp; `preferredHeight` ổn định cho shell.
+- `VCombobox` composition: host `VCombobox` + `Input` / `Content` / `List` / `Item` / `Footer`; `VComboboxItem` nhận `child` Widget; `searchText` optional (filter); label input qua `displayTextForValue`.
 
 ### Changed
 

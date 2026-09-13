@@ -4,9 +4,9 @@ import '../foundation/v_context_extensions.dart';
 import '../primitives/v_text.dart';
 import '../tokens/v_spacing.dart';
 
-/// Empty-result content for [VCombobox] overlay when the filter matches nothing.
+/// Empty-result content for [VCombobox] / [VComboboxList] when the filter matches nothing.
 ///
-/// Custom [VCombobox.empty] widgets should target roughly [preferredHeight]
+/// Custom empty widgets should target roughly [preferredHeight]
 /// so [MenuAnchor] shell sizing stays stable.
 class VComboboxEmpty extends StatelessWidget {
   /// Vertical padding applied around the message.

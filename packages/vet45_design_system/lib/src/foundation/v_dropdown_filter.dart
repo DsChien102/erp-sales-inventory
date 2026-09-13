@@ -15,3 +15,17 @@ List<DropdownMenuEntry<T>> filterDropdownEntries<T>(
       )
       .toList();
 }
+
+/// Default combobox filter: normalized [searchText] contains normalized [query].
+bool matchesComboboxSearch(String query, String searchText) {
+  return matchesNormalizedComboboxSearch(
+    VTextNormalizer.normalizeForSearch(query),
+    searchText,
+  );
+}
+
+/// Same as [matchesComboboxSearch] when [normalizedQuery] is already computed.
+bool matchesNormalizedComboboxSearch(String normalizedQuery, String searchText) {
+  if (normalizedQuery.isEmpty) return true;
+  return VTextNormalizer.normalizeForSearch(searchText).contains(normalizedQuery);
+}
