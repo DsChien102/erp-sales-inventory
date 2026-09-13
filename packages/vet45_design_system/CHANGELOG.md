@@ -24,6 +24,7 @@ changelogs when relevant.
 - `VCombobox` trigger dùng `VInput` + `VTextFieldFocusRing` (parity `VTextField`; bỏ `TextField` + decoration thủ công); `TapRegion`/`groupId` giữ focus khi scroll menu.
 - `VField.resolveInvalid` + `VFieldScope`: V*Field (`VTextField` / `VTextArea` / wrappers / `VSelect` / `VCombobox` / OTP / `VChoiceList` / `VPhoneField`) nhận `bool? invalid` và inherit chrome danger từ `VField(invalid:)`.
 - `VBanner`: bỏ `icon` thủ công (chỉ icon theo status/tone); border semantic giống `VCard`; layout icon căn giữa hàng title, description/footer indent thẳng hàng title; `message` deprecated → dùng `description`.
+- `VIcons.error`: glyph Lucide `circleX` (thay `alertCircle`).
 
 ### Fixed
 

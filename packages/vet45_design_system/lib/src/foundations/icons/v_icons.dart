@@ -251,8 +251,8 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
-  static const alertCircle = IconData(
-    57463,
+  static const circleX = IconData(
+    57476,
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
@@ -678,7 +678,7 @@ extension VIconsExtension on VIcons {
       case VIcons.warning:
         return _Lucide.alertTriangle;
       case VIcons.error:
-        return _Lucide.alertCircle;
+        return _Lucide.circleX;
       case VIcons.success:
         return _Lucide.checkCircle2;
       case VIcons.info:
