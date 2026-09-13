@@ -62,6 +62,7 @@ class ProductControlCenterBody extends StatelessWidget {
 
     return SingleChildScrollView(
       child: VPagePadding(
+        vertical: VSpacing.space4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
