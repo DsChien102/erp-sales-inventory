@@ -228,6 +228,50 @@ void main() {
     expect(focusNode.hasFocus, isFalse);
   });
 
+  testWidgets('VCombobox keeps focus when parent scrolls while menu is open', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ListView(
+            children: [
+              const SizedBox(height: 120),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: _simpleCombobox(
+                  items: const [
+                    ('a', 'Alpha'),
+                    ('b', 'Beta'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 1200),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final textField = find.byType(TextField);
+    await tester.tap(textField);
+    await tester.pumpAndSettle();
+
+    final focusNode = tester.widget<TextField>(textField).focusNode!;
+    expect(focusNode.hasFocus, isTrue);
+    expect(find.text('Alpha'), findsOneWidget);
+
+    // Drag empty space above the field (not through the open menu overlay).
+    await tester.dragFrom(const Offset(24, 40), const Offset(0, -180));
+    await tester.pumpAndSettle();
+
+    expect(focusNode.hasFocus, isTrue);
+  });
+
   testWidgets('VCombobox menu shrinks to fit few items', (tester) async {
     const menuMaxHeight = 300.0;
 
@@ -404,6 +448,82 @@ void main() {
     expect(selected, 'b');
     expect(focusNode.hasFocus, isFalse);
   });
+
+  testWidgets(
+    'VCombobox tap opens overlay with empty filter but keeps selected label',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _simpleCombobox(
+                value: 'a',
+                items: const [
+                  ('a', 'Alpha'),
+                  ('b', 'Beta'),
+                  ('c', 'Charlie'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textField = find.byType(TextField);
+      expect(tester.widget<TextField>(textField).controller!.text, 'Alpha');
+
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+
+      // Selected label stays in the field…
+      expect(tester.widget<TextField>(textField).controller!.text, 'Alpha');
+      // …but filter is empty so every item is listed (not only Alpha matches).
+      expect(find.text('Alpha'), findsWidgets);
+      expect(find.text('Beta'), findsOneWidget);
+      expect(find.text('Charlie'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'VCombobox re-opens overlay on tap when closed while still focused',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _simpleCombobox(
+                items: const [
+                  ('a', 'Alpha'),
+                  ('b', 'Beta'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textField = find.byType(TextField);
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+      expect(find.text('Beta'), findsOneWidget);
+
+      // Close via chevron while keeping focus path: unfocus then refocus would
+      // reopen; instead close the MenuController through the root by tapping
+      // the chevron (toggle).
+      await tester.tap(find.byType(VIconBox));
+      await tester.pumpAndSettle();
+      expect(find.text('Beta'), findsNothing);
+
+      // Field may still be focused; a second tap must reopen.
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+      expect(find.text('Beta'), findsOneWidget);
+    },
+  );
 
   testWidgets('VCombobox shows empty overlay when search matches no items', (
     tester,

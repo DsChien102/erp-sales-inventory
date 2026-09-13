@@ -62,5 +62,43 @@ void main() {
       expect(find.byIcon(Icons.search), findsOneWidget);
       expect(find.text('kg'), findsOneWidget);
     });
+
+    testWidgets('VInput unfocuses on outside tap but not on outside drag', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: ListView(
+              children: const [
+                SizedBox(height: 80),
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: VTextField(hintText: 'Nhập'),
+                ),
+                SizedBox(height: 800),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textField = find.byType(TextField);
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+
+      final focusNode = tester.widget<TextField>(textField).focusNode!;
+      expect(focusNode.hasFocus, isTrue);
+
+      await tester.dragFrom(const Offset(24, 40), const Offset(0, -120));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isTrue);
+
+      await tester.tapAt(const Offset(24, 40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse);
+    });
   });
 }

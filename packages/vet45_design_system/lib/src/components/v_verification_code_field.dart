@@ -283,7 +283,6 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       autofillHints: widget.enableAutofill ? const [AutofillHints.oneTimeCode] : null,
       inputFormatters: _inputFormatters,
       onChanged: _onChanged,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: const InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,

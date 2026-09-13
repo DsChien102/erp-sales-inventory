@@ -25,6 +25,9 @@ changelogs when relevant.
 
 ### Fixed
 
+- Input (`VInput` / `VTextField`): dismiss ngoài field bằng `onTapUpOutside` + touch-slop — tap thật thì unfocus; drag scroll parent giữ focus/IME. `VTextArea` / `VSearchBar` / `VVerificationCodeField`: mặc định `onTapOutside` theo Flutter.
+- `VCombobox`: không unfocus khi ancestor scroll đóng overlay; dismiss ngoài field qua `onTapUpOutside` (+ touch-slop); giữ text/query khi vẫn focus. `VInput` expose `onTapUpOutside`.
+
 ### Internal
 
 ## [1.3.0] - 2026-09-10

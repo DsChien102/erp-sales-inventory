@@ -314,7 +314,6 @@ class _VTextAreaState extends State<VTextArea> {
             style: displayErrorText != null
                 ? baseTextStyle.copyWith(color: colors.danger)
                 : baseTextStyle,
-            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(
               hintText: widget.hintText,
               isDense: widget.isDense,

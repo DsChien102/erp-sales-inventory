@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -57,7 +58,9 @@ class VInput extends StatefulWidget {
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.onSubmitted,
+    this.onTap,
     this.onTapOutside,
+    this.onTapUpOutside,
     this.groupId,
     this.border = true,
     this.padding = defaultPadding,
@@ -86,9 +89,22 @@ class VInput extends StatefulWidget {
   final bool autofocus;
   final ValueChanged<String>? onSubmitted;
 
-  /// Defaults to unfocusing primary focus (same as Material [TextField]).
-  /// Pass a no-op to keep focus when tapping sibling controls (e.g. custom keypad).
+  /// Called when the user taps this field (also when already focused).
+  final VoidCallback? onTap;
+
+  /// Called when a pointer down occurs outside this field's [TextFieldTapRegion].
+  ///
+  /// When null, records the down position for the default [onTapUpOutside]
+  /// dismiss (does **not** unfocus on down, so parent-list scroll keeps focus /
+  /// IME). Pass a callback to override (e.g. no-op to keep focus when tapping
+  /// sibling controls such as a custom keypad).
   final TapRegionCallback? onTapOutside;
+
+  /// Called when a pointer up occurs outside this field's [TextFieldTapRegion].
+  ///
+  /// When null, unfocuses if the pointer did not move beyond [kTouchSlop]
+  /// (completed tap). Drag/scroll past slop keeps focus.
+  final TapRegionUpCallback? onTapUpOutside;
 
   /// Shared with ancestor [TapRegion]s so taps inside that region are not
   /// "outside" for [onTapOutside] (see [TextField.groupId]).
@@ -112,6 +128,7 @@ class VInput extends StatefulWidget {
 
 class _VInputState extends State<VInput> {
   FocusNode? _ownedFocusNode;
+  Offset? _outsidePointerDown;
 
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
 
@@ -149,6 +166,21 @@ class _VInputState extends State<VInput> {
 
   void _handleFocusChange() {
     if (mounted) setState(() {});
+  }
+
+  void _rememberOutsidePointerDown(PointerDownEvent event) {
+    _outsidePointerDown = event.position;
+  }
+
+  void _unfocusOnOutsideTapUp(PointerUpEvent event) {
+    final down = _outsidePointerDown;
+    _outsidePointerDown = null;
+    if (down != null && (event.position - down).distance > kTouchSlop) {
+      return;
+    }
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
   }
 
   @override
@@ -197,11 +229,12 @@ class _VInputState extends State<VInput> {
       inputFormatters: widget.inputFormatters,
       textAlign: widget.textAlign,
       onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
       cursorColor: useDanger ? colors.danger : colors.primary,
       style: widget.invalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
       groupId: widget.groupId ?? EditableText,
-      onTapOutside: widget.onTapOutside ??
-          (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      onTapOutside: widget.onTapOutside ?? _rememberOutsidePointerDown,
+      onTapUpOutside: widget.onTapUpOutside ?? _unfocusOnOutsideTapUp,
       decoration: InputDecoration(
         isCollapsed: true,
         border: InputBorder.none,
@@ -240,9 +273,7 @@ class _VInputState extends State<VInput> {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(VRadius.input),
-        border: widget.border
-            ? Border.all(color: borderColor, width: borderWidth)
-            : null,
+        border: widget.border ? Border.all(color: borderColor, width: borderWidth) : null,
       ),
       child: field,
     );

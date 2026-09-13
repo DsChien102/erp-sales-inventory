@@ -200,9 +200,6 @@ class _VSearchBarState extends State<VSearchBar> {
                   autofocus: widget.autofocus,
                   readOnly: widget.readOnly,
                   enabled: isEnabled,
-                  onTapOutside: (event) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
                   style: VTypography.bodyDefault.copyWith(color: textColor),
                   decoration: InputDecoration(
                     hintText: widget.hintText,

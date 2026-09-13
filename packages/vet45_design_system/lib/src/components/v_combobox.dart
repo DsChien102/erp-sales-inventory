@@ -115,6 +115,10 @@ class VComboboxController extends ChangeNotifier {
 
   void handleMenuClose() => _host.handleMenuClose();
 
+  /// Tap on [VComboboxInput]: open overlay if closed and reset filter to show
+  /// all items without clearing [value] or the displayed input text.
+  void handleInputTap() => _host.handleInputTap();
+
   void syncFromInputChange(String text) => _host.syncFromInputChange(text);
 
   void _notify() => notifyListeners();
@@ -148,6 +152,7 @@ abstract class _VComboboxHost {
   void select(Object? itemValue);
   void handleMenuOpen();
   void handleMenuClose();
+  void handleInputTap();
   void syncFromInputChange(String text);
 }
 
@@ -353,6 +358,13 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
     _skipCloseTextRestore = true;
     widget.onChanged?.call(itemValue as T?);
     requestClose();
+    // Intentional dismiss after pick — not via [handleMenuClose], so parent
+    // scroll closing the overlay does not steal focus/IME.
+    if (focusNode.hasFocus) {
+      _syncingFocusAndMenu = true;
+      focusNode.unfocus();
+      _syncingFocusAndMenu = false;
+    }
     if (mounted) setState(() {});
   }
 
@@ -361,13 +373,33 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
 
     if (focusNode.hasFocus && canInteract && !isOpen) {
       requestOpen(requestFocus: false);
+    } else if (!focusNode.hasFocus) {
+      // Restore label on true blur. Menu may already be closed (scroll) while
+      // focused — keep typed filter until then.
+      _restoreClosedText();
     }
   }
 
-  void _openMenu({bool requestFocus = true}) {
+  void _restoreClosedText() {
+    _replaceQuery('');
+    if (_skipCloseTextRestore) {
+      _skipCloseTextRestore = false;
+      return;
+    }
+    final label = labelFor(widget.value);
+    if (textController.text != label) {
+      textController.text = label;
+    }
+  }
+
+  void _openMenu({bool requestFocus = true, bool resetFilter = true}) {
     setState(() {
       _uncontrolledOpen = true;
-      _replaceQuery(textController.text);
+      // Opening from focus/tap/chevron shows the full list. Typing opens with
+      // [resetFilter]: false so [syncFromInputChange] keeps the typed query.
+      if (resetFilter) {
+        _replaceQuery('');
+      }
     });
     controller._notify();
     if (!menuController.isOpen) {
@@ -377,6 +409,31 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
       _syncingFocusAndMenu = true;
       focusNode.requestFocus();
       _syncingFocusAndMenu = false;
+    }
+  }
+
+  @override
+  void handleInputTap() {
+    if (!canInteract) return;
+
+    // Keep displayed text / value; select all so the next keystroke replaces
+    // the label while filtering.
+    final text = textController.text;
+    if (text.isNotEmpty) {
+      textController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: text.length,
+      );
+    }
+
+    if (!isOpen) {
+      requestOpen(requestFocus: false);
+      return;
+    }
+
+    if (_query.isNotEmpty) {
+      _replaceQuery('');
+      controller._notify();
     }
   }
 
@@ -395,16 +452,11 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
   @override
   void handleMenuClose() {
     _uncontrolledOpen = false;
-    _replaceQuery('');
-    if (_skipCloseTextRestore) {
-      _skipCloseTextRestore = false;
-    } else {
-      textController.text = labelFor(widget.value);
-    }
-    if (focusNode.hasFocus) {
-      _syncingFocusAndMenu = true;
-      focusNode.unfocus();
-      _syncingFocusAndMenu = false;
+    // Ancestor scroll may close the overlay while the field stays focused.
+    // Only restore the committed label when already unfocused; otherwise keep
+    // the typed query so filter/IME survive the drag.
+    if (!focusNode.hasFocus) {
+      _restoreClosedText();
     }
     controller._notify();
     if (mounted) setState(() {});
@@ -415,7 +467,7 @@ class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
   void syncFromInputChange(String text) {
     setQuery(text);
     if (!isOpen) {
-      requestOpen(requestFocus: false);
+      _openMenu(requestFocus: false, resetFilter: false);
     }
   }
 

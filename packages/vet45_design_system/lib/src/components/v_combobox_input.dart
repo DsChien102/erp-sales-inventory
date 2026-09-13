@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
@@ -18,13 +19,41 @@ import 'v_text_field_focus_ring.dart';
 ///
 /// Must sit under [VCombobox]. Prefer building [VComboboxContent] **before**
 /// this widget in the subtree so [menuChildren] are registered same-frame.
-class VComboboxInput extends StatelessWidget {
+///
+/// Outside dismiss uses [VInput.onTapUpOutside] (completed tap + [kTouchSlop]),
+/// not pointer-down unfocus, so dragging a parent list keeps focus / IME.
+class VComboboxInput extends StatefulWidget {
   const VComboboxInput({
     super.key,
     this.hintText,
   });
 
   final String? hintText;
+
+  @override
+  State<VComboboxInput> createState() => _VComboboxInputState();
+}
+
+class _VComboboxInputState extends State<VComboboxInput> {
+  Offset? _outsidePointerDown;
+
+  void _handleTapOutside(PointerDownEvent event) {
+    _outsidePointerDown = event.position;
+  }
+
+  void _handleTapUpOutside(PointerUpEvent event) {
+    final down = _outsidePointerDown;
+    _outsidePointerDown = null;
+    if (down != null && (event.position - down).distance > kTouchSlop) {
+      return;
+    }
+
+    final root = vComboboxOf(context);
+    root.requestClose();
+    if (root.focusNode.hasFocus) {
+      root.focusNode.unfocus();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +119,7 @@ class VComboboxInput extends StatelessWidget {
                 enabled: isEnabled,
                 focusNode: root.focusNode,
                 controller: root.textController,
-                hintText: hintText,
+                hintText: widget.hintText,
                 tone: root.tone,
                 emphasis: root.emphasis,
                 groupId: root.tapRegionGroupId,
@@ -103,6 +132,9 @@ class VComboboxInput extends StatelessWidget {
                   onTap: isEnabled ? root.toggleMenu : null,
                 ),
                 onChanged: isEnabled ? root.syncFromInputChange : null,
+                onTap: isEnabled ? root.handleInputTap : null,
+                onTapOutside: _handleTapOutside,
+                onTapUpOutside: _handleTapUpOutside,
               );
             },
           ),
