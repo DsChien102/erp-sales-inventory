@@ -3,16 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-<<<<<<<< HEAD:apps/admin/test/features/iam/presentation_module/widgets/reset_password_page_test.dart
 import 'package:admin/features/iam/presentation.dart';
 import 'package:admin/features/iam/testing.dart';
-|||||||| parent of 443fdb867 (refactor: restructure presentation layer and update guidelines):modules/iam/presentation/test/widgets/reset_password_page_test.dart
-import 'package:vet45_iam_presentation/presentation.dart';
-import 'package:vet45_iam_presentation/testing.dart';
-========
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
->>>>>>>> 443fdb867 (refactor: restructure presentation layer and update guidelines):apps/erp/test/features/iam/presentation_module/widgets/reset_password_page_test.dart
 import 'package:vet45_shared_application/application.dart';
 
 /// Local scripted delegate for Cubit unit tests (ScriptedIamModule not in package).
@@ -162,8 +154,7 @@ void main() {
           }
           throw UnsupportedError(message.runtimeType.toString());
         },
-        onQuery: (message) async =>
-            throw UnsupportedError(message.runtimeType.toString()),
+        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
       );
       final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
