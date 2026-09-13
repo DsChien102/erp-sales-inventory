@@ -5,10 +5,12 @@ import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
+import '../patterns/v_gap.dart';
 import '../primitives/v_icon.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_opacity.dart';
 import '../tokens/v_radius.dart';
+import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_input.dart';
 import 'v_text_field_focus_ring.dart';
@@ -151,16 +153,19 @@ class _VSearchBarState extends State<VSearchBar> {
         : null;
     final effectiveSuffix = widget.suffix ?? clearButton;
 
-    final textStyle = isHeader
-        ? VTypography.bodyDefault.copyWith(color: textColor)
-        : null;
+    final textStyle = isHeader ? VTypography.bodyDefault.copyWith(color: textColor) : null;
     final hintColor = isHeader ? Colors.white.withValues(alpha: 0.8) : null;
 
     Widget field = VInput(
       controller: widget.controller,
       focusNode: _focusNode,
       hintText: widget.hintText,
-      prefix: VIcon(icon: VIcons.search, color: iconColor, size: 20),
+      prefix: Row(
+        children: [
+          VIcon(icon: VIcons.search, color: iconColor, size: 20),
+          const VGap(VSpacing.space0, axis: .horizontal),
+        ],
+      ),
       suffix: effectiveSuffix,
       enabled: widget.enabled,
       readOnly: widget.readOnly || tapOnly,
@@ -189,9 +194,7 @@ class _VSearchBarState extends State<VSearchBar> {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(VRadius.input),
-          border: focused
-              ? VBorders.all(Colors.white, width: VBorders.thin)
-              : null,
+          border: focused ? VBorders.all(Colors.white, width: VBorders.thin) : null,
         ),
         child: field,
       );

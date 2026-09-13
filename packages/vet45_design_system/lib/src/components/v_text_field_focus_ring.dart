@@ -33,8 +33,7 @@ class VTextFieldFocusRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    // TODO: (tech debt) bỏ ringColor thay bằng sử dụng color scheme từ `colors`
-    final ringColor = danger ? colors.danger.withValues(alpha: 0.30) : colors.focusRing;
+    final ringColor = danger ? colors.dangerBg : colors.successBg;
 
     return vInspectorHide(
       Stack(
