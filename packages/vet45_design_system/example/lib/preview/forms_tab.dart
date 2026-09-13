@@ -1175,16 +1175,10 @@ class _ComposeCreateComboboxState extends State<_ComposeCreateCombobox> {
         children: [
           VComboboxContent(
             footer: VComboboxFooter(
-              child: Icon(
-                Icons.add,
-                size: 16,
-                color: context.vColors.textPrimary,
-              ),
               builder: (context, child, root) {
                 return ListenableBuilder(
                   listenable: root,
-                  child: child,
-                  builder: (context, child) {
+                  builder: (context, _) {
                     final typed = root.query.trim();
                     final canCreate = !_creating &&
                         typed.isNotEmpty &&
@@ -1196,7 +1190,7 @@ class _ComposeCreateComboboxState extends State<_ComposeCreateCombobox> {
                               ? 'Thêm "$typed"'
                               : 'Gõ tên mới để thêm',
                       variant: VButtonVariant.secondary,
-                      leadingIcon: _creating ? null : child,
+                      leading: _creating ? null : VIcons.add,
                       isLoading: _creating,
                       enabled: canCreate || _creating,
                       onPressed:

@@ -47,13 +47,32 @@ void main() {
       expect(pressed, 0);
     });
 
-    testWidgets('leading and trailing icons render', (tester) async {
+    testWidgets('leading and trailing VIcons render', (tester) async {
       await tester.pumpWidget(
         wrap(
           VButton(
             label: 'With icons',
             variant: VButtonVariant.link,
+            leading: VIcons.info,
+            trailing: VIcons.arrowForward,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(find.byType(VIcon), findsNWidgets(2));
+      expect(find.text('With icons'), findsOneWidget);
+    });
+
+    testWidgets('deprecated Widget icons still render', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          VButton(
+            label: 'Legacy icons',
+            variant: VButtonVariant.link,
+            // ignore: deprecated_member_use
             leadingIcon: const Icon(Icons.link, key: Key('leading')),
+            // ignore: deprecated_member_use
             trailingIcon: const Icon(Icons.arrow_outward, key: Key('trailing')),
             onPressed: () {},
           ),
@@ -81,6 +100,49 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
       expect(pressed, 1);
+    });
+  });
+
+  group('VButton.icon', () {
+    testWidgets('renders VIcon without label', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          VButton.icon(
+            icon: VIcons.add,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(find.byType(VIcon), findsOneWidget);
+      expect(find.byType(VText), findsNothing);
+    });
+  });
+
+  group('VButton expandText', () {
+    testWidgets('expanded text respects textAlign start when fullWidth', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          SizedBox(
+            width: 320,
+            child: VButton(
+              label: 'Aligned',
+              fullWidth: true,
+              expandText: true,
+              textAlign: TextAlign.start,
+              leading: VIcons.add,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+
+      final text = tester.widget<VText>(find.byType(VText));
+      expect(text.data, 'Aligned');
+      expect(text.textAlign, TextAlign.start);
+      expect(find.byType(VIcon), findsOneWidget);
     });
   });
 }
