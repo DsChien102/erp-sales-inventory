@@ -155,9 +155,7 @@ class VButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isEnabled =
-        VComponentScope.resolveEnabled(context, local: enabled) &&
-        onPressed != null &&
-        !isLoading;
+        VComponentScope.resolveEnabled(context, local: enabled) && onPressed != null && !isLoading;
     final bool showLoading = isLoading;
     final dynamicColors = context.vColors;
     final iconSize = _iconSizeFor(size);
@@ -237,12 +235,17 @@ class VButton extends StatelessWidget {
           if (resolvedTone == VComponentTone.danger) {
             if (pressed && hovered) return dynamicColors.dangerBgPressed;
             if (pressed || hovered) return dynamicColors.dangerBg;
-            return Colors.transparent;
+            return dynamicColors.surface;
           }
           if (resolvedTone == VComponentTone.warning) {
             if (pressed && hovered) return dynamicColors.warningBgPressed;
             if (pressed || hovered) return dynamicColors.warningBg;
-            return Colors.transparent;
+            return dynamicColors.surface;
+          }
+          if (resolvedTone == VComponentTone.success) {
+            if (pressed && hovered) return dynamicColors.successBgPressed;
+            if (pressed || hovered) return dynamicColors.successBg;
+            return dynamicColors.surface;
           }
           if (pressed) return dynamicColors.surfacePressed;
           if (hovered) return dynamicColors.surfaceHover;
@@ -282,6 +285,9 @@ class VButton extends StatelessWidget {
           if (resolvedTone == VComponentTone.warning) {
             return dynamicColors.warning;
           }
+          if (resolvedTone == VComponentTone.success) {
+            return dynamicColors.success;
+          }
           return dynamicColors.textPrimary;
         case VButtonVariant.tertiary:
           if (resolvedTone == VComponentTone.danger) {
@@ -301,6 +307,9 @@ class VButton extends StatelessWidget {
         }
         if (resolvedTone == VComponentTone.warning) {
           return VBorders.side(dynamicColors.warning);
+        }
+        if (resolvedTone == VComponentTone.success) {
+          return VBorders.side(dynamicColors.success);
         }
         return VBorders.side(dynamicColors.borderDefault);
       }
@@ -387,9 +396,7 @@ class VButton extends StatelessWidget {
         minimumSize: WidgetStateProperty.all(Size(minWidth, height)),
         fixedSize: WidgetStateProperty.all(
           Size(
-            fullWidth
-                ? double.infinity
-                : (_iconOnly ? height : double.nan),
+            fullWidth ? double.infinity : (_iconOnly ? height : double.nan),
             height,
           ),
         ),
@@ -423,8 +430,7 @@ class VButton extends StatelessWidget {
       );
     }
 
-    final semanticsLabel =
-        semanticLabel ?? (_iconOnly ? icon!.name : label);
+    final semanticsLabel = semanticLabel ?? (_iconOnly ? icon!.name : label);
 
     return vInspectorHide(
       Semantics(

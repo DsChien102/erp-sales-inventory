@@ -33,11 +33,13 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   int _segmentIndex = 0;
   int _orderLineQty = 1;
   final _textController = TextEditingController();
+  final _searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _textController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -768,7 +770,20 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           title: 'VSearchBar',
           child: Column(
             children: [
-              for (final variant in VSearchBarVariant.values)
+              PreviewStateRow(
+                label: 'outlined (editable)',
+                child: VSearchBar(
+                  hintText: 'Search…',
+                  variant: VSearchBarVariant.outlined,
+                  controller: _searchController,
+                  onChanged: (_) {},
+                  onClear: () => _searchController.clear(),
+                ),
+              ),
+              for (final variant in const [
+                VSearchBarVariant.filled,
+                VSearchBarVariant.header,
+              ])
                 PreviewStateRow(
                   label: variant.name,
                   child: VSearchBar(
