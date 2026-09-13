@@ -50,7 +50,6 @@ class PartnerCreateForm extends StatelessWidget {
                       const SizedBox(height: VSpacing.space3),
                       _MessageCard(
                         message: state.generalError!,
-                        blocked: state.isReadOnly,
                       ),
                     ],
                     const SizedBox(height: VSpacing.space3),
@@ -239,17 +238,15 @@ class _LockedTypeCard extends StatelessWidget {
 }
 
 class _MessageCard extends StatelessWidget {
-  const _MessageCard({required this.message, required this.blocked});
+  const _MessageCard({required this.message});
 
   final String message;
-  final bool blocked;
 
   @override
   Widget build(BuildContext context) {
     return VBanner(
       status: VBannerStatus.error,
       title: message,
-      icon: blocked ? VIcons.lock : VIcons.error,
     );
   }
 }

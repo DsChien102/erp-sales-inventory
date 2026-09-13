@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -5,6 +6,7 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../patterns/v_field.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
@@ -20,6 +22,9 @@ import '../tokens/v_typography.dart';
 ///
 /// For a denser control, pass a tighter [padding] (e.g. [densePadding] or
 /// [EdgeInsets.zero]) and set [lockControlHeight] to false when needed.
+///
+/// Single-line locked height follows ambient [VDensity.controlHeightMedium]
+/// (shared with [VButton] size medium, [VTextField], [VSelect], [VCombobox]).
 class VInput extends StatefulWidget {
   /// Default inset — horizontal [VSpacing.space3], vertical [VSpacing.space2].
   static const EdgeInsets defaultPadding = EdgeInsets.symmetric(
@@ -32,9 +37,6 @@ class VInput extends StatefulWidget {
     horizontal: VSpacing.space2,
     vertical: VSpacing.space1,
   );
-
-  /// Single-line control height shared with [VTextField] / [VSelect] / [VCombobox].
-  static const double controlHeight = 48;
 
   /// Gap between [prefix]/[suffix] and the text field.
   static const double affixGap = VSpacing.space1;
@@ -57,11 +59,13 @@ class VInput extends StatefulWidget {
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.onSubmitted,
+    this.onTap,
     this.onTapOutside,
+    this.onTapUpOutside,
     this.groupId,
     this.border = true,
     this.padding = defaultPadding,
-    this.invalid = false,
+    this.invalid,
     this.lockControlHeight = true,
     this.maxLines = 1,
     this.minLines,
@@ -86,9 +90,22 @@ class VInput extends StatefulWidget {
   final bool autofocus;
   final ValueChanged<String>? onSubmitted;
 
-  /// Defaults to unfocusing primary focus (same as Material [TextField]).
-  /// Pass a no-op to keep focus when tapping sibling controls (e.g. custom keypad).
+  /// Called when the user taps this field (also when already focused).
+  final VoidCallback? onTap;
+
+  /// Called when a pointer down occurs outside this field's [TextFieldTapRegion].
+  ///
+  /// When null, records the down position for the default [onTapUpOutside]
+  /// dismiss (does **not** unfocus on down, so parent-list scroll keeps focus /
+  /// IME). Pass a callback to override (e.g. no-op to keep focus when tapping
+  /// sibling controls such as a custom keypad).
   final TapRegionCallback? onTapOutside;
+
+  /// Called when a pointer up occurs outside this field's [TextFieldTapRegion].
+  ///
+  /// When null, unfocuses if the pointer did not move beyond [kTouchSlop]
+  /// (completed tap). Drag/scroll past slop keeps focus.
+  final TapRegionUpCallback? onTapUpOutside;
 
   /// Shared with ancestor [TapRegion]s so taps inside that region are not
   /// "outside" for [onTapOutside] (see [TextField.groupId]).
@@ -97,9 +114,13 @@ class VInput extends StatefulWidget {
 
   /// Content inset around prefix + text + suffix.
   final EdgeInsets padding;
-  final bool invalid;
 
-  /// When true (default), clamps height to [controlHeight].
+  /// Local invalid override. Null inherits [VField.invalid] via
+  /// [VField.resolveInvalid].
+  final bool? invalid;
+
+  /// When true (default), clamps height to
+  /// [VDensity.controlHeightMedium] from the ambient theme.
   final bool lockControlHeight;
   final int? maxLines;
   final int? minLines;
@@ -112,6 +133,7 @@ class VInput extends StatefulWidget {
 
 class _VInputState extends State<VInput> {
   FocusNode? _ownedFocusNode;
+  Offset? _outsidePointerDown;
 
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
 
@@ -151,15 +173,31 @@ class _VInputState extends State<VInput> {
     if (mounted) setState(() {});
   }
 
+  void _rememberOutsidePointerDown(PointerDownEvent event) {
+    _outsidePointerDown = event.position;
+  }
+
+  void _unfocusOnOutsideTapUp(PointerUpEvent event) {
+    final down = _outsidePointerDown;
+    _outsidePointerDown = null;
+    if (down != null && (event.position - down).distance > kTouchSlop) {
+      return;
+    }
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
-    final useDanger = widget.invalid || widget.tone == VComponentTone.danger;
+    final isInvalid = VField.resolveInvalid(context, local: widget.invalid);
+    final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
     final focused = isEnabled && _focusNode.hasFocus;
 
-    final restingBorderColor = widget.invalid
+    final restingBorderColor = isInvalid
         ? colors.danger
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
@@ -197,11 +235,12 @@ class _VInputState extends State<VInput> {
       inputFormatters: widget.inputFormatters,
       textAlign: widget.textAlign,
       onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
       cursorColor: useDanger ? colors.danger : colors.primary,
-      style: widget.invalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
+      style: isInvalid ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
       groupId: widget.groupId ?? EditableText,
-      onTapOutside: widget.onTapOutside ??
-          (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      onTapOutside: widget.onTapOutside ?? _rememberOutsidePointerDown,
+      onTapUpOutside: widget.onTapUpOutside ?? _unfocusOnOutsideTapUp,
       decoration: InputDecoration(
         isCollapsed: true,
         border: InputBorder.none,
@@ -240,18 +279,17 @@ class _VInputState extends State<VInput> {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(VRadius.input),
-        border: widget.border
-            ? Border.all(color: borderColor, width: borderWidth)
-            : null,
+        border: widget.border ? Border.all(color: borderColor, width: borderWidth) : null,
       ),
       child: field,
     );
 
     if (widget.lockControlHeight) {
+      final controlHeight = context.vDensity.controlHeightMedium;
       field = ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: VInput.controlHeight,
-          maxHeight: VInput.controlHeight,
+        constraints: BoxConstraints(
+          minHeight: controlHeight,
+          maxHeight: controlHeight,
         ),
         child: field,
       );

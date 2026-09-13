@@ -15,6 +15,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Catalog: migrate chip/badge/empty/field sang API design system mới (`tone`, `VBadgeVariant`, `VEmptyHeader`, `VField` + `VTextArea`).
+- Catalog list: chỉ bọc `VSkeletonScope` khi load-more (tránh `pumpAndSettle` treo trên danh sách đã load).
+- Catalog empty: tách `ProductCatalogEmptyState`; CTA tertiary, nền `surface`, không stretch full viewport.
+- Catalog list: skeleton tile rút còn một `VSkeleton` (cùng pattern Partner).
+- Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
+- Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
+- Pricing / Partner: migrate `VBanner` — bỏ `icon` override; dùng `description` thay `message` nơi đã đụng.
+
 ### Fixed
 
 ### Internal

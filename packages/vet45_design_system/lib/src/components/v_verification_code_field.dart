@@ -61,6 +61,9 @@ class VVerificationCodeField extends StatefulWidget {
   final bool autofocus;
   @Deprecated('Use VFieldLabel(..., isRequired: true) instead')
   final bool isRequired;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -83,6 +86,7 @@ class VVerificationCodeField extends StatefulWidget {
     this.enabled,
     this.autofocus = false,
     @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -283,7 +287,6 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       autofillHints: widget.enableAutofill ? const [AutofillHints.oneTimeCode] : null,
       inputFormatters: _inputFormatters,
       onChanged: _onChanged,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: const InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -310,7 +313,9 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     // ignore: deprecated_member_use_from_same_package
     final legacyRequired = widget.isRequired;
     final hasError = legacyError != null;
-    final useDanger = hasError || widget.tone == VComponentTone.danger;
+    final isInvalid =
+        VField.resolveInvalid(context, local: widget.invalid) || hasError;
+    final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final borderWidth = VBorders.widthFor(widget.emphasis);
 
     final control = LayoutBuilder(

@@ -154,10 +154,7 @@ class _OrganizationProfileView extends StatelessWidget {
             padding: const EdgeInsets.all(VSpacing.screenMobile),
             child: VButton(
               label: 'Thao tác',
-              trailingIcon: VIcon(
-                icon: VIcons.chevronUp,
-                color: colors.surface,
-              ),
+              trailing: VIcons.chevronUp,
               variant: VButtonVariant.primary,
               tone: VComponentTone.success,
               fullWidth: true,

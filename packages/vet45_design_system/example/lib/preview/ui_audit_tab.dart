@@ -54,6 +54,7 @@ class UIAuditTab extends StatelessWidget {
     'VSteps',
     'VProgress',
     'VCombobox',
+    'VComboboxEmpty',
     'VSegmentedControl',
     'VSwipeReveal',
     'VNumericKeypadSheet',

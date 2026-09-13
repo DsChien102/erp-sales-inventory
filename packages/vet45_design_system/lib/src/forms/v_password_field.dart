@@ -45,6 +45,7 @@ class VPasswordField extends StatefulWidget {
     this.maxLength = VPasswordValidator.defaultMaxLength,
     this.minLengthPasswordMessage,
     this.maxLengthPasswordMessage,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -83,6 +84,8 @@ class VPasswordField extends StatefulWidget {
   final int maxLength;
   final String? minLengthPasswordMessage;
   final String? maxLengthPasswordMessage;
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -185,6 +188,7 @@ class _VPasswordFieldState extends State<VPasswordField> {
         focusNode: widget.focusNode,
         onSubmitted: widget.onSubmitted,
         border: widget.border,
+        invalid: widget.invalid,
         tone: widget.tone,
         emphasis: widget.emphasis,
         semanticLabel: widget.semanticLabel,

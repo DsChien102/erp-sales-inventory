@@ -251,9 +251,8 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
                 const VGap.md(),
                 VBanner(
                   tone: VComponentTone.warning,
-                  icon: VIcons.warning,
                   title: 'Giá dưới giá sàn',
-                  message:
+                  description:
                       'Giá riêng thấp hơn giá sàn hiện tại. Bạn cần xác nhận trước khi bật lại.',
                 ),
                 const VGap.sm(),
@@ -269,9 +268,8 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
                 const VGap.md(),
                 VBanner(
                   tone: VComponentTone.info,
-                  icon: VIcons.info,
                   title: 'Lưu ý',
-                  message:
+                  description:
                       'Bật lại giá riêng này sẽ tự động tắt giá riêng trùng (nếu có).',
                 ),
               ],

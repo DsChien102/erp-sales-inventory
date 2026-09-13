@@ -111,4 +111,143 @@ void main() {
       expect(find.text(' *'), findsOneWidget);
     });
   });
+
+  group('VField.resolveInvalid', () {
+    testWidgets('local wins ambient', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          VField(
+            invalid: true,
+            child: Builder(
+              builder: (context) {
+                resolved = VField.resolveInvalid(context, local: false);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(resolved, isFalse);
+    });
+
+    testWidgets('inherits ambient when local is null', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          VField(
+            invalid: true,
+            child: Builder(
+              builder: (context) {
+                resolved = VField.resolveInvalid(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(resolved, isTrue);
+    });
+
+    testWidgets('fallback false outside VField', (tester) async {
+      late bool resolved;
+      await tester.pumpWidget(
+        wrap(
+          Builder(
+            builder: (context) {
+              resolved = VField.resolveInvalid(context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      expect(resolved, isFalse);
+    });
+  });
+
+  group('VField invalid cascade to controls', () {
+    Color? inputBorderColor(WidgetTester tester) {
+      for (final element in find.byType(DecoratedBox).evaluate()) {
+        final box = element.widget as DecoratedBox;
+        final decoration = box.decoration;
+        if (decoration is BoxDecoration && decoration.border is Border) {
+          final border = decoration.border! as Border;
+          if (border.top.color == VColorScheme.light.danger ||
+              border.top.color == VColorScheme.light.borderDefault) {
+            return border.top.color;
+          }
+        }
+      }
+      return null;
+    }
+
+    testWidgets('VTextField inherits VField.invalid danger chrome', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VField(
+            invalid: true,
+            child: VTextField(hintText: 'Email'),
+          ),
+        ),
+      );
+      expect(inputBorderColor(tester), VColorScheme.light.danger);
+    });
+
+    testWidgets('VTextField local invalid:false overrides ambient', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const VField(
+            invalid: true,
+            child: VTextField(hintText: 'Email', invalid: false),
+          ),
+        ),
+      );
+      expect(inputBorderColor(tester), VColorScheme.light.borderDefault);
+    });
+
+    testWidgets('legacy errorText still forces danger when invalid null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          // ignore: deprecated_member_use
+          const VTextField(
+            hintText: 'Email',
+            // ignore: deprecated_member_use
+            errorText: 'Required',
+          ),
+        ),
+      );
+      expect(inputBorderColor(tester), VColorScheme.light.danger);
+    });
+
+    testWidgets('VCombobox inherits VField.invalid danger chrome', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          VField(
+            invalid: true,
+            child: VCombobox<String>(
+              value: null,
+              onChanged: (_) {},
+              displayTextForValue: (_) => '',
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VComboboxContent(
+                    child: VComboboxList(
+                      children: [
+                        VComboboxItem(value: 'a', child: Text('Alpha')),
+                      ],
+                    ),
+                  ),
+                  VComboboxInput(hintText: 'Pick'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(inputBorderColor(tester), VColorScheme.light.danger);
+    });
+  });
 }

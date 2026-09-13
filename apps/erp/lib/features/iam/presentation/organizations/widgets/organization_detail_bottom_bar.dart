@@ -34,11 +34,7 @@ class OrganizationDetailBottomBar extends StatelessWidget {
             fullWidth: true,
             variant: VButtonVariant.primary,
             tone: VComponentTone.success,
-            trailingIcon: const VIcon(
-              icon: VIcons.chevronUp,
-              size: 20,
-              iconColor: VIconColor.white,
-            ),
+            trailing: VIcons.chevronUp,
           ),
         ),
       ),

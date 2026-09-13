@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_borders.dart';
-import '../tokens/v_opacity.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_radius.dart';
-import '../tokens/v_typography.dart';
-import '../foundation/v_context_extensions.dart';
+
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
-import '../primitives/v_text.dart';
-import '../patterns/v_gap.dart';
+import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
+import '../foundations/icons/v_icons.dart';
+import '../patterns/v_gap.dart';
+import '../primitives/v_icon.dart';
+import '../primitives/v_text.dart';
+import '../tokens/v_borders.dart';
+import '../tokens/v_opacity.dart';
+import '../tokens/v_radius.dart';
+import '../tokens/v_spacing.dart';
+import '../tokens/v_typography.dart';
 
 enum VButtonVariant {
   primary,
@@ -27,38 +30,94 @@ enum VButtonVariant {
 enum VButtonSize { small, medium, large }
 
 class VButton extends StatelessWidget {
+  /// Labeled button.
+  const VButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.isLoading = false,
+    this.leading,
+    this.trailing,
+    @Deprecated('Use leading with VIcons instead') this.leadingIcon,
+    @Deprecated('Use trailing with VIcons instead') this.trailingIcon,
+    this.fullWidth = false,
+    this.variant = VButtonVariant.primary,
+    this.size = VButtonSize.medium,
+    this.flexibleText = true,
+    this.expandText = false,
+    this.textAlign = TextAlign.center,
+    this.foregroundColor,
+    this.tone,
+    this.emphasis = VComponentEmphasis.strong,
+    this.enabled,
+    this.semanticLabel,
+  }) : icon = null,
+       _iconOnly = false;
+
+  /// Icon-only button (no label). [icon] is required.
+  const VButton.icon({
+    super.key,
+    required VIcons this.icon,
+    this.onPressed,
+    this.isLoading = false,
+    this.fullWidth = false,
+    this.variant = VButtonVariant.primary,
+    this.size = VButtonSize.medium,
+    this.foregroundColor,
+    this.tone,
+    this.emphasis = VComponentEmphasis.strong,
+    this.enabled,
+    this.semanticLabel,
+  }) : label = '',
+       leading = null,
+       trailing = null,
+       leadingIcon = null,
+       trailingIcon = null,
+       flexibleText = true,
+       expandText = false,
+       textAlign = TextAlign.center,
+       _iconOnly = true;
+
   final String label;
+
+  /// Centered icon for [VButton.icon]; null on labeled constructor.
+  final VIcons? icon;
+
   final VoidCallback? onPressed;
   final bool isLoading;
+
+  /// Leading icon token (canonical).
+  final VIcons? leading;
+
+  /// Trailing icon token (canonical).
+  final VIcons? trailing;
+
+  /// Deprecated: pass a raw widget. Prefer [leading].
+  @Deprecated('Use leading with VIcons instead')
   final Widget? leadingIcon;
+
+  /// Deprecated: pass a raw widget. Prefer [trailing].
+  @Deprecated('Use trailing with VIcons instead')
   final Widget? trailingIcon;
+
   final bool fullWidth;
   final VButtonVariant variant;
   final VButtonSize size;
   final bool flexibleText;
+
+  /// When true, the label occupies remaining width between icons ([Expanded]).
+  final bool expandText;
+
+  /// Alignment applied only to the label text slot.
+  final TextAlign textAlign;
+
   final Color? foregroundColor;
   final VComponentTone? tone;
   final VComponentEmphasis emphasis;
   final bool? enabled;
   final String? semanticLabel;
 
-  const VButton({
-    super.key,
-    required this.label,
-    this.onPressed,
-    this.isLoading = false,
-    this.leadingIcon,
-    this.trailingIcon,
-    this.fullWidth = false,
-    this.variant = VButtonVariant.primary,
-    this.size = VButtonSize.medium,
-    this.flexibleText = true,
-    this.foregroundColor,
-    this.tone,
-    this.emphasis = VComponentEmphasis.strong,
-    this.enabled,
-    this.semanticLabel,
-  });
+  final bool _iconOnly;
 
   static TextStyle _textStyleForVariant(VButtonVariant variant) {
     return switch (variant) {
@@ -69,6 +128,30 @@ class VButton extends StatelessWidget {
     };
   }
 
+  static double _iconSizeFor(VButtonSize size) {
+    return switch (size) {
+      VButtonSize.small => 16,
+      VButtonSize.medium => 18,
+      VButtonSize.large => 20,
+    };
+  }
+
+  Widget? _resolvedLeading(Color fg, double iconSize) {
+    if (leading != null) {
+      return VIcon(icon: leading, size: iconSize, color: fg);
+    }
+    // ignore: deprecated_member_use_from_same_package
+    return leadingIcon;
+  }
+
+  Widget? _resolvedTrailing(Color fg, double iconSize) {
+    if (trailing != null) {
+      return VIcon(icon: trailing, size: iconSize, color: fg);
+    }
+    // ignore: deprecated_member_use_from_same_package
+    return trailingIcon;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isEnabled =
@@ -77,16 +160,25 @@ class VButton extends StatelessWidget {
         !isLoading;
     final bool showLoading = isLoading;
     final dynamicColors = context.vColors;
+    final iconSize = _iconSizeFor(size);
 
     if (variant == VButtonVariant.link) {
+      assert(!_iconOnly, 'VButton.icon does not support VButtonVariant.link');
       return vInspectorHide(
         _VButtonLink(
           label: label,
           onPressed: onPressed,
           isEnabled: isEnabled,
           showLoading: showLoading,
+          leading: leading,
+          trailing: trailing,
+          // ignore: deprecated_member_use_from_same_package
           leadingIcon: leadingIcon,
+          // ignore: deprecated_member_use_from_same_package
           trailingIcon: trailingIcon,
+          expandText: expandText,
+          textAlign: textAlign,
+          iconSize: iconSize,
           textStyle: _textStyleForVariant(variant),
           foregroundColor: foregroundColor,
           semanticLabel: semanticLabel,
@@ -94,7 +186,6 @@ class VButton extends StatelessWidget {
       );
     }
 
-    // Size-based padding and height config
     final double height;
     final EdgeInsetsGeometry padding;
     final TextStyle textStyle = _textStyleForVariant(variant);
@@ -102,28 +193,31 @@ class VButton extends StatelessWidget {
     switch (size) {
       case VButtonSize.small:
         height = context.vDensity.controlHeightSmall;
-        padding = const EdgeInsets.symmetric(horizontal: VSpacing.space3);
+        padding = EdgeInsets.symmetric(
+          horizontal: _iconOnly ? VSpacing.space2 : VSpacing.space3,
+        );
         break;
       case VButtonSize.medium:
         height = context.vDensity.controlHeightMedium;
-        padding = const EdgeInsets.symmetric(horizontal: VSpacing.space4);
+        padding = EdgeInsets.symmetric(
+          horizontal: _iconOnly ? VSpacing.space3 : VSpacing.space4,
+        );
         break;
       case VButtonSize.large:
         height = context.vDensity.controlHeightLarge;
-        padding = const EdgeInsets.symmetric(horizontal: VSpacing.space6);
+        padding = EdgeInsets.symmetric(
+          horizontal: _iconOnly ? VSpacing.space4 : VSpacing.space6,
+        );
         break;
     }
 
     final VComponentTone resolvedTone =
         VComponentScope.resolveTone(context, local: tone) ?? VComponentTone.primary;
 
-    // Colors mapping based on variant × tone and interaction (not disabled palette).
     Color? getBgColor(Set<WidgetState> states) {
       final pressed = states.contains(WidgetState.pressed);
       final hovered = states.contains(WidgetState.hovered);
 
-      // pressed && hovered is for web behavior
-      // pressed || hovered is for mobile behavior
       switch (variant) {
         case VButtonVariant.primary:
           if (resolvedTone == VComponentTone.warning) {
@@ -168,7 +262,6 @@ class VButton extends StatelessWidget {
           if (pressed || hovered) return dynamicColors.successBg;
           return Colors.transparent;
         case VButtonVariant.link:
-          // Unreachable: link uses `_VButtonLink` early return.
           return Colors.transparent;
       }
     }
@@ -216,58 +309,89 @@ class VButton extends StatelessWidget {
     }
 
     final enabledFg = getFgColor(const {});
+    final leadingWidget = _resolvedLeading(enabledFg, iconSize);
+    final trailingWidget = _resolvedTrailing(enabledFg, iconSize);
 
-    Widget buttonChild = Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (showLoading) ...[
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(enabledFg),
-            ),
+    final Widget buttonChild;
+    if (_iconOnly) {
+      buttonChild = showLoading
+          ? SizedBox(
+              width: iconSize,
+              height: iconSize,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(enabledFg),
+              ),
+            )
+          : VIcon(icon: icon, size: iconSize, color: enabledFg);
+    } else {
+      final labelText = VText(
+        label,
+        style: textStyle.copyWith(color: enabledFg),
+        textAlign: textAlign,
+        overflow: expandText || !flexibleText ? TextOverflow.ellipsis : null,
+        maxLines: 1,
+      );
+
+      final Widget textSlot;
+      if (expandText) {
+        textSlot = Expanded(child: labelText);
+      } else if (flexibleText) {
+        textSlot = Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: switch (textAlign) {
+              TextAlign.left || TextAlign.start => Alignment.centerLeft,
+              TextAlign.right || TextAlign.end => Alignment.centerRight,
+              _ => Alignment.center,
+            },
+            child: labelText,
           ),
-          const VGap.horizontalSm(),
-        ] else if (leadingIcon != null) ...[
-          leadingIcon!,
-          const VGap.horizontalSm(),
+        );
+      } else {
+        textSlot = Flexible(child: labelText);
+      }
+
+      buttonChild = Row(
+        mainAxisSize: expandText || fullWidth ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (showLoading) ...[
+            SizedBox(
+              width: iconSize,
+              height: iconSize,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(enabledFg),
+              ),
+            ),
+            const VGap.horizontalSm(),
+          ] else if (leadingWidget != null) ...[
+            leadingWidget,
+            const VGap.horizontalSm(),
+          ],
+          textSlot,
+          if (!showLoading && trailingWidget != null) ...[
+            const VGap.horizontalSm(),
+            trailingWidget,
+          ],
         ],
-        Flexible(
-          child: flexibleText
-              ? FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.center,
-                  child: VText(
-                    label,
-                    style: textStyle.copyWith(color: enabledFg),
-                    maxLines: 1,
-                  ),
-                )
-              : VText(
-                  label,
-                  style: textStyle.copyWith(color: enabledFg),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-        ),
-        if (!showLoading && trailingIcon != null) ...[
-          const VGap.horizontalSm(),
-          trailingIcon!,
-        ],
-      ],
-    );
+      );
+    }
+
+    final minWidth = _iconOnly && !fullWidth ? height : (fullWidth ? double.infinity : 0.0);
 
     Widget buttonWidget = TextButton(
       onPressed: isEnabled ? onPressed : null,
       style: ButtonStyle(
-        minimumSize: WidgetStateProperty.all(
-          Size(fullWidth ? double.infinity : 0, height),
-        ),
+        minimumSize: WidgetStateProperty.all(Size(minWidth, height)),
         fixedSize: WidgetStateProperty.all(
-          Size(fullWidth ? double.infinity : double.nan, height),
+          Size(
+            fullWidth
+                ? double.infinity
+                : (_iconOnly ? height : double.nan),
+            height,
+          ),
         ),
         padding: WidgetStateProperty.all(padding),
         backgroundColor: WidgetStateProperty.resolveWith(getBgColor),
@@ -287,7 +411,9 @@ class VButton extends StatelessWidget {
       buttonWidget = ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: VSpacing.minTouchTarget,
-          minWidth: fullWidth ? double.infinity : VSpacing.minTouchTarget,
+          minWidth: fullWidth
+              ? double.infinity
+              : (_iconOnly ? VSpacing.minTouchTarget : VSpacing.minTouchTarget),
         ),
         child: Center(
           widthFactor: fullWidth ? null : 1.0,
@@ -297,11 +423,14 @@ class VButton extends StatelessWidget {
       );
     }
 
+    final semanticsLabel =
+        semanticLabel ?? (_iconOnly ? icon!.name : label);
+
     return vInspectorHide(
       Semantics(
         button: true,
         enabled: isEnabled,
-        label: semanticLabel ?? label,
+        label: semanticsLabel,
         child: vDisabledOpacity(
           enabled: isEnabled,
           child: buttonWidget,
@@ -319,6 +448,11 @@ final class _VButtonLink extends StatefulWidget {
     required this.isEnabled,
     required this.showLoading,
     required this.textStyle,
+    required this.iconSize,
+    required this.expandText,
+    required this.textAlign,
+    this.leading,
+    this.trailing,
     this.leadingIcon,
     this.trailingIcon,
     this.foregroundColor,
@@ -329,8 +463,13 @@ final class _VButtonLink extends StatefulWidget {
   final VoidCallback? onPressed;
   final bool isEnabled;
   final bool showLoading;
+  final VIcons? leading;
+  final VIcons? trailing;
   final Widget? leadingIcon;
   final Widget? trailingIcon;
+  final bool expandText;
+  final TextAlign textAlign;
+  final double iconSize;
   final TextStyle textStyle;
   final Color? foregroundColor;
   final String? semanticLabel;
@@ -351,6 +490,20 @@ final class _VButtonLinkState extends State<_VButtonLink> {
     return widget.foregroundColor ?? colors.primary;
   }
 
+  Widget? _leading(Color fg) {
+    if (widget.leading != null) {
+      return VIcon(icon: widget.leading, size: widget.iconSize, color: fg);
+    }
+    return widget.leadingIcon;
+  }
+
+  Widget? _trailing(Color fg) {
+    if (widget.trailing != null) {
+      return VIcon(icon: widget.trailing, size: widget.iconSize, color: fg);
+    }
+    return widget.trailingIcon;
+  }
+
   void _setPressed(bool value) {
     if (_pressed == value) return;
     setState(() => _pressed = value);
@@ -364,33 +517,42 @@ final class _VButtonLinkState extends State<_VButtonLink> {
       decoration: _showUnderline ? TextDecoration.underline : TextDecoration.none,
       decorationColor: fg,
     );
+    final leadingWidget = _leading(fg);
+    final trailingWidget = _trailing(fg);
 
-    final content = IconTheme(
-      data: IconThemeData(color: fg, size: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.showLoading) ...[
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(fg),
-              ),
+    final labelText = VText(
+      widget.label,
+      style: labelStyle,
+      textAlign: widget.textAlign,
+      maxLines: 1,
+      overflow: widget.expandText ? TextOverflow.ellipsis : null,
+    );
+
+    final Widget textSlot = widget.expandText ? Expanded(child: labelText) : labelText;
+
+    final content = Row(
+      mainAxisSize: widget.expandText ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        if (widget.showLoading) ...[
+          SizedBox(
+            width: widget.iconSize,
+            height: widget.iconSize,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(fg),
             ),
-            const VGap.horizontalSm(),
-          ] else if (widget.leadingIcon != null) ...[
-            widget.leadingIcon!,
-            const VGap.horizontalSm(),
-          ],
-          VText(widget.label, style: labelStyle, maxLines: 1),
-          if (!widget.showLoading && widget.trailingIcon != null) ...[
-            const VGap.horizontalSm(),
-            widget.trailingIcon!,
-          ],
+          ),
+          const VGap.horizontalSm(),
+        ] else if (leadingWidget != null) ...[
+          leadingWidget,
+          const VGap.horizontalSm(),
         ],
-      ),
+        textSlot,
+        if (!widget.showLoading && trailingWidget != null) ...[
+          const VGap.horizontalSm(),
+          trailingWidget,
+        ],
+      ],
     );
 
     return Semantics(
@@ -426,7 +588,7 @@ final class _VButtonLinkState extends State<_VButtonLink> {
             onTap: widget.isEnabled ? widget.onPressed : null,
             child: Align(
               alignment: Alignment.center,
-              widthFactor: 1,
+              widthFactor: widget.expandText ? null : 1,
               heightFactor: 1,
               child: content,
             ),

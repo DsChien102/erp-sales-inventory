@@ -7,23 +7,28 @@ import '../foundation/v_inspector_scope.dart';
 import '../primitives/v_text.dart';
 import 'v_gap.dart';
 
-/// Ambient invalid flag for field chrome (e.g. future control cascade).
-class _VFieldAncestry extends InheritedWidget {
-  const _VFieldAncestry({
+/// Ambient [VField] ancestry for label/description/error and invalid cascade.
+class VFieldScope extends InheritedWidget {
+  const VFieldScope({
+    super.key,
     required this.invalid,
     required super.child,
   });
 
   final bool invalid;
 
+  static VFieldScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<VFieldScope>();
+  }
+
   @override
-  bool updateShouldNotify(covariant _VFieldAncestry oldWidget) {
+  bool updateShouldNotify(covariant VFieldScope oldWidget) {
     return invalid != oldWidget.invalid;
   }
 }
 
 void _requireField(BuildContext context, {required String widgetName}) {
-  requireAncestor<_VFieldAncestry>(
+  requireAncestor<VFieldScope>(
     context,
     widgetName: widgetName,
     ancestorName: 'VField',
@@ -32,7 +37,9 @@ void _requireField(BuildContext context, {required String widgetName}) {
 
 /// Form field shell (shadcn Field): label + control child + description/error.
 ///
-/// Prefer composition — put the input directly as a child (no control wrapper):
+/// Prefer composition — put the input directly as a child (no control wrapper).
+/// Controls under [VField] inherit [invalid] via [resolveInvalid] (danger chrome
+/// without local `tone` / deprecated `errorText`):
 /// ```dart
 /// VField(
 ///   invalid: error != null,
@@ -59,12 +66,28 @@ class VField extends StatelessWidget {
   final Widget child;
 
   /// Ambient invalid flag (callers should pair with [VFieldError]).
+  ///
+  /// Descendant controls resolve this via [resolveInvalid] unless they pass a
+  /// local `invalid` override.
   final bool invalid;
+
+  /// Nearest [VField] scope, or null when outside a field shell.
+  static VFieldScope? maybeOf(BuildContext context) => VFieldScope.maybeOf(context);
+
+  /// [local] → nearest [VField.invalid] → [fallback].
+  static bool resolveInvalid(
+    BuildContext context, {
+    bool? local,
+    bool fallback = false,
+  }) {
+    if (local != null) return local;
+    return maybeOf(context)?.invalid ?? fallback;
+  }
 
   @override
   Widget build(BuildContext context) {
     return vInspectorHide(
-      _VFieldAncestry(
+      VFieldScope(
         invalid: invalid,
         child: vInspectorShow(child),
       ),

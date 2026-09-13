@@ -13,8 +13,6 @@ import '../primitives/v_text.dart';
 import '../foundations/icons/v_icons.dart';
 import '../foundation/v_inspector_scope.dart';
 
-import 'v_text_field.dart';
-
 enum VSearchBarVariant { outlined, filled, header }
 
 class VSearchBar extends StatefulWidget {
@@ -200,9 +198,6 @@ class _VSearchBarState extends State<VSearchBar> {
                   autofocus: widget.autofocus,
                   readOnly: widget.readOnly,
                   enabled: isEnabled,
-                  onTapOutside: (event) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
                   style: VTypography.bodyDefault.copyWith(color: textColor),
                   decoration: InputDecoration(
                     hintText: widget.hintText,
@@ -235,7 +230,7 @@ class _VSearchBarState extends State<VSearchBar> {
         child: vDisabledOpacity(
           enabled: isEnabled,
           child: Container(
-            height: VTextField.controlHeight,
+            height: context.vDensity.controlHeightMedium,
             padding: EdgeInsets.only(
               left: VSpacing.space3,
               right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,

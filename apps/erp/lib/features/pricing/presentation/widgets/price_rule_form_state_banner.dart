@@ -14,9 +14,8 @@ class PriceRuleStateChangedBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return VBanner(
       tone: VComponentTone.warning,
-      icon: VIcons.refresh,
       title: 'Dữ liệu đã thay đổi',
-      message:
+      description:
           'Giá riêng này vừa được cập nhật bởi người khác. '
           'Tải lại để xem phiên bản mới nhất.',
       footer: Align(

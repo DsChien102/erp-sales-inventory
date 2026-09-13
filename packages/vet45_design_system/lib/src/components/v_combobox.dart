@@ -1,59 +1,71 @@
-import 'package:flutter/gestures.dart';
+/// Composition host for searchable single-select ([VCombobox]) and scope helpers.
+library;
+
 import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
-import '../foundation/v_context_extensions.dart';
 import '../foundation/v_dropdown_filter.dart';
-import '../foundation/v_overlay_menu_layout.dart';
-import '../foundation/v_overlay_menu_shell.dart';
-import '../foundations/icons/v_icons.dart';
-import '../patterns/v_field.dart';
-import '../primitives/v_icon_box.dart';
-import '../tokens/v_borders.dart';
-import '../tokens/v_opacity.dart';
-import '../tokens/v_radius.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
-import 'v_text_field.dart';
-import 'v_text_field_affix.dart';
-import 'v_text_field_focus_ring.dart';
-import '../foundation/v_inspector_scope.dart';
+import '../foundation/v_text_normalizer.dart';
+import 'v_input.dart';
 
-/// Searchable single-select control (combobox).
+/// Control height fallback matching default [VTheme] comfortable density
+/// (`VDensity.comfortable.controlHeightMedium` == 44).
 ///
-/// Prefer [VField] + [VFieldLabel] for chrome.
-/// Input chrome matches [VTextField] (borders + [VTextFieldFocusRing]).
-/// Menu panel uses [VOverlayMenuShell] for pixel-perfect bottom shadow.
+/// Prefer [BuildContext.vDensity].controlHeightMedium when a [BuildContext]
+/// is available (respects compact / comfortable).
+const double kVComboboxControlHeight = 44;
+
+/// Composition host for searchable single-select.
+///
+/// Place [VComboboxInput] and [VComboboxContent] under the same [VCombobox].
+/// [VComboboxContent] must be built **before** [VComboboxInput] in the subtree
+/// (e.g. Content then Input in a [Column] / [Stack]) so the overlay registers
+/// in the same frame.
 class VCombobox<T> extends StatefulWidget {
-  /// Control height — matches [VTextField.controlHeight].
-  static const double controlHeight = VTextField.controlHeight;
+  /// Fallback control height — comfortable density medium (44).
+  ///
+  /// Runtime chrome (input lock, menu rows with context) uses
+  /// `context.vDensity.controlHeightMedium`.
+  static const double controlHeight = kVComboboxControlHeight;
 
-  /// Same inset as [VTextField.padding].
-  static const EdgeInsets contentPadding = VTextField.padding;
+  /// Same inset as [VInput.defaultPadding].
+  static const EdgeInsets contentPadding = VInput.defaultPadding;
 
-  static const double _menuHeight = 300;
-
+  /// Composition host (`child` = Content before Input).
   const VCombobox({
     super.key,
-    required this.value,
-    required this.items,
-    required this.onChanged,
+    required this.child,
+    this.value,
+    this.onChanged,
     this.enabled,
-    this.hintText,
-    @Deprecated('Use VField + VFieldLabel instead') this.label,
+    this.open,
+    this.onOpenChange,
+    this.filter,
+    this.displayTextForValue,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
   });
 
+  final Widget child;
   final T? value;
-  final List<DropdownMenuEntry<T>> items;
   final ValueChanged<T?>? onChanged;
   final bool? enabled;
-  final String? hintText;
-  @Deprecated('Use VField + VFieldLabel instead')
-  final String? label;
+
+  /// Controlled open; `null` = uncontrolled (focus / MenuController).
+  final bool? open;
+  final ValueChanged<bool>? onOpenChange;
+
+  /// Override default [matchesComboboxSearch] on item [searchText].
+  final bool Function(String query, String searchText, Object? value)? filter;
+
+  /// Label shown in the input for [value] when not filtering.
+  final String Function(T? value)? displayTextForValue;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -62,460 +74,481 @@ class VCombobox<T> extends StatefulWidget {
   State<VCombobox<T>> createState() => _VComboboxState<T>();
 }
 
-class _VComboboxState<T> extends State<VCombobox<T>> {
-  late final FocusNode _focusNode;
-  late final TextEditingController _textController;
-  late final MenuController _menuController;
-  List<DropdownMenuEntry<T>> _filteredEntries = [];
+/// Untyped façade used by composition descendants.
+class VComboboxController extends ChangeNotifier {
+  VComboboxController._(this._host);
+
+  final _VComboboxHost _host;
+
+  FocusNode get focusNode => _host.focusNode;
+  TextEditingController get textController => _host.textController;
+  MenuController get menuController => _host.menuController;
+  Object get tapRegionGroupId => _host.tapRegionGroupId;
+
+  String get query => _host.query;
+  Widget? get overlayBody => _host.overlayBody;
+  Widget? get overlayFooter => _host.overlayFooter;
+  EdgeInsetsGeometry? get overlayPadding => _host.overlayPadding;
+  bool get canInteract => _host.canInteract;
+  bool get isOpen => _host.isOpen;
+  bool? get invalid => _host.invalid;
+  VComponentTone get tone => _host.tone;
+  VComponentEmphasis get emphasis => _host.emphasis;
+  Object? get selectedValue => _host.selectedValue;
+
+  void registerOverlay({
+    required Widget body,
+    Widget? footer,
+    EdgeInsetsGeometry? padding,
+  }) {
+    _host.registerOverlay(body: body, footer: footer, padding: padding);
+  }
+
+  /// Label shown in the input for [value] ([displayTextForValue], else `''`).
+  String labelFor(Object? value) => _host.labelFor(value);
+
+  bool matchesItem(Object? itemValue, {String? searchText}) {
+    return _host.matchesItem(itemValue, searchText: searchText);
+  }
+
+  void requestOpen({bool requestFocus = true}) {
+    _host.requestOpen(requestFocus: requestFocus);
+  }
+
+  void requestClose() => _host.requestClose();
+
+  void toggleMenu() => _host.toggleMenu();
+
+  /// Selects by [itemValue]; input text comes from [labelFor].
+  void select(Object? itemValue) => _host.select(itemValue);
+
+  void handleMenuOpen() => _host.handleMenuOpen();
+
+  void handleMenuClose() => _host.handleMenuClose();
+
+  /// Tap on [VComboboxInput]: open overlay if closed and reset filter to show
+  /// all items without clearing [value] or the displayed input text.
+  void handleInputTap() => _host.handleInputTap();
+
+  void syncFromInputChange(String text) => _host.syncFromInputChange(text);
+
+  void _notify() => notifyListeners();
+}
+
+abstract class _VComboboxHost {
+  FocusNode get focusNode;
+  TextEditingController get textController;
+  MenuController get menuController;
+  Object get tapRegionGroupId;
+  String get query;
+  Widget? get overlayBody;
+  Widget? get overlayFooter;
+  EdgeInsetsGeometry? get overlayPadding;
+  bool get canInteract;
+  bool get isOpen;
+  bool? get invalid;
+  VComponentTone get tone;
+  VComponentEmphasis get emphasis;
+  Object? get selectedValue;
+
+  void registerOverlay({
+    required Widget body,
+    Widget? footer,
+    EdgeInsetsGeometry? padding,
+  });
+  String labelFor(Object? value);
+  bool matchesItem(Object? itemValue, {String? searchText});
+  void requestOpen({bool requestFocus = true});
+  void requestClose();
+  void toggleMenu();
+  void select(Object? itemValue);
+  void handleMenuOpen();
+  void handleMenuClose();
+  void handleInputTap();
+  void syncFromInputChange(String text);
+}
+
+class _VComboboxState<T> extends State<VCombobox<T>> implements _VComboboxHost {
+  @override
+  late final FocusNode focusNode;
+  @override
+  late final TextEditingController textController;
+  @override
+  late final MenuController menuController;
+  @override
+  final Object tapRegionGroupId = Object();
+  late final VComboboxController controller;
+
   bool _syncingFocusAndMenu = false;
+  bool _uncontrolledOpen = false;
 
-  /// When true, [MenuController.close] must not unfocus the search field
-  /// (e.g. filter became empty while typing).
-  bool _keepFocusOnMenuClose = false;
+  /// Skip restoring input text on the close that follows [select].
+  bool _skipCloseTextRestore = false;
+  String _query = '';
+  String _normalizedQuery = '';
+  Widget? _overlayBody;
+  Widget? _overlayFooter;
+  EdgeInsetsGeometry? _overlayPadding;
 
-  bool get _canInteract => VComponentScope.resolveEnabled(context, local: widget.enabled);
+  @override
+  String get query => _query;
 
-  bool get _hasFilteredEntries => _filteredEntries.isNotEmpty;
+  @override
+  Widget? get overlayBody => _overlayBody;
+
+  @override
+  Widget? get overlayFooter => _overlayFooter;
+
+  @override
+  EdgeInsetsGeometry? get overlayPadding => _overlayPadding;
+
+  @override
+  bool get canInteract => VComponentScope.resolveEnabled(context, local: widget.enabled);
+
+  @override
+  bool get isOpen {
+    final controlled = widget.open;
+    if (controlled != null) return controlled;
+    return _uncontrolledOpen || menuController.isOpen;
+  }
+
+  @override
+  bool? get invalid => widget.invalid;
+
+  @override
+  VComponentTone get tone => widget.tone;
+
+  @override
+  VComponentEmphasis get emphasis => widget.emphasis;
+
+  @override
+  Object? get selectedValue => widget.value;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode(debugLabel: 'VCombobox');
-    _focusNode.addListener(_handleFocusChange);
-    _textController = TextEditingController(text: _labelForValue(widget.value));
-    _menuController = MenuController();
-    _filteredEntries = widget.items;
+    controller = VComboboxController._(this);
+    focusNode = FocusNode(debugLabel: 'VCombobox');
+    focusNode.addListener(_handleFocusChange);
+    textController = TextEditingController(text: labelFor(widget.value));
+    menuController = MenuController();
+    if (widget.open == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _openMenu(requestFocus: false);
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant VCombobox<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      final label = _labelForValue(widget.value);
-      if (_textController.text != label) {
-        _textController.text = label;
+    if (widget.value != oldWidget.value && !_queryActive) {
+      final label = labelFor(widget.value);
+      if (textController.text != label) {
+        textController.text = label;
       }
     }
-    if (widget.items != oldWidget.items) {
-      _filteredEntries = filterDropdownEntries(widget.items, _textController.text);
+    if (widget.open != oldWidget.open && widget.open != null) {
+      if (widget.open! && !menuController.isOpen) {
+        _openMenu(requestFocus: false);
+      } else if (!widget.open! && menuController.isOpen) {
+        menuController.close();
+      }
+    }
+  }
+
+  bool get _queryActive => _query.trim().isNotEmpty;
+
+  @override
+  void dispose() {
+    focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    textController.dispose();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void registerOverlay({
+    required Widget body,
+    Widget? footer,
+    EdgeInsetsGeometry? padding,
+  }) {
+    final unchanged =
+        identical(_overlayBody, body) &&
+        identical(_overlayFooter, footer) &&
+        _overlayPadding == padding;
+    _overlayBody = body;
+    _overlayFooter = footer;
+    _overlayPadding = padding;
+    // Content registers during build. Closed overlay reads slots on next
+    // open; only notify while open so MenuAnchor rebuilds the current panel.
+    if (unchanged || !isOpen) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && isOpen) controller._notify();
+    });
+  }
+
+  @override
+  String labelFor(Object? value) {
+    return widget.displayTextForValue?.call(value as T?) ?? '';
+  }
+
+  @override
+  bool matchesItem(Object? itemValue, {String? searchText}) {
+    final haystack = _itemHaystack(itemValue, searchText);
+    final custom = widget.filter;
+    if (custom != null) {
+      return custom(_query, haystack, itemValue);
+    }
+    return matchesNormalizedComboboxSearch(_normalizedQuery, haystack);
+  }
+
+  String _itemHaystack(Object? itemValue, String? searchText) {
+    final hasSearch = searchText != null && searchText.isNotEmpty;
+    if (!hasSearch) return labelFor(itemValue);
+    final label = labelFor(itemValue);
+    if (label.isEmpty || label == searchText) return searchText;
+    return '$searchText $label';
+  }
+
+  void _replaceQuery(String query) {
+    _query = query;
+    _normalizedQuery = VTextNormalizer.normalizeForSearch(query);
+  }
+
+  void setQuery(String query) {
+    if (query == _query) return;
+    _replaceQuery(query);
+    controller._notify();
+  }
+
+  @override
+  void requestOpen({bool requestFocus = true}) {
+    if (widget.open != null) {
+      widget.onOpenChange?.call(true);
+      if (!menuController.isOpen) {
+        _openMenu(requestFocus: requestFocus);
+      } else if (requestFocus && !focusNode.hasFocus) {
+        _syncingFocusAndMenu = true;
+        focusNode.requestFocus();
+        _syncingFocusAndMenu = false;
+      }
+      return;
+    }
+    _openMenu(requestFocus: requestFocus);
+  }
+
+  @override
+  void requestClose() {
+    if (widget.open != null) {
+      widget.onOpenChange?.call(false);
+    }
+    if (menuController.isOpen) {
+      menuController.close();
     }
   }
 
   @override
-  void dispose() {
-    _focusNode
-      ..removeListener(_handleFocusChange)
-      ..dispose();
-    _textController.dispose();
-    super.dispose();
+  void toggleMenu() {
+    if (isOpen) {
+      requestClose();
+    } else {
+      requestOpen();
+    }
+  }
+
+  @override
+  void select(Object? itemValue) {
+    final label = labelFor(itemValue);
+    textController.value = TextEditingValue(
+      text: label,
+      selection: TextSelection.collapsed(offset: label.length),
+    );
+    _replaceQuery('');
+    controller._notify();
+    _skipCloseTextRestore = true;
+    widget.onChanged?.call(itemValue as T?);
+    requestClose();
+    // Intentional dismiss after pick — not via [handleMenuClose], so parent
+    // scroll closing the overlay does not steal focus/IME.
+    if (focusNode.hasFocus) {
+      _syncingFocusAndMenu = true;
+      focusNode.unfocus();
+      _syncingFocusAndMenu = false;
+    }
+    if (mounted) setState(() {});
   }
 
   void _handleFocusChange() {
     if (_syncingFocusAndMenu) return;
 
-    if (_focusNode.hasFocus && _canInteract && !_menuController.isOpen) {
-      _openMenu(requestFocus: false);
+    if (focusNode.hasFocus && canInteract && !isOpen) {
+      requestOpen(requestFocus: false);
+    } else if (!focusNode.hasFocus) {
+      // Restore label on true blur. Menu may already be closed (scroll) while
+      // focused — keep typed filter until then.
+      _restoreClosedText();
     }
-
-    if (mounted) setState(() {});
   }
 
-  void _syncMenuState() {
-    if (mounted) setState(() {});
+  void _restoreClosedText() {
+    _replaceQuery('');
+    if (_skipCloseTextRestore) {
+      _skipCloseTextRestore = false;
+      return;
+    }
+    final label = labelFor(widget.value);
+    if (textController.text != label) {
+      textController.text = label;
+    }
   }
 
-  void _applyFilter(String query) {
-    _filteredEntries = filterDropdownEntries(widget.items, query);
-  }
-
-  void _openMenu({bool requestFocus = true}) {
+  void _openMenu({bool requestFocus = true, bool resetFilter = true}) {
     setState(() {
-      _applyFilter(_textController.text);
+      _uncontrolledOpen = true;
+      // Opening from focus/tap/chevron shows the full list. Typing opens with
+      // [resetFilter]: false so [syncFromInputChange] keeps the typed query.
+      if (resetFilter) {
+        _replaceQuery('');
+      }
     });
-    if (!_hasFilteredEntries) {
-      _closeMenu(keepFocus: true);
-      _syncMenuState();
-      return;
+    controller._notify();
+    if (!menuController.isOpen) {
+      menuController.open();
     }
-    if (!_menuController.isOpen) {
-      _menuController.open();
-    }
-    if (requestFocus && !_focusNode.hasFocus) {
+    if (requestFocus && !focusNode.hasFocus) {
       _syncingFocusAndMenu = true;
-      _focusNode.requestFocus();
+      focusNode.requestFocus();
       _syncingFocusAndMenu = false;
     }
-    _syncMenuState();
   }
 
-  void _closeMenu({required bool keepFocus}) {
-    if (!_menuController.isOpen) {
-      _syncMenuState();
-      return;
-    }
-    _keepFocusOnMenuClose = keepFocus;
-    _menuController.close();
-  }
+  @override
+  void handleInputTap() {
+    if (!canInteract) return;
 
-  void _handleMenuOpen() {
-    if (!_hasFilteredEntries) {
-      _closeMenu(keepFocus: true);
-      return;
-    }
-    if (!_focusNode.hasFocus) {
-      _syncingFocusAndMenu = true;
-      _focusNode.requestFocus();
-      _syncingFocusAndMenu = false;
-    }
-    _syncMenuState();
-  }
-
-  void _handleMenuClose() {
-    final keepFocus = _keepFocusOnMenuClose;
-    _keepFocusOnMenuClose = false;
-    if (!keepFocus && _focusNode.hasFocus) {
-      _syncingFocusAndMenu = true;
-      _focusNode.unfocus();
-      _syncingFocusAndMenu = false;
-    }
-    _syncMenuState();
-  }
-
-  String _labelForValue(T? value) {
-    if (value == null) return '';
-    for (final entry in widget.items) {
-      if (entry.value == value) return entry.label;
-    }
-    return '';
-  }
-
-  OutlineInputBorder _outline(Color color, double width) {
-    return VBorders.outlineInput(color, width: width);
-  }
-
-  void _toggleMenu(MenuController controller) {
-    if (controller.isOpen) {
-      controller.close();
-    } else {
-      _openMenu();
-    }
-  }
-
-  void _selectEntry(DropdownMenuEntry<T> entry) {
-    _textController.value = TextEditingValue(
-      text: entry.label,
-      selection: TextSelection.collapsed(offset: entry.label.length),
-    );
-    _menuController.close();
-    setState(() {
-      _filteredEntries = widget.items;
-    });
-    widget.onChanged?.call(entry.value);
-  }
-
-  Widget _buildTrailingIcon(
-    BuildContext context,
-    MenuController controller, {
-    required bool isEnabled,
-  }) {
-    final open = controller.isOpen;
-    final colors = context.vColors;
-
-    return VIconBox(
-      backgroundColor: Colors.transparent,
-      icon: VIcons.arrowDropDown,
-      size: VSpacing.space6,
-      iconSize: 20,
-      borderRadius: VRadius.input - VSpacing.space1 / 2,
-      iconColor: open ? colors.textBrand : colors.textMuted,
-      onTap: isEnabled ? () => _toggleMenu(controller) : null,
-    );
-  }
-
-  InputDecoration _buildDecoration(
-    BuildContext context,
-    MenuController controller, {
-    required bool isEnabled,
-    required OutlineInputBorder restingBorder,
-    required OutlineInputBorder focusBorder,
-    required OutlineInputBorder disabledBorder,
-    required Color iconColor,
-    required Color hoverColor,
-  }) {
-    return InputDecoration(
-      hintText: widget.hintText,
-      suffixIcon: _buildTrailingIcon(
-        context,
-        controller,
-        isEnabled: isEnabled,
-      ),
-      contentPadding: vTextFieldContentPadding(
-        base: VCombobox.contentPadding,
-        hasPrefix: false,
-        hasSuffix: true,
-      ),
-    ).applyDefaults(
-      InputDecorationTheme(
-        filled: true,
-        fillColor: context.vColors.surface,
-        hoverColor: Colors.transparent,
-        contentPadding: vTextFieldContentPadding(
-          base: VCombobox.contentPadding,
-          hasPrefix: false,
-          hasSuffix: true,
-        ),
-        hintStyle: VTypography.bodyDefault.copyWith(
-          color: context.vColors.textMuted,
-          fontWeight: FontWeight.w500,
-        ),
-        border: restingBorder,
-        enabledBorder: restingBorder,
-        focusedBorder: focusBorder,
-        disabledBorder: disabledBorder,
-        constraints: const BoxConstraints(
-          minHeight: VCombobox.controlHeight,
-          maxHeight: VCombobox.controlHeight,
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildMenuItems({
-    required BuildContext context,
-    required bool isEnabled,
-    required double menuItemRadius,
-  }) {
-    final colors = context.vColors;
-    final itemShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(menuItemRadius));
-
-    return [
-      for (final entry in _filteredEntries)
-        SizedBox(
-          height: VCombobox.controlHeight,
-          width: double.infinity,
-          child: ExcludeFocus(
-            child: MenuItemButton(
-              requestFocusOnHover: false,
-              onPressed: entry.enabled && isEnabled ? () => _selectEntry(entry) : null,
-              style: ButtonStyle(
-                fixedSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
-                ),
-                minimumSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
-                ),
-                maximumSize: const WidgetStatePropertyAll(
-                  Size(double.infinity, VCombobox.controlHeight),
-                ),
-                padding: const WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: VSpacing.space2),
-                ),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-                shape: WidgetStatePropertyAll(itemShape),
-                overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed) ||
-                      states.contains(WidgetState.hovered) ||
-                      states.contains(WidgetState.focused)) {
-                    return colors.surfaceAlt;
-                  }
-                  return Colors.transparent;
-                }),
-              ),
-              leadingIcon: entry.leadingIcon,
-              trailingIcon: entry.trailingIcon,
-              child:
-                  entry.labelWidget ??
-                  Text(
-                    entry.label,
-                    style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
-                  ),
-            ),
-          ),
-        ),
-    ];
-  }
-
-  Widget _buildMenuPanelBody({
-    required BuildContext context,
-    required bool isEnabled,
-    required double menuItemRadius,
-    required VOverlayMenuPanelMetrics metrics,
-  }) {
-    final menuItems = _buildMenuItems(
-      context: context,
-      isEnabled: isEnabled,
-      menuItemRadius: menuItemRadius,
-    );
-
-    if (!metrics.needsScroll) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: menuItems,
+    // Keep displayed text / value; select all so the next keystroke replaces
+    // the label while filtering.
+    final text = textController.text;
+    if (text.isNotEmpty) {
+      textController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: text.length,
       );
     }
 
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-        },
-      ),
-      child: ListView(
-        primary: false,
-        padding: EdgeInsets.zero,
-        physics: const ClampingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        children: menuItems,
-      ),
-    );
+    if (!isOpen) {
+      requestOpen(requestFocus: false);
+      return;
+    }
+
+    if (_query.isNotEmpty) {
+      _replaceQuery('');
+      controller._notify();
+    }
+  }
+
+  @override
+  void handleMenuOpen() {
+    _uncontrolledOpen = true;
+    if (!focusNode.hasFocus) {
+      _syncingFocusAndMenu = true;
+      focusNode.requestFocus();
+      _syncingFocusAndMenu = false;
+    }
+    if (mounted) setState(() {});
+    widget.onOpenChange?.call(true);
+  }
+
+  @override
+  void handleMenuClose() {
+    _uncontrolledOpen = false;
+    // Ancestor scroll may close the overlay while the field stays focused.
+    // Only restore the committed label when already unfocused; otherwise keep
+    // the typed query so filter/IME survive the drag.
+    if (!focusNode.hasFocus) {
+      _restoreClosedText();
+    }
+    controller._notify();
+    if (mounted) setState(() {});
+    widget.onOpenChange?.call(false);
+  }
+
+  @override
+  void syncFromInputChange(String text) {
+    setQuery(text);
+    if (!isOpen) {
+      _openMenu(requestFocus: false, resetFilter: false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final isEnabled = _canInteract;
-    final useDanger = widget.tone == VComponentTone.danger;
-    final focused = isEnabled && _focusNode.hasFocus;
-    final borderWidth = VBorders.widthFor(widget.emphasis);
-
-    final restingBorderColor = useDanger
-        ? colors.danger
-        : switch (widget.tone) {
-            VComponentTone.primary => colors.primary,
-            VComponentTone.danger => colors.danger,
-            _ => colors.borderDefault,
-          };
-    final focusBorderColor = useDanger ? colors.danger : colors.primary;
-    final restingBorder = _outline(restingBorderColor, borderWidth);
-    final focusBorder = _outline(focusBorderColor, borderWidth);
-    final disabledBorder = _outline(colors.borderDefault, borderWidth);
-    final trailingIconColor = colors.textMuted;
-
-    // ignore: deprecated_member_use_from_same_package
-    final legacyLabel = widget.label;
-
-    final control = LayoutBuilder(
-      builder: (context, constraints) {
-        final menuRadius = VRadius.input;
-        const menuPadding = VSpacing.space2;
-        final menuWidth = constraints.maxWidth;
-        const menuMaxHeight = VCombobox._menuHeight;
-        const menuBoxShadow = VOverlayMenuShell.menuShadow;
-        final menuMetrics = VOverlayMenuLayout.panelMetrics(
-          itemCount: _filteredEntries.length,
-          menuMaxHeight: menuMaxHeight,
-          itemHeight: VCombobox.controlHeight,
-          menuPadding: menuPadding,
-        );
-        final transparentMenuStyle = MenuStyle(
-          elevation: const WidgetStatePropertyAll(0),
-          backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-          padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-          minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-          maximumSize: WidgetStatePropertyAll(Size(menuWidth, menuMaxHeight)),
-        );
-
-        return VTextFieldFocusRing(
-          focused: focused,
-          danger: useDanger,
-          child: MenuButtonTheme(
-            data: const MenuButtonThemeData(),
-            child: MenuAnchor(
-              controller: _menuController,
-              childFocusNode: _focusNode,
-              clipBehavior: Clip.none,
-              style: transparentMenuStyle,
-              alignmentOffset: VOverlayMenuLayout.alignmentOffset,
-              reservedPadding: VOverlayMenuLayout.menuReservedPadding(menuBoxShadow),
-              crossAxisUnconstrained: false,
-              onOpen: _handleMenuOpen,
-              onClose: _handleMenuClose,
-              menuChildren: !_hasFilteredEntries
-                  ? const <Widget>[]
-                  : [
-                      SizedBox(
-                        width: menuWidth,
-                        height: menuMetrics.shellHeight,
-                        child: VOverlayMenuShell.panel(
-                          borderRadius: BorderRadius.circular(menuRadius),
-                          borderSide: VBorders.side(colors.borderStrong),
-                          padding: const EdgeInsets.all(menuPadding),
-                          boxShadow: menuBoxShadow,
-                          child: menuMetrics.needsScroll
-                              ? SizedBox(
-                                  height: menuMetrics.listViewportHeight,
-                                  child: _buildMenuPanelBody(
-                                    context: context,
-                                    isEnabled: isEnabled,
-                                    menuItemRadius: menuRadius,
-                                    metrics: menuMetrics,
-                                  ),
-                                )
-                              : _buildMenuPanelBody(
-                                  context: context,
-                                  isEnabled: isEnabled,
-                                  menuItemRadius: menuRadius - menuPadding / 2,
-                                  metrics: menuMetrics,
-                                ),
-                        ),
-                      ),
-                    ],
-              builder: (context, controller, child) {
-                return TextField(
-                  enabled: isEnabled,
-                  focusNode: _focusNode,
-                  controller: _textController,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                  ),
-                  onChanged: isEnabled
-                      ? (text) {
-                          setState(() {
-                            _applyFilter(text);
-                          });
-                          if (!_hasFilteredEntries) {
-                            _closeMenu(keepFocus: true);
-                          } else if (!controller.isOpen) {
-                            _openMenu(requestFocus: false);
-                          } else {
-                            _syncMenuState();
-                          }
-                        }
-                      : null,
-                  decoration: _buildDecoration(
-                    context,
-                    controller,
-                    isEnabled: isEnabled,
-                    restingBorder: restingBorder,
-                    focusBorder: focusBorder,
-                    disabledBorder: disabledBorder,
-                    iconColor: trailingIconColor,
-                    hoverColor: colors.surfaceHover,
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
+    Widget body = _VComboboxScope(
+      controller: controller,
+      child: widget.child,
     );
 
-    final body = legacyLabel != null ? vFieldShell(control: control, label: legacyLabel) : control;
+    final label = widget.semanticLabel;
+    if (label == null) return body;
 
-    return vInspectorHide(
-      Semantics(
-        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Combobox',
-        textField: true,
-        enabled: isEnabled,
-        child: vDisabledOpacity(enabled: isEnabled, child: body),
-      ),
+    return Semantics(
+      label: label,
+      textField: true,
+      enabled: canInteract,
+      child: body,
     );
   }
+}
+
+class _VComboboxScope extends InheritedWidget {
+  const _VComboboxScope({
+    required this.controller,
+    required super.child,
+  });
+
+  final VComboboxController controller;
+
+  static VComboboxController of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_VComboboxScope>();
+    if (scope == null) {
+      throw FlutterError.fromParts(<DiagnosticsNode>[
+        ErrorSummary('VCombobox descendant must be used within a VCombobox.'),
+        ErrorDescription(
+          'Place VComboboxInput / VComboboxContent / VComboboxList / '
+          'VComboboxItem under the same VCombobox. Build Content before '
+          'Input in the subtree so the overlay registers in the same frame.',
+        ),
+      ]);
+    }
+    return scope.controller;
+  }
+
+  @override
+  bool updateShouldNotify(covariant _VComboboxScope oldWidget) {
+    final a = controller;
+    final b = oldWidget.controller;
+    return a != b ||
+        a.query != b.query ||
+        a.selectedValue != b.selectedValue ||
+        a.isOpen != b.isOpen ||
+        a.canInteract != b.canInteract;
+  }
+}
+
+/// Looks up the nearest [VCombobox] controller.
+VComboboxController vComboboxOf(BuildContext context) {
+  return _VComboboxScope.of(context);
+}
+
+/// Re-provides [controller] for overlay subtrees (e.g. [MenuAnchor.menuChildren]).
+Widget vComboboxProvideScope({
+  required VComboboxController controller,
+  required Widget child,
+}) {
+  return _VComboboxScope(controller: controller, child: child);
 }

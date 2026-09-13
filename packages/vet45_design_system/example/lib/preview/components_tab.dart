@@ -59,15 +59,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   child: VBanner(
                     status: status,
                     title: 'Tiêu đề thông báo',
-                    description: 'Mô tả ngắn có thể gồm một hành động tiếp theo.',
                   ),
                 ),
               PreviewStateRow(
-                label: 'tone + message alias',
+                label: 'tone + description',
                 child: const VBanner(
                   tone: VComponentTone.warning,
                   title: 'Cần kiểm tra',
-                  message: '• Giá riêng đang thấp hơn giá sàn hiện tại',
+                  description: 'Giá riêng đang thấp hơn giá sàn hiện tại',
                 ),
               ),
               PreviewStateRow(
@@ -411,8 +410,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     VButton(
                       label: 'With icons',
                       variant: VButtonVariant.link,
-                      leadingIcon: const Icon(Icons.link, size: 16),
-                      trailingIcon: const Icon(Icons.arrow_outward, size: 16),
+                      leading: VIcons.info,
+                      trailing: VIcons.arrowForward,
                       onPressed: () {},
                     ),
                     const VButton(
@@ -467,8 +466,32 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     VButton(
                       label: 'Full width',
                       fullWidth: true,
+                      expandText: true,
+                      textAlign: TextAlign.start,
                       onPressed: () {},
-                      leadingIcon: const Icon(Icons.add, size: 18, color: Colors.white),
+                      leading: VIcons.add,
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    Row(
+                      children: [
+                        VButton.icon(
+                          icon: VIcons.add,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: VSpacing.space2),
+                        VButton.icon(
+                          icon: VIcons.edit,
+                          variant: VButtonVariant.secondary,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: VSpacing.space2),
+                        VButton.icon(
+                          icon: VIcons.delete,
+                          variant: VButtonVariant.secondary,
+                          tone: VComponentTone.danger,
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
                   ],
                 ),

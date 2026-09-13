@@ -18,11 +18,11 @@ class VTextField extends StatefulWidget {
   /// Dense inset — horizontal [VSpacing.space2], vertical [VSpacing.space1].
   static const EdgeInsets densePadding = VInput.densePadding;
 
-  /// Single-line control height shared with [VSelect] / [VCombobox].
+  /// Fallback single-line height — comfortable density medium (44).
   ///
-  /// Matches the measured default [TextField] + outlined decoration height under
-  /// [VTheme] (Material interactive minimum), so form rows align.
-  static const double controlHeight = VInput.controlHeight;
+  /// Prefer `context.vDensity.controlHeightMedium` at runtime ([VInput] locks
+  /// to ambient density automatically).
+  static const double controlHeight = 44;
 
   final TextEditingController? controller;
 
@@ -55,6 +55,11 @@ class VTextField extends StatefulWidget {
   /// When false, field has no outline ([InputBorder.none]). Default true.
   final bool border;
   final bool isDense;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  ///
+  /// Legacy [errorText] still forces invalid chrome when non-null.
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
@@ -86,6 +91,7 @@ class VTextField extends StatefulWidget {
     this.onSubmitted,
     this.border = true,
     this.isDense = false,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
@@ -150,7 +156,9 @@ class _VTextFieldState extends State<VTextField> {
     final legacyRequired = widget.isRequired;
 
     final hasError = legacyError != null;
-    final useDanger = hasError || widget.tone == VComponentTone.danger;
+    final isInvalid =
+        VField.resolveInvalid(context, local: widget.invalid) || hasError;
+    final useDanger = isInvalid || widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
 
     final suffix =
@@ -181,7 +189,7 @@ class _VTextFieldState extends State<VTextField> {
       border: widget.border,
       padding: widget.isDense ? VInput.densePadding : VInput.defaultPadding,
       lockControlHeight: !widget.isDense,
-      invalid: hasError,
+      invalid: isInvalid,
       tone: widget.tone,
       emphasis: widget.emphasis,
     );

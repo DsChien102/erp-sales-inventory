@@ -36,6 +36,12 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
   String? _selectValue;
   String? _requiredSelect;
   String? _searchableSelect;
+  String? _plainUnit;
+  String? _twoLineUnit;
+  String? _cardUnit;
+  String? _aliasUnit;
+  String? _skeletonDemoUnit;
+  bool _skeletonDemoLoading = true;
   DateTime? _date;
   List<String> _companySelected = const ['hidden'];
   List<String> _notifSelected = const ['email'];
@@ -208,9 +214,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     VVerificationCodeField(
                       label: 'Mã 2FA',
                       errorText: _otpError,
-                      tone: _otpError != null
-                          ? VComponentTone.danger
-                          : VComponentTone.neutral,
+                      tone: _otpError != null ? VComponentTone.danger : VComponentTone.neutral,
                       onChanged: (_) {
                         if (_otpError != null) {
                           setState(() => _otpError = null);
@@ -364,8 +368,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
-                          _externalPasswordError =
-                              'Mật khẩu không khớp với xác nhận';
+                          _externalPasswordError = 'Mật khẩu không khớp với xác nhận';
                         });
                       },
                     ),
@@ -507,34 +510,185 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
         ),
         PreviewSection(
           title: 'VCombobox',
-          description: 'Searchable single-select; input chrome matches VTextField.',
+          description:
+              'Searchable single-select; input chrome matches VTextField. '
+              'Compose demos tách theo kiểu item (4–10 options); '
+              'Footer = create item từ query.',
           child: Column(
             children: [
               PreviewStateRow(
-                label: 'Searchable',
-                child: VCombobox<String>(
-                  label: 'Tỉnh/Thành',
-                  value: _searchableSelect,
-                  hintText: 'Tìm tỉnh/thành...',
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
-                  ],
-                  onChanged: (v) => setState(() => _searchableSelect = v),
+                label: 'Compose · searchable',
+                child: VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Tỉnh/Thành'),
+                      VCombobox<String>(
+                        value: _searchableSelect,
+                        displayTextForValue: (v) => switch (v) {
+                          'hcm' => 'Hồ Chí Minh',
+                          'hn' => 'Hà Nội',
+                          'dn' => 'Đà Nẵng',
+                          'hp' => 'Hải Phòng',
+                          'ct' => 'Cần Thơ',
+                          'bd' => 'Bình Dương',
+                          'dna' => 'Đồng Nai',
+                          _ => '',
+                        },
+                        onChanged: (v) => setState(() => _searchableSelect = v),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            VComboboxContent(
+                              child: VComboboxList(
+                                children: const [
+                                  VComboboxItem(
+                                    value: 'hcm',
+                                    searchText: 'Hồ Chí Minh',
+                                    child: Text('Hồ Chí Minh'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'hn',
+                                    searchText: 'Hà Nội',
+                                    child: Text('Hà Nội'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'dn',
+                                    searchText: 'Đà Nẵng',
+                                    child: Text('Đà Nẵng'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'hp',
+                                    searchText: 'Hải Phòng',
+                                    child: Text('Hải Phòng'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'ct',
+                                    searchText: 'Cần Thơ',
+                                    child: Text('Cần Thơ'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'bd',
+                                    searchText: 'Bình Dương',
+                                    child: Text('Bình Dương'),
+                                  ),
+                                  VComboboxItem(
+                                    value: 'dna',
+                                    searchText: 'Đồng Nai',
+                                    child: Text('Đồng Nai'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const VComboboxInput(hintText: 'Tìm tỉnh/thành...'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               PreviewStateRow(
                 label: 'Disabled',
-                child: VCombobox<String>(
-                  label: 'Tỉnh/Thành',
-                  value: 'hcm',
-                  enabled: false,
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                  ],
-                  onChanged: (_) {},
+                child: VField(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VFieldLabel('Tỉnh/Thành'),
+                      VCombobox<String>(
+                        value: 'hcm',
+                        enabled: false,
+                        displayTextForValue: (v) =>
+                            v == 'hcm' ? 'Hồ Chí Minh' : '',
+                        onChanged: (_) {},
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            VComboboxContent(
+                              child: VComboboxList(
+                                children: const [
+                                  VComboboxItem(
+                                    value: 'hcm',
+                                    searchText: 'Hồ Chí Minh',
+                                    child: Text('Hồ Chí Minh'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const VComboboxInput(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+              const PreviewStateRow(
+                label: 'Empty overlay',
+                child: VComboboxEmpty(),
+              ),
+              PreviewStateRow(
+                label: 'Compose · plain text',
+                child: _ComposePlainCombobox(
+                  value: _plainUnit,
+                  onChanged: (v) => setState(() => _plainUnit = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Compose · 2-line',
+                child: _ComposeTwoLineCombobox(
+                  value: _twoLineUnit,
+                  onChanged: (v) => setState(() => _twoLineUnit = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Compose · VCard',
+                child: _ComposeCardCombobox(
+                  value: _cardUnit,
+                  onChanged: (v) => setState(() => _cardUnit = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Compose · searchText alias',
+                child: _ComposeAliasCombobox(
+                  value: _aliasUnit,
+                  onChanged: (v) => setState(() => _aliasUnit = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Compose · skeleton loading',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _ComposeSkeletonCombobox(
+                      loading: _skeletonDemoLoading,
+                      value: _skeletonDemoUnit,
+                      onChanged: (v) => setState(() => _skeletonDemoUnit = v),
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: VButton(
+                        label: _skeletonDemoLoading ? 'Load xong' : 'Reload skeleton',
+                        size: VButtonSize.small,
+                        onPressed: () {
+                          setState(() {
+                            if (_skeletonDemoLoading) {
+                              _skeletonDemoLoading = false;
+                            } else {
+                              _skeletonDemoLoading = true;
+                              _skeletonDemoUnit = null;
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Compose · create (Footer)',
+                child: _ComposeCreateCombobox(),
               ),
             ],
           ),
@@ -598,6 +752,474 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ComposePlainCombobox extends StatelessWidget {
+  const _ComposePlainCombobox({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _labels = <String, String>{
+    'chai': 'Chai',
+    'hop': 'Hộp',
+    'lo': 'Lọ',
+    'ong': 'Ống',
+    'goi': 'Gói',
+    'tui': 'Túi',
+    'vi': 'Vỉ',
+    'thung': 'Thùng',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return VCombobox<String>(
+      value: value,
+      onChanged: onChanged,
+      displayTextForValue: (v) => _labels[v] ?? '',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            child: VComboboxList(
+              children: [
+                for (final entry in _labels.entries)
+                  VComboboxItem<String>(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  ),
+              ],
+            ),
+          ),
+          const VComboboxInput(hintText: 'Chọn đơn vị (text)...'),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComposeTwoLineCombobox extends StatelessWidget {
+  const _ComposeTwoLineCombobox({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _items = <({String id, String title, String subtitle})>[
+    (id: 'hop', title: 'Hộp', subtitle: 'Đơn vị cơ sở'),
+    (id: 'lo', title: 'Lọ', subtitle: 'Dung dịch / tiêm'),
+    (id: 'chai', title: 'Chai', subtitle: 'Siêu thị / OTC'),
+    (id: 'ong', title: 'Ống', subtitle: 'Ampoule'),
+    (id: 'goi', title: 'Gói', subtitle: 'Gói đơn'),
+    (id: 'vi', title: 'Vỉ', subtitle: 'Vỉ 10 viên'),
+    (id: 'tui', title: 'Túi', subtitle: 'Túi truyền'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return VCombobox<String>(
+      value: value,
+      onChanged: onChanged,
+      displayTextForValue: (v) {
+        for (final item in _items) {
+          if (item.id == v) return item.title;
+        }
+        return '';
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            child: VComboboxList(
+              children: [
+                for (final item in _items)
+                  VComboboxItem<String>(
+                    value: item.id,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.title,
+                          style: VTypography.bodyDefault.copyWith(
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          item.subtitle,
+                          style: VTypography.bodySmall.copyWith(
+                            color: colors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const VComboboxInput(hintText: 'Chọn đơn vị (2 dòng)...'),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComposeCardCombobox extends StatelessWidget {
+  const _ComposeCardCombobox({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _items = <({String id, String title, String subtitle, IconData icon})>[
+    (id: 'thung', title: 'Thùng', subtitle: 'Đóng gói lớn', icon: Icons.warehouse_outlined),
+    (id: 'pallet', title: 'Pallet', subtitle: 'Kho trung tâm', icon: Icons.grid_view_outlined),
+    (id: 'carton', title: 'Carton', subtitle: 'Thùng giấy', icon: Icons.inventory_2_outlined),
+    (id: 'crate', title: 'Crate', subtitle: 'Khay nhựa', icon: Icons.view_module_outlined),
+    (id: 'bag', title: 'Bao', subtitle: 'Bao 25kg', icon: Icons.shopping_bag_outlined),
+    (id: 'drum', title: 'Phuy', subtitle: 'Phuy 200L', icon: Icons.propane_tank_outlined),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return VCombobox<String>(
+      value: value,
+      onChanged: onChanged,
+      displayTextForValue: (v) {
+        for (final item in _items) {
+          if (item.id == v) return item.title;
+        }
+        return '';
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            child: VComboboxList(
+              children: [
+                for (final item in _items)
+                  VComboboxItem<String>(
+                    value: item.id,
+                    child: VCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: VSpacing.space2,
+                        vertical: VSpacing.space1,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(item.icon, size: 22, color: colors.textMuted),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: VTypography.bodyDefault.copyWith(
+                                    color: colors.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  item.subtitle,
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: colors.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const VComboboxInput(hintText: 'Chọn đóng gói (VCard)...'),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComposeAliasCombobox extends StatelessWidget {
+  const _ComposeAliasCombobox({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _items = <({String id, String label, String searchText})>[
+    (id: 'hop', label: 'Hộp', searchText: 'hop box carton goi nho'),
+    (id: 'chai', label: 'Chai', searchText: 'chai bottle lo thuy tinh'),
+    (id: 'kg', label: 'Kilogram', searchText: 'kg kilogram can nang'),
+    (id: 'g', label: 'Gram', searchText: 'g gram trong luong'),
+    (id: 'ml', label: 'Millilit', searchText: 'ml milliliter the tich'),
+    (id: 'l', label: 'Lít', searchText: 'lit liter dung tich'),
+    (id: 'vien', label: 'Viên', searchText: 'vien tablet pill'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return VCombobox<String>(
+      value: value,
+      onChanged: onChanged,
+      displayTextForValue: (v) {
+        for (final item in _items) {
+          if (item.id == v) return item.label;
+        }
+        return '';
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            child: VComboboxList(
+              children: [
+                for (final item in _items)
+                  VComboboxItem<String>(
+                    value: item.id,
+                    searchText: item.searchText,
+                    child: Text(item.label),
+                  ),
+              ],
+            ),
+          ),
+          const VComboboxInput(hintText: 'Thử gõ alias: box, kg, pill...'),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComposeSkeletonCombobox extends StatelessWidget {
+  const _ComposeSkeletonCombobox({
+    required this.loading,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool loading;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _loaded = <String, String>{
+    'hop': 'Hộp',
+    'chai': 'Chai',
+    'lo': 'Lọ',
+    'ong': 'Ống',
+    'goi': 'Gói',
+    'thung': 'Thùng',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return VCombobox<String>(
+      value: loading ? null : value,
+      onChanged: loading ? null : onChanged,
+      displayTextForValue: (v) => _loaded[v] ?? '',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            child: VComboboxList(
+              children: [
+                if (loading)
+                  for (var i = 0; i < 5; i++)
+                    VComboboxItem<String>(
+                      value: 'skel_$i',
+                      enabled: false,
+                      child: const _ComboboxSkeletonRow(),
+                    )
+                else
+                  for (final entry in _loaded.entries)
+                    VComboboxItem<String>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ),
+              ],
+            ),
+          ),
+          VComboboxInput(
+            hintText: loading ? 'Đang tải đơn vị...' : 'Chọn đơn vị...',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComboboxSkeletonRow extends StatelessWidget {
+  const _ComboboxSkeletonRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return const VSkeletonScope(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: VSpacing.space1),
+        child: Row(
+          children: [
+            VSkeleton.circle(size: 28),
+            SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VSkeleton(width: double.infinity, height: 14),
+                  SizedBox(height: 6),
+                  VSkeleton(width: 96, height: 10),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Demo: gõ tên mới → Footer «Thêm …» giả lập API rồi append item (menu giữ mở).
+class _ComposeCreateCombobox extends StatefulWidget {
+  const _ComposeCreateCombobox();
+
+  @override
+  State<_ComposeCreateCombobox> createState() => _ComposeCreateComboboxState();
+}
+
+class _ComposeCreateComboboxState extends State<_ComposeCreateCombobox> {
+  String? _value;
+  late List<({String id, String label})> _items;
+  bool _creating = false;
+  String? _pendingLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = [
+      (id: 'hop', label: 'Hộp'),
+      (id: 'chai', label: 'Chai'),
+      (id: 'lo', label: 'Lọ'),
+      (id: 'goi', label: 'Gói'),
+      (id: 'thung', label: 'Thùng'),
+    ];
+  }
+
+  String _labelFor(String? id) {
+    if (id == null) return '';
+    for (final item in _items) {
+      if (item.id == id) return item.label;
+    }
+    return '';
+  }
+
+  ({String id, String label})? _findByLabel(String label) {
+    final needle = label.trim().toLowerCase();
+    if (needle.isEmpty) return null;
+    for (final item in _items) {
+      if (item.label.toLowerCase() == needle) return item;
+    }
+    return null;
+  }
+
+  Future<void> _createOrSelect(VComboboxController root) async {
+    final typed = root.query.trim();
+    if (typed.isEmpty || _creating) return;
+
+    final existing = _findByLabel(typed);
+    if (existing != null) {
+      root.select(existing.id);
+      return;
+    }
+
+    setState(() {
+      _creating = true;
+      _pendingLabel = typed;
+    });
+
+    // Simulate create-unit API round-trip.
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+
+    final id = 'custom_${DateTime.now().microsecondsSinceEpoch}';
+    setState(() {
+      _items = [..._items, (id: id, label: typed)];
+      _value = id;
+      _creating = false;
+      _pendingLabel = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return VCombobox<String>(
+      value: _value,
+      onChanged: (v) => setState(() => _value = v),
+      displayTextForValue: _labelFor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VComboboxContent(
+            footer: VComboboxFooter(
+              builder: (context, child, root) {
+                return ListenableBuilder(
+                  listenable: root,
+                  builder: (context, _) {
+                    final typed = root.query.trim();
+                    final canCreate = !_creating &&
+                        typed.isNotEmpty &&
+                        _findByLabel(typed) == null;
+                    return VButton(
+                      label: _creating
+                          ? 'Đang tạo "${_pendingLabel ?? typed}"…'
+                          : canCreate
+                              ? 'Thêm "$typed"'
+                              : 'Gõ tên mới để thêm',
+                      variant: VButtonVariant.secondary,
+                      leading: _creating ? null : VIcons.add,
+                      isLoading: _creating,
+                      enabled: canCreate || _creating,
+                      onPressed:
+                          canCreate ? () => _createOrSelect(root) : null,
+                    );
+                  },
+                );
+              },
+            ),
+            child: VComboboxList(
+              children: [
+                for (final item in _items)
+                  VComboboxItem<String>(
+                    value: item.id,
+                    child: Text(item.label),
+                  ),
+                if (_creating)
+                  VComboboxItem<String>(
+                    value: '__creating__',
+                    searchText: _pendingLabel,
+                    enabled: false,
+                    child: const _ComboboxSkeletonRow(),
+                  ),
+              ],
+            ),
+          ),
+          const VComboboxInput(hintText: 'Tìm hoặc tạo đơn vị...'),
+        ],
+      ),
     );
   }
 }

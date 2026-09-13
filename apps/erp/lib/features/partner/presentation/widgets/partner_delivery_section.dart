@@ -56,17 +56,27 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
                   value: state.deliveryProvince.isEmpty
                       ? null
                       : state.deliveryProvince,
-                  hintText: 'Nhập tỉnh / thành phố',
-                  items: units
-                      .map(
-                        (province) => DropdownMenuEntry<String>(
-                          value: province.fullName,
-                          label: province.fullName,
-                        ),
-                      )
-                      .toList(growable: false),
+                  displayTextForValue: (v) => v ?? '',
                   onChanged: (value) =>
                       cubit.updateDeliveryProvince(value ?? ''),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      VComboboxContent(
+                        child: VComboboxList(
+                          children: [
+                            for (final province in units)
+                              VComboboxItem<String>(
+                                value: province.fullName,
+                                searchText: province.fullName,
+                                child: Text(province.fullName),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const VComboboxInput(hintText: 'Nhập tỉnh / thành phố'),
+                    ],
+                  ),
                 ),
               ),
               const VGap.md(),

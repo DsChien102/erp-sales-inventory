@@ -319,24 +319,16 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 future: _unitsFuture,
                 builder: (context, snapshot) {
                   final units = snapshot.data ?? const [];
-                  final selectedProvince = _findProvinceByCode(units, _selectedProvinceCode);
-                  final provinceItems = units
-                      .map(
-                        (u) => DropdownMenuEntry<String>(
-                          value: u.code,
-                          label: u.fullName,
-                        ),
-                      )
-                      .toList(growable: false);
+                  final selectedProvince =
+                      _findProvinceByCode(units, _selectedProvinceCode);
                   final wardList = selectedProvince?.wards ?? const <VnWard>[];
-                  final wardItems = wardList
-                      .map(
-                        (w) => DropdownMenuEntry<String>(
-                          value: w.code,
-                          label: w.fullName,
-                        ),
-                      )
-                      .toList(growable: false);
+                  VnWard? selectedWard;
+                  for (final ward in wardList) {
+                    if (ward.code == _selectedCommuneCode) {
+                      selectedWard = ward;
+                      break;
+                    }
+                  }
 
                   return Column(
                     children: [
@@ -344,28 +336,72 @@ class _EditProfileViewState extends State<_EditProfileView> {
                         label: 'Tỉnh / thành phố',
                         child: VCombobox<String>(
                           value: selectedProvince?.code,
-                          hintText: 'Chọn tỉnh / thành phố',
-                          items: provinceItems,
+                          displayTextForValue: (code) {
+                            if (code == null) return '';
+                            return _findProvinceByCode(units, code)?.fullName ??
+                                '';
+                          },
                           onChanged: (code) {
                             setState(() {
                               _selectedProvinceCode = code;
                               _selectedCommuneCode = null;
                             });
                           },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              VComboboxContent(
+                                child: VComboboxList(
+                                  children: [
+                                    for (final unit in units)
+                                      VComboboxItem<String>(
+                                        value: unit.code,
+                                        searchText: unit.fullName,
+                                        child: Text(unit.fullName),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const VComboboxInput(
+                                hintText: 'Chọn tỉnh / thành phố',
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const VGap.md(),
                       _SearchDropdownField(
                         label: 'Xã / phường',
                         child: VCombobox<String>(
-                          value: wardItems.any((i) => i.value == _selectedCommuneCode)
-                              ? _selectedCommuneCode
-                              : null,
-                          hintText: 'Chọn xã / phường',
-                          items: wardItems,
+                          value: selectedWard?.code,
+                          displayTextForValue: (code) {
+                            if (code == null) return '';
+                            for (final ward in wardList) {
+                              if (ward.code == code) return ward.fullName;
+                            }
+                            return '';
+                          },
                           onChanged: (code) {
                             setState(() => _selectedCommuneCode = code);
                           },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              VComboboxContent(
+                                child: VComboboxList(
+                                  children: [
+                                    for (final ward in wardList)
+                                      VComboboxItem<String>(
+                                        value: ward.code,
+                                        searchText: ward.fullName,
+                                        child: Text(ward.fullName),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const VComboboxInput(hintText: 'Chọn xã / phường'),
+                            ],
+                          ),
                         ),
                       ),
                     ],

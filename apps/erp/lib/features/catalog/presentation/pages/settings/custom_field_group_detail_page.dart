@@ -224,7 +224,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                 extra: cubit,
               ),
               variant: VButtonVariant.primary,
-              leadingIcon: const VIcon(icon: VIcons.add, size: 18, iconColor: VIconColor.white),
+              leading: VIcons.add,
               label: 'Thêm trường thông tin',
             ),
           ],

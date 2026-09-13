@@ -108,6 +108,10 @@ class VEmptyState extends StatelessWidget {
     )
     this.actionLeadingIcon,
     @Deprecated(
+      'Use child with VEmptyContent + VButton(leading:) instead',
+    )
+    this.actionLeading,
+    @Deprecated(
       'Use child with VEmptyContent + VButton instead',
     )
     this.onActionPressed,
@@ -178,6 +182,11 @@ class VEmptyState extends StatelessWidget {
   final Widget? actionLeadingIcon;
 
   @Deprecated(
+    'Use child with VEmptyContent + VButton(leading:) instead',
+  )
+  final VIcons? actionLeading;
+
+  @Deprecated(
     'Use child with VEmptyContent + VButton instead',
   )
   final VoidCallback? onActionPressed;
@@ -245,6 +254,8 @@ class VEmptyState extends StatelessWidget {
     // ignore: deprecated_member_use_from_same_package
     final legacyOnAction = onActionPressed;
     // ignore: deprecated_member_use_from_same_package
+    final legacyActionLeadingToken = actionLeading;
+    // ignore: deprecated_member_use_from_same_package
     final legacyActionLeading = actionLeadingIcon;
 
     return Column(
@@ -272,7 +283,11 @@ class VEmptyState extends StatelessWidget {
             child: VButton(
               label: legacyActionLabel,
               onPressed: legacyOnAction,
-              leadingIcon: legacyActionLeading,
+              leading: legacyActionLeadingToken,
+              // ignore: deprecated_member_use_from_same_package
+              leadingIcon: legacyActionLeadingToken == null
+                  ? legacyActionLeading
+                  : null,
               size: VButtonSize.medium,
               emphasis: legacyEmphasis,
             ),

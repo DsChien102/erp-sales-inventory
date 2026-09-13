@@ -206,9 +206,8 @@ class _PriceRuleSaveConfirmSheetState extends State<PriceRuleSaveConfirmSheet> {
                 const VGap.md(),
                 const VBanner(
                   tone: VComponentTone.info,
-                  icon: VIcons.info,
                   title: 'Lưu ý tự động ghi đè',
-                  message:
+                  description:
                       'Cập nhật thời gian hiệu lực này sẽ tự động ghi đè giá riêng đang áp dụng trùng khoảng thời gian (nếu có).',
                 ),
               ],

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../components/v_text_field.dart';
-import '../foundation/v_component_contracts.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_field.dart';
 import '../tokens/v_duration.dart';
@@ -32,6 +31,7 @@ class VPhoneField extends StatefulWidget {
     this.debounceDuration = VDuration.normal,
     this.requiredMessage = VPhoneValidator.defaultRequiredMessage,
     this.invalidMessage = VPhoneValidator.defaultInvalidMessage,
+    this.invalid,
     this.semanticLabel,
   }) : assert(
          controller == null || initialValue == null,
@@ -56,6 +56,12 @@ class VPhoneField extends StatefulWidget {
   final Duration debounceDuration;
   final String requiredMessage;
   final String invalidMessage;
+
+  /// Local invalid override. Null inherits an outer [VField.invalid].
+  ///
+  /// Combined with [errorText] / internal validation when wrapping a local
+  /// [VField] shell.
+  final bool? invalid;
   final String? semanticLabel;
 
   @override
@@ -157,9 +163,11 @@ class _VPhoneFieldState extends State<VPhoneField> {
   @override
   Widget build(BuildContext context) {
     final error = widget.errorText ?? _internalError;
+    final isInvalid =
+        VField.resolveInvalid(context, local: widget.invalid) || error != null;
     return vInspectorHide(
       VField(
-        invalid: error != null,
+        invalid: isInvalid,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +184,6 @@ class _VPhoneFieldState extends State<VPhoneField> {
               inputFormatters: [_formatter],
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
-              tone: error != null ? VComponentTone.danger : VComponentTone.neutral,
             ),
             if (error != null)
               VFieldError(error)

@@ -31,6 +31,7 @@ class VChoiceList<T> extends StatefulWidget {
     this.minSelectionsMessage,
     this.maxSelectionsMessage,
     this.semanticLabel,
+    this.invalid,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
   });
@@ -57,6 +58,9 @@ class VChoiceList<T> extends StatefulWidget {
   final String? minSelectionsMessage;
   final String? maxSelectionsMessage;
   final String? semanticLabel;
+
+  /// Local invalid override. Null inherits [VField.invalid].
+  final bool? invalid;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
 
@@ -103,6 +107,8 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
   Widget build(BuildContext context) {
     final isEnabled = VComponentScope.resolveEnabled(context, local: widget.enabled);
     final hasError = _effectiveError != null;
+    final isInvalid =
+        VField.resolveInvalid(context, local: widget.invalid) || hasError;
     // ignore: deprecated_member_use_from_same_package
     final legacyTitle = widget.title;
     // ignore: deprecated_member_use_from_same_package
@@ -112,7 +118,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
     final showTitle = legacyTitle != null && !widget.titleHidden;
     final shellLabel = showTitle ? legacyTitle : null;
 
-    final control = _buildChoices(hasError, isEnabled);
+    final control = _buildChoices(isInvalid, isEnabled);
     final useShell = shellLabel != null ||
         legacyHelper != null ||
         _effectiveError != null ||

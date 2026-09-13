@@ -37,23 +37,14 @@ class AdministrativeUnitsFormSection extends StatelessWidget {
       builder: (context, snapshot) {
         final units = snapshot.data ?? const [];
         final selectedProvince = findProvinceByCode(units, selectedProvinceCode);
-        final provinceItems = units
-            .map(
-              (u) => DropdownMenuEntry<String>(
-                value: u.code,
-                label: u.fullName,
-              ),
-            )
-            .toList(growable: false);
         final wardList = selectedProvince?.wards ?? const <VnWard>[];
-        final wardItems = wardList
-            .map(
-              (w) => DropdownMenuEntry<String>(
-                value: w.code,
-                label: w.fullName,
-              ),
-            )
-            .toList(growable: false);
+        VnWard? selectedWard;
+        for (final ward in wardList) {
+          if (ward.code == selectedCommuneCode) {
+            selectedWard = ward;
+            break;
+          }
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,24 +53,67 @@ class AdministrativeUnitsFormSection extends StatelessWidget {
               label: 'Tỉnh / thành phố',
               child: VCombobox<String>(
                 value: selectedProvince?.code,
-                hintText: 'Chọn tỉnh / thành phố',
-                items: provinceItems,
+                displayTextForValue: (code) {
+                  if (code == null) return '';
+                  return findProvinceByCode(units, code)?.fullName ?? '';
+                },
                 onChanged: onProvinceChanged,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VComboboxContent(
+                      child: VComboboxList(
+                        children: [
+                          for (final unit in units)
+                            VComboboxItem<String>(
+                              value: unit.code,
+                              searchText: unit.fullName,
+                              child: Text(unit.fullName),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const VComboboxInput(hintText: 'Chọn tỉnh / thành phố'),
+                  ],
+                ),
               ),
             ),
             const VGap.md(),
             SearchDropdownField(
               label: 'Xã / phường',
               child: VCombobox<String>(
-                value: wardItems.any((i) => i.value == selectedCommuneCode)
-                    ? selectedCommuneCode
-                    : null,
-                hintText: selectedProvinceCode != null
-                    ? 'Chọn xã / phường'
-                    : 'Chọn tỉnh / thành phố trước',
+                value: selectedWard?.code,
                 enabled: selectedProvinceCode != null,
-                items: wardItems,
+                displayTextForValue: (code) {
+                  if (code == null) return '';
+                  for (final ward in wardList) {
+                    if (ward.code == code) return ward.fullName;
+                  }
+                  return '';
+                },
                 onChanged: onCommuneChanged,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VComboboxContent(
+                      child: VComboboxList(
+                        children: [
+                          for (final ward in wardList)
+                            VComboboxItem<String>(
+                              value: ward.code,
+                              searchText: ward.fullName,
+                              child: Text(ward.fullName),
+                            ),
+                        ],
+                      ),
+                    ),
+                    VComboboxInput(
+                      hintText: selectedProvinceCode != null
+                          ? 'Chọn xã / phường'
+                          : 'Chọn tỉnh / thành phố trước',
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

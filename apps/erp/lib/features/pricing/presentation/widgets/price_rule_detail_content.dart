@@ -56,7 +56,6 @@ class PriceRuleDetailContent extends StatelessWidget {
               tone: VComponentTone.info,
               title: 'Giá riêng đã tắt',
               message: 'Không áp dụng cho đơn hàng mới.',
-              icon: VIcons.info,
             ),
             const VGap.sm(),
           ],

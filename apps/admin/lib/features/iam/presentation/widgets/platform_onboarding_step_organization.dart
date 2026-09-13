@@ -148,21 +148,33 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                   label: 'Tỉnh / thành phố',
                   child: VCombobox<String>(
                     value: provinceValue,
-                    hintText: hasError
-                        ? 'Không tải được tỉnh / thành phố'
-                        : isLoading
-                        ? 'Đang tải tỉnh / thành phố'
-                        : 'Chọn tỉnh / thành phố',
                     enabled: !isLoading && !hasError && units.isNotEmpty,
-                    items: units
-                        .map(
-                          (unit) => DropdownMenuEntry(
-                            value: unit.fullName,
-                            label: unit.fullName,
-                          ),
-                        )
-                        .toList(growable: false),
+                    displayTextForValue: (v) => v ?? '',
                     onChanged: onProvinceChanged,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        VComboboxContent(
+                          child: VComboboxList(
+                            children: [
+                              for (final unit in units)
+                                VComboboxItem<String>(
+                                  value: unit.fullName,
+                                  searchText: unit.fullName,
+                                  child: Text(unit.fullName),
+                                ),
+                            ],
+                          ),
+                        ),
+                        VComboboxInput(
+                          hintText: hasError
+                              ? 'Không tải được tỉnh / thành phố'
+                              : isLoading
+                              ? 'Đang tải tỉnh / thành phố'
+                              : 'Chọn tỉnh / thành phố',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const VGap.md(),
@@ -170,17 +182,31 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                   label: 'Xã / phường',
                   child: VCombobox<String>(
                     value: wardValue,
-                    hintText: province == null ? 'Chọn tỉnh / thành phố trước' : 'Chọn xã / phường',
                     enabled: !isLoading && !hasError && province != null,
-                    items: wards
-                        .map(
-                          (ward) => DropdownMenuEntry(
-                            value: ward.fullName,
-                            label: ward.fullName,
-                          ),
-                        )
-                        .toList(growable: false),
+                    displayTextForValue: (v) => v ?? '',
                     onChanged: onWardChanged,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        VComboboxContent(
+                          child: VComboboxList(
+                            children: [
+                              for (final ward in wards)
+                                VComboboxItem<String>(
+                                  value: ward.fullName,
+                                  searchText: ward.fullName,
+                                  child: Text(ward.fullName),
+                                ),
+                            ],
+                          ),
+                        ),
+                        VComboboxInput(
+                          hintText: province == null
+                              ? 'Chọn tỉnh / thành phố trước'
+                              : 'Chọn xã / phường',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -192,22 +218,40 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           label: 'Loại chủ thể',
           child: VCombobox<String>(
             value: selectedEntityType,
-            hintText: 'Chọn loại chủ thể',
-            items: const [
-              DropdownMenuEntry(
-                value: 'HOUSEHOLD_BUSINESS',
-                label: 'Hộ kinh doanh',
-              ),
-              DropdownMenuEntry(
-                value: 'ENTERPRISE',
-                label: 'Doanh nghiệp',
-              ),
-              DropdownMenuEntry(
-                value: 'VETERINARY_CLINIC',
-                label: 'Phòng khám thú y',
-              ),
-            ],
+            displayTextForValue: (v) => switch (v) {
+              'HOUSEHOLD_BUSINESS' => 'Hộ kinh doanh',
+              'ENTERPRISE' => 'Doanh nghiệp',
+              'VETERINARY_CLINIC' => 'Phòng khám thú y',
+              _ => '',
+            },
             onChanged: onEntityTypeChanged,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VComboboxContent(
+                  child: VComboboxList(
+                    children: const [
+                      VComboboxItem<String>(
+                        value: 'HOUSEHOLD_BUSINESS',
+                        searchText: 'Hộ kinh doanh',
+                        child: Text('Hộ kinh doanh'),
+                      ),
+                      VComboboxItem<String>(
+                        value: 'ENTERPRISE',
+                        searchText: 'Doanh nghiệp',
+                        child: Text('Doanh nghiệp'),
+                      ),
+                      VComboboxItem<String>(
+                        value: 'VETERINARY_CLINIC',
+                        searchText: 'Phòng khám thú y',
+                        child: Text('Phòng khám thú y'),
+                      ),
+                    ],
+                  ),
+                ),
+                const VComboboxInput(hintText: 'Chọn loại chủ thể'),
+              ],
+            ),
           ),
         ),
         VField(

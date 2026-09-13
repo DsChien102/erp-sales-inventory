@@ -15,9 +15,23 @@ changelogs when relevant.
 
 ### Added
 
+- `VComboboxEmpty` — empty overlay copy khi filter không khớp; `preferredHeight` ổn định cho shell.
+- `VCombobox` composition: host `VCombobox` + `Input` / `Content` / `List` / `Item` / `Footer`; `VComboboxItem` nhận `child` Widget; `searchText` optional (filter); label input qua `displayTextForValue`.
+
 ### Changed
 
+- `VCombobox` giữ menu mở khi 0 match và hiển thị slot `empty` (mặc định `VComboboxEmpty`); chiều cao panel theo empty, không ép `_menuHeight` (300).
+- `VCombobox` trigger dùng `VInput` + `VTextFieldFocusRing` (parity `VTextField`; bỏ `TextField` + decoration thủ công); `TapRegion`/`groupId` giữ focus khi scroll menu.
+- `VField.resolveInvalid` + `VFieldScope`: V*Field (`VTextField` / `VTextArea` / wrappers / `VSelect` / `VCombobox` / OTP / `VChoiceList` / `VPhoneField`) nhận `bool? invalid` và inherit chrome danger từ `VField(invalid:)`.
+- `VBanner`: bỏ `icon` thủ công (chỉ icon theo status/tone); border semantic giống `VCard`; layout icon căn giữa hàng title, description/footer indent thẳng hàng title; `message` deprecated → dùng `description`.
+- `VIcons.error`: glyph Lucide `circleX` (thay `alertCircle`).
+- `VButton`: `leading`/`trailing` dùng `VIcons` (deprecate `leadingIcon`/`trailingIcon` Widget); factory `VButton.icon`; `expandText` + `textAlign` cho text slot.
+- Field chrome (`VInput` / TextField / Select / Combobox / SearchBar / DatePicker): chiều cao single-line theo `VDensity.controlHeightMedium` (khớp `VButton` medium; comfortable 44).
+
 ### Fixed
+
+- Input (`VInput` / `VTextField`): dismiss ngoài field bằng `onTapUpOutside` + touch-slop — tap thật thì unfocus; drag scroll parent giữ focus/IME. `VTextArea` / `VSearchBar` / `VVerificationCodeField`: mặc định `onTapOutside` theo Flutter.
+- `VCombobox`: không unfocus khi ancestor scroll đóng overlay; dismiss ngoài field qua `onTapUpOutside` (+ touch-slop); giữ text/query khi vẫn focus. `VInput` expose `onTapUpOutside`.
 
 ### Internal
 
