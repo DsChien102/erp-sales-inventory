@@ -27,7 +27,6 @@ workspace:
   - modules/sales/application
   - modules/sales/infrastructure
   - modules/sales/integration_events
-  - modules/sales/presentation
   - modules/iam/domain
   - modules/iam/application
   - modules/iam/infrastructure

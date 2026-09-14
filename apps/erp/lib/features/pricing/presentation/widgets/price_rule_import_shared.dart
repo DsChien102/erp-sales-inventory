@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import '../formatters/price_rule_import_issue_formatter.dart';
 
@@ -106,9 +107,7 @@ abstract final class PriceRuleImportRowLabels {
     return null;
   }
 
-  static String _formatMoney(int value) => value
-      .toString()
-      .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
+  static String _formatMoney(int value) => MoneyFormatter.formatMinorPlain(value);
 }
 
 /// Tile một dòng preview import (cảnh báo / lỗi).

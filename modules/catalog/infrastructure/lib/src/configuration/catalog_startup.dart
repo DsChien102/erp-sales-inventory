@@ -74,6 +74,19 @@ abstract final class CatalogStartup {
     container.registerSingleton<IAccessMetadataRegistry>(
       catalogAccessMetadataRegistry,
     );
+    container
+      ..registerFactory<SearchSellableProductsQueryValidator>(
+        SearchSellableProductsQueryValidator.new,
+      )
+      ..registerFactory<ResolveSellableBarcodeQueryValidator>(
+        ResolveSellableBarcodeQueryValidator.new,
+      )
+      ..registerFactory<ListSellableProductUnitsQueryValidator>(
+        ListSellableProductUnitsQueryValidator.new,
+      )
+      ..registerFactory<ResolveSellableProductsQueryValidator>(
+        ResolveSellableProductsQueryValidator.new,
+      );
 
     const CatalogMediationModule().load(
       container: container,

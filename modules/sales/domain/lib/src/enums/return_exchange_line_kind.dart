@@ -1,0 +1,1 @@
+enum ReturnExchangeLineKind { returned, exchange }

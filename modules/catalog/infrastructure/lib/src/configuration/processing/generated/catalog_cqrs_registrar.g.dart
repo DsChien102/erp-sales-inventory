@@ -65,11 +65,11 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<RestoreProductCommand>>(
       RestoreProductCommandValidator.new,
     )
-    ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
-      SetInitialPriceBandCommandValidator.new,
-    )
     ..registerFactory<ICommandValidator<SetBasicStockQuantityBaseCommand>>(
       SetBasicStockQuantityBaseCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
+      SetInitialPriceBandCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<SetManualBasePriceCommand>>(
       SetManualBasePriceCommandValidator.new,
@@ -279,16 +279,6 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetInitialPriceBandCommand, void, SetInitialPriceBandCommandHandler>(
-    container: container,
-    bus: bus,
-    logger: logger,
-    factory: () => SetInitialPriceBandCommandHandler(
-      commandGateway: container.get<IProductCommandGateway>(),
-      readinessReadPort: container.get<IProductReadinessReadPort>(),
-    ),
-  );
-
   CatalogCommandRegistration.registerBusinessHandler<SetBasicStockQuantityBaseCommand, SetBasicStockQuantityBaseResult, SetBasicStockQuantityBaseCommandHandler>(
     container: container,
     bus: bus,
@@ -297,6 +287,16 @@ void registerGeneratedCatalogHandlers({
       commandGateway: container.get<IProductCommandGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
       unitGateway: container.get<ICatalogUnitGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<SetInitialPriceBandCommand, void, SetInitialPriceBandCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SetInitialPriceBandCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+      readinessReadPort: container.get<IProductReadinessReadPort>(),
     ),
   );
 
@@ -525,10 +525,37 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  CatalogCommandRegistration.registerQueryHandler<ListSellableProductUnitsQuery, List<SellableProductUnitDto>, ListSellableProductUnitsQueryHandler>(
+    bus: bus,
+    factory: () => ListSellableProductUnitsQueryHandler(
+      readGateway: container.get<ICatalogSalesReadGateway>(),
+      validator: container.get<ListSellableProductUnitsQueryValidator>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   CatalogCommandRegistration.registerQueryHandler<ListTenantMeasurementUnitsQuery, List<TenantMeasurementUnitDto>, ListTenantMeasurementUnitsQueryHandler>(
     bus: bus,
     factory: () => ListTenantMeasurementUnitsQueryHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<ResolveSellableBarcodeQuery, List<SellableProductDto>, ResolveSellableBarcodeQueryHandler>(
+    bus: bus,
+    factory: () => ResolveSellableBarcodeQueryHandler(
+      readGateway: container.get<ICatalogSalesReadGateway>(),
+      validator: container.get<ResolveSellableBarcodeQueryValidator>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<ResolveSellableProductsQuery, List<SellableProductResolutionDto>, ResolveSellableProductsQueryHandler>(
+    bus: bus,
+    factory: () => ResolveSellableProductsQueryHandler(
+      readGateway: container.get<ICatalogSalesReadGateway>(),
+      validator: container.get<ResolveSellableProductsQueryValidator>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
@@ -545,6 +572,15 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => SearchProductsQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<SearchSellableProductsQuery, List<SellableProductDto>, SearchSellableProductsQueryHandler>(
+    bus: bus,
+    factory: () => SearchSellableProductsQueryHandler(
+      readGateway: container.get<ICatalogSalesReadGateway>(),
+      validator: container.get<SearchSellableProductsQueryValidator>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

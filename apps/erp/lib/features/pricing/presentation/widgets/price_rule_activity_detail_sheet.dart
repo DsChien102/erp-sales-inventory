@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import 'price_rule_history_shared.dart';
 import 'price_rule_source_order_detail_sheet.dart';
@@ -169,8 +170,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                       after: hasSensitivePermission
                           ? _formatDiffMoney(newFloorDiff)
                           : 'Ẩn theo quyền 🔒',
-                      highlightAfter:
-                          hasSensitivePermission && newFloorDiff != null,
+                      highlightAfter: hasSensitivePermission && newFloorDiff != null,
                       isMasked: !hasSensitivePermission,
                     ),
                   ],
@@ -239,9 +239,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                             orderDate: _formatDateTime(activity.createdAt),
                             productName: 'Sản phẩm theo đơn',
                             unitName: 'Hộp',
-                            priceLabel: newPrice != null
-                                ? _formatMoney(newPrice)
-                                : '—',
+                            priceLabel: newPrice != null ? _formatMoney(newPrice) : '—',
                             staffName: activity.actor.displayName,
                             onViewSourceOrder: onViewSourceOrder,
                           );
@@ -293,27 +291,19 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
     _ => VComponentTone.neutral,
   };
 
-  String _formatDateTime(DateTime d) =>
-      PriceRuleHistoryShared.formatDateTime(d);
+  String _formatDateTime(DateTime d) => PriceRuleHistoryShared.formatDateTime(d);
 
-  String _formatDateStr(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';
-    try {
-      final d = DateTime.parse(dateStr);
-      return VDateTime.date(d);
-    } catch (_) {
-      return dateStr;
-    }
-  }
+  String _formatDateStr(String? dateStr) =>
+      VDateTime.parseAndFormatCalendarDate(dateStr);
 
-  String _formatMoney(int amountMinor) {
-    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
-  }
+  String _formatMoney(int amountMinor) => MoneyFormatter.formatMinor(amountMinor);
 
   String _formatDiffMoney(int? diffMinor) {
-    if (diffMinor == null) return '—';
-    final sign = diffMinor >= 0 ? '+' : '';
-    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    if (diffMinor == null) return '-';
+    final formatted = MoneyFormatter.formatMinor(diffMinor.abs());
+    if (diffMinor > 0) return '+$formatted';
+    if (diffMinor < 0) return '-$formatted';
+    return formatted;
   }
 
   String _formatSource(CustomerPriceRuleSourceType src) => switch (src) {
@@ -402,9 +392,7 @@ class _DiffRow extends StatelessWidget {
               before,
               variant: VTextVariant.bodySmall,
               color: isMasked ? colors.textMuted : colors.textPrimary,
-              style: isMasked
-                  ? null
-                  : const TextStyle(fontWeight: FontWeight.w600),
+              style: isMasked ? null : const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -419,9 +407,7 @@ class _DiffRow extends StatelessWidget {
                 : (highlightAfter ? colors.success : colors.textPrimary),
             style: highlightAfter && !isMasked
                 ? const TextStyle(fontWeight: FontWeight.w700)
-                : (isMasked
-                      ? null
-                      : const TextStyle(fontWeight: FontWeight.w600)),
+                : (isMasked ? null : const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ),
       ],

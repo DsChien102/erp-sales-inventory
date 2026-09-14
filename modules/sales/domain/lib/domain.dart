@@ -1,2 +1,77 @@
-/// sales domain layer — add aggregates and value objects here.
+/// Sales bounded context — domain vocabulary for contract and BE lanes.
+///
+/// Status / line-kind enums that mirror application contract names are
+/// intentionally **not** re-exported here to avoid colliding with
+/// `sales_contract_enums.dart` until application migrates to domain enums.
 library;
+
+export 'src/enums/sales_payment_transaction_kind.dart';
+export 'src/enums/sales_receipt_activity_type.dart';
+export 'src/return_exchange_order/entities/return_exchange_line.dart';
+export 'src/return_exchange_order/events/return_exchange_cancelled_event.dart';
+export 'src/return_exchange_order/events/return_exchange_completed_event.dart';
+export 'src/return_exchange_order/events/return_exchange_confirmed_event.dart';
+export 'src/return_exchange_order/events/return_exchange_started_event.dart';
+export 'src/return_exchange_order/events/return_exchange_valued_event.dart';
+export 'src/return_exchange_order/return_exchange_line_id.dart';
+export 'src/return_exchange_order/return_exchange_order.dart';
+export 'src/return_exchange_order/return_exchange_order_id.dart';
+export 'src/return_exchange_order/value_objects/return_exchange_confirmation_snapshot.dart';
+export 'src/return_exchange_order/value_objects/return_exchange_settlement_plan.dart';
+export 'src/sales_order/entities/sales_order_line.dart';
+export 'src/sales_order/events/sales_order_cancelled_event.dart';
+export 'src/sales_order/events/sales_order_finalized_event.dart';
+export 'src/sales_order/events/sales_order_locked_event.dart';
+export 'src/sales_order/events/sales_order_unlocked_event.dart';
+export 'src/sales_order/sales_order.dart';
+export 'src/sales_order/sales_order_id.dart';
+export 'src/sales_order/sales_order_line_id.dart';
+export 'src/sales_order/value_objects/sales_order_draft_ref.dart';
+export 'src/sales_order_cancellation/events/sales_order_cancellation_blocked_event.dart';
+export 'src/sales_order_cancellation/events/sales_order_cancellation_completed_event.dart';
+export 'src/sales_order_cancellation/events/sales_order_cancellation_confirmed_event.dart';
+export 'src/sales_order_cancellation/events/sales_order_cancellation_requested_event.dart';
+export 'src/sales_order_cancellation/sales_order_cancellation.dart';
+export 'src/sales_order_cancellation/sales_order_cancellation_id.dart';
+export 'src/sales_order_cancellation/value_objects/cancellation_precheck_snapshot.dart';
+export 'src/sales_order_cancellation/value_objects/cancellation_reason.dart';
+export 'src/sales_order_draft/entities/sales_order_draft_line.dart';
+export 'src/sales_order_draft/events/sales_order_draft_cancelled_event.dart';
+export 'src/sales_order_draft/events/sales_order_draft_converted_event.dart';
+export 'src/sales_order_draft/events/sales_order_draft_expired_event.dart';
+export 'src/sales_order_draft/events/sales_order_draft_saved_event.dart';
+export 'src/sales_order_draft/events/sales_order_draft_updated_event.dart';
+export 'src/sales_order_draft/sales_order_draft.dart';
+export 'src/sales_order_draft/sales_order_draft_id.dart';
+export 'src/sales_order_draft/sales_order_draft_line_id.dart';
+export 'src/sales_order_settlement/entities/sales_payment_transaction.dart';
+export 'src/sales_order_settlement/events/sales_order_settlement_initialized_event.dart';
+export 'src/sales_order_settlement/events/sales_payment_recorded_event.dart';
+export 'src/sales_order_settlement/events/sales_receivable_cleared_event.dart';
+export 'src/sales_order_settlement/events/sales_receivable_required_event.dart';
+export 'src/sales_order_settlement/events/sales_refund_recorded_event.dart';
+export 'src/sales_order_settlement/events/sales_settlement_changed_event.dart';
+export 'src/sales_order_settlement/events/sales_settlement_reconciled_event.dart';
+export 'src/sales_order_settlement/sales_order_settlement.dart';
+export 'src/sales_order_settlement/sales_order_settlement_id.dart';
+export 'src/sales_order_settlement/sales_payment_transaction_id.dart';
+export 'src/sales_permissions.dart';
+export 'src/sales_receipt/entities/sales_receipt_activity.dart';
+export 'src/sales_receipt/events/sales_receipt_archived_event.dart';
+export 'src/sales_receipt/events/sales_receipt_generated_event.dart';
+export 'src/sales_receipt/events/sales_receipt_printed_event.dart';
+export 'src/sales_receipt/events/sales_receipt_shared_event.dart';
+export 'src/sales_receipt/sales_receipt.dart';
+export 'src/sales_receipt/sales_receipt_activity_id.dart';
+export 'src/sales_receipt/sales_receipt_id.dart';
+export 'src/shared/order_totals_calculator.dart';
+export 'src/shared/return_exchange_valuation_calculator.dart';
+export 'src/shared/sales_order_edit_policy.dart';
+export 'src/shared/sales_order_return_status_calculator.dart';
+export 'src/shared/settlement_summary_calculator.dart';
+export 'src/shared/value_objects/customer_ref_snapshot.dart';
+export 'src/shared/value_objects/monetary_summary.dart';
+export 'src/shared/value_objects/product_ref_snapshot.dart';
+export 'src/shared/value_objects/product_unit_ref_snapshot.dart';
+export 'src/shared/value_objects/return_exchange_valuation.dart';
+export 'src/shared/value_objects/settlement_summary.dart';

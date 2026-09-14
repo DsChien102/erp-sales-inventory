@@ -12,6 +12,7 @@ import '../../domain/customer_price_rule/supabase_pricing_update_context_gateway
 import '../../domain/customer_price_rule_import/excel_customer_price_rule_import_file_adapter.dart';
 import '../../domain/customer_price_rule_import/supabase_customer_price_rule_import_gateway.dart';
 import '../../domain/remembered_price_request/supabase_remembered_price_gateway.dart';
+import '../../domain/sales_pricing/supabase_sales_pricing_read_gateway.dart';
 import '../processing/internal_commands/supabase_pricing_internal_command_client.dart';
 
 final class PricingDataAccessModule {
@@ -56,6 +57,9 @@ final class PricingDataAccessModule {
       )
       ..registerSingleton<IRememberedPriceGateway>(
         SupabaseRememberedPriceGateway(rpcClient: rpcClient),
+      )
+      ..registerSingleton<ISalesPricingReadGateway>(
+        SupabaseSalesPricingReadGateway(rpcClient: rpcClient),
       );
   }
 }

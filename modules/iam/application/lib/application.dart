@@ -5,6 +5,9 @@ export 'src/access/iam_permission_checker.dart';
 export 'src/access/iam_tenant_access_checker.dart';
 export 'src/authentication/queries/get_current_session/get_current_session_query.dart';
 export 'src/authentication/queries/get_current_session/get_current_session_query_handler.dart';
+export 'src/authentication/queries/get_active_store_context/get_active_store_context_query.dart';
+export 'src/authentication/queries/get_active_store_context/get_active_store_context_query_handler.dart';
+export 'src/authentication/shared/active_store_context_dto.dart';
 export 'src/authentication/shared/auth_session_state.dart';
 export 'src/authentication/commands/sign_in/sign_in_command.dart';
 export 'src/authentication/commands/sign_in/sign_in_command_handler.dart';
@@ -178,6 +181,7 @@ export 'src/platform/commands/transfer_platform_tenant_ownership/transfer_platfo
 export 'src/platform/commands/transfer_platform_tenant_ownership/transfer_platform_tenant_ownership_command_handler.dart';
 export 'src/platform/commands/transfer_platform_tenant_ownership/transfer_platform_tenant_ownership_command_validator.dart';
 export 'src/ports/i_authenticator.dart';
+export 'src/ports/i_active_store_context.dart';
 export 'src/ports/i_iam_access_gateway.dart';
 export 'src/ports/i_iam_session_port.dart';
 export 'src/ports/i_platform_user_preference_port.dart';

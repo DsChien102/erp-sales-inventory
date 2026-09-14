@@ -1,0 +1,24 @@
+library;
+
+export 'src/testing/fake_customer_snapshot_provider.dart';
+export 'src/testing/fake_e_invoice_policy_port.dart';
+export 'src/testing/fake_checkout_reference_precheck_port.dart';
+export 'src/testing/fake_sales_order_read_gateway.dart';
+export 'src/testing/fake_sales_receipt_gateway.dart';
+export 'src/testing/fake_sales_order_inquiry_gateway.dart';
+export 'src/testing/fake_post_sale_actions_gateway.dart';
+export 'src/testing/fake_return_exchange_command_gateway.dart';
+export 'src/testing/fake_return_exchange_read_gateway.dart';
+export 'src/testing/fake_return_exchange_reference_port.dart';
+export 'src/testing/fake_return_exchange_settlement_gateway.dart';
+export 'src/testing/fake_sales_order_cancellation_gateway.dart';
+export 'src/testing/fake_checkout_receivable_policy_port.dart';
+export 'src/testing/fake_pricing_preview_port.dart';
+export 'src/testing/fake_product_snapshot_provider.dart';
+export 'src/testing/fake_sales_module.dart';
+export 'src/testing/fake_sales_pricing_port.dart';
+export 'src/testing/sales_fake_contract_fixture_factory.dart';
+export 'src/testing/sales_fake_data.dart';
+export 'src/testing/sales_fake_scenario_definition.dart';
+export 'src/testing/sales_fake_scenario_registry.dart';
+export 'src/testing/sales_fe_shell_module.dart';

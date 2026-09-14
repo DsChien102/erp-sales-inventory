@@ -10,6 +10,7 @@ final class IamRuntime {
     required this.executionContext,
     required this.permissionChecker,
     required this.tenantAccessChecker,
+    required this.activeStoreContext,
     required this.session,
     required this.sessionPort,
   });
@@ -18,6 +19,7 @@ final class IamRuntime {
   final IExecutionContext executionContext;
   final IPermissionChecker permissionChecker;
   final ITenantAccessChecker tenantAccessChecker;
+  final IActiveStoreContext activeStoreContext;
   final IamSession session;
 
   /// Exposed so host apps can call [IIamSessionPort.restoreFromPersistedAuth]

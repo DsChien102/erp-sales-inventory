@@ -13,7 +13,7 @@ enum ErpTab {
     label: 'Đơn hàng',
     icon: Icons.receipt_long_outlined,
     routePath: '/orders',
-    enabled: false,
+    enabled: true,
   ),
   products(
     label: 'Sản phẩm',

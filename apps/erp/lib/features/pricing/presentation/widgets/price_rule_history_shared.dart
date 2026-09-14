@@ -1,6 +1,7 @@
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 /// Shared formatters & labels cho SG-06 (D-01…D-08).
 abstract final class PriceRuleHistoryShared {
@@ -70,14 +71,14 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleSourceType.migration => VBadgeStatus.draft,
       };
 
-  static String formatMoney(int amountMinor) {
-    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
-  }
+  static String formatMoney(int amountMinor) => MoneyFormatter.formatMinor(amountMinor);
 
   static String formatDiffMoney(int? diffMinor) {
     if (diffMinor == null) return '—';
-    final sign = diffMinor >= 0 ? '+' : '';
-    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
+    final formatted = MoneyFormatter.formatMinor(diffMinor.abs());
+    if (diffMinor > 0) return '+$formatted';
+    if (diffMinor < 0) return '-$formatted';
+    return formatted;
   }
 
   static String formatDateTime(DateTime d) {
@@ -89,15 +90,8 @@ abstract final class PriceRuleHistoryShared {
         '${ict.minute.toString().padLeft(2, '0')}';
   }
 
-  static String formatDateStr(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';
-    try {
-      final d = DateTime.parse(dateStr);
-      return VDateTime.date(d);
-    } catch (_) {
-      return dateStr;
-    }
-  }
+  static String formatDateStr(String? dateStr) =>
+      VDateTime.parseAndFormatCalendarDate(dateStr);
 
   /// Tóm tắt thay đổi ngắn cho timeline item (D-01, D-02).
   static String? activitySummary(CustomerPriceRuleActivityDto activity) {

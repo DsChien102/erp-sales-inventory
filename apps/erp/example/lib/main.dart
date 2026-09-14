@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import 'partner/main.dart' as partner show PartnerPreviewHomeScreen;
+import 'sales/main.dart' as sales show SalesPreviewHomeScreen;
 
 void main() {
   runApp(const ErpPresentationExampleApp());
@@ -31,6 +32,15 @@ class _CatalogHome extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          ListTile(
+            title: const Text('Sales'),
+            subtitle: const Text('SG-01 … SG-13 widget previews'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const sales.SalesPreviewHomeScreen(),
+              ),
+            ),
+          ),
           ListTile(
             title: const Text('Partner'),
             subtitle: const Text('List / detail / create / sheets'),

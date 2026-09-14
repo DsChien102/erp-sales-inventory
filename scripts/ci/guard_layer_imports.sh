@@ -31,11 +31,7 @@ while IFS= read -r -d '' file; do
 done < <(find "$root/modules" -path '*/application/lib/*.dart' -print0 2>/dev/null)
 
 # Module presentation packages are forbidden (app-owned UI).
-# TODO: remove sales carve-out when modules/sales/presentation is migrated to apps/erp.
 while IFS= read -r -d '' file; do
-  case "$file" in
-    */modules/sales/presentation/pubspec.yaml) continue ;;
-  esac
   report "module presentation package is forbidden (move UI to apps/erp|admin): $file"
 done < <(find "$root/modules" -path '*/presentation/pubspec.yaml' -print0 2>/dev/null)
 

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -211,7 +212,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         GetCustomerPriceRuleDetailQuery(
           tenantId: tenantId,
           ruleId: ruleId,
-          businessDate: DateTime.now().toUtc(),
+          businessDate: VDateTime.currentBusinessDate(),
         ),
       );
       _existingRule = detail;

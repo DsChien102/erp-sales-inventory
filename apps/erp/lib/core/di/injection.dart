@@ -7,6 +7,8 @@ import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_infrastructure/infrastructure.dart';
+import 'package:vet45_sales_application/application.dart';
+import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -46,6 +48,7 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<IExecutionContext>(iamRuntime.executionContext)
     ..registerSingleton<IPermissionChecker>(iamRuntime.permissionChecker)
     ..registerSingleton<ITenantAccessChecker>(iamRuntime.tenantAccessChecker)
+    ..registerSingleton<IActiveStoreContext>(iamRuntime.activeStoreContext)
     ..registerSingleton<IamSession>(iamRuntime.session)
     ..registerSingleton<ICurrentUser>(iamRuntime.session)
     ..registerSingleton<ICurrentTenant>(iamRuntime.session)
@@ -78,4 +81,12 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerSingleton<IPricingModule>(pricingModule);
+
+  final salesModule = SalesStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    permissionChecker: iamRuntime.permissionChecker,
+    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+  );
+  getIt.registerSingleton<ISalesModule>(salesModule);
 }

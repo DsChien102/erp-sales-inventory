@@ -1,4 +1,5 @@
 import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 /// Chuyển mã lỗi/cảnh báo import giá riêng thành nội dung tiếng Việt.
 abstract final class PriceRuleImportIssueFormatter {
@@ -65,6 +66,5 @@ abstract final class PriceRuleImportIssueFormatter {
     _ => null,
   };
 
-  static String _formatMoney(int value) =>
-      '${value.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}đ';
+  static String _formatMoney(int value) => MoneyFormatter.formatMinor(value);
 }

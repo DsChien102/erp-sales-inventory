@@ -17,6 +17,8 @@ final pricingModuleManifest = GeneratedModuleManifest(
     'pricing.customer_price_rule.update',
     'pricing.customer_price_rule.view',
     'pricing.customer_price_rule.view_history',
+    'pricing.sales.manual_price.adjust',
+    'pricing.sales.preview',
   ],
   commandTypes: [
     CancelCustomerPriceRuleImportCommand,
@@ -30,11 +32,13 @@ final pricingModuleManifest = GeneratedModuleManifest(
     UpdateCustomerPriceRuleCommand,
   ],
   queryTypes: [
+    EvaluateSalesManualPriceQuery,
     GetCustomerPriceRuleDetailQuery,
     GetCustomerPriceRuleHistoryQuery,
     GetCustomerPriceRuleImportQuery,
     GetCustomerPriceRuleImportTemplateQuery,
     PrecheckCustomerPriceRuleReenableQuery,
+    PreviewSalesWorkingStatePricingQuery,
     ResolveApplicableCustomerPriceRuleQuery,
     SearchCustomerPriceRulesQuery,
   ],

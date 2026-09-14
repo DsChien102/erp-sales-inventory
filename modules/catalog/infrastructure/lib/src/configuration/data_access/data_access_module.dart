@@ -11,6 +11,7 @@ import '../../domain/custom_fields/supabase_catalog_custom_field_config_gateway.
 import '../../domain/custom_fields/supabase_catalog_custom_field_read_gateway.dart';
 import '../../domain/custom_fields/supabase_catalog_custom_field_value_gateway.dart';
 import '../../domain/product/supabase_catalog_read_gateway.dart';
+import '../../domain/product/supabase_catalog_sales_read_gateway.dart';
 import '../../domain/product/supabase_catalog_unit_gateway.dart';
 import '../../domain/product/supabase_product_command_gateway.dart';
 import '../../domain/product/supabase_product_deletion_gateway.dart';
@@ -75,6 +76,11 @@ final class CatalogDataAccessModule {
       )
       ..registerSingleton<ICatalogReadGateway>(
         SupabaseCatalogReadGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ICatalogSalesReadGateway>(
+        SupabaseCatalogSalesReadGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import 'price_rule_detail_rows.dart';
 import 'price_rule_history_shared.dart';
@@ -253,13 +254,15 @@ class PriceRuleDetailContent extends StatelessWidget {
   }
 
   String _formatMoney(MoneyDto money) {
-    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
+    return MoneyFormatter.format(
+      amountMinor: money.amountMinor,
+      currencyCode: money.currencyCode,
+    );
   }
 
   String _formatDiff(int diffMinor, {int? listPriceMinor}) {
     final sign = diffMinor > 0 ? '+' : '';
-    final amountLabel =
-        '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
+    final amountLabel = '$sign${MoneyFormatter.formatMinor(diffMinor.abs())}';
     if (listPriceMinor == null || listPriceMinor == 0) return amountLabel;
     final pct = (diffMinor / listPriceMinor) * 100;
     final pctLabel = pct.toStringAsFixed(1).replaceAll('.', ',');

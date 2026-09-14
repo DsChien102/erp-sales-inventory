@@ -1,5 +1,5 @@
 name: vet45_sales_integration_events
-description: sales module integration event contracts (skeleton).
+description: sales module messaging contracts (command payloads + future fact IEs).
 version: 1.0.0
 publish_to: none
 resolution: workspace

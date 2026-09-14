@@ -75,6 +75,7 @@ final iamModuleManifest = GeneratedModuleManifest(
     VerifyPasswordResetByEmailCommand,
   ],
   queryTypes: [
+    GetActiveStoreContextQuery,
     GetCurrentSessionQuery,
     GetInvitationQuery,
     GetMyIdentityProfileQuery,

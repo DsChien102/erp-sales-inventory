@@ -11,7 +11,7 @@ T3 Theme package          docs/themes/TH-xx/ (product + harness per theme)
 T4 Slice / code           modules/, FR harness khi implement
 ```
 
-Theme `in_progress` cần **README + harness/** + cây Epic/US/FR.
+Theme `in_progress` cần **README + harness/** + cây Epic với README tổng hợp và các file US.
 
 ## Cấu trúc folder
 
@@ -30,10 +30,8 @@ docs/themes/TH-xx-{{slug}}/
 │   ├── 06-harness-notes.md           # Guards, flywheel
 │   └── 07-api-contracts.md           # Commands/Queries/DTOs + fake scenarios (FE↔BE)
 ├── Epic-{nn}-{slug}/
-│   ├── README.md
-│   └── US-{nn}/
-│       ├── README.md
-│       └── FR-{nn}.md
+│   ├── README.md                     # Tổng hợp và liên kết toàn bộ US của Epic
+│   └── US-{nn}.md                    # Story + FR/BR/AC/EC/scenario/UI artifacts
 └── references.md                     # optional
 ```
 
@@ -57,9 +55,9 @@ docs/themes/TH-xx-{{slug}}/
 ## Platform: [docs/architecture/](../../architecture/README.md)
 ```
 
-Epic `README.md` — thêm **User stories** catalog (US → folder → FR count).
+Epic `README.md` — thêm **User stories** catalog (US → file `US-{nn}.md` → FR count).
 
-US `README.md` — thêm **Functional requirements** catalog (FR → tên → link `FR-{nn}.md`).
+`US-{nn}.md` — giữ đầy đủ statement, FR, BR, acceptance criteria, edge cases, scenarios, references và UI artifacts. Chỉ tách `FR-{nn}.md` khi theme có quyết định riêng và cập nhật harness tương ứng.
 
 ---
 
@@ -125,7 +123,7 @@ Contract types live in `modules/<owner>/application/` — doc links symbols, kh�
 
 ---
 
-## FR-{nn}.md / Epic·US README — UI artifacts (khi FR có UI)
+## US-{nn}.md / FR-{nn}.md — UI artifacts (khi FR có UI)
 
 ```markdown
 ## UI artifacts
@@ -145,7 +143,7 @@ Agent tạo widget manifest từ bảng này **trước** khi implement.
 | Status | Yêu cầu |
 | ------ | ------- |
 | `planned` | README optional; Epic tree khi có SRS |
-| `in_progress` | README + harness/00..07 + Epic/US/FR |
+| `in_progress` | README + harness/00..07 + Epic README/US files |
 | `mvp` / `done` | Giống `in_progress` + traceability exemplar |
 
 ---

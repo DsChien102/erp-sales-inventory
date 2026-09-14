@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 
 import 'price_rule_status_badge.dart';
 
@@ -138,7 +139,10 @@ class PriceRuleCard extends StatelessWidget {
   }
 
   String _formatMoney(MoneyDto money) {
-    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return MoneyFormatter.format(
+      amountMinor: money.amountMinor,
+      currencyCode: money.currencyCode,
+    );
   }
 
   String _formatDate(DateTime date) => VDateTime.date(date);

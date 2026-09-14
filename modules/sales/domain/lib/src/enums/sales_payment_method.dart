@@ -1,0 +1,1 @@
+enum SalesPaymentMethod { cash, manualBankTransfer }

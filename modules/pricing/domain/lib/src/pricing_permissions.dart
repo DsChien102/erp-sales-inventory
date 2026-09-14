@@ -1,5 +1,7 @@
 /// Pricing-owned permission codes used by access metadata and database checks.
 abstract final class PricingPermissions {
+  static const previewSalesPricing = 'pricing.sales.preview';
+  static const adjustSalesPrice = 'pricing.sales.manual_price.adjust';
   static const viewCustomerPriceRule = 'pricing.customer_price_rule.view';
   static const createCustomerPriceRule = 'pricing.customer_price_rule.create';
   static const updateCustomerPriceRule = 'pricing.customer_price_rule.update';

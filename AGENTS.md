@@ -13,6 +13,7 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 | `packages/vet45_shared/testing/`          | Test harness (`PipelineTestHarness`, fakes)                                                                                                                            |
 | `packages/vet45_async_query/`             | Async server-state toolkit (TanStack Query style) — core + Flutter adapter + example; xem [packages/vet45_async_query/README.md](packages/vet45_async_query/README.md) |
 | `modules/partner/`                        | **TH-03 reboot** — greenfield, chờ rebuild; harness v2 synced; xem [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)                                            |
+| `modules/sales/`                          | **TH-05** — domain/application/infrastructure; UI trong `apps/erp/lib/features/sales/` (ADR 11) |
 | `modules/*` (các context khác)            | **Greenfield skeleton** — chưa codegen                                                                                                                                 |
 | `apps/erp/features/auth/`                 | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup`                                                                                             |
 | `apps/messaging_worker/`                  | Worker messaging — có tests                                                                                                                                            |
@@ -38,7 +39,7 @@ module application      → module domain → packages/vet45_shared/domain
 packages/vet45_shared/* → never import modules/
 ```
 
-Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog `apps/erp/example/`) — không mở rộng `modules/*/presentation` (Sales presentation còn tạm đến khi migrate). ADR: [docs/architecture/11-app-owned-presentation.md](docs/architecture/11-app-owned-presentation.md).
+Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog `apps/erp/example/`) — không `modules/*/presentation`. ADR: [docs/architecture/11-app-owned-presentation.md](docs/architecture/11-app-owned-presentation.md).
 
 
 
@@ -49,6 +50,7 @@ Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog 
 | --------------------------------------------------- | ------------------------------------------------------------------------ |
 | Golden module (codegen + access + wiring)           | `modules/iam/` + [modules/iam/README.md](modules/iam/README.md)          |
 | TH-03 harness (partner greenfield)                  | [docs/themes/TH-03-partner/harness/](docs/themes/TH-03-partner/harness/) |
+| TH-05 harness (sales/orders bootstrap)              | [docs/themes/TH-05-sales-orders/harness/](docs/themes/TH-05-sales-orders/harness/) |
 | Command + handler + `@CommandHandlerFor` (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/`                        |
 | Pipeline + validator + in-memory bus test           | `packages/vet45_shared/testing/test/shared_testing_test.dart`            |
 | Module layout mục tiêu                              | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`                                |
@@ -159,6 +161,7 @@ cd apps/messaging_worker && dart test
 - Inline dialog (`AlertDialog`) trong `*_page.dart` — tách file `widgets/`
 - `Widget _buildXxx()` subtree lớn trong `State` — tách class widget riêng
 - Direct PostgREST writes từ UI
+- **Outbox / integration event đội lốt command** (`*.requested`, apply/retry/reconcile làm “event”) — chỉ publish **facts**; handoff dùng `integration_commands`. Rule: `.cursor/rules/vet45-integration-events.mdc`
 - `Either`/`Result` **bên trong** command handlers (map ở presentation boundary)
 - Import `package:.../src/...` từ package khác
 - Application import infrastructure
@@ -183,6 +186,19 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 - Domain model v2: [harness/01-domain-model.md](docs/themes/TH-03-partner/harness/01-domain-model.md)
 - Golden module (rebuild): `modules/iam/` — partner chưa có code
 
+## Theme harness (TH-05)
+
+Theme package: [docs/themes/TH-05-sales-orders/](docs/themes/TH-05-sales-orders/)
+
+- Canonical spec: [Theme-5-sales-orders.md](docs/themes/TH-05-sales-orders/Theme-5-sales-orders.md)
+- Product tree: mỗi Epic có `README.md` tổng hợp và các file phẳng `US-xx.md`
+- Ritual: [harness/00-agent-ritual.md](docs/themes/TH-05-sales-orders/harness/00-agent-ritual.md)
+- Domain model: [harness/01-domain-model.md](docs/themes/TH-05-sales-orders/harness/01-domain-model.md)
+- Contracts: [harness/07-api-contracts.md](docs/themes/TH-05-sales-orders/harness/07-api-contracts.md)
+- Slice order: [harness/04-slice-roadmap.md](docs/themes/TH-05-sales-orders/harness/04-slice-roadmap.md)
+- Sales application contract/testing Phase 1 synced; BE/FE/E2E vẫn `todo`
+- Domain/infrastructure Sales — UI thuộc `apps/erp/lib/features/sales/` (không module presentation)
+
 
 
 ## Liên kết
@@ -200,30 +216,30 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **vet45** (28681 symbols, 67320 relationships, 284 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **vet45** (40935 symbols, 95804 relationships, 325 execution flows).
 
-> Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
+> Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
 
 ## Always Do
 
-- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
-- **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
-- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
-- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- **MUST run impact before editing.** Use `impact({target: "symbolName", direction: "upstream"})` or `node .gitnexus/run.cjs impact "symbolName" --direction upstream --repo .`; report callers, processes, and risk. Never substitute grep for graph analysis.
+- **MUST analyze graph changes before committing.** Use `detect_changes({scope: "all"})` (MCP) or `node .gitnexus/run.cjs detect-changes --scope all --repo .` (CLI fallback). `partial: true` or `truncated: true` is not a clean check — a zero means unseen, not unaffected; re-run it. For regression review: `detect_changes({scope: "compare", base_ref: "main"})` or `node .gitnexus/run.cjs detect-changes --scope compare --base-ref "main" --repo .`.
+- MUST warn on HIGH/CRITICAL `risk` pre-edit; never use `riskSharedAxes` to waive a HIGH/CRITICAL `risk` warning. Compare File/symbol: MCP File omits axes; Graph-RAG expands File.
+- **MUST treat `risk: UNKNOWN` as unresolved, not as low.** An empty caller set is not evidence the symbol is unused — it can also mean the callers are not resolvable by the index (plain-object property access, dynamic dispatch, cross-language calls). `impact` pairs `UNKNOWN` with a `riskNote` saying so. Confirm with a text search before treating the symbol as safe to change or delete; do not proceed on the strength of a zero.
+- **MUST use `query({search_query: "concept"})` for concepts/flows, `context({name: "symbolName"})` for a named symbol, or `impact` for blast radius, on read-only callers, dependencies, imports, or execution flow.** Graph first; text search only for empty/`UNKNOWN`/literals.
 - For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 
-- NEVER edit a function, class, or method without first running `impact` on it.
-- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
+- NEVER edit a function, class, or method before MCP/CLI impact analysis.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis, and never read `UNKNOWN` as an all-clear — it means the walk could not answer, which is the one verdict that requires confirming by other means.
 - NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
 - NEVER commit before MCP/CLI graph change analysis.
 
 ## Resources
 
 | Resource | Use for |
-|----------|---------|
+| --- | --- |
 | `gitnexus://repo/vet45/context` | Codebase overview, check index freshness |
 | `gitnexus://repo/vet45/clusters` | All functional areas |
 | `gitnexus://repo/vet45/processes` | All execution flows |
@@ -232,12 +248,12 @@ This project is indexed by GitNexus as **vet45** (28681 symbols, 67320 relations
 ## CLI
 
 | Task | Read this skill file |
-|------|---------------------|
-| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
-| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
-| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
-| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
-| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
-| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
+| --- | --- |
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus-exploring/SKILL.md` |
+| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus-debugging/SKILL.md` |
+| Rename / extract / split / refactor | `.claude/skills/gitnexus-refactoring/SKILL.md` |
+| Tools, resources, schema reference | `.claude/skills/gitnexus-guide/SKILL.md` |
+| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->

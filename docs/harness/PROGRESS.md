@@ -38,6 +38,143 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] `guard_theme_traceability.sh` — Role column khi exemplar-complete
 - [ ] Roll-up lane % trong `docs/themes/README.md` (optional)
 
+## Phase 1.8 — TH-05 Sales Orders harness + CONTRACT completion (2026-07-27)
+
+- [x] Canonical source `Theme-5-sales-orders.md` bootstrap SHA-256 `de032a818e7dbc3fe320f3008c46b30a2358320220cd044c4fb3e096948f179a`
+- [x] Theme package `README.md` + `OVERVIEWS.md`; catalog renumber TH-05…TH-12
+- [x] 6 Epic README tổng hợp + US phẳng; derived scenario chuẩn hóa `SCN-*`
+- [x] Harness `00..07`: DDD boundaries, module map, flows, roadmap, traceability, notes và API catalog
+- [x] Sales application public contracts/provider ports/testing barrel compile (legacy shape)
+- [x] Payment intent S09 runtime-only; cancellation split; Receivable port; RPC contract-only/unimplemented
+- [ ] Sales BE/FE/E2E implementation — domain đã landed; infrastructure/presentation vẫn skeleton và không phải golden reference
+
+## Phase 1.8.1 — TH-05 re-harness Theme-5 Phase 1 (2026-07-30)
+
+- [x] Canonical SHA-256 cập nhật `2b19694fa805a5d13c180c8982132c178f9b4a7bc7b66a5861916c88f9bc8c7f`
+- [x] EP-04 → 1 US (`order_note`); EP-06 US-04 → session discard; **34 US / 235 FR / S01–S34**
+- [x] Slice renumber: cũ S27–S38 → S23–S34; EP-04 = S22
+- [x] Harness 00–07 + Epic tree đồng bộ
+- [x] CONTRACT code pass: rewrite adjustment/return Dart DTOs + fake registry (234 scenarios)
+- [x] Sales FE presentation implementation — 34/34 slices (S01–S34) complete in `modules/sales/presentation` & `apps/erp/lib/features/sales`
+- [ ] Sales BE handlers/gateways/RPC drafts — Groups A–I landed through S34 (xem Phase 1.8.2 / 1.8.3 / 1.8.4)
+
+## Phase 1.8.2 — TH-05 Sales BE Groups A–G (2026-08-10)
+
+- [x] Group A S02–S05 BE — runtime working state, provider ports/fakes, pricing preview/precheck
+- [x] Group B S06–S07 BE — draft persistence/restore handlers + gateway + draft RPC `001_sales_order_drafts_group_b.sql`
+- [x] Group C S08–S11 BE — checkout precheck service, payment-intent validator, reference/receivable ports + fakes, finalize validation, draft RPC `002_sales_checkout_group_c_precheck.sql` (default reference precheck fails closed)
+- [x] Group C S08–S11 BE–FE vertical integration — typed checkout snapshot + GoRouter extra; `SalesCheckoutCubit` → `PrecheckSalesOrderCheckoutQuery` → required `ICheckoutGateway`; precheck panel; no finalize; `group_c_no_finalize_contract_test`; guarded live `sales_group_c_s08_s11_live_test` (disabled skip ≠ pass; E2E remains `blocked` — `002` draft-only/unpromoted/unapplied, fail-closed RPC, owner contracts + live seed IDs)
+- [x] Group D S12 BE — `FinalizeSalesOrderCommandHandler` → `ICheckoutGateway.finalize` (required/DI-injected); `GetCheckoutAttemptStatusQueryHandler` (explicit `sales.order.view`); `SupabaseCheckoutGateway` finalize/status; draft RPC `003_sales_checkout_group_d_finalize.sql`
+- [x] Group E S13–S14 BE — S13 result-view read handlers (order/payment-summary/integration-status) + `ISalesOrderReadGateway`; S14 receipt handlers (generate/print/share/archive/get) + `ISalesReceiptGateway`; gateways required/DI-injected; draft RPCs `004_sales_read_group_e.sql` + `005_sales_receipt_group_e.sql`
+- [x] Group F-read S15–S19 BE — order list/search + detail + settlement/transactions + timeline/return-summary via `ISalesOrderInquiryGateway`; S19 reuses Group E receipt surface; draft RPC `006_sales_inquiry_group_f.sql`
+- [x] Group F-ops S20–S21 BE — integration command/impact status + retry/reconcile via `ISalesIntegrationGateway`; available-actions via `IPostSaleActionsGateway` (draft `008`); authoritative prechecks owned by `009`/`010`/`012`; draft RPCs `007_sales_integration_group_f.sql` + `008_sales_post_sale_actions_group_f.sql`
+- [x] Group G S22 BE — checkout `orderNote` nullable/immutable source; note-only apply/history handlers + gateway/mapper/codegen; append-only draft RPC `009_sales_order_adjustment_group_g.sql`; S12 finalize retains existing impact/outbox semantics while S22 apply publishes no external event
+- [ ] S22 E2E — blocked by authoritative store-scope owner contract + promoted/applied S12/S22 RPCs; Group G SQL remains draft-only
+
+## Phase 1.8.3 — TH-05 Sales BE Group H S23–S27 (2026-08-10)
+
+- [x] Group H S23–S27 BE — authoritative cancellation precheck/confirm/detail via `ISalesOrderCancellationGateway`; domain reason/precheck/confirmation evidence + no reopen; S23 return-conflict adapter; S24 reason validation on confirm; S25 idempotent/versioned/refund-free confirm; S26 typed impact retries + cancellation-aware retry/reconcile; S27 detail reusing Group E/F reads; DI + codegen wiring
+- [x] Draft-only SQL — `supabase/migrations/_drafts/010_sales_order_cancellation_group_h.sql` + `supabase/migrations/_drafts/011_sales_cancellation_impacts_group_h.sql` (unpromoted/unapplied; contract tests only)
+- [x] Harness evidence — BE `done` for S23–S27 in roadmap/traceability; 35 scenario IDs mapped in §S23–§S27; E2E remains `todo`/blocked by external owner contracts, store-scope ownership, and unpromoted/unapplied Group D/G/H drafts
+- [x] Sales BE Group I (S28–S34) — xem Phase 1.8.4
+- [ ] S23–S27 E2E — blocked by external Pricing/Inventory/Receivable/E-invoice owner contracts, authoritative store-scope ownership, and unpromoted/unapplied Group D/G/H drafts
+
+## Phase 1.8.4 — TH-05 Sales BE Group I S28–S34 (2026-08-10)
+
+- [x] Group I S28–S34 BE — return/exchange eligibility, technical session, line editing, versioned valuation, settlement difference, confirm/complete, return-status projection via focused ports/handlers/gateways; DI + codegen wiring
+- [x] Draft-only SQL — `012_sales_return_exchange_group_i_session.sql`, `013_sales_return_exchange_group_i_settlement.sql`, `014_sales_return_exchange_group_i_confirmation.sql` (unpromoted/unapplied; contract tests only)
+- [x] Harness evidence — BE `done` for S28–S34; 47 scenario IDs mapped in §S28–§S34; documented sign convention, server-only reference decisions, frozen reason/condition/entrySource limitation, Group F summary/integration reuse, draft-only/no-live-E2E
+- [x] Sales Group I BE–FE integration — xem Phase 1.8.8
+- [ ] S28–S34 E2E — blocked by unavailable Inventory/Pricing/Receivable/E-invoice owner contracts, authoritative store-scope ownership, and unpromoted/unapplied Group I drafts (`012`/`013`/`014`/`020`)
+
+## Phase 1.8.8 — TH-05 Sales Group I BE–FE integration S28–S34 (2026-08-13)
+
+- [x] Group I S28–S34 FE — session/settlement/detail cubits; ERP identity-only create/settle/result/detail/preview; Catalog exchange picker; read-only SG-12 plan; authoritative slip/PDF; `group_i_no_demo_contract_test`
+- [x] Contract extension — application DTOs/queries for form policy + detail; draft `020` + in-place `012`/`013`/`014`; infrastructure mapper/gateways
+- [x] Legacy god VM/cubit/demo pages + settlement payment widgets deleted
+- [x] Harness evidence — roadmap/traceability/notes updated; E2E remains `todo`/`blocked` (no live E2E claimed)
+- [ ] S28–S34 E2E — same blockers as Phase 1.8.4 + tenant reason/condition policy seed
+
+## Phase 1.8.5 — TH-05 Sales Group E BE–FE integration S13–S14 (2026-08-12)
+
+- [x] Group E S13 FE — `SalesTransactionResultCubit` authoritative load path; SG-06 state-driven widgets; identity-only `SalesCheckoutResultArgs`; ERP result route + invalid-entry guard
+- [x] Group E S14 FE — typed `SalesReceiptDocumentDto` PDF/preview; receipt device ops with audit ordering; `SalesPdfRunner` print/share binding
+- [x] Harness evidence — S13/S14 FE traceability + §S13/§S14 contract notes; draft RPCs `004`/`005` remain unpromoted/unapplied
+- [ ] S13–S14 E2E — remains `todo`/blocked by unpromoted Group D/E draft RPCs, live projections, and physical device print/share verification
+
+## Phase 1.8.6 — TH-05 Sales Group F BE–FE integration S15–S21 (2026-08-12)
+
+- [x] Group F S15–S21 FE — authoritative list/detail cubits, section loaders, payment/history/integration/post-sale entry; ERP list/detail + slip preview wiring; `group_f_no_demo_contract_test`
+- [x] Ownership documented — `004` summary; `006` inquiry; `007` recovery; `008` available-actions only; `009`/`010`/`012` authoritative prechecks (Option b)
+- [x] Harness evidence — roadmap/traceability/notes/§S15–§S21 BE–FE notes; PROGRESS workspace verify delta vs baseline
+- [ ] S15–S21 E2E — remains `blocked` by unpromoted/unapplied drafts `004`/`006`/`007`/`008` (+ owner prechecks), live projections, and seed IDs
+
+Residual debts (out of Group F scope): draft `011` envelope; baseline analyze/test noise outside Sales.
+
+Focused verification (2026-08-12 Task 12 — NO COMMIT):
+
+- Guard: `flutter test apps/erp/test/features/sales/group_f_no_demo_contract_test.dart` — **pass**
+- `melos run codegen --no-select` — wrote 0 outputs (no hand-edit `.g.dart`)
+- Focused Group F app/infra suites — **pass** (inquiry/payment/integration/post-sale + SQL contracts)
+- `flutter test modules/sales/presentation` — **182 pass / 1 fail**: `sales_receipt_pdf_generator_test` PathNotFound (doubled package path when cwd=package) — Group E receipt guard path bug, not Group F demo regression
+- `flutter test apps/erp/test/features/sales` — **103/103 pass** (includes new no-demo guard)
+- `melos run analyze --no-select` — exit non-zero only if fatal errors; after Task 12 catalog `const` fix, `vet45_sales_presentation` analyze SUCCESS with warnings/info baseline only
+- `melos run migrate:verify-policy -- --strict` — **OK**
+- `bash scripts/ci/verify_harness.sh` — exit **1** from `guard_presentation_size` (baseline Catalog/Partner + additional pre-existing Sales oversized files: compose page/cubit, slip PDF, Group I return-detail). Not introduced by Group F Task 12 guard/docs.
+- `melos run test --no-select` — exit **1**; **14** packages failed. Fail set dominated by Flutter packages under `dart test` (presentation toolchain), SQL draft contract environment, and known non-Sales debt. Sales-application **185 pass**. Sales-infrastructure **259 pass / 1 fail**: `SalesStartup S12 finalize…` → `DEPENDENCY_UNAVAILABLE` fail-closed checkout precheck (Group D runtime caveat; not Group F). Sales-presentation fails under `dart test` load (needs `flutter test`).
+- `cd apps/erp && flutter test` — **341 pass / 59 fail**; Sales feature suite green; failures are non-Sales (auth/catalog/tenant_context/invitations/…).
+- `git diff --check` — **clean**
+- GitNexus `detect_changes(scope: all)` — risk **critical**, ~84 changed files / 185 symbols / 177 affected processes; overwhelmingly `modules/sales` + TH-05 harness + ERP sales routes/tests (Tasks 1–12 working tree). `compare` vs `main` is whole-branch noise (~4k files) — not used as Task 12 scope signal.
+
+**Delta vs baseline (PROGRESS historical):** same class of workspace noise (non-Sales packages + presentation size + Flutter-under-dart-test). No new Group F production demo-marker failures. Residual debts unchanged: draft `011` envelope, Group I demo pages, unpromoted drafts blocking E2E.
+
+## Phase 1.8.7 — TH-05 Sales Group G BE–FE integration S22 (2026-08-12)
+
+- [x] Group G S22 BE–FE — SG-09 authoritative precheck/version; `SalesOrderAdjustmentAttemptFactory` idempotent apply (context correlation + deterministic payload hash); explicit stale/conflict handling; typed outcome + SG-08 refresh; Phase 1 note-only (no reason); `group_g_no_hardcode_contract_test`
+- [x] Harness evidence — roadmap/traceability/notes/§S22 BE–FE notes; `_drafts/009` remains draft-only/unpromoted in repo (manual local SQL apply is environment-only, not migration evidence)
+- [ ] S22 E2E — remains `todo`/blocked by authoritative store-scope owner contract + promoted/applied S12/S22 RPCs
+- [x] Task 7 final workspace verification (2026-08-12 — NO COMMIT) — evidence below; full report `.superpowers/sdd/task-7-report.md`
+
+Focused verification (2026-08-12 Task 7 — NO COMMIT):
+
+- Format: `dart format` on Group G touched Dart files — **0 changed**
+- Focused FE: factory **3/3**, cubit **18/18**, SG-09 **8/8**, detail **17/17**, `group_g_no_hardcode_contract_test` **1/1** — all pass
+- Existing Group G BE regression: application **4/4**, mapper **7/7**, gateway **13/13**, SQL contract **7/7** — all pass; no SQL file changed
+- `flutter test modules/sales/presentation` — **204/204 pass** (delta vs Group F Task 12: was 182 pass / 1 fail on receipt PDF path; now green under `flutter test`)
+- `flutter test apps/erp/test/features/sales` — **113/113 pass** (delta vs Group F 103/103; +Group G suites)
+- `flutter analyze modules/sales/presentation` — exit **0**, 27 info/warning baseline (none on Group G adjust files)
+- `flutter analyze apps/erp` — exit **0**, 5 info/warning (1 unused_element_parameter in detail page test optional)
+- `melos run codegen --no-select` — wrote **0** outputs; no `.g.dart` diffs
+- `melos run analyze --no-select` — **SUCCESS** (`dart analyze --no-fatal-warnings`)
+- `melos run test --no-select` — exit **1**; **14** packages failed (same count class as Group F Task 12). Sales-application **185 pass**. Sales-infrastructure **259 pass / 1 fail**: `SalesStartup S12 finalize…` → `DEPENDENCY_UNAVAILABLE` (Group D caveat; not Group G). Flutter presentation packages fail under `dart test` (toolchain/`dart:ui`; needs `flutter test`)
+- `bash scripts/ci/verify_harness.sh` — exit **1** solely from `guard_presentation_size` baseline (same 8 oversized files as Task 6; no new Group G page over limit: adjust page 136 / body 146)
+- `git diff --check` — **clean**
+- Forbidden scope for Group G — **clean**: no dirty/untracked under `modules/sales/domain/`, `modules/sales/application/lib/src/sales_order_adjustment/`, `modules/sales/infrastructure/`, `supabase/migrations/`
+- GitNexus `detect_changes(scope: all)` — risk **low**, changed_files **14** (index under-reports untracked), affected_processes **empty**. `SalesOrderAdjustState.orderNumber` listed as touched but **absent** in current source (stale index residual; page/body do not display fake order number)
+
+Docs-guard check (2026-08-12 Task 6 — NO COMMIT):
+
+- `bash scripts/ci/verify_harness.sh` — exit **1** solely from `guard_presentation_size` baseline (no new Group G page):
+  - `apps/erp/lib/features/sales/presentation/pages/sales_order_compose_page.dart` (518)
+  - `apps/erp/lib/features/catalog/presentation/pages/settings/upsert_custom_field_page.dart` (564)
+  - `apps/erp/lib/features/catalog/presentation/pages/settings/store_price_rule_settings_page.dart` (523)
+  - `apps/erp/lib/features/catalog/presentation/pages/product_measurement_units_page.dart` (533)
+  - `modules/sales/presentation/lib/src/support/sales_slip_pdf_generator.dart` (537)
+  - `modules/sales/presentation/lib/src/pages/sales_return_exchange_detail_page.dart` (516)
+  - `modules/sales/presentation/lib/src/bloc/sales_compose_cubit.dart` (518)
+  - `modules/catalog/presentation/lib/src/bloc/product_guided_create_cubit.dart` (752)
+- `git diff --check` — **clean**
+
+## Phase 1.8.8 — TH-05 Sales Group H BE–FE integration S23–S27 (2026-08-13)
+
+- [x] Group H S23–S27 BE–FE — SG-10 cancellation and S26/S27 on SG-08 connected to authoritative backend; hardcodes removed (`CUSTOMER_CHANGE_MIND`, `idemp_/hash_/corr_`, `expectedVersion:1`, `orderId.toUpperCase()`, restock/refund); `group_h_no_hardcode_contract_test` guards the 7 production files
+- [x] S24 reason-policy read contract added — `ListSalesOrderCancellationReasonsQuery` + handler + `ISalesOrderCancellationGateway.listReasons`; mapper strict allowlist + gateway + codegen registration + startup reachability. SG-10 renders reasons from backend policy only (empty catalog → configuration state, no confirm; no Dart fallback catalog)
+- [x] S27 detail extension — `SalesOrderCancellationDetailDto.cancelledByActorId`/`netConfirmedCollectionMinor`; SG-08 composes an independent cancellation section (idle/loading/loaded/projectionPending/error), `NOT_FOUND`/`IMPACT_PENDING` → projection-pending without discarding core; no refund status/action; actor shown as-is
+- [x] SG-10 immutable confirm attempt — `SalesOrderCancellationAttemptFactory` (UUID id, `sales-order-cancellation:<id>` key, canonical SHA-256 payload hash, real tenant/user/correlation, both authoritative versions); retry reuses the same attempt, editing reason/note/version creates a new one; typed `SalesOrderCancelOutcome` pop drives SG-08 `refresh()`
+- [x] S26 typed retry — `SalesIntegrationAttemptFactory` (UUID + canonical SHA-256); retry routed by `SalesImpactKind` to `RetryInventory/Receivable/EInvoiceImpactCommand` (`impactRequestId`, never generic `integrationCommandId`); reconcile stays the single generic `ReconcileIntegrationResultCommand`; cubit-owned attempt cache reuses an unchanged retry, a fresh source version yields a new attempt; removed `defaultSalesIntegrationCommandKeys`/`RetryIntegrationCommand` from the retry path
+- [x] SQL — Option (A) single-owner (draft-only, unpromoted/unapplied): created `_drafts/019_sales_cancellation_reason_catalog_group_h.sql` (owns `list_sales_order_cancellation_reasons` only: `display_name`/`sort_order` columns + nonblank-active check + tenant/permission-scoped active-ordered list RPC); extended `_drafts/010_sales_order_cancellation_group_h.sql` in place (`get_sales_order_cancellation` returns the 2 S27 fields; `-- Touches` unchanged). `migrate:verify-policy --strict` OK
+- [ ] S23–S27 E2E — remains `todo`/blocked by external Pricing/Inventory/Receivable/E-invoice owner contracts, authoritative store-scope ownership, and unpromoted/unapplied Group D/G/H drafts; SG-10 also requires seeded tenant reason policies (nonblank `display_name`) or intentionally shows catalog-empty
+
 ## Phase 2 — IAM golden module
 
 - [x] IAM minimal foundation — DB schema `iam` + RPC session/permission + access checkers
@@ -199,7 +336,8 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-07-16 | TH-04 S6 hoàn tất disable command/handler/domain + authoritative RPC draft (already-disabled trước version check); §S6 contract freeze; CONTRACT/BE `done` theo lane-scoped gate, FE/E2E giữ `todo` |
 | 2026-07-23 | TH-01 S15 FE/E2E — Admin `IIamModule` wiring (platform users + onboarding); `FakeIamModule` scenarios §S15; roadmap/traceability done |
 | 2026-07-30 | TH-01 Contract Gaps Task 11 — semantic guard TH-01 xanh; roadmap/traceability/§S14 status corrected (S1–S3 FE/E2E done; S14 E2E done; S6–S9 BE giữ todo vì Unavailable invitation adapters; dual S14 surface documented). Draft SQL unpromoted. |
-| 2026-07-30 | TH-01 S6–S9 BE completion — repaired FakeIam S1–S3 drift; member JSON-page RPC; invitation read RPCs; delivery projection; real command/acceptance/identity adapters + wiring. FE/E2E not evaluated. Draft SQL unpromoted. `verify_harness.sh` still exits 1 on pre-existing TH-03/TH-04 missing APPENDICES. |
+| 2026-08-12 | TH-05 Group F BE–FE integration S15–S21 — no-demo guard (explicit Group F file list; Group I demo pages excluded as known debt); ownership `004`/`006`/`007`/`008`/`009`/`010`/`012`; E2E remains blocked on draft promote/seed |
+| 2026-08-12 | TH-05 Group G BE–FE integration S22 — SG-09 authoritative precheck/apply + SG-08 refresh; `009` draft-only/unpromoted; E2E remains `todo`; Task 7 pending full verify counts |
 
 ## Phase 2.8 — Pricing S8 CONTRACT + BE (TH-04)
 

@@ -41,6 +41,9 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     isPublic: true,
     idempotencyKeyField: 'idempotencyKey',
   ),
+  GetActiveStoreContextQuery: AccessMetadata(
+    requiresTenant: true,
+  ),
   GetCurrentSessionQuery: AccessMetadata(
     isPublic: true,
   ),
