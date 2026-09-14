@@ -17,6 +17,12 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+### Internal
+
+## [1.7.4+41] - 2026-09-14
+
+### Fixed
+
 - Multi-tenant session: không còn `CONTEXT_INVALID` “Exactly one tenant context” khi user có ≥2 membership; `IamActiveStoreContext` không gọi RPC khi chưa chọn tenant.
 
 ### Internal
