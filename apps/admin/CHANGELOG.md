@@ -15,9 +15,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Login: `SignInPlatformAdminCommand` — gate `platform.user.view` trong IAM handler (không còn check quyền ở UI sau sign-in).
+
 ### Fixed
 
+- Multi-tenant IAM session: guard không gọi `get_session_context` khi chưa bind tenant (shared với ERP).
+
 ### Internal
+
+- IAM: tách platform/tenant sign-in; restore persisted auth thuộc Admin DI; bỏ `IamSessionCoordinator`.
+- Draft SQL `019_iam_get_session_context_multi_tenant` (shared IAM) — cần apply local nếu Admin dùng active-store context.
 
 ## [1.0.3+4] - 2026-09-12
 

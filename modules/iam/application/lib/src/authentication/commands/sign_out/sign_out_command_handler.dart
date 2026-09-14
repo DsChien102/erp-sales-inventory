@@ -6,8 +6,7 @@ import '../../../ports/i_iam_session_port.dart';
 import 'sign_out_command.dart';
 
 @CommandHandlerFor(SignOutCommand)
-final class SignOutCommandHandler
-    implements ICommandHandler<SignOutCommand, SignOutResultDto> {
+final class SignOutCommandHandler implements ICommandHandler<SignOutCommand, SignOutResultDto> {
   SignOutCommandHandler({
     required IAuthenticator authenticator,
     required IIamSessionPort sessionPort,
@@ -26,7 +25,7 @@ final class SignOutCommandHandler
     } catch (_) {
       remoteSucceeded = false;
     } finally {
-      await _sessionPort.clear();
+      _sessionPort.clear();
     }
     return SignOutResultDto(
       localCleared: true,

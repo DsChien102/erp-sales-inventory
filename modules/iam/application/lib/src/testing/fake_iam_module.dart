@@ -1,7 +1,8 @@
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../authentication/commands/sign_in/sign_in_command.dart';
+import '../authentication/commands/sign_in_tenant_user/sign_in_tenant_user_command.dart';
+import '../authentication/commands/sign_in_platform_admin/sign_in_platform_admin_command.dart';
 import '../authentication/commands/sign_out/sign_out_command.dart';
 import '../authentication/queries/get_current_session/get_current_session_query.dart';
 import '../contracts/i_iam_module.dart';
@@ -168,7 +169,7 @@ final class FakeIamModule implements IIamModule {
   int signOutCount = 0;
   int switchTenantCount = 0;
   String? lastSignedInEmail;
-  bool? lastSignInRequireTenantContext;
+  Type? lastSignInCommandType;
 
   void establishAuthenticatedSessionForTesting(String email) {
     _isAuthenticated = true;
@@ -790,7 +791,8 @@ final class FakeIamModule implements IIamModule {
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
     return switch (command) {
-      SignInCommand c => _handleSignIn<TResult>(c),
+      SignInTenantUserCommand c => _handleSignInTenantUser<TResult>(c),
+      SignInPlatformAdminCommand c => _handleSignInPlatformAdmin<TResult>(c),
       SignOutCommand _ => _handleSignOut<TResult>(),
       SendActivationInvitationCommand c => _handleActivationInvite<TResult>(c),
       RequestPlatformPasswordResetCommand c => _handlePasswordReset<TResult>(c),
@@ -863,7 +865,7 @@ final class FakeIamModule implements IIamModule {
     };
   }
 
-  Future<TResult> _handleSignIn<TResult>(SignInCommand command) {
+  Future<TResult> _handleSignInTenantUser<TResult>(SignInTenantUserCommand command) {
     if (scenario == FakeIamScenario.authInvalid) {
       throw const IamBlockedException(
         IamBlockedCodes.invalidCredentials,
@@ -872,7 +874,35 @@ final class FakeIamModule implements IIamModule {
     }
     signInCount++;
     lastSignedInEmail = command.email;
-    lastSignInRequireTenantContext = command.requireTenantContext;
+    lastSignInCommandType = SignInTenantUserCommand;
+    _isAuthenticated = true;
+    _authenticatedEmail = command.email;
+    onSignedIn?.call(command.email);
+    return Future.value(null as TResult);
+  }
+
+  Future<TResult> _handleSignInPlatformAdmin<TResult>(
+    SignInPlatformAdminCommand command,
+  ) {
+    if (scenario == FakeIamScenario.authInvalid) {
+      throw const IamBlockedException(
+        IamBlockedCodes.invalidCredentials,
+        message: 'Invalid login credentials',
+      );
+    }
+    if (scenario == FakeIamScenario.platformPermissionDenied) {
+      signInCount++;
+      lastSignedInEmail = command.email;
+      lastSignInCommandType = SignInPlatformAdminCommand;
+      signOutCount++;
+      _isAuthenticated = false;
+      _authenticatedEmail = null;
+      onSignedOut?.call();
+      throw const IamBlockedException(IamBlockedCodes.platformPermissionDenied);
+    }
+    signInCount++;
+    lastSignedInEmail = command.email;
+    lastSignInCommandType = SignInPlatformAdminCommand;
     _isAuthenticated = true;
     _authenticatedEmail = command.email;
     onSignedIn?.call(command.email);

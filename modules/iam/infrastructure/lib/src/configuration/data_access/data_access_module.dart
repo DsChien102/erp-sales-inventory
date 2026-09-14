@@ -37,7 +37,6 @@ import '../../domain/tenant/supabase_tenant_readiness_gateway.dart';
 import '../session/iam_active_store_context.dart';
 import '../session/iam_execution_context.dart';
 import '../session/iam_session.dart';
-import '../session/iam_session_coordinator.dart';
 
 /// Registers IAM gateways, session, and access checkers.
 final class IamDataAccessModule {
@@ -169,13 +168,7 @@ final class IamDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
-      ..registerSingleton<IIamSessionPort>(
-        IamSessionCoordinator(
-          session: container.get<IamSession>(),
-          accessGateway: container.get<IIamAccessGateway>(),
-          authenticator: container.get<IAuthenticator>(),
-        ),
-      )
+      ..registerSingleton<IIamSessionPort>(container.get<IamSession>())
       ..registerSingleton<IActiveStoreContext>(
         IamActiveStoreContext(
           session: container.get<IamSession>(),

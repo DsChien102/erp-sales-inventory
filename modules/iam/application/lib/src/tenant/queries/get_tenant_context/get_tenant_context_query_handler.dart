@@ -5,6 +5,7 @@ import '../../shared/tenant_context_dto.dart';
 import '../../../ports/i_iam_access_gateway.dart';
 import '../../../ports/i_iam_session_port.dart';
 import '../../../ports/i_platform_user_preference_port.dart';
+import '../../../authentication/shared/bind_session_from_access.dart';
 import 'get_tenant_context_query.dart';
 
 @QueryHandlerFor(GetTenantContextQuery)
@@ -47,7 +48,11 @@ final class GetTenantContextQueryHandler
         return const TenantContextDto(status: TenantContextStatus.none);
       }
 
-      await _sessionPort.establishAfterSignIn(tenantId: context.tenantId);
+      await bindSessionFromAccessContext(
+        accessGateway: _accessGateway,
+        sessionPort: _sessionPort,
+        tenantId: context.tenantId!,
+      );
       if (lastSelected == null) {
         await _preferencePort.setLastSelectedTenantId(context.tenantId);
       }

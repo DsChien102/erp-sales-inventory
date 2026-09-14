@@ -38,8 +38,8 @@ void main() {
     expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
 
     await module.executeCommandAsync<void>(
-      SignInCommand(email: 'a@b.com', password: 'secret'),
+      SignInTenantUserCommand(email: 'a@b.com', password: 'secret'),
     );
-    expect(module.commandsOf<SignInCommand>(), hasLength(1));
+    expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
   });
 }

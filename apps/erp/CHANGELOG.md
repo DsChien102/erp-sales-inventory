@@ -17,7 +17,12 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+- Multi-tenant session: không còn `CONTEXT_INVALID` “Exactly one tenant context” khi user có ≥2 membership; `IamActiveStoreContext` không gọi RPC khi chưa chọn tenant.
+
 ### Internal
+
+- IAM: tách `SignInTenantUser` / `SignInPlatformAdmin`; bỏ `IamSessionCoordinator`; restore persisted auth thuộc app DI.
+- Draft SQL `019_iam_get_session_context_multi_tenant` (filter active; multi-tenant → null; `bootstrap_owner` theo `p_tenant_id`) — cần apply local.
 
 ## [1.7.3+40] - 2026-09-14
 
@@ -28,6 +33,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+- Login tenant: dùng `SignInTenantUserCommand` (auth-only) — không gọi `get_session_context` khi multi-tenant; tenant/store qua `TenantContextCubit.bootstrap`.
 - SG-02: unfocus ô tìm SP trong lúc fetch đang treo thì hủy kết quả inflight — không mở menu pick sản phẩm sau khi future hoàn tất.
 - SG-02: chặn bấm nhanh mở trùng sheet chọn đơn vị bán.
 - SG-02: tóm tắt thanh toán — tổng tiền hàng = Σ max(niêm yết, tiền bán); phần giá riêng thấp hơn list vào “Giảm giá”; thành tiền = tổng − giảm.
@@ -42,6 +48,10 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
 - Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
 - Pricing / Partner: migrate `VBanner` — bỏ `icon` override; dùng `description` thay `message` nơi đã đụng.
+
+### Fixed
+
+### Internal
 
 ## [1.7.3+39] - 2026-09-12
 

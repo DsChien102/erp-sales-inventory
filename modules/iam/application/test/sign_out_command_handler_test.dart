@@ -36,23 +36,20 @@ class _FakeSessionPort implements IIamSessionPort {
   SessionDto get snapshot => const SessionDto(isAuthenticated: true);
 
   @override
-  Future<void> clear() async {
+  void applyAuthenticatedUser(String userId) {}
+
+  @override
+  void apply(PrincipalAccessDto context) {}
+
+  @override
+  void clear() {
     clearCalls++;
     if (throwOnClear) {
       throw Exception('local clear fail');
     }
   }
 
-  @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {}
 
-  @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
 }
 
 void main() {

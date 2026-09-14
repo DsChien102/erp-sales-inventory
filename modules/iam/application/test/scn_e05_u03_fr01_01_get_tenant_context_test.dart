@@ -27,25 +27,22 @@ class _FakePreferencePort implements IPlatformUserPreferencePort {
 
 class _FakeSessionPort implements IIamSessionPort {
   String? establishedTenantId;
+  PrincipalAccessDto? applied;
 
   @override
   SessionDto get snapshot => const SessionDto(isAuthenticated: true);
 
   @override
-  Future<void> clear() async {}
+  void clear() {}
 
   @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {
-    establishedTenantId = tenantId;
+  void applyAuthenticatedUser(String userId) {}
+
+  @override
+  void apply(PrincipalAccessDto context) {
+    applied = context;
+    establishedTenantId = context.tenantId;
   }
-
-  @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
 }
 
 class _ScenarioAccessGateway implements IIamAccessGateway {
@@ -67,7 +64,19 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
 
   @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async {
+    if (tenantId == null) return null;
+    return PrincipalAccessDto(
+      userId: 'user-1',
+      tenantId: tenantId,
+      activeStoreId: 'store-1',
+      activeStoreCode: 'default',
+      activeStoreDisplayName: 'Default',
+      role: 'owner',
+      isOwner: true,
+      permissions: const <String>[],
+    );
+  }
 
   @override
   Future<bool> hasPermission({

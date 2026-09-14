@@ -4,8 +4,8 @@ import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 
-/// Offline client: the constructor performs no network I/O, and with
-/// `restoreSession: false` the IAM startup never touches Supabase Auth.
+/// Offline client: the constructor performs no network I/O; IAM startup
+/// does not restore persisted auth (host-owned).
 SupabaseClient _offlineClient() =>
     SupabaseClient('https://offline.local', 'anon-test-key');
 
@@ -18,8 +18,7 @@ void main() {
       await IamStartup.initializeForTesting(
         supabase: _offlineClient(),
         container: container,
-        restoreSession: false,
-      );
+              );
     });
 
     tearDown(() => container.reset());

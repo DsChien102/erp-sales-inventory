@@ -171,7 +171,10 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'platform.user.activation_invite.send',
     idempotencyKeyField: 'idempotencyKey',
   ),
-  SignInCommand: AccessMetadata(
+  SignInPlatformAdminCommand: AccessMetadata(
+    isPublic: true,
+  ),
+  SignInTenantUserCommand: AccessMetadata(
     isPublic: true,
   ),
   SignOutCommand: AccessMetadata(

@@ -26,9 +26,19 @@ final class GetCurrentSessionQueryHandler
       case AuthSessionState.absent:
         return const SessionDto(isAuthenticated: false);
       case AuthSessionState.active:
-        return _sessionPort.snapshot;
+        final snapshot = _sessionPort.snapshot;
+        return SessionDto(
+          isAuthenticated: snapshot.isAuthenticated,
+          userId: snapshot.userId,
+          email: _authenticator.currentEmail,
+          tenantId: snapshot.tenantId,
+          activeStoreId: snapshot.activeStoreId,
+          role: snapshot.role,
+          isOwner: snapshot.isOwner,
+          permissions: snapshot.permissions,
+        );
       case AuthSessionState.expired:
-        await _sessionPort.clear();
+        _sessionPort.clear();
         throw IamBlockedException(IamBlockedCodes.sessionExpired);
     }
   }

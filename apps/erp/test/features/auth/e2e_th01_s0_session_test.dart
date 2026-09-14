@@ -70,7 +70,7 @@ void main() {
       await tester.tap(find.text('Đăng nhập'));
       await tester.pumpAndSettle();
 
-      expect(module.commandsOf<SignInCommand>(), hasLength(1));
+      expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
       expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
       expect(find.text('Tổng quan hôm nay'), findsOneWidget);
     },

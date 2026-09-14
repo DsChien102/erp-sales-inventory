@@ -168,9 +168,34 @@ void main() {
     expect(await context.requireActiveStoreId(), 'store-refreshed');
     expect(session.activeStoreId, 'store-refreshed');
   });
+
+  test('active store context fails closed when tenant is not bound', () async {
+    final session = IamSession();
+    session.applyAuthenticatedUser('user-1');
+
+    final gateway = _RefreshingAccessGateway();
+    final context = IamActiveStoreContext(
+      session: session,
+      accessGateway: gateway,
+    );
+
+    await expectLater(
+      context.requireActiveStoreId(),
+      throwsA(
+        isA<ApplicationException>().having(
+          (e) => e.message,
+          'message',
+          'Tenant context is required.',
+        ),
+      ),
+    );
+    expect(gateway.getSessionContextCalls, 0);
+  });
 }
 
 final class _RefreshingAccessGateway implements IIamAccessGateway {
+  int getSessionContextCalls = 0;
+
   @override
   Future<void> assignMemberRole({
     required String tenantId,
@@ -180,6 +205,7 @@ final class _RefreshingAccessGateway implements IIamAccessGateway {
 
   @override
   Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async {
+    getSessionContextCalls += 1;
     return const PrincipalAccessDto(
       userId: 'user-1',
       tenantId: 'tenant-1',

@@ -3,7 +3,12 @@ import 'package:vet45_shared_application/application.dart';
 
 /// In-memory session snapshot — implements shared current-user/tenant contracts.
 final class IamSession
-    implements ICurrentUser, ICurrentTenant, IPrincipalSnapshot, IActiveStoreContext {
+    implements
+        IIamSessionPort,
+        ICurrentUser,
+        ICurrentTenant,
+        IPrincipalSnapshot,
+        IActiveStoreContext {
   String? _userId;
   String? _tenantId;
   String? _activeStoreId;
@@ -45,6 +50,10 @@ final class IamSession
     return storeId;
   }
 
+  @override
+  SessionDto get snapshot => toDto();
+
+  @override
   void apply(PrincipalAccessDto dto) {
     _userId = dto.userId;
     _tenantId = dto.tenantId;
@@ -54,6 +63,7 @@ final class IamSession
     _permissions = dto.permissions.toSet();
   }
 
+  @override
   void applyAuthenticatedUser(String userId) {
     _userId = userId;
     _tenantId = null;
@@ -63,6 +73,7 @@ final class IamSession
     _permissions = {};
   }
 
+  @override
   void clear() {
     _userId = null;
     _tenantId = null;

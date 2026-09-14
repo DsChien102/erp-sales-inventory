@@ -33,20 +33,17 @@ class _FakeSessionPort implements IIamSessionPort {
   );
 
   @override
-  Future<void> clear() async {
+  void applyAuthenticatedUser(String userId) {}
+
+  @override
+  void apply(PrincipalAccessDto context) {}
+
+  @override
+  void clear() {
     clearCalled++;
   }
 
-  @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {}
 
-  @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
 }
 
 void main() {

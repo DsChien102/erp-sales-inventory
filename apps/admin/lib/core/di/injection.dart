@@ -5,6 +5,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../supabase/supabase_module.dart';
+import '../session/restore_persisted_auth_session.dart';
 
 final getIt = GetIt.instance;
 
@@ -25,6 +26,11 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
     integrationEventBus: getIt<IEventsBus>(),
+  );
+
+  restorePersistedAuthSession(
+    authenticator: iamRuntime.authenticator,
+    sessionPort: iamRuntime.sessionPort,
   );
 
   getIt

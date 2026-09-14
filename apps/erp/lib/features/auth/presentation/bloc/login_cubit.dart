@@ -29,7 +29,7 @@ final class LoginCubit extends Cubit<LoginState> {
 
     try {
       await _iamModule.executeCommandAsync(
-        SignInCommand(email: email, password: password),
+        SignInTenantUserCommand(email: email, password: password),
       );
       final session = await _iamModule.executeQueryAsync<SessionDto>(
         GetCurrentSessionQuery(),

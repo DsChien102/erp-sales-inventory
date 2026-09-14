@@ -49,9 +49,13 @@ final class IamActiveStoreContext implements IActiveStoreContext {
   }
 
   Future<void> _doRefresh() async {
-    final context = await _accessGateway.getSessionContext(
-      tenantId: _session.tenantId,
-    );
+    final tenantId = _session.tenantId?.trim();
+    if (tenantId == null || tenantId.isEmpty) {
+      // Multi-tenant: never call get_session_context without an explicit tenant.
+      throw ApplicationException('Tenant context is required.');
+    }
+
+    final context = await _accessGateway.getSessionContext(tenantId: tenantId);
     if (context == null) {
       throw ApplicationException('Active store context is required.');
     }

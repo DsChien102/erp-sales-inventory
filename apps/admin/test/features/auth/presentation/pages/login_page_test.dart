@@ -96,7 +96,7 @@ void main() {
 
     expect(find.text('admin-home'), findsOneWidget);
     expect(iam.signInCount, 1);
-    expect(iam.lastSignInRequireTenantContext, isFalse);
+    expect(iam.lastSignInCommandType, SignInPlatformAdminCommand);
   });
 
   testWidgets('invalid credentials show failure toast', (tester) async {
@@ -123,25 +123,12 @@ void main() {
   testWidgets('non-platform admin is signed out with message', (tester) async {
     final session = IamSession();
     final iam = FakeIamModule(
-      scenario: FakeIamScenario.authSignInOk,
-      onSignedIn: (_) {
-        session.apply(
-          const PrincipalAccessDto(
-            userId: 'tenant-user',
-            tenantId: 't-1',
-            role: 'staff',
-            isOwner: false,
-            permissions: [],
-          ),
-        );
-      },
+      scenario: FakeIamScenario.platformPermissionDenied,
       onSignedOut: session.clear,
     );
     registerDeps(
       iam: iam,
-      permissionChecker: FakePermissionChecker(
-        deny: {IamPlatformPermissions.userView},
-      ),
+      permissionChecker: FakePermissionChecker(),
       session: session,
     );
 
