@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/errors/exception_mapper.dart';
@@ -90,10 +88,9 @@ class _LoginPageState extends State<LoginPage> {
 
     final signInResult = await guard(
       () => getIt<IIamModule>().executeCommandAsync(
-        SignInCommand(
+        SignInPlatformAdminCommand(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          requireTenantContext: false,
         ),
       ),
     );
@@ -105,37 +102,15 @@ class _LoginPageState extends State<LoginPage> {
     final signInFailure = signInResult.fold((f) => f, (_) => null);
     if (signInFailure != null) {
       setState(() => _isSubmitting = false);
+      final isPlatformDenied = signInFailure.message.contains(
+        IamBlockedCodes.platformPermissionDenied,
+      );
       VToast.show(
         context,
         title: 'Đăng nhập thất bại',
-        message: signInFailure.message,
-        type: VToastType.danger,
-      );
-      return;
-    }
-
-    final gateResult = await guard(
-      () =>
-          getIt<IPermissionChecker>().require(IamPlatformPermissions.userView),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    final gateFailure = gateResult.fold((f) => f, (_) => null);
-    if (gateFailure != null) {
-      await guard(
-        () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() => _isSubmitting = false);
-      VToast.show(
-        context,
-        title: 'Đăng nhập thất bại',
-        message: 'Tài khoản không có quyền Platform Admin',
+        message: isPlatformDenied
+            ? 'Tài khoản không có quyền Platform Admin'
+            : signInFailure.message,
         type: VToastType.danger,
       );
       return;

@@ -433,7 +433,8 @@ void _validateCmdCatalog({
   required List<ContractSemanticIssue> issues,
 }) {
   final excluded = {
-    'SignInCommand',
+    'SignInTenantUserCommand',
+    'SignInPlatformAdminCommand',
     'GetCurrentSessionQuery',
     'SendEmailDeliveryCommand',
   };

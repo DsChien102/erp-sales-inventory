@@ -1,15 +1,13 @@
+import '../authentication/shared/principal_access_dto.dart';
 import '../authentication/shared/session_dto.dart';
 
-/// Coordinates in-memory session after auth events.
+/// In-memory IAM session state — no auth/restore orchestration.
 abstract interface class IIamSessionPort {
   SessionDto get snapshot;
 
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  });
+  void applyAuthenticatedUser(String userId);
 
-  Future<void> clear();
+  void apply(PrincipalAccessDto context);
 
-  Future<void> restoreFromPersistedAuth({bool requireTenantContext = true});
+  void clear();
 }

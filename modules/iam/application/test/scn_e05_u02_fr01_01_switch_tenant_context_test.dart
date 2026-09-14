@@ -34,24 +34,19 @@ class _FakeSessionPort implements IIamSessionPort {
   SessionDto get snapshot => const SessionDto(isAuthenticated: true);
 
   @override
-  Future<void> clear() async {}
+  void clear() {}
 
   @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {
+  void applyAuthenticatedUser(String userId) {}
+
+  @override
+  void apply(PrincipalAccessDto context) {
     establishCount++;
     if (failEstablish && establishCount == 1) {
       throw StateError('session establish failed');
     }
-    establishedTenantId = tenantId;
+    establishedTenantId = context.tenantId;
   }
-
-  @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
 }
 
 class _FailingPreferencePort implements IPlatformUserPreferencePort {
@@ -91,8 +86,25 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   @override
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
 
+  bool failSessionContext = false;
+
   @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async {
+    if (failSessionContext) {
+      throw StateError('session establish failed');
+    }
+    if (tenantId == null) return null;
+    return PrincipalAccessDto(
+      userId: 'user-1',
+      tenantId: tenantId,
+      activeStoreId: 'store-1',
+      activeStoreCode: 'default',
+      activeStoreDisplayName: 'Default',
+      role: 'owner',
+      isOwner: true,
+      permissions: const <String>[],
+    );
+  }
 
   @override
   Future<bool> hasPermission({

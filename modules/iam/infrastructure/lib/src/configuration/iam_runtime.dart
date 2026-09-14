@@ -13,6 +13,7 @@ final class IamRuntime {
     required this.activeStoreContext,
     required this.session,
     required this.sessionPort,
+    required this.authenticator,
   });
 
   final IIamModule module;
@@ -22,8 +23,9 @@ final class IamRuntime {
   final IActiveStoreContext activeStoreContext;
   final IamSession session;
 
-  /// Exposed so host apps can call [IIamSessionPort.restoreFromPersistedAuth]
-  /// after DI is complete, rather than relying on [IamStartup] to do it
-  /// internally. This keeps session bootstrap outside the module boundary.
+  /// In-memory session state for host apps (apply / clear / snapshot).
   final IIamSessionPort sessionPort;
+
+  /// Auth identity (Supabase session) for host-owned restore bootstrap.
+  final IAuthenticator authenticator;
 }

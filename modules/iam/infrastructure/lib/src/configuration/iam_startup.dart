@@ -24,9 +24,9 @@ import 'session/iam_session.dart';
 
 /// Composition root entry point for the IAM bounded context.
 abstract final class IamStartup {
-  /// Bootstrap the IAM module. Session restore is intentionally **not** done
-  /// here — callers should invoke [IamRuntime.sessionPort.restoreFromPersistedAuth]
-  /// after DI is complete so host apps control the tenant-bootstrap order.
+  /// Bootstrap the IAM module. Persisted-auth restore is **host-owned** —
+  /// apps read [IamRuntime.authenticator] and apply identity via
+  /// [IamRuntime.sessionPort] after DI.
   static Future<IamRuntime> initialize({
     required SupabaseClient supabase,
     required ILoggerFactory loggerFactory,
@@ -49,10 +49,6 @@ abstract final class IamStartup {
     GetIt? container,
     ILoggerFactory? loggerFactory,
     IEventsBus? integrationEventBus,
-    /// Legacy: kept for test suites that relied on internal restore.
-    /// Prefer calling [IamRuntime.sessionPort.restoreFromPersistedAuth] instead.
-    bool restoreSession = false,
-    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) {
     final resolvedContainer = container ?? GetIt.asNewInstance();
@@ -62,8 +58,6 @@ abstract final class IamStartup {
       supabase,
       resolvedLoggerFactory,
       integrationEventBus: integrationEventBus,
-      restoreSession: restoreSession,
-      requireTenantSession: requireTenantSession,
       resendClient: resendClient,
     );
   }
@@ -94,8 +88,6 @@ abstract final class IamStartup {
     SupabaseClient supabase,
     ILoggerFactory loggerFactory, {
     IEventsBus? integrationEventBus,
-    bool restoreSession = false,
-    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final commandLogger = loggerFactory.named('iam.commands');
@@ -145,12 +137,6 @@ abstract final class IamStartup {
     );
 
     final session = container.get<IamSession>();
-    final sessionPort = container.get<IIamSessionPort>();
-    if (restoreSession) {
-      await sessionPort.restoreFromPersistedAuth(
-        requireTenantContext: requireTenantSession,
-      );
-    }
 
     final module = IamModule(container);
     container.registerSingleton<IIamModule>(module);
@@ -163,6 +149,7 @@ abstract final class IamStartup {
       activeStoreContext: container.get<IActiveStoreContext>(),
       session: session,
       sessionPort: container.get<IIamSessionPort>(),
+      authenticator: container.get<IAuthenticator>(),
     );
   }
 }

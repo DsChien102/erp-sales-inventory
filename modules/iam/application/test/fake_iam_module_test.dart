@@ -197,7 +197,7 @@ void main() {
       );
 
       await module.executeCommandAsync(
-        SignInCommand(email: 'admin@vet45.local', password: 'secret'),
+        SignInTenantUserCommand(email: 'admin@vet45.local', password: 'secret'),
       );
 
       expect(module.signInCount, 1);
@@ -209,7 +209,7 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.authSignInOk);
 
       await module.executeCommandAsync<void>(
-        SignInCommand(email: 'admin@vet45.local', password: 'secret'),
+        SignInTenantUserCommand(email: 'admin@vet45.local', password: 'secret'),
       );
       final session = await module.executeQueryAsync<SessionDto>(
         GetCurrentSessionQuery(),
@@ -225,7 +225,7 @@ void main() {
 
       expect(
         () => module.executeCommandAsync(
-          SignInCommand(email: 'x@y.z', password: 'bad'),
+          SignInTenantUserCommand(email: 'x@y.z', password: 'bad'),
         ),
         throwsA(isA<ApplicationException>()),
       );

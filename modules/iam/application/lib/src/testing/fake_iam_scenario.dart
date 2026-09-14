@@ -16,6 +16,7 @@ enum FakeIamScenario {
   authSessionOk,
   authSessionExpired,
   authSignOutOk,
+  platformPermissionDenied,
 
   // ── S16 platform tenants / audit ──
   tenantsSearchOk,

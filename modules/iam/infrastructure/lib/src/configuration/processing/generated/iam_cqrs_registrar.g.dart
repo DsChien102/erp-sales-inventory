@@ -302,11 +302,22 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<SignInCommand, void, SignInCommandHandler>(
+  IamCommandRegistration.registerBusinessHandler<SignInPlatformAdminCommand, void, SignInPlatformAdminCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
-    factory: () => SignInCommandHandler(
+    factory: () => SignInPlatformAdminCommandHandler(
+      authenticator: container.get<IAuthenticator>(),
+      sessionPort: container.get<IIamSessionPort>(),
+      platformAdminGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<SignInTenantUserCommand, void, SignInTenantUserCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SignInTenantUserCommandHandler(
       authenticator: container.get<IAuthenticator>(),
       sessionPort: container.get<IIamSessionPort>(),
     ),

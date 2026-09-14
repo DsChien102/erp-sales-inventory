@@ -13,6 +13,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../supabase/supabase_module.dart';
+import '../session/restore_persisted_auth_session.dart';
 
 final getIt = GetIt.instance;
 
@@ -39,8 +40,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   // Tenant selection is deferred to TenantContextCubit.bootstrap() which reads
   // user_preferences and validates via get_tenant_context — ensuring the
   // last-selected tenant (not the oldest membership) is restored on login.
-  await iamRuntime.sessionPort.restoreFromPersistedAuth(
-    requireTenantContext: false,
+  restorePersistedAuthSession(
+    authenticator: iamRuntime.authenticator,
+    sessionPort: iamRuntime.sessionPort,
   );
 
   getIt

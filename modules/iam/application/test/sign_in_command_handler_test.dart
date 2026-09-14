@@ -1,8 +1,10 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 class _RecordingAuthenticator implements IAuthenticator {
   String? signedInEmail;
+  var signedOut = false;
 
   @override
   AuthSessionState get sessionState =>
@@ -21,77 +23,112 @@ class _RecordingAuthenticator implements IAuthenticator {
 
   @override
   Future<void> signOut() async {
+    signedOut = true;
     signedInEmail = null;
   }
 }
 
 class _RecordingSessionPort implements IIamSessionPort {
-  var established = false;
-  var requireTenantContext = true;
+  String? appliedUserId;
+  PrincipalAccessDto? appliedPrincipal;
+  var cleared = false;
 
   @override
   SessionDto get snapshot => SessionDto(
-    isAuthenticated: established,
-    userId: established ? 'user-1' : null,
-    email: 'test@vet45.com',
+    isAuthenticated: appliedUserId != null || appliedPrincipal != null,
+    userId: appliedUserId ?? appliedPrincipal?.userId,
   );
 
   @override
-  Future<void> clear() async {
-    established = false;
+  void applyAuthenticatedUser(String userId) {
+    appliedUserId = userId;
+    appliedPrincipal = null;
   }
 
   @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {
-    established = true;
-    this.requireTenantContext = requireTenantContext;
+  void apply(PrincipalAccessDto context) {
+    appliedPrincipal = context;
+    appliedUserId = context.userId;
   }
 
   @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
+  void clear() {
+    cleared = true;
+    appliedUserId = null;
+    appliedPrincipal = null;
+  }
+}
+
+class _FakePlatformGateway implements IPlatformAdminGateway {
+  _FakePlatformGateway({this.allowed = true});
+
+  final bool allowed;
+
+  @override
+  Future<bool> hasPlatformPermission(String permission) async => allowed;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
-  test('SignInCommandHandler signs in and establishes session', () async {
+  test('SignInTenantUserCommandHandler applies auth-only session', () async {
     final authenticator = _RecordingAuthenticator();
     final sessionPort = _RecordingSessionPort();
-    final handler = SignInCommandHandler(
+    final handler = SignInTenantUserCommandHandler(
       authenticator: authenticator,
       sessionPort: sessionPort,
     );
 
     await handler.handle(
-      SignInCommand(email: 'owner@vet45.com', password: 'secret'),
+      SignInTenantUserCommand(email: 'owner@vet45.com', password: 'secret'),
     );
 
     expect(authenticator.signedInEmail, 'owner@vet45.com');
-    expect(sessionPort.established, isTrue);
-    expect(sessionPort.requireTenantContext, isTrue);
+    expect(sessionPort.appliedUserId, 'user-1');
+    expect(sessionPort.appliedPrincipal, isNull);
   });
 
-  test('SignInCommandHandler can establish auth-only platform session', () async {
+  test('SignInPlatformAdminCommandHandler allows platform admin', () async {
     final authenticator = _RecordingAuthenticator();
     final sessionPort = _RecordingSessionPort();
-    final handler = SignInCommandHandler(
+    final handler = SignInPlatformAdminCommandHandler(
       authenticator: authenticator,
       sessionPort: sessionPort,
+      platformAdminGateway: _FakePlatformGateway(allowed: true),
     );
 
     await handler.handle(
-      SignInCommand(
-        email: 'admin@vet45.com',
-        password: 'secret',
-        requireTenantContext: false,
-      ),
+      SignInPlatformAdminCommand(email: 'admin@vet45.com', password: 'secret'),
     );
 
     expect(authenticator.signedInEmail, 'admin@vet45.com');
-    expect(sessionPort.established, isTrue);
-    expect(sessionPort.requireTenantContext, isFalse);
+    expect(sessionPort.appliedUserId, 'user-1');
+    expect(authenticator.signedOut, isFalse);
+  });
+
+  test('SignInPlatformAdminCommandHandler denies without platform permission', () async {
+    final authenticator = _RecordingAuthenticator();
+    final sessionPort = _RecordingSessionPort();
+    final handler = SignInPlatformAdminCommandHandler(
+      authenticator: authenticator,
+      sessionPort: sessionPort,
+      platformAdminGateway: _FakePlatformGateway(allowed: false),
+    );
+
+    await expectLater(
+      handler.handle(
+        SignInPlatformAdminCommand(email: 'user@vet45.com', password: 'secret'),
+      ),
+      throwsA(
+        isA<IamBlockedException>().having(
+          (e) => e.code,
+          'code',
+          IamBlockedCodes.platformPermissionDenied,
+        ),
+      ),
+    );
+    expect(authenticator.signedOut, isTrue);
+    expect(sessionPort.cleared, isTrue);
   });
 }

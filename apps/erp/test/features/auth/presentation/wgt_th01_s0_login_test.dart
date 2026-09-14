@@ -33,7 +33,7 @@ void main() {
       await cubit.submit(email: 'lan@example.com', password: 'secret-123');
 
       expect(module.commands, hasLength(1));
-      expect(module.commands.first, isA<SignInCommand>());
+      expect(module.commands.first, isA<SignInTenantUserCommand>());
       expect(module.queries, hasLength(1));
       expect(module.queries.first, isA<GetCurrentSessionQuery>());
       expect(cubit.state.status, LoginStatus.success);
@@ -52,7 +52,7 @@ void main() {
 
       await cubit.submit(email: 'lan@example.com', password: 'secret-123');
 
-      expect(module.commandsOf<SignInCommand>(), hasLength(1));
+      expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
       expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
       expect(cubit.state.status, LoginStatus.failure);
       expect(cubit.state.failure?.code, IamBlockedCodes.authenticationRequired);
@@ -118,7 +118,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('HOME_OK'), findsOneWidget);
-      expect(module.commands.first, isA<SignInCommand>());
+      expect(module.commands.first, isA<SignInTenantUserCommand>());
       expect(module.queries.first, isA<GetCurrentSessionQuery>());
     },
   );

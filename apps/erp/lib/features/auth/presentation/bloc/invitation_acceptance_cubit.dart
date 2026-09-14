@@ -101,10 +101,9 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
 
     try {
       await _iamModule.executeCommandAsync(
-        SignInCommand(
+        SignInTenantUserCommand(
           email: inspection.inviteeEmail,
           password: password,
-          requireTenantContext: false,
         ),
       );
       final session = await _iamModule.executeQueryAsync<SessionDto>(

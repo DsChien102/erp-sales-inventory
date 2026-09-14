@@ -9,10 +9,13 @@ export 'src/authentication/queries/get_active_store_context/get_active_store_con
 export 'src/authentication/queries/get_active_store_context/get_active_store_context_query_handler.dart';
 export 'src/authentication/shared/active_store_context_dto.dart';
 export 'src/authentication/shared/auth_session_state.dart';
-export 'src/authentication/commands/sign_in/sign_in_command.dart';
-export 'src/authentication/commands/sign_in/sign_in_command_handler.dart';
+export 'src/authentication/commands/sign_in_tenant_user/sign_in_tenant_user_command.dart';
+export 'src/authentication/commands/sign_in_tenant_user/sign_in_tenant_user_command_handler.dart';
+export 'src/authentication/commands/sign_in_platform_admin/sign_in_platform_admin_command.dart';
+export 'src/authentication/commands/sign_in_platform_admin/sign_in_platform_admin_command_handler.dart';
 export 'src/authentication/commands/sign_out/sign_out_command.dart';
 export 'src/authentication/commands/sign_out/sign_out_command_handler.dart';
+export 'src/authentication/shared/bind_session_from_access.dart';
 export 'src/configurations/commands/i_command_scheduler.dart';
 export 'src/contracts/i_iam_module.dart';
 export 'src/tenant/shared/accessible_tenant_dto.dart';

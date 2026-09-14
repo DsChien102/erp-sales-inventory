@@ -67,8 +67,8 @@ void main() {
     expect(cubit.state.acceptedMembership?.status, MembershipStatus.active);
     expect(cubit.state.tokenPresent, isFalse);
 
-    expect(module.commandsOf<SignInCommand>(), hasLength(1));
-    expect(module.commandsOf<SignInCommand>().single.requireTenantContext, isFalse);
+    expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
+    expect(module.commandsOf<SignInTenantUserCommand>().single, isA<SignInTenantUserCommand>());
     expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
     final accept = module.commandsOf<AcceptInvitationCommand>().single;
     expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
@@ -78,7 +78,7 @@ void main() {
     expect(module.queriesOf<GetTenantContextQuery>(), isNotEmpty);
 
     // Order: SignIn before Accept
-    final signInIndex = module.commands.indexWhere((c) => c is SignInCommand);
+    final signInIndex = module.commands.indexWhere((c) => c is SignInTenantUserCommand);
     final acceptIndex = module.commands.indexWhere((c) => c is AcceptInvitationCommand);
     expect(signInIndex, lessThan(acceptIndex));
     await cubit.close();
@@ -100,7 +100,7 @@ void main() {
     expect(cubit.state.tokenPresent, isFalse);
     expect(cubit.state.failure, isNull);
 
-    expect(module.commandsOf<SignInCommand>(), isEmpty);
+    expect(module.commandsOf<SignInTenantUserCommand>(), isEmpty);
     expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
     final accept = module.commandsOf<AcceptInvitationCommand>().single;
     expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');

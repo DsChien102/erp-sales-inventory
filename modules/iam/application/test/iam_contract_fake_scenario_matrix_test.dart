@@ -22,7 +22,7 @@ void main() {
 
       final signIn = FakeIamModule(scenario: FakeIamScenario.authSignInOk);
       await signIn.executeCommandAsync(
-        SignInCommand(email: 'admin@vet45.local', password: 'secret'),
+        SignInTenantUserCommand(email: 'admin@vet45.local', password: 'secret'),
       );
       expect(signIn.signInCount, 1);
 

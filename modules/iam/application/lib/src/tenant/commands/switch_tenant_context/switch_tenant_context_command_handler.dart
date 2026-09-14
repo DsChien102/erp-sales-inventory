@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../../../ports/i_iam_access_gateway.dart';
 import '../../../ports/i_iam_session_port.dart';
 import '../../../ports/i_platform_user_preference_port.dart';
+import '../../../authentication/shared/bind_session_from_access.dart';
 import '../../shared/tenant_context_dto.dart';
 import '../../../shared/iam_blocked_codes.dart';
 import '../../../shared/iam_blocked_exception.dart';
@@ -54,7 +55,11 @@ final class SwitchTenantContextCommandHandler
     // Step 3: establish session before preference so preference failure can
     // restore the previous session.
     try {
-      await _sessionPort.establishAfterSignIn(tenantId: context.tenantId);
+      await bindSessionFromAccessContext(
+        accessGateway: _accessGateway,
+        sessionPort: _sessionPort,
+        tenantId: context.tenantId!,
+      );
     } catch (_) {
       throw const IamBlockedException(IamBlockedCodes.systemError);
     }
@@ -62,10 +67,17 @@ final class SwitchTenantContextCommandHandler
     try {
       await _preferencePort.setLastSelectedTenantId(context.tenantId);
     } catch (_) {
-      try {
-        await _sessionPort.establishAfterSignIn(tenantId: previousTenantId);
-      } catch (_) {
-        // Best-effort restore; still surface preference failure.
+      final prior = previousTenantId?.trim();
+      if (prior != null && prior.isNotEmpty) {
+        try {
+          await bindSessionFromAccessContext(
+            accessGateway: _accessGateway,
+            sessionPort: _sessionPort,
+            tenantId: prior,
+          );
+        } catch (_) {
+          // Best-effort restore; still surface preference failure.
+        }
       }
       throw const IamBlockedException(IamBlockedCodes.systemError);
     }
