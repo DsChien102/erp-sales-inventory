@@ -13,6 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.7.3+40] - 2026-09-14
+
+### Added
+
 - SG-05: `SalesPaymentQrCard` nhận `qrImage` (`ImageProvider`) hiển thị ảnh QR vuông, cạnh bằng chiều cao cột thông tin; null → placeholder icon.
 - SG-02: bấm vùng tên/giá trên dòng soạn đơn để chọn lại đơn vị bán (giữ SL; trùng unit thì merge dòng).
 
@@ -32,10 +42,6 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
 - Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
 - Pricing / Partner: migrate `VBanner` — bỏ `icon` override; dùng `description` thay `message` nơi đã đụng.
-
-### Fixed
-
-### Internal
 
 ## [1.7.3+39] - 2026-09-12
 
