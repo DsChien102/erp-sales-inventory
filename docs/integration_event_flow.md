@@ -58,6 +58,8 @@ sequenceDiagram
 - [ ] Consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`) — map event → internal command
 - [ ] Dispatcher registry entry (codegen `cqrs_integration_event_registry`)
 - [ ] Command chạy qua `CommandBus` + pipeline (không gọi handler trực tiếp)
+- [ ] **Idempotency consume:** Inbox dedup theo `event.id`; enqueue internal command idempotent theo `(tenant_id, source_event_id, command_type)` — truyền `sourceEventId: event.id`
+- [ ] Side effect của internal command vẫn an toàn nếu worker retry (không nhân đôi receivable / stock / email) — xem [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md)
 - [ ] Test consumer handler với fake `ICommandScheduler`
 - [ ] E2E: [messaging_e2e_checklist.md](messaging_e2e_checklist.md)
 
@@ -65,3 +67,4 @@ sequenceDiagram
 
 - [TH-02 architecture and flows](themes/TH-02-product-pricing/harness/03-architecture-and-flows.md)
 - [TH-04 Pricing module map](themes/TH-04-pricing-promotions/harness/02-module-map.md) · [integration & messaging](architecture/07-integration-and-messaging.md)
+- [Idempotency & message processing](architecture/13-idempotency-and-message-processing.md) · rule [.cursor/rules/vet45-idempotency-and-commands.mdc](../.cursor/rules/vet45-idempotency-and-commands.mdc)

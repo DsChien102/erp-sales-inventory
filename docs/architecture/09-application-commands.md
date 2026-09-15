@@ -173,7 +173,28 @@ Mỗi module có schema Postgres riêng:
   retry_count
 ```
 
-Idempotency khi enqueue từ integration event: dedup theo `(tenant_id, source_event_id, command_type)` (payload mang `source_event_id` nếu cần).
+Idempotency khi enqueue từ integration event: dedup theo `(tenant_id, source_event_id, command_type)` (payload mang `source_event_id` nếu cần). Chi tiết tầng bảo vệ: [13-idempotency-and-message-processing.md](13-idempotency-and-message-processing.md).
+
+---
+
+## 2.1 `command.id` vs `idempotencyKey`
+
+| Field | Ý nghĩa | Khi nào tạo mới |
+| ----- | ------- | ---------------- |
+| `command.id` (`ICommand.id`) | Định danh **một lần gửi** command (message instance) — tracing / audit | Mỗi lần client/worker gửi request (kể cả retry) |
+| `idempotencyKey` | Định danh **logical operation** cần bảo vệ khỏi side effect trùng | Giữ nguyên qua mọi retry của cùng một thao tác nghiệp vụ |
+| `correlationId` | Workflow / business process | Propagate xuyên suốt chuỗi command → event → internal command |
+| `causationId` | Message cha trực tiếp gây ra command/event hiện tại | Gán = `messageId` / `event.id` của bước trước |
+| `payloadHash` | Fingerprint payload gắn với `idempotencyKey` | Cùng key + khác hash → `IDEMPOTENCY_CONFLICT` |
+
+**Quy tắc:**
+
+- Mutation quan trọng (checkout/finalize, payment, cancel, stock, onboarding, complete return) **bắt buộc** `idempotencyKey` + bảo vệ ở Postgres RPC (unique + lock), không chỉ Dart `if (!exists)`.
+- **Cấm** dùng `command.id` làm `idempotencyKey` khi client retry — mỗi retry thường sinh `id` mới.
+- Golden Sales: `SalesMutationContract` mang `idempotencyKey`, `payloadHash`, `correlationId`, `causationId` tách khỏi `CommandBase.id`.
+- Internal command từ inbox: ưu tiên dedup enqueue theo `sourceEventId`; handler mutation vẫn có thể cần idempotency/scope riêng nếu side effect không 1-1 với event.
+
+Rule bắt buộc: [.cursor/rules/vet45-idempotency-and-commands.mdc](../../.cursor/rules/vet45-idempotency-and-commands.mdc).
 
 ---
 
@@ -391,6 +412,7 @@ Cả hai đều là command trong CQRS; ranh giới nằm ở **ai trigger**, **
 - [02-architecture-style.md](02-architecture-style.md) — CQRS, RPC-first
 - [05-layered-module-structure.md](05-layered-module-structure.md) — handler pattern theo layer
 - [07-integration-and-messaging.md](07-integration-and-messaging.md) — outbox, inbox, worker
-- [application_layer_skill.md](../application_layer_skill.md) — §5 Command, §11 Internal commands
+- [13-idempotency-and-message-processing.md](13-idempotency-and-message-processing.md) — idempotency, message identity, replay
+- [application_layer_skill.md](../application_layer_skill.md) — §5 Command, §11 Internal commands, §16 Idempotency
 - [infrastructure_layer_skill.md](../infrastructure_layer_skill.md) — §6 Mutation vs query, §7 Messaging
 - [MODULES_IMPLEMENTATION_TEMPLATE.md](../MODULES_IMPLEMENTATION_TEMPLATE.md) — §6.3, §11, §17

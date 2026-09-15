@@ -144,8 +144,32 @@ Reference code IAM: `EmailDeliveryRequestedIntegrationEvent`, `ICommandScheduler
 | TH-01 | `TenantCreated`, `TenantMemberRoleChanged` |
 | TH-06 | `StockAdjusted` (consumer) |
 
+## Outbox, Inbox và Idempotency (không đồng nhất)
+
+Ba cơ chế giải quyết **ba câu hỏi khác nhau** — xem đầy đủ tại [13-idempotency-and-message-processing.md](13-idempotency-and-message-processing.md).
+
+| Cơ chế | Câu hỏi | Vet45 |
+| ------ | ------- | ----- |
+| **Outbox** | Event đã được lưu đáng tin cậy cùng business commit chưa? | `{module}.outbox_messages` trong cùng transaction mutation RPC |
+| **Inbox** | Message / event delivery này đã được consumer xử lý chưa? | `{module}.inbox_messages` — thường theo `event.id` |
+| **Idempotency** | Logical operation đã tạo business effect chưa? | `{module}.idempotency_records` + `(tenant_id, scope, idempotency_key)`; internal enqueue dedup `(tenant_id, source_event_id, command_type)` |
+
+```text
+Outbox  → reliable publication (facts)
+Inbox   → reliable consumption / delivery dedup
+Idempotency → one logical business effect
+DB UNIQUE / CHECK / lock → business invariants
+```
+
+- Consumer: Inbox dedup delivery → handler enqueue internal command (idempotent theo `sourceEventId` khi phù hợp).
+- Publisher mutation quan trọng: Outbox + idempotency record cùng transaction với business state.
+- **Cấm** coi Inbox thay thế `idempotencyKey` cho user/client retry (mỗi retry thường có `command.id` / message id mới).
+
+Agent rule: [.cursor/rules/vet45-idempotency-and-commands.mdc](../../.cursor/rules/vet45-idempotency-and-commands.mdc).
+
 ## Liên kết
 
+- [13-idempotency-and-message-processing.md](13-idempotency-and-message-processing.md) — nguồn chân lý idempotency + message identity
 - [integration_event_flow.md](../integration_event_flow.md)
 - [messaging_e2e_checklist.md](../messaging_e2e_checklist.md)
 - [operations/messaging_schema.md](../operations/messaging_schema.md) — Postgres migrations + RPC reference

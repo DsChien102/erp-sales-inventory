@@ -221,9 +221,11 @@ dependencies:
 [ ] Không import infrastructure/presentation/supabase
 [ ] Query trả DTO qua read gateway port
 [ ] Cross-module data qua port/snapshot, không entity import
-[ ] command.id có trên mutation (idempotency / tracing)
-[ ] Complete/checkout/payment có idempotencyKey nếu DDD yêu cầu
+[ ] command.id có trên mutation (tracing / message instance — khác idempotencyKey)
+[ ] Complete/checkout/payment/cancel/stock/onboarding có idempotencyKey (+ payloadHash khi có conflict check)
+[ ] Không dùng command.id làm idempotencyKey cho client retry
 [ ] Integration publish qua outbox cho mutation quan trọng
+[ ] Inbox consumer enqueue internal command với sourceEventId
 [ ] Handler registration ở infrastructure composition root
 [ ] Public API qua IIAMModule / application.dart barrel
 [ ] Folder theo feature area, không flat commands/
@@ -242,7 +244,52 @@ dependencies:
 - UI inject handler thay vì IIAMModule
 - Return SalesOrderDraft từ command handler
 - Một handler 300+ dòng — tách application service
+- command.id dùng làm idempotencyKey khi retry
 ```
+
+---
+
+## Idempotency (tóm tắt)
+
+```text
+command.id       — instance gửi đi (mới mỗi request)
+idempotencyKey   — logical operation (ổn định qua retry)
+payloadHash      — cùng key + khác hash → IDEMPOTENCY_CONFLICT
+correlationId / causationId — workflow tracing
+
+Handler: validate → load/orchestrate → gateway RPC
+  (RPC: begin idempotency → mutate + outbox → complete / replay)
+
+Chi tiết: docs/architecture/13-idempotency-and-message-processing.md
+Rule: .cursor/rules/vet45-idempotency-and-commands.mdc
+Golden: SalesMutationContract + FinalizeSalesOrderCommand
+```
+
+### Skeleton mutation có idempotency
+
+```dart
+final class FinalizeExampleCommand extends CommandBase<ResultDto>
+    implements ITenantScopedCommand {
+  FinalizeExampleCommand({
+    String? id,
+    required this.tenantId,
+    required this.idempotencyKey,
+    required this.payloadHash,
+    required this.correlationId,
+    this.causationId,
+    // ... business fields
+  }) : super(id);
+
+  @override
+  final String tenantId;
+  final String idempotencyKey;
+  final String payloadHash;
+  final String correlationId;
+  final String? causationId;
+}
+```
+
+Handler gọi port/gateway; **không** tự `if (!exists)` rồi create ở Dart.
 
 ---
 

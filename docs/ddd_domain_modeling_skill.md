@@ -34,7 +34,7 @@ Presentation hiển thị cho người dùng.
 3. **Aggregate** — một consistency boundary; tách draft vs committed entity
 4. **Entity vs VO** — snapshot pattern cho cross-module; `Money` integer minor units
 5. **Business rules** — `implements IBusinessRule`, một file / rule
-6. **Commands** — intent naming (`CheckoutSalesOrderCommand`, không `UpdateOrder`)
+6. **Commands** — intent naming (`CheckoutSalesOrderCommand`, không `UpdateOrder`); đánh dấu `idempotencyKey` cho mutation side-effect (tiền/kho/vòng đời) — tách với business UNIQUE
 7. **Queries** — read-only, trả DTO, không leak aggregate
 
 ## Domain folder convention
@@ -42,6 +42,16 @@ Presentation hiển thị cho người dùng.
 Document trong `01-domain-model.md` — implement theo [domain_layer_skill.md](domain_layer_skill.md).
 
 Base types: `vet45_shared_domain` — `Entity`, `ValueObject`, `IBusinessRule`, `AggregateRoot`.
+
+## Idempotency khi model use case
+
+```text
+command.id        ≠ idempotencyKey
+Business UNIQUE   ≠ operation idempotency
+Offline/POS retry → client giữ idempotencyKey ổn định
+```
+
+Chi tiết: [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md) · rule `.cursor/rules/vet45-idempotency-and-commands.mdc`.
 
 ## Required agent output
 
@@ -65,11 +75,13 @@ Base types: `vet45_shared_domain` — `Entity`, `ValueObject`, `IBusinessRule`, 
 - God Aggregate, CRUD commands, cross-module entity references
 - Business rules in repository/infrastructure/UI
 - `double` for money, domain imports Flutter/Supabase
+- Thiếu `idempotencyKey` trên mutation quan trọng; dùng `command.id` làm key retry
 
 ## Liên kết
 
 - [domain_layer_skill.md](domain_layer_skill.md)
 - [application_layer_skill.md](application_layer_skill.md)
+- [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md)
 - [MODULES_IMPLEMENTATION_TEMPLATE.md](MODULES_IMPLEMENTATION_TEMPLATE.md)
 - [harness-engineering.md](architecture/harness-engineering.md)
 - [harness/PROGRESS.md](harness/PROGRESS.md)

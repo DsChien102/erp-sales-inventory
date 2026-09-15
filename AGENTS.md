@@ -55,6 +55,7 @@ Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog 
 | Pipeline + validator + in-memory bus test           | `packages/vet45_shared/testing/test/shared_testing_test.dart`            |
 | Module layout mục tiêu                              | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`                                |
 | Layer rules (always-on)                             | `.cursor/rules/vet45-architecture.mdc`                                   |
+| Idempotency + command/message processing            | `docs/architecture/13-idempotency-and-message-processing.md` + `.cursor/rules/vet45-idempotency-and-commands.mdc` |
 | Page mỏng + widgets tách file                       | `apps/erp/lib/features/dashboard/presentation/`                          |
 
 
@@ -73,6 +74,7 @@ Presentation UI thuộc app (`apps/erp/lib/features/.../presentation/`, catalog 
 | Design system + example catalog coverage                | `.cursor/rules/vet45-design-system-example.mdc` + `packages/vet45_design_system/example/lib/preview/`        |
 | Tích hợp async server-state cache (`vet45_async_query`) | `.cursor/rules/vet45-presentation-ui.mdc` + `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md` |
 | Harness approach                                        | `docs/architecture/harness-engineering.md`                                                                  |
+| Idempotency / Outbox / Inbox / command retry            | `docs/architecture/13-idempotency-and-message-processing.md` + `.cursor/rules/vet45-idempotency-and-commands.mdc` |
 
 
 Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/domain_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
@@ -162,6 +164,7 @@ cd apps/messaging_worker && dart test
 - `Widget _buildXxx()` subtree lớn trong `State` — tách class widget riêng
 - Direct PostgREST writes từ UI
 - **Outbox / integration event đội lốt command** (`*.requested`, apply/retry/reconcile làm “event”) — chỉ publish **facts**; handoff dùng `integration_commands`. Rule: `.cursor/rules/vet45-integration-events.mdc`
+- **Idempotency sai tầng:** dùng `command.id` / `messageId` làm `idempotencyKey` khi retry; chỉ check `if (!exists)` ở Dart không có DB unique + lock; đánh dấu idempotency `succeeded` ngoài / trước transaction business + outbox; nhầm Inbox với operation idempotency. Rule: `.cursor/rules/vet45-idempotency-and-commands.mdc` · doc: [13-idempotency-and-message-processing.md](docs/architecture/13-idempotency-and-message-processing.md)
 - `Either`/`Result` **bên trong** command handlers (map ở presentation boundary)
 - Import `package:.../src/...` từ package khác
 - Application import infrastructure
@@ -208,6 +211,8 @@ Theme package: [docs/themes/TH-05-sales-orders/](docs/themes/TH-05-sales-orders/
 - [docs/architecture/12-railway-image-source.md](docs/architecture/12-railway-image-source.md) — ADR Accepted: Railway pull image; service đã `source: image` thì không `railway up`
 - [docs/operations/app_versioning.md](docs/operations/app_versioning.md) — version + changelog cho ship units (`erp` / `admin` / `messaging_worker` / `vet45_design_system`)
 - [docs/architecture/](docs/architecture/) — kiến trúc platform (CQRS, module layout)
+- [docs/architecture/13-idempotency-and-message-processing.md](docs/architecture/13-idempotency-and-message-processing.md) — idempotency, message identity, Outbox/Inbox
+- [docs/architecture/07-integration-and-messaging.md](docs/architecture/07-integration-and-messaging.md) — fact vs command, outbox/inbox worker
 - [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md) — tiến độ harness
 - [docs/themes/](docs/themes/) — catalog theme
 - [packages/vet45_shared/README.md](packages/vet45_shared/README.md) — shared toolkit

@@ -124,6 +124,8 @@ Before accepting infrastructure work:
 [ ] DataAccessModule registers all domain adapters
 [ ] No presentation or other-module infrastructure imports
 [ ] Critical mutations + outbox via RPC same transaction
+[ ] Idempotency: unique (tenant, scope, key) + lock; begin/complete in same txn; map IDEMPOTENCY_CONFLICT
+[ ] No command.id-as-idempotencyKey for client retries
 [ ] No IDomainEventsBus / Dart IOutboxWriter on production path
 [ ] ProcessOutbox uses DomainNotificationMapper keys matching RPC event_type
 [ ] Integration events use event.id; inbox PK = event.id
@@ -132,11 +134,39 @@ Before accepting infrastructure work:
 [ ] CommandsExecutor + GetIt scope; handlers not calling GetIt directly
 [ ] RPC client maps errors; repos/gateways have no business rules
 [ ] Read gateways return DTOs; tenant filter on queries
-[ ] claim/complete messaging RPCs; idempotent internal commands
+[ ] claim/complete messaging RPCs; idempotent internal commands (sourceEventId dedup)
 [ ] Tests under test/domain/<aggregate>/ mirroring lib/src/domain/
 [ ] Codegen registrar in configuration/processing/generated/
 ```
 
+---
+
+## SQL pattern — idempotency_records (module-owned)
+
+```sql
+-- Conceptual; author in _drafts/, promote when requested.
+-- Identity: (tenant_id, command_scope, idempotency_key)
+create table if not exists <module>.idempotency_records (
+  id uuid primary key,
+  tenant_id uuid not null,
+  command_scope text not null,
+  idempotency_key text not null,
+  payload_hash text not null default '',
+  status text not null, -- in_progress | succeeded | …
+  result_type text,
+  result_id uuid,
+  result_snapshot jsonb,
+  correlation_id uuid,
+  created_at timestamptz not null default now(),
+  completed_at timestamptz,
+  unique (tenant_id, command_scope, idempotency_key)
+);
+
+-- Inside mutation RPC: advisory lock → begin → mutate + outbox → complete
+-- Reference: sales._begin_sales_idempotency / sales._complete_sales_idempotency
+```
+
+Doc: [docs/architecture/13-idempotency-and-message-processing.md](../../../docs/architecture/13-idempotency-and-message-processing.md)
 ---
 
 ## Testing layout

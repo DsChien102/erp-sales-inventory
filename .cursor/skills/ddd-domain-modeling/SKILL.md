@@ -161,6 +161,16 @@ Phân loại:
 
 Mỗi command map 1 aggregate root (hoặc orchestration rõ ràng draft → order).
 
+**Idempotency (thiết kế, không implement RPC ở bước này):**
+
+```text
+Mutation có side effect tiền / kho / vòng đời đơn / onboarding?
+  → đánh dấu cần idempotencyKey (ổn định qua retry) trong harness / commands table
+  → tách biệt với business identity (order_number, SKU UNIQUE)
+  → command.id = instance gửi đi; idempotencyKey = logical operation
+  → doc: docs/architecture/13-idempotency-and-message-processing.md
+```
+
 **Permission codes (RBAC):** định nghĩa `static const` trong `{module}/domain/` (vd. `IamPermissions`, `PartnerPermissions`). Application dùng constant trong `@RequiresPermission` — không literal string. SQL seed comment tham chiếu tên constant.
 
 Command structure (application layer):
@@ -266,7 +276,7 @@ Khi phân tích/thiết kế, agent phải xuất:
 [ ] Command đặt tên theo intent
 [ ] Query trả DTO, không leak aggregate
 [ ] Domain event cho in-module; integration event cho cross-module
-[ ] Idempotency key cho complete/checkout/payment
+[ ] Idempotency key cho complete/checkout/payment/cancel/stock (tách với business UNIQUE)
 [ ] Domain layer không phụ thuộc infrastructure/UI
 [ ] Money dùng integer minor units
 ```
@@ -278,5 +288,6 @@ Khi phân tích/thiết kế, agent phải xuất:
 - Chi tiết pattern & decision tree: [reference.md](reference.md)
 - Ví dụ Sales module: [examples.md](examples.md)
 - Implement domain code: [domain-layer](../domain-layer/SKILL.md)
+- Idempotency: `docs/architecture/13-idempotency-and-message-processing.md`
 - Template module: `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`
 - Harness progress: `docs/harness/PROGRESS.md`

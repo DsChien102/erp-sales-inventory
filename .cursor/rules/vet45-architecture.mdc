@@ -69,6 +69,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - God aggregate, cross-module table access, anemic domain-only-in-SQL
 - Direct PostgREST writes from UI, Flutter bus for durable messaging
 - **Outbox / integration_events used for commands or requests** (`*.requested`, apply/retry/reconcile as “events”) — facts only on outbox; handoffs use `integration_commands` (+ intent tables). See `.cursor/rules/vet45-integration-events.mdc`
+- **Idempotency anti-patterns:** `command.id` / `messageId` used as `idempotencyKey` on client retry; Dart-only `if (!exists)` without DB unique + lock; idempotency `succeeded` outside / before business+outbox transaction; Inbox treated as sufficient for logical operation safety. See `.cursor/rules/vet45-idempotency-and-commands.mdc` and `docs/architecture/13-idempotency-and-message-processing.md`
 - New framework abstractions (generic Repository<T>, plugin DSL)
 - Either/Result inside command handlers (map at presentation boundary)
 - Hand-maintaining `.g.dart` — run `melos run codegen`
@@ -78,6 +79,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 ## Before implementing
 
 1. Read `AGENTS.md`, `docs/architecture/05-layered-module-structure.md`, and `packages/vet45_shared/README.md`
-2. Mirror golden reference: **`modules/iam/`** or **`modules/partner/`** (codegen + pipeline + folder layout)
-3. New use case = folder under `application/lib/src/<aggregate>/commands/<use_case>/` or `queries/<use_case>/` with handler, optional validator — **not** flat files in `<aggregate>/`, mixed command+query folders, or feature-area buckets (`profile/`, `contact/`)
-4. Verify: `melos run analyze && melos run test && ./scripts/ci/verify_harness.sh`
+2. For mutations / messaging / retry: read `docs/architecture/13-idempotency-and-message-processing.md` and follow `.cursor/rules/vet45-idempotency-and-commands.mdc`
+3. Mirror golden reference: **`modules/iam/`** or **`modules/partner/`** (codegen + pipeline + folder layout)
+4. New use case = folder under `application/lib/src/<aggregate>/commands/<use_case>/` or `queries/<use_case>/` with handler, optional validator — **not** flat files in `<aggregate>/`, mixed command+query folders, or feature-area buckets (`profile/`, `contact/`)
+5. Verify: `melos run analyze && melos run test && ./scripts/ci/verify_harness.sh`

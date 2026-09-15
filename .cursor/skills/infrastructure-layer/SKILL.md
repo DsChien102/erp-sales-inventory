@@ -141,7 +141,27 @@ Patterns:
 
 - `I<Module>RpcClient` + `Supabase<Module>RpcClient` in `rpc/`
 - Errors via `<Module>ErrorMapper`
-- `idempotency_key` / `command.id` on critical RPC params
+- Critical mutations: pass `idempotency_key`, `payload_hash`, `correlation_id` (and scope) into RPC — **not** `command.id` alone as the operation key
+- Map `IDEMPOTENCY_CONFLICT` / in-progress / uncertain results to application/contract exceptions
+- Doc: `docs/architecture/13-idempotency-and-message-processing.md` · rule `.cursor/rules/vet45-idempotency-and-commands.mdc`
+
+### 5.1 Idempotency trong Postgres RPC (bắt buộc cho mutation quan trọng)
+
+```text
+BEGIN
+  pg_advisory_xact_lock(tenant || scope || key)   -- hoặc tương đương
+  SELECT … FROM idempotency_records FOR UPDATE
+  → replay | in_progress | IDEMPOTENCY_CONFLICT | new
+  INSERT idempotency_records (in_progress) when new
+  mutate business tables + invariants
+  enqueue_outbox_message (lifecycle facts)        -- cùng transaction
+  UPDATE idempotency_records (succeeded + result_snapshot)
+COMMIT
+```
+
+Helpers mẫu Sales: `sales._begin_sales_idempotency` / `sales._complete_sales_idempotency` trên `(tenant_id, command_scope, idempotency_key)`.
+
+**Cấm:** Dart `if (!exists)`; complete idempotency ngoài transaction business+outbox; dùng `command.id` làm key khi client retry.
 
 ### 6. Messaging (if module publishes/consumes integration events)
 
@@ -150,11 +170,14 @@ Outbox:  RPC writes row → ProcessOutboxCommandHandler → INotificationHandler
 Inbound: EventsBusStartup → IntegrationEventGenericHandler → inbox (id = event.id)
 Inbox:   ProcessInboxCommandHandler → IntegrationEventDispatcher → *IntegrationEventHandler
 Async:   handler → ICommandScheduler.enqueue(sourceEventId: event.id)
+         // dedup (tenant_id, source_event_id, command_type) — Inbox ≠ operation idempotency
 ```
 
 Handlers live in **Application** (`*IntegrationEventHandler`, `*NotificationHandler`), not Infrastructure `*InboxHandler`.
 
 **Serialization boundary:** `json_serializable` chỉ dùng trong package `integration_events` (payload `fromJson` / `toPayload`). Infrastructure dùng registry + `event.toPayload()`; không thêm `@JsonSerializable` cho integration events ở infrastructure/application. Handler/command wiring vẫn do `vet45_generator`.
+
+Outbox / Inbox / Idempotency: ba tầng khác nhau — xem [13-idempotency-and-message-processing.md](../../../docs/architecture/13-idempotency-and-message-processing.md).
 
 ### 7. DI / configuration modules
 
@@ -233,7 +256,9 @@ When designing or generating infrastructure:
 - Business rules inside repository/mapper/gateway
 - Infrastructure imports another module's infrastructure
 - Queries hit private write tables instead of views
-- Missing idempotency on critical mutations
+- Missing idempotency on critical mutations (no DB record / lock / same-txn outbox)
+- Using command.id as idempotency_key for client retries
+- Dart-only if (!exists) create without unique (tenant, scope, key)
 - Host passes its GetIt container into `<Module>Startup.initialize(container: ...)`
 - `supabase_flutter` or `flutter` in infrastructure `pubspec.yaml` (use `package:supabase`; inject `SupabaseClient` from host)
 - Calling `<Module>Startup.initialize()` without `supabase:` (client is required)
@@ -244,6 +269,8 @@ When designing or generating infrastructure:
 ## Additional Resources
 
 - Full specification: [docs/infrastructure_layer_skill.md](../../../docs/infrastructure_layer_skill.md)
+- Idempotency: [docs/architecture/13-idempotency-and-message-processing.md](../../../docs/architecture/13-idempotency-and-message-processing.md)
+- Rule: `.cursor/rules/vet45-idempotency-and-commands.mdc`
 - Detail index: [reference.md](reference.md)
 
 ---

@@ -145,11 +145,17 @@ Verbs: Start, Assign, Add, Remove, Change, Apply, Validate,
 ### Command fields
 
 ```text
-id              — command id / idempotency (Uuid v7)
+id              — command instance / tracing (Uuid); mới mỗi lần gửi — ≠ idempotencyKey
+idempotencyKey  — logical operation; bắt buộc checkout/payment/cancel/stock/onboarding/complete
+payloadHash     — khi cần conflict detection (cùng key + khác hash)
+correlationId   — workflow
+causationId     — message cha trực tiếp
 tenantId        — khi cần (server validate lại)
 aggregateId     — target
 payload         — primitive / DTO, không domain object
 ```
+
+Phân biệt **operation idempotency** (`idempotencyKey`) với **business uniqueness** (UNIQUE order_number / SKU). Chi tiết: `docs/architecture/13-idempotency-and-message-processing.md`.
 
 ### Command vs Internal Command
 
@@ -295,7 +301,7 @@ Khi nhận US/BR, agent tự hỏi:
 4. Invariant nào không được vi phạm?
 5. Dữ liệu đọc từ module nào (snapshot)?
 6. Side-effect module nào (event)?
-7. Có idempotency không?
+7. Có idempotency không? (idempotencyKey vs business UNIQUE; messageId ≠ key)
 8. Có tách trạng thái độc lập không?
 ```
 
@@ -307,6 +313,7 @@ Khi nhận US/BR, agent tự hỏi:
 🔴 Một class > 500 dòng với mọi method CRUD
 🔴 Repository có if/else nghiệp vụ
 🔴 UI gọi trực tiếp Supabase cho mutation quan trọng
+🔴 Thiếu idempotencyKey trên checkout/payment/cancel/stock; nhầm command.id = key
 🔴 float/double cho tiền
 🟡 Quá nhiều domain event cho thao tác draft nhỏ (chấp nhận nếu cần audit POS)
 🟡 Hai aggregate cùng sửa trong một command (cần orchestrator rõ)

@@ -461,13 +461,36 @@ Application package does NOT export handler instances, buses, or Supabase client
 
 ## 16. Idempotency
 
+Nguồn chân lý: [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md) · rule [.cursor/rules/vet45-idempotency-and-commands.mdc](../.cursor/rules/vet45-idempotency-and-commands.mdc).
+
 ```text
-command.id         — UUID v4 on CommandBase; tracing + client retry safety
-idempotencyKey     — required on CompleteReturnExchange, Checkout, payment record
-event.id           — inbox deduplication (on conflict do nothing)
+command.id         — UUID trên CommandBase; định danh *một lần gửi* (tracing). Retry thường tạo id mới.
+idempotencyKey     — định danh *logical operation*; bắt buộc trên Finalize/Checkout, payment, cancel,
+                     stock adjust, onboarding, CompleteReturnExchange; ổn định qua mọi retry.
+payloadHash        — fingerprint payload; cùng key + khác hash → IDEMPOTENCY_CONFLICT.
+correlationId      — workflow / business process.
+causationId        — message cha trực tiếp (command/event trước đó).
+event.id           — Inbox delivery dedup (on conflict do nothing) — *không* thay idempotencyKey client.
+sourceEventId      — dedup enqueue internal command: (tenant_id, source_event_id, command_type).
 ```
 
-Pass `command.id` to RPC as `p_command_id` / `p_idempotency_key` where infrastructure skill requires it.
+**Quy tắc application:**
+
+1. Mutation quan trọng mang `idempotencyKey` (+ `payloadHash` / correlation metadata khi contract yêu cầu). Golden: `SalesMutationContract`.
+2. **Cấm** dùng `command.id` làm `idempotencyKey` cho client retry.
+3. Handler orchestrates → port/gateway → RPC; **không** implement race-prone `if (!exists) create` ở Dart.
+4. Consumer IE handler: enqueue internal command với `sourceEventId: event.id`; không nhầm Inbox với operation idempotency.
+5. Pass `idempotencyKey` / hash / correlation vào RPC params (`p_idempotency_key`, …) theo infrastructure skill.
+
+Handler flow với idempotency:
+
+```text
+validate / authorize (pipeline)
+  → load aggregate / snapshots (nếu cần)
+  → domain invariants
+  → gateway.mutate(command)  // RPC: begin → business + outbox → complete | replay
+  → return TResult (kể cả khi RPC replay snapshot)
+```
 
 ---
 
@@ -526,9 +549,10 @@ When designing or generating application layer, produce:
 [ ] Queries use read gateway, return DTO
 [ ] Cross-module via ports/snapshots
 [ ] No infrastructure/presentation imports
-[ ] command.id on mutations
-[ ] Idempotency on critical completes
+[ ] command.id on mutations (message instance — not the retry idempotency key)
+[ ] IdempotencyKey (+ payloadHash) on critical completes / checkout / payment / cancel / stock
 [ ] Integration events via outbox for important mutations
+[ ] Inbox → internal command uses sourceEventId dedup
 [ ] Feature-area folder structure
 [ ] IIAMModule as presentation entry
 [ ] Money uses integer minor units
@@ -550,6 +574,8 @@ When designing or generating application layer, produce:
 - Direct integration event bus publish skipping outbox
 - Import Customer entity from customers_domain
 - Global `application/lib/src/dto/` folder or `*_dtos.dart` files bundling multiple DTO classes
+- command.id used as idempotencyKey on client retry
+- Dart-only idempotency check without RPC/DB lock
 ```
 
 ---
@@ -560,4 +586,5 @@ When designing or generating application layer, produce:
 ddd-domain-modeling     — aggregate, command names, business rules, snapshots
 infrastructure-layer    — repository/gateway RPC impl, composition root, outbox
 MODULES_IMPLEMENTATION_TEMPLATE — full module scaffold, command bus, messaging
+architecture/13-idempotency-and-message-processing.md — idempotency + message identity
 ```

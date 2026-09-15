@@ -48,7 +48,12 @@ Cần snapshot/port ngoài module?
   → Application service / port interface (KHÔNG gọi module khác trực tiếp)
 
 Cần idempotency?
-  → command.id (UUID v4) cho mutation; idempotencyKey cho complete/checkout/payment
+  → `command.id` = message/command instance (tracing; mới mỗi lần gửi)
+  → `idempotencyKey` ổn định qua retry cho mutation quan trọng (checkout/finalize, payment, cancel, stock, onboarding, complete return)
+  → kèm `payloadHash`, `correlationId`, `causationId` khi contract yêu cầu
+  → bảo vệ thực sự ở Postgres RPC — không chỉ Dart check
+  → doc: docs/architecture/13-idempotency-and-message-processing.md
+  → rule: .cursor/rules/vet45-idempotency-and-commands.mdc
 ```
 
 ### 2. Verify package boundaries
@@ -272,9 +277,10 @@ Khi module **consume** event từ module khác:
 
 ```text
 event_handlers/<event_name>_handler.dart
-  → validate payload + idempotency
-  → enqueue internal command HOẶC gọi command handler trực tiếp
-  → KHÔNG mutate state module khác
+  → validate payload
+  → enqueue internal command với sourceEventId = event.id (dedup)
+  → KHÔNG mutate state module khác; KHÔNG coi Inbox thay thế operation idempotency
+  → xem docs/architecture/13-idempotency-and-message-processing.md
 ```
 
 Khi module **publish**: domain event → map integration event trong handler hoặc RPC transaction (ưu tiên server-side outbox).
@@ -420,6 +426,7 @@ Reference: `modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`, 
 - God handler orchestrate nhiều aggregate không cần thiết
 - double cho tiền — dùng Money từ shared domain
 - Publish integration event trực tiếp bỏ qua outbox cho mutation quan trọng
+- Dùng `command.id` làm `idempotencyKey` khi client retry; thiếu `idempotencyKey` trên checkout/payment/cancel/stock
 - Cross-module import domain entity thay vì snapshot/port
 - Global `application/lib/src/dto/` folder hoặc file `*_dtos.dart` gom nhiều DTO class
 ```
@@ -431,6 +438,7 @@ Reference: `modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`, 
 - Chi tiết contracts, handler flows, ports: [reference.md](reference.md)
 - Ví dụ Sales module: [examples.md](examples.md)
 - Canonical source: `docs/application_layer_skill.md`
+- Idempotency: `docs/architecture/13-idempotency-and-message-processing.md` · rule `.cursor/rules/vet45-idempotency-and-commands.mdc`
 - DDD modeling: [ddd-domain-modeling](../ddd-domain-modeling/SKILL.md)
 - Infrastructure ports: [infrastructure-layer](../infrastructure-layer/SKILL.md)
 - Module template: `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`

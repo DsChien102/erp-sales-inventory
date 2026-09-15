@@ -155,10 +155,24 @@ Codegen (`vet45_generator`):
 |-----------|-----------|
 | Critical mutations (checkout, payment, stock) | **Postgres RPC** in same transaction as domain write |
 | Outbox for integration events | **`enqueue_outbox_message` inside mutation RPC** — not Dart `IOutboxWriter` after command |
+| Operation idempotency | **`idempotency_records` + `_begin_*` / `_complete_*`** same txn; key `(tenant_id, command_scope, idempotency_key)` + advisory lock / `FOR UPDATE` |
 | Reads / lists | Module **views** (`sales.v_*`) via `SupabaseQueryExecutor` |
 | Cross-module async work | `IEventsBus` → inbox → `*IntegrationEventHandler` → internal commands |
 
 **Không dùng** `IDomainEventsBus` / Dart-side outbox writer cho production path — Dart không có UoW atomic với Postgres.
+
+**Idempotency (RPC):**
+
+```text
+_begin_*(tenant, scope, key, payload_hash, correlation)
+  → new | replay | in_progress | raise IDEMPOTENCY_CONFLICT
+mutate + enqueue_outbox_message
+_complete_*(…, succeeded, result_snapshot)
+```
+
+Reference: `sales._begin_sales_idempotency`, `sales._complete_sales_idempotency`. Doc: [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md). Rule: `.cursor/rules/vet45-idempotency-and-commands.mdc`.
+
+**Cấm:** `command.id` làm `idempotency_key` khi client retry; application-only existence check; mark succeeded trước / ngoài business+outbox transaction.
 
 ---
 
@@ -188,6 +202,8 @@ Cross-module routing follows **Meetings** pattern with **Meetings-style event id
 ERP [`MessagingWorkerScheduler`](../../apps/erp/lib/core/messaging/messaging_worker_scheduler.dart) calls `<Module>Startup.processOutboxOnce` / `processInboxOnce` / `processInternalCommandsOnce`.
 
 Internal commands: `ISerializableInternalCommand` + codegen registry; dedup via `(tenant_id, source_event_id, command_type)`.
+
+Inbox (delivery) ≠ operation idempotency — consumer vẫn phải an toàn khi worker retry; xem [architecture/13-idempotency-and-message-processing.md](architecture/13-idempotency-and-message-processing.md).
 
 **Postgres schema:** migration chính thức trong `supabase/migrations/YYYYMMDDxxx_*.sql`; agents viết draft tại `supabase/migrations/_drafts/` ([AGENTS.md](../AGENTS.md)). Ví dụ messaging: `20260623000001_platform_messaging_foundation.sql` (legacy 14-digit) + `20260709001_*` (format mới). Ops: [operations/messaging_schema.md](../operations/messaging_schema.md).
 
@@ -285,6 +301,8 @@ See [`supabase/migrations/README.md`](../../supabase/migrations/README.md) and [
 
 ## Related docs
 
+- Idempotency: [architecture/13-idempotency-and-message-processing.md](./architecture/13-idempotency-and-message-processing.md)
+- Rule: [.cursor/rules/vet45-idempotency-and-commands.mdc](../.cursor/rules/vet45-idempotency-and-commands.mdc)
 - E2E checklist: [messaging_e2e_checklist.md](./messaging_e2e_checklist.md)
 - Module template: [MODULES_IMPLEMENTATION_TEMPLATE.md](./MODULES_IMPLEMENTATION_TEMPLATE.md)
 - Agent skill: [.cursor/skills/infrastructure-layer/SKILL.md](../.cursor/skills/infrastructure-layer/SKILL.md)
