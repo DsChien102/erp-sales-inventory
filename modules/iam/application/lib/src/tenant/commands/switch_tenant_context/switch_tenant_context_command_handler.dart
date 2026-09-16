@@ -60,8 +60,8 @@ final class SwitchTenantContextCommandHandler
         sessionPort: _sessionPort,
         tenantId: context.tenantId!,
       );
-    } catch (_) {
-      throw const IamBlockedException(IamBlockedCodes.systemError);
+    } catch (error) {
+      throw _mapSwitchSessionError(error);
     }
 
     try {
@@ -83,5 +83,57 @@ final class SwitchTenantContextCommandHandler
     }
 
     return context;
+  }
+
+  Never _mapSwitchSessionError(Object error) {
+    if (error is IamBlockedException) {
+      throw error;
+    }
+
+    if (error is ApplicationException) {
+      final code = _iamBlockedCodeFromApplication(error);
+      if (code != null) {
+        throw IamBlockedException(code);
+      }
+    }
+
+    throw const IamBlockedException(IamBlockedCodes.systemError);
+  }
+
+  String? _iamBlockedCodeFromApplication(ApplicationException error) {
+    final message = error.message.trim();
+    if (message.isEmpty) {
+      return null;
+    }
+
+    const knownCodes = <String>{
+      IamBlockedCodes.contextInvalid,
+      IamBlockedCodes.membershipInactive,
+      IamBlockedCodes.membershipRemoved,
+      'TENANT_ACCESS_DENIED',
+      'TENANT_SUSPENDED',
+      'TENANT_CLOSED',
+      'NOT_AUTHENTICATED',
+    };
+
+    if (knownCodes.contains(message)) {
+      return message;
+    }
+
+    final lower = message.toLowerCase();
+    if (lower.contains('context_invalid')) {
+      return IamBlockedCodes.contextInvalid;
+    }
+    if (lower.contains('membership_inactive')) {
+      return IamBlockedCodes.membershipInactive;
+    }
+    if (lower.contains('membership_removed')) {
+      return IamBlockedCodes.membershipRemoved;
+    }
+    if (lower.contains('tenant_access_denied')) {
+      return 'TENANT_ACCESS_DENIED';
+    }
+
+    return null;
   }
 }

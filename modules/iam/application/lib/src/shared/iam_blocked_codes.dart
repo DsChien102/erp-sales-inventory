@@ -9,6 +9,7 @@ abstract final class IamBlockedCodes {
   static const lastOwnerProtected = 'LAST_OWNER_PROTECTED';
   static const membershipInactive = 'MEMBERSHIP_INACTIVE';
   static const noActiveMembership = 'NO_ACTIVE_MEMBERSHIP';
+  static const contextInvalid = 'CONTEXT_INVALID';
   static const membershipRemoved = 'MEMBERSHIP_REMOVED';
   static const duplicateMembership = 'DUPLICATE_MEMBERSHIP';
   static const roleNotAssignable = 'ROLE_NOT_ASSIGNABLE';

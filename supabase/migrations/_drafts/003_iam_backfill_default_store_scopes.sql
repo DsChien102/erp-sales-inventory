@@ -1,0 +1,60 @@
+-- Title: IAM backfill default store + membership scopes
+-- Kind: patch
+-- Intent: iam_backfill_default_store_scopes
+-- Context: Repair legacy tenants/memberships missing active store context
+-- Touches: iam.stores, iam.membership_store_scopes
+-- Safety: idempotent ; medium
+-- Depends on: 001_iam_ensure_default_store_scope_helpers.sql
+
+-- Verify after apply (expect 0 rows each):
+-- select t.id from iam.tenants t
+-- where not exists (
+--   select 1 from iam.stores s where s.tenant_id = t.id and s.status = 'active'
+-- );
+--
+-- select m.tenant_id, m.user_id from iam.memberships m
+-- where m.status = 'active'
+--   and not exists (
+--     select 1 from iam.membership_store_scopes sc
+--     where sc.tenant_id = m.tenant_id
+--       and sc.user_id = m.user_id
+--       and sc.is_default
+--   );
+
+do $$
+declare
+  v_tenant_id uuid;
+  v_user_id uuid;
+begin
+  for v_tenant_id in
+    select t.id
+    from iam.tenants t
+    where not exists (
+      select 1
+      from iam.stores s
+      where s.tenant_id = t.id
+        and s.status = 'active'
+    )
+  loop
+    perform iam._ensure_tenant_default_store(v_tenant_id);
+  end loop;
+
+  for v_tenant_id, v_user_id in
+    select m.tenant_id, m.user_id
+    from iam.memberships m
+    where m.status = 'active'
+      and not exists (
+        select 1
+        from iam.membership_store_scopes sc
+        join iam.stores store on store.id = sc.store_id
+          and store.tenant_id = sc.tenant_id
+        where sc.tenant_id = m.tenant_id
+          and sc.user_id = m.user_id
+          and sc.is_default
+          and store.status = 'active'
+      )
+  loop
+    perform iam._ensure_membership_default_store_scope(v_tenant_id, v_user_id);
+  end loop;
+end;
+$$;

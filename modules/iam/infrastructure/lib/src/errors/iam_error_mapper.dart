@@ -11,6 +11,20 @@ ApplicationException mapIamRpcError(RpcException error) {
     return ApplicationException(raw, cause: error);
   }
 
+  if (message.contains('context_invalid') ||
+      message.contains('exactly one active default store') ||
+      message.contains('exactly one tenant context')) {
+    return ApplicationException('CONTEXT_INVALID', cause: error);
+  }
+
+  if (message.contains('membership_inactive')) {
+    return ApplicationException('MEMBERSHIP_INACTIVE', cause: error);
+  }
+
+  if (message.contains('membership_removed')) {
+    return ApplicationException('MEMBERSHIP_REMOVED', cause: error);
+  }
+
   if (message.contains('tenant_access_denied') ||
       message.contains('tenant access denied')) {
     return ApplicationException('TENANT_ACCESS_DENIED', cause: error);
