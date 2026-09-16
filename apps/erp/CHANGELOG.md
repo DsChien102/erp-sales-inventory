@@ -17,7 +17,11 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Fixed
 
+- Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
+
 ### Internal
+
+- IAM draft SQL: ensure default store + `membership_store_scopes` trên onboarding / invite / accept / activate; backfill dữ liệu legacy.
 
 ## [1.7.4+41] - 2026-09-14
 

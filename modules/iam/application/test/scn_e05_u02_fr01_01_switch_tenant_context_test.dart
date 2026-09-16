@@ -87,9 +87,13 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
 
   bool failSessionContext = false;
+  bool failContextInvalid = false;
 
   @override
   Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async {
+    if (failContextInvalid) {
+      throw ApplicationException(IamBlockedCodes.contextInvalid);
+    }
     if (failSessionContext) {
       throw StateError('session establish failed');
     }
@@ -247,6 +251,37 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('switch_session_context_invalid — surfaces CONTEXT_INVALID', () async {
+      final preference = _FakePreferencePort();
+      final gateway = _ScenarioAccessGateway(
+        switchResult: const TenantContextDto(
+          status: TenantContextStatus.valid,
+          tenantId: 'tenant-b',
+          tenantName: 'Beta',
+          roleLabel: 'staff',
+          tenantStatus: TenantLifecycleStatus.active,
+        ),
+      )..failContextInvalid = true;
+      final handler = SwitchTenantContextCommandHandler(
+        accessGateway: gateway,
+        preferencePort: preference,
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-a'),
+      );
+
+      await expectLater(
+        handler.handle(SwitchTenantContextCommand(targetTenantId: 'tenant-b')),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.contextInvalid,
+          ),
+        ),
+      );
+      expect(preference.lastSelected, isNull);
     });
 
     test('switch_session_failure — preference unchanged', () async {
