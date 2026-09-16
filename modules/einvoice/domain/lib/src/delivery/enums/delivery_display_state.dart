@@ -4,4 +4,5 @@ enum DeliveryDisplayState {
   sending,
   sent,
   failed,
+  unknown,
 }

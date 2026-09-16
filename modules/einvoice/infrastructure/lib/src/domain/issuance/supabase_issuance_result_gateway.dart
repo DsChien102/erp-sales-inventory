@@ -141,6 +141,39 @@ final class SupabaseIssuanceResultGateway implements IIssuanceResultGateway {
   }
 
   @override
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  }) async {
+    final retryEvidence = _requireRetryableProviderRejectionEvidence(evidence);
+    try {
+      final rows = await _rpcClient.callList(
+        'record_retryable_provider_publish_rejection',
+        params: IssuanceRpcMapper.recordRetryableProviderRejectionParams(
+          tenantId: tenantId,
+          attemptId: attemptId,
+          sourceCommandId: sourceCommandId,
+          evidence: retryEvidence,
+          retryAfter: retryAfter,
+        ),
+      );
+      if (rows.isEmpty) {
+        throw RpcException(
+          'record_retryable_provider_publish_rejection returned no rows',
+        );
+      }
+      return IssuanceRpcMapper.recordIssuanceResultFromRow(
+        Map<String, dynamic>.from(rows.first),
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
+
+  @override
   Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
     required String tenantId,
     required String attemptId,
@@ -224,6 +257,18 @@ final class SupabaseIssuanceResultGateway implements IIssuanceResultGateway {
     if (evidence is! IssuanceUndeterminedEvidenceDto) {
       throw RpcException(
         'recordUndetermined requires IssuanceUndeterminedEvidenceDto, got ${evidence.runtimeType}',
+      );
+    }
+    return evidence;
+  }
+
+  IssuanceRetryableProviderRejectionEvidenceDto
+  _requireRetryableProviderRejectionEvidence(
+    IssuanceResultEvidenceDto evidence,
+  ) {
+    if (evidence is! IssuanceRetryableProviderRejectionEvidenceDto) {
+      throw RpcException(
+        'recordRetryableProviderRejection requires IssuanceRetryableProviderRejectionEvidenceDto, got ${evidence.runtimeType}',
       );
     }
     return evidence;

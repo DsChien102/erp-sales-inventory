@@ -29,6 +29,7 @@ void main() {
 
       expect(vm.orderId, 'so-demo-006');
       expect(vm.orderNumber, 'DH-000129-d04-return');
+      expect(vm.orderVersion, 7);
       expect(vm.createdAtFormatted, '12/08/2026 10:15');
       expect(vm.customerName, 'Đại lý An Bình');
       expect(vm.customerPhone, '0903456789');

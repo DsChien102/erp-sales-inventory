@@ -6,6 +6,7 @@ import 'i_me_invoice_client.dart';
 import 'internal/api_response_parser.dart';
 import 'internal/me_invoice_auth.dart';
 import 'internal/me_invoice_http.dart';
+import 'me_invoice_view_url_policy.dart';
 import 'models/me_invoice_config.dart';
 import 'models/me_invoice_result.dart';
 import 'models/me_invoice_session_token.dart';
@@ -47,8 +48,13 @@ final class MeInvoiceClient implements IMeInvoiceClient {
         httpClient: _httpClient,
         initialToken: initial,
         defaultTtl: MeInvoiceConfig.recommendedTokenTtl,
+        requestTimeout: config.requestTimeout,
       );
-      _api = MeInvoiceHttp(auth: _auth!, httpClient: _httpClient);
+      _api = MeInvoiceHttp(
+        auth: _auth!,
+        httpClient: _httpClient,
+        requestTimeout: config.requestTimeout,
+      );
     }
   }
 
@@ -153,10 +159,18 @@ final class MeInvoiceClient implements IMeInvoiceClient {
       );
     }
     final link = MeInvoiceApiResponseParser.parseDataString(raw.data!.data);
-    if (link == null || link.isEmpty) {
+    if (link == null) {
+      final data = raw.data!.data;
+      if (data != null && data is! String) {
+        return const MeInvoiceResult.failed('meinvoice_preview_invalid_data');
+      }
       return const MeInvoiceResult.failed('meinvoice_preview_empty_data');
     }
-    return MeInvoiceResult.ok(link);
+    final viewerUrl = MeInvoiceViewUrlPolicy.tryParse(link);
+    if (viewerUrl == null) {
+      return const MeInvoiceResult.failed('meinvoice_preview_invalid_url');
+    }
+    return MeInvoiceResult.ok(viewerUrl);
   }
 
   @override
@@ -208,10 +222,18 @@ final class MeInvoiceClient implements IMeInvoiceClient {
       );
     }
     final link = MeInvoiceApiResponseParser.parseDataString(raw.data!.data);
-    if (link == null || link.isEmpty) {
+    if (link == null) {
+      final data = raw.data!.data;
+      if (data != null && data is! String) {
+        return const MeInvoiceResult.failed('meinvoice_preview_invalid_data');
+      }
       return const MeInvoiceResult.failed('meinvoice_preview_empty_data');
     }
-    return MeInvoiceResult.ok(link);
+    final viewerUrl = MeInvoiceViewUrlPolicy.tryParse(link);
+    if (viewerUrl == null) {
+      return const MeInvoiceResult.failed('meinvoice_preview_invalid_url');
+    }
+    return MeInvoiceResult.ok(viewerUrl);
   }
 
   @override
@@ -287,10 +309,10 @@ final class MeInvoiceClient implements IMeInvoiceClient {
   }
 
   @override
-  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
+  Future<MeInvoiceResult<MeInvoiceSendEmailResponse>> sendEmail(
     MeInvoiceSendEmailRequest request,
   ) async {
-    final gate = _guard<List<MeInvoiceSendEmailResultItem>>();
+    final gate = _guard<MeInvoiceSendEmailResponse>();
     if (gate != null) {
       return gate;
     }
@@ -313,17 +335,27 @@ final class MeInvoiceClient implements IMeInvoiceClient {
           !(errors is Map && errors.isEmpty)) {
         return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');
       }
-      final data = envelope.data is String ? jsonDecode(envelope.data as String) : envelope.data;
-      if (data is! List || data.isEmpty || data.any((item) => item is! Map)) {
+      final payload = envelope.data;
+      if (payload is String && payload.trim().isEmpty) {
+        return const MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.envelopeAcknowledgement(),
+        );
+      }
+
+      final decoded = payload is String ? jsonDecode(payload) : payload;
+      if (decoded is! List || decoded.isEmpty || decoded.any((item) => item is! Map)) {
         return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');
       }
       return MeInvoiceResult.ok(
-        data
-            .map(
-              (item) =>
-                  MeInvoiceSendEmailResultItem.fromJson(Map<String, dynamic>.from(item as Map)),
-            )
-            .toList(),
+        MeInvoiceSendEmailResponse.itemized(
+          decoded
+              .map(
+                (item) => MeInvoiceSendEmailResultItem.fromJson(
+                  Map<String, dynamic>.from(item as Map),
+                ),
+              )
+              .toList(growable: false),
+        ),
       );
     } on Object {
       return const MeInvoiceResult.failed('meinvoice_send_email_invalid_response');

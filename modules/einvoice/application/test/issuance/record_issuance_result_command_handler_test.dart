@@ -76,6 +76,15 @@ final class _FakeIssuanceResultGateway implements IIssuanceResultGateway {
   }
 
   @override
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  }) async => throw UnimplementedError();
+
+  @override
   Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
     required String tenantId,
     required String attemptId,

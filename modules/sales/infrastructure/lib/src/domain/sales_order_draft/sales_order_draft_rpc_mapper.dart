@@ -175,6 +175,10 @@ abstract final class SalesOrderDraftRpcMapper {
       'display_name': customer.displayName,
       if (customer.phoneNumber != null) 'phone_number': customer.phoneNumber,
       if (customer.taxCode != null) 'tax_code': customer.taxCode,
+      if (customer.buyerType != null) 'buyer_type': customer.buyerType,
+      if (customer.invoiceLegalName != null) 'invoice_legal_name': customer.invoiceLegalName,
+      if (customer.invoiceAddress != null) 'invoice_address': customer.invoiceAddress,
+      if (customer.invoiceEmail != null) 'invoice_email': customer.invoiceEmail,
     };
   }
 
@@ -187,6 +191,10 @@ abstract final class SalesOrderDraftRpcMapper {
       phoneNumber: json['phone_number'] as String?,
       taxCode: json['tax_code'] as String?,
       existingDebtMinor: 0,
+      buyerType: json['buyer_type'] as String?,
+      invoiceLegalName: json['invoice_legal_name'] as String?,
+      invoiceAddress: json['invoice_address'] as String?,
+      invoiceEmail: json['invoice_email'] as String?,
     );
   }
 

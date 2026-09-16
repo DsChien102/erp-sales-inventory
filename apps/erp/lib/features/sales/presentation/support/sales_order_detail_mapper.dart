@@ -10,10 +10,14 @@ import 'package:erp/core/formatting/money_formatter.dart';
 final class SalesOrderDetailMapper {
   const SalesOrderDetailMapper._();
 
-  static SalesOrderDetailVm toVm(app.SalesOrderDetailDto dto) {
+  static SalesOrderDetailVm toVm(
+    app.SalesOrderDetailDto dto, {
+    SalesEInvoiceStatus eInvoiceStatus = SalesEInvoiceStatus.notIssued,
+  }) {
     return SalesOrderDetailVm(
       orderId: dto.order.salesOrderId,
       orderNumber: dto.order.orderNumber,
+      orderVersion: dto.order.version,
       createdAtFormatted: formatCommittedAt(dto.committedAt),
       customerName: dto.customer?.displayName ?? 'Khách lẻ',
       customerPhone: dto.customer?.phoneNumber ?? '',
@@ -23,7 +27,7 @@ final class SalesOrderDetailMapper {
       paidAmountMinor: 0,
       lifecycleStatus: _lifecycle(dto.order.lifecycleStatus),
       settlementStatus: SalesSettlementStatus.unpaid,
-      eInvoiceStatus: SalesEInvoiceStatus.notIssued,
+      eInvoiceStatus: eInvoiceStatus,
       items: dto.lines.map(_line).toList(growable: false),
       currentItems: dto.currentLines.map((line) => _currentLine(line)).toList(growable: false),
       timeline: const [],

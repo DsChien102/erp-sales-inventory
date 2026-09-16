@@ -1,9 +1,8 @@
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
-/// Integration event published when a sales order is completed.
-final class SalesOrderCompletedIntegrationEvent
-    extends TenantScopedIntegrationEvent {
-  const SalesOrderCompletedIntegrationEvent({
+/// Integration event published when a sales order is finalized (canonical TH-05 fact).
+final class SalesOrderFinalizedIntegrationEvent extends TenantScopedIntegrationEvent {
+  const SalesOrderFinalizedIntegrationEvent({
     required super.id,
     required super.occurredOn,
     required super.tenantId,
@@ -11,7 +10,7 @@ final class SalesOrderCompletedIntegrationEvent
     required this.sourceVersion,
   }) : super(eventType: type);
 
-  static const String type = 'sales.order.completed';
+  static const String type = 'sales_order_finalized.v1';
 
   final String salesOrderId;
   final String sourceVersion;
@@ -22,13 +21,13 @@ final class SalesOrderCompletedIntegrationEvent
       'id': id,
       'occurred_on': occurredOn.toUtc().toIso8601String(),
       'tenant_id': tenantId,
-      'sales_order_id': salesOrderId,
-      'source_version': sourceVersion,
+      'salesOrderId': salesOrderId,
+      'salesOrderVersion': int.parse(sourceVersion),
       'event_type': type,
     };
   }
 
-  factory SalesOrderCompletedIntegrationEvent.fromPayload(
+  factory SalesOrderFinalizedIntegrationEvent.fromPayload(
     Map<String, dynamic> json,
   ) {
     final id = _requireNonEmptyString(
@@ -40,13 +39,10 @@ final class SalesOrderCompletedIntegrationEvent
       'tenant_id',
     );
     final salesOrderId = _requireNonEmptyString(
-      json['sales_order_id'] ?? json['salesOrderId'],
-      'sales_order_id',
+      json['salesOrderId'] ?? json['sales_order_id'],
+      'salesOrderId',
     );
-    final sourceVersion = _requireNonEmptyString(
-      json['source_version'] ?? json['sourceVersion'],
-      'source_version',
-    );
+    final sourceVersion = _resolveSourceVersion(json);
 
     final occurredOnRaw = json['occurred_on'] ?? json['occurredOn'];
     final DateTime occurredOn;
@@ -56,11 +52,11 @@ final class SalesOrderCompletedIntegrationEvent
       occurredOn = occurredOnRaw.toUtc();
     } else {
       throw const FormatException(
-        'SalesOrderCompletedIntegrationEvent missing occurred_on',
+        'SalesOrderFinalizedIntegrationEvent missing occurred_on',
       );
     }
 
-    return SalesOrderCompletedIntegrationEvent(
+    return SalesOrderFinalizedIntegrationEvent(
       id: id,
       occurredOn: occurredOn,
       tenantId: tenantId,
@@ -69,10 +65,29 @@ final class SalesOrderCompletedIntegrationEvent
     );
   }
 
+  /// Reads version keys in priority order; missing all defaults to checkout `1`.
+  static String _resolveSourceVersion(Map<String, dynamic> json) {
+    final raw =
+        json['salesOrderVersion'] ??
+        json['sales_order_version'] ??
+        json['sourceVersion'] ??
+        json['source_version'];
+    if (raw == null) {
+      return '1';
+    }
+    if (raw is int) {
+      return raw.toString();
+    }
+    if (raw is String && raw.trim().isNotEmpty) {
+      return raw.trim();
+    }
+    return '1';
+  }
+
   static String _requireNonEmptyString(Object? value, String fieldName) {
     if (value is! String || value.trim().isEmpty) {
       throw FormatException(
-        'SalesOrderCompletedIntegrationEvent missing or empty $fieldName',
+        'SalesOrderFinalizedIntegrationEvent missing or empty $fieldName',
       );
     }
     return value.trim();

@@ -5,7 +5,7 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:vet45_misa/e_invoice.dart';
 
-Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> send(
+Future<MeInvoiceResult<MeInvoiceSendEmailResponse>> send(
   Map<String, Object?> envelope,
 ) {
   final client = MeInvoiceClient(
@@ -26,6 +26,59 @@ Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> send(
 }
 
 void main() {
+  test('th08_s5 accepts official empty-data send-email acknowledgement', () async {
+    final result = await send({
+      'success': true,
+      'errorCode': null,
+      'descriptionErrorCode': null,
+      'errors': <Object?>[],
+      'data': '',
+      'customData': null,
+    });
+
+    expect(result.isSuccess, isTrue);
+    expect(
+      result.data!.kind,
+      MeInvoiceSendEmailResponseKind.envelopeAcknowledgement,
+    );
+    expect(result.data!.items, isEmpty);
+  });
+
+  test('th08_s5 whitespace-only data is envelope acknowledgement', () async {
+    final result = await send({
+      'success': true,
+      'errors': <Object?>[],
+      'data': '   \n\t',
+    });
+
+    expect(result.isSuccess, isTrue);
+    expect(
+      result.data!.kind,
+      MeInvoiceSendEmailResponseKind.envelopeAcknowledgement,
+    );
+  });
+
+  test('th08_s5 success=false with empty data is failure', () async {
+    final result = await send({
+      'success': false,
+      'errors': <Object?>[],
+      'data': '',
+    });
+
+    expect(result.isSuccess, isFalse);
+  });
+
+  test('th08_s5 success=true with non-empty errors is failure', () async {
+    final result = await send({
+      'success': true,
+      'errors': <Object?>['rejected'],
+      'data': '',
+    });
+
+    expect(result.isSuccess, isFalse);
+    expect(result.error, 'meinvoice_send_email_invalid_response');
+  });
+
   for (final encoded in [false, true]) {
     for (final status in [0, 1, 2, 3, 4]) {
       test('preserves status $status and references in encoded=$encoded data', () async {
@@ -40,11 +93,12 @@ void main() {
         ];
         final result = await send({'success': true, 'data': encoded ? jsonEncode(data) : data});
         expect(result.isSuccess, isTrue);
-        expect(result.data!.single.transactionId, 'tx');
-        expect(result.data!.single.refId, 'ref');
-        expect(result.data!.single.refDetailId, 'detail');
-        expect(result.data!.single.sendEmailStatus, status);
-        expect(result.data!.single.errorCode, '');
+        expect(result.data!.kind, MeInvoiceSendEmailResponseKind.itemized);
+        expect(result.data!.items.single.transactionId, 'tx');
+        expect(result.data!.items.single.refId, 'ref');
+        expect(result.data!.items.single.refDetailId, 'detail');
+        expect(result.data!.items.single.sendEmailStatus, status);
+        expect(result.data!.items.single.errorCode, '');
       });
     }
   }
@@ -61,6 +115,8 @@ void main() {
     [
       {'TransactionID': 12, 'SendEmailStatus': 3},
     ],
+    {'TransactionID': 'tx'},
+    42,
   ]) {
     test('malformed data cannot become successful: $data', () async {
       final result = await send({'success': true, 'data': data});

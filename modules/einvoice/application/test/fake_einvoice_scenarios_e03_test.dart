@@ -17,9 +17,9 @@ void main() {
       expect(result.viewerUrl, isNotNull);
     });
 
-    test('download_pdf_ok returns download URL', () async {
+    test('download_pdf_ok resolves signed URL from documents query', () async {
       final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadPdfOk);
-      final result = await module.executeCommandAsync(
+      final request = await module.executeCommandAsync(
         RequestInvoiceDocumentCommand(
           tenantId: 't1',
           actorId: 'a1',
@@ -28,7 +28,69 @@ void main() {
           idempotencyKey: 'doc-1',
         ),
       );
-      expect(result.downloadUrl, contains('pdf'));
+      expect(request.operationId, isNotEmpty);
+      expect(request.status, InvoiceDocumentStatus.pending);
+      expect(request.downloadUrl, isNull);
+
+      final documents = await module.executeQueryAsync(
+        GetInvoiceDocumentsQuery(
+          tenantId: 't1',
+          actorId: 'a1',
+          salesOrderId: 'so-1',
+        ),
+      );
+      expect(documents.pdf?.operationId, request.operationId);
+      expect(documents.pdf?.status, InvoiceDocumentStatus.available);
+      expect(documents.pdf?.downloadUrl, isNotEmpty);
+      expect(documents.pdf?.checksum, isNotEmpty);
+    });
+
+    test('download_xml_ok resolves signed URL from documents query', () async {
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.downloadXmlOk);
+      final request = await module.executeCommandAsync(
+        RequestInvoiceDocumentCommand(
+          tenantId: 't1',
+          actorId: 'a1',
+          salesOrderId: 'so-1',
+          documentType: InvoiceDocumentType.xml,
+          idempotencyKey: 'doc-xml-1',
+        ),
+      );
+      expect(request.operationId, isNotEmpty);
+      expect(request.status, InvoiceDocumentStatus.pending);
+      expect(request.downloadUrl, isNull);
+
+      final documents = await module.executeQueryAsync(
+        GetInvoiceDocumentsQuery(
+          tenantId: 't1',
+          actorId: 'a1',
+          salesOrderId: 'so-1',
+        ),
+      );
+      expect(documents.xml?.operationId, request.operationId);
+      expect(documents.xml?.status, InvoiceDocumentStatus.available);
+      expect(documents.xml?.downloadUrl, isNotEmpty);
+      expect(documents.xml?.checksum, isNotEmpty);
+    });
+
+    test('documents_list_partial exposes typed pdf/xml items', () async {
+      final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.documentsListPartial);
+      final documents = await module.executeQueryAsync(
+        GetInvoiceDocumentsQuery(
+          tenantId: 't1',
+          actorId: 'a1',
+          salesOrderId: 'so-1',
+        ),
+      );
+
+      expect(documents.pdfAvailable, isTrue);
+      expect(documents.xmlAvailable, isFalse);
+      expect(documents.pdf?.status, InvoiceDocumentStatus.available);
+      expect(documents.pdf?.operationId, isNotEmpty);
+      expect(documents.pdf?.downloadUrl, isNotEmpty);
+      expect(documents.xml?.status, InvoiceDocumentStatus.pending);
+      expect(documents.xml?.operationId, isNotEmpty);
+      expect(documents.xml?.downloadUrl, isNull);
     });
 
     test('download_unavailable returns failed operation without sync provider call', () async {
@@ -44,6 +106,8 @@ void main() {
       );
       expect(result.operationId, 'op-doc-failed-1');
       expect(result.status, InvoiceDocumentStatus.failed);
+      expect(result.downloadUrl, isNull);
+      expect(result.checksum, isNull);
     });
   });
 }

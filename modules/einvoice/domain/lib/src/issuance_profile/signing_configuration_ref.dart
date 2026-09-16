@@ -18,6 +18,19 @@ final class SigningConfigurationRef extends Equatable {
   final bool isAvailable;
   final bool supportsUnsupervisedAutoIssue;
 
+  /// MISA wire `SignType` for Phase 1: `2` (HSM) or `5` (MTT / no CKS).
+  ///
+  /// Returns null when [method] is incompatible with [templateIsMtt].
+  int? resolveWireSignType({required bool templateIsMtt}) {
+    switch (method) {
+      case SigningMethod.hsm:
+        return templateIsMtt ? null : 2;
+      case SigningMethod.noSign:
+      case SigningMethod.mtt:
+        return templateIsMtt ? 5 : null;
+    }
+  }
+
   @override
   List<Object?> get props => [
     signingConfigId,

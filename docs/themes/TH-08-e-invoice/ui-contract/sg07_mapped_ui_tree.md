@@ -12,6 +12,49 @@
 
 ---
 
+## 0. Slice 5 BE–FE lock (app-owned)
+
+ADR 11: runtime SG-07 thuộc `apps/erp`. Module `modules/einvoice/presentation` chỉ còn reference/catalog; host production **không** gọi `showSendInvoiceSheet` / `showResendInvoiceSheet` module-owned.
+
+### Target app-owned paths
+
+```text
+apps/erp/lib/features/sales/presentation/widgets/einvoice/
+  send_invoice_sheet.dart
+  resend_invoice_sheet.dart
+  invoice_delivery_history_view.dart
+
+apps/erp/lib/features/sales/presentation/pages/
+  invoice_delivery_history_page.dart
+```
+
+### Specimen × interaction matrix (canonical)
+
+| Specimen | Dữ liệu | Tương tác | Kết quả |
+| --- | --- | --- | --- |
+| SG07-O01-A | mode=send, suggestedEmail có giá trị | sửa email, gửi, hủy | chưa tạo delivery khi mới mở |
+| SG07-O01-B | mode=send, suggestion rỗng | nhập email | CTA chỉ bật khi email hợp lệ |
+| SG07-O01-C | email sai định dạng | sửa email | helper lỗi trở về helper chuẩn khi hợp lệ |
+| SG07-O01-D | submit đang chạy | không tương tác | giữ email/helper/CTA copy, CTA có spinner |
+| SG07-O02 | mode=resend, history không rỗng | gửi lại, xem lịch sử | link history luôn có; server suy ra RESEND |
+| SG07-D01 | deliveries authoritative | back/retry read | mới nhất trước; không lộ raw provider data |
+
+### `operationLocked` (controlled)
+
+Khi sheet context `operationLocked=true` (có delivery `PROCESSING`):
+
+- field email và CTA gửi bị khóa
+- link `Xem lịch sử gửi` vẫn hoạt động
+- **không** thêm CTA “Kiểm tra kết quả gửi” hoặc dialog/warning mới
+
+`UNKNOWN` **không** khóa manual resend; worker không auto-retry. UI giữ layout/CTA hiện có.
+
+### Resend CTA copy
+
+Canonical SG07-O02 dùng cùng CTA primary với lần gửi đầu: **`Gửi hóa đơn`** (không đổi nhãn thành “Gửi lại hóa đơn”).
+
+---
+
 ## 1. Source of Truth
 
 For SG-07-specific implementation details, use the following precedence:
@@ -153,17 +196,20 @@ These T-cases are design feedback cases, not additional current Audit Manifest e
 
 ```text
 SG07-O01-A / O01-B / O01-C / O01-D
-→ modules/einvoice/presentation/lib/src/widgets/
+→ apps/erp/lib/features/sales/presentation/widgets/einvoice/
   send_invoice_sheet.dart
 
 SG07-O02
-→ modules/einvoice/presentation/lib/src/widgets/
+→ apps/erp/lib/features/sales/presentation/widgets/einvoice/
   resend_invoice_sheet.dart
 
 SG07-D01
-→ apps/erp/lib/features/einvoice/presentation/pages/
+→ apps/erp/lib/features/sales/presentation/pages/
   invoice_delivery_history_page.dart
+  (+ invoice_delivery_history_view.dart)
 ```
+
+Legacy module-owned paths under `modules/einvoice/presentation` remain catalog/reference only after Slice 5 FE lock.
 
 The current Audit Manifest intentionally does not contain separate T01–T04 entries.
 
@@ -262,9 +308,15 @@ send success / send failure / timeout / unresolved
 Timeout or no response must not automatically become a determinate send failure.
 
 ```text
-unresolved
-→ continue resolution/reconciliation
-→ do not display determinate "Gửi lỗi" solely from timeout
+UNKNOWN (first send, no prior success)
+→ display "Không xác định kết quả"
+→ do not poll as endless SENDING
+→ manual resend allowed (operationLocked=false)
+→ worker does not auto-retry
+
+prior success + later UNKNOWN/FAILED
+→ primary badge remains "Đã gửi"
+→ hasSecondaryAttention=true
 ```
 
 ---
@@ -273,10 +325,10 @@ unresolved
 
 ## 7.1 SG07-O01-A — Gửi hóa đơn / Có email đề xuất
 
-**Module widget**
+**App-owned widget (Slice 5 target)**
 
 ```text
-modules/einvoice/presentation/lib/src/widgets/
+apps/erp/lib/features/sales/presentation/widgets/einvoice/
 send_invoice_sheet.dart
 ```
 
@@ -463,34 +515,34 @@ helper
 
 The field becomes non-editable while the delivery operation is active.
 
-No competing delivery may be started while the current delivery is unresolved.
+No competing delivery may be started while the current delivery is `PROCESSING`
+(`operationLocked=true`). `UNKNOWN` does not block a new manual resend.
 
 ### Result
 
 ```text
-authoritative success
-→ close/leave active form as appropriate
-→ return/remain on exact source
-→ success feedback T01/T02
+command accepted as PROCESSING
+→ close sheet
+→ refresh projection / continue server-side polling
 
-determinate failure
-→ close/leave active form as appropriate
-→ return/remain on exact source
-→ failure feedback T03/T04
+determinate command failure (sync)
+→ keep sheet open
+→ restore field/CTA
+→ one safe SnackBar
 
-unresolved / timeout
-→ not automatically determinate failure
-→ operation remains protected from competing send
+UNKNOWN terminal on delivery
+→ not automatically determinate "Gửi lỗi"
+→ unlock manual resend; no auto retry
 ```
 
 ---
 
 ## 7.5 SG07-O02 — Gửi lại hóa đơn
 
-**Module widget**
+**App-owned widget (Slice 5 target)**
 
 ```text
-modules/einvoice/presentation/lib/src/widgets/
+apps/erp/lib/features/sales/presentation/widgets/einvoice/
 resend_invoice_sheet.dart
 ```
 
@@ -518,7 +570,7 @@ ResendInvoiceSheet
     └── actions
         ├── ResendButton : VButton
         │   ├── primary
-        │   └── "Gửi lại hóa đơn"
+        │   └── "Gửi hóa đơn"
         └── CancelButton : VButton
             ├── secondary
             └── "Hủy"
@@ -568,7 +620,14 @@ Xem lịch sử gửi
 
 ## 7.6 SG07-D01 — Lịch sử gửi hóa đơn
 
-**App feature page**
+**App-owned page (Slice 5 target)**
+
+```text
+apps/erp/lib/features/sales/presentation/pages/
+invoice_delivery_history_page.dart
+```
+
+Legacy fixture host (to be removed after route wiring):
 
 ```text
 apps/erp/lib/features/einvoice/presentation/pages/
@@ -754,9 +813,10 @@ SG-07 follows the Theme 08 delivery-display rules:
 | Delivery history / active operation | Primary delivery display | Secondary behavior |
 |---|---|---|
 | No successful delivery, no active delivery | `Chưa gửi` | none |
-| No successful delivery, active/unresolved delivery | `Đang gửi` | competing send blocked |
-| No successful delivery, latest determinate failure | `Gửi lỗi` | send/resend can become available when allowed |
-| At least one successful delivery | `Đã gửi` | later resend processing/error may be secondary information |
+| No successful delivery, `PROCESSING` | `Đang gửi` | competing send blocked (`operationLocked`) |
+| No successful delivery, latest `UNKNOWN` | `Không xác định kết quả` | manual resend allowed |
+| No successful delivery, latest determinate failure | `Gửi lỗi` | send/resend available when allowed |
+| At least one successful delivery | `Đã gửi` | later resend PROCESSING/FAILED/UNKNOWN may set secondary attention |
 
 ### Prior-success rule
 
@@ -791,9 +851,10 @@ no InvoiceDelivery for current ElectronicInvoice
 has InvoiceDelivery history
 → ResendInvoiceSheet
 → title "Gửi lại hóa đơn điện tử"
-→ primary "Gửi lại hóa đơn"
+→ primary "Gửi hóa đơn" (same CTA copy as first send)
 → suggestion from latest delivery of current ElectronicInvoice
 → show history link
+→ when operationLocked: field/CTA locked, history link still enabled
 ```
 
 Do not collapse first send and resend into presentation copy that loses their distinct user intent.

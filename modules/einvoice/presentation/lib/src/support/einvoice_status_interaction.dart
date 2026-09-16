@@ -22,6 +22,7 @@ abstract final class EInvoiceStatusInteraction {
     DeliveryDisplayState.sending => VBadgeStatus.processing,
     DeliveryDisplayState.sent => VBadgeStatus.success,
     DeliveryDisplayState.failed => VBadgeStatus.danger,
+    DeliveryDisplayState.unknown => VBadgeStatus.warning,
   };
 
   static bool allowsTapForIssuance(IssuanceDisplayState state) => allowsTap(forIssuance(state));

@@ -86,7 +86,11 @@ void main() {
       expect(projectionFn, isNot(contains('delivery_is_simulated')));
       expect(projectionFn, isNot(contains('is_simulated')));
       expect(projectionFn, isNot(contains('v_simulated')));
-      expect(projectionFn, contains("d.status in ('PROCESSING', 'UNKNOWN')"));
+      expect(projectionFn, contains("d.status = 'PROCESSING'"));
+      expect(
+        projectionFn,
+        isNot(contains("d.status in ('PROCESSING', 'UNKNOWN')")),
+      );
     });
 
     test(

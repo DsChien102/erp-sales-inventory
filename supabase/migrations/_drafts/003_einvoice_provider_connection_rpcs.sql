@@ -5,6 +5,12 @@
 -- Touches: connect_provider, verify_provider_connection, reconnect_provider, disconnect_provider, get_provider_connection_screen, record_connection_verified, read_provider_credentials
 -- Safety: idempotent ; medium
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql
+--
+-- capabilities_snapshot.templates[] JSON shape (H1 hardening, additive):
+--   template_id, name, serial, symbol, invoice_series, invoice_with_code,
+--   is_mtt, is_send_summary, is_available
+-- Legacy rows may omit invoice_series / invoice_with_code / is_send_summary;
+-- readers prefer invoice_series then symbol and re-classify from InvSeries.
 
 create or replace function einvoice.connect_provider(
   p_tenant_id uuid,

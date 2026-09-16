@@ -9,6 +9,10 @@ final class SalesCustomerSelection extends Equatable {
     this.phone,
     this.isOrganization = false,
     this.taxCode,
+    this.buyerType,
+    this.invoiceLegalName,
+    this.invoiceAddress,
+    this.invoiceEmail,
   });
 
   final bool isWalkIn;
@@ -17,6 +21,12 @@ final class SalesCustomerSelection extends Equatable {
   final String? phone;
   final bool isOrganization;
   final String? taxCode;
+
+  /// `individual` / `organization` — Theme 08 BuyerType; null cho khách lẻ.
+  final String? buyerType;
+  final String? invoiceLegalName;
+  final String? invoiceAddress;
+  final String? invoiceEmail;
 
   factory SalesCustomerSelection.walkIn() => const SalesCustomerSelection(
     isWalkIn: true,
@@ -32,6 +42,10 @@ final class SalesCustomerSelection extends Equatable {
     phone,
     isOrganization,
     taxCode,
+    buyerType,
+    invoiceLegalName,
+    invoiceAddress,
+    invoiceEmail,
   ];
 }
 
@@ -44,6 +58,10 @@ final class SalesCustomerListItemVm extends Equatable {
     this.isBlocked = false,
     this.isOrganization = false,
     this.taxCode,
+    this.buyerType,
+    this.invoiceLegalName,
+    this.invoiceAddress,
+    this.invoiceEmail,
   });
 
   final String partnerId;
@@ -53,6 +71,10 @@ final class SalesCustomerListItemVm extends Equatable {
   final bool isBlocked;
   final bool isOrganization;
   final String? taxCode;
+  final String? buyerType;
+  final String? invoiceLegalName;
+  final String? invoiceAddress;
+  final String? invoiceEmail;
 
   SalesCustomerSelection toSelection() => SalesCustomerSelection(
     isWalkIn: false,
@@ -61,6 +83,10 @@ final class SalesCustomerListItemVm extends Equatable {
     phone: phone,
     isOrganization: isOrganization,
     taxCode: taxCode,
+    buyerType: buyerType,
+    invoiceLegalName: invoiceLegalName,
+    invoiceAddress: invoiceAddress,
+    invoiceEmail: invoiceEmail,
   );
 
   @override
@@ -72,5 +98,9 @@ final class SalesCustomerListItemVm extends Equatable {
     isBlocked,
     isOrganization,
     taxCode,
+    buyerType,
+    invoiceLegalName,
+    invoiceAddress,
+    invoiceEmail,
   ];
 }

@@ -4,7 +4,7 @@
 -- Context: TH-08 / EP-03 / US-01
 -- Touches: _official_view_command_id, get_electronic_invoice_detail, load_official_view_operation_context, record_official_invoice_view_result, request_official_invoice_view
 -- Safety: idempotent ; medium
--- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql, 005_sales_einvoice_dev_acceptance_source.sql
+-- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql, 018_sales_einvoice_source_contract.sql
 
 create unique index if not exists electronic_invoices_tenant_id_id_idx
   on einvoice.electronic_invoices (tenant_id, id);

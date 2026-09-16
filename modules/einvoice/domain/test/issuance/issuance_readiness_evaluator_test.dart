@@ -12,6 +12,7 @@ void main() {
       buyerType: BuyerType.organization,
       name: 'Công ty ABC',
       taxCode: '0101234567',
+      address: '123 Đường ABC',
     );
 
     const readyInput = IssuanceReadinessInput(
@@ -260,6 +261,42 @@ void main() {
         expect(
           result.buyerCompletionState,
           equals(BuyerCompletionStatus.open),
+        );
+      },
+    );
+
+    test(
+      'blocks with BUYER_ADDRESS_REQUIRED and forbids preview when org buyer has tax code but lacks address',
+      () {
+        const orgWithoutAddress = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty XYZ',
+          taxCode: '0101234567',
+          address: '   ',
+        );
+        final input = IssuanceReadinessInput(
+          orderCompleted: true,
+          hasElectronicInvoice: false,
+          hasActiveOperation: false,
+          configReady: true,
+          providerConnected: true,
+          providerSupportsPreview: true,
+          buyer: orgWithoutAddress,
+          buyerCompletionState: BuyerCompletionStatus.open,
+        );
+
+        final result = IssuanceReadinessEvaluator.evaluate(input);
+
+        expect(result.level, equals(IssuanceReadinessLevel.notReady));
+        expect(result.canPreview, isFalse);
+        expect(
+          result.blockers,
+          contains(
+            const ReadinessBlocker(
+              code: 'BUYER_ADDRESS_REQUIRED',
+              message: 'Khách tổ chức có MST nhưng thiếu địa chỉ',
+            ),
+          ),
         );
       },
     );

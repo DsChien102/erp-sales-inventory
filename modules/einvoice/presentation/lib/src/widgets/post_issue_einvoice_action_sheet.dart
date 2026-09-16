@@ -28,10 +28,14 @@ class PostIssueSheetState {
 }
 
 /// Shows the post-issue E-Invoice action sheet.
+///
+/// [onViewOfficial] keeps this sheet open and starts official-view loading.
+/// Documents and send still pop with [PostIssueAction].
 Future<PostIssueAction?> showPostIssueEInvoiceActionSheet(
   BuildContext context, {
   PostIssueSheetState state = const PostIssueSheetState(),
   Stream<PostIssueSheetState>? states,
+  VoidCallback? onViewOfficial,
 }) {
   return showVBottomSheet<PostIssueAction>(
     context: context,
@@ -40,6 +44,7 @@ Future<PostIssueAction?> showPostIssueEInvoiceActionSheet(
       stream: states,
       builder: (context, snapshot) => PostIssueEInvoiceActionSheet(
         state: snapshot.data ?? state,
+        onViewOfficial: onViewOfficial,
       ),
     ),
   );
@@ -52,9 +57,11 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
   const PostIssueEInvoiceActionSheet({
     super.key,
     this.state = const PostIssueSheetState(),
+    this.onViewOfficial,
   });
 
   final PostIssueSheetState state;
+  final VoidCallback? onViewOfficial;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +107,7 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
                 supportingText: OrderEInvoiceCopy.viewOfficialSupporting,
                 enabled: true,
                 loading: state.isOfficialViewLoading,
-                onTap: () => select(PostIssueAction.viewOfficial),
+                onTap: state.isOfficialViewLoading ? null : onViewOfficial,
               ),
               EInvoiceActionItem(
                 key: const Key('action_documents'),
@@ -108,7 +115,7 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
                 title: OrderEInvoiceCopy.documentsTitle,
                 supportingText: OrderEInvoiceCopy.documentsSupporting,
                 enabled: isActionsEnabled,
-                onTap: () => select(PostIssueAction.documents),
+                onTap: isActionsEnabled ? () => select(PostIssueAction.documents) : null,
               ),
               EInvoiceActionItem(
                 key: const Key('action_send'),
@@ -131,23 +138,23 @@ class PostIssueEInvoiceActionSheet extends StatelessWidget {
     return switch (state.deliveryStatus) {
       DeliveryDisplayState.notSent => const VBadge(
         label: OrderEInvoiceCopy.deliveryNotSent,
-        status: VBadgeStatus.draft,
-        isSmall: true,
+        tone: VComponentTone.neutral,
       ),
       DeliveryDisplayState.sending => const VBadge(
         label: OrderEInvoiceCopy.deliverySending,
-        status: VBadgeStatus.processing,
-        isSmall: true,
+        tone: VComponentTone.primary,
       ),
       DeliveryDisplayState.sent => const VBadge(
         label: OrderEInvoiceCopy.deliverySent,
-        status: VBadgeStatus.success,
-        isSmall: true,
+        tone: VComponentTone.success,
       ),
       DeliveryDisplayState.failed => const VBadge(
         label: OrderEInvoiceCopy.deliverySendFailed,
-        status: VBadgeStatus.danger,
-        isSmall: true,
+        tone: VComponentTone.danger,
+      ),
+      DeliveryDisplayState.unknown => const VBadge(
+        label: OrderEInvoiceCopy.deliveryUnknown,
+        tone: VComponentTone.warning,
       ),
     };
   }

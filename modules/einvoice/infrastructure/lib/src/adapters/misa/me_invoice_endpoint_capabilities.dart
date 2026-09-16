@@ -27,8 +27,10 @@ final class MeInvoiceEndpointCapabilities {
       );
     }
 
-    // Allow email delivery capability when explicitly enabled in configuration
-    final emailSupported = emailDeliveryEnabled;
+    // Product host only: testapi never advertises email delivery.
+    final emailSupported =
+        emailDeliveryEnabled &&
+        baseUrl.host.toLowerCase() == 'api.meinvoice.vn';
 
     return MeInvoiceEndpointCapabilities(
       supportsEmailDelivery: emailSupported,

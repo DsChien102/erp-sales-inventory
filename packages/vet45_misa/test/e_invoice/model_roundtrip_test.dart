@@ -118,6 +118,28 @@ void main() {
       final noCode = MeInvoiceInvoiceQuery.fromInvSeries('1K26TYY');
       expect(noCode.invoiceWithCode, isFalse);
     });
+
+    test('fromInvSeries throws FormatException for malformed series', () {
+      for (final invSeries in <String>[
+        '',
+        '1C2',
+        '3C26TYY',
+        '1X26TYY',
+        '1C26XYY',
+      ]) {
+        expect(
+          () => MeInvoiceInvoiceQuery.fromInvSeries(invSeries),
+          throwsFormatException,
+          reason: 'expected malformed InvSeries: $invSeries',
+        );
+      }
+    });
+
+    test('tryFromInvSeries returns null for malformed series', () {
+      expect(MeInvoiceInvoiceQuery.tryFromInvSeries('3C26TYY'), isNull);
+      expect(MeInvoiceInvoiceQuery.tryFromInvSeries('1X26TYY'), isNull);
+      expect(MeInvoiceInvoiceQuery.tryFromInvSeries('1C26XYY'), isNull);
+    });
   });
 
   group('MeInvoiceApiResponse', () {

@@ -78,16 +78,16 @@ final class _RecordingHandler<T extends TenantScopedIntegrationEvent>
 void main() {
   group('ProcessInboxCommandHandler & EinvoiceIntegrationEventDispatcher', () {
     test(
-      'dispatches sales.order.completed from inbox and completes message',
+      'dispatches sales_order_finalized.v1 from inbox and completes message',
       () async {
         final dispatcher = EinvoiceIntegrationEventDispatcher();
         final salesHandler =
-            _RecordingHandler<SalesOrderCompletedIntegrationEvent>();
-        dispatcher.register<SalesOrderCompletedIntegrationEvent>(salesHandler);
+            _RecordingHandler<SalesOrderFinalizedIntegrationEvent>();
+        dispatcher.register<SalesOrderFinalizedIntegrationEvent>(salesHandler);
 
         final message = ClaimedInboxMessage(
           messageId: 'msg-001',
-          eventType: SalesOrderCompletedIntegrationEvent.type,
+          eventType: SalesOrderFinalizedIntegrationEvent.type,
           payload: {
             'id': 'msg-001',
             'occurred_on': '2026-08-29T10:00:00.000Z',
@@ -195,7 +195,7 @@ void main() {
         final dispatcher = EinvoiceIntegrationEventDispatcher();
         final message = ClaimedInboxMessage(
           messageId: 'msg-004',
-          eventType: SalesOrderCompletedIntegrationEvent.type,
+          eventType: SalesOrderFinalizedIntegrationEvent.type,
           payload: {
             'id': 'different-id',
             'occurred_on': '2026-08-29T10:00:00.000Z',
@@ -226,13 +226,13 @@ void main() {
     test('fails message when handler throws exception', () async {
       final dispatcher = EinvoiceIntegrationEventDispatcher();
       final salesHandler =
-          _RecordingHandler<SalesOrderCompletedIntegrationEvent>()
+          _RecordingHandler<SalesOrderFinalizedIntegrationEvent>()
             ..shouldThrow = true;
-      dispatcher.register<SalesOrderCompletedIntegrationEvent>(salesHandler);
+      dispatcher.register<SalesOrderFinalizedIntegrationEvent>(salesHandler);
 
       final message = ClaimedInboxMessage(
         messageId: 'msg-005',
-        eventType: SalesOrderCompletedIntegrationEvent.type,
+        eventType: SalesOrderFinalizedIntegrationEvent.type,
         payload: {
           'id': 'msg-005',
           'occurred_on': '2026-08-29T10:00:00.000Z',

@@ -146,6 +146,7 @@ void main() {
         expect(sql, contains("'SENDING'"));
         expect(sql, contains("'SENT'"));
         expect(sql, contains("'FAILED'"));
+        expect(sql, contains("'UNKNOWN'"));
         expect(historyFn, contains('_delivery_display_projection'));
       },
     );
@@ -154,8 +155,8 @@ void main() {
       expect(sheetFn, contains('mode'));
       expect(sheetFn, contains('operation_locked'));
       expect(sheetFn, contains('display_state'));
-      expect(sheetFn, contains("'PROCESSING'"));
-      expect(sheetFn, contains("'UNKNOWN'"));
+      expect(sheetFn, contains("d.status = 'PROCESSING'"));
+      expect(sheetFn, isNot(contains("d.status in ('PROCESSING', 'UNKNOWN')")));
       expect(sheetFn, contains('history'));
     });
   });

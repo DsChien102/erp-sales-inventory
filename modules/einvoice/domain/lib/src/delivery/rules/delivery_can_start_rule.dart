@@ -30,7 +30,7 @@ final class DeliveryCanStartRule implements IBusinessRule {
   @override
   String get message {
     if (invoiceHasActiveLock) {
-      return 'Cannot start delivery while another delivery is active or unknown';
+      return 'Cannot start delivery while another delivery is processing';
     }
     return switch (kind) {
       DeliveryKind.initial => 'Initial delivery already exists for this electronic invoice',

@@ -342,6 +342,7 @@ create or replace function einvoice.claim_issuance_reconciliation_case(
   claim_token varchar(100),
   idempotency_key varchar(150),
   payload_hash varchar(128),
+  invoice_series varchar(100),
   provider_reference varchar(255),
   check_sequence integer,
   max_checks integer
@@ -387,6 +388,10 @@ begin
     v_claim_token,
     v_attempt.idempotency_key,
     v_attempt.canonical_payload_hash,
+    coalesce(
+      nullif(trim(v_attempt.invoice_series), ''),
+      nullif(trim(v_attempt.provider_result_snapshot ->> 'invoice_series'), '')
+    ),
     coalesce(
       v_attempt.provider_invoice_reference,
       v_attempt.provider_request_reference,
@@ -880,7 +885,7 @@ create or replace function einvoice.get_issuance_attempt_status(
   has_active_operation boolean,
   failure_code varchar(100),
   last_error_message text
-) language plpgsql security definer set search_path = einvoice, public as $$
+) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
 declare
   v_issuance einvoice.invoice_issuances%rowtype;
   v_attempt einvoice.issuance_attempts%rowtype;
@@ -890,6 +895,18 @@ declare
   v_has_active_op boolean := false;
   v_safe_failure_code varchar(100) := null;
 begin
+  if auth.uid() is not null then
+    if auth.uid() <> p_actor_id then
+      raise exception 'NO_PERMISSION: actor mismatch';
+    end if;
+    if not iam.has_permission(p_tenant_id, 'einvoice.issue') then
+      raise exception 'NO_PERMISSION: einvoice.issue required';
+    end if;
+    if not sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id) then
+      raise exception 'NO_PERMISSION: sales order not accessible';
+    end if;
+  end if;
+
   select ii.*
   into v_issuance
   from einvoice.invoice_issuances ii
@@ -970,7 +987,7 @@ begin
     v_has_invoice,
     v_has_active_op,
     v_safe_failure_code,
-    v_attempt.failure_message;
+    null::text;
 end;
 $$;
 
@@ -1110,7 +1127,7 @@ grant execute on function einvoice.claim_issuance_reconciliation_case(uuid, uuid
 grant execute on function einvoice.record_reconciliation_pending(uuid, uuid, varchar, integer, integer) to service_role;
 grant execute on function einvoice.resolve_reconciliation_case(uuid, uuid, text, jsonb) to service_role;
 grant execute on function einvoice.recover_internal_finalization(uuid, uuid) to service_role;
-grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to service_role;
+grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to authenticated, service_role;
 grant execute on function einvoice.seed_due_issuance_reconciliation_commands(uuid, int) to service_role;
 grant execute on function einvoice.claim_internal_commands_batch(uuid, int) to service_role;
 

@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -33,6 +36,11 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
       orderId: widget.orderId,
       salesModule: GetIt.instance<ISalesModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
+      // Badge HĐĐT là phần bổ trợ: host nào chưa nối module einvoice (widget
+      // test, harness) vẫn dựng được trang, badge lùi về `notIssued`.
+      eInvoiceModule: GetIt.instance.isRegistered<IEInvoiceModule>()
+          ? GetIt.instance<IEInvoiceModule>()
+          : null,
     )..load();
   }
 
@@ -194,14 +202,18 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
     }
   }
 
-  /// Opens the e-invoice management sheet for this order. US-06 delivery
-  /// tracking is deferred, so the sheet shows the cosmetic `notRequired` state
-  /// until the e-invoice integration owner exists.
-  Future<void> _openEInvoice() async {
-    await showSalesResultEInvoiceSheet(
-      context,
-      status: IntegrationDeliveryStatus.notRequired,
-    );
+  /// Fallback khi người dùng bấm vào thẻ HĐĐT nếu chưa tải được projection.
+  Future<void> _openEInvoice(SalesOrderDetailVm vm) async {
+    if (!GetIt.instance.isRegistered<IEInvoiceModule>()) {
+      VToast.show(
+        context,
+        title: 'Không thể mở hóa đơn điện tử',
+        message: 'Chức năng hóa đơn điện tử chưa được cấu hình.',
+        type: VToastType.warning,
+      );
+      return;
+    }
+    await _cubit.refresh();
   }
 
   /// Surfaces receipt section error/warning via VToast. Returns true when feedback
@@ -429,7 +441,26 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                     },
                     historyErrorMessage: state.historyErrorMessage,
                     onOpenReceipt: _openReceipt,
-                    onOpenEInvoice: _openEInvoice,
+                    onOpenEInvoice: () => _openEInvoice(vm),
+                    eInvoiceSection: GetIt.instance.isRegistered<IEInvoiceModule>()
+                        ? OrderEInvoiceSection(
+                            key: const Key('btn_sg08_einvoice'),
+                            salesOrderId: vm.orderId,
+                            orderVersion: vm.orderVersion,
+                            orderCode: vm.orderNumber,
+                            orderTotalFormatted: MoneyFormatter.formatMinor(vm.totalAmountMinor),
+                            initialProjection:
+                                state.eInvoiceProjection ??
+                                OrderInvoiceProjectionDto(
+                                  salesOrderId: vm.orderId,
+                                  issuanceDisplayState: IssuanceDisplayState.notIssued,
+                                  actions: const [],
+                                ),
+                            hasLoadedInitialProjection: state.eInvoiceProjection != null,
+                            mediator: GetIt.instance<IEInvoiceModule>(),
+                            executionContext: GetIt.instance<IExecutionContext>(),
+                          )
+                        : null,
                     onRetryPayment: _cubit.retryPaymentSection,
                     onRetryHistory: _cubit.retryHistorySection,
                     showHistory: widget.showHistory,

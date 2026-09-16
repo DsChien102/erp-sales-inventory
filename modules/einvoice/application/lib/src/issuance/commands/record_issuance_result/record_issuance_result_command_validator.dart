@@ -46,6 +46,10 @@ final class RecordIssuanceResultCommandValidator
         if (undetermined.reasonCode.trim().isEmpty) {
           throw ValidationException('reasonCode is required for undetermined evidence');
         }
+      case IssuanceRetryableProviderRejectionEvidenceDto():
+        throw ValidationException(
+          'retryable provider rejection is not valid RecordIssuanceResult evidence',
+        );
     }
   }
 }

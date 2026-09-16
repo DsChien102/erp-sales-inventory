@@ -139,6 +139,23 @@ final class _FakeInternalCommandClient
     events.add('fail-${command.id}');
   }
 
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) return;
+    events.add('reschedule-$commandId');
+    command.claimToken = null;
+  }
+
   _StoredCommand? _findClaimed({
     required String tenantId,
     required String commandId,

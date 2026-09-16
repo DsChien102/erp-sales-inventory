@@ -409,8 +409,8 @@ final appRouter = GoRouter(
           onConnectionTap: () async {
             await context.push('/more/einvoice/connection');
           },
-          onIssuanceTap: () => context.push('/more/einvoice/issuance'),
-          onAutomationTap: () => context.push('/more/einvoice/automation'),
+          onIssuanceTap: () async => context.push('/more/einvoice/issuance'),
+          onAutomationTap: () async => context.push('/more/einvoice/automation'),
         );
       },
     ),

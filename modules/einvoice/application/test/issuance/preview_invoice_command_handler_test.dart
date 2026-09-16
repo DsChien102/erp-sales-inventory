@@ -7,6 +7,7 @@ void main() {
     final sampleInvoice = <String, Object?>{
       'refId': 'ref-100',
       'invSeries': '1C25TYY',
+      'signType': 2,
       'totalAmount': 110000,
     };
 
@@ -81,9 +82,11 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup = IssuanceProviderStatusLookup.providerTransactionId,
   }) => throw UnimplementedError();
 
   @override

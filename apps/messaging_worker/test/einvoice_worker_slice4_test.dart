@@ -93,6 +93,16 @@ final class _TrackingInternalCommandClient implements IEinvoiceInternalCommandCl
   }) async {
     callLog.add('fail:$commandId');
   }
+
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    callLog.add('reschedule:$commandId:${delay.inSeconds}');
+  }
 }
 
 final class _MockEinvoiceMediator implements IModuleMediator {

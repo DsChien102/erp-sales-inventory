@@ -7,6 +7,9 @@ import 'me_invoice_provider_call_support.dart';
 ///
 /// Closed allowlist: unknown codes and unexpected shapes are undetermined,
 /// never definite failure. Never returns raw provider message/body text.
+///
+/// [DeliveryProviderSucceeded] means MISA accepted the send operation —
+/// not proof that email reached a mailbox.
 abstract final class MeInvoiceDeliveryClassifier {
   static const _definiteAuthOrCredentialCodes = <String>{
     'InvalidAppID',
@@ -24,7 +27,7 @@ abstract final class MeInvoiceDeliveryClassifier {
   };
 
   static DeliveryProviderOutcome classify(
-    MeInvoiceResult<List<MeInvoiceSendEmailResultItem>> result, {
+    MeInvoiceResult<MeInvoiceSendEmailResponse> result, {
     required String transactionId,
   }) {
     if (result.rateLimited || _isRateLimited(result.error)) {
@@ -36,9 +39,20 @@ abstract final class MeInvoiceDeliveryClassifier {
     }
 
     if (result.isSuccess) {
-      final items = result.data;
+      final response = result.data;
+      if (response == null) {
+        return const DeliveryProviderUndetermined(
+          'PROVIDER_UNEXPECTED_SUCCESS_SHAPE',
+        );
+      }
+
+      if (response.kind ==
+          MeInvoiceSendEmailResponseKind.envelopeAcknowledgement) {
+        return const DeliveryProviderSucceeded();
+      }
+
+      final items = response.items;
       if (transactionId.isEmpty ||
-          items == null ||
           items.length != 1 ||
           items.single.transactionId != transactionId) {
         return const DeliveryProviderUndetermined(

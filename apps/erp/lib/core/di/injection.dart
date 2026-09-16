@@ -27,7 +27,13 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<SupabaseModule>(supabaseModule);
 
-  getIt.registerLazySingleton<QueryClient>(() => QueryClient());
+  getIt.registerLazySingleton<QueryClient>(
+    () => QueryClient(
+      options: const QueryClientOptions(
+        queries: QueryOptionsDefaults(gcTime: Duration(minutes: 5)),
+      ),
+    ),
+  );
 
   getIt.registerLazySingleton<ILoggerFactory>(
     () => const LoggingLoggerFactory(),

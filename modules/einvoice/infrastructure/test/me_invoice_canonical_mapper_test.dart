@@ -6,6 +6,7 @@ void main() {
     final request = MeInvoiceCanonicalMapper.toPublishRequest(
       canonicalInvoice: {
         'invSeries': '1C25TYY',
+        'signType': 2,
         'invDate': '2026-08-01',
         'buyerLegalName': 'ABC',
         'buyerAddress': 'HN',

@@ -65,6 +65,11 @@ set search_path = einvoice, iam, public
 as $$
 declare
   v_version int;
+  v_template jsonb;
+  v_is_mtt boolean;
+  v_method text;
+  v_sign_type int;
+  v_signing jsonb;
 begin
   if auth.uid() is null
      or p_actor_id is null
@@ -73,18 +78,80 @@ begin
     raise exception 'NO_PERMISSION: einvoice.manage_configuration required';
   end if;
 
+  select elem
+  into v_template
+  from einvoice.provider_connections pc,
+       jsonb_array_elements(coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)) as elem
+  where pc.tenant_id = p_tenant_id
+    and pc.status = 'connected'
+    and (elem ->> 'template_id' = p_template_id or elem ->> 'templateId' = p_template_id)
+  limit 1;
+
+  if v_template is null then
+    raise exception 'TEMPLATE_NOT_AVAILABLE: configured template is not in provider capability';
+  end if;
+
+  v_is_mtt := coalesce(
+    (v_template ->> 'is_mtt')::boolean,
+    upper(substr(coalesce(v_template ->> 'invoice_series', v_template ->> 'symbol', ''), 5, 1)) = 'M'
+  );
+
+  if p_signing_config_id in ('sign-nosign', 'sign-mtt') then
+    v_method := 'noSign';
+    v_sign_type := 5;
+  elsif p_signing_config_id = 'sign-hsm' then
+    v_method := 'hsm';
+    v_sign_type := 2;
+  else
+    raise exception 'SIGNING_CONFIGURATION_NOT_AVAILABLE: unsupported signing configuration';
+  end if;
+
+  if v_is_mtt and v_sign_type is distinct from 5 then
+    raise exception 'SIGNING_CONFIGURATION_NOT_AVAILABLE: MTT template requires SignType=5';
+  end if;
+
+  if (not v_is_mtt) and v_sign_type is distinct from 2 then
+    raise exception 'SIGNING_CONFIGURATION_NOT_AVAILABLE: non-MTT template requires SignType=2';
+  end if;
+
+  v_signing := jsonb_build_object(
+    'signing_config_id', p_signing_config_id,
+    'method', v_method,
+    'sign_type', v_sign_type,
+    'is_available', true
+  );
+
+  v_template := v_template || jsonb_build_object(
+    'template_id', coalesce(v_template ->> 'template_id', p_template_id),
+    'invoice_series', coalesce(
+      nullif(btrim(v_template ->> 'invoice_series'), ''),
+      nullif(btrim(v_template ->> 'symbol'), '')
+    ),
+    'symbol', coalesce(
+      nullif(btrim(v_template ->> 'invoice_series'), ''),
+      nullif(btrim(v_template ->> 'symbol'), '')
+    ),
+    'is_mtt', v_is_mtt,
+    'invoice_with_code', coalesce(
+      (v_template ->> 'invoice_with_code')::boolean,
+      upper(substr(coalesce(v_template ->> 'invoice_series', v_template ->> 'symbol', ''), 2, 1)) = 'C'
+    ),
+    'is_send_summary', coalesce((v_template ->> 'is_send_summary')::boolean, false),
+    'is_available', coalesce((v_template ->> 'is_available')::boolean, true)
+  );
+
   insert into einvoice.issuance_profiles as ip (
     tenant_id, default_template, default_signing, profile_version
   )
   values (
     p_tenant_id,
-    jsonb_build_object('template_id', p_template_id),
-    jsonb_build_object('signing_config_id', p_signing_config_id),
+    v_template,
+    v_signing,
     1
   )
   on conflict (tenant_id) do update set
-    default_template = jsonb_build_object('template_id', p_template_id),
-    default_signing = jsonb_build_object('signing_config_id', p_signing_config_id),
+    default_template = excluded.default_template,
+    default_signing = excluded.default_signing,
     profile_version = ip.profile_version + 1,
     updated_at = now()
   where p_expected_profile_version is null
@@ -96,7 +163,7 @@ begin
   end if;
 
   return query
-  select v_version, p_template_id, p_signing_config_id, null::text, '[]'::jsonb;
+  select v_version, p_template_id, p_signing_config_id, v_method, '[]'::jsonb;
 end;
 $$;
 
@@ -240,7 +307,16 @@ create or replace function einvoice.list_provider_templates(
   p_actor_id uuid,
   p_invoice_with_code boolean default null,
   p_year int default null
-) returns table(template_id text, name text, serial text, symbol text)
+) returns table(
+  template_id text,
+  name text,
+  serial text,
+  symbol text,
+  invoice_series text,
+  invoice_with_code boolean,
+  is_mtt boolean,
+  is_send_summary boolean
+)
 language plpgsql
 security definer
 set search_path = einvoice, iam, public
@@ -274,12 +350,25 @@ begin
       elem ->> 'template_id' as template_id,
       elem ->> 'name' as name,
       elem ->> 'serial' as serial,
-      elem ->> 'symbol' as symbol
+      coalesce(elem ->> 'invoice_series', elem ->> 'symbol') as symbol,
+      coalesce(elem ->> 'invoice_series', elem ->> 'symbol') as invoice_series,
+      case
+        when elem ? 'invoice_with_code' then (elem ->> 'invoice_with_code')::boolean
+        else null
+      end as invoice_with_code,
+      coalesce((elem ->> 'is_mtt')::boolean, false) as is_mtt,
+      coalesce((elem ->> 'is_send_summary')::boolean, false) as is_send_summary
     from jsonb_array_elements(v_templates) as elem
-    where coalesce((elem ->> 'is_available')::boolean, true) = true;
-  else
-    return query
-    select 'tpl-default', 'Default template', null::text, null::text;
+    where coalesce((elem ->> 'is_available')::boolean, true) = true
+      and (
+        p_invoice_with_code is null
+        or (
+          case
+            when elem ? 'invoice_with_code' then (elem ->> 'invoice_with_code')::boolean
+            else null
+          end
+        ) is not distinct from p_invoice_with_code
+      );
   end if;
 end;
 $$;

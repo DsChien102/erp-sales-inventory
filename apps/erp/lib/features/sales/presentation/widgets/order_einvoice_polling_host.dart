@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
 
 import '../bloc/order_einvoice_cubit.dart';
 import '../bloc/order_einvoice_state.dart';
 
-/// Polls pending work while this section is visible, including below a sheet.
+/// Keeps invoice polling active while this section is visible, including below a sheet.
 class OrderEInvoicePollingHost extends StatefulWidget {
   const OrderEInvoicePollingHost({super.key, required this.child});
 
@@ -19,12 +18,10 @@ class OrderEInvoicePollingHost extends StatefulWidget {
 
 class _OrderEInvoicePollingHostState extends State<OrderEInvoicePollingHost>
     with WidgetsBindingObserver {
-  Timer? _timer;
   StreamSubscription<OrderEInvoiceState>? _subscription;
   OrderEInvoiceCubit? _cubit;
   bool _visible = true;
   bool _foreground = true;
-  bool _refreshing = false;
 
   @override
   void initState() {
@@ -41,46 +38,29 @@ class _OrderEInvoicePollingHostState extends State<OrderEInvoicePollingHost>
     if (_cubit != cubit) {
       _subscription?.cancel();
       _cubit = cubit;
-      _subscription = cubit.stream.listen((_) => _schedule());
+      _subscription = cubit.stream.listen((_) => _syncPolling());
     }
     // Opaque routes disable tickers below them; popup sheets keep them active.
-    _visible = TickerMode.of(context);
-    _schedule();
+    _visible = TickerMode.valuesOf(context).enabled;
+    _syncPolling();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
-    _schedule();
+    _syncPolling();
   }
 
-  void _schedule() {
+  void _syncPolling() {
     final cubit = _cubit;
     if (cubit == null || cubit.isClosed) return;
-    final state = cubit.state;
-    final pending =
-        state.projection.deliveryPending ||
-        state.projection.issuanceDisplayState == IssuanceDisplayState.processing ||
-        state.projection.deliveryDisplayState == DeliveryDisplayState.sending;
-    if (!_visible || !_foreground || !state.isPageActive || !pending) {
-      _timer?.cancel();
-      _timer = null;
-      return;
-    }
-    _timer ??= Timer.periodic(const Duration(seconds: 5), (_) async {
-      if (_refreshing || cubit.isClosed) return;
-      _refreshing = true;
-      try {
-        await cubit.refresh();
-      } finally {
-        _refreshing = false;
-      }
-    });
+    final active = _visible && _foreground && cubit.state.isPageActive && cubit.state.shouldPoll;
+    cubit.setPollingActive(active);
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _cubit?.setPollingActive(false);
     _subscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

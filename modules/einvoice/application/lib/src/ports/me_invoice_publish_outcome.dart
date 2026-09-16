@@ -35,6 +35,21 @@ final class MeInvoicePublishDefiniteFailure extends MeInvoicePublishOutcome {
   final MeInvoiceSafeProviderEvidence? safeProviderEvidence;
 }
 
+/// Provider rejected publish but the same RefID + canonical may be retried safely.
+final class MeInvoicePublishRetryableRejection extends MeInvoicePublishOutcome {
+  const MeInvoicePublishRetryableRejection({
+    required this.providerCode,
+    required this.providerMessage,
+    required this.retryAfter,
+    this.safeProviderEvidence,
+  });
+
+  final String providerCode;
+  final String providerMessage;
+  final Duration retryAfter;
+  final MeInvoiceSafeProviderEvidence? safeProviderEvidence;
+}
+
 /// Timeout, ambiguous, uncorrelated, duplicate RefID, or other unknown outcome.
 final class MeInvoicePublishUndetermined extends MeInvoicePublishOutcome {
   const MeInvoicePublishUndetermined({

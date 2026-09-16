@@ -51,9 +51,10 @@ create unique index if not exists invoice_deliveries_one_initial_send
   on einvoice.invoice_deliveries (tenant_id, electronic_invoice_id)
   where delivery_intent = 'INITIAL_SEND';
 
-create unique index if not exists invoice_deliveries_one_active_lock
+drop index if exists einvoice.invoice_deliveries_one_active_lock;
+create unique index invoice_deliveries_one_active_lock
   on einvoice.invoice_deliveries (tenant_id, electronic_invoice_id)
-  where status in ('PROCESSING','UNKNOWN');
+  where status = 'PROCESSING';
 
 create index if not exists invoice_deliveries_invoice_chrono_idx
   on einvoice.invoice_deliveries (tenant_id, electronic_invoice_id, delivery_no);
@@ -166,8 +167,15 @@ begin
     return;
   end if;
 
-  if 'PROCESSING' = any (p_statuses) or 'UNKNOWN' = any (p_statuses) then
+  if 'PROCESSING' = any (p_statuses) then
     display_state := 'SENDING';
+    has_secondary_attention := false;
+    return next;
+    return;
+  end if;
+
+  if 'UNKNOWN' = any (p_statuses) then
+    display_state := 'UNKNOWN';
     has_secondary_attention := false;
     return next;
     return;
@@ -286,13 +294,13 @@ begin
         raise exception 'INITIAL_DELIVERY_ALREADY_CLAIMED: initial delivery already exists';
       end if;
 
-      -- Concurrent active PROCESSING|UNKNOWN lock unique loser.
+      -- Concurrent active PROCESSING lock unique loser.
       if exists (
         select 1
         from einvoice.invoice_deliveries d
         where d.tenant_id = p_tenant_id
           and d.electronic_invoice_id = p_electronic_invoice_id
-          and d.status in ('PROCESSING', 'UNKNOWN')
+          and d.status = 'PROCESSING'
       ) then
         raise exception 'OPERATION_IN_PROGRESS: delivery currently locked';
       end if;
@@ -445,7 +453,7 @@ begin
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
     and d.electronic_invoice_id = p_electronic_invoice_id
-    and d.status in ('PROCESSING', 'UNKNOWN')
+    and d.status = 'PROCESSING'
   limit 1;
 
   if v_active is not null then
@@ -693,7 +701,7 @@ begin
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
     and d.electronic_invoice_id = v_invoice.id
-    and d.status in ('PROCESSING', 'UNKNOWN')
+    and d.status = 'PROCESSING'
   limit 1;
 
   if v_active is not null then
@@ -804,7 +812,7 @@ begin
     from einvoice.invoice_deliveries d
     where d.tenant_id = p_tenant_id
       and d.electronic_invoice_id = v_invoice.id
-      and d.status in ('PROCESSING', 'UNKNOWN')
+      and d.status = 'PROCESSING'
   )
   into v_locked;
 

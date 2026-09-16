@@ -18,7 +18,8 @@ class SalesOrderDetailDocumentsSection extends StatelessWidget {
     required this.historyStatus,
     required this.returnSlips,
     required this.onOpenReceipt,
-    required this.onOpenEInvoice,
+    this.onOpenEInvoice,
+    this.eInvoiceSection,
     required this.onOpenReturnList,
     required this.onOpenHistory,
     required this.onRetryHistory,
@@ -32,7 +33,8 @@ class SalesOrderDetailDocumentsSection extends StatelessWidget {
   final List<SalesReturnExchangeSlipItemVm> returnSlips;
   final String? historyErrorMessage;
   final VoidCallback onOpenReceipt;
-  final VoidCallback onOpenEInvoice;
+  final VoidCallback? onOpenEInvoice;
+  final Widget? eInvoiceSection;
   final VoidCallback onOpenReturnList;
   final VoidCallback onOpenHistory;
   final VoidCallback onRetryHistory;
@@ -53,12 +55,15 @@ class SalesOrderDetailDocumentsSection extends StatelessWidget {
           key: const Key('btn_sg08_receipt'),
           onTap: onOpenReceipt,
         ),
-        SalesEInvoiceEntryCard(
-          key: const Key('btn_sg08_einvoice'),
-          subtitle: 'Quản lý HĐĐT',
-          badgeLabel: _eInvoiceLabel(eInvoiceStatus),
-          onTap: onOpenEInvoice,
-        ),
+        if (eInvoiceSection != null)
+          eInvoiceSection!
+        else
+          SalesEInvoiceEntryCard(
+            key: const Key('btn_sg08_einvoice'),
+            subtitle: 'Quản lý HĐĐT',
+            badgeLabel: _eInvoiceLabel(eInvoiceStatus),
+            onTap: onOpenEInvoice,
+          ),
       ],
       ?_buildReturnsRow(),
       ?_buildHistoryRow(),
@@ -124,6 +129,7 @@ class SalesOrderDetailDocumentsSection extends StatelessWidget {
     SalesEInvoiceStatus.issuing => 'Đang phát hành',
     SalesEInvoiceStatus.issued => 'Đã phát hành',
     SalesEInvoiceStatus.sent => 'Đã gửi',
+    SalesEInvoiceStatus.failed => 'Phát hành lỗi',
     SalesEInvoiceStatus.cancelled => 'Đã hủy',
   };
 }

@@ -79,8 +79,11 @@ abstract final class EinvoiceRpcMapper {
                 'template_id': t.templateId,
                 'name': t.name,
                 'serial': t.serial,
-                'symbol': t.symbol,
+                'symbol': t.invoiceSeries,
+                'invoice_series': t.invoiceSeries,
+                'invoice_with_code': t.invoiceWithCode,
                 'is_mtt': t.isMtt,
+                'is_send_summary': t.isSendSummary,
                 'is_available': t.isAvailable,
               },
           ],
@@ -144,14 +147,23 @@ abstract final class EinvoiceRpcMapper {
 
   static List<ProviderTemplateDto> mapTemplateList(List<dynamic> rows) {
     return rows
-        .map(
-          (raw) => ProviderTemplateDto(
-            templateId: raw['template_id'] as String,
-            name: raw['name'] as String,
-            serial: raw['serial'] as String?,
-            symbol: raw['symbol'] as String?,
-          ),
-        )
+        .map((raw) {
+          final map = raw as Map;
+          final series =
+              (map['invoice_series'] as String?)?.trim().isNotEmpty == true
+              ? (map['invoice_series'] as String).trim()
+              : (map['symbol'] as String?)?.trim();
+          return ProviderTemplateDto(
+            templateId: map['template_id'] as String,
+            name: map['name'] as String,
+            serial: map['serial'] as String?,
+            symbol: series ?? map['symbol'] as String?,
+            invoiceSeries: series,
+            invoiceWithCode: map['invoice_with_code'] as bool?,
+            isMtt: map['is_mtt'] as bool?,
+            isSendSummary: map['is_send_summary'] as bool?,
+          );
+        })
         .toList(growable: false);
   }
 

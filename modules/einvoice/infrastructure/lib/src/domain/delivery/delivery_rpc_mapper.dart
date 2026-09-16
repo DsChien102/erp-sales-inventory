@@ -362,6 +362,7 @@ abstract final class DeliveryRpcMapper {
       'SENDING' || 'sending' => DeliveryDisplayState.sending,
       'SENT' || 'sent' => DeliveryDisplayState.sent,
       'FAILED' || 'failed' => DeliveryDisplayState.failed,
+      'UNKNOWN' || 'unknown' => DeliveryDisplayState.unknown,
       _ => throw RpcException('Unknown delivery display state: $raw'),
     };
   }

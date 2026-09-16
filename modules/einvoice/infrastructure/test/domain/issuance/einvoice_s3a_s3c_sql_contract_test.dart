@@ -110,18 +110,17 @@ void main() {
   });
 
   group('automatic_trigger_process_records table contract', () {
-    test(
-      'repairs the issuance attempt result snapshot column idempotently',
-      () {
-        expect(
-          sql,
+    test('does not repair the attempt schema owned by draft 007', () {
+      expect(
+        sql,
+        isNot(
           contains(
             'alter table einvoice.issuance_attempts\n'
             '  add column if not exists provider_result_snapshot jsonb null;',
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
 
     test('persists the canonical preparation contract', () {
       for (final field in <String>[
@@ -298,6 +297,30 @@ void main() {
       expect(startAutoIssuanceFn, contains("'ATTEMPT_STARTED'"));
       expect(startAutoIssuanceFn, contains("'SKIPPED'"));
       expect(startAutoIssuanceFn, contains('einvoice._start_issuance_attempt'));
+    });
+
+    test('grants execute to authenticated and service_role', () {
+      expect(
+        sql,
+        contains(
+          'grant execute on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar)\n'
+          '  to authenticated, service_role;',
+        ),
+      );
+      expect(
+        sql,
+        contains(
+          'grant execute on function einvoice.list_open_auto_issuance_processes(uuid, uuid)\n'
+          '  to authenticated, service_role;',
+        ),
+      );
+      expect(
+        sql,
+        contains(
+          'grant execute on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar)\n'
+          '  to authenticated, service_role;',
+        ),
+      );
     });
   });
 

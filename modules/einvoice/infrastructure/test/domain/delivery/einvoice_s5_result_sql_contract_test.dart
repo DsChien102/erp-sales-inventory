@@ -277,7 +277,7 @@ void main() {
       expect(recordFn, contains('delivery_version'));
     });
 
-    test('UNKNOWN keeps active business lock (status UNKNOWN)', () {
+    test('UNKNOWN remains terminal on the same delivery (append-only)', () {
       expect(recordFn, contains("status = 'UNKNOWN'"));
       // No path from UNKNOWN back to queued/processing for the delivery.
       expect(

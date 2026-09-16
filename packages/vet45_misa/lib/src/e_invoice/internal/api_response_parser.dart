@@ -52,27 +52,22 @@ abstract final class MeInvoiceApiResponseParser {
   /// Returns the first publish-item error string, if any.
   static String? firstPublishItemError(
     List<MeInvoicePublishInvoiceResultItem>? items,
-  ) =>
-      _firstPublishError(items);
+  ) => _firstPublishError(items);
 
   static List<T> parseDataList<T>(
     Object? data,
     T Function(Map<String, dynamic> json) fromJson,
   ) {
-    return MeInvoiceJsonHelpers.asList(data)
-        .map(MeInvoiceJsonHelpers.asMap)
-        .whereType<Map<String, dynamic>>()
-        .map(fromJson)
-        .toList();
+    return MeInvoiceJsonHelpers.asList(
+      data,
+    ).map(MeInvoiceJsonHelpers.asMap).whereType<Map<String, dynamic>>().map(fromJson).toList();
   }
 
   static String? parseDataString(Object? data) {
-    if (data == null) {
+    if (data is! String) {
       return null;
     }
-    if (data is String) {
-      return data.isEmpty ? null : data;
-    }
-    return data.toString();
+    final trimmed = data.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 }

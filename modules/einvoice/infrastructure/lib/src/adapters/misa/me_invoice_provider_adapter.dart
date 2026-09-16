@@ -84,11 +84,11 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
         return const MeInvoiceAuthOutcome.authFailed();
       }
 
-      final templatesResult = await client.listInvoiceTemplates(
+      final templatesResultWithCode = await client.listInvoiceTemplates(
         invoiceWithCode: true,
       );
-      if (!templatesResult.isSuccess) {
-        final message = templatesResult.error ?? '';
+      if (!templatesResultWithCode.isSuccess) {
+        final message = templatesResultWithCode.error ?? '';
         _clientFactory.invalidate(tenantId);
         _logVerificationFailure(stage: 'templates', error: message);
         if (message.toLowerCase().contains('unavailable') ||
@@ -98,20 +98,42 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
         return const MeInvoiceAuthOutcome.authFailed();
       }
 
-      final templates = templatesResult.data ?? const [];
-      final templateRefs = templates
-          .where((t) => !t.inactive)
-          .map(
-            (t) => ProviderTemplateRef(
-              templateId: t.ipTemplateId,
-              name: t.templateName,
-              serial: t.invTemplateNo,
-              symbol: t.invSeries,
-              isMtt: false,
-              isAvailable: !t.inactive,
-            ),
-          )
-          .toList(growable: false);
+      final templatesResultWithoutCode = await client.listInvoiceTemplates(
+        invoiceWithCode: false,
+      );
+      if (!templatesResultWithoutCode.isSuccess) {
+        final message = templatesResultWithoutCode.error ?? '';
+        _clientFactory.invalidate(tenantId);
+        _logVerificationFailure(stage: 'templates', error: message);
+        if (message.toLowerCase().contains('unavailable') ||
+            message.toLowerCase().contains('timeout')) {
+          return const MeInvoiceAuthOutcome.providerUnavailable();
+        }
+        return const MeInvoiceAuthOutcome.authFailed();
+      }
+
+      final mapped = <ProviderTemplateRef>[];
+      for (final template in [
+        ...?templatesResultWithCode.data,
+        ...?templatesResultWithoutCode.data,
+      ]) {
+        if (template.inactive) {
+          continue;
+        }
+        final ref = ProviderTemplateRef.tryCreate(
+          templateId: template.ipTemplateId,
+          name: template.templateName,
+          invoiceSeries: template.invSeries,
+          isSendSummary: template.isSendSummary,
+          serial: template.invTemplateNo,
+          isAvailable: !template.inactive,
+        );
+        if (ref != null) {
+          mapped.add(ref);
+        }
+      }
+
+      final templateRefs = ProviderTemplateRef.mergeAndDedupe(mapped);
 
       return MeInvoiceAuthOutcome.success(
         templateCount: templateRefs.length,
@@ -215,7 +237,9 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
         httpClient: _httpClient,
       );
 
-      final invoice = MeInvoiceCanonicalMapper.toPreviewInvoice(canonicalInvoice);
+      final invoice = MeInvoiceCanonicalMapper.toPreviewInvoice(
+        canonicalInvoice,
+      );
       final result = await client.previewUnpublished(invoice);
       if (!result.isSuccess) {
         final message = result.error ?? '';
@@ -229,15 +253,37 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
         if (lower.contains('unavailable') || lower.contains('timeout')) {
           return const MeInvoicePreviewOutcome.providerUnavailable();
         }
+        // Fail-closed viewer URL / non-string Data — not auth.
+        if (message == 'meinvoice_preview_invalid_url' ||
+            message == 'meinvoice_preview_invalid_data' ||
+            message == 'meinvoice_preview_empty_data') {
+          return MeInvoicePreviewOutcome.invalidData(detail: message);
+        }
+        // Provider đọc được payload và từ chối vì nội dung: đó là lỗi dữ liệu,
+        // không phải mất kết nối hay sai tài khoản.
+        //
+        // Chỉ khớp mã có cấu trúc của MISA. Không dò chuỗi 'invalid' chung
+        // chung: thông báo xác thực hỏng cũng chứa từ đó ("Invalid credentials")
+        // và sẽ bị phân loại nhầm thành lỗi dữ liệu.
+        if (reason == 'InvalidInvoiceData') {
+          return MeInvoicePreviewOutcome.invalidData(detail: detail ?? reason);
+        }
         return const MeInvoicePreviewOutcome.authFailed();
       }
 
-      return MeInvoicePreviewOutcome.success(viewerRef: result.data ?? '');
+      final viewerRef = MeInvoiceViewUrlPolicy.tryParse(result.data);
+      if (viewerRef == null) {
+        return const MeInvoicePreviewOutcome.invalidData(
+          detail: 'meinvoice_preview_invalid_url',
+        );
+      }
+      return MeInvoicePreviewOutcome.success(viewerRef: viewerRef);
     } on CanonicalValidationFault catch (fault) {
       _logger?.warning(
         'MISA preview canonical validation failed: ${fault.reasonCode}',
       );
-      return const MeInvoicePreviewOutcome.authFailed();
+      // Canonical hỏng là lỗi dữ liệu của ta, không phải lỗi tài khoản MISA.
+      return MeInvoicePreviewOutcome.invalidData(detail: fault.reasonCode);
     } on RpcException catch (error) {
       throw mapEinvoiceRpcError(error);
     }
@@ -310,11 +356,20 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) async {
     try {
+      final query = MeInvoiceInvoiceQuery.tryFromInvSeries(invoiceSeries);
+      if (query == null) {
+        return const MeInvoiceIssuanceStatusOutcome.undetermined(
+          'INVOICE_SERIES_INVALID',
+        );
+      }
       final creds = await _readCredentials(tenantId: tenantId);
       if (creds == null) {
         return const MeInvoiceIssuanceStatusOutcome.undetermined(
@@ -334,14 +389,15 @@ final class MeInvoiceProviderAdapter implements IMeInvoiceProviderPort {
         httpClient: _httpClient,
       );
 
-      final bool useTransactionId =
-          providerReference != null && providerReference.trim().isNotEmpty;
+      final inputType = switch (statusLookup) {
+        IssuanceProviderStatusLookup.providerTransactionId =>
+          MeInvoiceStatusInputType.transactionId,
+        IssuanceProviderStatusLookup.refId => MeInvoiceStatusInputType.refId,
+      };
       final statusResult = await client.getStatus(
-        ids: [useTransactionId ? providerReference : idempotencyKey],
-        inputType: useTransactionId
-            ? MeInvoiceStatusInputType.transactionId
-            : MeInvoiceStatusInputType.refId,
-        query: const MeInvoiceInvoiceQuery(invoiceWithCode: true),
+        ids: [statusLookupKey],
+        inputType: inputType,
+        query: query,
       );
 
       return MeInvoiceIssuanceStatusClassifier.classify(

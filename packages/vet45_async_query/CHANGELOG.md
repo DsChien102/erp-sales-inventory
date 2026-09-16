@@ -10,4 +10,5 @@
 - Infinite queries with `InfiniteQuery` and `InfiniteQueryObserver`
 - Flutter package: `QueryClientProvider`, `UseQuery`, `UseMutation`, `UseInfiniteQuery`
 - `AppLifecycleRefetch` for foreground refetch
+- QueryObserver background mount/interval fetch swallows errors (explicit `refetch()` still rethrows)
 - Example app with list, detail, create mutation, pull-to-refresh

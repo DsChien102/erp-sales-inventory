@@ -28,8 +28,8 @@ abstract final class EinvoiceIntegrationEventRegistry {
         ProviderObservationAttentionRequiredIntegrationEvent.type,
     PartnerProfileUpdatedIntegrationEvent:
         PartnerProfileUpdatedIntegrationEvent.type,
-    SalesOrderCompletedIntegrationEvent:
-        SalesOrderCompletedIntegrationEvent.type,
+    SalesOrderFinalizedIntegrationEvent:
+        SalesOrderFinalizedIntegrationEvent.type,
   };
 
   static TenantScopedIntegrationEvent? fromJson({
@@ -59,8 +59,8 @@ abstract final class EinvoiceIntegrationEventRegistry {
     if (eventType == PartnerProfileUpdatedIntegrationEvent.type) {
       return PartnerProfileUpdatedIntegrationEvent.fromPayload(payload);
     }
-    if (eventType == SalesOrderCompletedIntegrationEvent.type) {
-      return SalesOrderCompletedIntegrationEvent.fromPayload(payload);
+    if (eventType == SalesOrderFinalizedIntegrationEvent.type) {
+      return SalesOrderFinalizedIntegrationEvent.fromPayload(payload);
     }
     return null;
   }
@@ -94,8 +94,8 @@ abstract final class EinvoiceOutboxEventSerializer {
     if (type == PartnerProfileUpdatedIntegrationEvent) {
       return PartnerProfileUpdatedIntegrationEvent.fromPayload(payload);
     }
-    if (type == SalesOrderCompletedIntegrationEvent) {
-      return SalesOrderCompletedIntegrationEvent.fromPayload(payload);
+    if (type == SalesOrderFinalizedIntegrationEvent) {
+      return SalesOrderFinalizedIntegrationEvent.fromPayload(payload);
     }
     throw StateError('Unsupported outbox event type: $type');
   }
@@ -115,8 +115,8 @@ OutboxModule createGeneratedEinvoiceOutboxModule() {
       ProviderObservationAttentionRequiredIntegrationEvent;
   map[PartnerProfileUpdatedIntegrationEvent.type] =
       PartnerProfileUpdatedIntegrationEvent;
-  map[SalesOrderCompletedIntegrationEvent.type] =
-      SalesOrderCompletedIntegrationEvent;
+  map[SalesOrderFinalizedIntegrationEvent.type] =
+      SalesOrderFinalizedIntegrationEvent;
   return OutboxModule(map);
 }
 
@@ -168,9 +168,9 @@ void registerGeneratedEinvoiceIntegrationEventSubscriptions({
       PartnerProfileUpdatedIntegrationEvent
     >(inboxClient: inboxClient),
   );
-  logger.info('Subscribe to inbound sales.order.completed');
+  logger.info('Subscribe to inbound sales_order_finalized.v1');
   eventBus.subscribe(
-    EinvoiceIntegrationEventGenericHandler<SalesOrderCompletedIntegrationEvent>(
+    EinvoiceIntegrationEventGenericHandler<SalesOrderFinalizedIntegrationEvent>(
       inboxClient: inboxClient,
     ),
   );
@@ -195,8 +195,8 @@ createGeneratedEinvoiceIntegrationEventDispatcher(GetIt container) {
       commands: container.get<IEinvoiceCommandDispatcher>(),
     ),
   );
-  dispatcher.register<SalesOrderCompletedIntegrationEvent>(
-    SalesOrderCompletedIntegrationEventHandler(
+  dispatcher.register<SalesOrderFinalizedIntegrationEvent>(
+    SalesOrderFinalizedIntegrationEventHandler(
       commands: container.get<IEinvoiceCommandDispatcher>(),
     ),
   );

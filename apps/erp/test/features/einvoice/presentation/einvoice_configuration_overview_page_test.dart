@@ -54,4 +54,60 @@ void main() {
     expect(opened, isTrue);
     expect(module.connectionScreenQueries, 2);
   });
+
+  testWidgets('reloads overview after returning from issuance configuration', (tester) async {
+    final module = _CountingEinvoiceModule(
+      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessBlocked),
+    );
+    var opened = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: EInvoiceConfigurationOverviewPage(
+          einvoiceModule: module,
+          executionContext: FakeExecutionContext(),
+          onIssuanceTap: () async {
+            opened = true;
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Cấu hình phát hành'));
+    await tester.pumpAndSettle();
+
+    expect(opened, isTrue);
+    expect(module.connectionScreenQueries, 2);
+  });
+
+  testWidgets('reloads overview after returning from automation policy configuration', (
+    tester,
+  ) async {
+    final module = _CountingEinvoiceModule(
+      FakeEInvoiceModule(scenario: FakeEInvoiceScenario.configReadinessBlocked),
+    );
+    var opened = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: EInvoiceConfigurationOverviewPage(
+          einvoiceModule: module,
+          executionContext: FakeExecutionContext(),
+          onAutomationTap: () async {
+            opened = true;
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Tự động hóa'));
+    await tester.pumpAndSettle();
+
+    expect(opened, isTrue);
+    expect(module.connectionScreenQueries, 2);
+  });
 }

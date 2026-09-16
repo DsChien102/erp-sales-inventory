@@ -13,6 +13,10 @@ abstract final class EInvoiceBlockedCodes {
   static const issuanceNotReady = 'ISSUANCE_NOT_READY';
   static const buyerDataIncomplete = 'BUYER_DATA_INCOMPLETE';
   static const buyerTaxCodeRequired = 'BUYER_TAX_CODE_REQUIRED';
+  static const buyerAddressRequired = 'BUYER_ADDRESS_REQUIRED';
+  static const templateNotAvailable = 'TEMPLATE_NOT_AVAILABLE';
+  static const signingConfigurationNotAvailable = 'SIGNING_CONFIGURATION_NOT_AVAILABLE';
+  static const unsupportedTaxData = 'UNSUPPORTED_TAX_DATA';
   static const orderNotCompleted = 'ORDER_NOT_COMPLETED';
   static const alreadyIssued = 'ALREADY_ISSUED';
   static const operationInProgress = 'OPERATION_IN_PROGRESS';

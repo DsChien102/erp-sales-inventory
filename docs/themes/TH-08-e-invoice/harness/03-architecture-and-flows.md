@@ -150,9 +150,43 @@ Chuyển shared store (Redis hoặc bảng token encrypted) vẫn keyed by `tena
 | ERP           | Chỉ enqueue; poll/query trạng thái HĐ từ DB Vet45                                                                  |
 | Soft-fail     | Thiếu credential tenant → fail job có mã ổn định (tương tự soft-fail Resend thiếu key), không crash tick cả worker |
 | Idempotency   | `refId` từ Vet45 khi `publish` (map MISA refid)                                                                    |
+| Series lease  | Publish foreground theo `InvSeries` qua lease DB `(tenant, provider_connection, series)` — bắt buộc khi >1 worker  |
 
 
 Luồng messaging nền: [docs/architecture/07-integration-and-messaging.md](../../../architecture/07-integration-and-messaging.md).
+
+### 5.1 MISA V2 publish contract (hardening 2026-09-16)
+
+V2 yêu cầu xử lý request **tuần tự theo từng ký hiệu**. Mutex in-process không đủ khi nhiều replica:
+
+```text
+claim internal command
+→ validate immutable canonical (InvSeries + SignType đã resolve)
+→ acquire series lease
+→ nếu busy: reschedule (không permanent failure / không reconcile)
+→ prepare publish / dispatch barrier
+→ HTTP MISA
+→ persist provider result hoặc undetermined evidence
+→ release lease (finally); crash → lease expiry
+```
+
+**SignType:** chỉ wire `2` (HSM) hoặc `5` (MTT). Không `3`/`4`/`6`. Không default SignType trong mapper.
+
+**KCT-only (BA 16/09/2026):** Theme 8 canonical builder kiểm invariant (line/total tax = 0, tax snapshot null/rỗng) rồi áp `VATRateName=KCT`, VAT=0; vi phạm contract → `UNSUPPORTED_TAX_DATA` trước provider.
+
+**Retry codes (không gộp transport):**
+
+| Provider code | Policy |
+| --- | --- |
+| `InvoiceNumberNotCotinuous` | Retry giới hạn, cùng RefID + canonical + series lease |
+| `InvoiceDuplicated` | Reconcile-first theo RefID; retry chỉ sau definitive-not-found |
+| `DuplicateInvoiceRefID` | Reconciliation-only |
+
+**Giữ regression:** endpoint set, token cache per-tenant, RefID ổn định, preview/view HTTPS allowlist, PDF/XML download + Share Sheet, `/invoice/sendemail` Product envelope.
+
+### 5.2 Status / classification
+
+`getStatus` / download / delivery phải suy `invoiceWithCode` / MTT từ `InvSeries` đã đóng băng trên attempt snapshot — không hard-code `invoiceWithCode: true`.
 
 ## 6. Ownership & non-goals
 
@@ -307,12 +341,16 @@ sequenceDiagram
 ### UF-04 — Theo dõi phát hành tự động (CJ-04)
 
 ```text
-sales.order.completed → inbox → StartAutoIssuanceCommand
+sales_order_finalized.v1
+  → sales.outbox → worker Sales binding → shared IEventsBus
+  → einvoice.inbox → SalesOrderFinalizedIntegrationEventHandler
+  → StartAutoIssuanceCommand
   → same path as UF-03 (no dedicated UI)
   → Theme 05 row shows processing via OrderInvoiceProjection
 ```
 
 Uses `AutomaticTriggerProcessRecord` before attempt creation (duplicate prevention).
+Cross-module E2E evidence starts from raw Sales outbox (`sales_to_einvoice_auto_issue_flow_test.dart`). Tests that inject E-invoice inbox directly are component integration only.
 
 ### UF-05 — Chờ xác lập kết quả (CJ-05 — server-side)
 

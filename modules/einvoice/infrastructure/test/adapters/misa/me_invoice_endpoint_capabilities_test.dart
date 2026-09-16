@@ -4,32 +4,38 @@ import 'package:vet45_einvoice_infrastructure/src/adapters/misa/me_invoice_endpo
 
 void main() {
   group('MeInvoiceEndpointCapabilities', () {
-    test('testapi.meinvoice.vn allows emailDelivery when emailDeliveryEnabled is true', () {
-      final caps = MeInvoiceEndpointCapabilities.resolve(
-        baseUrl: Uri.parse('https://testapi.meinvoice.vn/api/integration'),
-        emailDeliveryEnabled: true,
-      );
+    test(
+      'testapi.meinvoice.vn never advertises emailDelivery even when enabled',
+      () {
+        final caps = MeInvoiceEndpointCapabilities.resolve(
+          baseUrl: Uri.parse('https://testapi.meinvoice.vn/api/integration'),
+          emailDeliveryEnabled: true,
+        );
 
-      expect(caps.supportsEmailDelivery, isTrue);
-      expect(
-        caps.supportedDocumentTypes,
-        equals({InvoiceDocumentType.pdf, InvoiceDocumentType.xml}),
-      );
-    });
+        expect(caps.supportsEmailDelivery, isFalse);
+        expect(
+          caps.supportedDocumentTypes,
+          equals({InvoiceDocumentType.pdf, InvoiceDocumentType.xml}),
+        );
+      },
+    );
 
-    test('production HTTPS host allows emailDelivery only when emailDeliveryEnabled is true', () {
-      final capsEnabled = MeInvoiceEndpointCapabilities.resolve(
-        baseUrl: Uri.parse('https://api.meinvoice.vn/api/integration'),
-        emailDeliveryEnabled: true,
-      );
-      expect(capsEnabled.supportsEmailDelivery, isTrue);
+    test(
+      'api.meinvoice.vn Product host allows emailDelivery only when enabled',
+      () {
+        final capsEnabled = MeInvoiceEndpointCapabilities.resolve(
+          baseUrl: Uri.parse('https://api.meinvoice.vn/api/integration'),
+          emailDeliveryEnabled: true,
+        );
+        expect(capsEnabled.supportsEmailDelivery, isTrue);
 
-      final capsDisabled = MeInvoiceEndpointCapabilities.resolve(
-        baseUrl: Uri.parse('https://api.meinvoice.vn/api/integration'),
-        emailDeliveryEnabled: false,
-      );
-      expect(capsDisabled.supportsEmailDelivery, isFalse);
-    });
+        final capsDisabled = MeInvoiceEndpointCapabilities.resolve(
+          baseUrl: Uri.parse('https://api.meinvoice.vn/api/integration'),
+          emailDeliveryEnabled: false,
+        );
+        expect(capsDisabled.supportsEmailDelivery, isFalse);
+      },
+    );
 
     test('always advertises PDF and XML support', () {
       final caps = MeInvoiceEndpointCapabilities.resolve(
@@ -37,8 +43,14 @@ void main() {
         emailDeliveryEnabled: false,
       );
 
-      expect(caps.supportedDocumentTypes.contains(InvoiceDocumentType.pdf), isTrue);
-      expect(caps.supportedDocumentTypes.contains(InvoiceDocumentType.xml), isTrue);
+      expect(
+        caps.supportedDocumentTypes.contains(InvoiceDocumentType.pdf),
+        isTrue,
+      );
+      expect(
+        caps.supportedDocumentTypes.contains(InvoiceDocumentType.xml),
+        isTrue,
+      );
     });
 
     test('always advertises unpublished preview support', () {

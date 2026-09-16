@@ -200,6 +200,26 @@ void main() {
       expect(delivery.version, version);
     });
 
+    test('th08_hardening_parse — UNKNOWN is not an active lock', () {
+      final delivery = startInitial();
+      delivery.markAttemptSubmitted(
+        attemptId: 'attempt-1',
+        providerInteractionReference: 'interaction-1',
+        providerRequestReference: 'request-1',
+        submittedAt: startedAt.add(const Duration(seconds: 1)),
+      );
+      delivery.applyProviderResult(
+        attemptId: 'attempt-1',
+        result: const ProviderDeliveryResult.undetermined(
+          safeCode: 'PROVIDER_TIMEOUT',
+        ),
+        completedAt: startedAt.add(const Duration(seconds: 2)),
+      );
+
+      expect(delivery.status, DeliveryStatus.unknown);
+      expect(delivery.hasActiveLock, isFalse);
+    });
+
     test('unknown may later resolve to success for the same attempt', () {
       final delivery = startInitial();
       delivery.markAttemptSubmitted(
@@ -216,6 +236,7 @@ void main() {
         completedAt: startedAt.add(const Duration(seconds: 2)),
       );
       expect(delivery.status, DeliveryStatus.unknown);
+      expect(delivery.hasActiveLock, isFalse);
       expect(
         delivery.domainEvents,
         contains(isA<InvoiceDeliveryUndeterminedDomainEvent>()),
@@ -231,6 +252,7 @@ void main() {
 
       expect(delivery.status, DeliveryStatus.succeeded);
       expect(delivery.latestAttempt!.status, DeliveryAttemptStatus.succeeded);
+      expect(delivery.hasActiveLock, isFalse);
     });
 
     test('unknown may later resolve to definite failure for the same attempt', () {
@@ -250,6 +272,7 @@ void main() {
       );
       expect(delivery.status, DeliveryStatus.unknown);
       expect(delivery.latestAttempt!.status, DeliveryAttemptStatus.unknown);
+      expect(delivery.hasActiveLock, isFalse);
       delivery.clearDomainEvent();
 
       delivery.applyProviderResult(

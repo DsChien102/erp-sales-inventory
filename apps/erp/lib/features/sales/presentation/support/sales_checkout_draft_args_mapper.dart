@@ -39,6 +39,11 @@ abstract final class SalesCheckoutDraftArgsMapper {
                     (throw StateError('Named customer requires a customer ID.')),
                 displayName: state.customer.displayName,
                 phoneNumber: state.customer.phone,
+                taxCode: state.customer.taxCode,
+                buyerType: state.customer.buyerType,
+                invoiceLegalName: state.customer.invoiceLegalName,
+                invoiceAddress: state.customer.invoiceAddress,
+                invoiceEmail: state.customer.invoiceEmail,
               ),
         lines: [
           for (final line in state.lines)

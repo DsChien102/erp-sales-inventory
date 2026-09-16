@@ -109,14 +109,14 @@ Hardcode permission string trong UI/handler — luôn dùng constant.
 
 | Source | Event type | Payload | Handler mục đích |
 | ------ | ---------- | ------- | ---------------- |
-| sales | `sales.order.completed` | tenantId, salesOrderId, sourceVersion, occurredAt | `StartAutoIssuanceCommand` (EP-02/US-03) |
+| sales | `sales_order_finalized.v1` | tenantId, salesOrderId, salesOrderVersion, occurredAt | `SalesOrderFinalizedIntegrationEventHandler` → `StartAutoIssuanceCommand` (EP-02/US-03) |
 | partner | `partner.partner.profile_updated` | tenantId, partnerId, occurredAt | Tìm process `PENDING_REEVALUATION` đúng buyer và dispatch `ReevaluateAutoIssuanceCommand`; không tạo process mới |
 | provider (inbox) | `einvoice.provider.issuance_result_received` | tenantId, attemptId, correlationId, typedEvidence | `RecordIssuanceResultCommand` (EP-02/US-04) |
 | einvoice (inbox) | `einvoice.electronic_invoice.registered` | tenantId, electronicInvoiceId, salesOrderId, occurredAt | `StartAutoDeliveryCommand` (EP-04/US-01) — một initial delivery / invoice |
 | iam | `iam.legal_profile.updated` | tenantId, occurredAt | Mark `ProviderConnection` CHECK_REQUIRED |
 
 **Quy định Stable Identity:**
-- Sales completion tạo process với `triggerKey = sales.order.completed:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên `<tenantId>|<salesOrderId>|<sourceVersion>`.
+- Sales completion tạo process với `triggerKey = sales_order_finalized.v1:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên `<tenantId>|<salesOrderId>|<sourceVersion>`.
 - Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 Cross-module: package `einvoice_integration_events` only — không import domain module khác.

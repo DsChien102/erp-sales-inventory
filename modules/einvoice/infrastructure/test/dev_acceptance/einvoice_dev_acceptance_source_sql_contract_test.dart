@@ -17,31 +17,15 @@ Directory _repoRoot() {
 void main() {
   late File sourceDraftFile;
   late String sql;
-  late File seedSqlFile;
-  late String seedSql;
-  late File triggerSqlFile;
-  late String triggerSql;
 
   setUpAll(() {
     final root = _repoRoot();
     sourceDraftFile = File(
       '${root.path}/supabase/migrations/_drafts/'
-      '005_sales_einvoice_dev_acceptance_source.sql',
+      '018_sales_einvoice_source_contract.sql',
     );
     sql = sourceDraftFile.existsSync()
         ? sourceDraftFile.readAsStringSync()
-        : '';
-
-    seedSqlFile = File(
-      '${root.path}/scripts/supabase/seed_einvoice_dev_acceptance_order.sql',
-    );
-    seedSql = seedSqlFile.existsSync() ? seedSqlFile.readAsStringSync() : '';
-
-    triggerSqlFile = File(
-      '${root.path}/scripts/supabase/trigger_einvoice_dev_acceptance_observation.sql',
-    );
-    triggerSql = triggerSqlFile.existsSync()
-        ? triggerSqlFile.readAsStringSync()
         : '';
   });
 
@@ -51,51 +35,9 @@ void main() {
         sourceDraftFile.existsSync(),
         isTrue,
         reason:
-            'Missing 005_sales_einvoice_dev_acceptance_source.sql draft in _drafts/',
+            'Missing 018_sales_einvoice_source_contract.sql draft in _drafts/',
       );
     });
-
-    test(
-      'declares sales.einvoice_acceptance_orders with RLS and no authenticated grant',
-      () {
-        expect(sourceDraftFile.existsSync(), isTrue);
-        expect(
-          sql,
-          contains(
-            'create table if not exists sales.einvoice_acceptance_orders',
-          ),
-          reason: 'Must define sales.einvoice_acceptance_orders table',
-        );
-        expect(
-          sql,
-          contains(
-            'alter table sales.einvoice_acceptance_orders enable row level security',
-          ),
-          reason: 'RLS must be enabled on sales.einvoice_acceptance_orders',
-        );
-        expect(
-          sql,
-          contains(
-            'revoke all on sales.einvoice_acceptance_orders from public, anon, authenticated',
-          ),
-          reason:
-              'Must revoke broad access on sales.einvoice_acceptance_orders',
-        );
-        expect(
-          sql,
-          isNot(
-            matches(
-              RegExp(
-                r'grant\s+.*?\s+on\s+sales\.einvoice_acceptance_orders\s+to\s+authenticated',
-                caseSensitive: false,
-              ),
-            ),
-          ),
-          reason:
-              'sales.einvoice_acceptance_orders must have no table grant to authenticated',
-        );
-      },
-    );
 
     test(
       'defines sales.get_einvoice_source_snapshot with correct signature and security definer',
@@ -123,8 +65,39 @@ void main() {
       },
     );
 
+    test('get_einvoice_source_snapshot reads real Sales order tables', () {
+      expect(sourceDraftFile.existsSync(), isTrue);
+      expect(sql, contains('from sales.sales_orders'));
+      expect(sql, contains('from sales.sales_order_lines'));
+      expect(sql, contains("'grossAmountMinor'"));
+      expect(sql, contains("'lineTotalMinor'"));
+      expect(sql, contains("'quantityMicros'"));
+      expect(sql, contains("v_order.customer_partner_id"));
+      expect(sql, contains("v_order.lifecycle_status = 'completed'"));
+      expect(
+        sql,
+        contains('set search_path = sales, public, pg_temp'),
+        reason: 'security definer must pin pg_temp last',
+      );
+    });
+
+    // Theme 08 không được suy "khách lẻ" từ việc thiếu buyerType: đơn cũ của
+    // khách định danh cũng thiếu buyer_tax_snapshot và sẽ bị gán nhầm.
+    // Sales phải nói tường minh khi đơn không gắn khách hàng.
     test(
-      'defines sales.can_access_sales_order enforcing auth.uid(), membership and fixture existence',
+      'snapshot states retail explicitly when the order has no customer',
+      () {
+        expect(
+          sql,
+          contains('when v_order.customer_partner_id is null then \'retail\''),
+          reason:
+              'walk-in must be declared by the source, not inferred downstream',
+        );
+      },
+    );
+
+    test(
+      'defines sales.can_access_sales_order enforcing auth.uid(), membership and real order existence',
       () {
         expect(sourceDraftFile.existsSync(), isTrue);
         expect(
@@ -134,7 +107,7 @@ void main() {
         );
         expect(sql, contains('auth.uid()'));
         expect(sql, contains('iam.memberships'));
-        expect(sql, contains('sales.einvoice_acceptance_orders'));
+        expect(sql, contains('sales.sales_orders'));
         expect(
           sql,
           matches(
@@ -150,67 +123,40 @@ void main() {
     );
 
     test(
-      'draft contains no destructive statements and seeds only via separate script',
+      'can_access_sales_order enforces permission, store scope and active store',
       () {
         expect(sourceDraftFile.existsSync(), isTrue);
+        expect(sql, contains('p_actor_id is null'));
         expect(
           sql,
-          isNot(matches(RegExp(r'\btruncate\b', caseSensitive: false))),
-          reason: 'Draft must not truncate tables',
+          contains("iam.has_permission(p_tenant_id, 'sales.order.view')"),
         );
-        expect(
-          sql,
-          isNot(matches(RegExp(r'\bdelete\s+from\b', caseSensitive: false))),
-          reason: 'Draft must not delete from tables',
-        );
-        expect(
-          sql,
-          isNot(
-            matches(
-              RegExp(
-                r'insert\s+into\s+sales\.einvoice_acceptance_orders',
-                caseSensitive: false,
-              ),
-            ),
-          ),
-          reason:
-              'Draft must not seed fixture rows directly; seeding is script-only',
-        );
-      },
-    );
-  });
-
-  group('Seed and Observation dev scripts contract', () {
-    test(
-      'seed SQL upserts fixed order e1000000-0000-4000-8000-000000000001 with 1,100,000 VND total',
-      () {
-        expect(seedSqlFile.existsSync(), isTrue);
-        expect(seedSql, contains('e1000000-0000-4000-8000-000000000001'));
-        expect(seedSql, contains('TEST-HDDT-001'));
-        expect(
-          seedSql,
-          contains("'a73b8a24-2500-426a-a3a0-cba40c105bd2'::uuid"),
-        );
-        expect(
-          seedSql,
-          contains("'84fd1f8c-4e21-48d6-910f-6f31d067f149'::uuid"),
-        );
-        expect(seedSql, isNot(contains(":'tenant_id'")));
-        expect(seedSql, isNot(contains(":'actor_id'")));
-        expect(seedSql, contains('1000000'));
-        expect(seedSql, contains('1100000'));
-        expect(seedSql, contains('on conflict (tenant_id, id) do update'));
-        expect(seedSql, isNot(contains('delete from')));
-        expect(seedSql, isNot(contains('truncate')));
+        expect(sql, contains('iam.membership_store_scopes'));
+        expect(sql, contains('iam.stores'));
+        expect(sql, contains("store.status = 'active'"));
+        expect(sql, contains('set search_path = sales, iam, public, pg_temp'));
       },
     );
 
-    test('trigger observation SQL calls service RPC for fixed order', () {
-      expect(triggerSqlFile.existsSync(), isTrue);
-      expect(triggerSql, contains('e1000000-0000-4000-8000-000000000001'));
+    test('draft contains no destructive statements', () {
+      expect(sourceDraftFile.existsSync(), isTrue);
       expect(
-        triggerSql,
-        contains('einvoice.request_provider_observation_refresh'),
+        sql,
+        isNot(matches(RegExp(r'\btruncate\b', caseSensitive: false))),
+        reason: 'Draft must not truncate tables',
+      );
+      expect(
+        sql,
+        isNot(matches(RegExp(r'\bdelete\s+from\b', caseSensitive: false))),
+        reason: 'Draft must not delete from tables',
+      );
+    });
+
+    test('fixture table is gone; Theme 05 is the only order source', () {
+      expect(
+        sql,
+        isNot(contains('sales.einvoice_acceptance_orders')),
+        reason: 'fixture existed only while Theme 05 was unavailable',
       );
     });
   });

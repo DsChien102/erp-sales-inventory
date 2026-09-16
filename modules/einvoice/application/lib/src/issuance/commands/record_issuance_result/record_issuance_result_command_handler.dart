@@ -34,6 +34,9 @@ final class RecordIssuanceResultCommandHandler
         attemptId: command.attemptId,
         evidence: command.evidence,
       ),
+      IssuanceRetryableProviderRejectionEvidenceDto() => throw ValidationException(
+        'retryable provider rejection must use publish retry gateway path',
+      ),
     };
   }
 }

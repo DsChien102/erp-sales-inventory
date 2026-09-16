@@ -12,6 +12,8 @@ import 'package:vet45_einvoice_infrastructure/src/configuration/processing/inter
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../support/in_memory_publish_series_lease_gateway.dart';
+
 final class _FakeInternalCommandClient
     implements IEinvoiceInternalCommandClient {
   _FakeInternalCommandClient({required this.serializer});
@@ -141,6 +143,23 @@ final class _FakeInternalCommandClient
     command.claimToken = null;
   }
 
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) return;
+    events.add('reschedule-$commandId');
+    command.claimToken = null;
+  }
+
   _StoredCommand? _findClaimed({
     required String tenantId,
     required String commandId,
@@ -208,9 +227,12 @@ final class _DeadLetterMockProviderPort implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) async => throw UnimplementedError();
 
   @override
@@ -243,6 +265,8 @@ final class _DeadLetterMockResultGateway implements IIssuanceResultGateway {
     required String attemptId,
     required String idempotencyKey,
     required String payloadHash,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
     required Map<String, Object?> canonicalInvoice,
   }) async {
     log.add('preparePublish');
@@ -296,6 +320,20 @@ final class _DeadLetterMockResultGateway implements IIssuanceResultGateway {
     log.add('recordUndetermined');
     return const RecordIssuanceResultDto(
       attemptStatus: IssuanceAttemptStatus.reconciling,
+    );
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  }) async {
+    log.add('recordRetryableProviderRejection');
+    return const RecordIssuanceResultDto(
+      attemptStatus: IssuanceAttemptStatus.preparing,
     );
   }
 
@@ -354,12 +392,21 @@ void main() {
 
       container = GetIt.asNewInstance();
       container
+        ..registerSingleton<IPublishSeriesLeaseGateway>(
+          InMemoryPublishSeriesLeaseGateway(
+            attemptSeriesById: const {
+              'att-integrity-1': '1C25TYY',
+              'att-generic-1': '1C25TYY',
+            },
+          ),
+        )
         ..registerSingleton<IMeInvoiceProviderPort>(provider)
         ..registerSingleton<IIssuanceResultGateway>(gateway)
         ..registerFactory(
           () => PublishInvoiceCommandHandler(
             providerPort: container.get<IMeInvoiceProviderPort>(),
             resultGateway: container.get<IIssuanceResultGateway>(),
+            leaseGateway: container.get<IPublishSeriesLeaseGateway>(),
           ),
         );
 

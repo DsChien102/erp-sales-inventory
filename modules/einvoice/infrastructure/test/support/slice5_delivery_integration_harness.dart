@@ -8,7 +8,6 @@ import 'package:uuid/uuid.dart';
 import 'package:vet45_adapters/vet45_adapters.dart'
     hide InternalCommandSerializer, ISerializableInternalCommand;
 import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/me_invoice_delivery_observation_provider_adapter.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/me_invoice_delivery_provider_adapter.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/tenant_me_invoice_client_factory.dart';
@@ -73,8 +72,11 @@ String deliveryReconciliationCommandId(String caseId, int sequence) =>
       hasSecondaryAttention: latest == 'FAILED' || latest == 'UNKNOWN',
     );
   }
-  if (statuses.contains('PROCESSING') || statuses.contains('UNKNOWN')) {
+  if (statuses.contains('PROCESSING')) {
     return (displayState: 'SENDING', hasSecondaryAttention: false);
+  }
+  if (statuses.contains('UNKNOWN')) {
+    return (displayState: 'UNKNOWN', hasSecondaryAttention: false);
   }
   return (displayState: 'FAILED', hasSecondaryAttention: false);
 }
@@ -460,6 +462,22 @@ final class Slice5InternalCommandClient
     command.claimToken = null;
   }
 
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) return;
+    command.claimToken = null;
+  }
+
   _StoredCommand? _findClaimed({
     required String tenantId,
     required String commandId,
@@ -830,6 +848,7 @@ final class Slice5DeliveryRpcEngine {
       'SENDING' => 'sending',
       'SENT' => 'sent',
       'FAILED' => 'failed',
+      'UNKNOWN' => 'unknown',
       _ => projection.displayState.toLowerCase(),
     };
     final event = DeliveryResultRecordedIntegrationEvent(
@@ -939,7 +958,7 @@ final class Slice5DeliveryRpcEngine {
     if (_deliveriesForInvoice(
       tenantId,
       electronicInvoiceId,
-    ).any((d) => d.status == 'PROCESSING' || d.status == 'UNKNOWN')) {
+    ).any((d) => d.status == 'PROCESSING')) {
       throw RpcException('OPERATION_IN_PROGRESS: delivery currently locked');
     }
 
@@ -1074,7 +1093,7 @@ final class Slice5DeliveryRpcEngine {
     if (_deliveriesForInvoice(
       tenantId,
       invoice.electronicInvoiceId,
-    ).any((d) => d.status == 'PROCESSING' || d.status == 'UNKNOWN')) {
+    ).any((d) => d.status == 'PROCESSING')) {
       throw RpcException('OPERATION_IN_PROGRESS: delivery currently locked');
     }
 
@@ -1446,9 +1465,7 @@ final class Slice5DeliveryRpcEngine {
     final hasInitial = deliveries.any(
       (d) => d.deliveryIntent == 'INITIAL_SEND',
     );
-    final locked = deliveries.any(
-      (d) => d.status == 'PROCESSING' || d.status == 'UNKNOWN',
-    );
+    final locked = deliveries.any((d) => d.status == 'PROCESSING');
     final projection = deliveryDisplayProjection(
       _statusesForInvoice(tenantId, invoice.electronicInvoiceId),
     );

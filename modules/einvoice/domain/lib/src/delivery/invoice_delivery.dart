@@ -175,8 +175,7 @@ final class InvoiceDelivery extends Entity<String> implements IAggregateRoot {
 
   DeliveryAttempt? get latestAttempt => _attempts.isEmpty ? null : _attempts.last;
 
-  bool get hasActiveLock =>
-      _status == DeliveryStatus.processing || _status == DeliveryStatus.unknown;
+  bool get hasActiveLock => _status == DeliveryStatus.processing;
 
   void markAttemptSubmitted({
     required String attemptId,

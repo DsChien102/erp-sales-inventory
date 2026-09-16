@@ -182,12 +182,15 @@ abstract final class SalesPartnerCustomerLookup {
       isBlocked: inactive,
       isOrganization: item.partnerType == PartnerType.organization,
       taxCode: item.taxCode,
+      buyerType: item.partnerType == PartnerType.person ? 'individual' : 'organization',
     );
   }
 
   static SalesCustomerListItemVm _mapDetail(PartnerDetailDto detail) {
     final inactive = detail.status != PartnerStatus.active;
+    final invoice = detail.personProfile?.invoice ?? detail.organizationProfile?.invoice;
     final taxCode = detail.personProfile?.taxCode ?? detail.organizationProfile?.taxCode;
+    final buyerType = detail.partnerType == PartnerType.person ? 'individual' : 'organization';
     final parts = <String>[
       if (detail.roles.contains(PartnerRoleType.customer)) 'Khách hàng',
       if (taxCode != null && taxCode.trim().isNotEmpty) 'MST $taxCode',
@@ -201,6 +204,10 @@ abstract final class SalesPartnerCustomerLookup {
       isBlocked: inactive,
       isOrganization: detail.partnerType == PartnerType.organization,
       taxCode: taxCode,
+      buyerType: buyerType,
+      invoiceLegalName: invoice?.invoiceName,
+      invoiceAddress: invoice?.invoiceAddress,
+      invoiceEmail: invoice?.invoiceEmail,
     );
   }
 

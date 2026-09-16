@@ -18,7 +18,8 @@ final class SendInvoiceSheetContextDto {
   final DeliveryRecipientSource? suggestedEmailSource;
   final List<InvoiceDeliveryItemDto> history;
 
-  /// True while a delivery is `PROCESSING` or `UNKNOWN` for this invoice.
+  /// True while a delivery is `PROCESSING` for this invoice.
+  /// `UNKNOWN` is historical evidence and does not lock manual resend.
   final bool operationLocked;
   final DeliveryDisplayState displayState;
 }

@@ -81,6 +81,14 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
     InvoiceDocumentType documentType,
   ) async {
     try {
+      final query = MeInvoiceInvoiceQuery.tryFromInvSeries(
+        context.invoiceSeries,
+      );
+      if (query == null) {
+        return const InvoiceDocumentProviderCheckRequired(
+          safeErrorCode: 'INVOICE_SERIES_INVALID',
+        );
+      }
       final creds = await _readCredentials(tenantId: context.tenantId);
       if (creds == null) {
         return const InvoiceDocumentProviderCheckRequired(
@@ -96,30 +104,18 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
 
       final result = await client.download(
         transactionIds: [context.providerInvoiceReference],
-        query: MeInvoiceInvoiceQuery.fromInvSeries(context.invoiceSeries),
+        query: query,
         downloadDataType: switch (documentType) {
           InvoiceDocumentType.pdf => MeInvoiceDownloadDataType.pdf,
           InvoiceDocumentType.xml => MeInvoiceDownloadDataType.xml,
         },
       );
 
-      // Diagnostic logging to stdout (bypasses logger level)
-      // ignore: avoid_print
-      print('[MISA_DOWNLOAD] type=$documentType tx=${context.providerInvoiceReference} success=${result.isSuccess} err=${result.error}');
-      if (result.isSuccess && (result.data?.isNotEmpty ?? false)) {
-        final item = result.data!.first;
-        // ignore: avoid_print
-        print('[MISA_DOWNLOAD] data: tx=${item.transactionId} bytes=${item.bytes?.length} dataLen=${item.data?.length}');
-      }
-
-      final outcome = MeInvoiceDocumentClassifier.classify(
+      return MeInvoiceDocumentClassifier.classify(
         result: result,
         documentType: documentType,
         providerInvoiceReference: context.providerInvoiceReference,
       );
-      // ignore: avoid_print
-      print('[MISA_DOWNLOAD] outcome=${outcome.runtimeType}');
-      return outcome;
     } on RpcException catch (error) {
       throw mapEinvoiceRpcError(error);
     }
@@ -130,6 +126,14 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
     ElectronicInvoiceProviderContextDto context,
   ) async {
     try {
+      final query = MeInvoiceInvoiceQuery.tryFromInvSeries(
+        context.invoiceSeries,
+      );
+      if (query == null) {
+        return const ProviderObservationAmbiguous(
+          safeErrorCode: 'INVOICE_SERIES_INVALID',
+        );
+      }
       final creds = await _readCredentials(tenantId: context.tenantId);
       if (creds == null) {
         return const ProviderObservationAmbiguous(
@@ -146,7 +150,7 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
       final result = await client.getStatus(
         ids: [context.providerInvoiceReference],
         inputType: MeInvoiceStatusInputType.transactionId,
-        query: MeInvoiceInvoiceQuery.fromInvSeries(context.invoiceSeries),
+        query: query,
       );
 
       return MeInvoiceObservationClassifier.classify(

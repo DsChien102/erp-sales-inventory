@@ -36,11 +36,6 @@ create index if not exists auto_trigger_process_open_idx
 
 alter table einvoice.automatic_trigger_process_records enable row level security;
 
--- Repair environments where issuance_attempts predates the S2b result fields.
--- CREATE TABLE IF NOT EXISTS in draft 007 cannot add a column to an existing table.
-alter table einvoice.issuance_attempts
-  add column if not exists provider_result_snapshot jsonb null;
-
 -- 2. einvoice._start_issuance_attempt (private helper)
 create or replace function einvoice._start_issuance_attempt(
   p_tenant_id uuid,
@@ -70,8 +65,13 @@ declare
   v_attempt_snapshot jsonb;
   v_canonical_jsonb jsonb;
   v_canonical_hash text;
+  v_invoice_series text;
+  v_invoice_with_code boolean;
+  v_is_invoice_summary boolean;
+  v_sign_type smallint;
   v_base_buyer_snapshot jsonb;
   v_effective_buyer jsonb;
+  v_completion_values jsonb := '{}'::jsonb;
 begin
   insert into einvoice.invoice_issuances (
     tenant_id,
@@ -109,7 +109,20 @@ begin
   -- Source-owned Theme-05 base BuyerInvoiceSnapshot, captured before any
   -- buyer-completion merge produces the effective buyer.
   v_base_buyer_snapshot := coalesce(p_buyer_snapshot, '{}'::jsonb);
-  v_effective_buyer := v_base_buyer_snapshot;
+
+  -- EffectiveBuyerInvoiceData cho payload; lineage giữ base nguyên bản (S5 freeze)
+  select coalesce(bc.resolved_values, '{}'::jsonb)
+  into v_completion_values
+  from einvoice.buyer_invoice_completions bc
+  where bc.id = p_buyer_completion_id;
+
+  v_effective_buyer := v_base_buyer_snapshot || jsonb_strip_nulls(
+    jsonb_build_object(
+      'buyerLegalName',  nullif(btrim(coalesce(v_completion_values ->> 'name', '')), ''),
+      'buyerTaxCode',    nullif(btrim(coalesce(v_completion_values ->> 'taxCode', '')), ''),
+      'buyerEmail',      nullif(btrim(coalesce(v_completion_values ->> 'email', '')), ''),
+      'buyerAddress',    nullif(btrim(coalesce(v_completion_values ->> 'address', '')), '')
+    ));
 
   v_attempt_snapshot := jsonb_build_object(
     'schemaVersion', 1,
@@ -147,6 +160,43 @@ begin
     v_effective_buyer,
     p_commercial_snapshot
   );
+
+  v_invoice_series := nullif(
+    upper(btrim(v_canonical_jsonb ->> 'invSeries')),
+    ''
+  );
+  if v_invoice_series is null
+     or v_invoice_series !~ '^[1256][CK].{2}[TM]'
+     or jsonb_typeof(v_canonical_jsonb -> 'invoiceWithCode') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'isInvoiceSummary') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'signType') is distinct from 'number' then
+    raise exception 'STATE_INVALID: canonical provider contract is missing or malformed';
+  end if;
+
+  v_invoice_with_code := (v_canonical_jsonb ->> 'invoiceWithCode')::boolean;
+  v_is_invoice_summary := (v_canonical_jsonb ->> 'isInvoiceSummary')::boolean;
+  v_sign_type := (v_canonical_jsonb ->> 'signType')::smallint;
+
+  if v_sign_type not in (2, 5)
+     or v_invoice_with_code is distinct from (substr(v_invoice_series, 2, 1) = 'C')
+     or v_sign_type is distinct from (
+       case
+         when substr(v_invoice_series, 5, 1) = 'M' then 5
+         else 2
+       end
+     ) then
+    raise exception 'STATE_INVALID: canonical provider contract is inconsistent';
+  end if;
+
+  v_attempt_snapshot := v_attempt_snapshot || jsonb_build_object(
+    'provider_contract', jsonb_build_object(
+      'invoice_series', v_invoice_series,
+      'invoice_with_code', v_invoice_with_code,
+      'is_invoice_summary', v_is_invoice_summary,
+      'sign_type', v_sign_type
+    )
+  );
+
   v_canonical_hash := encode(
     digest(convert_to(v_canonical_jsonb::text, 'UTF8'), 'sha256'),
     'hex'
@@ -160,6 +210,10 @@ begin
     status,
     provider_connection_id,
     issuance_profile_id,
+    invoice_series,
+    invoice_with_code,
+    is_invoice_summary,
+    sign_type,
     idempotency_key,
     intent_hash,
     snapshot_schema_version,
@@ -177,6 +231,10 @@ begin
     'PREPARING',
     p_provider_connection_id,
     p_issuance_profile_id,
+    v_invoice_series,
+    v_invoice_with_code,
+    v_is_invoice_summary,
+    v_sign_type,
     p_idempotency_key,
     p_intent_hash,
     1,
@@ -813,6 +871,8 @@ end;
 $$;
 
 revoke all on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar) from public;
+grant execute on function einvoice.start_auto_issuance(uuid, uuid, varchar, varchar)
+  to authenticated, service_role;
 
 -- 5. einvoice.list_open_auto_issuance_processes
 create or replace function einvoice.list_open_auto_issuance_processes(
@@ -840,6 +900,8 @@ end;
 $$;
 
 revoke all on function einvoice.list_open_auto_issuance_processes(uuid, uuid) from public;
+grant execute on function einvoice.list_open_auto_issuance_processes(uuid, uuid)
+  to authenticated, service_role;
 
 -- 6. einvoice.reevaluate_auto_issuance
 create or replace function einvoice.reevaluate_auto_issuance(
@@ -1018,6 +1080,8 @@ end;
 $$;
 
 revoke all on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar) from public;
+grant execute on function einvoice.reevaluate_auto_issuance(uuid, uuid, varchar)
+  to authenticated, service_role;
 
 -- 7. einvoice.retry_issuance
 create or replace function einvoice.retry_issuance(

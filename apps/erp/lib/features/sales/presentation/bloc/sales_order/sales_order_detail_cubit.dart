@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../models/sales_order/sales_order_detail_vm.dart' show SalesEInvoiceStatus;
 import '../../models/sales_receipt/sales_receipt_device_action.dart';
 import '../../models/sales_receipt/sales_receipt_operation_state.dart';
 import '../../models/sales_order/sales_post_sale_navigation_intent.dart';
@@ -21,7 +24,9 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     required this.salesModule,
     required this.executionContext,
     SalesOrderCancellationAttemptFactory? cancellationAttemptFactory,
+    IEInvoiceModule? eInvoiceModule,
   }) : _cancellationAttemptFactory = cancellationAttemptFactory,
+       _eInvoiceModule = eInvoiceModule,
        super(const SalesOrderDetailState()) {
     _receiptOps = SalesReceiptOperationHandler(
       salesOrderId: orderId,
@@ -45,6 +50,47 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
   final ISalesModule salesModule;
   final IExecutionContext executionContext;
   final SalesOrderCancellationAttemptFactory? _cancellationAttemptFactory;
+
+  /// Tùy chọn: khi có, badge HĐĐT trên thẻ chứng từ phản ánh trạng thái thật.
+  /// Khi null (test cũ, host chưa nối), badge giữ `notIssued` như trước.
+  final IEInvoiceModule? _eInvoiceModule;
+
+  /// Đọc projection HĐĐT để điền badge và cung cấp dữ liệu cho OrderEInvoiceSection.
+  /// Không bao giờ ném: einvoice hỏng thì trang chi tiết đơn vẫn phải mở được.
+  Future<OrderInvoiceProjectionDto?> _loadEInvoiceProjection(
+    String tenantId,
+    String actorId,
+  ) async {
+    final module = _eInvoiceModule;
+    if (module == null) return null;
+    try {
+      final projection = await module.executeQueryAsync(
+        GetOrderInvoiceProjectionQuery(
+          tenantId: tenantId,
+          actorId: actorId,
+          salesOrderId: orderId,
+        ),
+      );
+      return projection;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static SalesEInvoiceStatus _mapProjectionToEInvoiceStatus(
+    OrderInvoiceProjectionDto projection,
+  ) {
+    return switch (projection.issuanceDisplayState) {
+      IssuanceDisplayState.notIssued => SalesEInvoiceStatus.notIssued,
+      IssuanceDisplayState.processing => SalesEInvoiceStatus.issuing,
+      IssuanceDisplayState.failed => SalesEInvoiceStatus.failed,
+      IssuanceDisplayState.issued =>
+        projection.deliveryDisplayState == DeliveryDisplayState.sent
+            ? SalesEInvoiceStatus.sent
+            : SalesEInvoiceStatus.issued,
+    };
+  }
+
   late final SalesReceiptOperationHandler _receiptOps;
   int _requestGeneration = 0;
 
@@ -165,6 +211,7 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
         clearPostSaleFeedbackMessage: true,
         clearReceipt: true,
         receiptStatus: SalesOrderDetailSectionStatus.idle,
+        clearEInvoiceProjection: true,
       ),
     );
 
@@ -173,13 +220,22 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
       final actorId = await executionContext.requireUserId();
       if (isClosed || generation != _requestGeneration) return;
 
-      final dto = await salesModule.executeQueryAsync<SalesOrderDetailDto>(
+      // Chạy song song để không thêm độ trễ cho trang chi tiết: hai vòng gọi
+      // chồng lên nhau thay vì nối tiếp.
+      final detailFuture = salesModule.executeQueryAsync<SalesOrderDetailDto>(
         GetSalesOrderDetailQuery(
           tenantId: tenantId,
           actorId: actorId,
           salesOrderId: orderId,
         ),
       );
+      final eInvoiceFuture = _loadEInvoiceProjection(tenantId, actorId);
+
+      final dto = await detailFuture;
+      final eInvoiceProjection = await eInvoiceFuture;
+      final eInvoiceStatus = eInvoiceProjection != null
+          ? _mapProjectionToEInvoiceStatus(eInvoiceProjection)
+          : SalesEInvoiceStatus.notIssued;
       if (isClosed || generation != _requestGeneration) return;
 
       final sourceVersion = dto.order.version;
@@ -187,7 +243,9 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
       emit(
         state.copyWith(
           status: SalesOrderDetailStatus.loaded,
-          core: SalesOrderDetailMapper.toVm(dto),
+          core: SalesOrderDetailMapper.toVm(dto, eInvoiceStatus: eInvoiceStatus),
+          eInvoiceProjection: eInvoiceProjection,
+          clearEInvoiceProjection: eInvoiceProjection == null,
           sourceVersion: sourceVersion,
           currentReceiptId: dto.currentReceiptId,
           clearCurrentReceiptId: dto.currentReceiptId == null,

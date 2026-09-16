@@ -242,6 +242,11 @@ abstract final class SalesDraftBackend {
       customerId: selection.partnerId!,
       displayName: selection.displayName,
       phoneNumber: selection.phone,
+      taxCode: selection.taxCode,
+      buyerType: selection.buyerType,
+      invoiceLegalName: selection.invoiceLegalName,
+      invoiceAddress: selection.invoiceAddress,
+      invoiceEmail: selection.invoiceEmail,
     );
   }
 

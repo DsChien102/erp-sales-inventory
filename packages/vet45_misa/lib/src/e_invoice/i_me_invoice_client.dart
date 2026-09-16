@@ -52,7 +52,7 @@ abstract interface class IMeInvoiceClient {
     required MeInvoiceInvoiceQuery query,
   });
 
-  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
+  Future<MeInvoiceResult<MeInvoiceSendEmailResponse>> sendEmail(
     MeInvoiceSendEmailRequest request,
   );
 

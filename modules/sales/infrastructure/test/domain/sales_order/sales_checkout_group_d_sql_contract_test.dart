@@ -10,11 +10,15 @@ void main() {
   setUpAll(() {
     sql = _readSql(
       draftRelative: 'supabase/migrations/_drafts/008_sales_checkout_rpcs.sql',
-      promotedRelative:
-          'supabase/migrations/20260830008_sales_checkout_rpcs.sql',
+      promotedRelative: 'supabase/migrations/20260830008_sales_checkout_rpcs.sql',
     );
     normalizedSql = _squash(sql);
-    finalizeSql = _functionSql(sql, 'sales.finalize_sales_order');
+    // TH-08 draft 017 currently owns finalize_sales_order (buyer snapshot + outbox fact).
+    final draft017 = _readSql(
+      draftRelative: 'supabase/migrations/_drafts/017_sales_buyer_invoice_snapshot.sql',
+      promotedRelative: 'supabase/migrations/_drafts/017_sales_buyer_invoice_snapshot.sql',
+    );
+    finalizeSql = _functionSql(draft017, 'sales.finalize_sales_order');
   });
 
   test('declares rebuild finalize/status owners with frozen mapper params', () {
@@ -63,6 +67,19 @@ void main() {
     expect(finalizeSql, isNot(contains('from accounting.')));
     expect(finalizeSql, contains('insert into sales.outbox_messages'));
     expect(finalizeSql, isNot(contains('insert into sales.outbox ')));
+  });
+
+  test('finalized fact carries order identity and source version', () {
+    expect(finalizeSql, contains("'sales_order_finalized.v1'"));
+    expect(finalizeSql, contains("'salesOrderId', v_order_id::text"));
+    expect(
+      _squash(finalizeSql),
+      contains(
+        "'sales_order_finalized.v1', jsonb_build_object( "
+        "'salesOrderId', v_order_id::text, "
+        "'salesOrderVersion', 1",
+      ),
+    );
   });
 
   test('keeps recoverable idempotency lifecycle and stable checkout envelopes', () {

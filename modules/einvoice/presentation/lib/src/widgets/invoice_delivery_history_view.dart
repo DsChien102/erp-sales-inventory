@@ -202,9 +202,10 @@ class _DeliveryHistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 VText(
-                  data.deliveryStatus == DeliveryStatus.processing ||
-                          data.deliveryStatus == DeliveryStatus.unknown
+                  data.deliveryStatus == DeliveryStatus.processing
                       ? 'Đang gửi · ${data.email}'
+                      : data.deliveryStatus == DeliveryStatus.unknown
+                      ? 'Không xác định kết quả · ${data.email}'
                       : SendInvoiceCopy.deliveryMainText(
                           success: data.success,
                           email: data.email,

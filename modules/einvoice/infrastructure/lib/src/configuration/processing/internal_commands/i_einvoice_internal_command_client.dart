@@ -65,4 +65,12 @@ abstract interface class IEinvoiceInternalCommandClient {
     required String claimToken,
     required String error,
   });
+
+  /// Requeue a claimed command after a short delay without incrementing retry_count.
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  });
 }

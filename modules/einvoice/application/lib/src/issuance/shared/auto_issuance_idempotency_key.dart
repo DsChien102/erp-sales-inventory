@@ -4,13 +4,14 @@ import 'package:uuid/uuid.dart';
 abstract final class AutoIssuanceIdempotencyKey {
   static const String namespace = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
 
-  /// Generates the canonical trigger key for sales order completed event.
+  /// Generates the canonical trigger key for a Sales finalized integration event.
   static String triggerKey({
+    required String eventType,
     required String eventId,
     required String salesOrderId,
     required String sourceVersion,
   }) {
-    return 'sales.order.completed:$eventId:$salesOrderId:$sourceVersion';
+    return '$eventType:$eventId:$salesOrderId:$sourceVersion';
   }
 
   /// Generates a deterministic canonical UUIDv5 for automatic issuance idempotency.

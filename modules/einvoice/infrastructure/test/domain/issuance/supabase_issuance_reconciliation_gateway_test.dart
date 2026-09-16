@@ -66,6 +66,7 @@ void main() {
               'claim_token': 'token-123',
               'idempotency_key': 'idem-key',
               'payload_hash': 'hash-abc',
+              'invoice_series': '1C26TYY',
               'provider_reference': 'misa-ref-1',
               'check_sequence': 2,
               'max_checks': 5,
@@ -85,6 +86,7 @@ void main() {
         expect(result.claimToken, 'token-123');
         expect(result.idempotencyKey, 'idem-key');
         expect(result.payloadHash, 'hash-abc');
+        expect(result.invoiceSeries, '1C26TYY');
         expect(result.providerReference, 'misa-ref-1');
         expect(result.checkSequence, 2);
         expect(result.maxChecks, 5);

@@ -414,6 +414,7 @@ void registerGeneratedEinvoiceHandlers({
       reconciliationGateway: container.get<IIssuanceReconciliationGateway>(),
       providerPort: container.get<IMeInvoiceProviderPort>(),
       commandDispatcher: container.get<IEinvoiceCommandDispatcher>(),
+      resultGateway: container.get<IIssuanceResultGateway>(),
     ),
     inner: (command) =>
         container.get<PollIssuanceStatusCommandHandler>().handle(command),
@@ -465,6 +466,7 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => PublishInvoiceCommandHandler(
       providerPort: container.get<IMeInvoiceProviderPort>(),
       resultGateway: container.get<IIssuanceResultGateway>(),
+      leaseGateway: container.get<IPublishSeriesLeaseGateway>(),
     ),
     inner: (command) =>
         container.get<PublishInvoiceCommandHandler>().handle(command),

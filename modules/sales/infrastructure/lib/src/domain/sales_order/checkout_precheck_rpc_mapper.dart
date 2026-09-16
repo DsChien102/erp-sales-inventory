@@ -140,6 +140,10 @@ abstract final class CheckoutPrecheckRpcMapper {
                 'displayName': snapshot.customer!.displayName.trim(),
                 'phoneNumber': _trimToNull(snapshot.customer!.phoneNumber),
                 'taxCode': _trimToNull(snapshot.customer!.taxCode),
+                'buyerType': _trimToNull(snapshot.customer!.buyerType),
+                'invoiceLegalName': _trimToNull(snapshot.customer!.invoiceLegalName),
+                'invoiceAddress': _trimToNull(snapshot.customer!.invoiceAddress),
+                'invoiceEmail': _trimToNull(snapshot.customer!.invoiceEmail),
               },
         'lines': [
           for (final line in snapshot.lines)

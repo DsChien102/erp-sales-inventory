@@ -36,13 +36,25 @@ class PreIssueSheetState {
 }
 
 /// Shows the pre-issue E-Invoice action sheet.
+///
+/// [onPreview] keeps this sheet open and starts preview loading.
+/// Issue and buyer-correction still pop with [PreIssueAction].
 Future<PreIssueAction?> showPreIssueEInvoiceActionSheet(
   BuildContext context, {
   PreIssueSheetState state = const PreIssueSheetState(),
+  Stream<PreIssueSheetState>? states,
+  VoidCallback? onPreview,
 }) {
   return showVBottomSheet<PreIssueAction>(
     context: context,
-    child: PreIssueEInvoiceActionSheet(state: state),
+    child: StreamBuilder<PreIssueSheetState>(
+      initialData: state,
+      stream: states,
+      builder: (context, snapshot) => PreIssueEInvoiceActionSheet(
+        state: snapshot.data ?? state,
+        onPreview: onPreview,
+      ),
+    ),
   );
 }
 
@@ -53,9 +65,11 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
   const PreIssueEInvoiceActionSheet({
     super.key,
     this.state = const PreIssueSheetState(),
+    this.onPreview,
   });
 
   final PreIssueSheetState state;
+  final VoidCallback? onPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +120,9 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
               ],
               if (state.isBuyerNotReady) ...[
                 _BuyerNotReadyWarning(
-                  onCorrect: () => select(PreIssueAction.correctBuyer),
+                  onCorrect: state.isPreviewLoading
+                      ? null
+                      : () => select(PreIssueAction.correctBuyer),
                 ),
               ],
               EInvoiceActionItem(
@@ -117,16 +133,24 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
                     ? OrderEInvoiceCopy.issueDisabledSupporting
                     : OrderEInvoiceCopy.issueSupporting,
                 enabled: isIssueEnabled,
-                onTap: () => select(PreIssueAction.issue),
+                onTap: isIssueEnabled ? () => select(PreIssueAction.issue) : null,
               ),
               EInvoiceActionItem(
                 key: const Key('action_preview'),
                 icon: VIcons.visibility,
                 title: OrderEInvoiceCopy.previewTitle,
                 supportingText: OrderEInvoiceCopy.previewSupporting,
-                enabled: isPreviewEnabled,
+                enabled: state.isPreviewEnabled,
                 loading: state.isPreviewLoading,
-                onTap: () => select(PreIssueAction.preview),
+                onTap: isPreviewEnabled
+                    ? () {
+                        if (onPreview != null) {
+                          onPreview!();
+                        } else {
+                          select(PreIssueAction.preview);
+                        }
+                      }
+                    : null,
               ),
               EInvoiceActionItem(
                 key: const Key('action_send'),
@@ -150,9 +174,9 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
 }
 
 class _BuyerNotReadyWarning extends StatelessWidget {
-  const _BuyerNotReadyWarning({required this.onCorrect});
+  const _BuyerNotReadyWarning({this.onCorrect});
 
-  final VoidCallback onCorrect;
+  final VoidCallback? onCorrect;
 
   @override
   Widget build(BuildContext context) {

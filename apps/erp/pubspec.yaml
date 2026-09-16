@@ -51,7 +51,6 @@ dependencies:
   crypto: ^3.0.6
   equatable: ^2.1.0
   uuid: ^4.5.3
-  test: ^1.31.1
   http: ^1.4.0
   path_provider: ^2.1.5
   share_plus: ^10.1.4

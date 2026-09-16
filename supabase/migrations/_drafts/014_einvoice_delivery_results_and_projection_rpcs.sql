@@ -968,7 +968,7 @@ begin
   select exists (
     select 1 from einvoice.invoice_deliveries d
     where d.tenant_id = p_tenant_id and d.electronic_invoice_id = v_invoice.id
-      and d.status in ('PROCESSING', 'UNKNOWN')
+      and d.status = 'PROCESSING'
   ) into v_pending;
 
   return query select
@@ -989,9 +989,9 @@ revoke all on function einvoice._delivery_reconciliation_command_id(uuid, intege
 revoke all on function einvoice.prepare_delivery_provider_call(
   uuid, uuid, uuid, bigint, bigint, text
 ) from public, anon, authenticated, service_role;
-revoke all on function einvoice.prepare_delivery_provider_call(
-  uuid, uuid, uuid, bigint, bigint, text, boolean
-) from public, anon, authenticated, service_role;
+-- Biến thể 7 tham số (thêm boolean) đã bị `drop function if exists` ở đầu file
+-- và không được tạo lại. `revoke` không có mệnh đề `if exists`, nên revoke nó
+-- trên DB sạch sẽ ném 42883. Đừng thêm lại.
 revoke all on function einvoice.record_delivery_result(
   uuid, uuid, uuid, bigint, bigint, text, text, text, text
 ) from public, anon, authenticated, service_role;

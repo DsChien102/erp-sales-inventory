@@ -33,8 +33,11 @@ final class WorkerOnlyMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) async => _reject();
 }

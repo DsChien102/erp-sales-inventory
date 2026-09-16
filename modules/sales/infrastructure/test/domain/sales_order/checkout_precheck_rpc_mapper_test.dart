@@ -48,6 +48,10 @@ void main() {
           'displayName': 'Nguyễn Văn An',
           'phoneNumber': '0903000000',
           'taxCode': null,
+          'buyerType': null,
+          'invoiceLegalName': null,
+          'invoiceAddress': null,
+          'invoiceEmail': null,
         },
         'lines': <Object?>[
           <String, Object?>{
@@ -75,7 +79,7 @@ void main() {
       final status = CheckoutPrecheckRpcMapper.statusParams(
         GetCheckoutResultQuery(
           storeId: 'store-1',
-id: 'status-1',
+          id: 'status-1',
           tenantId: 'tenant-1',
           actorId: 'actor-1',
           idempotencyKey: 'attempt-1',

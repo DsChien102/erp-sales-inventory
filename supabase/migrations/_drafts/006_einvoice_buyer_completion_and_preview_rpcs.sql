@@ -4,7 +4,7 @@
 -- Context: TH-08 EP-02/US-01.
 -- Touches: einvoice.get_issuance_readiness, einvoice.complete_buyer_invoice_data, einvoice.build_canonical_invoice, einvoice.request_invoice_preview, einvoice.get_invoice_preview, einvoice.store_preview_result
 -- Safety: security definer, tenant scoped, raises stable CODE errors
--- Depends on: 005_einvoice_buyer_completion_and_preview_schema.sql, 002_einvoice_install_module_messaging.sql, 005_sales_einvoice_dev_acceptance_source.sql
+-- Depends on: 005_einvoice_buyer_completion_and_preview_schema.sql, 002_einvoice_install_module_messaging.sql, 018_sales_einvoice_source_contract.sql
 
 create or replace function einvoice.get_issuance_readiness(
   p_tenant_id uuid,
@@ -38,7 +38,7 @@ declare
   v_buyer_tax_code text := null;
   v_buyer_email text := null;
   v_buyer_address text := null;
-  v_buyer_type text := 'retail';
+  v_buyer_type text;
   v_source record;
   v_has_electronic_invoice boolean := false;
   v_has_active_operation boolean := false;
@@ -104,15 +104,49 @@ begin
   order by bc.created_at desc
   limit 1;
 
-  if (v_buyer_name is null or v_buyer_name = '') and v_source.available then
-    v_buyer_name := coalesce(v_source.buyer_snapshot ->> 'buyerLegalName', v_source.buyer_snapshot ->> 'name', 'Người mua hàng');
+  -- Chuẩn hóa giá trị completion về NULL khi rỗng, để coalesce phía dưới
+  -- rơi xuống đúng nguồn tiếp theo thay vì giữ chuỗi rỗng.
+  v_buyer_name     := nullif(btrim(coalesce(v_buyer_name, '')), '');
+  v_buyer_tax_code := nullif(btrim(coalesce(v_buyer_tax_code, '')), '');
+  v_buyer_email    := nullif(btrim(coalesce(v_buyer_email, '')), '');
+  v_buyer_address  := nullif(btrim(coalesce(v_buyer_address, '')), '');
+
+  if v_source.buyer_partner_id is null then
+    -- BR-06: nội dung bắt buộc cho khách lẻ
+    v_buyer_type     := 'retail';
+    v_buyer_name     := 'Bán cho người tiêu dùng';
+    v_buyer_tax_code := null;
+    v_buyer_email    := null;
+    v_buyer_address  := null;
+  else
+    -- Loại pháp nhân do Theme 05 chụp lại lúc bán (Task 3b), không suy từ taxCode.
+    -- Đơn cũ chưa có buyer_tax_snapshot → NULL → không phân loại được;
+    -- khi đó để 'individual' để luật isComplete chỉ đòi tên.
+    v_buyer_type := coalesce(v_source.buyer_snapshot ->> 'buyerType', 'individual');
+    if v_buyer_type not in ('individual', 'organization') then
+      v_buyer_type := 'individual';
+    end if;
+
+    -- completion > ảnh chụp Theme 05
+    v_buyer_name     := coalesce(v_buyer_name,     v_source.buyer_snapshot ->> 'buyerLegalName');
     v_buyer_tax_code := coalesce(v_buyer_tax_code, v_source.buyer_snapshot ->> 'buyerTaxCode');
-    v_buyer_email := coalesce(v_buyer_email, v_source.buyer_snapshot ->> 'buyerEmail');
-    v_buyer_address := coalesce(v_buyer_address, v_source.buyer_snapshot ->> 'buyerAddress');
+    v_buyer_address  := coalesce(v_buyer_address,  v_source.buyer_snapshot ->> 'buyerAddress');
+    v_buyer_email    := coalesce(v_buyer_email,    v_source.buyer_snapshot ->> 'buyerEmail');
   end if;
 
-  if v_buyer_name is null or v_buyer_name = '' then
-    v_buyer_name := 'Người mua hàng';
+  -- BR-07: KHÔNG điền tên mặc định cho khách định danh.
+  -- name rỗng → EffectiveBuyerInvoiceData.isComplete = false
+  -- → IssuanceReadinessEvaluator:110-114 phát BUYER_DATA_INCOMPLETE.
+  v_buyer_name := coalesce(v_buyer_name, '');
+
+  -- BR-14: Org có MST nhưng thiếu địa chỉ phải bị chặn trước preview/issue.
+  -- Readiness domain mapper phát blocker BUYER_ADDRESS_REQUIRED từ các trường này.
+  if v_buyer_type = 'organization'
+     and v_buyer_tax_code is not null
+     and btrim(v_buyer_tax_code) <> ''
+     and (v_buyer_address is null or btrim(v_buyer_address) = '') then
+    -- keep source fields authoritative; blocker is derived at application/domain.
+    null;
   end if;
 
   -- 5. Existing invoice check
@@ -207,54 +241,264 @@ create or replace function einvoice.build_canonical_invoice(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = einvoice, public
+set search_path = einvoice, public, pg_temp
 as $$
 declare
   v_inv_series text;
+  v_selected_template_id text;
+  v_selected_inv_series text;
+  v_current_inv_series text;
+  v_invoice_with_code boolean;
+  v_is_mtt boolean;
+  v_is_invoice_summary boolean := false;
+  v_sign_type int;
+  v_signing_config_id text;
+  v_sign_type_jsonb jsonb;
   v_lines jsonb;
   v_totals jsonb;
   v_tax_rates jsonb;
   v_buyer_name text;
+  v_buyer_type text;
+  v_buyer_full_name text;
+  v_buyer_legal_name text;
   v_buyer_address text;
   v_buyer_tax_code text;
   v_buyer_phone text;
   v_buyer_email text;
   v_total_amount numeric;
 begin
-  -- Resolve invSeries by matching configured profile template to verified connection capability template
-  select coalesce(elem ->> 'symbol', elem ->> 'serial')
-  into v_inv_series
-  from einvoice.provider_connections pc,
-       einvoice.issuance_profiles ip,
-       jsonb_array_elements(coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)) as elem
-  where pc.tenant_id = p_tenant_id
-    and pc.status <> 'disconnected'
-    and ip.tenant_id = p_tenant_id
-    and (elem ->> 'template_id' = ip.default_template ->> 'template_id'
-         or elem ->> 'templateId' = ip.default_template ->> 'template_id')
+  -- Resolve the selected profile first. The provider capability is checked in a
+  -- separate query so a matching template id cannot silently replace the
+  -- selected contract with a different series.
+  select
+    nullif(btrim(ip.default_template ->> 'template_id'), ''),
+    coalesce(
+      nullif(btrim(ip.default_template ->> 'invoice_series'), ''),
+      -- `symbol` is a legacy alias only for the frozen selection.
+      nullif(btrim(ip.default_template ->> 'symbol'), '')
+    ),
+    nullif(btrim(ip.default_signing ->> 'signing_config_id'), ''),
+    ip.default_signing -> 'sign_type'
+  into
+    v_selected_template_id,
+    v_selected_inv_series,
+    v_signing_config_id,
+    v_sign_type_jsonb
+  from einvoice.issuance_profiles ip
+  where ip.tenant_id = p_tenant_id
   limit 1;
 
-  if v_inv_series is null or v_inv_series = '' then
-    select coalesce(elem ->> 'symbol', elem ->> 'serial')
-    into v_inv_series
-    from einvoice.provider_connections pc,
-         jsonb_array_elements(coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)) as elem
-  where pc.tenant_id = p_tenant_id and pc.status <> 'disconnected'
-    limit 1;
+  if v_selected_template_id is null or v_selected_inv_series is null then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'TEMPLATE_NOT_AVAILABLE',
+      'details', 'configured template selection is incomplete'
+    )::text;
   end if;
 
-  if v_inv_series is null or v_inv_series = '' then
-    v_inv_series := '1C26TAA';
+  select
+    coalesce(
+      nullif(btrim(elem ->> 'invoice_series'), ''),
+      nullif(btrim(elem ->> 'symbol'), '')
+    ),
+    coalesce((elem ->> 'is_send_summary')::boolean, false)
+  into v_current_inv_series, v_is_invoice_summary
+  from einvoice.provider_connections pc
+  cross join lateral jsonb_array_elements(
+    coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)
+  ) as elem
+  where pc.tenant_id = p_tenant_id
+    and pc.status = 'connected'
+    and coalesce(elem ->> 'template_id', elem ->> 'templateId') = v_selected_template_id
+    and jsonb_typeof(elem -> 'is_available') = 'boolean'
+    and (elem ->> 'is_available')::boolean
+  limit 1;
+
+  if v_current_inv_series is null then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'TEMPLATE_NOT_AVAILABLE',
+      'details', 'configured template is not available in current capability'
+    )::text;
   end if;
 
-  v_buyer_name := coalesce(p_buyer_snapshot ->> 'buyerLegalName', p_buyer_snapshot ->> 'name', 'Khách hàng cá nhân');
-  v_buyer_address := coalesce(p_buyer_snapshot ->> 'buyerAddress', p_buyer_snapshot ->> 'address', 'Việt Nam');
+  if upper(v_selected_inv_series) !~ '^[1256][CK].{2}[TM]'
+     or upper(v_current_inv_series) !~ '^[1256][CK].{2}[TM]' then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'TEMPLATE_NOT_AVAILABLE',
+      'details', 'configured InvSeries is malformed'
+    )::text;
+  end if;
+
+  if upper(substr(v_selected_inv_series, 1, 2) || substr(v_selected_inv_series, 5))
+     <> upper(substr(v_current_inv_series, 1, 2) || substr(v_current_inv_series, 5)) then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'TEMPLATE_NOT_AVAILABLE',
+      'details', 'provider template contract drifted outside year rollover'
+    )::text;
+  end if;
+
+  v_inv_series := upper(v_current_inv_series);
+  v_invoice_with_code := upper(substr(v_inv_series, 2, 1)) = 'C';
+  v_is_mtt := upper(substr(v_inv_series, 5, 1)) = 'M';
+
+  if v_signing_config_id is null
+     or v_sign_type_jsonb is null
+     or v_sign_type_jsonb not in ('2'::jsonb, '5'::jsonb) then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
+      'details', 'explicit SignType 2 or 5 is required on issuance profile'
+    )::text;
+  end if;
+
+  v_sign_type := (v_sign_type_jsonb #>> '{}')::int;
+
+  if v_is_mtt and v_sign_type is distinct from 5 then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
+      'details', 'MTT template requires SignType=5'
+    )::text;
+  end if;
+
+  if (not v_is_mtt) and v_sign_type is distinct from 2 then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
+      'details', 'non-MTT template requires SignType=2'
+    )::text;
+  end if;
+
+  -- BR-06 / BR-07 phải áp tại nơi dựng payload, không chỉ ở get_issuance_readiness:
+  -- preview và issue gọi thẳng hàm này với buyer_snapshot gốc từ Sales.
+  -- MISA có HAI ô tên khác nhau trên hóa đơn:
+  --   BuyerFullName  → "Họ tên người mua hàng"  (con người)
+  --   BuyerLegalName → "Tên đơn vị"             (pháp nhân)
+  -- Đặt tên cá nhân vào BuyerLegalName là ghi một con người thành một tổ chức
+  -- trên chứng từ thuế. Định tuyến theo buyerType do Theme 05 chụp lại.
+  v_buyer_type := coalesce(p_buyer_snapshot ->> 'buyerType', '');
+
+  if v_buyer_type = 'retail' then
+    -- BR-06: khách lẻ dùng nội dung cố định, không có pháp nhân.
+    v_buyer_full_name := 'Bán cho người tiêu dùng';
+    v_buyer_legal_name := null;
+  else
+    v_buyer_name := coalesce(
+      p_buyer_snapshot ->> 'buyerLegalName',
+      p_buyer_snapshot ->> 'name');
+
+    -- BR-07: khách định danh thiếu tên thì chặn, không tự hạ thành khách lẻ.
+    if v_buyer_name is null or btrim(v_buyer_name) = '' then
+      raise exception 'VALIDATION_ERROR: %', jsonb_build_object(
+        'details', 'buyer name is required for an identified buyer'
+      )::text;
+    end if;
+
+    if v_buyer_type = 'organization' then
+      v_buyer_legal_name := v_buyer_name;
+      v_buyer_full_name := null;
+    else
+      -- 'individual', và cả đơn cũ chưa có buyerType: mặc định là con người.
+      v_buyer_full_name := v_buyer_name;
+      v_buyer_legal_name := null;
+    end if;
+  end if;
+
+  -- Không bịa địa chỉ. Trước đây coalesce về 'Việt Nam' nên mọi hóa đơn thiếu
+  -- địa chỉ đều in ra một địa chỉ không có thật. Thiếu thì để trống.
+  v_buyer_address := nullif(btrim(coalesce(
+    p_buyer_snapshot ->> 'buyerAddress',
+    p_buyer_snapshot ->> 'address',
+    '')), '');
   v_buyer_tax_code := p_buyer_snapshot ->> 'buyerTaxCode';
   v_buyer_phone := coalesce(p_buyer_snapshot ->> 'buyerPhoneNumber', p_buyer_snapshot ->> 'phone');
   v_buyer_email := coalesce(p_buyer_snapshot ->> 'buyerEmail', p_buyer_snapshot ->> 'email');
 
-  v_lines := coalesce(p_commercial_snapshot -> 'lines', '[]'::jsonb);
   v_totals := coalesce(p_commercial_snapshot -> 'totals', '{}'::jsonb);
+
+  -- ─────────────────────────────────────────────────────────────────────────
+  -- BR-14: preview/issue phải fail closed nếu org có MST nhưng thiếu địa chỉ.
+  if v_buyer_type = 'organization'
+     and v_buyer_tax_code is not null
+     and btrim(v_buyer_tax_code) <> ''
+     and (v_buyer_address is null or btrim(v_buyer_address) = '') then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'BUYER_ADDRESS_REQUIRED',
+      'details', 'organization buyer with tax code must provide address'
+    )::text;
+  end if;
+
+  -- ─────────────────────────────────────────────────────────────────────────
+  -- ADR-TH08-KCT — Chính sách sản phẩm KCT-only (BA duyệt 16/09/2026)
+  --
+  -- Quyết định: VET45 trong phạm vi hộ kinh doanh hiện tại không có luồng
+  -- cấu hình thuế ở Product, Catalog, Sales hoặc UI. Theme 8 là boundary
+  -- duy nhất áp VATRateName=KCT và tiền thuế 0 trên canonical MISA.
+  --
+  -- Invariant nguồn Sales (fail closed trước khi áp KCT):
+  --   mọi line.taxAmountMinor = 0
+  --   totals.taxMinor = 0
+  --   mọi line.taxSnapshot null hoặc object rỗng
+  --
+  -- Vi phạm → UNSUPPORTED_TAX_DATA; không ghi đè thành KCT, không gọi provider.
+  --
+  -- Change control: không có trigger tự gỡ hard-code. Chỉ đổi chính sách
+  -- sau quyết định sản phẩm/BA mới và plan riêng cập nhật Product/Sales/e-invoice.
+  -- ─────────────────────────────────────────────────────────────────────────
+  if exists (
+    select 1
+    from jsonb_array_elements(
+      coalesce(p_commercial_snapshot -> 'lines', '[]'::jsonb)
+    ) ln
+    where not (ln ? 'taxAmountMinor')
+       or jsonb_typeof(ln -> 'taxAmountMinor') is distinct from 'number'
+       or ln -> 'taxAmountMinor' <> '0'::jsonb
+       or (
+         ln ? 'taxSnapshot'
+         and ln -> 'taxSnapshot' not in ('null'::jsonb, '{}'::jsonb)
+       )
+  ) then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'UNSUPPORTED_TAX_DATA',
+      'details', 'commercial line violates KCT-only contract'
+    )::text;
+  end if;
+
+  if not (v_totals ? 'taxMinor')
+     or jsonb_typeof(v_totals -> 'taxMinor') is distinct from 'number'
+     or v_totals -> 'taxMinor' <> '0'::jsonb then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'code', 'UNSUPPORTED_TAX_DATA',
+      'details', 'order totals tax violates KCT-only contract'
+    )::text;
+  end if;
+
+  select coalesce(jsonb_agg(
+    jsonb_build_object(
+      'lineNumber',       (ln ->> 'lineSequence')::int,
+      'sortOrder',        (ln ->> 'lineSequence')::int,
+      'itemName',         ln ->> 'itemName',
+      'itemCode',         ln ->> 'itemCode',
+      'unitName',         ln ->> 'unitName',
+      -- BẤT BIẾN HASH: mọi số trong canonical phải qua trim_scale.
+      --
+      -- Hash toàn vẹn được tính bằng sha256(canonical::text) ở 008, rồi canonical
+      -- đi vòng PostgREST → Dart → quay lại và bị băm lại ở prepare_issuance_publish.
+      -- Chuỗi phải sống sót nguyên vẹn qua vòng đó.
+      -- Chia numeric trong Postgres cho ra 16 chữ số thập phân (2.0000000000000000);
+      -- Dart đọc thành double rồi ghi lại là "2.0" → hash khác → STATE_CHANGED.
+      -- trim_scale cắt số 0 thừa nên chuỗi giống nhau ở cả hai phía.
+      -- Thêm trường số mới thì cũng phải bọc trim_scale.
+      'quantity',         trim_scale((ln ->> 'quantityMicros')::numeric / 1000000.0),
+      'unitPrice',        trim_scale((ln ->> 'unitPriceMinor')::numeric),
+      'amount',           trim_scale((ln ->> 'grossAmountMinor')::numeric),
+      'discountAmount',   trim_scale((ln ->> 'discountMinor')::numeric),
+      'amountWithoutVat', trim_scale((ln ->> 'lineTotalMinor')::numeric),
+      -- ADR-TH08-KCT: xem chú thích tại khối taxRateInfo bên dưới.
+      'vatRateName',      'KCT',
+      'vatAmount',        0
+    ) order by (ln ->> 'lineSequence')::int
+  ), '[]'::jsonb)
+  into v_lines
+  from jsonb_array_elements(
+    coalesce(p_commercial_snapshot -> 'lines', '[]'::jsonb)
+  ) ln;
 
   if jsonb_array_length(v_lines) = 0 then
     raise exception 'VALIDATION_ERROR: %', jsonb_build_object(
@@ -262,19 +506,33 @@ begin
     )::text;
   end if;
 
-  v_total_amount := coalesce((v_totals ->> 'totalAmount')::numeric, 0);
+  v_total_amount := coalesce((v_totals ->> 'payableMinor')::numeric, 0);
   if v_total_amount <= 0 then
     raise exception 'VALIDATION_ERROR: %', jsonb_build_object(
       'details', 'totalAmount must be positive'
     )::text;
   end if;
 
+  -- Thiếu khoá thì `NULL <> x` cho ra NULL và `if NULL` không kích hoạt,
+  -- tức assert tự vô hiệu hóa đúng lúc dữ liệu hỏng. Kiểm NULL tường minh,
+  -- và dùng `is distinct from` để phép so sánh không bao giờ trả NULL.
+  if (v_totals ->> 'subtotalMinor') is null
+     or (v_totals ->> 'discountMinor') is null
+     or (v_totals ->> 'payableMinor') is null
+     or (v_totals ->> 'subtotalMinor')::numeric
+        - (v_totals ->> 'discountMinor')::numeric
+        is distinct from (v_totals ->> 'payableMinor')::numeric then
+    raise exception 'VALIDATION_ERROR: %', jsonb_build_object(
+      'details', 'totals identity violated: subtotal - discount <> payable'
+    )::text;
+  end if;
+
+  -- Áp chính sách KCT-only sau khi invariant nguồn đã pass (ADR ở trên).
   v_tax_rates := jsonb_build_array(
     jsonb_build_object(
-      'vatRateName', '10%',
-      'vatRate', 10,
-      'turnover', coalesce((v_totals ->> 'totalAmountWithoutVat')::numeric, (v_totals ->> 'totalSaleAmount')::numeric, 0),
-      'vatAmount', coalesce((v_totals ->> 'totalVatAmount')::numeric, 0)
+      'vatRateName', 'KCT',
+      'turnover',    trim_scale((v_totals ->> 'payableMinor')::numeric),
+      'vatAmount',   0
     )
   );
 
@@ -283,19 +541,24 @@ begin
     'salesOrderId', p_sales_order_id,
     'sourceVersion', p_source_version,
     'invSeries', v_inv_series,
+    'invoiceWithCode', v_invoice_with_code,
+    'isInvoiceSummary', v_is_invoice_summary,
+    'signType', v_sign_type,
     'invDate', to_char(now() at time zone 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD'),
     'currencyCode', 'VND',
     'exchangeRate', 1,
     'paymentMethodName', 'TM/CK',
-    'buyerLegalName', v_buyer_name,
+    'buyerFullName', v_buyer_full_name,
+    'buyerLegalName', v_buyer_legal_name,
     'buyerAddress', v_buyer_address,
     'buyerTaxCode', v_buyer_tax_code,
     'buyerPhoneNumber', v_buyer_phone,
     'buyerEmail', v_buyer_email,
-    'totalSaleAmount', coalesce((v_totals ->> 'totalSaleAmount')::numeric, (v_totals ->> 'totalAmountWithoutVat')::numeric, v_total_amount),
-    'totalAmountWithoutVat', coalesce((v_totals ->> 'totalAmountWithoutVat')::numeric, (v_totals ->> 'totalSaleAmount')::numeric, v_total_amount),
-    'totalVatAmount', coalesce((v_totals ->> 'totalVatAmount')::numeric, 0),
-    'totalAmount', v_total_amount,
+    'totalSaleAmount',     trim_scale((v_totals ->> 'subtotalMinor')::numeric),
+    'totalDiscountAmount', trim_scale((v_totals ->> 'discountMinor')::numeric),
+    'totalAmountWithoutVat', trim_scale((v_totals ->> 'payableMinor')::numeric),
+    'totalVatAmount',      0,
+    'totalAmount',         trim_scale((v_totals ->> 'payableMinor')::numeric),
     'originalInvoiceDetail', v_lines,
     'taxRateInfo', v_tax_rates
   );

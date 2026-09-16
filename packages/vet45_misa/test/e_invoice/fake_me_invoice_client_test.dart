@@ -74,10 +74,35 @@ void main() {
       );
 
       expect(result.isSuccess, isTrue);
-      expect(result.data!.single.transactionId, 'tx-1');
-      expect(result.data!.single.sendEmailStatus, 3);
+      expect(result.data!.kind, MeInvoiceSendEmailResponseKind.itemized);
+      expect(result.data!.items.single.transactionId, 'tx-1');
+      expect(result.data!.items.single.sendEmailStatus, 3);
       expect(client.sendEmailCount, 1);
       expect(client.lastSendEmailRequest?.sendEmailDatas.single.transactionId, 'tx-1');
+    });
+
+    test('enqueueSendEmailEnvelopeAcknowledgement returns Product shape', () async {
+      final client = FakeMeInvoiceClient()..enqueueSendEmailEnvelopeAcknowledgement();
+
+      final result = await client.sendEmail(
+        const MeInvoiceSendEmailRequest(
+          sendEmailDatas: [
+            MeInvoiceSendEmailData(
+              transactionId: 'tx-1',
+              receiverEmail: 'buyer@example.com',
+            ),
+          ],
+          isInvoiceCode: true,
+          isInvoiceCalculatingMachine: false,
+        ),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(
+        result.data!.kind,
+        MeInvoiceSendEmailResponseKind.envelopeAcknowledgement,
+      );
+      expect(result.data!.items, isEmpty);
     });
 
     test('failed and rateLimited scenarios', () async {

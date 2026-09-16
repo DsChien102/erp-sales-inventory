@@ -36,6 +36,7 @@ abstract final class OrderEInvoiceCopy {
   static const deliverySending = 'Đang gửi';
   static const deliverySent = 'Đã gửi';
   static const deliverySendFailed = 'Gửi lỗi';
+  static const deliveryUnknown = 'Không xác định kết quả';
 
   // Buyer not ready
   static const buyerWarningTitle = 'Chưa đủ thông tin để phát hành';
@@ -80,16 +81,11 @@ abstract final class OrderEInvoiceCopy {
     String? failureCode,
     String? lastFailureMessage,
   }) {
-    if (failureCode == 'COMMAND_INTEGRITY') {
-      return failureBannerIntegrityMessage;
-    }
-    if (failureCode == 'PROVIDER_REJECTED') {
-      return failureBannerProviderRejectedMessage;
-    }
-    if (lastFailureMessage != null && lastFailureMessage.trim().isNotEmpty) {
-      return lastFailureMessage.trim();
-    }
-    return failureBannerDefaultMessage;
+    return switch (failureCode) {
+      'COMMAND_INTEGRITY' => failureBannerIntegrityMessage,
+      'PROVIDER_REJECTED' => failureBannerProviderRejectedMessage,
+      _ => failureBannerDefaultMessage,
+    };
   }
 
   static String issueConfirmationSummaryLine1({

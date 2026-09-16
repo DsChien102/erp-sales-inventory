@@ -17,6 +17,7 @@ dependencies:
   vet45_einvoice_infrastructure: ^1.0.0
   vet45_iam_infrastructure: ^1.0.0
   vet45_resend: ^0.1.0
+  vet45_sales_infrastructure: ^1.0.0
   vet45_shared_application: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1
 

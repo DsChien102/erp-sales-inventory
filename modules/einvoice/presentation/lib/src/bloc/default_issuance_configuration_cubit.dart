@@ -90,8 +90,9 @@ final class DefaultIssuanceConfigurationCubit extends Cubit<DefaultIssuanceConfi
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
-      final signingConfigId =
-          current.profile.signingConfigId ?? EInvoiceConfigurationDisplay.fallbackSigningConfigId;
+      final signingConfigId = current.selectedTemplate?.isMtt == true
+          ? EInvoiceConfigurationDisplay.mttSigningConfigId
+          : EInvoiceConfigurationDisplay.fallbackSigningConfigId;
       final profile = await _einvoiceModule.executeCommandAsync(
         SetDefaultIssuanceConfigurationCommand(
           tenantId: tenantId,

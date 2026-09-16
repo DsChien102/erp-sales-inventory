@@ -92,6 +92,20 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
       onCreateCustomer: _openCreateCustomer,
     );
     if (result == null || !mounted) return;
+    // Search list items lack invoice profile; resolve detail so checkout
+    // snapshot carries Theme-08 buyer identity (Task 3b).
+    if (!result.isWalkIn && result.partnerId != null && result.partnerId!.trim().isNotEmpty) {
+      try {
+        final resolved = await SalesPartnerCustomerLookup.bindResolve()(
+          result.partnerId!,
+        );
+        if (!mounted) return;
+        _cubit.applyCustomerSelection(resolved);
+        return;
+      } catch (_) {
+        // Fall through with list selection if detail resolve fails.
+      }
+    }
     _cubit.applyCustomerSelection(result);
   }
 

@@ -15,7 +15,7 @@ Chỉ có **đúng một đơn hàng kiểm thử** được sử dụng trong �
 | **Source Version** | `1` | Snapshot version ban đầu |
 | **Người mua (Buyer)** | Khách hàng cá nhân kiểm thử | Đầy đủ họ tên, địa chỉ kiểm thử |
 | **Tổng tiền hàng** | `1.000.000 VND` | 1 dòng sản phẩm dịch vụ |
-| **Thuế suất GTGT** | `10%` (`100.000 VND`) | Thuế suất chuẩn |
+| **Thuế suất GTGT** | Không chịu thuế (`KCT`) — business policy Theme 8 | Sales contract: `tax_amount_minor` = 0, `tax_snapshot` = NULL/rỗng. Canonical MISA: `VATRateName=KCT`, VAT=0. Vi phạm contract → `UNSUPPORTED_TAX_DATA`, không ghi đè `KCT`. |
 | **Tổng thanh toán** | `1.100.000 VND` | Tổng tiền thanh toán |
 
 ### Nguyên tắc One-Shot & Bảo toàn dữ liệu (Strict Constraints)
@@ -52,12 +52,33 @@ Trước khi thực hiện các bước trên UI, phải đảm bảo các đi�
 | **7** | **Tải / Chia sẻ PDF** | Document PDF available, OS share sheet mở thành công | `REQUESTED` / `PROCESSING` | Thất bại terminal / `CHECK_REQUIRED` | Never |
 | **8** | **Tải / Chia sẻ XML** | Document XML available, OS share sheet mở thành công | `REQUESTED` / `PROCESSING` | Thất bại terminal / `CHECK_REQUIRED` | Never |
 | **9** | **Provider Observation** | Latest observation đạt `MATCHED` / `FOUND` | Chờ service script trigger | Mismatch / Not found / Lỗi gọi | Never |
-| **10**| **Gửi email thủ công** | Delivery `SUCCEEDED`, UI **Đã gửi** (sheet mở vẫn cập nhật) | `PROCESSING` / `UNKNOWN` (sending/requested) | `FAILED` / provider error | MISA sandbox có thể **không hỗ trợ gửi email thật** — nghiệm thu theo status delivery/UI; không kỳ vọng mock label |
-| **11**| **Gửi email tự động** | Cùng contract như AC-10 khi auto-send bật trên fixture riêng | `PROCESSING` / `UNKNOWN` | `FAILED` / provider error | Tắt auto-send trên đơn nghiệm thu chính; sandbox có thể không gửi email thật |
+| **10**| **Gửi email thủ công** | Delivery `SUCCEEDED`, UI **Đã gửi** (sheet mở vẫn cập nhật) | `PROCESSING` / `UNKNOWN` (sending/requested) | `FAILED` / provider error | **Fake/UI E2E:** `th08_e2e_e04_u02_*` pass. **Live:** chỉ nghiệm thu MISA **Product** (không testapi) với email tenant kiểm soát; `SUCCEEDED` = provider ack, không chứng minh mailbox. Simulator AC (CV10 B6–B8) còn mở |
+| **11**| **Gửi email tự động** | Cùng contract như AC-10 khi auto-send bật trên fixture riêng | `PROCESSING` / `UNKNOWN` | `FAILED` / provider error | FE không trigger auto-send (`th08_e2e_e04_u01_sc01_01`). Live: tắt auto-send trên đơn nghiệm thu chính trừ fixture riêng |
 
 > [!IMPORTANT]
 > **Lưu ý về `CHECK_REQUIRED` và Timeout:**
 > Nếu xảy ra timeout hoặc trạng thái `CHECK_REQUIRED`, **không** được bấm phát hành lại để tạo request cạnh tranh. Mọi hành động retry phải giữ nguyên operation/generation theo đúng contract S2/S4.
+
+---
+
+## 3b. Hardening MISA V2 — nghiệm thu bổ sung (H1)
+
+Theo plan `2026-09-16-th08-misa-contract-production-hardening.md`. Aggregate **chưa done** cho tới khi có evidence live; test id `th08_hardening_gate_*`.
+
+**Fake gate (2026-09-16):** `th08_hardening_*` (capability/resolve/tax/buyer/lease/retry/parse) + worker restart + ERP sales/einvoice tests PASS. **Live H1–H8 vẫn mở** — chưa apply draft SQL / chưa chạy MISA one-shot.
+
+| STT | Tiêu chí | ĐẠT | Ghi chú |
+| :---: | :--- | :--- | :--- |
+| **H1** | Preview/issue `KCT`, VAT=0, tổng khớp Sales | Canonical + PDF/XML | KCT-only policy; không tax product/UI |
+| **H2** | Template có mã hoặc không mã đúng cấu hình | Không fallback template | `SignType=2` |
+| **H3** | MTT (nếu tenant có) | `SignType=5` | Bỏ qua nếu không có template MTT |
+| **H4** | Stale/missing template hoặc signing | Blocker, không gọi MISA | |
+| **H5** | Org buyer có MST thiếu địa chỉ | Blocker trước preview/issue | |
+| **H6** | Status poll đúng classification | Có mã / không mã / MTT | |
+| **H7** | View URL malformed | Không mở / fail closed | HTTPS allowlist |
+| **H8** | Delivery `UNKNOWN` | Cho phép manual resend | Chỉ `PROCESSING` khóa |
+
+**Giữ regression:** token, RefID, preview/view, PDF/XML Share Sheet, send-email Product.
 
 ---
 
@@ -133,4 +154,17 @@ Toàn bộ các bộ test tự động cho harness acceptance đã được ch�
   9. AC-9 Provider Observation: `READY` (Observation trigger script đã kiểm chứng)
   10. AC-10 Manual Email: MISA sandbox có thể không hỗ trợ email thật — nghiệm thu theo delivery status/UI (không dùng mock label / EMAIL-MOCK-RUNBOOK)
   11. AC-11 Auto Email: cùng AC-10 trên fixture auto-send; `sending`/`requested` giữ unresolved (không dùng MISA email-observation API)
+
+### 5.3 Sales outbox auto-issue repair (2026-09-15)
+
+Tenant `1524d75b-2a89-4d5a-8e10-1488c74b3fc0`, policy bật `2026-09-15 17:02:39+07`.
+
+| Bước | Kết quả |
+| :--- | :--- |
+| Đóng 5 outbox pre-policy | `processed_at` set; không tạo issuance mới |
+| Worker startup | `boundModules: ["iam","sales","einvoice"]`; subscribe `sales_order_finalized.v1` |
+| Event post-policy `a190e084-…` | Sales outbox + einvoice inbox cùng ID `processed_at` set, `event_type=sales_order_finalized.v1` |
+| Order `4389b402-…` | 1 attempt `trigger_type=AUTOMATIC`, `status=SUCCEEDED`, `settled_result=ISSUED` |
+| Unblock grant | Live + draft `008`: `GRANT EXECUTE` `start_auto_issuance` / `list_open_auto_issuance_processes` / `reevaluate_auto_issuance` → `authenticated, service_role` (trước đó chỉ `postgres` → inbox fail 42501) |
+| Đơn mới sau worker | **Chờ QA** — hoàn tất đơn mới trên UI, không bấm phát hành thủ công |
 

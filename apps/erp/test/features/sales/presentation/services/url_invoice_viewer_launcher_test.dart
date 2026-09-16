@@ -16,7 +16,8 @@ void main() {
         },
       );
 
-      const testUrl = 'https://xvebhrcoidwbvnytrhln.supabase.co/storage/v1/object/sign/einvoice-documents/invoice.pdf';
+      const testUrl =
+          'https://xvebhrcoidwbvnytrhln.supabase.co/storage/v1/object/sign/einvoice-documents/invoice.pdf';
       final ok = await launcher.launch(testUrl);
 
       expect(ok, isTrue);
@@ -33,6 +34,21 @@ void main() {
       expect(ok, isFalse);
     });
 
+    test('rejects non-http schemes and hostless urls', () async {
+      var launchCount = 0;
+      final launcher = UrlInvoiceViewerLauncher(
+        launchUrlFn: (uri, {mode = LaunchMode.platformDefault}) async {
+          launchCount++;
+          return true;
+        },
+      );
+
+      expect(await launcher.launch('javascript:alert(1)'), isFalse);
+      expect(await launcher.launch('file:///tmp/invoice.pdf'), isFalse);
+      expect(await launcher.launch('https:///no-host'), isFalse);
+      expect(launchCount, 0);
+    });
+
     test('falls back to LaunchMode.externalApplication when inAppBrowserView throws', () async {
       final modesCalled = <LaunchMode>[];
 
@@ -46,7 +62,8 @@ void main() {
         },
       );
 
-      const testUrl = 'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
+      const testUrl =
+          'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
       final ok = await launcher.launch(testUrl);
 
       expect(ok, isTrue);
@@ -56,40 +73,48 @@ void main() {
       ]);
     });
 
-    test('falls back to LaunchMode.externalApplication when inAppBrowserView returns false', () async {
-      final modesCalled = <LaunchMode>[];
+    test(
+      'falls back to LaunchMode.externalApplication when inAppBrowserView returns false',
+      () async {
+        final modesCalled = <LaunchMode>[];
 
-      final launcher = UrlInvoiceViewerLauncher(
-        launchUrlFn: (uri, {mode = LaunchMode.platformDefault}) async {
-          modesCalled.add(mode);
-          if (mode == LaunchMode.inAppBrowserView) {
-            return false;
-          }
-          return true;
-        },
-      );
+        final launcher = UrlInvoiceViewerLauncher(
+          launchUrlFn: (uri, {mode = LaunchMode.platformDefault}) async {
+            modesCalled.add(mode);
+            if (mode == LaunchMode.inAppBrowserView) {
+              return false;
+            }
+            return true;
+          },
+        );
 
-      const testUrl = 'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
-      final ok = await launcher.launch(testUrl);
+        const testUrl =
+            'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
+        final ok = await launcher.launch(testUrl);
 
-      expect(ok, isTrue);
-      expect(modesCalled, [
-        LaunchMode.inAppBrowserView,
-        LaunchMode.externalApplication,
-      ]);
-    });
+        expect(ok, isTrue);
+        expect(modesCalled, [
+          LaunchMode.inAppBrowserView,
+          LaunchMode.externalApplication,
+        ]);
+      },
+    );
 
-    test('returns false when both inAppBrowserView and externalApplication throw or fail', () async {
-      final launcher = UrlInvoiceViewerLauncher(
-        launchUrlFn: (uri, {mode = LaunchMode.platformDefault}) async {
-          throw Exception('Simulated failure');
-        },
-      );
+    test(
+      'returns false when both inAppBrowserView and externalApplication throw or fail',
+      () async {
+        final launcher = UrlInvoiceViewerLauncher(
+          launchUrlFn: (uri, {mode = LaunchMode.platformDefault}) async {
+            throw Exception('Simulated failure');
+          },
+        );
 
-      const testUrl = 'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
-      final ok = await launcher.launch(testUrl);
+        const testUrl =
+            'https://test.meinvoice.vn/download/tra-cuu/downloadhandler.ashx?type=pdf&Viewer=1';
+        final ok = await launcher.launch(testUrl);
 
-      expect(ok, isFalse);
-    });
+        expect(ok, isFalse);
+      },
+    );
   });
 }

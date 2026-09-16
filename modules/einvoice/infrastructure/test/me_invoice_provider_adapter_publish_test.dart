@@ -84,6 +84,7 @@ Map<String, Object?> _sampleCanonicalInvoice({
   return <String, Object?>{
     'refId': refId,
     'invSeries': '1C25TYY',
+    'signType': 2,
     'invDate': '2026-08-01',
     'buyerLegalName': 'Công ty ABC',
     'buyerAddress': 'Hà Nội',
@@ -178,11 +179,16 @@ void main() {
       );
     });
 
-    test('throws on missing buyerLegalName', () {
+    // MISA có hai ô tên: BuyerFullName (cá nhân) và BuyerLegalName (tổ chức).
+    // Bắt buộc riêng buyerLegalName sẽ đẩy tên người vào ô tên đơn vị.
+    // Ràng buộc đúng là: phải có ÍT NHẤT MỘT trong hai.
+    test('throws when neither buyer name field is present', () {
       final adapter = _buildAdapter(
         httpClient: MockClient((_) async => http.Response('{}', 200)),
       );
-      final invalid = _sampleCanonicalInvoice()..remove('buyerLegalName');
+      final invalid = _sampleCanonicalInvoice()
+        ..remove('buyerLegalName')
+        ..remove('buyerFullName');
 
       expect(
         () => adapter.validateCanonical(canonicalInvoice: invalid),
@@ -190,7 +196,7 @@ void main() {
           isA<MeInvoiceCanonicalValidationException>().having(
             (e) => e.reasonCode,
             'reasonCode',
-            'CANONICAL_MISSING_buyerLegalName',
+            'CANONICAL_MISSING_BUYER_NAME',
           ),
         ),
       );
@@ -204,7 +210,9 @@ void main() {
         final adapter = _buildAdapter(
           httpClient: MockClient((_) async => http.Response('{}', 200)),
         );
-        final invalid = _sampleCanonicalInvoice()..remove('buyerLegalName');
+        final invalid = _sampleCanonicalInvoice()
+          ..remove('buyerLegalName')
+          ..remove('buyerFullName');
 
         await expectLater(
           adapter.publish(
@@ -216,7 +224,7 @@ void main() {
             isA<MeInvoiceCanonicalValidationException>().having(
               (e) => e.reasonCode,
               'reasonCode',
-              'CANONICAL_MISSING_buyerLegalName',
+              'CANONICAL_MISSING_BUYER_NAME',
             ),
           ),
         );
@@ -441,6 +449,132 @@ void main() {
         expect(undetermined.reasonCode, 'DUPLICATE_INVOICE_REF_ID');
         expect(undetermined.safeProviderEvidence?.invoiceNumber, '0000999');
         expect(undetermined.safeProviderEvidence?.refId, idempotencyKey);
+      },
+    );
+  });
+
+  group('MeInvoiceProviderAdapter.getStatus', () {
+    test(
+      'queries status by transaction id and derives query from invoice series',
+      () async {
+        final fakeClient = FakeMeInvoiceClient(
+          getStatusQueue: [
+            const MeInvoiceResult.ok([
+              MeInvoiceInvoiceStatus(
+                transactionId: 'tx-42',
+                publishStatus: 1,
+                invNo: '0000042',
+                invSeries: '2C26MYY',
+              ),
+            ]),
+          ],
+        );
+        final factory = TenantMeInvoiceClientFactory()
+          ..setClientForTesting(
+            tenantId: tenantId,
+            client: fakeClient,
+            config: const MeInvoiceConfig(
+              baseUrl: MeInvoiceConfig.testBaseUrl,
+              appId: 'test-app-id',
+              taxCode: '0100000000',
+              username: 'misa_user',
+              password: 'misa_password',
+            ),
+          );
+        final fakeSupabase = _FakeEinvoiceRpcSupabase()
+          ..registerHandler('read_provider_credentials', (_) async {
+            return [
+              {
+                'base_url': MeInvoiceConfig.testBaseUrl,
+                'tax_code': '0100000000',
+                'username': 'misa_user',
+                'password': 'misa_password',
+              },
+            ];
+          });
+        final adapter = MeInvoiceProviderAdapter(
+          rpcClient: SupabaseSchemaRpcClient(
+            supabase: fakeSupabase,
+            schema: 'einvoice',
+            mapError: (error, [stackTrace]) => RpcException(error.toString()),
+          ),
+          clientFactory: factory,
+          defaultAppId: 'test-app-id',
+          defaultBaseUrl: MeInvoiceConfig.testBaseUrl,
+        );
+
+        final outcome = await adapter.getStatus(
+          tenantId: tenantId,
+          statusLookupKey: 'tx-42',
+          invoiceSeries: '2C26MYY',
+          idempotencyKey: idempotencyKey,
+          payloadHash: 'hash-42',
+        );
+
+        expect(fakeClient.getStatusCount, 1);
+        expect(fakeClient.lastTransactionIds, ['tx-42']);
+        expect(
+          fakeClient.lastStatusInputType,
+          MeInvoiceStatusInputType.transactionId,
+        );
+        expect(fakeClient.lastStatusQuery?.invoiceWithCode, isTrue);
+        expect(fakeClient.lastStatusQuery?.invoiceCalcu, isTrue);
+        expect(outcome, isA<MeInvoiceIssuanceStatusSuccess>());
+      },
+    );
+
+    test(
+      'malformed series maps to INVOICE_SERIES_INVALID without HTTP',
+      () async {
+        final fakeClient = FakeMeInvoiceClient();
+        final factory = TenantMeInvoiceClientFactory()
+          ..setClientForTesting(
+            tenantId: tenantId,
+            client: fakeClient,
+            config: const MeInvoiceConfig(
+              baseUrl: MeInvoiceConfig.testBaseUrl,
+              appId: 'test-app-id',
+              taxCode: '0100000000',
+              username: 'misa_user',
+              password: 'misa_password',
+            ),
+          );
+        final fakeSupabase = _FakeEinvoiceRpcSupabase()
+          ..registerHandler('read_provider_credentials', (_) async {
+            return [
+              {
+                'base_url': MeInvoiceConfig.testBaseUrl,
+                'tax_code': '0100000000',
+                'username': 'misa_user',
+                'password': 'misa_password',
+              },
+            ];
+          });
+        final adapter = MeInvoiceProviderAdapter(
+          rpcClient: SupabaseSchemaRpcClient(
+            supabase: fakeSupabase,
+            schema: 'einvoice',
+            mapError: (error, [stackTrace]) => RpcException(error.toString()),
+          ),
+          clientFactory: factory,
+          defaultAppId: 'test-app-id',
+          defaultBaseUrl: MeInvoiceConfig.testBaseUrl,
+        );
+
+        final outcome = await adapter.getStatus(
+          tenantId: tenantId,
+          statusLookupKey: 'tx-42',
+          invoiceSeries: '3C26TYY',
+          idempotencyKey: idempotencyKey,
+          payloadHash: 'hash-42',
+        );
+
+        expect(fakeClient.getStatusCount, 0);
+        expect(outcome, isA<MeInvoiceIssuanceStatusUndetermined>());
+        expect(
+          (outcome as MeInvoiceIssuanceStatusUndetermined).reasonCode,
+          'INVOICE_SERIES_INVALID',
+        );
       },
     );
   });

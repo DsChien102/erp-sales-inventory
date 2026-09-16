@@ -14,11 +14,11 @@ final class MeInvoiceConfig {
     this.password,
     this.accessToken,
     this.accessTokenExpiresAt,
+    this.requestTimeout = const Duration(seconds: 60),
   });
 
   /// Test environment default base URL.
-  static const String testBaseUrl =
-      'https://testapi.meinvoice.vn/api/integration';
+  static const String testBaseUrl = 'https://testapi.meinvoice.vn/api/integration';
 
   /// Production environment default base URL.
   static const String prodBaseUrl = 'https://api.meinvoice.vn/api/integration';
@@ -40,8 +40,10 @@ final class MeInvoiceConfig {
   final String? accessToken;
   final DateTime? accessTokenExpiresAt;
 
-  bool get hasBearerToken =>
-      accessToken != null && accessToken!.trim().isNotEmpty;
+  /// Upper bound for authentication and API requests.
+  final Duration requestTimeout;
+
+  bool get hasBearerToken => accessToken != null && accessToken!.trim().isNotEmpty;
 
   bool get hasLoginCredentials {
     return appId != null &&

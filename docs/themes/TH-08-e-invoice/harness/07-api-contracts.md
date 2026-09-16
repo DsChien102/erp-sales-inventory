@@ -19,8 +19,12 @@ Source of truth FE↔BE khi implement. Domain symbols: [01-domain-model.md](01-d
 | `PROVIDER_UNAVAILABLE` | Vendor timeout / 5xx tạm thời | Retry later message |
 | `CONFIG_NOT_READY` | Configuration readiness NOT_READY | Blocker list SG-01 |
 | `ISSUANCE_NOT_READY` | Order readiness NOT_READY; nested `details.blockers[]` có thể chứa `SOURCE_SNAPSHOT_UNAVAILABLE`, `BUYER_SOURCE_UNAVAILABLE` (không phải top-level codes) | Blocker list trên order |
-| `BUYER_DATA_INCOMPLETE` | Buyer field bắt buộc thiếu (sub-detail `BUYER_TAX_CODE_REQUIRED` khi org thiếu MST) | Completion prompt |
+| `BUYER_DATA_INCOMPLETE` | Buyer field bắt buộc thiếu (sub-detail `BUYER_TAX_CODE_REQUIRED` khi org thiếu MST; `BUYER_ADDRESS_REQUIRED` khi org có MST thiếu địa chỉ) | Completion prompt |
 | `BUYER_TAX_CODE_REQUIRED` | Org buyer thiếu MST — **sub-detail** của `BUYER_DATA_INCOMPLETE` trên `IssueInvoiceCommand`; vẫn top-level trên `CompleteBuyerInvoiceDataCommand` | Blocker trên order |
+| `BUYER_ADDRESS_REQUIRED` | Org buyer có MST thiếu địa chỉ — sub-detail readiness/completion (hardening H1) | Completion prompt |
+| `TEMPLATE_NOT_AVAILABLE` | Template đã chọn mất / đổi loại / không còn trong capability | Blocker SG-01 / order |
+| `SIGNING_CONFIGURATION_NOT_AVAILABLE` | Signing config thiếu hoặc không tương thích template (MTT≠5, non-MTT≠2) | Blocker SG-01 / order |
+| `UNSUPPORTED_TAX_DATA` | Nguồn Sales vi phạm contract `KCT-only` (line/total tax ≠ 0 hoặc tax snapshot không rỗng) | Fail closed trước preview/issue |
 | `IDEMPOTENCY_CONFLICT` | Cùng `idempotencyKey` nhưng `intent_hash` khác | Refresh + new key |
 | `ORDER_NOT_COMPLETED` | SalesOrder chưa Hoàn tất | Hide issue actions |
 | `ALREADY_ISSUED` | Đã có ElectronicInvoice gốc | Hide issue, show view |
@@ -336,12 +340,12 @@ Spec: [Epic-02-issue-from-sales-order/US-03.md](../Epic-02-issue-from-sales-orde
 
 | Source Event | Payload | Handler / Hành động |
 | ------------ | ------- | ------------------- |
-| `sales.order.completed` | tenantId, salesOrderId, sourceVersion, occurredAt | `StartAutoIssuanceCommand` (tạo/load process record, kiểm tra readiness, tạo attempt nếu đủ điều kiện) |
+| `sales_order_finalized.v1` | tenantId, salesOrderId, salesOrderVersion, occurredAt | `SalesOrderFinalizedIntegrationEventHandler` → `StartAutoIssuanceCommand` (tạo/load process record, kiểm tra readiness, tạo attempt nếu đủ điều kiện) |
 | `partner.partner.profile_updated` | tenantId, partnerId, occurredAt | Tìm process `PENDING_REEVALUATION` đúng buyer và dispatch `ReevaluateAutoIssuanceCommand`; không tạo process mới |
 | `einvoice.provider.issuance_result_received` | tenantId, attemptId, correlationId, typedEvidence | `RecordIssuanceResultCommand` (chuẩn hóa evidence trước khi dispatch) |
 
 **Quy định Stable Identity:**
-- Sales completion tạo process với `triggerKey = sales.order.completed:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
+- Sales completion tạo process với `triggerKey = sales_order_finalized.v1:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
 - Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 ### Commands / Queries
@@ -394,6 +398,8 @@ S2b owns the **immediate-result subset**: direct `publish` outcome normalization
 | `RecoverInternalFinalizationCommand` | tenantId, attemptId | `ElectronicInvoiceDto` | NOT_FOUND, INVALID_STATUS, SYSTEM_ERROR |
 | `GetIssuanceAttemptStatusQuery` | tenantId, actorId, salesOrderId | `IssuanceAttemptStatusDto` | NO_PERMISSION, NOT_FOUND |
 
+**Access — `einvoice.get_issuance_attempt_status`:** User-session (`authenticated`) reads must match `auth.uid() = p_actor_id`, hold `einvoice.issue`, and pass `sales.can_access_sales_order`. Worker / service paths keep using `service_role` (no user JWT → access gates skipped). Returns only safe status/`failure_code` — `last_error_message` is always `null` (never `failure_message` / provider text). Presentation maps `failureCode` via allow-list copy only.
+
 **Quy tắc Typed Evidence & Ranh giới:**
 - Callbacks được chuẩn hóa thành `IssuanceResultEvidenceDto` (`IssuanceSuccessEvidenceDto`, `IssuanceDefiniteFailureEvidenceDto`, `IssuanceUndeterminedEvidenceDto`) trước khi dispatch.
 - Raw provider payload không phải là input của command và không được lưu trữ trực tiếp vào evidence.
@@ -416,6 +422,7 @@ FR-01..08: normalize success / definite failure / undetermined. Success path reg
 | Command integrity dead-letter (S2b) | `einvoice.record_issuance_command_integrity_failure` | drafted |
 | Dispatch barrier (S2b) | `einvoice.prepare_issuance_publish` | drafted |
 | Mark provider call started (S2b/S3b) | `einvoice.mark_issuance_provider_call_started` | drafted |
+| Retryable provider publish rejection (H1) | `einvoice.record_retryable_provider_publish_rejection` | drafted |
 | Open reconciliation (S3b explicit) | `einvoice.open_reconciliation_case` | drafted |
 | Resolve reconciliation | `einvoice.resolve_reconciliation_case` | drafted |
 | Recover finalization | `einvoice.recover_internal_finalization` | drafted |
@@ -514,7 +521,25 @@ Observation collection là explicit policy/support trigger với caller-owned `t
 
 ### S4 implementation evidence (Slice 4 BE + worker)
 
-Verified in repo (không live MISA trong CI): `modules/einvoice/infrastructure/test/einvoice_slice4_integration_test.dart`, `modules/einvoice/application/test/electronic_invoice/s4_worker_handlers_test.dart`, `apps/messaging_worker/test/einvoice_worker_slice4_test.dart`. Internal commands: `einvoice.fetch_official_view` (max 2 attempts), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation` (trigger-scoped). Worker injects `_worker_attempt_number` via `ProcessInternalCommandsCommandHandler`. Signed viewer/download URL TTL 5 phút; Storage bucket private, scoped SELECT only. BE DB lane `in_progress`: drafts `010`/`011`/`012` chưa promote; `sales.can_access_sales_order` chỉ stub trong draft 010.
+Verified in repo (không live MISA trong CI): `modules/einvoice/infrastructure/test/einvoice_slice4_integration_test.dart`, `modules/einvoice/application/test/electronic_invoice/s4_worker_handlers_test.dart`, `apps/messaging_worker/test/einvoice_worker_slice4_test.dart`. Internal commands: `einvoice.fetch_official_view` (max 2 attempts), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation` (trigger-scoped). Worker injects `_worker_attempt_number` via `ProcessInternalCommandsCommandHandler`. Signed viewer/download URL TTL 5 phút; Storage bucket private, scoped SELECT only. BE DB lane `in_progress`: drafts `010`/`011`/`012`/`018` chưa promote; `sales.can_access_sales_order` chỉ stub trong draft 010.
+
+### S4 implementation evidence (Slice 4 FE — app-owned presentation)
+
+Verified in `apps/erp` (không gọi MISA/OS thật trong widget tests):
+
+| Concern | Implementation | Test ids |
+| ------- | -------------- | -------- |
+| Official view poll + correlate `operationId` | `OrderEInvoiceCubit.openOfficialView` | `th08_scn_e03_u01_fr04_01`, `th08_scn_e03_u01_fr04_02` |
+| Document command→read split + poll `AVAILABLE` không URL | `OrderEInvoiceCubit.downloadDocument` | `th08_scn_e03_u02_fr04_01` |
+| SG-02 post-issued sheet (official loading locks siblings) | `apps/erp/.../einvoice/post_issue_einvoice_action_sheet.dart` | `th08_wgt_e03_u01_fr01_01` |
+| SG-06 documents sheet (PDF/XML sibling lock) | `apps/erp/.../einvoice/invoice_documents_action_sheet.dart` | `th08_wgt_e03_u02_fr01_01` |
+| Safe error surface (single SnackBar) | `OrderEInvoiceSection` `BlocListener` | `th08_wgt_e03_u01_fr08_01`, `th08_wgt_e03_u02_fr08_01` |
+| Checksum handoff before native share | `IInvoiceDocumentExporter.expectedSha256` + cubit | `file_invoice_document_exporter_test`, cubit download tests |
+| Theme 05 host — order detail official view | `SalesOrderDetailDocumentsSection` + `OrderEInvoiceSection` | `th08_e2e_e03_u01_sc01_01` |
+| Theme 05 host — sales result PDF export | `SalesTransactionResultBody` → `SalesResultDocumentsSection` | `th08_e2e_e03_u02_sc01_01` |
+| Observation | Worker/integration only; **no** ERP UI for `GetLatestProviderObservationQuery` | `th08_e2e_e03_u03_sc01_01` |
+
+Fake module (`FakeEInvoiceModule`): `download_pdf_ok` / `download_xml_ok` trả command `PENDING` + `operationId`; signed URL/checksum qua `GetInvoiceDocumentsQuery` khi item `AVAILABLE`.
 
 ## §S4a — EP-03/US-01 — Xem hồ sơ và nội dung hóa đơn đã phát hành
 
@@ -586,12 +611,12 @@ FR-03..08: separate operations per document type; metadata + checksum stored on 
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `download_pdf_ok` | RequestInvoiceDocumentCommand pdf | downloadUrl |
-| `download_xml_ok` | documentType=xml | downloadUrl |
+| `download_pdf_ok` | RequestInvoiceDocumentCommand pdf | command `PENDING` + operationId (không signed URL); `GetInvoiceDocumentsQuery` trả PDF item cùng operation `AVAILABLE` + signed URL/fileRef/checksum |
+| `download_xml_ok` | documentType=xml | cùng pattern command/read split như `download_pdf_ok` cho XML |
 | `download_unavailable` | provider definite empty/no document after worker | operation `FAILED` (async read model), không phải sync `DOCUMENT_UNAVAILABLE` |
 | `download_timeout_exhausted` | transport timeout 3x | operation `CHECK_REQUIRED` + `PROVIDER_RESULT_UNDETERMINED` |
 | `download_permission_denied` | no downloadDocument | NO_PERMISSION |
-| `documents_list_partial` | GetInvoiceDocumentsQuery | pdf available, xml pending |
+| `documents_list_partial` | GetInvoiceDocumentsQuery | PDF item `AVAILABLE` + XML item `PENDING`, mỗi item có operationId riêng |
 
 ---
 
@@ -736,7 +761,7 @@ Spec: [Epic-04-send-resend-einvoice/US-02.md](../Epic-04-send-resend-einvoice/US
 
 Không có `buyerPartnerId` ổn định → tắt hẳn fallback history của manual initial. Cấm history tenant-wide / cross-customer.
 
-`operationLocked = true` khi invoice có delivery `PROCESSING` hoặc `UNKNOWN`. `UNKNOWN` khóa blind resend cho tới khi reconciliation xác lập kết quả.
+`operationLocked = true` chỉ khi invoice có delivery `PROCESSING`. `UNKNOWN` được giữ trong history nhưng không khóa manual resend; worker không auto-retry sau `UNKNOWN`.
 
 ### RPC mapping (BE) — drafted
 
@@ -862,6 +887,78 @@ Mỗi outbound call thực tế có đúng một `ProviderInteractionRecord` tar
 
 ---
 
+## §H1 — MISA V2 production hardening (contract freeze)
+
+Baseline: tài liệu AIO V2 (16/09/2026) + `packages/vet45_misa/doc/misa-meinvoice-open-api.md`.
+Plan: `docs/superpowers/plans/2026-09-16-th08-misa-contract-production-hardening.md`.
+Test id prefix: `th08_hardening_*`. Status aggregate `in_progress` tới gate Công việc 10.
+
+### SignType & template
+
+| Rule | Contract |
+| --- | --- |
+| Wire SignType | Chỉ `2` (HSM có CKS) hoặc `5` (MTT không CKS). Không `3`/`4`/`6`. |
+| Resolve | Signing config → wire value **trước** attempt có thể dispatch; mapper fail closed nếu thiếu. |
+| Template | Resolve đúng `templateId`/`InvSeries` trong capability hiện hành. Không fallback template đầu / không bịa `1C26TAA`. |
+| MTT | Template/series capability `isMtt=true` → bắt buộc `SignType=5`; non-MTT HSM → `2`. |
+| Classification | `invoiceWithCode` + MTT suy từ `InvSeries`; status/download/delivery dùng cùng classification từ attempt snapshot. |
+
+### Chính sách KCT-only (BA 16/09/2026)
+
+| Condition | Canonical wire | Blocker |
+| --- | --- | --- |
+| Sales: mọi `taxAmountMinor=0`, `totals.taxMinor=0`, tax snapshot null/rỗng | `VATRateName=KCT`, VAT=0, một `TaxRateInfo` KCT | — (business policy tại `build_canonical_invoice` only) |
+| Bất kỳ line/totals tax ≠ 0 hoặc tax snapshot không rỗng | Không preview/publish | `UNSUPPORTED_TAX_DATA` |
+
+Không hard-code `KCT` ở Catalog, Sales DTO, UI, hoặc nhiều adapter. Đổi chính sách chỉ sau quyết định BA/sản phẩm mới và plan riêng.
+
+### Field map — MISA → nội bộ → blocker
+
+| Trường MISA | Nguồn nội bộ | Blocker khi thiếu / sai |
+| --- | --- | --- |
+| `InvSeries` | Capability template đã chọn → bất biến trên attempt | `TEMPLATE_NOT_AVAILABLE` |
+| `SignType` | Signing config resolve → `2` \| `5` | `SIGNING_CONFIGURATION_NOT_AVAILABLE` / invalid-canonical |
+| `IsInvoiceSummary` | Template `IsSendSummary` từ capability MISA | Fail closed khi thiếu dữ liệu provider |
+| `VATRateName` | Business policy Theme 8 → `KCT` (khi invariant pass) | `UNSUPPORTED_TAX_DATA` khi nguồn vi phạm contract |
+| `VATAmount` / `VATAmountOC` | Canonical `0` dưới policy `KCT` | Cùng blocker thuế |
+| `TaxRateInfo` | Một group `KCT` nhất quán | Cùng blocker thuế |
+| Buyer identity (MST, tên pháp lý, địa chỉ) | `EffectiveBuyerInvoiceData` | `BUYER_TAX_CODE_REQUIRED` / `BUYER_DATA_INCOMPLETE` / `BUYER_ADDRESS_REQUIRED` |
+
+### Series lease & retry
+
+| Concern | Contract |
+| --- | --- |
+| Serialization | ≤ 1 publish foreground / `(tenant, provider_connection, InvSeries)` qua lease DB |
+| Busy lease | Reschedule command; không dead-letter; không mở reconciliation |
+| Retry persistence | `issuance_attempts.provider_publish_retry_count`, `next_provider_publish_retry_at`, `last_provider_publish_code`; RPC enqueue lại `einvoice.publish_invoice` cùng RefID/canonical (draft `020`) |
+| `InvoiceNumberNotCotinuous` | Retry giới hạn (≤3), cùng RefID + canonical + lease |
+| `InvoiceDuplicated` | Reconcile-first (`claim_issuance_reconciliation_case.reconciliation_reason_code`); poll bằng RefID; retry chỉ sau `STATUS_EMPTY_DATA` ở check cuối |
+| `DuplicateInvoiceRefID` | Reconciliation-only |
+| Transport 5xx/timeout sau dispatch | Undetermined + reconcile — không xếp chung definite rejection |
+| Preview / official view URL | Chỉ HTTPS absolute trên host `meinvoice.vn` / `*.meinvoice.vn`; `Data` non-string fail closed |
+| Delivery active lock | Chỉ `PROCESSING`; `UNKNOWN` không khóa (đồng bộ SQL Slice 5) |
+
+### Preserved flows (regression bắt buộc)
+
+Endpoint set, token cache per-tenant, `RefID` ổn định, preview/official view, PDF/XML download + Share Sheet, `/invoice/sendemail` Product envelope (`success=true`, `data=""`). Delivery: chỉ `PROCESSING` khóa; `UNKNOWN` cho phép manual resend (Slice 5).
+
+### Fake / test ids (H1)
+
+| scenario / test id | Mục |
+| --- | --- |
+| `th08_hardening_contract_01` | Docs/harness freeze |
+| `th08_hardening_capability_*` | List templates có mã + không mã + MTT |
+| `th08_hardening_resolve_*` | Stale template / missing SignType / MTT+2 |
+| `th08_hardening_tax_*` | KCT happy + invariant block tax ≠ 0 / snapshot |
+| `th08_hardening_buyer_*` | Org MST thiếu địa chỉ |
+| `th08_hardening_status_*` | Status flags theo series |
+| `th08_hardening_lease_*` | Hai worker cùng series serialize |
+| `th08_hardening_retry_*` | Ba mã retry MISA |
+| `th08_hardening_parse_*` | Malformed view URL + UNKNOWN unlock |
+| `th08_hardening_gate_*` | Aggregate verification + live evidence |
+
+---
+
 ## Parallel notes (global)
 
 - FE có thể fake sau khi Contract lane chốt symbol — dùng `FakeEInvoiceModule` scenarios ở trên.
@@ -884,7 +981,7 @@ Email mock / `is_simulated` provenance has been removed (Option B).
   `QUEUED → SUBMITTED` barrier it bumps versions and stores the request reference.
   Only worker service role may call.
 - `get_order_invoice_projection` exposes `delivery_pending boolean` (true while any
-  delivery is `PROCESSING` / `UNKNOWN`, including pending resends when sticky
+  delivery is `PROCESSING`, including pending resends when sticky
   display is already `SENT`). UI polls and locks duplicate send using it.
   No `delivery_is_simulated` field.
 - History JSON from `get_invoice_delivery_history` and

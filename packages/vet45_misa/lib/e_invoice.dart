@@ -5,6 +5,7 @@ export 'src/e_invoice/fake_me_invoice_client.dart';
 export 'src/e_invoice/i_me_invoice_client.dart';
 export 'src/e_invoice/me_invoice_client.dart';
 export 'src/e_invoice/me_invoice_publish_error_codes.dart';
+export 'src/e_invoice/me_invoice_view_url_policy.dart';
 export 'src/e_invoice/models/me_invoice_config.dart';
 export 'src/e_invoice/models/me_invoice_result.dart';
 export 'src/e_invoice/models/me_invoice_session_token.dart';

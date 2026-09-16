@@ -1,0 +1,654 @@
+-- Title: Sales schema — persist buyer invoice identity at checkout
+-- Kind: patch
+-- Intent: sales_buyer_invoice_snapshot
+-- Context: TH-08 EP-02 Task 3b — app-captured buyer_tax_snapshot (cách A; sales does not call partner schema)
+-- Touches: sales.finalize_sales_order
+-- Safety: create or replace; copies production finalize body with buyer snapshot additions only
+-- Depends on: 20260830008_sales_checkout_rpcs.sql
+
+create or replace function sales.finalize_sales_order(
+  p_command_id uuid,
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_store_id uuid,
+  p_source_draft_id uuid,
+  p_customer_id uuid,
+  p_currency_code text,
+  p_order_note text,
+  p_commercial_snapshot jsonb,
+  p_lines jsonb,
+  p_payment_intents jsonb,
+  p_idempotency_key text,
+  p_payload_hash text,
+  p_correlation_id text,
+  p_payment_due_date date default null,
+  p_causation_id text default null,
+  p_expected_source_version integer default null
+) returns jsonb
+language plpgsql
+security definer
+set search_path = sales, iam, public, pg_temp
+as $$
+declare
+  v_decision jsonb;
+  v_correlation uuid;
+  v_currency_code text := upper(trim(coalesce(p_currency_code, '')));
+  v_order_id uuid := gen_random_uuid();
+  v_settlement_id uuid := gen_random_uuid();
+  v_grand_total_minor bigint := 0;
+  v_paid_total_minor bigint := 0;
+  v_remaining_minor bigint := 0;
+  v_line jsonb;
+  v_commercial_line jsonb;
+  v_payment jsonb;
+  v_payment_ordinal bigint;
+  v_line_index integer := 0;
+  v_order_line_id uuid;
+  v_conversion_rate numeric;
+  v_base_numeric numeric;
+  v_unit_price_minor bigint;
+  v_gross_minor bigint;
+  v_discount_minor bigint;
+  v_line_total_minor bigint;
+  v_subtotal_minor bigint := 0;
+  v_order_discount_minor bigint := 0;
+  v_normalized_lines jsonb := '[]'::jsonb;
+  v_persisted_line_inputs jsonb := '[]'::jsonb;
+  v_normalized_commercial_snapshot jsonb;
+  v_period text;
+  v_seq_no bigint;
+  v_order_code text;
+  v_payment_status text;
+  v_result jsonb;
+  v_request jsonb;
+  v_request_hash text;
+  v_error text;
+  v_error_code text;
+begin
+  perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.checkout.create');
+
+  if jsonb_typeof(coalesce(p_payment_intents, '[]'::jsonb)) = 'array'
+     and jsonb_array_length(coalesce(p_payment_intents, '[]'::jsonb)) > 0
+     and iam.has_permission(p_tenant_id, 'sales.payment.record') is not true then
+    raise exception using message = jsonb_build_object(
+      'code', 'PERMISSION_DENIED',
+      'message', 'Payment recording permission is required.'
+    )::text;
+  end if;
+
+  if p_command_id is null
+     or nullif(trim(coalesce(p_idempotency_key, '')), '') is null
+     or nullif(trim(coalesce(p_payload_hash, '')), '') is null
+     or v_currency_code = '' then
+    raise exception using message = jsonb_build_object(
+      'code', 'CONTEXT_INVALID',
+      'message', 'Checkout context is invalid.'
+    )::text;
+  end if;
+
+  if nullif(trim(coalesce(p_correlation_id, '')), '') is null then
+    raise exception using message = jsonb_build_object(
+      'code', 'CONTEXT_INVALID',
+      'message', 'Correlation id is required.'
+    )::text;
+  end if;
+  if trim(p_correlation_id) !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+    raise exception using message = jsonb_build_object(
+      'code', 'CONTEXT_INVALID',
+      'message', 'Correlation id is malformed.'
+    )::text;
+  end if;
+  v_correlation := trim(p_correlation_id)::uuid;
+
+  -- A4 (VĐ1): server tự dựng payload chuẩn từ tham số THẬT và tự băm, không tin
+  -- p_payload_hash do client gửi. Bỏ các field transport (command_id/correlation/causation)
+  -- khỏi identity. jsonb::text đã chuẩn hóa thứ tự key nên md5 ổn định; array giữ thứ tự.
+  v_request := jsonb_build_object(
+    'storeId', p_store_id,
+    'sourceDraftId', p_source_draft_id,
+    'customerId', p_customer_id,
+    'currencyCode', p_currency_code,
+    'orderNote', p_order_note,
+    'commercialSnapshot', p_commercial_snapshot,
+    'lines', p_lines,
+    'paymentIntents', p_payment_intents,
+    'paymentDueDate', p_payment_due_date,
+    'expectedSourceVersion', p_expected_source_version
+  );
+  v_request_hash := md5(v_request::text);
+
+  -- IdempotencyRecord owns checkout recovery; helper locks tenant:scope:key.
+  v_decision := sales._begin_sales_idempotency(
+    p_tenant_id,
+    'finalize_sales_order',
+    trim(p_idempotency_key),
+    v_request_hash,
+    v_correlation
+  );
+  if v_decision->>'decision' = 'replay' then
+    return v_decision->'result_snapshot'->'checkoutResult';
+  end if;
+  if v_decision->>'decision' = 'in_progress' then
+    raise exception using message = jsonb_build_object(
+      'code', 'IDEMPOTENCY_CONFLICT',
+      'message', 'Checkout is already in progress for this request.'
+    )::text;
+  end if;
+
+  if (p_source_draft_id is null) is distinct from (p_expected_source_version is null) then
+    raise exception using message = jsonb_build_object(
+      'code', 'CONTEXT_INVALID',
+      'message', 'Source draft ID and expected version must be supplied together.'
+    )::text;
+  end if;
+
+  -- Retain recovery scope even if a future worker leaves this record unresolved.
+  update sales.idempotency_records
+  set result_snapshot = jsonb_build_object(
+        'storeId', p_store_id,
+        'requestedByUserId', p_actor_id
+      )
+  where tenant_id = p_tenant_id
+    and command_scope = 'finalize_sales_order'
+    and idempotency_key = trim(p_idempotency_key);
+
+  begin
+    if p_source_draft_id is not null then
+      perform 1
+      from sales.sales_order_drafts
+      where tenant_id = p_tenant_id
+        and store_id = p_store_id
+        and id = p_source_draft_id
+        and status = 'active'
+        and version = p_expected_source_version
+      for update;
+      if not found then
+        raise exception using message = jsonb_build_object(
+          'code', 'STALE_VERSION',
+          'message', 'Source draft version is stale.'
+        )::text;
+      end if;
+    end if;
+
+    if jsonb_typeof(coalesce(p_lines, '[]'::jsonb)) <> 'array'
+       or jsonb_array_length(coalesce(p_lines, '[]'::jsonb)) = 0
+       or jsonb_typeof(coalesce(p_payment_intents, '[]'::jsonb)) <> 'array'
+       or jsonb_typeof(coalesce(p_commercial_snapshot, 'null'::jsonb)) <> 'object'
+       or jsonb_typeof(p_commercial_snapshot -> 'store') <> 'object'
+       or jsonb_typeof(p_commercial_snapshot -> 'seller') <> 'object'
+       or jsonb_typeof(p_commercial_snapshot -> 'lines') <> 'array'
+       or jsonb_array_length(p_commercial_snapshot -> 'lines') <> jsonb_array_length(p_lines) then
+      raise exception using message = jsonb_build_object(
+        'code', 'CONTEXT_INVALID',
+        'message', 'Checkout payload is invalid.'
+      )::text;
+    end if;
+
+    if nullif(trim(coalesce(p_commercial_snapshot -> 'store' ->> 'storeId', '')), '') is null
+       or trim(p_commercial_snapshot -> 'store' ->> 'storeId') <> p_store_id::text
+       or nullif(trim(coalesce(p_commercial_snapshot -> 'seller' ->> 'actorId', '')), '') is null
+       or trim(p_commercial_snapshot -> 'seller' ->> 'actorId') <> p_actor_id::text
+       or (p_customer_id is null) is distinct from (
+         jsonb_typeof(coalesce(p_commercial_snapshot -> 'customer', 'null'::jsonb)) = 'null'
+       ) then
+      raise exception using message = jsonb_build_object(
+        'code', 'CONTEXT_INVALID',
+        'message', 'Commercial snapshot context is invalid.'
+      )::text;
+    end if;
+
+    if p_customer_id is not null
+       and (
+         jsonb_typeof(p_commercial_snapshot -> 'customer') <> 'object'
+         or trim(p_commercial_snapshot -> 'customer' ->> 'customerId') <> p_customer_id::text
+         or nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'displayName', '')), '') is null
+       ) then
+      raise exception using message = jsonb_build_object(
+        'code', 'CONTEXT_INVALID',
+        'message', 'Commercial customer snapshot is invalid.'
+      )::text;
+    end if;
+
+    if p_customer_id is not null
+       and nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), '') is not null
+       and nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), '')
+           not in ('individual', 'organization') then
+      raise exception using message = jsonb_build_object(
+        'code', 'CONTEXT_INVALID',
+        'message', 'Commercial customer buyerType is invalid.'
+      )::text;
+    end if;
+
+    for v_line in select * from jsonb_array_elements(p_lines) loop
+      v_line_index := v_line_index + 1;
+      v_commercial_line := p_commercial_snapshot -> 'lines' -> (v_line_index - 1);
+      if nullif(trim(coalesce(v_line ->> 'product_id', '')), '') is null
+         or nullif(trim(coalesce(v_line ->> 'product_unit_id', '')), '') is null
+         or coalesce((v_line ->> 'quantity_micros')::bigint, 0) <= 0
+         or coalesce((v_line -> 'unit_price' ->> 'amount_minor')::bigint, 0) <= 0
+         or upper(trim(coalesce(v_line -> 'unit_price' ->> 'currency_code', ''))) <> v_currency_code then
+        raise exception using message = jsonb_build_object(
+          'code', 'CONTEXT_INVALID',
+          'message', 'Checkout line is invalid.'
+        )::text;
+      end if;
+
+      -- A3: giữ đúng cấu phần tiền theo dòng. App gửi discountTotal trong commercial snapshot;
+      -- gross = đơn giá × số lượng, net = gross - giảm giá. Tax chưa có ở app nên = 0.
+      v_unit_price_minor := (v_line -> 'unit_price' ->> 'amount_minor')::bigint;
+      v_gross_minor := v_unit_price_minor * (v_line ->> 'quantity_micros')::bigint / 1000000;
+      v_discount_minor := coalesce((v_commercial_line -> 'discountTotal' ->> 'amountMinor')::bigint, 0);
+      v_line_total_minor := v_gross_minor - v_discount_minor;
+      if v_discount_minor < 0 or v_discount_minor > v_gross_minor then
+        raise exception using message = jsonb_build_object(
+          'code', 'COMMERCIAL_TOTAL_MISMATCH',
+          'message', 'Line discount is out of range.'
+        )::text;
+      end if;
+
+      if jsonb_typeof(v_commercial_line) <> 'object'
+         or nullif(trim(coalesce(v_commercial_line ->> 'lineId', '')), '') is null
+         or jsonb_typeof(v_commercial_line -> 'product') <> 'object'
+         or trim(v_commercial_line -> 'product' ->> 'productId') <> trim(v_line ->> 'product_id')
+         or nullif(trim(coalesce(v_commercial_line -> 'product' ->> 'displayName', '')), '') is null
+         or jsonb_typeof(v_commercial_line -> 'unit') <> 'object'
+         or trim(v_commercial_line -> 'unit' ->> 'productUnitId') <> trim(v_line ->> 'product_unit_id')
+         or nullif(trim(coalesce(v_commercial_line -> 'unit' ->> 'unitName', '')), '') is null
+         or coalesce((v_commercial_line ->> 'quantityMicros')::bigint, 0) <> (v_line ->> 'quantity_micros')::bigint
+         or coalesce((v_commercial_line -> 'unitPrice' ->> 'amountMinor')::bigint, -1)
+            <> (v_line -> 'unit_price' ->> 'amount_minor')::bigint
+         or coalesce((v_commercial_line -> 'lineTotal' ->> 'amountMinor')::bigint, -1)
+            <> v_line_total_minor then
+        raise exception using message = jsonb_build_object(
+          'code', 'CHECKOUT_BLOCKED',
+          'message', 'Commercial line snapshot does not match checkout lines.'
+        )::text;
+      end if;
+
+      -- A2: đọc luôn conversion_rate_to_base để tính số lượng cơ sở, thay cho perform 1.
+      select pu.conversion_rate_to_base
+      into v_conversion_rate
+      from catalog.products p
+      join catalog.product_units pu
+        on pu.tenant_id = p.tenant_id
+       and pu.product_id = p.id
+      where p.tenant_id = p_tenant_id
+        and p.id = trim(v_line ->> 'product_id')::uuid
+        and p.business_status = 'active'::catalog.product_business_status
+        and p.is_ready_to_sell = true
+        and pu.id = trim(v_line ->> 'product_unit_id')::uuid
+        and pu.is_active = true;
+
+      if not found then
+        raise exception using message = jsonb_build_object(
+          'code', 'PRODUCT_NOT_SELLABLE',
+          'message', 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.'
+        )::text;
+      end if;
+
+      -- A2: base = số lượng bán × conversion_rate_to_base (đơn vị cơ sở/đơn vị bán).
+      -- Bán nguyên đơn vị (quyết định #3): ra số lẻ hoặc vượt phạm vi thì từ chối.
+      if v_conversion_rate is null or v_conversion_rate <= 0 then
+        raise exception using message = jsonb_build_object(
+          'code', 'INVALID_QUANTITY',
+          'message', 'Missing or invalid unit conversion rate.'
+        )::text;
+      end if;
+      v_base_numeric := (v_line ->> 'quantity_micros')::numeric * v_conversion_rate;
+      if v_base_numeric <> trunc(v_base_numeric)
+         or v_base_numeric <= 0
+         or v_base_numeric > 9223372036854775807 then
+        raise exception using message = jsonb_build_object(
+          'code', 'INVALID_QUANTITY',
+          'message', 'Base quantity is fractional or out of range.'
+        )::text;
+      end if;
+
+      v_order_line_id := gen_random_uuid();
+      v_normalized_lines := v_normalized_lines || jsonb_build_array(
+        jsonb_build_object(
+          'lineId', v_order_line_id::text,
+          'product', jsonb_build_object(
+            'productId', trim(v_commercial_line -> 'product' ->> 'productId'),
+            'sku', nullif(trim(coalesce(v_commercial_line -> 'product' ->> 'sku', '')), ''),
+            'displayName', trim(v_commercial_line -> 'product' ->> 'displayName')
+          ),
+          'unit', jsonb_build_object(
+            'productUnitId', trim(v_commercial_line -> 'unit' ->> 'productUnitId'),
+            'unitCode', nullif(trim(coalesce(v_commercial_line -> 'unit' ->> 'unitCode', '')), ''),
+            'unitName', trim(v_commercial_line -> 'unit' ->> 'unitName')
+          ),
+          'quantityMicros', (v_line ->> 'quantity_micros')::bigint,
+          'unitPrice', jsonb_build_object(
+            'amountMinor', (v_line -> 'unit_price' ->> 'amount_minor')::bigint,
+            'currencyCode', v_currency_code
+          ),
+          'discountTotal', jsonb_build_object('amountMinor', v_discount_minor, 'currencyCode', v_currency_code),
+          'lineTotal', jsonb_build_object(
+            'amountMinor', v_line_total_minor,
+            'currencyCode', v_currency_code
+          )
+        )
+      );
+      v_persisted_line_inputs := v_persisted_line_inputs || jsonb_build_array(
+        jsonb_build_object(
+          'lineId', v_order_line_id::text,
+          'product_id', trim(v_line ->> 'product_id'),
+          'product_unit_id', trim(v_line ->> 'product_unit_id'),
+          'quantity_micros', (v_line ->> 'quantity_micros')::bigint,
+          'base_quantity_micros', v_base_numeric::bigint,
+          'unit_price_minor', v_unit_price_minor,
+          'gross_amount_minor', v_gross_minor,
+          'discount_amount_minor', v_discount_minor,
+          'line_total_minor', v_line_total_minor,
+          'note', nullif(trim(coalesce(v_line ->> 'note', '')), ''),
+          'product_snapshot', jsonb_build_object(
+            'productId', trim(v_commercial_line -> 'product' ->> 'productId'),
+            'sku', nullif(trim(coalesce(v_commercial_line -> 'product' ->> 'sku', '')), ''),
+            'displayName', trim(v_commercial_line -> 'product' ->> 'displayName')
+          ),
+          'product_unit_snapshot', jsonb_build_object(
+            'productUnitId', trim(v_commercial_line -> 'unit' ->> 'productUnitId'),
+            'unitCode', nullif(trim(coalesce(v_commercial_line -> 'unit' ->> 'unitCode', '')), ''),
+            'unitName', trim(v_commercial_line -> 'unit' ->> 'unitName'),
+            'conversionRateToBase', v_conversion_rate
+          )
+        )
+      );
+      v_subtotal_minor := v_subtotal_minor + v_gross_minor;
+      v_order_discount_minor := v_order_discount_minor + v_discount_minor;
+      v_grand_total_minor := v_grand_total_minor + v_line_total_minor;
+    end loop;
+
+    for v_payment in
+      select * from jsonb_array_elements(coalesce(p_payment_intents, '[]'::jsonb))
+    loop
+      if coalesce((v_payment -> 'amount' ->> 'amount_minor')::bigint, 0) <= 0
+         or upper(trim(coalesce(v_payment -> 'amount' ->> 'currency_code', ''))) <> v_currency_code
+         or nullif(trim(coalesce(v_payment ->> 'method', '')), '') is null then
+        raise exception using message = jsonb_build_object(
+          'code', 'CONTEXT_INVALID',
+          'message', 'Payment intent is invalid.'
+        )::text;
+      end if;
+      v_paid_total_minor := v_paid_total_minor
+        + (v_payment -> 'amount' ->> 'amount_minor')::bigint;
+    end loop;
+
+    if v_paid_total_minor > v_grand_total_minor then
+      raise exception using message = jsonb_build_object(
+        'code', 'CHECKOUT_BLOCKED',
+        'message', 'Paid amount exceeds checkout total.'
+      )::text;
+    end if;
+    v_remaining_minor := v_grand_total_minor - v_paid_total_minor;
+    if v_remaining_minor > 0 and p_customer_id is null then
+      raise exception using message = jsonb_build_object(
+        'code', 'CHECKOUT_BLOCKED',
+        'message', 'Walk-in checkout cannot leave a receivable balance.'
+      )::text;
+    end if;
+    if v_remaining_minor > 0 and p_payment_due_date is null then
+      raise exception using message = jsonb_build_object(
+        'code', 'RECEIVABLE_DUE_DATE_REQUIRED',
+        'message', 'Ngày hẹn thanh toán là bắt buộc khi phát sinh công nợ.'
+      )::text;
+    end if;
+
+    v_normalized_commercial_snapshot := jsonb_build_object(
+      'store', jsonb_build_object(
+        'storeId', p_store_id::text,
+        'storeCode', trim(coalesce(p_commercial_snapshot -> 'store' ->> 'storeCode', '')),
+        'displayName', trim(coalesce(p_commercial_snapshot -> 'store' ->> 'displayName', ''))
+      ),
+      'seller', jsonb_build_object(
+        'actorId', p_actor_id::text,
+        'displayName', trim(coalesce(p_commercial_snapshot -> 'seller' ->> 'displayName', ''))
+      ),
+      'customer', case
+        when p_customer_id is null then null
+        else jsonb_build_object(
+          'customerId',       p_customer_id::text,
+          'displayName',      trim(p_commercial_snapshot -> 'customer' ->> 'displayName'),
+          'phoneNumber',      nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'phoneNumber', '')), ''),
+          'taxCode',          nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'taxCode', '')), ''),
+          'buyerType',        nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), ''),
+          'invoiceLegalName', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceLegalName', '')), ''),
+          'invoiceAddress',   nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceAddress', '')), ''),
+          'invoiceEmail',     nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceEmail', '')), '')
+        )
+      end,
+      'lines', v_normalized_lines
+    );
+
+    v_period := to_char((current_timestamp at time zone 'Asia/Ho_Chi_Minh')::date, 'YYYYMMDD');
+    insert into sales.sales_order_number_counters(tenant_id, store_id, period_key, next_value)
+    values (p_tenant_id, p_store_id, v_period, 1)
+    on conflict (tenant_id, store_id, period_key)
+      do update set next_value = sales.sales_order_number_counters.next_value + 1, updated_at = now()
+    returning next_value into v_seq_no;
+
+    if v_seq_no > 9999 then
+      raise exception using message = jsonb_build_object(
+        'code', 'CHECKOUT_BLOCKED',
+        'message', 'Daily order number limit exceeded.'
+      )::text;
+    end if;
+
+    v_order_code := 'DH' || v_period || lpad(v_seq_no::text, 4, '0');
+    v_payment_status := case
+      when v_paid_total_minor <= 0 then 'unpaid'
+      when v_remaining_minor = 0 then 'paid'
+      else 'partially_paid'
+    end;
+
+    insert into sales.sales_orders(
+      id, tenant_id, source_draft_id, order_code, store_id,
+      seller_user_id, customer_partner_id, channel_code, business_time, currency_code,
+      lifecycle_status, lock_status, version, internal_note,
+      subtotal_amount_minor, discount_amount_minor, tax_amount_minor, rounding_amount_minor,
+      payable_amount_minor, payment_due_date, sales_context_snapshot, customer_snapshot, pricing_summary_snapshot,
+      buyer_tax_snapshot,
+      completed_at
+    ) values (
+      v_order_id, p_tenant_id, p_source_draft_id, v_order_code, p_store_id,
+      p_actor_id, p_customer_id, 'pos', now(), v_currency_code,
+      'completed', 'unlocked', 1, nullif(trim(coalesce(p_order_note, '')), ''),
+      v_subtotal_minor, v_order_discount_minor, 0, 0, v_grand_total_minor, p_payment_due_date,
+      v_normalized_commercial_snapshot,
+      coalesce(v_normalized_commercial_snapshot -> 'customer', '{}'::jsonb),
+      jsonb_build_object(
+        'subtotalMinor', v_subtotal_minor,
+        'discountMinor', v_order_discount_minor,
+        'payableMinor', v_grand_total_minor
+      ),
+      case
+        when p_customer_id is null then null
+        else jsonb_strip_nulls(jsonb_build_object(
+          'buyerType', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), ''),
+          'legalName', coalesce(
+            nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceLegalName', '')), ''),
+            trim(p_commercial_snapshot -> 'customer' ->> 'displayName')),
+          'taxCode',   nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'taxCode', '')), ''),
+          'address',   nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceAddress', '')), ''),
+          'email',     nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceEmail', '')), '')
+        ))
+      end,
+      now()
+    );
+
+    v_line_index := 0;
+    for v_line in select * from jsonb_array_elements(v_persisted_line_inputs) loop
+      v_line_index := v_line_index + 1;
+      insert into sales.sales_order_lines(
+        id, tenant_id, sales_order_id, line_sequence, product_id, product_unit_id,
+        quantity_micros, base_quantity_micros, unit_price_minor, gross_amount_minor,
+        discount_amount_minor, tax_amount_minor, line_total_minor,
+        product_snapshot, product_unit_snapshot, pricing_snapshot, line_note
+      ) values (
+        (v_line ->> 'lineId')::uuid, p_tenant_id, v_order_id, v_line_index,
+        (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid,
+        (v_line ->> 'quantity_micros')::bigint, (v_line ->> 'base_quantity_micros')::bigint,
+        (v_line ->> 'unit_price_minor')::bigint, (v_line ->> 'gross_amount_minor')::bigint,
+        (v_line ->> 'discount_amount_minor')::bigint, 0, (v_line ->> 'line_total_minor')::bigint,
+        coalesce(v_line -> 'product_snapshot', '{}'::jsonb),
+        coalesce(v_line -> 'product_unit_snapshot', '{}'::jsonb),
+        jsonb_build_object(
+          'unitPriceMinor', (v_line ->> 'unit_price_minor')::bigint,
+          'lineTotalMinor', (v_line ->> 'line_total_minor')::bigint
+        ),
+        nullif(trim(coalesce(v_line ->> 'note', '')), '')
+      );
+    end loop;
+
+    insert into sales.sales_order_settlements(
+      id, tenant_id, sales_order_id, currency_code, original_payable_amount_minor,
+      post_sale_adjustment_amount_minor, current_payable_amount_minor, collected_amount_minor,
+      refunded_amount_minor, net_collected_amount_minor, outstanding_amount_minor,
+      payment_status, reconciliation_status, last_transaction_at, settled_at
+    ) values (
+      v_settlement_id, p_tenant_id, v_order_id, v_currency_code, v_grand_total_minor,
+      0, v_grand_total_minor, v_paid_total_minor, 0, v_paid_total_minor, v_remaining_minor,
+      v_payment_status, 'not_required',
+      case when v_paid_total_minor > 0 then now() else null end,
+      case when v_remaining_minor = 0 and v_paid_total_minor > 0 then now() else null end
+    );
+
+    for v_payment, v_payment_ordinal in
+      select value, ordinality
+      from jsonb_array_elements(coalesce(p_payment_intents, '[]'::jsonb)) with ordinality
+    loop
+      insert into sales.sales_payment_transactions(
+        id, tenant_id, sales_order_settlement_id, transaction_code, transaction_type,
+        direction, amount_minor, currency_code, payment_method_code, status, source_context,
+        source_type, source_id, initiated_by_user_id, confirmed_by_user_id, idempotency_key,
+        external_reference, occurred_at, confirmed_at
+      ) values (
+        gen_random_uuid(), p_tenant_id, v_settlement_id,
+        'PMT-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 16)),
+        'collection', 'inflow',
+        (v_payment -> 'amount' ->> 'amount_minor')::bigint, v_currency_code,
+        trim(v_payment ->> 'method'), 'confirmed', 'checkout',
+        'sales_order', v_order_id, p_actor_id, p_actor_id,
+        trim(p_idempotency_key) || ':pay:' || v_payment_ordinal::text,
+        nullif(trim(coalesce(v_payment ->> 'reference', '')), ''),
+        now(), now()
+      );
+    end loop;
+
+    -- Money snapshot after checkout collections. Lifecycle fact below owns goods, not money.
+    perform sales._emit_sales_settlement_changed(
+      p_tenant_id,
+      v_settlement_id,
+      'checkout',
+      p_command_id::text,
+      'finalize_sales_order'
+    );
+
+    -- Model B handoff deferred: no inventory/receivable impact enqueue here.
+    -- Sales only publishes the lifecycle fact below.
+    insert into sales.outbox_messages(id, tenant_id, event_type, payload)
+    values (
+      gen_random_uuid(), p_tenant_id, 'sales_order_finalized.v1',
+      jsonb_build_object(
+        'salesOrderId', v_order_id::text,
+        'salesOrderVersion', 1,
+        'orderCode', v_order_code,
+        'correlationId', v_correlation::text,
+        'causationId', p_causation_id,
+        'paymentStatus', v_payment_status,
+        'payableMinor', v_grand_total_minor,
+        'collectedMinor', v_paid_total_minor,
+        'currencyCode', v_currency_code
+      )
+    );
+
+    if p_source_draft_id is not null then
+      update sales.sales_order_drafts
+      set status = 'converted',
+          converted_at = now(),
+          version = version + 1,
+          updated_at = now()
+      where tenant_id = p_tenant_id
+        and store_id = p_store_id
+        and id = p_source_draft_id
+        and status = 'active'
+        and version = p_expected_source_version;
+      if not found then
+        raise exception using message = jsonb_build_object(
+          'code', 'STALE_VERSION',
+          'message', 'Source draft changed during checkout.'
+        )::text;
+      end if;
+    end if;
+
+    v_result := jsonb_build_object(
+      'idempotencyKey', trim(p_idempotency_key),
+      'salesOrderId', v_order_id::text,
+      'salesOrderVersion', 1,
+      'status', 'succeeded'
+    );
+
+    perform sales._complete_sales_idempotency(
+      p_tenant_id,
+      'finalize_sales_order',
+      trim(p_idempotency_key),
+      'succeeded',
+      'sales_order',
+      v_order_id,
+      jsonb_build_object(
+        'storeId', p_store_id,
+        'requestedByUserId', p_actor_id,
+        'checkoutResult', v_result
+      )
+    );
+
+    return v_result;
+
+  exception when others then
+    v_error := sqlerrm;
+    begin
+      v_error_code := coalesce((v_error::jsonb) ->> 'code', 'CHECKOUT_FAILED');
+    exception when others then
+      v_error_code := 'CHECKOUT_FAILED';
+    end;
+
+    v_result := jsonb_build_object(
+      'idempotencyKey', trim(p_idempotency_key),
+      'salesOrderId', '',
+      'salesOrderVersion', 0,
+      'status', case
+        when v_error_code in (
+          'CHECKOUT_BLOCKED', 'STALE_VERSION', 'CONTEXT_INVALID',
+          'PRODUCT_NOT_SELLABLE', 'RECEIVABLE_DUE_DATE_REQUIRED'
+        ) then 'blocked'
+        else 'failed'
+      end
+    );
+
+    if v_error_code in (
+      'PERMISSION_DENIED', 'DATA_SCOPE_DENIED', 'IDEMPOTENCY_CONFLICT',
+      'CHECKOUT_RESULT_NOT_FOUND'
+    ) then
+      raise;
+    end if;
+
+    -- Ghi kết quả blocked/failed vào IdempotencyRecord để replay trả lại đúng kết quả.
+    perform sales._complete_sales_idempotency(
+      p_tenant_id,
+      'finalize_sales_order',
+      trim(p_idempotency_key),
+      'failed',
+      'checkout_result',
+      null,
+      jsonb_build_object(
+        'storeId', p_store_id,
+        'requestedByUserId', p_actor_id,
+        'checkoutResult', v_result
+      )
+    );
+
+    return v_result;
+  end;
+end;
+$$;

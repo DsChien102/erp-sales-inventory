@@ -182,6 +182,41 @@ void main() {
       },
     );
 
+    test('retryable rejection maps source command identity to RPC', () async {
+      supabase.registerHandler('record_retryable_provider_publish_rejection', (
+        params,
+      ) async {
+        expect(params, {
+          'p_tenant_id': tenantId,
+          'p_attempt_id': attemptId,
+          'p_source_command_id': '44444444-4444-4444-4444-444444444444',
+          'p_idempotency_key': idempotencyKey,
+          'p_payload_hash': payloadHash,
+          'p_provider_code': 'InvoiceNumberNotCotinuous',
+          'p_provider_message': 'series gap',
+          'p_retry_after_seconds': 30,
+        });
+        return [
+          {'attempt_status': 'PREPARING'},
+        ];
+      });
+
+      final result = await gateway.recordRetryableProviderRejection(
+        tenantId: tenantId,
+        attemptId: attemptId,
+        sourceCommandId: '44444444-4444-4444-4444-444444444444',
+        evidence: IssuanceResultEvidenceDto.retryableProviderRejection(
+          idempotencyKey: idempotencyKey,
+          payloadHash: payloadHash,
+          providerCode: 'InvoiceNumberNotCotinuous',
+          providerMessage: 'series gap',
+        ),
+        retryAfter: const Duration(seconds: 30),
+      );
+
+      expect(result.attemptStatus, IssuanceAttemptStatus.preparing);
+    });
+
     test('recordCommandIntegrityFailure maps params to RPC', () async {
       supabase.registerHandler('record_issuance_command_integrity_failure', (
         params,

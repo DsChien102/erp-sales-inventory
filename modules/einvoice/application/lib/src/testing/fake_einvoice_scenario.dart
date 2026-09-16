@@ -88,6 +88,7 @@ enum FakeEInvoiceScenario {
   // §S5b
   sendSheetInitial,
   sendSheetResend,
+  sendSheetUnknown,
   sendOk,
   sendInvalidEmail,
   sendPermissionDenied,
@@ -173,6 +174,7 @@ extension FakeEInvoiceScenarioId on FakeEInvoiceScenario {
     FakeEInvoiceScenario.autoSendNotSupported => 'auto_send_not_supported',
     FakeEInvoiceScenario.sendSheetInitial => 'send_sheet_initial',
     FakeEInvoiceScenario.sendSheetResend => 'send_sheet_resend',
+    FakeEInvoiceScenario.sendSheetUnknown => 'send_sheet_unknown',
     FakeEInvoiceScenario.sendOk => 'send_ok',
     FakeEInvoiceScenario.sendInvalidEmail => 'send_invalid_email',
     FakeEInvoiceScenario.sendPermissionDenied => 'send_permission_denied',

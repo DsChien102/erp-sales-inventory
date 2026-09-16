@@ -3,13 +3,30 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/me_invoice_delivery_classifier.dart';
 import 'package:vet45_misa/e_invoice.dart';
 
+MeInvoiceResult<MeInvoiceSendEmailResponse> _itemizedOk(
+  List<MeInvoiceSendEmailResultItem> items,
+) {
+  return MeInvoiceResult.ok(MeInvoiceSendEmailResponse.itemized(items));
+}
+
 void main() {
   group('MeInvoiceDeliveryClassifier', () {
+    test('envelope acknowledgement maps to Succeeded', () {
+      final outcome = MeInvoiceDeliveryClassifier.classify(
+        transactionId: 'tx-1',
+        const MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.envelopeAcknowledgement(),
+        ),
+      );
+
+      expect(outcome, isA<DeliveryProviderSucceeded>());
+    });
+
     test('matched status 3 without error maps to Succeeded', () {
       final outcome = MeInvoiceDeliveryClassifier.classify(
         transactionId: 'tx-1',
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
+        _itemizedOk([
+          const MeInvoiceSendEmailResultItem(
             transactionId: 'tx-1',
             sendEmailStatus: 3,
           ),
@@ -24,7 +41,7 @@ void main() {
         'status $status is classified without assuming acceptance is sent',
         () {
           final outcome = MeInvoiceDeliveryClassifier.classify(
-            MeInvoiceResult.ok([
+            _itemizedOk([
               MeInvoiceSendEmailResultItem(
                 transactionId: 'tx-1',
                 sendEmailStatus: status,
@@ -72,7 +89,7 @@ void main() {
       test('ambiguous per-invoice results are undetermined $items', () {
         expect(
           MeInvoiceDeliveryClassifier.classify(
-            MeInvoiceResult.ok(items),
+            _itemizedOk(items),
             transactionId: 'tx-1',
           ),
           isA<DeliveryProviderUndetermined>(),
@@ -236,7 +253,7 @@ void main() {
     test('success with unexpected data shape is Undetermined', () {
       final outcome = MeInvoiceDeliveryClassifier.classify(
         transactionId: 'tx-1',
-        const MeInvoiceResult.ok(<MeInvoiceSendEmailResultItem>[]),
+        _itemizedOk(const <MeInvoiceSendEmailResultItem>[]),
       );
 
       expect(outcome, isA<DeliveryProviderUndetermined>());

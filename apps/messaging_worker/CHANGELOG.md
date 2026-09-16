@@ -12,7 +12,10 @@ Ship unit: this worker only. Deploy tags: `messaging_worker-vX.Y.Z`.
 
 ### Added
 
+- Bind Sales module (`moduleSchema: 'sales'`) với `SalesMessagingCommandFactory` — worker xử lý `sales.outbox` qua shared `IEventsBus` cùng IAM và E-invoice.
+
 ### Changed
+
 - Einvoice S1: Đồng bộ và lưu danh sách mẫu hóa đơn từ MISA meInvoice vào `capabilities_snapshot` và RPC `list_provider_templates` hiển thị động các mẫu thay vì mock tĩnh.
 
 ### Fixed
@@ -21,6 +24,13 @@ Ship unit: this worker only. Deploy tags: `messaging_worker-vX.Y.Z`.
 
 ### Internal
 
+- TH-08 H1: fail-closed MISA view URL allowlist + bỏ diagnostic `print` download; delivery domain `hasActiveLock` chỉ `PROCESSING`.
+- TH-08 H1: MISA publish retry policy bền vững — retryable rejection enqueue lại `publish_invoice` qua RPC (không dead-letter), poll `InvoiceDuplicated` reconcile bằng RefID; draft `020_einvoice_misa_publish_retry_policy.sql`.
+- TH-08 H1: publish invoice worker acquire series lease trước MISA dispatch; busy lease reschedule internal command không tăng retry_count (draft `019_einvoice_misa_publish_series_lease.sql`).
+- TH-08 Slice 5: delivery `UNKNOWN` không còn business lock; worker không auto-retry; manual resend tạo delivery mới (draft 013/014).
+- TH-08 Slice 5: delivery provider map MISA Product envelope `data=""` thành `SUCCEEDED` (acknowledgement); `supportsEmailDelivery` chỉ true trên `api.meinvoice.vn`.
+- TH-08 Slice 3: E-invoice inbox consume `sales_order_finalized.v1` (thay `sales.order.completed`) để auto-issue.
+- TH-08 Slice 3 repair: draft `008` GRANT EXECUTE `start_auto_issuance` / `list_open_auto_issuance_processes` / `reevaluate_auto_issuance` cho `authenticated, service_role` (worker inbox không còn 42501).
 - Deploy script build Docker `linux/amd64` rồi push GitLab registry; Railway `redeploy --from-source` thay `railway up`.
 - Tách `publish` (registry) khỏi Railway: `vet45 run railway sync-env` (shared + secret service) và `vet45 run railway rollout`.
 - TH-08: gỡ email mock / `is_simulated` provenance (Option B); worker chỉ còn `MISA_MEINVOICE_EMAIL_DELIVERY_ENABLED`.

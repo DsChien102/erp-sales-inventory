@@ -16,6 +16,9 @@ final class _RecordingCommandDispatcher implements IEinvoiceCommandDispatcher {
         IssuanceSuccessEvidenceDto() => IssuanceAttemptStatus.succeeded,
         IssuanceDefiniteFailureEvidenceDto() => IssuanceAttemptStatus.failed,
         IssuanceUndeterminedEvidenceDto() => IssuanceAttemptStatus.reconciling,
+        IssuanceRetryableProviderRejectionEvidenceDto() => throw UnsupportedError(
+          'retryable evidence is not dispatched here',
+        ),
       };
       return RecordIssuanceResultDto(
             attemptStatus: status,

@@ -77,13 +77,15 @@ final class _FakePostgrestRpc<T> implements PostgrestFilterBuilder<T> {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
-ElectronicInvoiceProviderContextDto _context() {
-  return const ElectronicInvoiceProviderContextDto(
+ElectronicInvoiceProviderContextDto _context({
+  String invoiceSeries = '1C25TYY',
+}) {
+  return ElectronicInvoiceProviderContextDto(
     tenantId: 'tenant-1',
     providerConnectionId: 'conn-1',
     electronicInvoiceId: 'ei-1',
     providerInvoiceReference: 'tx-1',
-    invoiceSeries: '1C25TYY',
+    invoiceSeries: invoiceSeries,
     operationId: 'op-1',
   );
 }
@@ -190,6 +192,43 @@ void main() {
 
       expect(fakeClient.lastDownloadDataType, MeInvoiceDownloadDataType.xml);
     });
+
+    test(
+      'malformed series maps download to INVOICE_SERIES_INVALID without HTTP',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        final outcome = await adapter.downloadDocument(
+          _context(invoiceSeries: '3C26TYY'),
+          InvoiceDocumentType.pdf,
+        );
+
+        expect(fakeClient.downloadCount, 0);
+        expect(outcome, isA<InvoiceDocumentProviderCheckRequired>());
+        expect(
+          (outcome as InvoiceDocumentProviderCheckRequired).safeErrorCode,
+          'INVOICE_SERIES_INVALID',
+        );
+      },
+    );
+
+    test(
+      'malformed series maps observation to INVOICE_SERIES_INVALID without HTTP',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        final outcome = await adapter.observe(
+          _context(invoiceSeries: '1C26XYY'),
+        );
+
+        expect(fakeClient.getStatusCount, 0);
+        expect(outcome, isA<ProviderObservationAmbiguous>());
+        expect(
+          (outcome as ProviderObservationAmbiguous).safeErrorCode,
+          'INVOICE_SERIES_INVALID',
+        );
+      },
+    );
 
     test('empty provider document maps to DOCUMENT_UNAVAILABLE', () async {
       fakeClient.enqueueDownloadResult(

@@ -109,6 +109,54 @@ void main() {
       );
     });
 
+    test('request timeout defaults to 60 seconds', () {
+      expect(config.requestTimeout, const Duration(seconds: 60));
+    });
+
+    test('API timeout maps to stable network timeout code', () async {
+      final client = MeInvoiceClient(
+        config: MeInvoiceConfig(
+          baseUrl: 'https://example.test/api/integration',
+          accessToken: 'seeded-token',
+          accessTokenExpiresAt: DateTime.now().toUtc().add(
+            const Duration(days: 1),
+          ),
+          requestTimeout: const Duration(milliseconds: 1),
+        ),
+        httpClient: MockClient((_) async {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          return http.Response('{}', 200);
+        }),
+      );
+
+      final result = await client.publish(_samplePublishRequest());
+
+      expect(result.isSuccess, isFalse);
+      expect(result.error, 'meinvoice_network_timeout');
+    });
+
+    test('authentication timeout maps to stable network timeout code', () async {
+      final client = MeInvoiceClient(
+        config: const MeInvoiceConfig(
+          baseUrl: 'https://example.test/api/integration',
+          appId: 'app-id',
+          taxCode: '0100000000',
+          username: 'user',
+          password: 'secret',
+          requestTimeout: Duration(milliseconds: 1),
+        ),
+        httpClient: MockClient((_) async {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          return http.Response('{}', 200);
+        }),
+      );
+
+      final result = await client.obtainAccessToken(forceLogin: true);
+
+      expect(result.isSuccess, isFalse);
+      expect(result.error, 'meinvoice_network_timeout');
+    });
+
     test('token rejection preserves only the safe MISA error code', () async {
       final httpClient = MockClient((request) async {
         expect(request.url.path, '/api/integration/auth/token');
@@ -548,7 +596,10 @@ void main() {
       );
 
       expect(result.isSuccess, isTrue);
-      expect(result.data, isA<List<Object?>>());
+      expect(result.data, isA<MeInvoiceSendEmailResponse>());
+      expect(result.data!.kind, MeInvoiceSendEmailResponseKind.itemized);
+      expect(result.data!.items.single.transactionId, 'tx-send-1');
+      expect(result.data!.items.single.sendEmailStatus, 3);
     });
 
     test('token expired triggers refresh then retries', () async {

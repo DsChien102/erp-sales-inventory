@@ -24,12 +24,12 @@ final class IssuanceReadinessEvaluation extends Equatable {
 
   @override
   List<Object?> get props => [
-        level,
-        blockers,
-        warnings,
-        canPreview,
-        buyerCompletionState,
-      ];
+    level,
+    blockers,
+    warnings,
+    canPreview,
+    buyerCompletionState,
+  ];
 }
 
 /// Pure evaluator for EP-02/US-01 issuance readiness.
@@ -107,6 +107,14 @@ abstract final class IssuanceReadinessEvaluator {
           message: 'Khách tổ chức thiếu mã số thuế',
         ),
       );
+    } else if (input.buyer.isMissingOnlyOrgAddress) {
+      blockers.add(
+        const ReadinessBlocker(
+          code: 'BUYER_ADDRESS_REQUIRED',
+          message: 'Khách tổ chức có MST nhưng thiếu địa chỉ',
+        ),
+      );
+      previewForbidden = true;
     } else if (!input.buyer.isComplete) {
       blockers.add(
         const ReadinessBlocker(

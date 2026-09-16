@@ -37,6 +37,7 @@ void main() {
         DeliveryDisplayState.sending,
         DeliveryDisplayState.sent,
         DeliveryDisplayState.failed,
+        DeliveryDisplayState.unknown,
       ]);
     });
 

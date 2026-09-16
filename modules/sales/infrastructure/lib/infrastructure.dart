@@ -5,6 +5,7 @@ export 'src/domain/pricing/runtime_pricing_preview_port.dart';
 export 'src/configuration/sales_startup.dart';
 export 'src/configuration/data_access/data_access_module.dart';
 export 'src/configuration/mediation/mediation_module.dart';
+export 'src/configuration/processing/outbox/process_outbox_command.dart';
 export 'src/domain/sales_order_draft/sales_order_draft_rpc_mapper.dart';
 export 'src/domain/sales_order_draft/supabase_sales_order_draft_gateway.dart';
 export 'src/domain/sales_order_cancellation/sales_order_cancellation_rpc_mapper.dart';

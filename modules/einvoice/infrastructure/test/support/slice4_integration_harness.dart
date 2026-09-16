@@ -9,7 +9,6 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/me_invoice_electronic_invoice_provider_adapter.dart';
 import 'package:vet45_einvoice_infrastructure/src/adapters/misa/tenant_me_invoice_client_factory.dart';
-import 'package:vet45_einvoice_infrastructure/src/adapters/misa/worker_only_electronic_invoice_provider_port.dart';
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/commands_executor.dart';
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/einvoice_command_dispatcher.dart';
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/generated/einvoice_internal_command_registry.g.dart';
@@ -233,6 +232,22 @@ final class Slice4InternalCommandClient
     );
     if (command == null) return;
     command.failedAt = DateTime.utc(2026, 8, 31, 9);
+    command.claimToken = null;
+  }
+
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) return;
     command.claimToken = null;
   }
 

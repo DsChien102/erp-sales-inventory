@@ -21,7 +21,7 @@ void main() {
 
     const tenantId = 'tenant-1';
     const salesOrderId = 'so-123';
-    const triggerKey = 'sales.order.completed:evt-1:so-123:1';
+    const triggerKey = 'sales_order_finalized.v1:evt-1:so-123:1';
     const idempotencyKey = 'c7e735e5-397c-572e-834c-69550ea04153';
 
     setUp(() {

@@ -63,8 +63,8 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   final List<MeInvoiceResult<String>> _previewPublishedQueue = <MeInvoiceResult<String>>[];
   final List<MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>>> _downloadQueue =
       <MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>>>[];
-  final List<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> _sendEmailQueue =
-      <MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>>[];
+  final List<MeInvoiceResult<MeInvoiceSendEmailResponse>> _sendEmailQueue =
+      <MeInvoiceResult<MeInvoiceSendEmailResponse>>[];
 
   void enqueuePreviewPublishedResult(MeInvoiceResult<String> result) {
     _previewPublishedQueue.add(result);
@@ -77,8 +77,17 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }
 
   /// Enqueue a scripted FIFO result for subsequent [sendEmail] calls.
-  void enqueueSendEmailResult(MeInvoiceResult<List<MeInvoiceSendEmailResultItem>> result) {
+  void enqueueSendEmailResult(MeInvoiceResult<MeInvoiceSendEmailResponse> result) {
     _sendEmailQueue.add(result);
+  }
+
+  /// Enqueue official Product envelope acknowledgement (`data=""`).
+  void enqueueSendEmailEnvelopeAcknowledgement() {
+    enqueueSendEmailResult(
+      const MeInvoiceResult.ok(
+        MeInvoiceSendEmailResponse.envelopeAcknowledgement(),
+      ),
+    );
   }
 
   int _tokenExpiredHits = 0;
@@ -150,7 +159,7 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
     if (early != null) {
       return early;
     }
-    return MeInvoiceResult.ok('https://example.test/preview/unpublished');
+    return MeInvoiceResult.ok('https://meinvoice.vn/viewer/preview/unpublished');
   }
 
   @override
@@ -188,7 +197,7 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
     if (early != null) {
       return early;
     }
-    return MeInvoiceResult.ok('https://example.test/preview/published');
+    return MeInvoiceResult.ok('https://meinvoice.vn/viewer/preview/published');
   }
 
   @override
@@ -252,7 +261,7 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   }
 
   @override
-  Future<MeInvoiceResult<List<MeInvoiceSendEmailResultItem>>> sendEmail(
+  Future<MeInvoiceResult<MeInvoiceSendEmailResponse>> sendEmail(
     MeInvoiceSendEmailRequest request,
   ) async {
     sendEmailCount++;
@@ -260,17 +269,21 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
     if (_sendEmailQueue.isNotEmpty) {
       return _sendEmailQueue.removeAt(0);
     }
-    final early = _scenarioResult<List<MeInvoiceSendEmailResultItem>>();
+    final early = _scenarioResult<MeInvoiceSendEmailResponse>();
     if (early != null) {
       return early;
     }
     return MeInvoiceResult.ok(
-      request.sendEmailDatas
-          .map(
-            (item) =>
-                MeInvoiceSendEmailResultItem(transactionId: item.transactionId, sendEmailStatus: 3),
-          )
-          .toList(),
+      MeInvoiceSendEmailResponse.itemized(
+        request.sendEmailDatas
+            .map(
+              (item) => MeInvoiceSendEmailResultItem(
+                transactionId: item.transactionId,
+                sendEmailStatus: 3,
+              ),
+            )
+            .toList(growable: false),
+      ),
     );
   }
 

@@ -7,6 +7,7 @@ void main() {
       final canonicalInvoice = <String, Object?>{
         'refId': 'ref-100',
         'invSeries': '1C25TYY',
+        'signType': 2,
         'invDate': '2026-08-01',
         'buyerLegalName': 'Công ty ABC',
         'buyerTaxCode': '0100109106',

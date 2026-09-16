@@ -2,12 +2,14 @@ import 'package:vet45_misa/e_invoice.dart';
 
 /// Pure canonical → MISA request mapping and preflight validation.
 abstract final class MeInvoiceCanonicalMapper {
-  static const _requiredStringFields = <String>[
-    'invSeries',
-    'invDate',
-    'buyerLegalName',
-    'buyerAddress',
-  ];
+  static const _requiredStringFields = <String>['invSeries', 'invDate'];
+
+  /// Tên người mua nằm ở một trong hai ô của MISA, không phải cả hai:
+  ///   `buyerFullName`  → "Họ tên người mua hàng" (cá nhân, khách lẻ)
+  ///   `buyerLegalName` → "Tên đơn vị"            (tổ chức)
+  /// Bắt buộc `buyerLegalName` như trước khiến tên cá nhân bị đẩy vào ô tên
+  /// đơn vị — ghi một con người thành một tổ chức trên chứng từ thuế.
+  static const _buyerNameFields = <String>['buyerFullName', 'buyerLegalName'];
 
   /// Validates provider-neutral canonical schema before publish dispatch.
   static void validate(Map<String, Object?> canonicalInvoice) {
@@ -21,19 +23,51 @@ abstract final class MeInvoiceCanonicalMapper {
       }
     }
 
-    final signType = canonicalInvoice['signType'];
-    if (signType != null &&
-        signType is! int &&
-        !_isValidSignTypeWireValue(signType)) {
+    final hasBuyerName = _buyerNameFields.any((field) {
+      final value = canonicalInvoice[field];
+      return value is String && value.trim().isNotEmpty;
+    });
+    if (!hasBuyerName) {
       throw const CanonicalValidationFault(
-        'CANONICAL_INVALID_SIGN_TYPE',
-        message: 'Invalid canonical signType',
+        'CANONICAL_MISSING_BUYER_NAME',
+        message:
+            'Canonical must carry buyerFullName (person) or buyerLegalName '
+            '(organization)',
       );
     }
-    if (signType is int && !_isValidSignTypeWireValue(signType)) {
+
+    final signType = canonicalInvoice['signType'];
+    if (signType == null) {
+      throw const CanonicalValidationFault(
+        'CANONICAL_MISSING_SIGN_TYPE',
+        message: 'Canonical signType is required (2=HSM, 5=MTT)',
+      );
+    }
+    if (signType is! int || !_isValidSignTypeWireValue(signType)) {
       throw const CanonicalValidationFault(
         'CANONICAL_INVALID_SIGN_TYPE',
         message: 'Invalid canonical signType wire value',
+      );
+    }
+
+    final invSeries = (canonicalInvoice['invSeries'] as String).trim();
+    final classification = _classifyInvSeries(invSeries);
+    if (classification == null) {
+      throw const CanonicalValidationFault(
+        'CANONICAL_INVALID_INV_SERIES',
+        message: 'Canonical invSeries is malformed',
+      );
+    }
+    if (classification.isMtt && signType != 5) {
+      throw const CanonicalValidationFault(
+        'CANONICAL_INVALID_SIGN_TYPE',
+        message: 'MTT InvSeries requires SignType=5',
+      );
+    }
+    if (!classification.isMtt && signType != 2) {
+      throw const CanonicalValidationFault(
+        'CANONICAL_INVALID_SIGN_TYPE',
+        message: 'Non-MTT InvSeries requires SignType=2',
       );
     }
 
@@ -58,6 +92,10 @@ abstract final class MeInvoiceCanonicalMapper {
       _validateLine(lines[i], index: i);
     }
 
+    // MISA BẮT BUỘC TaxRateInfo. Bằng chứng sandbox 2026-09-14:
+    // ErrorCode=Invalid_[Invoice.TaxRateInfo] "Thiếu thông tin [TaxRateInfo]".
+    // Guard này chặn tại chỗ với đúng tên lỗi, thay vì để payload đi tới MISA
+    // rồi quay về sau 3 lượt thử dưới dạng lỗi kết nối.
     final taxRates = _readLineItems(canonicalInvoice['taxRateInfo']);
     if (taxRates.isEmpty) {
       throw const CanonicalValidationFault(
@@ -68,7 +106,9 @@ abstract final class MeInvoiceCanonicalMapper {
   }
 
   /// Builds a MISA preview invoice data object from provider-neutral canonical schema.
-  static MeInvoiceInvoiceData toPreviewInvoice(Map<String, Object?> canonicalInvoice) {
+  static MeInvoiceInvoiceData toPreviewInvoice(
+    Map<String, Object?> canonicalInvoice,
+  ) {
     validate(canonicalInvoice);
 
     final wireJson = _toWireJsonBody(canonicalInvoice);
@@ -138,9 +178,7 @@ abstract final class MeInvoiceCanonicalMapper {
 
     final words = input['totalAmountInWords'];
     if (words is! String || words.trim().isEmpty) {
-      final total = _readAmount(
-        input['totalAmountOc'] ?? input['totalAmount'],
-      );
+      final total = _readAmount(input['totalAmountOc'] ?? input['totalAmount']);
       if (total != null) {
         input['totalAmountInWords'] = vndAmountInWords(total.round());
       }
@@ -329,8 +367,9 @@ abstract final class MeInvoiceCanonicalMapper {
       parts.add(threeDigits(donvi, full: ty > 0 || trieu > 0 || nghin > 0));
     }
     final words = parts.join(' ').trim();
-    final capitalized =
-        words.isEmpty ? 'Không' : '${words[0].toUpperCase()}${words.substring(1)}';
+    final capitalized = words.isEmpty
+        ? 'Không'
+        : '${words[0].toUpperCase()}${words.substring(1)}';
     return '$capitalized đồng';
   }
 
@@ -393,13 +432,35 @@ abstract final class MeInvoiceCanonicalMapper {
 
   static MeInvoiceSignType _resolveSignType(Map<String, Object?> canonical) {
     final raw = canonical['signType'];
-    if (raw is int) {
-      return MeInvoiceSignType.values.firstWhere(
-        (value) => value.wireValue == raw,
-        orElse: () => MeInvoiceSignType.hsmWithCks,
+    if (raw is! int) {
+      throw const CanonicalValidationFault(
+        'CANONICAL_MISSING_SIGN_TYPE',
+        message: 'Canonical signType is required before publish',
       );
     }
-    return MeInvoiceSignType.hsmWithCks;
+    for (final value in MeInvoiceSignType.values) {
+      if (value.wireValue == raw) {
+        return value;
+      }
+    }
+    throw const CanonicalValidationFault(
+      'CANONICAL_INVALID_SIGN_TYPE',
+      message: 'Unsupported canonical signType wire value',
+    );
+  }
+
+  static ({bool invoiceWithCode, bool isMtt})? _classifyInvSeries(
+    String invSeries,
+  ) {
+    final normalized = invSeries.trim().toUpperCase();
+    if (normalized.length < 5) {
+      return null;
+    }
+    final codeChar = normalized[1];
+    if (codeChar != 'C' && codeChar != 'K') {
+      return null;
+    }
+    return (invoiceWithCode: codeChar == 'C', isMtt: normalized[4] == 'M');
   }
 
   static bool _isValidSignTypeWireValue(Object value) {

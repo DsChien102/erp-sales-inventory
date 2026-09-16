@@ -46,6 +46,12 @@ void main() {
         ),
         isTrue,
       );
+      expect(
+        EInvoiceStatusInteraction.allowsTapForDelivery(
+          DeliveryDisplayState.unknown,
+        ),
+        isTrue,
+      );
     });
   });
 }

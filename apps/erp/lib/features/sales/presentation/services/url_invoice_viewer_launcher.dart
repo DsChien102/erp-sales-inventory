@@ -17,7 +17,10 @@ final class UrlInvoiceViewerLauncher implements IInvoiceViewerLauncher {
       return false;
     }
     final uri = Uri.tryParse(trimmed);
-    if (uri == null || !uri.hasScheme) {
+    if (uri == null ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty ||
+        (uri.scheme != 'https' && uri.scheme != 'http')) {
       return false;
     }
 

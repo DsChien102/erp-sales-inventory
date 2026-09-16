@@ -13,13 +13,27 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 - Thêm `OrderEInvoiceSection` và `OrderEInvoiceCubit` trong sales presentation, tích hợp luồng phát hành lại hóa đơn điện tử khi thất bại (retry issuance) qua `IModuleMediator` và `IExecutionContext`.
+- SG-08 / SG02-R01: chi tiết đơn hàng mở bề mặt e-invoice thật (`OrderEInvoiceSection`) thay sheet placeholder.
+- SG-06 / SG02-R02: màn kết quả bán hàng mở cùng `OrderEInvoiceSection` thay sheet placeholder.
 
 ### Changed
 
+- HĐĐT: chỉ cho phát hành lại khi projection `failed` có action issue/retry; khóa tap khi processing hoặc failed không retry được; widget test chứng minh auto progress → failure → retry.
+- HĐĐT màn kết quả bán hàng: hiển thị `OrderEInvoiceSection` live ngay trên hàng chứng từ (SG02-R02), bỏ card “Chưa phát hành” cố định và sheet mở khi bấm.
+- HĐĐT: polling projection qua `vet45_async_query` (`QueryClient.watchQuery`, 5s, key có tenant); bỏ `Timer.periodic` trên screen; refetch khi app resume.
+- HĐĐT: khi phát hành thất bại xác định, `OrderEInvoiceCubit` đọc metadata lỗi an toàn qua `GetIssuanceAttemptStatusQuery`; `failed` cũng là terminal và dừng poll (trừ khi delivery còn pending/sending).
+- HĐĐT hàng trạng thái đơn: icon leading dùng `VIcon` thay `VIconBox`; badge dùng `VComponentTone` thay `VBadgeStatus` deprecated; action item sheet dùng `VCard` + `VIcon`; post-issue delivery badge bỏ `isSmall`; xem hóa đơn chính thức, xem trước, và tải PDF/XML giữ sheet, hiện loading, disable nút còn lại; dismiss sheet khi đang xem trước thì hủy preview.
 - Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `vet45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
 - Hồ sơ pháp lý tổ chức: Mã số thuế hỗ trợ linh hoạt 10–13 chữ số và định dạng chi nhánh có gạch nối (`0123456789-001`) cho cả doanh nghiệp và hộ kinh doanh.
 
 ### Fixed
+- HĐĐT lưu PDF/XML: bỏ fallback mở browser; share native qua `XFile.fromData` + MIME/`fileNameOverrides` + `sharePositionOrigin` (iOS Share Sheet); fail-closed khi thiếu checksum hoặc tải lỗi; SG-06 đóng sau handoff thành công/dismiss, giữ mở khi lỗi; copy lỗi exporter đúng ngữ nghĩa lưu trên thiết bị.
+- HĐĐT: chi tiết đơn luôn mount `OrderEInvoiceSection` khi module sẵn sàng (kể cả projection đầu lỗi); seed inert + `hasLoadedInitialProjection`.
+- HĐĐT: result host seed projection không authoritative (`hasLoadedProjection`); khóa tap tới snapshot đầu tiên + readiness (notIssued).
+- HĐĐT: bỏ `AppLifecycleRefetch` toàn app; resume chỉ qua `OrderEInvoicePollingHost`; `QueryClient` production `gcTime` 5 phút.
+- HĐĐT: bắt lỗi auth khi start poll và swallow lỗi network trên QueryObserver background fetch (không còn uncaught Future).
+- HĐĐT: banner lỗi phát hành chỉ map `failureCode` allow-list; RPC `get_issuance_attempt_status` không trả raw `failure_message` provider.
+- HĐĐT: sau confirm retry, `setQueryData` snapshot processing để poll observer không re-apply cache `failed` cũ.
 - HĐĐT xem trước: kéo dài cửa sổ poll worker/MISA (~45s), bỏ clear URL khi bấm lại, và chặn double-tap khi đang previewing — giảm báo lỗi giả "chưa sẵn sàng" dù preview đã mở.
 - HĐĐT sheet xác nhận phát hành: lấy mẫu/ký hiệu/hình thức ký từ issuance profile + template MISA đã sync, không hardcode `1C26TAA`.
 
@@ -27,6 +41,32 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- TH-08 H1: fail-closed preview/official view URL (HTTPS + host `*.meinvoice.vn`); `parseDataString` không ép object/list/number; bỏ `print` download adapter; `InvoiceDelivery.hasActiveLock` chỉ `PROCESSING` (UNKNOWN không khóa).
+- TH-08 H1: policy retry MISA publish — `InvoiceNumberNotCotinuous` retryable (≤3, cùng RefID/canonical), `InvoiceDuplicated` reconcile-first rồi mới retry, `DuplicateInvoiceRefID` reconciliation-only; draft `020_einvoice_misa_publish_retry_policy.sql`.
+- TH-08 H1: publish series lease bền vững `(tenant, provider_connection, invoice_series)` — acquire trước dispatch barrier, busy → `reschedule_internal_command` (không dead-letter), release trong `finally`; draft `019_einvoice_misa_publish_series_lease.sql`.
+- TH-08 H1: status/reconciliation dùng classification theo `invoiceSeries` bất biến từ attempt snapshot; poll fail-closed khi thiếu provider transaction id; MISA status query bỏ hard-code `invoiceWithCode: true`.
+- TH-08 H1: buyer tổ chức có MST nhưng thiếu địa chỉ bị chặn bằng `BUYER_ADDRESS_REQUIRED` ở readiness/completion/canonical; preview/issue fail-closed và copy lỗi an toàn.
+- TH-08 H1: invariant `KCT-only` + blocker `UNSUPPORTED_TAX_DATA` tại canonical boundary; copy lỗi an toàn trên order e-invoice.
+- TH-08 H1: resolve template/SignType bất biến; bỏ fallback `1C26TAA`/`tpl-default`; mapper fail-closed khi thiếu SignType.
+- TH-08 H1: sync capability template fetch cả có mã + không mã; classify MTT/`IsSendSummary` từ `InvSeries`; snapshot JSON additive (không mất legacy).
+- TH-08 Slice 5 closeout: FE `done`, E2E fake/runtime `in_progress` (live DB/MISA/simulator AC còn mở); source guards + focused FE/BE regression pass; harness/traceability cập nhật trung thực.
+- TH-08 Slice 5: fake E2E hai host SG02-R01/R02 + catalog specimens SG-07 (send/resend/history) không gọi backend.
+- TH-08 Slice 5: projection auto-send visibility — poll khi `deliveryPending`/`sending`, dừng với `unknown`/terminal; secondary attention + UNKNOWN unlock trên post-issue/SG-07.
+- TH-08 Slice 5: nối trang lịch sử gửi HĐĐT authoritative (`GetInvoiceDeliveryHistoryQuery`) — newest first, empty/loading/failure + retry; xóa fixture page cũ.
+- TH-08 Slice 5: nối SG-07 Send/Resend app-owned vào `OrderEInvoiceSection` (submit trong sheet, refresh sau `PROCESSING`, secondary attention trên post-issue).
+- TH-08 Slice 5: app-owned SG-07 Send/Resend sheets với loading thật qua `OrderInvoiceDeliveryCubit` (suggestion source, validate email, khóa submit/hủy khi pending).
+- TH-08 Slice 5: tách `OrderInvoiceDeliveryCubit` (load context + submit + idempotency); gỡ send orchestration khỏi `OrderEInvoiceCubit`.
+- TH-08 Slice 5: khóa UI contract SG-07 app-owned (`sg07_mapped_ui_tree` + RED `sg07_app_owned_contract_test`); baseline FE HĐĐT pass.
+- TH-08 Slice 5: `UNKNOWN` availability-first — chỉ `PROCESSING` khóa gửi cạnh tranh; thêm `DeliveryDisplayState.unknown`; manual resend sau UNKNOWN; draft SQL 013/014 cập nhật lock/projection (chưa promote).
+- TH-08 Slice 5: `MeInvoiceClient.sendEmail` chấp nhận envelope Product `success=true, data=""` (acknowledgement) và vẫn tương thích response itemized; capability email chỉ trên host `api.meinvoice.vn`.
+- TH-08 Slice 3 repair: draft `008` GRANT EXECUTE auto-issuance RPCs (`start_auto_issuance`, `list_open_auto_issuance_processes`, `reevaluate_auto_issuance`) cho `authenticated, service_role`.
+- TH-08 S4 closeout harness: FE lane `done`, E2E `in_progress`; traceability `th08_*` ids; focused regression pass (application/infra/worker/ERP).
+- TH-08 S4: runtime E2E hai host Theme 05 (`th08_e2e_e03_u01/u02_sc01_01`); seam optional launcher/exporter trên result; catalog SG-02/SG-06 specimen app-owned.
+- TH-08 S4: SnackBar một surface cho `errorMessage` (official view / document); sheet không tự đóng khi lỗi.
+- TH-08 S4: relocate SG-02/SG-06 post-issued sheets sang app-owned; exporter verify `expectedSha256`; sibling document action disabled khi PDF/XML loading.
+- TH-08 S4: document request fake/command→read split + correlate `operationId`; poll `AVAILABLE` không URL; ẩn literal `FAILED`/`CHECK_REQUIRED`.
+- TH-08 S4: official view correlate `operationId`, poll cả replay `AVAILABLE` không URL, loading qua `isOpeningOfficialView`; launcher chỉ mở HTTP(S).
+- TH-08 S4: tách `isOpeningOfficialView` khỏi `submitting`; gộp mapper lỗi HĐĐT an toàn (`OrderEInvoiceErrorMessage`) — không lộ raw exception.
 - TH-08: gỡ UI Dev Acceptance (task card Dashboard + route `/dev/einvoice-acceptance` + page/widgets/tests); giữ fixture SQL/checklist harness.
 - TH-08: gỡ email mock + nhãn mô phỏng / `is_simulated` trên UI delivery (Option B).
 - TH-08 email mock: hoàn tất contract `is_simulated` (draft 013/014 + load context), mock HTTP sendemail, polling UI nhãn mô phỏng, và worker log an toàn (mode/scenario không email/token).
@@ -66,10 +106,11 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 - SG-05: `SalesPaymentQrCard` nhận `qrImage` (`ImageProvider`) hiển thị ảnh QR vuông, cạnh bằng chiều cao cột thông tin; null → placeholder icon.
 - SG-02: bấm vùng tên/giá trên dòng soạn đơn để chọn lại đơn vị bán (giữ SL; trùng unit thì merge dòng).
-
+- Sales checkout: chụp danh tính hóa đơn người mua (`buyerType` / tên / địa chỉ / email) từ Partner lúc chọn khách và gửi kèm đơn hàng.
 ### Fixed
 
 - Login tenant: dùng `SignInTenantUserCommand` (auth-only) — không gọi `get_session_context` khi multi-tenant; tenant/store qua `TenantContextCubit.bootstrap`.
+- SG-06 example catalog: gỡ preview `showSalesResultEInvoiceSheet` (đã xóa); ghi chú host `OrderEInvoiceSection`.
 - SG-02: unfocus ô tìm SP trong lúc fetch đang treo thì hủy kết quả inflight — không mở menu pick sản phẩm sau khi future hoàn tất.
 - SG-02: chặn bấm nhanh mở trùng sheet chọn đơn vị bán.
 - SG-02: tóm tắt thanh toán — tổng tiền hàng = Σ max(niêm yết, tiền bán); phần giá riêng thấp hơn list vào “Giảm giá”; thành tiền = tổng − giảm.

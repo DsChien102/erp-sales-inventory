@@ -181,6 +181,11 @@ void main() {
         expect(claimReconciliationCaseFn, contains('for update skip locked'));
         expect(claimReconciliationCaseFn, contains('claimed_at = now()'));
         expect(claimReconciliationCaseFn, contains('claim_token'));
+        expect(
+          claimReconciliationCaseFn,
+          contains('invoice_series varchar(100)'),
+        );
+        expect(claimReconciliationCaseFn, contains('v_attempt.invoice_series'));
       });
 
       test(
@@ -223,7 +228,38 @@ void main() {
       expect(getIssuanceAttemptStatusFn, contains('has_electronic_invoice'));
       expect(getIssuanceAttemptStatusFn, contains('has_active_operation'));
       expect(getIssuanceAttemptStatusFn, contains('failure_code'));
+      expect(getIssuanceAttemptStatusFn, contains('null::text'));
+      expect(
+        getIssuanceAttemptStatusFn,
+        isNot(contains('v_attempt.failure_message')),
+      );
     });
+
+    test(
+      'attempt status permits only an authorized actor for an accessible order',
+      () {
+        expect(
+          getIssuanceAttemptStatusFn,
+          contains('auth.uid() <> p_actor_id'),
+        );
+        expect(
+          getIssuanceAttemptStatusFn,
+          contains("iam.has_permission(p_tenant_id, 'einvoice.issue')"),
+        );
+        expect(
+          getIssuanceAttemptStatusFn,
+          contains(
+            'sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id)',
+          ),
+        );
+        expect(
+          sql,
+          contains(
+            'grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to authenticated, service_role;',
+          ),
+        );
+      },
+    );
 
     test(
       'resolve handles SUCCESS, FAILURE, and UNRESOLVED, idempotent on terminal',

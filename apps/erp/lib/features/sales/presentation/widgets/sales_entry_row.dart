@@ -40,7 +40,6 @@ class SalesEntryRow extends StatelessWidget {
         children: [
           VIcon(
             icon: icon,
-            size: 22,
             color: enabled ? colors.textPrimary : colors.textMuted,
           ),
           const VGap(VSpacing.space3, axis: Axis.horizontal),

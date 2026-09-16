@@ -4,15 +4,39 @@ import 'package:test/test.dart';
 
 Directory _repoRoot() {
   var dir = Directory.current;
-  while (!File('${dir.path}/theme8.sql').existsSync()) {
+  while (!File('${dir.path}/pubspec.yaml').existsSync() ||
+      !Directory('${dir.path}/packages/vet45_shared').existsSync() ||
+      !Directory('${dir.path}/supabase/migrations').existsSync()) {
     final parent = dir.parent;
     if (parent.path == dir.path) {
-      break;
+      throw StateError(
+        'Cannot locate repository root (expected pubspec.yaml, packages/vet45_shared, and supabase/migrations)',
+      );
     }
     dir = parent;
   }
   return dir;
 }
+
+const _draftManifest = [
+  '001_einvoice_configuration_schema.sql',
+  '002_einvoice_install_module_messaging.sql',
+  '003_einvoice_provider_connection_rpcs.sql',
+  '004_einvoice_profile_policy_readiness_rpcs.sql',
+  '005_einvoice_buyer_completion_and_preview_schema.sql',
+  '018_sales_einvoice_source_contract.sql',
+  '006_einvoice_buyer_completion_and_preview_rpcs.sql',
+  '007_einvoice_issuance_schema_and_publish_rpcs.sql',
+  '008_einvoice_auto_issuance_and_retry_rpcs.sql',
+  '009_einvoice_issuance_reconciliation_rpcs.sql',
+  '010_einvoice_official_view_rpcs.sql',
+  '011_einvoice_document_operations_rpcs.sql',
+  '012_einvoice_provider_observations_rpcs.sql',
+  '013_einvoice_delivery_schema_and_start_rpcs.sql',
+  '014_einvoice_delivery_results_and_projection_rpcs.sql',
+  '015_einvoice_delivery_reconciliation_rpcs.sql',
+  '016_partner_einvoice_recipient_snapshot.sql',
+];
 
 Iterable<String> _claimFunctionReturnRows(String sql) {
   final pattern = RegExp(
@@ -90,6 +114,7 @@ Set<String> _requiredInsertColumns(String createTableSql) => RegExp(
 ).allMatches(createTableSql).map((match) => match.group(1)!).toSet();
 
 void main() {
+  late Directory tempDir;
   late String installerSql;
   late String bundleSql;
   late String s2bSql;
@@ -101,7 +126,6 @@ void main() {
       '${root.path}/supabase/migrations/_drafts/'
       '002_einvoice_install_module_messaging.sql',
     ).readAsStringSync();
-    bundleSql = File('${root.path}/theme8.sql').readAsStringSync();
     s2bSql = File(
       '${root.path}/supabase/migrations/_drafts/'
       '007_einvoice_issuance_schema_and_publish_rpcs.sql',
@@ -110,6 +134,22 @@ void main() {
       '${root.path}/supabase/migrations/_drafts/'
       '009_einvoice_issuance_reconciliation_rpcs.sql',
     ).readAsStringSync();
+
+    tempDir = Directory.systemTemp.createTempSync('theme8_test_bundle_');
+    final tempBundleFile = File('${tempDir.path}/theme8.sql');
+    final buffer = StringBuffer();
+    for (final draft in _draftManifest) {
+      final file = File('${root.path}/supabase/migrations/_drafts/$draft');
+      buffer.writeln(file.readAsStringSync());
+    }
+    tempBundleFile.writeAsStringSync(buffer.toString());
+    bundleSql = tempBundleFile.readAsStringSync();
+  });
+
+  tearDownAll(() {
+    if (tempDir.existsSync()) {
+      tempDir.deleteSync(recursive: true);
+    }
   });
 
   test(

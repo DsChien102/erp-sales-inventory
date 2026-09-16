@@ -63,13 +63,15 @@ InvoiceDocumentsActionSheet
 ### Operating system owns
 
 ```text
-File exporter
+Native Share Sheet / file exporter
+├── Save to Files and other share destinations
 ├── destination selection
 ├── save/share destination behavior
-└── exporter cancellation
+└── exporter cancellation (dismiss)
 ```
 
 SG-06 does not build a VET45 PDF/XML viewer or file browser.
+SG-06 must not open the signed download URL in a browser (`launchUrl` / in-app browser / Safari) for PDF or XML save actions.
 
 ---
 
@@ -462,10 +464,25 @@ When the requested file is ready and valid:
 
 ```text
 SG06 document operation
-→ OS file exporter
+→ OS native Share Sheet (Save to Files / other destinations)
 ```
 
 SG-06 does not own the exporter destination UI.
+
+### Mobile document success
+
+```text
+Mobile document success
+→ tải bytes từ signed URL
+→ kiểm SHA-256
+→ native Share Sheet
+→ người dùng chọn Save to Files hoặc destination khác
+→ không mở signed URL bằng browser
+```
+
+Signed URL is used only as an internal fetch source. It must never be launched or shared as a URL.
+
+Native Share Sheet is opened only after command/query completes, bytes are fully loaded, non-empty, and checksum matches. Loading/locking on SG-06 spans the entire command → poll → HTTP GET → checksum path.
 
 ### Return contract
 
@@ -473,8 +490,9 @@ SG-06 does not own the exporter destination UI.
 source screen
 → SG02 post-issued sheet
 → SG06
-→ file exporter
-→ close/cancel exporter
+→ native Share Sheet
+→ success or dismiss Share Sheet
+→ close SG-06
 → exact Theme 05 source context
 ```
 
@@ -488,15 +506,18 @@ SalesResult
 
 ### Exporter cancellation
 
-User cancellation of the OS file exporter:
+User cancellation / dismiss of the OS Share Sheet:
 
 ```text
-cancel exporter
+cancel / dismiss exporter
 → not a document-operation failure
+→ no SnackBar lỗi retrieval
+→ close SG-06
 → no issuance-state change
 → return safely to source context
 ```
 
+`ShareResultStatus.success` and `ShareResultStatus.dismissed` are both valid handoffs.
 ---
 
 ## 10. Error Contract
@@ -504,10 +525,19 @@ cancel exporter
 The SRS requires document errors to be reflected on the correct source owner.
 
 ```text
+Document export failure
+→ không mở browser fallback
+→ SG-06 giữ mở
+→ một safe error surface
+→ projection vẫn issued
+```
+
+```text
 document retrieval/validation failure
 → leave/close document operation surface as appropriate
+→ for export/native-share failure: keep SG-06 open so the user can retry
 → return/remain on exact Theme 05 source owner
-→ show error feedback there
+→ show exactly one safe error feedback (SnackBar) there
 → keep ElectronicInvoice issuance state = "Đã phát hành"
 ```
 
@@ -531,10 +561,15 @@ Therefore this contract does not invent:
 
 - a new full-screen error;
 - a new SG06-Txx specimen;
-- an exact error toast copy not present in the approved sources.
+- browser fallback as a substitute for native save failure.
 
-See `GAP-01`.
+Approved safe exporter failure copy (app-owned):
 
+```text
+Không thể lưu tài liệu hóa đơn trên thiết bị. Vui lòng thử lại.
+```
+
+See `GAP-01` for any remaining approved-design gaps beyond this copy.
 ---
 
 ## 11. Permission / Capability Presentation Contract
@@ -586,12 +621,12 @@ There is no SG-05 dependency in this flow.
 | SG-06 state | PDF action | XML action | PDF trailing | XML trailing |
 |---|---|---|---|---|
 | `O01 idle` | Enabled if permitted/capable | Enabled if permitted/capable | Chevron | Chevron |
-| `O02 loadingPdf` | Loading / repeated tap blocked | Normal presentation | Spinner | Chevron |
-| `O03 loadingXml` | Normal presentation | Loading / repeated tap blocked | Chevron | Spinner |
+| `O02 loadingPdf` | Loading / repeated tap blocked | Disabled (same title/helper) | Spinner | Chevron |
+| `O03 loadingXml` | Disabled (same title/helper) | Loading / repeated tap blocked | Chevron | Spinner |
 
 Title/helper copy remains stable in every variant.
 
-The approved contract does not define a global sheet lock while one document type is loading.
+Product decision (confirmed): only one foreground document export at a time in ERP. While PDF or XML is loading, the sibling action is disabled (`enabled: false`, `onTap: null`) but keeps stable copy. There is no concurrent PDF+XML loading state.
 
 ---
 
@@ -616,7 +651,7 @@ Exact repository APIs take precedence over descriptive names here.
 
 The selected loading action is visually subdued while retaining title/helper copy and shows a spinner at trailing.
 
-The non-selected action remains in its normal visual treatment.
+The non-selected sibling keeps the same title/helper and chevron but is disabled until the foreground export finishes.
 
 Do not hardcode PDF/XML-specific colors or loading chrome outside the established Design System / shared E-Invoice action-item contract.
 
@@ -642,10 +677,10 @@ O01
 
 O02
 ├── PDF loading + spinner + no repeated PDF tap
-└── XML normal
+└── XML disabled + same title/helper + chevron
 
 O03
-├── PDF normal
+├── PDF disabled + same title/helper + chevron
 └── XML loading + spinner + no repeated XML tap
 ```
 
@@ -659,15 +694,15 @@ Current Audit Manifest mapping:
 
 ```text
 SG06-O01
-↔ modules/einvoice/presentation/lib/src/widgets/
+↔ apps/erp/lib/features/sales/presentation/widgets/einvoice/
   invoice_documents_action_sheet.dart
 
 SG06-O02
-↔ modules/einvoice/presentation/lib/src/widgets/
+↔ apps/erp/lib/features/sales/presentation/widgets/einvoice/
   invoice_documents_action_sheet.dart
 
 SG06-O03
-↔ modules/einvoice/presentation/lib/src/widgets/
+↔ apps/erp/lib/features/sales/presentation/widgets/einvoice/
   invoice_documents_action_sheet.dart
 ```
 
@@ -706,13 +741,9 @@ Do not invent a new SG06-Txx specimen solely to fill this gap.
 
 ### GAP-02 — Simultaneous PDF + XML loading presentation
 
-The SRS states:
+Product decision (confirmed for ERP S4): only one foreground document export at a time. Sibling is disabled while the selected type loads. There is no concurrent PDF+XML loading UI.
 
-- PDF and XML are independent operations.
-- Only the selected loading action is locked.
-- The other action keeps normal copy/presentation.
-
-The canonical visual set only contains:
+The canonical visual set remains:
 
 ```text
 idle
@@ -720,9 +751,7 @@ loadingPdf
 loadingXml
 ```
 
-There is no approved `loadingPdfAndXml` specimen.
-
-If the application layer allows both operations to be active concurrently, the exact combined visual state requires confirmation rather than inventing a fourth specimen.
+There is no approved `loadingPdfAndXml` specimen, and the application must not invent one.
 
 ---
 
@@ -760,16 +789,17 @@ SG-06 is correctly mapped when:
 3. O01 contains exactly `Lưu bản PDF` and `Lưu tệp XML`.
 4. O01/O02/O03 use one `InvoiceDocumentsActionSheet`.
 5. PDF and XML title/helper copy remain stable across loading variants.
-6. O02 locks only the PDF action and replaces its chevron with a spinner.
-7. O03 locks only the XML action and replaces its chevron with a spinner.
-8. The non-selected action remains visually normal.
+6. O02 locks the PDF action (spinner) and disables XML while keeping XML title/helper.
+7. O03 locks the XML action (spinner) and disables PDF while keeping PDF title/helper.
+8. The non-selected action remains disabled (not tappable) until the foreground export finishes.
 9. Repeated interaction on the currently loading document action is blocked.
 10. PDF/XML are obtained from MISA meInvoice rather than generated by VET45.
-11. A valid ready file is handed to the operating-system file exporter.
-12. Closing/cancelling exporter safely returns to the exact Theme 05 source context.
-13. Exporter cancellation is not treated as document failure.
-14. Document retrieval/validation failure does not change `Đã phát hành`.
-15. No full-screen SG-06 document-error surface is introduced.
-16. No SG-05 UI dependency is introduced.
-17. Exact error-feedback UI/copy remains explicit as a gap until approved.
-18. A simultaneous PDF+XML loading visual is not invented without an approved contract.
+11. A valid ready file is handed to the operating-system native Share Sheet (Save to Files), never opened via browser/`launchUrl`.
+12. Bytes are fetched from the signed URL, SHA-256 verified, then shared as `XFile` with correct MIME/filename; Share Sheet appears only after verification.
+13. Closing/cancelling (dismiss) Share Sheet safely returns to the exact Theme 05 source context and closes SG-06 without an error SnackBar.
+14. Exporter cancellation is not treated as document failure.
+15. Document retrieval/validation/export failure does not change `Đã phát hành`; keeps SG-06 open with one safe error surface and re-enables PDF/XML.
+16. No full-screen SG-06 document-error surface is introduced.
+17. No SG-05 UI dependency is introduced.
+18. Exact error-feedback UI beyond the approved save-to-device copy remains explicit as a gap until further design approval.
+19. A simultaneous PDF+XML loading visual is not invented without an approved contract.

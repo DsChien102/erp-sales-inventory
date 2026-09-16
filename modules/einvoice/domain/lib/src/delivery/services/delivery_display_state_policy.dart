@@ -37,9 +37,16 @@ abstract final class DeliveryDisplayStatePolicy {
       );
     }
 
-    if (statuses.contains(DeliveryStatus.processing) || statuses.contains(DeliveryStatus.unknown)) {
+    if (statuses.contains(DeliveryStatus.processing)) {
       return const DeliveryDisplayProjection(
         displayState: DeliveryDisplayState.sending,
+        hasSecondaryAttention: false,
+      );
+    }
+
+    if (statuses.contains(DeliveryStatus.unknown)) {
+      return const DeliveryDisplayProjection(
+        displayState: DeliveryDisplayState.unknown,
         hasSecondaryAttention: false,
       );
     }

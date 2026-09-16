@@ -1,19 +1,21 @@
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_sales_integration_events/integration_events.dart';
 
 void main() {
   group('AutoIssuanceIdempotencyKey', () {
-    test('generates canonical trigger key from event, order, and version', () {
+    test('generates canonical trigger key from event type, order, and version', () {
       final key = AutoIssuanceIdempotencyKey.triggerKey(
+        eventType: SalesOrderFinalizedIntegrationEvent.type,
         eventId: 'evt-123',
         salesOrderId: 'order-456',
-        sourceVersion: 'sales-v17',
+        sourceVersion: '1',
       );
 
       expect(
         key,
-        'sales.order.completed:evt-123:order-456:sales-v17',
+        'sales_order_finalized.v1:evt-123:order-456:1',
       );
     });
 

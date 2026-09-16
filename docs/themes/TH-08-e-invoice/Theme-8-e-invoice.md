@@ -2407,7 +2407,7 @@ InvoiceDelivery
 
 - Email nhập khi gửi không cập nhật dữ liệu nguồn\.
 
-- Delivery `PROCESSING` hoặc `UNKNOWN` khóa business delivery cạnh tranh; `UNKNOWN` không phải retryable failure\.
+- Delivery `PROCESSING` khóa business delivery cạnh tranh; `UNKNOWN` không khóa manual resend và không phải retryable failure\.
 
 - Delivery lỗi không thay đổi issuance result\.
 
@@ -3138,7 +3138,7 @@ Constraints:
 
 - Không tạo delivery khi auto\-send thiếu email hợp lệ\.
 
-- Không có nhiều delivery cạnh tranh khi delivery hiện tại `PROCESSING` hoặc `UNKNOWN`\.
+- Không có nhiều delivery cạnh tranh khi delivery hiện tại `PROCESSING`\.
 
 #### `delivery_attempts`
 
@@ -3438,11 +3438,12 @@ Hình thức ký trong domain không được đồng nhất trực tiếp với
 
 |Hình thức nghiệp vụ|Mapping MISA|Hỗ trợ Phase 1|Contract|
 |---|---|---|---|
-|Ký qua HSM|`SignType=2` hoặc `SignType=3`|Có|Người dùng chọn Ký qua HSM; adapter xác định đồng bộ hoặc bất đồng bộ theo capability đã cấu hình; không bắt người dùng chọn thuật ngữ kỹ thuật này|
+|Ký qua HSM|`SignType=2`|Có|Người dùng chọn Ký qua HSM; adapter resolve wire `SignType=2` từ SigningConfiguration đã đóng băng trước dispatch; không fallback và không mở `SignType=3` (V2 gạch bỏ)|
 |Ký qua USB hoặc tệp chứng thư|`SignType=1`|Không hỗ trợ trên mobile MVP|Yêu cầu công cụ ký local và bước ký ngoài backend; không được dùng để kết luận tenant sẵn sàng phát hành từ ứng dụng mobile|
 |Ký từ xa MISA eSign|Chưa có mapping riêng được xác minh trong tài liệu integration công khai|Chờ xác minh|Không hiển thị thành lựa chọn khả dụng cho đến khi adapter có contract xác thực, ký và xử lý xác nhận rõ ràng|
 |Không ký số — Hóa đơn từ máy tính tiền|`SignType=5`|Có điều kiện|Chỉ khả dụng khi ProviderTemplate được provider xác nhận là hóa đơn từ máy tính tiền; đây là chế độ phát hành không ký, không phải một chứng thư ký số|
 |Không ký số — Vé điện tử không mã|`SignType=4`|Ngoài phạm vi|Không áp dụng cho phạm vi hóa đơn điện tử của Theme 08|
+|HSM bất đồng bộ / MTT async|`SignType=3` / `SignType=6`|Không hỗ trợ|Tài liệu MISA AIO V2 (16/09/2026) gạch bỏ; không tự mở lại khi chưa có xác nhận văn bản mới từ MISA|
 
 
 
@@ -3807,7 +3808,7 @@ Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ kh
 
 - BR\-05\. Trong mobile MVP, Ký qua HSM là hình thức ký số được hỗ trợ cho hóa đơn thông thường\.
 
-- BR\-06\. Adapter có thể ánh xạ Ký qua HSM thành `SignType=2` hoặc `SignType=3`; lựa chọn đồng bộ hoặc bất đồng bộ không phải field người dùng\.
+- BR\-06\. Adapter ánh xạ Ký qua HSM thành `SignType=2` duy nhất trong scope hiện tại; không dùng `SignType=3`\. MTT bắt buộc `SignType=5`\.
 
 - BR\-07\. Ký qua USB hoặc tệp chứng thư không được coi là khả dụng trong mobile MVP\.
 
@@ -3881,7 +3882,7 @@ Tôi muốn chọn mẫu hóa đơn cùng hình thức ký hoặc chế độ kh
 
 - AC\-02\. Người dùng chỉ lựa chọn được SigningConfiguration thuộc phạm vi VET45 hỗ trợ\.
 
-- AC\-03\. HSM được trình bày thành một lựa chọn nghiệp vụ; adapter chịu trách nhiệm ánh xạ `SignType=2` hoặc `SignType=3`\.
+- AC\-03\. HSM được trình bày thành một lựa chọn nghiệp vụ; adapter chịu trách nhiệm resolve `SignType=2` bất biến trước dispatch \(không fallback, không `SignType=3`\)\.
 
 - AC\-04\. USB hoặc tệp chứng thư không làm tenant mobile được đánh giá Sẵn sàng\.
 
@@ -4392,6 +4393,8 @@ Khi buyer data lần đầu đủ điều kiện, completion được khóa\. Sa
 Đối với Khách tổ chức, mã số thuế là thông tin bắt buộc để phát hành\. Thiếu mã số thuế sau completion là issuance blocker\. Preview có thể vẫn được yêu cầu nếu preview capability cho phép\.
 
 Dòng hàng, số lượng, đơn giá, chiết khấu, thuế, làm tròn và tổng tiền phải giữ nguyên ý nghĩa do Theme 05 xác lập\. Provider Adapter chỉ chuyển CanonicalInvoiceModel sang schema của MISA meInvoice, không được tự tính lại hoặc thay đổi giá trị thương mại\.
+
+Theo quyết định BA ngày 16/09/2026, phạm vi sản phẩm hiện tại áp dụng chính sách **`KCT-only`**: Product, Catalog, Sales và UI không có luồng cấu hình thuế\. Theme 08 là boundary duy nhất gán `VATRateName=KCT` và tiền thuế 0 trên canonical khi nguồn Sales tuân thủ invariant \(mọi `taxAmountMinor=0`, `totals.taxMinor=0`, tax snapshot null hoặc rỗng\)\. Dữ liệu thuế ngoài contract bị chặn bằng `UNSUPPORTED_TAX_DATA` trước preview/publish\. Thay đổi chính sách chỉ sau quyết định sản phẩm/BA mới và plan riêng — không có trigger tự gỡ hard-code\.
 
 Bản xem trước phải do MISA meInvoice hoặc capability chính thức của provider tạo từ dữ liệu dự kiến\. VET45 không dựng một bản hóa đơn preview thay thế bằng UI riêng\.
 
@@ -7010,7 +7013,7 @@ Tôi muốn xem và xác lập kết quả của từng lần gửi,
 
 - BR\-05\. Timeout, mất callback hoặc phản hồi không đầy đủ được ghi nhận là chưa xác định (`UNKNOWN`) và atomically mở/reuse case `PENDING` `VERIFY_DELIVERY`\.
 
-- BR\-06\. Delivery `PROCESSING` hoặc `UNKNOWN` khóa operation gửi cạnh tranh; sau `UNKNOWN` không enqueue thêm lần gửi email\.
+- BR\-06\. Delivery `PROCESSING` khóa operation gửi cạnh tranh\. `UNKNOWN` không auto\-retry; người dùng có quyền gửi có thể tạo resend thủ công\. Delivery `UNKNOWN` cũ giữ nguyên trong history\.
 
 - BR\-07\. Retry kỹ thuật tiếp tục trong cùng InvoiceDelivery, dùng DeliveryRecipientSnapshot đã lưu, tối đa ba technical attempt\.
 

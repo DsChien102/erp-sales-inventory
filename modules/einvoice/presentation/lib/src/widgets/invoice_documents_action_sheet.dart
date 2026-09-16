@@ -17,21 +17,33 @@ enum InvoiceDocumentsSheetState {
 /// Shows the SG-06 invoice documents action sheet.
 ///
 /// Opening the sheet alone does not start a document request.
+/// [onSelectPdf] / [onSelectXml] keep this sheet open and start download.
 Future<InvoiceDocumentsAction?> showInvoiceDocumentsActionSheet(
   BuildContext context, {
   InvoiceDocumentsSheetState state = InvoiceDocumentsSheetState.idle,
+  Stream<InvoiceDocumentsSheetState>? states,
+  VoidCallback? onSelectPdf,
+  VoidCallback? onSelectXml,
 }) {
   return showVBottomSheet<InvoiceDocumentsAction>(
     context: context,
-    child: InvoiceDocumentsActionSheet(state: state),
+    child: StreamBuilder<InvoiceDocumentsSheetState>(
+      initialData: state,
+      stream: states,
+      builder: (context, snapshot) => InvoiceDocumentsActionSheet(
+        state: snapshot.data ?? state,
+        onSelectPdf: onSelectPdf,
+        onSelectXml: onSelectXml,
+      ),
+    ),
   );
 }
 
 /// Action sheet to choose PDF or XML document retrieval.
 ///
 /// Implements SG06-O01 (idle), SG06-O02 (loading PDF), SG06-O03 (loading XML).
-/// Loading is action-specific: only the selected row is non-interactive and
-/// shows a spinner; the sibling keeps normal presentation.
+/// Loading is action-specific: the selected row shows a spinner; the sibling
+/// is disabled until the request finishes.
 class InvoiceDocumentsActionSheet extends StatelessWidget {
   const InvoiceDocumentsActionSheet({
     super.key,
@@ -54,6 +66,7 @@ class InvoiceDocumentsActionSheet extends StatelessWidget {
 
     final isPdfLoading = state == InvoiceDocumentsSheetState.loadingPdf;
     final isXmlLoading = state == InvoiceDocumentsSheetState.loadingXml;
+    final isBusy = isPdfLoading || isXmlLoading;
 
     void selectPdf() {
       if (onSelectPdf != null) {
@@ -100,8 +113,8 @@ class InvoiceDocumentsActionSheet extends StatelessWidget {
                 title: InvoiceDocumentsCopy.savePdfTitle,
                 supportingText: InvoiceDocumentsCopy.savePdfSupporting,
                 loading: isPdfLoading,
-                enabled: !isPdfLoading,
-                onTap: isPdfLoading ? null : selectPdf,
+                enabled: !isXmlLoading,
+                onTap: isBusy ? null : selectPdf,
               ),
               EInvoiceActionItem(
                 key: const Key('action_save_xml'),
@@ -109,8 +122,8 @@ class InvoiceDocumentsActionSheet extends StatelessWidget {
                 title: InvoiceDocumentsCopy.saveXmlTitle,
                 supportingText: InvoiceDocumentsCopy.saveXmlSupporting,
                 loading: isXmlLoading,
-                enabled: !isXmlLoading,
-                onTap: isXmlLoading ? null : selectXml,
+                enabled: !isPdfLoading,
+                onTap: isBusy ? null : selectXml,
               ),
               const VGap.lg(),
             ],

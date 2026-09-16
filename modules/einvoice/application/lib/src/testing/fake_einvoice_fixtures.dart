@@ -66,6 +66,16 @@ abstract final class FakeEInvoiceFixtures {
       serial: '1/002',
       symbol: 'C26TAA',
     ),
+    ProviderTemplateDto(
+      templateId: 'tpl-mtt',
+      name: 'Hóa đơn máy tính tiền',
+      serial: '1/003',
+      symbol: '2C25MYY',
+      invoiceSeries: '2C25MYY',
+      invoiceWithCode: true,
+      isMtt: true,
+      isSendSummary: false,
+    ),
   ];
 
   static IssuanceProfileDto get issuanceProfile => const IssuanceProfileDto(

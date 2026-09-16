@@ -29,7 +29,26 @@ abstract final class MeInvoicePublishClassifier {
 
     if (MeInvoicePublishErrorCodes.isDuplicateRefId(item.errorCode)) {
       return MeInvoicePublishUndetermined(
-        reasonCode: 'DUPLICATE_INVOICE_REF_ID',
+        reasonCode: PublishUndeterminedReasonCodes.duplicateInvoiceRefId,
+        safeProviderEvidence: _safeEvidence(item),
+      );
+    }
+
+    if (MeInvoicePublishErrorCodes.isRetryableProviderRejection(
+      item.errorCode,
+    )) {
+      return MeInvoicePublishRetryableRejection(
+        providerCode: item.errorCode!,
+        providerMessage: _safeMessage(item),
+        retryAfter: const Duration(seconds: 5),
+        safeProviderEvidence: _safeEvidence(item),
+      );
+    }
+
+    if (MeInvoicePublishErrorCodes.isReconcileFirstDuplicate(item.errorCode)) {
+      return MeInvoicePublishUndetermined(
+        reasonCode:
+            PublishUndeterminedReasonCodes.invoiceDuplicatedReconcileFirst,
         safeProviderEvidence: _safeEvidence(item),
       );
     }

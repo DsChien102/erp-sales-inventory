@@ -34,14 +34,32 @@ final class MeInvoiceInvoiceQuery {
   /// Derives query flags from [invSeries] per MISA §1.6.
   ///
   /// - Index 1 (2nd char): `C` = có mã, `K` = không mã
-  /// - Index 4 (5th char): `M` = máy tính tiền (MTT), else thường
+  /// - Index 4 (5th char): `M` = máy tính tiền (MTT), `T` = thường
   factory MeInvoiceInvoiceQuery.fromInvSeries(String invSeries) {
-    final normalized = invSeries.trim();
-    final withCode = normalized.length < 2 ? true : normalized[1].toUpperCase() == 'C';
-    final calcu = normalized.length >= 5 && normalized[4].toUpperCase() == 'M';
+    final parsed = tryFromInvSeries(invSeries);
+    if (parsed == null) {
+      throw FormatException('Malformed MISA InvSeries', invSeries);
+    }
+    return parsed;
+  }
+
+  /// Returns null rather than inferring provider flags from malformed input.
+  static MeInvoiceInvoiceQuery? tryFromInvSeries(String invSeries) {
+    final normalized = invSeries.trim().toUpperCase();
+    if (normalized.length < 5) {
+      return null;
+    }
+    final typeChar = normalized[0];
+    final codeChar = normalized[1];
+    final usageChar = normalized[4];
+    if (!const {'1', '2', '5', '6'}.contains(typeChar) ||
+        !const {'C', 'K'}.contains(codeChar) ||
+        !const {'T', 'M'}.contains(usageChar)) {
+      return null;
+    }
     return MeInvoiceInvoiceQuery(
-      invoiceWithCode: withCode,
-      invoiceCalcu: calcu,
+      invoiceWithCode: codeChar == 'C',
+      invoiceCalcu: usageChar == 'M',
     );
   }
 

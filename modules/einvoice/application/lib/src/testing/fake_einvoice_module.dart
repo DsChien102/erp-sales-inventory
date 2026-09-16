@@ -42,6 +42,7 @@ import '../electronic_invoice/commands/request_official_invoice_view/request_off
 import '../electronic_invoice/queries/get_electronic_invoice_detail/electronic_invoice_detail_dto.dart';
 import '../electronic_invoice/queries/get_electronic_invoice_detail/get_electronic_invoice_detail_query.dart';
 import '../electronic_invoice/queries/get_invoice_documents/get_invoice_documents_query.dart';
+import '../electronic_invoice/queries/get_invoice_documents/invoice_document_item_dto.dart';
 import '../electronic_invoice/queries/get_invoice_documents/invoice_documents_dto.dart';
 import '../electronic_invoice/queries/get_latest_provider_observation/get_latest_provider_observation_query.dart';
 import '../electronic_invoice/shared/provider_observation_dto.dart';
@@ -517,7 +518,22 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
         return Future.value(
           FakeEInvoiceFixtures.projection(
                 issuance: IssuanceDisplayState.issued,
-                delivery: DeliveryDisplayState.sending,
+                delivery: DeliveryDisplayState.unknown,
+              )
+              as TResult,
+        );
+      case FakeEInvoiceScenario.officialViewOk:
+      case FakeEInvoiceScenario.downloadPdfOk:
+      case FakeEInvoiceScenario.downloadXmlOk:
+      case FakeEInvoiceScenario.downloadUnavailable:
+        return Future.value(
+          FakeEInvoiceFixtures.projection(
+                issuance: IssuanceDisplayState.issued,
+                actions: const [
+                  OrderInvoiceAction.view,
+                  OrderInvoiceAction.downloadPdf,
+                  OrderInvoiceAction.downloadXml,
+                ],
               )
               as TResult,
         );
@@ -697,11 +713,28 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
         );
       case FakeEInvoiceScenario.downloadPermissionDenied:
         throw const EInvoiceBlockedException(EInvoiceBlockedCodes.noPermission);
+      case FakeEInvoiceScenario.downloadPdfOk:
+        return Future.value(
+          InvoiceDocumentRetrievalDto(
+                operationId: 'op-doc-pdf-1',
+                status: InvoiceDocumentStatus.pending,
+              )
+              as TResult,
+        );
+      case FakeEInvoiceScenario.downloadXmlOk:
+        return Future.value(
+          InvoiceDocumentRetrievalDto(
+                operationId: 'op-doc-xml-1',
+                status: InvoiceDocumentStatus.pending,
+              )
+              as TResult,
+        );
       default:
         return Future.value(
           InvoiceDocumentRetrievalDto(
                 downloadUrl: 'https://download.fake/${c.documentType.name}',
                 checksum: 'abc123',
+                status: InvoiceDocumentStatus.available,
               )
               as TResult,
         );
@@ -710,12 +743,59 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
 
   Future<TResult> _documentsQuery<TResult>() {
     switch (scenario) {
+      case FakeEInvoiceScenario.downloadPdfOk:
+        return Future.value(
+          const InvoiceDocumentsDto(
+                pdfAvailable: true,
+                xmlAvailable: false,
+                retrievalStatus: InvoiceDocumentStatus.available,
+                pdf: InvoiceDocumentItemDto(
+                  documentType: InvoiceDocumentType.pdf,
+                  status: InvoiceDocumentStatus.available,
+                  operationId: 'op-doc-pdf-1',
+                  downloadUrl: 'https://download.fake/signed/pdf',
+                  fileRef: 'einvoice-documents/fake/invoice.pdf',
+                  checksum: 'pdf-checksum-1',
+                ),
+              )
+              as TResult,
+        );
+      case FakeEInvoiceScenario.downloadXmlOk:
+        return Future.value(
+          const InvoiceDocumentsDto(
+                pdfAvailable: false,
+                xmlAvailable: true,
+                retrievalStatus: InvoiceDocumentStatus.available,
+                xml: InvoiceDocumentItemDto(
+                  documentType: InvoiceDocumentType.xml,
+                  status: InvoiceDocumentStatus.available,
+                  operationId: 'op-doc-xml-1',
+                  downloadUrl: 'https://download.fake/signed/xml',
+                  fileRef: 'einvoice-documents/fake/invoice.xml',
+                  checksum: 'xml-checksum-1',
+                ),
+              )
+              as TResult,
+        );
       case FakeEInvoiceScenario.documentsListPartial:
         return Future.value(
           const InvoiceDocumentsDto(
                 pdfAvailable: true,
                 xmlAvailable: false,
                 retrievalStatus: InvoiceDocumentStatus.pending,
+                pdf: InvoiceDocumentItemDto(
+                  documentType: InvoiceDocumentType.pdf,
+                  status: InvoiceDocumentStatus.available,
+                  operationId: 'op-doc-pdf-partial',
+                  downloadUrl: 'https://download.fake/signed/partial-pdf',
+                  fileRef: 'einvoice-documents/fake/partial.pdf',
+                  checksum: 'partial-pdf-checksum',
+                ),
+                xml: InvoiceDocumentItemDto(
+                  documentType: InvoiceDocumentType.xml,
+                  status: InvoiceDocumentStatus.pending,
+                  operationId: 'op-doc-xml-partial',
+                ),
               )
               as TResult,
         );
@@ -806,6 +886,24 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
                 history: [_fakeDelivery(no: 1, kind: DeliveryKind.initial)],
                 operationLocked: false,
                 displayState: DeliveryDisplayState.sent,
+              )
+              as TResult,
+        );
+      case FakeEInvoiceScenario.sendSheetUnknown:
+        return Future.value(
+          SendInvoiceSheetContextDto(
+                mode: SendInvoiceSheetMode.resend,
+                suggestedEmail: 'buyer@fake.test',
+                suggestedEmailSource: DeliveryRecipientSource.lastInvoiceDelivery,
+                history: [
+                  _fakeDelivery(
+                    no: 1,
+                    kind: DeliveryKind.initial,
+                    status: DeliveryStatus.unknown,
+                  ),
+                ],
+                operationLocked: false,
+                displayState: DeliveryDisplayState.unknown,
               )
               as TResult,
         );
@@ -913,8 +1011,8 @@ final class FakeEInvoiceModule implements IEInvoiceModule {
         return Future.value(
           const RecordDeliveryResultDto(
                 deliveryStatus: DeliveryStatus.unknown,
-                displayState: DeliveryDisplayState.sending,
-                hasSecondaryAttention: true,
+                displayState: DeliveryDisplayState.unknown,
+                hasSecondaryAttention: false,
               )
               as TResult,
         );

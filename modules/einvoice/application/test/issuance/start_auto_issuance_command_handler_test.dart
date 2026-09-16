@@ -69,7 +69,7 @@ void main() {
       final command = StartAutoIssuanceCommand(
         tenantId: 'tenant-1',
         salesOrderId: 'order-1',
-        triggerKey: 'sales.order.completed:event-1:order-1:sales-v17',
+        triggerKey: 'sales_order_finalized.v1:event-1:order-1:sales-v17',
         idempotencyKey: validKey,
       );
 
@@ -80,7 +80,7 @@ void main() {
       final command = StartAutoIssuanceCommand(
         tenantId: '   ',
         salesOrderId: 'order-1',
-        triggerKey: 'sales.order.completed:event-1:order-1:sales-v17',
+        triggerKey: 'sales_order_finalized.v1:event-1:order-1:sales-v17',
         idempotencyKey: validKey,
       );
 
@@ -100,7 +100,7 @@ void main() {
       final command = StartAutoIssuanceCommand(
         tenantId: 'tenant-1',
         salesOrderId: '',
-        triggerKey: 'sales.order.completed:event-1:order-1:sales-v17',
+        triggerKey: 'sales_order_finalized.v1:event-1:order-1:sales-v17',
         idempotencyKey: validKey,
       );
 
@@ -140,7 +140,7 @@ void main() {
       final command = StartAutoIssuanceCommand(
         tenantId: 'tenant-1',
         salesOrderId: 'order-1',
-        triggerKey: 'sales.order.completed:event-1:order-1:sales-v17',
+        triggerKey: 'sales_order_finalized.v1:event-1:order-1:sales-v17',
         idempotencyKey: 'not-a-uuid',
       );
 
@@ -162,7 +162,7 @@ void main() {
     final validCommand = StartAutoIssuanceCommand(
       tenantId: 'tenant-1',
       salesOrderId: 'order-1',
-      triggerKey: 'sales.order.completed:event-1:order-1:sales-v17',
+      triggerKey: 'sales_order_finalized.v1:event-1:order-1:sales-v17',
       idempotencyKey: validKey,
     );
 
@@ -179,7 +179,7 @@ void main() {
       expect(gateway.lastStartRequest!.salesOrderId, 'order-1');
       expect(
         gateway.lastStartRequest!.triggerKey,
-        'sales.order.completed:event-1:order-1:sales-v17',
+        'sales_order_finalized.v1:event-1:order-1:sales-v17',
       );
       expect(gateway.lastStartRequest!.idempotencyKey, validKey);
     });

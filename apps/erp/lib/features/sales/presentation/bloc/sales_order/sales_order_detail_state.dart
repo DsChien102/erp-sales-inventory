@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:vet45_einvoice_application/application.dart';
 import '../../models/sales_order/sales_order_actions_vm.dart';
 import '../../models/sales_order_cancellation/sales_order_cancellation_vm.dart';
 import '../../models/sales_order/sales_order_detail_vm.dart';
@@ -49,6 +50,7 @@ class SalesOrderDetailState extends Equatable {
     this.cancellationErrorMessage,
     this.precheckBlockerMessages = const [],
     this.postSaleFeedbackMessage,
+    this.eInvoiceProjection,
   });
 
   final SalesOrderDetailVm? core;
@@ -73,6 +75,7 @@ class SalesOrderDetailState extends Equatable {
   final String? cancellationErrorMessage;
   final List<String> precheckBlockerMessages;
   final String? postSaleFeedbackMessage;
+  final OrderInvoiceProjectionDto? eInvoiceProjection;
 
   SalesOrderDetailVm? get vm => core;
 
@@ -114,6 +117,8 @@ class SalesOrderDetailState extends Equatable {
     bool clearPrecheckBlockerMessages = false,
     String? postSaleFeedbackMessage,
     bool clearPostSaleFeedbackMessage = false,
+    OrderInvoiceProjectionDto? eInvoiceProjection,
+    bool clearEInvoiceProjection = false,
   }) {
     return SalesOrderDetailState(
       core: clearCore ? null : (core ?? this.core),
@@ -150,6 +155,9 @@ class SalesOrderDetailState extends Equatable {
       postSaleFeedbackMessage: clearPostSaleFeedbackMessage
           ? null
           : (postSaleFeedbackMessage ?? this.postSaleFeedbackMessage),
+      eInvoiceProjection: clearEInvoiceProjection
+          ? null
+          : (eInvoiceProjection ?? this.eInvoiceProjection),
     );
   }
 
@@ -177,5 +185,6 @@ class SalesOrderDetailState extends Equatable {
     cancellationErrorMessage,
     precheckBlockerMessages,
     postSaleFeedbackMessage,
+    eInvoiceProjection,
   ];
 }

@@ -7,5 +7,6 @@ abstract interface class IInvoiceDocumentExporter {
     required InvoiceDocumentType type,
     String? url,
     List<int>? bytes,
+    String? expectedSha256,
   });
 }

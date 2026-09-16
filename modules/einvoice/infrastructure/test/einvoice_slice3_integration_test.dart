@@ -21,6 +21,8 @@ import 'package:vet45_sales_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import 'support/in_memory_publish_series_lease_gateway.dart';
+
 // =============================================================================
 // Fake in-memory Provider Port
 // =============================================================================
@@ -88,9 +90,12 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) async {
     getStatusCount++;
     if (nextStatusOutcome != null) {
@@ -100,9 +105,9 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
       IssuanceResultEvidenceDto.success(
             idempotencyKey: idempotencyKey,
             payloadHash: payloadHash,
-            providerReference: providerReference ?? 'tx-$idempotencyKey',
+            providerReference: statusLookupKey,
             invoiceNumber: '0000001',
-            invoiceSeries: '1C26TYY',
+            invoiceSeries: invoiceSeries,
             issuedAt: DateTime.utc(2026, 8, 29, 12, 0, 0),
           )
           as IssuanceSuccessEvidenceDto,
@@ -294,6 +299,23 @@ final class _TestInternalCommandClient
     command.claimToken = null;
   }
 
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    final command = _findClaimed(
+      tenantId: tenantId,
+      commandId: commandId,
+      claimToken: claimToken,
+    );
+    if (command == null) return;
+    store.callLog.add('reschedule:$commandId');
+    command.claimToken = null;
+  }
+
   _StoredCommand? _findClaimed({
     required String tenantId,
     required String commandId,
@@ -423,6 +445,7 @@ final class _InMemoryAttempt {
   final String idempotencyKey;
   final String payloadHash;
   final String completionId;
+  final String invoiceSeries = '1C25TYY';
   IssuanceAttemptStatus status;
   IssuanceResultEvidenceDto? evidence;
   String? providerReference;
@@ -434,6 +457,7 @@ final class _TestState {
   final List<_InMemoryAttempt> attempts = [];
   final List<ReconciliationCaseDto> reconciliationCases = [];
   final Map<String, int> caseCheckCounts = {};
+  final Map<String, String> caseReasonCodes = {};
   final Map<String, dynamic> electronicInvoices = {};
   final Map<String, Map<String, dynamic>> buyerCompletions = {};
   final Map<String, Map<String, Object?>> storedProviderEvidence = {};
@@ -631,6 +655,7 @@ final class _TestIssuanceResultGateway implements IIssuanceResultGateway {
   }) async {
     final attempt = state.attempts.firstWhere((a) => a.attemptId == attemptId);
     attempt.status = IssuanceAttemptStatus.submitted;
+    attempt.providerReference ??= 'tx-inflight-$attemptId';
   }
 
   @override
@@ -725,9 +750,27 @@ final class _TestIssuanceResultGateway implements IIssuanceResultGateway {
       state.reconciliationCases.add(caseDto);
       internalStore.pendingReconciliationCases.add(caseDto);
     }
+    if (evidence is IssuanceUndeterminedEvidenceDto) {
+      state.caseReasonCodes[caseId] = evidence.reasonCode;
+    }
 
     return const RecordIssuanceResultDto(
       attemptStatus: IssuanceAttemptStatus.reconciling,
+    );
+  }
+
+  @override
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  }) async {
+    final attempt = state.attempts.firstWhere((a) => a.attemptId == attemptId);
+    attempt.status = IssuanceAttemptStatus.preparing;
+    return const RecordIssuanceResultDto(
+      attemptStatus: IssuanceAttemptStatus.preparing,
     );
   }
 
@@ -803,7 +846,9 @@ final class _TestIssuanceReconciliationGateway
       claimToken: 'tok-$caseId',
       idempotencyKey: attempt.idempotencyKey,
       payloadHash: attempt.payloadHash,
+      invoiceSeries: attempt.invoiceSeries,
       providerReference: attempt.providerReference,
+      reconciliationReasonCode: state.caseReasonCodes[caseId],
       checkSequence: state.caseCheckCounts[caseId] ?? 1,
       maxChecks: 5,
     );
@@ -1071,6 +1116,18 @@ final class _Slice3TestHarness {
       ..registerSingleton<IIssuanceReconciliationGateway>(reconciliationGateway)
       ..registerSingleton<IIssuanceCommandGateway>(commandGateway)
       ..registerSingleton<IMeInvoiceProviderPort>(providerPort)
+      ..registerSingleton<IPublishSeriesLeaseGateway>(
+        InMemoryPublishSeriesLeaseGateway(
+          attemptSeriesResolver: (attemptId) {
+            for (final attempt in state.attempts) {
+              if (attempt.attemptId == attemptId) {
+                return attempt.invoiceSeries;
+              }
+            }
+            return null;
+          },
+        ),
+      )
       ..registerSingleton<InternalCommandSerializer>(serializer)
       ..registerSingleton<IEinvoiceInternalCommandClient>(internalClient)
       ..registerSingleton<IEinvoiceInboxClient>(inboxClient);
@@ -1088,11 +1145,13 @@ final class _Slice3TestHarness {
     final publishHandler = PublishInvoiceCommandHandler(
       providerPort: providerPort,
       resultGateway: resultGateway,
+      leaseGateway: container.get<IPublishSeriesLeaseGateway>(),
     );
     final pollHandler = PollIssuanceStatusCommandHandler(
       reconciliationGateway: reconciliationGateway,
       providerPort: providerPort,
       commandDispatcher: commandDispatcher,
+      resultGateway: resultGateway,
     );
     final recordResultHandler = RecordIssuanceResultCommandHandler(
       gateway: resultGateway,
@@ -1135,7 +1194,7 @@ final class _Slice3TestHarness {
     // Register integration event dispatcher and handlers
     integrationEventDispatcher = EinvoiceIntegrationEventDispatcher();
     final salesOrderCompletedHandler =
-        SalesOrderCompletedIntegrationEventHandler(commands: commandDispatcher);
+        SalesOrderFinalizedIntegrationEventHandler(commands: commandDispatcher);
     final partnerProfileUpdatedHandler =
         PartnerProfileUpdatedIntegrationEventHandler(
           gateway: autoIssuanceGateway,
@@ -1147,7 +1206,7 @@ final class _Slice3TestHarness {
         );
 
     integrationEventDispatcher
-      ..register<SalesOrderCompletedIntegrationEvent>(
+      ..register<SalesOrderFinalizedIntegrationEvent>(
         salesOrderCompletedHandler,
       )
       ..register<PartnerProfileUpdatedIntegrationEvent>(
@@ -1196,12 +1255,12 @@ void main() {
 
   group('TH-08 Slice 3 End-to-End & Boundary Verification', () {
     test(
-      'e2e_e02_u03_sc01_01: sales.order.completed -> inbox -> StartAutoIssuance -> attempt -> publish command',
+      'e2e_e02_u03_sc01_01: sales_order_finalized.v1 -> inbox -> StartAutoIssuance -> attempt -> publish command',
       () async {
-        // Given a sales.order.completed event arrives in inbox
+        // Given a sales_order_finalized.v1 event arrives in inbox
         harness.inboxClient.addMessage(
           messageId: 'msg-sales-001',
-          eventType: SalesOrderCompletedIntegrationEvent.type,
+          eventType: SalesOrderFinalizedIntegrationEvent.type,
           tenantId: tenantId,
           payload: {
             'id': 'msg-sales-001',
@@ -1253,7 +1312,7 @@ void main() {
           salesOrderId: 'order-reeval-1',
           salesOrderVersion: 'sales-v1',
           triggerKey:
-              'sales.order.completed:orig-trigger:order-reeval-1:sales-v1',
+              'sales_order_finalized.v1:orig-trigger:order-reeval-1:sales-v1',
           status: 'PENDING_REEVALUATION',
           partnerId: 'partner-100',
         );
@@ -1284,7 +1343,7 @@ void main() {
         expect(existingProcess.status, 'ATTEMPT_STARTED');
         expect(
           existingProcess.triggerKey,
-          'sales.order.completed:orig-trigger:order-reeval-1:sales-v1',
+          'sales_order_finalized.v1:orig-trigger:order-reeval-1:sales-v1',
         );
         expect(harness.state.attempts, hasLength(1));
         expect(harness.state.attempts.first.salesOrderId, 'order-reeval-1');
@@ -1391,7 +1450,7 @@ void main() {
           payloadHash: 'hash-pre',
           completionId: 'comp-pre',
           status: IssuanceAttemptStatus.submitted,
-        );
+        )..providerReference = 'tx-pre-1';
         harness.state.attempts.add(attempt);
 
         final preexistingCase = ReconciliationCaseDto(
@@ -1446,7 +1505,7 @@ void main() {
           payloadHash: 'hash-u5',
           completionId: 'comp-u5',
           status: IssuanceAttemptStatus.submitted,
-        );
+        )..providerReference = 'tx-u5-1';
         harness.state.attempts.add(attempt);
 
         final caseDto = ReconciliationCaseDto(

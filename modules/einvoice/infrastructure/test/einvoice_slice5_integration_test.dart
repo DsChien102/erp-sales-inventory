@@ -15,12 +15,14 @@ void main() {
   group('TH-08 Slice 5 EP-04 delivery (fakes)', () {
     test('scn_e04_u01_fr01_01', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       await harness.startAutoDelivery();
@@ -41,12 +43,14 @@ void main() {
 
     test('e2e_e04_u01_sc01_01', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       await harness.publishRegisteredEvent(eventId: 'evt-reg-1');
@@ -67,12 +71,14 @@ void main() {
 
     test('scn_e04_u02_fr08_01', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       final result = await harness.sendElectronicInvoice(
@@ -94,20 +100,24 @@ void main() {
 
     test('e2e_e04_u02_sc01_01', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       await harness.sendElectronicInvoice(
@@ -139,12 +149,14 @@ void main() {
 
     test('scn_e04_u03_fr04_01', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       await harness.startAutoDelivery();
@@ -196,14 +208,99 @@ void main() {
       );
     });
 
+    test('th08_s5_manual_resend_after_unknown_availability_first', () async {
+      harness.fakeMeInvoiceClient.enqueueSendEmailResult(
+        const MeInvoiceResult.failed('meinvoice_network_timeout'),
+      );
+      await harness.startAutoDelivery();
+      await harness.runWorker();
+
+      final unknownDelivery = harness.soleDelivery()!;
+      expect(unknownDelivery.status, 'UNKNOWN');
+      expect(unknownDelivery.deliveryNo, 1);
+
+      final sheet = await harness.getSendSheet();
+      expect(sheet.mode, SendInvoiceSheetMode.resend);
+      expect(sheet.operationLocked, isFalse);
+      expect(sheet.displayState, DeliveryDisplayState.unknown);
+
+      // Auto-send with a new identity after initial UNKNOWN must not create
+      // another delivery (prior INITIAL_SEND still claimed).
+      final autoReplay = await harness.startAutoDelivery(
+        triggerId: 'tr-auto-after-unknown',
+        idempotencyKey: '11111111-2222-4333-8444-555555555555',
+      );
+      expect(autoReplay.disposition, AutoDeliveryDisposition.skipped);
+      expect(
+        autoReplay.skipReason,
+        AutoDeliverySkipReason.initialDeliveryAlreadyClaimed,
+      );
+      expect(harness.state.deliveries.length, 1);
+
+      harness.fakeMeInvoiceClient.enqueueSendEmailResult(
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
+      );
+      final started = await harness.sendElectronicInvoice(
+        recipientEmail: 'resend.after.unknown@buyer.test',
+        idempotencyKey: 'manual-after-unknown-1',
+      );
+      expect(started.deliveryId, isNotNull);
+      expect(started.deliveryId, isNot(unknownDelivery.id));
+
+      expect(harness.state.deliveries.length, 2);
+      expect(
+        harness.state.deliveries.values
+            .where((d) => d.id == unknownDelivery.id)
+            .single
+            .status,
+        'UNKNOWN',
+      );
+      final processing = harness.state.deliveries.values
+          .where((d) => d.id == started.deliveryId)
+          .single;
+      expect(processing.status, 'PROCESSING');
+      expect(processing.deliveryNo, 2);
+      expect(processing.deliveryIntent, 'RESEND');
+
+      final history = await harness.getHistory();
+      expect(history.deliveries, hasLength(2));
+      expect(
+        history.deliveries.map((d) => d.status),
+        containsAll([DeliveryStatus.unknown, DeliveryStatus.processing]),
+      );
+
+      await expectLater(
+        harness.sendElectronicInvoice(
+          recipientEmail: 'third@buyer.test',
+          idempotencyKey: 'manual-after-unknown-2',
+        ),
+        throwsA(
+          isA<EInvoiceBlockedException>().having(
+            (e) => e.code,
+            'code',
+            EInvoiceBlockedCodes.operationInProgress,
+          ),
+        ),
+      );
+    });
+
     test('scn_e04_race_auto_manual_initial', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
 
       AutoDeliveryResultDto? autoResult;
@@ -299,12 +396,14 @@ void main() {
             isActive: false,
           );
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
       await harness.startAutoDelivery();
       await harness.runWorker();
@@ -329,12 +428,14 @@ void main() {
         ),
       );
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
       await harness.startAutoDelivery();
       await harness.runWorker();
@@ -361,12 +462,14 @@ void main() {
         ),
       );
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
       await harness.startAutoDelivery();
       await harness.runWorker();
@@ -378,12 +481,14 @@ void main() {
 
     test('scn_e04_tenant_isolation', () async {
       harness.fakeMeInvoiceClient.enqueueSendEmailResult(
-        const MeInvoiceResult.ok([
-          MeInvoiceSendEmailResultItem(
-            transactionId: 'tx-s5-1',
-            sendEmailStatus: 3,
-          ),
-        ]),
+        MeInvoiceResult.ok(
+          MeInvoiceSendEmailResponse.itemized([
+            const MeInvoiceSendEmailResultItem(
+              transactionId: 'tx-s5-1',
+              sendEmailStatus: 3,
+            ),
+          ]),
+        ),
       );
       await harness.startAutoDelivery();
       await harness.runWorker();
@@ -475,12 +580,14 @@ void main() {
           const MeInvoiceResult.failed('rate_limited', rateLimited: true),
         )
         ..enqueueSendEmailResult(
-          const MeInvoiceResult.ok([
-            MeInvoiceSendEmailResultItem(
-              transactionId: 'tx-s5-1',
-              sendEmailStatus: 3,
-            ),
-          ]),
+          MeInvoiceResult.ok(
+            MeInvoiceSendEmailResponse.itemized([
+              const MeInvoiceSendEmailResultItem(
+                transactionId: 'tx-s5-1',
+                sendEmailStatus: 3,
+              ),
+            ]),
+          ),
         );
 
       await harness.startAutoDelivery();
@@ -608,12 +715,14 @@ void main() {
     test('scn_e04_prior_success_resend_attention', () async {
       harness.fakeMeInvoiceClient
         ..enqueueSendEmailResult(
-          const MeInvoiceResult.ok([
-            MeInvoiceSendEmailResultItem(
-              transactionId: 'tx-s5-1',
-              sendEmailStatus: 3,
-            ),
-          ]),
+          MeInvoiceResult.ok(
+            MeInvoiceSendEmailResponse.itemized([
+              const MeInvoiceSendEmailResultItem(
+                transactionId: 'tx-s5-1',
+                sendEmailStatus: 3,
+              ),
+            ]),
+          ),
         )
         ..enqueueSendEmailResult(
           const MeInvoiceResult.failed('meinvoice_network_timeout'),

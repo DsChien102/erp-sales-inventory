@@ -10,7 +10,7 @@ void main() {
       expect(projection.hasSecondaryAttention, isFalse);
     });
 
-    test('active or unknown without success projects SENDING', () {
+    test('processing without success projects SENDING', () {
       expect(
         DeliveryDisplayStatePolicy.project([
           DeliveryStatus.processing,
@@ -20,7 +20,7 @@ void main() {
       expect(
         DeliveryDisplayStatePolicy.project([
           DeliveryStatus.failed,
-          DeliveryStatus.unknown,
+          DeliveryStatus.processing,
         ]).displayState,
         DeliveryDisplayState.sending,
       );
@@ -30,6 +30,25 @@ void main() {
         ]).hasSecondaryAttention,
         isFalse,
       );
+    });
+
+    test('th08_s5 first unknown is displayed as unknown', () {
+      final result = DeliveryDisplayStatePolicy.project([
+        DeliveryStatus.unknown,
+      ]);
+
+      expect(result.displayState, DeliveryDisplayState.unknown);
+      expect(result.hasSecondaryAttention, isFalse);
+    });
+
+    test('failed then unknown without success projects UNKNOWN', () {
+      final result = DeliveryDisplayStatePolicy.project([
+        DeliveryStatus.failed,
+        DeliveryStatus.unknown,
+      ]);
+
+      expect(result.displayState, DeliveryDisplayState.unknown);
+      expect(result.hasSecondaryAttention, isFalse);
     });
 
     test('latest failure without success projects FAILED', () {
@@ -48,6 +67,16 @@ void main() {
 
       expect(projection.displayState, DeliveryDisplayState.sent);
       expect(projection.hasSecondaryAttention, isFalse);
+    });
+
+    test('th08_s5 prior success remains sent when latest resend is unknown', () {
+      final result = DeliveryDisplayStatePolicy.project([
+        DeliveryStatus.succeeded,
+        DeliveryStatus.unknown,
+      ]);
+
+      expect(result.displayState, DeliveryDisplayState.sent);
+      expect(result.hasSecondaryAttention, isTrue);
     });
 
     test(

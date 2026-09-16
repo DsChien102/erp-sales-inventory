@@ -29,6 +29,13 @@ sealed class IssuanceResultEvidenceDto {
     required String payloadHash,
     required String reasonCode,
   }) = IssuanceUndeterminedEvidenceDto;
+
+  factory IssuanceResultEvidenceDto.retryableProviderRejection({
+    required String idempotencyKey,
+    required String payloadHash,
+    required String providerCode,
+    required String providerMessage,
+  }) = IssuanceRetryableProviderRejectionEvidenceDto;
 }
 
 final class IssuanceSuccessEvidenceDto extends IssuanceResultEvidenceDto {
@@ -67,4 +74,16 @@ final class IssuanceUndeterminedEvidenceDto extends IssuanceResultEvidenceDto {
   });
 
   final String reasonCode;
+}
+
+final class IssuanceRetryableProviderRejectionEvidenceDto extends IssuanceResultEvidenceDto {
+  const IssuanceRetryableProviderRejectionEvidenceDto({
+    required super.idempotencyKey,
+    required super.payloadHash,
+    required this.providerCode,
+    required this.providerMessage,
+  });
+
+  final String providerCode;
+  final String providerMessage;
 }

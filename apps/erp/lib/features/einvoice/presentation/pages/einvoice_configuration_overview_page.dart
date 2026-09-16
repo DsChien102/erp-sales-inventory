@@ -19,8 +19,8 @@ class EInvoiceConfigurationOverviewPage extends StatefulWidget {
   final IEInvoiceModule einvoiceModule;
   final IExecutionContext executionContext;
   final Future<void> Function()? onConnectionTap;
-  final VoidCallback? onIssuanceTap;
-  final VoidCallback? onAutomationTap;
+  final Future<void> Function()? onIssuanceTap;
+  final Future<void> Function()? onAutomationTap;
   final VoidCallback? onBack;
 
   @override
@@ -53,6 +53,20 @@ class _EInvoiceConfigurationOverviewPageState extends State<EInvoiceConfiguratio
     }
   }
 
+  Future<void> _openIssuance() async {
+    await widget.onIssuanceTap?.call();
+    if (mounted) {
+      await _cubit.load();
+    }
+  }
+
+  Future<void> _openAutomation() async {
+    await widget.onAutomationTap?.call();
+    if (mounted) {
+      await _cubit.load();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -62,8 +76,8 @@ class _EInvoiceConfigurationOverviewPageState extends State<EInvoiceConfiguratio
         showBackButton: true,
         body: EInvoiceConfigurationOverviewView(
           onConnectionTap: _openConnection,
-          onIssuanceTap: widget.onIssuanceTap,
-          onAutomationTap: widget.onAutomationTap,
+          onIssuanceTap: _openIssuance,
+          onAutomationTap: _openAutomation,
           onBack: widget.onBack,
         ),
       ),

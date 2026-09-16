@@ -5,6 +5,7 @@ void main() {
   group('MeInvoiceCanonicalMapper preview mapping', () {
     final validCanonical = <String, Object?>{
       'invSeries': '1C26TAA',
+      'signType': 2,
       'invDate': '2026-09-03',
       'buyerLegalName': 'Nguyễn Văn Kiểm Thử',
       'buyerAddress': 'Số 123 Đường Kiểm Thử, TP. Hồ Chí Minh',
@@ -23,7 +24,7 @@ void main() {
           'amount': 1000000,
           'vatRate': 10,
           'vatAmount': 100000,
-        }
+        },
       ],
       'taxRateInfo': [
         {
@@ -31,27 +32,38 @@ void main() {
           'vatRate': 10,
           'turnover': 1000000,
           'vatAmount': 100000,
-        }
+        },
       ],
     };
 
-    test('maps lowerCamel canonical payload to PascalCase MeInvoiceInvoiceData for preview', () {
-      final invoice = MeInvoiceCanonicalMapper.toPreviewInvoice(validCanonical);
+    test(
+      'maps lowerCamel canonical payload to PascalCase MeInvoiceInvoiceData for preview',
+      () {
+        final invoice = MeInvoiceCanonicalMapper.toPreviewInvoice(
+          validCanonical,
+        );
 
-      expect(invoice.invSeries, equals('1C26TAA'));
-      expect(invoice.invDate, equals('2026-09-03'));
-      expect(invoice.buyerLegalName, equals('Nguyễn Văn Kiểm Thử'));
-      expect(invoice.buyerAddress, equals('Số 123 Đường Kiểm Thử, TP. Hồ Chí Minh'));
-      expect(invoice.totalAmount, equals(1100000));
-      expect(invoice.originalInvoiceDetail, isNotNull);
-      expect(invoice.originalInvoiceDetail!.length, equals(1));
-      expect(invoice.originalInvoiceDetail!.first.itemName, equals('Dịch vụ kiểm thử'));
-      expect(invoice.originalInvoiceDetail!.first.quantity, equals(1));
-      expect(invoice.originalInvoiceDetail!.first.unitPrice, equals(1000000));
-      expect(invoice.taxRateInfo, isNotNull);
-      expect(invoice.taxRateInfo!.length, equals(1));
-      expect(invoice.taxRateInfo!.first.vatRateName, equals('10%'));
-    });
+        expect(invoice.invSeries, equals('1C26TAA'));
+        expect(invoice.invDate, equals('2026-09-03'));
+        expect(invoice.buyerLegalName, equals('Nguyễn Văn Kiểm Thử'));
+        expect(
+          invoice.buyerAddress,
+          equals('Số 123 Đường Kiểm Thử, TP. Hồ Chí Minh'),
+        );
+        expect(invoice.totalAmount, equals(1100000));
+        expect(invoice.originalInvoiceDetail, isNotNull);
+        expect(invoice.originalInvoiceDetail!.length, equals(1));
+        expect(
+          invoice.originalInvoiceDetail!.first.itemName,
+          equals('Dịch vụ kiểm thử'),
+        );
+        expect(invoice.originalInvoiceDetail!.first.quantity, equals(1));
+        expect(invoice.originalInvoiceDetail!.first.unitPrice, equals(1000000));
+        expect(invoice.taxRateInfo, isNotNull);
+        expect(invoice.taxRateInfo!.length, equals(1));
+        expect(invoice.taxRateInfo!.first.vatRateName, equals('10%'));
+      },
+    );
 
     test('mirrors *Oc / AmountOC fields for seed-shaped VND payloads', () {
       final invoice = MeInvoiceCanonicalMapper.toPreviewInvoice(validCanonical);
@@ -95,28 +107,36 @@ void main() {
     });
 
     test('throws CanonicalValidationFault when invSeries is missing', () {
-      final invalid = Map<String, Object?>.from(validCanonical)..remove('invSeries');
-      expect(
-        () => MeInvoiceCanonicalMapper.toPreviewInvoice(invalid),
-        throwsA(isA<CanonicalValidationFault>()),
-      );
-    });
-
-    test('throws CanonicalValidationFault when totalAmount is non-positive or missing', () {
-      final invalid = Map<String, Object?>.from(validCanonical)..['totalAmount'] = 0;
-      expect(
-        () => MeInvoiceCanonicalMapper.toPreviewInvoice(invalid),
-        throwsA(isA<CanonicalValidationFault>()),
-      );
-    });
-
-    test('throws CanonicalValidationFault when originalInvoiceDetail is empty', () {
       final invalid = Map<String, Object?>.from(validCanonical)
-        ..['originalInvoiceDetail'] = [];
+        ..remove('invSeries');
       expect(
         () => MeInvoiceCanonicalMapper.toPreviewInvoice(invalid),
         throwsA(isA<CanonicalValidationFault>()),
       );
     });
+
+    test(
+      'throws CanonicalValidationFault when totalAmount is non-positive or missing',
+      () {
+        final invalid = Map<String, Object?>.from(validCanonical)
+          ..['totalAmount'] = 0;
+        expect(
+          () => MeInvoiceCanonicalMapper.toPreviewInvoice(invalid),
+          throwsA(isA<CanonicalValidationFault>()),
+        );
+      },
+    );
+
+    test(
+      'throws CanonicalValidationFault when originalInvoiceDetail is empty',
+      () {
+        final invalid = Map<String, Object?>.from(validCanonical)
+          ..['originalInvoiceDetail'] = [];
+        expect(
+          () => MeInvoiceCanonicalMapper.toPreviewInvoice(invalid),
+          throwsA(isA<CanonicalValidationFault>()),
+        );
+      },
+    );
   });
 }

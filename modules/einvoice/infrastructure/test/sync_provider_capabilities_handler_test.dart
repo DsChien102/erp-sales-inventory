@@ -29,9 +29,12 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   @override
   Future<MeInvoiceIssuanceStatusOutcome> getStatus({
     required String tenantId,
+    required String statusLookupKey,
+    required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    String? providerReference,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) => throw UnimplementedError();
 
   @override
@@ -90,14 +93,20 @@ void main() {
               ProviderTemplateRef(
                 templateId: 'tpl-1',
                 name: 'Mẫu 1',
+                invoiceSeries: '1C26TAA',
+                invoiceWithCode: true,
+                isMtt: false,
+                isSendSummary: false,
                 serial: '1/001',
-                symbol: 'C26TAA',
               ),
               ProviderTemplateRef(
                 templateId: 'tpl-2',
                 name: 'Mẫu 2',
+                invoiceSeries: '1C26TAB',
+                invoiceWithCode: true,
+                isMtt: false,
+                isSendSummary: false,
                 serial: '1/002',
-                symbol: 'C26TAB',
               ),
             ],
           ),

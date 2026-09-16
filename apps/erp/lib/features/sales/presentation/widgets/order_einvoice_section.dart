@@ -1,16 +1,39 @@
+import 'dart:async';
+
+import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
-import 'package:vet45_einvoice_presentation/presentation.dart';
+import 'package:vet45_einvoice_presentation/presentation.dart'
+    hide
+        InvoiceDocumentsAction,
+        InvoiceDocumentsActionSheet,
+        InvoiceDocumentsSheetState,
+        InvoiceDeliveryHistoryView,
+        PostIssueAction,
+        PostIssueEInvoiceActionSheet,
+        PostIssueSheetState,
+        ResendInvoiceSheet,
+        SendInvoiceSheet,
+        showInvoiceDocumentsActionSheet,
+        showPostIssueEInvoiceActionSheet,
+        showResendInvoiceSheet,
+        showSendInvoiceSheet;
 import 'package:vet45_shared_application/application.dart';
 
 import '../bloc/order_einvoice_cubit.dart';
-import 'order_einvoice_polling_host.dart';
 import '../bloc/order_einvoice_state.dart';
+import '../bloc/order_invoice_delivery_cubit.dart';
+import '../pages/invoice_delivery_history_page.dart';
 import '../services/i_invoice_document_exporter.dart';
 import '../services/i_invoice_viewer_launcher.dart';
 import '../support/order_einvoice_idempotency_key_factory.dart';
+import 'einvoice/invoice_documents_action_sheet.dart';
+import 'einvoice/post_issue_einvoice_action_sheet.dart';
+import 'einvoice/resend_invoice_sheet.dart';
+import 'einvoice/send_invoice_sheet.dart';
+import 'order_einvoice_polling_host.dart';
 
 class OrderEInvoiceSection extends StatelessWidget {
   const OrderEInvoiceSection({
@@ -20,6 +43,7 @@ class OrderEInvoiceSection extends StatelessWidget {
     required this.orderCode,
     this.orderTotalFormatted,
     required this.initialProjection,
+    this.hasLoadedInitialProjection = true,
     this.initialReadiness,
     this.isBuyerNotReady = false,
     required this.mediator,
@@ -38,6 +62,9 @@ class OrderEInvoiceSection extends StatelessWidget {
   final String orderCode;
   final String? orderTotalFormatted;
   final OrderInvoiceProjectionDto initialProjection;
+
+  /// False when host seeds a placeholder projection before the first read.
+  final bool hasLoadedInitialProjection;
   final IssuanceReadinessDto? initialReadiness;
   final bool isBuyerNotReady;
   final IModuleMediator mediator;
@@ -49,25 +76,43 @@ class OrderEInvoiceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = OrderEInvoicePollingHost(
-      child: _OrderEInvoiceSectionView(
-        orderCode: orderCode,
-        orderTotalFormatted: orderTotalFormatted,
+    final child = BlocListener<OrderEInvoiceCubit, OrderEInvoiceState>(
+      listenWhen: (previous, current) =>
+          current.errorMessage != null && current.errorMessage != previous.errorMessage,
+      listener: (context, state) {
+        final message = state.errorMessage;
+        if (message == null || message.isEmpty) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      },
+      child: OrderEInvoicePollingHost(
+        child: _OrderEInvoiceSectionView(
+          orderCode: orderCode,
+          orderTotalFormatted: orderTotalFormatted,
+          executionContext: executionContext,
+          mediator: mediator,
+          idempotencyKeyFactory:
+              idempotencyKeyFactory ?? const OrderEInvoiceIdempotencyKeyFactory(),
+        ),
       ),
     );
     if (cubit != null) {
       return BlocProvider.value(value: cubit!, child: child);
     }
+    final queryClient = QueryClientProvider.of(context);
     return BlocProvider(
       create: (ctx) {
         final cubit = OrderEInvoiceCubit(
           salesOrderId: salesOrderId,
           orderVersion: orderVersion,
           initialProjection: initialProjection,
+          hasLoadedInitialProjection: hasLoadedInitialProjection,
           initialReadiness: initialReadiness,
           isBuyerNotReady: isBuyerNotReady,
           executionContext: executionContext,
           mediator: mediator,
+          queryClient: queryClient,
           viewerLauncher: viewerLauncher,
           documentExporter: documentExporter,
           idempotencyKeyFactory:
@@ -85,45 +130,25 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
   const _OrderEInvoiceSectionView({
     required this.orderCode,
     this.orderTotalFormatted,
+    required this.executionContext,
+    required this.mediator,
+    required this.idempotencyKeyFactory,
   });
 
   final String orderCode;
   final String? orderTotalFormatted;
+  final IExecutionContext executionContext;
+  final IModuleMediator mediator;
+  final OrderEInvoiceIdempotencyKeyFactory idempotencyKeyFactory;
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrderEInvoiceCubit, OrderEInvoiceState>(
-      listener: (context, state) {
-        if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
-      },
+    return BlocBuilder<OrderEInvoiceCubit, OrderEInvoiceState>(
       builder: (context, state) {
-        final isLoading =
-            state.status == OrderEInvoiceStatus.submitting ||
-            state.status == OrderEInvoiceStatus.previewing ||
-            state.status == OrderEInvoiceStatus.downloading;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            OrderEInvoiceRow(
-              projection: state.projection,
-              isBuyerNotReady: state.isBuyerNotReady,
-              onTap: () => _handleRowTap(context, state),
-            ),
-            if (isLoading)
-              const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
-          ],
+        return OrderEInvoiceRow(
+          projection: state.projection,
+          isBuyerNotReady: state.isBuyerNotReady,
+          onTap: state.canInteract ? () => _handleRowTap(context, state) : null,
         );
       },
     );
@@ -136,7 +161,13 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
     final cubit = context.read<OrderEInvoiceCubit>();
     final issuanceState = state.projection.issuanceDisplayState;
 
-    if (issuanceState == IssuanceDisplayState.processing) {
+    final canRetry =
+        issuanceState == IssuanceDisplayState.failed &&
+        (state.projection.actions.contains(OrderInvoiceAction.issue) ||
+            state.projection.actions.contains(OrderInvoiceAction.retryIssue));
+
+    if (issuanceState == IssuanceDisplayState.processing ||
+        (issuanceState == IssuanceDisplayState.failed && !canRetry)) {
       return;
     }
 
@@ -144,80 +175,39 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
       PostIssueSheetState sheetState(OrderEInvoiceState value) => PostIssueSheetState(
         deliveryStatus: value.projection.deliveryDisplayState ?? DeliveryDisplayState.notSent,
         isDeliveryPending: value.projection.deliveryPending,
+        isOfficialViewLoading: value.isOpeningOfficialView,
+        hasSecondaryAttention: value.projection.hasSecondaryAttention,
       );
       final action = await showPostIssueEInvoiceActionSheet(
         context,
         state: sheetState(cubit.state),
         states: cubit.stream.map(sheetState),
+        onViewOfficial: () {
+          unawaited(cubit.openOfficialView());
+        },
       );
 
       if (!context.mounted) return;
 
-      if (action == PostIssueAction.viewOfficial) {
-        await cubit.openOfficialView();
-      } else if (action == PostIssueAction.documents) {
-        final docAction = await showInvoiceDocumentsActionSheet(context);
-        if (!context.mounted) return;
-        if (docAction == InvoiceDocumentsAction.pdf) {
-          final ok = await cubit.downloadDocument(InvoiceDocumentType.pdf);
-          if (ok && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Đã tải hóa đơn PDF. Đang mở hộp thoại lưu tệp...'),
-                duration: Duration(seconds: 3),
-              ),
-            );
+      if (action == PostIssueAction.documents) {
+        InvoiceDocumentsSheetState docsSheetState(OrderEInvoiceState value) {
+          if (value.status != OrderEInvoiceStatus.downloading) {
+            return InvoiceDocumentsSheetState.idle;
           }
-        } else if (docAction == InvoiceDocumentsAction.xml) {
-          final ok = await cubit.downloadDocument(InvoiceDocumentType.xml);
-          if (ok && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Đã tải hóa đơn XML. Đang mở hộp thoại lưu tệp...'),
-                duration: Duration(seconds: 3),
-              ),
-            );
-          }
+          return value.downloadingDocumentType == InvoiceDocumentType.xml
+              ? InvoiceDocumentsSheetState.loadingXml
+              : InvoiceDocumentsSheetState.loadingPdf;
         }
+
+        await showInvoiceDocumentsActionSheet(
+          context,
+          state: docsSheetState(cubit.state),
+          states: cubit.stream.map(docsSheetState),
+          onSelectPdf: () => cubit.downloadDocument(InvoiceDocumentType.pdf),
+          onSelectXml: () => cubit.downloadDocument(InvoiceDocumentType.xml),
+        );
       } else if (action == PostIssueAction.send) {
-        final sheetContext = await cubit.getSendSheetContext();
-        if (!context.mounted) return;
-
-        String? recipientEmail;
-        if (sheetContext?.mode == SendInvoiceSheetMode.resend) {
-          final historyItem = sheetContext?.history.firstOrNull;
-          final res = await showResendInvoiceSheet(
-            context,
-            latestEmail: historyItem?.recipientEmail ?? sheetContext?.suggestedEmail ?? '',
-            latestDateTime: historyItem?.completedAt != null
-                ? '${historyItem!.completedAt!.hour.toString().padLeft(2, '0')}:${historyItem.completedAt!.minute.toString().padLeft(2, '0')} ${historyItem.completedAt!.day.toString().padLeft(2, '0')}/${historyItem.completedAt!.month.toString().padLeft(2, '0')}/${historyItem.completedAt!.year}'
-                : '—',
-            initialEmail: sheetContext?.suggestedEmail ?? historyItem?.recipientEmail,
-          );
-          recipientEmail = res?.recipientEmail;
-        } else {
-          final res = await showSendInvoiceSheet(
-            context,
-            invoiceNumber: state.templateNumber ?? orderCode,
-            invoiceSymbol: state.templateSymbol ?? '—',
-            initialEmail: sheetContext?.suggestedEmail ?? '',
-          );
-          recipientEmail = res?.recipientEmail;
-        }
-
-        if (!context.mounted || recipientEmail == null || recipientEmail.trim().isEmpty) {
-          return;
-        }
-
-        final ok = await cubit.sendInvoiceEmail(recipientEmail);
-        if (ok && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Đang gửi hóa đơn tới $recipientEmail...'),
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
+        await _openDeliveryFlow(context, cubit);
       }
       return;
     }
@@ -229,22 +219,35 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
             ) ??
             false);
 
+    PreIssueSheetState preIssueSheetState(OrderEInvoiceState value) {
+      final issuance = value.projection.issuanceDisplayState;
+      return PreIssueSheetState(
+        isPreviewLoading: value.status == OrderEInvoiceStatus.previewing,
+        isBuyerNotReady: value.isBuyerNotReady,
+        isPreviewEnabled: isPreviewSupported,
+        isFailed: issuance == IssuanceDisplayState.failed,
+        failureCode: value.failureCode,
+        lastFailureMessage: value.lastFailureMessage,
+      );
+    }
+
     final action = await showPreIssueEInvoiceActionSheet(
       context,
-      state: PreIssueSheetState(
-        isBuyerNotReady: state.isBuyerNotReady,
-        isPreviewEnabled: isPreviewSupported,
-        isFailed: issuanceState == IssuanceDisplayState.failed,
-        failureCode: state.failureCode,
-        lastFailureMessage: state.lastFailureMessage,
-      ),
+      state: preIssueSheetState(cubit.state),
+      states: cubit.stream.map(preIssueSheetState),
+      onPreview: () {
+        unawaited(cubit.requestPreview());
+      },
     );
+
+    if (action == null) {
+      cubit.cancelPreview();
+      return;
+    }
 
     if (!context.mounted) return;
 
-    if (action == PreIssueAction.preview) {
-      await cubit.requestPreview();
-    } else if (action == PreIssueAction.issue) {
+    if (action == PreIssueAction.issue) {
       await cubit.ensureIssuanceTemplateDisplay();
       if (!context.mounted) return;
       final display = cubit.state;
@@ -262,6 +265,57 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
       if (confirmed) {
         await cubit.issueOrRetry();
       }
+    }
+  }
+
+  Future<void> _openDeliveryFlow(
+    BuildContext context,
+    OrderEInvoiceCubit cubit,
+  ) async {
+    final deliveryCubit = OrderInvoiceDeliveryCubit(
+      salesOrderId: cubit.state.salesOrderId,
+      executionContext: executionContext,
+      mediator: mediator,
+      idempotencyKeyFactory: idempotencyKeyFactory,
+    );
+    try {
+      final sheetContext = await deliveryCubit.loadContext();
+      if (!context.mounted || sheetContext == null) {
+        final message = deliveryCubit.state.errorMessage;
+        if (message != null && context.mounted) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(message)));
+        }
+        return;
+      }
+
+      final accepted = sheetContext.mode == SendInvoiceSheetMode.send
+          ? await showOrderInvoiceSendSheet(
+              context,
+              cubit: deliveryCubit,
+              sheetContext: sheetContext,
+            )
+          : await showOrderInvoiceResendSheet(
+              context,
+              cubit: deliveryCubit,
+              sheetContext: sheetContext,
+              onViewHistory: (sheetNavContext) => Navigator.of(sheetNavContext).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => InvoiceDeliveryHistoryPage(
+                    salesOrderId: cubit.state.salesOrderId,
+                    mediator: mediator,
+                    executionContext: executionContext,
+                  ),
+                ),
+              ),
+            );
+
+      if (accepted == true && context.mounted) {
+        await cubit.refresh();
+      }
+    } finally {
+      await deliveryCubit.close();
     }
   }
 }

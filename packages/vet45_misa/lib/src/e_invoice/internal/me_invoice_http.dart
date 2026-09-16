@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -10,10 +11,16 @@ import 'me_invoice_auth.dart';
 
 /// Low-level authenticated HTTP helper for meInvoice.
 final class MeInvoiceHttp {
-  MeInvoiceHttp({required this.auth, required http.Client httpClient}) : _http = httpClient;
+  MeInvoiceHttp({
+    required this.auth,
+    required http.Client httpClient,
+    required Duration requestTimeout,
+  }) : _http = httpClient,
+       _requestTimeout = requestTimeout;
 
   final MeInvoiceAuth auth;
   final http.Client _http;
+  final Duration _requestTimeout;
 
   Future<MeInvoiceResult<MeInvoiceApiResponse>> get(
     String path, {
@@ -70,10 +77,10 @@ final class MeInvoiceHttp {
     Future<http.Response> Function() request,
   ) async {
     try {
-      var response = await request();
+      var response = await request().timeout(_requestTimeout);
       if (_isTokenExpired(response)) {
         await auth.getToken(forceRefresh: true);
-        response = await request();
+        response = await request().timeout(_requestTimeout);
       }
       if (response.statusCode == 429) {
         return MeInvoiceErrorMapper.fromHttp(
@@ -90,6 +97,8 @@ final class MeInvoiceHttp {
       return MeInvoiceApiResponseParser.parse(response.body);
     } on MeInvoiceAuthException catch (e) {
       return MeInvoiceResult.failed(e.message);
+    } on TimeoutException {
+      return const MeInvoiceResult.failed('meinvoice_network_timeout');
     } on Object catch (e) {
       return MeInvoiceResult.failed('meinvoice_network: $e');
     }

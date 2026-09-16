@@ -55,16 +55,19 @@ void main() {
       expect(find.text('raw misa error'), findsNothing);
     });
 
-    testWidgets('renders safe lastFailureMessage when code is generic', (tester) async {
+    testWidgets('renders default copy for unknown code and ignores raw provider message', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildSubject(
           failureCode: 'SYSTEM_ERROR',
-          lastFailureMessage: 'Không thể kết nối đến máy chủ phát hành',
+          lastFailureMessage: 'raw misa technical error',
         ),
       );
 
       expect(find.text(OrderEInvoiceCopy.failureBannerTitle), findsOneWidget);
-      expect(find.text('Không thể kết nối đến máy chủ phát hành'), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.failureBannerDefaultMessage), findsOneWidget);
+      expect(find.text('raw misa technical error'), findsNothing);
     });
   });
 }

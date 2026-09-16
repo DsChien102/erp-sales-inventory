@@ -2,7 +2,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'start_auto_issuance_result.dart';
 
-/// Internal — inbox handler on sales.order.completed.
+/// Internal — inbox handler on sales_order_finalized.v1.
 @RequiresTenant()
 final class StartAutoIssuanceCommand extends CommandBase<AutoIssuanceResultDto>
     implements ICommand<AutoIssuanceResultDto>, ITenantScopedCommand {

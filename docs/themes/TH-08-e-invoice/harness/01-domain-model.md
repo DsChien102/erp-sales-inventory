@@ -6,6 +6,8 @@
 
 **Harness 2026-08-17:** Chốt symbol, schema, state machine và CMD catalog từ canonical §3–4. Contract chi tiết: [07-api-contracts.md](07-api-contracts.md).
 
+**Harness 2026-09-16:** Đóng băng MISA AIO V2 — SignType `2`/`5`, business policy `KCT-only` + invariant `UNSUPPORTED_TAX_DATA`, serialize publish theo `InvSeries`, buyer org bắt buộc địa chỉ. Hardening plan: `docs/superpowers/plans/2026-09-16-th08-misa-contract-production-hardening.md`.
+
 Theme 08 **không** sở hữu: Tenant, hồ sơ pháp lý, Partner, SalesOrder, dữ liệu thương mại. Không có danh sách HĐĐT độc lập (MVP).
 
 ```mermaid
@@ -244,7 +246,7 @@ Official view và PDF/XML đều dùng async resource operation. Request persist
 
 - Tối đa **một** business delivery `INITIAL_SEND` / ElectronicInvoice. Auto và manual race hội tụ về cùng invariant; các lần gửi có chủ đích sau đó là `RESEND`.
 - `DeliveryKind` là **server-derived** — client không chọn initial/resend.
-- Delivery ở `PROCESSING` hoặc `UNKNOWN` **khóa** business delivery khác cho invoice đó. `UNKNOWN` nghĩa là kết quả chưa xác lập; reconciliation case của nó bắt đầu ở `PENDING` (không phải `UNRESOLVED`) và delivery không được coi là retryable failure.
+- Delivery `PROCESSING` **khóa** business delivery cạnh tranh. `UNKNOWN` là evidence lịch sử (kết quả chưa xác lập); reconciliation case bắt đầu ở `PENDING` (không phải `UNRESOLVED`), delivery không phải retryable failure, và người dùng có quyền gửi có thể tạo resend thủ công mới. Worker không auto-retry sau `UNKNOWN`.
 - Một attempt kỹ thuật active (`QUEUED` hoặc `SUBMITTED`) / delivery. Rejection retryable, chắc chắn chưa gửi, hoàn tất attempt hiện tại là failed và có thể thêm đúng một attempt queued kế tiếp trong cùng business delivery — **tối đa 3 attempt**.
 - Recipient email/name là snapshot bất biến trên delivery; retry attempt không bao giờ resolve lại hay ghi đè recipient.
 - Result trùng lặp / đảo thứ tự là idempotent và không bao giờ đảo ngược success.
@@ -362,7 +364,7 @@ Cardinality: one row per outbound provider-call attempt or inbound callback. Imm
 ### Shared technical: `AutomaticTriggerProcessRecord`
 
 Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `tenant_id`, `process_type`, `sales_order_id`, `sales_order_version`, `trigger_key`, `process_status`, `retry_count`, `next_retry_at`, `blocker_code`, `buyer_invoice_completion_id` (khi có), `claim_lock`, `idempotency_key` (stable provider idempotency key), `created_at`, `updated_at`.
-- Chỉ `sales.order.completed` được insert record này.
+- Chỉ `sales_order_finalized.v1` được insert record này.
 - Tín hiệu cập nhật từ Partner (`partner.partner.profile_updated`) hoặc readiness chỉ claim/update record ở trạng thái `PENDING_REEVALUATION` hiện có, tuyệt đối không tạo record hoặc business identity mới.
 
 ## Value objects & enums
@@ -420,7 +422,7 @@ Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `te
 | `RequestInvoicePreviewCommand`           | CMD-08 | EP-02/US-01    | Preview — không tạo attempt                 |
 | `CompleteBuyerInvoiceDataCommand`        | CMD-09 | EP-02/US-01,02 | Controlled completion → LOCKED              |
 | `IssueInvoiceCommand`                    | CMD-10 | EP-02/US-02    | Phát hành thủ công                          |
-| `StartAutoIssuanceCommand`               | CMD-11 | EP-02/US-03    | Internal — trigger từ sales.order.completed |
+| `StartAutoIssuanceCommand`               | CMD-11 | EP-02/US-03    | Internal — trigger từ `sales_order_finalized.v1` |
 | `ReevaluateAutoIssuanceCommand`          | CMD-11b| EP-02/US-03    | Internal — re-evaluate process PENDING_REEVALUATION từ partner update |
 | `RecordIssuanceResultCommand`            | CMD-12 | EP-02/US-04    | Internal/worker — finalize attempt với typed evidence |
 | `RetryIssuanceCommand`                   | CMD-13 | EP-02/US-05    | Attempt mới sau definite failure            |
@@ -507,14 +509,14 @@ Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `te
 
 | Source | Event | Payload | Mục đích |
 | ------ | ----- | ------- | -------- |
-| sales  | `sales.order.completed`     | tenantId, salesOrderId, sourceVersion, occurredAt | Auto-issue trigger (EP-02/US-03) → `StartAutoIssuanceCommand` |
+| sales  | `sales_order_finalized.v1`  | tenantId, salesOrderId, salesOrderVersion, occurredAt | Auto-issue trigger (EP-02/US-03) → `SalesOrderFinalizedIntegrationEventHandler` → `StartAutoIssuanceCommand` |
 | partner| `partner.partner.profile_updated` | tenantId, partnerId, occurredAt | Tìm process `PENDING_REEVALUATION` đúng buyer và dispatch `ReevaluateAutoIssuanceCommand`; không tạo process mới |
 | provider (inbox) | `einvoice.provider.issuance_result_received` | tenantId, attemptId, correlationId, typedEvidence | Finalize attempt (EP-02/US-04) → `RecordIssuanceResultCommand` |
 | einvoice (inbox) | `einvoice.electronic_invoice.registered` | tenantId, electronicInvoiceId, salesOrderId, occurredAt | Auto initial delivery (EP-04/US-01) → `StartAutoDeliveryCommand`; business key UUIDv5 `<tenantId>\|<electronicInvoiceId>\|auto_initial`, event id chỉ là `triggerId` traceability |
 | iam    | `iam.legal_profile.updated` | tenantId, occurredAt | Mark connection CHECK_REQUIRED (không mutate snapshots) |
 
 **Quy định Stable Identity:**
-- Sales completion tạo process với `triggerKey = sales.order.completed:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
+- Sales completion tạo process với `triggerKey = sales_order_finalized.v1:<eventId>:<salesOrderId>:<sourceVersion>` (`sourceVersion` = canonical `salesOrderVersion` string); provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
 - Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 
@@ -536,12 +538,13 @@ Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `te
 | DR-09   | `BuyerInvoiceCompletion` → LOCKED khi `EffectiveBuyerInvoiceData` lần đầu đủ — terminal cho SalesOrder/version |
 | DR-10   | Sau LOCKED, không auto-resolve Theme 03                                                                        |
 | DR-11   | Khách tổ chức thiếu MST → blocker issuance (`BUYER_TAX_CODE_REQUIRED`)                                         |
+| DR-11a  | Khách tổ chức có MST thiếu tên pháp lý hoặc địa chỉ → blocker (`BUYER_DATA_INCOMPLETE` / `BUYER_ADDRESS_REQUIRED`); cá nhân không áp nhầm rule org |
 | DR-12   | Chỉ SalesOrder Hoàn tất được phát hành                                                                         |
 | DR-13   | AttemptSnapshot bất biến sau attempt start; technical retry giữ snapshot                                       |
 | DR-14   | InvoiceSnapshot bất biến sau ElectronicInvoice registration                                                    |
 | DR-15   | Seller snapshot từ legal profile tại attempt start — không cập nhật ngược                                      |
 | DR-16   | Idempotency: cùng business identity → trả operation hiện có                                                    |
-| DR-17   | Timeout ≠ definite failure; unknown → RECONCILING, khóa operation cạnh tranh                                   |
+| DR-17   | Timeout ≠ definite failure; unknown → RECONCILING; chỉ `PROCESSING` khóa operation cạnh tranh               |
 | DR-18   | Provider success + local finalization pending → recovery nội bộ, **không** re-publish                          |
 | DR-19   | Không giữ DB transaction mở trong provider call                                                                |
 | DR-20   | MISA HTTP chỉ từ messaging_worker — không từ Flutter                                                           |
@@ -551,11 +554,16 @@ Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `te
 | DR-24   | Resend tạo `InvoiceDelivery` mới với kind `resend` **server-derived** — giữ history cũ                         |
 | DR-25   | `OrderInvoiceProjection` là read model — không thuộc aggregate issuance                                        |
 | DR-26   | ≤ một business delivery `INITIAL_SEND` / ElectronicInvoice; auto và manual race hội tụ cùng invariant          |
-| DR-27   | Delivery `PROCESSING` hoặc `UNKNOWN` khóa business delivery khác; `UNKNOWN` không phải retryable failure       |
+| DR-27   | Delivery `PROCESSING` khóa business delivery khác; `UNKNOWN` không khóa manual resend và không phải retryable failure |
 | DR-28   | Success trước đó giữ display chính `sent`; failure/unknown sau đó lộ qua secondary attention                   |
 | DR-29   | `attemptSnapshot.buyer_lineage.buyerInvoiceSnapshot` giữ nguyên base snapshot Theme 05 (source-owned `p_buyer_snapshot`), tách khỏi `attemptSnapshot.buyer` effective; giữ `buyerPartnerId`, completion id, source version |
 | DR-30   | Recipient snapshot bất biến / delivery — technical retry không resolve lại recipient; tối đa 3 attempt         |
 | DR-31   | Không suy ra kết quả gửi email từ trạng thái phát hành invoice của provider (`getStatus` ≠ delivery status)    |
+| DR-32   | Phase 1 SignType wire chỉ `2` (HSM) hoặc `5` (MTT); không `3`/`4`/`6`; không fallback SignType khi canonical thiếu |
+| DR-33   | Template/series resolve từ capability hiện hành theo `templateId`/`InvSeries` đã chọn — không fallback template đầu / không bịa series |
+| DR-34   | Publish foreground serialize theo `InvSeries` toàn hệ thống (lease DB multi-worker); mutex in-memory không đủ |
+| DR-35   | Business policy `KCT-only` Theme 8: canonical `VATRateName=KCT`, VAT amount 0 khi invariant pass (line/total tax = 0, tax snapshot null/rỗng); hard-code chỉ tại `build_canonical_invoice`; vi phạm contract → `UNSUPPORTED_TAX_DATA` |
+| DR-36   | Status / reconcile / download / delivery dùng cùng invoice classification suy từ `InvSeries` bất biến trên attempt |
 
 
 
@@ -564,9 +572,19 @@ Record kỹ thuật chia sẻ trước attempt, lưu trữ: `id`, `version`, `te
 
 Base: `NO_PERMISSION`, `NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_STATUS`, `STATE_CHANGED`, `SYSTEM_ERROR`.
 
-TH-08 extensions: `PROVIDER_NOT_CONNECTED`, `PROVIDER_AUTH_FAILED`, `PROVIDER_UNAVAILABLE`, `CONFIG_NOT_READY`, `ISSUANCE_NOT_READY`, `BUYER_DATA_INCOMPLETE`, `BUYER_TAX_CODE_REQUIRED`, `ORDER_NOT_COMPLETED`, `ALREADY_ISSUED`, `OPERATION_IN_PROGRESS`, `RESULT_UNDETERMINED`, `DOCUMENT_UNAVAILABLE`, `DELIVERY_NOT_SUPPORTED`.
+TH-08 extensions: `PROVIDER_NOT_CONNECTED`, `PROVIDER_AUTH_FAILED`, `PROVIDER_UNAVAILABLE`, `CONFIG_NOT_READY`, `ISSUANCE_NOT_READY`, `BUYER_DATA_INCOMPLETE`, `BUYER_TAX_CODE_REQUIRED`, `BUYER_ADDRESS_REQUIRED`, `ORDER_NOT_COMPLETED`, `ALREADY_ISSUED`, `OPERATION_IN_PROGRESS`, `RESULT_UNDETERMINED`, `DOCUMENT_UNAVAILABLE`, `DELIVERY_NOT_SUPPORTED`, `TEMPLATE_NOT_AVAILABLE`, `SIGNING_CONFIGURATION_NOT_AVAILABLE`, `UNSUPPORTED_TAX_DATA`.
 
 Chi tiết mapping: [07-api-contracts.md](07-api-contracts.md).
+
+## MISA V2 contract freeze (2026-09-16)
+
+Baseline: tài liệu AIO V2 do BA cung cấp + package `vet45_misa/doc/misa-meinvoice-open-api.md`.
+
+- **SignType:** chỉ `2` (HSM) và `5` (MTT). V2 gạch `3`/`4`/`6` — không tự mở.
+- **KCT-only:** mọi dòng `KCT`, VAT = 0 khi invariant pass; `UNSUPPORTED_TAX_DATA` khi nguồn Sales vi phạm contract thuế.
+- **Series:** một publish foreground / `InvSeries` trên toàn hệ thống (lease DB).
+- **Retry codes:** `InvoiceNumberNotCotinuous`, `InvoiceDuplicated`, `DuplicateInvoiceRefID` — policy riêng, không gộp transport ambiguity.
+- **Giữ nguyên:** endpoint set, token cache per-tenant, `RefID` ổn định, preview/view, PDF/XML download, send-email Product envelope.
 
 ## Anti-patterns
 

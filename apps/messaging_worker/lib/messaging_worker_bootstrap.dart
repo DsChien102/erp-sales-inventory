@@ -2,6 +2,7 @@ import 'package:supabase/supabase.dart';
 import 'package:vet45_einvoice_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_resend/vet45_resend.dart';
+import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -9,6 +10,7 @@ import 'config/worker_env.dart';
 import 'einvoice_messaging_command_factory.dart';
 import 'iam_messaging_command_factory.dart';
 import 'messaging_module_binding.dart';
+import 'sales_messaging_command_factory.dart';
 import 'service_role_supabase_client.dart';
 
 export 'config/worker_env.dart';
@@ -17,6 +19,7 @@ export 'iam_messaging_command_factory.dart';
 export 'messaging_module_binding.dart';
 export 'messaging_worker_loop.dart';
 export 'messaging_worker_tick_result.dart';
+export 'sales_messaging_command_factory.dart';
 export 'worker_structured_log.dart';
 export 'worker_tick_policy.dart';
 
@@ -59,11 +62,19 @@ final class MessagingWorkerBootstrap {
     final iamRuntime = await IamStartup.initialize(
       supabase: client,
       loggerFactory: resolvedLoggerFactory,
-      integrationEventBus: integrationEventBus,
+      integrationEventBus: sharedBus,
       resendClient: ResendEmailClient(
         apiKey: resolvedConfig.resendApiKey,
         fromEmail: resolvedConfig.resendFromEmail,
       ),
+    );
+
+    final salesModule = SalesStartup.initialize(
+      supabase: client,
+      loggerFactory: resolvedLoggerFactory,
+      permissionChecker: _AllowAllPermissionChecker(),
+      tenantAccessChecker: _AllowAllTenantAccessChecker(),
+      integrationEventBus: sharedBus,
     );
 
     final eInvoiceRuntime = EinvoiceStartup.initialize(
@@ -85,6 +96,11 @@ final class MessagingWorkerBootstrap {
             moduleSchema: 'iam',
             mediator: iamRuntime.module,
             commands: const IamMessagingCommandFactory(),
+          ),
+          MessagingModuleBinding(
+            moduleSchema: 'sales',
+            mediator: salesModule,
+            commands: const SalesMessagingCommandFactory(),
           ),
           MessagingModuleBinding(
             moduleSchema: 'einvoice',

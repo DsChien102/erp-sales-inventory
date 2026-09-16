@@ -172,6 +172,24 @@ void main() {
     });
 
     test(
+      'malformed series maps to INVOICE_SERIES_INVALID without HTTP',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        final outcome = await adapter.sendEmail(
+          _context(invoiceSeries: '1X26TYY'),
+        );
+
+        expect(fakeClient.sendEmailCount, 0);
+        expect(outcome, isA<DeliveryProviderDefiniteFailure>());
+        expect(
+          (outcome as DeliveryProviderDefiniteFailure).safeErrorCode,
+          'INVOICE_SERIES_INVALID',
+        );
+      },
+    );
+
+    test(
       'missing credentials maps to DefiniteFailure without provider call',
       () async {
         supabase.registerHandler('read_provider_credentials', (_) async => []);
@@ -184,6 +202,22 @@ void main() {
         expect(
           (outcome as DeliveryProviderDefiniteFailure).safeErrorCode,
           'PROVIDER_AUTH_FAILED',
+        );
+      },
+    );
+
+    test(
+      'envelope acknowledgement maps to Succeeded with provider reference',
+      () async {
+        fakeClient.enqueueSendEmailEnvelopeAcknowledgement();
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        final outcome = await adapter.sendEmail(_context());
+
+        expect(outcome, isA<DeliveryProviderSucceeded>());
+        expect(
+          (outcome as DeliveryProviderSucceeded).providerReference,
+          'tx-delivery-1',
         );
       },
     );

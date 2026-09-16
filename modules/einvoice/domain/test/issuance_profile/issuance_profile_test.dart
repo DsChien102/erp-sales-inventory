@@ -12,10 +12,11 @@ void main() {
         profileVersion: 1,
       );
       profile.setDefault(
-        template: const ProviderTemplateRef(
+        template: ProviderTemplateRef.create(
           templateId: 'tpl-1',
           name: 'Standard',
-          isMtt: false,
+          invoiceSeries: '1C26TYY',
+          isSendSummary: false,
         ),
         signing: const SigningConfigurationRef(
           signingConfigId: 'sign-hsm',
@@ -35,9 +36,11 @@ void main() {
       );
       expect(
         () => profile.setDefault(
-          template: const ProviderTemplateRef(
+          template: ProviderTemplateRef.create(
             templateId: 'tpl-1',
             name: 'Standard',
+            invoiceSeries: '1C26TYY',
+            isSendSummary: false,
           ),
           signing: const SigningConfigurationRef(
             signingConfigId: 'sign-nosign',
@@ -49,4 +52,3 @@ void main() {
     });
   });
 }
-

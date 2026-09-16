@@ -53,17 +53,34 @@ final class PreviewInvoiceCommandHandler implements ICommandHandler<PreviewInvoi
       );
 
       if (!outcome.isSuccess) {
+        // Ba nhánh phân biệt: dữ liệu sai, sai tài khoản, mất kết nối.
+        // Gộp chúng lại làm mất hướng điều tra — xem ADR trên
+        // MeInvoicePreviewOutcome.invalidData.
+        final (interactionOutcome, safeCode) = switch (outcome) {
+          _ when outcome.invalidData => (
+            ProviderInteractionOutcome.checkRequired,
+            'PROVIDER_REJECTED_INVOICE_DATA',
+          ),
+          _ when outcome.authFailed => (
+            ProviderInteractionOutcome.checkRequired,
+            'PROVIDER_AUTH_FAILED',
+          ),
+          _ => (ProviderInteractionOutcome.unavailable, 'PROVIDER_UNAVAILABLE'),
+        };
+
         await _interactionGateway.finalize(
           tenantId: command.tenantId,
           interactionReference: interaction.interactionReference,
           expectedVersion: interaction.version,
-          outcome: outcome.authFailed
-              ? ProviderInteractionOutcome.checkRequired
-              : ProviderInteractionOutcome.unavailable,
-          safeErrorCode: outcome.authFailed ? 'PROVIDER_AUTH_FAILED' : 'PROVIDER_UNAVAILABLE',
+          outcome: interactionOutcome,
+          safeErrorCode: safeCode,
         );
         throw StateError(
-          outcome.authFailed ? 'PROVIDER_NOT_CONNECTED' : 'PROVIDER_UNAVAILABLE',
+          outcome.invalidData
+              ? 'PROVIDER_REJECTED_INVOICE_DATA'
+              : outcome.authFailed
+              ? 'PROVIDER_NOT_CONNECTED'
+              : 'PROVIDER_UNAVAILABLE',
         );
       }
 

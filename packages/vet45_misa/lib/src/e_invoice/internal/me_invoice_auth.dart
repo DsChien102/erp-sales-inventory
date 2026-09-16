@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -32,8 +33,10 @@ final class MeInvoiceAuth {
     required http.Client httpClient,
     MeInvoiceAuthToken? initialToken,
     Duration defaultTtl = MeInvoiceConfig.recommendedTokenTtl,
+    Duration requestTimeout = const Duration(seconds: 60),
   }) : _http = httpClient,
        _defaultTtl = defaultTtl,
+       _requestTimeout = requestTimeout,
        _cached = initialToken;
 
   final String baseUrl;
@@ -43,6 +46,7 @@ final class MeInvoiceAuth {
   final String? password;
   final http.Client _http;
   final Duration _defaultTtl;
+  final Duration _requestTimeout;
 
   MeInvoiceAuthToken? _cached;
 
@@ -90,9 +94,8 @@ final class MeInvoiceAuth {
 
   Future<MeInvoiceAuthToken?> _tryRefresh(String oldToken) async {
     final uri = Uri.parse('$baseUrl/auth/refreshtoken');
-    final response = await _http.post(
+    final response = await _postWithTimeout(
       uri,
-      headers: const <String, String>{'Content-Type': 'application/json'},
       body: oldToken,
     );
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -103,9 +106,8 @@ final class MeInvoiceAuth {
 
   Future<MeInvoiceAuthToken> _login() async {
     final uri = Uri.parse('$baseUrl/auth/token');
-    final response = await _http.post(
+    final response = await _postWithTimeout(
       uri,
-      headers: const <String, String>{'Content-Type': 'application/json'},
       body: jsonEncode(<String, String>{
         'appid': appId!,
         'taxcode': taxCode!,
@@ -133,6 +135,25 @@ final class MeInvoiceAuth {
       );
     }
     return token;
+  }
+
+  Future<http.Response> _postWithTimeout(
+    Uri uri, {
+    required String body,
+  }) async {
+    try {
+      return await _http
+          .post(
+            uri,
+            headers: const <String, String>{
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw MeInvoiceAuthException('meinvoice_network_timeout');
+    }
   }
 
   MeInvoiceAuthToken? _parseTokenResponse(String body) {

@@ -55,8 +55,11 @@ final class RecordConnectionVerifiedCommand extends InternalCommandBase<void>
                 'template_id': t.templateId,
                 'name': t.name,
                 'serial': t.serial,
-                'symbol': t.symbol,
+                'symbol': t.invoiceSeries,
+                'invoice_series': t.invoiceSeries,
+                'invoice_with_code': t.invoiceWithCode,
                 'is_mtt': t.isMtt,
+                'is_send_summary': t.isSendSummary,
                 'is_available': t.isAvailable,
               },
           ],
@@ -83,16 +86,8 @@ final class RecordConnectionVerifiedCommand extends InternalCommandBase<void>
       final templates = (rawTemplates is List)
           ? rawTemplates
                 .whereType<Map>()
-                .map(
-                  (t) => ProviderTemplateRef(
-                    templateId: t['template_id'] as String? ?? '',
-                    name: t['name'] as String? ?? '',
-                    serial: t['serial'] as String?,
-                    symbol: t['symbol'] as String?,
-                    isMtt: t['is_mtt'] as bool? ?? false,
-                    isAvailable: t['is_available'] as bool? ?? true,
-                  ),
-                )
+                .map(_templateRefFromJson)
+                .whereType<ProviderTemplateRef>()
                 .toList(growable: false)
           : const <ProviderTemplateRef>[];
 
@@ -137,4 +132,29 @@ final class RecordConnectionVerifiedCommand extends InternalCommandBase<void>
       correlationId: normalized['correlation_id'] as String?,
     );
   }
+}
+
+ProviderTemplateRef? _templateRefFromJson(Map<dynamic, dynamic> t) {
+  final series = (t['invoice_series'] as String?)?.trim().isNotEmpty == true
+      ? (t['invoice_series'] as String).trim()
+      : (t['symbol'] as String?)?.trim() ?? '';
+  if (series.isEmpty) {
+    return null;
+  }
+
+  final classified = InvoiceSeriesClassification.tryParse(series);
+  if (classified == null) {
+    return null;
+  }
+
+  return ProviderTemplateRef(
+    templateId: t['template_id'] as String? ?? '',
+    name: t['name'] as String? ?? '',
+    invoiceSeries: series,
+    invoiceWithCode: classified.invoiceWithCode,
+    isMtt: classified.isMtt,
+    isSendSummary: t['is_send_summary'] as bool? ?? false,
+    serial: t['serial'] as String?,
+    isAvailable: t['is_available'] as bool? ?? true,
+  );
 }

@@ -30,7 +30,9 @@ final class EffectiveBuyerInvoiceData extends Equatable {
       case BuyerType.individual:
         return true;
       case BuyerType.organization:
-        return (taxCode != null) && taxCode!.trim().isNotEmpty;
+        final hasTaxCode = (taxCode != null) && taxCode!.trim().isNotEmpty;
+        final hasAddress = (address != null) && address!.trim().isNotEmpty;
+        return hasTaxCode && hasAddress;
     }
   }
 
@@ -39,6 +41,13 @@ final class EffectiveBuyerInvoiceData extends Equatable {
       buyerType == BuyerType.organization &&
       name.trim().isNotEmpty &&
       (taxCode?.trim().isEmpty ?? true);
+
+  /// True when organization already has name + tax code but address is still missing.
+  bool get isMissingOnlyOrgAddress =>
+      buyerType == BuyerType.organization &&
+      name.trim().isNotEmpty &&
+      (taxCode?.trim().isNotEmpty ?? false) &&
+      (address?.trim().isEmpty ?? true);
 
   @override
   List<Object?> get props => [buyerType, name, email, taxCode, address];

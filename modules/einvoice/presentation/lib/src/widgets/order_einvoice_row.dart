@@ -14,7 +14,7 @@ import '../support/order_einvoice_copy.dart';
 /// [isBuyerNotReady] drives helperText (readiness). [projection.issuanceDisplayState]
 /// drives the trailing VBadge (issuance lifecycle).
 ///
-/// When issuance maps to [VBadgeStatus.processing], the row ignores [onTap]
+/// When issuance is [IssuanceDisplayState.processing], the row ignores [onTap]
 /// (see [EInvoiceStatusInteraction]) while preserving row and badge visuals.
 class OrderEInvoiceRow extends StatelessWidget {
   const OrderEInvoiceRow({
@@ -46,13 +46,9 @@ class OrderEInvoiceRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          VIconBox(
+          VIcon(
             icon: VIcons.fileCheck,
-            size: 40,
-            iconSize: 20,
-            backgroundColor: colors.surfaceAlt,
-            iconColor: colors.textSecondary,
-            borderRadius: VRadius.r12,
+            color: colors.textPrimary,
           ),
           const VGap.horizontalMd(),
           Expanded(
@@ -98,7 +94,7 @@ class OrderEInvoiceRow extends StatelessWidget {
         const VGap.horizontalSm(),
         VIcon(
           icon: VIcons.chevronRight,
-          color: colors.textSecondary,
+          color: colors.textMuted,
           size: 20,
         ),
       ],
@@ -110,26 +106,22 @@ class OrderEInvoiceRow extends StatelessWidget {
       case IssuanceDisplayState.notIssued:
         return const VBadge(
           label: OrderEInvoiceCopy.badgeNotIssued,
-          status: VBadgeStatus.draft,
-          isSmall: true,
+          tone: VComponentTone.neutral,
         );
       case IssuanceDisplayState.processing:
         return const VBadge(
           label: OrderEInvoiceCopy.badgeProcessing,
-          status: VBadgeStatus.processing,
-          isSmall: true,
+          tone: VComponentTone.primary,
         );
       case IssuanceDisplayState.issued:
         return const VBadge(
           label: OrderEInvoiceCopy.badgeIssued,
-          status: VBadgeStatus.success,
-          isSmall: true,
+          tone: VComponentTone.success,
         );
       case IssuanceDisplayState.failed:
         return const VBadge(
           label: OrderEInvoiceCopy.badgeIssueFailed,
-          status: VBadgeStatus.danger,
-          isSmall: true,
+          tone: VComponentTone.danger,
         );
     }
   }

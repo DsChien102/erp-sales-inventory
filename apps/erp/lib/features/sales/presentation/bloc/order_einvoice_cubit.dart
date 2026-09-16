@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:async_query/async_query.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
@@ -9,7 +10,9 @@ import '../services/file_invoice_document_exporter.dart';
 import '../services/i_invoice_document_exporter.dart';
 import '../services/i_invoice_viewer_launcher.dart';
 import '../services/url_invoice_viewer_launcher.dart';
+import '../support/order_einvoice_error_message.dart';
 import '../support/order_einvoice_idempotency_key_factory.dart';
+import 'order_einvoice_refresh_snapshot.dart';
 import 'order_einvoice_state.dart';
 
 class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
@@ -19,14 +22,17 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     required OrderInvoiceProjectionDto initialProjection,
     IssuanceReadinessDto? initialReadiness,
     bool isBuyerNotReady = false,
+    bool hasLoadedInitialProjection = true,
     required IExecutionContext executionContext,
     required IModuleMediator mediator,
+    required QueryClient queryClient,
     IInvoiceViewerLauncher? viewerLauncher,
     IInvoiceDocumentExporter? documentExporter,
     OrderEInvoiceIdempotencyKeyFactory idempotencyKeyFactory =
         const OrderEInvoiceIdempotencyKeyFactory(),
   }) : _executionContext = executionContext,
        _mediator = mediator,
+       _queryClient = queryClient,
        _viewerLauncher = viewerLauncher ?? const UrlInvoiceViewerLauncher(),
        _documentExporter = documentExporter ?? const FileInvoiceDocumentExporter(),
        _idempotencyKeys = idempotencyKeyFactory,
@@ -37,14 +43,22 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
            projection: initialProjection,
            readiness: initialReadiness,
            isBuyerNotReady: isBuyerNotReady,
+           hasLoadedProjection: hasLoadedInitialProjection,
          ),
        );
 
   final IExecutionContext _executionContext;
   final IModuleMediator _mediator;
+  final QueryClient _queryClient;
   final IInvoiceViewerLauncher _viewerLauncher;
   final IInvoiceDocumentExporter _documentExporter;
   final OrderEInvoiceIdempotencyKeyFactory _idempotencyKeys;
+
+  QueryObserver<OrderEInvoiceRefreshSnapshot>? _pollObserver;
+  StreamSubscription<QueryState<OrderEInvoiceRefreshSnapshot>>? _pollSubscription;
+  bool _pollingRequested = false;
+  bool _startingPolling = false;
+  int _previewGeneration = 0;
 
   /// Triggered when user confirms issue/retry action on UI.
   Future<void> issueOrRetry() async {
@@ -81,12 +95,20 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       }
 
       emit(state.toProcessing());
+      // Avoid poll-observer onListen re-applying a stale failed cache snapshot.
+      _queryClient.setQueryData<OrderEInvoiceRefreshSnapshot>(
+        ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
+        OrderEInvoiceRefreshSnapshot(
+          projection: state.projection,
+          readiness: state.readiness,
+        ),
+      );
       await refresh();
     } catch (e) {
       emit(
         state.copyWith(
           status: OrderEInvoiceStatus.error,
-          errorMessage: _humanFriendlyError(e),
+          errorMessage: OrderEInvoiceErrorMessage.of(e),
         ),
       );
     }
@@ -95,7 +117,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
   /// Alias for issueOrRetry for explicit issue action.
   Future<void> issueNow() => issueOrRetry();
 
-  /// Projection and readiness refresh.
+  /// Projection, readiness, and safe attempt-status refresh.
   Future<void> refresh() async {
     if (isClosed || !state.isPageActive) {
       return;
@@ -104,49 +126,151 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
-      final updatedProjection = await _mediator.executeQueryAsync(
-        GetOrderInvoiceProjectionQuery(
+      final queryState = await _queryClient.fetchQuery<OrderEInvoiceRefreshSnapshot>(
+        queryKey: ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
+        queryFn: () => _loadRefreshSnapshot(
+          tenantId: tenantId,
+          actorId: actorId,
+        ),
+        staleTime: Duration.zero,
+        retry: 0,
+      );
+      final snapshot = queryState.data;
+      if (snapshot != null) _applyRefreshSnapshot(snapshot);
+    } catch (_) {
+      // Lỗi đọc tạm thời không được thay thế projection đáng tin cậy gần nhất.
+    }
+  }
+
+  void setPollingActive(bool active) {
+    _pollingRequested = active;
+    if (!active) {
+      _stopPolling();
+      return;
+    }
+    unawaited(_startPolling());
+  }
+
+  Future<void> _startPolling() async {
+    if (!_pollingRequested || isClosed || _pollObserver != null || _startingPolling) {
+      return;
+    }
+    _startingPolling = true;
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+      if (!_pollingRequested || isClosed) return;
+
+      final observer = _queryClient.watchQuery<OrderEInvoiceRefreshSnapshot>(
+        queryKey: ['einvoice', 'orderInvoice', tenantId, state.salesOrderId],
+        queryFn: () => _loadRefreshSnapshot(
+          tenantId: tenantId,
+          actorId: actorId,
+        ),
+        staleTime: Duration.zero,
+        retry: 0,
+        refetchOnMount: true,
+        refetchInterval: const Duration(seconds: 5),
+      );
+      _pollObserver = observer;
+      _pollSubscription = observer.stream.listen((queryState) {
+        final snapshot = queryState.data;
+        if (snapshot != null) _applyRefreshSnapshot(snapshot);
+      });
+    } catch (_) {
+      _stopPolling();
+      // Keep last trusted projection; auth/network failures must not escape.
+    } finally {
+      _startingPolling = false;
+    }
+  }
+
+  void _stopPolling() {
+    unawaited(_pollSubscription?.cancel());
+    _pollSubscription = null;
+    _pollObserver?.dispose();
+    _pollObserver = null;
+  }
+
+  @override
+  Future<void> close() async {
+    _pollingRequested = false;
+    final subscription = _pollSubscription;
+    _pollSubscription = null;
+    await subscription?.cancel();
+    _pollObserver?.dispose();
+    _pollObserver = null;
+    return super.close();
+  }
+
+  Future<OrderEInvoiceRefreshSnapshot> _loadRefreshSnapshot({
+    required String tenantId,
+    required String actorId,
+  }) async {
+    final projection = await _mediator.executeQueryAsync(
+      GetOrderInvoiceProjectionQuery(
+        tenantId: tenantId,
+        actorId: actorId,
+        salesOrderId: state.salesOrderId,
+      ),
+    );
+
+    IssuanceReadinessDto? readiness;
+    try {
+      readiness = await _mediator.executeQueryAsync(
+        GetIssuanceReadinessQuery(
           tenantId: tenantId,
           actorId: actorId,
           salesOrderId: state.salesOrderId,
         ),
       );
+    } catch (_) {}
 
-      IssuanceReadinessDto? updatedReadiness;
+    IssuanceAttemptStatusDto? attemptStatus;
+    if (projection.issuanceDisplayState == IssuanceDisplayState.failed) {
       try {
-        updatedReadiness = await _mediator.executeQueryAsync(
-          GetIssuanceReadinessQuery(
+        attemptStatus = await _mediator.executeQueryAsync(
+          GetIssuanceAttemptStatusQuery(
             tenantId: tenantId,
             actorId: actorId,
             salesOrderId: state.salesOrderId,
           ),
         );
-      } catch (_) {
-        // Ignore readiness query error
-      }
-
-      final template = await _loadIssuanceTemplateDisplay(
-        tenantId: tenantId,
-        actorId: actorId,
-      );
-
-      if (isClosed || !state.isPageActive) return;
-      emit(
-        state.copyWith(
-          status: state.status == OrderEInvoiceStatus.submitting
-              ? OrderEInvoiceStatus.idle
-              : null,
-          projection: updatedProjection,
-          readiness: updatedReadiness ?? state.readiness,
-          templateNumber: template.number,
-          templateSymbol: template.symbol,
-          authorityMode: template.authority,
-          clearError: true,
-        ),
-      );
-    } catch (_) {
-      // Ignore poll/refresh failures silently
+      } catch (_) {}
     }
+
+    return OrderEInvoiceRefreshSnapshot(
+      projection: projection,
+      readiness: readiness,
+      attemptStatus: attemptStatus,
+    );
+  }
+
+  void _applyRefreshSnapshot(OrderEInvoiceRefreshSnapshot snapshot) {
+    if (isClosed || !state.isPageActive) return;
+    final blockers = snapshot.readiness?.blockers ?? const [];
+    final buyerNotReady = snapshot.readiness == null
+        ? state.isBuyerNotReady
+        : blockers.any(
+            (blocker) =>
+                blocker.code == 'BUYER_TAX_CODE_REQUIRED' ||
+                blocker.code == 'BUYER_DATA_INCOMPLETE' ||
+                blocker.code == 'BUYER_SOURCE_UNAVAILABLE',
+          );
+    final failure = snapshot.attemptStatus;
+    emit(
+      state.copyWith(
+        status: state.status == OrderEInvoiceStatus.submitting ? OrderEInvoiceStatus.idle : null,
+        projection: snapshot.projection,
+        readiness: snapshot.readiness ?? state.readiness,
+        isBuyerNotReady: buyerNotReady,
+        hasLoadedProjection: true,
+        failureCode: failure?.failureCode,
+        lastFailureMessage: failure?.lastErrorMessage,
+        clearError: true,
+        clearFailure: failure == null,
+      ),
+    );
   }
 
   /// Loads the configured MISA template (serial/symbol) for confirmation UI.
@@ -230,12 +354,29 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     };
   }
 
+  /// Cancels an in-flight preview (e.g. user dismisses the pre-issue sheet).
+  ///
+  /// Stops client-side polling / launch; does not revoke a server request that
+  /// already started. No-op when not [OrderEInvoiceStatus.previewing].
+  void cancelPreview() {
+    _previewGeneration++;
+    if (!isClosed && state.status == OrderEInvoiceStatus.previewing) {
+      emit(
+        state.copyWith(
+          status: OrderEInvoiceStatus.idle,
+          clearError: true,
+        ),
+      );
+    }
+  }
+
   /// Requests preview, polls for readiness if needed, and launches viewer.
   ///
   /// Default poll window is ~45s (45 × 1s) so MISA unpublished preview can
   /// finish before the UI surfaces a false "not ready" error. Concurrent taps
   /// while [OrderEInvoiceStatus.previewing] are ignored. A previous
   /// [OrderEInvoiceState.previewViewerUrl] is kept until a new URL arrives.
+  /// Call [cancelPreview] to abort after sheet dismiss.
   Future<String?> requestPreview({
     int maxPollAttempts = 45,
     Duration pollDelay = const Duration(seconds: 1),
@@ -244,6 +385,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       return null;
     }
 
+    final generation = ++_previewGeneration;
     emit(
       state.copyWith(
         status: OrderEInvoiceStatus.previewing,
@@ -253,6 +395,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
+      if (!_isPreviewGenerationCurrent(generation)) return null;
 
       final result = await _mediator.executeCommandAsync(
         RequestInvoicePreviewCommand(
@@ -262,12 +405,14 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           expectedOrderVersion: state.orderVersion,
         ),
       );
+      if (!_isPreviewGenerationCurrent(generation)) return null;
 
       var viewerUrl = _nonEmptyViewerRef(result.viewerRef);
       if (viewerUrl == null) {
         var delay = pollDelay;
         for (var i = 0; i < maxPollAttempts; i++) {
           await Future<void>.delayed(delay);
+          if (!_isPreviewGenerationCurrent(generation)) return null;
           try {
             final preview = await _mediator.executeQueryAsync(
               GetInvoicePreviewQuery(
@@ -276,6 +421,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
                 salesOrderId: state.salesOrderId,
               ),
             );
+            if (!_isPreviewGenerationCurrent(generation)) return null;
             viewerUrl = _nonEmptyViewerRef(preview.viewerRef);
             if (viewerUrl != null) {
               break;
@@ -293,6 +439,8 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           }
         }
       }
+
+      if (!_isPreviewGenerationCurrent(generation)) return null;
 
       if (viewerUrl != null) {
         emit(
@@ -314,15 +462,18 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
       );
       return null;
     } catch (e) {
+      if (!_isPreviewGenerationCurrent(generation)) return null;
       emit(
         state.copyWith(
           status: OrderEInvoiceStatus.error,
-          errorMessage: _humanFriendlyError(e),
+          errorMessage: OrderEInvoiceErrorMessage.of(e),
         ),
       );
       return null;
     }
   }
+
+  bool _isPreviewGenerationCurrent(int generation) => !isClosed && generation == _previewGeneration;
 
   static String? _nonEmptyViewerRef(String? value) {
     if (value == null || value.isEmpty) {
@@ -336,22 +487,58 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     int maxPollAttempts = 12,
     Duration pollDelay = const Duration(milliseconds: 1500),
   }) async {
-    emit(state.copyWith(status: OrderEInvoiceStatus.submitting));
+    if (state.isOpeningOfficialView) return false;
+    if (state.projection.issuanceDisplayState != IssuanceDisplayState.issued) {
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        isOpeningOfficialView: true,
+        clearError: true,
+        clearOfficialViewerUrl: true,
+      ),
+    );
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
 
-      var result = await _mediator.executeCommandAsync(
+      final result = await _mediator.executeCommandAsync(
         RequestOfficialInvoiceViewCommand(
           tenantId: tenantId,
           actorId: actorId,
           salesOrderId: state.salesOrderId,
         ),
       );
+      if (isClosed) return false;
 
       var viewerUrl = _nonEmptyViewerRef(result.viewerUrl);
-      if (viewerUrl == null && result.status == InvoiceDocumentStatus.pending) {
-        var delay = pollDelay;
+      final operationId = result.operationId?.trim();
+      final commandStatus = result.status;
+
+      if (viewerUrl == null &&
+          (commandStatus == InvoiceDocumentStatus.failed ||
+              commandStatus == InvoiceDocumentStatus.checkRequired)) {
+        emit(
+          state.copyWith(
+            status: OrderEInvoiceStatus.error,
+            errorMessage: _officialViewUnavailableMessage,
+          ),
+        );
+        return false;
+      }
+
+      final shouldPoll =
+          viewerUrl == null &&
+          operationId != null &&
+          operationId.isNotEmpty &&
+          (commandStatus == InvoiceDocumentStatus.pending ||
+              commandStatus == InvoiceDocumentStatus.available);
+
+      if (shouldPoll) {
+        var delay = commandStatus == InvoiceDocumentStatus.available ? Duration.zero : pollDelay;
+        InvoiceDocumentStatus? matchedStatus;
+
         for (var i = 0; i < maxPollAttempts; i++) {
           if (isClosed) return false;
           if (delay > Duration.zero) {
@@ -359,26 +546,52 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           }
           if (isClosed) return false;
 
-          final detail = await _mediator.executeQueryAsync(
-            GetElectronicInvoiceDetailQuery(
-              tenantId: tenantId,
-              actorId: actorId,
-              salesOrderId: state.salesOrderId,
-            ),
-          );
-          if (isClosed) return false;
+          try {
+            final detail = await _mediator.executeQueryAsync(
+              GetElectronicInvoiceDetailQuery(
+                tenantId: tenantId,
+                actorId: actorId,
+                salesOrderId: state.salesOrderId,
+              ),
+            );
+            if (isClosed) return false;
 
-          viewerUrl = _nonEmptyViewerRef(detail.officialViewerUrl);
-          if (viewerUrl != null || detail.officialViewStatus != InvoiceDocumentStatus.pending) {
-            break;
+            if (detail.officialViewOperationId != operationId) {
+              // Stale generation — keep polling without adopting URL/status.
+            } else {
+              matchedStatus = detail.officialViewStatus;
+              viewerUrl = _nonEmptyViewerRef(detail.officialViewerUrl);
+              if (viewerUrl != null ||
+                  matchedStatus == InvoiceDocumentStatus.failed ||
+                  matchedStatus == InvoiceDocumentStatus.checkRequired ||
+                  matchedStatus == InvoiceDocumentStatus.available) {
+                break;
+              }
+            }
+          } catch (_) {
+            // Transient poll failures should not abort the window.
           }
-          if (delay > Duration.zero) {
-            final nextMs = (delay.inMilliseconds * 1.5).clamp(
-              1500,
-              5000,
-            ).toInt();
+
+          if (delay == Duration.zero) {
+            delay = pollDelay;
+          } else if (delay > Duration.zero) {
+            final nextMs = (delay.inMilliseconds * 1.5).clamp(1500, 5000).toInt();
             delay = Duration(milliseconds: nextMs);
           }
+        }
+
+        if (viewerUrl == null &&
+            (matchedStatus == InvoiceDocumentStatus.failed ||
+                matchedStatus == InvoiceDocumentStatus.checkRequired)) {
+          if (!isClosed) {
+            emit(
+              state.copyWith(
+                status: OrderEInvoiceStatus.error,
+                errorMessage: _officialViewUnavailableMessage,
+              ),
+            );
+          }
+          return false;
         }
       }
 
@@ -414,13 +627,20 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         emit(
           state.copyWith(
             status: OrderEInvoiceStatus.error,
-            errorMessage: _humanFriendlyError(e),
+            errorMessage: OrderEInvoiceErrorMessage.of(e),
           ),
         );
       }
       return false;
+    } finally {
+      if (!isClosed && state.isOpeningOfficialView) {
+        emit(state.copyWith(isOpeningOfficialView: false));
+      }
     }
   }
+
+  static const _officialViewUnavailableMessage =
+      'Không thể mở bản thể hiện hóa đơn lúc này. Vui lòng thử lại.';
 
   /// Downloads PDF or XML document, polling while the worker prepares it.
   Future<bool> downloadDocument(
@@ -428,7 +648,18 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     int maxPollAttempts = 15,
     Duration pollDelay = const Duration(milliseconds: 1500),
   }) async {
-    emit(state.copyWith(status: OrderEInvoiceStatus.downloading));
+    if (state.downloadingDocumentType != null) return false;
+    if (state.projection.issuanceDisplayState != IssuanceDisplayState.issued) {
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        status: OrderEInvoiceStatus.downloading,
+        downloadingDocumentType: type,
+        clearError: true,
+      ),
+    );
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
@@ -443,11 +674,36 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           idempotencyKey: key,
         ),
       );
+      if (isClosed) return false;
 
       var downloadUrl = _nonEmptyViewerRef(result.downloadUrl);
-      InvoiceDocumentItemDto? lastItem;
-      if (downloadUrl == null && result.status == InvoiceDocumentStatus.pending) {
-        var delay = pollDelay;
+      var checksum = _nonEmptyViewerRef(result.checksum);
+      final operationId = result.operationId?.trim();
+      final commandStatus = result.status;
+
+      if (downloadUrl == null &&
+          (commandStatus == InvoiceDocumentStatus.failed ||
+              commandStatus == InvoiceDocumentStatus.checkRequired)) {
+        emit(
+          state.copyWith(
+            status: OrderEInvoiceStatus.error,
+            errorMessage: _documentUnavailableMessage,
+          ),
+        );
+        return false;
+      }
+
+      final shouldPoll =
+          downloadUrl == null &&
+          operationId != null &&
+          operationId.isNotEmpty &&
+          (commandStatus == InvoiceDocumentStatus.pending ||
+              commandStatus == InvoiceDocumentStatus.available);
+
+      InvoiceDocumentStatus? matchedStatus;
+      if (shouldPoll) {
+        var delay = commandStatus == InvoiceDocumentStatus.available ? Duration.zero : pollDelay;
+
         for (var i = 0; i < maxPollAttempts; i++) {
           if (isClosed) return false;
           if (delay > Duration.zero) {
@@ -455,35 +711,64 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           }
           if (isClosed) return false;
 
-          final documents = await _mediator.executeQueryAsync(
-            GetInvoiceDocumentsQuery(
-              tenantId: tenantId,
-              actorId: actorId,
-              salesOrderId: state.salesOrderId,
-            ),
-          );
-          if (isClosed) return false;
+          try {
+            final documents = await _mediator.executeQueryAsync(
+              GetInvoiceDocumentsQuery(
+                tenantId: tenantId,
+                actorId: actorId,
+                salesOrderId: state.salesOrderId,
+              ),
+            );
+            if (isClosed) return false;
 
-          final item = type == InvoiceDocumentType.pdf ? documents.pdf : documents.xml;
-          lastItem = item;
-          downloadUrl = _nonEmptyViewerRef(item?.downloadUrl);
-          if (downloadUrl != null ||
-              (item != null && item.status != InvoiceDocumentStatus.pending)) {
-            break;
+            final item = type == InvoiceDocumentType.pdf ? documents.pdf : documents.xml;
+            if (item == null || item.operationId != operationId) {
+              // Missing or stale generation — keep polling.
+            } else {
+              matchedStatus = item.status;
+              downloadUrl = _nonEmptyViewerRef(item.downloadUrl);
+              checksum = _nonEmptyViewerRef(item.checksum) ?? checksum;
+              if (downloadUrl != null ||
+                  matchedStatus == InvoiceDocumentStatus.failed ||
+                  matchedStatus == InvoiceDocumentStatus.checkRequired ||
+                  matchedStatus == InvoiceDocumentStatus.available) {
+                break;
+              }
+            }
+          } catch (_) {
+            // Transient poll failures should not abort the window.
           }
-          if (delay > Duration.zero) {
-            final nextMs = (delay.inMilliseconds * 1.5).clamp(
-              1500,
-              5000,
-            ).toInt();
+
+          if (delay == Duration.zero) {
+            delay = pollDelay;
+          } else if (delay > Duration.zero) {
+            final nextMs = (delay.inMilliseconds * 1.5).clamp(1500, 5000).toInt();
             delay = Duration(milliseconds: nextMs);
           }
+        }
+
+        if (downloadUrl == null &&
+            (matchedStatus == InvoiceDocumentStatus.failed ||
+                matchedStatus == InvoiceDocumentStatus.checkRequired)) {
+          if (!isClosed) {
+            emit(
+              state.copyWith(
+                status: OrderEInvoiceStatus.error,
+                errorMessage: _documentUnavailableMessage,
+              ),
+            );
+          }
+          return false;
         }
       }
 
       if (isClosed) return false;
 
-      if (downloadUrl != null) {
+      final isAvailable =
+          matchedStatus == InvoiceDocumentStatus.available ||
+          commandStatus == InvoiceDocumentStatus.available;
+
+      if (downloadUrl != null && checksum != null) {
         final ext = type == InvoiceDocumentType.pdf ? 'pdf' : 'xml';
         final filename = 'invoice_${state.salesOrderId}.$ext';
 
@@ -491,6 +776,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           filename: filename,
           type: type,
           url: downloadUrl,
+          expectedSha256: checksum,
         );
 
         if (!success) {
@@ -498,7 +784,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
             emit(
               state.copyWith(
                 status: OrderEInvoiceStatus.error,
-                errorMessage: 'Không thể mở liên kết tài liệu hóa đơn.',
+                errorMessage: 'Không thể lưu tài liệu hóa đơn trên thiết bị. Vui lòng thử lại.',
               ),
             );
           }
@@ -511,20 +797,24 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         return success;
       }
 
-      final finalStatus = lastItem?.status ?? result.status;
-      final errorMsg = switch (finalStatus) {
-        InvoiceDocumentStatus.checkRequired =>
-          'Tài liệu hóa đơn chưa sẵn sàng (CHECK_REQUIRED). Vui lòng kiểm tra log worker hoặc thử lại sau.',
-        InvoiceDocumentStatus.failed =>
-          'Tải tài liệu hóa đơn thất bại (FAILED). Vui lòng thử lại.',
-        _ => 'Đang chuẩn bị tài liệu hóa đơn. Vui lòng thử lại sau giây lát.',
-      };
+      // AVAILABLE without URL/checksum, or URL without checksum — fail closed.
+      if (isAvailable || downloadUrl != null) {
+        if (!isClosed) {
+          emit(
+            state.copyWith(
+              status: OrderEInvoiceStatus.error,
+              errorMessage: _documentUnavailableMessage,
+            ),
+          );
+        }
+        return false;
+      }
 
       if (!isClosed) {
         emit(
           state.copyWith(
             status: OrderEInvoiceStatus.error,
-            errorMessage: errorMsg,
+            errorMessage: 'Đang chuẩn bị tài liệu hóa đơn. Vui lòng thử lại sau giây lát.',
           ),
         );
       }
@@ -534,101 +824,23 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         emit(
           state.copyWith(
             status: OrderEInvoiceStatus.error,
-            errorMessage: _humanFriendlyError(e),
+            errorMessage: OrderEInvoiceErrorMessage.of(e),
           ),
         );
       }
       return false;
-    }
-  }
-
-  /// Loads send invoice sheet context (suggested email, mode, etc.).
-  Future<SendInvoiceSheetContextDto?> getSendSheetContext() async {
-    try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      return await _mediator.executeQueryAsync(
-        GetSendInvoiceSheetContextQuery(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-        ),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Sends the electronic invoice to the specified recipient email.
-  Future<bool> sendInvoiceEmail(String recipientEmail) async {
-    final trimmed = recipientEmail.trim();
-    if (trimmed.isEmpty) return false;
-
-    emit(
-      state.copyWith(
-        status: OrderEInvoiceStatus.submitting,
-        clearError: true,
-      ),
-    );
-    try {
-      final tenantId = await _executionContext.requireTenantId();
-      final actorId = await _executionContext.requireUserId();
-      final idempotencyKey = _idempotencyKeys.next();
-
-      await _mediator.executeCommandAsync(
-        SendElectronicInvoiceCommand(
-          tenantId: tenantId,
-          actorId: actorId,
-          salesOrderId: state.salesOrderId,
-          recipientEmail: trimmed,
-          idempotencyKey: idempotencyKey,
-        ),
-      );
-
-      // Refresh to update projection with latest delivery status
-      await refresh();
-      if (!isClosed && state.status == OrderEInvoiceStatus.submitting) {
-        emit(state.copyWith(status: OrderEInvoiceStatus.idle));
+    } finally {
+      if (!isClosed && state.downloadingDocumentType != null) {
+        emit(state.copyWith(clearDownloadingDocumentType: true));
       }
-      return true;
-    } catch (e) {
-      if (!isClosed) {
-        emit(
-          state.copyWith(
-            status: OrderEInvoiceStatus.error,
-            errorMessage: _humanFriendlyError(e),
-          ),
-        );
-      }
-      return false;
     }
   }
+
+  static const _documentUnavailableMessage =
+      'Không thể tải tài liệu hóa đơn lúc này. Vui lòng thử lại.';
 
   /// Control whether auto-refresh is active (pauses when page inactive).
   void setPageActive(bool isActive) {
     emit(state.copyWith(isPageActive: isActive));
-  }
-
-  static String _humanFriendlyError(Object error) {
-    final str = error.toString();
-    if (str.contains('NO_PERMISSION') || str.contains('permission')) {
-      return 'Bạn không có quyền thực hiện thao tác này.';
-    }
-    if (str.contains('STATE_CHANGED') || str.contains('order_version_mismatch')) {
-      return 'Trạng thái đơn hàng đã thay đổi. Vui lòng tải lại trang.';
-    }
-    if (str.contains('ISSUANCE_NOT_READY')) {
-      return 'Đơn hàng hoặc thông tin xuất hóa đơn chưa sẵn sàng.';
-    }
-    if (str.contains('DELIVERY_NOT_SUPPORTED')) {
-      return 'Cổng kết nối hóa đơn chưa hỗ trợ tính năng gửi email.';
-    }
-    if (str.contains('OPERATION_IN_PROGRESS')) {
-      return 'Yêu cầu gửi hóa đơn đang được xử lý, vui lòng chờ giây lát.';
-    }
-    if (str.contains('PlatformException') || str.contains('Error while launching')) {
-      return 'Không thể mở liên kết xem hóa đơn trên thiết bị. Vui lòng kiểm tra trình duyệt.';
-    }
-    return 'Đã có lỗi xảy ra: $str';
   }
 }

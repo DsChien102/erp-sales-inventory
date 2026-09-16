@@ -97,6 +97,33 @@ void main() {
       },
     );
 
+    test(
+      'organization with taxCode but missing/empty address is incomplete',
+      () {
+        const dataNullAddress = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+          taxCode: '0101234567',
+        );
+        const dataEmptyAddress = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+          taxCode: '0101234567',
+          address: '',
+        );
+        const dataWhitespaceAddress = EffectiveBuyerInvoiceData(
+          buyerType: BuyerType.organization,
+          name: 'Công ty TNHH ABC',
+          taxCode: '0101234567',
+          address: '   ',
+        );
+
+        expect(dataNullAddress.isComplete, isFalse);
+        expect(dataEmptyAddress.isComplete, isFalse);
+        expect(dataWhitespaceAddress.isComplete, isFalse);
+      },
+    );
+
     test('organization with empty name is incomplete and isMissingOnlyOrgTaxCode is false', () {
       const data = EffectiveBuyerInvoiceData(
         buyerType: BuyerType.organization,

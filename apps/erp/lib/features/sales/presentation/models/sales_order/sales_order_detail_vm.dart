@@ -11,7 +11,7 @@ enum SalesSettlementStatus {
   noBalance,
 }
 
-enum SalesEInvoiceStatus { notIssued, issuing, issued, sent, cancelled }
+enum SalesEInvoiceStatus { notIssued, issuing, issued, sent, failed, cancelled }
 
 class SalesOrderDetailItemVm extends Equatable {
   const SalesOrderDetailItemVm({
@@ -95,6 +95,7 @@ class SalesOrderDetailVm extends Equatable {
   const SalesOrderDetailVm({
     required this.orderId,
     required this.orderNumber,
+    required this.orderVersion,
     required this.createdAtFormatted,
     required this.customerName,
     required this.customerPhone,
@@ -127,6 +128,7 @@ class SalesOrderDetailVm extends Equatable {
 
   final String orderId;
   final String orderNumber;
+  final int orderVersion;
   final String createdAtFormatted;
   final String customerName;
   final String customerPhone;
@@ -170,6 +172,7 @@ class SalesOrderDetailVm extends Equatable {
   List<Object?> get props => [
     orderId,
     orderNumber,
+    orderVersion,
     createdAtFormatted,
     customerName,
     customerPhone,

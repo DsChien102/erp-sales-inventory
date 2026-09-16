@@ -112,10 +112,11 @@ SG02-T01
 → modules/einvoice/presentation/lib/src/widgets/preview_failure_toast.dart
 
 SG02-O05 / O06
-→ modules/einvoice/presentation/lib/src/widgets/post_issue_einvoice_action_sheet.dart
+→ apps/erp/lib/features/sales/presentation/widgets/einvoice/
+  post_issue_einvoice_action_sheet.dart
 ```
 
-Do not create separate widgets/files merely because the approved board contains separate frames for each state.
+> Note: Pre-issue compositions remain under `modules/einvoice/presentation/` (ADR 11 debt). Post-issued S4 sheets are app-owned.
 
 ---
 

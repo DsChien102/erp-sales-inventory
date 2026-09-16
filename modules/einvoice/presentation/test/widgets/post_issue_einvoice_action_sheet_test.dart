@@ -46,9 +46,14 @@ void main() {
   });
 
   testWidgets('pending resend disables send even when prior delivery was sent', (tester) async {
-    await tester.pumpWidget(buildSubject(state: const PostIssueSheetState(
-      deliveryStatus: DeliveryDisplayState.sent, isDeliveryPending: true,
-    )));
+    await tester.pumpWidget(
+      buildSubject(
+        state: const PostIssueSheetState(
+          deliveryStatus: DeliveryDisplayState.sent,
+          isDeliveryPending: true,
+        ),
+      ),
+    );
     final action = tester.widget<EInvoiceActionItem>(find.byKey(const Key('action_send')));
     expect(action.enabled, isFalse);
     expect(action.onTap, isNull);
@@ -64,12 +69,50 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.deliveryNotSent), findsOneWidget);
     });
 
-    testWidgets('official-view loading shows spinner', (tester) async {
+    testWidgets('view official invokes callback without popping', (tester) async {
+      var viewOfficialTaps = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: PostIssueEInvoiceActionSheet(
+              onViewOfficial: () => viewOfficialTaps++,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('action_view_official')));
+      await tester.pump();
+
+      expect(viewOfficialTaps, 1);
+      expect(find.byType(PostIssueEInvoiceActionSheet), findsOneWidget);
+    });
+
+    testWidgets('official-view loading shows spinner and disables siblings', (tester) async {
       await tester.pumpWidget(
         buildSubject(state: PostIssueSheetState.officialViewLoading),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(VLoading), findsOneWidget);
+
+      final documentsItem = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_documents')),
+      );
+      expect(documentsItem.enabled, isFalse);
+      expect(documentsItem.onTap, isNull);
+
+      final sendItem = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_send')),
+      );
+      expect(sendItem.enabled, isFalse);
+      expect(sendItem.onTap, isNull);
+
+      final viewOfficial = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_view_official')),
+      );
+      expect(viewOfficial.loading, isTrue);
+      expect(viewOfficial.onTap, isNull);
     });
 
     testWidgets('sent delivery status shows correct badge', (tester) async {

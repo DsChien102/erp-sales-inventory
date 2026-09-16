@@ -5,17 +5,18 @@ import '../../ports/i_einvoice_command_dispatcher.dart';
 import '../commands/start_auto_issuance/start_auto_issuance_command.dart';
 import '../shared/auto_issuance_idempotency_key.dart';
 
-final class SalesOrderCompletedIntegrationEventHandler
-    implements IIntegrationEventNotificationHandler<SalesOrderCompletedIntegrationEvent> {
-  SalesOrderCompletedIntegrationEventHandler({
+final class SalesOrderFinalizedIntegrationEventHandler
+    implements IIntegrationEventNotificationHandler<SalesOrderFinalizedIntegrationEvent> {
+  SalesOrderFinalizedIntegrationEventHandler({
     required IEinvoiceCommandDispatcher commands,
   }) : _commands = commands;
 
   final IEinvoiceCommandDispatcher _commands;
 
   @override
-  Future<void> handle(SalesOrderCompletedIntegrationEvent event) async {
+  Future<void> handle(SalesOrderFinalizedIntegrationEvent event) async {
     final triggerKey = AutoIssuanceIdempotencyKey.triggerKey(
+      eventType: SalesOrderFinalizedIntegrationEvent.type,
       eventId: event.id,
       salesOrderId: event.salesOrderId,
       sourceVersion: event.sourceVersion,

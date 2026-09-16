@@ -140,6 +140,10 @@ abstract final class SalesOrderDraftContractMapper {
       phoneNumber: customer.phoneNumber,
       taxCode: customer.taxCode,
       existingDebtMinor: 0,
+      buyerType: customer.buyerType,
+      invoiceLegalName: customer.invoiceLegalName,
+      invoiceAddress: customer.invoiceAddress,
+      invoiceEmail: customer.invoiceEmail,
     );
   }
 

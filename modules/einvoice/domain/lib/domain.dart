@@ -12,6 +12,7 @@ export 'src/provider_connection/provider_capabilities_snapshot.dart';
 export 'src/issuance_profile/issuance_profile.dart';
 export 'src/issuance_profile/issuance_profile_id.dart';
 export 'src/issuance_profile/signing_method.dart';
+export 'src/issuance_profile/invoice_series_classification.dart';
 export 'src/issuance_profile/provider_template_ref.dart';
 export 'src/issuance_profile/signing_configuration_ref.dart';
 export 'src/issuance_profile/effective_issuance_configuration.dart';

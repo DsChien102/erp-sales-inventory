@@ -68,19 +68,19 @@ final class _FakeAutoIssuanceGateway implements IAutoIssuanceGateway {
 }
 
 void main() {
-  group('SalesOrderCompletedIntegrationEventHandler', () {
+  group('SalesOrderFinalizedIntegrationEventHandler', () {
     test('dispatches single StartAutoIssuanceCommand with deterministic keys', () async {
       final dispatcher = _FakeEinvoiceCommandDispatcher();
-      final handler = SalesOrderCompletedIntegrationEventHandler(
+      final handler = SalesOrderFinalizedIntegrationEventHandler(
         commands: dispatcher,
       );
 
-      final event = SalesOrderCompletedIntegrationEvent(
+      final event = SalesOrderFinalizedIntegrationEvent(
         id: 'event-001',
-        occurredOn: DateTime.utc(2026, 8, 29, 10, 0, 0),
+        occurredOn: DateTime.utc(2026, 9, 15, 10, 2, 57),
         tenantId: 'tenant-1',
         salesOrderId: 'order-123',
-        sourceVersion: 'sales-v4',
+        sourceVersion: '1',
       );
 
       await handler.handle(event);
@@ -91,14 +91,14 @@ void main() {
       expect(cmd.salesOrderId, 'order-123');
       expect(
         cmd.triggerKey,
-        'sales.order.completed:event-001:order-123:sales-v4',
+        'sales_order_finalized.v1:event-001:order-123:1',
       );
       expect(
         cmd.idempotencyKey,
         AutoIssuanceIdempotencyKey.generate(
           tenantId: 'tenant-1',
           salesOrderId: 'order-123',
-          sourceVersion: 'sales-v4',
+          sourceVersion: '1',
         ),
       );
       expect(dispatcher.reevaluateCalls, isEmpty);

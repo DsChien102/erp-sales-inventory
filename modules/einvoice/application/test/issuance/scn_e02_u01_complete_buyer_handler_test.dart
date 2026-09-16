@@ -75,6 +75,44 @@ void main() {
   );
 
   test(
+    'scn_e02_u01_fr08_02: org has tax code but missing address throws BUYER_ADDRESS_REQUIRED',
+    () async {
+      final gateway = FakeBuyerInvoiceDataGateway(
+        context: const BuyerCompletionContext(
+          base: BuyerInvoiceSourceFields(
+            buyerType: BuyerType.organization,
+            name: 'Cty A',
+            taxCode: '0101',
+          ),
+          status: BuyerCompletionStatus.open,
+          salesOrderVersion: '1',
+          buyerPartnerId: 'bp1',
+          eligibleFields: ['address'],
+        ),
+      );
+      final handler = CompleteBuyerInvoiceDataCommandHandler(gateway: gateway);
+      expect(
+        () => handler.handle(
+          CompleteBuyerInvoiceDataCommand(
+            tenantId: 't1',
+            actorId: 'a1',
+            salesOrderId: 'so1',
+            expectedOrderVersion: 1,
+          ),
+        ),
+        throwsA(
+          isA<EInvoiceBlockedException>().having(
+            (e) => e.code,
+            'code',
+            EInvoiceBlockedCodes.buyerAddressRequired,
+          ),
+        ),
+      );
+      expect(gateway.savedResolvedValues, isNull);
+    },
+  );
+
+  test(
     'scn_e02_u01_fr04_02: already LOCKED completion applies frozen resolved_values without re-saving',
     () async {
       // base snapshot is incomplete (no tax code) — the frozen completionSource must

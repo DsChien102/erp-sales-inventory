@@ -29,7 +29,7 @@ class QueryObserver<T> {
           ? _query.shouldFetch
           : (refetchOnMount && _query.shouldFetch);
       if (shouldFetchOnMount) {
-        unawaited(_query.fetch());
+        _fetchInBackground();
       }
       _startRefetchTimer();
     }
@@ -57,13 +57,22 @@ class QueryObserver<T> {
     }
   }
 
+  void _fetchInBackground({bool force = false}) {
+    unawaited(
+      _query.fetch(force: force).then<void>(
+        (_) {},
+        onError: (_, __) {},
+      ),
+    );
+  }
+
   void _startRefetchTimer() {
     _stopRefetchTimer();
     final interval = _refetchInterval ?? _query.options.refetchInterval;
     if (interval != null && interval > Duration.zero && _query.options.enabled) {
       _refetchTimer = Timer.periodic(interval, (_) {
         if (!_disposed && _query.options.enabled) {
-          unawaited(refetch());
+          _fetchInBackground(force: true);
         }
       });
     }

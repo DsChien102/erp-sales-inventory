@@ -18,7 +18,7 @@ void main() {
       'official request/replay uses one operation, previewPublished once, AVAILABLE expires in 5m',
       () async {
         harness.fakeMeInvoiceClient.enqueuePreviewPublishedResult(
-          MeInvoiceResult.ok('https://viewer.example/official'),
+          MeInvoiceResult.ok('https://meinvoice.vn/viewer/official'),
         );
 
         final pending = await harness.requestOfficialView();
@@ -35,7 +35,7 @@ void main() {
         expect(harness.fakeMeInvoiceClient.previewPublishedCount, 1);
         final op = harness.state.officialOps.values.single;
         expect(op.status, InvoiceDocumentStatus.available);
-        expect(op.viewerUrl, 'https://viewer.example/official');
+        expect(op.viewerUrl, 'https://meinvoice.vn/viewer/official');
         expect(op.expiresAt, DateTime.utc(2026, 8, 31, 9, 5));
 
         final replay = await harness.requestOfficialView();
@@ -70,7 +70,7 @@ void main() {
         expect(op.generation, 1);
 
         harness.fakeMeInvoiceClient.enqueuePreviewPublishedResult(
-          MeInvoiceResult.ok('https://viewer.example/replay'),
+          MeInvoiceResult.ok('https://meinvoice.vn/viewer/replay'),
         );
         final replay = await harness.commandGateway.replayOfficialView(
           tenantId: Slice4TestHarness.tenantId,
@@ -373,7 +373,7 @@ void main() {
     );
 
     test(
-      'observation success -> one interaction and one observation',
+      'th08_e2e_e03_u03_sc01_01 observation success appends one interaction and one observation',
       () async {
         harness.commandGateway.enqueueObservation(
           tenantId: Slice4TestHarness.tenantId,

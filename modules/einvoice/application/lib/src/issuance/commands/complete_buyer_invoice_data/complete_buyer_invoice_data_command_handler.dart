@@ -41,6 +41,8 @@ final class CompleteBuyerInvoiceDataCommandHandler
       // Org missing only tax code is the specific blocker (BR-14); otherwise generic.
       final code = effective.isMissingOnlyOrgTaxCode
           ? EInvoiceBlockedCodes.buyerTaxCodeRequired
+          : effective.isMissingOnlyOrgAddress
+          ? EInvoiceBlockedCodes.buyerAddressRequired
           : EInvoiceBlockedCodes.buyerDataIncomplete;
       throw EInvoiceBlockedException(code, message: 'Buyer data incomplete');
     }

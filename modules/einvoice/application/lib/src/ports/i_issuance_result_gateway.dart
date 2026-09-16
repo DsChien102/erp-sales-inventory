@@ -34,6 +34,15 @@ abstract interface class IIssuanceResultGateway {
     required IssuanceResultEvidenceDto evidence,
   });
 
+  /// Schedules a durable publish retry for retryable provider rejections.
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  });
+
   Future<RecordIssuanceResultDto> recordCommandIntegrityFailure({
     required String tenantId,
     required String attemptId,

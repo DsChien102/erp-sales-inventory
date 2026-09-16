@@ -1,10 +1,23 @@
+import 'package:async_query/async_query.dart';
+import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_application/testing.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
+import 'package:vet45_einvoice_presentation/presentation.dart'
+    hide InvoiceDocumentsActionSheet, PostIssueEInvoiceActionSheet;
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/features/sales/presentation/bloc/sales_order/sales_transaction_result_cubit.dart';
+import 'package:erp/features/sales/presentation/services/i_invoice_document_exporter.dart';
+import 'package:erp/features/sales/presentation/support/order_invoice_delivery_copy.dart';
+import 'package:erp/features/sales/presentation/widgets/einvoice/invoice_documents_action_sheet.dart';
+import 'package:erp/features/sales/presentation/widgets/einvoice/post_issue_einvoice_action_sheet.dart';
+import 'package:erp/features/sales/presentation/widgets/einvoice/resend_invoice_sheet.dart';
 import 'package:erp/features/sales/presentation/widgets/sales_transaction_result_body.dart';
 
 void main() {
@@ -65,16 +78,209 @@ void main() {
 
     expect(find.textContaining('Chưa thể tạo phiếu bán hàng'), findsOneWidget);
   });
+
+  testWidgets('result screen mounts the live invoice row without a tap', (
+    tester,
+  ) async {
+    final salesCubit = _cubit(module: _RecordingSalesModule());
+    final queryClient = QueryClient(
+      options: const QueryClientOptions(
+        queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
+      ),
+    );
+    final einvoice = _ProjectionEInvoiceMediator(
+      const OrderInvoiceProjectionDto(
+        salesOrderId: 'order-1',
+        issuanceDisplayState: IssuanceDisplayState.processing,
+        actions: [],
+      ),
+    );
+    addTearDown(salesCubit.close);
+    addTearDown(queryClient.dispose);
+
+    await tester.pumpWidget(
+      _host(
+        salesCubit,
+        queryClient: queryClient,
+        eInvoiceMediator: einvoice,
+        executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+      ),
+    );
+    await salesCubit.load();
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byType(OrderEInvoiceRow), findsOneWidget);
+    expect(find.text(OrderEInvoiceCopy.badgeProcessing), findsOneWidget);
+    expect(find.text('Chưa phát hành'), findsNothing);
+  });
+
+  testWidgets(
+    'th08_e2e_e03_u02_sc01_01 sales result exports PDF from SG-06',
+    (tester) async {
+      final salesCubit = _cubit(module: _RecordingSalesModule());
+      final queryClient = QueryClient(
+        options: const QueryClientOptions(
+          queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
+        ),
+      );
+      final module = FakeEInvoiceModule(
+        scenario: FakeEInvoiceScenario.downloadPdfOk,
+      );
+      final einvoice = _RecordingEInvoiceMediator(module);
+      final exporter = _RecordingExporter();
+      addTearDown(salesCubit.close);
+      addTearDown(queryClient.dispose);
+
+      await tester.pumpWidget(
+        _host(
+          salesCubit,
+          queryClient: queryClient,
+          eInvoiceMediator: einvoice,
+          executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+          documentExporter: exporter,
+        ),
+      );
+      await salesCubit.load();
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(SalesTransactionResultBody), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.badgeIssued), findsOneWidget);
+
+      await tester.ensureVisible(find.byType(OrderEInvoiceRow));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(OrderEInvoiceRow));
+      await tester.pumpAndSettle();
+      expect(find.byType(PostIssueEInvoiceActionSheet), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('action_documents')));
+      await tester.pumpAndSettle();
+      expect(find.byType(InvoiceDocumentsActionSheet), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('action_save_pdf')));
+      await tester.pump();
+      // Fake returns PENDING then documents AVAILABLE after pollDelay (1.5s).
+      await tester.pump(const Duration(milliseconds: 1600));
+      await tester.pumpAndSettle();
+
+      final pdfCommands = einvoice.commands.whereType<RequestInvoiceDocumentCommand>().where(
+        (c) => c.documentType == InvoiceDocumentType.pdf,
+      );
+      expect(pdfCommands, hasLength(1));
+      expect(exporter.exported, hasLength(1));
+      expect(
+        exporter.exported.single.url,
+        'https://download.fake/signed/pdf',
+      );
+      expect(exporter.exported.single.expectedSha256, 'pdf-checksum-1');
+      expect(find.byType(SalesTransactionResultBody), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'th08_e2e_e04_u02_sc06_01 sales result resend opens history then returns',
+    (tester) async {
+      final salesCubit = _cubit(module: _RecordingSalesModule());
+      final queryClient = QueryClient(
+        options: const QueryClientOptions(
+          queries: QueryOptionsDefaults(retry: 0, staleTime: Duration.zero),
+        ),
+      );
+      final module = FakeEInvoiceModule(
+        scenario: FakeEInvoiceScenario.sendSheetResend,
+      );
+      final einvoice = _Sg07ResultMediator(module);
+      addTearDown(salesCubit.close);
+      addTearDown(queryClient.dispose);
+
+      await tester.pumpWidget(
+        _host(
+          salesCubit,
+          queryClient: queryClient,
+          eInvoiceMediator: einvoice,
+          executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
+        ),
+      );
+      await salesCubit.load();
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(SalesTransactionResultBody), findsOneWidget);
+      await tester.ensureVisible(find.byType(OrderEInvoiceRow));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(OrderEInvoiceRow));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('action_send')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OrderInvoiceResendSheet), findsOneWidget);
+      expect(find.text(OrderInvoiceDeliveryCopy.viewHistory), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('action_view_delivery_history')));
+      await tester.pumpAndSettle();
+
+      expect(
+        einvoice.queries.whereType<GetInvoiceDeliveryHistoryQuery>(),
+        hasLength(1),
+      );
+      expect(find.text(OrderInvoiceDeliveryCopy.historyPageTitle), findsOneWidget);
+      expect(find.textContaining('newer@example.com'), findsOneWidget);
+      expect(find.textContaining('older@example.com'), findsOneWidget);
+
+      final texts = tester
+          .widgetList<VText>(find.byType(VText))
+          .map((w) => w.data)
+          .whereType<String>()
+          .toList();
+      final newer = texts.indexWhere((t) => t.contains('newer@example.com'));
+      final older = texts.indexWhere((t) => t.contains('older@example.com'));
+      expect(newer, lessThan(older));
+
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is VIcon &&
+              (widget.icon == VIcons.chevronLeft || widget.icon == VIcons.arrowBack),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderInvoiceResendSheet), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('action_cancel_send')));
+      await tester.pumpAndSettle();
+      expect(find.byType(SalesTransactionResultBody), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }
 
-Widget _host(SalesTransactionResultCubit cubit) => MaterialApp(
-  home: Scaffold(
-    body: BlocProvider<SalesTransactionResultCubit>.value(
-      value: cubit,
-      child: const SalesTransactionResultBody(onViewOrderDetail: _noop),
+Widget _host(
+  SalesTransactionResultCubit cubit, {
+  QueryClient? queryClient,
+  IModuleMediator? eInvoiceMediator,
+  IExecutionContext? executionContext,
+  IInvoiceDocumentExporter? documentExporter,
+}) {
+  final app = MaterialApp(
+    theme: VTheme.lightTheme,
+    home: Scaffold(
+      body: BlocProvider<SalesTransactionResultCubit>.value(
+        value: cubit,
+        child: SalesTransactionResultBody(
+          onViewOrderDetail: _noop,
+          eInvoiceMediator: eInvoiceMediator,
+          executionContext: executionContext,
+          documentExporter: documentExporter,
+        ),
+      ),
     ),
-  ),
-);
+  );
+  return queryClient == null ? app : QueryClientProvider(client: queryClient, child: app);
+}
 
 void _noop() {}
 
@@ -88,6 +294,144 @@ SalesTransactionResultCubit _cubit({
   executionContext: const _ExecutionContext('tenant-1', 'actor-1'),
   recoveryBackoff: const [Duration.zero],
 );
+
+final class _RecordingEInvoiceMediator implements IModuleMediator {
+  _RecordingEInvoiceMediator(this.module);
+
+  final FakeEInvoiceModule module;
+  final List<ICommand<dynamic>> commands = [];
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    commands.add(command);
+    return module.executeCommandAsync(command);
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    return module.executeQueryAsync(query);
+  }
+}
+
+final class _Sg07ResultMediator implements IModuleMediator {
+  _Sg07ResultMediator(this.module);
+
+  final FakeEInvoiceModule module;
+  final List<ICommand<dynamic>> commands = [];
+  final List<IQuery<dynamic>> queries = [];
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    commands.add(command);
+    return module.executeCommandAsync(command);
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    queries.add(query);
+    if (query is GetOrderInvoiceProjectionQuery) {
+      return FakeEInvoiceFixtures.projection(
+            issuance: IssuanceDisplayState.issued,
+            delivery: DeliveryDisplayState.sent,
+            actions: const [OrderInvoiceAction.view],
+          )
+          as TResult;
+    }
+    if (query is GetInvoiceDeliveryHistoryQuery) {
+      final older = DateTime.utc(2026, 8, 1, 9);
+      final newer = DateTime.utc(2026, 8, 5, 16, 20);
+      return InvoiceDeliveryHistoryDto(
+            deliveries: [
+              InvoiceDeliveryItemDto(
+                deliveryId: 'del-1',
+                deliveryNo: 1,
+                kind: DeliveryKind.initial,
+                triggerType: DeliveryTriggerType.automatic,
+                recipientEmail: 'older@example.com',
+                status: DeliveryStatus.succeeded,
+                initiatedByActorType: DeliveryActorType.system,
+                initiatedByActorId: null,
+                startedAt: older,
+                completedAt: older,
+                failureCode: null,
+              ),
+              InvoiceDeliveryItemDto(
+                deliveryId: 'del-2',
+                deliveryNo: 2,
+                kind: DeliveryKind.resend,
+                triggerType: DeliveryTriggerType.manual,
+                recipientEmail: 'newer@example.com',
+                status: DeliveryStatus.succeeded,
+                initiatedByActorType: DeliveryActorType.user,
+                initiatedByActorId: 'actor-1',
+                startedAt: newer,
+                completedAt: newer,
+                failureCode: null,
+              ),
+            ],
+            displayState: DeliveryDisplayState.sent,
+            hasSecondaryAttention: false,
+          )
+          as TResult;
+    }
+    return module.executeQueryAsync(query);
+  }
+}
+
+final class _RecordingExporter implements IInvoiceDocumentExporter {
+  final List<
+    ({
+      String filename,
+      InvoiceDocumentType type,
+      String? url,
+      String? expectedSha256,
+    })
+  >
+  exported = [];
+
+  @override
+  Future<bool> exportDocument({
+    required String filename,
+    required InvoiceDocumentType type,
+    String? url,
+    List<int>? bytes,
+    String? expectedSha256,
+  }) async {
+    exported.add((
+      filename: filename,
+      type: type,
+      url: url,
+      expectedSha256: expectedSha256,
+    ));
+    return true;
+  }
+}
+
+final class _ProjectionEInvoiceMediator implements IModuleMediator {
+  _ProjectionEInvoiceMediator(this.projection);
+
+  final OrderInvoiceProjectionDto projection;
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is GetOrderInvoiceProjectionQuery) return projection as TResult;
+    if (query is GetIssuanceReadinessQuery) {
+      return const IssuanceReadinessDto(
+            level: IssuanceReadinessLevel.ready,
+            blockers: [],
+            warnings: [],
+            buyerCompletionState: BuyerCompletionStatus.open,
+          )
+          as TResult;
+    }
+    throw UnsupportedError('Unexpected query $query');
+  }
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError('Unexpected command $command');
+  }
+}
 
 final class _RecordingSalesModule implements ISalesModule {
   _RecordingSalesModule({

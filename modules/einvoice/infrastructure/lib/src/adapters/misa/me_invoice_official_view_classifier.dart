@@ -31,8 +31,8 @@ abstract final class MeInvoiceOfficialViewClassifier {
       );
     }
 
-    final viewerUrl = result.data?.trim();
-    if (viewerUrl == null || viewerUrl.isEmpty) {
+    final viewerUrl = MeInvoiceViewUrlPolicy.tryParse(result.data);
+    if (viewerUrl == null) {
       return const OfficialViewProviderDefiniteFailure(
         failureCode: 'DOCUMENT_UNAVAILABLE',
       );

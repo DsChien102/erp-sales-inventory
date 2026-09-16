@@ -42,6 +42,10 @@ create table if not exists einvoice.issuance_attempts (
     )),
   provider_connection_id uuid not null references einvoice.provider_connections(id),
   issuance_profile_id uuid not null references einvoice.issuance_profiles(id),
+  invoice_series varchar(100) not null,
+  invoice_with_code boolean not null,
+  is_invoice_summary boolean not null,
+  sign_type smallint not null check (sign_type in (2, 5)),
   idempotency_key varchar(150) not null,
   intent_hash varchar(128) not null,
   snapshot_schema_version integer not null,
@@ -54,6 +58,9 @@ create table if not exists einvoice.issuance_attempts (
   provider_result_code varchar(100) null,
   provider_result_message text null,
   provider_result_snapshot jsonb null,
+  provider_publish_retry_count integer not null default 0,
+  next_provider_publish_retry_at timestamptz null,
+  last_provider_publish_code varchar(100) null,
   failure_code varchar(100) null,
   failure_message text null,
   internal_finalization_state text not null default 'PENDING'
@@ -68,6 +75,14 @@ create table if not exists einvoice.issuance_attempts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   version bigint not null default 0,
+  check (invoice_series ~ '^[1256][CK].{2}[TM]'),
+  check (invoice_with_code = (substr(invoice_series, 2, 1) = 'C')),
+  check (
+    sign_type = case
+      when substr(invoice_series, 5, 1) = 'M' then 5
+      else 2
+    end
+  ),
   unique (invoice_issuance_id, attempt_no),
   unique (tenant_id, idempotency_key)
 );
@@ -198,6 +213,10 @@ declare
   v_attempt_snapshot jsonb;
   v_canonical_jsonb jsonb;
   v_canonical_hash text;
+  v_invoice_series text;
+  v_invoice_with_code boolean;
+  v_is_invoice_summary boolean;
+  v_sign_type smallint;
   v_base_buyer_snapshot jsonb;
   v_buyer_completion einvoice.buyer_invoice_completions%rowtype;
 begin
@@ -289,8 +308,8 @@ begin
   into v_issuance_profile_id
   from einvoice.issuance_profiles ip
   where ip.tenant_id = p_tenant_id
-    and ip.is_active = true
-  order by ip.created_at asc
+    and ip.default_template is not null
+    and ip.default_signing is not null
   limit 1;
 
   if v_issuance_profile_id is null then
@@ -382,6 +401,43 @@ begin
     v_source.buyer_snapshot,
     v_source.commercial_snapshot
   );
+
+  v_invoice_series := nullif(
+    upper(btrim(v_canonical_jsonb ->> 'invSeries')),
+    ''
+  );
+  if v_invoice_series is null
+     or v_invoice_series !~ '^[1256][CK].{2}[TM]'
+     or jsonb_typeof(v_canonical_jsonb -> 'invoiceWithCode') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'isInvoiceSummary') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'signType') is distinct from 'number' then
+    raise exception 'STATE_INVALID: canonical provider contract is missing or malformed';
+  end if;
+
+  v_invoice_with_code := (v_canonical_jsonb ->> 'invoiceWithCode')::boolean;
+  v_is_invoice_summary := (v_canonical_jsonb ->> 'isInvoiceSummary')::boolean;
+  v_sign_type := (v_canonical_jsonb ->> 'signType')::smallint;
+
+  if v_sign_type not in (2, 5)
+     or v_invoice_with_code is distinct from (substr(v_invoice_series, 2, 1) = 'C')
+     or v_sign_type is distinct from (
+       case
+         when substr(v_invoice_series, 5, 1) = 'M' then 5
+         else 2
+       end
+     ) then
+    raise exception 'STATE_INVALID: canonical provider contract is inconsistent';
+  end if;
+
+  v_attempt_snapshot := v_attempt_snapshot || jsonb_build_object(
+    'provider_contract', jsonb_build_object(
+      'invoice_series', v_invoice_series,
+      'invoice_with_code', v_invoice_with_code,
+      'is_invoice_summary', v_is_invoice_summary,
+      'sign_type', v_sign_type
+    )
+  );
+
   v_canonical_hash := encode(
     digest(convert_to(v_canonical_jsonb::text, 'UTF8'), 'sha256'),
     'hex'
@@ -395,6 +451,10 @@ begin
     status,
     provider_connection_id,
     issuance_profile_id,
+    invoice_series,
+    invoice_with_code,
+    is_invoice_summary,
+    sign_type,
     idempotency_key,
     intent_hash,
     snapshot_schema_version,
@@ -412,6 +472,10 @@ begin
     'PREPARING',
     v_provider_connection_id,
     v_issuance_profile_id,
+    v_invoice_series,
+    v_invoice_with_code,
+    v_is_invoice_summary,
+    v_sign_type,
     p_idempotency_key,
     v_intent_hash,
     1,
@@ -620,6 +684,7 @@ begin
         'invoice_series', p_invoice_series,
         'issued_at', p_issued_at
       ),
+      next_provider_publish_retry_at = null,
       provider_confirmed_at = now(),
       version = version + 1,
       updated_at = now()

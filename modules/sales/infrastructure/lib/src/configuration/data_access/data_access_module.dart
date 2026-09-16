@@ -33,18 +33,18 @@ final class SalesDataAccessModule {
     ISalesOrderDraftGateway? salesOrderDraftGateway,
     ICheckoutGateway? checkoutGateway,
   }) {
-    final rpcClient = SupabaseRpcClient(
-      SupabaseSchemaRpcClient(
-        supabase: supabase,
-        schema: 'sales',
-        logger: loggerFactory.named('sales.rpc'),
-        mapError: (error, [stackTrace]) => RpcException(
-          error.toString(),
-          cause: error,
-        ),
+    final schemaRpcClient = SupabaseSchemaRpcClient(
+      supabase: supabase,
+      schema: 'sales',
+      logger: loggerFactory.named('sales.rpc'),
+      mapError: (error, [stackTrace]) => RpcException(
+        error.toString(),
+        cause: error,
       ),
     );
+    final rpcClient = SupabaseRpcClient(schemaRpcClient);
     container
+      ..registerSingleton<SupabaseSchemaRpcClient>(schemaRpcClient)
       ..registerSingleton<IRpcClient>(rpcClient)
       ..registerSingleton<ISalesInternalCommandClient>(
         const SupabaseSalesInternalCommandClient(),

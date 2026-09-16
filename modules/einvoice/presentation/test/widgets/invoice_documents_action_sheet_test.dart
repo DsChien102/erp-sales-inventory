@@ -40,7 +40,7 @@ void main() {
       expect(chevrons, findsNWidgets(2));
     });
 
-    testWidgets('loadingPdf locks PDF only and keeps XML normal', (tester) async {
+    testWidgets('loadingPdf shows spinner and disables XML', (tester) async {
       var pdfTapped = false;
       var xmlTapped = false;
       await tester.pumpWidget(
@@ -51,7 +51,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(VLoading), findsOneWidget);
 
       final pdfItem = tester.widget<EInvoiceActionItem>(
         find.byKey(const Key('action_save_pdf')),
@@ -63,7 +63,8 @@ void main() {
         find.byKey(const Key('action_save_xml')),
       );
       expect(xmlItem.loading, isFalse);
-      expect(xmlItem.enabled, isTrue);
+      expect(xmlItem.enabled, isFalse);
+      expect(xmlItem.onTap, isNull);
 
       await tester.tap(find.byKey(const Key('action_save_pdf')));
       await tester.pump();
@@ -71,13 +72,10 @@ void main() {
 
       await tester.tap(find.byKey(const Key('action_save_xml')));
       await tester.pump();
-      expect(xmlTapped, isTrue);
-
-      expect(find.text(InvoiceDocumentsCopy.savePdfTitle), findsOneWidget);
-      expect(find.text(InvoiceDocumentsCopy.saveXmlTitle), findsOneWidget);
+      expect(xmlTapped, isFalse);
     });
 
-    testWidgets('loadingXml locks XML only and keeps PDF normal', (tester) async {
+    testWidgets('loadingXml shows spinner and disables PDF', (tester) async {
       var pdfTapped = false;
       var xmlTapped = false;
       await tester.pumpWidget(
@@ -88,7 +86,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(VLoading), findsOneWidget);
 
       final xmlItem = tester.widget<EInvoiceActionItem>(
         find.byKey(const Key('action_save_xml')),
@@ -96,13 +94,32 @@ void main() {
       expect(xmlItem.loading, isTrue);
       expect(xmlItem.onTap, isNull);
 
+      final pdfItem = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_save_pdf')),
+      );
+      expect(pdfItem.enabled, isFalse);
+      expect(pdfItem.onTap, isNull);
+
       await tester.tap(find.byKey(const Key('action_save_xml')));
       await tester.pump();
       expect(xmlTapped, isFalse);
 
       await tester.tap(find.byKey(const Key('action_save_pdf')));
       await tester.pump();
-      expect(pdfTapped, isTrue);
+      expect(pdfTapped, isFalse);
+    });
+
+    testWidgets('select callbacks keep sheet open', (tester) async {
+      var pdfTaps = 0;
+      await tester.pumpWidget(
+        buildSubject(onSelectPdf: () => pdfTaps++),
+      );
+
+      await tester.tap(find.byKey(const Key('action_save_pdf')));
+      await tester.pump();
+
+      expect(pdfTaps, 1);
+      expect(find.byType(InvoiceDocumentsActionSheet), findsOneWidget);
     });
 
     testWidgets('show helper returns selected action and dismiss returns null', (tester) async {

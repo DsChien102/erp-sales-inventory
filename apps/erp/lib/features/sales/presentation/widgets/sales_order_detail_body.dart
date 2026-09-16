@@ -22,7 +22,8 @@ class SalesOrderDetailBody extends StatelessWidget {
     required this.onOpenReturnList,
     required this.onOpenHistory,
     required this.onOpenReceipt,
-    required this.onOpenEInvoice,
+    this.onOpenEInvoice,
+    this.eInvoiceSection,
     required this.onRetryPayment,
     required this.onRetryHistory,
     required this.cancellation,
@@ -54,7 +55,8 @@ class SalesOrderDetailBody extends StatelessWidget {
   final VoidCallback onOpenReturnList;
   final VoidCallback onOpenHistory;
   final VoidCallback onOpenReceipt;
-  final VoidCallback onOpenEInvoice;
+  final VoidCallback? onOpenEInvoice;
+  final Widget? eInvoiceSection;
   final VoidCallback onRetryPayment;
   final VoidCallback onRetryHistory;
   final bool showHistory;
@@ -162,6 +164,7 @@ class SalesOrderDetailBody extends StatelessWidget {
                       historyErrorMessage: historyErrorMessage,
                       onOpenReceipt: onOpenReceipt,
                       onOpenEInvoice: onOpenEInvoice,
+                      eInvoiceSection: eInvoiceSection,
                       onOpenReturnList: onOpenReturnList,
                       onOpenHistory: onOpenHistory,
                       onRetryHistory: onRetryHistory,

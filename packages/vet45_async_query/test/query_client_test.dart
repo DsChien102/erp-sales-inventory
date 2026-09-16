@@ -282,5 +282,39 @@ void main() {
 
       client.dispose();
     });
+
+    test('background interval and mount fetch swallow queryFn errors', () async {
+      final client = QueryClient();
+      var fetchCount = 0;
+
+      final observer = client.watchQuery<int>(
+        queryKey: const ['interval-error'],
+        queryFn: () async {
+          fetchCount++;
+          if (fetchCount < 3) {
+            throw StateError('transient network');
+          }
+          return fetchCount;
+        },
+        retry: 0,
+        staleTime: Duration.zero,
+        refetchInterval: const Duration(milliseconds: 40),
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(fetchCount, 1);
+      expect(observer.currentState.isError, isTrue);
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(fetchCount, greaterThanOrEqualTo(3));
+      expect(observer.currentState.data, isNotNull);
+
+      // Explicit refetch still surfaces the error to the caller.
+      fetchCount = 0;
+      await expectLater(observer.refetch(), throwsA(isA<StateError>()));
+
+      observer.dispose();
+      client.dispose();
+    });
   });
 }

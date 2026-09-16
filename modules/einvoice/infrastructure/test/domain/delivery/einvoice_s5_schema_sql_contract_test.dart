@@ -215,8 +215,11 @@ void main() {
     test(
       'creates partial unique indexes for INITIAL_SEND and active locks',
       () {
-        expect(sql, contains('delivery_intent = \'INITIAL_SEND\''));
-        expect(sql, contains("status in ('PROCESSING','UNKNOWN')"));
+        expect(sql, contains("status = 'PROCESSING'"));
+        expect(
+          sql,
+          isNot(contains("where status in ('PROCESSING','UNKNOWN')")),
+        );
         expect(sql, contains("status in ('QUEUED','SUBMITTED')"));
         expect(sql, contains('create unique index'));
       },

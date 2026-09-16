@@ -205,6 +205,20 @@ final class _TrackingIssuanceResultGateway implements IIssuanceResultGateway {
   }
 
   @override
+  Future<RecordIssuanceResultDto> recordRetryableProviderRejection({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceResultEvidenceDto evidence,
+    required Duration retryAfter,
+  }) async {
+    resultCalls.add('retryable:$tenantId:$attemptId');
+    return const RecordIssuanceResultDto(
+      attemptStatus: IssuanceAttemptStatus.preparing,
+    );
+  }
+
+  @override
   Future<PublishPreparationDto> preparePublish({
     required String tenantId,
     required String attemptId,
@@ -487,8 +501,8 @@ void main() {
       () {
         expect(
           EinvoiceIntegrationEventRegistry
-              .eventTypes[SalesOrderCompletedIntegrationEvent],
-          SalesOrderCompletedIntegrationEvent.type,
+              .eventTypes[SalesOrderFinalizedIntegrationEvent],
+          SalesOrderFinalizedIntegrationEvent.type,
         );
         expect(
           EinvoiceIntegrationEventRegistry
@@ -502,7 +516,7 @@ void main() {
         );
 
         final salesEvt = EinvoiceIntegrationEventRegistry.fromJson(
-          eventType: SalesOrderCompletedIntegrationEvent.type,
+          eventType: SalesOrderFinalizedIntegrationEvent.type,
           payload: {
             'id': 'evt-s-1',
             'occurred_on': '2026-08-29T10:00:00.000Z',
@@ -511,7 +525,21 @@ void main() {
             'source_version': 'sales-v1',
           },
         );
-        expect(salesEvt, isA<SalesOrderCompletedIntegrationEvent>());
+        expect(salesEvt, isA<SalesOrderFinalizedIntegrationEvent>());
+
+        expect(
+          EinvoiceIntegrationEventRegistry.fromJson(
+            eventType: 'sales.order.completed',
+            payload: {
+              'id': 'evt-legacy-1',
+              'occurred_on': '2026-08-29T10:00:00.000Z',
+              'tenant_id': 'tenant-1',
+              'sales_order_id': 'order-1',
+              'source_version': 'sales-v1',
+            },
+          ),
+          isNull,
+        );
 
         final partnerEvt = EinvoiceIntegrationEventRegistry.fromJson(
           eventType: PartnerProfileUpdatedIntegrationEvent.type,
@@ -585,12 +613,12 @@ void main() {
     );
 
     test(
-      'SalesOrderCompleted handler only dispatches StartAutoIssuanceCommand',
+      'SalesOrderFinalized handler only dispatches StartAutoIssuanceCommand',
       () async {
         final dispatcher = createGeneratedEinvoiceIntegrationEventDispatcher(
           container,
         );
-        final salesEvt = SalesOrderCompletedIntegrationEvent(
+        final salesEvt = SalesOrderFinalizedIntegrationEvent(
           id: 'evt-sales-order-1',
           occurredOn: DateTime.utc(2026, 8, 29),
           tenantId: 'tenant-1',

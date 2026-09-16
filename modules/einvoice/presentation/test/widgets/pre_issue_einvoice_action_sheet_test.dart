@@ -23,18 +23,49 @@ void main() {
       expect(find.text(OrderEInvoiceCopy.sendTitle), findsOneWidget);
     });
 
-    testWidgets('preview loading shows spinner and disabled items keep chevron', (tester) async {
+    testWidgets('preview loading shows spinner and disables issue', (tester) async {
       await tester.pumpWidget(
         buildSubject(state: PreIssueSheetState.previewLoading),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      // Disabled items still show chevron-right (3 total: issue + send + trailing on other)
-      // Loading item replaces chevron with spinner
-      final chevrons = find.byWidgetPredicate(
-        (w) => w is VIcon && (w as dynamic).icon == VIcons.chevronRight,
+      expect(find.byType(VLoading), findsOneWidget);
+
+      final preview = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_preview')),
       );
-      expect(chevrons, findsAtLeast(2));
+      expect(preview.loading, isTrue);
+      expect(preview.onTap, isNull);
+
+      final issue = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_issue')),
+      );
+      expect(issue.enabled, isFalse);
+      expect(issue.onTap, isNull);
+
+      final send = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_send')),
+      );
+      expect(send.enabled, isFalse);
+    });
+
+    testWidgets('preview callback keeps sheet open', (tester) async {
+      var previewTaps = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: PreIssueEInvoiceActionSheet(
+              onPreview: () => previewTaps++,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('action_preview')));
+      await tester.pump();
+
+      expect(previewTaps, 1);
+      expect(find.byType(PreIssueEInvoiceActionSheet), findsOneWidget);
     });
 
     testWidgets('buyer not ready shows warning banner and link button', (tester) async {

@@ -104,6 +104,7 @@ void main() {
   final sampleCanonicalInvoice = <String, Object?>{
     'refId': 'ref-100',
     'invSeries': '1C25TYY',
+    'signType': 2,
     'invDate': '2026-08-01',
     'buyerLegalName': 'Công ty ABC',
     'buyerAddress': 'Hà Nội',

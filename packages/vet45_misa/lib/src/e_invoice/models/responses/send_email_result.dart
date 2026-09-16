@@ -36,3 +36,38 @@ final class MeInvoiceSendEmailResultItem {
     );
   }
 }
+
+/// Closed shapes returned by MISA Product and compatible itemized hosts.
+enum MeInvoiceSendEmailResponseKind {
+  /// Official Product acknowledgement: `success=true`, empty `errors`, `data=""`.
+  ///
+  /// Means MISA accepted the send operation — not mailbox delivery proof.
+  envelopeAcknowledgement,
+
+  /// Itemized per-invoice rows (`SendEmailStatus`, `TransactionID`, …).
+  itemized,
+}
+
+/// Typed `/invoice/sendemail` success payload.
+final class MeInvoiceSendEmailResponse {
+  const MeInvoiceSendEmailResponse._({
+    required this.kind,
+    required this.items,
+  });
+
+  const MeInvoiceSendEmailResponse.envelopeAcknowledgement()
+    : this._(
+        kind: MeInvoiceSendEmailResponseKind.envelopeAcknowledgement,
+        items: const <MeInvoiceSendEmailResultItem>[],
+      );
+
+  MeInvoiceSendEmailResponse.itemized(
+    List<MeInvoiceSendEmailResultItem> items,
+  ) : this._(
+        kind: MeInvoiceSendEmailResponseKind.itemized,
+        items: List.unmodifiable(items),
+      );
+
+  final MeInvoiceSendEmailResponseKind kind;
+  final List<MeInvoiceSendEmailResultItem> items;
+}

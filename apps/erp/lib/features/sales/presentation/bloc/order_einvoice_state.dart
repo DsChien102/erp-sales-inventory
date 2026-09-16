@@ -11,6 +11,7 @@ class OrderEInvoiceState extends Equatable {
     required this.projection,
     this.readiness,
     this.isBuyerNotReady = false,
+    this.hasLoadedProjection = true,
     this.status = OrderEInvoiceStatus.idle,
     this.errorMessage,
     this.failureCode,
@@ -21,6 +22,8 @@ class OrderEInvoiceState extends Equatable {
     this.templateSymbol,
     this.authorityMode,
     this.isPageActive = true,
+    this.downloadingDocumentType,
+    this.isOpeningOfficialView = false,
   });
 
   final String salesOrderId;
@@ -28,6 +31,9 @@ class OrderEInvoiceState extends Equatable {
   final OrderInvoiceProjectionDto projection;
   final IssuanceReadinessDto? readiness;
   final bool isBuyerNotReady;
+
+  /// False until the first authoritative refresh snapshot is applied.
+  final bool hasLoadedProjection;
   final OrderEInvoiceStatus status;
   final String? errorMessage;
   final String? failureCode;
@@ -38,20 +44,49 @@ class OrderEInvoiceState extends Equatable {
   final String? templateSymbol;
   final String? authorityMode;
   final bool isPageActive;
+  final InvoiceDocumentType? downloadingDocumentType;
 
-  bool get isTerminal =>
-      projection.issuanceDisplayState == IssuanceDisplayState.issued;
+  /// True only while S4a official-view request/poll is in flight.
+  final bool isOpeningOfficialView;
+
+  bool get isDownloadingDocument => downloadingDocumentType != null;
+
+  bool isDownloading(InvoiceDocumentType type) => downloadingDocumentType == type;
+
+  bool get isTerminal {
+    final issuance = projection.issuanceDisplayState;
+    return issuance == IssuanceDisplayState.issued || issuance == IssuanceDisplayState.failed;
+  }
+
+  bool get shouldPoll =>
+      !hasLoadedProjection ||
+      !isTerminal ||
+      projection.deliveryPending ||
+      projection.deliveryDisplayState == DeliveryDisplayState.sending;
+
+  bool get canInteract {
+    if (!hasLoadedProjection) return false;
+    return switch (projection.issuanceDisplayState) {
+      IssuanceDisplayState.notIssued => readiness != null,
+      IssuanceDisplayState.processing => false,
+      IssuanceDisplayState.issued || IssuanceDisplayState.failed => true,
+    };
+  }
 
   OrderEInvoiceState toProcessing() {
     return copyWith(
       status: OrderEInvoiceStatus.idle,
+      hasLoadedProjection: true,
       projection: OrderInvoiceProjectionDto(
         salesOrderId: salesOrderId,
         issuanceDisplayState: IssuanceDisplayState.processing,
         deliveryDisplayState: projection.deliveryDisplayState,
         actions: const [],
       ),
+      isOpeningOfficialView: false,
       clearError: true,
+      clearFailure: true,
+      clearDownloadingDocumentType: true,
     );
   }
 
@@ -61,6 +96,7 @@ class OrderEInvoiceState extends Equatable {
     OrderInvoiceProjectionDto? projection,
     IssuanceReadinessDto? readiness,
     bool? isBuyerNotReady,
+    bool? hasLoadedProjection,
     OrderEInvoiceStatus? status,
     String? errorMessage,
     String? failureCode,
@@ -71,8 +107,13 @@ class OrderEInvoiceState extends Equatable {
     String? templateSymbol,
     String? authorityMode,
     bool? isPageActive,
+    InvoiceDocumentType? downloadingDocumentType,
+    bool? isOpeningOfficialView,
     bool clearError = false,
+    bool clearFailure = false,
     bool clearPreviewUrl = false,
+    bool clearOfficialViewerUrl = false,
+    bool clearDownloadingDocumentType = false,
   }) {
     return OrderEInvoiceState(
       salesOrderId: salesOrderId ?? this.salesOrderId,
@@ -80,18 +121,23 @@ class OrderEInvoiceState extends Equatable {
       projection: projection ?? this.projection,
       readiness: readiness ?? this.readiness,
       isBuyerNotReady: isBuyerNotReady ?? this.isBuyerNotReady,
+      hasLoadedProjection: hasLoadedProjection ?? this.hasLoadedProjection,
       status: status ?? this.status,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      failureCode: clearError ? null : (failureCode ?? this.failureCode),
-      lastFailureMessage:
-          clearError ? null : (lastFailureMessage ?? this.lastFailureMessage),
-      previewViewerUrl:
-          clearPreviewUrl ? null : (previewViewerUrl ?? this.previewViewerUrl),
-      officialViewerUrl: officialViewerUrl ?? this.officialViewerUrl,
+      failureCode: clearFailure ? null : (failureCode ?? this.failureCode),
+      lastFailureMessage: clearFailure ? null : (lastFailureMessage ?? this.lastFailureMessage),
+      previewViewerUrl: clearPreviewUrl ? null : (previewViewerUrl ?? this.previewViewerUrl),
+      officialViewerUrl: clearOfficialViewerUrl
+          ? null
+          : (officialViewerUrl ?? this.officialViewerUrl),
       templateNumber: templateNumber ?? this.templateNumber,
       templateSymbol: templateSymbol ?? this.templateSymbol,
       authorityMode: authorityMode ?? this.authorityMode,
       isPageActive: isPageActive ?? this.isPageActive,
+      downloadingDocumentType: clearDownloadingDocumentType
+          ? null
+          : (downloadingDocumentType ?? this.downloadingDocumentType),
+      isOpeningOfficialView: isOpeningOfficialView ?? this.isOpeningOfficialView,
     );
   }
 
@@ -102,6 +148,7 @@ class OrderEInvoiceState extends Equatable {
     projection,
     readiness,
     isBuyerNotReady,
+    hasLoadedProjection,
     status,
     errorMessage,
     failureCode,
@@ -112,5 +159,7 @@ class OrderEInvoiceState extends Equatable {
     templateSymbol,
     authorityMode,
     isPageActive,
+    downloadingDocumentType,
+    isOpeningOfficialView,
   ];
 }

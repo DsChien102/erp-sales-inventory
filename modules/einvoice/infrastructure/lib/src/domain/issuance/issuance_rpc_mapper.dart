@@ -98,6 +98,25 @@ abstract final class IssuanceRpcMapper {
     };
   }
 
+  static Map<String, dynamic> recordRetryableProviderRejectionParams({
+    required String tenantId,
+    required String attemptId,
+    required String sourceCommandId,
+    required IssuanceRetryableProviderRejectionEvidenceDto evidence,
+    required Duration retryAfter,
+  }) {
+    return {
+      'p_tenant_id': tenantId,
+      'p_attempt_id': attemptId,
+      'p_source_command_id': sourceCommandId,
+      'p_idempotency_key': evidence.idempotencyKey,
+      'p_payload_hash': evidence.payloadHash,
+      'p_provider_code': evidence.providerCode,
+      'p_provider_message': evidence.providerMessage,
+      'p_retry_after_seconds': retryAfter.inSeconds,
+    };
+  }
+
   static Map<String, dynamic> recordCommandIntegrityFailureParams({
     required String tenantId,
     required String attemptId,
@@ -244,6 +263,7 @@ abstract final class IssuanceRpcMapper {
       'SENDING' || 'sending' => DeliveryDisplayState.sending,
       'SENT' || 'sent' => DeliveryDisplayState.sent,
       'FAILED' || 'failed' => DeliveryDisplayState.failed,
+      'UNKNOWN' || 'unknown' => DeliveryDisplayState.unknown,
       _ => throw RpcException('Unknown delivery display state: $raw'),
     };
   }
@@ -422,7 +442,9 @@ abstract final class IssuanceRpcMapper {
       claimToken: _requiredString(row, 'claim_token'),
       idempotencyKey: _requiredString(row, 'idempotency_key'),
       payloadHash: _requiredString(row, 'payload_hash'),
+      invoiceSeries: _requiredString(row, 'invoice_series'),
       providerReference: row['provider_reference']?.toString(),
+      reconciliationReasonCode: row['reconciliation_reason_code']?.toString(),
       checkSequence: (row['check_sequence'] as num).toInt(),
       maxChecks: (row['max_checks'] as num?)?.toInt() ?? 5,
     );

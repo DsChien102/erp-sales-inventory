@@ -40,6 +40,12 @@ final class MeInvoiceDeliveryProviderAdapter
     DeliveryProviderContextDto context,
   ) async {
     try {
+      final query = MeInvoiceInvoiceQuery.tryFromInvSeries(
+        context.invoiceSeries,
+      );
+      if (query == null) {
+        return const DeliveryProviderDefiniteFailure('INVOICE_SERIES_INVALID');
+      }
       final creds = await _readCredentials(tenantId: context.tenantId);
       if (creds == null) {
         return const DeliveryProviderDefiniteFailure('PROVIDER_AUTH_FAILED');
@@ -52,7 +58,6 @@ final class MeInvoiceDeliveryProviderAdapter
         httpClient: _httpClient,
       );
 
-      final query = MeInvoiceInvoiceQuery.fromInvSeries(context.invoiceSeries);
       final result = await client.sendEmail(
         MeInvoiceSendEmailRequest(
           sendEmailDatas: [

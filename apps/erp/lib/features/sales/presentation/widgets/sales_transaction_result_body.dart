@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import '../bloc/sales_order/sales_transaction_result_cubit.dart';
 import '../bloc/sales_order/sales_transaction_result_state.dart';
+import '../services/i_invoice_document_exporter.dart';
+import '../services/i_invoice_viewer_launcher.dart';
 import 'sales_result_customer_card.dart';
 import 'sales_result_failure_view.dart';
 import 'sales_result_documents_section.dart';
@@ -16,9 +19,17 @@ class SalesTransactionResultBody extends StatelessWidget {
   const SalesTransactionResultBody({
     super.key,
     required this.onViewOrderDetail,
+    this.eInvoiceMediator,
+    this.executionContext,
+    this.viewerLauncher,
+    this.documentExporter,
   });
 
   final VoidCallback onViewOrderDetail;
+  final IModuleMediator? eInvoiceMediator;
+  final IExecutionContext? executionContext;
+  final IInvoiceViewerLauncher? viewerLauncher;
+  final IInvoiceDocumentExporter? documentExporter;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +73,10 @@ class SalesTransactionResultBody extends StatelessWidget {
                 SalesResultDocumentsSection(
                   state: state,
                   cubit: cubit,
+                  eInvoiceMediator: eInvoiceMediator,
+                  executionContext: executionContext,
+                  viewerLauncher: viewerLauncher,
+                  documentExporter: documentExporter,
                 ),
                 const VGap.xl(),
               ],

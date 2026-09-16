@@ -230,6 +230,7 @@ abstract final class SalesPreviewFixtures {
   static const orderDetail = SalesOrderDetailVm(
     orderId: 'so-1',
     orderNumber: 'DH-000129',
+    orderVersion: 1,
     createdAtFormatted: '12/08/2026 10:15',
     customerName: 'Nguyễn Văn An',
     customerPhone: '0903000111',
@@ -249,6 +250,7 @@ abstract final class SalesPreviewFixtures {
   static const orderDetailCancelled = SalesOrderDetailVm(
     orderId: 'so-cancel',
     orderNumber: 'DH-000099',
+    orderVersion: 1,
     createdAtFormatted: '10/08/2026 09:00',
     customerName: 'Lê Gia',
     customerPhone: '0903000222',

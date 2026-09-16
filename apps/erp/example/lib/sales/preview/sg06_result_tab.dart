@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_sales_application/application.dart'
-    hide SalesSettlementStatus, SalesOrderLifecycleStatus;
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:erp/features/sales/presentation.dart';
 
 import 'preview_helpers.dart';
@@ -12,6 +11,31 @@ class SalesSg06ResultTab extends StatelessWidget {
 
   static const _loadedState = SalesTransactionResultState(
     status: SalesTransactionResultStatus.loaded,
+  );
+
+  static final _historyLoaded = InvoiceDeliveryHistoryState(
+    status: InvoiceDeliveryHistoryStatus.loaded,
+    displayState: DeliveryDisplayState.sent,
+    rows: [
+      InvoiceDeliveryHistoryRowVm(
+        deliveryId: 'del-2',
+        deliveryNo: 2,
+        statusLabel: 'Gửi lỗi',
+        recipientEmail: 'accounting@company.com',
+        occurredAt: DateTime(2026, 8, 5, 16, 20),
+        actorLabel: 'Người dùng',
+        tone: VComponentTone.danger,
+      ),
+      InvoiceDeliveryHistoryRowVm(
+        deliveryId: 'del-1',
+        deliveryNo: 1,
+        statusLabel: 'Đã gửi',
+        recipientEmail: 'customer@company.com',
+        occurredAt: DateTime(2026, 8, 5, 16, 12),
+        actorLabel: 'Tự động',
+        tone: VComponentTone.success,
+      ),
+    ],
   );
 
   @override
@@ -142,6 +166,133 @@ class SalesSg06ResultTab extends StatelessWidget {
         ),
       ),
       PreviewSection(
+        title: 'HĐĐT post-issued / SG-06 (app-owned S4)',
+        description:
+            'Specimen idle + loading; catalog không gọi MISA hay OS file exporter.',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PreviewStateRow(
+              label: 'SG-02 O05 — post-issued idle',
+              child: PostIssueEInvoiceActionSheet(onViewOfficial: () {}),
+            ),
+            PreviewStateRow(
+              label: 'SG-02 O06 — official view loading',
+              child: PostIssueEInvoiceActionSheet(
+                state: PostIssueSheetState.officialViewLoading,
+                onViewOfficial: () {},
+              ),
+            ),
+            PreviewStateRow(
+              label: 'Prior sent + secondary attention',
+              child: PostIssueEInvoiceActionSheet(
+                state: const PostIssueSheetState(
+                  deliveryStatus: DeliveryDisplayState.sent,
+                  hasSecondaryAttention: true,
+                ),
+                onViewOfficial: () {},
+              ),
+            ),
+            const PreviewStateRow(
+              label: 'SG-06 O01 — documents idle',
+              child: InvoiceDocumentsActionSheet(),
+            ),
+            const PreviewStateRow(
+              label: 'SG-06 O02 — loading PDF (XML disabled)',
+              child: InvoiceDocumentsActionSheet(
+                state: InvoiceDocumentsSheetState.loadingPdf,
+              ),
+            ),
+            const PreviewStateRow(
+              label: 'SG-06 O03 — loading XML (PDF disabled)',
+              child: InvoiceDocumentsActionSheet(
+                state: InvoiceDocumentsSheetState.loadingXml,
+              ),
+            ),
+          ],
+        ),
+      ),
+      PreviewSection(
+        title: 'HĐĐT SG-07 — gửi và lịch sử',
+        description:
+            'App-owned specimens; const/fake only — không gọi mediator/worker/MISA.',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PreviewStateRow(
+              label: 'SG07-O01-A suggestion Partner',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.sendTitle,
+                email: 'buyer@partner.test',
+                sourceLabel: 'Hồ sơ khách hàng',
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O01-B email rỗng',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.sendTitle,
+                email: '',
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O01-C invalid',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.sendTitle,
+                email: 'bad',
+                showValidationError: true,
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O01-D loading',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.sendTitle,
+                email: 'buyer@partner.test',
+                isSubmitting: true,
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O02 resend',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.resendTitle,
+                email: 'accounting@company.com',
+                summary: OrderInvoiceDeliveryCopy.latestDeliverySummary(
+                  email: 'accounting@company.com',
+                  dateTime: '05/08/2026, 16:20',
+                ),
+                showHistoryLink: true,
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O02 locked PROCESSING — history enabled',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.resendTitle,
+                email: 'accounting@company.com',
+                operationLocked: true,
+                showHistoryLink: true,
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-O02 sau UNKNOWN — CTA enabled',
+              child: _catalogRecipientForm(
+                title: OrderInvoiceDeliveryCopy.resendTitle,
+                email: 'buyer@fake.test',
+                showHistoryLink: true,
+              ),
+            ),
+            PreviewStateRow(
+              label: 'SG07-D01 nhiều delivery',
+              child: SizedBox(
+                height: 280,
+                child: InvoiceDeliveryHistoryView(
+                  state: _historyLoaded,
+                  onRetry: () {},
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      PreviewSection(
         title: 'Sheets',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -150,11 +301,13 @@ class SalesSg06ResultTab extends StatelessWidget {
               label: 'Receipt actions',
               onPressed: () => showSalesResultReceiptSheet(context),
             ),
-            PreviewActionButton(
-              label: 'E-invoice (queued)',
-              onPressed: () => showSalesResultEInvoiceSheet(
-                context,
-                status: IntegrationDeliveryStatus.queued,
+            const PreviewStateRow(
+              label: 'E-invoice',
+              child: VText(
+                'HĐĐT production hiển thị OrderEInvoiceSection trực tiếp trên '
+                'SalesResultDocumentsSection (SG02-R02); trạng thái dùng projection '
+                'qua IModuleMediator. Sheet post-issued/SG-06 nằm ở specimen phía trên.',
+                variant: VTextVariant.bodySmall,
               ),
             ),
           ],
@@ -162,4 +315,68 @@ class SalesSg06ResultTab extends StatelessWidget {
       ),
     ]);
   }
+}
+
+Widget _catalogRecipientForm({
+  required String title,
+  required String email,
+  String? sourceLabel,
+  String? summary,
+  bool showValidationError = false,
+  bool isSubmitting = false,
+  bool operationLocked = false,
+  bool showHistoryLink = false,
+}) {
+  final controller = TextEditingController(text: email);
+  return Material(
+    color: Colors.transparent,
+    child: Padding(
+      padding: const EdgeInsets.all(VSpacing.space4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VText(
+            title,
+            variant: VTextVariant.headingH3,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          if (summary != null) ...[
+            const VGap.sm(),
+            VText(summary, variant: VTextVariant.bodyDefault),
+          ],
+          const VGap.md(),
+          InvoiceDeliveryRecipientForm(
+            emailController: controller,
+            primaryLabel: OrderInvoiceDeliveryCopy.sendAction,
+            isSubmitting: isSubmitting,
+            operationLocked: operationLocked,
+            showValidationError: showValidationError,
+            onChanged: (_) {},
+            onPrimary:
+                (isSubmitting ||
+                    operationLocked ||
+                    showValidationError ||
+                    !OrderInvoiceDeliveryCopy.isValidEmail(email))
+                ? null
+                : () {},
+            onCancel: isSubmitting ? null : () {},
+            sourceLabel: sourceLabel == null
+                ? null
+                : VText(sourceLabel, variant: VTextVariant.bodySmall),
+            footerAboveActions: showHistoryLink
+                ? Align(
+                    alignment: Alignment.center,
+                    child: VButton(
+                      label: OrderInvoiceDeliveryCopy.viewHistory,
+                      variant: VButtonVariant.link,
+                      onPressed: isSubmitting ? null : () {},
+                    ),
+                  )
+                : null,
+          ),
+        ],
+      ),
+    ),
+  );
 }

@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import 'package:vet45_einvoice_application/application.dart';
+
 import '../commands_executor.dart';
 import 'einvoice_internal_command_attempt_policy.dart';
 import 'i_einvoice_internal_command_client.dart';
@@ -55,6 +57,13 @@ final class ProcessInternalCommandsCommandHandler
           tenantId: command.tenantId,
           commandId: row.commandId,
           claimToken: row.claimToken,
+        );
+      } on PublishSeriesLeaseBusyException catch (error) {
+        await _commandClient.reschedule(
+          tenantId: command.tenantId,
+          commandId: row.commandId,
+          claimToken: row.claimToken,
+          delay: error.retryAfter,
         );
       } catch (error) {
         final attemptNumber = row.retryCount + 1;

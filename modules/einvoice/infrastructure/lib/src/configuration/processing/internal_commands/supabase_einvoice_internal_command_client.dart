@@ -133,4 +133,26 @@ final class SupabaseEinvoiceInternalCommandClient
       throw mapEinvoiceRpcError(error);
     }
   }
+
+  @override
+  Future<void> reschedule({
+    required String tenantId,
+    required String commandId,
+    required String claimToken,
+    required Duration delay,
+  }) async {
+    try {
+      await _rpcClient.callScalar<Object?>(
+        'reschedule_internal_command',
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_command_id': commandId,
+          'p_claim_token': claimToken,
+          'p_delay_seconds': delay.inSeconds,
+        },
+      );
+    } on RpcException catch (error) {
+      throw mapEinvoiceRpcError(error);
+    }
+  }
 }
