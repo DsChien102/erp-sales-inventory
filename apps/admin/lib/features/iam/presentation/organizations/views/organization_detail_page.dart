@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../models/organization_ui_model.dart';
 import '../widgets/organization_actions_bottom_sheet.dart';
+import '../widgets/organization_close_confirmation_bottom_sheet.dart';
 import '../widgets/organization_detail_alerts.dart';
 import '../widgets/organization_detail_bottom_bar.dart';
 import '../widgets/organization_detail_header_card.dart';
@@ -23,6 +24,9 @@ class OrganizationDetailPage extends StatefulWidget {
   /// When set, suspend uses this callback instead of the local fake toast path.
   final Future<bool> Function(String reason)? onSuspendConfirmed;
 
+  /// When set, close uses this callback.
+  final Future<bool> Function(String reason)? onCloseConfirmed;
+
   /// When set, restore uses this callback instead of the local fake toast path.
   final Future<bool> Function()? onRestoreConfirmed;
 
@@ -38,6 +42,7 @@ class OrganizationDetailPage extends StatefulWidget {
     this.onActionTap,
     this.showSuccessToastOnBuild = false,
     this.onSuspendConfirmed,
+    this.onCloseConfirmed,
     this.onRestoreConfirmed,
     this.onTransferOwnership,
     this.onMemberTap,
@@ -154,6 +159,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         },
         onSuspendTap: () => _showSuspendConfirmation(context),
         onRestoreTap: () => _showRestoreConfirmation(context),
+        onCloseTap: () => _showCloseConfirmation(context),
       ),
     );
   }
@@ -185,8 +191,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             return;
           }
 
-          final isError = reason.trim().toLowerCase() == 'error' ||
-              reason.trim().toLowerCase() == 'lỗi';
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
           if (isError) {
             VToast.show(
               context,
@@ -199,6 +205,55 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
               context,
               title: 'Thành công',
               message: 'Đã tạm ngừng tổ chức thành công.',
+              type: VToastType.success,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _showCloseConfirmation(BuildContext context) {
+    showVBottomSheet(
+      context: context,
+      child: OrganizationCloseConfirmationBottomSheet(
+        onConfirm: (reason) async {
+          final callback = widget.onCloseConfirmed;
+          if (callback != null) {
+            final ok = await callback(reason);
+            if (!context.mounted) return;
+            if (ok) {
+              VToast.show(
+                context,
+                title: 'Thành công',
+                message: 'Đã đóng tổ chức.',
+                type: VToastType.success,
+              );
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: 'Không thể đóng tổ chức. Vui lòng thử lại.',
+                type: VToastType.danger,
+              );
+            }
+            return;
+          }
+
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
+          if (isError) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: 'Không thể đóng tổ chức. Vui lòng thử lại.',
+              type: VToastType.danger,
+            );
+          } else {
+            VToast.show(
+              context,
+              title: 'Thành công',
+              message: 'Đã đóng tổ chức.',
               type: VToastType.success,
             );
           }
@@ -234,8 +289,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             return;
           }
 
-          final isError = reason.trim().toLowerCase() == 'error' ||
-              reason.trim().toLowerCase() == 'lỗi';
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
           if (isError) {
             VToast.show(
               context,

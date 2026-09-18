@@ -14,6 +14,7 @@ abstract final class IamAuditEvents {
   static const tenantActivated = 'iam.tenant.activated';
   static const tenantSuspended = 'iam.tenant.suspended';
   static const tenantRestored = 'iam.tenant.restored';
+  static const tenantClosed = 'iam.tenant.closed';
   static const tenantOwnershipTransferred = 'iam.tenant.ownership_transferred';
   static const tenantOwnerActivated = 'iam.tenant.owner_activated';
 
@@ -38,6 +39,7 @@ abstract final class IamAuditEvents {
     tenantActivated,
     tenantSuspended,
     tenantRestored,
+    tenantClosed,
     tenantOwnershipTransferred,
     tenantOwnerActivated,
     invitationCreated,

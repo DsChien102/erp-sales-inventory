@@ -165,4 +165,48 @@ void main() {
     expect(cubit.state.failure?.message, contains('địa chỉ liên hệ'));
     await cubit.close();
   });
+
+  test('upsertLegal strips dashes and sends digits-only 13-digit tax code', () async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
+    );
+    final cubit = buildCubit(module);
+    await cubit.load();
+
+    await cubit.upsertLegal(
+      const LegalProfileFormInput(
+        legalEntityType: 'ENTERPRISE',
+        legalName: 'Chi nhanh',
+        taxCode: '0101234567-001',
+      ),
+      allowDuplicateTaxCode: false,
+    );
+
+    final command = module.commandsOf<UpsertLegalProfileCommand>().single;
+    expect(command.taxCode, '0101234567001');
+    await cubit.close();
+  });
+
+  test('upsertLegal rejects tax code outside 10-13 digits', () async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
+    );
+    final cubit = buildCubit(module);
+    await cubit.load();
+
+    final ok = await cubit.upsertLegal(
+      const LegalProfileFormInput(
+        legalEntityType: 'HOUSEHOLD_BUSINESS',
+        legalName: 'Ho kinh doanh',
+        taxCode: '12345-6789',
+      ),
+      allowDuplicateTaxCode: false,
+    );
+
+    expect(ok, isFalse);
+    expect(module.commandsOf<UpsertLegalProfileCommand>(), isEmpty);
+    expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
+    expect(cubit.state.failure?.message, 'Mã số thuế phải gồm 10–13 chữ số.');
+    await cubit.close();
+  });
 }

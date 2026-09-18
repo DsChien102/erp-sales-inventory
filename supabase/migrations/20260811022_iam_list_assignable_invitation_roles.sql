@@ -55,7 +55,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;

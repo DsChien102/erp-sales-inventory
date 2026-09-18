@@ -127,7 +127,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
       final membership = await _iamModule.executeCommandAsync<TenantMemberDetailDto>(
         AcceptInvitationCommand(token: token, idempotencyKey: key),
       );
-      await _refreshSessionContext();
+      await _signOutAfterAcceptance();
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -175,6 +175,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
       final membership = await _iamModule.executeCommandAsync<TenantMemberDetailDto>(
         AcceptInvitationCommand(token: token, idempotencyKey: key),
       );
+      await _signOutAfterAcceptance();
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -235,7 +236,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
           idempotencyKey: key,
         ),
       );
-      await _refreshSessionContext();
+      await _signOutAfterAcceptance();
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -334,10 +335,9 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     return super.close();
   }
 
-  Future<void> _refreshSessionContext() async {
-    await _iamModule.executeQueryAsync<SessionDto>(GetCurrentSessionQuery());
-    await _iamModule.executeQueryAsync<TenantContextDto>(
-      GetTenantContextQuery(bootstrapFromLastSelected: true),
+  Future<void> _signOutAfterAcceptance() async {
+    await _iamModule.executeCommandAsync<SignOutResultDto>(
+      SignOutCommand(),
     );
   }
 

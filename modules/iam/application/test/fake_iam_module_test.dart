@@ -344,6 +344,74 @@ void main() {
       expect(restored.status.name, 'active');
     });
 
+    test('tenant_close_ok from active', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+      final before = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+
+      await module.executeCommandAsync(
+        ClosePlatformTenantCommand(
+          tenantId: 'org-001',
+          reason: 'Kết thúc hợp đồng',
+          expectedVersion: before.version,
+          idempotencyKey: 'close-t',
+        ),
+      );
+      final closed = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+      expect(closed.status, TenantLifecycleStatus.closed);
+      expect(closed.closeReason, 'Kết thúc hợp đồng');
+      expect(closed.version, before.version + 1);
+    });
+
+    test('tenant_close_rejects_already_closed', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantClosedReject,
+      );
+
+      expect(
+        () => module.executeCommandAsync(
+          ClosePlatformTenantCommand(
+            tenantId: 'org-004',
+            reason: 'attempt',
+            expectedVersion: 1,
+            idempotencyKey: 'close-closed',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
+    });
+
+    test('tenant_close_rejects_provisioning', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+
+      expect(
+        () => module.executeCommandAsync(
+          ClosePlatformTenantCommand(
+            tenantId: 'org-002',
+            reason: 'attempt',
+            expectedVersion: 1,
+            idempotencyKey: 'close-provisioning',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
+    });
+
     test('tenant_suspend_rejects_never_activated_tenant', () async {
       final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
 

@@ -119,7 +119,7 @@ begin
     jsonb_agg(
       jsonb_build_object(
         'tenant_id', t.id,
-        'tenant_name', t.name,
+        'tenant_name', t.display_name,
         'role', m.role,
         'is_owner', m.is_owner
       )

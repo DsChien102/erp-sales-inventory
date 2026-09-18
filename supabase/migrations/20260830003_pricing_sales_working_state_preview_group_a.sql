@@ -63,17 +63,7 @@ begin
     raise exception 'permission denied: pricing.sales.preview';
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    join iam.stores store
-      on store.id = scope.store_id
-     and store.tenant_id = scope.tenant_id
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = v_actor_id
-      and scope.store_id = p_store_id
-      and store.status = 'active'
-  ) then
+  if not iam.can_access_store(p_tenant_id, p_store_id, v_actor_id) then
     raise exception 'store access denied';
   end if;
 
@@ -344,17 +334,7 @@ begin
   if not iam.has_permission(p_tenant_id, 'pricing.sales.manual_price.adjust') then
     raise exception 'permission denied: pricing.sales.manual_price.adjust';
   end if;
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    join iam.stores store
-      on store.id = scope.store_id
-     and store.tenant_id = scope.tenant_id
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = v_actor_id
-      and scope.store_id = p_store_id
-      and store.status = 'active'
-  ) then
+  if not iam.can_access_store(p_tenant_id, p_store_id, v_actor_id) then
     raise exception 'store access denied';
   end if;
 

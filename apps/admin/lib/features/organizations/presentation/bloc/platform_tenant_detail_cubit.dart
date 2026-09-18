@@ -31,10 +31,9 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
     );
 
     try {
-      final detail = await _iamModule
-          .executeQueryAsync<PlatformTenantDetailDto>(
-            GetPlatformTenantQuery(tenantId: tenantId),
-          );
+      final detail = await _iamModule.executeQueryAsync<PlatformTenantDetailDto>(
+        GetPlatformTenantQuery(tenantId: tenantId),
+      );
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -84,8 +83,48 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
           tenantId: tenantId,
           reason: trimmed,
           expectedVersion: _expectedVersion,
-          idempotencyKey:
-              'suspend-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
+          idempotencyKey: 'suspend-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
+        ),
+      );
+      await load();
+      return true;
+    } on ApplicationException catch (e) {
+      if (!isClosed) {
+        emit(state.copyWith(actionInProgress: false, errorMessage: e.message));
+      }
+      return false;
+    } catch (e) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(actionInProgress: false, errorMessage: e.toString()),
+        );
+      }
+      return false;
+    } finally {
+      if (!isClosed) emit(state.copyWith(actionInProgress: false));
+    }
+  }
+
+  Future<bool> closeOrganization({required String reason}) async {
+    if (isClosed) return false;
+    final trimmed = reason.trim();
+    if (trimmed.isEmpty) {
+      emit(
+        state.copyWith(
+          actionInProgress: false,
+          errorMessage: 'Vui lòng nhập lý do đóng tổ chức.',
+        ),
+      );
+      return false;
+    }
+    emit(state.copyWith(actionInProgress: true, clearError: true));
+    try {
+      await _iamModule.executeCommandAsync(
+        ClosePlatformTenantCommand(
+          tenantId: tenantId,
+          reason: trimmed,
+          expectedVersion: _expectedVersion,
+          idempotencyKey: 'close-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
         ),
       );
       await load();
@@ -115,8 +154,7 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
         RestorePlatformTenantCommand(
           tenantId: tenantId,
           expectedVersion: _expectedVersion,
-          idempotencyKey:
-              'restore-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
+          idempotencyKey: 'restore-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
         ),
       );
       await load();

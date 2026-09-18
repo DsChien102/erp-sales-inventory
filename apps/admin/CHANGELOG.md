@@ -13,16 +13,28 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- Đóng tổ chức: thao tác terminal trên chi tiết tổ chức (lý do bắt buộc, không khôi phục).
+
 ### Changed
 
-- Login: `SignInPlatformAdminCommand` — gate `platform.user.view` trong IAM handler (không còn check quyền ở UI sau sign-in).
+- Hồ sơ pháp lý / onboarding: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`); onboarding chọn loại chủ thể, bỏ "Phòng khám thú y".
 
 ### Fixed
 
 - Multi-tenant IAM session: guard không gọi `get_session_context` khi chưa bind tenant (shared với ERP).
+- Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
+- Map mã `TENANT_CLOSED` → thông báo «Tổ chức đã đóng.»
 
 ### Internal
 
+- IAM: chặn `suspended`/`closed` ở `has_permission` / `get_session_context` / `can_access_store`; vá quyền 2 RPC tồn kho — cần `supabase db reset`.
+- IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.
+- IAM: `audit_logs` bỏ cột `created_at` (chỉ còn `occurred_at`) — cần `supabase db reset`.
+- IAM: gộp 8 bảng `*_operations` thành `iam.idempotency_records`; xoá get/retry onboarding operation — cần `supabase db reset`.
+- IAM: `tenant_legal_profiles` CHECK MST 10–13; onboarding `p_org_legal_entity_type` — cần `supabase db reset`.
+- IAM: `close_platform_tenant` + audit `iam.tenant.closed`; `iam.tenants` shared status — cần `supabase db reset`.
+- IAM: `_ensure_membership_default_store_scope` bỏ qua UUID pending chưa có trong `auth.users` (merge vào `20260916001`).
+- IAM: `create_tenant_invitation` không còn chặn invite với role `owner` / `store_owner` (chỉ còn check role `active`).
 - IAM: tách platform/tenant sign-in; restore persisted auth thuộc Admin DI; bỏ `IamSessionCoordinator`.
 - Draft SQL `019_iam_get_session_context_multi_tenant` (shared IAM) — cần apply local nếu Admin dùng active-store context.
 

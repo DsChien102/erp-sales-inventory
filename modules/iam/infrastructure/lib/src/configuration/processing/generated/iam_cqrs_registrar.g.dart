@@ -17,6 +17,9 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<AssignMemberRoleCommand>>(
       AssignMemberRoleCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<ClosePlatformTenantCommand>>(
+      ClosePlatformTenantCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CompleteMyPasswordResetCommand>>(
       CompleteMyPasswordResetCommandValidator.new,
     )
@@ -46,9 +49,6 @@ void registerGeneratedIamValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<RestorePlatformTenantCommand>>(
       RestorePlatformTenantCommandValidator.new,
-    )
-    ..registerFactory<ICommandValidator<RetryTenantOnboardingOperationCommand>>(
-      RetryTenantOnboardingOperationCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<RevokeInvitationCommand>>(
       RevokeInvitationCommandValidator.new,
@@ -109,6 +109,15 @@ void registerGeneratedIamHandlers({
     logger: logger,
     factory: () => AssignMemberRoleCommandHandler(
       accessGateway: container.get<IIamAccessGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<ClosePlatformTenantCommand, void, ClosePlatformTenantCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ClosePlatformTenantCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
 
@@ -271,15 +280,6 @@ void registerGeneratedIamHandlers({
     bus: bus,
     logger: logger,
     factory: () => RestorePlatformUserCommandHandler(
-      platformGateway: container.get<IPlatformAdminGateway>(),
-    ),
-  );
-
-  IamCommandRegistration.registerBusinessHandler<RetryTenantOnboardingOperationCommand, TenantOnboardingOperationDto, RetryTenantOnboardingOperationCommandHandler>(
-    container: container,
-    bus: bus,
-    logger: logger,
-    factory: () => RetryTenantOnboardingOperationCommandHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
@@ -515,14 +515,6 @@ void registerGeneratedIamQueries({
     bus: bus,
     factory: () => GetTenantMemberQueryHandler(
       readGateway: container.get<ITenantMembershipReadGateway>(),
-    ),
-    invoke: (query, handler) => handler.handle(query),
-  );
-
-  IamCommandRegistration.registerQueryHandler<GetTenantOnboardingOperationQuery, TenantOnboardingOperationDto, GetTenantOnboardingOperationQueryHandler>(
-    bus: bus,
-    factory: () => GetTenantOnboardingOperationQueryHandler(
-      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

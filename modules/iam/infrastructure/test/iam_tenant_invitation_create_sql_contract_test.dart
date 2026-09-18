@@ -13,11 +13,11 @@ void main() {
   });
 
   group('iam.create_tenant_invitation SQL contract', () {
-    test('defines create RPC and invitation + idempotency tables', () {
+    test('defines create RPC and invitation table', () {
       expect(sql, contains('create table if not exists iam.tenant_invitations'));
       expect(
         sql,
-        contains('create table if not exists iam.tenant_invitation_operations'),
+        isNot(contains('create table if not exists iam.tenant_invitation_operations')),
       );
       expect(sql, contains('create or replace function iam.create_tenant_invitation('));
       expect(sql, contains('Touches: iam.create_tenant_invitation'));

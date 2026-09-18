@@ -30,8 +30,6 @@ import '../tenant/shared/tenant_audit_subject_dto.dart';
 import '../tenant/shared/tenant_dto.dart';
 import '../tenant/shared/tenant_legal_profile_dto.dart';
 import '../tenant/shared/tenant_member_detail_dto.dart';
-import '../platform/shared/tenant_onboarding_operation_dto.dart';
-import '../platform/shared/tenant_onboarding_operation_status.dart';
 import '../platform/shared/tenant_onboarding_result_dto.dart';
 import '../tenant/shared/tenant_readiness_dto.dart';
 import '../tenant/commands/upsert_legal_profile/upsert_legal_profile_result_dto.dart';
@@ -68,13 +66,12 @@ import '../tenant/commands/update_tenant_profile/update_tenant_profile_command.d
 import '../tenant/commands/upsert_legal_profile/upsert_legal_profile_command.dart';
 import '../platform/commands/create_tenant_onboarding/create_tenant_onboarding_command.dart';
 import '../platform/commands/reinvite_provisioning_owner/reinvite_provisioning_owner_command.dart';
-import '../platform/queries/get_tenant_onboarding_operation/get_tenant_onboarding_operation_query.dart';
-import '../platform/commands/retry_tenant_onboarding_operation/retry_tenant_onboarding_operation_command.dart';
 import '../platform/queries/get_platform_audit_log/get_platform_audit_log_query.dart';
 import '../platform/queries/get_platform_tenant/get_platform_tenant_query.dart';
 import '../platform/queries/get_platform_user/get_platform_user_query.dart';
 import '../platform/queries/list_platform_tenant_members/list_platform_tenant_members_query.dart';
 import '../platform/commands/request_platform_password_reset/request_platform_password_reset_command.dart';
+import '../platform/commands/close_platform_tenant/close_platform_tenant_command.dart';
 import '../platform/commands/restore_platform_tenant/restore_platform_tenant_command.dart';
 import '../platform/commands/restore_platform_user/restore_platform_user_command.dart';
 import '../platform/queries/search_platform_audit_logs/search_platform_audit_logs_query.dart';
@@ -157,7 +154,6 @@ final class FakeIamModule implements IIamModule {
   final Set<String> _consumedInviteTokens = {};
   final Set<String> _ownershipTransferKeys = {};
   final Map<String, String> _lifecycleIdempotency = {};
-  final Map<String, TenantOnboardingOperationDto> _onboardingOps = {};
 
   String? currentTenantId;
   String? lastSelectedTenantId;
@@ -799,11 +795,10 @@ final class FakeIamModule implements IIamModule {
       SuspendPlatformUserCommand c => _handleSuspendUser<TResult>(c),
       RestorePlatformUserCommand c => _handleRestoreUser<TResult>(c),
       CreateTenantOnboardingCommand c => _handleOnboarding<TResult>(c),
-      ReinviteProvisioningOwnerCommand c =>
-          _handleReinviteProvisioningOwner<TResult>(c),
-      RetryTenantOnboardingOperationCommand c => _handleRetryOnboardingOperation<TResult>(c),
+      ReinviteProvisioningOwnerCommand c => _handleReinviteProvisioningOwner<TResult>(c),
       SuspendPlatformTenantCommand c => _handleSuspendTenant<TResult>(c),
       RestorePlatformTenantCommand c => _handleRestoreTenant<TResult>(c),
+      ClosePlatformTenantCommand c => _handleCloseTenant<TResult>(c),
       TransferPlatformTenantOwnershipCommand c => _handleTransferOwnership<TResult>(c),
       SwitchTenantContextCommand c => _handleSwitchTenantContext<TResult>(c),
       UpdateMyIdentityProfileCommand c => _handleUpdateMyProfile<TResult>(c),
@@ -839,7 +834,6 @@ final class FakeIamModule implements IIamModule {
     return switch (query) {
       SearchPlatformUsersQuery q => _handleSearchUsers<TResult>(q),
       GetPlatformUserQuery q => _handleGetUserDetail<TResult>(q),
-      GetTenantOnboardingOperationQuery q => _handleGetOnboardingOperation<TResult>(q),
       SearchPlatformTenantsQuery q => _handleSearchTenants<TResult>(q),
       GetPlatformTenantQuery q => _handleGetTenantDetail<TResult>(q),
       ListPlatformTenantMembersQuery q => _handleListMembers<TResult>(q),
@@ -1168,15 +1162,14 @@ final class FakeIamModule implements IIamModule {
         }
       }
       final ownerUserId = result.ownerUserId!;
-      final ownerName = existingOwner?.fullName ??
+      final ownerName =
+          existingOwner?.fullName ??
           [
             command.owner.lastName,
             command.owner.firstName,
           ].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ');
-      final resolvedOwnerName =
-          ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu';
-      final ownerEmail =
-          existingOwner?.email ?? command.owner.email ?? 'owner@example.local';
+      final resolvedOwnerName = ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu';
+      final ownerEmail = existingOwner?.email ?? command.owner.email ?? 'owner@example.local';
       _tenants.add(
         PlatformTenantDetailDto(
           tenantId: result.tenantId,
@@ -1406,6 +1399,45 @@ final class FakeIamModule implements IIamModule {
       ownerRoleLabel: tenant.ownerRoleLabel,
       activatedAt: tenant.activatedAt,
       lastActivityAt: DateTime.now(),
+      members: tenant.members,
+    );
+    return Future.value(null as TResult);
+  }
+
+  Future<TResult> _handleCloseTenant<TResult>(
+    ClosePlatformTenantCommand command,
+  ) {
+    _requirePlatformView();
+    if (command.reason.trim().isEmpty) {
+      throw ValidationException('Close reason is required');
+    }
+    final index = _tenants.indexWhere((t) => t.tenantId == command.tenantId);
+    if (index == -1) {
+      throw ApplicationException('STATE_CHANGED');
+    }
+    final tenant = _tenants[index];
+    if (scenario == FakeIamScenario.tenantClosedReject ||
+        (tenant.status != TenantLifecycleStatus.active &&
+            tenant.status != TenantLifecycleStatus.suspended)) {
+      throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
+    }
+    final closedAt = DateTime.now();
+    _tenants[index] = PlatformTenantDetailDto(
+      tenantId: tenant.tenantId,
+      name: tenant.name,
+      code: tenant.code,
+      status: TenantLifecycleStatus.closed,
+      version: tenant.version + 1,
+      createdAt: tenant.createdAt,
+      ownerUserId: tenant.ownerUserId,
+      ownerName: tenant.ownerName,
+      ownerEmail: tenant.ownerEmail,
+      ownerRoleLabel: tenant.ownerRoleLabel,
+      activatedAt: tenant.activatedAt,
+      lastActivityAt: closedAt,
+      closedAt: closedAt,
+      closedBy: 'Nhân viên vận hành nền tảng',
+      closeReason: command.reason,
       members: tenant.members,
     );
     return Future.value(null as TResult);
@@ -2701,56 +2733,6 @@ final class FakeIamModule implements IIamModule {
     );
   }
 
-  Future<TResult> _handleGetOnboardingOperation<TResult>(
-    GetTenantOnboardingOperationQuery query,
-  ) {
-    _requirePlatformView();
-    if (scenario == FakeIamScenario.onboardingPartialFailure) {
-      return Future.value(
-        TenantOnboardingOperationDto(
-              operationId: query.operationId,
-              status: TenantOnboardingOperationStatus.partialFailure,
-              completedSteps: const ['tenant', 'membership'],
-              failedStep: 'identity',
-              correlationId: 'corr-partial-1',
-            )
-            as TResult,
-      );
-    }
-    final op = _onboardingOps[query.operationId];
-    if (op == null) {
-      throw const IamBlockedException(IamBlockedCodes.resourceNotFound);
-    }
-    return Future.value(op as TResult);
-  }
-
-  Future<TResult> _handleRetryOnboardingOperation<TResult>(
-    RetryTenantOnboardingOperationCommand command,
-  ) {
-    _requirePlatformView();
-    if (scenario == FakeIamScenario.onboardingResumeOk ||
-        scenario == FakeIamScenario.onboardingPartialFailure) {
-      final resumed = TenantOnboardingOperationDto(
-        operationId: command.operationId,
-        status: TenantOnboardingOperationStatus.completed,
-        completedSteps: const ['tenant', 'membership', 'identity', 'outbox'],
-        correlationId: 'corr-resume-1',
-        tenantId: 'tenant-resume-1',
-        ownerUserId: 'owner-resume-1',
-      );
-      _onboardingOps[command.operationId] = resumed;
-      return Future.value(resumed as TResult);
-    }
-    final op = _onboardingOps[command.operationId];
-    if (op == null) {
-      throw const IamBlockedException(IamBlockedCodes.resourceNotFound);
-    }
-    if (op.status == TenantOnboardingOperationStatus.completed) {
-      throw const IamBlockedException(IamBlockedCodes.stateChanged);
-    }
-    return Future.value(op as TResult);
-  }
-
   Future<TResult> _handleListAccessibleTenants<TResult>() {
     if (scenario == FakeIamScenario.tenantsAuthenticationRequired ||
         scenario == FakeIamScenario.tenantsIdentityInactive) {
@@ -2839,9 +2821,24 @@ final class FakeIamModule implements IIamModule {
       }
 
       final match = _accessibleTenants.where((t) => t.tenantId == bootstrapTenantId).firstOrNull;
-      if (match == null ||
-          match.status == TenantLifecycleStatus.suspended ||
-          match.status == TenantLifecycleStatus.closed) {
+      if (match != null &&
+          (match.status == TenantLifecycleStatus.suspended ||
+              match.status == TenantLifecycleStatus.closed)) {
+        final closed = match.status == TenantLifecycleStatus.closed;
+        return Future.value(
+          TenantContextDto(
+            status: TenantContextStatus.invalidated,
+            tenantId: match.tenantId,
+            tenantName: match.name,
+            tenantStatus: match.status,
+            invalidationReason: closed
+                ? TenantContextInvalidationReason.tenantClosed
+                : TenantContextInvalidationReason.tenantSuspended,
+            blockedErrorCode: closed ? IamBlockedCodes.tenantClosed : IamBlockedCodes.tenantSuspended,
+          ) as TResult,
+        );
+      }
+      if (match == null) {
         // OQ-07: invalid preference → none (do not auto-pick).
         return Future.value(
           const TenantContextDto(status: TenantContextStatus.none) as TResult,

@@ -28,7 +28,7 @@
 **Supporting models IAM sở hữu (không phải aggregate, không tạo bounded context mới):**
 - **Platform User profile** (`iam.platform_user_profiles`): projection self-only do IAM sở hữu; login email + verified state đọc read-only từ Supabase Auth (`iam.get_auth_user_snapshot`). Không phải copy authoritative của credential.
 - **IAM audit history** (`iam.audit_logs`): immutable, secret-redacted, dùng chung cho tenant audit (S13) và platform audit (S16). Không mở cho module ngoài IAM; khi ≥2 bounded context cần audit → tạo decision record + extraction riêng.
-- **PasswordResetOperation** (`iam.password_reset_operations`): chỉ metadata trạng thái/timing; recovery OTP + password authoritative ở Supabase Auth, không lưu code.
+- **PasswordResetOperation** (`iam.password_reset_operations`): trạng thái/timing của phiên đặt lại mật khẩu bằng mã 6 số do IAM phát; chỉ lưu **bản băm** của mã (`code_hash`), không lưu mã gốc; mật khẩu authoritative ở Supabase Auth.
 - **PlatformOnboardingOperation** (IAM persistence theo `operationId` / `idempotencyKey` / `correlationId`): theo dõi onboarding, retry từ bước chưa hoàn tất — không thuộc Tenant aggregate (OQ-02 closed).
 
 ## Model overview

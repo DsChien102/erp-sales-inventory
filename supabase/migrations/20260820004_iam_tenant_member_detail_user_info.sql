@@ -19,13 +19,13 @@ declare
   v_role_label text;
   v_last_activity_at timestamptz;
 begin
-  if (p_membership.is_owner is true or p_membership.role = 'owner') then
+  if p_membership.is_owner is true then
     select count(*) = 1
     into v_sole_owner
     from iam.memberships m
     where m.tenant_id = p_membership.tenant_id
-      and (m.is_owner is true or m.role = 'owner')
-      and m.status = 'active';
+      and m.is_owner is true
+      and m.is_active;
   end if;
 
   select
@@ -57,9 +57,9 @@ begin
     'email', v_email,
     'role', p_membership.role,
     'role_label', coalesce(v_role_label, p_membership.role),
-    'is_owner', (p_membership.is_owner is true or p_membership.role = 'owner'),
+    'is_owner', p_membership.is_owner is true,
     'is_sole_owner', v_sole_owner,
-    'status', p_membership.status,
+    'status', iam._membership_status_code(p_membership.is_active, p_membership.removed_at),
     'version', p_membership.version,
     'joined_at', p_membership.created_at,
     'last_activity_at', v_last_activity_at,
@@ -91,7 +91,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -146,7 +146,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -187,7 +187,7 @@ begin
       m.user_id,
       m.role,
       m.is_owner,
-      m.status,
+      iam._membership_status_code(m.is_active, m.removed_at) as status,
       m.created_at,
       m.version,
       coalesce(
@@ -205,7 +205,7 @@ begin
     left join iam.platform_user_profiles p on p.user_id = m.user_id
     left join iam.role_definitions rd on rd.code = m.role
     where m.tenant_id = p_tenant_id
-      and (v_status is null or m.status = v_status)
+      and (v_status is null or iam._membership_status_code(m.is_active, m.removed_at) = v_status)
       and (
         v_search = ''
         or lower(coalesce(u.email::text, ''))
@@ -244,7 +244,7 @@ begin
             'email', f.email,
             'role_id', f.role_id,
             'role_label', f.role_label,
-            'is_owner', (f.is_owner is true or f.role = 'owner'),
+            'is_owner', (f.is_owner is true),
             'status', f.status,
             'joined_at', f.created_at,
             'version', f.version

@@ -391,7 +391,7 @@ declare
   v_hash text;
   v_email text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_membership iam.memberships;
   v_effective_role text;
   v_should_be_owner boolean := false;
@@ -461,7 +461,7 @@ begin
     select 1 from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'DUPLICATE_MEMBERSHIP';
   end if;
@@ -482,8 +482,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
   v_effective_role := case
     when v_should_be_owner then 'store_owner'
@@ -491,10 +491,10 @@ begin
   end;
 
   insert into iam.memberships (
-    tenant_id, user_id, role, status, is_owner, version, created_at, updated_at
+    tenant_id, user_id, role, is_owner, version, created_at, updated_at
   )
   values (
-    v_inv.tenant_id, v_caller, v_effective_role, 'active', v_should_be_owner, 1, v_now, v_now
+    v_inv.tenant_id, v_caller, v_effective_role, v_should_be_owner, 1, v_now, v_now
   )
   returning * into v_membership;
 
@@ -638,8 +638,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
 
   select exists (

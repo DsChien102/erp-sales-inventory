@@ -59,6 +59,8 @@ declare
   v_previous_stock numeric;
   v_stock_version  int;
 begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.manage_stock');
+
   if p_mode <> 'basic' then
     raise exception 'not_basic_stock_mode';
   end if;
@@ -146,6 +148,8 @@ as $$
 declare
   v_profile catalog.product_stock_profiles%rowtype;
 begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.manage_stock');
+
   select * into v_profile
     from catalog.product_stock_profiles sp
    where sp.product_id = p_product_id

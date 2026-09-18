@@ -10,10 +10,16 @@ import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
 class MorePage extends StatelessWidget {
-  const MorePage({super.key, this.iamModule, this.accessCubit});
+  const MorePage({
+    super.key,
+    this.iamModule,
+    this.accessCubit,
+    this.tenantBlocked = false,
+  });
 
   final IIamModule? iamModule;
   final IamFeatureAccessCubit? accessCubit;
+  final bool tenantBlocked;
 
   Future<void> _logout(BuildContext context) async {
     final result = await guard(
@@ -61,26 +67,42 @@ class MorePage extends StatelessWidget {
     if (accessCubit != null) {
       return BlocProvider.value(
         value: accessCubit!,
-        child: _MoreView(onLogout: _logout),
+        child: _MoreView(
+          onLogout: _logout,
+          tenantBlocked: tenantBlocked,
+        ),
       );
     }
 
     return BlocProvider(
-      create: (_) => IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())..load(),
-      child: _MoreView(onLogout: _logout),
+      create: (_) {
+        final cubit = IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>());
+        // Tổ chức bị chặn: mọi RPC theo tổ chức đều bị từ chối → không gọi.
+        if (!tenantBlocked) cubit.load();
+        return cubit;
+      },
+      child: _MoreView(
+        onLogout: _logout,
+        tenantBlocked: tenantBlocked,
+      ),
     );
   }
 }
 
 class _MoreView extends StatelessWidget {
-  const _MoreView({required this.onLogout});
+  const _MoreView({
+    required this.onLogout,
+    required this.tenantBlocked,
+  });
 
   final Future<void> Function(BuildContext context) onLogout;
+  final bool tenantBlocked;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
       builder: (context, access) {
+        final blocked = tenantBlocked;
         final menuItems = <_MoreMenuItem>[
           const _MoreMenuItem(
             icon: VIcons.people,
@@ -110,14 +132,14 @@ class _MoreView extends StatelessWidget {
             icon: VIcons.tag,
             title: 'Giá riêng / Nhớ giá',
             subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
-            onTap: () => context.push('/pricing'),
+            onTap: blocked ? null : () => context.push('/pricing'),
           ),
-          if (access.canOpenIamHub)
+          if (access.canOpenIamHub || blocked)
             _MoreMenuItem(
               icon: VIcons.people,
               title: 'Người dùng & vai trò',
               subtitle: 'Quản lý thành viên và quyền truy cập',
-              onTap: () => context.push('/more/users-and-roles'),
+              onTap: blocked ? null : () => context.push('/more/users-and-roles'),
             ),
           _MoreMenuItem(
             icon: VIcons.person,
@@ -129,7 +151,7 @@ class _MoreView extends StatelessWidget {
             icon: VIcons.settings,
             title: 'Thiết lập',
             subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
-            onTap: () => context.push('/more/settings'),
+            onTap: blocked ? null : () => context.push('/more/settings'),
           ),
           _MoreMenuItem(
             icon: VIcons.logout,

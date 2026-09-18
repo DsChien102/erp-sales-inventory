@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
@@ -160,6 +161,159 @@ void main() {
     expect(cubit.state.members.first.id, 'm-owner');
     expect(cubit.state.members.first.isOwner, isTrue);
     expect(cubit.state.members.last.id, 'm-regular');
+    await cubit.close();
+  });
+
+  test('filters invitations by sendResult (Đã gửi, Gửi lỗi, Thu hồi)', () async {
+    final invitations = [
+      InvitationSummaryDto(
+        invitationId: 'inv-sent',
+        inviteeEmail: 'sent@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'pending',
+        expiresAt: DateTime.utc(2026, 8, 10),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c1',
+        version: 1,
+      ),
+      InvitationSummaryDto(
+        invitationId: 'inv-failed',
+        inviteeEmail: 'failed@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'pending',
+        expiresAt: DateTime.utc(2026, 8, 10),
+        deliveryStatus: 'failed',
+        deliveryCorrelationId: 'c2',
+        version: 1,
+      ),
+      InvitationSummaryDto(
+        invitationId: 'inv-revoked',
+        inviteeEmail: 'revoked@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'revoked',
+        expiresAt: DateTime.utc(2026, 8, 10),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c3',
+        version: 1,
+      ),
+    ];
+
+    final scripted = _ScriptedIamModule(
+      onCommand: (m) async => throw UnsupportedError(m.runtimeType.toString()),
+      onQuery: (m) async {
+        return CursorPageDto<InvitationSummaryDto>(items: invitations);
+      },
+    );
+
+    final cubit = OrganizationUsersCubit(
+      iamModule: scripted,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+      clock: () => DateTime.utc(2026, 8, 5),
+    );
+
+    // Initial load: 3 invitations
+    await cubit.loadInvitations(reset: true);
+    expect(cubit.state.invitations, hasLength(3));
+
+    // Filter 'Đã gửi' -> inv-sent
+    await cubit.applyInvitationCriteria(sendResult: 'Đã gửi');
+    expect(cubit.state.invitations, hasLength(1));
+    expect(cubit.state.invitations.first.id, 'inv-sent');
+
+    // Filter 'Gửi lỗi' -> inv-failed
+    await cubit.applyInvitationCriteria(sendResult: 'Gửi lỗi');
+    expect(cubit.state.invitations, hasLength(1));
+    expect(cubit.state.invitations.first.id, 'inv-failed');
+
+    // Filter 'Thu hồi' -> inv-revoked
+    await cubit.applyInvitationCriteria(sendResult: 'Thu hồi');
+    expect(cubit.state.invitations, hasLength(1));
+    expect(cubit.state.invitations.first.id, 'inv-revoked');
+
+    await cubit.close();
+  });
+
+  test('filters invitations by timeRange (7 ngày, 30 ngày, Tùy chọn)', () async {
+    final now = DateTime.utc(2026, 8, 10);
+    // expiresAt = createdAt + 7 days => createdAt = expiresAt - 7 days
+    final invitations = [
+      // Created on 2026-08-08 (2 days ago -> within 7 days & 30 days)
+      InvitationSummaryDto(
+        invitationId: 'inv-recent',
+        inviteeEmail: 'recent@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'pending',
+        expiresAt: DateTime.utc(2026, 8, 15),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c1',
+        version: 1,
+      ),
+      // Created on 2026-07-25 (16 days ago -> within 30 days, not within 7 days)
+      InvitationSummaryDto(
+        invitationId: 'inv-medium',
+        inviteeEmail: 'medium@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'pending',
+        expiresAt: DateTime.utc(2026, 8, 1),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c2',
+        version: 1,
+      ),
+      // Created on 2026-06-01 (> 60 days ago -> outside 30 days)
+      InvitationSummaryDto(
+        invitationId: 'inv-old',
+        inviteeEmail: 'old@example.com',
+        initialRoleId: 'r1',
+        initialRoleLabel: 'Staff',
+        status: 'expired',
+        expiresAt: DateTime.utc(2026, 6, 8),
+        deliveryStatus: 'sent',
+        deliveryCorrelationId: 'c3',
+        version: 1,
+      ),
+    ];
+
+    final scripted = _ScriptedIamModule(
+      onCommand: (m) async => throw UnsupportedError(m.runtimeType.toString()),
+      onQuery: (m) async {
+        return CursorPageDto<InvitationSummaryDto>(items: invitations);
+      },
+    );
+
+    final cubit = OrganizationUsersCubit(
+      iamModule: scripted,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+      clock: () => now,
+    );
+
+    // Filter '7 ngày'
+    await cubit.applyInvitationCriteria(timeRange: '7 ngày');
+    expect(cubit.state.invitations, hasLength(1));
+    expect(cubit.state.invitations.first.id, 'inv-recent');
+
+    // Filter '30 ngày'
+    await cubit.applyInvitationCriteria(timeRange: '30 ngày');
+    expect(cubit.state.invitations, hasLength(2));
+    expect(cubit.state.invitations.map((i) => i.id), containsAll(['inv-recent', 'inv-medium']));
+
+    // Filter 'Tùy chọn'
+    await cubit.applyInvitationCriteria(
+      timeRange: 'Tùy chọn',
+      customDateRange: DateTimeRange(
+        start: DateTime(2026, 7, 20),
+        end: DateTime(2026, 7, 30),
+      ),
+    );
+    expect(cubit.state.invitations, hasLength(1));
+    expect(cubit.state.invitations.first.id, 'inv-medium');
+
     await cubit.close();
   });
 }

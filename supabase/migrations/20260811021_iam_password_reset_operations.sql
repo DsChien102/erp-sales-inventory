@@ -7,33 +7,6 @@
 
 create extension if not exists pgcrypto with schema extensions;
 
--- Drop legacy / incompatible shape so draft re-apply is idempotent.
--- Legacy 022 shape is identified by the plaintext `delivery_code` column or the
--- absence of `operation_id`. The B2 shape (operation_id + code_hash, no
--- delivery_code) is preserved across re-applies.
-do $$
-begin
-  if to_regclass('iam.password_reset_operations') is null then
-    return;
-  end if;
-
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'iam'
-      and table_name = 'password_reset_operations'
-      and column_name = 'delivery_code'
-  ) or not exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'iam'
-      and table_name = 'password_reset_operations'
-      and column_name = 'operation_id'
-  ) then
-    drop table iam.password_reset_operations cascade;
-  end if;
-end $$;
-
 create table if not exists iam.password_reset_operations (
   operation_id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -46,10 +19,6 @@ create table if not exists iam.password_reset_operations (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
--- Idempotent for DBs already carrying the metadata-only B2 predecessor.
-alter table iam.password_reset_operations
-  add column if not exists code_hash text;
 
 alter table iam.password_reset_operations enable row level security;
 

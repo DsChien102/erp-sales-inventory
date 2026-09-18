@@ -135,12 +135,12 @@ begin
   -- First owner of the provisioning tenant.
   if not exists (
     select 1 from iam.memberships m
-    where m.tenant_id = v_row.tenant_id and m.user_id = v_caller and m.status = 'active'
+    where m.tenant_id = v_row.tenant_id and m.user_id = v_caller and m.is_active
   ) then
     -- Ownership is the is_owner flag, not a role; the first member gets the
     -- operational default role store_owner.
-    insert into iam.memberships (tenant_id, user_id, role, is_owner, status)
-    values (v_row.tenant_id, v_caller, 'store_owner', true, 'active');
+    insert into iam.memberships (tenant_id, user_id, role, is_owner)
+    values (v_row.tenant_id, v_caller, 'store_owner', true);
   end if;
 
   update iam.platform_user_profiles set status = 'active' where user_id = v_caller;

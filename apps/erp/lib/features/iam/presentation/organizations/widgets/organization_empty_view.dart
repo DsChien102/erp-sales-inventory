@@ -18,6 +18,7 @@ class OrganizationEmptyView extends StatelessWidget {
   final String? suspendedOrgName;
   final String? customActionLabel;
   final bool isCompact;
+  final bool isClosed;
 
   const OrganizationEmptyView({
     super.key,
@@ -26,6 +27,7 @@ class OrganizationEmptyView extends StatelessWidget {
     this.suspendedOrgName,
     this.customActionLabel,
     this.isCompact = false,
+    this.isClosed = false,
   });
 
   @override
@@ -48,8 +50,10 @@ class OrganizationEmptyView extends StatelessWidget {
         iconColor = colors.danger;
         title = 'Tổ chức không thể truy cập';
         titleColor = colors.danger;
-        description =
-            '${suspendedOrgName ?? "ASC Commerce"} đang tạm ngừng. Bạn không thể truy cập dữ liệu của tổ chức này.';
+        final orgName = suspendedOrgName ?? 'Tổ chức';
+        description = isClosed
+            ? '$orgName đã đóng. Bạn không thể truy cập dữ liệu của tổ chức này.'
+            : '$orgName đang tạm ngừng. Bạn không thể truy cập dữ liệu của tổ chức này.';
         actionLabel = 'Chọn tổ chức khác';
         actionTextColor = colors.danger;
         break;

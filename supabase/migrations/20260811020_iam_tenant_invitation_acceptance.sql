@@ -10,17 +10,6 @@
 
 create extension if not exists pgcrypto with schema extensions;
 
--- Token-scoped idempotency (accept/decline) keyed by token_hash + operation.
-create table if not exists iam.tenant_invitation_token_operations (
-  token_hash text not null,
-  operation text not null check (operation in ('accept', 'decline')),
-  idempotency_key text not null,
-  payload_hash text not null,
-  result jsonb not null,
-  created_at timestamptz not null default timezone('utc', now()),
-  primary key (token_hash, operation, idempotency_key)
-);
-
 create or replace function iam._invitation_token_hash(p_token text)
 returns text
 language sql
@@ -162,8 +151,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
 
   select exists (
@@ -204,7 +193,7 @@ declare
   v_legacy_hash text;
   v_email text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_membership iam.memberships;
   v_effective_role text;
   v_should_be_owner boolean := false;
@@ -295,13 +284,15 @@ begin
 
       update iam.memberships
       set role = 'store_owner',
-          status = 'active',
+          is_active = true,
+          removed_at = null,
           is_owner = true,
           version = version + 1,
+          status_changed_at = v_now,
           updated_at = v_now
       where tenant_id = v_owner_activation.tenant_id
         and user_id = v_caller
-        and status in ('active', 'inactive')
+        and removed_at is null
       returning * into v_membership;
 
       if not found then
@@ -309,7 +300,6 @@ begin
           tenant_id,
           user_id,
           role,
-          status,
           is_owner,
           version,
           created_at,
@@ -319,7 +309,6 @@ begin
           v_owner_activation.tenant_id,
           v_caller,
           'store_owner',
-          'active',
           true,
           1,
           v_now,
@@ -400,7 +389,7 @@ begin
     select 1 from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'DUPLICATE_MEMBERSHIP';
   end if;
@@ -414,8 +403,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
   -- Ownership is the is_owner flag, not a role: the first active member gets
   -- the operational default role store_owner (is_owner set from v_should_be_owner).
@@ -428,7 +417,6 @@ begin
     tenant_id,
     user_id,
     role,
-    status,
     is_owner,
     version,
     created_at,
@@ -438,7 +426,6 @@ begin
     v_inv.tenant_id,
     v_caller,
     v_effective_role,
-    'active',
     v_should_be_owner,
     1,
     v_now,
@@ -503,7 +490,7 @@ declare
   v_role iam.role_definitions;
   v_hash text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_now timestamptz := timezone('utc', now());
   v_result jsonb;
   v_delivery_status text;

@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: iam_platform_user_phone_and_status_enum
 -- Context: TH-01 / platform user profile hygiene + onboarding owner phone slice
--- Touches: iam.platform_user_status, iam.platform_user_profiles.status
+-- Touches: iam.platform_user_status, iam.platform_user_profiles.status, iam._is_platform_user_suspended, iam.assert_my_platform_access
 -- Safety: idempotent ; medium
 -- Depends on: 20260826003_iam_audit_owner_activation_cleanup
 -- Promoted from _drafts/001_iam_patch_platform_user_status_enum.sql
@@ -94,3 +94,44 @@ begin
     alter column status set not null;
 end
 $$;
+
+
+create or replace function iam._is_platform_user_suspended(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+  select exists (
+    select 1
+    from iam.platform_user_profiles p
+    where p.user_id = p_user_id
+      and p.status = 'suspended'
+  );
+$$;
+
+revoke all on function iam._is_platform_user_suspended(uuid) from public, anon, authenticated;
+
+create or replace function iam.assert_my_platform_access()
+returns void
+language plpgsql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    raise exception using errcode = 'P0001',
+      message = '{"code":"NOT_AUTHENTICATED","message":"Not authenticated.","details":{}}';
+  end if;
+
+  if iam._is_platform_user_suspended(auth.uid()) then
+    raise exception using errcode = 'P0001',
+      message = '{"code":"PLATFORM_USER_SUSPENDED","message":"Platform user is suspended.","details":{}}';
+  end if;
+end;
+$$;
+
+revoke all on function iam.assert_my_platform_access() from public, anon;
+grant execute on function iam.assert_my_platform_access() to authenticated;

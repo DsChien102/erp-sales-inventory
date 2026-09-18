@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -146,7 +147,7 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
       emit(
         state.copyWith(
           invitationStatus: IamLoadStatus.success,
-          invitations: merged,
+          invitations: _filterInvitations(merged),
           invitationNextCursor: page.nextCursor,
           clearInvitationCursor: page.nextCursor == null,
           clearInvitationFailure: true,
@@ -255,6 +256,29 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
     await loadInvitations(reset: true);
   }
 
+  Future<void> applyInvitationCriteria({
+    String? status,
+    String? sendResult,
+    String? timeRange,
+    DateTimeRange? customDateRange,
+  }) async {
+    emit(
+      state.copyWith(
+        invitationFilter: status,
+        clearInvitationFilter: status == null,
+        invitationSendResultFilter: sendResult,
+        clearInvitationSendResultFilter:
+            sendResult == null || sendResult == 'Tất cả',
+        invitationTimeRangeFilter: timeRange,
+        clearInvitationTimeRangeFilter:
+            timeRange == null || timeRange == 'Tất cả',
+        invitationCustomDateRange: customDateRange,
+        clearInvitationCustomDateRange: customDateRange == null,
+      ),
+    );
+    await loadInvitations(reset: true);
+  }
+
   void selectTab(OrganizationUsersTab tab) {
     if (isClosed || state.activeTab == tab) return;
     emit(state.copyWith(activeTab: tab));
@@ -318,6 +342,69 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
     for (final item in items) {
       if (seen.add(item.id)) result.add(item);
     }
+    return result;
+  }
+
+  List<InvitationUiModel> _filterInvitations(List<InvitationUiModel> items) {
+    var result = List<InvitationUiModel>.from(items);
+    final now = _clock();
+
+    if (state.invitationSendResultFilter != null &&
+        state.invitationSendResultFilter != 'Tất cả') {
+      final opt = state.invitationSendResultFilter!;
+      result = result.where((item) {
+        return switch (opt) {
+          'Đã gửi' =>
+            item.deliveryStatus == 'sent' &&
+                item.status != InvitationStatus.revoked,
+          'Gửi lỗi' =>
+            item.deliveryStatus == 'failed' ||
+                item.status == InvitationStatus.failed,
+          'Thu hồi' => item.status == InvitationStatus.revoked,
+          _ => true,
+        };
+      }).toList();
+    }
+
+    if (state.invitationTimeRangeFilter != null &&
+        state.invitationTimeRangeFilter != 'Tất cả') {
+      final opt = state.invitationTimeRangeFilter!;
+      result = result.where((item) {
+        final itemDate =
+            item.expiresAt?.subtract(const Duration(days: 7)) ?? now;
+
+        if (opt == '7 ngày') {
+          final threshold = now.subtract(const Duration(days: 7));
+          return itemDate.isAfter(threshold);
+        } else if (opt == '30 ngày') {
+          final threshold = now.subtract(const Duration(days: 30));
+          return itemDate.isAfter(threshold);
+        } else if (opt == 'Tùy chọn' &&
+            state.invitationCustomDateRange != null) {
+          final range = state.invitationCustomDateRange!;
+          final startOfFirstDay = DateTime.utc(
+            range.start.year,
+            range.start.month,
+            range.start.day,
+          );
+          final endOfLastDay = DateTime.utc(
+            range.end.year,
+            range.end.month,
+            range.end.day,
+            23,
+            59,
+            59,
+            999,
+          );
+          return (itemDate.isAfter(startOfFirstDay) ||
+                  itemDate.isAtSameMomentAs(startOfFirstDay)) &&
+              (itemDate.isBefore(endOfLastDay) ||
+                  itemDate.isAtSameMomentAs(endOfLastDay));
+        }
+        return true;
+      }).toList();
+    }
+
     return result;
   }
 

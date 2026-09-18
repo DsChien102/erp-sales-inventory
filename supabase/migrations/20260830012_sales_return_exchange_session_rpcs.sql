@@ -54,12 +54,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = precheck_return_exchange.tenant_id
-      and scope.user_id = precheck_return_exchange.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(precheck_return_exchange.tenant_id, v_order.store_id, precheck_return_exchange.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -180,12 +175,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = get_returnable_order_lines.tenant_id
-      and scope.user_id = get_returnable_order_lines.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_returnable_order_lines.tenant_id, v_order.store_id, get_returnable_order_lines.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -354,12 +344,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = _get_return_exchange_context.tenant_id
-      and scope.user_id = _get_return_exchange_context.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(_get_return_exchange_context.tenant_id, v_order.store_id, _get_return_exchange_context.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1387,12 +1372,7 @@ begin
   from sales.sales_orders
   where sales_orders.id = v_session.sales_order_id
     and sales_orders.tenant_id = get_return_exchange_detail.tenant_id;
-  if not found or not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = get_return_exchange_detail.tenant_id
-      and scope.user_id = get_return_exchange_detail.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not found or not iam.can_access_store(get_return_exchange_detail.tenant_id, v_order.store_id, get_return_exchange_detail.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
