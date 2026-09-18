@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../shared/iam_load_status.dart';
 import '../../shared/iam_ui_failure.dart';
 import '../models/user_ui_model.dart';
@@ -17,6 +19,9 @@ final class OrganizationUsersState {
     this.memberRoleFilter,
     this.memberSort,
     this.invitationFilter,
+    this.invitationSendResultFilter,
+    this.invitationTimeRangeFilter,
+    this.invitationCustomDateRange,
     this.memberNextCursor,
     this.invitationNextCursor,
     this.memberFailure,
@@ -44,6 +49,16 @@ final class OrganizationUsersState {
 
   /// Wire status or `expiring` UI sentinel, or null = all.
   final String? invitationFilter;
+
+  /// Send result filter: 'Đã gửi' | 'Gửi lỗi' | 'Thu hồi', or null = all.
+  final String? invitationSendResultFilter;
+
+  /// Time range filter: '7 ngày' | '30 ngày' | 'Tùy chọn', or null = all.
+  final String? invitationTimeRangeFilter;
+
+  /// Custom date range when [invitationTimeRangeFilter] is 'Tùy chọn'.
+  final DateTimeRange? invitationCustomDateRange;
+
   final String? memberNextCursor;
   final String? invitationNextCursor;
   final IamUiFailure? memberFailure;
@@ -57,6 +72,13 @@ final class OrganizationUsersState {
   bool get hasMoreInvitations =>
       invitationNextCursor != null && invitationNextCursor!.isNotEmpty;
 
+  bool get isInvitationFiltered =>
+      invitationSearch.trim().isNotEmpty ||
+      invitationFilter != null ||
+      invitationSendResultFilter != null ||
+      invitationTimeRangeFilter != null ||
+      invitationCustomDateRange != null;
+
   OrganizationUsersState copyWith({
     OrganizationUsersTab? activeTab,
     IamLoadStatus? memberStatus,
@@ -69,6 +91,9 @@ final class OrganizationUsersState {
     String? memberRoleFilter,
     String? memberSort,
     String? invitationFilter,
+    String? invitationSendResultFilter,
+    String? invitationTimeRangeFilter,
+    DateTimeRange? invitationCustomDateRange,
     String? memberNextCursor,
     String? invitationNextCursor,
     IamUiFailure? memberFailure,
@@ -79,6 +104,9 @@ final class OrganizationUsersState {
     bool clearMemberRoleFilter = false,
     bool clearMemberSort = false,
     bool clearInvitationFilter = false,
+    bool clearInvitationSendResultFilter = false,
+    bool clearInvitationTimeRangeFilter = false,
+    bool clearInvitationCustomDateRange = false,
     bool clearMemberCursor = false,
     bool clearInvitationCursor = false,
     bool clearMemberFailure = false,
@@ -102,6 +130,15 @@ final class OrganizationUsersState {
       invitationFilter: clearInvitationFilter
           ? null
           : (invitationFilter ?? this.invitationFilter),
+      invitationSendResultFilter: clearInvitationSendResultFilter
+          ? null
+          : (invitationSendResultFilter ?? this.invitationSendResultFilter),
+      invitationTimeRangeFilter: clearInvitationTimeRangeFilter
+          ? null
+          : (invitationTimeRangeFilter ?? this.invitationTimeRangeFilter),
+      invitationCustomDateRange: clearInvitationCustomDateRange
+          ? null
+          : (invitationCustomDateRange ?? this.invitationCustomDateRange),
       memberNextCursor: clearMemberCursor
           ? null
           : (memberNextCursor ?? this.memberNextCursor),

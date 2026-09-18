@@ -5,7 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 import '../bloc/partner_create_cubit.dart';
 import '../data/vn_administrative_unit.dart';
 import '../data/vn_administrative_units_loader.dart';
-import 'partner_ward_search_dropdown.dart';
+import 'partner_administrative_unit_picker_sheet.dart';
 
 class PartnerDeliverySection extends StatefulWidget {
   const PartnerDeliverySection({super.key});
@@ -17,6 +17,28 @@ class PartnerDeliverySection extends StatefulWidget {
 class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
   late final Future<List<VnAdministrativeUnit>> _unitsFuture =
       VnAdministrativeUnitsLoader.load();
+
+  Future<void> _openPicker({
+    required BuildContext context,
+    required List<VnAdministrativeUnit> units,
+    required PartnerCreateCubit cubit,
+    required String? provinceName,
+    required String? communeName,
+    required int initialTab,
+  }) async {
+    final result = await showPartnerAdministrativeUnitPickerSheet(
+      context: context,
+      units: units,
+      initialProvinceName: provinceName,
+      initialCommuneName: communeName,
+      initialTab: initialTab,
+    );
+
+    if (result != null) {
+      cubit.updateDeliveryProvince(result.province.fullName);
+      cubit.updateDeliveryCommune(result.ward?.fullName ?? '');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +63,6 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
         }
 
         final units = snapshot.data!;
-        final selectedProvince = _findProvince(units, state.deliveryProvince);
-        final wardItems = selectedProvince?.wards ?? const <VnWard>[];
         final canSelectWard = state.deliveryProvince.isNotEmpty;
 
         return VPagePadding(
@@ -51,47 +71,64 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
             children: [
               _LabeledSearchDropdown(
                 label: 'Tỉnh / Thành phố',
-                child: VCombobox<String>(
-                  key: const Key('input_delivery_province'),
+                child: _AdministrativeUnitTouchField(
+                  fieldKey: const Key('input_delivery_province'),
+                  clearKey: const Key('input_delivery_province_clear'),
                   value: state.deliveryProvince.isEmpty
                       ? null
                       : state.deliveryProvince,
-                  displayTextForValue: (v) => v ?? '',
-                  onChanged: (value) =>
-                      cubit.updateDeliveryProvince(value ?? ''),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      VComboboxContent(
-                        child: VComboboxList(
-                          children: [
-                            for (final province in units)
-                              VComboboxItem<String>(
-                                value: province.fullName,
-                                searchText: province.fullName,
-                                child: Text(province.fullName),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const VComboboxInput(hintText: 'Nhập tỉnh / thành phố'),
-                    ],
+                  hintText: 'Chọn tỉnh / thành phố',
+                  prefixIcon: Icons.location_on_outlined,
+                  enabled: units.isNotEmpty,
+                  onTap: () => _openPicker(
+                    context: context,
+                    units: units,
+                    cubit: cubit,
+                    provinceName: state.deliveryProvince.isEmpty
+                        ? null
+                        : state.deliveryProvince,
+                    communeName: state.deliveryCommune.isEmpty
+                        ? null
+                        : state.deliveryCommune,
+                    initialTab: 0,
                   ),
+                  onClear: state.deliveryProvince.isNotEmpty
+                      ? () {
+                          cubit.updateDeliveryProvince('');
+                          cubit.updateDeliveryCommune('');
+                        }
+                      : null,
                 ),
               ),
               const VGap.md(),
               _LabeledSearchDropdown(
                 label: 'Xã / Phường',
-                child: PartnerWardSearchDropdown(
-                  key: const Key('input_delivery_commune'),
-                  value: state.deliveryCommune,
+                child: _AdministrativeUnitTouchField(
+                  fieldKey: const Key('input_delivery_commune'),
+                  clearKey: const Key('input_delivery_commune_clear'),
+                  value: state.deliveryCommune.isEmpty
+                      ? null
+                      : state.deliveryCommune,
                   hintText: canSelectWard
-                      ? 'Nhập xã / phường'
-                      : 'Nhập tỉnh / thành phố trước',
+                      ? 'Chọn xã / phường'
+                      : 'Chọn tỉnh / thành phố trước',
+                  prefixIcon: Icons.apartment_outlined,
                   enabled: canSelectWard,
-                  wards: wardItems,
-                  onSelected: (ward) =>
-                      cubit.updateDeliveryCommune(ward.fullName),
+                  onTap: () => _openPicker(
+                    context: context,
+                    units: units,
+                    cubit: cubit,
+                    provinceName: state.deliveryProvince.isEmpty
+                        ? null
+                        : state.deliveryProvince,
+                    communeName: state.deliveryCommune.isEmpty
+                        ? null
+                        : state.deliveryCommune,
+                    initialTab: canSelectWard ? 1 : 0,
+                  ),
+                  onClear: state.deliveryCommune.isNotEmpty
+                      ? () => cubit.updateDeliveryCommune('')
+                      : null,
                 ),
               ),
               const VGap.md(),
@@ -107,14 +144,97 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
     );
   }
 
-  VnAdministrativeUnit? _findProvince(
-    List<VnAdministrativeUnit> units,
-    String fullName,
-  ) {
-    for (final unit in units) {
-      if (unit.fullName == fullName) return unit;
-    }
-    return null;
+
+}
+
+/// Interactive touch field that triggers the administrative unit picker bottom sheet.
+class _AdministrativeUnitTouchField extends StatelessWidget {
+  const _AdministrativeUnitTouchField({
+    required this.fieldKey,
+    this.clearKey,
+    required this.value,
+    required this.hintText,
+    required this.prefixIcon,
+    required this.enabled,
+    required this.onTap,
+    this.onClear,
+  });
+
+  final Key fieldKey;
+  final Key? clearKey;
+  final String? value;
+  final String hintText;
+  final IconData prefixIcon;
+  final bool enabled;
+  final VoidCallback onTap;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final hasValue = value != null && value!.isNotEmpty;
+
+    return InkWell(
+      key: fieldKey,
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(VRadius.input),
+      child: Container(
+        height: VCombobox.controlHeight,
+        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
+        decoration: BoxDecoration(
+          color: enabled
+              ? colors.surface
+              : colors.surfaceAlt.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(VRadius.input),
+          border: Border.all(
+            color: enabled
+                ? colors.borderStrong
+                : colors.borderDefault.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              prefixIcon,
+              size: 18,
+              color: enabled ? colors.textSecondary : colors.textMuted,
+            ),
+            const SizedBox(width: VSpacing.space2),
+            Expanded(
+              child: Text(
+                hasValue ? value! : hintText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: hasValue ? FontWeight.w600 : FontWeight.w400,
+                  color: !enabled
+                      ? colors.textMuted
+                      : (hasValue ? colors.textPrimary : colors.textSecondary),
+                ),
+              ),
+            ),
+            if (hasValue && onClear != null)
+              IconButton(
+                key: clearKey,
+                icon: Icon(Icons.close, size: 16, color: colors.textSecondary),
+                splashRadius: 16,
+                padding: EdgeInsets.zero,
+                constraints:
+                    const BoxConstraints(minWidth: 28, minHeight: 28),
+                tooltip: 'Xóa lựa chọn',
+                onPressed: onClear,
+              )
+            else
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 20,
+                color: enabled ? colors.textSecondary : colors.textMuted,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

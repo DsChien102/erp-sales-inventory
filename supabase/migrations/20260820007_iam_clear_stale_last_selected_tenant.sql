@@ -17,5 +17,5 @@ where p.last_selected_tenant_id is not null
     from iam.memberships m
     where m.user_id = p.user_id
       and m.tenant_id = p.last_selected_tenant_id
-      and m.status is distinct from 'active'
+      and m.is_active is not true
   );

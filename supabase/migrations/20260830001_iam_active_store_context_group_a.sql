@@ -48,24 +48,8 @@ begin
 end;
 $$;
 
-create table if not exists iam.membership_store_scopes (
-  tenant_id uuid not null references iam.tenants(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  store_id uuid not null,
-  is_default boolean not null default false,
-  primary key (tenant_id, user_id, store_id),
-  foreign key (tenant_id, user_id)
-    references iam.memberships(tenant_id, user_id) on delete cascade,
-  foreign key (tenant_id, store_id)
-    references iam.stores(tenant_id, id) on delete cascade
-);
-
-create unique index if not exists membership_store_scopes_one_default
-  on iam.membership_store_scopes (tenant_id, user_id)
-  where is_default;
 
 alter table iam.stores enable row level security;
-alter table iam.membership_store_scopes enable row level security;
 
 drop policy if exists stores_member_read on iam.stores;
 create policy stores_member_read on iam.stores
@@ -80,19 +64,36 @@ create policy stores_member_read on iam.stores
     )
   );
 
-drop policy if exists membership_store_scopes_self_read on iam.membership_store_scopes;
-create policy membership_store_scopes_self_read on iam.membership_store_scopes
-  for select
-  to authenticated
-  using (
-    user_id = auth.uid()
-    and exists (
-      select 1
-      from iam.memberships m
-      where m.tenant_id = membership_store_scopes.tenant_id
-        and m.user_id = auth.uid()
-    )
+-- Single-store era: store access = active store of an operational tenant + active membership.
+-- Multi-store later: reintroduce scopes and change only this helper.
+create or replace function iam.can_access_store(
+  p_tenant_id uuid,
+  p_store_id uuid,
+  p_user_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+  select exists (
+    select 1
+    from iam.stores s
+    join iam.tenants t
+      on t.id = s.tenant_id
+    join iam.memberships m
+      on m.tenant_id = s.tenant_id
+    where s.tenant_id = p_tenant_id
+      and s.id = p_store_id
+      and s.status = 'active'
+      and t.status not in ('suspended', 'closed')
+      and m.user_id = p_user_id
+      and m.is_active
   );
+$$;
+
+revoke all on function iam.can_access_store(uuid, uuid, uuid) from public, anon, authenticated;
 
 create or replace function iam.get_session_context(p_tenant_id uuid default null)
 returns jsonb
@@ -284,8 +285,7 @@ end;
 $$;
 
 revoke all on iam.stores from public, anon;
-revoke all on iam.membership_store_scopes from public, anon;
-grant select on iam.stores, iam.membership_store_scopes to authenticated;
+grant select on iam.stores to authenticated;
 
 revoke all on function iam.get_session_context(uuid) from public, anon;
 revoke all on function iam.bootstrap_owner(text) from public, anon;

@@ -148,4 +148,71 @@ void main() {
     // Confirmation bottom sheet should be dismissed
     expect(find.text('Đăng xuất khỏi VET45?'), findsNothing);
   });
+
+  testWidgets('owner badge shows when isOwner is true', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MyAccountPage(
+          data: MyAccountUiModel(
+            firstName: 'Minh',
+            lastName: 'Nguyễn Văn',
+            email: 'minh@gmail.com',
+            emailStatus: 'Đã xác minh',
+            phoneNumber: '0901 234 567',
+            isOwner: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Chủ sở hữu'), findsOneWidget);
+  });
+
+  testWidgets('owner badge hidden when isOwner is false', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MyAccountPage(data: MyAccountUiModel.sample),
+      ),
+    );
+
+    expect(find.text('Chủ sở hữu'), findsNothing);
+  });
+
+  testWidgets('owner badge still shows for owner when sample models tenant block UX', (
+    tester,
+  ) async {
+    // Account page is personal — owner badge does not depend on current tenant.
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MyAccountPage(
+          data: MyAccountUiModel(
+            firstName: 'Lan',
+            lastName: 'Lê Thị',
+            email: 'lan@gmail.com',
+            emailStatus: 'Đã xác minh',
+            phoneNumber: '',
+            isOwner: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Chủ sở hữu'), findsOneWidget);
+    expect(find.text('Tài khoản cá nhân'), findsOneWidget);
+  });
 }

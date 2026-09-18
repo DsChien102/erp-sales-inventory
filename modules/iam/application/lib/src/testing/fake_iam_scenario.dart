@@ -34,8 +34,6 @@ enum FakeIamScenario {
   suspendIdempotencyConflict,
   stepUpRequired,
   ownershipIdempotencyConflict,
-  onboardingPartialFailure,
-  onboardingResumeOk,
   auditDetailOk,
 
   auditSearchOk,

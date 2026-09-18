@@ -69,12 +69,16 @@ final class TenantContextState {
     bool clearSwitchFailure = false,
     bool clearCurrent = false,
     bool clearEmptyState = false,
+    bool clearBranchDisplayName = false,
+    bool clearBlockedErrorCode = false,
   }) {
     return TenantContextState(
       status: status ?? this.status,
       current: clearCurrent ? null : (current ?? this.current),
       tenants: tenants ?? this.tenants,
-      branchDisplayName: branchDisplayName ?? this.branchDisplayName,
+      branchDisplayName: clearBranchDisplayName
+          ? null
+          : (branchDisplayName ?? this.branchDisplayName),
       userDisplayName: userDisplayName ?? this.userDisplayName,
       contextFailure: clearContextFailure
           ? null
@@ -85,7 +89,7 @@ final class TenantContextState {
       switchFailure: clearSwitchFailure
           ? null
           : (switchFailure ?? this.switchFailure),
-      blockedErrorCode: clearContextFailure
+      blockedErrorCode: clearBlockedErrorCode
           ? null
           : (blockedErrorCode ?? this.blockedErrorCode),
       emptyStateType: clearEmptyState

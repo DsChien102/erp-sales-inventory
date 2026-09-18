@@ -34,6 +34,7 @@ final class CreateTenantOnboardingCommandHandler
         communeCode: command.communeCode,
         legalName: command.legalName,
         taxCode: command.taxCode,
+        legalEntityType: command.legalEntityType,
         registeredAddressText: command.registeredAddressText,
         ownerEmail: owner.email,
         ownerGivenName: owner.firstName,
@@ -54,6 +55,7 @@ final class CreateTenantOnboardingCommandHandler
       communeCode: command.communeCode,
       legalName: command.legalName,
       taxCode: command.taxCode,
+      legalEntityType: command.legalEntityType,
       registeredAddressText: command.registeredAddressText,
       ownerUserId: owner.existingUserId,
     );

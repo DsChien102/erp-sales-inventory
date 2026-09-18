@@ -1,7 +1,7 @@
 -- Title: IAM fix utc-now offset (store/compare with now())
 -- Kind: patch
 -- Intent: iam_fix_utc_now_offset
--- Touches: iam.role_definitions, iam.tenant_invitations, iam.tenant_invitation_operations, iam.tenant_invitation_mutate_operations, iam.tenant_invitation_token_operations, iam.create_tenant_invitation, iam.list_tenant_invitations, iam.get_tenant_invitation, iam.begin_password_reset_operation, iam.resend_password_reset_operation, iam.begin_password_reset_operation_by_email, iam.resend_password_reset_operation_by_email, iam.resend_tenant_invitation, iam.revoke_tenant_invitation, iam.decline_invitation
+-- Touches: iam.role_definitions, iam.tenant_invitations, iam.create_tenant_invitation, iam.list_tenant_invitations, iam.get_tenant_invitation, iam.begin_password_reset_operation, iam.resend_password_reset_operation, iam.begin_password_reset_operation_by_email, iam.resend_password_reset_operation_by_email, iam.resend_tenant_invitation, iam.revoke_tenant_invitation, iam.decline_invitation
 -- Safety: idempotent ; low
 -- Depends on: 20260811021_iam_password_reset_operations, 20260820006_iam_invitation_inspection_prefill_profile
 -- Promoted from _drafts/002_iam_fix_utc_now_offset.sql
@@ -13,12 +13,6 @@ alter table iam.role_definitions alter column updated_at set default now();
 alter table iam.tenant_invitations alter column status_changed_at set default now();
 alter table iam.tenant_invitations alter column created_at set default now();
 alter table iam.tenant_invitations alter column updated_at set default now();
-
-alter table iam.tenant_invitation_operations alter column created_at set default now();
-
-alter table iam.tenant_invitation_mutate_operations alter column created_at set default now();
-
-alter table iam.tenant_invitation_token_operations alter column created_at set default now();
 
 -- ── iam.create_tenant_invitation(uuid, text, uuid, text) ─────────────────────
 -- Latest source: 20260811017_iam_tenant_invitation_create.sql
@@ -40,7 +34,7 @@ declare
   v_role iam.role_definitions;
   v_actor_membership iam.memberships;
   v_existing_membership iam.memberships;
-  v_existing_op iam.tenant_invitation_operations;
+  v_existing_op iam.idempotency_records;
   v_payload_hash text;
   v_invitation iam.tenant_invitations;
   v_raw_token text;
@@ -99,7 +93,7 @@ begin
   from iam.memberships m
   where m.tenant_id = p_tenant_id
     and m.user_id = v_caller
-    and m.status = 'active'
+    and m.is_active
   for update;
 
   if not found then
@@ -111,16 +105,14 @@ begin
   join auth.users u on u.id = m.user_id
   where m.tenant_id = p_tenant_id
     and lower(trim(u.email::text)) = v_email
-    and m.status in ('active', 'inactive')
+    and m.removed_at is null
   limit 1;
 
   if found then
-    if v_existing_membership.status = 'active' then
+    if v_existing_membership.is_active then
       raise exception 'DUPLICATE_MEMBERSHIP';
     end if;
-    if v_existing_membership.status = 'inactive' then
-      raise exception 'MEMBERSHIP_INACTIVE';
-    end if;
+    raise exception 'MEMBERSHIP_INACTIVE';
   end if;
 
   if exists (
@@ -306,7 +298,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -462,7 +454,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -944,7 +936,7 @@ declare
   v_caller uuid := auth.uid();
   v_inv iam.tenant_invitations;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_raw_token text;
   v_token_hash text;
@@ -1118,7 +1110,7 @@ declare
   v_caller uuid := auth.uid();
   v_inv iam.tenant_invitations;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_reason text;
   v_now timestamptz := now();
@@ -1247,7 +1239,7 @@ declare
   v_role iam.role_definitions;
   v_hash text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_now timestamptz := now();
   v_result jsonb;
   v_delivery_status text;

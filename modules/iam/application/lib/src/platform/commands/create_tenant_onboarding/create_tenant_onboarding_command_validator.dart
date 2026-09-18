@@ -1,3 +1,4 @@
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'create_tenant_onboarding_command.dart';
@@ -13,6 +14,19 @@ final class CreateTenantOnboardingCommandValidator
     }
     if (command.idempotencyKey.trim().isEmpty) {
       throw ValidationException('Idempotency key is required');
+    }
+
+    final hasLegal = (command.legalName ?? '').trim().isNotEmpty &&
+        (command.taxCode ?? '').trim().isNotEmpty;
+    if (hasLegal) {
+      final type = LegalEntityTypeCodes.fromCode(command.legalEntityType);
+      if (type == null) {
+        throw ValidationException('Legal entity type is required');
+      }
+      if (TaxCodeFormatRule(entityType: type, taxCode: command.taxCode!)
+          .isBroken()) {
+        throw ValidationException('Tax code must be 10-13 digits');
+      }
     }
 
     final owner = command.owner;

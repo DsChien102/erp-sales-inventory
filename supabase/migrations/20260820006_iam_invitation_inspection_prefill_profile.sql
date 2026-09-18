@@ -102,8 +102,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
 
   select exists (

@@ -2,6 +2,7 @@
 library;
 
 export 'src/access/access_metadata.dart';
+export 'src/access/tenant_access_revoked_signal.dart';
 export 'src/cqrs/annotations.dart';
 export 'src/cqrs/command_base.dart';
 export 'src/cqrs/i_command.dart';

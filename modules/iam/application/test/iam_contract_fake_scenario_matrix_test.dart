@@ -737,27 +737,6 @@ void main() {
         ),
         throwsBlocked(IamBlockedCodes.stepUpAuthRequired),
       );
-
-      final partial = FakeIamModule(
-        scenario: FakeIamScenario.onboardingPartialFailure,
-      );
-      final partialOp = await partial.executeQueryAsync(
-        GetTenantOnboardingOperationQuery(operationId: 'op-partial'),
-      );
-      expect(
-        partialOp.status,
-        TenantOnboardingOperationStatus.partialFailure,
-      );
-      expect(partialOp.failedStep, 'identity');
-
-      final resume = FakeIamModule(scenario: FakeIamScenario.onboardingResumeOk);
-      final resumed = await resume.executeCommandAsync(
-        RetryTenantOnboardingOperationCommand(
-          operationId: 'op-resume',
-          idempotencyKey: 'resume-1',
-        ),
-      );
-      expect(resumed.status, TenantOnboardingOperationStatus.completed);
     });
 
     test('S16 tenants filtered / ownership conflict / audit detail', () async {

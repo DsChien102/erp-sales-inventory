@@ -59,6 +59,7 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? legalEntityType,
     String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
@@ -66,17 +67,6 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     String? ownerFamilyName,
     String? ownerPhone,
     String? correlationId,
-  }) async => throw UnimplementedError();
-
-  @override
-  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
-    String operationId,
-  ) async => throw UnimplementedError();
-
-  @override
-  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
-    required String operationId,
-    required String idempotencyKey,
   }) async => throw UnimplementedError();
 
   @override
@@ -122,6 +112,14 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
   @override
   Future<void> restorePlatformTenant({
     required String tenantId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<void> closePlatformTenant({
+    required String tenantId,
+    required String reason,
     required int expectedVersion,
     required String idempotencyKey,
   }) async => throw UnimplementedError();

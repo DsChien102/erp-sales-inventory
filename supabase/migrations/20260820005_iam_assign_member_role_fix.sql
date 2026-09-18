@@ -21,7 +21,6 @@ as $$
 declare
   v_caller uuid := auth.uid();
   v_target_row iam.memberships;
-  v_active_owner_count int := 0;
   v_now timestamptz := now();
   v_before jsonb;
 begin
@@ -34,7 +33,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -45,8 +44,8 @@ begin
       from iam.memberships m
       where m.tenant_id = p_tenant_id
         and m.user_id = v_caller
-        and (m.is_owner is true or m.role in ('owner', 'store_owner'))
-        and m.status = 'active'
+        and m.is_owner is true
+        and m.is_active
     )
     or iam.has_permission(p_tenant_id, 'iam.members.assign_role')
     or iam.has_permission(p_tenant_id, 'tenant.members.write')
@@ -76,27 +75,12 @@ begin
     raise exception 'RESOURCE_NOT_FOUND';
   end if;
 
-  if v_target_row.status = 'removed' then
+  if v_target_row.removed_at is not null then
     raise exception 'MEMBERSHIP_REMOVED';
   end if;
 
-  -- Protect the last owner from being demoted away from owner/store_owner
-  if (v_target_row.is_owner is true or v_target_row.role in ('owner', 'store_owner'))
-     and p_role not in ('owner', 'store_owner') then
-    select count(*)
-    into v_active_owner_count
-    from iam.memberships m
-    where m.tenant_id = p_tenant_id
-      and (m.is_owner is true or m.role in ('owner', 'store_owner'))
-      and m.status = 'active';
-
-    if v_active_owner_count <= 1 then
-      raise exception 'LAST_OWNER_PROTECTED';
-    end if;
-  end if;
-
   v_before := jsonb_build_object(
-    'status', v_target_row.status,
+    'status', iam._membership_status_code(v_target_row.is_active, v_target_row.removed_at),
     'version', v_target_row.version,
     'role', v_target_row.role
   );
@@ -121,7 +105,7 @@ begin
       p_tracking_id => v_target_row.id::text || ':' || v_target_row.version::text,
       p_before => v_before,
       p_after => jsonb_build_object(
-        'status', v_target_row.status,
+        'status', iam._membership_status_code(v_target_row.is_active, v_target_row.removed_at),
         'version', v_target_row.version,
         'role', v_target_row.role
       )
@@ -141,7 +125,7 @@ begin
         'user_id', v_target_row.user_id,
         'role', v_target_row.role,
         'previous_role', v_before->>'role',
-        'status', v_target_row.status,
+        'status', iam._membership_status_code(v_target_row.is_active, v_target_row.removed_at),
         'version', v_target_row.version,
         'actor_user_id', v_caller
       )

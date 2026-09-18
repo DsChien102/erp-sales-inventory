@@ -51,12 +51,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = get_available_post_sale_actions.tenant_id
-      and scope.user_id = get_available_post_sale_actions.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_available_post_sale_actions.tenant_id, v_order.store_id, get_available_post_sale_actions.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -114,12 +109,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = precheck_sales_order_cancellation.tenant_id
-      and scope.user_id = precheck_sales_order_cancellation.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(precheck_sales_order_cancellation.tenant_id, v_order.store_id, precheck_sales_order_cancellation.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -591,12 +581,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_cancellation.tenant_id
-      and scope.user_id = get_sales_order_cancellation.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_cancellation.tenant_id, v_order.store_id, get_sales_order_cancellation.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;

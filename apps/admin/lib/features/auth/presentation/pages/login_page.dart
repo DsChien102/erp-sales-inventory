@@ -105,10 +105,15 @@ class _LoginPageState extends State<LoginPage> {
       final isPlatformDenied = signInFailure.message.contains(
         IamBlockedCodes.platformPermissionDenied,
       );
+      final isSuspended = signInFailure.message.contains(
+        IamBlockedCodes.platformUserSuspended,
+      );
       VToast.show(
         context,
         title: 'Đăng nhập thất bại',
-        message: isPlatformDenied
+        message: isSuspended
+            ? 'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.'
+            : isPlatformDenied
             ? 'Tài khoản không có quyền Platform Admin'
             : signInFailure.message,
         type: VToastType.danger,

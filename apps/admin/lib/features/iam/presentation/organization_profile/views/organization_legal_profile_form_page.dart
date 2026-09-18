@@ -134,14 +134,9 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
       _taxCodeError = 'Vui lòng nhập mã số thuế';
       ok = false;
     } else if (type != null) {
-      final expected = switch (type) {
-        LegalEntityType.enterprise => 10,
-        LegalEntityType.householdBusiness => 12,
-      };
-      if (tax.length != expected || !RegExp(r'^\d+$').hasMatch(tax)) {
-        _taxCodeError = type == LegalEntityType.enterprise
-            ? 'Mã số thuế doanh nghiệp phải đúng 10 chữ số.'
-            : 'Mã số thuế hộ kinh doanh phải đúng 12 chữ số.';
+      final taxRule = TaxCodeFormatRule(entityType: type, taxCode: tax);
+      if (taxRule.isBroken()) {
+        _taxCodeError = taxRule.message;
         ok = false;
       } else {
         _taxCodeError = null;

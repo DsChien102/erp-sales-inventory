@@ -25,7 +25,7 @@ declare
   v_hash text;
   v_email text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_membership iam.memberships;
   v_effective_role text;
   v_should_be_owner boolean := false;
@@ -41,16 +41,8 @@ begin
   v_hash := iam._invitation_token_hash(p_token);
   v_payload_hash := md5(v_hash || '|accept');
 
-  select * into v_existing
-  from iam.tenant_invitation_token_operations o
-  where o.token_hash = v_hash
-    and o.operation = 'accept'
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
     return v_existing.result;
   end if;
 
@@ -124,7 +116,7 @@ begin
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.is_owner is true
-      and coalesce(m.status, 'active') = 'active'
+      and m.is_active
     order by m.created_at
     limit 1
     for update;
@@ -153,7 +145,7 @@ begin
     from iam.memberships m
     where m.id = v_inv.target_membership_id
       and m.tenant_id = v_inv.tenant_id
-      and coalesce(m.status, 'active') = 'active'
+      and m.is_active
     for update;
 
     if found then
@@ -178,7 +170,7 @@ begin
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
     for update;
 
     if found then
@@ -203,7 +195,6 @@ begin
         set last_selected_tenant_id = excluded.last_selected_tenant_id,
             updated_at = excluded.updated_at;
 
-      perform iam._ensure_membership_default_store_scope(v_inv.tenant_id, v_caller);
 
       perform iam.append_audit_log(
         p_scope => 'tenant',
@@ -233,11 +224,11 @@ begin
           'role_label', coalesce(v_role.label, v_membership.role::text)
         ),
         p_target_display_name => v_tenant.display_name,
-        p_target_secondary_identifier => v_tenant.code,
+        p_target_secondary_identifier => left(v_tenant.id::text, 8),
         p_target_snapshot => jsonb_build_object(
           'display_name', v_tenant.display_name,
-          'subject_code', v_tenant.code,
-          'secondary_label', v_tenant.code
+          'subject_code', left(v_tenant.id::text, 8),
+          'secondary_label', left(v_tenant.id::text, 8)
         ),
         p_correlation_id => p_idempotency_key,
         p_detail_items => jsonb_build_array(
@@ -251,11 +242,7 @@ begin
 
       v_result := iam._membership_detail_json(v_membership);
 
-      insert into iam.tenant_invitation_token_operations (
-        token_hash, operation, idempotency_key, payload_hash, result
-      ) values (
-        v_hash, 'accept', p_idempotency_key, v_payload_hash, v_result
-      );
+      perform iam._idempotency_store('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash, v_result);
 
       return v_result;
     end if;
@@ -271,8 +258,8 @@ begin
       select 1
       from iam.memberships m
       where m.tenant_id = v_inv.tenant_id
-        and m.status = 'active'
-        and (m.is_owner is true or m.role = 'owner')
+        and m.is_active
+        and m.is_owner is true
     );
     v_effective_role := case
       when v_should_be_owner then 'store_owner'
@@ -280,10 +267,10 @@ begin
     end;
 
     insert into iam.memberships (
-      tenant_id, user_id, role, status, is_owner, version, created_at, updated_at
+      tenant_id, user_id, role, is_owner, version, created_at, updated_at
     )
     values (
-      v_inv.tenant_id, v_caller, v_effective_role, 'active', v_should_be_owner, 1, v_now, v_now
+      v_inv.tenant_id, v_caller, v_effective_role, v_should_be_owner, 1, v_now, v_now
     )
     returning * into v_membership;
   else
@@ -331,7 +318,6 @@ begin
           updated_at = v_now;
   end if;
 
-  perform iam._ensure_membership_default_store_scope(v_inv.tenant_id, v_membership.user_id);
 
   v_result := iam._membership_detail_json(v_membership);
 
@@ -369,11 +355,11 @@ begin
       'role_label', coalesce(v_role.label, v_effective_role)
     ),
     p_target_display_name => v_tenant.display_name,
-    p_target_secondary_identifier => v_tenant.code,
+    p_target_secondary_identifier => left(v_tenant.id::text, 8),
     p_target_snapshot => jsonb_build_object(
       'display_name', v_tenant.display_name,
-      'subject_code', v_tenant.code,
-      'secondary_label', v_tenant.code
+      'subject_code', left(v_tenant.id::text, 8),
+      'secondary_label', left(v_tenant.id::text, 8)
     ),
     p_correlation_id => p_idempotency_key,
     p_detail_items => jsonb_build_array(
@@ -390,11 +376,7 @@ begin
     )
   );
 
-  insert into iam.tenant_invitation_token_operations (
-    token_hash, operation, idempotency_key, payload_hash, result
-  ) values (
-    v_hash, 'accept', p_idempotency_key, v_payload_hash, v_result
-  );
+  perform iam._idempotency_store('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash, v_result);
 
   return v_result;
 end;

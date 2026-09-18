@@ -23,7 +23,7 @@ void main() {
       expect(
         sql,
         contains(
-          'Touches: iam.create_tenant_onboarding, iam.get_tenant_onboarding_operation, iam.retry_tenant_onboarding_operation, iam.resolve_or_create_platform_user_for_onboarding, iam.platform_identity_create_pending_user_for_onboarding',
+          'Touches: iam.create_tenant_onboarding, iam.resolve_or_create_platform_user_for_onboarding, iam.platform_identity_create_pending_user_for_onboarding',
         ),
       );
       for (final param in const [

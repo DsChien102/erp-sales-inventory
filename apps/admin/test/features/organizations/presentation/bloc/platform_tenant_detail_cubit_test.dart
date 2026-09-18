@@ -1,6 +1,7 @@
+import 'package:admin/features/iam/presentation/organizations/models/organization_ui_model.dart';
 import 'package:admin/features/organizations/presentation/bloc/platform_tenant_detail_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -24,6 +25,34 @@ void main() {
       expect(module.lastTransferCommand?.expectedVersion, 7);
     },
   );
+
+  test('close rejects empty reason without calling command', () async {
+    final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+    final cubit = PlatformTenantDetailCubit(
+      iamModule: module,
+      tenantId: 'org-001',
+    );
+
+    await cubit.load();
+    final ok = await cubit.closeOrganization(reason: '  ');
+
+    expect(ok, isFalse);
+    expect(cubit.state.errorMessage, 'Vui lòng nhập lý do đóng tổ chức.');
+  });
+
+  test('close succeeds for active tenant', () async {
+    final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+    final cubit = PlatformTenantDetailCubit(
+      iamModule: module,
+      tenantId: 'org-001',
+    );
+
+    await cubit.load();
+    final ok = await cubit.closeOrganization(reason: 'Hết hợp đồng');
+
+    expect(ok, isTrue);
+    expect(cubit.state.organization!.status, OrganizationStatus.closed);
+  });
 }
 
 final class _RecordingTenantDetailModule implements IIamModule {

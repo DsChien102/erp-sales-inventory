@@ -15,12 +15,29 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
+
 ### Fixed
 
+- Tạo đơn hàng: empty state «Chưa có sản phẩm» không còn overflow khi mở ghi chú đơn (bàn phím).
 - Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
+- Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
+- ERP tự về màn chặn khi tổ chức tạm ngừng/đã đóng (kèm thông báo đúng lý do).
+- ERP: mọi tab hiện màn chặn khi tổ chức tạm ngừng/đã đóng; header xoá tên org; giữ mã `TENANT_CLOSED` cho copy «đã đóng».
+- ERP: tab Khác vẫn mở khi org bị chặn (đăng xuất / tài khoản cá nhân); badge «Chủ sở hữu» trên Tài khoản của tôi.
+- ERP: từ trang con khi org bị tạm ngừng/đóng → toast + về dashboard (sửa `listenWhen` sau bước `loading`).
+- ERP: tab Khác khi org bị chặn không còn gọi RPC readiness/session (hết log `SEVERE`); mục «Người dùng & vai trò» vẫn hiện nhưng vô hiệu.
 
 ### Internal
 
+- IAM: chặn `suspended`/`closed` ở `has_permission` / `get_session_context` / `can_access_store`; vá quyền 2 RPC tồn kho — cần `supabase db reset`.
+- IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.
+- IAM: `audit_logs` bỏ cột `created_at` (chỉ còn `occurred_at`) — cần `supabase db reset`.
+- IAM: gộp 8 bảng `*_operations` thành `iam.idempotency_records`; xoá get/retry onboarding operation — cần `supabase db reset`.
+- IAM: `tenant_legal_profiles` CHECK MST 10–13; onboarding `p_org_legal_entity_type` — cần `supabase db reset`.
+- IAM: `iam.tenants` thu gọn cột (`display_name` + shared status); RPC `close_platform_tenant` — cần `supabase db reset`.
+- IAM: `_ensure_membership_default_store_scope` bỏ qua UUID pending chưa có trong `auth.users` (merge vào `20260916001`).
+- IAM: `create_tenant_invitation` không còn chặn invite với role `owner` / `store_owner` (chỉ còn check role `active`).
 - IAM draft SQL: ensure default store + `membership_store_scopes` trên onboarding / invite / accept / activate; backfill dữ liệu legacy.
 
 ## [1.7.4+41] - 2026-09-14

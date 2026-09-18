@@ -25,7 +25,7 @@ void main() {
       final definition = _functionDefinition(sql, functionName);
       expect(definition, contains('auth.uid() is null'));
       expect(definition, contains('iam.memberships'));
-      expect(definition, contains('iam.membership_store_scopes'));
+      expect(definition, contains('iam.can_access_store('));
       expect(definition, contains('iam.stores'));
       expect(definition, contains("store.status = 'active'"));
       expect(definition, contains('store.tenant_id = p_tenant_id'));

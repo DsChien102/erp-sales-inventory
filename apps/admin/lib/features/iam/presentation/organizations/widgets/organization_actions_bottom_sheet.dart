@@ -6,11 +6,13 @@ import '../models/organization_ui_model.dart';
 /// Bottom Sheet hiển thị danh sách thao tác đối với tổ chức.
 /// - Đang hoạt động: Thay đổi chủ sở hữu, Tạm ngừng tổ chức (Tone đỏ).
 /// - Đã tạm ngừng: Thay đổi chủ sở hữu, Khôi phục tổ chức.
+/// - Đang hoạt động / Đã tạm ngừng: Đóng tổ chức (Tone đỏ).
 class OrganizationActionsBottomSheet extends StatelessWidget {
   final OrganizationUiModel organization;
   final VoidCallback? onChangeOwnerTap;
   final VoidCallback? onSuspendTap;
   final VoidCallback? onRestoreTap;
+  final VoidCallback? onCloseTap;
 
   const OrganizationActionsBottomSheet({
     super.key,
@@ -18,6 +20,7 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
     this.onChangeOwnerTap,
     this.onSuspendTap,
     this.onRestoreTap,
+    this.onCloseTap,
   });
 
   @override
@@ -83,6 +86,19 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 onSuspendTap?.call();
+              },
+            ),
+          ],
+          if (isActive || isSuspended) ...[
+            const VGap.md(),
+            _ActionButtonCard(
+              title: 'Đóng tổ chức',
+              subtitle: 'Ngừng hoạt động vĩnh viễn, không thể khôi phục',
+              icon: VIcons.close,
+              isDanger: true,
+              onTap: () {
+                Navigator.of(context).pop();
+                onCloseTap?.call();
               },
             ),
           ],

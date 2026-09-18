@@ -25,19 +25,15 @@ begin
 
   select
     t.id,
-    t.name,
-    coalesce(t.code, left(t.id::text, 8)) as code,
+    t.display_name,
     coalesce(t.status, 'active') as status,
     coalesce(t.version, 1) as version,
     t.created_at,
     t.updated_at,
     t.activated_at,
-    t.suspended_at,
-    t.suspend_reason,
-    t.suspended_by,
-    t.closed_at,
-    t.close_reason,
-    t.closed_by
+    t.status_changed_at,
+    t.status_changed_by,
+    t.status_reason
   into v_tenant
   from iam.tenants t
   where t.id = p_tenant_id;
@@ -74,7 +70,7 @@ begin
     join auth.users u on u.id = m.user_id
     left join iam.role_definitions rd on rd.code = m.role
     where m.tenant_id = p_tenant_id
-      and coalesce(m.status, 'active') = 'active'
+      and m.is_active
     order by m.user_id, m.is_owner desc, m.created_at desc
   ) m;
 
@@ -96,20 +92,20 @@ begin
   left join iam.role_definitions rd on rd.code = m.role
   where m.tenant_id = p_tenant_id
     and m.is_owner
-    and coalesce(m.status, 'active') = 'active'
+    and m.is_active
   limit 1;
 
   return jsonb_build_object(
     'tenant_id', v_tenant.id,
-    'name', v_tenant.name,
-    'code', v_tenant.code,
+    'name', v_tenant.display_name,
+    'code', left(v_tenant.id::text, 8),
     'status', v_tenant.status,
     'version', v_tenant.version,
     'created_at', v_tenant.created_at,
     'activated_at', v_tenant.activated_at,
     'last_activity_at', coalesce(v_tenant.updated_at, v_tenant.activated_at, v_tenant.created_at),
-    'suspended_at', v_tenant.suspended_at,
-    'suspend_reason', v_tenant.suspend_reason,
+    'suspended_at', case when v_tenant.status = 'suspended' then v_tenant.status_changed_at end,
+    'suspend_reason', case when v_tenant.status = 'suspended' then v_tenant.status_reason end,
     'suspended_by', (
       select coalesce(
         nullif(
@@ -119,10 +115,11 @@ begin
         u.email::text
       )
       from auth.users u
-      where u.id = v_tenant.suspended_by
+      where v_tenant.status = 'suspended'
+        and u.id = v_tenant.status_changed_by
     ),
-    'closed_at', v_tenant.closed_at,
-    'close_reason', v_tenant.close_reason,
+    'closed_at', case when v_tenant.status = 'closed' then v_tenant.status_changed_at end,
+    'close_reason', case when v_tenant.status = 'closed' then v_tenant.status_reason end,
     'closed_by', (
       select coalesce(
         nullif(
@@ -132,7 +129,8 @@ begin
         u.email::text
       )
       from auth.users u
-      where u.id = v_tenant.closed_by
+      where v_tenant.status = 'closed'
+        and u.id = v_tenant.status_changed_by
     ),
     'owner_user_id', v_owner.user_id,
     'owner_name', v_owner.owner_name,

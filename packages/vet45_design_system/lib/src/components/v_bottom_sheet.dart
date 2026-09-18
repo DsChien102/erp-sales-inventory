@@ -82,7 +82,9 @@ class VBottomSheet extends StatelessWidget {
                   ),
                   const VDivider(),
                 ],
-                vInspectorShow(child),
+                Flexible(
+                  child: vInspectorShow(child),
+                ),
               ],
             ),
           ),

@@ -20,11 +20,10 @@ set search_path = iam, pg_temp
 as $$
 declare
   v_tenant iam.tenants;
-  v_existing iam.tenant_activation_operations;
+  v_existing iam.idempotency_records;
   v_readiness jsonb;
   v_blockers jsonb;
   v_payload_hash text := md5(p_expected_version::text);
-  v_owner_user_id uuid;
   v_result jsonb;
 begin
   if auth.uid() is null then
@@ -35,15 +34,8 @@ begin
     raise exception 'PERMISSION_DENIED';
   end if;
 
-  select * into v_existing
-  from iam.tenant_activation_operations o
-  where o.tenant_id = p_tenant_id
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('tenant.activate', p_tenant_id::text, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
     return v_existing.result;
   end if;
 
@@ -55,8 +47,8 @@ begin
   perform 1
   from iam.memberships m
   where m.tenant_id = p_tenant_id
-    and (m.is_owner is true or m.role in ('owner', 'store_owner'))
-    and m.status = 'active'
+    and m.is_owner is true
+    and m.is_active
   for update;
 
   if v_tenant.status <> 'provisioning' then
@@ -78,6 +70,8 @@ begin
     status = 'active',
     activated_at = now(),
     status_changed_at = now(),
+    status_changed_by = auth.uid(),
+    status_reason = null,
     version = v_tenant.version + 1,
     updated_at = now()
   where id = p_tenant_id
@@ -85,18 +79,6 @@ begin
 
   perform iam._ensure_tenant_default_store(p_tenant_id);
 
-  select m.user_id
-  into v_owner_user_id
-  from iam.memberships m
-  where m.tenant_id = p_tenant_id
-    and (m.is_owner is true or m.role in ('owner', 'store_owner'))
-    and m.status = 'active'
-  order by m.created_at
-  limit 1;
-
-  if v_owner_user_id is not null then
-    perform iam._ensure_membership_default_store_scope(p_tenant_id, v_owner_user_id);
-  end if;
 
   v_result := jsonb_build_object(
     'tenant_id', v_tenant.id,
@@ -105,18 +87,7 @@ begin
     'version', v_tenant.version
   );
 
-  insert into iam.tenant_activation_operations (
-    tenant_id,
-    idempotency_key,
-    payload_hash,
-    result
-  )
-  values (
-    p_tenant_id,
-    p_idempotency_key,
-    v_payload_hash,
-    v_result
-  );
+  perform iam._idempotency_store('tenant.activate', p_tenant_id::text, p_idempotency_key, v_payload_hash, v_result);
 
   perform iam.append_audit_log(
     p_scope => 'tenant',

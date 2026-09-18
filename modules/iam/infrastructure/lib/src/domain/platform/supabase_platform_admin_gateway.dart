@@ -169,6 +169,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? legalEntityType,
     String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
@@ -191,6 +192,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
           'p_org_commune_code': communeCode,
           'p_org_legal_name': legalName,
           'p_org_tax_code': taxCode,
+          'p_org_legal_entity_type': legalEntityType,
           'p_org_registered_address_text': registeredAddressText,
           'p_idempotency_key': idempotencyKey,
           'p_correlation_id': correlationId,
@@ -251,41 +253,6 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
         isNewUser: result['is_new_user'] as bool? ?? isNewUser,
         activationIssued: result['activation_issued'] as bool? ?? false,
       );
-    } on RpcException catch (error) {
-      throw mapIamRpcError(error);
-    }
-  }
-
-  @override
-  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
-    String operationId,
-  ) async {
-    try {
-      final result = await _rpcClient.callMap(
-        'get_tenant_onboarding_operation',
-        params: <String, dynamic>{'p_operation_id': operationId},
-      );
-      if (result.isEmpty) return null;
-      return _mapOnboardingOperation(result);
-    } on RpcException catch (error) {
-      throw mapIamRpcError(error);
-    }
-  }
-
-  @override
-  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
-    required String operationId,
-    required String idempotencyKey,
-  }) async {
-    try {
-      final result = await _rpcClient.callMap(
-        'retry_tenant_onboarding_operation',
-        params: <String, dynamic>{
-          'p_operation_id': operationId,
-          'p_idempotency_key': idempotencyKey,
-        },
-      );
-      return _mapOnboardingOperation(result);
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
@@ -398,6 +365,28 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
+  Future<void> closePlatformTenant({
+    required String tenantId,
+    required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
+    try {
+      await _rpcClient.callScalar<Object?>(
+        'close_platform_tenant',
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_reason': reason,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
+        },
+      );
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
   Future<void> transferPlatformTenantOwnership({
     required String tenantId,
     required String newOwnerUserId,
@@ -478,29 +467,6 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
-  }
-
-  TenantOnboardingOperationDto _mapOnboardingOperation(
-    Map<String, dynamic> row,
-  ) {
-    final stepsRaw = row['completed_steps'];
-    final steps = switch (stepsRaw) {
-      final List list => list.map((e) => e.toString()).toList(growable: false),
-      _ => const <String>[],
-    };
-    return TenantOnboardingOperationDto(
-      operationId: row['operation_id'] as String,
-      status:
-          TenantOnboardingOperationStatusCodes.fromCode(
-            row['status'] as String?,
-          ) ??
-          TenantOnboardingOperationStatus.inProgress,
-      completedSteps: steps,
-      failedStep: row['failed_step'] as String?,
-      correlationId: row['correlation_id'] as String? ?? '',
-      tenantId: row['tenant_id'] as String?,
-      ownerUserId: row['owner_user_id'] as String?,
-    );
   }
 
   PlatformUserSummaryDto _mapSummary(Map<String, dynamic> row) {

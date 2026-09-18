@@ -111,6 +111,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.idempotencyConflict,
     IamBlockedCodes.tenantStateInvalid,
     IamBlockedCodes.tenantSuspended,
+    IamBlockedCodes.tenantClosed,
     IamBlockedCodes.systemError,
     IamBlockedCodes.authenticationRequired,
     IamBlockedCodes.sessionExpired,
@@ -129,6 +130,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stepUpAuthRequired,
     IamBlockedCodes.ownerTargetInvalid,
     IamBlockedCodes.platformPermissionDenied,
+    IamBlockedCodes.platformUserSuspended,
     IamBlockedCodes.invalidCredentials,
     IamBlockedCodes.identityEmailNotVerified,
   };
@@ -150,6 +152,7 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.idempotencyConflict: 'Yêu cầu trùng với thao tác đang xử lý.',
     IamBlockedCodes.tenantStateInvalid: 'Trạng thái tổ chức không hợp lệ.',
     IamBlockedCodes.tenantSuspended: 'Tổ chức đang bị tạm dừng.',
+    IamBlockedCodes.tenantClosed: 'Tổ chức đã đóng.',
     IamBlockedCodes.systemError: 'Đã xảy ra lỗi hệ thống. Vui lòng thử lại.',
     IamBlockedCodes.authenticationRequired: 'Bạn cần đăng nhập lại.',
     IamBlockedCodes.sessionExpired: 'Phiên đăng nhập đã hết hạn.',
@@ -168,6 +171,8 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.stepUpAuthRequired: 'Cần xác thực bổ sung để tiếp tục thao tác.',
     IamBlockedCodes.ownerTargetInvalid: 'Đối tượng chủ sở hữu không hợp lệ.',
     IamBlockedCodes.platformPermissionDenied: 'Bạn không có quyền nền tảng cho thao tác này.',
+    IamBlockedCodes.platformUserSuspended:
+        'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
     IamBlockedCodes.invalidCredentials: 'Email hoặc mật khẩu không chính xác.',
     IamBlockedCodes.identityEmailNotVerified: 'Email chưa được xác thực hoặc kích hoạt.',
   };

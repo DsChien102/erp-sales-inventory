@@ -25,6 +25,10 @@ begin
     return false;
   end if;
 
+  if iam._is_platform_user_suspended(v_user_id) then
+    return false;
+  end if;
+
   if p_permission is null or left(p_permission, 9) <> 'platform.' then
     return false;
   end if;

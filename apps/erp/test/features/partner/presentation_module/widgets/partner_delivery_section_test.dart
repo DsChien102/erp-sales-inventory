@@ -32,16 +32,7 @@ void main() {
     );
   }
 
-  VCombobox<String> communeCombobox(WidgetTester tester) {
-    return tester.widget<VCombobox<String>>(
-      find.descendant(
-        of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.byType(VCombobox<String>),
-      ),
-    );
-  }
-
-  testWidgets('ward dropdown stays disabled until province is selected', (
+  testWidgets('ward field stays disabled until province is selected', (
     tester,
   ) async {
     await tester.pumpWidget(buildDeliverySection());
@@ -49,18 +40,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('input_delivery_province')), findsOneWidget);
-    expect(find.byType(VCombobox<String>), findsWidgets);
-    expect(
-      find.descendant(
-        of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.text('Nhập tỉnh / thành phố trước'),
-      ),
-      findsOneWidget,
-    );
-    expect(communeCombobox(tester).enabled, isFalse);
+    expect(find.text('Chọn tỉnh / thành phố'), findsOneWidget);
+    expect(find.text('Chọn tỉnh / thành phố trước'), findsOneWidget);
   });
 
-  testWidgets('selecting province enables ward dropdown', (tester) async {
+  testWidgets('selecting province enables ward field', (tester) async {
     await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
@@ -71,17 +55,11 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(
-      find.descendant(
-        of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.text('Nhập xã / phường'),
-      ),
-      findsOneWidget,
-    );
-    expect(communeCombobox(tester).enabled, isTrue);
+    expect(find.text('Thành phố Hà Nội'), findsOneWidget);
+    expect(find.text('Chọn xã / phường'), findsOneWidget);
   });
 
-  testWidgets('typing in ward field opens dropdown, filters, and selects', (
+  testWidgets('tapping ward field opens picker sheet, filters, and selects', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -106,16 +84,50 @@ void main() {
     final communeField = find.byKey(const Key('input_delivery_commune'));
     await tester.tap(communeField);
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.descendant(of: communeField, matching: find.byType(TextField)),
-      'dai mo',
-    );
+
+    // Sheet should be open with ward list
+    expect(find.byKey(const Key('list_wards')), findsOneWidget);
+
+    final searchInput = find.byKey(const Key('input_unit_search'));
+    await tester.enterText(searchInput, 'dai mo');
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Phường Đại Mỗ').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Phường Đại Mỗ'), findsWidgets);
+    expect(find.text('Phường Đại Mỗ'), findsOneWidget);
+  });
+
+  testWidgets('clearing province resets both province and commune', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider(
+          create: (_) => PartnerCreateCubit(
+            partnerType: PartnerType.person,
+            partnerModule: FakePartnerModule(),
+            executionContext: FakeExecutionContext(),
+          )
+            ..updateDeliveryProvince('Thành phố Hà Nội')
+            ..updateDeliveryCommune('Xã Hát Môn'),
+          child: const Scaffold(
+            body: SingleChildScrollView(
+              child: PartnerDeliverySection(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(VnAdministrativeUnitsLoader.load);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thành phố Hà Nội'), findsOneWidget);
+    expect(find.text('Xã Hát Môn'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('input_delivery_province_clear')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chọn tỉnh / thành phố'), findsOneWidget);
+    expect(find.text('Chọn tỉnh / thành phố trước'), findsOneWidget);
   });
 
   testWidgets('detail address uses VTextArea', (tester) async {

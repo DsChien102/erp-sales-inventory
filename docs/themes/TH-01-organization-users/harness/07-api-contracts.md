@@ -277,7 +277,7 @@ RPC: `iam.list_accessible_tenants()` (draft). `isCurrent` set in Dart handler fr
 **Behavior (BE):**
 - `bootstrapFromLastSelected: false` → validate current session tenant
 - `bootstrapFromLastSelected: true` → read LastSelectedTenant preference → validate server-side → resolve or return `none` / `invalidated`
-- **OQ-07 (closed):** LastSelectedTenant không hợp lệ → `TenantContextStatus.none`; **không** auto-select tenant khác; FE mở selector.
+- **OQ-07 (closed):** LastSelectedTenant không hợp lệ → `TenantContextStatus.none`; **không** auto-select tenant khác; FE mở selector. Ngoại lệ (2026-09-18): preference trỏ tổ chức `suspended`/`closed` → `invalidated` (`tenantSuspended`/`tenantClosed`) để FE hiện lý do; vẫn không auto-select.
 
 **Preference port:** `IPlatformUserPreferencePort` (`getLastSelectedTenantId` / `setLastSelectedTenantId`) — preference ≠ access grant.
 
@@ -300,7 +300,7 @@ permissionsChanged
 ownershipChanged
 ```
 
-- Identity/membership/tenant denial → `invalidated` (session path) hoặc `none` (bootstrap OQ-07).
+- Identity/membership/tenant denial → `invalidated` (session path) hoặc `none` (bootstrap OQ-07, trừ tổ chức tạm ngừng/đã đóng).
 - `permissionsChanged` có thể trả **refreshed valid** context (không invalidated) khi server vẫn cấp access với permission set mới.
 
 | scenario_id | trigger | fake response |

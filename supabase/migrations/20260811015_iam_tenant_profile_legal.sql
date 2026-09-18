@@ -14,14 +14,11 @@ alter table iam.tenants
   add column if not exists commune_code text,
   add column if not exists business_timezone text not null default 'Asia/Ho_Chi_Minh',
   add column if not exists base_currency_code text not null default 'VND',
-  add column if not exists created_by_user_id uuid,
+  add column if not exists status_changed_by uuid,
+  add column if not exists status_reason text,
   add column if not exists status_changed_at timestamptz,
   add column if not exists version int not null default 1,
   add column if not exists updated_at timestamptz not null default now();
-
-update iam.tenants
-set display_name = coalesce(display_name, name)
-where display_name is null;
 
 create table if not exists iam.tenant_legal_profiles (
   tenant_id uuid primary key references iam.tenants (id) on delete cascade,
@@ -35,7 +32,9 @@ create table if not exists iam.tenant_legal_profiles (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint tenant_legal_profiles_entity_type_chk
-    check (legal_entity_type in ('HOUSEHOLD_BUSINESS', 'ENTERPRISE'))
+    check (legal_entity_type in ('HOUSEHOLD_BUSINESS', 'ENTERPRISE')),
+  constraint tenant_legal_profiles_tax_code_format_chk
+    check (tax_code ~ '^[0-9]{10,13}$')
 );
 
 create index if not exists tenant_legal_profiles_tax_code_idx
@@ -71,7 +70,7 @@ begin
 
   return jsonb_build_object(
     'tenant_id', p_tenant.id,
-    'display_name', coalesce(p_tenant.display_name, p_tenant.name),
+    'display_name', p_tenant.display_name,
     'status', p_tenant.status,
     'version', p_tenant.version,
     'business_timezone', p_tenant.business_timezone,

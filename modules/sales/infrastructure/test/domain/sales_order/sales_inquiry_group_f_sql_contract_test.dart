@@ -34,7 +34,7 @@ void main() {
     expect(sql, contains("'totalMatching'"));
     expect(sql, contains("'facets'"));
     expect(sql, contains('has_outstanding_receivable boolean default null'));
-    expect(sql, contains('iam.membership_store_scopes'));
+    expect(sql, contains('iam.can_access_store('));
     expect(sql, contains('auth.uid() is distinct from actor_id'));
     expect(sql, contains("iam.has_permission(tenant_id, 'sales.order.view')"));
     expect(sql, contains('list_sales_orders.store_id is null'));

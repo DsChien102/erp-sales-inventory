@@ -293,6 +293,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           ? null
           : _orgLegalNameController.text.trim(),
       taxCode: _orgTaxCodeController.text.trim().isEmpty ? null : _orgTaxCodeController.text.trim(),
+      legalEntityType: _selectedEntityType,
       registeredAddressText: _orgRegisteredAddressController.text.trim().isEmpty
           ? null
           : _orgRegisteredAddressController.text.trim(),
