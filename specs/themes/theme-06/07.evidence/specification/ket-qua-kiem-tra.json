@@ -1,0 +1,59 @@
+{
+  "version": "2.1.1",
+  "root": "/mnt/data/theme06_v211_work",
+  "markdown_files": 43,
+  "all_files": 46,
+  "internal_markdown_links_checked": 297,
+  "frontmatter_ids": 43,
+  "decision_count": 40,
+  "decision_refs_seen": 40,
+  "domain_docs": 1,
+  "entity_docs": 10,
+  "aggregate_docs": 7,
+  "errors": [],
+  "warnings": [],
+  "verdict": "READY_FOR_REVIEW",
+  "scope": "Static Theme 6 business/domain/architecture candidate artifacts",
+  "gates": [
+    {
+      "gate_id": "STRUCTURE_LINK_ID",
+      "status": "PASS",
+      "evidence": "EVD-001 + validator output"
+    },
+    {
+      "gate_id": "TECHNICAL_NAMING",
+      "status": "PASS",
+      "evidence": "DOM/AGG/ENT identifiers and filenames use ARAP; no legacy CN technical identifier remains"
+    },
+    {
+      "gate_id": "DOMAIN_OWNERSHIP",
+      "status": "PASS",
+      "evidence": "EVD-002"
+    },
+    {
+      "gate_id": "DELIVERY_SIMULATION",
+      "status": "PASS_WITH_OPEN_ARCHITECTURE_ITEMS",
+      "evidence": "EVD-003"
+    },
+    {
+      "gate_id": "RED_TEAM",
+      "status": "PASS_WITH_OPEN_ARCHITECTURE_ITEMS",
+      "evidence": "EVD-004"
+    },
+    {
+      "gate_id": "UC_BC_RUNTIME",
+      "status": "NOT_RUN",
+      "reason": "UC/BC/implementation are not part of v2.1.1 scope"
+    },
+    {
+      "gate_id": "UI_PROTOTYPE",
+      "status": "NOT_RUN",
+      "reason": "Design/prototype not part of current scope"
+    }
+  ],
+  "limitations": [
+    "Aggregate documents are IN_REVIEW candidate boundaries, not Architecture Freeze.",
+    "Cross-aggregate transaction/concurrency/recovery for Payment/Allocation/DebtObligation and DebtOffset is not yet frozen.",
+    "No runtime, integration, UI/prototype or E2E evidence is claimed."
+  ]
+}
