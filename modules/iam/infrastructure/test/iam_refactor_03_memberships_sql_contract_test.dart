@@ -176,28 +176,23 @@ void main() {
     test('rewritten per rules', () => _expectRewritten(owners));
 
     test('membership inserts no longer write status', () {
+      expect(
+        body('iam.accept_invitation'),
+        contains(
+          'tenant_id, user_id, role, is_owner, version, created_at, updated_at',
+        ),
+      );
       for (final fn in [
-        'iam.accept_invitation',
         'iam.create_tenant_invitation',
         'iam.create_tenant_onboarding',
         'iam.reinvite_provisioning_owner',
       ]) {
         expect(
           body(fn),
-          contains(
-            'tenant_id, user_id, role, is_owner, version, created_at, updated_at',
-          ),
+          isNot(contains('insert into iam.memberships')),
           reason: fn,
         );
       }
-      expect(
-        body('iam.create_tenant_invitation'),
-        isNot(
-          contains(
-            "coalesce(v_role.code, 'staff'),\n    'active',",
-          ),
-        ),
-      );
     });
 
     test('create invitation detects existing membership by removed_at', () {

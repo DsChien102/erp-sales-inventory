@@ -105,6 +105,44 @@ begin
     v_email := v_inv.invitee_email;
   end if;
 
+  insert into iam.platform_user_profiles (
+    user_id, email, status, email_verified,
+    given_name, family_middle_name, phone_number,
+    created_at, updated_at
+  )
+  values (
+    v_caller,
+    v_email,
+    'active',
+    true,
+    nullif(trim(coalesce(v_inv.given_name, '')), ''),
+    nullif(trim(coalesce(v_inv.family_name, '')), ''),
+    nullif(trim(coalesce(v_inv.phone, '')), ''),
+    v_now,
+    v_now
+  )
+  on conflict (user_id) do update
+  set email = excluded.email,
+      status = case
+        when iam.platform_user_profiles.status = 'suspended'
+          then iam.platform_user_profiles.status
+        else 'active'
+      end,
+      email_verified = true,
+      given_name = coalesce(
+        nullif(trim(iam.platform_user_profiles.given_name), ''),
+        excluded.given_name
+      ),
+      family_middle_name = coalesce(
+        nullif(trim(iam.platform_user_profiles.family_middle_name), ''),
+        excluded.family_middle_name
+      ),
+      phone_number = coalesce(
+        nullif(trim(iam.platform_user_profiles.phone_number), ''),
+        excluded.phone_number
+      ),
+      updated_at = v_now;
+
   v_audit_before := jsonb_build_object(
     'invitation_id', v_inv.id,
     'status', v_inv.status,
@@ -296,28 +334,6 @@ begin
   on conflict (user_id) do update
     set last_selected_tenant_id = excluded.last_selected_tenant_id,
         updated_at = excluded.updated_at;
-
-  if v_should_be_owner then
-    insert into iam.platform_user_profiles (
-      user_id, email, status, email_verified, given_name, family_middle_name,
-      phone_number, created_at, updated_at
-    )
-    values (
-      v_caller, v_email, 'active', true, v_inv.given_name, v_inv.family_name, v_inv.phone,
-      v_now, v_now
-    )
-    on conflict (user_id) do update
-      set status = 'active',
-          email = coalesce(excluded.email, iam.platform_user_profiles.email),
-          email_verified = true,
-          given_name = coalesce(excluded.given_name, iam.platform_user_profiles.given_name),
-          family_middle_name = coalesce(
-            excluded.family_middle_name, iam.platform_user_profiles.family_middle_name
-          ),
-          phone_number = coalesce(excluded.phone_number, iam.platform_user_profiles.phone_number),
-          updated_at = v_now;
-  end if;
-
 
   v_result := iam._membership_detail_json(v_membership);
 

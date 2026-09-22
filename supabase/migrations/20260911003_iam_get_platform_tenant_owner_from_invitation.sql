@@ -1,7 +1,7 @@
 -- Title: iam get_platform_tenant owner from platform_user_profiles
 -- Kind: patch
 -- Intent: iam_get_platform_tenant_owner_from_profile
--- Context: TH-01 / platform tenant detail — owner luôn từ membership is_owner + platform_user_profiles (family_middle_name + given_name); KHÔNG resolve qua tenant_invitations (hybrid: membership tạo lúc invite). owner_email_verified chỉ từ platform_user_profiles.email_verified (app-owned activation), không phụ thuộc Auth email confirmation.
+-- Context: TH-01 / platform tenant detail — ưu tiên owner membership đã accept; fallback Owner Invitation pending; metadata invitation mới nhất cho PA-SG-02. members chỉ membership thật. owner_email_verified chỉ từ platform_user_profiles.email_verified.
 -- Touches: iam.get_platform_tenant
 -- Safety: idempotent; medium
 -- Depends on: 20260811010_iam_platform_tenants_read.sql, 003_iam_patch_get_platform_tenant_owner_email_verified.sql, 006_iam_onboarding_owner_membership_with_invitation.sql
@@ -18,6 +18,7 @@ declare
   v_tenant record;
   v_members jsonb;
   v_owner record;
+  v_owner_inv record;
 begin
   if not iam.has_platform_permission('platform.tenant.view') then
     raise exception 'platform permission denied';
@@ -74,25 +75,59 @@ begin
     order by m.user_id, m.is_owner desc, m.created_at desc
   ) m;
 
-  -- Owner: membership is_owner + platform_user_profiles (mọi status, kể cả provisioning).
+  -- Owner: membership is_owner đã accept trước; fallback Owner Invitation pending chưa hết hạn.
   -- Verified: chỉ platform_user_profiles.email_verified (set khi accept/kích hoạt app).
-  select
-    p.user_id,
-    coalesce(
-      nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
-      nullif(trim(p.email), ''),
-      ''
-    )::text as owner_name,
-    coalesce(nullif(trim(p.email), ''), '')::text as owner_email,
-    coalesce(rd.label, m.role::text) as owner_role,
-    coalesce(p.email_verified, false) as owner_email_verified
+  select owner_candidates.*
   into v_owner
-  from iam.memberships m
-  join iam.platform_user_profiles p on p.user_id = m.user_id
-  left join iam.role_definitions rd on rd.code = m.role
-  where m.tenant_id = p_tenant_id
-    and m.is_owner
-    and m.is_active
+  from (
+    select
+      0 as owner_priority,
+      m.created_at as owner_created_at,
+      p.user_id,
+      coalesce(
+        nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
+        nullif(trim(p.email), ''),
+        ''
+      )::text as owner_name,
+      coalesce(nullif(trim(p.email), ''), '')::text as owner_email,
+      coalesce(rd.label, m.role::text) as owner_role,
+      coalesce(p.email_verified, false) as owner_email_verified
+    from iam.memberships m
+    join iam.platform_user_profiles p on p.user_id = m.user_id
+    left join iam.role_definitions rd on rd.code = m.role
+    where m.tenant_id = p_tenant_id
+      and m.is_owner
+      and m.is_active
+
+    union all
+
+    select
+      1 as owner_priority,
+      i.created_at as owner_created_at,
+      null::uuid as user_id,
+      coalesce(
+        nullif(trim(concat_ws(' ', i.family_name, i.given_name)), ''),
+        i.invitee_email
+      )::text as owner_name,
+      i.invitee_email::text as owner_email,
+      coalesce(rd.label, 'Chủ sở hữu')::text as owner_role,
+      false as owner_email_verified
+    from iam.tenant_invitations i
+    left join iam.role_definitions rd on rd.id = i.initial_role_id
+    where i.tenant_id = p_tenant_id
+      and i.is_owner is true
+      and i.status = 'pending'
+      and i.expires_at > now()
+  ) owner_candidates
+  order by owner_priority, owner_created_at desc
+  limit 1;
+
+  select i.id, i.invitee_email, i.status, i.expires_at,
+         i.given_name, i.family_name, i.phone
+  into v_owner_inv
+  from iam.tenant_invitations i
+  where i.tenant_id = p_tenant_id and i.is_owner is true
+  order by i.created_at desc, i.id desc
   limit 1;
 
   return jsonb_build_object(
@@ -137,7 +172,19 @@ begin
     'owner_email', v_owner.owner_email,
     'owner_role', coalesce(v_owner.owner_role, 'owner'),
     'owner_email_verified', coalesce(v_owner.owner_email_verified, false),
-    'members', coalesce(v_members, '[]'::jsonb)
+    'members', coalesce(v_members, '[]'::jsonb),
+    'owner_invitation_email', v_owner_inv.invitee_email,
+    'owner_invitation_state', case
+      when v_owner_inv.status = 'pending' and v_owner_inv.expires_at > now()
+        then 'pending'
+      when v_tenant.status = 'provisioning' and v_owner.user_id is null
+        then 'expired'
+      else null
+    end,
+    'owner_invitation_expires_at', v_owner_inv.expires_at,
+    'owner_invitation_given_name', v_owner_inv.given_name,
+    'owner_invitation_family_name', v_owner_inv.family_name,
+    'owner_invitation_phone', v_owner_inv.phone
   );
 end;
 $$;

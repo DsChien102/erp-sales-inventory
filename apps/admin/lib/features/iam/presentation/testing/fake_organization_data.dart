@@ -53,6 +53,8 @@ abstract final class FakeOrganizationData {
       unverifiedEmail: true,
       incompleteProfile: true,
       createdAt: DateTime(2026, 7, 13, 8, 20),
+      ownerInvitationEmail: 'lan@gmail.com',
+      ownerInvitationState: 'pending',
     ),
 
     // PA-D-04: VietVet Trading (Đã tạm ngừng)

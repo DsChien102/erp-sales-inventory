@@ -1,7 +1,7 @@
 -- Title: iam reinvite provisioning owner after unwind
 -- Kind: patch
 -- Intent: iam_hybrid_owner_membership_reinvite
--- Context: TH-01 hybrid — Admin gán lại owner trên tenant provisioning khi không còn active is_owner membership (sau decline/expire/revoke); không đổi tenant status
+-- Context: TH-01 — Admin gửi lại/đổi email Owner Invitation trên tenant provisioning; reuse cùng invitation row (không expire+insert)
 -- Touches: iam.reinvite_provisioning_owner
 -- Safety: idempotent; medium
 -- Depends on: 006_iam_onboarding_owner_membership_with_invitation.sql, 007_iam_hybrid_owner_accept_decline_unwind.sql
@@ -27,18 +27,19 @@ as $$
 declare
   v_existing iam.idempotency_records;
   v_tenant iam.tenants;
+  v_inv iam.tenant_invitations;
+  v_existing_membership iam.memberships;
   v_correlation text;
   v_owner_email text;
   v_owner_email_masked text;
   v_owner_role_id uuid;
   v_invitation_id uuid;
-  v_membership_id uuid;
   v_owner_user_id uuid;
   v_message_id uuid := gen_random_uuid();
   v_outcome_id uuid := gen_random_uuid();
   v_now timestamptz := now();
   v_is_new boolean := coalesce(p_is_new_user, false);
-  v_provisioned_user_id uuid;
+  v_prev_status text;
   v_raw_code text;
   v_code_hash text;
   v_ciphertext text;
@@ -107,38 +108,6 @@ begin
     v_owner_user_id := p_owner_user_id;
   end if;
 
-  if v_is_new then
-    select u.id into v_provisioned_user_id
-    from auth.users u
-    where lower(u.email::text) = v_owner_email
-    limit 1;
-
-    if v_provisioned_user_id is null then
-      select p.user_id into v_provisioned_user_id
-      from iam.platform_user_profiles p
-      where lower(p.email) = v_owner_email
-      limit 1;
-    end if;
-
-    if v_provisioned_user_id is null then
-      v_provisioned_user_id := gen_random_uuid();
-      insert into iam.platform_user_profiles (
-        user_id, email, status, given_name, family_middle_name, phone_number,
-        created_at, updated_at
-      )
-      values (
-        v_provisioned_user_id,
-        v_owner_email,
-        'pending_activation',
-        nullif(trim(coalesce(p_owner_given_name, '')), ''),
-        nullif(trim(coalesce(p_owner_family_name, '')), ''),
-        nullif(trim(coalesce(p_owner_phone, '')), ''),
-        v_now, v_now
-      );
-    end if;
-    v_owner_user_id := v_provisioned_user_id;
-  end if;
-
   select id into v_owner_role_id
   from iam.role_definitions
   where code = 'store_owner' and status = 'active';
@@ -146,32 +115,73 @@ begin
     raise exception 'store_owner role missing';
   end if;
 
-  insert into iam.memberships (
-    tenant_id, user_id, role, is_owner, version, created_at, updated_at
-  )
-  values (
-    p_tenant_id, v_owner_user_id, 'store_owner', true, 1, v_now, v_now
-  )
-  returning id into v_membership_id;
+  select * into v_inv
+  from iam.tenant_invitations i
+  where i.tenant_id = p_tenant_id
+    and i.is_owner is true
+  order by i.created_at desc, i.id desc
+  limit 1
+  for update;
 
+  if not found then
+    raise exception 'OWNER_INVITATION_NOT_FOUND';
+  end if;
+
+  if v_inv.status not in ('pending', 'expired') then
+    raise exception 'INVITATION_ALREADY_USED';
+  end if;
+
+  select m.* into v_existing_membership
+  from iam.memberships m
+  left join auth.users u on u.id = m.user_id
+  left join iam.platform_user_profiles p on p.user_id = m.user_id
+  where m.tenant_id = p_tenant_id
+    and (
+      (u.id is not null and lower(trim(u.email::text)) = v_owner_email)
+      or (p.email is not null and lower(trim(p.email)) = v_owner_email)
+    )
+    and m.removed_at is null
+  limit 1;
+
+  if found then
+    if v_existing_membership.is_active then
+      raise exception 'DUPLICATE_MEMBERSHIP';
+    end if;
+    raise exception 'MEMBERSHIP_INACTIVE';
+  end if;
+
+  if exists (
+    select 1
+    from iam.tenant_invitations i
+    where i.tenant_id = p_tenant_id
+      and i.invitee_email = v_owner_email
+      and i.status = 'pending'
+      and i.id <> v_inv.id
+  ) then
+    raise exception 'INVITATION_PENDING_EXISTS';
+  end if;
+
+  v_prev_status := v_inv.status;
   v_raw_code := iam._generate_invitation_code();
   v_code_hash := iam._invitation_token_hash(v_raw_code);
   v_ciphertext := 'transient:' || encode(convert_to(v_raw_code, 'UTF8'), 'base64');
 
-  insert into iam.tenant_invitations (
-    tenant_id, invitee_email, initial_role_id, status, token_hash,
-    is_owner, invited_by_membership_id, given_name, family_name, phone,
-    expires_at, status_changed_at, version, created_at, updated_at, delivery_correlation_id
-  )
-  values (
-    p_tenant_id, v_owner_email, v_owner_role_id, 'pending', v_code_hash,
-    true, null,
-    nullif(trim(coalesce(p_owner_given_name, '')), ''),
-    nullif(trim(coalesce(p_owner_family_name, '')), ''),
-    nullif(trim(coalesce(p_owner_phone, '')), ''),
-    v_now + interval '7 days', v_now,
-    1, v_now, v_now, v_correlation
-  )
+  update iam.tenant_invitations
+  set invitee_email = v_owner_email,
+      status = 'pending',
+      token_hash = v_code_hash,
+      expires_at = v_now + interval '7 days',
+      status_changed_at = case
+        when v_prev_status = 'expired' then v_now
+        else status_changed_at
+      end,
+      version = version + 1,
+      updated_at = v_now,
+      delivery_correlation_id = v_correlation,
+      last_sent_at = v_now,
+      accepted_membership_id = null,
+      target_membership_id = null
+  where id = v_inv.id
   returning id into v_invitation_id;
 
   v_owner_email_masked :=
@@ -211,8 +221,8 @@ begin
 
   v_result := jsonb_build_object(
     'tenant_id', p_tenant_id,
-    'owner_membership_id', v_membership_id,
-    'owner_user_id', v_owner_user_id,
+    'owner_membership_id', null,
+    'owner_user_id', case when v_is_new then null else p_owner_user_id end,
     'tenant_status', 'provisioning',
     'correlation_id', v_correlation,
     'is_new_user', v_is_new,

@@ -173,22 +173,64 @@ void main() {
     expect(page.items.single.phoneNumber, '0901234567');
   });
 
-  test('getPlatformTenant maps owner_email_verified false unverifiedEmail on provisioning', () async {
+  test(
+    'getPlatformTenant maps owner_email_verified false unverifiedEmail on provisioning',
+    () async {
+      final supabase = FakeIamRpcSupabase();
+      supabase.registerHandler('get_platform_tenant', (params) async {
+        return {
+          'tenant_id': 'tenant-prov',
+          'name': 'Sỹ Chiến',
+          'code': 'da84bd3c',
+          'status': 'provisioning',
+          'created_at': '2026-09-10T14:47:00.000Z',
+          'version': 1,
+          'owner_user_id': 'user-chien',
+          'owner_name': 'Sỹ Chiến',
+          'owner_email': 'sychien212@gmail.com',
+          'owner_role': 'store_owner',
+          'owner_email_verified': true,
+          'members': const <Map<String, dynamic>>[],
+        };
+      });
+      final gateway = SupabasePlatformAdminGateway(
+        rpcClient: SupabaseSchemaRpcClient(
+          supabase: supabase,
+          schema: 'iam',
+          mapError: (error, [stackTrace]) => RpcException(error.toString()),
+        ),
+      );
+
+      final detail = await gateway.getPlatformTenant('tenant-prov');
+
+      expect(detail.status, TenantLifecycleStatus.provisioning);
+      expect(detail.unverifiedEmail, isFalse);
+      expect(detail.ownerEmail, 'sychien212@gmail.com');
+    },
+  );
+
+  test('getPlatformTenant maps owner invitation metadata wire keys', () async {
     final supabase = FakeIamRpcSupabase();
     supabase.registerHandler('get_platform_tenant', (params) async {
       return {
-        'tenant_id': 'tenant-prov',
-        'name': 'Sỹ Chiến',
-        'code': 'da84bd3c',
+        'tenant_id': 'tenant-inv',
+        'name': 'Pending Owner',
+        'code': 'TEN-INV',
         'status': 'provisioning',
         'created_at': '2026-09-10T14:47:00.000Z',
         'version': 1,
-        'owner_user_id': 'user-chien',
-        'owner_name': 'Sỹ Chiến',
-        'owner_email': 'sychien212@gmail.com',
+        'owner_user_id': null,
+        'owner_name': 'Lan Le',
+        'owner_email': 'owner@example.com',
         'owner_role': 'store_owner',
-        'owner_email_verified': true,
+        'owner_email_verified': false,
         'members': const <Map<String, dynamic>>[],
+        'owner_invitation_email': 'owner@example.com',
+        'owner_invitation_state': 'pending',
+        'owner_invitation_expires_at': '2026-09-17T14:47:00.000Z',
+        'owner_invitation_given_name': 'Lan',
+        'owner_invitation_family_name': 'Le',
+        'owner_invitation_phone': '0901234567',
       };
     });
     final gateway = SupabasePlatformAdminGateway(
@@ -199,10 +241,17 @@ void main() {
       ),
     );
 
-    final detail = await gateway.getPlatformTenant('tenant-prov');
+    final detail = await gateway.getPlatformTenant('tenant-inv');
 
-    expect(detail.status, TenantLifecycleStatus.provisioning);
-    expect(detail.unverifiedEmail, isFalse);
-    expect(detail.ownerEmail, 'sychien212@gmail.com');
+    expect(detail.ownerInvitationEmail, 'owner@example.com');
+    expect(detail.ownerInvitationState, 'pending');
+    expect(
+      detail.ownerInvitationExpiresAt,
+      DateTime.parse('2026-09-17T14:47:00.000Z'),
+    );
+    expect(detail.ownerInvitationGivenName, 'Lan');
+    expect(detail.ownerInvitationFamilyName, 'Le');
+    expect(detail.ownerInvitationPhone, '0901234567');
+    expect(detail.members, isEmpty);
   });
 }

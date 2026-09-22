@@ -2,12 +2,12 @@
 abstract final class TenantReadinessIssueCodes {
   // Blockers
   static const displayNameMissing = 'TENANT_DISPLAY_NAME_MISSING';
-  static const contactEmailMissingOrInvalid =
-      'TENANT_CONTACT_EMAIL_MISSING_OR_INVALID';
-  static const contactPhoneMissingOrInvalid =
-      'TENANT_CONTACT_PHONE_MISSING_OR_INVALID';
+  static const contactEmailMissingOrInvalid = 'TENANT_CONTACT_EMAIL_MISSING_OR_INVALID';
+  static const contactPhoneMissingOrInvalid = 'TENANT_CONTACT_PHONE_MISSING_OR_INVALID';
   static const contactAddressMissing = 'TENANT_CONTACT_ADDRESS_MISSING';
   static const ownerMembershipInvalid = 'OWNER_MEMBERSHIP_INVALID';
+  static const ownerAcceptancePending = 'OWNER_ACCEPTANCE_PENDING';
+  static const ownerInvitationExpired = 'OWNER_INVITATION_EXPIRED';
   static const ownerRoleInvalid = 'OWNER_ROLE_INVALID';
   static const ownerIdentityInactive = 'OWNER_IDENTITY_INACTIVE';
   static const ownerIdentityUnavailable = 'OWNER_IDENTITY_UNAVAILABLE';

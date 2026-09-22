@@ -161,7 +161,7 @@ void main() {
 
   group('US-02 SCN-01 — gửi lại activation invitation', () {
     testWidgets(
-      'e2e_e01_u02_fr01_01: activation invite sent via IIamModule',
+      'e2e_e01_u02_fr01_01: pending user has no PA-O-02 activation invite',
       (tester) async {
         final module = FakeIamModule(scenario: FakeIamScenario.activationResendOk);
 
@@ -173,17 +173,9 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Chờ kích hoạt'), findsOneWidget);
-
-        await tester.tap(find.text('Thao tác'));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.text('Gửi lại email kích hoạt'));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.text('Gửi email'));
-        await tester.pumpAndSettle();
-
-        expect(module.activationInviteCount, 1);
+        expect(find.text('Thao tác'), findsNothing);
+        expect(find.text('Gửi lại email kích hoạt'), findsNothing);
+        expect(module.activationInviteCount, 0);
       },
     );
   });

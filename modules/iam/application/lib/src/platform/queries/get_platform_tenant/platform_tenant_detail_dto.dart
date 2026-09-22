@@ -26,6 +26,12 @@ final class PlatformTenantDetailDto {
     this.members = const [],
     this.unverifiedEmail = false,
     this.incompleteProfile = false,
+    this.ownerInvitationEmail,
+    this.ownerInvitationState,
+    this.ownerInvitationExpiresAt,
+    this.ownerInvitationGivenName,
+    this.ownerInvitationFamilyName,
+    this.ownerInvitationPhone,
   });
 
   final String tenantId;
@@ -49,4 +55,10 @@ final class PlatformTenantDetailDto {
   final List<PlatformTenantMemberDto> members;
   final bool unverifiedEmail;
   final bool incompleteProfile;
+  final String? ownerInvitationEmail;
+  final String? ownerInvitationState;
+  final DateTime? ownerInvitationExpiresAt;
+  final String? ownerInvitationGivenName;
+  final String? ownerInvitationFamilyName;
+  final String? ownerInvitationPhone;
 }

@@ -16,8 +16,29 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Lê Thị Lan'), findsWidgets);
+    expect(find.text('lan@gmail.com'), findsOneWidget);
+    expect(find.text('Tài khoản nền tảng'), findsNothing);
     expect(find.text('Thao tác'), findsOneWidget);
   });
+
+  testWidgets(
+    'pendingActivation user has no PA-O-02 activation invite action',
+    (WidgetTester tester) async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.activationResendOk,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PlatformUserDetailPage(userId: 'hoa-tran', iamModule: module),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gửi lại email kích hoạt'), findsNothing);
+      expect(find.text('Thao tác'), findsNothing);
+    },
+  );
 
   testWidgets('shows not-found when user missing', (WidgetTester tester) async {
     final module = FakeIamModule();

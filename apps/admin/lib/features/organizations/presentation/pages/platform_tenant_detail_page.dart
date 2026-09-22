@@ -85,6 +85,7 @@ class _PlatformTenantDetailView extends StatelessWidget {
             idempotencyKey:
                 'xfer-${org.id}-$newOwnerUserId-${DateTime.now().millisecondsSinceEpoch}',
           ),
+          onResendOwnerInvitation: (email) => cubit.reinviteProvisioningOwner(email: email),
           onMemberTap: (member) {
             context.pushNamed(
               'user_detail',

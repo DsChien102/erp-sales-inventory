@@ -61,5 +61,6 @@ Reset chạy **toàn bộ** chuỗi migration trên DB rỗng → mọi câu l�
 | Việc | Nguồn | Trạng thái |
 |---|---|---|
 | Chặn tổ chức tạm ngừng / đã đóng (server + ERP) + vá 2 RPC tồn kho thiếu quyền | Smoke test TC-08 · [16-tenant-status-access.md](16-tenant-status-access.md) | 🧪 Đã sửa, chờ reset · Plan: [2026-09-18-iam-tenant-status-access](../../plans/2026-09-18-iam-tenant-status-access.md) |
+| Người dùng bị tạm ngừng: đá khỏi phiên + thông báo đúng (ERP) | Smoke test 2026-09-18 · plan 8 đã chặn ở server | 🧪 Đã implement Dart client · Plan: [2026-09-18-iam-suspended-user-session](../../plans/2026-09-18-iam-suspended-user-session.md) · chờ smoke test |
 | Thu hồi phiên Supabase Auth khi tạm ngừng người dùng | [16-tenant-status-access.md §4](16-tenant-status-access.md#4-ngoài-phạm-vi-để-sau) | ⏸ Để sau |
 | RPC + command đóng tenant (`close_platform_tenant`) | [01-tenants.md §5](01-tenants.md#5-tính-năng-đóng-tenant-làm-trong-đợt-này) | ✅ Đã chốt · 📝 Plan 01b · 🧪 Đã sửa, chờ reset |

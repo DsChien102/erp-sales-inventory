@@ -7,8 +7,8 @@ class UsersEmptyState extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.actionText,
-    required this.onAction,
+    this.actionText,
+    this.onAction,
     this.iconBgColor,
     this.iconColor,
     this.titleColor,
@@ -18,8 +18,8 @@ class UsersEmptyState extends StatelessWidget {
   final VIcons icon;
   final String title;
   final String subtitle;
-  final String actionText;
-  final VoidCallback onAction;
+  final String? actionText;
+  final VoidCallback? onAction;
   final Color? iconBgColor;
   final Color? iconColor;
   final Color? titleColor;
@@ -29,6 +29,7 @@ class UsersEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isDanger = actionColor == colors.danger;
+    final showAction = actionText != null && onAction != null;
     return Padding(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       child: Column(
@@ -57,13 +58,15 @@ class UsersEmptyState extends StatelessWidget {
             color: colors.textSecondary,
             textAlign: TextAlign.center,
           ),
-          const VGap.lg(),
-          VButton(
-            label: actionText,
-            variant: VButtonVariant.primary,
-            tone: isDanger ? VComponentTone.danger : VComponentTone.primary,
-            onPressed: onAction,
-          ),
+          if (showAction) ...[
+            const VGap.lg(),
+            VButton(
+              label: actionText!,
+              variant: VButtonVariant.primary,
+              tone: isDanger ? VComponentTone.danger : VComponentTone.primary,
+              onPressed: onAction,
+            ),
+          ],
         ],
       ),
     );

@@ -4,15 +4,17 @@ import 'package:vet45_design_system/design_system.dart';
 import '../models/organization_ui_model.dart';
 
 /// Bottom Sheet hiển thị danh sách thao tác đối với tổ chức.
-/// - Đang hoạt động: Thay đổi chủ sở hữu, Tạm ngừng tổ chức (Tone đỏ).
-/// - Đã tạm ngừng: Thay đổi chủ sở hữu, Khôi phục tổ chức.
-/// - Đang hoạt động / Đã tạm ngừng: Đóng tổ chức (Tone đỏ).
+/// - Đang thiết lập, chưa có Owner: chỉ Gửi lại email.
+/// - Đang thiết lập, đã có Owner: chỉ Thay đổi chủ sở hữu.
+/// - Đang hoạt động: Thay đổi chủ sở hữu, Tạm ngừng tổ chức (Tone đỏ), Đóng tổ chức.
+/// - Đã tạm ngừng: Thay đổi chủ sở hữu, Khôi phục tổ chức, Đóng tổ chức.
 class OrganizationActionsBottomSheet extends StatelessWidget {
   final OrganizationUiModel organization;
   final VoidCallback? onChangeOwnerTap;
   final VoidCallback? onSuspendTap;
   final VoidCallback? onRestoreTap;
   final VoidCallback? onCloseTap;
+  final VoidCallback? onResendOwnerInvitationTap;
 
   const OrganizationActionsBottomSheet({
     super.key,
@@ -21,6 +23,7 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
     this.onSuspendTap,
     this.onRestoreTap,
     this.onCloseTap,
+    this.onResendOwnerInvitationTap,
   });
 
   @override
@@ -28,6 +31,11 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
     final colors = context.vColors;
     final isSuspended = organization.status == OrganizationStatus.suspended;
     final isActive = organization.status == OrganizationStatus.active;
+    final isSettingUp = organization.status == OrganizationStatus.settingUp;
+    final hasActiveOwner = organization.ownerUserId?.trim().isNotEmpty == true;
+    final showChangeOwner = !isSettingUp || hasActiveOwner;
+    final showResendOwnerInvitation =
+        isSettingUp && !hasActiveOwner && organization.canResendOwnerInvitation;
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -40,11 +48,10 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Tiêu đề "Thao tác tổ chức"
           Padding(
             padding: const EdgeInsets.only(bottom: VSpacing.space4),
             child: VText(
-              'Thao tác tổ chức',
+              'Thao tác',
               variant: VTextVariant.headingH3,
               style: TextStyle(
                 color: colors.textPrimary,
@@ -52,55 +59,67 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-
-          // Action 1: Thay đổi chủ sở hữu
-          _ActionButtonCard(
-            title: 'Thay đổi chủ sở hữu',
-            subtitle: 'Chọn Chủ sở hữu mới',
-            icon: VIcons.person,
-            isDanger: false,
-            onTap: () {
-              Navigator.of(context).pop();
-              onChangeOwnerTap?.call();
-            },
-          ),
-          const VGap.md(),
-
-          if (isSuspended) ...[
+          if (showResendOwnerInvitation) ...[
             _ActionButtonCard(
-              title: 'Khôi phục tổ chức',
-              subtitle: 'Cho phép vận hành trở lại',
-              icon: VIcons.restore,
+              title: 'Gửi lại email',
+              subtitle: 'Gửi lại liên kết thiết lập cho Chủ sở hữu',
+              icon: VIcons.send,
               isDanger: false,
               onTap: () {
                 Navigator.of(context).pop();
-                onRestoreTap?.call();
+                onResendOwnerInvitationTap?.call();
               },
             ),
-          ] else if (isActive) ...[
+          ] else if (showChangeOwner) ...[
             _ActionButtonCard(
-              title: 'Tạm ngừng tổ chức',
-              subtitle: 'Chặn toàn bộ quyền vận hành',
-              icon: VIcons.pause,
-              isDanger: true,
+              title: 'Thay đổi chủ sở hữu',
+              subtitle: 'Chọn Chủ sở hữu mới',
+              icon: VIcons.person,
+              isDanger: false,
               onTap: () {
                 Navigator.of(context).pop();
-                onSuspendTap?.call();
+                onChangeOwnerTap?.call();
               },
             ),
-          ],
-          if (isActive || isSuspended) ...[
-            const VGap.md(),
-            _ActionButtonCard(
-              title: 'Đóng tổ chức',
-              subtitle: 'Ngừng hoạt động vĩnh viễn, không thể khôi phục',
-              icon: VIcons.close,
-              isDanger: true,
-              onTap: () {
-                Navigator.of(context).pop();
-                onCloseTap?.call();
-              },
-            ),
+            if (!isSettingUp) ...[
+              const VGap.md(),
+              if (isSuspended) ...[
+                _ActionButtonCard(
+                  title: 'Khôi phục tổ chức',
+                  subtitle: 'Cho phép vận hành trở lại',
+                  icon: VIcons.restore,
+                  isDanger: false,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onRestoreTap?.call();
+                  },
+                ),
+              ] else if (isActive) ...[
+                _ActionButtonCard(
+                  title: 'Tạm ngừng tổ chức',
+                  subtitle: 'Chặn toàn bộ quyền vận hành',
+                  icon: VIcons.pause,
+                  isDanger: true,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onSuspendTap?.call();
+                  },
+                ),
+              ],
+              if (isActive || isSuspended) ...[
+                const VGap.md(),
+                _ActionButtonCard(
+                  title: 'Đóng tổ chức',
+                  subtitle: 'Ngừng hoạt động vĩnh viễn, không thể khôi phục',
+                  icon: VIcons.close,
+                  isDanger: true,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onCloseTap?.call();
+                  },
+                ),
+              ],
+            ],
           ],
         ],
       ),

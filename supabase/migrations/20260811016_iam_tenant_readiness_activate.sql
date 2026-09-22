@@ -105,7 +105,21 @@ begin
     and m.is_active;
 
   if v_owner_count <> 1 then
-    v_blockers := v_blockers || to_jsonb('OWNER_MEMBERSHIP_INVALID'::text);
+    if v_owner_count = 0 and v_tenant.status = 'provisioning' then
+      if exists (
+        select 1 from iam.tenant_invitations i
+        where i.tenant_id = p_tenant_id
+          and i.is_owner is true
+          and i.status = 'pending'
+          and i.expires_at > now()
+      ) then
+        v_blockers := v_blockers || to_jsonb('OWNER_ACCEPTANCE_PENDING'::text);
+      else
+        v_blockers := v_blockers || to_jsonb('OWNER_INVITATION_EXPIRED'::text);
+      end if;
+    else
+      v_blockers := v_blockers || to_jsonb('OWNER_MEMBERSHIP_INVALID'::text);
+    end if;
   else
     -- Owner identity readiness: Auth-confirmed identity + verified email.
     select m.user_id into v_owner_user

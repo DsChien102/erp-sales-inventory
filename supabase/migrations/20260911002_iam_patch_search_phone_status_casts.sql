@@ -79,7 +79,7 @@ begin
   end if;
 
   select
-    coalesce(u.id, p.user_id) as user_id,
+    u.id as user_id,
     coalesce(
       nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
       nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
@@ -88,8 +88,7 @@ begin
     coalesce(u.email::text, p.email, '')::text as email,
     (case
       when p.status = 'suspended' then 'suspended'
-      when u.id is not null then iam._platform_user_effective_status(u.email_confirmed_at)
-      else coalesce(p.status::text, 'pending_activation')
+      else iam._platform_user_effective_status(u.email_confirmed_at)
     end)::text as status,
     (u.email_confirmed_at is not null) as email_verified,
     u.email_confirmed_at as email_verified_at,
@@ -97,9 +96,9 @@ begin
     p.last_login_at,
     coalesce(p.version, 1) as version
   into v_row
-  from iam.platform_user_profiles p
-  full outer join auth.users u on u.id = p.user_id
-  where coalesce(u.id, p.user_id) = p_user_id;
+  from auth.users u
+  left join iam.platform_user_profiles p on p.user_id = u.id
+  where u.id = p_user_id;
 
   if v_row.user_id is null then
     raise exception 'platform user not found';
@@ -173,7 +172,7 @@ begin
       select jsonb_agg(row_to_json(t)::jsonb)
       from (
         select
-          coalesce(u.id, p.user_id) as user_id,
+          u.id as user_id,
           coalesce(
             nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
             nullif(
@@ -185,45 +184,27 @@ begin
           coalesce(u.email::text, p.email, '')::text as email,
           (case
             when p.status = 'suspended' then 'suspended'
-            when u.id is not null then iam._platform_user_effective_status(u.email_confirmed_at)
-            else coalesce(p.status::text, 'pending_activation')
+            else iam._platform_user_effective_status(u.email_confirmed_at)
           end)::text as status,
           p.phone_number,
           coalesce(p.created_at, u.created_at) as created_at,
           coalesce(p.version, 1) as version
-        from iam.platform_user_profiles p
-        full outer join auth.users u on u.id = p.user_id
+        from auth.users u
+        left join iam.platform_user_profiles p on p.user_id = u.id
         where (
             p_status is null
             or (case
                   when p.status = 'suspended' then 'suspended'
-                  when u.id is not null then iam._platform_user_effective_status(u.email_confirmed_at)
-                  else coalesce(p.status::text, 'pending_activation')
+                  else iam._platform_user_effective_status(u.email_confirmed_at)
                 end) = p_status
           )
           and (
             p_query is null or p_query = ''
-            or coalesce(u.email, p.email) ilike '%' || p_query || '%'
+            or coalesce(u.email::text, p.email, '') ilike '%' || p_query || '%'
             or coalesce(p.given_name, '') ilike '%' || p_query || '%'
             or coalesce(p.family_middle_name, '') ilike '%' || p_query || '%'
             or coalesce(u.raw_user_meta_data->>'first_name', '') ilike '%' || p_query || '%'
             or coalesce(u.raw_user_meta_data->>'last_name', '') ilike '%' || p_query || '%'
-          )
-          -- Durable de-dup guard: a pending placeholder carries a generated id that
-          -- differs from the real auth id, so when the person activates (via accept,
-          -- login audit, or any path) their active row appears under the auth id and
-          -- the placeholder can linger as an orphan. Hide such an orphan — a
-          -- profile-only pending row (no auth row of its own) whose email already has
-          -- a real auth account — so the list can never show the person twice,
-          -- regardless of which write path created the active row.
-          and not (
-            u.id is null
-            and p.status = 'pending_activation'
-            and p.email is not null
-            and exists (
-              select 1 from auth.users au
-              where lower(au.email::text) = lower(p.email)
-            )
           )
         order by coalesce(p.created_at, u.created_at) desc
         limit v_limit

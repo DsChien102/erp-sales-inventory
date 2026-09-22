@@ -390,12 +390,13 @@ Tenant-scoped. Permission: `tenant.member.invite`. Actor/`createdBy` từ execut
 - Same key + different payload → `IDEMPOTENCY_CONFLICT`.
 - Delivery failure **không** revoke invitation (lifecycle độc lập; OQ-08).
 
-### Side effects (same txn)
+### Side effects (cùng transaction)
 
-1. Persist invitation: status `pending`, `token_hash = SHA-256(token)` only (no raw token column).
-2. Generate 32-byte CSPRNG Base64URL token.
-3. §S-NOTIFY `enqueue_outbox_message` template `tenant_invitation`; raw token only via optional `secret_payload_ciphertext` — never in `refs` / audit / logs.
-4. Initial delivery outcome `queued` via `record_email_delivery_outcome`; response `deliveryStatus=queued` + `deliveryCorrelationId`.
+1. Lưu Invitation: status `pending`, chỉ có `token_hash = SHA-256(token)` (không lưu token thô trong cột).
+2. Tạo mã/token lời mời opaque.
+3. §S-NOTIFY `enqueue_outbox_message` với template `tenant_invitation`; token thô chỉ đi qua `secret_payload_ciphertext` tùy chọn — không đưa vào `refs` / audit / logs.
+4. Kết quả gửi ban đầu `queued` qua `record_email_delivery_outcome`; response có `deliveryStatus=queued` và `deliveryCorrelationId`.
+5. **Không** tạo/kích hoạt lại `iam.memberships`, **không** tạo `iam.platform_user_profiles`, giữ `target_membership_id = null` cho lời mời mới. Kiểm tra xung đột Membership chỉ được đọc dữ liệu để validate.
 
 **RPC draft:** `iam.create_tenant_invitation` — [`_drafts/017_iam_tenant_invitation_create.sql`](../../../../supabase/migrations/_drafts/017_iam_tenant_invitation_create.sql).
 
@@ -451,6 +452,8 @@ userId, membership (TenantMemberDetailDto)
 - Tenant suspended → `TENANT_SUSPENDED` **without** consuming token.
 - Invitation token = email proof for new account; Identity marks email verified; no second activation token.
 - Consume token only in same txn as Membership create + invitation → accepted.
+- Accept là ranh giới tạo dữ liệu thật: sau khi xác minh email, `iam.accept_invitation` upsert bản ghi `platform_user_profiles` thật và tạo/liên kết đúng một active Membership trong cùng transaction tiêu thụ Invitation.
+- Invitation lịch sử có `target_membership_id` khác null vẫn đi qua nhánh tương thích link/unwind; Invitation mới không ghi trường này.
 
 ### Manual token handoff
 
@@ -532,7 +535,7 @@ Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@Re
 | `GetTenantOnboardingOperationQuery` | operationId | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, RESOURCE_NOT_FOUND |
 | `RetryTenantOnboardingOperationCommand` | operationId, idempotencyKey | `TenantOnboardingOperationDto` | PLATFORM_PERMISSION_DENIED, STATE_CHANGED, IDEMPOTENCY_CONFLICT, VALIDATION_ERROR |
 
-**Ràng buộc triển khai (owner activation — hybrid):** Onboarding **không** tạo `iam.owner_activations`. Onboarding tạo Owner Membership (`is_owner`, role `store_owner`, `status='active'`) **ngay** cùng Tenant **và** owner `tenant_invitations` (`is_owner`) để accept/decline/resend. Owner mới có thể dùng pending `platform_user_profiles` (placeholder `user_id` tới khi signUp/accept). Decline / expire / revoke owner invite trên tenant `provisioning` → unwind sole owner membership; **tenant vẫn `provisioning`** (không auto-close). Admin gán lại qua `iam.reinvite_provisioning_owner`. Chi tiết org (`get_platform_tenant`): owner từ membership + `platform_user_profiles` (`family_middle_name` + `given_name`) — **không** resolve owner từ invitation.
+**Ràng buộc triển khai (trì hoãn tạo dữ liệu Owner):** Onboarding tạo Tenant ở `provisioning` và một Owner Invitation trong `tenant_invitations` (`is_owner=true`), nhưng **không** tạo Owner Membership hoặc bản ghi giả trong `platform_user_profiles`. `owner_membership_id=null`; Owner mới có `owner_user_id=null` cho đến khi chấp nhận lời mời. `iam.accept_invitation` upsert profile thật theo Auth user và tạo Membership `store_owner`/`is_owner=true` trong cùng transaction chuyển Invitation sang `accepted`. Màn hình chi tiết/tìm kiếm Tenant trên Admin hiển thị Owner pending từ Invitation khi chưa có Owner Membership; danh sách thành viên vẫn rỗng. Readiness hiển thị “Đang chờ chủ sở hữu chấp nhận lời mời” nếu pending còn hiệu lực; hiển thị “Lời mời hết hạn” nếu không còn pending hợp lệ; cả hai đều chưa thể kích hoạt Tenant. Từ chối/đánh hết hạn/thu hồi Invitation mới không cần tháo gỡ dữ liệu Owner tạo sẵn, nhưng vẫn giữ helper cũ cho bản ghi hybrid lịch sử. Mỗi request mới tới `iam.reinvite_provisioning_owner` **reuse** Owner Invitation `pending`/`expired` (cùng `invitation_id`, xoay token, gia hạn, cập nhật email) — không expire+insert thay thế; Invitation terminal bị từ chối; replay idempotency chỉ trả kết quả cũ. PA-SG-02 giữ nút “Thao tác”: với Tenant `settingUp` và Invitation `pending`/`expired`, sheet chỉ có “Gửi lại email” và mở sheet “Gửi lại email thiết lập?”; không mở sheet rỗng. “Tạm ngừng tổ chức” vẫn ẩn. Với `active`/`suspended`, không hiện gửi lại email, giữ “Thay đổi chủ sở hữu”; không sửa banner/nền trang và không thêm nút riêng trên màn hình readiness.
 
 **Locked search shape**
 
@@ -548,7 +551,7 @@ Default limit `20`, max `100`; cursor opaque and stable.
 
 `TenantOnboardingOperationDto(status, completedSteps, failedStep, correlationId, tenantId?, ownerUserId?)`
 Status: `inProgress` \| `completed` \| `partialFailure` \| `failed`.
-Atomic boundary: Tenant + Owner Membership + role + IAM outbox; Identity creation is an external step recorded in operation progress. Retry resumes incomplete steps.
+Atomic boundary: Tenant + Owner Invitation + IAM outbox. Profile và Owner Membership chỉ materialize khi accept. Retry resumes incomplete steps.
 
 **Notes**
 - Password-reset initiate only; Platform Admin never receives credentials (BR-01/BR-02).

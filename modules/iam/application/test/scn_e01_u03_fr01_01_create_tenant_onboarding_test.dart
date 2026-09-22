@@ -61,8 +61,8 @@ final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
     if (existing != null) return existing;
     final result = TenantOnboardingResultDto(
       tenantId: 't-1',
-      ownerMembershipId: 'm-1',
-      ownerUserId: ownerUserId ?? (isNewUser ? 'u-pending' : null),
+      ownerMembershipId: null,
+      ownerUserId: isNewUser ? null : ownerUserId,
       tenantStatus: 'provisioning',
       correlationId: correlationId ?? 'c-1',
       isNewUser: isNewUser,
@@ -147,14 +147,13 @@ void main() {
         ),
       );
 
-      // Hybrid: gateway gets new-owner email; membership + invitation issued now.
       expect(gateway.lastIsNewUser, isTrue);
       expect(gateway.lastOwnerEmail, 'new@example.com');
       expect(gateway.lastOwnerUserId, isNull);
       expect(result.isNewUser, isTrue);
       expect(result.activationIssued, isTrue);
-      expect(result.ownerMembershipId, 'm-1');
-      expect(result.ownerUserId, 'u-pending');
+      expect(result.ownerMembershipId, isNull);
+      expect(result.ownerUserId, isNull);
     });
 
     test('validator rejects empty org name', () async {

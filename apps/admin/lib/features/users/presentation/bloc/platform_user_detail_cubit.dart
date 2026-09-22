@@ -113,7 +113,6 @@ final class PlatformUserDetailCubit extends Cubit<PlatformUserDetailState> {
       requiredPermission: IamPlatformPermissions.userSuspend,
       allowedStatuses: const [
         PlatformUserStatus.active,
-        PlatformUserStatus.pendingActivation,
       ],
       successMessage: 'Đã tạm ngừng tài khoản thành công.',
       execute: (version, key) => _iamModule.executeCommandAsync<void>(

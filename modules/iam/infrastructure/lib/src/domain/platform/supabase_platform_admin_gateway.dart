@@ -507,13 +507,11 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       email: json['email'] as String? ?? '',
       status: _statusFromSql(json['status'] as String?),
       emailVerified: json['email_verified'] as bool? ?? false,
-      emailVerifiedAt:
-          emailVerifiedRaw is String ? DateTime.parse(emailVerifiedRaw) : null,
+      emailVerifiedAt: emailVerifiedRaw is String ? DateTime.parse(emailVerifiedRaw) : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       version: (json['version'] as num?)?.toInt() ?? 1,
       lastLoginAt: lastLoginRaw is String ? DateTime.parse(lastLoginRaw) : null,
-      activationExpiresAt:
-          activationRaw is String ? DateTime.parse(activationRaw) : null,
+      activationExpiresAt: activationRaw is String ? DateTime.parse(activationRaw) : null,
       memberships: memberships,
     );
   }
@@ -593,6 +591,12 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       members: members,
       unverifiedEmail: unverifiedEmail,
       incompleteProfile: incompleteProfile,
+      ownerInvitationEmail: json['owner_invitation_email'] as String?,
+      ownerInvitationState: json['owner_invitation_state'] as String?,
+      ownerInvitationExpiresAt: _parseDate(json['owner_invitation_expires_at']),
+      ownerInvitationGivenName: json['owner_invitation_given_name'] as String?,
+      ownerInvitationFamilyName: json['owner_invitation_family_name'] as String?,
+      ownerInvitationPhone: json['owner_invitation_phone'] as String?,
     );
   }
 

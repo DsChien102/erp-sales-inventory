@@ -19,27 +19,37 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
     TenantContextState? initialState,
     TenantContextPermissionsApplier? applyPermissions,
     Stream<String>? tenantAccessRevoked,
+    void Function(String code)? onIdentityRevoked,
   }) : _iamModule = iamModule,
        _applyPermissions = applyPermissions,
+       _onIdentityRevoked = onIdentityRevoked,
        super(
          initialState ?? TenantContextState(userDisplayName: userDisplayName),
        ) {
     _revokedSubscription = (tenantAccessRevoked ?? TenantAccessRevokedSignal.stream)
-        .listen((_) => _onTenantAccessRevoked());
+        .listen(_onTenantAccessRevoked);
   }
 
   final IIamModule _iamModule;
   final TenantContextPermissionsApplier? _applyPermissions;
+  final void Function(String code)? _onIdentityRevoked;
   late final StreamSubscription<String> _revokedSubscription;
 
-  void _onTenantAccessRevoked() {
-    if (isClosed || state.status != TenantContextLoadStatus.ready) return;
+  void _onTenantAccessRevoked(String code) {
+    if (isClosed) return;
+    if (code == TenantAccessRevokedSignal.platformUserSuspended) {
+      // Tài khoản bị chặn ở mọi tổ chức → shell đăng xuất.
+      _onIdentityRevoked?.call(code);
+      return;
+    }
+    if (state.status != TenantContextLoadStatus.ready) return;
     bootstrap();
   }
 
   @override
-  Future<void> close() async {
-    await _revokedSubscription.cancel();
+  Future<void> close() {
+    // Do not await cancel(): broadcast cancel can hang under flutter_test fake async.
+    _revokedSubscription.cancel();
     return super.close();
   }
 
@@ -249,13 +259,22 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
         );
         break;
       case TenantContextStatus.invalidated:
+        if (context.blockedErrorCode == IamBlockedCodes.platformUserSuspended ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.identityInactive) {
+          // Tài khoản bị tạm ngừng: không cho vào app, đăng xuất luôn.
+          _onIdentityRevoked?.call(IamBlockedCodes.platformUserSuspended);
+        }
         final inaccessible =
             context.invalidationReason ==
                 TenantContextInvalidationReason.tenantSuspended ||
             context.invalidationReason ==
                 TenantContextInvalidationReason.tenantClosed ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.identityInactive ||
             context.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
-            context.blockedErrorCode == IamBlockedCodes.tenantClosed;
+            context.blockedErrorCode == IamBlockedCodes.tenantClosed ||
+            context.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         emit(
           state.copyWith(
             status: TenantContextLoadStatus.blocked,

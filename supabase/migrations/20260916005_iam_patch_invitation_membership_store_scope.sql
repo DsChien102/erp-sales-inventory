@@ -54,8 +54,6 @@ declare
   v_existing_op iam.idempotency_records;
   v_payload_hash text;
   v_invitation iam.tenant_invitations;
-  v_invitee_user_id uuid;
-  v_target_membership_id uuid;
   v_raw_token text;
   v_token_hash text;
   v_now timestamptz := now();
@@ -141,68 +139,6 @@ begin
     raise exception 'INVITATION_PENDING_EXISTS';
   end if;
 
-  select u.id into v_invitee_user_id
-  from auth.users u
-  where lower(trim(u.email::text)) = v_email
-  limit 1;
-
-  if v_invitee_user_id is null then
-    select p.user_id into v_invitee_user_id
-    from iam.platform_user_profiles p
-    where lower(p.email) = v_email
-    limit 1;
-  end if;
-
-  if v_invitee_user_id is null then
-    v_invitee_user_id := gen_random_uuid();
-    insert into iam.platform_user_profiles (
-      user_id, email, status, created_at, updated_at
-    )
-    values (
-      v_invitee_user_id,
-      v_email,
-      'pending_activation',
-      v_now,
-      v_now
-    );
-  end if;
-
-  -- Re-invite of a previously removed member: reuse the row
-  -- (memberships_tenant_user_unique allows one row per tenant/user).
-  select m.id
-  into v_target_membership_id
-  from iam.memberships m
-  where m.tenant_id = p_tenant_id
-    and m.user_id = v_invitee_user_id
-    and m.removed_at is not null
-  for update;
-
-  if found then
-    update iam.memberships
-    set is_active = true,
-        removed_at = null,
-        role = coalesce(v_role.code, 'staff'),
-        is_owner = false,
-        status_changed_at = v_now,
-        version = version + 1,
-        updated_at = v_now
-    where id = v_target_membership_id;
-  else
-    insert into iam.memberships (
-      tenant_id, user_id, role, is_owner, version, created_at, updated_at
-    )
-    values (
-      p_tenant_id,
-      v_invitee_user_id,
-      coalesce(v_role.code, 'staff'),
-      false,
-      1,
-      v_now,
-      v_now
-    )
-    returning id into v_target_membership_id;
-  end if;
-
   perform iam._ensure_tenant_default_store(p_tenant_id);
 
   v_raw_token := iam._generate_invitation_code();
@@ -217,7 +153,6 @@ begin
     status,
     token_hash,
     invited_by_membership_id,
-    target_membership_id,
     expires_at,
     status_changed_at,
     version,
@@ -233,7 +168,6 @@ begin
     'pending',
     v_token_hash,
     v_actor_membership.id,
-    v_target_membership_id,
     v_expires_at,
     v_now,
     1,
@@ -294,7 +228,6 @@ begin
       'invitation_id', v_invitation.id,
       'invitee_email_masked', v_masked,
       'initial_role_id', p_initial_role_id,
-      'target_membership_id', v_target_membership_id,
       'delivery_correlation_id', v_correlation_id
     )
   );

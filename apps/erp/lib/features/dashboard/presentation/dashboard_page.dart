@@ -7,6 +7,7 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/errors/exception_mapper.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
@@ -20,6 +21,30 @@ import '../../more/presentation/pages/more_page.dart';
 import '../../catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../partner/presentation/pages/partner_list_page.dart';
 import '../../sales/presentation/pages/sales_order_list_page.dart';
+
+/// Signs out and navigates to login when the platform account is suspended.
+/// Always navigates even if remote sign-out fails (network).
+Future<void> signOutSuspendedAccountAndGoToLogin(
+  BuildContext context, {
+  bool showToast = true,
+}) async {
+  if (showToast) {
+    VToast.show(
+      context,
+      title: 'Tài khoản bị tạm ngừng',
+      message:
+          'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
+      type: VToastType.danger,
+    );
+  }
+  await guard(
+    () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(
+      SignOutCommand(),
+    ),
+  );
+  if (!context.mounted) return;
+  context.go('/login');
+}
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({
@@ -53,6 +78,7 @@ class DashboardPage extends StatelessWidget {
           iamModule: module,
           initialState: initialState,
           applyPermissions: applyTenantContextPermissions,
+          onIdentityRevoked: (_) => signOutSuspendedAccountAndGoToLogin(context),
         );
         if (autoBootstrap) {
           cubit.bootstrap();
@@ -177,6 +203,8 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       }
 
       if (state.isBlocked) {
+        final accountSuspended =
+            state.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         return SafeArea(
           child: Center(
             child: Padding(
@@ -186,7 +214,13 @@ class _DashboardPageState extends State<_DashboardPageBody> {
                     OrganizationEmptyStateType.noAuthorizedOrganizations,
                 suspendedOrgName: state.suspendedOrgName,
                 isClosed: state.blockedErrorCode == IamBlockedCodes.tenantClosed,
-                onAction: () => _openSelector(context),
+                isAccountSuspended: accountSuspended,
+                onAction: accountSuspended
+                    ? () => signOutSuspendedAccountAndGoToLogin(
+                          context,
+                          showToast: false,
+                        )
+                    : () => _openSelector(context),
               ),
             ),
           ),
@@ -234,7 +268,13 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       // bootstrap() phát loading trước blocked → không so với `ready`.
       listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
       listener: (context, state) {
-        // Leave any pushed feature page and show the block screen.
+        // Chỉ toast + về dashboard khi tổ chức tạm ngừng/đóng (đang ở trang con).
+        // Bỏ qua: chưa có org; tài khoản bị tạm ngừng (sign-out qua onIdentityRevoked).
+        final orgBlocked =
+            state.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
+            state.blockedErrorCode == IamBlockedCodes.tenantClosed;
+        if (!orgBlocked) return;
+
         VToast.show(
           context,
           title: 'Tổ chức không thể truy cập',

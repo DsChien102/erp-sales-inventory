@@ -148,6 +148,33 @@ void main() {
       expect(result.isNewUser, isTrue);
     });
 
+    test('onboarding_new_user_ok defers owner profile and membership', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.onboardingNewUserOk,
+      );
+
+      final result = await module.executeCommandAsync<TenantOnboardingResultDto>(
+        CreateTenantOnboardingCommand(
+          owner: const OnboardingOwnerInput.newUser(
+            lastName: 'Nguyễn',
+            firstName: 'A',
+            email: 'a@example.com',
+          ),
+          organizationName: 'Org Mới',
+          idempotencyKey: 'key-new-deferred',
+        ),
+      );
+      final detail = await module.executeQueryAsync<PlatformTenantDetailDto>(
+        GetPlatformTenantQuery(tenantId: result.tenantId),
+      );
+
+      expect(result.ownerMembershipId, isNull);
+      expect(result.ownerUserId, isNull);
+      expect(detail.ownerUserId, isNull);
+      expect(detail.ownerEmail, 'a@example.com');
+      expect(detail.members, isEmpty);
+    });
+
     test('onboarding_retry_idempotent — same key returns same result', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.onboardingRetryIdempotent,

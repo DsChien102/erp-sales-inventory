@@ -6,6 +6,7 @@ import 'package:admin/features/iam/presentation/organizations/views/organization
 import 'package:admin/features/iam/presentation/organizations/widgets/organization_actions_bottom_sheet.dart';
 import 'package:admin/features/iam/presentation/organizations/widgets/organization_restore_confirmation_bottom_sheet.dart';
 import 'package:admin/features/iam/presentation/organizations/widgets/organization_suspend_confirmation_bottom_sheet.dart';
+import 'package:admin/features/iam/presentation/organizations/widgets/owner_invitation_resend_sheet.dart';
 
 void main() {
   testWidgets('Active organization shows suspend action bottom sheet option', (tester) async {
@@ -29,6 +30,7 @@ void main() {
     expect(find.byType(OrganizationActionsBottomSheet), findsOneWidget);
     expect(find.text('Thay đổi chủ sở hữu'), findsOneWidget);
     expect(find.text('Tạm ngừng tổ chức'), findsOneWidget);
+    expect(find.text('Gửi lại email'), findsNothing);
   });
 
   testWidgets('Suspended organization shows restore action bottom sheet option', (tester) async {
@@ -52,14 +54,53 @@ void main() {
     expect(find.byType(OrganizationActionsBottomSheet), findsOneWidget);
     expect(find.text('Thay đổi chủ sở hữu'), findsOneWidget);
     expect(find.text('Khôi phục tổ chức'), findsOneWidget);
+    expect(find.text('Gửi lại email'), findsNothing);
   });
 
-  testWidgets('Setting-up organization does not show suspend or restore action', (tester) async {
+  testWidgets('Setting-up organization shows only resend owner invitation action', (
+    tester,
+  ) async {
     const settingUpOrg = OrganizationUiModel(
       id: 'org-setup',
       name: 'Setup Store',
       code: 'TEN-SETUP',
       status: OrganizationStatus.settingUp,
+      ownerInvitationEmail: 'owner@example.com',
+      ownerInvitationState: 'pending',
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: OrganizationDetailPage(organization: settingUpOrg),
+      ),
+    );
+
+    expect(find.text('Thao tác'), findsOneWidget);
+    await tester.tap(find.text('Thao tác'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(OrganizationActionsBottomSheet), findsOneWidget);
+    expect(find.text('Gửi lại email'), findsOneWidget);
+    expect(
+      find.text('Gửi lại liên kết thiết lập cho Chủ sở hữu'),
+      findsOneWidget,
+    );
+    expect(find.text('Thay đổi chủ sở hữu'), findsNothing);
+    expect(find.text('Tạm ngừng tổ chức'), findsNothing);
+    expect(find.text('Khôi phục tổ chức'), findsNothing);
+    expect(find.text('Đóng tổ chức'), findsNothing);
+  });
+
+  testWidgets('Setting-up organization with active owner shows only change owner action', (
+    tester,
+  ) async {
+    const settingUpOrg = OrganizationUiModel(
+      id: 'org-setup-owner',
+      name: 'Setup Store With Owner',
+      code: 'TEN-SETUP-OWNER',
+      status: OrganizationStatus.settingUp,
+      ownerUserId: 'owner-user-id',
+      ownerInvitationState: 'accepted',
     );
 
     await tester.pumpWidget(
@@ -74,8 +115,70 @@ void main() {
 
     expect(find.byType(OrganizationActionsBottomSheet), findsOneWidget);
     expect(find.text('Thay đổi chủ sở hữu'), findsOneWidget);
+    expect(find.text('Gửi lại email'), findsNothing);
     expect(find.text('Tạm ngừng tổ chức'), findsNothing);
     expect(find.text('Khôi phục tổ chức'), findsNothing);
+    expect(find.text('Đóng tổ chức'), findsNothing);
+  });
+
+  testWidgets('Setting-up without owner or resend-eligible invitation hides actions', (
+    tester,
+  ) async {
+    const settingUpOrg = OrganizationUiModel(
+      id: 'org-setup',
+      name: 'Setup Store',
+      code: 'TEN-SETUP',
+      status: OrganizationStatus.settingUp,
+      ownerInvitationState: 'revoked',
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: OrganizationDetailPage(organization: settingUpOrg),
+      ),
+    );
+
+    expect(find.text('Thao tác'), findsNothing);
+    expect(find.byType(OrganizationActionsBottomSheet), findsNothing);
+    expect(find.text('Gửi lại email'), findsNothing);
+  });
+
+  testWidgets('Tapping Gửi lại email opens OwnerInvitationResendSheet prefilled', (
+    tester,
+  ) async {
+    const settingUpOrg = OrganizationUiModel(
+      id: 'org-setup',
+      name: 'Setup Store',
+      code: 'TEN-SETUP',
+      status: OrganizationStatus.settingUp,
+      ownerInvitationEmail: 'owner@example.com',
+      ownerInvitationState: 'pending',
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: OrganizationDetailPage(organization: settingUpOrg),
+      ),
+    );
+
+    await tester.tap(find.text('Thao tác'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gửi lại email'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(OwnerInvitationResendSheet), findsOneWidget);
+    expect(find.text('Gửi lại email thiết lập?'), findsOneWidget);
+    expect(
+      find.text(
+        'Liên kết hiện tại sẽ hết hiệu lực. Kiểm tra hoặc cập nhật email trước khi gửi lại.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Email nhận liên kết'), findsOneWidget);
+    expect(find.text('Có thể sửa email trước khi gửi lại.'), findsOneWidget);
+    expect(find.widgetWithText(VButton, 'Gửi'), findsOneWidget);
+    expect(find.widgetWithText(VButton, 'Hủy'), findsOneWidget);
+    expect(find.text('owner@example.com'), findsOneWidget);
   });
 
   testWidgets('Tapping suspend option opens Suspend Confirmation Bottom Sheet', (tester) async {

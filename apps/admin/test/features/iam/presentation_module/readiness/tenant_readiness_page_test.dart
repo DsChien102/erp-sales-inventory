@@ -158,6 +158,75 @@ void main() {
     expect(find.textContaining('Email chủ sở hữu'), findsOneWidget);
     expect(find.textContaining('Liên hệ quản trị viên'), findsOneWidget);
   });
+
+  testWidgets(
+    'pending owner invitation blocker shows copy without repair route',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: TenantReadinessPage(
+            iamModule: _OwnerInvitationBlockerModule(
+              TenantReadinessIssueCodes.ownerAcceptancePending,
+            ),
+            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Đang chờ chủ sở hữu chấp nhận lời mời'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Liên hệ quản trị viên'), findsOneWidget);
+      expect(find.byKey(const Key('btn_activate_tenant')), findsNothing);
+      expect(
+        TenantReadinessCtaMapper.routeFor(
+          TenantReadinessIssueCodes.ownerAcceptancePending,
+        ),
+        isNull,
+      );
+    },
+  );
+
+  testWidgets(
+    'expired owner invitation blocker shows copy without repair route',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: TenantReadinessPage(
+            iamModule: _OwnerInvitationBlockerModule(
+              TenantReadinessIssueCodes.ownerInvitationExpired,
+            ),
+            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lời mời hết hạn'), findsOneWidget);
+      expect(find.textContaining('Liên hệ quản trị viên'), findsOneWidget);
+      expect(find.byKey(const Key('btn_activate_tenant')), findsNothing);
+      expect(
+        TenantReadinessCtaMapper.routeFor(
+          TenantReadinessIssueCodes.ownerInvitationExpired,
+        ),
+        isNull,
+      );
+    },
+  );
 }
 
 final class _WarningOnlyCanActivateFalseModule implements IIamModule {
@@ -201,6 +270,37 @@ final class _OwnerBlockerModule implements IIamModule {
               tenantId: readinessQuery.tenantId,
               status: TenantLifecycleStatus.provisioning,
               blockers: const [TenantReadinessIssueCodes.ownerEmailUnverified],
+              warnings: const [],
+              evaluatedAt: DateTime.utc(2026, 7, 31),
+              tenantVersion: 1,
+              canActivate: false,
+            )
+            as TResult,
+      );
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
+}
+
+final class _OwnerInvitationBlockerModule implements IIamModule {
+  _OwnerInvitationBlockerModule(this.blockerCode);
+
+  final String blockerCode;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    if (query is GetTenantReadinessQuery) {
+      final readinessQuery = query as GetTenantReadinessQuery;
+      return Future.value(
+        TenantReadinessDto(
+              tenantId: readinessQuery.tenantId,
+              status: TenantLifecycleStatus.provisioning,
+              blockers: [blockerCode],
               warnings: const [],
               evaluatedAt: DateTime.utc(2026, 7, 31),
               tenantVersion: 1,
