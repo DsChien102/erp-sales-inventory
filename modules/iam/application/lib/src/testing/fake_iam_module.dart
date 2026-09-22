@@ -286,21 +286,19 @@ final class FakeIamModule implements IIamModule {
         code: 'TEN-000138',
         status: TenantLifecycleStatus.provisioning,
         createdAt: DateTime(2026, 7, 13, 8, 20),
-        ownerUserId: 'lan-le',
+        ownerUserId: null,
         ownerName: 'Lê Thị Lan',
         ownerEmail: 'lan@gmail.com',
         ownerRoleLabel: 'Chủ sở hữu',
         unverifiedEmail: true,
         incompleteProfile: true,
-        members: const [
-          PlatformTenantMemberDto(
-            userId: 'lan-le',
-            fullName: 'Lê Thị Lan',
-            email: 'lan@gmail.com',
-            roleLabel: 'Chủ sở hữu',
-            isOwner: true,
-          ),
-        ],
+        members: const [],
+        ownerInvitationEmail: 'lan@gmail.com',
+        ownerInvitationState: 'pending',
+        ownerInvitationExpiresAt: DateTime(2026, 7, 20, 8, 20),
+        ownerInvitationGivenName: 'Lan',
+        ownerInvitationFamilyName: 'Lê Thị',
+        ownerInvitationPhone: '0901234567',
       ),
       PlatformTenantDetailDto(
         tenantId: 'org-003',
@@ -1130,25 +1128,15 @@ final class FakeIamModule implements IIamModule {
         scenario == FakeIamScenario.onboardingNewUserOk ||
         (scenario != FakeIamScenario.onboardingExistingUserOk && command.owner.isNewUser);
 
-    final result = isNewUserScenario
-        ? TenantOnboardingResultDto(
-            tenantId: 'tenant-new-1',
-            ownerMembershipId: 'mem-new-1',
-            ownerUserId: 'owner-pending-1',
-            tenantStatus: 'provisioning',
-            correlationId: command.correlationId ?? 'corr-new-1',
-            isNewUser: true,
-            activationIssued: true,
-          )
-        : TenantOnboardingResultDto(
-            tenantId: 'tenant-exist-1',
-            ownerMembershipId: 'mem-exist-1',
-            ownerUserId: command.owner.existingUserId ?? 'lan-le',
-            tenantStatus: 'provisioning',
-            correlationId: command.correlationId ?? 'corr-exist-1',
-            isNewUser: false,
-            activationIssued: true,
-          );
+    final result = TenantOnboardingResultDto(
+      tenantId: isNewUserScenario ? 'tenant-new-1' : 'tenant-exist-1',
+      ownerMembershipId: null,
+      ownerUserId: isNewUserScenario ? null : (command.owner.existingUserId ?? 'lan-le'),
+      tenantStatus: 'provisioning',
+      correlationId: command.correlationId ?? (isNewUserScenario ? 'corr-new-1' : 'corr-exist-1'),
+      isNewUser: isNewUserScenario,
+      activationIssued: true,
+    );
 
     if (!_tenants.any((tenant) => tenant.tenantId == result.tenantId)) {
       final owner = command.owner;
@@ -1161,7 +1149,7 @@ final class FakeIamModule implements IIamModule {
           }
         }
       }
-      final ownerUserId = result.ownerUserId!;
+      final ownerUserId = result.ownerUserId;
       final ownerName =
           existingOwner?.fullName ??
           [
@@ -1180,15 +1168,8 @@ final class FakeIamModule implements IIamModule {
           ownerUserId: ownerUserId,
           ownerName: resolvedOwnerName,
           ownerEmail: ownerEmail,
-          members: [
-            PlatformTenantMemberDto(
-              userId: ownerUserId,
-              fullName: resolvedOwnerName,
-              email: ownerEmail,
-              roleLabel: 'Chủ cửa hàng',
-              isOwner: true,
-            ),
-          ],
+          unverifiedEmail: true,
+          members: const <PlatformTenantMemberDto>[],
         ),
       );
     }
@@ -1219,10 +1200,8 @@ final class FakeIamModule implements IIamModule {
     final owner = command.owner;
     final result = TenantOnboardingResultDto(
       tenantId: command.tenantId,
-      ownerMembershipId: 'mem-reinvite-1',
-      ownerUserId: owner.isNewUser
-          ? 'owner-reinvite-pending'
-          : (owner.existingUserId ?? 'owner-reinvite'),
+      ownerMembershipId: null,
+      ownerUserId: owner.isNewUser ? null : (owner.existingUserId ?? 'owner-reinvite'),
       tenantStatus: 'provisioning',
       correlationId: command.correlationId ?? 'corr-reinvite-1',
       isNewUser: owner.isNewUser,
@@ -1237,24 +1216,35 @@ final class FakeIamModule implements IIamModule {
         owner.lastName,
         owner.firstName,
       ].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ');
+      final sameEmail =
+          owner.email != null &&
+          current.ownerInvitationEmail != null &&
+          owner.email!.trim().toLowerCase() == current.ownerInvitationEmail!.trim().toLowerCase();
       _tenants[idx] = PlatformTenantDetailDto(
         tenantId: current.tenantId,
         name: current.name,
         code: current.code,
         status: current.status,
         createdAt: current.createdAt,
+        version: current.version,
         ownerUserId: result.ownerUserId,
-        ownerName: ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu',
+        ownerName: ownerName.isNotEmpty
+            ? ownerName
+            : (sameEmail ? current.ownerName : 'Chủ sở hữu'),
         ownerEmail: owner.email ?? current.ownerEmail,
-        members: [
-          PlatformTenantMemberDto(
-            userId: result.ownerUserId!,
-            fullName: ownerName.isNotEmpty ? ownerName : 'Chủ sở hữu',
-            email: owner.email ?? '',
-            roleLabel: 'Chủ cửa hàng',
-            isOwner: true,
-          ),
-        ],
+        unverifiedEmail: true,
+        incompleteProfile: current.incompleteProfile,
+        members: const <PlatformTenantMemberDto>[],
+        ownerInvitationEmail: owner.email ?? current.ownerInvitationEmail,
+        ownerInvitationState: 'pending',
+        ownerInvitationExpiresAt: DateTime.now().toUtc().add(const Duration(days: 7)),
+        ownerInvitationGivenName: sameEmail
+            ? current.ownerInvitationGivenName
+            : (owner.firstName?.trim().isNotEmpty == true ? owner.firstName : null),
+        ownerInvitationFamilyName: sameEmail
+            ? current.ownerInvitationFamilyName
+            : (owner.lastName?.trim().isNotEmpty == true ? owner.lastName : null),
+        ownerInvitationPhone: sameEmail ? current.ownerInvitationPhone : owner.phone,
       );
     }
 
@@ -2827,15 +2817,18 @@ final class FakeIamModule implements IIamModule {
         final closed = match.status == TenantLifecycleStatus.closed;
         return Future.value(
           TenantContextDto(
-            status: TenantContextStatus.invalidated,
-            tenantId: match.tenantId,
-            tenantName: match.name,
-            tenantStatus: match.status,
-            invalidationReason: closed
-                ? TenantContextInvalidationReason.tenantClosed
-                : TenantContextInvalidationReason.tenantSuspended,
-            blockedErrorCode: closed ? IamBlockedCodes.tenantClosed : IamBlockedCodes.tenantSuspended,
-          ) as TResult,
+                status: TenantContextStatus.invalidated,
+                tenantId: match.tenantId,
+                tenantName: match.name,
+                tenantStatus: match.status,
+                invalidationReason: closed
+                    ? TenantContextInvalidationReason.tenantClosed
+                    : TenantContextInvalidationReason.tenantSuspended,
+                blockedErrorCode: closed
+                    ? IamBlockedCodes.tenantClosed
+                    : IamBlockedCodes.tenantSuspended,
+              )
+              as TResult,
         );
       }
       if (match == null) {

@@ -28,18 +28,20 @@ void main() {
         home: OrganizationUsersPage(cubit: cubit),
       ),
     );
-    await cubit.loadInitial();
+    await cubit.loadMembers(reset: true);
     await tester.pumpAndSettle();
 
     expect(find.text('Người dùng'), findsWidgets);
     expect(find.textContaining('thành viên'), findsWidgets);
     expect(find.text('Lan Le'), findsOneWidget);
     expect(find.text('Nguyễn Văn Minh'), findsNothing);
+    expect(find.text('Lời mời'), findsNothing);
+    expect(find.text('Mời thành viên'), findsNothing);
 
     await cubit.close();
   });
 
-  testWidgets('OrganizationUsersPage switches to invitation tab', (
+  testWidgets('Admin OrganizationUsersPage has no invitation tab or invite CTA', (
     WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(800, 1600);
@@ -60,14 +62,13 @@ void main() {
         home: OrganizationUsersPage(cubit: cubit),
       ),
     );
-    await cubit.loadInitial();
+    await cubit.loadMembers(reset: true);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Lời mời'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('invitee@example.com'), findsOneWidget);
-    expect(find.text('Nguyễn Văn Minh'), findsNothing);
+    expect(find.text('Lời mời'), findsNothing);
+    expect(find.text('Mời thành viên'), findsNothing);
+    expect(find.text('invitee@example.com'), findsNothing);
+    expect(find.byIcon(Icons.add), findsNothing);
 
     await cubit.close();
   });
@@ -92,7 +93,7 @@ void main() {
         home: OrganizationUsersPage(cubit: cubit),
       ),
     );
-    await cubit.loadInitial();
+    await cubit.loadMembers(reset: true);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Tạm ngừng').first);
@@ -151,10 +152,9 @@ void main() {
         home: OrganizationUsersPage(cubit: cubit),
       ),
     );
-    await cubit.loadInitial();
+    await cubit.loadMembers(reset: true);
     await tester.pumpAndSettle();
 
-    // Tap filter button (IconButton containing tune icon)
     final filterButton = find.byWidgetPredicate(
       (w) => w is VIcon && w.icon == VIcons.tune,
     );
@@ -162,21 +162,18 @@ void main() {
     await tester.tap(filterButton);
     await tester.pumpAndSettle();
 
-    // Verify MemberFilterBottomSheet is opened
     expect(find.byType(MemberFilterBottomSheet), findsOneWidget);
     expect(find.text('Bộ lọc thành viên'), findsOneWidget);
     expect(find.text('Trạng thái'), findsOneWidget);
     expect(find.text('Vai trò'), findsOneWidget);
     expect(find.text('Sắp xếp'), findsOneWidget);
 
-    // Tap "Tạm ngừng" chip inside bottom sheet and "Áp dụng"
     await tester.tap(find.text('Tạm ngừng').last);
     await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(VButton, 'Áp dụng'));
     await tester.pumpAndSettle();
 
-    // Bottom sheet is closed and filter is applied
     expect(find.byType(MemberFilterBottomSheet), findsNothing);
     expect(find.text('Minh Nguyen'), findsOneWidget);
     expect(find.text('Lan Le'), findsNothing);

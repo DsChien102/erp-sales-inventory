@@ -68,7 +68,6 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
   static const _filters = <(String, PlatformUserStatus?)>[
     ('Tất cả', null),
     ('Hoạt động', PlatformUserStatus.active),
-    ('Chờ kích hoạt', PlatformUserStatus.pendingActivation),
     ('Tạm ngừng', PlatformUserStatus.suspended),
   ];
 
@@ -102,8 +101,7 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
       listenWhen: (prev, curr) =>
           prev.users.length != curr.users.length || prev.status != curr.status,
       listener: (context, state) {
-        if (state.status == IamLoadStatus.success ||
-            state.status == IamLoadStatus.empty) {
+        if (state.status == IamLoadStatus.success || state.status == IamLoadStatus.empty) {
           widget.onUserCountChanged?.call(state.users.length);
         }
       },
@@ -121,97 +119,91 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
                     controller: _searchController,
                     hintText: 'Tìm tên hoặc email',
                     onChanged: (value) {
-                    _debounceTimer?.cancel();
-                    _debounceTimer = Timer(
-                      const Duration(milliseconds: 300),
-                      () {
-                        context.read<PlatformUsersCubit>().setSearchQuery(
-                          value,
+                      _debounceTimer?.cancel();
+                      _debounceTimer = Timer(
+                        const Duration(milliseconds: 300),
+                        () {
+                          context.read<PlatformUsersCubit>().setSearchQuery(
+                            value,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const VGap.horizontalSm(),
+                BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
+                  buildWhen: (p, c) => p.isFilterApplied != c.isFilterApplied,
+                  builder: (context, state) {
+                    return VIconBox(
+                      icon: VIcons.tune,
+                      size: 44,
+                      iconSize: 20,
+                      backgroundColor: state.isFilterApplied ? colors.successBg : colors.surface,
+                      iconColor: state.isFilterApplied ? colors.success : colors.textPrimary,
+                      borderColor: state.isFilterApplied ? colors.success : colors.borderDefault,
+                      borderRadius: VRadius.button,
+                      onTap: () async {
+                        final cubit = context.read<PlatformUsersCubit>();
+                        final result = await showPlatformUsersFilterSheet(
+                          context: context,
+                          selected: cubit.state.statusFilter,
                         );
+                        if (!context.mounted || result == null || !result.applied) {
+                          return;
+                        }
+                        await cubit.setStatusFilter(result.status);
                       },
                     );
                   },
                 ),
-              ),
-              const VGap.horizontalSm(),
-              BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
-                buildWhen: (p, c) => p.isFilterApplied != c.isFilterApplied,
-                builder: (context, state) {
-                  return VIconBox(
-                    icon: VIcons.tune,
-                    size: 44,
-                    iconSize: 20,
-                    backgroundColor: state.isFilterApplied
-                        ? colors.successBg
-                        : colors.surface,
-                    iconColor: state.isFilterApplied
-                        ? colors.success
-                        : colors.textPrimary,
-                    borderColor: state.isFilterApplied
-                        ? colors.success
-                        : colors.borderDefault,
-                    borderRadius: VRadius.button,
-                    onTap: () async {
-                      final cubit = context.read<PlatformUsersCubit>();
-                      final result = await showPlatformUsersFilterSheet(
-                        context: context,
-                        selected: cubit.state.statusFilter,
-                      );
-                      if (!context.mounted ||
-                          result == null ||
-                          !result.applied) {
-                        return;
-                      }
-                      await cubit.setStatusFilter(result.status);
-                    },
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
-          buildWhen: (p, c) => p.statusFilter != c.statusFilter,
-          builder: (context, state) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.screenMobile,
-                vertical: VSpacing.space1,
-              ),
-              child: Row(
-                children: [
-                  for (final entry in _filters)
-                    Padding(
-                      padding: const EdgeInsets.only(right: VSpacing.space2),
-                      child: VChip(
-                        label: entry.$1,
-                        tone: state.statusFilter == entry.$2
-                            ? VComponentTone.primary
-                            : VComponentTone.neutral,
-                        onTap: () => context
-                            .read<PlatformUsersCubit>()
-                            .setStatusFilter(entry.$2),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-        Expanded(
-          child: BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
+          BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
+            buildWhen: (p, c) => p.statusFilter != c.statusFilter,
             builder: (context, state) {
-              return _PlatformUsersListBody(
-                state: state,
-                searchController: _searchController,
-                scrollController: _scrollController,
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.screenMobile,
+                    vertical: VSpacing.space1,
+                  ),
+                  child: Row(
+                    children: [
+                      for (final entry in _filters)
+                        Padding(
+                          padding: const EdgeInsets.only(right: VSpacing.space2),
+                          child: VChip(
+                            label: entry.$1,
+                            tone: state.statusFilter == entry.$2
+                                ? VComponentTone.primary
+                                : VComponentTone.neutral,
+                            onTap: () =>
+                                context.read<PlatformUsersCubit>().setStatusFilter(entry.$2),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               );
             },
           ),
-        ),
-      ],
-    ),
+          Expanded(
+            child: BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
+              builder: (context, state) {
+                return _PlatformUsersListBody(
+                  state: state,
+                  searchController: _searchController,
+                  scrollController: _scrollController,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -264,15 +256,13 @@ class _PlatformUsersListBody extends StatelessWidget {
           );
         }
 
-        if (state.status == IamLoadStatus.loading ||
-            state.status == IamLoadStatus.initial) {
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final users = state.users;
         if (users.isEmpty) {
-          final hasQuery =
-              state.searchQuery.trim().isNotEmpty || state.statusFilter != null;
+          final hasQuery = state.searchQuery.trim().isNotEmpty || state.statusFilter != null;
           return wrapEmpty(
             PlatformUserEmptyView(
               type: hasQuery
@@ -315,8 +305,7 @@ class _PlatformUsersListBody extends StatelessWidget {
               }
               final user = users[index];
               final displayName = _platformUserDisplayName(user);
-              final primaryText =
-                  displayName.isNotEmpty ? displayName : user.email;
+              final primaryText = displayName.isNotEmpty ? displayName : user.email;
 
               return VCard(
                 padding: const EdgeInsets.symmetric(

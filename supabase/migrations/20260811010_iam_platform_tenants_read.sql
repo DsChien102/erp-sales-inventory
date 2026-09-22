@@ -238,27 +238,8 @@ begin
       left(t.id::text, 8)::text as code,
       coalesce(t.status, 'active')::text as status,
       t.created_at,
-      (
-        select coalesce(
-          nullif(trim(concat_ws(' ', ou.raw_user_meta_data->>'last_name', ou.raw_user_meta_data->>'first_name')), ''),
-          coalesce(ou.email::text, '')
-        )::text
-        from iam.memberships om
-        join auth.users ou on ou.id = om.user_id
-        where om.tenant_id = t.id
-          and om.is_owner
-          and om.is_active
-        limit 1
-      ) as owner_name,
-      (
-        select coalesce(ou.email::text, '')::text
-        from iam.memberships om
-        join auth.users ou on ou.id = om.user_id
-        where om.tenant_id = t.id
-          and om.is_owner
-          and om.is_active
-        limit 1
-      ) as owner_email,
+      owner.owner_name,
+      owner.owner_email,
       (
         select count(distinct m.user_id)
         from iam.memberships m
@@ -268,6 +249,43 @@ begin
       null::text as readiness_state,
       null::text as warning_code
     from iam.tenants t
+    left join lateral (
+      select candidates.owner_name, candidates.owner_email
+      from (
+        select
+          0 as owner_priority,
+          m.created_at as owner_created_at,
+          coalesce(
+            nullif(trim(concat_ws(' ', p.family_middle_name, p.given_name)), ''),
+            nullif(trim(p.email), ''),
+            ''
+          )::text as owner_name,
+          coalesce(nullif(trim(p.email), ''), '')::text as owner_email
+        from iam.memberships m
+        join iam.platform_user_profiles p on p.user_id = m.user_id
+        where m.tenant_id = t.id
+          and m.is_owner
+          and m.is_active
+
+        union all
+
+        select
+          1 as owner_priority,
+          i.created_at as owner_created_at,
+          coalesce(
+            nullif(trim(concat_ws(' ', i.family_name, i.given_name)), ''),
+            i.invitee_email
+          )::text as owner_name,
+          i.invitee_email::text as owner_email
+        from iam.tenant_invitations i
+        where i.tenant_id = t.id
+          and i.is_owner is true
+          and i.status = 'pending'
+          and i.expires_at > now()
+      ) candidates
+      order by candidates.owner_priority, candidates.owner_created_at desc
+      limit 1
+    ) owner on true
     where (p_status is null or coalesce(t.status, 'active') = p_status)
       and p_readiness_state is null
       and p_warning_code is null

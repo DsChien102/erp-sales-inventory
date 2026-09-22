@@ -160,52 +160,12 @@ begin
     v_owner_user_id := p_owner_user_id;
   end if;
 
-  if v_is_new then
-    select u.id into v_provisioned_user_id
-    from auth.users u
-    where lower(u.email::text) = v_owner_email
-    limit 1;
-
-    if v_provisioned_user_id is null then
-      select p.user_id into v_provisioned_user_id
-      from iam.platform_user_profiles p
-      where lower(p.email) = v_owner_email
-      limit 1;
-    end if;
-
-    if v_provisioned_user_id is null then
-      v_provisioned_user_id := gen_random_uuid();
-      insert into iam.platform_user_profiles (
-        user_id, email, status, given_name, family_middle_name, phone_number,
-        created_at, updated_at
-      )
-      values (
-        v_provisioned_user_id,
-        v_owner_email,
-        'pending_activation',
-        nullif(trim(coalesce(p_owner_given_name, '')), ''),
-        nullif(trim(coalesce(p_owner_family_name, '')), ''),
-        nullif(trim(coalesce(p_owner_phone, '')), ''),
-        v_now, v_now
-      );
-    end if;
-    v_owner_user_id := v_provisioned_user_id;
-  end if;
-
   select id into v_owner_role_id
   from iam.role_definitions
   where code = 'store_owner' and status = 'active';
   if v_owner_role_id is null then
     raise exception 'store_owner role missing';
   end if;
-
-  insert into iam.memberships (
-    tenant_id, user_id, role, is_owner, version, created_at, updated_at
-  )
-  values (
-    v_tenant_id, v_owner_user_id, 'store_owner', true, 1, v_now, v_now
-  )
-  returning id into v_membership_id;
 
   perform iam._ensure_tenant_default_store(v_tenant_id);
 
@@ -268,8 +228,8 @@ begin
 
   v_result := jsonb_build_object(
     'tenant_id', v_tenant_id,
-    'owner_membership_id', v_membership_id,
-    'owner_user_id', v_owner_user_id,
+    'owner_membership_id', null,
+    'owner_user_id', case when v_is_new then null else p_owner_user_id end,
     'tenant_status', 'provisioning',
     'correlation_id', v_correlation,
     'is_new_user', v_is_new,

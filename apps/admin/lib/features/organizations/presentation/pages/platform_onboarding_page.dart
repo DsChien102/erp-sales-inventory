@@ -540,6 +540,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           orgName: _orgNameController.text.trim(),
           orgLegalName: _orgLegalNameController.text.trim(),
           orgTaxCode: _orgTaxCodeController.text.trim(),
+          selectedEntityType: _selectedEntityType,
           orgPhone: _orgPhoneController.text.trim(),
           orgEmail: _orgEmailController.text.trim(),
           orgAddress: _orgAddressController.text.trim(),

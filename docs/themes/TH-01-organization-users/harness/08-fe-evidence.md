@@ -13,7 +13,7 @@ Checklist FE/E2E cho completion plan
 
 **Task 15 close (2026-07-31):** E2E vertical + failure paths landed; widget IDs gắn vào test names; production fake boundary đã đóng ở Task 14.
 
-Required test IDs: plan § Required FE evidence IDs.
+**2026-09-21:** Kỳ vọng mới của S6/S9/S11/S15 (Invitation deferred, Platform User không gồm placeholder, Owner readiness chờ/hết hạn) đang chờ kiểm chứng ở các task code. Không dùng trạng thái `done` cũ để nhận hành vi mới đã đạt.
 
 ---
 

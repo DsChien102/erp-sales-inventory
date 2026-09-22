@@ -40,25 +40,10 @@ class MemberCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: VText(
-                        member.name,
-                        variant: VTextVariant.bodyDefault,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    if (member.isOwner) ...[
-                      const VGap.horizontalSm(),
-                      const VBadge(
-                        label: 'Chủ sở hữu',
-                        tone: VComponentTone.success,
-                        variant: VBadgeVariant.soft,
-                        isSmall: true,
-                      ),
-                    ],
-                  ],
+                VText(
+                  member.name,
+                  variant: VTextVariant.bodyDefault,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const VGap.xs(),
                 VText(

@@ -1,12 +1,27 @@
 import 'package:admin/features/organizations/presentation/pages/organizations_page.dart';
+import 'package:admin/features/organizations/presentation/pages/platform_tenant_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:admin/features/iam/presentation.dart';
 import 'package:admin/features/iam/testing.dart';
+import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
+  final getIt = GetIt.instance;
+
+  setUp(() async {
+    await getIt.reset();
+  });
+
+  tearDown(() async {
+    await getIt.reset();
+  });
+
   Widget buildTestableWidget(Widget child) {
     return MaterialApp(
       home: Scaffold(
@@ -16,15 +31,18 @@ void main() {
   }
 
   group('OrganizationDetailPage Widget Tests (4 Design Variants)', () {
-    testWidgets('PA-D-02: renders Detail Page for Setting Up status (ASC Commerce)',
-        (tester) async {
+    testWidgets('PA-D-02: renders Detail Page for Setting Up status (ASC Commerce)', (
+      tester,
+    ) async {
       final ascCommerceOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000138',
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        OrganizationDetailPage(organization: ascCommerceOrg),
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          OrganizationDetailPage(organization: ascCommerceOrg),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Top bar & Header
@@ -48,17 +66,25 @@ void main() {
 
       // Bottom Bar
       expect(find.text('Thao tác'), findsOneWidget);
+
+      await tester.tap(find.text('Thao tác'));
+      await tester.pumpAndSettle();
+      expect(find.text('Gửi lại email'), findsOneWidget);
+      expect(find.text('Thay đổi chủ sở hữu'), findsNothing);
     });
 
-    testWidgets('PA-D-03: renders Detail Page for Active status with Members (Mậu Hiền)',
-        (tester) async {
+    testWidgets('PA-D-03: renders Detail Page for Active status with Members (Mậu Hiền)', (
+      tester,
+    ) async {
       final mauHienOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000142',
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        OrganizationDetailPage(organization: mauHienOrg),
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          OrganizationDetailPage(organization: mauHienOrg),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Header & Badge
@@ -78,15 +104,18 @@ void main() {
       expect(find.text('v12'), findsOneWidget);
     });
 
-    testWidgets('PA-D-04: renders Detail Page for Suspended status (VietVet Trading)',
-        (tester) async {
+    testWidgets('PA-D-04: renders Detail Page for Suspended status (VietVet Trading)', (
+      tester,
+    ) async {
       final vietVetOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000095',
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        OrganizationDetailPage(organization: vietVetOrg),
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          OrganizationDetailPage(organization: vietVetOrg),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Header & Badge
@@ -102,15 +131,16 @@ void main() {
       expect(find.text('Rà soát rủi ro truy cập'), findsOneWidget);
     });
 
-    testWidgets('PA-D-05: renders Detail Page for Closed status (Hải Phòng Vet)',
-        (tester) async {
+    testWidgets('PA-D-05: renders Detail Page for Closed status (Hải Phòng Vet)', (tester) async {
       final haiPhongOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000041',
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        OrganizationDetailPage(organization: haiPhongOrg),
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          OrganizationDetailPage(organization: haiPhongOrg),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Header & Badge
@@ -129,29 +159,52 @@ void main() {
       expect(find.text('Thao tác'), findsNothing);
     });
 
-    testWidgets('Navigation: opens detail page when tapping on organization list item & pops back',
-        (tester) async {
-      final module = FakeIamModule(scenario: FakeIamScenario.tenantsSearchOk);
-      await tester.pumpWidget(buildTestableWidget(
-        OrganizationsPage(iamModule: module),
-      ));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Navigation: opens detail page when tapping on organization list item & pops back',
+      (tester) async {
+        final module = FakeIamModule(scenario: FakeIamScenario.tenantsSearchOk);
+        getIt
+          ..registerSingleton(FakeExecutionContext())
+          ..registerSingleton<IIamModule>(module);
 
-      // Tap on ASC Commerce card item
-      await tester.tap(find.text('ASC Commerce'));
-      await tester.pumpAndSettle();
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => Scaffold(
+                body: OrganizationsPage(iamModule: module),
+              ),
+            ),
+            GoRoute(
+              path: '/organizations/:tenantId',
+              name: 'organization_detail',
+              builder: (_, state) => PlatformTenantDetailPage(
+                tenantId: state.pathParameters['tenantId']!,
+                iamModule: module,
+              ),
+            ),
+          ],
+        );
 
-      // Verify Detail page is shown
-      expect(find.text('Chi tiết tổ chức'), findsOneWidget);
-      expect(find.text('TEN-000138'), findsOneWidget);
+        await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+        await tester.pumpAndSettle();
 
-      // Tap back button
-      await tester.tap(find.byType(IconButton).first);
-      await tester.pumpAndSettle();
+        // Tap on ASC Commerce card item
+        await tester.tap(find.text('ASC Commerce'));
+        await tester.pumpAndSettle();
 
-      // Verify returned to organization list page
-      expect(find.byType(VSearchBar), findsOneWidget);
-      expect(find.text('Mậu Hiên'), findsOneWidget);
-    });
+        // Verify Detail page is shown
+        expect(find.text('Chi tiết tổ chức'), findsOneWidget);
+        expect(find.text('TEN-000138'), findsOneWidget);
+
+        // Tap back button
+        await tester.tap(find.byType(IconButton).first);
+        await tester.pumpAndSettle();
+
+        // Verify returned to organization list page
+        expect(find.byType(VSearchBar), findsOneWidget);
+        expect(find.text('Mậu Hiên'), findsOneWidget);
+      },
+    );
   });
 }

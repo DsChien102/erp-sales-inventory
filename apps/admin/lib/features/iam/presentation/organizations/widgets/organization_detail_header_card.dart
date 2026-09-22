@@ -90,14 +90,6 @@ class OrganizationDetailHeaderCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const VGap.horizontalSm(),
-
-              // Chevron Right
-              VIcon(
-                icon: VIcons.chevronRight,
-                size: 20,
-                color: colors.textSecondary,
-              ),
             ],
           ),
         ],

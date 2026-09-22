@@ -17,17 +17,25 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Chi tiết tổ chức: badge «Chủ sở hữu» cạnh tên thành viên khi `isOwner`.
 - Hồ sơ pháp lý / onboarding: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`); onboarding chọn loại chủ thể, bỏ "Phòng khám thú y".
+- Danh sách/chi tiết người dùng nền tảng chỉ hiện tài khoản Auth thật; bỏ lọc và thao tác “Chờ kích hoạt”.
+- Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
+- Chi tiết tổ chức đang thiết lập: “Thao tác” chỉ còn “Gửi lại email” khi Owner Invitation `pending`/`expired` (có thể đổi email); không mở sheet rỗng.
+- Người dùng tổ chức (Admin): chỉ danh sách thành viên; bỏ tab/CTA lời mời thành viên (quản lý ở Tenant App).
 
 ### Fixed
 
+- Người dùng nền tảng: filter chip status căn trái (không còn nằm giữa màn hình).
 - Multi-tenant IAM session: guard không gọi `get_session_context` khi chưa bind tenant (shared với ERP).
 - Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
 - Map mã `TENANT_CLOSED` → thông báo «Tổ chức đã đóng.»
 
 ### Internal
 
-- IAM: chặn `suspended`/`closed` ở `has_permission` / `get_session_context` / `can_access_store`; vá quyền 2 RPC tồn kho — cần `supabase db reset`.
+- IAM: `reinvite_provisioning_owner` reuse cùng invitation row (xoay token; giữ tên/SĐT khi cùng email); Admin map `owner_invitation_*` — cần `supabase db reset`.
+- IAM: `search_platform_users` / `get_platform_user` lấy Auth làm gốc, không hiện profile placeholder từ invitation — cần `supabase db reset`.
+- IAM: `get_tenant_readiness` thêm `OWNER_ACCEPTANCE_PENDING` / `OWNER_INVITATION_EXPIRED` khi provisioning chưa có owner — cần `supabase db reset`.
 - IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.
 - IAM: `audit_logs` bỏ cột `created_at` (chỉ còn `occurred_at`) — cần `supabase db reset`.
 - IAM: gộp 8 bảng `*_operations` thành `iam.idempotency_records`; xoá get/retry onboarding operation — cần `supabase db reset`.

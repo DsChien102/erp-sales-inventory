@@ -19,4 +19,17 @@ void main() {
     ]);
     await sub.cancel();
   });
+
+  test('emits platform user suspended code', () async {
+    final events = <String>[];
+    final sub = TenantAccessRevokedSignal.stream.listen(events.add);
+
+    TenantAccessRevokedSignal.notifyFromError(
+      Exception('PostgrestException(message: PLATFORM_USER_SUSPENDED)'),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    expect(events, [TenantAccessRevokedSignal.platformUserSuspended]);
+    await sub.cancel();
+  });
 }

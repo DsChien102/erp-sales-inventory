@@ -19,30 +19,24 @@ abstract final class TenantReadinessCtaMapper {
 
   static String labelFor(String issueCode) {
     return switch (issueCode) {
-      TenantReadinessIssueCodes.displayNameMissing =>
-        'Thiếu tên hiển thị tổ chức',
+      TenantReadinessIssueCodes.displayNameMissing => 'Thiếu tên hiển thị tổ chức',
       TenantReadinessIssueCodes.contactEmailMissingOrInvalid =>
         'Email liên hệ thiếu hoặc không hợp lệ',
       TenantReadinessIssueCodes.contactPhoneMissingOrInvalid =>
         'Số điện thoại thiếu hoặc không hợp lệ',
-      TenantReadinessIssueCodes.contactAddressMissing =>
-        'Thiếu địa chỉ liên hệ',
-      TenantReadinessIssueCodes.legalProfileMissing =>
-        'Chưa có hồ sơ pháp lý',
-      TenantReadinessIssueCodes.duplicateTaxCode =>
-        'Mã số thuế trùng với hồ sơ khác',
-      TenantReadinessIssueCodes.ownerMembershipInvalid =>
-        'Membership chủ sở hữu không hợp lệ',
-      TenantReadinessIssueCodes.ownerRoleInvalid =>
-        'Vai trò chủ sở hữu không hợp lệ',
+      TenantReadinessIssueCodes.contactAddressMissing => 'Thiếu địa chỉ liên hệ',
+      TenantReadinessIssueCodes.legalProfileMissing => 'Chưa có hồ sơ pháp lý',
+      TenantReadinessIssueCodes.duplicateTaxCode => 'Mã số thuế trùng với hồ sơ khác',
+      TenantReadinessIssueCodes.ownerMembershipInvalid => 'Membership chủ sở hữu không hợp lệ',
+      TenantReadinessIssueCodes.ownerAcceptancePending => 'Đang chờ chủ sở hữu chấp nhận lời mời',
+      TenantReadinessIssueCodes.ownerInvitationExpired => 'Lời mời hết hạn',
+      TenantReadinessIssueCodes.ownerRoleInvalid => 'Vai trò chủ sở hữu không hợp lệ',
       TenantReadinessIssueCodes.ownerIdentityInactive =>
         'Danh tính chủ sở hữu đang không hoạt động',
       TenantReadinessIssueCodes.ownerIdentityUnavailable =>
         'Không xác định được danh tính chủ sở hữu',
-      TenantReadinessIssueCodes.ownerEmailUnverified =>
-        'Email chủ sở hữu chưa được xác minh',
-      TenantReadinessIssueCodes.platformBlockerPresent =>
-        'Có chặn từ nền tảng — liên hệ hỗ trợ',
+      TenantReadinessIssueCodes.ownerEmailUnverified => 'Email chủ sở hữu chưa được xác minh',
+      TenantReadinessIssueCodes.platformBlockerPresent => 'Có chặn từ nền tảng — liên hệ hỗ trợ',
       _ => issueCode,
     };
   }

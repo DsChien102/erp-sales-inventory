@@ -37,19 +37,37 @@ abstract final class PlatformTenantUiMapper {
 
   static OrganizationUiModel fromDetail(PlatformTenantDetailDto dto) {
     final isSettingUp = dto.status == TenantLifecycleStatus.provisioning;
+    final invitationState = dto.ownerInvitationState?.trim().toLowerCase();
+    final hasDisplayableOwnerInvitation =
+        isSettingUp &&
+        dto.ownerUserId == null &&
+        (invitationState == 'pending' || invitationState == 'expired');
+    final invitationOwnerName = [
+      dto.ownerInvitationFamilyName?.trim(),
+      dto.ownerInvitationGivenName?.trim(),
+    ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
+    final ownerName = dto.ownerName?.trim().isNotEmpty == true
+        ? dto.ownerName
+        : hasDisplayableOwnerInvitation && invitationOwnerName.isNotEmpty
+        ? invitationOwnerName
+        : null;
+    final ownerEmail = dto.ownerEmail?.trim().isNotEmpty == true
+        ? dto.ownerEmail
+        : hasDisplayableOwnerInvitation
+        ? dto.ownerInvitationEmail
+        : null;
     return OrganizationUiModel(
       id: dto.tenantId,
       name: dto.name,
       code: dto.code,
       status: toOrganizationStatus(dto.status),
       ownerUserId: dto.ownerUserId,
-      ownerName: dto.ownerName,
-      ownerEmail: dto.ownerEmail,
+      ownerName: ownerName,
+      ownerEmail: ownerEmail,
       ownerRole: _normalizeRoleLabel(dto.ownerRoleLabel),
       unverifiedEmail:
           dto.unverifiedEmail ||
-          (isSettingUp &&
-              (dto.ownerEmail == null || dto.ownerEmail!.isEmpty || dto.ownerUserId == null)),
+          (isSettingUp && (ownerEmail == null || ownerEmail.isEmpty || dto.ownerUserId == null)),
       incompleteProfile: dto.incompleteProfile || isSettingUp,
       createdAt: dto.createdAt,
       activatedAt: dto.activatedAt,
@@ -61,6 +79,12 @@ abstract final class PlatformTenantUiMapper {
       closedBy: dto.closedBy,
       closeReason: dto.closeReason,
       dataVersion: 'v${dto.version}',
+      ownerInvitationEmail: dto.ownerInvitationEmail,
+      ownerInvitationState: dto.ownerInvitationState,
+      ownerInvitationExpiresAt: dto.ownerInvitationExpiresAt,
+      ownerInvitationGivenName: dto.ownerInvitationGivenName,
+      ownerInvitationFamilyName: dto.ownerInvitationFamilyName,
+      ownerInvitationPhone: dto.ownerInvitationPhone,
       members: dto.members
           .map(
             (m) => OrganizationMemberUiModel(

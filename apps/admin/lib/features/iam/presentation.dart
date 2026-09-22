@@ -15,6 +15,8 @@ export 'presentation/widgets/platform_onboarding_step_review.dart';
 export 'presentation/widgets/platform_user_empty_view.dart';
 export 'presentation/organizations/models/organization_ui_model.dart';
 export 'presentation/organizations/views/organization_detail_page.dart';
+export 'presentation/organizations/widgets/organization_actions_bottom_sheet.dart';
+export 'presentation/organizations/widgets/owner_invitation_resend_sheet.dart';
 export 'presentation/organizations/widgets/organization_card_item.dart';
 export 'presentation/organizations/widgets/organization_detail_alerts.dart';
 export 'presentation/organizations/widgets/organization_detail_bottom_bar.dart';

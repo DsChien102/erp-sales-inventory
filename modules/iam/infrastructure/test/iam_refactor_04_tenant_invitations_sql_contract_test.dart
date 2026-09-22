@@ -48,15 +48,12 @@ void main() {
       expect(body, contains("'revoke_reason', v_reason"));
     });
 
-    test('create invitation reuses a removed membership before inserting', () {
+    test('create invitation does not pre-create membership', () {
       final body = _lastFunctionBlock(sql, 'iam.create_tenant_invitation');
-      final lookup = body.indexOf('and m.removed_at is not null');
-      final reuse = body.indexOf('set is_active = true,');
-      final insert = body.indexOf('insert into iam.memberships');
-      expect(lookup, isNonNegative);
-      expect(reuse, greaterThan(lookup));
-      expect(insert, greaterThan(reuse));
-      expect(body, contains('removed_at = null,'));
+      expect(body, contains('and m.removed_at is null'));
+      expect(body, contains('if v_existing_membership.is_active then'));
+      expect(body, isNot(contains('insert into iam.memberships')));
+      expect(body, isNot(contains('target_membership_id,')));
     });
   });
 }

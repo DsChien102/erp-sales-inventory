@@ -4,8 +4,8 @@ import '../../shared/tenant_onboarding_result_dto.dart';
 import '../../../ports/i_platform_admin_gateway.dart';
 import 'create_tenant_onboarding_command.dart';
 
-/// Hybrid: creates Owner Membership immediately for new and existing owners,
-/// and queues an activation invitation for the designated owner.
+/// Tạo Tenant provisioning và đưa Owner Invitation vào hàng đợi gửi.
+/// Chỉ tạo profile và Membership của Owner khi chấp nhận lời mời.
 @CommandHandlerFor(CreateTenantOnboardingCommand)
 final class CreateTenantOnboardingCommandHandler
     implements ICommandHandler<CreateTenantOnboardingCommand, TenantOnboardingResultDto> {
