@@ -2,15 +2,15 @@
 id: EVD-001
 type: evidence
 theme: theme-06
-title: Kiểm tra tính nhất quán bộ tài liệu Công nợ v2.1.1
+title: Kiểm tra tính nhất quán bộ tài liệu Công nợ v2.1.2
 owner: QA
 status: IN_REVIEW
 ---
-# EVD-001 — Kiểm tra tính nhất quán bộ tài liệu Công nợ v2.1.1
+# EVD-001 — Kiểm tra tính nhất quán bộ tài liệu Công nợ v2.1.2
 
 ## 1. Phạm vi
 
-Kiểm tra tĩnh snapshot v2.1.1 gồm README, Knowledge, Overview, sáu Business Journey, Domain Foundation, Entity Catalog/Entity documents và Aggregate Candidate Catalog/Aggregate documents.
+Kiểm tra tĩnh snapshot v2.1.2 gồm README, Knowledge, Overview, sáu Business Journey, Domain Foundation, Entity Catalog/Entity documents và Aggregate Candidate Catalog/Aggregate documents.
 
 ## 2. Kết quả validator
 
@@ -18,7 +18,7 @@ Kiểm tra tĩnh snapshot v2.1.1 gồm README, Knowledge, Overview, sáu Busines
 |---|---:|
 | Markdown documents | 43 |
 | Frontmatter IDs | 43 unique |
-| Internal Markdown links | 297 checked / 0 lỗi |
+| Internal Markdown links | 299 checked / 0 lỗi |
 | Decisions | 40 / mọi reference resolve |
 | Domain documents | 1 |
 | Entity documents | 10 |

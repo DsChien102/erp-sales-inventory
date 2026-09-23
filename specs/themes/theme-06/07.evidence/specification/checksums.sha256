@@ -1,4 +1,4 @@
-3958066b949e3cafe27cb1f13bda3973ab706699395a8f11432b20dc84b8a08d  ./01.knowledge/decisions/decision-register.md
+30c3bc074b7f27dc023a8f0a86d2a9b6eaba156202ad66b3135119ed9d3ef844  ./01.knowledge/decisions/decision-register.md
 fec7d72050baffe6e95cd96d2519b8108bb5e564df060450b36aba9fc9df94b3  ./01.knowledge/glossary/glossary.md
 5d371225af841e2c2639e35a190b1eed34fd0e01c722e74efdb3810144914e8c  ./01.knowledge/know-how/KB-001-cong-no-can-ban.md
 ecf2d800b8c0e7a2ba04f2ea432691aa880e7847821af967aef80df042a5f6be  ./01.knowledge/know-how/KB-002-doi-tac-va-vai-tro-giao-dich.md
@@ -27,7 +27,7 @@ e6271e5ee58a397a4d92e9269cc5233b57ecf30aacd397b034504ead63ba5db1  ./02.specifica
 39344540ac067073de96e061938f5bb3937ce38f48846dc88325d65c5c0cd12f  ./02.specification/domain/entities/ENT-ARAP-09-dong-can-tru.md
 cf545ce91702ea352c4147409cab46573ffa56269990a2879dcb9c492f37b48c  ./02.specification/domain/entities/ENT-ARAP-10-doi-chieu-cong-no.md
 e1bc13ae33657b568ab65f37462179ada4e64ae1e69616635c91e991590bae14  ./02.specification/domain/entities/ENTITY-CATALOG.md
-f931454b1385b663a983690f270dc9873425be21ff25b8d8f702aafc62ae86b7  ./02.specification/overview/overview.md
+b406d877d48492bcbb3c6cac95aa5e3f3967448fc9ee9c96553c3deeded5a9cc  ./02.specification/overview/overview.md
 aa12a17c3a4dca72455f478a468eb020fee7a940a72b644bf6b8056ac011f2db  ./04.architecture/aggregates/AGG-ARAP-01-ApprovalPolicy.md
 0913c69085b29ee6ded3f2fff8a2af8f7b27e5cc13a88c3e0b66d9082f2e8151  ./04.architecture/aggregates/AGG-ARAP-02-ApprovalRequest.md
 27b2746102b72b43d4f7ccc1c261a7300e76c22b780b69b3b3cc2549c522abb7  ./04.architecture/aggregates/AGG-ARAP-03-OpeningBalanceBatch.md
@@ -36,10 +36,10 @@ bf8265f9f1cf2270423d42ea332f0f9b4d5099986dab2d3f15b675972b1275c7  ./04.architect
 75b8b75196fba9603e4bd17dc0cb57b7ab55d504532813fd0d7d434581fac2be  ./04.architecture/aggregates/AGG-ARAP-06-DebtOffset.md
 0b3c66ac8dcc6976c786fd36624261841027cf1040a819114dfa299336147656  ./04.architecture/aggregates/AGG-ARAP-07-DebtReconciliation.md
 d4c92b36a0edcbc58bef2623c1c366c2d48d6fb09b592efb810fd26c5c58c738  ./04.architecture/aggregates/AGGREGATE-CATALOG.md
-80f09a6e08fa1bff48e27a1be5643d245247bacf99d8f92c6601cd17b9a10803  ./07.evidence/specification/EVD-001-kiem-tra-tai-lieu.md
-9dabc987e2ec7fdcd671c8d6310bbe520ea922805ca12e67942848086b7b5198  ./07.evidence/specification/EVD-002-domain-review.md
-d561bc89bf954828b2f73e078a25f668cc14eb992e94bc429331ce96298e2c08  ./07.evidence/specification/EVD-003-delivery-simulation.md
-6183d3c67426c2944962754f8fc205099ac8b48c3691989f481e2c51d04bff72  ./07.evidence/specification/EVD-004-red-team.md
-901505d21fd07f7e67d12b0d8770033af3dcdedbb586fa0cc1a107a52db627de  ./07.evidence/specification/ket-qua-kiem-tra.json
-05f023b174818284e0e1159cea7312210cc45e435337e66058fea49d7a63e24b  ./07.evidence/specification/package-manifest.json
-42ba3da959debf88efa0586713a88fbbb21364b3fb0cd687cac9e41e37f88ed2  ./README.md
+6dbc32fc29e0309daab81b889d392f2adda4c458a3641d37931bd07005ed7f4e  ./07.evidence/specification/EVD-001-kiem-tra-tai-lieu.md
+267dfc9fd9c71a099695a0ebbfff3379e3a1e608a44aa92ac38f4d6e0c6c358a  ./07.evidence/specification/EVD-002-domain-review.md
+290e6f63bcc604bf0c9016005fe392aaca351ad89418f3f8226a3b7fd13aafad  ./07.evidence/specification/EVD-003-delivery-simulation.md
+55872511c723f973872e15b07ed62939f78b188864f2b7f7d32701fdec9e0bb7  ./07.evidence/specification/EVD-004-red-team.md
+ed35bc21d92258c1e4c7bef9b72fa7118d0db8845757c3b2cb9abb035b09f5ce  ./07.evidence/specification/ket-qua-kiem-tra.json
+7e6adfea4b9f0e1e5347583f6a71975f35c1f19eaaf9688a214f194695d05da9  ./07.evidence/specification/package-manifest.json
+94631bc50001cd44dd09b863ca663dfaa9360509d2e6701202b2bf30f28020c4  ./README.md

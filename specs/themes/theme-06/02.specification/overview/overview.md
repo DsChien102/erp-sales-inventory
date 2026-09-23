@@ -9,7 +9,7 @@ status: IN_REVIEW
 
 # Tổng quan — Nghiệp vụ công nợ
 
-> **Phiên bản hiện hành:** 2.1.1  
+> **Phiên bản hiện hành:** 2.1.2  
 > **Danh mục, mục tiêu và ranh giới của sáu hành trình đã được duyệt.** Bản đồ Trường hợp sử dụng trong từng hành trình là đầu vào cho bước đặc tả tiếp theo và chưa thay thế tài liệu Trường hợp sử dụng hoàn chỉnh.
 
 ## 1. Mục tiêu
@@ -156,6 +156,6 @@ Chi tiết ownership, entity và aggregate candidate xem [DOM-ARAP — Công n�
 
 - [KB-009 — Đối chiếu công nợ — khi hai bên không nhìn thấy cùng một con số](../../01.knowledge/know-how/KB-009-doi-chieu-cong-no.md).
 
-- Harness Doctrine, Draft v0.10, ngày 18/09/2026 — nguồn nguyên tắc phân lớp và ownership; không gắn cứng nhánh GitLab trong liên kết nội bộ.
+- [Harness Doctrine](../../../) — nguồn nguyên tắc phân lớp và ownership.
 
-- Bộ `theme-template.zip` — nguồn physical template của Theme.
+- [Theme Template](../../../theme-template/) — nguồn physical template của Theme.

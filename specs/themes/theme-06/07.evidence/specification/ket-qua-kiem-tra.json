@@ -1,9 +1,9 @@
 {
-  "version": "2.1.1",
-  "root": "/mnt/data/theme06_v211_work",
+  "version": "2.1.2",
+  "root": "/mnt/data/theme06_v212_work",
   "markdown_files": 43,
   "all_files": 46,
-  "internal_markdown_links_checked": 297,
+  "internal_markdown_links_checked": 299,
   "frontmatter_ids": 43,
   "decision_count": 40,
   "decision_refs_seen": 40,
@@ -43,7 +43,7 @@
     {
       "gate_id": "UC_BC_RUNTIME",
       "status": "NOT_RUN",
-      "reason": "UC/BC/implementation are not part of v2.1.1 scope"
+      "reason": "UC/BC/implementation are not part of v2.1.2 scope"
     },
     {
       "gate_id": "UI_PROTOTYPE",

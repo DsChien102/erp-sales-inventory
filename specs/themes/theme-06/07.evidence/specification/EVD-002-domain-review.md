@@ -2,7 +2,7 @@
 id: EVD-002
 type: evidence
 theme: theme-06
-title: Senior BA / Domain Review — Công nợ v2.1.1
+title: Senior BA / Domain Review — Công nợ v2.1.2
 owner: QA
 status: IN_REVIEW
 ---
