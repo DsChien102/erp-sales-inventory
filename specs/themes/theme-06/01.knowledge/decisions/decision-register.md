@@ -11,7 +11,7 @@ status: FROZEN
 
 ## 1. Mục đích và nguyên tắc
 
-Tài liệu này là nguồn quyết định nghiệp vụ chuẩn của phân hệ công nợ. Nội dung chỉ phản ánh trạng thái hiện hành của sản phẩm tại phiên bản 2.1.2.
+Tài liệu này là nguồn quyết định nghiệp vụ chuẩn của phân hệ công nợ. Nội dung chỉ phản ánh trạng thái hiện hành của sản phẩm tại phiên bản 2.1.3.
 
 Quy ước:
 

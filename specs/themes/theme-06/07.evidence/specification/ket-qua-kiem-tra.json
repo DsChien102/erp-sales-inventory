@@ -1,6 +1,6 @@
 {
-  "version": "2.1.2",
-  "root": "/mnt/data/theme06_v212_work",
+  "version": "2.1.3",
+  "root": "/mnt/data/theme06_v213_work",
   "markdown_files": 43,
   "all_files": 46,
   "internal_markdown_links_checked": 299,
@@ -43,7 +43,7 @@
     {
       "gate_id": "UC_BC_RUNTIME",
       "status": "NOT_RUN",
-      "reason": "UC/BC/implementation are not part of v2.1.2 scope"
+      "reason": "UC/BC/implementation are not part of v2.1.3 scope"
     },
     {
       "gate_id": "UI_PROTOTYPE",
@@ -55,5 +55,10 @@
     "Aggregate documents are IN_REVIEW candidate boundaries, not Architecture Freeze.",
     "Cross-aggregate transaction/concurrency/recovery for Payment/Allocation/DebtObligation and DebtOffset is not yet frozen.",
     "No runtime, integration, UI/prototype or E2E evidence is claimed."
-  ]
+  ],
+  "repo_relative_source_links_checked": 2,
+  "repo_relative_source_targets": {
+    "Harness Doctrine": "specs/themes/README.md",
+    "Theme Template": "specs/themes/theme-template/"
+  }
 }

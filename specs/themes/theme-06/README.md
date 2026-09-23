@@ -9,7 +9,7 @@ status: IN_REVIEW
 
 # Công nợ — Bộ tài liệu nghiệp vụ
 
-> **Phiên bản hiện hành:** 2.1.2
+> **Phiên bản hiện hành:** 2.1.3
 
 ## 1. Mục đích
 
@@ -71,7 +71,7 @@ Mọi liên kết nội bộ là đường dẫn tương đối từ tệp đang
 - [Bảng thuật ngữ công nợ](01.knowledge/glossary/glossary.md).
 - [Bài nhập môn và tuyến đọc know-how](01.knowledge/know-how/KB-001-cong-no-can-ban.md).
 - [Know-how đối chiếu công nợ](01.knowledge/know-how/KB-009-doi-chieu-cong-no.md).
-- [Báo cáo kiểm tra v2.1.2](07.evidence/specification/EVD-001-kiem-tra-tai-lieu.md).
+- [Báo cáo kiểm tra v2.1.3](07.evidence/specification/EVD-001-kiem-tra-tai-lieu.md).
 
 ## 6. Trạng thái hiện tại
 
@@ -81,4 +81,4 @@ Chín bài know-how và sáu BJ vẫn `IN_REVIEW` theo chất lượng diễn gi
 
 Bảy Aggregate là **candidate** ở `IN_REVIEW`. Hai vùng cần review kiến trúc sâu nhất là `DebtObligation` và `Payment + Allocation`, vì phân bổ/cấn trừ tạo invariant và concurrency xuyên aggregate.
 
-Phiên bản **2.1.2** là snapshot hiện hành dùng để tiếp tục.
+Phiên bản **2.1.3** là snapshot hiện hành dùng để tiếp tục.
