@@ -42,27 +42,15 @@ Future<PlatformUsersFilterResult?> showPlatformUsersFilterSheet({
                 children: [
                   VChip(
                     label: 'Tất cả',
-                    tone: temp == null
-                        ? VComponentTone.primary
-                        : VComponentTone.neutral,
+                    tone: temp == null ? VComponentTone.primary : VComponentTone.neutral,
                     onTap: () => setSheetState(() => temp = null),
-                  ),
-                  VChip(
-                    label: 'Chờ kích hoạt',
-                    tone: temp == PlatformUserStatus.pendingActivation
-                        ? VComponentTone.primary
-                        : VComponentTone.neutral,
-                    onTap: () => setSheetState(
-                      () => temp = PlatformUserStatus.pendingActivation,
-                    ),
                   ),
                   VChip(
                     label: 'Hoạt động',
                     tone: temp == PlatformUserStatus.active
                         ? VComponentTone.primary
                         : VComponentTone.neutral,
-                    onTap: () =>
-                        setSheetState(() => temp = PlatformUserStatus.active),
+                    onTap: () => setSheetState(() => temp = PlatformUserStatus.active),
                   ),
                   VChip(
                     label: 'Tạm ngừng',

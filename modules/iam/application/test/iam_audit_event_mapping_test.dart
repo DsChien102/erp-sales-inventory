@@ -4,8 +4,8 @@ import 'package:vet45_iam_application/application.dart';
 void main() {
   group('IamAuditEvents minimum set', () {
     test('contains all required event codes', () {
-      expect(IamAuditEvents.all, hasLength(19));
-      expect(IamAuditEvents.all.toSet(), hasLength(19));
+      expect(IamAuditEvents.all, hasLength(20));
+      expect(IamAuditEvents.all.toSet(), hasLength(20));
     });
 
     test('every code is namespaced under iam.', () {
@@ -24,6 +24,7 @@ void main() {
       expect(IamAuditEvents.all, contains('iam.tenant.activated'));
       expect(IamAuditEvents.all, contains('iam.tenant.suspended'));
       expect(IamAuditEvents.all, contains('iam.tenant.restored'));
+      expect(IamAuditEvents.all, contains('iam.tenant.closed'));
       expect(IamAuditEvents.all, contains('iam.tenant.ownership_transferred'));
       expect(IamAuditEvents.all, contains('iam.tenant.owner_activated'));
       expect(IamAuditEvents.all, contains('iam.tenant.invitation_created'));

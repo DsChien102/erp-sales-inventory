@@ -56,10 +56,11 @@ void main() {
     test('locks tenant and active owner membership for update', () {
       expect(sql, contains('from iam.tenants t where t.id = p_tenant_id for update'));
       expect(sql, contains('for update'));
-      expect(sql, contains("(m.is_owner is true or m.role = 'owner')"));
+      expect(sql, contains('m.is_owner is true'));
+      expect(sql, contains('m.is_active'));
       expect(
         sql,
-        isNot(contains("coalesce(m.is_owner, m.role = 'owner')")),
+        isNot(contains("m.is_owner is true or m.role = 'owner'")),
       );
     });
 

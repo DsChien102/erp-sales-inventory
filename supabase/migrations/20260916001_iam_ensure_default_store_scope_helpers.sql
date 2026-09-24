@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: iam_ensure_default_store_scope_helpers
 -- Context: TH-01/TH-05 — shared idempotent ensure for store context wiring
--- Touches: iam._ensure_tenant_default_store, iam._ensure_membership_default_store_scope
+-- Touches: iam._ensure_tenant_default_store
 -- Safety: idempotent ; low
 -- Depends on: 20260830001_iam_active_store_context_group_a.sql, 20260914001_iam_get_session_context_multi_tenant.sql
 -- Promoted from _drafts/001_iam_ensure_default_store_scope_helpers.sql
@@ -42,7 +42,7 @@ begin
   end if;
 
   if v_store_id is null then
-    select coalesce(nullif(trim(t.display_name), ''), nullif(trim(t.name), ''), 'Default Store')
+    select coalesce(nullif(trim(t.display_name), ''), 'Default Store')
     into v_tenant_name
     from iam.tenants t
     where t.id = p_tenant_id;
@@ -64,63 +64,5 @@ begin
 end;
 $$;
 
-create or replace function iam._ensure_membership_default_store_scope(
-  p_tenant_id uuid,
-  p_user_id uuid
-)
-returns void
-language plpgsql
-security definer
-set search_path = iam, pg_temp
-as $$
-declare
-  v_store_id uuid;
-  v_membership_status text;
-begin
-  if p_tenant_id is null or p_user_id is null then
-    return;
-  end if;
-
-  select m.status
-  into v_membership_status
-  from iam.memberships m
-  where m.tenant_id = p_tenant_id
-    and m.user_id = p_user_id;
-
-  if v_membership_status is null or v_membership_status <> 'active' then
-    return;
-  end if;
-
-  if exists (
-    select 1
-    from iam.membership_store_scopes scope
-    join iam.stores store on store.id = scope.store_id
-      and store.tenant_id = scope.tenant_id
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_user_id
-      and scope.is_default
-      and store.status = 'active'
-  ) then
-    return;
-  end if;
-
-  v_store_id := iam._ensure_tenant_default_store(p_tenant_id);
-
-  insert into iam.membership_store_scopes (
-    tenant_id,
-    user_id,
-    store_id,
-    is_default
-  ) values (
-    p_tenant_id,
-    p_user_id,
-    v_store_id,
-    true
-  )
-  on conflict (tenant_id, user_id, store_id) do update
-    set is_default = true;
-end;
-$$;
 
 revoke all on function iam._ensure_tenant_default_store(uuid) from public, anon;
-revoke all on function iam._ensure_membership_default_store_scope(uuid, uuid) from public, anon;

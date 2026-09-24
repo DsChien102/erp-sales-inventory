@@ -93,6 +93,118 @@ void main() {
     expect(find.text('Tài khoản của tôi'), findsOneWidget);
   });
 
+  testWidgets('MorePage keeps personal actions when tenant is blocked', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = IamFeatureAccessCubit(
+      iamModule: _StaticSessionModule(
+        const SessionDto(
+          isAuthenticated: true,
+          userId: 'owner-1',
+          role: 'store_owner',
+          isOwner: true,
+          permissions: [],
+        ),
+      ),
+    );
+    await cubit.load();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: MorePage(
+            accessCubit: cubit,
+            tenantBlocked: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đăng xuất'), findsOneWidget);
+    expect(find.text('Tài khoản của tôi'), findsOneWidget);
+
+    final logoutCard = tester.widget<VCard>(
+      find.ancestor(
+        of: find.text('Đăng xuất'),
+        matching: find.byType(VCard),
+      ).first,
+    );
+    expect(logoutCard.onTap, isNotNull);
+
+    final settingsCard = tester.widget<VCard>(
+      find.ancestor(
+        of: find.text('Thiết lập'),
+        matching: find.byType(VCard),
+      ).first,
+    );
+    expect(settingsCard.onTap, isNull);
+
+    final pricingCard = tester.widget<VCard>(
+      find.ancestor(
+        of: find.text('Giá riêng / Nhớ giá'),
+        matching: find.byType(VCard),
+      ).first,
+    );
+    expect(pricingCard.onTap, isNull);
+
+    final usersCard = tester.widget<VCard>(
+      find.ancestor(
+        of: find.text('Người dùng & vai trò'),
+        matching: find.byType(VCard),
+      ).first,
+    );
+    expect(usersCard.onTap, isNull);
+  });
+
+  testWidgets('MorePage skips tenant queries when blocked', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = _CountingSessionModule(
+      const SessionDto(
+        isAuthenticated: true,
+        userId: 'owner-1',
+        role: 'store_owner',
+        isOwner: true,
+        tenantId: 'org-001',
+        permissions: [],
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: Scaffold(
+          body: MorePage(
+            iamModule: module,
+            tenantBlocked: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(module.sessionQueries, 0);
+    expect(module.readinessQueries, 0);
+    expect(find.text('Người dùng & vai trò'), findsOneWidget);
+
+    final usersCard = tester.widget<VCard>(
+      find.ancestor(
+        of: find.text('Người dùng & vai trò'),
+        matching: find.byType(VCard),
+      ).first,
+    );
+    expect(usersCard.onTap, isNull);
+  });
+
   testWidgets(
     'UsersAndRolesPage shows owner entries without an unverified readiness banner',
     (tester) async {
@@ -471,6 +583,41 @@ final class _StaticSessionModule implements IIamModule {
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     if (query is GetCurrentSessionQuery) {
       return session as TResult;
+    }
+    throw UnsupportedError(query.runtimeType.toString());
+  }
+}
+
+final class _CountingSessionModule implements IIamModule {
+  _CountingSessionModule(this.session);
+
+  final SessionDto session;
+  int sessionQueries = 0;
+  int readinessQueries = 0;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is GetCurrentSessionQuery) {
+      sessionQueries++;
+      return session as TResult;
+    }
+    if (query is GetTenantReadinessQuery) {
+      readinessQueries++;
+      return TenantReadinessDto(
+            tenantId: 'org-001',
+            status: TenantLifecycleStatus.active,
+            blockers: const [],
+            warnings: const [],
+            evaluatedAt: DateTime.utc(2026, 9, 18),
+            tenantVersion: 1,
+            canActivate: false,
+          )
+          as TResult;
     }
     throw UnsupportedError(query.runtimeType.toString());
   }

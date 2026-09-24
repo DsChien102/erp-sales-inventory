@@ -166,50 +166,47 @@ void main() {
     await cubit.close();
   });
 
-  test('upsertLegal accepts 10 to 13 digits and branch dash format', () async {
+  test('upsertLegal strips dashes and sends digits-only 13-digit tax code', () async {
     final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.legalDuplicateWarning),
+      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
     );
     final cubit = buildCubit(module);
     await cubit.load();
 
-    // 10 digits
-    var ok = await cubit.upsertLegal(
-      legalInput.copyWith(taxCode: '0123456789'),
+    await cubit.upsertLegal(
+      const LegalProfileFormInput(
+        legalEntityType: 'ENTERPRISE',
+        legalName: 'Chi nhanh',
+        taxCode: '0101234567-001',
+      ),
       allowDuplicateTaxCode: false,
     );
-    expect(cubit.state.failure, isNull);
 
-    // 12 digits
-    ok = await cubit.upsertLegal(
-      legalInput.copyWith(taxCode: '012345678901'),
-      allowDuplicateTaxCode: false,
-    );
-    expect(cubit.state.failure, isNull);
+    final command = module.commandsOf<UpsertLegalProfileCommand>().single;
+    expect(command.taxCode, '0101234567001');
+    await cubit.close();
+  });
 
-    // 13 digits
-    ok = await cubit.upsertLegal(
-      legalInput.copyWith(taxCode: '0123456789012'),
-      allowDuplicateTaxCode: false,
+  test('upsertLegal rejects tax code outside 10-13 digits', () async {
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
     );
-    expect(cubit.state.failure, isNull);
+    final cubit = buildCubit(module);
+    await cubit.load();
 
-    // 10 digits with 3-digit branch
-    ok = await cubit.upsertLegal(
-      legalInput.copyWith(taxCode: '0123456789-001'),
+    final ok = await cubit.upsertLegal(
+      const LegalProfileFormInput(
+        legalEntityType: 'HOUSEHOLD_BUSINESS',
+        legalName: 'Ho kinh doanh',
+        taxCode: '12345-6789',
+      ),
       allowDuplicateTaxCode: false,
     );
-    expect(cubit.state.failure, isNull);
 
-    // Invalid format (< 10 digits)
-    ok = await cubit.upsertLegal(
-      legalInput.copyWith(taxCode: '123456789'),
-      allowDuplicateTaxCode: false,
-    );
     expect(ok, isFalse);
+    expect(module.commandsOf<UpsertLegalProfileCommand>(), isEmpty);
     expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
-    expect(cubit.state.failure?.message, contains('10 đến 13 chữ số'));
-
+    expect(cubit.state.failure?.message, 'Mã số thuế phải gồm 10–13 chữ số.');
     await cubit.close();
   });
 }

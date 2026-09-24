@@ -293,6 +293,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           ? null
           : _orgLegalNameController.text.trim(),
       taxCode: _orgTaxCodeController.text.trim().isEmpty ? null : _orgTaxCodeController.text.trim(),
+      legalEntityType: _selectedEntityType,
       registeredAddressText: _orgRegisteredAddressController.text.trim().isEmpty
           ? null
           : _orgRegisteredAddressController.text.trim(),
@@ -539,6 +540,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           orgName: _orgNameController.text.trim(),
           orgLegalName: _orgLegalNameController.text.trim(),
           orgTaxCode: _orgTaxCodeController.text.trim(),
+          selectedEntityType: _selectedEntityType,
           orgPhone: _orgPhoneController.text.trim(),
           orgEmail: _orgEmailController.text.trim(),
           orgAddress: _orgAddressController.text.trim(),

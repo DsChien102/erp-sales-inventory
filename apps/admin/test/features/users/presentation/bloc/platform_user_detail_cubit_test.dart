@@ -148,6 +148,20 @@ void main() {
     expect(cubit.state.showRestore, isFalse);
     await cubit.close();
   });
+
+  test('pendingActivation hides PA-O-02 and pending-only suspend', () async {
+    final cubit = build(
+      module: FakeIamModule(scenario: FakeIamScenario.activationResendOk),
+      userId: 'hoa-tran',
+    );
+    await cubit.load();
+    expect(cubit.state.user?.status, PlatformUserStatus.pendingActivation);
+    expect(cubit.state.showActivationInvite, isFalse);
+    expect(cubit.state.showSuspend, isFalse);
+    expect(cubit.state.showPasswordReset, isFalse);
+    expect(cubit.state.showRestore, isFalse);
+    await cubit.close();
+  });
 }
 
 final class _FailThenSucceedSuspendModule implements IIamModule {

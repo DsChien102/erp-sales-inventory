@@ -47,9 +47,13 @@ thủ công trên test DB và re-baseline vào các migration timestamp `2026082
 `017_sales_patch_payment_summary_original_order.sql` đã được consume trong working tree.
 Thay đổi cancellation optional reason đã sửa trực tiếp trong các migration gốc
 `20260830005`, `20260830011`, `20260904001` theo yêu cầu maintainer.
-Draft `018` đã gỡ; không giữ migration mới cho intent này. Số kế tiếp: `019`.
+Draft `018` đã gỡ; không giữ migration mới cho intent này. Số Sales kế tiếp: `019`.
 
 **Sales outbox (đã promote):** `20260904001_sales_normalize_outbox_and_commands.sql` — outbox chỉ chứa lifecycle facts. Handoff Model B (`integration_commands` + `*_impact_requests`) đã được gỡ, sẽ dựng lại cùng module Inventory/Receivable/e-Invoice.
+
+Guard pending-user cho `_ensure_membership_default_store_scope` đã merge in-place vào
+`20260916001_iam_ensure_default_store_scope_helpers.sql` (không giữ draft riêng).
+Chuỗi IAM active hiện trống; số IAM kế tiếp khi có draft mới: `001`.
 
 ### Draft patch cohesive (US/FR lớn, nhiều phần cùng intent)
 
@@ -110,15 +114,4 @@ Chỉ các file `.sql` nằm trực tiếp trong `_drafts/` thuộc chuỗi acti
 đọc theo numeric prefix. Thư mục `_archive/` giữ các thiết kế đã bị supersede;
 không apply, bundle hoặc promote các file trong đó.
 
-Chuỗi IAM active hiện tại:
-
-```text
-002_iam_fix_utc_now_offset.sql
-004_iam_tenant_audit_history_v2_payloads.sql
-006_iam_audit_owner_activation_cleanup.sql
-007_iam_audit_logs_v2_rebuild.sql
-```
-
-Các khoảng số là có chủ ý vì `001`, `003`, `005` đã được archive. Khi nhiều
-draft định nghĩa cùng một RPC, implementation ở file có số lớn hơn là trạng
-thái cuối cùng.
+Chuỗi IAM active hiện tại: *(trống)*.

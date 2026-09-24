@@ -42,6 +42,14 @@ final class GetTenantContextQueryHandler
         sessionTenantId: bootstrapTenantId,
       );
 
+      // Suspended/closed tenant: surface it so the shell can explain the block.
+      // Still no auto-pick (OQ-07) — the shell opens the selector.
+      if (context.status == TenantContextStatus.invalidated &&
+          (context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
+              context.invalidationReason == TenantContextInvalidationReason.tenantClosed)) {
+        return context;
+      }
+
       // OQ-07: invalid preference → none (do not auto-pick another tenant).
       if (context.status != TenantContextStatus.valid ||
           context.tenantId == null) {

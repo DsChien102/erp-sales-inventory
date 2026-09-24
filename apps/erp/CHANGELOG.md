@@ -24,7 +24,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - HĐĐT: khi phát hành thất bại xác định, `OrderEInvoiceCubit` đọc metadata lỗi an toàn qua `GetIssuanceAttemptStatusQuery`; `failed` cũng là terminal và dừng poll (trừ khi delivery còn pending/sending).
 - HĐĐT hàng trạng thái đơn: icon leading dùng `VIcon` thay `VIconBox`; badge dùng `VComponentTone` thay `VBadgeStatus` deprecated; action item sheet dùng `VCard` + `VIcon`; post-issue delivery badge bỏ `isSmall`; xem hóa đơn chính thức, xem trước, và tải PDF/XML giữ sheet, hiện loading, disable nút còn lại; dismiss sheet khi đang xem trước thì hủy preview.
 - Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `vet45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
-- Hồ sơ pháp lý tổ chức: Mã số thuế hỗ trợ linh hoạt 10–13 chữ số và định dạng chi nhánh có gạch nối (`0123456789-001`) cho cả doanh nghiệp và hộ kinh doanh.
+- Readiness: card điều kiện bắt buộc / hồ sơ pháp lý không còn bấm để điều hướng (chỉ còn CTA dưới cùng).
+- Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
+- Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
 
 ### Fixed
 - HĐĐT lưu PDF/XML: bỏ fallback mở browser; share native qua `XFile.fromData` + MIME/`fileNameOverrides` + `sharePositionOrigin` (iOS Share Sheet); fail-closed khi thiếu checksum hoặc tải lỗi; SG-06 đóng sau handoff thành công/dismiss, giữ mở khi lỗi; copy lỗi exporter đúng ngữ nghĩa lưu trên thiết bị.
@@ -37,7 +39,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - HĐĐT xem trước: kéo dài cửa sổ poll worker/MISA (~45s), bỏ clear URL khi bấm lại, và chặn double-tap khi đang previewing — giảm báo lỗi giả "chưa sẵn sàng" dù preview đã mở.
 - HĐĐT sheet xác nhận phát hành: lấy mẫu/ký hiệu/hình thức ký từ issuance profile + template MISA đã sync, không hardcode `1C26TAA`.
 
+- ERP: khi tài khoản bị tạm ngừng (đang dùng hoặc mở lại với phiên cũ) → toast đúng lý do + đăng xuất về `/login`; màn chặn dự phòng «Tài khoản bị tạm ngừng».
+- Tạo đơn hàng: empty state «Chưa có sản phẩm» không còn overflow khi mở ghi chú đơn (bàn phím).
 - Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
+- Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
+- ERP tự về màn chặn khi tổ chức tạm ngừng/đã đóng (kèm thông báo đúng lý do).
+- ERP: mọi tab hiện màn chặn khi tổ chức tạm ngừng/đã đóng; header xoá tên org; giữ mã `TENANT_CLOSED` cho copy «đã đóng».
+- ERP: tab Khác vẫn mở khi org bị chặn (đăng xuất / tài khoản cá nhân); badge «Chủ sở hữu» trên Tài khoản của tôi.
+- ERP: từ trang con khi org bị tạm ngừng/đóng → toast + về dashboard (sửa `listenWhen` sau bước `loading`).
+- ERP: tab Khác khi org bị chặn không còn gọi RPC readiness/session (hết log `SEVERE`); mục «Người dùng & vai trò» vẫn hiện nhưng vô hiệu.
+- ERP: danh sách thành viên không còn badge «Chủ sở hữu» cạnh tên (badge chỉ còn trên Tài khoản của tôi).
 
 ### Internal
 
@@ -76,6 +87,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Einvoice: persist `supports_preview` trong capability snapshot khi sync MISA (command JSON + RPC mapper); readiness surface blocker `PREVIEW_UNSUPPORTED` khi thiếu capability (fix fail-closed chặn preview live acceptance).
 - Einvoice: `get_invoice_preview` truyền đúng `p_actor_id` (trước đó nhầm `tenantId` → `NO_PERMISSION: actor mismatch` khi poll preview).
 - Einvoice: canonical→MISA mapper mirror field `*Oc` / `VATRateName` / `ItemType` cho payload kiểu seed VND; bổ sung `RefID`, `TotalAmountInWords`, discount defaults; log reason+detail khi unpublished preview fail.
+- IAM: `get_tenant_readiness` thêm `OWNER_ACCEPTANCE_PENDING` / `OWNER_INVITATION_EXPIRED` khi provisioning chưa có owner — cần `supabase db reset`.
+- IAM: chặn `suspended`/`closed` ở `has_permission` / `get_session_context` / `can_access_store`; vá quyền 2 RPC tồn kho — cần `supabase db reset`.
+- IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.
+- IAM: `audit_logs` bỏ cột `created_at` (chỉ còn `occurred_at`) — cần `supabase db reset`.
+- IAM: gộp 8 bảng `*_operations` thành `iam.idempotency_records`; xoá get/retry onboarding operation — cần `supabase db reset`.
+- IAM: `tenant_legal_profiles` CHECK MST 10–13; onboarding `p_org_legal_entity_type` — cần `supabase db reset`.
+- IAM: `iam.tenants` thu gọn cột (`display_name` + shared status); RPC `close_platform_tenant` — cần `supabase db reset`.
+- IAM: `_ensure_membership_default_store_scope` bỏ qua UUID pending chưa có trong `auth.users` (merge vào `20260916001`).
+- IAM: `create_tenant_invitation` không còn chặn invite với role `owner` / `store_owner` (chỉ còn check role `active`).
+- IAM draft SQL: ensure default store + `membership_store_scopes` trên onboarding / invite / accept / activate; backfill dữ liệu legacy.
 
 - Einvoice S5 Task 9: wire delivery worker DI (worker-only MISA send on ERP), inbox subscriptions for registered→auto delivery, send/reconcile dead-letter handlers + max-3 attempt policy.
 - Einvoice S5 Task 8: MISA delivery provider adapter + safe classifier for invoice email send (typed outcomes; worker HTTP wiring in Task 9).

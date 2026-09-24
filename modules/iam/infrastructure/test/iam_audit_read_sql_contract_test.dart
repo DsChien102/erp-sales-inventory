@@ -27,7 +27,7 @@ void main() {
     });
 
     test('requires active membership and audit permission', () {
-      expect(sql, contains("and m.status = 'active'"));
+      expect(sql, contains('and m.is_active'));
       expect(sql, contains("iam.has_permission(p_tenant_id, 'tenant.audit.view')"));
     });
 

@@ -26,6 +26,12 @@ set role = 'store_owner',
     updated_at = now()
 where role = 'owner';
 
+alter table iam.memberships
+  drop constraint if exists memberships_role_fkey;
+alter table iam.memberships
+  add constraint memberships_role_fkey
+  foreign key (role) references iam.role_definitions (code);
+
 -- 3) Assignable-roles list no longer needs to hide a fake 'owner' role.
 create or replace function iam.list_assignable_invitation_roles(
   p_tenant_id uuid
@@ -51,7 +57,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
   ) then
     raise exception 'PERMISSION_DENIED';
   end if;
@@ -87,20 +93,36 @@ declare
   v_role text;
   v_is_owner boolean;
   v_status text;
+  v_tenant_status text;
 begin
   if v_user_id is null then
     return false;
   end if;
 
-  select m.role, m.is_owner, m.status
-  into v_role, v_is_owner, v_status
+  if iam._is_platform_user_suspended(v_user_id) then
+    return false;
+  end if;
+
+  select m.role, m.is_owner, iam._membership_status_code(m.is_active, m.removed_at),
+         coalesce(t.status, 'active')
+  into v_role, v_is_owner, v_status, v_tenant_status
   from iam.memberships m
+  join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
     and m.tenant_id = p_tenant_id;
 
   -- Not a member, or membership no longer active.
   if v_role is null or coalesce(v_status, 'active') <> 'active' then
     return false;
+  end if;
+
+  -- Suspended/closed tenant: raise a stable code so clients can leave the tenant.
+  -- provisioning stays allowed (owner completes profile before activation).
+  if v_tenant_status = 'suspended' then
+    raise exception 'TENANT_SUSPENDED';
+  end if;
+  if v_tenant_status = 'closed' then
+    raise exception 'TENANT_CLOSED';
   end if;
 
   -- Owner: full access.
@@ -138,7 +160,7 @@ begin
   end if;
 
   if p_tenant_id is not null then
-    select m.tenant_id, m.role, m.status, m.is_owner
+    select m.tenant_id, m.role, iam._membership_status_code(m.is_active, m.removed_at), m.is_owner
     into v_tenant_id, v_role, v_status, v_is_owner
     from iam.memberships m
     where m.user_id = v_user_id
@@ -158,7 +180,7 @@ begin
     into v_tenant_id, v_role, v_is_owner
     from iam.memberships m
     where m.user_id = v_user_id
-      and m.status = 'active'
+      and m.is_active
     order by m.created_at
     limit 1;
 
@@ -205,11 +227,20 @@ begin
     raise exception 'not authenticated';
   end if;
 
+  if iam._is_platform_user_suspended(v_user_id) then
+    return jsonb_build_object(
+      'status', 'invalidated',
+      'invalidation_reason', 'identityInactive',
+      'blocked_error_code', 'PLATFORM_USER_SUSPENDED',
+      'tenant_id', p_tenant_id
+    );
+  end if;
+
   if p_tenant_id is null then
     return jsonb_build_object('status', 'none');
   end if;
 
-  select m.role, m.is_owner, t.name, coalesce(t.status, 'active')
+  select m.role, m.is_owner, t.display_name, coalesce(t.status, 'active')
   into v_role, v_is_owner, v_tenant_name, v_tenant_status
   from iam.tenants t
   left join iam.memberships m
@@ -306,7 +337,11 @@ begin
     raise exception 'TENANT_ACCESS_DENIED';
   end if;
 
-  select m.role, m.is_owner, t.name, coalesce(t.status, 'active')
+  if iam._is_platform_user_suspended(v_user_id) then
+    raise exception 'PLATFORM_USER_SUSPENDED';
+  end if;
+
+  select m.role, m.is_owner, t.display_name, coalesce(t.status, 'active')
   into v_role, v_is_owner, v_tenant_name, v_tenant_status
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id

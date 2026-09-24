@@ -29,11 +29,6 @@ final class ReinviteProvisioningOwnerCommandValidator
       );
     }
 
-    if ((owner.firstName ?? '').trim().isEmpty ||
-        (owner.lastName ?? '').trim().isEmpty) {
-      throw ValidationException('New owner first name and last name are required');
-    }
-
     final email = owner.email?.trim() ?? '';
     if (email.isEmpty || !_emailPattern.hasMatch(email)) {
       throw ValidationException('Valid owner email is required');

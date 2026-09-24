@@ -30,26 +30,26 @@ void main() {
     );
   });
 
-  test('owner checks accept explicit owner flag or legacy owner role', () {
-    const predicate = "(m.is_owner is true or m.role = 'owner')";
+  test('owner checks use is_owner flag only', () {
+    const predicate = 'm.is_owner is true';
     expect(lifecycleSql, contains(predicate));
     expect(readinessSql, contains(predicate));
     expect(
       lifecycleSql,
-      isNot(contains("coalesce(m.is_owner, m.role = 'owner')")),
+      isNot(contains("m.is_owner is true or m.role = 'owner'")),
     );
     expect(
       readinessSql,
-      isNot(contains("coalesce(m.is_owner, m.role = 'owner')")),
+      isNot(contains("m.is_owner is true or m.role = 'owner'")),
     );
   });
 
-  test('member payload does not hide a legacy owner behind false default', () {
+  test('member payload exposes is_owner from flag only', () {
     expect(
       lifecycleSql,
       contains(
         "'is_owner', "
-        "(f.is_owner is true or f.role = 'owner')",
+        '(f.is_owner is true)',
       ),
     );
   });

@@ -20,6 +20,29 @@ void main() {
 
       expect(find.byType(VSearchBar), findsOneWidget);
       expect(find.byIcon(VIcons.tune.value), findsOneWidget);
+      expect(find.text('Chờ kích hoạt'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'PlatformUsersPage filter sheet has no pending-activation chip',
+    (WidgetTester tester) async {
+      final module = FakeIamModule();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: PlatformUsersPage(iamModule: module)),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(VIcons.tune.value));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bộ lọc người dùng nền tảng'), findsOneWidget);
+      expect(find.text('Chờ kích hoạt'), findsNothing);
+      expect(find.text('Hoạt động'), findsWidgets);
+      expect(find.text('Tạm ngừng'), findsWidgets);
     },
   );
 

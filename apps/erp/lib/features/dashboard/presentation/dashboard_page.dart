@@ -7,6 +7,7 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/errors/exception_mapper.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
@@ -21,17 +22,43 @@ import '../../catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../partner/presentation/pages/partner_list_page.dart';
 import '../../sales/presentation/pages/sales_order_list_page.dart';
 
+/// Signs out and navigates to login when the platform account is suspended.
+/// Always navigates even if remote sign-out fails (network).
+Future<void> signOutSuspendedAccountAndGoToLogin(
+  BuildContext context, {
+  bool showToast = true,
+}) async {
+  if (showToast) {
+    VToast.show(
+      context,
+      title: 'Tài khoản bị tạm ngừng',
+      message:
+          'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
+      type: VToastType.danger,
+    );
+  }
+  await guard(
+    () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(
+      SignOutCommand(),
+    ),
+  );
+  if (!context.mounted) return;
+  context.go('/login');
+}
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({
     super.key,
     this.initialTab = DashboardTab.home,
     this.iamModule,
     this.autoBootstrap = true,
+    this.initialState,
   });
 
   final DashboardTab initialTab;
   final IIamModule? iamModule;
   final bool autoBootstrap;
+  final TenantContextState? initialState;
 
   static void navigateToTab(BuildContext context, DashboardTab tab) {
     final state = context.findAncestorStateOfType<_DashboardPageState>();
@@ -49,7 +76,9 @@ class DashboardPage extends StatelessWidget {
       create: (_) {
         final cubit = TenantContextCubit(
           iamModule: module,
+          initialState: initialState,
           applyPermissions: applyTenantContextPermissions,
+          onIdentityRevoked: (_) => signOutSuspendedAccountAndGoToLogin(context),
         );
         if (autoBootstrap) {
           cubit.bootstrap();
@@ -98,32 +127,6 @@ class _DashboardPageState extends State<_DashboardPageBody> {
   Future<void> _openSelector(BuildContext context) => openTenantContextSelector(context);
 
   Widget _buildHomeBody(BuildContext context, TenantContextState state) {
-    if (state.status == TenantContextLoadStatus.loading ||
-        state.status == TenantContextLoadStatus.initial) {
-      return const Center(child: VLoading());
-    }
-
-    if (state.isBlocked) {
-      return Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: OrganizationEmptyView(
-          type: state.emptyStateType ?? OrganizationEmptyStateType.noAuthorizedOrganizations,
-          suspendedOrgName: state.suspendedOrgName,
-          onAction: () => _openSelector(context),
-        ),
-      );
-    }
-
-    if (state.status == TenantContextLoadStatus.failure) {
-      return Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: OrganizationEmptyView(
-          type: OrganizationEmptyStateType.loadError,
-          onAction: () => context.read<TenantContextCubit>().bootstrap(),
-        ),
-      );
-    }
-
     final dynamicColors = context.vColors;
     return CustomScrollView(
       slivers: [
@@ -191,11 +194,60 @@ class _DashboardPageState extends State<_DashboardPageBody> {
   }
 
   Widget _buildBody(BuildContext context, TenantContextState state) {
+    // Tab "Khác" luôn mở: chứa Đăng xuất + Tài khoản của tôi.
+    if (_currentTab != DashboardTab.more) {
+      if (state.status == TenantContextLoadStatus.loading ||
+          state.status == TenantContextLoadStatus.initial) {
+        return const SafeArea(child: Center(child: VLoading()));
+      }
+
+      if (state.isBlocked) {
+        final accountSuspended =
+            state.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
+        return SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              child: OrganizationEmptyView(
+                type: state.emptyStateType ??
+                    OrganizationEmptyStateType.noAuthorizedOrganizations,
+                suspendedOrgName: state.suspendedOrgName,
+                isClosed: state.blockedErrorCode == IamBlockedCodes.tenantClosed,
+                isAccountSuspended: accountSuspended,
+                onAction: accountSuspended
+                    ? () => signOutSuspendedAccountAndGoToLogin(
+                          context,
+                          showToast: false,
+                        )
+                    : () => _openSelector(context),
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (state.status == TenantContextLoadStatus.failure) {
+        return SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(VSpacing.screenMobile),
+              child: OrganizationEmptyView(
+                type: OrganizationEmptyStateType.loadError,
+                onAction: () => context.read<TenantContextCubit>().bootstrap(),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
     switch (_currentTab) {
       case DashboardTab.home:
         return _buildHomeBody(context, state);
       case DashboardTab.more:
-        return const MorePage();
+        return MorePage(
+          tenantBlocked: state.isBlocked,
+        );
       case DashboardTab.orders:
         return const SalesOrderListPage();
       case DashboardTab.products:
@@ -211,31 +263,53 @@ class _DashboardPageState extends State<_DashboardPageBody> {
     final showHeader = _currentTab == DashboardTab.home;
     final showAppBar = _currentTab == DashboardTab.more;
 
-    return BlocBuilder<TenantContextCubit, TenantContextState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: dynamicColors.background,
-          appBar: showAppBar
-              ? VAppBar(
-                  title: _getTabTitle(_currentTab),
-                  showBackButton: false,
-                )
-              : null,
-          body: Column(
-            children: [
-              if (showHeader) const DashboardHeader(),
-              Expanded(child: _buildBody(context, state)),
-            ],
-          ),
-          bottomNavigationBar: ErpBottomNavigation(
-            selectedIndex: _currentTab.index,
-            onItemSelected: (index) {
-              final tab = DashboardTab.fromIndex(index);
-              setTab(tab);
-            },
-          ),
+    return BlocListener<TenantContextCubit, TenantContextState>(
+      // bootstrap() phát loading trước blocked → không so với `ready`.
+      listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
+      listener: (context, state) {
+        // Chỉ toast + về dashboard khi tổ chức tạm ngừng/đóng (đang ở trang con).
+        // Bỏ qua: chưa có org; tài khoản bị tạm ngừng (sign-out qua onIdentityRevoked).
+        final orgBlocked =
+            state.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
+            state.blockedErrorCode == IamBlockedCodes.tenantClosed;
+        if (!orgBlocked) return;
+
+        VToast.show(
+          context,
+          title: 'Tổ chức không thể truy cập',
+          message: state.blockedErrorCode == IamBlockedCodes.tenantClosed
+              ? 'Tổ chức đã đóng.'
+              : 'Tổ chức đang bị tạm ngừng.',
+          type: VToastType.danger,
         );
+        context.goNamed('dashboard', extra: DashboardTab.home);
       },
+      child: BlocBuilder<TenantContextCubit, TenantContextState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: dynamicColors.background,
+            appBar: showAppBar
+                ? VAppBar(
+                    title: _getTabTitle(_currentTab),
+                    showBackButton: false,
+                  )
+                : null,
+            body: Column(
+              children: [
+                if (showHeader) const DashboardHeader(),
+                Expanded(child: _buildBody(context, state)),
+              ],
+            ),
+            bottomNavigationBar: ErpBottomNavigation(
+              selectedIndex: _currentTab.index,
+              onItemSelected: (index) {
+                final tab = DashboardTab.fromIndex(index);
+                setTab(tab);
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 

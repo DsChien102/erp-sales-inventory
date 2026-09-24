@@ -13,6 +13,7 @@ abstract final class IamPlatformPermissions {
   static const tenantMemberView = 'platform.tenant.member.view';
   static const tenantSuspend = 'platform.tenant.suspend';
   static const tenantRestore = 'platform.tenant.restore';
+  static const tenantClose = 'platform.tenant.close';
   static const tenantOwnerTransfer = 'platform.tenant.owner.transfer';
   static const auditView = 'platform.audit.view';
 }

@@ -58,7 +58,12 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
       cubit.applyMemberCriteria(status: null, role: null, sort: null);
     } else {
       cubit.setInvitationSearch('');
-      cubit.setInvitationFilter(null);
+      cubit.applyInvitationCriteria(
+        status: null,
+        sendResult: null,
+        timeRange: null,
+        customDateRange: null,
+      );
     }
   }
 
@@ -95,6 +100,9 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
     } else {
       final currentCriteria = InvitationFilterCriteria(
         status: _invitationWireToChip(cubit.state.invitationFilter),
+        sendResult: cubit.state.invitationSendResultFilter ?? 'Tất cả',
+        timeRange: cubit.state.invitationTimeRangeFilter ?? 'Tất cả',
+        customDateRange: cubit.state.invitationCustomDateRange,
       );
 
       await showModalBottomSheet<void>(
@@ -108,7 +116,18 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
         builder: (_) => InvitationFilterBottomSheet(
           initialCriteria: currentCriteria,
           onApply: (criteria) {
-            cubit.setInvitationFilter(_invitationChipToWire(criteria.status));
+            cubit.applyInvitationCriteria(
+              status: _invitationChipToWire(criteria.status),
+              sendResult: criteria.sendResult == 'Tất cả'
+                  ? null
+                  : criteria.sendResult,
+              timeRange: criteria.timeRange == 'Tất cả'
+                  ? null
+                  : criteria.timeRange,
+              customDateRange: criteria.timeRange == 'Tùy chọn'
+                  ? criteria.customDateRange
+                  : null,
+            );
           },
         ),
       );
@@ -164,7 +183,10 @@ class _OrganizationUsersBodyState extends State<OrganizationUsersBody> {
                 (state.memberRoleFilter != null &&
                     state.memberRoleFilter != 'Tất cả') ||
                 (state.memberSort != null && state.memberSort != 'Tất cả'))
-            : (state.invitationFilter != null);
+            : (state.invitationFilter != null ||
+                state.invitationSendResultFilter != null ||
+                state.invitationTimeRangeFilter != null ||
+                state.invitationCustomDateRange != null);
 
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),

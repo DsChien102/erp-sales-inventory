@@ -28,10 +28,23 @@ final class MyAccountCubit extends Cubit<MyAccountState> {
         GetMyIdentityProfileQuery(),
       );
       if (isClosed) return;
+
+      var isOwner = false;
+      try {
+        final tenants = await _iamModule.executeQueryAsync<List<AccessibleTenantDto>>(
+          ListAccessibleTenantsQuery(),
+        );
+        isOwner = tenants.any((t) => t.isOwner);
+      } catch (_) {
+        // Không chặn trang cá nhân nếu danh sách tổ chức lỗi.
+      }
+      if (isClosed) return;
+
       emit(
         state.copyWith(
           status: IamLoadStatus.success,
           profile: profile,
+          isOwner: isOwner,
           clearFailure: true,
         ),
       );

@@ -37,7 +37,7 @@ void main() {
     expect(sql, contains("'salesOrderId'"));
     expect(sql, contains("'lifecycleStatus'"));
     expect(sql, contains("'committedAt'"));
-    expect(sql, contains('iam.membership_store_scopes'));
+    expect(sql, contains('iam.can_access_store('));
     expect(sql, contains('sales_context_snapshot'));
     expect(sql, contains('order_code'));
     expect(sql, isNot(contains('from catalog.')));

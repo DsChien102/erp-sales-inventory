@@ -53,8 +53,7 @@ class _PlatformTenantDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PlatformTenantDetailCubit, PlatformTenantDetailState>(
       builder: (context, state) {
-        if (state.status == PlatformTenantDetailStatus.loading &&
-            state.organization == null) {
+        if (state.status == PlatformTenantDetailStatus.loading && state.organization == null) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -79,12 +78,14 @@ class _PlatformTenantDetailView extends StatelessWidget {
           organization: org,
           showSuccessToastOnBuild: showSuccessToastOnBuild,
           onSuspendConfirmed: (reason) => cubit.suspend(reason: reason),
+          onCloseConfirmed: (reason) => cubit.closeOrganization(reason: reason),
           onRestoreConfirmed: cubit.restore,
           onTransferOwnership: (newOwnerUserId) => cubit.transferOwnership(
             newOwnerUserId: newOwnerUserId,
             idempotencyKey:
                 'xfer-${org.id}-$newOwnerUserId-${DateTime.now().millisecondsSinceEpoch}',
           ),
+          onResendOwnerInvitation: (email) => cubit.reinviteProvisioningOwner(email: email),
           onMemberTap: (member) {
             context.pushNamed(
               'user_detail',

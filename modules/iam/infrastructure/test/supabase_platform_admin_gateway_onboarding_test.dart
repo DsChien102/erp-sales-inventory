@@ -6,6 +6,41 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import 'support/fake_iam_rpc_supabase.dart';
 
 void main() {
+  test('createTenantOnboarding maps nullable owner ids without cast error', () async {
+    final supabase = FakeIamRpcSupabase();
+    supabase.registerHandler('create_tenant_onboarding', (params) async {
+      expect(params?['p_is_new_user'], true);
+      return {
+        'tenant_id': 'tenant-1',
+        'owner_membership_id': null,
+        'owner_user_id': null,
+        'tenant_status': 'provisioning',
+        'correlation_id': 'corr-1',
+        'is_new_user': true,
+        'activation_issued': true,
+      };
+    });
+    final gateway = SupabasePlatformAdminGateway(
+      rpcClient: SupabaseSchemaRpcClient(
+        supabase: supabase,
+        schema: 'iam',
+        mapError: (error, [stackTrace]) => RpcException(error.toString()),
+      ),
+    );
+
+    final result = await gateway.createTenantOnboarding(
+      isNewUser: true,
+      organizationName: 'Org Moi',
+      idempotencyKey: 'idem-1',
+      correlationId: 'corr-1',
+    );
+
+    expect(result.ownerMembershipId, isNull);
+    expect(result.ownerUserId, isNull);
+    expect(result.activationIssued, isTrue);
+    expect(supabase.calls.single.functionName, 'create_tenant_onboarding');
+  });
+
   test('createTenantOnboarding calls tenant RPC with resolved owner user id', () async {
     final supabase = FakeIamRpcSupabase();
     supabase.registerHandler('create_tenant_onboarding', (params) async {
@@ -19,13 +54,14 @@ void main() {
       expect(params?['p_org_commune_code'], 'Phường Ba Đình');
       expect(params?['p_org_legal_name'], 'Org Legal Co');
       expect(params?['p_org_tax_code'], '0123456789');
+      expect(params?['p_org_legal_entity_type'], 'ENTERPRISE');
       expect(params?['p_org_registered_address_text'], '456 Legal St');
       expect(params?['p_idempotency_key'], 'idem-1');
       expect(params?['p_correlation_id'], 'corr-1');
       expect(params?['p_is_new_user'], true);
       return {
         'tenant_id': 'tenant-1',
-        'owner_membership_id': 'membership-1',
+        'owner_membership_id': null,
         'owner_user_id': 'resolved-user-id',
         'tenant_status': 'provisioning',
         'correlation_id': 'corr-1',
@@ -52,12 +88,14 @@ void main() {
       communeCode: 'Phường Ba Đình',
       legalName: 'Org Legal Co',
       taxCode: '0123456789',
+      legalEntityType: 'ENTERPRISE',
       registeredAddressText: '456 Legal St',
       idempotencyKey: 'idem-1',
       correlationId: 'corr-1',
     );
 
     expect(result.ownerUserId, 'resolved-user-id');
+    expect(result.ownerMembershipId, isNull);
     expect(result.isNewUser, isTrue);
     expect(supabase.calls.single.functionName, 'create_tenant_onboarding');
   });

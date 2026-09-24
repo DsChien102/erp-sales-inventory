@@ -12,6 +12,7 @@ class PlatformOnboardingStepReview extends StatelessWidget {
     required this.orgName,
     this.orgLegalName = '',
     this.orgTaxCode = '',
+    this.selectedEntityType,
     required this.orgPhone,
     required this.orgEmail,
     required this.orgAddress,
@@ -27,11 +28,22 @@ class PlatformOnboardingStepReview extends StatelessWidget {
   final String orgName;
   final String orgLegalName;
   final String orgTaxCode;
+  final String? selectedEntityType;
   final String orgPhone;
   final String orgEmail;
   final String orgAddress;
   final String? selectedProvince;
   final String? selectedWard;
+
+  String get _entityTypeLabel {
+    return switch (selectedEntityType) {
+      'HOUSEHOLD_BUSINESS' => 'Hộ kinh doanh',
+      'ENTERPRISE' => 'Doanh nghiệp',
+      _ => (selectedEntityType != null && selectedEntityType!.isNotEmpty)
+          ? selectedEntityType!
+          : 'Chưa khai báo',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +128,7 @@ class PlatformOnboardingStepReview extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const VGap.md(),
-              _buildReviewRow('Loại chủ thể', 'Chưa khai báo', colors),
+              _buildReviewRow('Loại chủ thể', _entityTypeLabel, colors),
               const VGap.sm(),
               _buildReviewRow(
                 'Tên pháp lý',

@@ -1,4 +1,5 @@
 import 'package:supabase/supabase.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'postgrest_error_parser.dart';
@@ -60,6 +61,7 @@ final class SupabaseSchemaRpcClient {
         error,
         stackTrace,
       );
+      TenantAccessRevokedSignal.notifyFromError(error);
       throw _mapError(error, stackTrace);
     }
   }
@@ -96,6 +98,7 @@ final class SupabaseSchemaRpcClient {
         error,
         stackTrace,
       );
+      TenantAccessRevokedSignal.notifyFromError(error);
       throw _mapError(error, stackTrace);
     }
   }
@@ -119,6 +122,7 @@ final class SupabaseSchemaRpcClient {
         error,
         stackTrace,
       );
+      TenantAccessRevokedSignal.notifyFromError(error);
       throw _mapError(error, stackTrace);
     }
   }

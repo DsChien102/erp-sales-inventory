@@ -75,6 +75,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? legalEntityType,
     String? registeredAddressText,
   }) async {
     if (isClosed) return null;
@@ -98,6 +99,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
           communeCode: communeCode,
           legalName: legalName,
           taxCode: taxCode,
+          legalEntityType: legalEntityType,
           registeredAddressText: registeredAddressText,
           idempotencyKey: idempotencyKey,
         ),

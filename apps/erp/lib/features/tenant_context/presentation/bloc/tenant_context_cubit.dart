@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
@@ -16,14 +18,40 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
     String userDisplayName = '',
     TenantContextState? initialState,
     TenantContextPermissionsApplier? applyPermissions,
+    Stream<String>? tenantAccessRevoked,
+    void Function(String code)? onIdentityRevoked,
   }) : _iamModule = iamModule,
        _applyPermissions = applyPermissions,
+       _onIdentityRevoked = onIdentityRevoked,
        super(
          initialState ?? TenantContextState(userDisplayName: userDisplayName),
-       );
+       ) {
+    _revokedSubscription = (tenantAccessRevoked ?? TenantAccessRevokedSignal.stream)
+        .listen(_onTenantAccessRevoked);
+  }
 
   final IIamModule _iamModule;
   final TenantContextPermissionsApplier? _applyPermissions;
+  final void Function(String code)? _onIdentityRevoked;
+  late final StreamSubscription<String> _revokedSubscription;
+
+  void _onTenantAccessRevoked(String code) {
+    if (isClosed) return;
+    if (code == TenantAccessRevokedSignal.platformUserSuspended) {
+      // Tài khoản bị chặn ở mọi tổ chức → shell đăng xuất.
+      _onIdentityRevoked?.call(code);
+      return;
+    }
+    if (state.status != TenantContextLoadStatus.ready) return;
+    bootstrap();
+  }
+
+  @override
+  Future<void> close() {
+    // Do not await cancel(): broadcast cancel can hang under flutter_test fake async.
+    _revokedSubscription.cancel();
+    return super.close();
+  }
 
   Future<void> bootstrap() async {
     if (isClosed) return;
@@ -31,6 +59,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
       state.copyWith(
         status: TenantContextLoadStatus.loading,
         clearContextFailure: true,
+        clearBlockedErrorCode: true,
         clearSelectorFailure: true,
         clearSwitchFailure: true,
         clearEmptyState: true,
@@ -129,6 +158,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
           clearEmptyState: true,
           clearSwitchFailure: true,
           clearContextFailure: true,
+          clearBlockedErrorCode: true,
         ),
       );
       return true;
@@ -181,9 +211,11 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
   IamUiFailure _mapFailure(Object error) {
     if (error is ApplicationException) {
       final trimmed = error.message.trim();
-      // Preserve stable switch codes (e.g. TENANT_ACCESS_DENIED / TENANT_CLOSED)
-      // that are not yet in IamBlockedCodes catalog.
-      if (trimmed.isNotEmpty && trimmed == trimmed.toUpperCase() && trimmed.contains('_')) {
+      // Preserve stable switch codes (e.g. TENANT_ACCESS_DENIED) that are not
+      // yet in IamBlockedCodes catalog.
+      if (trimmed.isNotEmpty &&
+          trimmed == trimmed.toUpperCase() &&
+          trimmed.contains('_')) {
         return IamUiFailure(code: trimmed, message: trimmed);
       }
     }
@@ -191,7 +223,8 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
   }
 
   bool _shouldReloadTenantsAfterSwitchFailure(IamUiFailure failure) {
-    return failure.code == IamBlockedCodes.tenantSuspended || failure.code == 'TENANT_CLOSED';
+    return failure.code == IamBlockedCodes.tenantSuspended ||
+        failure.code == IamBlockedCodes.tenantClosed;
   }
 
   void _emitResolvedContext(TenantContextDto context) {
@@ -207,6 +240,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
             branchDisplayName: context.tenantName,
             clearEmptyState: true,
             clearContextFailure: true,
+            clearBlockedErrorCode: true,
             openSelectorRequested: false,
           ),
         );
@@ -216,24 +250,36 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
           state.copyWith(
             status: TenantContextLoadStatus.blocked,
             current: context,
-            branchDisplayName: null,
+            clearBranchDisplayName: true,
             emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
             openSelectorRequested: true,
             clearContextFailure: true,
+            clearBlockedErrorCode: true,
           ),
         );
         break;
       case TenantContextStatus.invalidated:
+        if (context.blockedErrorCode == IamBlockedCodes.platformUserSuspended ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.identityInactive) {
+          // Tài khoản bị tạm ngừng: không cho vào app, đăng xuất luôn.
+          _onIdentityRevoked?.call(IamBlockedCodes.platformUserSuspended);
+        }
         final inaccessible =
-            context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
-            context.invalidationReason == TenantContextInvalidationReason.tenantClosed ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.tenantSuspended ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.tenantClosed ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.identityInactive ||
             context.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
-            context.blockedErrorCode == 'TENANT_CLOSED';
+            context.blockedErrorCode == IamBlockedCodes.tenantClosed ||
+            context.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         emit(
           state.copyWith(
             status: TenantContextLoadStatus.blocked,
             current: context,
-            branchDisplayName: null,
+            clearBranchDisplayName: true,
             blockedErrorCode: context.blockedErrorCode,
             emptyStateType: inaccessible
                 ? OrganizationEmptyStateType.inaccessible

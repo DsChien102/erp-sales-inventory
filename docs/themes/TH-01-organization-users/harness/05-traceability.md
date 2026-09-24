@@ -13,9 +13,19 @@ Test id: scn_e03_u02_fr01_01 (BE), wgt_e03_u02_fr01_01 (FE), e2e_e03_u02_fr01_01
 
 **2026-07-31 FE completion reopen:** FE (và E2E S0) statuses dưới đây khớp [04-slice-roadmap.md](04-slice-roadmap.md) + [08-fe-evidence.md](08-fe-evidence.md). CONTRACT/BE rows **không đổi**. S7 FE `blocked` (D1). S4–S5 giữ `out_of_scope` (không thêm FE row). S16 không reopen trong plan này.
 
-**2026-07-31 FE completion Task 15 close:** FE/E2E in-scope → `done` (D1 locked). S4–S5 `out_of_scope`. S16 không re-review.
+**2026-09-21 defer invitation identity/membership:** CONTRACT Theme 1 thay vòng đời hybrid. Kỳ vọng QA mới chưa `done` cho đến khi Task 2–8 kiểm chứng. Ma trận (bullet — không dùng pipe-table để tránh xung đột guard Role):
 
-Contracts: [07-api-contracts.md](07-api-contracts.md)
+- **Onboarding Owner bằng email mới** (Task 2–3, BE): Tenant provisioning + Owner Invitation pending; chưa có profile/Membership của Owner — `modules/iam/application/test/scn_e01_u03_fr01_01_create_tenant_onboarding_test.dart`
+- **Platform User chờ kích hoạt** (Task 5, FE): Email chỉ có Invitation không xuất hiện ở PA-D-01/PA-D-03; không còn filter pending hoặc action PA-O-02 — `apps/admin/test/features/users/presentation/pages/platform_users_page_test.dart`
+- **Readiness giai đoạn provisioning** (Task 6, BE): Invitation Owner pending hợp lệ → đang chờ; không còn Invitation hợp lệ → “Lời mời hết hạn”; cả hai chặn kích hoạt — `modules/iam/infrastructure/test/iam_provisioning_owner_readiness_sql_contract_test.dart`
+- **Danh sách/chi tiết Platform User** (Task 5, FE): Auth user thật vẫn hiển thị; email nằm ngay dưới tên — `apps/admin/test/features/users/presentation/pages/platform_user_detail_page_test.dart`
+- **Owner Invitation** (Task 4, 7, BE): Chi tiết Tenant trên Admin hiển thị Owner pending nhưng không tăng member count — `modules/iam/infrastructure/test/iam_deferred_invitation_read_sql_contract_test.dart`
+- **Gửi lại cùng email/đổi email** (Task 3, 7, BE): Reuse cùng `invitation_id`, token cũ vô hiệu, không tạo profile/Membership trước accept — `modules/iam/infrastructure/test/iam_deferred_invitation_write_sql_contract_test.dart`
+- **Hai bottom sheet PA-SG-02** (Task 7, FE): Tenant `settingUp` + Invitation `pending`/`expired`: “Thao tác” chỉ có “Gửi lại email”; không mở sheet rỗng. Tenant `active`/`suspended`: không có “Gửi lại email”, vẫn có “Thay đổi chủ sở hữu” — `organization_actions_bottom_sheet_test.dart`, `owner_invitation_resend_sheet_test.dart`
+- **Invitation thành viên** (Task 3, 8, FE): Lời mời pending chỉ ở khu vực Lời mời của Tenant App, không vào member list hay thao tác Invitation của Platform Admin — `apps/erp/test/features/iam/presentation_module/widgets/organization_users_page_test.dart`
+- **Chấp nhận lời mời** (Task 3, 8, E2E): Người nhận có email Auth đã xác minh được tạo profile thật + đúng một active Membership trong một transaction — `apps/erp/test/features/invitations/e2e_e03_u01_u06_test.dart`
+
+---
 
 Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 

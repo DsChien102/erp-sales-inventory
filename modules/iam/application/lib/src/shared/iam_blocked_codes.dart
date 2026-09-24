@@ -18,6 +18,7 @@ abstract final class IamBlockedCodes {
   static const idempotencyConflict = 'IDEMPOTENCY_CONFLICT';
   static const tenantStateInvalid = 'TENANT_STATE_INVALID';
   static const tenantSuspended = 'TENANT_SUSPENDED';
+  static const tenantClosed = 'TENANT_CLOSED';
   static const systemError = 'SYSTEM_ERROR';
   static const authenticationRequired = 'AUTHENTICATION_REQUIRED';
   static const sessionExpired = 'SESSION_EXPIRED';
@@ -36,6 +37,7 @@ abstract final class IamBlockedCodes {
   static const stepUpAuthRequired = 'STEP_UP_AUTH_REQUIRED';
   static const ownerTargetInvalid = 'OWNER_TARGET_INVALID';
   static const platformPermissionDenied = 'PLATFORM_PERMISSION_DENIED';
+  static const platformUserSuspended = 'PLATFORM_USER_SUSPENDED';
   static const invalidCredentials = 'INVALID_CREDENTIALS';
   static const identityEmailNotVerified = 'IDENTITY_EMAIL_NOT_VERIFIED';
 }

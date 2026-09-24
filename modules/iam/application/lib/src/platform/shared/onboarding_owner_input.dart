@@ -11,10 +11,10 @@ final class OnboardingOwnerInput {
   });
 
   /// Select an existing Platform User as first Owner.
-  const OnboardingOwnerInput.existing(String userId)
-    : this._(existingUserId: userId);
+  const OnboardingOwnerInput.existing(String userId) : this._(existingUserId: userId);
 
-  /// Create a pending Platform User as first Owner (no password).
+  /// Mời email mới làm Owner đầu tiên của Tenant (không cần mật khẩu).
+  /// Chỉ tạo Platform User và Owner Membership sau khi chấp nhận lời mời.
   const OnboardingOwnerInput.newUser({
     required String lastName,
     required String firstName,

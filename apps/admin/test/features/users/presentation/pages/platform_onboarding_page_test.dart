@@ -128,6 +128,40 @@ void main() {
     },
   );
 
+  testWidgets(
+    'review step displays selected legal entity type correctly',
+    (WidgetTester tester) async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.onboardingNewUserOk,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: PlatformOnboardingPage(iamModule: module)),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Tạo mới'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(0), 'Nguyen');
+      await tester.enterText(find.byType(TextField).at(1), 'An');
+      await tester.enterText(find.byType(TextField).at(2), 'new@example.com');
+      await tester.tap(find.text('Tiếp tục'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(0), 'Phong kham moi');
+      await tester.tap(find.widgetWithText(VComboboxInput, 'Chọn loại chủ thể'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hộ kinh doanh').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Tiếp tục'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hộ kinh doanh'), findsOneWidget);
+    },
+  );
+
   testWidgets('organization step fields are submitted to onboarding command', (
     WidgetTester tester,
   ) async {

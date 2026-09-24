@@ -139,6 +139,8 @@ const _profileBlockerCodes = {
 
 const _ownerBlockerCodes = {
   TenantReadinessIssueCodes.ownerMembershipInvalid,
+  TenantReadinessIssueCodes.ownerAcceptancePending,
+  TenantReadinessIssueCodes.ownerInvitationExpired,
   TenantReadinessIssueCodes.ownerIdentityInactive,
   TenantReadinessIssueCodes.ownerIdentityUnavailable,
   TenantReadinessIssueCodes.ownerEmailUnverified,

@@ -67,28 +67,6 @@ class _PlatformUserDetailView extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const VGap.md(),
-            if (state.showActivationInvite) ...[
-              PlatformUserActionCard(
-                icon: VIcons.send,
-                title: 'Gửi lại email kích hoạt',
-                subtitle: 'Vô hiệu hóa liên kết cũ và gửi email mới',
-                onTap: () {
-                  Navigator.pop(context);
-                  _confirm(
-                    context: context,
-                    title: 'Gửi lại email kích hoạt?',
-                    titleColor: colors.textPrimary,
-                    description:
-                        'Liên kết kích hoạt cũ sẽ hết hiệu lực. Email mới được gửi tới người dùng.',
-                    actionLabel: 'Gửi email',
-                    actionVariant: VButtonVariant.primary,
-                    onConfirm: (_) => cubit.sendActivationInvitation(),
-                    successFallback: 'Đã gửi lại email kích hoạt thành công.',
-                  );
-                },
-              ),
-              const VGap.md(),
-            ],
             if (state.showPasswordReset) ...[
               PlatformUserActionCard(
                 icon: VIcons.lock,
@@ -115,9 +93,7 @@ class _PlatformUserDetailView extends StatelessWidget {
               PlatformUserActionCard(
                 icon: VIcons.pause,
                 title: 'Tạm ngừng người dùng',
-                subtitle: state.user?.status == PlatformUserStatus.pendingActivation
-                    ? 'Chặn kích hoạt và đăng nhập'
-                    : 'Chặn đăng nhập trên toàn nền tảng',
+                subtitle: 'Chặn đăng nhập trên toàn nền tảng',
                 isDestructive: true,
                 onTap: () {
                   Navigator.pop(context);
@@ -364,17 +340,12 @@ class _PlatformUserDetailView extends StatelessWidget {
                                       ),
                                       const VGap.xs(),
                                       VText(
-                                        'Tài khoản nền tảng',
+                                        user.email,
                                         variant: VTextVariant.bodySmall,
                                         color: colors.textSecondary,
                                       ),
                                     ],
                                   ),
-                                ),
-                                VIcon(
-                                  icon: VIcons.chevronRight,
-                                  color: colors.textMuted,
-                                  size: 20,
                                 ),
                               ],
                             ),
@@ -391,28 +362,29 @@ class _PlatformUserDetailView extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  border: Border(
-                    top: BorderSide(color: colors.borderDefault),
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: VSpacing.screenMobile,
-                      vertical: VSpacing.space3,
-                    ),
-                    child: VButton(
-                      label: 'Thao tác',
-                      fullWidth: true,
-                      trailing: VIcons.chevronUp,
-                      onPressed: () => _showActionsBottomSheet(context),
+              if (canAct)
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
                     ),
                   ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: VSpacing.screenMobile,
+                        vertical: VSpacing.space3,
+                      ),
+                      child: VButton(
+                        label: 'Thao tác',
+                        fullWidth: true,
+                        trailing: VIcons.chevronUp,
+                        onPressed: () => _showActionsBottomSheet(context),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
             ],
           ),
         );

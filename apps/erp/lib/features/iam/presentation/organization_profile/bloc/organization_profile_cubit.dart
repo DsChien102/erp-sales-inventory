@@ -168,7 +168,7 @@ final class OrganizationProfileCubit extends Cubit<OrganizationProfileState> {
           tenantId: tenantId,
           legalEntityType: input.legalEntityType.trim(),
           legalName: input.legalName.trim(),
-          taxCode: input.taxCode.trim(),
+          taxCode: TaxCodeFormatRule.normalize(input.taxCode),
           registeredAddressText: input.registeredAddressText?.trim(),
           provinceCode: input.provinceCode,
           communeCode: input.communeCode,
@@ -337,12 +337,11 @@ final class OrganizationProfileCubit extends Cubit<OrganizationProfileState> {
         message: 'Vui lòng nhập tên pháp lý.',
       );
     }
-    final tax = input.taxCode.trim();
-    if (!RegExp(r'^(\d{10,13}|\d{10}-\d{3})$').hasMatch(tax)) {
-      return const IamUiFailure(
+    final taxRule = TaxCodeFormatRule(entityType: type, taxCode: input.taxCode);
+    if (taxRule.isBroken()) {
+      return IamUiFailure(
         code: IamBlockedCodes.validationError,
-        message:
-            'Mã số thuế phải từ 10 đến 13 chữ số (VD: 0123456789 hoặc 0123456789-001).',
+        message: taxRule.message,
       );
     }
     return null;

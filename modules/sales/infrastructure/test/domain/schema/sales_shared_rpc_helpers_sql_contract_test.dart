@@ -98,7 +98,7 @@ void main() {
     final fn = _functionSql(helperSql, 'sales._assert_sales_actor');
     expect(fn, contains('auth.uid()'));
     expect(fn, contains('iam.has_permission'));
-    expect(fn, contains('membership_store_scopes'));
+    expect(fn, contains('iam.can_access_store('));
     expect(fn, contains('p_store_id is null'));
     expect(fn, contains("'PERMISSION_DENIED'"));
     expect(fn, contains("'DATA_SCOPE_DENIED'"));

@@ -68,19 +68,35 @@ final class TenantContextState {
     bool clearSwitchFailure = false,
     bool clearCurrent = false,
     bool clearEmptyState = false,
+    bool clearBranchDisplayName = false,
+    bool clearBlockedErrorCode = false,
   }) {
     return TenantContextState(
       status: status ?? this.status,
       current: clearCurrent ? null : (current ?? this.current),
       tenants: tenants ?? this.tenants,
-      branchDisplayName: branchDisplayName ?? this.branchDisplayName,
+      branchDisplayName: clearBranchDisplayName
+          ? null
+          : (branchDisplayName ?? this.branchDisplayName),
       userDisplayName: userDisplayName ?? this.userDisplayName,
-      contextFailure: clearContextFailure ? null : (contextFailure ?? this.contextFailure),
-      selectorFailure: clearSelectorFailure ? null : (selectorFailure ?? this.selectorFailure),
-      switchFailure: clearSwitchFailure ? null : (switchFailure ?? this.switchFailure),
-      blockedErrorCode: clearContextFailure ? null : (blockedErrorCode ?? this.blockedErrorCode),
-      emptyStateType: clearEmptyState ? null : (emptyStateType ?? this.emptyStateType),
-      suspendedOrgName: clearEmptyState ? null : (suspendedOrgName ?? this.suspendedOrgName),
+      contextFailure: clearContextFailure
+          ? null
+          : (contextFailure ?? this.contextFailure),
+      selectorFailure: clearSelectorFailure
+          ? null
+          : (selectorFailure ?? this.selectorFailure),
+      switchFailure: clearSwitchFailure
+          ? null
+          : (switchFailure ?? this.switchFailure),
+      blockedErrorCode: clearBlockedErrorCode
+          ? null
+          : (blockedErrorCode ?? this.blockedErrorCode),
+      emptyStateType: clearEmptyState
+          ? null
+          : (emptyStateType ?? this.emptyStateType),
+      suspendedOrgName: clearEmptyState
+          ? null
+          : (suspendedOrgName ?? this.suspendedOrgName),
       tenantsLoading: tenantsLoading ?? this.tenantsLoading,
       isSwitching: isSwitching ?? this.isSwitching,
       openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,

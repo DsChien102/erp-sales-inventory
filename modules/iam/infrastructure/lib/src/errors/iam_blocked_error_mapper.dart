@@ -6,6 +6,7 @@ IamBlockedException mapIamBlockedRpcError(RpcException error) {
   final upper = message.toUpperCase();
 
   for (final code in [
+    IamBlockedCodes.platformUserSuspended,
     IamBlockedCodes.lastOwnerProtected,
     IamBlockedCodes.stateChanged,
     IamBlockedCodes.membershipInactive,
@@ -18,6 +19,7 @@ IamBlockedException mapIamBlockedRpcError(RpcException error) {
     IamBlockedCodes.idempotencyConflict,
     IamBlockedCodes.tenantStateInvalid,
     IamBlockedCodes.tenantSuspended,
+    IamBlockedCodes.tenantClosed,
     IamBlockedCodes.ownerTargetInvalid,
     IamBlockedCodes.platformPermissionDenied,
     IamBlockedCodes.invitationPendingExists,

@@ -42,12 +42,7 @@ begin
       'details', jsonb_build_object('salesOrderId', p_sales_order_id)
     )::text;
   end if;
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(p_tenant_id, v_order.store_id, p_actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -121,12 +116,7 @@ begin
       'code', 'STALE_VERSION', 'message', 'Sales order version is stale.'
     )::text;
   end if;
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(p_tenant_id, v_order.store_id, p_actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -287,12 +277,7 @@ begin
       'code', 'STALE_VERSION', 'message', 'Sales order version is stale.'
     )::text;
   end if;
-  if not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(p_tenant_id, v_order.store_id, p_actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -406,13 +391,7 @@ begin
        and p.sales_order_id = o.id
       where o.tenant_id = list_sales_orders.tenant_id
         and o.lifecycle_status in ('completed', 'cancelled')
-        and exists (
-          select 1
-          from iam.membership_store_scopes scope
-          where scope.tenant_id = list_sales_orders.tenant_id
-            and scope.user_id = list_sales_orders.actor_id
-            and scope.store_id = o.store_id
-        )
+        and iam.can_access_store(list_sales_orders.tenant_id, o.store_id, list_sales_orders.actor_id)
         and (
           list_sales_orders.store_id is null
           or o.store_id = list_sales_orders.store_id
@@ -639,13 +618,7 @@ begin
        and p.sales_order_id = o.id
       where o.tenant_id = search_sales_orders.tenant_id
         and o.lifecycle_status in ('completed', 'cancelled')
-        and exists (
-          select 1
-          from iam.membership_store_scopes scope
-          where scope.tenant_id = search_sales_orders.tenant_id
-            and scope.user_id = search_sales_orders.actor_id
-            and scope.store_id = o.store_id
-        )
+        and iam.can_access_store(search_sales_orders.tenant_id, o.store_id, search_sales_orders.actor_id)
         and (
           search_sales_orders.store_id is null
           or o.store_id = search_sales_orders.store_id
@@ -836,13 +809,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_detail.tenant_id
-      and scope.user_id = get_sales_order_detail.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_detail.tenant_id, v_order.store_id, get_sales_order_detail.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1013,13 +980,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_settlement.tenant_id
-      and scope.user_id = get_sales_order_settlement.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_settlement.tenant_id, v_order.store_id, get_sales_order_settlement.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1126,13 +1087,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_payment_transactions.tenant_id
-      and scope.user_id = get_sales_order_payment_transactions.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_payment_transactions.tenant_id, v_order.store_id, get_sales_order_payment_transactions.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1273,13 +1228,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_timeline.tenant_id
-      and scope.user_id = get_sales_order_timeline.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_timeline.tenant_id, v_order.store_id, get_sales_order_timeline.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1446,13 +1395,7 @@ begin
     )::text;
   end if;
 
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    where scope.tenant_id = get_sales_order_return_summary.tenant_id
-      and scope.user_id = get_sales_order_return_summary.actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not iam.can_access_store(get_sales_order_return_summary.tenant_id, v_order.store_id, get_sales_order_return_summary.actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1874,12 +1817,7 @@ begin
 
   select * into v_order from sales.sales_orders
   where id = v_receipt.sales_order_id and tenant_id = p_tenant_id;
-  if not found or not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not found or not iam.can_access_store(p_tenant_id, v_order.store_id, p_actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;
@@ -1961,12 +1899,7 @@ begin
   select * into v_order from sales.sales_orders
   where id = v_receipt.sales_order_id and tenant_id = p_tenant_id
   for update;
-  if not found or not exists (
-    select 1 from iam.membership_store_scopes scope
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order.store_id
-  ) then
+  if not found or not iam.can_access_store(p_tenant_id, v_order.store_id, p_actor_id) then
     raise exception using message = jsonb_build_object(
       'code', 'DATA_SCOPE_DENIED', 'message', 'Store scope denied.'
     )::text;

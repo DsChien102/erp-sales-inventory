@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../organizations/widgets/organization_empty_view.dart';
@@ -128,13 +129,18 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
       _legalNameError = null;
     }
     final tax = _taxCodeController.text.trim();
+    final type = LegalEntityTypeCodes.fromCode(_selectedEntityType);
     if (tax.isEmpty) {
       _taxCodeError = 'Vui lòng nhập mã số thuế';
       ok = false;
-    } else if (!RegExp(r'^(\d{10,13}|\d{10}-\d{3})$').hasMatch(tax)) {
-      _taxCodeError =
-          'Mã số thuế phải từ 10 đến 13 chữ số (VD: 0123456789 hoặc 0123456789-001).';
-      ok = false;
+    } else if (type != null) {
+      final taxRule = TaxCodeFormatRule(entityType: type, taxCode: tax);
+      if (taxRule.isBroken()) {
+        _taxCodeError = taxRule.message;
+        ok = false;
+      } else {
+        _taxCodeError = null;
+      }
     } else {
       _taxCodeError = null;
     }

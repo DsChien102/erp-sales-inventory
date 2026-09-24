@@ -8,16 +8,19 @@ final class MyAccountState {
     this.status = IamLoadStatus.initial,
     this.profile,
     this.failure,
+    this.isOwner = false,
   });
 
   final IamLoadStatus status;
   final MyIdentityProfileDto? profile;
   final IamUiFailure? failure;
+  final bool isOwner;
 
   MyAccountState copyWith({
     IamLoadStatus? status,
     MyIdentityProfileDto? profile,
     IamUiFailure? failure,
+    bool? isOwner,
     bool clearFailure = false,
     bool clearProfile = false,
   }) {
@@ -25,6 +28,7 @@ final class MyAccountState {
       status: status ?? this.status,
       profile: clearProfile ? null : (profile ?? this.profile),
       failure: clearFailure ? null : (failure ?? this.failure),
+      isOwner: isOwner ?? this.isOwner,
     );
   }
 }

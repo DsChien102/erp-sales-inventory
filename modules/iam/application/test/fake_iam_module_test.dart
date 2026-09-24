@@ -148,6 +148,33 @@ void main() {
       expect(result.isNewUser, isTrue);
     });
 
+    test('onboarding_new_user_ok defers owner profile and membership', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.onboardingNewUserOk,
+      );
+
+      final result = await module.executeCommandAsync<TenantOnboardingResultDto>(
+        CreateTenantOnboardingCommand(
+          owner: const OnboardingOwnerInput.newUser(
+            lastName: 'Nguyễn',
+            firstName: 'A',
+            email: 'a@example.com',
+          ),
+          organizationName: 'Org Mới',
+          idempotencyKey: 'key-new-deferred',
+        ),
+      );
+      final detail = await module.executeQueryAsync<PlatformTenantDetailDto>(
+        GetPlatformTenantQuery(tenantId: result.tenantId),
+      );
+
+      expect(result.ownerMembershipId, isNull);
+      expect(result.ownerUserId, isNull);
+      expect(detail.ownerUserId, isNull);
+      expect(detail.ownerEmail, 'a@example.com');
+      expect(detail.members, isEmpty);
+    });
+
     test('onboarding_retry_idempotent — same key returns same result', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.onboardingRetryIdempotent,
@@ -342,6 +369,74 @@ void main() {
         GetPlatformTenantQuery(tenantId: 'org-003'),
       );
       expect(restored.status.name, 'active');
+    });
+
+    test('tenant_close_ok from active', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+      final before = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+
+      await module.executeCommandAsync(
+        ClosePlatformTenantCommand(
+          tenantId: 'org-001',
+          reason: 'Kết thúc hợp đồng',
+          expectedVersion: before.version,
+          idempotencyKey: 'close-t',
+        ),
+      );
+      final closed = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+      expect(closed.status, TenantLifecycleStatus.closed);
+      expect(closed.closeReason, 'Kết thúc hợp đồng');
+      expect(closed.version, before.version + 1);
+    });
+
+    test('tenant_close_rejects_already_closed', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantClosedReject,
+      );
+
+      expect(
+        () => module.executeCommandAsync(
+          ClosePlatformTenantCommand(
+            tenantId: 'org-004',
+            reason: 'attempt',
+            expectedVersion: 1,
+            idempotencyKey: 'close-closed',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
+    });
+
+    test('tenant_close_rejects_provisioning', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+
+      expect(
+        () => module.executeCommandAsync(
+          ClosePlatformTenantCommand(
+            tenantId: 'org-002',
+            reason: 'attempt',
+            expectedVersion: 1,
+            idempotencyKey: 'close-provisioning',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
     });
 
     test('tenant_suspend_rejects_never_activated_tenant', () async {
