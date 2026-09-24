@@ -50,7 +50,7 @@ create table if not exists iam.tenant_legal_profiles (
   constraint tenant_legal_profiles_entity_type_chk
     check (legal_entity_type in ('HOUSEHOLD_BUSINESS', 'ENTERPRISE')),
   constraint tenant_legal_profiles_tax_code_format_chk
-    check (tax_code ~ '^[0-9]{10,13}$')
+    check (tax_code ~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$')
 );
 
 create or replace function iam.platform_identity_create_pending_user_for_onboarding(

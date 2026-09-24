@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 /// (docs/superpowers/specs/iam-schema-refactor/02-tenant-legal-profiles.md).
 void main() {
   group('legal profile DDL', () {
-    test('both create table statements carry the 10-13 digit tax code check', () {
+    test('both create table statements carry the 10 / 12 / 10-3 tax code check', () {
       for (final file in const [
         '20260811006_iam_create_tenant_onboarding.sql',
         '20260811015_iam_tenant_profile_legal.sql',
@@ -20,7 +20,7 @@ void main() {
           table,
           contains(
             "constraint tenant_legal_profiles_tax_code_format_chk\n"
-            "    check (tax_code ~ '^[0-9]{10,13}\$')",
+            "    check (tax_code ~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})\$')",
           ),
           reason: file,
         );
@@ -36,15 +36,19 @@ void main() {
       '20260916004_iam_patch_onboarding_default_store_scope.sql',
     );
 
-    test('upsert normalizes tax code and validates format', () {
+    test('upsert trims tax code (keeps branch dash) and validates format', () {
       final body = _lastFunctionBlock(upsertSql, 'iam.upsert_legal_profile');
       expect(
         body,
+        contains(r"v_tax_code text := trim(coalesce(p_tax_code, ''));"),
+      );
+      expect(body, isNot(contains(r"regexp_replace(coalesce(p_tax_code")));
+      expect(
+        body,
         contains(
-          r"v_tax_code text := regexp_replace(coalesce(p_tax_code, ''), '\D', '', 'g');",
+          r"if v_tax_code !~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$' then",
         ),
       );
-      expect(body, contains(r"if v_tax_code !~ '^[0-9]{10,13}$' then"));
       expect(body, contains('where lp.tax_code = v_tax_code'));
       expect(body, contains('    v_tax_code,\n'));
       expect(body, isNot(contains('    p_tax_code,\n')));
@@ -81,8 +85,12 @@ void main() {
       expect(body, isNot(contains("then 'HOUSEHOLD_BUSINESS'")));
       expect(
         body,
+        contains(r"nullif(trim(coalesce(p_org_tax_code, '')), '')"),
+      );
+      expect(
+        body,
         contains(
-          r"nullif(regexp_replace(coalesce(p_org_tax_code, ''), '\D', '', 'g'), '')",
+          r"if v_org_tax_code !~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$' then",
         ),
       );
       expect(

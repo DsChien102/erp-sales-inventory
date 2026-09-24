@@ -4,7 +4,7 @@
 -- Context: TH-08 EP-02 — nguồn đơn hàng Theme 05 thật (fixture đã gỡ)
 -- Touches: sales.get_einvoice_source_snapshot, sales.can_access_sales_order
 -- Safety: idempotent (create or replace), tenant_id scoped
--- Depends on: 20260830005_sales_rebuild_schema.sql
+-- Depends on: 20260830005_sales_rebuild_schema.sql, 20260830001_iam_active_store_context_group_a.sql (iam.can_access_store)
 
 create schema if not exists sales;
 
@@ -137,7 +137,8 @@ begin
     select 1 from iam.memberships
     where tenant_id = p_tenant_id
       and user_id = p_actor_id
-      and status = 'active'
+      and is_active
+      and removed_at is null
   ) then
     return false;
   end if;
@@ -152,18 +153,8 @@ begin
     return false;
   end if;
 
-  -- 5. Store scope, khớp sales._assert_sales_actor:40-50
-  if not exists (
-    select 1
-    from iam.membership_store_scopes scope
-    join iam.stores store
-      on store.id = scope.store_id
-     and store.tenant_id = scope.tenant_id
-    where scope.tenant_id = p_tenant_id
-      and scope.user_id = p_actor_id
-      and scope.store_id = v_order_store_id
-      and store.status = 'active'
-  ) then
+  -- 5. Store access, khớp sales._assert_sales_actor (iam.can_access_store)
+  if not iam.can_access_store(p_tenant_id, v_order_store_id, p_actor_id) then
     return false;
   end if;
 

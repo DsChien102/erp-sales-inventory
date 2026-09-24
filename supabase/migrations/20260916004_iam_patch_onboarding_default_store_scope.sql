@@ -50,7 +50,7 @@ declare
   v_membership_id uuid;
   v_owner_user_id uuid;
   v_org_legal_name text := nullif(trim(coalesce(p_org_legal_name, '')), '');
-  v_org_tax_code text := nullif(regexp_replace(coalesce(p_org_tax_code, ''), '\D', '', 'g'), '');
+  v_org_tax_code text := nullif(trim(coalesce(p_org_tax_code, '')), '');
   v_org_legal_entity_type text := nullif(upper(trim(coalesce(p_org_legal_entity_type, ''))), '');
   v_org_registered_address_text text :=
     nullif(trim(coalesce(p_org_registered_address_text, '')), '');
@@ -77,7 +77,7 @@ begin
        or v_org_legal_entity_type not in ('HOUSEHOLD_BUSINESS', 'ENTERPRISE') then
       raise exception 'VALIDATION_ERROR';
     end if;
-    if v_org_tax_code !~ '^[0-9]{10,13}$' then
+    if v_org_tax_code !~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$' then
       raise exception 'VALIDATION_ERROR';
     end if;
   end if;

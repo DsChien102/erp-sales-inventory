@@ -37,13 +37,13 @@ void main() {
       );
     });
 
-    test('accepts 13-digit tax codes', () {
+    test('rejects 13 continuous digits (branch must use the dash form)', () {
       expect(
         TaxCodeFormatRule(
           entityType: LegalEntityType.enterprise,
           taxCode: '0123456789012',
         ).isBroken(),
-        isFalse,
+        isTrue,
       );
     });
 

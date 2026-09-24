@@ -123,7 +123,7 @@ void main() {
     );
 
     test(
-      'can_access_sales_order enforces permission, store scope and active store',
+      'can_access_sales_order enforces permission, active membership and store access',
       () {
         expect(sourceDraftFile.existsSync(), isTrue);
         expect(sql, contains('p_actor_id is null'));
@@ -131,9 +131,24 @@ void main() {
           sql,
           contains("iam.has_permission(p_tenant_id, 'sales.order.view')"),
         );
-        expect(sql, contains('iam.membership_store_scopes'));
-        expect(sql, contains('iam.stores'));
-        expect(sql, contains("store.status = 'active'"));
+        expect(sql, contains('and is_active'));
+        expect(sql, contains('and removed_at is null'));
+        expect(
+          sql,
+          contains(
+            'iam.can_access_store(p_tenant_id, v_order_store_id, p_actor_id)',
+          ),
+        );
+        expect(
+          sql,
+          isNot(contains('iam.membership_store_scopes')),
+          reason: 'IAM single-store era removed membership_store_scopes',
+        );
+        expect(
+          sql,
+          isNot(contains("status = 'active'\n  ) then")),
+          reason: 'iam.memberships has no status column (is_active/removed_at)',
+        );
         expect(sql, contains('set search_path = sales, iam, public, pg_temp'));
       },
     );

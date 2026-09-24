@@ -196,7 +196,7 @@ declare
   v_profile iam.tenant_legal_profiles;
   v_duplicate_count int := 0;
   v_audit_before jsonb;
-  v_tax_code text := regexp_replace(coalesce(p_tax_code, ''), '\D', '', 'g');
+  v_tax_code text := trim(coalesce(p_tax_code, ''));
 begin
   if auth.uid() is null then
     raise exception 'AUTHENTICATION_REQUIRED';
@@ -206,7 +206,7 @@ begin
     raise exception 'PERMISSION_DENIED';
   end if;
 
-  if v_tax_code !~ '^[0-9]{10,13}$' then
+  if v_tax_code !~ '^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$' then
     raise exception 'VALIDATION_ERROR';
   end if;
 
