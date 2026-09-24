@@ -1,86 +1,94 @@
 ---
 id: ENT-IV-03
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: CostCalculationRun
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-03 — CostCalculationRun
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Cut-off, input hash, hai phương pháp, blocker và publish state
+Một lần **tính và rà soát giá vốn** trên scope/cut-off/fact set đã khóa. Run snapshot phương pháp tenant dùng để công bố; người dùng không chọn lại phương pháp cho từng run.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `CostCalculationRun` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Tenant costing policy → policy owner; value facts nguồn → ReceiptValuation/ValueAdjustment/ledger |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class CostCalculationRun { <<AggregateRoot>> }
+```
 
-unique run ID; tenant + period + scope
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `runId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, runType, calculationPeriod, scopeHash, cutoffValuationSequence)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `run_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `accounting_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Legacy compatibility alias; phải bằng `calculation_period_id` với period-close, không dùng để suy posting ở ad-hoc |
-| `run_type` | `VARCHAR(30)` | — | Bắt buộc | — | `PERIOD_CLOSE` hoặc `AD_HOC` |
-| `calculation_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Kỳ mà fact set được tính/đối soát |
-| `posting_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Một run chỉ có đúng một posting period |
-| `scope_origin` | `VARCHAR(40)` | — | Bắt buộc | — | `PERIOD_CLOSE_POLICY`, `LATE_COST_DIRTY`, `CORRECTION_DIRTY`… |
-| `scope` | `JSONB` | — | Bắt buộc | — | Immutable Product scope |
-| `scope_hash` | `CHAR(64)` | — | Bắt buộc | — | Stable scope identity |
-| `dirty_scope_snapshot` | `JSONB` | — | Nullable | `NULL` | Exact Product + posting-period set + cause IDs khi source là DIRTY |
-| `dirty_scope_version` | `VARCHAR(80)` | — | Nullable | `NULL` | Current source-owned dirty-scope version |
-| `dirty_scope_hash` | `CHAR(64)` | — | Nullable | `NULL` | Binds exact Product/cause membership |
-| `cutoff_valuation_sequence` | `BIGINT` | — | Bắt buộc | — | Authoritative costing cutoff trên unified valuation timeline |
-| `cutoff_ledger_sequence` | `BIGINT` | — | Bắt buộc | — | Quantity audit cursor; không suy cross-ledger order |
-| `cutoff_value_sequence` | `BIGINT` | — | Bắt buộc | — | Value audit cursor; không suy cross-ledger order |
-| `input_hash` | `CHAR(64)` | — | Bắt buộc | — | Toàn bộ run input snapshot gồm timeline/scope/policy/period |
-| `product_result_set_hash` | `CHAR(64)` | — | Nullable | `NULL` | Aggregate hash của immutable ProductCostResult set |
-| `status` | `VARCHAR(30)` | — | Bắt buộc | `DRAFT` | Không có `CANCELLED` Phase 1 |
-| `moving_average_result_uri` | `TEXT` | — | Nullable | `NULL` | Immutable result set |
-| `moving_average_result_hash` | `CHAR(64)` | — | Nullable | `NULL` | — |
-| `periodic_average_result_uri` | `TEXT` | — | Nullable | `NULL` | Immutable result set |
-| `periodic_average_result_hash` | `CHAR(64)` | — | Nullable | `NULL` | — |
-| `selected_method_snapshot` | `JSONB` | — | Nullable | `NULL` | Snapshot policy method/version đã khóa cho kỳ; không phải reviewer override |
-| `blockers_snapshot` | `JSONB` | — | Bắt buộc | `[]` | — |
-| `supersedes_run_id` | `UUID` | FK → `CostCalculationRun` | Nullable | `NULL` | Re-run tạo ID mới |
-| `calculated_by` | `UUID` | FK → `User` | Nullable | `NULL` | — |
-| `calculated_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `published_by` | `UUID` | FK → `User` | Nullable | `NULL` | — |
-| `published_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Publish recheck bằng expected version |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `runType` | PERIOD_CLOSE hoặc IN_PERIOD_UPDATE | Có | Quyết định scope logic |
+| `calculationPeriod` | Kỳ dữ liệu cần tính | Có | Theo accounting calendar |
+| `postingPeriod` | Kỳ ghi adjustment nếu publish | Có | Có thể khác original period theo policy |
+| `scope` | Product scope được hệ thống/policy xác định | Có | Dirty scope không cho user tự bỏ Product |
+| `cutoff` | Các ledger/value sequence tại snapshot | Có | Fact set bất biến cho run |
+| `selectedMethodSnapshot` | Phương pháp nguồn từ tenant policy | Có | Read-only với user |
+| `blockersSnapshot` | Các blocker còn mở | Có | BLOCKED nếu tồn tại blocker |
+| `resultSetRef` | Tập ProductCostResult của run | Sau calculate | Immutable theo run |
+| `supersedesRunRef` | Run trước nếu rerun | Nếu rerun | Không sửa run cũ |
+| `status` | DRAFT/CALCULATED/BLOCKED/READY_FOR_REVIEW/PUBLISHED | Có | Lifecycle |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `accounting_period_id`: FK → `AccountingPeriod`.
-- `calculation_period_id`: FK → `AccountingPeriod`.
-- `posting_period_id`: FK → `AccountingPeriod`.
-- `supersedes_run_id`: FK → `CostCalculationRun`.
-- `calculated_by`: FK → `User`.
-- `published_by`: FK → `User`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `create()` | Run type/period/scope hợp lệ; policy snapshot current | CostCalculationRunCreated |
+| `calculate()` | Cut-off/fact set khóa thành công | CostCalculationCompleted |
+| `markBlocked()` | Có blocker ảnh hưởng result | CostCalculationBlocked |
+| `markReadyForReview()` | Không còn blocker | CostCalculationReadyForReview |
+| `publish()` | READY_FOR_REVIEW; actor có quyền; result/policy current | CostCalculationPublished |
+| `createSuccessor()` | Cần tính lại sau khi fact/blocker đổi | CostCalculationRunSuperseded |
 
+## 5. Vòng đời & chuyển dịch trạng thái
 
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: create
+    DRAFT --> CALCULATED: calculate
+    CALCULATED --> BLOCKED: blocker exists
+    CALCULATED --> READY_FOR_REVIEW: no blocker
+    BLOCKED --> [*]: successor run
+    READY_FOR_REVIEW --> PUBLISHED: publish
+    PUBLISHED --> [*]
+```
 
-## 7. Quy tắc và Điều kiện bắt buộc
+## 6. Domain Events phát sinh
 
-Các constraint được giữ trực tiếp trong bảng thuộc tính nguồn.
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `CostCalculationCompleted` | calculate() | Hai phương pháp đã được tính trên cùng fact set |
+| `CostCalculationReadyForReview` | markReadyForReview() | Run đủ điều kiện xem xét công bố |
+| `CostCalculationPublished` | publish() | Official cost/adjustment publication đã commit |
 
-## 8. Behavioral Contract / Use Case liên quan
+## 7. Liên kết truy vết
 
-- `BC-IV-02`
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-02`, `BC-IV-03` |
+| Use Case | `UC-14-01`, `UC-14-04` |
+| Quyết định | `T7-DR-051`, `T7-DR-164`, `T7-DR-165`, `T7-DR-166`, `T7-DR-168`, `T7-DR-169`, `T7-DR-194`, `T7-DR-195` |

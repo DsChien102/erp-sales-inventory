@@ -5,7 +5,7 @@ theme: theme-07
 title: doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky — doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky
 
@@ -13,7 +13,7 @@ source_baseline: v3.10.1
 
 ### Câu trả lời ngắn
 
-Chốt giá vốn chỉ được thực hiện trên tập movement ổn định đến một cut-off. Operation `UNKNOWN`, hàng nhập chưa xác nhận giá trực tiếp, kiểm kê/điều chỉnh/correction chain chưa hoàn tất hoặc hồ sơ đối soát có khả năng làm sai kỳ đều là blocker. Khi đủ điều kiện, hệ thống tính bản nháp; kế toán kiểm tra và công bố một batch liên kết. Cập nhật đột xuất giữa kỳ cũng phải đối soát đến cut-off riêng, ghi adjustment và chỉ áp dụng giá mới cho giao dịch sau mốc hiệu lực.
+Chốt giá vốn chỉ được thực hiện trên tập movement ổn định đến một cut-off. Operation `UNKNOWN`, hàng nhập chưa xác lập giá trị nhập ban đầu, kiểm kê/điều chỉnh/correction chain chưa hoàn tất hoặc hồ sơ đối soát có khả năng làm sai kỳ đều là blocker. Khi đủ điều kiện, hệ thống tính bản nháp; kế toán kiểm tra và công bố một batch liên kết. Cập nhật đột xuất giữa kỳ cũng phải đối soát đến cut-off riêng, ghi adjustment và chỉ áp dụng giá mới cho giao dịch sau mốc hiệu lực.
 
 ### Vì sao vấn đề này quan trọng?
 
@@ -45,7 +45,7 @@ Bình quân cuối kỳ phụ thuộc cả lượng và giá trị trong kỳ. M
 
 ### Ví dụ minh họa
 
-Kỳ tháng 8 có một receipt đang `VALUATION_PENDING`; hệ thống chặn công bố vì giá nhập trực tiếp chưa được xác nhận. Sau khi xác nhận giá và đối soát lại, run tháng 8 tính kết quả, kế toán kiểm tra rồi công bố batch. Batch gồm COGS true-up cho hàng đã bán, valuation adjustment cho hàng còn lại và giá vốn chính thức phiên bản mới có hiệu lực từ đầu kỳ tiếp theo.
+Kỳ tháng 8 có một receipt đang `VALUATION_PENDING`; hệ thống chặn công bố vì giá trị nhập ban đầu chưa được xác lập. Sau khi BJ03 xác lập giá trị nhập ban đầu và đối soát lại, run tháng 8 tính kết quả, kế toán kiểm tra rồi công bố batch. Batch gồm COGS true-up cho hàng đã bán, valuation adjustment cho hàng còn lại và giá vốn chính thức phiên bản mới có hiệu lực từ đầu kỳ tiếp theo.
 
 Nếu ngày 15 cần cập nhật khẩn cấp, hệ thống lập run đến cut-off ngày 15. Giá mới chỉ dùng cho lần bàn giao sau cut-off; phần trước cut-off được giữ nguyên và điều chỉnh bằng bản ghi liên kết.
 

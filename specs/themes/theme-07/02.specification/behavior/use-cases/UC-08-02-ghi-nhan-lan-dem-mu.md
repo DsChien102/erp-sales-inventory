@@ -5,109 +5,166 @@ theme: theme-07
 title: "Ghi nhận lần đếm mù"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-08-02 — Ghi nhận lần đếm mù
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
+Người được phân công ghi nhận **lần đếm vật lý đầu tiên** mà không nhìn thấy book quantity hoặc variance trước khi submit, nhằm bảo đảm bằng chứng kiểm kê không bị neo vào số liệu hệ thống.
 
+**Kết quả cần đạt:** một `StockCountSubmission` FIRST bất biến được ghi; sau submit hệ thống mới tính variance để kết thúc phiên nếu khớp hoặc chuyển đúng các dòng chênh lệch sang đếm lại.
 
-**Kết quả thành công:** 
-
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
+Session đang `OPEN/LOCKED`, FIRST round chưa được submit và người dùng là assigned counter hiện hành.
 
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-### 2.2 Kết thúc khi
-
-
+UC kết thúc khi FIRST submission đã commit và variance được xác định; zero variance hoàn tất phiên, còn non-zero tạo tập discrepant lines để đếm lại; hoặc submit chưa xác định finality và phải recovery bằng cùng identity.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không cho counter thấy book quantity/variance trước FIRST submit, không nhập giá hàng thừa, không phê duyệt chênh lệch và không sửa evidence sau khi đã submit.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** 
-- **Trigger:** 
-- **Điều kiện trước:** 
+- **Tác nhân chính:** Assigned counter của session.
+- **Thẩm quyền:** Chỉ được nhập/submit observation cho đúng assignment version và frozen scope; không có quyền duyệt adjustment của chính snapshot đã đếm.
+- **Sự kiện khởi phát:** Counter mở công việc đếm lần đầu của session đã khóa.
+- **Điều kiện trước:** Session/lock còn current; assignment còn hiệu lực; FIRST round chưa tồn tại ở trạng thái committed.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-## 5. Ngoại lệ và thất bại
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| `PhysicalCountKey` | Dòng vật lý cần đếm trong frozen scope | `DOM-IC`, `T7-DR-173` |
+| Observation | Số lượng thực tế theo base UOM/precision snapshot | `ENT-IC-09` |
+| `StockCountSubmission` | Bằng chứng append-only của FIRST round | `ENT-IC-09`, `T7-DR-174` |
+| Assignment version | Xác định ai được phép submit round hiện hành | `ENT-IC-04` |
 
-**Không thành công:** 
+## 5. Các luồng của Use Case
 
-## 6. Ảnh hưởng nghiệp vụ
+### 5.1 Luồng chính (Basic Flow)
 
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| BF-01 | Counter | Mở FIRST round được phân công; giao diện không hiển thị book quantity hoặc variance. | BR-01 — Blind count |
+| BF-02 | Counter | Nhập số lượng thực tế theo từng `PhysicalCountKey`; ghi nhận unexpected physical item chỉ khi thuộc frozen scope. | EF-A — Dòng ngoài phạm vi |
+| BF-03 | Hệ thống | Kiểm tra actor, assignment version, scope, tracking, UOM/precision và line identity. | EF-B — Actor không được phân công |
+| BF-04 | Counter | Submit FIRST round. | |
+| BF-05 | Hệ thống | Commit immutable FIRST submission, sau đó mới tính variance. | AF-A — Không có chênh lệch<br>AF-B — Có chênh lệch<br>EF-C — Kết quả chưa xác định |
+| BF-06 | — | [Kết thúc UC]. | |
 
+### 5.2 Luồng thay thế (Alternate Flow)
 
-## 7. Behavioral Contract
+#### AF-A — Không có chênh lệch
 
+**Phát sinh tại:** BF-05. **Điều kiện:** Final variance của FIRST round bằng 0.
 
-## 8. Screen liên quan
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Hoàn tất session và giải phóng lock trong cùng transaction; không tạo ApprovalCase hoặc adjustment. | BR-03 — Zero variance kết thúc trực tiếp |
+| AF-A-02 | — | [Kết thúc BJ-08]. | |
 
+#### AF-B — Có chênh lệch
 
+**Phát sinh tại:** BF-05. **Điều kiện:** Có ít nhất một dòng có variance khác 0.
 
-## 9. Acceptance Scenarios
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-B-01 | Hệ thống | Chỉ đưa các dòng chênh lệch sang `RECOUNT_REQUIRED`; dòng khớp giữ evidence FIRST hiện tại. | BR-02 — Evidence append-only |
+| AF-B-02 | — | [Tiếp tục tại UC-08-03]. | UC-08-03 — Đếm lại và hoàn thiện căn cứ |
 
+### 5.3 Luồng ngoại lệ (Exception Flow)
 
+#### EF-A — Dòng ngoài phạm vi
+
+**Phát sinh tại:** BF-02. **Điều kiện:** Observation trỏ tới key không thuộc frozen scope.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Từ chối dòng với `COUNT_LINE_OUT_OF_SCOPE`; không tự mở rộng session scope. | |
+| EF-A-02 | — | [Trở lại BF-02]. | BF-02 — Tiếp tục đếm các dòng hợp lệ |
+
+#### EF-B — Actor không được phân công
+
+**Phát sinh tại:** BF-03. **Điều kiện:** Người submit không khớp assignment hiện hành.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-B-01 | Hệ thống | Từ chối với `COUNT_ACTOR_NOT_ASSIGNED`; không ghi submission. | |
+| EF-B-02 | — | [Kết thúc UC]. | |
+
+#### EF-C — Kết quả chưa xác định
+
+**Phát sinh tại:** BF-05. **Điều kiện:** Không thể xác định FIRST submission đã commit hay chưa.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-C-01 | Hệ thống | Giữ cùng submission identity; không cho tạo FIRST round thứ hai trước khi đối soát. | `SBC-COM-03` — Kết quả và hướng phục hồi |
+| EF-C-02 | — | [Tiếp tục tại BJ-17]. | BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Blind count thực sự | Trước FIRST submit, counter không được nhận book quantity, variance hoặc proxy có thể suy ra các số đó. | `T7-DR-036`, `T7-DR-174` |
+| BR-02 | Evidence append-only | FIRST submission đã commit không bị overwrite; recount sau này tạo submission mới có lineage. | `T7-DR-174` |
+| BR-03 | Zero variance kết thúc trực tiếp | Nếu variance bằng 0, session hoàn tất và mở khóa mà không cần approval/adjustment. | `T7-DR-177` |
+| BR-04 | Counter không định giá surplus | Người đếm không nhập giá trị hàng thừa; value basis thuộc nguồn có thẩm quyền khác. | `T7-DR-176` |
+
+- `BC-IC-02` — Ghi nhận count/recount evidence.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Không có chênh lệch | FIRST submission bất biến; session completed; lock released; không adjustment | Kết thúc BJ08 |
+| Có chênh lệch | FIRST submission bất biến; chỉ discrepant lines cần recount | `UC-08-03` |
+| Bị từ chối | Không ghi submission | Counter/owner xử lý assignment hoặc scope |
+| Chưa xác định (`UNKNOWN`) | Không append submission trùng | BJ17 đối soát cùng identity |
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-044` | Giao diện blind count cho FIRST round; không lộ book/variance trước submit. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-08-02-01 — FIRST round không lộ số sổ
+- **Bao phủ:** BF-01 → BF-05; BR-01.
+- **Given:** session đã khóa và counter được phân công.
+- **When:** counter mở FIRST round.
+- **Then:** UI không chứa book quantity, variance hoặc proxy có thể suy ra chúng trước submit.
+
+### AS-UC-08-02-02 — Dòng ngoài frozen scope
+- **Bao phủ:** EF-A.
+- **Given:** counter nhập một key không thuộc `CountScopeSnapshot`.
+- **When:** hệ thống validate observation.
+- **Then:** dòng bị từ chối; scope không tự mở rộng và các dòng hợp lệ khác vẫn có thể tiếp tục.
+
+### AS-UC-08-02-03 — Zero variance
+- **Bao phủ:** AF-A; BR-03.
+- **Given:** FIRST submission đã commit và mọi dòng khớp book snapshot.
+- **When:** hệ thống tính variance.
+- **Then:** session hoàn tất, lock được giải phóng và không tạo ApprovalCase/adjustment.
+
+### AS-UC-08-02-04 — Timeout khi submit
+- **Bao phủ:** EF-C; BR-02.
+- **Given:** FIRST submit đã gửi nhưng client mất kết nối.
+- **When:** counter mở lại công việc.
+- **Then:** hệ thống dùng cùng submission identity để làm rõ kết quả; không tạo FIRST round thứ hai.
 
 ## 10. Truy vết
 
-
-
-
-### Nguồn v3.10.1 — UC-08-02 — Ghi nhận lần đếm mù
-
-> **Hành trình:** [BJ-08](../journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md)  
-> **Actor:** Assigned counter của session  
-> **BC/API:** `BC-IC-02 / API-C-15`
-
-### 1. Tổng quan
-
-| Mục | Hợp đồng |
-|---|---|
-| Trigger | Session đang `OPEN/LOCKED`, FIRST round chưa submit |
-| Mục tiêu | Ghi bằng chứng đếm vật lý đầu tiên mà không để book quantity ảnh hưởng người đếm |
-| Thành công | Immutable FIRST StockCountSubmission; variance được compute sau submit |
-| Zero variance | Complete session + no adjustment + release lock atomically; không tạo ApprovalCase |
-| Non-zero | Chỉ các discrepant lines chuyển `RECOUNT_REQUIRED` |
-| UNKNOWN | Giữ same submission command identity; không tạo round thứ hai khi chưa chứng minh round đầu không commit |
-
-### 2. Behavioral contract
-
-- Trước submit, book/variance/proxy từ book không được trả cho surface đếm mù.
-- Quantity nhập theo Product base UOM và đúng precision/step snapshot.
-- Key identity là Product + physical stock state + LOT/non-LOT trong warehouse session.
-- Unexpected physical item phải nằm trong CountScopeSnapshot; Product tồn tại; stock_state xác định; tracking hợp lệ.
-- Với LOT tracking có thể resolve LOT hiện có hoặc capture LOT mới theo shared LOT contract; BJ08 không tạo Product.
-- Counter không nhập surplus price/value basis.
-- Submit tạo immutable `StockCountSubmission(round_type=FIRST, round_no=1)` + line observations hash; StockCountLine chỉ cập nhật projection/ref.
-
-### 3. Acceptance
-
-<a id="as-uc-08-02-01"></a>
-- Blind-count DOM/accessibility không chứa book/variance trước submit.
-<a id="as-uc-08-02-02"></a>
-- Actor khác assigned counter bị `COUNT_ACTOR_NOT_ASSIGNED`.
-<a id="as-uc-08-02-03"></a>
-- Unexpected key ngoài frozen scope bị `COUNT_LINE_OUT_OF_SCOPE`.
-<a id="as-uc-08-02-04"></a>
-- FIRST round không thể overwrite/re-submit bằng identity mới để thay evidence.
-- Zero variance không đi qua SCR-046.
-### 4. UI trace
-
-- [SCR-044](../../../03.design/screens/SCR-044.md): blind count; `ACT-09-SUBMIT`; contextual `ACT-09-CANCEL` khi được phép.
-
-### 5. Technical trace
-
-| BC | Handler | API | Entity | Test |
-|---|---|---|---|---|
-| `BC-IC-02` | `SubmitStockCount` | `API-C-15 POST /v1/stock-counts/{id}/submissions` | `ENT-IC-05`, `ENT-IC-09` | `TST-BC-IC-02` |
-
-### 6. Source
-[BJ-08](../journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md); `T7-DR-035…039`, `T7-DR-171…177`
+- **Journey:** `BJ-08` — Kiểm kê và điều chỉnh chênh lệch.
+- **Domain / Entity:** `DOM-IC`, `ENT-IC-04`, `ENT-IC-05`, `ENT-IC-09`.
+- **Behavioral Contract:** `BC-IC-02`.
+- **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-174`, `T7-DR-176/177`.

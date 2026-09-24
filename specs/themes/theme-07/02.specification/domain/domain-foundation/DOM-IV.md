@@ -4,70 +4,66 @@ type: domain-foundation
 theme: theme-07
 title: Inventory Valuation
 owner: BA/SA
-status: DRAFT
-aligned_to: DOMAIN.template.md + DOM-IO.sample.md
-source_baseline: v3.10.1
+status: FROZEN
+aligned_to: DOMAIN.template.md
+source_baseline: v3.12.0
 ---
 
 # DOM-IV — Inventory Valuation
 
 ## 1. Trách nhiệm
 
-**Core Subdomain** (trục giá trị) của Theme 07 — thẩm quyền duy nhất đối với **giá trị ghi sổ, giá vốn chính thức và điều chỉnh định giá**. Không sở hữu số lượng vật lý, phê duyệt, hay giá bán.
+`DOM-IV` là **Core Subdomain** sở hữu sự thật giá trị tồn kho và giá vốn của Theme 7. Domain này xác lập giá trị ban đầu cho hàng đã nhận, ghi mọi điều chỉnh giá trị về sau, tính giá vốn theo chính sách tenant và chỉ tạo `OfficialCostVersion` khi BJ14 công bố.
 
 | Sứ mệnh cốt lõi | Trách nhiệm chính | Phạm vi thẩm quyền |
 |---|---|---|
-| Value Ledger Authority | Sổ cái `InventoryValueMovement` append-only | Sở hữu: value movement. Không: quantity movement / GL posting |
-| Direct receipt valuation | Chốt giá nhập thực tế theo scope receipt | Sở hữu: `ReceiptValuation`. Không: sửa PO gốc |
-| Official cost | Công bố `OfficialCostVersion` theo tenant + product | Sở hữu: cost version. Không: pricing cost basis / list price |
-| Cost calculation | Chạy hai phương pháp bình quân, blocker, publish | Sở hữu: `CostCalculationRun` + adjustment. Không: hủy run đã bắt đầu (Phase 1) |
-| Late landed cost | Ghi nhận chi phí mua đến muộn, phân bổ 1..N receipt lines | Sở hữu: late cost + allocation. Không: sửa receipt vật lý |
+| Initial valuation | Xác lập giá trị nhập ban đầu cho lượng thực nhận | Không sửa PO/hóa đơn/receipt vật lý |
+| Value ledger | Append `InventoryValueMovement` cho mọi thay đổi giá trị | Không sửa movement cũ |
+| Value adjustment | Ghi thành phần tăng/giảm phát sinh sau initial valuation | Không dùng adjustment để che lỗi nhập liệu |
+| Costing | Tính song song hai phương pháp trên cùng fact set | Phương pháp công bố do tenant policy chọn trước |
+| Official cost | Công bố version giá vốn chính thức và adjustment cần thiết | BJ03/BJ13 không được tạo Official Cost |
 
 ## 2. Quyền sở hữu và ranh giới
 
 ### 2.1 Domain sở hữu
 
-| Khái niệm | Vai trò |
-|---|---|
-| `ReceiptValuation` | Aggregate Root — bằng chứng và giá trực tiếp theo scope receipt |
-| `InventoryValueMovement` | Append-only Ledger — sự thật giá trị |
-| `CostCalculationRun` | Aggregate Root — cut-off, hai phương pháp, blocker, publish state |
-| `OfficialCostVersion` | Aggregate Root / Versioned fact — đơn giá có hiệu lực |
-| `ValuationAdjustmentBatch` + `ValuationAdjustmentLine` | Aggregate Root + Child — COGS true-up / ending / late-cost value-only |
-| `LateLandedCost` + `LateLandedCostAllocation` | Aggregate Root + Child — phân bổ chi phí đến muộn |
+- `ReceiptValuation` — giá trị nhập ban đầu + provenance cho exact quantity được căn cứ bao phủ.
+- `InventoryValueMovement` — ledger giá trị append-only.
+- `ValueAdjustmentSource` + `ValueAdjustmentAllocation` — thành phần tăng/giảm đến sau initial valuation và cách phân bổ.
+- `CostCalculationRun` + `ProductCostResult` — run tính/rà soát giá vốn.
+- `ValuationAdjustmentBatch` + `ValuationAdjustmentLine` — bút toán điều chỉnh giá trị khi BJ13/BJ14 commit.
+- `OfficialCostVersion` — đơn giá chính thức theo tenant + product + hiệu lực.
 
 ### 2.2 Domain không sở hữu
 
 | Khái niệm ngoài ranh giới | Owner |
 |---|---|
-| Quantity movement, reservation, lot physical | DOM-IO |
-| Approval / lock / count / reconciliation case | DOM-IC |
-| Pricing cost basis, floor/list, promotion | Pricing |
-| Purchase discount scenario / projected cost | Purchase scenario |
-| AP / GL posting | Accounting |
-| Product master / UOM | Catalog |
+| Receipt quantity, physical state, lot, reservation | `DOM-IO` |
+| Approval/reconciliation/lock | `DOM-IC` |
+| PO, điều kiện mua, hóa đơn NCC, dispute thương mại | Theme 10 |
+| Payables | Theme 6 |
+| Accounting ledger/kỳ/chính sách kế toán hoặc tax policy có thẩm quyền | Theme 9 / Accounting owner |
+| Product/UOM master | Theme 2 |
+| Selling-price policy | Theme 4 |
 
-### 2.3 Ranh giới tính nhất quán & Two-Axis Receipt
-
-- Mỗi mutation valuation chỉ đổi **đúng 1 Aggregate Root** trong 1 transaction.
-- Xác nhận giá **không đổi** physical axis; chỉ chuyển `valuation_state` và ghi value movement.
+### 2.3 Ranh giới tính nhất quán
 
 ```mermaid
 flowchart LR
-    subgraph Axis_Physical [Trục 1: DOM-IO]
-        PhysicalDone["GoodsReceipt COMPLETED"]
-        Pending["VALUATION_PENDING"]
-        PhysicalDone --> Pending
-    end
-    subgraph Axis_Valuation [Trục 2: DOM-IV]
-        Confirm["ReceiptValuation confirm"]
-        ValueMv["InventoryValueMovement"]
-        Confirmed["VALUATION_CONFIRMED"]
-        Confirm --> ValueMv --> Confirmed
-    end
-    Pending -.->|"Fact physical received"| Confirm
-    Confirmed -.-> Eligible["Eligible Sellable / ATP gate"]
+    Received["DOM-IO\nGoodsReceipt COMPLETED"] --> Pending["VALUATION_PENDING"]
+    Pending --> BJ03["BJ03\nReceiptValuation"]
+    BJ03 --> Value1["InventoryValueMovement\ninitial value"]
+    Value1 --> Confirmed["VALUATION_CONFIRMED"]
+    SourceLater["Nguồn/thành phần đến sau"] --> BJ13["BJ13\nValueAdjustmentSource"]
+    BJ13 --> Value2["InventoryValueMovement\nadjustment"]
+    Value1 --> BJ14["BJ14\nCostCalculationRun"]
+    Value2 --> BJ14
+    BJ14 --> Cost["OfficialCostVersion"]
 ```
+
+- BJ03 thay đổi valuation axis/value ledger nhưng **không** thay physical state.
+- BJ13 append adjustment; không overwrite `ReceiptValuation`.
+- BJ14 là owner duy nhất của `OfficialCostVersion`.
 
 ## 3. Khái niệm chính
 
@@ -75,109 +71,92 @@ flowchart LR
 
 | Thuật ngữ | Vai trò | Định nghĩa |
 |---|---|---|
-| ReceiptValuation | Aggregate Root | Chốt giá trực tiếp cho lượng receipt đã nhận vật lý |
-| InventoryValueMovement | Ledger | Bút toán giá trị append-only |
-| CostCalculationRun | Aggregate Root | Kỳ tính giá vốn; hai phương pháp; blocker; publish |
-| OfficialCostVersion | Aggregate Root | Đơn giá chính thức theo tenant + product + hiệu lực |
-| ValuationAdjustmentBatch | Aggregate Root | Batch điều chỉnh sau chốt / giữa kỳ / late cost |
-| ValuationAdjustmentLine | Entity | Dòng true-up / ending / late-cost value-only |
-| LateLandedCost | Aggregate Root | Header chi phí mua đến muộn |
-| LateLandedCostAllocation | Entity | Phân bổ tới 1..N receipt lines |
-| Carrying value | Concept | Tổng value movement có thẩm quyền |
-| Initial COGS | Concept | Snapshot official cost tại bàn giao / issue |
-| COGS true-up | Concept | Phần chênh sau chốt kỳ — adjustment, không sửa issue gốc |
-| Projected cost | Concept | Kịch bản mua — **không** ghi ledger IV |
+| ReceiptValuation | Aggregate Root | Hồ sơ initial value đã xác nhận cho exact quantity được căn cứ bao phủ |
+| Căn cứ giá trực tiếp | Concept | Source do Theme 7 cho phép lập cho Quick receipt khi không phụ thuộc Theme 10 |
+| DirectCostBasis | Internal Value Model | Mô hình nội bộ gom component/source/tax/FX/allocation; không phải thuật ngữ bắt buộc trên UI |
+| InventoryValueMovement | Ledger | Sự thật giá trị append-only |
+| ValueAdjustmentSource | Aggregate Root | Một economic component có dấu làm thay đổi giá trị hàng nhập sau BJ03 |
+| ValueAdjustmentAllocation | Child Entity | Phần source adjustment được phân bổ tới exact valuation exposure |
+| CostCalculationRun | Aggregate Root | Một lần tính/rà soát giá vốn với scope/cut-off/fact set bất biến |
+| ProductCostResult | Child Entity | Kết quả hai phương pháp và reconciliation delta cho một Product trong run |
+| OfficialCostVersion | Aggregate Root | Đơn giá chính thức được BJ14 công bố theo tenant policy |
+| Tax treatment | Concept | Kết quả policy xác định phần thuế/phí được thu hồi và phần tính vào inventory value |
+| Dirty cost scope | Concept | Product + posting period cần BJ14 tính lại do valuation facts thay đổi |
 
 ### 3.2 Domain Model Overview
 
 ```mermaid
 classDiagram
-    class ReceiptValuation {
-        <<AggregateRoot>>
-    }
-    class InventoryValueMovement {
-        <<Ledger>>
-    }
-    class CostCalculationRun {
-        <<AggregateRoot>>
-    }
-    class OfficialCostVersion {
-        <<AggregateRoot>>
-    }
-    class ValuationAdjustmentBatch {
-        <<AggregateRoot>>
-    }
-    class ValuationAdjustmentLine {
-        <<Entity>>
-    }
-    class LateLandedCost {
-        <<AggregateRoot>>
-    }
-    class LateLandedCostAllocation {
-        <<Entity>>
-    }
+    class ReceiptValuation { <<AggregateRoot>> }
+    class InventoryValueMovement { <<Ledger>> }
+    class ValueAdjustmentSource { <<AggregateRoot>> }
+    class ValueAdjustmentAllocation { <<Entity>> }
+    class CostCalculationRun { <<AggregateRoot>> }
+    class ProductCostResult { <<Entity>> }
+    class OfficialCostVersion { <<AggregateRoot>> }
+    class ValuationAdjustmentBatch { <<AggregateRoot>> }
+    class ValuationAdjustmentLine { <<Entity>> }
 
     ReceiptValuation ..> InventoryValueMovement : confirm appends
-    CostCalculationRun ..> OfficialCostVersion : publishes
-    CostCalculationRun ..> ValuationAdjustmentBatch : may create
+    ValueAdjustmentSource "1" *-- "1..*" ValueAdjustmentAllocation
+    ValueAdjustmentSource ..> ValuationAdjustmentBatch : posts through
     ValuationAdjustmentBatch "1" *-- "1..*" ValuationAdjustmentLine
     ValuationAdjustmentBatch ..> InventoryValueMovement : appends
-    LateLandedCost "1" *-- "1..*" LateLandedCostAllocation
-    LateLandedCost ..> ValuationAdjustmentBatch : links
+    CostCalculationRun "1" *-- "1..*" ProductCostResult
+    CostCalculationRun ..> ValuationAdjustmentBatch : publication may create
+    CostCalculationRun ..> OfficialCostVersion : publication creates/updates
 ```
 
 ## 4. Lifecycle và trạng thái
 
-### 4.1 Valuation axis (trên balance IO)
+### 4.1 Valuation axis
 
 ```mermaid
 stateDiagram-v2
-    [*] --> VALUATION_PENDING: GoodsReceipt COMPLETED
-    VALUATION_PENDING --> VALUATION_CONFIRMED: ReceiptValuation confirm
+    [*] --> VALUATION_PENDING: physical receipt completed
+    VALUATION_PENDING --> VALUATION_CONFIRMED: initial value committed
     VALUATION_CONFIRMED --> [*]
 ```
 
-Xác nhận giá **KHÔNG ĐƯỢC** đổi `stock_state` vật lý. ATP chỉ khi `VALUATION_CONFIRMED` và đủ điều kiện bán.
+Partial chỉ phát sinh khi căn cứ thực sự bao phủ một phần quantity; user không tự chia lượng để định giá.
 
 ### 4.2 CostCalculationRun
 
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT
-    DRAFT --> CALCULATED: Calculate
-    CALCULATED --> BLOCKED: Blocker open
-    CALCULATED --> READY_FOR_REVIEW: No blocker
-    BLOCKED --> CALCULATED: Blocker cleared and recalc
-    READY_FOR_REVIEW --> PUBLISHED: Publish
+    DRAFT --> CALCULATED: calculate()
+    CALCULATED --> BLOCKED: blocker exists
+    CALCULATED --> READY_FOR_REVIEW: no blocker
+    BLOCKED --> CALCULATED: successor/recalculate after cause cleared
+    READY_FOR_REVIEW --> PUBLISHED: publish()
     PUBLISHED --> [*]
 ```
 
-- Phase 1: **KHÔNG ĐƯỢC** cancel run sau khi bắt đầu. Tính lại → run mới có `supersedes_run_id`; **KHÔNG ĐƯỢC** sửa run cũ.
-- Publish tạo adjustment batch + official cost versions.
+Run đã tạo không bị sửa để “tính lại”; rerun tạo successor có liên kết.
 
-### 4.3 Append-only value ledger
+### 4.3 Append-only value facts
 
-`InventoryValueMovement` không có lifecycle: sinh ra là bất biến. True-up / late cost = bút toán mới, không UPDATE movement gốc.
+`InventoryValueMovement`, `ReceiptValuation` đã confirm, `ValueAdjustmentAllocation` đã commit và `ProductCostResult` của run là bất biến. Sửa sai tạo correction/adjustment mới, không update lịch sử.
 
 ## 5. Quy tắc và Điều kiện bắt buộc
 
-Mức RFC 2119 — từ cấp độ **IN HOA**. Cross-cutting tổ chức: xem [DOM-COM](DOM-COM.md).
-
 | Mã | Quy tắc |
 |---|---|
-| INV-IV-01 | `InventoryValueMovement` **PHẢI** là nguồn bất biến của tổng giá trị ghi sổ. Hệ thống **KHÔNG ĐƯỢC** sửa tay carrying value. |
-| INV-IV-02 | Official cost **PHẢI** xác định ở tenant + product; **KHÔNG ĐƯỢC** tách theo kho/lô trong Phase 1. |
-| INV-IV-03 | Hàng `VALUATION_PENDING` **KHÔNG ĐƯỢC** khả dụng và **KHÔNG ĐƯỢC** có official value movement cho direct cost. |
-| INV-IV-04 | Xác nhận giá trực tiếp, value movement và release khả dụng (valuation axis) **BẮT BUỘC** commit cùng nhau. |
-| INV-IV-05 | Dòng xuất **PHẢI** chụp official cost version tại bàn giao / issue. |
-| INV-IV-06 | Chốt kỳ **CHỈ ĐƯỢC** ghi phần chênh bằng adjustment; hệ thống **KHÔNG ĐƯỢC** update order/issue/value movement gốc. |
-| INV-IV-07 | Cost run **KHÔNG ĐƯỢC** publish khi còn blocker có thể đổi lượng/giá trị của kỳ. |
-| INV-IV-08 | Projected purchase-discount cost **KHÔNG ĐƯỢC** ghi ledger hoặc dùng làm accounting COGS. |
-| INV-IV-09 | Official cost publication **KHÔNG ĐƯỢC** tự thay pricing cost basis hoặc selling price. |
-| INV-IV-10 | Pricing cost basis (ngoài IV) **CẦN** có source type/version, actor và effective time khi IV handoff. |
-| INV-IV-11 | Receipt vật lý **LUÔN** kết thúc lượng đạt ở `VALUATION_PENDING`; xác nhận direct cost **PHẢI** là command/transaction riêng. |
-| INV-IV-12 | Cost run Phase 1 **KHÔNG ĐƯỢC** cancellation; rerun **PHẢI** tạo successor có liên kết và **KHÔNG ĐƯỢC** sửa run cũ. |
-| INV-IV-13 | Late-cost component **PHẢI** chống trùng theo khóa nguồn; dữ liệu đến muộn **CHỈ ĐƯỢC** đánh dấu đúng product-period scope `DIRTY`. |
+| `INV-IV-01` | `InventoryValueMovement` **PHẢI** là nguồn sự thật append-only của carrying value; không sửa tay số dư giá trị. |
+| `INV-IV-02` | BJ03 **CHỈ** xác lập initial inventory value và dirty scope; **KHÔNG ĐƯỢC** tạo `OfficialCostVersion`. |
+| `INV-IV-03` | Quick receipt **PHẢI** hoàn tất BJ03 mà không phụ thuộc Theme 10 khi có căn cứ giá trực tiếp hợp lệ. |
+| `INV-IV-04` | Theme 7 **KHÔNG ĐƯỢC** sửa PO/hóa đơn/commercial facts; conflict thương mại thuộc Theme 10 phải được owner giải quyết. |
+| `INV-IV-05` | Tax treatment **PHẢI** đến từ policy có thẩm quyền; chỉ phần thuế/phí không thu hồi vào inventory value. User không chọn recoverability trong BJ03. |
+| `INV-IV-06` | Initial valuation scope **PHẢI** theo coverage của căn cứ; user không tự chia quantity để thay đổi giá trị/phân bổ. |
+| `INV-IV-07` | Thành phần đã đủ căn cứ trước initial confirmation có thể đi BJ03; thành phần đến sau/phát sinh sau **PHẢI** đi BJ13. |
+| `INV-IV-08` | BJ13 **PHẢI** hỗ trợ signed adjustment: dương hoặc âm. Forecast/projected benefit **KHÔNG ĐƯỢC** ghi value ledger. |
+| `INV-IV-09` | Lỗi nhập liệu sau commit **KHÔNG ĐƯỢC** giả làm BJ13; phải đi correction/BJ11. |
+| `INV-IV-10` | Costing method dùng để công bố **PHẢI** lấy từ tenant policy snapshot; người dùng BJ14 không chọn lại method cho từng run. |
+| `INV-IV-11` | Hai phương pháp có thể tính song song trên cùng fact set; method không được chọn chỉ dùng đối chiếu và không tự ghi sổ. |
+| `INV-IV-12` | BJ14 là owner duy nhất của `OfficialCostVersion`; publish mới tạo version và clear dirty causes đã reconcile. |
+| `INV-IV-13` | Official cost scope Phase 1 là tenant + product + base UOM; không tách theo warehouse/lot. |
+| `INV-IV-14` | Publish/adjustment chỉ ghi delta cần thiết; không sửa issue/receipt/value movement lịch sử. |
 
 ## 6. Quan hệ với Domain khác
 
@@ -185,64 +164,45 @@ Mức RFC 2119 — từ cấp độ **IN HOA**. Cross-cutting tổ chức: xem [
 
 ```mermaid
 flowchart TB
-    subgraph Upstream [Upstream]
-        IoContext["DOM-IO Physical facts"]
-        PurchaseContext["Purchasing price evidence"]
-        AccPeriod["Accounting period open close"]
-    end
-    subgraph Core [DOM-IV]
-        Valuation["Inventory Valuation"]
-    end
-    subgraph Downstream [Downstream]
-        Accounting["Accounting GL AP"]
-        Pricing["Pricing cost basis"]
-        Reporting["Reporting margin views"]
-    end
-    IoContext -->|"Outbox Facts"| Valuation
-    PurchaseContext -->|"integration_commands / evidence"| Valuation
-    AccPeriod -->|"period gate"| Valuation
-    Valuation -->|"Outbox Facts"| Accounting
-    Valuation -->|"Outbox Facts"| Pricing
-    Valuation -->|"Facts / queries"| Reporting
+    IO["DOM-IO\nphysical receipt/issue facts"] --> IV[DOM-IV]
+    T10["Theme 10\nPO / invoice / commercial components"] --> IV
+    TAX["Accounting/Tax policy owner"] --> IV
+    IC[DOM-IC] -->|control/reconciliation| IV
+    IV --> T6["Theme 6\npayables consumers when relevant"]
+    IV --> T9["Theme 9\naccounting consumers"]
+    IV --> T4["Theme 4\npricing cost-basis consumer"]
 ```
 
 ### 6.2 Messaging
 
-- Facts (outbox): `inventory.receipt_valuation.confirmed.v1`, `inventory.official_cost.published.v1`, `inventory.late_landed_cost.recorded.v1`, …
-- **KHÔNG ĐƯỢC** đặt imperative / `*.requested` trên outbox.
-- Pricing events (`pricing.cost_basis.published.v1`) **KHÔNG ĐƯỢC** mutate inventory ledger.
+- Inbound commercial components phải có source identity, source version/effective time, scope và trạng thái đủ điều kiện sử dụng.
+- Hóa đơn NCC không phải điều kiện bắt buộc của Quick receipt; hóa đơn đến sau có thể tạo adjustment nếu initial value đã commit.
+- Outbox fact canonical: initial value confirmed, value adjustment recorded, official cost published; wire name/version thuộc Technical Contract.
 
 ## 7. Entity liên quan
 
-Catalog: [`../entities/`](../entities/)
-
 | ID | Khái niệm | Vai trò DDD | Ghi chú |
 |---|---|---|---|
-| [ENT-IV-01](../entities/ENT-IV-01-ReceiptValuation.md) | ReceiptValuation | Aggregate Root | Direct cost scope |
-| [ENT-IV-02](../entities/ENT-IV-02-InventoryValueMovement.md) | InventoryValueMovement | Ledger | Append-only |
-| [ENT-IV-03](../entities/ENT-IV-03-CostCalculationRun.md) | CostCalculationRun | Aggregate Root | Cut-off / blocker / publish |
-| [ENT-IV-04](../entities/ENT-IV-04-OfficialCostVersion.md) | OfficialCostVersion | Aggregate Root | Effective interval |
-| [ENT-IV-05](../entities/ENT-IV-05-ValuationAdjustmentBatch.md) | ValuationAdjustmentBatch | Aggregate Root | Header batch |
-| [ENT-IV-06](../entities/ENT-IV-06-ValuationAdjustmentLine.md) | ValuationAdjustmentLine | Child Entity | Line-level trace |
-| [ENT-IV-07](../entities/ENT-IV-07-LateLandedCost.md) | LateLandedCost | Aggregate Root | Late cost header |
-| [ENT-IV-08](../entities/ENT-IV-08-LateLandedCostAllocation.md) | LateLandedCostAllocation | Child Entity | Allocation lines |
-| [ENT-IV-09](../entities/ENT-IV-09-ProductCostResult.md) | ProductCostResult | Immutable result | Kết quả costing theo product trong một CostCalculationRun |
+| `ENT-IV-01` | ReceiptValuation | Aggregate Root | Initial inventory value |
+| `ENT-IV-02` | InventoryValueMovement | Ledger | Append-only value fact |
+| `ENT-IV-03` | CostCalculationRun | Aggregate Root | Calculate/review/publish lifecycle |
+| `ENT-IV-04` | OfficialCostVersion | Aggregate Root | Chỉ BJ14 publication tạo/cập nhật |
+| `ENT-IV-05` | ValuationAdjustmentBatch | Aggregate Root | Batch posting delta |
+| `ENT-IV-06` | ValuationAdjustmentLine | Child Entity | Signed line-level delta |
+| `ENT-IV-07` | ValueAdjustmentSource | Aggregate Root | Generalized từ semantic `LateLandedCost` cũ |
+| `ENT-IV-08` | ValueAdjustmentAllocation | Child Entity | Allocation tới valuation exposure |
+| `ENT-IV-09` | ProductCostResult | Child Entity | Immutable result per Product/run |
 
 ## 8. Quyết định nghiệp vụ chi phối
 
-Nguồn: [`decision-register.md`](../../../01.knowledge/decisions/decision-register.md)
-
-| Decision ID | Quyết định | Chi phối đối với DOM-IV |
+| Decision ID | Quyết định | Chi phối đối với domain này |
 |---|---|---|
-| T7-DR-020 / T7-DR-021 | Two-axis / direct valuation | Confirm riêng; atomic với value + availability |
-| T7-DR-050 | Official cost tenant+product | OfficialCostVersion |
-| T7-DR-053 | Snapshot cost tại issue | Initial COGS |
-| T7-DR-056 | Period close via adjustment | Không sửa movement gốc |
-| T7-DR-058 | Late landed cost | Dirty scope + natural key |
-| T7-DR-059 / T7-DR-060 | Cost run blocker / no cancel | CostCalculationRun |
-| T7-DR-098 / T7-DR-100 | Pricing vs ledger | Ranh giới Pricing |
+| `T7-DR-051`, `185…190` | Initial value, tax treatment, Quick/direct basis, conflict ownership | BJ03 / ReceiptValuation |
+| `T7-DR-150…156`, `188` | Basis, UOM, allocation, scope/freshness | Initial valuation consistency |
+| `T7-DR-157…163`, `191…193` | Signed value adjustment và allocation | BJ13 |
+| `T7-DR-164…173`, `194…195` | Cost run, tenant method, publication, Official Cost ownership | BJ14 |
 
 ## 9. Điểm chưa chốt
 
-- Multi-warehouse cost dimension: Phase sau.
-- Chi tiết algorithm bình quân / blocker catalog thuộc architecture / BC — không nhân bản tại đây.
+- Multi-warehouse cost dimension thuộc Phase sau; Phase 1 authority vẫn tenant + product.
+- Tax/accounting policy owner có thể phát triển theo Theme 9; `DOM-IV` chỉ consume treatment/result theo contract và không tự trở thành tax engine.

@@ -5,7 +5,7 @@ theme: theme-07
 title: don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so — don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so
 
@@ -13,7 +13,7 @@ source_baseline: v3.10.1
 
 ### Câu trả lời ngắn
 
-Đơn giá tồn kho chính thức là đơn giá quản trị đồng thời là đơn giá ghi sổ dùng cho các lần xuất kho. Tuy vậy, tổng giá trị ghi sổ có thẩm quyền không được suy ra bằng cách lấy số lượng hiện tại nhân đơn giá này; nó là tổng của toàn bộ value movement đã commit. Trong kỳ, nhập theo giá thực tế còn xuất theo đơn giá chính thức đang hiệu lực nên thương số tổng giá trị/số lượng có thể tạm khác đơn giá áp dụng. Cả đơn giá bình quân, đơn giá chính thức và giá trị có thẩm quyền đều được quản lý ở mức đơn vị vận hành + sản phẩm, không theo từng kho hay lô.
+Đơn giá tồn kho chính thức là đơn giá quản trị đồng thời là đơn giá ghi sổ dùng cho các lần xuất kho. Tuy vậy, tổng giá trị ghi sổ có thẩm quyền không được suy ra bằng cách lấy số lượng hiện tại nhân đơn giá này; nó là tổng của toàn bộ value movement đã commit. Trong kỳ, nhập tăng giá trị theo giá trị nhập ban đầu còn xuất theo đơn giá chính thức đang hiệu lực nên thương số tổng giá trị/số lượng có thể tạm khác đơn giá áp dụng. Cả đơn giá bình quân, đơn giá chính thức và giá trị có thẩm quyền đều được quản lý ở mức đơn vị vận hành + sản phẩm, không theo từng kho hay lô.
 
 ### Vì sao vấn đề này quan trọng?
 
@@ -37,23 +37,23 @@ Không có phương pháp kế toán tách biệt: đơn giá tồn kho chính t
 #### Phạm vi đơn giá là đơn vị vận hành + sản phẩm
 
 Đơn giá bình quân và đơn giá chính thức được xác định ở đơn vị vận hành + sản phẩm; một sản phẩm có cùng đơn giá chính thức tại mọi kho.
-#### Nhập theo giá thực tế, xuất theo đơn giá đang hiệu lực
+#### Nhập theo giá trị nhập ban đầu, xuất theo đơn giá đang hiệu lực
 
-Nhập trong kỳ ghi value movement tăng theo giá nhập thực tế; xuất ghi value movement giảm theo đơn giá chính thức hiện hành. Chênh lệch tạm thời giữa tổng giá trị ledger và đơn giá áp dụng được giữ nguyên để đối soát, không bị che bằng sửa số dư.
+Nhập trong kỳ ghi value movement tăng theo giá trị nhập ban đầu; xuất ghi value movement giảm theo đơn giá chính thức hiện hành. Chênh lệch tạm thời giữa tổng giá trị ledger và đơn giá áp dụng được giữ nguyên để đối soát, không bị che bằng sửa số dư.
 #### Giá trị chi tiết theo kho hoặc lô chỉ là dẫn xuất
 
 Giá trị ghi sổ có thẩm quyền chỉ tồn tại ở đơn vị vận hành + sản phẩm; giá trị chi tiết theo kho/trạng thái/lô nếu hiển thị phải gắn nhãn quản trị dẫn xuất.
 
 ### Ví dụ xuyên suốt
 
-Đầu kỳ, sản phẩm P có 100 đơn vị và tổng giá trị 10.000.000 đồng; đơn giá chính thức là 100.000 đồng. Trong kỳ nhập thêm 20 đơn vị với giá thực tế 120.000 đồng, nên value ledger tăng 2.400.000 đồng. Sau đó xuất 30 đơn vị theo đơn giá chính thức 100.000 đồng, ledger giảm 3.000.000 đồng. Còn 90 đơn vị với tổng giá trị 9.400.000 đồng, tức thương số là khoảng 104.444 đồng; đơn giá chính thức vẫn là 100.000 đồng cho tới lần công bố tiếp theo. Mọi kho dùng cùng phiên bản 100.000 đồng. Một báo cáo chia 9.400.000 cho số lượng từng kho chỉ là phân bổ quản trị và phải được gắn nhãn dẫn xuất.
+Đầu kỳ, sản phẩm P có 100 đơn vị và tổng giá trị 10.000.000 đồng; đơn giá chính thức là 100.000 đồng. Trong kỳ nhập thêm 20 đơn vị với đơn giá ghi nhận ban đầu 120.000 đồng, nên value ledger tăng 2.400.000 đồng. Sau đó xuất 30 đơn vị theo đơn giá chính thức 100.000 đồng, ledger giảm 3.000.000 đồng. Còn 90 đơn vị với tổng giá trị 9.400.000 đồng, tức thương số là khoảng 104.444 đồng; đơn giá chính thức vẫn là 100.000 đồng cho tới lần công bố tiếp theo. Mọi kho dùng cùng phiên bản 100.000 đồng. Một báo cáo chia 9.400.000 cho số lượng từng kho chỉ là phân bổ quản trị và phải được gắn nhãn dẫn xuất.
 
 Ví dụ này chỉ minh họa cách áp dụng các quy tắc đã nêu. Con số, tên sản phẩm và thời điểm là giả định; chúng không tạo thêm một ngoại lệ, quyền phê duyệt hay mốc ghi nhận mới.
 
 
-#### Khởi tạo đơn giá chính thức từ lần xác nhận giá đầu tiên
+#### Giá trị nhập ban đầu không phải giá vốn chính thức
 
-Khi Product chưa có Official Cost, direct valuation đầu tiên có thể bootstrap bằng normalized direct cost theo **base UOM**. Việc tạo version là compare-and-create nguyên tử ở tenant+product: confirmation thắng đầu tiên tạo version; confirmation đồng thời đến sau vẫn ghi valuation/value movement nhưng không overwrite Official Cost. `effective_from` của version khởi tạo là server commit time của lần thắng.
+BJ03 chỉ xác lập **giá trị nhập ban đầu** cho lượng hàng thực tế đã nhận và ghi biến động giá trị tương ứng. Kết quả này là một đầu vào của quá trình tính giá vốn, không tự tạo `OfficialCostVersion`. Khi BJ03 hoàn tất, hệ thống đánh dấu đúng sản phẩm và kỳ cần cập nhật; BJ14 mới tính, rà soát và công bố giá vốn theo phương pháp đã cấu hình ở cấp tenant. Vì vậy một sản phẩm chưa từng có giá vốn chính thức vẫn phải đi qua BJ14 trước khi có phiên bản giá vốn chính thức đầu tiên.
 
 ### Ngoại lệ và những cách làm sai
 
@@ -90,7 +90,7 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 | Article ID | `KB-KGV-015` |
 | Cụm tri thức | [`KGV-C04`](00-table-of-contents.md#c04-giá-vốn-và-định-giá-tồn-kho) |
 | Loại bài | `VALUATION` |
-| Quyết định chính | [`T7-DR-050`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-050`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-055`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-050#REQ-01`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3) |
+| Quyết định chính | [`T7-DR-050`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-050`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-055`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3), [`T7-DR-185`](../decisions/decision-register.md#37-g07-gi%C3%A1-tr%E1%BB%8B-t%E1%BB%93n-gi%C3%A1-v%E1%BB%91n-v%C3%A0-ch%E1%BB%91t-k%E1%BB%B3) |
 | Trạng thái quyết định | `ACTIVE` |
 | Mức bằng chứng của bài | `STATIC_VALIDATED` |
 | Giới hạn | Bài phân biệt đơn giá và tổng giá trị; không giải thích cách tính hai phương pháp bình quân, batch công bố hoặc định giá từng nghiệp vụ đặc biệt |

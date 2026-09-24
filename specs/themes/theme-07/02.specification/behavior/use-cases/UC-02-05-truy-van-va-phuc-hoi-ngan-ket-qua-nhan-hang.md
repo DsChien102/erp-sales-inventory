@@ -5,91 +5,150 @@ theme: theme-07
 title: "Truy vấn và phục hồi ngắn kết quả nhận hàng"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
 # UC-02-05 — Truy vấn và phục hồi ngắn kết quả nhận hàng
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Tra cứu kết quả authoritative và chỉ thực hiện idempotent retry ngắn hạn bằng đúng identity/payload ban đầu.
+Xác định **kết quả cuối của đúng operation nhận hàng đã gửi trước đó** khi client mất response hoặc chưa biết operation đã commit hay chưa, mà không thực hiện lại nghiệp vụ nhận hàng.
 
-**Kết quả thành công:** Trả `COMMITTED` hoặc `REJECTED` đã có bằng chứng; không tạo receipt thứ hai.
+Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: `COMMITTED`, `REJECTED` hoặc tiếp tục `UNKNOWN/PROCESSING` với cùng operation identity.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
-Lệnh nhận hàng có `operation_id` nhưng client chưa nhận được finality rõ ràng
+Đã có `operation_id`/command identity của lệnh nhận hàng nhưng client không nhận được finality rõ ràng.
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-Trả `COMMITTED` hoặc `REJECTED` đã có bằng chứng; không tạo receipt thứ hai.
+- trả đúng receipt/result đã commit; hoặc
+- trả rejection authoritative với `effect_status=NONE`; hoặc
+- vẫn chưa đủ bằng chứng finality và bàn giao BJ17 sau cửa sổ phục hồi ngắn.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+- Không tạo receipt/movement mới.
+- Không dùng một operation identity mới để “thử lại”.
+- Không sửa payload đã bind với idempotency identity.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Thủ kho; adapter nhận hàng
-- **Trigger:** Lệnh nhận hàng có `operation_id` nhưng client chưa nhận được finality rõ ràng
-- **Điều kiện trước:** 
+- **Tác nhân chính:** Thủ kho hoặc adapter nhận hàng đang chờ kết quả.
+- **Thẩm quyền:** Chỉ truy vấn/retry đúng operation đã có; không được biến recovery thành một lệnh nhận hàng mới.
+- **Sự kiện khởi phát:** timeout, mất kết nối hoặc response không chứng minh finality.
+- **Điều kiện trước:** có operation/command identity và tenant scope hợp lệ.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-## 5. Ngoại lệ và thất bại
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| `operation_id` / command identity | Nhận diện đúng lệnh đã gửi | `BC-IO-02`, CommandReceipt |
+| Payload fingerprint | Chứng minh retry vẫn là cùng yêu cầu | Idempotency contract |
+| Operation result | `COMMITTED`, `REJECTED`, `PROCESSING/UNKNOWN` và effect refs | `DOM-IO` |
+| Receipt/movement refs | Chỉ trả nếu durable commit đã tồn tại | Ledger/operation result |
 
-**Không thành công:** 
+## 5. Các luồng của Use Case
 
-**Chưa xác định:** Giữ `UNKNOWN`, giữ nguyên identity và bàn giao sang [BJ-17](../journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md).
+### 5.1 Luồng chính (Basic Flow)
 
-## 6. Ảnh hưởng nghiệp vụ
-
-
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-02 — Receive purchased goods](../behavioral-contracts/BC-IO-02.md); UC này chỉ đọc `OperationResult`, không thực hiện lại toàn bộ nhận hàng.
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-012](../../../03.design/screens/SCR-012.md); [SCR-013](../../../03.design/screens/SCR-013.md) |
-| Trạng thái | `PROCESSING_OR_UNKNOWN`, `COMPLETED`, `REJECTED_EXECUTION`, `PERMISSION_DENIED`, `STALE`. |
-| Hành động | Làm mới/query cùng operation; CTA retry chỉ xuất hiện khi server xác nhận retry cùng identity là an toàn. |
-| Phản hồi | Hiển thị operation ID, status, as-of và đường sang BJ-17; không dùng “thất bại” cho `UNKNOWN`. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-02-05-01 | Operation đã `COMMITTED` nhưng response trước bị mất | Query bằng đúng `operation_id` | Trả đúng result/receipt đã commit; không tạo movement, balance hoặc outbox thứ hai. |
-| AS-UC-02-05-02 | Operation đã bị từ chối trước commit | Query kết quả | Trả `REJECTED` cùng mã/lý do và `effect_status=NONE`. |
-| AS-UC-02-05-03 | Operation còn processing/UNKNOWN và retry được phép | Retry bằng cùng identity và cùng fingerprint | Deduplicate/tiếp tục cùng operation; không sinh identity mới. |
-| AS-UC-02-05-04 | Chưa đủ bằng chứng finality sau cửa sổ phục hồi ngắn | Query hoặc retry tiếp | Giữ `UNKNOWN`, mở/handoff BJ-17 với cùng identity và evidence refs; không tự kết luận thất bại. |
+| BF-01 | Thủ kho / Adapter | Gửi truy vấn bằng đúng operation identity đã có. | |
+| BF-02 | Hệ thống | Tìm CommandReceipt/operation result và đối chiếu tenant + payload fingerprint. | EF-A — Sai identity/payload |
+| BF-03 | Hệ thống | Nếu operation đã commit, trả authoritative receipt/result và toàn bộ effect refs đã commit. | AF-A — Đã commit |
+| BF-04 | Hệ thống | Nếu operation đã bị từ chối trước commit, trả rejection code/reason và `effect_status=NONE`. | AF-B — Đã từ chối |
+| BF-05 | Hệ thống | Nếu chưa chứng minh commit/no-commit, giữ cùng identity và trả trạng thái chưa xác định cùng hướng verify/retry an toàn. | AF-C — Chưa có finality |
+| BF-06 | — | [Kết thúc UC hoặc bàn giao BJ17 theo AF-C]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Operation đã commit
+**Phát sinh tại:** BF-03.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Trả đúng receipt/result đã có; không tạo movement/balance/outbox thứ hai. | BC-IO-02 — Receive purchased goods |
+| AF-A-02 | — | [Kết thúc UC]. | |
+
+#### AF-B — Operation đã bị từ chối
+**Phát sinh tại:** BF-04.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-B-01 | Hệ thống | Trả `REJECTED` với mã/lý do authoritative và effect NONE. | SBC-COM-03 — Finality |
+| AF-B-02 | — | [Kết thúc UC]. | |
+
+#### AF-C — Chưa có finality
+**Phát sinh tại:** BF-05.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-C-01 | Hệ thống | Cho phép query/retry bằng **cùng identity và cùng fingerprint** theo contract. | |
+| AF-C-02 | Hệ thống | Nếu hết cửa sổ phục hồi ngắn mà vẫn chưa đủ bằng chứng, giữ `UNKNOWN` và tạo handoff BJ17 với evidence refs. | BJ-17 — Phục hồi nghiệp vụ chưa xác định |
+| AF-C-03 | — | [Kết thúc UC]. | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Identity hoặc payload không khớp
+**Phát sinh tại:** BF-02. **Điều kiện:** operation không thuộc tenant hoặc retry dùng payload khác với identity đã bind.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Từ chối truy vấn/retry; không tạo operation mới và không suy diễn finality. | Idempotency conflict |
+| EF-A-02 | — | [Kết thúc UC]. | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Quy tắc | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Same identity | Recovery phải dùng cùng operation/idempotency identity.| G10 / `SBC-COM-03` |
+| BR-02 | Không duplicate effect | Query/retry không tạo lại receipt, movement, balance hoặc outbox đã commit.| `BC-IO-02` |
+| BR-03 | UNKNOWN không phải FAILED | Không đủ bằng chứng commit/no-commit thì giữ `UNKNOWN`.| `SBC-COM-03/04` |
+| BR-04 | Payload fingerprint bất biến | Cùng identity nhưng payload khác là conflict, không phải retry.| Idempotency contract |
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| `COMMITTED` | Trả result/receipt đã commit; không có effect mới | Kết thúc BJ02 |
+| `REJECTED` | Effect NONE, lý do rõ | Sửa dữ liệu và tạo yêu cầu mới nếu business cho phép |
+| `UNKNOWN` | Không tạo operation mới | BJ17 với cùng identity/evidence |
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-012` | Hiển thị trạng thái đang xác minh/kết quả operation. |
+| `SCR-013` | Authoritative result sau khi xác định finality. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-02-05-01 — Response commit bị mất
+- **Given:** operation đã commit nhưng response trước bị mất.
+- **When:** client query bằng đúng operation identity.
+- **Then:** trả đúng receipt/result đã commit và không tạo effect thứ hai.
+
+### AS-UC-02-05-02 — Operation bị từ chối
+- **Given:** operation bị reject trước commit.
+- **When:** client query result.
+- **Then:** trả `REJECTED`, reason và `effect_status=NONE`.
+
+### AS-UC-02-05-03 — Retry khi còn UNKNOWN
+- **Given:** operation chưa chứng minh finality.
+- **When:** adapter retry cùng identity/fingerprint.
+- **Then:** deduplicate/tiếp tục đúng operation, không sinh identity mới.
+
+### AS-UC-02-05-04 — Hết cửa sổ phục hồi ngắn
+- **Given:** vẫn chưa đủ bằng chứng finality.
+- **When:** recovery window kết thúc.
+- **Then:** giữ `UNKNOWN` và handoff BJ17 với cùng identity/evidence.
 
 ## 10. Truy vết
 
-- **Nguồn quyết định:** [Nhóm G03 — Nhận hàng mua và giải phóng khả dụng](../../../01.knowledge/decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B); [Nhóm G10 — Operation identity, idempotency và finality](../../../01.knowledge/decisions/decision-register.md#310-g10-inventory-operation-t%C3%ADch-h%E1%BB%A3p-ch%E1%BB%91ng-tr%C3%B9ng-v%C3%A0-k%E1%BA%BFt-qu%E1%BA%A3-ch%C6%B0a-x%C3%A1c-%C4%91%E1%BB%8Bnh)
-- **Bài tri thức liên quan:** [Idempotency, phiên bản nguồn và kết quả chưa xác định](../../../01.knowledge/know-how/KB-KGV-028-idempotency-phien-ban-nguon-va-xu-ly-ket-qua-chua-xac-dinh.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-02 — Nhận hàng mua](../journeys/BJ-02-nhan-hang-mua.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Implement `API-Q-04`, deduplication và handoff; không gắn reconciliation mutation vào UC này. |
-| FE | Giữ cùng operation context và chỉ hiển thị action được server cho phép. |
-| QA | Kiểm thử 4 AS ở trên, đặc biệt duplicate/no-second-effect và `UNKNOWN` handoff. |
-| Harness | Seed bằng `UC-02-05`, `BC-IO-02`, `API-Q-04`, `TST-API-Q-04` và finality protocol. |
-
-## v3.9.2 deep-review lock
-- Recovery timeline chỉ hiện fact có authoritative evidence: submitted/locked at, approval decided at khi có, operation result, inventory movement/ledger sequence, server `checked_at`.
-- Không dựng timeline từ timestamp narrative của fixture nếu fact chưa được chứng minh; UNKNOWN không được hiển thị “Đã cập nhật tồn”.
-
-### Nguồn v3.10.1 — UC-02-05 — Truy vấn và phục hồi ngắn kết quả nhận hàng
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-02 — Nhận hàng mua](../journeys/BJ-02-nhan-hang-mua.md)  
-> **Trạng thái:** SPECIFIED_FOR_RELEASE
+- **Journey:** `BJ-02` — Nhận hàng mua.
+- **Domain:** `DOM-IO`.
+- **BC:** `BC-IO-02`, `SBC-COM-03/04`.
+- **Decision:** Nhóm G03, G10.

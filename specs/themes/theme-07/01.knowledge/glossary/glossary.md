@@ -5,7 +5,7 @@ theme: theme-07
 title: "Danh mục thuật ngữ quản lý tồn kho, giá vốn và định giá bán"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # Danh mục thuật ngữ quản lý tồn kho, giá vốn và định giá bán
 Tài liệu này thống nhất cách dùng thuật ngữ trong Quyết định nghiệp vụ, bộ bài wiki và SRS. **Thuật ngữ tiếng Việt là tên ưu tiên trên giao diện và tài liệu nghiệp vụ**; tiếng Anh, enum và mã lỗi được giữ để đối chiếu với mô hình dữ liệu, hỗ trợ và tích hợp kỹ thuật, không dùng thay lời giải thích cho người dùng.
@@ -114,13 +114,15 @@ Tài liệu này thống nhất cách dùng thuật ngữ trong Quyết định 
 ## 6. Giá trị tồn kho và giá vốn
 | Thuật ngữ tiếng Việt | Tiếng Anh tương đương | Giải nghĩa | Ví dụ | Ghi chú |
 |---|---|---|---|---|
-| Giá nhập thực tế | Actual receipt cost | Giá trị thực tế của một lần nhập gồm các cấu phần đủ căn cứ. | 100 lọ có tổng giá trị nhập 5 triệu đồng. | Khác giá vốn chính thức đang dùng để xuất. |
-| Cấu phần giá trị | Cost component | Khoản hình thành giá nhập như giá mua, chiết khấu thực tế và chi phí mua phân bổ. | Phí vận chuyển 200.000 đồng được phân bổ vào receipt. | Phải có nguồn, phương pháp và kỳ hiệu lực. |
+| Giá trị nhập ban đầu | Initial receipt value | Giá trị được xác lập lần đầu cho lượng hàng thực tế đã nhận, từ các căn cứ hợp lệ đang có tại thời điểm BJ03 xác nhận. | Nhận 100 hộp; căn cứ hợp lệ xác lập tổng giá trị nhập ban đầu 11 triệu đồng. | Không đồng nghĩa giá vốn chính thức; BJ03 không tạo `OfficialCostVersion`. |
+| Căn cứ giá trực tiếp | Direct price basis | Căn cứ giá do Theme 7 quản lý cho hàng nhập nhanh khi không phụ thuộc nguồn thương mại từ Theme 10; phải có nguồn, thời điểm và dấu vết người xác lập. | Kế toán xác lập 110.000 đ/hộp từ xác nhận NCC cho một Quick Receipt. | Không dùng để sửa PO/hóa đơn thuộc Theme 10. |
+| Điều chỉnh giá trị hàng nhập | Receipt value adjustment | Thành phần có dấu làm thay đổi giá trị hàng nhập sau khi BJ03 đã xác nhận; có thể tăng hoặc giảm. | Hóa đơn vận chuyển đến sau làm tăng 600.000 đồng; credit note làm giảm 200.000 đồng. | Không dùng để che lỗi nhập liệu; lỗi nhập sai đi correction. |
+| Cấu phần giá trị | Cost component | Khoản làm hình thành hoặc điều chỉnh giá trị hàng nhập, như giá mua, khoản giảm giá trị mua, thuế/phí không thu hồi và chi phí mua phân bổ. | Phí vận chuyển 200.000 đồng được phân bổ vào receipt. | Phải có nguồn, phương pháp và kỳ hiệu lực. |
 | Sổ biến động giá trị | Inventory value ledger | Sổ append-only ghi delta giá trị tồn kho. | Receipt +5 triệu; issue −500.000; true-up −20.000. | Authority tổng hợp ở tenant + product. |
 | Bút ghi giá trị | Inventory value movement | Một dòng giá trị bất biến gắn nguồn, sản phẩm, kỳ và loại movement. | VAL-01 ghi tăng 5 triệu cho P01. | Không sửa lại chứng từ gốc. |
 | Bình quân gia quyền liên hoàn | Moving weighted average | Bình quân được cập nhật theo trình tự movement đủ điều kiện. | Sau receipt mới, chỉ số bình quân thay đổi. | Tính song song để theo dõi/đối chiếu. |
 | Bình quân gia quyền cuối kỳ | Periodic weighted average | Bình quân tính tại cut-off trên toàn bộ hàng sẵn có của kỳ. | Tổng giá trị hàng sẵn có chia tổng quantity hàng sẵn có. | Có thể được chọn làm phương pháp nguồn. |
-| Phương pháp nguồn | Source costing method | Một trong hai phương pháp được chọn để công bố giá vốn chính thức cho kỳ. | Đơn vị vận hành chọn periodic average cho tháng 8. | Phương pháp còn lại không tự ghi sổ. |
+| Phương pháp nguồn | Source costing method | Phương pháp được chính sách tenant chọn trước để BJ14 dùng khi công bố giá vốn chính thức. | Tenant cấu hình bình quân cuối kỳ làm phương pháp công bố. | Phương pháp còn lại không tự ghi sổ. |
 | <a id="term-gia-von-chinh-thuc"></a>Giá vốn chính thức | Official inventory cost | Phiên bản đơn giá được công bố và có hiệu lực để ghi giảm tồn/giá vốn ban đầu. | C_official của P01 là 50.000 đồng từ 1/8. | Một thời điểm chỉ có một phiên bản hiệu lực. |
 | Phiên bản giá vốn | Official cost version | Bản giá vốn chính thức có nguồn tính, thời điểm hiệu lực và người công bố. | COST-P01-V3 có hiệu lực 1/9. | Bất biến sau công bố. |
 | Giá vốn ban đầu của giao dịch | Transaction-time COGS | Giá vốn ghi khi bàn giao dựa trên official cost đang hiệu lực. | Bán 10 lọ × 50.000 = 500.000 đồng. | Không dùng giá dự kiến từ kịch bản. |
@@ -214,7 +216,7 @@ Tài liệu này thống nhất cách dùng thuật ngữ trong Quyết định 
 | Balance và ledger | Balance là trạng thái hiện tại dựng lại được; ledger là Dữ liệu gốc. |
 | Phê duyệt và hoàn tất | Phê duyệt chỉ cho phép thực thi; Completed mới xác nhận owner effect đã commit. |
 | Từ chối thực thi và UNKNOWN | Rejected chắc chắn chưa commit; UNKNOWN chưa biết đã commit hay chưa. |
-| Giá nhập thực tế và giá vốn chính thức | Giá nhập thuộc một receipt; official cost là version dùng để ghi giảm tồn/COGS ban đầu. |
+| Giá trị nhập ban đầu và giá vốn chính thức | Giá trị nhập ban đầu thuộc lượng hàng nhận và được BJ03 xác lập; giá vốn chính thức là version do BJ14 công bố theo phương pháp tenant. |
 | Giá vốn chính thức và giá vốn tham chiếu định giá | Official cost thuộc valuation; pricing basis thuộc định giá bán và có thể dùng nguồn dự kiến. |
 | Giá vốn dự kiến và giá vốn kế toán | Projected cost phục vụ quyết định giá; COGS chỉ dùng official cost và adjustment hợp lệ. |
 | Giá niêm yết và giá bán giao dịch | List price là giá trước promotion; transaction price là giá thực áp cho dòng bán. |

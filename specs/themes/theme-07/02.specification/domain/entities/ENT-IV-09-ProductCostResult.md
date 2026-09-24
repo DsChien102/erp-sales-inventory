@@ -1,75 +1,82 @@
 ---
 id: ENT-IV-09
 type: business-entity
+role: CHILD_ENTITY
 theme: theme-07
 title: ProductCostResult
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-09 — ProductCostResult
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Kết quả costing immutable theo Product trong một CostCalculationRun
+Kết quả bất biến của một Product trong `CostCalculationRun`, gồm hai phép tính song song, method tenant áp dụng và các delta cần reconcile nếu publish.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `CHILD_ENTITY` |
+| Aggregate Root | `CostCalculationRun` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Tenant costing policy → policy owner; OfficialCostVersion → publication của CostCalculationRun |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class CostCalculationRun { <<AggregateRoot>> }
+    class ProductCostResult { <<Child Entity>> }
+    CostCalculationRun "1" *-- "0..*" ProductCostResult
+```
 
-FK run + product; unique run + product; result hash
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `productCostResultId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(runId, productId)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `product_cost_result_id` | `UUID` | PK | Bắt buộc | Sinh UUID | Immutable result line |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `run_id` | `UUID` | FK → `CostCalculationRun` | Bắt buộc | — | Unique `(run_id, product_id)` |
-| `product_id` | `UUID` | FK → `Product` | Bắt buộc | — | Cost authority scope |
-| `base_uom_id` | `UUID` | FK → `ProductUnit` | Bắt buộc | — | Official Cost normalization unit |
-| `valuation_fact_range` | `JSONB` | — | Bắt buộc | — | Ordered valuation sequence range/ordinals included |
-| `valuation_fact_hash` | `CHAR(64)` | — | Bắt buộc | — | Immutable Product fact-set hash |
-| `opening_base_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | — |
-| `opening_value_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | — |
-| `ending_base_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Negative invalid without explicit policy |
-| `moving_average_result` | `JSONB` | — | Bắt buộc | — | Includes unit cost/target COGS/ending value or explicit result state |
-| `periodic_average_result` | `JSONB` | — | Bắt buộc | — | Same input fact set as moving result |
-| `selected_method` | `VARCHAR(30)` | — | Bắt buộc | — | Snapshot of locked policy, not reviewer choice |
-| `predecessor_official_cost_version_id` | `UUID` | FK → `OfficialCostVersion` | Nullable | `NULL` | Current official cost before publication |
-| `proposed_official_unit_cost` | `DECIMAL(20,6)` | — | Nullable | `NULL` | Null when `NO_NEW_COST_BASIS` |
-| `target_cumulative_cogs_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Target at cutoff |
-| `authoritative_cogs_baseline_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Includes original issue COGS + prior true-ups/corrections through cutoff |
-| `cogs_reconciliation_delta_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Target minus authoritative baseline |
-| `target_ending_inventory_value_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Target at cutoff |
-| `authoritative_carrying_value_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Includes receipt/late-cost/previous adjustments/corrections |
-| `ending_inventory_reconciliation_delta_vnd` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Target minus current carrying value |
-| `result_state` | `VARCHAR(40)` | — | Bắt buộc | — | `READY`, `BLOCKED`, `NO_NEW_COST_BASIS`; zero unit cost is allowed only with provenance |
-| `blocker_codes` | `JSONB` | — | Bắt buộc | `[]` | Product-level blockers incl. negative quantity/value |
-| `reconciliation_baseline_hash` | `CHAR(64)` | — | Bắt buộc | — | Binds COGS/carrying baseline |
-| `result_hash` | `CHAR(64)` | — | Bắt buộc | — | Binds all Product calculation/reconciliation facts |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Immutable |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `productId` | Sản phẩm được tính | Có | Một result/Product/run |
+| `baseUomRef` | Base UOM dùng cho unit cost | Có | Snapshot |
+| `valuationFactSet` | Range/hash của valuation facts đã dùng | Có | Cùng fact set cho hai method |
+| `openingQuantityValue` | Quantity/value đầu kỳ/cut-off đầu | Có | Input |
+| `endingQuantity` | Quantity cuối cut-off | Có | Negative là blocker nếu không có policy ngoại lệ |
+| `movingAverageResult` | Kết quả bình quân liên hoàn | Có | Đối chiếu hoặc method selected |
+| `periodicAverageResult` | Kết quả bình quân cuối kỳ | Có | Đối chiếu hoặc method selected |
+| `selectedMethod` | Snapshot từ tenant policy | Có | Không phải reviewer choice |
+| `proposedOfficialUnitCost` | Đơn giá đề xuất để publish | Khi có basis | Null nếu NO_NEW_COST_BASIS |
+| `cogsReconciliationDelta` | Delta COGS cần ghi | Có thể 0 | Target − authoritative baseline |
+| `endingInventoryDelta` | Delta carrying value tồn cuối | Có thể 0 | Target − authoritative carrying value |
+| `resultState` | READY/BLOCKED/NO_NEW_COST_BASIS | Có | Blocker list đi kèm |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `run_id`: FK → `CostCalculationRun`.
-- `product_id`: FK → `Product`.
-- `base_uom_id`: FK → `ProductUnit`.
-- `predecessor_official_cost_version_id`: FK → `OfficialCostVersion`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `calculate()` | Fact set/cut-off/policy snapshot current | ProductCostCalculated |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Rerun trên cùng valuation facts và cùng authoritative reconciliation baseline phải tạo delta bằng 0. `NO_NEW_COST_BASIS` không tạo OfficialCostVersion mới; predecessor vẫn còn hiệu lực. Ending quantity bằng 0 vẫn có thể có COGS true-up nếu goods-available basis hợp lệ.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| — | Không phát event riêng | Event được phát bởi Aggregate Root sở hữu hoặc Technical Contract mapping từ commit set |
 
-- `BC-IV-02`
-- `BC-IV-03`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-02`, `BC-IV-03` |
+| Use Case | `UC-14-01`, `UC-14-04` |
+| Quyết định | `T7-DR-164`, `T7-DR-165`, `T7-DR-168`, `T7-DR-169`, `T7-DR-194`, `T7-DR-195` |

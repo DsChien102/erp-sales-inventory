@@ -5,107 +5,133 @@ theme: theme-07
 title: "Xem hàng cận hạn và hết hạn"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-01-05 — Xem hàng cận hạn và hết hạn
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Xem hàng cận hạn và hết hạn để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Nhận diện các lô cận hạn và hết hạn từ HSD thực tế cùng policy cận hạn hiện hành.
 
-**Kết quả thành công:** <ul><li>Các lô cần chú ý được phân nhóm</li><li>Derived expiry indicator</li></ul>
+**Kết quả cần đạt:** Các lô cần chú ý được phân nhóm theo cận hạn/hết hạn với `as_of`; không tự đổi trạng thái hay tiêu hủy hàng.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Có lot expiry và policy cận hạn
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Các lô cần chú ý được phân nhóm</li><li>Derived expiry indicator</li></ul>
+Các lô cần chú ý được phân nhóm; Derived expiry indicator.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không tự chuyển trạng thái hoặc tiêu hủy hàng. UC này chỉ xác định và hiển thị lượng cận hạn/hết hạn từ hạn dùng và ngày nghiệp vụ hiện hành.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Chủ cửa hàng, người mua hàng hoặc thủ kho
-- **Trigger:** Có lot expiry và policy cận hạn
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** Chủ cửa hàng, người mua hàng hoặc thủ kho.
+- **Thẩm quyền:** Chỉ được đọc đúng tenant/cửa hàng/kho/sản phẩm thuộc phạm vi được cấp; quyền xem số lượng, giá trị và dữ liệu tài chính được kiểm soát độc lập theo policy.
+- **Sự kiện khởi phát:** Có lot expiry và policy cận hạn.
+- **Điều kiện trước:** Ngữ cảnh tenant/cửa hàng/kho và quyền đọc hợp lệ; nguồn/read model cần cho truy vấn có thể xác định được `as_of`/version hoặc trả trạng thái stale rõ ràng.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Đối tượng nghiệp vụ | Đối tượng/phạm vi được nêu tại điều kiện bắt đầu và các rule bên dưới | DOM-IO |
 
-tenant_id, phạm vi đọc, filter/cut-off/as-of, quyền xem và correlation ID.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Căn cứ tồn: Chỉ dùng available quantity hiện hành; không cộng hàng sắp về hoặc trừ nhu cầu dự kiến</li><li>Hết/tồn thấp: OUT khi available bằng 0; LOW khi 0 < available ≤ threshold</li><li>Lượng gợi ý: max(0, target_stock_level − available_quantity) theo đơn vị cơ sở</li><li>Thiếu cấu hình: Gắn NOT_CONFIGURED; không tự suy ra threshold/target</li><li>Cận/hết hạn: Product override ưu tiên tenant default; hết hạn bị loại khỏi khả dụng theo ngày nghiệp vụ dù chỉ báo chưa được mở</li><li>LOT/NONE: Chỉ sản phẩm/lượng có expiry mới xuất hiện trong danh sách cận/hết hạn</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Không có finality mutation. Nếu nguồn đọc chưa sẵn sàng hoặc stale, phải trả as_of/stale hoặc lỗi rõ ràng; không suy diễn số liệu.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Không đổi trạng thái authoritative; chỉ trả read model/snapshot có thời điểm dữ liệu.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả dùng chung](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-14 — Query low stock suggestions](../behavioral-contracts/BC-IO-14.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-001](../../../03.design/screens/SCR-001.md); [SCR-003](../../../03.design/screens/SCR-003.md); LOT Detail overlay [SCR-004](../../../03.design/screens/SCR-004.md) |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 4.1 Làm rõ semantic — Deep-Dive Review v3.9.1
-
-- Quantity hiển thị theo **stock/base UOM**.
-- Freshness dùng `query_as_of` do server trả; UI diễn đạt `Dữ liệu đến`, không dùng thời điểm click refresh làm dữ liệu.
-- Expiry attention phân biệt `WARN` và `BLOCK_SALE`; HSD giữ precision nguồn DAY/MONTH/YEAR. Product row dùng wording `Có lô ...`; LOT row dùng `Cận hạn/Hết hạn`.
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-01-05-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Xem hàng cận hạn và hết hạn” | Các lô cần chú ý được phân nhóm; kết quả Derived expiry indicator và có truy vết nguồn. |
-| AS-UC-01-05-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-01-05-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-01-05-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Không có finality mutation. Nếu nguồn đọc chưa sẵn sàng hoặc stale, phải trả as_of/stale hoặc lỗi rõ ràng; không suy diễn số liệu. |
+| BF-01 | Người dùng | Mở danh sách hàng cận hạn/hết hạn. |  |
+| BF-02 | Hệ thống | Đọc các lô có expiry trong phạm vi và policy cận hạn: Product override trước tenant default. | AF-A — Chưa cấu hình policy cận hạn |
+| BF-03 | Hệ thống | Xác định lô đã hết hạn theo ngày nghiệp vụ; xác định cận hạn theo số ngày policy còn lại. |  |
+| BF-04 | Hệ thống | Loại sản phẩm `NONE`/không có expiry khỏi danh sách và gắn `as_of`. | BR-06 — LOT/NONE |
+| BF-05 | Người dùng | Đọc danh sách; thay đổi state/tiêu hủy nếu cần đi BJ09/BJ10, không thực hiện trong UC này. |  |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Chưa cấu hình policy cận hạn
+**Phát sinh tại:** BF-02. **Điều kiện:** Không có Product override hoặc tenant default cho cảnh báo cận hạn .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Không tự đặt ngưỡng; vẫn xác định hàng đã hết hạn trực tiếp từ expiry date, còn cận hạn trả `NOT_CONFIGURED`. | |
+| AF-A-02 | — | [Kết thúc UC.] | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Dữ liệu HSD không hợp lệ
+**Phát sinh tại:** BF-02. **Điều kiện:** Lô thiếu/mâu thuẫn HSD trong khi tracking yêu cầu expiry .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Không tự suy HSD; trả lỗi dữ liệu nguồn để xử lý ở owner thích hợp. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Căn cứ tồn | Chỉ dùng available quantity hiện hành; không cộng hàng sắp về hoặc trừ nhu cầu dự kiến| Decision / DOM-IO / BC nguồn |
+| BR-02 | Hết/tồn thấp | OUT khi available bằng 0; LOW khi 0 < available ≤ threshold| Decision / DOM-IO / BC nguồn |
+| BR-03 | Lượng gợi ý | max(0, target_stock_level − available_quantity) theo đơn vị cơ sở| Decision / DOM-IO / BC nguồn |
+| BR-04 | Thiếu cấu hình | Gắn NOT_CONFIGURED; không tự suy ra threshold/target| Decision / DOM-IO / BC nguồn |
+| BR-05 | Cận/hết hạn | Product override ưu tiên tenant default; hết hạn bị loại khỏi khả dụng theo ngày nghiệp vụ dù chỉ báo chưa được mở| Decision / DOM-IO / BC nguồn |
+| BR-06 | LOT/NONE | Chỉ sản phẩm/lượng có expiry mới xuất hiện trong danh sách cận/hết hạn| Decision / DOM-IO / BC nguồn |
+
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `BC-IO-14` — Query low stock suggestions.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | Các lô cần chú ý được phân nhóm theo cận hạn/hết hạn với `as_of`; không tự đổi trạng thái hay tiêu hủy hàng. | Kết thúc tra cứu hoặc chuyển sang UC/BJ khác theo nhu cầu nghiệp vụ; UC này không ghi thay đổi authoritative. |
+| Không đủ điều kiện / Bị từ chối | Nếu thiếu quyền, dữ liệu không tồn tại hoặc nguồn stale, hệ thống trả đúng trạng thái đọc/cảnh báo; không tạo mutation. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+
+**Ảnh hưởng nghiệp vụ chính:** Các lô cần chú ý được phân nhóm theo cận hạn/hết hạn với `as_of`; không tự đổi trạng thái hay tiêu hủy hàng.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-001` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
+| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
+| `SCR-004` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem hàng cận hạn và hết hạn”; không tạo mutation. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-01-05-01 — Xem hàng cận hạn và hết hạn — luồng chính
+- **Given:** Có lot expiry và policy cận hạn
+- **When:** Mở danh sách hàng cận hạn/hết hạn.
+- **Then:** Các lô cần chú ý được phân nhóm theo cận hạn/hết hạn với `as_of`; không tự đổi trạng thái hay tiêu hủy hàng.
+
+### AS-UC-01-05-02 — Xem hàng cận hạn và hết hạn — Chưa cấu hình policy cận hạn
+- **Given:** Không có Product override hoặc tenant default cho cảnh báo cận hạn.
+- **When:** Hệ thống phát hiện điều kiện “Chưa cấu hình policy cận hạn” tại BF-02.
+- **Then:** Không tự đặt ngưỡng; vẫn xác định hàng đã hết hạn trực tiếp từ expiry date, còn cận hạn trả `NOT_CONFIGURED`. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
+
+### AS-UC-01-05-03 — Xem hàng cận hạn và hết hạn — Dữ liệu HSD không hợp lệ
+- **Given:** Lô thiếu/mâu thuẫn HSD trong khi tracking yêu cầu expiry.
+- **When:** Hệ thống phát hiện điều kiện “Dữ liệu HSD không hợp lệ” tại BF-02.
+- **Then:** Không tự suy HSD; trả lỗi dữ liệu nguồn để xử lý ở owner thích hợp. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-01` — Theo dõi tồn, khả dụng và chỉ báo vận hành.
+- **Domain:** `DOM-IO`.
+- **Behavioral Contract:** `SBC-COM-02`, `BC-COMMON-EXTENSIONS`, `SBC-COM-03`, `BC-IO-14`.
+
 - **Nguồn quyết định:** [Nhóm G13 — Bổ sung hàng và vòng đời master data](../../../01.knowledge/decisions/decision-register.md#313-g13-d%E1%BB%AF-li%E1%BB%87u-ch%E1%BB%A7-combo-b%E1%BB%95-sung-h%C3%A0ng-v%C3%A0-nghi%E1%BB%87p-v%E1%BB%A5-%C4%91%E1%BA%B7c-bi%E1%BB%87t); [Nhóm G12 — Cảnh báo, phục hồi, hiệu năng và POS offline](../../../01.knowledge/decisions/decision-register.md#312-g12-s%E1%BB%95-nghi%E1%BB%87p-v%E1%BB%A5-b%C3%A1o-c%C3%A1o-%C4%91%E1%BB%91i-so%C3%A1t-c%E1%BA%A3nh-b%C3%A1o-v%C3%A0-ph%E1%BB%A5c-h%E1%BB%93i)
 - **Bài tri thức liên quan:** [Tồn dự kiến và đề xuất bổ sung hàng](../../../01.knowledge/know-how/KB-KGV-036-ton-du-kien-va-de-xuat-bo-sung-hang.md); [Cảnh báo tồn kho và vòng đời xử lý](../../../01.knowledge/know-how/KB-KGV-038-canh-bao-ton-kho-va-vong-doi-xu-ly.md); [Hàng cận hạn, hết hạn, hư hỏng và tiêu hủy](../../../01.knowledge/know-how/KB-KGV-014-hang-can-han-het-han-hu-hong-va-tieu-huy.md); [Tồn vật lý và tồn khả dụng](../../../01.knowledge/know-how/KB-KGV-005-ton-vat-ly-va-ton-kha-dung.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-01-05-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-01-05, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-01-05. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-### Nguồn v3.10.1 — UC-01-05 — Xem hàng cận hạn và hết hạn
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW

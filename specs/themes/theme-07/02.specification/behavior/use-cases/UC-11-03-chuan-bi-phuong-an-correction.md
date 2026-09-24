@@ -5,101 +5,151 @@ theme: theme-07
 title: "Chuẩn bị phương án correction"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-11-03 — Chuẩn bị phương án correction
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Chuẩn bị phương án correction để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Lập phương án correction cho transaction đã commit bằng các effect đảo/điều chỉnh có liên kết, không sửa dữ liệu lịch sử tại chỗ.
 
-**Kết quả thành công:** <ul><li>Phương án khả thi đủ căn cứ hoặc bị chặn</li><li>Correction proposal</li></ul>
+**Kết quả cần đạt:** Correction proposal có target, lý do, effect dự kiến và evidence đầy đủ để duyệt/thực thi.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Operation đã hoàn tất và có correction intent
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Phương án khả thi đủ căn cứ hoặc bị chặn</li><li>Correction proposal</li></ul>
+Phương án khả thi đủ căn cứ hoặc bị chặn; Correction proposal.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không ghi reversal/correction movement ở bước chuẩn bị và không sửa transaction gốc. UC chỉ xác định phần sai, phương án đối ứng và bằng chứng để xin duyệt/thực thi.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Người vận hành kho và người duyệt sửa sai
-- **Trigger:** Operation đã hoàn tất và có correction intent
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** Người vận hành kho và người duyệt sửa sai.
+- **Thẩm quyền:** Được lập/cập nhật hồ sơ nháp trong phạm vi được cấp; chưa có quyền tạo tác động cuối nếu Journey còn bước phê duyệt hoặc thực thi riêng.
+- **Sự kiện khởi phát:** Operation đã hoàn tất và có correction intent.
+- **Điều kiện trước:** Nguồn/version cần dùng còn hiện hành; tác nhân có quyền lập hồ sơ trong đúng tenant/cửa hàng/kho; các master/policy bắt buộc cho việc chuẩn bị đã resolve được.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Nguồn nghiệp vụ và phiên bản | Định danh nguồn/đối tượng nghiệp vụ và phiên bản hiện hành cần dùng để tránh xử lý trên dữ liệu cũ. | DOM-IO / DOM-IC / BC liên quan |
+| Dữ liệu nghiệp vụ | Các dữ kiện người dùng/nguồn cung cấp cho mục tiêu của Use Case; phải tuân theo rule ở mục 6. | DOM-IO / DOM-IC / BC liên quan |
+| Phạm vi thực hiện | Tác nhân và phạm vi tenant/cửa hàng/kho mà yêu cầu được phép xử lý. | DOM-IO / DOM-IC / BC liên quan |
 
-Command envelope dùng chung; source/aggregate ID và version; payload nghiệp vụ; idempotency key; actor, tenant, store và warehouse scope.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Hủy trước thực thi: Chỉ DRAFT, PENDING_APPROVAL hoặc READY được hủy; cancellation không tạo movement/value</li><li>UNKNOWN: Không đảo hoặc thay thế khi chưa xác lập finality; phải đối soát bằng cùng operation ID</li><li>Operation hoàn tất: Không sửa payload/result; tạo operation mới trong correction chain</li><li>Dependency: Chặn reversal nếu làm âm tồn hoặc dependency chưa được trung hòa; không giả lập trung hòa bằng sửa số dư</li><li>Delta hay full reversal: Dùng delta khi chỉ phần sai có thể sửa độc lập và giữ đúng nguồn; dùng reversal + replacement khi toàn operation mất hiệu lực hoặc payload đúng phải được xác lập lại nguyên khối</li><li>Hàng thực quay về: Sale Issue đã bàn giao chỉ tăng tồn qua BJ-06; cancellation/correction không thay thế việc nhận hàng thực tế</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Chỉ tạo thay đổi được nêu trong BC-IO-16, BC-IC-07; UI hoặc adapter không được tự thêm transition.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-16 — Maintain operation draft](../behavioral-contracts/BC-IO-16.md); [BC-IC-07 — Submit inventory operation](../behavioral-contracts/BC-IC-07.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-049](../../../03.design/screens/SCR-049.md); [SCR-052](../../../03.design/screens/SCR-052.md) |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-11-03-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Chuẩn bị phương án correction” | Phương án khả thi đủ căn cứ hoặc bị chặn; kết quả Correction proposal và có truy vết nguồn. |
-| AS-UC-11-03-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-11-03-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-11-03-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp. |
+| BF-01 | Người vận hành | Chọn transaction/effect đã commit cần sửa và nhập lý do. |  |
+| BF-02 | Hệ thống | Nạp original operation, movement/value/state effects và correction chain hiện hữu. | EF-A — Target không còn hợp lệ |
+| BF-03 | Người vận hành | Chọn phương án correction phù hợp và bổ sung evidence bắt buộc. |  |
+| BF-04 | Hệ thống | Tính effect đảo/điều chỉnh dự kiến và kiểm tra không vượt original exposure/không tạo correction vòng lặp. | AF-A — Cần nhiều bước correction |
+| BF-05 | Hệ thống | Lưu proposal/version và chuyển phê duyệt nếu policy yêu cầu; chưa ghi ledger. | EF-B — Kết quả lưu chưa xác định |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Cần nhiều bước correction
+**Phát sinh tại:** BF-04. **Điều kiện:** Một correction đơn không thể đưa trạng thái về đúng đích mà vẫn giữ invariant .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Dựng correction plan có thứ tự và liên kết chain; hiển thị toàn bộ effect dự kiến để duyệt. | |
+| AF-A-02 | — | [Tiếp tục BF-05.] | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Target không còn hợp lệ
+**Phát sinh tại:** BF-02. **Điều kiện:** Original/correction chain đã thay đổi hoặc đã được sửa bởi operation khác .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Không tạo proposal trên snapshot cũ; yêu cầu refresh. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+#### EF-B — Kết quả lưu chưa xác định
+**Phát sinh tại:** BF-05. **Điều kiện:** Không rõ proposal đã commit .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-B-01 | Hệ thống | Verify proposal identity/version trước retry. | |
+| EF-B-02 | — | [Kết thúc/hand-off recovery.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Hủy trước thực thi | Chỉ DRAFT, PENDING_APPROVAL hoặc READY được hủy; cancellation không tạo movement/value| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-02 | UNKNOWN | Không đảo hoặc thay thế khi chưa xác lập finality; phải đối soát bằng cùng operation ID| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-03 | Operation hoàn tất | Không sửa payload/result; tạo operation mới trong correction chain| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-04 | Dependency | Chặn reversal nếu làm âm tồn hoặc dependency chưa được trung hòa; không giả lập trung hòa bằng sửa số dư| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-05 | Delta hay full reversal | Dùng delta khi chỉ phần sai có thể sửa độc lập và giữ đúng nguồn; dùng reversal + replacement khi toàn operation mất hiệu lực hoặc payload đúng phải được xác lập lại nguyên khối| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-06 | Hàng thực quay về | Sale Issue đã bàn giao chỉ tăng tồn qua BJ-06; cancellation/correction không thay thế việc nhận hàng thực tế| Decision / DOM-IO / DOM-IC / BC nguồn |
+
+- `SBC-COM-01` — Bao yêu cầu và định danh.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Finality và tính nguyên tử.
+- `BC-IO-16` — Maintain operation draft.
+- `BC-IC-07` — Submit inventory operation.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | Correction proposal có target, lý do, effect dự kiến và evidence đầy đủ để duyệt/thực thi. | Hồ sơ chỉ được bàn giao sang bước duyệt/thực thi khi các điều kiện của UC đã đạt; chưa ghi ledger trước commit point. |
+| Không đủ điều kiện / Bị từ chối | Nếu dữ liệu, nguồn hoặc version chưa đủ điều kiện, hồ sơ không được đưa qua commit point; dữ liệu hợp lệ đã nhập được giữ theo contract để sửa/refresh khi an toàn. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+| Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
+
+**Ảnh hưởng nghiệp vụ chính:** Correction proposal có target, lý do, effect dự kiến và evidence đầy đủ để duyệt/thực thi.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-049` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị phương án correction”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+| `SCR-052` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị phương án correction”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-11-03-01 — Chuẩn bị phương án correction — luồng chính
+- **Given:** Operation đã hoàn tất và có correction intent
+- **When:** Chọn transaction/effect đã commit cần sửa và nhập lý do.
+- **Then:** Correction proposal có target, lý do, effect dự kiến và evidence đầy đủ để duyệt/thực thi.
+
+### AS-UC-11-03-02 — Chuẩn bị phương án correction — Cần nhiều bước correction
+- **Given:** Một correction đơn không thể đưa trạng thái về đúng đích mà vẫn giữ invariant.
+- **When:** Hệ thống phát hiện điều kiện “Cần nhiều bước correction” tại BF-04.
+- **Then:** Dựng correction plan có thứ tự và liên kết chain; hiển thị toàn bộ effect dự kiến để duyệt. Luồng chính tiếp tục tại BF-05: Lưu proposal/version và chuyển phê duyệt nếu policy yêu cầu; chưa ghi ledger.
+
+### AS-UC-11-03-03 — Chuẩn bị phương án correction — Target không còn hợp lệ
+- **Given:** Original/correction chain đã thay đổi hoặc đã được sửa bởi operation khác.
+- **When:** Hệ thống phát hiện điều kiện “Target không còn hợp lệ” tại BF-02.
+- **Then:** Không tạo proposal trên snapshot cũ; yêu cầu refresh. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
+
+### AS-UC-11-03-04 — Chuẩn bị phương án correction — Kết quả lưu chưa xác định
+- **Given:** Không rõ proposal đã commit.
+- **When:** Hệ thống phát hiện điều kiện “Kết quả lưu chưa xác định” tại BF-05.
+- **Then:** Verify proposal identity/version trước retry. Giữ nguyên identity/evidence hiện có và bàn giao recovery/finality; không tạo effect trùng hoặc thử lại mù.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-11` — Hủy và sửa sai nghiệp vụ kho.
+- **Domain:** `DOM-IO`, `DOM-IC`.
+- **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IO-16`, `BC-IC-07`.
+
 - **Nguồn quyết định:** [Nhóm G08 — Sửa sai, reversal và kỳ khóa](../../../01.knowledge/decisions/decision-register.md#38-g08-s%E1%BB%ADa-sai-v%C3%A0-ho%C3%A0n-nguy%C3%AAn); [Nhóm G10 — Inventory Operation, idempotency và sự kiện](../../../01.knowledge/decisions/decision-register.md#310-g10-inventory-operation-t%C3%ADch-h%E1%BB%A3p-ch%E1%BB%91ng-tr%C3%B9ng-v%C3%A0-k%E1%BA%BFt-qu%E1%BA%A3-ch%C6%B0a-x%C3%A1c-%C4%91%E1%BB%8Bnh)
 - **Bài tri thức liên quan:** [Sửa sai tồn kho mà không sửa lịch sử](../../../01.knowledge/know-how/KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su.md); [Vòng đời của một Inventory Operation](../../../01.knowledge/know-how/KB-KGV-027-vong-doi-cua-mot-inventory-operation.md); [Idempotency, phiên bản nguồn và xử lý kết quả chưa xác định](../../../01.knowledge/know-how/KB-KGV-028-idempotency-phien-ban-nguon-va-xu-ly-ket-qua-chua-xac-dinh.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-11 — Hủy và sửa sai nghiệp vụ kho](../journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-11-03-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-11-03, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-11-03. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-### Nguồn v3.10.1 — UC-11-03 — Chuẩn bị phương án correction
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-11 — Hủy và sửa sai nghiệp vụ kho](../journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW

@@ -1,0 +1,20 @@
+{
+  "id": "EVD-STRUCTURE-MIGRATION-v3.11.0",
+  "theme": "theme-07",
+  "version": "3.11.0",
+  "parent": "3.10.1",
+  "semantic_delta": "NONE",
+  "source_file_count": 7025,
+  "mapping": {
+    "04.architecture/aggregates": "02.specification/domain/aggregates",
+    "04.architecture/read-models": "02.specification/domain/read-models",
+    "04.architecture/integrations": "02.specification/domain/integrations",
+    "04.architecture/foundations + nfr": "02.specification/technical-contracts",
+    "05. harness/{sa-slices,be-slices,fe-slices}": "04.harness/slices",
+    "05. harness/manifests": "04.harness/manifests",
+    "06.procedures": "05.procedures",
+    "07.evidence": "06.evidence"
+  },
+  "changed_markdown_link_files": 181,
+  "changed_plain_path_files": 4
+}

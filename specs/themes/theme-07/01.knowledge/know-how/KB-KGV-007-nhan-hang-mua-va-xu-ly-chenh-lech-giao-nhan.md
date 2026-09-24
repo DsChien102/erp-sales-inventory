@@ -5,7 +5,7 @@ theme: theme-07
 title: nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # KB-KGV-007-nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan — nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan
 
@@ -34,14 +34,14 @@ Nhập mua chỉ tăng tồn vật lý khi thủ kho xác nhận lượng thực
 
 Nhập mua tăng tồn vật lý khi thủ kho xác nhận lượng thực nhận và operation nhận hàng hoàn tất.
 
-Kết quả nhận hàng luôn đưa lượng đạt vào `VALUATION_PENDING`, kể cả khi chứng từ nhận đã mang theo giá dự kiến hoặc bằng chứng giá. Nhận hàng và xác nhận giá là hai lệnh riêng: lệnh đầu chịu trách nhiệm cho sự thật vật lý; lệnh sau mới có quyền ghi giá trị và giải phóng khả dụng.
+Kết quả nhận hàng luôn đưa lượng đạt vào `VALUATION_PENDING`, kể cả khi chứng từ nhận đã mang theo giá dự kiến hoặc bằng chứng giá. Nhận hàng và xác lập giá trị nhập ban đầu là hai nghiệp vụ riêng: nghiệp vụ đầu chịu trách nhiệm cho sự thật vật lý; BJ03 mới có quyền ghi giá trị nhập ban đầu và chuyển trục định giá khỏi `VALUATION_PENDING`. Khả dụng chỉ được đánh giá lại cho lượng đồng thời đủ điều kiện bán.
 #### Nhận từng phần và kiểm soát thừa thiếu
 
 Cho phép nhận từng phần; ghi nhận thiếu/thừa so với đơn mua; phần vượt ngưỡng phải được phê duyệt.
 
 #### Nhập hàng nhanh luôn phải được phê duyệt
 
-Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu, giá/tỷ giá hoặc người duyệt đủ điều kiện, hồ sơ giữ ở Nháp để bổ sung. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
+Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu hoặc người duyệt đủ điều kiện, hồ sơ giữ ở Nháp để bổ sung. Căn cứ giá của BJ03 là nghiệp vụ định giá riêng sau khi nhận hàng đã hoàn tất. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
 
 #### Một receipt, một nhà cung cấp và nhiều mục hàng
 
@@ -120,7 +120,7 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 | Quyết định chính | [`T7-DR-020`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-022`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-023`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-024`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-020#REQ-01`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-027`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BB%8B), [`T7-DR-103`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-104`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-105`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B) |
 | Trạng thái quyết định | `ACTIVE` |
 | Mức bằng chứng của bài | `STATIC_VALIDATED` |
-| Giới hạn | Bài nói về số lượng và giao nhận; việc chốt giá, đưa hàng vào bán và dữ liệu lô được giải thích ở các bài liên quan |
+| Giới hạn | Bài nói về số lượng và giao nhận; việc xác lập giá trị nhập ban đầu, điều kiện khả dụng và dữ liệu lô được giải thích ở các bài liên quan |
 
 ## 5. Liên kết liên quan
 

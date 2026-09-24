@@ -1,85 +1,80 @@
 ---
 id: ENT-IC-05
 type: business-entity
+role: CHILD_ENTITY
 theme: theme-07
 title: StockCountLine
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-05 — StockCountLine
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Materialized balance key, book/count/recount
+Dòng kiểm kê đại diện một canonical physical-count key trong `StockCountSession`; giữ book quantity tại cut-off, kết quả đếm cuối và variance được chấp nhận.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `CHILD_ENTITY` |
+| Aggregate Root | `StockCountSession` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Movement/balance current → DOM-IO; giá trị adjustment → DOM-IV khi cần |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class StockCountSession { <<AggregateRoot>> }
+    class StockCountLine { <<Child Entity>> }
+    StockCountSession "1" *-- "0..*" StockCountLine
+```
 
-FK session; unique session + balance key
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `stockCountLineId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(sessionId, physicalCountKey)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `stock_count_line_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `session_id` | `UUID` | FK → `StockCountSession` | Bắt buộc | — | — |
-| `line_no` | `INTEGER` | UK thành phần | Bắt buộc | — | Stable within session |
-| `physical_count_key_hash` | `CHAR(64)` | UK thành phần | Bắt buộc | — | Hash Warehouse+Product+stock_state+lot_key |
-| `book_balance_ids_snapshot` | `JSONB` | — | Bắt buộc | `[]` | One or more underlying balance IDs; Phase 1 open guard ensures no unresolved/mixed valuation state |
-| `product_id` | `UUID` | FK → `Product` | Bắt buộc | — | — |
-| `stock_state` | `VARCHAR(40)` | — | Bắt buộc | — | Physical state observable/selected; valuation_state không thuộc physical key |
-| `lot_id` | `UUID` | FK → `Lot` | Nullable | `NULL` | — |
-| `lot_key_snapshot` | `VARCHAR(128)` | — | Bắt buộc | — | Stable sentinel khi non-lot |
-| `base_uom_id` | `UUID` | FK → `ProductUnit` | Bắt buộc | — | Count authority |
-| `base_uom_snapshot` | `JSONB` | — | Bắt buộc | — | Label/precision/step |
-| `is_unexpected_key` | `BOOLEAN` | — | Bắt buộc | `false` | Physical key không có trong book snapshot nhưng hợp frozen scope |
-| `unexpected_identity_snapshot` | `JSONB` | — | Nullable | `NULL` | Product/state/tracking/lot attributes captured/revalidated |
-| `book_quantity_base` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Không lộ trước FIRST submit |
-| `first_submission_id` | `UUID` | FK → `StockCountSubmission` | Nullable | `NULL` | Projection ref |
-| `latest_recount_submission_id` | `UUID` | FK → `StockCountSubmission` | Nullable | `NULL` | Projection ref |
-| `final_count_quantity_base` | `DECIMAL(20,6)` | — | Nullable | `NULL` | Latest accepted physical count |
-| `variance_quantity_base` | `DECIMAL(20,6)` | — | Nullable | `NULL` | final - book |
-| `surplus_value_basis_snapshot` | `JSONB` | — | Nullable | `NULL` | Bắt buộc trước approval/adjustment nếu variance > 0 |
-| `surplus_value_basis_hash` | `CHAR(64)` | — | Nullable | `NULL` | Exact authoritative source/version |
-| `shortage_official_cost_version_id` | `UUID` | FK → `OfficialCostVersion` | Nullable | `NULL` | Snapshot risk basis khi variance < 0 |
-| `count_adjustment_basis_hash` | `CHAR(64)` | — | Nullable | `NULL` | Bind line into current approval snapshot |
-| `adjustment_operation_line_id` | `UUID` | FK → `InventoryOperationLine` | Nullable | `NULL` | Chỉ có khi non-zero variance approved/committed |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Projection CAS |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `physicalCountKey` | Product + stock state + lot identity trong scope | Có | Ổn định trong session |
+| `bookQuantityBase` | Số lượng sổ tại cut-off | Có | Không thay đổi theo movement sau cut-off |
+| `firstSubmissionRef` | Round đếm đầu tiên | Sau first count | Immutable ref |
+| `latestRecountRef` | Round recount mới nhất | Nếu có | Không mất round trước |
+| `finalCountQuantityBase` | Số lượng cuối được chấp nhận | Khi finalize | Theo base UOM |
+| `varianceQuantityBase` | Final count − book quantity | Khi finalize | Dẫn xuất |
+| `valueBasisRef` | Căn cứ giá trị cho surplus/shortage khi cần | Theo variance | Không tự quyết Official Cost |
+| `adjustmentOperationRef` | Operation điều chỉnh đã commit | Khi có variance | DOM-IO owner |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `session_id`: FK → `StockCountSession`.
-- `product_id`: FK → `Product`.
-- `lot_id`: FK → `Lot`.
-- `base_uom_id`: FK → `ProductUnit`.
-- `first_submission_id`: FK → `StockCountSubmission`.
-- `latest_recount_submission_id`: FK → `StockCountSubmission`.
-- `shortage_official_cost_version_id`: FK → `OfficialCostVersion`.
-- `adjustment_operation_line_id`: FK → `InventoryOperationLine`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `applySubmission()` | Submission thuộc đúng session/round và chứa key | Cập nhật projection first/latest ref |
+| `finalizeCount()` | Đủ evidence và decision | Khóa final count/variance |
+| `bindAdjustment()` | Adjustment operation đã commit | Liên kết kết quả kiểm kê với movement |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-`StockCountLine` là **current projection theo PhysicalCountKey**, không phải nơi lưu lịch sử nhập số. Evidence bất biến nằm ở `StockCountSubmission`.
+## 6. Domain Events phát sinh
 
-Unique active physical line per `(session_id, physical_count_key_hash)`. Valuation state không xuất hiện trong physical count key; unresolved/mixed valuation composition bị chặn tại session open thay vì bắt counter phân biệt accounting state bằng mắt.
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| — | Không phát event riêng | Event được phát bởi Aggregate Root sở hữu hoặc Technical Contract mapping từ commit set |
 
-## 8. Behavioral Contract / Use Case liên quan
+## 7. Liên kết truy vết
 
-- `UC-08-02`
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-03` |
+| Use Case | `UC-08-02`, `UC-08-03`, `UC-08-04` |
+| Quyết định | `T7-DR-036`, `T7-DR-174` |

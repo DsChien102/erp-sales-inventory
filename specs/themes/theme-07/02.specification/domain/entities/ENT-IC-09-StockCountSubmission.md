@@ -1,58 +1,77 @@
 ---
 id: ENT-IC-09
 type: business-entity
+role: CHILD_ENTITY
 theme: theme-07
 title: StockCountSubmission
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-09 — StockCountSubmission
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Immutable FIRST/RECOUNT evidence round
+Bằng chứng bất biến của một round đếm `FIRST` hoặc `RECOUNT`. Submission giữ actor/assignment và observations; recount luôn tạo record mới.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `CHILD_ENTITY` |
+| Aggregate Root | `StockCountSession` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Final variance/adjustment → StockCountSession/DOM-IO |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class StockCountSession { <<AggregateRoot>> }
+    class StockCountSubmission { <<Child Entity>> }
+    StockCountSession "1" *-- "0..*" StockCountSubmission
+```
 
-unique session + round_no; payload hash
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `submissionId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(sessionId, roundNo)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu | Bắt buộc | Ghi chú |
-|---|---|---|---|
-| `submission_id` | UUID | Có | PK |
-| `tenant_id` | UUID | Có | — |
-| `session_id` | UUID | Có | FK StockCountSession |
-| `round_no` | INTEGER | Có | Monotonic trong session; unique `(session_id, round_no)` |
-| `round_type` | VARCHAR(12) | Có | `FIRST`, `RECOUNT` |
-| `predecessor_submission_id` | UUID | Không | Recount lineage |
-| `actor_id` | UUID | Có | Counter thực tế |
-| `assignment_version` | BIGINT | Có | Actor assignment rechecked |
-| `submitted_at` | TIMESTAMPTZ | Có | Server time |
-| `line_observations` | JSONB | Có | PhysicalCountKey + base quantity + unexpected identity facts; immutable |
-| `payload_hash` | CHAR(64) | Có | Canonical observations hash |
-| `command_receipt_id` | UUID | Có | Idempotency/finality lineage |
-| `created_at` | TIMESTAMPTZ | Có | Immutable evidence time |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `roundNo` | Số thứ tự round | Có | Tăng đơn điệu trong session |
+| `roundType` | FIRST hoặc RECOUNT | Có | Không thay sau submit |
+| `predecessorSubmissionRef` | Round trước nếu recount | Khi RECOUNT | Trace chain |
+| `actorId` | Người thực hiện round | Có | Phải đúng assignment |
+| `assignmentSnapshot` | Assignment áp dụng | Có | Không suy từ current assignment về sau |
+| `submittedAt` | Thời điểm nộp bằng chứng | Có | Audit |
+| `lineObservations` | Các quantity quan sát theo count key | Có | Immutable sau submit |
 
-unique session + round_no; payload hash
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `submit()` | Actor/assignment đúng; observations hợp lệ | StockCountSubmissionRecorded |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Immutable evidence cho từng vòng FIRST/RECOUNT.
+## 6. Domain Events phát sinh
 
-Submission không update/delete theo workflow. Request recount tạo submission mới; StockCountLine chỉ chiếu latest evidence.
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `StockCountSubmissionRecorded` | submit() | Một round count/recount đã được ghi bất biến |
 
-## 8. Behavioral Contract / Use Case liên quan
+## 7. Liên kết truy vết
 
-- `UC-08-02`
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-03` |
+| Use Case | `UC-08-02`, `UC-08-03` |
+| Quyết định | `T7-DR-174` |

@@ -5,7 +5,7 @@ theme: theme-07
 title: hang-da-nhan-nhung-chua-chot-gia
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia — hang-da-nhan-nhung-chua-chot-gia
 
@@ -17,7 +17,7 @@ Hàng có thể **đã hiện diện trong kho và đã thuộc sở hữu doanh
 
 Quy tắc này áp dụng cho mọi lần nhận mua. Nếu request nhận hàng có kèm bằng chứng giá, bằng chứng được lưu để phục vụ bước định giá tiếp theo nhưng không làm operation nhận hàng tự ghi value movement hoặc bỏ qua `VALUATION_PENDING`.
 
-Khi kế toán xác nhận giá mua trực tiếp từ bằng chứng hợp lệ, hệ thống ghi value movement và chuyển lượng đủ điều kiện từ chờ giá sang bán được **trong cùng một commit**. Sau mốc này, hàng trở thành khả dụng ngay nếu không bị chặn bởi điều kiện khác; không cần thêm một lớp phê duyệt riêng.
+Khi kế toán xác lập giá trị nhập ban đầu từ căn cứ hợp lệ, hệ thống ghi value movement và chuyển đúng lượng được xác nhận khỏi `VALUATION_PENDING` **trong cùng một commit**. Sau mốc này, lượng đó chỉ trở thành khả dụng nếu trạng thái vật lý và các điều kiện bán khác đều cho phép; không cần thêm một lớp phê duyệt riêng.
 
 ### Vì sao vấn đề này quan trọng?
 
@@ -37,7 +37,7 @@ Tách hai mốc giúp phản ánh đúng cả hai sự thật:
 | Nhận hàng | Thủ kho xác nhận lượng thực nhận và operation nhận hoàn tất | Tăng tồn vật lý |
 | `VALUATION_PENDING` | Hàng đã thuộc sở hữu doanh nghiệp nhưng chưa chốt giá trực tiếp | Có vật lý, khả dụng bằng 0, chưa có số tiền chính thức trong value ledger |
 | Nghĩa vụ định giá | Hồ sơ cần kế toán xử lý để chốt giá của lượng đã nhận | Giúp hàng chờ giá không bị quên |
-| Xác nhận giá trực tiếp | Kế toán xác nhận giá mua trực tiếp từ bằng chứng hợp lệ | Cho phép ghi value movement |
+| Xác lập giá trị nhập ban đầu | Kế toán rà soát/xác lập căn cứ giá hợp lệ và xác nhận cấu thành giá trị | Ghi value movement ban đầu và hoàn tất trục định giá cho lượng được bao phủ |
 | Giải phóng khả dụng | Chuyển lượng đủ điều kiện sang trạng thái bán được | Làm tăng khả dụng theo công thức hiện hành |
 | Chi phí mua phân bổ bổ sung | Vận chuyển, bốc dỡ hoặc chi phí liên quan được bổ sung sau | Điều chỉnh giá trị, không làm thay đổi số lượng vật lý |
 
@@ -48,15 +48,15 @@ Tách hai mốc giúp phản ánh đúng cả hai sự thật:
 | Mốc | Người chịu trách nhiệm | Dữ liệu/bằng chứng chính | Ảnh hưởng số lượng | Ảnh hưởng giá trị | Ảnh hưởng khả dụng |
 |---|---|---|---|---|---|
 | 1. Xác nhận thực nhận | Thủ kho | Lượng thực nhận và dữ liệu bắt buộc của hàng | Tăng tồn vật lý ở `VALUATION_PENDING` | Chưa ghi số tiền chính thức | Không tăng |
-| 2. Chờ định giá | Kế toán theo dõi nghĩa vụ định giá | Đơn mua, biên nhận và xác nhận giá của nhà cung cấp | Không đổi | Chưa ghi chính thức | Vẫn bằng 0 cho lượng này |
+| 2. Chờ định giá | Kế toán theo dõi nghĩa vụ định giá | Nguồn thương mại đã xác lập hoặc căn cứ giá trực tiếp hợp lệ | Không đổi | Chưa ghi chính thức | Vẫn bằng 0 cho lượng này |
 | 3. Xác nhận giá trực tiếp | Kế toán có quyền | Giá mua trực tiếp đủ căn cứ; hóa đơn có thể đến sau | Chuyển trạng thái, không tăng thêm vật lý | Ghi value movement theo giá đã chốt | Lượng đủ điều kiện được giải phóng ngay |
 | 4. Bổ sung chi phí mua sau | Kế toán hoặc nguồn có thẩm quyền | Thành phần chi phí và căn cứ phân bổ | Không đổi | Ghi valuation adjustment theo quy tắc kỳ | Không tự thay đổi |
 
-#### Commit tại mốc xác nhận giá
+#### Commit tại mốc xác lập giá trị nhập ban đầu
 
 Việc ghi giá trị và giải phóng hàng không phải hai thao tác rời nhau. Trong cùng một commit, hệ thống phải:
 
-1. ghi kết quả xác nhận giá trực tiếp;
+1. ghi ReceiptValuation và cấu thành giá trị đã xác nhận;
 2. ghi value movement cho lượng đã nhận;
 3. chuyển lượng đủ điều kiện ra khỏi `VALUATION_PENDING`;
 4. cập nhật số dư và khả dụng liên quan;
@@ -64,11 +64,11 @@ Việc ghi giá trị và giải phóng hàng không phải hai thao tác rời 
 
 Nếu một phần thất bại, toàn bộ commit phải rollback. Cách này ngăn tình trạng hàng đã được bán nhưng chưa có giá trị, hoặc giá trị đã ghi mà lượng hàng vẫn mắc kẹt ở chờ giá.
 
-Operation nhận hàng và operation xác nhận giá có hai định danh, hai kết quả và hai biên transaction độc lập. Operation xác nhận giá vẫn commit nguyên tử các thay đổi giá trị–trạng thái của chính nó; không được gộp ngầm vào lần nhận hàng chỉ vì hai bước xảy ra gần nhau.
+Operation nhận hàng và command xác lập giá trị nhập ban đầu có hai định danh, hai kết quả và hai biên transaction độc lập. Command BJ03 commit nguyên tử các thay đổi giá trị–trạng thái định giá của chính nó; không được gộp ngầm vào lần nhận hàng chỉ vì hai bước xảy ra gần nhau.
 
-#### Căn cứ tối thiểu để xác nhận giá
+#### Căn cứ tối thiểu để xác lập giá trị nhập ban đầu
 
-Kế toán có thể xác nhận giá từ **đơn mua hoặc biên nhận kết hợp với mức giá được nhà cung cấp xác nhận**. Hóa đơn không bắt buộc phải đến trước mốc giải phóng hàng. Tuy nhiên, giá mua trực tiếp phải được chốt; chi phí mua cần phân bổ có thể được bổ sung sau bằng valuation adjustment.
+Nhận theo chứng từ có thể sử dụng giá và các thành phần thương mại do Theme 10 đã xác lập. Nhập hàng nhanh phải hoàn tất được mà không phụ thuộc Theme 10: kế toán có quyền phù hợp có thể lập căn cứ giá trực tiếp có nguồn và dấu vết. Hóa đơn không bắt buộc phải đến trước BJ03. Thành phần đã đủ căn cứ trước lúc xác nhận có thể nằm trong giá trị ban đầu; thành phần phát sinh hoặc được xác lập sau đó đi BJ13.
 
 #### Sản phẩm chưa có đơn giá chính thức
 
@@ -90,15 +90,15 @@ Kho nhận 200 chai sản phẩm B vào ngày 10/08. Quyền sở hữu đã chu
 
 Hệ thống đồng thời tạo nghĩa vụ định giá cho 200 chai. Người bán không thể dùng lượng này để nhận thêm cam kết bán.
 
-#### Ngày 11/08 — kế toán xác nhận giá
+#### Ngày 11/08 — kế toán xác lập giá trị nhập ban đầu
 
-Kế toán có đơn mua, biên nhận và xác nhận của nhà cung cấp với giá trực tiếp **48.000 đồng/chai**. Operation xác nhận giá hoàn tất và ghi:
+Kế toán có căn cứ mua hợp lệ với giá **48.000 đồng/chai**. BJ03 rà soát phạm vi căn cứ, xác nhận giá trị nhập ban đầu và ghi:
 
 $$
 200 \times 48.000 = 9.600.000\text{ đồng}
 $$
 
-Trong cùng commit, 200 chai rời `VALUATION_PENDING` và chuyển sang lượng bán được. Nếu không có điều kiện chặn hoặc lượng giữ khác, tồn khả dụng tăng từ 0 lên 200. Vì đây là sản phẩm mới, 48.000 đồng trở thành đơn giá chính thức khởi tạo.
+Trong cùng commit, 200 chai rời `VALUATION_PENDING`. Nếu trạng thái vật lý và các điều kiện bán khác đều cho phép, lượng đủ điều kiện bán/khả dụng được đánh giá lại. Giá trị 9.600.000 đồng là **giá trị nhập ban đầu** của lượng đã nhận; nó chưa phải giá vốn chính thức. Sản phẩm và kỳ liên quan được đánh dấu cần cập nhật để BJ14 tính và công bố giá vốn theo chính sách tenant.
 
 #### Ngày 14/08 — bổ sung chi phí vận chuyển
 
@@ -107,7 +107,7 @@ Chi phí vận chuyển 600.000 đồng được phân bổ sau. Hệ thống gh
 
 #### Basis, UOM và ngày ghi nhận của initial valuation
 
-Initial valuation không gom giá theo tên Product+UOM đơn thuần. `DirectCostBasis` bám commercial receipt item/source line và có hash/version của toàn bộ component provenance; technical LOT/state scopes có thể cùng dùng basis đó. Direct cost được hiển thị theo transaction UOM nhưng đồng thời chuẩn hóa về base UOM; Official Cost khởi tạo luôn dùng VND/base UOM. Value movement của lần xác nhận mang `business_date` là ngày nhận nghiệp vụ, còn `recorded_at` là thời điểm server commit. Component đến sau khi quantity đã initial-valued đi qua BJ13/valuation adjustment thay vì sửa lại ReceiptValuation cũ.
+Giá trị nhập ban đầu không gom giá theo tên Product+UOM đơn thuần. Căn cứ bám dòng hàng thực nhận và phạm vi mà nguồn hợp lệ thực sự bao phủ; nhiều technical LOT/state scope có thể dùng chung một căn cứ khi nghiệp vụ không phân biệt giá. Giá trị được trình bày theo transaction UOM và đồng thời chuẩn hóa về base UOM để phục vụ ledger và BJ14. Value movement của lần xác nhận mang `business_date` là ngày nhận nghiệp vụ, còn `recorded_at` là thời điểm server commit. Thành phần hợp lệ xuất hiện sau khi quantity đã được xác lập giá trị ban đầu đi qua BJ13 dưới dạng điều chỉnh giá trị, thay vì sửa lại ReceiptValuation cũ.
 
 ### Ngoại lệ và những cách làm sai
 
@@ -115,7 +115,7 @@ Initial valuation không gom giá theo tên Product+UOM đơn thuần. `DirectCo
 - **Cho phép bán hàng ở `VALUATION_PENDING`:** biến hàng chưa có giá trị chính thức thành nguồn cho xuất bán.
 - **Ghi giá trị ước tính như giá trị chính thức:** làm mất ranh giới giữa dữ liệu tạm và value ledger có thẩm quyền.
 - **Yêu cầu hóa đơn phải đến trước trong mọi trường hợp:** không phù hợp với căn cứ đã chốt; xác nhận giá của nhà cung cấp có thể đủ dù hóa đơn đến sau.
-- **Thêm một vòng duyệt sau khi kế toán đã xác nhận giá:** tạo mốc giả không có trong quy trình và làm hàng bị giữ vô lý.
+- **Thêm một vòng duyệt sau khi kế toán đã xác lập giá trị nhập ban đầu:** tạo mốc giả không có trong quy trình và làm hàng bị giữ vô lý.
 - **Dùng `VALUATION_PENDING` cho hàng chưa thuộc sở hữu:** trộn hàng bên thứ ba với tồn của doanh nghiệp.
 - **Bổ sung chi phí mua bằng quantity adjustment:** chi phí bổ sung chỉ thay đổi giá trị nếu không có movement vật lý mới.
 
@@ -123,11 +123,11 @@ Initial valuation không gom giá theo tên Product+UOM đơn thuần. `DirectCo
 
 ### Điều cần ghi nhớ
 
-- **Nhận hàng làm tăng tồn vật lý; xác nhận giá mới cho phép ghi giá trị và giải phóng bán.**
+- **Nhận hàng làm tăng tồn vật lý; BJ03 xác lập giá trị nhập ban đầu và hoàn tất trục định giá. Khả dụng chỉ tăng khi lượng hàng đồng thời đủ điều kiện bán.**
 - **Hàng chờ giá có vật lý nhưng khả dụng bằng 0.**
 - **Giá mua trực tiếp phải được xác nhận trước khi hàng được bán; chi phí mua phân bổ có thể đến sau.**
 - **Ghi value movement và giải phóng khả dụng phải diễn ra nguyên tử.**
-- **Sản phẩm mới dùng giá nhập trực tiếp đầu tiên đã xác nhận để khởi tạo đơn giá chính thức, rồi vẫn đối soát cuối kỳ.**
+- **BJ03 không khởi tạo đơn giá chính thức; mọi phiên bản giá vốn chính thức, kể cả phiên bản đầu tiên của sản phẩm, đều do BJ14 công bố.**
 
 ## 4. Nguồn tham khảo
 
@@ -138,7 +138,7 @@ Initial valuation không gom giá theo tên Product+UOM đơn thuần. `DirectCo
 | Article ID | `KB-KGV-008` |
 | Cụm tri thức | [`KGV-C02`](00-table-of-contents.md#c02-nhận-giữ-và-xuất-hàng) |
 | Loại bài | `PROCESS` |
-| Quyết định chính | [`T7-DR-021`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-01`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-025`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-02`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-03`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-026`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-020#REQ-01`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B) |
+| Quyết định chính | [`T7-DR-021`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-01`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-025`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-02`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-021#REQ-03`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B), [`T7-DR-020#REQ-01`](../decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B) |
 | Trạng thái quyết định | `ACTIVE` |
 | Mức bằng chứng của bài | `STATIC_VALIDATED` |
 | Giới hạn | Bài không mô tả chênh lệch giao nhận, kiểm tra lô–hạn hoặc cách phân bổ từng loại chi phí mua |
@@ -149,5 +149,5 @@ Initial valuation không gom giá theo tên Product+UOM đơn thuần. `DirectCo
 
 - [`KB-KGV-007` — Nhận hàng mua và xử lý chênh lệch giao nhận](KB-KGV-007-nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan.md)
 - [`KB-KGV-015` — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md)
-- [`KB-KGV-019` — Các thành phần hình thành giá nhập thực tế](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-nhap-thuc-te.md)
+- [`KB-KGV-019` — Các thành phần hình thành giá trị hàng nhập](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md)
 - [`KB-KGV-024` — Chọn quản lý thông thường hay quản lý theo lô](KB-KGV-024-chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial.md)

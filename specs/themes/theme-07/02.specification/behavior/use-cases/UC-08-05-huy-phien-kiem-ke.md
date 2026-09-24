@@ -5,106 +5,142 @@ theme: theme-07
 title: "Hủy phiên kiểm kê"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-08-05 — Hủy phiên kiểm kê
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
+Người có quyền dừng một session kiểm kê chưa final **mà không điều chỉnh tồn**, vẫn giữ đầy đủ evidence đã tạo và giải phóng lock an toàn.
 
+**Kết quả cần đạt:** session chuyển `CANCELLED`, không có adjustment phát sinh, lock được giải phóng; hoặc yêu cầu bị từ chối/UNKNOWN mà không làm mất evidence hay tạo kết quả trùng.
 
-**Kết quả thành công:** 
-
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
+Session đang ở count/recount/blocker context, chưa final và cancellation policy cho phép hủy.
 
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-### 2.2 Kết thúc khi
-
-
+UC kết thúc khi trạng thái `CANCELLED` và lock release đã commit cùng nhau; hoặc hủy bị từ chối; hoặc finality chưa xác định và phải đối soát bằng cùng cancellation identity.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không xóa `CountScopeSnapshot`, submission hoặc ApprovalCase lịch sử; không hủy từ browse list như destructive shortcut; không hủy nếu một approval/adjustment command đang `UNKNOWN` hoặc adjustment đã commit.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** 
-- **Trigger:** 
-- **Điều kiện trước:** 
+- **Tác nhân chính:** Người có quyền hủy đúng session context.
+- **Thẩm quyền:** Chỉ được hủy session chưa final theo cancellation policy và phải cung cấp lý do hợp lệ.
+- **Sự kiện khởi phát:** Người dùng quyết định dừng phiên kiểm kê hiện tại.
+- **Điều kiện trước:** Session và lock còn current; không có mutation finality chưa rõ làm hủy trở nên không an toàn.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-## 5. Ngoại lệ và thất bại
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| `StockCountSession` | Session cần dừng, chưa ở trạng thái final | `ENT-IC-04` |
+| `InventoryLock` | Khóa phải được giải phóng cùng cancellation | `ENT-IC-03` |
+| Evidence history | Scope snapshot, submissions, approval cases đã có phải giữ nguyên | `ENT-IC-08/09`, `ENT-IC-02` |
+| Cancellation reason | Lý do hủy bắt buộc để audit | `BC-IC-08` |
 
-**Không thành công:** 
+## 5. Các luồng của Use Case
 
-## 6. Ảnh hưởng nghiệp vụ
+### 5.1 Luồng chính (Basic Flow)
 
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| BF-01 | Người dùng | Chọn hủy trong session context và nhập lý do. | BR-01 — Hủy có lý do |
+| BF-02 | Hệ thống | Recheck session chưa final, lock current, cancellation policy và không có mutation `UNKNOWN` xung đột. | EF-A — Không được hủy |
+| BF-03 | Hệ thống | Commit `CANCELLED`, lock release, command receipt và outbox atomically; không tạo adjustment. | EF-B — Kết quả chưa xác định |
+| BF-04 | Hệ thống | Trả kết quả hủy; evidence lịch sử vẫn truy vết được. | BR-02 — Evidence không bị xóa |
+| BF-05 | — | [Kết thúc UC]. | |
 
+### 5.2 Luồng thay thế (Alternate Flow)
 
-## 7. Behavioral Contract
+Không có luồng thay thế riêng; mọi trường hợp hủy hợp lệ đi qua cùng một commit point.
 
+### 5.3 Luồng ngoại lệ (Exception Flow)
 
-## 8. Screen liên quan
+#### EF-A — Không được hủy
 
+**Phát sinh tại:** BF-02. **Điều kiện:** Thiếu lý do, session đã final, lock không current hoặc có mutation `UNKNOWN` không cho phép chồng lệnh.
 
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Từ chối effect NONE; session và evidence giữ nguyên. | BR-03 — Không hủy chồng finality chưa rõ |
+| EF-A-02 | — | [Kết thúc UC]. | |
 
-## 9. Acceptance Scenarios
+#### EF-B — Kết quả chưa xác định
 
+**Phát sinh tại:** BF-03. **Điều kiện:** Không thể xác định cancellation transaction đã commit hay rollback.
 
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-B-01 | Hệ thống | Giữ cùng cancellation identity; xác minh session/lock finality trước mọi retry. | `SBC-COM-03` — Kết quả và hướng phục hồi |
+| EF-B-02 | — | [Tiếp tục tại BJ-17]. | BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Hủy có lý do | Cancellation reason là bắt buộc và được lưu cùng actor/time. | `BC-IC-08` |
+| BR-02 | Evidence không bị xóa | Scope snapshot, submissions, ApprovalCase và audit đã có vẫn bất biến sau hủy. | `BC-IC-08` |
+| BR-03 | Không hủy chồng finality chưa rõ | Session có approval/adjustment command `UNKNOWN` không được nhận thêm cancellation có thể tạo kết quả mâu thuẫn. | `SBC-COM-03` |
+| BR-04 | Hủy không tạo adjustment | Cancellation thành công chỉ đóng session và giải phóng lock; không ghi InventoryOperation adjustment. | `BC-IC-08` |
+
+- `BC-IC-08` — Hủy phiên kiểm kê.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Atomicity và chống ghi bán phần.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | Session `CANCELLED`; no adjustment; lock released; evidence retained | Kết thúc BJ08 |
+| Bị từ chối | Session/lock/evidence giữ nguyên | Tiếp tục session hoặc xử lý blocker |
+| Chưa xác định (`UNKNOWN`) | Không gửi cancellation identity mới | BJ17 đối soát cùng identity |
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-044` | Cho phép hủy trong FIRST-count context khi policy cho phép. |
+| `SCR-045` | Cho phép hủy trong recount/blocker context khi policy cho phép. |
+| `SCR-047` | Hiển thị result sau khi cancellation đã final. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-08-05-01 — Hủy session đang mở
+- **Bao phủ:** BF-01 → BF-05; BR-01/02/04.
+- **Given:** session chưa final, lock current và người dùng có quyền hủy.
+- **When:** người dùng nhập lý do và xác nhận hủy.
+- **Then:** session chuyển `CANCELLED`, lock được giải phóng, không có adjustment và evidence cũ vẫn truy vết được.
+
+### AS-UC-08-05-02 — Thiếu lý do hủy
+- **Bao phủ:** EF-A; BR-01.
+- **Given:** session có thể hủy nhưng người dùng chưa nhập lý do.
+- **When:** người dùng xác nhận hủy.
+- **Then:** hệ thống từ chối effect NONE; session/lock giữ nguyên.
+
+### AS-UC-08-05-03 — Có mutation UNKNOWN
+- **Bao phủ:** EF-A; BR-03.
+- **Given:** approval/adjustment command của session đang có finality `UNKNOWN`.
+- **When:** người dùng yêu cầu hủy session.
+- **Then:** cancellation bị chặn cho tới khi finality được làm rõ; không tạo kết quả chồng lệnh.
+
+### AS-UC-08-05-04 — Timeout khi hủy
+- **Bao phủ:** EF-B.
+- **Given:** cancellation command đã gửi nhưng response bị mất.
+- **When:** người dùng mở lại session.
+- **Then:** hệ thống xác minh bằng cùng cancellation identity; không gửi thêm lệnh hủy mới.
 
 ## 10. Truy vết
 
-
-
-
-### Nguồn v3.10.1 — UC-08-05 — Hủy phiên kiểm kê
-
-> **Hành trình:** [BJ-08](../journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md)  
-> **Actor:** Người có quyền hủy đúng session context  
-> **BC/API:** `BC-IC-08 / API-C-27`
-
-### 1. Tổng quan
-
-| Mục | Hợp đồng |
-|---|---|
-| Trigger | Session chưa final, đang ở count/recount/blocker context và cancellation policy cho phép |
-| Mục tiêu | Dừng phiên mà không điều chỉnh tồn, giữ toàn bộ evidence và giải phóng lock |
-| Thành công | `CANCELLED`; no adjustment; immutable submissions/cases retained; lock released |
-| Guard | Lý do bắt buộc; không cancel khi approval/adjustment command đang UNKNOWN hoặc commit đã hoàn tất |
-| UNKNOWN | Same cancellation identity; verify current session/lock finality trước retry |
-
-### 2. Behavioral contract
-
-- Cancellation là mutation của **một session cụ thể**, không phải destructive action trên browse list.
-- Không xóa CountScopeSnapshot, StockCountSubmission, ApprovalCase hoặc audit đã có.
-- Nếu cancel commit thành công: session CANCELLED + lock release + receipt/outbox atomic.
-- Không tạo InventoryOperation adjustment.
-
-### 3. Acceptance
-
-<a id="as-uc-08-05-01"></a>
-- UI chỉ expose cancel trong session context `SCR-044/SCR-045` khi policy cho phép.
-<a id="as-uc-08-05-02"></a>
-- Lý do thiếu → validation, effect NONE.
-<a id="as-uc-08-05-03"></a>
-- Success result hiển thị no-adjustment + lock released.
-<a id="as-uc-08-05-04"></a>
-- UNKNOWN handoff/verify cùng identity.
-### 4. UI trace
-
-- [SCR-044](../../../03.design/screens/SCR-044.md), [SCR-045](../../../03.design/screens/SCR-045.md): contextual `ACT-09-CANCEL`.
-- [SCR-042](../../../03.design/screens/SCR-042.md): không render cancellation mutation.
-- [SCR-047](../../../03.design/screens/SCR-047.md): result.
-
-### 5. Technical trace
-
-| BC | Handler | API | Transaction | Event |
-|---|---|---|---|---|
-| `BC-IC-08` | `CancelStockCount` | `API-C-27 POST /v1/stock-counts/{id}/cancellation` | Session cancel + lock release + CommandReceipt | `EVT-IC-05` |
-
-### 6. Source
-[BJ-08](../journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md); `T7-DR-035…039`, `T7-DR-171…177`
+- **Journey:** `BJ-08` — Kiểm kê và điều chỉnh chênh lệch.
+- **Domain / Entity:** `DOM-IC`, `ENT-IC-02`, `ENT-IC-03`, `ENT-IC-04`, `ENT-IC-08/09`.
+- **Behavioral Contract:** `BC-IC-08`.
+- **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-171…177`.

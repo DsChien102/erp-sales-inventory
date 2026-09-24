@@ -1,71 +1,79 @@
 ---
 id: ENT-IV-06
 type: business-entity
+role: CHILD_ENTITY
 theme: theme-07
 title: ValuationAdjustmentLine
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-06 — ValuationAdjustmentLine
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Chi tiết COGS true-up, tồn cuối kỳ hoặc late-cost value-only
+Dòng delta giá trị có dấu trong `ValuationAdjustmentBatch`, liên kết Product/source exposure/original period để giải thích vì sao carrying value hoặc COGS thay đổi.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `CHILD_ENTITY` |
+| Aggregate Root | `ValuationAdjustmentBatch` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Source economic identity → ValueAdjustmentSource; quantity movement → DOM-IO |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class ValuationAdjustmentBatch { <<AggregateRoot>> }
+    class ValuationAdjustmentLine { <<Child Entity>> }
+    ValuationAdjustmentBatch "1" *-- "0..*" ValuationAdjustmentLine
+```
 
-FK batch; source issue/value reference
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `adjustmentLineId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(adjustmentBatchId, lineNo)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `adjustment_line_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `adjustment_batch_id` | `UUID` | FK → `ValuationAdjustmentBatch` | Bắt buộc | — | — |
-| `line_no` | `INTEGER` | UK thành phần | Bắt buộc | — | Unique trong batch |
-| `product_id` | `UUID` | FK → `Product` | Bắt buộc | — | — |
-| `warehouse_id` | `UUID` | FK → `Warehouse` | Nullable | `NULL` | Breakdown phân tích nếu có |
-| `adjustment_type` | `VARCHAR(30)` | — | Bắt buộc | — | `COGS_TRUE_UP`, `ENDING_INVENTORY`, `LATE_LANDED_COST`, `OTHER_VALUE_ONLY` |
-| `source_issue_line_id` | `UUID` | FK → `InventoryOperationLine` | Nullable | `NULL` | Bắt buộc với COGS true-up |
-| `source_value_movement_id` | `UUID` | FK → `InventoryValueMovement` | Nullable | `NULL` | Source value nếu áp dụng |
-| `quantity_basis` | `DECIMAL(20,6)` | — | Nullable | `NULL` | Bắt buộc khi adjustment dựa trên quantity |
-| `old_unit_cost` | `DECIMAL(20,6)` | — | Nullable | `NULL` | — |
-| `new_unit_cost` | `DECIMAL(20,6)` | — | Nullable | `NULL` | — |
-| `delta_amount` | `DECIMAL(20,6)` | — | Bắt buộc | — | Chỉ ghi delta |
-| `currency` | `CHAR(3)` | — | Bắt buộc | — | — |
-| `business_date` | `DATE` | — | Bắt buộc | — | — |
-| `original_period_id` | `UUID` | FK → `AccountingPeriod` | Nullable | `NULL` | Kỳ gốc nếu khác posting period |
-| `accounting_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Posting period |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Append-only sau publish |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `productId` | Sản phẩm chịu điều chỉnh | Có | Authority scope |
+| `adjustmentType` | Loại delta | Có | Receipt adjustment / COGS true-up / ending value… |
+| `sourceExposureRef` | Receipt/issue/value movement liên quan | Có khi relevant | Trace origin |
+| `quantityBasis` | Quantity dùng để tính delta | Theo type | Không tạo quantity movement |
+| `old/newUnitCost` | Các mốc cost để giải thích true-up | Theo type | Không cần cho mọi adjustment |
+| `deltaAmountVnd` | Số tiền tăng/giảm | Có | Signed |
+| `businessDate` | Ngày nghiệp vụ của adjustment | Có | Theo contract |
+| `originalPeriod` | Kỳ nguồn | Theo type | Giữ trace |
+| `postingPeriod` | Kỳ ghi adjustment | Có | Policy quyết định |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `adjustment_batch_id`: FK → `ValuationAdjustmentBatch`.
-- `product_id`: FK → `Product`.
-- `warehouse_id`: FK → `Warehouse`.
-- `source_issue_line_id`: FK → `InventoryOperationLine`.
-- `source_value_movement_id`: FK → `InventoryValueMovement`.
-- `original_period_id`: FK → `AccountingPeriod`.
-- `accounting_period_id`: FK → `AccountingPeriod`.
-- `created_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `createLine()` | Amount/source/period hợp lệ và batch còn đang build | LineAddedToAdjustmentBatch |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Unique `(adjustment_batch_id, line_no)`; tổng `delta_amount` của line phải bằng batch total.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| — | Không phát event riêng | Event được phát bởi Aggregate Root sở hữu hoặc Technical Contract mapping từ commit set |
 
-Không có liên kết trực tiếp được ghi nhận trong nguồn v3.10.1.
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-03`, `BC-IV-04` |
+| Use Case | `UC-13-01`, `UC-14-04` |
+| Quyết định | `T7-DR-159`, `T7-DR-192` |

@@ -2,53 +2,70 @@
 id: BC-IV-05
 type: behavioral-contract
 theme: theme-07
-title: "Build direct receipt valuation preview"
+title: "Dựng preview giá trị nhập ban đầu"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
-<a id="bc-iv-05"></a>
-# BC-IV-05 — Build direct receipt valuation preview
+# BC-IV-05 — Dựng preview giá trị nhập ban đầu
 
 ## 1. Ý định
 
-Trả worklist/identified scope và preview direct cost có provenance để user chọn/đối chiếu trước commit; không ghi ledger/balance.
+Trả danh sách hàng đang chờ giá trị, các căn cứ có thể sử dụng và cấu thành giá trị dự kiến **trước khi commit**. Query này giúp kế toán hiểu “giá trị này đến từ đâu” nhưng không ghi ledger, không đổi valuation state và không tạo Official Cost.
 
 ## 2. Phạm vi áp dụng
 
-- Loại: Query/preview
-- Owner nguồn: IV + IO
-- Journey chính: `BJ-03`
+- **Loại:** Query / preview.
+- **Owner:** `DOM-IV`, đọc receipt facts của `DOM-IO` và nguồn thương mại/tax/FX có thẩm quyền.
+- **Journey / UC:** `BJ-03` / `UC-03-01`.
 
 ## 3. Đầu vào nghiệp vụ
 
-Receipt/worklist filter hoặc selected `{receipt_item_ref/valuation_basis_key, scope_key, confirm_quantity}`; complete-basis choice/reason draft khi conflict.
+- Worklist filter hoặc receipt item cần xử lý.
+- Căn cứ/source hiện có và version/effectivity của chúng.
+- Exact quantity còn `VALUATION_PENDING`.
+- Tax/FX/allocation policy version khi cần.
+- Với Quick: direct price basis draft nếu kế toán đang bổ sung căn cứ.
 
 ## 4. Điều kiện trước
 
-Financial permission/field masking; receipt thuộc tenant; scope tồn tại/còn pending; source components có identity/version; query không mutation.
+Actor được phép xem dữ liệu tài chính; receipt thuộc tenant; quantity còn pending; nguồn ngoài Theme chỉ được đọc theo authority của nguồn.
 
 ## 5. Quy tắc nghiệp vụ
 
-Đọc receipt commercial item + technical scopes → dựng 1..N candidate `DirectCostBasis` có component provenance → normalize VND/UOM → phân bổ discount/cost/tax/FX deterministic theo policy/version + stable scope order → tính cumulative partial preview → authoritative availability preview → trả `basis_version/basis_hash`, `scope_version`, calculation hash và normalized Official-Cost consequence.
+1. Nhóm dữ liệu theo **dòng hàng thực nhận và phạm vi của căn cứ**, không theo technical line chỉ vì persistence chia nhỏ.
+2. Xác định readiness:
+   - `READY` — có bộ căn cứ đầy đủ, current và không có conflict chưa giải quyết;
+   - `CONFLICT` — có các căn cứ hợp lệ dẫn tới value khác nhau và owner resolution chưa xong;
+   - `WAITING_EVIDENCE` — thiếu fact bắt buộc để tính value.
+3. Với nhận theo chứng từ, sử dụng commercial facts mà Theme 10 đã xác lập; nếu Theme 10 đang dispute, trả trạng thái chờ thay vì tự chọn PO/invoice.
+4. Với Quick, cho phép dựng preview từ direct basis hợp lệ theo quyền/policy.
+5. Áp công thức tổng quát: **giá mua − khoản giảm giá trị mua + thuế/phí không thu hồi + chi phí mua trực tiếp đã biết ± component hợp lệ**.
+6. Thuế/phí thu hồi được không đi vào inventory value; tax treatment do policy cung cấp.
+7. Trả `basis_version/hash`, scope version, calculation hash và breakdown đủ để confirm recheck.
 
 ## 6. Điều kiện bắt buộc
 
-Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5; migration không bổ sung invariant mới.
+- Không tạo “giá gốc” hoặc “chiết khấu” nếu source chỉ cho biết giá mua cuối cùng.
+- Không bắt buộc hóa đơn nhà cung cấp để Quick receipt đủ điều kiện BJ03.
+- Không expose `DirectCostBasis` như thuật ngữ người dùng bắt buộc hiểu.
+- Partial scope chỉ xuất hiện khi source/evidence coverage thực sự nhỏ hơn quantity còn pending.
 
 ## 7. Ảnh hưởng trạng thái
 
-Read-only worklist/scope/preview; `READY`, `CONFLICT` hoặc `WAITING_EVIDENCE`; conflict dựa complete basis, không chỉ unit price. Không tạo CommandReceipt, movement hay value; query timeout chỉ refetch an toàn.
+Read-only. Không tạo movement, CommandReceipt, Official Cost hoặc mutation nguồn.
 
 ## 8. Tính nguyên tử và kết quả cuối
 
-Read-only worklist/scope/preview; `READY`, `CONFLICT` hoặc `WAITING_EVIDENCE`; conflict dựa complete basis, không chỉ unit price. Không tạo CommandReceipt, movement hay value; query timeout chỉ refetch an toàn.
+Query có thể refetch an toàn. Query timeout không tạo business `UNKNOWN` vì không có side effect.
 
 ## 9. Kết quả và semantics lỗi
 
-`VALUATION_SCOPE_NOT_FOUND`, `PRICE_EVIDENCE_REQUIRED`, `VALUATION_BASIS_CONFLICT`, `FINANCIAL_FIELD_FORBIDDEN`.
+`VALUATION_SCOPE_NOT_FOUND`, `PRICE_EVIDENCE_REQUIRED`, `VALUATION_BASIS_CONFLICT`, `FINANCIAL_FIELD_FORBIDDEN`, `FX_BASIS_REQUIRED`.
 
 ## 10. Domain và UC sử dụng
 
-- Entity/Read model: Read `ENT-IO-02/04/06`, staged receipt evidence và `ENT-IV-01` để biết phần đã xác nhận.
-- Trace: `BJ-03`; `ST-03.01`, `ST-03.02`; `API-Q-11`.
+- **Domain / Entity:** đọc `ENT-IO-01/02`, `ENT-IV-01`, policy/source references.
+- **UC:** `UC-03-01`.
+- **API trace:** `API-Q-11`.
+- **Decision:** `T7-DR-025`, `150…154`, `186…190`.

@@ -63,4 +63,4 @@ Lỗi: `DRAFT_VALIDATION_FAILED`, `APPROVAL_PRICE_BASIS_REQUIRED`, `APPROVER_CON
 
 - Domain: Inventory Operations (`IO`) + Inventory Control (`IC`).
 - Entity: `ENT-IO-01/02/10`, `ENT-IC-01/02`.
-- Consumer pilot: nguồn UC-02-02 hiện reference contract này, nhưng ownership của action Submit còn phải đồng bộ với `UIF-02-T13`.
+- Consumer pilot: UC-02-02 sở hữu việc lập và gửi yêu cầu; UC-02-03 tiếp nhận hồ sơ đã gửi để phê duyệt.

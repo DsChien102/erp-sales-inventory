@@ -2,49 +2,79 @@
 id: BC-IV-04
 type: behavioral-contract
 theme: theme-07
-title: "Record late landed cost"
+title: "Ghi điều chỉnh giá trị hàng nhập"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
-<a id="bc-iv-04"></a>
-# BC-IV-04 — Record late landed cost
+# BC-IV-04 — Ghi điều chỉnh giá trị hàng nhập
 
 ## 1. Ý định
 
-Ghi một economic late-cost component có nguồn mà không rewrite receipt/direct valuation/cost run cũ.
+Ghi một **thành phần điều chỉnh giá trị hàng nhập có dấu** sau khi BJ03 đã xác lập initial value, mà không sửa ReceiptValuation, chứng từ nguồn hoặc cost run lịch sử. Adjustment có thể làm tăng hoặc giảm carrying value.
 
 ## 2. Phạm vi áp dụng
 
-- Loại: Command
-- Owner nguồn: IV
-- Journey chính: `BJ-13`
+- **Loại:** Command.
+- **Owner:** `DOM-IV`.
+- **Journey / UC:** `BJ-13` / `UC-13-01`.
 
 ## 3. Đầu vào nghiệp vụ
 
-Stable `source_component_key` + current revision/evidence; source/normalized amount; route=`LATE`; selected method/policy; authoritative target scope; 1..N valuation exposure allocations; per-allocation periods; `late_cost_basis_hash`; `allocation_hash`; command/idempotency identity.
+- stable `source_component_key` + current source revision/evidence;
+- signed source amount + currency và tax/FX treatment khi có;
+- route=`ADJUSTMENT`;
+- authoritative target scope;
+- 1..N `ValuationExposure` allocations;
+- allocation method/policy và metric snapshots;
+- original period + posting period cho từng allocation;
+- `value_adjustment_basis_hash`, `allocation_hash`;
+- command/idempotency identity.
 
 ## 4. Điều kiện trước
 
-Financial permission; source revision current nhưng dedup theo **stable economic key**; route vẫn LATE; target-scope/exposure/metric/period versions current; all targets initial-valued; method still allowed; basis/allocation hashes current; sums reconcile; all posting periods open.
+- Actor có quyền tài chính phù hợp.
+- Component đã **phát sinh/được xác lập**, không phải forecast hoặc estimate.
+- Source revision current; economic component chưa được ghi trùng.
+- Target scope/exposure/metric/period mapping current và target đã có initial value.
+- Tổng allocation khớp signed source amount sau normalization/rounding.
+- Posting period hợp lệ theo policy.
 
 ## 5. Quy tắc nghiệp vụ
 
-Rebuild preview → persist one `LateLandedCost` keyed by source component → persist all exposure allocations → group by posting period and create **1..N `LATE_LANDED_COST` ValuationAdjustmentBatch** + lines/value movements → mark exact `Product + posting period` dirty scopes → outbox, all-or-nothing. Không quantity movement; không auto-publish Official Cost.
+1. Server dựng lại adjustment preview từ authoritative source/current policy.
+2. Ghi `ValueAdjustmentSource` một lần theo stable economic identity.
+3. Ghi toàn bộ `ValueAdjustmentAllocation`/exposure linkage.
+4. Theo posting period, tạo 1..N `ValuationAdjustmentBatch` + line + `InventoryValueMovement` có dấu.
+5. Đánh dấu exact `Product + posting period` dirty cho BJ14.
+6. Không quantity movement và không tự publish Official Cost.
+7. Component đến sau có thể là vận chuyển, bảo hiểm, thuế/phí không thu hồi, chênh giá, discount/rebate/credit note hoặc commercial true-up hợp lệ.
 
 ## 6. Điều kiện bắt buộc
 
-Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5; migration không bổ sung invariant mới.
+- Forecast/projected commercial benefit **không** được ghi real value ledger.
+- Lỗi người dùng đã nhập sai fact ở BJ03 **không** dùng BC này để che sửa sai; route BJ11/correction.
+- Source/policy xác định target; user không tùy ý bỏ target khỏi fixed scope.
+- Source revision đổi sau preview làm command stale; không partial commit.
 
 ## 7. Ảnh hưởng trạng thái
 
-Một economic component được ghi đúng một lần bất kể source revision; full provenance + exposure linkage; 1..N adjustment batches; affected product/posting-period scopes ready for BJ14.
+Tạo adjustment provenance + allocations + value movements; exact Product/posting-period scopes chuyển sang trạng thái cần BJ14 tính lại.
+
+## 8. Tính nguyên tử và kết quả cuối
+
+Source component record, allocations, batches, lines, value movements, dirty causes và outbox facts cùng commit hoặc rollback. Nếu finality chưa rõ, làm rõ cùng command identity.
 
 ## 9. Kết quả và semantics lỗi
 
+Giữ compatibility với mã lỗi triển khai hiện hành nhưng semantic canonical là **value adjustment**:
 `LATE_COST_SOURCE_REQUIRED`, `LATE_COST_SOURCE_STALE`, `LATE_COST_ALREADY_RECORDED`, `LATE_COST_ROUTE_DIRECT`, `LATE_COST_TARGET_SCOPE_INVALID`, `LATE_COST_TARGET_NOT_INITIAL_VALUED`, `LATE_COST_ALLOCATION_METHOD_INVALID`, `LATE_COST_BASIS_STALE`, `LATE_COST_ALLOCATION_MISMATCH`, `LATE_COST_EXPOSURE_STALE`, `POSTING_PERIOD_NOT_OPEN`.
+
+> Các tên lỗi `LATE_COST_*` là compatibility name từ baseline cũ; Technical Contract có thể version hóa tên mới mà không đổi business meaning của BC này.
 
 ## 10. Domain và UC sử dụng
 
-- Entity/Read model: `ENT-IV-02/05/06/07/08`; read `ENT-IV-01`, ReceiptValuation, AccountingPeriod.
-- Trace: `BJ-13`; `UC-13-03`; `API-C-23`; `EVT-IV-05`; `T7-DR-157…163`.
+- **Domain / Entity:** `ENT-IV-02`, `ENT-IV-05…08`; đọc `ENT-IV-01` và accounting-period facts.
+- **UC:** `UC-13-01`.
+- **API/Event trace:** `API-C-23`, `EVT-IV-05`.
+- **Decision:** `T7-DR-058`, `157…163`, `191…193`.

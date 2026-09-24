@@ -125,7 +125,7 @@ và luồng giao diện cấp hành trình; không biến UC thành hướng d�
 
 <!-- Scenario kiểm chứng Flow, không thay thế Flow. Bao phủ các kết quả và nhánh AF/EF;
 mỗi Scenario phải chỉ rõ BF/AF/EF/BR liên quan. Không lặp Journey Acceptance của BJ.
-BE Slice có thể chọn một tập Flow/Scenario có giá trị và kiểm thử được; không mặc định
+Slice có thể chọn một tập Flow/Scenario có giá trị và kiểm thử được; không mặc định
 1 UC = 1 Slice. Slice ghi phạm vi bao phủ và phần còn lại, không tự đổi ranh giới nghiệp vụ. -->
 
 ### AS-UC-XX-XX-01 — <Tên kịch bản>

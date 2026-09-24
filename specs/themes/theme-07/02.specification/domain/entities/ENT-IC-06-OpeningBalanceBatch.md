@@ -1,70 +1,92 @@
 ---
 id: ENT-IC-06
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: OpeningBalanceBatch
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-06 — OpeningBalanceBatch
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Batch migration, control totals và immutable report
+Batch khởi tạo số dư đầu kỳ dùng để kiểm tra, duyệt và commit toàn bộ opening quantity/value trước khi inventory chuyển từ `PREPARING` sang `ACTIVE`.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `OpeningBalanceBatch` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Movement/value movement sau commit → DOM-IO/DOM-IV; source master → owner tương ứng |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class OpeningBalanceBatch { <<AggregateRoot>> }
+```
 
-max one completed per tenant/baseline
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `batchId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, baselineId)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `batch_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `baseline_id` | `VARCHAR(128)` | UK thành phần | Bắt buộc | — | Tối đa một completed batch/tenant/baseline |
-| `cutoff_at` | `TIMESTAMPTZ` | — | Bắt buộc | — | — |
-| `scope_snapshot` | `JSONB` | — | Bắt buộc | — | Store/warehouse/product scope |
-| `source_uri` | `TEXT` | — | Bắt buộc | — | Không chứa secret |
-| `source_hash` | `CHAR(64)` | — | Bắt buộc | — | Bằng chứng input |
-| `control_quantity_totals` | `JSONB` | — | Bắt buộc | — | Theo warehouse/key đã khóa |
-| `control_value_totals` | `JSONB` | — | Bắt buộc | — | Theo product/currency |
-| `status` | `VARCHAR(30)` | — | Bắt buộc | `DRAFT` | Preparation/approval/commit lifecycle |
-| `approval_case_id` | `UUID` | FK → `ApprovalCase` | Nullable | `NULL` | — |
-| `committed_operation_ids` | `JSONB` | — | Nullable | `NULL` | Stable ordered list |
-| `immutable_report_uri` | `TEXT` | — | Nullable | `NULL` | Bắt buộc khi completed |
-| `immutable_report_hash` | `CHAR(64)` | — | Nullable | `NULL` | Bắt buộc khi completed |
-| `activation_from_status` | `VARCHAR(20)` | — | Nullable | `NULL` | Kỳ vọng `PREPARING` |
-| `activation_to_status` | `VARCHAR(20)` | — | Nullable | `NULL` | Kỳ vọng `ACTIVE` |
-| `completed_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Concurrency |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `baselineId` | Định danh baseline đầu kỳ | Có | Không tái sử dụng cho batch khác |
+| `cutoffAt` | Mốc nghiệp vụ của opening | Có | Cùng baseline |
+| `scopeSnapshot` | Phạm vi Product/kho được nạp | Có | Bất biến sau validate |
+| `sourceReference` | Nguồn file/dataset + hash | Có | Dùng audit, không phải domain owner |
+| `controlTotals` | Tổng quantity/value để đối chiếu | Có | Phải cân trước submit |
+| `approvalCaseRef` | Case duyệt batch | Khi policy yêu cầu | Maker-checker |
+| `committedOperationRefs` | Opening operations đã commit | Khi COMMITTED | Trace IO/IV |
+| `immutableReportRef` | Báo cáo migration cuối | Khi COMMITTED | Không sửa sau commit |
+| `status` | DRAFT/VALIDATED/PENDING_APPROVAL/APPROVED/COMMITTED/REJECTED | Có | Lifecycle batch |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `approval_case_id`: FK → `ApprovalCase`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `loadDraft()` | Tenant đang PREPARING | OpeningBalanceBatchCreated |
+| `validate()` | Schema, master, totals và negative scope hợp lệ | OpeningBalanceValidated |
+| `submitForApproval()` | VALIDATED; đủ evidence | OpeningBalanceApprovalRequested |
+| `approve()` | ApprovalCase hợp lệ | OpeningBalanceApproved |
+| `commit()` | APPROVED; all-or-nothing IO+IV+activation contract | OpeningBalanceCommitted |
+| `reject(reason)` | Chưa COMMITTED | OpeningBalanceRejected |
 
-Staging trước commit là transient storage, không phải Dữ liệu gốc và không thuộc authoritative entity model.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: load
+    DRAFT --> VALIDATED: validate
+    VALIDATED --> PENDING_APPROVAL: submit
+    PENDING_APPROVAL --> APPROVED: approve
+    PENDING_APPROVAL --> REJECTED: reject
+    APPROVED --> COMMITTED: commit
+```
 
-Staging trước commit là transient storage, không phải Dữ liệu gốc và không thuộc authoritative entity model.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `OpeningBalanceValidated` | validate() | Batch đạt kiểm tra |
+| `OpeningBalanceCommitted` | commit() | Opening facts đã ghi và inventory active |
+| `OpeningBalanceRejected` | reject() | Batch không được commit |
 
-- `BC-IC-04`
-- `BC-IC-09`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-04`, `BC-IC-05` |
+| Use Case | `UC-12-01`, `UC-12-02`, `UC-12-03` |
+| Quyết định | `T7-DR-069`, `T7-DR-073` |

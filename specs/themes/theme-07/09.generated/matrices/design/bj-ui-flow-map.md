@@ -1,6 +1,6 @@
 # Bản đồ BJ → UC → Screen
 
-> Baseline legacy được giữ để trace. **v1.4.3 overlay Product Entry Architecture** tại [`entry-architecture.md`](../../../07.evidence/design/legacy-contracts/entry-architecture.md): flow arrows không được hiểu là một user session xuyên actor; contextual/recovery/result surfaces không phải global entry.
+> Baseline legacy được giữ để trace. **v1.4.3 overlay Product Entry Architecture** tại [`entry-architecture.md`](../../../06.evidence/design/legacy-contracts/entry-architecture.md): flow arrows không được hiểu là một user session xuyên actor; contextual/recovery/result surfaces không phải global entry.
 
 | BJ | Tên | UC | Screen | Entry | Terminal |
 |---|---|---:|---:|---|---|

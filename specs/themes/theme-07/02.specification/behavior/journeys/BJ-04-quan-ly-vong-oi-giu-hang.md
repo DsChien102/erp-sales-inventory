@@ -5,196 +5,79 @@ theme: theme-07
 title: "Quản lý vòng đời giữ hàng"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: BJ.template.md
+source_baseline: v3.12.0
 ---
+
 # BJ-04 — Quản lý vòng đời giữ hàng
 
-## 1. Mục tiêu trải nghiệm
+## 1. Tổng quan nghiệp vụ & Bối cảnh
 
 Bảo đảm capacity tồn kho cho source order có chính sách giữ hàng mà chưa làm thay đổi tồn vật lý. Theme 7 sở hữu reservation capacity commitment; source sở hữu commercial order intent; BJ-05 sở hữu LOT allocation/pick/handover sau khi fulfillment được hình thành.
 
-## 2. Phạm vi và ranh giới
+**Bắt đầu khi:** Có yêu cầu nghiệp vụ hợp lệ trong phạm vi Theme 7.
 
-### 2.1 Bắt đầu khi
+**Kết thúc khi:** Kết quả hành trình được xác định hoặc dừng có kiểm soát.
 
+**Không bao gồm:** Không sở hữu quyết định thuộc Theme/Domain khác.
 
+## 2. Tác nhân và trách nhiệm
 
-### 2.2 Kết thúc khi
-
-
-
-### 2.3 Không bao gồm
-
-
-
-## 3. Actor
-
-- Source system / system process
-
-## 4. Luồng chính
-
-```mermaid
-flowchart TD
-    S([Source version gửi reservation command]) --> P{reservation_policy?}
-    P -->|NONE| N[Không tạo hold · trả NOT_REQUIRED]
-    P -->|ALL_OR_NOTHING / PARTIAL_ALLOWED| T{Loại yêu cầu?}
-    T -->|Tạo mới| U1[UC-04-01 · Normalize UOM → lock bucket → reserve]
-    T -->|Tăng / giảm| U2[UC-04-02 · Apply source delta]
-    T -->|Cancel / complete / source expiry| U3[UC-04-03 · Release current held]
-    T -->|Eligibility giảm hoặc source yêu cầu re-evaluate| U4[UC-04-04 · Re-rank capacity → shortage]
-    U1 --> R[Reservation current facts]
-    U2 --> R
-    U3 --> R
-    U4 --> R
-    R --> A{Có active PickAllocation bị ảnh hưởng?}
-    A -->|Có| B[Phát allocation_review_required cho BJ-05]
-    A -->|Không| E([Kết thúc])
-    B --> E
-    N --> E
-```
-
-
-
-## 5. Use Case map
-
-
-
-## 6. Luồng thay thế và ngoại lệ
-
-### 4. Quantity model authoritative
-
-Mỗi Reservation bảo toàn source quantity và base normalization:
-
-- `requested_quantity` + transaction UOM snapshot/precision/conversion version;
-- `requested_base_quantity` — source demand normalized;
-- `reserved_base_quantity` — **lượng hiện đang được giữ, chưa consume/release**;
-- `consumed_base_quantity` — lượng đã handover/issue commit cộng dồn;
-- `remaining_required_base = max(0, requested_base_quantity - consumed_base_quantity)`;
-- `shortage_base = max(0, remaining_required_base - reserved_base_quantity)`.
-
-`ReservationBucket.reserved_base_quantity = Σ current Reservation.reserved_base_quantity`; consumed quantity không nằm trong bucket.
-
-### 5. Priority và re-evaluation
-
-Khi capacity đủ điều kiện giảm, phân capacity deterministic theo:
-
-1. `reservation_priority` do source cung cấp;
-2. `source_confirmed_at` cũ hơn trước;
-3. stable `source_line_id` để phá hòa.
-
-Hệ thống **không auto top-up** khi hàng lại đủ. Top-up chỉ xảy ra khi source gửi amend/re-evaluate mới có version/idempotency identity.
-
-## 7. UI Flow và chuyển màn hình
-
-> **Product/UI baseline:** `v3.9.6`  
-> **Business authority:** BJ-04 + UC-04 + T7-DR-144…149.  
-> **UI authority:** Live VET45 Figma Design System.  
-> **HTML:** implementation + verification only.
-
-### 1. Phạm vi UI
-
-| Thuộc tính | Giá trị |
-|---|---|
-| Entry | Order/source detail có Advanced Stock reservation context |
-| Active surface | `SCR-021 — Giữ hàng theo đơn` |
-| Mutation UI | Không |
-| Source/system operations | create / amend / release / re-evaluate current reservation capacity |
-| Exit | Back về đúng source order |
-
-Basic Stock và `reservation_policy=NONE` không mở một reservation Product surface của Theme 7.
-
-### 2. Canonical flow
-
-```mermaid
-flowchart TD
-    A([Source order có reservation context]) --> B[Theme 7 current reservation projection]
-    B --> C[SCR-021]
-    C --> D{Current line facts}
-    D -->|Có shortage| E[Warning đúng line]
-    D -->|Có current hold| F[Hiển thị Cần giữ còn lại · Đang giữ]
-    D -->|Không còn current hold| G[Info: Không còn hàng đang giữ cho đơn này]
-    E --> H([Back source order])
-    F --> H
-    G --> H
-```
-
-### 3. UX decisions v3.9.6
-
-1. Một active read-only screen; retired `SCR-020/022/023/024` không quay lại active flow.
-2. Reservation policy/capability do source/system quyết định; Inventory user không có fake reserve/release task.
-3. Projection theo từng source line, không global FULL/PARTIAL/RELEASED/STALE.
-4. Copy current facts: **Cần giữ còn lại** / **Đang giữ**; lịch sử quantity cũ thuộc audit/history.
-5. Shortage chỉ gắn row bị thiếu; không cộng khác UOM thành tổng giả.
-6. `STALE` không phải product-facing state. Refresh/reconcile trước khi hiển thị authoritative current facts.
-7. Không show helper “Giữ hàng làm giảm khả dụng...” mặc định; đây là domain semantic không giúp user ra quyết định trên surface.
-8. Combo vẫn hiển thị source combo line; component reservations không dump lên Product UI.
-9. Function catalog chỉ thể hiện capability contextual/disabled; không cho mở như module Inventory độc lập.
-
-### 4. Active state matrix
-
-| State | UI | Mutation |
+| Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
-| `READY` | Context + current line facts; banner derive theo data | Không |
-| `LOADING` | `VSkeleton` | Không |
-| `PERMISSION_DENIED` | `VEmptyState` | Không |
+| Source system / system process | Khởi tạo, điều chỉnh, giải phóng hoặc đánh giá lại reservation theo source version và policy. | Source sở hữu requested quantity/lifecycle; Theme 7 sở hữu current hold/capacity effect; không sửa PickAllocation BJ05. |
 
-### 5. Retired surfaces
+## 3. Sơ đồ hành trình nghiệp vụ
 
-`SCR-020`, `SCR-022`, `SCR-023`, `SCR-024` là historical contracts only; không xuất hiện trong active UIF-04 navigation/deep-link destination.
+```mermaid
+flowchart TD
+    Begin([Bắt đầu: source cần giữ hàng]) --> U1["UC-04-01 — Tạo reservation"]
+    U1 --> D{"Reservation còn cần duy trì?"}
+    D -->|Điều chỉnh| U2["UC-04-02 — Điều chỉnh reservation"]
+    D -->|Đánh giá lại| U4["UC-04-04 — Đánh giá lại và xử lý thiếu"]
+    D -->|Kết thúc| U3["UC-04-03 — Kết thúc và giải phóng"]
+    U2 --> D
+    U4 --> D
+    U3 --> End([Kết thúc])
+```
 
-## 8. Handoff / phụ thuộc ngoài Journey
+## 4. Bản đồ Use Case
 
+| UC — Tên | Mục tiêu | Tác nhân | Đầu vào / Bắt đầu khi | Kết quả | Tiếp tục |
+|---|---|---|---|---|---|
+| [UC-04-01](../use-cases/UC-04-01-tao-reservation.md) — Tạo reservation | Tạo current hold theo source/policy và trả shortage nếu thiếu | Source system / system process | Source line/version có explicit reservation policy | Reservation/Group version đầu tiên + current hold/shortage | Theo lifecycle source |
+| [UC-04-02](../use-cases/UC-04-02-dieu-chinh-reservation.md) — Điều chỉnh reservation | Đưa current hold theo requested quantity/source version mới | Source system / system process | Source requested quantity/version tăng hoặc giảm | Reservation version mới; consumed history giữ nguyên | Theo lifecycle source / BJ05 review nếu allocation bị ảnh hưởng |
+| [UC-04-03](../use-cases/UC-04-03-ket-thuc-va-giai-phong.md) — Kết thúc và giải phóng | Giải phóng current hold khi source kết thúc/release | Source system / system process | Source cancel/complete/release hoặc source-owned expiry | Current hold = 0; consumed history giữ nguyên | Kết thúc reservation lifecycle |
+| [UC-04-04](../use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md) — Đánh giá lại và xử lý thiếu | Giảm current hold khi capacity/eligibility giảm và trả shortage | Source system / system process | Eligibility giảm hoặc source explicit re-evaluate | Current holds phù hợp capacity + shortage + allocation review signal nếu cần | Theo lifecycle source / BJ05 review |
 
+## 5. Bàn giao và ranh giới liên quan
 
-## 9. Outcome cuối
+| Nơi nhận / Nơi cung cấp | Dữ kiện hoặc trách nhiệm bàn giao | Điều kiện bàn giao / tiếp tục |
+|---|---|---|
+| Theme 5 / source order | Nhu cầu giữ/giải phóng capacity | Source intent hợp lệ |
+| BJ05 | Reservation hiện hành để allocation/pick | Khi fulfillment bắt đầu |
 
+## 6. Luồng giao diện cấp hành trình
 
+| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
+|---|---|---|
+| UC-04-01 — Tạo reservation | `SCR-021` | Tạo current hold cho đúng source line/combo theo capacity/policy, trả shortage nếu thiếu và tạo Reservation/ReservationGroup version đầu tiên. |
+| UC-04-02 — Điều chỉnh reservation | `SCR-021` | Đưa current hold về mức phù hợp với source version mới mà không sửa consumed history và không tự thay PickAllocation của BJ05. |
+| UC-04-03 — Kết thúc và giải phóng | `SCR-021` | Đưa current hold của scope kết thúc về 0 với lý do rõ, giữ nguyên consumed history và giải phóng capacity cho nhu cầu khác. |
+| UC-04-04 — Đánh giá lại và xử lý thiếu | `SCR-021` | Giảm current hold về capacity hợp lệ theo priority, trả shortage và báo BJ05 review allocation nếu cần; không tự top-up khi capacity tăng lại. |
 
-## 10. Truy vết
+## 7. Nghiệm thu hành trình (Journey Acceptance)
 
-
-
-### Nguồn v3.10.1 — BJ-04 — Quản lý vòng đời giữ hàng
-
-> **Deep-review amendment v3.9.6:** Reservation là capability do source/system điều khiển, chỉ áp dụng cho **Advanced Stock / Theme 7**. Source gửi explicit `reservation_policy`; Theme 7 giữ current capacity ở Product + Warehouse, bảo toàn transaction-UOM snapshot, current held/consumed semantics, deterministic priority, combo atomicity và ranh giới ownership với BJ-05. Xem `T7-DR-144…149`.
->
-> **Control/UI amendment v1.3.4:** Trong Phase 1, create/amend/release/re-evaluate reservation là **source/system-driven**. Inventory user không có bước xác nhận giữ/nhả/phân bổ lại mặc định; UI chỉ phản ánh projection authoritative và shortage cần source xử lý. Xem `T7-DR-106`.
-
-> **Trạng thái:** Cumulative deep-review baseline `v3.9.6`  
-> **Finality contract:** `COMPLETED`, `REJECTED/CANCELLED`, `SUSPENDED/BLOCKED`, `UNKNOWN/ESCALATED`  
-> **Phạm vi:** Phase 1 — một kho mặc định; giữ ở Product + Warehouse, chưa chọn LOT  
-> **Chủ sở hữu nghiệp vụ:** Inventory Operations
-### Nguồn v3.10.1 — 3. Trường hợp sử dụng
-
-| UC | Tên | Trigger | Kết quả authoritative |
+| ID | Điều kiện ở cấp hành trình | Kết quả cần bảo đảm | UC / BC liên quan |
 |---|---|---|---|
-| [UC-04-01](../use-cases/UC-04-01-tao-reservation.md) | Tạo reservation | Source line/version có policy giữ | Current hold đầu tiên hoặc no-effect rejection |
-| [UC-04-02](../use-cases/UC-04-02-dieu-chinh-reservation.md) | Điều chỉnh reservation | Source requested quantity/version đổi | Current hold/shortage mới |
-| [UC-04-03](../use-cases/UC-04-03-ket-thuc-va-giai-phong.md) | Kết thúc và giải phóng | Cancel/complete/release/source expiry | Current hold = 0 cho phần kết thúc |
-| [UC-04-04](../use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md) | Đánh giá lại và xử lý thiếu | Eligibility giảm hoặc explicit re-evaluate | Current hold được xác lập lại, shortage phát về source |
-### Nguồn v3.10.1 — 6. Combo reservation
+| JA-01 | Journey bắt đầu từ đúng trigger và actor có quyền | Kết quả chỉ được ghi trong phạm vi authority của Theme 7; source ngoài Theme không bị sửa ngầm | UC-04-01 / BC liên quan |
+| JA-02 | Một nhánh bị từ chối, blocked hoặc chưa xác định | Không được báo thành công hoặc tạo tác động bán phần; hướng xử lý/owner tiếp theo phải rõ | UC-04-01…UC-04-04 |
+| JA-03 | Journey hoàn tất thành công | Kết quả cuối có provenance, thời điểm/phạm vi và đủ dữ kiện cho consumer tiếp theo | UC-04-04 / Domain ledger |
 
-Một combo source line được biểu diễn bằng `ReservationGroup` + N child Reservation component. Commit theo số nguyên combo và nguyên tử trên toàn component. Nếu `PARTIAL_ALLOWED`, quantity combo giữ được là `min(floor(component_capacity / qty_per_combo))`; không giữ mảnh component tạo combo không hoàn chỉnh.
+## 8. Truy vết
 
-UI/source-facing projection vẫn ưu tiên combo source line; component reservation là contract/audit/internal inventory detail.
-### Nguồn v3.10.1 — 7. Ranh giới với BJ-05
-
-- Trước active PickAllocation: BJ-04 được create/increase/decrease/release/re-evaluate current hold.
-- Sau active PickAllocation: BJ-04 **không mutate allocation**. Reservation change hợp lệ phát `allocation_review_required`; BJ-05 revalidate và nếu cần supersede allocation set/version.
-- Pick/handover không rewrite source requested history. Handover consume current hold đúng committed quantity.
-### Nguồn v3.10.1 — 8. UI / projection
-
-`SCR-021` chỉ mở từ source order có reservation context. Projection theo **từng source line**, không có global business state `FULL/PARTIAL/RELEASED/STALE`.
-
-Mỗi line derive:
-- `remaining_required`;
-- `currently_reserved`;
-- `shortage`;
-- lifecycle fact (`ACTIVE`, `PARTIALLY_CONSUMED`, `CONSUMED`, `RELEASED`, `EXPIRED`).
-
-Nếu toàn bộ current hold = 0, UI có thể báo ngắn **“Không còn hàng đang giữ cho đơn này.”**; lịch sử quantity cũ thuộc audit/history, không dump vào current projection.
-### Nguồn v3.10.1 — 9. Nguồn tri thức liên quan
-
-- [Giữ hàng và xử lý đơn không đủ tồn khả dụng](../../../01.knowledge/know-how/KB-KGV-009-giu-hang-va-xu-ly-don-khong-du-ton-kha-dung.md)
-- [Chọn hàng để xuất và thời điểm hoàn tất xuất bán](../../../01.knowledge/know-how/KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban.md)
-- [Combo bán hàng và tồn kho theo thành phần](../../../01.knowledge/know-how/KB-KGV-035-combo-ban-hang-va-ton-kho-theo-thanh-phan.md)
+| Nguồn | Vai trò đối với hành trình |
+|---|---|
+| [Decision Register](../../../01.knowledge/decisions/decision-register.md) — Decision Register theo UC/BC | Nguồn quyết định nghiệp vụ và trạng thái hiệu lực |
+| `DOM-IO` | Domain authority và invariants dùng cho Journey |
+| [Use Case Map](../use-cases/00-use-case-map.md) | Danh mục UC canonical của Theme 7 |

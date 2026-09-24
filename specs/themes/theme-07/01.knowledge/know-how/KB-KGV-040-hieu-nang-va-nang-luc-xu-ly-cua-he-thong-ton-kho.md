@@ -78,7 +78,7 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 | Article ID | `KB-KGV-040` |
 | Cụm tri thức | [`KGV-C10`](00-table-of-contents.md#c10-vận-hành-phục-hồi-và-thay-đổi) |
 | Loại bài | `NON_FUNCTIONAL` |
-| Quy tắc quản trị | [`PERFORMANCE_SLO`](../../04.architecture/foundations/FND-TECH-01.md#nfr-hieu-nang), [`CAPACITY_TARGET`](../../04.architecture/foundations/FND-TECH-01.md#nfr-nang-luc-xu-ly) |
+| Quy tắc quản trị | [`PERFORMANCE_SLO`](../../02.specification/technical-contracts/FND-TECH-01.md#nfr-hieu-nang), [`CAPACITY_TARGET`](../../02.specification/technical-contracts/FND-TECH-01.md#nfr-nang-luc-xu-ly) |
 | Trạng thái quyết định | `ACTIVE` |
 | Mức bằng chứng của bài | `STATIC_VALIDATED` |
 | Giới hạn | Bài nêu mục tiêu phi chức năng tối thiểu; không quy định topology triển khai, kích thước hạ tầng, bộ dữ liệu benchmark hoặc kế hoạch capacity theo từng khách hàng |

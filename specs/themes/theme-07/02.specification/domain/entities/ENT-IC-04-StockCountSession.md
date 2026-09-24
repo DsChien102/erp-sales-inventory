@@ -1,80 +1,98 @@
 ---
 id: ENT-IC-04
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: StockCountSession
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-04 — StockCountSession
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Scope, cut-off và lifecycle kiểm kê
+Phiên kiểm kê quản lý cut-off, phạm vi đã khóa, người đếm, các round đếm bất biến và kết quả variance đến khi hoàn tất/cancel.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `StockCountSession` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | InventoryMovement điều chỉnh → DOM-IO; ApprovalCase → DOM-IC nhưng aggregate riêng |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class StockCountSession { <<AggregateRoot>> }
+```
 
-FK warehouse; unique active conflicting scope
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `sessionId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, warehouseId, countScopeSnapshotId, cutoffLedgerSequence)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `session_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `store_id` | `UUID` | FK → `Store` | Bắt buộc | — | — |
-| `warehouse_id` | `UUID` | FK → `Warehouse` | Bắt buộc | — | — |
-| `count_scope_snapshot_id` | `UUID` | FK → `CountScopeSnapshot` | Bắt buộc từ open | — | Frozen scope canonical |
-| `scope_snapshot_hash` | `CHAR(64)` | — | Bắt buộc từ open | — | Bằng hash của CountScopeSnapshot |
-| `cutoff_ledger_sequence` | `BIGINT` | — | Bắt buộc từ open | — | Chốt sau atomic barrier |
-| `assigned_counter_id` | `UUID` | FK → `User` | Bắt buộc từ open | — | Counter authoritative |
-| `assignment_version` | `BIGINT` | — | Bắt buộc | `1` | Recheck actor assignment |
-| `assignment_snapshot` | `JSONB` | — | Bắt buộc | `{}` | Scope/role provenance; không suy từ UI |
-| `status` | `VARCHAR(30)` | — | Bắt buộc | `DRAFT` | `DRAFT`, `OPEN`, `RECOUNT_REQUIRED`, `PRICE_BASIS_REQUIRED`, `PENDING_APPROVAL`, `COMPLETED`, `CANCELLED`, `UNKNOWN` |
-| `lock_id` | `UUID` | FK → `InventoryLock` | Nullable | `NULL` | Bắt buộc từ `OPEN` đến trước final release |
-| `latest_submission_id` | `UUID` | FK → `StockCountSubmission` | Nullable | `NULL` | Current evidence projection |
-| `latest_approval_case_id` | `UUID` | FK → `ApprovalCase` | Nullable | `NULL` | Current case; historical cases qua lineage |
-| `opened_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `completed_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | Cả zero variance và approved adjustment completion |
-| `cancelled_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `completed_by` | `UUID` | FK → `User` | Nullable | `NULL` | System/approver actor theo path |
-| `cancelled_by` | `UUID` | FK → `User` | Nullable | `NULL` | — |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Concurrency/CAS |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `countScopeSnapshotRef` | Phạm vi kiểm kê canonical | Có | Không đổi sau open |
+| `cutoffLedgerSequence` | Mốc sổ dùng làm book quantity | Có | Khóa khi open |
+| `assignedCounter` | Người được giao đếm | Có | Có assignment snapshot |
+| `lockRef` | InventoryLock bảo vệ scope | Có khi OPEN | Phải active đến khi kết thúc |
+| `latestSubmissionRef` | Round đếm mới nhất | Sau submit | Không overwrite submission cũ |
+| `approvalCaseRef` | Case duyệt variance hiện hành | Khi cần duyệt | Case cũ supersede nếu recount |
+| `status` | Lifecycle của phiên | Có | DRAFT/OPEN/… |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `store_id`: FK → `Store`.
-- `warehouse_id`: FK → `Warehouse`.
-- `count_scope_snapshot_id`: FK → `CountScopeSnapshot`.
-- `assigned_counter_id`: FK → `User`.
-- `lock_id`: FK → `InventoryLock`.
-- `latest_submission_id`: FK → `StockCountSubmission`.
-- `latest_approval_case_id`: FK → `ApprovalCase`.
-- `completed_by`: FK → `User`.
-- `cancelled_by`: FK → `User`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `openAndLock()` | Scope hợp lệ; acquire lock thành công | StockCountOpened |
+| `submitFirstCount()` | OPEN; actor đúng assignment | StockCountSubmitted |
+| `requestRecount()` | Variance/policy yêu cầu | StockCountRecountRequired |
+| `submitRecount()` | RECOUNT_REQUIRED; round mới bất biến | StockCountRecountSubmitted |
+| `submitForApproval()` | Variance cần maker-checker | StockCountApprovalRequested |
+| `complete()` | Decision hợp lệ; adjustment execution thành công nếu cần | StockCountCompleted |
+| `cancel(reason)` | Chưa COMPLETED; actor có quyền | StockCountCancelled |
 
-Zero variance không tạo ApprovalCase/InventoryOperation adjustment: session completion và lock release vẫn là một transaction có CommandReceipt/finality.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: create
+    DRAFT --> OPEN: openAndLock
+    OPEN --> COUNT_SUBMITTED: submitFirstCount
+    COUNT_SUBMITTED --> RECOUNT_REQUIRED: requestRecount
+    RECOUNT_REQUIRED --> COUNT_SUBMITTED: submitRecount
+    COUNT_SUBMITTED --> PENDING_APPROVAL: submitForApproval
+    COUNT_SUBMITTED --> COMPLETED: completeNoApproval
+    PENDING_APPROVAL --> COMPLETED: approveAndExecute
+    DRAFT --> CANCELLED: cancel
+    OPEN --> CANCELLED: cancel
+    PENDING_APPROVAL --> CANCELLED: rejectOrCancel
+```
 
-Zero variance không tạo ApprovalCase/InventoryOperation adjustment: session completion và lock release vẫn là một transaction có CommandReceipt/finality.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `StockCountOpened` | openAndLock() | Scope/cut-off đã khóa |
+| `StockCountSubmitted` | submitFirstCount() | First round đã ghi |
+| `StockCountRecountSubmitted` | submitRecount() | Recount round đã ghi |
+| `StockCountCompleted` | complete() | Kết quả kiểm kê đã final |
+| `StockCountCancelled` | cancel() | Phiên dừng không ghi adjustment mới |
 
-- `UC-08-03`
-- `BC-IC-02`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-01`, `BC-IC-02`, `BC-IC-03` |
+| Use Case | `UC-08-01`, `UC-08-02`, `UC-08-03`, `UC-08-04`, `UC-08-05` |
+| Quyết định | `T7-DR-035`, `T7-DR-036`, `T7-DR-037`, `T7-DR-174`, `T7-DR-175` |

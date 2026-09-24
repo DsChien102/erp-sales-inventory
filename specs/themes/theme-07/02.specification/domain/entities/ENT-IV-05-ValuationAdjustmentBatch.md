@@ -1,70 +1,78 @@
 ---
 id: ENT-IV-05
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: ValuationAdjustmentBatch
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-05 — ValuationAdjustmentBatch
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Header batch điều chỉnh cuối kỳ/giữa kỳ
+Batch gom các dòng **delta giá trị** được commit cùng một posting period/cause. Batch có thể do BJ13 hoặc BJ14 tạo; nó không sửa movement nguồn.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `ValuationAdjustmentBatch` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Source economic component → ValueAdjustmentSource; cost run result → CostCalculationRun |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class ValuationAdjustmentBatch { <<AggregateRoot>> }
+```
 
-FK cost run; batch type/period
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `adjustmentBatchId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, batchType, sourceRef, postingPeriod, baselineHash)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `adjustment_batch_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `batch_type` | `VARCHAR(30)` | — | Bắt buộc | — | `PERIOD_CLOSE`, `AD_HOC`, `LATE_LANDED_COST`, `CORRECTION` |
-| `run_id` | `UUID` | FK → `CostCalculationRun` | Nullable | `NULL` | Bắt buộc với period close từ run |
-| `accounting_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Posting period |
-| `cutoff_valuation_sequence` | `BIGINT` | — | Nullable | `NULL` | Unified valuation cutoff của costing publication |
-| `cutoff_ledger_sequence` | `BIGINT` | — | Nullable | `NULL` | Quantity audit cursor |
-| `cutoff_value_sequence` | `BIGINT` | — | Nullable | `NULL` | Value audit cursor |
-| `reconciliation_baseline_hash` | `CHAR(64)` | — | Nullable | `NULL` | Binds authoritative COGS/carrying baseline used to derive incremental delta |
-| `cutoff_at` | `TIMESTAMPTZ` | — | Bắt buộc | — | — |
-| `total_amount` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Bằng tổng line delta |
-| `currency` | `CHAR(3)` | — | Bắt buộc | — | — |
-| `status` | `VARCHAR(30)` | — | Bắt buộc | `DRAFT` | — |
-| `published_by` | `UUID` | FK → `User` | Nullable | `NULL` | — |
-| `published_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `outbox_correlation_id` | `UUID` | — | Nullable | `NULL` | Trace commit/event |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Concurrency |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `batchType` | RECEIPT_VALUE_ADJUSTMENT/COGS_TRUE_UP/ENDING_INVENTORY… | Có | Nêu rõ mục đích |
+| `sourceRef` | ValueAdjustmentSource hoặc CostCalculationRun | Có | Trace cause |
+| `postingPeriod` | Kỳ ghi nhận batch | Có | Theo policy |
+| `cutoffSnapshot` | Mốc ledger/value nếu do cost run | Theo type | Bất biến |
+| `reconciliationBaseline` | Baseline hash dùng tính delta | Theo type | Ngăn publish stale |
+| `totalAmountVnd` | Tổng signed delta của batch | Có | Bằng tổng lines |
+| `status` | COMMITTED/PUBLISHED theo cause | Có | Không sửa lines sau commit |
+| `publishedBy/At` | Actor/time nếu batch đi cùng publication | Theo type | Audit |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `run_id`: FK → `CostCalculationRun`.
-- `accounting_period_id`: FK → `AccountingPeriod`.
-- `published_by`: FK → `User`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `commitAdjustment()` | Source/allocations current; totals balanced | ValuationAdjustmentCommitted |
+| `publishWithCostRun()` | Run publication current; all lines reconcile | ValuationAdjustmentPublished |
 
+## 5. Vòng đời & chuyển dịch trạng thái
 
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-## 7. Quy tắc và Điều kiện bắt buộc
+## 6. Domain Events phát sinh
 
-Các constraint được giữ trực tiếp trong bảng thuộc tính nguồn.
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `ValuationAdjustmentCommitted` | commitAdjustment() | Signed value deltas đã ghi |
+| `ValuationAdjustmentPublished` | publishWithCostRun() | Batch thuộc publication đã final |
 
-## 8. Behavioral Contract / Use Case liên quan
+## 7. Liên kết truy vết
 
-Không có liên kết trực tiếp được ghi nhận trong nguồn v3.10.1.
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-03`, `BC-IV-04` |
+| Use Case | `UC-13-01`, `UC-14-04` |
+| Quyết định | `T7-DR-159`, `T7-DR-162`, `T7-DR-192`, `T7-DR-194` |

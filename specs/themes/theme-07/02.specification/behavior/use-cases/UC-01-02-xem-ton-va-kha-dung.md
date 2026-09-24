@@ -5,107 +5,131 @@ theme: theme-07
 title: "Xem tồn và khả dụng"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-01-02 — Xem tồn và khả dụng
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Xem tồn và khả dụng để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Đọc tồn vật lý, tồn đủ điều kiện bán, lượng đang giữ và khả dụng của sản phẩm trong đúng phạm vi đã xác định.
 
-**Kết quả thành công:** <ul><li>Các lượng và thời điểm dữ liệu được hiển thị</li><li>Snapshot/read model có as-of</li></ul>
+**Kết quả cần đạt:** Người dùng nhận được snapshot tồn có `as_of`/sequence rõ ràng; không có thay đổi ledger hay số dư authoritative.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Có query context hợp lệ
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Các lượng và thời điểm dữ liệu được hiển thị</li><li>Snapshot/read model có as-of</li></ul>
+Các lượng và thời điểm dữ liệu được hiển thị; Snapshot/read model có as-of.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không giữ hàng, không xuất/nhập kho và không sửa số dư. UC này chỉ đọc tồn vật lý, lượng đã giữ, lượng đủ điều kiện và lượng khả dụng theo cùng một mốc dữ liệu.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Nhân viên bán hàng, thủ kho hoặc chủ cửa hàng
-- **Trigger:** Có query context hợp lệ
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** Nhân viên bán hàng, thủ kho hoặc chủ cửa hàng.
+- **Thẩm quyền:** Chỉ được đọc đúng tenant/cửa hàng/kho/sản phẩm thuộc phạm vi được cấp; quyền xem số lượng, giá trị và dữ liệu tài chính được kiểm soát độc lập theo policy.
+- **Sự kiện khởi phát:** Có query context hợp lệ.
+- **Điều kiện trước:** Ngữ cảnh tenant/cửa hàng/kho và quyền đọc hợp lệ; nguồn/read model cần cho truy vấn có thể xác định được `as_of`/version hoặc trả trạng thái stale rõ ràng.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Đối tượng nghiệp vụ | Đối tượng/phạm vi được nêu tại điều kiện bắt đầu và các rule bên dưới | DOM-IO |
 
-tenant_id, phạm vi đọc, filter/cut-off/as-of, quyền xem và correlation ID.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Công thức khả dụng: Khả dụng = lượng vật lý đủ điều kiện bán − lượng đang giữ hợp lệ</li><li>Dữ liệu chính thức: Mutation phải dựa trên transactional balance; read model trễ chỉ phục vụ xem</li><li>Quyền tài chính: Quantity có thể được xem mà không đồng nghĩa được xem unit cost hoặc total value</li><li>LOT/NONE: Chỉ hiển thị lô khi sản phẩm theo LOT; sản phẩm NONE không phát sinh lô giả</li><li>Thời điểm: Mọi kết quả phải có as-of hoặc sequence để người dùng biết độ mới</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Không có finality mutation. Nếu nguồn đọc chưa sẵn sàng hoặc stale, phải trả as_of/stale hoặc lỗi rõ ràng; không suy diễn số liệu.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Không đổi trạng thái authoritative; chỉ trả read model/snapshot có thời điểm dữ liệu.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả dùng chung](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-01 — Query inventory availability](../behavioral-contracts/BC-IO-01.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-003](../../../03.design/screens/SCR-003.md); LOT Detail overlay [SCR-004](../../../03.design/screens/SCR-004.md) |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 4.1 Làm rõ semantic — Deep-Dive Review v3.9.1
-
-- Quantity hiển thị theo **stock/base UOM**.
-- Freshness dùng `query_as_of` do server trả; UI diễn đạt `Dữ liệu đến`, không dùng thời điểm click refresh làm dữ liệu.
-- Product-level mới có `reserved/available`; LOT **không** có `Đã giữ/Khả dụng` trước khi BJ-05 allocation. Nếu physical > eligible, response phải có reason breakdown.
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-01-02-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Xem tồn và khả dụng” | Các lượng và thời điểm dữ liệu được hiển thị; kết quả Snapshot/read model có as-of và có truy vết nguồn. |
-| AS-UC-01-02-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-01-02-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-01-02-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Không có finality mutation. Nếu nguồn đọc chưa sẵn sàng hoặc stale, phải trả as_of/stale hoặc lỗi rõ ràng; không suy diễn số liệu. |
+| BF-01 | Người dùng | Yêu cầu xem tồn của sản phẩm trong query context đã hợp lệ. |  |
+| BF-02 | Hệ thống | Đọc snapshot/read model theo tenant + sản phẩm + kho và kiểm tra độ mới của projection. | AF-A — Projection stale |
+| BF-03 | Hệ thống | Tính/hiển thị các lượng theo contract: vật lý, đủ điều kiện, đang giữ và khả dụng; chỉ hiển thị LOT khi sản phẩm theo LOT. | BR-01 — Công thức khả dụng<br>BR-04 — LOT/NONE |
+| BF-04 | Hệ thống | Gắn `query_as_of`/sequence và giới hạn trường giá trị theo quyền tài chính. | EF-A — Không có quyền xem giá trị |
+| BF-05 | Người dùng | Đọc snapshot và tiếp tục sang chi tiết/trace khi cần giải thích số liệu. |  |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Projection stale
+**Phát sinh tại:** BF-02. **Điều kiện:** Read model chưa đạt độ mới yêu cầu hoặc nguồn báo stale .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Trả snapshot cùng nhãn stale và `as_of`; không suy diễn thành current balance. | |
+| AF-A-02 | — | [Kết thúc UC hoặc người dùng làm mới sau.] | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Không có quyền xem giá trị
+**Phát sinh tại:** BF-04. **Điều kiện:** Người dùng được xem quantity nhưng không có quyền tài chính .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Ẩn/không trả unit cost và total value; vẫn trả quantity trong phạm vi được phép. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Công thức khả dụng | Khả dụng = lượng vật lý đủ điều kiện bán − lượng đang giữ hợp lệ| Decision / DOM-IO / BC nguồn |
+| BR-02 | Dữ liệu chính thức | Mutation phải dựa trên transactional balance; read model trễ chỉ phục vụ xem| Decision / DOM-IO / BC nguồn |
+| BR-03 | Quyền tài chính | Quantity có thể được xem mà không đồng nghĩa được xem unit cost hoặc total value| Decision / DOM-IO / BC nguồn |
+| BR-04 | LOT/NONE | Chỉ hiển thị lô khi sản phẩm theo LOT; sản phẩm NONE không phát sinh lô giả| Decision / DOM-IO / BC nguồn |
+| BR-05 | Thời điểm | Mọi kết quả phải có as-of hoặc sequence để người dùng biết độ mới| Decision / DOM-IO / BC nguồn |
+
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `BC-IO-01` — Query inventory availability.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | Người dùng nhận được snapshot tồn có `as_of`/sequence rõ ràng; không có thay đổi ledger hay số dư authoritative. | Kết thúc tra cứu hoặc chuyển sang UC/BJ khác theo nhu cầu nghiệp vụ; UC này không ghi thay đổi authoritative. |
+| Không đủ điều kiện / Bị từ chối | Nếu thiếu quyền, dữ liệu không tồn tại hoặc nguồn stale, hệ thống trả đúng trạng thái đọc/cảnh báo; không tạo mutation. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+
+**Ảnh hưởng nghiệp vụ chính:** Người dùng nhận được snapshot tồn có `as_of`/sequence rõ ràng; không có thay đổi ledger hay số dư authoritative.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-003` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. |
+| `SCR-004` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xem tồn và khả dụng”; không tạo mutation. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-01-02-01 — Xem tồn và khả dụng — luồng chính
+- **Given:** Có query context hợp lệ
+- **When:** Yêu cầu xem tồn của sản phẩm trong query context đã hợp lệ.
+- **Then:** Người dùng nhận được snapshot tồn có `as_of`/sequence rõ ràng; không có thay đổi ledger hay số dư authoritative.
+
+### AS-UC-01-02-02 — Xem tồn và khả dụng — Projection stale
+- **Given:** Read model chưa đạt độ mới yêu cầu hoặc nguồn báo stale.
+- **When:** Hệ thống phát hiện điều kiện “Projection stale” tại BF-02.
+- **Then:** Trả snapshot cùng nhãn stale và `as_of`; không suy diễn thành current balance. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
+
+### AS-UC-01-02-03 — Xem tồn và khả dụng — Không có quyền xem giá trị
+- **Given:** Người dùng được xem quantity nhưng không có quyền tài chính.
+- **When:** Hệ thống phát hiện điều kiện “Không có quyền xem giá trị” tại BF-04.
+- **Then:** Ẩn/không trả unit cost và total value; vẫn trả quantity trong phạm vi được phép. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-01` — Theo dõi tồn, khả dụng và chỉ báo vận hành.
+- **Domain:** `DOM-IO`.
+- **Behavioral Contract:** `SBC-COM-02`, `BC-COMMON-EXTENSIONS`, `SBC-COM-03`, `BC-IO-01`.
+
 - **Nguồn quyết định:** [Nhóm G01 — Phạm vi, thẩm quyền và mô hình tồn](../../../01.knowledge/decisions/decision-register.md#31-g01-ph%E1%BA%A1m-vi-th%E1%BA%A9m-quy%E1%BB%81n-v%C3%A0-m%C3%B4-h%C3%ACnh-c%E1%BB%ADa-h%C3%A0ngkho); [Nhóm G04 — Khả dụng, giữ hàng và xuất bán](../../../01.knowledge/decisions/decision-register.md#34-g04-kh%E1%BA%A3-d%E1%BB%A5ng-gi%E1%BB%AF-h%C3%A0ng-l%E1%BA%A5y-h%C3%A0ng-v%C3%A0-xu%E1%BA%A5t)
 - **Bài tri thức liên quan:** [Phạm vi quản lý tồn kho và giá vốn](../../../01.knowledge/know-how/KB-KGV-001-pham-vi-quan-ly-ton-kho-va-gia-von.md); [Kho, cửa hàng và khóa định danh số dư tồn kho](../../../01.knowledge/know-how/KB-KGV-003-kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho.md); [Tồn vật lý và tồn khả dụng](../../../01.knowledge/know-how/KB-KGV-005-ton-vat-ly-va-ton-kha-dung.md); [Tính chính thức của tồn kho và nguyên tắc chống xuất âm](../../../01.knowledge/know-how/KB-KGV-006-tinh-chinh-thuc-cua-ton-kho-va-nguyen-tac-chong-xuat-am.md); [Thẻ kho, báo cáo lịch sử và đối soát nguồn](../../../01.knowledge/know-how/KB-KGV-033-the-kho-bao-cao-lich-su-va-doi-soat-nguon.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-01-02-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-01-02, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-01-02. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-### Nguồn v3.10.1 — UC-01-02 — Xem tồn và khả dụng
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW

@@ -1,73 +1,86 @@
 ---
 id: ENT-IC-03
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: InventoryLock
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-03 — InventoryLock
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Khóa balance key/range có owner và lease
+Khóa nghiệp vụ bảo vệ một warehouse scope trong kiểm kê/đối soát. Lock giữ owner, phạm vi đã chuẩn hóa và cut-off; không phải cách sửa hoặc “đóng băng” balance bằng UPDATE.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `InventoryLock` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Balance/movement → DOM-IO; count lifecycle → StockCountSession |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class InventoryLock { <<AggregateRoot>> }
+```
 
-unique active lock target
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `lockId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, warehouseId, lockType, ownerType, ownerId)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `lock_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `warehouse_id` | `UUID` | FK → `Warehouse` | Bắt buộc | — | — |
-| `lock_type` | `VARCHAR(40)` | — | Bắt buộc | — | Count, reconciliation, migration, recovery… |
-| `owner_type` | `VARCHAR(40)` | — | Bắt buộc | — | Loại aggregate sở hữu lock |
-| `owner_id` | `UUID` | — | Bắt buộc | — | ID aggregate owner |
-| `count_scope_snapshot_id` | `UUID` | FK → `CountScopeSnapshot` | Nullable | `NULL` | Bắt buộc với `lock_type=STOCK_COUNT` |
-| `scope_type` | `VARCHAR(40)` | — | Bắt buộc | — | Key, range hoặc predicate |
-| `scope_predicate_snapshot` | `JSONB` | — | Bắt buộc | — | Kiểm cả key hiện hữu và key có thể phát sinh |
-| `scope_predicate_hash` | `CHAR(64)` | — | Bắt buộc | — | Stable scope identity |
-| `materialized_key_snapshot` | `JSONB` | — | Nullable | `NULL` | Keys tại cut-off |
-| `materialized_key_hash` | `CHAR(64)` | — | Nullable | `NULL` | Hash snapshot keys |
-| `barrier_acquired_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | Stock-count barrier phải active trước khi cutoff được chốt |
-| `cutoff_ledger_sequence` | `BIGINT` | — | Bắt buộc | — | Stock count: sequence được chốt sau barrier; không mutation scope nào commit sau sequence này khi lock active |
-| `status` | `VARCHAR(20)` | — | Bắt buộc | `ACTIVE` | `ACTIVE`, `RELEASED`, `EXPIRED` |
-| `acquired_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | — |
-| `expires_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | Lease nếu áp dụng |
-| `released_at` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `release_reason` | `TEXT` | — | Nullable | `NULL` | Bắt buộc khi release ngoài normal completion |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `version` | `BIGINT` | — | Bắt buộc | `1` | Concurrency |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `warehouseScope` | Kho được bảo vệ | Có | Phase 1 theo kho mặc định |
+| `lockType` | Mục đích khóa | Có | COUNT/RECONCILIATION… |
+| `ownerRef` | Aggregate/case sở hữu lock | Có | Không có lock vô chủ |
+| `scopeSnapshot` | Predicate + materialized keys | Có | Bất biến sau acquire |
+| `cutoffLedgerSequence` | Mốc ledger tại thời điểm khóa | Có | Dùng để rebuild/count |
+| `lease` | Thời điểm acquire/expire | Có | Hết lease không tự hợp thức mutation |
+| `status` | ACTIVE/RELEASED/EXPIRED | Có | Chỉ ACTIVE chặn mutation |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `warehouse_id`: FK → `Warehouse`.
-- `count_scope_snapshot_id`: FK → `CountScopeSnapshot`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `acquire()` | Không conflict với lock active khác cùng scope | InventoryLockAcquired |
+| `release(reason)` | Owner hoặc actor có quyền; lý do hợp lệ | InventoryLockReleased |
+| `expire()` | Lease hết theo policy | InventoryLockExpired |
 
-Cần partial/exclusion constraint chống hai active lock có scope xung đột. Lock ứng dụng không thay row lock/CAS của balance.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE: acquire
+    ACTIVE --> RELEASED: release
+    ACTIVE --> EXPIRED: expire
+    RELEASED --> [*]
+    EXPIRED --> [*]
+```
 
-Cần partial/exclusion constraint chống hai active lock có scope xung đột. Lock ứng dụng không thay row lock/CAS của balance.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `InventoryLockAcquired` | acquire() | Scope bắt đầu được bảo vệ |
+| `InventoryLockReleased` | release() | Scope được mở lại có kiểm soát |
+| `InventoryLockExpired` | expire() | Lease kết thúc theo policy |
 
-- `BC-IC-01`
-- `BC-IC-05`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-01`, `BC-IC-02` |
+| Use Case | `UC-08-01`, `UC-08-05`, `UC-16-02`, `UC-16-04` |
+| Quyết định | `T7-DR-035`, `T7-DR-084` |

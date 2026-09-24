@@ -1,0 +1,71 @@
+schema_version: 2
+theme: theme-07
+sample: UC-02-02-pilot
+sample_status: NON_CANONICAL_EXAMPLE
+# Paths are relative to theme-template/ for this sample.
+artifacts:
+  - id: DOM-IO
+    type: domain-foundation
+    path: 02.specification/domain/domain-foundation/DOM-IO.sample.md
+  - id: ENT-IO-01
+    type: business-entity
+    path: 02.specification/domain/entities/ENT-IO-01.sample.md
+  - id: AGG-IO-01
+    type: aggregate
+    path: 02.specification/domain/aggregates/AGG-IO-01-InventoryOperation.sample.md
+  - id: FND-01
+    type: technical-contract
+    path: 02.specification/technical-contracts/FND-01-Idempotency.sample.md
+  - id: BJ-02
+    type: business-journey
+    path: 02.specification/behavior/journeys/BJ-02.sample.md
+  - id: UC-02-02
+    type: use-case
+    path: 02.specification/behavior/use-cases/UC-02-02.sample.md
+  - id: BC-IO-16
+    type: behavioral-contract
+    path: 02.specification/behavior/behavioral-contracts/BC-IO-16.sample.md
+  - id: BC-IC-07
+    type: behavioral-contract
+    path: 02.specification/behavior/behavioral-contracts/BC-IC-07.sample.md
+  - id: SCR-009
+    type: screen-contract
+    path: 03.design/screens/SCR-009.sample.md
+slices:
+  - id: SL-001
+    type: slice
+    path: 04.harness/slices/SL-001-InventoryOperation.sample.md
+    owner: SA
+    contributors: [BA, SE, QA]
+    status: DRAFT
+    depends_on: []
+    sources: [DOM-IO, ENT-IO-01, BC-IO-16, BC-IC-07, FND-01]
+    produces: [AGG-IO-01]
+    coverage:
+      - artifact: AGG-IO-01
+        scope: "Root, members, lifecycle, invariants, domain operations"
+  - id: SL-002
+    type: slice
+    path: 04.harness/slices/SL-002-QuickReceipt.sample.md
+    owner: SE
+    contributors: [BA, SA, QA]
+    status: DRAFT
+    depends_on: [SL-001]
+    sources: [BJ-02, UC-02-02, BC-IO-16, BC-IC-07, AGG-IO-01, FND-01, SCR-009]
+    produces: []
+    coverage:
+      - artifact: UC-02-02
+        flows: [BF-01, BF-02, BF-03, BF-04, BF-05, BF-06, BF-07, BF-08, BF-09, AF-A, AF-B, AF-C, AF-D, EF-A, EF-B, EF-C]
+        scenarios: [AS-UC-02-02-01, AS-UC-02-02-02, AS-UC-02-02-03, AS-UC-02-02-04, AS-UC-02-02-05, AS-UC-02-02-06, AS-UC-02-02-07, AS-UC-02-02-08, AS-UC-02-02-09]
+      - artifact: SCR-009
+        scope: "Quick mode, states, actions, navigation, feedback"
+    open_questions:
+      - "Command/Query/DTO schemas and published interfaces"
+      - "Screen Contracts SCR-006/008/084/010 and prototype build"
+      - "Approval transaction design and SL-001 review"
+# Coverage is intended scope, not proof of completed implementation.
+# Migration aliases are historical IDs, not active role-specific Slice types.
+migration_aliases:
+  SA-IO-01: SL-001
+  BE-02-02: SL-002
+  FE-SCR-009-QUICK: SL-002

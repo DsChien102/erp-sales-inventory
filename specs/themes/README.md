@@ -1,7 +1,8 @@
 # VET45 Harness Doctrine
 
-> **Phiên bản:** Draft v0.10  
-> **Ngày:** 2026-09-18  
+> **Phiên bản:** Draft v0.11
+>
+> **Ngày:** 2026-09-24
 > **Phạm vi:** VET45; có thể phát triển tiếp thành học thuyết dùng chung cho AGAPI  
 > **Pilot tham chiếu:** Theme 7 — Kho & Giá vốn  
 > **Trạng thái:** DRAFT_FOR_REVIEW
@@ -29,135 +30,71 @@ Harness không phải cách để AI được tự do làm nhiều việc hơn. 
 
 ---
 
-# 2. Mô hình ngôi nhà và phân rã công việc
+# 2. Mô hình nguồn và đơn vị thay đổi
 
-VET45 được tổ chức như **một ngôi nhà**. Phần dưới là nền móng tri thức, nghiệp vụ và kiến trúc; phần trên là hành vi và trải nghiệm mà người dùng nhìn thấy.
+BA tổ chức tri thức, hành vi và trải nghiệm; BA/SA cùng xây Domain; SA bảo vệ kiến trúc dùng chung; SE hiện thực; QA kiểm chứng. Các vai trò cùng đóng góp vào **một loại Slice**, không tạo dòng công việc riêng theo vai trò.
 
-Vai trò trong mô hình:
+## 2.1 Các nguồn chuẩn
 
-- **BA**: bao gồm BA và công việc thiết kế UI/UX hiện tại.
-- **SA**: chịu trách nhiệm chính về kiến trúc hệ thống.
-- **SE**: bao gồm cả công việc backend và frontend; trong Harness vẫn giữ hai loại **BE Slice** và **FE Slice** để phân biệt phạm vi công việc.
+Knowledge cung cấp căn cứ cho Specification. Specification gồm ba vùng:
 
-## 2.1 Sơ đồ trung tâm
+- **Behavior:** Business Journey, Use Case và Behavioral Contract.
+- **Domain:** Domain Foundation, Entity/Value Object, Aggregate, Read Model và Integration.
+- **Technical Contract:** quy tắc kỹ thuật dùng chung nhiều Slice hoặc toàn Theme.
 
-```text
-                              ┌────────────────────────────┐
-                              │   BUSINESS JOURNEY [BA]    │
-                              │   Trải nghiệm end-to-end   │
-                              └─────────────┬──────────────┘
-                                            │
-                    phân rã nhu cầu         │      hiện thực / đối chiếu
-                                            │
-                        ┌───────────────────┴───────────────────┐
-                        │                                       ▲
-                        │                                       │                           
-            ┌───────────▼────────────┐             ┌────────────────────────┐
-            │     PROTOTYPE [BA]     │             │      USE CASE [BA]     │ ───► BE SLICE [SE]
-            │      Final design      │             │    Outcome nguyên tử   │
-            └────────────────────────┘             └────────────▲───────────┘
-                        │ phát sinh                             │ hiện thực hóa
-                        │                                       │
-            ┌───────────▼────────────────────────────────────────────────────┐
-            │                     SCREEN CONTRACT [BA]                       │ ───► FE SLICE [SE]
-            │       Bề mặt tương tác · state · action · data · feedback      │
-            └───────────────────────────────▲────────────────────────────────┘
-                                            │
-            ┌───────────────────────────────┴─────────────────────────────────┐
-            │                        ARCHITECTURE [SA]                        │ ───► SA SLICE [SA]
-            │           Aggregate · Read Model · Foundation · Integration     │
-            └───────────────────────────────▲─────────────────────────────────┘
-                                            │
-            ┌───────────────────────────────┴─────────────────────────────────┐
-            │                       DOMAIN + ENTITY [BA/SA]                   │
-            │       Khái niệm · quyền sở hữu · lifecycle · Điều kiện bắt buộc │
-            └───────────────────────────────▲─────────────────────────────────┘
-                                            │
-            ┌───────────────────────────────┴─────────────────────────────────┐
-            │                    QUYẾT ĐỊNH NGHIỆP VỤ [BA]                    │
-            └───────────────────────────────▲─────────────────────────────────┘
-                                            │
-            ┌───────────────────────────────┴─────────────────────────────────┐
-            │                         KNOW-HOW [BA]                           │
-            └─────────────────────────────────────────────────────────────────┘
-                                         NỀN MÓNG
-```
+Design hiện thực hóa hành vi bằng Screen Contract, Pattern, Design System và Prototype. UI Flow cấp hành trình tiếp tục nằm trong BJ, không tạo một nhánh tài liệu riêng.
 
+Specification và Design cùng là nguồn cho Slice; Slice dẫn tới implementation và evidence. Slice không thay thế các nguồn chuẩn này.
 
-Sơ đồ giữ phần **ngôi nhà** cân đối và chỉ đặt ba loại Slice ở bên ngoài, đúng tầng phát sinh công việc. Các chi tiết như **Application Command/Query**, **Aggregate behavior**, API/Event được giải thích bên dưới thay vì đưa thêm tầng vào sơ đồ.
+## 2.2 Kiến trúc nằm ở đâu?
 
-## 2.2 Cách đọc mô hình
+| Loại nội dung | Nơi sở hữu |
+|---|---|
+| Trách nhiệm Domain, nghĩa nghiệp vụ, bất biến và lifecycle | Domain Foundation |
+| Đối tượng, identity, thuộc tính, quan hệ, hành vi nghiệp vụ | Entity / Value Object |
+| Root, thành viên và ranh giới nhất quán khi thay đổi | Aggregate |
+| Câu hỏi nghiệp vụ, dữ liệu đọc, projection, freshness/consistency, rebuild | Read Model |
+| Ownership, producer/consumer, nghĩa dữ liệu, versioning, failure và reconciliation giữa các Domain/Theme | Integration |
+| Idempotency, concurrency, event delivery, security, observability dùng chung | Technical Contract |
+| Endpoint, orchestration, transaction hoặc FE state chỉ phục vụ một Slice | Design / Contracts của Slice |
 
-Mô hình có hai chuyển động bổ sung cho nhau.
+Không còn top-level Architecture. Tư duy kiến trúc vẫn tồn tại tại nguồn có trách nhiệm tương ứng. Entity không tự quyết định ranh giới transaction; Aggregate không được gom mọi đối tượng có quan hệ vào một cụm. Read Model thuộc Domain và mô tả mặt đọc của mô hình nghiệp vụ.
 
-**Từ dưới lên**, Know-how và Quyết định nghiệp vụ hình thành Domain + Entity; Domain trở thành nền cho Architecture. Architecture không được tổ chức theo từng Use Case, mà theo những ranh giới bền vững như Aggregate, Read Model, Foundation và Integration.
+Chỉ tạo Technical Contract khi thật sự có quy tắc dùng chung; không tạo file để lấp đủ danh mục. NFR phải đo/kiểm tra được. Tiêu chí chỉ phục vụ một Slice nằm trong Verification của Slice đó.
 
-**Ở tầng sản phẩm**, Business Journey được BA phân rã thành Use Case. Use Case làm phát sinh nhu cầu về một hoặc nhiều Screen Contract. Screen Contract được hiện thực hóa thành Prototype; Prototype quay lại **đối chiếu và hiện thực hóa Business Journey** mà người dùng thực sự trải qua.
+## 2.3 Từ nghiệp vụ đến Slice
 
-Ba loại Slice nằm cạnh đúng nơi phát sinh công việc:
+BJ mô tả hành trình đầu–cuối và bàn giao giữa các UC. UC xác định mục tiêu, ranh giới, tác nhân, dữ liệu, quy tắc, luồng chính/thay thế/ngoại lệ và kịch bản nghiệm thu. UC giữ nghĩa nghiệp vụ độc lập với màn hình hoặc API.
 
-- **SA Slice** xuất phát từ Architecture.
-- **BE Slice** xuất phát từ Use Case.
-- **FE Slice** xuất phát từ Screen Contract.
+BJ dùng Journey Acceptance cho điều kiện xuyên UC. UC dùng Acceptance Scenario và dẫn về BF/AF/EF/BR. Một UC có thể được triển khai qua nhiều Slice theo tập Flow/Scenario; không mặc định quan hệ 1–1. Khi dẫn mã Flow từ Slice phải kèm UC ID vì mã bước chỉ có phạm vi nội bộ UC.
 
-Các quan hệ này không phải 1-1. Một Aggregate hoặc Read Model có thể phục vụ nhiều Use Case; một Use Case có thể dùng nhiều Screen và nhiều thành phần kiến trúc; một Screen cũng có thể phục vụ nhiều Use Case.
+Một Slice có thể đồng thời thay đổi Domain, Application, backend, frontend và tests. Cũng có thể có Slice chỉ cung cấp năng lực dùng chung nếu đó là một phạm vi thay đổi độc lập. Không chia thêm Slice chỉ vì nhiều vai trò tham gia; không gộp các công việc khác mục tiêu chỉ để giảm số file.
 
-### Application Command/Query và hành vi của Domain
+## 2.4 Application và Domain
 
-Cần phân biệt hai tầng thường cùng được gọi là “Command/Query”:
+**Application Command/Query** biểu diễn yêu cầu đi vào Application; điều phối đọc dữ liệu, gọi Domain, áp dụng Technical Contract và trả kết quả. Thiết kế cục bộ nằm trong Slice.
 
-```text
-Use Case
-   │
-   ▼
-Application Command / Query        ← BE Slice [SE]
-   │
-   ▼
-Application orchestration
-   │
-   ├── Aggregate behavior          ← SA Slice [SA]
-   ├── Read Model
-   └── Foundation / Integration khi cần
-```
+**Domain Operation / Aggregate behavior** thuộc mô hình Domain và bảo vệ các bất biến của Aggregate, không được thiết kế chỉ theo một màn hình hay UC.
 
-**Application Command / Application Query** biểu diễn yêu cầu đi vào tầng Application và thường thuộc **BE Slice**. Chúng được tổ chức theo Use Case và có thể phối hợp nhiều Aggregate, Read Model hoặc capability.
+API/Event được công bố khi cần. Ranh giới dùng chung giữa Domain/Theme nằm ở Integration; quy tắc kỹ thuật chung nằm ở Technical Contract; mapping riêng một thao tác/giao diện nằm trong Slice. Giao diện sử dụng interface đã công bố, không tự thay thế quy tắc Domain.
 
-**Aggregate behavior / Domain Operation** là hành vi vốn có của Domain, ví dụ `addItem()`, `submit()`, `canSubmit()` hoặc một phép tính nghiệp vụ. Chúng được thiết kế từ bản chất của Domain và thuộc phạm vi **Architecture / SA Slice**, không phụ thuộc một Use Case cụ thể.
+## 2.5 Nội dung một Slice
 
-**API và Event là ranh giới kỹ thuật được công bố khi cần**, không phải một tầng riêng của “ngôi nhà”. Thông thường BE Slice hiện thực API/Event phục vụ Use Case; SA Slice tham gia khi ranh giới đó mang tính kiến trúc dùng chung, cross-domain hoặc integration nền tảng. FE Slice sử dụng các interface đã được công bố để hiện thực Screen.
+Một Slice có bảy phần: Objective; Scope & Rules; Flow; Design; Dependencies & Contracts; Verification; Delivery. Metadata ghi owner, contributors, trạng thái và nguồn tham chiếu.
 
-## 2.3 Cách chia việc bám theo mô hình
+- Objective xác định kết quả thay đổi.
+- Scope ghi owns/does-not-own, các Flow/Scenario/Screen/artifact được bao phủ và phần còn lại.
+- Design/Contracts ghi thiết kế cục bộ, phụ thuộc và hợp đồng cần để triển khai.
+- Verification gắn tiêu chí và kiểm tra với nguồn chuẩn.
+- Delivery ghi đầu ra, evidence, câu hỏi mở và trạng thái thực tế.
 
-| Slice | Owner | Điểm neo | Trách nhiệm chính |
-|---|---|---|---|
-| **SA Slice** | SA | Architecture | Xây mới hoặc thay đổi Aggregate, Read Model, Foundation, Integration và các ranh giới kiến trúc liên quan |
-| **BE Slice** | SE | Use Case | Hiện thực outcome của UC bằng Application Command/Query, application orchestration, sử dụng Architecture và công bố API/Event khi cần |
-| **FE Slice** | SE | Screen Contract | Hiện thực Screen thành giao diện chạy được, đủ state/action, sử dụng interface đã công bố và khớp Prototype |
+Không sao chép toàn bộ nguồn vào Slice. Nếu phát hiện thiếu hoặc sai quy tắc dùng chung, sửa nguồn Domain/Technical Contract rồi tham chiếu lại. SE không tự suy ra mục tiêu nghiệp vụ từ Prototype hoặc tự thêm yêu cầu ngoài Slice.
 
-Các nguyên tắc triển khai:
+# 3. Nguyên tắc phối hợp
 
-1. **SA đi theo nền tảng trước.** Aggregate, Read Model và Foundation được tổ chức theo ranh giới nghiệp vụ và kỹ thuật bền vững, không theo từng UC.
-2. **BE Slice đi theo Use Case.** SE không tự suy ra outcome từ BJ hoặc Screen; UC là đầu vào chính để triển khai hành vi backend.
-3. **FE Slice đi theo Screen Contract.** SE không tự suy ra giao diện từ Prototype; Prototype là hiện thực hóa cuối, còn Screen Contract giữ ranh giới tương tác cần triển khai.
-4. **Domain + Entity là vùng phối hợp BA/SA.** BA xác định nghĩa nghiệp vụ; SA cùng tham gia để đảm bảo các ranh giới này có thể trở thành nền cho kiến trúc mà không làm sai nghĩa nghiệp vụ.
-5. **Không tạo kiến trúc cục bộ trong BE/FE Slice.** Nếu triển khai phát hiện thiếu Aggregate, Read Model, Foundation hoặc Integration dùng chung, phần thiếu phải quay về Architecture và được xử lý bằng SA Slice.
-6. **Slice không sao chép lại tài liệu nguồn.** Slice chỉ nêu phạm vi, nguồn đầu vào, đầu ra, phụ thuộc và cách kiểm tra.
+BA, SA, SE và QA nhìn cùng một mô hình, bổ sung đúng trách nhiệm của mình và hội tụ vào Slice khi có thay đổi. Một nguồn có một nơi sở hữu; mỗi đầu ra phải lần ngược được qua Slice tới artifact và quyết định nghiệp vụ.
 
----
-
-# 3. Kết luận
-
-Harness Doctrine đưa **nguồn tài liệu và cách chia việc về cùng một mô hình**. BA không còn bàn giao một khối SRS/Design để Tech tự giải nghĩa; SA và SE cũng không tạo một hệ phân rã công việc tách rời khỏi nguồn ban đầu.
-
-Ngôi nhà tạo ra ba ranh giới rõ:
-
-- **BA** tổ chức tri thức, quyết định, hành vi và trải nghiệm người dùng.
-- **SA** xây nền kiến trúc dùng chung và bảo vệ các ranh giới hệ thống.
-- **SE** hiện thực Use Case và Screen thông qua BE Slice và FE Slice.
-
-Khi các lớp được nối trực tiếp với nhau, Harness có thể kiểm soát công việc theo phạm vi nhỏ hơn mà vẫn giữ được **tính liên tục từ Business Journey đến implementation**. AI có thể làm nhanh hơn và trên phạm vi lớn hơn, nhưng không cần — và không được — tự quyết định lại cấu trúc yêu cầu hoặc kiến trúc ngoài Slice được giao.
-
-> **Một nguồn rõ ràng. Một ranh giới trách nhiệm rõ ràng. Một Slice đủ nhỏ để kiểm soát. Và mọi đầu ra đều phải lần ngược được về lý do nó tồn tại.**
+Scope, dependency và thiết kế phải đủ rõ trước khi triển khai. Evidence chứng minh kết quả, không tạo yêu cầu mới. Cấu trúc thư mục không phải lý do để tự thay đổi nghiệp vụ hoặc redesign giao diện.
 
 ---
 
@@ -179,125 +116,93 @@ FROZEN
 
 ## A.2 Slice
 
-```text
-DRAFT
-  ↓
-IN_REVIEW
-  ↓
-FROZEN
-  ↓
-IMPLEMENTING
-  ↓
-VERIFIED
-```
+`DRAFT → IN_REVIEW → READY_TO_IMPLEMENT → IMPLEMENTING → VERIFIED`.
 
-`BLOCKED` có thể xuất hiện trước `VERIFIED` khi dependency hoặc đầu vào chưa đủ.
+`READY_TO_IMPLEMENT` nghĩa là phạm vi, nguồn và thiết kế đã được review, đủ để triển khai; không có nghĩa đã hoàn thành implementation. Với Slice cũ dùng `FROZEN`, chỉ chuyển sang READY_TO_IMPLEMENT sau khi kiểm tra đủ điều kiện này.
 
-`FROZEN` của Slice nghĩa là **scope và thiết kế của Slice đã được khóa để có thể triển khai**, không có nghĩa implementation đã hoàn tất.
+`BLOCKED` có thể xuất hiện trước VERIFIED; bắt buộc ghi lý do và điều kiện gỡ chặn. Không triển khai khi BLOCKED. VERIFIED phải có evidence tương ứng với phạm vi bao phủ.
 
 ---
 
 # Phụ lục B — Cấu trúc thư mục và Directory Contract
 
-Phụ lục này mô tả **cách repository được tổ chức**, không phải luồng phát triển bắt buộc.
+Đây là cấu trúc Theme đích. Bộ [theme-template](theme-template/README.md) cung cấp mẫu và mapping chuyển đổi; không phải bản nghiệp vụ chính thức của một Theme.
 
-Các nhãn `[BA]`, `[BA/SA]`, `[SA]`, `[SA/SE]`, `[SE]`, `[HARNESS]`, `[QA]`, `[SHARED]` là **owner chính**, không phải một phần của tên thư mục thật.
-
-## B.1 Cây thư mục cơ bản
+## B.1 Cây thư mục
 
 ```text
 theme-xx/
-│
-├── [SHARED] README.md
-│
-├── [BA] knowledge/
-│   ├── know-how/
-│   ├── decisions/
-│   └── glossary/
-│
-├── [BA] specification/
-│   ├── overview/
-│   ├── behavior/
-│   │   ├── journeys/
-│   │   ├── use-cases/
-│   │   └── behavioral-contracts/
-│   └── [BA/SA] domain/
-│       ├── domain-foundation/
-│       └── entities/
-│
-├── [BA] design/
-│   ├── screens/
-│   ├── patterns/
-│   ├── design-system/
-│   └── prototype/
-│
-├── [SA] architecture/
-│   ├── aggregates/
-│   ├── read-models/
-│   ├── foundations/
-│   ├── integrations/
-│   └── nfr/
-│
-│
-├── [HARNESS] harness/
-│   ├── [SA] sa-slices/
-│   ├── [SE] be-slices/
-│   ├── [SE] fe-slices/
-│   └── manifests/
-│
-├── [SA/SE] procedures/
-│
-├── [QA/SHARED] evidence/
-│   ├── specification/
-│   ├── design/
-│   ├── implementation/
-│   └── release/
-│
-└── [HARNESS] generated/
-    ├── registries/
-    ├── matrices/
-    └── indexes/
+    README.md
+    VERSION.md
+    01.knowledge/
+        know-how/
+        decisions/
+        glossary/
+    02.specification/
+        overview/
+        behavior/
+            journeys/
+            use-cases/
+            behavioral-contracts/
+        domain/
+            domain-foundation/
+            entities/
+            aggregates/
+            read-models/
+            integrations/
+        technical-contracts/
+    03.design/
+        screens/
+        patterns/
+        design-system/
+        prototype/
+    04.harness/
+        slices/
+        manifests/
+    05.procedures/
+    06.evidence/
+    09.generated/
 ```
 
+Các thư mục con evidence/specification, design, implementation, release và generated/registries, matrices, indexes được tạo khi có đầu ra thực tế. Prototype HTML chạy được nằm trong 03.design/prototype/html/ nếu Theme có runtime. Không bỏ runtime vì chuyển cấu trúc.
 
 ## B.2 Directory Contract
 
-| Khu vực | Owner chính | Mục đích | Tiêu chuẩn đầu ra |
-|---|---|---|---|
-| `README.md` | Shared | Điểm bắt đầu của Theme | Scope ngắn gọn; cây thư mục; owner; link tới tài liệu chính; không lặp nội dung chi tiết |
-| `knowledge/know-how/` | BA | Lưu tri thức nghiệp vụ, pháp lý, vận hành và phương pháp | Bối cảnh rõ; có nguồn khi cần; phân biệt dữ kiện, diễn giải và đề xuất |
-| `knowledge/decisions/` | BA | Lưu Quyết định nghiệp vụ đã chốt | ID ổn định; quyết định; lý do; phạm vi; trạng thái; link đến nội dung bị chi phối |
-| `knowledge/glossary/` | BA | Chuẩn hóa ngôn ngữ của Theme | Một thuật ngữ có một nghĩa thống nhất trong phạm vi Theme |
-| `specification/overview/` | BA | Xác định mục tiêu, phạm vi và ranh giới Theme | Purpose; in/out scope; actor; cross-theme boundary; high-level BJ/Domain map |
-| `specification/behavior/journeys/` | BA | Mô tả Business Journey end-to-end; UI Flow nằm trong BJ | Objective; boundary; actor; main flow; UC map; exception; interaction flow; screen transition; handoff; outcome |
-| `specification/behavior/use-cases/` | BA | Định nghĩa outcome nghiệp vụ nguyên tử dùng để bàn giao và nghiệm thu | Actor; trigger; outcome; precondition; behavior; exception; business effect; BC; Screen; acceptance scenario |
-| `specification/behavior/behavioral-contracts/` | BA | Định nghĩa quy tắc hành vi dùng chung cho nhiều UC | Intent; precondition; business rule; Điều kiện bắt buộc; state effect; finality; result/failure semantics |
-| `specification/domain/domain-foundation/` | BA/SA | Định nghĩa Domain, phạm vi sở hữu, vòng đời và Điều kiện bắt buộc ở mức nghiệp vụ | Domain map; quyền sở hữu; business rules; lifecycle; cross-domain boundary; liên kết Decision |
-| `specification/domain/entities/` | BA/SA | Định nghĩa đối tượng dữ liệu nghiệp vụ và quan hệ | Ý nghĩa; identity; thuộc tính chính; quan hệ; Domain sở hữu; lifecycle/constraint nghiệp vụ |
-| `design/screens/` | BA | Tài liệu chuẩn cho từng Screen | Screen ID; purpose; UC; entry/exit; data; actions; states; validation; feedback; permission; component composition; prototype reference |
-| `design/patterns/` | BA | Lưu pattern tương tác/bố cục dùng chung | Phạm vi áp dụng; phần bắt buộc; phần được thay đổi; mapping Design System |
-| `design/design-system/` | BA | Khai báo Design System mà Theme sử dụng | Version; component subset; extension/exception được chấp thuận |
-| `design/prototype/` | BA | Lưu Final Design có thể chạy/tương tác | Current build chạy được; khớp Screen Contract; mapping Screen → route/state; không quyết định business rule |
-| `architecture/aggregates/` | SA | Định nghĩa ranh giới đảm bảo tính nhất quán ở write-side | Root; boundary; child Entity/VO; Điều kiện bắt buộc; lifecycle; domain operations; concurrency; persistence; events; dependencies |
-| `architecture/read-models/` | SA | Định nghĩa cấu trúc đọc/Projection phục vụ Query | Câu hỏi nghiệp vụ; nguồn dữ liệu; projection semantics; consistency/freshness; query shape; rebuild; consumers |
-| `architecture/foundations/` | SA | Định nghĩa khả năng kỹ thuật dùng chung | Problem; scope; execution protocol; technical state; shared boundary; failure/recovery; consumers; verification |
-| `architecture/integrations/` | SA | Định nghĩa ranh giới tích hợp bền vững giữa Domain/hệ thống | Producer/consumer boundary; ownership; consistency; transaction/message semantics; failure/recovery |
-| `architecture/nfr/` | SA | Lưu yêu cầu phi chức năng ảnh hưởng kiến trúc | Security/performance/resilience/observability ở dạng đo hoặc kiểm tra được |
-| `harness/sa-slices/` | SA | Đơn vị công việc kiến trúc | Objective; scope; owns/does-not-own; nguồn đầu vào; output; dependency; verification; status |
-| `harness/be-slices/` | SE | Triển khai UC thành backend behavior | UC → BC → Application Command/Query → application orchestration → Architecture → API/Event khi cần → Tests khép kín |
-| `harness/fe-slices/` | SE | Triển khai Screen thành giao diện chạy được | Screen → UC → action → published interface → state → Design System → Prototype → FE tests khép kín |
-| `harness/manifests/` | Harness | Lưu dependency và trạng thái Slice ở dạng máy đọc được | Slice catalog; type; owner; dependency; blocker; status; coverage |
-| `procedures/` | SA/SE | Quy trình kỹ thuật/vận hành không phải product behavior | Trigger; preconditions; steps; safety; rollback/recovery; owner |
-| `evidence/` | QA/Shared | Lưu bằng chứng kiểm tra | Lần ngược được về tài liệu/Slice; không trở thành nguồn yêu cầu thứ hai |
-| `generated/` | Harness | View tổng hợp phục vụ tra cứu và kiểm soát | 100% sinh tự động; cùng đầu vào sinh cùng kết quả; read-only; link ngược về nguồn |
+| Khu vực | Owner chính | Mục đích và tiêu chuẩn đầu ra |
+|---|---|---|
+| README.md | Shared | Scope, cấu trúc, vai trò, trạng thái và link tới nguồn |
+| VERSION.md | Harness | Phiên bản hiện hành, cumulative parent thực tế, thay đổi và evidence |
+| 01.knowledge/know-how/ | BA | Tri thức có nguồn; phân biệt dữ kiện, diễn giải và đề xuất |
+| 01.knowledge/decisions/ | BA | Quyết định, lý do, phạm vi, trạng thái, ID ổn định |
+| 01.knowledge/glossary/ | BA | Thuật ngữ có nghĩa thống nhất trong phạm vi Theme |
+| 02.specification/overview/ | BA | Mục tiêu, phạm vi, tác nhân, boundary và bản đồ BJ/Domain |
+| 02.specification/behavior/journeys/ | BA | Hành trình đầu–cuối, sơ đồ, UC map, bàn giao, UI Flow và Journey Acceptance |
+| 02.specification/behavior/use-cases/ | BA | Mục tiêu, ranh giới, tác nhân, dữ liệu, BF/AF/EF, BR/BC, kết quả và Acceptance Scenario |
+| 02.specification/behavior/behavioral-contracts/ | BA | Quy tắc hành vi dùng chung, điều kiện, tác động và nghĩa kết quả/thất bại |
+| 02.specification/domain/domain-foundation/ | BA/SA | Trách nhiệm, ownership, bất biến, lifecycle và ranh giới Domain |
+| 02.specification/domain/entities/ | BA/SA | Entity/VO, identity, thuộc tính, quan hệ, lifecycle và ràng buộc nghiệp vụ |
+| 02.specification/domain/aggregates/ | BA/SA | Root, thành viên, consistency boundary, invariant, hành vi và concurrency |
+| 02.specification/domain/read-models/ | BA/SA | Mô hình đọc, projection, nguồn, freshness/consistency, rebuild và consumers |
+| 02.specification/domain/integrations/ | BA/SA | Nghĩa trao đổi, owner, producer/consumer, versioning, consistency, failure và reconciliation |
+| 02.specification/technical-contracts/ | SA | Quy tắc kỹ thuật/NFR dùng chung có phạm vi, hợp đồng và kiểm chứng rõ |
+| 03.design/screens/ | BA | Screen, UC, entry/exit, data, action, state, validation, feedback, permission và component |
+| 03.design/patterns/ | BA | Tương tác/bố cục dùng chung và phạm vi biến thể |
+| 03.design/design-system/ | BA | Version, component và ngoại lệ được chấp thuận |
+| 03.design/prototype/ | BA | Thiết kế tương tác chạy được, mapping Screen/route/state, khớp Screen Contract |
+| 04.harness/slices/ | Owner theo thay đổi; BA/SA/SE/QA phối hợp | Một đơn vị thay đổi có nguồn, phạm vi, thiết kế cục bộ, phụ thuộc, đầu ra và kiểm chứng |
+| 04.harness/manifests/ | Harness | Danh mục Slice, artifact, path, dependency, coverage, trạng thái và blocker |
+| 05.procedures/ | SA/SE | Trigger, điều kiện, các bước, an toàn, rollback/recovery và owner |
+| 06.evidence/ | QA/Shared | Bằng chứng truy về Slice/artifact/build; không tạo yêu cầu mới |
+| 09.generated/ | Harness | Registry/matrix/index sinh tự động, có thể tạo lại, dẫn về nguồn |
 
-## B.3 Nguyên tắc tổ chức thư mục
+## B.3 Nguyên tắc chuyển đổi
 
-1. Mỗi loại nội dung chỉ có **một nơi chịu trách nhiệm chính**.
-2. Không copy file để lưu lịch sử phiên bản; lịch sử thuộc Git.
-3. ID đã dùng phải ổn định qua việc tái tổ chức thư mục.
-4. Registry, matrix và index nên được sinh tự động khi có thể.
-5. `generated/` không chứa nội dung được biên tập bằng tay.
-6. Evidence không được trở thành nguồn yêu cầu thứ hai.
-7. Thư mục được tổ chức để **nguồn đủ rõ cho các bước sau sử dụng trực tiếp**, không tạo thêm lớp tài liệu trung gian sao chép lại nội dung.
-8. Application Command/Query mặc định thuộc BE Slice/Application.
+1. Xác định cumulative parent đang được chấp nhận, không mặc định một version cũ.
+2. Giữ ID nguồn nghiệp vụ, Domain, BC và Screen. Đổi ID Slice khi cần phải có mapping.
+3. Di chuyển/phân loại trước; không nhân bản tài liệu để giữ path cũ. Lịch sử thuộc Git.
+4. Đưa Aggregate/Read Model/Integration vào Domain; phân loại Foundation/NFR theo phạm vi dùng chung hay cục bộ.
+5. Dùng một thư mục slices; ranh giới theo mục tiêu thay đổi, không theo vai trò.
+6. Cập nhật link, manifest, README và kiểm tra orphan/dependency sau di chuyển.
+7. Giữ số 09 cho Generated; không cần lấp số 07/08 khi chưa có lý do.
+8. Giữ nguyên prototype, Design System, quyết định, traceability và evidence khi migrate Theme thật.
+9. Generated là kết quả sinh từ nguồn; không biên tập tay và không trở thành nguồn thay thế.

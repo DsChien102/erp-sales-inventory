@@ -55,7 +55,7 @@ flowchart TD
 ## 4. Bản đồ Use Case
 
 <!-- Bảng giải thích ý nghĩa các UC và điểm chuyển trên sơ đồ, không kể lại luồng nội bộ.
-Một UC có thể được triển khai bằng nhiều BE Slice theo tập Flow/Acceptance Scenario;
+Một UC có thể được triển khai bằng nhiều Slice theo tập Flow/Acceptance Scenario;
 không ép quan hệ 1 UC = 1 Slice hoặc cắt nhỏ UC chỉ để vừa một công việc kỹ thuật. -->
 
 | UC — Tên | Mục tiêu | Tác nhân | Đầu vào / Bắt đầu khi | Kết quả | Tiếp tục |

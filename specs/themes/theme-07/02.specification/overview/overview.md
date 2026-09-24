@@ -5,7 +5,7 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.12.0
 ---
 # Tổng quan — Theme 07
 
@@ -66,13 +66,13 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | Cụm | Năng lực |
 |---|---|
 | Tổ chức | Một cửa hàng, một kho mặc định; nhiều người dùng trực tuyến; scope kho trên mọi mutation |
-| Nhập hàng | Nhận theo chứng từ hoặc nhập nhanh được phép; nhập nhanh đủ dữ liệu luôn vào `PENDING_APPROVAL`, không hỏi có cần duyệt và không đi thẳng `READY`; nhận từng phần; ghi chênh lệch giao nhận; phần hàng đủ điều kiện vật lý vào `VALUATION_PENDING`, còn hàng cách ly/hỏng vào đúng trạng thái; xác nhận giá bằng operation riêng |
+| Nhập hàng | Nhận theo chứng từ hoặc nhập nhanh được phép; nhập nhanh đủ dữ liệu luôn vào `PENDING_APPROVAL`, không hỏi có cần duyệt và không đi thẳng `READY`; nhận từng phần; ghi chênh lệch giao nhận; lượng hàng thuộc quyền sở hữu đi vào đúng trạng thái vật lý và trục định giá `VALUATION_PENDING`; BJ03 xác lập giá trị nhập ban đầu bằng nghiệp vụ riêng |
 | Theo dõi | Sản phẩm `NONE` hoặc `LOT`; lô nhà sản xuất; ngày sản xuất tùy chọn; hạn dùng theo cấu hình |
 | Bán hàng | Query khả dụng; giữ hàng cho sỉ/online; POS online xuất trong checkout; FEFO/FIFO; bàn giao mới giảm vật lý |
 | Trả/xử lý | Khách trả, phân loại, trả nhà cung cấp, cách ly, demo, hỏng, hết hạn, tiêu hủy |
 | Kiểm kê | Toàn kho/từng phần; predicate + key snapshot; khóa cả key tương lai trong phạm vi; đếm mù; đếm lại; duyệt/hủy; adjustment |
 | Sửa sai | Cancellation trước xử lý, reversal/correction sau hoàn tất; không sửa ledger hoặc operation lịch sử |
-| Giá vốn | Value ledger; bình quân liên hoàn và cuối kỳ; official cost version; chốt kỳ; COGS true-up; late landed cost |
+| Giá vốn | Value ledger; bình quân liên hoàn và cuối kỳ; official cost version; chốt kỳ; COGS true-up; điều chỉnh giá trị hàng nhập |
 | Mở đầu | Trạng thái kích hoạt `PREPARING`; chuẩn bị/validate opening batch, duyệt độc lập, commit, báo cáo migration và chuyển nguyên tử sang `ACTIVE` |
 | Chính sách tồn sản phẩm | Threshold/target; ngưỡng cận hạn mặc định và ghi đè theo sản phẩm; hành động `WARN`/`BLOCK_SALE`; chỉ báo dẫn xuất |
 | Quản trị | RBAC + warehouse scope; che dữ liệu tài chính; phê duyệt theo rủi ro; audit |
@@ -107,7 +107,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | Nhân viên bán hàng/POS | Xem khả dụng, checkout trực tuyến | Không xem dữ liệu tài chính nếu thiếu quyền |
 | Nhân viên xử lý đơn | Giữ, lấy hàng, bàn giao | Không tự duyệt operation do mình lập |
 | Thủ kho | Nhận, quét lô, kiểm kê, trả/tiêu hủy | Chỉ thao tác trong kho được cấp |
-| Kế toán | Xác nhận giá, xem value ledger, tính và công bố giá vốn | Không công bố giá bán |
+| Kế toán | Xác lập giá trị nhập ban đầu, ghi điều chỉnh giá trị, xem value ledger, tính và công bố giá vốn | Không sửa nguồn thương mại và không công bố giá bán |
 | Người phê duyệt | Duyệt operation theo mức rủi ro | Quyền và scope được kiểm lại tại thời điểm quyết định |
 | Chủ cửa hàng/Quản trị | Xem báo cáo, cấu hình threshold/target, quyết định định giá | Không được sửa tay ledger hoặc kết quả operation |
 | Hệ thống Sản phẩm | Sở hữu sản phẩm, UOM, `tracking_mode`, `expiry_required`, combo snapshot | Không sửa balance |
@@ -137,7 +137,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 |---|---|
 | `BJ-01` | Theo dõi tồn, khả dụng và chỉ báo vận hành |
 | `BJ-02` | Nhận hàng mua |
-| `BJ-03` | Xác nhận giá trị ban đầu của hàng nhận |
+| `BJ-03` | Xác lập giá trị ban đầu của hàng nhận |
 | `BJ-04` | Quản lý vòng đời giữ hàng |
 | `BJ-05` | Lấy hàng và bàn giao đơn |
 | `BJ-06` | Tiếp nhận và phân loại hàng khách trả |
@@ -147,7 +147,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | `BJ-10` | Tiêu hủy hàng |
 | `BJ-11` | Hủy và sửa sai nghiệp vụ kho |
 | `BJ-12` | Khởi tạo số dư tồn kho đầu kỳ |
-| `BJ-13` | Ghi nhận chi phí mua đến muộn |
+| `BJ-13` | Điều chỉnh giá trị hàng nhập |
 | `BJ-14` | Tính và công bố giá vốn |
 | `BJ-15` | Tra cứu báo cáo tồn và thẻ kho |
 | `BJ-16` | Điều tra và đối soát sai lệch |
@@ -157,7 +157,7 @@ Xem [Business Journey Map](../behavior/journeys/00-business-journey-map.md).
 
 ## 6. Domain map
 
-| Domain | Trách nhiệm nguồn v3.10.1 |
+| Domain | Trách nhiệm hiện hành |
 |---|---|
 | `DOM-IO` | tiếp nhận yêu cầu có identity/version; quản lý lifecycle Inventory Operation; ghi movement số lượng; cập nhật transactional balance; giữ hàng; trạng thái hàng; hồ sơ lô; return/issue/receipt/correction; phát outbox event. |
 | `DOM-IC` | policy snapshot và phê duyệt; warehouse scope; stock count; inventory lock; opening balance governance; Reconciliation Case; recovery/rebuild gate. |

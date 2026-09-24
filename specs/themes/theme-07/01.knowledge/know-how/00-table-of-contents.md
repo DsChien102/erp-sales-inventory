@@ -47,7 +47,7 @@ Bộ tri thức gồm **45 bài**, tổ chức thành 12 cụm. Mỗi bài trả
 | `KB-KGV-016` | [Vì sao sử dụng song song hai phương pháp tính giá vốn?](KB-KGV-016-vi-sao-tinh-song-song-hai-phuong-phap-gia-von.md) |
 | `KB-KGV-017` | [Công bố giá vốn chính thức và ghi nhận giá vốn hàng bán](KB-KGV-017-cong-bo-don-gia-ton-kho-va-ghi-nhan-gia-von-xuat-ban.md) |
 | `KB-KGV-018` | [Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md) |
-| `KB-KGV-019` | [Các thành phần hình thành giá nhập thực tế](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-nhap-thuc-te.md) |
+| `KB-KGV-019` | [Các thành phần hình thành giá trị hàng nhập](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md) |
 | `KB-KGV-020` | [Định giá hàng trả, tiêu hủy và chênh lệch thừa thiếu](KB-KGV-020-dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu.md) |
 
 ## C05 — Sửa sai và số dư đầu kỳ

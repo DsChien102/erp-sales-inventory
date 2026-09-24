@@ -5,118 +5,137 @@ theme: theme-07
 title: "Xác minh phạm vi trả"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-07-01 — Xác minh phạm vi trả
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Tiếp nhận và validate supplier-return source identity/scope trước khi system-owned pending sync.
+Xác minh supplier-return intent đã được upstream phê duyệt có còn phù hợp với lượng hàng tenant thực có, đúng sản phẩm/lô và đúng giới hạn source trước khi đưa hàng vào chờ trả.
 
-**Kết quả thành công:** <ul><li>Hồ sơ hợp lệ hoặc bị từ chối</li><li>Validated return scope</li></ul>
+**Kết quả cần đạt:** Phạm vi trả hợp lệ được xác định cùng source/version; trường hợp không hợp lệ bị từ chối trước khi thay đổi `RTV_PENDING` hoặc tồn vật lý.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Có supplier-return intent được duyệt
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Hồ sơ hợp lệ hoặc bị từ chối</li><li>Validated return scope</li></ul>
+Hồ sơ hợp lệ hoặc bị từ chối; Validated return scope.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không thực hiện các mục tiêu thuộc Use Case khác trong cùng Journey; không mở rộng quyền sở hữu sang dữ liệu của Theme/Domain khác.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** System process; Purchase/source là upstream authority
-- **Trigger:** Có supplier-return intent được duyệt
+- **Tác nhân chính:** System process; Purchase/source là upstream authority.
+- **Thẩm quyền:** Chỉ xử lý đúng phạm vi chức năng và dữ liệu được cấp quyền; không thay đổi fact do Domain/Theme khác sở hữu.
+- **Sự kiện khởi phát:** Có supplier-return intent được duyệt.
 - **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Nguồn nghiệp vụ và phiên bản | Định danh nguồn/đối tượng nghiệp vụ và phiên bản hiện hành cần dùng để tránh xử lý trên dữ liệu cũ. | DOM-IO / BC liên quan |
+| Dữ liệu nghiệp vụ | Các dữ kiện người dùng/nguồn cung cấp cho mục tiêu của Use Case; phải tuân theo rule ở mục 6. | DOM-IO / BC liên quan |
+| Phạm vi thực hiện | Tác nhân và phạm vi tenant/cửa hàng/kho mà yêu cầu được phép xử lý. | DOM-IO / BC liên quan |
 
-Command envelope dùng chung; source/aggregate ID và version; payload nghiệp vụ; idempotency key; actor, tenant, store và warehouse scope.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Giới hạn lượng: Lượng trả không vượt đồng thời lượng còn được source cho phép và lượng tenant thực có theo đúng sản phẩm/lô</li><li>Nguồn nhập: Giữ liên kết đến receipt/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới</li><li>Mốc loại khỏi khả dụng: Khi supplier return đã được chấp thuận và lượng chuyển RTV_PENDING</li><li>Mốc giảm vật lý: Chỉ khi có bằng chứng bàn giao thực tế; tạo hồ sơ chờ trả không giảm physical</li><li>Sửa trước bàn giao: Không sửa trực tiếp payload đã khóa; source version mới tạo thay đổi có truy vết và chỉ giải phóng phần chưa bàn giao</li><li>Giá trị: Giảm theo official cost có hiệu lực; giá nhà cung cấp chấp thuận và chênh lệch chỉ là accounting handoff</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Chỉ system/source sync theo `BC-IO-17`; UI không có mutation CTA cho source intake/`RTV_PENDING`.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-17 — Synchronize supplier-return authorization](../behavioral-contracts/BC-IO-17.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-036](../../../03.design/screens/SCR-036.md); [SCR-037](../../../03.design/screens/SCR-037.md) hiển thị task sau system sync; UC intake không có màn mutation riêng. |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-07-01-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Xác minh phạm vi trả” | Hồ sơ hợp lệ hoặc bị từ chối; kết quả Validated return scope và có truy vết nguồn. |
-| AS-UC-07-01-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-07-01-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-07-01-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp. |
+| BF-01 | Hệ thống | Nhận supplier-return intent đã được upstream phê duyệt cùng source/version và phạm vi sản phẩm/lô/lượng. | |
+| BF-02 | Hệ thống | Đối chiếu source authorization với lượng tenant đang thực có, trạng thái vật lý và LOT identity hiện hành. | EF-A — Source stale hoặc lượng không còn đủ |
+| BF-03 | Hệ thống | Tính lượng tối đa được phép trả theo đồng thời giới hạn source và lượng tenant thực có. | BR-01 — Giới hạn lượng |
+| BF-04 | Hệ thống | Giữ liên kết receipt/source nhập gốc khi nguồn cung cấp và tạo validated return scope cho bước đồng bộ chờ trả. | BR-02 — Nguồn nhập |
+| BF-05 | Hệ thống | Trả phạm vi hợp lệ cùng source/version; chưa giảm tồn vật lý và chưa thay đổi công nợ NCC. | BR-04 — Mốc giảm vật lý |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Chỉ một phần phạm vi còn đủ điều kiện
+**Phát sinh tại:** BF-03. **Điều kiện:** source cho phép lượng lớn hơn lượng tenant hiện còn đủ điều kiện trả.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Chỉ xác nhận phần lượng đồng thời thỏa source authorization và tồn thực tế; phần vượt bị trả về như discrepancy, không tự mở rộng/đổi source. | BR-01 — Giới hạn lượng |
+| AF-A-02 | — | [Trở lại BF-04]. | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Source stale hoặc lượng không còn đủ
+**Phát sinh tại:** BF-02. **Điều kiện:** source version đã bị thay thế/hủy, hoặc sản phẩm/lô/lượng tenant hiện có không còn đáp ứng intent.
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Từ chối validated scope trên dữ liệu cũ; trả current source/version hoặc discrepancy để upstream xử lý. | |
+| EF-A-02 | — | [Kết thúc UC]. | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Giới hạn lượng | Lượng trả không vượt đồng thời lượng còn được source cho phép và lượng tenant thực có theo đúng sản phẩm/lô| Decision / DOM-IO / BC nguồn |
+| BR-02 | Nguồn nhập | Giữ liên kết đến receipt/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới| Decision / DOM-IO / BC nguồn |
+| BR-03 | Mốc loại khỏi khả dụng | Khi supplier return đã được chấp thuận và lượng chuyển RTV_PENDING| Decision / DOM-IO / BC nguồn |
+| BR-04 | Mốc giảm vật lý | Chỉ khi có bằng chứng bàn giao thực tế; tạo hồ sơ chờ trả không giảm physical| Decision / DOM-IO / BC nguồn |
+| BR-05 | Sửa trước bàn giao | Không sửa trực tiếp payload đã khóa; source version mới tạo thay đổi có truy vết và chỉ giải phóng phần chưa bàn giao| Decision / DOM-IO / BC nguồn |
+| BR-06 | Giá trị | Giảm theo official cost có hiệu lực; giá nhà cung cấp chấp thuận và chênh lệch chỉ là accounting handoff| Decision / DOM-IO / BC nguồn |
+
+- `SBC-COM-01` — Bao yêu cầu và định danh.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Finality và tính nguyên tử.
+- `BC-IO-17` — Synchronize supplier-return authorization.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | Phạm vi trả hợp lệ được xác định theo đúng source/version, sản phẩm/lô và lượng tenant còn thực có; chưa giảm tồn vật lý và chưa thay đổi công nợ. | Chuyển phạm vi đã xác minh sang bước đồng bộ hàng chờ trả của `BJ-07`. |
+| Không hợp lệ / Bị từ chối | Source đã stale, bị hủy hoặc lượng hàng thực tế không còn đáp ứng phạm vi được phép trả; không tạo `RTV_PENDING`, quantity movement hoặc value movement. | Trả discrepancy và source/version hiện hành để upstream xử lý hoặc phát hành phạm vi trả mới. |
+| Nguồn đọc lỗi/stale | Không suy diễn kết quả từ dữ liệu cũ hoặc thiếu; không phát sinh mutation. | Tải lại nguồn hiện hành |
+
+**Ảnh hưởng nghiệp vụ chính:** Chỉ system/source sync theo `BC-IO-17`; UI không có mutation CTA cho source intake/`RTV_PENDING`.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-036` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xác minh phạm vi trả”; không tạo mutation. |
+| `SCR-037` | Trình bày dữ liệu, thời điểm và trạng thái đọc cần để “Xác minh phạm vi trả”; không tạo mutation. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-07-01-01 — Phạm vi trả hợp lệ
+- **Given:** Có supplier-return intent đã duyệt, source version hiện hành và tenant còn đúng sản phẩm/lô/lượng được phép trả.
+- **When:** Người xử lý mở yêu cầu trả và hệ thống đối chiếu authorization với lượng hàng hiện còn đủ điều kiện.
+- **Then:** Hệ thống trả validated return scope có source/version rõ ràng; chưa giảm tồn vật lý và chưa thay đổi công nợ.
+
+### AS-UC-07-01-02 — Chỉ một phần lượng còn đủ điều kiện
+- **Given:** Source cho phép trả 10 nhưng tenant hiện chỉ còn 7 đơn vị đủ điều kiện.
+- **When:** Hệ thống đối chiếu lượng được phép trả với lượng thực tế còn đủ điều kiện.
+- **Then:** Chỉ 7 đơn vị nằm trong validated scope; 3 đơn vị còn lại được nêu là discrepancy và không tự phát sinh authorization mới.
+
+### AS-UC-07-01-03 — Source đã stale
+- **Given:** Supplier-return intent đã có version mới hoặc bị hủy trước khi xác minh.
+- **When:** Hệ thống recheck source version tại thời điểm xác minh.
+- **Then:** Yêu cầu trên version cũ bị từ chối; không tạo `RTV_PENDING`, quantity movement hoặc value movement.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-07` — Thực hiện trả hàng cho nhà cung cấp.
+- **Domain:** `DOM-IO`.
+- **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IO-17`.
+
 - **Nguồn quyết định:** [Nhóm G06 — Trả hàng, hết hạn và loại bỏ](../../../01.knowledge/decisions/decision-register.md#36-g06-tr%E1%BA%A3-h%C3%A0ng-tr%E1%BA%A1ng-th%C3%A1i-h%E1%BA%BFt-h%E1%BA%A1n-v%C3%A0-ti%C3%AAu-h%E1%BB%A7y)
 - **Bài tri thức liên quan:** [Trả hàng cho nhà cung cấp](../../../01.knowledge/know-how/KB-KGV-013-tra-hang-cho-nha-cung-cap.md); [Chọn hàng để xuất và thời điểm hoàn tất xuất bán](../../../01.knowledge/know-how/KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban.md); [Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-07 — Thực hiện trả hàng cho nhà cung cấp](../journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-07-01-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-07-01, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-07-01. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-
-
-## Amendment v1.3.9 — Exact source scope & physical verification boundary
-- Scope trình bày/đối chiếu theo Product + transaction UOM; cùng Product+UOM có thể có 1..N LOT allocations.
-- Source Product/UOM/LOT/quantity là authoritative expectation và không đồng nghĩa physical confirmation.
-- Warehouse xác minh hàng vật lý riêng; không nhập lại commercial quantity như một nguồn dữ liệu thứ hai.
-- Warehouse không tự substitute LOT hoặc giảm quantity. Physical mismatch là blocker và phải quay về source owner để amendment.
-
-
-## Amendment v1.4.0 — System-owned source intake
-- Source bắt buộc cung cấp stable `source_request_id/source_version/source_line_id/source_allocation_id` và Product/UOM/conversion+precision/authorized quantity/LOT/source receipt lineage khi có.
-- `UC-07-01` không phải thao tác “Thủ kho xác minh rồi chuyển trạng thái”; system validate source contract và guard trước khi `BC-IO-17` materialize pending.
-- Source allocation ID collision, stale version, invalid LOT/scope hoặc thiếu stock trả structured error về source; không sinh approval thương mại trong Inventory.
-
-### Nguồn v3.10.1 — UC-07-01 — Xác minh phạm vi trả
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-07 — Thực hiện trả hàng cho nhà cung cấp](../journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW
-
-
-> **Control/UI amendment v1.3.4:** Commercial supplier-return intent đã được Purchase/source authorize; Theme 7 chỉ xác minh scope/stock/LOT và không duyệt lại quyết định thương mại.

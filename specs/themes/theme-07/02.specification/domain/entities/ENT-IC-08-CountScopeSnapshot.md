@@ -1,56 +1,77 @@
 ---
 id: ENT-IC-08
 type: business-entity
+role: CHILD_ENTITY
 theme: theme-07
 title: CountScopeSnapshot
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-08 — CountScopeSnapshot
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Frozen scope canonical của stock count
+Snapshot bất biến của phạm vi kiểm kê tại thời điểm mở session. Nó trả lời chính xác “đang kiểm kê những key nào và theo predicate nào” để count/lock/recount cùng một scope.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `CHILD_ENTITY` |
+| Aggregate Root | `StockCountSession` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Product/lot master current → owner master; balance current → DOM-IO |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class StockCountSession { <<AggregateRoot>> }
+    class CountScopeSnapshot { <<Child Entity>> }
+    StockCountSession "1" *-- "0..*" CountScopeSnapshot
+```
 
-immutable scope hash + resolved membership
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `countScopeSnapshotId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(sessionId, scopeHash)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu | Bắt buộc | Ghi chú |
-|---|---|---|---|
-| `count_scope_snapshot_id` | UUID | Có | PK |
-| `tenant_id` | UUID | Có | Tenant isolation |
-| `warehouse_id` | UUID | Có | Scope warehouse |
-| `scope_type` | VARCHAR(20) | Có | `WAREHOUSE`, `PRODUCT`, `PRODUCT_GROUP`, `LOT` |
-| `normalized_predicate` | JSONB | Có | Predicate canonical được dùng cho prospective-key guard |
-| `resolved_product_ids` | JSONB | Có | Exact frozen Product membership; whole-warehouse có thể dùng sentinel/predicate theo contract |
-| `resolved_lot_keys` | JSONB | Không | Bắt buộc với LOT scope |
-| `source_master_versions` | JSONB | Có | Product/group/tracking versions cần tái hiện membership |
-| `scope_hash` | CHAR(64) | Có | Stable canonical hash |
-| `created_by` | UUID | Có | Audit |
-| `created_at` | TIMESTAMPTZ | Có | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `warehouseId` | Kho được kiểm kê | Có | Cùng session |
+| `scopeType` | Toàn kho / subset theo policy | Có | Không đổi sau open |
+| `normalizedPredicate` | Predicate canonical | Có | Dùng để bảo vệ future keys |
+| `resolvedProductIds` | Product membership tại snapshot | Có | Snapshot |
+| `resolvedLotKeys` | Lot membership nếu phạm vi cần | Theo tracking | Snapshot |
+| `sourceMasterVersions` | Version master dùng để resolve scope | Có | Dùng freshness/audit |
+| `scopeHash` | Hash semantic của scope | Có | Bind lock/session |
 
-immutable scope hash + resolved membership
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `freeze()` | Scope/predicate hợp lệ và resolve được | CountScopeFrozen |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Immutable frozen scope được tạo trong atomic open transaction.
+## 6. Domain Events phát sinh
 
-Snapshot bất biến sau open. Group membership về sau không được mutate snapshot; prospective LOT chỉ hợp lệ nếu normalized frozen scope cho phép.
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `CountScopeFrozen` | freeze() | Scope canonical được khóa cho session |
 
-## 8. Behavioral Contract / Use Case liên quan
+## 7. Liên kết truy vết
 
-Không có liên kết trực tiếp được ghi nhận trong nguồn v3.10.1.
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-01` |
+| Use Case | `UC-08-01` |
+| Quyết định | `T7-DR-035`, `T7-DR-174` |

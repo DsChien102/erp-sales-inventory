@@ -80,6 +80,6 @@ Nhà cung cấp dự kiến giảm 5% nếu cửa hàng mua 1.000 hộp trong qu
 
 ### Chủ đề liên quan
 
-- [`KB-KGV-019` — Các thành phần hình thành giá nhập thực tế](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-nhap-thuc-te.md)
+- [`KB-KGV-019` — Các thành phần hình thành giá trị hàng nhập](KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md)
 - [`KB-KGV-044` — Từ giá vốn tham chiếu định giá đến giá bán giao dịch](KB-KGV-044-tu-gia-von-tham-chieu-den-gia-ban-giao-dich.md)
 - [`KB-KGV-045` — Rà soát giá vốn tham chiếu định giá sau chốt kỳ](KB-KGV-045-ra-soat-gia-von-tham-chieu-sau-chot-ky.md)

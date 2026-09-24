@@ -23,7 +23,7 @@ Không mở rộng ngoài phạm vi nguồn.
 
 ## 4. Hành vi bắt buộc
 
-> Baseline **v1.4.3**. NAV area là taxonomy để tổ chức surface; **không đồng nghĩa mọi screen trong area đều là menu/feature entry**. Canonical entry class nằm tại [`entry-architecture.md`](../../07.evidence/design/legacy-contracts/entry-architecture.md).
+> Baseline **v1.4.3**. NAV area là taxonomy để tổ chức surface; **không đồng nghĩa mọi screen trong area đều là menu/feature entry**. Canonical entry class nằm tại [`entry-architecture.md`](../../06.evidence/design/legacy-contracts/entry-architecture.md).
 
 ### Product entry rule
 

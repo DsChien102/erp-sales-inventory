@@ -1,66 +1,86 @@
 ---
 id: ENT-IC-01
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: ApprovalPolicy
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-01 — ApprovalPolicy
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Policy version theo operation type/risk
+Phiên bản chính sách xác định **khi nào hồ sơ cần duyệt, cấp duyệt nào và ai đủ điều kiện duyệt**. Policy không thực hiện mutation của nghiệp vụ nguồn và không có cờ bỏ qua duyệt Quick Receipt.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `ApprovalPolicy` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Payload receipt/count/state change → Domain nguồn; role/user lifecycle → IAM |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class ApprovalPolicy { <<AggregateRoot>> }
+```
 
-natural scope + effective version
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `approvalPolicyVersionId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, policyId, versionNo)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `approval_policy_version_id` | `UUID` | PK | Bắt buộc | Sinh UUID | ID của một policy version bất biến sau khi active |
-| `policy_id` | `UUID` | UK thành phần | Bắt buộc | Sinh khi tạo policy | Stable ID qua các version |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `version_no` | `BIGINT` | UK thành phần | Bắt buộc | `1` | Tăng đơn điệu theo policy |
-| `operation_type` | `VARCHAR(40)` | — | Bắt buộc | — | Selector loại operation |
-| `reason_selectors` | `JSONB` | — | Bắt buộc | `{}` | Điều kiện route, không được vô hiệu duyệt nhập nhanh |
-| `risk_selectors` | `JSONB` | — | Bắt buộc | `{}` | Điều kiện risk/threshold nếu loại operation cho phép |
-| `threshold_amount` | `DECIMAL(20,6)` | — | Nullable | `NULL` | Ngưỡng route; không phải ngưỡng bỏ duyệt nhập nhanh |
-| `threshold_currency` | `CHAR(3)` | — | Nullable | `NULL` | Đi cùng threshold amount |
-| `required_approval_level` | `INTEGER` | — | Bắt buộc | — | Cấp cao nhất cần đáp ứng |
-| `eligible_role_conditions` | `JSONB` | — | Bắt buộc | — | Role/permission/scope hợp lệ |
-| `effective_from` | `TIMESTAMPTZ` | — | Bắt buộc | — | Với source cost run Phase 1: không được trước `published_at`; future-effective chỉ khi publication xảy ra trước mốc |
-| `effective_to` | `TIMESTAMPTZ` | — | Nullable | `NULL` | Không overlap cùng scope |
-| `status` | `VARCHAR(20)` | — | Bắt buộc | `DRAFT` | `DRAFT`, `ACTIVE`, `RETIRED` |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
-| `updated_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `updated_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `policyId` | Định danh ổn định của chính sách | Có | Giữ nguyên qua các version |
+| `operationType` | Loại nghiệp vụ mà policy áp dụng | Có | Ví dụ Quick Receipt, State Change, Count |
+| `reasonSelectors` | Điều kiện nghiệp vụ dùng để route | Có | Không được vô hiệu invariant bắt buộc duyệt |
+| `riskSelectors` | Cách xác định mức rủi ro/ngưỡng | Có | Dùng snapshot nguồn |
+| `requiredApprovalLevel` | Cấp duyệt tối thiểu | Có | Do policy xác định |
+| `eligibleRoleConditions` | Điều kiện actor được phép duyệt | Có | Kết hợp permission/scope |
+| `effectiveInterval` | Khoảng hiệu lực | Có | Các version cùng scope không overlap |
+| `status` | DRAFT/ACTIVE/RETIRED | Có | Chỉ ACTIVE được resolve |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `created_by`: FK → `User`.
-- `updated_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `createVersion()` | Policy mới kế nhiệm version trước; không sửa version ACTIVE | Tạo policy version DRAFT |
+| `activate()` | Không overlap scope; nội dung đầy đủ | PolicyActivated |
+| `retire()` | Có version thay thế hoặc policy hết hiệu lực | PolicyRetired |
+| `resolveRoute(subjectSnapshot)` | Subject thuộc scope và version đang hiệu lực | Trả required level + eligible actor conditions |
 
-**Bất biến nhập hàng nhanh:** policy chỉ xác định tuyến/cấp/người duyệt. Nó không có cờ “có cần duyệt hay không”. Với operation nhập hàng nhanh, submit hợp lệ luôn tạo `ApprovalCase` và chuyển operation sang `PENDING_APPROVAL`; thiếu policy active hoặc thiếu approver đủ cấp thì giữ `DRAFT` và trả structured rejection.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: createVersion
+    DRAFT --> ACTIVE: activate
+    ACTIVE --> RETIRED: retire
+    RETIRED --> [*]
+```
 
-**Bất biến nhập hàng nhanh:** policy chỉ xác định tuyến/cấp/người duyệt. Nó không có cờ “có cần duyệt hay không”. Với operation nhập hàng nhanh, submit hợp lệ luôn tạo `ApprovalCase` và chuyển operation sang `PENDING_APPROVAL`; thiếu policy active hoặc thiếu approver đủ cấp thì giữ `DRAFT` và trả structured rejection.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `ApprovalPolicyActivated` | activate() | Version bắt đầu có hiệu lực |
+| `ApprovalPolicyRetired` | retire() | Version không còn được dùng cho hồ sơ mới |
 
-- `BC-IC-06`
-- `BC-IC-07`
-- `BC-IC-09`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-06`, `BC-IC-07`, `BC-IC-09` |
+| Use Case | `UC-02-03`, `UC-08-04`, `UC-09-02`, `UC-10-02`, `UC-11-04`, `UC-12-02` |
+| Quyết định | `T7-DR-027`, `T7-DR-079`, `T7-DR-080` |

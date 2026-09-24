@@ -1,55 +1,79 @@
 ---
 id: ENT-IC-10
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: StateTransitionPolicyVersion
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IC-10 — StateTransitionPolicyVersion
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Immutable state-transition policy version
+Phiên bản bất biến của chính sách cho phép chuyển trạng thái hàng giữa các stock state, gồm điều kiện, approval/evidence requirement và hiệu lực.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `StateTransitionPolicyVersion` |
+| Domain sở hữu | `DOM-IC` |
+| Domain không sở hữu | Stock state movement → DOM-IO; Product policy master → Theme 2 nếu là nguồn phân loại |
 
-`DOM-IC`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class StateTransitionPolicyVersion { <<AggregateRoot>> }
+```
 
-tenant + policy code + version; policy hash
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `stateTransitionPolicyVersionId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, policyCode, versionNo)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `state_transition_policy_version_id` | `UUID` | PK | Bắt buộc | Sinh UUID | Immutable version identity |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | Tenant scope |
-| `policy_code` | `VARCHAR(80)` | — | Bắt buộc | — | Stable policy family |
-| `version_no` | `BIGINT` | UK thành phần | Bắt buộc | — | Monotonic trong policy_code |
-| `effective_from` | `TIMESTAMPTZ` | — | Bắt buộc | — | Không overlap version active cùng policy_code |
-| `effective_to` | `TIMESTAMPTZ` | — | Nullable | `NULL` | — |
-| `transition_rules` | `JSONB` | — | Bắt buộc | — | Canonical `from→to`, permission, reason/evidence, approval route/level, eligibility effect; không chứa UI copy |
-| `policy_hash` | `CHAR(64)` | — | Bắt buộc | — | SHA-256 canonical payload |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Append-only |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `policyCode` | Định danh ổn định của policy | Có | Giữ qua version |
+| `effectiveInterval` | Khoảng hiệu lực | Có | Không overlap cùng code |
+| `transitionRules` | Tập from→to + điều kiện | Có | Canonical rule set |
+| `policyHash` | Dấu vết semantic của version | Có | Bind StateChangeBasis |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `created_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `publishVersion()` | Rule set hợp lệ, không overlap hiệu lực | StateTransitionPolicyPublished |
+| `retireVersion()` | Có policy kế nhiệm/hết hiệu lực | StateTransitionPolicyRetired |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+```mermaid
+stateDiagram-v2
+    [*] --> ACTIVE: publishVersion
+    ACTIVE --> RETIRED: retireVersion
+    RETIRED --> [*]
+```
 
-Policy version bất biến sau khi effective. Request đã submit luôn bám exact version/hash đã snapshot; thay policy tạo version mới, không rewrite request/approval lịch sử.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `StateTransitionPolicyPublished` | publishVersion() | Version bắt đầu dùng cho request mới |
+| `StateTransitionPolicyRetired` | retireVersion() | Version không dùng cho request mới |
 
-Không có liên kết trực tiếp được ghi nhận trong nguồn v3.10.1.
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IC` |
+| Behavioral Contract | `BC-IC-09` |
+| Use Case | `UC-09-01`, `UC-09-02`, `UC-09-04` |
+| Quyết định | `T7-DR-184` |

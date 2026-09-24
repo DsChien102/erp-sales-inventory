@@ -5,111 +5,152 @@ theme: theme-07
 title: "Chuẩn bị thay đổi trạng thái"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-09-01 — Chuẩn bị thay đổi trạng thái
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Chuẩn bị thay đổi trạng thái để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Chuẩn bị yêu cầu thay đổi trạng thái vật lý của hàng, xác định đúng lượng/lô, trạng thái đích, lý do và bằng chứng.
 
-**Kết quả thành công:** <ul><li>Hồ sơ hợp lệ, cần duyệt hoặc bị từ chối</li><li>State-change request</li></ul>
+**Kết quả cần đạt:** State-change request có scope/version rõ và sẵn sàng thực thi hoặc phê duyệt theo policy; chưa thay đổi trạng thái.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Có căn cứ nghiệp vụ và lượng hàng xác định
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Hồ sơ hợp lệ, cần duyệt hoặc bị từ chối</li><li>State-change request</li></ul>
+Hồ sơ hợp lệ, cần duyệt hoặc bị từ chối; State-change request.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không đổi trạng thái hàng ở bước chuẩn bị và không sửa movement nguồn. UC chỉ lập yêu cầu thay đổi trạng thái với phạm vi, căn cứ và bằng chứng cần thiết.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Thủ kho hoặc quản lý kho
-- **Trigger:** Có căn cứ nghiệp vụ và lượng hàng xác định
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** Thủ kho hoặc quản lý kho.
+- **Thẩm quyền:** Được lập/cập nhật hồ sơ nháp trong phạm vi được cấp; chưa có quyền tạo tác động cuối nếu Journey còn bước phê duyệt hoặc thực thi riêng.
+- **Sự kiện khởi phát:** Có căn cứ nghiệp vụ và lượng hàng xác định.
+- **Điều kiện trước:** Nguồn/version cần dùng còn hiện hành; tác nhân có quyền lập hồ sơ trong đúng tenant/cửa hàng/kho; các master/policy bắt buộc cho việc chuẩn bị đã resolve được.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Nguồn nghiệp vụ và phiên bản | Định danh nguồn/đối tượng nghiệp vụ và phiên bản hiện hành cần dùng để tránh xử lý trên dữ liệu cũ. | DOM-IO / DOM-IC / BC liên quan |
+| Dữ liệu nghiệp vụ | Các dữ kiện người dùng/nguồn cung cấp cho mục tiêu của Use Case; phải tuân theo rule ở mục 6. | DOM-IO / DOM-IC / BC liên quan |
+| Phạm vi thực hiện | Tác nhân và phạm vi tenant/cửa hàng/kho mà yêu cầu được phép xử lý. | DOM-IO / DOM-IC / BC liên quan |
 
-Command envelope dùng chung; source/aggregate ID và version; payload nghiệp vụ; idempotency key; actor, tenant, store và warehouse scope.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Ma trận chuyển trạng thái: Chỉ cho các chuyển đổi được whitelist; mỗi chuyển đổi xác định quyền, lý do, bằng chứng và mức duyệt</li><li>Tổng vật lý: Chuyển trạng thái không làm đổi tổng physical quantity của sản phẩm/lô</li><li>Hết hạn: Xác định trực tiếp từ hạn dùng và ngày nghiệp vụ; loại khỏi khả dụng ngay, không phụ thuộc tác vụ nền đã materialize EXPIRED hay chưa</li><li>Cận hạn: Chỉ là chỉ báo/policy WARN hoặc BLOCK_SALE; không phải state movement và không tạo hồ sơ cảnh báo có lifecycle</li><li>Demo: Vẫn thuộc physical và book value nhưng không khả dụng; muốn bán lại phải qua chuyển trạng thái được phép</li><li>Reservation: Khi eligible giảm, phát tác động để BJ-04 đánh giá lại; BJ này không tự sửa order hoặc PickAllocation</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Chỉ tạo thay đổi được nêu trong BC-IO-16, BC-IC-07; UI hoặc adapter không được tự thêm transition.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-16 — Maintain operation draft](../behavioral-contracts/BC-IO-16.md); [BC-IC-07 — Submit inventory operation](../behavioral-contracts/BC-IC-07.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-036](../../../03.design/screens/SCR-036.md); [SCR-037](../../../03.design/screens/SCR-037.md); [SCR-038](../../../03.design/screens/SCR-038.md) |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-09-01-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Chuẩn bị thay đổi trạng thái” | Hồ sơ hợp lệ, cần duyệt hoặc bị từ chối; kết quả State-change request và có truy vết nguồn. |
-| AS-UC-09-01-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-09-01-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-09-01-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp. |
+| BF-01 | Thủ kho/Quản lý kho | Chọn sản phẩm/lô/lượng cần đổi trạng thái và trạng thái đích. |  |
+| BF-02 | Hệ thống | Nạp trạng thái hiện tại, quantity balance và transition policy. | EF-A — Transition không hợp lệ |
+| BF-03 | Thủ kho/Quản lý kho | Nhập lý do và bằng chứng bắt buộc; rà soát lượng áp dụng. |  |
+| BF-04 | Hệ thống | Đánh giá yêu cầu có cần phê duyệt hay có thể sẵn sàng thực thi. | AF-A — Cần phê duyệt |
+| BF-05 | Hệ thống | Lưu request/version; chưa ghi state movement. | EF-B — Kết quả lưu chưa xác định |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Cần phê duyệt
+**Phát sinh tại:** BF-04. **Điều kiện:** Policy yêu cầu phê duyệt cho transition/scope hiện tại .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Hệ thống | Chuyển request sang `PENDING_APPROVAL` với snapshot/evidence. | |
+| AF-A-02 | — | [Kết thúc UC; tiếp UC-09-02.] | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Transition không hợp lệ
+**Phát sinh tại:** BF-02. **Điều kiện:** Trạng thái nguồn→đích không được policy cho phép hoặc lượng không đủ .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Từ chối trước mutation và nêu rule vi phạm. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+#### EF-B — Kết quả lưu chưa xác định
+**Phát sinh tại:** BF-05. **Điều kiện:** Không rõ request đã được lưu/gửi .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-B-01 | Hệ thống | Verify cùng identity/version trước khi tạo lại. | |
+| EF-B-02 | — | [Kết thúc/hand-off recovery.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Ma trận chuyển trạng thái | Chỉ cho các chuyển đổi được whitelist; mỗi chuyển đổi xác định quyền, lý do, bằng chứng và mức duyệt| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-02 | Tổng vật lý | Chuyển trạng thái không làm đổi tổng physical quantity của sản phẩm/lô| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-03 | Hết hạn | Xác định trực tiếp từ hạn dùng và ngày nghiệp vụ; loại khỏi khả dụng ngay, không phụ thuộc tác vụ nền đã materialize EXPIRED hay chưa| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-04 | Cận hạn | Chỉ là chỉ báo/policy WARN hoặc BLOCK_SALE; không phải state movement và không tạo hồ sơ cảnh báo có lifecycle| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-05 | Demo | Vẫn thuộc physical và book value nhưng không khả dụng; muốn bán lại phải qua chuyển trạng thái được phép| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-06 | Reservation | Khi eligible giảm, phát tác động để BJ-04 đánh giá lại; BJ này không tự sửa order hoặc PickAllocation| Decision / DOM-IO / DOM-IC / BC nguồn |
+
+- `SBC-COM-01` — Bao yêu cầu và định danh.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Finality và tính nguyên tử.
+- `BC-IO-16` — Maintain operation draft.
+- `BC-IC-07` — Submit inventory operation.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | State-change request có scope/version rõ và sẵn sàng thực thi hoặc phê duyệt theo policy; chưa thay đổi trạng thái. | Hồ sơ chỉ được bàn giao sang bước duyệt/thực thi khi các điều kiện của UC đã đạt; chưa ghi ledger trước commit point. |
+| Không đủ điều kiện / Bị từ chối | Nếu dữ liệu, nguồn hoặc version chưa đủ điều kiện, hồ sơ không được đưa qua commit point; dữ liệu hợp lệ đã nhập được giữ theo contract để sửa/refresh khi an toàn. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+| Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
+
+**Ảnh hưởng nghiệp vụ chính:** State-change request có scope/version rõ và sẵn sàng thực thi hoặc phê duyệt theo policy; chưa thay đổi trạng thái.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-036` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị thay đổi trạng thái”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+| `SCR-037` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị thay đổi trạng thái”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+| `SCR-038` | Thu thập và rà soát dữ liệu cần để “Chuẩn bị thay đổi trạng thái”; việc ghi effect chỉ xảy ra tại commit point do UC/BC quy định. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-09-01-01 — Chuẩn bị thay đổi trạng thái — luồng chính
+- **Given:** Có căn cứ nghiệp vụ và lượng hàng xác định
+- **When:** Chọn sản phẩm/lô/lượng cần đổi trạng thái và trạng thái đích.
+- **Then:** State-change request có scope/version rõ và sẵn sàng thực thi hoặc phê duyệt theo policy; chưa thay đổi trạng thái.
+
+### AS-UC-09-01-02 — Chuẩn bị thay đổi trạng thái — Cần phê duyệt
+- **Given:** Policy yêu cầu phê duyệt cho transition/scope hiện tại.
+- **When:** Hệ thống phát hiện điều kiện “Cần phê duyệt” tại BF-04.
+- **Then:** Chuyển request sang `PENDING_APPROVAL` với snapshot/evidence. Bàn giao/tiếp tục UC-09-02 theo đúng kết quả của nhánh; không tạo effect ngoài phạm vi đã xác lập.
+
+### AS-UC-09-01-03 — Chuẩn bị thay đổi trạng thái — Transition không hợp lệ
+- **Given:** Trạng thái nguồn→đích không được policy cho phép hoặc lượng không đủ.
+- **When:** Hệ thống phát hiện điều kiện “Transition không hợp lệ” tại BF-02.
+- **Then:** Từ chối trước mutation và nêu rule vi phạm. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
+
+### AS-UC-09-01-04 — Chuẩn bị thay đổi trạng thái — Kết quả lưu chưa xác định
+- **Given:** Không rõ request đã được lưu/gửi.
+- **When:** Hệ thống phát hiện điều kiện “Kết quả lưu chưa xác định” tại BF-05.
+- **Then:** Verify cùng identity/version trước khi tạo lại. Giữ nguyên identity/evidence hiện có và bàn giao recovery/finality; không tạo effect trùng hoặc thử lại mù.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-09` — Quản lý trạng thái hàng.
+- **Domain:** `DOM-IO`, `DOM-IC`.
+- **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IO-16`, `BC-IC-07`.
+
 - **Nguồn quyết định:** [Nhóm G06 — Trả hàng, hết hạn và loại bỏ](../../../01.knowledge/decisions/decision-register.md#36-g06-tr%E1%BA%A3-h%C3%A0ng-tr%E1%BA%A1ng-th%C3%A1i-h%E1%BA%BFt-h%E1%BA%A1n-v%C3%A0-ti%C3%AAu-h%E1%BB%A7y); [Nhóm G02 — Lô, hạn dùng và chính sách theo dõi sản phẩm](../../../01.knowledge/decisions/decision-register.md#32-g02-%C4%91%E1%BB%8Bnh-danh-s%E1%BB%91-d%C6%B0-%C4%91%C6%A1n-v%E1%BB%8B-t%C3%ADnh-v%C3%A0-ch%C3%ADnh-s%C3%A1ch-theo-d%C3%B5i)
 - **Bài tri thức liên quan:** [Hàng cận hạn, hết hạn, hư hỏng và tiêu hủy](../../../01.knowledge/know-how/KB-KGV-014-hang-can-han-het-han-hu-hong-va-tieu-huy.md); [Tồn vật lý và tồn khả dụng](../../../01.knowledge/know-how/KB-KGV-005-ton-vat-ly-va-ton-kha-dung.md); [Danh tính và vòng đời của một lô hàng](../../../01.knowledge/know-how/KB-KGV-025-danh-tinh-va-vong-doi-cua-mot-lo-hang.md); [Hàng ký gửi, hàng demo và quyền sở hữu](../../../01.knowledge/know-how/KB-KGV-034-quyen-so-huu-hang-hoa-hang-ky-gui-va-hang-demo.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-09 — Quản lý trạng thái hàng](../journeys/BJ-09-quan-ly-trang-thai-hang.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-09-01-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-09-01, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-09-01. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-
-
-## v3.10.1 deep-review amendment
-
-- Canonical business state code dùng `DEMO`; `TRIAL` không còn là active enum. `EXPIRED` do hệ thống dẫn xuất từ LOT expiry + tenant business date, không phải user destination.
-- State-change request bind immutable `StateChangeBasis`: exact source balance slices/version/valuation state, quantity, from/to, policy version/hash, reason/evidence, business date/expiry facts và reservation-impact preview. User không chọn valuation state.
-- Partial quantity chỉ được tiếp tục khi server resolve exact source slices; ambiguous composition trả `STATE_SOURCE_SLICE_AMBIGUOUS` trước mutation.
-- Approval case bind exact basis hash. Approver chỉ quyết định; approval không tự ghi state movement. System executor phải recheck basis ngay trước commit; stale basis không dùng lại approval cũ.
-- `STATE_TRANSFER` bảo toàn `valuation_state`, tổng physical và authoritative book value; không tạo `InventoryValueMovement`. Eligibility giảm phải reconcile reservation atomically và chỉ phát stale/review signal cho active PickAllocation.
-
-### Nguồn v3.10.1 — UC-09-01 — Chuẩn bị thay đổi trạng thái
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-09 — Quản lý trạng thái hàng](../journeys/BJ-09-quan-ly-trang-thai-hang.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW

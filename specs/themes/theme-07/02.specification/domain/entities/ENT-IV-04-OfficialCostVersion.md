@@ -1,70 +1,78 @@
 ---
 id: ENT-IV-04
 type: business-entity
+role: AGGREGATE_ROOT
 theme: theme-07
 title: OfficialCostVersion
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-04 — OfficialCostVersion
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Đơn giá chính thức có hiệu lực
+Phiên bản đơn giá vốn chính thức cho một Product. **Chỉ BJ14 publication** được tạo/cập nhật version; BJ03 không bootstrap Official Cost.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `AGGREGATE_ROOT` |
+| Aggregate Root | `OfficialCostVersion` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Receipt value → ReceiptValuation; tenant costing method policy → policy owner; pricing basis → Theme 4 |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class OfficialCostVersion { <<AggregateRoot>> }
+```
 
-unique tenant + product + effective interval
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `officialCostVersionId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, productId, effectiveFrom)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `official_cost_version_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | Effective scope |
-| `product_id` | `UUID` | FK → `Product` | Bắt buộc | — | Effective scope |
-| `unit_cost` | `DECIMAL(20,6)` | — | Bắt buộc | — | **VND / base UOM** của Product; không âm |
-| `base_uom_id` | `UUID` | FK → `ProductUnit` | Bắt buộc | — | Base UOM authoritative tại version này |
-| `base_uom_version` | `VARCHAR(80)` | — | Bắt buộc | — | Snapshot/version để audit normalization |
-| `currency` | `CHAR(3)` | — | Bắt buộc | — | — |
-| `source_type` | `VARCHAR(30)` | — | Bắt buộc | — | Cost run hoặc receipt valuation |
-| `source_run_id` | `UUID` | FK → `CostCalculationRun` | Nullable | `NULL` | Theo source type |
-| `source_receipt_valuation_id` | `UUID` | FK → `ReceiptValuation` | Nullable | `NULL` | Theo source type |
-| `selected_method` | `VARCHAR(30)` | — | Nullable | `NULL` | Moving hoặc periodic khi từ cost run |
-| `effective_from` | `TIMESTAMPTZ` | — | Bắt buộc | — | — |
-| `effective_to` | `TIMESTAMPTZ` | — | Nullable | `NULL` | Exclusive end |
-| `published_by` | `UUID` | FK → `User` | Bắt buộc | — | — |
-| `published_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | — |
-| `predecessor_id` | `UUID` | FK → `OfficialCostVersion` | Nullable | `NULL` | Version trước |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Audit |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Audit |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `productId` | Sản phẩm áp dụng | Có | Authority tenant+product |
+| `unitCostVnd` | Đơn giá chính thức theo base UOM | Có | VND/base UOM |
+| `baseUomSnapshot` | Base UOM/version tại publication | Có | Không đổi theo warehouse/lot |
+| `sourceRunRef` | CostCalculationRun đã publish version | Có | Không nguồn trực tiếp từ BJ03 |
+| `selectedMethod` | Method snapshot từ tenant policy | Có | Không phải lựa chọn reviewer |
+| `effectiveInterval` | Khoảng hiệu lực | Có | Không overlap cùng product |
+| `publishedBy/At` | Actor và commit time | Có | effectiveFrom không backdate trước commit theo policy |
+| `predecessorRef` | Version trước | Nếu có | Version chain |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `product_id`: FK → `Product`.
-- `base_uom_id`: FK → `ProductUnit`.
-- `source_run_id`: FK → `CostCalculationRun`.
-- `source_receipt_valuation_id`: FK → `ReceiptValuation`.
-- `published_by`: FK → `User`.
-- `predecessor_id`: FK → `OfficialCostVersion`.
-- `created_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `publishFromRun()` | Run READY_FOR_REVIEW/PUBLISH commit; method/fact set current | OfficialCostPublished |
+| `closeInterval()` | Version kế nhiệm bắt đầu hiệu lực | OfficialCostSuperseded |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Đúng một source FK phù hợp `source_type`; effective interval không overlap cho cùng tenant + product. Cost-run publication không backdate `effective_from` trước publication commit; giao dịch đã xảy ra giữ cost version thực tế và được reconcile bằng adjustment. Initial receipt bootstrap dùng compare-and-create nguyên tử theo `tenant_id + product_id`: commit đầu tiên tạo version, concurrent confirmation sau không overwrite và trả `ALREADY_INITIALIZED`. `effective_from` của initial version bằng server commit time của confirmation thắng.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `OfficialCostPublished` | publishFromRun() | Đơn giá mới trở thành official theo effective time |
+| `OfficialCostSuperseded` | closeInterval() | Version cũ kết thúc hiệu lực |
 
-- `BC-XD-02`
-- `BC-XD-03`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-03` |
+| Use Case | `UC-14-04` |
+| Quyết định | `T7-DR-050`, `T7-DR-155`, `T7-DR-167`, `T7-DR-194`, `T7-DR-195` |

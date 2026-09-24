@@ -4,151 +4,107 @@ type: domain-foundation
 theme: theme-07
 title: Nền tảng Domain dùng chung
 owner: BA/SA
-status: DRAFT
-aligned_to: DOMAIN.template.md + DOM-IO.sample.md
-source_baseline: v3.10.1
+status: FROZEN
+aligned_to: DOMAIN.template.md
+source_baseline: v3.12.0
 ---
 
 # DOM-COM — Nền tảng Domain dùng chung
 
 ## 1. Trách nhiệm
 
-**Shared foundation** của Theme 07 — định vị ranh giới thẩm quyền giữa ba miền sở hữu, ngôn ngữ dùng chung, và bất biến tổ chức. Không phải Core Subdomain vận hành; không sở hữu ledger số lượng hay giá trị.
+`DOM-COM` là nền dùng chung của Theme 7. Domain này không vận hành một nghiệp vụ kho độc lập; nó khóa **ranh giới thẩm quyền**, thuật ngữ xuyên miền và các bất biến tổ chức để `DOM-IO`, `DOM-IC` và `DOM-IV` không cùng sở hữu một sự thật.
 
 | Sứ mệnh cốt lõi | Trách nhiệm chính | Phạm vi thẩm quyền |
 |---|---|---|
-| Theme ownership map | Tách rõ IO / IC / IV | Sở hữu: bản đồ thẩm quyền. Không: lifecycle chi tiết từng miền |
-| Shared ubiquitous language | Thuật ngữ xuyên miền | Sở hữu: glossary pointers. Không: field schema |
-| Organizational invariants | Tenant / store / warehouse Phase 1 | Sở hữu: `INV-ORG-*`. Không: rule nghiệp vụ IO/IC/IV |
-
-Chi tiết vận hành: [DOM-IO](DOM-IO.md) · [DOM-IC](DOM-IC.md) · [DOM-IV](DOM-IV.md).
+| Tách quyền sở hữu | Xác định sự thật nào thuộc IO, IC, IV và sự thật nào chỉ tham chiếu từ Theme khác | Không thay lifecycle của Domain con |
+| Ngôn ngữ xuyên miền | Chuẩn hóa quantity, value, valuation, cost, source/evidence và finality | Không sở hữu field/schema chi tiết |
+| Bất biến tổ chức | Tenant, cửa hàng, kho và capability Phase 1 | Không sở hữu Product, Supplier, PO, Invoice hay GL |
 
 ## 2. Quyền sở hữu và ranh giới
 
-### 2.1 Domain sở hữu (trong Theme 07)
+### 2.1 Domain sở hữu
+
+- Bản đồ quyền sở hữu giữa `DOM-IO`, `DOM-IC`, `DOM-IV`.
+- Bất biến tenant/store/warehouse áp dụng xuyên Theme.
+- Quy tắc phân biệt **sự thật vật lý**, **sự thật giá trị**, **kiểm soát/phê duyệt** và **dữ liệu nguồn ngoài Theme**.
+
+### 2.2 Domain không sở hữu
+
+| Khái niệm ngoài ranh giới | Owner |
+|---|---|
+| Product, UOM, tracking policy | Theme 2 / Catalog |
+| Supplier và dữ liệu đối tác | Theme 3 |
+| Sales Order / fulfillment intent | Theme 5 |
+| Purchase Order, điều kiện thương mại, hóa đơn NCC | Theme 10 |
+| Phải trả | Theme 6 |
+| Accounting ledger, kỳ kế toán, chính sách kế toán/thuế có thẩm quyền | Theme 9 / Accounting policy owner |
+| Chính sách giá bán | Theme 4 / Pricing |
+
+### 2.3 Ranh giới tính nhất quán
 
 ```mermaid
-flowchart TB
-    subgraph OWN["Ba miền sở hữu"]
-        IO["DOM-IO\nSố lượng trạng thái lô"]
-        IC["DOM-IC\nDuyệt khóa kiểm kê đối soát"]
-        IV["DOM-IV\nGiá trị và giá vốn"]
-    end
-    PM["Catalog Product"] --> IO
-    PUR["Purchasing"] --> IO
-    SALES["Sales POS"] --> IO
-    IO -->|"Facts"| IC
-    IO -->|"Facts"| IV
-    IV --> ACC["Accounting"]
-    IV --> PRICE["Pricing"]
+flowchart LR
+    IO["DOM-IO\nSố lượng & vật lý"] -->|Physical facts| IV["DOM-IV\nGiá trị & giá vốn"]
+    IC["DOM-IC\nKiểm soát & phê duyệt"] -->|Decision / gate| IO
+    IC -->|Decision / gate| IV
+    IO -->|Facts cần kiểm soát| IC
+    IV -->|Facts cần đối soát| IC
 ```
 
-Ba miền có thể cùng bounded context triển khai ban đầu, nhưng **consistency boundary và data ownership vẫn tách**.
-
-### 2.2 Domain không sở hữu (ngoài Theme)
-
-| Bối cảnh | Dữ liệu sở hữu ngoài | Theme 07 chỉ dùng |
-|---|---|---|
-| Tenant / IAM | Tenant, User, Role, permission | `tenant_id`, actor, warehouse scope |
-| Cửa hàng / Kho | Store, Warehouse, assignment | Cặp mặc định đang hoạt động |
-| Sản phẩm | Product, UOM, tracking, combo | ACL snapshot / policy refs |
-| Mua hàng | PO, receipt intent, RTV, price evidence | Source id/version/request |
-| Bán hàng / POS | Order, fulfillment, return request | Reserve / issue / return request |
-| Kế toán | Period, GL/AP policy | Kỳ mở/khóa; nhận value facts |
-| Định giá | Pricing cost basis, floor/list | Nhận official cost; **không** ghi ledger Theme |
-| Kịch bản mua | Purchase discount scenario | Projected cost — ngoài ledger |
-
-### 2.3 Ranh giới tính nhất quán (Theme-level)
-
-- Mỗi mutation **CHỈ ĐƯỢC** đổi đúng 1 Aggregate Root trong 1 transaction (thuộc đúng một trong IO/IC/IV).
-- Two-axis receipt: vật lý (IO) rồi giá (IV) — xem flowchart tại [DOM-IO §2.3](DOM-IO.md) và [DOM-IV §2.3](DOM-IV.md).
-
-| Boundary | Commit set tối thiểu |
-|---|---|
-| Quantity mutation | Intent result + quantity movement + balance + lot/state + outbox |
-| Direct price confirmation | Receipt valuation + value movement + valuation-state + availability + outbox |
-| Reservation | Reservation + ReservationBucket + result/outbox |
-| Pick | Allocation set/version — **không** movement vật lý |
-| Customer return receipt | Qty movement + `RETURN_PENDING` + value (nếu có) + cap + outbox |
-| Count adjustment | Count approval + StockAdjustment movement/balance + unlock |
-| Opening balance | Batch duyệt + opening movements/values + cost seed + `ACTIVE` |
-| Late landed cost | Late cost + allocation + value movement + dirty scope + outbox |
-| Period close | Cost run publish + adjustment + official cost + outbox |
-
-Event delivery / accounting posting **sau** commit — không mở rộng distributed transaction.
+- Một mutation chỉ thay đổi đúng Aggregate Root thuộc Domain sở hữu trong một transaction.
+- Handoff giữa Domain/Theme không kéo owner của dữ liệu nguồn sang Theme 7.
+- Event delivery và accounting posting xảy ra sau commit; không mở rộng distributed transaction.
 
 ## 3. Khái niệm chính
 
 ### 3.1 Ngôn ngữ chung (Ubiquitous Language)
 
-Chỉ thuật ngữ xuyên miền. Chi tiết IO/IC/IV nằm ở DOM tương ứng. Định nghĩa đầy đủ: [`glossary.md`](../../../01.knowledge/glossary/glossary.md).
-
-| Thuật ngữ | Vai trò | Định nghĩa ngắn |
+| Thuật ngữ | Vai trò | Định nghĩa |
 |---|---|---|
-| [Tồn vật lý](../../../01.knowledge/glossary/glossary.md#term-ton-vat-ly) | Concept | Tổng lượng thuộc tenant đang hiện diện |
-| [Lượng đủ điều kiện bán](../../../01.knowledge/glossary/glossary.md#term-luong-du-dieu-kien-ban) | Concept | Vật lý thỏa trạng thái / lô / hạn / valuation |
-| [Lượng đã giữ](../../../01.knowledge/glossary/glossary.md#term-luong-da-giu) | Concept | Cam kết đơn, chưa rời kho |
-| [Tồn khả dụng / ATP](../../../01.knowledge/glossary/glossary.md#term-ton-kha-dung) | Concept | Eligible − Reserved |
-| [Movement](../../../01.knowledge/glossary/glossary.md#term-but-ghi-bien-dong) | Ledger (IO/IV) | Bản ghi bất biến qty hoặc value |
-| [Balance](../../../01.knowledge/glossary/glossary.md#term-so-du-hien-hanh) | Projection | Bản chiếu từ movement |
-| [Lô sản xuất](../../../01.knowledge/glossary/glossary.md#term-lo-san-xuat) | Aggregate (IO) | Tenant + product + manufacturer lot code |
-| [Giá vốn chính thức](../../../01.knowledge/glossary/glossary.md#term-gia-von-chinh-thuc) | Aggregate (IV) | OfficialCostVersion có hiệu lực |
-| [Giá trị ghi sổ](../../../01.knowledge/glossary/glossary.md#term-gia-tri-ghi-so) | Concept | Tổng value movement thẩm quyền |
-| [Correction](../../../01.knowledge/glossary/glossary.md#term-nghiep-vu-sua-sai) | Aggregate (IO) | Operation mới liên kết gốc |
-| [Reconciliation](../../../01.knowledge/glossary/glossary.md#term-doi-soat) | Aggregate (IC) | Bằng chứng lệch / UNKNOWN — không sửa tay |
-| Inventory Operation | Concept | Bao quát lệnh kho — **không** God Aggregate Root |
+| Tồn vật lý | Concept | Lượng hàng thực tế thuộc tenant đang hiện diện trong kho |
+| Tồn khả dụng | Concept | Lượng đủ điều kiện cam kết sau khi trừ lượng đã giữ |
+| Inventory Movement | Ledger | Sự thật số lượng append-only do `DOM-IO` sở hữu |
+| Inventory Value Movement | Ledger | Sự thật giá trị append-only do `DOM-IV` sở hữu |
+| Giá trị nhập ban đầu | Concept | Giá trị lần đầu được xác lập cho lượng hàng thực nhận trong BJ03 |
+| Điều chỉnh giá trị hàng nhập | Concept | Giá trị tăng/giảm phát sinh sau initial valuation và được ghi trong BJ13 |
+| Giá vốn chính thức | Versioned fact | Đơn giá do BJ14 công bố theo phương pháp tenant đã cấu hình |
+| Source | Concept | Nguồn có thẩm quyền xác lập một fact nghiệp vụ |
+| Evidence | Concept | Tài liệu/tham chiếu chứng minh hoặc hỗ trợ source; không tự trở thành authority |
+| UNKNOWN | Technical finality | Kết quả mutation chưa chứng minh commit hay rollback; không được coi là thất bại nghiệp vụ |
 
-### 3.2 Domain Model Overview (Theme)
+### 3.2 Domain Model Overview
 
 ```mermaid
 classDiagram
-    class DomIO {
-        <<Subdomain>>
-        IntentAggregates
-        QuantityLedger
-    }
-    class DomIC {
-        <<Subdomain>>
-        Approval
-        Count
-        Reconcile
-    }
-    class DomIV {
-        <<Subdomain>>
-        ValueLedger
-        OfficialCost
-    }
-
-    DomIO ..> DomIV : physical facts
-    DomIO ..> DomIC : approval lock needs
-    DomIC ..> DomIO : approved adjust handoff
-    DomIV ..> DomIO : valuation_state effect
+    class DOM_IO { <<Subdomain>> Quantity & Physical Reality }
+    class DOM_IC { <<Subdomain>> Control & Trust }
+    class DOM_IV { <<Subdomain>> Value & Cost }
+    DOM_IO ..> DOM_IV : physical facts
+    DOM_IO ..> DOM_IC : control evidence
+    DOM_IC ..> DOM_IO : approval / lock decisions
+    DOM_IC ..> DOM_IV : approval / reconciliation decisions
 ```
 
 ## 4. Lifecycle và trạng thái
 
-Lifecycle chi tiết **không** nhân bản tại COM:
+`DOM-COM` không tạo lifecycle nghiệp vụ riêng. Lifecycle authoritative nằm tại:
 
-| Miền | Xem |
-|---|---|
-| Intent Aggregates, Return, UNKNOWN kỹ thuật | [DOM-IO §4](DOM-IO.md) |
-| Stock count, Opening, Reconciliation | [DOM-IC §4](DOM-IC.md) |
-| Valuation axis, Cost run | [DOM-IV §4](DOM-IV.md) |
+- `DOM-IO`: intent kho, reservation, lot, correction.
+- `DOM-IC`: approval, stock count, opening balance, reconciliation.
+- `DOM-IV`: valuation, adjustment, cost run, official cost.
 
-**Ghi chú Theme:** `UNKNOWN` là trạng thái kỹ thuật bảo vệ finality — **KHÔNG ĐƯỢC** coi là failure nghiệp vụ hay tự hủy (chi tiết DOM-IO).
+`UNKNOWN` chỉ là finality kỹ thuật và phải được làm rõ bằng cùng operation identity; không tạo business state giả.
 
 ## 5. Quy tắc và Điều kiện bắt buộc
 
-Chỉ bất biến **tổ chức / phạm vi**. Rule IO/IC/IV/LOT thuộc DOM sở hữu.
-
 | Mã | Quy tắc |
 |---|---|
-| INV-ORG-01 | Mỗi mutation **PHẢI** thuộc đúng một tenant, store và warehouse. |
-| INV-ORG-02 | Phase 1 **CHỈ ĐƯỢC** chấp nhận cặp store/warehouse mặc định đang hoạt động. |
-| INV-ORG-03 | Vị trí user/device **KHÔNG ĐƯỢC** tạo store hoặc warehouse mới. |
-| INV-ORG-04 | Capability ngoài phạm vi **PHẢI** bị từ chối trước mutation; hệ thống **KHÔNG ĐƯỢC** tạo entity/nhánh giả. |
-
-Nguồn: [`T7-DR-004`](../../../01.knowledge/decisions/decision-register.md), [`T7-DR-008`](../../../01.knowledge/decisions/decision-register.md).
+| `INV-ORG-01` | Mọi mutation **PHẢI** thuộc đúng tenant và phạm vi kho mà actor được phép tác động. |
+| `INV-ORG-02` | Phase 1 **CHỈ ĐƯỢC** dùng cặp cửa hàng/kho mặc định đang hoạt động; không tự tạo kho từ vị trí user/device. |
+| `INV-ORG-03` | Dữ liệu do Theme khác sở hữu **CHỈ ĐƯỢC** tham chiếu/snapshot theo contract; Theme 7 **KHÔNG ĐƯỢC** sửa thay owner. |
+| `INV-ORG-04` | Capability ngoài Phase 1 **PHẢI** bị từ chối trước mutation; không mô phỏng bằng một operation gần giống. |
+| `INV-ORG-05` | Một fact nghiệp vụ authoritative **PHẢI** có đúng một owner; read model/prototype không được tạo một authority cạnh tranh. |
 
 ## 6. Quan hệ với Domain khác
 
@@ -156,82 +112,39 @@ Nguồn: [`T7-DR-004`](../../../01.knowledge/decisions/decision-register.md), [`
 
 ```mermaid
 flowchart TB
-    subgraph Upstream [Upstream]
-        Catalog["Catalog"]
-        IAM["IAM Org"]
-        Purchase["Purchasing"]
-        Sales["Sales POS"]
-    end
-    subgraph Theme07 [Theme 07]
-        IO["DOM-IO"]
-        IC["DOM-IC"]
-        IV["DOM-IV"]
-    end
-    subgraph Downstream [Downstream]
-        Acc["Accounting"]
-        Price["Pricing"]
-    end
-    Catalog -->|"ACL snapshots"| IO
-    IAM -->|"scope ACL"| IO
-    IAM -->|"permission"| IC
-    Purchase -->|"integration_commands"| IO
-    Sales -->|"integration_commands"| IO
-    IO -->|"Outbox Facts"| IV
-    IO -->|"Outbox Facts"| IC
-    IV -->|"Outbox Facts"| Acc
-    IV -->|"Outbox Facts"| Price
+    T2["Theme 2\nProduct/UOM"] --> IO[DOM-IO]
+    T3["Theme 3\nSupplier"] --> IO
+    T5["Theme 5\nSales"] --> IO
+    T10["Theme 10\nPurchase/Invoice"] --> IO
+    T10 --> IV[DOM-IV]
+    IO --> IV
+    IC[DOM-IC] --> IO
+    IC --> IV
+    IV --> T6["Theme 6\nPayables"]
+    IV --> T9["Theme 9\nAccounting"]
+    IV --> T4["Theme 4\nPricing"]
 ```
 
 ### 6.2 Messaging
 
-- **Outbox = Facts** (past tense + version). **Cấm** `*.requested` / imperative làm “event”.
-- **Cross-module work** = `integration_commands` (+ intent tables khi có).
-- Chi tiết catalog event: DOM-IO / DOM-IC / DOM-IV §6.2 và technical contracts.
+- Outbox chỉ phát **fact đã xảy ra** và dùng tên quá khứ/versioned.
+- Công việc yêu cầu Domain/Theme khác thực hiện dùng integration command/contract riêng; không đội lốt fact.
+- Cross-theme mutation phải có identity, version/freshness, idempotency và reconciliation contract.
 
 ## 7. Entity liên quan
 
-Catalog chung: [`../entities/`](../entities/) · Read models: [`../read-models/`](../read-models/)
-
-| Nhóm | Phạm vi | Xem catalog |
-|---|---|---|
-| `ENT-IO-*` | Intent, movement, reservation, lot, … | [DOM-IO §7](DOM-IO.md#7-entity--projection-liên-quan) |
-| `ENT-IC-*` | Approval, lock, count, opening, reconcile | [DOM-IC §7](DOM-IC.md#7-entity-liên-quan) |
-| `ENT-IV-*` | Valuation, value ledger, cost run, late cost | [DOM-IV §7](DOM-IV.md#7-entity-liên-quan) |
-| `PRJ-IO-*` | Projection / read model (vd. TransactionalBalance) | [DOM-IO §7.2](DOM-IO.md#72-read-models-read-models) · [PRJ-IO-01](../read-models/PRJ-IO-01-TransactionalBalance.md) |
-
-**Không** liệt kê `CommandReceipt` / IdempotencyRecord như Domain Entity — thuộc Application / Infrastructure.
+`DOM-COM` không sở hữu business entity riêng. Entity canonical nằm ở `ENT-IO-*`, `ENT-IC-*`, `ENT-IV-*`; read model nằm tại `02.specification/domain/read-models/`.
 
 ## 8. Quyết định nghiệp vụ chi phối
 
-Nguồn đầy đủ: [`decision-register.md`](../../../01.knowledge/decisions/decision-register.md)
-
-| Nhóm | Chủ đề | Domain chịu trách nhiệm chính |
+| Decision ID | Quyết định | Chi phối đối với domain này |
 |---|---|---|
-| G01 | Phạm vi store/kho | COM (`INV-ORG`) + IAM |
-| G02 | Lot / UOM / tracking | DOM-IO |
-| G03 | Nhận hàng & xác nhận giá | DOM-IO + DOM-IV |
-| G04 | Khả dụng / giữ / xuất | DOM-IO |
-| G05 | Kiểm kê | DOM-IC |
-| G06 | Trả / trạng thái / tiêu hủy | DOM-IO |
-| G07 | Giá vốn / chốt kỳ | DOM-IV |
-| G08 | Sửa sai | DOM-IO |
-| G09 | Opening / activation | DOM-IC |
-| G10 | Operation / UNKNOWN | DOM-IO (+ IC reconcile) |
-| G11 | Quyền / duyệt | DOM-IC |
-| G12 | Báo cáo / đối soát | DOM-IC + IO/IV read |
-| G13 | Master / combo / policy | Catalog + CAP (ngoài COM) |
-| G14 | Chiết khấu / pricing | Pricing (ranh giới IV) |
+| `T7-DR-001…008` | Phạm vi/ownership/tenant-store-warehouse | Bất biến tổ chức và negative scope |
+| `T7-DR-020…027` | Nhận hàng và two-axis valuation | Ranh giới IO ↔ IV |
+| `T7-DR-079…084` | Quyền, approval, reconciliation | Ranh giới IC |
+| `T7-DR-185…195` | Semantic BJ03/BJ13/BJ14 | Ranh giới initial value, adjustment và Official Cost |
 
-## 9. Điểm chưa chốt / Phase 1 constraints
+## 9. Điểm chưa chốt
 
-**Đã chừa ranh giới, chưa triển khai hành vi:**
-
-- Store–Warehouse nhiều–nhiều; warehouse selector/routing; transfer / in-transit.
-- Offline device, serial, custody, tracking conversion batch, forecast / replenishment proposal entity.
-
-**Phase 1 hiện hành:**
-
-- Một Store hoạt động, một Warehouse hoạt động, một assignment mặc định.
-- Mọi mutation ghi `store_id` + `warehouse_id` mặc định; nhiều user online đồng thời được phép.
-
-Đổi aggregate / Dữ liệu gốc / financial finality → Decision ID mới + cập nhật glossary/DOM/ENT liên quan (quy trình harness — không nhân bản checklist dài tại đây).
+- Multi-store/multi-warehouse routing thuộc Phase sau; model giữ tenant/warehouse scope nhưng Phase 1 không mở selector/routing.
+- Owner cuối cùng của tax/accounting policy được tích hợp qua contract có thẩm quyền; Theme 7 chỉ consume treatment, không tự tạo chính sách thuế.

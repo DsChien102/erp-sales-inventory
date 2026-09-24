@@ -5,101 +5,137 @@ theme: theme-07
 title: "Giữ chưa xác định và escalated"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-17-04 — Giữ chưa xác định và escalated
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Giữ chưa xác định và escalated để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Giữ operation ở trạng thái chưa xác định có kiểm soát khi chưa đủ bằng chứng, bảo vệ phạm vi rủi ro và escalation đúng owner.
 
-**Kết quả thành công:** <ul><li>UNKNOWN được giữ, phạm vi được bảo vệ và escalation có owner</li><li>Controlled unresolved result</li></ul>
+**Kết quả cần đạt:** `UNKNOWN` được giữ đúng nghĩa, scope protection/escalation có owner và điều kiện giải quyết; không có blind retry/correction.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Evidence chưa đủ hoặc có nghi ngờ nghiêm trọng
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>UNKNOWN được giữ, phạm vi được bảo vệ và escalation có owner</li><li>Controlled unresolved result</li></ul>
+UNKNOWN được giữ, phạm vi được bảo vệ và escalation có owner; Controlled unresolved result.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không tự biến UNKNOWN thành FAILED hoặc tạo operation identity mới. UC giữ hồ sơ ở trạng thái chưa xác định, bảo vệ phạm vi rủi ro và escalation theo policy cho tới khi có bằng chứng mới.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** Nhân viên đối soát hoặc chủ sở hữu operation
-- **Trigger:** Evidence chưa đủ hoặc có nghi ngờ nghiêm trọng
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** Nhân viên đối soát hoặc chủ sở hữu operation.
+- **Thẩm quyền:** Chỉ tác nhân hoặc system process có quyền thực thi đúng scope mới được commit; mọi guard về source/version, policy và lifecycle phải được server kiểm lại trước effect.
+- **Sự kiện khởi phát:** Evidence chưa đủ hoặc có nghi ngờ nghiêm trọng.
+- **Điều kiện trước:** Đối tượng đúng version đã đạt trạng thái sẵn sàng thực thi; quyền, policy, lock và các invariant nguồn còn hợp lệ tại thời điểm commit.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Nguồn nghiệp vụ và phiên bản | Định danh nguồn/đối tượng nghiệp vụ và phiên bản hiện hành cần dùng để tránh xử lý trên dữ liệu cũ. | DOM-IC / BC liên quan |
+| Dữ liệu nghiệp vụ | Các dữ kiện người dùng/nguồn cung cấp cho mục tiêu của Use Case; phải tuân theo rule ở mục 6. | DOM-IC / BC liên quan |
+| Phạm vi thực hiện | Tác nhân và phạm vi tenant/cửa hàng/kho mà yêu cầu được phép xử lý. | DOM-IC / BC liên quan |
 
-Command envelope dùng chung; source/aggregate ID và version; payload nghiệp vụ; idempotency key; actor, tenant, store và warehouse scope.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>UNKNOWN không phải FAILED: Timeout hoặc mất kết nối không chứng minh rằng transaction đã rollback</li><li>Cùng định danh: Chỉ tra cứu/tiếp tục bằng đúng định danh operation và yêu cầu; nội dung khác phải bị từ chối</li><li>Có bằng chứng commit: Chỉ xác lập kết quả từ tác động đã có; không ghi movement/balance/outbox lần hai</li><li>Có bằng chứng no-commit: Có thể tiếp tục cùng ID sau khi xác minh không tồn tại tác động bán phần</li><li>Chưa đủ bằng chứng: Giữ UNKNOWN và trạng thái nguồn tương ứng; không đoán kết quả để “mở đường” cho người dùng</li><li>Boundary liên miền: Sales/Purchase giữ trạng thái chờ theo contract của mình; Theme 7 không tự hoàn tất đơn, refund payment hoặc tạo lại receipt</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-Chỉ tạo thay đổi được nêu trong BC-IC-05; UI hoặc adapter không được tự thêm transition.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IC-05 — Reconcile and rebuild projection](../behavioral-contracts/BC-IC-05.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-079](../../../03.design/screens/SCR-079.md); [SCR-083](../../../03.design/screens/SCR-083.md) |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-17-04-01 | Điều kiện cần hợp lệ và dữ liệu đầu vào đầy đủ | Tác nhân thực hiện “Giữ chưa xác định và escalated” | UNKNOWN được giữ, phạm vi được bảo vệ và escalation có owner; kết quả Controlled unresolved result và có truy vết nguồn. |
-| AS-UC-17-04-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-17-04-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-17-04-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp. |
+| BF-01 | Nhân viên đối soát | Nhận operation vẫn UNKNOWN sau assessment/recovery hoặc có evidence nghiêm trọng. |  |
+| BF-02 | Hệ thống | Xác định scope có thể chịu double-effect/rủi ro nếu tiếp tục xử lý. |  |
+| BF-03 | Nhân viên đối soát/Quản lý | Áp dụng protection/escalation phù hợp và chỉ định owner/next evidence cần thu thập. | AF-A — Không cần khóa giao dịch |
+| BF-04 | Hệ thống | Lưu unresolved state, evidence snapshot, protection và escalation SLA/owner. | EF-A — Kết quả cập nhật chưa xác định |
+| BF-05 | Hệ thống | Chỉ cho phép mở lại assessment/continue khi có evidence mới; không tự chuyển `UNKNOWN` thành FAILED. |  |
+| BF-06 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+#### AF-A — Không cần khóa giao dịch
+**Phát sinh tại:** BF-03. **Điều kiện:** Operation không thể tạo double effect cho giao dịch mới hoặc đã được cô lập ở phạm vi khác .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| AF-A-01 | Nhân viên đối soát | Ghi căn cứ không khóa nhưng vẫn giữ owner/evidence plan. | |
+| AF-A-02 | — | [Tiếp tục BF-04.] | |
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Kết quả cập nhật chưa xác định
+**Phát sinh tại:** BF-04. **Điều kiện:** Không rõ protection/escalation metadata đã commit .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Verify case/operation state trước khi lặp update. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | UNKNOWN không phải FAILED | Timeout hoặc mất kết nối không chứng minh rằng transaction đã rollback| Decision / DOM-IC / BC nguồn |
+| BR-02 | Cùng định danh | Chỉ tra cứu/tiếp tục bằng đúng định danh operation và yêu cầu; nội dung khác phải bị từ chối| Decision / DOM-IC / BC nguồn |
+| BR-03 | Có bằng chứng commit | Chỉ xác lập kết quả từ tác động đã có; không ghi movement/balance/outbox lần hai| Decision / DOM-IC / BC nguồn |
+| BR-04 | Có bằng chứng no-commit | Có thể tiếp tục cùng ID sau khi xác minh không tồn tại tác động bán phần| Decision / DOM-IC / BC nguồn |
+| BR-05 | Chưa đủ bằng chứng | Giữ UNKNOWN và trạng thái nguồn tương ứng; không đoán kết quả để “mở đường” cho người dùng| Decision / DOM-IC / BC nguồn |
+| BR-06 | Boundary liên miền | Sales/Purchase giữ trạng thái chờ theo contract của mình; Theme 7 không tự hoàn tất đơn, refund payment hoặc tạo lại receipt| Decision / DOM-IC / BC nguồn |
+
+- `SBC-COM-01` — Bao yêu cầu và định danh.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Finality và tính nguyên tử.
+- `BC-IC-05` — Reconcile and rebuild projection.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | `UNKNOWN` được giữ đúng nghĩa, scope protection/escalation có owner và điều kiện giải quyết; không có blind retry/correction. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
+| Không đủ điều kiện / Bị từ chối | Nếu precondition, version, quyền hoặc invariant không còn hợp lệ, hệ thống từ chối trước effect; nếu finality chưa rõ thì giữ cùng operation identity để recovery. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+| Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
+
+**Ảnh hưởng nghiệp vụ chính:** `UNKNOWN` được giữ đúng nghĩa, scope protection/escalation có owner và điều kiện giải quyết; không có blind retry/correction.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-079` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Giữ chưa xác định và escalated”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+| `SCR-083` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Giữ chưa xác định và escalated”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-17-04-01 — Giữ chưa xác định và escalated — luồng chính
+- **Given:** Evidence chưa đủ hoặc có nghi ngờ nghiêm trọng
+- **When:** Nhận operation vẫn UNKNOWN sau assessment/recovery hoặc có evidence nghiêm trọng.
+- **Then:** `UNKNOWN` được giữ đúng nghĩa, scope protection/escalation có owner và điều kiện giải quyết; không có blind retry/correction.
+
+### AS-UC-17-04-02 — Giữ chưa xác định và escalated — Không cần khóa giao dịch
+- **Given:** Operation không thể tạo double effect cho giao dịch mới hoặc đã được cô lập ở phạm vi khác.
+- **When:** Ghi căn cứ không khóa nhưng vẫn giữ owner/evidence plan.
+- **Then:** Luồng chính tiếp tục tại BF-04: Lưu unresolved state, evidence snapshot, protection và escalation SLA/owner.
+
+### AS-UC-17-04-03 — Giữ chưa xác định và escalated — Kết quả cập nhật chưa xác định
+- **Given:** Không rõ protection/escalation metadata đã commit.
+- **When:** Hệ thống phát hiện điều kiện “Kết quả cập nhật chưa xác định” tại BF-04.
+- **Then:** Verify case/operation state trước khi lặp update. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-17` — Phục hồi nghiệp vụ có kết quả chưa xác định.
+- **Domain:** `DOM-IC`.
+- **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IC-05`.
+
 - **Nguồn quyết định:** [Nhóm G10 — Inventory Operation, idempotency và sự kiện](../../../01.knowledge/decisions/decision-register.md#310-g10-inventory-operation-t%C3%ADch-h%E1%BB%A3p-ch%E1%BB%91ng-tr%C3%B9ng-v%C3%A0-k%E1%BA%BFt-qu%E1%BA%A3-ch%C6%B0a-x%C3%A1c-%C4%91%E1%BB%8Bnh); [Nhóm G12 — Cảnh báo, phục hồi, hiệu năng và POS offline](../../../01.knowledge/decisions/decision-register.md#312-g12-s%E1%BB%95-nghi%E1%BB%87p-v%E1%BB%A5-b%C3%A1o-c%C3%A1o-%C4%91%E1%BB%91i-so%C3%A1t-c%E1%BA%A3nh-b%C3%A1o-v%C3%A0-ph%E1%BB%A5c-h%E1%BB%93i)
 - **Bài tri thức liên quan:** [Vòng đời của một inventory operation](../../../01.knowledge/know-how/KB-KGV-027-vong-doi-cua-mot-inventory-operation.md); [Idempotency, phiên bản nguồn và xử lý kết quả chưa xác định](../../../01.knowledge/know-how/KB-KGV-028-idempotency-phien-ban-nguon-va-xu-ly-ket-qua-chua-xac-dinh.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md); [Nhật ký biến động, số dư dẫn xuất và phục hồi sau sự cố](../../../01.knowledge/know-how/KB-KGV-032-movement-ledger-so-du-dan-xuat-va-phuc-hoi-sau-su-co.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-17-04-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-17-04, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-17-04. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-### Nguồn v3.10.1 — UC-17-04 — Giữ chưa xác định và escalated
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW

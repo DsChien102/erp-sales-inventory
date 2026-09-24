@@ -1,83 +1,78 @@
 ---
 id: ENT-IV-02
 type: business-entity
+role: LEDGER
 theme: theme-07
 title: InventoryValueMovement
 owner: BA/SA
 status: FROZEN
-source_baseline: v3.10.1
+aligned_to: ENTITY.template.md
+source_baseline: v3.12.0
 ---
+
 # ENT-IV-02 — InventoryValueMovement
 
-## 1. Ý nghĩa nghiệp vụ
+## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Ledger giá trị bất biến
+Bút ghi giá trị append-only cho một thay đổi carrying value có nguồn. Movement là sự thật giá trị; mọi correction/true-up tạo movement mới thay vì sửa movement cũ.
 
-## 2. Domain sở hữu
+| Thuộc tính | Giá trị |
+|---|---|
+| Vai trò DDD | `LEDGER` |
+| Aggregate Root | `InventoryValueLedger` |
+| Domain sở hữu | `DOM-IV` |
+| Domain không sở hữu | Quantity movement → DOM-IO; GL posting → Theme 9 |
 
-`DOM-IV`.
+### 1.1 Ranh giới Aggregate (Visual)
 
-## 3. Identity
+```mermaid
+classDiagram
+    class InventoryValueLedger { <<AggregateRoot>> }
+    class InventoryValueMovement { <<Ledger>> }
+    InventoryValueLedger "1" *-- "0..*" InventoryValueMovement
+```
 
-FK operation/value batch; monotonic value sequence
+## 2. Identity
 
-## 4. Thuộc tính nghiệp vụ chính
+| Loại | Định danh | Ghi chú |
+|---|---|---|
+| Surrogate | `valueMovementId` | Ổn định suốt vòng đời hồ sơ |
+| Business key | `(tenantId, valueSequence)` | Dùng để nhận diện cùng một sự thật nghiệp vụ, không dùng version kỹ thuật để tạo bản ghi trùng |
 
-| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
-|---|---|---|---|---|---|
-| `value_movement_id` | `UUID` | PK | Bắt buộc | Sinh UUID | — |
-| `value_sequence` | `BIGINT` | UK | Bắt buộc | Cấp tuần tự | Monotonic trong tenant/shard |
-| `valuation_sequence` | `BIGINT` | Chỉ mục ordering chung | Bắt buộc | Cấp từ valuation timeline | Ordering authoritative dùng chung với quantity movement cho costing |
-| `within_transaction_ordinal` | `INTEGER` | — | Bắt buộc | `0` | Thứ tự deterministic của nhiều valuation fact trong cùng transaction |
-| `tenant_id` | `UUID` | FK → `Tenant` | Bắt buộc | — | — |
-| `product_id` | `UUID` | FK → `Product` | Bắt buộc | — | Official value scope |
-| `warehouse_id` | `UUID` | FK → `Warehouse` | Nullable | `NULL` | Bắt buộc khi gắn quantity operation |
-| `operation_line_id` | `UUID` | FK → `InventoryOperationLine` | Nullable | `NULL` | Một trong hai source line |
-| `valuation_adjustment_line_id` | `UUID` | FK → `ValuationAdjustmentLine` | Nullable | `NULL` | Một trong hai source line |
-| `value_type` | `VARCHAR(40)` | — | Bắt buộc | — | Receipt, COGS, return, true-up… |
-| `amount` | `DECIMAL(20,6)` | — | Bắt buộc | — | Signed delta |
-| `currency` | `CHAR(3)` | — | Bắt buộc | — | — |
-| `business_date` | `DATE` | — | Bắt buộc | — | Với direct receipt value: bằng `receipt_business_date` của receipt source; không dùng `recorded_at` hoặc ngày chứng từ thay thế |
-| `recorded_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | — |
-| `accounting_period_id` | `UUID` | FK → `AccountingPeriod` | Bắt buộc | — | Direct receipt value dùng kỳ chứa `receipt_business_date`; kỳ khóa legacy/recovery phải block/escalate, không back-post âm thầm |
-| `original_period_id` | `UUID` | FK → `AccountingPeriod` | Nullable | `NULL` | Kỳ gốc với late/true-up |
-| `source_identity` | `JSONB` | — | Bắt buộc | — | — |
-| `source_identity_hash` | `CHAR(64)` | — | Bắt buộc | — | — |
-| `reversal_of_value_movement_id` | `UUID` | FK → `InventoryValueMovement` | Nullable | `NULL` | Không tự tham chiếu/cycle |
-| `created_by` | `UUID` | FK → `User` | Bắt buộc | — | Actor/system identity |
-| `created_at` | `TIMESTAMPTZ` | — | Bắt buộc | `now()` | Append-only |
+## 3. Thuộc tính nghiệp vụ thuần túy
 
-## 5. Quan hệ
+| Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
+|---|---|---:|---|
+| `productId` | Sản phẩm chịu tác động giá trị | Có | Authority scope tenant+product |
+| `sourceRef` | ReceiptValuation/adjustment/issue/correction gây ra movement | Có | Có source identity |
+| `valueType` | Loại tăng/giảm giá trị | Có | Initial receipt, issue COGS, adjustment, true-up… |
+| `amountVnd` | Số tiền có dấu | Có | VND |
+| `businessDate` | Ngày nghiệp vụ | Có | Không đồng nhất recordedAt |
+| `postingPeriod` | Kỳ ghi nhận | Có | Giữ original period khi cần |
+| `originalPeriod` | Kỳ nguồn nếu posting khác kỳ gốc | Khi cần | Late/locked-period trace |
+| `reversalOf` | Movement bị đảo nếu đây là reversal | Khi correction | Không update movement gốc |
 
-- `Trường`: PK/FK.
-- `tenant_id`: FK → `Tenant`.
-- `product_id`: FK → `Product`.
-- `warehouse_id`: FK → `Warehouse`.
-- `operation_line_id`: FK → `InventoryOperationLine`.
-- `valuation_adjustment_line_id`: FK → `ValuationAdjustmentLine`.
-- `accounting_period_id`: FK → `AccountingPeriod`.
-- `original_period_id`: FK → `AccountingPeriod`.
-- `reversal_of_value_movement_id`: FK → `InventoryValueMovement`.
-- `created_by`: FK → `User`.
+## 4. Hành vi nghiệp vụ cốt lõi
 
-## 6. Lifecycle / trạng thái
+| Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
+|---|---|---|
+| `append()` | Source committed và amount/period valid | InventoryValueMovementAppended |
 
-Không có lifecycle riêng được tách thêm ngoài các quy tắc nguồn ở mục 7.
+## 5. Vòng đời & chuyển dịch trạng thái
 
-## 7. Quy tắc và Điều kiện bắt buộc
+Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. Bản ghi đã commit là bất biến; thay đổi nghiệp vụ tạo fact/version/adjustment mới.
 
-Append-only; đúng một trong `operation_line_id` hoặc `valuation_adjustment_line_id` phải có giá trị. Value-only cấp tenant có thể không có kho nhưng phải giữ allocation basis ở source adjustment.
+## 6. Domain Events phát sinh
 
-## 8. Behavioral Contract / Use Case liên quan
+| Event | Khi nào | Ý nghĩa |
+|---|---|---|
+| `InventoryValueMovementAppended` | append() | Carrying value thay đổi bằng một fact mới |
 
-- `BC-IO-04`
-- `BC-IO-05`
-- `BC-IO-07`
-- `BC-IO-09`
-- `BC-IO-11`
-- `BC-IO-13`
-- `BC-IC-03`
-- `BC-IC-04`
-- `BC-IV-02`
-- `BC-IV-03`
-- `BC-IV-04`
+## 7. Liên kết truy vết
+
+| Loại | ID |
+|---|---|
+| Domain Foundation | `DOM-IV` |
+| Behavioral Contract | `BC-IV-01`, `BC-IV-03`, `BC-IV-04` |
+| Use Case | `UC-03-01`, `UC-13-01`, `UC-14-04` |
+| Quyết định | `T7-DR-055`, `T7-DR-156`, `T7-DR-192` |

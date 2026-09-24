@@ -1,7 +1,5 @@
 ---
-
-## id: DOM-IO
-
+id: DOM-IO
 type: domain-foundation
 theme: theme-07
 title: Inventory Operations
@@ -9,6 +7,7 @@ owner: BA/SA
 status: DRAFT
 sample_of: DOMAIN.template.md
 sample_status: GOLD_STANDARD_SAMPLE
+---
 
 # DOM-IO — Inventory Operations
 
@@ -366,5 +365,5 @@ Nguồn: `specs/themes/theme-07/01.knowledge/decisions/decision-register.md`
 - **Multi-warehouse / IN_TRANSIT / Transfer:** Phase sau — Aggregate intent `StockTransfer` riêng, không nhét vào God Root.
 - **SERIAL tracking:** Aggregate riêng khi mở chính sách `SERIAL`.
 - **Cycle-count lock phân vùng:** thuộc IC / coordination; IO chỉ tuân thủ khi lock active.
-- Chi tiết Dart / RPC / DDL thuộc `04.architecture/` và harness slices — không ghi trong Domain Foundation.
+- Chi tiết Dart / RPC / DDL thuộc Technical Contract dùng chung và thiết kế cục bộ trong Slice — không ghi trong Domain Foundation.
 

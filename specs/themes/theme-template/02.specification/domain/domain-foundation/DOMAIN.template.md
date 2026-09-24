@@ -181,6 +181,6 @@ flowchart TB
 
 ## 9. Điểm chưa chốt
 
-<!-- Optional; chỉ khi DRAFT/IN_REVIEW. Không ghi quyết định kiến trúc Aggregate ở đây — thuộc architecture/. -->
+<!-- Optional; chỉ khi DRAFT/IN_REVIEW. Không ghi quyết định kiến trúc Aggregate ở đây — thuộc domain/aggregates/. -->
 
 - <Mở / Phase sau / Open question>

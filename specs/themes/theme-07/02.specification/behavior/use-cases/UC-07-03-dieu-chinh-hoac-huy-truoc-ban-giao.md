@@ -5,118 +5,138 @@ theme: theme-07
 title: "Điều chỉnh hoặc hủy trước bàn giao"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.10.1
+aligned_to: UC.template.md
+source_baseline: v3.12.0
 ---
+
 # UC-07-03 — Điều chỉnh hoặc hủy trước bàn giao
 
-## 1. Mục tiêu và outcome
+## 1. Mục tiêu và kết quả nghiệp vụ
 
-Điều chỉnh hoặc hủy trước bàn giao để tạo kết quả nghiệp vụ có thể truy vết và kiểm thử độc lập.
+Phản ánh amendment/cancel từ Theme nguồn lên lượng đang chờ trả trước khi bàn giao thực tế.
 
-**Kết quả thành công:** <ul><li>Lượng pending được cập nhật, phần bỏ trả quay về trạng thái nguồn hợp lệ</li><li>Amended/cancelled pending return</li></ul>
+**Kết quả cần đạt:** `RTV_PENDING` được điều chỉnh hoặc giải phóng đúng source version; không phát sinh xuất kho.
 
-## 2. Ranh giới
+## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
 Source giảm lượng hoặc hủy khi chưa bàn giao
 
-### 2.2 Kết thúc khi
+### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-<ul><li>Lượng pending được cập nhật, phần bỏ trả quay về trạng thái nguồn hợp lệ</li><li>Amended/cancelled pending return</li></ul>
+Lượng pending được cập nhật, phần bỏ trả quay về trạng thái nguồn hợp lệ; Amended/cancelled pending return.
 
 ### 2.3 Không bao gồm
 
-Phạm vi không thuộc UC được giữ theo BJ cha và các contract nguồn; migration không bổ sung negative scope mới.
+Không sửa lịch sử của lần chuẩn bị cũ sau khi đã bàn giao. UC chỉ cho phép điều chỉnh hoặc hủy phần chờ trả khi hàng vẫn còn thuộc quyền kiểm soát của tenant.
 
-## 3. Actor, trigger và điều kiện trước
+## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Actor:** System process; Purchase/source phát source version mới
-- **Trigger:** Source giảm lượng hoặc hủy khi chưa bàn giao
-- **Điều kiện trước:** Quyền chức năng và phạm vi dữ liệu hợp lệ; tenant/store/warehouse đúng ngữ cảnh; nguồn, policy và lifecycle cho phép thực hiện.
+- **Tác nhân chính:** System process; Purchase/source phát source version mới.
+- **Thẩm quyền:** Chỉ tác nhân hoặc system process có quyền thực thi đúng scope mới được commit; mọi guard về source/version, policy và lifecycle phải được server kiểm lại trước effect.
+- **Sự kiện khởi phát:** Source giảm lượng hoặc hủy khi chưa bàn giao.
+- **Điều kiện trước:** Đối tượng đúng version đã đạt trạng thái sẵn sàng thực thi; quyền, policy, lock và các invariant nguồn còn hợp lệ tại thời điểm commit.
 
-## 4. Hành vi nghiệp vụ
+## 4. Đối tượng và dữ liệu nghiệp vụ
 
-### Điều kiện đầu vào và định danh
+| Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
+|---|---|---|
+| Nguồn nghiệp vụ và phiên bản | Định danh nguồn/đối tượng nghiệp vụ và phiên bản hiện hành cần dùng để tránh xử lý trên dữ liệu cũ. | DOM-IO / BC liên quan |
+| Dữ liệu nghiệp vụ | Các dữ kiện người dùng/nguồn cung cấp cho mục tiêu của Use Case; phải tuân theo rule ở mục 6. | DOM-IO / BC liên quan |
+| Phạm vi thực hiện | Tác nhân và phạm vi tenant/cửa hàng/kho mà yêu cầu được phép xử lý. | DOM-IO / BC liên quan |
 
-Command envelope dùng chung; source/aggregate ID và version; payload nghiệp vụ; idempotency key; actor, tenant, store và warehouse scope.
+## 5. Các luồng của Use Case
 
-### Quy tắc và bất biến
+### 5.1 Luồng chính (Basic Flow)
 
-<ul><li>Giới hạn lượng: Lượng trả không vượt đồng thời lượng còn được source cho phép và lượng tenant thực có theo đúng sản phẩm/lô</li><li>Nguồn nhập: Giữ liên kết đến receipt/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới</li><li>Mốc loại khỏi khả dụng: Khi supplier return đã được chấp thuận và lượng chuyển RTV_PENDING</li><li>Mốc giảm vật lý: Chỉ khi có bằng chứng bàn giao thực tế; tạo hồ sơ chờ trả không giảm physical</li><li>Sửa trước bàn giao: Không sửa trực tiếp payload đã khóa; source version mới tạo thay đổi có truy vết và chỉ giải phóng phần chưa bàn giao</li><li>Giá trị: Giảm theo official cost có hiệu lực; giá nhà cung cấp chấp thuận và chênh lệch chỉ là accounting handoff</li></ul>
-
-## 5. Ngoại lệ và thất bại
-
-**Không thành công:** <ul><li>Yêu cầu bị từ chối có mã/lý do rõ ràng.</li><li>Không tạo tác động authoritative ngoài draft hoặc bằng chứng được hợp đồng cho phép.</li><li>Dữ liệu nhập được giữ lại khi việc sửa và thử lại là an toàn.</li></ul>
-
-**Chưa xác định:** <ul><li>Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp.</li></ul>
-
-## 6. Ảnh hưởng nghiệp vụ
-
-System áp source delta qua `BC-IO-17`: chỉ affected allocation reset; remove/cancel release exact source slices về original stock state.
-
-**Kiểm toán:** Lưu actor, thời điểm nghiệp vụ/ghi nhận, source/version, correlation ID và bằng chứng quyết định áp dụng.
-
-## 7. Behavioral Contract
-
-- **Hợp đồng dùng chung:** [SBC-COM-01 — Bao yêu cầu và định danh](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-02 — Quyền, phạm vi và điều kiện cần](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-03 — Kết quả và phục hồi](../behavioral-contracts/BC-COMMON-EXTENSIONS.md); [SBC-COM-04 — Finality và tính nguyên tử](../behavioral-contracts/BC-COMMON-EXTENSIONS.md)
-- **Hợp đồng hành vi chính:** [BC-IO-17 — Synchronize supplier-return authorization](../behavioral-contracts/BC-IO-17.md)
-
-## 8. Screen liên quan
-
-| Thuộc tính | Nội dung |
-|---|---|
-| Màn hình liên quan | [SCR-036](../../../03.design/screens/SCR-036.md); [SCR-037](../../../03.design/screens/SCR-037.md). UI chỉ hiển thị business delta/waiting state; không có manual restore screen. |
-| Quy tắc sở hữu | Có thể dùng chung màn hình với UC khác. UI Contract được viết một lần theo bề mặt; file này chỉ sở hữu hành vi và lát nghiệm thu của UC. |
-| Các trạng thái của màn hình | READY, LOADING/PROCESSING, VALIDATION_ERROR, PERMISSION_DENIED, CONFLICT/STALE và trạng thái kết quả tương ứng. Chỉ khai state thật sự có ý nghĩa với màn hình. |
-| Hành động | Mỗi CTA mutation liên kết đúng một Action ID → UC/BC → API; action không đủ quyền không xuất hiện. |
-| Phản hồi | Nêu rõ điều vừa xảy ra, tác động dữ liệu và bước tiếp theo; giữ input ở validation/conflict/UNKNOWN khi an toàn. |
-| Khả năng sử dụng | Mobile-first; tên màn hình thấy trước khi chọn; touch target tối thiểu 44 px; không dùng chỉ màu để truyền trạng thái. |
-
-## 9. Acceptance Scenarios
-
-| ID | Given | When | Then |
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AS-UC-07-03-01 | Có monotonic source version mới trước handover | Hệ thống đồng bộ source delta | Chỉ allocation bị add/change/remove/cancel được cập nhật/reset; phần remove/cancel quay về exact original stock state; unaffected verification được giữ. |
-| AS-UC-07-03-02 | Thiếu quyền, sai phạm vi, source stale hoặc dữ liệu vi phạm rule | Yêu cầu được gửi | Bị từ chối trước tác động authoritative; trả mã lỗi và hướng khắc phục an toàn. |
-| AS-UC-07-03-03 | Cùng định danh yêu cầu được gửi lại | Adapter hoặc người dùng thử lại | Trả cùng kết quả đã có hoặc conflict payload; không tạo tác động trùng. |
-| AS-UC-07-03-04 | Không đủ bằng chứng về kết quả cuối | Client timeout hoặc xử lý bị gián đoạn | Nếu chưa chứng minh được commit/no-commit, trả UNKNOWN; giữ nguyên operation/idempotency identity và đối soát trước mọi lần thử tiếp. |
+| BF-01 | Hệ thống | Nhận source version mới thể hiện giảm lượng, đổi phạm vi hoặc hủy trả NCC. |  |
+| BF-02 | Hệ thống | So sánh với pending scope hiện hành và xác định phần chưa bàn giao còn có thể điều chỉnh. | EF-A — Đã bàn giao/finality không cho sửa |
+| BF-03 | Hệ thống | Cập nhật hoặc giải phóng `RTV_PENDING` theo source version mới; giữ audit phiên bản cũ. | EF-B — Kết quả điều chỉnh chưa xác định |
+| BF-04 | Hệ thống | Trả pending scope mới cho bề mặt chuẩn bị trả. |  |
+| BF-05 | — | [Kết thúc UC]. | |
+
+### 5.2 Luồng thay thế (Alternate Flow)
+
+Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể hiện trong Luồng chính.
+
+### 5.3 Luồng ngoại lệ (Exception Flow)
+
+#### EF-A — Đã bàn giao hoặc finality không cho sửa
+**Phát sinh tại:** BF-02. **Điều kiện:** Phần hàng tương ứng đã được bàn giao/ghi xuất .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-A-01 | Hệ thống | Không đảo ngược bằng cách sửa pending; yêu cầu correction/return flow phù hợp. | |
+| EF-A-02 | — | [Kết thúc UC.] | |
+
+#### EF-B — Kết quả điều chỉnh chưa xác định
+**Phát sinh tại:** BF-03. **Điều kiện:** Không rõ pending update đã commit .
+
+| Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
+|---|---|---|---|
+| EF-B-01 | Hệ thống | Verify cùng source version/identity trước retry. | |
+| EF-B-02 | — | [Kết thúc/hand-off recovery.] | |
+
+## 6. Quy tắc nghiệp vụ và Behavioral Contract
+
+| Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
+|---|---|---|---|
+| BR-01 | Giới hạn lượng | Lượng trả không vượt đồng thời lượng còn được source cho phép và lượng tenant thực có theo đúng sản phẩm/lô| Decision / DOM-IO / BC nguồn |
+| BR-02 | Nguồn nhập | Giữ liên kết đến receipt/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới| Decision / DOM-IO / BC nguồn |
+| BR-03 | Mốc loại khỏi khả dụng | Khi supplier return đã được chấp thuận và lượng chuyển RTV_PENDING| Decision / DOM-IO / BC nguồn |
+| BR-04 | Mốc giảm vật lý | Chỉ khi có bằng chứng bàn giao thực tế; tạo hồ sơ chờ trả không giảm physical| Decision / DOM-IO / BC nguồn |
+| BR-05 | Sửa trước bàn giao | Không sửa trực tiếp payload đã khóa; source version mới tạo thay đổi có truy vết và chỉ giải phóng phần chưa bàn giao| Decision / DOM-IO / BC nguồn |
+| BR-06 | Giá trị | Giảm theo official cost có hiệu lực; giá nhà cung cấp chấp thuận và chênh lệch chỉ là accounting handoff| Decision / DOM-IO / BC nguồn |
+
+- `SBC-COM-01` — Bao yêu cầu và định danh.
+- `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
+- `SBC-COM-02` — Quyền, phạm vi và điều kiện cần.
+- `SBC-COM-03` — Kết quả và hướng phục hồi.
+- `SBC-COM-04` — Finality và tính nguyên tử.
+- `BC-IO-17` — Synchronize supplier-return authorization.
+
+## 7. Kết quả và điều kiện sau
+
+| Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
+|---|---|---|
+| Thành công | `RTV_PENDING` được điều chỉnh hoặc giải phóng đúng source version; không phát sinh xuất kho. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
+| Không đủ điều kiện / Bị từ chối | Nếu precondition, version, quyền hoặc invariant không còn hợp lệ, hệ thống từ chối trước effect; nếu finality chưa rõ thì giữ cùng operation identity để recovery. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
+| Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
+
+**Ảnh hưởng nghiệp vụ chính:** `RTV_PENDING` được điều chỉnh hoặc giải phóng đúng source version; không phát sinh xuất kho.
+
+## 8. Liên hệ giao diện
+
+| Screen | Vai trò trong UC |
+|---|---|
+| `SCR-036` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều chỉnh hoặc hủy trước bàn giao”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+| `SCR-037` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều chỉnh hoặc hủy trước bàn giao”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+
+## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
+
+### AS-UC-07-03-01 — Điều chỉnh hoặc hủy trước bàn giao — luồng chính
+- **Given:** Source giảm lượng hoặc hủy khi chưa bàn giao
+- **When:** Nhận source version mới thể hiện giảm lượng, đổi phạm vi hoặc hủy trả NCC.
+- **Then:** `RTV_PENDING` được điều chỉnh hoặc giải phóng đúng source version; không phát sinh xuất kho.
+
+### AS-UC-07-03-02 — Điều chỉnh hoặc hủy trước bàn giao — Đã bàn giao hoặc finality không cho sửa
+- **Given:** Phần hàng tương ứng đã được bàn giao/ghi xuất.
+- **When:** Hệ thống phát hiện điều kiện “Đã bàn giao hoặc finality không cho sửa” tại BF-02.
+- **Then:** Không đảo ngược bằng cách sửa pending; yêu cầu correction/return flow phù hợp. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
+
+### AS-UC-07-03-03 — Điều chỉnh hoặc hủy trước bàn giao — Kết quả điều chỉnh chưa xác định
+- **Given:** Không rõ pending update đã commit.
+- **When:** Hệ thống phát hiện điều kiện “Kết quả điều chỉnh chưa xác định” tại BF-03.
+- **Then:** Verify cùng source version/identity trước retry. Giữ nguyên identity/evidence hiện có và bàn giao recovery/finality; không tạo effect trùng hoặc thử lại mù.
 
 ## 10. Truy vết
 
+- **Journey:** `BJ-07` — Thực hiện trả hàng cho nhà cung cấp.
+- **Domain:** `DOM-IO`.
+- **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IO-17`.
+
 - **Nguồn quyết định:** [Nhóm G06 — Trả hàng, hết hạn và loại bỏ](../../../01.knowledge/decisions/decision-register.md#36-g06-tr%E1%BA%A3-h%C3%A0ng-tr%E1%BA%A1ng-th%C3%A1i-h%E1%BA%BFt-h%E1%BA%A1n-v%C3%A0-ti%C3%AAu-h%E1%BB%A7y)
 - **Bài tri thức liên quan:** [Trả hàng cho nhà cung cấp](../../../01.knowledge/know-how/KB-KGV-013-tra-hang-cho-nha-cung-cap.md); [Chọn hàng để xuất và thời điểm hoàn tất xuất bán](../../../01.knowledge/know-how/KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban.md); [Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md)
-
-| Phạm vi | Cách dùng |
-|---|---|
-| BA | [BJ-07 — Thực hiện trả hàng cho nhà cung cấp](../journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
-| BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
-| FE | Giao theo work package của BJ; trong package đó, UC này là một lát nghiệm thu theo màn hình × state × action. |
-| QA | Tạo test từ AS-UC-07-03-*, BC test prefix và rule/bất biến ở phần 2. |
-| Harness | Dùng ID ổn định UC-07-03, các BC/API/test prefix và link tương đối làm seed; registry không sao chép quy tắc. |
-
-> File này là nguồn đặc tả của UC-07-03. Business Journey chỉ giữ flow đầu-cuối; UI Contract chỉ giữ cấu trúc/trạng thái bề mặt; hợp đồng dùng chung chỉ được định nghĩa một lần.
-
-
-
-## Amendment v1.3.9 — Granular source change
-- Source quantity/LOT/add/remove change tạo source version mới và business-facing delta.
-- Chỉ physical verification của affected allocations bị reset; unaffected verified evidence giữ nguyên.
-- Source remove giải phóng phần pending bị bỏ; source cancel giải phóng toàn bộ pending chưa bàn giao và đóng task. Đây là system-owned release, không có warehouse action “khôi phục trạng thái”.
-- Nếu source đổi sau khi đã vào final review, commit bị block và quay về preparation để verify phần bị ảnh hưởng.
-
-
-## Amendment v1.4.0 — Granular source amendment/cancel
-- Stable `source_allocation_id` quyết định granular invalidation; không reset toàn request khi chỉ một allocation đổi.
-- Source remove/cancel giải phóng đúng unhanded quantity theo original source slices; không yêu cầu Thủ kho bấm “khôi phục trạng thái”.
-- Structured physical observation từ SCR-037 không tự mutate source; task chờ Purchase/source phát version mới.
-
-### Nguồn v3.10.1 — UC-07-03 — Điều chỉnh hoặc hủy trước bàn giao
-
-> **Phiên bản:** 4.1.0  
-> **Loại:** Trường hợp sử dụng  
-> **Hành trình nghiệp vụ:** [BJ-07 — Thực hiện trả hàng cho nhà cung cấp](../journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md)  
-> **Trạng thái:** SPECIFIED_FOR_REVIEW
-
-
-> **Control/UI amendment v1.3.4:** Source-version change được hệ thống áp cho phần chưa bàn giao; không dùng generic manual `Chuyển trạng thái`/release form trong active BJ-07 UI.

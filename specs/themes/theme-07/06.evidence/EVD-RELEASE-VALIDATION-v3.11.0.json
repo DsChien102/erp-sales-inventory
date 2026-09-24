@@ -1,0 +1,56 @@
+{
+  "id": "EVD-RELEASE-VALIDATION-v3.11.0",
+  "theme": "theme-07",
+  "version": "3.11.0",
+  "parent": "3.10.1",
+  "scope": "structure-only migration",
+  "gates": [
+    {
+      "gate_id": "BASELINE",
+      "status": "PASS",
+      "evidence": "parent theme-07.zip = v3.10.1; impact set restricted to structure/path/version/derived metadata"
+    },
+    {
+      "gate_id": "STRUCTURE",
+      "status": "PASS",
+      "evidence": "new V45-Theme skeleton directories present; legacy top-level 04.architecture, 05. harness, 06.procedures, 07.evidence absent"
+    },
+    {
+      "gate_id": "MIGRATION_PRESERVATION",
+      "status": "PASS",
+      "evidence": "6837/7025 mapped source files byte-identical; 188 changed for path/link/version/derived metadata; ENT-IO files changed=0; DOM-IO changed only for structure reference"
+    },
+    {
+      "gate_id": "LINKS",
+      "status": "PASS",
+      "evidence": "canonical broken internal Markdown links=0; historical evidence retains 194 inherited broken links, parent had 201"
+    },
+    {
+      "gate_id": "PACKAGE_DIFF",
+      "status": "PASS",
+      "evidence": "audit_package_diff unexpected_changes=0"
+    },
+    {
+      "gate_id": "PROTOTYPE_STATIC_SMOKE",
+      "status": "PASS",
+      "evidence": "Node syntax PASS for core JS; index.html has 88 local asset refs and 0 missing; core runtime files present"
+    },
+    {
+      "gate_id": "LEGACY_PROTOTYPE_VALIDATOR",
+      "status": "BLOCKED",
+      "evidence": "current_package_validation_v3101.py hard-codes old repository path specs/themes/theme-07 and cannot run against standalone migrated package; script intentionally not modified in structure-only migration"
+    },
+    {
+      "gate_id": "SEMANTIC_REGRESSION",
+      "status": "NOT_RUN",
+      "evidence": "No semantic change is permitted in v3.11.0; semantic review is inherited from parent and will be rerun in the subsequent BJ/UC refactor version"
+    },
+    {
+      "gate_id": "ARCHIVE",
+      "status": "PASS",
+      "evidence": "pre-final archive CRC passed and post-extract tree matched candidate exactly; final archive is revalidated after checksum regeneration"
+    }
+  ],
+  "verdict": "STRUCTURE_MIGRATION_PASS_WITH_INHERITED_VALIDATOR_LIMIT",
+  "release_claim": "Not RELEASE_READY; candidate is a structure-only parent for the next semantic refactor."
+}
