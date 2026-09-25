@@ -72,6 +72,8 @@ export 'src/sales_receipt/commands/record_sales_receipt_shared/record_sales_rece
 export 'src/sales_receipt/ports/i_sales_receipt_gateway.dart';
 export 'src/sales_receipt/queries/get_sales_receipt/get_sales_receipt_query.dart';
 export 'src/sales_receipt/queries/get_sales_receipt/get_sales_receipt_query_handler.dart';
+export 'src/sales_receipt/queries/get_sales_order_original_receipt/get_sales_order_original_receipt_query.dart';
+export 'src/sales_receipt/queries/get_sales_order_original_receipt/get_sales_order_original_receipt_query_handler.dart';
 export 'src/return_exchange_order/commands/cancel_return_exchange/cancel_return_exchange_command.dart';
 export 'src/return_exchange_order/commands/cancel_return_exchange/cancel_return_exchange_command_handler.dart';
 export 'src/return_exchange_order/commands/cancel_return_exchange/cancel_return_exchange_command_validator.dart';

@@ -128,6 +128,46 @@ void main() {
       expect(gateway.getCalls, 0);
     });
 
+    test('original receipt query returns the as-sold document', () async {
+      final gateway = FakeSalesReceiptGateway(receipt: _receipt);
+      final handler = GetSalesOrderOriginalReceiptQueryHandler(
+        permissionChecker: _AllowAllPermissionChecker(),
+        receiptGateway: gateway,
+      );
+
+      final document = await handler.handle(
+        GetSalesOrderOriginalReceiptQuery(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          salesOrderId: 'order-1',
+        ),
+      );
+
+      expect(document.receiptNumber, 'PBH-20260812-0129');
+      expect(gateway.getOriginalCalls, 1);
+      expect(gateway.generateCalls, 0);
+    });
+
+    test('original receipt query enforces receipt view permission', () async {
+      final gateway = FakeSalesReceiptGateway(receipt: _receipt);
+      final handler = GetSalesOrderOriginalReceiptQueryHandler(
+        permissionChecker: _DenyPermissionChecker(),
+        receiptGateway: gateway,
+      );
+
+      await expectLater(
+        handler.handle(
+          GetSalesOrderOriginalReceiptQuery(
+            tenantId: 'tenant-1',
+            actorId: 'actor-1',
+            salesOrderId: 'order-1',
+          ),
+        ),
+        throwsA(isA<SalesContractException>()),
+      );
+      expect(gateway.getOriginalCalls, 0);
+    });
+
     test('original order total stays independent of settlement adjustment', () async {
       final receipt = SalesReceiptDto(
         receiptId: 'receipt-return',

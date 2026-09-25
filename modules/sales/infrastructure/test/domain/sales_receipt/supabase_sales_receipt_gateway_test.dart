@@ -43,6 +43,29 @@ void main() {
       expect(dto.document.settlementSnapshot, isNull);
     });
 
+    test('original receipt maps the as-sold document without receipt envelope', () async {
+      final rpc = _FakeRpcClient(
+        response: Map<String, dynamic>.from(_receiptJson()['document'] as Map),
+      );
+      final gateway = SupabaseSalesReceiptGateway(rpcClient: rpc);
+
+      final document = await gateway.getOriginalReceipt(
+        GetSalesOrderOriginalReceiptQuery(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          salesOrderId: 'order-1',
+        ),
+      );
+
+      expect(rpc.lastProcedure, 'get_sales_order_original_receipt');
+      expect(rpc.lastParams?['p_query_id'], isA<String>());
+      expect(rpc.lastParams?['p_tenant_id'], 'tenant-1');
+      expect(rpc.lastParams?['p_actor_id'], 'actor-1');
+      expect(rpc.lastParams?['p_sales_order_id'], 'order-1');
+      expect(document.lines, hasLength(1));
+      expect(document.settlementSnapshot, isNull);
+    });
+
     test('settlementSnapshot does not replace original orderTotal', () async {
       final json = _receiptJson();
       final document = Map<String, dynamic>.from(json['document'] as Map);

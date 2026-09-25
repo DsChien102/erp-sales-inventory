@@ -139,6 +139,44 @@ void main() {
     expect(cubit.state.settlement?.receivableReverseMinor, 150000);
   });
 
+  test('walk-in collect cannot leave an outstanding balance as debt', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(plan: collectPlan),
+      valuation: valuationFor(collectPlan),
+      walkIn: true,
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.isWalkIn, isTrue);
+    expect(cubit.state.canConfirm, isTrue);
+
+    cubit.updateSettledNow(100000);
+    cubit.updatePaymentDueDate(DateTime(2026, 9, 30));
+
+    expect(cubit.state.canConfirm, isFalse);
+    expect(await cubit.confirm(), isNull);
+    expect(module.commands, isEmpty);
+  });
+
+  test('identified customer may defer collect shortfall with a due date', () async {
+    final cubit = build(
+      _RecordingSalesModule(
+        detail: detail(plan: collectPlan),
+        valuation: valuationFor(collectPlan),
+      ),
+    );
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.isWalkIn, isFalse);
+    cubit.updateSettledNow(100000);
+    expect(cubit.state.canConfirm, isFalse);
+    cubit.updatePaymentDueDate(DateTime(2026, 9, 30));
+    expect(cubit.state.canConfirm, isTrue);
+  });
+
   test('maps collect and zero plans from backend DTO amounts only', () async {
     final collect = build(
       _RecordingSalesModule(
@@ -323,51 +361,34 @@ void main() {
     expect(cubit.state.status, SalesReturnExchangeSettlementStatus.failure);
   });
 
-  test('debt offset dynamic calculations follow state and authoritative amounts', () {
-    const debtPlan = ReturnExchangeSettlementPlanDto(
+  test('refund plan keeps the server split of refund and order debt reduction', () {
+    const plan = ReturnExchangeSettlementPlanDto(
       currencyCode: 'VND',
-      netDifferenceMinor: -2350000,
+      netDifferenceMinor: -400000,
       collectAmountMinor: 0,
-      refundAmountMinor: 2350000,
+      refundAmountMinor: 100000,
       receivableCreateAmountMinor: 0,
-      receivableReverseAmountMinor: 1200000,
+      receivableReverseAmountMinor: 300000,
       processedCollectMinor: 0,
       processedRefundMinor: 0,
       pendingReceivableCreateMinor: 0,
-      pendingReceivableReverseMinor: 1200000,
+      pendingReceivableReverseMinor: 0,
       remainderCollectMinor: 0,
-      remainderRefundMinor: 2350000,
+      remainderRefundMinor: 100000,
       sourceOrderVersion: 1,
       sourceSettlementVersion: 1,
     );
 
-    final withOffset = SalesReturnExchangeSettlementState(
+    final state = SalesReturnExchangeSettlementState(
       orderId: 'order-1',
       returnExchangeId: 'return-1',
-      valuation: valuationFor(debtPlan),
+      valuation: valuationFor(plan),
       status: SalesReturnExchangeSettlementStatus.ready,
-      offsetDebt: true,
     );
 
-    expect(withOffset.actualOffsetMinor, 1200000);
-    expect(withOffset.effectiveRefundMinor, 1150000);
-    expect(withOffset.remainingDebtMinor, 0);
-
-    final withoutOffset = withOffset.copyWith(offsetDebt: false);
-    expect(withoutOffset.actualOffsetMinor, 0);
-    expect(withoutOffset.effectiveRefundMinor, 2350000);
-    expect(withoutOffset.remainingDebtMinor, 1200000);
-  });
-
-  test('updateOffsetDebt toggles state on the cubit', () {
-    final cubit = build(_RecordingSalesModule(detail: detail(plan: refundPlan)));
-    addTearDown(cubit.close);
-
-    expect(cubit.state.offsetDebt, isTrue);
-    cubit.updateOffsetDebt(false);
-    expect(cubit.state.offsetDebt, isFalse);
-    cubit.updateOffsetDebt(true);
-    expect(cubit.state.offsetDebt, isTrue);
+    expect(state.effectiveSettlement!.storeRefundMinor, 100000);
+    expect(state.effectiveSettlement!.receivableReverseMinor, 300000);
+    expect(state.canConfirm, isTrue);
   });
 }
 
@@ -378,9 +399,11 @@ final class _RecordingSalesModule implements ISalesModule {
     this.evaluateError,
     this.confirmResult,
     this.commandErrorsQueue = const <Object?>[],
+    this.walkIn = false,
   }) : valuation = valuation ?? detail.valuation;
 
   final ReturnExchangeDetailDto detail;
+  final bool walkIn;
   final ReturnExchangeValuationDto valuation;
   final Object? evaluateError;
   final ReturnExchangeResultDto? confirmResult;
@@ -414,10 +437,12 @@ final class _RecordingSalesModule implements ISalesModule {
           actorId: 'seller-1',
           displayName: 'Nhân viên bán hàng',
         ),
-        customer: const CustomerSnapshotDto(
-          customerId: 'cust-1',
-          displayName: 'Nguyễn Văn An',
-        ),
+        customer: walkIn
+            ? null
+            : const CustomerSnapshotDto(
+                customerId: 'cust-1',
+                displayName: 'Nguyễn Văn An',
+              ),
         lines: const [],
       ) as TResult;
     }

@@ -63,6 +63,20 @@ class SalesOrderDetailCubit extends Cubit<SalesOrderDetailState> {
     return receipt.value;
   }
 
+  /// As-sold receipt for the «Đơn gốc» tab. Read-only: it has no receipt id,
+  /// so print/share of it records no receipt activity.
+  Future<SalesReceiptDocumentDto> viewOriginalReceipt() async {
+    final tenantId = await executionContext.requireTenantId();
+    final actorId = await executionContext.requireUserId();
+    return salesModule.executeQueryAsync<SalesReceiptDocumentDto>(
+      GetSalesOrderOriginalReceiptQuery(
+        tenantId: tenantId,
+        actorId: actorId,
+        salesOrderId: orderId,
+      ),
+    );
+  }
+
   Future<void> printReceipt(SalesReceiptDeviceAction action) => _receiptOps.printReceipt(action);
 
   Future<void> shareReceipt(SalesReceiptDeviceAction action) => _receiptOps.shareReceipt(action);

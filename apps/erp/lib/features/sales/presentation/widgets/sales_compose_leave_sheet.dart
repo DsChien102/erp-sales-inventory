@@ -52,7 +52,7 @@ class _SalesComposeLeaveSheetBody extends StatelessWidget {
             key: const Key('btn_compose_leave_save'),
             icon: VIcons.save,
             title: 'Lưu nháp và đóng',
-            subtitle: 'Lưu thay đổi rồi mở danh sách đơn nháp',
+            subtitle: 'Lưu thay đổi rồi thoát',
             onTap: () => Navigator.of(context).pop(
               SalesComposeLeaveAction.saveAndClose,
             ),

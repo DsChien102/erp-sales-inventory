@@ -463,6 +463,24 @@ void main() {
       expect(identical(receipt, cubit.state.receipt.value), isTrue);
     });
 
+    test('viewOriginalReceipt reads the as-sold receipt without the stored receipt flow', () async {
+      final module = _RecordingSalesModule();
+      final cubit = _buildCubit(module: module);
+      addTearDown(cubit.close);
+      await cubit.load();
+      await _drain();
+
+      final document = await cubit.viewOriginalReceipt();
+
+      final query = module.queries.whereType<app.GetSalesOrderOriginalReceiptQuery>().single;
+      expect(query.salesOrderId, 'order-1');
+      expect(query.tenantId, 'tenant-1');
+      expect(query.actorId, 'actor-1');
+      expect(document.receiptNumber, _receipt().document.receiptNumber);
+      expect(module.queries.whereType<app.GetSalesReceiptQuery>(), isEmpty);
+      expect(module.commands, isEmpty);
+    });
+
     test('prints on the device before recording receipt activity', () async {
       final module = _RecordingSalesModule();
       final cubit = _buildCubit(module: module);
@@ -1280,6 +1298,9 @@ final class _RecordingSalesModule implements app.ISalesModule {
       final error = returnExchangePrecheckError;
       if (error != null) throw error;
       return returnExchangePrecheck as TResult;
+    }
+    if (query is app.GetSalesOrderOriginalReceiptQuery) {
+      return _receipt().document as TResult;
     }
     if (query is app.GetSalesReceiptQuery) {
       return _unwrap(getReceiptResponse);

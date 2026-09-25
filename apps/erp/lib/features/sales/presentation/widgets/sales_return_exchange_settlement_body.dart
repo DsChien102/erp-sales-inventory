@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
 
@@ -15,7 +16,6 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
     this.onSettledNowChanged,
     this.onDueDateChanged,
     this.onMethodChanged,
-    this.onOffsetDebtChanged,
   });
 
   final SalesReturnExchangeSettlementState state;
@@ -29,9 +29,6 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
 
   /// Notifies the chosen collection method.
   final ValueChanged<SalesPaymentMethod>? onMethodChanged;
-
-  /// Notifies whether to offset existing customer debt in a refund flow.
-  final ValueChanged<bool>? onOffsetDebtChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -81,17 +78,16 @@ class SalesReturnExchangeSettlementBody extends StatelessWidget {
         return _ReadyBody(
           orderNumber: state.orderNumber,
           customerDisplayName: state.customerDisplayName,
+          isWalkIn: state.isWalkIn,
           settlement: settlement,
           valuation: state.valuation,
           screenError: state.screenError,
           onRetry: onRetry,
           dueDate: state.paymentDueDate,
           method: state.paymentMethod,
-          offsetDebt: state.offsetDebt,
           onSettledNowChanged: onSettledNowChanged,
           onDueDateChanged: onDueDateChanged,
           onMethodChanged: onMethodChanged,
-          onOffsetDebtChanged: onOffsetDebtChanged,
         );
     }
   }
@@ -147,32 +143,30 @@ class _ReadyBody extends StatefulWidget {
   const _ReadyBody({
     required this.orderNumber,
     this.customerDisplayName = '',
+    this.isWalkIn = false,
     required this.settlement,
     required this.valuation,
     required this.screenError,
     required this.onRetry,
     required this.dueDate,
     required this.method,
-    required this.offsetDebt,
     required this.onSettledNowChanged,
     required this.onDueDateChanged,
     required this.onMethodChanged,
-    required this.onOffsetDebtChanged,
   });
 
   final String orderNumber;
   final String customerDisplayName;
+  final bool isWalkIn;
   final SalesReturnExchangeSettlementVm settlement;
   final ReturnExchangeValuationDto? valuation;
   final String? screenError;
   final VoidCallback? onRetry;
   final DateTime? dueDate;
   final SalesPaymentMethod method;
-  final bool offsetDebt;
   final ValueChanged<int>? onSettledNowChanged;
   final ValueChanged<DateTime?>? onDueDateChanged;
   final ValueChanged<SalesPaymentMethod>? onMethodChanged;
-  final ValueChanged<bool>? onOffsetDebtChanged;
 
   @override
   State<_ReadyBody> createState() => _ReadyBodyState();
@@ -182,9 +176,6 @@ class _ReadyBodyState extends State<_ReadyBody> {
   late final TextEditingController _amountController;
   bool _planExpanded = false;
 
-  late bool _offsetDebt;
-  bool _debtExpanded = false;
-
   static const _methods = <SalesPaymentMethod>[
     SalesPaymentMethod.cash,
     SalesPaymentMethod.manualBankTransfer,
@@ -193,7 +184,6 @@ class _ReadyBodyState extends State<_ReadyBody> {
   @override
   void initState() {
     super.initState();
-    _offsetDebt = widget.offsetDebt;
     _amountController = TextEditingController(
       text: MoneyFormatter.formatMinorPlain(_primaryAmountMinor),
     )..addListener(_onAmountChanged);
@@ -204,9 +194,6 @@ class _ReadyBodyState extends State<_ReadyBody> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.settlement != widget.settlement) {
       _amountController.text = MoneyFormatter.formatMinorPlain(_primaryAmountMinor);
-    }
-    if (oldWidget.offsetDebt != widget.offsetDebt) {
-      _offsetDebt = widget.offsetDebt;
     }
   }
 
@@ -277,8 +264,9 @@ class _ReadyBodyState extends State<_ReadyBody> {
 
   bool get _isCollect => widget.settlement.customerCollectMinor > 0;
 
-  bool get _isZeroDifference =>
-      widget.settlement.customerCollectMinor == 0 && widget.settlement.storeRefundMinor == 0;
+  // A return on an unpaid order refunds nothing but still reduces the order
+  // debt, so only a zero net difference means "no difference".
+  bool get _isZeroDifference => widget.settlement.netDifferenceMinor == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -339,193 +327,97 @@ class _ReadyBodyState extends State<_ReadyBody> {
                     ],
                   )
                 : !_isCollect
-                ? Builder(
-                    builder: (context) {
-                      final int receivableReverse = widget.settlement.receivableReverseMinor;
-                      final bool hasDebt = receivableReverse > 0;
-                      final int actualOffset = (hasDebt && _offsetDebt)
-                          ? (widget.settlement.storeRefundMinor >= receivableReverse
-                                ? receivableReverse
-                                : widget.settlement.storeRefundMinor)
-                          : 0;
-                      final int actualRefund = widget.settlement.storeRefundMinor - actualOffset;
-                      final int remainingDebt = receivableReverse - actualOffset;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          VCard(
-                            backgroundColor: colors.surfaceAlt,
-                            border: Border.all(color: colors.borderDefault),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: VSpacing.space3,
-                              vertical: VSpacing.space3,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                VText(
-                                  hasDebt && _offsetDebt
-                                      ? 'Hoàn tiền trước xử lý'
-                                      : 'Số tiền cần hoàn',
-                                  variant: VTextVariant.bodyDefault,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                VText(
-                                  MoneyFormatter.formatMinor(widget.settlement.storeRefundMinor),
-                                  variant: VTextVariant.bodyDefault,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Server split (Sales): refund up to what was collected; the
+                      // rest reduces this order's own debt. Cross-order debt offset
+                      // belongs to Receivable, so the switch below is locked.
+                      _highlightAmount(context),
+                      if (widget.settlement.receivableReverseMinor > 0) ...[
+                        const VGap.sm(),
+                        VCard(
+                          key: const Key('wgt_sg12_debt_reduction'),
+                          backgroundColor: colors.surfaceAlt,
+                          border: Border.all(color: colors.borderDefault),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: VSpacing.space3,
+                            vertical: VSpacing.space3,
                           ),
-                          if (hasDebt) ...[
-                            const VGap.md(),
-                            Row(
-                              children: [
-                                VSwitch(
-                                  key: const Key('sw_sg12_offset_debt'),
-                                  value: _offsetDebt,
-                                  tone: VComponentTone.success,
-                                  onChanged: (val) {
-                                    setState(() => _offsetDebt = val);
-                                    widget.onOffsetDebtChanged?.call(val);
-                                  },
-                                ),
-                                const VGap.horizontalSm(),
-                                const VText(
-                                  'Cấn trừ công nợ hiện tại',
-                                  variant: VTextVariant.bodyDefault,
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                              ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const VText(
+                                'Giảm nợ đơn này',
+                                variant: VTextVariant.bodyDefault,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              VText(
+                                MoneyFormatter.formatMinor(widget.settlement.receivableReverseMinor),
+                                variant: VTextVariant.bodyDefault,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const VGap.xs(),
+                        VText(
+                          'Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.',
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                        const VGap.md(),
+                        Row(
+                          children: [
+                            VSwitch(
+                              key: const Key('sw_sg12_offset_debt'),
+                              value: false,
+                              enabled: false,
+                              tone: VComponentTone.success,
                             ),
-                            const VGap.md(),
-                            VCard(
-                              key: const Key('wgt_sg12_debt_card'),
-                              backgroundColor: colors.surface,
-                              border: Border.all(color: colors.borderDefault),
-                              padding: const EdgeInsets.all(VSpacing.space3),
+                            const VGap.horizontalSm(),
+                            Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  InkWell(
-                                    key: const Key('btn_sg12_debt_toggle'),
-                                    onTap: () => setState(() => _debtExpanded = !_debtExpanded),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              const VText(
-                                                'Công nợ sau cấn trừ',
-                                                variant: VTextVariant.bodyDefault,
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                              const VGap.xs(),
-                                              VText(
-                                                _offsetDebt
-                                                    ? '${MoneyFormatter.formatMinor(receivableReverse)} → ${MoneyFormatter.formatMinor(remainingDebt)}'
-                                                    : '${MoneyFormatter.formatMinor(receivableReverse)} · Giữ nguyên',
-                                                variant: VTextVariant.bodySmall,
-                                                color: colors.textSecondary,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        VIcon(
-                                          icon: _debtExpanded
-                                              ? VIcons.chevronUp
-                                              : VIcons.chevronDown,
-                                          color: colors.textSecondary,
-                                        ),
-                                      ],
-                                    ),
+                                  const VText(
+                                    'Cấn trừ công nợ hiện tại',
+                                    variant: VTextVariant.bodyDefault,
+                                    style: TextStyle(fontWeight: FontWeight.w500),
                                   ),
-                                  if (_debtExpanded) ...[
-                                    const VGap.sm(),
-                                    Divider(color: colors.borderDefault, height: 1),
-                                    const VGap.sm(),
-                                    _debtRow(
-                                      context,
-                                      'Công nợ trước cấn trừ',
-                                      receivableReverse,
-                                    ),
-                                    const VGap.xs(),
-                                    _debtRow(
-                                      context,
-                                      'Cấn trừ từ phiếu đổi/trả',
-                                      actualOffset,
-                                      isNegative: true,
-                                    ),
-                                    const VGap.xs(),
-                                    _debtRow(
-                                      context,
-                                      'Công nợ sau cấn trừ',
-                                      remainingDebt,
-                                      isHighlight: true,
-                                    ),
-                                  ],
+                                  VText(
+                                    'Sẽ áp dụng khi có module công nợ.',
+                                    key: const Key('txt_sg12_offset_debt_pending'),
+                                    variant: VTextVariant.bodySmall,
+                                    color: colors.textSecondary,
+                                  ),
                                 ],
                               ),
                             ),
                           ],
-                          const VGap.sm(),
-                          VCard(
-                            key: const Key('wgt_sg12_primary_amount'),
-                            backgroundColor: colors.successBg,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: VSpacing.space3,
-                              vertical: VSpacing.space3,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                VText(
-                                  hasDebt && _offsetDebt
-                                      ? 'Còn phải hoàn'
-                                      : 'Cần hoàn',
-                                  variant: VTextVariant.bodyDefault,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                VText(
-                                  MoneyFormatter.formatMinor(actualRefund),
-                                  variant: VTextVariant.bodyDefault,
-                                  color: colors.success,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (actualRefund > 0) ...[
-                            const VGap.md(),
-                            const VText(
-                              'Phương thức hoàn',
-                              variant: VTextVariant.bodyDefault,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const VGap.sm(),
-                            VSegmentedControl(
-                              key: const Key('seg_sg12_settlement_method'),
-                              segments: const ['Tiền mặt', 'Chuyển khoản', 'Kết hợp'],
-                              selectedIndex: widget.method == SalesPaymentMethod.cash ? 0 : 1,
-                              tone: VComponentTone.success,
-                              onChanged: (index) {
-                                if (index == 0) {
-                                  widget.onMethodChanged?.call(SalesPaymentMethod.cash);
-                                } else {
-                                  widget.onMethodChanged?.call(
-                                    SalesPaymentMethod.manualBankTransfer,
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ],
-                      );
-                    },
+                        ),
+                      ],
+                      if (widget.settlement.storeRefundMinor > 0) ...[
+                        const VGap.md(),
+                        const VText(
+                          'Phương thức hoàn',
+                          variant: VTextVariant.bodyDefault,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const VGap.sm(),
+                        // Refund supports one method; "Kết hợp" (split) is not
+                        // supported by the confirm RPC, so it is not offered.
+                        VSegmentedControl(
+                          key: const Key('seg_sg12_settlement_method'),
+                          segments: const ['Tiền mặt', 'Chuyển khoản'],
+                          selectedIndex: _methods.indexOf(widget.method),
+                          tone: VComponentTone.success,
+                          onChanged: (index) {
+                            widget.onMethodChanged?.call(_methods[index]);
+                          },
+                        ),
+                      ],
+                    ],
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -543,13 +435,18 @@ class _ReadyBodyState extends State<_ReadyBody> {
                         controller: _amountController,
                         keyboardType: TextInputType.number,
                         suffixText: 'đ',
+                        inputFormatters: const [_VndGroupingFormatter()],
+                        // Walk-ins cannot carry a receivable, so they pay in full.
+                        enabled: !widget.isWalkIn,
                       ),
-                      const VGap.xs(),
-                      VText(
-                        'Thu đủ, không phát sinh công nợ.',
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textSecondary,
-                      ),
+                      if (widget.isWalkIn) ...[
+                        const VGap.xs(),
+                        VText(
+                          'Thu đủ, không phát sinh công nợ.',
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
+                        ),
+                      ],
                       const VGap.md(),
                       const VText(
                         'Phương thức thu',
@@ -735,7 +632,7 @@ class _ReadyBodyState extends State<_ReadyBody> {
     if (widget.settlement.customerCollectMinor > 0) {
       label = 'Phải thu thêm';
       amountMinor = widget.settlement.customerCollectMinor;
-    } else if (widget.settlement.storeRefundMinor > 0) {
+    } else if (widget.settlement.netDifferenceMinor < 0) {
       label = 'Cần hoàn tiền';
       amountMinor = widget.settlement.storeRefundMinor;
     } else {
@@ -794,40 +691,6 @@ class _ReadyBodyState extends State<_ReadyBody> {
           amountText,
           variant: VTextVariant.bodyDefault,
           style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
-
-  Widget _debtRow(
-    BuildContext context,
-    String label,
-    int amountMinor, {
-    bool isHighlight = false,
-    bool isNegative = false,
-  }) {
-    final colors = context.vColors;
-    final String formattedAmount;
-    if (isNegative && amountMinor > 0) {
-      formattedAmount = '-${MoneyFormatter.formatMinor(amountMinor)}';
-    } else {
-      formattedAmount = MoneyFormatter.formatMinor(amountMinor);
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        VText(
-          label,
-          variant: VTextVariant.bodySmall,
-          color: colors.textSecondary,
-          style: TextStyle(fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal),
-        ),
-        VText(
-          formattedAmount,
-          variant: VTextVariant.bodySmall,
-          color: isHighlight ? colors.textPrimary : colors.textSecondary,
-          style: TextStyle(fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal),
         ),
       ],
     );
@@ -998,4 +861,23 @@ class _QrPlaceholderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Regroups the VND amount with `.` separators on every edit so deleting a
+/// digit never leaves a stale grouping such as `450.00`.
+class _VndGroupingFormatter extends TextInputFormatter {
+  const _VndGroupingFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      return const TextEditingValue(selection: TextSelection.collapsed(offset: 0));
+    }
+    final formatted = MoneyFormatter.formatMinorPlain(MoneyFormatter.parseMinor(digits));
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
 }

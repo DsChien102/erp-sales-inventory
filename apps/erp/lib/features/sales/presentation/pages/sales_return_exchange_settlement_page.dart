@@ -71,12 +71,7 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
     final settlement = state.effectiveSettlement;
     if (settlement == null) return 'Quyết toán';
     if (settlement.customerCollectMinor > 0) return 'Phải thu thêm';
-    if (settlement.storeRefundMinor > 0) {
-      if (state.effectiveRefundMinor == 0 && state.actualOffsetMinor > 0) {
-        return 'Đã cấn trừ';
-      }
-      return 'Cần hoàn tiền';
-    }
+    if (settlement.netDifferenceMinor < 0) return 'Cần hoàn tiền';
     return 'Không chênh lệch';
   }
 
@@ -86,11 +81,8 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
     if (settlement.customerCollectMinor > 0) {
       return MoneyFormatter.formatMinor(settlement.customerCollectMinor);
     }
-    if (settlement.storeRefundMinor > 0) {
-      if (state.effectiveRefundMinor == 0 && state.actualOffsetMinor > 0) {
-        return MoneyFormatter.formatMinor(state.actualOffsetMinor);
-      }
-      return MoneyFormatter.formatMinor(state.effectiveRefundMinor);
+    if (settlement.netDifferenceMinor < 0) {
+      return MoneyFormatter.formatMinor(settlement.storeRefundMinor);
     }
     return MoneyFormatter.formatMinor(0);
   }
@@ -171,7 +163,6 @@ class _SalesReturnExchangeSettlementPageState extends State<SalesReturnExchangeS
               onSettledNowChanged: _cubit.updateSettledNow,
               onDueDateChanged: _cubit.updatePaymentDueDate,
               onMethodChanged: _cubit.updatePaymentMethod,
-              onOffsetDebtChanged: _cubit.updateOffsetDebt,
             ),
           );
         },

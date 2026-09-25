@@ -54,8 +54,7 @@ create or replace function sales._begin_sales_idempotency(
   p_tenant_id uuid,
   p_command_scope text,
   p_idempotency_key text,
-  p_payload_hash text,
-  p_correlation_id uuid
+  p_payload_hash text
 ) returns jsonb
 language plpgsql
 security definer
@@ -65,7 +64,6 @@ declare
   v_key text := trim(p_idempotency_key);
   v_hash text := coalesce(nullif(trim(coalesce(p_payload_hash, '')), ''), '');
   v_record sales.idempotency_records%rowtype;
-  v_record_id uuid;
 begin
   if nullif(v_key, '') is null or nullif(trim(coalesce(p_command_scope, '')), '') is null then
     raise exception using message = jsonb_build_object(
@@ -93,10 +91,9 @@ begin
       )::text;
     end if;
 
-    if v_record.status in ('in_progress', 'uncertain') then
+    if v_record.status = 'in_progress' then
       return jsonb_build_object(
         'decision', 'in_progress',
-        'record_id', v_record.id,
         'status', v_record.status,
         'result_snapshot', v_record.result_snapshot
       );
@@ -104,34 +101,27 @@ begin
 
     return jsonb_build_object(
       'decision', 'replay',
-      'record_id', v_record.id,
       'status', v_record.status,
       'result_snapshot', v_record.result_snapshot
     );
   end if;
 
-  v_record_id := gen_random_uuid();
   insert into sales.idempotency_records (
-    id,
     tenant_id,
     command_scope,
     idempotency_key,
     payload_hash,
-    status,
-    correlation_id
+    status
   ) values (
-    v_record_id,
     p_tenant_id,
     trim(p_command_scope),
     v_key,
     v_hash,
-    'in_progress',
-    coalesce(p_correlation_id, gen_random_uuid())
+    'in_progress'
   );
 
   return jsonb_build_object(
     'decision', 'new',
-    'record_id', v_record_id,
     'status', 'in_progress'
   );
 end;
@@ -145,8 +135,6 @@ create or replace function sales._complete_sales_idempotency(
   p_command_scope text,
   p_idempotency_key text,
   p_status text,
-  p_result_type text,
-  p_result_id uuid,
   p_result_snapshot jsonb
 ) returns void
 language plpgsql
@@ -156,7 +144,7 @@ as $$
 declare
   v_key text := trim(p_idempotency_key);
 begin
-  if p_status not in ('succeeded', 'failed', 'uncertain') then
+  if p_status not in ('succeeded', 'failed') then
     raise exception using message = jsonb_build_object(
       'code', 'CONTEXT_INVALID',
       'message', 'Idempotency completion status is invalid.'
@@ -165,10 +153,7 @@ begin
 
   update sales.idempotency_records
   set status = p_status,
-      result_type = p_result_type,
-      result_id = p_result_id,
-      result_snapshot = p_result_snapshot,
-      updated_at = now()
+      result_snapshot = p_result_snapshot
   where tenant_id = p_tenant_id
     and command_scope = trim(p_command_scope)
     and idempotency_key = v_key;
@@ -198,7 +183,6 @@ declare
   v_collected bigint;
   v_refunded bigint;
   v_net bigint;
-  v_last timestamptz;
 begin
   perform 1
   from sales.sales_order_settlements
@@ -214,9 +198,8 @@ begin
 
   select
     coalesce(sum(amount_minor) filter (where direction = 'inflow' and status = 'confirmed'), 0),
-    coalesce(sum(amount_minor) filter (where direction = 'outflow' and status = 'confirmed'), 0),
-    max(confirmed_at)
-  into v_collected, v_refunded, v_last
+    coalesce(sum(amount_minor) filter (where direction = 'outflow' and status = 'confirmed'), 0)
+  into v_collected, v_refunded
   from sales.sales_payment_transactions
   where tenant_id = p_tenant_id
     and sales_order_settlement_id = p_settlement_id;
@@ -241,7 +224,6 @@ begin
           then 'paid'
         else 'partially_paid'
       end,
-      last_transaction_at = v_last,
       settled_at = case
         when greatest(current_payable_amount_minor - v_net, 0) = 0
              and v_net > 0
@@ -256,9 +238,9 @@ $$;
 
 revoke all on function sales._assert_sales_actor(uuid, uuid, uuid, text)
   from public, anon, authenticated;
-revoke all on function sales._begin_sales_idempotency(uuid, text, text, text, uuid)
+revoke all on function sales._begin_sales_idempotency(uuid, text, text, text)
   from public, anon, authenticated;
-revoke all on function sales._complete_sales_idempotency(uuid, text, text, text, text, uuid, jsonb)
+revoke all on function sales._complete_sales_idempotency(uuid, text, text, text, jsonb)
   from public, anon, authenticated;
 revoke all on function sales._recompute_sales_settlement(uuid, uuid)
   from public, anon, authenticated;
@@ -460,23 +442,6 @@ as $$
 
   union all
   select
-    'receipt_superseded_cross_order',
-    receipt.tenant_id,
-    receipt.sales_order_id,
-    receipt.id,
-    'not_applicable',
-    receipt.superseded_by_receipt_id::text,
-    null,
-    'successor must share tenant and order; do not rewrite'
-  from sales.sales_receipts receipt
-  join sales.sales_receipts successor
-    on successor.id = receipt.superseded_by_receipt_id
-  where receipt.tenant_id is distinct from successor.tenant_id
-     or receipt.sales_order_id is distinct from successor.sales_order_id
-     or receipt.id = receipt.superseded_by_receipt_id
-
-  union all
-  select
     'return_source_xor',
     line.tenant_id,
     line.source_sales_order_id,
@@ -562,36 +527,64 @@ as $$
 
   union all
   select
-    'return_projection_quantity_mismatch',
+    'settlement_adjustment_sum_mismatch',
+    settlement.tenant_id,
+    settlement.sales_order_id,
+    settlement.id,
+    'recomputable_from_adjustment_ledger',
+    settlement.post_sale_adjustment_amount_minor::text,
+    coalesce(ledger.total_minor, 0)::text,
+    'post_sale_adjustment_amount_minor must equal sum of settlement_obligation_adjustments'
+  from sales.sales_order_settlements settlement
+  left join lateral (
+    select sum(adjustment.amount_minor) as total_minor
+    from sales.settlement_obligation_adjustments adjustment
+    where adjustment.tenant_id = settlement.tenant_id
+      and adjustment.sales_order_settlement_id = settlement.id
+  ) ledger on true
+  where settlement.post_sale_adjustment_amount_minor
+    is distinct from coalesce(ledger.total_minor, 0)
+
+  union all
+  select
+    'return_projection_status_mismatch',
     projection.tenant_id,
     projection.sales_order_id,
     projection.sales_order_id,
     'recomputable_from_line_snapshot',
-    projection.sold_quantity_micros::text || '/' || projection.returned_quantity_micros::text,
-    sold.sold_qty::text || '/' || sold.returned_qty::text,
-    'completed return lines with original_sales_order_line_id; not Catalog'
+    projection.return_status,
+    recomputed.return_status,
+    'per original line: completed returned quantity vs sold quantity; not Catalog'
   from sales.sales_order_return_status_projections projection
   join lateral (
-    select
-      coalesce(sum(order_line.quantity_micros), 0) as sold_qty,
-      coalesce((
-        select sum(return_line.quantity_micros)
-        from sales.return_exchange_lines return_line
-        join sales.return_exchange_orders return_order
-          on return_order.id = return_line.return_exchange_order_id
-         and return_order.tenant_id = return_line.tenant_id
-        where return_order.tenant_id = projection.tenant_id
-          and return_order.sales_order_id = projection.sales_order_id
-          and return_order.status = 'completed'
-          and return_line.line_role = 'returned'
-          and return_line.original_sales_order_line_id is not null
-      ), 0) as returned_qty
-    from sales.sales_order_lines order_line
-    where order_line.tenant_id = projection.tenant_id
-      and order_line.sales_order_id = projection.sales_order_id
-  ) sold on true
-  where projection.sold_quantity_micros is distinct from sold.sold_qty
-     or projection.returned_quantity_micros is distinct from sold.returned_qty;
+    select case
+      when count(*) = 0 then 'none'
+      when bool_or(per_line.returned_qty > 0)
+        and bool_and(per_line.returned_qty >= per_line.sold_qty) then 'fully_returned'
+      when bool_or(per_line.returned_qty > 0) then 'partially_returned'
+      else 'none'
+    end as return_status
+    from (
+      select
+        order_line.quantity_micros as sold_qty,
+        coalesce((
+          select sum(return_line.quantity_micros)
+          from sales.return_exchange_lines return_line
+          join sales.return_exchange_orders return_order
+            on return_order.id = return_line.return_exchange_order_id
+           and return_order.tenant_id = return_line.tenant_id
+          where return_order.tenant_id = projection.tenant_id
+            and return_order.sales_order_id = projection.sales_order_id
+            and return_order.status = 'completed'
+            and return_line.line_role = 'returned'
+            and return_line.original_sales_order_line_id = order_line.id
+        ), 0) as returned_qty
+      from sales.sales_order_lines order_line
+      where order_line.tenant_id = projection.tenant_id
+        and order_line.sales_order_id = projection.sales_order_id
+    ) per_line
+  ) recomputed on true
+  where projection.return_status is distinct from recomputed.return_status;
 $$;
 
 revoke all on function sales.audit_sales_review_invariants()

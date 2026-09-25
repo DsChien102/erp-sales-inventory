@@ -36,7 +36,7 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
        _quantityPricingDebounceDuration = quantityPricingDebounceDuration,
        _composeSessionId = (composeSessionId != null && composeSessionId.trim().isNotEmpty)
            ? composeSessionId.trim()
-           : 'compose-${DateTime.now().microsecondsSinceEpoch}',
+           : _newComposeSessionId(),
        super(
          SalesComposeLoading(
            draftId: draftId,
@@ -50,12 +50,15 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
   final SalesDraftRestoreFn _restoreDraft;
   final SalesCheckoutPrepareFn _prepareCheckout;
   final SalesManualPriceApplyFn _applyManualPriceFlow;
-  final String _composeSessionId;
+  String _composeSessionId;
   final Duration _quantityPricingDebounceDuration;
   Timer? _quantityPricingDebounce;
 
   /// Stable local identity for first-save idempotency across retries.
   String get composeSessionId => _composeSessionId;
+
+  static String _newComposeSessionId() =>
+      'compose-${DateTime.now().microsecondsSinceEpoch}';
 
   SalesComposeLoaded _asLoaded(SalesComposeState s) {
     if (s is SalesComposeLoaded) return s;
@@ -118,6 +121,15 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
       ),
     );
     await hydrate();
+  }
+
+  /// Starts a fresh empty order after the current draft was saved or is gone.
+  /// Rotates the compose session so the next first save gets a new
+  /// idempotency identity instead of replaying the previous draft.
+  Future<void> startNewDraft() async {
+    _quantityPricingDebounce?.cancel();
+    _composeSessionId = _newComposeSessionId();
+    await loadDraft(SalesComposeDraftRef.newDraft);
   }
 
   Future<void> hydrate() async {
@@ -422,10 +434,12 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
     );
   }
 
-  Future<bool> saveDraft() async {
-    if (!state.canSaveDraft) return false;
-    if (state is SalesComposeError) return false;
-    if (state.saveStatus == SalesComposeSaveStatus.saving) return false;
+  Future<SalesDraftSaveResult> saveDraft() async {
+    if (!state.canSaveDraft) return SalesDraftSaveResult.failed;
+    if (state is SalesComposeError) return SalesDraftSaveResult.failed;
+    if (state.saveStatus == SalesComposeSaveStatus.saving) {
+      return SalesDraftSaveResult.failed;
+    }
 
     final current = _asLoaded(state);
     _emitLoaded(
@@ -450,7 +464,7 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
 
     try {
       final saved = await _persistDraft(request);
-      if (isClosed) return false;
+      if (isClosed) return SalesDraftSaveResult.failed;
       final reconciledLines = reconcileComposeLinesAfterPersist(
         current: current.lines,
         persisted: saved.lines,
@@ -470,9 +484,22 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
           restoreIssues: current.restoreIssues,
         ),
       );
-      return true;
+      return SalesDraftSaveResult.saved;
     } catch (error) {
-      if (isClosed) return false;
+      if (isClosed) return SalesDraftSaveResult.failed;
+      // Updating a server draft that was cancelled, removed or changed
+      // elsewhere can never succeed on retry; report it instead of looping.
+      if (serverDraftId != null &&
+          error is SalesContractException &&
+          (error.code == 'STALE_DATA' || error.code == 'REFERENCE_UNAVAILABLE')) {
+        _emitLoaded(
+          save: current.save.copyWith(
+            status: SalesComposeSaveStatus.error,
+            clearMessage: true,
+          ),
+        );
+        return SalesDraftSaveResult.draftGone;
+      }
       _emitLoaded(
         save: current.save.copyWith(
           status: SalesComposeSaveStatus.error,
@@ -482,7 +509,7 @@ final class SalesComposeCubit extends Cubit<SalesComposeState> {
           ),
         ),
       );
-      return false;
+      return SalesDraftSaveResult.failed;
     }
   }
 

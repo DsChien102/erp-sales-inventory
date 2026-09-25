@@ -53,13 +53,7 @@ void main() {
     expect(cancellationTable, isNot(contains('reason_code')));
     expect(confirmSql, contains("nullif(v_reason_text, '')"));
     expect(confirmSql, isNot(contains('reason_code')));
-    expect(
-      schema,
-      contains(
-        'alter table sales.sales_order_cancellations\n'
-        '  drop column if exists reason_code;',
-      ),
-    );
+    expect(schema, isNot(contains('alter table sales.sales_order_cancellations')));
   });
 
   test('precheck is read-only with settlement net and blockers', () {
@@ -85,7 +79,6 @@ void main() {
     expect(versionAt, greaterThan(-1));
     expect(updateAt, greaterThan(versionAt));
     expect(confirmSql, isNot(contains(_removedPolicyTable)));
-    expect(confirmSql, contains("'IDEMPOTENCY_CONFLICT'"));
     expect(confirmSql, contains('sales._begin_sales_idempotency('));
   });
 

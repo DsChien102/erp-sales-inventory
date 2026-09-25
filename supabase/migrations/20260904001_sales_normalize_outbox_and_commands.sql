@@ -67,9 +67,7 @@ begin
     p_tenant_id,
     'record_sales_payment',
     trim(p_idempotency_key),
-    trim(p_payload_hash),
-    v_correlation
-  );
+    trim(p_payload_hash));
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot';
   end if;
@@ -104,19 +102,18 @@ begin
   end if;
 
   insert into sales.sales_payment_transactions(
-    id, tenant_id, sales_order_settlement_id, transaction_code, transaction_type, direction,
+    id, tenant_id, sales_order_settlement_id, transaction_type, direction,
     amount_minor, currency_code, payment_method_code, payment_method_snapshot, status,
-    source_context, source_type, source_id, initiated_by_user_id, confirmed_by_user_id,
-    idempotency_key, external_reference, occurred_at, confirmed_at
+    source_context, source_type, source_id, initiated_by_user_id,
+    external_reference, occurred_at
   ) values (
     v_tx_id, p_tenant_id, v_settlement_id,
-    'PMT-' || upper(substr(replace(v_tx_id::text, '-', ''), 1, 16)),
     'collection', 'inflow', p_amount_minor, v_currency, trim(p_payment_method_code),
     p_payment_method_snapshot, 'confirmed',
     coalesce(nullif(trim(p_source_context), ''), 'additional_collection'),
-    'sales_order', p_sales_order_id, p_actor_id, p_actor_id,
-    trim(p_idempotency_key), nullif(trim(coalesce(p_external_reference, '')), ''),
-    now(), now()
+    'sales_order', p_sales_order_id, p_actor_id,
+    nullif(trim(coalesce(p_external_reference, '')), ''),
+    now()
   );
 
   perform sales._recompute_sales_settlement(p_tenant_id, v_settlement_id);
@@ -148,10 +145,7 @@ begin
     'record_sales_payment',
     trim(p_idempotency_key),
     'succeeded',
-    'sales_payment_transaction',
-    v_tx_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
@@ -216,9 +210,7 @@ begin
     p_tenant_id,
     'record_sales_refund',
     trim(p_idempotency_key),
-    trim(p_payload_hash),
-    v_correlation
-  );
+    trim(p_payload_hash));
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot';
   end if;
@@ -258,21 +250,6 @@ begin
       )::text;
     end if;
 
-    -- Legacy reversals remain historical data even though the void API is removed.
-    if exists (
-      select 1 from sales.sales_payment_transactions reversal
-      where reversal.tenant_id = p_tenant_id
-        and reversal.sales_order_settlement_id = v_settlement_id
-        and reversal.related_transaction_id = v_related.id
-        and reversal.transaction_type = 'reversal'
-        and reversal.status = 'confirmed'
-    ) then
-      raise exception using message = jsonb_build_object(
-        'code', 'CONTEXT_INVALID',
-        'message', 'Related collection has already been reversed.'
-      )::text;
-    end if;
-
     select coalesce(sum(refund.amount_minor), 0)
     into v_related_refunded
     from sales.sales_payment_transactions refund
@@ -281,15 +258,7 @@ begin
       and refund.related_transaction_id = v_related.id
       and refund.transaction_type = 'refund'
       and refund.direction = 'outflow'
-      and refund.status = 'confirmed'
-      and not exists (
-        select 1 from sales.sales_payment_transactions reversal
-        where reversal.tenant_id = p_tenant_id
-          and reversal.sales_order_settlement_id = v_settlement_id
-          and reversal.related_transaction_id = refund.id
-          and reversal.transaction_type = 'reversal'
-          and reversal.status = 'confirmed'
-      );
+      and refund.status = 'confirmed';
 
     if p_amount_minor > v_related.amount_minor - v_related_refunded then
       raise exception using message = jsonb_build_object(
@@ -307,18 +276,17 @@ begin
   end if;
 
   insert into sales.sales_payment_transactions(
-    id, tenant_id, sales_order_settlement_id, transaction_code, transaction_type, direction,
+    id, tenant_id, sales_order_settlement_id, transaction_type, direction,
     amount_minor, currency_code, payment_method_code, status, source_context, source_type,
-    source_id, related_transaction_id, initiated_by_user_id, confirmed_by_user_id,
-    reason_code, reason, idempotency_key, occurred_at, confirmed_at
+    source_id, related_transaction_id, initiated_by_user_id,
+    reason_code, reason, occurred_at
   ) values (
     v_tx_id, p_tenant_id, v_settlement_id,
-    'PMT-' || upper(substr(replace(v_tx_id::text, '-', ''), 1, 16)),
     'refund', 'outflow', p_amount_minor, v_currency, trim(p_payment_method_code), 'confirmed',
     coalesce(nullif(trim(p_source_context), ''), 'manual_correction'),
-    'sales_order', p_sales_order_id, p_related_transaction_id, p_actor_id, p_actor_id,
+    'sales_order', p_sales_order_id, p_related_transaction_id, p_actor_id,
     trim(p_reason_code), nullif(trim(coalesce(p_reason, '')), ''),
-    trim(p_idempotency_key), now(), now()
+    now()
   );
 
   perform sales._recompute_sales_settlement(p_tenant_id, v_settlement_id);
@@ -350,20 +318,11 @@ begin
     'record_sales_refund',
     trim(p_idempotency_key),
     'succeeded',
-    'sales_payment_transaction',
-    v_tx_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
 $$;
-
--- Product does not support reversing a confirmed collection or refund.
--- 20260830009 still creates this RPC; drop it here so reset does not keep it.
-drop function if exists sales.void_sales_payment(
-  uuid, uuid, uuid, uuid, uuid, text, text, text, text, uuid
-) restrict;
 
 -- ---------------------------------------------------------------------------
 -- Cancellation confirm — lifecycle fact rename (no cross-module handoff)
@@ -388,7 +347,6 @@ as $$
 declare
   v_order sales.sales_orders%rowtype;
   v_settlement sales.sales_order_settlements%rowtype;
-  v_existing sales.sales_order_cancellations%rowtype;
   v_inserted sales.sales_order_cancellations%rowtype;
   v_net_confirmed_collection_minor bigint;
   v_reason_text text;
@@ -423,8 +381,7 @@ begin
   end if;
 
   v_idem := sales._begin_sales_idempotency(
-    tenant_id, 'confirm_sales_order_cancellation', idempotency_key, payload_hash, v_correlation
-  );
+    tenant_id, 'confirm_sales_order_cancellation', idempotency_key, payload_hash);
   if v_idem ->> 'decision' = 'replay' then
     return coalesce(v_idem -> 'result_snapshot', '{}'::jsonb);
   end if;
@@ -432,33 +389,6 @@ begin
     raise exception using message = jsonb_build_object(
       'code', 'IN_PROGRESS', 'message', 'Cancellation is already in progress.'
     )::text;
-  end if;
-
-  select * into v_existing
-  from sales.sales_order_cancellations
-  where sales_order_cancellations.tenant_id = confirm_sales_order_cancellation.tenant_id
-    and sales_order_cancellations.idempotency_key = confirm_sales_order_cancellation.idempotency_key;
-  if found then
-    if (v_existing.precheck_snapshot ->> 'payloadHash') is distinct from confirm_sales_order_cancellation.payload_hash then
-      raise exception using message = jsonb_build_object(
-        'code', 'IDEMPOTENCY_CONFLICT',
-        'message', 'Idempotency key was reused with a different payload.'
-      )::text;
-    end if;
-    v_result := jsonb_build_object(
-      'cancellationId', v_existing.id,
-      'salesOrderId', v_existing.sales_order_id,
-      'salesOrderVersion', coalesce(
-        (v_existing.precheck_snapshot ->> 'resultingOrderVersion')::bigint,
-        v_existing.source_order_version + 1
-      ),
-      'status', v_existing.status
-    );
-    perform sales._complete_sales_idempotency(
-      tenant_id, 'confirm_sales_order_cancellation', trim(idempotency_key),
-      'succeeded', 'sales_order_cancellation', v_existing.id, v_result
-    );
-    return v_result;
   end if;
 
   if nullif(btrim(command_id), '') is null
@@ -616,23 +546,17 @@ begin
   );
 
   insert into sales.sales_order_cancellations (
-    id, tenant_id, sales_order_id, status, version, source_order_version,
-    requested_by_user_id, confirmed_by_user_id, reason,
-    precheck_snapshot, required_impacts_snapshot, idempotency_key,
-    confirmed_at
+    id, tenant_id, sales_order_id, status, source_order_version,
+    requested_by_user_id, reason, precheck_snapshot, confirmed_at
   ) values (
     v_id,
     confirm_sales_order_cancellation.tenant_id,
     confirm_sales_order_cancellation.sales_order_id,
     'confirmed',
-    1,
     v_order.version,
-    confirm_sales_order_cancellation.actor_id,
     confirm_sales_order_cancellation.actor_id,
     nullif(v_reason_text, ''),
     v_decision_snapshot,
-    v_decision_snapshot -> 'impacts',
-    confirm_sales_order_cancellation.idempotency_key,
     now()
   )
   returning * into v_inserted;
@@ -719,8 +643,7 @@ begin
   );
   perform sales._complete_sales_idempotency(
     tenant_id, 'confirm_sales_order_cancellation', trim(idempotency_key),
-    'succeeded', 'sales_order_cancellation', v_inserted.id, v_result
-  );
+    'succeeded', v_result);
   return v_result;
 end;
 $$;
@@ -781,8 +704,8 @@ declare
   v_source_settlement_version bigint;
   v_plan_pricing_version integer;
   v_resulting_version bigint;
-  v_sold_micros bigint;
-  v_returned_micros bigint;
+  v_sold_base_micros bigint;
+  v_returned_base_micros bigint;
   v_return_status text;
 begin
   if tenant_id is null
@@ -821,9 +744,7 @@ begin
     confirm_return_exchange.tenant_id,
     'confirm_return_exchange',
     trim(idempotency_key),
-    coalesce(nullif(btrim(payload_hash), ''), ''),
-    v_correlation
-  );
+    coalesce(nullif(btrim(payload_hash), ''), ''));
   if (v_decision ->> 'decision') = 'replay' then
     return v_decision -> 'result_snapshot';
   end if;
@@ -1215,10 +1136,7 @@ begin
   where id = v_session.id;
 
   update sales.return_exchange_valuations
-  set
-    status = 'confirmed',
-    confirmed_at = coalesce(confirmed_at, now()),
-    updated_at = now()
+  set status = 'confirmed'
   where id = v_valuation.id;
 
   -- Auto-settle remainders in the same transaction via settle helper.
@@ -1261,7 +1179,7 @@ begin
       return_exchange_id => v_session.id,
       amount_minor => v_remainder_refund,
       currency_code => v_plan_currency,
-      method => 'cash'::text,
+      method => coalesce(nullif(btrim(payment_method), ''), 'cash')::text,
       reference => ('confirm:' || v_plan_corr)::text,
       idempotency_key => (confirm_return_exchange.idempotency_key || ':confirm-refund')::text,
       payload_hash => confirm_return_exchange.payload_hash::text,
@@ -1308,24 +1226,27 @@ begin
     select
       l.id,
       l.quantity_micros as sold_qty,
-      coalesce((
-        select sum(rl.quantity_micros)
-        from sales.return_exchange_lines rl
-        join sales.return_exchange_orders r
-          on r.id = rl.return_exchange_order_id and r.tenant_id = rl.tenant_id
-        where r.tenant_id = confirm_return_exchange.tenant_id
-          and r.sales_order_id = v_session.sales_order_id
-          and r.status = 'completed'
-          and rl.line_role = 'returned'
-          and rl.original_sales_order_line_id = l.id
-      ), 0) as returned_qty
+      l.base_quantity_micros as sold_base,
+      coalesce(returned.qty, 0) as returned_qty,
+      coalesce(returned.base, 0) as returned_base
     from sales.sales_order_lines l
+    left join lateral (
+      select sum(rl.quantity_micros) as qty, sum(rl.base_quantity_micros) as base
+      from sales.return_exchange_lines rl
+      join sales.return_exchange_orders r
+        on r.id = rl.return_exchange_order_id and r.tenant_id = rl.tenant_id
+      where r.tenant_id = confirm_return_exchange.tenant_id
+        and r.sales_order_id = v_session.sales_order_id
+        and r.status = 'completed'
+        and rl.line_role = 'returned'
+        and rl.original_sales_order_line_id = l.id
+    ) returned on true
     where l.sales_order_id = v_session.sales_order_id
       and l.tenant_id = confirm_return_exchange.tenant_id
   )
   select
-    coalesce(sum(sold_qty), 0),
-    coalesce(sum(returned_qty), 0),
+    coalesce(sum(sold_base), 0),
+    coalesce(sum(returned_base), 0),
     case
       when count(*) = 0 then 'none'
       when bool_or(returned_qty > 0) and bool_and(returned_qty >= sold_qty)
@@ -1333,32 +1254,23 @@ begin
       when bool_or(returned_qty > 0) then 'partially_returned'
       else 'none'
     end
-  into v_sold_micros, v_returned_micros, v_return_status
+  into v_sold_base_micros, v_returned_base_micros, v_return_status
   from per_line;
 
   insert into sales.sales_order_return_status_projections (
     tenant_id,
     sales_order_id,
     return_status,
-    sold_quantity_micros,
-    returned_quantity_micros,
-    version,
     updated_at
   ) values (
     confirm_return_exchange.tenant_id,
     v_session.sales_order_id,
     v_return_status,
-    v_sold_micros,
-    v_returned_micros,
-    1,
     now()
   )
   on conflict (tenant_id, sales_order_id) do update
   set
     return_status = excluded.return_status,
-    sold_quantity_micros = excluded.sold_quantity_micros,
-    returned_quantity_micros = excluded.returned_quantity_micros,
-    version = sales.sales_order_return_status_projections.version + 1,
     updated_at = now();
 
   -- B4b: cap nhat nghia vu settlement theo chenh lech dinh gia (exchange - return),
@@ -1392,8 +1304,8 @@ begin
       'salesOrderId', v_session.sales_order_id,
       'returnStatus', v_return_status,
       'correlationId', confirm_return_exchange.correlation_id,
-      'soldQuantityMicros', v_sold_micros,
-      'returnedQuantityMicros', v_returned_micros
+      'soldBaseQuantityMicros', v_sold_base_micros,
+      'returnedBaseQuantityMicros', v_returned_base_micros
     )
   );
 
@@ -1409,10 +1321,7 @@ begin
     'confirm_return_exchange',
     trim(idempotency_key),
     'succeeded',
-    'return_exchange_order',
-    v_session.id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;

@@ -1,6 +1,6 @@
 # TH-05 — Domain model
 
-> Quyết định 2026-09-09: không hỗ trợ hủy riêng khoản thu/hoàn đã xác nhận. Bỏ API/method tạo void; lịch sử reversal và event cũ được giữ để tra cứu. SQL removal nằm ở draft 025, chưa tự apply.
+> Quyết định 2026-09-09: không hỗ trợ hủy riêng khoản thu/hoàn đã xác nhận. Bỏ API/method tạo void. SQL đã xoá `void_sales_payment` và giá trị `reversal`/`voided` (Sales refactor bảng 10, 2026-09-23).
 
 Engineering truth dẫn xuất từ [canonical §2–§3](../Theme-5-sales-orders.md). Đây là target model cho `modules/sales/`, không phải mô tả code hiện hữu.
 
@@ -144,6 +144,7 @@ Handlers map một primary aggregate; multi-owner checkout/cancellation/return u
 | `GetSalesOrderDetailQuery` / `GetSalesOrderTimelineQuery` | detail/timeline DTO | inquiry views |
 | `GetSalesOrderReturnSummaryQuery` | return summary DTO | post-sale projection |
 | `GetSalesReceiptQuery` | receipt DTO | receipt |
+| `GetSalesOrderOriginalReceiptQuery` | receipt document (as-sold, read-only) | tab «Đơn gốc»: dòng đơn gốc + tổng lúc bán + khoản thu checkout; không lưu, không activity |
 | `GetOrderIntegrationStatusQuery` | integration status DTO | **stub** (`notRequired`) until TH-06/07/08 + thin projection slice |
 
 Queries không trả aggregate và không được dùng làm authoritative input cho mutation.
@@ -191,6 +192,8 @@ Sales-owned durable handoff qua `integration_commands` + intent tables (`sales.i
 
 **Do not** put apply/retry/reconcile imperatives on outbox as integration events.
 
+**Cấn trừ công nợ qua nhiều đơn — deferred (Receivable).** Dùng tiền lẽ ra hoàn của đơn này để trả nợ đơn khác cùng khách là thu nợ (collection) của Receivable, không phải Sales. Sales chỉ tách trong phạm vi **một đơn**: `refund_amount_minor` (hoàn tối đa bằng số đã thu) + `receivable_reverse_amount_minor` (phần nợ của chính đơn được xoá). Công tắc «Cấn trừ công nợ hiện tại» trên màn quyết toán đổi/trả hiện **chỉ đổi số hiển thị**, không gửi lên server (2026-09-24); nối với server khi theme công nợ live — Sales chỉ phát fact khoản hoàn, Receivable quyết định cấn trừ hay chi tiền.
+
 ### 9.3 Legacy debt (do not copy)
 
 Promoted Sales SQL có thể còn artifact Model B (`*_impact_requests`, `integration_commands`, `enqueue_impact_handoff`, request-shaped outbox như `sales.inventory_impact.requested.v1`) cho tới khi normalize migration được reconcile với option B. **New harness/code must follow facts-only reactive** — không thêm Sales-owned apply enqueue hay `*.requested` IE.
@@ -212,6 +215,8 @@ Reporting / other modules may consume Sales **facts**; downstream failure must n
 | `ReceivableImpactPort` | application port | eligibility precheck (sync); durable ledger deferred to owner via facts |
 | `EInvoicePolicyPort` | application port | post-sale legal blocker |
 | `CheckoutOrchestrator` | application | reload snapshot, validate, commit owners |
+
+**Rủi ro đã biết — giá trị hàng trả bỏ qua giảm giá dòng (2026-09-25).** `evaluate_return_exchange_valuation` (`20260830013`) tính giá trị hàng trả từ dòng đơn gốc bằng `sales_order_lines.unit_price_minor × số lượng trả` — tức **giá trước giảm**, không trừ `discount_amount_minor`. Hiện **chưa phát sinh lỗi** vì app luôn gửi `unitPrice` = giá đã áp dụng (sau chiết khấu) và `discountTotal = 0` (`sales_checkout_draft_args_mapper.dart`), nên `discount_amount_minor` luôn 0. Khi có tính năng lưu giảm giá **tách riêng** khỏi đơn giá (khuyến mãi TH-04, phiếu in giá gạch ngang), phải đổi giá trị trả mỗi đơn vị sang `line_total_minor / quantity_micros` của dòng gốc — nếu không sẽ hoàn dư / thu thêm thiếu đúng phần giảm giá của hàng trả.
 
 ## 11. Snapshot policy
 

@@ -3,7 +3,9 @@ import '../sales_receipt/commands/generate_sales_receipt/generate_sales_receipt_
 import '../sales_receipt/commands/record_sales_receipt_printed/record_sales_receipt_printed_command.dart';
 import '../sales_receipt/commands/record_sales_receipt_shared/record_sales_receipt_shared_command.dart';
 import '../sales_receipt/ports/i_sales_receipt_gateway.dart';
+import '../sales_receipt/queries/get_sales_order_original_receipt/get_sales_order_original_receipt_query.dart';
 import '../sales_receipt/queries/get_sales_receipt/get_sales_receipt_query.dart';
+import '../shared/sales_receipt_document_dto.dart';
 import '../shared/sales_receipt_dto.dart';
 
 final class FakeSalesReceiptGateway implements ISalesReceiptGateway {
@@ -11,6 +13,7 @@ final class FakeSalesReceiptGateway implements ISalesReceiptGateway {
     required SalesReceiptDto receipt,
     this.generateError,
     this.getError,
+    this.originalError,
     this.printedError,
     this.sharedError,
     this.archiveError,
@@ -19,6 +22,7 @@ final class FakeSalesReceiptGateway implements ISalesReceiptGateway {
   final SalesReceiptDto _receipt;
   final Object? generateError;
   final Object? getError;
+  final Object? originalError;
   final Object? printedError;
   final Object? sharedError;
   final Object? archiveError;
@@ -28,6 +32,7 @@ final class FakeSalesReceiptGateway implements ISalesReceiptGateway {
   int sharedCalls = 0;
   int archiveCalls = 0;
   int getCalls = 0;
+  int getOriginalCalls = 0;
 
   @override
   Future<SalesReceiptDto> generate(GenerateSalesReceiptCommand command) async {
@@ -62,5 +67,12 @@ final class FakeSalesReceiptGateway implements ISalesReceiptGateway {
     getCalls += 1;
     if (getError != null) throw getError!;
     return _receipt;
+  }
+
+  @override
+  Future<SalesReceiptDocumentDto> getOriginalReceipt(GetSalesOrderOriginalReceiptQuery query) async {
+    getOriginalCalls += 1;
+    if (originalError != null) throw originalError!;
+    return _receipt.document;
   }
 }

@@ -98,6 +98,9 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
           ? orderDetail.order.orderNumber
           : (detail.referenceNumber.isNotEmpty ? detail.referenceNumber : state.orderNumber);
       final customerDisplayName = orderDetail?.customer?.displayName ?? '';
+      // Unknown when the order detail failed to load; the confirm RPC still
+      // rejects walk-in receivables in that case.
+      final isWalkIn = orderDetail != null && orderDetail.customer == null;
 
       final valuation = await salesModule.executeQueryAsync<ReturnExchangeValuationDto>(
         EvaluateReturnPricingImpactQuery(
@@ -118,6 +121,7 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
         state.copyWith(
           orderNumber: sourceOrderNumber,
           customerDisplayName: customerDisplayName,
+          isWalkIn: isWalkIn,
           draftVersion: detail.result.version,
           settlement: settlement,
           valuation: valuation,
@@ -185,12 +189,6 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
   void updatePaymentMethod(SalesPaymentMethod method) {
     if (isClosed) return;
     emit(state.copyWith(paymentMethod: method));
-  }
-
-  /// Toggles whether to offset customer debt in a refund flow.
-  void updateOffsetDebt(bool value) {
-    if (isClosed) return;
-    emit(state.copyWith(offsetDebt: value));
   }
 
   Future<SalesReturnExchangeResult?> confirm() async {

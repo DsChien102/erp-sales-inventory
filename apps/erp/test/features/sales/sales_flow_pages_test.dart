@@ -249,7 +249,7 @@ void main() {
     expect(find.text('Created Customer'), findsOneWidget);
   });
 
-  testWidgets('SG-02 save draft dispatches backend persist and keeps server draft id', (
+  testWidgets('SG-02 save draft dispatches backend persist then resets to a new order', (
     tester,
   ) async {
     pricingModule.previewFor = (request) => _pricingPreviewFor(request);
@@ -279,9 +279,57 @@ void main() {
     final cubit = tester
         .element(find.byKey(const Key('wgt_sg02_compose_page')))
         .read<SalesComposeCubit>();
-    expect(cubit.state.draftId, 'draft-saved-1');
-    expect(cubit.state.draftVersion, 1);
+    expect(cubit.state.draftId, SalesComposeDraftRef.newDraft);
+    expect(cubit.state.lines, isEmpty);
+    expect(cubit.state.hasUnsavedChanges, isFalse);
     expect(find.text('Đã lưu đơn nháp.'), findsOneWidget);
+  });
+
+  testWidgets('SG-02 leave sheet "save and close" saves then returns to the orders list', (
+    tester,
+  ) async {
+    pricingModule.previewFor = (request) => _pricingPreviewFor(request);
+    final router = GoRouter(
+      initialLocation: '/sales/orders',
+      routes: [
+        GoRoute(
+          path: '/sales/orders',
+          builder: (_, _) => const Scaffold(body: Text('ORDERS_LIST')),
+        ),
+        GoRoute(
+          path: '/sales/compose',
+          builder: (_, _) => const SalesDraftListScope(child: SalesOrderComposePage()),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+    router.push('/sales/compose');
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('input_compose_product_search')),
+      'thuoc',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('card_compose_suggest_product-live')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_compose_back')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('wgt_sg02_leave_sheet')), findsOneWidget);
+    expect(find.text('Lưu thay đổi rồi thoát'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('btn_compose_leave_save')));
+    await tester.pumpAndSettle();
+
+    expect(salesModule.commands.whereType<SaveSalesOrderDraftCommand>(), hasLength(1));
+    expect(find.text('ORDERS_LIST'), findsOneWidget);
+    expect(find.byType(SalesDraftListPage), findsNothing);
+    expect(find.byKey(const Key('wgt_sg02_compose_page')), findsNothing);
   });
 
   testWidgets('SG-02 draft count queries active store scope', (tester) async {

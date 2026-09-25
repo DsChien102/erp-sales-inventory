@@ -10,22 +10,21 @@ import 'package:erp/core/formatting/money_formatter.dart';
 final class SalesReceiptPdfGenerator {
   /// Label/value rows the PDF prints for the commercial and settlement totals.
   static List<(String, String)> summaryRows(SalesReceiptDocumentDto document) {
-    final settlement = document.settlementSnapshot;
-    final outstanding = settlement?.outstanding ?? document.outstandingTotal;
     return [
       ('Tiền hàng', _money(document.subtotal)),
       ('Giảm giá', _money(document.discountTotal)),
-      (
-        settlement == null ? 'Tổng đơn' : 'Giá trị đơn gốc',
-        _money(document.orderTotal),
-      ),
-      if (settlement != null) ...[
-        ('Điều chỉnh sau bán', _money(settlement.adjustment)),
-        ('Phải trả hiện tại', _money(settlement.currentPayable)),
-      ],
-      ('Còn phải thu', _money(outstanding)),
+      ('Tổng đơn', _money(_orderTotal(document))),
+      ('Còn phải thu', _money(_outstanding(document))),
     ];
   }
+
+  /// Lines already reflect returns/exchanges, so the total is the current
+  /// payable (older receipts stored the original total in `orderTotal`).
+  static MoneyDto _orderTotal(SalesReceiptDocumentDto document) =>
+      document.settlementSnapshot?.currentPayable ?? document.orderTotal;
+
+  static MoneyDto _outstanding(SalesReceiptDocumentDto document) =>
+      document.settlementSnapshot?.outstanding ?? document.outstandingTotal;
 
   static String _money(MoneyDto money) =>
       MoneyFormatter.format(amountMinor: money.amountMinor, currencyCode: money.currencyCode);
@@ -133,7 +132,7 @@ final class SalesReceiptPdfGenerator {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                document.settlementSnapshot == null ? 'Tổng đơn' : 'Giá trị đơn gốc',
+                'Tổng đơn',
                 style: pw.TextStyle(
                   font: fonts.bold,
                   fontSize: 11,
@@ -141,10 +140,7 @@ final class SalesReceiptPdfGenerator {
                 ),
               ),
               pw.Text(
-                MoneyFormatter.format(
-                  amountMinor: document.orderTotal.amountMinor,
-                  currencyCode: document.orderTotal.currencyCode,
-                ),
+                _money(_orderTotal(document)),
                 style: pw.TextStyle(
                   font: fonts.monoBold,
                   fontSize: 11,
@@ -178,34 +174,9 @@ final class SalesReceiptPdfGenerator {
           ),
           pw.SizedBox(height: 3),
         ],
-        if (document.settlementSnapshot case final settlement?) ...[
-          _row(
-            'Điều chỉnh sau bán',
-            MoneyFormatter.format(
-              amountMinor: settlement.adjustment.amountMinor,
-              currencyCode: settlement.adjustment.currencyCode,
-            ),
-            fonts,
-          ),
-          pw.SizedBox(height: 3),
-          _row(
-            'Phải trả hiện tại',
-            MoneyFormatter.format(
-              amountMinor: settlement.currentPayable.amountMinor,
-              currencyCode: settlement.currentPayable.currencyCode,
-            ),
-            fonts,
-          ),
-          pw.SizedBox(height: 3),
-        ],
         _row(
           'Còn phải thu',
-          MoneyFormatter.format(
-            amountMinor:
-                (document.settlementSnapshot?.outstanding ?? document.outstandingTotal).amountMinor,
-            currencyCode: (document.settlementSnapshot?.outstanding ?? document.outstandingTotal)
-                .currencyCode,
-          ),
+          _money(_outstanding(document)),
           fonts,
           boldLabel: true,
           boldValue: true,

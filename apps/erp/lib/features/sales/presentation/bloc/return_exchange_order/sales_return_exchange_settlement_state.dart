@@ -22,6 +22,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
     required this.returnExchangeId,
     this.orderNumber = '',
     this.customerDisplayName = '',
+    this.isWalkIn = false,
     this.draftVersion,
     this.settlement,
     this.valuation,
@@ -31,13 +32,16 @@ class SalesReturnExchangeSettlementState extends Equatable {
     this.settledNowMinor,
     this.paymentDueDate,
     this.paymentMethod = SalesPaymentMethod.manualBankTransfer,
-    this.offsetDebt = true,
   });
 
   final String orderId;
   final String returnExchangeId;
   final String orderNumber;
   final String customerDisplayName;
+
+  /// Source order has no identified customer; walk-ins must pay in full
+  /// because a shortfall cannot become a receivable.
+  final bool isWalkIn;
   final int? draftVersion;
   final SalesReturnExchangeSettlementVm? settlement;
   final ReturnExchangeValuationDto? valuation;
@@ -54,9 +58,6 @@ class SalesReturnExchangeSettlementState extends Equatable {
 
   /// Method for the amount collected now.
   final SalesPaymentMethod paymentMethod;
-
-  /// Whether to offset the customer's existing receivable debt in a refund flow.
-  final bool offsetDebt;
 
   SalesReturnExchangeSettlementVm? get effectiveSettlement {
     final cached = settlement;
@@ -77,31 +78,6 @@ class SalesReturnExchangeSettlementState extends Equatable {
     );
   }
 
-  /// Dynamic offset amount applied against existing receivable debt.
-  int get actualOffsetMinor {
-    final s = effectiveSettlement;
-    if (s == null || !offsetDebt || s.receivableReverseMinor <= 0) return 0;
-    return s.storeRefundMinor >= s.receivableReverseMinor
-        ? s.receivableReverseMinor
-        : s.storeRefundMinor;
-  }
-
-  /// Dynamic effective amount the store actually hands back after debt offset.
-  int get effectiveRefundMinor {
-    final s = effectiveSettlement;
-    if (s == null || s.storeRefundMinor <= 0) return 0;
-    final refund = s.storeRefundMinor - actualOffsetMinor;
-    return refund > 0 ? refund : 0;
-  }
-
-  /// Dynamic remaining receivable debt after applying the offset.
-  int get remainingDebtMinor {
-    final s = effectiveSettlement;
-    if (s == null || s.receivableReverseMinor <= 0) return 0;
-    final rem = s.receivableReverseMinor - actualOffsetMinor;
-    return rem > 0 ? rem : 0;
-  }
-
   /// Shortfall on a collect settlement that becomes customer debt, given the
   /// edited "settle now" amount. Refund flows never create this debt.
   int get outstandingCollectMinor {
@@ -115,7 +91,10 @@ class SalesReturnExchangeSettlementState extends Equatable {
   /// A due date is mandatory once the customer leaves an outstanding balance.
   bool get requiresPaymentDueDate => outstandingCollectMinor > 0;
 
-  bool get paymentInputsValid => !requiresPaymentDueDate || paymentDueDate != null;
+  bool get paymentInputsValid {
+    if (!requiresPaymentDueDate) return true;
+    return !isWalkIn && paymentDueDate != null;
+  }
 
   bool get canConfirm =>
       effectiveSettlement != null &&
@@ -127,6 +106,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
   SalesReturnExchangeSettlementState copyWith({
     String? orderNumber,
     String? customerDisplayName,
+    bool? isWalkIn,
     int? draftVersion,
     SalesReturnExchangeSettlementVm? settlement,
     ReturnExchangeValuationDto? valuation,
@@ -138,7 +118,6 @@ class SalesReturnExchangeSettlementState extends Equatable {
     int? settledNowMinor,
     DateTime? paymentDueDate,
     SalesPaymentMethod? paymentMethod,
-    bool? offsetDebt,
     bool clearSettledNow = false,
     bool clearPaymentDueDate = false,
   }) {
@@ -147,6 +126,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
       returnExchangeId: returnExchangeId,
       orderNumber: orderNumber ?? this.orderNumber,
       customerDisplayName: customerDisplayName ?? this.customerDisplayName,
+      isWalkIn: isWalkIn ?? this.isWalkIn,
       draftVersion: draftVersion ?? this.draftVersion,
       settlement: clearSettlement ? null : (settlement ?? this.settlement),
       valuation: valuation ?? this.valuation,
@@ -156,7 +136,6 @@ class SalesReturnExchangeSettlementState extends Equatable {
       settledNowMinor: clearSettledNow ? null : (settledNowMinor ?? this.settledNowMinor),
       paymentDueDate: clearPaymentDueDate ? null : (paymentDueDate ?? this.paymentDueDate),
       paymentMethod: paymentMethod ?? this.paymentMethod,
-      offsetDebt: offsetDebt ?? this.offsetDebt,
     );
   }
 
@@ -166,6 +145,7 @@ class SalesReturnExchangeSettlementState extends Equatable {
     returnExchangeId,
     orderNumber,
     customerDisplayName,
+    isWalkIn,
     draftVersion,
     settlement,
     valuation,
@@ -175,6 +155,5 @@ class SalesReturnExchangeSettlementState extends Equatable {
     settledNowMinor,
     paymentDueDate,
     paymentMethod,
-    offsetDebt,
   ];
 }

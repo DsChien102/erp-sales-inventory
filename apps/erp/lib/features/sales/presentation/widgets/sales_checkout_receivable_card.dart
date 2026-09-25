@@ -40,6 +40,7 @@ class SalesCheckoutReceivableCard extends StatelessWidget {
             VDatePicker(
               key: const Key('input_sg05_receivable_due_date'),
               label: 'Ngày hẹn thanh toán',
+              required: true,
               hintText: 'Chọn ngày hẹn',
               value: vm.dueDate,
               enabled: enabled,

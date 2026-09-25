@@ -281,6 +281,15 @@ const _gatewaySurface = <String, ({String owner, Set<String> mapperKeys})>{
       'p_expected_source_version',
     },
   ),
+  'get_sales_order_original_receipt': (
+    owner: '010_sales_inquiry_receipt_rpcs.sql',
+    mapperKeys: {
+      'p_query_id',
+      'p_tenant_id',
+      'p_actor_id',
+      'p_sales_order_id',
+    },
+  ),
   'record_sales_receipt_activity': (
     owner: '010_sales_inquiry_receipt_rpcs.sql',
     mapperKeys: {
@@ -573,8 +582,6 @@ void main() {
     final sql = _readOwner(name);
     for (final match in fnPattern.allMatches(sql)) {
       final fn = match.group(1)!;
-      // Removed by draft 025; the timestamped bootstrap remains historical.
-      if (fn == 'void_sales_payment') continue;
       owners.putIfAbsent(fn, () => <String>[]).add(name);
       params[fn] = _namedParams(match.group(2)!);
     }

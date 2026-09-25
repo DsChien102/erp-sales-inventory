@@ -92,6 +92,47 @@ class SalesSlipPdfGenerator {
     );
   }
 
+  /// Settlement rows the return slip prints; the first row is the headline.
+  ///
+  /// Follows the slip template (collect / refund / zero difference). A refund
+  /// on an order that still owes is split by the server into the cash refund
+  /// and a reduction of this order's own debt, so the refund template gets one
+  /// extra "Giảm nợ đơn" row. Sales does not offset debt across orders
+  /// (Receivable-owned), so no "offset" rows are printed.
+  static List<(String, String)> settlementRows(ReturnExchangeSettlementPlanDto plan) {
+    final netMinor = plan.netDifferenceMinor;
+    if (netMinor > 0) {
+      final processedCollect = plan.processedCollectMinor;
+      final pendingReceivable = plan.receivableCreateAmountMinor > 0
+          ? plan.receivableCreateAmountMinor
+          : plan.pendingReceivableCreateMinor;
+      final newlyIncurredDebt = pendingReceivable > 0
+          ? pendingReceivable
+          : (processedCollect < netMinor ? netMinor - processedCollect : 0);
+      return [
+        ('Phải thu thêm', MoneyFormatter.formatMinor(netMinor)),
+        ('Đã thu', MoneyFormatter.formatMinor(processedCollect)),
+        ('Công nợ phát sinh', MoneyFormatter.formatMinor(newlyIncurredDebt)),
+      ];
+    }
+    if (netMinor < 0) {
+      final debtReduction = plan.receivableReverseAmountMinor > 0
+          ? plan.receivableReverseAmountMinor
+          : plan.pendingReceivableReverseMinor;
+      final refunded = plan.processedRefundMinor > 0
+          ? plan.processedRefundMinor
+          : plan.refundAmountMinor;
+      return [
+        // Headline is the real cash refund, not |net|: with order debt the
+        // rest of |net| is the debt reduction below.
+        ('Cần hoàn tiền', MoneyFormatter.formatMinor(plan.refundAmountMinor)),
+        if (debtReduction > 0) ('Giảm nợ đơn', MoneyFormatter.formatMinor(debtReduction)),
+        ('Đã hoàn', MoneyFormatter.formatMinor(refunded)),
+      ];
+    }
+    return [('Không chênh lệch', MoneyFormatter.formatMinor(0))];
+  }
+
   static String sanitizeFileName(String referenceNumber) {
     final sanitized = referenceNumber.replaceAll(RegExp(r'[^\w\-.]'), '_');
     final compacted = sanitized.replaceAll(RegExp(r'_+'), '_');
@@ -110,41 +151,17 @@ class SalesSlipPdfGenerator {
   }) {
     final plan = detail.settlementPlan;
     final netMinor = plan.netDifferenceMinor;
-    String outcomeLabel = 'Không chênh lệch';
-    PdfColor outcomeColor = PdfColor.fromHex('#1F7A36');
-    if (netMinor > 0) {
-      outcomeLabel = 'Phải thu thêm';
-      outcomeColor = PdfColor.fromHex('#1F7A36');
-    } else if (netMinor < 0) {
-      outcomeLabel = 'Cần hoàn tiền';
-      outcomeColor = PdfColor.fromHex('#1F7A36');
-    }
-
-    final processedCollect = plan.processedCollectMinor;
+    final rows = settlementRows(plan);
     final pendingReceivable = plan.receivableCreateAmountMinor > 0
         ? plan.receivableCreateAmountMinor
         : plan.pendingReceivableCreateMinor;
     final newlyIncurredDebt = pendingReceivable > 0
         ? pendingReceivable
-        : (netMinor > 0 && processedCollect < netMinor ? netMinor - processedCollect : 0);
-
-    final offsetMinor = plan.receivableReverseAmountMinor > 0
-        ? plan.receivableReverseAmountMinor
-        : plan.pendingReceivableReverseMinor;
-    final isOffsetScenario = netMinor < 0 && offsetMinor > 0;
-    final remainingRefund = netMinor < 0
-        ? (netMinor.abs() - offsetMinor > 0 ? netMinor.abs() - offsetMinor : 0)
-        : 0;
-    final processedRefund = plan.processedRefundMinor > 0
-        ? plan.processedRefundMinor
-        : (remainingRefund > 0
-              ? remainingRefund
-              : (offsetMinor == 0 && netMinor < 0 ? netMinor.abs() : 0));
-
+        : (netMinor > 0 && plan.processedCollectMinor < netMinor
+              ? netMinor - plan.processedCollectMinor
+              : 0);
     final existingDebt = existingCustomerDebtMinor ?? 0;
-    final finalDebt = isOffsetScenario
-        ? (existingDebt - offsetMinor > 0 ? existingDebt - offsetMinor : 0)
-        : (existingDebt + newlyIncurredDebt);
+    final finalDebt = existingDebt + newlyIncurredDebt;
 
     final returnItems = detail.lines
         .where((line) => line.kind == ReturnExchangeLineKind.returnLine)
@@ -231,57 +248,29 @@ class SalesSlipPdfGenerator {
         pw.SizedBox(height: 6),
         pw.Divider(color: PdfColors.grey300, thickness: 0.5),
         pw.SizedBox(height: 6),
-        _row(
-          outcomeLabel,
-          MoneyFormatter.formatMinor(netMinor.abs()),
-          fonts,
-          isBoldLabel: true,
-          isBoldValue: true,
-          valueColor: outcomeColor,
-        ),
-        if (netMinor > 0) ...[
-          pw.SizedBox(height: 3),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) pw.SizedBox(height: 3),
           _row(
-            'Đã thu',
-            MoneyFormatter.formatMinor(processedCollect),
+            rows[i].$1,
+            rows[i].$2,
             fonts,
+            isBoldLabel: i == 0,
+            isBoldValue: i == 0,
+            valueColor: i == 0 ? PdfColor.fromHex('#1F7A36') : null,
           ),
-          pw.SizedBox(height: 3),
-          _row(
-            'Công nợ phát sinh',
-            MoneyFormatter.formatMinor(newlyIncurredDebt),
-            fonts,
-          ),
-        ] else if (netMinor < 0) ...[
-          if (offsetMinor > 0) ...[
-            pw.SizedBox(height: 3),
-            _row(
-              'Đã cấn trừ',
-              MoneyFormatter.formatMinor(offsetMinor),
-              fonts,
-            ),
-          ],
-          if (processedRefund > 0 || (offsetMinor == 0 && netMinor < 0)) ...[
-            pw.SizedBox(height: 3),
-            _row(
-              'Đã hoàn',
-              MoneyFormatter.formatMinor(processedRefund),
-              fonts,
-            ),
-          ],
         ],
         if (customerDisplayName.trim().isNotEmpty) ...[
           pw.SizedBox(height: 6),
           pw.Divider(color: PdfColors.grey300, thickness: 0.5),
           pw.SizedBox(height: 6),
           _row(
-            isOffsetScenario ? 'Công nợ trước cấn trừ' : 'Công nợ cũ của khách',
+            'Công nợ cũ của khách',
             MoneyFormatter.formatMinor(existingDebt),
             fonts,
           ),
           pw.SizedBox(height: 3),
           _row(
-            isOffsetScenario ? 'Công nợ sau cấn trừ' : 'Tổng công nợ',
+            'Tổng công nợ',
             MoneyFormatter.formatMinor(finalDebt),
             fonts,
             isBoldLabel: true,
