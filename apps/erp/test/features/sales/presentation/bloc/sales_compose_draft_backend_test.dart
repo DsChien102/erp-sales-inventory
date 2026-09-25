@@ -34,7 +34,7 @@ void main() {
 
       final ok = await cubit.saveDraft();
 
-      expect(ok, isTrue);
+      expect(ok, SalesDraftSaveResult.saved);
       expect(persistCalls, hasLength(1));
       expect(persistCalls.single.draftId, isNull);
       expect(persistCalls.single.expectedVersion, isNull);
@@ -74,7 +74,7 @@ void main() {
 
       final ok = await cubit.saveDraft();
 
-      expect(ok, isTrue);
+      expect(ok, SalesDraftSaveResult.saved);
       expect(cubit.state.lines.single.identity.lineId, 'server-line-uuid-1');
       expect(cubit.state.lines.single.identity.lineId, isNot(localLineId));
       expect(cubit.state.lines.single.pricing.lineTotal?.amountMinor, 100000);
@@ -107,7 +107,7 @@ void main() {
       cubit.setOrderNote('Ghi chú cập nhật');
       final ok = await cubit.saveDraft();
 
-      expect(ok, isTrue);
+      expect(ok, SalesDraftSaveResult.saved);
       expect(persistCalls, hasLength(2));
       expect(persistCalls[1].isUpdate, isTrue);
       expect(persistCalls[1].draftId, 'server-draft-1');
@@ -149,7 +149,7 @@ void main() {
       final sessionBefore = persistCalls.isEmpty ? null : persistCalls.first.composeSessionId;
 
       final failed = await cubit.saveDraft();
-      expect(failed, isFalse);
+      expect(failed, SalesDraftSaveResult.failed);
       expect(cubit.state.saveStatus, SalesComposeSaveStatus.error);
       expect(cubit.state.saveMessage, contains('Không lưu được'));
       expect(cubit.state.customer.partnerId, 'customer-1');
@@ -162,7 +162,7 @@ void main() {
       expect(sessionBefore ?? firstSession, firstSession);
 
       final retried = await cubit.saveDraft();
-      expect(retried, isTrue);
+      expect(retried, SalesDraftSaveResult.saved);
       expect(persistCalls, hasLength(2));
       expect(persistCalls[1].composeSessionId, firstSession);
       expect(persistCalls[1].draftId, isNull);
@@ -269,7 +269,7 @@ void main() {
       expect(cubit.state, isNot(isA<SalesComposeLoaded>()));
     });
 
-    test('saveDraft returns false while already saving', () async {
+    test('saveDraft returns failed while already saving', () async {
       final persistStarted = Completer<void>();
       final allowPersist = Completer<SalesOrderDraftDto>();
       final cubit = _cubit(
@@ -290,7 +290,7 @@ void main() {
       expect(cubit.state.saveStatus, SalesComposeSaveStatus.saving);
 
       final second = await cubit.saveDraft();
-      expect(second, isFalse);
+      expect(second, SalesDraftSaveResult.failed);
 
       allowPersist.complete(
         _draftDto(
@@ -300,8 +300,98 @@ void main() {
           customer: cubit.state.customer,
         ),
       );
-      expect(await first, isTrue);
+      expect(await first, SalesDraftSaveResult.saved);
       expect(cubit.state.saveStatus, SalesComposeSaveStatus.saved);
+    });
+
+    test('updating a draft that is no longer active reports draftGone without a toast message', () async {
+      var calls = 0;
+      final cubit = _cubit(
+        draftId: 'draft-new',
+        persist: (request) async {
+          calls += 1;
+          if (calls == 1) {
+            return _draftDto(
+              draftId: 'server-draft-1',
+              version: 1,
+              lines: request.lines,
+              customer: request.customer,
+              orderNote: request.orderNote,
+            );
+          }
+          throw const SalesContractException(
+            'STALE_DATA',
+            message: 'Draft is no longer active.',
+          );
+        },
+      );
+      addTearDown(cubit.close);
+
+      await cubit.hydrate();
+      cubit.addOrIncrementLine(_selection);
+      await _flush();
+      expect(await cubit.saveDraft(), SalesDraftSaveResult.saved);
+
+      cubit.setOrderNote('Sửa sau khi nháp bị xoá');
+      final result = await cubit.saveDraft();
+
+      expect(result, SalesDraftSaveResult.draftGone);
+      expect(cubit.state.saveMessage, isNull);
+    });
+
+    test('first save failure stays failed even for a stale-looking error', () async {
+      final cubit = _cubit(
+        draftId: 'draft-new',
+        persist: (_) async => throw const SalesContractException('STALE_DATA'),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.hydrate();
+      cubit.addOrIncrementLine(_selection);
+      await _flush();
+
+      expect(await cubit.saveDraft(), SalesDraftSaveResult.failed);
+    });
+
+    test('startNewDraft resets to an empty order and rotates the compose session', () async {
+      final persistCalls = <SalesDraftPersistRequest>[];
+      var nextId = 0;
+      final cubit = _cubit(
+        draftId: 'draft-new',
+        persist: (request) async {
+          persistCalls.add(request);
+          nextId += 1;
+          return _draftDto(
+            draftId: 'server-draft-$nextId',
+            version: 1,
+            lines: request.lines,
+            customer: request.customer,
+            orderNote: request.orderNote,
+          );
+        },
+      );
+      addTearDown(cubit.close);
+
+      await cubit.hydrate();
+      cubit.addOrIncrementLine(_selection);
+      await _flush();
+      await cubit.saveDraft();
+      final firstSession = persistCalls.single.composeSessionId;
+
+      await cubit.startNewDraft();
+
+      expect(cubit.state.draftId, SalesComposeDraftRef.newDraft);
+      expect(cubit.state.lines, isEmpty);
+      expect(cubit.state.hasUnsavedChanges, isFalse);
+      expect(cubit.composeSessionId, isNot(firstSession));
+
+      cubit.addOrIncrementLine(_selection);
+      await _flush();
+      expect(await cubit.saveDraft(), SalesDraftSaveResult.saved);
+      expect(persistCalls, hasLength(2));
+      expect(persistCalls[1].draftId, isNull);
+      expect(persistCalls[1].composeSessionId, isNot(firstSession));
+      expect(cubit.state.draftId, 'server-draft-2');
     });
 
     test('new draft hydrate does not call restore and stays empty ready', () async {

@@ -59,6 +59,7 @@ final salesModuleManifest = GeneratedModuleManifest(
     GetSalesOrderCancellationQuery,
     GetSalesOrderDetailQuery,
     GetSalesOrderDraftForRestoreQuery,
+    GetSalesOrderOriginalReceiptQuery,
     GetSalesOrderPaymentSummaryQuery,
     GetSalesOrderPaymentTransactionsQuery,
     GetSalesOrderQuery,

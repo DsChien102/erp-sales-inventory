@@ -305,6 +305,15 @@ void registerGeneratedSalesQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  SalesCommandRegistration.registerQueryHandler<GetSalesOrderOriginalReceiptQuery, SalesReceiptDocumentDto, GetSalesOrderOriginalReceiptQueryHandler>(
+    bus: bus,
+    factory: () => GetSalesOrderOriginalReceiptQueryHandler(
+      permissionChecker: container.get<IPermissionChecker>(),
+      receiptGateway: container.get<ISalesReceiptGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   SalesCommandRegistration.registerQueryHandler<GetSalesOrderPaymentSummaryQuery, SalesOrderPaymentSummaryDto, GetSalesOrderPaymentSummaryQueryHandler>(
     bus: bus,
     factory: () => GetSalesOrderPaymentSummaryQueryHandler(

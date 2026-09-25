@@ -2,7 +2,7 @@
 -- Kind: draft
 -- Intent: sales_draft_rpcs
 -- Context: TH-05 / clean-bootstrap draft save-update-list-restore-cancel RPCs
--- Touches: sales.save_sales_order_draft, sales.update_sales_order_draft, sales.list_sales_order_drafts, sales.get_sales_order_draft_for_restore, sales.cancel_sales_order_draft, _draft_payload, _write_draft_lines, _draft_preview_snapshot
+-- Touches: sales.save_sales_order_draft, sales.update_sales_order_draft, sales.list_sales_order_drafts, sales.get_sales_order_draft_for_restore, sales.cancel_sales_order_draft, _draft_payload, _write_draft_lines, _draft_customer_snapshot
 -- Safety: non-destructive; RPC owner only; uses shared helpers from 006_sales_shared_rpc_helpers.sql
 -- Depends on: 005_sales_rebuild_schema.sql, 006_sales_shared_rpc_helpers.sql
 -- Promoted from _drafts/007_sales_draft_rpcs.sql
@@ -23,11 +23,23 @@ begin
   where tenant_id = p_tenant_id and id = p_draft_id;
   if not found then return null; end if;
 
-  select coalesce(jsonb_agg(pricing_preview order by line_sequence), '[]'::jsonb),
-         coalesce(sum((pricing_preview->>'line_total_minor')::bigint), 0)
+  select coalesce(jsonb_agg(
+           jsonb_strip_nulls(jsonb_build_object(
+             'line_id', l.id::text,
+             'product_id', l.product_id::text,
+             'product_unit_id', l.product_unit_id::text,
+             'quantity_micros', l.quantity_micros,
+             'manual_unit_price_minor', l.manual_unit_price_input_minor,
+             'manual_discount_minor', l.manual_discount_amount_input_minor,
+             'manual_discount_basis_points', l.manual_discount_basis_points,
+             'note', l.line_note
+           )) || l.pricing_preview
+           order by l.line_sequence
+         ), '[]'::jsonb),
+         coalesce(sum((l.pricing_preview->>'line_total_minor')::bigint), 0)
   into v_lines, v_total
-  from sales.sales_order_draft_lines
-  where tenant_id = p_tenant_id and sales_order_draft_id = p_draft_id;
+  from sales.sales_order_draft_lines l
+  where l.tenant_id = p_tenant_id and l.sales_order_draft_id = p_draft_id;
 
   return jsonb_strip_nulls(jsonb_build_object(
     'draft_id', v_draft.id::text,
@@ -35,12 +47,12 @@ begin
     'status', v_draft.status,
     'store_id', v_draft.store_id::text,
     'currency_code', v_draft.currency_code,
-    'saved_at', coalesce((v_draft.preview_snapshot->>'saved_at')::timestamptz, v_draft.updated_at),
-    'saved_by_actor_id', coalesce(v_draft.preview_snapshot->>'saved_by_actor_id', v_draft.created_by_user_id::text),
-    'customer', v_draft.preview_snapshot->'customer',
+    'saved_at', v_draft.updated_at,
+    'saved_by_actor_id', v_draft.updated_by_user_id::text,
+    'customer', v_draft.customer_snapshot,
     'order_note', v_draft.note,
-    'pricing_preview_token', v_draft.preview_snapshot->>'pricing_preview_token',
-    'needs_revalidation', coalesce((v_draft.preview_snapshot->>'needs_revalidation')::boolean, false),
+    'pricing_preview_token', v_draft.pricing_preview_token,
+    'needs_revalidation', v_draft.needs_revalidation,
     'lines', v_lines,
     'total_amount_minor', v_total
   ));
@@ -88,74 +100,53 @@ begin
 
     v_line_id := gen_random_uuid();
     v_obj := jsonb_strip_nulls(jsonb_build_object(
-      'line_id', v_line_id::text,
-      'product_id', v_line->>'product_id',
       'product_sku', v_line->>'product_sku',
       'product_name', v_line->>'product_name',
-      'product_unit_id', v_line->>'product_unit_id',
       'unit_code', v_line->>'unit_code',
       'unit_name', v_line->>'unit_name',
-      'quantity_micros', (v_line->>'quantity_micros')::bigint,
       'applied_unit_price_minor', (v_line->>'applied_unit_price_minor')::bigint,
       'line_total_minor', (v_line->>'line_total_minor')::bigint,
       'list_unit_price_minor', nullif(v_line->>'list_unit_price_minor', '')::bigint,
-      'manual_unit_price_minor', nullif(v_line->>'manual_unit_price_minor', '')::bigint,
-      'manual_discount_minor', nullif(v_line->>'manual_discount_minor', '')::bigint,
-      'manual_discount_basis_points', nullif(v_line->>'manual_discount_basis_points', '')::integer,
       'pricing_source_code', nullif(trim(coalesce(v_line->>'pricing_source_code', '')), ''),
       'pricing_warning_codes', coalesce(v_line->'pricing_warning_codes', '[]'::jsonb),
       'pricing_blocking_codes', coalesce(v_line->'pricing_blocking_codes', '[]'::jsonb),
-      'note', nullif(trim(coalesce(v_line->>'note', '')), ''),
       'needs_revalidation', coalesce((v_line->>'needs_revalidation')::boolean, false)
     ));
 
     insert into sales.sales_order_draft_lines(
       id, tenant_id, sales_order_draft_id, line_sequence, product_id, product_unit_id,
       quantity_micros, manual_unit_price_input_minor, manual_discount_amount_input_minor,
-      pricing_preview, line_note
+      manual_discount_basis_points, line_note, pricing_preview
     ) values (
       v_line_id, p_tenant_id, p_draft_id, v_seq,
       (v_line->>'product_id')::uuid, (v_line->>'product_unit_id')::uuid,
       (v_line->>'quantity_micros')::bigint,
       nullif(v_line->>'manual_unit_price_minor', '')::bigint,
       nullif(v_line->>'manual_discount_minor', '')::bigint,
-      v_obj, nullif(trim(coalesce(v_line->>'note', '')), '')
+      nullif(v_line->>'manual_discount_basis_points', '')::integer,
+      nullif(trim(coalesce(v_line->>'note', '')), ''),
+      v_obj
     );
   end loop;
 end;
 $$;
 
-create or replace function sales._draft_preview_snapshot(
-  p_customer jsonb,
-  p_pricing_preview_token text,
-  p_needs_revalidation boolean,
-  p_actor_id uuid,
-  p_saved_at timestamptz
-) returns jsonb
+create or replace function sales._draft_customer_snapshot(p_customer jsonb)
+returns jsonb
 language plpgsql
 immutable
 security definer
 set search_path = sales, iam, public, pg_temp
 as $$
-declare
-  v_customer jsonb;
 begin
   if p_customer is null or p_customer = 'null'::jsonb then
-    v_customer := null;
-  else
-    v_customer := jsonb_strip_nulls(jsonb_build_object(
-      'customer_id', p_customer->>'customer_id',
-      'display_name', p_customer->>'display_name',
-      'phone_number', nullif(trim(coalesce(p_customer->>'phone_number', '')), ''),
-      'tax_code', nullif(trim(coalesce(p_customer->>'tax_code', '')), '')
-    ));
+    return null;
   end if;
   return jsonb_strip_nulls(jsonb_build_object(
-    'customer', v_customer,
-    'pricing_preview_token', nullif(trim(coalesce(p_pricing_preview_token, '')), ''),
-    'needs_revalidation', coalesce(p_needs_revalidation, false),
-    'saved_by_actor_id', p_actor_id::text,
-    'saved_at', p_saved_at
+    'customer_id', p_customer->>'customer_id',
+    'display_name', p_customer->>'display_name',
+    'phone_number', nullif(trim(coalesce(p_customer->>'phone_number', '')), ''),
+    'tax_code', nullif(trim(coalesce(p_customer->>'tax_code', '')), '')
   ));
 end;
 $$;
@@ -187,7 +178,6 @@ declare
   v_draft_id uuid := gen_random_uuid();
   v_customer_id uuid;
   v_correlation uuid;
-  v_saved_at timestamptz := now();
   v_result jsonb;
 begin
   perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.draft.create');
@@ -217,9 +207,7 @@ begin
     p_tenant_id,
     'save_sales_order_draft',
     trim(p_idempotency_key),
-    coalesce(p_payload_hash, ''),
-    v_correlation
-  );
+    coalesce(p_payload_hash, ''));
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot';
   end if;
@@ -235,12 +223,15 @@ begin
   end if;
 
   insert into sales.sales_order_drafts(
-    id, tenant_id, store_id, created_by_user_id, customer_partner_id, status, currency_code,
-    note, preview_snapshot, version
+    id, tenant_id, store_id, created_by_user_id, updated_by_user_id,
+    customer_partner_id, customer_snapshot, status, currency_code,
+    note, pricing_preview_token, needs_revalidation, version
   ) values (
-    v_draft_id, p_tenant_id, p_store_id, p_actor_id, v_customer_id, 'active', upper(trim(p_currency_code)),
+    v_draft_id, p_tenant_id, p_store_id, p_actor_id, p_actor_id,
+    v_customer_id, sales._draft_customer_snapshot(p_customer), 'active', upper(trim(p_currency_code)),
     nullif(trim(coalesce(p_order_note, '')), ''),
-    sales._draft_preview_snapshot(p_customer, p_pricing_preview_token, p_needs_revalidation, p_actor_id, v_saved_at),
+    nullif(trim(coalesce(p_pricing_preview_token, '')), ''),
+    coalesce(p_needs_revalidation, false),
     1
   );
 
@@ -252,10 +243,7 @@ begin
     'save_sales_order_draft',
     trim(p_idempotency_key),
     'succeeded',
-    'sales_order_draft',
-    v_draft_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
@@ -312,9 +300,7 @@ begin
     p_tenant_id,
     'update_sales_order_draft',
     trim(p_idempotency_key),
-    coalesce(p_payload_hash, ''),
-    v_correlation
-  );
+    coalesce(p_payload_hash, ''));
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot';
   end if;
@@ -363,11 +349,12 @@ begin
 
   update sales.sales_order_drafts
   set customer_partner_id = v_customer_id,
+      customer_snapshot = sales._draft_customer_snapshot(p_customer),
       currency_code = upper(trim(p_currency_code)),
       note = nullif(trim(coalesce(p_order_note, '')), ''),
-      preview_snapshot = sales._draft_preview_snapshot(
-        p_customer, p_pricing_preview_token, p_needs_revalidation, p_actor_id, v_saved_at
-      ),
+      pricing_preview_token = nullif(trim(coalesce(p_pricing_preview_token, '')), ''),
+      needs_revalidation = coalesce(p_needs_revalidation, false),
+      updated_by_user_id = p_actor_id,
       version = v_draft.version + 1,
       updated_at = v_saved_at
   where tenant_id = p_tenant_id and id = p_draft_id;
@@ -380,10 +367,7 @@ begin
     'update_sales_order_draft',
     trim(p_idempotency_key),
     'succeeded',
-    'sales_order_draft',
-    p_draft_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
@@ -432,9 +416,7 @@ begin
     p_tenant_id,
     'cancel_sales_order_draft',
     trim(p_idempotency_key),
-    coalesce(p_payload_hash, ''),
-    v_correlation
-  );
+    coalesce(p_payload_hash, ''));
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot';
   end if;
@@ -473,7 +455,7 @@ begin
   update sales.sales_order_drafts
   set status = 'cancelled',
       version = v_draft.version + 1,
-      cancelled_at = now(),
+      updated_by_user_id = p_actor_id,
       updated_at = now()
   where tenant_id = p_tenant_id and id = p_draft_id;
 
@@ -484,10 +466,7 @@ begin
     'cancel_sales_order_draft',
     trim(p_idempotency_key),
     'succeeded',
-    'sales_order_draft',
-    p_draft_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
@@ -592,8 +571,8 @@ begin
 
   return jsonb_build_object(
     'draft', sales._draft_payload(p_tenant_id, p_draft_id),
-    'saved_at', coalesce((v_draft.preview_snapshot->>'saved_at')::timestamptz, v_draft.updated_at),
-    'saved_by_actor_id', coalesce(v_draft.preview_snapshot->>'saved_by_actor_id', v_draft.created_by_user_id::text)
+    'saved_at', v_draft.updated_at,
+    'saved_by_actor_id', v_draft.updated_by_user_id::text
   );
 end;
 $$;
@@ -615,4 +594,4 @@ grant execute on function sales.get_sales_order_draft_for_restore(uuid, uuid, uu
 
 revoke all on function sales._draft_payload(uuid, uuid) from public, anon, authenticated;
 revoke all on function sales._write_draft_lines(uuid, uuid, jsonb) from public, anon, authenticated;
-revoke all on function sales._draft_preview_snapshot(jsonb, text, boolean, uuid, timestamptz) from public, anon, authenticated;
+revoke all on function sales._draft_customer_snapshot(jsonb) from public, anon, authenticated;

@@ -91,3 +91,15 @@ final class SalesDraftRestoreResult {
   final String? orderNote;
   final List<SalesDraftRestoreIssue> issues;
 }
+
+/// Outcome of saving the draft being composed.
+enum SalesDraftSaveResult {
+  saved,
+
+  /// Ordinary failure: keep the edits and let the user retry.
+  failed,
+
+  /// The server draft is gone (cancelled, missing, or changed elsewhere):
+  /// retrying can never succeed, so the page must leave this draft.
+  draftGone,
+}

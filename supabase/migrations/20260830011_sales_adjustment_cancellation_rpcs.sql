@@ -600,10 +600,7 @@ begin
     )::text;
   end if;
 
-  v_cancel_actor_id := coalesce(
-    v_cancellation.confirmed_by_user_id,
-    v_cancellation.requested_by_user_id
-  );
+  v_cancel_actor_id := v_cancellation.requested_by_user_id;
 
   select coalesce(
     nullif(trim(concat_ws(' ', p.given_name, p.family_middle_name)), ''),

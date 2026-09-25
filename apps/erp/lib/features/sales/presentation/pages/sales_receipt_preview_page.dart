@@ -9,19 +9,18 @@ import '../support/sales_receipt_pdf_generator.dart';
 class SalesReceiptPreviewPage extends StatelessWidget {
   const SalesReceiptPreviewPage({
     super.key,
-    required this.receipt,
+    required this.document,
     required this.onPrint,
     required this.onShare,
   });
 
-  final SalesReceiptDto receipt;
+  final SalesReceiptDocumentDto document;
   final SalesReceiptDeviceAction onPrint;
   final SalesReceiptDeviceAction onShare;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final document = receipt.document;
     final fileName = SalesReceiptPdfGenerator.sanitizeFileName(
       document.receiptNumber,
     );

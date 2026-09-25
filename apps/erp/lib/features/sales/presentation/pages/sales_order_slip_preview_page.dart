@@ -46,7 +46,7 @@ class SalesOrderSlipPreviewPage extends StatelessWidget {
 
     return SalesReceiptPreviewPage(
       key: const Key('wgt_sales_order_slip_preview_page'),
-      receipt: resolvedReceipt,
+      document: resolvedReceipt.document,
       onPrint: onPrint ?? (document) => _print(context, document),
       onShare: onShare ?? (document) => _share(context, document),
     );

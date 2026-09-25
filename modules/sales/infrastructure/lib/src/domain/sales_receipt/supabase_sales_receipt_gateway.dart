@@ -44,10 +44,26 @@ final class SupabaseSalesReceiptGateway implements ISalesReceiptGateway {
     return _call('get_sales_receipt', SalesReceiptRpcMapper.getReceiptParams(query));
   }
 
-  Future<SalesReceiptDto> _call(String procedure, Map<String, dynamic> params) async {
+  @override
+  Future<SalesReceiptDocumentDto> getOriginalReceipt(GetSalesOrderOriginalReceiptQuery query) {
+    return _invoke(
+      'get_sales_order_original_receipt',
+      SalesReceiptRpcMapper.originalReceiptParams(query),
+      SalesReceiptRpcMapper.documentFromJson,
+    );
+  }
+
+  Future<SalesReceiptDto> _call(String procedure, Map<String, dynamic> params) =>
+      _invoke(procedure, params, SalesReceiptRpcMapper.salesReceiptFromJson);
+
+  Future<T> _invoke<T>(
+    String procedure,
+    Map<String, dynamic> params,
+    T Function(Map<String, dynamic> json) map,
+  ) async {
     try {
       final json = await _rpcClient.call(procedure, params: params);
-      return SalesReceiptRpcMapper.salesReceiptFromJson(json);
+      return map(json);
     } on RpcException catch (error) {
       throw _mapSalesRpcError(error);
     } on SalesContractException {

@@ -16,23 +16,17 @@ grant usage on schema sales to authenticated, service_role;
 -- ===========================================================================
 
 create table if not exists sales.idempotency_records (
-  id uuid primary key,
   tenant_id uuid not null,
   command_scope varchar(100) not null,
   idempotency_key varchar(150) not null,
   payload_hash varchar(128) not null,
   status text not null,
-  result_type varchar(100),
-  result_id uuid,
   result_snapshot jsonb,
-  correlation_id uuid not null,
-  expires_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint sales_idempotency_records_scope_key_unique
-    unique (tenant_id, command_scope, idempotency_key),                        -- FC-18
+  constraint sales_idempotency_records_pkey
+    primary key (tenant_id, command_scope, idempotency_key),                   -- FC-18
   constraint sales_idempotency_records_status_check
-    check (status in ('in_progress', 'succeeded', 'failed', 'uncertain'))
+    check (status in ('in_progress', 'succeeded', 'failed'))
 );
 
 -- Model B cross-module handoff (sales.integration_commands + *_impact_requests) is
@@ -44,9 +38,8 @@ create table if not exists sales.idempotency_records (
 create table if not exists sales.sales_order_number_counters (
   tenant_id uuid not null,
   store_id uuid not null,
-  period_key varchar(20) not null,                 -- e.g. yyyymm bucket per numbering policy
-  next_value bigint not null default 1,
-  updated_at timestamptz not null default now(),
+  period_key varchar(20) not null,                 -- yyyymmdd, business date in Asia/Ho_Chi_Minh
+  next_value bigint not null default 1,            -- last issued sequence number for the period
   primary key (tenant_id, store_id, period_key)
 );
 
@@ -58,18 +51,16 @@ create table if not exists sales.sales_order_drafts (
   id uuid primary key,
   tenant_id uuid not null,
   store_id uuid not null,
-  sales_shift_id uuid,
   created_by_user_id uuid not null,
+  updated_by_user_id uuid not null,                                            -- last actor who saved/cancelled/converted
   customer_partner_id uuid,
+  customer_snapshot jsonb,                                                     -- display snapshot for restore; not authoritative
   status text not null,
   currency_code char(3) not null,
   note text,
-  preview_snapshot jsonb,                                                      -- draft-level UI preview (customer display, token, needs_revalidation); not authoritative
+  pricing_preview_token text,
+  needs_revalidation boolean not null default false,
   version bigint not null default 1,
-  expires_at timestamptz,
-  converted_at timestamptz,
-  cancelled_at timestamptz,
-  expired_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint sales_order_drafts_status_check
@@ -87,10 +78,10 @@ create table if not exists sales.sales_order_draft_lines (
   quantity_micros bigint not null,
   manual_unit_price_input_minor bigint,
   manual_discount_amount_input_minor bigint,
-  pricing_preview jsonb,
+  manual_discount_basis_points integer,
   line_note text,
+  pricing_preview jsonb not null,                                              -- display + pricing result only; user inputs live in columns
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
   constraint sales_order_draft_lines_seq_unique
     unique (sales_order_draft_id, line_sequence),                              -- FC-05
   constraint sales_order_draft_lines_qty_positive check (quantity_micros > 0),  -- FC-13
@@ -105,16 +96,13 @@ create table if not exists sales.sales_orders (
   source_draft_id uuid,
   order_code varchar(50) not null,
   store_id uuid not null,
-  sales_shift_id uuid,
   seller_user_id uuid not null,
   customer_partner_id uuid,
   channel_code varchar(50) not null,
-  business_time timestamptz not null,
   currency_code char(3) not null,
   lifecycle_status text not null,
   lock_status text not null default 'unlocked',
   version bigint not null default 1,
-  reference_code varchar(100),
   internal_note text,
   subtotal_amount_minor bigint not null,
   discount_amount_minor bigint not null,
@@ -122,13 +110,9 @@ create table if not exists sales.sales_orders (
   rounding_amount_minor bigint not null,                                       -- signed
   payable_amount_minor bigint not null,
   sales_context_snapshot jsonb not null,
-  customer_snapshot jsonb not null,
-  buyer_tax_snapshot jsonb,
-  pricing_summary_snapshot jsonb not null,
+  buyer_tax_snapshot jsonb,                                                    -- e-invoice buyer identity (TH-08); written by theme8 finalize
   completed_at timestamptz not null default now(),
   cancelled_at timestamptz,
-  locked_at timestamptz,
-  locked_by_user_id uuid,
   payment_due_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -137,6 +121,12 @@ create table if not exists sales.sales_orders (
   constraint sales_orders_lifecycle_check
     check (lifecycle_status in ('completed', 'cancelled')),
   constraint sales_orders_lock_check check (lock_status in ('unlocked', 'locked')),
+  constraint sales_orders_commercial_balance
+    check (payable_amount_minor
+      = subtotal_amount_minor
+        - discount_amount_minor
+        + tax_amount_minor
+        + rounding_amount_minor),
   constraint sales_orders_source_draft_fk
     foreign key (tenant_id, source_draft_id)
     references sales.sales_order_drafts (tenant_id, id),
@@ -144,15 +134,12 @@ create table if not exists sales.sales_orders (
 );
 
 create table if not exists sales.sales_order_return_status_projections (
-  id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null,
   sales_order_id uuid not null,
   return_status text not null,
-  sold_quantity_micros bigint not null default 0,
-  returned_quantity_micros bigint not null default 0,
-  version integer not null default 1,
   updated_at timestamptz not null default now(),
-  unique (tenant_id, sales_order_id),
+  constraint sales_order_return_status_projections_pkey
+    primary key (tenant_id, sales_order_id),
   constraint sales_order_return_status_check
     check (return_status in ('none', 'partially_returned', 'fully_returned')),
   constraint sales_order_return_status_parent_fk
@@ -176,12 +163,14 @@ create table if not exists sales.sales_order_lines (
   line_total_minor bigint not null,
   product_snapshot jsonb not null,
   product_unit_snapshot jsonb not null,
-  pricing_snapshot jsonb not null,
-  tax_snapshot jsonb,
   line_note text,
   created_at timestamptz not null default now(),
   constraint sales_order_lines_seq_unique unique (sales_order_id, line_sequence), -- FC-06
   constraint sales_order_lines_qty_positive check (quantity_micros > 0),          -- FC-13
+  constraint sales_order_lines_base_qty_positive check (base_quantity_micros > 0),
+  constraint sales_order_lines_commercial_balance
+    check (line_total_minor
+      = gross_amount_minor - discount_amount_minor + tax_amount_minor),
   constraint sales_order_lines_parent_fk
     foreign key (tenant_id, sales_order_id)
     references sales.sales_orders (tenant_id, id) on delete cascade,             -- FC-01
@@ -207,18 +196,14 @@ create table if not exists sales.sales_order_settlements (
   net_collected_amount_minor bigint not null default 0,
   outstanding_amount_minor bigint not null,
   payment_status text not null,
-  reconciliation_status text not null default 'not_required',
   version bigint not null default 1,
-  last_transaction_at timestamptz,
-  settled_at timestamptz,
+  settled_at timestamptz,                                                      -- when fully paid; cleared if no longer settled
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint sales_settlements_order_unique unique (sales_order_id),            -- FC-07 (1:1)
   constraint sales_settlements_payment_status_check
     check (payment_status in ('unpaid', 'partially_paid', 'paid',
       'partially_refunded', 'refunded', 'no_balance')),
-  constraint sales_settlements_recon_status_check
-    check (reconciliation_status in ('not_required', 'required', 'in_progress', 'reconciled')),
   constraint sales_settlements_current_payable_formula
     check (current_payable_amount_minor
       = original_payable_amount_minor + post_sale_adjustment_amount_minor),     -- FC-15
@@ -231,11 +216,27 @@ create table if not exists sales.sales_order_settlements (
   constraint sales_settlements_tenant_id_unique unique (tenant_id, id)
 );
 
+-- Obligation ledger: one signed adjustment per post-sale source (cancellation / return-exchange).
+create table if not exists sales.settlement_obligation_adjustments (
+  id uuid primary key,
+  tenant_id uuid not null,
+  sales_order_settlement_id uuid not null,
+  source_kind text not null
+    check (source_kind in ('cancellation', 'return_exchange')),
+  source_id uuid not null,
+  amount_minor bigint not null,
+  created_at timestamptz not null default now(),
+  constraint settlement_obligation_adjustments_source_unique
+    unique (tenant_id, source_kind, source_id),
+  constraint settlement_obligation_adjustments_settlement_fk
+    foreign key (tenant_id, sales_order_settlement_id)
+    references sales.sales_order_settlements (tenant_id, id)
+);
+
 create table if not exists sales.sales_payment_transactions (
   id uuid primary key,
   tenant_id uuid not null,
   sales_order_settlement_id uuid not null,
-  transaction_code varchar(50) not null,
   transaction_type text not null,
   direction text not null,
   amount_minor bigint not null,
@@ -248,33 +249,31 @@ create table if not exists sales.sales_payment_transactions (
   source_id uuid,
   related_transaction_id uuid,
   initiated_by_user_id uuid not null,
-  confirmed_by_user_id uuid,
   reason_code varchar(50),
   reason text,
-  idempotency_key varchar(150) not null,
   external_reference varchar(150),
-  metadata jsonb,
   occurred_at timestamptz not null default now(),
-  confirmed_at timestamptz,
-  voided_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint sales_payment_tx_code_unique unique (tenant_id, transaction_code),
-  constraint sales_payment_tx_idempotency_unique unique (tenant_id, idempotency_key), -- FC-18
   constraint sales_payment_tx_amount_positive check (amount_minor > 0),          -- FC-13
   constraint sales_payment_tx_type_check
-    check (transaction_type in ('collection', 'refund', 'reversal')),
+    check (transaction_type in ('collection', 'refund')),
   constraint sales_payment_tx_direction_check check (direction in ('inflow', 'outflow')),
+  constraint sales_payment_tx_type_direction
+    check ((transaction_type = 'collection' and direction = 'inflow')
+      or (transaction_type = 'refund' and direction = 'outflow')),
   constraint sales_payment_tx_status_check
-    check (status in ('pending', 'confirmed', 'failed', 'voided')),
+    check (status in ('pending', 'confirmed', 'failed')),
   constraint sales_payment_tx_source_context_check
     check (source_context in ('checkout', 'additional_collection',
       'receivable_collection', 'return_exchange', 'cancellation', 'manual_correction')),
-  constraint sales_payment_tx_related_fk
-    foreign key (related_transaction_id) references sales.sales_payment_transactions (id),
   constraint sales_payment_tx_parent_fk
     foreign key (tenant_id, sales_order_settlement_id)
-    references sales.sales_order_settlements (tenant_id, id) on delete cascade   -- FC-01
+    references sales.sales_order_settlements (tenant_id, id) on delete cascade,  -- FC-01
+  constraint sales_payment_tx_tenant_settlement_id_unique
+    unique (tenant_id, sales_order_settlement_id, id),
+  constraint sales_payment_tx_related_same_settlement_fk
+    foreign key (tenant_id, sales_order_settlement_id, related_transaction_id)
+    references sales.sales_payment_transactions (tenant_id, sales_order_settlement_id, id)
 );
 
 -- ===========================================================================
@@ -286,24 +285,14 @@ create table if not exists sales.sales_order_cancellations (
   tenant_id uuid not null,
   sales_order_id uuid not null,
   status text not null,
-  version bigint not null default 1,
   source_order_version bigint not null,
   requested_by_user_id uuid not null,
-  confirmed_by_user_id uuid,
-  completed_by_user_id uuid,
   reason text,
   precheck_snapshot jsonb not null,
-  required_impacts_snapshot jsonb,
-  blocker_codes jsonb,
-  idempotency_key varchar(150) not null,
-  requested_at timestamptz not null default now(),
   confirmed_at timestamptz,
-  completed_at timestamptz,
-  blocked_at timestamptz,
-  failed_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint sales_order_cancellations_idempotency_unique unique (tenant_id, idempotency_key),
+  constraint sales_order_cancellations_order_unique
+    unique (tenant_id, sales_order_id),                                        -- FC-17: ≤1 cancellation per order
   constraint sales_order_cancellations_status_check
     check (status in ('requested', 'validating', 'confirmed', 'processing',
       'completed', 'blocked', 'failed', 'cancelled')),
@@ -311,46 +300,28 @@ create table if not exists sales.sales_order_cancellations (
     foreign key (tenant_id, sales_order_id)
     references sales.sales_orders (tenant_id, id)                               -- FC-01
 );
--- Legacy 20260827005 had reason_code NOT NULL; create-if-not-exists above does
--- not rewrite existing tables. Drop so confirm_sales_order_cancellation can
--- persist reason text only.
-alter table sales.sales_order_cancellations
-  drop column if exists reason_code;
--- FC-17 (≤1 completed cancellation per order) enforced by partial unique index below.
-create unique index if not exists sales_order_cancellations_one_completed
-  on sales.sales_order_cancellations (sales_order_id)
-  where status = 'completed';
 
 create table if not exists sales.return_exchange_orders (
   id uuid primary key,
   tenant_id uuid not null,
   sales_order_id uuid not null,
-  operation_type text not null,
   status text not null,
   version bigint not null default 1,
   source_order_version bigint not null,
   created_by_user_id uuid not null,
   confirmed_by_user_id uuid,                                                   -- ADR-7: confirmation evidence on aggregate
   completed_by_user_id uuid,
-  reason_code varchar(50) not null,
-  reason text,
+  reason text,                                                                 -- optional session-level note; line reasons live on return_exchange_lines
   currency_code char(3) not null,
-  idempotency_key varchar(150) not null,
   entry_source text,
-  payload_hash text,
   source_settlement_version bigint,
   reference_number varchar(100),
   correlation_id text,
-  causation_id text,
   confirmation_decision_snapshot jsonb,
   confirmed_at timestamptz,
   completed_at timestamptz,
-  cancelled_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint return_exchange_orders_idempotency_unique unique (tenant_id, idempotency_key),
-  constraint return_exchange_orders_operation_check
-    check (operation_type in ('return', 'exchange', 'return_and_exchange')),
   constraint return_exchange_orders_status_check
     check (status in ('draft', 'confirmed', 'processing', 'completed',
       'cancelled', 'blocked', 'failed')),
@@ -374,23 +345,20 @@ create table if not exists sales.return_exchange_lines (
   product_id uuid not null,
   product_unit_id uuid not null,
   quantity_micros bigint not null,
-  base_quantity_micros bigint not null,
+  base_quantity_micros bigint not null,                                        -- quantity × product_unit_snapshot.conversionRateToBase
   unit_value_minor bigint not null,
-  line_value_minor bigint not null,
   return_reason_code varchar(50),
   return_condition_code varchar(50),
   product_snapshot jsonb not null,
   product_unit_snapshot jsonb not null,
-  pricing_snapshot jsonb not null,
-  line_note text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
   constraint return_exchange_lines_seq_unique
     unique (return_exchange_order_id, line_sequence),
   constraint return_exchange_lines_tenant_id_unique unique (tenant_id, id),
   constraint return_exchange_lines_role_check check (line_role in ('returned', 'exchange')),
   constraint return_exchange_lines_qty_positive check (quantity_micros > 0),     -- FC-13
-  constraint return_exchange_lines_value_nonneg check (line_value_minor >= 0),   -- FC-13
+  constraint return_exchange_lines_base_qty_positive check (base_quantity_micros > 0),
+  constraint return_exchange_lines_unit_value_nonneg check (unit_value_minor >= 0), -- FC-13
   -- ADR-9: a returned line references exactly one returnable unit
   -- (original order line XOR confirmed exchange line); exchange lines carry neither.
   constraint return_exchange_lines_returned_single_source check (
@@ -420,26 +388,18 @@ create table if not exists sales.return_exchange_valuations (
   return_value_minor bigint not null,
   exchange_value_minor bigint not null,
   net_difference_minor bigint not null,                                        -- signed
-  required_settlement_type text not null,
   status text not null,
   valuation_details jsonb not null,                                           -- ADR-6: allocation plan embedded here
-  version bigint not null default 1,
-  calculated_by_user_id uuid not null,
   calculated_at timestamptz not null default now(),
-  confirmed_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
   constraint return_exchange_valuations_order_unique unique (return_exchange_order_id), -- FC-08
   constraint return_exchange_valuations_values_nonneg
     check (return_value_minor >= 0 and exchange_value_minor >= 0),              -- FC-13
   -- FC-14 (ADR-2): canonical sign — exchange minus return.
   constraint return_exchange_valuations_net_formula
     check (net_difference_minor = exchange_value_minor - return_value_minor),
-  constraint return_exchange_valuations_settlement_type_check
-    check (required_settlement_type in ('none', 'collect', 'refund',
-      'receivable_offset', 'mixed')),
   constraint return_exchange_valuations_status_check
-    check (status in ('calculated', 'confirmed', 'superseded')),
+    check (status in ('calculated', 'confirmed')),
   constraint return_exchange_valuations_parent_fk
     foreign key (tenant_id, return_exchange_order_id)
     references sales.return_exchange_orders (tenant_id, id) on delete cascade    -- FC-01
@@ -455,21 +415,12 @@ create table if not exists sales.sales_receipts (
   sales_order_id uuid not null,
   receipt_version integer not null,
   status text not null,
-  template_code varchar(50) not null,
-  template_version varchar(30) not null,
   content_hash varchar(128) not null,
   receipt_snapshot jsonb not null,
-  generated_by_user_id uuid,
-  superseded_by_receipt_id uuid,
-  archived_by_user_id uuid,
   generated_at timestamptz not null default now(),
-  archived_at timestamptz,
-  created_at timestamptz not null default now(),
   constraint sales_receipts_version_unique unique (sales_order_id, receipt_version), -- FC-09
   constraint sales_receipts_status_check
     check (status in ('generated', 'superseded', 'archived')),
-  constraint sales_receipts_superseded_fk
-    foreign key (superseded_by_receipt_id) references sales.sales_receipts (id),
   constraint sales_receipts_parent_fk
     foreign key (tenant_id, sales_order_id)
     references sales.sales_orders (tenant_id, id),                             -- FC-01
@@ -480,14 +431,9 @@ create table if not exists sales.sales_receipt_activities (
   id uuid primary key,
   tenant_id uuid not null,
   sales_receipt_id uuid not null,
-  actor_user_id uuid,
+  actor_user_id uuid not null,
   activity_type text not null,
-  channel varchar(50),
-  destination_masked varchar(255),
-  device_context jsonb,
-  activity_metadata jsonb,
   occurred_at timestamptz not null default now(),
-  created_at timestamptz not null default now(),
   constraint sales_receipt_activities_type_check
     check (activity_type in ('printed', 'shared', 'archived')),
   constraint sales_receipt_activities_parent_fk
@@ -502,156 +448,6 @@ create table if not exists sales.sales_receipt_activities (
 -- Every statement below must be idempotent. Add new schema changes in BOTH the
 -- create-table block (for fresh installs) and here (for existing databases).
 -- ===========================================================================
-
--- ADR-9: exchanged-in goods are returnable — a returned line references either
--- an original order line or a confirmed exchange line.
-alter table sales.return_exchange_lines
-  add column if not exists source_exchange_line_id uuid;
-
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'return_exchange_lines_tenant_id_unique'
-  ) then
-    alter table sales.return_exchange_lines
-      add constraint return_exchange_lines_tenant_id_unique unique (tenant_id, id);
-  end if;
-
-  -- Replace the old original-only check with the XOR single-source check.
-  alter table sales.return_exchange_lines
-    drop constraint if exists return_exchange_lines_returned_requires_original;
-
-  if not exists (
-    select 1 from pg_constraint where conname = 'return_exchange_lines_returned_single_source'
-  ) then
-    alter table sales.return_exchange_lines
-      add constraint return_exchange_lines_returned_single_source check (
-        (line_role = 'returned'
-          and (original_sales_order_line_id is not null) <> (source_exchange_line_id is not null))
-        or (line_role <> 'returned' and source_exchange_line_id is null)
-      );
-  end if;
-
-  if not exists (
-    select 1 from pg_constraint where conname = 'return_exchange_lines_source_exchange_fk'
-  ) then
-    alter table sales.return_exchange_lines
-      add constraint return_exchange_lines_source_exchange_fk
-        foreign key (tenant_id, source_exchange_line_id)
-        references sales.return_exchange_lines (tenant_id, id);
-  end if;
-end;
-$$;
-
--- Sales review schema (folded from drafts 018/023/024/032).
--- 20260827005 creates these tables first; ALTER here is what reset applies.
--- Fresh reset has no history, so constraints are VALID (not NOT VALID).
-alter table sales.sales_orders
-  add column if not exists payment_due_date date;
-
-alter table sales.sales_order_settlements
-  drop constraint if exists sales_settlements_payment_status_check;
-alter table sales.sales_order_settlements
-  add constraint sales_settlements_payment_status_check
-  check (payment_status in ('unpaid', 'partially_paid', 'paid',
-    'partially_refunded', 'refunded', 'no_balance'));
-
-create table if not exists sales.settlement_obligation_adjustments (
-  id uuid primary key,
-  tenant_id uuid not null,
-  sales_order_settlement_id uuid not null,
-  source_kind text not null
-    check (source_kind in ('cancellation', 'return_exchange')),
-  source_id uuid not null,
-  amount_minor bigint not null,
-  created_at timestamptz not null default now(),
-  constraint settlement_obligation_adjustments_source_unique
-    unique (tenant_id, source_kind, source_id),
-  constraint settlement_obligation_adjustments_settlement_fk
-    foreign key (tenant_id, sales_order_settlement_id)
-    references sales.sales_order_settlements (tenant_id, id)
-);
-
-create unique index if not exists sales_payment_tx_tenant_settlement_id_uidx
-  on sales.sales_payment_transactions (tenant_id, sales_order_settlement_id, id);
-
-create unique index if not exists sales_receipts_tenant_order_id_uidx
-  on sales.sales_receipts (tenant_id, sales_order_id, id);
-
-alter table sales.sales_payment_transactions
-  drop constraint if exists sales_payment_tx_related_fk;
-alter table sales.sales_payment_transactions
-  drop constraint if exists sales_payment_tx_related_same_settlement_fk;
-alter table sales.sales_payment_transactions
-  add constraint sales_payment_tx_related_same_settlement_fk
-  foreign key (tenant_id, sales_order_settlement_id, related_transaction_id)
-  references sales.sales_payment_transactions (tenant_id, sales_order_settlement_id, id);
-
-alter table sales.sales_receipts
-  drop constraint if exists sales_receipts_superseded_fk;
-alter table sales.sales_receipts
-  drop constraint if exists sales_receipts_superseded_same_order_fk;
-alter table sales.sales_receipts
-  add constraint sales_receipts_superseded_same_order_fk
-  foreign key (tenant_id, sales_order_id, superseded_by_receipt_id)
-  references sales.sales_receipts (tenant_id, sales_order_id, id);
-
-alter table sales.sales_receipts
-  drop constraint if exists sales_receipts_no_self_supersession;
-alter table sales.sales_receipts
-  add constraint sales_receipts_no_self_supersession
-  check (id is distinct from superseded_by_receipt_id);
-
-alter table sales.sales_order_lines
-  drop constraint if exists sales_order_lines_base_qty_positive;
-alter table sales.sales_order_lines
-  add constraint sales_order_lines_base_qty_positive
-  check (base_quantity_micros > 0);
-
-alter table sales.return_exchange_lines
-  drop constraint if exists return_exchange_lines_base_qty_positive;
-alter table sales.return_exchange_lines
-  add constraint return_exchange_lines_base_qty_positive
-  check (base_quantity_micros > 0);
-
-alter table sales.return_exchange_lines
-  drop constraint if exists return_exchange_lines_returned_source_xor;
-alter table sales.return_exchange_lines
-  add constraint return_exchange_lines_returned_source_xor
-  check (
-    line_role <> 'returned'
-    or (
-      (original_sales_order_line_id is not null)::integer
-      + (source_exchange_line_id is not null)::integer = 1
-    )
-  );
-
-alter table sales.sales_order_lines
-  drop constraint if exists sales_order_lines_commercial_balance;
-alter table sales.sales_order_lines
-  add constraint sales_order_lines_commercial_balance
-  check (line_total_minor
-    = gross_amount_minor - discount_amount_minor + tax_amount_minor);
-
-alter table sales.sales_orders
-  drop constraint if exists sales_orders_commercial_balance;
-alter table sales.sales_orders
-  add constraint sales_orders_commercial_balance
-  check (payable_amount_minor
-    = subtotal_amount_minor
-      - discount_amount_minor
-      + tax_amount_minor
-      + rounding_amount_minor);
-
-alter table sales.sales_payment_transactions
-  drop constraint if exists sales_payment_tx_type_direction;
-alter table sales.sales_payment_transactions
-  add constraint sales_payment_tx_type_direction
-  check (
-    (transaction_type = 'collection' and direction = 'inflow')
-    or (transaction_type = 'refund' and direction = 'outflow')
-    or transaction_type = 'reversal'
-  );
 
 -- ===========================================================================
 -- Access control — writes go through RPCs (Phase B), never direct DML.

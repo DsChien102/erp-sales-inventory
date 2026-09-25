@@ -8,6 +8,7 @@ import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
+import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// SG-08 — Tra cứu chi tiết giao dịch gốc & Lịch sử (EP-03/US-02..07).
@@ -151,6 +152,17 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
   Future<void> _openReceipt() async {
     final sheetAction = await showSalesResultReceiptSheet(context);
     if (!mounted || sheetAction == null) return;
+
+    final returns = _cubit.state.history?.returns ?? const [];
+    if (returns.isNotEmpty && _selectedTabIndex == 0) {
+      await SalesOrderDetailOriginalReceiptActions.open(
+        context: context,
+        cubit: _cubit,
+        action: sheetAction,
+        issueMessage: _receiptIssueMessage,
+      );
+      return;
+    }
 
     try {
       if (sheetAction == SalesResultReceiptAction.view) {

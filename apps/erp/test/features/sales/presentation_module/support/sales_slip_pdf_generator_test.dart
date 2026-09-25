@@ -40,6 +40,103 @@ void main() {
       );
     });
 
+    test('refund on an order with debt adds a debt-reduction row to the refund template', () {
+      const plan = ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: -400000,
+        collectAmountMinor: 0,
+        refundAmountMinor: 100000,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: 300000,
+        processedCollectMinor: 0,
+        processedRefundMinor: 0,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 0,
+        remainderRefundMinor: 100000,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+      );
+
+      expect(SalesSlipPdfGenerator.settlementRows(plan), [
+        ('Cần hoàn tiền', '100.000đ'),
+        ('Giảm nợ đơn', '300.000đ'),
+        ('Đã hoàn', '100.000đ'),
+      ]);
+    });
+
+    test('collect follows the template: Phải thu thêm · Đã thu · Công nợ phát sinh', () {
+      const plan = ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: 254762,
+        collectAmountMinor: 254762,
+        refundAmountMinor: 0,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: 0,
+        processedCollectMinor: 150000,
+        processedRefundMinor: 0,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 104762,
+        remainderRefundMinor: 0,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+      );
+
+      expect(SalesSlipPdfGenerator.settlementRows(plan), [
+        ('Phải thu thêm', '254.762đ'),
+        ('Đã thu', '150.000đ'),
+        ('Công nợ phát sinh', '104.762đ'),
+      ]);
+    });
+
+    test('zero difference follows the template: Không chênh lệch 0đ', () {
+      const plan = ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: 0,
+        collectAmountMinor: 0,
+        refundAmountMinor: 0,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: 0,
+        processedCollectMinor: 0,
+        processedRefundMinor: 0,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 0,
+        remainderRefundMinor: 0,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+      );
+
+      expect(SalesSlipPdfGenerator.settlementRows(plan), [
+        ('Không chênh lệch', '0đ'),
+      ]);
+    });
+
+    test('plain refund follows the template: Cần hoàn tiền · Đã hoàn', () {
+      const plan = ReturnExchangeSettlementPlanDto(
+        currencyCode: 'VND',
+        netDifferenceMinor: -50000,
+        collectAmountMinor: 0,
+        refundAmountMinor: 50000,
+        receivableCreateAmountMinor: 0,
+        receivableReverseAmountMinor: 0,
+        processedCollectMinor: 0,
+        processedRefundMinor: 0,
+        pendingReceivableCreateMinor: 0,
+        pendingReceivableReverseMinor: 0,
+        remainderCollectMinor: 0,
+        remainderRefundMinor: 50000,
+        sourceOrderVersion: 1,
+        sourceSettlementVersion: 1,
+      );
+
+      expect(SalesSlipPdfGenerator.settlementRows(plan), [
+        ('Cần hoàn tiền', '50.000đ'),
+        ('Đã hoàn', '50.000đ'),
+      ]);
+    });
+
     test('rejects demo literals in return-slip production sources', () {
       const forbidden = <String>[
         'PDT-20260722-0018',

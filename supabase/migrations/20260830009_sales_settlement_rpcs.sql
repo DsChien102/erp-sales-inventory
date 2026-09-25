@@ -1,8 +1,8 @@
 -- Title: TH-05 Sales settlement RPCs
 -- Kind: draft
 -- Intent: sales_settlement_rpcs
--- Context: TH-05 / clean-bootstrap append-only payment, refund, void RPCs
--- Touches: sales.record_sales_payment, sales.record_sales_refund, sales.void_sales_payment, _settlement_id_for_order, _settlement_mutation_snapshot
+-- Context: TH-05 / clean-bootstrap append-only payment and refund RPCs
+-- Touches: sales.record_sales_payment, sales.record_sales_refund, _settlement_id_for_order, _settlement_mutation_snapshot
 -- Safety: non-destructive; RPC owner only; mutations are append-only; schema owned by 005
 -- Depends on: 005_sales_rebuild_schema.sql, 006_sales_shared_rpc_helpers.sql
 -- Promoted from _drafts/009_sales_settlement_rpcs.sql
@@ -347,163 +347,11 @@ begin
 end;
 $$;
 
--- ---------------------------------------------------------------------------
--- void_sales_payment — append-only reversal; original row stays intact.
--- ---------------------------------------------------------------------------
-create or replace function sales.void_sales_payment(
-  p_tenant_id uuid,
-  p_actor_id uuid,
-  p_store_id uuid,
-  p_sales_order_id uuid,
-  p_transaction_id uuid,
-  p_reason_code text,
-  p_idempotency_key text,
-  p_payload_hash text,
-  p_reason text default null,
-  p_correlation_id uuid default null
-) returns jsonb
-language plpgsql
-security definer
-set search_path = sales, iam, public, pg_temp
-as $$
-declare
-  v_decision jsonb;
-  v_settlement_id uuid;
-  v_order_store uuid;
-  v_src sales.sales_payment_transactions%rowtype;
-  v_tx_id uuid := gen_random_uuid();
-  v_result jsonb;
-  v_correlation uuid := coalesce(p_correlation_id, gen_random_uuid());
-begin
-  perform sales._assert_sales_actor(p_tenant_id, p_actor_id, p_store_id, 'sales.payment.void');
-
-  if nullif(trim(coalesce(p_reason_code, '')), '') is null
-     or nullif(trim(coalesce(p_idempotency_key, '')), '') is null
-     or nullif(trim(coalesce(p_payload_hash, '')), '') is null then
-    raise exception using message = jsonb_build_object(
-      'code', 'CONTEXT_INVALID',
-      'message', 'Void context is invalid.'
-    )::text;
-  end if;
-
-  select store_id into v_order_store
-  from sales.sales_orders
-  where tenant_id = p_tenant_id and id = p_sales_order_id;
-  if not found or v_order_store is distinct from p_store_id then
-    raise exception using message = jsonb_build_object(
-      'code', 'REFERENCE_UNAVAILABLE',
-      'message', 'Sales order was not found in store scope.'
-    )::text;
-  end if;
-
-  v_decision := sales._begin_sales_idempotency(
-    p_tenant_id,
-    'void_sales_payment',
-    trim(p_idempotency_key),
-    trim(p_payload_hash),
-    v_correlation
-  );
-  if v_decision->>'decision' = 'replay' then
-    return v_decision->'result_snapshot';
-  end if;
-  if v_decision->>'decision' = 'in_progress' then
-    raise exception using message = jsonb_build_object(
-      'code', 'IDEMPOTENCY_CONFLICT',
-      'message', 'Idempotency key is already in progress.'
-    )::text;
-  end if;
-
-  v_settlement_id := sales._settlement_id_for_order(p_tenant_id, p_sales_order_id);
-
-  select * into v_src
-  from sales.sales_payment_transactions
-  where tenant_id = p_tenant_id
-    and id = p_transaction_id
-    and sales_order_settlement_id = v_settlement_id
-  for update;
-
-  if not found then
-    raise exception using message = jsonb_build_object(
-      'code', 'REFERENCE_UNAVAILABLE',
-      'message', 'Transaction was not found.'
-    )::text;
-  end if;
-  if v_src.status <> 'confirmed' or v_src.transaction_type = 'reversal' then
-    raise exception using message = jsonb_build_object(
-      'code', 'STALE_DATA',
-      'message', 'Only confirmed non-reversal transactions can be voided.'
-    )::text;
-  end if;
-
-  if exists (
-    select 1
-    from sales.sales_payment_transactions existing
-    where existing.tenant_id = p_tenant_id
-      and existing.sales_order_settlement_id = v_settlement_id
-      and existing.related_transaction_id = p_transaction_id
-      and existing.transaction_type = 'reversal'
-      and existing.status = 'confirmed'
-  ) then
-    raise exception using message = jsonb_build_object(
-      'code', 'ALREADY_VOIDED',
-      'message', 'Transaction already has a confirmed reversal.'
-    )::text;
-  end if;
-
-  -- Append-only compensating reversal. Do not rewrite original monetary evidence.
-  insert into sales.sales_payment_transactions(
-    id, tenant_id, sales_order_settlement_id, transaction_code, transaction_type, direction,
-    amount_minor, currency_code, payment_method_code, status, source_context, source_type,
-    source_id, related_transaction_id, initiated_by_user_id, confirmed_by_user_id,
-    reason_code, reason, idempotency_key, occurred_at, confirmed_at
-  ) values (
-    v_tx_id, p_tenant_id, v_settlement_id,
-    'PMT-' || upper(substr(replace(v_tx_id::text, '-', ''), 1, 16)),
-    'reversal',
-    case when v_src.direction = 'inflow' then 'outflow' else 'inflow' end,
-    v_src.amount_minor, v_src.currency_code, v_src.payment_method_code, 'confirmed',
-    'manual_correction', 'sales_payment_transaction', p_transaction_id, p_transaction_id,
-    p_actor_id, p_actor_id, trim(p_reason_code), nullif(trim(coalesce(p_reason, '')), ''),
-    trim(p_idempotency_key), now(), now()
-  );
-
-  perform sales._recompute_sales_settlement(p_tenant_id, v_settlement_id);
-  v_result := sales._settlement_mutation_snapshot(p_tenant_id, v_settlement_id, v_tx_id);
-
-  insert into sales.outbox_messages(id, tenant_id, event_type, payload)
-  values (
-    gen_random_uuid(), p_tenant_id, 'sales.payment.voided',
-    jsonb_build_object(
-      'salesOrderId', p_sales_order_id::text,
-      'settlementId', v_settlement_id::text,
-      'voidedTransactionId', p_transaction_id::text,
-      'reversalTransactionId', v_tx_id::text,
-      'correlationId', v_correlation::text
-    )
-  );
-
-  perform sales._complete_sales_idempotency(
-    p_tenant_id,
-    'void_sales_payment',
-    trim(p_idempotency_key),
-    'succeeded',
-    'sales_payment_transaction',
-    v_tx_id,
-    v_result
-  );
-
-  return v_result;
-end;
-$$;
-
 revoke all on function sales.record_sales_payment(
   uuid, uuid, uuid, uuid, bigint, text, text, text, text, jsonb, text, uuid
 ) from public, anon;
 revoke all on function sales.record_sales_refund(
   uuid, uuid, uuid, uuid, bigint, text, text, text, text, uuid, text, text, uuid
-) from public, anon;
-revoke all on function sales.void_sales_payment(
-  uuid, uuid, uuid, uuid, uuid, text, text, text, text, uuid
 ) from public, anon;
 
 grant execute on function sales.record_sales_payment(
@@ -511,9 +359,6 @@ grant execute on function sales.record_sales_payment(
 ) to authenticated;
 grant execute on function sales.record_sales_refund(
   uuid, uuid, uuid, uuid, bigint, text, text, text, text, uuid, text, text, uuid
-) to authenticated;
-grant execute on function sales.void_sales_payment(
-  uuid, uuid, uuid, uuid, uuid, text, text, text, text, uuid
 ) to authenticated;
 
 revoke all on function sales._settlement_id_for_order(uuid, uuid)

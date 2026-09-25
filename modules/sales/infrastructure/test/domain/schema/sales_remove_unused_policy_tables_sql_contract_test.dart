@@ -44,7 +44,8 @@ const expectedSignatures = <String, String>{
       'tenant_id uuid, actor_id uuid, sales_order_id uuid, entry_source text, '
       'lines jsonb, idempotency_key text, payload_hash text, correlation_id text, '
       'causation_id text default null, expected_source_version integer default null, '
-      "reference_decision jsonb default '{}'::jsonb ) returns jsonb",
+      "reference_decision jsonb default '{}'::jsonb, "
+      'reason text default null ) returns jsonb',
   'sales._get_return_exchange_context':
       'create or replace function sales._get_return_exchange_context( tenant_id uuid, '
       'actor_id uuid, return_exchange_id uuid ) returns jsonb',
@@ -53,7 +54,8 @@ const expectedSignatures = <String, String>{
       'tenant_id uuid, actor_id uuid, return_exchange_id uuid, lines jsonb, '
       'idempotency_key text, payload_hash text, correlation_id text, '
       'causation_id text default null, expected_version integer default null, '
-      "reference_decision jsonb default '{}'::jsonb ) returns jsonb",
+      "reference_decision jsonb default '{}'::jsonb, "
+      'reason text default null ) returns jsonb',
   'iam.bootstrap_owner':
       "create or replace function iam.bootstrap_owner(p_tenant_name text default 'My Store') "
       'returns uuid',

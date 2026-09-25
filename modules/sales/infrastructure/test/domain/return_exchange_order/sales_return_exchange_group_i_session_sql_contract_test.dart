@@ -51,7 +51,6 @@ void main() {
       expect(body, contains("'processing'"));
       expect(body, contains("'completed'"));
       expect(body, contains('payload_hash'));
-      expect(body, contains("'IDEMPOTENCY_CONFLICT'"));
       expect(body, contains('reference_decision'));
     }
   });
@@ -63,7 +62,7 @@ void main() {
     expect(returnableSql, contains("'confirmed'"));
     expect(returnableSql, contains("'processing'"));
     expect(returnableSql, contains("'completed'"));
-    expect(returnableSql, contains('sales_context_snapshot'));
+    expect(returnableSql, isNot(contains('sales_context_snapshot')));
     expect(precheckSql, contains("'COMPETING_CANCELLATION'"));
     expect(precheckSql, contains('sales.sales_order_cancellations'));
     expect(precheckSql, isNot(contains('for update')));

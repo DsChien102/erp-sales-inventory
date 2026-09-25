@@ -75,6 +75,18 @@ abstract final class SalesReceiptRpcMapper {
     };
   }
 
+  static Map<String, dynamic> originalReceiptParams(GetSalesOrderOriginalReceiptQuery query) {
+    return <String, dynamic>{
+      'p_query_id': query.id,
+      'p_tenant_id': query.tenantId,
+      'p_actor_id': query.actorId,
+      'p_sales_order_id': query.salesOrderId,
+    };
+  }
+
+  /// The as-sold receipt RPC returns the document directly (no envelope).
+  static SalesReceiptDocumentDto documentFromJson(Map<String, dynamic> json) => _document(json);
+
   static SalesReceiptDto salesReceiptFromJson(Map<String, dynamic> json) {
     return SalesReceiptDto(
       receiptId: _string(json, 'receiptId'),

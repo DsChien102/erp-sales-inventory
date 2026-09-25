@@ -43,7 +43,6 @@ declare
   v_priced jsonb;
   v_is_walk_in boolean;
   v_correlation_id text;
-  v_required_settlement_type text;
   v_valuation_id uuid;
   v_plan jsonb;
   v_details jsonb;
@@ -144,8 +143,7 @@ begin
       rl.source_exchange_line_id,
       rl.line_role,
       rl.product_unit_id,
-      rl.unit_value_minor,
-      rl.pricing_snapshot
+      rl.unit_value_minor
     from sales.return_exchange_lines rl
     where rl.return_exchange_order_id = v_session.id
       and rl.tenant_id = evaluate_return_exchange_valuation.tenant_id
@@ -195,11 +193,6 @@ begin
       end if;
       if v_unit_price_minor is null then
         v_unit_price_minor := v_line.unit_value_minor;
-      end if;
-      if v_unit_price_minor is null
-        and v_line.pricing_snapshot is not null
-        and v_line.pricing_snapshot ? 'unit_price_minor' then
-        v_unit_price_minor := (v_line.pricing_snapshot ->> 'unit_price_minor')::bigint;
       end if;
 
       if v_unit_price_minor is null then
@@ -275,27 +268,6 @@ begin
     )::text;
   end if;
 
-  v_required_settlement_type := case
-    when v_net_difference_minor = 0 then 'none'
-    when v_collect_amount_minor > 0
-      and v_receivable_create_amount_minor = 0
-      and v_refund_amount_minor = 0
-      and v_receivable_reverse_amount_minor = 0 then 'collect'
-    when v_refund_amount_minor > 0
-      and v_receivable_reverse_amount_minor = 0
-      and v_collect_amount_minor = 0
-      and v_receivable_create_amount_minor = 0 then 'refund'
-    when v_receivable_create_amount_minor > 0
-      and v_collect_amount_minor = 0
-      and v_refund_amount_minor = 0
-      and v_receivable_reverse_amount_minor = 0 then 'receivable_offset'
-    when v_receivable_reverse_amount_minor > 0
-      and v_refund_amount_minor = 0
-      and v_collect_amount_minor = 0
-      and v_receivable_create_amount_minor = 0 then 'receivable_offset'
-    else 'mixed'
-  end;
-
   v_plan := jsonb_build_object(
     'currency_code', v_currency,
     'net_difference_minor', v_net_difference_minor,
@@ -331,13 +303,9 @@ begin
     return_value_minor,
     exchange_value_minor,
     net_difference_minor,
-    required_settlement_type,
     status,
     valuation_details,
-    version,
-    calculated_by_user_id,
-    calculated_at,
-    updated_at
+    calculated_at
   ) values (
     gen_random_uuid(),
     evaluate_return_exchange_valuation.tenant_id,
@@ -346,12 +314,8 @@ begin
     v_return_value_minor,
     v_exchange_value_minor,
     v_net_difference_minor,
-    v_required_settlement_type,
     'calculated',
     v_details,
-    1,
-    evaluate_return_exchange_valuation.actor_id,
-    now(),
     now()
   )
   on conflict (return_exchange_order_id) do update
@@ -360,14 +324,9 @@ begin
     return_value_minor = excluded.return_value_minor,
     exchange_value_minor = excluded.exchange_value_minor,
     net_difference_minor = excluded.net_difference_minor,
-    required_settlement_type = excluded.required_settlement_type,
     status = 'calculated',
     valuation_details = excluded.valuation_details,
-    version = sales.return_exchange_valuations.version + 1,
-    calculated_by_user_id = excluded.calculated_by_user_id,
-    calculated_at = now(),
-    confirmed_at = null,
-    updated_at = now()
+    calculated_at = now()
   returning id into v_valuation_id;
 
   return jsonb_build_object(
@@ -545,9 +504,7 @@ begin
     settle_return_exchange_difference.tenant_id,
     v_scope,
     trim(idempotency_key),
-    trim(payload_hash),
-    v_correlation
-  );
+    trim(payload_hash));
 
   if (v_decision ->> 'decision') = 'replay' then
     return v_decision -> 'result_snapshot';
@@ -559,13 +516,10 @@ begin
     )::text;
   end if;
 
-  if operation = 'refund' then
-    if return_exchange_id is null then
-      raise exception using message = jsonb_build_object(
-        'code', 'RETURN_EXCHANGE_BLOCKED',
-        'message', 'Refund settlement requires return_exchange_id.'
-      )::text;
-    end if;
+  -- Resolve the plan by the session when the caller names it (confirm always
+  -- does). One app run reuses one correlation id across sessions, so the
+  -- correlation lookup below is only a fallback for callers without an id.
+  if settle_return_exchange_difference.return_exchange_id is not null then
     select * into v_valuation
     from sales.return_exchange_valuations
     where return_exchange_valuations.tenant_id = settle_return_exchange_difference.tenant_id
@@ -578,6 +532,11 @@ begin
         'message', 'Stored settlement plan is missing.'
       )::text;
     end if;
+  elsif operation = 'refund' then
+    raise exception using message = jsonb_build_object(
+      'code', 'RETURN_EXCHANGE_BLOCKED',
+      'message', 'Refund settlement requires return_exchange_id.'
+    )::text;
   else
     if sales_order_id is null then
       raise exception using message = jsonb_build_object(
@@ -768,7 +727,6 @@ begin
     id,
     tenant_id,
     sales_order_settlement_id,
-    transaction_code,
     transaction_type,
     direction,
     amount_minor,
@@ -779,19 +737,12 @@ begin
     source_type,
     source_id,
     initiated_by_user_id,
-    confirmed_by_user_id,
-    idempotency_key,
     external_reference,
-    occurred_at,
-    confirmed_at
+    occurred_at
   ) values (
     v_transaction_id,
     settle_return_exchange_difference.tenant_id,
     v_settlement.id,
-    case
-      when operation = 'collection' then 'RXC-'
-      else 'RXR-'
-    end || upper(substr(replace(v_transaction_id::text, '-', ''), 1, 16)),
     operation,
     case when operation = 'collection' then 'inflow' else 'outflow' end,
     amount_minor,
@@ -802,10 +753,7 @@ begin
     'return_exchange_order',
     v_rx_id,
     settle_return_exchange_difference.actor_id,
-    settle_return_exchange_difference.actor_id,
-    trim(idempotency_key),
     nullif(btrim(coalesce(reference, '')), ''),
-    now(),
     now()
   );
 
@@ -888,10 +836,7 @@ begin
     status = case
       when status = 'calculated' then 'confirmed'
       else status
-    end,
-    confirmed_at = coalesce(confirmed_at, now()),
-    version = version + 1,
-    updated_at = now()
+    end
   where id = v_valuation.id;
 
   v_outstanding := v_settlement.outstanding_amount_minor;
@@ -941,10 +886,7 @@ begin
     v_scope,
     trim(idempotency_key),
     'succeeded',
-    'sales_payment_transaction',
-    v_transaction_id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;

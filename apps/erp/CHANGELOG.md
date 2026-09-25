@@ -24,6 +24,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - HĐĐT: khi phát hành thất bại xác định, `OrderEInvoiceCubit` đọc metadata lỗi an toàn qua `GetIssuanceAttemptStatusQuery`; `failed` cũng là terminal và dừng poll (trừ khi delivery còn pending/sending).
 - HĐĐT hàng trạng thái đơn: icon leading dùng `VIcon` thay `VIconBox`; badge dùng `VComponentTone` thay `VBadgeStatus` deprecated; action item sheet dùng `VCard` + `VIcon`; post-issue delivery badge bỏ `isSmall`; xem hóa đơn chính thức, xem trước, và tải PDF/XML giữ sheet, hiện loading, disable nút còn lại; dismiss sheet khi đang xem trước thì hủy preview.
 - Kết nối MISA meInvoice: tự động làm mới trạng thái kết nối mỗi 2 giây khi ở trạng thái chờ xác thực (`checkRequired`) sử dụng `vet45_async_query` (`refetchInterval`), thay thế thao tác tải lại thủ công; bỏ toast thông báo chờ worker; bổ sung spinner `VLoading` cạnh trạng thái "Chờ kết nối" và phân cách dòng bằng `VDivider`.
+- Chi tiết đơn có đổi/trả: tab «Đơn gốc» mở phiếu bán hàng như lúc bán (chỉ đọc); tab «Sau đổi/trả» giữ phiếu hiện tại.
 - Readiness: card điều kiện bắt buộc / hồ sơ pháp lý không còn bấm để điều hướng (chỉ còn CTA dưới cùng).
 - Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
@@ -39,6 +40,11 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - HĐĐT xem trước: kéo dài cửa sổ poll worker/MISA (~45s), bỏ clear URL khi bấm lại, và chặn double-tap khi đang previewing — giảm báo lỗi giả "chưa sẵn sàng" dù preview đã mở.
 - HĐĐT sheet xác nhận phát hành: lấy mẫu/ký hiệu/hình thức ký từ issuance profile + template MISA đã sync, không hardcode `1C26TAA`.
 
+- Quyết toán đổi/trả: hiện đúng hoàn tiền / giảm nợ đơn theo server; khóa công tắc «Cấn trừ công nợ hiện tại»; bỏ «Kết hợp» ở phương thức hoàn.
+- Soạn đơn: sau «Lưu nháp» về đơn mới trống; nháp đã bị xoá/đổi nơi khác thì toast rồi thoát kẹt (không còn vòng sheet chưa lưu).
+- Đổi/trả: trả hàng trên đơn chưa thu không còn hiện «Không phát sinh chênh lệch»; phiếu PDF tách «Giảm nợ đơn» và «Đã hoàn» (bỏ nhãn cấn trừ sai).
+- Phiếu bán hàng: sau đổi/trả / thu thêm / hoàn tiền, lần mở phiếu kế tiếp tạo phiếu mới thay vì đọc bản chụp cũ (cần chạy SQL tay hoặc reset DB).
+- Checkout: toast «Paid amount cannot exceed the checkout total.» → tiếng Việt.
 - ERP: khi tài khoản bị tạm ngừng (đang dùng hoặc mở lại với phiên cũ) → toast đúng lý do + đăng xuất về `/login`; màn chặn dự phòng «Tài khoản bị tạm ngừng».
 - Tạo đơn hàng: empty state «Chưa có sản phẩm» không còn overflow khi mở ghi chú đơn (bàn phím).
 - Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
@@ -87,6 +93,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Einvoice: persist `supports_preview` trong capability snapshot khi sync MISA (command JSON + RPC mapper); readiness surface blocker `PREVIEW_UNSUPPORTED` khi thiếu capability (fix fail-closed chặn preview live acceptance).
 - Einvoice: `get_invoice_preview` truyền đúng `p_actor_id` (trước đó nhầm `tenantId` → `NO_PERMISSION: actor mismatch` khi poll preview).
 - Einvoice: canonical→MISA mapper mirror field `*Oc` / `VATRateName` / `ItemType` cho payload kiểu seed VND; bổ sung `RefID`, `TotalAmountInWords`, discount defaults; log reason+detail khi unpublished preview fail.
+- Sales: `confirm_return_exchange` ghi hoàn theo `payment_method` đã chọn (không còn hardcode `cash`) — cần chạy SQL tay hoặc reset DB.
 - IAM: `get_tenant_readiness` thêm `OWNER_ACCEPTANCE_PENDING` / `OWNER_INVITATION_EXPIRED` khi provisioning chưa có owner — cần `supabase db reset`.
 - IAM: chặn `suspended`/`closed` ở `has_permission` / `get_session_context` / `can_access_store`; vá quyền 2 RPC tồn kho — cần `supabase db reset`.
 - IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.

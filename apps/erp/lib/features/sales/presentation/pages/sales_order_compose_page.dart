@@ -249,18 +249,38 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
     }
   }
 
-  Future<bool> _saveDraft({required bool navigateToDrafts}) async {
-    final ok = await _cubit.saveDraft();
+  Future<bool> _saveDraft({required bool closeAfterSave}) async {
+    final result = await _cubit.saveDraft();
     if (!mounted) return false;
-    if (!ok) return false;
-    _showDraftSavedToast();
-    if (navigateToDrafts) {
-      setState(() => _allowPop = true);
-      const SalesDraftsRoute().pushReplacement(context);
-    } else {
-      await context.read<SalesDraftListCubit>().load();
+    switch (result) {
+      case SalesDraftSaveResult.failed:
+        return false;
+      case SalesDraftSaveResult.draftGone:
+        VToast.show(
+          context,
+          title: 'Đơn nháp không còn',
+          message: closeAfterSave
+              ? 'Đơn nháp này đã bị xoá hoặc thay đổi ở nơi khác.'
+              : 'Đơn nháp này đã bị xoá hoặc thay đổi ở nơi khác. Đã chuyển sang đơn mới.',
+          type: VToastType.warning,
+        );
+      case SalesDraftSaveResult.saved:
+        _showDraftSavedToast();
     }
-    return true;
+    if (closeAfterSave) {
+      // Leave the compose flow like "discard and close". Replacing compose with
+      // the drafts list made it the first page of the draft shell navigator,
+      // which hides its back button and strands the user there.
+      setState(() => _allowPop = true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _leaveToHome();
+      });
+      return result == SalesDraftSaveResult.saved;
+    }
+    await _cubit.startNewDraft();
+    if (!mounted) return false;
+    await context.read<SalesDraftListCubit>().load();
+    return result == SalesDraftSaveResult.saved;
   }
 
   void _leaveToHome() {
@@ -289,7 +309,7 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
       case SalesComposeLeaveAction.continueEditing:
         return;
       case SalesComposeLeaveAction.saveAndClose:
-        await _saveDraft(navigateToDrafts: true);
+        await _saveDraft(closeAfterSave: true);
       case SalesComposeLeaveAction.discardAndClose:
         setState(() => _allowPop = true);
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -457,7 +477,7 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
                     canCheckout: state.canCheckout,
                     canSaveDraft: state.canSaveDraft,
                     onCheckout: _checkout,
-                    onSaveDraft: () => _saveDraft(navigateToDrafts: false),
+                    onSaveDraft: () => _saveDraft(closeAfterSave: false),
                     pricingStatus: state.pricingStatus,
                     isSavingDraft: state.saveStatus == SalesComposeSaveStatus.saving,
                     isCheckingOut: state.busy == SalesComposeBusy.checkingOut,

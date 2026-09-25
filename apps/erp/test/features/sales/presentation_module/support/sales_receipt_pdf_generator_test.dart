@@ -21,21 +21,18 @@ void main() {
       expect(firstBytes, isNot(equals(secondBytes)));
     });
 
-    test('prints original sale and settlement adjustment as separate labels', () {
+    test('after return/exchange prints Tổng đơn without adjustment rows', () {
       final rows = SalesReceiptPdfGenerator.summaryRows(_documentWithReturn());
       final labels = rows.map((row) => row.$1).toList();
 
-      expect(labels, contains('Giá trị đơn gốc'));
-      expect(labels, isNot(contains('Tổng đơn')));
-      expect(rows, contains(('Giá trị đơn gốc', '1.000.000đ')));
-      expect(rows, contains(('Điều chỉnh sau bán', '-200.000đ')));
-      expect(rows, contains(('Phải trả hiện tại', '800.000đ')));
+      expect(labels, ['Tiền hàng', 'Giảm giá', 'Tổng đơn', 'Còn phải thu']);
+      expect(rows, contains(('Tổng đơn', '800.000đ')));
       expect(rows, contains(('Còn phải thu', '800.000đ')));
     });
 
     test('keeps Tổng đơn when a legacy receipt has no settlement block', () {
       final rows = SalesReceiptPdfGenerator.summaryRows(_documentA());
-      expect(rows.map((row) => row.$1), contains('Tổng đơn'));
+      expect(rows, contains(('Tổng đơn', '90.000đ')));
       expect(rows.map((row) => row.$1), isNot(contains('Điều chỉnh sau bán')));
     });
 
@@ -149,14 +146,14 @@ SalesReceiptDocumentDto _documentWithReturn() => SalesReceiptDocumentDto(
         unitName: 'Lọ',
       ),
       quantity: QuantityDto(quantityMicros: QuantityDto.scale),
-      unitPrice: MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+      unitPrice: MoneyDto(amountMinor: 800000, currencyCode: 'VND'),
       discountTotal: MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-      lineTotal: MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+      lineTotal: MoneyDto(amountMinor: 800000, currencyCode: 'VND'),
     ),
   ],
-  subtotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+  subtotal: const MoneyDto(amountMinor: 800000, currencyCode: 'VND'),
   discountTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-  orderTotal: const MoneyDto(amountMinor: 1000000, currencyCode: 'VND'),
+  orderTotal: const MoneyDto(amountMinor: 800000, currencyCode: 'VND'),
   paidTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
   outstandingTotal: const MoneyDto(amountMinor: 800000, currencyCode: 'VND'),
   payments: const <PaymentIntentSummaryDto>[],

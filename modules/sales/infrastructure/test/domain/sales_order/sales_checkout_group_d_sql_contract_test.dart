@@ -139,7 +139,7 @@ void main() {
     expect(statusSql, contains("is distinct from p_store_id::text"));
     expect(statusSql, contains('or p_actor_id is null or p_store_id is null'));
     expect(statusSql, contains("when v_record.status = 'in_progress' then 'processing'"));
-    expect(statusSql, contains("when v_record.status = 'uncertain' then 'uncertain'"));
+    expect(statusSql, isNot(contains("'uncertain'")));
     expect(statusSql, contains('result_snapshot'));
     expect(normalizedSql, contains('grant execute on function sales.finalize_sales_order'));
     expect(

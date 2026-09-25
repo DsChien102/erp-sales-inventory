@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
 
 void main() {
@@ -109,52 +110,26 @@ void main() {
     expect(find.text('Chênh lệch 0đ'), findsOneWidget);
   });
 
-  testWidgets('ready refund with debt offset flow renders switch and expandable debt card', (tester) async {
-    bool? capturedOffset;
+  testWidgets('return on an unpaid order is not shown as zero difference', (tester) async {
     await tester.pumpWidget(
       _harness(
         SalesReturnExchangeSettlementState(
           orderId: 'order-1',
           returnExchangeId: 'return-1',
-          orderNumber: 'DH-000129',
-          customerDisplayName: 'Nguyễn Văn An',
           status: SalesReturnExchangeSettlementStatus.ready,
-          valuation: _debtValuation(),
-          offsetDebt: true,
+          valuation: _debtReductionOnlyValuation(),
         ),
-        onOffsetDebtChanged: (val) => capturedOffset = val,
       ),
     );
 
-    expect(find.text('DH-000129 · Nguyễn Văn An'), findsOneWidget);
-    expect(find.text('Hoàn tiền trước xử lý'), findsOneWidget);
-    expect(find.text('2.350.000đ'), findsWidgets);
-    expect(find.text('Cấn trừ công nợ hiện tại'), findsOneWidget);
-    expect(find.byKey(const Key('sw_sg12_offset_debt')), findsOneWidget);
-    expect(find.byKey(const Key('wgt_sg12_debt_card')), findsOneWidget);
-    expect(find.text('Công nợ sau cấn trừ'), findsOneWidget);
-    expect(find.text('1.200.000đ → 0đ'), findsOneWidget);
-    expect(find.text('Còn phải hoàn'), findsOneWidget);
-    expect(find.text('1.150.000đ'), findsOneWidget); // 2.350.000 - 1.200.000 = 1.150.000
-
-    // Expand debt card breakdown
-    expect(find.text('Công nợ trước cấn trừ'), findsNothing);
-    await tester.tap(find.byKey(const Key('btn_sg12_debt_toggle')));
-    await tester.pumpAndSettle();
-    expect(find.text('Công nợ trước cấn trừ'), findsOneWidget);
-    expect(find.text('Cấn trừ từ phiếu đổi/trả'), findsOneWidget);
-    expect(find.text('-1.200.000đ'), findsOneWidget);
-    expect(find.text('0đ'), findsWidgets);
-
-    // Toggle switch OFF -> updates subtitle and refund amount
-    await tester.tap(find.byKey(const Key('sw_sg12_offset_debt')));
-    await tester.pumpAndSettle();
-    expect(capturedOffset, isFalse);
-    expect(find.text('1.200.000đ · Giữ nguyên'), findsOneWidget);
-    expect(find.text('2.350.000đ'), findsWidgets);
+    expect(find.text('Không phát sinh chênh lệch'), findsNothing);
+    expect(find.text('Không cần thu thêm, hoàn tiền hoặc ghi nhận công nợ.'), findsNothing);
+    expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
+    expect(find.text('Cần hoàn tiền'), findsOneWidget);
+    expect(find.text('Phương thức hoàn'), findsNothing);
   });
 
-  testWidgets('ready refund with full debt offset hides payment method and shows remaining debt', (tester) async {
+  testWidgets('E-10 full return of a partially paid order shows server refund and order debt reduction', (tester) async {
     await tester.pumpWidget(
       _harness(
         SalesReturnExchangeSettlementState(
@@ -163,21 +138,56 @@ void main() {
           orderNumber: 'DH-000129',
           customerDisplayName: 'Nguyễn Văn An',
           status: SalesReturnExchangeSettlementStatus.ready,
-          valuation: _fullDebtOffsetValuation(),
-          offsetDebt: true,
+          valuation: _refundWithDebtReductionValuation(),
         ),
       ),
     );
 
-    expect(find.text('Hoàn tiền trước xử lý'), findsOneWidget);
-    expect(find.text('900.000đ'), findsOneWidget);
+    expect(find.text('Cần hoàn tiền'), findsOneWidget);
+    expect(find.text('100.000đ'), findsWidgets);
+    expect(find.byKey(const Key('wgt_sg12_debt_reduction')), findsOneWidget);
+    expect(find.text('Giảm nợ đơn này'), findsOneWidget);
+    expect(find.text('300.000đ'), findsOneWidget);
+    expect(
+      find.text('Phần khách chưa thanh toán cho hàng trả được trừ khỏi nợ của đơn, không hoàn tiền.'),
+      findsOneWidget,
+    );
+    expect(find.text('Phương thức hoàn'), findsOneWidget);
+    expect(find.text('Tiền mặt'), findsOneWidget);
+    expect(find.text('Chuyển khoản'), findsOneWidget);
+    expect(find.text('Kết hợp'), findsNothing);
+    // Old app-side offset math is gone.
+    expect(find.text('Còn phải hoàn'), findsNothing);
+    expect(find.text('Hoàn tiền trước xử lý'), findsNothing);
+    expect(find.text('Công nợ sau cấn trừ'), findsNothing);
+    expect(find.byKey(const Key('wgt_sg12_debt_card')), findsNothing);
+  });
+
+  testWidgets('offset switch is shown locked with a pending note and cannot change amounts', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _refundWithDebtReductionValuation(),
+        ),
+      ),
+    );
+
+    final toggle = tester.widget<VSwitch>(find.byKey(const Key('sw_sg12_offset_debt')));
+    expect(toggle.value, isFalse);
+    expect(toggle.enabled, isFalse);
+    expect(toggle.onChanged, isNull);
     expect(find.text('Cấn trừ công nợ hiện tại'), findsOneWidget);
-    expect(find.text('Công nợ sau cấn trừ'), findsOneWidget);
-    expect(find.text('1.200.000đ → 300.000đ'), findsOneWidget);
-    expect(find.text('Còn phải hoàn'), findsOneWidget);
-    expect(find.text('0đ'), findsWidgets);
-    expect(find.text('Phương thức hoàn'), findsNothing);
-    expect(find.byKey(const Key('seg_sg12_settlement_method')), findsNothing);
+    expect(find.byKey(const Key('txt_sg12_offset_debt_pending')), findsOneWidget);
+    expect(find.text('Sẽ áp dụng khi có module công nợ.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('sw_sg12_offset_debt')));
+    await tester.pumpAndSettle();
+    expect(find.text('100.000đ'), findsWidgets);
+    expect(find.text('300.000đ'), findsOneWidget);
+    expect(find.text('Còn phải hoàn'), findsNothing);
   });
 
   testWidgets('outstanding balance follows the edited settle-now amount', (tester) async {
@@ -237,6 +247,71 @@ void main() {
     expect(capturedDue, isNull);
   });
 
+  testWidgets('walk-in collect locks settle-now amount at full and hides due date', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _collectValuation(),
+          isWalkIn: true,
+        ),
+      ),
+    );
+
+    final field = tester.widget<TextField>(
+      find.descendant(
+        of: find.byKey(const Key('txt_sg12_settlement_amount')),
+        matching: find.byType(TextField),
+      ),
+    );
+    expect(field.enabled, isFalse);
+    expect(find.text('Thu đủ, không phát sinh công nợ.'), findsOneWidget);
+    expect(find.byKey(const Key('fld_sg12_due_date')), findsNothing);
+  });
+
+  testWidgets('settle-now amount regroups thousands after deleting a digit', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _collectValuation(),
+        ),
+      ),
+    );
+
+    final field = find.descendant(
+      of: find.byKey(const Key('txt_sg12_settlement_amount')),
+      matching: find.byType(TextField),
+    );
+    final initial = tester.widget<TextField>(field).controller!.text;
+    await tester.enterText(field, initial.substring(0, initial.length - 1));
+    await tester.pump();
+
+    final expected = MoneyFormatter.formatMinorPlain(
+      MoneyFormatter.parseMinor(initial) ~/ 10,
+    );
+    expect(tester.widget<TextField>(field).controller!.text, expected);
+  });
+
+  testWidgets('identified customer collect shows no walk-in helper line', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        SalesReturnExchangeSettlementState(
+          orderId: 'order-1',
+          returnExchangeId: 'return-1',
+          status: SalesReturnExchangeSettlementStatus.ready,
+          valuation: _collectValuation(),
+        ),
+      ),
+    );
+
+    expect(find.text('Thu đủ, không phát sinh công nợ.'), findsNothing);
+  });
+
   group('canConfirm gating on payment due date', () {
     SalesReturnExchangeSettlementState ready({
       int? settledNowMinor,
@@ -277,7 +352,6 @@ void main() {
 Widget _harness(
   SalesReturnExchangeSettlementState state, {
   ValueChanged<DateTime?>? onDueDateChanged,
-  ValueChanged<bool>? onOffsetDebtChanged,
 }) {
   return MaterialApp(
     theme: VTheme.lightTheme,
@@ -286,7 +360,6 @@ Widget _harness(
         state: state,
         onRetry: () {},
         onDueDateChanged: onDueDateChanged,
-        onOffsetDebtChanged: onOffsetDebtChanged,
       ),
     ),
   );
@@ -370,53 +443,55 @@ ReturnExchangeValuationDto _zeroValuation() {
   );
 }
 
-ReturnExchangeValuationDto _debtValuation() {
+/// E-10: đơn 400.000đ đã thu 100.000đ, trả toàn bộ → hoàn 100.000đ, giảm nợ đơn 300.000đ.
+ReturnExchangeValuationDto _refundWithDebtReductionValuation() {
   const plan = ReturnExchangeSettlementPlanDto(
     currencyCode: 'VND',
-    netDifferenceMinor: -2350000,
+    netDifferenceMinor: -400000,
     collectAmountMinor: 0,
-    refundAmountMinor: 2350000,
+    refundAmountMinor: 100000,
     receivableCreateAmountMinor: 0,
-    receivableReverseAmountMinor: 1200000,
+    receivableReverseAmountMinor: 300000,
     processedCollectMinor: 0,
     processedRefundMinor: 0,
     pendingReceivableCreateMinor: 0,
-    pendingReceivableReverseMinor: 1200000,
+    pendingReceivableReverseMinor: 0,
     remainderCollectMinor: 0,
-    remainderRefundMinor: 2350000,
+    remainderRefundMinor: 100000,
     sourceOrderVersion: 1,
     sourceSettlementVersion: 1,
   );
   return const ReturnExchangeValuationDto(
-    returnValue: MoneyDto(amountMinor: 2350000, currencyCode: 'VND'),
+    returnValue: MoneyDto(amountMinor: 400000, currencyCode: 'VND'),
     exchangeValue: MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-    settlementDifference: MoneyDto(amountMinor: -2350000, currencyCode: 'VND'),
+    settlementDifference: MoneyDto(amountMinor: -400000, currencyCode: 'VND'),
     settlementPlan: plan,
     sourceOrderVersion: 1,
   );
 }
 
-ReturnExchangeValuationDto _fullDebtOffsetValuation() {
+/// Đơn chưa thu đồng nào, khách trả 200.000đ: không hoàn, giảm nợ đơn 200.000đ.
+ReturnExchangeValuationDto _debtReductionOnlyValuation() {
   const plan = ReturnExchangeSettlementPlanDto(
     currencyCode: 'VND',
-    netDifferenceMinor: -900000,
+    netDifferenceMinor: -200000,
     collectAmountMinor: 0,
-    refundAmountMinor: 900000,
+    refundAmountMinor: 0,
     receivableCreateAmountMinor: 0,
-    receivableReverseAmountMinor: 1200000,
+    receivableReverseAmountMinor: 200000,
     processedCollectMinor: 0,
     processedRefundMinor: 0,
     pendingReceivableCreateMinor: 0,
-    pendingReceivableReverseMinor: 1200000,
+    pendingReceivableReverseMinor: 0,
     remainderCollectMinor: 0,
-    remainderRefundMinor: 900000,
+    remainderRefundMinor: 0,
     sourceOrderVersion: 1,
     sourceSettlementVersion: 1,
   );
   return const ReturnExchangeValuationDto(
-    returnValue: MoneyDto(amountMinor: 900000, currencyCode: 'VND'),
+    returnValue: MoneyDto(amountMinor: 200000, currencyCode: 'VND'),
     exchangeValue: MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-    settlementDifference: MoneyDto(amountMinor: -900000, currencyCode: 'VND'),
+    settlementDifference: MoneyDto(amountMinor: -200000, currencyCode: 'VND'),
     settlementPlan: plan,
     sourceOrderVersion: 1,
   );

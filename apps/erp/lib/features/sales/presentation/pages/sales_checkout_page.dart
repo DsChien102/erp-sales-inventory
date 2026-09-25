@@ -194,7 +194,11 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
   String _localizedBlockerMessage(SalesBlockerDto blocker) {
     return switch (blocker.code) {
       'PRODUCT_NOT_SELLABLE' => 'Sản phẩm đã ngừng bán. Vui lòng quay lại đơn.',
-      _ => blocker.message,
+      _ => switch (blocker.message) {
+        'Paid amount cannot exceed the checkout total.' =>
+          'Số tiền thanh toán không được vượt quá tổng cần trả.',
+        _ => blocker.message,
+      },
     };
   }
 

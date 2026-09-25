@@ -53,6 +53,17 @@ void main() {
     expect(cubit.state.canProceed, isFalse);
   });
 
+  test('walk-in order without customer snapshot loads as Khách lẻ', () async {
+    final cubit = build(_RecordingSalesModule(detail: _detail(walkIn: true)));
+    addTearDown(cubit.close);
+
+    await cubit.load();
+
+    expect(cubit.state.status, SalesReturnExchangeSessionStatus.ready);
+    expect(cubit.state.customerDisplayName, 'Khách lẻ');
+    expect(cubit.state.returnableLines, hasLength(1));
+  });
+
   test('hides units already fully returned (returnable quantity 0)', () async {
     final cubit = build(
       _RecordingSalesModule(
@@ -403,7 +414,7 @@ void main() {
   });
 }
 
-SalesOrderDetailDto _detail() => SalesOrderDetailDto(
+SalesOrderDetailDto _detail({bool walkIn = false}) => SalesOrderDetailDto(
   order: SalesOrderDto(
     salesOrderId: 'order-1',
     orderNumber: 'SO-2026-00125',
@@ -419,10 +430,12 @@ SalesOrderDetailDto _detail() => SalesOrderDetailDto(
     displayName: 'Chi nhánh 1',
   ),
   seller: const ActorSnapshotDto(actorId: 'actor-1', displayName: 'Minh'),
-  customer: const CustomerSnapshotDto(
-    customerId: 'customer-1',
-    displayName: 'Khách A',
-  ),
+  customer: walkIn
+      ? null
+      : const CustomerSnapshotDto(
+          customerId: 'customer-1',
+          displayName: 'Khách A',
+        ),
   lines: const [],
 );
 

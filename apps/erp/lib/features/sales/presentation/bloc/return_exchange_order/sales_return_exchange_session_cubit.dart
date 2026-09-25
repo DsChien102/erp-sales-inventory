@@ -96,13 +96,10 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
           .where((line) => line.returnableQuantity.quantityMicros > 0)
           .toList(growable: false);
 
-      final customer = detail.customer;
-      if (customer == null) {
-        throw const SalesContractException(
-          'DEPENDENCY_UNAVAILABLE',
-          message: 'Sales order customer snapshot is required.',
-        );
-      }
+      // Walk-in orders carry no customer snapshot; they can still be
+      // returned/exchanged (only receivable creation needs an identified
+      // customer, enforced at settlement).
+      final customerDisplayName = detail.customer?.displayName ?? 'Khách lẻ';
 
       final preserved = SalesReturnExchangeSessionDraft.preserveEdits(
         currentReturns: state.returnEdits,
@@ -114,7 +111,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
 
       final base = state.copyWith(
         orderNumber: detail.order.orderNumber,
-        customerDisplayName: customer.displayName,
+        customerDisplayName: customerDisplayName,
         sourceOrderVersion: returnable.sourceVersion,
         returnableLines: returnableUnits,
         reasons: const [],

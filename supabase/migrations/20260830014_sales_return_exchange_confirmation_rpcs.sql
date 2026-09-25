@@ -680,8 +680,8 @@ declare
   v_order sales.sales_orders%rowtype;
   v_jwt_store text;
   v_result jsonb;
-  v_sold_micros bigint;
-  v_returned_micros bigint;
+  v_sold_base_micros bigint;
+  v_returned_base_micros bigint;
   v_return_status text;
   v_resulting_version bigint;
 begin
@@ -721,9 +721,7 @@ begin
     complete_return_exchange.tenant_id,
     'complete_return_exchange',
     trim(idempotency_key),
-    coalesce(nullif(btrim(payload_hash), ''), ''),
-    v_correlation
-  );
+    coalesce(nullif(btrim(payload_hash), ''), ''));
   if (v_decision ->> 'decision') = 'replay' then
     return v_decision -> 'result_snapshot';
   end if;
@@ -835,49 +833,55 @@ begin
     updated_at = now()
   where id = v_session.id;
 
-  select coalesce(sum(l.quantity_micros), 0) into v_sold_micros
-  from sales.sales_order_lines l
-  where l.sales_order_id = v_session.sales_order_id
-    and l.tenant_id = complete_return_exchange.tenant_id;
-
-  select coalesce(sum(rl.quantity_micros), 0) into v_returned_micros
-  from sales.return_exchange_lines rl
-  inner join sales.return_exchange_orders r
-    on r.id = rl.return_exchange_order_id
-  where r.tenant_id = complete_return_exchange.tenant_id
-    and r.sales_order_id = v_session.sales_order_id
-    and r.status = 'completed'
-    and rl.line_role = 'returned';
-
-  v_return_status := case
-    when v_returned_micros <= 0 then 'none'
-    when v_returned_micros >= v_sold_micros then 'fully_returned'
-    else 'partially_returned'
-  end;
+  with per_line as (
+    select
+      l.id,
+      l.quantity_micros as sold_qty,
+      l.base_quantity_micros as sold_base,
+      coalesce(returned.qty, 0) as returned_qty,
+      coalesce(returned.base, 0) as returned_base
+    from sales.sales_order_lines l
+    left join lateral (
+      select sum(rl.quantity_micros) as qty, sum(rl.base_quantity_micros) as base
+      from sales.return_exchange_lines rl
+      join sales.return_exchange_orders r
+        on r.id = rl.return_exchange_order_id and r.tenant_id = rl.tenant_id
+      where r.tenant_id = complete_return_exchange.tenant_id
+        and r.sales_order_id = v_session.sales_order_id
+        and r.status = 'completed'
+        and rl.line_role = 'returned'
+        and rl.original_sales_order_line_id = l.id
+    ) returned on true
+    where l.sales_order_id = v_session.sales_order_id
+      and l.tenant_id = complete_return_exchange.tenant_id
+  )
+  select
+    coalesce(sum(sold_base), 0),
+    coalesce(sum(returned_base), 0),
+    case
+      when count(*) = 0 then 'none'
+      when bool_or(returned_qty > 0) and bool_and(returned_qty >= sold_qty)
+        then 'fully_returned'
+      when bool_or(returned_qty > 0) then 'partially_returned'
+      else 'none'
+    end
+  into v_sold_base_micros, v_returned_base_micros, v_return_status
+  from per_line;
 
   insert into sales.sales_order_return_status_projections (
     tenant_id,
     sales_order_id,
     return_status,
-    sold_quantity_micros,
-    returned_quantity_micros,
-    version,
     updated_at
   ) values (
     complete_return_exchange.tenant_id,
     v_session.sales_order_id,
     v_return_status,
-    v_sold_micros,
-    v_returned_micros,
-    1,
     now()
   )
   on conflict (tenant_id, sales_order_id) do update
   set
     return_status = excluded.return_status,
-    sold_quantity_micros = excluded.sold_quantity_micros,
-    returned_quantity_micros = excluded.returned_quantity_micros,
-    version = sales.sales_order_return_status_projections.version + 1,
     updated_at = now();
 
   insert into sales.outbox_messages (id, tenant_id, event_type, payload)
@@ -890,8 +894,8 @@ begin
       'salesOrderId', v_session.sales_order_id,
       'returnStatus', v_return_status,
       'correlationId', complete_return_exchange.correlation_id,
-      'soldQuantityMicros', v_sold_micros,
-      'returnedQuantityMicros', v_returned_micros
+      'soldBaseQuantityMicros', v_sold_base_micros,
+      'returnedBaseQuantityMicros', v_returned_base_micros
     )
   );
 
@@ -907,10 +911,7 @@ begin
     'complete_return_exchange',
     trim(idempotency_key),
     'succeeded',
-    'return_exchange_order',
-    v_session.id,
-    v_result
-  );
+    v_result);
 
   return v_result;
 end;
