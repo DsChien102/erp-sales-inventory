@@ -6,7 +6,8 @@ title: "Kiểm kê và điều chỉnh chênh lệch"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-08
 ---
 # BJ-08 — Kiểm kê và điều chỉnh chênh lệch
 
@@ -73,15 +74,12 @@ flowchart TD
 | BJ14 | Value facts từ approved adjustment | Sau adjustment commit |
 | BJ17 | Same command/session identity khi mutation `UNKNOWN` | Không blind retry |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| UC | Screen | Mental task |
-|---|---|---|
-| UC-08-01 | `SCR-042`, `SCR-043` | Chọn/mở phạm vi kiểm kê và thấy lock/cutoff result |
-| UC-08-02 | `SCR-044` | Đếm mù FIRST round |
-| UC-08-03 | `SCR-045` | Recount các dòng chênh và theo dõi basis readiness |
-| UC-08-04 | `SCR-046`, `SCR-047` | Duyệt độc lập và xem result authoritative |
-| UC-08-05 | `SCR-044`, `SCR-045`, `SCR-047` | Hủy trong session context, xem no-adjustment result |
+- **UI Flow canonical:** [UIF-08 — Kiểm kê và điều chỉnh chênh lệch](../../../03.design/flows/UIF-08-BJ-08.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-08`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

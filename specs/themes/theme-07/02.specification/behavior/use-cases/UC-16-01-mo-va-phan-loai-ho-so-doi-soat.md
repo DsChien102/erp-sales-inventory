@@ -6,7 +6,8 @@ title: "Mở và phân loại hồ sơ đối soát"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-16
 ---
 
 # UC-16-01 — Mở và phân loại hồ sơ đối soát
@@ -107,6 +108,9 @@ Không sửa ledger/read model ngay khi phát hiện sai lệch. UC chỉ mở h
 **Ảnh hưởng nghiệp vụ chính:** Một Reconciliation Case current có loại, mức độ, owner, evidence ban đầu và scope rõ.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-16 — Điều tra và đối soát sai lệch](../../../03.design/flows/UIF-16-BJ-16.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

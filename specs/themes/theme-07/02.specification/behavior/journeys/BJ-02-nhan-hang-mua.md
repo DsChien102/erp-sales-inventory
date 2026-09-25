@@ -6,7 +6,8 @@ title: "Nhận hàng mua"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 
 # BJ-02 — Nhận hàng mua
@@ -66,15 +67,12 @@ flowchart TD
 | Theme 10 / nguồn mua | Chứng từ mua, supplier/source line/version nếu nhận theo chứng từ | Nguồn đủ hợp lệ để nhận; Quick không phụ thuộc Theme 10 |
 | BJ03 | Receipt item, quantity thực nhận, UOM/LOT/state và source lineage | Sau khi nhận vật lý hoàn tất |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-02-01 — Chuẩn bị nhận theo chứng từ | `SCR-006`, `SCR-007`, `SCR-009`, `SCR-084`, `SCR-010` | Chuẩn bị hồ sơ nhận hàng theo chứng từ nguồn, ghi đúng hàng thực nhận và các chênh lệch trước khi gửi duyệt/thực thi. |
-| UC-02-02 — Chuẩn bị nhập hàng nhanh | `SCR-006`, `SCR-008`, `SCR-009`, `SCR-084`, `SCR-010` | Lập hồ sơ nhập hàng nhanh khi hàng đã đến nhưng chưa có chứng từ mua phù hợp, không tạo PO giả và luôn đi qua phê duyệt. |
-| UC-02-03 — Phê duyệt yêu cầu nhận hàng | `SCR-010`, `SCR-011` | Ra quyết định phê duyệt độc lập cho Quick receipt và các receipt theo chứng từ có ngoại lệ cần duyệt. |
-| UC-02-04 — Ghi nhận hàng vào tồn vật lý | `SCR-012` | Ghi hàng thực nhận vào tồn vật lý bằng một commit nguyên tử cho operation đã đủ điều kiện. |
-| UC-02-05 — Truy vấn và phục hồi ngắn kết quả nhận hàng | `SCR-012`, `SCR-013` | Xác định **kết quả cuối của đúng operation nhận hàng đã gửi trước đó** khi client mất response hoặc chưa biết operation đã commit hay chưa, mà không thực hiện lại nghiệp vụ nhận hàng. |
+- **UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-02`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

@@ -6,7 +6,8 @@ title: "Xem hàng cận hạn và hết hạn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # UC-01-05 — Xem hàng cận hạn và hết hạn
@@ -103,6 +104,9 @@ Không tự chuyển trạng thái hoặc tiêu hủy hàng. UC này chỉ xác 
 **Ảnh hưởng nghiệp vụ chính:** Các lô cần chú ý được phân nhóm theo cận hạn/hết hạn với `as_of`; không tự đổi trạng thái hay tiêu hủy hàng.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

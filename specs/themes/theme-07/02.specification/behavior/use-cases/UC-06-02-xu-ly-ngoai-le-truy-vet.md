@@ -6,7 +6,8 @@ title: "Xử lý ngoại lệ truy vết"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-06
 ---
 
 # UC-06-02 — Xử lý ngoại lệ truy vết
@@ -108,6 +109,9 @@ Không tự hợp thức hóa hàng không truy được nguồn và chưa ghi t
 **Ảnh hưởng nghiệp vụ chính:** Ngoại lệ được chấp thuận với evidence/reason rõ hoặc bị từ chối; chỉ khi được chấp thuận mới tiếp tục ghi nhận hàng trả.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-06 — Tiếp nhận và phân loại hàng khách trả](../../../03.design/flows/UIF-06-BJ-06.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

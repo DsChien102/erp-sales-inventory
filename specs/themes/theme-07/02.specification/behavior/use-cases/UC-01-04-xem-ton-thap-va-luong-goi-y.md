@@ -6,7 +6,8 @@ title: "Xem tồn thấp và lượng gợi ý"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # UC-01-04 — Xem tồn thấp và lượng gợi ý
@@ -103,6 +104,9 @@ Không tự tạo đơn mua, không tự đặt ngưỡng và không thay đổi
 **Ảnh hưởng nghiệp vụ chính:** Chỉ báo `OUT`/`LOW`/`NORMAL` hoặc `NOT_CONFIGURED` và lượng gợi ý được trả cùng `as_of`; không tạo đơn mua hay mutation tồn.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

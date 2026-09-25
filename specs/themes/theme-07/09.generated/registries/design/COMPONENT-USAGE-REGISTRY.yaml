@@ -602,19 +602,19 @@ sharedScreenModes:
   SCR-014:
     modes:
       UIF-03: INITIAL_VALUATION_QUEUE
-    note: UIF-03 owns initial valuation queue; UIF-13 moved to dedicated SCR-085 in v1.4.5.
+    note: UIF-03 owns initial-value work queue; BJ13 uses dedicated SCR-085 work queue in v3.13.0.
   SCR-015:
     modes:
-      UIF-03: INITIAL_SCOPE_AND_EVIDENCE
-    note: UIF-03 owns identified valuation slice selection; UIF-13 moved to dedicated SCR-086 in v1.4.5.
+      UIF-03: INITIAL_VALUE_BASIS_AND_COMPOSITION
+    note: UIF-03 owns initial-value basis/composition surface; BJ13 uses SCR-086 for source, scope and allocation in v3.13.0.
   SCR-017:
     modes:
-      UIF-03: DIRECT_VALUATION_REVIEW
-    note: UIF-03 direct-valuation review only; UIF-13 moved to dedicated SCR-088 in v1.4.5.
+      UIF-03: INITIAL_VALUE_REVIEW
+    note: UIF-03 owns initial-value review at SCR-017; BJ13 owns signed-adjustment review at SCR-088.
   SCR-019:
     modes:
-      UIF-03: DIRECT_VALUATION_RESULT
-    note: UIF-03 direct-valuation result only; UIF-13 moved to dedicated SCR-089 in v1.4.5.
+      UIF-03: INITIAL_VALUE_RESULT
+    note: UIF-03 owns initial-value result at SCR-019; BJ13 owns signed-adjustment result at SCR-089.
   SCR-036:
     modes:
       UIF-07: RTV
@@ -706,3 +706,25 @@ forbidden:
 - unmapped visible component
 - cloned shared-screen implementation
 
+
+valuationDesignParity_v3_13_0:
+  authority: "Figma DS v2 page 505:5890 + Screen Contract v3.13.0"
+  activeTopology:
+    UIF-03: [SCR-014, SCR-015, SCR-017, SCR-019]
+    UIF-13: [SCR-085, SCR-086, SCR-088, SCR-089]
+    UIF-14: [SCR-072, SCR-074, SCR-077]
+  retiredScreens: [SCR-016, SCR-018, SCR-073, SCR-075, SCR-076, SCR-087]
+  canonicalComponents:
+    appBar: "VAppBar"
+    list: "DS v2 / List Row"
+    info: "DS v2 / Info Row"
+    keyValue: "DS v2 / Key-value Row"
+    summary: "DS v2 / Summary Card"
+    feedback: "VBanner / VEmptyState / DS v2 / Readiness Item"
+    overlay: "VBottomSheet + Action/Confirmation/Form Sheet patterns"
+  rules:
+    - "Disabled state uses Opacity/Disabled = 0.4; không tạo tone disabled riêng."
+    - "Không dùng badge thay cho metadata/nguồn; badge chỉ biểu đạt state có nghĩa."
+    - "Không biến mỗi nhóm thông tin thành Card; ưu tiên Row/section/grouped summary đúng semantic."
+    - "BJ14 costing method là read-only theo tenant policy; không render selector."
+    - "Metadata kỹ thuật chỉ ở Inspect/audit, không nằm trong Product UI."

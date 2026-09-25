@@ -6,7 +6,8 @@ title: "Quản lý vòng đời giữ hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-04
 ---
 
 # BJ-04 — Quản lý vòng đời giữ hàng
@@ -57,14 +58,12 @@ flowchart TD
 | Theme 5 / source order | Nhu cầu giữ/giải phóng capacity | Source intent hợp lệ |
 | BJ05 | Reservation hiện hành để allocation/pick | Khi fulfillment bắt đầu |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-04-01 — Tạo reservation | `SCR-021` | Tạo current hold cho đúng source line/combo theo capacity/policy, trả shortage nếu thiếu và tạo Reservation/ReservationGroup version đầu tiên. |
-| UC-04-02 — Điều chỉnh reservation | `SCR-021` | Đưa current hold về mức phù hợp với source version mới mà không sửa consumed history và không tự thay PickAllocation của BJ05. |
-| UC-04-03 — Kết thúc và giải phóng | `SCR-021` | Đưa current hold của scope kết thúc về 0 với lý do rõ, giữ nguyên consumed history và giải phóng capacity cho nhu cầu khác. |
-| UC-04-04 — Đánh giá lại và xử lý thiếu | `SCR-021` | Giảm current hold về capacity hợp lệ theo priority, trả shortage và báo BJ05 review allocation nếu cần; không tự top-up khi capacity tăng lại. |
+- **UI Flow canonical:** [UIF-04 — Quản lý vòng đời giữ hàng](../../../03.design/flows/UIF-04-BJ-04.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-04`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

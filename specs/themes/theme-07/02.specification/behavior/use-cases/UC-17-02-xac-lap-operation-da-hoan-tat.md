@@ -6,7 +6,8 @@ title: "Xác lập operation đã hoàn tất"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-17
 ---
 
 # UC-17-02 — Xác lập operation đã hoàn tất
@@ -109,6 +110,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Operation/result trở thành `COMPLETED/COMMITTED` authoritative và source consumer nhận đúng effect refs đã tồn tại.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../../../03.design/flows/UIF-17-BJ-17.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

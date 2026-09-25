@@ -6,7 +6,8 @@ title: "Điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-13
 ---
 
 # BJ-13 — Điều chỉnh giá trị hàng nhập
@@ -48,13 +49,12 @@ flowchart TD
 | Theme 10 / nguồn có thẩm quyền | Thành phần thương mại đã thực sự phát sinh hoặc thay đổi, kèm source/version | Dữ liệu dự kiến chỉ dùng mô phỏng; chưa được ghi vào giá trị tồn thực tế |
 | BJ14 | Sản phẩm + kỳ cần tính lại giá vốn | Sau khi điều chỉnh giá trị commit thành công |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-> **Parity v3.12.0:** semantic Journey/UC đã thay đổi; Screen Contract/HTML v3.11.0 được giữ làm downstream input và sẽ được align ở v3.13.0.
-
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-13-01 — Ghi nhận điều chỉnh giá trị hàng nhập | `SCR-018`, `SCR-017`, `SCR-019` | Xem nguồn điều chỉnh, xác định hàng/lần nhận bị ảnh hưởng, kiểm tra cách phân bổ và xác nhận phần tăng hoặc giảm giá trị cần ghi. |
+- **UI Flow canonical:** [UIF-13 — Điều chỉnh giá trị hàng nhập](../../../03.design/flows/UIF-13-BJ-13.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-13`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

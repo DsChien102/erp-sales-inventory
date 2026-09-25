@@ -6,7 +6,8 @@ title: "Truy vấn và phục hồi ngắn kết quả nhận hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 # UC-02-05 — Truy vấn và phục hồi ngắn kết quả nhận hàng
 
@@ -118,6 +119,9 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 | `UNKNOWN` | Không tạo operation mới | BJ17 với cùng identity/evidence |
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

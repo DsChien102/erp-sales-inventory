@@ -6,7 +6,8 @@ title: "Phê duyệt correction"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-11
 ---
 
 # UC-11-04 — Phê duyệt correction
@@ -115,6 +116,9 @@ Không tự thực thi correction và không sửa operation gốc. UC chỉ ghi
 **Ảnh hưởng nghiệp vụ chính:** Correction proposal được duyệt sẵn sàng ghi chain hoặc bị từ chối có lý do; chưa sửa ledger.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-11 — Hủy và sửa sai nghiệp vụ kho](../../../03.design/flows/UIF-11-BJ-11.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -5,7 +5,7 @@ theme: theme-07
 title: "Theme 07 Design System Profile"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.13.0
 ---
 # Design System Profile — Theme 07
 
@@ -55,6 +55,25 @@ For every product surface, search/reuse in this order:
 ### 5. Conformance gates
 
 A screen is final only when it is business-correct, mapped to exact Figma DS assets/variants, state-covered, HTML-rendered, visually verified at 402×874, interaction-verified and cumulatively regression-verified.
+
+
+### 6. Live Figma revalidation cho v3.13.0
+
+Nguồn trực tiếp: file `QVJolM5tAdFKkhP7RIwe3y`, page `505:5890 — DS v2 - 02 Components`.
+
+Các component canonical được kiểm trực tiếp trước khi redesign valuation cluster:
+
+- `VAppBar` `547:1594`;
+- `VButton` `521:529`; `VTextField` `522:7186`; `VSearchBar` `522:7245`;
+- `VSegmentedControl` `1049:9619`; `VBadge` `525:309`; `VChip` `522:7449`;
+- `DS v2 / List Row` `525:519`; `Info Row` `525:351`; `Key-value Row` `525:358`;
+- `Entity Card` `525:539`; `Summary Card` `525:552`;
+- `VBanner` `526:4215`; `VEmptyState` `526:4352`; `Readiness Item` `526:4442`;
+- `VBottomSheet` `4695:6353`.
+
+Variable collections được kiểm trực tiếp: `Color Primitive`, `Color Semantic`, `Dimension`, `Opacity`. Các variable trọng yếu: `Layout/Mobile width = 402`, `Layout/Mobile height = 874`, `Layout/Mobile edge = 16`, `Touch/Minimum = 44`, `Space/1..8 = 4/8/12/16/20/24/32`, `Radius/3..6 = 8/12/16/20`, `Opacity/Disabled = 0.4`, `Opacity/Overlay = 0.48`.
+
+HTML phải consume semantic CSS variables/canonical composition; không sao chép mã React/Tailwind do Figma MCP sinh ra.
 
 ## 2. Component subset sử dụng
 

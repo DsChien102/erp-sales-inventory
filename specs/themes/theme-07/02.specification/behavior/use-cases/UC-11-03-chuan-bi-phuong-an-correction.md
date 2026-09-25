@@ -6,7 +6,8 @@ title: "Chuẩn bị phương án correction"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-11
 ---
 
 # UC-11-03 — Chuẩn bị phương án correction
@@ -117,6 +118,9 @@ Không ghi reversal/correction movement ở bước chuẩn bị và không sử
 **Ảnh hưởng nghiệp vụ chính:** Correction proposal có target, lý do, effect dự kiến và evidence đầy đủ để duyệt/thực thi.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-11 — Hủy và sửa sai nghiệp vụ kho](../../../03.design/flows/UIF-11-BJ-11.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

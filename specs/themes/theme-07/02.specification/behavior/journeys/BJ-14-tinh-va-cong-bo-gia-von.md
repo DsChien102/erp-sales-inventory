@@ -6,7 +6,8 @@ title: "Tính và công bố giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-14
 ---
 
 # BJ-14 — Tính và công bố giá vốn
@@ -52,14 +53,12 @@ flowchart TD
 | BJ03/BJ13/BJ11 | Giá trị ban đầu, điều chỉnh giá trị và correction làm thay đổi phạm vi cần tính | Chỉ dùng dữ liệu đã commit và còn hiện hành tại cut-off |
 | Theme 5 / miền định giá bán | Giá vốn chính thức mới như một nguồn tham chiếu | Chỉ sau công bố; Theme 7 không tự thay đổi giá bán |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-> **Parity v3.12.0:** semantic Journey/UC đã thay đổi; Screen Contract/HTML v3.11.0 được giữ làm downstream input và sẽ được align ở v3.13.0.
-
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-14-01 — Tính và rà soát giá vốn | `SCR-072`, `SCR-073`, `SCR-074`, `SCR-075`, `SCR-076` | Xem công việc cần tính, kỳ/phạm vi hệ thống xác định, blocker và kết quả; phương pháp công bố chỉ hiển thị theo cấu hình tenant, không cho chọn lại. |
-| UC-14-04 — Công bố giá vốn | `SCR-076`, `SCR-077` | Rà soát kết quả cuối và công bố; hệ thống ghi phần chênh lệch cần thiết và tạo phiên bản giá vốn chính thức theo chính sách tenant. |
+- **UI Flow canonical:** [UIF-14 — Tính và công bố giá vốn](../../../03.design/flows/UIF-14-BJ-14.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-14`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

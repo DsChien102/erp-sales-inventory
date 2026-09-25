@@ -6,7 +6,8 @@ title: "Rà soát và duyệt batch"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-12
 ---
 
 # UC-12-02 — Rà soát và duyệt batch
@@ -115,6 +116,9 @@ Không commit tồn đầu kỳ và không sửa dòng nguồn đã khóa. UC ch
 **Ảnh hưởng nghiệp vụ chính:** Batch được duyệt sẵn sàng commit hoặc bị từ chối có lý do; operational inventory vẫn chưa active.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-12 — Khởi tạo số dư tồn kho đầu kỳ](../../../03.design/flows/UIF-12-BJ-12.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

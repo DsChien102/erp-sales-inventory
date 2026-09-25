@@ -6,7 +6,8 @@ title: "Phục hồi allocation stale"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # UC-05-04 — Phục hồi allocation stale
@@ -109,6 +110,9 @@ Không tạo business effect mới để “bù” cho kết quả chưa rõ; ch
 **Ảnh hưởng nghiệp vụ chính:** Allocation successor current được tạo trong cùng kho hoặc fulfillment bị chặn với shortage rõ ràng.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

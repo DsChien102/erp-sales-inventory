@@ -6,7 +6,8 @@ title: "Xác minh hàng được phép nhận trả"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-06
 ---
 
 # UC-06-01 — Xác minh hàng được phép nhận trả
@@ -106,6 +107,9 @@ Không tăng tồn và không tự chấp nhận hàng trả chỉ vì tìm th�
 **Ảnh hưởng nghiệp vụ chính:** Mỗi dòng trả được xác định eligible, cần ngoại lệ truy vết hoặc bị từ chối; chưa tăng tồn.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-06 — Tiếp nhận và phân loại hàng khách trả](../../../03.design/flows/UIF-06-BJ-06.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

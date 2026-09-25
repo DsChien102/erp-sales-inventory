@@ -6,7 +6,8 @@ title: "Ghi nhận bàn giao trả nhà cung cấp"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-07
 ---
 
 # UC-07-04 — Ghi nhận bàn giao trả nhà cung cấp
@@ -108,6 +109,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Quantity/value movement giảm và pending scope được consume nguyên tử; Theme 7 không tự giảm công nợ NCC.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-07 — Thực hiện trả hàng cho nhà cung cấp](../../../03.design/flows/UIF-07-BJ-07.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

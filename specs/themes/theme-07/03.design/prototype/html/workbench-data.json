@@ -121,7 +121,7 @@
     {
       "id": "UIF-03",
       "bj": "BJ-03",
-      "name": "Xác nhận giá trị ban đầu của hàng nhận",
+      "name": "Xác lập giá trị nhập ban đầu",
       "screens": [
         "SCR-014",
         "SCR-015",
@@ -135,22 +135,17 @@
         "SCR-019"
       ],
       "uc": [
-        "UC-03-01",
-        "UC-03-02",
-        "UC-03-03"
+        "UC-03-01"
       ],
-      "intent": "Xác nhận giá nhập ban đầu theo exact identified scope trong flow tuyến tính; provenance/conflict mở contextual sheet, không tạo bước điều hướng giải thích.",
+      "intent": "Xác lập giá trị ban đầu cho lượng hàng thực nhận; nhận theo chứng từ dùng căn cứ thương mại read-only, nhập nhanh có thể thêm căn cứ giá trực tiếp; không tạo giá vốn chính thức.",
       "patterns": [
-        "ACTIONABLE_VS_WAITING_EVIDENCE",
-        "IDENTIFIED_VALUATION_SCOPE",
-        "PRODUCT_UOM_TO_LOT_STATE_SLICE",
-        "PARTIAL_PROGRESSIVE_DISCLOSURE",
-        "CONTEXTUAL_PROVENANCE_SHEET",
-        "SERVER_DERIVED_COST_PREVIEW",
-        "FINAL_REVIEW_OWNS_COMMIT",
-        "VALUATION_AXIS_SEPARATE_PHYSICAL_AXIS",
-        "AUTHORITATIVE_AVAILABILITY_EFFECT",
-        "RESULT_FINALITY",
+        "VALUATION_WORK_QUEUE",
+        "DOCUMENT_OR_QUICK_BASIS",
+        "DIRECT_BASIS_SHEET",
+        "VALUE_COMPONENT_BREAKDOWN",
+        "COMMERCIAL_CONFLICT_HANDOFF",
+        "READ_ONLY_FINAL_REVIEW",
+        "INITIAL_VALUE_RESULT",
         "UNKNOWN_RECOVERY",
         "FINANCIAL_MASKING"
       ],
@@ -159,27 +154,25 @@
           "id": "module",
           "type": "MODULE_ENTRY",
           "screen": "SCR-014",
-          "actor": "Inventory Valuation",
-          "from": "Giá trị & giá vốn > Hàng chờ xác nhận giá nhập"
+          "actor": "Kế toán",
+          "from": "Giá trị & giá vốn > Hàng chờ xác lập giá trị"
         },
         {
           "id": "receipt-task",
           "type": "CONTEXTUAL_DEEP_LINK",
           "screen": "SCR-015",
-          "actor": "Inventory Valuation",
-          "from": "Assigned valuation task / receipt context",
-          "urlParam": "entry=receipt-task"
+          "actor": "Kế toán",
+          "from": "Phiếu nhận cần xác lập giá trị"
         }
       ]
     },
     {
       "id": "UIF-13",
       "bj": "BJ-13",
-      "name": "Ghi nhận chi phí mua đến muộn",
+      "name": "Điều chỉnh giá trị hàng nhập",
       "screens": [
         "SCR-085",
         "SCR-086",
-        "SCR-087",
         "SCR-088",
         "SCR-089"
       ],
@@ -190,34 +183,32 @@
         "SCR-089"
       ],
       "uc": [
-        "UC-13-01",
-        "UC-13-02",
-        "UC-13-03"
+        "UC-13-01"
       ],
-      "intent": "Ghi chi phí mua bổ sung theo flow tuyến tính source → scope → allocation → review → result; Product UI không hiển thị giải thích kiến trúc/BJ nội bộ.",
+      "intent": "Ghi điều chỉnh tăng hoặc giảm khi căn cứ mới/thay đổi xuất hiện sau BJ03; nguồn, phạm vi và phân bổ được rà soát trước khi commit.",
       "patterns": [
-        "DEDICATED_LATE_COST_TASK",
-        "SERVER_PREVIEW_ALLOCATION",
-        "LINEAR_WORKFLOW",
-        "REVIEW_OWNS_COMMIT",
-        "FINANCIAL_MASKING",
-        "OPERATION_RESULT"
+        "SIGNED_VALUE_ADJUSTMENT_QUEUE",
+        "SOURCE_SCOPE_ALLOCATION_ON_ONE_SURFACE",
+        "VALUE_COMPONENT_PROVENANCE",
+        "READ_ONLY_FINAL_REVIEW",
+        "DIRTY_COST_SCOPE_HANDOFF",
+        "UNKNOWN_RECOVERY",
+        "FINANCIAL_MASKING"
       ],
-      "entryPoints": [
+      "entryContexts": [
         {
           "id": "module",
           "type": "MODULE_ENTRY",
           "screen": "SCR-085",
-          "actor": "Inventory Valuation",
-          "from": "Giá trị & giá vốn > Chi phí mua bổ sung"
+          "actor": "Kế toán",
+          "from": "Giá trị & giá vốn > Điều chỉnh giá trị hàng nhập"
         },
         {
           "id": "source-task",
           "type": "CONTEXTUAL_DEEP_LINK",
           "screen": "SCR-086",
-          "actor": "Inventory Valuation",
-          "from": "Assigned late-cost source task / accounting-purchase evidence",
-          "urlParam": "entry=source-task"
+          "actor": "Kế toán",
+          "from": "Căn cứ điều chỉnh đã được liên kết"
         }
       ]
     },
@@ -693,9 +684,7 @@
       "name": "Tính và công bố giá vốn",
       "screens": [
         "SCR-072",
-        "SCR-073",
         "SCR-074",
-        "SCR-076",
         "SCR-077"
       ],
       "entry": [
@@ -706,19 +695,18 @@
       ],
       "uc": [
         "UC-14-01",
-        "UC-14-02",
-        "UC-14-03",
         "UC-14-04"
       ],
-      "intent": "Quản lý immutable cost run, tính song song hai phương pháp, hiển thị blocker như state của run và công bố theo policy đã khóa; không biến pipeline hệ thống thành nhiều màn bắt buộc.",
+      "intent": "Công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ hoặc chốt kỳ; phương pháp áp dụng lấy từ chính sách tenant và chỉ đọc.",
       "patterns": [
-        "COST_RUN_WORKLIST",
-        "IMMUTABLE_SUCCESSOR_RUN",
-        "LOCKED_METHOD_POLICY",
-        "TWO_METHOD_COMPARISON",
-        "BLOCKER_AS_RUN_STATE",
-        "FINAL_REVIEW_OWNS_PUBLISH",
-        "OPERATION_RESULT",
+        "COST_WORK_QUEUE",
+        "DIRTY_SCOPE_SYSTEM_DERIVED",
+        "TENANT_METHOD_READ_ONLY",
+        "BLOCKERS_INLINE",
+        "ALTERNATIVE_METHOD_AS_COMPARISON",
+        "PUBLICATION_REVIEW_SHEET",
+        "OFFICIAL_COST_RESULT",
+        "UNKNOWN_RECOVERY",
         "FINANCIAL_MASKING"
       ],
       "entryContexts": [
@@ -726,15 +714,15 @@
           "id": "module",
           "type": "MODULE_ENTRY",
           "screen": "SCR-072",
-          "actor": "Inventory Valuation",
-          "from": "Giá trị & giá vốn > Giá vốn"
+          "actor": "Kế toán",
+          "from": "Giá trị & giá vốn > Công việc giá vốn"
         },
         {
           "id": "dirty-scope",
           "type": "CONTEXTUAL_DEEP_LINK",
-          "screen": "SCR-073",
-          "actor": "Inventory Valuation",
-          "from": "Phạm vi cần tính lại / kỳ cần chốt"
+          "screen": "SCR-074",
+          "actor": "Kế toán",
+          "from": "Phạm vi cần cập nhật giá vốn"
         }
       ]
     },
@@ -2076,7 +2064,7 @@
     {
       "id": "SCR-014",
       "short": "014",
-      "name": "Hàng chờ xác nhận giá nhập",
+      "name": "Hàng chờ xác lập giá trị",
       "surface": "list",
       "bj": [
         "BJ-03"
@@ -2084,7 +2072,7 @@
       "uc": [
         "UC-03-01"
       ],
-      "purpose": "Tìm receipt có valuation basis/scope có thể xử lý hoặc đang chờ căn cứ; receipt mixed state vẫn mở phần actionable.",
+      "purpose": "Danh sách hàng đã nhận nhưng chưa có giá trị nhập ban đầu; người dùng hiểu ngay việc nào có thể xử lý, cần đối chiếu hoặc cần bổ sung căn cứ.",
       "actors": [
         "Kế toán"
       ],
@@ -2098,29 +2086,17 @@
       ],
       "defaultState": "READY",
       "fields": [],
-      "cards": [
-        [
-          "PN-260816-04",
-          "118 hộp · 2 lô",
-          "Chờ 1 ngày"
-        ],
-        [
-          "PN-260816-02",
-          "50 hộp",
-          "Thiếu hóa đơn"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
       "components": [
+        "VAppBar",
         "VSearchBar",
-        "VCard",
-        "VCardIcon",
-        "VCardTitle",
+        "VChip",
+        "DS v2 / List Row",
         "VBadge",
-        "VText",
         "VSkeleton",
         "VEmptyState"
       ],
@@ -2131,30 +2107,30 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "PN-260816-04",
-          "example": "118 hộp · 2 lô · Chờ 1 ngày",
+          "label": "Theo chứng từ",
+          "example": "PN-260816-04 · Có thể xác lập",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "PN-260816-02",
-          "example": "50 hộp · Thiếu hóa đơn",
+          "label": "Nhập nhanh",
+          "example": "PN-260816-02 · Cần bổ sung căn cứ giá",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-015",
       "short": "015",
-      "name": "Chọn hàng cần xác nhận giá",
+      "name": "Xác lập giá trị nhập ban đầu",
       "surface": "detail",
       "bj": [
         "BJ-03"
       ],
       "uc": [
-        "UC-03-01",
-        "UC-03-02"
+        "UC-03-01"
       ],
-      "purpose": "Chọn exact technical scope dưới đúng receipt item/valuation basis; partial chỉ mở theo nhu cầu.",
+      "purpose": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
       "actors": [
         "Kế toán"
       ],
@@ -2170,16 +2146,12 @@
       "defaultState": "READY",
       "fields": [
         [
-          "Receipt",
-          "PN-260816-04"
-        ],
-        [
           "Căn cứ giá",
-          "DirectCostBasis theo receipt item"
+          "Nguồn thương mại read-only hoặc căn cứ trực tiếp của nhập nhanh"
         ],
         [
-          "Phạm vi",
-          "Transaction UOM → LOT/state/pending quantity"
+          "Cấu thành giá trị",
+          "Giá mua, khoản giảm, thuế/phí không thu hồi, chi phí mua đủ căn cứ"
         ]
       ],
       "cards": [],
@@ -2188,12 +2160,15 @@
       "actions": [],
       "traceActions": [],
       "components": [
-        "VSection",
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / List Row",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
         "VBanner",
-        "VSkeleton"
+        "VButton",
+        "VTextField",
+        "VBottomSheet"
       ],
       "themeComposition": "Theme7DetailSurface",
       "uifs": [
@@ -2202,27 +2177,33 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Căn cứ giá",
-          "example": "Căn cứ tổng hợp PO-2608-041",
-          "ownership": "SERVER_AUTHORITATIVE_OR_EXPLICIT_CONFLICT_CHOICE"
+          "label": "Nguồn căn cứ",
+          "example": "Đơn mua PO-2608-041 hoặc xác nhận trực tiếp của NCC",
+          "ownership": "SERVER_AUTHORITATIVE_OR_USER_AUTHORED_DIRECT_BASIS"
         },
         {
-          "label": "Phạm vi",
-          "example": "LOT DH2507 · Chờ giá 50 hộp",
-          "ownership": "USER_SELECTION_OVER_SERVER_AUTHORITATIVE_SCOPE"
+          "label": "Cấu thành giá trị",
+          "example": "Giá mua − giảm giá + thuế/phí không thu hồi + chi phí đủ căn cứ",
+          "ownership": "SYSTEM_DERIVED_READ_ONLY"
+        },
+        {
+          "label": "Tình trạng",
+          "example": "Có thể xác lập / Cần đối chiếu / Cần bổ sung căn cứ",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-016",
       "short": "016",
-      "name": "Căn cứ và cách tính",
+      "name": "Căn cứ và cách tính — Đã hợp nhất",
       "surface": "form",
       "bj": [
         "BJ-03"
       ],
       "uc": [],
-      "purpose": "Historical screen identity; v1.5.0 chức năng provenance/conflict được trình bày bằng contextual VBottomSheet trong SCR-015/SCR-017.",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-015.",
       "actors": [
         "Kế toán"
       ],
@@ -2230,72 +2211,31 @@
         "RETIRED_ACTIVE_ROUTE"
       ],
       "defaultState": "RETIRED_ACTIVE_ROUTE",
-      "fields": [
-        [
-          "Nguồn giá",
-          "Đơn mua / giá NCC xác nhận"
-        ],
-        [
-          "Phạm vi xác nhận",
-          "Theo Product + UOM + lát đã chọn"
-        ],
-        [
-          "Giá nhập thực tế",
-          "System-derived; có provenance"
-        ]
-      ],
+      "fields": [],
       "cards": [],
-      "notice": "Historical only; DirectCostBasis provenance/conflict is contextual in SCR-015/SCR-017.",
+      "notice": "Đã hợp nhất vào SCR-015; không còn là màn hình active.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
-      "components": [
-        "VSection",
-        "VCard",
-        "VText",
-        "VBadge",
-        "VBanner",
-        "VTextFormField",
-        "VButton"
-      ],
+      "components": [],
       "themeComposition": "Theme7FormSurface",
       "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Nguồn giá",
-          "example": "Đơn mua PO-4481 · v3",
-          "ownership": "SERVER_AUTHORITATIVE_OR_EXPLICIT_USER_SELECTION_ON_CONFLICT"
-        },
-        {
-          "label": "Lý do chọn nguồn",
-          "example": "Bắt buộc khi source conflict",
-          "ownership": "USER_INPUT_REQUIRED_ONLY_WHEN_SOURCE_CONFLICT"
-        },
-        {
-          "label": "Giá nhập thực tế",
-          "example": "81.700 đ/hộp",
-          "ownership": "SYSTEM_DERIVED_READ_ONLY"
-        },
-        {
-          "label": "FX provenance",
-          "example": "Kế toán v7 · 24.450 VND/USD",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
-        }
-      ]
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0"
     },
     {
       "id": "SCR-017",
       "short": "017",
-      "name": "Rà soát xác nhận giá",
+      "name": "Rà soát giá trị nhập ban đầu",
       "surface": "review",
       "bj": [
         "BJ-03"
       ],
       "uc": [
-        "UC-03-03"
+        "UC-03-01"
       ],
-      "purpose": "Review selected DirectCostBasis/scopes with transaction-UOM direct cost and normalized base-UOM consequence before atomic commit.",
+      "purpose": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
       "actors": [
         "Kế toán"
       ],
@@ -2306,18 +2246,7 @@
       ],
       "defaultState": "READY",
       "fields": [],
-      "cards": [
-        [
-          "Giá trị dự kiến",
-          "50 hộp",
-          "4.085.000 đ"
-        ],
-        [
-          "Giá nhập thực tế",
-          "81.700 đ/hộp",
-          "8.170 đ/lọ"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive": "Giá và giá trị chỉ render khi có quyền tài chính.",
       "actions": [
@@ -2331,13 +2260,12 @@
       ],
       "traceActions": [],
       "components": [
-        "VSection",
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
         "VBanner",
         "VButton",
-        "VConfirmDialog",
         "VBottomSheet"
       ],
       "themeComposition": "Theme7ReviewSurface",
@@ -2352,114 +2280,65 @@
       },
       "dataRows": [
         {
-          "label": "Giá nhập thực tế",
+          "label": "Đơn giá ghi nhận ban đầu",
           "example": "81.700 đ/hộp",
           "ownership": "SERVER_DERIVED_PREVIEW_READ_ONLY"
         },
         {
-          "label": "Quy đổi base UOM",
-          "example": "8.170 đ/lọ",
-          "ownership": "SERVER_DERIVED_PREVIEW_READ_ONLY"
+          "label": "Số lượng áp dụng",
+          "example": "50 hộp",
+          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         },
         {
-          "label": "Giá trị dự kiến",
+          "label": "Giá trị nhập ban đầu",
           "example": "4.085.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-018",
       "short": "018",
-      "name": "Ghi chi phí mua bổ sung",
+      "name": "Ghi chi phí mua bổ sung — Đã thay thế",
       "surface": "form",
       "bj": [
         "BJ-13"
       ],
-      "uc": [
-        "UC-13-02"
-      ],
-      "purpose": "Gắn chi phí phát sinh sau vào đúng receipt và kỳ.",
+      "uc": [],
+      "purpose": "Legacy screen đã được thay thế bởi UIF-13 mới bắt đầu ở SCR-085; không còn route active.",
       "actors": [
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "CONFLICT",
-        "LOCKED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
-      "fields": [
-        [
-          "Receipt",
-          "PN-260816-04"
-        ],
-        [
-          "Loại chi phí",
-          "Vận chuyển"
-        ],
-        [
-          "Số tiền",
-          "420.000 đ"
-        ]
-      ],
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
+      "fields": [],
       "cards": [],
-      "notice": "Retained for historical trace only; active BJ13 uses SCR-085…SCR-089.",
+      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-088 → SCR-089.",
       "sensitive": "Toàn bộ trường tài chính bị loại khỏi DOM khi thiếu quyền.",
       "actions": [],
-      "traceActions": [
-        "ACT-03-RECORD-LATE-COST"
-      ],
-      "components": [
-        "VSection",
-        "VCard",
-        "VTextFormField",
-        "VNumberField",
-        "VMoneyField",
-        "VSelect",
-        "VCombobox",
-        "VDatePicker",
-        "VQuantitySelector",
-        "VFileDropZone",
-        "VButton",
-        "VBanner"
-      ],
+      "traceActions": [],
+      "components": [],
       "themeComposition": "Theme7FormSurface",
       "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Receipt",
-          "example": "PN-260816-04",
-          "ownership": "PREFILLED_OR_USER_SELECTION"
-        },
-        {
-          "label": "Loại chi phí",
-          "example": "Vận chuyển",
-          "ownership": "USER_INPUT_SERVER_VALIDATED"
-        },
-        {
-          "label": "Số tiền",
-          "example": "420.000 đ",
-          "ownership": "USER_INPUT_SERVER_VALIDATED"
-        }
-      ],
-      "prototype_status": "RETIRED_FROM_ACTIVE_UIF13_v1.4.5"
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0"
     },
     {
       "id": "SCR-019",
       "short": "019",
-      "name": "Kết quả xác nhận giá",
+      "name": "Kết quả xác lập giá trị",
       "surface": "result",
       "bj": [
         "BJ-03"
       ],
       "uc": [
-        "UC-03-03"
+        "UC-03-01"
       ],
-      "purpose": "Authoritative direct-valuation result with committed value/availability and accounting-time semantics.",
+      "purpose": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
       "actors": [
         "Kế toán"
       ],
@@ -2473,20 +2352,20 @@
       "defaultState": "COMPLETED",
       "fields": [
         [
-          "Receipt",
+          "Phiếu nhận",
           "PN-260816-04"
         ],
         [
-          "Ngày nghiệp vụ",
-          "16/08/2026"
-        ],
-        [
-          "Ghi nhận lúc",
-          "16/09/2026 16:25"
+          "Đơn giá ghi nhận ban đầu",
+          "81.700 đ/hộp"
         ],
         [
           "Giá trị đã ghi",
           "4.085.000 đ"
+        ],
+        [
+          "Giá vốn",
+          "Cần cập nhật"
         ]
       ],
       "cards": [],
@@ -2497,12 +2376,10 @@
         "ACT-03-CONFIRM-COST"
       ],
       "components": [
-        "VLoading",
+        "VAppBar",
         "VEmptyState",
-        "VEmptyMedia",
-        "VEmptyTitle",
-        "VEmptyDescription",
-        "VCard",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
       ],
@@ -2513,21 +2390,22 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Ngày nghiệp vụ",
-          "example": "16/08/2026",
-          "ownership": "SERVER_AUTHORITATIVE_RESULT"
-        },
-        {
-          "label": "Ghi nhận lúc",
-          "example": "16/09/2026 16:25",
+          "label": "Đơn giá ghi nhận ban đầu",
+          "example": "81.700 đ/hộp",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         },
         {
           "label": "Giá trị đã ghi",
           "example": "4.085.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
+        },
+        {
+          "label": "Giá vốn",
+          "example": "Cần cập nhật",
+          "ownership": "SERVER_DERIVED_RESULT"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-020",
@@ -6673,15 +6551,16 @@
     {
       "id": "SCR-072",
       "short": "072",
-      "name": "Giá vốn",
+      "name": "Công việc giá vốn",
       "surface": "list",
       "bj": [
         "BJ-14"
       ],
       "uc": [
-        "UC-14-01"
+        "UC-14-01",
+        "UC-14-04"
       ],
-      "purpose": "Module worklist của các cost run/công việc cần tính, bị chặn hoặc sẵn sàng công bố.",
+      "purpose": "Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn.",
       "actors": [
         "Kế toán"
       ],
@@ -6693,31 +6572,20 @@
       ],
       "defaultState": "READY",
       "fields": [],
-      "cards": [
-        [
-          "08/2026 · Run 03",
-          "Successor của Run 02",
-          "Sẵn sàng rà soát"
-        ],
-        [
-          "07/2026 · Run 01",
-          "Đã công bố",
-          "PUBLISHED"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
       "components": [
+        "VAppBar",
         "VSearchBar",
-        "VCard",
-        "VCardIcon",
-        "VCardTitle",
+        "VChip",
+        "DS v2 / List Row",
         "VBadge",
-        "VText",
         "VSkeleton",
-        "VEmptyState"
+        "VEmptyState",
+        "VButton"
       ],
       "themeComposition": "Theme7ListSurface",
       "uifs": [
@@ -6726,115 +6594,68 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "08/2026 · Run 03",
-          "example": "Successor của Run 02 · Sẵn sàng rà soát",
+          "label": "Cập nhật giá vốn",
+          "example": "3 sản phẩm có thay đổi giá trị",
+          "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Chốt giá vốn tháng 09/2026",
+          "example": "Sẵn sàng thực hiện",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "07/2026 · Run 01",
-          "example": "Đã công bố · PUBLISHED",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+          "label": "Công việc bị chặn",
+          "example": "2 mặt hàng chưa hoàn tất xác lập giá trị",
+          "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
         }
       ],
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "notes": "BJ14 v3.9.9: dirty Product+posting-period worklist; exact cause/version is contract-only."
     },
     {
       "id": "SCR-073",
       "short": "073",
-      "name": "Thiết lập lần tính",
+      "name": "Thiết lập lần tính — Đã hợp nhất",
       "surface": "form",
       "bj": [
         "BJ-14"
       ],
-      "uc": [
-        "UC-14-01"
-      ],
-      "purpose": "Chọn loại lần tính, kỳ và scope; phương pháp công bố là policy read-only.",
+      "uc": [],
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
       "actors": [
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
-      "fields": [
-        [
-          "Kỳ",
-          "08/2026"
-        ],
-        [
-          "Cut-off",
-          "31/08/2026 23:59"
-        ],
-        [
-          "Phạm vi",
-          "Kho mặc định"
-        ]
-      ],
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
+      "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        "ACT-14-CALCULATE"
-      ],
-      "traceActions": [
-        "ACT-14-CALCULATE"
-      ],
-      "components": [
-        "VSection",
-        "VCard",
-        "VTextFormField",
-        "VNumberField",
-        "VMoneyField",
-        "VSelect",
-        "VCombobox",
-        "VDatePicker",
-        "VQuantitySelector",
-        "VFileDropZone",
-        "VButton",
-        "VBanner"
-      ],
+      "actions": [],
+      "traceActions": [],
+      "components": [],
       "themeComposition": "Theme7FormSurface",
-      "uifs": [
-        "UIF-14"
-      ],
+      "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Kỳ",
-          "example": "08/2026",
-          "ownership": "USER_INPUT_SERVER_VALIDATED"
-        },
-        {
-          "label": "Cut-off",
-          "example": "31/08/2026 23:59",
-          "ownership": "USER_INPUT_SERVER_VALIDATED"
-        },
-        {
-          "label": "Phạm vi",
-          "example": "Kho mặc định",
-          "ownership": "USER_INPUT_SERVER_VALIDATED"
-        }
-      ],
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0",
       "notes": "BJ14 v3.9.9: calculation/posting period separated; dirty scope read-only."
     },
     {
       "id": "SCR-074",
       "short": "074",
-      "name": "Kết quả lần tính",
+      "name": "Tính và rà soát giá vốn",
       "surface": "dashboard",
       "bj": [
         "BJ-14"
       ],
       "uc": [
-        "UC-14-02",
-        "UC-14-03"
+        "UC-14-01",
+        "UC-14-04"
       ],
-      "purpose": "Một run surface với CALCULATING/BLOCKED/READY_FOR_REVIEW/INPUT_CHANGED; so sánh hai phương pháp khi ready.",
+      "purpose": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
       "actors": [
         "Kế toán"
       ],
@@ -6847,29 +6668,20 @@
       ],
       "defaultState": "READY",
       "fields": [],
-      "cards": [
-        [
-          "Bình quân liên hoàn",
-          "Tồn cuối kỳ",
-          "428,6 triệu"
-        ],
-        [
-          "Bình quân cuối kỳ",
-          "Tồn cuối kỳ",
-          "431,2 triệu"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive": "Toàn bộ kết quả giá trị chỉ render cho quyền tài chính.",
       "actions": [],
       "traceActions": [],
       "components": [
-        "VCard",
-        "VIconBox",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Readiness Item",
+        "DS v2 / Summary Card",
         "VBanner",
-        "VSkeleton"
+        "VButton",
+        "VBottomSheet"
       ],
       "themeComposition": "Theme7DashboardSurface",
       "uifs": [
@@ -6878,177 +6690,94 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Bình quân liên hoàn",
-          "example": "Tồn cuối kỳ · 428,6 triệu",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+          "label": "Phương pháp áp dụng",
+          "example": "Bình quân cuối kỳ · Theo chính sách của tổ chức",
+          "ownership": "TENANT_POLICY_READ_ONLY"
         },
         {
-          "label": "Bình quân cuối kỳ",
-          "example": "Tồn cuối kỳ · 431,2 triệu",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+          "label": "Phạm vi cần cập nhật",
+          "example": "3 sản phẩm · Hệ thống xác định",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
+        },
+        {
+          "label": "Kết quả theo phương pháp áp dụng",
+          "example": "Tồn cuối kỳ 431,2 triệu",
+          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+        },
+        {
+          "label": "Đối chiếu",
+          "example": "Bình quân liên hoàn · xem khi cần",
+          "ownership": "SERVER_DERIVED_COMPARISON_ONLY"
         }
       ],
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "notes": "BJ14 v3.9.9: ProductCostResult aggregate + incremental deltas."
     },
     {
       "id": "SCR-075",
       "short": "075",
-      "name": "Blocker và adjustment",
+      "name": "Blocker và adjustment — Đã hợp nhất",
       "surface": "detail",
       "bj": [
         "BJ-14"
       ],
-      "uc": [
-        "UC-14-02",
-        "UC-14-03"
-      ],
-      "purpose": "Historical screen identity; v1.5.0 blocker là state/section của SCR-074.",
+      "uc": [],
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
       "actors": [
         "Kế toán"
       ],
       "states": [
         "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
-      "cards": [
-        [
-          "Hàng chờ giá",
-          "2 receipt",
-          "Blocker"
-        ],
-        [
-          "UNKNOWN",
-          "1 operation",
-          "Blocker"
-        ],
-        [
-          "COGS true-up",
-          "Dự kiến",
-          "+1,8 triệu"
-        ]
-      ],
-      "notice": "",
+      "cards": [],
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
-      "components": [
-        "VSection",
-        "VCard",
-        "VText",
-        "VBadge",
-        "VBanner",
-        "VSkeleton"
-      ],
+      "components": [],
       "themeComposition": "Theme7DetailSurface",
       "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Hàng chờ giá",
-          "example": "2 receipt · Blocker",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "UNKNOWN",
-          "example": "1 operation · Blocker",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "COGS true-up",
-          "example": "Dự kiến · +1,8 triệu",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        }
-      ]
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0"
     },
     {
       "id": "SCR-076",
       "short": "076",
-      "name": "Rà soát công bố",
+      "name": "Rà soát công bố — Đã hợp nhất",
       "surface": "review",
       "bj": [
         "BJ-14"
       ],
-      "uc": [
-        "UC-14-03",
-        "UC-14-04"
-      ],
-      "purpose": "Final irreversible review; phương pháp theo policy đã khóa, không cho override.",
+      "uc": [],
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
       "actors": [
         "Kế toán"
       ],
       "states": [
-        "READY",
-        "SOURCE_CHANGED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
-      "cards": [
-        [
-          "Run",
-          "COST-2026-08-03",
-          "Sạch blocker"
-        ],
-        [
-          "Phương pháp",
-          "Theo policy",
-          "Bình quân cuối kỳ"
-        ],
-        [
-          "Số dòng adjustment",
-          "84",
-          "Sẵn sàng"
-        ]
-      ],
-      "notice": "",
+      "cards": [],
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "actions": [
-        "ACT-14-PUBLISH"
-      ],
-      "traceActions": [
-        "ACT-14-PUBLISH"
-      ],
-      "components": [
-        "VSection",
-        "VCard",
-        "VText",
-        "VBadge",
-        "VBanner",
-        "VButton",
-        "VConfirmDialog",
-        "VBottomSheet"
-      ],
+      "actions": [],
+      "traceActions": [],
+      "components": [],
       "themeComposition": "Theme7ReviewSurface",
-      "uifs": [
-        "UIF-14"
-      ],
+      "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Run",
-          "example": "COST-2026-08-03 · Sạch blocker",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "Phương pháp",
-          "example": "Theo policy · Bình quân cuối kỳ",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        },
-        {
-          "label": "Số dòng adjustment",
-          "example": "84 · Sẵn sàng",
-          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-        }
-      ],
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0",
       "notes": "BJ14 v3.9.9: read-only review; publish finality only via ACT-14-PUBLISH."
     },
     {
       "id": "SCR-077",
       "short": "077",
-      "name": "Kết quả công bố",
+      "name": "Kết quả công bố giá vốn",
       "surface": "result",
       "bj": [
         "BJ-14"
@@ -7056,7 +6785,7 @@
       "uc": [
         "UC-14-04"
       ],
-      "purpose": "Finality của publish official cost/adjustments; no back to consumed review, UNKNOWN no retry.",
+      "purpose": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
       "actors": [
         "Kế toán"
       ],
@@ -7069,16 +6798,20 @@
       "defaultState": "COMPLETED",
       "fields": [
         [
-          "Batch",
-          "VAL-2026-08-03"
+          "Kỳ",
+          "09/2026"
         ],
         [
-          "Official cost version",
-          "OCV-2026-08"
+          "Phương pháp",
+          "Bình quân cuối kỳ"
         ],
         [
-          "Event",
-          "OfficialCostPublished"
+          "Giá vốn",
+          "Đã công bố"
+        ],
+        [
+          "Hiệu lực",
+          "Từ thời điểm công bố"
         ]
       ],
       "cards": [],
@@ -7089,12 +6822,10 @@
         "ACT-14-PUBLISH"
       ],
       "components": [
-        "VLoading",
+        "VAppBar",
         "VEmptyState",
-        "VEmptyMedia",
-        "VEmptyTitle",
-        "VEmptyDescription",
-        "VCard",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
       ],
@@ -7105,23 +6836,23 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Batch",
-          "example": "VAL-2026-08-03",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+          "label": "Kỳ",
+          "example": "09/2026",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
         },
         {
-          "label": "Official cost version",
-          "example": "OCV-2026-08",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+          "label": "Phương pháp",
+          "example": "Bình quân cuối kỳ",
+          "ownership": "TENANT_POLICY_READ_ONLY"
         },
         {
-          "label": "Event",
-          "example": "OfficialCostPublished",
-          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+          "label": "Trạng thái",
+          "example": "Đã công bố",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
         }
       ],
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "notes": "BJ14 v3.9.9: command-authoritative published result; no preview reuse."
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "notes": "v3.13.0: product copy hides Batch/Event/OfficialCostVersion; technical identity remains available in Inspect/audit."
     },
     {
       "id": "SCR-078",
@@ -7636,7 +7367,7 @@
     {
       "id": "SCR-085",
       "short": "085",
-      "name": "Chi phí mua bổ sung",
+      "name": "Điều chỉnh giá trị hàng nhập",
       "surface": "list",
       "bj": [
         "BJ-13"
@@ -7644,7 +7375,7 @@
       "uc": [
         "UC-13-01"
       ],
-      "purpose": "Work queue theo stable economic source component; actionable và source-owned waiting tách biệt.",
+      "purpose": "Danh sách các căn cứ mới hoặc thay đổi cần ghi điều chỉnh tăng/giảm vào giá trị hàng nhập.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7665,13 +7396,13 @@
       "actions": [],
       "traceActions": [],
       "components": [
+        "VAppBar",
         "VSearchBar",
         "VChip",
-        "VCard",
+        "DS v2 / List Row",
         "VBadge",
-        "VText",
-        "VEmptyState",
-        "VSkeleton"
+        "VSkeleton",
+        "VEmptyState"
       ],
       "themeComposition": "Theme7ListSurface",
       "uifs": [
@@ -7680,26 +7411,27 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Nguồn chi phí",
-          "example": "Hóa đơn vận chuyển VC-8842 · dòng 1 · v2",
+          "label": "Căn cứ điều chỉnh",
+          "example": "Hóa đơn vận chuyển VC-8842 · +1.200.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
-          "label": "Giá trị nguồn",
-          "example": "1.200.000 VND",
-          "ownership": "SERVER_AUTHORITATIVE_FINANCIAL_READ_ONLY"
+          "label": "Điều chỉnh giảm",
+          "example": "Chiết khấu NCC CK-2201 · −350.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
         },
         {
           "label": "Tình trạng",
-          "example": "Có thể phân bổ / Đang chờ",
+          "example": "Có thể xử lý / Đang chờ căn cứ",
           "ownership": "SERVER_DERIVED_READ_ONLY"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-086",
       "short": "086",
-      "name": "Nguồn và phạm vi chi phí",
+      "name": "Nguồn, phạm vi và phân bổ",
       "surface": "detail",
       "bj": [
         "BJ-13"
@@ -7707,7 +7439,7 @@
       "uc": [
         "UC-13-01"
       ],
-      "purpose": "Đối chiếu source component và authoritative target scope; bind valuation exposures, không arbitrary receipt-line selection.",
+      "purpose": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7730,12 +7462,14 @@
         "API-Q-12"
       ],
       "components": [
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / List Row",
+        "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
-        "VSkeleton"
+        "VSegmentedControl",
+        "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
       "uifs": [
@@ -7744,94 +7478,71 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Source component",
-          "example": "VC-8842 · dòng 1 · v2",
+          "label": "Căn cứ điều chỉnh",
+          "example": "VC-8842 · +1.200.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
         },
         {
-          "label": "Phạm vi",
-          "example": "1..N receipt operation lines",
+          "label": "Phạm vi áp dụng",
+          "example": "PN-260816-04 · 50 hộp",
           "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+        },
+        {
+          "label": "Cách phân bổ",
+          "example": "Theo số lượng",
+          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+        },
+        {
+          "label": "Tổng phân bổ",
+          "example": "+1.200.000 đ",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-087",
       "short": "087",
-      "name": "Phân bổ chi phí",
+      "name": "Phân bổ điều chỉnh — Đã hợp nhất",
       "surface": "form",
       "bj": [
         "BJ-13"
       ],
-      "uc": [
-        "UC-13-02"
-      ],
-      "purpose": "Chọn policy-allowed method và đọc immutable-metric allocation preview với stable rounding.",
+      "uc": [],
+      "purpose": "Retired in v3.13.0; route redirects to SCR-086.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
       ],
       "states": [
-        "READY",
-        "LOADING",
-        "VALIDATION_ERROR",
-        "SOURCE_CHANGED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã hợp nhất vào SCR-086; không còn là màn hình active.",
       "sensitive": "Allocation amount/FX/tax provenance là financial restricted.",
       "actions": [],
-      "traceActions": [
-        "BC-IV-06",
-        "API-Q-12"
-      ],
-      "components": [
-        "VCard",
-        "VText",
-        "VSelect",
-        "VBadge",
-        "VBanner",
-        "VButton",
-        "VSkeleton"
-      ],
+      "traceActions": [],
+      "components": [],
       "themeComposition": "Theme7FormSurface",
-      "uifs": [
-        "UIF-13"
-      ],
+      "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Giá trị sau chuẩn hóa",
-          "example": "1.200.000 VND",
-          "ownership": "SERVER_DERIVED_READ_ONLY"
-        },
-        {
-          "label": "Căn cứ phân bổ",
-          "example": "Allowed by policy/source preview",
-          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
-        },
-        {
-          "label": "Tổng phân bổ",
-          "example": "= giá trị sau chuẩn hóa",
-          "ownership": "SERVER_DERIVED_READ_ONLY"
-        }
-      ]
+      "dataRows": [],
+      "prototype_status": "RETIRED_v3.13.0"
     },
     {
       "id": "SCR-088",
       "short": "088",
-      "name": "Rà soát ghi chi phí",
+      "name": "Rà soát điều chỉnh giá trị",
       "surface": "review",
       "bj": [
         "BJ-13"
       ],
       "uc": [
-        "UC-13-03"
+        "UC-13-01"
       ],
-      "purpose": "Final review late-cost basis/allocation hashes trước atomic value-only commit.",
+      "purpose": "Rà soát read-only signed adjustment trước khi commit.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7850,7 +7561,7 @@
       "actions": [
         {
           "id": "ACT-03-RECORD-LATE-COST",
-          "label": "Ghi chi phí mua bổ sung",
+          "label": "Ghi điều chỉnh giá trị",
           "bc": "BC-IV-04",
           "api": "API-C-23",
           "tone": "primary"
@@ -7858,9 +7569,10 @@
       ],
       "traceActions": [],
       "components": [
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
         "VBanner",
         "VButton"
       ],
@@ -7871,29 +7583,35 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Tác động",
-          "example": "Value-only adjustment; quantity không đổi",
+          "label": "Điều chỉnh",
+          "example": "−350.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         },
         {
-          "label": "Bàn giao",
-          "example": "Dirty Product + Period scope cho BJ14",
+          "label": "Tác động",
+          "example": "Chỉ thay đổi giá trị; số lượng không đổi",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+        },
+        {
+          "label": "Sau khi ghi",
+          "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
+          "ownership": "SERVER_DERIVED_PREVIEW"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-089",
       "short": "089",
-      "name": "Kết quả ghi chi phí",
+      "name": "Kết quả điều chỉnh giá trị",
       "surface": "result",
       "bj": [
         "BJ-13"
       ],
       "uc": [
-        "UC-13-03"
+        "UC-13-01"
       ],
-      "purpose": "Command-authoritative result với 1..N posting-period batches và exact Product+posting-period dirty scopes.",
+      "purpose": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7915,12 +7633,10 @@
         "ACT-03-RECORD-LATE-COST"
       ],
       "components": [
-        "VLoading",
+        "VAppBar",
         "VEmptyState",
-        "VEmptyMedia",
-        "VEmptyTitle",
-        "VEmptyDescription",
-        "VCard",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
       ],
@@ -7931,8 +7647,8 @@
       "mode": null,
       "dataRows": [
         {
-          "label": "Chi phí đã ghi",
-          "example": "1.200.000 VND",
+          "label": "Giá trị điều chỉnh",
+          "example": "−350.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         },
         {
@@ -7942,10 +7658,11 @@
         },
         {
           "label": "Giá vốn",
-          "example": "Chưa tự công bố lại; chờ BJ14",
-          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+          "example": "Cần cập nhật",
+          "ownership": "SERVER_DERIVED_RESULT"
         }
-      ]
+      ],
+      "prototype_status": "DESIGN_PARITY_v3.13.0"
     },
     {
       "id": "SCR-062",
@@ -8312,5 +8029,5 @@
     "UIF-17",
     "CAP-01"
   ],
-  "version": "3.10.1"
+  "version": "4.1.0"
 }

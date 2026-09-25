@@ -6,7 +6,8 @@ title: "Bàn giao hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # UC-05-03 — Bàn giao hàng
@@ -115,6 +116,9 @@ Không tự ghi giảm tồn nếu điều kiện bàn giao chưa hoàn tất. U
 **Ảnh hưởng nghiệp vụ chính:** Handover fact hợp lệ được xác lập để UC-05-05 ghi xuất; partial handover chỉ tồn tại khi source policy cho phép.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

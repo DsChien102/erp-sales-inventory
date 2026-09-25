@@ -6,7 +6,8 @@ title: "Chuẩn bị nhập hàng nhanh"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 
 # UC-02-02 — Chuẩn bị nhập hàng nhanh
@@ -124,6 +125,9 @@ Không tạo PO giả và chưa ghi tăng tồn ở bước chuẩn bị. UC ch�
 **Ảnh hưởng nghiệp vụ chính:** Quick receipt có Supplier/Product/UOM/bằng chứng hợp lệ được lưu và chuyển `PENDING_APPROVAL`; chưa tăng tồn vật lý.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

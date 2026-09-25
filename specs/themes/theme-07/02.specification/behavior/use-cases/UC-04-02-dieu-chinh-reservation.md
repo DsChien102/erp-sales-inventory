@@ -6,7 +6,8 @@ title: "Điều chỉnh reservation"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-04
 ---
 # UC-04-02 — Điều chỉnh reservation
 
@@ -118,6 +119,9 @@ Reservation version mới phản ánh requested/current hold hiện hành; BJ05 
 | `UNKNOWN` | Không suy diễn commit/no-commit | Reconcile cùng command identity / BJ17 khi cần |
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-04 — Quản lý vòng đời giữ hàng](../../../03.design/flows/UIF-04-BJ-04.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

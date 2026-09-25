@@ -6,7 +6,8 @@ title: "Xác nhận đã tiêu hủy"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-10
 ---
 
 # UC-10-03 — Xác nhận đã tiêu hủy
@@ -109,6 +110,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Completion evidence hợp lệ được khóa cho disposal request; chưa tự giảm tồn nếu bước ghi giảm chưa commit.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-10 — Tiêu hủy hàng](../../../03.design/flows/UIF-10-BJ-10.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

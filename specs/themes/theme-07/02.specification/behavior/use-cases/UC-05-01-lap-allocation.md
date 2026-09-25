@@ -6,7 +6,8 @@ title: "Lập allocation"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # UC-05-01 — Lập allocation
@@ -116,6 +117,9 @@ Không giảm tồn và không consume reservation. UC chỉ xác định lô/l�
 **Ảnh hưởng nghiệp vụ chính:** Một `PickAllocation` version active được tạo; chưa giảm tồn vật lý.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -1,10 +1,10 @@
 {
   "schema_version": "2.0",
-  "version": "3.10.1",
+  "version": "3.13.0",
   "freeze_id": "T7-HARNESS-17-UIF-FREEZE-v0.2.0",
   "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
-  "prototype_status": "BJ09_DEEP_REVIEW_v3.10.1",
-  "screen_group_status": "RETIRED",
+  "prototype_status": "DESIGN_PARITY_v3.13.0",
+  "screen_group_status": "ACTIVE_WITH_RETIRED_MIGRATION_ALIASES",
   "screens": [
     {
       "id": "SCR-001",
@@ -1924,9 +1924,9 @@
     },
     {
       "id": "SCR-014",
-      "name": "Hàng chờ xác nhận giá nhập",
+      "name": "Hàng chờ xác lập giá trị",
       "surface_type": "list",
-      "purpose": "Tìm phiếu nhận còn phạm vi định giá có thể xử lý hoặc đang chờ căn cứ.",
+      "purpose": "Danh sách hàng đã nhận nhưng chưa có giá trị nhập ban đầu; người dùng hiểu ngay việc nào có thể xử lý, cần đối chiếu hoặc cần bổ sung căn cứ.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
@@ -1949,27 +1949,16 @@
         "Kế toán"
       ],
       "fields": [],
-      "cards": [
-        [
-          "PN-260816-04",
-          "2 mặt hàng · 3 phần chờ giá",
-          "Có thể xử lý"
-        ],
-        [
-          "PN-260816-02",
-          "1 mặt hàng · 1 phần chờ giá",
-          "Thiếu căn cứ"
-        ]
-      ],
-      "notice": "UIF-03 v3.9.7: worklist is receipt-centric but readiness is derived per valuation basis/scope; mixed actionable + waiting receipts remain openable for actionable work.",
+      "cards": [],
+      "notice": "",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-03-01",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-01"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -1977,90 +1966,92 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "1.4.0-product-correction",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Receipt có valuation task đang chờ",
-        "entry_transition_ids": [
-          "UIF-03-T01"
-        ],
-        "exit_transition_ids": [
-          "UIF-03-T02"
-        ],
+        "primary_object": "Danh sách hàng đã nhận nhưng chưa có giá trị nhập ban đầu; người dùng hiểu ngay việc nào có thể xử lý, cần đối chiếu hoặc cần bổ sung căn cứ.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Phiếu nhận",
-            "example": "PN-260816-04 · Minh Dũng",
+            "label": "Theo chứng từ",
+            "example": "PN-260816-04 · Có thể xác lập",
             "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
           },
           {
-            "label": "Phần chờ giá",
-            "example": "2 mặt hàng · 3 phần chờ giá · Có thể xử lý",
+            "label": "Nhập nhanh",
+            "example": "PN-260816-02 · Cần bổ sung căn cứ giá",
             "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
           "VSearchBar",
           "VChip",
-          "VCard",
+          "DS v2 / List Row",
           "VBadge",
-          "VText",
-          "VEmptyState",
-          "VSkeleton"
+          "VSkeleton",
+          "VEmptyState"
         ],
         "module_presentation_pattern_candidates": [
-          "Theme7RecordListItem",
-          "Theme7FilterBar"
+          "Theme7ListSurface"
         ],
         "evidence_sources": [
           "BJ-03",
-          "UC-03-01",
-          "UIF-03-T01",
-          "UIF-03-T02"
+          "UC-03-01"
         ],
-        "harness_status": "FROZEN_v1.4.0",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
-      "mode": {
-        "modes": {
-          "UIF-03": "INITIAL_VALUATION_QUEUE"
-        },
-        "note": "UIF-03 only in active Product flow; BJ13 uses dedicated SCR-085…SCR-089 from v1.4.5."
-      },
+      "mode": null,
       "entry_architecture": {
-        "class": "MODULE_ENTRY",
-        "canonical_parent": "Giá trị & giá vốn > Hàng chờ xác nhận giá nhập",
-        "version": "1.4.4"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-03",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [
+        "VAppBar",
+        "VSearchBar",
+        "VChip",
+        "DS v2 / List Row",
+        "VBadge",
+        "VSkeleton",
+        "VEmptyState"
+      ],
+      "themeComposition": "Theme7ListSurface",
+      "dataRows": [
+        {
+          "label": "Theo chứng từ",
+          "example": "PN-260816-04 · Có thể xác lập",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Nhập nhanh",
+          "example": "PN-260816-02 · Cần bổ sung căn cứ giá",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+        }
+      ]
     },
     {
       "id": "SCR-015",
-      "name": "Chọn hàng cần xác nhận giá",
+      "name": "Xác lập giá trị nhập ban đầu",
       "surface_type": "detail",
-      "purpose": "Chọn exact technical scope dưới đúng commercial receipt item/valuation basis; partial chỉ mở theo nhu cầu.",
+      "purpose": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
       ],
       "related_use_cases": [
-        "UC-03-01",
-        "UC-03-02"
+        "UC-03-01"
       ],
       "related_supporting_artifacts": [],
       "states": [
@@ -2079,32 +2070,24 @@
       ],
       "fields": [
         [
-          "Receipt",
-          "PN-260816-04"
+          "Căn cứ giá",
+          "Nguồn thương mại read-only hoặc căn cứ trực tiếp của nhập nhanh"
         ],
         [
-          "Valuation basis",
-          "Theo receipt item/commercial source line"
-        ],
-        [
-          "Exact scope",
-          "Product + transaction UOM → LOT/non-LOT + physical state + pending quantity"
-        ],
-        [
-          "Tình trạng căn cứ",
-          "Đủ căn cứ / Cần đối chiếu / Chờ căn cứ"
+          "Cấu thành giá trị",
+          "Giá mua, khoản giảm, thuế/phí không thu hồi, chi phí mua đủ căn cứ"
         ]
       ],
       "cards": [],
-      "notice": "UIF-03 v3.9.7: Product+transaction UOM is presentation hierarchy only; independent receipt items never auto-merge valuation basis. Complete DirectCostBasis conflict is contextual, not a separate route.",
+      "notice": "",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-03-02",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-02"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2112,94 +2095,100 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "1.4.0-product-correction",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Identified valuation basis + exact technical valuation scope",
-        "entry_transition_ids": [
-          "UIF-03-T02"
-        ],
-        "exit_transition_ids": [
-          "UIF-03-T03"
-        ],
+        "primary_object": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Receipt item / valuation basis",
-            "example": "PN-260816-04 · dòng 1 · Nobivac DHPPi · hộp",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Nguồn căn cứ",
+            "example": "Đơn mua PO-2608-041 hoặc xác nhận trực tiếp của NCC",
+            "ownership": "SERVER_AUTHORITATIVE_OR_USER_AUTHORED_DIRECT_BASIS"
           },
           {
-            "label": "Exact scope",
-            "example": "LOT DH2507 · Đủ điều kiện bán · Chờ giá 50 hộp",
-            "ownership": "USER_SELECTION_OVER_SERVER_AUTHORITATIVE_SCOPE"
+            "label": "Cấu thành giá trị",
+            "example": "Giá mua − giảm giá + thuế/phí không thu hồi + chi phí đủ căn cứ",
+            "ownership": "SYSTEM_DERIVED_READ_ONLY"
           },
           {
-            "label": "Số lượng xác nhận lần này",
-            "example": "50 hộp",
-            "ownership": "USER_INPUT_BOUNDED_BY_PENDING_SCOPE"
-          },
-          {
-            "label": "Tình trạng căn cứ",
-            "example": "Đủ căn cứ / Cần đối chiếu / Chờ căn cứ",
+            "label": "Tình trạng",
+            "example": "Có thể xác lập / Cần đối chiếu / Cần bổ sung căn cứ",
             "ownership": "SERVER_DERIVED_READ_ONLY"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VCard",
-          "VBadge",
-          "VText",
+          "DS v2 / List Row",
+          "DS v2 / Info Row",
+          "DS v2 / Key-value Row",
+          "DS v2 / Summary Card",
           "VBanner",
-          "VNumberField",
           "VButton",
-          "VSkeleton"
+          "VTextField",
+          "VBottomSheet"
         ],
         "module_presentation_pattern_candidates": [
-          "Theme7KeyValueSection",
-          "Theme7EvidenceSection"
+          "Theme7DetailSurface"
         ],
         "evidence_sources": [
           "BJ-03",
-          "UC-03-01",
-          "UC-03-02",
-          "UIF-03-T02",
-          "UIF-03-T03"
+          "UC-03-01"
         ],
-        "harness_status": "FROZEN_v1.4.0",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
-      "mode": {
-        "modes": {
-          "UIF-03": "INITIAL_SCOPE_AND_EVIDENCE"
-        },
-        "note": "UIF-03 only in active Product flow; BJ13 uses dedicated SCR-085…SCR-089 from v1.4.5."
-      },
+      "mode": null,
       "entry_architecture": {
-        "class": "CONTEXTUAL_DEEP_LINK",
-        "canonical_parent": "SCR-014 or assigned receipt valuation task",
-        "version": "1.4.4"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-03",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [
+        "VAppBar",
+        "DS v2 / List Row",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
+        "VBanner",
+        "VButton",
+        "VTextField",
+        "VBottomSheet"
+      ],
+      "themeComposition": "Theme7DetailSurface",
+      "dataRows": [
+        {
+          "label": "Nguồn căn cứ",
+          "example": "Đơn mua PO-2608-041 hoặc xác nhận trực tiếp của NCC",
+          "ownership": "SERVER_AUTHORITATIVE_OR_USER_AUTHORED_DIRECT_BASIS"
+        },
+        {
+          "label": "Cấu thành giá trị",
+          "example": "Giá mua − giảm giá + thuế/phí không thu hồi + chi phí đủ căn cứ",
+          "ownership": "SYSTEM_DERIVED_READ_ONLY"
+        },
+        {
+          "label": "Tình trạng",
+          "example": "Có thể xác lập / Cần đối chiếu / Cần bổ sung căn cứ",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
+        }
+      ]
     },
     {
       "id": "SCR-016",
-      "name": "Căn cứ và cách tính",
+      "name": "Căn cứ và cách tính — Đã hợp nhất",
       "surface_type": "form",
-      "purpose": "Historical screen identity; v1.5.0 chức năng provenance/conflict được trình bày bằng contextual VBottomSheet trong SCR-015/SCR-017.",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-015.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
@@ -2214,119 +2203,63 @@
       "actors": [
         "Kế toán"
       ],
-      "fields": [
-        [
-          "Nguồn giá",
-          "Đơn mua / giá NCC xác nhận"
-        ],
-        [
-          "Phạm vi xác nhận",
-          "Theo Product + UOM + lát số lượng đã chọn"
-        ],
-        [
-          "Giá nhập thực tế",
-          "System-derived từ giá, discount, known purchase cost, thuế không được khấu trừ và FX được duyệt"
-        ]
-      ],
+      "fields": [],
       "cards": [],
-      "notice": "Historical screen identity only. From v1.5.0 and reaffirmed v3.9.7, DirectCostBasis provenance/conflict is a contextual VBottomSheet inside SCR-015/SCR-017; SCR-016 is not an active route or UC surface.",
-      "sensitive_data": "Giá, tax treatment và FX chỉ render khi có quyền tài chính phù hợp.",
+      "notice": "Đã hợp nhất vào SCR-015; không còn là màn hình active.",
+      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-03-03",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-03"
       },
-      "prototype_status": "RETIRED_ACTIVE_ROUTE",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
       "owner_scope": {
         "kind": "HISTORICAL_MIGRATION",
         "ids": []
       },
       "design_readiness": {
-        "checkpoint_version": "1.4.0-product-correction",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
-        "structural_disposition": "KEEP",
-        "primary_object": "Direct valuation source/provenance + derived unit cost",
-        "entry_transition_ids": [],
-        "exit_transition_ids": [],
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
-        "data_rows": [
-          {
-            "label": "Nguồn giá",
-            "example": "Đơn mua PO-4481 · v3",
-            "ownership": "SERVER_AUTHORITATIVE_OR_EXPLICIT_USER_SELECTION_ON_CONFLICT"
-          },
-          {
-            "label": "Lý do chọn nguồn",
-            "example": "Giá NCC xác nhận là phiên bản mới nhất",
-            "ownership": "USER_INPUT_REQUIRED_ONLY_WHEN_SOURCE_CONFLICT"
-          },
-          {
-            "label": "Giá nhập thực tế",
-            "example": "81.700 đ/hộp",
-            "ownership": "SYSTEM_DERIVED_READ_ONLY"
-          },
-          {
-            "label": "FX provenance",
-            "example": "Nguồn kế toán v7 · 24.450 VND/USD",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VPageScaffold",
-          "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VCard",
-          "VText",
-          "VBadge",
-          "VBanner",
-          "VTextFormField",
-          "VButton"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7FormSection",
-          "Theme7StickyActionArea"
-        ],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
         "evidence_sources": [
-          "BJ-03",
-          "UC-03-02",
-          "UIF-03-T03",
-          "UIF-03-T04",
-          "UIF-03-T05",
-          "UIF-03-T08"
+          "v3.13.0-screen-migration"
         ],
-        "harness_status": "FROZEN_v1.4.0",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "entry_architecture": {
-        "class": "IN_FLOW_SURFACE",
-        "canonical_parent": "SCR-015 conflict or SCR-017 provenance/stale-source route",
-        "version": "1.4.4"
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [],
+      "themeComposition": null,
+      "mode": null
     },
     {
       "id": "SCR-017",
-      "name": "Rà soát xác nhận giá",
+      "name": "Rà soát giá trị nhập ban đầu",
       "surface_type": "review",
-      "purpose": "Final review of selected direct-valuation scopes using complete DirectCostBasis, transaction-UOM cost and normalized base-UOM consequence.",
+      "purpose": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
       ],
       "related_use_cases": [
-        "UC-03-03"
+        "UC-03-01"
       ],
       "related_supporting_artifacts": [],
       "states": [
@@ -2343,41 +2276,23 @@
           "label": "Xác nhận giá trị",
           "bc": "BC-IV-01",
           "api": "API-C-20",
-          "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
-          "confirmation": "Explicit final review on SCR-017; no second approval or repeat confirmation modal.",
-          "effect": "Ghi value movement/provenance và gỡ trạng thái chờ giá trị cho đúng scope; khả dụng chỉ thay đổi theo trạng thái hiện hành đủ điều kiện",
-          "screen_ids": [
-            "SCR-017"
-          ],
-          "evidence_level": "STATIC_VALIDATED_DERIVED",
-          "harness_note": "UIF-03 SCR-017 owns the single explicit commit. Source/version is rechecked immediately before commit; SCR-019 is trace/finality only."
+          "tone": "primary"
         }
       ],
       "actors": [
         "Kế toán"
       ],
       "fields": [],
-      "cards": [
-        [
-          "Giá trị dự kiến",
-          "Authoritative allocated selected-set value",
-          "Không dùng normal-state badge"
-        ],
-        [
-          "Phạm vi xác nhận",
-          "Receipt item/basis → exact LOT/state scopes",
-          "Transaction UOM + normalized base-UOM consequence"
-        ]
-      ],
-      "notice": "v3.9.7: final confirm rechecks selected basis_version/basis_hash + scope_version atomically. One stale selected scope rejects the whole selected set; receipt-wide source version is not the freshness gate.",
+      "cards": [],
+      "notice": "",
       "sensitive_data": "Giá và giá trị chỉ render khi có quyền tài chính.",
       "legacy_aliases": {
         "screen_id": "SCR-03-04",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-04"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2385,262 +2300,175 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "1.4.0-product-correction",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Final direct valuation review / late-cost review by UIF mode",
-        "entry_transition_ids": [
-          "UIF-03-T04"
-        ],
-        "exit_transition_ids": [
-          "UIF-03-T05",
-          "UIF-03-T06"
-        ],
+        "primary_object": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
         "visible_action_ids": [
           "ACT-03-CONFIRM-COST"
         ],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Giá trị sẽ ghi",
-            "example": "Theo từng Product + UOM · tổng tiền VND",
-            "ownership": "SERVER_DERIVED_READ_ONLY"
+            "label": "Đơn giá ghi nhận ban đầu",
+            "example": "81.700 đ/hộp",
+            "ownership": "SERVER_DERIVED_PREVIEW_READ_ONLY"
           },
           {
-            "label": "Phạm vi quantity",
-            "example": "96 hộp bán được · 4 hộp cách ly · 24 chai bán được",
-            "ownership": "SERVER_AUTHORITATIVE_SCOPE_SUMMARY_NO_CROSS_UOM_AGGREGATION"
+            "label": "Số lượng áp dụng",
+            "example": "50 hộp",
+            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
           },
           {
-            "label": "Tác động khả dụng",
-            "example": "Chỉ phần physical state đủ điều kiện mới tăng khả dụng",
-            "ownership": "SERVER_DERIVED_READ_ONLY"
+            "label": "Giá trị nhập ban đầu",
+            "example": "4.085.000 đ",
+            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VCard",
-          "VText",
-          "VBadge",
-          "VChip",
-          "VButton",
+          "DS v2 / Info Row",
+          "DS v2 / Key-value Row",
+          "DS v2 / Summary Card",
           "VBanner",
-          "VConfirmDialog",
+          "VButton",
           "VBottomSheet"
         ],
         "module_presentation_pattern_candidates": [
-          "Theme7ReviewSummary",
-          "Theme7DecisionActionGroup"
+          "Theme7ReviewSurface"
         ],
         "evidence_sources": [
           "BJ-03",
-          "UC-03-03",
-          "UIF-03-T04",
-          "UIF-03-T05",
-          "UIF-03-T06"
+          "UC-03-01",
+          "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "FROZEN_v1.4.0",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "mode": {
         "modes": {
-          "UIF-03": "DIRECT_VALUATION_REVIEW"
+          "UIF-03": "DIRECT_VALUATION"
         },
-        "note": "UIF-03 only in active Product flow; BJ13 uses dedicated SCR-085…SCR-089 from v1.4.5."
+        "note": "Same review anatomy; action/summary copy changes by UIF context."
       },
       "entry_architecture": {
-        "class": "IN_FLOW_SURFACE",
-        "canonical_parent": "SCR-015 ready scope or SCR-016 resolved provenance",
-        "version": "1.4.4"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-03",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
+        "scope": "DESIGN_HTML_PARITY"
       },
+      "components": [
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
+        "VBanner",
+        "VButton",
+        "VBottomSheet"
+      ],
+      "themeComposition": "Theme7ReviewSurface",
       "dataRows": [
         {
-          "label": "Giá nhập thực tế",
+          "label": "Đơn giá ghi nhận ban đầu",
           "example": "81.700 đ/hộp",
           "ownership": "SERVER_DERIVED_PREVIEW_READ_ONLY"
         },
         {
-          "label": "Quy đổi base UOM",
-          "example": "8.170 đ/lọ",
-          "ownership": "SERVER_DERIVED_PREVIEW_READ_ONLY"
-        },
-        {
-          "label": "Giá trị ghi nhận dự kiến",
-          "example": "50 hộp · 4.085.000 đ",
+          "label": "Số lượng áp dụng",
+          "example": "50 hộp",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         },
         {
-          "label": "Khả dụng dự kiến",
-          "example": "Sau commit · +50 hộp",
+          "label": "Giá trị nhập ban đầu",
+          "example": "4.085.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         }
       ]
     },
     {
       "id": "SCR-018",
-      "name": "Ghi chi phí mua bổ sung",
+      "name": "Ghi chi phí mua bổ sung — Đã thay thế",
       "surface_type": "form",
-      "purpose": "Gắn chi phí phát sinh sau vào đúng receipt và kỳ.",
+      "purpose": "Legacy screen đã được thay thế bởi UIF-13 mới bắt đầu ở SCR-085; không còn route active.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
       ],
-      "related_use_cases": [
-        "UC-13-02"
-      ],
+      "related_use_cases": [],
       "related_supporting_artifacts": [],
       "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "CONFLICT",
-        "LOCKED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
       "action_ids": [],
       "action_contracts": [],
       "actors": [
         "Kế toán"
       ],
-      "fields": [
-        [
-          "Receipt",
-          "PN-260816-04"
-        ],
-        [
-          "Loại chi phí",
-          "Vận chuyển"
-        ],
-        [
-          "Số tiền",
-          "420.000 đ"
-        ]
-      ],
+      "fields": [],
       "cards": [],
-      "notice": "Historical/migration contract only. Active BJ13 uses SCR-085…SCR-089 from v1.4.5.",
+      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-088 → SCR-089.",
       "sensitive_data": "Toàn bộ trường tài chính bị loại khỏi DOM khi thiếu quyền.",
       "legacy_aliases": {
         "screen_id": "SCR-03-05",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-05"
       },
-      "prototype_status": "RETIRED_FROM_ACTIVE_UIF13_v1.4.5",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
       "owner_scope": {
         "kind": "HISTORICAL_MIGRATION",
-        "ids": [
-          "BJ-13"
-        ]
+        "ids": []
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
-        "structural_disposition": "RETIRED",
-        "primary_object": "Chi phí mua bổ sung gắn receipt",
-        "entry_transition_ids": [
-          "UIF-13-T03",
-          "UIF-13-T04",
-          "UIF-13-T06",
-          "UIF-13-T07",
-          "UIF-13-T10"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T04",
-          "UIF-13-T05",
-          "UIF-13-T08"
-        ],
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
-        "data_rows": [
-          {
-            "label": "Receipt",
-            "example": "PN-260816-04",
-            "ownership": "PREFILLED_OR_USER_SELECTION"
-          },
-          {
-            "label": "Loại chi phí",
-            "example": "Vận chuyển",
-            "ownership": "USER_INPUT_SERVER_VALIDATED"
-          },
-          {
-            "label": "Số tiền",
-            "example": "420.000 đ",
-            "ownership": "USER_INPUT_SERVER_VALIDATED"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VPageScaffold",
-          "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VTextFormField",
-          "VNumberField",
-          "VMoneyField",
-          "VSelect",
-          "VCombobox",
-          "VDatePicker",
-          "VQuantitySelector",
-          "VButton",
-          "VBanner",
-          "VConfirmDialog",
-          "VBottomSheet"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7FormSection",
-          "Theme7StickyActionArea"
-        ],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
         "evidence_sources": [
-          "BJ-13",
-          "UC-13-02",
-          "UIF-13-T03",
-          "UIF-13-T04",
-          "UIF-13-T05",
-          "UIF-13-T06",
-          "UIF-13-T07",
-          "UIF-13-T08",
-          "UIF-13-T10"
+          "v3.13.0-screen-migration"
         ],
-        "harness_status": "FROZEN",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [],
+      "themeComposition": null,
+      "mode": null,
+      "entry_architecture": {
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
       }
     },
     {
       "id": "SCR-019",
-      "name": "Kết quả xác nhận giá",
+      "name": "Kết quả xác lập giá trị",
       "surface_type": "result",
-      "purpose": "Finality của direct valuation; render authoritative committed value/availability, business date, recorded time and Official-Cost bootstrap outcome.",
+      "purpose": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
       ],
       "related_use_cases": [
-        "UC-03-03"
+        "UC-03-01"
       ],
       "related_supporting_artifacts": [],
       "states": [
@@ -2653,53 +2481,38 @@
       "action_ids": [
         "ACT-03-CONFIRM-COST"
       ],
-      "action_contracts": [
-        {
-          "id": "ACT-03-CONFIRM-COST",
-          "label": "Xác nhận giá trị",
-          "bc": "BC-IV-01",
-          "api": "API-C-20",
-          "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
-          "confirmation": "Explicit final review on SCR-017; no second approval or repeat confirmation modal.",
-          "effect": "Ghi value movement/provenance và gỡ trạng thái chờ giá trị cho đúng scope; khả dụng chỉ thay đổi theo trạng thái hiện hành đủ điều kiện",
-          "screen_ids": [
-            "SCR-017"
-          ],
-          "evidence_level": "STATIC_VALIDATED_DERIVED",
-          "harness_note": "UIF-03 SCR-017 owns the single explicit commit. Source/version is rechecked immediately before commit; SCR-019 is trace/finality only."
-        }
-      ],
+      "action_contracts": [],
       "actors": [
         "Kế toán"
       ],
       "fields": [
         [
-          "Receipt",
+          "Phiếu nhận",
           "PN-260816-04"
         ],
         [
-          "Ngày nghiệp vụ",
-          "receipt_business_date"
-        ],
-        [
-          "Ghi nhận lúc",
-          "server commit time"
+          "Đơn giá ghi nhận ban đầu",
+          "81.700 đ/hộp"
         ],
         [
           "Giá trị đã ghi",
-          "Command result authoritative"
+          "4.085.000 đ"
+        ],
+        [
+          "Giá vốn",
+          "Cần cập nhật"
         ]
       ],
       "cards": [],
-      "notice": "UIF-03 v1.4.4: result distinguishes actionable remainder from waiting-only remainder; UNKNOWN is non-actionable reconciliation and consumed commit has no Back-to-commit.",
-      "sensitive_data": "Giá trị chỉ render khi có quyền tài chính.",
+      "notice": "",
+      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-03-06",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-06"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2707,109 +2520,89 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "1.4.0-product-correction",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Authoritative valuation operation result by UIF mode",
-        "entry_transition_ids": [
-          "UIF-03-T06"
-        ],
-        "exit_transition_ids": [
-          "UIF-03-T07",
-          "UIF-03-T08",
-          "UIF-03-T09"
-        ],
+        "primary_object": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-03-CONFIRM-COST"
         ],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Receipt",
-            "example": "PN-260816-04",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Đơn giá ghi nhận ban đầu",
+            "example": "81.700 đ/hộp",
+            "ownership": "SERVER_AUTHORITATIVE_RESULT"
           },
           {
             "label": "Giá trị đã ghi",
-            "example": "Theo scope commit",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "example": "4.085.000 đ",
+            "ownership": "SERVER_AUTHORITATIVE_RESULT"
           },
           {
-            "label": "Tác động khả dụng",
-            "example": "Theo physical state hiện hành",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Giá vốn",
+            "example": "Cần cập nhật",
+            "ownership": "SERVER_DERIVED_RESULT"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VIconBox",
-          "VText",
-          "VCard",
-          "VBadge",
-          "VButton",
+          "VEmptyState",
+          "DS v2 / Summary Card",
+          "DS v2 / Key-value Row",
           "VBanner",
-          "VToast"
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7OperationResult"
         ],
         "evidence_sources": [
           "BJ-03",
-          "UC-03-03",
-          "UIF-03-T06",
-          "UIF-03-T07",
-          "UIF-03-T08",
-          "UIF-03-T09"
+          "UC-03-01",
+          "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "FROZEN_v1.4.0",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
-      "mode": {
-        "modes": {
-          "UIF-03": "DIRECT_VALUATION_RESULT"
-        },
-        "note": "UIF-03 only in active Product flow; BJ13 uses dedicated SCR-085…SCR-089 from v1.4.5."
-      },
+      "mode": null,
       "entry_architecture": {
-        "class": "RESULT",
-        "canonical_parent": "Authoritative valuation result",
-        "version": "1.4.4"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-03",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
+        "scope": "DESIGN_HTML_PARITY"
       },
+      "components": [
+        "VAppBar",
+        "VEmptyState",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
+        "VBanner",
+        "VButton"
+      ],
+      "themeComposition": "Theme7OperationResult",
       "dataRows": [
         {
-          "label": "Ngày nghiệp vụ",
-          "example": "16/08/2026",
+          "label": "Đơn giá ghi nhận ban đầu",
+          "example": "81.700 đ/hộp",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         },
         {
-          "label": "Ghi nhận lúc",
-          "example": "16/09/2026 16:25",
+          "label": "Giá trị đã ghi",
+          "example": "4.085.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         },
         {
-          "label": "Giá trị/khả dụng đã ghi",
-          "example": "4.085.000 đ · +50 hộp",
-          "ownership": "SERVER_AUTHORITATIVE_RESULT"
-        },
-        {
-          "label": "Official Cost",
-          "example": "Khởi tạo 8.170 đ/lọ hoặc Đã có",
-          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+          "label": "Giá vốn",
+          "example": "Cần cập nhật",
+          "ownership": "SERVER_DERIVED_RESULT"
         }
       ]
     },
@@ -10668,15 +10461,16 @@
     },
     {
       "id": "SCR-072",
-      "name": "Giá vốn",
+      "name": "Công việc giá vốn",
       "surface_type": "list",
-      "purpose": "Worklist cost run/authoritative dirty Product+posting-period work; dirty cause is source-owned and traceable.",
+      "purpose": "Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
       ],
       "related_use_cases": [
-        "UC-14-01"
+        "UC-14-01",
+        "UC-14-04"
       ],
       "related_supporting_artifacts": [],
       "states": [
@@ -10691,18 +10485,7 @@
         "Kế toán"
       ],
       "fields": [],
-      "cards": [
-        [
-          "08/2026 · Run 03",
-          "Successor của Run 02",
-          "Sẵn sàng rà soát"
-        ],
-        [
-          "07/2026 · Run 01",
-          "Đã công bố",
-          "PUBLISHED"
-        ]
-      ],
+      "cards": [],
       "notice": "",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
@@ -10710,8 +10493,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-01"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -10719,337 +10502,104 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "PRODUCT_CORRECTED_v3.9.9",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Kỳ và costing run",
-        "entry_transition_ids": [
-          "UIF-14-T01"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T02"
-        ],
+        "primary_object": "Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "PRODUCT_SEMANTIC_ANATOMY_v3.9.9",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "08/2026 · Run 03",
-            "example": "Successor của Run 02 · Sẵn sàng rà soát",
+            "label": "Cập nhật giá vốn",
+            "example": "3 sản phẩm có thay đổi giá trị",
+            "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
+          },
+          {
+            "label": "Chốt giá vốn tháng 09/2026",
+            "example": "Sẵn sàng thực hiện",
             "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
           },
           {
-            "label": "07/2026 · Run 01",
-            "example": "Đã công bố · PUBLISHED",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+            "label": "Công việc bị chặn",
+            "example": "2 mặt hàng chưa hoàn tất xác lập giá trị",
+            "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
           "VSearchBar",
-          "VTabs",
-          "VSegmentedControl",
-          "VCard",
-          "VBadge",
           "VChip",
+          "DS v2 / List Row",
+          "VBadge",
+          "VSkeleton",
           "VEmptyState",
-          "VLoading",
-          "VSkeleton"
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
-          "Theme7RecordListItem",
-          "Theme7FilterBar"
+          "Theme7ListSurface"
         ],
         "evidence_sources": [
           "BJ-14",
           "UC-14-01",
-          "UIF-14-T01",
-          "UIF-14-T02"
+          "UC-14-04"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v3.9.9",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [
+        "VAppBar",
+        "VSearchBar",
+        "VChip",
+        "DS v2 / List Row",
+        "VBadge",
+        "VSkeleton",
+        "VEmptyState",
+        "VButton"
+      ],
+      "themeComposition": "Theme7ListSurface",
+      "mode": null,
+      "entry_architecture": {
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-14",
+        "version": "3.13.0"
+      },
+      "dataRows": [
+        {
+          "label": "Cập nhật giá vốn",
+          "example": "3 sản phẩm có thay đổi giá trị",
+          "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Chốt giá vốn tháng 09/2026",
+          "example": "Sẵn sàng thực hiện",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Công việc bị chặn",
+          "example": "2 mặt hàng chưa hoàn tất xác lập giá trị",
+          "ownership": "SERVER_DERIVED_LIST_OR_SUMMARY_ITEM"
+        }
+      ]
     },
     {
       "id": "SCR-073",
-      "name": "Thiết lập lần tính",
+      "name": "Thiết lập lần tính — Đã hợp nhất",
       "surface_type": "form",
-      "purpose": "Thiết lập run type, calculation/posting period và immutable scope; DIRTY scope read-only, không arbitrary product selection.",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
       ],
-      "related_use_cases": [
-        "UC-14-01"
-      ],
-      "related_supporting_artifacts": [],
-      "states": [
-        "READY",
-        "VALIDATION_ERROR",
-        "PERMISSION_DENIED"
-      ],
-      "action_ids": [
-        "ACT-14-CALCULATE"
-      ],
-      "action_contracts": [
-        "ACT-14-CALCULATE"
-      ],
-      "actors": [
-        "Kế toán"
-      ],
-      "fields": [
-        [
-          "Kỳ",
-          "08/2026"
-        ],
-        [
-          "Cut-off",
-          "31/08/2026 23:59"
-        ],
-        [
-          "Phạm vi",
-          "Kho mặc định"
-        ]
-      ],
-      "cards": [],
-      "notice": "",
-      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
-      "legacy_aliases": {
-        "screen_id": "SCR-14-02",
-        "screen_group_id": "SG-14",
-        "route": "#/sg-14/scr-02"
-      },
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
-      "owner_scope": {
-        "kind": "BUSINESS_JOURNEY",
-        "ids": [
-          "BJ-14"
-        ]
-      },
-      "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "PRODUCT_CORRECTED_v3.9.9",
-        "structural_disposition": "KEEP",
-        "primary_object": "Yêu cầu khởi tạo costing run",
-        "entry_transition_ids": [
-          "UIF-14-T02",
-          "UIF-14-T07"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T03"
-        ],
-        "visible_action_ids": [
-          "ACT-14-CALCULATE"
-        ],
-        "trace_only_action_ids": [],
-        "gap_ids": [],
-        "data_contract_level": "PRODUCT_SEMANTIC_ANATOMY_v3.9.9",
-        "data_rows": [
-          {
-            "label": "Kỳ",
-            "example": "08/2026",
-            "ownership": "USER_INPUT_SERVER_VALIDATED"
-          },
-          {
-            "label": "Cut-off",
-            "example": "31/08/2026 23:59",
-            "ownership": "USER_INPUT_SERVER_VALIDATED"
-          },
-          {
-            "label": "Phạm vi",
-            "example": "Kho mặc định",
-            "ownership": "USER_INPUT_SERVER_VALIDATED"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VPageScaffold",
-          "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VTextFormField",
-          "VNumberField",
-          "VMoneyField",
-          "VSelect",
-          "VCombobox",
-          "VDatePicker",
-          "VQuantitySelector",
-          "VButton",
-          "VBanner",
-          "VConfirmDialog",
-          "VBottomSheet"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7FormSection",
-          "Theme7StickyActionArea"
-        ],
-        "evidence_sources": [
-          "BJ-14",
-          "UC-14-01",
-          "UIF-14-T02",
-          "UIF-14-T03",
-          "UIF-14-T07"
-        ],
-        "harness_status": "PRODUCT_CORRECTED_v3.9.9",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
-      },
-      "holistic_review": {
-        "version": "1.9.0",
-        "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
-    },
-    {
-      "id": "SCR-074",
-      "name": "Kết quả lần tính",
-      "surface_type": "dashboard",
-      "purpose": "Kết quả calculation aggregate từ ProductCostResult, gồm two-method comparison, blockers và incremental reconciliation preview.",
-      "navigation_area": "NAV-04",
-      "related_business_journeys": [
-        "BJ-14"
-      ],
-      "related_use_cases": [
-        "UC-14-02",
-        "UC-14-03"
-      ],
-      "related_supporting_artifacts": [],
-      "states": [
-        "CALCULATING",
-        "BLOCKED",
-        "READY_FOR_REVIEW",
-        "INPUT_CHANGED",
-        "PERMISSION_DENIED"
-      ],
-      "action_ids": [],
-      "action_contracts": [],
-      "actors": [
-        "Kế toán"
-      ],
-      "fields": [],
-      "cards": [
-        [
-          "Bình quân liên hoàn",
-          "Tồn cuối kỳ",
-          "428,6 triệu"
-        ],
-        [
-          "Bình quân cuối kỳ",
-          "Tồn cuối kỳ",
-          "431,2 triệu"
-        ]
-      ],
-      "notice": "",
-      "sensitive_data": "Toàn bộ kết quả giá trị chỉ render cho quyền tài chính.",
-      "legacy_aliases": {
-        "screen_id": "SCR-14-03",
-        "screen_group_id": "SG-14",
-        "route": "#/sg-14/scr-03"
-      },
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
-      "owner_scope": {
-        "kind": "BUSINESS_JOURNEY",
-        "ids": [
-          "BJ-14"
-        ]
-      },
-      "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "PRODUCT_CORRECTED_v3.9.9",
-        "structural_disposition": "KEEP",
-        "primary_object": "Kết quả so sánh hai phương pháp giá vốn",
-        "entry_transition_ids": [
-          "UIF-14-T03"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T04"
-        ],
-        "visible_action_ids": [],
-        "trace_only_action_ids": [],
-        "gap_ids": [],
-        "data_contract_level": "PRODUCT_SEMANTIC_ANATOMY_v3.9.9",
-        "data_rows": [
-          {
-            "label": "Bình quân liên hoàn",
-            "example": "Tồn cuối kỳ · 428,6 triệu",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-          },
-          {
-            "label": "Bình quân cuối kỳ",
-            "example": "Tồn cuối kỳ · 431,2 triệu",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VPageScaffold",
-          "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VResponsiveGrid",
-          "VCard",
-          "VBadge",
-          "VChip",
-          "VProgress",
-          "VLoading",
-          "VSkeleton"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7MetricCard",
-          "Theme7IndicatorPanel"
-        ],
-        "evidence_sources": [
-          "BJ-14",
-          "UC-14-02",
-          "UC-14-03",
-          "UIF-14-T03",
-          "UIF-14-T04"
-        ],
-        "harness_status": "PRODUCT_CORRECTED_v3.9.9",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
-      },
-      "holistic_review": {
-        "version": "1.9.0",
-        "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
-    },
-    {
-      "id": "SCR-075",
-      "name": "Blocker và adjustment",
-      "surface_type": "detail",
-      "purpose": "Historical screen identity; v1.5.0 blocker là state/section của SCR-074.",
-      "navigation_area": "NAV-04",
-      "related_business_journeys": [
-        "BJ-14"
-      ],
-      "related_use_cases": [
-        "UC-14-02",
-        "UC-14-03"
-      ],
+      "related_use_cases": [],
       "related_supporting_artifacts": [],
       "states": [
         "RETIRED_ACTIVE_ROUTE"
@@ -11060,164 +10610,106 @@
         "Kế toán"
       ],
       "fields": [],
-      "cards": [
-        [
-          "Hàng chờ giá",
-          "2 receipt",
-          "Blocker"
-        ],
-        [
-          "UNKNOWN",
-          "1 operation",
-          "Blocker"
-        ],
-        [
-          "COGS true-up",
-          "Dự kiến",
-          "+1,8 triệu"
-        ]
-      ],
-      "notice": "",
+      "cards": [],
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
-        "screen_id": "SCR-14-04",
+        "screen_id": "SCR-14-02",
         "screen_group_id": "SG-14",
-        "route": "#/sg-14/scr-04"
+        "route": "#/sg-14/scr-02"
       },
-      "prototype_status": "RETIRED_ACTIVE_ROUTE",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
       "owner_scope": {
         "kind": "HISTORICAL_MIGRATION",
         "ids": []
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "S1_READY_DERIVED",
-        "structural_disposition": "KEEP",
-        "primary_object": "Blocker và adjustment của costing run",
-        "entry_transition_ids": [
-          "UIF-14-T04"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T05",
-          "UIF-14-T06"
-        ],
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
-        "data_rows": [
-          {
-            "label": "Hàng chờ giá",
-            "example": "2 receipt · Blocker",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-          },
-          {
-            "label": "UNKNOWN",
-            "example": "1 operation · Blocker",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-          },
-          {
-            "label": "COGS true-up",
-            "example": "Dự kiến · +1,8 triệu",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VPageScaffold",
-          "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VCard",
-          "VText",
-          "VBadge",
-          "VChip",
-          "VButton",
-          "VBanner",
-          "VLoading",
-          "VSkeleton"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7KeyValueSection",
-          "Theme7EvidenceSection"
-        ],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
         "evidence_sources": [
-          "BJ-14",
-          "UC-14-02",
-          "UC-14-03",
-          "UIF-14-T04",
-          "UIF-14-T05",
-          "UIF-14-T06"
+          "v3.13.0-screen-migration"
         ],
-        "harness_status": "FROZEN",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [],
+      "themeComposition": null,
+      "mode": null,
+      "entry_architecture": {
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
       }
     },
     {
-      "id": "SCR-076",
-      "name": "Rà soát công bố",
-      "surface_type": "review",
-      "purpose": "Read-only publication review of immutable run/ProductCostResult; final publish CTA only when freshness/effective-time guards pass.",
+      "id": "SCR-074",
+      "name": "Tính và rà soát giá vốn",
+      "surface_type": "dashboard",
+      "purpose": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
       ],
       "related_use_cases": [
-        "UC-14-03",
+        "UC-14-01",
         "UC-14-04"
       ],
       "related_supporting_artifacts": [],
       "states": [
-        "READY",
-        "SOURCE_CHANGED",
+        "CALCULATING",
+        "BLOCKED",
+        "READY_FOR_REVIEW",
+        "INPUT_CHANGED",
         "PERMISSION_DENIED"
       ],
       "action_ids": [
+        "ACT-14-CALCULATE",
         "ACT-14-PUBLISH"
       ],
       "action_contracts": [
-        "ACT-14-PUBLISH"
+        {
+          "id": "ACT-14-CALCULATE",
+          "label": "Tính giá vốn",
+          "bc": "BC-IV-02",
+          "api": "API-C-21",
+          "tone": "primary"
+        },
+        {
+          "id": "ACT-14-PUBLISH",
+          "label": "Công bố giá vốn",
+          "bc": "BC-IV-03",
+          "api": "API-C-22",
+          "tone": "primary"
+        }
       ],
       "actors": [
         "Kế toán"
       ],
       "fields": [],
-      "cards": [
-        [
-          "Run",
-          "COST-2026-08-03",
-          "Sạch blocker"
-        ],
-        [
-          "Phương pháp",
-          "Theo policy",
-          "Bình quân cuối kỳ"
-        ],
-        [
-          "Số dòng adjustment",
-          "84",
-          "Sẵn sàng"
-        ]
-      ],
+      "cards": [],
       "notice": "",
-      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
+      "sensitive_data": "Toàn bộ kết quả giá trị chỉ render cho quyền tài chính.",
       "legacy_aliases": {
-        "screen_id": "SCR-14-05",
+        "screen_id": "SCR-14-03",
         "screen_group_id": "SG-14",
-        "route": "#/sg-14/scr-05"
+        "route": "#/sg-14/scr-03"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -11225,85 +10717,239 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "PRODUCT_CORRECTED_v3.9.9",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Costing batch trước khi công bố",
-        "entry_transition_ids": [
-          "UIF-14-T06"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T07",
-          "UIF-14-T08"
-        ],
-        "visible_action_ids": [
-          "ACT-14-PUBLISH"
-        ],
+        "primary_object": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
+        "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "PRODUCT_SEMANTIC_ANATOMY_v3.9.9",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Run",
-            "example": "COST-2026-08-03 · Sạch blocker",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+            "label": "Phương pháp áp dụng",
+            "example": "Bình quân cuối kỳ · Theo chính sách của tổ chức",
+            "ownership": "TENANT_POLICY_READ_ONLY"
           },
           {
-            "label": "Phương pháp",
-            "example": "Theo policy · Bình quân cuối kỳ",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+            "label": "Phạm vi cần cập nhật",
+            "example": "3 sản phẩm · Hệ thống xác định",
+            "ownership": "SERVER_DERIVED_READ_ONLY"
           },
           {
-            "label": "Số dòng adjustment",
-            "example": "84 · Sẵn sàng",
-            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+            "label": "Kết quả theo phương pháp áp dụng",
+            "example": "Tồn cuối kỳ 431,2 triệu",
+            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+          },
+          {
+            "label": "Đối chiếu",
+            "example": "Bình quân liên hoàn · xem khi cần",
+            "ownership": "SERVER_DERIVED_COMPARISON_ONLY"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VCard",
-          "VText",
-          "VBadge",
-          "VChip",
-          "VButton",
+          "DS v2 / Info Row",
+          "DS v2 / Key-value Row",
+          "DS v2 / Readiness Item",
+          "DS v2 / Summary Card",
           "VBanner",
-          "VConfirmDialog",
+          "VButton",
           "VBottomSheet"
         ],
         "module_presentation_pattern_candidates": [
-          "Theme7ReviewSummary",
-          "Theme7DecisionActionGroup"
+          "Theme7DashboardSurface"
         ],
         "evidence_sources": [
           "BJ-14",
-          "UC-14-03",
-          "UC-14-04",
-          "UIF-14-T06",
-          "UIF-14-T07",
-          "UIF-14-T08"
+          "UC-14-01",
+          "UC-14-04"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v3.9.9",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Readiness Item",
+        "DS v2 / Summary Card",
+        "VBanner",
+        "VButton",
+        "VBottomSheet"
+      ],
+      "themeComposition": "Theme7DashboardSurface",
+      "mode": null,
+      "entry_architecture": {
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-14",
+        "version": "3.13.0"
+      },
+      "dataRows": [
+        {
+          "label": "Phương pháp áp dụng",
+          "example": "Bình quân cuối kỳ · Theo chính sách của tổ chức",
+          "ownership": "TENANT_POLICY_READ_ONLY"
+        },
+        {
+          "label": "Phạm vi cần cập nhật",
+          "example": "3 sản phẩm · Hệ thống xác định",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
+        },
+        {
+          "label": "Kết quả theo phương pháp áp dụng",
+          "example": "Tồn cuối kỳ 431,2 triệu",
+          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+        },
+        {
+          "label": "Đối chiếu",
+          "example": "Bình quân liên hoàn · xem khi cần",
+          "ownership": "SERVER_DERIVED_COMPARISON_ONLY"
+        }
+      ]
+    },
+    {
+      "id": "SCR-075",
+      "name": "Blocker và adjustment — Đã hợp nhất",
+      "surface_type": "detail",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
+      "navigation_area": "NAV-04",
+      "related_business_journeys": [
+        "BJ-14"
+      ],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [],
+      "states": [
+        "RETIRED_ACTIVE_ROUTE"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Kế toán"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
+      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
+      "legacy_aliases": {
+        "screen_id": "SCR-14-04",
+        "screen_group_id": "SG-14",
+        "route": "#/sg-14/scr-04"
+      },
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
+      "owner_scope": {
+        "kind": "HISTORICAL_MIGRATION",
+        "ids": []
+      },
+      "design_readiness": {
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
+        "evidence_sources": [
+          "v3.13.0-screen-migration"
+        ],
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+      },
+      "holistic_review": {
+        "version": "3.13.0",
+        "status": "PASS",
+        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [],
+      "themeComposition": null,
+      "mode": null,
+      "entry_architecture": {
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
+      }
+    },
+    {
+      "id": "SCR-076",
+      "name": "Rà soát công bố — Đã hợp nhất",
+      "surface_type": "review",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-074.",
+      "navigation_area": "NAV-04",
+      "related_business_journeys": [
+        "BJ-14"
+      ],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [],
+      "states": [
+        "RETIRED_ACTIVE_ROUTE"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Kế toán"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "Đã hợp nhất vào SCR-074; không còn là màn hình active.",
+      "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
+      "legacy_aliases": {
+        "screen_id": "SCR-14-05",
+        "screen_group_id": "SG-14",
+        "route": "#/sg-14/scr-05"
+      },
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
+      "owner_scope": {
+        "kind": "HISTORICAL_MIGRATION",
+        "ids": []
+      },
+      "design_readiness": {
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
+        "evidence_sources": [
+          "v3.13.0-screen-migration"
+        ],
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+      },
+      "holistic_review": {
+        "version": "3.13.0",
+        "status": "PASS",
+        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [],
+      "themeComposition": null,
+      "mode": null,
+      "entry_architecture": {
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
       }
     },
     {
       "id": "SCR-077",
-      "name": "Kết quả công bố",
+      "name": "Kết quả công bố giá vốn",
       "surface_type": "result",
-      "purpose": "Authoritative publication finality: actual batches/deltas/Official Cost versions/cleared dirty causes; UNKNOWN no blind retry.",
+      "purpose": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
@@ -11318,23 +10964,29 @@
         "UNKNOWN",
         "PERMISSION_DENIED"
       ],
-      "action_ids": [],
+      "action_ids": [
+        "ACT-14-PUBLISH"
+      ],
       "action_contracts": [],
       "actors": [
         "Kế toán"
       ],
       "fields": [
         [
-          "Batch",
-          "VAL-2026-08-03"
+          "Kỳ",
+          "09/2026"
         ],
         [
-          "Official cost version",
-          "OCV-2026-08"
+          "Phương pháp",
+          "Bình quân cuối kỳ"
         ],
         [
-          "Event",
-          "OfficialCostPublished"
+          "Giá vốn",
+          "Đã công bố"
+        ],
+        [
+          "Hiệu lực",
+          "Từ thời điểm công bố"
         ]
       ],
       "cards": [],
@@ -11345,8 +10997,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-06"
       },
-      "prototype_status": "PRODUCT_CORRECTED_v3.9.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -11354,56 +11006,41 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "PRODUCT_CORRECTED_v3.9.9",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Kết quả công bố giá vốn",
-        "entry_transition_ids": [
-          "UIF-14-T08"
-        ],
-        "exit_transition_ids": [
-          "UIF-14-T09",
-          "UIF-14-T10"
-        ],
+        "primary_object": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-14-PUBLISH"
         ],
         "gap_ids": [],
-        "data_contract_level": "PRODUCT_SEMANTIC_ANATOMY_v3.9.9",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Batch",
-            "example": "VAL-2026-08-03",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Kỳ",
+            "example": "09/2026",
+            "ownership": "SERVER_AUTHORITATIVE_RESULT"
           },
           {
-            "label": "Official cost version",
-            "example": "OCV-2026-08",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Phương pháp",
+            "example": "Bình quân cuối kỳ",
+            "ownership": "TENANT_POLICY_READ_ONLY"
           },
           {
-            "label": "Event",
-            "example": "OfficialCostPublished",
-            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+            "label": "Trạng thái",
+            "example": "Đã công bố",
+            "ownership": "SERVER_AUTHORITATIVE_RESULT"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VPageScaffold",
           "VAppBar",
-          "VPagePadding",
-          "VSection",
-          "VGap",
-          "VContentWidth",
-          "VResponsive",
-          "VIconBox",
-          "VText",
-          "VCard",
-          "VBadge",
-          "VButton",
+          "VEmptyState",
+          "DS v2 / Summary Card",
+          "DS v2 / Key-value Row",
           "VBanner",
-          "VToast"
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7OperationResult"
@@ -11411,19 +11048,49 @@
         "evidence_sources": [
           "BJ-14",
           "UC-14-04",
-          "UIF-14-T08",
-          "UIF-14-T09",
-          "UIF-14-T10"
+          "ACT-14-PUBLISH"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v3.9.9",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "components": [
+        "VAppBar",
+        "VEmptyState",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
+        "VBanner",
+        "VButton"
+      ],
+      "themeComposition": "Theme7OperationResult",
+      "mode": null,
+      "entry_architecture": {
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-14",
+        "version": "3.13.0"
+      },
+      "dataRows": [
+        {
+          "label": "Kỳ",
+          "example": "09/2026",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+        },
+        {
+          "label": "Phương pháp",
+          "example": "Bình quân cuối kỳ",
+          "ownership": "TENANT_POLICY_READ_ONLY"
+        },
+        {
+          "label": "Trạng thái",
+          "example": "Đã công bố",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+        }
+      ]
     },
     {
       "id": "SCR-078",
@@ -12478,9 +12145,9 @@
     },
     {
       "id": "SCR-085",
-      "name": "Chi phí mua bổ sung",
+      "name": "Điều chỉnh giá trị hàng nhập",
       "surface_type": "list",
-      "purpose": "Work queue theo stable economic source component; source revision chỉ là freshness/provenance, actionable và waiting tách biệt.",
+      "purpose": "Danh sách các căn cứ mới hoặc thay đổi cần ghi điều chỉnh tăng/giảm vào giá trị hàng nhập.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
@@ -12488,10 +12155,7 @@
       "related_use_cases": [
         "UC-13-01"
       ],
-      "related_supporting_artifacts": [
-        "BC-IV-06",
-        "BC-IV-04"
-      ],
+      "related_supporting_artifacts": [],
       "states": [
         "READY",
         "LOADING",
@@ -12511,7 +12175,7 @@
       "notice": "",
       "sensitive_data": "Amount/source tài chính chỉ render khi có quyền.",
       "legacy_aliases": {},
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -12520,46 +12184,40 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.9.8-bj13-deep-review",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DEEP_REVIEW_LOCK_CANDIDATE",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Danh sách source component chi phí mua đến muộn cần Inventory Valuation xử lý; actionable và source-owned waiting tách biệt.",
-        "entry_transition_ids": [
-          "UIF-13-T01"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T02"
-        ],
+        "primary_object": "Danh sách các căn cứ mới hoặc thay đổi cần ghi điều chỉnh tăng/giảm vào giá trị hàng nhập.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Nguồn chi phí",
-            "example": "Hóa đơn vận chuyển VC-8842 · dòng 1",
-            "ownership": "SERVER_AUTHORITATIVE_STABLE_ECONOMIC_COMPONENT"
+            "label": "Căn cứ điều chỉnh",
+            "example": "Hóa đơn vận chuyển VC-8842 · +1.200.000 đ",
+            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
           },
           {
-            "label": "Giá trị nguồn",
-            "example": "1.200.000 VND",
-            "ownership": "SERVER_AUTHORITATIVE_FINANCIAL_READ_ONLY"
+            "label": "Điều chỉnh giảm",
+            "example": "Chiết khấu NCC CK-2201 · −350.000 đ",
+            "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
           },
           {
             "label": "Tình trạng",
-            "example": "Đang chờ tỷ giá / Chờ xác nhận giá ban đầu",
-            "ownership": "SERVER_DERIVED_EXCEPTION_ONLY"
+            "example": "Có thể xử lý / Đang chờ căn cứ",
+            "ownership": "SERVER_DERIVED_READ_ONLY"
           }
         ],
         "flutter_ds_component_candidates": [
+          "VAppBar",
           "VSearchBar",
           "VChip",
-          "VCard",
+          "DS v2 / List Row",
           "VBadge",
-          "VText",
-          "VEmptyState",
-          "VSkeleton"
+          "VSkeleton",
+          "VEmptyState"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7ListSurface"
@@ -12568,36 +12226,54 @@
           "BJ-13",
           "UC-13-01"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v1.4.5",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "components": [
+        "VAppBar",
         "VSearchBar",
         "VChip",
-        "VCard",
+        "DS v2 / List Row",
         "VBadge",
-        "VText",
-        "VEmptyState",
-        "VSkeleton"
+        "VSkeleton",
+        "VEmptyState"
       ],
       "themeComposition": "Theme7ListSurface",
       "entry_architecture": {
-        "class": "MODULE_ENTRY",
-        "canonical_parent": "Giá trị & giá vốn > Chi phí mua bổ sung",
-        "version": "1.4.5"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-13",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "mode": null,
+      "dataRows": [
+        {
+          "label": "Căn cứ điều chỉnh",
+          "example": "Hóa đơn vận chuyển VC-8842 · +1.200.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Điều chỉnh giảm",
+          "example": "Chiết khấu NCC CK-2201 · −350.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_LIST_OR_SUMMARY_ITEM"
+        },
+        {
+          "label": "Tình trạng",
+          "example": "Có thể xử lý / Đang chờ căn cứ",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
+        }
+      ]
     },
     {
       "id": "SCR-086",
-      "name": "Nguồn và phạm vi chi phí",
+      "name": "Nguồn, phạm vi và phân bổ",
       "surface_type": "detail",
-      "purpose": "Đối chiếu stable source component và authoritative target scope; bind valuation exposures thay vì arbitrary receipt-line selection.",
+      "purpose": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
@@ -12607,7 +12283,7 @@
       ],
       "related_supporting_artifacts": [
         "BC-IV-06",
-        "BC-IV-04"
+        "API-Q-12"
       ],
       "states": [
         "READY",
@@ -12627,7 +12303,7 @@
       "notice": "",
       "sensitive_data": "Source amount và valuation context là financial restricted.",
       "legacy_aliases": {},
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -12636,101 +12312,116 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.9.8-bj13-deep-review",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DEEP_REVIEW_LOCK_CANDIDATE",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Đối chiếu source component và chọn đúng 1..N receipt lines bị ảnh hưởng; không ghi adjustment.",
-        "entry_transition_ids": [
-          "UIF-13-T02",
-          "UIF-13-T06"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T03",
-          "UIF-13-T04"
-        ],
+        "primary_object": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
         "visible_action_ids": [],
-        "trace_only_action_ids": [
-          "BC-IV-06",
-          "API-Q-12"
-        ],
+        "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Source component",
-            "example": "VC-8842 · dòng 1",
-            "ownership": "SERVER_AUTHORITATIVE_STABLE_ECONOMIC_COMPONENT"
+            "label": "Căn cứ điều chỉnh",
+            "example": "VC-8842 · +1.200.000 đ",
+            "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
           },
           {
-            "label": "Phạm vi",
-            "example": "Authoritative target scope / valuation exposures",
-            "ownership": "SERVER_OWNED_SCOPE_USER_JUDGMENT_ONLY_WHEN_POLICY_ALLOWS"
+            "label": "Phạm vi áp dụng",
+            "example": "PN-260816-04 · 50 hộp",
+            "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+          },
+          {
+            "label": "Cách phân bổ",
+            "example": "Theo số lượng",
+            "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+          },
+          {
+            "label": "Tổng phân bổ",
+            "example": "+1.200.000 đ",
+            "ownership": "SERVER_DERIVED_READ_ONLY"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VCard",
-          "VText",
-          "VBadge",
+          "VAppBar",
+          "DS v2 / Info Row",
+          "DS v2 / Key-value Row",
+          "DS v2 / List Row",
+          "DS v2 / Summary Card",
           "VBanner",
-          "VButton",
-          "VSkeleton"
+          "VSegmentedControl",
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DetailSurface"
         ],
         "evidence_sources": [
           "BJ-13",
-          "UC-13-01",
-          "BC-IV-06",
-          "API-Q-12"
+          "UC-13-01"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v1.4.5",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "components": [
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / List Row",
+        "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
-        "VSkeleton"
+        "VSegmentedControl",
+        "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
       "entry_architecture": {
-        "class": "CONTEXTUAL_DEEP_LINK",
-        "canonical_parent": "SCR-085 or assigned late-cost source task",
-        "version": "1.4.5"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-13",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "mode": null,
+      "dataRows": [
+        {
+          "label": "Căn cứ điều chỉnh",
+          "example": "VC-8842 · +1.200.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_READ_ONLY"
+        },
+        {
+          "label": "Phạm vi áp dụng",
+          "example": "PN-260816-04 · 50 hộp",
+          "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+        },
+        {
+          "label": "Cách phân bổ",
+          "example": "Theo số lượng",
+          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+        },
+        {
+          "label": "Tổng phân bổ",
+          "example": "+1.200.000 đ",
+          "ownership": "SERVER_DERIVED_READ_ONLY"
+        }
+      ]
     },
     {
       "id": "SCR-087",
-      "name": "Phân bổ chi phí",
+      "name": "Phân bổ điều chỉnh — Đã hợp nhất",
       "surface_type": "form",
-      "purpose": "Chọn allowed allocation method và đọc authoritative preview dựa trên immutable valuation-exposure metrics, stable rounding và per-allocation period mapping.",
+      "purpose": "Retired in v3.13.0; route redirects to SCR-086.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
       ],
-      "related_use_cases": [
-        "UC-13-02"
-      ],
-      "related_supporting_artifacts": [
-        "BC-IV-06",
-        "BC-IV-04"
-      ],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [],
       "states": [
-        "READY",
-        "LOADING",
-        "VALIDATION_ERROR",
-        "SOURCE_CHANGED",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
       "action_ids": [],
       "action_contracts": [],
@@ -12740,115 +12431,59 @@
       ],
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã hợp nhất vào SCR-086; không còn là màn hình active.",
       "sensitive_data": "Allocation amount/FX/tax provenance là financial restricted.",
       "legacy_aliases": {},
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "RETIRED_v3.13.0",
+      "evidence_level": "MIGRATION_TRACE_ONLY",
       "owner_scope": {
-        "kind": "BUSINESS_JOURNEY",
-        "ids": [
-          "BJ-13"
-        ]
+        "kind": "HISTORICAL_MIGRATION",
+        "ids": []
       },
       "design_readiness": {
-        "checkpoint_version": "3.9.8-bj13-deep-review",
-        "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DEEP_REVIEW_LOCK_CANDIDATE",
-        "structural_disposition": "KEEP",
-        "primary_object": "Chọn căn cứ trong tập policy/source cho phép và xem server preview phân bổ, kỳ và rounding; không mutation.",
-        "entry_transition_ids": [
-          "UIF-13-T04",
-          "UIF-13-T07",
-          "UIF-13-T10"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T05",
-          "UIF-13-T06"
-        ],
+        "checkpoint_version": "3.13.0-design-parity",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRE",
+        "primary_object": "Không còn là bề mặt sản phẩm active; giữ ID chỉ để migration/trace.",
         "visible_action_ids": [],
-        "trace_only_action_ids": [
-          "BC-IV-06",
-          "API-Q-12"
-        ],
+        "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
-        "data_rows": [
-          {
-            "label": "Giá trị sau chuẩn hóa",
-            "example": "1.200.000 VND",
-            "ownership": "SERVER_DERIVED_READ_ONLY"
-          },
-          {
-            "label": "Căn cứ phân bổ",
-            "example": "Allowed by policy/source preview",
-            "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
-          },
-          {
-            "label": "Tổng phân bổ",
-            "example": "= giá trị sau chuẩn hóa",
-            "ownership": "SERVER_DERIVED_READ_ONLY_STABLE_EXPOSURE_ORDER"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VCard",
-          "VText",
-          "VSelect",
-          "VBadge",
-          "VBanner",
-          "VButton",
-          "VSkeleton"
-        ],
-        "module_presentation_pattern_candidates": [
-          "Theme7FormSurface"
-        ],
+        "data_contract_level": "MIGRATION_TRACE_ONLY",
+        "data_rows": [],
         "evidence_sources": [
-          "BJ-13",
-          "UC-13-02",
-          "BC-IV-06",
-          "API-Q-12"
+          "v3.13.0-screen-migration"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v1.4.5",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "RETIRED_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
-      "components": [
-        "VCard",
-        "VText",
-        "VSelect",
-        "VBadge",
-        "VBanner",
-        "VButton",
-        "VSkeleton"
-      ],
-      "themeComposition": "Theme7FormSurface",
+      "components": [],
+      "themeComposition": null,
       "entry_architecture": {
-        "class": "IN_FLOW_SURFACE",
-        "canonical_parent": "SCR-086 authoritative preview",
-        "version": "1.4.5"
+        "class": "RETIRED",
+        "canonical_parent": "Migration alias only",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "mode": null
     },
     {
       "id": "SCR-088",
-      "name": "Rà soát ghi chi phí",
+      "name": "Rà soát điều chỉnh giá trị",
       "surface_type": "review",
-      "purpose": "Final review của atomic late-cost commit; recheck complete late_cost_basis_hash + allocation_hash trước mutation.",
+      "purpose": "Rà soát read-only signed adjustment trước khi commit.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
       ],
       "related_use_cases": [
-        "UC-13-03"
+        "UC-13-01"
       ],
-      "related_supporting_artifacts": [
-        "BC-IV-06",
-        "BC-IV-04"
-      ],
+      "related_supporting_artifacts": [],
       "states": [
         "READY",
         "SOURCE_CHANGED",
@@ -12861,7 +12496,7 @@
       "action_contracts": [
         {
           "id": "ACT-03-RECORD-LATE-COST",
-          "label": "Ghi chi phí mua bổ sung",
+          "label": "Ghi điều chỉnh giá trị",
           "bc": "BC-IV-04",
           "api": "API-C-23",
           "tone": "primary"
@@ -12876,7 +12511,7 @@
       "notice": "",
       "sensitive_data": "Tất cả giá trị tài chính bị omit khỏi DOM khi thiếu quyền.",
       "legacy_aliases": {},
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -12885,45 +12520,39 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.9.8-bj13-deep-review",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DEEP_REVIEW_LOCK_CANDIDATE",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Rà soát source, normalized value, 1..N allocation lines, kỳ ghi nhận và dirty scope trước một commit value-only.",
-        "entry_transition_ids": [
-          "UIF-13-T05"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T07",
-          "UIF-13-T08"
-        ],
+        "primary_object": "Rà soát read-only signed adjustment trước khi commit.",
         "visible_action_ids": [
           "ACT-03-RECORD-LATE-COST"
         ],
         "trace_only_action_ids": [],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Khoản sẽ ghi",
-            "example": "1.200.000 VND",
+            "label": "Điều chỉnh",
+            "example": "−350.000 đ",
             "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
           },
           {
-            "label": "Kỳ ghi nhận",
-            "example": "1..N posting-period groups",
+            "label": "Tác động",
+            "example": "Chỉ thay đổi giá trị; số lượng không đổi",
             "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
           },
           {
-            "label": "Phạm vi cần tính lại",
-            "example": "Product + posting period",
-            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+            "label": "Sau khi ghi",
+            "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
+            "ownership": "SERVER_DERIVED_PREVIEW"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VCard",
-          "VText",
-          "VBadge",
+          "VAppBar",
+          "DS v2 / Info Row",
+          "DS v2 / Key-value Row",
+          "DS v2 / Summary Card",
           "VBanner",
           "VButton"
         ],
@@ -12932,47 +12561,64 @@
         ],
         "evidence_sources": [
           "BJ-13",
-          "UC-13-03"
+          "UC-13-01",
+          "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v1.4.5",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "components": [
-        "VCard",
-        "VText",
-        "VBadge",
+        "VAppBar",
+        "DS v2 / Info Row",
+        "DS v2 / Key-value Row",
+        "DS v2 / Summary Card",
         "VBanner",
         "VButton"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "entry_architecture": {
-        "class": "IN_FLOW_SURFACE",
-        "canonical_parent": "SCR-087 current preview",
-        "version": "1.4.5"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-13",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "mode": null,
+      "dataRows": [
+        {
+          "label": "Điều chỉnh",
+          "example": "−350.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+        },
+        {
+          "label": "Tác động",
+          "example": "Chỉ thay đổi giá trị; số lượng không đổi",
+          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
+        },
+        {
+          "label": "Sau khi ghi",
+          "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
+          "ownership": "SERVER_DERIVED_PREVIEW"
+        }
+      ]
     },
     {
       "id": "SCR-089",
-      "name": "Kết quả ghi chi phí",
+      "name": "Kết quả điều chỉnh giá trị",
       "surface_type": "result",
-      "purpose": "Command-authoritative finality của late-cost commit; summarize 1..N posting-period batches và Product+posting-period dirty scopes, không ngụ ý Official Cost đã đổi.",
+      "purpose": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
       ],
       "related_use_cases": [
-        "UC-13-03"
+        "UC-13-01"
       ],
-      "related_supporting_artifacts": [
-        "BC-IV-06",
-        "BC-IV-04"
-      ],
+      "related_supporting_artifacts": [],
       "states": [
         "PROCESSING",
         "COMPLETED",
@@ -12980,7 +12626,9 @@
         "UNKNOWN",
         "PERMISSION_DENIED"
       ],
-      "action_ids": [],
+      "action_ids": [
+        "ACT-03-RECORD-LATE-COST"
+      ],
       "action_contracts": [],
       "actors": [
         "Kế toán mua hàng",
@@ -12991,7 +12639,7 @@
       "notice": "",
       "sensitive_data": "Financial result masked/omitted theo permission.",
       "legacy_aliases": {},
-      "prototype_status": "PRODUCT_CORRECTED_v1.5.0",
+      "prototype_status": "DESIGN_PARITY_v3.13.0",
       "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -13000,49 +12648,39 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.9.8-bj13-deep-review",
+        "checkpoint_version": "3.13.0-design-parity",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DEEP_REVIEW_LOCK_CANDIDATE",
+        "status": "DESIGN_PARITY_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Hiển thị finality của late-cost commit, adjustment/value trace và dirty scope; không ngụ ý official cost đã được công bố lại.",
-        "entry_transition_ids": [
-          "UIF-13-T08"
-        ],
-        "exit_transition_ids": [
-          "UIF-13-T09",
-          "UIF-13-T10",
-          "UIF-13-T11"
-        ],
+        "primary_object": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-03-RECORD-LATE-COST"
         ],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
-            "label": "Chi phí đã ghi",
-            "example": "1.200.000 VND",
+            "label": "Giá trị điều chỉnh",
+            "example": "−350.000 đ",
             "ownership": "SERVER_AUTHORITATIVE_RESULT"
           },
           {
             "label": "Kỳ ghi nhận",
-            "example": "1..N posting periods",
+            "example": "09/2026",
             "ownership": "SERVER_AUTHORITATIVE_RESULT"
           },
           {
             "label": "Giá vốn",
-            "example": "Cần tính lại cho exact Product + posting period scopes",
-            "ownership": "SERVER_AUTHORITATIVE_RESULT"
+            "example": "Cần cập nhật",
+            "ownership": "SERVER_DERIVED_RESULT"
           }
         ],
         "flutter_ds_component_candidates": [
-          "VLoading",
+          "VAppBar",
           "VEmptyState",
-          "VEmptyMedia",
-          "VEmptyTitle",
-          "VEmptyDescription",
-          "VCard",
+          "DS v2 / Summary Card",
+          "DS v2 / Key-value Row",
           "VBanner",
           "VButton"
         ],
@@ -13051,68 +12689,86 @@
         ],
         "evidence_sources": [
           "BJ-13",
-          "UC-13-03",
+          "UC-13-01",
           "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "PRODUCT_CORRECTED_v1.4.5",
-        "contract_version": "SCREEN_DESIGN_CONTRACT_V4_HARNESS"
+        "harness_status": "DESIGN_PARITY_v3.13.0",
+        "contract_version": "SCREEN_CONTRACT_v3.13.0"
       },
       "components": [
-        "VLoading",
+        "VAppBar",
         "VEmptyState",
-        "VEmptyMedia",
-        "VEmptyTitle",
-        "VEmptyDescription",
-        "VCard",
+        "DS v2 / Summary Card",
+        "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
       ],
       "themeComposition": "Theme7OperationResult",
       "entry_architecture": {
-        "class": "RESULT",
-        "canonical_parent": "Post-commit finality",
-        "version": "1.4.5"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-13",
+        "version": "3.13.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "3.13.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
-      }
+        "scope": "DESIGN_HTML_PARITY"
+      },
+      "mode": null,
+      "dataRows": [
+        {
+          "label": "Giá trị điều chỉnh",
+          "example": "−350.000 đ",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+        },
+        {
+          "label": "Kỳ ghi nhận",
+          "example": "09/2026",
+          "ownership": "SERVER_AUTHORITATIVE_RESULT"
+        },
+        {
+          "label": "Giá vốn",
+          "example": "Cần cập nhật",
+          "ownership": "SERVER_DERIVED_RESULT"
+        }
+      ]
     }
   ],
   "design_readiness_checkpoint": {
-    "version": "4.3.1-dr1",
-    "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-    "generated_at": "2026-08-24T09:17:52.534357+00:00",
-    "basis": "BJ -> UC -> UI Flow -> canonical Screen; Figma DS v2.0.2 is the UI source of truth; legacy component fields are mapping inputs during Phase 2.",
-    "screen_count_preserved_pending_structural_approval": 83,
-    "pilot_added_screen_count": 1,
-    "pilot_screen_ids": [
-      "SCR-084"
+    "version": "3.13.0",
+    "freeze_id": "T7-DESIGN-PARITY-v3.13.0",
+    "generated_at": "2026-09-25",
+    "basis": "v3.12.0 semantic baseline + live Figma DS v2 + prototype parity QA",
+    "active_valuation_screen_count": 11,
+    "retired_valuation_screen_ids": [
+      "SCR-016",
+      "SCR-018",
+      "SCR-073",
+      "SCR-075",
+      "SCR-076",
+      "SCR-087"
     ]
   },
-  "evidence_level": "SEMANTIC_RUNTIME_VISUAL_VALIDATED",
+  "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
   "figma_ds_migration": {
     "release": "2.0.1",
     "authority": "Figma Design System v2.0.2",
     "lock": "FIGMA-DS-LOCK.json",
     "mapping_registry": "figma-ds/html-figma-ds-mapping.json",
-    "screen_composition_status": "PENDING_PHASE_3_4",
+    "screen_composition_status": "VALUATION_PARITY_v3.13.0",
     "legacy_component_fields_status": "MAPPING_INPUT_ONLY"
   },
-  "parent_screen_registry_version": "3.9.5",
-  "runtime_scope_v3_6_0": {
+  "parent_screen_registry_version": "3.12.0",
+  "runtime_scope_v3_13_0": {
     "businessJourneys": 17,
     "supportingCapabilities": 1,
-    "canonicalRouteOccurrences": 89,
-    "activeUniqueScreens": 77,
-    "declaredRouteStates": 518,
-    "supportingScreenIds": [
-      "SCR-062",
-      "SCR-063",
-      "SCR-064",
-      "SCR-065"
-    ]
+    "canonicalRouteOccurrences": 86,
+    "canonicalActiveScreens": 74,
+    "activeStateRenders": 490,
+    "runtimeSmoke": "03.design/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v3.13.0.json",
+    "valuationE2E": "03.design/prototype/html/qa/VALUATION-FLOW-E2E-v3.13.0.json",
+    "valuationVisualIntegrity": "03.design/prototype/html/qa/VALUATION-VISUAL-INTEGRITY-v3.13.0.json",
+    "valuationAdversarial": "03.design/prototype/html/qa/VALUATION-ADVERSARIAL-QA-v3.13.0.json"
   }
 }

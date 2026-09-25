@@ -6,7 +6,8 @@ title: "Điều tra và xác định nguyên nhân"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-16
 ---
 
 # UC-16-03 — Điều tra và xác định nguyên nhân
@@ -114,6 +115,9 @@ Không thay đổi fact nguồn trong quá trình điều tra. UC chỉ so sánh
 **Ảnh hưởng nghiệp vụ chính:** Case có kết luận sơ bộ, evidence chain và resolution route rõ: rebuild projection, correction, source fix, recovery hoặc escalation.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-16 — Điều tra và đối soát sai lệch](../../../03.design/flows/UIF-16-BJ-16.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

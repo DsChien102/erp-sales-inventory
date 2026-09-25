@@ -6,7 +6,8 @@ title: "Mở và khóa phạm vi"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-08
 ---
 
 # UC-08-01 — Mở và khóa phạm vi
@@ -130,6 +131,9 @@ Không nhập số đếm, không tự xử lý lượng `VALUATION_PENDING`, kh
 | Chưa xác định (`UNKNOWN`) | Không tạo command/session identity mới | BJ17 đối soát finality |
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-08 — Kiểm kê và điều chỉnh chênh lệch](../../../03.design/flows/UIF-08-BJ-08.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

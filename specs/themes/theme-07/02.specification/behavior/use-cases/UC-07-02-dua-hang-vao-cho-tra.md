@@ -6,7 +6,8 @@ title: "Đồng bộ hàng vào chờ trả"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-07
 ---
 
 # UC-07-02 — Đồng bộ hàng vào chờ trả
@@ -110,11 +111,14 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 ## 8. Liên hệ giao diện
 
+**UI Flow canonical:** [UIF-07 — Thực hiện trả hàng cho nhà cung cấp](../../../03.design/flows/UIF-07-BJ-07.md)
+
+
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-036` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Đồng bộ hàng vào chờ trả”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-037` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Đồng bộ hàng vào chờ trả”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-038` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Đồng bộ hàng vào chờ trả”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+| `SCR-036` | Điểm vào/list context cho supplier-return intent. |
+| `SCR-037` | Rà soát source/version/quantity trước khi system đồng bộ RTV_PENDING. |
+| `SCR-041` | Kết quả/trạng thái authoritative sau system sync; không dùng SCR-038. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

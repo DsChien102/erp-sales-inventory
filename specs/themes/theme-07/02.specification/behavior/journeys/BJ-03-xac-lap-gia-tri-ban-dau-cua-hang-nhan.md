@@ -6,7 +6,8 @@ title: "Xác lập giá trị ban đầu của hàng nhận"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-03
 ---
 
 # BJ-03 — Xác lập giá trị ban đầu của hàng nhận
@@ -50,13 +51,12 @@ flowchart TD
 | BJ13 | Thành phần giá trị mới hoặc thay đổi hợp lệ xuất hiện sau khi BJ03 đã hoàn tất | Ghi điều chỉnh mới; không sửa lại giá trị ban đầu đã xác nhận |
 | BJ14 | Sản phẩm + kỳ cần cập nhật giá vốn | Sau khi giá trị ban đầu được ghi thành công |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-> **Parity v3.12.0:** semantic Journey/UC đã thay đổi; Screen Contract/HTML v3.11.0 được giữ làm downstream input và sẽ được align ở v3.13.0.
-
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-03-01 — Xác lập giá trị nhập ban đầu | `SCR-014`, `SCR-015`, `SCR-016`, `SCR-017`, `SCR-019` | Xem hàng chờ xác lập giá trị, rà soát hoặc bổ sung căn cứ giá, xem cấu thành giá trị và xác nhận giá trị nhập ban đầu. |
+- **UI Flow canonical:** [UIF-03 — Xác lập giá trị ban đầu của hàng nhận](../../../03.design/flows/UIF-03-BJ-03.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-03`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

@@ -2,67 +2,39 @@
 id: FE-SCR-086
 type: fe-slice
 theme: theme-07
-title: "Nguồn và phạm vi chi phí"
+title: "Nguồn, phạm vi và phân bổ"
 owner: SE
-status: DRAFT
-source_baseline: v3.10.1
-materialization: template-migration
+status: READY_FOR_PROTOTYPE
+source_baseline: v3.13.0
+materialization: valuation-design-parity
 ---
-# FE-SCR-086 — Nguồn và phạm vi chi phí
+# FE-SCR-086 — Nguồn, phạm vi và phân bổ
 
 ## 1. Mục tiêu
 
-Hiện thực bề mặt `SCR-086` đúng Screen Contract; không tạo business rule mới.
+Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.
 
-## 2. Screen Contract
+## 2. Authority
 
-- `SCR-086`
-- `UC-13-01`
+- Screen Contract: [`SCR-086`](../../03.design/screens/SCR-086.md)
+- Use Case: `UC-13-01`
+- Design System: `03.design/design-system/design-system-profile.md`
+- Prototype baseline: `v3.13.0`
 
-## 3. Scope
+## 3. Scope FE
 
-### 3.1 Owns
+- FE chỉ render state/action/navigation đã có trong Screen Contract và UC/BC.
+- Không tự tạo nguồn dữ liệu, rule tài chính, quyền hoặc finality.
+- Product UI dùng ngôn ngữ nghiệp vụ; metadata kỹ thuật chỉ ở Inspect/audit.
 
-Rendering, state/action binding và navigation/feedback của Screen.
+## 4. State và composition
 
-### 3.2 Does not own
+- States: `READY`, `LOADING`, `SOURCE_CHANGED`, `VALIDATION_ERROR`, `PERMISSION_DENIED`
+- Components: `VAppBar`, `DS v2 / Info Row`, `DS v2 / Key-value Row`, `DS v2 / List Row`, `DS v2 / Summary Card`, `VBanner`, `VSegmentedControl`, `VButton`
+- Mobile baseline: `402×874`, edge `16`, touch target tối thiểu `44`.
 
-Business semantics của UC/BC hoặc architecture backend.
+## 5. Verification
 
-## 4. Nguồn đầu vào
-
-- `SCR-086`
-- `DS-PROFILE`
-- `UC-13-01`
-
-## 5. States và Actions
-
-- `READY`
-- `LOADING`
-- `SOURCE_CHANGED`
-- `VALIDATION_ERROR`
-- `PERMISSION_DENIED`
-
-## 6. Data / Interface mapping
-
-Action/BC/API mapping được giữ trong Screen Contract và action registry nguồn; FE Slice không tự tạo interface.
-
-## 7. Component composition
-
-Theo mục 9 của `SCR-086` và `DS-PROFILE`.
-
-## 8. Navigation và feedback
-
-Theo Entry/Exit, States và Validation của `SCR-086`.
-
-## 9. Responsive / accessibility
-
-Mobile baseline 402×874 và các rule accessibility đã khóa trong Design System/source contract.
-
-## 10. Verification
-
-Đối chiếu Screen Contract, UC coverage, component mapping và trạng thái/action.
-
-## 11. Delivery
-
-Chưa có production implementation delivery trong baseline; Slice được materialize theo template mới.
+- Kiểm parity giữa Screen Contract → runtime HTML → Inspect metadata.
+- Kiểm empty/loading/error/permission/conflict/unknown khi Screen Contract yêu cầu.
+- Kiểm không có horizontal overflow, footer che content hoặc CTA ngoài authority.

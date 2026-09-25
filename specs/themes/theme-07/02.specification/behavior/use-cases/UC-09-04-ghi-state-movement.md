@@ -6,7 +6,8 @@ title: "Ghi state movement"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-09
 ---
 
 # UC-09-04 — Ghi state movement
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Lượng được chuyển trạng thái vật lý đúng một lần; availability được tính lại nhưng quantity/value ledger không bị nhân đôi.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-09 — Quản lý trạng thái hàng](../../../03.design/flows/UIF-09-BJ-09.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

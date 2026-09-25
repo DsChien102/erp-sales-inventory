@@ -6,7 +6,8 @@ title: "Thu thập và đánh giá bằng chứng"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-17
 ---
 
 # UC-17-01 — Thu thập và đánh giá bằng chứng
@@ -114,6 +115,9 @@ Không retry mutation hoặc kết luận thành công/thất bại khi chưa đ
 **Ảnh hưởng nghiệp vụ chính:** Evidence assessment kết luận `COMMITTED`, `NO_COMMIT` hoặc vẫn `UNKNOWN` và chỉ rõ nhánh xử lý tiếp.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../../../03.design/flows/UIF-17-BJ-17.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Tính và rà soát giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.1.0
+ui_flow: UIF-14
 ---
 
 # UC-14-01 — Tính và rà soát giá vốn
@@ -125,15 +126,14 @@ Kết thúc khi run có trạng thái `READY_FOR_REVIEW` với ProductCostResult
 
 ## 8. Liên hệ giao diện
 
-> **Parity note v3.12.0:** semantic đã khóa rằng costing method là read-only tenant policy. Các Screen/HTML v3.11.0 được giữ làm downstream input và sẽ được redesign ở v3.13.0 để giảm mental model “technical run”.
+**UI Flow canonical:** [UIF-14 — Tính và công bố giá vốn](../../../03.design/flows/UIF-14-BJ-14.md)
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-072` | Danh sách công việc/lần tính giá vốn hiện hành. |
-| `SCR-073` | Thiết lập loại xử lý/kỳ/phạm vi; method phải chỉ là thông tin policy read-only. |
-| `SCR-074` | Kết quả tính theo Product và trạng thái readiness. |
-| `SCR-075` | Blocker và adjustment cần hiểu trước publication. |
-| `SCR-076` | Rà soát kết quả trước bàn giao sang công bố. |
+| `SCR-072` | Danh sách công việc cần xử lý: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn. |
+| `SCR-074` | Thiết lập cần thiết, quá trình tính, vấn đề chặn và kết quả rà soát là các trạng thái của cùng một bề mặt. |
+
+`SCR-073` và `SCR-075` đã retire. Phương pháp tính giá vốn luôn lấy từ chính sách tenant; phạm vi cần tính lại là chỉ đọc và người dùng không thể tùy ý bỏ sản phẩm khỏi phạm vi.
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

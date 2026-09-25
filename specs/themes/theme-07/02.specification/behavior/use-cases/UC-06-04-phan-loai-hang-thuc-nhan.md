@@ -6,7 +6,8 @@ title: "Phân loại hàng thực nhận"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-06
 ---
 
 # UC-06-04 — Phân loại hàng thực nhận
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của receipt không bị ghi lại.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-06 — Tiếp nhận và phân loại hàng khách trả](../../../03.design/flows/UIF-06-BJ-06.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

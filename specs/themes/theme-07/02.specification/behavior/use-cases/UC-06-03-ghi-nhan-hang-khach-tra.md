@@ -6,7 +6,8 @@ title: "Ghi nhận hàng khách trả"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-06
 ---
 
 # UC-06-03 — Ghi nhận hàng khách trả
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Return receipt, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-06 — Tiếp nhận và phân loại hàng khách trả](../../../03.design/flows/UIF-06-BJ-06.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

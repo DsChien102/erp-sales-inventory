@@ -6,7 +6,8 @@ title: "Thực hiện trả hàng cho nhà cung cấp"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-07
 ---
 
 # BJ-07 — Thực hiện trả hàng cho nhà cung cấp
@@ -58,14 +59,12 @@ flowchart TD
 | Theme 10 / Purchase | Supplier-return intent/version | Theme 10 sở hữu quyết định thương mại |
 | Theme 6/9 | Accounting/payable handoff từ kết quả bàn giao | Sau physical/value issue thành công |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-07-01 — Xác minh phạm vi trả | `SCR-036`, `SCR-037` | Xác minh supplier-return intent đã được upstream phê duyệt có còn phù hợp với lượng hàng tenant thực có, đúng sản phẩm/lô và đúng giới hạn source trước khi đưa hàng vào chờ trả. |
-| UC-07-02 — Đồng bộ hàng vào chờ trả | `SCR-036`, `SCR-037`, `SCR-038` | Đồng bộ lượng hàng được Theme mua/nguồn trả NCC phê duyệt vào trạng thái chờ trả mà chưa làm giảm tồn vật lý. |
-| UC-07-03 — Điều chỉnh hoặc hủy trước bàn giao | `SCR-036`, `SCR-037` | Phản ánh amendment/cancel từ Theme nguồn lên lượng đang chờ trả trước khi bàn giao thực tế. |
-| UC-07-04 — Ghi nhận bàn giao trả nhà cung cấp | `SCR-039`, `SCR-041` | Ghi nhận việc bàn giao hàng thực tế cho nhà cung cấp và giảm tồn/value đúng lượng được authorization hiện hành cho phép. |
+- **UI Flow canonical:** [UIF-07 — Thực hiện trả hàng cho nhà cung cấp](../../../03.design/flows/UIF-07-BJ-07.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-07`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

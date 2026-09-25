@@ -6,7 +6,8 @@ title: "Hủy và sửa sai nghiệp vụ kho"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-11
 ---
 
 # BJ-11 — Hủy và sửa sai nghiệp vụ kho
@@ -59,15 +60,12 @@ flowchart TD
 | Journey nguồn | Operation gốc và bằng chứng sai/hủy | Giữ immutable lineage |
 | BJ14/BJ16/BJ17 | Dirty scope hoặc reconciliation/recovery | Theo loại correction/result |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-11-01 — Xác định đường xử lý | `SCR-048`, `SCR-049`, `SCR-050` | Phân loại một yêu cầu sửa sai để chọn đúng đường xử lý: hủy operation chưa thực thi, correction bất biến, hoặc đối soát/recovery. |
-| UC-11-02 — Hủy operation chưa thực thi | `SCR-052`, `SCR-053` | Hủy operation chưa thực thi khi đã chứng minh chưa có authoritative effect, không dùng cancellation để đảo transaction đã commit. |
-| UC-11-03 — Chuẩn bị phương án correction | `SCR-049`, `SCR-052` | Lập phương án correction cho transaction đã commit bằng các effect đảo/điều chỉnh có liên kết, không sửa dữ liệu lịch sử tại chỗ. |
-| UC-11-04 — Phê duyệt correction | `SCR-051`, `SCR-053` | Phê duyệt hoặc từ chối correction proposal dựa trên original effect, phương án và evidence hiện hành. |
-| UC-11-05 — Ghi correction chain | `SCR-049`, `SCR-053` | Ghi correction chain bất biến cho proposal đã được phép, tạo đúng effect đảo/điều chỉnh mà không sửa transaction gốc. |
+- **UI Flow canonical:** [UIF-11 — Hủy và sửa sai nghiệp vụ kho](../../../03.design/flows/UIF-11-BJ-11.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-11`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

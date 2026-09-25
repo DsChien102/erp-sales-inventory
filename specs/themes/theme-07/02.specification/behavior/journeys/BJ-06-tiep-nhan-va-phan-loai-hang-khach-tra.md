@@ -6,7 +6,8 @@ title: "Tiếp nhận và phân loại hàng khách trả"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-06
 ---
 
 # BJ-06 — Tiếp nhận và phân loại hàng khách trả
@@ -56,14 +57,12 @@ flowchart TD
 | Theme 5 / return source | Return intent và source sale lineage | Nguồn cho phép tiếp nhận |
 | BJ09 | Hàng sau nhận cần phân loại trạng thái | Physical receipt đã ghi |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-06-01 — Xác minh hàng được phép nhận trả | `SCR-030`, `SCR-031` | Xác minh hàng khách mang trả có thuộc giao dịch gốc và còn nằm trong phạm vi được phép nhận trả trước khi ghi nhận vật lý. |
-| UC-06-02 — Xử lý ngoại lệ truy vết | `SCR-031`, `SCR-032`, `SCR-034` | Xử lý trường hợp hàng trả không truy vết thẳng được về dòng xuất/lô gốc bằng bằng chứng và quyết định ngoại lệ có thẩm quyền. |
-| UC-06-03 — Ghi nhận hàng khách trả | `SCR-031`, `SCR-032`, `SCR-035` | Ghi lượng hàng khách thực tế trả vào tồn vật lý ở `RETURN_PENDING` cùng giá trị theo căn cứ kỳ xuất gốc, trước khi phân loại sử dụng tiếp. |
-| UC-06-04 — Phân loại hàng thực nhận | `SCR-033`, `SCR-035` | Phân loại hàng khách trả đã nằm trong `RETURN_PENDING` sang trạng thái vật lý phù hợp mà không ghi quantity/value lần hai. |
+- **UI Flow canonical:** [UIF-06 — Tiếp nhận và phân loại hàng khách trả](../../../03.design/flows/UIF-06-BJ-06.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-06`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

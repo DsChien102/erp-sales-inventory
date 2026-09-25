@@ -6,7 +6,8 @@ title: "Xác minh và cập nhật kết quả đối soát"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-16
 ---
 
 # UC-16-04 — Xác minh và cập nhật kết quả đối soát
@@ -107,6 +108,9 @@ Không đóng hồ sơ chỉ vì số liệu tạm thời trùng nhau. UC chỉ 
 **Ảnh hưởng nghiệp vụ chính:** Case state phản ánh đúng tình trạng đã khắc phục, evidence cuối và lock/protection; không đóng chỉ vì số chênh lệch tạm thời bằng 0.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-16 — Điều tra và đối soát sai lệch](../../../03.design/flows/UIF-16-BJ-16.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

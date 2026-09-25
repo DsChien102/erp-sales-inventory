@@ -6,7 +6,8 @@ title: "Xác minh phạm vi trả"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-07
 ---
 
 # UC-07-01 — Xác minh phạm vi trả
@@ -108,6 +109,9 @@ Không thực hiện các mục tiêu thuộc Use Case khác trong cùng Journey
 **Ảnh hưởng nghiệp vụ chính:** Chỉ system/source sync theo `BC-IO-17`; UI không có mutation CTA cho source intake/`RTV_PENDING`.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-07 — Thực hiện trả hàng cho nhà cung cấp](../../../03.design/flows/UIF-07-BJ-07.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

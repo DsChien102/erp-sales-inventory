@@ -6,7 +6,8 @@ title: "Phê duyệt tiêu hủy"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-10
 ---
 
 # UC-10-02 — Phê duyệt tiêu hủy
@@ -115,6 +116,9 @@ Không tự ghi giảm tồn và không sửa nội dung yêu cầu tiêu hủy 
 **Ảnh hưởng nghiệp vụ chính:** Request được duyệt sẵn sàng xử lý hoặc bị từ chối có lý do; tồn kho chưa giảm.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-10 — Tiêu hủy hàng](../../../03.design/flows/UIF-10-BJ-10.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

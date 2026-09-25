@@ -6,7 +6,8 @@ title: "Tra cứu báo cáo tồn và thẻ kho"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-15
 ---
 
 # BJ-15 — Tra cứu báo cáo tồn và thẻ kho
@@ -58,14 +59,12 @@ flowchart TD
 | DOM-IO/IV | Ledger/read model và provenance | Read-only tại as-of/cutoff |
 | BJ16 | Tín hiệu sai lệch cần điều tra | Chỉ khi evidence cho thấy cần reconciliation |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-15-01 — Xác định báo cáo và phạm vi | `SCR-054` | Xác định loại báo cáo, phạm vi dữ liệu, cách đọc ngày và quyền xem trước khi truy vấn báo cáo/thẻ kho. |
-| UC-15-02 — Xem báo cáo tồn kho | `SCR-055` | Xem báo cáo tồn kho tại cut-off/as-of đã chọn, với số dư và breakdown dẫn xuất từ nguồn có thẩm quyền. |
-| UC-15-03 — Xem thẻ kho và lịch sử | `SCR-055`, `SCR-056`, `SCR-057` | Xem thẻ kho/lịch sử movement để giải thích biến động quantity/value theo nguồn và thứ tự thời gian. |
-| UC-15-04 — Xuất báo cáo | `SCR-058`, `SCR-059` | Xuất đúng báo cáo đã xem theo cùng scope/cut-off/as-of và quyền dữ liệu, không tạo snapshot nghiệp vụ mới. |
+- **UI Flow canonical:** [UIF-15 — Tra cứu báo cáo tồn và thẻ kho](../../../03.design/flows/UIF-15-BJ-15.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-15`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

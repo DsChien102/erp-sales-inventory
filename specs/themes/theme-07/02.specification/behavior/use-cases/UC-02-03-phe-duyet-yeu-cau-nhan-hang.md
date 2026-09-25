@@ -6,7 +6,8 @@ title: "Phê duyệt yêu cầu nhận hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 
 # UC-02-03 — Phê duyệt yêu cầu nhận hàng
@@ -115,6 +116,9 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 **Ảnh hưởng nghiệp vụ chính:** Yêu cầu được duyệt sang `READY` hoặc bị từ chối có lý do; không tạo movement trong UC phê duyệt.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

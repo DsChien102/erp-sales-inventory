@@ -6,7 +6,8 @@ title: "Ghi nhận lần đếm mù"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-08
 ---
 
 # UC-08-02 — Ghi nhận lần đếm mù
@@ -131,6 +132,9 @@ Không cho counter thấy book quantity/variance trước FIRST submit, không n
 | Chưa xác định (`UNKNOWN`) | Không append submission trùng | BJ17 đối soát cùng identity |
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-08 — Kiểm kê và điều chỉnh chênh lệch](../../../03.design/flows/UIF-08-BJ-08.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

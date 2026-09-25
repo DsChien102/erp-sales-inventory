@@ -6,7 +6,8 @@ title: "Bảo vệ phạm vi rủi ro"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-16
 ---
 
 # UC-16-02 — Bảo vệ phạm vi rủi ro
@@ -107,6 +108,9 @@ Không tự sửa sai lệch bằng cách thay số dư. UC chỉ áp dụng bi�
 **Ảnh hưởng nghiệp vụ chính:** Scope cần thiết được bảo vệ hoặc có quyết định có bằng chứng rằng không cần khóa; không khóa rộng hơn cần thiết.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-16 — Điều tra và đối soát sai lệch](../../../03.design/flows/UIF-16-BJ-16.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

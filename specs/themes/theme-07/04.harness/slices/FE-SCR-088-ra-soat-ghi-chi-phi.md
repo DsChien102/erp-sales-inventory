@@ -2,70 +2,39 @@
 id: FE-SCR-088
 type: fe-slice
 theme: theme-07
-title: "Rà soát ghi chi phí"
+title: "Rà soát điều chỉnh giá trị"
 owner: SE
-status: DRAFT
-source_baseline: v3.12.0
-materialization: template-migration
+status: READY_FOR_PROTOTYPE
+source_baseline: v3.13.0
+materialization: valuation-design-parity
 ---
-# FE-SCR-088 — Rà soát ghi chi phí
+# FE-SCR-088 — Rà soát điều chỉnh giá trị
 
 ## 1. Mục tiêu
 
-> **Carry-forward v3.12.0:** Slice này được giữ để bảo toàn delivery/UI mapping của v3.11.0, nhưng các UC lịch sử `UC-13-03` đã được hợp nhất. Nguồn semantic canonical hiện hành là `UC-13-01`. Không được dùng tên/ranh giới UC cũ để tạo business rule mới; consolidation vật lý của Slice/Screen sẽ đi cùng lượt parity downstream.
+Rà soát read-only signed adjustment trước khi commit.
 
-Hiện thực bề mặt `SCR-088` đúng Screen Contract; không tạo business rule mới.
+## 2. Authority
 
-## 2. Screen Contract
+- Screen Contract: [`SCR-088`](../../03.design/screens/SCR-088.md)
+- Use Case: `UC-13-01`
+- Design System: `03.design/design-system/design-system-profile.md`
+- Prototype baseline: `v3.13.0`
 
-- `SCR-088`
-- `UC-13-01`
+## 3. Scope FE
 
-## 3. Scope
+- FE chỉ render state/action/navigation đã có trong Screen Contract và UC/BC.
+- Không tự tạo nguồn dữ liệu, rule tài chính, quyền hoặc finality.
+- Product UI dùng ngôn ngữ nghiệp vụ; metadata kỹ thuật chỉ ở Inspect/audit.
 
-### 3.1 Owns
+## 4. State và composition
 
-Rendering, state/action binding và navigation/feedback của Screen.
+- States: `READY`, `SOURCE_CHANGED`, `VALIDATION_ERROR`, `PERMISSION_DENIED`
+- Components: `VAppBar`, `DS v2 / Info Row`, `DS v2 / Key-value Row`, `DS v2 / Summary Card`, `VBanner`, `VButton`
+- Mobile baseline: `402×874`, edge `16`, touch target tối thiểu `44`.
 
-### 3.2 Does not own
+## 5. Verification
 
-Business semantics của UC/BC hoặc architecture backend.
-
-## 4. Nguồn đầu vào
-
-- `SCR-088`
-- `DS-PROFILE`
-- `UC-13-01`
-
-## 5. States và Actions
-
-- `READY`
-- `SOURCE_CHANGED`
-- `VALIDATION_ERROR`
-- `PERMISSION_DENIED`
-
-- `ACT-03-RECORD-LATE-COST` — Ghi chi phí mua bổ sung
-
-## 6. Data / Interface mapping
-
-Action/BC/API mapping được giữ trong Screen Contract và action registry nguồn; FE Slice không tự tạo interface.
-
-## 7. Component composition
-
-Theo mục 9 của `SCR-088` và `DS-PROFILE`.
-
-## 8. Navigation và feedback
-
-Theo Entry/Exit, States và Validation của `SCR-088`.
-
-## 9. Responsive / accessibility
-
-Mobile baseline 402×874 và các rule accessibility đã khóa trong Design System/source contract.
-
-## 10. Verification
-
-Đối chiếu Screen Contract, UC coverage, component mapping và trạng thái/action.
-
-## 11. Delivery
-
-Chưa có production implementation delivery trong baseline; Slice được materialize theo template mới.
+- Kiểm parity giữa Screen Contract → runtime HTML → Inspect metadata.
+- Kiểm empty/loading/error/permission/conflict/unknown khi Screen Contract yêu cầu.
+- Kiểm không có horizontal overflow, footer che content hoặc CTA ngoài authority.

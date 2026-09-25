@@ -5,7 +5,7 @@ theme: theme-07
 title: "UI/UX policy & patterns"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v3.13.0
 ---
 # PAT-UI-UX — UI/UX policy & patterns
 
@@ -132,12 +132,18 @@ Harness chạy incremental theo BJ/UIF và sau mỗi vòng phải rerun regressi
 6. `UNKNOWN`, conflict, lock và permission không tạo hiệu lực cuối cùng giả.
 7. Một UIF chỉ freeze khi Screen Contract + component usage + HTML + local flow + cumulative regression đều pass; pixel parity với Vercel là gate riêng.
 
-### Inventory Valuation Product-flow rule — v1.5.0
+### Inventory Valuation Product-flow rule — v3.13.0
 
-- Entry point, cross-BJ handoff, actor orchestration và “vì sao flow tồn tại” được đặc tả ở flow/entry architecture; **không mặc định render thành card/banner/helper trong app**.
-- Chỉ hiển thị context khi fact đó ảnh hưởng trực tiếp đến quyết định/hành động hiện tại.
-- Không materialize mỗi UC/system state thành một full screen. Supporting provenance có thể là contextual overlay; CALCULATING/BLOCKED là state khi phù hợp.
-- Inventory Valuation active topology: BJ03 `014→015→017→019` (016 retired active route); BJ13 `085→086→087→088→089`; BJ14 `072→073→074→076→077` (075 retired active route).
+- Entry point, cross-BJ handoff, actor orchestration và lý do kiến trúc không mặc định trở thành banner/card trong app. Chỉ hiển thị context khi nó thay đổi quyết định hiện tại.
+- Không materialize mỗi UC/system state thành full screen. Supporting provenance dùng section/sheet; blocker/calculating/publish-review là state khi cùng mental task.
+- **BJ03:** `014 → 015 → 017 → 019`; `016` retired. Quick không phụ thuộc Theme 10; `015` cho phép thêm direct basis bằng Form Sheet.
+- **BJ13:** `085 → 086 → 088 → 089`; `087` retired. Scope + allocation preview cùng một mental task; signed adjustment có thể dương hoặc âm.
+- **BJ14:** `072 → 074 → 077`; `073/075/076` retired. Setup/calculation/blocker/review/publish-confirm là state/section của `074`. Costing method read-only từ tenant policy.
+- Mỗi screen có một primary task; list/read-only không có footer CTA vô nghĩa.
+- Card dùng tiết chế: ưu tiên `List Row`, `Info Row`, `Key-value Row`, grouped section; `Summary Card` chỉ khi có một summary thật sự.
+- Badge chỉ biểu đạt status/label có nghĩa; không dùng badge cho metadata hoặc giải thích.
+- `VBottomSheet` là shell canonical cho Form/Confirmation/Action sheet; handle, radius, safe area và anatomy theo Figma DS live.
+- Disabled dùng `Opacity/Disabled = 0.4`; không tạo disabled color riêng.
 
 ## 5. Bố cục / tương tác chuẩn
 

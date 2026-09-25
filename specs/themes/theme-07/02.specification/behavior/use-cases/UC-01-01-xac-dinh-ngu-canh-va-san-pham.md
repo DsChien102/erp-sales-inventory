@@ -6,7 +6,8 @@ title: "Xác định ngữ cảnh và sản phẩm"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # UC-01-01 — Xác định ngữ cảnh và sản phẩm
@@ -101,6 +102,9 @@ Không đọc thay cho các UC tra cứu chi tiết và không ghi tồn kho. UC
 **Ảnh hưởng nghiệp vụ chính:** Query context hợp lệ được xác lập, hoặc truy cập bị từ chối trước khi lộ dữ liệu ngoài phạm vi.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

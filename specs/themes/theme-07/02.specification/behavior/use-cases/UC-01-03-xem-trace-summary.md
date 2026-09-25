@@ -6,7 +6,8 @@ title: "Xem trace summary"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # UC-01-03 — Xem trace summary
@@ -96,6 +97,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Trace summary ngắn, đọc được và truy ngược được về movement/operation/source; không tạo mutation.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

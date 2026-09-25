@@ -5,17 +5,37 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v4.1.0
+version: v4.1.0
+parent: v4.0.0
 ---
 # Prototype — Theme 07
 
+## v4.1.0 — Canonical UIF + valuation HTML merge
+
+- Parent package: `v4.0.0`; merge source for Design/HTML: `v3.13.0`.
+- Canonical UIF remains under `03.design/flows/`.
+- Valuation active topology: `UIF-03 = 014→015→017→019`, `UIF-13 = 085→086→088→089`, `UIF-14 = 072→074→077`.
+- Runtime layer `v313-valuation-design.css/js` is intentionally retained as the implementation source of the corrected valuation UI; current package identity and validators are v4.1.0.
+- Retired valuation routes remain redirect/compatibility only and must not re-enter active flow catalogs.
+
+
+## v3.13.0 — Valuation design parity
+
+- `UIF-03`: 4 active screens; Quick direct-basis sheet; Document commercial conflict is read-only/handoff; result records initial value only.
+- `UIF-13`: 4 active screens; signed adjustment; source/scope/allocation combined on `SCR-086`.
+- `UIF-14`: 3 active screens; work-oriented queue; tenant costing method read-only; publication review uses canonical `VBottomSheet`.
+- Retired: `SCR-016`, `SCR-018`, `SCR-087`, `SCR-073`, `SCR-075`, `SCR-076`.
+- Runtime/interaction/visual evidence is under `html/qa/*v3.13.0*`.
+
+
 ## 1. Mục đích
 
-Prototype là final design expression/verification medium của baseline v3.10.1; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
+Prototype là design expression/verification medium hiện hành của baseline v3.13.0; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
 
 ## 2. Cách chạy
 
-Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Toàn bộ runtime bundle được carry nguyên từ baseline v3.10.1 để giữ parity về HTML/JS/CSS/assets và các manifest QA đi kèm.
+Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Runtime giữ các layer lịch sử để regression, đồng thời nạp lớp `v313-valuation-design.css/js` cuối cùng để đưa BJ03/BJ13/BJ14 về parity với specification v3.12.0 và Figma DS v2.
 
 ## 3. Screen → route/state mapping
 
@@ -34,12 +54,12 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-011` | `#/sg-02/scr-06` | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-012` | `#/sg-02/scr-07` | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-013` | `#/sg-02/scr-08` | BJ02_PILOT_CALIBRATING_v0.2.9 |
-| `SCR-014` | `#/sg-03/scr-01` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-015` | `#/sg-03/scr-02` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-016` | `#/sg-03/scr-03` | RETIRED_ACTIVE_ROUTE |
-| `SCR-017` | `#/sg-03/scr-04` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-018` | `#/sg-03/scr-05` | RETIRED_FROM_ACTIVE_UIF13_v1.4.5 |
-| `SCR-019` | `#/sg-03/scr-06` | PRODUCT_CORRECTED_v1.5.0 |
+| `SCR-014` | `#/sg-03/scr-01` | DESIGN_PARITY_v3.13.0 |
+| `SCR-015` | `#/sg-03/scr-02` | DESIGN_PARITY_v3.13.0 |
+| `SCR-016` | `#/sg-03/scr-03` | RETIRED_v3.13.0 → SCR-015 |
+| `SCR-017` | `#/sg-03/scr-04` | DESIGN_PARITY_v3.13.0 |
+| `SCR-018` | `#/sg-03/scr-05` | RETIRED_v3.13.0 → SCR-085 |
+| `SCR-019` | `#/sg-03/scr-06` | DESIGN_PARITY_v3.13.0 |
 | `SCR-020` | `#/sg-04/scr-01` | RETIRED_FROM_UIF04_v1.3.4 |
 | `SCR-021` | `#/sg-04/scr-02` | ACTIVE_v3.9.6 |
 | `SCR-022` | `#/sg-04/scr-03` | RETIRED_FROM_UIF04_v1.3.4 |
@@ -92,12 +112,12 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-069` | `#/sg-13/scr-04` | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-070` | `#/sg-13/scr-05` | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-071` | `#/sg-13/scr-06` | PRODUCT_CORRECTED_v1.8.0 |
-| `SCR-072` | `#/sg-14/scr-01` | PRODUCT_CORRECTED_v3.9.9 |
-| `SCR-073` | `#/sg-14/scr-02` | PRODUCT_CORRECTED_v3.9.9 |
-| `SCR-074` | `#/sg-14/scr-03` | PRODUCT_CORRECTED_v3.9.9 |
-| `SCR-075` | `#/sg-14/scr-04` | RETIRED_ACTIVE_ROUTE |
-| `SCR-076` | `#/sg-14/scr-05` | PRODUCT_CORRECTED_v3.9.9 |
-| `SCR-077` | `#/sg-14/scr-06` | PRODUCT_CORRECTED_v3.9.9 |
+| `SCR-072` | `#/sg-14/scr-01` | DESIGN_PARITY_v3.13.0 |
+| `SCR-073` | `#/sg-14/scr-02` | RETIRED_v3.13.0 → SCR-074 |
+| `SCR-074` | `#/sg-14/scr-03` | DESIGN_PARITY_v3.13.0 |
+| `SCR-075` | `#/sg-14/scr-04` | RETIRED_v3.13.0 → SCR-074 |
+| `SCR-076` | `#/sg-14/scr-05` | RETIRED_v3.13.0 → SCR-074 |
+| `SCR-077` | `#/sg-14/scr-06` | DESIGN_PARITY_v3.13.0 |
 | `SCR-078` | `#/sg-15/scr-01` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-079` | `#/sg-15/scr-02` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-080` | `#/sg-15/scr-03` | PRODUCT_CORRECTED_v1.7.0 |
@@ -105,11 +125,11 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-082` | `#/sg-15/scr-05` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-083` | `#/sg-15/scr-06` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-084` | `BJ02_PILOT_REFINED_v1.3.4` | BJ02_PILOT_REFINED_v1.3.4 |
-| `SCR-085` | `PRODUCT_CORRECTED_v1.5.0` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-086` | `PRODUCT_CORRECTED_v1.5.0` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-087` | `PRODUCT_CORRECTED_v1.5.0` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-088` | `PRODUCT_CORRECTED_v1.5.0` | PRODUCT_CORRECTED_v1.5.0 |
-| `SCR-089` | `PRODUCT_CORRECTED_v1.5.0` | PRODUCT_CORRECTED_v1.5.0 |
+| `SCR-085` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
+| `SCR-086` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
+| `SCR-087` | `PRODUCT_CORRECTED_v1.5.0` | RETIRED_v3.13.0 → SCR-086 |
+| `SCR-088` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
+| `SCR-089` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
 
 ## 4. Design System dependency
 

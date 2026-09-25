@@ -6,7 +6,8 @@ title: "Lấy hàng và bàn giao đơn"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # BJ-05 — Lấy hàng và bàn giao đơn
@@ -60,15 +61,12 @@ flowchart TD
 | Theme 5 / source order | Reservation và fulfillment intent | Nguồn còn hiệu lực |
 | BJ14 / valuation | Issue/value facts và COGS snapshot | Sau handover/issue commit |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-05-01 — Lập allocation | `SCR-025`, `SCR-026` | Tạo một allocation version ổn định cho lượng cần lấy từ reservation/source dựa trên hàng đủ điều kiện hiện hành. |
-| UC-05-02 — Xác nhận hàng đã lấy | `SCR-027` | Ghi nhận đúng lượng và lô nhân viên đã lấy theo allocation active, chưa làm giảm tồn vật lý. |
-| UC-05-03 — Bàn giao hàng | `SCR-028`, `SCR-029` | Xác nhận lượng hàng thực tế đã bàn giao cho khách/đơn vị vận chuyển trên pick/allocation hiện hành. |
-| UC-05-04 — Phục hồi allocation stale | `SCR-026`, `SCR-027` | Phục hồi allocation khi lô/lượng/version đã stale trước khi bàn giao, không đổi nguồn đặt hàng. |
-| UC-05-05 — Ghi xuất kho nguyên tử | `SCR-028`, `SCR-029` | Ghi xuất kho nguyên tử đúng lượng đã bàn giao, đồng thời consume reservation và ghi value movement theo giá vốn đang có hiệu lực. |
+- **UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-05`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

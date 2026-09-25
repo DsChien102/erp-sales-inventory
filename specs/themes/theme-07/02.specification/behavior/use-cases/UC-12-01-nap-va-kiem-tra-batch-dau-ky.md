@@ -6,7 +6,8 @@ title: "Nạp và kiểm tra batch đầu kỳ"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-12
 ---
 
 # UC-12-01 — Nạp và kiểm tra batch đầu kỳ
@@ -116,6 +117,9 @@ Không tạo tồn đầu kỳ ngay khi upload và không tự sửa dữ liệu
 **Ảnh hưởng nghiệp vụ chính:** Batch draft có lỗi được chỉ rõ hoặc đạt validation để chuyển rà soát; chưa kích hoạt tồn.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-12 — Khởi tạo số dư tồn kho đầu kỳ](../../../03.design/flows/UIF-12-BJ-12.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

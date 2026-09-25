@@ -6,7 +6,8 @@ title: "Chuẩn bị nhận theo chứng từ"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 
 # UC-02-01 — Chuẩn bị nhận theo chứng từ
@@ -120,6 +121,9 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 **Ảnh hưởng nghiệp vụ chính:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi có ngoại lệ.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

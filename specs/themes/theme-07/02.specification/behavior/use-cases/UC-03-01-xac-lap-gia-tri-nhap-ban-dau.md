@@ -6,7 +6,8 @@ title: "Xác lập giá trị nhập ban đầu"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.1.0
+ui_flow: UIF-03
 ---
 
 # UC-03-01 — Xác lập giá trị nhập ban đầu
@@ -177,15 +178,16 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 
 ## 8. Liên hệ giao diện
 
-> **Parity note v3.12.0:** các Screen Contract/HTML dưới đây là bề mặt hiện hành từ v3.11.0. Semantic mới của UC này là nguồn cho lượt redesign v3.13.0; không suy ngược nghiệp vụ từ copy/layout cũ.
+**UI Flow canonical:** [UIF-03 — Xác lập giá trị ban đầu của hàng nhận](../../../03.design/flows/UIF-03-BJ-03.md)
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-014` | Danh sách hàng đang chờ xác lập giá trị và lý do readiness. |
-| `SCR-015` | Xem hàng thực nhận và căn cứ giá hiện có. |
-| `SCR-016` | Bề mặt hiện hành để xem căn cứ/cách tính; dự kiến được tái thiết kế theo semantic mới. |
-| `SCR-017` | Rà soát quantity, nguồn và cấu thành giá trị trước confirm. |
-| `SCR-019` | Kết quả xác nhận, phần còn chờ và hướng tiếp theo. |
+| `SCR-014` | Danh sách công việc chờ xác lập giá trị. |
+| `SCR-015` | Xác lập căn cứ và cấu thành giá trị; Nhập nhanh có thể thêm căn cứ trực tiếp bằng biểu mẫu trong Bottom Sheet. |
+| `SCR-017` | Rà soát chỉ đọc trước khi xác nhận ghi nhận. |
+| `SCR-019` | Kết quả có hiệu lực; chưa tạo giá vốn chính thức. |
+
+`SCR-016` đã retire; chi tiết nguồn và căn cứ là section hoặc contextual sheet của `SCR-015/017`. UI không cho người dùng tự chia quantity tùy ý và không cho Theme 7 tự resolve conflict thương mại thuộc Theme 10.
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

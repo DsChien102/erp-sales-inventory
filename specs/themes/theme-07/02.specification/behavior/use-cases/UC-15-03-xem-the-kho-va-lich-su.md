@@ -6,7 +6,8 @@ title: "Xem thẻ kho và lịch sử"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-15
 ---
 
 # UC-15-03 — Xem thẻ kho và lịch sử
@@ -102,6 +103,9 @@ Không sửa movement lịch sử hoặc tự đối soát chênh lệch. UC ch�
 **Ảnh hưởng nghiệp vụ chính:** Chuỗi movement truy vết được theo cut-off/date basis, kèm source/effect refs và running balance dẫn xuất khi có.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-15 — Tra cứu báo cáo tồn và thẻ kho](../../../03.design/flows/UIF-15-BJ-15.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Phục hồi nghiệp vụ có kết quả chưa xác định"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-17
 ---
 
 # BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định
@@ -59,14 +60,12 @@ flowchart TD
 | Operation/Journey nguồn | Operation identity và evidence UNKNOWN | Không tạo identity mới |
 | BJ16 / source domain | Kết quả recovery hoặc escalated evidence | Khi cần đối soát rộng hơn |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-17-01 — Thu thập và đánh giá bằng chứng | `SCR-078`, `SCR-079` | Thu thập và đánh giá bằng chứng finality của một operation `UNKNOWN` bằng đúng operation identity, không retry mù. |
-| UC-17-02 — Xác lập operation đã hoàn tất | `SCR-080`, `SCR-082`, `SCR-083` | Xác lập operation `UNKNOWN` thành đã hoàn tất khi durable effects đã chứng minh commit, chỉ cập nhật result/finality chứ không ghi effect lần hai. |
-| UC-17-03 — Tiếp tục cùng operation identity | `SCR-080`, `SCR-082`, `SCR-083` | Tiếp tục một operation đã chứng minh chưa commit bằng đúng operation identity và payload fingerprint, để đạt finality mà không tạo giao dịch trùng. |
-| UC-17-04 — Giữ chưa xác định và escalated | `SCR-079`, `SCR-083` | Giữ operation ở trạng thái chưa xác định có kiểm soát khi chưa đủ bằng chứng, bảo vệ phạm vi rủi ro và escalation đúng owner. |
+- **UI Flow canonical:** [UIF-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../../../03.design/flows/UIF-17-BJ-17.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-17`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

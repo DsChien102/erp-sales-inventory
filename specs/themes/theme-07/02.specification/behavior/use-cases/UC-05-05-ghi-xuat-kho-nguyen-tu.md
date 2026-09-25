@@ -6,7 +6,8 @@ title: "Ghi xuất kho nguyên tử"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # UC-05-05 — Ghi xuất kho nguyên tử
@@ -111,6 +112,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Quantity/value movement, balance và reservation consumption commit đúng một lần; hoặc toàn operation bị reject/UNKNOWN.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

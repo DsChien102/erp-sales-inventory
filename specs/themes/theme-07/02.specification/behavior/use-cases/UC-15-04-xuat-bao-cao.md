@@ -6,7 +6,8 @@ title: "Xuất báo cáo"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-15
 ---
 
 # UC-15-04 — Xuất báo cáo
@@ -102,6 +103,9 @@ Không tạo một nguồn dữ liệu mới khác với báo cáo đang xem. UC
 **Ảnh hưởng nghiệp vụ chính:** File export phản ánh đúng report context và metadata thời điểm; thất bại export không ảnh hưởng ledger/báo cáo nguồn.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-15 — Tra cứu báo cáo tồn và thẻ kho](../../../03.design/flows/UIF-15-BJ-15.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Chuẩn bị thay đổi trạng thái"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-09
 ---
 
 # UC-09-01 — Chuẩn bị thay đổi trạng thái
@@ -117,6 +118,9 @@ Không đổi trạng thái hàng ở bước chuẩn bị và không sửa move
 **Ảnh hưởng nghiệp vụ chính:** State-change request có scope/version rõ và sẵn sàng thực thi hoặc phê duyệt theo policy; chưa thay đổi trạng thái.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-09 — Quản lý trạng thái hàng](../../../03.design/flows/UIF-09-BJ-09.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Giữ chưa xác định và escalated"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-17
 ---
 
 # UC-17-04 — Giữ chưa xác định và escalated
@@ -108,6 +109,9 @@ Không tự biến UNKNOWN thành FAILED hoặc tạo operation identity mới. 
 **Ảnh hưởng nghiệp vụ chính:** `UNKNOWN` được giữ đúng nghĩa, scope protection/escalation có owner và điều kiện giải quyết; không có blind retry/correction.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../../../03.design/flows/UIF-17-BJ-17.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Chuẩn bị yêu cầu tiêu hủy"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-10
 ---
 
 # UC-10-01 — Chuẩn bị yêu cầu tiêu hủy
@@ -117,6 +118,9 @@ Không giảm tồn và chưa ghi nhận hàng đã tiêu hủy. UC chỉ lập 
 **Ảnh hưởng nghiệp vụ chính:** Disposal request có scope/version rõ và đi phê duyệt hoặc sẵn sàng xử lý theo policy; chưa giảm tồn.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-10 — Tiêu hủy hàng](../../../03.design/flows/UIF-10-BJ-10.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -6,7 +6,8 @@ title: "Ghi correction chain"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-11
 ---
 
 # UC-11-05 — Ghi correction chain
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Correction operation và các movement/value/state effects commit nguyên tử, liên kết rõ original→correction.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-11 — Hủy và sửa sai nghiệp vụ kho](../../../03.design/flows/UIF-11-BJ-11.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

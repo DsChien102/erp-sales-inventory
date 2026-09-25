@@ -1,0 +1,26 @@
+{
+  "version": "v4.0.0",
+  "parent": "v3.12.0",
+  "scope": "canonical UIF + BJ/UC bidirectional trace",
+  "status": "PASS",
+  "counts": {
+    "business_journeys": 17,
+    "canonical_use_cases": 64,
+    "canonical_ui_flows": 17,
+    "missing_bj_uif_links": 0,
+    "missing_uc_uif_links": 0,
+    "missing_uif_reverse_links": 0,
+    "missing_route_screen_contracts": 0,
+    "duplicate_transition_ids": 0,
+    "legacy_consolidated_uc_ids_in_active_flow_registry": 0,
+    "approval_handoff_flows_checked": 7,
+    "approval_handoff_failures": 0
+  },
+  "prototype_runtime_validation": {
+    "status": "NOT_RERUN",
+    "reason": "HTML is intentionally carry-forward; v4.0.0 changes canonical UI contracts and trace only."
+  },
+  "known_medium": [
+    "BJ03/BJ13/BJ14 Screen/HTML valuation parity remains downstream work after v4.0.0."
+  ]
+}

@@ -6,7 +6,8 @@ title: "Xem tồn và khả dụng"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # UC-01-02 — Xem tồn và khả dụng
@@ -102,6 +103,9 @@ Không giữ hàng, không xuất/nhập kho và không sửa số dư. UC này 
 **Ảnh hưởng nghiệp vụ chính:** Người dùng nhận được snapshot tồn có `as_of`/sequence rõ ràng; không có thay đổi ledger hay số dư authoritative.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

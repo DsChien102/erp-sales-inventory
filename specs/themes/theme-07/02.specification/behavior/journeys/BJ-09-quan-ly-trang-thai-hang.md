@@ -6,7 +6,8 @@ title: "Quản lý trạng thái hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-09
 ---
 
 # BJ-09 — Quản lý trạng thái hàng
@@ -59,14 +60,12 @@ flowchart TD
 | Theme 2 | Tracking/expiry policy | Dùng để derive trạng thái liên quan |
 | BJ04/BJ05 | Availability/reservation impact | Sau state movement commit |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-09-01 — Chuẩn bị thay đổi trạng thái | `SCR-036`, `SCR-037`, `SCR-038` | Chuẩn bị yêu cầu thay đổi trạng thái vật lý của hàng, xác định đúng lượng/lô, trạng thái đích, lý do và bằng chứng. |
-| UC-09-02 — Phê duyệt thay đổi trạng thái | `SCR-038`, `SCR-041` | Duyệt hoặc từ chối yêu cầu thay đổi trạng thái cần phê duyệt trên snapshot/evidence hiện hành. |
-| UC-09-03 — Xác định hàng hết hạn | `SCR-036`, `SCR-037`, `SCR-041` | Xác định lượng/lô đã hết hạn trực tiếp từ hạn dùng và ngày nghiệp vụ, không phụ thuộc việc người dùng mở danh sách cảnh báo. |
-| UC-09-04 — Ghi state movement | `SCR-038`, `SCR-041`, `SCR-056` | Ghi state movement cho yêu cầu/candidate đã đủ điều kiện, bảo toàn quantity và value. |
+- **UI Flow canonical:** [UIF-09 — Quản lý trạng thái hàng](../../../03.design/flows/UIF-09-BJ-09.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-09`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

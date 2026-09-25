@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v3.12.0
-parent: v3.11.0
-source_baseline: v3.11.0
-semantic_delta: BJ_UC_V5_AND_VALUATION_SEMANTIC_ALIGNMENT
+version: v4.2.0
+parent: v4.1.0
+source_baseline: v4.1.0
+semantic_delta: UIF_PLAIN_BA_LANGUAGE_REWRITE_NO_SEMANTIC_CHANGE
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,27 +78,31 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-Bản **v3.12.0** kế thừa nguyên vẹn cây thư mục mới của **v3.11.0** và là baseline semantic/specification mới cho Theme 7. Lần cập nhật này không sửa HTML prototype.
+Bản **v4.2.0** là cumulative update trực tiếp trên **v4.1.0**. Lượt này chỉ cải thiện cách viết và cách tổ chức của toàn bộ **17 UI Flow (UIF)** để người đọc có thể hiểu luồng màn hình trước, rồi mới đi xuống phần truy vết kỹ thuật khi cần.
 
-Các thay đổi canonical:
+Các thay đổi của v4.2.0:
 
-- Toàn bộ **17 Business Journey** được rewrite theo BJ template v5.
-- Toàn bộ Use Case được chuẩn hóa theo UC template v5; danh mục canonical hiện có **64 UC**. Các UC lịch sử của BJ03/BJ13/BJ14 được hợp nhất theo mục tiêu nghiệp vụ và commit point, có migration ledger trong `00-use-case-map.md`.
-- Cụm định giá được khóa lại: `BJ03 — Xác lập giá trị nhập ban đầu` → `BJ13 — Điều chỉnh giá trị hàng nhập` → `BJ14 — Tính và công bố giá vốn`.
-- BJ03 không tạo `OfficialCostVersion`; BJ14 là owner duy nhất của giá vốn chính thức. Phương pháp công bố lấy từ chính sách cấp tenant, không chọn lại theo từng lần tính.
-- Nhập hàng nhanh phải hoàn tất BJ03 mà không phụ thuộc Theme 10; nhận theo chứng từ có thể dùng nguồn thương mại do Theme 10 cung cấp.
-- Domain/Entity `COM`, `IC`, `IV` đã được align theo template mới; `IO` giữ nội dung nâng cấp đã có từ source v3.11.0.
-- Technical/Integration/Behavioral Contract liên quan được đồng bộ với semantic mới.
-- Các Slice cũ bị ảnh hưởng bởi UC consolidation được remap về UC canonical nhưng vẫn giữ file carry-forward để không làm mất delivery history.
+- Viết lại `UIF-01 … UIF-17` theo **Plain BA Language**: tiếng Việt nghiệp vụ, câu ngắn, nói rõ ai làm gì, điều kiện nào và đi đến đâu.
+- Mỗi UIF được tách thành hai lớp đọc: **phần luồng cho BA/Designer/FE/QA** và **phần truy vết kỹ thuật cho Dev/QA/Harness**.
+- Giảm lặp các quy tắc dùng chung; UIF chỉ giữ những tình huống ảnh hưởng trực tiếp đến cách đi qua màn hình.
+- Giữ nguyên toàn bộ **183 transition ID**, Action ID, liên kết UC/BC, điểm đầu/cuối và topology màn hình của v4.1.0.
+- Không thay đổi Business Journey, Use Case, Screen Contract hoặc HTML prototype trong lượt này.
 
-### 6.1 Giới hạn có chủ đích của v3.12.0
+### 6.1 Thứ tự đọc đề xuất
 
-`03.design/` và HTML prototype vẫn là carry-forward từ v3.11.0. Vì BJ03/BJ13/BJ14 đã đổi semantic và một số UC được hợp nhất, **UI/HTML chưa đạt parity với specification v3.12.0**. Việc redesign Screen/UI contract và HTML được dành cho **v3.13.0**; prototype hiện hành không được dùng làm nguồn quyết định nghiệp vụ cho cụm valuation.
+1. Đọc `BJ-*` để hiểu mục tiêu và ranh giới nghiệp vụ.
+2. Mở `UIF-*` từ liên kết trong BJ để xem người dùng đi qua các màn hình như thế nào.
+3. Đọc phần 1–6 của UIF để hiểu luồng bằng ngôn ngữ nghiệp vụ.
+4. Chỉ dùng phần **Truy vết kỹ thuật** khi cần đối chiếu Action/UC/BC hoặc kiểm thử tự động.
+5. Mở `SCR-*` khi cần chi tiết nội dung, trạng thái và hành động của một màn hình cụ thể.
 
 ### 6.2 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
 - Business Journey: `02.specification/behavior/journeys/`
 - Use Case: `02.specification/behavior/use-cases/`
+- UI Flow: `03.design/flows/`
+- Screen Contract: `03.design/screens/`
 - Domain/Entity/BC/Technical Contract: `02.specification/`
-- Prototype hiện hành: chỉ dùng làm bằng chứng carry-forward để chuẩn bị lượt parity v3.13.0
+- HTML prototype: `03.design/prototype/html/`
+- Release evidence: `06.evidence/`

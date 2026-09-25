@@ -6,7 +6,8 @@ title: "Ghi nhận điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.1.0
+ui_flow: UIF-13
 ---
 
 # UC-13-01 — Ghi nhận điều chỉnh giá trị hàng nhập
@@ -147,13 +148,16 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 
 ## 8. Liên hệ giao diện
 
-> **Parity note v3.12.0:** `SCR-018` và các bề mặt liên quan vẫn dùng copy “chi phí mua bổ sung” của v3.11.0. Semantic canonical đã đổi thành “điều chỉnh giá trị hàng nhập”; UI/HTML sẽ được align ở v3.13.0.
+**UI Flow canonical:** [UIF-13 — Điều chỉnh giá trị hàng nhập](../../../03.design/flows/UIF-13-BJ-13.md)
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-018` | Xem nguồn, target và allocation adjustment. |
-| `SCR-017` | Bề mặt rà soát hiện hành trước mutation. |
-| `SCR-019` | Kết quả ghi nhận và dirty scope tiếp theo. |
+| `SCR-085` | Danh sách công việc điều chỉnh giá trị hàng nhập, bao gồm cả khoản tăng và giảm. |
+| `SCR-086` | Nguồn, phạm vi áp dụng, cách phân bổ và kết quả dự kiến trên cùng một công việc. |
+| `SCR-088` | Rà soát chỉ đọc trước khi ghi điều chỉnh tăng/giảm. |
+| `SCR-089` | Kết quả có hiệu lực và phạm vi cần BJ14 cập nhật giá vốn. |
+
+`SCR-087` đã retire từ v3.13.0; không tạo màn trung gian chỉ để chuyển từ chọn phạm vi sang xem kết quả phân bổ.
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

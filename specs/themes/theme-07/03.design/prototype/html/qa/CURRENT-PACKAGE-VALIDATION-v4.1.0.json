@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "warnings": [],
+  "metrics": {
+    "business_journeys": 17,
+    "use_cases": 64,
+    "ui_flows": 17,
+    "active_unique_screens": 70,
+    "active_route_occurrences": 82,
+    "all_flow_route_occurrences": 86,
+    "canonical_links_checked": 1909
+  }
+}

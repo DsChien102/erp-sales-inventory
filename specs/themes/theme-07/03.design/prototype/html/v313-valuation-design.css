@@ -1,0 +1,88 @@
+/* VET45 Theme 7 v3.13.0 — valuation design parity
+ * Figma authority: QVJolM5tAdFKkhP7RIwe3y / DS v2 - 02 Components (505:5890)
+ */
+
+/* Keep valuation surfaces close to the Figma DS rhythm: 16px mobile edge, 8/12/16 gaps. */
+body[data-active-uif="UIF-03"] .app-content,
+body[data-active-uif="UIF-13"] .app-content,
+body[data-active-uif="UIF-14"] .app-content{
+  padding-left:var(--vet45-v2-layout-mobile-edge,16px);
+  padding-right:var(--vet45-v2-layout-mobile-edge,16px);
+}
+
+.v313-list{display:flex;flex-direction:column;gap:var(--vet45-v2-space-2,8px)}
+.v313-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--vet45-v2-space-2,8px);margin-top:var(--vet45-v2-space-2,8px)}
+.v313-section-heading h2{margin:0;font-size:14px;line-height:20px;font-weight:600;color:var(--vet45-v2-text-primary,#0e1116)}
+.v313-section-heading span{font-size:12px;line-height:16px;color:var(--vet45-v2-text-secondary,#6b7480);text-align:right}
+
+.v313-info-group.ds24-info-group,.v313-info-group{margin:0;background:transparent;border:0;padding:0}
+.v313-info-group .ds24-info-group__title{margin:0 0 var(--vet45-v2-space-2,8px);font-size:14px;line-height:20px}
+.v313-info-group .ds24-info-group__rows{border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);overflow:hidden;background:var(--vet45-v2-surface-default,#fff)}
+.v313-info-group .ds24-info-row,.v313-info-group .ds24-key-value-row{border-radius:0;border:0;border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb)}
+.v313-info-group .ds24-info-row:last-child,.v313-info-group .ds24-key-value-row:last-child{border-bottom:0}
+
+.v313-work-section,.v313-review-section,.v313-preview{display:flex;flex-direction:column;gap:var(--vet45-v2-space-3,12px);padding:var(--vet45-v2-space-3,12px) 0;border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb)}
+.v313-work-section:last-child,.v313-review-section:last-child{border-bottom:0}
+.v313-work-section>.ds24-list-row{width:100%}
+.v313-work-section.is-selected>.ds24-list-row{background:var(--vet45-v2-surface-brand,#ebf4ec);border-color:var(--vet45-v2-border-brand,#b8dfbd)}
+.v313-section-body{display:flex;flex-direction:column;gap:var(--vet45-v2-space-3,12px);padding:0 var(--vet45-v2-space-1,4px)}
+.v313-helper{margin:0;color:var(--vet45-v2-text-secondary,#6b7480);font-size:13px;line-height:20px}
+
+.v313-kv{display:flex;flex-direction:column;border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);overflow:hidden;background:var(--vet45-v2-surface-default,#fff)}
+.v313-kv .ds24-key-value-row{border:0;border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:0}
+.v313-kv .ds24-key-value-row:last-child{border-bottom:0}
+
+.v313-summary{display:flex;flex-direction:column;gap:var(--vet45-v2-space-2,8px);padding:var(--vet45-v2-space-4,16px);border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-5,16px);background:var(--vet45-v2-surface-subtle,#e5e8eb)}
+.v313-summary h2{margin:0;font-size:16px;line-height:22px;font-weight:600;color:var(--vet45-v2-text-primary,#0e1116)}
+.v313-summary p{margin:0;font-size:13px;line-height:20px;color:var(--vet45-v2-text-secondary,#6b7480)}
+.v313-summary--brand{background:var(--vet45-v2-surface-brand,#ebf4ec);border-color:var(--vet45-v2-border-brand,#b8dfbd)}
+.v313-summary--brand h2{color:var(--vet45-v2-text-brand,#26612f)}
+.v313-summary--warning{background:var(--vet45-v2-surface-warning,#fdf3e0);border-color:var(--vet45-v2-border-warning,#d98a0b)}
+.v313-summary--danger{background:var(--vet45-v2-surface-danger,#fbe8e8);border-color:var(--vet45-v2-border-danger,#d14343)}
+
+.v313-field{display:flex;flex-direction:column;gap:var(--vet45-v2-space-2,8px)}
+.v313-field__label{font-size:14px;line-height:20px;font-weight:600;color:var(--vet45-v2-text-primary,#0e1116)}
+.v313-field small{font-size:12px;line-height:16px;color:var(--vet45-v2-text-secondary,#6b7480)}
+.v313-control{box-sizing:border-box;width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);background:var(--vet45-v2-surface-default,#fff);color:var(--vet45-v2-text-primary,#0e1116);font:inherit}
+.v313-control:focus{outline:2px solid var(--vet45-v2-focus-ring,#2f6fe0);outline-offset:1px}
+.v313-segment{display:grid;grid-template-columns:1fr 1fr;min-height:48px;padding:2px;border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);background:var(--vet45-v2-surface-subtle,#f6f8f9)}
+.v313-segment button{min-height:44px;border:0;border-radius:var(--vet45-v2-radius-3,8px);background:transparent;color:var(--vet45-v2-text-secondary,#6b7480);font:inherit;font-weight:600}
+.v313-segment button.is-selected{background:var(--vet45-v2-action-primary-default,#3b9448);color:var(--vet45-v2-action-on-primary,#fff)}
+
+.v313-text-action{min-height:44px;align-self:flex-start;border:0;background:transparent;color:var(--vet45-v2-text-brand,#26612f);font:inherit;font-weight:600;padding:0}
+.v313-text-action:focus-visible{outline:2px solid var(--vet45-v2-focus-ring,#2f6fe0);outline-offset:2px}
+
+/* Canonical VBottomSheet geometry from Figma node 4695:6353. */
+.v313-sheet-layer{position:absolute;inset:0;z-index:80;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.v313-sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,var(--vet45-v2-opacity-overlay,.48))}
+.v313-sheet{position:relative;z-index:1;box-sizing:border-box;width:100%;max-height:82%;overflow:auto;display:flex;flex-direction:column;gap:12px;align-items:stretch;padding:12px 16px 44px;background:var(--vet45-v2-surface-default,#fff);border-radius:20px 20px 0 0}
+.v313-sheet__handle{width:48px;height:4px;align-self:center;border-radius:999px;background:var(--vet45-v2-border-strong,#d0d5da);flex:0 0 auto}
+.v313-sheet>h2{margin:0;font-size:18px;line-height:24px;font-weight:600;letter-spacing:-.2px;color:var(--vet45-v2-text-primary,#0e1116)}
+.v313-sheet__content{display:flex;flex-direction:column;gap:var(--vet45-v2-space-4,16px)}
+.v313-sheet__actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--vet45-v2-space-2,8px);padding-top:var(--vet45-v2-space-1,4px)}
+.v313-sheet__actions .button{min-height:44px}
+.v313-sheet.has-validation-error [data-v313-basis-price]:invalid,.v313-sheet.has-validation-error .v313-control:placeholder-shown{border-color:var(--vet45-v2-border-danger,#d14343)}
+
+.v313-readiness-list{display:flex;flex-direction:column;gap:var(--vet45-v2-space-2,8px)}
+.v313-readiness{display:flex;gap:var(--vet45-v2-space-3,12px);align-items:flex-start;padding:var(--vet45-v2-space-3,12px) var(--vet45-v2-space-4,16px);border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);background:var(--vet45-v2-surface-default,#fff)}
+.v313-readiness--warning{background:var(--vet45-v2-surface-warning,#fdf3e0);border-color:var(--vet45-v2-border-warning,#d98a0b)}
+.v313-readiness--success{background:var(--vet45-v2-surface-success,#dcefde);border-color:var(--vet45-v2-border-success,#3b9448)}
+.v313-readiness__icon{flex:0 0 20px}
+.v313-readiness span:last-child{display:flex;min-width:0;flex:1;flex-direction:column;gap:2px}
+.v313-readiness strong{font-size:14px;line-height:20px;color:var(--vet45-v2-text-primary,#0e1116)}
+.v313-readiness small{font-size:13px;line-height:20px;color:var(--vet45-v2-text-secondary,#6b7480)}
+
+.v313-details{border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:var(--vet45-v2-radius-4,12px);background:var(--vet45-v2-surface-default,#fff);overflow:hidden}
+.v313-details summary{min-height:44px;display:flex;align-items:center;padding:0 var(--vet45-v2-space-4,16px);font-size:14px;font-weight:600;color:var(--vet45-v2-text-brand,#26612f);cursor:pointer}
+.v313-details__body{padding:0 var(--vet45-v2-space-4,16px) var(--vet45-v2-space-4,16px)}
+
+/* New valuation screens deliberately flatten old card-heavy v3.0 styling. */
+.v313-work-section .valuation-info-group,.v313-review-section .valuation-info-group,.v313-preview .valuation-info-group{box-shadow:none}
+body[data-active-uif="UIF-03"] .valuation-product-group,
+body[data-active-uif="UIF-13"] .valuation-product-group,
+body[data-active-uif="UIF-14"] .valuation-product-group{box-shadow:none}
+
+/* Figma: disabled is parent opacity, never a separate decorative colour. */
+body[data-active-uif="UIF-03"] button:disabled,
+body[data-active-uif="UIF-13"] button:disabled,
+body[data-active-uif="UIF-14"] button:disabled{opacity:var(--vet45-v2-opacity-disabled,.4)}

@@ -6,7 +6,8 @@ title: "Duyệt và điều chỉnh"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-08
 ---
 
 # UC-08-04 — Duyệt và điều chỉnh
@@ -123,6 +124,9 @@ Không sửa count evidence, không chỉnh value basis tại màn duyệt, khô
 | Chưa xác định (`UNKNOWN`) | Không được phát adjustment lần hai | BJ17 đối soát cùng identity |
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-08 — Kiểm kê và điều chỉnh chênh lệch](../../../03.design/flows/UIF-08-BJ-08.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

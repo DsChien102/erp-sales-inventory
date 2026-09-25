@@ -6,7 +6,8 @@ title: "Ghi giảm hàng tiêu hủy"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-10
 ---
 
 # UC-10-04 — Ghi giảm hàng tiêu hủy
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Quantity/value movement giảm và balance cập nhật nguyên tử; disposal request kết thúc đúng một lần.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-10 — Tiêu hủy hàng](../../../03.design/flows/UIF-10-BJ-10.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

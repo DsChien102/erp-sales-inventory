@@ -6,7 +6,8 @@ title: "Ghi nhận hàng vào tồn vật lý"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-02
 ---
 
 # UC-02-04 — Ghi nhận hàng vào tồn vật lý
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot/value-entry cần thiết được ghi đúng một lần.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

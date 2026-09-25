@@ -1,3 +1,21 @@
+## v4.1.0 — Canonical UIF + corrected valuation runtime
+
+Parent package: `v4.0.0`; runtime merge source: `v3.13.0`. This package keeps the exact corrected valuation layer and adds canonical UIF contracts/trace. No valuation screen is reverted to the v4.0.0 carry-forward topology.
+
+
+## v3.13.0 — Valuation Design & Prototype Parity
+
+Parent: `v3.12.0`. Business semantics are unchanged from v3.12.0; this version redesigns BJ03/BJ13/BJ14 and synchronizes Screen Contract, workbench, harness and runtime.
+
+- BJ03: `SCR-014 → 015 → 017 → 019`; no `DirectCostBasis`/Official Cost product copy; Quick can add direct basis in `VBottomSheet`.
+- BJ13: `SCR-085 → 086 → 088 → 089`; signed value adjustment; allocation merged into `SCR-086`.
+- BJ14: `SCR-072 → 074 → 077`; tenant method is read-only; blockers/setup/review are modes of `SCR-074`; publication confirmation uses `VBottomSheet`.
+- Live Figma DS evidence: file `QVJolM5tAdFKkhP7RIwe3y`, Components page `505:5890`; runtime uses semantic token fallbacks aligned to live variables.
+- New runtime layer: `v313-valuation-design.css` + `v313-valuation-design.js` loaded last for isolation.
+- QA: `ALL-FLOWS-RUNTIME-SMOKE-v3.13.0`, `VALUATION-FLOW-E2E-v3.13.0`, valuation visual captures and visual-integrity gate.
+
+Historical sections below describe previous baselines only and do not override v3.13.0.
+
 # Theme 7 HTML Prototype Harness v3.9.7
 
 

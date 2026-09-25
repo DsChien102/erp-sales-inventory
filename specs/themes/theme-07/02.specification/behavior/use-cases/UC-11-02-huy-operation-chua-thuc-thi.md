@@ -6,7 +6,8 @@ title: "Hủy operation chưa thực thi"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-11
 ---
 
 # UC-11-02 — Hủy operation chưa thực thi
@@ -109,6 +110,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Operation/draft được hủy và không còn có thể thực thi; ledger/balance không thay đổi.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-11 — Hủy và sửa sai nghiệp vụ kho](../../../03.design/flows/UIF-11-BJ-11.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

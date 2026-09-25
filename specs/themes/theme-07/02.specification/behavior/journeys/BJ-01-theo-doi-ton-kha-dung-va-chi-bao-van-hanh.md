@@ -6,7 +6,8 @@ title: "Theo dõi tồn, khả dụng và chỉ báo vận hành"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-01
 ---
 
 # BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành
@@ -61,15 +62,12 @@ flowchart TD
 | Theme 2 / Product | Product, UOM, tracking policy và chỉ báo cấu hình | Dùng read-only để diễn giải tồn/LOT |
 | BJ04/BJ05/BJ09 | Reservation, allocation và trạng thái ảnh hưởng khả dụng | Read model phản ánh fact hiện hành |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-01-01 — Xác định ngữ cảnh và sản phẩm | `SCR-001` | Xác định đúng tenant, cửa hàng/kho và sản phẩm mà người dùng được phép tra cứu trước khi đọc tồn. |
-| UC-01-02 — Xem tồn và khả dụng | `SCR-003`, `SCR-004` | Đọc tồn vật lý, tồn đủ điều kiện bán, lượng đang giữ và khả dụng của sản phẩm trong đúng phạm vi đã xác định. |
-| UC-01-03 — Xem trace summary | `SCR-005`, `SCR-003` | Giải thích một số liệu tồn bằng chuỗi nguồn gần nhất, movement/operation chính và thời điểm dữ liệu mà không biến màn tra cứu thành báo cáo lịch sử đầy đủ. |
-| UC-01-04 — Xem tồn thấp và lượng gợi ý | `SCR-001`, `SCR-003` | Nhận diện sản phẩm hết hàng/tồn thấp và lượng bổ sung gợi ý từ khả dụng hiện hành cùng threshold/target đã cấu hình. |
-| UC-01-05 — Xem hàng cận hạn và hết hạn | `SCR-001`, `SCR-003`, `SCR-004` | Nhận diện các lô cận hạn và hết hạn từ HSD thực tế cùng policy cận hạn hiện hành. |
+- **UI Flow canonical:** [UIF-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành](../../../03.design/flows/UIF-01-BJ-01.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-01`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

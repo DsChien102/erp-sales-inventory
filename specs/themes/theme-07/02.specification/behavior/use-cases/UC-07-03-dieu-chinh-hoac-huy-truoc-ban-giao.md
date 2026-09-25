@@ -6,7 +6,8 @@ title: "Điều chỉnh hoặc hủy trước bàn giao"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-07
 ---
 
 # UC-07-03 — Điều chỉnh hoặc hủy trước bàn giao
@@ -110,10 +111,13 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 ## 8. Liên hệ giao diện
 
+**UI Flow canonical:** [UIF-07 — Thực hiện trả hàng cho nhà cung cấp](../../../03.design/flows/UIF-07-BJ-07.md)
+
+
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-036` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều chỉnh hoặc hủy trước bàn giao”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
-| `SCR-037` | Trình bày dữ liệu, trạng thái thực thi và kết quả của “Điều chỉnh hoặc hủy trước bàn giao”; feedback phải phân biệt rõ thành công, từ chối và `UNKNOWN` khi có. |
+| `SCR-036` | Giữ context danh sách/phạm vi. |
+| `SCR-037` | Phản ánh amendment/cancel từ Theme nguồn trước bàn giao. |
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

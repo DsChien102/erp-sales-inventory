@@ -6,7 +6,8 @@ title: "Tiếp tục cùng operation identity"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-17
 ---
 
 # UC-17-03 — Tiếp tục cùng operation identity
@@ -107,6 +108,9 @@ Không tạo business effect mới để “bù” cho kết quả chưa rõ; ch
 **Ảnh hưởng nghiệp vụ chính:** Cùng operation identity trả kết quả mới `COMMITTED/REJECTED` hoặc vẫn `UNKNOWN`; không tạo identity/business request thứ hai.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-17 — Phục hồi nghiệp vụ có kết quả chưa xác định](../../../03.design/flows/UIF-17-BJ-17.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

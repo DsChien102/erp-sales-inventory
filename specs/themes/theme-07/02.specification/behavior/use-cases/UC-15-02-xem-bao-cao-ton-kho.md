@@ -6,7 +6,8 @@ title: "Xem báo cáo tồn kho"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-15
 ---
 
 # UC-15-02 — Xem báo cáo tồn kho
@@ -102,6 +103,9 @@ Không ghi movement hay thay đổi snapshot nguồn. UC chỉ tổng hợp và 
 **Ảnh hưởng nghiệp vụ chính:** Báo cáo tồn hiển thị số dư/breakdown cùng cut-off, as-of và freshness; không sửa ledger.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-15 — Tra cứu báo cáo tồn và thẻ kho](../../../03.design/flows/UIF-15-BJ-15.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

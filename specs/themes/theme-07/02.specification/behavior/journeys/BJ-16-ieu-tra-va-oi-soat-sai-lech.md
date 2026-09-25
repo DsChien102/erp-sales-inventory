@@ -6,7 +6,8 @@ title: "Điều tra và đối soát sai lệch"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-16
 ---
 
 # BJ-16 — Điều tra và đối soát sai lệch
@@ -54,14 +55,12 @@ flowchart TD
 | Mọi Journey nguồn | Tín hiệu, operation, evidence, ledger facts | Có sai lệch cần điều tra |
 | BJ11/BJ17 hoặc owner khác | Hướng sửa/khôi phục đã xác định | BJ16 không tự làm thay owner |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-16-01 — Mở và phân loại hồ sơ đối soát | `SCR-078` | Mở hoặc liên kết hồ sơ đối soát khi có tín hiệu sai lệch, phân loại loại sai lệch và phạm vi mà không tạo case trùng. |
-| UC-16-02 — Bảo vệ phạm vi rủi ro | `SCR-079`, `SCR-080` | Bảo vệ đúng phạm vi có rủi ro trong khi điều tra bằng lock/block có owner, lý do và điều kiện mở rõ ràng. |
-| UC-16-03 — Điều tra và xác định nguyên nhân | `SCR-079`, `SCR-080` | Điều tra evidence để xác định nguyên nhân sai lệch và route khắc phục đúng owner, không tự sửa ledger chỉ để làm hết chênh lệch. |
-| UC-16-04 — Xác minh và cập nhật kết quả đối soát | `SCR-082`, `SCR-083` | Xác minh evidence sau khắc phục và cập nhật Reconciliation Case thành đóng, tiếp tục mở hoặc mở lại; đồng thời xử lý scope protection đúng điều kiện. |
+- **UI Flow canonical:** [UIF-16 — Điều tra và đối soát sai lệch](../../../03.design/flows/UIF-16-BJ-16.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-16`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

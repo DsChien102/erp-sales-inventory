@@ -6,7 +6,8 @@ title: "Xác định báo cáo và phạm vi"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-15
 ---
 
 # UC-15-01 — Xác định báo cáo và phạm vi
@@ -102,6 +103,9 @@ Không tự sửa dữ liệu để khớp báo cáo và chưa xuất file. UC c
 **Ảnh hưởng nghiệp vụ chính:** Report context hợp lệ với scope, cut-off/as-of, date basis và permission; hoặc yêu cầu bị từ chối.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-15 — Tra cứu báo cáo tồn và thẻ kho](../../../03.design/flows/UIF-15-BJ-15.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

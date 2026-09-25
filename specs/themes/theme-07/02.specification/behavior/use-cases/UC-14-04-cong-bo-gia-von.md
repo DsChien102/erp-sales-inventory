@@ -6,7 +6,8 @@ title: "Công bố giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.1.0
+ui_flow: UIF-14
 ---
 
 # UC-14-04 — Công bố giá vốn
@@ -123,12 +124,14 @@ Kết thúc khi publication batch commit nguyên tử và run chuyển `PUBLISHE
 
 ## 8. Liên hệ giao diện
 
-> **Parity note v3.12.0:** các screen hiện hành được giữ nguyên để downstream redesign ở v3.13.0. UI phải thể hiện method là policy read-only và phân biệt rõ “tính/rà soát” với “công bố”.
+**UI Flow canonical:** [UIF-14 — Tính và công bố giá vốn](../../../03.design/flows/UIF-14-BJ-14.md)
 
 | Screen | Vai trò trong UC |
 |---|---|
-| `SCR-076` | Rà soát cuối và xác nhận publication. |
-| `SCR-077` | Kết quả công bố, delta và cost versions đã tạo. |
+| `SCR-074` | Rà soát và xác nhận công bố ngay trên kết quả đã kiểm tra; có thể dùng Bottom Sheet xác nhận, không cần màn riêng. |
+| `SCR-077` | Kết quả công bố có hiệu lực. |
+
+`SCR-076` đã retire từ v3.13.0. UI không cho chọn lại phương pháp tính giá vốn và không coi kết quả xem trước là kết quả đã công bố.
 
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 

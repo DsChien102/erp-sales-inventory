@@ -6,7 +6,8 @@ title: "Commit và kích hoạt tồn kho"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-12
 ---
 
 # UC-12-03 — Commit và kích hoạt tồn kho
@@ -110,6 +111,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 **Ảnh hưởng nghiệp vụ chính:** Opening ledger/balance được tạo nguyên tử và inventory chuyển sang active; hoặc toàn batch không commit.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-12 — Khởi tạo số dư tồn kho đầu kỳ](../../../03.design/flows/UIF-12-BJ-12.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

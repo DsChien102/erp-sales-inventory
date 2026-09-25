@@ -6,7 +6,8 @@ title: "Xác nhận hàng đã lấy"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-05
 ---
 
 # UC-05-02 — Xác nhận hàng đã lấy
@@ -116,6 +117,9 @@ Không ghi xuất kho và không kết thúc reservation. UC chỉ xác nhận l
 **Ảnh hưởng nghiệp vụ chính:** Pick result gắn đúng allocation version được lưu; discrepancy được ghi rõ để xử lý trước bàn giao.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-05 — Lấy hàng và bàn giao đơn](../../../03.design/flows/UIF-05-BJ-05.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

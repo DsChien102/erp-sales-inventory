@@ -5,35 +5,34 @@ theme: theme-07
 title: "Business Journey Map — Theme 07"
 owner: BA
 status: IN_REVIEW
-source_baseline: v3.12.0
+source_baseline: v4.1.0
 ---
 
 # Theme 7 — Bản đồ Business Journey
 
-> Theme 7 có **17 Business Journey canonical**. v3.12.0 chuẩn hóa toàn bộ BJ/UC theo V5 và cập nhật cụm định giá `BJ03 → BJ13 → BJ14`; HTML hiện hành chưa phải nguồn semantic cho cụm này và sẽ được align ở v3.13.0.
+> Theme 7 có **17 Business Journey canonical** và **17 UI Flow canonical**. v4.1.0 giữ semantic BJ/UC v5, giữ trace `BJ ↔ UC ↔ UIF` của v4.0.0 và hợp nhất Design/HTML valuation đã sửa từ v3.13.0; prototype vẫn là downstream evidence, không phải nguồn semantic.
 
 ## 1. Danh mục Business Journey
 
-| STT | ID | Hành trình | Owner nghiệp vụ | Tài liệu |
-|---:|---|---|---|---|
-| 01 | `BJ-01` | Theo dõi tồn, khả dụng và chỉ báo vận hành | Inventory Operations / Monitoring | [Mở](BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md) |
-| 02 | `BJ-02` | Nhận hàng mua | Inventory Operations | [Mở](BJ-02-nhan-hang-mua.md) |
-| 03 | `BJ-03` | Xác lập giá trị ban đầu của hàng nhận | Inventory Valuation | [Mở](BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md) |
-| 04 | `BJ-04` | Quản lý vòng đời giữ hàng | Inventory Operations | [Mở](BJ-04-quan-ly-vong-oi-giu-hang.md) |
-| 05 | `BJ-05` | Lấy hàng và bàn giao đơn | Inventory Operations | [Mở](BJ-05-lay-hang-va-ban-giao-on.md) |
-| 06 | `BJ-06` | Tiếp nhận và phân loại hàng khách trả | Inventory Operations | [Mở](BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md) |
-| 07 | `BJ-07` | Thực hiện trả hàng cho nhà cung cấp | Inventory Operations | [Mở](BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md) |
-| 08 | `BJ-08` | Kiểm kê và điều chỉnh chênh lệch | Inventory Control | [Mở](BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md) |
-| 09 | `BJ-09` | Quản lý trạng thái hàng | Inventory Control | [Mở](BJ-09-quan-ly-trang-thai-hang.md) |
-| 10 | `BJ-10` | Tiêu hủy hàng | Inventory Control | [Mở](BJ-10-tieu-huy-hang.md) |
-| 11 | `BJ-11` | Hủy và sửa sai nghiệp vụ kho | Inventory Control | [Mở](BJ-11-huy-va-sua-sai-nghiep-vu-kho.md) |
-| 12 | `BJ-12` | Khởi tạo số dư tồn kho đầu kỳ | Inventory Control / Inventory Valuation | [Mở](BJ-12-khoi-tao-so-du-ton-kho-au-ky.md) |
-| 13 | `BJ-13` | Điều chỉnh giá trị hàng nhập | Inventory Valuation | [Mở](BJ-13-dieu-chinh-gia-tri-hang-nhap.md) |
-| 14 | `BJ-14` | Tính và công bố giá vốn | Inventory Valuation | [Mở](BJ-14-tinh-va-cong-bo-gia-von.md) |
-| 15 | `BJ-15` | Tra cứu báo cáo tồn và thẻ kho | Inventory Reporting / Read layer | [Mở](BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md) |
-| 16 | `BJ-16` | Điều tra và đối soát sai lệch | Inventory Control | [Mở](BJ-16-ieu-tra-va-oi-soat-sai-lech.md) |
-| 17 | `BJ-17` | Phục hồi nghiệp vụ có kết quả chưa xác định | Inventory Control + Operation Owner | [Mở](BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md) |
-
+| STT | ID | Hành trình | Owner nghiệp vụ | Journey | UI Flow |
+|---:|---|---|---|---|---|
+| 01 | `BJ-01` | Theo dõi tồn, khả dụng và chỉ báo vận hành | Inventory Operations / Monitoring | [BJ](BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md) | [UIF-01](../../../03.design/flows/UIF-01-BJ-01.md) |
+| 02 | `BJ-02` | Nhận hàng mua | Inventory Operations | [BJ](BJ-02-nhan-hang-mua.md) | [UIF-02](../../../03.design/flows/UIF-02-BJ-02.md) |
+| 03 | `BJ-03` | Xác lập giá trị ban đầu của hàng nhận | Inventory Valuation | [BJ](BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md) | [UIF-03](../../../03.design/flows/UIF-03-BJ-03.md) |
+| 04 | `BJ-04` | Quản lý vòng đời giữ hàng | Inventory Operations | [BJ](BJ-04-quan-ly-vong-oi-giu-hang.md) | [UIF-04](../../../03.design/flows/UIF-04-BJ-04.md) |
+| 05 | `BJ-05` | Lấy hàng và bàn giao đơn | Inventory Operations | [BJ](BJ-05-lay-hang-va-ban-giao-on.md) | [UIF-05](../../../03.design/flows/UIF-05-BJ-05.md) |
+| 06 | `BJ-06` | Tiếp nhận và phân loại hàng khách trả | Inventory Operations | [BJ](BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md) | [UIF-06](../../../03.design/flows/UIF-06-BJ-06.md) |
+| 07 | `BJ-07` | Thực hiện trả hàng cho nhà cung cấp | Inventory Operations | [BJ](BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md) | [UIF-07](../../../03.design/flows/UIF-07-BJ-07.md) |
+| 08 | `BJ-08` | Kiểm kê và điều chỉnh chênh lệch | Inventory Control | [BJ](BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md) | [UIF-08](../../../03.design/flows/UIF-08-BJ-08.md) |
+| 09 | `BJ-09` | Quản lý trạng thái hàng | Inventory Control | [BJ](BJ-09-quan-ly-trang-thai-hang.md) | [UIF-09](../../../03.design/flows/UIF-09-BJ-09.md) |
+| 10 | `BJ-10` | Tiêu hủy hàng | Inventory Control | [BJ](BJ-10-tieu-huy-hang.md) | [UIF-10](../../../03.design/flows/UIF-10-BJ-10.md) |
+| 11 | `BJ-11` | Hủy và sửa sai nghiệp vụ kho | Inventory Control | [BJ](BJ-11-huy-va-sua-sai-nghiep-vu-kho.md) | [UIF-11](../../../03.design/flows/UIF-11-BJ-11.md) |
+| 12 | `BJ-12` | Khởi tạo số dư tồn kho đầu kỳ | Inventory Control / Inventory Valuation | [BJ](BJ-12-khoi-tao-so-du-ton-kho-au-ky.md) | [UIF-12](../../../03.design/flows/UIF-12-BJ-12.md) |
+| 13 | `BJ-13` | Điều chỉnh giá trị hàng nhập | Inventory Valuation | [BJ](BJ-13-dieu-chinh-gia-tri-hang-nhap.md) | [UIF-13](../../../03.design/flows/UIF-13-BJ-13.md) |
+| 14 | `BJ-14` | Tính và công bố giá vốn | Inventory Valuation | [BJ](BJ-14-tinh-va-cong-bo-gia-von.md) | [UIF-14](../../../03.design/flows/UIF-14-BJ-14.md) |
+| 15 | `BJ-15` | Tra cứu báo cáo tồn và thẻ kho | Inventory Reporting / Read layer | [BJ](BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md) | [UIF-15](../../../03.design/flows/UIF-15-BJ-15.md) |
+| 16 | `BJ-16` | Điều tra và đối soát sai lệch | Inventory Control | [BJ](BJ-16-ieu-tra-va-oi-soat-sai-lech.md) | [UIF-16](../../../03.design/flows/UIF-16-BJ-16.md) |
+| 17 | `BJ-17` | Phục hồi nghiệp vụ có kết quả chưa xác định | Inventory Control + Operation Owner | [BJ](BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md) | [UIF-17](../../../03.design/flows/UIF-17-BJ-17.md) |
 ## 2. Quan hệ đầu–cuối giữa các hành trình
 
 Sơ đồ thể hiện **fact/handoff chính**, không có nghĩa mọi giao dịch phải đi qua tất cả BJ. Mỗi BJ chỉ chạy khi trigger của chính hành trình đó phát sinh.
@@ -102,7 +101,7 @@ flowchart LR
     B17 -->|Evidence/finality result| B16
 ```
 
-## 3. Trục định giá đã khóa ở v3.12.0
+## 3. Trục định giá canonical
 
 ```mermaid
 flowchart LR
@@ -141,7 +140,31 @@ flowchart LR
 - `PROC-01` — dựng lại projection; là procedure kỹ thuật, không phải Journey.
 - `INT-01` — hợp đồng bàn giao liên Theme; owner nguồn ngoài Theme vẫn giữ authority của dữ kiện đó.
 
-## 6. Recovery
+## 6. Ma trận BJ ↔ UC ↔ UIF
+
+| BJ | Use Case canonical | UI Flow canonical |
+|---|---|---|
+| [BJ-01](BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md) | [UC-01-01](../use-cases/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md); [UC-01-02](../use-cases/UC-01-02-xem-ton-va-kha-dung.md); [UC-01-03](../use-cases/UC-01-03-xem-trace-summary.md); [UC-01-04](../use-cases/UC-01-04-xem-ton-thap-va-luong-goi-y.md); [UC-01-05](../use-cases/UC-01-05-xem-hang-can-han-va-het-han.md) | [UIF-01](../../../03.design/flows/UIF-01-BJ-01.md) |
+| [BJ-02](BJ-02-nhan-hang-mua.md) | [UC-02-01](../use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md); [UC-02-02](../use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md); [UC-02-03](../use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md); [UC-02-04](../use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md); [UC-02-05](../use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | [UIF-02](../../../03.design/flows/UIF-02-BJ-02.md) |
+| [BJ-03](BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md) | [UC-03-01](../use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md) | [UIF-03](../../../03.design/flows/UIF-03-BJ-03.md) |
+| [BJ-04](BJ-04-quan-ly-vong-oi-giu-hang.md) | [UC-04-01](../use-cases/UC-04-01-tao-reservation.md); [UC-04-02](../use-cases/UC-04-02-dieu-chinh-reservation.md); [UC-04-03](../use-cases/UC-04-03-ket-thuc-va-giai-phong.md); [UC-04-04](../use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md) | [UIF-04](../../../03.design/flows/UIF-04-BJ-04.md) |
+| [BJ-05](BJ-05-lay-hang-va-ban-giao-on.md) | [UC-05-01](../use-cases/UC-05-01-lap-allocation.md); [UC-05-02](../use-cases/UC-05-02-xac-nhan-hang-da-lay.md); [UC-05-03](../use-cases/UC-05-03-ban-giao-hang.md); [UC-05-04](../use-cases/UC-05-04-phuc-hoi-allocation-stale.md); [UC-05-05](../use-cases/UC-05-05-ghi-xuat-kho-nguyen-tu.md) | [UIF-05](../../../03.design/flows/UIF-05-BJ-05.md) |
+| [BJ-06](BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md) | [UC-06-01](../use-cases/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md); [UC-06-02](../use-cases/UC-06-02-xu-ly-ngoai-le-truy-vet.md); [UC-06-03](../use-cases/UC-06-03-ghi-nhan-hang-khach-tra.md); [UC-06-04](../use-cases/UC-06-04-phan-loai-hang-thuc-nhan.md) | [UIF-06](../../../03.design/flows/UIF-06-BJ-06.md) |
+| [BJ-07](BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md) | [UC-07-01](../use-cases/UC-07-01-xac-minh-pham-vi-tra.md); [UC-07-02](../use-cases/UC-07-02-dua-hang-vao-cho-tra.md); [UC-07-03](../use-cases/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md); [UC-07-04](../use-cases/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md) | [UIF-07](../../../03.design/flows/UIF-07-BJ-07.md) |
+| [BJ-08](BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md) | [UC-08-01](../use-cases/UC-08-01-mo-va-khoa-pham-vi.md); [UC-08-02](../use-cases/UC-08-02-ghi-nhan-lan-dem-mu.md); [UC-08-03](../use-cases/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md); [UC-08-04](../use-cases/UC-08-04-duyet-va-dieu-chinh.md); [UC-08-05](../use-cases/UC-08-05-huy-phien-kiem-ke.md) | [UIF-08](../../../03.design/flows/UIF-08-BJ-08.md) |
+| [BJ-09](BJ-09-quan-ly-trang-thai-hang.md) | [UC-09-01](../use-cases/UC-09-01-chuan-bi-thay-doi-trang-thai.md); [UC-09-02](../use-cases/UC-09-02-phe-duyet-thay-doi-trang-thai.md); [UC-09-03](../use-cases/UC-09-03-xac-dinh-hang-het-han.md); [UC-09-04](../use-cases/UC-09-04-ghi-state-movement.md) | [UIF-09](../../../03.design/flows/UIF-09-BJ-09.md) |
+| [BJ-10](BJ-10-tieu-huy-hang.md) | [UC-10-01](../use-cases/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md); [UC-10-02](../use-cases/UC-10-02-phe-duyet-tieu-huy.md); [UC-10-03](../use-cases/UC-10-03-xac-nhan-da-tieu-huy.md); [UC-10-04](../use-cases/UC-10-04-ghi-giam-hang-tieu-huy.md) | [UIF-10](../../../03.design/flows/UIF-10-BJ-10.md) |
+| [BJ-11](BJ-11-huy-va-sua-sai-nghiep-vu-kho.md) | [UC-11-01](../use-cases/UC-11-01-xac-dinh-duong-xu-ly.md); [UC-11-02](../use-cases/UC-11-02-huy-operation-chua-thuc-thi.md); [UC-11-03](../use-cases/UC-11-03-chuan-bi-phuong-an-correction.md); [UC-11-04](../use-cases/UC-11-04-phe-duyet-correction.md); [UC-11-05](../use-cases/UC-11-05-ghi-correction-chain.md) | [UIF-11](../../../03.design/flows/UIF-11-BJ-11.md) |
+| [BJ-12](BJ-12-khoi-tao-so-du-ton-kho-au-ky.md) | [UC-12-01](../use-cases/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md); [UC-12-02](../use-cases/UC-12-02-ra-soat-va-duyet-batch.md); [UC-12-03](../use-cases/UC-12-03-commit-va-kich-hoat-ton-kho.md) | [UIF-12](../../../03.design/flows/UIF-12-BJ-12.md) |
+| [BJ-13](BJ-13-dieu-chinh-gia-tri-hang-nhap.md) | [UC-13-01](../use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md) | [UIF-13](../../../03.design/flows/UIF-13-BJ-13.md) |
+| [BJ-14](BJ-14-tinh-va-cong-bo-gia-von.md) | [UC-14-01](../use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md); [UC-14-04](../use-cases/UC-14-04-cong-bo-gia-von.md) | [UIF-14](../../../03.design/flows/UIF-14-BJ-14.md) |
+| [BJ-15](BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md) | [UC-15-01](../use-cases/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md); [UC-15-02](../use-cases/UC-15-02-xem-bao-cao-ton-kho.md); [UC-15-03](../use-cases/UC-15-03-xem-the-kho-va-lich-su.md); [UC-15-04](../use-cases/UC-15-04-xuat-bao-cao.md) | [UIF-15](../../../03.design/flows/UIF-15-BJ-15.md) |
+| [BJ-16](BJ-16-ieu-tra-va-oi-soat-sai-lech.md) | [UC-16-01](../use-cases/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md); [UC-16-02](../use-cases/UC-16-02-bao-ve-pham-vi-rui-ro.md); [UC-16-03](../use-cases/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md); [UC-16-04](../use-cases/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md) | [UIF-16](../../../03.design/flows/UIF-16-BJ-16.md) |
+| [BJ-17](BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md) | [UC-17-01](../use-cases/UC-17-01-thu-thap-va-danh-gia-bang-chung.md); [UC-17-02](../use-cases/UC-17-02-xac-lap-operation-da-hoan-tat.md); [UC-17-03](../use-cases/UC-17-03-tiep-tuc-cung-operation-identity.md); [UC-17-04](../use-cases/UC-17-04-giu-chua-xac-dinh-va-escalated.md) | [UIF-17](../../../03.design/flows/UIF-17-BJ-17.md) |
+
+**Navigation rule:** BJ chỉ link tới UIF; không copy Screen Flow. UIF link ngược BJ/UC và sở hữu screen orchestration. UC giữ UI trace nhưng không sở hữu screen anatomy.
+
+## 7. Recovery
 
 ```mermaid
 flowchart TD

@@ -6,7 +6,8 @@ title: "Khởi tạo số dư tồn kho đầu kỳ"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-12
 ---
 
 # BJ-12 — Khởi tạo số dư tồn kho đầu kỳ
@@ -53,13 +54,12 @@ flowchart TD
 | Nguồn migration | File số dư + control totals | Trước activation |
 | BJ01/BJ14 | Opening quantity/value facts | Sau commit và reconciliation |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-12-01 — Nạp và kiểm tra batch đầu kỳ | `SCR-066`, `SCR-067`, `SCR-068` | Nạp batch số dư đầu kỳ và kiểm tra dữ liệu master, quantity/value/UOM/LOT trước khi cho phép duyệt. |
-| UC-12-02 — Rà soát và duyệt batch | `SCR-069`, `SCR-070` | Rà soát và phê duyệt batch số dư đầu kỳ đã validation, bảo đảm maker/approver và tổng kiểm soát trước activation. |
-| UC-12-03 — Commit và kích hoạt tồn kho | `SCR-070`, `SCR-071` | Commit batch đầu kỳ đã duyệt thành opening movements/balances và kích hoạt inventory một lần duy nhất. |
+- **UI Flow canonical:** [UIF-12 — Khởi tạo số dư tồn kho đầu kỳ](../../../03.design/flows/UIF-12-BJ-12.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-12`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

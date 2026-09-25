@@ -6,7 +6,8 @@ title: "Tiêu hủy hàng"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-10
 ---
 
 # BJ-10 — Tiêu hủy hàng
@@ -55,14 +56,12 @@ flowchart TD
 | BJ09 | Hàng không bán được đủ điều kiện disposal | State/source hợp lệ |
 | BJ14 | Value effect cần reconcile | Sau disposal commit |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| UC-10-01 — Chuẩn bị yêu cầu tiêu hủy | `SCR-036`, `SCR-037`, `SCR-040` | Chuẩn bị yêu cầu tiêu hủy cho lượng hàng đủ điều kiện, với lý do, phương thức và bằng chứng dự kiến rõ ràng. |
-| UC-10-02 — Phê duyệt tiêu hủy | `SCR-040` | Duyệt hoặc từ chối disposal request cần phê duyệt trên đúng snapshot và evidence hiện hành. |
-| UC-10-03 — Xác nhận đã tiêu hủy | `SCR-040` | Xác nhận việc tiêu hủy/xử lý thực tế đã xảy ra và lưu bằng chứng hoàn tất trước khi ghi giảm tồn. |
-| UC-10-04 — Ghi giảm hàng tiêu hủy | `SCR-041` | Ghi giảm quantity và value cho đúng lượng đã được xác nhận tiêu hủy, sau khi completion evidence hợp lệ. |
+- **UI Flow canonical:** [UIF-10 — Tiêu hủy hàng](../../../03.design/flows/UIF-10-BJ-10.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-10`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

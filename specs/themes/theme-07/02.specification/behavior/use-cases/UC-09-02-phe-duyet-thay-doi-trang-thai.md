@@ -6,7 +6,8 @@ title: "Phê duyệt thay đổi trạng thái"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-09
 ---
 
 # UC-09-02 — Phê duyệt thay đổi trạng thái
@@ -115,6 +116,9 @@ Không tự ghi state movement và không sửa yêu cầu đã khóa. UC chỉ 
 **Ảnh hưởng nghiệp vụ chính:** Request được duyệt sẵn sàng thực thi hoặc bị từ chối có lý do; chưa ghi state movement.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-09 — Quản lý trạng thái hàng](../../../03.design/flows/UIF-09-BJ-09.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

@@ -168,3 +168,20 @@ Costing/complex review surfaces show blockers before derived totals or publish C
 Trong cùng một collection của các peer destination/task, giữ cùng `DS v2 / List Row · Type=Navigation`. Item chưa thể mở phải dùng `State=Disabled`, vẫn giữ chevron/anatomy như các peer và bị chặn interaction. Không đổi item sang `Status` chỉ vì đang chờ.
 
 **Adopted/validated by:** `UIF-03`, `UIF-05`, `UIF-06`, `UIF-07`, `UIF-13`.
+
+
+## v3.13.0 — Valuation design parity
+
+| Pattern | Rule | Applies |
+|---|---|---|
+| `VALUATION_WORK_QUEUE` | Worklist nói bằng công việc cần xử lý (`Có thể xác nhận`, `Cần đối chiếu`, `Chưa đủ căn cứ`), không expose technical valuation state. | UIF-03, UIF-13, UIF-14 |
+| `BASIS_THEN_VALUE` | Trình bày nguồn/căn cứ trước, cấu thành giá trị sau; người dùng không nhập lại fact thuộc nguồn thương mại. | UIF-03 |
+| `QUICK_DIRECT_BASIS_SHEET` | Nhập nhanh không phụ thuộc Theme 10; căn cứ giá trực tiếp được thêm trong Form Sheet/Bottom Sheet và phải có nguồn, cách hiểu thuế/giá, validation phù hợp. | UIF-03 |
+| `SIGNED_VALUE_ADJUSTMENT` | Điều chỉnh giá trị dùng dấu tăng/giảm và tách `Nguồn` khỏi `Cách phân bổ`; không gọi mọi adjustment là chi phí. | UIF-13 |
+| `CONSOLIDATED_ALLOCATION_TASK` | Chọn phạm vi, phương pháp và xem kết quả phân bổ là cùng một mental task khi không có commit boundary riêng; không tạo screen trung gian. | UIF-13 |
+| `COST_WORK_QUEUE` | BJ14 bắt đầu từ công việc cần tính/cập nhật/chốt, không bắt người dùng quản lý run kỹ thuật. | UIF-14 |
+| `TENANT_METHOD_READ_ONLY` | Phương pháp giá vốn lấy từ chính sách tenant và chỉ hiển thị read-only; phương pháp phụ chỉ dùng đối chiếu. | UIF-14 |
+| `DIRTY_SCOPE_SYSTEM_DERIVED` | Khi hệ thống biết chính xác phạm vi cần tính lại, phạm vi là read-only; không bắt user chọn lại. | UIF-14 |
+| `BLOCKERS_INLINE` | Blocker hiển thị bằng `Readiness Item`/Banner ngay trong task; không tạo màn blocker riêng. | UIF-14 |
+| `PUBLICATION_REVIEW_SHEET` | Rà soát finality của công bố dùng Bottom Sheet/Confirmation Sheet trên màn kết quả tính; không tạo màn review publication độc lập. | UIF-14 |
+| `NO_TECHNICAL_JARGON_IN_PRODUCT_UI` | `DirectCostBasis`, hash/version, dirty scope, event/API/internal state chỉ xuất hiện trong Inspect/audit. | UIF-03, UIF-13, UIF-14 |

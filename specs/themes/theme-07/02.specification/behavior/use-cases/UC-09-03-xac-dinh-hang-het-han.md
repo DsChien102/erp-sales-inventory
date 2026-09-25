@@ -6,7 +6,8 @@ title: "Xác định hàng hết hạn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v3.12.0
+source_baseline: v4.0.0
+ui_flow: UIF-09
 ---
 
 # UC-09-03 — Xác định hàng hết hạn
@@ -106,6 +107,9 @@ Không cần người dùng thao tác để “kích hoạt” hết hạn và k
 **Ảnh hưởng nghiệp vụ chính:** Danh sách scope hết hạn cần state transition được xác định có `as_of`; chưa ghi state movement.
 
 ## 8. Liên hệ giao diện
+
+**UI Flow canonical:** [UIF-09 — Quản lý trạng thái hàng](../../../03.design/flows/UIF-09-BJ-09.md)
+
 
 | Screen | Vai trò trong UC |
 |---|---|

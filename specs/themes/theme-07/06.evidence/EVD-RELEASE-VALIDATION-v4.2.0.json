@@ -1,0 +1,59 @@
+{
+  "id": "EVD-RELEASE-VALIDATION-v4.2.0",
+  "version": "4.2.0",
+  "parent": "4.1.0",
+  "verdict": "READY_FOR_REVIEW",
+  "severity": {
+    "BLOCKER": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "gates": {
+    "cumulative_diff": {
+      "status": "PASS",
+      "added": 6,
+      "modified": 24,
+      "removed": 0,
+      "unexpected": 0
+    },
+    "plain_ba_rewrite": {
+      "status": "PASS",
+      "ui_flows": 17,
+      "technical_transitions_preserved": 183,
+      "technical_trace_mismatches": 0,
+      "mermaid_topology_mismatches": 0,
+      "targeted_jargon_findings": 0
+    },
+    "canonical_links": {
+      "status": "PASS",
+      "checked": 1909,
+      "broken": 0
+    },
+    "semantic_preservation": {
+      "status": "PASS",
+      "journey_files_changed": 0,
+      "use_case_files_changed": 0,
+      "screen_contract_files_changed": 0,
+      "prototype_files_changed": 0
+    },
+    "artifact_registry": {
+      "status": "PASS",
+      "artifact_count": 7113
+    },
+    "package_checksums": {
+      "status": "PASS_IN_TREE",
+      "entries": 7115,
+      "mismatches": 0
+    },
+    "prototype_runtime": {
+      "status": "INHERITED_BY_BYTE_IDENTITY",
+      "source": "v4.1.0",
+      "note": "03.design/prototype is byte-identical to v4.1.0; runtime behavior was not changed in v4.2.0."
+    }
+  },
+  "evidence_limits": [
+    "This release validates documentation/readability and preservation of the v4.1.0 runtime artifacts. It is READY_FOR_REVIEW, not production RELEASE_READY.",
+    "The targeted Plain BA keyword gate is supporting evidence; final readability also received editorial review on all UIFs with focused review of UIF-03, UIF-14 and UIF-17."
+  ]
+}
