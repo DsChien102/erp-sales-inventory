@@ -75,6 +75,39 @@ returns int language sql as \$\$ select $body \$\$;
     );
   }
 
+  void writeDraft(String name, String sql) {
+    File('${tempDir.path}/supabase/migrations/_drafts/$name')
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(sql);
+  }
+
+  List<String> draftNames() {
+    final drafts = Directory('${tempDir.path}/supabase/migrations/_drafts');
+    if (!drafts.existsSync()) {
+      return const [];
+    }
+    return drafts
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.uri.pathSegments.last)
+        .toList()
+      ..sort();
+  }
+
+  List<String> archivedDraftNames() {
+    final archive =
+        Directory('${tempDir.path}/supabase/migrations/_drafts/_archive');
+    if (!archive.existsSync()) {
+      return const [];
+    }
+    return archive
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.uri.pathSegments.last)
+        .toList()
+      ..sort();
+  }
+
   test('generates migration for new module and shared functions', () {
     final catalogSource = function('catalog.search_products', args: 'p_query text');
     final publicSource = function('public.current_tenant_id');
@@ -680,5 +713,96 @@ create policy tenant_write on catalog.products
     expect(lock.entries['catalog.tenant_write']!.signatures, [
       'tenant_write on catalog.products',
     ]);
+  });
+
+  test('embeds pre before generated regions and post after, then archives drafts',
+      () {
+    writeSource(
+      moduleFunctionPath('catalog', 'search_products'),
+      function('catalog.search_products'),
+    );
+    writeDraft(
+      'catalog_tweak.pre.sql',
+      '-- DDL for note column\n'
+      'alter table catalog.products add column if not exists note text;\n',
+    );
+    writeDraft(
+      'catalog_tweak.post.sql',
+      'update catalog.products set note = note where false;\n',
+    );
+
+    final result = generate('catalog_tweak');
+    final sql = readMigration(result.migration!.fileName);
+
+    expect(sql, contains('-- region: pre'));
+    expect(sql, contains('-- region: functions'));
+    expect(sql, contains('-- region: post'));
+    expect(
+      sql.indexOf('-- region: pre'),
+      lessThan(sql.indexOf('-- region: functions')),
+    );
+    expect(
+      sql.indexOf('-- region: functions'),
+      lessThan(sql.indexOf('-- region: post')),
+    );
+    expect(sql, contains('-- DDL for note column'));
+    expect(
+      sql,
+      contains('alter table catalog.products add column if not exists note text;'),
+    );
+    expect(
+      sql,
+      contains('update catalog.products set note = note where false;'),
+    );
+    expect(draftNames(), isEmpty);
+    expect(archivedDraftNames(), [
+      '20990101001_catalog_tweak.post.sql',
+      '20990101001_catalog_tweak.pre.sql',
+    ]);
+  });
+
+  test('omits pre/post regions when drafts are absent', () {
+    writeSource(
+      moduleFunctionPath('catalog', 'search_products'),
+      function('catalog.search_products'),
+    );
+
+    final sql = readMigration(generate('no_drafts').migration!.fileName);
+
+    expect(sql, isNot(contains('-- region: pre')));
+    expect(sql, isNot(contains('-- region: post')));
+    expect(sql, contains('-- region: functions'));
+    expect(archivedDraftNames(), isEmpty);
+  });
+
+  test('dry-run includes draft regions but does not archive', () {
+    writeSource(
+      moduleFunctionPath('catalog', 'search_products'),
+      function('catalog.search_products'),
+    );
+    writeDraft('dry_intent.pre.sql', 'select 1;\n');
+
+    final result = generate('dry_intent', dryRun: true);
+
+    expect(result.written, isNull);
+    expect(result.migration!.sql, contains('-- region: pre'));
+    expect(result.migration!.sql, contains('select 1;'));
+    expect(draftNames(), ['dry_intent.pre.sql']);
+    expect(archivedDraftNames(), isEmpty);
+  });
+
+  test('leaves unused pre/post drafts when no source changes', () {
+    writeSource(
+      moduleFunctionPath('catalog', 'search_products'),
+      function('catalog.search_products'),
+    );
+    generate('seed');
+    writeDraft('idle_intent.pre.sql', 'select 1;\n');
+
+    final result = generate('idle_intent', startTimestamp: '20990101002');
+
+    expect(result.migration, isNull);
+    expect(draftNames(), ['idle_intent.pre.sql']);
+    expect(archivedDraftNames(), isEmpty);
   });
 }
