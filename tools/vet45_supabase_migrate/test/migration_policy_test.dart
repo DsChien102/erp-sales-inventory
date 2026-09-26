@@ -123,6 +123,46 @@ create or replace function catalog.create_product() returns void language sql as
       expect(violations, isEmpty);
     });
 
+    test('generated with Touches not matching body fails', () {
+      const sql = r'''
+-- Kind: generated
+-- Intent: test_generated
+-- Touches: catalog.create_product
+
+-- region: functions
+
+create or replace function catalog.search_products() returns void language sql as $$ select 1 $$;
+''';
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20260711001_test_generated.sql',
+        sql: sql,
+        registry: registry,
+      );
+
+      expect(
+        violations.where((v) => v.code == 'touches_match_body'),
+        hasLength(2),
+      );
+    });
+
+    test('generated without Intent fails', () {
+      const sql = r'''
+-- Kind: generated
+-- Touches: catalog.create_product
+
+create or replace function catalog.create_product() returns void language sql as $$ select 1 $$;
+''';
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20260711001_test_generated.sql',
+        sql: sql,
+        registry: registry,
+      );
+
+      expect(violations.map((v) => v.code), ['header_intent']);
+    });
+
     test('patch exceeds function cap fails', () {
       final functions = List.generate(
         9,

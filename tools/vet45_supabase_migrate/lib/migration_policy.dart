@@ -107,16 +107,30 @@ class MigrationPolicyVerifier {
       );
     }
 
+    final requiresIntent = header.kind == 'patch' ||
+        header.kind == 'surgical' ||
+        header.kind == 'generated';
+    if (requiresIntent && (header.intent == null || header.intent!.isEmpty)) {
+      violations.add(
+        PolicyViolation(
+          file: fileName,
+          code: 'header_intent',
+          message: 'Kind ${header.kind} requires -- Intent: header.',
+        ),
+      );
+    }
+
+    if (header.kind == 'generated') {
+      violations.addAll(
+        _verifyTouchesMatchBody(
+          fileName: fileName,
+          header: header,
+          functionsInBody: extractFunctionsFromSql(body),
+        ),
+      );
+    }
+
     if (header.kind == 'patch' || header.kind == 'surgical') {
-      if (header.intent == null || header.intent!.isEmpty) {
-        violations.add(
-          PolicyViolation(
-            file: fileName,
-            code: 'header_intent',
-            message: 'Kind ${header.kind} requires -- Intent: header.',
-          ),
-        );
-      }
 
       violations.addAll(
         _verifyTouchesMatchBody(
