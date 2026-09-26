@@ -1,8 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 
 import 'migration_header.dart';
 import 'migration_registry.dart';
+import 'schema_lock.dart';
 import 'sql_function_extractor.dart';
+import 'sql_object_parser.dart';
+import 'sql_object_render.dart';
+import 'sql_source_discovery.dart';
 
 enum PolicySeverity { error, warning }
 
@@ -24,10 +31,18 @@ class MigrationPolicyOptions {
   const MigrationPolicyOptions({
     this.strict = false,
     this.registryPath,
+    this.schemaLock,
+    this.repoRoot,
   });
 
   final bool strict;
   final String? registryPath;
+
+  /// Adopted declarative objects. When null, adopted-object guards are skipped.
+  final SchemaLock? schemaLock;
+
+  /// Repo root for reading declarative sources (generated region byte-match).
+  final Directory? repoRoot;
 }
 
 class MigrationPolicyVerifier {
@@ -128,6 +143,14 @@ class MigrationPolicyVerifier {
           functionsInBody: extractFunctionsFromSql(body),
         ),
       );
+      violations.addAll(
+        _verifyGeneratedRegionsMatchSources(
+          fileName: fileName,
+          sql: sql,
+          schemaLock: options.schemaLock,
+          repoRoot: options.repoRoot,
+        ),
+      );
     }
 
     if (header.kind == 'patch' || header.kind == 'surgical') {
@@ -167,7 +190,203 @@ class MigrationPolicyVerifier {
       );
     }
 
+    if (header.kind != 'generated') {
+      violations.addAll(
+        _verifyNoAdoptedObjectBypass(
+          fileName: fileName,
+          sql: body,
+          kind: header.kind,
+          schemaLock: options.schemaLock,
+        ),
+      );
+    }
+
     return violations;
+  }
+
+  List<PolicyViolation> _verifyNoAdoptedObjectBypass({
+    required String fileName,
+    required String sql,
+    required String? kind,
+    required SchemaLock? schemaLock,
+  }) {
+    if (schemaLock == null || schemaLock.entries.isEmpty) {
+      return const [];
+    }
+
+    final violations = <PolicyViolation>[];
+    for (final object in parseSqlObjects(sql)) {
+      if (!schemaLock.entries.containsKey(object.qualifiedName)) {
+        continue;
+      }
+      violations.add(
+        PolicyViolation(
+          file: fileName,
+          code: 'adopted_object_bypass',
+          message:
+              '${object.qualifiedName} is adopted in schema.lock.yaml; '
+              'edit the declarative source and run migrate:generate '
+              '(Kind ${kind ?? "unknown"} migrations must not recreate it).',
+        ),
+      );
+    }
+    return violations;
+  }
+
+  /// Byte-matches generated object regions to declarative sources at lock hash.
+  ///
+  /// Only checks objects whose `last_migration` is [fileName]. Regions `pre` /
+  /// `post` are ignored so they stay hand-editable.
+  List<PolicyViolation> _verifyGeneratedRegionsMatchSources({
+    required String fileName,
+    required String sql,
+    required SchemaLock? schemaLock,
+    required Directory? repoRoot,
+  }) {
+    if (schemaLock == null || repoRoot == null) {
+      return const [];
+    }
+
+    final owned = schemaLock.entries.entries
+        .where((entry) => entry.value.lastMigration == fileName)
+        .toList();
+    if (owned.isEmpty) {
+      return const [];
+    }
+
+    final regions = extractMigrationRegions(sql);
+    final violations = <PolicyViolation>[];
+
+    for (final MapEntry(key: qualifiedName, value: entry) in owned) {
+      final sourceFile = File('${repoRoot.path}/${entry.sourcePath}');
+      if (!sourceFile.existsSync()) {
+        violations.add(
+          PolicyViolation(
+            file: fileName,
+            code: 'generated_region_mismatch',
+            message:
+                '$qualifiedName: source ${entry.sourcePath} missing for lock hash check.',
+          ),
+        );
+        continue;
+      }
+
+      final content = sourceFile.readAsStringSync().replaceAll('\r\n', '\n');
+      final hash = 'sha256:${sha256.convert(utf8.encode(content))}';
+      if (hash != entry.hash) {
+        violations.add(
+          PolicyViolation(
+            file: fileName,
+            code: 'generated_region_mismatch',
+            message:
+                '$qualifiedName: source hash differs from schema.lock.yaml '
+                '(run migrate:generate).',
+          ),
+        );
+        continue;
+      }
+
+      final objects = parseSqlObjects(content);
+      if (objects.isEmpty) {
+        violations.add(
+          PolicyViolation(
+            file: fileName,
+            code: 'generated_region_mismatch',
+            message: '$qualifiedName: source has no create statement.',
+          ),
+        );
+        continue;
+      }
+
+      final kind = objects.first.kind;
+      final regionName = regionNameForKind(kind);
+      final regionBody = regions[regionName] ?? '';
+      final expected = renderDeclarativeSource(
+        SqlSource(
+          kind: kind,
+          relativePath: entry.sourcePath,
+          qualifiedName: qualifiedName,
+          content: content,
+          hash: hash,
+          signatures: entry.signatures,
+        ),
+      );
+
+      if (!_regionContainsExactSourceBlock(regionBody, expected)) {
+        violations.add(
+          PolicyViolation(
+            file: fileName,
+            code: 'generated_region_mismatch',
+            message:
+                '$qualifiedName: region `$regionName` does not byte-match '
+                'declarative source at lock hash (do not hand-edit generated regions).',
+          ),
+        );
+      }
+    }
+
+    // Extra non-drop SQL in generated regions (beyond locked sources) is a hand-edit.
+    for (final regionName in generatedObjectRegionNames) {
+      final regionBody = regions[regionName];
+      if (regionBody == null || regionBody.isEmpty) {
+        continue;
+      }
+      var remaining = regionBody;
+      for (final MapEntry(key: _, value: entry) in owned) {
+        final sourceFile = File('${repoRoot.path}/${entry.sourcePath}');
+        if (!sourceFile.existsSync()) {
+          continue;
+        }
+        final content = sourceFile.readAsStringSync().replaceAll('\r\n', '\n');
+        final objects = parseSqlObjects(content);
+        if (objects.isEmpty) {
+          continue;
+        }
+        if (regionNameForKind(objects.first.kind) != regionName) {
+          continue;
+        }
+        final expected = renderDeclarativeSource(
+          SqlSource(
+            kind: objects.first.kind,
+            relativePath: entry.sourcePath,
+            qualifiedName: objects.first.qualifiedName,
+            content: content,
+            hash: entry.hash,
+            signatures: entry.signatures,
+          ),
+        );
+        remaining = remaining.replaceFirst(expected, '');
+      }
+      final leftover = _stripDropStatements(remaining).trim();
+      if (leftover.isNotEmpty) {
+        violations.add(
+          PolicyViolation(
+            file: fileName,
+            code: 'generated_region_mismatch',
+            message:
+                'region `$regionName` has hand-edited SQL beyond declarative '
+                'sources for this migration.',
+          ),
+        );
+      }
+    }
+
+    return violations;
+  }
+
+  /// True when [expected] appears as an exact contiguous block in [regionBody].
+  bool _regionContainsExactSourceBlock(String regionBody, String expected) {
+    return regionBody.contains(expected);
+  }
+
+  /// Removes `drop … if exists …;` lines left by signature/file replacement.
+  String _stripDropStatements(String sql) {
+    final pattern = RegExp(
+      r'^\s*drop\s+(function|view|trigger|policy)\s+if\s+exists\b[^;]*;',
+      caseSensitive: false,
+      multiLine: true,
+    );
+    return sql.replaceAll(pattern, '');
   }
 
   List<PolicyViolation> _verifyTouchesMatchBody({

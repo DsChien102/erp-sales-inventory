@@ -4,6 +4,7 @@ import 'migration_header.dart';
 import 'promote_drafts_service.dart';
 import 'schema_lock.dart';
 import 'sql_object_parser.dart';
+import 'sql_object_render.dart';
 import 'sql_source_discovery.dart';
 
 export 'sql_source_discovery.dart' show SchemaSourceException, objectKindDirs;
@@ -417,7 +418,7 @@ class GenerateMigrationService {
   String _renderPending(_PendingObject change) {
     final parts = <String>[
       ..._renderDrops(change),
-      if (change.source case final source?) _renderSource(source),
+      if (change.source case final source?) renderDeclarativeSource(source),
     ];
     return parts.join('\n');
   }
@@ -434,82 +435,12 @@ class GenerateMigrationService {
         ],
       SqlObjectKind.trigger => [
           for (final target in change.dropTargets)
-            _dropRelation(SqlObjectKind.trigger, target),
+            dropRelationFromLockTarget(SqlObjectKind.trigger, target),
         ],
       SqlObjectKind.policy => [
           for (final target in change.dropTargets)
-            _dropRelation(SqlObjectKind.policy, target),
+            dropRelationFromLockTarget(SqlObjectKind.policy, target),
         ],
     };
-  }
-
-  /// Renders `drop … if exists` from a lock target `"name on schema.table"`.
-  String _dropRelation(SqlObjectKind kind, String target) {
-    const separator = ' on ';
-    final index = target.toLowerCase().lastIndexOf(separator);
-    if (index == -1) {
-      throw StateError('invalid trigger/policy lock target: $target');
-    }
-    return _dropRelationParts(
-      kind: kind,
-      name: target.substring(0, index),
-      table: target.substring(index + separator.length),
-    );
-  }
-
-  /// Views/functions are emitted verbatim; triggers/policies get a
-  /// `drop ... if exists` before each `create`.
-  String _renderSource(SqlSource source) {
-    if (source.kind == SqlObjectKind.function ||
-        source.kind == SqlObjectKind.view) {
-      return source.content.trimRight();
-    }
-
-    final parts = <String>[];
-    for (final object in parseSqlObjects(source.content)) {
-      parts
-        ..add(_dropIfExists(object))
-        ..add(object.sql);
-    }
-    return parts.join('\n');
-  }
-
-  String _dropIfExists(SqlObject object) {
-    final table = object.table;
-    if (table == null) {
-      throw StateError(
-        'trigger/policy ${object.qualifiedName} is missing ON table',
-      );
-    }
-    return _dropRelationParts(
-      kind: object.kind,
-      name: object.name,
-      table: table,
-    );
-  }
-
-  String _dropRelationParts({
-    required SqlObjectKind kind,
-    required String name,
-    required String table,
-  }) {
-    final quotedName = _quoteIdent(name);
-    final onTable = table.split('.').map(_quoteIdent).join('.');
-    return switch (kind) {
-      SqlObjectKind.trigger =>
-        'drop trigger if exists $quotedName on $onTable;',
-      SqlObjectKind.policy =>
-        'drop policy if exists $quotedName on $onTable;',
-      SqlObjectKind.function || SqlObjectKind.view =>
-        throw StateError('relation drop is only for trigger/policy'),
-    };
-  }
-
-  /// Quotes identifiers that are not plain lowercase Postgres names.
-  String _quoteIdent(String name) {
-    if (RegExp(r'^[a-z_][a-z0-9_]*$').hasMatch(name)) {
-      return name;
-    }
-    return '"${name.replaceAll('"', '""')}"';
   }
 }

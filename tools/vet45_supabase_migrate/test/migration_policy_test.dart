@@ -1,9 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 import 'package:test/test.dart';
 import 'package:vet45_supabase_migrate/migration_header.dart';
 import 'package:vet45_supabase_migrate/migration_policy.dart';
 import 'package:vet45_supabase_migrate/migration_registry.dart';
 import 'package:vet45_supabase_migrate/promote_drafts_service.dart';
+import 'package:vet45_supabase_migrate/schema_lock.dart';
 import 'package:vet45_supabase_migrate/sql_function_extractor.dart';
+
+String _sha256(String content) =>
+    'sha256:${sha256.convert(utf8.encode(content))}';
 
 void main() {
   group('extractFunctionsFromSql', () {
@@ -185,6 +193,242 @@ ${functions.join('\n')}
 
       expect(
         violations.any((v) => v.code == 'patch_function_cap'),
+        isTrue,
+      );
+    });
+
+    test('non-generated migration replacing adopted object fails', () {
+      const sql = r'''
+-- Kind: patch
+-- Intent: bypass_adopted
+-- Touches: search_products
+
+create or replace function catalog.search_products() returns void language sql as $$ select 1 $$;
+''';
+
+      final lock = SchemaLock({
+        'catalog.search_products': const SchemaLockEntry(
+          sourcePath:
+              'modules/catalog/infrastructure/supabase/sql/functions/search_products.sql',
+          hash: 'sha256:abc',
+          signatures: ['catalog.search_products()'],
+          lastMigration: '20990101001_first.sql',
+        ),
+      });
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20260711001_catalog_patch_bypass.sql',
+        sql: sql,
+        registry: registry,
+        options: MigrationPolicyOptions(schemaLock: lock),
+      );
+
+      expect(
+        violations.any((v) => v.code == 'adopted_object_bypass'),
+        isTrue,
+      );
+    });
+
+    test('generated migration may redefine adopted object', () {
+      const sql = r'''
+-- Kind: generated
+-- Intent: ok_generated
+-- Touches: catalog.search_products
+
+-- region: functions
+
+create or replace function catalog.search_products() returns void language sql as $$ select 1 $$;
+''';
+
+      final lock = SchemaLock({
+        'catalog.search_products': const SchemaLockEntry(
+          sourcePath:
+              'modules/catalog/infrastructure/supabase/sql/functions/search_products.sql',
+          hash: 'sha256:abc',
+          signatures: ['catalog.search_products()'],
+          lastMigration: '20260711001_ok_generated.sql',
+        ),
+      });
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20260711001_ok_generated.sql',
+        sql: sql,
+        registry: registry,
+        options: MigrationPolicyOptions(schemaLock: lock),
+      );
+
+      expect(
+        violations.where((v) => v.code == 'adopted_object_bypass'),
+        isEmpty,
+      );
+    });
+
+    test('generated region hand-edit fails byte-match', () {
+      final temp = Directory.systemTemp.createTempSync('vet45_policy_region_');
+      addTearDown(() {
+        if (temp.existsSync()) {
+          temp.deleteSync(recursive: true);
+        }
+      });
+
+      const source = '''
+create or replace function catalog.search_products()
+returns void language sql as \$\$ select 1 \$\$;
+''';
+      final sourcePath =
+          'modules/catalog/infrastructure/supabase/sql/functions/search_products.sql';
+      File('${temp.path}/$sourcePath')
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync(source);
+
+      final lockHash = _sha256(source);
+      final lock = SchemaLock({
+        'catalog.search_products': SchemaLockEntry(
+          sourcePath: sourcePath,
+          hash: lockHash,
+          signatures: const ['catalog.search_products()'],
+          lastMigration: '20990101001_search.sql',
+        ),
+      });
+
+      const sql = '''
+-- Kind: generated
+-- Intent: search
+-- Touches: catalog.search_products
+
+-- region: functions
+
+create or replace function catalog.search_products()
+returns void language sql as \$\$ select 999 \$\$;
+''';
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20990101001_search.sql',
+        sql: sql,
+        registry: registry,
+        options: MigrationPolicyOptions(
+          schemaLock: lock,
+          repoRoot: temp,
+        ),
+      );
+
+      expect(
+        violations.any((v) => v.code == 'generated_region_mismatch'),
+        isTrue,
+      );
+    });
+
+    test('generated region matching source passes; pre/post may differ', () {
+      final temp = Directory.systemTemp.createTempSync('vet45_policy_ok_');
+      addTearDown(() {
+        if (temp.existsSync()) {
+          temp.deleteSync(recursive: true);
+        }
+      });
+
+      const source = '''
+create or replace function catalog.search_products()
+returns void language sql as \$\$ select 1 \$\$;
+''';
+      final sourcePath =
+          'modules/catalog/infrastructure/supabase/sql/functions/search_products.sql';
+      File('${temp.path}/$sourcePath')
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync(source);
+
+      final lock = SchemaLock({
+        'catalog.search_products': SchemaLockEntry(
+          sourcePath: sourcePath,
+          hash: _sha256(source),
+          signatures: const ['catalog.search_products()'],
+          lastMigration: '20990101001_search.sql',
+        ),
+      });
+
+      final sql = '''
+-- Kind: generated
+-- Intent: search
+-- Touches: catalog.search_products
+
+-- region: pre
+
+-- hand-edited DDL ok
+create table if not exists catalog.scratch (id int);
+
+-- region: functions
+
+$source
+-- region: post
+
+insert into catalog.scratch values (1);
+''';
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20990101001_search.sql',
+        sql: sql,
+        registry: registry,
+        options: MigrationPolicyOptions(
+          schemaLock: lock,
+          repoRoot: temp,
+        ),
+      );
+
+      expect(
+        violations.where((v) => v.severity == PolicySeverity.error),
+        isEmpty,
+      );
+    });
+
+    test('generated region with extra SQL beyond source fails', () {
+      final temp = Directory.systemTemp.createTempSync('vet45_policy_extra_');
+      addTearDown(() {
+        if (temp.existsSync()) {
+          temp.deleteSync(recursive: true);
+        }
+      });
+
+      const source = '''
+create or replace function catalog.search_products()
+returns void language sql as \$\$ select 1 \$\$;
+''';
+      final sourcePath =
+          'modules/catalog/infrastructure/supabase/sql/functions/search_products.sql';
+      File('${temp.path}/$sourcePath')
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync(source);
+
+      final lock = SchemaLock({
+        'catalog.search_products': SchemaLockEntry(
+          sourcePath: sourcePath,
+          hash: _sha256(source),
+          signatures: const ['catalog.search_products()'],
+          lastMigration: '20990101001_search.sql',
+        ),
+      });
+
+      final sql = '''
+-- Kind: generated
+-- Intent: search
+-- Touches: catalog.search_products
+
+-- region: functions
+
+$source
+create or replace function catalog.sneaky() returns void language sql as \$\$ select 1 \$\$;
+''';
+
+      final violations = MigrationPolicyVerifier().verifyFile(
+        fileName: '20990101001_search.sql',
+        sql: sql,
+        registry: registry,
+        options: MigrationPolicyOptions(
+          schemaLock: lock,
+          repoRoot: temp,
+        ),
+      );
+
+      expect(
+        violations.any((v) => v.code == 'generated_region_mismatch'),
         isTrue,
       );
     });
