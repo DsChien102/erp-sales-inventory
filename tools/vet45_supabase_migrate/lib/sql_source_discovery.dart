@@ -50,7 +50,8 @@ class SqlSource {
   /// `sha256:<hex>` of [content].
   final String hash;
 
-  /// Function overload signatures; empty for views / triggers / policies.
+  /// Function: overload signatures. Trigger/policy: `"name on schema.table"`
+  /// for later drops. Views: empty (drop by [qualifiedName]).
   final List<String> signatures;
 }
 
@@ -193,9 +194,14 @@ class SqlSourceDiscovery {
       qualifiedName: object.qualifiedName,
       content: content,
       hash: 'sha256:${sha256.convert(utf8.encode(content))}',
-      signatures: expectedKind == SqlObjectKind.function
-          ? matching.map((function) => function.signature!).toList()
-          : const [],
+      signatures: switch (expectedKind) {
+        SqlObjectKind.function =>
+          matching.map((function) => function.signature!).toList(),
+        SqlObjectKind.trigger || SqlObjectKind.policy => matching
+            .map((object) => '${object.name} on ${object.table}')
+            .toList(),
+        SqlObjectKind.view => const [],
+      },
     );
   }
 

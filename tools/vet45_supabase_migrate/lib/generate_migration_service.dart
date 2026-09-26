@@ -18,6 +18,10 @@ const generatedRegionOrder = <SqlObjectKind>[
 
 final _intentPattern = RegExp(r'^[a-z0-9]+(?:_[a-z0-9]+)*$');
 
+final _kindDirByName = <String, SqlObjectKind>{
+  for (final MapEntry(key: kind, value: dir) in objectKindDirs.entries) dir: kind,
+};
+
 class GenerateMigrationOptions {
   const GenerateMigrationOptions({
     required this.repoRoot,
@@ -62,6 +66,25 @@ class GenerateMigrationResult {
   final File? written;
 }
 
+/// One object to create and/or drop in a generated migration.
+class _PendingObject {
+  const _PendingObject({
+    required this.qualifiedName,
+    required this.kind,
+    required this.dropTargets,
+    this.source,
+  });
+
+  final String qualifiedName;
+  final SqlObjectKind kind;
+
+  /// Function overload signatures, or trigger/policy `"name on schema.table"`.
+  final List<String> dropTargets;
+
+  /// Null when the source file was deleted.
+  final SqlSource? source;
+}
+
 /// Generates a `Kind: generated` migration from declarative sources that
 /// differ from `supabase/schema.lock.yaml`, then updates the lock.
 class GenerateMigrationService {
@@ -88,8 +111,8 @@ class GenerateMigrationService {
 
     final sources = _discovery.discover(options.repoRoot);
     final lock = SchemaLock.load(lockFile(options.repoRoot));
-    final changed = _changedSources(sources, lock);
-    if (changed.isEmpty) {
+    final pending = _diffSources(sources, lock);
+    if (pending.isEmpty) {
       return const GenerateMigrationResult();
     }
 
@@ -105,7 +128,7 @@ class GenerateMigrationService {
     final migration = _buildMigration(
       fileName: '${timestamp}_${options.intent}.sql',
       intent: options.intent,
-      changed: changed,
+      pending: pending,
     );
     if (options.dryRun) {
       return GenerateMigrationResult(migration: migration);
@@ -118,63 +141,125 @@ class GenerateMigrationService {
     migrationsDirectory.createSync(recursive: true);
     target.writeAsStringSync(migration.sql);
 
-    for (final source in changed) {
-      lock.entries[source.qualifiedName] = SchemaLockEntry(
-        sourcePath: source.relativePath,
-        hash: source.hash,
-        signatures: source.signatures,
-        lastMigration: migration.fileName,
-      );
+    for (final change in pending) {
+      final source = change.source;
+      if (source == null) {
+        lock.entries.remove(change.qualifiedName);
+      } else {
+        lock.entries[change.qualifiedName] = SchemaLockEntry(
+          sourcePath: source.relativePath,
+          hash: source.hash,
+          signatures: source.signatures,
+          lastMigration: migration.fileName,
+        );
+      }
     }
     lock.write(lockFile(options.repoRoot));
 
     return GenerateMigrationResult(migration: migration, written: target);
   }
 
-  List<SqlSource> _changedSources(List<SqlSource> sources, SchemaLock lock) {
+  List<_PendingObject> _diffSources(List<SqlSource> sources, SchemaLock lock) {
     final problems = <String>[];
-    final sourceNames = sources.map((source) => source.qualifiedName).toSet();
+    final byName = {
+      for (final source in sources) source.qualifiedName: source,
+    };
+    final pending = <_PendingObject>[];
+
     for (final MapEntry(key: name, value: entry) in lock.entries.entries) {
-      if (!sourceNames.contains(name)) {
-        problems.add(
-          '$name is locked but ${entry.sourcePath} is missing; '
-          'dropping objects is not supported yet — restore the source',
-        );
+      if (byName.containsKey(name)) {
+        continue;
       }
+      final kind = _kindFromSourcePath(entry.sourcePath);
+      if (kind == null) {
+        problems.add(
+          '$name is locked at ${entry.sourcePath} but the object kind is '
+          'unknown; write any required drop in '
+          'supabase/migrations/_drafts/<intent>.pre.sql (region pre), '
+          'then fix or remove this lock entry',
+        );
+        continue;
+      }
+      if (entry.signatures.isEmpty &&
+          (kind == SqlObjectKind.function ||
+              kind == SqlObjectKind.trigger ||
+              kind == SqlObjectKind.policy)) {
+        problems.add(
+          '$name: cannot auto-drop ${kind.name} without '
+          '${kind == SqlObjectKind.function ? 'signatures' : 'ON table'} '
+          'in the lock; write the drop in '
+          'supabase/migrations/_drafts/<intent>.pre.sql (region pre), '
+          'then remove this lock entry after generate',
+        );
+        continue;
+      }
+      pending.add(
+        _PendingObject(
+          qualifiedName: name,
+          kind: kind,
+          dropTargets: entry.signatures,
+          source: null,
+        ),
+      );
     }
 
-    final changed = <SqlSource>[];
     for (final source in sources) {
       final entry = lock.entries[source.qualifiedName];
       if (entry == null) {
-        changed.add(source);
+        pending.add(
+          _PendingObject(
+            qualifiedName: source.qualifiedName,
+            kind: source.kind,
+            dropTargets: const [],
+            source: source,
+          ),
+        );
         continue;
       }
       final current = source.signatures.map(_overloadIdentity).toSet();
       final removed = entry.signatures
           .where((signature) => !current.contains(_overloadIdentity(signature)))
           .toList();
-      if (removed.isNotEmpty) {
-        problems.add(
-          '${source.relativePath}: removed or changed overload '
-          '${removed.join(', ')}; dropping overloads is not supported yet',
+      if (entry.hash != source.hash ||
+          entry.sourcePath != source.relativePath ||
+          removed.isNotEmpty) {
+        pending.add(
+          _PendingObject(
+            qualifiedName: source.qualifiedName,
+            kind: source.kind,
+            dropTargets: removed,
+            source: source,
+          ),
         );
-      }
-      if (entry.hash != source.hash || entry.sourcePath != source.relativePath) {
-        changed.add(source);
       }
     }
 
     if (problems.isNotEmpty) {
       throw SchemaSourceException(problems);
     }
-    return changed;
+    return pending
+      ..sort((a, b) => a.qualifiedName.compareTo(b.qualifiedName));
+  }
+
+  SqlObjectKind? _kindFromSourcePath(String relativePath) {
+    for (final segment in relativePath.split('/')) {
+      final kind = _kindDirByName[segment];
+      if (kind != null) {
+        return kind;
+      }
+    }
+    return null;
   }
 
   /// Signature without parameter defaults, lowercased: `create or replace`
   /// may change defaults but not the parameter list itself.
+  ///
+  /// Trigger/policy lock targets (`name on schema.table`) have no `(...)`.
   String _overloadIdentity(String signature) {
     final open = signature.indexOf('(');
+    if (open == -1) {
+      return signature.toLowerCase();
+    }
     final args = _splitTopLevelCommas(
       signature.substring(open + 1, signature.length - 1),
     ).map(
@@ -220,9 +305,9 @@ class GenerateMigrationService {
   GeneratedMigration _buildMigration({
     required String fileName,
     required String intent,
-    required List<SqlSource> changed,
+    required List<_PendingObject> pending,
   }) {
-    final touches = changed.map((source) => source.qualifiedName).toList()
+    final touches = pending.map((change) => change.qualifiedName).toList()
       ..sort();
     final header = MigrationHeader(
       kind: 'generated',
@@ -236,11 +321,9 @@ class GenerateMigrationService {
       );
 
     for (final kind in generatedRegionOrder) {
-      final regionSources = changed
-          .where((source) => source.kind == kind)
-          .toList()
+      final regionObjects = pending.where((change) => change.kind == kind).toList()
         ..sort((a, b) => a.qualifiedName.compareTo(b.qualifiedName));
-      if (regionSources.isEmpty) {
+      if (regionObjects.isEmpty) {
         continue;
       }
       buffer
@@ -248,7 +331,7 @@ class GenerateMigrationService {
         ..writeln('-- region: ${objectKindDirs[kind]}')
         ..writeln();
       buffer.writeln(
-        regionSources.map(_renderSource).join('\n\n'),
+        regionObjects.map(_renderPending).join('\n\n'),
       );
     }
 
@@ -256,6 +339,49 @@ class GenerateMigrationService {
       fileName: fileName,
       touches: touches,
       sql: buffer.toString(),
+    );
+  }
+
+  String _renderPending(_PendingObject change) {
+    final parts = <String>[
+      ..._renderDrops(change),
+      if (change.source case final source?) _renderSource(source),
+    ];
+    return parts.join('\n');
+  }
+
+  List<String> _renderDrops(_PendingObject change) {
+    return switch (change.kind) {
+      SqlObjectKind.function => [
+          for (final signature in change.dropTargets)
+            'drop function if exists $signature;',
+        ],
+      SqlObjectKind.view => [
+          if (change.source == null)
+            'drop view if exists ${change.qualifiedName};',
+        ],
+      SqlObjectKind.trigger => [
+          for (final target in change.dropTargets)
+            _dropRelation(SqlObjectKind.trigger, target),
+        ],
+      SqlObjectKind.policy => [
+          for (final target in change.dropTargets)
+            _dropRelation(SqlObjectKind.policy, target),
+        ],
+    };
+  }
+
+  /// Renders `drop … if exists` from a lock target `"name on schema.table"`.
+  String _dropRelation(SqlObjectKind kind, String target) {
+    const separator = ' on ';
+    final index = target.toLowerCase().lastIndexOf(separator);
+    if (index == -1) {
+      throw StateError('invalid trigger/policy lock target: $target');
+    }
+    return _dropRelationParts(
+      kind: kind,
+      name: target.substring(0, index),
+      table: target.substring(index + separator.length),
     );
   }
 
@@ -283,13 +409,27 @@ class GenerateMigrationService {
         'trigger/policy ${object.qualifiedName} is missing ON table',
       );
     }
-    final name = _quoteIdent(object.name);
+    return _dropRelationParts(
+      kind: object.kind,
+      name: object.name,
+      table: table,
+    );
+  }
+
+  String _dropRelationParts({
+    required SqlObjectKind kind,
+    required String name,
+    required String table,
+  }) {
+    final quotedName = _quoteIdent(name);
     final onTable = table.split('.').map(_quoteIdent).join('.');
-    return switch (object.kind) {
-      SqlObjectKind.trigger => 'drop trigger if exists $name on $onTable;',
-      SqlObjectKind.policy => 'drop policy if exists $name on $onTable;',
+    return switch (kind) {
+      SqlObjectKind.trigger =>
+        'drop trigger if exists $quotedName on $onTable;',
+      SqlObjectKind.policy =>
+        'drop policy if exists $quotedName on $onTable;',
       SqlObjectKind.function || SqlObjectKind.view =>
-        throw StateError('drop wrapper is only for trigger/policy'),
+        throw StateError('relation drop is only for trigger/policy'),
     };
   }
 

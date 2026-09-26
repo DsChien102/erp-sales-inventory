@@ -270,40 +270,216 @@ returns int language sql as \$\$ select $body \$\$;
     expect(() => generate('empty'), throwsA(isA<SchemaSourceException>()));
   });
 
-  test('fails when a locked function source is deleted', () {
+  test('deleting a function source drops every locked signature', () {
     final path = moduleFunctionPath('catalog', 'search_products');
-    writeSource(path, function('catalog.search_products'));
+    writeSource(
+      path,
+      '${function('catalog.search_products', args: 'p_query text')}\n'
+      '${function('catalog.search_products', args: 'p_query text, p_limit int')}',
+    );
     generate('first');
+
+    deleteSource(path);
+    final result = generate('removed', startTimestamp: '20990101002');
+
+    expect(result.migration?.touches, ['catalog.search_products']);
+    final sql = readMigration('20990101002_removed.sql');
+    expect(sql, contains('-- region: functions'));
+    expect(
+      sql,
+      contains(
+        'drop function if exists catalog.search_products(p_query text);',
+      ),
+    );
+    expect(
+      sql,
+      contains(
+        'drop function if exists '
+        'catalog.search_products(p_query text, p_limit int);',
+      ),
+    );
+    expect(sql, isNot(contains('create or replace function')));
+    expect(readLock().entries.containsKey('catalog.search_products'), isFalse);
+  });
+
+  test('removing one overload drops only that signature', () {
+    final path = moduleFunctionPath('catalog', 'search_products');
+    writeSource(
+      path,
+      '${function('catalog.search_products')}\n'
+      '${function('catalog.search_products', args: 'p_query text')}',
+    );
+    generate('first');
+
+    final remaining = function('catalog.search_products');
+    writeSource(path, remaining);
+    final result = generate('drop_overload', startTimestamp: '20990101002');
+
+    expect(result.migration?.touches, ['catalog.search_products']);
+    final sql = readMigration('20990101002_drop_overload.sql');
+    expect(
+      sql,
+      contains('drop function if exists catalog.search_products(p_query text);'),
+    );
+    expect(
+      sql,
+      isNot(contains('drop function if exists catalog.search_products();')),
+    );
+    expect(sql, contains(remaining.trimRight()));
+    expect(
+      sql.indexOf('drop function if exists'),
+      lessThan(sql.indexOf('create or replace function')),
+    );
+    expect(readLock().entries['catalog.search_products']!.signatures, [
+      'catalog.search_products()',
+    ]);
+  });
+
+  test('changing a signature drops the old one before create', () {
+    final path = moduleFunctionPath('catalog', 'search_products');
+    writeSource(path, function('catalog.search_products', args: 'p_query text'));
+    generate('first');
+
+    final updated = function('catalog.search_products', args: 'p_query varchar');
+    writeSource(path, updated);
+    final result = generate('signature', startTimestamp: '20990101002');
+
+    expect(result.migration?.touches, ['catalog.search_products']);
+    final sql = readMigration('20990101002_signature.sql');
+    expect(
+      sql,
+      contains('drop function if exists catalog.search_products(p_query text);'),
+    );
+    expect(
+      sql.indexOf('drop function if exists'),
+      lessThan(sql.indexOf('create or replace function')),
+    );
+    expect(sql, contains(updated.trimRight()));
+    expect(readLock().entries['catalog.search_products']!.signatures, [
+      'catalog.search_products(p_query varchar)',
+    ]);
+  });
+
+  test('deleting a view source emits drop view', () {
+    final path = moduleSqlPath('catalog', 'views', 'order_summary');
+    writeSource(
+      path,
+      'create or replace view catalog.order_summary as select 1;',
+    );
+    generate('first');
+
+    deleteSource(path);
+    final sql = generate('drop_view', startTimestamp: '20990101002').migration!.sql;
+
+    expect(sql, contains('-- region: views'));
+    expect(sql, contains('drop view if exists catalog.order_summary;'));
+    expect(sql, isNot(contains('create or replace view')));
+    expect(readLock().entries.containsKey('catalog.order_summary'), isFalse);
+  });
+
+  test('deleting a trigger drops using locked ON table', () {
+    final path = moduleSqlPath('catalog', 'triggers', 'trg_touch_updated_at');
+    writeSource(
+      path,
+      '''
+create trigger trg_touch_updated_at
+  before update on catalog.products
+  for each row execute function catalog.touch_updated_at();
+''',
+    );
+    generate('first');
+    expect(readLock().entries['catalog.trg_touch_updated_at']!.signatures, [
+      'trg_touch_updated_at on catalog.products',
+    ]);
+
+    deleteSource(path);
+    final sql =
+        generate('drop_trigger', startTimestamp: '20990101002').migration!.sql;
+
+    expect(sql, contains('-- region: triggers'));
+    expect(
+      sql,
+      contains(
+        'drop trigger if exists trg_touch_updated_at on catalog.products;',
+      ),
+    );
+    expect(
+      readLock().entries.containsKey('catalog.trg_touch_updated_at'),
+      isFalse,
+    );
+  });
+
+  test('fails when a locked trigger cannot be dropped without ON table', () {
+    final path = moduleSqlPath('catalog', 'triggers', 'trg_orphan');
+    writeSource(
+      path,
+      '''
+create trigger trg_orphan
+  after insert on catalog.products
+  for each row execute function catalog.audit();
+''',
+    );
+    generate('first');
+
+    // Simulate a lock entry adopted before drop metadata was stored.
+    final lockFile = File('${tempDir.path}/$schemaLockRelativePath');
+    final lock = SchemaLock.load(lockFile);
+    lock.entries['catalog.trg_orphan'] = SchemaLockEntry(
+      sourcePath: path,
+      hash: lock.entries['catalog.trg_orphan']!.hash,
+      signatures: const [],
+      lastMigration: lock.entries['catalog.trg_orphan']!.lastMigration,
+    );
+    lock.write(lockFile);
 
     deleteSource(path);
 
     expect(
-      () => generate('removed', startTimestamp: '20990101002'),
+      () => generate('orphan', startTimestamp: '20990101002'),
       throwsA(
         isA<SchemaSourceException>().having(
           (e) => e.toString(),
           'message',
-          contains('catalog.search_products'),
+          allOf(
+            contains('catalog.trg_orphan'),
+            contains('pre'),
+          ),
         ),
       ),
     );
     expect(migrationNames(), ['20990101001_first.sql']);
   });
 
-  test('fails when a locked overload is removed or its signature changes', () {
-    final path = moduleFunctionPath('catalog', 'search_products');
-    writeSource(path, function('catalog.search_products', args: 'p_query text'));
+  test('fails when a locked policy cannot be dropped without ON table', () {
+    final path = moduleSqlPath('catalog', 'policies', 'tenant_read');
+    writeSource(
+      path,
+      '''
+create policy tenant_read on catalog.products
+  for select using (true);
+''',
+    );
     generate('first');
 
-    writeSource(path, function('catalog.search_products', args: 'p_query varchar'));
+    final lockFile = File('${tempDir.path}/$schemaLockRelativePath');
+    final lock = SchemaLock.load(lockFile);
+    lock.entries['catalog.tenant_read'] = SchemaLockEntry(
+      sourcePath: path,
+      hash: lock.entries['catalog.tenant_read']!.hash,
+      signatures: const [],
+      lastMigration: lock.entries['catalog.tenant_read']!.lastMigration,
+    );
+    lock.write(lockFile);
+
+    deleteSource(path);
 
     expect(
-      () => generate('signature', startTimestamp: '20990101002'),
+      () => generate('orphan_policy', startTimestamp: '20990101002'),
       throwsA(
         isA<SchemaSourceException>().having(
           (e) => e.toString(),
           'message',
-          contains('catalog.search_products(p_query text)'),
+          allOf(contains('catalog.tenant_read'), contains('pre')),
         ),
       ),
     );
@@ -498,7 +674,11 @@ create policy tenant_write on catalog.products
     final lock = readLock();
     expect(lock.entries.keys, containsAll(result.migration!.touches));
     expect(lock.entries['catalog.order_summary']!.signatures, isEmpty);
-    expect(lock.entries['catalog.trg_audit']!.signatures, isEmpty);
-    expect(lock.entries['catalog.tenant_write']!.signatures, isEmpty);
+    expect(lock.entries['catalog.trg_audit']!.signatures, [
+      'trg_audit on catalog.products',
+    ]);
+    expect(lock.entries['catalog.tenant_write']!.signatures, [
+      'tenant_write on catalog.products',
+    ]);
   });
 }
