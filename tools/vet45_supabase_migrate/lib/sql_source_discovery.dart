@@ -9,6 +9,13 @@ const modulesRelativePath = 'modules';
 const moduleSqlRelativePath = 'infrastructure/supabase/sql';
 const sharedSqlRelativePath = 'supabase/sql';
 
+const objectKindDirs = <SqlObjectKind, String>{
+  SqlObjectKind.function: 'functions',
+  SqlObjectKind.view: 'views',
+  SqlObjectKind.trigger: 'triggers',
+  SqlObjectKind.policy: 'policies',
+};
+
 /// Source files violate the declarative SQL layout rules.
 class SchemaSourceException implements Exception {
   const SchemaSourceException(this.problems);
@@ -20,15 +27,18 @@ class SchemaSourceException implements Exception {
       '${problems.map((problem) => '  - $problem').join('\n')}';
 }
 
-/// One declarative source file defining every overload of a function.
+/// One declarative source file defining a single SQL object (all overloads).
 class SqlSource {
   const SqlSource({
+    required this.kind,
     required this.relativePath,
     required this.qualifiedName,
     required this.content,
     required this.hash,
     required this.signatures,
   });
+
+  final SqlObjectKind kind;
 
   /// Repo-relative path with `/` separators.
   final String relativePath;
@@ -39,47 +49,61 @@ class SqlSource {
 
   /// `sha256:<hex>` of [content].
   final String hash;
+
+  /// Function overload signatures; empty for views / triggers / policies.
   final List<String> signatures;
 }
 
-/// Discovers function sources under module roots and the shared root:
+/// Discovers declarative SQL sources under module roots and the shared root:
 ///
-/// - `modules/<module>/infrastructure/supabase/sql/functions/<name>.sql`,
+/// - `modules/<module>/infrastructure/supabase/sql/{functions,views,triggers,policies}/<name>.sql`,
 ///   schema must equal `<module>`.
-/// - `supabase/sql/<schema>/functions/<name>.sql`, schema must equal `<schema>`.
+/// - `supabase/sql/<schema>/{functions,views,triggers,policies}/<name>.sql`,
+///   schema must equal `<schema>`.
 class SqlSourceDiscovery {
   List<SqlSource> discover(Directory repoRoot) {
     final problems = <String>[];
     final sources = <SqlSource>[];
 
-    for (final (root, schema) in _functionRoots(repoRoot)) {
-      final files = Directory('${repoRoot.path}/$root/functions')
-          .listSync()
-          .whereType<File>()
-          .where((file) => file.path.endsWith('.sql'))
-          .toList()
-        ..sort((a, b) => a.path.compareTo(b.path));
-      for (final file in files) {
-        final source = _readSource(
-          file: file,
-          relativePath: '$root/functions/${_basename(file.path)}',
-          root: root,
-          expectedSchema: schema,
-          problems: problems,
-        );
-        if (source != null) {
-          sources.add(source);
+    for (final (root, schema) in _sqlRoots(repoRoot)) {
+      for (final MapEntry(key: kind, value: dir) in objectKindDirs.entries) {
+        final folder = Directory('${repoRoot.path}/$root/$dir');
+        if (!folder.existsSync()) {
+          continue;
+        }
+        final files = folder
+            .listSync()
+            .whereType<File>()
+            .where((file) => file.path.endsWith('.sql'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+        for (final file in files) {
+          final source = _readSource(
+            file: file,
+            relativePath: '$root/$dir/${_basename(file.path)}',
+            root: root,
+            expectedSchema: schema,
+            expectedKind: kind,
+            problems: problems,
+          );
+          if (source != null) {
+            sources.add(source);
+          }
         }
       }
     }
 
     final pathsByName = <String, List<String>>{};
     for (final source in sources) {
-      pathsByName.putIfAbsent(source.qualifiedName, () => []).add(source.relativePath);
+      pathsByName
+          .putIfAbsent(source.qualifiedName, () => [])
+          .add(source.relativePath);
     }
     for (final MapEntry(key: name, value: paths) in pathsByName.entries) {
       if (paths.length > 1) {
-        problems.add('$name is defined in more than one file: ${paths.join(', ')}');
+        problems.add(
+          '$name is defined in more than one file: ${paths.join(', ')}',
+        );
       }
     }
 
@@ -89,17 +113,18 @@ class SqlSourceDiscovery {
     return sources..sort((a, b) => a.qualifiedName.compareTo(b.qualifiedName));
   }
 
-  /// Yields `(repo-relative sql root, expected schema)` pairs that have a
-  /// `functions/` folder.
-  Iterable<(String, String)> _functionRoots(Directory repoRoot) sync* {
+  /// Yields `(repo-relative sql root, expected schema)` pairs that exist.
+  Iterable<(String, String)> _sqlRoots(Directory repoRoot) sync* {
     final roots = <(String, String)>[
-      for (final module in _childDirectoryNames('${repoRoot.path}/$modulesRelativePath'))
+      for (final module
+          in _childDirectoryNames('${repoRoot.path}/$modulesRelativePath'))
         ('$modulesRelativePath/$module/$moduleSqlRelativePath', module),
-      for (final schema in _childDirectoryNames('${repoRoot.path}/$sharedSqlRelativePath'))
+      for (final schema
+          in _childDirectoryNames('${repoRoot.path}/$sharedSqlRelativePath'))
         ('$sharedSqlRelativePath/$schema', schema),
     ];
     for (final root in roots) {
-      if (Directory('${repoRoot.path}/${root.$1}/functions').existsSync()) {
+      if (Directory('${repoRoot.path}/${root.$1}').existsSync()) {
         yield root;
       }
     }
@@ -110,43 +135,51 @@ class SqlSourceDiscovery {
     required String relativePath,
     required String root,
     required String expectedSchema,
+    required SqlObjectKind expectedKind,
     required List<String> problems,
   }) {
+    final kindDir = objectKindDirs[expectedKind]!;
     final content = file.readAsStringSync().replaceAll('\r\n', '\n');
     final objects = parseSqlObjects(content);
-    final functions =
-        objects.where((object) => object.kind == SqlObjectKind.function).toList();
+    final matching =
+        objects.where((object) => object.kind == expectedKind).toList();
 
-    if (functions.isEmpty) {
-      problems.add('$relativePath: no create function statement found');
-      return null;
-    }
-    if (functions.length != objects.length) {
-      problems.add('$relativePath: functions/ may only define functions');
-      return null;
-    }
-
-    final names = functions.map((function) => function.qualifiedName).toSet();
-    if (names.length > 1) {
+    if (matching.isEmpty) {
       problems.add(
-        '$relativePath: one file per function, found ${names.join(', ')}',
+        '$relativePath: no create ${_kindLabel(expectedKind)} statement found',
+      );
+      return null;
+    }
+    if (matching.length != objects.length) {
+      problems.add(
+        '$relativePath: $kindDir/ may only define ${_kindLabel(expectedKind)}s',
       );
       return null;
     }
 
-    final function = functions.first;
-    var valid = true;
-    if (function.schema != expectedSchema) {
+    final names = matching.map((object) => object.qualifiedName).toSet();
+    if (names.length > 1) {
       problems.add(
-        '$relativePath: defines ${function.qualifiedName} but sources under '
+        '$relativePath: one file per ${_kindLabel(expectedKind)}, '
+        'found ${names.join(', ')}',
+      );
+      return null;
+    }
+
+    final object = matching.first;
+    var valid = true;
+    if (object.schema != expectedSchema) {
+      problems.add(
+        '$relativePath: defines ${object.qualifiedName} but sources under '
         '$root must use schema "$expectedSchema"',
       );
       valid = false;
     }
-    final expectedFileName = '${function.name}.sql';
+    final expectedFileName = '${object.name}.sql';
     if (_basename(file.path) != expectedFileName) {
       problems.add(
-        '$relativePath: file must be named $expectedFileName after its function',
+        '$relativePath: file must be named $expectedFileName after its '
+        '${_kindLabel(expectedKind)}',
       );
       valid = false;
     }
@@ -155,13 +188,23 @@ class SqlSourceDiscovery {
     }
 
     return SqlSource(
+      kind: expectedKind,
       relativePath: relativePath,
-      qualifiedName: function.qualifiedName,
+      qualifiedName: object.qualifiedName,
       content: content,
       hash: 'sha256:${sha256.convert(utf8.encode(content))}',
-      signatures: functions.map((function) => function.signature!).toList(),
+      signatures: expectedKind == SqlObjectKind.function
+          ? matching.map((function) => function.signature!).toList()
+          : const [],
     );
   }
+
+  String _kindLabel(SqlObjectKind kind) => switch (kind) {
+        SqlObjectKind.function => 'function',
+        SqlObjectKind.view => 'view',
+        SqlObjectKind.trigger => 'trigger',
+        SqlObjectKind.policy => 'policy',
+      };
 
   List<String> _childDirectoryNames(String path) {
     final directory = Directory(path);

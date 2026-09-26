@@ -76,13 +76,19 @@ void _printUsage() {
   stdout.writeln('''
 Usage: dart run tools/vet45_supabase_migrate/bin/generate_migration.dart <intent> [options]
 
-Compares declarative function sources with supabase/schema.lock.yaml and writes
-one Kind: generated migration containing only new or changed functions, then
-updates the lock. Writes nothing when every source matches the lock.
+Compares declarative SQL sources with supabase/schema.lock.yaml and writes
+one Kind: generated migration containing only new or changed objects
+(functions, views, triggers, policies), then updates the lock. Writes nothing
+when every source matches the lock.
 
 Sources:
-  modules/<module>/infrastructure/supabase/sql/functions/<name>.sql   (schema = <module>)
-  supabase/sql/<schema>/functions/<name>.sql                          (schema = <schema>)
+  modules/<module>/infrastructure/supabase/sql/{functions,views,triggers,policies}/<name>.sql
+  supabase/sql/<schema>/{functions,views,triggers,policies}/<name>.sql
+
+Regions (fixed order, name-sorted within each):
+  functions → views → triggers → policies
+
+Triggers and policies are wrapped with drop ... if exists before create.
 
 Options:
   --dry-run              Print the plan without writing the migration or lock

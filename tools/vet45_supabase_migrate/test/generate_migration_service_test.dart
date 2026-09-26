@@ -22,8 +22,11 @@ void main() {
     }
   });
 
+  String moduleSqlPath(String module, String kindDir, String name) =>
+      'modules/$module/infrastructure/supabase/sql/$kindDir/$name.sql';
+
   String moduleFunctionPath(String module, String name) =>
-      'modules/$module/infrastructure/supabase/sql/functions/$name.sql';
+      moduleSqlPath(module, 'functions', name);
 
   String sharedFunctionPath(String schema, String name) =>
       'supabase/sql/$schema/functions/$name.sql';
@@ -358,5 +361,144 @@ returns int language sql as \$\$ select $body \$\$;
     );
 
     expect(violations, isEmpty);
+  });
+
+  test('emits functions, views, triggers, policies regions in fixed order', () {
+    const viewSql = 'create or replace view catalog.order_summary as select 1;';
+    const triggerSql = '''
+create trigger trg_touch_updated_at
+  before update on catalog.products
+  for each row execute function catalog.touch_updated_at();
+''';
+    const policySql = '''
+create policy tenant_read on catalog.products
+  for select using (true);
+''';
+    const otherViewSql =
+        'create or replace view catalog.product_list as select 2;';
+
+    writeSource(
+      moduleFunctionPath('catalog', 'search_products'),
+      function('catalog.search_products'),
+    );
+    writeSource(moduleSqlPath('catalog', 'views', 'product_list'), otherViewSql);
+    writeSource(moduleSqlPath('catalog', 'views', 'order_summary'), viewSql);
+    writeSource(
+      moduleSqlPath('catalog', 'triggers', 'trg_touch_updated_at'),
+      triggerSql,
+    );
+    writeSource(moduleSqlPath('catalog', 'policies', 'tenant_read'), policySql);
+
+    final sql = generate('all_kinds').migration!.sql;
+
+    expect(
+      sql,
+      contains('-- Touches: catalog.order_summary, catalog.product_list, '
+          'catalog.search_products, catalog.tenant_read, '
+          'catalog.trg_touch_updated_at\n'),
+    );
+
+    final functionsAt = sql.indexOf('-- region: functions');
+    final viewsAt = sql.indexOf('-- region: views');
+    final triggersAt = sql.indexOf('-- region: triggers');
+    final policiesAt = sql.indexOf('-- region: policies');
+    expect(functionsAt, greaterThan(-1));
+    expect(viewsAt, greaterThan(functionsAt));
+    expect(triggersAt, greaterThan(viewsAt));
+    expect(policiesAt, greaterThan(triggersAt));
+
+    final viewsRegion = sql.substring(viewsAt, triggersAt);
+    expect(
+      viewsRegion.indexOf('catalog.order_summary'),
+      lessThan(viewsRegion.indexOf('catalog.product_list')),
+    );
+    expect(viewsRegion, contains(viewSql));
+    expect(viewsRegion, contains(otherViewSql));
+  });
+
+  test('wraps policy and trigger with drop if exists before create', () {
+    const triggerSql = '''
+create trigger trg_touch_updated_at
+  before update on catalog.products
+  for each row execute function catalog.touch_updated_at();
+''';
+    const policySql = '''
+create policy "Tenant members can read" on catalog.products
+  for select using (true);
+''';
+    writeSource(
+      moduleSqlPath('catalog', 'triggers', 'trg_touch_updated_at'),
+      triggerSql,
+    );
+    writeSource(
+      moduleSqlPath('catalog', 'policies', 'Tenant members can read'),
+      policySql,
+    );
+
+    final sql = generate('wrap_drops').migration!.sql;
+    final triggersRegion = sql.substring(
+      sql.indexOf('-- region: triggers'),
+      sql.indexOf('-- region: policies'),
+    );
+    final policiesRegion = sql.substring(sql.indexOf('-- region: policies'));
+
+    expect(
+      triggersRegion,
+      contains(
+        'drop trigger if exists trg_touch_updated_at on catalog.products;',
+      ),
+    );
+    expect(
+      triggersRegion.indexOf('drop trigger if exists'),
+      lessThan(triggersRegion.indexOf('create trigger')),
+    );
+    expect(triggersRegion, contains(triggerSql.trim()));
+
+    expect(
+      policiesRegion,
+      contains(
+        'drop policy if exists "Tenant members can read" on catalog.products;',
+      ),
+    );
+    expect(
+      policiesRegion.indexOf('drop policy if exists'),
+      lessThan(policiesRegion.indexOf('create policy')),
+    );
+    expect(policiesRegion, contains(policySql.trim()));
+  });
+
+  test('discovers view, trigger and policy fixtures under module sql roots', () {
+    writeSource(
+      moduleSqlPath('catalog', 'views', 'order_summary'),
+      'create or replace view catalog.order_summary as select 1;',
+    );
+    writeSource(
+      moduleSqlPath('catalog', 'triggers', 'trg_audit'),
+      '''
+create trigger trg_audit
+  after insert on catalog.products
+  for each row execute function catalog.audit();
+''',
+    );
+    writeSource(
+      moduleSqlPath('catalog', 'policies', 'tenant_write'),
+      '''
+create policy tenant_write on catalog.products
+  for insert with check (true);
+''',
+    );
+
+    final result = generate('object_fixtures');
+
+    expect(result.migration?.touches, [
+      'catalog.order_summary',
+      'catalog.tenant_write',
+      'catalog.trg_audit',
+    ]);
+    final lock = readLock();
+    expect(lock.entries.keys, containsAll(result.migration!.touches));
+    expect(lock.entries['catalog.order_summary']!.signatures, isEmpty);
+    expect(lock.entries['catalog.trg_audit']!.signatures, isEmpty);
+    expect(lock.entries['catalog.tenant_write']!.signatures, isEmpty);
   });
 }
