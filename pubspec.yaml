@@ -275,6 +275,10 @@ melos:
       run: dart run tools/vet45_supabase_migrate/bin/generate_migration.dart
       description: Generate a Kind generated migration from declarative SQL sources changed vs supabase/schema.lock.yaml
 
+    schema:adopt:
+      run: dart run tools/vet45_supabase_migrate/bin/adopt_schema.dart
+      description: Adopt REGISTRY functions into declarative SQL sources + schema.lock without generating a migration
+
     migrate:seed-registry:
       run: dart run tools/vet45_supabase_migrate/bin/seed_registry.dart
       description: Scan migrations and build supabase/migrations/REGISTRY.yaml
