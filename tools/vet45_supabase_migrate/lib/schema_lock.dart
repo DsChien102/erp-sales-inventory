@@ -78,7 +78,7 @@ class SchemaLock {
   String serialize() {
     final buffer = StringBuffer()
       ..writeln('# Declarative SQL object lock — hash of each source file.')
-      ..writeln('# Managed by: melos run migrate:generate -- <intent>');
+      ..writeln('# Managed by: melos run migrate:generate / schema:adopt');
     final keys = entries.keys.toList()..sort();
     for (final key in keys) {
       final entry = entries[key]!;

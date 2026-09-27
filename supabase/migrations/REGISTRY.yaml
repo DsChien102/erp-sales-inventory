@@ -5,9 +5,7 @@
 catalog:
   _assert_custom_fields_permission: 20260709013_catalog_custom_fields.sql
   _assert_product_permission: 20260709014_catalog_custom_field_values.sql
-  _base32_sha256_prefix: 20260710001_catalog_product_reference_id.sql
   _build_product_search_document: 20260712002_catalog_product_fts_search.sql
-  _build_product_search_text: 20260714005_catalog_patch_product_typeahead_search.sql
   _catalog_storage_is_products_path: 20260709001_catalog_guided_create.sql
   _catalog_storage_is_staging_path: 20260709001_catalog_guided_create.sql
   _catalog_storage_tenant_allowed: 20260709001_catalog_guided_create.sql
@@ -28,7 +26,6 @@ catalog:
   _normalize_measurement_unit_name: 20260709005_catalog_units.sql
   _normalize_product_barcode: 20260710002_catalog_patch_inline_normalize_schema.sql
   _normalize_product_maintenance_images: 20260709010_catalog_product_profile_maintenance.sql
-  _normalize_product_sku: 20260712010_catalog_patch_sku_uppercase_normalize.sql
   _product_base_unit_name: 20260709006_catalog_basic_stock.sql
   _product_business_status_result_row: 20260709011_catalog_product_business_status.sql
   _product_business_status_warnings: 20260712003_catalog_rename_basic_stock_quantity_base.sql
@@ -518,5 +515,3 @@ bootstrap_grandfathered:
   - 20260916007_iam_patch_activate_tenant_default_store_scope.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
-#   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
-#   then promote with: melos run migrate:promote-drafts -- --write --bundle-intent

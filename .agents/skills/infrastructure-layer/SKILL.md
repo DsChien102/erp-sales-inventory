@@ -78,15 +78,31 @@ Infrastructure MUST NOT depend on:
 
 Do **not** use Dart-side `IDomainEventsBus` or post-command outbox writers for atomic paths.
 
-### 3b. Author Supabase SQL (drafts → promote)
+### 3b. Author Supabase SQL (declarative + drafts)
+
+**Stateless objects (function / view / trigger / policy)** — preferred:
+
+```text
+modules/<module>/infrastructure/supabase/sql/{functions,views,triggers,policies}/<name>.sql
+# or supabase/sql/<schema>/... for shared schemas
+
+melos run schema:adopt -- <schema.fn>          # once, from REGISTRY
+# edit source…
+melos run schema:apply-dev                     # try on allowlisted profile DB
+# human at promote:
+melos run migrate:generate -- <intent>         # Kind: generated + lock update
+```
+
+DDL table / backfill / not-yet-adopted RPC vẫn draft:
 
 ```text
 _drafts/NNN_<scope>_patch_<intent>_<part>.sql   # atomic authoring
+# or _drafts/<intent>.pre.sql / .post.sql for migrate:generate
 melos run migrate:promote-drafts -- --write [--bundle-intent]
 REGISTRY.yaml + melos run migrate:verify-policy -- --strict
 ```
 
-Patch/surgical headers require `Kind`, `Intent`, `Touches` — every `create or replace function` in body must appear in `Touches`. Never copy unchanged RPC bodies from older migrations. Full policy: [supabase/migrations/README.md](../../../supabase/migrations/README.md).
+Patch/surgical headers require `Kind`, `Intent`, `Touches` — every `create or replace function` in body must appear in `Touches`. Never copy unchanged RPC bodies from older migrations. Never `create or replace` an object already in `supabase/schema.lock.yaml` from a non-generated migration. Full policy: [supabase/migrations/README.md](../../../supabase/migrations/README.md) · [14-declarative-sql-objects.md](../../../docs/architecture/14-declarative-sql-objects.md).
 
 ### 4. Generate skeleton (Meetings + Sales canonical)
 

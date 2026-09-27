@@ -1,6 +1,6 @@
 # Declarative SQL Objects — Single source of truth cho RPC / view / trigger / policy
 
-> **Trạng thái:** Proposed (plan đã chốt, chưa implement).
+> **Trạng thái:** Accepted.
 >
 > Liên quan: [supabase/migrations/README.md](../../supabase/migrations/README.md) · [supabase/migrations/_drafts/README.md](../../supabase/migrations/_drafts/README.md) · [REGISTRY.yaml](../../supabase/migrations/REGISTRY.yaml) · [08-data-and-security.md](08-data-and-security.md)
 
@@ -101,7 +101,7 @@ catalog.search_products:
 | File nguồn đổi mà lock chưa sync | `verify_harness.sh` | Cảnh báo ở nhánh slice; fail ở nhánh promote/release |
 | Migration không phải `Kind: generated` mà `create or replace` object đã adopt | `migrate:verify-policy` | Fail |
 | Vùng functions/views/triggers/policies của file `Kind: generated` không khớp byte-for-byte nguồn tại hash trong lock | `migrate:verify-policy` | Fail |
-| Drift: định nghĩa trong DB sau `db reset` ≠ file nguồn | Job CI có DB | Fail |
+| Drift: định nghĩa function/view/trigger trong DB sau `db reset` ≠ file nguồn (policy: chỉ kiểm existence vì catalog expression lossy) | Job CircleCI `verify_schema_drift` (`./scripts/ci/verify_schema_drift.sh`) | Fail |
 
 ## 6. Workflow
 
@@ -115,12 +115,12 @@ catalog.search_products:
 
 ## 7. Rollout
 
-1. Core tool: discover, parse object, lock, `migrate:generate` (chưa drop) + test fixture SQL.
-2. Drop / đổi signature, policy & trigger wrapper, ghép pre/post.
-3. `schema:adopt` (parse block từ REGISTRY → migration).
-4. `schema:apply-dev` (bảng log, allowlist env, confirm).
-5. CI guards (`verify-policy`, `verify_harness.sh`, job drift).
-6. Pilot: `partner` (greenfield) dùng luồng mới từ đầu; adopt-on-touch vài function `catalog`.
-7. Cập nhật `supabase/migrations/README.md`, `_drafts/README.md`, `vet45-architecture.mdc`, `AGENTS.md`, skill `infrastructure-layer`.
+1. Core tool: discover, parse object, lock, `migrate:generate` (chưa drop) + test fixture SQL. ✅
+2. Drop / đổi signature, policy & trigger wrapper, ghép pre/post. ✅
+3. `schema:adopt` (parse block từ REGISTRY → migration). ✅
+4. `schema:apply-dev` (bảng log, allowlist env, confirm). ✅
+5. CI guards (`verify-policy`, `verify_harness.sh`, job drift). ✅
+6. Pilot: `partner` (greenfield dirs) dùng luồng mới từ đầu; adopt-on-touch vài function `catalog`. ✅
+7. Docs/rules/skills cập nhật. ✅
 
 Không ảnh hưởng ship unit → không cần changelog app.

@@ -138,7 +138,8 @@ class PsqlSqlExecutor implements SqlExecutor {
         '-A',
         '-F',
         '\t',
-        '-t',
+        '-P',
+        'footer=off',
         '-c',
         sql,
       ],
@@ -148,21 +149,27 @@ class PsqlSqlExecutor implements SqlExecutor {
         'psql query failed (${result.exitCode}): ${result.stderr}',
       );
     }
-    final stdout = (result.stdout as String).trim();
-    if (stdout.isEmpty) {
+    final stdout = (result.stdout as String).trimRight();
+    if (stdout.trim().isEmpty) {
       return const [];
     }
-    // Expect "object_name\thash" rows from schema_apply_log selects.
+    final lines = stdout
+        .split('\n')
+        .where((line) => line.trim().isNotEmpty)
+        .toList();
+    if (lines.isEmpty) {
+      return const [];
+    }
+    final headers = lines.first.split('\t');
     return [
-      for (final line in stdout.split('\n'))
-        if (line.trim().isNotEmpty)
-          () {
-            final parts = line.split('\t');
-            return <String, Object?>{
-              'object_name': parts.isNotEmpty ? parts[0] : '',
-              'hash': parts.length > 1 ? parts[1] : '',
-            };
-          }(),
+      for (final line in lines.skip(1))
+        () {
+          final parts = line.split('\t');
+          return <String, Object?>{
+            for (var index = 0; index < headers.length; index++)
+              headers[index]: index < parts.length ? parts[index] : '',
+          };
+        }(),
     ];
   }
 }
