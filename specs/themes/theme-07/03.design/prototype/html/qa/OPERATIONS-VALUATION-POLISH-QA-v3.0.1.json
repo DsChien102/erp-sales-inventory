@@ -1,0 +1,980 @@
+{
+  "status": "FAIL",
+  "passed": 34,
+  "total": 37,
+  "scopeFlows": [
+    "UIF-01",
+    "UIF-02",
+    "UIF-03",
+    "UIF-04",
+    "UIF-05",
+    "UIF-06",
+    "UIF-07",
+    "UIF-13",
+    "UIF-14"
+  ],
+  "canonicalRoutes": 41,
+  "stateRenders": 228,
+  "checks": [
+    {
+      "name": "Workbench package version is v3.0.1",
+      "pass": false,
+      "note": "3.6.0"
+    },
+    {
+      "name": "HTML manifest version/parent correct",
+      "pass": false,
+      "note": "3.6.0 <- 3.5.1"
+    },
+    {
+      "name": "v3.0.1 correction layer loaded after v3.0.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All 9 Operations + Valuation UIF inspector labels are v3.0.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared List Row supports semantic hidden leading state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.0.1 CSS is explicitly scoped to all 9 requested UIFs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No feature-specific core DS component introduced",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 VCheckbox composition is annotated, not a custom selector component",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Requested scope is exactly 41 canonical routes",
+      "pass": true,
+      "note": 41
+    },
+    {
+      "name": "Requested route map matches release scope",
+      "pass": true,
+      "note": {
+        "UIF-02": {
+          "screens": [
+            {
+              "id": "SCR-006",
+              "states": [
+                "READY",
+                "LOADING",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-007",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED",
+                "PARTIAL_RECEIPT",
+                "SOURCE_VERSION_STALE"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-008",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED",
+                "DRAFT_VALIDATION_FAILED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-02-SAVE-DRAFT"
+              ]
+            },
+            {
+              "id": "SCR-009",
+              "states": [
+                "READY",
+                "EMPTY",
+                "VALIDATION_ERROR",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED",
+                "READ_ONLY"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-02-SAVE-DRAFT"
+              ]
+            },
+            {
+              "id": "SCR-084",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "LOT_CONFLICT",
+                "DUPLICATE_LINE",
+                "PERMISSION_DENIED",
+                "READ_ONLY"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-02-SAVE-DRAFT"
+              ]
+            },
+            {
+              "id": "SCR-010",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "APPROVAL_REQUIRED",
+                "PERMISSION_DENIED",
+                "PENDING_APPROVAL",
+                "DRAFT_VALIDATION_FAILED",
+                "APPROVAL_PRICE_BASIS_REQUIRED",
+                "APPROVER_CONFIGURATION_MISSING",
+                "FINANCIAL_MASKED"
+              ],
+              "actions": [
+                "ACT-02-SUBMIT"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-011",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "APPROVAL_REQUIRED",
+                "PERMISSION_DENIED",
+                "SELF_APPROVAL_NOT_ALLOWED",
+                "APPROVAL_ALREADY_DECIDED",
+                "FINANCIAL_MASKED"
+              ],
+              "actions": [
+                "ACT-02-DECIDE"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-012",
+              "states": [
+                "PROCESSING",
+                "COMPLETED",
+                "UNKNOWN",
+                "REJECTED_EXECUTION",
+                "PERMISSION_DENIED",
+                "VALUATION_PENDING_RESULT",
+                "COMMIT_UNKNOWN"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-02-RECEIVE"
+              ]
+            },
+            {
+              "id": "SCR-013",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "STALE",
+                "PERMISSION_DENIED",
+                "PROCESSING_OR_UNKNOWN",
+                "TERMINAL"
+              ],
+              "actions": [],
+              "traceActions": []
+            }
+          ]
+        },
+        "UIF-01": {
+          "screens": [
+            {
+              "id": "SCR-001",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "STALE",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-003",
+              "states": [
+                "READY",
+                "LOADING",
+                "STALE",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            }
+          ]
+        },
+        "UIF-03": {
+          "screens": [
+            {
+              "id": "SCR-014",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED",
+                "FINANCIAL_MASKED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-015",
+              "states": [
+                "READY",
+                "LOADING",
+                "VALIDATION_ERROR",
+                "PERMISSION_DENIED",
+                "EVIDENCE_MISSING",
+                "ALREADY_CONFIRMED",
+                "SOURCE_CHANGED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-017",
+              "states": [
+                "READY",
+                "SOURCE_CHANGED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-03-CONFIRM-COST"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-019",
+              "states": [
+                "PROCESSING",
+                "COMPLETED",
+                "UNKNOWN",
+                "REJECTED_EXECUTION",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-03-CONFIRM-COST"
+              ]
+            }
+          ]
+        },
+        "UIF-13": {
+          "screens": [
+            {
+              "id": "SCR-085",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED",
+                "FINANCIAL_MASKED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-086",
+              "states": [
+                "READY",
+                "LOADING",
+                "SOURCE_CHANGED",
+                "VALIDATION_ERROR",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "BC-IV-06",
+                "API-Q-12"
+              ]
+            },
+            {
+              "id": "SCR-087",
+              "states": [
+                "READY",
+                "LOADING",
+                "VALIDATION_ERROR",
+                "SOURCE_CHANGED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "BC-IV-06",
+                "API-Q-12"
+              ]
+            },
+            {
+              "id": "SCR-088",
+              "states": [
+                "READY",
+                "SOURCE_CHANGED",
+                "VALIDATION_ERROR",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-03-RECORD-LATE-COST"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-089",
+              "states": [
+                "PROCESSING",
+                "COMPLETED",
+                "REJECTED_EXECUTION",
+                "UNKNOWN",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-03-RECORD-LATE-COST"
+              ]
+            }
+          ]
+        },
+        "UIF-04": {
+          "screens": [
+            {
+              "id": "SCR-021",
+              "states": [
+                "PARTIAL",
+                "FULL",
+                "SHORT",
+                "RELEASED",
+                "STALE",
+                "LOADING",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-04-RESERVE",
+                "ACT-04-RELEASE"
+              ]
+            }
+          ]
+        },
+        "UIF-05": {
+          "screens": [
+            {
+              "id": "SCR-025",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-026",
+              "states": [
+                "READY",
+                "STALE_RECOVERED",
+                "SHORTAGE",
+                "LOADING",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-027",
+              "states": [
+                "READY",
+                "STALE_RECOVERED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-06-SAVE-PICK"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-028",
+              "states": [
+                "READY",
+                "PARTIAL_ALLOWED",
+                "PARTIAL_BLOCKED",
+                "SOURCE_CHANGED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-06-HANDOVER"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-029",
+              "states": [
+                "COMPLETED",
+                "PARTIAL_COMPLETED",
+                "UNKNOWN",
+                "REJECTED_EXECUTION",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-06-HANDOVER"
+              ]
+            }
+          ]
+        },
+        "UIF-06": {
+          "screens": [
+            {
+              "id": "SCR-030",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-031",
+              "states": [
+                "READY",
+                "LOADING",
+                "WAITING_APPROVAL",
+                "RETURN_CAP_CHANGED",
+                "SOURCE_CHANGED",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-07-SUBMIT-LOT-EXCEPTIONS",
+                "ACT-07-RECEIVE-RETURN"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-032",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "APPROVED_EXCEPTION",
+                "REJECTED_EXCEPTION",
+                "PENDING_APPROVAL",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-033",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "EXPIRED_GUARD",
+                "SOURCE_CHANGED",
+                "CONFLICT",
+                "LOCKED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-07-CLASSIFY"
+              ],
+              "traceActions": [
+                "ACT-07-CLASSIFY"
+              ]
+            },
+            {
+              "id": "SCR-035",
+              "states": [
+                "RECEIVED_PENDING_CLASSIFICATION",
+                "COMPLETED",
+                "UNKNOWN",
+                "REJECTED_EXECUTION",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-07-RECEIVE-RETURN",
+                "ACT-07-CLASSIFY"
+              ]
+            },
+            {
+              "id": "SCR-034",
+              "states": [
+                "TASK_LIST",
+                "READY",
+                "APPROVED",
+                "REJECTED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-07-DECIDE-LOT-EXCEPTION"
+              ],
+              "traceActions": []
+            }
+          ]
+        },
+        "UIF-07": {
+          "screens": [
+            {
+              "id": "SCR-036",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "FILTER_EMPTY",
+                "PERMISSION_DENIED",
+                "EXPIRED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-037",
+              "states": [
+                "READY",
+                "LOADING",
+                "EXPIRED",
+                "LOCKED",
+                "PERMISSION_DENIED",
+                "FINANCIAL_RESTRICTED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-039",
+              "states": [
+                "READY",
+                "SOURCE_CHANGED",
+                "PHYSICAL_MISMATCH",
+                "VALIDATION_ERROR",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                "ACT-08-RTV"
+              ],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-041",
+              "states": [
+                "PROCESSING",
+                "COMPLETED",
+                "PENDING_APPROVAL",
+                "REJECTED_EXECUTION",
+                "UNKNOWN",
+                "EXPIRED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-08-STATE"
+              ]
+            }
+          ]
+        },
+        "UIF-14": {
+          "screens": [
+            {
+              "id": "SCR-072",
+              "states": [
+                "READY",
+                "LOADING",
+                "EMPTY",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-073",
+              "states": [
+                "READY",
+                "VALIDATION_ERROR",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                null
+              ],
+              "traceActions": [
+                "ACT-14-CALCULATE"
+              ]
+            },
+            {
+              "id": "SCR-074",
+              "states": [
+                "CALCULATING",
+                "BLOCKED",
+                "READY_FOR_REVIEW",
+                "INPUT_CHANGED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": []
+            },
+            {
+              "id": "SCR-076",
+              "states": [
+                "READY",
+                "SOURCE_CHANGED",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [
+                null
+              ],
+              "traceActions": [
+                "ACT-14-PUBLISH"
+              ]
+            },
+            {
+              "id": "SCR-077",
+              "states": [
+                "COMPLETED",
+                "REJECTED_EXECUTION",
+                "UNKNOWN",
+                "PERMISSION_DENIED"
+              ],
+              "actions": [],
+              "traceActions": [
+                "ACT-14-PUBLISH"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "v3.0.0 baseline available for topology regression",
+      "pass": false,
+      "note": "baseline missing"
+    },
+    {
+      "name": "All declared states render without JS/geometry/horizontal-overflow failures",
+      "pass": true,
+      "note": "228 states; failures=[]"
+    },
+    {
+      "name": "No List Row copy/status overlap across all 228 state renders",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "Hidden List Row icons reclaim canonical copy inset",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "No banned English/implementation revision terms in Product UI across 228 states",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "UIF-03/SCR-014 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "PN-260816-04"
+        },
+        {
+          "lead": "Hidden",
+          "title": "PN-260816-02"
+        },
+        {
+          "lead": "Hidden",
+          "title": "PN-260901-03"
+        },
+        {
+          "lead": "Hidden",
+          "title": "PN-260902-07"
+        }
+      ]
+    },
+    {
+      "name": "UIF-05/SCR-025 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "SO-260827-21"
+        },
+        {
+          "lead": "Hidden",
+          "title": "SO-260827-24"
+        }
+      ]
+    },
+    {
+      "name": "UIF-06/SCR-030 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "RET-260827-03"
+        },
+        {
+          "lead": "Hidden",
+          "title": "RET-260827-05"
+        },
+        {
+          "lead": "Hidden",
+          "title": "RET-260827-07"
+        }
+      ]
+    },
+    {
+      "name": "UIF-07/SCR-036 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "RTV-260827-02"
+        },
+        {
+          "lead": "Hidden",
+          "title": "RTV-260827-04"
+        },
+        {
+          "lead": "Hidden",
+          "title": "RTV-260903-03"
+        },
+        {
+          "lead": "Hidden",
+          "title": "RTV-260903-05"
+        }
+      ]
+    },
+    {
+      "name": "UIF-13/SCR-085 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "VC-8842 · dòng 1"
+        },
+        {
+          "lead": "Hidden",
+          "title": "INS-2609-17 · dòng 2"
+        },
+        {
+          "lead": "Hidden",
+          "title": "VC-8890 · dòng 1"
+        },
+        {
+          "lead": "Hidden",
+          "title": "CK-2609-06 · dòng 1"
+        }
+      ]
+    },
+    {
+      "name": "UIF-14/SCR-072 work queue rows are text-first with no decorative leading icon",
+      "pass": true,
+      "note": [
+        {
+          "lead": "Hidden",
+          "title": "Tháng 08/2026"
+        },
+        {
+          "lead": "Hidden",
+          "title": "Cập nhật 03/09/2026"
+        },
+        {
+          "lead": "Hidden",
+          "title": "Tháng 09/2026"
+        }
+      ]
+    },
+    {
+      "name": "BJ06 return-request context hides decorative product icon",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 classification-request context hides decorative product icon",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 Product parents use canonical Status/Compact List Row with meaningful product icon",
+      "pass": true,
+      "note": [
+        [
+          "Status",
+          "Compact",
+          "Visible"
+        ],
+        [
+          "Status",
+          "Compact",
+          "Visible"
+        ],
+        [
+          "Status",
+          "Compact",
+          "Visible"
+        ]
+      ]
+    },
+    {
+      "name": "BJ07 LOT/non-LOT children use canonical Navigation/Default List Row without decorative icon",
+      "pass": true,
+      "note": [
+        [
+          "Navigation",
+          "Default",
+          "Hidden"
+        ],
+        [
+          "Navigation",
+          "Default",
+          "Hidden"
+        ],
+        [
+          "Navigation",
+          "Default",
+          "Hidden"
+        ],
+        [
+          "Navigation",
+          "Default",
+          "Hidden"
+        ]
+      ]
+    },
+    {
+      "name": "BJ07 preparation meta uses user language, not UOM jargon",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 Product parents use canonical Status/Compact List Row with product icon",
+      "pass": true,
+      "note": [
+        [
+          "Status",
+          "Compact",
+          "Visible"
+        ],
+        [
+          "Status",
+          "Compact",
+          "Visible"
+        ]
+      ]
+    },
+    {
+      "name": "BJ03 multi-select child scopes use VCheckbox composition",
+      "pass": true,
+      "note": 4
+    },
+    {
+      "name": "BJ03 queue has no redundant “Công việc” heading",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 “Căn cứ và cách tính” sheet has useful empty content instead of blank body",
+      "pass": true,
+      "note": {
+        "exists": true,
+        "text": "Căn cứ và cách tính\nChưa có phạm vi để xem căn cứ\n\nChọn ít nhất một lô hoặc phạm vi hàng trước khi xem căn cứ và cách tính.\n\nĐóng",
+        "empty": true
+      }
+    },
+    {
+      "name": "BJ03 conflicting evidence still requires an explicit source decision",
+      "pass": true,
+      "note": {
+        "selected": 0,
+        "sources": 2
+      }
+    },
+    {
+      "name": "BJ03 selecting valuation quantity does not mutate pending received quantity before commit",
+      "pass": true,
+      "note": {
+        "before": 50,
+        "after": 50
+      }
+    },
+    {
+      "name": "BJ13 queue titles/statuses do not overlap",
+      "pass": true,
+      "note": [
+        {
+          "title": "VC-8842 · dòng 1",
+          "overlap": false
+        },
+        {
+          "title": "INS-2609-17 · dòng 2",
+          "overlap": false
+        },
+        {
+          "title": "VC-8890 · dòng 1",
+          "overlap": false
+        },
+        {
+          "title": "CK-2609-06 · dòng 1",
+          "overlap": false
+        }
+      ]
+    },
+    {
+      "name": "BJ13 foreign-currency source still exposes accounting exchange rate in Vietnamese",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nChi phí cần phân bổ\nGiá trị nguồn\n250 USD\nTỷ giá\nTỷ giá kế toán 24.500 VND/USD\nSau chuẩn hóa\n6.125.000 đ\nCăn cứ phân bổ\nCăn cứ phân bổ\nChọn căn cứ phân bổ\nTheo giá trị hàng nhận\nÁp dụng chính sách phân bổ hiện hành\nKết quả phân bổ\n2 dòng đích\nVaccine Canine X\nPN-260901-03 · 10 lọ · Lô CX2609\n748.558 đ\nDoxycycline 100mg\nPN-260901-08 · 60 hộp\n5.376.442 đ\nTổng phân bổ\n6.125.000 đ\nKỳ ghi nhận\nKỳ gốc\n09/2026\nKỳ ghi nhận\n09/2026\nRà soát ghi chi phí"
+    },
+    {
+      "name": "BJ14 setup uses “Thời điểm chốt” and hides raw policy revisions",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nThiết lập lần tính\nLoại lần tính\nChốt kỳ\nTính toàn kỳ theo thời điểm chốt kế toán\nCập nhật trong kỳ\nChỉ tính phạm vi cần cập nhật\nKỳ\n08/2026\n09/2026\nPhạm vi\nToàn bộ sản phẩm\nSản phẩm cần tính lại\nChính sách áp dụng\nThời điểm chốt\nCuối kỳ 08/2026\nPhương pháp công bố\nBình quân cuối kỳ\nChính sách\nChính sách giá vốn\nTính giá vốn"
+    },
+    {
+      "name": "BJ14 run kind remains canonical VRadio",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No browser page errors during v3.0.1 scope QA",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

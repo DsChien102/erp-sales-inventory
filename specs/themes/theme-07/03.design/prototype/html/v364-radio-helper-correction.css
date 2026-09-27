@@ -1,0 +1,95 @@
+/* VET45 Theme 7 v3.6.4 — radio/helper-text DS correction
+ * Parent: v3.6.3
+ * Figma DS authority:
+ * - VRadio 522:7410: 20px control + 14/22 label; disabled is parent opacity 0.4.
+ * - Supporting/helper copy is plain text. It is never a badge/pill unless explicitly modeled as VBadge.
+ */
+
+/* Canonical VRadio composition used by BJ09 state change choices.
+   The row is only a touch-target composition around VRadio; no feature-specific pill/helper styling. */
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .choice-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--vet45-v2-space-3, 12px) !important;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-option {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 64px;
+  margin: 0;
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: 20px minmax(0,1fr);
+  align-items: center;
+  column-gap: var(--vet45-v2-space-3, 12px);
+  border: var(--vet45-v2-border-width-thin, 1px) solid var(--vet45-v2-border-default, #e5e8eb);
+  border-radius: var(--vet45-v2-radius-4, 12px);
+  background: var(--vet45-v2-surface-default, #fff);
+  cursor: pointer;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-option > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-control {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--vet45-v2-border-strong, #cfd5db);
+  border-radius: 999px;
+  background: var(--vet45-v2-surface-default, #fff);
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-option:has(input:checked) .v364-radio-control {
+  border: 6px solid var(--vet45-v2-action-primary-default, #3b9448);
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-copy > strong {
+  color: var(--vet45-v2-text-primary, #0e1116);
+  font: 600 14px/20px Inter, system-ui, sans-serif;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-copy > small {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--vet45-v2-text-secondary, #6b7480);
+  font: 400 12px/18px Inter, system-ui, sans-serif;
+  letter-spacing: 0;
+}
+body[data-active-uif="UIF-09"] .figma-calibrated-shell .v364-radio-option:focus-within {
+  outline: 2px solid var(--vet45-v2-border-brand, #b8dfbd);
+  outline-offset: 2px;
+}
+
+/* Legacy choice helper guardrail across the cumulative harness.
+   Previous base CSS styled <small> supporting text as a green pill. That is not a DS helper pattern.
+   Keep this neutral even on any older choice composition that is still reachable. */
+.figma-calibrated-shell .choice-card-copy > small,
+.figma-calibrated-shell small.helper-text,
+.figma-calibrated-shell small.field-help,
+.figma-calibrated-shell [class$="__helper"] {
+  background: transparent !important;
+}
+.figma-calibrated-shell .choice-card-copy > small {
+  display: block !important;
+  margin-top: 2px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: var(--vet45-v2-text-secondary, #6b7480) !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}

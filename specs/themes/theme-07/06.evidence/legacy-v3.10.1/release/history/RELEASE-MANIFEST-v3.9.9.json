@@ -1,0 +1,43 @@
+{
+  "version": "3.9.9",
+  "parentVersion": "3.9.8",
+  "status": "READY_FOR_REVIEW",
+  "scope": "Wave 3 / BJ14 deep-review semantic hardening and Wave 3 cross-BJ consolidation",
+  "decisions": [
+    "T7-DR-164",
+    "T7-DR-165",
+    "T7-DR-166",
+    "T7-DR-167",
+    "T7-DR-168",
+    "T7-DR-169",
+    "T7-DR-170"
+  ],
+  "qa": {
+    "bj14DeepReview": "72/72 PASS",
+    "bj14FreshEye": "16/16 PASS",
+    "priorLockedRegression": "26/26 PASS",
+    "wave3CrossBjAudit": "35/35 PASS",
+    "currentPackageValidation": "41/41 PASS",
+    "fullThemeEndUser": "19/19 PASS",
+    "flowLogic": "21/21 PASS",
+    "runtimeSmoke": "89/89 PASS",
+    "runtimeUi": "14/14 PASS; 514 states; 89 routes",
+    "representativeCoherence": "8/8 PASS",
+    "deviceFrame": "7/7 PASS; 89 screens",
+    "frozenSource": "108/108 byte-identical"
+  },
+  "artifacts": {
+    "releaseValidation": "RELEASE-VALIDATION-v3.9.9.md",
+    "changelog": "CHANGELOG-v3.9.9.md",
+    "deepReview": "specs/themes/theme-07/prototype/html/qa/BJ14-DEEP-REVIEW-QA-v3.9.9.md",
+    "freshEye": "specs/themes/theme-07/prototype/html/qa/BJ14-FRESH-EYE-QA-v3.9.9.md",
+    "wave3Audit": "specs/themes/theme-07/prototype/html/qa/WAVE-3-CROSS-BJ-AUDIT-v3.9.9.md"
+  },
+  "evidenceBoundary": "Browser prototype/static semantic/runtime/visual/package evidence only; no production backend/database/outbox/network atomicity claim.",
+  "structuralValidation": {
+    "jsonFiles": 546,
+    "yamlFiles": 30,
+    "parseErrors": 0,
+    "checksumEntries": 3797
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "release": "2.1.1",
+  "result": "PASS",
+  "checks": 29,
+  "passed": 29,
+  "renders": 497,
+  "stateTemplateRenders": 83,
+  "annotatedMappings": 10600,
+  "statusCounts": {
+    "EXACT": 3540,
+    "OWNED_SLOT": 1608,
+    "EXACT_FOUNDATION": 4643,
+    "COMPOSITION": 748,
+    "CONTEXTUAL_PATTERN": 6,
+    "LEGACY_ALIAS": 51,
+    "EXACT_PATTERN": 4
+  },
+  "issues": [],
+  "pageErrors": []
+}

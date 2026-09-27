@@ -1,0 +1,37 @@
+{
+  "version": "3.0.1",
+  "parentVersion": "3.0.0",
+  "status": "PASS",
+  "reviewReady": true,
+  "scope": "Full Inventory Operations + Inventory Valuation UI/DS audit across BJ01, BJ02, BJ03, BJ04, BJ05, BJ06, BJ07, BJ13 and BJ14.",
+  "productViewport": {"width": 402, "height": 874},
+  "reviewDeviceBorderBox": {"width": 418, "height": 890, "bezel": 8},
+  "businessBehaviorChanged": false,
+  "businessTopologyChanged": false,
+  "newCoreDesignSystemComponentsCreated": 0,
+  "gates": {
+    "operationsValuationPolish": {"status": "PASS", "passed": 37, "total": 37, "canonicalScreens": 41, "declaredStateRenders": 228, "browserErrors": 0},
+    "allFlowRuntime": {"status": "PASS", "renders": 85, "failures": 0, "browserErrors": 0},
+    "deviceFrame": {"status": "PASS", "passed": 7, "total": 7, "screensChecked": 85, "browserErrors": 0},
+    "priorBjRegression": {"status": "PASS", "passed": 23, "total": 23, "browserErrors": 0},
+    "bj05Bj06Ux": {"status": "PASS", "passed": 32, "total": 32},
+    "groupedCollectionDs": {"status": "PASS", "passed": 27, "total": 27},
+    "valuationEndUser": {"status": "PASS", "passed": 54, "total": 54},
+    "valuationIntegration": {"status": "PASS", "passed": 14, "total": 14},
+    "reviewWorkbenchFit": {"status": "PASS", "passed": 3, "total": 3},
+    "javascriptSyntax": {"status": "PASS", "files": ["app.js", "workbench-data.js"]},
+    "visualReview": {"status": "PASS", "canonicalScreensReviewed": 41, "contactSheets": ["OPS-A-CONTACT-SHEET-v3.0.1.png", "OPS-B-CONTACT-SHEET-v3.0.1.png", "VALUATION-CONTACT-SHEET-v3.0.1.png"], "focusedSheets": ["UIF-03-SCR-015-EMPTY-EVIDENCE-SHEET.png", "UIF-07-SCR-037-VERIFY-SHEET.png"]}
+  },
+  "legacyGateNotes": [
+    "business_regression_v143.py is not a v3.0.1 release gate: it already fails on the v3.0.0 parent because it hard-codes an obsolete BJ03 pending quantity value (96 instead of the current dataset). The v3.0.1 gate checks the actual invariant dynamically and passes.",
+    "inventory_valuation_scenarios_v150.py has one stale copy assertion for 'Tỷ giá Kế toán'. v3.0.1 intentionally normalizes the Product UI label to 'Tỷ giá kế toán'; the FX/accounting-rate behavior is explicitly checked in OPERATIONS-VALUATION-POLISH-QA-v3.0.1 and passes."
+  ],
+  "uxLocks": [
+    "Leading List Row icon is optional and semantic.",
+    "Hidden leading icon must release its layout slot to copy.",
+    "Product parent and LOT/child content must have clear hierarchy and must not be peer card soup.",
+    "Queue page headings must not redundantly restate the AppBar task name.",
+    "Product UI must not leak Cut-off/UOM/LOT/FX/raw revision/backend-state vocabulary.",
+    "No new core component when canonical DS primitives/compositions cover the responsibility."
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_IDENTITY_LOCKED_MIGRATION_GATES_OPEN",
+  "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+  "designSystemVersion": "2.0.2",
+  "lastUpdated": "26 August 2026",
+  "capturedAt": "2026-09-08",
+  "pages": [
+    {
+      "id": "505:5889",
+      "name": "DS v2 — 01 Foundations & Icons",
+      "role": "foundations-icons"
+    },
+    {
+      "id": "505:5890",
+      "name": "DS v2 - 02 Components",
+      "role": "components"
+    },
+    {
+      "id": "505:5891",
+      "name": "DS v2 — 03 Patterns & Templates",
+      "role": "patterns-templates"
+    }
+  ],
+  "inventory": {
+    "variables": {
+      "collections": 4,
+      "count": 119,
+      "modes": {
+        "Color Primitive": [
+          "Base"
+        ],
+        "Color Semantic": [
+          "Light"
+        ],
+        "Dimension": [
+          "Base"
+        ],
+        "Opacity": [
+          "Base"
+        ]
+      },
+      "signatureFNV1a32": "027dd249",
+      "cssNormalizedSignatureFNV1a32": "62680604"
+    },
+    "styles": {
+      "text": 15,
+      "paint": 21,
+      "effect": 4,
+      "grid": 0,
+      "signaturesFNV1a32": {
+        "text": "e1352aec",
+        "paint": "60a9a541",
+        "effect": "12a169c3"
+      },
+      "normalizedSignaturesFNV1a32": {
+        "text": "2cf9e062",
+        "paint": "c9956865",
+        "effect": "5a57253f"
+      }
+    },
+    "icons": {
+      "wrapperComponentSet": {
+        "id": "511:673",
+        "name": "DS v2 / Icon",
+        "variantCount": 54,
+        "signatureFNV1a32": "ebd6e207"
+      },
+      "sizes": [
+        16,
+        20,
+        24,
+        32,
+        48,
+        72
+      ],
+      "tones": [
+        "Primary",
+        "Secondary",
+        "Muted",
+        "Brand",
+        "Success",
+        "Warning",
+        "Danger",
+        "Info",
+        "Inverse"
+      ],
+      "sourceRule": "Product icons must use DS v2 / Icon plus a glyph promoted into the approved VET45 Icon Library. Raw Lucide sources are not directly Product-ready.",
+      "localLiCache": {
+        "count": 162,
+        "signatureFNV1a32": "3136211b"
+      },
+      "defaultSource": {
+        "name": "li:circle",
+        "id": "494:5009",
+        "key": "097d94bb82bf7b69e68bbce43adbd6262b66e4ea",
+        "remote": true
+      },
+      "fullExposedLucideCatalog": {
+        "count": 1676,
+        "remote": 1514,
+        "local": 162,
+        "signatureFNV1a32": "c5105795",
+        "definition": "Unique li:* main components/components exposed on DS v2 — 01 Foundations & Icons, keyed by component key/id.",
+        "materializationRule": "Do not bundle 1,676 SVGs preemptively. Resolve the exact li:* component key from live Figma per migrated DS component/business composition, export/download exact bytes, and commit only glyphs actually used by Product UI.",
+        "role": "VENDOR_SOURCE_POOL_ONLY"
+      },
+      "approvedProductLibrary": {
+        "frameId": "511:700",
+        "count": 28,
+        "registry": "figma-approved-icon-library.json"
+      }
+    },
+    "components": {
+      "componentSets": 49,
+      "standaloneComponents": 15,
+      "totalCanonicalAssets": 64,
+      "signatureFNV1a32": "ce8775fc",
+      "tupleSignatureFNV1a32": "c9009f3d"
+    },
+    "patternsTemplates": {
+      "componentSets": 10,
+      "standaloneComponents": 12,
+      "totalCanonicalAssets": 22,
+      "signatureFNV1a32": "560ffa37",
+      "tupleSignatureFNV1a32": "2920e1e0"
+    }
+  },
+  "governance": {
+    "uiAuthority": "Live Figma DS masters/variables/styles on the locked pages above.",
+    "implementationRule": "Before structural migration, exact anatomy must be captured from the canonical Figma node using an allowed live-design-context path. Metadata/variables/screenshots are evidence but are not by themselves permission to approximate missing anatomy.",
+    "reuseOrder": [
+      "Component",
+      "Pattern",
+      "Template",
+      "Business composition"
+    ],
+    "noSilentFallback": true,
+    "noLegacyIconSVGForMigratedUI": true,
+    "noRawHexForMigratedUI": true,
+    "noLegacyFlutterNamingAsAuthority": true,
+    "noRawLucideDirectProductUse": true,
+    "approvedIconLibraryRequired": true
+  },
+  "release": "2.2.0-candidate"
+}

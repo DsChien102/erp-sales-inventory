@@ -1,0 +1,4 @@
+/* v3.9.8 BJ13 late-cost semantic hardening */
+#app-screen .v398-fixed-scope{cursor:default}
+#app-screen .v398-fixed-scope:hover{background:inherit}
+#app-screen .v398-fixed-scope .val13-check-mark{pointer-events:none}

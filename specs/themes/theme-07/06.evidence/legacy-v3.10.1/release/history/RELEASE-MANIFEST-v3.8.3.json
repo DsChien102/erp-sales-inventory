@@ -1,0 +1,14 @@
+{
+  "version": "3.8.3",
+  "parent": "3.8.2",
+  "status": "PASS",
+  "entry": "index.html",
+  "prototypeEntry": "specs/themes/theme-07/prototype/html/index.html",
+  "scope": "Warehouse Home clarity polish: section-owned task disclosure, Bắt đầu việc mới Navigation row, no explanatory badges in the long-tail catalog.",
+  "qa": {
+    "focused": "specs/themes/theme-07/prototype/html/qa/WAREHOUSE-HOME-CLARITY-QA-v3.8.3.md",
+    "package": "specs/themes/theme-07/prototype/html/qa/CURRENT-PACKAGE-VALIDATION-v3.8.3.md",
+    "release": "RELEASE-VALIDATION-v3.8.3.md"
+  },
+  "captures": "specs/themes/theme-07/prototype/html/qa/v383-warehouse-home-captures"
+}

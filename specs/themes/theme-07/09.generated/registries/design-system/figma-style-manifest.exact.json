@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "pageId": "505:5889",
+    "designSystemVersion": "2.0.2",
+    "lastUpdated": "26 August 2026",
+    "signaturesFNV1a32": {
+      "text": "e1352aec",
+      "paint": "60a9a541",
+      "effect": "12a169c3"
+    }
+  },
+  "textStyles": [
+    {
+      "name": "VET45 v2 / Display / D1",
+      "font": "Inter Extra Bold",
+      "size": 40,
+      "lineHeight": 44,
+      "letterSpacing": -1,
+      "id": "S:0c50b03b4577d6515df6379cc694e1117570023b,"
+    },
+    {
+      "name": "VET45 v2 / Heading / H1",
+      "font": "Inter Bold",
+      "size": 28,
+      "lineHeight": 34,
+      "letterSpacing": -0.5,
+      "id": "S:d376eb4cb8851a5c46ec96cb8bda2ba5df853cbd,"
+    },
+    {
+      "name": "VET45 v2 / Heading / H2",
+      "font": "Inter Bold",
+      "size": 22,
+      "lineHeight": 28,
+      "letterSpacing": -0.3,
+      "id": "S:74ed721283f04e98135b9ff1cbc3e01882ec8df5,"
+    },
+    {
+      "name": "VET45 v2 / Heading / H3",
+      "font": "Inter Semi Bold",
+      "size": 18,
+      "lineHeight": 24,
+      "letterSpacing": -0.2,
+      "id": "S:7fc641fdf89771520a9cec96c438b28df8bd3157,"
+    },
+    {
+      "name": "VET45 v2 / Heading / H4",
+      "font": "Inter Semi Bold",
+      "size": 16,
+      "lineHeight": 22,
+      "letterSpacing": 0,
+      "id": "S:df856420659549df62b5644672c918451c830648,"
+    },
+    {
+      "name": "VET45 v2 / Body / Default",
+      "font": "Inter Regular",
+      "size": 14,
+      "lineHeight": 22,
+      "letterSpacing": 0,
+      "id": "S:32626c3081ccfbf8896868617df3ef65a2dc9002,"
+    },
+    {
+      "name": "VET45 v2/Body/Small",
+      "font": "Inter Regular",
+      "size": 13,
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "id": "S:4fcc2ba11d61c89918f8890d59fd31f6188cadc9,"
+    },
+    {
+      "name": "VET45 v2 / Label / Default",
+      "font": "Inter Semi Bold",
+      "size": 14,
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "id": "S:662df1c1eddd0ba5cfac4fd22335375cfa5588fc,"
+    },
+    {
+      "name": "VET45 v2 / Label / Small",
+      "font": "Inter Semi Bold",
+      "size": 12,
+      "lineHeight": 16,
+      "letterSpacing": 0,
+      "id": "S:0bbf03eac8c4088de7dcfe53b100c70fc6b2b3ba,"
+    },
+    {
+      "name": "VET45 v2 / Action / Default",
+      "font": "Inter Semi Bold",
+      "size": 14,
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "id": "S:3ce38fcc5cd29a2689747ccc3a928730e06d1c02,"
+    },
+    {
+      "name": "VET45 v2 / Caption",
+      "font": "Inter Medium",
+      "size": 12,
+      "lineHeight": 16,
+      "letterSpacing": 0.1,
+      "id": "S:5be0f7d583c14df135ad6a9da9f8d3a5763ce60e,"
+    },
+    {
+      "name": "VET45 v2 / Overline",
+      "font": "Inter Semi Bold",
+      "size": 11,
+      "lineHeight": 14,
+      "letterSpacing": 0.4,
+      "id": "S:a14f796d29131646a27bd877f45be84956443366,"
+    },
+    {
+      "name": "VET45 v2 / Mono / Numeric",
+      "font": "JetBrains Mono Regular",
+      "size": 14,
+      "lineHeight": 22,
+      "letterSpacing": 0,
+      "id": "S:22528d033fe03b790d9d793aefdcd2481217e773,"
+    },
+    {
+      "name": "VET45 v2 / Mono / Small",
+      "font": "JetBrains Mono Regular",
+      "size": 13,
+      "lineHeight": 20,
+      "letterSpacing": 0,
+      "id": "S:c3691b58682279a02b69cacc8ffa055163344c9e,"
+    },
+    {
+      "name": "VET45 v2/Mono/Emphasis",
+      "font": "JetBrains Mono Regular",
+      "size": 16,
+      "lineHeight": 22,
+      "letterSpacing": 0,
+      "id": "S:ec157bbe8fbcb13b5a5ce4588d15f66fc2312e06,"
+    }
+  ],
+  "paintStyles": [
+    {
+      "id": "S:0f2dd00b588d611db1e6fae95f09393eaf5ca6f7,",
+      "name": "VET45 v2 / Surface / Canvas",
+      "boundVariable": "Surface/Canvas"
+    },
+    {
+      "id": "S:4589e403950038bfd58f8171a07a26e70c018270,",
+      "name": "VET45 v2 / Surface / Default",
+      "boundVariable": "Surface/Default"
+    },
+    {
+      "id": "S:1d690f6ff0d4707f9ebc772ca169b8712a9c5c52,",
+      "name": "VET45 v2 / Surface / Subtle",
+      "boundVariable": "Surface/Subtle"
+    },
+    {
+      "id": "S:89688989ace0bb7047399c441f98c9ab2f172c5b,",
+      "name": "VET45 v2 / Surface / Brand",
+      "boundVariable": "Surface/Brand"
+    },
+    {
+      "id": "S:969dd2cf153920502525820c8fb86dadfc674736,",
+      "name": "VET45 v2 / Text / Primary",
+      "boundVariable": "Text/Primary"
+    },
+    {
+      "id": "S:dfa000bf0e8cb72a112b504735c3898f3b805f2f,",
+      "name": "VET45 v2 / Text / Secondary",
+      "boundVariable": "Text/Secondary"
+    },
+    {
+      "id": "S:c4544c1203d9fea858d5916726db4135b3586de5,",
+      "name": "VET45 v2 / Text / Muted",
+      "boundVariable": "Text/Muted"
+    },
+    {
+      "id": "S:a48ae912061de459d2488897f0dd67d637e24c24,",
+      "name": "VET45 v2 / Text / Inverse",
+      "boundVariable": "Text/Inverse"
+    },
+    {
+      "id": "S:72bd0c91f1cc12e36a0a2e2bbda0c3f2e798bf71,",
+      "name": "VET45 v2 / Border / Default",
+      "boundVariable": "Border/Default"
+    },
+    {
+      "id": "S:5bacf932886959d7bf438e82da81fabb76007593,",
+      "name": "VET45 v2 / Border / Strong",
+      "boundVariable": "Border/Strong"
+    },
+    {
+      "id": "S:902775a3758ec2ad4cecbb080e4474712b071169,",
+      "name": "VET45 v2 / Border / Brand",
+      "boundVariable": "Border/Brand"
+    },
+    {
+      "id": "S:b6bbf04d060219ab5e96948013a0903e82162318,",
+      "name": "VET45 v2 / Action / Primary",
+      "boundVariable": "Action/Primary/Default"
+    },
+    {
+      "id": "S:691edd267e1987fe9318ca3e976ff7d54ef445d7,",
+      "name": "VET45 v2 / Action / Primary Pressed",
+      "boundVariable": "Action/Primary/Pressed"
+    },
+    {
+      "id": "S:85cc806aa2bf9d6e95922bf13005b9a01718f877,",
+      "name": "VET45 v2 / Semantic / Success",
+      "boundVariable": "Text/Success"
+    },
+    {
+      "id": "S:6889daf1ec43ef56d241dbc8845138704ea484b6,",
+      "name": "VET45 v2 / Semantic / Success BG",
+      "boundVariable": "Surface/Success"
+    },
+    {
+      "id": "S:a417fb4aaf01b2fa9035cd4190708da89f02645a,",
+      "name": "VET45 v2/Semantic/Warning",
+      "boundVariable": "Text/Warning"
+    },
+    {
+      "id": "S:725641486d0dda8bc315265673192a3659bc9a48,",
+      "name": "VET45 v2 / Semantic / Warning BG",
+      "boundVariable": "Surface/Warning"
+    },
+    {
+      "id": "S:e7e5dd75fdc2a73284338438f8fe72b1f936640d,",
+      "name": "VET45 v2 / Semantic / Danger",
+      "boundVariable": "Text/Danger"
+    },
+    {
+      "id": "S:6a370702b4a19f6cb405509fd1330738d03a8918,",
+      "name": "VET45 v2 / Semantic / Danger BG",
+      "boundVariable": "Surface/Danger"
+    },
+    {
+      "id": "S:473af2348b8345aaccd9b0190b25fea4ef2dfeb5,",
+      "name": "VET45 v2 / Semantic / Info",
+      "boundVariable": "Text/Info"
+    },
+    {
+      "id": "S:51db2620049af92f854577ef41598e07af2ea66e,",
+      "name": "VET45 v2 / Semantic / Info BG",
+      "boundVariable": "Surface/Info"
+    }
+  ],
+  "effectStyles": [
+    {
+      "id": "S:4536c9ceb212a1b9bf0bdb2197b635ac1989dc61,",
+      "name": "VET45 v2 / Elevation / e1",
+      "css": "0 1px 3px rgba(14,17,22,0.08)"
+    },
+    {
+      "id": "S:9abd258afca06ef39151b46f184c0894c6d5a6ef,",
+      "name": "VET45 v2 / Elevation / e2",
+      "css": "0 4px 12px rgba(14,17,22,0.10)"
+    },
+    {
+      "id": "S:bec8032d30746612d28dd049a367463c06c33ce1,",
+      "name": "VET45 v2 / Elevation / e3",
+      "css": "0 12px 28px rgba(14,17,22,0.14)"
+    },
+    {
+      "id": "S:4722e49c80e31ad393e2e149e224053e3ba7e3dd,",
+      "name": "VET45 v2 / Elevation / e4",
+      "css": "0 24px 56px rgba(14,17,22,0.20)"
+    }
+  ],
+  "gridStyles": []
+}

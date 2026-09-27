@@ -1,0 +1,71 @@
+# Current Package Validation — v3.10.0
+
+**Result: PASS · 67/67**
+
+- PASS — root package identifies v3.10.0
+- PASS — prototype manifests identify v3.10.0 parent v3.9.9
+- PASS — current registries identify v3.10.0
+- PASS — v3.10.0 runtime overlay loads after v3.9.9
+- PASS — BJ08 focused deep review passes 135/135
+- PASS — BJ08 fresh-eye passes 18/18
+- PASS — prior locked regression passes 29/29
+- PASS — Wave 3 cross-BJ audit remains 35/35
+- PASS — frozen source comparison passes 108/108
+- PASS — full-theme end-user regression passes 19/19
+- PASS — flow logic passes 23 checks
+- PASS — all-flow smoke passes 89 renders
+- PASS — runtime UI passes 514 route-state renders / 89 routes
+- PASS — representative coherence passes 8/8
+- PASS — device frame passes 7/7 over 89 screens
+- PASS — approved DR171..177 exist and are ACTIVE
+- PASS — BJ08 uses atomic barrier before cutoff
+- PASS — BJ08 freezes canonical CountScopeSnapshot
+- PASS — BJ08 count identity is PhysicalCountKey in base UOM
+- PASS — BJ08 blocks unresolved valuation
+- PASS — BJ08 count rounds are immutable
+- PASS — BJ08 zero variance bypasses approval
+- PASS — data owns CountScopeSnapshot entity
+- PASS — data owns immutable StockCountSubmission entity
+- PASS — StockCountSession stores counter assignment
+- PASS — StockCountLine is current projection by physical key
+- PASS — ApprovalCase supports STOCK_COUNT_SESSION subject
+- PASS — ApprovalCase supports immutable recount successor
+- PASS — BC-IC-01 barrier is before cutoff
+- PASS — BC-IC-02 creates immutable submission and zero-variance completion
+- PASS — BC-IC-03 binds CountAdjustmentBasis and stale basis checks
+- PASS — BC-IC-08 preserves evidence on cancel
+- PASS — technical contracts expose BJ08 command APIs
+- PASS — technical contract covers unresolved valuation/basis stale
+- PASS — technical lock covers prospective PhysicalCountKey
+- PASS — UC08-01 has explicit actor authority
+- PASS — UC08-01 retains four stable acceptance anchors
+- PASS — UC08-02 has explicit actor authority
+- PASS — UC08-02 retains four stable acceptance anchors
+- PASS — UC08-03 has explicit actor authority
+- PASS — UC08-03 retains four stable acceptance anchors
+- PASS — UC08-04 has explicit actor authority
+- PASS — UC08-04 retains four stable acceptance anchors
+- PASS — UC08-05 has explicit actor authority
+- PASS — UC08-05 retains four stable acceptance anchors
+- PASS — UC08-04 approval subject is stock count and contributor-excluded
+- PASS — UC08-05 cancel is contextual only
+- PASS — cancel action belongs exactly to SCR044/SCR045
+- PASS — SCR042 and SCR046 do not own cancel
+- PASS — all active BJ08 screens carry v3.10.0 prototype status
+- PASS — UIF08 has 16 transitions and zero variance direct result
+- PASS — component usage keeps cancel contextual only
+- PASS — trace UC08-01 carries DR171..177
+- PASS — trace UC08-02 carries DR171..177
+- PASS — trace UC08-03 carries DR171..177
+- PASS — trace UC08-04 carries DR171..177
+- PASS — trace UC08-05 carries DR171..177
+- PASS — contract registry BC-IC-01 is amended
+- PASS — runtime resets evidence on new session
+- PASS — runtime rejects blank first/recount
+- PASS — runtime requires physical state for unexpected stock
+- PASS — runtime blocks unresolved valuation and missing basis
+- PASS — runtime blocks contributor self approval
+- PASS — runtime zero result says no adjustment/unlocked
+- PASS — runtime UNKNOWN preserves same identity and BJ17 handoff
+- PASS — manifest marks BJ08 lock candidate
+- PASS — BJ08 focused evidence has nine captures

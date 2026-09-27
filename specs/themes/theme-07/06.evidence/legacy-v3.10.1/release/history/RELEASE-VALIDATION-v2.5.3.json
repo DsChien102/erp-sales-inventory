@@ -1,0 +1,159 @@
+{
+  "release": "2.5.3",
+  "parent": "2.5.2",
+  "status": "PASS",
+  "passed": 30,
+  "total": 30,
+  "checks": [
+    {
+      "name": "HTML manifest version",
+      "pass": true,
+      "detail": "2.5.3"
+    },
+    {
+      "name": "HTML manifest parent",
+      "pass": true,
+      "detail": "2.5.2"
+    },
+    {
+      "name": "Workbench version",
+      "pass": true,
+      "detail": "2.5.3"
+    },
+    {
+      "name": "UIF migration release",
+      "pass": true,
+      "detail": "2.5.3"
+    },
+    {
+      "name": "Migrated UIFs unchanged",
+      "pass": true,
+      "detail": "['UIF-01', 'UIF-02', 'UIF-08']"
+    },
+    {
+      "name": "Live Info Row QA",
+      "pass": true,
+      "detail": "states=497 instances=1052"
+    },
+    {
+      "name": "Live Info Row browser/runtime errors zero",
+      "pass": true,
+      "detail": "browser=0 runtime=0"
+    },
+    {
+      "name": "All-flow smoke",
+      "pass": true,
+      "detail": "85/85"
+    },
+    {
+      "name": "v2.5.3 live sync stylesheet loaded last",
+      "pass": true,
+      "detail": "load order"
+    },
+    {
+      "name": "Info Row width 338",
+      "pass": true,
+      "detail": "width:338px!important"
+    },
+    {
+      "name": "Info Row height 44",
+      "pass": true,
+      "detail": "height:44px!important"
+    },
+    {
+      "name": "Info Row justify-between",
+      "pass": true,
+      "detail": "justify-content:space-between!important"
+    },
+    {
+      "name": "Info Row gap 0",
+      "pass": true,
+      "detail": "gap:0!important"
+    },
+    {
+      "name": "Info Row value right",
+      "pass": true,
+      "detail": "text-align:right!important"
+    },
+    {
+      "name": "Info Row disabled opacity",
+      "pass": true,
+      "detail": "opacity:var(--vet45-v2-opacity-disabled,.4)!important"
+    },
+    {
+      "name": "Stale ds24 base width removed",
+      "pass": true,
+      "detail": "base normalized"
+    },
+    {
+      "name": "Base ds24 Info Row normalized",
+      "pass": true,
+      "detail": "338x44"
+    },
+    {
+      "name": "Base ds24 gap normalized",
+      "pass": true,
+      "detail": "gap 0"
+    },
+    {
+      "name": "Runtime specimen current anatomy",
+      "pass": true,
+      "detail": "525:351"
+    },
+    {
+      "name": "Runtime registry release",
+      "pass": true,
+      "detail": "2.5.3"
+    },
+    {
+      "name": "Runtime registry current Info Row QA",
+      "pass": true,
+      "detail": "../qa/INFO-ROW-LIVE-SYNC-QA-v2.5.3.json"
+    },
+    {
+      "name": "No new Theme7 component",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "No business behavior change",
+      "pass": true,
+      "detail": "False"
+    },
+    {
+      "name": "Release manifest shared DS refresh",
+      "pass": true,
+      "detail": "['DS v2 / Info Row 525:351']"
+    },
+    {
+      "name": "Action registry preserved",
+      "pass": true,
+      "detail": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a"
+    },
+    {
+      "name": "Screen registry preserved",
+      "pass": true,
+      "detail": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+    },
+    {
+      "name": "JavaScript syntax",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Root launcher current",
+      "pass": true,
+      "detail": "v2.5.3"
+    },
+    {
+      "name": "Root README current",
+      "pass": true,
+      "detail": "v2.5.3"
+    },
+    {
+      "name": "Release manifest version/parent",
+      "pass": true,
+      "detail": "2.5.3 / 2.5.2"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+/* VET45 Theme 7 v3.6.2 — independent list/card rhythm correction
+ * Parent: v3.6.1
+ * Business behavior unchanged. Figma DS remains the UI authority.
+ */
+
+/* Independent session rows on the BJ08 root list are separate List Row cards.
+   Preserve the page surface between cards instead of allowing bordered cards to touch. */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac320-session-list {
+  width: 370px;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vet45-v2-space-3);
+  background: transparent;
+}
+
+/* Some non-default BJ15 result states still use the legacy wrapper after the cumulative
+   runtime overrides. Its child rows are already calibrated as independent 370x76 cards,
+   so the collection must own the same 12px inter-card rhythm as the canonical root list. */
+body[data-active-uif="UIF-15"] .figma-calibrated-shell .io-list-card > .io-product-list {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vet45-v2-space-3) !important;
+  background: transparent !important;
+}
+
+/* Timeline-card compositions are independent surfaces, not one fused card. Keep a visible
+   page-surface separation while leaving true Timeline Item connector layouts untouched. */
+.figma-calibrated-shell .timeline > .timeline-card + .timeline-card {
+  margin-top: var(--vet45-v2-space-3) !important;
+}

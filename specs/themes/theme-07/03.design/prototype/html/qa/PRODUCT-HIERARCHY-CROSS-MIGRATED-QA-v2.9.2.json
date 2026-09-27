@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "passed": 18,
+  "total": 18,
+  "checks": [
+    {
+      "name": "No migrated raw Product text+badge header implementation remains",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No raw VSection + VText,VBadge product composition remains in active migrated helpers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 Product identity remains List Row Status/Compact",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 Product identity remains List Row Status/Compact",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 uses canonical List Rows and has no raw product-heading artifact",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 handover Product identity is canonical Status/Compact row",
+      "pass": true,
+      "note": [
+        {
+          "c": "DS v2 / List Row",
+          "t": "Status",
+          "d": "Compact",
+          "w": 338,
+          "h": 52
+        },
+        {
+          "c": "DS v2 / List Row",
+          "t": "Status",
+          "d": "Compact",
+          "w": 338,
+          "h": 52
+        }
+      ]
+    },
+    {
+      "name": "BJ05 Product summaries live inside coherent bordered surfaces",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "BJ05 allocation identity uses Key-value Row rather than raw text header",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 result Product identity is canonical Status/Compact row",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "BJ06 Product result groups use coherent 370px surfaces",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "BJ06 free-text result Product header is absent",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 child result facts are canonical 338px Info Rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 preparation Product parent is Status/Compact inside group",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 representative remains free of retired Product-header artifacts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All migrated default screens remain 402x874",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "All migrated default screens have no horizontal app-content overflow",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "Retired free-floating Product header artifacts appear in zero migrated renders",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "migratedScreenRenders": 33,
+  "browserErrors": []
+}

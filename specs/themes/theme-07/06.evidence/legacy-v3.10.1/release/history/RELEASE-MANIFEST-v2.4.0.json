@@ -1,0 +1,33 @@
+{
+  "version": "2.4.0",
+  "parent": "2.3.0",
+  "status": "PASS",
+  "package": "VET45-Theme7-Prototype-Harness-v2.4.1.zip",
+  "fileCount": 1578,
+  "productChanges": [
+    "UIF-01/BJ01 structural migration",
+    "UIF-08/BJ08 deep correction"
+  ],
+  "carriedForwardUIFs": [
+    "UIF-02",
+    "UIF-03",
+    "UIF-04",
+    "UIF-05",
+    "UIF-06",
+    "UIF-07",
+    "UIF-09",
+    "UIF-10",
+    "UIF-11",
+    "UIF-12",
+    "UIF-13",
+    "UIF-14",
+    "UIF-15",
+    "UIF-16",
+    "UIF-17"
+  ],
+  "qa": {
+    "bj01Bj08": "36/36 PASS",
+    "allFlow": "85 renders PASS"
+  },
+  "reviewBaseline": "BJ01"
+}

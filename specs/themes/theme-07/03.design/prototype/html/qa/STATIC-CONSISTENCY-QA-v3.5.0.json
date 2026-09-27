@@ -1,0 +1,72 @@
+{
+  "version": "3.5.0",
+  "passed": 13,
+  "total": 13,
+  "checks": [
+    {
+      "name": "17 business-journey flows",
+      "pass": true,
+      "note": "flows=17"
+    },
+    {
+      "name": "85 canonical flow-screen routes",
+      "pass": true,
+      "note": "routes=85 unique_screens=73"
+    },
+    {
+      "name": "every active screen has a screen contract",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "every active flow has a flow document",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "active screen registry/workbench names and states are aligned",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "registry and workbench release version",
+      "pass": true,
+      "note": "wb=3.5.0 registry=3.5.0"
+    },
+    {
+      "name": "runtime-state registry is synchronized to workbench",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "runtime-state registry covers 500 declared route-states",
+      "pass": true,
+      "note": "route_states=500 declared=500"
+    },
+    {
+      "name": "v3.5 reachable literal states are declared",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ02 Quick canonical behavior is unambiguous",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "root README points to v3.5 validation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contracts old validation report is labeled historical",
+      "pass": true,
+      "note": "/mnt/data/v350_work/VET45-Theme7-Prototype-Harness-v3.5.0/specs/themes/theme-07/prototype/contracts/validation-report.md"
+    },
+    {
+      "name": "flows old validation report is labeled historical",
+      "pass": true,
+      "note": "/mnt/data/v350_work/VET45-Theme7-Prototype-Harness-v3.5.0/specs/themes/theme-07/prototype/flows/validation-report.md"
+    }
+  ]
+}

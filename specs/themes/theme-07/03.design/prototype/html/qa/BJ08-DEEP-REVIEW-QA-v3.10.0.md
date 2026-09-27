@@ -1,0 +1,141 @@
+# BJ08 Deep Review QA — v3.10.0
+
+**Result: PASS · 135/135**
+
+Scope: Wave 4 / BJ08 forensic semantic, trace, runtime and interaction review.
+
+- PASS — candidate manifest is v3.10.0 on parent v3.9.9
+- PASS — workbench identifies v3.10.0
+- PASS — v3.10.0 runtime overlay is loaded once
+- PASS — v3.10.0 overlay loads after v3.9.9
+- PASS — DR-171 exists and is ACTIVE
+- PASS — DR-172 exists and is ACTIVE
+- PASS — DR-173 exists and is ACTIVE
+- PASS — DR-174 exists and is ACTIVE
+- PASS — DR-175 exists and is ACTIVE
+- PASS — DR-176 exists and is ACTIVE
+- PASS — DR-177 exists and is ACTIVE
+- PASS — DR171 locks barrier before cutoff
+- PASS — DR172 establishes CountScopeSnapshot
+- PASS — DR173 names PhysicalCountKey and unresolved valuation blocker
+- PASS — DR174 locks immutable count rounds
+- PASS — DR175 generalizes ApprovalCase subject
+- PASS — DR176 prohibits counter-entered surplus price
+- PASS — DR177 zero variance bypasses approval
+- PASS — BJ08 carries CountScopeSnapshot
+- PASS — BJ08 carries PhysicalCountKey
+- PASS — BJ08 carries CountAdjustmentBasis
+- PASS — BJ08 carries PRICE_BASIS_REQUIRED
+- PASS — BJ08 carries REQUEST_RECOUNT
+- PASS — BJ08 carries immutable StockCountSubmission semantics
+- PASS — BJ08 zero first count ends without approval
+- PASS — BJ08 recount zero ends without approval
+- PASS — BJ08 nonzero routes independent approval
+- PASS — BJ08 cancellation preserves evidence
+- PASS — BJ08 UNKNOWN preserves identity
+- PASS — UC08-01 actor authority explicit
+- PASS — UC08-01 has four stable acceptance anchors
+- PASS — UC08-02 actor authority explicit
+- PASS — UC08-02 has four stable acceptance anchors
+- PASS — UC08-03 actor authority explicit
+- PASS — UC08-03 has four stable acceptance anchors
+- PASS — UC08-04 actor authority explicit
+- PASS — UC08-04 has four stable acceptance anchors
+- PASS — UC08-05 actor authority explicit
+- PASS — UC08-05 has four stable acceptance anchors
+- PASS — UC08-01 orders barrier before cutoff
+- PASS — UC08-01 unresolved valuation is safe rejection
+- PASS — UC08-02 blind DOM contract explicit
+- PASS — UC08-02 zero path excludes ApprovalCase
+- PASS — UC08-03 appends immutable recount
+- PASS — UC08-03 surplus basis blocks approval
+- PASS — UC08-04 approval subject is stock-count session
+- PASS — UC08-04 risk does not net signs
+- PASS — UC08-04 stale basis has effect NONE
+- PASS — UC08-05 cancel only session context
+- PASS — UC08-05 cancel creates no adjustment
+- PASS — Inventory Control owns 9 entities
+- PASS — CountScopeSnapshot entity exists
+- PASS — StockCountSubmission entity exists
+- PASS — StockCountSession stores assignment snapshot
+- PASS — StockCountLine uses physical key hash
+- PASS — StockCountLine no longer stores first/recount quantities directly
+- PASS — ApprovalCase supports stock-count subject
+- PASS — ApprovalCase operation_id nullable for stock count
+- PASS — ApprovalCase stores excluded actors
+- PASS — ApprovalCase supports request recount
+- PASS — InventoryLock records barrier before cutoff
+- PASS — BC-IC-01 present
+- PASS — BC-IC-02 present
+- PASS — BC-IC-03 present
+- PASS — BC-IC-08 present
+- PASS — BC-IC-01 atomic open orders barrier before cutoff
+- PASS — BC-IC-02 zero variance completes without approval
+- PASS — BC-IC-03 rechecks risk/value basis
+- PASS — BC-IC-08 cancellation preserves immutable evidence
+- PASS — technical contract contains API-C-14
+- PASS — technical contract contains API-C-15
+- PASS — technical contract contains API-C-16
+- PASS — technical contract contains API-C-27
+- PASS — technical contract contains COUNT_SCOPE_HAS_UNRESOLVED_VALUATION
+- PASS — technical contract contains COUNT_APPROVAL_SNAPSHOT_STALE
+- PASS — technical contract contains COUNT_VALUE_BASIS_STALE
+- PASS — technical lock enforcement covers prospective keys
+- PASS — technical zero variance has no ApprovalCase
+- PASS — trace UC08-01 includes DR171..177
+- PASS — trace UC08-02 includes DR171..177
+- PASS — trace UC08-03 includes DR171..177
+- PASS — trace UC08-04 includes DR171..177
+- PASS — trace UC08-05 includes DR171..177
+- PASS — contract registry BC-IC-01 amended
+- PASS — contract registry BC-IC-02 immutable submission finality
+- PASS — contract registry BC-IC-03 stock-count subject finality
+- PASS — cancel action exact screen ownership
+- PASS — SCR-042 current registry is v3.10.0
+- PASS — SCR-043 current registry is v3.10.0
+- PASS — SCR-044 current registry is v3.10.0
+- PASS — SCR-045 current registry is v3.10.0
+- PASS — SCR-046 current registry is v3.10.0
+- PASS — SCR-047 current registry is v3.10.0
+- PASS — SCR046 registry does not own cancel
+- PASS — SCR042 registry does not own cancel
+- PASS — legacy list has no cancel
+- PASS — legacy count owns cancel
+- PASS — legacy recount owns cancel
+- PASS — legacy approval has no cancel
+- PASS — UIF08 rendered v3.10.0
+- PASS — UIF08 has 16 transitions
+- PASS — UIF08 zero first count goes to result
+- PASS — UIF08 zero recount goes to result
+- PASS — UIF08 cancel only count/recount
+- PASS — UIF08 UNKNOWN hands to BJ17
+- PASS — SCR044 blind contract excludes book
+- PASS — SCR045 contract has round and basis status
+- PASS — SCR046 contract is independent approval
+- PASS — SCR047 has zero/no-adjustment result
+- PASS — component usage maps cancel only 044/045
+- PASS — runtime overlay contains decisions:[171,172,173,174,175,176
+- PASS — runtime overlay contains getRoundHistory
+- PASS — runtime overlay contains COUNT_SCOPE_HAS_UNRESOLVED_VALUATI
+- PASS — runtime overlay contains SELF_APPROVAL_NOT_ALLOWED
+- PASS — runtime overlay contains data-v350-action="handoff-unknown"
+- PASS — runtime validates blank first count
+- PASS — runtime validates blank recount
+- PASS — runtime new session resets immutable-round fixture
+- PASS — runtime no counter price input
+- PASS — runtime list retains search/filter
+- PASS — runtime list has no cancel
+- PASS — runtime blind hides book and variance
+- PASS — runtime blind exposes physical states
+- PASS — runtime blank first count rejected
+- PASS — runtime zero variance direct result
+- PASS — runtime nonzero first routes recount
+- PASS — runtime blank recount rejected
+- PASS — runtime nonzero recount routes approval task
+- PASS — runtime contributor self-approval blocked
+- PASS — runtime request recount advances round
+- PASS — runtime immutable history retains FIRST and RECOUNT
+- PASS — runtime cancel returns authoritative cancelled result
+- PASS — runtime UNKNOWN preserves exact operation identity
+- PASS — BJ08 representative screens fit 402x874 without horizontal overflow
+- PASS — BJ08 focused browser has no page errors

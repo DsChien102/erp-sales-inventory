@@ -1,0 +1,213 @@
+{
+  "version": "3.9.9",
+  "status": "PASS",
+  "passed": 41,
+  "total": 41,
+  "checks": [
+    {
+      "name": "root package identifies v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype manifests identify v3.9.9 parent v3.9.8",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current registries identify v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.9 assets load after v3.9.8 hardening",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 focused deep review passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 fresh-eye passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prior locked regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Wave 3 cross-BJ audit passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "frozen source parent-ZIP comparison passes 108/108",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme end-user regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "flow logic passes 21 checks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow smoke passes 89 renders",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI passes 514 states / 89 routes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device frame passes all 89 screens",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "approved DR164..170 exist as real rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 binds unified valuation ordering",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "data entities carry shared valuation ordering",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ProductCostResult entity exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "successor reconciliation is incremental",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Official Cost cannot backdate before publication commit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "run separates run type / calculation / posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "dirty scope is Product plus posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "weighted-average edge states are explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-02 is calculate-only without ledger mutation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-03 owns atomic publication",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-03 is read-only review",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-04 owns publication finality",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contracts expose calculate/read/publish APIs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "EVT-IV-04 preserves product result and predecessor lineage",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry no longer assigns BC-IV-03 to UC14-03",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace index maps UC14-03 query-only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "active UIF14 keeps SCR075 retired",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current screen registry hardens active BJ14 surfaces",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime uses unified cutoff and ProductCostResult semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime dirty scope is source-owned/read-only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime publish is forward-effective",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime stale guard uses run input hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UNKNOWN hands same publication to BJ17",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manifest marks BJ14 lock candidate",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 visual evidence contains five focused captures",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

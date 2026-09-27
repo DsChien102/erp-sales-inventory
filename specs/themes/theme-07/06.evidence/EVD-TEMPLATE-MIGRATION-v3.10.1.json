@@ -1,0 +1,26 @@
+{
+  "source_baseline": "VET45-Theme7-Harness-v3.10.1-new-structure",
+  "target": "VET45-Theme7-Harness-v3.10.1-template-aligned",
+  "source_file_count": 3913,
+  "business_semantic_intent": "No intentional business-semantic change; structural/content refactoring to current theme-template.",
+  "prototype_runtime_policy": {
+    "legacy_root_prototype": "removed",
+    "runtime_location": "03.design/prototype/html/",
+    "runtime_source": "baseline v3.10.1",
+    "runtime_copy_mode": "byte-preserved frozen bundle",
+    "runtime_file_count": 2928,
+    "notes": "The template prototype README is the manifest. The HTML runtime remains packaged so the prototype can run independently. Runtime QA files remain inside the frozen bundle because its own manifests reference them; canonical package evidence remains under 07.evidence/."
+  },
+  "source_accounting": {
+    "source_file_count": 3913,
+    "mapped_or_preserved_count": 3912,
+    "excluded_count": 1,
+    "unmapped_count": 0,
+    "excluded": [
+      {
+        "source": "01.knowledge/know-how/quizz.html",
+        "reason": "Không có canonical quiz artifact trong theme-template; HTML quiz derived artifact không thuộc prototype runtime của Theme 7."
+      }
+    ]
+  }
+}

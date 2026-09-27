@@ -1,0 +1,31 @@
+{
+  "version": "3.10.1",
+  "directParent": "3.10.0",
+  "validator": "validate_theme_structure.py",
+  "applicability": "NOT_APPLICABLE_TO_LEGACY_PROTOTYPE_HARNESS_RELEASE_SCOPE",
+  "reason": "Validator targets the newer full Theme Package Standard (folderized SRS + quiz/presentation and all historical trees), while this cumulative task is the inherited Theme 7 Prototype Harness layout. Migrating that layout is outside BJ09 impact scope.",
+  "parent": {
+    "status": "FAIL",
+    "counts": {
+      "BLOCKER": 9,
+      "HIGH": 792,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "findings": 801
+  },
+  "candidate": {
+    "status": "FAIL",
+    "counts": {
+      "BLOCKER": 9,
+      "HIGH": 792,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "findings": 801
+  },
+  "findingSetsIdentical": true,
+  "candidateOnlyFindings": 0,
+  "parentOnlyFindings": 0,
+  "releaseInterpretation": "Do not call this validator PASS. It is inherited baseline incompatibility with zero v3.10.1 delta; scoped current-tree/active-link/mobile/runtime gates remain authoritative for this Prototype Harness release."
+}

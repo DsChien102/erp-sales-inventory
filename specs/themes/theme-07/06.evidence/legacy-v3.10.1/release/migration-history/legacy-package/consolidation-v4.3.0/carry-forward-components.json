@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "package_version": "4.3.0",
+  "ui_flow": {
+    "source": "theme7-ui-flows-v4.2.0-rc1.zip",
+    "source_sha256": "d8c21e8c01ccc0109adcc6780474758435028b0647ed85909fc25992fbca4aa7",
+    "target": "ui/flows",
+    "integration_transform": "prototype/contracts/flows -> ui/flows; relative link rebasing and provenance note only",
+    "business_semantic_changes": 0,
+    "files": 21,
+    "flows": 17,
+    "canonical_use_cases": 70,
+    "transitions": 201,
+    "status": "PASS"
+  },
+  "prototype": {
+    "source": "vet45-theme-07-inventory-costing-v4.1.0.zip",
+    "source_sha256": "edfea2629dc2dc164db25d87434df4c99f436f8a89bd059e377924fc16884519",
+    "component_version": "4.1.0",
+    "target": "prototype",
+    "carry_forward_mode": "BYTE_FOR_BYTE_UNCHANGED",
+    "alignment_to_ui_flow_v4_2_0_rc1": "NOT_UPGRADED",
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 1036,
+        "sha256": "4123fd9140595e7f9f877e9f94688ff67a9b7cffac0c94b8f4fe1787aae66823",
+        "source_equivalence": "PASS"
+      },
+      {
+        "path": "index.html",
+        "bytes": 131670,
+        "sha256": "70ac430deeb5a92b5be222d7b5cf75879791f072468de6bdffe4b100f9a3be77",
+        "source_equivalence": "PASS"
+      },
+      {
+        "path": "prototype.manifest.json",
+        "bytes": 822,
+        "sha256": "50b74aaf5cacf0f30e3be251c436a9e3e9a331dbc51cd2b752e7096901b890e2",
+        "source_equivalence": "PASS"
+      },
+      {
+        "path": "screen-map.md",
+        "bytes": 2054,
+        "sha256": "61e7dc6decda2c122bd14ac40381457a856e4b1e017c2a8c0af6628a42b1bfab",
+        "source_equivalence": "PASS"
+      },
+      {
+        "path": "scripts/build-prototype.mjs",
+        "bytes": 48226,
+        "sha256": "1daf14293a2560007104492b02733971cf73b8aa7a5ce25d7c8ce9bf4b1e7229",
+        "source_equivalence": "PASS"
+      },
+      {
+        "path": "scripts/validate-prototype.mjs",
+        "bytes": 4283,
+        "sha256": "c44b599212d64655a48e23e7074882812ac417931b2035dc7b79d229da09a871",
+        "source_equivalence": "PASS"
+      }
+    ],
+    "status": "PASS"
+  },
+  "legacy_screen_catalog_compatibility": {
+    "path": "prototype/contracts/screen-catalog.json",
+    "role": "PROTOTYPE_V4_1_0_VALIDATOR_INPUT_ONLY",
+    "current_ui_authority": "prototype/contracts/screen-registry.json",
+    "sha256": "58be5cbb4d8b0ab545bd06ab962f67472da32bd7c3553fc741954a785e3ea252",
+    "source_equivalence": "PASS"
+  }
+}

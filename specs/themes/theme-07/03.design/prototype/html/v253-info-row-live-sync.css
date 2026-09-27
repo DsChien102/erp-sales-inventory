@@ -1,0 +1,59 @@
+/* v2.5.3 — current live Figma DS sync for DS v2 / Info Row (525:351).
+   Current master: 338x44, horizontal auto-layout, justify-between, gap 0,
+   Body/Small label at left, Label/Default value at right; Disabled = parent opacity 0.4.
+   This layer is intentionally loaded last to prevent legacy flow CSS from mutating canonical anatomy. */
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] {
+  box-sizing:border-box!important;
+  width:338px!important;
+  max-width:338px!important;
+  height:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  margin-inline:auto!important;
+  padding:var(--vet45-v2-space-0,0)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :first-child {
+  flex:0 0 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  color:var(--vet45-v2-text-secondary,#6b7480)!important;
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:13px!important;
+  line-height:20px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  text-align:left!important;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"] > :last-child {
+  flex:0 0 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  color:var(--vet45-v2-text-primary,#0e1116)!important;
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  font-weight:600!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  text-align:right!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+}
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"][data-ds-prop-state="Disabled"],
+body[data-active-uif] .figma-calibrated-shell [data-ds-component="DS v2 / Info Row"][data-state="Disabled"] {
+  opacity:var(--vet45-v2-opacity-disabled,.4)!important;
+}

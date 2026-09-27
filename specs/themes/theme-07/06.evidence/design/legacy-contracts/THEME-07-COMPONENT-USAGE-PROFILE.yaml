@@ -1,0 +1,60 @@
+schemaVersion: 2
+scope: Theme-07
+authority:
+  lock: FIGMA-DS-LOCK.json
+  rule: live_figma_ds_is_ui_authority
+componentSelectionPriority:
+  - rank: 1
+    candidate: canonical_v_component
+    rule: use_when_exact_responsibility_matches_without_semantic_distortion
+  - rank: 2
+    candidate: canonical_existing_non_v_component
+    rule: use_only_when_no_suitable_v_component_exists
+  - rank: 3
+    candidate: existing_pattern_or_template
+    rule: use_for_structural_or_interaction_composition
+  - rank: 4
+    candidate: layout_composition_of_existing_ds_assets
+    rule: ordinary_grouping_only; do_not_create_named_theme_component
+  - rank: 5
+    candidate: new_component
+    rule: create_only_after_proven_reusable_responsibility_gap; screen_specific_grouping_is_not_gap_proof
+selectionGuard: V prefix is a preference among semantically valid candidates, not permission to choose an ill-fitting V component.
+sharedLocks:
+  appBar:
+    component: VAppBar
+  action:
+    component: VButton
+  search:
+    component: VSearchBar
+  status:
+    component: VBadge
+  chip:
+    component: VChip
+  banner:
+    component: VBanner
+  empty:
+    component: VEmptyState
+  genericBottomSheet:
+    component: VBottomSheet
+    figmaNode: "4695:6353"
+  numericSheet:
+    component: VNumericKeypadSheet
+  listRowFallback:
+    component: DS v2 / List Row
+    figmaNode: "525:519"
+    reason: no canonical VListRow exists in the live DS
+  infoRowFallback:
+    component: DS v2 / Info Row
+    figmaNode: "525:351"
+    reason: no canonical VInfoRow exists in the live DS
+    liveAnatomy: "338x44; justify-between; gap 0; Body/Small label left; Label/Default value right-aligned; Disabled opacity 0.4"
+    usage: supporting concise metadata only; long multiline values must use a VText layout composition rather than altering Info Row anatomy
+forbidden:
+  rawColor: true
+  rawSpacing: true
+  rawTypography: true
+  rawProductLucideIcon: true
+  redundantThemeWrapperAroundExistingDsComponent: true
+  inventedCoreComponentWithoutGapProof: true
+  namedThemeComponentForLayoutGrouping: true

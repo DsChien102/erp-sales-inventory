@@ -1,0 +1,138 @@
+{
+  "version": "3.5.1",
+  "passed": 25,
+  "total": 25,
+  "checks": [
+    {
+      "name": "17 business-journey flows",
+      "pass": true,
+      "note": "flows=17"
+    },
+    {
+      "name": "85 canonical flow-screen routes",
+      "pass": true,
+      "note": "routes=85 unique_screens=73"
+    },
+    {
+      "name": "every active screen has a screen contract",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "every active flow has a flow document",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "active screen registry/workbench names and states are aligned",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "registry and workbench release version",
+      "pass": true,
+      "note": "wb=3.5.1 registry=3.5.1"
+    },
+    {
+      "name": "runtime-state registry is synchronized to workbench",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "runtime-state registry covers 500 declared route-states",
+      "pass": true,
+      "note": "route_states=500 declared=500"
+    },
+    {
+      "name": "v3.5 reachable literal states remain declared",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ02 Quick canonical behavior is unambiguous",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.5.1 CSS loads after v3.5.0 correction",
+      "pass": true,
+      "note": [
+        2620,
+        2686
+      ]
+    },
+    {
+      "name": "v3.5.1 JS loads after v3.5.0 correction",
+      "pass": true,
+      "note": [
+        7524,
+        7580
+      ]
+    },
+    {
+      "name": "independent list wrapper is transparent",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "VChip strip is one-row horizontal scroll",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 history back is explicit parent navigation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ15 auxiliary drill-down back is explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DS conformance locks transparent independent-list surface",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DS conformance locks one-row scrollable VChip",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DS conformance locks drill-down parent Back",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "HTML manifests identify v3.5.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manifest declares 500 effective states",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "root README points to v3.5.1 validation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "HTML README identifies v3.5.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contracts old validation report is labeled historical",
+      "pass": true,
+      "note": "/mnt/data/v351_work/VET45-Theme7-Prototype-Harness-v3.5.1/specs/themes/theme-07/prototype/contracts/validation-report.md"
+    },
+    {
+      "name": "flows old validation report is labeled historical",
+      "pass": true,
+      "note": "/mnt/data/v351_work/VET45-Theme7-Prototype-Harness-v3.5.1/specs/themes/theme-07/prototype/flows/validation-report.md"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "version": "3.10.1",
+  "parentVersion": "3.10.0",
+  "status": "READY_FOR_REVIEW",
+  "scope": "Wave 4 / BJ09 deep-review state-change semantic hardening",
+  "decisions": [
+    "T7-DR-178",
+    "T7-DR-179",
+    "T7-DR-180",
+    "T7-DR-181",
+    "T7-DR-182",
+    "T7-DR-183",
+    "T7-DR-184"
+  ],
+  "qa": {
+    "bj09DeepReview": "127/127 PASS",
+    "bj09FreshEye": "31/31 PASS",
+    "priorLockedRegression": "37/37 PASS",
+    "wave3CrossBjAuditRegression": "35/35 PASS",
+    "currentPackageValidation": "66/66 PASS",
+    "fullThemeEndUser": "19/19 PASS",
+    "flowLogic": "26/26 PASS",
+    "runtimeSmoke": "89/89 PASS",
+    "runtimeUi": "14/14 PASS; 514 route-state renders; 89 routes",
+    "representativeCoherence": "8/8 PASS",
+    "deviceFrame": "7/7 PASS; 89 routes",
+    "frozenSource": "108/108 byte-identical to direct parent v3.10.0",
+    "structuralPackage": "10/10 PASS",
+    "baselineDiffAudit": "PASS; 0 unexpected changes",
+    "mobilePrototypeValidator": "PASS; BLOCKER=0 HIGH=0",
+    "genericThemeStructureStandard": "NOT_APPLICABLE_TO_LEGACY_HARNESS_SCOPE; parent/candidate both FAIL 9 BLOCKER + 792 HIGH; finding sets identical; candidate-only=0"
+  },
+  "artifacts": {
+    "releaseValidation": "RELEASE-VALIDATION-v3.10.1.md",
+    "changelog": "CHANGELOG-v3.10.1.md",
+    "deepReview": "specs/themes/theme-07/prototype/html/qa/BJ09-DEEP-REVIEW-QA-v3.10.1.md",
+    "freshEye": "specs/themes/theme-07/prototype/html/qa/BJ09-FRESH-EYE-QA-v3.10.1.md",
+    "currentPackageValidation": "specs/themes/theme-07/prototype/html/qa/CURRENT-PACKAGE-VALIDATION-v3.10.1.md",
+    "structuralPackage": "specs/themes/theme-07/prototype/html/qa/STRUCTURAL-PACKAGE-QA-v3.10.1.md",
+    "baselineDiffAudit": "specs/themes/theme-07/prototype/html/qa/BASELINE-DIFF-AUDIT-v3.10.1.md",
+    "mobilePrototypeValidator": "specs/themes/theme-07/prototype/html/qa/MOBILE-PROTOTYPE-VALIDATOR-v3.10.1.json",
+    "themeStructureCompatibility": "specs/themes/theme-07/prototype/html/qa/THEME-STRUCTURE-STANDARD-COMPATIBILITY-v3.10.1.md"
+  },
+  "evidenceBoundary": "Browser prototype/static semantic/runtime/visual/package evidence only; no production backend/database/outbox/network atomicity or real integration E2E claim.",
+  "structuralValidation": {
+    "jsonFiles": 577,
+    "yamlFiles": 30,
+    "activeLinksChecked": 2569,
+    "javascriptFiles": 30,
+    "parseErrors": 0,
+    "checksumEntries": 3904
+  },
+  "waveStatus": "Wave 4 remains open; BJ09 is a Deep-Reviewed / lock candidate. BJ10 is the next planned forensic review.",
+  "statusScope": "Prototype Harness scoped release; not a migration to the newer full Theme Package Standard"
+}

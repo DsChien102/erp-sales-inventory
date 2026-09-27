@@ -1,0 +1,133 @@
+{
+  "version": "3.9.3",
+  "status": "PASS",
+  "passed": 25,
+  "total": 25,
+  "checks": [
+    {
+      "name": "root package identifies v3.9.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.9.3 and parent v3.9.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current presentation registries identify v3.9.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.3 BJ05 CSS/JS load after BJ02 hardening",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical Product viewport remains 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Figma DS remains UI authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 deep-review gate passes",
+      "pass": true,
+      "note": "22/22"
+    },
+    {
+      "name": "BJ02 locked deep-review evidence remains present",
+      "pass": true,
+      "note": "51/51"
+    },
+    {
+      "name": "full-theme end-user regression passes",
+      "pass": true,
+      "note": "19/19"
+    },
+    {
+      "name": "semantic flow/logic regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device-frame regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 focused visual evidence contains five captures",
+      "pass": true,
+      "note": 5
+    },
+    {
+      "name": "BJ05 runtime uses immutable requested quantity and separate allocated/picked/consumed facts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "handover evidence preserves source and operation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN handoff uses exact BJ05 operation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "VERIFYING remains visible but non-actionable in BJ05 queue",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT candidates are pick-time snapshots, not LOT reservations",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "physical correction requires explicit actor assertion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy representative seeder still protects explicit BJ02 draft data",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 active screens carry current deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "owned-entity catalog count is internally consistent",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.3 release assets exist",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

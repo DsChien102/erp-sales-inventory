@@ -1,0 +1,14 @@
+/* VET45 Theme 7 v3.6.3 — list navigation state correction
+ * Figma DS invariant: Disabled is a state, not a substitute row type.
+ * Keep geometry and chevron identical to peer Navigation rows, and apply DS disabled opacity.
+ */
+body[data-active-uif] .figma-calibrated-shell .ds24-list-row[data-ds-prop-type="Navigation"][data-ds-prop-state="Disabled"] {
+  opacity: var(--vet45-v2-opacity-disabled, .4) !important;
+  cursor: default !important;
+  pointer-events: none !important;
+  background: var(--vet45-v2-surface-default) !important;
+  border-color: var(--vet45-v2-border-default) !important;
+}
+body[data-active-uif] .figma-calibrated-shell .ds24-list-row[data-ds-prop-type="Navigation"][data-ds-prop-state="Disabled"]:active {
+  background: var(--vet45-v2-surface-default) !important;
+}

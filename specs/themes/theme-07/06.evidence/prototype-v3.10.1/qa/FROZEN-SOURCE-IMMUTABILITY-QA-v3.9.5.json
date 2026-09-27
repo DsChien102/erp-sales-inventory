@@ -1,0 +1,8 @@
+{
+  "version": "3.9.5",
+  "scope": "Frozen source immutability",
+  "status": "PASS",
+  "fileCount": 108,
+  "differences": [],
+  "method": "Compared SHA-256 by path relative to specs/themes/theme-07/harness/frozen-source; baseline paths were normalized because v3.9.4 and v3.9.5 working trees differ."
+}

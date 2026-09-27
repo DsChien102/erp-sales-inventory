@@ -1,0 +1,52 @@
+=== inventory_valuation_end_user_v150.py ===
+PASS 54 / 54
+EXIT=0
+
+=== inventory_valuation_scenarios_v150.py ===
+PASS 27 / 27
+EXIT=0
+
+=== inventory_valuation_integration_v150.py ===
+PASS 14 / 14
+EXIT=0
+
+=== inventory_audit_control_end_user_v160.py ===
+PASS 48 / 48
+EXIT=0
+
+=== inventory_audit_control_scenarios_v160.py ===
+PASS 53 renders
+EXIT=0
+
+=== correction_recovery_scenarios_v170.py ===
+PASS 95 renders
+EXIT=0
+
+=== control_foundation_inquiry_end_user_v180.py ===
+PASS 65 / 65
+EXIT=0
+
+=== control_foundation_inquiry_scenarios_v180.py ===
+PASS 78 renders
+EXIT=0
+
+=== all_flows_smoke_v190.py ===
+PASS 85 renders
+EXIT=0
+
+=== inventory_ops_end_user_v141.py ===
+FAIL 126 / 137
+BJ05 queue uses mặt hàng for line count
+BJ05 progress uses task language
+BJ05 handover summary uses mục hàng
+BJ06 waiting item rows are non-interactive
+BJ06 waiting banner is concise
+BJ06 lot context uses business phrasing
+BJ07 preparation uses task progress wording
+BJ07 preparation footer is concise
+BJ07 verification sheet uses business quantity label
+BJ07 final review uses compact section meta
+BJ07 result avoids duplicate UOM in row label
+EXIT=1
+
+=== correction_recovery_end_user_v170.py ===

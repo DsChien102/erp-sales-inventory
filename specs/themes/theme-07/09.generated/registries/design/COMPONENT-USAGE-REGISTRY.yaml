@@ -1,0 +1,730 @@
+schemaVersion: 1
+status: CUMULATIVE_v1.7.0
+authority: Flutter DS public API
+runOrder:
+- UIF-02
+- UIF-01
+- UIF-03
+- UIF-13
+- UIF-04
+- UIF-05
+- UIF-06
+- UIF-07
+- UIF-09
+- UIF-10
+- UIF-08
+- UIF-11
+- UIF-12
+- UIF-14
+- UIF-15
+- UIF-16
+- UIF-17
+components:
+  VAppBar:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VBadge:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VBanner:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VBottomSheet:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 15
+  VButton:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VCard:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VCardIcon:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VCardTitle:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VCombobox:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VConfirmDialog:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 15
+  VDatePicker:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VEmptyDescription:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VEmptyMedia:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VEmptyState:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VEmptyTitle:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VFileDropZone:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VGap:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VIcon:
+    usedBy:
+    - UIF-02
+    uifCount: 1
+  VIconBox:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-11
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 7
+  VLoading:
+    usedBy:
+    - UIF-02
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VMoneyField:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VNumberField:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VPagePadding:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VPageScaffold:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VQuantitySelector:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VSearchBar:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VSection:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VSelect:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+  VSkeleton:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VText:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-10
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 17
+  VTextFormField:
+    usedBy:
+    - UIF-02
+    - UIF-01
+    - UIF-03
+    - UIF-13
+    - UIF-04
+    - UIF-05
+    - UIF-06
+    - UIF-07
+    - UIF-09
+    - UIF-08
+    - UIF-11
+    - UIF-12
+    - UIF-14
+    - UIF-15
+    - UIF-16
+    - UIF-17
+    uifCount: 16
+sharedScreenModes:
+  SCR-014:
+    modes:
+      UIF-03: INITIAL_VALUATION_QUEUE
+    note: UIF-03 owns initial-value work queue; BJ13 uses dedicated SCR-085 work queue in v3.13.0.
+  SCR-015:
+    modes:
+      UIF-03: INITIAL_VALUE_BASIS_AND_COMPOSITION
+    note: UIF-03 owns initial-value basis/composition surface; BJ13 uses SCR-086 for source, scope and allocation in v3.13.0.
+  SCR-017:
+    modes:
+      UIF-03: INITIAL_VALUE_REVIEW
+    note: UIF-03 owns initial-value review at SCR-017; BJ13 owns signed-adjustment review at SCR-088.
+  SCR-019:
+    modes:
+      UIF-03: INITIAL_VALUE_RESULT
+    note: UIF-03 owns initial-value result at SCR-019; BJ13 owns signed-adjustment result at SCR-089.
+  SCR-036:
+    modes:
+      UIF-07: RTV
+      UIF-09: STATE_CHANGE
+      UIF-10: DISPOSAL
+    note: Same inventory triage list; labels/filters use active operation context.
+  SCR-037:
+    modes:
+      UIF-07: RTV
+      UIF-09: STATE_CHANGE
+      UIF-10: DISPOSAL
+    note: Evidence/detail is canonical; action availability comes from active context.
+  SCR-038:
+    modes:
+      UIF-07: STATE_PREPARE
+      UIF-09: PREPARE_OR_APPROVAL
+    note: Maker and approver modes are mutually exclusive; ACT-08-STATE is system-owned after route.
+  SCR-040:
+    modes:
+      UIF-10: PREPARE_APPROVAL_COMPLETION
+    note: Three mutually-exclusive modes; approval never decrements physical inventory.
+  SCR-041:
+    modes:
+      UIF-07: RTV_RESULT
+      UIF-09: STATE_RESULT
+      UIF-10: DISPOSAL_RESULT
+    note: One result layout with operation_type-specific summary/copy.
+  SCR-052:
+    modes:
+      UIF-11: ROUTE_DEPENDENT_CANCEL_OR_CORRECTION
+    note: Cancel and correction are mutually exclusive route modes; Product UI never presents both as simultaneous actions.
+  SCR-054:
+    modes:
+      UIF-01: STOCK_CARD_QUERY
+      UIF-15: REPORT_QUERY
+    note: Known product/scope is prefilled when entry context supplies it.
+  SCR-055:
+    modes:
+      UIF-01: STOCK_CARD_RESULTS
+      UIF-15: STOCK_CARD_RESULTS
+    note: Canonical movement result list.
+  SCR-056:
+    modes:
+      UIF-01: MOVEMENT_DETAIL
+      UIF-09: MOVEMENT_DETAIL
+      UIF-15: MOVEMENT_DETAIL
+    note: Canonical movement detail; finance fields mask by permission.
+  SCR-057:
+    modes:
+      UIF-01: SOURCE_TRACE
+      UIF-15: SOURCE_TRACE
+    note: Canonical evidence timeline.
+  SCR-070:
+    modes:
+      UIF-12: APPROVAL_ONLY
+    note: Approver decides; commit is system-owned after approval.
+  SCR-071:
+    modes:
+      UIF-12: AUTO_COMMIT_RESULT
+    note: Processing/result owns commit finality; no user commit CTA.
+  SCR-078:
+    modes:
+      UIF-16: RECON_CASES
+      UIF-17: UNKNOWN_CASES
+    note: Same case list; prioritization/copy changes by entry reason.
+  SCR-079:
+    modes:
+      UIF-16: INVESTIGATION_EVIDENCE
+      UIF-17: UNKNOWN_EVIDENCE
+    note: Evidence timeline, not a technical retry log.
+  SCR-080:
+    modes:
+      UIF-16: PROJECTION_RECOVERY
+      UIF-17: SAME_IDENTITY_FINALITY
+    note: System recommends only a contract-valid business path; no raw replay/rebuild/source selector is rendered.
+  SCR-082:
+    modes:
+      UIF-16: RECON_REVIEW
+      UIF-17: FINALITY_REVIEW
+    note: Review only business facts required for close/finality; same identity and no-duplicate-mutation remain visible invariants.
+  SCR-083:
+    modes:
+      UIF-16: RECON_RESULT
+      UIF-17: RECOVERY_RESULT
+    note: Result preserves source operation/case links; unresolved escalation never exposes blind retry/new-operation mutation.
+forbidden:
+- raw design token in Screen Contract
+- raw Lucide icon without VIcons mapping
+- unmapped visible component
+- cloned shared-screen implementation
+
+
+valuationDesignParity_v3_13_0:
+  authority: "Figma DS v2 page 505:5890 + Screen Contract v3.13.0"
+  activeTopology:
+    UIF-03: [SCR-014, SCR-015, SCR-017, SCR-019]
+    UIF-13: [SCR-085, SCR-086, SCR-088, SCR-089]
+    UIF-14: [SCR-072, SCR-074, SCR-077]
+  retiredScreens: [SCR-016, SCR-018, SCR-073, SCR-075, SCR-076, SCR-087]
+  canonicalComponents:
+    appBar: "VAppBar"
+    list: "DS v2 / List Row"
+    info: "DS v2 / Info Row"
+    keyValue: "DS v2 / Key-value Row"
+    summary: "DS v2 / Summary Card"
+    feedback: "VBanner / VEmptyState / DS v2 / Readiness Item"
+    overlay: "VBottomSheet + Action/Confirmation/Form Sheet patterns"
+  rules:
+    - "Disabled state uses Opacity/Disabled = 0.4; không tạo tone disabled riêng."
+    - "Không dùng badge thay cho metadata/nguồn; badge chỉ biểu đạt state có nghĩa."
+    - "Không biến mỗi nhóm thông tin thành Card; ưu tiên Row/section/grouped summary đúng semantic."
+    - "BJ14 costing method là read-only theo tenant policy; không render selector."
+    - "Metadata kỹ thuật chỉ ở Inspect/audit, không nằm trong Product UI."

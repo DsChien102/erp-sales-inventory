@@ -1,0 +1,132 @@
+# Protected Non-target Flow Regression v1.4.3
+
+**Result: PASS · 121/121 checks**
+
+- Parent: cumulative v1.4.2.
+- Protected runtime flows: UIF08/UIF09/UIF10/UIF11/UIF12/UIF13/UIF14/UIF15/UIF16/UIF17.
+- Checks exact screen topology, exact READY-state rendered text and child horizontal safety.
+- Purpose: prove entry/journey corrections in Inventory Operations + BJ03 do not leak into valuation/audit/control flows outside scope.
+
+## Checks
+
+- PASS — UIF-08 screen topology identical
+- PASS — UIF-08/SCR-042 READY rendered text identical
+- PASS — UIF-08/SCR-042 child horizontal safety
+- PASS — UIF-08/SCR-043 READY rendered text identical
+- PASS — UIF-08/SCR-043 child horizontal safety
+- PASS — UIF-08/SCR-044 READY rendered text identical
+- PASS — UIF-08/SCR-044 child horizontal safety
+- PASS — UIF-08/SCR-045 READY rendered text identical
+- PASS — UIF-08/SCR-045 child horizontal safety
+- PASS — UIF-08/SCR-046 READY rendered text identical
+- PASS — UIF-08/SCR-046 child horizontal safety
+- PASS — UIF-08/SCR-047 READY rendered text identical
+- PASS — UIF-08/SCR-047 child horizontal safety
+- PASS — UIF-09 screen topology identical
+- PASS — UIF-09/SCR-036 READY rendered text identical
+- PASS — UIF-09/SCR-036 child horizontal safety
+- PASS — UIF-09/SCR-037 READY rendered text identical
+- PASS — UIF-09/SCR-037 child horizontal safety
+- PASS — UIF-09/SCR-038 READY rendered text identical
+- PASS — UIF-09/SCR-038 child horizontal safety
+- PASS — UIF-09/SCR-041 READY rendered text identical
+- PASS — UIF-09/SCR-041 child horizontal safety
+- PASS — UIF-09/SCR-056 READY rendered text identical
+- PASS — UIF-09/SCR-056 child horizontal safety
+- PASS — UIF-10 screen topology identical
+- PASS — UIF-10/SCR-036 READY rendered text identical
+- PASS — UIF-10/SCR-036 child horizontal safety
+- PASS — UIF-10/SCR-037 READY rendered text identical
+- PASS — UIF-10/SCR-037 child horizontal safety
+- PASS — UIF-10/SCR-040 READY rendered text identical
+- PASS — UIF-10/SCR-040 child horizontal safety
+- PASS — UIF-10/SCR-041 READY rendered text identical
+- PASS — UIF-10/SCR-041 child horizontal safety
+- PASS — UIF-11 screen topology identical
+- PASS — UIF-11/SCR-048 READY rendered text identical
+- PASS — UIF-11/SCR-048 child horizontal safety
+- PASS — UIF-11/SCR-049 READY rendered text identical
+- PASS — UIF-11/SCR-049 child horizontal safety
+- PASS — UIF-11/SCR-052 READY rendered text identical
+- PASS — UIF-11/SCR-052 child horizontal safety
+- PASS — UIF-11/SCR-050 READY rendered text identical
+- PASS — UIF-11/SCR-050 child horizontal safety
+- PASS — UIF-11/SCR-051 READY rendered text identical
+- PASS — UIF-11/SCR-051 child horizontal safety
+- PASS — UIF-11/SCR-053 READY rendered text identical
+- PASS — UIF-11/SCR-053 child horizontal safety
+- PASS — UIF-12 screen topology identical
+- PASS — UIF-12/SCR-066 READY rendered text identical
+- PASS — UIF-12/SCR-066 child horizontal safety
+- PASS — UIF-12/SCR-067 READY rendered text identical
+- PASS — UIF-12/SCR-067 child horizontal safety
+- PASS — UIF-12/SCR-068 READY rendered text identical
+- PASS — UIF-12/SCR-068 child horizontal safety
+- PASS — UIF-12/SCR-069 READY rendered text identical
+- PASS — UIF-12/SCR-069 child horizontal safety
+- PASS — UIF-12/SCR-070 READY rendered text identical
+- PASS — UIF-12/SCR-070 child horizontal safety
+- PASS — UIF-12/SCR-071 READY rendered text identical
+- PASS — UIF-12/SCR-071 child horizontal safety
+- PASS — UIF-13 screen topology identical
+- PASS — UIF-13/SCR-014 READY rendered text identical
+- PASS — UIF-13/SCR-014 child horizontal safety
+- PASS — UIF-13/SCR-015 READY rendered text identical
+- PASS — UIF-13/SCR-015 child horizontal safety
+- PASS — UIF-13/SCR-018 READY rendered text identical
+- PASS — UIF-13/SCR-018 child horizontal safety
+- PASS — UIF-13/SCR-017 READY rendered text identical
+- PASS — UIF-13/SCR-017 child horizontal safety
+- PASS — UIF-13/SCR-019 READY rendered text identical
+- PASS — UIF-13/SCR-019 child horizontal safety
+- PASS — UIF-14 screen topology identical
+- PASS — UIF-14/SCR-072 READY rendered text identical
+- PASS — UIF-14/SCR-072 child horizontal safety
+- PASS — UIF-14/SCR-073 READY rendered text identical
+- PASS — UIF-14/SCR-073 child horizontal safety
+- PASS — UIF-14/SCR-074 READY rendered text identical
+- PASS — UIF-14/SCR-074 child horizontal safety
+- PASS — UIF-14/SCR-075 READY rendered text identical
+- PASS — UIF-14/SCR-075 child horizontal safety
+- PASS — UIF-14/SCR-076 READY rendered text identical
+- PASS — UIF-14/SCR-076 child horizontal safety
+- PASS — UIF-14/SCR-077 READY rendered text identical
+- PASS — UIF-14/SCR-077 child horizontal safety
+- PASS — UIF-15 screen topology identical
+- PASS — UIF-15/SCR-054 READY rendered text identical
+- PASS — UIF-15/SCR-054 child horizontal safety
+- PASS — UIF-15/SCR-055 READY rendered text identical
+- PASS — UIF-15/SCR-055 child horizontal safety
+- PASS — UIF-15/SCR-056 READY rendered text identical
+- PASS — UIF-15/SCR-056 child horizontal safety
+- PASS — UIF-15/SCR-057 READY rendered text identical
+- PASS — UIF-15/SCR-057 child horizontal safety
+- PASS — UIF-15/SCR-058 READY rendered text identical
+- PASS — UIF-15/SCR-058 child horizontal safety
+- PASS — UIF-15/SCR-059 READY rendered text identical
+- PASS — UIF-15/SCR-059 child horizontal safety
+- PASS — UIF-16 screen topology identical
+- PASS — UIF-16/SCR-078 READY rendered text identical
+- PASS — UIF-16/SCR-078 child horizontal safety
+- PASS — UIF-16/SCR-079 READY rendered text identical
+- PASS — UIF-16/SCR-079 child horizontal safety
+- PASS — UIF-16/SCR-082 READY rendered text identical
+- PASS — UIF-16/SCR-082 child horizontal safety
+- PASS — UIF-16/SCR-080 READY rendered text identical
+- PASS — UIF-16/SCR-080 child horizontal safety
+- PASS — UIF-16/SCR-081 READY rendered text identical
+- PASS — UIF-16/SCR-081 child horizontal safety
+- PASS — UIF-16/SCR-083 READY rendered text identical
+- PASS — UIF-16/SCR-083 child horizontal safety
+- PASS — UIF-17 screen topology identical
+- PASS — UIF-17/SCR-078 READY rendered text identical
+- PASS — UIF-17/SCR-078 child horizontal safety
+- PASS — UIF-17/SCR-079 READY rendered text identical
+- PASS — UIF-17/SCR-079 child horizontal safety
+- PASS — UIF-17/SCR-080 READY rendered text identical
+- PASS — UIF-17/SCR-080 child horizontal safety
+- PASS — UIF-17/SCR-083 READY rendered text identical
+- PASS — UIF-17/SCR-083 child horizontal safety
+- PASS — UIF-17/SCR-082 READY rendered text identical
+- PASS — UIF-17/SCR-082 child horizontal safety
+- PASS — No page JavaScript errors during protected regression

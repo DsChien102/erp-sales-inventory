@@ -1,0 +1,147 @@
+{
+  "version": "3.9.6",
+  "status": "PASS",
+  "passed": 27,
+  "total": 27,
+  "checks": [
+    {
+      "name": "root package identifies v3.9.6",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.9.6 with parent v3.9.5",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current registries identify v3.9.6",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.6 BJ04 CSS/JS load after v3.9.5 BJ07 hardening",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 focused deep-review passes",
+      "pass": true,
+      "note": "52/52"
+    },
+    {
+      "name": "prior locked BJ regression passes",
+      "pass": true,
+      "note": "15/15"
+    },
+    {
+      "name": "frozen-source immutability passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Wave 2 cross-BJ audit passes",
+      "pass": true,
+      "note": "30/30"
+    },
+    {
+      "name": "full-theme end-user regression passes",
+      "pass": true,
+      "note": "19/19"
+    },
+    {
+      "name": "flow logic regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device-frame regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "reservation capability uses explicit source policy and Advanced Stock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "reservation quantity model distinguishes current held and consumed history",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "reservation stores transaction UOM/conversion snapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "deterministic priority is captured",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ReservationGroup combo aggregate exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04/BJ05 boundary is explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "API-C-06 is adjustments, not release-or-reallocate",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-021 current contract is read-only per-line projection",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-021 canonical active states are READY/LOADING/PERMISSION_DENIED",
+      "pass": true,
+      "note": [
+        "READY",
+        "LOADING",
+        "PERMISSION_DENIED"
+      ]
+    },
+    {
+      "name": "SCR-021 has validated v3.9.6 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Harness BC-IO-06 excludes BJ05 ownership",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Harness API-C-06 is the new adjustments operation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.6 release assets exist",
+      "pass": true,
+      "note": []
+    }
+  ]
+}

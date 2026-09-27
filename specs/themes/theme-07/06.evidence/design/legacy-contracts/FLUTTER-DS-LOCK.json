@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "authority": "Flutter Design System source ZIP",
+  "sourceFile": "vet45_design_system.zip",
+  "sourceSha256": "8eb4d06e29d7e55801a7340865d9fa84f375b70485638569324f68df893371ab",
+  "visualAuthority": "https://vet45-design-system.vercel.app (rendered directly from Flutter DS per project confirmation)",
+  "htmlPolicy": "renderer_only_not_design_system",
+  "publicBarrel": "lib/design_system.dart",
+  "lockedAt": "2026-08-25",
+  "status": "DEPRECATED_AS_UI_AUTHORITY_FROM_V2_0_0",
+  "supersededBy": "FIGMA-DS-LOCK.json",
+  "retainedFor": "historical provenance only"
+}

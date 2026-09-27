@@ -1,0 +1,81 @@
+{
+  "version": "3.9.0",
+  "passed": 14,
+  "total": 14,
+  "declared_states": 518,
+  "audit_control_states": 272,
+  "canonical_routes": 89,
+  "checks": [
+    {
+      "name": "all 518 declared states render on canonical device geometry",
+      "pass": true,
+      "note": "states=518 bad=[]"
+    },
+    {
+      "name": "all 89 canonical flow-screen routes are represented",
+      "pass": true,
+      "note": "routes=89"
+    },
+    {
+      "name": "audit-control states render",
+      "pass": true,
+      "note": "states=272 bad=[]"
+    },
+    {
+      "name": "all multi-chip search/filter sets are one-line horizontal scroll strips",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "independent list containers never paint background into row spacing",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "hidden rows remain actually hidden",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "no forbidden redundant list headings",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "no technical English/enums/version leakage",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "no runtime garbage copy",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "List Row copy never overlaps trailing status/action",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "visible text has no non-ellipsis clipping",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ09 history back returns to launching detail without result mutation",
+      "pass": true,
+      "note": "before={'screen': 'SCR-037', 'state': 'READY', 'result': 'COMPLETED', 'selected': 'amox'} history=SCR-056 after={'screen': 'SCR-037', 'state': 'READY', 'result': 'COMPLETED', 'selected': 'amox'}"
+    },
+    {
+      "name": "BJ15 auxiliary drill-down back path preserves parent context",
+      "pass": true,
+      "note": "seq=['SCR-056', 'SCR-057', 'SCR-056', 'SCR-055']"
+    },
+    {
+      "name": "no browser errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "regressionRunner": "v3.8.3 gate logic rerun against v3.9.0 package"
+}

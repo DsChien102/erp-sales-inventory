@@ -1,0 +1,196 @@
+/* VET45 Theme 7 v2.9.2 — canonical product hierarchy surfaces.
+ * Live Figma DS authority:
+ * - DS v2 / List Row 525:519 (Status + Compact for dense entity context)
+ * - DS v2 / Info Row 525:351
+ * - DS v2 / Key-value Row 525:358
+ * Composition reference: mature Theme 1 detail screens use real bordered surfaces
+ * around entity/context rows and supporting facts; never float arbitrary text+badge.
+ */
+
+/* Shared invariant for migrated product group summaries: actual DS Status/Compact row. */
+body:is([data-active-uif="UIF-05"],[data-active-uif="UIF-06"],[data-active-uif="UIF-07"])
+  [data-layout-role$="product-summary"].ds24-list-row,
+body[data-active-uif="UIF-07"]
+  [data-layout-role="rtv-review-product"].ds24-list-row {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  padding: 4px 16px !important;
+  gap: 8px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+body:is([data-active-uif="UIF-05"],[data-active-uif="UIF-06"],[data-active-uif="UIF-07"])
+  [data-layout-role$="product-summary"].ds24-list-row .ds24-list-row__copy,
+body[data-active-uif="UIF-07"]
+  [data-layout-role="rtv-review-product"].ds24-list-row .ds24-list-row__copy {
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+
+/* BJ07 — Product+UOM is a real compact Status List Row inside one coherent surface.
+ * LOT/allocation remains a lower-level collection/fact list inside the same surface. */
+body[data-active-uif="UIF-07"] .io07-product-list,
+body[data-active-uif="UIF-07"] .io07-review-products {
+  width: 370px !important;
+  max-width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+body[data-active-uif="UIF-07"] .io07-product-group,
+body[data-active-uif="UIF-07"] .io07-review-product {
+  width: 370px !important;
+  max-width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-07"] .io07-product-group > [data-layout-role="rtv-product-summary"],
+body[data-active-uif="UIF-07"] .io07-review-product > [data-layout-role="rtv-review-product"] {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list {
+  width: 338px !important;
+  max-width: 338px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list > .ds24-list-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 76px !important;
+}
+body[data-active-uif="UIF-07"] .io07-review-kv {
+  width: 338px !important;
+  max-width: 338px !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+body[data-active-uif="UIF-07"] .io07-review-kv .ds24-key-value-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-review-kv .ds24-key-value-row + .ds24-key-value-row {
+  border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+}
+
+/* BJ05 — remove the historical ad-hoc product header from handover groups.
+ * The existing group surface now starts with the canonical Status/Compact List Row. */
+body[data-active-uif="UIF-05"] .bj05-handover-product {
+  width: 370px !important;
+  padding: 12px 16px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-product > [data-layout-role="bj05-handover-product-summary"] {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-allocation-list {
+  width: 338px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-allocation {
+  width: 338px !important;
+  padding: 8px 0 12px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-allocation__head,
+body[data-active-uif="UIF-05"] .bj05-handover-allocation .ds24-info-row,
+body[data-active-uif="UIF-05"] .bj05-handover-allocation .ds24-text-field {
+  width: 338px !important;
+  max-width: 338px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-product__head {
+  display: none !important;
+}
+
+/* BJ06 — results use the same canonical parent-child pattern.
+ * Parent Product+UOM = Status/Compact List Row; LOT/classification = Info Row facts. */
+body[data-active-uif="UIF-06"] .io06-result-group {
+  width: 370px !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-06"] .io06-result-group > [data-layout-role="io06-result-product-summary"] {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-06"] .io06-result-rows {
+  width: 338px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-06"] .io06-result-rows .ds24-info-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-06"] .io06-result-product {
+  display: none !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-allocation > .ds24-key-value-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-05"] .bj05-handover-allocation__head {
+  display: none !important;
+}
+/* Specificity bridge over the earlier global Compact-row calibration: inner grouped instance is responsive at 338px. */
+body[data-active-uif="UIF-05"] .figma-calibrated-shell [data-layout-role="bj05-handover-product-summary"][data-ds-component="DS v2 / List Row"][data-ds-prop-density="Compact"] {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+}

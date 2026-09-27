@@ -1,0 +1,51 @@
+{
+  "release": "2.2.0-candidate",
+  "decision": "NOT_YET_100_PERCENT_FREEZE_READY",
+  "productWiring": false,
+  "figmaConnection": "CONNECTED",
+  "figmaDsVersion": "2.0.2",
+  "liveEvidence": {
+    "pages": [
+      "505:5889",
+      "505:5890",
+      "505:5891"
+    ],
+    "mobileViewport": "402x874",
+    "iconWrapperVariants": 54,
+    "vButtonVariants": 48,
+    "approvedIconCount": 28
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Approved icon library demand",
+      "status": "OPEN",
+      "detail": "7 actually-rendered legacy icon semantics are not in approved Icon Library."
+    },
+    {
+      "id": "G2",
+      "name": "Read-only informational sheet canonical target",
+      "status": "OPEN",
+      "detail": "UIF-01/UIF-03/UIF-15 need source decision."
+    },
+    {
+      "id": "G3",
+      "name": "Full demanded anatomy proof",
+      "status": "OPEN",
+      "detail": "Do not infer internals from metadata/variables/screenshots alone."
+    },
+    {
+      "id": "G4",
+      "name": "Exact demanded icon bytes",
+      "status": "OPEN",
+      "detail": "Exact local SVG bytes incomplete."
+    },
+    {
+      "id": "G5",
+      "name": "Full runtime visual parity",
+      "status": "OPEN",
+      "detail": "Current isolated runtime implements only a subset."
+    }
+  ],
+  "historicalNote": "v2.1.2 READY statement is superseded by this stricter live preflight; its source manifests remain useful evidence but raw Lucide was previously over-classified as Product-ready."
+}

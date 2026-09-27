@@ -1,0 +1,27 @@
+{
+  "release": "2.5.0",
+  "parent": "2.4.5",
+  "scope": [
+    "BJ02/UIF-02 business and Figma DS structural migration",
+    "BJ01/UIF-01 and BJ08/UIF-08 carried forward as migrated",
+    "all other Theme 7 flows regression-protected and remain legacy/not structurally migrated"
+  ],
+  "businessBehaviorChanged": false,
+  "migration": {
+    "newlyMigrated": ["UIF-02"],
+    "migratedCumulative": ["UIF-01", "UIF-02", "UIF-08"],
+    "newFeatureComponentsCreated": 0
+  },
+  "qa": {
+    "bj02FigmaDsBusiness": "PASS 39/39",
+    "bj01Regression": "PASS 34/34",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System v2.0.3 working canonical surface",
+    "localMirror": "Inherited exact variable/style mirror v2.0.2; global byte-exact v2.0.3 mirror not claimed"
+  }
+}

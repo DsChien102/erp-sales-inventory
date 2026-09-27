@@ -1,0 +1,550 @@
+{
+  "schema_version": "1.0",
+  "algorithm": "sha256",
+  "generator": "theme7-v4.1.0-freeze/1.0",
+  "generated_at": "2026-08-23T17:01:04+07:00",
+  "freeze_id": "T7-PACKAGE-FREEZE-v4.1.0",
+  "source_root": "frozen-source",
+  "files": [
+    {
+      "path": "Decision-Log.md",
+      "bytes": 88737,
+      "sha256": "118da3812e4825c3b05d2a092b7f1d5459c9338e76908be41b27e707dcdef231"
+    },
+    {
+      "path": "Freeze-Manifest.md",
+      "bytes": 412,
+      "sha256": "8e06ccd2bde469fbee513987d759416393acd00e994d4dc99adad5e6d35b3052"
+    },
+    {
+      "path": "srs/01-overview.md",
+      "bytes": 16047,
+      "sha256": "a780db35ae2e64403c3e41ffea844871be6137a55787c6be5909387dee0a8710"
+    },
+    {
+      "path": "srs/02-business-journeys/00-business-journey-map.md",
+      "bytes": 3462,
+      "sha256": "9127773c811de6411e645827dc682a259c6e4e881c4904a1678c2e65e4beeb65"
+    },
+    {
+      "path": "srs/02-business-journeys/01-BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md",
+      "bytes": 5650,
+      "sha256": "b92e12bb934f4015e7b7b31c55c8c13f529a29c634f368721a17e72f32484561"
+    },
+    {
+      "path": "srs/02-business-journeys/02-BJ-02-nhan-hang-mua.md",
+      "bytes": 8464,
+      "sha256": "602ac5d004b41c634b58b9643afc9c7d801ffef103e9b454267bda9b0dd71bee"
+    },
+    {
+      "path": "srs/02-business-journeys/03-BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan.md",
+      "bytes": 6023,
+      "sha256": "922dfac2567a642f2c872ab174dac044f6419116e60926502c310ad2e644f624"
+    },
+    {
+      "path": "srs/02-business-journeys/04-BJ-04-quan-ly-vong-doi-giu-hang.md",
+      "bytes": 6170,
+      "sha256": "d0594dacd69a5dcbf04bebbdcb25fe787c88e6b680833d3d37bdbd40190ede5c"
+    },
+    {
+      "path": "srs/02-business-journeys/05-BJ-05-lay-hang-va-ban-giao-don.md",
+      "bytes": 6005,
+      "sha256": "472d259eef9791490625104d1421cdcfdade7eff3225f6dd34818f135b8b1e80"
+    },
+    {
+      "path": "srs/02-business-journeys/06-BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md",
+      "bytes": 7587,
+      "sha256": "1c94761d2558c1aa43543abef0ee764b2242115d0370fa3c75b324362ac4399c"
+    },
+    {
+      "path": "srs/02-business-journeys/07-BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md",
+      "bytes": 7212,
+      "sha256": "6a8b3293f28820cd63a75d15f3da282ffff274a7a4205b73c41068b492fdd21d"
+    },
+    {
+      "path": "srs/02-business-journeys/08-BJ-08-kiem-ke-va-dieu-chinh-chenh-lech.md",
+      "bytes": 8169,
+      "sha256": "d87183cc0a4d04c1837f9beee69140e5de9c152982d5b0fa044a151bcf4880c7"
+    },
+    {
+      "path": "srs/02-business-journeys/09-BJ-09-quan-ly-trang-thai-hang.md",
+      "bytes": 7443,
+      "sha256": "3aaedcc6b068f91320d131f1bd3b5b1a59b5472a582932f1bc58574b836e6c15"
+    },
+    {
+      "path": "srs/02-business-journeys/10-BJ-10-tieu-huy-hang.md",
+      "bytes": 6876,
+      "sha256": "a26fb1d5102429f690291f679090c136af7be62f866496a3e832fc4075e7014b"
+    },
+    {
+      "path": "srs/02-business-journeys/11-BJ-11-huy-va-sua-sai-nghiep-vu-kho.md",
+      "bytes": 9312,
+      "sha256": "64a5c907a8482d8f3597794501ab32dafe707b67f9f3a59c3994132fb2345158"
+    },
+    {
+      "path": "srs/02-business-journeys/12-BJ-12-khoi-tao-so-du-ton-kho-dau-ky.md",
+      "bytes": 7096,
+      "sha256": "18f068712c1e0debad667ec174dd839e65141d7eb1a8df92a6b0d3cce22aea18"
+    },
+    {
+      "path": "srs/02-business-journeys/13-BJ-13-ghi-nhan-chi-phi-mua-den-muon.md",
+      "bytes": 6262,
+      "sha256": "48ff72d360eff045f3b874be068964309b130ab6c600695b0ecacc68cceecf44"
+    },
+    {
+      "path": "srs/02-business-journeys/14-BJ-14-tinh-va-cong-bo-gia-von.md",
+      "bytes": 6978,
+      "sha256": "58c2392c075743455ad2fad560160ad453f52b06d44adf43ae5ec73bb40a6909"
+    },
+    {
+      "path": "srs/02-business-journeys/15-BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md",
+      "bytes": 6700,
+      "sha256": "4c6746bc3ad027747beeefe2f41aa4ddec9769e76dd1fe6f55e4159431902727"
+    },
+    {
+      "path": "srs/02-business-journeys/16-BJ-16-dieu-tra-va-doi-soat-sai-lech.md",
+      "bytes": 7975,
+      "sha256": "dc70b4d82f6e1b5d777c3e5a533e9fa4ca4d1875652b9e8f5b700a97203f2ca8"
+    },
+    {
+      "path": "srs/02-business-journeys/17-BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh.md",
+      "bytes": 6929,
+      "sha256": "37fee6a7cd695e03c5b2e35fb3d44a9a2f288cc19039433702e433ae5263cd4e"
+    },
+    {
+      "path": "srs/03-domain-foundation.md",
+      "bytes": 24553,
+      "sha256": "128bacd94337790cade608b21deba5e333a064045c37f768bff65cb44e27bab8"
+    },
+    {
+      "path": "srs/04-data-entities.md",
+      "bytes": 73755,
+      "sha256": "3e7ce39bdc1416c70cbfcfeb888a3552752c0cd90a4118c42d2c648b78dedf5c"
+    },
+    {
+      "path": "srs/05-use-cases/00-use-case-map.md",
+      "bytes": 19206,
+      "sha256": "0f93d4ec4d4fbb572a03ca054a400be11ca74c6b55e0d9e54f2d3840624a745c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
+      "bytes": 9377,
+      "sha256": "1a574ed0e1b5cad3de6f4d400e046807577132343fa9952bcecd7ccca1bee194"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md",
+      "bytes": 8253,
+      "sha256": "74750ee592e00a567c1c03bc8cf240c0f881c0f871fe7f8432a5a83c838121d8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md",
+      "bytes": 8587,
+      "sha256": "3301cf0a9f44ff4953690b10f657ac4055f773d66b133afcf7b55d12003d1a22"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md",
+      "bytes": 8114,
+      "sha256": "f8e7ca7e6e91a387977a128b318f4ab0cf71a1b4f55a8af2bb25225d3713340b"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md",
+      "bytes": 8053,
+      "sha256": "7cebe190a32a82f69ca6797c4ea830465766c25e0e3ec25f9ce877d9d2c2d9c6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
+      "bytes": 9090,
+      "sha256": "32bef9a33d960503d844e9750b31f23e1eb097fc9e2ba888c7de5e14ae419486"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
+      "bytes": 9523,
+      "sha256": "c209c3d56340cde62671fe7ca841ae8059a9d8aa5e3e921541bfbf25a33801da"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
+      "bytes": 9139,
+      "sha256": "8cf3199ddf363775fdcb5cd3bfafdb46a4d18e46f2f8d0028560fe6a57d71219"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
+      "bytes": 8751,
+      "sha256": "be0d229fd02a61b366fbcdfa3607d3109459db7dc73752e1d75387398d017da6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md",
+      "bytes": 5654,
+      "sha256": "1142d235df637bb250a391f60856309ffae522331e4d529f7ced93923ee016f7"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md",
+      "bytes": 8434,
+      "sha256": "e447064ce6cfdff14cdcae76f2c2b074ec07ef921993c4a41a0872d984ac2934"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md",
+      "bytes": 8502,
+      "sha256": "d8f0f61cb0ea6d8c2900cc7436bc129a001c80f3dd4b6db555be6248c68326a6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md",
+      "bytes": 8439,
+      "sha256": "22e5c0f5b21225f5ca2d6262d94912aebdd7a78f3dc005c3c562564a4fa60f8e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md",
+      "bytes": 8188,
+      "sha256": "8a69b7b644ab781118aa44f8bc15c7ce1a05703db9e75c9a5a79387e08330e94"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md",
+      "bytes": 8305,
+      "sha256": "a681c447c77d2e6657b3c69ff9d740bdbbde727c80c2918b9fd57e2437471be4"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md",
+      "bytes": 8313,
+      "sha256": "2e0b70e5cc526c7b322b3cd9983becf60e177d035af4a90f676c201b7df97bf4"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
+      "bytes": 8325,
+      "sha256": "0a8d8012108c212fac26df8643da89c21081b844eaa32622a51b7b88c46ce7a6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md",
+      "bytes": 7890,
+      "sha256": "76504907b449a79b1140048332959d8951cff70d74607488fec00a18d12f31e5"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md",
+      "bytes": 7942,
+      "sha256": "d23d6e071a10b80ed190574da76fef725af04ab15136973eba44f2efa90bbf97"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md",
+      "bytes": 7988,
+      "sha256": "0415cc4841a744d267456bdec8964ab048773ca12246a93dd7ed038c6b944aa1"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md",
+      "bytes": 8233,
+      "sha256": "df74cbb08b44f93307ce76ddb73e8310ae8c90c9ef89bf4efd0d2d4fb1da5bab"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md",
+      "bytes": 9254,
+      "sha256": "327e5c1a81dfe07d8a1fa4113616e074f7e6f9984b63832ae1246e5ba8bc08c8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+      "bytes": 8781,
+      "sha256": "51640414b702b06d78b33cbbc6db56d680f4f0f0a2b2101e5636d165dca78ff1"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md",
+      "bytes": 8752,
+      "sha256": "9ddd747f199d7d1f0cc1c5d3dd468ba241848893b0ff64e0d4053586bc1abc3a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md",
+      "bytes": 8776,
+      "sha256": "23a9d381118101fb6049c6807d961e34b4a02996bd4f8305f23f4084920d771b"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md",
+      "bytes": 8722,
+      "sha256": "7735f6242217903eaf0cacc370460a184cb0623c86555e5a517f127de1866d37"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md",
+      "bytes": 8463,
+      "sha256": "24e05712bc7292f4b2d0f3495472ac42524897911d09118fe9638d79a1cffd32"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md",
+      "bytes": 8521,
+      "sha256": "9238f9d3049741d4c2f9334c55886d546ba510bbfdae12fbf90317ee9dbabcf0"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+      "bytes": 8679,
+      "sha256": "dad54bb465cb888c56cd5b48331bec77f9acf28ddf75ffde20190982f6d4a9c6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+      "bytes": 8579,
+      "sha256": "6d4ec6519dc127f1e3fb9da5846311b6953ad39a707765067d0683e3a34e9870"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md",
+      "bytes": 8601,
+      "sha256": "5117a439396fdb29387e92aa94c718deb9ac4d1083526388a4545cac117d9afa"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md",
+      "bytes": 8638,
+      "sha256": "95c993196bef4e644302663c3368695889fecb7fc7a7c6ccb25d46926538576f"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md",
+      "bytes": 8690,
+      "sha256": "4fb8a008ac2496c246e2efc99aa3eafc4f97c2053f699e0daac78883bfe1e069"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md",
+      "bytes": 8675,
+      "sha256": "51b81cb575619305ce262efee99da5f1d6d9a1fbfad279ccb803ee9b249050c9"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md",
+      "bytes": 8644,
+      "sha256": "bb589dcd5333c73807d61e5cb25ac8b50e26f81e9f9e4518772fb8f819337897"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md",
+      "bytes": 8869,
+      "sha256": "d676965044c613c57ff2be70db9bac60e54b8201077459cbb36e56e64ee0e330"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md",
+      "bytes": 8471,
+      "sha256": "ef0ec84996bf70fdb837dcff465264caf701132d469e03d6cbe92dcf6bc6d21a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md",
+      "bytes": 8595,
+      "sha256": "08c3be6dc9eb1b0d77d8e46b1ec8bb6632e3cb5308ac9dd5e9d6ea455995de14"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md",
+      "bytes": 8533,
+      "sha256": "83c55ef837076918f0c6d14dbc27108e784a34c59fad42257f8bbcd5d712bc40"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md",
+      "bytes": 8837,
+      "sha256": "da89eb2ba90008ec0a36ab7cdb45b237bf65f967a6f385b1e4b0a3fb56f030e9"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md",
+      "bytes": 8454,
+      "sha256": "082f2731a321ea68a591526dc65b011577a6a703c1f3cca0fdd4cd32776f272d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md",
+      "bytes": 8515,
+      "sha256": "001ba1b7206c647c466d32616c95226290496778518a6d25df778bea34e1fb40"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md",
+      "bytes": 8549,
+      "sha256": "83ee0e31610edb82a5484503ae905825845a53ff27b9e75fc245a3865a74aaf9"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md",
+      "bytes": 8954,
+      "sha256": "90c90939a31bbcf9dff71b56b8f29538466b5406c396ec81baf1ad44a9df2957"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md",
+      "bytes": 8676,
+      "sha256": "f4dfc952cd257a59d78d707a80b068e33567129a1f1607a38c3511fc1eb633d8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md",
+      "bytes": 8943,
+      "sha256": "b7ae99a1673706f4d6245910154629aba7485dd19a5b44c346357a3914b93e30"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md",
+      "bytes": 8510,
+      "sha256": "b244082403cf07677dd9f17f7d3c0fbc97758f863f86eb6eeb0e26b16d0bf205"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md",
+      "bytes": 8675,
+      "sha256": "cd32399dcbd9f83564f69caba102db278cf5c5754c3e728acccfaffe0ea5262b"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md",
+      "bytes": 8872,
+      "sha256": "fff5445f34510b9be4218425d57614b79e3d9c7b588e65b4979d5e0c3f37a35a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md",
+      "bytes": 8737,
+      "sha256": "1575e91190ecbe688bb33b35fb4d858bfdf12b65aadc9119dc81ac20428e8fcf"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md",
+      "bytes": 8900,
+      "sha256": "2abeae8d9985a9ea040c6cd7d919258857f366c95516ce28f5916da11f2fe5a4"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md",
+      "bytes": 8528,
+      "sha256": "79b945dddd0037f4f9b7507bb50c5b58b0907c4f0280d28023795d494e068f3a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md",
+      "bytes": 8497,
+      "sha256": "8cd88957397cb8f29ec4990500f59220f9ad8157eeecd76ec213e8d787f48b4e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md",
+      "bytes": 8578,
+      "sha256": "3b396827709f7d9e75c9161c4532db6effa1d2e31681d787372782de13750609"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+      "bytes": 8745,
+      "sha256": "cc3ba1b670d648c34551e37a290ad4adfd1a61e6b36b7ce5941c9d58aab9f1bc"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md",
+      "bytes": 8700,
+      "sha256": "96a96cfd39c9d2e00b76a8f2d00ee667e17b7314714ff6b3218518c8e5be7d2c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md",
+      "bytes": 8709,
+      "sha256": "a8c8bab3ea31760958a4ca5108ebada6789892e16bae7d1e36e8932af9e72c6d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md",
+      "bytes": 8737,
+      "sha256": "974d5820b08e2bd26ca341220e7a086dc9f4c024b9b777cac08da785bdcc82f0"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md",
+      "bytes": 8275,
+      "sha256": "dbe04c5d2050627e0a448ec3c8bc375f982f30dbdb1f8c0d237bcab7c07d5721"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md",
+      "bytes": 8194,
+      "sha256": "6782b7c7feaafc0cf3536aae44a6dc09053d047854423708b09c8fe8eb81d57a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md",
+      "bytes": 8247,
+      "sha256": "467d78332ce1149afaa236c0a564c1aab017f65ad5b12c3a7543625befab48b3"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md",
+      "bytes": 8187,
+      "sha256": "18e4b1c62189546dbea50a1a6f8dbebc2ef351d2eaa29ef4a7d8b6e4234256e7"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md",
+      "bytes": 8858,
+      "sha256": "600a0dee7399dca23f9fc84ea1003c20eb3e80397fec4c209fa473df45fa16e0"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md",
+      "bytes": 8806,
+      "sha256": "f65dd42ea70e7d1ed2831eb0144cbdc80ef33b0a3be355ccd59424177f88a969"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+      "bytes": 8796,
+      "sha256": "b519723a7855426350971af8a5b54763d13d4bb27bb2cc4df6751d1d61131f6a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+      "bytes": 8865,
+      "sha256": "8986ccb0df4b395f8e09804b4c2d4fea9d69eb848c4f17dec01d0d01eba0b1e6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md",
+      "bytes": 8771,
+      "sha256": "86f31cbc446f5c4c18c1b5cbae4599a484ed325094b31431a3e5ab94251a4f54"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md",
+      "bytes": 8802,
+      "sha256": "6557a9c92bc9602ff11e943ac77e68525745e752975bd36dfb61cd8bc9ee9190"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md",
+      "bytes": 8769,
+      "sha256": "5c1b29bf45ea752cdceb9aa58f1bef530034bd9a6a1296161b1917104fd1552a"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md",
+      "bytes": 8823,
+      "sha256": "d8bb1a2edbd83debef8394b8d1add9668f29f7c008be780c7093c9031a7c0b3b"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/00-capability.md",
+      "bytes": 2421,
+      "sha256": "442b04262f3f84ddc500d1c52c95be0619b98fff1eb9fc99af3e502078df97f3"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md",
+      "bytes": 8445,
+      "sha256": "f069eaa38c27214e0690b7a9138aea7b4a6fefa73aa585e177f9f183ace2fbed"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md",
+      "bytes": 8425,
+      "sha256": "8b0ce86d27080525a16220708db4416b11fc42c3b7127bd84039e9b98d7b6c84"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md",
+      "bytes": 8411,
+      "sha256": "8fb94ad1233932107284be25c3ed2614c2ef16200944e4188f826e2917792362"
+    },
+    {
+      "path": "srs/06-shared-behavioral-contracts.md",
+      "bytes": 43822,
+      "sha256": "87ca83a8af677d707ca79e5afdcb50a614eb79ba5ef2a13894b6312b94d3210e"
+    },
+    {
+      "path": "srs/07-technical-contracts.md",
+      "bytes": 33876,
+      "sha256": "7f4136cdbd016499e20543f62054b21ddb68a110a8fb79706d46d3fee38f7ef1"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md",
+      "bytes": 2249,
+      "sha256": "c0385139ec162ae29cf7d29310bedf3f2a3a026ec1a23c394ed4795599ba854c"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md",
+      "bytes": 8815,
+      "sha256": "215d0d980949098a65b7f65029665fc0c4810f5ac1076ce9fe8fecc2a5d9b3b5"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+      "bytes": 8842,
+      "sha256": "e0c8b4e89a8852331b63f3c25442400fb688881d0a63491cb61f196a600d24e5"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md",
+      "bytes": 8700,
+      "sha256": "8b7d87d64c3bd4d5cca595257cc6cba83789f3034c03f1312c4a82d08590f245"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md",
+      "bytes": 8792,
+      "sha256": "53769aab1d4a7258a81a484e6a90cdd9858243f6e864da01db0b16c50b3bd01e"
+    },
+    {
+      "path": "srs/08-ui-ux.md",
+      "bytes": 27424,
+      "sha256": "8be8ca3606d0d4f673fbc93dddc451911e6bfd15e89620c230208c906caf7808"
+    },
+    {
+      "path": "srs/09-traceability-quality.md",
+      "bytes": 10633,
+      "sha256": "04ce368163a382df8d4307f9294c13483c1d5a70112a5605db5d6abb1e4374ec"
+    },
+    {
+      "path": "srs/README.md",
+      "bytes": 1963,
+      "sha256": "191ced647a3638d1eeedfab577486bb3631fad151d3f1807b26c7f3a5fd1cf43"
+    }
+  ]
+}

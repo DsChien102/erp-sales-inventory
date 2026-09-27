@@ -1,0 +1,173 @@
+{
+  "status": "PASS",
+  "passed": 33,
+  "total": 33,
+  "checks": [
+    {
+      "name": "Product viewport stays 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Desktop review requires no document scroll",
+      "pass": true,
+      "note": "[900, 900]"
+    },
+    {
+      "name": "BJ05 lot sheet hugs content",
+      "pass": true,
+      "note": "{'x': 627.528076171875, 'y': 461.6589050292969, 'w': 334.2471923828125, 'h': 439.0111999511719, 'sw': 402, 'cw': 402, 'sh': 528, 'ch': 528}"
+    },
+    {
+      "name": "BJ05 lot sheet has canonical 48x4 handle",
+      "pass": true,
+      "note": "{'x': 774.6966552734375, 'y': 468.880126953125, 'w': 39.91009521484375, 'h': 3.325836181640625, 'sw': 48, 'cw': 48, 'sh': 4, 'ch': 4}"
+    },
+    {
+      "name": "BJ05 lot sheet has no close X",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR030 uses one List Row Navigation collection",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR030 default filter is Tất cả",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR030 rows share exact 76px product geometry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR030 every navigable record keeps chevron",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR030 request opens SCR031",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR031 uses grouped Info Row request context",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR031 line rows use one Navigation variant",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR032 uses compact Status identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR032 uses canonical VTextField",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR032 LOT options use consistent selection row geometry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR032 normal LOT enables Xong after valid qty and LOT",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR032 saves real verification and returns SCR031",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR031 waiting line stays Navigation Disabled, not a different row type",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR031 disabled navigation retains chevron anatomy",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR034 approver queue uses canonical Navigation List Row",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR034 detail uses grouped Info Row facts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR034 reject uses canonical VBottomSheet shell",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR034 reject uses canonical VTextarea",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR033 classification rows use Navigation List Row consistently",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR033 item editor uses VBottomSheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR033 editor has four canonical VTextFields",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-030 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "SCR-031 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "SCR-032 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "SCR-034 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "SCR-033 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "SCR-035 has no horizontal content overflow",
+      "pass": true,
+      "note": "{'sw': 402, 'cw': 402}"
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "browserErrors": []
+}

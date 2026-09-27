@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "release": "3.6.0",
+  "sourceReadiness": "FULL_THEME_HTML_DS_CONFORMANCE_REVIEWED",
+  "meaning": "Current status registry. Theme 7 screens are designed/validated in the HTML harness. Figma is used for current VET45 DS primitives/tokens and prior-theme composition reference only; it is not the Theme 7 screen-design source.",
+  "uifs": [
+    {
+      "uif": "UIF-02",
+      "bj": "BJ-02",
+      "name": "Nhận hàng mua",
+      "screenOccurrences": 9,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-01",
+      "bj": "BJ-01",
+      "name": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
+      "screenOccurrences": 2,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-03",
+      "bj": "BJ-03",
+      "name": "Xác nhận giá trị ban đầu của hàng nhận",
+      "screenOccurrences": 4,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-13",
+      "bj": "BJ-13",
+      "name": "Ghi nhận chi phí mua đến muộn",
+      "screenOccurrences": 5,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-04",
+      "bj": "BJ-04",
+      "name": "Quản lý vòng đời giữ hàng",
+      "screenOccurrences": 1,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-05",
+      "bj": "BJ-05",
+      "name": "Lấy hàng và bàn giao đơn",
+      "screenOccurrences": 5,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-06",
+      "bj": "BJ-06",
+      "name": "Tiếp nhận và phân loại hàng khách trả",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-07",
+      "bj": "BJ-07",
+      "name": "Thực hiện trả hàng cho nhà cung cấp",
+      "screenOccurrences": 4,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-09",
+      "bj": "BJ-09",
+      "name": "Quản lý trạng thái hàng",
+      "screenOccurrences": 5,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-10",
+      "bj": "BJ-10",
+      "name": "Tiêu hủy hàng",
+      "screenOccurrences": 4,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-08",
+      "bj": "BJ-08",
+      "name": "Kiểm kê và điều chỉnh chênh lệch",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-11",
+      "bj": "BJ-11",
+      "name": "Hủy và sửa sai nghiệp vụ kho",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-12",
+      "bj": "BJ-12",
+      "name": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-14",
+      "bj": "BJ-14",
+      "name": "Tính và công bố giá vốn",
+      "screenOccurrences": 5,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-15",
+      "bj": "BJ-15",
+      "name": "Tra cứu báo cáo tồn và thẻ kho",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-16",
+      "bj": "BJ-16",
+      "name": "Điều tra và đối soát sai lệch",
+      "screenOccurrences": 6,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "UIF-17",
+      "bj": "BJ-17",
+      "name": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screenOccurrences": 5,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS"
+    },
+    {
+      "uif": "CAP-01",
+      "bj": null,
+      "supportingCapability": "CAP-01",
+      "name": "Chính sách tồn & cận hạn",
+      "screenOccurrences": 4,
+      "implementation": "HTML_DS_CONFORMANCE_REVIEWED_v3.6.0",
+      "sourceTargets": "FIGMA_DS_PRIMITIVES_AND_PRIOR_THEME_REFERENCE_ONLY",
+      "productApproval": "QA_PASS_WITH_BG_006_INTEGRATION_BOUNDARY"
+    }
+  ],
+  "productWiringScope": [
+    "UIF-02",
+    "UIF-01",
+    "UIF-03",
+    "UIF-13",
+    "UIF-04",
+    "UIF-05",
+    "UIF-06",
+    "UIF-07",
+    "UIF-09",
+    "UIF-10",
+    "UIF-08",
+    "UIF-11",
+    "UIF-12",
+    "UIF-14",
+    "UIF-15",
+    "UIF-16",
+    "UIF-17",
+    "CAP-01"
+  ],
+  "authority": {
+    "theme7Design": "HTML prototype/harness",
+    "figma": "Current VET45 Design System + mature prior-theme reference only",
+    "business": "BJ/UC/Decision/Behavioral/UI-flow contracts"
+  },
+  "counts": {
+    "businessJourneyFlows": 17,
+    "supportingCapabilityFlows": 1,
+    "canonicalRouteOccurrences": 89,
+    "activeUniqueScreens": 77,
+    "declaredRouteStates": 518
+  }
+}

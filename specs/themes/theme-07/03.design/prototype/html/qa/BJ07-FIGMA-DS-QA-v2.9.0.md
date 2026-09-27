@@ -1,0 +1,59 @@
+# BJ07 Figma DS + UX QA — v2.9.0
+
+**Result: PASS · 55/55**
+
+- PASS — BJ07 CSS has no raw hex/rgb colors: 
+- PASS — BJ07 CSS selectors are UIF-07 scoped: []
+- PASS — BJ07 no longer renders legacy io07-allocation-row: 
+- PASS — BJ07 normal sheet declares canonical VBottomSheet node: 
+- PASS — Queue defaults to Tất cả: 
+- PASS — Queue Search & Filter Header follows canonical 402px full-width geometry: {'w': 402, 'left': 0, 'right': 0}
+- PASS — Queue has no persistent Purchase-handoff subtitle: 
+- PASS — Actionable/ready queue records are canonical Navigation Default rows: 3
+- PASS — Waiting queue records are canonical Status Default rows: 1
+- PASS — Waiting row has no chevron and is not a button: 
+- PASS — Navigation rows all expose chevron: 
+- PASS — Source-cancelled request is absent from active queue: 
+- PASS — Queue actionable row opens SCR037: 
+- PASS — SCR037 Back returns to supplier-return queue, not another shared screen: 
+- PASS — Queue search exposes no-result state: 
+- PASS — Preparation request context is Status Compact 52px: 
+- PASS — Product+UOM parents are Status Compact 52px: 3
+- PASS — All source allocations are uniform Navigation Default 76px: 4
+- PASS — Same product different UOM remains separate: ['Nobivac DHPPi\nSP-00142 · hộp\n0/2', 'Nobivac DHPPi\nSP-00142 · lọ\n0/1', 'Găng tay khám Nitrile\nSP-00618 · hộp\n0/1']
+- PASS — Allocation rows contain exact source qty/UOM without editable qty inputs: 
+- PASS — Default preparation stays within one Product viewport before overlays: [702, 702]
+- PASS — Verification uses canonical VBottomSheet and full 402px shell: 
+- PASS — Verification overlay spans full Product canvas: [402, 874]
+- PASS — VBottomSheet handle is exact 48x4: 
+- PASS — Normal VBottomSheet contains no X close CTA: 
+- PASS — Sheet content-hugs within one viewport: 474
+- PASS — LOT verification uses canonical VTextField: 
+- PASS — Sheet uses exactly one Primary action: 
+- PASS — Mismatched typed LOT blocks primary and shows Danger feedback: 
+- PASS — Typed mismatch does not mutate source LOT: 
+- PASS — Confirm exact LOT marks only selected allocation verified: 
+- PASS — Source delta resets affected evidence only: {'a5': False, 'a5affected': True, 'a6': True}
+- PASS — Source delta uses one compact warning banner: 
+- PASS — Physical mismatch blocks review CTA: 
+- PASS — Mismatch copy returns ownership to source without warehouse substitution: 
+- PASS — Many-LOT stress remains uniform rows with vertical scroll only: {'count': 14, 'all76': True, 'x': 0, 'scroll': True}
+- PASS — Final review has exactly four factual Info Rows: 
+- PASS — Final review groups Product+UOM with Compact Status rows: 
+- PASS — Final review uses one canonical Key-value row per allocation: 4
+- PASS — Final review does not expose cross-UOM aggregate total: 
+- PASS — Final review has one primary commit and no confirmation modal: 
+- PASS — Default final review fits without unnecessary vertical scroll: [702, 702]
+- PASS — SCR039 Back returns to SCR037 preparation: 
+- PASS — Source version change blocks commit on same review: 
+- PASS — Stale review offers safe return to preparation: 
+- PASS — Actual handover is the commit transition to SCR041: 
+- PASS — Completed task leaves active queue: 
+- PASS — Completed result is terminal with no Back: 
+- PASS — Completed result uses Product+UOM + allocation Key-value evidence: 
+- PASS — Visible completed copy hides technical operation id: 
+- PASS — UNKNOWN has no blind retry CTA: 
+- PASS — UNKNOWN only exposes safe queue exit: 
+- PASS — Permission result does not expose supplier/source detail: 
+- PASS — BJ07 representative states stay 402x874 without horizontal overflow: [{'s': 'SCR-036', 'state': 'READY', 'app': [402, 874], 'x': 0, 'bx': 16}, {'s': 'SCR-037', 'state': 'READY', 'app': [402, 874], 'x': 0, 'bx': 0}, {'s': 'SCR-039', 'state': 'SOURCE_CHANGED', 'app': [402, 874], 'x': 0, 'bx': 0}, {'s': 'SCR-041', 'state': 'UNKNOWN', 'app': [402, 874], 'x': 0, 'bx': 0}]
+- PASS — No browser errors: []

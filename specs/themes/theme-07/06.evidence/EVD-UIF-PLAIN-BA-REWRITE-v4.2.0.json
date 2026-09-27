@@ -1,0 +1,12 @@
+{
+  "id": "EVD-UIF-PLAIN-BA-REWRITE-v4.2.0",
+  "version": "4.2.0",
+  "parent": "4.1.0",
+  "scope": "03.design/flows/UIF-01..UIF-17",
+  "semantic_change": false,
+  "ui_flows_rewritten": 17,
+  "technical_transitions_preserved": 183,
+  "technical_transition_mismatches": 0,
+  "mermaid_topology_mismatches": 0,
+  "non_ui_flow_semantics_changed": false
+}

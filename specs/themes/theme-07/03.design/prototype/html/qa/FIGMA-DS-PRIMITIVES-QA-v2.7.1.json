@@ -1,0 +1,163 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "v2.7.1 manifest and migration status are current",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Correction CSS has no raw hex colors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Correction CSS has no raw rgb/rgba colors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live List Row node 525:519 is retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live Info Row node 525:351 is retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live Key-value Row node 525:358 is retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared toast points to live VToast 526:4305",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Only one concrete toast renderer remains",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Toast legacy wrapper routes through canonical semantic renderer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Info group is composition, not a fabricated DS component",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-025 actionable and waiting rows both use Default density",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-025 peer List Rows are exactly aligned at 370x76",
+      "pass": true,
+      "note": "{'nav': {'w': 370, 'h': 76, 'x': 523, 'y': 424, 'b': 500}, 'status': {'w': 370, 'h': 76, 'x': 523, 'y': 508, 'b': 584}}"
+    },
+    {
+      "name": "Navigation owns chevron; waiting Status row has none",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Waiting Status row remains non-interactive by element semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Current migrated Product scope locks List Row Default=370x76 and Compact=370x52",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "LOT Selection rows are Default 370x76 with radio and no chevron",
+      "pass": true,
+      "note": "[{'w': 370, 'h': 76, 'chev': False, 'radio': True}, {'w': 370, 'h': 76, 'chev': False, 'radio': True}]"
+    },
+    {
+      "name": "BJ05 context uses 370px grouped information surface with 16px inset and 12px radius",
+      "pass": true,
+      "note": "{'w': 370, 'pad': '16px', 'radius': '12px', 'bg': 'rgb(255, 255, 255)', 'rows': [{'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}, {'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}, {'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}]}"
+    },
+    {
+      "name": "Grouped Info Rows remain canonical transparent 338x44",
+      "pass": true,
+      "note": "[{'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}, {'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}, {'w': 338, 'h': 44, 'bg': 'rgba(0, 0, 0, 0)'}]"
+    },
+    {
+      "name": "BJ04 multi-row context is grouped without changing Info Row anatomy",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 established Info Row section now has grouped information surface",
+      "pass": true,
+      "note": "{'w': 370, 'pad': '16px', 'radius': '12px', 'bg': 'rgb(255, 255, 255)', 'rowWidths': [338, 338]}"
+    },
+    {
+      "name": "UIF08 multi-row context uses the same information surface composition",
+      "pass": true,
+      "note": "{'w': 370, 'pad': '16px', 'radius': '12px', 'bg': 'rgb(255, 255, 255)'}"
+    },
+    {
+      "name": "BJ05 handover summary uses two canonical 338x44 Key-value Rows",
+      "pass": true,
+      "note": "[{'w': 338, 'h': 44, 'state': 'Emphasis', 'pad': '0px 12px', 'radius': '8px', 'bg': 'rgb(235, 244, 236)', 'label': {'size': '14px', 'line': '20px', 'weight': '600'}, 'value': {'family': 'Inter, system-ui, sans-serif', 'size': '16px', 'line': '22px', 'weight': '600'}}, {'w': 338, 'h': 44, 'state': 'Default', 'pad': '0px', 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'label': {'size': '13px', 'line': '20px', 'weight': '400'}, 'value': {'family': '\"JetBrains Mono\", ui-monospace, monospace', 'size': '14px', 'line': '22px', 'weight': '400'}}]"
+    },
+    {
+      "name": "Key-value Emphasis matches Figma geometry/typography",
+      "pass": true,
+      "note": "{'w': 338, 'h': 44, 'state': 'Emphasis', 'pad': '0px 12px', 'radius': '8px', 'bg': 'rgb(235, 244, 236)', 'label': {'size': '14px', 'line': '20px', 'weight': '600'}, 'value': {'family': 'Inter, system-ui, sans-serif', 'size': '16px', 'line': '22px', 'weight': '600'}}"
+    },
+    {
+      "name": "Key-value Default keeps JetBrains Mono 14/22 value and transparent surface",
+      "pass": true,
+      "note": "{'w': 338, 'h': 44, 'state': 'Default', 'pad': '0px', 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'label': {'size': '13px', 'line': '20px', 'weight': '400'}, 'value': {'family': '\"JetBrains Mono\", ui-monospace, monospace', 'size': '14px', 'line': '22px', 'weight': '400'}}"
+    },
+    {
+      "name": "VToast is exactly 370x56 with 8px radius and 14/20 Regular message",
+      "pass": true,
+      "note": "[{'type': 'VToastType.success', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(59, 148, 72)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.warning', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(217, 138, 11)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.danger', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(209, 67, 67)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.info', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(47, 111, 224)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}]"
+    },
+    {
+      "name": "VToast leading icon is 24x24 with clean 14x14 glyph; close is a plain clean 20x20 glyph",
+      "pass": true,
+      "note": "[{'type': 'VToastType.success', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(59, 148, 72)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.warning', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(217, 138, 11)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.danger', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(209, 67, 67)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.info', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(47, 111, 224)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}]"
+    },
+    {
+      "name": "VToast semantic renderer preserves all four tones",
+      "pass": true,
+      "note": "[{'type': 'VToastType.success', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(59, 148, 72)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.warning', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(217, 138, 11)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.danger', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(209, 67, 67)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}, {'type': 'VToastType.info', 'w': 370, 'h': 56, 'radius': '8px', 'pad': '0px 12px 0px 16px', 'bg': 'rgb(14, 17, 22)', 'msg': {'size': '14px', 'line': '20px', 'weight': '400'}, 'icon': {'w': 24, 'h': 24, 'bg': 'rgb(47, 111, 224)', 'svgW': 14, 'svgH': 14, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'close': {'w': 20, 'h': 20, 'radius': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'svgW': 20, 'svgH': 20, 'svgBg': 'rgba(0, 0, 0, 0)', 'svgPad': '0px'}, 'footerGap': 10}]"
+    },
+    {
+      "name": "Toast sits 10px above an existing sticky footer",
+      "pass": true,
+      "note": "[10, 10, 10, 10]"
+    },
+    {
+      "name": "Legacy warning call routes to Warning VToast, not Success",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No-footer VToast uses the canonical 16px bottom inset CSS contract",
+      "pass": true,
+      "note": "{'visualGap': 8, 'cssBottom': '16px'}"
+    },
+    {
+      "name": "No browser errors during shared primitive QA",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "passed": 31,
+  "total": 31,
+  "browserErrors": []
+}

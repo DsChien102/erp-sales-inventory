@@ -1,0 +1,285 @@
+{
+  "status": "PASS",
+  "passed": 32,
+  "total": 32,
+  "checks": [
+    {
+      "name": "SCR027 renders one canonical Navigation row per LOT",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "SCR027 LOT rows share exact 76px geometry",
+      "pass": true,
+      "note": [
+        76,
+        76
+      ]
+    },
+    {
+      "name": "SCR027 main overview has no inline quantity field",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR027 LOT rows expose required and picked quantity without prose blocks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT editor uses canonical VBottomSheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT editor has canonical 48x4 handle",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT editor has no close X",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT editor exposes one quantity field, not duplicate LOT forms",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT editor content-hugs and does not become near-full-screen",
+      "pass": true,
+      "note": 348
+    },
+    {
+      "name": "Updating one LOT returns to compact overview",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Many-LOT stress remains one 76px row per allocation",
+      "pass": true,
+      "note": {
+        "count": 8,
+        "heights": [
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76
+        ],
+        "fields": 0,
+        "overflow": 0,
+        "scrollable": true
+      }
+    },
+    {
+      "name": "Many-LOT stress does not multiply inline fields",
+      "pass": true,
+      "note": {
+        "count": 8,
+        "heights": [
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76
+        ],
+        "fields": 0,
+        "overflow": 0,
+        "scrollable": true
+      }
+    },
+    {
+      "name": "Many-LOT stress uses natural vertical scroll with no horizontal overflow",
+      "pass": true,
+      "note": {
+        "count": 8,
+        "heights": [
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76,
+          76
+        ],
+        "fields": 0,
+        "overflow": 0,
+        "scrollable": true
+      }
+    },
+    {
+      "name": "Cần phân loại enters SCR033 directly",
+      "pass": true,
+      "note": "SCR-033"
+    },
+    {
+      "name": "SCR033 uses compact request context instead of three-row metadata block",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Classification editor is canonical VBottomSheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Classification editor uses one progress row and four fields",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Classification fields avoid repeated helper copy",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Classification sheet remains compact enough for one viewport",
+      "pass": true,
+      "note": 646
+    },
+    {
+      "name": "Back from classification returns maker queue",
+      "pass": true,
+      "note": "SCR-030"
+    },
+    {
+      "name": "Back from classification never enters approver SCR034",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Receipt request enters SCR031",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR031 uses compact request context",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Receipt line enters SCR032",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Back SCR032 returns owning SCR031",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Back SCR031 returns SCR030",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF06 review catalog keeps maker route before independent approver",
+      "pass": true,
+      "note": [
+        "SCR-030",
+        "SCR-031",
+        "SCR-032",
+        "SCR-033",
+        "SCR-035",
+        "SCR-034"
+      ]
+    },
+    {
+      "name": "SCR031 has at most one footer primary action",
+      "pass": true,
+      "note": [
+        "Ghi nhận hàng trả"
+      ]
+    },
+    {
+      "name": "SCR033 has one footer completion action",
+      "pass": true,
+      "note": [
+        "Hoàn tất phân loại"
+      ]
+    },
+    {
+      "name": "SCR035 intermediate retains explicit classify-now and defer choices",
+      "pass": true,
+      "note": [
+        "Để sau",
+        "Phân loại ngay"
+      ]
+    },
+    {
+      "name": "All BJ06 representative screens stay 402x874 with no app-content horizontal overflow",
+      "pass": true,
+      "note": [
+        {
+          "sid": "SCR-030",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 16
+        },
+        {
+          "sid": "SCR-031",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 0
+        },
+        {
+          "sid": "SCR-032",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 0
+        },
+        {
+          "sid": "SCR-033",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 0
+        },
+        {
+          "sid": "SCR-034",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 0
+        },
+        {
+          "sid": "SCR-035",
+          "app": [
+            402,
+            874
+          ],
+          "overflow": 0,
+          "bodyOverflow": 0
+        }
+      ]
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

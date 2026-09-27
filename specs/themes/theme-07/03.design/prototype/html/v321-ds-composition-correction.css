@@ -1,0 +1,285 @@
+/* VET45 Theme 7 v3.2.1 — DS composition correction.
+ * No new core component/pattern. This file only composes existing Figma DS
+ * primitives (List Row, Key-value Row, VTextField/VNumericKeypadSheet, VChip)
+ * and removes custom card-on-card presentation from audited flows.
+ */
+
+/* Canonical VChip layout: show whole chips; never leave a partially clipped chip. */
+.ac321-chip-wrap {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vet45-v2-space-2, 8px);
+  padding: 0;
+  overflow: visible;
+}
+.ac321-chip-wrap .ds24-chip { flex: 0 0 auto; }
+
+/* Lightweight list metadata, not a heading. */
+.ac321-list-meta {
+  width: 370px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  color: var(--vet45-v2-text-secondary,#6b7480);
+  font: 400 12px/16px Inter,system-ui,sans-serif;
+  text-align: right;
+}
+
+/* BJ08 count/recount: one grouped surface for the collection, not one card per product. */
+body[data-active-uif="UIF-08"] .ac321-count-collection {
+  box-sizing: border-box;
+  width: 370px;
+  max-width: 100%;
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--vet45-v2-border-default,#e5e8eb);
+  border-radius: var(--vet45-v2-radius-4,12px);
+  background: var(--vet45-v2-surface-default,#fff);
+}
+body[data-active-uif="UIF-08"] .ac321-product-input-group {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--vet45-v2-surface-default,#fff);
+}
+body[data-active-uif="UIF-08"] .ac321-product-input-group + .ac321-product-input-group {
+  border-top: 1px solid var(--vet45-v2-border-default,#e5e8eb);
+}
+body[data-active-uif="UIF-08"] .ac321-product-input-group > .ds24-list-row {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  padding: 6px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--vet45-v2-surface-subtle,#f6f8f9) !important;
+}
+body[data-active-uif="UIF-08"] .ac321-product-facts {
+  width: auto;
+  margin: 0 16px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+}
+body[data-active-uif="UIF-08"] .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
+  border-top: 1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+}
+body[data-active-uif="UIF-08"] .ac321-product-field {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 16px 12px;
+}
+body[data-active-uif="UIF-08"] .ac321-product-field .ds24-field { gap: 6px; }
+body[data-active-uif="UIF-08"] .ac321-product-field .ds24-field__control { min-height: 44px; }
+
+/* BJ07 product -> lot hierarchy: one collection surface, product header + flat child rows.
+   Keep canonical List Row instances; remove peer-card appearance from child rows. */
+body[data-active-uif="UIF-07"] .io07-grouped-collection {
+  box-sizing: border-box !important;
+  width: 370px !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius: 12px !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-product-group,
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-review-product {
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-product-group + .io07-product-group,
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-review-product + .io07-review-product {
+  border-top: 1px solid var(--vet45-v2-border-strong,#cfd5db) !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection [data-layout-role="rtv-product-summary"],
+body[data-active-uif="UIF-07"] .io07-grouped-collection [data-layout-role="rtv-review-product"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  margin: 0 !important;
+  padding: 6px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--vet45-v2-surface-subtle,#f6f8f9) !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-allocation-list {
+  gap: 0 !important;
+  padding: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-allocation-list > .ds24-list-row {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 60px !important;
+  margin: 0 !important;
+  padding: 8px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-allocation-list > .ds24-list-row + .ds24-list-row {
+  border-top: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-review-kv {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 4px 16px 8px;
+}
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-review-kv > [data-ds-component="DS v2 / Key-value Row"] {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 401px) {
+  .ac321-chip-wrap,
+  .ac321-list-meta,
+  body[data-active-uif="UIF-08"] .ac321-count-collection,
+  body[data-active-uif="UIF-07"] .io07-grouped-collection { width: 100% !important; max-width: 100% !important; }
+}
+
+/* Runtime v3.1/v3.2 overrides render Audit & Control through ac310/ac320 helpers.
+   Correct those existing DS compositions directly; do not add a feature component. */
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width: 370px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 44px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip {
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+}
+
+/* BJ08: flatten the already-existing List Row + field composition.
+   One outer grouped surface; product rows are context headers, subordinate facts/field are flat. */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-list {
+  width: 370px !important;
+  max-width: 100% !important;
+  border: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group {
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group + .ac310-product-control-group {
+  padding-top: 0 !important;
+  border-top: 1px solid var(--vet45-v2-border-strong,#cfd5db) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group > .ds24-list-row {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  margin: 0 !important;
+  padding: 6px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--vet45-v2-surface-subtle,#f6f8f9) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 8px 16px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent > .ac310-surface,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent > .ac310-surface.ac310-inline-surface {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > span,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"] > strong {
+  font-size: 13px !important;
+  line-height: 20px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field {
+  width: 100% !important;
+  gap: 6px !important;
+}
+
+/* BJ07: beat older highly-specific grouped-density rules and remove the peer-card look. */
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row[data-layout-role="rtv-allocation-row"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 60px !important;
+  margin: 0 !important;
+  padding: 8px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+  box-shadow: none !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row[data-layout-role="rtv-allocation-row"] + .ds24-list-row[data-layout-role="rtv-allocation-row"] {
+  border-top: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}

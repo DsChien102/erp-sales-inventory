@@ -1,0 +1,41 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+schemaVersion: 2
+scope: BJ-10/UIF-10
+extends: ../THEME-07-COMPONENT-USAGE-PROFILE.yaml
+status: PRODUCT_CORRECTED_v1.6.0
+source:
+  flow: ../../flows/UIF-10-BJ-10.md
+  flutterDS: MAPPING_INPUT_ONLY_DEPRECATED
+hardRules:
+  source: Only non-sellable tenant-owned stock may enter disposal request.
+  priceBasis: Missing authoritative price basis blocks request; no manual bypass field.
+  approval: Approval MUST NOT decrement physical stock.
+  completion: ACT-08-DISPOSE is available only in physical-completion mode.
+  actualQty: Beyond-policy difference requires a new request/approval.
+  unknown: Same operation identity; no second disposal.
+componentAllowlist: [VPageScaffold, VAppBar, VPagePadding, VCard, VBadge, VText, VNumberField, VTextField, VBanner, VButton, VEmptyState, VSkeleton, VLoading]
+screenComponents:
+  SCR-036: {surface: list, visibleActions: []}
+  SCR-037: {surface: detail, visibleActions: []}
+  SCR-040: {surface: task_mode, visibleActions: [ACT-COMMON-SUBMIT, ACT-COMMON-DECIDE, ACT-08-DISPOSE]}
+  SCR-041: {surface: result, visibleActions: []}
+
+phase3Calibration_v2_0_2:
+  status: CALIBRATED
+  uiAuthority: Figma Design System v2.0.2
+  parentRelease: 2.0.1
+  rendererRelease: 2.0.2
+  exactRuntimeMapping: ../figma-ds/html-figma-ds-mapping.json
+  genericCardIsCanonical: false
+  legacyQuantitySelectorAllowedInProductRenderer: false
+  quantityEntry: VTextField
+  navigationRow: DS v2 / List Row
+  navigationRowNode: '525:519'
+  readOnlyFactRow: DS v2 / Info Row
+  readOnlyFactRowNode: '525:351'
+  stickyFooter: DS v2 / Sticky Footer
+  stickyFooterNode: '549:927'
+  behaviorSemanticsChanged: false

@@ -1,0 +1,49 @@
+{
+  "version": "3.7.0",
+  "parentVersion": "3.6.4",
+  "date": "2026-09-15",
+  "status": "FULL_THEME_INTEGRATED_NAVIGATION_QA_PASS",
+  "scope": "Full Theme 7 browser prototype with two workbench modes and integrated VET45 navigation from Thêm → Kho; 17 BJ + CAP-01.",
+  "businessJourneys": 17,
+  "supportingCapabilities": 1,
+  "canonicalRouteOccurrences": 89,
+  "activeUniqueScreens": 77,
+  "declaredRouteStateRenders": 518,
+  "canonicalCanvas": "402x874",
+  "change": {
+    "businessRuleChanges": false,
+    "stateMachineChanges": false,
+    "existingBusinessDestinationChanges": false,
+    "appNavigationAdded": true,
+    "newWorkbenchModes": 2,
+    "workbenchModes": ["BJ_UIF", "FULL_THEME_7"],
+    "addedProductNavigationScreens": ["Thêm", "Kho"],
+    "integratedEntries": 18,
+    "duplicatedBusinessRenderers": 0,
+    "sharedRuntime": true,
+    "integratedRoot": "Thêm → Kho",
+    "cap01ProductionIaBg006StillOpen": true
+  },
+  "authority": {
+    "business": "Product documents / BJ / flow / decision / contract",
+    "ui": "Figma Design System",
+    "prototype": "HTML design/verification medium",
+    "implementation": "Production code technical implementation"
+  },
+  "qa": {
+    "integratedThemeNavigation": "specs/themes/theme-07/prototype/html/qa/INTEGRATED-THEME-NAVIGATION-QA-v3.7.0.json",
+    "static": "specs/themes/theme-07/prototype/html/qa/STATIC-CONSISTENCY-QA-v3.7.0.json",
+    "radioHelper": "specs/themes/theme-07/prototype/html/qa/RADIO-HELPER-DS-QA-v3.7.0.json",
+    "listNavigationState": "specs/themes/theme-07/prototype/html/qa/LIST-NAVIGATION-STATE-QA-v3.7.0.json",
+    "listSurfaceRhythm": "specs/themes/theme-07/prototype/html/qa/LIST-SURFACE-RHYTHM-QA-v3.7.0.json",
+    "footerAction": "specs/themes/theme-07/prototype/html/qa/FOOTER-ACTION-QA-v3.7.0.json",
+    "semanticFlowLogic": "specs/themes/theme-07/prototype/html/qa/FLOW-LOGIC-E2E-QA-v3.7.0.json",
+    "fullThemeCompletion": "specs/themes/theme-07/prototype/html/qa/FULL-THEME-COMPLETION-QA-v3.7.0.json",
+    "representativeCoherence": "specs/themes/theme-07/prototype/html/qa/REPRESENTATIVE-COHERENCE-QA-v3.7.0.json",
+    "runtimeUi": "specs/themes/theme-07/prototype/html/qa/RUNTIME-UI-QA-v3.7.0.json",
+    "allFlowSmoke": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v3.7.0.json",
+    "deviceFrame": "specs/themes/theme-07/prototype/html/qa/DEVICE-FRAME-QA-v3.7.0.json",
+    "packageValidation": "specs/themes/theme-07/prototype/html/qa/CURRENT-PACKAGE-VALIDATION-v3.7.0.json"
+  },
+  "evidenceBoundary": "Browser prototype only; production backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

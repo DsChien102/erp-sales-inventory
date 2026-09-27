@@ -1,0 +1,35 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+schemaVersion: 2
+scope: BJ-09/UIF-09
+extends: ../THEME-07-COMPONENT-USAGE-PROFILE.yaml
+status: PRODUCT_CORRECTED_v1.6.0
+source:
+  flow: ../../flows/UIF-09-BJ-09.md
+  flutterDS: single_source_of_truth
+hardRules:
+  stateWhitelist: Generic destination contains business states only; process states are not selectable.
+  expiry: Derived from business date and expiry date; no user mark-expired action.
+  lock: Stock-count lock is true read-only.
+  invariant: State movement preserves total physical quantity and book value.
+  actorHandoff: Maker and approver modes are mutually exclusive.
+componentAllowlist: [VPageScaffold, VAppBar, VPagePadding, VSearchBar, VChip, VCard, VBadge, VText, VRadio, VTextField, VBanner, VButton, VEmptyState, VSkeleton, VLoading]
+screenComponents:
+  SCR-036: {surface: list, visibleActions: []}
+  SCR-037: {surface: detail, visibleActions: []}
+  SCR-038: {surface: form_or_review, visibleActions: [ACT-COMMON-SUBMIT, ACT-COMMON-DECIDE], traceOnlyActions: [ACT-08-STATE]}
+  SCR-041: {surface: result, visibleActions: [], traceOnlyActions: [ACT-08-STATE]}
+  SCR-056: {surface: detail, visibleActions: []}
+
+# v3.10.1 BJ09 correction
+semantic_hardening_v3101:
+  policy_source: {entity: StateTransitionPolicyVersion, ownership: SERVER_AUTHORITATIVE_IMMUTABLE}
+  submit_basis: {entity: StateChangeBasis, ownership: CONTRACT_ONLY_IMMUTABLE, approver_bound_to_exact_basis: true}
+  current_state: {ownership: SERVER_AUTHORITATIVE_READ_ONLY, presentation: VInfoRow}
+  destination: {ownership: USER_INPUT_SERVER_POLICY_VALIDATED, component: VRadio, canonical_demo_code: DEMO}
+  partial_quantity: {ownership: USER_INPUT_SERVER_VALIDATED, component: VNumberField}
+  valuation_slices: {ownership: CONTRACT_ONLY, user_selectable: false}
+  approval: {actor_handoff: true, approve_executes_state_change: false}
+  system_action: {id: ACT-08-STATE, visibility: TRACE_ONLY_SYSTEM}

@@ -1,0 +1,89 @@
+{
+  "version": "3.9.9",
+  "status": "PASS",
+  "passed": 16,
+  "total": 16,
+  "checks": [
+    {
+      "name": "Worklist immediately distinguishes dirty work",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nGiá vốn\nTháng 08/2026\n184 sản phẩm · Bình quân cuối kỳ\nSẵn sàng công bố\nCập nhật 03/09/2026\n3 sản phẩm · 3 nguyên nhân cần đối soát\nCần tính lại\nTháng 09/2026\nToàn bộ sản phẩm · Bình quân cuối kỳ\nBị chặn\nTạo lần tính"
+    },
+    {
+      "name": "Worklist does not expose implementation identifiers",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nGiá vốn\nTháng 08/2026\n184 sản phẩm · Bình quân cuối kỳ\nSẵn sàng công bố\nCập nhật 03/09/2026\n3 sản phẩm · 3 nguyên nhân cần đối soát\nCần tính lại\nTháng 09/2026\nToàn bộ sản phẩm · Bình quân cuối kỳ\nBị chặn\nTạo lần tính"
+    },
+    {
+      "name": "Dirty work opens a constrained setup task",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Dirty Product set cannot be silently omitted",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Setup distinguishes calculation and posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result explains policy method and comparison without a method decision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result exposes decision-relevant per-product change",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result calls the write effect a delta",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review is a single final decision surface",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review has no second method selector",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review makes forward-effective rule understandable",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Publication reaches terminal result without extra confirmation modal",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result tells user what was actually reconciled",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result uses actual publication effective time, not historical planned date",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Unknown finality is non-actionable and does not invite retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Fresh-eye walk has no browser errors",
+      "pass": true,
+      "note": "[]"
+    }
+  ],
+  "browserErrors": []
+}

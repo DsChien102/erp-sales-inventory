@@ -1,0 +1,345 @@
+{
+  "status": "PASS",
+  "passed": 28,
+  "total": 28,
+  "activeRoutes": [
+    {
+      "uif": "UIF-03",
+      "screen": "SCR-014",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 386,
+      "bodyCw": 370,
+      "text": 343
+    },
+    {
+      "uif": "UIF-03",
+      "screen": "SCR-015",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 421
+    },
+    {
+      "uif": "UIF-03",
+      "screen": "SCR-017",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 179
+    },
+    {
+      "uif": "UIF-03",
+      "screen": "SCR-019",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 183
+    },
+    {
+      "uif": "UIF-13",
+      "screen": "SCR-085",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 386,
+      "bodyCw": 370,
+      "text": 523
+    },
+    {
+      "uif": "UIF-13",
+      "screen": "SCR-086",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 457
+    },
+    {
+      "uif": "UIF-13",
+      "screen": "SCR-087",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 564
+    },
+    {
+      "uif": "UIF-13",
+      "screen": "SCR-088",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 863
+    },
+    {
+      "uif": "UIF-13",
+      "screen": "SCR-089",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 442
+    },
+    {
+      "uif": "UIF-14",
+      "screen": "SCR-072",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 247
+    },
+    {
+      "uif": "UIF-14",
+      "screen": "SCR-073",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 329
+    },
+    {
+      "uif": "UIF-14",
+      "screen": "SCR-074",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 573
+    },
+    {
+      "uif": "UIF-14",
+      "screen": "SCR-076",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 396
+    },
+    {
+      "uif": "UIF-14",
+      "screen": "SCR-077",
+      "w": 402,
+      "h": 874,
+      "sw": 402,
+      "cw": 402,
+      "contentSw": 402,
+      "contentCw": 402,
+      "bodySw": 370,
+      "bodyCw": 370,
+      "text": 290
+    }
+  ],
+  "checks": [
+    {
+      "name": "Workbench package version is v3.0.0",
+      "pass": true,
+      "note": "3.0.0"
+    },
+    {
+      "name": "HTML manifest version/parent correct",
+      "pass": true,
+      "note": "3.0.0 <- 2.9.4"
+    },
+    {
+      "name": "v3.0.0 correction layer loaded after v2.9.4",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Inspector labels all three valuation UIFs as v3.0.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No custom two-option segmented control in BJ14 renderer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 run-kind uses canonical VRadio node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 evidence uses canonical VBottomSheet node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Valuation CSS explicitly scopes all three UIFs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No new valuation core component family introduced",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-03 click/commit handler unchanged from v2.9.4",
+      "pass": true,
+      "note": "decc3b8a73cc"
+    },
+    {
+      "name": "UIF-13 click/commit handler unchanged from v2.9.4",
+      "pass": true,
+      "note": "bcebb9bddb18"
+    },
+    {
+      "name": "UIF-14 click/commit handler unchanged from v2.9.4",
+      "pass": true,
+      "note": "32ccd3635a1d"
+    },
+    {
+      "name": "All 14 active valuation screens render 402x874 with no horizontal overflow",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ03 has one dominant Product collection",
+      "pass": true,
+      "note": 1
+    },
+    {
+      "name": "BJ03 Product headers are visually distinct from nested scopes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 nested scopes are not peer cards",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 evidence is canonical VBottomSheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 conflicting evidence starts unselected",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 evidence sheet is fully opaque after entrance animation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 allocation is one grouped collection",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 money stays plain value, not VBadge",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 allocation method uses canonical VSelect annotation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 run kind renders exactly two VRadio choices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 has no user-selectable costing-method control",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 method comparison is one grouped surface",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 policy method is semantically highlighted",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 primary method values stay one-line",
+      "pass": true,
+      "note": [
+        {
+          "scroll": 150,
+          "client": 150,
+          "white": "nowrap",
+          "text": "1.242.800.000 đ"
+        },
+        {
+          "scroll": 150,
+          "client": 150,
+          "white": "nowrap",
+          "text": "1.245.920.000 đ"
+        }
+      ]
+    },
+    {
+      "name": "No browser JS errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

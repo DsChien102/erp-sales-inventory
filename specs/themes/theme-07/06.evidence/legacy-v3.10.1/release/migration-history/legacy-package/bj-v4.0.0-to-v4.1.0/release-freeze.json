@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "package_version": "4.1.0",
+  "package_freeze_id": "T7-PACKAGE-FREEZE-v4.1.0",
+  "source_package_version": "4.0.0",
+  "source_package_freeze_id": "T7-PACKAGE-FREEZE-v4.0.0",
+  "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+  "bj_migration_freeze_id": "T7-BJ-MIGRATION-FREEZE-v4.1.0",
+  "approved": true,
+  "internal_cutover_completed": true,
+  "outbound_location": "TEMPORARY_IN_THEME_7",
+  "outbound_transfer_status": "DEFERRED_BY_OWNER_DECISION",
+  "outbound_receiver_cutover_completed": false,
+  "d17_status": "NOT_EFFECTIVE_PENDING_THEME_2_ADOPTION",
+  "owner_corrections": {
+    "product": "Theme 2",
+    "purchase": "Theme 10",
+    "sales_pos": "Theme 5"
+  }
+}

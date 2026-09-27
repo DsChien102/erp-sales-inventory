@@ -1,0 +1,429 @@
+/* VET45 Theme 7 v2.9.0 — BJ07 Supplier Return structural Figma DS migration.
+ * Live Figma authority: List Row 525:519, Info Row 525:351, Key-value Row 525:358,
+ * VBanner 526:4215, VBottomSheet 4695:6353, VTextField 522:7186.
+ * All rules are scoped to UIF-07. Product canvas remains exactly 402x874.
+ */
+
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .app-content {
+  overflow-x: hidden !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .body-stack {
+  width: 370px !important;
+  min-width: 0 !important;
+  max-width: 370px !important;
+  gap: 12px !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .body-stack > * {
+  min-width: 0 !important;
+  max-width: 370px;
+}
+
+/* Root list — canonical Search/Chip rhythm. */
+body[data-active-uif="UIF-07"] .ds24-search-header {
+  width: 402px !important;
+  max-width: 402px !important;
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .ds24-search,
+body[data-active-uif="UIF-07"] .io07-chip-scroll,
+body[data-active-uif="UIF-07"] .io07-queue-section,
+body[data-active-uif="UIF-07"] .io07-queue-list {
+  width: 370px !important;
+  max-width: 370px !important;
+}
+body[data-active-uif="UIF-07"] .io07-chip-scroll {
+  display: flex !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  scrollbar-width: none;
+}
+body[data-active-uif="UIF-07"] .io07-chip-scroll::-webkit-scrollbar { display: none; }
+body[data-active-uif="UIF-07"] .io07-queue-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-07"] .io07-queue-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-07"] .io07-queue-section:not(:has([data-io07-search-text]:not([hidden]))) {
+  display: none !important;
+}
+
+/* Exact DS v2 / List Row geometry. Same collection = same Type/Density. */
+body[data-active-uif="UIF-07"] .ds24-list-row {
+  width: 370px !important;
+  min-width: 370px !important;
+  max-width: 370px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 76px !important;
+  padding: 0 24px 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row[data-ds-prop-state="Disabled"] {
+  opacity: var(--vet45-v2-opacity-disabled) !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row__leading {
+  flex: 0 0 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row__copy {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  text-align: left !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row__copy strong {
+  margin: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row__copy small {
+  margin: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row__trailing {
+  flex: 0 0 auto !important;
+  min-width: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row[data-ds-prop-density="Compact"] {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  padding: 4px 16px !important;
+  gap: 8px !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row[data-ds-prop-density="Compact"] .ds24-list-row__copy {
+  gap: 0 !important;
+}
+body[data-active-uif="UIF-07"] .ds24-list-row[data-ds-prop-density="Compact"] .ds24-badge {
+  max-width: 92px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Section rhythm follows mature Figma detail/list compositions. */
+body[data-active-uif="UIF-07"] .ds24-section-title {
+  width: 370px !important;
+  min-height: 24px !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-product-list,
+body[data-active-uif="UIF-07"] .io07-review-products {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+body[data-active-uif="UIF-07"] .io07-product-group,
+body[data-active-uif="UIF-07"] .io07-review-product {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Grouped read-only metadata surface: Info Row remains the 338x44 primitive. */
+body[data-active-uif="UIF-07"] .ds24-info-group {
+  width: 370px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-group__title {
+  margin: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 16px !important;
+  line-height: 22px !important;
+  font-weight: 600 !important;
+  color: var(--vet45-v2-text-primary) !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-group__rows {
+  width: 340px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-row > span {
+  font-family: var(--figma-font-sans) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  white-space: nowrap !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-row > strong {
+  max-width: 210px !important;
+  min-width: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+body[data-active-uif="UIF-07"] .ds24-info-group--untitled {
+  gap: 0 !important;
+}
+
+/* Key-value review rows are the canonical 338x44 primitive. */
+body[data-active-uif="UIF-07"] .io07-review-kv {
+  width: 370px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .ds24-key-value-row {
+  width: 338px !important;
+  min-width: 338px !important;
+  max-width: 338px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-07"] .ds24-key-value-row > span {
+  min-width: 0 !important;
+  max-width: 250px !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+body[data-active-uif="UIF-07"] .ds24-key-value-row > strong {
+  flex: 0 0 auto !important;
+  font-family: var(--figma-font-mono) !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  white-space: nowrap !important;
+}
+
+/* Semantic feedback follows live VBanner geometry. */
+body[data-active-uif="UIF-07"] .v-banner {
+  width: 370px !important;
+  max-width: 370px !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .v-banner[data-ds-prop-density="Compact"] {
+  height: 72px !important;
+  min-height: 72px !important;
+  max-height: 72px !important;
+  padding: 12px 16px !important;
+  gap: 12px !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-07"] .v-banner[data-ds-prop-density="Compact"] .v-banner-copy {
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+body[data-active-uif="UIF-07"] .v-banner[data-ds-prop-density="Compact"] .v-banner-copy strong {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+}
+body[data-active-uif="UIF-07"] .v-banner[data-ds-prop-density="Compact"] .v-banner-copy span {
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+
+/* Normal VBottomSheet: no X, content-hug, exact canonical shell geometry. */
+body[data-active-uif="UIF-07"] .sheet-backdrop:has(.io07-verification-sheet) {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  background: var(--vet45-v2-surface-overlay) !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet[data-ds-component="VBottomSheet"] {
+  width: 402px !important;
+  min-width: 402px !important;
+  max-width: 402px !important;
+  height: max-content !important;
+  min-height: 0 !important;
+  max-height: calc(100% - 16px) !important;
+  padding: 12px 16px 44px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border: 0 !important;
+  border-radius: 20px 20px 0 0 !important;
+  background: var(--vet45-v2-surface-default) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet > .sheet-handle {
+  width: 48px !important;
+  height: 4px !important;
+  min-height: 4px !important;
+  flex: 0 0 4px !important;
+  margin: 0 auto !important;
+  border-radius: var(--vet45-v2-radius-pill) !important;
+  background: var(--vet45-v2-border-strong) !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet > .sheet-title {
+  width: 370px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet > .sheet-title h3 {
+  width: 370px !important;
+  margin: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+  color: var(--vet45-v2-text-primary) !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-content {
+  width: 370px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(874px - 112px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet .ds24-field,
+body[data-active-uif="UIF-07"] .io07-verification-sheet .ds24-field__control {
+  width: 370px !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet .ds24-field {
+  min-height: 96px !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-07"] .io07-verification-sheet .ds24-field__control {
+  height: 44px !important;
+  min-height: 44px !important;
+}
+body[data-active-uif="UIF-07"] .io07-sheet-actions {
+  width: 370px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-07"] .io07-sheet-actions .button {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-07"] .v-page-scaffold:has(.io07-verification-sheet) > .app-actions {
+  visibility: hidden !important;
+}
+
+body[data-active-uif="UIF-07"] .io07-handover-note {
+  width: 370px !important;
+  margin: 0 !important;
+  font-family: var(--figma-font-sans) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+}
+body[data-active-uif="UIF-07"] .io07-result {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .body-stack > .io07-verify-backdrop {
+  width: 402px !important;
+  max-width: none !important;
+  height: 874px !important;
+  min-height: 874px !important;
+  inset: 0 !important;
+}

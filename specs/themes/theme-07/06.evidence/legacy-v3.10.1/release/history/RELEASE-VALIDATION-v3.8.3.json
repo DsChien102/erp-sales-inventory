@@ -1,0 +1,28 @@
+{
+  "version": "3.8.3",
+  "status": "PASS",
+  "parent": "3.8.2",
+  "businessJourneys": 17,
+  "supportingCapabilities": 1,
+  "canonicalRouteOccurrences": 89,
+  "canonicalActiveScreens": 77,
+  "declaredStateRenders": 518,
+  "gates": {
+    "warehouseHomeClarity": "28/28",
+    "staticConsistency": "56/56",
+    "runtimeUI": "14/14",
+    "flowLogicE2E": "21/21",
+    "fullThemeCompletion": "14/14",
+    "representativeCoherence": "8/8",
+    "listNavigation": "15/15",
+    "listRhythm": "9/9",
+    "footer": "11/11",
+    "radioHelper": "9/9",
+    "allFlowSmoke": "89/89",
+    "deviceFrame": "7/7",
+    "packageValidation": "17/17"
+  },
+  "browserErrors": 0,
+  "productViewport": "402x874",
+  "reviewBezel": "418x890"
+}

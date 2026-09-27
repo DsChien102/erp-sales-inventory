@@ -1,0 +1,24 @@
+/* VET45 Theme 7 v3.8.0 — Task-driven Warehouse Home */
+.t380-warehouse-home .body-stack{gap:18px!important;}
+.t380-search-wrap{display:flex;flex-direction:column;gap:6px;}
+.t380-search-wrap .ds24-search-header{width:100%;min-height:44px;margin:0!important;padding:0!important;}
+.t380-search-wrap>small{padding:0 2px;color:var(--vet45-v2-text-secondary,#6b7480);font:400 12px/16px Inter,system-ui,sans-serif;}
+.t380-section{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;background:transparent;}
+.t380-section-title{min-height:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px;}
+.t380-section-title h2{margin:0;color:var(--vet45-v2-text-primary,#0e1116);font:600 14px/20px Inter,system-ui,sans-serif;}
+.t380-section-title span{color:var(--vet45-v2-text-secondary,#6b7480);font:500 12px/16px Inter,system-ui,sans-serif;white-space:nowrap;}
+.t380-warehouse-home .ds24-list-stack{gap:12px!important;}
+.t380-work-item,.t380-warehouse-home [data-theme-component="Theme7WarehouseUtility"],.t380-manual-sheet .ds24-list-row{margin:0!important;}
+.t380-work-item .ds24-list-row__trailing{gap:8px;}
+.t380-inline-toggle{align-self:flex-start;min-height:40px;display:inline-flex;align-items:center;gap:6px;padding:0 2px;border:0;background:transparent;color:var(--vet45-v2-text-brand,#3b9448);font:600 13px/20px Inter,system-ui,sans-serif;cursor:pointer;}
+.t380-inline-toggle .icon{width:16px;height:16px;}
+.t380-create-section{padding-bottom:2px;}
+.t380-create-button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.t380-create-button .icon{width:18px;height:18px;}
+.t380-manual-overlay{z-index:120;}
+.t380-manual-sheet{gap:12px!important;}
+.t380-sheet-heading{display:flex;flex-direction:column;gap:4px;}
+.t380-sheet-heading h3{margin:0;color:var(--vet45-v2-text-primary,#0e1116);font:600 18px/24px Inter,system-ui,sans-serif;}
+.t380-sheet-heading p{margin:0;color:var(--vet45-v2-text-secondary,#6b7480);font:400 13px/20px Inter,system-ui,sans-serif;}
+.t380-manual-sheet .ds24-list-stack{gap:8px!important;}
+.t380-inline-toggle[aria-expanded="true"] .icon{transform:rotate(180deg);}

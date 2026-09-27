@@ -1,0 +1,163 @@
+{
+  "release": "2.1.2",
+  "result": "PASS",
+  "passed": 31,
+  "checks": 31,
+  "checksDetail": [
+    {
+      "name": "Figma DS version locked to 2.0.2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "three canonical DS pages locked",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "119 exact Figma variables",
+      "pass": true,
+      "detail": "119"
+    },
+    {
+      "name": "variable values/aliases parity signature matches live Figma",
+      "pass": true,
+      "detail": "62680604"
+    },
+    {
+      "name": "exact CSS exposes all 119 official --vet45-v2-* variables",
+      "pass": true,
+      "detail": "119"
+    },
+    {
+      "name": "exact CSS names and values equal exact manifest",
+      "pass": true,
+      "detail": "missing=[] extra=[]"
+    },
+    {
+      "name": "15 exact text styles",
+      "pass": true,
+      "detail": "2cf9e062"
+    },
+    {
+      "name": "21 exact paint styles bound to canonical variables",
+      "pass": true,
+      "detail": "c9956865"
+    },
+    {
+      "name": "4 exact effect styles",
+      "pass": true,
+      "detail": "5a57253f"
+    },
+    {
+      "name": "64 canonical component assets indexed",
+      "pass": true,
+      "detail": "{'componentSets': 49, 'standaloneComponents': 15}"
+    },
+    {
+      "name": "component tuple signature matches live Figma",
+      "pass": true,
+      "detail": "c9009f3d"
+    },
+    {
+      "name": "22 canonical pattern/template assets indexed",
+      "pass": true,
+      "detail": "22"
+    },
+    {
+      "name": "pattern/template tuple signature matches live Figma",
+      "pass": true,
+      "detail": "2920e1e0"
+    },
+    {
+      "name": "DS v2 / Icon exact component set id",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "54 exact icon wrapper variants",
+      "pass": true,
+      "detail": "54"
+    },
+    {
+      "name": "icon source policy is strict li:* Lucide",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "icon wrapper signature matches live Figma",
+      "pass": true,
+      "detail": "ebd6e207"
+    },
+    {
+      "name": "local li icon cache signature locked",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "full Figma Lucide catalog locked at 1,676 sources",
+      "pass": true,
+      "detail": "{'uniqueLiSources': 1676, 'remoteMainComponents': 1514, 'localComponents': 162, 'signatureFNV1a32': 'c5105795'}"
+    },
+    {
+      "name": "full Figma Lucide catalog signature locked",
+      "pass": true,
+      "detail": "c5105795"
+    },
+    {
+      "name": "icon asset policy forbids hand-authored or approximate glyphs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "17 UIFs explicitly legacy-not-structurally-migrated",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "manifest truthfully says real replacement not started",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "app.js byte-identical to v2.1.1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "styles.css byte-identical to v2.1.1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "contracts/screen-registry.json byte-identical to v2.1.1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "contracts/screen-registry.md byte-identical to v2.1.1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "106 SRS files byte-identical to v2.1.1",
+      "pass": true,
+      "detail": "106"
+    },
+    {
+      "name": "root index launcher exists",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "exact Figma layers load before transitional legacy adapter",
+      "pass": true,
+      "detail": "[328, 384, 447, 505]"
+    },
+    {
+      "name": "transitional adapter defines zero canonical --vet45-v2-* variables",
+      "pass": true,
+      "detail": "[]"
+    }
+  ]
+}

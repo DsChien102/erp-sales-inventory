@@ -1,0 +1,62 @@
+{
+  "version": "3.10.0",
+  "status": "PASS",
+  "passed": 10,
+  "total": 10,
+  "jsonFiles": 560,
+  "yamlFiles": 30,
+  "activeLinksChecked": 2568,
+  "javascriptFiles": 29,
+  "checks": [
+    {
+      "name": "all JSON parses",
+      "pass": true,
+      "note": "{'files': 560, 'errors': []}"
+    },
+    {
+      "name": "all YAML parses",
+      "pass": true,
+      "note": "{'files': 30, 'errors': []}"
+    },
+    {
+      "name": "active relative links resolve",
+      "pass": true,
+      "note": "{'checked': 2568, 'broken': []}"
+    },
+    {
+      "name": "prototype JavaScript syntax passes",
+      "pass": true,
+      "note": "{'files': 29, 'errors': []}"
+    },
+    {
+      "name": "screen registry has 89 unique IDs",
+      "pass": true,
+      "note": "89"
+    },
+    {
+      "name": "action registry IDs are unique",
+      "pass": true,
+      "note": "38"
+    },
+    {
+      "name": "flow registry has 17 BJ + CAP-01 unique",
+      "pass": true,
+      "note": "['UIF-01', 'UIF-02', 'UIF-03', 'UIF-04', 'UIF-05', 'UIF-06', 'UIF-07', 'UIF-08', 'UIF-09', 'UIF-10', 'UIF-11', 'UIF-12', 'UIF-13', 'UIF-14', 'UIF-15', 'UIF-16', 'UIF-17', 'CAP-01']"
+    },
+    {
+      "name": "workbench flow identity matches registry",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "current release versions agree",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current parent versions agree",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

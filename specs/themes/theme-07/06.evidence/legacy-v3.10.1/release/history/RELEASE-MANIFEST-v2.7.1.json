@@ -1,0 +1,53 @@
+{
+  "release": "2.7.1",
+  "parent": "2.7.0",
+  "scope": [
+    "Correct shared live Figma DS primitive fidelity without changing Theme 7 business behavior",
+    "Normalize every canonical List Row claim to explicit Type/Density/State and correct density/affordance semantics",
+    "Group multi-row Info Row facts using the established VET45 information-surface composition while preserving transparent 338x44 Info Row anatomy",
+    "Correct BJ05 Key-value Row and shared VToast to their current live Figma masters",
+    "Re-QA BJ05 and all 85 active flow/screen renders"
+  ],
+  "businessBehaviorChanged": false,
+  "migration": {
+    "newlyMigrated": [],
+    "corrected": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-08"],
+    "migratedCumulative": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-08"],
+    "sharedPrimitiveAuditScope": "All active UIF renders where HTML explicitly claims the canonical primitive",
+    "newFeatureComponentsCreated": 0,
+    "sharedDsRefresh": [
+      "DS v2 / List Row 525:519",
+      "DS v2 / Info Row 525:351",
+      "DS v2 / Key-value Row 525:358",
+      "VToast 526:4305",
+      "Toast Layer 550:1347"
+    ]
+  },
+  "primitiveLocks": {
+    "listRow": "Every claimed instance declares Type + Density + State; Default=76px, Compact=52px; Navigation owns chevron; Status has none; Selection owns selection control",
+    "infoRow": "Transparent 338x44 primitive; multi-row facts grouped by nearby rounded information surface; no new feature component",
+    "keyValueRow": "338x44 live 525:358 Default/Emphasis anatomy",
+    "toast": "370x56 dark surface, 8px radius, semantic 24px leading circle, 14/20 Regular message, plain 20px close glyph"
+  },
+  "qa": {
+    "sharedPrimitive": "PASS 31/31",
+    "listRowFullAudit": "PASS 30 rendered canonical instances",
+    "infoRowFullAudit": "PASS 265 rendered instances",
+    "bj05FigmaDs": "PASS 71/71",
+    "allFlowRuntime": "PASS 85/85",
+    "bj04Regression": "PASS 34/34",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS",
+    "visualReview": "PASS on 10 BJ05 captures plus shared Toast/Info Row captures at 402x874"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System canonical surface",
+    "nodes": "List Row 525:519 + Info Row 525:351 + Key-value Row 525:358 + VToast 526:4305 + Toast Layer 550:1347"
+  },
+  "registryPreservation": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  },
+  "knownInheritedPackageValidatorGap": "The parent v2.7.0 package inherits the earlier absence of specs/themes/theme-07/prototype/prototype.manifest.json, so the legacy full-package validator cannot start. v2.7.1 uses targeted shared-primitive, BJ05, full-flow runtime, syntax, registry and visual gates and does not fabricate the unrelated missing manifest."
+}

@@ -1,0 +1,363 @@
+{
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "BJ05 CSS contains no raw hex colors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 CSS contains no raw rgb/rgba colors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 fidelity selectors are UIF-05 scoped",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "Active BJ05 renderer has no generic VCard/read-card wrappers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Active BJ05 renderer removes non-canonical VQuantitySelector",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Active BJ05 renderer removes legacy VTextFormField reason input",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT override uses exact Form Sheet pattern node",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "LOT override uses List Row Selection + VRadio",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT change is contextual Link, not repeated full secondary CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result uses ds24Result and not legacy ioResult",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Current component contract declares Figma DS authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-05 migration status is review-ready",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "UIF-05 active flow remains exactly SCR-025..029",
+      "pass": true,
+      "note": "['SCR-025', 'SCR-026', 'SCR-027', 'SCR-028', 'SCR-029']"
+    },
+    {
+      "name": "Locked physical stock rule remains documented",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Locked stale correction rule remains documented",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Locked UNKNOWN no-blind-retry rule remains documented",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-025 defaults to Tất cả filter",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-025 peer orders use Navigation rows with Default/Disabled state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Waiting row is not a button and has no navigation affordance",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Queue uses current Search/Chip/List Row DS assets",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live search keeps only matching order visible",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live search exposes no-result state without losing search",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-025 canonical 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'overflow': 0}"
+    },
+    {
+      "name": "SCR-026 context is exactly three Info Rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 Product+UOM rows are independent navigation List Rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 normal progress is numeric with no progress badges",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 partial allowance is quiet text, not banner",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 review CTA is enabled when partial handover is allowed and picked > 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 canonical 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'overflow': 0}"
+    },
+    {
+      "name": "SCR-026 SHORTAGE has one semantic warning banner",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 SHORTAGE item rows are Disabled Navigation peers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-026 SHORTAGE exposes no handover footer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "STALE recovery invalidates old picked evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "STALE recovery gives physical return/take instruction",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "STALE recovery blocks review until repick",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-027 surfaces unresolved physical correction",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Repick clears physical correction and returns to overview",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-027 uses one numeric VTextField per allocation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Override opens canonical Form Sheet pattern",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "Alternative LOT is not preselected",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Alternative rows show LOT + HSD + available quantity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Override reason uses VTextarea",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Form Sheet remains open during actual focus/type interaction",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "Confirm stays disabled until both lot and reason exist",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Changing a picked LOT resets picked to zero",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Changing a picked LOT creates exact physical correction",
+      "pass": true,
+      "note": "{'lot': 'DH2511', 'picked': 0, 'c': {'kind': 'MANUAL', 'returnLot': 'DH2507', 'returnQty': 4, 'takeLot': 'DH2511', 'takeQty': 4}}"
+    },
+    {
+      "name": "SCR-027 shows correction as warning and not as normal helper",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-027 canonical 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'overflow': 0}"
+    },
+    {
+      "name": "SCR-028 renders only picked allocations",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 keeps actual quantity per allocation and never shows a cross-UOM total",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 summary uses semantic Key-value Rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 normal execution has no banner",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 quiet helper states physical commit boundary",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 bottom helper remains fully reachable above sticky footer",
+      "pass": true,
+      "note": "{'scrollTop': 216, 'noteBottom': 958.0625, 'footerTop': 974, 'ok': True}"
+    },
+    {
+      "name": "Zero actual handover disables commit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 canonical 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'overflow': 0}"
+    },
+    {
+      "name": "SOURCE_CHANGED blocks commit and offers only recovery CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PARTIAL result shows authoritative actual handover by LOT",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PARTIAL result shows remaining per Product/UOM without mixed-UOM sum",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PARTIAL result has no Back to pre-commit screen",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PARTIAL commit keeps order active",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PARTIAL result continues same order task",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "COMPLETED result has no zero-remaining noise",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "COMPLETED commit closes task",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "COMPLETED task is removed from active queue",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN does not claim success/failure and has no blind retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN has no Back to commit screen",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-029 UNKNOWN canonical 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'overflow': 0}"
+    },
+    {
+      "name": "Inspect reports BJ05 v2.7.3 Figma DS hardening",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "PERMISSION_DENIED is distinct and states no stock change",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No browser page errors during BJ05 QA",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "passed": 65,
+  "total": 71,
+  "browserErrors": []
+}

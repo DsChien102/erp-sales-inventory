@@ -1,0 +1,34 @@
+{
+  "version": "3.6.1",
+  "parentVersion": "3.6.0",
+  "status": "PASS",
+  "decision": "DUAL_STICKY_FOOTER_CORRECTION_QA_PASS",
+  "scope": {
+    "businessJourneys": 17,
+    "supportingCapabilities": 1,
+    "canonicalRouteOccurrences": 89,
+    "activeUniqueScreens": 77,
+    "declaredRouteStates": 518
+  },
+  "defectAudit": {
+    "dualFooterOccurrences": 17,
+    "v3.6.0VerticalStackViolations": 11,
+    "v3.6.1HorizontalLayoutViolations": 0,
+    "v3.6.1FooterBleedViolations": 0,
+    "singlePrimaryFooterRegressions": 0
+  },
+  "qa": {
+    "footerAction": "11/11",
+    "static": "34/34",
+    "semanticFlowLogic": "21/21",
+    "fullThemeCompletion": "14/14",
+    "representativeCoherence": "8/8",
+    "runtimeUi": "14/14",
+    "allFlowSmoke": "89/89",
+    "deviceFrame": "7/7",
+    "packageValidation": "37/37",
+    "browserErrors": 0
+  },
+  "businessBehaviorChanged": false,
+  "evidenceBoundary": "Browser prototype only; backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

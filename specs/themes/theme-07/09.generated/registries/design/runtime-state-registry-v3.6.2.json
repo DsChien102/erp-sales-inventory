@@ -1,0 +1,1241 @@
+{
+  "schemaVersion": "1.0",
+  "version": "3.6.2",
+  "parent": "3.6.1",
+  "businessJourneyFlows": 17,
+  "supportingCapabilityFlows": 1,
+  "canonicalRouteOccurrences": 89,
+  "activeUniqueScreens": 77,
+  "declaredStateRenders": 518,
+  "screens": [
+    {
+      "id": "SCR-001",
+      "name": "Tồn kho",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "STALE",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01"
+      ]
+    },
+    {
+      "id": "SCR-003",
+      "name": "Chi tiết tồn kho",
+      "states": [
+        "READY",
+        "LOADING",
+        "STALE",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01"
+      ]
+    },
+    {
+      "id": "SCR-006",
+      "name": "Chọn cách nhận hàng",
+      "states": [
+        "READY",
+        "LOADING",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-007",
+      "name": "Chứng từ chờ nhận",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "PARTIAL_RECEIPT",
+        "SOURCE_VERSION_STALE"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-008",
+      "name": "Thông tin nhập hàng nhanh",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED",
+        "DRAFT_VALIDATION_FAILED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-009",
+      "name": "Hàng thực nhận",
+      "states": [
+        "READY",
+        "EMPTY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED",
+        "READ_ONLY"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-084",
+      "name": "Chi tiết hàng thực nhận",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "LOT_CONFLICT",
+        "DUPLICATE_LINE",
+        "PERMISSION_DENIED",
+        "READ_ONLY"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-010",
+      "name": "Rà soát và gửi xử lý",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "APPROVAL_REQUIRED",
+        "PERMISSION_DENIED",
+        "PENDING_APPROVAL",
+        "DRAFT_VALIDATION_FAILED",
+        "APPROVAL_PRICE_BASIS_REQUIRED",
+        "APPROVER_CONFIGURATION_MISSING",
+        "FINANCIAL_MASKED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-011",
+      "name": "Phê duyệt yêu cầu nhận hàng",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "APPROVAL_REQUIRED",
+        "PERMISSION_DENIED",
+        "SELF_APPROVAL_NOT_ALLOWED",
+        "APPROVAL_ALREADY_DECIDED",
+        "FINANCIAL_MASKED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-012",
+      "name": "Kết quả nhận hàng",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED",
+        "VALUATION_PENDING_RESULT",
+        "COMMIT_UNKNOWN"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-013",
+      "name": "Đối soát kết quả nhận hàng",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "STALE",
+        "PERMISSION_DENIED",
+        "PROCESSING_OR_UNKNOWN",
+        "TERMINAL"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-02"
+      ]
+    },
+    {
+      "id": "SCR-014",
+      "name": "Hàng chờ xác nhận giá nhập",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "FINANCIAL_MASKED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-03"
+      ]
+    },
+    {
+      "id": "SCR-015",
+      "name": "Chọn hàng cần xác nhận giá",
+      "states": [
+        "READY",
+        "LOADING",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED",
+        "EVIDENCE_MISSING",
+        "ALREADY_CONFIRMED",
+        "SOURCE_CHANGED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-03"
+      ]
+    },
+    {
+      "id": "SCR-017",
+      "name": "Rà soát xác nhận giá",
+      "states": [
+        "READY",
+        "SOURCE_CHANGED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-03"
+      ]
+    },
+    {
+      "id": "SCR-019",
+      "name": "Kết quả xác nhận giá",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-03"
+      ]
+    },
+    {
+      "id": "SCR-021",
+      "name": "Giữ hàng theo đơn",
+      "states": [
+        "PARTIAL",
+        "FULL",
+        "SHORT",
+        "RELEASED",
+        "STALE",
+        "LOADING",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PARTIAL",
+      "uifs": [
+        "UIF-04"
+      ]
+    },
+    {
+      "id": "SCR-025",
+      "name": "Đơn cần lấy hàng",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-05"
+      ]
+    },
+    {
+      "id": "SCR-026",
+      "name": "Hàng cần lấy",
+      "states": [
+        "READY",
+        "STALE_RECOVERED",
+        "SHORTAGE",
+        "LOADING",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-05"
+      ]
+    },
+    {
+      "id": "SCR-027",
+      "name": "Chi tiết lấy hàng",
+      "states": [
+        "READY",
+        "STALE_RECOVERED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-05"
+      ]
+    },
+    {
+      "id": "SCR-028",
+      "name": "Rà soát bàn giao",
+      "states": [
+        "READY",
+        "PARTIAL_ALLOWED",
+        "PARTIAL_BLOCKED",
+        "SOURCE_CHANGED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-05"
+      ]
+    },
+    {
+      "id": "SCR-029",
+      "name": "Kết quả bàn giao",
+      "states": [
+        "COMPLETED",
+        "PARTIAL_COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "COMPLETED",
+      "uifs": [
+        "UIF-05"
+      ]
+    },
+    {
+      "id": "SCR-030",
+      "name": "Hàng khách trả",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-031",
+      "name": "Hàng khách trả",
+      "states": [
+        "READY",
+        "LOADING",
+        "WAITING_APPROVAL",
+        "RETURN_CAP_CHANGED",
+        "SOURCE_CHANGED",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-032",
+      "name": "Chi tiết hàng trả",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "APPROVED_EXCEPTION",
+        "REJECTED_EXCEPTION",
+        "PENDING_APPROVAL",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-033",
+      "name": "Phân loại hàng trả",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "EXPIRED_GUARD",
+        "SOURCE_CHANGED",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-034",
+      "name": "Ngoại lệ lô cần duyệt",
+      "states": [
+        "TASK_LIST",
+        "READY",
+        "APPROVED",
+        "REJECTED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-035",
+      "name": "Kết quả hàng trả",
+      "states": [
+        "RECEIVED_PENDING_CLASSIFICATION",
+        "COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "RECEIVED_PENDING_CLASSIFICATION",
+      "uifs": [
+        "UIF-06"
+      ]
+    },
+    {
+      "id": "SCR-036",
+      "name": "Hàng chờ trả nhà cung cấp",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "EXPIRED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-07",
+        "UIF-09",
+        "UIF-10"
+      ]
+    },
+    {
+      "id": "SCR-037",
+      "name": "Chuẩn bị hàng trả",
+      "states": [
+        "READY",
+        "LOADING",
+        "EXPIRED",
+        "LOCKED",
+        "PERMISSION_DENIED",
+        "FINANCIAL_RESTRICTED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-07",
+        "UIF-09",
+        "UIF-10"
+      ]
+    },
+    {
+      "id": "SCR-038",
+      "name": "Chuyển trạng thái",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "PENDING_APPROVAL",
+        "APPROVAL_REVIEW",
+        "LOCKED",
+        "SELF_APPROVAL_NOT_ALLOWED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-09"
+      ]
+    },
+    {
+      "id": "SCR-039",
+      "name": "Bàn giao trả nhà cung cấp",
+      "states": [
+        "READY",
+        "SOURCE_CHANGED",
+        "PHYSICAL_MISMATCH",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-07"
+      ]
+    },
+    {
+      "id": "SCR-040",
+      "name": "Yêu cầu tiêu hủy",
+      "states": [
+        "READY",
+        "PRICE_BASIS_REQUIRED",
+        "PENDING_APPROVAL",
+        "APPROVAL_REVIEW",
+        "APPROVED_PENDING_DISPOSAL",
+        "COMPLETION",
+        "COMPLETION_QTY_BLOCKED",
+        "PERMISSION_DENIED",
+        "VALIDATION_ERROR",
+        "SELF_APPROVAL_NOT_ALLOWED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-10"
+      ]
+    },
+    {
+      "id": "SCR-041",
+      "name": "Kết quả xử lý",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "PENDING_APPROVAL",
+        "REJECTED_EXECUTION",
+        "UNKNOWN",
+        "EXPIRED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "COMPLETED",
+      "uifs": [
+        "UIF-07",
+        "UIF-09",
+        "UIF-10"
+      ]
+    },
+    {
+      "id": "SCR-042",
+      "name": "Kiểm kê kho",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PENDING_APPROVAL",
+        "CANCEL_REQUEST",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-043",
+      "name": "Tạo phiên kiểm kê",
+      "states": [
+        "READY",
+        "PARTIAL_SCOPE",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-044",
+      "name": "Đếm mù",
+      "states": [
+        "BLIND_COUNT",
+        "NO_RESULT",
+        "VALIDATION_ERROR",
+        "LOCK_LOST",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "BLIND_COUNT",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-045",
+      "name": "Chênh lệch và đếm lại",
+      "states": [
+        "RECOUNT_REQUIRED",
+        "EVIDENCE_REQUIRED",
+        "PRICE_BASIS_REQUIRED",
+        "VALIDATION_ERROR",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "RECOUNT_REQUIRED",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-046",
+      "name": "Duyệt điều chỉnh",
+      "states": [
+        "APPROVAL_REQUIRED",
+        "SELF_APPROVAL_NOT_ALLOWED",
+        "APPROVAL_ALREADY_DECIDED",
+        "PERMISSION_DENIED",
+        "APPROVAL_REVIEW"
+      ],
+      "defaultState": "APPROVAL_REQUIRED",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-047",
+      "name": "Kết quả kiểm kê",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "CANCELLED",
+        "REJECTED_EXECUTION",
+        "UNKNOWN",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "COMPLETED",
+      "uifs": [
+        "UIF-08"
+      ]
+    },
+    {
+      "id": "SCR-048",
+      "name": "Nghiệp vụ cần kiểm soát",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-049",
+      "name": "Chi tiết nghiệp vụ kho",
+      "states": [
+        "READY",
+        "LOADING",
+        "PERMISSION_DENIED",
+        "UNKNOWN",
+        "CANCELABLE",
+        "CORRECTABLE",
+        "BLOCKED_PHYSICAL_HANDOVER",
+        "TERMINAL"
+      ],
+      "defaultState": "CORRECTABLE",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-050",
+      "name": "Nội dung sửa sai",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "PERMISSION_DENIED",
+        "SOURCE_VERSION_STALE"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-051",
+      "name": "Duyệt sửa sai",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED",
+        "SELF_APPROVAL_NOT_ALLOWED",
+        "APPROVAL_ALREADY_DECIDED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-052",
+      "name": "Hủy hoặc chọn cách sửa",
+      "states": [
+        "CANCEL_UNEXECUTED",
+        "CORRECTION_ROUTE",
+        "VALIDATION_ERROR",
+        "DEPENDENCY_BLOCKED",
+        "PERIOD_POLICY_VIOLATION",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "CORRECTION_ROUTE",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-053",
+      "name": "Kết quả sửa sai",
+      "states": [
+        "PROCESSING",
+        "PENDING_APPROVAL",
+        "CANCELLED",
+        "COMPLETED",
+        "REJECTED",
+        "UNKNOWN",
+        "BLOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PENDING_APPROVAL",
+      "uifs": [
+        "UIF-11"
+      ]
+    },
+    {
+      "id": "SCR-054",
+      "name": "Tra cứu thẻ kho",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01",
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-055",
+      "name": "Danh sách biến động",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "RECORDED_DATE_VIEW",
+        "BUSINESS_DATE_VIEW",
+        "ARCHIVED_DATA",
+        "STALE",
+        "FINANCIAL_RESTRICTED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01",
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-056",
+      "name": "Chi tiết movement",
+      "states": [
+        "READY",
+        "LOADING",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED",
+        "FINANCIAL_RESTRICTED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01",
+        "UIF-09",
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-057",
+      "name": "Dòng thời gian nguồn",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "STALE",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-01",
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-058",
+      "name": "Xuất báo cáo",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED",
+        "EXPORT_RUNNING",
+        "STALE"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-059",
+      "name": "Kết quả xuất báo cáo",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "REJECTED_EXECUTION",
+        "SOURCE_STALE",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-15"
+      ]
+    },
+    {
+      "id": "SCR-066",
+      "name": "Khởi tạo tồn kho",
+      "states": [
+        "READY",
+        "LOADING",
+        "PERMISSION_DENIED",
+        "PREPARING",
+        "PENDING_APPROVAL",
+        "REJECTED",
+        "UNKNOWN",
+        "ACTIVE_RECONCILED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-067",
+      "name": "Dữ liệu tồn kho đầu kỳ",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-068",
+      "name": "Kết quả kiểm tra dữ liệu",
+      "states": [
+        "READY",
+        "LOADING",
+        "CONFLICT",
+        "PERMISSION_DENIED",
+        "VALIDATION_FAILED",
+        "CONTROL_TOTAL_MISMATCH"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-069",
+      "name": "Rà soát số dư đầu kỳ",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "PERMISSION_DENIED",
+        "PENDING_APPROVAL"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-070",
+      "name": "Duyệt số dư đầu kỳ",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED",
+        "SELF_APPROVAL_NOT_ALLOWED",
+        "APPROVAL_ALREADY_DECIDED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-071",
+      "name": "Kết quả khởi tạo tồn kho",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED",
+        "COMMIT_UNKNOWN",
+        "ACTIVE_RECONCILED"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-12"
+      ]
+    },
+    {
+      "id": "SCR-072",
+      "name": "Giá vốn",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-14"
+      ]
+    },
+    {
+      "id": "SCR-073",
+      "name": "Thiết lập lần tính",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-14"
+      ]
+    },
+    {
+      "id": "SCR-074",
+      "name": "Kết quả lần tính",
+      "states": [
+        "CALCULATING",
+        "BLOCKED",
+        "READY_FOR_REVIEW",
+        "INPUT_CHANGED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-14"
+      ]
+    },
+    {
+      "id": "SCR-076",
+      "name": "Rà soát công bố",
+      "states": [
+        "READY",
+        "SOURCE_CHANGED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-14"
+      ]
+    },
+    {
+      "id": "SCR-077",
+      "name": "Kết quả công bố",
+      "states": [
+        "COMPLETED",
+        "REJECTED_EXECUTION",
+        "UNKNOWN",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-14"
+      ]
+    },
+    {
+      "id": "SCR-078",
+      "name": "Hồ sơ cần kiểm tra",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "INVESTIGATING",
+        "ESCALATED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    {
+      "id": "SCR-079",
+      "name": "Bằng chứng & kết luận",
+      "states": [
+        "READY",
+        "LOADING",
+        "PERMISSION_DENIED",
+        "INSUFFICIENT_EVIDENCE",
+        "SOURCE_MISMATCH",
+        "PROJECTION_MISMATCH",
+        "CORRECTION_REQUIRED",
+        "UNKNOWN_EVIDENCE",
+        "LEDGER_INTEGRITY_RISK",
+        "NO_REAL_DIFFERENCE"
+      ],
+      "defaultState": "PROJECTION_MISMATCH",
+      "uifs": [
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    {
+      "id": "SCR-080",
+      "name": "Phương án xử lý",
+      "states": [
+        "READY",
+        "LOCKED",
+        "PERMISSION_DENIED",
+        "CONFLICT",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    {
+      "id": "SCR-081",
+      "name": "Đang khôi phục số liệu",
+      "states": [
+        "REBUILDING",
+        "READY",
+        "PERMISSION_DENIED",
+        "CONFLICT",
+        "VALIDATION_FAILED"
+      ],
+      "defaultState": "REBUILDING",
+      "uifs": [
+        "UIF-16"
+      ]
+    },
+    {
+      "id": "SCR-082",
+      "name": "Rà soát kết quả",
+      "states": [
+        "READY",
+        "MISMATCH_REMAINS",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    {
+      "id": "SCR-083",
+      "name": "Kết quả xử lý",
+      "states": [
+        "PROCESSING",
+        "RESOLVED",
+        "COMPLETED",
+        "UNKNOWN",
+        "ESCALATED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "RESOLVED",
+      "uifs": [
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    {
+      "id": "SCR-085",
+      "name": "Chi phí mua bổ sung",
+      "states": [
+        "READY",
+        "LOADING",
+        "EMPTY",
+        "FILTER_EMPTY",
+        "PERMISSION_DENIED",
+        "FINANCIAL_MASKED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-13"
+      ]
+    },
+    {
+      "id": "SCR-086",
+      "name": "Nguồn và phạm vi chi phí",
+      "states": [
+        "READY",
+        "LOADING",
+        "SOURCE_CHANGED",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-13"
+      ]
+    },
+    {
+      "id": "SCR-087",
+      "name": "Phân bổ chi phí",
+      "states": [
+        "READY",
+        "LOADING",
+        "VALIDATION_ERROR",
+        "SOURCE_CHANGED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-13"
+      ]
+    },
+    {
+      "id": "SCR-088",
+      "name": "Rà soát ghi chi phí",
+      "states": [
+        "READY",
+        "SOURCE_CHANGED",
+        "VALIDATION_ERROR",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "UIF-13"
+      ]
+    },
+    {
+      "id": "SCR-089",
+      "name": "Kết quả ghi chi phí",
+      "states": [
+        "PROCESSING",
+        "COMPLETED",
+        "REJECTED_EXECUTION",
+        "UNKNOWN",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "PROCESSING",
+      "uifs": [
+        "UIF-13"
+      ]
+    },
+    {
+      "id": "SCR-062",
+      "name": "Cấu hình chính sách tồn",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "CAP-01"
+      ]
+    },
+    {
+      "id": "SCR-063",
+      "name": "Cấu hình hàng cận hạn",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "CONFLICT",
+        "LOCKED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "CAP-01"
+      ]
+    },
+    {
+      "id": "SCR-064",
+      "name": "Rà soát chính sách",
+      "states": [
+        "READY",
+        "VALIDATION_ERROR",
+        "APPROVAL_REQUIRED",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "READY",
+      "uifs": [
+        "CAP-01"
+      ]
+    },
+    {
+      "id": "SCR-065",
+      "name": "Kết quả cập nhật",
+      "states": [
+        "COMPLETED",
+        "UNKNOWN",
+        "REJECTED_EXECUTION",
+        "PERMISSION_DENIED"
+      ],
+      "defaultState": "COMPLETED",
+      "uifs": [
+        "CAP-01"
+      ]
+    }
+  ]
+}

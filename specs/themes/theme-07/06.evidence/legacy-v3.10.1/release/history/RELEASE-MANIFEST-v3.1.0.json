@@ -1,0 +1,61 @@
+{
+  "version": "3.1.0",
+  "parent": "3.0.1",
+  "status": "AUDIT_CONTROL_CLUSTER_REVIEW_READY",
+  "scope": "Cumulative Theme 7 prototype. v3.1.0 redesigns the full Inventory Audit & Control cluster in one pass: BJ08, BJ09, BJ10, BJ11, BJ12, BJ15, BJ16 and BJ17. It aligns queues, product/lot hierarchy, audit history, controlled correction, opening-balance controls, reporting, reconciliation and unknown-result recovery to the live Figma DS while preserving business handlers and journey topology.",
+  "flows": 17,
+  "screens": 85,
+  "canonicalActiveScreens": 73,
+  "activeStateRenders": 497,
+  "inspect": true,
+  "authority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System v2.0.3 · QVJolM5tAdFKkhP7RIwe3y",
+    "htmlProduct": "implementation/verification only",
+    "htmlDsRuntime": "semantic-variable and exact-component reference runtime"
+  },
+  "figmaRuntime": {
+    "productWiring": [
+      "UIF-01",
+      "UIF-02",
+      "UIF-03",
+      "UIF-04",
+      "UIF-05",
+      "UIF-06",
+      "UIF-07",
+      "UIF-08",
+      "UIF-09",
+      "UIF-10",
+      "UIF-11",
+      "UIF-12",
+      "UIF-13",
+      "UIF-14",
+      "UIF-15",
+      "UIF-16",
+      "UIF-17"
+    ],
+    "canonicalCanvas": "402x874",
+    "mobileEdge": 16,
+    "contentWidth": 370,
+    "notes": "v3.1.0: full Inventory Audit & Control cluster aligned to live Figma DS. Generic work/case rows hide decorative leading icons and reclaim copy width; product identity retains the product icon. Product and lot/scope data use hierarchy rather than peer cards. Audit history uses DS v2 / Audit Item. Two-choice controls use VRadio, not custom segmented controls. Read-only facts use Info Row/Key-value Row; repeated records use List Row collections. User-facing copy avoids raw technical/English states. No new core DS component is introduced.",
+    "infoRow": "525:351 live 2026-09-10: 338x44; justify-between; gap 0; label left; value right-aligned; Disabled opacity 0.4",
+    "listRow": "525:519 live 2026-09-10: Default 370x76; Compact 370x52; Navigation chevron / Selection radio / Status semantic trailing; peer density must not collapse under generic touch-target rules",
+    "keyValueRow": "525:358 live 2026-09-10: 338x44 Default; Emphasis uses 12px horizontal inset, 8px radius, brand surface",
+    "toast": "526:4305 live 2026-09-10: 370x56 dark surface, 8px radius, semantic circular leading icon, plain close X",
+    "crossThemeReferenceRule": "Mandatory: after canonical DS and Patterns/Templates, inspect mature Product UI in previous Themes available in the Figma file to validate grouping, hierarchy, density and spacing before implementing HTML; never assemble floating text+badge when an existing DS component expresses the semantic.",
+    "radio": "522:7410 live Figma: Off / On / Disabled states; full row minimum 44px touch target. Used for BJ14 run-kind choice.",
+    "select": "522:7291 live Figma: canonical single-select input; used for allocation method / period / scope where search is not required.",
+    "bottomSheet": "4695:6353 live Figma: canonical structural mobile bottom-sheet shell; used for BJ03 valuation evidence/provenance."
+  },
+  "productApproval": "REVIEW_READY_ALL_17_BJ",
+  "parentVersion": "3.0.1",
+  "releaseValidation": {
+    "status": "PASS",
+    "checks": "52/52",
+    "auditControlCanonicalRoutes": 44,
+    "auditControlStateRenders": 269,
+    "fullHarnessCanonicalScreens": 85,
+    "fullHarnessStateRenders": 497,
+    "browserErrors": 0
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "file": "01-SCR027-LOT-PICKABLE-PRECISION.png",
+    "label": "LOT candidate uses server pickable quantity and original expiry precision"
+  },
+  {
+    "file": "02-SCR027-PHYSICAL-CORRECTION.png",
+    "label": "Physical correction requires explicit actor assertion"
+  },
+  {
+    "file": "03-SCR029-PARTIAL-IMMUTABLE.png",
+    "label": "Partial handover result includes authoritative handover timestamp"
+  },
+  {
+    "file": "04-SCR029-UNKNOWN-VERIFYING.png",
+    "label": "UNKNOWN freezes handover finality"
+  },
+  {
+    "file": "05-SCR025-VERIFYING-NONACTIONABLE.png",
+    "label": "Verification task is disabled in BJ05 queue"
+  }
+]

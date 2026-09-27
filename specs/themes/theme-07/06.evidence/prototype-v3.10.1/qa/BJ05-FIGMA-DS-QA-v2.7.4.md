@@ -1,0 +1,75 @@
+# BJ05 Figma DS / Product QA — v2.7.1
+
+**Result: PASS · 71/71 checks**
+
+- PASS — BJ05 CSS contains no raw hex colors
+- PASS — BJ05 CSS contains no raw rgb/rgba colors
+- PASS — BJ05 fidelity selectors are UIF-05 scoped — []
+- PASS — Active BJ05 renderer has no generic VCard/read-card wrappers
+- PASS — Active BJ05 renderer removes non-canonical VQuantitySelector
+- PASS — Active BJ05 renderer removes legacy VTextFormField reason input
+- PASS — LOT override uses exact Form Sheet pattern node
+- PASS — LOT override uses List Row Selection + VRadio
+- PASS — LOT change is contextual Link, not repeated full secondary CTA
+- PASS — Result uses ds24Result and not legacy ioResult
+- PASS — Current component contract declares Figma DS authority
+- PASS — UIF-05 migration status is review-ready
+- PASS — UIF-05 active flow remains exactly SCR-025..029 — ['SCR-025', 'SCR-026', 'SCR-027', 'SCR-028', 'SCR-029']
+- PASS — Locked physical stock rule remains documented
+- PASS — Locked stale correction rule remains documented
+- PASS — Locked UNKNOWN no-blind-retry rule remains documented
+- PASS — SCR-025 defaults to Tất cả filter
+- PASS — SCR-025 peer orders use Navigation rows with Default/Disabled state
+- PASS — Waiting row is not a button and has no navigation affordance
+- PASS — Queue uses current Search/Chip/List Row DS assets
+- PASS — Live search keeps only matching order visible
+- PASS — Live search exposes no-result state without losing search
+- PASS — SCR-025 canonical 402x874 without horizontal overflow — {'w': 402, 'h': 874, 'overflow': 0}
+- PASS — SCR-026 context is exactly three Info Rows
+- PASS — SCR-026 Product+UOM rows are independent navigation List Rows
+- PASS — SCR-026 normal progress is numeric with no progress badges
+- PASS — SCR-026 partial allowance is quiet text, not banner
+- PASS — SCR-026 review CTA is enabled when partial handover is allowed and picked > 0
+- PASS — SCR-026 canonical 402x874 without horizontal overflow — {'w': 402, 'h': 874, 'overflow': 0}
+- PASS — SCR-026 SHORTAGE has one semantic warning banner
+- PASS — SCR-026 SHORTAGE item rows are Disabled Navigation peers
+- PASS — SCR-026 SHORTAGE exposes no handover footer
+- PASS — STALE recovery invalidates old picked evidence
+- PASS — STALE recovery gives physical return/take instruction
+- PASS — STALE recovery blocks review until repick
+- PASS — SCR-027 surfaces unresolved physical correction
+- PASS — Repick clears physical correction and returns to overview
+- PASS — SCR-027 uses one numeric VTextField per allocation
+- PASS — Override opens canonical Form Sheet pattern
+- PASS — Alternative LOT is not preselected
+- PASS — Alternative rows show LOT + HSD + available quantity
+- PASS — Override reason uses VTextarea
+- PASS — Form Sheet remains open during actual focus/type interaction
+- PASS — Confirm stays disabled until both lot and reason exist
+- PASS — Changing a picked LOT resets picked to zero
+- PASS — Changing a picked LOT creates exact physical correction — {'lot': 'DH2511', 'picked': 0, 'c': {'kind': 'MANUAL', 'returnLot': 'DH2507', 'returnQty': 4, 'takeLot': 'DH2511', 'takeQty': 4}}
+- PASS — SCR-027 shows correction as warning and not as normal helper
+- PASS — SCR-027 canonical 402x874 without horizontal overflow — {'w': 402, 'h': 874, 'overflow': 0}
+- PASS — SCR-028 renders only picked allocations
+- PASS — SCR-028 keeps actual quantity per allocation and never shows a cross-UOM total
+- PASS — SCR-028 summary uses semantic Key-value Rows
+- PASS — SCR-028 normal execution has no banner
+- PASS — SCR-028 quiet helper states physical commit boundary
+- PASS — SCR-028 bottom helper remains fully reachable above sticky footer — {'scrollTop': 201, 'noteBottom': 958, 'footerTop': 974, 'ok': True}
+- PASS — Zero actual handover disables commit
+- PASS — SCR-028 canonical 402x874 without horizontal overflow — {'w': 402, 'h': 874, 'overflow': 0}
+- PASS — SOURCE_CHANGED blocks commit and offers only recovery CTA
+- PASS — PARTIAL result shows authoritative actual handover by LOT
+- PASS — PARTIAL result shows remaining per Product/UOM without mixed-UOM sum
+- PASS — PARTIAL result has no Back to pre-commit screen
+- PASS — PARTIAL commit keeps order active
+- PASS — PARTIAL result continues same order task
+- PASS — COMPLETED result has no zero-remaining noise
+- PASS — COMPLETED commit closes task
+- PASS — COMPLETED task is removed from active queue
+- PASS — UNKNOWN does not claim success/failure and has no blind retry
+- PASS — UNKNOWN has no Back to commit screen
+- PASS — SCR-029 UNKNOWN canonical 402x874 without horizontal overflow — {'w': 402, 'h': 874, 'overflow': 0}
+- PASS — Inspect reports BJ05 v2.7.4 Figma DS hardening
+- PASS — PERMISSION_DENIED is distinct and states no stock change
+- PASS — No browser page errors during BJ05 QA

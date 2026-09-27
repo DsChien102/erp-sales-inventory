@@ -1,0 +1,35 @@
+{
+  "release": "2.4.3",
+  "parent": "2.4.2",
+  "result": "PASS",
+  "scope": "BJ01 existing-component-first availability correction; business behavior unchanged",
+  "gates": {
+    "javascriptSyntax": "PASS",
+    "bj01DsReuse": "PASS 27/27",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "horizontalOverflowFailures": 0,
+    "theme7AvailabilitySummaryPresent": false,
+    "primaryAvailability": {
+      "component": "DS v2 / Key-value Row",
+      "figmaNode": "525:358",
+      "state": "Emphasis"
+    },
+    "supportingFacts": {
+      "component": "DS v2 / Info Row",
+      "figmaNode": "525:351",
+      "count": 3
+    },
+    "newComponentsCreated": 0,
+    "legacyFullPackageValidator": "N/A - parent harness also lacks prototype/prototype.manifest.json",
+    "zipIntegrity": "PASS"
+  },
+  "componentSelectionPriority": [
+    "semantically valid V_component",
+    "existing canonical non-V component",
+    "existing Pattern/Template",
+    "ordinary layout composition of existing DS assets",
+    "new component only after proven reusable responsibility gap"
+  ],
+  "knownDsGap": "VBottomSheet live master top radius 20px vs Radius/Sheet alias 16px; Product follows live component master and records the mismatch."
+}

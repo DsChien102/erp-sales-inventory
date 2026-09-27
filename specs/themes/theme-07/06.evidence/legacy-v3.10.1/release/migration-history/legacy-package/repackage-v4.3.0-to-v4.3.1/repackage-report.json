@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "release": "4.3.1",
+  "freeze_id": "T7-PACKAGE-FREEZE-v4.3.1",
+  "predecessor": "4.3.0",
+  "predecessor_freeze_id": "T7-PACKAGE-FREEZE-v4.3.0",
+  "release_kind": "CACHE_BUST_REPACKAGE",
+  "generated_at": "2026-08-24T09:44:09+07:00",
+  "semantic_changes": 0,
+  "source_integrity": {
+    "source_zip": "vet45-theme-07-inventory-costing-v4.3.0.zip",
+    "source_zip_sha256": "1bc1b75d61e6a977c94e3e6712cdf7af6d195c5bbf5dcf856ad1b7eba40d1203",
+    "source_package_manifest_sha256": "beefca1e70f827cde95da6f1c002bfd69a852ffd5dcce12342cdcdedc3cf56d3",
+    "source_theme_files_verified": 508,
+    "status": "PASS"
+  },
+  "unchanged_non_release_files_checked": 493,
+  "unchanged_non_release_files_status": "PASS",
+  "changed_scope": [
+    "README.md",
+    "specs/themes/theme-07/CHECKSUMS.sha256",
+    "specs/themes/theme-07/README.md",
+    "specs/themes/theme-07/artifact-index.md",
+    "specs/themes/theme-07/change-log.md",
+    "specs/themes/theme-07/source-checksums.json",
+    "specs/themes/theme-07/theme.manifest.yaml",
+    "specs/themes/theme-07/validation-report.md",
+    "specs/themes/theme-07/validation/artifact-index.md",
+    "specs/themes/theme-07/validation/executive-handoff.md",
+    "specs/themes/theme-07/validation/package-manifest.json",
+    "specs/themes/theme-07/validation/representative-samples.md",
+    "specs/themes/theme-07/validation/residual-risk-register.md",
+    "specs/themes/theme-07/validation/run-report.md",
+    "specs/themes/theme-07/validation/validate-package.py",
+    "specs/themes/theme-07/validation/validation-report.json",
+    "specs/themes/theme-07/validation/validation-report.md"
+  ],
+  "status": "PASS"
+}

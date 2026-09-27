@@ -1,0 +1,93 @@
+{
+  "version": "3.8.3",
+  "status": "PASS",
+  "passed": 17,
+  "total": 17,
+  "checks": [
+    {
+      "name": "root package identifies v3.8.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.8.3 while business registries remain v3.7.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.8.3 patch loads after v3.8.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical device remains 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Figma DS remains UI authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "static consistency gate passes",
+      "pass": true,
+      "note": "56/56"
+    },
+    {
+      "name": "Warehouse Home clarity gate passes",
+      "pass": true,
+      "note": "28/28"
+    },
+    {
+      "name": "list navigation-state gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "list/card rhythm gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "footer gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "semantic flow/logic gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme completion gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "radio/helper DS gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device frame gate passes",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

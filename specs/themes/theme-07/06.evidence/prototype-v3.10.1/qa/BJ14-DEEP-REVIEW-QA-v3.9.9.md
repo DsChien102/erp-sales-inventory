@@ -1,0 +1,78 @@
+# BJ14 Deep Review QA — v3.9.9
+
+**Result: PASS · 72/72**
+
+Captures: 5
+
+- PASS — Decision register is v4.2.4 costing-run amendment
+- PASS — Approved decisions T7-DR-164..170 are registered
+- PASS — Decision chain preserves prior 001..163
+- PASS — BJ14 locks unified valuation timeline
+- PASS — BJ14 locks ProductCostResult as authoritative per Product
+- PASS — BJ14 successor posts incremental reconciliation only
+- PASS — BJ14 separates run/calculation/posting periods
+- PASS — BJ14 forbids Official Cost backdate before publication
+- PASS — BJ14 dirty scope is exact Product + posting-period set
+- PASS — BJ14 edge cases include negative and NO_NEW_COST_BASIS
+- PASS — InventoryMovement has common valuation ordering
+- PASS — InventoryValueMovement shares common valuation ordering
+- PASS — CostCalculationRun stores run type and separate periods
+- PASS — CostCalculationRun stores authoritative dirty scope and cutoff
+- PASS — ProductCostResult entity exists
+- PASS — ProductCostResult stores baseline/target/delta hashes
+- PASS — OfficialCostVersion no-backdate rule exists
+- PASS — ValuationAdjustmentBatch snapshots reconciliation cutoff/baseline
+- PASS — BC-IV-02 is calculate-only/no ledger mutation
+- PASS — BC-IV-02 calculates both methods on ordered timeline
+- PASS — BC-IV-03 publishes per-Product incremental deltas
+- PASS — BC-IV-03 only creates non-zero adjustment lines
+- PASS — BC-IV-03 clears exact dirty causes
+- PASS — BC-IV-03 blocks backdated effective time
+- PASS — UC14-03 is read-only API-Q-10
+- PASS — UC14-03 does not own BC-IV-03
+- PASS — UC14-03 has no mutation UNKNOWN in deep-review lock
+- PASS — UC14-04 owns BC-IV-03 publish
+- PASS — UC14-04 rechecks hashes/period/effective time
+- PASS — UIF14 active route excludes SCR-075
+- PASS — UIF14 review is navigation then publish mutation
+- PASS — UIF14 guard says dirty scope source-owned
+- PASS — SCR072 contract traces authoritative dirty work
+- PASS — SCR073 contract locks dirty scope/read-only
+- PASS — SCR074 contract exposes ProductCostResult aggregation
+- PASS — SCR076 contract is read-only final review
+- PASS — SCR077 contract is authoritative result/UNKNOWN-safe
+- PASS — ACT-14-CALCULATE remains BC-IV-02
+- PASS — ACT-14-PUBLISH remains BC-IV-03
+- PASS — Harness BC-IV-03 trace owns UC14-04 only
+- PASS — Harness API-Q-10 now traces UC14-03
+- PASS — Harness API-C-22 publish traces UC14-04 only
+- PASS — Trace index UC14-03 has no mutation behavioral contract
+- PASS — Trace index UC14-03 points to API-Q-10
+- PASS — Current manifest identifies BJ14 lock candidate
+- PASS — v399 assets load after v398 assets
+- PASS — Runtime overlay declares approved BJ14 decision set
+- PASS — Runtime overlay materializes ProductCostResult sample semantics
+- PASS — Runtime overlay binds runInputHash/productResultSetHash
+- PASS — Runtime overlay uses authoritative dirty scope
+- PASS — Runtime overlay publishes command-authoritative result fields
+- PASS — Runtime overlay no longer backdates ready run
+- PASS — v399 runtime overlay loaded
+- PASS — SCR072 shows dirty work in business terms
+- PASS — SCR072 does not expose hashes/sequences
+- PASS — Dirty row opens setup
+- PASS — SCR073 dirty scope is read-only information group
+- PASS — SCR073 separates calculation/posting period language
+- PASS — SCR074 presents Product result counts
+- PASS — SCR074 presents per-product result rows
+- PASS — SCR074 presents incremental differences
+- PASS — SCR074 effective copy is not backdated
+- PASS — SCR076 review opens only after ready result
+- PASS — SCR076 states effective-time guard
+- PASS — SCR076 has one publish action
+- PASS — SCR076 has no method override control
+- PASS — Stale run cannot publish and requires successor
+- PASS — Publish reaches terminal SCR077
+- PASS — SCR077 uses command-authoritative publication facts
+- PASS — SCR077 effective timestamp is publication time
+- PASS — UNKNOWN explicitly forbids resubmission
+- PASS — BJ14 runtime has no browser/page errors

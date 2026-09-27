@@ -1,0 +1,55 @@
+{
+  "id": "EVD-MERGE-v4.1.0",
+  "version": "4.1.0",
+  "parent": "4.0.0",
+  "merge_source": "3.13.0",
+  "merge_source_parent": "3.12.0",
+  "strategy": "three-way replay: v4.0 parent + v3.13 delta relative to common v3.12 baseline",
+  "overlap_files": [
+    "02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md",
+    "02.specification/behavior/use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md",
+    "02.specification/behavior/use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md",
+    "02.specification/behavior/use-cases/UC-14-04-cong-bo-gia-von.md",
+    "04.harness/manifests/theme.manifest.yml",
+    "09.generated/indexes/artifact-index.md",
+    "09.generated/indexes/package-checksums.sha256",
+    "09.generated/matrices/design/bj-ui-flow-map.md",
+    "09.generated/registries/artifact-registry.csv",
+    "09.generated/registries/artifact-registry.json",
+    "09.generated/registries/design/ui-flow-registry.json",
+    "README.md"
+  ],
+  "semantic_overlap_manual": [
+    "UC-03-01",
+    "UC-13-01",
+    "UC-14-01",
+    "UC-14-04"
+  ],
+  "generated_overlap_regenerated": true,
+  "valuation_topology": {
+    "UIF-03": [
+      "SCR-014",
+      "SCR-015",
+      "SCR-017",
+      "SCR-019"
+    ],
+    "UIF-13": [
+      "SCR-085",
+      "SCR-086",
+      "SCR-088",
+      "SCR-089"
+    ],
+    "UIF-14": [
+      "SCR-072",
+      "SCR-074",
+      "SCR-077"
+    ]
+  },
+  "status": "PASS",
+  "input_sha256": {
+    "v4.0.0_parent_zip": "49f3db0edc4ff4575082a226bca074dbeb47ff6dc87549f9362ef1aa7167b390",
+    "v3.13.0_merge_source_zip": "c3b6193ede2cfc75a9131390eaddef425ab642a06fd02b16c915a980299d984a",
+    "v3.12.0_common_base_zip": "899f91518a6f05552faad3d545215e5c50668bc80fe5ee02cc7e776ead0994c3"
+  },
+  "package_diff": "EVD-PACKAGE-DIFF-v4.1.0.json"
+}

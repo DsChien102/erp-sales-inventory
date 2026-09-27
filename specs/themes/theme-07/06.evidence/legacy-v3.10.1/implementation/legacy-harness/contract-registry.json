@@ -1,0 +1,4513 @@
+{
+  "freeze_id": "T7-PACKAGE-FREEZE-v4.1.0",
+  "contracts": [
+    {
+      "id": "BC-IC-01",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Open stock count with atomic barrier",
+      "version": "4.2.5-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-01"
+      ],
+      "finality_semantics": "CountScopeSnapshot + cutoff + book lines + lock/session atomically; barrier precedes cutoff",
+      "safe_failure": "REJECTED=>effect NONE; UNKNOWN=>same command identity and reconciliation; no blind retry",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-02",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Submit immutable count/recount round",
+      "version": "4.2.5-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-02",
+        "UC-08-03"
+      ],
+      "finality_semantics": "Append StockCountSubmission; zero variance completes/unlocks, non-zero routes recount/basis/approval",
+      "safe_failure": "REJECTED=>effect NONE; UNKNOWN=>same command identity and reconciliation; no blind retry",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-03",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Approve exact stock-count variance snapshot",
+      "version": "4.2.5-amendment",
+      "owner": "IC + IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-04"
+      ],
+      "finality_semantics": "STOCK_COUNT_SESSION ApprovalCase; APPROVE adjustment+complete+unlock or REQUEST_RECOUNT without adjustment",
+      "safe_failure": "REJECTED=>effect NONE; UNKNOWN=>same command identity and reconciliation; no blind retry",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-04",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Commit opening balance",
+      "version": "4.1.0",
+      "owner": "IC + IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-12-03"
+      ],
+      "finality_semantics": "Batch + opening quantity/value/cost + report + activation `PREPARING→ACTIVE` + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-05",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Reconcile and rebuild projection",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-16-01",
+        "UC-16-02",
+        "UC-16-03",
+        "UC-16-04",
+        "UC-17-01",
+        "UC-17-02",
+        "UC-17-03",
+        "UC-17-04"
+      ],
+      "finality_semantics": "Case/action/rebuild evidence; target mutation in controlled steps",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-06",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Decide approval",
+      "version": "4.2.6-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-03",
+        "UC-09-02",
+        "UC-10-02",
+        "UC-11-04",
+        "UC-12-02"
+      ],
+      "finality_semantics": "Approval decision bound to exact immutable StateChangeBasis; decision itself has no stock effect; system executor rechecks before commit",
+      "safe_failure": "REJECTED=>owner effect NONE; stale/mismatch=>supersede/rebuild basis; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED_v3.10.1"
+    },
+    {
+      "id": "BC-IC-07",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Submit inventory operation",
+      "version": "4.2.6-amendment",
+      "owner": "IC + IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "For STATE_CHANGE: lock exact source slices + StateTransitionPolicyVersion into immutable StateChangeBasis before route; approval or system execution follows without user-facing state-write CTA",
+      "safe_failure": "REJECTED=>owner effect NONE; ambiguous slice/policy stale=>reject before approval; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED_v3.10.1",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "BC-IC-08",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Cancel exact stock-count session",
+      "version": "4.2.5-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-05"
+      ],
+      "finality_semantics": "CANCELLED + lock release + CommandReceipt; immutable evidence retained; no adjustment",
+      "safe_failure": "REJECTED=>effect NONE; UNKNOWN=>same command identity and reconciliation; no blind retry",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IC-09",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Prepare opening balance batch",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-12-01"
+      ],
+      "finality_semantics": "Batch staging/version + validation/approval refs",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-01",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Query inventory availability",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-01-01",
+        "UC-01-02",
+        "UC-01-03",
+        "UC-15-01",
+        "UC-15-02",
+        "UC-15-03",
+        "UC-15-04"
+      ],
+      "finality_semantics": "read-only; no owner mutation",
+      "safe_failure": "query failure creates no owner effect",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-02",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Receive purchased goods",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-04",
+        "UC-02-05"
+      ],
+      "finality_semantics": "Operation + movement + `VALUATION_PENDING` balance + lot + receipt + outbox; no value movement",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-03",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Reserve order quantity",
+      "version": "4.2.1",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-04-01"
+      ],
+      "finality_semantics": "ReservationGroup (when combo) + child Reservation current holds + ReservationBucket + outbox; ALL_OR_NOTHING rejects atomically with bucket unchanged",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-04",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Complete online POS checkout",
+      "version": "4.1.0",
+      "owner": "IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-05"
+      ],
+      "finality_semantics": "Issue/value movement + balance + result + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-05",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Pick and hand over fulfillment",
+      "version": "4.1.0",
+      "owner": "IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-03"
+      ],
+      "finality_semantics": "Active allocation set/version + reservation consume + issue/value + balance + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-06",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Adjust reservation capacity",
+      "version": "4.2.1",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-04-02",
+        "UC-04-03",
+        "UC-04-04"
+      ],
+      "finality_semantics": "Reservation/ReservationGroup current hold + consumed history + ReservationBucket + shortage/outbox; never mutates active PickAllocation; emits allocation_review_required when BJ05 revalidation is needed",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-07",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Receive customer return",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-06-01",
+        "UC-06-02",
+        "UC-06-03"
+      ],
+      "finality_semantics": "Per-component cap/lot/value + receipt/value movement + balance + outbox, all-or-nothing",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-08",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Classify returned goods",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-06-04"
+      ],
+      "finality_semantics": "State movements + balances + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-09",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Return goods to supplier",
+      "version": "4.1.0",
+      "owner": "IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-07-01",
+        "UC-07-04"
+      ],
+      "finality_semantics": "State/issue/value + balances + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-10",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Change inventory state",
+      "version": "4.2.6-amendment",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-07-02",
+        "UC-07-03",
+        "UC-09-03",
+        "UC-09-04"
+      ],
+      "finality_semantics": "Exact StateChangeBasis recheck + per-slice STATE_TRANSFER + balances + atomic reservation reconciliation + outbox; valuation axis/book value preserved",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation; stale basis/policy/slice=>no stock effect",
+      "evidence_level": "STATIC_VALIDATED_v3.10.1"
+    },
+    {
+      "id": "BC-IO-11",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Dispose inventory",
+      "version": "4.1.0",
+      "owner": "IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-10-03",
+        "UC-10-04"
+      ],
+      "finality_semantics": "Issue/value + balance + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-12",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Cancel pending operation",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-11-02"
+      ],
+      "finality_semantics": "Operation state + locks/approval cleanup + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-13",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Reverse or correct completed operation",
+      "version": "4.1.0",
+      "owner": "IO + IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-11-05"
+      ],
+      "finality_semantics": "New operation + chain + delta movements/value + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-14",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Query low stock suggestions",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-01-04",
+        "UC-01-05"
+      ],
+      "finality_semantics": "read-only; no owner mutation",
+      "safe_failure": "query failure creates no owner effect",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-15",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Save pick allocation",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-01",
+        "UC-05-02"
+      ],
+      "finality_semantics": "Allocation set/version/lines only",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IO-16",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Maintain operation draft",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-01",
+        "UC-02-02",
+        "UC-09-01",
+        "UC-10-01",
+        "UC-11-01",
+        "UC-11-03"
+      ],
+      "finality_semantics": "Draft + lines + CommandReceipt",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-01",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Confirm direct receipt cost and release",
+      "version": "4.2.2",
+      "owner": "IV + IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-03-03"
+      ],
+      "finality_semantics": "Complete DirectCostBasis recheck + deterministic allocated ReceiptValuation + receipt-business-date value movement + valuation-state transfer + authoritative availability + atomic OfficialCost bootstrap + outbox",
+      "safe_failure": "REJECTED=>no selected-set mutation; UNKNOWN=>same command identity/reconcile, never blind retry",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-02",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Calculate inventory cost",
+      "version": "4.2.4",
+      "owner": "IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-14-01",
+        "UC-14-02"
+      ],
+      "finality_semantics": "Immutable run snapshot + ProductCostResult only; no ledger mutation",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-03",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Publish valuation and official cost",
+      "version": "4.2.4",
+      "owner": "IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-14-04"
+      ],
+      "finality_semantics": "Incremental reconciliation batches/value ledger + forward-effective OfficialCostVersion + exact dirty-scope clear + outbox",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-04",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Record late landed cost",
+      "version": "4.2.3",
+      "owner": "IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-13-01",
+        "UC-13-02",
+        "UC-13-03"
+      ],
+      "finality_semantics": "Stable economic source component + exact ValuationExposure allocations + 1..N posting-period adjustment batches + value movements + Product+posting-period dirty scopes commit atomically; source revision is freshness/provenance, never new economic identity.",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same command identity and BJ17 reconciliation; no blind retry.",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-05",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Build direct receipt valuation preview",
+      "version": "4.2.2",
+      "owner": "IV + IO",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-03-01",
+        "UC-03-02",
+        "UC-03-03"
+      ],
+      "finality_semantics": "Read/derive only: complete DirectCostBasis candidates + deterministic allocation + basis/scope tokens + normalized Official-Cost consequence",
+      "safe_failure": "Query timeout/refetch only; no business UNKNOWN because no mutation occurs",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-XD-01",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Calculate purchase-discount scenario",
+      "version": "4.1.0",
+      "owner": "Purchase planning",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "Scenario/version only; no inventory transaction",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "BC-XD-02",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Publish pricing cost basis and draft",
+      "version": "4.1.0",
+      "owner": "Pricing",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "Pricing basis + draft only",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "BC-XD-03",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Review pricing basis after cost publication",
+      "version": "4.1.0",
+      "owner": "Pricing",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "Review decisions + basis/drafts only",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "BC-XD-04",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Query margin comparison",
+      "version": "4.1.0",
+      "owner": "Reporting",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "read-only; no owner mutation",
+      "safe_failure": "query failure creates no owner effect",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "BC-XD-05",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Configure inventory product policy",
+      "version": "4.1.0",
+      "owner": "Product configuration",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "Low-stock/near-expiry policy version; no inventory ledger",
+      "safe_failure": "REJECTED=>owner effect NONE; UNKNOWN=>same identity and reconciliation",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-C-02",
+      "kind": "API_OPERATION",
+      "name": "API-C-02` — `POST /v1/inventory/receipts",
+      "version": "v1",
+      "owner": "BC-IO-02",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-03",
+      "kind": "API_OPERATION",
+      "name": "API-C-03` — `POST /v1/reservations",
+      "version": "v1",
+      "owner": "BC-IO-03",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-04-01"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-04",
+      "kind": "API_OPERATION",
+      "name": "API-C-04` — `POST /v1/pos-checkouts/inventory-completion",
+      "version": "v1",
+      "owner": "BC-IO-04",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-05"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-05",
+      "kind": "API_OPERATION",
+      "name": "API-C-05` — `POST /v1/fulfillments/{id}/handover",
+      "version": "v1",
+      "owner": "BC-IO-05",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-06",
+      "kind": "API_OPERATION",
+      "name": "API-C-06 — POST /v1/reservations/{id}/adjustments",
+      "version": "v1",
+      "owner": "BC-IO-06",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-04-02",
+        "UC-04-03",
+        "UC-04-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-07",
+      "kind": "API_OPERATION",
+      "name": "API-C-07` — `POST /v1/customer-return-receipts",
+      "version": "v1",
+      "owner": "BC-IO-07",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-06-01",
+        "UC-06-02",
+        "UC-06-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-08",
+      "kind": "API_OPERATION",
+      "name": "API-C-08` — `POST /v1/customer-return-receipts/{id}/classifications",
+      "version": "v1",
+      "owner": "BC-IO-08",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-06-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-09",
+      "kind": "API_OPERATION",
+      "name": "API-C-09` — `POST /v1/supplier-returns/{id}/handover",
+      "version": "v1",
+      "owner": "BC-IO-09",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-07-01",
+        "UC-07-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-10",
+      "kind": "API_OPERATION",
+      "name": "API-C-10` — `POST /v1/inventory/state-changes",
+      "version": "v1",
+      "owner": "BC-IO-10",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-07-02",
+        "UC-07-03",
+        "UC-09-03",
+        "UC-09-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-11",
+      "kind": "API_OPERATION",
+      "name": "API-C-11` — `POST /v1/inventory/disposals",
+      "version": "v1",
+      "owner": "BC-IO-11",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-10-03",
+        "UC-10-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-12",
+      "kind": "API_OPERATION",
+      "name": "API-C-12` — `POST /v1/inventory-operations/{id}/cancellation",
+      "version": "v1",
+      "owner": "BC-IO-12",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-11-02"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-13",
+      "kind": "API_OPERATION",
+      "name": "API-C-13` — `POST /v1/inventory-operations/{id}/corrections",
+      "version": "v1",
+      "owner": "BC-IO-13",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-11-05"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-14",
+      "kind": "API_OPERATION",
+      "name": "API-C-14` — `POST /v1/stock-counts",
+      "version": "v1",
+      "owner": "BC-IC-01",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-01"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-15",
+      "kind": "API_OPERATION",
+      "name": "API-C-15` — `POST /v1/stock-counts/{id}/submissions",
+      "version": "v1",
+      "owner": "BC-IC-02",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-02",
+        "UC-08-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-16",
+      "kind": "API_OPERATION",
+      "name": "API-C-16` — `POST /v1/stock-counts/{id}/approval-decisions",
+      "version": "v1",
+      "owner": "BC-IC-03",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-17",
+      "kind": "API_OPERATION",
+      "name": "API-C-17` — `POST /v1/opening-balance-batches/{id}/commit",
+      "version": "v1",
+      "owner": "BC-IC-04",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-12-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-18",
+      "kind": "API_OPERATION",
+      "name": "API-C-18` — `POST /v1/reconciliation-cases/{id}/resolution-runs",
+      "version": "v1",
+      "owner": "BC-IC-05",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-16-01",
+        "UC-16-02",
+        "UC-16-03",
+        "UC-16-04",
+        "UC-17-01",
+        "UC-17-02",
+        "UC-17-03",
+        "UC-17-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-19",
+      "kind": "API_OPERATION",
+      "name": "API-C-19` — `POST /v1/approval-cases/{id}/decisions",
+      "version": "v1",
+      "owner": "BC-IC-06",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-03",
+        "UC-09-02",
+        "UC-10-02",
+        "UC-11-04",
+        "UC-12-02"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-20",
+      "kind": "API_OPERATION",
+      "name": "API-C-20 — POST /v1/receipt-valuations/confirm",
+      "version": "v3.9.7",
+      "owner": "BC-IV-01",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-03-03"
+      ],
+      "finality_semantics": "Delegates to BC-IV-01; validates selected basis/version/hash + scope version and returns authoritative command result",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-21",
+      "kind": "API_OPERATION",
+      "name": "API-C-21` — `POST /v1/cost-calculation-runs",
+      "version": "v1",
+      "owner": "BC-IV-02",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-14-01",
+        "UC-14-02"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-22",
+      "kind": "API_OPERATION",
+      "name": "API-C-22` — `POST /v1/cost-calculation-runs/{id}/publication",
+      "version": "v1",
+      "owner": "BC-IV-03",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-14-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-23",
+      "kind": "API_OPERATION",
+      "name": "POST /v1/receipt-valuations/{id}/late-costs",
+      "version": "v3.9.8",
+      "owner": "BC-IV-04",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-13-01",
+        "UC-13-02",
+        "UC-13-03"
+      ],
+      "finality_semantics": "Server re-derives late_cost_basis_hash + allocation_hash before mutation, then delegates atomic 1..N posting-period commit to BC-IV-04.",
+      "safe_failure": "Structured rejection before mutation; timeout is not failure proof and uses same command identity for reconciliation.",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-24",
+      "kind": "API_OPERATION",
+      "name": "API-C-24` — `PUT /v1/fulfillments/{id}/pick-allocation",
+      "version": "v1",
+      "owner": "BC-IO-15",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-05-01",
+        "UC-05-02"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-25",
+      "kind": "API_OPERATION",
+      "name": "API-C-25` — `POST /v1/inventory-operations`; `PUT /v1/inventory-operations/{id}",
+      "version": "v1",
+      "owner": "BC-IO-16",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-02-01",
+        "UC-02-02",
+        "UC-09-01",
+        "UC-10-01",
+        "UC-11-01",
+        "UC-11-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-26",
+      "kind": "API_OPERATION",
+      "name": "API-C-26` — `POST /v1/inventory-operations/{id}/submission",
+      "version": "v1",
+      "owner": "BC-IC-07",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-C-27",
+      "kind": "API_OPERATION",
+      "name": "API-C-27` — `POST /v1/stock-counts/{id}/cancellation",
+      "version": "v1",
+      "owner": "BC-IC-08",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-08-05"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-C-28",
+      "kind": "API_OPERATION",
+      "name": "API-C-28` — `POST /v1/opening-balance-batches`; `PUT /v1/opening-balance-batches/{id}",
+      "version": "v1",
+      "owner": "BC-IC-09",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-12-01"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-Q-01",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/inventory/availability",
+      "version": "v1",
+      "owner": "BC-IO-01",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-01-01",
+        "UC-01-02",
+        "UC-01-03",
+        "UC-15-01",
+        "UC-15-02",
+        "UC-15-03",
+        "UC-15-04"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-Q-02",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/inventory/low-stock",
+      "version": "v1",
+      "owner": "BC-IO-14",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-01-04",
+        "UC-01-05"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-Q-03",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/inventory-reports/margin-comparison",
+      "version": "v1",
+      "owner": "BC-XD-04",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-05",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/inventory/stock-card",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-06",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/inventory-reports/historical-stock",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-07",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/lots/{id}",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-08",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/approval-cases",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-09",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/reconciliation-cases",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-10",
+      "kind": "API_OPERATION",
+      "name": "GET /v1/cost-calculation-runs/{id}",
+      "version": "v1",
+      "owner": "Inventory query owner",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-14-03"
+      ],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-Q-11",
+      "kind": "API_OPERATION",
+      "name": "POST /v1/receipt-valuations/preview",
+      "version": "v3.9.7",
+      "owner": "BC-IV-05",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-03-01",
+        "UC-03-02",
+        "UC-03-03"
+      ],
+      "finality_semantics": "Read-only preview; returns valuation basis/scope versions and hashes, deterministic allocated values and availability preview",
+      "safe_failure": "Query error/timeout may refetch; no mutation finality/UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-X-01",
+      "kind": "API_OPERATION",
+      "name": "External `API-X-01` — `POST /v1/purchase-discount-scenarios",
+      "version": "v1",
+      "owner": "BC-XD-01",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-X-02",
+      "kind": "API_OPERATION",
+      "name": "External `API-X-02` — `POST /v1/pricing-cost-bases",
+      "version": "v1",
+      "owner": "BC-XD-02",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-X-03",
+      "kind": "API_OPERATION",
+      "name": "External `API-X-03` — `POST /v1/pricing-basis-reviews/{id}/decisions",
+      "version": "v1",
+      "owner": "BC-XD-03",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "API-X-04",
+      "kind": "API_OPERATION",
+      "name": "External `API-X-04` — `PUT /v1/product-stock-policies/{product_id}",
+      "version": "v1",
+      "owner": "BC-XD-05",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [],
+      "finality_semantics": "delegates to owner BC; transport does not decide finality",
+      "safe_failure": "structured error; timeout is not failure proof",
+      "evidence_level": "STATIC_VALIDATED",
+      "story_independent_reason": "Hợp đồng dùng chung/system-facing được kiểm thử độc lập; không thuộc duy nhất một UC."
+    },
+    {
+      "id": "EVT-IC-01",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.stock_count.completed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IC-02",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.opening_balance.committed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IC-03",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.reconciliation.resolved.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IC-04",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.approval.decided.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IC-05",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.stock_count.cancelled.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-01",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.receipt.recorded.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-02",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.reservation.changed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-03",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.pos_completion.completed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-04",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.fulfillment.handed_over.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-05",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.reservation.changed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-06",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.customer_return.received.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-07",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.customer_return.classified.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-08",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.state.changed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-09",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.operation.cancelled.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IO-10",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.operation.corrected.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IV-01",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.supplier_return.handed_over.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IV-02",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.disposal.completed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IV-03",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.receipt_valuation.confirmed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IV-04",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.official_cost.published.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-IV-05",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "inventory.late_landed_cost.recorded.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-XD-01",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "pricing.cost_basis.published.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-XD-02",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "pricing.basis_review.applied.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "EVT-XD-03",
+      "kind": "EVENT_OR_EVIDENCE",
+      "name": "product.inventory_policy.changed.v1",
+      "version": "v1",
+      "owner": "Producing BC",
+      "source_refs": [
+        "srs/07-technical-contracts.md#63-event-catalog-tối-thiểu"
+      ],
+      "stories": [],
+      "story_independent_reason": "integration contract shared by several stories",
+      "finality_semantics": "delivery follows commit; event delivery does not decide owner finality",
+      "safe_failure": "retry same event_id; producer state is not reversed",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-398E8A9DD3",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.approval.decide.{level}",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Approval by level",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-E37BE974DF",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.cost.view/calculate/publish/late_cost",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Separate valuation actions",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-F310020D9A",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.count.create/count/approve/cancel",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Separate count actions",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-5955F592F2",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.disposal.complete",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Disposal command",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-AF15FF540B",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.financial.view",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Purchase/official cost, value, margin",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-D4211C277E",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.fulfillment.handover",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Handover issue",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-EEC0E3346C",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.fulfillment.pick",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Save/change pick allocation",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-9D3A300546",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.opening_balance.prepare/commit",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Separate migration preparation/commit",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-915C479CE3",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.operation.cancel/correct",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Separate cancel/correction",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-3DF231AD46",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.operation.create",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Create allowed operation types",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-472BD1B63E",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.pos.complete",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Online POS inventory completion",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-E0B18ABBBA",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.receipt.receive",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Receive purchased goods",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-8DF8D6FE7D",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.reconciliation.manage",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Case/rebuild/unlock",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-5F9BCDE6B2",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.reservation.manage",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Reserve/release/reallocate",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-12E5C63159",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.return.receive",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Customer return receipt/classification",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-2AFE4EB820",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.state.manage",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: State change/demo/quarantine",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-56388818E7",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.supplier_return.handover",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Supplier return handover",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-C8EBA0BEEB",
+      "kind": "PERMISSION_INTENT",
+      "name": "inventory.view",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Quantity/state/lot in scope",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-ECE3E8FCDC",
+      "kind": "PERMISSION_INTENT",
+      "name": "pricing.cost_basis.publish",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Pricing cost basis/draft",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-DBD43ACA4E",
+      "kind": "PERMISSION_INTENT",
+      "name": "pricing.review.apply",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Period-end pricing review",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-0F25BD8575",
+      "kind": "PERMISSION_INTENT",
+      "name": "pricing.scenario.manage",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Purchase-discount scenario",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "PERM-11E97CAB06",
+      "kind": "PERMISSION_INTENT",
+      "name": "product.stock_policy.manage",
+      "version": "4.1.0",
+      "owner": "Inventory authorization",
+      "source_refs": [
+        "srs/07-technical-contracts.md#9-permission-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "cross-cutting permission",
+      "finality_semantics": "Permission grants eligibility only and never creates business, inventory, valuation or approval finality.",
+      "safe_failure": "deny with owner effect NONE; meaning: Configure low-stock threshold/target và near-expiry override/action",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-ADJUSTMENT_TOTAL_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "ADJUSTMENT_TOTAL_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-APPROVAL_ALREADY_DECIDED",
+      "kind": "REASON_CODE",
+      "name": "APPROVAL_ALREADY_DECIDED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-APPROVAL_PRICE_BASIS_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "APPROVAL_PRICE_BASIS_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-APPROVAL_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "APPROVAL_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-APPROVER_CONFIGURATION_MISSING",
+      "kind": "REASON_CODE",
+      "name": "APPROVER_CONFIGURATION_MISSING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-APPROVER_NOT_ELIGIBLE",
+      "kind": "REASON_CODE",
+      "name": "APPROVER_NOT_ELIGIBLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-BALANCE_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "BALANCE_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-BASE_UOM_IMMUTABLE",
+      "kind": "REASON_CODE",
+      "name": "BASE_UOM_IMMUTABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-BENEFIT_RULE_AMBIGUOUS",
+      "kind": "REASON_CODE",
+      "name": "BENEFIT_RULE_AMBIGUOUS",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CALCULATION_FAILED",
+      "kind": "REASON_CODE",
+      "name": "CALCULATION_FAILED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CANCELLATION_REASON_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "CANCELLATION_REASON_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_CUSTODY",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_CUSTODY",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_INTERNAL_TRANSFER",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_INTERNAL_TRANSFER",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_OFFLINE_SALE",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_OFFLINE_SALE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_REPLENISHMENT_WORKFLOW",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_REPLENISHMENT_WORKFLOW",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_SERIAL_TRACKING",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_SERIAL_TRACKING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_SKU_TRANSFORMATION",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_SKU_TRANSFORMATION",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CAPABILITY_NOT_AVAILABLE_WAREHOUSE_LIFECYCLE",
+      "kind": "REASON_CODE",
+      "name": "CAPABILITY_NOT_AVAILABLE_WAREHOUSE_LIFECYCLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CASE_NOT_ACTIVE",
+      "kind": "REASON_CODE",
+      "name": "CASE_NOT_ACTIVE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CLASSIFICATION_TOTAL_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "CLASSIFICATION_TOTAL_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COMBO_COMPONENT_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "COMBO_COMPONENT_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COMPONENT_SHORTAGE",
+      "kind": "REASON_CODE",
+      "name": "COMPONENT_SHORTAGE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CONTROL_TOTAL_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "CONTROL_TOTAL_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CORRECTION_ALREADY_ACTIVE",
+      "kind": "REASON_CODE",
+      "name": "CORRECTION_ALREADY_ACTIVE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CORRECTION_NOT_FEASIBLE",
+      "kind": "REASON_CODE",
+      "name": "CORRECTION_NOT_FEASIBLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COST_EFFECTIVE_INTERVAL_OVERLAP",
+      "kind": "REASON_CODE",
+      "name": "COST_EFFECTIVE_INTERVAL_OVERLAP",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COST_RUN_ALREADY_PUBLISHED",
+      "kind": "REASON_CODE",
+      "name": "COST_RUN_ALREADY_PUBLISHED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COST_RUN_BLOCKED",
+      "kind": "REASON_CODE",
+      "name": "COST_RUN_BLOCKED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COST_VERSION_MISSING",
+      "kind": "REASON_CODE",
+      "name": "COST_VERSION_MISSING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_ALREADY_ACTIVE",
+      "kind": "REASON_CODE",
+      "name": "COUNT_ALREADY_ACTIVE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_ALREADY_SUBMITTED",
+      "kind": "REASON_CODE",
+      "name": "COUNT_ALREADY_SUBMITTED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_LINE_OUT_OF_SCOPE",
+      "kind": "REASON_CODE",
+      "name": "COUNT_LINE_OUT_OF_SCOPE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_NOT_CANCELLABLE",
+      "kind": "REASON_CODE",
+      "name": "COUNT_NOT_CANCELLABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_NOT_READY",
+      "kind": "REASON_CODE",
+      "name": "COUNT_NOT_READY",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-COUNT_SCOPE_EMPTY",
+      "kind": "REASON_CODE",
+      "name": "COUNT_SCOPE_EMPTY",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-CURRENCY_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "CURRENCY_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-DIRECT_PRICE_ALREADY_CONFIRMED",
+      "kind": "REASON_CODE",
+      "name": "DIRECT_PRICE_ALREADY_CONFIRMED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-DISPOSAL_CONFIRMATION_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "DISPOSAL_CONFIRMATION_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-DISPOSAL_NOT_APPROVED",
+      "kind": "REASON_CODE",
+      "name": "DISPOSAL_NOT_APPROVED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-DRAFT_VALIDATION_FAILED",
+      "kind": "REASON_CODE",
+      "name": "DRAFT_VALIDATION_FAILED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-EXPIRED_CANNOT_BE_SELLABLE",
+      "kind": "REASON_CODE",
+      "name": "EXPIRED_CANNOT_BE_SELLABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-EXPIRY_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "EXPIRY_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-FINANCIAL_VIEW_FORBIDDEN",
+      "kind": "REASON_CODE",
+      "name": "FINANCIAL_VIEW_FORBIDDEN",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-FORBIDDEN_SCOPE",
+      "kind": "REASON_CODE",
+      "name": "FORBIDDEN_SCOPE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-HANDOVER_ASSERTION_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "HANDOVER_ASSERTION_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-IDEMPOTENCY_PAYLOAD_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "IDEMPOTENCY_PAYLOAD_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INPUT_SNAPSHOT_INCONSISTENT",
+      "kind": "REASON_CODE",
+      "name": "INPUT_SNAPSHOT_INCONSISTENT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INSUFFICIENT_AT_EXECUTION",
+      "kind": "REASON_CODE",
+      "name": "INSUFFICIENT_AT_EXECUTION",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INSUFFICIENT_AVAILABLE",
+      "kind": "REASON_CODE",
+      "name": "INSUFFICIENT_AVAILABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INSUFFICIENT_EVIDENCE",
+      "kind": "REASON_CODE",
+      "name": "INSUFFICIENT_EVIDENCE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INSUFFICIENT_IN_STATE",
+      "kind": "REASON_CODE",
+      "name": "INSUFFICIENT_IN_STATE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INSUFFICIENT_STOCK",
+      "kind": "REASON_CODE",
+      "name": "INSUFFICIENT_STOCK",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-INVENTORY_NOT_ACTIVATED",
+      "kind": "REASON_CODE",
+      "name": "INVENTORY_NOT_ACTIVATED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LATE_COST_ALLOCATION_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "LATE_COST_ALLOCATION_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LATE_COST_ALREADY_RECORDED",
+      "kind": "REASON_CODE",
+      "name": "LATE_COST_ALREADY_RECORDED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LATE_COST_SOURCE_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "LATE_COST_SOURCE_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LEDGER_INTEGRITY_FAILED",
+      "kind": "REASON_CODE",
+      "name": "LEDGER_INTEGRITY_FAILED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOCK_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "LOCK_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOCK_LOST",
+      "kind": "REASON_CODE",
+      "name": "LOCK_LOST",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOCK_OWNERSHIP_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "LOCK_OWNERSHIP_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOT_ATTRIBUTE_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "LOT_ATTRIBUTE_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOT_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "LOT_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOT_NOT_ELIGIBLE",
+      "kind": "REASON_CODE",
+      "name": "LOT_NOT_ELIGIBLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOT_OR_EXPIRY_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "LOT_OR_EXPIRY_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-LOT_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "LOT_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-MANUAL_FINALITY_OVERRIDE_NOT_ALLOWED",
+      "kind": "REASON_CODE",
+      "name": "MANUAL_FINALITY_OVERRIDE_NOT_ALLOWED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-MARGIN_SOURCE_INCOMPLETE",
+      "kind": "REASON_CODE",
+      "name": "MARGIN_SOURCE_INCOMPLETE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-MASTER_NOT_FOUND",
+      "kind": "REASON_CODE",
+      "name": "MASTER_NOT_FOUND",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-MIGRATION_VALIDATION_FAILED",
+      "kind": "REASON_CODE",
+      "name": "MIGRATION_VALIDATION_FAILED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-NEAR_EXPIRY_POLICY_INVALID",
+      "kind": "REASON_CODE",
+      "name": "NEAR_EXPIRY_POLICY_INVALID",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-NOT_CONFIGURED",
+      "kind": "REASON_CODE",
+      "name": "NOT_CONFIGURED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OPENING_BATCH_ALREADY_EXISTS",
+      "kind": "REASON_CODE",
+      "name": "OPENING_BATCH_ALREADY_EXISTS",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OPERATION_NOT_CANCELLABLE",
+      "kind": "REASON_CODE",
+      "name": "OPERATION_NOT_CANCELLABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OPERATION_NOT_DRAFT",
+      "kind": "REASON_CODE",
+      "name": "OPERATION_NOT_DRAFT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OPERATION_TERMINAL",
+      "kind": "REASON_CODE",
+      "name": "OPERATION_TERMINAL",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-ORIGINAL_ISSUE_NOT_FOUND",
+      "kind": "REASON_CODE",
+      "name": "ORIGINAL_ISSUE_NOT_FOUND",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-ORIGINAL_NOT_COMPLETED",
+      "kind": "REASON_CODE",
+      "name": "ORIGINAL_NOT_COMPLETED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OVERRIDE_REASON_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "OVERRIDE_REASON_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-OWNERSHIP_ASSERTION_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "OWNERSHIP_ASSERTION_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PERIOD_NOT_CALCULABLE",
+      "kind": "REASON_CODE",
+      "name": "PERIOD_NOT_CALCULABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PERIOD_POLICY_VIOLATION",
+      "kind": "REASON_CODE",
+      "name": "PERIOD_POLICY_VIOLATION",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PICK_ALLOCATION_ALREADY_CONSUMED",
+      "kind": "REASON_CODE",
+      "name": "PICK_ALLOCATION_ALREADY_CONSUMED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PICK_ALLOCATION_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "PICK_ALLOCATION_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PICK_EXCEEDS_RESERVATION",
+      "kind": "REASON_CODE",
+      "name": "PICK_EXCEEDS_RESERVATION",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-POSTING_PERIOD_NOT_OPEN",
+      "kind": "REASON_CODE",
+      "name": "POSTING_PERIOD_NOT_OPEN",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRICE_EVIDENCE_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "PRICE_EVIDENCE_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRICING_POLICY_MISSING",
+      "kind": "REASON_CODE",
+      "name": "PRICING_POLICY_MISSING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRICING_PROVENANCE_MISSING",
+      "kind": "REASON_CODE",
+      "name": "PRICING_PROVENANCE_MISSING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRICING_SOURCE_INVALID",
+      "kind": "REASON_CODE",
+      "name": "PRICING_SOURCE_INVALID",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRICING_SOURCE_VERSION_STALE",
+      "kind": "REASON_CODE",
+      "name": "PRICING_SOURCE_VERSION_STALE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRODUCT_ARCHIVED",
+      "kind": "REASON_CODE",
+      "name": "PRODUCT_ARCHIVED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRODUCT_DISCONTINUED_FOR_RECEIPT",
+      "kind": "REASON_CODE",
+      "name": "PRODUCT_DISCONTINUED_FOR_RECEIPT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PRODUCT_NOT_FOUND",
+      "kind": "REASON_CODE",
+      "name": "PRODUCT_NOT_FOUND",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-PROJECTED_SOURCE_DECISION_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "PROJECTED_SOURCE_DECISION_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-REBUILD_VALIDATION_FAILED",
+      "kind": "REASON_CODE",
+      "name": "REBUILD_VALIDATION_FAILED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RECEIPT_EXCEEDS_TOLERANCE",
+      "kind": "REASON_CODE",
+      "name": "RECEIPT_EXCEEDS_TOLERANCE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RECEIPT_NOT_VALUATION_PENDING",
+      "kind": "REASON_CODE",
+      "name": "RECEIPT_NOT_VALUATION_PENDING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RECOUNT_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "RECOUNT_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-REJECTION_REASON_REQUIRED",
+      "kind": "REASON_CODE",
+      "name": "REJECTION_REASON_REQUIRED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-REPLENISHMENT_CONFIG_INVALID",
+      "kind": "REASON_CODE",
+      "name": "REPLENISHMENT_CONFIG_INVALID",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RESERVATION_NOT_ACTIVE",
+      "kind": "REASON_CODE",
+      "name": "RESERVATION_NOT_ACTIVE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RETURN_ALREADY_CLASSIFIED",
+      "kind": "REASON_CODE",
+      "name": "RETURN_ALREADY_CLASSIFIED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RETURN_LIMIT_EXCEEDED",
+      "kind": "REASON_CODE",
+      "name": "RETURN_LIMIT_EXCEEDED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RETURN_LOT_MISMATCH",
+      "kind": "REASON_CODE",
+      "name": "RETURN_LOT_MISMATCH",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RETURN_VALUE_BASIS_MISSING",
+      "kind": "REASON_CODE",
+      "name": "RETURN_VALUE_BASIS_MISSING",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-REVIEW_ALREADY_APPLIED",
+      "kind": "REASON_CODE",
+      "name": "REVIEW_ALREADY_APPLIED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-RISK_LEVEL_INSUFFICIENT",
+      "kind": "REASON_CODE",
+      "name": "RISK_LEVEL_INSUFFICIENT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SCENARIO_INPUT_INVALID",
+      "kind": "REASON_CODE",
+      "name": "SCENARIO_INPUT_INVALID",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SCENARIO_VERSION_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "SCENARIO_VERSION_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SELF_APPROVAL_NOT_ALLOWED",
+      "kind": "REASON_CODE",
+      "name": "SELF_APPROVAL_NOT_ALLOWED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SNAPSHOT_NOT_AVAILABLE",
+      "kind": "REASON_CODE",
+      "name": "SNAPSHOT_NOT_AVAILABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SOURCE_DOCUMENT_NOT_FOUND",
+      "kind": "REASON_CODE",
+      "name": "SOURCE_DOCUMENT_NOT_FOUND",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-SOURCE_VERSION_STALE",
+      "kind": "REASON_CODE",
+      "name": "SOURCE_VERSION_STALE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-STATE_TRANSITION_NOT_ALLOWED",
+      "kind": "REASON_CODE",
+      "name": "STATE_TRANSITION_NOT_ALLOWED",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-TRACKING_CHANGE_REQUIRES_ZERO_STOCK",
+      "kind": "REASON_CODE",
+      "name": "TRACKING_CHANGE_REQUIRES_ZERO_STOCK",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-VERSION_CONFLICT",
+      "kind": "REASON_CODE",
+      "name": "VERSION_CONFLICT",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ERR-WAREHOUSE_ROUTING_NOT_AVAILABLE",
+      "kind": "REASON_CODE",
+      "name": "WAREHOUSE_ROUTING_NOT_AVAILABLE",
+      "version": "4.1.0",
+      "owner": "Inventory error catalog",
+      "source_refs": [
+        "srs/07-technical-contracts.md#10-error-catalog"
+      ],
+      "stories": [],
+      "story_independent_reason": "shared structured failure reason",
+      "finality_semantics": "reason explains result; it does not create state",
+      "safe_failure": "owner effect declared as NONE, COMMITTED or UNKNOWN",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-01",
+      "kind": "INVARIANT",
+      "name": "Mọi mutation kiểm functional permission và warehouse scope tại thời điểm hành động.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-079"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-02",
+      "kind": "INVARIANT",
+      "name": "Người lập/kiểm không được duyệt operation/kết quả của mình khi policy yêu cầu maker–checker.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-081"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-03",
+      "kind": "INVARIANT",
+      "name": "Khi gửi duyệt, hệ thống tính `Σ",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-080"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-04",
+      "kind": "INVARIANT",
+      "name": "Stock count lưu predicate/range và materialized keys tại cut-off; khóa cả key hiện hữu lẫn key mới có thể phát sinh trong predicate.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-035#REQ-01",
+        "T7-DR-035#REQ-02"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-05",
+      "kind": "INVARIANT",
+      "name": "Projection lệch ledger phải khóa scope và rebuild từ ledger, không sửa balance.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-084",
+        "T7-DR-090"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-06",
+      "kind": "INVARIANT",
+      "name": "Operation result, ledger/balance/lot/value và outbox liên quan nằm trong cùng commit set.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-073"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-07",
+      "kind": "INVARIANT",
+      "name": "Event delivery retry cùng event ID; lỗi giao không đảo operation đã commit.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-076"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-08",
+      "kind": "INVARIANT",
+      "name": "Dữ liệu giá chỉ lộ cho quyền tài chính dù risk engine vẫn tính nội bộ.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-083"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-09",
+      "kind": "INVARIANT",
+      "name": "Trước khi opening balance commit và báo cáo đối soát thành công, trạng thái kích hoạt là `PREPARING` và mọi mutation thường bị chặn; commit chuyển nguyên tử sang `ACTIVE`.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-069#REQ-02"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-10",
+      "kind": "INVARIANT",
+      "name": "FINANCIAL_RESTRICTED` được lọc ở server trên API/export/event/projection/log, không chỉ ẩn ở UI.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-083"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-11",
+      "kind": "INVARIANT",
+      "name": "DISCONTINUED` chặn mua/receipt mới trừ continuation assertion hợp lệ; `ARCHIVED` chặn mọi mutation; base UOM bất biến sau movement.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-097"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IC-12",
+      "kind": "INVARIANT",
+      "name": "Nhập hàng nhanh đủ dữ liệu bắt buộc luôn chuyển sang `PENDING_APPROVAL`; giao diện không hỏi có cần duyệt và hệ thống không được đi thẳng `READY`. Thiếu dữ liệu bắt buộc thì giữ `DRAFT`.",
+      "version": "4.1.0",
+      "owner": "IC",
+      "source_refs": [
+        "T7-DR-027"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-01",
+      "kind": "INVARIANT",
+      "name": "operation_request_id` nhận diện operation; mọi mutation có `idempotency_key` riêng và cùng key chỉ ánh xạ một command payload hash/kết quả qua CommandReceipt.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-072"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-02",
+      "kind": "INVARIANT",
+      "name": "Chỉ operation Hoàn tất thay đổi số lượng/giá trị chính thức.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-070",
+        "T7-DR-074"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-03",
+      "kind": "INVARIANT",
+      "name": "Operation nhiều dòng là all-or-nothing.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-073#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-04",
+      "kind": "INVARIANT",
+      "name": "Movement bất biến; balance là projection và không có đường sửa trực tiếp.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-084"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-05",
+      "kind": "INVARIANT",
+      "name": "Giao dịch trực tuyến không được làm khả dụng hoặc số dư có thẩm quyền âm ngoài operation được định nghĩa.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-028",
+        "T7-DR-033"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-06",
+      "kind": "INVARIANT",
+      "name": "Kiểm tra và giữ/xuất là nguyên tử; commit hợp lệ đầu tiên thắng.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-033"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-07",
+      "kind": "INVARIANT",
+      "name": "Reservation không làm giảm vật lý; issue/handover mới giảm vật lý.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-029#REQ-01",
+        "T7-DR-030#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-08",
+      "kind": "INVARIANT",
+      "name": "Hủy sau bàn giao không tự tăng tồn; chỉ return receipt thực tế làm tăng.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-040"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-09",
+      "kind": "INVARIANT",
+      "name": "Cùng request ID khác payload hash bị từ chối.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-072"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-10",
+      "kind": "INVARIANT",
+      "name": "Tổng `ReservationBucket` theo product + warehouse bằng tổng lượng còn hiệu lực của Reservation; balance theo lô không chứa reserved.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-029#REQ-03"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-11",
+      "kind": "INVARIANT",
+      "name": "PickAllocation không đổi physical; chỉ một active allocation set version và handover chỉ consume đúng version còn hiệu lực sau khi kiểm eligibility.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-030"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-12",
+      "kind": "INVARIANT",
+      "name": "UNKNOWN` không được coi là thất bại; chỉ đối soát/tiếp tục cùng ID.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-071"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IO-13",
+      "kind": "INVARIANT",
+      "name": "Combo return kiểm cap, lô, số lượng và giá trị trên từng component; toàn request all-or-nothing.",
+      "version": "4.1.0",
+      "owner": "IO",
+      "source_refs": [
+        "T7-DR-048",
+        "T7-DR-048#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-01",
+      "kind": "INVARIANT",
+      "name": "Value Movement ledger bất biến là nguồn của tổng giá trị ghi sổ.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-050"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-02",
+      "kind": "INVARIANT",
+      "name": "Official cost xác định ở tenant + product, không tách theo kho/lô.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-050",
+        "T7-DR-050#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-03",
+      "kind": "INVARIANT",
+      "name": "Hàng `VALUATION_PENDING` chưa khả dụng và chưa có official value movement cho direct cost.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-021"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-04",
+      "kind": "INVARIANT",
+      "name": "Xác nhận giá trực tiếp, value movement và release khả dụng commit cùng nhau.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-021#REQ-01",
+        "T7-DR-021#REQ-02"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-05",
+      "kind": "INVARIANT",
+      "name": "Dòng xuất chụp official cost version tại bàn giao.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-053"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-06",
+      "kind": "INVARIANT",
+      "name": "Chốt kỳ ghi phần chênh bằng adjustment; không update order/issue/value movement gốc.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-053",
+        "T7-DR-056"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-07",
+      "kind": "INVARIANT",
+      "name": "Cost run không publish khi còn blocker có thể đổi lượng/giá trị của kỳ.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-059"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-08",
+      "kind": "INVARIANT",
+      "name": "Projected purchase-discount cost không được ghi ledger hoặc dùng làm accounting COGS.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-053",
+        "T7-DR-098#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-09",
+      "kind": "INVARIANT",
+      "name": "Official cost publication không tự thay pricing cost basis hoặc selling price.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-098",
+        "T7-DR-100#REQ-03"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-10",
+      "kind": "INVARIANT",
+      "name": "Pricing cost basis có source type/version, actor và effective time.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-100#REQ-02"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-11",
+      "kind": "INVARIANT",
+      "name": "Receipt operation luôn kết thúc lượng đạt ở `VALUATION_PENDING`; xác nhận direct cost là command/transaction riêng.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-020#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-12",
+      "kind": "INVARIANT",
+      "name": "Cost run không có cancellation trong Phase 1; rerun tạo successor có liên kết và không sửa run cũ.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-060#REQ-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "INV-IV-13",
+      "kind": "INVARIANT",
+      "name": "Late-cost component chống trùng theo khóa nguồn; dữ liệu đến muộn chỉ đánh dấu đúng product-period scope `DIRTY`.",
+      "version": "4.1.0",
+      "owner": "IV",
+      "source_refs": [
+        "T7-DR-058"
+      ],
+      "stories": [],
+      "story_independent_reason": "domain invariant independently testable",
+      "finality_semantics": "must hold before and after every owner commit",
+      "safe_failure": "reject before mutation or rollback atomically",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-01",
+      "kind": "P0_CONTRACT",
+      "name": "Nhận hàng mua",
+      "version": "4.1.0",
+      "owner": "Inventory Operations + Inventory Valuation",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Nhận vật lý chỉ tăng quantity và vào VALUATION_PENDING; xác nhận giá trị mới ghi value và giải phóng phần đủ điều kiện bán.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-02",
+      "kind": "P0_CONTRACT",
+      "name": "Hàng khách trả",
+      "version": "4.1.0",
+      "owner": "Inventory Operations + Inventory Valuation",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Quantity và value commit cùng giao dịch tại RETURN_PENDING; phân loại sau không ghi value lần hai.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-03",
+      "kind": "P0_CONTRACT",
+      "name": "Trả hàng nhà cung cấp",
+      "version": "4.1.0",
+      "owner": "Inventory Operations + Inventory Valuation",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Chỉ bàn giao xác nhận mới giảm quantity/value; chênh lệch thương mại chuyển sang Kế toán.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-04",
+      "kind": "P0_CONTRACT",
+      "name": "Số dư đầu kỳ",
+      "version": "4.1.0",
+      "owner": "Inventory Control + Inventory Valuation",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Batch đủ dữ liệu, đã duyệt và đạt số kiểm soát mới commit nguyên tử rồi kích hoạt tồn kho.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-05",
+      "kind": "P0_CONTRACT",
+      "name": "Sửa sai và hoàn nguyên",
+      "version": "4.1.0",
+      "owner": "Inventory Operations + Inventory Valuation",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Không hoàn nguyên khi UNKNOWN hoặc dependency chưa trung hòa; kỳ khóa sửa ở kỳ mở và giữ correction chain.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "P0-06",
+      "kind": "P0_CONTRACT",
+      "name": "Phục hồi kết quả chưa xác định",
+      "version": "4.1.0",
+      "owner": "Inventory Control",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "stories": [],
+      "story_independent_reason": "composite finality fence",
+      "finality_semantics": "Chỉ phân giải bằng bằng chứng cuối có thẩm quyền với cùng identity; không retry bằng identity mới.",
+      "safe_failure": "no partial owner effect; UNKNOWN remains distinct and preserves identity",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "BC-IV-06",
+      "kind": "BEHAVIORAL_CONTRACT",
+      "name": "Build late landed cost allocation preview",
+      "version": "4.2.3",
+      "owner": "IV",
+      "source_refs": [
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-13-01",
+        "UC-13-02",
+        "UC-13-03"
+      ],
+      "finality_semantics": "Read/derive only: stable source component + authoritative target scope + immutable ValuationExposure/metric snapshots + per-allocation period mapping + deterministic allocation + late_cost_basis_hash/allocation_hash.",
+      "safe_failure": "Query error/timeout may refetch; no business UNKNOWN because preview does not mutate inventory value.",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "API-Q-12",
+      "kind": "API_OPERATION",
+      "name": "POST /v1/late-landed-costs/preview",
+      "version": "v3.9.8",
+      "owner": "BC-IV-06",
+      "source_refs": [
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-13-01",
+        "UC-13-02",
+        "UC-13-03"
+      ],
+      "finality_semantics": "Read-only preview; returns source_component_key/revision, route, target_scope_key/version/hash, valuation exposures/metric hashes, allowed methods, per-allocation original/posting periods, deterministic allocation, late_cost_basis_hash and allocation_hash.",
+      "safe_failure": "Query error/timeout may refetch; no mutation finality/UNKNOWN.",
+      "evidence_level": "STATIC_VALIDATED"
+    },
+    {
+      "id": "ENT-IC-10",
+      "kind": "DATA_ENTITY",
+      "name": "StateTransitionPolicyVersion",
+      "version": "4.2.6-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/04-data-entities.md",
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-09-01",
+        "UC-09-02",
+        "UC-09-03",
+        "UC-09-04"
+      ],
+      "finality_semantics": "Immutable state-change policy/basis evidence used for submit/approval/execution recheck",
+      "safe_failure": "Immutable; stale facts require a new basis/version rather than mutation in place",
+      "evidence_level": "STATIC_VALIDATED_v3.10.1"
+    },
+    {
+      "id": "ENT-IC-11",
+      "kind": "DATA_ENTITY",
+      "name": "StateChangeBasis",
+      "version": "4.2.6-amendment",
+      "owner": "IC",
+      "source_refs": [
+        "srs/04-data-entities.md",
+        "srs/06-shared-behavioral-contracts.md",
+        "srs/07-technical-contracts.md"
+      ],
+      "stories": [
+        "UC-09-01",
+        "UC-09-02",
+        "UC-09-03",
+        "UC-09-04"
+      ],
+      "finality_semantics": "Immutable state-change policy/basis evidence used for submit/approval/execution recheck",
+      "safe_failure": "Immutable; stale facts require a new basis/version rather than mutation in place",
+      "evidence_level": "STATIC_VALIDATED_v3.10.1"
+    }
+  ]
+}

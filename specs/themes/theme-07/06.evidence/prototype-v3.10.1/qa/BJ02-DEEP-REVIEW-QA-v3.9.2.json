@@ -1,0 +1,316 @@
+{
+  "version": "3.9.2",
+  "scope": "Wave 2 / BJ02 deep review",
+  "status": "PASS",
+  "passed": 51,
+  "total": 51,
+  "checks": [
+    {
+      "name": "Runtime package identifies v3.9.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick entry is visible when capability exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick entry is hidden without capability",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Temporary Quick blocker keeps a disabled Navigation Row",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick uses read-only warehouse/date facts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick does not expose a date picker or generic note",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Delivery evidence accepts multiple refs without BJ02 hard-coded accept list",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Delivery evidence wording is business-oriented",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNhập hàng nhanh\nThông tin lần nhận\n\nXác định nhà cung cấp, phạm vi nhận và chứng từ giao nhận.\n\nNhà cung cấp *\nChọn nhà cung cấp\nKho nhận\nNgày nhận\nNgày nghiệp vụ của tenant do hệ thống xác lập.\nChứng từ giao nhận *\nChọn hoặc kéo tệp\nPhiếu giao hàng, biên bản bàn giao, vận đơn hoặc bản scan/ảnh rõ nội dung\nXác nhận quyền sở hữu\nKhi tiếp tục, bạn xác nhận hàng này đã thuộc đơn vị. Hệ thống lưu người xác nhận, thời điểm và tham chiếu chứng từ giao nhận.\nXác nhận & tiếp tục"
+    },
+    {
+      "name": "Supplier picker identifies Supplier by name + code without phone",
+      "pass": true,
+      "note": "Chọn nhà cung cấp\nMinh Dũng\nNCC-0018\nAn Việt\nNCC-0042\nPhương Nam\nNCC-0067"
+    },
+    {
+      "name": "Quick continue becomes enabled only after Supplier + evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick continue creates structured ownership assertion",
+      "pass": true,
+      "note": {
+        "status": "ASSERTED",
+        "actorId": "USR-NVA",
+        "actorName": "Nguyễn Văn An",
+        "assertedAt": "2026-09-16T10:34:00+07:00",
+        "evidenceRefs": [
+          "EV-1789533980145-1"
+        ],
+        "assertionVersion": "OWN-v1"
+      }
+    },
+    {
+      "name": "Quick continues to actual receipt items after assertion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Over-source uses accepted physical, not only Đạt",
+      "pass": true,
+      "note": {
+        "acceptedBase": 1230,
+        "allowanceBase": 1200,
+        "approval": true,
+        "feedback": "<div class=\"v-banner v-banner--warning \" data-ds-component=\"VBanner\" data-figma-node=\"526:4215\" data-ds-prop-tone=\"Warning\" data-ds-prop-density=\"Compact\" data-ds-default-icon=\"VIcons.warning\">\n    <span class=\"v-banner-icon\" data-ds-internal=\"VBanner.icon\"><svg class=\"icon \" data-ds-component=\"VIcon\" data-ds-icon=\"VIcons.warning\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.3 2.9 1.8 17a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 2.9a2 2 0 0 0-3.4 0z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg></span>\n    <div class=\"v-banner-copy\" data-ds-internal=\"VBanner.copy\"><strong>Lượng vào tồn vượt chứng từ</strong><span>Vào tồn vật lý 123 hộp, vượt 3 hộp so với lượng còn được nhận. Hồ sơ sẽ cần phê duyệt.</span></div>\n  </div>"
+      }
+    },
+    {
+      "name": "Review does not present a cross-UOM numeric aggregate",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát nhận hàng\nLượng vào tồn vượt chứng từ\nĐạt + Cách ly + Hỏng vượt lượng còn được nhận. Hồ sơ cần phê duyệt.\nThông tin lần nhận\nĐổi chứng từ\nChứng từ\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nKho nhận\nKho trung tâm\nNgày chứng từ\n16/08/2026\nNgày nhận\n16/09/2026\nHàng thực nhận\n2 mặt hàng · 2 dòng\nSửa\nMặt hàng đã xử lý\n2 mặt hàng\nDòng nhận hàng\n2 dòng\nNobivac DHPPi\nNOB-DHPP · hộp · 1 lô · 123 hộp\nCó cách ly\nAmoxicillin LA\nAMX-LA · chai · 0 chai\nChưa xong\nCòn mặt hàng chưa hoàn tất\nQuay lại Hàng thực nhận để hoàn tất từng mặt hàng.\nGửi phê duyệt"
+    },
+    {
+      "name": "Rejected quantity does not increase accepted physical or over-source",
+      "pass": true,
+      "note": {
+        "acceptedBase": 1180,
+        "allowanceBase": 1200,
+        "approval": false,
+        "feedback": "<div class=\"v-banner v-banner--info \" data-ds-component=\"VBanner\" data-figma-node=\"526:4215\" data-ds-prop-tone=\"Info\" data-ds-prop-density=\"Compact\" data-ds-default-icon=\"VIcons.info\">\n    <span class=\"v-banner-icon\" data-ds-internal=\"VBanner.icon\"><svg class=\"icon \" data-ds-component=\"VIcon\" data-ds-icon=\"VIcons.info\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/></svg></span>\n    <div class=\"v-banner-copy\" data-ds-internal=\"VBanner.copy\"><strong>Còn hàng chưa nhận</strong><span>Vào tồn vật lý 118 hộp; còn 2 hộp theo chứng từ nguồn.</span></div>\n  </div>"
+      }
+    },
+    {
+      "name": "Approval risk normalizes accepted physical to base UOM",
+      "pass": true,
+      "note": {
+        "base": 20,
+        "risk": 170000
+      }
+    },
+    {
+      "name": "LOT editor exposes DAY/MONTH/YEAR precision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Rejected quantity explicitly says it does not enter inventory",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi tiết hàng thực nhận\nNobivac DHPPi\nNOB-DHPP · hộp\nCòn 120 hộp\nCác lô thực nhận\nCòn chờ nhận 120 hộp\nLô 1\n2 hộp · 0 đạt · 2 từ chối\nMã lô *\nCách ghi hạn dùng\nNgày / tháng / năm\nTháng / năm\nNăm\nHạn dùng *\nNhập đúng định dạng trên bao bì.\nThêm ngày sản xuất\nPhân loại số lượng\nĐạt\n0\nhộp\nCách ly\n0\nhộp\nHỏng\n0\nhộp\nTừ chối\n2\nhộp\nTổng kiểm nhận\n2 hộp\n\n2 hộp từ chối · không vào tồn\n\nThêm lô khác\nTổng kiểm nhận\n2 / 120 hộp\nCòn hàng chưa nhận\nVào tồn vật lý 0 hộp; còn 120 hộp theo chứng từ nguồn.\nChưa nhận lần này\nXong"
+    },
+    {
+      "name": "Derived summary says Tổng kiểm nhận, not Tổng thực nhận",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Changing document after item data requires explicit destructive confirmation",
+      "pass": true,
+      "note": "Đổi chứng từ?\n\nĐổi chứng từ sẽ xóa dữ liệu nhận hàng đang nhập để tránh giữ lại số lượng, lô hoặc phiên bản chứng từ không còn đúng.\n\nGiữ chứng từ\nĐổi chứng từ"
+    },
+    {
+      "name": "Approver sees sender and submitted_at",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Approver sees aggregate risk total, not unit-cost details",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhê duyệt yêu cầu nhận hàng\nViệc dành cho người phê duyệt · Nguyễn Văn An gửi\nLý do cần duyệt\nNhập hàng nhanh bắt buộc phê duyệt.\nThông tin lần nhận\nNhà cung cấp\nMinh Dũng\nKho nhận\nKho trung tâm\nNgày nhận\n16/09/2026\nChứng từ giao nhận\n\nbien-ban.pdf\n\nQuyền sở hữu\nĐã xác nhận\nXem chứng từ giao nhận\nThông tin yêu cầu\nNgười gửi\nNguyễn Văn An\nGửi lúc\n16/09/2026 · 09:41\nTổng giá trị rủi ro\n360.000 đ\nHàng thực nhận\n1 mặt hàng · 1 dòng\nAmoxicillin LA\nAMX-LA · chai · 3 chai\nĐã xong\nTừ chối\nDuyệt"
+    },
+    {
+      "name": "Approver can preview immutable delivery evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Evidence preview names the delivery document",
+      "pass": true,
+      "note": "Chứng từ giao nhận\n\nBằng chứng đã khóa theo phiên bản yêu cầu gửi duyệt.\n\nbien-ban.pdf\nChứng từ giao nhận\nXem\nĐóng"
+    },
+    {
+      "name": "Quick zero accepted physical is blocked",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát nhận hàng\nChưa có hàng vào tồn\nNhập hàng nhanh chỉ gửi được khi Đạt + Cách ly + Hỏng lớn hơn 0.\nThông tin lần nhận\nSửa\nNhà cung cấp\nMinh Dũng\nKho nhận\nKho trung tâm\nNgày nhận\n16/09/2026\nChứng từ giao nhận\n\nbien-ban.pdf\n\nQuyền sở hữu\nĐã xác nhận\nHàng thực nhận\n1 mặt hàng · 1 dòng\nSửa\nMặt hàng đã xử lý\n1 mặt hàng\nDòng nhận hàng\n1 dòng\nAmoxicillin LA\nAMX-LA · chai · 2 chai\nCó từ chối\nGửi phê duyệt"
+    },
+    {
+      "name": "Document zero-impact result does not claim stock increased",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả nhận hàng\nĐã ghi nhận kết quả lần nhận\n\nKhông có hàng vào tồn vật lý trong lần nhận này.\n\nKết quả theo dòng hàng\nNobivac DHPPi\nNOB-DHPP · hộp · 0 hộp\nChưa nhận\nAmoxicillin LA\nAMX-LA · chai · 0 chai\nChưa nhận\nXong"
+    },
+    {
+      "name": "UNKNOWN offers verification, not retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN verification enters SCR-013 with same flow identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Uncertain recovery does not fabricate committed movement",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐối soát nhận hàng\nTự mở khi kết quả lần nhận chưa xác định\nĐang xác minh kết quả nhận hàng\n\nChưa cần thực hiện lại lần nhận.\n\nLần kiểm tra gần nhất\n16/09/2026 · 09:45:18\nHồ sơ nhận đã được khóa\nREC-260916-04\n16/09/2026 · 09:41:06 · Nguyễn Văn An\nĐang xác lập kết quả cuối cùng\nKết quả của lần nhận hiện tại\nĐang tiếp tục kiểm tra\nĐang kiểm tra biến động tồn kho\nChưa có bằng chứng xác nhận biến động tồn kho đã được ghi\nKhông cần tạo lần nhận mới\nLàm mới\nXem hỗ trợ xử lý"
+    },
+    {
+      "name": "Representative BJ02 runtime has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "sw": 402,
+        "cw": 402
+      }
+    },
+    {
+      "name": "BJ02 active Product UI has no known English leakage",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "Decision register carries continuous BJ02 semantic locks 116-121",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-024 no longer says only Đạt enters inventory",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared Attachment Policy owns technical file constraints",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Data contract includes source remainder, ownership and LOT precision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 business doc defines delivery evidence without hard-coded technical limits",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Active BJ02 UCs encode tenant business date and ownership/evidence guards",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-02 defines both derived quantity semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime source has no sourceExpected or priceBasisVnd assumptions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.2 runtime removes hard-coded DOCX/10MB UI assumptions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Registry/workbench identify v3.9.2 semantic baseline",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-006 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-007 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-008 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-009 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-084 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-010 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-011 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-012 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-013 carries v3.9.2 deep-review trace",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "browserErrors": [],
+  "captures": [
+    {
+      "file": "01-SCR008-QUICK-EVIDENCE-OWNERSHIP.png",
+      "label": "Quick receipt uses server-owned context, delivery evidence and ownership assertion"
+    },
+    {
+      "file": "02-SCR010-ACCEPTED-PHYSICAL-OVER-SOURCE.png",
+      "label": "Review routes over-source from accepted physical base quantity"
+    },
+    {
+      "file": "03-SCR084-LOT-PRECISION-QUANTITY.png",
+      "label": "One-line editor preserves LOT date precision and quantity semantics"
+    },
+    {
+      "file": "04-SCR010-CHANGE-SOURCE-CONFIRM.png",
+      "label": "Changing source is explicit and resets the draft safely"
+    },
+    {
+      "file": "05-SCR011-APPROVAL-EVIDENCE-RISK.png",
+      "label": "Approver has previewable evidence, sender/submitted_at and aggregate risk"
+    },
+    {
+      "file": "06-SCR013-AUTHORITATIVE-RECOVERY.png",
+      "label": "Recovery only shows evidence proven for the same receipt operation"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+# BJ13 Deep Review QA — v3.9.8
+
+**Result: PASS · 83/83**
+
+Scope: approved D13-01…D13-07 / T7-DR-157…163 propagated through BJ/UC/contracts/entities/technical payloads/screens/runtime.
+
+- PASS — Decision register version is v4.2.3 late-cost amendment
+- PASS — Approved BJ13 decisions T7-DR-157..163 are registered
+- PASS — Decision range is continuous through 163
+- PASS — BJ13 stable economic identity is source_component_key independent of revision
+- PASS — BJ13 target scope is authoritative source/policy contract
+- PASS — BJ13 allocation targets 1..N ValuationExposure
+- PASS — BJ13 immutable metric uses initial/direct value or normalized quantity
+- PASS — BJ13 rounding residual uses stable exposure order
+- PASS — BJ13 freshness rechecks complete basis and allocation hashes
+- PASS — BJ13 one source component has one DIRECT/LATE accounting route
+- PASS — BJ13 per-allocation periods and dirty Product+posting period are explicit
+- PASS — BJ13 supports 1..N posting-period adjustment batches
+- PASS — BC-IV-06 input uses stable key, revision, route, scope and exposure versions
+- PASS — BC-IV-06 blocks LATE preview until all target exposures initial-valued
+- PASS — BC-IV-06 derives late_cost_basis_hash and allocation_hash
+- PASS — BC-IV-04 dedups by stable economic key, not revision
+- PASS — BC-IV-04 creates 1..N posting-period batches atomically
+- PASS — BC-IV-04 dirty scope is Product + posting period
+- PASS — BC-IV-04 does not auto-publish Official Cost
+- PASS — LateLandedCost entity stores stable source_component_key
+- PASS — LateLandedCost source revision is provenance/freshness only
+- PASS — LateLandedCost uniqueness is tenant + stable source_component_key
+- PASS — LateLandedCost stores target scope key/version/hash
+- PASS — LateLandedCost stores late_cost_basis_hash and allocation_hash
+- PASS — LateLandedCost stores 1..N adjustment_batch_ids
+- PASS — ValuationExposure is explicitly defined as immutable derived target
+- PASS — Allocation stores valuation exposure key/version/hash
+- PASS — Allocation stores initial-valued quantity/value and RV lineage
+- PASS — Allocation stores metric snapshot and stable-order rounding
+- PASS — Allocation natural key uses stable component + exposure, not revision
+- PASS — Allocation stores receipt business date, original period and posting period
+- PASS — Allocation dirty scope is Product + posting period
+- PASS — Technical matrix API-Q-12 exposes stable key/scope/exposure/metric/period preview
+- PASS — Technical matrix API-C-23 writes 1..N posting-period batches
+- PASS — BJ13 payload contract exists
+- PASS — Preview payload uses initial/direct value before previous late costs
+- PASS — Preview timeout is safe refetch, not business UNKNOWN
+- PASS — Commit rejects any source/tax/FX/policy/scope/exposure/metric/period change
+- PASS — Commit economic uniqueness excludes source revision
+- PASS — EVT-IV-05 carries stable key, hashes, batch IDs and per-allocation periods
+- PASS — UC13-01 active mapping is SCR-085/086
+- PASS — UC13-02 active mapping is SCR-087
+- PASS — UC13-03 active mapping is SCR-088/089
+- PASS — All five BJ13 screen contracts carry Wave 3 semantic lock
+- PASS — UIF-13 flow carries Wave 3 semantic lock
+- PASS — Screen registry maps SCR-085/086 to UC-13-01
+- PASS — Screen registry maps SCR-087 to UC-13-02
+- PASS — Screen registry maps SCR-088/089 to UC-13-03
+- PASS — Workbench maps BJ13 screens consistently
+- PASS — Action registry late-cost commit references v3.9.8 complete hash recheck
+- PASS — Inner HTML loads v398 BJ13 overlay after v397
+- PASS — v398 runtime overlay exposes approved semantic helpers
+- PASS — Current manifest is v3.9.8 on parent v3.9.7
+- PASS — Current manifest product approval targets BJ13 deep review
+- PASS — Runtime identifies v3.9.8
+- PASS — v3.9.8 BJ13 helper is loaded
+- PASS — Actionable late-cost row has no redundant normal-state badge
+- PASS — Waiting for initial valuation is explicit and non-actionable
+- PASS — Undefined aging text is removed from worklist
+- PASS — Source scope UI hides raw source revision
+- PASS — Source scope UI hides fixture evidence filename
+- PASS — Fixed authoritative scope has no user toggle controls
+- PASS — Fixed scope shows source-linked business rows
+- PASS — Source revision preserves economic identity
+- PASS — Source revision changes complete basis freshness hash
+- PASS — Allocation is invariant to UI/source row order
+- PASS — Value allocation metric uses immutable initial direct value
+- PASS — Dirty scopes are Product + posting period
+- PASS — Allocation helper avoids architecture narration
+- PASS — Normal flow reaches final review
+- PASS — Review prioritizes amount, method, allocation, period and dirty scope
+- PASS — Changed valuation exposure invalidates review before mutation
+- PASS — Clean commit reaches authoritative result
+- PASS — Commit result preserves stable source component identity
+- PASS — Commit result persists basis and allocation hashes
+- PASS — Commit result returns posting-period adjustment batches
+- PASS — Result dirty scope is Product + posting period, not UOM
+- PASS — Result does not expose raw revision/hash/operation identity
+- PASS — Result does not narrate BJ14 implementation
+- PASS — One late-cost component can resolve 1..N posting-period groups
+- PASS — FINANCIAL_MASKED is server-style masked surface
+- PASS — No page errors in BJ13 deep-review runtime
+- PASS — No console errors in BJ13 deep-review runtime
+
+## Captures
+- `01-SCR085-WORKLIST.png` — BJ13 worklist — only exception state is emphasized
+- `02-SCR086-FIXED-SCOPE.png` — BJ13 source/policy-authoritative fixed target scope
+- `03-SCR087-ALLOCATION.png` — BJ13 deterministic allocation preview
+- `04-SCR088-REVIEW.png` — BJ13 final review — decision-relevant financial facts only
+- `05-SCR089-RESULT.png` — BJ13 authoritative committed result

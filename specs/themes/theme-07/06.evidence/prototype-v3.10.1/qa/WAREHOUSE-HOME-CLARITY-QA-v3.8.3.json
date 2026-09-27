@@ -1,0 +1,185 @@
+{
+  "version": "3.8.3",
+  "status": "PASS",
+  "passed": 28,
+  "total": 28,
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.8.3"
+    },
+    {
+      "name": "two workbench modes preserved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Warehouse Home remains task-driven",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "collapsed work queue shows three concrete tasks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "work header owns one disclosure action",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "collapsed disclosure copy is user-readable",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "section title and disclosure are vertically aligned",
+      "pass": true,
+      "note": {
+        "hc": 352,
+        "bc": 352
+      }
+    },
+    {
+      "name": "old mixed action row is removed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "start-new is one canonical Navigation List Row",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "start-new uses user language instead of system term",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "start-new helper explains examples, not architecture",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "header disclosure expands to all five tasks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "expanded disclosure becomes Thu gọn",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "start-new row remains after expansion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "collapse returns to three tasks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual chooser opens from Start new work row",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "sheet is titled Bắt đầu việc mới",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "sheet keeps exactly four manual starts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "sheet has no explanatory helper or redundant Close CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Escape dismisses manual chooser",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "catalog still represents all 17 BJ + CAP-01",
+      "pass": true,
+      "note": [
+        "UIF-01",
+        "UIF-15",
+        "UIF-02",
+        "UIF-05",
+        "UIF-06",
+        "UIF-07",
+        "UIF-08",
+        "UIF-09",
+        "UIF-10",
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-11",
+        "UIF-16",
+        "UIF-17",
+        "UIF-04",
+        "UIF-12",
+        "CAP-01"
+      ]
+    },
+    {
+      "name": "catalog has no explanatory badges",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "context-only reservation uses canonical Disabled List Row",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "context-only reservation explains its source in helper text",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "disabled context-only row cannot be routed directly",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical 402x874 product / 418x890 review frame preserved",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "Warehouse Home has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

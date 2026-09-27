@@ -1,0 +1,656 @@
+{
+  "schema_version": "1.0",
+  "status": "NON_AUTHORITATIVE_AUDIT_SNAPSHOT",
+  "generated_at": "2026-08-24T09:17:52.534357+00:00",
+  "source": {
+    "package_name": "vet45_design_system",
+    "package_version": "1.0.0",
+    "root_name": "vet45_design_system",
+    "public_barrel": "lib/design_system.dart"
+  },
+  "single_source_rule": "Flutter DS source remains authoritative. This catalog records source locations only and must not be used as an independent HTML DS.",
+  "public_exports": [
+    "src/tokens/v_colors.dart",
+    "src/tokens/v_borders.dart",
+    "src/tokens/v_radius.dart",
+    "src/tokens/v_spacing.dart",
+    "src/tokens/v_breakpoints.dart",
+    "src/tokens/v_typography.dart",
+    "src/tokens/v_shadows.dart",
+    "src/tokens/v_assets.dart",
+    "src/tokens/v_duration.dart",
+    "src/theme/v_theme.dart",
+    "src/theme/v_color_scheme.dart",
+    "src/theme/v_density.dart",
+    "src/foundation/v_context_extensions.dart",
+    "src/foundation/v_component_contracts.dart",
+    "src/foundations/icons/v_icons.dart",
+    "src/foundation/v_text_normalizer.dart",
+    "src/foundation/v_route_overlay_guard.dart",
+    "src/foundation/v_overlay_menu_layout.dart",
+    "src/foundation/v_overlay_menu_shell.dart",
+    "src/foundation/v_dropdown_filter.dart",
+    "src/audit/v_component_audit_snapshot.dart",
+    "src/patterns/v_gap.dart",
+    "src/patterns/v_page_padding.dart",
+    "src/patterns/v_section.dart",
+    "src/patterns/v_page_scaffold.dart",
+    "src/patterns/v_responsive.dart",
+    "src/patterns/v_responsive_visibility.dart",
+    "src/patterns/v_content_width.dart",
+    "src/patterns/v_responsive_grid.dart",
+    "src/primitives/v_badge.dart",
+    "src/primitives/v_chip.dart",
+    "src/primitives/v_icon.dart",
+    "src/primitives/v_icon_box.dart",
+    "src/primitives/v_skeleton.dart",
+    "src/primitives/v_text.dart",
+    "src/components/v_avatar.dart",
+    "src/components/v_banner.dart",
+    "src/components/v_button.dart",
+    "src/components/v_card.dart",
+    "src/components/v_checkbox.dart",
+    "src/components/v_radio.dart",
+    "src/components/v_switch.dart",
+    "src/components/v_floating_action_button.dart",
+    "src/components/v_text_field.dart",
+    "src/components/v_text_form_field.dart",
+    "src/components/v_verification_code_field.dart",
+    "src/components/v_search_bar.dart",
+    "src/components/v_tabs.dart",
+    "src/components/v_empty_state.dart",
+    "src/components/v_file_drop_zone.dart",
+    "src/components/v_toast.dart",
+    "src/components/v_combobox.dart",
+    "src/components/v_quantity_selector.dart",
+    "src/components/v_bottom_navigation_bar.dart",
+    "src/components/v_modal.dart",
+    "src/components/v_bottom_sheet.dart",
+    "src/components/v_app_bar.dart",
+    "src/components/v_table.dart",
+    "src/components/v_loading.dart",
+    "src/components/v_steps.dart",
+    "src/components/v_progress.dart",
+    "src/components/v_segmented_control.dart",
+    "src/components/v_swipe_action_record.dart",
+    "src/components/v_numeric_keypad_sheet.dart",
+    "src/components/v_swipe_reveal.dart",
+    "src/forms/validators/v_email_validator.dart",
+    "src/forms/validators/v_password_validator.dart",
+    "src/forms/validators/v_money_validator.dart",
+    "src/forms/validators/v_number_validator.dart",
+    "src/forms/validators/v_select_validator.dart",
+    "src/forms/validators/v_choice_list_validator.dart",
+    "src/forms/formatters/v_money_input_formatter.dart",
+    "src/forms/formatters/v_number_input_formatter.dart",
+    "src/forms/models/v_choice_option.dart",
+    "src/forms/v_email_field.dart",
+    "src/forms/v_password_field.dart",
+    "src/forms/v_money_field.dart",
+    "src/forms/v_number_field.dart",
+    "src/forms/v_select.dart",
+    "src/forms/v_choice_list.dart",
+    "src/forms/v_date_picker.dart"
+  ],
+  "public_symbols": [
+    {
+      "symbol": "VColors",
+      "source": "lib/src/tokens/v_colors.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBorders",
+      "source": "lib/src/tokens/v_borders.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VRadius",
+      "source": "lib/src/tokens/v_radius.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSpacing",
+      "source": "lib/src/tokens/v_spacing.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VBreakpoint",
+      "source": "lib/src/tokens/v_breakpoints.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VTypography",
+      "source": "lib/src/tokens/v_typography.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VShadows",
+      "source": "lib/src/tokens/v_shadows.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VAssets",
+      "source": "lib/src/tokens/v_assets.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VDuration",
+      "source": "lib/src/tokens/v_duration.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTheme",
+      "source": "lib/src/theme/v_theme.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VColorScheme",
+      "source": "lib/src/theme/v_color_scheme.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VDensity",
+      "source": "lib/src/theme/v_density.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VDensityMode",
+      "source": "lib/src/theme/v_density.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VComponentTone",
+      "source": "lib/src/foundation/v_component_contracts.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VComponentEmphasis",
+      "source": "lib/src/foundation/v_component_contracts.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VComponentState",
+      "source": "lib/src/foundation/v_component_contracts.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VIcons",
+      "source": "lib/src/foundations/icons/v_icons.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VOverlayMenuPanelMetrics",
+      "source": "lib/src/foundation/v_overlay_menu_layout.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VComponentAuditEntry",
+      "source": "lib/src/audit/v_component_audit_snapshot.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VGap",
+      "source": "lib/src/patterns/v_gap.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VGapSize",
+      "source": "lib/src/patterns/v_gap.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VPagePadding",
+      "source": "lib/src/patterns/v_page_padding.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSection",
+      "source": "lib/src/patterns/v_section.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VPageScaffold",
+      "source": "lib/src/patterns/v_page_scaffold.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VResponsiveValue",
+      "source": "lib/src/patterns/v_responsive.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VResponsive",
+      "source": "lib/src/patterns/v_responsive.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VResponsiveVisibility",
+      "source": "lib/src/patterns/v_responsive_visibility.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VContentWidth",
+      "source": "lib/src/patterns/v_content_width.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VResponsiveGrid",
+      "source": "lib/src/patterns/v_responsive_grid.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VBadge",
+      "source": "lib/src/primitives/v_badge.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBadgeStatus",
+      "source": "lib/src/primitives/v_badge.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VChip",
+      "source": "lib/src/primitives/v_chip.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VChipEmphasis",
+      "source": "lib/src/primitives/v_chip.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VIcon",
+      "source": "lib/src/primitives/v_icon.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VIconSize",
+      "source": "lib/src/primitives/v_icon.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VIconColor",
+      "source": "lib/src/primitives/v_icon.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VIconBox",
+      "source": "lib/src/primitives/v_icon_box.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSkeletonScope",
+      "source": "lib/src/primitives/v_skeleton.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSkeleton",
+      "source": "lib/src/primitives/v_skeleton.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VText",
+      "source": "lib/src/primitives/v_text.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VTextVariant",
+      "source": "lib/src/primitives/v_text.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VAvatar",
+      "source": "lib/src/components/v_avatar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBanner",
+      "source": "lib/src/components/v_banner.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VBannerStatus",
+      "source": "lib/src/components/v_banner.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VButton",
+      "source": "lib/src/components/v_button.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VButtonVariant",
+      "source": "lib/src/components/v_button.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VButtonSize",
+      "source": "lib/src/components/v_button.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VCard",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardHeader",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardIcon",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardTitle",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardAction",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardContent",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCardFooter",
+      "source": "lib/src/components/v_card.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VCheckbox",
+      "source": "lib/src/components/v_checkbox.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VRadio",
+      "source": "lib/src/components/v_radio.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSwitch",
+      "source": "lib/src/components/v_switch.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VFloatingActionButton",
+      "source": "lib/src/components/v_floating_action_button.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTextField",
+      "source": "lib/src/components/v_text_field.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTextFormField",
+      "source": "lib/src/components/v_text_form_field.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VVerificationCodeField",
+      "source": "lib/src/components/v_verification_code_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VVerificationCodeCharset",
+      "source": "lib/src/components/v_verification_code_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSearchBar",
+      "source": "lib/src/components/v_search_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSearchBarVariant",
+      "source": "lib/src/components/v_search_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTabs",
+      "source": "lib/src/components/v_tabs.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VEmptyState",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyHeader",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyMedia",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyTitle",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyDescription",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyContent",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmptyMediaVariant",
+      "source": "lib/src/components/v_empty_state.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VFileDropZone",
+      "source": "lib/src/components/v_file_drop_zone.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VFileDropZoneState",
+      "source": "lib/src/components/v_file_drop_zone.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VToast",
+      "source": "lib/src/components/v_toast.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VToastType",
+      "source": "lib/src/components/v_toast.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VCombobox",
+      "source": "lib/src/components/v_combobox.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VQuantitySelector",
+      "source": "lib/src/components/v_quantity_selector.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBottomNavigationItem",
+      "source": "lib/src/components/v_bottom_navigation_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBottomNavigationBar",
+      "source": "lib/src/components/v_bottom_navigation_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VConfirmDialog",
+      "source": "lib/src/components/v_modal.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VBottomSheet",
+      "source": "lib/src/components/v_bottom_sheet.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VAppBarTitle",
+      "source": "lib/src/components/v_app_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VAppBarSubtitle",
+      "source": "lib/src/components/v_app_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VAppBar",
+      "source": "lib/src/components/v_app_bar.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTableHeader",
+      "source": "lib/src/components/v_table.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VTable",
+      "source": "lib/src/components/v_table.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VLoading",
+      "source": "lib/src/components/v_loading.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VStepItem",
+      "source": "lib/src/components/v_steps.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSteps",
+      "source": "lib/src/components/v_steps.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VStepStatus",
+      "source": "lib/src/components/v_steps.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VStepsType",
+      "source": "lib/src/components/v_steps.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VProgress",
+      "source": "lib/src/components/v_progress.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSegmentedControl",
+      "source": "lib/src/components/v_segmented_control.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSwipeActionRecord",
+      "source": "lib/src/components/v_swipe_action_record.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VNumericKeypadSheet",
+      "source": "lib/src/components/v_numeric_keypad_sheet.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VSwipeReveal",
+      "source": "lib/src/components/v_swipe_reveal.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VMoneyInputFormatter",
+      "source": "lib/src/forms/formatters/v_money_input_formatter.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VNumberInputFormatter",
+      "source": "lib/src/forms/formatters/v_number_input_formatter.dart",
+      "referenced_in_tests": false
+    },
+    {
+      "symbol": "VChoiceOption",
+      "source": "lib/src/forms/models/v_choice_option.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VEmailField",
+      "source": "lib/src/forms/v_email_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VPasswordField",
+      "source": "lib/src/forms/v_password_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VMoneyField",
+      "source": "lib/src/forms/v_money_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VNumberField",
+      "source": "lib/src/forms/v_number_field.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VSelect",
+      "source": "lib/src/forms/v_select.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VChoiceList",
+      "source": "lib/src/forms/v_choice_list.dart",
+      "referenced_in_tests": true
+    },
+    {
+      "symbol": "VDatePicker",
+      "source": "lib/src/forms/v_date_picker.dart",
+      "referenced_in_tests": false
+    }
+  ],
+  "declared_assets": [
+    "assets/illustrations/logo.png",
+    "assets/illustrations/empty_state.png",
+    "assets/illustrations/error_state.png",
+    "assets/icons/ic_calendar.svg",
+    "assets/icons/ic_chart.svg",
+    "assets/icons/ic_warning.svg"
+  ],
+  "missing_declared_assets": [
+    "assets/illustrations/logo.png",
+    "assets/illustrations/empty_state.png",
+    "assets/illustrations/error_state.png",
+    "assets/icons/ic_calendar.svg",
+    "assets/icons/ic_chart.svg",
+    "assets/icons/ic_warning.svg"
+  ],
+  "pubspec_asset_roots": [
+    "assets/fonts/ttf_Inter/",
+    "assets/fonts/ttf_JetBrainsMono/"
+  ],
+  "runtime_tools": {
+    "flutter": null,
+    "dart": null
+  }
+}

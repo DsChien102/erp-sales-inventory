@@ -1,0 +1,96 @@
+# BJ-02 Isolation Report v0.2.6
+
+- [x] non-BJ02 flow unchanged: UIF-01
+- [x] non-BJ02 flow unchanged: UIF-03
+- [x] non-BJ02 flow unchanged: UIF-04
+- [x] non-BJ02 flow unchanged: UIF-05
+- [x] non-BJ02 flow unchanged: UIF-06
+- [x] non-BJ02 flow unchanged: UIF-07
+- [x] non-BJ02 flow unchanged: UIF-08
+- [x] non-BJ02 flow unchanged: UIF-09
+- [x] non-BJ02 flow unchanged: UIF-10
+- [x] non-BJ02 flow unchanged: UIF-11
+- [x] non-BJ02 flow unchanged: UIF-12
+- [x] non-BJ02 flow unchanged: UIF-13
+- [x] non-BJ02 flow unchanged: UIF-14
+- [x] non-BJ02 flow unchanged: UIF-15
+- [x] non-BJ02 flow unchanged: UIF-16
+- [x] non-BJ02 flow unchanged: UIF-17
+- [x] non-BJ02 screen data unchanged: SCR-001
+- [x] non-BJ02 screen data unchanged: SCR-002
+- [x] non-BJ02 screen data unchanged: SCR-003
+- [x] non-BJ02 screen data unchanged: SCR-004
+- [x] non-BJ02 screen data unchanged: SCR-005
+- [x] non-BJ02 screen data unchanged: SCR-014
+- [x] non-BJ02 screen data unchanged: SCR-015
+- [x] non-BJ02 screen data unchanged: SCR-016
+- [x] non-BJ02 screen data unchanged: SCR-017
+- [x] non-BJ02 screen data unchanged: SCR-018
+- [x] non-BJ02 screen data unchanged: SCR-019
+- [x] non-BJ02 screen data unchanged: SCR-020
+- [x] non-BJ02 screen data unchanged: SCR-021
+- [x] non-BJ02 screen data unchanged: SCR-022
+- [x] non-BJ02 screen data unchanged: SCR-023
+- [x] non-BJ02 screen data unchanged: SCR-024
+- [x] non-BJ02 screen data unchanged: SCR-025
+- [x] non-BJ02 screen data unchanged: SCR-026
+- [x] non-BJ02 screen data unchanged: SCR-027
+- [x] non-BJ02 screen data unchanged: SCR-028
+- [x] non-BJ02 screen data unchanged: SCR-029
+- [x] non-BJ02 screen data unchanged: SCR-030
+- [x] non-BJ02 screen data unchanged: SCR-031
+- [x] non-BJ02 screen data unchanged: SCR-032
+- [x] non-BJ02 screen data unchanged: SCR-033
+- [x] non-BJ02 screen data unchanged: SCR-034
+- [x] non-BJ02 screen data unchanged: SCR-035
+- [x] non-BJ02 screen data unchanged: SCR-036
+- [x] non-BJ02 screen data unchanged: SCR-037
+- [x] non-BJ02 screen data unchanged: SCR-038
+- [x] non-BJ02 screen data unchanged: SCR-039
+- [x] non-BJ02 screen data unchanged: SCR-040
+- [x] non-BJ02 screen data unchanged: SCR-041
+- [x] non-BJ02 screen data unchanged: SCR-042
+- [x] non-BJ02 screen data unchanged: SCR-043
+- [x] non-BJ02 screen data unchanged: SCR-044
+- [x] non-BJ02 screen data unchanged: SCR-045
+- [x] non-BJ02 screen data unchanged: SCR-046
+- [x] non-BJ02 screen data unchanged: SCR-047
+- [x] non-BJ02 screen data unchanged: SCR-048
+- [x] non-BJ02 screen data unchanged: SCR-049
+- [x] non-BJ02 screen data unchanged: SCR-050
+- [x] non-BJ02 screen data unchanged: SCR-051
+- [x] non-BJ02 screen data unchanged: SCR-052
+- [x] non-BJ02 screen data unchanged: SCR-053
+- [x] non-BJ02 screen data unchanged: SCR-054
+- [x] non-BJ02 screen data unchanged: SCR-055
+- [x] non-BJ02 screen data unchanged: SCR-056
+- [x] non-BJ02 screen data unchanged: SCR-057
+- [x] non-BJ02 screen data unchanged: SCR-058
+- [x] non-BJ02 screen data unchanged: SCR-059
+- [x] non-BJ02 screen data unchanged: SCR-060
+- [x] non-BJ02 screen data unchanged: SCR-061
+- [x] non-BJ02 screen data unchanged: SCR-066
+- [x] non-BJ02 screen data unchanged: SCR-067
+- [x] non-BJ02 screen data unchanged: SCR-068
+- [x] non-BJ02 screen data unchanged: SCR-069
+- [x] non-BJ02 screen data unchanged: SCR-070
+- [x] non-BJ02 screen data unchanged: SCR-071
+- [x] non-BJ02 screen data unchanged: SCR-072
+- [x] non-BJ02 screen data unchanged: SCR-073
+- [x] non-BJ02 screen data unchanged: SCR-074
+- [x] non-BJ02 screen data unchanged: SCR-075
+- [x] non-BJ02 screen data unchanged: SCR-076
+- [x] non-BJ02 screen data unchanged: SCR-077
+- [x] non-BJ02 screen data unchanged: SCR-078
+- [x] non-BJ02 screen data unchanged: SCR-079
+- [x] non-BJ02 screen data unchanged: SCR-080
+- [x] non-BJ02 screen data unchanged: SCR-081
+- [x] non-BJ02 screen data unchanged: SCR-082
+- [x] non-BJ02 screen data unchanged: SCR-083
+- [x] UIF-02 changed from v0.2.4
+- [x] SCR-008 changed from v0.2.4
+- [x] app boot restored
+- [x] inspect declarations restored
+- [x] BJ02 CSS scoped
+
+**Result:** 92/92 PASS

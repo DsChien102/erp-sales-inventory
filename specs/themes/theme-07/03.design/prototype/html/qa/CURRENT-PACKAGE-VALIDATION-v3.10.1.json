@@ -1,0 +1,338 @@
+{
+  "version": "3.10.1",
+  "status": "PASS",
+  "passed": 66,
+  "total": 66,
+  "checks": [
+    {
+      "name": "root package identifies v3.10.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype manifests use direct parent v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current registries identify v3.10.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "screen registry current prototype status identifies BJ09",
+      "pass": true,
+      "note": "BJ09_DEEP_REVIEW_v3.10.1"
+    },
+    {
+      "name": "v3.10.1 overlay loads exactly once after v3.10.0 layer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 deep review passes 127/127",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 fresh-eye passes 31/31",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prior locked regression passes 37/37 including BJ08",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Wave 3 cross-BJ audit remains 35/35",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "frozen source direct-parent comparison passes 108/108",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme end-user regression passes 19/19",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "flow logic passes 26 checks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow smoke passes 89 renders",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI passes 514 route-state renders / 89 routes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence passes 8/8",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device frame passes 7/7 over 89 routes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "structural package gate passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-178 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-179 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-180 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-181 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-182 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-183 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "T7-DR-184 exists ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical state is DEMO and TRIAL is explicitly retired",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "state policy is versioned/immutable",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "partial quantity resolves exact valuation slices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "STATE_TRANSFER preserves valuation and book value",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "expiry is system-derived",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "reservation reconciliation is atomic",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "approval binds immutable StateChangeBasis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 separates submit/approval/system execution",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all four BJ09 UCs carry v3.10.1 amendment semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 says approval decision does not mutate stock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 owns system-derived expiry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 owns system execution boundary",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "data owns immutable StateTransitionPolicyVersion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "data owns immutable StateChangeBasis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryMovement has valuation_state_snapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 exact basis execution and no value movement",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-06 exact approval basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-07 locks submit basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "API-C-10 is system execution endpoint",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical errors cover ambiguity/stale/policy/approval mismatch",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "EVT-IO-08 includes basis/policy/reservation lineage",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ACT-08-STATE is trace-only system execution",
+      "pass": true,
+      "note": "{'id': 'ACT-08-STATE', 'label': 'Hệ thống ghi chuyển trạng thái', 'bc': 'BC-IO-10', 'api': 'API-C-10', 'permission': 'Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại', 'confirmation': 'Không có CTA trực tiếp; confirmation thuộc submit/approval task', 'effect': 'System executor recheck StateChangeBasis rồi ghi STATE_TRANSFER, preserve valuation state, reconcile reservation; không tạo value movement', 'screen_ids': ['SCR-038', 'SCR-041'], 'evidence_level': 'BJ09_DEEP_REVIEW_v3.10.1', 'ui_visibility': 'TRACE_ONLY_SYSTEM'}"
+    },
+    {
+      "name": "SCR038 From is read-only and destination policy-driven",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 has stale-basis state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR041 owns processing/system result states",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF09 separates HANDOFF and SYSTEM transition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "component usage binds policy and immutable basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC09-01 carries DR178..184",
+      "pass": true,
+      "note": "{'story': 'UC-09-01', 'title': 'Chuẩn bị thay đổi trạng thái', 'journeys': ['BJ-09'], 'domains': ['IO'], 'entities': ['ENT-IC-10', 'ENT-IC-11'], 'ui': ['SG-08'], 'contracts': ['BC-IO-16', 'BC-IC-07'], 'tests': ['TST-AS-UC-09-01-01', 'TST-AS-UC-09-01-02', 'TST-AS-UC-09-01-03', 'TST-AS-UC-09-01-04'], 'requirements': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-01', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-02', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-03', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-04'], 'decisions': ['T7-DR-012', 'T7-DR-018', 'T7-DR-046', 'T7-DR-047', 'T7-DR-092', 'T7-DR-178', 'T7-DR-179', 'T7-DR-180', 'T7-DR-181', 'T7-DR-182', 'T7-DR-183', 'T7-DR-184'], 'source_refs': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md']}"
+    },
+    {
+      "name": "trace UC09-02 carries DR178..184",
+      "pass": true,
+      "note": "{'story': 'UC-09-02', 'title': 'Phê duyệt thay đổi trạng thái', 'journeys': ['BJ-09'], 'domains': ['IC'], 'entities': ['ENT-IC-10', 'ENT-IC-11'], 'ui': ['SG-08'], 'contracts': ['BC-IC-06'], 'tests': ['TST-AS-UC-09-02-01', 'TST-AS-UC-09-02-02', 'TST-AS-UC-09-02-03', 'TST-AS-UC-09-02-04'], 'requirements': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-01', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-02', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-03', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-04'], 'decisions': ['T7-DR-012', 'T7-DR-018', 'T7-DR-046', 'T7-DR-047', 'T7-DR-092', 'T7-DR-178', 'T7-DR-179', 'T7-DR-180', 'T7-DR-181', 'T7-DR-182', 'T7-DR-183', 'T7-DR-184'], 'source_refs': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md']}"
+    },
+    {
+      "name": "trace UC09-03 carries DR178..184",
+      "pass": true,
+      "note": "{'story': 'UC-09-03', 'title': 'Xác định hàng hết hạn', 'journeys': ['BJ-09'], 'domains': ['IO'], 'entities': ['ENT-IC-10', 'ENT-IC-11'], 'ui': ['SG-08'], 'contracts': ['BC-IO-10'], 'tests': ['TST-AS-UC-09-03-01', 'TST-AS-UC-09-03-02', 'TST-AS-UC-09-03-03', 'TST-AS-UC-09-03-04'], 'requirements': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-01', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-02', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-03', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-04'], 'decisions': ['T7-DR-012', 'T7-DR-018', 'T7-DR-046', 'T7-DR-047', 'T7-DR-092', 'T7-DR-178', 'T7-DR-179', 'T7-DR-180', 'T7-DR-181', 'T7-DR-182', 'T7-DR-183', 'T7-DR-184'], 'source_refs': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md']}"
+    },
+    {
+      "name": "trace UC09-04 carries DR178..184",
+      "pass": true,
+      "note": "{'story': 'UC-09-04', 'title': 'Ghi state movement', 'journeys': ['BJ-09'], 'domains': ['IO'], 'entities': ['ENT-IC-10', 'ENT-IC-11'], 'ui': ['SG-08'], 'contracts': ['BC-IO-10'], 'tests': ['TST-AS-UC-09-04-01', 'TST-AS-UC-09-04-02', 'TST-AS-UC-09-04-03', 'TST-AS-UC-09-04-04'], 'requirements': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-01', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-02', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-03', 'srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-04'], 'decisions': ['T7-DR-012', 'T7-DR-018', 'T7-DR-046', 'T7-DR-047', 'T7-DR-092', 'T7-DR-178', 'T7-DR-179', 'T7-DR-180', 'T7-DR-181', 'T7-DR-182', 'T7-DR-183', 'T7-DR-184'], 'source_refs': ['srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md']}"
+    },
+    {
+      "name": "contract registry contains new IC entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry marks amended state-change BCs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "active loaded JS contains no TRIAL enum",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime policy uses DEMO",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime approval stores decision before system commit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime system commit preserves valuation and no value movement",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime expiry has no manual action",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime supports atomic reservation impact preview",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime fixture hash explicitly not production hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manifest marks BJ09 lock candidate",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 focused evidence has ten captures",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

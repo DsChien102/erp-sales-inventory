@@ -1,0 +1,37 @@
+{
+  "release": "2.7.0",
+  "parent": "2.6.0",
+  "scope": [
+    "Structurally migrate and correct BJ05/UIF-05 pick and actual-handover flow to the live Figma DS canonical surface",
+    "Keep SCR-025..029 as the active flow and preserve system-owned allocation",
+    "Preserve pick versus physical-stock commit boundary and stale/LOT correction behavior",
+    "Capture actual handover per allocation/LOT without cross-UOM aggregation",
+    "Preserve prior BJ01/BJ02/BJ04/BJ08 migrated Product surfaces and non-target registries"
+  ],
+  "businessBehaviorChanged": false,
+  "migration": {
+    "newlyMigrated": ["UIF-05"],
+    "corrected": ["UIF-05"],
+    "migratedCumulative": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-08"],
+    "newFeatureComponentsCreated": 0,
+    "sharedDsRefresh": []
+  },
+  "qa": {
+    "bj05FigmaDs": "PASS 71/71",
+    "allFlowRuntime": "PASS 85/85",
+    "bj04Regression": "PASS 34/34",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS",
+    "visualReview": "PASS on 10 BJ05 captures across queue, pick, LOT override, handover and result states"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System canonical surface",
+    "bj05Composition": "Mobile Root List/Detail/Form + VAppBar + VSearchBar + VChip + List Row 525:519 + Info Row 525:351 + Key-value Row 525:358 + VTextField 522:7186 + VTextarea 522:7212 + Link 4431:10396 + VRadio 522:7410 + Form Sheet 1353:6355 + VBanner 526:4215"
+  },
+  "registryPreservation": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  },
+  "knownInheritedPackageValidatorGap": "The parent v2.6.0 package already lacks specs/themes/theme-07/prototype/prototype.manifest.json, so the legacy full-package validator cannot start. v2.7.0 uses targeted BJ05, regression, runtime, syntax and visual gates instead and does not fabricate the missing unrelated manifest."
+}

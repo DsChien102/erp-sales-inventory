@@ -1,0 +1,154 @@
+{
+  "release": "2.5.2",
+  "parent": "2.5.1",
+  "status": "PASS",
+  "passed": 29,
+  "total": 29,
+  "checks": [
+    {
+      "name": "HTML manifest version",
+      "pass": true,
+      "detail": "2.5.2"
+    },
+    {
+      "name": "HTML manifest parent",
+      "pass": true,
+      "detail": "2.5.1"
+    },
+    {
+      "name": "Workbench version",
+      "pass": true,
+      "detail": "2.5.2"
+    },
+    {
+      "name": "UIF migration release",
+      "pass": true,
+      "detail": "2.5.2"
+    },
+    {
+      "name": "Migrated UIFs exact",
+      "pass": true,
+      "detail": "['UIF-01', 'UIF-02', 'UIF-08']"
+    },
+    {
+      "name": "BJ02 real Quick flow QA",
+      "pass": true,
+      "detail": "21/21"
+    },
+    {
+      "name": "BJ02 Quick browser errors zero",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "All-flow smoke",
+      "pass": true,
+      "detail": "85/85"
+    },
+    {
+      "name": "Live Info Row QA",
+      "pass": true,
+      "detail": "states=497 instances=1052"
+    },
+    {
+      "name": "Live Info Row browser/runtime errors zero",
+      "pass": true,
+      "detail": "browser=0 runtime=0"
+    },
+    {
+      "name": "Live sync stylesheet loaded last",
+      "pass": true,
+      "detail": "load order"
+    },
+    {
+      "name": "Info Row width 338",
+      "pass": true,
+      "detail": "width:338px!important"
+    },
+    {
+      "name": "Info Row height 44",
+      "pass": true,
+      "detail": "height:44px!important"
+    },
+    {
+      "name": "Info Row justify-between",
+      "pass": true,
+      "detail": "justify-content:space-between!important"
+    },
+    {
+      "name": "Info Row gap 0",
+      "pass": true,
+      "detail": "gap:0!important"
+    },
+    {
+      "name": "Info Row value right",
+      "pass": true,
+      "detail": "text-align:right!important"
+    },
+    {
+      "name": "Runtime specimen Info Row current anatomy",
+      "pass": true,
+      "detail": "525:351"
+    },
+    {
+      "name": "No long-value mutation of BJ02 Info Row",
+      "pass": true,
+      "detail": "long values use VText layout"
+    },
+    {
+      "name": "Long BJ02 review detail is composition",
+      "pass": true,
+      "detail": "VText composition"
+    },
+    {
+      "name": "Component usage profile records live Info Row",
+      "pass": true,
+      "detail": "525:351"
+    },
+    {
+      "name": "Info Row live sync note exists",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "No new Theme7 shared component",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "Release manifest records shared DS refresh",
+      "pass": true,
+      "detail": "['DS v2 / Info Row 525:351']"
+    },
+    {
+      "name": "Action registry preserved",
+      "pass": true,
+      "detail": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a"
+    },
+    {
+      "name": "Screen registry preserved",
+      "pass": true,
+      "detail": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+    },
+    {
+      "name": "Root launcher current",
+      "pass": true,
+      "detail": "v2.5.2"
+    },
+    {
+      "name": "Root README current",
+      "pass": true,
+      "detail": "v2.5.2"
+    },
+    {
+      "name": "Release manifest version/parent",
+      "pass": true,
+      "detail": "2.5.2 / 2.5.1"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "Quick basis invalid save remains in sheet",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Quick basis controls have accessible names",
+      "pass": true,
+      "detail": "[{\"tag\": \"INPUT\", \"name\": \"0\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Đã gồm thuế\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Chưa gồm thuế\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Ví dụ: Xác nhận giá từ nhà cung cấp\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"dd/mm/yyyy\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Mã báo giá, email, ghi chú...\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Nêu ngắn gọn lý do\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Hủy\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Lưu căn cứ\", \"h\": 44}]"
+    },
+    {
+      "name": "Quick basis controls keep 44px target",
+      "pass": true,
+      "detail": "[{\"tag\": \"INPUT\", \"name\": \"0\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Đã gồm thuế\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Chưa gồm thuế\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Ví dụ: Xác nhận giá từ nhà cung cấp\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"dd/mm/yyyy\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Mã báo giá, email, ghi chú...\", \"h\": 44}, {\"tag\": \"INPUT\", \"name\": \"Nêu ngắn gọn lý do\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Hủy\", \"h\": 44}, {\"tag\": \"BUTTON\", \"name\": \"Lưu căn cứ\", \"h\": 44}]"
+    },
+    {
+      "name": "BJ03 stale source blocks commit",
+      "pass": true,
+      "detail": "{'screen': 'SCR-017', 'state': 'SOURCE_CHANGED'}"
+    },
+    {
+      "name": "BJ13 stale source blocks adjustment",
+      "pass": true,
+      "detail": "{'screen': 'SCR-088', 'state': 'SOURCE_CHANGED'}"
+    },
+    {
+      "name": "BJ14 changed input blocks publication",
+      "pass": true,
+      "detail": "{'screen': 'SCR-074', 'state': 'INPUT_CHANGED'}"
+    },
+    {
+      "name": "No retired valuation route",
+      "pass": true,
+      "detail": "['SCR-014', 'SCR-015', 'SCR-017', 'SCR-019', 'SCR-085', 'SCR-086', 'SCR-088', 'SCR-089', 'SCR-072', 'SCR-074', 'SCR-077']"
+    }
+  ],
+  "errors": []
+}

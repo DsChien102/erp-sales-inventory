@@ -1,0 +1,41 @@
+{
+  "release": "2.7.3",
+  "parent": "2.7.2",
+  "status": "REVIEW_READY",
+  "scope": "Cross-BJ UI hardening across all structurally migrated Theme 7 Product UIFs",
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "componentsPage": "505:5890",
+    "patternsPage": "505:5891",
+    "listRow": "525:519",
+    "summaryCard": "525:552",
+    "entityCard": "525:539"
+  },
+  "businessBehaviorChanged": false,
+  "reviewedProductUifs": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-08"],
+  "corrected": [
+    "UIF-01/SCR-003 detail context density",
+    "UIF-02/SCR-084 selected-Product context",
+    "UIF-02 Record Card internal width drift",
+    "UIF-05/SCR-025 same-collection Disabled Navigation state",
+    "UIF-05/SCR-026 same-collection Disabled Navigation state",
+    "UIF-05/SCR-027 sparse detail context density"
+  ],
+  "reviewedUnchanged": ["UIF-04/BJ04", "UIF-08/BJ08"],
+  "runtime": {
+    "productKind": "mobile_app",
+    "defaultViewport": "402x874",
+    "offline": true,
+    "inspect": "enabled + selectable",
+    "devicePresets": ["402x874 mobile"]
+  },
+  "rulesLocked": [
+    "same record collection keeps one List Row Type/Density; availability is State",
+    "Disabled Navigation retains chevron/anatomy and uses parent opacity 0.4",
+    "Summary Card is not a generic sparse identity header",
+    "do not add low-value data merely to fill fixed card space",
+    "review DS + Patterns/Templates + mature cross-theme Product UI before correcting composition",
+    "migrated Product UI must pass clipping, overflow and sticky-footer reachability gates"
+  ],
+  "newFeatureComponentsCreated": 0
+}

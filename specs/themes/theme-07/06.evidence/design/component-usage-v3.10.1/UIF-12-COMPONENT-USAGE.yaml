@@ -1,0 +1,56 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+schemaVersion: 2
+scope: BJ-12/UIF-12
+extends: ../THEME-07-COMPONENT-USAGE-PROFILE.yaml
+status: PRODUCT_CORRECTED_v1.8.0
+source:
+  flow: ../../flows/UIF-12-BJ-12.md
+  parent: v1.7.0
+  flutterDS: single_source_of_truth
+uxIntent: one controlled opening-inventory activation task with independent approval and system-owned commit
+screens: [SCR-066, SCR-067, SCR-068, SCR-069, SCR-070, SCR-071]
+uxDecisions:
+  - {id: UIF-12-UX-01, rule: SCR-066 is one initialization status/entry surface, not a multi-batch list.}
+  - {id: UIF-12-UX-02, rule: Control totals are independently user supplied; parsed file totals are evidence.}
+  - {id: UIF-12-UX-03, rule: Validation errors never quick-create master data.}
+  - {id: UIF-12-UX-04, rule: Maker submit ends at PENDING_APPROVAL; approver enters SCR-070 in another task/session.}
+  - {id: UIF-12-UX-05, rule: Approval decides only; ACT-13-COMMIT is system-owned after approval.}
+  - {id: UIF-12-UX-06, rule: UNKNOWN blocks duplicate opening balance and blind retry.}
+componentAllowlist:
+  - VPageScaffold
+  - VAppBar
+  - VPagePadding
+  - VSection
+  - VCard
+  - VBadge
+  - VText
+  - VBanner
+  - VButton
+  - VSkeleton
+  - VEmptyState
+  - VLoading
+  - VEmptyMedia
+  - VEmptyTitle
+  - VEmptyDescription
+  - VFileDropZone
+  - VDatePicker
+  - VNumberField
+  - VMoneyField
+  - VBottomSheet
+  - VTextField
+stateMappings:
+  permission: omit protected data and mutation actions before DOM render
+  validation: inline field errors first; cross-field/domain blocker uses VBanner
+  pendingApproval: maker read-only status only
+  unknown: persistent warning, same identity, no blind retry/new opening balance
+screenComponents:
+  SCR-066: {surface: status_entry, themeComposition: Theme7StatusEntrySurface, visibleActions: [], traceOnlyActions: []}
+  SCR-067: {surface: form, themeComposition: Theme7FormSurface, visibleActions: [ACT-13-PREPARE], traceOnlyActions: []}
+  SCR-068: {surface: validation_result, themeComposition: Theme7FileImportValidation, visibleActions: [], traceOnlyActions: []}
+  SCR-069: {surface: review, themeComposition: Theme7ReviewSurface, visibleActions: [ACT-13-PREPARE], traceOnlyActions: []}
+  SCR-070: {surface: approval_review, themeComposition: Theme7ReviewSurface, visibleActions: [ACT-COMMON-DECIDE], traceOnlyActions: [ACT-13-COMMIT]}
+  SCR-071: {surface: result, themeComposition: Theme7OperationResult, visibleActions: [], traceOnlyActions: [ACT-13-COMMIT]}
+inspect: {required: true, viewport: 402x874}

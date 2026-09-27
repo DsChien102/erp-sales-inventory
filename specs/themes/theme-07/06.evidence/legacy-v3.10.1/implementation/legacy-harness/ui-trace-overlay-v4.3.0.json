@@ -1,0 +1,5327 @@
+{
+  "schema_version": "4.3.0",
+  "package_freeze_id": "T7-PACKAGE-FREEZE-v4.3.0",
+  "source_semantic_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+  "source_harness_component": "v4.1.0",
+  "ui_component": "v4.2.0-rc1",
+  "ui_model": "SCREEN_REGISTRY_V2",
+  "prototype_status": "NOT_RENDERED",
+  "prototype_carry_forward_component": "v4.1.0",
+  "prototype_alignment_note": "NOT_UPGRADED_TO_UI_FLOW_V4.2.0-rc1",
+  "evidence_level": "STATIC_VALIDATED_DERIVED",
+  "counts": {
+    "story_records": 77,
+    "canonical_use_cases": 70,
+    "supporting_slices": 7,
+    "trace_rows": 70,
+    "canonical_uc_screens": 78,
+    "unique_screens": 83
+  },
+  "stories": [
+    {
+      "story": "CAP-01-OP-01",
+      "title": "Cấu hình ngưỡng tồn sản phẩm",
+      "journeys": [
+        "CAP-01"
+      ],
+      "domains": [
+        "XD"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-062",
+        "SCR-064",
+        "SCR-065"
+      ],
+      "contracts": [
+        "BC-XD-05"
+      ],
+      "tests": [
+        "TST-AS-CAP-01-OP-01-01",
+        "TST-AS-CAP-01-OP-01-02",
+        "TST-AS-CAP-01-OP-01-03",
+        "TST-AS-CAP-01-OP-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md#as-cap-01-op-01-01",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md#as-cap-01-op-01-02",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md#as-cap-01-op-01-03",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md#as-cap-01-op-01-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "CAP-01-OP-02",
+      "title": "Cấu hình cận hạn mặc định",
+      "journeys": [
+        "CAP-01"
+      ],
+      "domains": [
+        "XD"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-063",
+        "SCR-064",
+        "SCR-065"
+      ],
+      "contracts": [
+        "BC-XD-05"
+      ],
+      "tests": [
+        "TST-AS-CAP-01-OP-02-01",
+        "TST-AS-CAP-01-OP-02-02",
+        "TST-AS-CAP-01-OP-02-03",
+        "TST-AS-CAP-01-OP-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md#as-cap-01-op-02-01",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md#as-cap-01-op-02-02",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md#as-cap-01-op-02-03",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md#as-cap-01-op-02-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "CAP-01-OP-03",
+      "title": "Ghi đè cận hạn theo sản phẩm",
+      "journeys": [
+        "CAP-01"
+      ],
+      "domains": [
+        "XD"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-063",
+        "SCR-064",
+        "SCR-065"
+      ],
+      "contracts": [
+        "BC-XD-05"
+      ],
+      "tests": [
+        "TST-AS-CAP-01-OP-03-01",
+        "TST-AS-CAP-01-OP-03-02",
+        "TST-AS-CAP-01-OP-03-03",
+        "TST-AS-CAP-01-OP-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md#as-cap-01-op-03-01",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md#as-cap-01-op-03-02",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md#as-cap-01-op-03-03",
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md#as-cap-01-op-03-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "PROC-01-STEP-01",
+      "title": "Chuẩn bị phạm vi dựng lại",
+      "journeys": [
+        "PROC-01"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-078",
+        "SCR-080"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-PROC-01-STEP-01-01",
+        "TST-AS-PROC-01-STEP-01-02",
+        "TST-AS-PROC-01-STEP-01-03",
+        "TST-AS-PROC-01-STEP-01-04"
+      ],
+      "requirements": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md#as-proc-01-step-01-01",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md#as-proc-01-step-01-02",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md#as-proc-01-step-01-03",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md#as-proc-01-step-01-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "PROC-01-STEP-02",
+      "title": "Bảo vệ phiên bản dữ liệu dẫn xuất",
+      "journeys": [
+        "PROC-01"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-079",
+        "SCR-080"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-PROC-01-STEP-02-01",
+        "TST-AS-PROC-01-STEP-02-02",
+        "TST-AS-PROC-01-STEP-02-03",
+        "TST-AS-PROC-01-STEP-02-04"
+      ],
+      "requirements": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md#as-proc-01-step-02-01",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md#as-proc-01-step-02-02",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md#as-proc-01-step-02-03",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md#as-proc-01-step-02-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "PROC-01-STEP-03",
+      "title": "Dựng lại từ ledger",
+      "journeys": [
+        "PROC-01"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-081"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-PROC-01-STEP-03-01",
+        "TST-AS-PROC-01-STEP-03-02",
+        "TST-AS-PROC-01-STEP-03-03",
+        "TST-AS-PROC-01-STEP-03-04"
+      ],
+      "requirements": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md#as-proc-01-step-03-01",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md#as-proc-01-step-03-02",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md#as-proc-01-step-03-03",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md#as-proc-01-step-03-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "PROC-01-STEP-04",
+      "title": "Xác minh và công bố kết quả",
+      "journeys": [
+        "PROC-01"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-082",
+        "SCR-083"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-PROC-01-STEP-04-01",
+        "TST-AS-PROC-01-STEP-04-02",
+        "TST-AS-PROC-01-STEP-04-03",
+        "TST-AS-PROC-01-STEP-04-04"
+      ],
+      "requirements": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md#as-proc-01-step-04-01",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md#as-proc-01-step-04-02",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md#as-proc-01-step-04-03",
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md#as-proc-01-step-04-04"
+      ],
+      "decisions": [],
+      "source_refs": [
+        "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md"
+      ],
+      "legacy_screen_group_aliases": [],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-01-01",
+      "title": "Xác định ngữ cảnh và sản phẩm",
+      "journeys": [
+        "BJ-01"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-001",
+        "SCR-054"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-01-01-01",
+        "TST-AS-UC-01-01-02",
+        "TST-AS-UC-01-01-03",
+        "TST-AS-UC-01-01-04",
+        "TST-AS-UC-01-01-05",
+        "TST-AS-UC-01-01-06",
+        "TST-AS-UC-01-01-07",
+        "TST-AS-UC-01-01-08"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-01",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-02",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-03",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-04",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-05",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-06",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-07",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md#as-uc-01-01-08"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-01"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-01-02",
+      "title": "Xem tồn và khả dụng",
+      "journeys": [
+        "BJ-01"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-002",
+        "SCR-003",
+        "SCR-004"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-01-02-01",
+        "TST-AS-UC-01-02-02",
+        "TST-AS-UC-01-02-03",
+        "TST-AS-UC-01-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md#as-uc-01-02-01",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md#as-uc-01-02-02",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md#as-uc-01-02-03",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md#as-uc-01-02-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-01"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-01-03",
+      "title": "Xem trace summary",
+      "journeys": [
+        "BJ-01"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-005",
+        "SCR-056",
+        "SCR-057"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-01-03-01",
+        "TST-AS-UC-01-03-02",
+        "TST-AS-UC-01-03-03",
+        "TST-AS-UC-01-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md#as-uc-01-03-01",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md#as-uc-01-03-02",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md#as-uc-01-03-03",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md#as-uc-01-03-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-01"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-01-04",
+      "title": "Xem tồn thấp và lượng gợi ý",
+      "journeys": [
+        "BJ-01"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-060",
+        "SCR-061"
+      ],
+      "contracts": [
+        "BC-IO-14"
+      ],
+      "tests": [
+        "TST-AS-UC-01-04-01",
+        "TST-AS-UC-01-04-02",
+        "TST-AS-UC-01-04-03",
+        "TST-AS-UC-01-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md#as-uc-01-04-01",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md#as-uc-01-04-02",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md#as-uc-01-04-03",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md#as-uc-01-04-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-12"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-01-05",
+      "title": "Xem hàng cận hạn và hết hạn",
+      "journeys": [
+        "BJ-01"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-060",
+        "SCR-061"
+      ],
+      "contracts": [
+        "BC-IO-14"
+      ],
+      "tests": [
+        "TST-AS-UC-01-05-01",
+        "TST-AS-UC-01-05-02",
+        "TST-AS-UC-01-05-03",
+        "TST-AS-UC-01-05-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md#as-uc-01-05-01",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md#as-uc-01-05-02",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md#as-uc-01-05-03",
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md#as-uc-01-05-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-12"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-02-01",
+      "title": "Chuẩn bị nhận theo chứng từ",
+      "journeys": [
+        "BJ-02"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-006",
+        "SCR-007",
+        "SCR-009"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-02-01-01",
+        "TST-AS-UC-02-01-02",
+        "TST-AS-UC-02-01-03",
+        "TST-AS-UC-02-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md#as-uc-02-01-01",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md#as-uc-02-01-02",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md#as-uc-02-01-03",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md#as-uc-02-01-04"
+      ],
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-02"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-02-02",
+      "title": "Chuẩn bị nhập hàng nhanh",
+      "journeys": [
+        "BJ-02"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-006",
+        "SCR-008",
+        "SCR-009"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-02-02-01",
+        "TST-AS-UC-02-02-02",
+        "TST-AS-UC-02-02-03",
+        "TST-AS-UC-02-02-04",
+        "TST-AS-UC-02-02-05"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md#as-uc-02-02-01",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md#as-uc-02-02-02",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md#as-uc-02-02-03",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md#as-uc-02-02-04",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md#as-uc-02-02-05"
+      ],
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-02"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-02-03",
+      "title": "Phê duyệt yêu cầu nhận hàng",
+      "journeys": [
+        "BJ-02"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-010",
+        "SCR-011"
+      ],
+      "contracts": [
+        "BC-IC-06"
+      ],
+      "tests": [
+        "TST-AS-UC-02-03-01",
+        "TST-AS-UC-02-03-02",
+        "TST-AS-UC-02-03-03",
+        "TST-AS-UC-02-03-04",
+        "TST-AS-UC-02-03-05"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md#as-uc-02-03-01",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md#as-uc-02-03-02",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md#as-uc-02-03-03",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md#as-uc-02-03-04",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md#as-uc-02-03-05"
+      ],
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-02"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-02-04",
+      "title": "Ghi nhận hàng vào tồn vật lý",
+      "journeys": [
+        "BJ-02"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-012"
+      ],
+      "contracts": [
+        "BC-IO-02"
+      ],
+      "tests": [
+        "TST-AS-UC-02-04-01",
+        "TST-AS-UC-02-04-02",
+        "TST-AS-UC-02-04-03",
+        "TST-AS-UC-02-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md#as-uc-02-04-01",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md#as-uc-02-04-02",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md#as-uc-02-04-03",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md#as-uc-02-04-04"
+      ],
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-02"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-02-05",
+      "title": "Truy vấn và phục hồi ngắn kết quả nhận hàng",
+      "journeys": [
+        "BJ-02"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-012",
+        "SCR-013"
+      ],
+      "contracts": [
+        "BC-IO-02"
+      ],
+      "tests": [
+        "TST-AS-UC-02-05-01",
+        "TST-AS-UC-02-05-02",
+        "TST-AS-UC-02-05-03",
+        "TST-AS-UC-02-05-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md#as-uc-02-05-01",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md#as-uc-02-05-02",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md#as-uc-02-05-03",
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md#as-uc-02-05-04"
+      ],
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-02"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-03-01",
+      "title": "Chọn phạm vi cần định giá",
+      "journeys": [
+        "BJ-03"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-014",
+        "SCR-015"
+      ],
+      "contracts": [
+        "BC-IV-01"
+      ],
+      "tests": [
+        "TST-AS-UC-03-01-01",
+        "TST-AS-UC-03-01-02",
+        "TST-AS-UC-03-01-03",
+        "TST-AS-UC-03-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md#as-uc-03-01-01",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md#as-uc-03-01-02",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md#as-uc-03-01-03",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md#as-uc-03-01-04"
+      ],
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-03-02",
+      "title": "Xác định giá nhập thực tế",
+      "journeys": [
+        "BJ-03"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-015",
+        "SCR-016"
+      ],
+      "contracts": [
+        "BC-IV-01"
+      ],
+      "tests": [
+        "TST-AS-UC-03-02-01",
+        "TST-AS-UC-03-02-02",
+        "TST-AS-UC-03-02-03",
+        "TST-AS-UC-03-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md#as-uc-03-02-01",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md#as-uc-03-02-02",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md#as-uc-03-02-03",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md#as-uc-03-02-04"
+      ],
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-03-03",
+      "title": "Xác nhận giá trị",
+      "journeys": [
+        "BJ-03"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-017",
+        "SCR-019"
+      ],
+      "contracts": [
+        "BC-IV-01"
+      ],
+      "tests": [
+        "TST-AS-UC-03-03-01",
+        "TST-AS-UC-03-03-02",
+        "TST-AS-UC-03-03-03",
+        "TST-AS-UC-03-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md#as-uc-03-03-01",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md#as-uc-03-03-02",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md#as-uc-03-03-03",
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md#as-uc-03-03-04"
+      ],
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-04-01",
+      "title": "Tạo reservation",
+      "journeys": [
+        "BJ-04"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-020",
+        "SCR-021",
+        "SCR-022",
+        "SCR-024"
+      ],
+      "contracts": [
+        "BC-IO-03"
+      ],
+      "tests": [
+        "TST-AS-UC-04-01-01",
+        "TST-AS-UC-04-01-02",
+        "TST-AS-UC-04-01-03",
+        "TST-AS-UC-04-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md#as-uc-04-01-01",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md#as-uc-04-01-02",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md#as-uc-04-01-03",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md#as-uc-04-01-04"
+      ],
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-04"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-04-02",
+      "title": "Điều chỉnh reservation",
+      "journeys": [
+        "BJ-04"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-021",
+        "SCR-023",
+        "SCR-024"
+      ],
+      "contracts": [
+        "BC-IO-06"
+      ],
+      "tests": [
+        "TST-AS-UC-04-02-01",
+        "TST-AS-UC-04-02-02",
+        "TST-AS-UC-04-02-03",
+        "TST-AS-UC-04-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md#as-uc-04-02-01",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md#as-uc-04-02-02",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md#as-uc-04-02-03",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md#as-uc-04-02-04"
+      ],
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-04"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-04-03",
+      "title": "Kết thúc và giải phóng",
+      "journeys": [
+        "BJ-04"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-023",
+        "SCR-024"
+      ],
+      "contracts": [
+        "BC-IO-06"
+      ],
+      "tests": [
+        "TST-AS-UC-04-03-01",
+        "TST-AS-UC-04-03-02",
+        "TST-AS-UC-04-03-03",
+        "TST-AS-UC-04-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md#as-uc-04-03-01",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md#as-uc-04-03-02",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md#as-uc-04-03-03",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md#as-uc-04-03-04"
+      ],
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-04"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-04-04",
+      "title": "Đánh giá lại và xử lý thiếu",
+      "journeys": [
+        "BJ-04"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-021",
+        "SCR-023",
+        "SCR-024"
+      ],
+      "contracts": [
+        "BC-IO-06"
+      ],
+      "tests": [
+        "TST-AS-UC-04-04-01",
+        "TST-AS-UC-04-04-02",
+        "TST-AS-UC-04-04-03",
+        "TST-AS-UC-04-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md#as-uc-04-04-01",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md#as-uc-04-04-02",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md#as-uc-04-04-03",
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md#as-uc-04-04-04"
+      ],
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-04"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-05-01",
+      "title": "Lập allocation",
+      "journeys": [
+        "BJ-05"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-025",
+        "SCR-026"
+      ],
+      "contracts": [
+        "BC-IO-15"
+      ],
+      "tests": [
+        "TST-AS-UC-05-01-01",
+        "TST-AS-UC-05-01-02",
+        "TST-AS-UC-05-01-03",
+        "TST-AS-UC-05-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md#as-uc-05-01-01",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md#as-uc-05-01-02",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md#as-uc-05-01-03",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md#as-uc-05-01-04"
+      ],
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-06"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-05-02",
+      "title": "Xác nhận hàng đã lấy",
+      "journeys": [
+        "BJ-05"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-027"
+      ],
+      "contracts": [
+        "BC-IO-15"
+      ],
+      "tests": [
+        "TST-AS-UC-05-02-01",
+        "TST-AS-UC-05-02-02",
+        "TST-AS-UC-05-02-03",
+        "TST-AS-UC-05-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md#as-uc-05-02-01",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md#as-uc-05-02-02",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md#as-uc-05-02-03",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md#as-uc-05-02-04"
+      ],
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-06"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-05-03",
+      "title": "Bàn giao hàng",
+      "journeys": [
+        "BJ-05"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-028",
+        "SCR-029"
+      ],
+      "contracts": [
+        "BC-IO-05"
+      ],
+      "tests": [
+        "TST-AS-UC-05-03-01",
+        "TST-AS-UC-05-03-02",
+        "TST-AS-UC-05-03-03",
+        "TST-AS-UC-05-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md#as-uc-05-03-01",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md#as-uc-05-03-02",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md#as-uc-05-03-03",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md#as-uc-05-03-04"
+      ],
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-06"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-05-04",
+      "title": "Phục hồi allocation stale",
+      "journeys": [
+        "BJ-05"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-026",
+        "SCR-027"
+      ],
+      "contracts": [
+        "BC-IO-06"
+      ],
+      "tests": [
+        "TST-AS-UC-05-04-01",
+        "TST-AS-UC-05-04-02",
+        "TST-AS-UC-05-04-03",
+        "TST-AS-UC-05-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md#as-uc-05-04-01",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md#as-uc-05-04-02",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md#as-uc-05-04-03",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md#as-uc-05-04-04"
+      ],
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-06"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-05-05",
+      "title": "Ghi xuất kho nguyên tử",
+      "journeys": [
+        "BJ-05"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-028",
+        "SCR-029"
+      ],
+      "contracts": [
+        "BC-IO-04"
+      ],
+      "tests": [
+        "TST-AS-UC-05-05-01",
+        "TST-AS-UC-05-05-02",
+        "TST-AS-UC-05-05-03",
+        "TST-AS-UC-05-05-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md#as-uc-05-05-01",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md#as-uc-05-05-02",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md#as-uc-05-05-03",
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md#as-uc-05-05-04"
+      ],
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-06"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-06-01",
+      "title": "Xác minh hàng được phép nhận trả",
+      "journeys": [
+        "BJ-06"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-030",
+        "SCR-031"
+      ],
+      "contracts": [
+        "BC-IO-07"
+      ],
+      "tests": [
+        "TST-AS-UC-06-01-01",
+        "TST-AS-UC-06-01-02",
+        "TST-AS-UC-06-01-03",
+        "TST-AS-UC-06-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md#as-uc-06-01-01",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md#as-uc-06-01-02",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md#as-uc-06-01-03",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md#as-uc-06-01-04"
+      ],
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-07"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-06-02",
+      "title": "Xử lý ngoại lệ truy vết",
+      "journeys": [
+        "BJ-06"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-031"
+      ],
+      "contracts": [
+        "BC-IO-07"
+      ],
+      "tests": [
+        "TST-AS-UC-06-02-01",
+        "TST-AS-UC-06-02-02",
+        "TST-AS-UC-06-02-03",
+        "TST-AS-UC-06-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md#as-uc-06-02-01",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md#as-uc-06-02-02",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md#as-uc-06-02-03",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md#as-uc-06-02-04"
+      ],
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-07"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-06-03",
+      "title": "Ghi nhận hàng khách trả",
+      "journeys": [
+        "BJ-06"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-032",
+        "SCR-035"
+      ],
+      "contracts": [
+        "BC-IO-07"
+      ],
+      "tests": [
+        "TST-AS-UC-06-03-01",
+        "TST-AS-UC-06-03-02",
+        "TST-AS-UC-06-03-03",
+        "TST-AS-UC-06-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md#as-uc-06-03-01",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md#as-uc-06-03-02",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md#as-uc-06-03-03",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md#as-uc-06-03-04"
+      ],
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-07"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-06-04",
+      "title": "Phân loại hàng thực nhận",
+      "journeys": [
+        "BJ-06"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-033",
+        "SCR-034",
+        "SCR-035"
+      ],
+      "contracts": [
+        "BC-IO-08"
+      ],
+      "tests": [
+        "TST-AS-UC-06-04-01",
+        "TST-AS-UC-06-04-02",
+        "TST-AS-UC-06-04-03",
+        "TST-AS-UC-06-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md#as-uc-06-04-01",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md#as-uc-06-04-02",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md#as-uc-06-04-03",
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md#as-uc-06-04-04"
+      ],
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-07"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-07-01",
+      "title": "Xác minh phạm vi trả",
+      "journeys": [
+        "BJ-07"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-036",
+        "SCR-037"
+      ],
+      "contracts": [
+        "BC-IO-09"
+      ],
+      "tests": [
+        "TST-AS-UC-07-01-01",
+        "TST-AS-UC-07-01-02",
+        "TST-AS-UC-07-01-03",
+        "TST-AS-UC-07-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md#as-uc-07-01-01",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md#as-uc-07-01-02",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md#as-uc-07-01-03",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md#as-uc-07-01-04"
+      ],
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-07-02",
+      "title": "Đưa hàng vào chờ trả",
+      "journeys": [
+        "BJ-07"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IO-10"
+      ],
+      "tests": [
+        "TST-AS-UC-07-02-01",
+        "TST-AS-UC-07-02-02",
+        "TST-AS-UC-07-02-03",
+        "TST-AS-UC-07-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md#as-uc-07-02-01",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md#as-uc-07-02-02",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md#as-uc-07-02-03",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md#as-uc-07-02-04"
+      ],
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-07-03",
+      "title": "Điều chỉnh hoặc hủy trước bàn giao",
+      "journeys": [
+        "BJ-07"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IO-10"
+      ],
+      "tests": [
+        "TST-AS-UC-07-03-01",
+        "TST-AS-UC-07-03-02",
+        "TST-AS-UC-07-03-03",
+        "TST-AS-UC-07-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md#as-uc-07-03-01",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md#as-uc-07-03-02",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md#as-uc-07-03-03",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md#as-uc-07-03-04"
+      ],
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-07-04",
+      "title": "Ghi nhận bàn giao trả nhà cung cấp",
+      "journeys": [
+        "BJ-07"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-039",
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IO-09"
+      ],
+      "tests": [
+        "TST-AS-UC-07-04-01",
+        "TST-AS-UC-07-04-02",
+        "TST-AS-UC-07-04-03",
+        "TST-AS-UC-07-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md#as-uc-07-04-01",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md#as-uc-07-04-02",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md#as-uc-07-04-03",
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md#as-uc-07-04-04"
+      ],
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-08-01",
+      "title": "Mở và khóa phạm vi",
+      "journeys": [
+        "BJ-08"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-042",
+        "SCR-043"
+      ],
+      "contracts": [
+        "BC-IC-01"
+      ],
+      "tests": [
+        "TST-AS-UC-08-01-01",
+        "TST-AS-UC-08-01-02",
+        "TST-AS-UC-08-01-03",
+        "TST-AS-UC-08-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md#as-uc-08-01-01",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md#as-uc-08-01-02",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md#as-uc-08-01-03",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md#as-uc-08-01-04"
+      ],
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-09"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-08-02",
+      "title": "Ghi nhận lần đếm mù",
+      "journeys": [
+        "BJ-08"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-044"
+      ],
+      "contracts": [
+        "BC-IC-02"
+      ],
+      "tests": [
+        "TST-AS-UC-08-02-01",
+        "TST-AS-UC-08-02-02",
+        "TST-AS-UC-08-02-03",
+        "TST-AS-UC-08-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md#as-uc-08-02-01",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md#as-uc-08-02-02",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md#as-uc-08-02-03",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md#as-uc-08-02-04"
+      ],
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-09"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-08-03",
+      "title": "Đếm lại và hoàn thiện bằng chứng",
+      "journeys": [
+        "BJ-08"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-045"
+      ],
+      "contracts": [
+        "BC-IC-02"
+      ],
+      "tests": [
+        "TST-AS-UC-08-03-01",
+        "TST-AS-UC-08-03-02",
+        "TST-AS-UC-08-03-03",
+        "TST-AS-UC-08-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md#as-uc-08-03-01",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md#as-uc-08-03-02",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md#as-uc-08-03-03",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md#as-uc-08-03-04"
+      ],
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-09"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-08-04",
+      "title": "Duyệt và điều chỉnh",
+      "journeys": [
+        "BJ-08"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-046",
+        "SCR-047"
+      ],
+      "contracts": [
+        "BC-IC-03"
+      ],
+      "tests": [
+        "TST-AS-UC-08-04-01",
+        "TST-AS-UC-08-04-02",
+        "TST-AS-UC-08-04-03",
+        "TST-AS-UC-08-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md#as-uc-08-04-01",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md#as-uc-08-04-02",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md#as-uc-08-04-03",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md#as-uc-08-04-04"
+      ],
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-09"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-08-05",
+      "title": "Hủy phiên kiểm kê",
+      "journeys": [
+        "BJ-08"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-046",
+        "SCR-047"
+      ],
+      "contracts": [
+        "BC-IC-08"
+      ],
+      "tests": [
+        "TST-AS-UC-08-05-01",
+        "TST-AS-UC-08-05-02",
+        "TST-AS-UC-08-05-03",
+        "TST-AS-UC-08-05-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md#as-uc-08-05-01",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md#as-uc-08-05-02",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md#as-uc-08-05-03",
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md#as-uc-08-05-04"
+      ],
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-09"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-09-01",
+      "title": "Chuẩn bị thay đổi trạng thái",
+      "journeys": [
+        "BJ-09"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-038"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-09-01-01",
+        "TST-AS-UC-09-01-02",
+        "TST-AS-UC-09-01-03",
+        "TST-AS-UC-09-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-01",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-02",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-03",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md#as-uc-09-01-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-09-02",
+      "title": "Phê duyệt thay đổi trạng thái",
+      "journeys": [
+        "BJ-09"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IC-06"
+      ],
+      "tests": [
+        "TST-AS-UC-09-02-01",
+        "TST-AS-UC-09-02-02",
+        "TST-AS-UC-09-02-03",
+        "TST-AS-UC-09-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-01",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-02",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-03",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md#as-uc-09-02-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-09-03",
+      "title": "Xác định hàng hết hạn",
+      "journeys": [
+        "BJ-09"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IO-10"
+      ],
+      "tests": [
+        "TST-AS-UC-09-03-01",
+        "TST-AS-UC-09-03-02",
+        "TST-AS-UC-09-03-03",
+        "TST-AS-UC-09-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-01",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-02",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-03",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md#as-uc-09-03-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-09-04",
+      "title": "Ghi state movement",
+      "journeys": [
+        "BJ-09"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-038",
+        "SCR-041",
+        "SCR-056"
+      ],
+      "contracts": [
+        "BC-IO-10"
+      ],
+      "tests": [
+        "TST-AS-UC-09-04-01",
+        "TST-AS-UC-09-04-02",
+        "TST-AS-UC-09-04-03",
+        "TST-AS-UC-09-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-01",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-02",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-03",
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md#as-uc-09-04-04"
+      ],
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-10-01",
+      "title": "Chuẩn bị yêu cầu tiêu hủy",
+      "journeys": [
+        "BJ-10"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-040"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-10-01-01",
+        "TST-AS-UC-10-01-02",
+        "TST-AS-UC-10-01-03",
+        "TST-AS-UC-10-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md#as-uc-10-01-01",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md#as-uc-10-01-02",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md#as-uc-10-01-03",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md#as-uc-10-01-04"
+      ],
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-10-02",
+      "title": "Phê duyệt tiêu hủy",
+      "journeys": [
+        "BJ-10"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-040"
+      ],
+      "contracts": [
+        "BC-IC-06"
+      ],
+      "tests": [
+        "TST-AS-UC-10-02-01",
+        "TST-AS-UC-10-02-02",
+        "TST-AS-UC-10-02-03",
+        "TST-AS-UC-10-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md#as-uc-10-02-01",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md#as-uc-10-02-02",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md#as-uc-10-02-03",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md#as-uc-10-02-04"
+      ],
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-10-03",
+      "title": "Xác nhận đã tiêu hủy",
+      "journeys": [
+        "BJ-10"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-040"
+      ],
+      "contracts": [
+        "BC-IO-11"
+      ],
+      "tests": [
+        "TST-AS-UC-10-03-01",
+        "TST-AS-UC-10-03-02",
+        "TST-AS-UC-10-03-03",
+        "TST-AS-UC-10-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md#as-uc-10-03-01",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md#as-uc-10-03-02",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md#as-uc-10-03-03",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md#as-uc-10-03-04"
+      ],
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-10-04",
+      "title": "Ghi giảm hàng tiêu hủy",
+      "journeys": [
+        "BJ-10"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-041"
+      ],
+      "contracts": [
+        "BC-IO-11"
+      ],
+      "tests": [
+        "TST-AS-UC-10-04-01",
+        "TST-AS-UC-10-04-02",
+        "TST-AS-UC-10-04-03",
+        "TST-AS-UC-10-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md#as-uc-10-04-01",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md#as-uc-10-04-02",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md#as-uc-10-04-03",
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md#as-uc-10-04-04"
+      ],
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-08"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-11-01",
+      "title": "Xác định đường xử lý",
+      "journeys": [
+        "BJ-11"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-048",
+        "SCR-049",
+        "SCR-050"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-11-01-01",
+        "TST-AS-UC-11-01-02",
+        "TST-AS-UC-11-01-03",
+        "TST-AS-UC-11-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md#as-uc-11-01-01",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md#as-uc-11-01-02",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md#as-uc-11-01-03",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md#as-uc-11-01-04"
+      ],
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-10"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-11-02",
+      "title": "Hủy operation chưa thực thi",
+      "journeys": [
+        "BJ-11"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-052",
+        "SCR-053"
+      ],
+      "contracts": [
+        "BC-IO-12"
+      ],
+      "tests": [
+        "TST-AS-UC-11-02-01",
+        "TST-AS-UC-11-02-02",
+        "TST-AS-UC-11-02-03",
+        "TST-AS-UC-11-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md#as-uc-11-02-01",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md#as-uc-11-02-02",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md#as-uc-11-02-03",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md#as-uc-11-02-04"
+      ],
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-10"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-11-03",
+      "title": "Chuẩn bị phương án correction",
+      "journeys": [
+        "BJ-11"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-049",
+        "SCR-052"
+      ],
+      "contracts": [
+        "BC-IO-16"
+      ],
+      "tests": [
+        "TST-AS-UC-11-03-01",
+        "TST-AS-UC-11-03-02",
+        "TST-AS-UC-11-03-03",
+        "TST-AS-UC-11-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md#as-uc-11-03-01",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md#as-uc-11-03-02",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md#as-uc-11-03-03",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md#as-uc-11-03-04"
+      ],
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-10"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-11-04",
+      "title": "Phê duyệt correction",
+      "journeys": [
+        "BJ-11"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-051",
+        "SCR-053"
+      ],
+      "contracts": [
+        "BC-IC-06"
+      ],
+      "tests": [
+        "TST-AS-UC-11-04-01",
+        "TST-AS-UC-11-04-02",
+        "TST-AS-UC-11-04-03",
+        "TST-AS-UC-11-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md#as-uc-11-04-01",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md#as-uc-11-04-02",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md#as-uc-11-04-03",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md#as-uc-11-04-04"
+      ],
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-10"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-11-05",
+      "title": "Ghi correction chain",
+      "journeys": [
+        "BJ-11"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-049",
+        "SCR-053"
+      ],
+      "contracts": [
+        "BC-IO-13"
+      ],
+      "tests": [
+        "TST-AS-UC-11-05-01",
+        "TST-AS-UC-11-05-02",
+        "TST-AS-UC-11-05-03",
+        "TST-AS-UC-11-05-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md#as-uc-11-05-01",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md#as-uc-11-05-02",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md#as-uc-11-05-03",
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md#as-uc-11-05-04"
+      ],
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-10"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-12-01",
+      "title": "Nạp và kiểm tra batch đầu kỳ",
+      "journeys": [
+        "BJ-12"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-066",
+        "SCR-067",
+        "SCR-068"
+      ],
+      "contracts": [
+        "BC-IC-09"
+      ],
+      "tests": [
+        "TST-AS-UC-12-01-01",
+        "TST-AS-UC-12-01-02",
+        "TST-AS-UC-12-01-03",
+        "TST-AS-UC-12-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md#as-uc-12-01-01",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md#as-uc-12-01-02",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md#as-uc-12-01-03",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md#as-uc-12-01-04"
+      ],
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-13"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-12-02",
+      "title": "Rà soát và duyệt batch",
+      "journeys": [
+        "BJ-12"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-069",
+        "SCR-070"
+      ],
+      "contracts": [
+        "BC-IC-06"
+      ],
+      "tests": [
+        "TST-AS-UC-12-02-01",
+        "TST-AS-UC-12-02-02",
+        "TST-AS-UC-12-02-03",
+        "TST-AS-UC-12-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md#as-uc-12-02-01",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md#as-uc-12-02-02",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md#as-uc-12-02-03",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md#as-uc-12-02-04"
+      ],
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-13"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-12-03",
+      "title": "Commit và kích hoạt tồn kho",
+      "journeys": [
+        "BJ-12"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-070",
+        "SCR-071"
+      ],
+      "contracts": [
+        "BC-IC-04"
+      ],
+      "tests": [
+        "TST-AS-UC-12-03-01",
+        "TST-AS-UC-12-03-02",
+        "TST-AS-UC-12-03-03",
+        "TST-AS-UC-12-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md#as-uc-12-03-01",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md#as-uc-12-03-02",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md#as-uc-12-03-03",
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md#as-uc-12-03-04"
+      ],
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-13"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-13-01",
+      "title": "Xác định nguồn và phạm vi",
+      "journeys": [
+        "BJ-13"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-014",
+        "SCR-015"
+      ],
+      "contracts": [
+        "BC-IV-04"
+      ],
+      "tests": [
+        "TST-AS-UC-13-01-01",
+        "TST-AS-UC-13-01-02",
+        "TST-AS-UC-13-01-03",
+        "TST-AS-UC-13-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md#as-uc-13-01-01",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md#as-uc-13-01-02",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md#as-uc-13-01-03",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md#as-uc-13-01-04"
+      ],
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-13-02",
+      "title": "Tính và phân bổ chi phí",
+      "journeys": [
+        "BJ-13"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-018"
+      ],
+      "contracts": [
+        "BC-IV-04"
+      ],
+      "tests": [
+        "TST-AS-UC-13-02-01",
+        "TST-AS-UC-13-02-02",
+        "TST-AS-UC-13-02-03",
+        "TST-AS-UC-13-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md#as-uc-13-02-01",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md#as-uc-13-02-02",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md#as-uc-13-02-03",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md#as-uc-13-02-04"
+      ],
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-13-03",
+      "title": "Xác nhận ghi nhận chi phí",
+      "journeys": [
+        "BJ-13"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-017",
+        "SCR-019"
+      ],
+      "contracts": [
+        "BC-IV-04"
+      ],
+      "tests": [
+        "TST-AS-UC-13-03-01",
+        "TST-AS-UC-13-03-02",
+        "TST-AS-UC-13-03-03",
+        "TST-AS-UC-13-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md#as-uc-13-03-01",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md#as-uc-13-03-02",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md#as-uc-13-03-03",
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md#as-uc-13-03-04"
+      ],
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-03"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-14-01",
+      "title": "Xác định kỳ, phạm vi và chính sách",
+      "journeys": [
+        "BJ-14"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-072",
+        "SCR-073"
+      ],
+      "contracts": [
+        "BC-IV-02"
+      ],
+      "tests": [
+        "TST-AS-UC-14-01-01",
+        "TST-AS-UC-14-01-02",
+        "TST-AS-UC-14-01-03",
+        "TST-AS-UC-14-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md#as-uc-14-01-01",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md#as-uc-14-01-02",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md#as-uc-14-01-03",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md#as-uc-14-01-04"
+      ],
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-14"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-14-02",
+      "title": "Tính giá vốn và phát hiện blocker",
+      "journeys": [
+        "BJ-14"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-074",
+        "SCR-075"
+      ],
+      "contracts": [
+        "BC-IV-02"
+      ],
+      "tests": [
+        "TST-AS-UC-14-02-01",
+        "TST-AS-UC-14-02-02",
+        "TST-AS-UC-14-02-03",
+        "TST-AS-UC-14-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md#as-uc-14-02-01",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md#as-uc-14-02-02",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md#as-uc-14-02-03",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md#as-uc-14-02-04"
+      ],
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-14"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-14-03",
+      "title": "Rà soát kết quả",
+      "journeys": [
+        "BJ-14"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-074",
+        "SCR-075",
+        "SCR-076"
+      ],
+      "contracts": [
+        "BC-IV-03"
+      ],
+      "tests": [
+        "TST-AS-UC-14-03-01",
+        "TST-AS-UC-14-03-02",
+        "TST-AS-UC-14-03-03",
+        "TST-AS-UC-14-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md#as-uc-14-03-01",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md#as-uc-14-03-02",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md#as-uc-14-03-03",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md#as-uc-14-03-04"
+      ],
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-14"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-14-04",
+      "title": "Công bố giá vốn",
+      "journeys": [
+        "BJ-14"
+      ],
+      "domains": [
+        "IV"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-076",
+        "SCR-077"
+      ],
+      "contracts": [
+        "BC-IV-03"
+      ],
+      "tests": [
+        "TST-AS-UC-14-04-01",
+        "TST-AS-UC-14-04-02",
+        "TST-AS-UC-14-04-03",
+        "TST-AS-UC-14-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md#as-uc-14-04-01",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md#as-uc-14-04-02",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md#as-uc-14-04-03",
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md#as-uc-14-04-04"
+      ],
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-14"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-15-01",
+      "title": "Xác định báo cáo và phạm vi",
+      "journeys": [
+        "BJ-15"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-054"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-15-01-01",
+        "TST-AS-UC-15-01-02",
+        "TST-AS-UC-15-01-03",
+        "TST-AS-UC-15-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md#as-uc-15-01-01",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md#as-uc-15-01-02",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md#as-uc-15-01-03",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md#as-uc-15-01-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-11"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-15-02",
+      "title": "Xem báo cáo tồn kho",
+      "journeys": [
+        "BJ-15"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-055"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-15-02-01",
+        "TST-AS-UC-15-02-02",
+        "TST-AS-UC-15-02-03",
+        "TST-AS-UC-15-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md#as-uc-15-02-01",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md#as-uc-15-02-02",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md#as-uc-15-02-03",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md#as-uc-15-02-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-11"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-15-03",
+      "title": "Xem thẻ kho và lịch sử",
+      "journeys": [
+        "BJ-15"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-055",
+        "SCR-056",
+        "SCR-057"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-15-03-01",
+        "TST-AS-UC-15-03-02",
+        "TST-AS-UC-15-03-03",
+        "TST-AS-UC-15-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md#as-uc-15-03-01",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md#as-uc-15-03-02",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md#as-uc-15-03-03",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md#as-uc-15-03-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-11"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-15-04",
+      "title": "Xuất báo cáo",
+      "journeys": [
+        "BJ-15"
+      ],
+      "domains": [
+        "IO"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-058",
+        "SCR-059"
+      ],
+      "contracts": [
+        "BC-IO-01"
+      ],
+      "tests": [
+        "TST-AS-UC-15-04-01",
+        "TST-AS-UC-15-04-02",
+        "TST-AS-UC-15-04-03",
+        "TST-AS-UC-15-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md#as-uc-15-04-01",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md#as-uc-15-04-02",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md#as-uc-15-04-03",
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md#as-uc-15-04-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-11"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-16-01",
+      "title": "Mở và phân loại hồ sơ đối soát",
+      "journeys": [
+        "BJ-16"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-078"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-16-01-01",
+        "TST-AS-UC-16-01-02",
+        "TST-AS-UC-16-01-03",
+        "TST-AS-UC-16-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md#as-uc-16-01-01",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md#as-uc-16-01-02",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md#as-uc-16-01-03",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md#as-uc-16-01-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-16-02",
+      "title": "Bảo vệ phạm vi rủi ro",
+      "journeys": [
+        "BJ-16"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-079",
+        "SCR-080"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-16-02-01",
+        "TST-AS-UC-16-02-02",
+        "TST-AS-UC-16-02-03",
+        "TST-AS-UC-16-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md#as-uc-16-02-01",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md#as-uc-16-02-02",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md#as-uc-16-02-03",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md#as-uc-16-02-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-16-03",
+      "title": "Điều tra và xác định nguyên nhân",
+      "journeys": [
+        "BJ-16"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-079",
+        "SCR-080"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-16-03-01",
+        "TST-AS-UC-16-03-02",
+        "TST-AS-UC-16-03-03",
+        "TST-AS-UC-16-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md#as-uc-16-03-01",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md#as-uc-16-03-02",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md#as-uc-16-03-03",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md#as-uc-16-03-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-16-04",
+      "title": "Xác minh và cập nhật kết quả đối soát",
+      "journeys": [
+        "BJ-16"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-082",
+        "SCR-083"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-16-04-01",
+        "TST-AS-UC-16-04-02",
+        "TST-AS-UC-16-04-03",
+        "TST-AS-UC-16-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md#as-uc-16-04-01",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md#as-uc-16-04-02",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md#as-uc-16-04-03",
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md#as-uc-16-04-04"
+      ],
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-17-01",
+      "title": "Thu thập và đánh giá bằng chứng",
+      "journeys": [
+        "BJ-17"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-078",
+        "SCR-079"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-17-01-01",
+        "TST-AS-UC-17-01-02",
+        "TST-AS-UC-17-01-03",
+        "TST-AS-UC-17-01-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md#as-uc-17-01-01",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md#as-uc-17-01-02",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md#as-uc-17-01-03",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md#as-uc-17-01-04"
+      ],
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-17-02",
+      "title": "Xác lập operation đã hoàn tất",
+      "journeys": [
+        "BJ-17"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-080",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-17-02-01",
+        "TST-AS-UC-17-02-02",
+        "TST-AS-UC-17-02-03",
+        "TST-AS-UC-17-02-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md#as-uc-17-02-01",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md#as-uc-17-02-02",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md#as-uc-17-02-03",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md#as-uc-17-02-04"
+      ],
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-17-03",
+      "title": "Tiếp tục cùng operation identity",
+      "journeys": [
+        "BJ-17"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-080",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-17-03-01",
+        "TST-AS-UC-17-03-02",
+        "TST-AS-UC-17-03-03",
+        "TST-AS-UC-17-03-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md#as-uc-17-03-01",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md#as-uc-17-03-02",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md#as-uc-17-03-03",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md#as-uc-17-03-04"
+      ],
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    },
+    {
+      "story": "UC-17-04",
+      "title": "Giữ chưa xác định và escalated",
+      "journeys": [
+        "BJ-17"
+      ],
+      "domains": [
+        "IC"
+      ],
+      "entities": [],
+      "ui": [
+        "SCR-079",
+        "SCR-083"
+      ],
+      "contracts": [
+        "BC-IC-05"
+      ],
+      "tests": [
+        "TST-AS-UC-17-04-01",
+        "TST-AS-UC-17-04-02",
+        "TST-AS-UC-17-04-03",
+        "TST-AS-UC-17-04-04"
+      ],
+      "requirements": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md#as-uc-17-04-01",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md#as-uc-17-04-02",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md#as-uc-17-04-03",
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md#as-uc-17-04-04"
+      ],
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "source_refs": [
+        "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md"
+      ],
+      "legacy_screen_group_aliases": [
+        "SG-15"
+      ],
+      "ui_model": "SCREEN_REGISTRY_V2",
+      "prototype_status": "NOT_RENDERED"
+    }
+  ],
+  "trace": [
+    {
+      "uc": "UC-01-01",
+      "bj": "BJ-01",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-01-01-01",
+        "TST-AS-UC-01-01-02",
+        "TST-AS-UC-01-01-03",
+        "TST-AS-UC-01-01-04",
+        "TST-AS-UC-01-01-05",
+        "TST-AS-UC-01-01-06",
+        "TST-AS-UC-01-01-07",
+        "TST-AS-UC-01-01-08"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-001",
+        "SCR-054"
+      ],
+      "legacy_screen_group_alias": "SG-01",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-01-02",
+      "bj": "BJ-01",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-01-02-01",
+        "TST-AS-UC-01-02-02",
+        "TST-AS-UC-01-02-03",
+        "TST-AS-UC-01-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-002",
+        "SCR-003",
+        "SCR-004"
+      ],
+      "legacy_screen_group_alias": "SG-01",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-01-03",
+      "bj": "BJ-01",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-01-03-01",
+        "TST-AS-UC-01-03-02",
+        "TST-AS-UC-01-03-03",
+        "TST-AS-UC-01-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-005",
+        "SCR-056",
+        "SCR-057"
+      ],
+      "legacy_screen_group_alias": "SG-01",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-01-04",
+      "bj": "BJ-01",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "bc": "BC-IO-14",
+      "api": "API-Q-02",
+      "tests": [
+        "TST-AS-UC-01-04-01",
+        "TST-AS-UC-01-04-02",
+        "TST-AS-UC-01-04-03",
+        "TST-AS-UC-01-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-060",
+        "SCR-061"
+      ],
+      "legacy_screen_group_alias": "SG-12",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-01-05",
+      "bj": "BJ-01",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-029",
+        "T7-DR-084#REQ-01",
+        "T7-DR-088",
+        "T7-DR-095",
+        "T7-DR-096"
+      ],
+      "bc": "BC-IO-14",
+      "api": "API-Q-02",
+      "tests": [
+        "TST-AS-UC-01-05-01",
+        "TST-AS-UC-01-05-02",
+        "TST-AS-UC-01-05-03",
+        "TST-AS-UC-01-05-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-060",
+        "SCR-061"
+      ],
+      "legacy_screen_group_alias": "SG-12",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-02-01",
+      "bj": "BJ-02",
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-02-01-01",
+        "TST-AS-UC-02-01-02",
+        "TST-AS-UC-02-01-03",
+        "TST-AS-UC-02-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-006",
+        "SCR-007",
+        "SCR-009"
+      ],
+      "legacy_screen_group_alias": "SG-02",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-02-02",
+      "bj": "BJ-02",
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-02-02-01",
+        "TST-AS-UC-02-02-02",
+        "TST-AS-UC-02-02-03",
+        "TST-AS-UC-02-02-04",
+        "TST-AS-UC-02-02-05"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-006",
+        "SCR-008",
+        "SCR-009"
+      ],
+      "legacy_screen_group_alias": "SG-02",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-02-03",
+      "bj": "BJ-02",
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IC-06",
+      "api": "API-C-19",
+      "tests": [
+        "TST-AS-UC-02-03-01",
+        "TST-AS-UC-02-03-02",
+        "TST-AS-UC-02-03-03",
+        "TST-AS-UC-02-03-04",
+        "TST-AS-UC-02-03-05"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-010",
+        "SCR-011"
+      ],
+      "legacy_screen_group_alias": "SG-02",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-02-04",
+      "bj": "BJ-02",
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-02",
+      "api": "API-C-02",
+      "tests": [
+        "TST-AS-UC-02-04-01",
+        "TST-AS-UC-02-04-02",
+        "TST-AS-UC-02-04-03",
+        "TST-AS-UC-02-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-012"
+      ],
+      "legacy_screen_group_alias": "SG-02",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-02-05",
+      "bj": "BJ-02",
+      "decisions": [
+        "T7-DR-003",
+        "T7-DR-020",
+        "T7-DR-022",
+        "T7-DR-024",
+        "T7-DR-027",
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-02",
+      "api": null,
+      "tests": [
+        "TST-AS-UC-02-05-01",
+        "TST-AS-UC-02-05-02",
+        "TST-AS-UC-02-05-03",
+        "TST-AS-UC-02-05-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-012",
+        "SCR-013"
+      ],
+      "legacy_screen_group_alias": "SG-02",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-03-01",
+      "bj": "BJ-03",
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "bc": "BC-IV-01",
+      "api": "API-C-20",
+      "tests": [
+        "TST-AS-UC-03-01-01",
+        "TST-AS-UC-03-01-02",
+        "TST-AS-UC-03-01-03",
+        "TST-AS-UC-03-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-014",
+        "SCR-015"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-03-02",
+      "bj": "BJ-03",
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "bc": "BC-IV-01",
+      "api": "API-C-20",
+      "tests": [
+        "TST-AS-UC-03-02-01",
+        "TST-AS-UC-03-02-02",
+        "TST-AS-UC-03-02-03",
+        "TST-AS-UC-03-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-015",
+        "SCR-016"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-03-03",
+      "bj": "BJ-03",
+      "decisions": [
+        "T7-DR-021",
+        "T7-DR-025",
+        "T7-DR-026"
+      ],
+      "bc": "BC-IV-01",
+      "api": "API-C-20",
+      "tests": [
+        "TST-AS-UC-03-03-01",
+        "TST-AS-UC-03-03-02",
+        "TST-AS-UC-03-03-03",
+        "TST-AS-UC-03-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-017",
+        "SCR-019"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-04-01",
+      "bj": "BJ-04",
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "bc": "BC-IO-03",
+      "api": "API-C-03",
+      "tests": [
+        "TST-AS-UC-04-01-01",
+        "TST-AS-UC-04-01-02",
+        "TST-AS-UC-04-01-03",
+        "TST-AS-UC-04-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-020",
+        "SCR-021",
+        "SCR-022",
+        "SCR-024"
+      ],
+      "legacy_screen_group_alias": "SG-04",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-04-02",
+      "bj": "BJ-04",
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "bc": "BC-IO-06",
+      "api": "API-C-06",
+      "tests": [
+        "TST-AS-UC-04-02-01",
+        "TST-AS-UC-04-02-02",
+        "TST-AS-UC-04-02-03",
+        "TST-AS-UC-04-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-021",
+        "SCR-023",
+        "SCR-024"
+      ],
+      "legacy_screen_group_alias": "SG-04",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-04-03",
+      "bj": "BJ-04",
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "bc": "BC-IO-06",
+      "api": "API-C-06",
+      "tests": [
+        "TST-AS-UC-04-03-01",
+        "TST-AS-UC-04-03-02",
+        "TST-AS-UC-04-03-03",
+        "TST-AS-UC-04-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-023",
+        "SCR-024"
+      ],
+      "legacy_screen_group_alias": "SG-04",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-04-04",
+      "bj": "BJ-04",
+      "decisions": [
+        "T7-DR-029",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-033"
+      ],
+      "bc": "BC-IO-06",
+      "api": "API-C-06",
+      "tests": [
+        "TST-AS-UC-04-04-01",
+        "TST-AS-UC-04-04-02",
+        "TST-AS-UC-04-04-03",
+        "TST-AS-UC-04-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-021",
+        "SCR-023",
+        "SCR-024"
+      ],
+      "legacy_screen_group_alias": "SG-04",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-05-01",
+      "bj": "BJ-05",
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "bc": "BC-IO-15",
+      "api": "API-C-24",
+      "tests": [
+        "TST-AS-UC-05-01-01",
+        "TST-AS-UC-05-01-02",
+        "TST-AS-UC-05-01-03",
+        "TST-AS-UC-05-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-025",
+        "SCR-026"
+      ],
+      "legacy_screen_group_alias": "SG-06",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-05-02",
+      "bj": "BJ-05",
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "bc": "BC-IO-15",
+      "api": "API-C-24",
+      "tests": [
+        "TST-AS-UC-05-02-01",
+        "TST-AS-UC-05-02-02",
+        "TST-AS-UC-05-02-03",
+        "TST-AS-UC-05-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-027"
+      ],
+      "legacy_screen_group_alias": "SG-06",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-05-03",
+      "bj": "BJ-05",
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "bc": "BC-IO-05",
+      "api": "API-C-05",
+      "tests": [
+        "TST-AS-UC-05-03-01",
+        "TST-AS-UC-05-03-02",
+        "TST-AS-UC-05-03-03",
+        "TST-AS-UC-05-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-028",
+        "SCR-029"
+      ],
+      "legacy_screen_group_alias": "SG-06",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-05-04",
+      "bj": "BJ-05",
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "bc": "BC-IO-06",
+      "api": "API-C-06",
+      "tests": [
+        "TST-AS-UC-05-04-01",
+        "TST-AS-UC-05-04-02",
+        "TST-AS-UC-05-04-03",
+        "TST-AS-UC-05-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-026",
+        "SCR-027"
+      ],
+      "legacy_screen_group_alias": "SG-06",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-05-05",
+      "bj": "BJ-05",
+      "decisions": [
+        "T7-DR-030",
+        "T7-DR-031",
+        "T7-DR-032",
+        "T7-DR-070",
+        "T7-DR-071"
+      ],
+      "bc": "BC-IO-04",
+      "api": "API-C-04",
+      "tests": [
+        "TST-AS-UC-05-05-01",
+        "TST-AS-UC-05-05-02",
+        "TST-AS-UC-05-05-03",
+        "TST-AS-UC-05-05-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-028",
+        "SCR-029"
+      ],
+      "legacy_screen_group_alias": "SG-06",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-06-01",
+      "bj": "BJ-06",
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "bc": "BC-IO-07",
+      "api": "API-C-07",
+      "tests": [
+        "TST-AS-UC-06-01-01",
+        "TST-AS-UC-06-01-02",
+        "TST-AS-UC-06-01-03",
+        "TST-AS-UC-06-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-030",
+        "SCR-031"
+      ],
+      "legacy_screen_group_alias": "SG-07",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-06-02",
+      "bj": "BJ-06",
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "bc": "BC-IO-07",
+      "api": "API-C-07",
+      "tests": [
+        "TST-AS-UC-06-02-01",
+        "TST-AS-UC-06-02-02",
+        "TST-AS-UC-06-02-03",
+        "TST-AS-UC-06-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-031"
+      ],
+      "legacy_screen_group_alias": "SG-07",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-06-03",
+      "bj": "BJ-06",
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "bc": "BC-IO-07",
+      "api": "API-C-07",
+      "tests": [
+        "TST-AS-UC-06-03-01",
+        "TST-AS-UC-06-03-02",
+        "TST-AS-UC-06-03-03",
+        "TST-AS-UC-06-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-032",
+        "SCR-035"
+      ],
+      "legacy_screen_group_alias": "SG-07",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-06-04",
+      "bj": "BJ-06",
+      "decisions": [
+        "T7-DR-040",
+        "T7-DR-041",
+        "T7-DR-043",
+        "T7-DR-044",
+        "T7-DR-045",
+        "T7-DR-048"
+      ],
+      "bc": "BC-IO-08",
+      "api": "API-C-08",
+      "tests": [
+        "TST-AS-UC-06-04-01",
+        "TST-AS-UC-06-04-02",
+        "TST-AS-UC-06-04-03",
+        "TST-AS-UC-06-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-033",
+        "SCR-034",
+        "SCR-035"
+      ],
+      "legacy_screen_group_alias": "SG-07",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-07-01",
+      "bj": "BJ-07",
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "bc": "BC-IO-09",
+      "api": "API-C-09",
+      "tests": [
+        "TST-AS-UC-07-01-01",
+        "TST-AS-UC-07-01-02",
+        "TST-AS-UC-07-01-03",
+        "TST-AS-UC-07-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-07-02",
+      "bj": "BJ-07",
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "bc": "BC-IO-10",
+      "api": "API-C-10",
+      "tests": [
+        "TST-AS-UC-07-02-01",
+        "TST-AS-UC-07-02-02",
+        "TST-AS-UC-07-02-03",
+        "TST-AS-UC-07-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-07-03",
+      "bj": "BJ-07",
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "bc": "BC-IO-10",
+      "api": "API-C-10",
+      "tests": [
+        "TST-AS-UC-07-03-01",
+        "TST-AS-UC-07-03-02",
+        "TST-AS-UC-07-03-03",
+        "TST-AS-UC-07-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-07-04",
+      "bj": "BJ-07",
+      "decisions": [
+        "T7-DR-042",
+        "T7-DR-054"
+      ],
+      "bc": "BC-IO-09",
+      "api": "API-C-09",
+      "tests": [
+        "TST-AS-UC-07-04-01",
+        "TST-AS-UC-07-04-02",
+        "TST-AS-UC-07-04-03",
+        "TST-AS-UC-07-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-039",
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-08-01",
+      "bj": "BJ-08",
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "bc": "BC-IC-01",
+      "api": "API-C-14",
+      "tests": [
+        "TST-AS-UC-08-01-01",
+        "TST-AS-UC-08-01-02",
+        "TST-AS-UC-08-01-03",
+        "TST-AS-UC-08-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-042",
+        "SCR-043"
+      ],
+      "legacy_screen_group_alias": "SG-09",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-08-02",
+      "bj": "BJ-08",
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "bc": "BC-IC-02",
+      "api": "API-C-15",
+      "tests": [
+        "TST-AS-UC-08-02-01",
+        "TST-AS-UC-08-02-02",
+        "TST-AS-UC-08-02-03",
+        "TST-AS-UC-08-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-044"
+      ],
+      "legacy_screen_group_alias": "SG-09",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-08-03",
+      "bj": "BJ-08",
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "bc": "BC-IC-02",
+      "api": "API-C-15",
+      "tests": [
+        "TST-AS-UC-08-03-01",
+        "TST-AS-UC-08-03-02",
+        "TST-AS-UC-08-03-03",
+        "TST-AS-UC-08-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-045"
+      ],
+      "legacy_screen_group_alias": "SG-09",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-08-04",
+      "bj": "BJ-08",
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "bc": "BC-IC-03",
+      "api": "API-C-16",
+      "tests": [
+        "TST-AS-UC-08-04-01",
+        "TST-AS-UC-08-04-02",
+        "TST-AS-UC-08-04-03",
+        "TST-AS-UC-08-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-046",
+        "SCR-047"
+      ],
+      "legacy_screen_group_alias": "SG-09",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-08-05",
+      "bj": "BJ-08",
+      "decisions": [
+        "T7-DR-035",
+        "T7-DR-036",
+        "T7-DR-037",
+        "T7-DR-038",
+        "T7-DR-039"
+      ],
+      "bc": "BC-IC-08",
+      "api": "API-C-27",
+      "tests": [
+        "TST-AS-UC-08-05-01",
+        "TST-AS-UC-08-05-02",
+        "TST-AS-UC-08-05-03",
+        "TST-AS-UC-08-05-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-046",
+        "SCR-047"
+      ],
+      "legacy_screen_group_alias": "SG-09",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-09-01",
+      "bj": "BJ-09",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-09-01-01",
+        "TST-AS-UC-09-01-02",
+        "TST-AS-UC-09-01-03",
+        "TST-AS-UC-09-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-038"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-09-02",
+      "bj": "BJ-09",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "bc": "BC-IC-06",
+      "api": "API-C-19",
+      "tests": [
+        "TST-AS-UC-09-02-01",
+        "TST-AS-UC-09-02-02",
+        "TST-AS-UC-09-02-03",
+        "TST-AS-UC-09-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-038",
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-09-03",
+      "bj": "BJ-09",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "bc": "BC-IO-10",
+      "api": "API-C-10",
+      "tests": [
+        "TST-AS-UC-09-03-01",
+        "TST-AS-UC-09-03-02",
+        "TST-AS-UC-09-03-03",
+        "TST-AS-UC-09-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-09-04",
+      "bj": "BJ-09",
+      "decisions": [
+        "T7-DR-012",
+        "T7-DR-018",
+        "T7-DR-046",
+        "T7-DR-047",
+        "T7-DR-092"
+      ],
+      "bc": "BC-IO-10",
+      "api": "API-C-10",
+      "tests": [
+        "TST-AS-UC-09-04-01",
+        "TST-AS-UC-09-04-02",
+        "TST-AS-UC-09-04-03",
+        "TST-AS-UC-09-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-038",
+        "SCR-041",
+        "SCR-056"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-10-01",
+      "bj": "BJ-10",
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-10-01-01",
+        "TST-AS-UC-10-01-02",
+        "TST-AS-UC-10-01-03",
+        "TST-AS-UC-10-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-036",
+        "SCR-037",
+        "SCR-040"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-10-02",
+      "bj": "BJ-10",
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "bc": "BC-IC-06",
+      "api": "API-C-19",
+      "tests": [
+        "TST-AS-UC-10-02-01",
+        "TST-AS-UC-10-02-02",
+        "TST-AS-UC-10-02-03",
+        "TST-AS-UC-10-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-040"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-10-03",
+      "bj": "BJ-10",
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "bc": "BC-IO-11",
+      "api": "API-C-11",
+      "tests": [
+        "TST-AS-UC-10-03-01",
+        "TST-AS-UC-10-03-02",
+        "TST-AS-UC-10-03-03",
+        "TST-AS-UC-10-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-040"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-10-04",
+      "bj": "BJ-10",
+      "decisions": [
+        "T7-DR-047",
+        "T7-DR-078",
+        "T7-DR-080",
+        "T7-DR-081"
+      ],
+      "bc": "BC-IO-11",
+      "api": "API-C-11",
+      "tests": [
+        "TST-AS-UC-10-04-01",
+        "TST-AS-UC-10-04-02",
+        "TST-AS-UC-10-04-03",
+        "TST-AS-UC-10-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-041"
+      ],
+      "legacy_screen_group_alias": "SG-08",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-11-01",
+      "bj": "BJ-11",
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-11-01-01",
+        "TST-AS-UC-11-01-02",
+        "TST-AS-UC-11-01-03",
+        "TST-AS-UC-11-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-048",
+        "SCR-049",
+        "SCR-050"
+      ],
+      "legacy_screen_group_alias": "SG-10",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-11-02",
+      "bj": "BJ-11",
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-12",
+      "api": "API-C-12",
+      "tests": [
+        "TST-AS-UC-11-02-01",
+        "TST-AS-UC-11-02-02",
+        "TST-AS-UC-11-02-03",
+        "TST-AS-UC-11-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-052",
+        "SCR-053"
+      ],
+      "legacy_screen_group_alias": "SG-10",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-11-03",
+      "bj": "BJ-11",
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-16",
+      "api": "API-C-25",
+      "tests": [
+        "TST-AS-UC-11-03-01",
+        "TST-AS-UC-11-03-02",
+        "TST-AS-UC-11-03-03",
+        "TST-AS-UC-11-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-049",
+        "SCR-052"
+      ],
+      "legacy_screen_group_alias": "SG-10",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-11-04",
+      "bj": "BJ-11",
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IC-06",
+      "api": "API-C-19",
+      "tests": [
+        "TST-AS-UC-11-04-01",
+        "TST-AS-UC-11-04-02",
+        "TST-AS-UC-11-04-03",
+        "TST-AS-UC-11-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-051",
+        "SCR-053"
+      ],
+      "legacy_screen_group_alias": "SG-10",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-11-05",
+      "bj": "BJ-11",
+      "decisions": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "T7-DR-074"
+      ],
+      "bc": "BC-IO-13",
+      "api": "API-C-13",
+      "tests": [
+        "TST-AS-UC-11-05-01",
+        "TST-AS-UC-11-05-02",
+        "TST-AS-UC-11-05-03",
+        "TST-AS-UC-11-05-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-049",
+        "SCR-053"
+      ],
+      "legacy_screen_group_alias": "SG-10",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-12-01",
+      "bj": "BJ-12",
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "bc": "BC-IC-09",
+      "api": "API-C-28",
+      "tests": [
+        "TST-AS-UC-12-01-01",
+        "TST-AS-UC-12-01-02",
+        "TST-AS-UC-12-01-03",
+        "TST-AS-UC-12-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-066",
+        "SCR-067",
+        "SCR-068"
+      ],
+      "legacy_screen_group_alias": "SG-13",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-12-02",
+      "bj": "BJ-12",
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "bc": "BC-IC-06",
+      "api": "API-C-19",
+      "tests": [
+        "TST-AS-UC-12-02-01",
+        "TST-AS-UC-12-02-02",
+        "TST-AS-UC-12-02-03",
+        "TST-AS-UC-12-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-069",
+        "SCR-070"
+      ],
+      "legacy_screen_group_alias": "SG-13",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-12-03",
+      "bj": "BJ-12",
+      "decisions": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069"
+      ],
+      "bc": "BC-IC-04",
+      "api": "API-C-17",
+      "tests": [
+        "TST-AS-UC-12-03-01",
+        "TST-AS-UC-12-03-02",
+        "TST-AS-UC-12-03-03",
+        "TST-AS-UC-12-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-070",
+        "SCR-071"
+      ],
+      "legacy_screen_group_alias": "SG-13",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-13-01",
+      "bj": "BJ-13",
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "bc": "BC-IV-04",
+      "api": "API-C-23",
+      "tests": [
+        "TST-AS-UC-13-01-01",
+        "TST-AS-UC-13-01-02",
+        "TST-AS-UC-13-01-03",
+        "TST-AS-UC-13-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-014",
+        "SCR-015"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-13-02",
+      "bj": "BJ-13",
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "bc": "BC-IV-04",
+      "api": "API-C-23",
+      "tests": [
+        "TST-AS-UC-13-02-01",
+        "TST-AS-UC-13-02-02",
+        "TST-AS-UC-13-02-03",
+        "TST-AS-UC-13-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-018"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-13-03",
+      "bj": "BJ-13",
+      "decisions": [
+        "T7-DR-058"
+      ],
+      "bc": "BC-IV-04",
+      "api": "API-C-23",
+      "tests": [
+        "TST-AS-UC-13-03-01",
+        "TST-AS-UC-13-03-02",
+        "TST-AS-UC-13-03-03",
+        "TST-AS-UC-13-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-017",
+        "SCR-019"
+      ],
+      "legacy_screen_group_alias": "SG-03",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-14-01",
+      "bj": "BJ-14",
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "bc": "BC-IV-02",
+      "api": "API-C-21",
+      "tests": [
+        "TST-AS-UC-14-01-01",
+        "TST-AS-UC-14-01-02",
+        "TST-AS-UC-14-01-03",
+        "TST-AS-UC-14-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-072",
+        "SCR-073"
+      ],
+      "legacy_screen_group_alias": "SG-14",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-14-02",
+      "bj": "BJ-14",
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "bc": "BC-IV-02",
+      "api": "API-C-21",
+      "tests": [
+        "TST-AS-UC-14-02-01",
+        "TST-AS-UC-14-02-02",
+        "TST-AS-UC-14-02-03",
+        "TST-AS-UC-14-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-074",
+        "SCR-075"
+      ],
+      "legacy_screen_group_alias": "SG-14",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-14-03",
+      "bj": "BJ-14",
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "bc": "BC-IV-03",
+      "api": "API-C-22",
+      "tests": [
+        "TST-AS-UC-14-03-01",
+        "TST-AS-UC-14-03-02",
+        "TST-AS-UC-14-03-03",
+        "TST-AS-UC-14-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-074",
+        "SCR-075",
+        "SCR-076"
+      ],
+      "legacy_screen_group_alias": "SG-14",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-14-04",
+      "bj": "BJ-14",
+      "decisions": [
+        "T7-DR-049",
+        "T7-DR-050",
+        "T7-DR-052",
+        "T7-DR-053",
+        "T7-DR-056",
+        "T7-DR-058",
+        "T7-DR-059",
+        "T7-DR-060"
+      ],
+      "bc": "BC-IV-03",
+      "api": "API-C-22",
+      "tests": [
+        "TST-AS-UC-14-04-01",
+        "TST-AS-UC-14-04-02",
+        "TST-AS-UC-14-04-03",
+        "TST-AS-UC-14-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-076",
+        "SCR-077"
+      ],
+      "legacy_screen_group_alias": "SG-14",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-15-01",
+      "bj": "BJ-15",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-15-01-01",
+        "TST-AS-UC-15-01-02",
+        "TST-AS-UC-15-01-03",
+        "TST-AS-UC-15-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-054"
+      ],
+      "legacy_screen_group_alias": "SG-11",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-15-02",
+      "bj": "BJ-15",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-15-02-01",
+        "TST-AS-UC-15-02-02",
+        "TST-AS-UC-15-02-03",
+        "TST-AS-UC-15-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-055"
+      ],
+      "legacy_screen_group_alias": "SG-11",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-15-03",
+      "bj": "BJ-15",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-15-03-01",
+        "TST-AS-UC-15-03-02",
+        "TST-AS-UC-15-03-03",
+        "TST-AS-UC-15-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-055",
+        "SCR-056",
+        "SCR-057"
+      ],
+      "legacy_screen_group_alias": "SG-11",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-15-04",
+      "bj": "BJ-15",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-085",
+        "T7-DR-087",
+        "T7-DR-091"
+      ],
+      "bc": "BC-IO-01",
+      "api": "API-Q-01",
+      "tests": [
+        "TST-AS-UC-15-04-01",
+        "TST-AS-UC-15-04-02",
+        "TST-AS-UC-15-04-03",
+        "TST-AS-UC-15-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-058",
+        "SCR-059"
+      ],
+      "legacy_screen_group_alias": "SG-11",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-16-01",
+      "bj": "BJ-16",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-16-01-01",
+        "TST-AS-UC-16-01-02",
+        "TST-AS-UC-16-01-03",
+        "TST-AS-UC-16-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-078"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-16-02",
+      "bj": "BJ-16",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-16-02-01",
+        "TST-AS-UC-16-02-02",
+        "TST-AS-UC-16-02-03",
+        "TST-AS-UC-16-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-079",
+        "SCR-080"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-16-03",
+      "bj": "BJ-16",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-16-03-01",
+        "TST-AS-UC-16-03-02",
+        "TST-AS-UC-16-03-03",
+        "TST-AS-UC-16-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-079",
+        "SCR-080"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-16-04",
+      "bj": "BJ-16",
+      "decisions": [
+        "T7-DR-084",
+        "T7-DR-086",
+        "T7-DR-088",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-16-04-01",
+        "TST-AS-UC-16-04-02",
+        "TST-AS-UC-16-04-03",
+        "TST-AS-UC-16-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-082",
+        "SCR-083"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-17-01",
+      "bj": "BJ-17",
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-17-01-01",
+        "TST-AS-UC-17-01-02",
+        "TST-AS-UC-17-01-03",
+        "TST-AS-UC-17-01-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-078",
+        "SCR-079"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-17-02",
+      "bj": "BJ-17",
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-17-02-01",
+        "TST-AS-UC-17-02-02",
+        "TST-AS-UC-17-02-03",
+        "TST-AS-UC-17-02-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-080",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-17-03",
+      "bj": "BJ-17",
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-17-03-01",
+        "TST-AS-UC-17-03-02",
+        "TST-AS-UC-17-03-03",
+        "TST-AS-UC-17-03-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-080",
+        "SCR-082",
+        "SCR-083"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    },
+    {
+      "uc": "UC-17-04",
+      "bj": "BJ-17",
+      "decisions": [
+        "T7-DR-071",
+        "T7-DR-072",
+        "T7-DR-074",
+        "T7-DR-090"
+      ],
+      "bc": "BC-IC-05",
+      "api": "API-C-18",
+      "tests": [
+        "TST-AS-UC-17-04-01",
+        "TST-AS-UC-17-04-02",
+        "TST-AS-UC-17-04-03",
+        "TST-AS-UC-17-04-04"
+      ],
+      "decision_basis": "INHERITED_FROM_OWNING_BJ_TARGET_TRACE",
+      "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
+      "screen_ids": [
+        "SCR-079",
+        "SCR-083"
+      ],
+      "legacy_screen_group_alias": "SG-15",
+      "ui_model": "SCREEN_REGISTRY_V2"
+    }
+  ]
+}

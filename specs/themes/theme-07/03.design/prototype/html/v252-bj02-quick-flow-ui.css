@@ -1,0 +1,147 @@
+/* VET45 Theme 7 v2.5.2 — BJ02 quick-receipt interaction and UI correction.
+   Loaded after v2.5.1. Uses live Figma DS geometry/tokens; no new shared component. */
+
+body[data-active-uif="UIF-02"] .quick-overview-add,
+body[data-active-uif="UIF-02"] .quick-overview-search-wrap,
+body[data-active-uif="UIF-02"] .quick-overview-uom-step {
+  width:370px!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+  position:relative!important;
+}
+
+/* Keep search results in document flow so they never escape/cut the 402px canvas. */
+body[data-active-uif="UIF-02"] .quick-overview-product-menu {
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  width:370px!important;
+  max-width:370px!important;
+  max-height:268px!important;
+  margin:0!important;
+  padding:8px!important;
+  box-sizing:border-box!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  border:1px solid var(--vet45-v2-border-default)!important;
+  border-radius:12px!important;
+  background:var(--vet45-v2-surface-default)!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.12)!important;
+  z-index:4!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-menu[hidden] { display:none!important; }
+body[data-active-uif="UIF-02"] .quick-overview-product-option {
+  width:352px!important;
+  min-width:0!important;
+  height:76px!important;
+  min-height:76px!important;
+  flex:0 0 76px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:0 24px 0 16px!important;
+  border:1px solid var(--vet45-v2-border-default)!important;
+  border-radius:12px!important;
+  background:var(--vet45-v2-surface-default)!important;
+  color:var(--vet45-v2-text-primary)!important;
+  text-align:left!important;
+  overflow:hidden!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-option .bj02-search-option-leading {
+  width:20px!important;height:20px!important;flex:0 0 20px!important;display:grid!important;place-items:center!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-option .combobox-option-copy {
+  flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-option .combobox-option-copy strong,
+body[data-active-uif="UIF-02"] .quick-overview-product-option .combobox-option-copy small {
+  display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-product-option .combobox-option-copy strong { font:600 14px/20px "Inter",system-ui,sans-serif!important; }
+body[data-active-uif="UIF-02"] .quick-overview-product-option .combobox-option-copy small { font:400 13px/20px "Inter",system-ui,sans-serif!important;color:var(--vet45-v2-text-secondary)!important; }
+
+/* Multi-UOM is a direct single-choice task, not another dropdown. */
+body[data-active-uif="UIF-02"] .quick-overview-selected-product {
+  width:370px!important;min-height:44px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
+}
+body[data-active-uif="UIF-02"] .quick-overview-selected-product>div { flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important; }
+body[data-active-uif="UIF-02"] .quick-overview-selected-product strong { font:600 14px/20px "Inter",system-ui,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important; }
+body[data-active-uif="UIF-02"] .quick-overview-selected-product span { font:400 13px/20px "Inter",system-ui,sans-serif!important;color:var(--vet45-v2-text-secondary)!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-list { width:370px!important;display:flex!important;flex-direction:column!important;gap:12px!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row {
+  width:370px!important;height:76px!important;min-height:76px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:12px!important;
+  padding:0 24px 0 16px!important;border:1px solid var(--vet45-v2-border-default)!important;border-radius:12px!important;background:var(--vet45-v2-surface-default)!important;color:var(--vet45-v2-text-primary)!important;text-align:left!important;overflow:hidden!important;
+}
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row .bj02-ds-list-leading { width:20px!important;height:20px!important;flex:0 0 20px!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row .bj02-ds-list-copy { flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row .bj02-ds-list-copy strong { font:600 14px/20px "Inter",system-ui,sans-serif!important;text-transform:none!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row .bj02-ds-list-copy span { font:400 13px/20px "Inter",system-ui,sans-serif!important;color:var(--vet45-v2-text-secondary)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important; }
+body[data-active-uif="UIF-02"] .bj02-uom-choice-row .bj02-radio-control { flex:0 0 20px!important; }
+
+/* Evidence: the canonical drop-zone copy remains short; selected filename is allowed to wrap below it. */
+body[data-active-uif="UIF-02"] .bj02-evidence-name {
+  width:310px!important;align-self:center!important;margin-top:-4px!important;font:400 12px/16px "Inter",system-ui,sans-serif!important;letter-spacing:.1px!important;color:var(--vet45-v2-text-secondary)!important;overflow-wrap:anywhere!important;word-break:break-word!important;
+}
+
+/* LOT accordion: the copy owns remaining width; very long lot codes/details never expand the card. */
+body[data-active-uif="UIF-02"] .lot-accordion-toggle { width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important; }
+body[data-active-uif="UIF-02"] .lot-accordion-copy { flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;overflow:hidden!important; }
+body[data-active-uif="UIF-02"] .lot-accordion-copy strong,
+body[data-active-uif="UIF-02"] .lot-accordion-copy span { max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important; }
+body[data-active-uif="UIF-02"] .lot-accordion-chevron { width:20px!important;height:20px!important;flex:0 0 20px!important; }
+
+/* Reduce unnecessary empty-state visual weight inside the task overview while preserving VEmptyState semantics. */
+body[data-active-uif="UIF-02"] .receipt-lines-empty {
+  width:370px!important;min-height:188px!important;height:auto!important;padding:24px 20px!important;box-sizing:border-box!important;border-radius:16px!important;
+}
+body[data-active-uif="UIF-02"] .receipt-lines-empty .icon-box { margin-bottom:4px!important; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty h3 { margin:0!important;font:600 16px/22px "Inter",system-ui,sans-serif!important;text-align:center!important; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty p { margin:0!important;max-width:300px!important;font:400 13px/20px "Inter",system-ui,sans-serif!important;text-align:center!important; }
+
+/* SCR-084 LOT editor: the accordion owns the 370px content width; its 16px
+   inner padding leaves exactly 338px for canonical field/data rows.  Do not
+   let the global 370px form-field rule overflow the padded editor. */
+body[data-active-uif="UIF-02"] .active-lot-editor > .form-stack,
+body[data-active-uif="UIF-02"] .active-lot-editor .lot-fields-compact {
+  width:338px!important;
+  max-width:338px!important;
+  align-self:stretch!important;
+}
+body[data-active-uif="UIF-02"] .active-lot-editor .form-field,
+body[data-active-uif="UIF-02"] .active-lot-editor .input-shell,
+body[data-active-uif="UIF-02"] .active-lot-editor .classification-quantities,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-quantity-hit-stack,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-quantity-hit,
+body[data-active-uif="UIF-02"] .active-lot-editor .bj02-key-value-row {
+  width:338px!important;
+  max-width:338px!important;
+}
+body[data-active-uif="UIF-02"] .active-lot-editor .input-shell input {
+  min-width:0!important;
+  max-width:100%!important;
+}
+body[data-active-uif="UIF-02"] .lot-accordion-item,
+body[data-active-uif="UIF-02"] .lot-accordion-header,
+body[data-active-uif="UIF-02"] .lot-accordion-toggle {
+  max-width:370px!important;
+}
+
+/* The empty state is guidance inside a task overview, not a standalone hero.
+   Keep the canonical empty-state semantics but avoid an oversized card-like
+   treatment that competes with Product search. */
+body[data-active-uif="UIF-02"] .receipt-lines-empty {
+  width:370px!important;
+  min-height:176px!important;
+  padding:24px 16px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body[data-active-uif="UIF-02"] .receipt-lines-empty .icon-box { margin-bottom:4px!important; }
+body[data-active-uif="UIF-02"] .receipt-lines-empty p { max-width:310px!important; }

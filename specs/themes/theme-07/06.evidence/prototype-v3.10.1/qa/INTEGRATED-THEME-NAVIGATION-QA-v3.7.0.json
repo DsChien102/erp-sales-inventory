@@ -1,0 +1,488 @@
+{
+  "version": "3.7.0",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.7.0"
+    },
+    {
+      "name": "exactly two workbench mode tabs",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "existing BJ/UIF mode is default and selector remains visible",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Theme 7 tab switches to integrated mode",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "integrated mode starts at Them",
+      "pass": true,
+      "note": "Thêm"
+    },
+    {
+      "name": "Them screen exposes Kho as the single enabled Theme 7 module entry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "out-of-scope More rows are true Disabled Navigation rows",
+      "pass": true,
+      "note": 7
+    },
+    {
+      "name": "Kho module root is reachable from Them",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Kho root exposes all 17 BJ plus CAP-01",
+      "pass": true,
+      "note": [
+        "UIF-01",
+        "UIF-02",
+        "UIF-05",
+        "UIF-06",
+        "UIF-07",
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-08",
+        "UIF-09",
+        "UIF-10",
+        "UIF-11",
+        "UIF-12",
+        "UIF-16",
+        "UIF-17",
+        "UIF-15",
+        "UIF-04",
+        "CAP-01"
+      ]
+    },
+    {
+      "name": "Kho root uses Navigation List Row anatomy for every entry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "every Theme 7 entry opens its own shared flow runtime",
+      "pass": true,
+      "note": [
+        {
+          "entry": "UIF-01",
+          "flow": "UIF-01",
+          "screen": "SCR-001",
+          "phoneTitle": "Tồn kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-02",
+          "flow": "UIF-02",
+          "screen": "SCR-006",
+          "phoneTitle": "Nhận hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-05",
+          "flow": "UIF-05",
+          "screen": "SCR-025",
+          "phoneTitle": "Đơn cần lấy hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-06",
+          "flow": "UIF-06",
+          "screen": "SCR-030",
+          "phoneTitle": "Hàng khách trả",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-07",
+          "flow": "UIF-07",
+          "screen": "SCR-036",
+          "phoneTitle": "Hàng chờ trả nhà cung cấp",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-03",
+          "flow": "UIF-03",
+          "screen": "SCR-014",
+          "phoneTitle": "Hàng chờ xác nhận giá nhập",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-13",
+          "flow": "UIF-13",
+          "screen": "SCR-085",
+          "phoneTitle": "Chi phí mua bổ sung",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-14",
+          "flow": "UIF-14",
+          "screen": "SCR-072",
+          "phoneTitle": "Giá vốn",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-08",
+          "flow": "UIF-08",
+          "screen": "SCR-042",
+          "phoneTitle": "Kiểm kê kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-09",
+          "flow": "UIF-09",
+          "screen": "SCR-036",
+          "phoneTitle": "Tình trạng hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-10",
+          "flow": "UIF-10",
+          "screen": "SCR-036",
+          "phoneTitle": "Hàng có thể xử lý",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-11",
+          "flow": "UIF-11",
+          "screen": "SCR-048",
+          "phoneTitle": "Kiểm soát nghiệp vụ kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-12",
+          "flow": "UIF-12",
+          "screen": "SCR-066",
+          "phoneTitle": "Khởi tạo tồn kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-16",
+          "flow": "UIF-16",
+          "screen": "SCR-078",
+          "phoneTitle": "Đối soát sai lệch",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-17",
+          "flow": "UIF-17",
+          "screen": "SCR-078",
+          "phoneTitle": "Nghiệp vụ cần xác minh",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-15",
+          "flow": "UIF-15",
+          "screen": "SCR-054",
+          "phoneTitle": "Tra cứu kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-04",
+          "flow": "UIF-04",
+          "screen": "SCR-021",
+          "phoneTitle": "Giữ hàng theo đơn",
+          "backCount": 1
+        },
+        {
+          "entry": "CAP-01",
+          "flow": "CAP-01",
+          "screen": "SCR-062",
+          "phoneTitle": "Chính sách tồn",
+          "backCount": 1
+        }
+      ]
+    },
+    {
+      "name": "every Theme 7 flow entry has a deterministic Back to Kho",
+      "pass": true,
+      "note": [
+        {
+          "entry": "UIF-01",
+          "flow": "UIF-01",
+          "screen": "SCR-001",
+          "phoneTitle": "Tồn kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-02",
+          "flow": "UIF-02",
+          "screen": "SCR-006",
+          "phoneTitle": "Nhận hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-05",
+          "flow": "UIF-05",
+          "screen": "SCR-025",
+          "phoneTitle": "Đơn cần lấy hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-06",
+          "flow": "UIF-06",
+          "screen": "SCR-030",
+          "phoneTitle": "Hàng khách trả",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-07",
+          "flow": "UIF-07",
+          "screen": "SCR-036",
+          "phoneTitle": "Hàng chờ trả nhà cung cấp",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-03",
+          "flow": "UIF-03",
+          "screen": "SCR-014",
+          "phoneTitle": "Hàng chờ xác nhận giá nhập",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-13",
+          "flow": "UIF-13",
+          "screen": "SCR-085",
+          "phoneTitle": "Chi phí mua bổ sung",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-14",
+          "flow": "UIF-14",
+          "screen": "SCR-072",
+          "phoneTitle": "Giá vốn",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-08",
+          "flow": "UIF-08",
+          "screen": "SCR-042",
+          "phoneTitle": "Kiểm kê kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-09",
+          "flow": "UIF-09",
+          "screen": "SCR-036",
+          "phoneTitle": "Tình trạng hàng",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-10",
+          "flow": "UIF-10",
+          "screen": "SCR-036",
+          "phoneTitle": "Hàng có thể xử lý",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-11",
+          "flow": "UIF-11",
+          "screen": "SCR-048",
+          "phoneTitle": "Kiểm soát nghiệp vụ kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-12",
+          "flow": "UIF-12",
+          "screen": "SCR-066",
+          "phoneTitle": "Khởi tạo tồn kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-16",
+          "flow": "UIF-16",
+          "screen": "SCR-078",
+          "phoneTitle": "Đối soát sai lệch",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-17",
+          "flow": "UIF-17",
+          "screen": "SCR-078",
+          "phoneTitle": "Nghiệp vụ cần xác minh",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-15",
+          "flow": "UIF-15",
+          "screen": "SCR-054",
+          "phoneTitle": "Tra cứu kho",
+          "backCount": 1
+        },
+        {
+          "entry": "UIF-04",
+          "flow": "UIF-04",
+          "screen": "SCR-021",
+          "phoneTitle": "Giữ hàng theo đơn",
+          "backCount": 1
+        },
+        {
+          "entry": "CAP-01",
+          "flow": "CAP-01",
+          "screen": "SCR-062",
+          "phoneTitle": "Chính sách tồn",
+          "backCount": 1
+        }
+      ]
+    },
+    {
+      "name": "integrated mode reuses BJ08 existing screen renderer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "switching back restores BJ/UIF workbench mode",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy screen navigation remains rendered",
+      "pass": true,
+      "note": 6
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "routeResults": [
+    {
+      "entry": "UIF-01",
+      "flow": "UIF-01",
+      "screen": "SCR-001",
+      "phoneTitle": "Tồn kho",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-02",
+      "flow": "UIF-02",
+      "screen": "SCR-006",
+      "phoneTitle": "Nhận hàng",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-05",
+      "flow": "UIF-05",
+      "screen": "SCR-025",
+      "phoneTitle": "Đơn cần lấy hàng",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-06",
+      "flow": "UIF-06",
+      "screen": "SCR-030",
+      "phoneTitle": "Hàng khách trả",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-07",
+      "flow": "UIF-07",
+      "screen": "SCR-036",
+      "phoneTitle": "Hàng chờ trả nhà cung cấp",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-03",
+      "flow": "UIF-03",
+      "screen": "SCR-014",
+      "phoneTitle": "Hàng chờ xác nhận giá nhập",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-13",
+      "flow": "UIF-13",
+      "screen": "SCR-085",
+      "phoneTitle": "Chi phí mua bổ sung",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-14",
+      "flow": "UIF-14",
+      "screen": "SCR-072",
+      "phoneTitle": "Giá vốn",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-08",
+      "flow": "UIF-08",
+      "screen": "SCR-042",
+      "phoneTitle": "Kiểm kê kho",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-09",
+      "flow": "UIF-09",
+      "screen": "SCR-036",
+      "phoneTitle": "Tình trạng hàng",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-10",
+      "flow": "UIF-10",
+      "screen": "SCR-036",
+      "phoneTitle": "Hàng có thể xử lý",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-11",
+      "flow": "UIF-11",
+      "screen": "SCR-048",
+      "phoneTitle": "Kiểm soát nghiệp vụ kho",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-12",
+      "flow": "UIF-12",
+      "screen": "SCR-066",
+      "phoneTitle": "Khởi tạo tồn kho",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-16",
+      "flow": "UIF-16",
+      "screen": "SCR-078",
+      "phoneTitle": "Đối soát sai lệch",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-17",
+      "flow": "UIF-17",
+      "screen": "SCR-078",
+      "phoneTitle": "Nghiệp vụ cần xác minh",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-15",
+      "flow": "UIF-15",
+      "screen": "SCR-054",
+      "phoneTitle": "Tra cứu kho",
+      "backCount": 1
+    },
+    {
+      "entry": "UIF-04",
+      "flow": "UIF-04",
+      "screen": "SCR-021",
+      "phoneTitle": "Giữ hàng theo đơn",
+      "backCount": 1
+    },
+    {
+      "entry": "CAP-01",
+      "flow": "CAP-01",
+      "screen": "SCR-062",
+      "phoneTitle": "Chính sách tồn",
+      "backCount": 1
+    }
+  ],
+  "browserErrors": []
+}

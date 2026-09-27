@@ -1,0 +1,53 @@
+{
+  "release": "2.4.1",
+  "parent": "2.4.0",
+  "scope": [
+    "BJ01 Figma DS fidelity correction"
+  ],
+  "qa": {
+    "bj01FigmaDs": "PASS 21/21",
+    "allFlowRuntime": "PASS 85/85"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "2bd4a217da65aa2706050daf8d5c69de9f15b6f03619fbaa16fad8633fc5b95f"
+    },
+    {
+      "path": "RELEASE-VALIDATION-v2.4.1.md",
+      "sha256": "9c6958d074bb027c2bfee8539899784a19d1607a113e9d82658a06c0f5b68f14"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/index.html",
+      "sha256": "dec756c6e04feaa8a8930057a7ba09510518aebcd08ba3078c937b6e95691d05"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/app.js",
+      "sha256": "7c1ab8b4cfa6b4f23f49912aca44f0ef022c0ff2f14e26798f05609207784a62"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/bj01-ds-fidelity.css",
+      "sha256": "2951f9418d01192f2c56f781328c7b0ccd280af25ffa669a3e3751ab30d95aa0"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/BJ01-FIGMA-DS-FIDELITY-QA-v2.4.1.md",
+      "sha256": "beccb3707f2d0d5db248ee4b9b25048c82f6594414133a14e67ea977c98ac491"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/BJ01-FIGMA-DS-FIDELITY-QA-v2.4.1.json",
+      "sha256": "3884f71b6a1562b91f88946f9713578c565f955633f50f026fb7626d48ef8bad"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v2.4.1.md",
+      "sha256": "fb5fb80f36f802f3b99ab4b896adae672492f17f9fa6ae5e0b51dca2c7d66758"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/BJ01-FIGMA-DS-FIDELITY-CORRECTION-v2.4.1.md",
+      "sha256": "5248841a7163ed607b8a798b6f1bc95d040a087f337a30ed6f81626e2d5161f4"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/UIF-MIGRATION-STATUS.json",
+      "sha256": "0d9afa902bcee2e2b90f2ecd5946f2ae83fadbf54f6d97b4ae5f551a63636227"
+    }
+  ]
+}

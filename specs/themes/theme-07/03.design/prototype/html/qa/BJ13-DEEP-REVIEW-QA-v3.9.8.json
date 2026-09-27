@@ -1,0 +1,448 @@
+{
+  "version": "3.9.8",
+  "scope": "Wave 3 / BJ13 Deep Review",
+  "status": "PASS",
+  "passed": 83,
+  "total": 83,
+  "checks": [
+    {
+      "name": "Decision register version is v4.2.3 late-cost amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Approved BJ13 decisions T7-DR-157..163 are registered",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Decision range is continuous through 163",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 stable economic identity is source_component_key independent of revision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 target scope is authoritative source/policy contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 allocation targets 1..N ValuationExposure",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 immutable metric uses initial/direct value or normalized quantity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 rounding residual uses stable exposure order",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 freshness rechecks complete basis and allocation hashes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 one source component has one DIRECT/LATE accounting route",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 per-allocation periods and dirty Product+posting period are explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 supports 1..N posting-period adjustment batches",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-06 input uses stable key, revision, route, scope and exposure versions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-06 blocks LATE preview until all target exposures initial-valued",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-06 derives late_cost_basis_hash and allocation_hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-04 dedups by stable economic key, not revision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-04 creates 1..N posting-period batches atomically",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-04 dirty scope is Product + posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-04 does not auto-publish Official Cost",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost entity stores stable source_component_key",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost source revision is provenance/freshness only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost uniqueness is tenant + stable source_component_key",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost stores target scope key/version/hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost stores late_cost_basis_hash and allocation_hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LateLandedCost stores 1..N adjustment_batch_ids",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ValuationExposure is explicitly defined as immutable derived target",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation stores valuation exposure key/version/hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation stores initial-valued quantity/value and RV lineage",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation stores metric snapshot and stable-order rounding",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation natural key uses stable component + exposure, not revision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation stores receipt business date, original period and posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation dirty scope is Product + posting period",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Technical matrix API-Q-12 exposes stable key/scope/exposure/metric/period preview",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Technical matrix API-C-23 writes 1..N posting-period batches",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 payload contract exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Preview payload uses initial/direct value before previous late costs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Preview timeout is safe refetch, not business UNKNOWN",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commit rejects any source/tax/FX/policy/scope/exposure/metric/period change",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commit economic uniqueness excludes source revision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "EVT-IV-05 carries stable key, hashes, batch IDs and per-allocation periods",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC13-01 active mapping is SCR-085/086",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC13-02 active mapping is SCR-087",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC13-03 active mapping is SCR-088/089",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All five BJ13 screen contracts carry Wave 3 semantic lock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-13 flow carries Wave 3 semantic lock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Screen registry maps SCR-085/086 to UC-13-01",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Screen registry maps SCR-087 to UC-13-02",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Screen registry maps SCR-088/089 to UC-13-03",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Workbench maps BJ13 screens consistently",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Action registry late-cost commit references v3.9.8 complete hash recheck",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Inner HTML loads v398 BJ13 overlay after v397",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v398 runtime overlay exposes approved semantic helpers",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Current manifest is v3.9.8 on parent v3.9.7",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Current manifest product approval targets BJ13 deep review",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime identifies v3.9.8",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.8 BJ13 helper is loaded",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Actionable late-cost row has no redundant normal-state badge",
+      "pass": true,
+      "note": "VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát"
+    },
+    {
+      "name": "Waiting for initial valuation is explicit and non-actionable",
+      "pass": true,
+      "note": "Phí kiểm định QC-2609-22 · dòng 1\nPhí kiểm định hàng mua · Trung tâm kiểm định\nĐang chờ"
+    },
+    {
+      "name": "Undefined aging text is removed from worklist",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi phí mua bổ sung\nTất cả\nCó thể xử lý\nĐang chờ\nVC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nINS-2609-17 · dòng 2\nPhí bảo hiểm hàng mua · Bảo hiểm Minh Thành\nVC-8890 · dòng 1\nChi phí vận chuyển · Logistics Đông Dương\nĐang chờ\nCK-2609-06 · dòng 1\nĐiều chỉnh chiết khấu mua · Minh Dũng\nPhí kiểm định QC-2609-22 · dòng 1\nPhí kiểm định hàng mua · Trung tâm kiểm định\nĐang chờ"
+    },
+    {
+      "name": "Source scope UI hides raw source revision",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNguồn và phạm vi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nPhạm vi liên quan\n3 dòng theo chứng từ nguồn\nNobivac DHPPi\nPN-260816-04 · SP-00142 · 50 hộp · Lô DH2507\nAmoxicillin LA\nPN-260816-04 · SP-00088 · 24 chai\nVaccine Canine X\nPN-260821-03 · SP-00421 · 40 lọ · Lô CX2608\nTiếp tục phân bổ"
+    },
+    {
+      "name": "Source scope UI hides fixture evidence filename",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNguồn và phạm vi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nPhạm vi liên quan\n3 dòng theo chứng từ nguồn\nNobivac DHPPi\nPN-260816-04 · SP-00142 · 50 hộp · Lô DH2507\nAmoxicillin LA\nPN-260816-04 · SP-00088 · 24 chai\nVaccine Canine X\nPN-260821-03 · SP-00421 · 40 lọ · Lô CX2608\nTiếp tục phân bổ"
+    },
+    {
+      "name": "Fixed authoritative scope has no user toggle controls",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Fixed scope shows source-linked business rows",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNguồn và phạm vi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nPhạm vi liên quan\n3 dòng theo chứng từ nguồn\nNobivac DHPPi\nPN-260816-04 · SP-00142 · 50 hộp · Lô DH2507\nAmoxicillin LA\nPN-260816-04 · SP-00088 · 24 chai\nVaccine Canine X\nPN-260821-03 · SP-00421 · 40 lọ · Lô CX2608\nTiếp tục phân bổ"
+    },
+    {
+      "name": "Source revision preserves economic identity",
+      "pass": true,
+      "note": "({'key': 'LCOMP-001', 'basis': 'fixture-hash-67b8ee99', 'rev': 2}, {'key': 'LCOMP-001', 'basis': 'fixture-hash-4105ef53', 'rev': 3})"
+    },
+    {
+      "name": "Source revision changes complete basis freshness hash",
+      "pass": true,
+      "note": "({'key': 'LCOMP-001', 'basis': 'fixture-hash-67b8ee99', 'rev': 2}, {'key': 'LCOMP-001', 'basis': 'fixture-hash-4105ef53', 'rev': 3})"
+    },
+    {
+      "name": "Allocation is invariant to UI/source row order",
+      "pass": true,
+      "note": "({'VE-ROL-401': 446651, 'VE-ROL-404': 314897, 'VE-ROL-512': 438452}, {'VE-ROL-401': 446651, 'VE-ROL-404': 314897, 'VE-ROL-512': 438452})"
+    },
+    {
+      "name": "Value allocation metric uses immutable initial direct value",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Dirty scopes are Product + posting period",
+      "pass": true,
+      "note": "['Nobivac DHPPi · 09/2026', 'Amoxicillin LA · 09/2026', 'Vaccine Canine X · 09/2026']"
+    },
+    {
+      "name": "Allocation helper avoids architecture narration",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nChi phí cần phân bổ\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nCăn cứ phân bổ\nChọn căn cứ phân bổ\nTheo giá trị hàng nhận\nTheo lượng nhận\nKết quả phân bổ\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nRà soát ghi chi phí"
+    },
+    {
+      "name": "Normal flow reaches final review",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review prioritizes amount, method, allocation, period and dirty scope",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát ghi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nChi phí sẽ ghi\n1.200.000 đ\nPhương pháp\nTheo giá trị hàng nhận\nPhân bổ sẽ ghi\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nSau khi ghi\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nChỉnh sửa phân bổ\nGhi chi phí mua bổ sung"
+    },
+    {
+      "name": "Changed valuation exposure invalidates review before mutation",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát ghi chi phí\nNguồn hoặc phân bổ đã thay đổi\nTạo lại phân bổ trước khi ghi chi phí.\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nTạo lại phân bổ"
+    },
+    {
+      "name": "Clean commit reaches authoritative result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commit result preserves stable source component identity",
+      "pass": true,
+      "note": "LCOMP-001"
+    },
+    {
+      "name": "Commit result persists basis and allocation hashes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commit result returns posting-period adjustment batches",
+      "pass": true,
+      "note": "[{'id': 'LC13-ADJ-001-1', 'postingPeriod': '09/2026', 'originalPeriods': ['08/2026'], 'allocationCount': 3}]"
+    },
+    {
+      "name": "Result dirty scope is Product + posting period, not UOM",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "Result does not expose raw revision/hash/operation identity",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "Result does not narrate BJ14 implementation",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "One late-cost component can resolve 1..N posting-period groups",
+      "pass": true,
+      "note": "['09/2026', '10/2026']"
+    },
+    {
+      "name": "FINANCIAL_MASKED is server-style masked surface",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nKhông có quyền xem dữ liệu tài chính\n\nKhông thể hiển thị phân bổ chi phí."
+    },
+    {
+      "name": "No page errors in BJ13 deep-review runtime",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "No console errors in BJ13 deep-review runtime",
+      "pass": true,
+      "note": "[]"
+    }
+  ],
+  "browserErrors": [],
+  "consoleErrors": [],
+  "captures": [
+    {
+      "file": "01-SCR085-WORKLIST.png",
+      "label": "BJ13 worklist — only exception state is emphasized"
+    },
+    {
+      "file": "02-SCR086-FIXED-SCOPE.png",
+      "label": "BJ13 source/policy-authoritative fixed target scope"
+    },
+    {
+      "file": "03-SCR087-ALLOCATION.png",
+      "label": "BJ13 deterministic allocation preview"
+    },
+    {
+      "file": "04-SCR088-REVIEW.png",
+      "label": "BJ13 final review — decision-relevant financial facts only"
+    },
+    {
+      "file": "05-SCR089-RESULT.png",
+      "label": "BJ13 authoritative committed result"
+    }
+  ]
+}

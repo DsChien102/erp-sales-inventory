@@ -1,0 +1,191 @@
+# Protected Flow Regression v1.4.4
+
+**Result: PASS · 181/181 checks**
+
+- Parent: v1.4.3.
+- Protected: every UIF except target UIF03, including shared-screen UIF13.
+- Exact READY rendered text + topology + horizontal safety.
+
+## Checks
+
+- PASS — UIF-01 topology identical
+- PASS — UIF-01/SCR-001 READY text identical
+- PASS — UIF-01/SCR-001 horizontal safe
+- PASS — UIF-01/SCR-003 READY text identical
+- PASS — UIF-01/SCR-003 horizontal safe
+- PASS — UIF-02 topology identical
+- PASS — UIF-02/SCR-006 READY text identical
+- PASS — UIF-02/SCR-006 horizontal safe
+- PASS — UIF-02/SCR-007 READY text identical
+- PASS — UIF-02/SCR-007 horizontal safe
+- PASS — UIF-02/SCR-008 READY text identical
+- PASS — UIF-02/SCR-008 horizontal safe
+- PASS — UIF-02/SCR-009 READY text identical
+- PASS — UIF-02/SCR-009 horizontal safe
+- PASS — UIF-02/SCR-084 READY text identical
+- PASS — UIF-02/SCR-084 horizontal safe
+- PASS — UIF-02/SCR-010 READY text identical
+- PASS — UIF-02/SCR-010 horizontal safe
+- PASS — UIF-02/SCR-011 READY text identical
+- PASS — UIF-02/SCR-011 horizontal safe
+- PASS — UIF-02/SCR-012 READY text identical
+- PASS — UIF-02/SCR-012 horizontal safe
+- PASS — UIF-02/SCR-013 READY text identical
+- PASS — UIF-02/SCR-013 horizontal safe
+- PASS — UIF-04 topology identical
+- PASS — UIF-04/SCR-021 READY text identical
+- PASS — UIF-04/SCR-021 horizontal safe
+- PASS — UIF-05 topology identical
+- PASS — UIF-05/SCR-025 READY text identical
+- PASS — UIF-05/SCR-025 horizontal safe
+- PASS — UIF-05/SCR-026 READY text identical
+- PASS — UIF-05/SCR-026 horizontal safe
+- PASS — UIF-05/SCR-027 READY text identical
+- PASS — UIF-05/SCR-027 horizontal safe
+- PASS — UIF-05/SCR-028 READY text identical
+- PASS — UIF-05/SCR-028 horizontal safe
+- PASS — UIF-05/SCR-029 READY text identical
+- PASS — UIF-05/SCR-029 horizontal safe
+- PASS — UIF-06 topology identical
+- PASS — UIF-06/SCR-030 READY text identical
+- PASS — UIF-06/SCR-030 horizontal safe
+- PASS — UIF-06/SCR-031 READY text identical
+- PASS — UIF-06/SCR-031 horizontal safe
+- PASS — UIF-06/SCR-032 READY text identical
+- PASS — UIF-06/SCR-032 horizontal safe
+- PASS — UIF-06/SCR-034 READY text identical
+- PASS — UIF-06/SCR-034 horizontal safe
+- PASS — UIF-06/SCR-033 READY text identical
+- PASS — UIF-06/SCR-033 horizontal safe
+- PASS — UIF-06/SCR-035 READY text identical
+- PASS — UIF-06/SCR-035 horizontal safe
+- PASS — UIF-07 topology identical
+- PASS — UIF-07/SCR-036 READY text identical
+- PASS — UIF-07/SCR-036 horizontal safe
+- PASS — UIF-07/SCR-037 READY text identical
+- PASS — UIF-07/SCR-037 horizontal safe
+- PASS — UIF-07/SCR-039 READY text identical
+- PASS — UIF-07/SCR-039 horizontal safe
+- PASS — UIF-07/SCR-041 READY text identical
+- PASS — UIF-07/SCR-041 horizontal safe
+- PASS — UIF-08 topology identical
+- PASS — UIF-08/SCR-042 READY text identical
+- PASS — UIF-08/SCR-042 horizontal safe
+- PASS — UIF-08/SCR-043 READY text identical
+- PASS — UIF-08/SCR-043 horizontal safe
+- PASS — UIF-08/SCR-044 READY text identical
+- PASS — UIF-08/SCR-044 horizontal safe
+- PASS — UIF-08/SCR-045 READY text identical
+- PASS — UIF-08/SCR-045 horizontal safe
+- PASS — UIF-08/SCR-046 READY text identical
+- PASS — UIF-08/SCR-046 horizontal safe
+- PASS — UIF-08/SCR-047 READY text identical
+- PASS — UIF-08/SCR-047 horizontal safe
+- PASS — UIF-09 topology identical
+- PASS — UIF-09/SCR-036 READY text identical
+- PASS — UIF-09/SCR-036 horizontal safe
+- PASS — UIF-09/SCR-037 READY text identical
+- PASS — UIF-09/SCR-037 horizontal safe
+- PASS — UIF-09/SCR-038 READY text identical
+- PASS — UIF-09/SCR-038 horizontal safe
+- PASS — UIF-09/SCR-041 READY text identical
+- PASS — UIF-09/SCR-041 horizontal safe
+- PASS — UIF-09/SCR-056 READY text identical
+- PASS — UIF-09/SCR-056 horizontal safe
+- PASS — UIF-10 topology identical
+- PASS — UIF-10/SCR-036 READY text identical
+- PASS — UIF-10/SCR-036 horizontal safe
+- PASS — UIF-10/SCR-037 READY text identical
+- PASS — UIF-10/SCR-037 horizontal safe
+- PASS — UIF-10/SCR-040 READY text identical
+- PASS — UIF-10/SCR-040 horizontal safe
+- PASS — UIF-10/SCR-041 READY text identical
+- PASS — UIF-10/SCR-041 horizontal safe
+- PASS — UIF-11 topology identical
+- PASS — UIF-11/SCR-048 READY text identical
+- PASS — UIF-11/SCR-048 horizontal safe
+- PASS — UIF-11/SCR-049 READY text identical
+- PASS — UIF-11/SCR-049 horizontal safe
+- PASS — UIF-11/SCR-052 READY text identical
+- PASS — UIF-11/SCR-052 horizontal safe
+- PASS — UIF-11/SCR-050 READY text identical
+- PASS — UIF-11/SCR-050 horizontal safe
+- PASS — UIF-11/SCR-051 READY text identical
+- PASS — UIF-11/SCR-051 horizontal safe
+- PASS — UIF-11/SCR-053 READY text identical
+- PASS — UIF-11/SCR-053 horizontal safe
+- PASS — UIF-12 topology identical
+- PASS — UIF-12/SCR-066 READY text identical
+- PASS — UIF-12/SCR-066 horizontal safe
+- PASS — UIF-12/SCR-067 READY text identical
+- PASS — UIF-12/SCR-067 horizontal safe
+- PASS — UIF-12/SCR-068 READY text identical
+- PASS — UIF-12/SCR-068 horizontal safe
+- PASS — UIF-12/SCR-069 READY text identical
+- PASS — UIF-12/SCR-069 horizontal safe
+- PASS — UIF-12/SCR-070 READY text identical
+- PASS — UIF-12/SCR-070 horizontal safe
+- PASS — UIF-12/SCR-071 READY text identical
+- PASS — UIF-12/SCR-071 horizontal safe
+- PASS — UIF-13 topology identical
+- PASS — UIF-13/SCR-014 READY text identical
+- PASS — UIF-13/SCR-014 horizontal safe
+- PASS — UIF-13/SCR-015 READY text identical
+- PASS — UIF-13/SCR-015 horizontal safe
+- PASS — UIF-13/SCR-018 READY text identical
+- PASS — UIF-13/SCR-018 horizontal safe
+- PASS — UIF-13/SCR-017 READY text identical
+- PASS — UIF-13/SCR-017 horizontal safe
+- PASS — UIF-13/SCR-019 READY text identical
+- PASS — UIF-13/SCR-019 horizontal safe
+- PASS — UIF-14 topology identical
+- PASS — UIF-14/SCR-072 READY text identical
+- PASS — UIF-14/SCR-072 horizontal safe
+- PASS — UIF-14/SCR-073 READY text identical
+- PASS — UIF-14/SCR-073 horizontal safe
+- PASS — UIF-14/SCR-074 READY text identical
+- PASS — UIF-14/SCR-074 horizontal safe
+- PASS — UIF-14/SCR-075 READY text identical
+- PASS — UIF-14/SCR-075 horizontal safe
+- PASS — UIF-14/SCR-076 READY text identical
+- PASS — UIF-14/SCR-076 horizontal safe
+- PASS — UIF-14/SCR-077 READY text identical
+- PASS — UIF-14/SCR-077 horizontal safe
+- PASS — UIF-15 topology identical
+- PASS — UIF-15/SCR-054 READY text identical
+- PASS — UIF-15/SCR-054 horizontal safe
+- PASS — UIF-15/SCR-055 READY text identical
+- PASS — UIF-15/SCR-055 horizontal safe
+- PASS — UIF-15/SCR-056 READY text identical
+- PASS — UIF-15/SCR-056 horizontal safe
+- PASS — UIF-15/SCR-057 READY text identical
+- PASS — UIF-15/SCR-057 horizontal safe
+- PASS — UIF-15/SCR-058 READY text identical
+- PASS — UIF-15/SCR-058 horizontal safe
+- PASS — UIF-15/SCR-059 READY text identical
+- PASS — UIF-15/SCR-059 horizontal safe
+- PASS — UIF-16 topology identical
+- PASS — UIF-16/SCR-078 READY text identical
+- PASS — UIF-16/SCR-078 horizontal safe
+- PASS — UIF-16/SCR-079 READY text identical
+- PASS — UIF-16/SCR-079 horizontal safe
+- PASS — UIF-16/SCR-082 READY text identical
+- PASS — UIF-16/SCR-082 horizontal safe
+- PASS — UIF-16/SCR-080 READY text identical
+- PASS — UIF-16/SCR-080 horizontal safe
+- PASS — UIF-16/SCR-081 READY text identical
+- PASS — UIF-16/SCR-081 horizontal safe
+- PASS — UIF-16/SCR-083 READY text identical
+- PASS — UIF-16/SCR-083 horizontal safe
+- PASS — UIF-17 topology identical
+- PASS — UIF-17/SCR-078 READY text identical
+- PASS — UIF-17/SCR-078 horizontal safe
+- PASS — UIF-17/SCR-079 READY text identical
+- PASS — UIF-17/SCR-079 horizontal safe
+- PASS — UIF-17/SCR-080 READY text identical
+- PASS — UIF-17/SCR-080 horizontal safe
+- PASS — UIF-17/SCR-083 READY text identical
+- PASS — UIF-17/SCR-083 horizontal safe
+- PASS — UIF-17/SCR-082 READY text identical
+- PASS — UIF-17/SCR-082 horizontal safe
+- PASS — No page JS errors

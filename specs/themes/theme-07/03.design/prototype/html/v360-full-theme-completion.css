@@ -1,0 +1,64 @@
+/* VET45 Theme 7 v3.6.0 — full-theme completion & UX polish */
+
+/* Destructive session cancellation is secondary and contextual, never a browse-list CTA. */
+.v360-session-cancel {
+  color: var(--vet45-v2-feedback-danger-text, #b42318);
+}
+
+/* Supporting capability composes only existing DS primitives. */
+.v360-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vet45-v2-space-4, 16px);
+}
+.v360-policy-context,
+.v360-policy-review,
+.v360-policy-impact { margin: 0; }
+.v360-select-field { display: flex; flex-direction: column; gap: 6px; }
+.v360-select-field > span { font-size: 14px; line-height: 20px; font-weight: 600; }
+.v360-select-field .select-shell,
+.v360-select-field select { width: 100%; }
+.v360-select-field select {
+  min-height: 48px;
+  border: 1px solid var(--vet45-v2-border-default, #e5e8eb);
+  border-radius: var(--vet45-v2-radius-3, 8px);
+  padding: 0 12px;
+  background: var(--vet45-v2-surface-default, #fff);
+  color: var(--vet45-v2-text-primary, #0e1116);
+  font: inherit;
+}
+.v360-dual-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* Informational context is visually lighter than warning/blocker/result banners. */
+.v-banner.v360-context-banner {
+  background: transparent;
+  border-color: transparent;
+  padding: 0;
+}
+.v-banner.v360-context-banner .v-banner-icon { display: none; }
+.v-banner.v360-context-banner .v-banner-copy { gap: 2px; }
+.v-banner.v360-context-banner .v-banner-copy > strong { color: var(--vet45-v2-text-primary, #0e1116); }
+.v-banner.v360-context-banner .v-banner-copy > span { color: var(--vet45-v2-text-secondary, #6b7480); }
+
+/* The list/chip fixes from v3.5.1 remain release invariants. */
+.ds24-chip-scroll,
+.io-chip-strip,
+.ac310-chip-strip {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.ds24-chip-scroll::-webkit-scrollbar,
+.io-chip-strip::-webkit-scrollbar,
+.ac310-chip-strip::-webkit-scrollbar { display: none; }
+.ds24-chip-scroll > *,
+.io-chip-strip > *,
+.ac310-chip-strip > * { flex: 0 0 auto !important; }
+
+/* Confirmation sheets own the full interaction layer. Hide the underlying sticky footer so
+   destructive session actions cannot bleed through the device safe-area below the sheet. */
+body[data-active-uif="UIF-08"] .v-page-scaffold:has(.sheet-backdrop .ds24-confirmation) > .app-actions {
+  visibility: hidden !important;
+}

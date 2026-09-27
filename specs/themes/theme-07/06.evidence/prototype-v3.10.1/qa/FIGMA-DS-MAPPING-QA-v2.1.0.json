@@ -1,0 +1,100 @@
+{
+  "result": "PASS",
+  "gates": [
+    [
+      "Mapping registry release is v2.1.0",
+      true,
+      ""
+    ],
+    [
+      "Figma DS authority locked to v2.0.2",
+      true,
+      ""
+    ],
+    [
+      "Variable manifest retains 119 live variables",
+      true,
+      ""
+    ],
+    [
+      "Component registry retains 49 sets + 15 standalone",
+      true,
+      ""
+    ],
+    [
+      "Pattern/template registry retains 22 assets",
+      true,
+      ""
+    ],
+    [
+      "No mapping node-id mismatches",
+      true,
+      ""
+    ],
+    [
+      "Workbench runtime version is v2.1.0",
+      true,
+      ""
+    ],
+    [
+      "All 497 active state renders executed",
+      true,
+      "497"
+    ],
+    [
+      "Every runtime DS/theme/internal annotation resolves",
+      true,
+      "10543 annotations / 64 unique combos"
+    ],
+    [
+      "No Product runtime/overflow regressions in mapping pass",
+      true,
+      ""
+    ],
+    [
+      "Inspect resolves footer to Figma VButton node 521:529",
+      true,
+      ""
+    ],
+    [
+      "Inspect normalizes medium legacy size to Figma Default",
+      true,
+      ""
+    ],
+    [
+      "Inspect is Figma-native and does not present Flutter as authority",
+      true,
+      ""
+    ],
+    [
+      "Permission state maps to VEmptyState node 526:4352",
+      true,
+      ""
+    ],
+    [
+      "Permission state canonical Type is No Permission",
+      true,
+      ""
+    ],
+    [
+      "Evidence timeline now targets live Figma Timeline Item",
+      true,
+      ""
+    ],
+    [
+      "Obsolete Flutter timeline gap annotation removed",
+      true,
+      ""
+    ],
+    [
+      "No browser page errors",
+      true,
+      ""
+    ]
+  ],
+  "renders": 497,
+  "annotations": 10543,
+  "uniqueCombos": 64,
+  "issues": [],
+  "pageErrors": []
+}

@@ -1,0 +1,343 @@
+{
+  "version": "3.10.0",
+  "status": "PASS",
+  "passed": 67,
+  "total": 67,
+  "checks": [
+    {
+      "name": "root package identifies v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype manifests identify v3.10.0 parent v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current registries identify v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.10.0 runtime overlay loads after v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 focused deep review passes 135/135",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 fresh-eye passes 18/18",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prior locked regression passes 29/29",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Wave 3 cross-BJ audit remains 35/35",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "frozen source comparison passes 108/108",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme end-user regression passes 19/19",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "flow logic passes 23 checks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow smoke passes 89 renders",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI passes 514 route-state renders / 89 routes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence passes 8/8",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device frame passes 7/7 over 89 screens",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "approved DR171..177 exist and are ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 uses atomic barrier before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 freezes canonical CountScopeSnapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 count identity is PhysicalCountKey in base UOM",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 blocks unresolved valuation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 count rounds are immutable",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 zero variance bypasses approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "data owns CountScopeSnapshot entity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "data owns immutable StockCountSubmission entity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountSession stores counter assignment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountLine is current projection by physical key",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase supports STOCK_COUNT_SESSION subject",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase supports immutable recount successor",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-01 barrier is before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-02 creates immutable submission and zero-variance completion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-03 binds CountAdjustmentBasis and stale basis checks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-08 preserves evidence on cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contracts expose BJ08 command APIs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract covers unresolved valuation/basis stale",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical lock covers prospective PhysicalCountKey",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 has explicit actor authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 retains four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 has explicit actor authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 retains four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 has explicit actor authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 retains four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 has explicit actor authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 retains four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 has explicit actor authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 retains four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 approval subject is stock count and contributor-excluded",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 cancel is contextual only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "cancel action belongs exactly to SCR044/SCR045",
+      "pass": true,
+      "note": "{'id': 'ACT-09-CANCEL', 'label': 'Hủy phiên kiểm kê', 'bc': 'BC-IC-08', 'api': 'API-C-27', 'permission': 'Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại', 'confirmation': 'Có', 'effect': 'Cancel exact session + release lock atomically; no adjustment; immutable count/approval evidence retained; reason required.', 'screen_ids': ['SCR-044', 'SCR-045'], 'evidence_level': 'STATIC_VALIDATED_DERIVED'}"
+    },
+    {
+      "name": "SCR042 and SCR046 do not own cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all active BJ08 screens carry v3.10.0 prototype status",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 has 16 transitions and zero variance direct result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "component usage keeps cancel contextual only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-01 carries DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-02 carries DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-03 carries DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-04 carries DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-05 carries DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IC-01 is amended",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime resets evidence on new session",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime rejects blank first/recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime requires physical state for unexpected stock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blocks unresolved valuation and missing basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blocks contributor self approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime zero result says no adjustment/unlocked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UNKNOWN preserves same identity and BJ17 handoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manifest marks BJ08 lock candidate",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 focused evidence has nine captures",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

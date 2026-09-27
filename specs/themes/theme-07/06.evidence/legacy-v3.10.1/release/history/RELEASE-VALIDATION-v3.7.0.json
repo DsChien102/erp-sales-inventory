@@ -1,0 +1,42 @@
+{
+  "version": "3.7.0",
+  "parentVersion": "3.6.4",
+  "date": "2026-09-15",
+  "status": "PASS",
+  "verdict": "FULL_THEME_7_INTEGRATED_NAVIGATION",
+  "businessJourneys": 17,
+  "supportingCapabilities": 1,
+  "canonicalRouteOccurrences": 89,
+  "activeUniqueScreens": 77,
+  "declaredRouteStateRenders": 518,
+  "integratedEntries": 18,
+  "newWorkbenchModes": 2,
+  "addedBusinessScreenClones": 0,
+  "canonicalCanvas": "402x874",
+  "qa": {
+    "integratedThemeNavigation": "16/16 PASS; 18/18 entries reachable; 0 browser errors",
+    "staticConsistency": "41/41 PASS",
+    "radioHelper": "9/9 PASS; states=518",
+    "listNavigationState": "15/15 PASS; states=518",
+    "listSurfaceRhythm": "9/9 PASS; independent collisions=0",
+    "footerAction": "11/11 PASS",
+    "semanticFlowLogic": "21/21 PASS",
+    "fullThemeCompletion": "14/14 PASS",
+    "representativeCoherence": "8/8 PASS",
+    "runtimeUi": "14/14 PASS; states=518",
+    "allFlowRuntimeSmoke": "89/89 PASS; failures=0; errors=0",
+    "deviceFrame": "7/7 PASS",
+    "currentPackageValidation": "17/17 PASS"
+  },
+  "businessSemanticsChanged": false,
+  "stateMachineChanged": false,
+  "existingBjUifModePreserved": true,
+  "sharedRendererRuntime": true,
+  "sourceBoundary": {
+    "business": "Product documents / BJ / flow / decision / contract",
+    "ui": "Figma Design System",
+    "prototype": "HTML design/verification medium",
+    "cap01ProductionIaBg006StillOpen": true
+  },
+  "evidenceBoundary": "Browser prototype only; production backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

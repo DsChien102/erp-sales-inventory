@@ -1,0 +1,21 @@
+/* VET45 Theme 7 v3.8.1 — secondary catalog + dismissible-sheet action cleanup */
+.t381-catalog-entry-section{margin-top:-2px!important;padding-top:0!important;}
+.t381-catalog-entry-row{margin:0!important;}
+.t381-catalog-entry-row .ds24-list-row__copy strong{font-weight:600!important;}
+.t381-catalog-entry-row .ds24-list-row__copy small{color:var(--vet45-v2-text-secondary,#6b7480)!important;}
+
+.t381-catalog-screen>.app-content{padding-bottom:20px!important;}
+.t381-catalog-screen .body-stack{gap:20px!important;}
+.t381-catalog-section{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;background:transparent;}
+.t381-catalog-section-title{margin:0;padding:0 2px;color:var(--vet45-v2-text-primary,#0e1116);font:600 14px/20px Inter,system-ui,sans-serif;}
+.t381-catalog-section .ds24-list-stack{gap:12px!important;}
+.t381-catalog-row{margin:0!important;}
+.t381-catalog-row .ds24-badge{max-width:118px;}
+
+/* A dismissible choice sheet does not need a footer CTA whose only job is closing. */
+.t380-manual-sheet{padding-bottom:24px!important;}
+.t380-manual-sheet .t380-sheet-heading{gap:0!important;}
+.t380-manual-sheet .ds24-list-stack{margin-bottom:0!important;}
+
+/* When a viewer sheet keeps one real business action, let it own the full action width. */
+.sheet-actions.t381-single-business-action{grid-template-columns:1fr!important;}

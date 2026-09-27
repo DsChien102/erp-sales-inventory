@@ -1,0 +1,89 @@
+{
+  "version": "3.9.8",
+  "status": "PASS",
+  "passed": 16,
+  "total": 16,
+  "checks": [
+    {
+      "name": "Worklist immediately explains what needs action",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi phí mua bổ sung\nTất cả\nCó thể xử lý\nĐang chờ\nVC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nINS-2609-17 · dòng 2\nPhí bảo hiểm hàng mua · Bảo hiểm Minh Thành\nVC-8890 · dòng 1\nChi phí vận chuyển · Logistics Đông Dương\nĐang chờ\nCK-2609-06 · dòng 1\nĐiều chỉnh chiết khấu mua · Minh Dũng\nPhí kiểm định QC-2609-22 · dòng 1\nPhí kiểm định hàng mua · Trung tâm kiểm định\nĐang chờ"
+    },
+    {
+      "name": "Normal actionable work is visually quiet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Blocked work tells user why it cannot proceed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Choosing a task opens source/scope directly",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Scope shows business evidence without technical IDs",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNguồn và phạm vi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nPhạm vi liên quan\n3 dòng theo chứng từ nguồn\nNobivac DHPPi\nPN-260816-04 · SP-00142 · 50 hộp · Lô DH2507\nAmoxicillin LA\nPN-260816-04 · SP-00088 · 24 chai\nVaccine Canine X\nPN-260821-03 · SP-00421 · 40 lọ · Lô CX2608\nTiếp tục phân bổ"
+    },
+    {
+      "name": "Fixed scope cannot be accidentally edited",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Continue opens allocation task",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Allocation preview reconciles total before review",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nChi phí cần phân bổ\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nCăn cứ phân bổ\nChọn căn cứ phân bổ\nTheo giá trị hàng nhận\nTheo lượng nhận\nKết quả phân bổ\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nRà soát ghi chi phí"
+    },
+    {
+      "name": "Period effect is stated in business language",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nChi phí cần phân bổ\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nCăn cứ phân bổ\nChọn căn cứ phân bổ\nTheo giá trị hàng nhận\nTheo lượng nhận\nKết quả phân bổ\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nRà soát ghi chi phí"
+    },
+    {
+      "name": "Final review is one explicit confirmation surface",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review emphasizes decision consequences, not architecture",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát ghi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nChi phí sẽ ghi\n1.200.000 đ\nPhương pháp\nTheo giá trị hàng nhận\nPhân bổ sẽ ghi\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nSau khi ghi\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nChỉnh sửa phân bổ\nGhi chi phí mua bổ sung"
+    },
+    {
+      "name": "Commit reaches terminal result without second modal",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Result states what was recorded and what remains",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "Result avoids raw implementation/finality identifiers",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "Result returns to worklist cleanly",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Fresh-eye walk has no browser errors",
+      "pass": true,
+      "note": "[]"
+    }
+  ],
+  "browserErrors": []
+}

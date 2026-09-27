@@ -1,0 +1,184 @@
+{
+  "passed": 21,
+  "total": 21,
+  "checks": [
+    {
+      "name": "version 3.4.0",
+      "pass": true,
+      "note": "3.4.0 <- 3.3.0 / 3.4.0"
+    },
+    {
+      "name": "v340 css loaded after v330",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v340 js loaded after v320",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "no new DS component family declared",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 variance moved into facts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 generic count badge removed from v340 group",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 one-boundary product group rule present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "chip wrap rule present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full cumulative harness 497 states render cleanly",
+      "pass": true,
+      "note": "states=497 bad=[]"
+    },
+    {
+      "name": "audit/control 269 states render cleanly",
+      "pass": true,
+      "note": "states=269 bad=[]"
+    },
+    {
+      "name": "all rendered canonical chips stay whole",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "no browser errors",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ08 count uses one boundary per product",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 count rows do not repeat Cần đếm",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 recount presents three aligned facts per product",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 recount variance is not a badge",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 approval uses grouped product review units",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 collection boundary removed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 each product group owns one boundary",
+      "pass": true,
+      "note": [
+        {
+          "b": "1px",
+          "r": "12px"
+        },
+        {
+          "b": "1px",
+          "r": "12px"
+        },
+        {
+          "b": "1px",
+          "r": "12px"
+        }
+      ]
+    },
+    {
+      "name": "BJ07 LOT children remain flat",
+      "pass": true,
+      "note": [
+        {
+          "r": "0px",
+          "b": "0px"
+        },
+        {
+          "r": "0px",
+          "b": "0px"
+        },
+        {
+          "r": "0px",
+          "b": "0px"
+        },
+        {
+          "r": "0px",
+          "b": "0px"
+        }
+      ]
+    },
+    {
+      "name": "six status chips visible without clipping",
+      "pass": true,
+      "note": [
+        {
+          "l": 553,
+          "r": 614.203125,
+          "pl": 553,
+          "pr": 923,
+          "t": "Tất cả"
+        },
+        {
+          "l": 622.203125,
+          "r": 702.3125,
+          "pl": 553,
+          "pr": 923,
+          "t": "Bán được"
+        },
+        {
+          "l": 710.3125,
+          "r": 779.71875,
+          "pl": 553,
+          "pr": 923,
+          "t": "Cách ly"
+        },
+        {
+          "l": 787.71875,
+          "r": 844.828125,
+          "pl": 553,
+          "pr": 923,
+          "t": "Hỏng"
+        },
+        {
+          "l": 553,
+          "r": 632.25,
+          "pl": 553,
+          "pr": 923,
+          "t": "Dùng thử"
+        },
+        {
+          "l": 640.25,
+          "r": 711.140625,
+          "pl": 553,
+          "pr": 923,
+          "t": "Hết hạn"
+        }
+      ]
+    }
+  ]
+}

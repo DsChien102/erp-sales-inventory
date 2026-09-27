@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "package": "vet45-theme-07-inventory-costing",
+  "version": "4.3.1",
+  "freeze_id": "T7-PACKAGE-FREEZE-v4.3.1",
+  "timestamp": "2026-08-24T09:44:09+07:00",
+  "verdict": "CONDITIONALLY_READY",
+  "highest_evidence_level": "STATIC_VALIDATED",
+  "semantic_changes": 0,
+  "metrics": {
+    "decision_groups": 14,
+    "decisions": 102,
+    "decision_requirements": 78,
+    "business_journeys": 17,
+    "canonical_use_cases": 70,
+    "outbound_use_cases": 19,
+    "screen_groups_active": 0,
+    "screens": 83,
+    "state_obligations": 479,
+    "actions": 33,
+    "ui_flows": 17,
+    "ui_flow_transitions": 201,
+    "prototype_files": 6,
+    "harness_contracts": 280,
+    "harness_tests": 607,
+    "harness_fixtures": 565,
+    "harness_coverage_rows": 607,
+    "repo_blocked_tests": 607
+  },
+  "gates": [
+    {
+      "gate_id": "V431-G01",
+      "name": "Source component integrity",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "4 component ZIP và 462 file nội bộ v4.2.0-rc1 khớp checksum.",
+      "evidence_refs": [
+        "../migration/consolidation-v4.3.0/source-component-checksums.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G02",
+      "name": "Semantic preservation",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Không thay đổi nghiệp vụ; semantic projection và visible-content digest giữ nguyên.",
+      "evidence_refs": [
+        "../migration/consolidation-v4.3.0/semantic-preservation-report.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G03",
+      "name": "Decision Register and GitLab navigation",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "102 quyết định, 78 yêu cầu; 521 link active dùng full heading permalink.",
+      "evidence_refs": [
+        "../know-how/decisions/decision-register.md",
+        "../migration/consolidation-v4.3.0/navigation-link-audit.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G04",
+      "name": "Business Journey and Use Case migration",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "17 BJ / 70 UC; outbound tạm thời được giữ và phân loại.",
+      "evidence_refs": [
+        "../srs/02-business-journeys/00-business-journey-map.md",
+        "../use-case-manifest.json",
+        "../outbound/README.md"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G05",
+      "name": "UI flow and Screen Registry",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "17 UI flow / 201 transition; 0 Screen Group active; 83 Screen / 479 State obligation / 33 Action.",
+      "evidence_refs": [
+        "../prototype/flows/README.md",
+        "../prototype/flows/ui-flow-registry.json",
+        "../prototype/contracts/screen-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G06",
+      "name": "Prototype carry-forward integrity",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "6 file prototype v4.1.0 được copy nguyên trạng; chưa nâng cấp theo UI flow v4.2.0-rc1.",
+      "evidence_refs": [
+        "../prototype/README.md",
+        "../prototype/prototype.manifest.json",
+        "../migration/consolidation-v4.3.0/carry-forward-components.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G07",
+      "name": "Harness semantic continuity and UI trace overlay",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Harness semantic catalogs giữ nguyên; overlay có 70 UC và 70 trace row.",
+      "evidence_refs": [
+        "../harness/ui-trace-overlay-v4.3.0.json",
+        "../harness/validation-report.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G08",
+      "name": "Repository execution",
+      "hard_gate": false,
+      "status": "BLOCKED",
+      "evidence_level": "GENERATED",
+      "summary": "607 test chưa có repository adapter/evidence.",
+      "evidence_refs": [
+        "../harness/test-catalog.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G09",
+      "name": "Prototype upgrade and browser runtime",
+      "hard_gate": false,
+      "status": "BLOCKED",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Prototype v4.1.0 được giữ nguyên; chưa nâng cấp theo UI flow v4.2.0-rc1 và chưa chạy browser/accessibility E2E.",
+      "evidence_refs": [
+        "../prototype/README.md"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G10",
+      "name": "Self-hosted GitLab preview",
+      "hard_gate": false,
+      "status": "BLOCKED",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Link đã kiểm tra tĩnh; cần mở đại diện 14 cụm trên GitLab self-hosted.",
+      "evidence_refs": [
+        "../migration/consolidation-v4.3.0/gitlab-heading-slug-map.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "V431-G11",
+      "name": "Cache-bust repackage equivalence",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "v4.3.1 chỉ đổi release identity/admin evidence; toàn bộ non-release artifact giữ nguyên byte so với v4.3.0.",
+      "evidence_refs": [
+        "../migration/repackage-v4.3.0-to-v4.3.1/repackage-report.json"
+      ],
+      "failures": []
+    }
+  ],
+  "blocked_checks": [
+    {
+      "gate_id": "V431-G08",
+      "owner": "Engineering Lead",
+      "unblock_action": "Cung cấp checkout nhánh srs và repository/database adapter."
+    },
+    {
+      "gate_id": "V431-G09",
+      "owner": "BA/UX Lead",
+      "unblock_action": "Duyệt UI flows/Screen Registry, nâng cấp prototype v4.1.0 rồi chạy browser/accessibility E2E."
+    },
+    {
+      "gate_id": "V431-G10",
+      "owner": "BA Lead",
+      "unblock_action": "Preview link đại diện G01…G14 trên GitLab self-hosted."
+    }
+  ]
+}

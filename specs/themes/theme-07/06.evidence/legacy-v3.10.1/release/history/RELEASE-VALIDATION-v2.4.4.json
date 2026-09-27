@@ -1,0 +1,34 @@
+{
+  "release": "2.4.4",
+  "parent": "2.4.3",
+  "status": "PASS",
+  "businessBehaviorChanged": false,
+  "scope": [
+    "BJ01 UI and Figma DS fidelity hardening",
+    "BJ08 and all other flows carried forward unchanged"
+  ],
+  "figmaEvidence": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "infoRow": "525:351",
+    "keyValueRow": "525:358",
+    "vBanner": "526:4215",
+    "vBottomSheet": "4695:6353"
+  },
+  "qa": {
+    "bj01UiDsFidelity": "PASS 32/32",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "horizontalOverflow": 0,
+    "newComponentsCreated": 0,
+    "zipIntegrity": "PASS"
+  },
+  "notableComputedResults": {
+    "keyValueRow": "338x44",
+    "supportValueAlignment": "single right edge",
+    "shortOneLineVBannerHeightPx": 78,
+    "longVBannerHeightPx": 98,
+    "vBannerWidthPx": 370,
+    "vBannerMinHeightPx": 0,
+    "defaultNumericTypeface": "JetBrains Mono"
+  }
+}

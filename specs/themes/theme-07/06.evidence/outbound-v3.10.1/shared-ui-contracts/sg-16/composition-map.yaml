@@ -1,0 +1,104 @@
+schema_version: "1.1"
+map_id: "SG-16-UI-COMPOSITION"
+status: "STATIC_VALIDATED_DERIVED"
+screen_group: "SG-16"
+name: "Kịch bản chiết khấu và bản nháp định giá"
+journeys:
+  - "T10-BJ-DISCOUNT-SCENARIO"
+  - "T2-BJ-PRICING-BASIS"
+principles:
+  - "Mỗi Screen có base tree; state chỉ ghi delta."
+  - "CTA mutation luôn có Action ID, BC chính và API chính."
+  - "Controller/trace của prototype không thuộc sản phẩm."
+  - "Mobile-first 390 px; tên Screen hiển thị trước khi chọn."
+shared_shell:
+  component_id: "layout.page-scaffold"
+  component: "VPageScaffold"
+  children:
+    - {role: "GlobalAppBar", component_id: "navigation.app-bar", component: "VAppBar"}
+    - {role: "ScreenContent", component_id: "layout.section", component: "VSection"}
+    - {role: "Feedback", component_id: "status.result-panel", component: "VResultPanel"}
+screens:
+  SCR-16-01:
+    name: "Các kịch bản chiết khấu"
+    route: "#/sg-16/scr-01"
+    archetype: "list"
+    base_tree:
+      - {role: "search", component_id: "input.search", component: "input.search"}
+      - {role: "select", component_id: "input.select", component: "input.select"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+    state_deltas:
+      READY: {message_key: "ui.sg-16.scr-16-01.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-16.scr-16-01.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-16.scr-16-01.empty", preserve_input: false}
+      FILTER_EMPTY: {message_key: "ui.sg-16.scr-16-01.filter_empty", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-16.scr-16-01.permission_denied", preserve_input: false}
+      DRAFT_SCENARIO: {message_key: "ui.sg-16.scr-16-01.draft_scenario", preserve_input: false}
+      PUBLISHED_AS_PRICING_SOURCE: {message_key: "ui.sg-16.scr-16-01.published_as_pricing_source", preserve_input: false}
+  SCR-16-02:
+    name: "Nhập giả định mua hàng"
+    route: "#/sg-16/scr-02"
+    archetype: "form"
+    base_tree:
+      - {role: "section", component_id: "layout.section", component: "layout.section"}
+      - {role: "field-group", component_id: "input.field-group", component: "input.field-group"}
+      - {role: "validation-summary", component_id: "status.validation-summary", component: "status.validation-summary"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-16-CALCULATE", bc_id: "BC-XD-01", api_id: "API-X-01"}
+    state_deltas:
+      READY: {message_key: "ui.sg-16.scr-16-02.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-16.scr-16-02.validation_error", preserve_input: true}
+      CONFLICT: {message_key: "ui.sg-16.scr-16-02.conflict", preserve_input: true}
+      LOCKED: {message_key: "ui.sg-16.scr-16-02.locked", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-16.scr-16-02.permission_denied", preserve_input: false}
+  SCR-16-03:
+    name: "Kết quả giá vốn dự kiến"
+    route: "#/sg-16/scr-03"
+    archetype: "dashboard"
+    base_tree:
+      - {role: "metric-grid", component_id: "data.metric-grid", component: "data.metric-grid"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+    state_deltas:
+      READY: {message_key: "ui.sg-16.scr-16-03.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-16.scr-16-03.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-16.scr-16-03.empty", preserve_input: false}
+      STALE: {message_key: "ui.sg-16.scr-16-03.stale", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-16.scr-16-03.permission_denied", preserve_input: false}
+      CALCULATED_NON_ACCOUNTING: {message_key: "ui.sg-16.scr-16-03.calculated_non_accounting", preserve_input: false}
+  SCR-16-04:
+    name: "Rà soát nguồn định giá"
+    route: "#/sg-16/scr-04"
+    archetype: "review"
+    base_tree:
+      - {role: "review-summary", component_id: "data.review-summary", component: "data.review-summary"}
+      - {role: "confirm-dialog", component_id: "overlay.confirm-dialog", component: "overlay.confirm-dialog"}
+      - {role: "button", component_id: "action.button", component: "action.button"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-16-PUBLISH-BASIS", bc_id: "BC-XD-02", api_id: "API-X-02"}
+    state_deltas:
+      READY: {message_key: "ui.sg-16.scr-16-04.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-16.scr-16-04.validation_error", preserve_input: true}
+      APPROVAL_REQUIRED: {message_key: "ui.sg-16.scr-16-04.approval_required", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-16.scr-16-04.permission_denied", preserve_input: false}
+      CALCULATED_NON_ACCOUNTING: {message_key: "ui.sg-16.scr-16-04.calculated_non_accounting", preserve_input: false}
+  SCR-16-05:
+    name: "Kết quả công bố nguồn"
+    route: "#/sg-16/scr-05"
+    archetype: "result"
+    base_tree:
+      - {role: "result-panel", component_id: "status.result-panel", component: "status.result-panel"}
+      - {role: "next-step", component_id: "action.next-step", component: "action.next-step"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-16-PUBLISH-BASIS", bc_id: "BC-XD-02", api_id: "API-X-02"}
+    state_deltas:
+      COMPLETED: {message_key: "ui.sg-16.scr-16-05.completed", preserve_input: false}
+      UNKNOWN: {message_key: "ui.sg-16.scr-16-05.unknown", preserve_input: true}
+      REJECTED_EXECUTION: {message_key: "ui.sg-16.scr-16-05.rejected_execution", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-16.scr-16-05.permission_denied", preserve_input: false}
+      PUBLISHED_AS_PRICING_SOURCE: {message_key: "ui.sg-16.scr-16-05.published_as_pricing_source", preserve_input: false}
+responsive_deltas:
+  desktop: {layout: "controller + 390px design viewport + trace"}
+  mobile: {breakpoint: "920px", layout: "controller → design viewport → trace", min_test_width: "360px"}
+quality_gates:
+  all_screens_declared: true
+  all_states_declared: true
+  orphan_actions_allowed: false
+  prototype_only_controls_marked: true
+  sensitive_values_in_dom_without_permission: false

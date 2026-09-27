@@ -1,0 +1,159 @@
+{
+  "version": "3.9.6",
+  "scope": "Wave 2 Cross-BJ Audit — BJ02/BJ05/BJ06/BJ07/BJ04",
+  "status": "PASS",
+  "passed": 30,
+  "total": 30,
+  "checks": [
+    {
+      "name": "BJ02 source document/version remains authoritative for receipt",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 source and allocation versions remain distinct",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 receipt authorization is bound to current return source",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 source request/line/allocation identity is stable across versions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 source line/version is stable and contextual",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Transaction UOM snapshots are explicit in BJ04 reservation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 owns LOT allocation, not BJ04",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 actual LOT is physical truth distinct from source LOT",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 handover scope uses exact Product/UOM/LOT source allocation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 classification derives a single authoritative received total",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 separates requested/current-held/consumed/shortage",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 handover quantity cannot exceed allocation/reservation semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 actual received cannot exceed current authorized return quantity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 warehouse cannot silently reduce/substitute commercial return scope",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ReservationBucket represents current hold only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 emits allocation review instead of mutating BJ05 allocation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No automatic reservation top-up occurs after capacity returns",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 quick receipt approval remains mandatory and separate from ownership/execution",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 wrong-LOT approval is line-exception scoped",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 commercial authorization is not re-approved by Theme7",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared handover evidence is source-agnostic across BJ05/BJ07",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared UNKNOWN rule preserves same operation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 UNKNOWN is recovery/reconciliation rather than blind retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 UNKNOWN retains operation identity for BJ17 recovery",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 UNKNOWN remains part of shared non-blind-retry finality contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commercial order intent is separate from reservation capacity commitment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Reservation capacity is separate from physical LOT allocation/handover",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Commercial supplier price is not a physical handover blocker",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Routine customer-return classification is inventory physical truth, not Theme5 commercial condition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Cross-Wave decisions are present through T7-DR-149",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

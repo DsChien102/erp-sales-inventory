@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "stateRenders": 497,
+  "instances": 1052,
+  "failures": [],
+  "browserErrors": [],
+  "runtimeErrors": [],
+  "sourceNode": "525:351",
+  "expected": {
+    "width": 338,
+    "height": 44,
+    "justify": "space-between",
+    "gap": 0,
+    "label": "Inter 13/20 400",
+    "value": "Inter 14/20 600 right"
+  }
+}

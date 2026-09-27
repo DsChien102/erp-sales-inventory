@@ -1,0 +1,25 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+flow: UIF-16
+bj: BJ-16
+status: PRODUCT_CORRECTED_v1.7.0
+authority: Figma Design System v2.0.2
+product_rules:
+  - evidence_first_user_readable
+  - no_raw_replay_rebuild_selector
+  - projection_recovery_only_after_ledger_proven_correct
+  - route_to_source_bj11_bj17_as_owned
+  - ledger_integrity_risk_escalates
+  - close_only_with_evidence
+screens:
+  SCR-078: [VPageScaffold, VAppBar, VSearchBar, VChip, VCard, VBadge, VText, VEmptyState, VSkeleton]
+  SCR-079: [VPageScaffold, VAppBar, VCard, VText, VBadge, VBanner, VButton]
+  SCR-080: [VPageScaffold, VAppBar, VCard, VText, VBanner, VButton]
+  SCR-081: [VPageScaffold, VAppBar, VLoading, VCard, VText, VBanner]
+  SCR-082: [VPageScaffold, VAppBar, VCard, VText, VBanner, VButton]
+  SCR-083: [VPageScaffold, VAppBar, VEmptyState, VCard, VBanner]
+actions:
+  visible: [ACT-15-RECONCILE]
+viewport: 402x874

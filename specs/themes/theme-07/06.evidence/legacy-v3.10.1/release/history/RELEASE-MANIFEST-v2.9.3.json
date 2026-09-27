@@ -1,0 +1,52 @@
+{
+  "version": "2.9.3",
+  "parent": "2.9.2",
+  "status": "DS_NATIVE_GROUPED_COLLECTION_DENSITY_CORRECTION_REVIEW_READY",
+  "scope": [
+    "BJ07 card-soup removal on SCR-037, SCR-039 and SCR-041 while preserving exact Figma component anatomy",
+    "BJ05 SCR-028 grouped handover collection correction",
+    "BJ06 SCR-035 grouped result collection correction",
+    "cross-migrated manual and automated audit of 33 canonical screens across BJ01, BJ02, BJ04, BJ05, BJ06, BJ07 and BJ08",
+    "preserve business behavior, navigation/finality and inventory commit boundaries"
+  ],
+  "productViewport": {"width": 402, "height": 874},
+  "reviewDeviceBorderBox": {"width": 418, "height": 890, "bezel": 8},
+  "businessBehaviorChanged": false,
+  "newFeatureComponentsCreated": 0,
+  "productWiring": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-06", "UIF-07", "UIF-08"],
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "componentRefs": [
+      "DS v2 / List Row 525:519",
+      "DS v2 / Info Row 525:351",
+      "DS v2 / Key-value Row 525:358",
+      "VBadge 525:309",
+      "VBanner 526:4215",
+      "VBottomSheet 4695:6353"
+    ],
+    "patternRefs": [
+      "Layout / Surface Grouping 4518:1545",
+      "VSection / Page Structure 4515:1551"
+    ],
+    "priorThemeReferences": [
+      "Theme 1 / TA-D-01 Quyền sở hữu & vòng đời 267:3444"
+    ]
+  },
+  "qa": {
+    "groupedCollectionDs": "PASS 27/27",
+    "bj05Bj06Regression": "PASS 32/32",
+    "priorBjRegression": "PASS 23/23 · 0 browser errors",
+    "migratedVisualIntegrity": "PASS 7/7 · 33 screens checked",
+    "manualVisualDsHierarchy": "PASS · focused 6 captures + 33 migrated screens reviewed",
+    "allFlowRuntime": "PASS 85/85 · 0 browser errors",
+    "deviceFrame": "PASS 7/7 · 85 screens checked · 0 browser errors",
+    "reviewWorkbenchFit": "PASS 3/3",
+    "mobilePrototypeValidator": "PASS · 0 findings",
+    "javascriptSyntax": "PASS"
+  },
+  "registryIntegrity": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  },
+  "summary": "Removes per-Product outer card soup at the composition layer while keeping canonical Figma List Row, Info Row, Key-value Row and semantic VBadge anatomy exact. One homogeneous collection owns one light grouped surface; quantity remains data, not status."
+}
