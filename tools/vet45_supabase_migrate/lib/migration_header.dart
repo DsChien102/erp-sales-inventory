@@ -1,6 +1,6 @@
 import 'sql_function_extractor.dart';
 
-const migrationKinds = {'bootstrap', 'patch', 'surgical'};
+const migrationKinds = {'bootstrap', 'patch', 'surgical', 'generated'};
 
 class MigrationHeader {
   const MigrationHeader({

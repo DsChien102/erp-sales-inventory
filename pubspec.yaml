@@ -271,13 +271,33 @@ melos:
       run: dart run tools/vet45_supabase_migrate/bin/promote_drafts.dart
       description: Promote supabase/migrations/_drafts SQL files to timestamped migrations
 
+    migrate:generate:
+      run: dart run tools/vet45_supabase_migrate/bin/generate_migration.dart
+      description: Generate a Kind generated migration from declarative SQL sources changed vs supabase/schema.lock.yaml
+
+    schema:adopt:
+      run: dart run tools/vet45_supabase_migrate/bin/adopt_schema.dart
+      description: Adopt REGISTRY functions into declarative SQL sources + schema.lock without generating a migration
+
+    schema:apply-dev:
+      run: dart run tools/vet45_supabase_migrate/bin/apply_dev.dart
+      description: Apply changed declarative SQL sources to the active allowlisted vet45 profile DB
+
     migrate:seed-registry:
       run: dart run tools/vet45_supabase_migrate/bin/seed_registry.dart
       description: Scan migrations and build supabase/migrations/REGISTRY.yaml
 
     migrate:verify-policy:
       run: dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart
-      description: Verify cohesive migration policy (Kind, Touches, REGISTRY)
+      description: Verify cohesive migration policy (Kind, Touches, REGISTRY, adopted lock guards)
+
+    schema:verify-lock:
+      run: dart run tools/vet45_supabase_migrate/bin/verify_schema_lock_sync.dart
+      description: Warn/fail when declarative SQL sources drift from schema.lock.yaml
+
+    schema:verify-drift:
+      run: dart run tools/vet45_supabase_migrate/bin/verify_schema_drift.dart
+      description: Compare declarative SQL sources with live DB (run after supabase db reset)
 
   repository:
     type: gitlab

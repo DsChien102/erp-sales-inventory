@@ -7,9 +7,18 @@ Tai lieu nay la quy chuan chung cho **migration chinh thuc** trong `supabase/mig
 | Loai | Path | Supabase CLI apply? |
 | ---- | ---- | ------------------- |
 | **Draft (agents / slice BE)** | `supabase/migrations/_drafts/<scope>_<description>.sql` | Khong |
+| **Declarative SQL (function/view/trigger/policy)** | `modules/<m>/infrastructure/supabase/sql/...` hoac `supabase/sql/<schema>/...` | Khong (tool sinh migration) |
 | **Migration chinh thuc** | `supabase/migrations/YYYYMMDDxxx_<scope>_<description>.sql` | Co |
 
-Agents: xem [AGENTS.md](../../AGENTS.md) — **Schema & migration**. Chi promote draft thanh file timestamp khi maintainer/user yeu cau; timestamp phai unique trong ca repo.
+Agents: xem [AGENTS.md](../../AGENTS.md) — **Schema & migration**. Chi promote draft / `migrate:generate` thanh file timestamp khi maintainer/user yeu cau; timestamp phai unique trong ca repo.
+
+**Object stateless (RPC / view / trigger / policy)** uu tien luong declarative — xem [14-declarative-sql-objects.md](../../docs/architecture/14-declarative-sql-objects.md):
+
+- Sua file nguon, khong copy body vao patch migration
+- Object cu: `melos run schema:adopt -- <schema.fn>` (khong sinh migration)
+- Thu nhanh: `melos run schema:apply-dev`
+- Promote: `melos run migrate:generate -- <intent>` (Kind: generated)
+- Lock: `supabase/schema.lock.yaml` — REGISTRY chi con object chua adopt
 
 ## 1) Dat ten file
 
@@ -111,7 +120,9 @@ File trong `REGISTRY.yaml → bootstrap_grandfathered` (29 migration bundled hie
   - `supabase migration list --local`
   - `melos run test`
   - `melos run migrate:verify-policy -- --strict`
+  - `melos run schema:verify-lock` (nhanh slice: warn; promote/release: fail)
   - `./scripts/ci/verify_harness.sh`
+  - (CI co DB) `./scripts/ci/verify_schema_drift.sh` sau `supabase db reset`
 
 ## 8) Checklist review migration
 

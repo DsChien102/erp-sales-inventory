@@ -148,6 +148,20 @@ class MigrationRegistry {
     schemas[schema]![functionName] = migrationFile;
   }
 
+  void removeOwner({
+    required String schema,
+    required String functionName,
+  }) {
+    final functions = schemas[schema];
+    if (functions == null) {
+      return;
+    }
+    functions.remove(functionName);
+    if (functions.isEmpty) {
+      schemas.remove(schema);
+    }
+  }
+
   String? ownerMigration({
     required String schema,
     required String functionName,

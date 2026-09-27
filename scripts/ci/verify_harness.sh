@@ -49,4 +49,7 @@ fi
 echo "==> migrate_verify_policy"
 melos run migrate:verify-policy -- --strict
 
+echo "==> guard_schema_lock_sync"
+"$root/scripts/ci/guard_schema_lock_sync.sh"
+
 echo "OK: all harness guards passed"
