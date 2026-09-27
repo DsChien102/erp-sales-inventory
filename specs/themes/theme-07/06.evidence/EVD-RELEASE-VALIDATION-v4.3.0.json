@@ -1,0 +1,106 @@
+{
+  "id": "EVD-RELEASE-VALIDATION-v4.3.0",
+  "version": "4.3.0",
+  "parent": "4.2.0",
+  "verdict": "READY_FOR_REVIEW",
+  "severity": {
+    "BLOCKER": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "gates": {
+    "cumulative_diff": {
+      "status": "PASS",
+      "added": 26,
+      "modified": 39,
+      "removed": 0,
+      "unexpected": 0
+    },
+    "business_semantic_preservation": {
+      "status": "PASS",
+      "journeys_changed": 0,
+      "use_cases_changed": 0,
+      "ui_flow_files_changed": 0
+    },
+    "figma_ds_review": {
+      "status": "PASS",
+      "file": "QVJolM5tAdFKkhP7RIwe3y",
+      "components_page": "505:5890",
+      "patterns_page": "505:5891",
+      "patterns_verified": [
+        "DS v2 / Form Sheet",
+        "DS v2 / Confirmation Sheet",
+        "DS v2 / Sticky Footer",
+        "VBanner",
+        "VTextField",
+        "VTextarea",
+        "VMoneyField",
+        "VSelect",
+        "DS v2 / List Row",
+        "DS v2 / Summary Card"
+      ]
+    },
+    "valuation_flow_e2e": {
+      "status": "PASS",
+      "checks": "29/29",
+      "browser_errors": 0
+    },
+    "valuation_visual_integrity": {
+      "status": "PASS",
+      "checks": "19/19",
+      "browser_errors": 0
+    },
+    "valuation_full_state_smoke": {
+      "status": "PASS",
+      "renders": "54/54",
+      "browser_errors": 0
+    },
+    "all_flow_runtime_smoke": {
+      "status": "PASS",
+      "renders": "86/86",
+      "browser_errors": 0
+    },
+    "canonical_links": {
+      "status": "PASS",
+      "checked": 1980,
+      "broken": 0,
+      "scope": "current/canonical; historical legacy evidence excluded"
+    },
+    "generated_trace": {
+      "status": "PASS",
+      "valuation_active_topology": {
+        "UIF-03": [
+          "SCR-014",
+          "SCR-015",
+          "SCR-017",
+          "SCR-019"
+        ],
+        "UIF-13": [
+          "SCR-085",
+          "SCR-086",
+          "SCR-088",
+          "SCR-089"
+        ],
+        "UIF-14": [
+          "SCR-072",
+          "SCR-074",
+          "SCR-077"
+        ]
+      }
+    },
+    "artifact_registry": {
+      "status": "PASS",
+      "artifact_count": 7139
+    },
+    "package_checksums": {
+      "status": "PASS_IN_TREE",
+      "entries": 7141,
+      "mismatches": 0
+    }
+  },
+  "evidence_limits": [
+    "READY_FOR_REVIEW means the package passed the stated static/runtime/visual prototype gates; it is not production RELEASE_READY or integrated Flutter/E2E evidence.",
+    "Historical evidence/outbound archives preserve their original relative links and are excluded from the canonical current-link gate rather than rewritten."
+  ]
+}

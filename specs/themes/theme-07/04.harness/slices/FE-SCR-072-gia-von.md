@@ -5,7 +5,7 @@ theme: theme-07
 title: "Công việc giá vốn"
 owner: SE
 status: READY_FOR_PROTOTYPE
-source_baseline: v3.13.0
+source_baseline: v4.3.0
 materialization: valuation-design-parity
 ---
 # FE-SCR-072 — Công việc giá vốn
@@ -19,7 +19,7 @@ Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật tron
 - Screen Contract: [`SCR-072`](../../03.design/screens/SCR-072.md)
 - Use Case: `UC-14-01`, `UC-14-04`
 - Design System: `03.design/design-system/design-system-profile.md`
-- Prototype baseline: `v3.13.0`
+- Prototype baseline: `v4.3.0`
 
 ## 3. Scope FE
 
@@ -30,10 +30,12 @@ Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật tron
 ## 4. State và composition
 
 - States: `READY`, `LOADING`, `EMPTY`, `PERMISSION_DENIED`
-- Components: `VAppBar`, `VSearchBar`, `VChip`, `DS v2 / List Row`, `VBadge`, `VSkeleton`, `VEmptyState`, `VButton`
+- Components: `VAppBar`, `VSearchBar`, `VChip`, `DS v2 / List Row` (Navigation/Status), `VBadge`, `VSkeleton`, `VEmptyState`, `VButton`
 - Mobile baseline: `402×874`, edge `16`, touch target tối thiểu `44`.
 
 ## 5. Verification
+
+- Final valuation renderer: `03.design/prototype/html/v430-valuation-uiux.js`.
 
 - Kiểm parity giữa Screen Contract → runtime HTML → Inspect metadata.
 - Kiểm empty/loading/error/permission/conflict/unknown khi Screen Contract yêu cầu.

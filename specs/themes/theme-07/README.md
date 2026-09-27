@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.2.0
-parent: v4.1.0
-source_baseline: v4.1.0
-semantic_delta: UIF_PLAIN_BA_LANGUAGE_REWRITE_NO_SEMANTIC_CHANGE
+version: v4.5.0
+parent: v4.4.0
+source_baseline: v4.4.0
+semantic_delta: SNAPSHOT_LED_VISUAL_QA_HARDENING_NO_BUSINESS_SEMANTIC_CHANGE
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,25 +78,37 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-Bản **v4.2.0** là cumulative update trực tiếp trên **v4.1.0**. Lượt này chỉ cải thiện cách viết và cách tổ chức của toàn bộ **17 UI Flow (UIF)** để người đọc có thể hiểu luồng màn hình trước, rồi mới đi xuống phần truy vết kỹ thuật khi cần.
+Bản **v4.5.0** là cumulative update trực tiếp trên **v4.4.0**. Không thay đổi quyết định nghiệp vụ, Business Journey, Use Case, UI Flow, Screen Contract, action hoặc state machine. Đây là lượt **snapshot-led visual QA** trên toàn Theme 7 sau khi phát hiện validator DOM trước đó chưa đủ để bắt lỗi chữ tràn, density sai và composition sai Design System.
 
-Các thay đổi của v4.2.0:
+Cách review được khóa lại: chụp từng màn active ở viewport `402×874`, ghép contact sheet theo 17 UIF, so với v4.4.0 và visual baseline ổn định v3.5.x khi cần, rồi chỉ sửa primitive/copy có bằng chứng visual. Không dùng CSS blanket để làm thay đổi toàn Theme.
 
-- Viết lại `UIF-01 … UIF-17` theo **Plain BA Language**: tiếng Việt nghiệp vụ, câu ngắn, nói rõ ai làm gì, điều kiện nào và đi đến đâu.
-- Mỗi UIF được tách thành hai lớp đọc: **phần luồng cho BA/Designer/FE/QA** và **phần truy vết kỹ thuật cho Dev/QA/Harness**.
-- Giảm lặp các quy tắc dùng chung; UIF chỉ giữ những tình huống ảnh hưởng trực tiếp đến cách đi qua màn hình.
-- Giữ nguyên toàn bộ **183 transition ID**, Action ID, liên kết UC/BC, điểm đầu/cuối và topology màn hình của v4.1.0.
-- Không thay đổi Business Journey, Use Case, Screen Contract hoặc HTML prototype trong lượt này.
+Các sửa chính của v4.5.0:
 
-### 6.1 Thứ tự đọc đề xuất
+- `VBanner`: dùng đúng geometry/density của Figma DS v2; copy dài được rút tại nguồn thay vì kéo cao component hoặc để chữ tràn.
+- `Info Row`: nội dung giải thích dài không còn bị ép vào primitive 44px; dùng text block phù hợp trong cùng surface.
+- `VProgress`: component chỉ sở hữu progress bar; helper text là sibling content, không nằm trong thanh 8px.
+- Giữ toàn bộ grouped-surface rule v4.4.0; không rollback các sửa BJ03/BJ13/BJ14.
+
+### 6.1 Gate của v4.5.0
+
+- Snapshot review: **82/82 active screen captures**, **17/17 UIF contact sheets**.
+- All-state visual audit: **486/486 state renders**, không banner overflow, không horizontal app overflow, không browser runtime error.
+- Full-theme runtime smoke: **86/86 PASS**.
+- Valuation E2E regression: **29/29 PASS**.
+- Valuation visual integrity: **19/19 PASS**.
+- Valuation full-state smoke: **54/54 PASS**.
+- Valuation grouped-surface regression: **8/8 PASS**.
+- Theme-wide grouped-surface regression: **486/486 PASS**.
+
+### 6.2 Thứ tự đọc đề xuất
 
 1. Đọc `BJ-*` để hiểu mục tiêu và ranh giới nghiệp vụ.
-2. Mở `UIF-*` từ liên kết trong BJ để xem người dùng đi qua các màn hình như thế nào.
-3. Đọc phần 1–6 của UIF để hiểu luồng bằng ngôn ngữ nghiệp vụ.
-4. Chỉ dùng phần **Truy vết kỹ thuật** khi cần đối chiếu Action/UC/BC hoặc kiểm thử tự động.
-5. Mở `SCR-*` khi cần chi tiết nội dung, trạng thái và hành động của một màn hình cụ thể.
+2. Mở `UIF-*` từ liên kết trong BJ để xem luồng màn hình.
+3. Mở `SCR-*` để xem nội dung, trạng thái, hành động và DS mapping của từng màn.
+4. Chạy `03.design/prototype/html/index.html` để kiểm chứng tương tác.
+5. Dùng evidence v4.5.0 tại `06.evidence/` khi review release này.
 
-### 6.2 Nguồn canonical để tiếp tục
+### 6.3 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
 - Business Journey: `02.specification/behavior/journeys/`

@@ -247,7 +247,6 @@
     "screens_current": [
       "SCR-014",
       "SCR-015",
-      "SCR-016",
       "SCR-017",
       "SCR-019"
     ],
@@ -1129,7 +1128,6 @@
     "screens_current": [
       "SCR-085",
       "SCR-086",
-      "SCR-087",
       "SCR-088",
       "SCR-089"
     ],
@@ -1137,10 +1135,8 @@
       "BE-13-01",
       "BE-13-02",
       "BE-13-03",
-      "FE-SCR-018",
       "FE-SCR-085",
       "FE-SCR-086",
-      "FE-SCR-087",
       "FE-SCR-088",
       "FE-SCR-089"
     ],
@@ -1155,19 +1151,14 @@
     ],
     "screens_current": [
       "SCR-072",
-      "SCR-073",
-      "SCR-074",
-      "SCR-076"
+      "SCR-074"
     ],
     "delivery_slices_current": [
       "BE-14-01",
       "BE-14-02",
       "BE-14-03",
       "FE-SCR-072",
-      "FE-SCR-073",
-      "FE-SCR-074",
-      "FE-SCR-075",
-      "FE-SCR-076"
+      "FE-SCR-074"
     ],
     "ui_flow": "UIF-14"
   },
@@ -1179,12 +1170,12 @@
       "BC-IV-03"
     ],
     "screens_current": [
-      "SCR-076",
+      "SCR-074",
       "SCR-077"
     ],
     "delivery_slices_current": [
       "BE-14-04",
-      "FE-SCR-076",
+      "FE-SCR-074",
       "FE-SCR-077"
     ],
     "ui_flow": "UIF-14"

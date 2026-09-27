@@ -1,0 +1,67 @@
+/* VET45 Theme 7 v4.5.0 — snapshot-led visual QA hardening
+ * Authority: Figma DS v2. This layer fixes only verified visual regressions.
+ */
+
+/* VBanner 526:4215: preserve exact DS geometry. Long guidance must be edited
+ * at source instead of stretching/clipping the component. */
+.figma-calibrated-shell .v-banner[data-ds-component="VBanner"][data-ds-prop-density="Compact"]{
+  box-sizing:border-box!important;
+  height:72px!important;
+  min-height:72px!important;
+  max-height:72px!important;
+  padding:12px 16px!important;
+  gap:12px!important;
+  overflow:hidden!important;
+}
+.figma-calibrated-shell .v-banner[data-ds-component="VBanner"][data-ds-prop-density="Default"]{
+  box-sizing:border-box!important;
+  height:96px!important;
+  min-height:96px!important;
+  max-height:96px!important;
+  padding:16px!important;
+  gap:12px!important;
+  overflow:hidden!important;
+}
+.figma-calibrated-shell .v-banner .v-banner-copy{
+  min-width:0!important;
+  max-width:286px!important;
+  gap:4px!important;
+}
+.figma-calibrated-shell .v-banner .v-banner-copy strong{
+  margin:0!important;
+  font:600 14px/20px "Inter",system-ui,sans-serif!important;
+}
+.figma-calibrated-shell .v-banner .v-banner-copy span{
+  margin:0!important;
+  font:400 13px/20px "Inter",system-ui,sans-serif!important;
+}
+
+/* Info Row is a fixed 44px primitive. Explanatory copy that needs wrapping
+ * stays in the same grouped surface but uses VText rather than forcing Info Row. */
+.v450-read-note{
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb);
+  background:transparent;
+}
+.v450-read-note:last-child{border-bottom:0;}
+.v450-read-note>span{color:var(--vet45-v2-text-secondary,#6b7480);font:400 12px/16px "Inter",system-ui,sans-serif;}
+.v450-read-note>strong{min-width:0;color:var(--vet45-v2-text-primary,#0e1116);font:500 14px/20px "Inter",system-ui,sans-serif;overflow-wrap:anywhere;}
+
+/* VProgress owns only the 8px bar. Supporting copy is a separate vertical
+ * composition, preventing text from being clipped inside the progress primitive. */
+.ac310-progress-block{
+  box-sizing:border-box;
+  width:370px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.ac310-progress-block>.ac310-progress{width:370px;height:8px;flex:0 0 8px;}
+.ac310-progress-block>strong{margin:0;color:var(--vet45-v2-text-primary,#0e1116);font:600 14px/20px "Inter",system-ui,sans-serif;}
+.ac310-progress-block>small{margin:0;color:var(--vet45-v2-text-secondary,#6b7480);font:400 13px/20px "Inter",system-ui,sans-serif;}

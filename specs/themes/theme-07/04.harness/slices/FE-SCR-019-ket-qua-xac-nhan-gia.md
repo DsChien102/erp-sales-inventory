@@ -5,7 +5,7 @@ theme: theme-07
 title: "Kết quả xác lập giá trị"
 owner: SE
 status: READY_FOR_PROTOTYPE
-source_baseline: v3.13.0
+source_baseline: v4.3.0
 materialization: valuation-design-parity
 ---
 # FE-SCR-019 — Kết quả xác lập giá trị
@@ -19,7 +19,7 @@ Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đ�
 - Screen Contract: [`SCR-019`](../../03.design/screens/SCR-019.md)
 - Use Case: `UC-03-01`
 - Design System: `03.design/design-system/design-system-profile.md`
-- Prototype baseline: `v3.13.0`
+- Prototype baseline: `v4.3.0`
 
 ## 3. Scope FE
 
@@ -30,10 +30,12 @@ Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đ�
 ## 4. State và composition
 
 - States: `PROCESSING`, `COMPLETED`, `UNKNOWN`, `REJECTED_EXECUTION`, `PERMISSION_DENIED`
-- Components: `VAppBar`, `VEmptyState`, `DS v2 / Summary Card`, `DS v2 / Key-value Row`, `VBanner`, `VButton`
+- Components: `VAppBar`, `VEmptyState`, `DS v2 / Info Row`, `DS v2 / Key-value Row`, `VBanner`, `VButton`
 - Mobile baseline: `402×874`, edge `16`, touch target tối thiểu `44`.
 
 ## 5. Verification
+
+- Final valuation renderer: `03.design/prototype/html/v430-valuation-uiux.js`.
 
 - Kiểm parity giữa Screen Contract → runtime HTML → Inspect metadata.
 - Kiểm empty/loading/error/permission/conflict/unknown khi Screen Contract yêu cầu.

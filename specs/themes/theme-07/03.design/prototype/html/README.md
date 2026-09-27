@@ -1,3 +1,41 @@
+## v4.5.0 — Snapshot-led visual QA hardening
+
+- Parent: `v4.4.0`. Không thay đổi semantic/flow/Screen Contract.
+- QA bằng screenshot thật: 82 active screens, 17 UIF contact sheets, 486 state visual/runtime audit.
+- VBanner tuân thủ đúng density Figma DS; long explanatory copy không ép vào Info Row 44px; VProgress chỉ chứa bar.
+- Historical v4.4.0 evidence được giữ nguyên; v4.5.0 có evidence riêng.
+
+## v4.4.0 — Theme-wide grouped information surface consistency
+
+- Parent: `v4.3.1`.
+- Audit scope: toàn bộ 17 UIF, mọi canonical screen/state của Theme 7.
+- Khóa rule toàn Theme: từ 2 `Info Row` / `Key-value Row` cùng một semantic block phải có **một surface chung**; row bên trong không thành card riêng.
+- Runtime normalization chỉ bổ sung surface khi block chưa có owner hợp lệ; surface đúng sẵn không bị bọc thêm.
+- Audit phát hiện và sửa thiếu surface ở BJ01 `SCR-003`, BJ02 `SCR-010`, BJ05 `SCR-028`; BJ03/BJ13/BJ14 giữ nguyên fix v4.3.1; các BJ còn lại đã compliant và không bị thay composition.
+- Independent `List Row` collections vẫn transparent theo rule đã khóa; không biến list thành một card lớn.
+- QA: `THEME-WIDE-GROUPED-SURFACE-v4.4.0` = 486/486 PASS; `ALL-FLOWS-RUNTIME-SMOKE-v4.4.0` = 86/86 PASS; valuation regression = 29/29 E2E, 19/19 visual, 54/54 full-state, 8/8 grouped-surface; browser errors = 0.
+
+## v4.3.1 — Grouped surface regression fix
+
+- Parent: `v4.3.0`.
+- Khôi phục quy tắc Theme 7: **một nhóm dữ liệu đồng nhất = một surface boundary**.
+- `Info Row` / `Key-value Row` khi ghép thành block có nền, viền và bo góc chung; không biến từng row thành card riêng.
+- Áp dụng cho toàn bộ BJ03/BJ13/BJ14, gồm căn cứ giá, kết quả phân bổ, kỳ ghi nhận, chính sách, kết quả giá vốn và vùng đối chiếu.
+- Không thay đổi BJ/UC/UIF/Screen Contract hay hành vi prototype.
+- QA mới: `VALUATION-GROUPED-SURFACE-v4.3.1`, E2E 29/29, visual 19/19, full-state 54/54, all-flow 86/86.
+
+## v4.3.0 — Valuation UI/UX + prototype hardening
+
+Parent: `v4.2.0`. Business semantics and UIF topology are unchanged. This release performs a full UI/UX + interaction review of BJ03/BJ13/BJ14 against live Figma DS v2.
+
+- Final layer: `v430-valuation-uiux.css` + `v430-valuation-uiux.js`, loaded after prior valuation layers.
+- First-paint/deep-link bug fixed: the final valuation renderers are rebound and rendered immediately, so legacy UI no longer appears before the first interaction.
+- BJ03: long direct-basis entry uses `DS v2 / Form Sheet` with independent scroll body + fixed `Sticky Footer`; money/text/textarea controls use DS-native semantics.
+- BJ13: source/target/allocation hierarchy is flattened to List Row + Key-value patterns; no redundant Summary Card.
+- BJ14: blockers use `VBanner` + List Row; result uses at most one Summary Card; publish review uses `DS v2 / Confirmation Sheet`.
+- Retired routes are compatibility-only: `016→015`, `087→086`, `073/075/076→074`; `018` hands off cross-flow to `UIF-13 / SCR-085`.
+- QA: `VALUATION-FLOW-E2E-v4.3.0` = 29/29 PASS; `VALUATION-VISUAL-INTEGRITY-v4.3.0` = 19/19 PASS; `VALUATION-FULL-STATE-SMOKE-v4.3.0` = 54/54 PASS; browser errors = 0.
+
 ## v4.1.0 — Canonical UIF + corrected valuation runtime
 
 Parent package: `v4.0.0`; runtime merge source: `v3.13.0`. This package keeps the exact corrected valuation layer and adds canonical UIF contracts/trace. No valuation screen is reverted to the v4.0.0 carry-forward topology.

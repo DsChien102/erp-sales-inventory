@@ -1,0 +1,24 @@
+{
+  "id": "EVD-VALUATION-GROUPED-SURFACE-v4.3.1",
+  "version": "4.3.1",
+  "parent": "4.3.0",
+  "status": "PASS",
+  "scope": [
+    "UIF-03",
+    "UIF-13",
+    "UIF-14"
+  ],
+  "finding": "v4.3.0 made grouped Info Row / Key-value Row containers transparent, weakening visual grouping.",
+  "root_cause": "v430 CSS flattened .v430-flat and .v430-key-stack even though Theme 7 rule requires one homogeneous collection to have one shared surface boundary.",
+  "fix": "Restore one shared surface with default background, border, radius and clipping; keep emphasis row semantic background inside the same block; restore comparison/details surface.",
+  "semantic_change": false,
+  "interaction_change": false,
+  "qa": {
+    "grouped_surface": "PASS",
+    "e2e": "PASS",
+    "visual": "PASS",
+    "full_state": "PASS",
+    "all_flow": "PASS",
+    "canonical_links": "PASS"
+  }
+}

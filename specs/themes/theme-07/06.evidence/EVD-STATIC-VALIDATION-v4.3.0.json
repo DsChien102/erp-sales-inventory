@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "canonical_links_checked": 1980,
+  "broken_canonical_links": 0,
+  "findings": [],
+  "semantic_preservation": {
+    "journeys": "UNCHANGED",
+    "use_cases": "UNCHANGED",
+    "ui_flows": "UNCHANGED"
+  },
+  "legacy_evidence_link_scope": "EXCLUDED_HISTORICAL_PRESERVED"
+}

@@ -1,0 +1,40 @@
+/* VET45 Theme 7 v4.4.0 — theme-wide grouped information surface rule
+ * Parent: v4.3.1
+ * Scope: all canonical UIF screens/states.
+ * Rule: a homogeneous collection of >=2 Info Row / Key-value Row items owns one
+ * shared surface boundary. Rows remain primitives; do not create one card per row.
+ * Existing valid surfaces are preserved and are not nested again.
+ */
+.v440-grouped-surface {
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+  min-width:0 !important;
+  padding:0 !important;
+  border:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius:var(--vet45-v2-radius-4,12px) !important;
+  background:var(--vet45-v2-surface-default,#fff) !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+.v440-grouped-surface > [data-ds-component="DS v2 / Info Row"],
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"] {
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-bottom:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-sizing:border-box !important;
+}
+.v440-grouped-surface > [data-ds-component="DS v2 / Info Row"]:last-child,
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"]:last-child {
+  border-bottom:0 !important;
+}
+.v440-grouped-surface > [data-ds-component="DS v2 / Key-value Row"][data-ds-prop-state="Emphasis"],
+.v440-grouped-surface > .ds24-key-value-row--emphasis,
+.v440-grouped-surface > .is-emphasis {
+  background:var(--vet45-v2-surface-brand,#ebf4ec) !important;
+}

@@ -1,0 +1,71 @@
+{
+  "version": "4.5.0",
+  "parent": "4.4.0",
+  "verdict": "READY_FOR_REVIEW",
+  "severity": {
+    "BLOCKER": 0,
+    "HIGH": 0
+  },
+  "gates": {
+    "snapshot_visual_qa": {
+      "status": "PASS",
+      "active_screens": "82/82",
+      "contact_sheets": "17/17",
+      "all_states": "486/486",
+      "risk_states": 13,
+      "browser_errors": 0,
+      "source": "03.design/prototype/html/qa/SNAPSHOT-LED-VISUAL-QA-v4.5.0.json"
+    },
+    "full_theme_runtime": {
+      "status": "PASS",
+      "renders": "86/86",
+      "browser_errors": 0,
+      "source": "03.design/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.5.0.json"
+    },
+    "valuation_e2e": {
+      "status": "PASS",
+      "checks": "29/29"
+    },
+    "valuation_visual": {
+      "status": "PASS",
+      "checks": "19/19"
+    },
+    "valuation_full_state": {
+      "status": "PASS",
+      "renders": "54/54"
+    },
+    "valuation_grouped_surface": {
+      "status": "PASS",
+      "checks": "8/8"
+    },
+    "theme_wide_grouped_surface": {
+      "status": "PASS",
+      "renders": "486/486"
+    },
+    "canonical_links": {
+      "status": "PASS",
+      "checked": 1980,
+      "broken": 0
+    },
+    "semantic_immutability": {
+      "status": "PASS",
+      "journey_files": 18,
+      "use_case_files": 65,
+      "ui_flow_files": 17,
+      "screen_contract_files": 89
+    },
+    "cumulative_diff": {
+      "status": "PASS",
+      "added": 162,
+      "removed": 0,
+      "modified": 22,
+      "unchanged": 7192,
+      "unexpected": 0
+    },
+    "current_package_validation": {
+      "status": "PASS",
+      "checks": "29/29"
+    }
+  },
+  "limits": "Prototype/design review evidence only; does not replace production implementation, integration or production E2E evidence."
+}

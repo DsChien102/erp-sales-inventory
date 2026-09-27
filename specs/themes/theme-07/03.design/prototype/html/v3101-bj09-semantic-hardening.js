@@ -117,7 +117,7 @@
     if(activeFlowId!=='UIF-09')return base037(state);
     if(['PERMISSION_DENIED','LOADING'].includes(state))return base037(state);
     const x=current(),expired=x.state==='EXPIRED'||state==='EXPIRED';
-    const notice=expired?vBanner('warning','Lô đã hết hạn',`Hạn dùng ${x.expiry} đã qua ngày nghiệp vụ ${BUSINESS_DATE}. Hệ thống tự loại khỏi khả dụng; không có thao tác đánh dấu hết hạn.`):state==='LOCKED'?vBanner('info','Đang thuộc phạm vi kiểm kê','Thông tin chỉ đọc cho đến khi phạm vi được mở khóa.'):'';
+    const notice=expired?vBanner('warning','Lô đã hết hạn',`Hết hạn theo ngày nghiệp vụ ${BUSINESS_DATE}; hệ thống tự loại khỏi khả dụng.`):state==='LOCKED'?vBanner('info','Đang thuộc phạm vi kiểm kê','Thông tin chỉ đọc cho đến khi phạm vi được mở khóa.'):'';
     const body=`${notice}${infoCurrent(x)}${ioSectionTitle('Tác động')}<p class="io-footnote">Đổi tình trạng chỉ phân loại lại cùng lượng hàng. Tổng tồn vật lý và giá trị ghi sổ không đổi.</p>${icSecondary('Xem lịch sử','data-ic09-action="history"')}`;
     return appShell({title:'Chi tiết tình trạng hàng',body,actions:expired||state==='LOCKED'?'':primaryFooter('Thay đổi tình trạng','data-ic09-action="change"')});
   };
@@ -127,9 +127,9 @@
     if(state==='PERMISSION_DENIED')return appShell({title:'Chuyển tình trạng hàng',body:deniedBody(),centered:true,back:false});
     if(state==='LOCKED')return appShell({title:'Chuyển tình trạng hàng',body:`${vBanner('info','Đang thuộc phạm vi kiểm kê','Không thể đổi tình trạng khi phạm vi đang khóa.')}${icHeaderRows([['Sản phẩm',x.name,true],['Lô',x.lot],['Tình trạng hiện tại',stateLabel(x.state)]])}`,back:false});
     if(state==='SELF_APPROVAL_NOT_ALLOWED')return appShell({title:'Duyệt thay đổi tình trạng',body:vBanner('warning','Không thể tự duyệt','Người lập yêu cầu không được tự duyệt yêu cầu này.'),back:false});
-    if(state==='STATE_CHANGE_BASIS_STALE'||state==='CONFLICT')return appShell({title:'Yêu cầu đã thay đổi',body:`${vBanner('warning','Cần lập lại yêu cầu','Tình trạng, số lượng hoặc quy tắc áp dụng đã thay đổi. Quyết định cũ không được dùng để cập nhật tồn.')}${basis?approvalRows(basis):infoCurrent(x)}`,actions:primaryFooter('Lập lại yêu cầu','data-v3101-action="rebuild"'),back:false});
+    if(state==='STATE_CHANGE_BASIS_STALE'||state==='CONFLICT')return appShell({title:'Yêu cầu đã thay đổi',body:`${vBanner('warning','Cần lập lại yêu cầu','Dữ liệu đã thay đổi; quyết định cũ không còn hiệu lực.')}${basis?approvalRows(basis):infoCurrent(x)}`,actions:primaryFooter('Lập lại yêu cầu','data-v3101-action="rebuild"'),back:false});
     if(state==='PENDING_APPROVAL'){
-      const b=basis;return appShell({title:'Chuyển tình trạng hàng',body:`${vBanner('info','Đã gửi chờ duyệt','Bạn đã hoàn tất phần việc của mình. Tồn kho chưa thay đổi; người duyệt nhận công việc riêng.')}${b?approvalRows(b):infoCurrent(x)}`,back:false});
+      const b=basis;return appShell({title:'Chuyển tình trạng hàng',body:`${vBanner('info','Đã gửi chờ duyệt','Tồn kho chưa thay đổi; người duyệt nhận công việc riêng.')}${b?approvalRows(b):infoCurrent(x)}`,back:false});
     }
     if(state==='APPROVAL_REVIEW'){
       if(!basis)return appShell({title:'Duyệt thay đổi tình trạng',body:vBanner('warning','Không còn căn cứ hiện hành','Mở lại công việc từ danh sách được giao để lấy đúng phiên bản yêu cầu.'),back:false});

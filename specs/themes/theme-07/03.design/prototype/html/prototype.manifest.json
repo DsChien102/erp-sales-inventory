@@ -1,6 +1,6 @@
 {
   "productKind": "mobile_app",
-  "version": "4.1.0",
+  "version": "4.5.0",
   "defaultViewport": {
     "width": 402,
     "height": 874
@@ -279,7 +279,7 @@
     "htmlPrototype": "HTML prototype is the design/verification medium implementing the product documents and Figma Design System; it does not invent business rules or UI conventions.",
     "implementation": "Production code decides technical implementation."
   },
-  "parentVersion": "4.0.0",
+  "parentVersion": "4.4.0",
   "validation": {
     "bj05DeepReview": "qa/BJ05-DEEP-REVIEW-QA-v3.9.3.json",
     "bj02DeepReview": "qa/BJ02-DEEP-REVIEW-QA-v3.9.2.json",
@@ -287,7 +287,7 @@
     "runtimeUi": "qa/RUNTIME-UI-QA-v3.10.1.json",
     "flowLogic": "qa/FLOW-LOGIC-E2E-QA-v3.10.1.json",
     "representativeCoherence": "qa/REPRESENTATIVE-COHERENCE-QA-v3.10.1.json",
-    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v3.13.0.json",
+    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.5.0.json",
     "deviceFrame": "qa/DEVICE-FRAME-QA-v3.10.1.json",
     "packageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v3.10.1.json",
     "bj04DeepReview": "qa/BJ04-DEEP-REVIEW-QA-v3.9.6.json",
@@ -299,12 +299,16 @@
     "wave3CrossBjAudit": "qa/WAVE-3-CROSS-BJ-AUDIT-v3.10.1.json",
     "frozenSource": "qa/FROZEN-SOURCE-IMMUTABILITY-QA-v3.10.1.json",
     "structuralPackage": "qa/STRUCTURAL-PACKAGE-QA-v3.10.1.json",
-    "valuationFlowE2E": "qa/VALUATION-FLOW-E2E-v3.13.0.json",
+    "valuationFlowE2E": "qa/VALUATION-FLOW-E2E-v4.5.0.json",
     "valuationVisualContactSheet": "qa/v313-valuation-captures/VALUATION-CONTACT-SHEET-v3.13.0.png",
-    "designParity": "v3.13.0 valuation design + HTML parity",
+    "designParity": "v4.5.0 snapshot-led visual QA + v4.4.0 grouped-surface + v4.3.x valuation UI/UX parity",
     "valuationAdversarial": "qa/VALUATION-ADVERSARIAL-QA-v3.13.0.json",
-    "valuationVisualIntegrity": "qa/VALUATION-VISUAL-INTEGRITY-v3.13.0.json",
-    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v3.13.0.json"
+    "valuationVisualIntegrity": "qa/VALUATION-VISUAL-INTEGRITY-v4.5.0.json",
+    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v4.5.0.json",
+    "valuationFullStateSmoke": "qa/VALUATION-FULL-STATE-SMOKE-v4.5.0.json",
+    "valuationGroupedSurface": "qa/VALUATION-GROUPED-SURFACE-v4.5.0.json",
+    "themeWideGroupedSurface": "qa/THEME-WIDE-GROUPED-SURFACE-v4.5.0.json",
+    "snapshotVisualQa": "qa/SNAPSHOT-LED-VISUAL-QA-v4.5.0.json"
   },
   "workbenchModes": [
     "BJ_UIF",
@@ -338,7 +342,7 @@
     "fullThemeEndUserHardening": "qa/FULL-THEME-END-USER-HARDENING-QA-v3.10.1.json",
     "runtimeUi": "qa/RUNTIME-UI-QA-v3.10.1.json",
     "flowLogic": "qa/FLOW-LOGIC-E2E-QA-v3.10.1.json",
-    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v3.13.0.json",
+    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.5.0.json",
     "representativeCoherence": "qa/REPRESENTATIVE-COHERENCE-QA-v3.10.1.json",
     "deviceFrame": "qa/DEVICE-FRAME-QA-v3.10.1.json",
     "bj03FreshEye": "qa/BJ03-FRESH-EYE-QA-v3.9.7.json",
@@ -346,15 +350,21 @@
     "bj08DeepReview": "qa/BJ08-DEEP-REVIEW-QA-v3.10.0.json",
     "bj08FreshEye": "qa/BJ08-FRESH-EYE-QA-v3.10.0.json",
     "structuralPackage": "qa/STRUCTURAL-PACKAGE-QA-v3.10.1.json",
-    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v3.13.0.json",
+    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v4.5.0.json",
     "bj09": "v3.10.1",
     "bj09DeepReview": "qa/BJ09-DEEP-REVIEW-QA-v3.10.1.json",
     "bj09FreshEye": "qa/BJ09-FRESH-EYE-QA-v3.10.1.json",
     "wave3CrossBjAudit": "qa/WAVE-3-CROSS-BJ-AUDIT-v3.10.1.json",
-    "designParity": "v3.13.0 valuation design + HTML parity",
-    "valuationFlowE2E": "qa/VALUATION-FLOW-E2E-v3.13.0.json",
+    "designParity": "v4.5.0 snapshot-led visual QA + v4.4.0 grouped-surface + v4.3.x valuation UI/UX parity",
+    "valuationFlowE2E": "qa/VALUATION-FLOW-E2E-v4.5.0.json",
     "valuationVisualContactSheet": "qa/v313-valuation-captures/VALUATION-CONTACT-SHEET-v3.13.0.png",
     "valuationAdversarial": "qa/VALUATION-ADVERSARIAL-QA-v3.13.0.json",
-    "valuationVisualIntegrity": "qa/VALUATION-VISUAL-INTEGRITY-v3.13.0.json"
-  }
+    "valuationVisualIntegrity": "qa/VALUATION-VISUAL-INTEGRITY-v4.5.0.json",
+    "valuationFullStateSmoke": "qa/VALUATION-FULL-STATE-SMOKE-v4.5.0.json",
+    "valuationV430Captures": "qa/v430-valuation-captures/",
+    "valuationGroupedSurface": "qa/VALUATION-GROUPED-SURFACE-v4.5.0.json",
+    "themeWideGroupedSurface": "qa/THEME-WIDE-GROUPED-SURFACE-v4.5.0.json",
+    "snapshotVisualQa": "qa/SNAPSHOT-LED-VISUAL-QA-v4.5.0.json"
+  },
+  "releaseNote": "Snapshot-led visual QA hardening across all Theme 7 active screens; no business semantic or flow change."
 }

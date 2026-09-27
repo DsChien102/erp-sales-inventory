@@ -1,11 +1,11 @@
 {
   "schema_version": "2.0",
-  "patch_version": "4.2.0",
-  "freeze_id": "T7-UIF-PLAIN-BA-v4.2.0",
-  "source_baseline": "v4.2.0",
+  "patch_version": "4.3.0",
+  "freeze_id": "T7-VALUATION-UIUX-v4.3.0",
+  "source_baseline": "v4.3.0",
   "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
-  "prototype_status": "VALUATION_DESIGN_HTML_PARITY_VALIDATED",
-  "evidence_level": "E2_CONTRACT_TRACE_VALIDATED",
+  "prototype_status": "VALUATION_UIUX_RUNTIME_HARDENED_v4.3.0",
+  "evidence_level": "E2_CONTRACT_RUNTIME_VISUAL_VALIDATED",
   "flows": [
     {
       "id": "UIF-01",
@@ -180,15 +180,15 @@
         }
       ],
       "transition_count": 8,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "retired_screen_ids": [
         "SCR-016",
         "SCR-018"
       ],
       "contextual_surfaces": [
-        "Căn cứ giá trực tiếp và chi tiết nguồn mở bằng VBottomSheet khi cần"
+        "Căn cứ giá trực tiếp của nhập nhanh mở bằng DS v2 / Form Sheet; vùng form cuộn độc lập và Sticky Footer cố định."
       ],
       "patterns_promoted": [
         "VALUATION_WORK_QUEUE",
@@ -872,9 +872,9 @@
         }
       ],
       "transition_count": 9,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "retired_screen_ids": [
         "SCR-018",
         "SCR-087"
@@ -940,9 +940,9 @@
         }
       ],
       "transition_count": 10,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "retired_screen_ids": [
         "SCR-073",
         "SCR-075",
@@ -973,6 +973,9 @@
       ],
       "entry_screen_ids": [
         "SCR-072"
+      ],
+      "contextual_surfaces": [
+        "Rà soát công bố mở bằng DS v2 / Confirmation Sheet trên SCR-074; không tạo screen công bố trung gian."
       ]
     },
     {
@@ -1166,7 +1169,13 @@
     }
   ],
   "runtime_validation": {
-    "status": "NOT_RERUN",
-    "reason": "v4.0.0 changes canonical UIF/BJ/UC trace only; HTML prototype is intentionally carry-forward. Existing runtime evidence remains historical and is not promoted to v4 parity."
+    "status": "PASS",
+    "version": "v4.3.0",
+    "all_flow_renders": "86/86",
+    "valuation_flow_e2e": "29/29",
+    "valuation_visual_integrity": "19/19",
+    "valuation_full_state_smoke": "54/54",
+    "browser_errors": 0,
+    "evidence": "03.design/prototype/html/qa/"
   }
 }

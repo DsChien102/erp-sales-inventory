@@ -1,0 +1,4325 @@
+{
+  "id": "SNAPSHOT-LED-VISUAL-QA-v4.5.0",
+  "version": "4.5.0",
+  "parent": "4.4.0",
+  "status": "PASS",
+  "activeScreenCaptures": 82,
+  "contactSheets": 17,
+  "allStateRenders": 486,
+  "allStatePassed": 486,
+  "riskStateCaptures": 13,
+  "browserErrors": [],
+  "defaultFailures": [],
+  "allStateFailures": [],
+  "captures": [
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-006",
+      "screenName": "Chọn cách nhận hàng",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-006-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-007",
+      "screenName": "Chứng từ chờ nhận",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-007-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-008",
+      "screenName": "Thông tin nhập hàng nhanh",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-008-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Xác nhận quyền sở hữu Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-009",
+      "screenName": "Hàng thực nhận",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-009-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chứng từ PN-260816-04"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nhà cung cấp Minh Dũng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho nhận Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày nhận 16/09/2026"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-084",
+      "screenName": "Chi tiết hàng thực nhận",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-084-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng kiểm nhận 0 / 120 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-010",
+      "screenName": "Rà soát và gửi xử lý",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-010-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chứng từ PN-260816-04"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nhà cung cấp Minh Dũng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho nhận Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày chứng từ 16/08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày nhận 16/09/2026"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Mặt hàng đã xử lý 2 mặt hàng"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Dòng nhận hàng 2 dòng"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-011",
+      "screenName": "Phê duyệt yêu cầu nhận hàng",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-011-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Compact",
+            "h": 72,
+            "ch": 70,
+            "sh": 70,
+            "overflow": false,
+            "text": "Lý do cần duyệt Lượng vào tồn vật lý vượt chứng từ nguồn."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chứng từ PN-260816-04"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nhà cung cấp Minh Dũng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho nhận Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày chứng từ 16/08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày nhận 16/09/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người gửi Nguyễn Văn An"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Gửi lúc 16/09/2026 · 09:41"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng giá trị rủi ro 13.165.000 đ"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-012",
+      "screenName": "Kết quả nhận hàng",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-02/SCR-012-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-02",
+      "flowName": "Nhận hàng mua",
+      "screen": "SCR-013",
+      "screenName": "Đối soát kết quả nhận hàng",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-02/SCR-013-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-01",
+      "flowName": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
+      "screen": "SCR-001",
+      "screenName": "Tồn kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-01/SCR-001-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-01",
+      "flowName": "Theo dõi tồn, khả dụng và chỉ báo vận hành",
+      "screen": "SCR-003",
+      "screenName": "Chi tiết tồn kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-01/SCR-003-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khả dụng 106 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tồn vật lý 120 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đủ điều kiện bán 118 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đã giữ 12 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Cách ly 2 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-03",
+      "flowName": "Xác lập giá trị nhập ban đầu",
+      "screen": "SCR-014",
+      "screenName": "Hàng chờ xác lập giá trị",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-03/SCR-014-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-03",
+      "flowName": "Xác lập giá trị nhập ban đầu",
+      "screen": "SCR-015",
+      "screenName": "Xác lập giá trị nhập ban đầu",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-03/SCR-015-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Căn cứ mua hàng đang mâu thuẫn Đối chiếu chứng từ mua có thẩm quyền trước khi xác lập giá trị."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-03",
+      "flowName": "Xác lập giá trị nhập ban đầu",
+      "screen": "SCR-017",
+      "screenName": "Rà soát giá trị nhập ban đầu",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-03/SCR-017-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá mua 83.000 đ/hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chiết khấu dòng − 1.000 đ/hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chiết khấu chứng từ − 500 đ/hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chi phí mua đã biết + 200 đ/hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đơn giá ghi nhận ban đầu 81.700 đ/hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị sẽ ghi 4.085.000 đ"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-03",
+      "flowName": "Xác lập giá trị nhập ban đầu",
+      "screen": "SCR-019",
+      "screenName": "Kết quả xác lập giá trị",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-03/SCR-019-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-13",
+      "flowName": "Điều chỉnh giá trị hàng nhập",
+      "screen": "SCR-085",
+      "screenName": "Điều chỉnh giá trị hàng nhập",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-13/SCR-085-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-13",
+      "flowName": "Điều chỉnh giá trị hàng nhập",
+      "screen": "SCR-086",
+      "screenName": "Nguồn, phạm vi và phân bổ",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-13/SCR-086-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị điều chỉnh + 1.200.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nobivac DHPPi · PN-260816-04 + 446.651 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Amoxicillin LA · PN-260816-04 + 314.897 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Vaccine Canine X · PN-260821-03 + 438.452 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng phân bổ + 1.200.000 đ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ gốc 08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ ghi nhận 09/2026"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-13",
+      "flowName": "Điều chỉnh giá trị hàng nhập",
+      "screen": "SCR-088",
+      "screenName": "Rà soát điều chỉnh giá trị",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-13/SCR-088-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Sau khi ghi Số lượng tồn không đổi. Các sản phẩm liên quan cần cập nhật giá vốn."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị điều chỉnh + 1.200.000 đ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phương pháp Theo giá trị hàng nhận"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ gốc 08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ ghi nhận 09/2026"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nobivac DHPPi · PN-260816-04 + 446.651 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Amoxicillin LA · PN-260816-04 + 314.897 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Vaccine Canine X · PN-260821-03 + 438.452 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng điều chỉnh + 1.200.000 đ"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-13",
+      "flowName": "Điều chỉnh giá trị hàng nhập",
+      "screen": "SCR-089",
+      "screenName": "Kết quả điều chỉnh giá trị",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-13/SCR-089-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-04",
+      "flowName": "Quản lý vòng đời giữ hàng",
+      "screen": "SCR-021",
+      "screenName": "Giữ hàng theo đơn",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-04/SCR-021-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Chưa giữ đủ 2 dòng còn thiếu. Đơn bán sẽ quyết định bước tiếp theo."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho chính"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trạng thái đơn Đã xác nhận · Có giữ hàng"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-05",
+      "flowName": "Lấy hàng và bàn giao đơn",
+      "screen": "SCR-025",
+      "screenName": "Đơn cần lấy hàng",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-05/SCR-025-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-05",
+      "flowName": "Lấy hàng và bàn giao đơn",
+      "screen": "SCR-026",
+      "screenName": "Hàng cần lấy",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-05/SCR-026-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đơn SO-260827-21"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khách hàng Đại lý An Phú"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho chính"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-05",
+      "flowName": "Lấy hàng và bàn giao đơn",
+      "screen": "SCR-027",
+      "screenName": "Chi tiết lấy hàng",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-05/SCR-027-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Còn cần lấy 20 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-05",
+      "flowName": "Lấy hàng và bàn giao đơn",
+      "screen": "SCR-028",
+      "screenName": "Rà soát bàn giao",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-05/SCR-028-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đơn SO-260827-21"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khách hàng Đại lý An Phú"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho chính"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trong lần này 1 dòng hàng"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chưa hoàn tất 2 dòng hàng"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô DH2507 4 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô DH2509 8 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-05",
+      "flowName": "Lấy hàng và bàn giao đơn",
+      "screen": "SCR-029",
+      "screenName": "Kết quả bàn giao",
+      "state": "COMPLETED",
+      "path": "v450-snapshot-review/UIF-05/SCR-029-COMPLETED.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đơn SO-260827-21"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khách hàng Đại lý An Phú"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Bàn giao lúc —"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-030",
+      "screenName": "Hàng khách trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-06/SCR-030-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-031",
+      "screenName": "Hàng khách trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-06/SCR-031-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô giao DH2507"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô giao DH2509"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô giao AM2505"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-032",
+      "screenName": "Chi tiết hàng trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-06/SCR-032-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Được phép nhận lần này 3 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tình trạng khai báo Còn nguyên bao bì"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô đã giao DH2507"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-033",
+      "screenName": "Phân loại hàng trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-06/SCR-033-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-035",
+      "screenName": "Kết quả hàng trả",
+      "state": "RECEIVED_PENDING_CLASSIFICATION",
+      "path": "v450-snapshot-review/UIF-06/SCR-035-RECEIVED_PENDING_CLASSIFICATION.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Yêu cầu trả RET-260827-03"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đơn bán SO-260812-44"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ghi nhận lúc —"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Không theo lô — hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Không theo lô — hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Không theo lô — hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Không theo lô — cuộn"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-06",
+      "flowName": "Tiếp nhận và phân loại hàng khách trả",
+      "screen": "SCR-034",
+      "screenName": "Ngoại lệ lô cần duyệt",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-06/SCR-034-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-07",
+      "flowName": "Thực hiện trả hàng cho nhà cung cấp",
+      "screen": "SCR-036",
+      "screenName": "Hàng chờ trả nhà cung cấp",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-07/SCR-036-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-07",
+      "flowName": "Thực hiện trả hàng cho nhà cung cấp",
+      "screen": "SCR-037",
+      "screenName": "Chuẩn bị hàng trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-07/SCR-037-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-07",
+      "flowName": "Thực hiện trả hàng cho nhà cung cấp",
+      "screen": "SCR-039",
+      "screenName": "Bàn giao trả nhà cung cấp",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-07/SCR-039-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Cần kiểm lại trước khi bàn giao Một số hàng chưa đủ điều kiện bàn giao. Hãy kiểm lại."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nhà cung cấp Minh Dũng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Yêu cầu trả RTV-260827-02"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chứng từ nguồn YCTN-260827-02"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho chính"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô DH2507 · HSD 30/11/2026 4 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Lô DH2511 · HSD 31/03/2027 2 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô DH2507 · HSD 30/11/2026 6 lọ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Không theo lô 5 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-07",
+      "flowName": "Thực hiện trả hàng cho nhà cung cấp",
+      "screen": "SCR-041",
+      "screenName": "Kết quả xử lý",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-07/SCR-041-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-09",
+      "flowName": "Quản lý trạng thái hàng",
+      "screen": "SCR-036",
+      "screenName": "Hàng chờ trả nhà cung cấp",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-09/SCR-036-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-09",
+      "flowName": "Quản lý trạng thái hàng",
+      "screen": "SCR-037",
+      "screenName": "Chuẩn bị hàng trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-09/SCR-037-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Amox 500"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Mã SP-00128"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô L2407-A"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Hạn dùng 30/11/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tình trạng Bán được"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tồn vật lý 18 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khả dụng bán 12 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-09",
+      "flowName": "Quản lý trạng thái hàng",
+      "screen": "SCR-038",
+      "screenName": "Chuyển trạng thái",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-09/SCR-038-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Amox 500"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô L2407-A"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Từ Bán được"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tồn vật lý 18 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-09",
+      "flowName": "Quản lý trạng thái hàng",
+      "screen": "SCR-041",
+      "screenName": "Kết quả xử lý",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-09/SCR-041-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đang kiểm tra và ghi nhận Hệ thống đang kiểm tra lại đúng căn cứ đã gửi trước khi cập nhật tồn."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-09",
+      "flowName": "Quản lý trạng thái hàng",
+      "screen": "SCR-056",
+      "screenName": "Chi tiết movement",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-09/SCR-056-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-10",
+      "flowName": "Tiêu hủy hàng",
+      "screen": "SCR-036",
+      "screenName": "Hàng chờ trả nhà cung cấp",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-10/SCR-036-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Chỉ hiển thị hàng đủ điều kiện Hàng đang bán được cần đổi tình trạng trước khi có thể lập yêu cầu tiêu hủy."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-10",
+      "flowName": "Tiêu hủy hàng",
+      "screen": "SCR-037",
+      "screenName": "Chuẩn bị hàng trả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-10/SCR-037-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Amox 500"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Mã SP-00128"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô L2407-A"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tình trạng Cách ly"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tồn vật lý 6 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Quyền sở hữu Hàng của tổ chức"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-10",
+      "flowName": "Tiêu hủy hàng",
+      "screen": "SCR-040",
+      "screenName": "Yêu cầu tiêu hủy",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-10/SCR-040-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Amox 500"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô L2407-A"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tình trạng Cách ly"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Có thể xử lý 6 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Căn cứ giá Giá vốn hiện hành"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-10",
+      "flowName": "Tiêu hủy hàng",
+      "screen": "SCR-041",
+      "screenName": "Kết quả xử lý",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-10/SCR-041-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-042",
+      "screenName": "Kiểm kê kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-08/SCR-042-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-043",
+      "screenName": "Tạo phiên kiểm kê",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-08/SCR-043-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Phạm vi được khóa khi mở phiên Hệ thống chốt số sổ và thành viên nhóm tại thời điểm khóa phạm vi."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Thời điểm chốt Khi mở phiên"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người đếm Nguyễn An"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-044",
+      "screenName": "Đếm mù",
+      "state": "BLIND_COUNT",
+      "path": "v450-snapshot-review/UIF-08/SCR-044-BLIND_COUNT.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đếm mù Số lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phiên KK-1709-01"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người đếm Nguyễn An"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-045",
+      "screenName": "Chênh lệch và đếm lại",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-08/SCR-045-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đếm lại lần 1 2 dòng còn chênh lệch. Kết quả vòng trước được giữ nguyên trong lịch sử."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 40,
+            "sh": 40,
+            "overflow": false,
+            "text": "Theo sổ 20 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 39,
+            "sh": 39,
+            "overflow": false,
+            "text": "Lần đếm đầu 0 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 39,
+            "sh": 39,
+            "overflow": false,
+            "text": "Chênh lệch -20 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 40,
+            "sh": 40,
+            "overflow": false,
+            "text": "Theo sổ 6 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 39,
+            "sh": 39,
+            "overflow": false,
+            "text": "Lần đếm đầu 0 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 368,
+            "h": 40,
+            "cw": 368,
+            "sw": 368,
+            "ch": 39,
+            "sh": 39,
+            "overflow": false,
+            "text": "Chênh lệch -6 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Căn cứ giá hàng thừa Đã xác nhận"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khóa phạm vi Đang giữ"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-046",
+      "screenName": "Duyệt điều chỉnh",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-08/SCR-046-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Cần quyết định độc lập Bạn chỉ rà soát kết quả và quyết định; không sửa số đếm."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phiên KK-1709-01"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lần đếm lại 1"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người đã tham gia đếm Nguyễn An"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Mức duyệt Đã xác định theo rủi ro hiện hành"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trạng thái Bán được"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Theo sổ 20 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đếm lại 18 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chênh lệch -2 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Căn cứ giá thiếu Giá vốn đã khóa"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trạng thái Cách ly"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Theo sổ 6 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đếm lại 7 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chênh lệch +1 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Căn cứ giá hàng thừa Đã xác nhận"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-08",
+      "flowName": "Kiểm kê và điều chỉnh chênh lệch",
+      "screen": "SCR-047",
+      "screenName": "Kết quả kiểm kê",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-08/SCR-047-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phiên KK-1709-01"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Điều chỉnh ADJ-1709-08"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đã điều chỉnh 2 dòng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Khóa phạm vi Đã mở"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ghi nhận lúc 17/09/2026 09:52"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-048",
+      "screenName": "Nghiệp vụ cần kiểm soát",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-11/SCR-048-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-049",
+      "screenName": "Chi tiết nghiệp vụ kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-11/SCR-049-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Hàng Nobivac DHPPi · Lô DH2507"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số lượng 120 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tác động Đã tăng tồn 120 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-052",
+      "screenName": "Hủy hoặc chọn cách sửa",
+      "state": "CANCEL_UNEXECUTED",
+      "path": "v450-snapshot-review/UIF-11/SCR-052-CANCEL_UNEXECUTED.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 94,
+            "overflow": false,
+            "text": "Hủy trước khi thực thi Tồn kho và giá trị không thay đổi."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ IO-260901-014"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Loại Nhận hàng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Chứng từ nguồn PN-260901-07"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-050",
+      "screenName": "Nội dung sửa sai",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-11/SCR-050-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ gốc IO-260901-014"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số đã ghi nhận 120 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Cách sửa Sửa phần sai"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Điều chỉnh -2 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-053",
+      "screenName": "Kết quả sửa sai",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-11/SCR-053-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đang ghi nhận sửa sai Hệ thống đang kiểm lại điều kiện và ghi nhận phần sửa sai theo quyết định đã duyệt."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-11",
+      "flowName": "Hủy và sửa sai nghiệp vụ kho",
+      "screen": "SCR-051",
+      "screenName": "Duyệt sửa sai",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-11/SCR-051-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Công việc phê duyệt độc lập Quyết định chỉ duyệt phương án; hệ thống tự ghi nhận sửa sai sau khi kiểm tra lại điều kiện."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ gốc IO-260901-014"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người lập Nguyễn An"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lý do Ghi nhận thừa 2 hộp khi nhận hàng"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trước 120 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Sau 118 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Điều chỉnh -2 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-066",
+      "screenName": "Khởi tạo tồn kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-12/SCR-066-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trạng thái Chưa thiết lập"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nguyên tắc Chỉ có một số dư đầu kỳ chính thức"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-067",
+      "screenName": "Dữ liệu tồn kho đầu kỳ",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-12/SCR-067-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-068",
+      "screenName": "Kết quả kiểm tra dữ liệu",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-12/SCR-068-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Dữ liệu đã qua kiểm tra Tệp chi tiết khớp số kiểm soát và không còn lỗi bắt buộc."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số âm Không có"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Dòng trùng Không có"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô / hạn dùng Hợp lệ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số kiểm soát Đã khớp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-069",
+      "screenName": "Rà soát số dư đầu kỳ",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-12/SCR-069-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày chốt 31/08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Dòng dữ liệu 82"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm 36"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng số lượng 4.820"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng giá trị 386.240.000 ₫"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Bán được 74 dòng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Không bán được 8 dòng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lô / hạn dùng Giữ theo cấu hình sản phẩm"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-070",
+      "screenName": "Duyệt số dư đầu kỳ",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-12/SCR-070-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Kiểm tra trước khi duyệt Đối chiếu ngày chốt, số kiểm soát và phạm vi trước khi quyết định."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người lập Nguyễn An"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày gửi 07/09/2026 · 10:32"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày chốt 31/08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Dòng dữ liệu 82"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm 36"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng số lượng 4.820"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tổng giá trị 386.240.000 ₫"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-12",
+      "flowName": "Khởi tạo số dư tồn kho đầu kỳ",
+      "screen": "SCR-071",
+      "screenName": "Kết quả khởi tạo tồn kho",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-12/SCR-071-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đang ghi nhận và đối soát Hệ thống đang xử lý số dư được duyệt. Không cần thực hiện thêm thao tác."
+          }
+        ],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-14",
+      "flowName": "Tính và công bố giá vốn",
+      "screen": "SCR-072",
+      "screenName": "Công việc giá vốn",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-14/SCR-072-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-14",
+      "flowName": "Tính và công bố giá vốn",
+      "screen": "SCR-074",
+      "screenName": "Tính và rà soát giá vốn",
+      "state": "CALCULATING",
+      "path": "v450-snapshot-review/UIF-14/SCR-074-CALCULATING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phương pháp Bình quân cuối kỳ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Cấp cấu hình Tổ chức"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Áp dụng Tự động"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị tồn cuối 1.245.920.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá vốn xuất 486.300.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Điều chỉnh giá vốn xuất − 1.820.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Điều chỉnh giá trị tồn + 3.120.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": ""
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-14",
+      "flowName": "Tính và công bố giá vốn",
+      "screen": "SCR-077",
+      "screenName": "Kết quả công bố giá vốn",
+      "state": "COMPLETED",
+      "path": "v450-snapshot-review/UIF-14/SCR-077-COMPLETED.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ ghi nhận 08/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phương pháp Bình quân cuối kỳ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm đã đối soát 184"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Hiệu lực Khi công bố"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá vốn xuất − 1.820.000 đ"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị tồn cuối + 3.120.000 đ"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-054",
+      "screenName": "Tra cứu thẻ kho",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-15/SCR-054-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-055",
+      "screenName": "Danh sách biến động",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-15/SCR-055-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-056",
+      "screenName": "Chi tiết movement",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-15/SCR-056-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày nghiệp vụ 07/09/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Ngày ghi nhận 07/09/2026 · 09:16"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người thực hiện Nguyễn An"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Trước 98 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Biến động +20 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Sau 118 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Lô N2408-02"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Tình trạng Bán được"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tác động 1.700.000 ₫"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-057",
+      "screenName": "Dòng thời gian nguồn",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-15/SCR-057-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nguồn Phiếu nhận PN-260907-04"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Nobivac DHPPi"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số lượng +20 hộp"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-058",
+      "screenName": "Xuất báo cáo",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-15/SCR-058-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nội dung Báo cáo tồn kho"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kho Kho trung tâm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sản phẩm Tất cả sản phẩm"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kỳ 01/09/2026 → 07/09/2026"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Cách hiểu thời gian Ngày nghiệp vụ"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số dòng trong phạm vi 3"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Giá trị tài chính Có"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tệp CSV"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Quyền dữ liệu Giữ đúng như màn đang xem"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-15",
+      "flowName": "Tra cứu báo cáo tồn và thẻ kho",
+      "screen": "SCR-059",
+      "screenName": "Kết quả xuất báo cáo",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-15/SCR-059-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-078",
+      "screenName": "Hồ sơ cần kiểm tra",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-16/SCR-078-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-079",
+      "screenName": "Bằng chứng & kết luận",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-16/SCR-079-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 94,
+            "overflow": false,
+            "text": "Sổ kho đúng, số liệu hiển thị sai Chỉ số liệu hiển thị cần được khôi phục."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người xử lý Kiểm soát kho"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Bảo vệ phạm vi Đang áp dụng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nguồn nghiệp vụ 118 hộp · đã xác nhận"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sổ kho 118 hộp · khớp nguồn"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số liệu hiển thị 116 hộp · lệch −2"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-080",
+      "screenName": "Phương án xử lý",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-16/SCR-080-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Khôi phục số liệu hiển thị Sổ kho đã đúng; chỉ khôi phục dữ liệu hiển thị trong phạm vi này."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Hồ sơ REC-260907-03"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Hàng Nobivac DHPPi · Lô DH2507"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Bảo vệ phạm vi Đang áp dụng"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sổ kho Không thay đổi"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ nguồn Không thay đổi"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số liệu hiển thị Khôi phục theo sổ kho"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-081",
+      "screenName": "Đang khôi phục số liệu",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-16/SCR-081-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đã khôi phục số liệu hiển thị Kết quả sẵn sàng để rà soát trước khi đóng hồ sơ."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Mã REC-260907-03"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phạm vi Nobivac DHPPi · Lô DH2507"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sổ kho Không thay đổi"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Số liệu hiển thị Đã cập nhật"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-082",
+      "screenName": "Rà soát kết quả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-16/SCR-082-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 94,
+            "overflow": false,
+            "text": "Số liệu đã khớp Số liệu hiển thị hiện khớp với sổ kho."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Sổ kho 118 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Số liệu hiển thị 118 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Chênh lệch 0 hộp"
+          },
+          {
+            "component": "DS v2 / Key-value Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 43,
+            "sh": 43,
+            "overflow": false,
+            "text": "Phạm vi Sẵn sàng mở khóa"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-16",
+      "flowName": "Điều tra và đối soát sai lệch",
+      "screen": "SCR-083",
+      "screenName": "Kết quả xử lý",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-16/SCR-083-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-17",
+      "flowName": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screen": "SCR-078",
+      "screenName": "Hồ sơ cần kiểm tra",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-17/SCR-078-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-17",
+      "flowName": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screen": "SCR-079",
+      "screenName": "Bằng chứng & kết luận",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-17/SCR-079-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Đã tìm thấy tác động của nghiệp vụ Bước tiếp theo chỉ xác lập kết quả; không ghi lại tác động lần hai."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Người xử lý Kiểm soát kho"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Định danh nghiệp vụ Giữ nguyên"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Yêu cầu Đã được tiếp nhận"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tác động tồn kho Đã tìm thấy đúng phạm vi"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ nguồn Vẫn đang chờ kết quả"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-17",
+      "flowName": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screen": "SCR-080",
+      "screenName": "Phương án xử lý",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-17/SCR-080-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Xác lập đã hoàn tất Dùng tác động đã tồn tại để xác lập kết quả; không ghi lại biến động lần hai."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ IO-260906-031"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Phạm vi Vitamin C · Lô L2310-C · 5 hộp"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lần xử lý Giữ nguyên"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tạo nghiệp vụ mới Không"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tự hoàn nguyên Không"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Đổi nội dung đã xác nhận Không"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-17",
+      "flowName": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screen": "SCR-082",
+      "screenName": "Rà soát kết quả",
+      "state": "READY",
+      "path": "v450-snapshot-review/UIF-17/SCR-082-READY.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [
+          {
+            "density": "Default",
+            "h": 96,
+            "ch": 94,
+            "sh": 96,
+            "overflow": false,
+            "text": "Kết quả đã được xác lập Hệ thống giữ đúng nghiệp vụ ban đầu và không tạo tác động trùng."
+          }
+        ],
+        "rows": [
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Nghiệp vụ IO-260906-031"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Kết quả Đã hoàn tất"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Tác động tồn kho Giữ tác động đã có"
+          },
+          {
+            "component": "DS v2 / Info Row",
+            "w": 338,
+            "h": 44,
+            "cw": 338,
+            "sw": 338,
+            "ch": 44,
+            "sh": 44,
+            "overflow": false,
+            "text": "Lần xử lý Không thay đổi"
+          }
+        ],
+        "progress": [],
+        "blank": false
+      }
+    },
+    {
+      "flow": "UIF-17",
+      "flowName": "Phục hồi nghiệp vụ có kết quả chưa xác định",
+      "screen": "SCR-083",
+      "screenName": "Kết quả xử lý",
+      "state": "PROCESSING",
+      "path": "v450-snapshot-review/UIF-17/SCR-083-PROCESSING.png",
+      "audit": {
+        "hOverflow": 0,
+        "banners": [],
+        "rows": [],
+        "progress": [],
+        "blank": false
+      }
+    }
+  ],
+  "riskCaptures": [
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-008",
+      "state": "READY",
+      "path": "v450-risk-state-captures/UIF-02-SCR-008-READY.png"
+    },
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-008",
+      "state": "VALIDATION_ERROR",
+      "path": "v450-risk-state-captures/UIF-02-SCR-008-VALIDATION_ERROR.png"
+    },
+    {
+      "flow": "UIF-03",
+      "screen": "SCR-019",
+      "state": "COMPLETED",
+      "path": "v450-risk-state-captures/UIF-03-SCR-019-COMPLETED.png"
+    },
+    {
+      "flow": "UIF-13",
+      "screen": "SCR-088",
+      "state": "READY",
+      "path": "v450-risk-state-captures/UIF-13-SCR-088-READY.png"
+    },
+    {
+      "flow": "UIF-04",
+      "screen": "SCR-021",
+      "state": "READY",
+      "path": "v450-risk-state-captures/UIF-04-SCR-021-READY.png"
+    },
+    {
+      "flow": "UIF-06",
+      "screen": "SCR-031",
+      "state": "RETURN_CAP_CHANGED",
+      "path": "v450-risk-state-captures/UIF-06-SCR-031-RETURN_CAP_CHANGED.png"
+    },
+    {
+      "flow": "UIF-07",
+      "screen": "SCR-039",
+      "state": "READY",
+      "path": "v450-risk-state-captures/UIF-07-SCR-039-READY.png"
+    },
+    {
+      "flow": "UIF-07",
+      "screen": "SCR-039",
+      "state": "SOURCE_CHANGED",
+      "path": "v450-risk-state-captures/UIF-07-SCR-039-SOURCE_CHANGED.png"
+    },
+    {
+      "flow": "UIF-09",
+      "screen": "SCR-037",
+      "state": "EXPIRED",
+      "path": "v450-risk-state-captures/UIF-09-SCR-037-EXPIRED.png"
+    },
+    {
+      "flow": "UIF-11",
+      "screen": "SCR-049",
+      "state": "BLOCKED_PHYSICAL_HANDOVER",
+      "path": "v450-risk-state-captures/UIF-11-SCR-049-BLOCKED_PHYSICAL_HANDOVER.png"
+    },
+    {
+      "flow": "UIF-14",
+      "screen": "SCR-074",
+      "state": "CALCULATING",
+      "path": "v450-risk-state-captures/UIF-14-SCR-074-CALCULATING.png"
+    },
+    {
+      "flow": "UIF-16",
+      "screen": "SCR-081",
+      "state": "REBUILDING",
+      "path": "v450-risk-state-captures/UIF-16-SCR-081-REBUILDING.png"
+    },
+    {
+      "flow": "UIF-13",
+      "screen": "SCR-086",
+      "state": "READY",
+      "path": "v450-risk-state-captures/UIF-13-SCR-086-READY.png"
+    }
+  ]
+}

@@ -1,16 +1,16 @@
 theme: theme-07
-version: 4.2.0
-parent_version: 4.1.0
+version: 4.5.0
+parent_version: 4.4.0
 structure_baseline: V45-Theme-skeleton
-semantic_delta: UIF_PLAIN_BA_LANGUAGE_REWRITE_NO_SEMANTIC_CHANGE
+semantic_delta: SNAPSHOT_LED_VISUAL_QA_HARDENING_NO_BUSINESS_SEMANTIC_CHANGE
 template_alignment: true
-source_baseline: v4.1.0
+source_baseline: v4.4.0
 merge_source: v3.13.0
 merge_source_parent: v3.12.0
 canonical_business_journeys: 17
 canonical_use_cases: 64
 canonical_ui_flows: 17
-prototype_parity: VALUATION_DESIGN_HTML_PARITY_VALIDATED
+prototype_parity: SNAPSHOT_LED_VISUAL_QA_VALIDATED
 
 slices:
   - id: SA-AGG-IO-01

@@ -1719,7 +1719,7 @@ function bj01Empty(filtered=true) {
 function render001BJ01(state) {
   if(state==="PERMISSION_DENIED") return appShell({title:"Tồn kho",body:deniedBody(),centered:true,back:false});
   if(state==="LOADING") return appShell({title:"Tồn kho",body:bj01Context()+loadingBody(),back:false});
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ","Làm mới trước khi dùng số lượng này để ra quyết định.")}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
+  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ","Hãy làm mới trước khi sử dụng.")}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
   const visible=state==="EMPTY"||state==="FILTER_EMPTY"?[]:bj01Products.filter((p)=>bj01MatchesFilter(p)&&bj01MatchesSearch(p));
   const empty=state==="EMPTY"?bj01Empty(false):(!visible.length?bj01Empty(true):"");
   const rows=visible.map((p)=>ds24ListRow({title:`${p.name} · ${p.code}`,subtitle:bj01RowSubtitle(p),attrs:`data-bj01-product="${p.id}" data-bj01-search-text="${escapeAttribute(bj01SearchText(p))}"`,})).join('');
@@ -1762,7 +1762,7 @@ function render003BJ01(state) {
   if(state==="PERMISSION_DENIED") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:deniedBody(),centered:true,back:true,backAction:entryBack});
   if(state==="LOADING") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:loadingBody(),back:true,backAction:entryBack});
   const p=bj01ProductById(bj01SelectedProductId);
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ",`Dữ liệu hiện tại đến ${esc(bj01AsOf())}. Làm mới trước khi dùng số lượng này để ra quyết định.`)}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
+  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ",`Dữ liệu đến ${esc(bj01AsOf())}. Hãy làm mới trước khi sử dụng.`)}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
   const productContext=ds24ListRow({title:p.name,subtitle:`${p.code} · ${p.stockUom}`,leading:'package',type:'Status',interactive:false,density:'Compact',attrs:'data-ds-role="inventory-product-summary"'});
   const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.</p>`:"";
   let body=`${bj01Context()}${stale}${productContext}${bj01AvailabilityRows(p)}${configNote}${bj01AttentionBanner(p)}`;
@@ -2360,7 +2360,7 @@ function render031IO06(state){
   if(state==="PERMISSION_DENIED") return appShell({title:"Hàng khách trả",subtitle:entrySubtitle,body:deniedBody(),centered:true});
   if(state==="LOADING") return appShell({title:"Hàng khách trả",subtitle:entrySubtitle,body:loadingBody()});
   const req=io06CurrentRequest();io06RefreshRequestState(req);const lines=io06CurrentLines();const waiting=req.queue==="WAITING";
-  const blocker=["CONFLICT","LOCKED","RETURN_CAP_CHANGED","SOURCE_CHANGED"].includes(state)?vBanner("warning",state==="RETURN_CAP_CHANGED"?"Lượng được nhận đã thay đổi":"Yêu cầu đã thay đổi",state==="RETURN_CAP_CHANGED"?"Làm mới và kiểm lại từng dòng trước khi tiếp tục.":"Làm mới để dùng dữ liệu hiện hành.","","Compact"):"";
+  const blocker=["CONFLICT","LOCKED","RETURN_CAP_CHANGED","SOURCE_CHANGED"].includes(state)?vBanner("warning",state==="RETURN_CAP_CHANGED"?"Lượng được nhận đã thay đổi":"Yêu cầu đã thay đổi",state==="RETURN_CAP_CHANGED"?"Làm mới và kiểm lại từng dòng trước khi tiếp tục.":"Làm mới để dùng dữ liệu hiện hành.","",state==="RETURN_CAP_CHANGED"?"Default":"Compact"):"";
   const pending=io06PendingCasesForRequest(req.id).length;
   const waitBanner=waiting?vBanner("warning",`Đang chờ duyệt ${pending} ngoại lệ lô`,`Các dòng đã kiểm được giữ nguyên; hiện chưa thể ghi nhận.`,"","Compact"):"";
   const verifiedCount=lines.filter(io06LinePhysicalValid).length;
@@ -2785,8 +2785,8 @@ function render052CR11(state){
   if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-052"),state);
   if(state==="PERMISSION_DENIED")return appShell({title:"Kiểm soát nghiệp vụ",body:deniedBody(),centered:true});
   const op=cr11Current();
-  if(state==="DEPENDENCY_BLOCKED")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa thể sửa sai","Một nghiệp vụ phía sau đang phụ thuộc vào lượng hàng này. Hãy xử lý dependency thực tế trước; hệ thống không sửa số dư để lách điều kiện.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Hàng",op.product],["Tác động hiện tại",op.impact]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
-  if(state==="PERIOD_POLICY_VIOLATION")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa có kỳ mở để ghi nhận sửa sai","Nghiệp vụ gốc vẫn được giữ nguyên. Cần có kỳ ghi nhận hiện hành hợp lệ trước khi tiếp tục.")}${crFactCard(op.id,[["Ngày nghiệp vụ gốc","01/09/2026"],["Kỳ gốc","Đã khóa"]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
+  if(state==="DEPENDENCY_BLOCKED")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa thể sửa sai","Có nghiệp vụ phía sau đang phụ thuộc. Hãy xử lý nghiệp vụ đó trước.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Hàng",op.product],["Tác động hiện tại",op.impact]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
+  if(state==="PERIOD_POLICY_VIOLATION")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa có kỳ mở để ghi nhận sửa sai","Cần có kỳ ghi nhận hiện hành hợp lệ trước khi tiếp tục.")}${crFactCard(op.id,[["Ngày nghiệp vụ gốc","01/09/2026"],["Kỳ gốc","Đã khóa"]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
   const cancelMode=state==="CANCEL_UNEXECUTED"||op.route==="CANCEL";
   if(cancelMode){
     const err=state==="VALIDATION_ERROR"&&!cr11CancelReason.trim()?vBanner("error","Cần nhập lý do hủy","Lý do giúp truy vết vì sao yêu cầu dừng trước khi thực thi."):"";
@@ -2904,8 +2904,8 @@ function render079CR(state){
 function render080CR(state){
   if(!["UIF-16","UIF-17"].includes(activeFlowId))return renderGeneric(screens.find(s=>s.id==="SCR-080"),state);
   if(state==="PERMISSION_DENIED")return appShell({title:"Phương án xử lý",body:deniedBody(),centered:true});
-  if(state==="LOCKED")return appShell({title:"Phương án xử lý",body:vBanner("warning","Phạm vi đang do hồ sơ khác bảo vệ","Không thực hiện thao tác song song trên cùng phạm vi. Mở hồ sơ đang bảo vệ phạm vi để tiếp tục.")});
-  if(state==="CONFLICT")return appShell({title:"Phương án xử lý",body:vBanner("warning","Kết luận đã thay đổi","Bằng chứng mới đã được xác nhận làm thay đổi phương án. Quay lại bước bằng chứng để rà soát.")});
+  if(state==="LOCKED")return appShell({title:"Phương án xử lý",body:vBanner("warning","Phạm vi đang do hồ sơ khác bảo vệ","Không xử lý song song cùng phạm vi. Mở hồ sơ đang bảo vệ để tiếp tục.")});
+  if(state==="CONFLICT")return appShell({title:"Phương án xử lý",body:vBanner("warning","Kết luận đã thay đổi","Bằng chứng mới làm thay đổi phương án. Quay lại bước bằng chứng để rà soát.")});
   if(activeFlowId==="UIF-17"){
     const c=cr17Current();
     if(c.evidence==="INSUFFICIENT"||state==="INSUFFICIENT_EVIDENCE")return appShell({title:"Phương án xử lý",body:`${vBanner("warning","Chưa có phương án xử lý an toàn","Giữ nguyên trạng thái chưa xác định và phạm vi được bảo vệ; hồ sơ đã chuyển người có trách nhiệm.")}${crFactCard("Phạm vi xử lý",[["Nghiệp vụ",c.operation,true],["Người xử lý",c.owner],["Định danh","Giữ nguyên"]])}`,actions:primaryFooter("Xem trạng thái xử lý",'data-cr17-action="show-escalated"')});
@@ -3008,7 +3008,7 @@ function render067CF12(state){
 function render068CF12(state){
   if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả kiểm tra dữ liệu",body:deniedBody(),centered:true});
   if(state==="LOADING")return appShell({title:"Kết quả kiểm tra dữ liệu",body:loadingBody()});
-  if(state==="CONFLICT")return appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Nguồn dữ liệu đã thay đổi","Không dùng kết quả kiểm tra cũ để gửi phê duyệt. Chọn lại tệp hoặc tải lại phạm vi hiện hành.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
+  if(state==="CONFLICT")return appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Nguồn dữ liệu đã thay đổi","Kết quả kiểm tra cũ không còn hiệu lực. Chọn lại tệp hoặc tải lại phạm vi.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
   if(state==="VALIDATION_FAILED"){
     const body=`${vBanner("error","Còn dòng chưa hợp lệ","Không có dữ liệu nào được ghi nhận. Sửa các dòng lỗi trong nguồn rồi kiểm tra lại.")}${cfSummaryGrid([["Dòng đọc được",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Lỗi cần sửa","3"]])}${crFactCard("Dòng 18 · Vaccine Newcastle",[["Vấn đề","Chưa xác định sản phẩm trong VET45",true],["Cách xử lý","Sửa dữ liệu nguồn; không tạo sản phẩm trong luồng này"]])}${crFactCard("Dòng 44 · Amox 500",[["Vấn đề","Trùng cùng sản phẩm + kho + tình trạng + lô",true],["Cách xử lý","Giữ một dòng dữ liệu chính thức; không tự cộng gộp"]])}${crFactCard("Dòng 61 · Nobivac DHPPi",[["Vấn đề","Thiếu hạn dùng bắt buộc của lô",true],["Cách xử lý","Bổ sung hạn dùng đúng theo nhãn lô"]])}`;
     return appShell({title:"Kết quả kiểm tra dữ liệu",body,actions:primaryFooter("Chọn lại tệp",'data-cf12-action="back-file"')});
@@ -3085,7 +3085,7 @@ function render054CF15(state){
   return appShell({title:"Tra cứu kho",body,actions:primaryFooter("Xem báo cáo",'data-cf15-action="query"'),back:false});
 }
 function cf15ContextBanner(state,mode){
-  const stale=state==="STALE"?vBanner("warning","Dữ liệu đang cập nhật","Kết quả hiển thị theo mốc đã ghi bên dưới. Không dùng số liệu chưa cập nhật làm căn cứ để sửa tồn kho."):"";
+  const stale=state==="STALE"?vBanner("warning","Dữ liệu đang cập nhật","Dùng mốc dữ liệu bên dưới; không sửa tồn kho từ số liệu chưa cập nhật."):"";
   return `${stale}<div class="cf-context-row"><span>${cf15DateLabel(mode)} · ${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}</span><strong>Đến 07/09/2026 · 11:00</strong></div>`;
 }
 function cf15ProductSheet(product,financeAllowed){

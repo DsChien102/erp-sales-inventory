@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
-  "version": "3.13.0",
+  "version": "4.3.0",
   "freeze_id": "T7-HARNESS-17-UIF-FREEZE-v0.2.0",
   "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
-  "prototype_status": "DESIGN_PARITY_v3.13.0",
+  "prototype_status": "VALUATION_UIUX_RUNTIME_HARDENED_v4.3.0",
   "screen_group_status": "ACTIVE_WITH_RETIRED_MIGRATION_ALIASES",
   "screens": [
     {
@@ -1957,8 +1957,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-01"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -1966,9 +1966,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Danh sách hàng đã nhận nhưng chưa có giá trị nhập ban đầu; người dùng hiểu ngay việc nào có thể xử lý, cần đối chiếu hoặc cần bổ sung căn cứ.",
         "visible_action_ids": [],
@@ -2003,20 +2003,20 @@
           "BJ-03",
           "UC-03-01"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
@@ -2086,8 +2086,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-02"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2095,9 +2095,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
         "visible_action_ids": [],
@@ -2126,11 +2126,13 @@
           "DS v2 / List Row",
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
-          "DS v2 / Summary Card",
           "VBanner",
-          "VButton",
+          "VMoneyField",
           "VTextField",
-          "VBottomSheet"
+          "VTextarea",
+          "VSegmentedControl",
+          "DS v2 / Form Sheet",
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DetailSurface"
@@ -2139,31 +2141,33 @@
           "BJ-03",
           "UC-03-01"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
         "DS v2 / List Row",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
+        "VMoneyField",
         "VTextField",
-        "VBottomSheet"
+        "VTextarea",
+        "VSegmentedControl",
+        "DS v2 / Form Sheet",
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7DetailSurface",
       "dataRows": [
@@ -2291,8 +2295,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-04"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2300,9 +2304,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
         "visible_action_ids": [
@@ -2332,10 +2336,9 @@
           "VAppBar",
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
-          "DS v2 / Summary Card",
           "VBanner",
-          "VButton",
-          "VBottomSheet"
+          "DS v2 / Summary Card (max 1)",
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7ReviewSurface"
@@ -2345,8 +2348,8 @@
           "UC-03-01",
           "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "mode": {
         "modes": {
@@ -2357,22 +2360,21 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
-        "VBottomSheet"
+        "DS v2 / Summary Card (max 1)",
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "dataRows": [
@@ -2511,8 +2513,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-06"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2520,9 +2522,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
         "visible_action_ids": [],
@@ -2551,7 +2553,7 @@
         "flutter_ds_component_candidates": [
           "VAppBar",
           "VEmptyState",
-          "DS v2 / Summary Card",
+          "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "VBanner",
           "VButton"
@@ -2564,25 +2566,25 @@
           "UC-03-01",
           "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Summary Card",
+        "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
@@ -10493,8 +10495,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-01"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -10502,9 +10504,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Danh sách công việc giá vốn theo nhu cầu thực tế: cập nhật trong kỳ, chốt kỳ hoặc việc đang bị chặn.",
         "visible_action_ids": [],
@@ -10546,14 +10548,14 @@
           "UC-14-01",
           "UC-14-04"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
@@ -10570,7 +10572,7 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-14",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "dataRows": [
         {
@@ -10708,8 +10710,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-03"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -10717,9 +10719,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
         "visible_action_ids": [],
@@ -10752,11 +10754,11 @@
           "VAppBar",
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
-          "DS v2 / Readiness Item",
-          "DS v2 / Summary Card",
+          "DS v2 / List Row",
           "VBanner",
-          "VButton",
-          "VBottomSheet"
+          "DS v2 / Summary Card (max 1)",
+          "DS v2 / Confirmation Sheet",
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DashboardSurface"
@@ -10766,31 +10768,31 @@
           "UC-14-01",
           "UC-14-04"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Readiness Item",
-        "DS v2 / Summary Card",
+        "DS v2 / List Row",
         "VBanner",
-        "VButton",
-        "VBottomSheet"
+        "DS v2 / Summary Card (max 1)",
+        "DS v2 / Confirmation Sheet",
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7DashboardSurface",
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-14",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "dataRows": [
         {
@@ -10997,8 +10999,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-06"
       },
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -11006,9 +11008,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
         "visible_action_ids": [],
@@ -11037,7 +11039,7 @@
         "flutter_ds_component_candidates": [
           "VAppBar",
           "VEmptyState",
-          "DS v2 / Summary Card",
+          "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "VBanner",
           "VButton"
@@ -11050,19 +11052,19 @@
           "UC-14-04",
           "ACT-14-PUBLISH"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Summary Card",
+        "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
@@ -11072,7 +11074,7 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-14",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "dataRows": [
         {
@@ -12175,8 +12177,8 @@
       "notice": "",
       "sensitive_data": "Amount/source tài chính chỉ render khi có quyền.",
       "legacy_aliases": {},
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12184,9 +12186,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Danh sách các căn cứ mới hoặc thay đổi cần ghi điều chỉnh tăng/giảm vào giá trị hàng nhập.",
         "visible_action_ids": [],
@@ -12226,8 +12228,8 @@
           "BJ-13",
           "UC-13-01"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "components": [
         "VAppBar",
@@ -12242,13 +12244,13 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "mode": null,
       "dataRows": [
@@ -12303,8 +12305,8 @@
       "notice": "",
       "sensitive_data": "Source amount và valuation context là financial restricted.",
       "legacy_aliases": {},
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12312,9 +12314,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
         "visible_action_ids": [],
@@ -12348,10 +12350,9 @@
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "DS v2 / List Row",
-          "DS v2 / Summary Card",
+          "VSelect",
           "VBanner",
-          "VSegmentedControl",
-          "VButton"
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DetailSurface"
@@ -12360,30 +12361,29 @@
           "BJ-13",
           "UC-13-01"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "DS v2 / List Row",
-        "DS v2 / Summary Card",
+        "VSelect",
         "VBanner",
-        "VSegmentedControl",
-        "VButton"
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7DetailSurface",
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "mode": null,
       "dataRows": [
@@ -12511,8 +12511,8 @@
       "notice": "",
       "sensitive_data": "Tất cả giá trị tài chính bị omit khỏi DOM khi thiếu quyền.",
       "legacy_aliases": {},
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12520,9 +12520,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Rà soát read-only signed adjustment trước khi commit.",
         "visible_action_ids": [
@@ -12552,9 +12552,8 @@
           "VAppBar",
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
-          "DS v2 / Summary Card",
           "VBanner",
-          "VButton"
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7ReviewSurface"
@@ -12564,28 +12563,27 @@
           "UC-13-01",
           "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Summary Card",
         "VBanner",
-        "VButton"
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "mode": null,
       "dataRows": [
@@ -12639,8 +12637,8 @@
       "notice": "",
       "sensitive_data": "Financial result masked/omitted theo permission.",
       "legacy_aliases": {},
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
+      "prototype_status": "UIUX_HARDENED_v4.3.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12648,9 +12646,9 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "3.13.0-design-parity",
+        "checkpoint_version": "4.3.0-uiux-hardening",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "DESIGN_PARITY_VALIDATED",
+        "status": "UIUX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
         "primary_object": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
         "visible_action_ids": [],
@@ -12679,7 +12677,7 @@
         "flutter_ds_component_candidates": [
           "VAppBar",
           "VEmptyState",
-          "DS v2 / Summary Card",
+          "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "VBanner",
           "VButton"
@@ -12692,13 +12690,13 @@
           "UC-13-01",
           "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "DESIGN_PARITY_v3.13.0",
-        "contract_version": "SCREEN_CONTRACT_v3.13.0"
+        "harness_status": "UIUX_HARDENED_v4.3.0",
+        "contract_version": "SCREEN_CONTRACT_v4.3.0"
       },
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Summary Card",
+        "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
@@ -12707,13 +12705,13 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "3.13.0"
+        "version": "4.3.0"
       },
       "holistic_review": {
-        "version": "3.13.0",
+        "version": "4.3.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "DESIGN_HTML_PARITY"
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
       },
       "mode": null,
       "dataRows": [
@@ -12750,7 +12748,7 @@
       "SCR-087"
     ]
   },
-  "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
+  "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED_v4.3.0",
   "figma_ds_migration": {
     "release": "2.0.1",
     "authority": "Figma Design System v2.0.2",
@@ -12759,7 +12757,7 @@
     "screen_composition_status": "VALUATION_PARITY_v3.13.0",
     "legacy_component_fields_status": "MAPPING_INPUT_ONLY"
   },
-  "parent_screen_registry_version": "3.12.0",
+  "parent_screen_registry_version": "4.2.0",
   "runtime_scope_v3_13_0": {
     "businessJourneys": 17,
     "supportingCapabilities": 1,
@@ -12770,5 +12768,14 @@
     "valuationE2E": "03.design/prototype/html/qa/VALUATION-FLOW-E2E-v3.13.0.json",
     "valuationVisualIntegrity": "03.design/prototype/html/qa/VALUATION-VISUAL-INTEGRITY-v3.13.0.json",
     "valuationAdversarial": "03.design/prototype/html/qa/VALUATION-ADVERSARIAL-QA-v3.13.0.json"
+  },
+  "runtime_scope_v4_3_0": {
+    "businessJourneys": 17,
+    "canonicalRouteOccurrences": 86,
+    "valuationActiveScreens": 11,
+    "allFlowRuntimeSmoke": "03.design/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.3.0.json",
+    "valuationE2E": "03.design/prototype/html/qa/VALUATION-FLOW-E2E-v4.3.0.json",
+    "valuationVisualIntegrity": "03.design/prototype/html/qa/VALUATION-VISUAL-INTEGRITY-v4.3.0.json",
+    "valuationFullStateSmoke": "03.design/prototype/html/qa/VALUATION-FULL-STATE-SMOKE-v4.3.0.json"
   }
 }

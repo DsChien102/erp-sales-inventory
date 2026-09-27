@@ -5,19 +5,36 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v4.1.0
-version: v4.1.0
-parent: v4.0.0
+source_baseline: v4.4.0
+version: v4.5.0
+parent: v4.4.0
 ---
 # Prototype — Theme 07
 
-## v4.1.0 — Canonical UIF + valuation HTML merge
+## v4.5.0 — Snapshot-led visual QA hardening
 
-- Parent package: `v4.0.0`; merge source for Design/HTML: `v3.13.0`.
-- Canonical UIF remains under `03.design/flows/`.
-- Valuation active topology: `UIF-03 = 014→015→017→019`, `UIF-13 = 085→086→088→089`, `UIF-14 = 072→074→077`.
-- Runtime layer `v313-valuation-design.css/js` is intentionally retained as the implementation source of the corrected valuation UI; current package identity and validators are v4.1.0.
-- Retired valuation routes remain redirect/compatibility only and must not re-enter active flow catalogs.
+- Parent package: `v4.4.0`; business semantics, BJ/UC/UIF/Screen Contract topology and actions are unchanged.
+- Chụp 82 màn active và ghép 17 contact sheet theo UIF để review trực quan; all-state audit chạy 486 state.
+- Sửa verified regressions: VBanner density/copy overflow, long explanatory copy bị ép vào Info Row 44px, VProgress composition sai.
+- Không dùng broad CSS normalization; chỉ sửa primitive/copy đã có bằng chứng snapshot.
+- Evidence: `html/qa/SNAPSHOT-LED-VISUAL-QA-v4.5.0.*` và regression suite `*v4.5.0*`.
+
+## v4.4.0 — Theme-wide grouped surface consistency
+
+- Parent package: `v4.3.1`; business semantics, BJ/UC/UIF topology and actions are unchanged.
+- Toàn bộ 17 UIF được audit theo rule `một nhóm factual rows = một surface boundary`.
+- Runtime bổ sung surface tự động chỉ cho semantic row group chưa có surface owner hợp lệ; không tạo nested card và không chạm independent List Row collection.
+- Actual repairs: `SCR-003`, `SCR-010`, `SCR-028`. Valuation grouped surfaces từ v4.3.1 được giữ nguyên.
+- Evidence: `html/qa/THEME-WIDE-GROUPED-SURFACE-v4.4.0.*` và `ALL-FLOWS-RUNTIME-SMOKE-v4.4.0.*`.
+
+## v4.3.0 — Valuation UI/UX + runtime hardening
+
+- Parent package: `v4.2.0`; business semantic and UIF topology are unchanged.
+- Review/fix scope: toàn bộ BJ03, BJ13, BJ14 trên 11 màn active.
+- Final valuation runtime layer: `v430-valuation-uiux.css/js`, loaded after prior valuation layers and re-rendered immediately on first paint.
+- BJ03 long-form entry uses `DS v2 / Form Sheet` + fixed `Sticky Footer`; BJ14 publication uses `DS v2 / Confirmation Sheet`.
+- Retired valuation routes remain compatibility-only and redirect to canonical surfaces; `SCR-018` hands off to BJ13 / `SCR-085`.
+- Runtime evidence: `html/qa/VALUATION-FLOW-E2E-v4.3.0.*`, `VALUATION-VISUAL-INTEGRITY-v4.3.0.*`, `VALUATION-FULL-STATE-SMOKE-v4.3.0.json`.
 
 
 ## v3.13.0 — Valuation design parity
@@ -31,11 +48,11 @@ parent: v4.0.0
 
 ## 1. Mục đích
 
-Prototype là design expression/verification medium hiện hành của baseline v3.13.0; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
+Prototype là design expression/verification medium hiện hành của baseline v4.5.0; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
 
 ## 2. Cách chạy
 
-Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Runtime giữ các layer lịch sử để regression, đồng thời nạp lớp `v313-valuation-design.css/js` cuối cùng để đưa BJ03/BJ13/BJ14 về parity với specification v3.12.0 và Figma DS v2.
+Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Runtime giữ các layer lịch sử để regression, đồng thời nạp `v430-valuation-uiux.css/js` sau các lớp valuation lịch sử để BJ03/BJ13/BJ14 dùng đúng contract v4.3.0 và Figma DS v2 ngay từ first paint; `v440-theme-wide-grouped-surface.css/js` giữ invariant grouped surface; `v450-theme-visual-qa.css` nạp sau cùng để sửa đúng các visual regression đã được snapshot xác nhận.
 
 ## 3. Screen → route/state mapping
 
@@ -54,12 +71,12 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-011` | `#/sg-02/scr-06` | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-012` | `#/sg-02/scr-07` | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-013` | `#/sg-02/scr-08` | BJ02_PILOT_CALIBRATING_v0.2.9 |
-| `SCR-014` | `#/sg-03/scr-01` | DESIGN_PARITY_v3.13.0 |
-| `SCR-015` | `#/sg-03/scr-02` | DESIGN_PARITY_v3.13.0 |
+| `SCR-014` | `#/sg-03/scr-01` | UIUX_HARDENED_v4.3.0 |
+| `SCR-015` | `#/sg-03/scr-02` | UIUX_HARDENED_v4.3.0 |
 | `SCR-016` | `#/sg-03/scr-03` | RETIRED_v3.13.0 → SCR-015 |
-| `SCR-017` | `#/sg-03/scr-04` | DESIGN_PARITY_v3.13.0 |
+| `SCR-017` | `#/sg-03/scr-04` | UIUX_HARDENED_v4.3.0 |
 | `SCR-018` | `#/sg-03/scr-05` | RETIRED_v3.13.0 → SCR-085 |
-| `SCR-019` | `#/sg-03/scr-06` | DESIGN_PARITY_v3.13.0 |
+| `SCR-019` | `#/sg-03/scr-06` | UIUX_HARDENED_v4.3.0 |
 | `SCR-020` | `#/sg-04/scr-01` | RETIRED_FROM_UIF04_v1.3.4 |
 | `SCR-021` | `#/sg-04/scr-02` | ACTIVE_v3.9.6 |
 | `SCR-022` | `#/sg-04/scr-03` | RETIRED_FROM_UIF04_v1.3.4 |
@@ -112,12 +129,12 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-069` | `#/sg-13/scr-04` | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-070` | `#/sg-13/scr-05` | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-071` | `#/sg-13/scr-06` | PRODUCT_CORRECTED_v1.8.0 |
-| `SCR-072` | `#/sg-14/scr-01` | DESIGN_PARITY_v3.13.0 |
+| `SCR-072` | `#/sg-14/scr-01` | UIUX_HARDENED_v4.3.0 |
 | `SCR-073` | `#/sg-14/scr-02` | RETIRED_v3.13.0 → SCR-074 |
-| `SCR-074` | `#/sg-14/scr-03` | DESIGN_PARITY_v3.13.0 |
+| `SCR-074` | `#/sg-14/scr-03` | UIUX_HARDENED_v4.3.0 |
 | `SCR-075` | `#/sg-14/scr-04` | RETIRED_v3.13.0 → SCR-074 |
 | `SCR-076` | `#/sg-14/scr-05` | RETIRED_v3.13.0 → SCR-074 |
-| `SCR-077` | `#/sg-14/scr-06` | DESIGN_PARITY_v3.13.0 |
+| `SCR-077` | `#/sg-14/scr-06` | UIUX_HARDENED_v4.3.0 |
 | `SCR-078` | `#/sg-15/scr-01` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-079` | `#/sg-15/scr-02` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-080` | `#/sg-15/scr-03` | PRODUCT_CORRECTED_v1.7.0 |
@@ -125,11 +142,11 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 | `SCR-082` | `#/sg-15/scr-05` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-083` | `#/sg-15/scr-06` | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-084` | `BJ02_PILOT_REFINED_v1.3.4` | BJ02_PILOT_REFINED_v1.3.4 |
-| `SCR-085` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
-| `SCR-086` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
+| `SCR-085` | `PRODUCT_CORRECTED_v1.5.0` | UIUX_HARDENED_v4.3.0 |
+| `SCR-086` | `PRODUCT_CORRECTED_v1.5.0` | UIUX_HARDENED_v4.3.0 |
 | `SCR-087` | `PRODUCT_CORRECTED_v1.5.0` | RETIRED_v3.13.0 → SCR-086 |
-| `SCR-088` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
-| `SCR-089` | `PRODUCT_CORRECTED_v1.5.0` | DESIGN_PARITY_v3.13.0 |
+| `SCR-088` | `PRODUCT_CORRECTED_v1.5.0` | UIUX_HARDENED_v4.3.0 |
+| `SCR-089` | `PRODUCT_CORRECTED_v1.5.0` | UIUX_HARDENED_v4.3.0 |
 
 ## 4. Design System dependency
 
