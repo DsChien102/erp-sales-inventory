@@ -16,17 +16,17 @@ ui_flow: UIF-02
 
 Ghi hàng thực nhận vào tồn vật lý bằng một commit nguyên tử cho operation đã đủ điều kiện.
 
-**Kết quả cần đạt:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot/value-entry cần thiết được ghi đúng một lần.
+**Kết quả cần đạt:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì quantity movement/balance/lot, trạng thái `VALUATION_PENDING`, result và outbox được ghi đúng một lần; **không tạo value movement** tại UC này.
 
 ## 2. Bối cảnh và ranh giới
 
 ### 2.1 Bắt đầu khi
 
-Hồ sơ hợp lệ và đủ thẩm quyền
+Operation đã `READY` và đủ điều kiện thực thi
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-COMMITTED, REJECTED hoặc UNKNOWN; Movement/balance/lot và result.
+`COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì quantity movement/balance/lot, `VALUATION_PENDING`, result và outbox đã được ghi nguyên tử.
 
 ### 2.3 Không bao gồm
 
@@ -34,9 +34,9 @@ Không sửa chứng từ mua, không tự xác lập giá trị nhập và khô
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Thủ kho; người duyệt khi có ngoại lệ.
-- **Thẩm quyền:** Chỉ tác nhân hoặc system process có quyền thực thi đúng scope mới được commit; mọi guard về source/version, policy và lifecycle phải được server kiểm lại trước effect.
-- **Sự kiện khởi phát:** Hồ sơ hợp lệ và đủ thẩm quyền.
+- **Tác nhân chính:** Hệ thống.
+- **Thẩm quyền:** Người lập/người duyệt chỉ đưa operation tới `READY`; từ commit point trở đi Hệ thống là execution owner. Server phải kiểm lại source/version, policy, permission scope và lifecycle trước effect.
+- **Sự kiện khởi phát:** Operation chuyển/đang ở `READY` sau bước chuẩn bị và phê duyệt nếu áp dụng.
 - **Điều kiện trước:** Đối tượng đúng version đã đạt trạng thái sẵn sàng thực thi; quyền, policy, lock và các invariant nguồn còn hợp lệ tại thời điểm commit.
 
 ## 4. Đối tượng và dữ liệu nghiệp vụ
@@ -53,7 +53,7 @@ Không sửa chứng từ mua, không tự xác lập giá trị nhập và khô
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| BF-01 | Thủ kho / Hệ thống | Yêu cầu thực thi receipt ở trạng thái `READY` với operation identity hiện hành. |  |
+| BF-01 | Hệ thống | Tự bắt đầu thực thi receipt đang ở trạng thái `READY` bằng operation identity hiện hành; không yêu cầu người dùng bấm thêm một CTA commit. | UIF-02 / execution owner |
 | BF-02 | Hệ thống | Recheck source/approval/version, quantity classification, LOT/HSD và current balance trong transaction. | EF-A — Stale hoặc vi phạm bất biến |
 | BF-03 | Hệ thống | Tạo quantity movement cho phần thực nhận; hàng Từ chối không tạo movement, hàng Cách ly/Hỏng vào đúng physical state. |  |
 | BF-04 | Hệ thống | Cập nhật balance/lot và outbox/result trong cùng atomic boundary; receipt owned goods chưa có giá chuyển `VALUATION_PENDING` theo contract. | EF-B — Kết quả commit chưa xác định |
@@ -90,7 +90,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 | BR-02 | Hàng từ chối | Không tạo movement; vẫn lưu discrepancy/evidence| Decision / DOM-IO / BC nguồn |
 | BR-03 | Tình trạng ngay khi nhận | Hàng cách ly/hỏng vẫn tăng tồn vật lý vào đúng trạng thái; không được mặc định chuyển thành sellable| Decision / DOM-IO / BC nguồn |
 | BR-04 | LOT/expiry | NONE không hỏi hạn dùng; LOT mới mở yêu cầu hạn dùng theo product policy| Decision / DOM-IO / BC nguồn |
-| BR-05 | Nhận từng phần | Cho phép nhiều receipt cùng tham chiếu source line nhưng tổng lượng được kiểm bằng concurrency guard| Decision / DOM-IO / BC nguồn |
+| BR-05 | Nhận từng phần | Cho phép nhiều receipt cùng tham chiếu một source line. Mỗi lần thực thi phải recheck `remaining_receivable_qty` authoritative và source version; receipt hiện tại không tự đánh dấu source đã nhận đủ. | `T7-DR-022`, `T7-DR-117` / DOM-IO / BC nguồn |
 | BR-06 | Nguyên tử | Movement, balance, lot, result và outbox cùng commit hoặc không có gì commit| Decision / DOM-IO / BC nguồn |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
@@ -104,11 +104,11 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| Thành công | Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot/value-entry cần thiết được ghi đúng một lần. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
-| Không đủ điều kiện / Bị từ chối | Nếu precondition, version, quyền hoặc invariant không còn hợp lệ, hệ thống từ chối trước effect; nếu finality chưa rõ thì giữ cùng operation identity để recovery. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
-| Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
+| `COMMITTED` | Quantity movement/balance/lot, `VALUATION_PENDING`, receipt result và outbox được ghi đúng một lần; không có value movement. | BJ03 chỉ được kích hoạt cho quantity đã commit; `EVT-IO-01` là fact outbound cho Theme 10/reporting. |
+| `REJECTED` | Precondition/version/quyền/invariant không còn hợp lệ; hệ thống từ chối trước effect và không có partial effect. | Kết thúc nhánh hiện tại; sửa/refresh nguồn nếu business cho phép; không kích hoạt BJ03. |
+| `UNKNOWN` | Chưa đủ bằng chứng commit/no-commit; giữ cùng command/operation identity và không tạo effect thứ hai. | UC-02-05; nếu hết cửa sổ phục hồi ngắn vẫn `UNKNOWN` thì bàn giao BJ17. |
 
-**Ảnh hưởng nghiệp vụ chính:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot/value-entry cần thiết được ghi đúng một lần.
+**Ảnh hưởng nghiệp vụ chính:** Nếu `COMMITTED`, receipt làm tăng tồn vật lý đúng state, đưa lượng tương ứng vào `VALUATION_PENDING` và phát outbox fact; giá trị nhập chỉ được ghi ở BJ03.
 
 ## 8. Liên hệ giao diện
 
@@ -123,8 +123,8 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 ### AS-UC-02-04-01 — Ghi nhận hàng vào tồn vật lý — luồng chính
 - **Given:** Hồ sơ hợp lệ và đủ thẩm quyền
-- **When:** Yêu cầu thực thi receipt ở trạng thái `READY` với operation identity hiện hành.
-- **Then:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot/value-entry cần thiết được ghi đúng một lần.
+- **When:** Hệ thống bắt đầu thực thi receipt ở trạng thái `READY` với operation identity hiện hành.
+- **Then:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì quantity movement/balance/lot, `VALUATION_PENDING`, result và outbox được ghi đúng một lần và không tạo value movement.
 
 ### AS-UC-02-04-02 — Ghi nhận hàng vào tồn vật lý — Stale hoặc vi phạm bất biến
 - **Given:** Source/version/approval thay đổi hoặc dữ liệu LOT/quantity không còn hợp lệ.

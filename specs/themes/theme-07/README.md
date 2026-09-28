@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.5.1
-parent: v4.5.0
-source_baseline: v4.5.0
-semantic_delta: KNOW_HOW_TRACEABILITY_COMPLETION_NO_BUSINESS_SEMANTIC_CHANGE
+version: v4.5.2
+parent: v4.5.1
+source_baseline: v4.5.1
+semantic_delta: BJ02_RECEIPT_FINALITY_ACTOR_PARTIAL_RECEIPT_AND_OUTBOUND_FACT_CLARIFICATION
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,34 +78,33 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-Bản **v4.5.1** là cumulative patch trực tiếp trên **v4.5.0** để hoàn thiện truy vết tri thức. Bản này **không thay đổi quyết định nghiệp vụ, Business Journey flow, Use Case behavior, UI Flow, Screen Contract, action, state machine hoặc prototype**.
+Bản **v4.5.2** là cumulative clarification patch trực tiếp trên **v4.5.1**, chỉ làm rõ semantic và trace liên quan BJ02. Không mở capability mới và không thay đổi UI/prototype.
 
-Các thay đổi chính của v4.5.1:
+Các thay đổi chính của v4.5.2:
 
-- 17/17 Business Journey có liên kết trực tiếp tới **Bài tri thức cốt lõi** trong mục `Truy vết`.
-- 14 Use Case trước đây chưa có Know-how đã được bổ sung, đưa coverage lên **64/64 UC có `Bài tri thức liên quan`**.
-- `00-business-journey-map.md` có ma trận **BJ ↔ Know-how** phân biệt `Cốt lõi` và `Hỗ trợ`; toàn bộ **45/45 bài Know-how** được phân loại ít nhất một lần.
-- `01.knowledge/know-how/00-table-of-contents.md` có đường tra ngược từ Business Journey sang Know-how.
-- Không sửa nội dung rule của 45 bài Know-how; không thay đổi artifact UI/prototype. Bằng chứng visual/runtime của v4.5.0 được carry-forward vì phạm vi design/prototype byte-identical.
+- Khóa điều kiện duyệt của nhánh nhận theo chứng từ: accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy; loại bỏ placeholder “ngoại lệ khác” chưa được Decision định nghĩa.
+- Sửa `UC-02-04` để **Hệ thống** là execution owner của atomic commit sau khi operation đã `READY`; người lập/người duyệt là actor upstream, không có CTA commit lần nữa.
+- Làm rõ một source/PO line có thể được nhận qua nhiều receipt; nhận thiếu là hợp lệ và lần sau dùng `remaining_receivable_qty` authoritative của nguồn.
+- Khóa finality handoff: chỉ `COMMITTED`/`GoodsReceipt=COMPLETED` mới kích hoạt BJ03; `UNKNOWN` sau phục hồi ngắn bàn giao BJ17.
+- Làm rõ Theme 7 phát `EVT-IO-01 inventory.receipt.recorded.v1` như **fact đã xảy ra** cho Theme 10/reporting; không gửi command cập nhật PO. Payload event được bổ sung source-line lineage, quantity/UOM và receipt business date cần thiết cho consumer.
+- Loại wording `value-entry` khỏi physical receipt commit; BJ02 chỉ đưa lượng đã nhận vào `VALUATION_PENDING`, BJ03 mới ghi value movement.
+- Không thay đổi `03.design/` hoặc `04.harness/`; các vùng này được bảo toàn nguyên trạng từ parent v4.5.1.
 
-### 6.1 Gate của v4.5.1
+### 6.1 Phạm vi kiểm tra v4.5.2
 
-- BJ → Know-how core: **17/17 PASS**.
-- UC → Know-how: **64/64 PASS**.
-- Know-how coverage trong BJ map: **45/45 PASS** (`Cốt lõi` hoặc `Hỗ trợ`).
-- Relative link validation cho toàn package: xem evidence v4.5.1 tại `06.evidence/`.
-- Semantic immutability ngoài traceability: **PASS** theo package diff; không có thay đổi UI/prototype.
-- Visual/runtime evidence: carry-forward từ **v4.5.0**; không tuyên bố chạy lại visual QA khi không có thay đổi design/prototype.
+- Kiểm tra diff chỉ cho phép các artifact BJ02/UC02/BC-IO-02/BJ03/UC03-01/integration/technical contract và metadata package liên quan.
+- Kiểm tra không còn cụm “ngoại lệ khác” trong route duyệt của Document Receipt.
+- Kiểm tra `UC-02-04` có execution owner là Hệ thống và không tạo value movement.
+- Kiểm tra BJ02 thể hiện rõ `COMMITTED → BJ03`, `UNKNOWN → BJ17`, và outbound Receipt fact sang Theme 10/reporting.
+- Kiểm tra `03.design/` và `04.harness/` byte-identical với v4.5.1.
 
 ### 6.2 Thứ tự đọc đề xuất
 
-1. Đọc `BJ-*` để hiểu mục tiêu và ranh giới nghiệp vụ.
-2. Từ mục `Truy vết` của BJ, mở các **Bài tri thức cốt lõi** để hiểu bối cảnh và khái niệm nền.
-3. Mở `UC-*` để xem hành vi chi tiết và các bài Know-how bổ sung theo từng Use Case.
-4. Mở `UIF-*` từ liên kết trong BJ để xem luồng màn hình.
-5. Mở `SCR-*` để xem nội dung, trạng thái, hành động và DS mapping của từng màn.
-6. Chạy `03.design/prototype/html/index.html` để kiểm chứng tương tác khi cần.
-7. Dùng evidence v4.5.1 tại `06.evidence/` cho traceability/release patch; dùng evidence v4.5.0 cho visual/runtime carry-forward.
+1. Đọc `BJ-02` để hiểu route nhận theo chứng từ/nhập nhanh, partial receipt và finality handoff.
+2. Mở `UC-02-01` cho điều kiện approval và `UC-02-04` cho atomic system execution.
+3. Mở `BC-IO-02` để xem guard canonical của physical receipt.
+4. Mở `INT-01` và `FND-TECH-01` để xem outbound fact `EVT-IO-01`.
+5. Mở `BJ-03` để xác nhận chỉ quantity đã `COMMITTED` mới đi vào xác lập giá trị ban đầu.
 
 ### 6.3 Nguồn canonical để tiếp tục
 

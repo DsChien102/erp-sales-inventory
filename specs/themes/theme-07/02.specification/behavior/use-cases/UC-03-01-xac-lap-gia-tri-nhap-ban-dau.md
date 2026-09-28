@@ -22,7 +22,7 @@ Thành công khi đúng phạm vi hàng chờ giá được ghi value movement, 
 
 ### 2.1 Bắt đầu khi
 
-Có lượng hàng đã hoàn tất nhận vật lý, thuộc quyền sở hữu tenant, chưa từng được xác lập giá trị ban đầu và còn `VALUATION_PENDING`.
+Có lượng hàng từ BJ02 đã `COMMITTED` (`GoodsReceipt=COMPLETED`), thuộc quyền sở hữu tenant, chưa từng được xác lập giá trị ban đầu và còn `VALUATION_PENDING`.
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
@@ -45,7 +45,7 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **Tác nhân chính:** Kế toán kho hoặc người có quyền tài chính tương đương.
 - **Thẩm quyền:** Được xác nhận căn cứ và giá trị trong phạm vi tenant; không được sửa dữ liệu nguồn do Theme khác sở hữu. Với Quick receipt, chỉ người có quyền theo policy mới được lập hoặc chọn căn cứ giá trực tiếp.
 - **Sự kiện khởi phát:** Có hàng chờ xác lập giá trị sau BJ02.
-- **Điều kiện trước:** Receipt đã hoàn tất; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền.
+- **Điều kiện trước:** Receipt có `effect_status=COMMITTED` / `GoodsReceipt=COMPLETED`; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền. `REJECTED` hoặc `UNKNOWN` không đủ điều kiện vào UC này.
 
 ## 4. Đối tượng và dữ liệu nghiệp vụ
 

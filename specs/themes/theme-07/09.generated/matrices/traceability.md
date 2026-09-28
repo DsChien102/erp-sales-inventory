@@ -1,4 +1,4 @@
-# Traceability matrix — v4.5.1
+# Traceability matrix — v4.5.2
 
 > Screen/Slice phản ánh topology canonical hiện hành. Screen đã retired chỉ giữ ở migration/compatibility evidence, không xuất hiện trong cột Screen hiện hành. Know-how là lớp giải thích; Decision/BJ/UC/BC vẫn là nguồn rule canonical.
 

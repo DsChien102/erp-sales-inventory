@@ -334,7 +334,7 @@ Mọi payload ngoài envelope phải chứa đúng các reference dưới đây;
 
 | Event | Required payload fields |
 |---|---|
-| `EVT-IO-01` | `operation_id`, `receipt_id`, `source_version`, `warehouse_id`, `line_ids`, `physical_delta`, `lot_ids`, `valuation_pending=true`; no official value fields |
+| `EVT-IO-01` | `operation_id`, `receipt_id`, `source_identity`, `source_version`, `warehouse_id`, `receipt_business_date`, `lines[]` với tối thiểu `{receipt_line_id, source_line_id, source_line_version, transaction_uom, conversion_snapshot_version, base_uom, accepted_qty, quarantine_qty, damaged_qty, rejected_qty, accepted_physical_base_qty, lot_ids?}`, `valuation_pending=true`; no official value fields |
 | `EVT-IV-03` | `operation_id`, `receipt_valuation_id`, `receipt_line_ids`, `value_movement_ids`, `released_quantity`, exact `product_id + posting_period_id` dirty scope |
 | `EVT-IO-02`, `EVT-IO-05` | `reservation_id`, `reservation_group_id?`, `reservation_bucket_version`, `source_line_id`, transaction-UOM snapshot/version, `requested`, `current_reserved`, `consumed`, `remaining_required`, `shortage`, `reservation_policy`, priority facts, trigger/reason, `allocation_review_required`, `status` |
 | `EVT-IO-03` | `operation_id`, `checkout_id`, `issue_movement_ids`, `value_movement_ids`, `allocation_ids`, `initial_cogs` |

@@ -1,6 +1,6 @@
-# Artifact Index — v4.5.1
+# Artifact Index — v4.5.2
 
-Generated from the v4.5.1 candidate. Canonical authority remains in source artifacts.
+Generated from the v4.5.2 candidate. Canonical authority remains in source artifacts.
 
 ## Key entry points
 
