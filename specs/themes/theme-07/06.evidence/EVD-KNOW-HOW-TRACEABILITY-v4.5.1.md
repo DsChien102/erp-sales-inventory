@@ -1,0 +1,36 @@
+# Know-how traceability v4.5.1
+
+- Parent: `v4.5.0`
+- Status: **PASS**
+- Business Journey có Know-how cốt lõi: **17/17**
+- Use Case có `Bài tri thức liên quan`: **64/64**
+- Know-how được phân loại trong BJ map: **45/45**
+
+## Quy tắc
+
+- BJ chỉ giữ **bài cốt lõi** để làm điểm vào tri thức, không đổ toàn bộ link của UC lên Journey.
+- UC giữ bài liên quan trực tiếp tới hành vi/ngoại lệ cụ thể.
+- Business Journey Map và Know-how TOC giữ ma trận đầy đủ `Cốt lõi / Hỗ trợ` để tra hai chiều.
+- Know-how giải thích bối cảnh; Decision/BJ/UC/BC vẫn là nguồn rule canonical.
+
+## Mapping theo BJ
+
+| BJ | Cốt lõi | Hỗ trợ |
+|---|---|---|
+| `BJ-01` | `KB-KGV-005`, `KB-KGV-005`, `KB-KGV-033`, `KB-KGV-033`, `KB-KGV-036`, `KB-KGV-036`, `KB-KGV-038`, `KB-KGV-038` | `KB-KGV-001`, `KB-KGV-001`, `KB-KGV-003`, `KB-KGV-003`, `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-014`, `KB-KGV-014`, `KB-KGV-037`, `KB-KGV-037`, `KB-KGV-040`, `KB-KGV-040` |
+| `BJ-02` | `KB-KGV-007`, `KB-KGV-007`, `KB-KGV-008`, `KB-KGV-008`, `KB-KGV-024`, `KB-KGV-024`, `KB-KGV-025`, `KB-KGV-025`, `KB-KGV-031`, `KB-KGV-031` | `KB-KGV-001`, `KB-KGV-001`, `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-004`, `KB-KGV-004`, `KB-KGV-026`, `KB-KGV-026`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-029`, `KB-KGV-029` |
+| `BJ-03` | `KB-KGV-008`, `KB-KGV-008`, `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-019`, `KB-KGV-019` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-017`, `KB-KGV-017`, `KB-KGV-043`, `KB-KGV-043`, `KB-KGV-044`, `KB-KGV-044` |
+| `BJ-04` | `KB-KGV-005`, `KB-KGV-005`, `KB-KGV-009`, `KB-KGV-009`, `KB-KGV-027`, `KB-KGV-027` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-030`, `KB-KGV-030` |
+| `BJ-05` | `KB-KGV-009`, `KB-KGV-009`, `KB-KGV-010`, `KB-KGV-010`, `KB-KGV-025`, `KB-KGV-025`, `KB-KGV-029`, `KB-KGV-029` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-017`, `KB-KGV-017`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-039`, `KB-KGV-039` |
+| `BJ-06` | `KB-KGV-012`, `KB-KGV-012`, `KB-KGV-020`, `KB-KGV-020`, `KB-KGV-025`, `KB-KGV-025`, `KB-KGV-035`, `KB-KGV-035` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-014`, `KB-KGV-014`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-034`, `KB-KGV-034` |
+| `BJ-07` | `KB-KGV-010`, `KB-KGV-010`, `KB-KGV-013`, `KB-KGV-013`, `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-029`, `KB-KGV-029` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-021`, `KB-KGV-021`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-028`, `KB-KGV-028` |
+| `BJ-08` | `KB-KGV-011`, `KB-KGV-011`, `KB-KGV-020`, `KB-KGV-020`, `KB-KGV-021`, `KB-KGV-021`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-032`, `KB-KGV-032` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-031`, `KB-KGV-031`, `KB-KGV-033`, `KB-KGV-033` |
+| `BJ-09` | `KB-KGV-005`, `KB-KGV-005`, `KB-KGV-014`, `KB-KGV-014`, `KB-KGV-025`, `KB-KGV-025`, `KB-KGV-034`, `KB-KGV-034` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-026`, `KB-KGV-026`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-037`, `KB-KGV-037`, `KB-KGV-038`, `KB-KGV-038` |
+| `BJ-10` | `KB-KGV-014`, `KB-KGV-014`, `KB-KGV-020`, `KB-KGV-020`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-031`, `KB-KGV-031` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-030`, `KB-KGV-030` |
+| `BJ-11` | `KB-KGV-021`, `KB-KGV-021`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-029`, `KB-KGV-029` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-032`, `KB-KGV-032`, `KB-KGV-041`, `KB-KGV-041` |
+| `BJ-12` | `KB-KGV-003`, `KB-KGV-003`, `KB-KGV-004`, `KB-KGV-004`, `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-022`, `KB-KGV-022`, `KB-KGV-023`, `KB-KGV-023` | `KB-KGV-001`, `KB-KGV-001`, `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-032`, `KB-KGV-032`, `KB-KGV-042`, `KB-KGV-042` |
+| `BJ-13` | `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-018`, `KB-KGV-018`, `KB-KGV-019`, `KB-KGV-019`, `KB-KGV-043`, `KB-KGV-043` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-017`, `KB-KGV-017`, `KB-KGV-020`, `KB-KGV-020`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-045`, `KB-KGV-045` |
+| `BJ-14` | `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-016`, `KB-KGV-016`, `KB-KGV-017`, `KB-KGV-017`, `KB-KGV-018`, `KB-KGV-018`, `KB-KGV-045`, `KB-KGV-045` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-019`, `KB-KGV-019`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-041`, `KB-KGV-041`, `KB-KGV-043`, `KB-KGV-043`, `KB-KGV-044`, `KB-KGV-044` |
+| `BJ-15` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-032`, `KB-KGV-032`, `KB-KGV-033`, `KB-KGV-033` | `KB-KGV-001`, `KB-KGV-001`, `KB-KGV-005`, `KB-KGV-005`, `KB-KGV-015`, `KB-KGV-015`, `KB-KGV-018`, `KB-KGV-018`, `KB-KGV-038`, `KB-KGV-038`, `KB-KGV-040`, `KB-KGV-040` |
+| `BJ-16` | `KB-KGV-021`, `KB-KGV-021`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-032`, `KB-KGV-032`, `KB-KGV-033`, `KB-KGV-033` | `KB-KGV-006`, `KB-KGV-006`, `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-031`, `KB-KGV-031`, `KB-KGV-040`, `KB-KGV-040` |
+| `BJ-17` | `KB-KGV-027`, `KB-KGV-027`, `KB-KGV-028`, `KB-KGV-028`, `KB-KGV-029`, `KB-KGV-029`, `KB-KGV-032`, `KB-KGV-032` | `KB-KGV-002`, `KB-KGV-002`, `KB-KGV-030`, `KB-KGV-030`, `KB-KGV-033`, `KB-KGV-033`, `KB-KGV-041`, `KB-KGV-041`, `KB-KGV-042`, `KB-KGV-042` |

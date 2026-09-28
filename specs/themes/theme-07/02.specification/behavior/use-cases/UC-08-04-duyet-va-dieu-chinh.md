@@ -171,3 +171,4 @@ Không sửa count evidence, không chỉnh value basis tại màn duyệt, khô
 - **Domain / Entity:** `DOM-IC`, `ENT-IC-02`, `ENT-IC-04`, `ENT-IC-05`, `ENT-IC-09`.
 - **Behavioral Contract:** `BC-IC-03`.
 - **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-174…177`.
+- **Bài tri thức liên quan:** [KB-KGV-011 — Kiểm kê hàng tồn kho từ khóa phạm vi đến điều chỉnh chênh lệch](../../../01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md); [KB-KGV-020 — Định giá hàng trả, tiêu hủy và chênh lệch thừa thiếu](../../../01.knowledge/know-how/KB-KGV-020-dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu.md); [KB-KGV-029 — Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md); [KB-KGV-031 — Phê duyệt Inventory Operation theo mức rủi ro](../../../01.knowledge/know-how/KB-KGV-031-phe-duyet-inventory-operation-theo-muc-rui-ro.md)

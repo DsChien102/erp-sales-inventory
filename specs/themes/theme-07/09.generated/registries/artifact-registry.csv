@@ -1,7 +1,7 @@
 id,type,owner,status,path,sha256,size,theme,title,source_baseline
 DECISION-REGISTER,decision-register,BA,FROZEN,01.knowledge/decisions/decision-register.md,f331c1fe2fe635741885615f5d39aa4941f85191059bb76ee02c7c241a818aaa,144565,theme-07,Kho & Giá vốn — Quyết định nghiệp vụ,v3.12.0
 GLOSSARY,glossary,BA,FROZEN,01.knowledge/glossary/glossary.md,e47393b89ea8578007ef9e3c0451aefcda7ad9f93bedcbb53f9dc5ac59656ce0,42409,theme-07,"Danh mục thuật ngữ quản lý tồn kho, giá vốn và định giá bán",v3.12.0
-,,,,01.knowledge/know-how/00-table-of-contents.md,1e20197a1011c566eeb0e54b0639559413b8202158459fbc7d0ac531cc121f81,9261,,"Mục lục bộ tri thức quản lý tồn kho, giá vốn và định giá liên quan",
+,,,,01.knowledge/know-how/00-table-of-contents.md,4cc868434c8daa1adb598daaccfde373076873078fe8a97d55c51b0f66c3b708,24372,,"Mục lục bộ tri thức quản lý tồn kho, giá vốn và định giá liên quan",
 KB-KGV-001,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-001-pham-vi-quan-ly-ton-kho-va-gia-von.md,596d02ab0d5df1515219554f1a94f4b9f6c516e462766524d157bb03155ea1ab,10894,theme-07,pham-vi-quan-ly-ton-kho-va-gia-von,v3.10.1
 KB-KGV-002-ranh-gioi-trach-nhiem-giua-cac-he-thong-nghiep-vu,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-002-ranh-gioi-trach-nhiem-giua-cac-he-thong-nghiep-vu.md,c179e50319ce826144110030fe95e3ae60736b330df675f6a3bd1634ba7b4450,8332,theme-07,ranh-gioi-trach-nhiem-giua-cac-he-thong-nghiep-vu,v3.10.1
 KB-KGV-003-kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho,know-how,BA,FROZEN,01.knowledge/know-how/KB-KGV-003-kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho.md,bb2bba7050fd3a0bf30b8cfdf83bc2a69c694ade112df9a0bbda0098c421377a,7828,theme-07,kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho,v3.10.1
@@ -95,24 +95,24 @@ SBC-COM-03,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-co
 SBC-COM-04,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-contracts/SBC-COM-04.md,cd42f82db8d617c0adc6bea5acd268261658edbf53e9c1d162913b855ed878b1,1908,theme-07,Finality và tính nguyên tử,v3.10.1
 SBC-COM-05,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-contracts/SBC-COM-05.md,2e00c5b78e004036c42b1c7964cd73f1e191e8d1e4d3cf6acbbe14885f6c9e85,2622,theme-07,Quyền và phê duyệt,v3.10.1
 SBC-COM-06,behavioral-contract,BA,FROZEN,02.specification/behavior/behavioral-contracts/SBC-COM-06.md,5dc019d9a7dec2c9ebe8a0c04241fc9219ff0fe4f50df966c548ba27775b84ac,1874,theme-07,Vòng đời sản phẩm,v3.10.1
-BJ-MAP,business-journey-map,BA,IN_REVIEW,02.specification/behavior/journeys/00-business-journey-map.md,78680840b0e5bc8662eba478dce453327985cbba604b058184966534aa6d3e15,14735,theme-07,Business Journey Map — Theme 07,v4.1.0
-BJ-01,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md,ca933d813ef9d3bf4ad41ab36e9bc242b60bb4cf48cb5cb18ea6acd22dada3e1,6756,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.0.0
-BJ-02,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md,7fa8807cb309f1071f0ced092331c0793d890cc1b85754701b6df5b6585226ac,7910,theme-07,Nhận hàng mua,v4.0.0
-BJ-03,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md,f1c4c19bd4a33594607cf08ccdb60f2c937f4f976ce7a8116ed92ad20a98fe8e,5668,theme-07,Xác lập giá trị ban đầu của hàng nhận,v4.0.0
-BJ-04,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-04-quan-ly-vong-oi-giu-hang.md,e25a9ab99ff62c149b27b079b48ca3ebcd2a78608b7991c4a147253cedf7ed55,5533,theme-07,Quản lý vòng đời giữ hàng,v4.0.0
-BJ-05,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-05-lay-hang-va-ban-giao-on.md,fc0e2b4bd5f1936762c3749fb8c35978c3c3706a50d762bb72e88b6d5b29800a,6391,theme-07,Lấy hàng và bàn giao đơn,v4.0.0
-BJ-06,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md,6852b12c985b315e08dff148800db74f8a7fd919c5d1965901e6e91a160c69e4,6212,theme-07,Tiếp nhận và phân loại hàng khách trả,v4.0.0
-BJ-07,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md,9d6891ce6fbf4015fdf20c8daf3cc7fac40329ca3d4949a9f8ddae3bf0a954d0,6496,theme-07,Thực hiện trả hàng cho nhà cung cấp,v4.0.0
-BJ-08,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md,ba9f2ca1e03ed0a267713679dca716133cc2c4237efc012569d9b36d7b0c256a,6382,theme-07,Kiểm kê và điều chỉnh chênh lệch,v4.0.0
-BJ-09,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-09-quan-ly-trang-thai-hang.md,1ba6040e37e001f5aea7f21016ec8b84d5cbbd17e0effc4ebd11ea457bd3aa16,5784,theme-07,Quản lý trạng thái hàng,v4.0.0
-BJ-10,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-10-tieu-huy-hang.md,d96fe92a72591daa98925f9b6c953e0d6b819903030e07f92f86db0ee5fc112f,5668,theme-07,Tiêu hủy hàng,v4.0.0
-BJ-11,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md,190f8928b12da8724c49f7f94c99c4869c8d94b46e8d7983997717124a760da4,6258,theme-07,Hủy và sửa sai nghiệp vụ kho,v4.0.0
-BJ-12,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md,cf63e5213f2a1caf8a3b329e5cb1e7d76c28818e7372dad531680cf501054a3f,5478,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.0.0
-BJ-13,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-13-dieu-chinh-gia-tri-hang-nhap.md,56a2c8e6f92958480038ebfe4d8f2ec16e98e43c33335671f04184fae85e9f01,5204,theme-07,Điều chỉnh giá trị hàng nhập,v4.0.0
-BJ-14,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md,505b5d7ddcd1798d410ce35dbb6026d64ed02d2185214c7314b42a90fd8ec047,5606,theme-07,Tính và công bố giá vốn,v4.0.0
-BJ-15,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md,e1bc842c9b985dafab546aecff1bf8ae746c36a8f56753c05eb3744acd0b2e2e,5555,theme-07,Tra cứu báo cáo tồn và thẻ kho,v4.0.0
-BJ-16,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-16-ieu-tra-va-oi-soat-sai-lech.md,85f3aaac1d973beed2c403968e20ad343da29a377a95c6eced5a4e538891526d,6316,theme-07,Điều tra và đối soát sai lệch,v4.0.0
-BJ-17,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md,c6cc4cab167c1b7ae7680bcbea456194b3bb729aa96020e2cdcc57347cec8469,6090,theme-07,Phục hồi nghiệp vụ có kết quả chưa xác định,v4.0.0
+BJ-MAP,business-journey-map,BA,IN_REVIEW,02.specification/behavior/journeys/00-business-journey-map.md,a3c770fa1bae5152e37a92171b08ba3680b37080449d07b973bb7873c8097bcd,44069,theme-07,Business Journey Map — Theme 07,v4.1.0
+BJ-01,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md,7b3a19ab5c7cdfe7402db3370c3a8ccbe8c2ad391dee7165dcf75eed052f2a1a,7553,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.0.0
+BJ-02,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md,c05f1ae00fadc1c3149ba34cfcfe246d4bcf4f0ec80494e50a19c6802fd0cf88,8890,theme-07,Nhận hàng mua,v4.0.0
+BJ-03,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-03-xac-lap-gia-tri-ban-dau-cua-hang-nhan.md,4d729f09b06c7b4996236686875479ce2c33813c5c7cbfe82a1e0d10a1a234cc,6328,theme-07,Xác lập giá trị ban đầu của hàng nhận,v4.0.0
+BJ-04,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-04-quan-ly-vong-oi-giu-hang.md,fd59d7d77c7a16448cd05a3ac6b3020a88daef0aeaca963cbd1009515c9105f3,6173,theme-07,Quản lý vòng đời giữ hàng,v4.0.0
+BJ-05,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-05-lay-hang-va-ban-giao-on.md,5457666e3f25fa3ab1efe2a7dd8cc533a837861d39909aef4495782a1e1291fc,7207,theme-07,Lấy hàng và bàn giao đơn,v4.0.0
+BJ-06,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md,75fc0e80afdd2f5b60c403721d140801266f87a86216dbfd36c9f59d06aeab07,7012,theme-07,Tiếp nhận và phân loại hàng khách trả,v4.0.0
+BJ-07,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md,2de492db44ed9ca7e9fc75b6f05983ee8424dad957bee47f086bb585d5d3fd23,7291,theme-07,Thực hiện trả hàng cho nhà cung cấp,v4.0.0
+BJ-08,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-08-kiem-ke-va-ieu-chinh-chenh-lech.md,ead4337cac952d055297015927e1dc0121fe09bd769ec18daf7ff31fb6cba5d3,7319,theme-07,Kiểm kê và điều chỉnh chênh lệch,v4.0.0
+BJ-09,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-09-quan-ly-trang-thai-hang.md,7e8c25533ec2f65a35c44522c19177d35667265fef57fb63dad8f622c9499f0e,6596,theme-07,Quản lý trạng thái hàng,v4.0.0
+BJ-10,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-10-tieu-huy-hang.md,18963109ddab7e9fa8dc4dd5d9e746d3cd575e43f372a2fe1adcae4663fa659f,6493,theme-07,Tiêu hủy hàng,v4.0.0
+BJ-11,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-11-huy-va-sua-sai-nghiep-vu-kho.md,1cf1c9292cc0b4ac1251f634ce42cfb7fddd81254c9145c795e8685b778447d0,7063,theme-07,Hủy và sửa sai nghiệp vụ kho,v4.0.0
+BJ-12,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md,0b7c1b875433377d1b8e6855af0b0a1536b86bf7feac8996a99895997e84237c,6517,theme-07,Khởi tạo số dư tồn kho đầu kỳ,v4.0.0
+BJ-13,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-13-dieu-chinh-gia-tri-hang-nhap.md,c413cc334488d5ca76500f94f65edd2f2aa05f6a16a653cfd211d933bd09a5c6,6035,theme-07,Điều chỉnh giá trị hàng nhập,v4.0.0
+BJ-14,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-14-tinh-va-cong-bo-gia-von.md,ce2ebc15d527ee8a51f2d65bd6cc7a35d839f52ad5ab5cd486e3e72f59c2cdf3,6657,theme-07,Tính và công bố giá vốn,v4.0.0
+BJ-15,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md,87e53913eb935d331a2c49d7d3b1850679907aa03ea9c7d041eeb33a119da065,6435,theme-07,Tra cứu báo cáo tồn và thẻ kho,v4.0.0
+BJ-16,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-16-ieu-tra-va-oi-soat-sai-lech.md,9a860ffe21a96cf677a5c08c5a61515533c5f4d7511bcaf27405838d258f56c9,7156,theme-07,Điều tra và đối soát sai lệch,v4.0.0
+BJ-17,business-journey,BA,IN_REVIEW,02.specification/behavior/journeys/BJ-17-phuc-hoi-nghiep-vu-co-ket-qua-chua-xac-inh.md,d6209c99ef043d0c32cf67acd9b7caec43613c164c6042652dafda73666c0838,6935,theme-07,Phục hồi nghiệp vụ có kết quả chưa xác định,v4.0.0
 UC-MAP,use-case-map,BA,IN_REVIEW,02.specification/behavior/use-cases/00-use-case-map.md,c93749c40d341949f1e09f3c9730dcdc6017c98fb501767e3578929c03a2bda1,21996,theme-07,Use Case Map — Theme 07,v4.0.0
 UC-01-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md,244e4358bc143afae3a3488e87ba67a29e642871ef67bd1ecf83da72575fdba8,9617,theme-07,Xác định ngữ cảnh và sản phẩm,v4.0.0
 UC-01-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-01-02-xem-ton-va-kha-dung.md,387658e764b712789ace5ec8c8a59062189dcee38078932dff5fd901aafb1aec,9578,theme-07,Xem tồn và khả dụng,v4.0.0
@@ -123,12 +123,12 @@ UC-02-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-01-chua
 UC-02-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md,1d09d20e23ad369979488a5f32a22239fadf4d252f705e33d4fdfb420edd62d0,15424,theme-07,Chuẩn bị nhập hàng nhanh,v4.0.0
 UC-02-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md,a05c3f26ad9e9c2be2f19a06a7fac3230483d8c81f00d2085a91e8b4078c0025,11938,theme-07,Phê duyệt yêu cầu nhận hàng,v4.0.0
 UC-02-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md,0a2a58ef858ba0be5904967cb83be1db91431ba7af32e0a496d839f2c6b0d39d,11140,theme-07,Ghi nhận hàng vào tồn vật lý,v4.0.0
-UC-02-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md,82f66648914e4d7a15e2d77854eba19381d72b754a5d98bbbda9a377ec2e6810,7746,theme-07,Truy vấn và phục hồi ngắn kết quả nhận hàng,v4.0.0
-UC-03-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md,d5853df2d6f82a6ee39be502165bc1b3a5cbedfccd9180f042d62824206e760e,17055,theme-07,Xác lập giá trị nhập ban đầu,v4.1.0
-UC-04-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-01-tao-reservation.md,f081b2f9b0d0b54249e60882e05b43b57f1833c2a9b637340da8da6ba88a02c5,8870,theme-07,Tạo reservation,v4.0.0
-UC-04-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-02-dieu-chinh-reservation.md,afc8090a2849e1174a24b8cb3ea86532308e0d2ed7a21db3499b44fd72aa427c,8638,theme-07,Điều chỉnh reservation,v4.0.0
-UC-04-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-03-ket-thuc-va-giai-phong.md,e7986fa695227805a27cdbe5cb3c705049fdc5a6a269888b5dec66f71916882b,8013,theme-07,Kết thúc và giải phóng,v4.0.0
-UC-04-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md,21c63b66bcbaefbca5a656b56a3cdccfd04a7469ca3417749e06edbe9b4f9dcb,8537,theme-07,Đánh giá lại và xử lý thiếu,v4.0.0
+UC-02-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md,ab4b77d463bfbfb6910e382b4ada285c077f5d8dc73f7edfcbb54bd74c284fa9,8313,theme-07,Truy vấn và phục hồi ngắn kết quả nhận hàng,v4.0.0
+UC-03-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-03-01-xac-lap-gia-tri-nhap-ban-dau.md,d8cc200c78e457d24b48213f1a77046dca465ed6642c844eac1cd2f0a2235e11,17756,theme-07,Xác lập giá trị nhập ban đầu,v4.1.0
+UC-04-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-01-tao-reservation.md,8a4c932e3bb3544a24dd49b6eae433877ffe637903975b735f090868f1d8dbfb,9402,theme-07,Tạo reservation,v4.0.0
+UC-04-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-02-dieu-chinh-reservation.md,29c01fa2a9bbaef2d427775f65fbca314c5d49a17bf4db28612c449381b7a066,9170,theme-07,Điều chỉnh reservation,v4.0.0
+UC-04-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-03-ket-thuc-va-giai-phong.md,beb089e100c5911d796c5113c10df4ea4de8829e9f017b8425e02c3928ff262d,8545,theme-07,Kết thúc và giải phóng,v4.0.0
+UC-04-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md,18c9bf011c542699424b2805a91de58e4179319e50ae93bff75040bb33012ba2,9270,theme-07,Đánh giá lại và xử lý thiếu,v4.0.0
 UC-05-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-05-01-lap-allocation.md,f67a34a23ca82db982eace293e4946c0c346d80a583b01572fddc2405d45cc3b,10390,theme-07,Lập allocation,v4.0.0
 UC-05-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-05-02-xac-nhan-hang-da-lay.md,9940747094995d466a8ba45bdbaae7c5271632cab9fec2de35beb4349bf41922,10291,theme-07,Xác nhận hàng đã lấy,v4.0.0
 UC-05-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-05-03-ban-giao-hang.md,134911093db54d78d57466a2aa608562c0fef4d2d3886e1a02b16404433b05e0,10237,theme-07,Bàn giao hàng,v4.0.0
@@ -142,11 +142,11 @@ UC-07-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-07-01-xac-
 UC-07-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-07-02-dua-hang-vao-cho-tra.md,d09eb58e8342d38463d578d227195467220ac0c09d72aa04cfe556af33d4471d,10003,theme-07,Đồng bộ hàng vào chờ trả,v4.0.0
 UC-07-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md,fc9688fbca3a204fde465bf17ee7909f6bd195d0cdf9cd64de177473a5981037,10113,theme-07,Điều chỉnh hoặc hủy trước bàn giao,v4.0.0
 UC-07-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md,a721fa8293ad21d068757e451216db4561791156876b94bdb47784feb51e4528,10199,theme-07,Ghi nhận bàn giao trả nhà cung cấp,v4.0.0
-UC-08-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-01-mo-va-khoa-pham-vi.md,d8344d7f9a0b1d8140a6bd1786ef582ef1e09cb76957c3d88885ca25428646d9,9548,theme-07,Mở và khóa phạm vi,v4.0.0
-UC-08-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-02-ghi-nhan-lan-dem-mu.md,00a1c0301b7367369963d5c5b56f9edc2380c6939d6d6eea6270f6659c069666,9328,theme-07,Ghi nhận lần đếm mù,v4.0.0
-UC-08-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md,709cbea153822c3daad7f50e87138897bb290ed6031e8145ba633e6fd9b0a156,8952,theme-07,Đếm lại và hoàn thiện căn cứ,v4.0.0
-UC-08-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-04-duyet-va-dieu-chinh.md,5a04abae7ce78f6c4ef6265c0a3b479019c34513b6a6301a4ba558e636d1bcc9,9768,theme-07,Duyệt và điều chỉnh,v4.0.0
-UC-08-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-05-huy-phien-kiem-ke.md,7a3df593fe018997dac3ed0d77de419e9d5fd958194441c46e44ec89fdf3bda4,7902,theme-07,Hủy phiên kiểm kê,v4.0.0
+UC-08-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-01-mo-va-khoa-pham-vi.md,f94248e1713572a764e45a987aaf63b59dcc1df368810c96563f071dd7b428ce,9988,theme-07,Mở và khóa phạm vi,v4.0.0
+UC-08-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-02-ghi-nhan-lan-dem-mu.md,dda6b241d78325e16472d9e401ccc32790c89d885032b72b0e596ca306434cbf,9760,theme-07,Ghi nhận lần đếm mù,v4.0.0
+UC-08-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md,1164f43e87f9419d7c4da31c6ec58297a8ab5b590dfee019b7de8ac73e69f287,9531,theme-07,Đếm lại và hoàn thiện căn cứ,v4.0.0
+UC-08-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-04-duyet-va-dieu-chinh.md,7d5a127da27a0a60e343233d9aa1bad5c723b2caa6a5f404c98dca56866134e1,10533,theme-07,Duyệt và điều chỉnh,v4.0.0
+UC-08-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-08-05-huy-phien-kiem-ke.md,88629d2ba79ec325c208379caf45424615b0a9c8c76ebb02e9f8bb54da86d02b,8293,theme-07,Hủy phiên kiểm kê,v4.0.0
 UC-09-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-01-chuan-bi-thay-doi-trang-thai.md,393bebe9f72f926aa96d2104ac283724edeaa6ef104694309d402505b52f47c5,11583,theme-07,Chuẩn bị thay đổi trạng thái,v4.0.0
 UC-09-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-02-phe-duyet-thay-doi-trang-thai.md,f6b95f529c9e59b55c677a5db73bc5b61fb8152733178e7f36868fec8bff68b3,10660,theme-07,Phê duyệt thay đổi trạng thái,v4.0.0
 UC-09-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-09-03-xac-dinh-hang-het-han.md,e9a00acb4153a0f664e830b97d4ba320f9493c8c9853b364ac47f2ae50e67a24,10150,theme-07,Xác định hàng hết hạn,v4.0.0
@@ -163,9 +163,9 @@ UC-11-05,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-11-05-ghi-
 UC-12-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md,b96e9c41be4f73ad7938c60fdf03ae1a80bb0f4bd2ca2d750d2de115b77e6edf,11609,theme-07,Nạp và kiểm tra batch đầu kỳ,v4.0.0
 UC-12-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-02-ra-soat-va-duyet-batch.md,9354edf21d7a9c84ac6eb5eac1cf83b73d646d38a24f9b7dc5f92c9a5cacda1e,10629,theme-07,Rà soát và duyệt batch,v4.0.0
 UC-12-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-12-03-commit-va-kich-hoat-ton-kho.md,8a32fe7ea0ae45ca8ebe87456698cec21ab63b8026016305a641dce1113c7e9b,10533,theme-07,Commit và kích hoạt tồn kho,v4.0.0
-UC-13-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md,f2ff5ebffbc66e9e105a2256b32a7d8619e3917b0aade87c74b4f4e2829fdd5a,12941,theme-07,Ghi nhận điều chỉnh giá trị hàng nhập,v4.1.0
-UC-14-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md,7f247414af80d0c74bbe2bead839a27813d0be16d1af6b136894bea81da11474,10124,theme-07,Tính và rà soát giá vốn,v4.1.0
-UC-14-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-14-04-cong-bo-gia-von.md,d46e1c24d4eec5f3001f7dc2053819168116e7dd99720c5768f50fb4f8084238,9710,theme-07,Công bố giá vốn,v4.1.0
+UC-13-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-13-01-ghi-nhan-dieu-chinh-gia-tri-hang-nhap.md,0a35e1bb7ffaddfb88de255d9272cbaf0d9c31ceef0e6bc1ec15cf3b8fa1cb56,13664,theme-07,Ghi nhận điều chỉnh giá trị hàng nhập,v4.1.0
+UC-14-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-14-01-tinh-va-ra-soat-gia-von.md,cb55b6d57329cbcefd0b00ae19d1e7bef1ef2be03e9583be08eaf7ff5c9a8071,10877,theme-07,Tính và rà soát giá vốn,v4.1.0
+UC-14-04,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-14-04-cong-bo-gia-von.md,c531ea808eeec19e9a450daa20bdbdcb1416662fa1b0b7a146b446d84d563cf8,10655,theme-07,Công bố giá vốn,v4.1.0
 UC-15-01,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md,d8653c90806d30cc095a80f205fe08596c03ce72d01ed45389c8b25ffef51555,9191,theme-07,Xác định báo cáo và phạm vi,v4.0.0
 UC-15-02,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-15-02-xem-bao-cao-ton-kho.md,e5c5dae55b938392d07d2b50336d3d314a76731a73612218e0a37a4341b7d73e,8927,theme-07,Xem báo cáo tồn kho,v4.0.0
 UC-15-03,use-case,BA,IN_REVIEW,02.specification/behavior/use-cases/UC-15-03-xem-the-kho-va-lich-su.md,e2d56aa5ab3e3c943728c6d6f23f2d283accde9a80ee204ab37ea810dc1553f9,9521,theme-07,Xem thẻ kho và lịch sử,v4.0.0
@@ -334,13 +334,13 @@ PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,1ede70b61f8
 ,,,,03.design/prototype/html/app.js,ce06bf824156a844577d0883376ceecf63c0325fbca00c1856d15705738248f6,544282,,,
 ,,,,03.design/prototype/html/bj01-ds-fidelity.css,e5f150661f0d4c4700f8e5ed2010710c9c22c1193392464d4b7f1d96cbc4969b,16950,,,
 ,,,,03.design/prototype/html/bj02-ds-fidelity.css,4beb84ca31d6bec40143e70369148bd5e8c7be3180fde80b1637168bf366d171,20569,,,
+,,,,03.design/prototype/html/figma-ds-runtime-map.js,6aa92a8687dcc8fb8358b9b52c347b0cbc3c2e6f87895bdd1b3f8330fa7e8575,38346,,,
 ,,,,03.design/prototype/html/figma-ds-runtime/RUNTIME-STATUS.md,fbe1dc144c2cce4a60e1d5f67365b92b64bc6146b6632c1c9abbbcf4e9f9cb16,7725,,Figma DS Runtime v2.9.3 — Working Freeze status,
 ,,,WORKING_FREEZE_BJ01_BJ02_BJ04_BJ05_BJ06_BJ07_BJ08_REVIEW_READY_V2_9_3,03.design/prototype/html/figma-ds-runtime/runtime-registry.json,fb7e6aeab3b76081592d4fcc57f1aadd1942d6759eac056cdd367abe5827b40e,17744,,,
 ,,,,03.design/prototype/html/figma-ds-runtime/runtime.css,e1b3d8c5649ba93ccb7c76b57142dcd17fab7b56ea3b35dc35deb32553030d7e,9707,,,
 ,,,,03.design/prototype/html/figma-ds-runtime/runtime.js,f870844c0aeabaa386287b4b2505cd4354ee18db5f233cea3e3899740bc8f3d6,419,,,
 ,,,,03.design/prototype/html/figma-ds-runtime/specimens-v2.2.0.png,bf091bd8016ff1f6fdabc1777d3c2a6b7c346c89729082c6de143e7259406ffc,146838,,,
 ,,,,03.design/prototype/html/figma-ds-runtime/specimens.html,d79c551ad14f0408b62b5b22f87a4fc9058f5ed7089472b643a2b26046aebc84,6318,,,
-,,,,03.design/prototype/html/figma-ds-runtime-map.js,6aa92a8687dcc8fb8358b9b52c347b0cbc3c2e6f87895bdd1b3f8330fa7e8575,38346,,,
 ,,,,03.design/prototype/html/figma-ds.exact.css,bd81443ea4787099d865d34d4156523ced5da64d38aaa3ef5e8863214b3000e9,6016,,,
 ,,,,03.design/prototype/html/figma-ds.styles.exact.css,2ad4ebe9096fe290e39f0f519191de6b565b011382538dd3a613b3f78b35be43,3399,,,
 ,,,,03.design/prototype/html/index.html,a39dd9dbacc8bca3ea69cb4d401fa547fba33f396ad0561cdf76d53a787ddda3,11220,,,
@@ -3561,7 +3561,7 @@ SCR-086,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-086.md,d00992a3f5c1af
 SCR-087,screen-contract,BA,RETIRED,03.design/screens/SCR-087.md,3e5e67987702002b0faf4a767663237d314130a0581fd5d4e08b9a87b2e0c863,514,theme-07,Phân bổ điều chỉnh — Đã hợp nhất,v3.13.0
 SCR-088,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-088.md,95d0b80d5db9192c95ce4999a5f4ed019a433d1267863924a61f25fcf27a7d74,1239,theme-07,Rà soát điều chỉnh giá trị,v4.3.0
 SCR-089,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-089.md,3077ac8cf800cda9f5c6e65b626558a0efc3cd273f729a965fb78b82f1945e1e,983,theme-07,Kết quả điều chỉnh giá trị,v4.3.0
-,,,,04.harness/manifests/theme.manifest.yml,39e07c1f4fc13bb3b4fa051f73801987e54d6bb60e7ac9da621e776c689979a8,35893,,,
+,,,,04.harness/manifests/theme.manifest.yml,b9d1fb4c6aa92654179197c6251f3fb2fe98d7b9a66d22c2910f04f281c48939,35914,,,
 BE-01-01,be-slice,SE,DRAFT,04.harness/slices/BE-01-01-xac-inh-ngu-canh-va-san-pham.md,99a81ec9ff422263235c13864979dfac01898a38da9e1b195692883797e59dfb,3858,theme-07,Xác định ngữ cảnh và sản phẩm,v3.10.1
 BE-01-02,be-slice,SE,DRAFT,04.harness/slices/BE-01-02-xem-ton-va-kha-dung.md,636e932d2a7672ad648dcf4bdb1e27a89d858fb0b5f7e3cd76f8984c39a6d4f2,3826,theme-07,Xem tồn và khả dụng,v3.10.1
 BE-01-03,be-slice,SE,DRAFT,04.harness/slices/BE-01-03-xem-trace-summary.md,b8478c71b3b8f0feced8dfabee1d30e0504ecbc192d5418901b605e478d4ff5e,3808,theme-07,Xem trace summary,v3.10.1
@@ -3753,10 +3753,15 @@ PROC-01,procedure,SA/SE,FROZEN,05.procedures/PROC-01-dung-lai-du-lieu-dan-xuat-t
 ,,,PASS,06.evidence/EVD-CANONICAL-LINKS-v4.3.1.json,1864de4e4f764698591da1f34f0eb655c5a6ff9f723a5d418d32bd810d00d57b,160,,,
 ,,,PASS,06.evidence/EVD-CANONICAL-LINKS-v4.4.0.json,9d6aefee556f1edf18df3a674a25a212297d0f238281435c2b6f42f10403266e,193,,,
 ,,,,06.evidence/EVD-CANONICAL-LINKS-v4.5.0.json,babb8b360866f539a7d6547233f38a9a001a782291f31f7757068f24a06b135e,215,,,
+,,,,06.evidence/EVD-CANONICAL-LINKS-v4.5.1.json,bbea5e71b21f66762d0d45f5b274c1853ea03e29df69091f95a5b2f2bfb905fc,215,,,
 ,,,,06.evidence/EVD-CURRENT-PACKAGE-VALIDATION-v4.5.0.json,fc94256def58948168bc1b401ea76d2bd7a0680e7da434f2c04c818acdacbaf5,3464,,,
 ,,,,06.evidence/EVD-CURRENT-PACKAGE-VALIDATION-v4.5.0.md,f374cedb67b221eea4306df743d256db29a658727ba1800f875510bb25692089,1845,,Current Package Validation v4.5.0,
+,,,,06.evidence/EVD-CURRENT-PACKAGE-VALIDATION-v4.5.1.json,1a1652edc36889ffa2febd8c591121612e564a2cca14d9b30739ebd08819fb66,1294,,,
+,,,,06.evidence/EVD-CURRENT-PACKAGE-VALIDATION-v4.5.1.md,467bcee1b839a6eeb4819c46cc15489e1ae9c7f7117aa8bdc60b7b9555ea9557,536,,,
 EVD-FINAL-STRUCTURAL-VALIDATION-v3.10.1,,,,06.evidence/EVD-FINAL-STRUCTURAL-VALIDATION-v3.10.1.json,e5810ea73ffe177b26dcabf2e5183e6233259b0ee5b0db474f21bcbdde6149dc,3495,theme-07,,
 EVD-FINAL-STRUCTURAL-VALIDATION-v3.10.1,evidence,HARNESS,FROZEN,06.evidence/EVD-FINAL-STRUCTURAL-VALIDATION-v3.10.1.md,18210c1a0fba0d19f342bfeb3d363d5939b4c4526637c808d3136249cac092e3,2458,theme-07,Final structural validation — template alignment with prototype runtime,
+,,,,06.evidence/EVD-KNOW-HOW-TRACEABILITY-v4.5.1.json,6ee50b88eb3e2eb4f681afa81f32be14012445d3784ba59b15afe91426abca6f,19655,,,
+,,,,06.evidence/EVD-KNOW-HOW-TRACEABILITY-v4.5.1.md,47ca5baf76d6e468ea1003be5c32a9c8e537144bc2238ddee6165369c622acbb,5424,,,
 EVD-MERGE-v4.1.0,,,PASS,06.evidence/EVD-MERGE-v4.1.0.json,b2a4ce5f2a5f74d1c512492dddcb8862fde5fff120bb1915735e5dbca115813d,1777,,,
 ,,,,06.evidence/EVD-MERGE-v4.1.0.md,731cbbd029dde58e7e603fe1382ec93c4d386849b87ca75ec87fe571bc948b58,412,,Merge Evidence — v4.1.0,
 ,,,PASS,06.evidence/EVD-PACKAGE-DIFF-v3.11.0.json,5b10b05a13421e610009674c0da96bfcb2e06576ae5b0edbb52f854491bbc885,600245,,,
@@ -3776,6 +3781,8 @@ EVD-PACKAGE-DIFF-v3.13.0,diff-evidence,QA/HARNESS,PASS,06.evidence/EVD-PACKAGE-D
 ,,,,06.evidence/EVD-PACKAGE-DIFF-v4.4.0.md,48efbb0fb9c141b900e46094e12422c6c8a164e4961378933b3ad24c66ad294a,287,,Package diff v4.4.0,
 ,,,,06.evidence/EVD-PACKAGE-DIFF-v4.5.0.json,4f7ebc695b4ade2b0ba81af77a4a226b6ff123cef1ba4c6bc4edbbebd6a2272c,14287,,,
 ,,,,06.evidence/EVD-PACKAGE-DIFF-v4.5.0.md,b46b6e2bbce1d6b13ee37ebda81ed351ff47c6f5960750561b9f4a8a0f1e8198,252,,Package diff v4.5.0,
+,,,,06.evidence/EVD-PACKAGE-DIFF-v4.5.1.json,a1b5b51f8b8c89e79432b9ac489eb6e6e62ee6961bddc79972c5d6352f8c4434,4012,,,
+,,,,06.evidence/EVD-PACKAGE-DIFF-v4.5.1.md,c43edb2ec7a980a3819b073cfe873a18135564a5cf76d3517c423c2966a64ff2,373,,,
 EVD-RELEASE-VALIDATION-v3.11.0,,,,06.evidence/EVD-RELEASE-VALIDATION-v3.11.0.json,5cd2bca2f0feaa2ce7888530708222b6ac5f8a7caecd2ca325852104b5f65e4a,2320,theme-07,,
 EVD-RELEASE-VALIDATION-v3.11.0,evidence,QA,FROZEN,06.evidence/EVD-RELEASE-VALIDATION-v3.11.0.md,a702ada309d35781f747a5c9e320994dcc415a4785a4e1be3aa7bfc3d4ef54d7,2159,theme-07,Kiểm định migration cấu trúc v3.11.0,
 EVD-RELEASE-VALIDATION-v3.12.0,release-evidence,QA/HARNESS,CONDITIONALLY_READY,06.evidence/EVD-RELEASE-VALIDATION-v3.12.0.md,42052219c9952f44090e6763e8e09df65a95f13a801240ed36989c87976e0965,5501,theme-07,Release validation — semantic/specification candidate v3.12.0,
@@ -3794,7 +3801,10 @@ EVD-RELEASE-VALIDATION-v4.3.1,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.3.1.json,
 ,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.4.0.md,127ace172a013c58f0b1b33037da93aed0657289391ca8a23fc638d22430a88e,576,,Release validation v4.4.0,
 ,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.5.0.json,bb71bc839fcf2497998c39d6d38f42a5ecd428975b14510092ac157fa0d26a7a,1728,,,
 ,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.5.0.md,cb2cf6e7c5ce8bf66a6653e4d595110acb9683ad1bb2335b05523261540c9fbd,558,,Release validation v4.5.0,
+,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.5.1.json,9627934335deff5a2c24fa690b72c268f2d5711f2fe5dbf738732f197f3ac163,2273,,,
+,,,,06.evidence/EVD-RELEASE-VALIDATION-v4.5.1.md,6b9bf84c98336de50c543bdc21d721806ce06b8f12bca28ab6d0360016bb0727,575,,,
 ,,,,06.evidence/EVD-SEMANTIC-IMMUTABILITY-v4.5.0.json,6fc164445ed63c81716754e28f7b3f7bac202a3610bf0452b966f8e9a6b55549,163,,,
+,,,,06.evidence/EVD-SEMANTIC-IMMUTABILITY-v4.5.1.json,ca3abe7439f6e3f06a0a967dc3dd8038ababf8b35d423509d9012e62f311844d,448,,,
 ,,,,06.evidence/EVD-SNAPSHOT-LED-VISUAL-QA-v4.5.0.json,dbb73edbb3e11c575d2f4900cf3a8387e082183d3ea4605f83376b663cbc50d3,114471,,,
 ,,,,06.evidence/EVD-SNAPSHOT-LED-VISUAL-QA-v4.5.0.md,356c55934cfb35f13a1a5a3e998bc54dddf5ce133dbd128c6039ee74f8a367d4,1695,,EVD — Snapshot-led Visual QA v4.5.0,
 ,,,PASS,06.evidence/EVD-STATIC-VALIDATION-v4.3.0.json,0cc1ab08870b4972be5d627d82b717e419c15bbf05dc5684bd5fbf4491465ba9,293,,,
@@ -7342,11 +7352,20 @@ EVD-VALUATION-SEMANTIC-v3.12.0,evidence,QA/HARNESS,PASS,06.evidence/specificatio
 ,,,,06.evidence/specification/ui-flow-validation/validation-report-v4.0.0.md,20bba5ad04508f8941fe74e9d9d164be14877507b598ca78b1ac07f3a6b6a4b3,808,,UI Flow validation — v4.0.0,
 ,,,,06.evidence/specification/ui-flow-validation/validation-report.json,fdeaef332079726604b36a53ddc7345353a7964fab6292b53dcca9beabcb6948,1541,,,
 ,,,,06.evidence/specification/ui-flow-validation/validation-report.md,18e78f5168ef492a49123f0c9b5e4ed081205b405a8929ad8330117ed56d4fda,1498,,UI Flow Validation Report — v3.6.0,
-,,,,09.generated/indexes/artifact-index.md,2b62f62ba361bf779d4d67e74779dd94d5bf24417be698a484a7873e583c3b07,687,,Artifact Index — v4.5.0,
+,,,,09.generated/indexes/artifact-index.md,713c8fa98089d6f709c4cbd21336fa8027100a2331f93e931a80260e5d9e145a,898,,Artifact Index — v4.5.0,
 ,,,,09.generated/matrices/design/bj-ui-flow-map.md,37a28fd8b70b935a7bc846910075327df2eadfe6682ab73632a722874e86b5b4,2898,,Generated — BJ ↔ UIF ↔ Screen matrix,
 ,,,,09.generated/matrices/design/ui-traceability.json,5b40cd8e25843c2f296af35e807fd8cd19a4e8e748cd90ab601e8d5018ca7522,27705,,,
-,,,,09.generated/matrices/traceability.json,28b8cebca6ea073c1615a2038ac4f18f3c6ac340c2700a244c6d41caeb9dcd82,28105,,,
-,,,,09.generated/matrices/traceability.md,20604a7d2cfd8b6748db63d92d093576aafecdc8079ef32f088cbec4b4dd92c0,14416,,Traceability matrix — v4.3.0,
+,,,,09.generated/matrices/traceability.json,b18b041f14a42847db7558338be056d920216cfbea0dbb7aae51875152412311,34881,,,
+,,,,09.generated/matrices/traceability.md,921a9c698089fc7a47ed1a74fd86151dc42b96f6bc1dc7242fdcf74391406091,18249,,Traceability matrix — v4.3.0,
+,,,,09.generated/registries/design-system/figma-component-registry.json,fc202b1d2899eb83add5434bbb5df888a8f48e23237c9c258d62e3676ee84e11,4776,,,
+,,,,09.generated/registries/design-system/figma-icon-registry.json,086dddcc5b13cb6611e26b8a42d3e15ce0927f212a73d5f74c139760f9662445,7274,,,
+,,,,09.generated/registries/design-system/figma-icon-source-catalog.json,262683f470cc03ff90a422549dce52bb42c4bf144f5edf02534a4051fda6e3fb,10552,,,
+,,,,09.generated/registries/design-system/figma-pattern-template-registry.json,b797123fbc6d804ba25eb7d935825ebedd66a4306d5b61c2c82c5fa432aa6982,2085,,,
+,,,,09.generated/registries/design-system/figma-style-manifest.exact.json,2bbfc43291d8378e77a46813a32fede755e1cfa188f3eb27cda2bf7f9ce99eb6,7546,,,
+,,,,09.generated/registries/design-system/figma-style-manifest.json,daf8b0fc154b715b5820ec8e566d90fd3f3d6782a7653359615e9fec510e960d,2308,,,
+,,,,09.generated/registries/design-system/figma-variable-manifest.exact.json,b879c86242b37ac778e5d8a99c3c95f637523085df53203527b31292b5a4b91e,27828,,,
+,,,,09.generated/registries/design-system/figma-variable-manifest.json,a951e0ae1e8b2eceed05d4f2054e5587a9c8c099da83d2b2d7c804b35014e3ab,3775,,,
+,,,,09.generated/registries/design-system/html-figma-ds-mapping.json,6ac441316c799f09d8e9ebd5b5d216060282abc37e5a51b6e58005094c91fb4c,38077,,,
 ,,,,09.generated/registries/design/COMPONENT-USAGE-REGISTRY.yaml,e521b722c3dd04d0cf8bc272db9367fc896324a3074ee3bab4b68972ebfb7989,12655,,,
 ,,,,09.generated/registries/design/UX-PATTERN-REGISTRY.md,3545d1487267b52e4e573516e3144c804698749ce6f987ba11ee52c2cea8c103,8449,,UX Pattern Registry — Theme 7,
 ,,,,09.generated/registries/design/action-registry.json,310748f84a03d12dbf65b8390856c507bda90df1dd6e7507ca24142a4cfce6d4,22311,,,
@@ -7361,14 +7380,5 @@ EVD-VALUATION-SEMANTIC-v3.12.0,evidence,QA/HARNESS,PASS,06.evidence/specificatio
 ,,,,09.generated/registries/design/screen-registry.json,21b4164def22910bd0e66ea44000ea80b42c01e3ed3a3c43aa43b036f66c2262,383358,,,
 ,,,,09.generated/registries/design/screen-registry.md,2ac942b5cb5b8d7050839afb60efbcaeae49dee0626643c5ab10fc11bf4f4bb4,11480,,Screen Registry — Theme 7 v4.3.0,
 ,,,,09.generated/registries/design/ui-flow-registry.json,368a454eda20a984e5d81f7c21e5a48b6ca474d02946eb5be1d41c110eaa84ec,33900,,,v4.3.0
-,,,,09.generated/registries/design-system/figma-component-registry.json,fc202b1d2899eb83add5434bbb5df888a8f48e23237c9c258d62e3676ee84e11,4776,,,
-,,,,09.generated/registries/design-system/figma-icon-registry.json,086dddcc5b13cb6611e26b8a42d3e15ce0927f212a73d5f74c139760f9662445,7274,,,
-,,,,09.generated/registries/design-system/figma-icon-source-catalog.json,262683f470cc03ff90a422549dce52bb42c4bf144f5edf02534a4051fda6e3fb,10552,,,
-,,,,09.generated/registries/design-system/figma-pattern-template-registry.json,b797123fbc6d804ba25eb7d935825ebedd66a4306d5b61c2c82c5fa432aa6982,2085,,,
-,,,,09.generated/registries/design-system/figma-style-manifest.exact.json,2bbfc43291d8378e77a46813a32fede755e1cfa188f3eb27cda2bf7f9ce99eb6,7546,,,
-,,,,09.generated/registries/design-system/figma-style-manifest.json,daf8b0fc154b715b5820ec8e566d90fd3f3d6782a7653359615e9fec510e960d,2308,,,
-,,,,09.generated/registries/design-system/figma-variable-manifest.exact.json,b879c86242b37ac778e5d8a99c3c95f637523085df53203527b31292b5a4b91e,27828,,,
-,,,,09.generated/registries/design-system/figma-variable-manifest.json,a951e0ae1e8b2eceed05d4f2054e5587a9c8c099da83d2b2d7c804b35014e3ab,3775,,,
-,,,,09.generated/registries/design-system/html-figma-ds-mapping.json,6ac441316c799f09d8e9ebd5b5d216060282abc37e5a51b6e58005094c91fb4c,38077,,,
 ,,,,09.generated/registries/structure-path-migration-v3.11.0.json,fda20e04edf07ec87e9497287b1c82a8c192f0c972ce1a377d68696c45d7100a,1026760,,,
-T07-README,theme-readme,BA/SA,FROZEN,README.md,6134721b4a3f46034b655c94b501c3d730f16ad4022ce094e3b83a43061082fe,7779,theme-07,Theme 07 — Kho & Giá vốn,v4.4.0
+T07-README,theme-readme,BA/SA,FROZEN,README.md,d2c92b437494920a7fabaafb90a9e399067716d51dbaf675e36f2d572e637757,7953,theme-07,Theme 07 — Kho & Giá vốn,v4.5.0

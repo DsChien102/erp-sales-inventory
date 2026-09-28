@@ -172,3 +172,4 @@ Không nhập số đếm, không tự xử lý lượng `VALUATION_PENDING`, kh
 - **Domain / Entity:** `DOM-IC`, `ENT-IC-03`, `ENT-IC-04`, `ENT-IC-08`.
 - **Behavioral Contract:** `BC-IC-01`.
 - **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-171…173`.
+- **Bài tri thức liên quan:** [KB-KGV-011 — Kiểm kê hàng tồn kho từ khóa phạm vi đến điều chỉnh chênh lệch](../../../01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md); [KB-KGV-030 — Quyền chức năng, phạm vi kho và bảo vệ dữ liệu tài chính](../../../01.knowledge/know-how/KB-KGV-030-quyen-chuc-nang-pham-vi-kho-va-bao-ve-du-lieu-tai-chinh.md)

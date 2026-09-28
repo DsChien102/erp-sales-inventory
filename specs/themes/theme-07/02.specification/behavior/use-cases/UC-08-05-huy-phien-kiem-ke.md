@@ -148,3 +148,4 @@ Không có luồng thay thế riêng; mọi trường hợp hủy hợp lệ đi
 - **Domain / Entity:** `DOM-IC`, `ENT-IC-02`, `ENT-IC-03`, `ENT-IC-04`, `ENT-IC-08/09`.
 - **Behavioral Contract:** `BC-IC-08`.
 - **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-171…177`.
+- **Bài tri thức liên quan:** [KB-KGV-011 — Kiểm kê hàng tồn kho từ khóa phạm vi đến điều chỉnh chênh lệch](../../../01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md); [KB-KGV-027 — Vòng đời của một Inventory Operation](../../../01.knowledge/know-how/KB-KGV-027-vong-doi-cua-mot-inventory-operation.md)

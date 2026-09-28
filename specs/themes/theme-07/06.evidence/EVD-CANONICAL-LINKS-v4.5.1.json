@@ -1,0 +1,7 @@
+{
+  "version": "4.5.1",
+  "scope": "canonical/current excluding 06.evidence historical material, prototype qa reports and 09.generated derived indexes",
+  "links_checked": 2448,
+  "broken": [],
+  "status": "PASS"
+}

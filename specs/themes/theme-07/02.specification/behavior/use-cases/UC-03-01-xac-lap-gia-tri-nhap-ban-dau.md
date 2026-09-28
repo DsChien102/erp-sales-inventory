@@ -233,3 +233,4 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **Domain / Entity:** `DOM-IV`, `ENT-IV-01`, `ENT-IV-02`, `DOM-IO`, `ENT-IO-01`, `ENT-IO-02`.
 - **Behavioral Contract:** `BC-IV-01`, `BC-IV-05`, `SBC-COM-02/03/04`.
 - **Decision:** `T7-DR-185…190`, `T7-DR-191`, `T7-DR-193`; `T7-DR-026` và `T7-DR-155` chỉ còn giá trị lịch sử.
+- **Bài tri thức liên quan:** [KB-KGV-008 — Hàng đã nhận nhưng chưa chốt giá và điều kiện đưa vào bán](../../../01.knowledge/know-how/KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia.md); [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-019 — Các thành phần hình thành giá trị hàng nhập](../../../01.knowledge/know-how/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md); [KB-KGV-043 — Kịch bản chiết khấu mua hàng theo kỳ](../../../01.knowledge/know-how/KB-KGV-043-kich-ban-chiet-khau-mua-hang-theo-ky.md)

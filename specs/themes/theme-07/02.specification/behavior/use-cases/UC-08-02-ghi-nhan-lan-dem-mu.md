@@ -172,3 +172,4 @@ Không cho counter thấy book quantity/variance trước FIRST submit, không n
 - **Domain / Entity:** `DOM-IC`, `ENT-IC-04`, `ENT-IC-05`, `ENT-IC-09`.
 - **Behavioral Contract:** `BC-IC-02`.
 - **Decision / Nguồn:** `T7-DR-035…039`, `T7-DR-174`, `T7-DR-176/177`.
+- **Bài tri thức liên quan:** [KB-KGV-011 — Kiểm kê hàng tồn kho từ khóa phạm vi đến điều chỉnh chênh lệch](../../../01.knowledge/know-how/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md); [KB-KGV-032 — Movement ledger, số dư dẫn xuất và phục hồi sau sự cố](../../../01.knowledge/know-how/KB-KGV-032-movement-ledger-so-du-dan-xuat-va-phuc-hoi-sau-su-co.md)

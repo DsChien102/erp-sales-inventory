@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.5.0
-parent: v4.4.0
-source_baseline: v4.4.0
-semantic_delta: SNAPSHOT_LED_VISUAL_QA_HARDENING_NO_BUSINESS_SEMANTIC_CHANGE
+version: v4.5.1
+parent: v4.5.0
+source_baseline: v4.5.0
+semantic_delta: KNOW_HOW_TRACEABILITY_COMPLETION_NO_BUSINESS_SEMANTIC_CHANGE
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,39 +78,39 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-Bản **v4.5.0** là cumulative update trực tiếp trên **v4.4.0**. Không thay đổi quyết định nghiệp vụ, Business Journey, Use Case, UI Flow, Screen Contract, action hoặc state machine. Đây là lượt **snapshot-led visual QA** trên toàn Theme 7 sau khi phát hiện validator DOM trước đó chưa đủ để bắt lỗi chữ tràn, density sai và composition sai Design System.
+Bản **v4.5.1** là cumulative patch trực tiếp trên **v4.5.0** để hoàn thiện truy vết tri thức. Bản này **không thay đổi quyết định nghiệp vụ, Business Journey flow, Use Case behavior, UI Flow, Screen Contract, action, state machine hoặc prototype**.
 
-Cách review được khóa lại: chụp từng màn active ở viewport `402×874`, ghép contact sheet theo 17 UIF, so với v4.4.0 và visual baseline ổn định v3.5.x khi cần, rồi chỉ sửa primitive/copy có bằng chứng visual. Không dùng CSS blanket để làm thay đổi toàn Theme.
+Các thay đổi chính của v4.5.1:
 
-Các sửa chính của v4.5.0:
+- 17/17 Business Journey có liên kết trực tiếp tới **Bài tri thức cốt lõi** trong mục `Truy vết`.
+- 14 Use Case trước đây chưa có Know-how đã được bổ sung, đưa coverage lên **64/64 UC có `Bài tri thức liên quan`**.
+- `00-business-journey-map.md` có ma trận **BJ ↔ Know-how** phân biệt `Cốt lõi` và `Hỗ trợ`; toàn bộ **45/45 bài Know-how** được phân loại ít nhất một lần.
+- `01.knowledge/know-how/00-table-of-contents.md` có đường tra ngược từ Business Journey sang Know-how.
+- Không sửa nội dung rule của 45 bài Know-how; không thay đổi artifact UI/prototype. Bằng chứng visual/runtime của v4.5.0 được carry-forward vì phạm vi design/prototype byte-identical.
 
-- `VBanner`: dùng đúng geometry/density của Figma DS v2; copy dài được rút tại nguồn thay vì kéo cao component hoặc để chữ tràn.
-- `Info Row`: nội dung giải thích dài không còn bị ép vào primitive 44px; dùng text block phù hợp trong cùng surface.
-- `VProgress`: component chỉ sở hữu progress bar; helper text là sibling content, không nằm trong thanh 8px.
-- Giữ toàn bộ grouped-surface rule v4.4.0; không rollback các sửa BJ03/BJ13/BJ14.
+### 6.1 Gate của v4.5.1
 
-### 6.1 Gate của v4.5.0
-
-- Snapshot review: **82/82 active screen captures**, **17/17 UIF contact sheets**.
-- All-state visual audit: **486/486 state renders**, không banner overflow, không horizontal app overflow, không browser runtime error.
-- Full-theme runtime smoke: **86/86 PASS**.
-- Valuation E2E regression: **29/29 PASS**.
-- Valuation visual integrity: **19/19 PASS**.
-- Valuation full-state smoke: **54/54 PASS**.
-- Valuation grouped-surface regression: **8/8 PASS**.
-- Theme-wide grouped-surface regression: **486/486 PASS**.
+- BJ → Know-how core: **17/17 PASS**.
+- UC → Know-how: **64/64 PASS**.
+- Know-how coverage trong BJ map: **45/45 PASS** (`Cốt lõi` hoặc `Hỗ trợ`).
+- Relative link validation cho toàn package: xem evidence v4.5.1 tại `06.evidence/`.
+- Semantic immutability ngoài traceability: **PASS** theo package diff; không có thay đổi UI/prototype.
+- Visual/runtime evidence: carry-forward từ **v4.5.0**; không tuyên bố chạy lại visual QA khi không có thay đổi design/prototype.
 
 ### 6.2 Thứ tự đọc đề xuất
 
 1. Đọc `BJ-*` để hiểu mục tiêu và ranh giới nghiệp vụ.
-2. Mở `UIF-*` từ liên kết trong BJ để xem luồng màn hình.
-3. Mở `SCR-*` để xem nội dung, trạng thái, hành động và DS mapping của từng màn.
-4. Chạy `03.design/prototype/html/index.html` để kiểm chứng tương tác.
-5. Dùng evidence v4.5.0 tại `06.evidence/` khi review release này.
+2. Từ mục `Truy vết` của BJ, mở các **Bài tri thức cốt lõi** để hiểu bối cảnh và khái niệm nền.
+3. Mở `UC-*` để xem hành vi chi tiết và các bài Know-how bổ sung theo từng Use Case.
+4. Mở `UIF-*` từ liên kết trong BJ để xem luồng màn hình.
+5. Mở `SCR-*` để xem nội dung, trạng thái, hành động và DS mapping của từng màn.
+6. Chạy `03.design/prototype/html/index.html` để kiểm chứng tương tác khi cần.
+7. Dùng evidence v4.5.1 tại `06.evidence/` cho traceability/release patch; dùng evidence v4.5.0 cho visual/runtime carry-forward.
 
 ### 6.3 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
+- Know-how: `01.knowledge/know-how/`
 - Business Journey: `02.specification/behavior/journeys/`
 - Use Case: `02.specification/behavior/use-cases/`
 - UI Flow: `03.design/flows/`
