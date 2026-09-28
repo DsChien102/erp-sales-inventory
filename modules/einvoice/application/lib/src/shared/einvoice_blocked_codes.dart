@@ -18,6 +18,8 @@ abstract final class EInvoiceBlockedCodes {
   static const signingConfigurationNotAvailable = 'SIGNING_CONFIGURATION_NOT_AVAILABLE';
   static const unsupportedTaxData = 'UNSUPPORTED_TAX_DATA';
   static const orderNotCompleted = 'ORDER_NOT_COMPLETED';
+  static const orderFullyReturned = 'ORDER_FULLY_RETURNED';
+  static const sourceVersionMismatch = 'SOURCE_VERSION_MISMATCH';
   static const alreadyIssued = 'ALREADY_ISSUED';
   static const operationInProgress = 'OPERATION_IN_PROGRESS';
   static const resultUndetermined = 'RESULT_UNDETERMINED';

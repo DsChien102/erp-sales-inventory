@@ -4,7 +4,7 @@
 -- Context: TH-08 EP-02 — nguồn đơn hàng Theme 05 thật (fixture đã gỡ)
 -- Touches: sales.get_einvoice_source_snapshot, sales.can_access_sales_order
 -- Safety: idempotent (create or replace), tenant_id scoped
--- Depends on: 20260830005_sales_rebuild_schema.sql, 20260830001_iam_active_store_context_group_a.sql (iam.can_access_store)
+-- Depends on: 20260830005_sales_rebuild_schema.sql, 20260830010_sales_inquiry_receipt_rpcs.sql (sales._sales_order_current_lines), 20260830001_iam_active_store_context_group_a.sql (iam.can_access_store)
 
 create schema if not exists sales;
 
@@ -26,7 +26,10 @@ set search_path = sales, public, pg_temp
 as $$
 declare
   v_order sales.sales_orders%rowtype;
+  v_customer jsonb;
   v_lines jsonb;
+  v_totals jsonb;
+  v_blockers jsonb := '[]'::jsonb;
 begin
   select * into v_order
   from sales.sales_orders
@@ -41,26 +44,45 @@ begin
     return;
   end if;
 
-  select coalesce(jsonb_agg(
+  -- Hóa đơn thể hiện kết quả sau đổi/trả: dòng hiện tại do Sales tính
+  -- (cùng helper với phiếu in). Thuế luôn 0 (ADR-TH08-KCT).
+  with cur as (
+    select c.*,
+           row_number() over (order by c.sort_group, c.sort_at, c.sort_seq, c.line_id) as seq
+    from sales._sales_order_current_lines(p_tenant_id, p_sales_order_id) c
+  )
+  select
+    coalesce(jsonb_agg(jsonb_build_object(
+      'lineId',           cur.line_id,
+      'lineSequence',     cur.seq,
+      'itemName',         cur.product_snapshot ->> 'displayName',
+      'itemCode',         coalesce(cur.product_snapshot ->> 'sku', ''),
+      'unitName',         cur.product_unit_snapshot ->> 'unitName',
+      'quantityMicros',   cur.quantity_micros,
+      'unitPriceMinor',   cur.unit_price_minor,
+      'grossAmountMinor', cur.gross_minor,
+      'discountMinor',    cur.discount_minor,
+      'taxAmountMinor',   0,
+      'lineTotalMinor',   cur.line_total_minor,
+      'taxSnapshot',      null
+    ) order by cur.seq), '[]'::jsonb),
     jsonb_build_object(
-      'lineId',           l.id,
-      'lineSequence',     l.line_sequence,
-      'itemName',         l.product_snapshot ->> 'displayName',
-      'itemCode',         coalesce(l.product_snapshot ->> 'sku', ''),
-      'unitName',         l.product_unit_snapshot ->> 'unitName',
-      'quantityMicros',   l.quantity_micros,
-      'unitPriceMinor',   l.unit_price_minor,
-      'grossAmountMinor', l.gross_amount_minor,
-      'discountMinor',    l.discount_amount_minor,
-      'taxAmountMinor',   l.tax_amount_minor,
-      'lineTotalMinor',   l.line_total_minor,
-      'taxSnapshot',      l.tax_snapshot
-    ) order by l.line_sequence
-  ), '[]'::jsonb)
-  into v_lines
-  from sales.sales_order_lines l
-  where l.tenant_id = p_tenant_id
-    and l.sales_order_id = p_sales_order_id;
+      'subtotalMinor', coalesce(sum(cur.gross_minor), 0),
+      'discountMinor', coalesce(sum(cur.discount_minor), 0),
+      'taxMinor',      0,
+      'roundingMinor', 0,
+      'payableMinor',  coalesce(sum(cur.line_total_minor), 0)
+    )
+  into v_lines, v_totals
+  from cur;
+
+  if v_order.lifecycle_status <> 'completed' then
+    v_blockers := jsonb_build_array('ORDER_NOT_COMPLETED');
+  elsif jsonb_array_length(v_lines) = 0 then
+    v_blockers := jsonb_build_array('ORDER_FULLY_RETURNED');
+  end if;
+
+  v_customer := coalesce(v_order.sales_context_snapshot -> 'customer', '{}'::jsonb);
 
   return query select
     true,
@@ -70,34 +92,25 @@ begin
     jsonb_build_object(
       'seller', coalesce(v_order.sales_context_snapshot -> 'seller', '{}'::jsonb),
       'lines',  v_lines,
-      'totals', jsonb_build_object(
-        'subtotalMinor', v_order.subtotal_amount_minor,
-        'discountMinor', v_order.discount_amount_minor,
-        'taxMinor',      v_order.tax_amount_minor,
-        'roundingMinor', v_order.rounding_amount_minor,
-        'payableMinor',  v_order.payable_amount_minor
-      )
+      'totals', v_totals
     ),
     jsonb_strip_nulls(jsonb_build_object(
       -- Đơn không gắn khách hàng là bán lẻ. Nói tường minh ở đây thay vì để
       -- tầng trên suy từ việc thiếu khoá: đơn cũ của khách định danh cũng
-      -- thiếu buyer_tax_snapshot, suy nhầm sẽ gán họ thành khách lẻ.
+      -- thiếu buyer_tax_snapshot. Suy nhầm sẽ gán họ thành khách lẻ.
       'buyerType',        case
                             when v_order.customer_partner_id is null then 'retail'
                             else v_order.buyer_tax_snapshot ->> 'buyerType'
                           end,
       'buyerLegalName',   coalesce(v_order.buyer_tax_snapshot ->> 'legalName',
-                                   v_order.customer_snapshot  ->> 'displayName'),
+                                   v_customer ->> 'displayName'),
       'buyerTaxCode',     coalesce(v_order.buyer_tax_snapshot ->> 'taxCode',
-                                   v_order.customer_snapshot  ->> 'taxCode'),
-      'buyerPhoneNumber', v_order.customer_snapshot ->> 'phoneNumber',
+                                   v_customer ->> 'taxCode'),
+      'buyerPhoneNumber', v_customer ->> 'phoneNumber',
       'buyerEmail',       v_order.buyer_tax_snapshot ->> 'email',
       'buyerAddress',     v_order.buyer_tax_snapshot ->> 'address'
     )),
-    case when v_order.lifecycle_status = 'completed'
-         then '[]'::jsonb
-         else jsonb_build_array('ORDER_NOT_COMPLETED')
-    end;
+    v_blockers;
 end;
 $$;
 

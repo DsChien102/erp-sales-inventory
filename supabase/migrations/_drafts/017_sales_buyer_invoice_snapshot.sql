@@ -3,8 +3,9 @@
 -- Intent: sales_buyer_invoice_snapshot
 -- Context: TH-08 EP-02 Task 3b — app-captured buyer_tax_snapshot (cách A; sales does not call partner schema)
 -- Touches: sales.finalize_sales_order
--- Safety: create or replace; copies production finalize body with buyer snapshot additions only
+-- Safety: create or replace; copies theme5 finalize body (20260830008) with buyer snapshot additions only
 -- Depends on: 20260830008_sales_checkout_rpcs.sql
+
 
 create or replace function sales.finalize_sales_order(
   p_command_id uuid,
@@ -41,7 +42,6 @@ declare
   v_line jsonb;
   v_commercial_line jsonb;
   v_payment jsonb;
-  v_payment_ordinal bigint;
   v_line_index integer := 0;
   v_order_line_id uuid;
   v_conversion_rate numeric;
@@ -52,7 +52,6 @@ declare
   v_line_total_minor bigint;
   v_subtotal_minor bigint := 0;
   v_order_discount_minor bigint := 0;
-  v_normalized_lines jsonb := '[]'::jsonb;
   v_persisted_line_inputs jsonb := '[]'::jsonb;
   v_normalized_commercial_snapshot jsonb;
   v_period text;
@@ -122,9 +121,7 @@ begin
     p_tenant_id,
     'finalize_sales_order',
     trim(p_idempotency_key),
-    v_request_hash,
-    v_correlation
-  );
+    v_request_hash);
   if v_decision->>'decision' = 'replay' then
     return v_decision->'result_snapshot'->'checkoutResult';
   end if;
@@ -141,16 +138,6 @@ begin
       'message', 'Source draft ID and expected version must be supplied together.'
     )::text;
   end if;
-
-  -- Retain recovery scope even if a future worker leaves this record unresolved.
-  update sales.idempotency_records
-  set result_snapshot = jsonb_build_object(
-        'storeId', p_store_id,
-        'requestedByUserId', p_actor_id
-      )
-  where tenant_id = p_tenant_id
-    and command_scope = 'finalize_sales_order'
-    and idempotency_key = trim(p_idempotency_key);
 
   begin
     if p_source_draft_id is not null then
@@ -305,31 +292,6 @@ begin
       end if;
 
       v_order_line_id := gen_random_uuid();
-      v_normalized_lines := v_normalized_lines || jsonb_build_array(
-        jsonb_build_object(
-          'lineId', v_order_line_id::text,
-          'product', jsonb_build_object(
-            'productId', trim(v_commercial_line -> 'product' ->> 'productId'),
-            'sku', nullif(trim(coalesce(v_commercial_line -> 'product' ->> 'sku', '')), ''),
-            'displayName', trim(v_commercial_line -> 'product' ->> 'displayName')
-          ),
-          'unit', jsonb_build_object(
-            'productUnitId', trim(v_commercial_line -> 'unit' ->> 'productUnitId'),
-            'unitCode', nullif(trim(coalesce(v_commercial_line -> 'unit' ->> 'unitCode', '')), ''),
-            'unitName', trim(v_commercial_line -> 'unit' ->> 'unitName')
-          ),
-          'quantityMicros', (v_line ->> 'quantity_micros')::bigint,
-          'unitPrice', jsonb_build_object(
-            'amountMinor', (v_line -> 'unit_price' ->> 'amount_minor')::bigint,
-            'currencyCode', v_currency_code
-          ),
-          'discountTotal', jsonb_build_object('amountMinor', v_discount_minor, 'currencyCode', v_currency_code),
-          'lineTotal', jsonb_build_object(
-            'amountMinor', v_line_total_minor,
-            'currencyCode', v_currency_code
-          )
-        )
-      );
       v_persisted_line_inputs := v_persisted_line_inputs || jsonb_build_array(
         jsonb_build_object(
           'lineId', v_order_line_id::text,
@@ -408,24 +370,23 @@ begin
       'customer', case
         when p_customer_id is null then null
         else jsonb_build_object(
-          'customerId',       p_customer_id::text,
-          'displayName',      trim(p_commercial_snapshot -> 'customer' ->> 'displayName'),
-          'phoneNumber',      nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'phoneNumber', '')), ''),
-          'taxCode',          nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'taxCode', '')), ''),
-          'buyerType',        nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), ''),
+          'customerId', p_customer_id::text,
+          'displayName', trim(p_commercial_snapshot -> 'customer' ->> 'displayName'),
+          'phoneNumber', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'phoneNumber', '')), ''),
+          'taxCode', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'taxCode', '')), ''),
+          'buyerType', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'buyerType', '')), ''),
           'invoiceLegalName', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceLegalName', '')), ''),
-          'invoiceAddress',   nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceAddress', '')), ''),
-          'invoiceEmail',     nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceEmail', '')), '')
+          'invoiceAddress', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceAddress', '')), ''),
+          'invoiceEmail', nullif(trim(coalesce(p_commercial_snapshot -> 'customer' ->> 'invoiceEmail', '')), '')
         )
-      end,
-      'lines', v_normalized_lines
+      end
     );
 
     v_period := to_char((current_timestamp at time zone 'Asia/Ho_Chi_Minh')::date, 'YYYYMMDD');
     insert into sales.sales_order_number_counters(tenant_id, store_id, period_key, next_value)
     values (p_tenant_id, p_store_id, v_period, 1)
     on conflict (tenant_id, store_id, period_key)
-      do update set next_value = sales.sales_order_number_counters.next_value + 1, updated_at = now()
+      do update set next_value = sales.sales_order_number_counters.next_value + 1
     returning next_value into v_seq_no;
 
     if v_seq_no > 9999 then
@@ -444,24 +405,18 @@ begin
 
     insert into sales.sales_orders(
       id, tenant_id, source_draft_id, order_code, store_id,
-      seller_user_id, customer_partner_id, channel_code, business_time, currency_code,
+      seller_user_id, customer_partner_id, channel_code, currency_code,
       lifecycle_status, lock_status, version, internal_note,
       subtotal_amount_minor, discount_amount_minor, tax_amount_minor, rounding_amount_minor,
-      payable_amount_minor, payment_due_date, sales_context_snapshot, customer_snapshot, pricing_summary_snapshot,
+      payable_amount_minor, payment_due_date, sales_context_snapshot,
       buyer_tax_snapshot,
       completed_at
     ) values (
       v_order_id, p_tenant_id, p_source_draft_id, v_order_code, p_store_id,
-      p_actor_id, p_customer_id, 'pos', now(), v_currency_code,
+      p_actor_id, p_customer_id, 'pos', v_currency_code,
       'completed', 'unlocked', 1, nullif(trim(coalesce(p_order_note, '')), ''),
       v_subtotal_minor, v_order_discount_minor, 0, 0, v_grand_total_minor, p_payment_due_date,
       v_normalized_commercial_snapshot,
-      coalesce(v_normalized_commercial_snapshot -> 'customer', '{}'::jsonb),
-      jsonb_build_object(
-        'subtotalMinor', v_subtotal_minor,
-        'discountMinor', v_order_discount_minor,
-        'payableMinor', v_grand_total_minor
-      ),
       case
         when p_customer_id is null then null
         else jsonb_strip_nulls(jsonb_build_object(
@@ -484,7 +439,7 @@ begin
         id, tenant_id, sales_order_id, line_sequence, product_id, product_unit_id,
         quantity_micros, base_quantity_micros, unit_price_minor, gross_amount_minor,
         discount_amount_minor, tax_amount_minor, line_total_minor,
-        product_snapshot, product_unit_snapshot, pricing_snapshot, line_note
+        product_snapshot, product_unit_snapshot, line_note
       ) values (
         (v_line ->> 'lineId')::uuid, p_tenant_id, v_order_id, v_line_index,
         (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid,
@@ -493,10 +448,6 @@ begin
         (v_line ->> 'discount_amount_minor')::bigint, 0, (v_line ->> 'line_total_minor')::bigint,
         coalesce(v_line -> 'product_snapshot', '{}'::jsonb),
         coalesce(v_line -> 'product_unit_snapshot', '{}'::jsonb),
-        jsonb_build_object(
-          'unitPriceMinor', (v_line ->> 'unit_price_minor')::bigint,
-          'lineTotalMinor', (v_line ->> 'line_total_minor')::bigint
-        ),
         nullif(trim(coalesce(v_line ->> 'note', '')), '')
       );
     end loop;
@@ -505,34 +456,31 @@ begin
       id, tenant_id, sales_order_id, currency_code, original_payable_amount_minor,
       post_sale_adjustment_amount_minor, current_payable_amount_minor, collected_amount_minor,
       refunded_amount_minor, net_collected_amount_minor, outstanding_amount_minor,
-      payment_status, reconciliation_status, last_transaction_at, settled_at
+      payment_status, settled_at
     ) values (
       v_settlement_id, p_tenant_id, v_order_id, v_currency_code, v_grand_total_minor,
       0, v_grand_total_minor, v_paid_total_minor, 0, v_paid_total_minor, v_remaining_minor,
-      v_payment_status, 'not_required',
-      case when v_paid_total_minor > 0 then now() else null end,
+      v_payment_status,
       case when v_remaining_minor = 0 and v_paid_total_minor > 0 then now() else null end
     );
 
-    for v_payment, v_payment_ordinal in
-      select value, ordinality
-      from jsonb_array_elements(coalesce(p_payment_intents, '[]'::jsonb)) with ordinality
+    for v_payment in
+      select value
+      from jsonb_array_elements(coalesce(p_payment_intents, '[]'::jsonb))
     loop
       insert into sales.sales_payment_transactions(
-        id, tenant_id, sales_order_settlement_id, transaction_code, transaction_type,
+        id, tenant_id, sales_order_settlement_id, transaction_type,
         direction, amount_minor, currency_code, payment_method_code, status, source_context,
-        source_type, source_id, initiated_by_user_id, confirmed_by_user_id, idempotency_key,
-        external_reference, occurred_at, confirmed_at
+        source_type, source_id, initiated_by_user_id,
+        external_reference, occurred_at
       ) values (
         gen_random_uuid(), p_tenant_id, v_settlement_id,
-        'PMT-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 16)),
         'collection', 'inflow',
         (v_payment -> 'amount' ->> 'amount_minor')::bigint, v_currency_code,
         trim(v_payment ->> 'method'), 'confirmed', 'checkout',
-        'sales_order', v_order_id, p_actor_id, p_actor_id,
-        trim(p_idempotency_key) || ':pay:' || v_payment_ordinal::text,
+        'sales_order', v_order_id, p_actor_id,
         nullif(trim(coalesce(v_payment ->> 'reference', '')), ''),
-        now(), now()
+        now()
       );
     end loop;
 
@@ -566,8 +514,8 @@ begin
     if p_source_draft_id is not null then
       update sales.sales_order_drafts
       set status = 'converted',
-          converted_at = now(),
           version = version + 1,
+          updated_by_user_id = p_actor_id,
           updated_at = now()
       where tenant_id = p_tenant_id
         and store_id = p_store_id
@@ -594,14 +542,11 @@ begin
       'finalize_sales_order',
       trim(p_idempotency_key),
       'succeeded',
-      'sales_order',
-      v_order_id,
       jsonb_build_object(
         'storeId', p_store_id,
         'requestedByUserId', p_actor_id,
         'checkoutResult', v_result
-      )
-    );
+      ));
 
     return v_result;
 
@@ -639,14 +584,11 @@ begin
       'finalize_sales_order',
       trim(p_idempotency_key),
       'failed',
-      'checkout_result',
-      null,
       jsonb_build_object(
         'storeId', p_store_id,
         'requestedByUserId', p_actor_id,
         'checkoutResult', v_result
-      )
-    );
+      ));
 
     return v_result;
   end;

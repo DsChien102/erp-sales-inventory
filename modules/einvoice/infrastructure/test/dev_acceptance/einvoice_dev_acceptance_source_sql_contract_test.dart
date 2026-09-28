@@ -68,7 +68,15 @@ void main() {
     test('get_einvoice_source_snapshot reads real Sales order tables', () {
       expect(sourceDraftFile.existsSync(), isTrue);
       expect(sql, contains('from sales.sales_orders'));
-      expect(sql, contains('from sales.sales_order_lines'));
+      expect(sql, contains('from sales._sales_order_current_lines(p_tenant_id, p_sales_order_id) c'));
+      expect(sql, isNot(contains('from sales.sales_order_lines')));
+      expect(sql, isNot(contains('customer_snapshot')));
+      expect(sql, isNot(contains('tax_snapshot,')));
+      expect(sql, contains("v_order.sales_context_snapshot -> 'customer'"));
+      expect(sql, contains("'ORDER_FULLY_RETURNED'"));
+      expect(sql, contains("'taxAmountMinor',   0"));
+      expect(sql, contains("'payableMinor',  coalesce(sum(cur.line_total_minor), 0)"));
+      expect(sql, contains('v_order.version::text'));
       expect(sql, contains("'grossAmountMinor'"));
       expect(sql, contains("'lineTotalMinor'"));
       expect(sql, contains("'quantityMicros'"));

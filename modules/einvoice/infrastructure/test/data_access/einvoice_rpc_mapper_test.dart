@@ -41,4 +41,25 @@ void main() {
     expect(caps['supports_preview'], isTrue);
     expect(caps['supports_email_delivery'], isFalse);
   });
+
+  test('issuance readiness maps source blockers', () {
+    final input = EinvoiceRpcMapper.issuanceReadinessInputFromRow({
+      'order_completed': true,
+      'buyer_type': 'retail',
+      'buyer_name': 'Bán cho người tiêu dùng',
+      'config_warnings': <dynamic>[],
+      'source_blockers': <dynamic>['ORDER_FULLY_RETURNED'],
+    });
+    expect(input.sourceBlockers, ['ORDER_FULLY_RETURNED']);
+  });
+
+  test('issuance readiness defaults source blockers to empty', () {
+    final input = EinvoiceRpcMapper.issuanceReadinessInputFromRow({
+      'order_completed': true,
+      'buyer_type': 'retail',
+      'buyer_name': 'Bán cho người tiêu dùng',
+      'config_warnings': <dynamic>[],
+    });
+    expect(input.sourceBlockers, isEmpty);
+  });
 }

@@ -24,7 +24,7 @@ create table if not exists einvoice.buyer_invoice_completions (
   version bigint not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (tenant_id, sales_order_id, sales_order_version)
+  unique (tenant_id, sales_order_id)
 );
 alter table einvoice.buyer_invoice_completions enable row level security;
 

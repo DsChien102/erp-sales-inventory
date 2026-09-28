@@ -2,7 +2,7 @@
 -- Kind: draft
 -- Intent: sales_inquiry_receipt_rpcs
 -- Context: TH-05 / clean-bootstrap Group E/F reads + S14 server-authoritative receipt RPCs
--- Touches: get_sales_order, get_sales_order_payment_summary, get_order_integration_status, list_sales_orders, search_sales_orders, get_sales_order_detail, get_sales_order_settlement, get_sales_order_payment_transactions, get_sales_order_timeline, get_sales_order_return_summary, generate_sales_receipt, get_sales_receipt, get_sales_order_original_receipt, record_sales_receipt_activity, _sales_receipt_envelope, _sales_order_lines_payload, _sales_receipt_lines_payload
+-- Touches: get_sales_order, get_sales_order_payment_summary, get_order_integration_status, list_sales_orders, search_sales_orders, get_sales_order_detail, get_sales_order_settlement, get_sales_order_payment_transactions, get_sales_order_timeline, get_sales_order_return_summary, generate_sales_receipt, get_sales_receipt, get_sales_order_original_receipt, record_sales_receipt_activity, _sales_receipt_envelope, _sales_order_lines_payload, _sales_order_current_lines, _sales_receipt_lines_payload
 -- Safety: non-destructive; RPC owner only; schema owned by 005; depends on 006 helpers
 -- Depends on: 005_sales_rebuild_schema.sql; 006_sales_shared_rpc_helpers.sql
 -- Promoted from _drafts/010_sales_inquiry_receipt_rpcs.sql
@@ -44,52 +44,53 @@ $$;
 
 revoke all on function sales._sales_order_lines_payload(uuid, uuid, text) from public, anon, authenticated;
 
--- Receipt lines = what the customer currently holds: original lines minus
+-- Current lines = what the customer currently holds: original lines minus
 -- returned quantity, plus exchange lines minus their later returns.
--- Discount/total of a partially returned original line scale by remaining qty.
-create or replace function sales._sales_receipt_lines_payload(
+-- Only confirmed/processing/completed return-exchange orders count.
+-- Discount/total of a partially returned line scale by remaining qty;
+-- gross = total + discount so every line balances (tax is always 0, KCT).
+-- Shared by the receipt and the e-invoice source snapshot.
+create or replace function sales._sales_order_current_lines(
   p_tenant_id uuid,
-  p_sales_order_id uuid,
-  p_currency_code text
-) returns jsonb
+  p_sales_order_id uuid
+) returns table (
+  line_id uuid,
+  line_kind text,
+  product_id uuid,
+  product_unit_id uuid,
+  product_snapshot jsonb,
+  product_unit_snapshot jsonb,
+  unit_price_minor bigint,
+  quantity_micros bigint,
+  gross_minor bigint,
+  discount_minor bigint,
+  line_total_minor bigint,
+  note text,
+  sort_group integer,
+  sort_at timestamptz,
+  sort_seq integer
+)
 language sql
 stable
 security definer
 set search_path = sales, iam, public, pg_temp
 as $$
-  select coalesce(jsonb_agg(jsonb_build_object(
-    'lineId', unit.line_id,
-    'product', jsonb_build_object(
-      'productId', unit.product_id,
-      'sku', nullif(btrim(unit.product_snapshot ->> 'sku'), ''),
-      'displayName', coalesce(
-        nullif(btrim(unit.product_snapshot ->> 'displayName'), ''),
-        unit.product_id::text
-      )
-    ),
-    'unit', jsonb_build_object(
-      'productUnitId', unit.product_unit_id,
-      'unitCode', nullif(btrim(unit.product_unit_snapshot ->> 'unitCode'), ''),
-      'unitName', coalesce(
-        nullif(btrim(unit.product_unit_snapshot ->> 'unitName'), ''),
-        unit.product_unit_id::text
-      )
-    ),
-    'quantityMicros', unit.remaining_micros,
-    'unitPrice', jsonb_build_object(
-      'amountMinor', unit.unit_price_minor,
-      'currencyCode', p_currency_code
-    ),
-    'discountTotal', jsonb_build_object(
-      'amountMinor', unit.discount_minor,
-      'currencyCode', p_currency_code
-    ),
-    'lineTotal', jsonb_build_object(
-      'amountMinor', unit.line_total_minor,
-      'currencyCode', p_currency_code
-    ),
-    'note', unit.note
-  ) order by unit.sort_group, unit.sort_at, unit.sort_seq, unit.line_id), '[]'::jsonb)
+  select
+    unit.line_id,
+    unit.line_kind,
+    unit.product_id,
+    unit.product_unit_id,
+    unit.product_snapshot,
+    unit.product_unit_snapshot,
+    unit.unit_price_minor,
+    unit.remaining_micros,
+    unit.line_total_minor + unit.discount_minor,
+    unit.discount_minor,
+    unit.line_total_minor,
+    unit.note,
+    unit.sort_group,
+    unit.sort_at,
+    unit.sort_seq
   from (
     select
       src.*,
@@ -101,6 +102,7 @@ as $$
       -- Original sales order lines net of returned quantity.
       select
         l.id as line_id,
+        'original'::text as line_kind,
         l.product_id,
         l.product_unit_id,
         l.product_snapshot,
@@ -133,6 +135,7 @@ as $$
       -- Exchange lines (new goods) net of their own later returns.
       select
         xl.id,
+        'exchange'::text,
         xl.product_id,
         xl.product_unit_id,
         xl.product_snapshot,
@@ -166,6 +169,54 @@ as $$
     ) src
   ) unit
   where unit.remaining_micros > 0;
+$$;
+
+revoke all on function sales._sales_order_current_lines(uuid, uuid) from public, anon, authenticated;
+
+create or replace function sales._sales_receipt_lines_payload(
+  p_tenant_id uuid,
+  p_sales_order_id uuid,
+  p_currency_code text
+) returns jsonb
+language sql
+stable
+security definer
+set search_path = sales, iam, public, pg_temp
+as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'lineId', unit.line_id,
+    'product', jsonb_build_object(
+      'productId', unit.product_id,
+      'sku', nullif(btrim(unit.product_snapshot ->> 'sku'), ''),
+      'displayName', coalesce(
+        nullif(btrim(unit.product_snapshot ->> 'displayName'), ''),
+        unit.product_id::text
+      )
+    ),
+    'unit', jsonb_build_object(
+      'productUnitId', unit.product_unit_id,
+      'unitCode', nullif(btrim(unit.product_unit_snapshot ->> 'unitCode'), ''),
+      'unitName', coalesce(
+        nullif(btrim(unit.product_unit_snapshot ->> 'unitName'), ''),
+        unit.product_unit_id::text
+      )
+    ),
+    'quantityMicros', unit.quantity_micros,
+    'unitPrice', jsonb_build_object(
+      'amountMinor', unit.unit_price_minor,
+      'currencyCode', p_currency_code
+    ),
+    'discountTotal', jsonb_build_object(
+      'amountMinor', unit.discount_minor,
+      'currencyCode', p_currency_code
+    ),
+    'lineTotal', jsonb_build_object(
+      'amountMinor', unit.line_total_minor,
+      'currencyCode', p_currency_code
+    ),
+    'note', unit.note
+  ) order by unit.sort_group, unit.sort_at, unit.sort_seq, unit.line_id), '[]'::jsonb)
+  from sales._sales_order_current_lines(p_tenant_id, p_sales_order_id) unit;
 $$;
 
 revoke all on function sales._sales_receipt_lines_payload(uuid, uuid, text) from public, anon, authenticated;

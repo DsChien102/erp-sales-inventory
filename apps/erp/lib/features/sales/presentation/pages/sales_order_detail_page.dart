@@ -115,6 +115,8 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
         await _cubit.refresh();
       case SalesPostSaleNavigationIntent.returnExchange:
         await SalesReturnNewRoute(orderId: widget.orderId).push(context);
+        if (!mounted) return;
+        await _cubit.refresh();
     }
   }
 

@@ -7,13 +7,12 @@ import 'package:test/test.dart';
 void main() {
   final inquirySql = _readMigration('20260830010_sales_inquiry_receipt_rpcs.sql');
 
-  test('receipt lines helper nets returns and adds exchange lines', () {
-    final helper = _lastFunctionBlock(inquirySql, 'sales._sales_receipt_lines_payload');
-    expect(helper, contains('from sales.sales_order_lines l'));
+  test('receipt lines payload reads the shared current-lines helper', () {
+    final payload = _lastFunctionBlock(inquirySql, 'sales._sales_receipt_lines_payload');
+    expect(payload, contains('from sales._sales_order_current_lines(p_tenant_id, p_sales_order_id) unit'));
+    final helper = _lastFunctionBlock(inquirySql, 'sales._sales_order_current_lines');
     expect(helper, contains("rl.line_role = 'returned'"));
-    expect(helper, contains('rl.original_sales_order_line_id = l.id'));
     expect(helper, contains("xl.line_role = 'exchange'"));
-    expect(helper, contains('rl.source_exchange_line_id = xl.id'));
     expect(helper, contains("in ('confirmed', 'processing', 'completed')"));
     expect(helper, contains('where unit.remaining_micros > 0'));
     expect(

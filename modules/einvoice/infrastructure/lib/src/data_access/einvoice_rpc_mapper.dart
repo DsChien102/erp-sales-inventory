@@ -273,6 +273,9 @@ abstract final class EinvoiceRpcMapper {
       buyerCompletionState: buyerCompletionState,
       commercialDataMappable: row['commercial_data_mappable'] as bool? ?? true,
       configWarnings: warnings,
+      sourceBlockers: ((row['source_blockers'] as List?) ?? const [])
+          .map((code) => code.toString())
+          .toList(),
     );
   }
 

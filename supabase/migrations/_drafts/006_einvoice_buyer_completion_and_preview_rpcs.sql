@@ -6,6 +6,9 @@
 -- Safety: security definer, tenant scoped, raises stable CODE errors
 -- Depends on: 005_einvoice_buyer_completion_and_preview_schema.sql, 002_einvoice_install_module_messaging.sql, 018_sales_einvoice_source_contract.sql
 
+-- Kiểu trả về đổi (thêm source_blockers) → phải drop trước khi tạo lại.
+drop function if exists einvoice.get_issuance_readiness(uuid, uuid, uuid);
+
 create or replace function einvoice.get_issuance_readiness(
   p_tenant_id uuid,
   p_actor_id uuid,
@@ -24,7 +27,8 @@ create or replace function einvoice.get_issuance_readiness(
   buyer_address text,
   buyer_completion_state text,
   commercial_data_mappable boolean,
-  config_warnings jsonb
+  config_warnings jsonb,
+  source_blockers jsonb
 ) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
 declare
   v_provider_status einvoice.provider_connection_status;
@@ -100,9 +104,7 @@ begin
          (bc.resolved_values ->> 'email'), (bc.resolved_values ->> 'address')
   into v_completion_status, v_buyer_name, v_buyer_tax_code, v_buyer_email, v_buyer_address
   from einvoice.buyer_invoice_completions bc
-  where bc.tenant_id = p_tenant_id and bc.sales_order_id = p_sales_order_id
-  order by bc.created_at desc
-  limit 1;
+  where bc.tenant_id = p_tenant_id and bc.sales_order_id = p_sales_order_id;
 
   -- Chuẩn hóa giá trị completion về NULL khi rỗng, để coalesce phía dưới
   -- rơi xuống đúng nguồn tiếp theo thay vì giữ chuỗi rỗng.
@@ -179,7 +181,8 @@ begin
     v_buyer_address,
     coalesce(v_completion_status, 'locked'),
     (coalesce(v_source.available, false) and jsonb_array_length(coalesce(v_source.commercial_snapshot -> 'lines', '[]'::jsonb)) > 0),
-    v_warnings;
+    v_warnings,
+    coalesce(v_source.blockers, '[]'::jsonb);
 end;
 $$;
 
@@ -197,8 +200,17 @@ create or replace function einvoice.complete_buyer_invoice_data(
 ) language plpgsql security definer set search_path = einvoice, public as $$
 declare
   v_version_text varchar(100) := p_expected_order_version::text;
-  v_partner_id uuid := gen_random_uuid();
+  v_partner_id uuid;
 begin
+  -- Người mua bất biến sau checkout: completion gắn theo đơn; version chỉ lưu vết.
+  select s.buyer_partner_id
+  into v_partner_id
+  from sales.get_einvoice_source_snapshot(p_tenant_id, p_sales_order_id) s;
+
+  if v_partner_id is null then
+    raise exception 'VALIDATION_ERROR: buyer partner required';
+  end if;
+
   insert into einvoice.buyer_invoice_completions (
     tenant_id,
     sales_order_id,
@@ -220,7 +232,8 @@ begin
     now(),
     1
   )
-  on conflict (tenant_id, sales_order_id, sales_order_version) do update set
+  on conflict (tenant_id, sales_order_id) do update set
+    sales_order_version = excluded.sales_order_version,
     status = 'locked',
     eligible_fields = p_eligible_fields,
     resolved_values = p_resolved_values,

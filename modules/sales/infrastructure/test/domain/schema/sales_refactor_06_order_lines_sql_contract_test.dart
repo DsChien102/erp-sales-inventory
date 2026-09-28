@@ -56,8 +56,8 @@ void main() {
     );
     // Receipt nets return/exchange lines via _sales_receipt_lines_payload
     // (see sales_receipt_current_lines_sql_contract_test.dart).
-    final receiptHelper = _lastFunctionBlock(inquirySql, 'sales._sales_receipt_lines_payload');
-    expect(receiptHelper, contains('from sales.sales_order_lines l'));
+    final currentLines = _lastFunctionBlock(inquirySql, 'sales._sales_order_current_lines');
+    expect(currentLines, contains('from sales.sales_order_lines l'));
     expect(inquirySql, isNot(contains("sales_context_snapshot -> 'lines'")));
   });
 

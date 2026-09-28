@@ -15,6 +15,7 @@ final class IssuanceReadinessInput {
     required this.buyerCompletionState,
     this.commercialDataMappable = true,
     this.configWarnings = const [],
+    this.sourceBlockers = const [],
   });
 
   final bool orderCompleted;
@@ -33,4 +34,7 @@ final class IssuanceReadinessInput {
   final bool commercialDataMappable;
 
   final List<ReadinessWarning> configWarnings;
+
+  /// Mã chặn do Theme 05 xác lập trên nguồn (vd `ORDER_FULLY_RETURNED`).
+  final List<String> sourceBlockers;
 }

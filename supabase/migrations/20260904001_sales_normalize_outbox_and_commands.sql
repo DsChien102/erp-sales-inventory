@@ -1273,6 +1273,14 @@ begin
     return_status = excluded.return_status,
     updated_at = now();
 
+  -- Doi/tra lam thay doi noi dung thuong mai cua don: tang version (giong huy don)
+  -- de hoa don dien tu va man hinh dang giu version cu biet du lieu da cu.
+  update sales.sales_orders
+  set version = version + 1,
+      updated_at = now()
+  where id = v_order.id
+    and tenant_id = v_order.tenant_id;
+
   -- B4b: cap nhat nghia vu settlement theo chenh lech dinh gia (exchange - return),
   -- mot lan/nguon (source_id = session) qua ledger idempotent, cung transaction confirm.
   -- current_payable doi theo nghia vu; tien mat (thu/hoan) van di rieng qua settle.

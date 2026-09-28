@@ -409,6 +409,34 @@ void main() {
       );
     });
 
+    test('fully returned order is blocked and cannot preview', () {
+      const input = IssuanceReadinessInput(
+        orderCompleted: true,
+        hasElectronicInvoice: false,
+        hasActiveOperation: false,
+        configReady: true,
+        providerConnected: true,
+        providerSupportsPreview: true,
+        buyer: validRetailBuyer,
+        buyerCompletionState: BuyerCompletionStatus.locked,
+        commercialDataMappable: false,
+        sourceBlockers: ['ORDER_FULLY_RETURNED'],
+      );
+
+      final result = IssuanceReadinessEvaluator.evaluate(input);
+
+      expect(result.level, equals(IssuanceReadinessLevel.notReady));
+      expect(result.canPreview, isFalse);
+      expect(result.blockers.map((b) => b.code), ['ORDER_FULLY_RETURNED']);
+      expect(result.blockers.single.message, 'Đơn hàng đã trả hết hàng, không cần xuất hóa đơn');
+    });
+
+    test('empty source blockers keep the ready result', () {
+      final result = IssuanceReadinessEvaluator.evaluate(readyInput);
+      expect(readyInput.sourceBlockers, isEmpty);
+      expect(result.level, equals(IssuanceReadinessLevel.ready));
+    });
+
     test('accumulates multiple blockers in expected order', () {
       final input = IssuanceReadinessInput(
         orderCompleted: false,

@@ -329,7 +329,6 @@ begin
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id
     and bc.sales_order_id = p_sales_order_id
-    and bc.sales_order_version = p_source_version
   for update;
 
   if found and v_buyer_completion.status = 'open' then

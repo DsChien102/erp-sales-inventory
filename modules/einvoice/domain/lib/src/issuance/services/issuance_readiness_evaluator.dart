@@ -48,6 +48,17 @@ abstract final class IssuanceReadinessEvaluator {
       previewForbidden = true;
     }
 
+    final fullyReturned = input.sourceBlockers.contains('ORDER_FULLY_RETURNED');
+    if (input.orderCompleted && fullyReturned) {
+      blockers.add(
+        const ReadinessBlocker(
+          code: 'ORDER_FULLY_RETURNED',
+          message: 'Đơn hàng đã trả hết hàng, không cần xuất hóa đơn',
+        ),
+      );
+      previewForbidden = true;
+    }
+
     if (input.hasElectronicInvoice) {
       blockers.add(
         const ReadinessBlocker(
@@ -90,7 +101,7 @@ abstract final class IssuanceReadinessEvaluator {
 
     // FR-06 / EC-04: commercial data must map to CanonicalInvoiceModel; if not,
     // block readiness and forbid preview (do not send a preview request).
-    if (!input.commercialDataMappable) {
+    if (!input.commercialDataMappable && !fullyReturned) {
       blockers.add(
         const ReadinessBlocker(
           code: 'VALIDATION_ERROR',

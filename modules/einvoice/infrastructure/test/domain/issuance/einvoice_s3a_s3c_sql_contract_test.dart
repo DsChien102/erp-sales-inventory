@@ -379,9 +379,10 @@ void main() {
           retryIssuanceFn,
           contains('from einvoice.buyer_invoice_completions bc'),
         );
+        expect(retryIssuanceFn, isNot(contains('bc.sales_order_version =')));
         expect(
           retryIssuanceFn,
-          contains('bc.sales_order_version = v_source.source_version'),
+          contains('and bc.sales_order_id = p_sales_order_id'),
         );
         expect(retryIssuanceFn, isNot(contains('partner.partners')));
         expect(retryIssuanceFn, isNot(contains('partner.')));

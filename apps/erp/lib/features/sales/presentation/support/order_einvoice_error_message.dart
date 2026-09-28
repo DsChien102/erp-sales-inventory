@@ -34,6 +34,12 @@ abstract final class OrderEInvoiceErrorMessage {
       return 'Khách tổ chức có mã số thuế nhưng thiếu địa chỉ xuất hóa đơn. '
           'Vui lòng bổ sung thông tin người mua.';
     }
+    if (raw.contains('ORDER_FULLY_RETURNED')) {
+      return 'Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.';
+    }
+    if (raw.contains('SOURCE_VERSION_MISMATCH')) {
+      return 'Đơn hàng vừa thay đổi (đổi/trả). Vui lòng tải lại rồi phát hành.';
+    }
     if (raw.contains('ISSUANCE_NOT_READY')) {
       return 'Đơn hàng chưa đủ điều kiện phát hành hóa đơn. '
           'Kiểm tra thiết lập hóa đơn điện tử và thông tin người mua.';

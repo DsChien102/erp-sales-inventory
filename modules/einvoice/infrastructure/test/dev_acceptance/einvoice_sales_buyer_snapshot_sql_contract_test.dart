@@ -39,5 +39,13 @@ void main() {
         reason: 'checkout must not depend on Partner availability (cách A)',
       );
     });
+
+    test('finalize is based on the theme5 order schema (dropped columns gone)', () {
+      for (final dropped in ['business_time', 'customer_snapshot', 'pricing_summary_snapshot', 'sales_shift_id', 'reference_code']) {
+        expect(sql, isNot(contains(dropped)), reason: dropped);
+      }
+      expect(sql, contains("'invoiceLegalName'"));
+      expect(sql, contains("'Commercial customer buyerType is invalid.'"));
+    });
   });
 }

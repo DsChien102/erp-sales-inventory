@@ -391,6 +391,15 @@ begin
     )::text;
   end if;
 
+  -- Blocker do Sales xác lập (vd ORDER_FULLY_RETURNED) chặn phát hành.
+  if jsonb_array_length(coalesce(v_source.blockers, '[]'::jsonb)) > 0 then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'details', jsonb_build_object(
+        'blockers', v_source.blockers
+      )
+    )::text;
+  end if;
+
   select pc.id
   into v_provider_connection_id
   from einvoice.provider_connections pc
@@ -428,7 +437,6 @@ begin
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id
     and bc.sales_order_id = p_sales_order_id
-    and bc.sales_order_version = p_source_version
   for update;
 
   if found and v_buyer_completion.status = 'open' then
@@ -644,6 +652,39 @@ begin
 
   v_source_version := coalesce(v_source.source_version, 'unknown');
 
+  -- Đơn đã trả hết: không còn gì để xuất hóa đơn → SKIPPED (không chờ lại).
+  if coalesce(v_source.blockers, '[]'::jsonb) ? 'ORDER_FULLY_RETURNED' then
+    insert into einvoice.automatic_trigger_process_records (
+      tenant_id,
+      process_type,
+      sales_order_id,
+      sales_order_version,
+      trigger_key,
+      provider_idempotency_key,
+      process_status,
+      blocker_code
+    ) values (
+      p_tenant_id,
+      'SALES_ORDER_COMPLETED',
+      p_sales_order_id,
+      v_source_version,
+      p_trigger_key,
+      p_idempotency_key,
+      'SKIPPED',
+      'ORDER_FULLY_RETURNED'
+    )
+    returning id into v_proc_id;
+
+    return query select
+      false as started,
+      true as skipped,
+      v_proc_id as process_id,
+      null::uuid as attempt_id,
+      'SKIPPED'::text as status,
+      'ORDER_FULLY_RETURNED'::text as reason;
+    return;
+  end if;
+
   if not coalesce(v_source.available, false) or not coalesce(v_source.order_completed, false) then
     insert into einvoice.automatic_trigger_process_records (
       tenant_id,
@@ -761,7 +802,6 @@ begin
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id
     and bc.sales_order_id = p_sales_order_id
-    and bc.sales_order_version = v_source_version
   for update;
 
   if found and v_buyer_completion.status = 'open' then
@@ -953,6 +993,35 @@ begin
   into v_source
   from einvoice.load_issuance_source_snapshot(p_tenant_id, v_proc.sales_order_id) s;
 
+  if coalesce(v_source.blockers, '[]'::jsonb) ? 'ORDER_FULLY_RETURNED' then
+    update einvoice.automatic_trigger_process_records
+    set process_status = 'SKIPPED',
+        blocker_code = 'ORDER_FULLY_RETURNED',
+        updated_at = now(),
+        version = version + 1
+    where id = v_proc.id;
+
+    return query select
+      false as started,
+      true as skipped,
+      v_proc.id as process_id,
+      null::uuid as attempt_id,
+      'SKIPPED'::text as status,
+      'ORDER_FULLY_RETURNED'::text as reason;
+    return;
+  end if;
+
+  -- Đơn đổi version (đổi/trả) trong lúc chờ: attempt phải gắn version hiện tại
+  -- của nguồn; provider idempotency key giữ nguyên.
+  if v_source.source_version is distinct from v_proc.sales_order_version then
+    update einvoice.automatic_trigger_process_records
+    set sales_order_version = v_source.source_version,
+        updated_at = now(),
+        version = version + 1
+    where id = v_proc.id;
+    v_proc.sales_order_version := v_source.source_version;
+  end if;
+
   if not coalesce(v_source.available, false) or not coalesce(v_source.order_completed, false) then
     return query select
       false as started,
@@ -1007,7 +1076,6 @@ begin
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id
     and bc.sales_order_id = v_proc.sales_order_id
-    and bc.sales_order_version = v_proc.sales_order_version
   for update;
 
   if found and v_buyer_completion.status = 'open' then
@@ -1230,6 +1298,15 @@ begin
     )::text;
   end if;
 
+  -- Blocker do Sales xác lập (vd ORDER_FULLY_RETURNED) chặn phát hành.
+  if jsonb_array_length(coalesce(v_source.blockers, '[]'::jsonb)) > 0 then
+    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
+      'details', jsonb_build_object(
+        'blockers', v_source.blockers
+      )
+    )::text;
+  end if;
+
   select pc.id
   into v_provider_connection_id
   from einvoice.provider_connections pc
@@ -1264,13 +1341,12 @@ begin
 
   -- 5. Canonical retry branching:
   -- (1) scn_e02_u05_sc11_01: same version + completion LOCKED -> reuse locked completion/lineage without Theme 03 resolve
-  -- (2) scn_e02_u05_sc12_01: different version -> lookup matching completion for new version
+  -- (2) completion gắn theo đơn: version đơn đổi (đổi/trả) vẫn dùng completion đã khóa
   select bc.*
   into v_buyer_completion
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id
     and bc.sales_order_id = p_sales_order_id
-    and bc.sales_order_version = v_source.source_version
   for update;
 
   if found and v_buyer_completion.status = 'open' then

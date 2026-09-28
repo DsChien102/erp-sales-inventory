@@ -30,6 +30,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
 
 ### Fixed
+- HĐĐT: đơn trả hết báo «Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.»; lệch version nguồn bảo tải lại rồi phát hành.
+- Chi tiết đơn tải lại sau khi quay về từ đổi/trả, cùng cách nhánh hủy đơn.
 - HĐĐT lưu PDF/XML: bỏ fallback mở browser; share native qua `XFile.fromData` + MIME/`fileNameOverrides` + `sharePositionOrigin` (iOS Share Sheet); fail-closed khi thiếu checksum hoặc tải lỗi; SG-06 đóng sau handoff thành công/dismiss, giữ mở khi lỗi; copy lỗi exporter đúng ngữ nghĩa lưu trên thiết bị.
 - HĐĐT: chi tiết đơn luôn mount `OrderEInvoiceSection` khi module sẵn sàng (kể cả projection đầu lỗi); seed inert + `hasLoadedInitialProjection`.
 - HĐĐT: result host seed projection không authoritative (`hasLoadedProjection`); khóa tap tới snapshot đầu tiên + readiness (notIssued).
@@ -58,6 +60,13 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- Einvoice: readiness nhận `sourceBlockers`; evaluator chặn `ORDER_FULLY_RETURNED` và không chồng blocker dữ liệu thương mại khi đơn đã trả hết.
+- Einvoice: readiness trả `source_blockers`; phát hành thủ công và retry chặn mọi blocker của Sales; auto bỏ qua đơn trả hết (`SKIPPED` / `ORDER_FULLY_RETURNED`); reevaluate làm mới version nguồn trước khi bắt đầu. Draft `006`, `008`.
+- Einvoice: completion người mua unique theo `(tenant_id, sales_order_id)`; `complete_buyer_invoice_data` lấy `buyer_partner_id` từ nguồn đơn, không còn `gen_random_uuid()`.
+- Einvoice: draft `018` `get_einvoice_source_snapshot` đọc `sales._sales_order_current_lines`; đơn trả hết trả `ORDER_FULLY_RETURNED`; tổng cộng từ dòng còn lại.
+- Einvoice: draft `017` dựng lại `finalize_sales_order` từ theme5 (`20260830008`), chỉ thêm buyerType, snapshot hóa đơn trên customer, và cột `buyer_tax_snapshot`.
+- Sales: xác nhận đổi/trả tăng `sales_orders.version` (sửa tại chỗ `20260904001`) để hóa đơn và màn hình nhận ra nội dung đơn đã đổi.
+- Sales: helper `sales._sales_order_current_lines` dùng chung cho phiếu in và nguồn hóa đơn sau đổi/trả (sửa tại chỗ `20260830010`; JSON phiếu in giữ nguyên khóa).
 - TH-08 H1: fail-closed preview/official view URL (HTTPS + host `*.meinvoice.vn`); `parseDataString` không ép object/list/number; bỏ `print` download adapter; `InvoiceDelivery.hasActiveLock` chỉ `PROCESSING` (UNKNOWN không khóa).
 - TH-08 H1: policy retry MISA publish — `InvoiceNumberNotCotinuous` retryable (≤3, cùng RefID/canonical), `InvoiceDuplicated` reconcile-first rồi mới retry, `DuplicateInvoiceRefID` reconciliation-only; draft `020_einvoice_misa_publish_retry_policy.sql`.
 - TH-08 H1: publish series lease bền vững `(tenant, provider_connection, invoice_series)` — acquire trước dispatch barrier, busy → `reschedule_internal_command` (không dead-letter), release trong `finally`; draft `019_einvoice_misa_publish_series_lease.sql`.
