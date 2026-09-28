@@ -5,6 +5,7 @@ theme: <theme-xx>
 title: <Tên Business Journey>
 owner: BA
 status: DRAFT
+ui_flow: UIF-XX
 ---
 
 # BJ-XX — <Tên Business Journey>
@@ -68,15 +69,13 @@ không ép quan hệ 1 UC = 1 Slice hoặc cắt nhỏ UC chỉ để vừa mộ
 |---|---|---|
 | <Tác nhân, Journey, Theme hoặc Domain> | <Đối tượng và dữ kiện cần giữ> | <Điều kiện rõ ràng> |
 
-## 6. Luồng giao diện cấp hành trình
+## 6. Liên kết thiết kế
 
-<!-- Chỉ mô tả các chuyển màn hình chính gắn với UC/action, gồm điểm vào và điểm trở về.
-Định nghĩa chuyển tiếp ngay tại đây nếu không có nguồn riêng; không tham chiếu mã UIF mồ côi.
-Screen Contract sở hữu bố cục, trường nhập và tương tác chi tiết. -->
+<!-- Chỉ link tới UI Flow canonical (khai báo thêm `ui_flow` trong frontmatter).
+Không chép routing màn hình vào BJ; UIF sở hữu routing, điểm vào/kết thúc và state hiển thị,
+Screen Contract sở hữu bố cục và tương tác chi tiết. -->
 
-| Chặng / UC | Chuyển màn hình | Hành động nghiệp vụ |
-|---|---|---|
-| <UC — Tên> | <SCR nguồn → SCR đích> | <Hành động và kết quả cần thể hiện> |
+[UIF-XX — <Tên>](../../../03.design/flows/UIF-XX-BJ-XX.md) sở hữu routing giữa các màn hình, điểm vào/kết thúc và state hiển thị; chi tiết màn hình nằm tại `03.design/screens/`.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 
