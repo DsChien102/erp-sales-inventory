@@ -1,165 +1,160 @@
-# Work Slice — catalog, role, blocking
+# Work Slice — một outcome, một file
 
-SSOT trạng thái design: **`CATALOG.md`** trong thư mục harness theo BJ (không `theme.manifest`).  
-`design_status` **chỉ** trên catalog — không trên file slice.
+SSOT trạng thái design: **`CATALOG.md`** trong harness theo BJ.
+`design_status` chỉ trên catalog.
 
-**Skills:** `/to-work-slices` (breakdown → publish `IN_REVIEW`) → `/review-work-slices` (fill + bar B → user OK → `READY`) → `/implement-work-slice`.  
+**Skills:** `/to-work-slices` (publish `IN_REVIEW`) → `/review-work-slices` (làm kín bar B → user OK → `READY`) → `/implement-work-slice`.
 **READY** chỉ do `/review-work-slices` ghi.
 
-**Bar B (READY):** agent implement **không invent** và **không hỏi** — surface/AC/layout theo role đã kín trong slice (+ link nguồn đọc được).  
-**Golden fixture:** [examples/golden-family/](examples/golden-family/) (tách sample `BJ-xx-harness`).
+**Bar B:** agent implement xong cả outcome từ slice mà không bịa field và không hỏi thêm. Surface, AC, layout của mọi mục có mặt đều kín, kèm link nguồn đọc được.
+**Golden:** [examples/golden-family/](examples/golden-family/) (`EXAMPLE_ONLY`).
+**Skeleton:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`.
 
-**Spacing:** tối đa một dòng trống giữa block.  
-**Fenced blocks:** chỉ source/config, directory tree, hoặc ASCII hiếm (ưu tiên Mermaid) — `documentation-standards.mdc` §17.  
-**Không** User Story trong Trace. **Không invent** field/RPC/schema.
+**Spacing:** tối đa một dòng trống giữa block.
+**Fence:** source, directory tree, hoặc ASCII hiếm. Diagram dùng Mermaid.
+**Trace:** key đúng loại (`BJ`/`CAP`, `UC`/`OP`, `BC`/`API`). YAML không có User Story.
 
 ---
 
-## Layout (flat)
+## File
 
 ```text
 BJ-<id>-harness/
     CATALOG.md
     SL-001-<slug>.md
-    SL-002-<slug>.be-contract.md
-    SL-003-<slug>.be-impl.md
-    SL-004-<slug>.fe.md
-    SL-005-<slug>.e2e.md
+    SL-002-<slug>.md
 ```
 
-- Flat — không group folder theo outcome; nhóm bằng metadata / cột **`family`**.
-- File: `SL-NNN-<slug>.<role>.md` với `role` ∈ `{be-contract, be-impl, fe, e2e}`; **`full`** = không hậu tố role.
-- Có UI → đủ 4 role (kể cả `.e2e`). Không UI → chỉ `full`.
-- Mỗi file = **unique** `SL-id`.
-- Order implement: `be-contract` → rồi `be-impl` ∥ `fe` → `e2e`.
-- Path harness **không** hardcode trong skill — suy từ theme/context (vd. theme-07: `04.harness/`).
+- Flat. Một file = một outcome = một `SL-id`.
+- Tên: `SL-NNN-<slug>.md`.
+- Có UI: file gồm Contracts và Presentation. Không UI: không có mục Presentation; Out of Scope ghi `Presentation`.
+- Path harness suy từ theme. Theme-07 dùng `04.harness/`.
 
 ---
 
-## Role enum
+## Heading
 
-| Role | Khi nào | Phần giữa (giữa Objective và Verification) |
+Không đánh số. Thứ tự H2:
+
+1. Objective
+2. Blocked by
+3. Scope & Rules
+4. Flow
+5. Design
+6. Contracts
+7. Presentation
+8. Verification
+
+Bốn mục luôn có: Objective, Blocked by, Scope & Rules, Verification.
+Bốn mục kia chỉ có khi đúng cò. Ngoài menu này không thêm H2.
+
+| H2 | Có mặt khi |
+| --- | --- |
+| Flow | Outcome nhiều bước, hoặc có nhánh lỗi nghiệp vụ |
+| Design | Đổi domain, persistence, transaction, hoặc file code |
+| Contracts | Publish hoặc consume Command, Query, DTO, hoặc integration |
+| Presentation | Có màn hình hoặc tương tác trên app |
+
+Mục không có mặt: xóa hẳn heading. Out of Scope gọi tên từng H2 optional đã xóa.
+
+### Scope & Rules
+
+Luôn đủ H3: In Scope, Out of Scope, Boundary, Rules.
+Rules là bảng ID | quy tắc. Slice không thêm rule mới thì một dòng trỏ rule nguồn.
+Open Questions là H3 cuối, chỉ khi còn việc chưa chốt. Câu hỏi còn chặn thì chưa `READY`.
+
+### Objective và Blocked by
+
+Objective: một câu outcome.
+Blocked by: `None`, hoặc link file slice cùng harness, và/hoặc GitLab `#N` / URL. Khớp `depends_on` trên catalog.
+
+### Flow
+
+Có mục thì có Main Flow: Mermaid khi diễn được, happy path tối đa 5 bước.
+Failure Flow chỉ khi có nhánh lỗi nghiệp vụ. Mỗi dòng: condition, outcome, side-effect không xảy ra.
+
+### Design
+
+H3 đóng, chỉ H3 nào slice đụng:
+
+| H3 | Khi có | Tối thiểu |
 | --- | --- | --- |
-| `full` | Không UI; một file đủ delivery | Scope, Flow, Design (+ Code Layout hoặc `N/A — doc-only`), Contracts |
-| `be-contract` | Family có UI — contract trước | Scope contract; **Code Layout**; Contracts (Command/Query/DTO/port + fake, fence kín); persistence N/A hoặc “impl owns” |
-| `be-impl` | Sau contract | Persistence/RPC/txn/idempotency/errors; **Code Layout**; Contracts = **link** `.be-contract` |
-| `fe` | Sau contract (∥ `be-impl`) | Screens · route · state×feedback · DS · mediator · **Code Layout**; Contracts = link `.be-contract` |
-| `e2e` | Sau impl + fe | Scenarios G/W/T + seed/fixture + pass/fail; Design/Contracts = link family |
+| Domain | Đổi state | Before / After hoặc state |
+| Persistence | Đổi bảng hoặc RPC | Bảng, đường `_drafts/`, field và RPC đủ để implement. Body SQL không bắt buộc trong markdown |
+| Transaction / Idempotency | Mutation | `idempotencyKey` khác `command.id`. UK `(tenant_id, command_scope, idempotency_key)` cùng transaction với business và outbox |
+| Code Layout | Tạo hoặc sửa file | Một cây `modules/` và `apps/` nếu cả hai đổi. Mỗi segment một dòng, indent 4 space. Mọi file slice đụng |
 
-Xương chung mọi file:
+Query xóa Transaction / Idempotency.
+Design không đụng concern nào ở bảng thì xóa cả mục Design.
 
-1. Metadata YAML (`id`, `role`, `family`, `sources`, …)
-2. Objective (1 câu)
-3. **Blocked by** (bắt buộc) — link file slice và/hoặc GitLab `#N` / URL; `None` nếu frontier
-4. Phần giữa theo role (bảng trên)
-5. Verification (AC)
-6. Delivery / DoD ngắn
+### Contracts
+
+Mỗi Command, Query, DTO là một H3. Command và Query có blockquote 1–2 câu, rồi Dart fence đủ field. DTO có fence đủ field.
+Integration là H3 khi có fact outbox hoặc `integration_commands`.
+Không có type và không có Integration thì xóa cả mục Contracts.
+Thiếu field so với SRS: ghi Open Questions, chưa `READY`.
+
+Fact outbox: `{context}_{entity}_{past}.v1`. Handoff: `integration_commands`. Outbox không mang yêu cầu đi làm việc (`*.requested`, apply, retry, reconcile).
+
+### Presentation
+
+Có mục thì đủ năm H3, theo thứ tự: Screens, Route, State × feedback, Design system, Mediator.
+State × feedback có loading, empty, error, success.
+Mediator: `IModuleMediator`, fake khớp Contracts, presentation trong `apps/erp` hoặc `apps/admin`.
+Cây file nằm ở Design → Code Layout.
+
+### Verification
+
+| H3 | Khi có |
+| --- | --- |
+| Acceptance Criteria | Luôn. Checklist `- [ ] **AC-0n**` Given / When / Then |
+| Tests | Luôn. Cột Test id, Given / When / Then, Layer |
+| Scenarios | Khi có Presentation. Cột Scenario, Actor, Across, Given / When / Then, Seed / fixture, Pass / fail |
 
 ---
 
-## CATALOG.md schema
-
-Bảng markdown. Cột tối thiểu:
+## CATALOG.md
 
 | Cột | Ý nghĩa |
 | --- | --- |
-| `id` | `SL-NNN` unique |
+| `id` | Link `[SL-NNN](SL-NNN-<slug>.md)`. Chưa có file thì ID trần |
 | `title` | Tiêu đề ngắn |
-| `path` | Relative tới thư mục harness BJ |
-| `design_status` | xem dưới |
-| `depends_on` | Danh sách `SL-id` (cùng catalog) |
-| `sources` | Artifact ID (BJ/UC/BC/SCR/…) |
-| `family` | Key nhóm role; `full` có thể để trống hoặc family riêng |
-| `produces` / `coverage` | Output / phạm vi bao phủ dự kiến |
-| `lanes` / `links` | Gợi ý lane hoặc link phụ |
-| `blocked_reason` | **Bắt buộc** khi `BLOCKED`; ngược lại để trống |
+| `design_status` | Bảng dưới |
+| `depends_on` | `SL-id` outcome khác trong cùng catalog |
+| `usecase` | Link markdown tới file UC. Nhiều UC cách nhau bằng dấu phẩy. Không UC thì để trống |
+| `blocked_reason` | Có khi `BLOCKED` |
 
-`design_status` ∈:
+`design_status`:
 
 | Status | Nghĩa |
 | --- | --- |
 | `DRAFT` | Đang viết |
 | `IN_REVIEW` | Chờ review design |
-| `READY_TO_IMPLEMENT` | Design xong + **bar B** theo role; set bởi `/review-work-slices` sau user OK; **mọi** `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` |
-| `BLOCKED` | Không tiếp tục design/implement — bắt buộc `blocked_reason` |
-| `VERIFIED` | Lane code xong + code-review sạch (`implement-work-slice` cập nhật) |
+| `READY_TO_IMPLEMENT` | Bar B kín. Mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`. Chỉ `/review-work-slices` ghi, sau user OK |
+| `BLOCKED` | Dừng design hoặc implement. Có `blocked_reason` |
+| `VERIFIED` | Code của cả outcome xong và code-review sạch. `/implement-work-slice` ghi |
 
-Không dùng `IMPLEMENTING` trên catalog. Tiến độ code không mirror vào `design_status` ngoài `VERIFIED`.
-
----
-
-## Blocking & frontier
-
-- **Blocked by** trên file slice = edges delivery (markdown link).
-- **`depends_on` trên catalog** = gate `READY_TO_IMPLEMENT` / thứ tự implement.
-- Frontier = slice không còn blocker chưa xong (catalog + Blocked by khớp).
-- GitLab: Blocked by hỗ trợ `#N` / URL; **tạo issue** = bước riêng (không bắt buộc trong `/to-work-slices`).
+YAML trên file slice: `id`, `journey`, `usecase`, `sources`, `theme`. Fixture `EXAMPLE_ONLY` được thêm `sample_status`.
 
 ---
 
-## Fact vs command
+## Blocking
 
-| Kind | Transport | Naming |
-| --- | --- | --- |
-| Integration event (fact) | outbox | `{context}_{entity}_{past}.v1` |
-| Integration command | `integration_commands` (+ intent) | imperative |
-
-Rejected on outbox: `*.requested`, apply/retry/reconcile as “event”.
+- Blocked by trên file = cạnh giao việc.
+- `depends_on` trên catalog = cửa `READY` và thứ tự implement.
+- Hai nơi khớp nhau.
+- Frontier = outcome không còn blocker chưa xong.
 
 ---
 
-## Idempotency (mutation)
+## Checklist trước READY_TO_IMPLEMENT
 
-| Concept | Field |
-| --- | --- |
-| Delivery instance | `command.id` — **không** dùng làm retry key |
-| Logical operation | `idempotencyKey` |
-| DB defense | UNIQUE `(tenant_id, command_scope, idempotency_key)` + cùng txn business + outbox |
-
-Query: Txn / Idempotency / Failure = `N/A — query-only`.
-
----
-
-## Contracts (Command / Query / DTO)
-
-Mỗi type = **H4** + **Dart fence** (không bảng field; không gom một dòng). Fence **đầy đủ field** trước READY — không placeholder khi catalog = `READY_TO_IMPLEMENT`.
-
-| Kind | Use-case dưới H4 |
-| --- | --- |
-| **Command** / **Query** | **Bắt buộc** blockquote 1–2 câu trước fence |
-| **DTO** | Blockquote optional |
-
-`be-impl` / `fe` / `e2e`: Contracts = link file `.be-contract` (hoặc family), không nhân bản schema.  
-SRS = authority khi lệch; thiếu fence trong `.be-contract` = không READY.
-
----
-
-## Code Layout
-
-Bắt buộc trên `be-contract`, `be-impl`, `fe`. Trên `full`: tree file sẽ tạo/sửa **hoặc** `N/A — doc-only`.  
-Mỗi segment path một dòng; indent 4 space; fence `text` chỉ cho directory tree. Liệt kê **mọi** file slice này sẽ tạo hoặc sửa.
-
----
-
-## Doc guards (khi điền phần giữa)
-
-- **Main Flow:** Mermaid khi mô tả được; ≤5 bước; không lặp cùng diagram ở Design.
-- **Business Rules:** bảng 2 cột; title link = ID.
-- **Dependencies:** Blocked by + catalog `depends_on` phải khớp; link relative tới file slice cùng harness.
-- **AC:** checklist `- [ ] **AC-0n**` — không bọc code block.
-- Chi tiết gate FE / RPC / e2e / Code Layout / fence: § Checklist dưới đây (SSOT).
-
-## Checklist trước READY_TO_IMPLEMENT (catalog)
-
-- [ ] File đúng role + xương chung
-- [ ] Field/RPC/schema khớp SRS hoặc deviation ghi rõ
-- [ ] `.be-contract` / `full` (nếu có surface): mọi Command/Query/DTO có fence **đầy đủ field**
-- [ ] Code Layout theo role (`full`: layout hoặc `N/A — doc-only`)
-- [ ] `fe`: route/entry + state×feedback/error map
-- [ ] `be-impl`: bảng field + RPC `p_*`/returns đã chốt (không bắt buộc SQL body trong md)
-- [ ] `e2e`: scenario G/W/T + seed/fixture + pass/fail kín
-- [ ] `Blocked by` đầy đủ; `depends_on` khớp catalog
+- [ ] Đủ Objective, Blocked by, Scope & Rules, Verification. Không H2 ngoài menu. Không mục Delivery
+- [ ] Mỗi H2 optional vắng mặt được gọi tên trong Out of Scope
+- [ ] Scope & Rules đủ In Scope, Out of Scope, Boundary, Rules
+- [ ] Open Questions còn chặn thì chưa READY
+- [ ] Flow / Design / Contracts / Presentation, nếu có, đạt tối thiểu ở bảng Heading
+- [ ] Field, RPC, schema khớp SRS, hoặc lệch được ghi rõ
+- [ ] Blocked by khớp `depends_on`
 - [ ] Mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`
-- [ ] AC + `scn_*` (mutation: failure/idempotency)
-- [ ] Open Questions không còn blocking
-- [ ] Cập nhật hàng trên `CATALOG.md` (kèm `blocked_reason` nếu `BLOCKED`)
+- [ ] Hàng `CATALOG.md` cập nhật. `BLOCKED` thì có `blocked_reason`

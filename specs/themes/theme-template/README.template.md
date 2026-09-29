@@ -45,7 +45,7 @@ Hướng dẫn dùng template:
 - `02.specification/domain/`: domain-foundation, entities, aggregates, read-models, integrations; vùng chung BA/SA.
 - `02.specification/technical-contracts/`: quy tắc kỹ thuật dùng chung nhiều Slice/toàn Theme.
 - `03.design/`: screens, patterns, design-system, prototype; giữ runtime chạy được khi có.
-- `04.harness/`: `BJ-<id>-harness/` flat + `CATALOG.md`; Work Slice theo role (`full` / `be-contract` / `be-impl` / `fe` / `e2e`).
+- `04.harness/`: `BJ-<id>-harness/` flat + `CATALOG.md`. Một Work Slice là một outcome, một file.
 - `05.procedures/`: quy trình kỹ thuật/vận hành.
 - `06.evidence/`: bằng chứng kiểm chứng.
 - `09.generated/`: registry/matrix/index sinh tự động.

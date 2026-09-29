@@ -2,94 +2,90 @@
 
 ```yaml
 id: SL-001
-role: full
-family:
-sources: [DOM-IO, ENT-IO-01, AGG-IO-01, BC-IO-16, FND-01]
+journey: []
+usecase: []
+sources:
+  - DOM-IO
+  - ENT-IO-01
+  - AGG-IO-01
+  - BC-IO-16
+  - FND-01
 theme: theme-07
 sample_status: NON_CANONICAL_EXAMPLE
 ```
 
-**design_status:** xem [CATALOG.md](CATALOG.md). Sample minh họa `full` (không UI).
+**design_status** trên [CATALOG.md](CATALOG.md). Sample minh họa slice không UI. Không phải yêu cầu chính thức.
 
 ---
 
-## 1. Objective
+## Objective
 
-Xác lập ranh giới nhất quán của InventoryOperation để các UC dùng chung lifecycle Domain đã review.
-
----
-
-## 2. Blocked by
-
-None
+Chốt ranh giới InventoryOperation để các use case sau dùng chung lifecycle domain đã review.
 
 ---
 
-## 3. Scope & Rules
+## Blocked by
+
+- `None`
+
+---
+
+## Scope & Rules
 
 ### In Scope
 
-- Root, Entity/VO bên trong, lifecycle draft/submit, concurrency và ranh giới lưu trữ logic Aggregate
+- Root, entity và value object bên trong, lifecycle draft/submit, concurrency, ranh giới lưu trữ của aggregate
 
 ### Out of Scope
 
-- Application Command/Query từng UC, Screen, Product/Supplier master, ApprovalCase, biến động tồn
+- Contracts — slice này không publish Command hay Query
+- Presentation — không có màn hình
+- Application command từng use case, Product/Supplier master, ApprovalCase, biến động tồn
+
+### Boundary
+
+| Concern | Owner |
+| --- | --- |
+| Root, lifecycle, bất biến | AGG-IO-01 |
+| Chống trùng dùng chung | FND-01 |
 
 ### Rules
 
 | ID | Quy tắc (slice) |
 | --- | --- |
-| [BC-IO-16](../../02.specification/behavior/behavioral-contracts/BC-IO-16.sample.md) | Sửa nháp không phát sinh tồn/phê duyệt |
-| [FND-01](../../02.specification/technical-contracts/FND-01-Idempotency.sample.md) | Cơ chế chống trùng dùng chung — không biến CommandReceipt thành child Entity |
+| [BC-IO-16](../../02.specification/behavior/behavioral-contracts/BC-IO-16.sample.md) | Sửa nháp không phát sinh tồn hay phê duyệt |
+| [FND-01](../../02.specification/technical-contracts/FND-01-Idempotency.sample.md) | Cơ chế chống trùng dùng chung. CommandReceipt không thành child entity |
 
 ---
 
-## 4. Flow
+## Flow
 
 ### Main Flow
 
-1. Đối chiếu Domain/Entity/BC → Root, thành viên, bất biến
-2. Mô tả lifecycle tại AGG-IO-01
-3. Review ranh giới BA/SA → công bố cho slice phụ thuộc
-
-### Failure Flow
-
-N/A — design/doc slice (không mutation runtime)
+1. Đối chiếu domain, entity và behavioral contract để chốt root, thành viên, bất biến.
+2. Mô tả lifecycle tại AGG-IO-01.
+3. Review ranh giới để slice phụ thuộc dùng chung.
 
 ---
 
-## 5. Design
+## Design
 
-**Before:** Domain/Entity/BC có; AGG-IO-01 còn minh họa.  
-**After:** AGG-IO-01 chốt Root/child, draft/submit, giới hạn tác động.
+### Domain
 
-Persistence / Txn / Idempotency: `N/A — domain boundary doc`; runtime thuộc family UC sau.
-
----
-
-## 6. Contracts
-
-N/A — không publish Command/Query ở slice này. Consumer đọc AGG-IO-01 + BC.
+**Before:** domain, entity và behavioral contract đã có. AGG-IO-01 còn là minh họa.
+**After:** AGG-IO-01 chốt root, child, draft/submit, và giới hạn tác động.
 
 ---
 
-## 7. Verification
+## Verification
 
-- [ ] **AC-01** AGG-IO-01 nêu rõ Root, members, lifecycle, invariants
-- [ ] **AC-02** Slice phụ thuộc (quick-receipt) không tự quyết ranh giới thay
+### Acceptance Criteria
+
+- [ ] **AC-01** Given AGG-IO-01, When reviewer đọc, Then root, members, lifecycle và invariants được nêu rõ
+- [ ] **AC-02** Given slice quick receipt phụ thuộc SL-001, When slice đó thiết kế, Then nó không tự đặt ranh giới aggregate
+
+### Tests
 
 | Test id | Given / When / Then | Layer |
 | --- | --- | --- |
-| `scn_sl001_boundary` | Reviewer đọc AGG → ranh giới khớp BC | doc review |
-
----
-
-## 8. Delivery
-
-### Definition of Done
-
-- [ ] AGG-IO-01 reviewed; catalog sẵn sàng nâng status khi depends_on thật đủ
-
-### Next Action
-
-- [ ] Human review → catalog `IN_REVIEW` / `READY_TO_IMPLEMENT`
+| `scn_boundary_review` | Reviewer đọc AGG-IO-01 | doc review |

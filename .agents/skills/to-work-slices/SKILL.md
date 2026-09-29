@@ -1,104 +1,91 @@
 ---
 name: to-work-slices
 description: >-
-  Break a theme BJ/SRS (or conversation) into Work Slice families with blocking
-  edges, quiz the user, then publish SL files + CATALOG.md at IN_REVIEW under
-  the BJ harness. Does not set READY_TO_IMPLEMENT — that is review-work-slices.
+  Break a theme BJ/SRS (or conversation) into vertical Work Slices, one outcome
+  per file, with blocking edges. Quiz the user, then publish SL files and
+  CATALOG.md at IN_REVIEW. Does not set READY_TO_IMPLEMENT — that is
+  review-work-slices.
 disable-model-invocation: true
 ---
 
 # To Work Slices
 
-Break a plan, BJ/SRS, or conversation into **Work Slice families**: tracer-bullet delivery units (role-scoped, or `full` when no UI), each declaring **Blocked by** edges, published into the BJ harness.
+Cắt plan, BJ/SRS, hoặc hội thoại thành **Work Slice dọc**: một outcome, một file, mọi thứ để implement và kiểm outcome đó. Mỗi slice khai **Blocked by**.
 
-**Pipeline:** `/to-work-slices` → `/review-work-slices` → `/implement-work-slice`.  
-**READY** chỉ qua `/review-work-slices` (kể cả khi nội dung đã gần kín bar B).
+**Pipeline:** `/to-work-slices` → `/review-work-slices` → `/implement-work-slice`.
+**READY** chỉ qua `/review-work-slices`.
 
-**SSOT shape / bar B / catalog:** [reference.md](reference.md) · templates `template.work-slice*.md` · [CATALOG.template.md](CATALOG.template.md)  
-**Golden (bar B):** [examples/golden-family/](examples/golden-family/)  
-**Skeleton sample:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`  
+**Shape / bar B / catalog:** [reference.md](reference.md) · [template.work-slice.md](template.work-slice.md) · [CATALOG.template.md](CATALOG.template.md)
+**Golden:** [examples/golden-family/](examples/golden-family/)
+**Skeleton:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`
 **Docs style:** `.cursor/rules/documentation-standards.mdc`
 
 ## Rules
 
-> **A Work Slice is a self-contained delivery unit for one role (or full when no UI) that defines one outcome and everything required to implement and verify that role's slice.**
+> **Một Work Slice là một outcome kiểm được, trong một file, gồm đúng các mục heading mà outcome đó cần để implement và verify.**
 
-> **Quiz by family/outcome, not by each role file. Publish catalog status = IN_REVIEW only. Never invent field/RPC. design_status lives only on CATALOG.md.**
+> **Quiz theo outcome. Publish `design_status = IN_REVIEW` trên CATALOG.md. Field/RPC lấy từ SRS.**
 
-> **Wide refactor / expand–contract is out of scope here — use `/to-tickets` (or a separate lane), not this harness.**
+> **Refactor rộng / expand–contract dùng `/to-tickets`, không dùng harness này.**
 
-**Không** User Story trong Trace — chỉ key đúng loại (`BJ`/`CAP`, `UC`/`OP`, `BC`/`API`).
-
-## Role → template
-
-| Role | File template | Có UI? |
-| --- | --- | --- |
-| `full` | [template.work-slice.md](template.work-slice.md) | Không — một file |
-| `be-contract` | [template.work-slice.be-contract.md](template.work-slice.be-contract.md) | Có — trước |
-| `be-impl` | [template.work-slice.be-impl.md](template.work-slice.be-impl.md) | Có |
-| `fe` | [template.work-slice.fe.md](template.work-slice.fe.md) | Có |
-| `e2e` | [template.work-slice.e2e.md](template.work-slice.e2e.md) | Có — sau impl+fe |
-
-Tên file: `SL-NNN-<slug>.md` (`full`) hoặc `SL-NNN-<slug>.<role>.md`. Unique `SL-id` mỗi file. Nhóm bằng `family`. Có UI → đủ 4 role cùng `family`; không UI → `full`.
+Trace trong YAML: `BJ`/`CAP`, `UC`/`OP`, `BC`/`API`. Không thêm User Story.
 
 ## Process
 
 ### 1. Gather context
 
-Làm việc từ context hội thoại. Nếu user truyền path BJ/SRS/theme hoặc issue URL, đọc đủ body (và comments nếu có).
+Đọc body BJ/SRS/theme hoặc issue user đưa, kể cả comment nếu có URL.
 
-**Xong khi:** đã xác định theme + BJ id + path harness mục tiêu (không hardcode; thường `<theme>/04.harness/BJ-<id>-harness/`).
+**Xong khi:** đã có theme, BJ id, và path harness (thường `<theme>/04.harness/BJ-<id>-harness/`).
 
 ### 2. Explore the codebase (optional)
 
-Nếu chưa explore: vocabulary domain, ADR khu vực chạm, trạng thái module. Prefactor rõ → đề xuất thành **family riêng** trên quiz list (không nhét widen-refactor vào work-slice).
+Khi cần: vocabulary domain, ADR khu vực chạm, trạng thái module. Prefactor tách thành outcome riêng trên danh sách quiz.
 
-**Xong khi:** đủ để đặt tên/slug theo glossary, hoặc đã bỏ qua vì context đã đủ.
+**Xong khi:** đủ để đặt slug theo glossary, hoặc context đã đủ nên bỏ qua.
 
-### 3. Draft families
+### 3. Draft outcomes
 
-Cắt việc thành **families** (tracer delivery), không list từng role như ticket riêng.
+Mỗi outcome đề xuất:
 
-Với mỗi family đề xuất:
-
-- **Title** / `family` key
-- **Roles** sẽ tạo: `full` **hoặc** `be-contract` + `be-impl` + `fe` + `e2e`
-- **Blocked by:** families (hoặc SL) phải xong trước
-- **What it delivers:** outcome end-to-end (góc user / verify được)
+- **Title** / slug
+- **Heading có mặt:** Flow, Design, Contracts, Presentation — theo cò trong [reference.md](reference.md). Presentation có khi outcome có màn hình
+- **Blocked by:** outcome (SL) phải xong trước
+- **What it delivers:** outcome kiểm được
 - **Sources:** BJ/UC/BC/… từ SRS
 
-Hard rules shape: [reference.md](reference.md). Field/RPC chỉ từ SRS — thiếu → Open Questions trên slice, không giả invent.
+Field/RPC chỉ từ SRS. Thiếu thì Open Questions trên slice.
 
 ### 4. Quiz the user
 
-Trình breakdown **theo family** (numbered). Hỏi:
+Trình breakdown theo outcome (đánh số). Hỏi:
 
-- Granularity: quá thô / quá mảnh?
-- Blocking edges đúng chưa?
-- Merge / split family nào?
-- `full` vs 4-role đúng với có/không UI?
+- Grain: thô hơn một outcome hiện tại, hay mỏng hơn?
+- Cạnh Blocked by đúng chưa?
+- Gộp hay tách outcome nào?
+- Presentation có trong scope không?
 
-Lặp đến khi user **approve** breakdown. **Chưa ghi file** trước approve.
+Lặp đến khi user **approve**. Chưa ghi file trước approve.
 
 ### 5. Publish to BJ harness
 
 Sau approve:
 
-1. Đảm bảo `CATALOG.md` tồn tại — copy [CATALOG.template.md](CATALOG.template.md) nếu thiếu.
-2. Copy template → file flat; điền **tối đa** từ SRS (YAML, Objective, Blocked by, phần giữa theo role, Verification) khi nguồn đủ; lỗ hổng để rõ ràng cho `/review-work-slices`.
-3. Cập nhật hàng catalog: `depends_on` / `sources` / `family` khớp file; **`design_status = IN_REVIEW`** cho mọi slice vừa publish (không `READY_TO_IMPLEMENT`, không `DRAFT` trừ khi user yêu cầu rõ giữ draft).
-4. **Dừng.** Next: `/review-work-slices` — rồi mới `/implement-work-slice`.
+1. Đảm bảo `CATALOG.md` — copy [CATALOG.template.md](CATALOG.template.md) nếu thiếu.
+2. Copy [template.work-slice.md](template.work-slice.md) thành `SL-NNN-<slug>.md`. Điền từ SRS. Xóa H2 optional ngoài scope và ghi tên chúng vào Out of Scope.
+3. Catalog: `depends_on` và `sources` trong YAML khớp file. Mọi slice vừa publish = `IN_REVIEW`.
+4. **Dừng.** Tiếp: `/review-work-slices`.
 
-**Xong khi:** path file đúng `SL-NNN-<slug>[.<role>].md`, catalog `IN_REVIEW`, không còn section bắt buộc trống mà không ghi lý do/`TBD`.
+**Xong khi:** mỗi outcome một file `SL-NNN-<slug>.md`, catalog `IN_REVIEW`, mục bắt buộc có nội dung hoặc lý do còn thiếu nằm ở Open Questions.
 
 ## Khi nào dùng
 
-- Cắt BJ/SRS thành Work Slice families + publish harness
+- Cắt BJ/SRS thành Work Slice và publish harness
 - User nói Design-Driven breakdown, work slices, trước review/implement
 
-**Không dùng** để nâng `READY_TO_IMPLEMENT` → `/review-work-slices`.  
-**Không dùng** để viết Dart/SQL → `/implement-work-slice` / `/implement`.
+**READY** là việc của `/review-work-slices`.
+**Dart/SQL** là việc của `/implement-work-slice`.
 
 ## Next Action
 
-User approve design → `/review-work-slices` (checklist bar B + OK READY) → `/implement-work-slice` theo `family`.
+User approve design → `/review-work-slices` → `/implement-work-slice` theo từng outcome `READY_TO_IMPLEMENT`.

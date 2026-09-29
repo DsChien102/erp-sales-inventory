@@ -1,69 +1,66 @@
 ---
 name: review-work-slices
 description: >-
-  Fill gaps in IN_REVIEW Work Slice files against SRS, run the bar B checklist,
-  and after user confirmation set CATALOG design_status to READY_TO_IMPLEMENT
-  (or BLOCKED). The only path that may set READY.
+  Fill gaps in IN_REVIEW vertical Work Slices against SRS, run the bar B
+  checklist, and after user confirmation set CATALOG design_status to
+  READY_TO_IMPLEMENT (or BLOCKED). The only path that may set READY.
 disable-model-invocation: true
 ---
 
 # Review Work Slices
 
-Làm kín brief Work Slice đã publish (`IN_REVIEW`), chạy checklist **bar B**, rồi — chỉ sau **user OK** — ghi catalog `READY_TO_IMPLEMENT` (hoặc `BLOCKED` + `blocked_reason`).
+Làm kín Work Slice `IN_REVIEW`, chạy checklist **bar B**, rồi sau **user OK** ghi catalog `READY_TO_IMPLEMENT` hoặc `BLOCKED` kèm `blocked_reason`.
 
-**Pipeline:** `/to-work-slices` → **`/review-work-slices`** → `/implement-work-slice`.  
-Đây là **cửa duy nhất** được phép set `READY_TO_IMPLEMENT` (kể cả khi `/to-work-slices` đã điền gần đủ).
+**Pipeline:** `/to-work-slices` → **`/review-work-slices`** → `/implement-work-slice`.
+Đây là cửa duy nhất được ghi `READY_TO_IMPLEMENT`.
 
-**SSOT checklist / shape:** [.agents/skills/to-work-slices/reference.md](../to-work-slices/reference.md)  
-**Golden:** [.agents/skills/to-work-slices/examples/golden-family/](../to-work-slices/examples/golden-family/)  
-**Templates (không đổi shape ở đây):** `.agents/skills/to-work-slices/template.work-slice*.md`
+**SSOT:** [reference.md](../to-work-slices/reference.md)
+**Golden:** [examples/golden-family/](../to-work-slices/examples/golden-family/)
+**Template:** [template.work-slice.md](../to-work-slices/template.work-slice.md)
 
 ## Bound
 
-- **Được:** điền/chỉnh nội dung SL từ SRS; chạy checklist bar B; cập nhật catalog `IN_REVIEW` → `READY_TO_IMPLEMENT` sau user OK; hoặc `BLOCKED` + `blocked_reason`.
-- **Không:** quiz/cắt lại families (đó là `/to-work-slices`).
-- **Không:** tạo file role còn thiếu trong family — bảo user chạy lại `/to-work-slices` (re-quiz/merge).
-- **Không:** implement Dart/SQL / promote migration → `/implement-work-slice`.
-- **Không:** set READY nếu checklist fail, dù user muốn “cho qua” — báo thiếu gì; có thể `BLOCKED` nếu không giải được trong slice.
+- Điền nội dung SL từ SRS, chạy bar B, và sau user OK chuyển `IN_REVIEW` → `READY_TO_IMPLEMENT`, hoặc `BLOCKED` kèm `blocked_reason`.
+- Cắt lại outcome là việc của `/to-work-slices`.
+- Dart/SQL và promote migration là việc của `/implement-work-slice`.
+- Checklist fail thì báo thiếu gì. Có thể `BLOCKED` khi SRS không đủ để làm kín trong slice.
 
 ## Process
 
 ### 1. Gather scope
 
-Input: path `CATALOG.md` / harness BJ, và/hoặc `family`, và/hoặc list `SL-*`. Mặc định: mọi hàng `IN_REVIEW` in-scope user nêu.
+Input: path `CATALOG.md`, và/hoặc list `SL-*`. Mặc định: mọi hàng `IN_REVIEW` user nêu.
 
-**Xong khi:** danh sách file + hàng catalog cần review đã liệt kê.
+**Xong khi:** danh sách file và hàng catalog đã liệt kê.
 
 ### 2. Fill gaps
 
-Đối chiếu từng slice với SRS/contracts theme. Điền fence, Code Layout, FE state map, e2e G/W/T, v.v. theo role — chi tiết [reference.md](../to-work-slices/reference.md). Không invent field/RPC; thiếu nguồn → Open Questions hoặc đề xuất `BLOCKED`.
+Đối chiếu từng slice với SRS. Điền fence, Code Layout, State × feedback, Scenarios theo [reference.md](../to-work-slices/reference.md). Field/RPC lấy từ SRS. Thiếu nguồn thì Open Questions hoặc đề xuất `BLOCKED`.
 
-**Xong khi:** không còn lỗ hổng bar B mà SRS đã có thể trả lời; phần còn thiếu đã ghi Open Questions / blocked.
+**Xong khi:** lỗ bar B nào SRS trả lời được thì đã điền. Phần còn thiếu nằm ở Open Questions hoặc đề xuất blocked.
 
 ### 3. Run bar B checklist
 
-Chạy § Checklist trước READY_TO_IMPLEMENT trong [reference.md](../to-work-slices/reference.md) cho từng slice in-scope. `depends_on` phải đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` trước khi slice này READY.
+Chạy checklist trong [reference.md](../to-work-slices/reference.md) cho từng slice. `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` trước khi slice này READY.
 
-**Xong khi:** pass/fail từng mục đã báo rõ (kèm path thiếu gì).
+**Xong khi:** pass/fail từng mục đã báo, kèm chỗ thiếu.
 
 ### 4. Propose READY (or BLOCKED)
 
-Trình kết quả cho user:
+- Checklist xanh → hỏi: **OK đặt `READY_TO_IMPLEMENT`?**
+- Fail không sửa được trong lượt → đề xuất `BLOCKED` kèm `blocked_reason`, hoặc dừng để user bổ sung SRS.
 
-- Checklist xanh → hỏi xác nhận: **OK đặt `READY_TO_IMPLEMENT`?**
-- Fail không sửa được trong lượt → đề xuất `BLOCKED` + `blocked_reason`, hoặc dừng để user bổ sung SRS.
-
-**Chưa sửa catalog READY** trước câu trả lời user.
+Chưa sửa catalog sang READY trước câu trả lời user.
 
 ### 5. Write catalog status
 
 Sau user OK:
 
 - Checklist pass → `design_status = READY_TO_IMPLEMENT`
-- User chọn chặn → `BLOCKED` + `blocked_reason` bắt buộc
+- User chọn chặn → `BLOCKED` và `blocked_reason`
 
-**Xong khi:** `CATALOG.md` phản ánh status đã chốt; git diff hiện đúng các `id` in-scope.
+**Xong khi:** `CATALOG.md` khớp status đã chốt.
 
 ## Next Action
 
-Hàng `READY_TO_IMPLEMENT` → `/implement-work-slice` theo `family` (gate bar B vẫn chạy lại khi implement).
+Hàng `READY_TO_IMPLEMENT` → `/implement-work-slice`. Gate bar B chạy lại lúc implement.

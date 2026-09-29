@@ -2,33 +2,32 @@
 
 ```yaml
 id: SL-NNN
-role: full
-family: # optional; trống nếu standalone
-sources: [] # BJ/UC/BC/SCR/… IDs
+journey: []
+usecase: []
+sources: [] # BC/SCR/ENT/… ; journey và usecase là key riêng
 theme: # theme-xx
 ```
 
-**design_status** sống trên [`CATALOG.md`](CATALOG.md) — không ghi trên file này.  
-Coder chỉ implement khi catalog = `READY_TO_IMPLEMENT`. Không invent field/RPC. READY gates: [reference.md](reference.md).
+**design_status** sống trên [`CATALOG.md`](CATALOG.md). Coder implement khi catalog = `READY_TO_IMPLEMENT`. Field/RPC lấy từ SRS. Bar B: [reference.md](reference.md).
 
-**Format:** tối đa một dòng trống giữa block. Trace nằm ở YAML/`sources` — không lặp trong Objective.
-
----
-
-## 1. Objective
-
-Một câu outcome. Không mô tả handler/repository.
+**Format:** tối đa một dòng trống giữa block. Heading không đánh số. Thứ tự H2 cố định. Mục optional không thuộc scope thì xóa cả mục và ghi tên mục vào Out of Scope.
 
 ---
 
-## 2. Blocked by
+## Objective
+
+Một câu outcome. Trace nằm ở YAML.
+
+---
+
+## Blocked by
 
 - `None` — frontier, hoặc
 - Link markdown tới file slice khác và/hoặc GitLab `#N` / URL
 
 ---
 
-## 3. Scope & Rules
+## Scope & Rules
 
 ### In Scope
 
@@ -37,6 +36,12 @@ Một câu outcome. Không mô tả handler/repository.
 ### Out of Scope
 
 - …
+- Flow — khi outcome một bước và không có nhánh lỗi nghiệp vụ
+- Design — khi slice không đổi domain, persistence, transaction, hay file code
+- Contracts — khi slice không publish/consume Command, Query, DTO, hay integration
+- Presentation — khi slice không có màn hình trên app
+
+Giữ dòng nào đúng với slice. Xóa dòng mục nào thực sự có mặt bên dưới.
 
 ### Boundary
 
@@ -50,9 +55,19 @@ Một câu outcome. Không mô tả handler/repository.
 | --- | --- |
 | [`…`](…) | … |
 
+Slice không thêm rule mới: một dòng trỏ rule nguồn.
+
+### Open Questions
+
+Chỉ giữ H3 này khi còn việc chưa chốt. Câu hỏi còn chặn thì catalog chưa `READY_TO_IMPLEMENT`.
+
+- …
+
 ---
 
-## 4. Flow
+## Flow
+
+Giữ mục khi outcome có nhiều bước hoặc có nhánh lỗi nghiệp vụ.
 
 ### Main Flow
 
@@ -64,85 +79,132 @@ flowchart TD
 1. …
 2. …
 
+Happy path tối đa 5 bước.
+
 ### Failure Flow
 
-Mutation: case business-significant. Query: `N/A — query-only`.
+Giữ H3 khi có nhánh lỗi nghiệp vụ.
 
-1. condition → outcome → no unintended side-effect
+1. condition → outcome → side-effect không xảy ra
 
 ---
 
-## 5. Design
+## Design
 
-Query: Transaction / Idempotency = `N/A — query-only`.
+Giữ mục khi slice đổi domain, persistence, transaction, hoặc file code. Mỗi H3 dưới đây chỉ giữ khi slice đụng concern đó.
 
 ### Domain
 
 **Before** / **After** — …
 
+### Persistence
+
+Bảng, đường draft `_drafts/`, field/RPC đủ để implement. Body SQL không bắt buộc trong markdown.
+
+### Transaction / Idempotency
+
+Mutation:
+
+- `idempotencyKey` ≠ `command.id`
+- UK `(tenant_id, command_scope, idempotency_key)` cùng transaction với business và outbox
+
+Query: xóa H3 này.
+
 ### Code Layout
 
-Mirror `modules/iam/` khi có code. Tree + file sẽ tạo/sửa (mỗi segment một dòng; indent 4 space), **hoặc** `N/A — doc-only` khi slice chỉ chốt ranh giới/docs.
+Một cây. Mỗi segment một dòng, indent 4 space. Liệt kê mọi file slice tạo hoặc sửa.
 
 ```text
 modules/
     <module>/
         …
+apps/
+    erp/
+        lib/
+            features/
+                <area>/
+                    presentation/
+                        …
 ```
-
-### Persistence
-
-N/A hoặc: bảng → draft link → `erDiagram` → field table. Chỉ `_drafts/` đến khi promote. Body SQL không bắt buộc trong markdown trước READY — bảng field/RPC đủ.
-
-### Transaction / Idempotency / Errors
-
-- idempotencyKey ≠ command.id
-- UK `(tenant_id, command_scope, idempotency_key)` cùng txn business + outbox
 
 ---
 
-## 6. Contracts
+## Contracts
 
-Mỗi Command/Query/DTO = H4 + blockquote (Command/Query bắt buộc) + Dart fence đầy đủ field — hoặc `N/A` nếu slice không publish surface.
+Giữ mục khi slice publish hoặc consume Command, Query, DTO, hoặc integration. Không có type và không có Integration thì xóa cả mục.
 
-#### ExampleCommand
+### PinExampleCommand
 
 > Gọi khi …
 
 ```dart
-class ExampleCommand {
+class PinExampleCommand {
   final String idempotencyKey;
 }
 ```
 
-#### Integration
+Command và Query: blockquote 1–2 câu rồi fence đủ field. DTO: fence đủ field.
 
-- Facts (outbox): past tense — không `*.requested`
-- Commands: `integration_commands` khi handoff
+### Integration
+
+Giữ H3 khi có fact outbox hoặc `integration_commands`.
+
+- Facts (outbox): quá khứ đã xảy ra, `{context}_{entity}_{past}.v1`
+- Commands: `integration_commands` khi nhờ module khác làm việc
 
 ---
 
-## 7. Verification
+## Presentation
+
+Giữ mục khi slice có màn hình hoặc tương tác trên app. Có mục thì đủ năm H3.
+
+### Screens
+
+| Screen | State / action | Nguồn |
+| --- | --- | --- |
+| … | … | SCR-… |
+
+### Route
+
+- Path / entry trong app shell
+
+### State × feedback
+
+| State | UI / feedback | Error code |
+| --- | --- | --- |
+| loading | … | — |
+| empty | … | — |
+| error | … | … |
+| success | … | — |
+
+### Design system
+
+- Widget / pattern DS dùng lại
+
+### Mediator
+
+- Command/Query qua `IModuleMediator`
+- Fake khớp Contracts
+- Presentation thuộc `apps/erp` hoặc `apps/admin`
+
+---
+
+## Verification
+
+### Acceptance Criteria
 
 - [ ] **AC-01** Given … When … Then …
 
+### Tests
+
 | Test id | Given / When / Then | Layer |
 | --- | --- | --- |
-| `scn_…` | … | application / RPC fake |
+| `scn_…` | … | application / widget / RPC |
 
----
+### Scenarios
 
-## 8. Delivery
+Giữ H3 khi có Presentation.
 
-### Definition of Done
-
-- [ ] AC + `scn_*` pass
-- [ ] Catalog: `READY_TO_IMPLEMENT` (design) hoặc `VERIFIED` (sau code + review)
-
-### Open Questions
-
-- …
-
-### Next Action
-
-- [ ] …
+| Scenario | Actor | Across | Given / When / Then | Seed / fixture | Pass / fail |
+| --- | --- | --- | --- | --- | --- |
+| … | … | UI → mediator → RPC → DB | G: … / W: … / T: … | … | pass khi …; fail khi … |
