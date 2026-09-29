@@ -3,6 +3,9 @@
 SSOT trạng thái design: **`CATALOG.md`** trong thư mục harness theo BJ (không `theme.manifest`).  
 `design_status` **chỉ** trên catalog — không trên file slice.
 
+**Skills:** `/to-work-slices` (breakdown → publish `IN_REVIEW`) → `/review-work-slices` (fill + bar B → user OK → `READY`) → `/implement-work-slice`.  
+**READY** chỉ do `/review-work-slices` ghi.
+
 **Bar B (READY):** agent implement **không invent** và **không hỏi** — surface/AC/layout theo role đã kín trong slice (+ link nguồn đọc được).  
 **Golden fixture:** [examples/golden-family/](examples/golden-family/) (tách sample `BJ-xx-harness`).
 
@@ -77,8 +80,8 @@ Bảng markdown. Cột tối thiểu:
 | --- | --- |
 | `DRAFT` | Đang viết |
 | `IN_REVIEW` | Chờ review design |
-| `READY_TO_IMPLEMENT` | Design xong + **bar B** theo role; **mọi** `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` |
-| `BLOCKED` | Không scaffold/implement tiếp — bắt buộc `blocked_reason` |
+| `READY_TO_IMPLEMENT` | Design xong + **bar B** theo role; set bởi `/review-work-slices` sau user OK; **mọi** `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` |
+| `BLOCKED` | Không tiếp tục design/implement — bắt buộc `blocked_reason` |
 | `VERIFIED` | Lane code xong + code-review sạch (`implement-work-slice` cập nhật) |
 
 Không dùng `IMPLEMENTING` trên catalog. Tiến độ code không mirror vào `design_status` ngoài `VERIFIED`.
@@ -90,7 +93,7 @@ Không dùng `IMPLEMENTING` trên catalog. Tiến độ code không mirror vào 
 - **Blocked by** trên file slice = edges delivery (markdown link).
 - **`depends_on` trên catalog** = gate `READY_TO_IMPLEMENT` / thứ tự implement.
 - Frontier = slice không còn blocker chưa xong (catalog + Blocked by khớp).
-- GitLab: Blocked by hỗ trợ `#N` / URL; **tạo issue** = bước riêng (không bắt buộc trong scaffold).
+- GitLab: Blocked by hỗ trợ `#N` / URL; **tạo issue** = bước riêng (không bắt buộc trong `/to-work-slices`).
 
 ---
 

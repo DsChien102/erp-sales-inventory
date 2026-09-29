@@ -1,6 +1,6 @@
 # CATALOG.md (template)
 
-Copy vào `BJ-<id>-harness/CATALOG.md`. Schema đầy đủ: `.agents/skills/work-slice-scaffold/reference.md`.
+Copy vào `BJ-<id>-harness/CATALOG.md`. Schema đầy đủ: `.agents/skills/to-work-slices/reference.md`.
 
 SSOT `design_status`. Không ghi status trên file slice.
 

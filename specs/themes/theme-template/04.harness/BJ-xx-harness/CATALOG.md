@@ -1,7 +1,7 @@
 # CATALOG — BJ-xx harness (sample)
 
 SSOT `design_status` cho các Work Slice trong thư mục này. **Không** ghi status trên file slice.  
-Sample minh họa — `NON_CANONICAL_EXAMPLE`. Schema: `.agents/skills/work-slice-scaffold/reference.md`.
+Sample minh họa — `NON_CANONICAL_EXAMPLE`. Schema: `.agents/skills/to-work-slices/reference.md`.
 
 | id | title | path | design_status | depends_on | sources | family | produces / coverage | lanes / links | blocked_reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
