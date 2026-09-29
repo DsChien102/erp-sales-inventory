@@ -9,7 +9,7 @@ theme: # theme-xx
 ```
 
 **design_status** sống trên [`CATALOG.md`](CATALOG.md) — không ghi trên file này.  
-Coder chỉ implement khi catalog = `READY_TO_IMPLEMENT`. Không invent field/RPC.
+Coder chỉ implement khi catalog = `READY_TO_IMPLEMENT`. Không invent field/RPC. READY gates: [reference.md](reference.md).
 
 **Format:** tối đa một dòng trống giữa block. Trace nằm ở YAML/`sources` — không lặp trong Objective.
 
@@ -80,13 +80,19 @@ Query: Transaction / Idempotency = `N/A — query-only`.
 
 **Before** / **After** — …
 
-### Application & layout
+### Code Layout
 
-Mirror `modules/iam/`. Path: mỗi segment một dòng; indent 4 space.
+Mirror `modules/iam/` khi có code. Tree + file sẽ tạo/sửa (mỗi segment một dòng; indent 4 space), **hoặc** `N/A — doc-only` khi slice chỉ chốt ranh giới/docs.
+
+```text
+modules/
+    <module>/
+        …
+```
 
 ### Persistence
 
-N/A hoặc: bảng → draft link → `erDiagram` → field table. Chỉ `_drafts/` đến khi promote.
+N/A hoặc: bảng → draft link → `erDiagram` → field table. Chỉ `_drafts/` đến khi promote. Body SQL không bắt buộc trong markdown trước READY — bảng field/RPC đủ.
 
 ### Transaction / Idempotency / Errors
 
@@ -97,7 +103,7 @@ N/A hoặc: bảng → draft link → `erDiagram` → field table. Chỉ `_draft
 
 ## 6. Contracts
 
-Mỗi Command/Query/DTO = H4 + blockquote (Command/Query bắt buộc) + Dart fence.
+Mỗi Command/Query/DTO = H4 + blockquote (Command/Query bắt buộc) + Dart fence đầy đủ field — hoặc `N/A` nếu slice không publish surface.
 
 #### ExampleCommand
 

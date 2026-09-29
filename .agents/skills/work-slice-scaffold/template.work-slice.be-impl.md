@@ -8,7 +8,7 @@ sources: []
 theme: # theme-xx
 ```
 
-**design_status** trên [`CATALOG.md`](CATALOG.md). Contracts: xem file `.be-contract` cùng family — **không** nhân bản schema.
+**design_status** trên [`CATALOG.md`](CATALOG.md). Contracts: xem file `.be-contract` cùng family — **không** nhân bản schema. READY gates (RPC bảng; SQL body lúc implement): [reference.md](reference.md).
 
 ---
 
@@ -32,7 +32,7 @@ Một câu: persistence/RPC/handler thực thi đúng contract đã chốt.
 <schema>.<table>
 ```
 
-> Draft: `supabase/migrations/_drafts/<scope>_<description>.sql`
+> Draft path (tạo lúc implement): `supabase/migrations/_drafts/<scope>_<description>.sql`
 
 ```mermaid
 erDiagram
@@ -77,13 +77,9 @@ Must commit atomically:
 - Outbox = facts only
 - Handoff = `integration_commands` (+ intent tables)
 
----
+### Code Layout
 
-## 4. Contracts
-
-Link: [`SL-….be-contract.md`](SL-….be-contract.md) — không copy Dart contracts trừ deviation có ghi chú.
-
-Handler layout mirror `modules/iam/`:
+Handler / gateway / draft — mọi file sẽ tạo hoặc sửa:
 
 ```text
 modules/
@@ -94,7 +90,18 @@ modules/
                     <aggregate>/
                         commands/
                             <use_case>/
+                                <handler>.dart
+        infrastructure/
+            lib/
+                src/
+                    <gateway>.dart
 ```
+
+---
+
+## 4. Contracts
+
+Link: [`SL-….be-contract.md`](SL-….be-contract.md) — không copy Dart contracts trừ deviation có ghi chú.
 
 ---
 

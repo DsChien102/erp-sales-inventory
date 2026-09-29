@@ -17,8 +17,11 @@ Một file Work Slice = **một role delivery** (hoặc `full` khi không UI): o
 2. `BJ-<id>-harness/` flat + `CATALOG.md` (SSOT `design_status`)
 3. Implement theo frontier — skill `implement-work-slice` (hoặc Matt `/implement` cho một file)
 
+**Bar B:** `READY_TO_IMPLEMENT` = agent implement **không invent / không hỏi** — fence contract kín, Code Layout theo role, FE state map, e2e scenario kín (chi tiết: [reference.md](reference.md)).
+
 **Đọc:** [reference.md](reference.md) · [CATALOG.template.md](CATALOG.template.md) · templates `template.work-slice*.md`  
-**Canonical samples:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`  
+**Golden (bar B):** [examples/golden-family/](examples/golden-family/)  
+**Canonical samples (skeleton):** `specs/themes/theme-template/04.harness/BJ-xx-harness/`  
 **Docs style:** `.cursor/rules/documentation-standards.mdc`
 
 Coder implement **chỉ** khi hàng catalog = `READY_TO_IMPLEMENT`.  
@@ -31,6 +34,8 @@ Coder implement **chỉ** khi hàng catalog = `READY_TO_IMPLEMENT`.
 > **A Work Slice is a self-contained delivery unit for one role (or full when no UI) that defines one outcome and everything required to implement and verify that role's slice.**
 
 > **Shared skeleton; role-specific middle. Never invent field/RPC. design_status lives only on CATALOG.md.**
+
+> **READY_TO_IMPLEMENT requires bar B for that role (see reference checklist).**
 
 **Không** User Story trong Trace — chỉ key đúng loại (`BJ`/`CAP`, `UC`/`OP`, `BC`/`API`).
 
@@ -56,13 +61,13 @@ Tên file: `SL-NNN-<slug>.md` (`full`) hoặc `SL-NNN-<slug>.<role>.md`. Unique 
 2. Đảm bảo `CATALOG.md` tồn tại — copy [CATALOG.template.md](CATALOG.template.md) nếu thiếu. **Xong khi:** file có đủ cột schema ([reference.md](reference.md)).
 3. Chọn role: không UI → `full`; có UI → đủ 4 file cùng `family`, id riêng. **Xong khi:** danh sách file + id đã liệt kê.
 4. Copy template tương ứng → file flat trong harness BJ. **Xong khi:** path file tồn tại đúng tên `SL-NNN-<slug>[.<role>].md`.
-5. Điền YAML + Objective + **Blocked by** + phần giữa theo role + Verification + Delivery. **Xong khi:** không section bắt buộc nào trống (trừ N/A có ghi lý do).
-6. Field/RPC chỉ từ SRS / contracts theme. **Xong khi:** không type/field mới ngoài nguồn; thiếu → Open Questions, không `READY_TO_IMPLEMENT`.
-7. Cập nhật hàng `CATALOG.md`. **Xong khi:** `depends_on`/`sources`/`family` khớp file; `READY_TO_IMPLEMENT` chỉ nếu mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`.
+5. Điền YAML + Objective + **Blocked by** + phần giữa theo role (gồm **Code Layout** / FE state map / e2e scenario khi áp dụng) + Verification + Delivery. **Xong khi:** không section bắt buộc nào trống (trừ N/A có ghi lý do).
+6. Field/RPC chỉ từ SRS / contracts theme; Command/Query/DTO fence **đầy đủ field**. **Xong khi:** không type/field mới ngoài nguồn; thiếu → Open Questions, không `READY_TO_IMPLEMENT`.
+7. Cập nhật hàng `CATALOG.md`. **Xong khi:** `depends_on`/`sources`/`family` khớp file; `READY_TO_IMPLEMENT` chỉ nếu mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` **và** checklist bar B trong [reference.md](reference.md) đạt.
 8. `DRAFT` → `IN_REVIEW` → human → `READY_TO_IMPLEMENT`; chặn → `BLOCKED` + `blocked_reason`. **Xong khi:** status catalog phản ánh review.
 9. **Dừng** trước code trừ khi user gọi `implement-work-slice` / `/implement`.
 
-Hard rules (facts/idempotency/contracts/catalog/Blocked by/fences): [reference.md](reference.md). User chốt quy ước docs → cập nhật **SKILL + reference + templates** cùng thay đổi.
+Hard rules (facts/idempotency/contracts/catalog/Blocked by/fences/Code Layout): [reference.md](reference.md). User chốt quy ước docs → cập nhật **SKILL + reference + templates** cùng thay đổi.
 
 ---
 

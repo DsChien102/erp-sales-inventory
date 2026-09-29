@@ -8,7 +8,7 @@ sources: []
 theme: # theme-xx
 ```
 
-**design_status** trên [`CATALOG.md`](CATALOG.md). Design/Contracts: **link** các file cùng family — không nhân bản.
+**design_status** trên [`CATALOG.md`](CATALOG.md). Design/Contracts: **link** các file cùng family — không nhân bản. READY gates (scenario kín): [reference.md](reference.md).
 
 ---
 
@@ -33,13 +33,13 @@ Một câu: kịch bản xuyên tầng chứng minh family đạt AC nghiệp v�
 
 ### Scenarios
 
-| Scenario | Actor | Across | Expect |
-| --- | --- | --- | --- |
-| … | … | UI → mediator → RPC → DB | … |
+| Scenario | Actor | Across | Given / When / Then | Seed / fixture | Pass / fail |
+| --- | --- | --- | --- | --- | --- |
+| … | … | UI → mediator → RPC → DB | G: … / W: … / T: … | id hoặc bước setup | pass khi …; fail khi … |
 
 ### Evidence
 
-- Path dưới `06.evidence/` (hoặc link MR/CI) — điền khi chạy
+- Path dưới `06.evidence/` (hoặc link MR/CI) — điền khi chạy (không chặn READY nếu scenario bảng đã kín)
 
 ### Out of Scope
 
@@ -49,7 +49,7 @@ Một câu: kịch bản xuyên tầng chứng minh family đạt AC nghiệp v�
 
 ## 4. Verification
 
-- [ ] **AC-01** Happy path E2E
+- [ ] **AC-01** Happy path E2E theo scenario bảng
 - [ ] **AC-02** Failure / idempotency có ý nghĩa nghiệp vụ (nếu mutation)
 
 | Test id | Given / When / Then | Layer |

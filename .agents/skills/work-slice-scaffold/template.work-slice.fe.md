@@ -8,7 +8,7 @@ sources: []
 theme: # theme-xx
 ```
 
-**design_status** trên [`CATALOG.md`](CATALOG.md). Contracts: link `.be-contract` — UI gọi qua mediator + fake, không invent DTO.
+**design_status** trên [`CATALOG.md`](CATALOG.md). Contracts: link `.be-contract` — UI gọi qua mediator + fake, không invent DTO. READY gates: [reference.md](reference.md).
 
 ---
 
@@ -32,6 +32,19 @@ Một câu: màn hình / interaction thỏa Screen + UC trong phạm vi family.
 | --- | --- | --- |
 | … | … | SCR-… / UC-… |
 
+### Route / entry
+
+- Route path / entry point (app shell) — …
+
+### State × feedback
+
+| State | UI / feedback | Error code (nếu có) |
+| --- | --- | --- |
+| loading | … | — |
+| empty | … | — |
+| error | … | map từ contract / RPC |
+| success | … | — |
+
 ### Design system
 
 - Widget / pattern DS dùng lại — không invent token ngoài DS
@@ -42,9 +55,21 @@ Một câu: màn hình / interaction thỏa Screen + UC trong phạm vi family.
 - Dev/test: fake khớp `.be-contract`
 - Presentation thuộc `apps/erp|admin` — không `modules/*/presentation`
 
-### Navigation / feedback / a11y
+### Code Layout
 
-- …
+Tree path + **mọi file sẽ tạo/sửa** trong slice này (mỗi segment một dòng; indent 4 space):
+
+```text
+apps/
+    erp/
+        lib/
+            features/
+                <area>/
+                    presentation/
+                        <page>.dart
+                        widgets/
+                            <widget>.dart
+```
 
 ### Out of Scope
 
@@ -62,7 +87,7 @@ Link: [`SL-….be-contract.md`](SL-….be-contract.md)
 ## 5. Verification
 
 - [ ] **AC-01** Happy path UI theo Screen/UC
-- [ ] **AC-02** Feedback lỗi / empty / loading theo contract
+- [ ] **AC-02** Feedback lỗi / empty / loading theo bảng State × feedback
 
 | Test id | Given / When / Then | Layer |
 | --- | --- | --- |

@@ -8,7 +8,7 @@ sources: []
 theme: # theme-xx
 ```
 
-**design_status** trên [`CATALOG.md`](CATALOG.md). Gate code: catalog `READY_TO_IMPLEMENT`. Không invent field/RPC.
+**design_status** trên [`CATALOG.md`](CATALOG.md). Gate code: catalog `READY_TO_IMPLEMENT`. Không invent field/RPC. READY gates (fence kín): [reference.md](reference.md). SRS = authority khi lệch.
 
 ---
 
@@ -42,11 +42,29 @@ Một câu: contract Application (Command/Query/DTO/port) sẵn sàng cho `be-im
 | --- | --- |
 | [`…`](…) | … |
 
+### Code Layout
+
+Path application types / fake sẽ tạo hoặc sửa:
+
+```text
+modules/
+    <module>/
+        application/
+            lib/
+                src/
+                    <aggregate>/
+                        commands/
+                            <use_case>/
+                                <command>.dart
+                        shared/
+                            <dto>.dart
+```
+
 ---
 
 ## 4. Contracts
 
-Mỗi type = H4 + blockquote (Command/Query bắt buộc) + Dart fence. Chi tiết field từ SRS đã chốt.
+Mỗi type = H4 + blockquote (Command/Query bắt buộc) + Dart fence. Field từ SRS đã chốt — không để placeholder `…` khi READY.
 
 #### ExampleCommand
 
@@ -93,7 +111,7 @@ class ExampleResultDto {
 
 ## 5. Verification
 
-- [ ] **AC-01** Contract compile-shaped: mọi Command/Query có blockquote + fence khớp nguồn
+- [ ] **AC-01** Contract compile-shaped: mọi Command/Query có blockquote + fence khớp nguồn, đủ field
 - [ ] **AC-02** Fake/port đủ để `fe` / handler test không cần DB
 
 | Test id | Given / When / Then | Layer |
@@ -106,8 +124,8 @@ class ExampleResultDto {
 
 ### Definition of Done
 
-- [ ] Contracts + fake documented
-- [ ] Catalog row `READY_TO_IMPLEMENT` khi depends_on đủ
+- [ ] Contracts + fake + Code Layout documented
+- [ ] Catalog row `READY_TO_IMPLEMENT` khi depends_on đủ và fence kín
 
 ### Next Action
 
