@@ -1,109 +1,80 @@
 ---
 name: work-slice-scaffold
 description: >-
-  Scaffolds and reviews Work Slice documents with a fixed seven-section
-  structure (Objective through Delivery) through READY_TO_IMPLEMENT. Use when
-  the user asks to scaffold a work slice, create Sxx slice docs, Design-Driven
-  design lane, READY_TO_IMPLEMENT, or TH-xx harness slices before coding.
+  Scaffolds and reviews flat Work Slice files by role (full, be-contract,
+  be-impl, fe, e2e) plus BJ harness CATALOG.md through READY_TO_IMPLEMENT. Use
+  when the user asks to scaffold a work slice, create SL-NNN slice docs, Design
+  Driven design lane, READY_TO_IMPLEMENT, or harness slices before coding.
 ---
 
-# Work Slice scaffold (7 phần cố định)
+# Work Slice scaffold (flat / role)
 
 ## Mục đích
 
-Một file Work Slice = **đơn vị delivery hoàn chỉnh**: business outcome + technical design + implementation boundary + acceptance.
+Một file Work Slice = **một role delivery** (hoặc `full` khi không UI): objective + blocked-by + design theo role + AC.
 
 1. Theme / BJ·UC (SRS)
-2. Work Slice — `harness/slices/Sxx-<slug>.md` (7 sections)
-3. Lanes — Contract → BE → FE → E2E
+2. `BJ-<id>-harness/` flat + `CATALOG.md` (SSOT `design_status`)
+3. Implement theo frontier — skill `implement-work-slice` (hoặc Matt `/implement` cho một file)
 
-**Đọc:** [template.work-slice.md](template.work-slice.md) · [reference.md](reference.md)  
-**Canonical theme template:** `docs/themes/TH-07-inventory-and-costing/harness/slices/template.work-slice.md`  
+**Đọc:** [reference.md](reference.md) · [CATALOG.template.md](CATALOG.template.md) · templates `template.work-slice*.md`  
+**Canonical samples:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`  
 **Docs style:** `.cursor/rules/documentation-standards.mdc`
 
-Coder implement **chỉ** khi `STATUS == READY_TO_IMPLEMENT`.  
-`BLOCKED` = dừng mọi lane; metadata **bắt buộc** có `Blocked reason`.
+Coder implement **chỉ** khi hàng catalog = `READY_TO_IMPLEMENT`.  
+`BLOCKED` → dừng; catalog bắt buộc `blocked_reason`.
 
 ---
 
-## Rules (Codex)
+## Rules
 
-> **A Work Slice is a self-contained delivery unit that defines one business outcome and contains everything required to implement and verify that outcome, including its technical design.**
+> **A Work Slice is a self-contained delivery unit for one role (or full when no UI) that defines one outcome and everything required to implement and verify that role's slice.**
 
-> **Use the same seven-section structure for every Work Slice. Keep every section, but vary the depth of its content. Never add sections merely because a technical concern exists; place relevant technical details under Design (or Contracts).**
+> **Shared skeleton; role-specific middle. Never invent field/RPC. design_status lives only on CATALOG.md.**
 
-**Không** User Story trong Trace metadata — chỉ ghi key đúng loại có (`BJ:` / `CAP:` / `BJ / CAP:`; `UC:` / `OP:` / `UC / OP:`; `BC:` / `API:` / `BC / API:`).
+**Không** User Story trong Trace — chỉ key đúng loại (`BJ`/`CAP`, `UC`/`OP`, `BC`/`API`).
 
 ---
 
-## Bảy phần cố định
+## Role → template
 
-| § | Phần | Trả lời |
+| Role | File template | Có UI? |
 | --- | --- | --- |
-| — | Metadata | STATUS (`DRAFT` / `IN_REVIEW` / `READY_TO_IMPLEMENT` / `BLOCKED`), Blocked reason (nếu BLOCKED), Slice, Wave, Theme, BJ/CAP, UC/OP, BC/API, lane |
-| 1 | Objective | Outcome 1 câu (không Trace table) |
-| 2 | Scope & Rules | In/Out, Boundary, Rules |
-| 3 | Flow | Main + Failure (Mermaid khi có thể; **một** diagram workflow — không lặp ở Design) |
-| 4 | Design | Domain Before/After (+ stateDiagram **chỉ nếu khác** Flow), App/Layout, Persistence, Txn, Idempotency, Errors |
-| 5 | Dependencies & Contracts | Requires/Provides, fields, RPC, integration, dep table; mỗi Command/Query = H4 + **blockquote** use-case + Dart fence |
-| 6 | Verification | AC checklist + `scn_*` |
-| 7 | Delivery | DoD + Open Questions + Next Action |
+| `full` | [template.work-slice.md](template.work-slice.md) | Không — một file |
+| `be-contract` | [template.work-slice.be-contract.md](template.work-slice.be-contract.md) | Có — trước |
+| `be-impl` | [template.work-slice.be-impl.md](template.work-slice.be-impl.md) | Có |
+| `fe` | [template.work-slice.fe.md](template.work-slice.fe.md) | Có |
+| `e2e` | [template.work-slice.e2e.md](template.work-slice.e2e.md) | Có — sau impl+fe |
 
----
-
-## Khi nào dùng
-
-- Scaffold / review Work Slice (`Sxx-*.md`)
-- User nói Design-Driven, work slice, trước implement
-
-**Không dùng** để viết Dart/SQL implementation hoặc promote migration.
+Tên file: `SL-NNN-<slug>.md` (`full`) hoặc `SL-NNN-<slug>.<role>.md`. Unique `SL-id` mỗi file. Nhóm bằng `family`.
 
 ---
 
 ## Ritual scaffold
 
-1. Xác nhận theme harness + `Sxx` từ `04-slice-roadmap.md` (và private `ROADMAP.md` nếu có).
-2. Copy `template.work-slice.md` → `docs/themes/<TH>/harness/slices/Sxx-<slug>.md`.
-3. Điền đủ 7 phần; **variable depth** — query: Transaction/Idempotency/Failure = `N/A — query-only`.
-4. Chi tiết field/RPC/schema từ SRS + `07-api-contracts.md` — **không invent**.
-5. Draft SQL `_drafts/` khi Design cần persistence; cập nhật catalog API.
-6. `STATUS: IN_REVIEW` → human review → `READY_TO_IMPLEMENT`; Design lane `done` trên roadmap. Nếu bị chặn → `BLOCKED` + `Blocked reason` trong metadata.
-7. **Dừng** trước code trừ khi user yêu cầu implement.
+1. Xác nhận theme + BJ harness path (không hardcode; thường `<theme>/04.harness/BJ-<id>-harness/`). **Xong khi:** path harness + BJ id đã chốt với user.
+2. Đảm bảo `CATALOG.md` tồn tại — copy [CATALOG.template.md](CATALOG.template.md) nếu thiếu. **Xong khi:** file có đủ cột schema ([reference.md](reference.md)).
+3. Chọn role: không UI → `full`; có UI → đủ 4 file cùng `family`, id riêng. **Xong khi:** danh sách file + id đã liệt kê.
+4. Copy template tương ứng → file flat trong harness BJ. **Xong khi:** path file tồn tại đúng tên `SL-NNN-<slug>[.<role>].md`.
+5. Điền YAML + Objective + **Blocked by** + phần giữa theo role + Verification + Delivery. **Xong khi:** không section bắt buộc nào trống (trừ N/A có ghi lý do).
+6. Field/RPC chỉ từ SRS / contracts theme. **Xong khi:** không type/field mới ngoài nguồn; thiếu → Open Questions, không `READY_TO_IMPLEMENT`.
+7. Cập nhật hàng `CATALOG.md`. **Xong khi:** `depends_on`/`sources`/`family` khớp file; `READY_TO_IMPLEMENT` chỉ nếu mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`.
+8. `DRAFT` → `IN_REVIEW` → human → `READY_TO_IMPLEMENT`; chặn → `BLOCKED` + `blocked_reason`. **Xong khi:** status catalog phản ánh review.
+9. **Dừng** trước code trừ khi user gọi `implement-work-slice` / `/implement`.
+
+Hard rules (facts/idempotency/contracts/catalog/Blocked by/fences): [reference.md](reference.md). User chốt quy ước docs → cập nhật **SKILL + reference + templates** cùng thay đổi.
 
 ---
 
-## Hard rules (Vet45)
+## Khi nào dùng
 
-| Rule | Chi tiết |
-| --- | --- |
-| Facts vs commands | Outbox = past-tense facts; handoff = `integration_commands`. Không `*.requested` IE. |
-| Idempotency | `idempotencyKey` ≠ `command.id`; UK `(tenant, scope, key)`; cùng txn business + outbox. |
-| Schema | Chỉ `_drafts/` đến khi promote. Persistence: tên bảng → draft blockquote → **một** `erDiagram` (giữ quan hệ) → bảng field tách theo table. |
-| Structure | Đúng 7 section cấp 1; technical nằm trong Design / Contracts. |
-| Trace | Không User Story. |
-| Main Flow | Mermaid khi có thể; tên đầy đủ; ≤5 bước; **không** lặp cùng diagram ở Design Domain. |
-| AC | Checklist `- [ ] **AC-0n**` — không code block. |
-| Contracts | Mỗi Command/Query/DTO = H4 + Dart fence; **Command/Query bắt buộc 1–2 câu trong blockquote** (`> …`) ngay dưới H4 trước fence — khi nào dùng; DTO blockquote optional; không bảng field; không gom một dòng dù ít field. |
-| Doc feedback | Khi user chốt quy ước tài liệu Work Slice (“phải như thế này”) → cập nhật **SKILL.md + reference.md + theme `template.work-slice.md`** trong cùng thay đổi (không chỉ sửa một file slice). |
-| Code Layout | Mỗi segment path một dòng; indent **4 space**; fence ` ```text ` **chỉ** cho directory tree; không `│`/`├─`. |
-| Fenced blocks | Chỉ source/config, directory tree, hoặc ASCII hiếm (ưu tiên Mermaid). **Không** bọc prose / rules / txn list / Before–After để “highlight” — xem `documentation-standards.mdc` §17. |
-| Business Rules | Bảng 2 cột; title link = ID. |
-| Dependencies | Slice → link `Sxx-<slug>.md`; chưa có file → `04-slice-roadmap.md`. |
-| Spacing | Tối đa một dòng trống giữa block. |
-| Gate | Code chỉ khi `READY_TO_IMPLEMENT`. `BLOCKED` → không code; metadata phải có `Blocked reason`. |
+- Scaffold / review Work Slice (`SL-*.md`) + catalog
+- User nói Design-Driven, work slice, trước implement
 
----
-
-## Variants
-
-| Loại | Gợi ý |
-| --- | --- |
-| Foundation / tech | Objective = enablement; UC có thể N/A. |
-| Query-only | Design Txn/Idempotency + Failure Flow = `N/A — query-only`. |
-| Mutation | Design Txn + Idempotency + Failure đầy đủ. |
+**Không dùng** để viết Dart/SQL implementation hoặc promote migration → `implement-work-slice` / `/implement`.
 
 ---
 
 ## Next Action sau skill
 
-- Review 7 phần → `READY_TO_IMPLEMENT` → lane Contract/BE theo ritual theme
+- Review → catalog `READY_TO_IMPLEMENT` → `/implement-work-slice` theo `family` (hoặc `/implement` một path)
