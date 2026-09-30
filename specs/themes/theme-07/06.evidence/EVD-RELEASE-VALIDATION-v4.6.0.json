@@ -1,0 +1,131 @@
+{
+  "version": "4.6.0",
+  "parent": "4.5.2",
+  "verdict": "READY_FOR_REVIEW",
+  "blocker": 0,
+  "high": 0,
+  "current_package": {
+    "status": "PASS",
+    "passed": 44,
+    "total": 44
+  },
+  "canonical_links": {
+    "status": "PASS",
+    "checked": 2439,
+    "broken": 0
+  },
+  "runtime": {
+    "status": "PASS",
+    "renders": 85,
+    "expected": 85,
+    "errors": 0
+  },
+  "valuation_e2e": {
+    "status": "PASS",
+    "checks": 33,
+    "passed": 33
+  },
+  "valuation_visual": {
+    "status": "PASS",
+    "checks": 19,
+    "passed": 19
+  },
+  "snapshot": {
+    "status": "PASS",
+    "captures": 81,
+    "expectedCaptures": 81,
+    "contactSheets": 17,
+    "stateRenders": 482,
+    "statePassed": 482,
+    "browserErrors": 0
+  },
+  "grouped_surface": {
+    "status": "PASS",
+    "renders": 482,
+    "passed": 482
+  },
+  "diff": {
+    "status": "PASS",
+    "counts": {
+      "added": 141,
+      "removed": 0,
+      "modified": 51,
+      "unchanged": 7335
+    },
+    "unexpected": 0
+  },
+  "generic_structure_validator": {
+    "status": "NOT_APPLICABLE",
+    "regression": false,
+    "parent_result": {
+      "status": "FAIL",
+      "counts": {
+        "BLOCKER": 19,
+        "HIGH": 242,
+        "MEDIUM": 0,
+        "LOW": 0
+      }
+    },
+    "candidate_result": {
+      "status": "FAIL",
+      "counts": {
+        "BLOCKER": 19,
+        "HIGH": 242,
+        "MEDIUM": 0,
+        "LOW": 0
+      }
+    },
+    "note": "Not applicable to approved numbered skeleton; same result on parent and candidate."
+  },
+  "prospective_registry": {
+    "artifact_count": 7524,
+    "checksum_entries": 7526
+  },
+  "limits": [
+    "READY_FOR_REVIEW is a package/design validation verdict, not production RELEASE_READY.",
+    "Legacy historical evidence remains preserved and is outside canonical-link authority."
+  ],
+  "artifact_registry": {
+    "status": "PASS",
+    "artifacts": 7524
+  },
+  "package_checksums": {
+    "status": "PASS",
+    "entries": 7526,
+    "mismatch": 0
+  },
+  "post_extract": {
+    "status": "PASS",
+    "file_count": 7527,
+    "byte_identical_before_retest": 7527,
+    "zip_crc": "PASS",
+    "runtime": {
+      "passed": 85,
+      "total": 85,
+      "errors": 0
+    },
+    "valuation_e2e": {
+      "passed": 33,
+      "total": 33,
+      "errors": 0
+    },
+    "valuation_visual": {
+      "passed": 19,
+      "total": 19,
+      "errors": 0
+    },
+    "snapshot": {
+      "captures": 81,
+      "expectedCaptures": 81,
+      "statePassed": 482,
+      "stateTotal": 482,
+      "contactSheets": 17,
+      "browserErrors": 0
+    },
+    "grouped_surface": {
+      "passed": 482,
+      "total": 482,
+      "errors": 0
+    }
+  }
+}

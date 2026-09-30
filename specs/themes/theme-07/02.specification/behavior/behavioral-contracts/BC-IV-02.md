@@ -5,7 +5,7 @@ theme: theme-07
 title: "Tính và rà soát giá vốn"
 owner: BA
 status: FROZEN
-source_baseline: v3.12.0
+source_baseline: v4.6.1
 ---
 # BC-IV-02 — Tính và rà soát giá vốn
 
@@ -45,7 +45,7 @@ Actor có quyền tính giá vốn; period hợp lệ; dirty scope current; mộ
 ## 6. Điều kiện bắt buộc
 
 - Dirty/ad-hoc scope là source-owned; user không tùy ý bỏ Product.
-- Period-close scope được khóa khi tạo run.
+- Period-close scope được khóa khi tạo run. Tập lựa chọn scope do tenant policy cung cấp; business contract không hard-code catalog scope Phase 1. Nếu policy trả nhiều option, UI không được tự chọn option đầu tiên; nếu chỉ một option thì hiển thị read-only.
 - Phương pháp không được chọn bởi tenant **không** được tự ghi sổ.
 - Run đã bắt đầu không bị sửa/hủy; rerun tạo successor.
 - Cùng facts/policy/cutoff phải cho deterministic result.
@@ -67,4 +67,4 @@ Run/result snapshot phải tự nhất quán; nếu calculation fail trước ma
 - **Domain / Entity:** `ENT-IV-03`, `ENT-IV-09`; đọc ledger/value/cost policy facts.
 - **UC:** `UC-14-01`.
 - **API trace:** `API-C-21`.
-- **Decision:** `T7-DR-049`, `164…170`, `194…195`.
+- **Decision:** `T7-DR-049`, `164…170`, `194…195`, `202`.

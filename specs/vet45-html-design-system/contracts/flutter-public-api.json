@@ -1,0 +1,1304 @@
+{
+  "schemaVersion": 2,
+  "flutterDsVersion": "1.4.1",
+  "exportCount": 94,
+  "items": [
+    {
+      "export": "src/tokens/v_colors.dart",
+      "api": "VColors",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VColors"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_borders.dart",
+      "api": "VBorders",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBorders"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_radius.dart",
+      "api": "VRadius",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VRadius"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_spacing.dart",
+      "api": "VSpacing",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSpacing"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_breakpoints.dart",
+      "api": "VBreakpoint",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VBreakpoint"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_typography.dart",
+      "api": "VTypography",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTypography"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_shadows.dart",
+      "api": "VShadows",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VShadows"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_assets.dart",
+      "api": "VAssets",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAssets"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_duration.dart",
+      "api": "VDuration",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDuration"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/tokens/v_opacity.dart",
+      "api": "VOpacity",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VOpacity"
+        },
+        {
+          "kind": "function",
+          "name": "vDisabledOpacity"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/theme/v_theme.dart",
+      "api": "VTheme",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTheme"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/theme/v_color_scheme.dart",
+      "api": "VColorScheme",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VColorScheme"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/theme/v_density.dart",
+      "api": "VDensity",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDensity"
+        },
+        {
+          "kind": "enum",
+          "name": "VDensityMode"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_context_extensions.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_component_contracts.dart",
+      "api": "VComponentTone",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VComponentTone"
+        },
+        {
+          "kind": "enum",
+          "name": "VComponentEmphasis"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_component_scope.dart",
+      "api": "VComponentScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComponentScope"
+        },
+        {
+          "kind": "function",
+          "name": "vProvideComponentScope"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_inspector_scope.dart",
+      "api": "vInspectorHide",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "vInspectorHide"
+        },
+        {
+          "kind": "function",
+          "name": "vInspectorShow"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundations/icons/v_icons.dart",
+      "api": "VIcons",
+      "symbols": [
+        {
+          "kind": "enum",
+          "name": "VIcons"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_text_normalizer.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_datetime.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_route_overlay_guard.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_layout.dart",
+      "api": "VOverlayMenuPanelMetrics",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VOverlayMenuPanelMetrics"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_shell.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/foundation/v_dropdown_filter.dart",
+      "api": "matchesComboboxSearch",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "matchesComboboxSearch"
+        },
+        {
+          "kind": "function",
+          "name": "matchesNormalizedComboboxSearch"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/audit/v_component_audit_snapshot.dart",
+      "api": "VComponentAuditEntry",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComponentAuditEntry"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/patterns/v_gap.dart",
+      "api": "VGap",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VGap"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-gap"
+    },
+    {
+      "export": "src/patterns/v_field.dart",
+      "api": "VFieldScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VFieldScope"
+        },
+        {
+          "kind": "class",
+          "name": "VField"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldLabel"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldDescription"
+        },
+        {
+          "kind": "class",
+          "name": "VFieldError"
+        },
+        {
+          "kind": "function",
+          "name": "vFieldShell"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-field"
+    },
+    {
+      "export": "src/patterns/v_page_padding.dart",
+      "api": "VPagePadding",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPagePadding"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-page-padding"
+    },
+    {
+      "export": "src/patterns/v_section.dart",
+      "api": "VSection",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSection"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-section-block"
+    },
+    {
+      "export": "src/patterns/v_page_scaffold.dart",
+      "api": "VPageScaffold",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPageScaffold"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-page-scaffold"
+    },
+    {
+      "export": "src/patterns/v_responsive.dart",
+      "api": "VResponsiveValue",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveValue"
+        },
+        {
+          "kind": "class",
+          "name": "VResponsive"
+        }
+      ],
+      "status": "implemented",
+      "html": "@media"
+    },
+    {
+      "export": "src/patterns/v_responsive_visibility.dart",
+      "api": "VResponsiveVisibility",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveVisibility"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-responsive"
+    },
+    {
+      "export": "src/patterns/v_content_width.dart",
+      "api": "VContentWidth",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VContentWidth"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-content-width"
+    },
+    {
+      "export": "src/patterns/v_responsive_grid.dart",
+      "api": "VResponsiveGrid",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VResponsiveGrid"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-responsive-grid"
+    },
+    {
+      "export": "src/primitives/v_badge.dart",
+      "api": "VBadge",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBadge"
+        },
+        {
+          "kind": "enum",
+          "name": "VBadgeVariant"
+        },
+        {
+          "kind": "enum",
+          "name": "VBadgeStatus"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-badge"
+    },
+    {
+      "export": "src/primitives/v_chip.dart",
+      "api": "VChip",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChip"
+        },
+        {
+          "kind": "enum",
+          "name": "VChipEmphasis"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-chip"
+    },
+    {
+      "export": "src/primitives/v_divider.dart",
+      "api": "VDivider",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDivider"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-divider"
+    },
+    {
+      "export": "src/primitives/v_icon.dart",
+      "api": "VIcon",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VIcon"
+        },
+        {
+          "kind": "enum",
+          "name": "VIconSize"
+        },
+        {
+          "kind": "enum",
+          "name": "VIconColor"
+        },
+        {
+          "kind": "enum",
+          "name": "VIconWeight"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-icon"
+    },
+    {
+      "export": "src/primitives/v_icon_box.dart",
+      "api": "VIconBox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VIconBox"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-icon-box"
+    },
+    {
+      "export": "src/primitives/v_skeleton.dart",
+      "api": "VSkeletonScope",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSkeletonScope"
+        },
+        {
+          "kind": "class",
+          "name": "VSkeleton"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-skeleton"
+    },
+    {
+      "export": "src/primitives/v_text.dart",
+      "api": "VText",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VText"
+        },
+        {
+          "kind": "enum",
+          "name": "VTextVariant"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-text"
+    },
+    {
+      "export": "src/components/v_avatar.dart",
+      "api": "VAvatar",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAvatar"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-avatar"
+    },
+    {
+      "export": "src/components/v_banner.dart",
+      "api": "VBanner",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBanner"
+        },
+        {
+          "kind": "enum",
+          "name": "VBannerStatus"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-banner"
+    },
+    {
+      "export": "src/components/v_button.dart",
+      "api": "VButton",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VButton"
+        },
+        {
+          "kind": "enum",
+          "name": "VButtonVariant"
+        },
+        {
+          "kind": "enum",
+          "name": "VButtonSize"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-btn"
+    },
+    {
+      "export": "src/components/v_card.dart",
+      "api": "VCard",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCard"
+        },
+        {
+          "kind": "class",
+          "name": "VCardHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VCardIcon"
+        },
+        {
+          "kind": "class",
+          "name": "VCardTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VCardAction"
+        },
+        {
+          "kind": "class",
+          "name": "VCardContent"
+        },
+        {
+          "kind": "class",
+          "name": "VCardFooter"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-card"
+    },
+    {
+      "export": "src/components/v_checkbox.dart",
+      "api": "VCheckbox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCheckbox"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-checkbox"
+    },
+    {
+      "export": "src/components/v_radio.dart",
+      "api": "VRadio",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VRadio"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-radio"
+    },
+    {
+      "export": "src/components/v_switch.dart",
+      "api": "VSwitch",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSwitch"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-switch"
+    },
+    {
+      "export": "src/components/v_floating_action_button.dart",
+      "api": "VFloatingActionButton",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VFloatingActionButton"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-fab"
+    },
+    {
+      "export": "src/components/v_text_field.dart",
+      "api": "VTextField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-field"
+    },
+    {
+      "export": "src/components/v_text_area.dart",
+      "api": "VTextArea",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextArea"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-field"
+    },
+    {
+      "export": "src/components/v_text_form_field.dart",
+      "api": "VTextFormField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTextFormField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-field"
+    },
+    {
+      "export": "src/components/v_verification_code_field.dart",
+      "api": "VVerificationCodeField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VVerificationCodeField"
+        },
+        {
+          "kind": "enum",
+          "name": "VVerificationCodeCharset"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-verification-code"
+    },
+    {
+      "export": "src/components/v_search_bar.dart",
+      "api": "VSearchBar",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSearchBar"
+        },
+        {
+          "kind": "enum",
+          "name": "VSearchBarVariant"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-search"
+    },
+    {
+      "export": "src/components/v_tabs.dart",
+      "api": "VTabs",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTabs"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsList"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsTrigger"
+        },
+        {
+          "kind": "class",
+          "name": "VTabsContent"
+        },
+        {
+          "kind": "enum",
+          "name": "VTabsOrientation"
+        },
+        {
+          "kind": "enum",
+          "name": "VTabsListVariant"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-tabs"
+    },
+    {
+      "export": "src/components/v_empty_state.dart",
+      "api": "VEmptyState",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VEmptyState"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyMedia"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyDescription"
+        },
+        {
+          "kind": "class",
+          "name": "VEmptyContent"
+        },
+        {
+          "kind": "enum",
+          "name": "VEmptyMediaVariant"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-empty-state"
+    },
+    {
+      "export": "src/components/v_file_drop_zone.dart",
+      "api": "VFileDropZone",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VFileDropZone"
+        },
+        {
+          "kind": "enum",
+          "name": "VFileDropZoneState"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-dropzone"
+    },
+    {
+      "export": "src/components/v_toast.dart",
+      "api": "VToast",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VToast"
+        },
+        {
+          "kind": "enum",
+          "name": "VToastType"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-toast"
+    },
+    {
+      "export": "src/components/v_combobox.dart",
+      "api": "VCombobox",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VCombobox"
+        },
+        {
+          "kind": "class",
+          "name": "VComboboxController"
+        },
+        {
+          "kind": "function",
+          "name": "vComboboxProvideScope"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox"
+    },
+    {
+      "export": "src/components/v_combobox_empty.dart",
+      "api": "VComboboxEmpty",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxEmpty"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__empty"
+    },
+    {
+      "export": "src/components/v_combobox_input.dart",
+      "api": "VComboboxInput",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxInput"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__input"
+    },
+    {
+      "export": "src/components/v_combobox_content.dart",
+      "api": "VComboboxContent",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxContent"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__content"
+    },
+    {
+      "export": "src/components/v_combobox_list.dart",
+      "api": "VComboboxList",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxList"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__list"
+    },
+    {
+      "export": "src/components/v_combobox_item.dart",
+      "api": "VComboboxItem",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxItem"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__item"
+    },
+    {
+      "export": "src/components/v_combobox_footer.dart",
+      "api": "VComboboxFooter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VComboboxFooter"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-combobox__footer"
+    },
+    {
+      "export": "src/components/v_bottom_navigation_bar.dart",
+      "api": "VBottomNavigationItem",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBottomNavigationItem"
+        },
+        {
+          "kind": "class",
+          "name": "VBottomNavigationBar"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-bottom-nav"
+    },
+    {
+      "export": "src/components/v_modal.dart",
+      "api": "VConfirmDialog",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VConfirmDialog"
+        },
+        {
+          "kind": "function",
+          "name": "showVConfirmDialog"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-modal"
+    },
+    {
+      "export": "src/components/v_bottom_sheet.dart",
+      "api": "VBottomSheet",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VBottomSheet"
+        },
+        {
+          "kind": "function",
+          "name": "showVBottomSheet"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-bottom-sheet"
+    },
+    {
+      "export": "src/components/v_app_bar.dart",
+      "api": "VAppBarTitle",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VAppBarTitle"
+        },
+        {
+          "kind": "class",
+          "name": "VAppBarSubtitle"
+        },
+        {
+          "kind": "class",
+          "name": "VAppBar"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-appbar"
+    },
+    {
+      "export": "src/components/v_table.dart",
+      "api": "VTableHeader",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VTableHeader"
+        },
+        {
+          "kind": "class",
+          "name": "VTable"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-table"
+    },
+    {
+      "export": "src/components/v_loading.dart",
+      "api": "VLoading",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VLoading"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-loading"
+    },
+    {
+      "export": "src/components/v_steps.dart",
+      "api": "VStepItem",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VStepItem"
+        },
+        {
+          "kind": "class",
+          "name": "VSteps"
+        },
+        {
+          "kind": "enum",
+          "name": "VStepStatus"
+        },
+        {
+          "kind": "enum",
+          "name": "VStepsType"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-step-item"
+    },
+    {
+      "export": "src/components/v_progress.dart",
+      "api": "VProgress",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VProgress"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-progress"
+    },
+    {
+      "export": "src/components/v_segmented_control.dart",
+      "api": "VSegmentedControl",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSegmentedControl"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-segmented"
+    },
+    {
+      "export": "src/components/v_numeric_keypad_sheet.dart",
+      "api": "VNumericKeypadSheet",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumericKeypadSheet"
+        },
+        {
+          "kind": "function",
+          "name": "showVNumericKeypadSheet"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-numeric-keypad"
+    },
+    {
+      "export": "src/components/v_swipe_reveal.dart",
+      "api": "VSwipeReveal",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSwipeReveal"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-swipe-reveal"
+    },
+    {
+      "export": "src/forms/validators/v_email_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/v_phone_field.dart",
+      "api": "VPhoneField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPhoneField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-phone-field"
+    },
+    {
+      "export": "src/forms/validators/v_phone_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/validators/v_password_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/validators/v_money_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/validators/v_number_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/validators/v_select_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/validators/v_choice_list_validator.dart",
+      "api": null,
+      "symbols": [],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/formatters/v_money_input_formatter.dart",
+      "api": "VMoneyInputFormatter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VMoneyInputFormatter"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/formatters/v_number_input_formatter.dart",
+      "api": "VNumberInputFormatter",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumberInputFormatter"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/models/v_choice_option.dart",
+      "api": "VChoiceOption",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChoiceOption"
+        }
+      ],
+      "status": "non-visual",
+      "html": null
+    },
+    {
+      "export": "src/forms/v_email_field.dart",
+      "api": "VEmailField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VEmailField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-email-field"
+    },
+    {
+      "export": "src/forms/v_password_field.dart",
+      "api": "VPasswordField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VPasswordField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-password-field"
+    },
+    {
+      "export": "src/forms/v_money_field.dart",
+      "api": "VMoneyField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VMoneyField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-money-field"
+    },
+    {
+      "export": "src/forms/v_number_field.dart",
+      "api": "VNumberField",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VNumberField"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-number-field"
+    },
+    {
+      "export": "src/forms/v_select.dart",
+      "api": "VSelect",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VSelect"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-select-field"
+    },
+    {
+      "export": "src/forms/v_choice_list.dart",
+      "api": "VChoiceList",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VChoiceList"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-choice-list"
+    },
+    {
+      "export": "src/forms/v_date_picker.dart",
+      "api": "VDatePicker",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "VDatePicker"
+        },
+        {
+          "kind": "enum",
+          "name": "VDatePickerIconPosition"
+        }
+      ],
+      "status": "implemented",
+      "html": ".v-date-field"
+    }
+  ],
+  "namingRule": "api/symbols are parsed from actual public Dart declarations; filename-derived pseudo API names are forbidden."
+}

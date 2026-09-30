@@ -1,8 +1,0 @@
-{
-  "status": "PASS",
-  "renders": 89,
-  "failures": [],
-  "errors": [],
-  "version": "3.9.1",
-  "rerunOn": "v3.9.1 cumulative package"
-}

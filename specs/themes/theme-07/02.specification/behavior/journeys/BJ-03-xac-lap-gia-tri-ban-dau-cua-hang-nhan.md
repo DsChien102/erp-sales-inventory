@@ -6,7 +6,7 @@ title: "Xác lập giá trị ban đầu của hàng nhận"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v4.0.0
+source_baseline: v4.6.0
 ui_flow: UIF-03
 ---
 
@@ -66,6 +66,7 @@ flowchart TD
 | JA-02 | Quick receipt không có PO hoặc dữ liệu Theme 10 | Kế toán có thể lập căn cứ giá trực tiếp có nguồn/evidence để hoàn tất BJ03; không tạo PO/hóa đơn giả | UC-03-01 / BC-IV-01 |
 | JA-03 | Căn cứ thiếu hoặc mâu thuẫn thuộc owner khác | Phần chưa đủ căn cứ tiếp tục `VALUATION_PENDING`; không commit giá tùy ý và owner tiếp theo phải rõ | UC-03-01 / BC-IV-01 |
 | JA-04 | Xác nhận thành công | Value movement ban đầu có provenance, không tạo `OfficialCostVersion`; Product + posting period được đánh dấu cần BJ14 cập nhật | UC-03-01 / BC-IV-01 |
+| JA-05 | Nguồn gốc bằng ngoại tệ hoặc Quick cần căn cứ trực tiếp | Theme 7 chỉ cho UI làm việc với giá trị VND đã chuẩn hóa; Quick direct basis Phase 1 là VND và source authority/date phải rõ; thiếu normalized VND thì chờ nguồn, không hỏi user nhập tỷ giá | UC-03-01 / BC-IV-05 |
 
 ## 8. Truy vết
 

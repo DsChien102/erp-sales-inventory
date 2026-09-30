@@ -1,0 +1,962 @@
+{
+  "schemaVersion": 1,
+  "figmaDsVersion": "2.0.3",
+  "sourcePages": [
+    "505:5890",
+    "505:5891"
+  ],
+  "setCount": 59,
+  "sets": [
+    {
+      "id": "1062:8765",
+      "name": "DS v2 / Collapsible Note",
+      "axes": {
+        "State": [
+          "Collapsed",
+          "Expanded"
+        ]
+      },
+      "defaults": {
+        "State": "Collapsed"
+      }
+    },
+    {
+      "id": "1001:7250",
+      "name": "VSwipeActionRecord",
+      "axes": {
+        "Status": [
+          "Hidden",
+          "Visible"
+        ],
+        "Action": [
+          "Hidden",
+          "Revealed"
+        ]
+      },
+      "defaults": {
+        "Status": "Hidden",
+        "Action": "Hidden"
+      }
+    },
+    {
+      "id": "521:529",
+      "name": "VButton",
+      "axes": {
+        "Hierarchy": [
+          "Primary",
+          "Secondary",
+          "Tertiary",
+          "Danger"
+        ],
+        "State": [
+          "Default",
+          "Pressed",
+          "Disabled",
+          "Loading"
+        ],
+        "Size": [
+          "Small",
+          "Default",
+          "Large"
+        ]
+      },
+      "defaults": {
+        "Hierarchy": "Primary",
+        "State": "Default",
+        "Size": "Small"
+      }
+    },
+    {
+      "id": "4431:10317",
+      "name": "DS v2 / Icon Button",
+      "axes": {
+        "Hierarchy": [
+          "Neutral",
+          "Brand",
+          "Danger"
+        ],
+        "State": [
+          "Default",
+          "Pressed",
+          "Disabled"
+        ],
+        "Size": [
+          "Default",
+          "Large"
+        ]
+      },
+      "defaults": {
+        "Hierarchy": "Neutral",
+        "State": "Default",
+        "Size": "Default"
+      }
+    },
+    {
+      "id": "4431:10396",
+      "name": "DS v2 / Link",
+      "axes": {
+        "Tone": [
+          "Default",
+          "Danger"
+        ],
+        "State": [
+          "Default",
+          "Pressed",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "Tone": "Default",
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7186",
+      "name": "VTextField",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7212",
+      "name": "VTextarea",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7322",
+      "name": "VMoneyField",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7397",
+      "name": "VCheckbox",
+      "axes": {
+        "State": [
+          "Off",
+          "On",
+          "Disabled Off",
+          "Disabled On"
+        ]
+      },
+      "defaults": {
+        "State": "Off"
+      }
+    },
+    {
+      "id": "522:7410",
+      "name": "VRadio",
+      "axes": {
+        "State": [
+          "Off",
+          "On",
+          "Disabled Off",
+          "Disabled On"
+        ]
+      },
+      "defaults": {
+        "State": "Off"
+      }
+    },
+    {
+      "id": "522:7427",
+      "name": "VSwitch",
+      "axes": {
+        "State": [
+          "Off",
+          "On",
+          "Disabled Off",
+          "Disabled On"
+        ]
+      },
+      "defaults": {
+        "State": "Off"
+      }
+    },
+    {
+      "id": "522:7291",
+      "name": "VSelect",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7245",
+      "name": "VSearchBar",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7368",
+      "name": "VDatePicker",
+      "axes": {
+        "State": [
+          "Default",
+          "Focused",
+          "Filled",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "522:7507",
+      "name": "VFileDropZone",
+      "axes": {
+        "State": [
+          "Default",
+          "Drag",
+          "Error",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "547:1594",
+      "name": "VAppBar",
+      "axes": {
+        "Type": [
+          "Root",
+          "Back",
+          "Context",
+          "Root context"
+        ]
+      },
+      "defaults": {
+        "Type": "Root"
+      }
+    },
+    {
+      "id": "522:7478",
+      "name": "VTab",
+      "axes": {
+        "State": [
+          "Default",
+          "Active",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "547:2501",
+      "name": "VTabs",
+      "axes": {
+        "Items": [
+          "2",
+          "3"
+        ]
+      },
+      "defaults": {
+        "Items": "2"
+      }
+    },
+    {
+      "id": "1049:9619",
+      "name": "VSegmentedControl ",
+      "axes": {
+        "Selected": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "defaults": {
+        "Selected": "1"
+      }
+    },
+    {
+      "id": "526:4417",
+      "name": "VSteps",
+      "axes": {
+        "State": [
+          "Complete",
+          "Current",
+          "Upcoming",
+          "Error"
+        ]
+      },
+      "defaults": {
+        "State": "Complete"
+      }
+    },
+    {
+      "id": "570:164",
+      "name": "VBottomNavigationBar / Tenant",
+      "axes": {
+        "Active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "defaults": {
+        "Active": "1"
+      }
+    },
+    {
+      "id": "547:2463",
+      "name": "VBottomNavigationBar / Platform",
+      "axes": {
+        "Active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "defaults": {
+        "Active": "1"
+      }
+    },
+    {
+      "id": "547:2618",
+      "name": "VStepProgress",
+      "axes": {
+        "Current": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "defaults": {
+        "Current": "1"
+      }
+    },
+    {
+      "id": "547:2223",
+      "name": "DS v2 / List Top Bar",
+      "axes": {
+        "Type": [
+          "Default",
+          "Count",
+          "Action"
+        ]
+      },
+      "defaults": {
+        "Type": "Default"
+      }
+    },
+    {
+      "id": "525:284",
+      "name": "VAvatar",
+      "axes": {
+        "Type": [
+          "Initials",
+          "Icon"
+        ],
+        "Size": [
+          "32",
+          "40",
+          "48"
+        ]
+      },
+      "defaults": {
+        "Type": "Initials",
+        "Size": "32"
+      }
+    },
+    {
+      "id": "525:309",
+      "name": "VBadge",
+      "axes": {
+        "Tone": [
+          "Neutral",
+          "Success",
+          "Warning",
+          "Danger",
+          "Info"
+        ],
+        "Style": [
+          "Soft",
+          "Strong"
+        ]
+      },
+      "defaults": {
+        "Tone": "Neutral",
+        "Style": "Soft"
+      }
+    },
+    {
+      "id": "522:7449",
+      "name": "VChip",
+      "axes": {
+        "Tone": [
+          "Neutral",
+          "Brand",
+          "Success",
+          "Warning",
+          "Danger"
+        ],
+        "State": [
+          "Default",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "Tone": "Neutral",
+        "State": "Default"
+      }
+    },
+    {
+      "id": "525:382",
+      "name": "DS v2 / Metric Card",
+      "axes": {
+        "Trend": [
+          "Neutral",
+          "Up",
+          "Down"
+        ]
+      },
+      "defaults": {
+        "Trend": "Neutral"
+      }
+    },
+    {
+      "id": "525:539",
+      "name": "DS v2 / Entity Card",
+      "axes": {
+        "State": [
+          "Default",
+          "Selected",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "525:552",
+      "name": "DS v2 / Summary Card",
+      "axes": {
+        "Tone": [
+          "Neutral",
+          "Brand",
+          "Warning",
+          "Danger"
+        ]
+      },
+      "defaults": {
+        "Tone": "Neutral"
+      }
+    },
+    {
+      "id": "567:557",
+      "name": "DS v2 / Media Card",
+      "axes": {
+        "State": [
+          "Default",
+          "Pressed",
+          "Selected",
+          "Disabled"
+        ],
+        "Size": [
+          "small",
+          "large"
+        ]
+      },
+      "defaults": {
+        "State": "Default",
+        "Size": "large"
+      }
+    },
+    {
+      "id": "1001:7201",
+      "name": "DS v2 / Record Card",
+      "axes": {
+        "Status": [
+          "Hidden",
+          "Visible"
+        ]
+      },
+      "defaults": {
+        "Status": "Hidden"
+      }
+    },
+    {
+      "id": "525:351",
+      "name": "DS v2 / Info Row",
+      "axes": {
+        "State": [
+          "Default",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "525:358",
+      "name": "DS v2 / Key-value Row",
+      "axes": {
+        "State": [
+          "Default",
+          "Emphasis"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "525:519",
+      "name": "DS v2 / List Row",
+      "axes": {
+        "Type": [
+          "Navigation",
+          "Selection",
+          "Status"
+        ],
+        "State": [
+          "Default",
+          "Pressed",
+          "Selected",
+          "Disabled"
+        ],
+        "Density": [
+          "Default",
+          "Compact"
+        ]
+      },
+      "defaults": {
+        "Type": "Navigation",
+        "State": "Default",
+        "Density": "Default"
+      }
+    },
+    {
+      "id": "525:587",
+      "name": "DS v2 / Timeline Item",
+      "axes": {
+        "State": [
+          "Default",
+          "Success",
+          "Warning",
+          "Danger"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "525:621",
+      "name": "DS v2 / Audit Item",
+      "axes": {
+        "Type": [
+          "Create",
+          "Update",
+          "Delete",
+          "System"
+        ]
+      },
+      "defaults": {
+        "Type": "Create"
+      }
+    },
+    {
+      "id": "791:24159",
+      "name": "DS v2 / Avata Card",
+      "axes": {
+        "State": [
+          "Pressed",
+          "Selected",
+          "Defualt",
+          "Disable"
+        ]
+      },
+      "defaults": {
+        "State": "Selected"
+      },
+      "sourceIssue": "Source naming/typos preserved."
+    },
+    {
+      "id": "1234:6260",
+      "name": "DS v2 / Product Result Card",
+      "axes": {
+        "State": [
+          "Default",
+          "Low stock",
+          "Out of stock",
+          "Disabled"
+        ]
+      },
+      "defaults": {
+        "State": "Default"
+      }
+    },
+    {
+      "id": "1683:5847",
+      "name": "DS v2 / Order Line Row",
+      "axes": {
+        "State": [
+          "Default",
+          "Low stock",
+          "Swipe actions",
+          "Invalid",
+          "Discount"
+        ],
+        "Media": [
+          "Box",
+          "Bottle"
+        ]
+      },
+      "defaults": {
+        "State": "Default",
+        "Media": "Box"
+      },
+      "note": "Source has 6 concrete variants; axes are not a full Cartesian matrix."
+    },
+    {
+      "id": "526:4215",
+      "name": "VBanner",
+      "axes": {
+        "Tone": [
+          "Info",
+          "Success",
+          "Warning",
+          "Danger"
+        ],
+        "Density": [
+          "Default",
+          "Compact"
+        ]
+      },
+      "defaults": {
+        "Tone": "Info",
+        "Density": "Default"
+      }
+    },
+    {
+      "id": "526:4305",
+      "name": "VToast",
+      "axes": {
+        "Tone": [
+          "Info",
+          "Success",
+          "Warning",
+          "Danger"
+        ]
+      },
+      "defaults": {
+        "Tone": "Info"
+      }
+    },
+    {
+      "id": "526:4352",
+      "name": "VEmptyState",
+      "axes": {
+        "Type": [
+          "Empty",
+          "Error",
+          "No Permission",
+          "Blocked",
+          "No Result"
+        ]
+      },
+      "defaults": {
+        "Type": "Empty"
+      }
+    },
+    {
+      "id": "526:4373",
+      "name": "VLoading",
+      "axes": {
+        "Size": [
+          "16",
+          "20",
+          "24",
+          "32"
+        ]
+      },
+      "defaults": {
+        "Size": "16"
+      }
+    },
+    {
+      "id": "526:4386",
+      "name": "VProgress",
+      "axes": {
+        "Type": [
+          "Linear",
+          "Indeterminate"
+        ]
+      },
+      "defaults": {
+        "Type": "Linear"
+      }
+    },
+    {
+      "id": "526:4380",
+      "name": "VSkeleton",
+      "axes": {
+        "Type": [
+          "Line",
+          "Avatar",
+          "Card"
+        ]
+      },
+      "defaults": {
+        "Type": "Avatar"
+      }
+    },
+    {
+      "id": "526:4442",
+      "name": "DS v2 / Readiness Item",
+      "axes": {
+        "State": [
+          "Complete",
+          "Warning",
+          "Blocked"
+        ]
+      },
+      "defaults": {
+        "State": "Complete"
+      }
+    },
+    {
+      "id": "550:1275",
+      "name": "VModal",
+      "axes": {
+        "Tone": [
+          "Default",
+          "Danger"
+        ]
+      },
+      "defaults": {
+        "Tone": "Default"
+      }
+    },
+    {
+      "id": "1829:16196",
+      "name": "VNumericKeypadSheet",
+      "axes": {
+        "Mode": [
+          "Quantity",
+          "Money"
+        ]
+      },
+      "defaults": {
+        "Mode": "Quantity"
+      }
+    },
+    {
+      "id": "549:927",
+      "name": "DS v2 / Sticky Footer",
+      "axes": {
+        "Layout": [
+          "Single",
+          "Dual",
+          "Commerce"
+        ],
+        "Tone": [
+          "Default",
+          "Danger"
+        ]
+      },
+      "defaults": {
+        "Layout": "Single",
+        "Tone": "Default"
+      }
+    },
+    {
+      "id": "549:958",
+      "name": "DS v2 / FAB Placement",
+      "axes": {
+        "Toast": [
+          "Off",
+          "On"
+        ]
+      },
+      "defaults": {
+        "Toast": "Off"
+      }
+    },
+    {
+      "id": "549:1007",
+      "name": "DS v2 / Keyboard-safe Action Bar",
+      "axes": {
+        "Layout": [
+          "Single",
+          "Dual"
+        ]
+      },
+      "defaults": {
+        "Layout": "Single"
+      }
+    },
+    {
+      "id": "550:999",
+      "name": "DS v2 / Action Sheet",
+      "axes": {
+        "Mode": [
+          "Default",
+          "Danger"
+        ],
+        "Count": [
+          "3",
+          "2"
+        ]
+      },
+      "defaults": {
+        "Mode": "Default",
+        "Count": "3"
+      }
+    },
+    {
+      "id": "550:1058",
+      "name": "DS v2 / Confirmation Sheet",
+      "axes": {
+        "Tone": [
+          "Default",
+          "Danger",
+          "Warning"
+        ],
+        "Content": [
+          "Plain",
+          "Reason",
+          "Warning"
+        ]
+      },
+      "defaults": {
+        "Tone": "Default",
+        "Content": "Reason"
+      }
+    },
+    {
+      "id": "1149:6895",
+      "name": "DS v2 / Filter Sheet",
+      "axes": {
+        "Groups": [
+          "3",
+          "5"
+        ]
+      },
+      "defaults": {
+        "Groups": "3"
+      }
+    },
+    {
+      "id": "550:1347",
+      "name": "DS v2 / Toast Layer",
+      "axes": {
+        "Placement": [
+          "Top",
+          "Above Footer",
+          "Above FAB"
+        ]
+      },
+      "defaults": {
+        "Placement": "Top"
+      }
+    },
+    {
+      "id": "550:1298",
+      "name": "Loading Overlay",
+      "axes": {
+        "Mode": [
+          "Blocking",
+          "Content"
+        ]
+      },
+      "defaults": {
+        "Mode": "Blocking"
+      }
+    },
+    {
+      "id": "547:2306",
+      "name": "DS v2 / Search & Filter Header",
+      "axes": {
+        "Layout": [
+          "Filter",
+          "Chips",
+          "Search"
+        ]
+      },
+      "defaults": {
+        "Layout": "Search"
+      }
+    },
+    {
+      "id": "1280:6272",
+      "name": "DS v2 / Search Results Dropdown",
+      "axes": {
+        "Result type": [
+          "Entity",
+          "Product"
+        ],
+        "State": [
+          "Loading",
+          "No result",
+          "Error"
+        ]
+      },
+      "defaults": {
+        "Result type": "Entity",
+        "State": "Loading"
+      }
+    }
+  ]
+}

@@ -1,3 +1,11 @@
+## v4.6.6 — BJ/UIF role simulation
+
+- Parent: `v4.6.5`. Chỉ thay review workbench; không sửa business logic.
+- Tab **Theo BJ / UIF** có `Mô phỏng vai trò`; lựa chọn được lấy trực tiếp từ `actors` của Screen Contract hiện có.
+- Đổi vai trò chỉ đổi ngữ cảnh review và màn đại diện trong cùng UIF; Screen navigation vẫn giữ đủ toàn hành trình để nhìn rõ handoff.
+- Không tự thêm permission hoặc rule người yêu cầu/người duyệt; các rule đó chỉ được thể hiện khi source hiện hành đã định nghĩa.
+- Hub role profiles v4.6.5 giữ nguyên. QA: `BJ-ROLE-SIMULATION-QA-v4.6.6` và `ALL-FLOWS-RUNTIME-SMOKE-v4.6.6`.
+
 ## v4.5.0 — Snapshot-led visual QA hardening
 
 - Parent: `v4.4.0`. Không thay đổi semantic/flow/Screen Contract.

@@ -5,13 +5,13 @@ theme: theme-07
 title: "Technical execution contracts"
 owner: SA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v4.6.0
 ---
 # FND-TECH-01 — Technical execution contracts
 
 ## 1. Vấn đề cần giải quyết
 
-Materialize các execution contract dùng chung đã tồn tại trong `07 — Hợp đồng kỹ thuật` của baseline v3.10.1 mà không thay đổi semantics.
+Materialize các execution contract dùng chung đã tồn tại trong `07 — Hợp đồng kỹ thuật` của baseline v4.6.0.
 
 ## 2. Scope
 
@@ -140,7 +140,7 @@ Không dùng HTTP timeout của client làm bằng chứng operation thất bạ
 | `BC-IO-01` | `QueryInventoryAvailability` | `API-Q-01` — `GET /v1/inventory/availability` | Read snapshot/transactional read | Query result only | `TST-BC-IO-01` |
 | `BC-IO-02` | `ReceivePurchasedGoods` | `API-C-02` — `POST /v1/inventory/receipts` | Operation + movement + `VALUATION_PENDING` balance + lot + receipt + outbox; no value movement | `EVT-IO-01 ReceiptRecorded` | `TST-BC-IO-02` |
 | `BC-IV-01` | `ConfirmInitialReceiptValue` | `API-C-20` — `POST /v1/receipt-valuations/confirm` | Recheck selected basis/scope version + deterministic allocated value + ReceiptValuation + receipt-business-date value movement + valuation-state balance transfer + exact Product/posting-period dirty scope + availability + outbox; **không tạo Official Cost** | `EVT-IV-03 ReceiptValuationConfirmed` | `TST-BC-IV-01` |
-| `BC-IV-05` | `BuildReceiptValuationPreview` | `API-Q-11` — `POST /v1/receipt-valuations/preview` | Build valid receipt-value basis from Theme 10 sources or Theme 7 direct price basis; apply tax policy, deterministic allocation/rounding and basis/scope hashes; read/derive only | Query result only | `TST-BC-IV-05` |
+| `BC-IV-05` | `BuildReceiptValuationPreview` | `API-Q-11` — `POST /v1/receipt-valuations/preview` | Build valid receipt-value basis from Theme 10 sources or Theme 7 direct price basis; consume normalized VND values, apply tax policy, deterministic allocation/rounding and basis/scope hashes; read/derive only | Query result only | `TST-BC-IV-05` |
 | `BC-IV-06` | `BuildReceiptValueAdjustmentPreview` | `API-Q-12` — `POST /v1/receipt-value-adjustments/preview` | Resolve signed value component + authoritative target scope + exposure/metric/period snapshots; derive basis/allocation hashes; no mutation | Query result only | `TST-BC-IV-06` |
 | `BC-IO-03` | `ReserveOrderQuantity` | `API-C-03` — `POST /v1/reservations` | ReservationGroup? + child Reservation + ReservationBucket + outbox; combo atomic | `EVT-IO-02 ReservationChanged` | `TST-BC-IO-03` |
 | `BC-IO-04` | `CompleteOnlinePosCheckout` | `API-C-04` — `POST /v1/pos-checkouts/inventory-completion` | Issue/value movement + balance + result + outbox | `EVT-IO-03 PosInventoryCompleted` | `TST-BC-IO-04` |
@@ -228,7 +228,7 @@ Pagination dùng cursor ổn định. Report/export ghi filters, timezone, view 
 - authoritative availability preview (advisory until commit);
 - exact `product_id + posting_period_id` dirty consequence nếu confirm thành công.
 
-Với Quick Receipt chưa có nguồn Theme 10, preview có thể sử dụng `THEME7_DIRECT` basis nếu người có quyền cung cấp đủ unit price, currency, tax-included/excluded meaning khi relevant, source/effective time và evidence/reason theo policy. Tax recoverability là system/policy decision, không phải user toggle.
+Với Quick Receipt chưa có nguồn Theme 10, preview có thể sử dụng `THEME7_DIRECT` basis nếu người có quyền cung cấp đủ unit price, currency, tax-included/excluded meaning khi relevant, căn cứ giá/effective time và evidence/reason theo policy. Client không nhập/chọn tỷ giá; khi currency khác VND, FX authoritative được resolve theo `T7-DR-062` và giữ trong provenance kỹ thuật. Tax recoverability là system/policy decision, không phải user toggle.
 
 Hai căn cứ chỉ conflict khi complete basis/value facts authoritative khác nhau. Commercial dispute do Theme 10 sở hữu phải trả trạng thái chờ/owner handoff; Theme 7 không chọn một PO/invoice value để bỏ qua dispute. Query failure/timeout không tạo business `UNKNOWN` và có thể refetch.
 
@@ -527,7 +527,9 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 - Request identifies stable `source_component_key`, current source revision/evidence and a **signed component amount**. BJ13 accepts only a business fact that became valid or changed after initial valuation; user-entry correction belongs to correction flow, not BJ13.
 - Response includes `target_scope_key/version/hash` and candidate membership. Fixed source coverage is not user-editable.
 - Each target is a `valuation_exposure_key/version/hash` snapshot with initial-valued base quantity/value and ReceiptValuation lineage.
-- Each allowed allocation method exposes authoritative metric `{value, unit, metric_version, metric_hash}`. Source and allocation are separate facts.
+- Each allowed allocation method exposes authoritative metric `{value, unit, metric_version, metric_hash}`. Source and allocation are separate facts. Value method uses initial valuation value before BJ13 adjustments. Quantity method is returned only when every target has a comparable metric with the same dimension/metric unit.
+- With normalized signed amount `A`, `M = Σmetric_i`; if `M > 0`, raw allocation is `A × metric_i / M`, then VND rounding + stable-order residual reconciliation. `M <= 0` is `ALLOCATION_METRIC_NOT_USABLE`; server never equal-splits as fallback.
+- Source adapter returns normalized VND amount. Currency/FX may remain provenance fields, but client UI does not request or render FX; missing normalized VND is `NORMALIZED_VALUE_REQUIRED`.
 - Response resolves `receipt_business_date`, `original_period_id`, `posting_period_id` per exposure, derives dirty `product_id + posting_period_id`, and returns `value_adjustment_basis_hash` plus `allocation_hash`.
 - Positive and negative components use the same contract. Projected/forecast commercial benefits are rejected until the benefit is established by an authoritative source.
 - Rounding uses stable exposure order; UI row order is never the residual rule. Query timeout is a safe refetch, not business `UNKNOWN`.
@@ -548,7 +550,7 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 
 **API-C-21 request / calculation snapshot**
 
-- Request carries `run_type`, `calculation_period_id`, one `posting_period_id`, `scope_origin`, immutable `scope_hash`; DIRTY origin additionally carries exact Product+posting-period membership, cause IDs and `dirty_scope_version/hash`.
+- Request carries `run_type`, `calculation_period_id`, one `posting_period_id`, `scope_origin`, immutable `scope_hash`; DIRTY origin additionally carries exact Product+posting-period membership, cause IDs and `dirty_scope_version/hash`. PERIOD_CLOSE scope value must come from the current tenant policy allowed set; Theme 7 không hard-code catalog scope ở technical contract. Server rejects an option not allowed by policy.
 - Server resolves one authoritative `cutoff_valuation_sequence`; `cutoff_ledger_sequence` and `cutoff_value_sequence` may be returned for audit but never define cross-ledger ordering.
 - Every quantity/value fact relevant to costing is ordered by `{valuation_sequence, within_transaction_ordinal}`. Both moving and periodic methods consume the same ordered fact set.
 - Server materializes one immutable `ProductCostResult` per Product and a run-level `product_result_set_hash`; global totals are aggregates only.

@@ -1,8 +1,6 @@
-# Traceability matrix — v4.5.2
+# Traceability matrix — v4.6.1
 
-> Screen/Slice phản ánh topology canonical hiện hành. Screen đã retired chỉ giữ ở migration/compatibility evidence, không xuất hiện trong cột Screen hiện hành. Know-how là lớp giải thích; Decision/BJ/UC/BC vẫn là nguồn rule canonical.
-
-| UC | Tên | BJ | Know-how | BC | Screen hiện hành | Slice hiện hành | UI Flow |
+| UC | Title | BJ | Know-how | Behavioral contracts | Current screens | Current delivery slices | UIF |
 |---|---|---|---|---|---|---|---|
 | `UC-01-01` | Xác định ngữ cảnh và sản phẩm | `BJ-01` | `KB-KGV-001`, `KB-KGV-003`, `KB-KGV-005`, `KB-KGV-006`, `KB-KGV-033` | `SBC-COM-02`, `BC-COMMON-EXTENSIONS`, `SBC-COM-03`, `BC-IO-01` | `SCR-001` | `BE-01-01`, `FE-SCR-001`, `FE-SCR-054` | `UIF-01` |
 | `UC-01-02` | Xem tồn và khả dụng | `BJ-01` | `KB-KGV-001`, `KB-KGV-003`, `KB-KGV-005`, `KB-KGV-006`, `KB-KGV-033` | `SBC-COM-02`, `BC-COMMON-EXTENSIONS`, `SBC-COM-03`, `BC-IO-01` | `SCR-003`, `SCR-004` | `BE-01-02`, `FE-SCR-002`, `FE-SCR-003`, `FE-SCR-004` | `UIF-01` |
@@ -53,7 +51,7 @@
 | `UC-12-01` | Nạp và kiểm tra batch đầu kỳ | `BJ-12` | `KB-KGV-003`, `KB-KGV-004`, `KB-KGV-015`, `KB-KGV-022`, `KB-KGV-023` | `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IC-09` | `SCR-066`, `SCR-067`, `SCR-068` | `BE-12-01`, `FE-SCR-066`, `FE-SCR-067`, `FE-SCR-068` | `UIF-12` |
 | `UC-12-02` | Rà soát và duyệt batch | `BJ-12` | `KB-KGV-003`, `KB-KGV-004`, `KB-KGV-015`, `KB-KGV-022`, `KB-KGV-023` | `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IC-06` | `SCR-069`, `SCR-070` | `BE-12-02`, `FE-SCR-069`, `FE-SCR-070` | `UIF-12` |
 | `UC-12-03` | Commit và kích hoạt tồn kho | `BJ-12` | `KB-KGV-003`, `KB-KGV-004`, `KB-KGV-015`, `KB-KGV-022`, `KB-KGV-023` | `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IC-04` | `SCR-070`, `SCR-071` | `BE-12-03`, `FE-SCR-070`, `FE-SCR-071` | `UIF-12` |
-| `UC-13-01` | Ghi nhận điều chỉnh giá trị hàng nhập | `BJ-13` | `KB-KGV-015`, `KB-KGV-018`, `KB-KGV-019`, `KB-KGV-043` | `BC-IV-06`, `BC-IV-04` | `SCR-085`, `SCR-086`, `SCR-088`, `SCR-089` | `BE-13-01`, `BE-13-02`, `BE-13-03`, `FE-SCR-085`, `FE-SCR-086`, `FE-SCR-088`, `FE-SCR-089` | `UIF-13` |
+| `UC-13-01` | Ghi nhận điều chỉnh giá trị hàng nhập | `BJ-13` | `KB-KGV-015`, `KB-KGV-018`, `KB-KGV-019`, `KB-KGV-043` | `BC-IV-06`, `BC-IV-04` | `SCR-085`, `SCR-086`, `SCR-089` | `BE-13-01`, `BE-13-02`, `BE-13-03`, `FE-SCR-085`, `FE-SCR-086`, `FE-SCR-089` | `UIF-13` |
 | `UC-14-01` | Tính và rà soát giá vốn | `BJ-14` | `KB-KGV-015`, `KB-KGV-016`, `KB-KGV-018`, `KB-KGV-045` | `BC-IV-02` | `SCR-072`, `SCR-074` | `BE-14-01`, `BE-14-02`, `BE-14-03`, `FE-SCR-072`, `FE-SCR-074` | `UIF-14` |
 | `UC-14-04` | Công bố giá vốn | `BJ-14` | `KB-KGV-015`, `KB-KGV-017`, `KB-KGV-018`, `KB-KGV-044`, `KB-KGV-045` | `BC-IV-03` | `SCR-074`, `SCR-077` | `BE-14-04`, `FE-SCR-074`, `FE-SCR-077` | `UIF-14` |
 | `UC-15-01` | Xác định báo cáo và phạm vi | `BJ-15` | `KB-KGV-006`, `KB-KGV-029`, `KB-KGV-030`, `KB-KGV-032`, `KB-KGV-033` | `SBC-COM-02`, `BC-COMMON-EXTENSIONS`, `SBC-COM-03`, `BC-IO-01` | `SCR-054` | `BE-15-01`, `FE-SCR-054` | `UIF-15` |

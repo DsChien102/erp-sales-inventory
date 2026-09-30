@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "version": "4.6.5",
+  "scope": "Warehouse Hub role-aware navigation-profile review",
+  "checks": 46,
+  "passed": 46,
+  "browserErrors": [],
+  "source": "03.design/prototype/html/qa/WAREHOUSE-ROLE-PROFILES-QA-v4.6.5.json",
+  "note": "Prototype-only review profiles; not a permission contract."
+}

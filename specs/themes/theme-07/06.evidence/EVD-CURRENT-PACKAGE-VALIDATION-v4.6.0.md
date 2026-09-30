@@ -1,0 +1,51 @@
+# Current package validation v4.6.0
+
+**Status: PASS**
+
+- Parent: `v4.5.2`
+- Checks: **44/44**
+
+- PASS Root version v4.6.0
+- PASS Root parent v4.5.2
+- PASS Harness version 4.6.0
+- PASS Harness parent 4.5.2
+- PASS 03.design/prototype/html/manifest.json version — 4.6.0
+- PASS 03.design/prototype/html/prototype.manifest.json version — 4.6.0
+- PASS 03.design/prototype/html/workbench-data.json version — 4.6.0
+- PASS 17 canonical BJ files — 17
+- PASS 64 UC files — 64
+- PASS 17 UIF files — 17
+- PASS 89 Screen Contracts — 89
+- PASS UIF-03 topology — ['SCR-014', 'SCR-015', 'SCR-017', 'SCR-019']
+- PASS UIF-13 topology retires SCR-088 — ['SCR-085', 'SCR-086', 'SCR-089']
+- PASS UIF-14 topology — ['SCR-072', 'SCR-074', 'SCR-077']
+- PASS 85 active route occurrences — 85
+- PASS 73 unique active screens — 73
+- PASS Decision T7-DR-196 active
+- PASS Decision T7-DR-197 active
+- PASS Decision T7-DR-198 active
+- PASS Decision T7-DR-199 active
+- PASS BJ13 exact formula documented — BC-IV-06
+- PASS BJ13 no equal split fallback — BC-IV-06
+- PASS SCR-086 no FX UI rule
+- PASS SCR-088 retired
+- PASS FE SCR-088 retired
+- PASS Generated UIF-13 registry parity — ['SCR-085', 'SCR-086', 'SCR-089']
+- PASS Generated action registry uses SCR-086 — ['SCR-086']
+- PASS Generated trace UC-13-01 retires SCR-088 — ['SCR-085', 'SCR-086', 'SCR-089']
+- PASS Generated component usage current topology
+- PASS v460 CSS loaded
+- PASS v460 JS loaded last semantic layer — 11149
+- PASS valuation E2E PASS — PASS
+- PASS valuation visual PASS — PASS
+- PASS snapshot visual PASS — PASS
+- PASS grouped surface PASS — PASS
+- PASS all flow runtime PASS — PASS
+- PASS 81 active captures — 81
+- PASS 17 contact sheets — 17
+- PASS 482 state renders — (482, 482)
+- PASS 0 browser errors — []
+- PASS 33/33 valuation E2E — 33
+- PASS 19/19 visual integrity — 19
+- PASS 85/85 runtime smoke — 85
+- PASS Canonical links pass — 2439

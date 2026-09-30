@@ -610,7 +610,7 @@ sharedScreenModes:
   SCR-017:
     modes:
       UIF-03: INITIAL_VALUE_REVIEW
-    note: UIF-03 owns initial-value review at SCR-017; BJ13 owns signed-adjustment review at SCR-088.
+    note: UIF-03 owns initial-value review at SCR-017; BJ13 reviews and confirms signed adjustment on SCR-086; SCR-088 is retired.
   SCR-019:
     modes:
       UIF-03: INITIAL_VALUE_RESULT
@@ -711,7 +711,7 @@ valuationDesignParity_v3_13_0:
   authority: "Figma DS v2 page 505:5890 + Screen Contract v3.13.0"
   activeTopology:
     UIF-03: [SCR-014, SCR-015, SCR-017, SCR-019]
-    UIF-13: [SCR-085, SCR-086, SCR-088, SCR-089]
+    UIF-13: [SCR-085, SCR-086, SCR-089]
     UIF-14: [SCR-072, SCR-074, SCR-077]
   retiredScreens: [SCR-016, SCR-018, SCR-073, SCR-075, SCR-076, SCR-087]
   canonicalComponents:

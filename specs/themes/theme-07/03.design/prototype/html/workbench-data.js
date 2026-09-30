@@ -173,7 +173,6 @@ window.VET45_HARNESS_DATA = {
       "screens": [
         "SCR-085",
         "SCR-086",
-        "SCR-088",
         "SCR-089"
       ],
       "entry": [
@@ -185,15 +184,15 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-13-01"
       ],
-      "intent": "Ghi điều chỉnh tăng hoặc giảm khi căn cứ mới/thay đổi xuất hiện sau BJ03; nguồn, phạm vi và phân bổ được rà soát trước khi commit.",
+      "intent": "Ghi điều chỉnh tăng hoặc giảm sau BJ03; trên SCR-086 người dùng hiểu nguồn, phạm vi, cách phân bổ và preview rồi xác nhận bằng Confirmation Sheet trước khi commit.",
       "patterns": [
         "SIGNED_VALUE_ADJUSTMENT_QUEUE",
         "SOURCE_SCOPE_ALLOCATION_ON_ONE_SURFACE",
         "VALUE_COMPONENT_PROVENANCE",
-        "READ_ONLY_FINAL_REVIEW",
         "DIRTY_COST_SCOPE_HANDOFF",
         "UNKNOWN_RECOVERY",
-        "FINANCIAL_MASKING"
+        "FINANCIAL_MASKING",
+        "CONFIRMATION_SHEET_BEFORE_COMMIT"
       ],
       "entryContexts": [
         {
@@ -1409,7 +1408,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-02-02"
       ],
-      "purpose": "Ghi thông tin chung của một lần nhập hàng nhanh: nhà cung cấp hiện hữu, kho nhận read-only, ngày nhận do tenant business clock xác lập, chứng từ giao nhận và ownership assertion; sản phẩm được xử lý ở Hàng thực nhận.",
+      "purpose": "Ghi thông tin chung của một lần nhập hàng nhanh: nhà cung cấp hiện hữu, kho mặc định disabled, ngày nhận do hệ thống xác lập và chứng từ giao nhận; sản phẩm được xử lý ở Hàng thực nhận.",
       "actors": [
         "Thủ kho"
       ],
@@ -1425,27 +1424,23 @@ window.VET45_HARNESS_DATA = {
       "fields": [
         [
           "Nhà cung cấp",
-          "Minh Dũng · NCC-00018"
+          "Chọn từ master hiện hữu · bắt buộc"
         ],
         [
           "Kho nhận",
-          "Kho trung tâm · read-only"
+          "Kho mặc định · disabled"
         ],
         [
           "Ngày nhận",
-          "16/09/2026 · hệ thống"
+          "Ngày hệ thống xác lập · read-only"
         ],
         [
           "Chứng từ giao nhận",
           "1+ evidence refs"
-        ],
-        [
-          "Quyền sở hữu",
-          "Xác nhận có cấu trúc khi tiếp tục"
         ]
       ],
       "cards": [],
-      "notice": "Quick chỉ xuất hiện khi có capability. Ngày nhận là tenant business date do hệ thống cấp. Chứng từ giao nhận theo Shared Attachment Policy; không hard-code MIME/kích thước trong BJ02.",
+      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Không hiển thị giải thích kiến trúc về tenant/business clock.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [
@@ -1496,7 +1491,8 @@ window.VET45_HARNESS_DATA = {
           "example": "actor + asserted_at + evidence refs + version/hash",
           "ownership": "STRUCTURED_ASSERTION_CAPABILITY_GATED"
         }
-      ]
+      ],
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-009",
@@ -2130,7 +2126,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-03-01"
       ],
-      "purpose": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
+      "purpose": "Xử lý từng hàng chờ giá trị: dùng căn cứ VND đã chuẩn hóa hoặc lập direct basis VND có nguồn/ngày/lý do; không hiển thị hay nhập tỷ giá.",
       "actors": [
         "Kế toán"
       ],
@@ -2146,16 +2142,20 @@ window.VET45_HARNESS_DATA = {
       "defaultState": "READY",
       "fields": [
         [
-          "Căn cứ giá",
-          "Nguồn thương mại read-only hoặc căn cứ trực tiếp của nhập nhanh"
+          "Căn cứ đang dùng",
+          "Nguồn giá có thẩm quyền dùng để xác lập"
         ],
         [
-          "Cấu thành giá trị",
-          "Giá mua, khoản giảm, thuế/phí không thu hồi, chi phí mua đủ căn cứ"
+          "Đơn giá ghi nhận ban đầu",
+          "Giá trị dẫn xuất theo UOM"
+        ],
+        [
+          "Direct basis",
+          "Đơn giá VND + loại nguồn + ngày căn cứ + bằng chứng tùy chọn + lý do"
         ]
       ],
       "cards": [],
-      "notice": "",
+      "notice": "UI không hiển thị Currency/FX. Nguồn ngoại tệ phải được adapter nguồn chuẩn hóa VND trước khi READY.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
       "traceActions": [],
@@ -2164,11 +2164,15 @@ window.VET45_HARNESS_DATA = {
         "DS v2 / List Row",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
+        "VMoneyField",
         "VTextField",
-        "VBottomSheet"
+        "VTextarea",
+        "VSegmentedControl",
+        "VRadio",
+        "DS v2 / Form Sheet",
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
       "uifs": [
@@ -2192,7 +2196,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_DERIVED_READ_ONLY"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-016",
@@ -2235,7 +2239,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-03-01"
       ],
-      "purpose": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
+      "purpose": "Summary review trước commit: receipt, tổng giá trị và danh sách sản phẩm compact; breakdown chỉ mở khi cần.",
       "actors": [
         "Kế toán"
       ],
@@ -2261,12 +2265,12 @@ window.VET45_HARNESS_DATA = {
       "traceActions": [],
       "components": [
         "VAppBar",
-        "DS v2 / Info Row",
-        "DS v2 / Key-value Row",
         "DS v2 / Summary Card",
+        "DS v2 / List Row",
+        "DS v2 / Key-value Row",
         "VBanner",
-        "VButton",
-        "VBottomSheet"
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "uifs": [
@@ -2295,7 +2299,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-018",
@@ -2316,7 +2320,7 @@ window.VET45_HARNESS_DATA = {
       "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
       "cards": [],
-      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-088 → SCR-089.",
+      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-089.",
       "sensitive": "Toàn bộ trường tài chính bị loại khỏi DOM khi thiếu quyền.",
       "actions": [],
       "traceActions": [],
@@ -2338,7 +2342,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-03-01"
       ],
-      "purpose": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
+      "purpose": "Kết quả authoritative của initial valuation: receipt, số sản phẩm/dòng, tổng giá trị và trạng thái cần cập nhật giá vốn; không cộng quantity khác UOM.",
       "actors": [
         "Kế toán"
       ],
@@ -2353,19 +2357,19 @@ window.VET45_HARNESS_DATA = {
       "fields": [
         [
           "Phiếu nhận",
-          "PN-260816-04"
+          "Receipt đã ghi"
         ],
         [
-          "Đơn giá ghi nhận ban đầu",
-          "81.700 đ/hộp"
+          "Sản phẩm đã xác lập",
+          "Số Product/scope đã ghi"
         ],
         [
-          "Giá trị đã ghi",
-          "4.085.000 đ"
+          "Tổng giá trị đã ghi",
+          "VND"
         ],
         [
           "Giá vốn",
-          "Cần cập nhật"
+          "Cần cập nhật khi dirty scope phát sinh"
         ]
       ],
       "cards": [],
@@ -2378,8 +2382,9 @@ window.VET45_HARNESS_DATA = {
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Summary Card",
+        "DS v2 / Info Row",
         "DS v2 / Key-value Row",
+        "DS v2 / List Row",
         "VBanner",
         "VButton"
       ],
@@ -2405,7 +2410,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_DERIVED_RESULT"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-020",
@@ -6655,7 +6660,7 @@ window.VET45_HARNESS_DATA = {
         "UC-14-01",
         "UC-14-04"
       ],
-      "purpose": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
+      "purpose": "Một bề mặt cho setup/tính/blocker/review/công bố; phương pháp và period-close scope đọc từ tenant policy. Kết quả tổng và signed delta được tách rõ.",
       "actors": [
         "Kế toán"
       ],
@@ -6677,11 +6682,13 @@ window.VET45_HARNESS_DATA = {
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
-        "DS v2 / Readiness Item",
+        "DS v2 / List Row",
         "DS v2 / Summary Card",
         "VBanner",
-        "VButton",
-        "VBottomSheet"
+        "VSelect",
+        "DS v2 / Confirmation Sheet",
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7DashboardSurface",
       "uifs": [
@@ -6710,7 +6717,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_DERIVED_COMPARISON_ONLY"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
       "notes": "BJ14 v3.9.9: ProductCostResult aggregate + incremental deltas."
     },
     {
@@ -6785,7 +6792,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-14-04"
       ],
-      "purpose": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
+      "purpose": "Kết quả publication: kỳ, phương pháp, số sản phẩm, hiệu lực và đúng hai signed delta đã ghi.",
       "actors": [
         "Kế toán"
       ],
@@ -6798,20 +6805,32 @@ window.VET45_HARNESS_DATA = {
       "defaultState": "COMPLETED",
       "fields": [
         [
-          "Kỳ",
-          "09/2026"
+          "Kỳ ghi nhận",
+          "Kỳ publication"
         ],
         [
           "Phương pháp",
-          "Bình quân cuối kỳ"
+          "Theo tenant policy"
         ],
         [
-          "Giá vốn",
-          "Đã công bố"
+          "Sản phẩm đã đối soát",
+          "Số Product trong run"
+        ],
+        [
+          "Sản phẩm có giá vốn mới",
+          "Số OfficialCostVersion mới"
         ],
         [
           "Hiệu lực",
-          "Từ thời điểm công bố"
+          "Thời điểm publication có hiệu lực"
+        ],
+        [
+          "Điều chỉnh giá vốn xuất",
+          "Signed COGS delta"
+        ],
+        [
+          "Điều chỉnh giá trị tồn",
+          "Signed ending inventory delta"
         ]
       ],
       "cards": [],
@@ -6824,7 +6843,7 @@ window.VET45_HARNESS_DATA = {
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Summary Card",
+        "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
@@ -6851,7 +6870,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
       "notes": "v3.13.0: product copy hides Batch/Event/OfficialCostVersion; technical identity remains available in Inspect/audit."
     },
     {
@@ -7431,7 +7450,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-086",
       "short": "086",
-      "name": "Nguồn, phạm vi và phân bổ",
+      "name": "Phân bổ điều chỉnh giá trị",
       "surface": "detail",
       "bj": [
         "BJ-13"
@@ -7439,7 +7458,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-13-01"
       ],
-      "purpose": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
+      "purpose": "Một bề mặt duy nhất để xem nguồn, fixed scope, phương pháp hợp lệ, metric/tỷ trọng, preview allocation và kỳ ghi nhận; CTA mở Confirmation Sheet trước commit.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7454,7 +7473,7 @@ window.VET45_HARNESS_DATA = {
       "defaultState": "READY",
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Không hiển thị/nhập tỷ giá; không tự chia đều khi metric không hợp lệ. SCR-088 đã retire.",
       "sensitive": "Source amount và valuation context là financial restricted.",
       "actions": [],
       "traceActions": [
@@ -7468,7 +7487,9 @@ window.VET45_HARNESS_DATA = {
         "DS v2 / List Row",
         "DS v2 / Summary Card",
         "VBanner",
-        "VSegmentedControl",
+        "VRadio",
+        "DS v2 / Confirmation Sheet",
+        "DS v2 / Sticky Footer",
         "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
@@ -7485,12 +7506,12 @@ window.VET45_HARNESS_DATA = {
         {
           "label": "Phạm vi áp dụng",
           "example": "PN-260816-04 · 50 hộp",
-          "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+          "ownership": "SERVER_AUTHORITATIVE_FIXED_SCOPE"
         },
         {
           "label": "Cách phân bổ",
-          "example": "Theo số lượng",
-          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+          "example": "Theo giá trị nhập ban đầu",
+          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET_OR_READ_ONLY_IF_SINGLE"
         },
         {
           "label": "Tổng phân bổ",
@@ -7498,7 +7519,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_DERIVED_READ_ONLY"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-087",
@@ -7534,7 +7555,7 @@ window.VET45_HARNESS_DATA = {
     {
       "id": "SCR-088",
       "short": "088",
-      "name": "Rà soát điều chỉnh giá trị",
+      "name": "Rà soát điều chỉnh — Đã hợp nhất",
       "surface": "review",
       "bj": [
         "BJ-13"
@@ -7542,63 +7563,27 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-13-01"
       ],
-      "purpose": "Rà soát read-only signed adjustment trước khi commit.",
+      "purpose": "Retired in v4.6.0; review được thực hiện bằng Confirmation Sheet trên SCR-086.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
       ],
       "states": [
-        "READY",
-        "SOURCE_CHANGED",
-        "VALIDATION_ERROR",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "defaultState": "READY",
+      "defaultState": "RETIRED_ACTIVE_ROUTE",
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã hợp nhất vào SCR-086; deep link cũ chuyển về SCR-086.",
       "sensitive": "Tất cả giá trị tài chính bị omit khỏi DOM khi thiếu quyền.",
-      "actions": [
-        {
-          "id": "ACT-03-RECORD-LATE-COST",
-          "label": "Ghi điều chỉnh giá trị",
-          "bc": "BC-IV-04",
-          "api": "API-C-23",
-          "tone": "primary"
-        }
-      ],
+      "actions": [],
       "traceActions": [],
-      "components": [
-        "VAppBar",
-        "DS v2 / Info Row",
-        "DS v2 / Key-value Row",
-        "DS v2 / Summary Card",
-        "VBanner",
-        "VButton"
-      ],
+      "components": [],
       "themeComposition": "Theme7ReviewSurface",
-      "uifs": [
-        "UIF-13"
-      ],
+      "uifs": [],
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Điều chỉnh",
-          "example": "−350.000 đ",
-          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-        },
-        {
-          "label": "Tác động",
-          "example": "Chỉ thay đổi giá trị; số lượng không đổi",
-          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-        },
-        {
-          "label": "Sau khi ghi",
-          "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
-          "ownership": "SERVER_DERIVED_PREVIEW"
-        }
-      ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "dataRows": [],
+      "prototype_status": "RETIRED_v4.6.0"
     },
     {
       "id": "SCR-089",
@@ -7611,7 +7596,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-13-01"
       ],
-      "purpose": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
+      "purpose": "Result summary của signed adjustment; chi tiết nhiều sản phẩm nằm sau disclosure thay vì render toàn bộ mặc định.",
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
@@ -7662,7 +7647,7 @@ window.VET45_HARNESS_DATA = {
           "ownership": "SERVER_DERIVED_RESULT"
         }
       ],
-      "prototype_status": "DESIGN_PARITY_v3.13.0"
+      "prototype_status": "SEMANTIC_UX_v4.6.0"
     },
     {
       "id": "SCR-062",
@@ -8029,5 +8014,5 @@ window.VET45_HARNESS_DATA = {
     "UIF-17",
     "CAP-01"
   ],
-  "version": "4.5.0"
+  "version": "4.6.1"
 };

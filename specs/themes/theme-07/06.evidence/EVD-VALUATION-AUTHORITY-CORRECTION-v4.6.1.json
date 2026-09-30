@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "version": "4.6.1",
+  "parent": "4.6.0",
+  "checks": [
+    {
+      "name": "Runtime version 4.6.1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "SCR-008 warehouse disabled",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "SCR-008 no architecture helper",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Quick missing basis exposes v4.6.1 action",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Direct basis uses DS Form Sheet",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "No invented source type field",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Currency requires explicit choice",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Tax interpretation has no silent default",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Source date has no current-date default",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "No FX rate UI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Blank form does not save and shows errors",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Direct basis saves after explicit choices",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Tax policy derives nonrecoverable tax instead of copying source tax",
+      "pass": true,
+      "detail": "actual=5000"
+    },
+    {
+      "name": "Existing foreign-currency source has no FX UI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "One eligible allocation method is read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Multiple eligible allocation methods require user choice",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "No method silently selected in multi-method case",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "User can explicitly choose quantity method",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Allocation still reconciles to source amount",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Period-close scope has no first-option default",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Calculate disabled until scope selected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "BJ14 method is read from tenant policy object",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Single policy scope renders read-only",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

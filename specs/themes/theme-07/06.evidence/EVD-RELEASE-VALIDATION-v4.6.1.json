@@ -1,0 +1,92 @@
+{
+  "verdict": "READY_FOR_REVIEW",
+  "version": "4.6.1",
+  "parent": "4.6.0",
+  "blocker": 0,
+  "high": 0,
+  "current_package": {
+    "status": "PASS",
+    "passed": 37,
+    "total": 37
+  },
+  "authority_e2e": {
+    "status": "PASS",
+    "passed": 23,
+    "total": 23,
+    "browser_errors": 0
+  },
+  "canonical_links": {
+    "status": "PASS",
+    "checked": 2439,
+    "broken": 0
+  },
+  "runtime": {
+    "status": "PASS",
+    "renders": 85,
+    "expected": 85,
+    "errors": 0
+  },
+  "snapshot": {
+    "status": "PASS",
+    "captures": 81,
+    "contact_sheets": 17,
+    "states_passed": 482,
+    "states": 482,
+    "browser_errors": 0
+  },
+  "grouped_surface": {
+    "status": "PASS",
+    "renders": 482,
+    "checks": [
+      {
+        "name": "All canonical UIF screen/state renders satisfy grouped-surface invariant",
+        "pass": true,
+        "detail": "[]"
+      },
+      {
+        "name": "No browser runtime errors",
+        "pass": true,
+        "detail": "[]"
+      },
+      {
+        "name": "Theme-wide audit includes all 17 canonical UIFs",
+        "pass": true,
+        "detail": "['UIF-01', 'UIF-02', 'UIF-03', 'UIF-04', 'UIF-05', 'UIF-06', 'UIF-07', 'UIF-08', 'UIF-09', 'UIF-10', 'UIF-11', 'UIF-12', 'UIF-13', 'UIF-14', 'UIF-15', 'UIF-16', 'UIF-17']"
+      },
+      {
+        "name": "UIF-01 receives at least one automatic grouped surface repair",
+        "pass": true,
+        "detail": "2"
+      },
+      {
+        "name": "UIF-02 receives at least one automatic grouped surface repair",
+        "pass": true,
+        "detail": "8"
+      },
+      {
+        "name": "UIF-05 receives at least one automatic grouped surface repair",
+        "pass": true,
+        "detail": "3"
+      },
+      {
+        "name": "No nested automatic grouped surfaces",
+        "pass": true,
+        "detail": ""
+      }
+    ]
+  },
+  "diff": {
+    "status": "PASS",
+    "added": 130,
+    "modified": 33,
+    "removed": 0,
+    "unexpected": 0
+  },
+  "registry_expected_artifacts": 7654,
+  "checksum_expected_entries": 7656,
+  "generic_validator": "NOT_APPLICABLE_CURRENT_SKELETON",
+  "limits": [
+    "READY_FOR_REVIEW is not a production RELEASE_READY claim",
+    "Post-extract verification is performed after archive creation and reported at handoff."
+  ]
+}

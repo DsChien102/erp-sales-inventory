@@ -6,7 +6,7 @@ title: "Ghi nhận điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.0
 ui_flow: UIF-13
 ---
 
@@ -145,6 +145,18 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 | Stale/conflict | Không partial commit | Refresh preview và rà soát lại |
 | Lỗi nhập liệu cũ | Không dùng BJ13 để che lỗi | BJ11/correction |
 | `UNKNOWN` | Không kết luận commit/no-commit | BJ17 |
+
+### 7.1 Làm rõ v4.6.0 — công thức phân bổ
+
+Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm_i`:
+
+`allocation_i = A × m_i / M` khi `M > 0`.
+
+- Theo giá trị: `m_i` là giá trị nhập ban đầu của exposure trước mọi adjustment BJ13.
+- Theo lượng: chỉ được dùng khi source/policy cung cấp metric quantity có cùng dimension/metric-unit trên toàn scope; không lấy trực tiếp các quantity khác UOM để cộng chung.
+- Làm tròn VND theo stable exposure order; exposure cuối nhận residual để tổng phân bổ đúng bằng `A`.
+- `M <= 0` hoặc metric không so sánh được => method không hợp lệ, không fallback chia đều.
+- Bước rà soát vẫn bắt buộc về hành vi nhưng v4.6.0 dùng Confirmation Sheet ngay trên `SCR-086`; không cần `SCR-088` là screen riêng.
 
 ## 8. Liên hệ giao diện
 

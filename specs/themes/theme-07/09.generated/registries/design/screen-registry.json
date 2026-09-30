@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
-  "version": "4.3.0",
-  "freeze_id": "T7-HARNESS-17-UIF-FREEZE-v0.2.0",
+  "version": "4.6.4",
+  "freeze_id": "T07-UI-V4.6.4",
   "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
-  "prototype_status": "VALUATION_UIUX_RUNTIME_HARDENED_v4.3.0",
+  "prototype_status": "WAREHOUSE_NAV_IA_CONTRACT_v4.6.4",
   "screen_group_status": "ACTIVE_WITH_RETIRED_MIGRATION_ALIASES",
   "screens": [
     {
@@ -957,7 +957,7 @@
       "id": "SCR-008",
       "name": "Thông tin nhập hàng nhanh",
       "surface_type": "form",
-      "purpose": "Ghi thông tin chung của một lần nhập hàng nhanh: nhà cung cấp hiện hữu, kho nhận read-only, ngày nhận do tenant business clock xác lập, chứng từ giao nhận và ownership assertion; sản phẩm được xử lý ở Hàng thực nhận.",
+      "purpose": "Ghi thông tin chung của một lần nhập hàng nhanh: nhà cung cấp hiện hữu, kho mặc định disabled, ngày nhận do hệ thống xác lập và chứng từ giao nhận; sản phẩm được xử lý ở Hàng thực nhận.",
       "navigation_area": "NAV-02",
       "related_business_journeys": [
         "BJ-02"
@@ -1000,35 +1000,31 @@
       "fields": [
         [
           "Nhà cung cấp",
-          "Minh Dũng · NCC-00018"
+          "Chọn từ master hiện hữu · bắt buộc"
         ],
         [
           "Kho nhận",
-          "Kho trung tâm · read-only"
+          "Kho mặc định · disabled"
         ],
         [
           "Ngày nhận",
-          "16/09/2026 · hệ thống"
+          "Ngày hệ thống xác lập · read-only"
         ],
         [
           "Chứng từ giao nhận",
           "1+ evidence refs"
-        ],
-        [
-          "Quyền sở hữu",
-          "Xác nhận có cấu trúc khi tiếp tục"
         ]
       ],
       "cards": [],
-      "notice": "Quick chỉ xuất hiện khi có capability. Ngày nhận là tenant business date do hệ thống cấp. Chứng từ giao nhận theo Shared Attachment Policy; không hard-code MIME/kích thước trong BJ02.",
+      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Không hiển thị giải thích kiến trúc về tenant/business clock.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-02-03",
         "screen_group_id": "SG-02",
         "route": "#/sg-02/scr-03"
       },
-      "prototype_status": "BJ02_PILOT_CALIBRATING_v0.2.9",
-      "evidence_level": "STATIC_VALIDATED_DERIVED",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -1036,11 +1032,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.1-dr1",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "BJ02_PILOT_CALIBRATING",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Hồ sơ nhập hàng nhanh dạng nháp",
+        "primary_object": "Ghi thông tin chung của một lần nhập hàng nhanh: nhà cung cấp hiện hữu, kho mặc định disabled, ngày nhận do hệ thống xác lập và chứng từ giao nhận; sản phẩm được xử lý ở Hàng thực nhận.",
         "entry_transition_ids": [
           "UIF-02-T03"
         ],
@@ -1053,7 +1049,7 @@
           "ACT-02-SAVE-DRAFT"
         ],
         "gap_ids": [],
-        "data_contract_level": "MINIMUM_SEMANTIC_ANATOMY_DERIVED",
+        "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
           {
             "label": "Nhà cung cấp",
@@ -1092,7 +1088,8 @@
           "VEmptyState",
           "DS v2 / Select Sheet",
           "DS v2 / List Row",
-          "VSearchBar"
+          "VSearchBar",
+          "DS v2 / Sticky Footer"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7FormSection",
@@ -1105,23 +1102,20 @@
           "UIF-02-T06",
           "UIF-02-T07"
         ],
-        "contract_version": "BJ02_PILOT_SCREEN_CONTRACT_v0.2.8",
-        "harness_status": "PILOT_CALIBRATING"
+        "contract_version": "SCREEN_CONTRACT_v4.6.0",
+        "harness_status": "SEMANTIC_UX_v4.6.0"
       },
-      "contract_version": "BJ02_PILOT_SCREEN_CONTRACT_v0.2.9",
+      "contract_version": "SCREEN_CONTRACT_v4.6.0",
       "entry_architecture": {
-        "class": "IN_FLOW_SURFACE",
-        "canonical_parent": "SCR-006 > Nhập hàng nhanh",
-        "version": "1.4.3"
+        "class": "ACTIVE_PRODUCT_SURFACE",
+        "canonical_parent": "UIF-02",
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "1.9.0",
+        "version": "4.6.0",
         "status": "PASS",
-        "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED",
-        "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL",
-        "corrections": [
-          "SAVE_DRAFT_MOVED_TO_TRACE_ONLY_SYSTEM"
-        ]
+        "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "deep_review": {
         "version": "3.9.2",
@@ -1130,7 +1124,50 @@
           "Generic note removed.",
           "Supplier change invalidates/revalidates evidence, ownership and price dependencies."
         ]
-      }
+      },
+      "components": [
+        "VSection",
+        "VText",
+        "VSelect",
+        "VTextField",
+        "VFileDropZone",
+        "VBanner",
+        "VButton",
+        "VEmptyState",
+        "DS v2 / Select Sheet",
+        "DS v2 / List Row",
+        "VSearchBar",
+        "DS v2 / Sticky Footer"
+      ],
+      "themeComposition": "Theme7ReceiptHeaderForm",
+      "mode": null,
+      "dataRows": [
+        {
+          "label": "Nhà cung cấp",
+          "example": "Minh Dũng · NCC-00018",
+          "ownership": "USER_SELECTION_EXISTING_MASTER_SERVER_VALIDATED"
+        },
+        {
+          "label": "Kho nhận",
+          "example": "Kho trung tâm",
+          "ownership": "SERVER_CONTEXT_READ_ONLY"
+        },
+        {
+          "label": "Ngày nhận",
+          "example": "16/09/2026",
+          "ownership": "SERVER_TENANT_BUSINESS_DATE_READ_ONLY"
+        },
+        {
+          "label": "Chứng từ giao nhận",
+          "example": "1+ delivery evidence refs",
+          "ownership": "USER_EVIDENCE_REFS_SHARED_ATTACHMENT_POLICY"
+        },
+        {
+          "label": "Ownership assertion",
+          "example": "actor + asserted_at + evidence refs + version/hash",
+          "ownership": "STRUCTURED_ASSERTION_CAPABILITY_GATED"
+        }
+      ]
     },
     {
       "id": "SCR-009",
@@ -2045,7 +2082,7 @@
       "id": "SCR-015",
       "name": "Xác lập giá trị nhập ban đầu",
       "surface_type": "detail",
-      "purpose": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
+      "purpose": "Xử lý từng hàng chờ giá trị: dùng căn cứ VND đã chuẩn hóa hoặc lập direct basis VND có nguồn/ngày/lý do; không hiển thị hay nhập tỷ giá.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
@@ -2070,24 +2107,28 @@
       ],
       "fields": [
         [
-          "Căn cứ giá",
-          "Nguồn thương mại read-only hoặc căn cứ trực tiếp của nhập nhanh"
+          "Căn cứ đang dùng",
+          "Nguồn giá có thẩm quyền dùng để xác lập"
         ],
         [
-          "Cấu thành giá trị",
-          "Giá mua, khoản giảm, thuế/phí không thu hồi, chi phí mua đủ căn cứ"
+          "Đơn giá ghi nhận ban đầu",
+          "Giá trị dẫn xuất theo UOM"
+        ],
+        [
+          "Direct basis",
+          "Đơn giá VND + loại nguồn + ngày căn cứ + bằng chứng tùy chọn + lý do"
         ]
       ],
       "cards": [],
-      "notice": "",
+      "notice": "UI không hiển thị Currency/FX. Nguồn ngoại tệ phải được adapter nguồn chuẩn hóa VND trước khi READY.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-03-02",
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-02"
       },
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2095,11 +2136,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.1-authority-correction",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Một bề mặt để hiểu hàng thực nhận, rà soát căn cứ giá và cấu thành giá trị; nhập nhanh có thể thêm căn cứ giá trực tiếp bằng sheet.",
+        "primary_object": "Xử lý từng hàng chờ giá trị: dùng căn cứ VND đã chuẩn hóa hoặc lập direct basis VND có nguồn/ngày/lý do; không hiển thị hay nhập tỷ giá.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
@@ -2131,8 +2172,10 @@
           "VTextField",
           "VTextarea",
           "VSegmentedControl",
+          "VRadio",
           "DS v2 / Form Sheet",
-          "DS v2 / Sticky Footer"
+          "DS v2 / Sticky Footer",
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DetailSurface"
@@ -2141,20 +2184,20 @@
           "BJ-03",
           "UC-03-01"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "components": [
         "VAppBar",
@@ -2166,8 +2209,10 @@
         "VTextField",
         "VTextarea",
         "VSegmentedControl",
+        "VRadio",
         "DS v2 / Form Sheet",
-        "DS v2 / Sticky Footer"
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
       "dataRows": [
@@ -2186,7 +2231,8 @@
           "example": "Có thể xác lập / Cần đối chiếu / Cần bổ sung căn cứ",
           "ownership": "SERVER_DERIVED_READ_ONLY"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-016",
@@ -2257,7 +2303,7 @@
       "id": "SCR-017",
       "name": "Rà soát giá trị nhập ban đầu",
       "surface_type": "review",
-      "purpose": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
+      "purpose": "Summary review trước commit: receipt, tổng giá trị và danh sách sản phẩm compact; breakdown chỉ mở khi cần.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
@@ -2295,8 +2341,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-04"
       },
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2304,11 +2350,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Rà soát read-only toàn bộ căn cứ và giá trị nhập ban đầu trước khi xác nhận.",
+        "primary_object": "Summary review trước commit: receipt, tổng giá trị và danh sách sản phẩm compact; breakdown chỉ mở khi cần.",
         "visible_action_ids": [
           "ACT-03-CONFIRM-COST"
         ],
@@ -2334,11 +2380,12 @@
         ],
         "flutter_ds_component_candidates": [
           "VAppBar",
-          "DS v2 / Info Row",
+          "DS v2 / Summary Card",
+          "DS v2 / List Row",
           "DS v2 / Key-value Row",
           "VBanner",
-          "DS v2 / Summary Card (max 1)",
-          "DS v2 / Sticky Footer"
+          "DS v2 / Sticky Footer",
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7ReviewSurface"
@@ -2348,8 +2395,8 @@
           "UC-03-01",
           "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "mode": {
         "modes": {
@@ -2360,21 +2407,22 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "components": [
         "VAppBar",
-        "DS v2 / Info Row",
+        "DS v2 / Summary Card",
+        "DS v2 / List Row",
         "DS v2 / Key-value Row",
         "VBanner",
-        "DS v2 / Summary Card (max 1)",
-        "DS v2 / Sticky Footer"
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "dataRows": [
@@ -2393,7 +2441,8 @@
           "example": "4.085.000 đ",
           "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-018",
@@ -2416,7 +2465,7 @@
       ],
       "fields": [],
       "cards": [],
-      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-088 → SCR-089.",
+      "notice": "Đã thay thế bởi SCR-085 → SCR-086 → SCR-089.",
       "sensitive_data": "Toàn bộ trường tài chính bị loại khỏi DOM khi thiếu quyền.",
       "legacy_aliases": {
         "screen_id": "SCR-03-05",
@@ -2464,7 +2513,7 @@
       "id": "SCR-019",
       "name": "Kết quả xác lập giá trị",
       "surface_type": "result",
-      "purpose": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
+      "purpose": "Kết quả authoritative của initial valuation: receipt, số sản phẩm/dòng, tổng giá trị và trạng thái cần cập nhật giá vốn; không cộng quantity khác UOM.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-03"
@@ -2490,19 +2539,19 @@
       "fields": [
         [
           "Phiếu nhận",
-          "PN-260816-04"
+          "Receipt đã ghi"
         ],
         [
-          "Đơn giá ghi nhận ban đầu",
-          "81.700 đ/hộp"
+          "Sản phẩm đã xác lập",
+          "Số Product/scope đã ghi"
         ],
         [
-          "Giá trị đã ghi",
-          "4.085.000 đ"
+          "Tổng giá trị đã ghi",
+          "VND"
         ],
         [
           "Giá vốn",
-          "Cần cập nhật"
+          "Cần cập nhật khi dirty scope phát sinh"
         ]
       ],
       "cards": [],
@@ -2513,8 +2562,8 @@
         "screen_group_id": "SG-03",
         "route": "#/sg-03/scr-06"
       },
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -2522,11 +2571,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Kết quả có thẩm quyền của việc xác lập giá trị nhập ban đầu; sản phẩm được đánh dấu cần cập nhật giá vốn, chưa tạo giá vốn chính thức.",
+        "primary_object": "Kết quả authoritative của initial valuation: receipt, số sản phẩm/dòng, tổng giá trị và trạng thái cần cập nhật giá vốn; không cộng quantity khác UOM.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-03-CONFIRM-COST"
@@ -2555,6 +2604,7 @@
           "VEmptyState",
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
+          "DS v2 / List Row",
           "VBanner",
           "VButton"
         ],
@@ -2566,26 +2616,27 @@
           "UC-03-01",
           "ACT-03-CONFIRM-COST"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-03",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "components": [
         "VAppBar",
         "VEmptyState",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
+        "DS v2 / List Row",
         "VBanner",
         "VButton"
       ],
@@ -2606,7 +2657,8 @@
           "example": "Cần cập nhật",
           "ownership": "SERVER_DERIVED_RESULT"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-020",
@@ -10661,7 +10713,7 @@
       "id": "SCR-074",
       "name": "Tính và rà soát giá vốn",
       "surface_type": "dashboard",
-      "purpose": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
+      "purpose": "Một bề mặt cho setup/tính/blocker/review/công bố; phương pháp và period-close scope đọc từ tenant policy. Kết quả tổng và signed delta được tách rõ.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
@@ -10710,8 +10762,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-03"
       },
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -10719,11 +10771,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.1-authority-correction",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Một bề mặt cho setup cần thiết, tính, blocker, rà soát và chuẩn bị công bố; phương pháp áp dụng lấy từ chính sách tenant và không thể chọn lại.",
+        "primary_object": "Một bề mặt cho setup/tính/blocker/review/công bố; phương pháp và period-close scope đọc từ tenant policy. Kết quả tổng và signed delta được tách rõ.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
@@ -10755,10 +10807,12 @@
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "DS v2 / List Row",
+          "DS v2 / Summary Card",
           "VBanner",
-          "DS v2 / Summary Card (max 1)",
+          "VSelect",
           "DS v2 / Confirmation Sheet",
-          "DS v2 / Sticky Footer"
+          "DS v2 / Sticky Footer",
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DashboardSurface"
@@ -10768,31 +10822,33 @@
           "UC-14-01",
           "UC-14-04"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "DS v2 / List Row",
+        "DS v2 / Summary Card",
         "VBanner",
-        "DS v2 / Summary Card (max 1)",
+        "VSelect",
         "DS v2 / Confirmation Sheet",
-        "DS v2 / Sticky Footer"
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7DashboardSurface",
       "mode": null,
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-14",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "dataRows": [
         {
@@ -10815,7 +10871,8 @@
           "example": "Bình quân liên hoàn · xem khi cần",
           "ownership": "SERVER_DERIVED_COMPARISON_ONLY"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-075",
@@ -10951,7 +11008,7 @@
       "id": "SCR-077",
       "name": "Kết quả công bố giá vốn",
       "surface_type": "result",
-      "purpose": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
+      "purpose": "Kết quả publication: kỳ, phương pháp, số sản phẩm, hiệu lực và đúng hai signed delta đã ghi.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-14"
@@ -10975,20 +11032,32 @@
       ],
       "fields": [
         [
-          "Kỳ",
-          "09/2026"
+          "Kỳ ghi nhận",
+          "Kỳ publication"
         ],
         [
           "Phương pháp",
-          "Bình quân cuối kỳ"
+          "Theo tenant policy"
         ],
         [
-          "Giá vốn",
-          "Đã công bố"
+          "Sản phẩm đã đối soát",
+          "Số Product trong run"
+        ],
+        [
+          "Sản phẩm có giá vốn mới",
+          "Số OfficialCostVersion mới"
         ],
         [
           "Hiệu lực",
-          "Từ thời điểm công bố"
+          "Thời điểm publication có hiệu lực"
+        ],
+        [
+          "Điều chỉnh giá vốn xuất",
+          "Signed COGS delta"
+        ],
+        [
+          "Điều chỉnh giá trị tồn",
+          "Signed ending inventory delta"
         ]
       ],
       "cards": [],
@@ -10999,8 +11068,8 @@
         "screen_group_id": "SG-14",
         "route": "#/sg-14/scr-06"
       },
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -11008,11 +11077,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Kết quả công bố giá vốn bằng ngôn ngữ nghiệp vụ; thông tin kỹ thuật chỉ giữ trong Inspect/audit.",
+        "primary_object": "Kết quả publication: kỳ, phương pháp, số sản phẩm, hiệu lực và đúng hai signed delta đã ghi.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-14-PUBLISH"
@@ -11052,14 +11121,14 @@
           "UC-14-04",
           "ACT-14-PUBLISH"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "components": [
         "VAppBar",
@@ -11074,7 +11143,7 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-14",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "dataRows": [
         {
@@ -11092,7 +11161,8 @@
           "example": "Đã công bố",
           "ownership": "SERVER_AUTHORITATIVE_RESULT"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-078",
@@ -12273,9 +12343,9 @@
     },
     {
       "id": "SCR-086",
-      "name": "Nguồn, phạm vi và phân bổ",
+      "name": "Phân bổ điều chỉnh giá trị",
       "surface_type": "detail",
-      "purpose": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
+      "purpose": "Một bề mặt duy nhất để xem nguồn, fixed scope, phương pháp hợp lệ, metric/tỷ trọng, preview allocation và kỳ ghi nhận; CTA mở Confirmation Sheet trước commit.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
@@ -12302,11 +12372,11 @@
       ],
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Không hiển thị/nhập tỷ giá; không tự chia đều khi metric không hợp lệ. SCR-088 đã retire.",
       "sensitive_data": "Source amount và valuation context là financial restricted.",
       "legacy_aliases": {},
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12314,11 +12384,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.1-authority-correction",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Rà soát nguồn, phạm vi áp dụng, cách phân bổ và kết quả phân bổ trên cùng một mental task.",
+        "primary_object": "Một bề mặt duy nhất để xem nguồn, fixed scope, phương pháp hợp lệ, metric/tỷ trọng, preview allocation và kỳ ghi nhận; CTA mở Confirmation Sheet trước commit.",
         "visible_action_ids": [],
         "trace_only_action_ids": [],
         "gap_ids": [],
@@ -12332,12 +12402,12 @@
           {
             "label": "Phạm vi áp dụng",
             "example": "PN-260816-04 · 50 hộp",
-            "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+            "ownership": "SERVER_AUTHORITATIVE_FIXED_SCOPE"
           },
           {
             "label": "Cách phân bổ",
-            "example": "Theo số lượng",
-            "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+            "example": "Theo giá trị nhập ban đầu",
+            "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET_OR_READ_ONLY_IF_SINGLE"
           },
           {
             "label": "Tổng phân bổ",
@@ -12350,9 +12420,12 @@
           "DS v2 / Info Row",
           "DS v2 / Key-value Row",
           "DS v2 / List Row",
-          "VSelect",
+          "DS v2 / Summary Card",
           "VBanner",
-          "DS v2 / Sticky Footer"
+          "VRadio",
+          "DS v2 / Confirmation Sheet",
+          "DS v2 / Sticky Footer",
+          "VButton"
         ],
         "module_presentation_pattern_candidates": [
           "Theme7DetailSurface"
@@ -12361,29 +12434,32 @@
           "BJ-13",
           "UC-13-01"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "components": [
         "VAppBar",
         "DS v2 / Info Row",
         "DS v2 / Key-value Row",
         "DS v2 / List Row",
-        "VSelect",
+        "DS v2 / Summary Card",
         "VBanner",
-        "DS v2 / Sticky Footer"
+        "VRadio",
+        "DS v2 / Confirmation Sheet",
+        "DS v2 / Sticky Footer",
+        "VButton"
       ],
       "themeComposition": "Theme7DetailSurface",
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "mode": null,
       "dataRows": [
@@ -12395,19 +12471,20 @@
         {
           "label": "Phạm vi áp dụng",
           "example": "PN-260816-04 · 50 hộp",
-          "ownership": "USER_SELECTION_OVER_SERVER_CANDIDATE_SCOPE"
+          "ownership": "SERVER_AUTHORITATIVE_FIXED_SCOPE"
         },
         {
           "label": "Cách phân bổ",
-          "example": "Theo số lượng",
-          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET"
+          "example": "Theo giá trị nhập ban đầu",
+          "ownership": "USER_SELECTION_FROM_SERVER_ALLOWED_SET_OR_READ_ONLY_IF_SINGLE"
         },
         {
           "label": "Tổng phân bổ",
           "example": "+1.200.000 đ",
           "ownership": "SERVER_DERIVED_READ_ONLY"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-087",
@@ -12473,88 +12550,51 @@
     },
     {
       "id": "SCR-088",
-      "name": "Rà soát điều chỉnh giá trị",
+      "name": "Rà soát điều chỉnh — Đã hợp nhất",
       "surface_type": "review",
-      "purpose": "Rà soát read-only signed adjustment trước khi commit.",
+      "purpose": "Retired in v4.6.0; review được thực hiện bằng Confirmation Sheet trên SCR-086.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
       ],
-      "related_use_cases": [
-        "UC-13-01"
-      ],
+      "related_use_cases": [],
       "related_supporting_artifacts": [],
       "states": [
-        "READY",
-        "SOURCE_CHANGED",
-        "VALIDATION_ERROR",
-        "PERMISSION_DENIED"
+        "RETIRED_ACTIVE_ROUTE"
       ],
-      "action_ids": [
-        "ACT-03-RECORD-LATE-COST"
-      ],
-      "action_contracts": [
-        {
-          "id": "ACT-03-RECORD-LATE-COST",
-          "label": "Ghi điều chỉnh giá trị",
-          "bc": "BC-IV-04",
-          "api": "API-C-23",
-          "tone": "primary"
-        }
-      ],
+      "action_ids": [],
+      "action_contracts": [],
       "actors": [
         "Kế toán mua hàng",
         "Kế toán kho"
       ],
       "fields": [],
       "cards": [],
-      "notice": "",
+      "notice": "Đã hợp nhất vào SCR-086; deep link cũ chuyển về SCR-086.",
       "sensitive_data": "Tất cả giá trị tài chính bị omit khỏi DOM khi thiếu quyền.",
       "legacy_aliases": {},
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "RETIRED_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
-        "kind": "BUSINESS_JOURNEY",
+        "kind": "HISTORICAL_MIGRATION",
         "ids": [
           "BJ-13"
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
-        "structural_disposition": "KEEP",
-        "primary_object": "Rà soát read-only signed adjustment trước khi commit.",
+        "status": "RETIRED",
+        "structural_disposition": "RETIRED",
+        "primary_object": "Retired in v4.6.0; review được thực hiện bằng Confirmation Sheet trên SCR-086.",
         "visible_action_ids": [
           "ACT-03-RECORD-LATE-COST"
         ],
         "trace_only_action_ids": [],
         "gap_ids": [],
         "data_contract_level": "CANONICAL_UI_CONTRACT",
-        "data_rows": [
-          {
-            "label": "Điều chỉnh",
-            "example": "−350.000 đ",
-            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-          },
-          {
-            "label": "Tác động",
-            "example": "Chỉ thay đổi giá trị; số lượng không đổi",
-            "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-          },
-          {
-            "label": "Sau khi ghi",
-            "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
-            "ownership": "SERVER_DERIVED_PREVIEW"
-          }
-        ],
-        "flutter_ds_component_candidates": [
-          "VAppBar",
-          "DS v2 / Info Row",
-          "DS v2 / Key-value Row",
-          "VBanner",
-          "DS v2 / Sticky Footer"
-        ],
+        "data_rows": [],
+        "flutter_ds_component_candidates": [],
         "module_presentation_pattern_candidates": [
           "Theme7ReviewSurface"
         ],
@@ -12563,52 +12603,31 @@
           "UC-13-01",
           "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "RETIRED_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
-      "components": [
-        "VAppBar",
-        "DS v2 / Info Row",
-        "DS v2 / Key-value Row",
-        "VBanner",
-        "DS v2 / Sticky Footer"
-      ],
+      "components": [],
       "themeComposition": "Theme7ReviewSurface",
       "entry_architecture": {
-        "class": "ACTIVE_PRODUCT_SURFACE",
-        "canonical_parent": "UIF-13",
-        "version": "4.3.0"
+        "class": "RETIRED_MIGRATION_SURFACE",
+        "canonical_parent": "SCR-086",
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "mode": null,
-      "dataRows": [
-        {
-          "label": "Điều chỉnh",
-          "example": "−350.000 đ",
-          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-        },
-        {
-          "label": "Tác động",
-          "example": "Chỉ thay đổi giá trị; số lượng không đổi",
-          "ownership": "SERVER_AUTHORITATIVE_PREVIEW"
-        },
-        {
-          "label": "Sau khi ghi",
-          "example": "Sản phẩm và kỳ được đánh dấu cần cập nhật giá vốn",
-          "ownership": "SERVER_DERIVED_PREVIEW"
-        }
-      ]
+      "dataRows": [],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
     },
     {
       "id": "SCR-089",
       "name": "Kết quả điều chỉnh giá trị",
       "surface_type": "result",
-      "purpose": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
+      "purpose": "Result summary của signed adjustment; chi tiết nhiều sản phẩm nằm sau disclosure thay vì render toàn bộ mặc định.",
       "navigation_area": "NAV-04",
       "related_business_journeys": [
         "BJ-13"
@@ -12637,8 +12656,8 @@
       "notice": "",
       "sensitive_data": "Financial result masked/omitted theo permission.",
       "legacy_aliases": {},
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -12646,11 +12665,11 @@
         ]
       },
       "design_readiness": {
-        "checkpoint_version": "4.3.0-uiux-hardening",
+        "checkpoint_version": "4.6.0-semantic-ux",
         "freeze_id": "T7-DESIGN-READINESS-CHECKPOINT-DR1",
-        "status": "UIUX_RUNTIME_VALIDATED",
+        "status": "SEMANTIC_UX_RUNTIME_VALIDATED",
         "structural_disposition": "KEEP",
-        "primary_object": "Kết quả có thẩm quyền của signed adjustment và trạng thái cần cập nhật giá vốn.",
+        "primary_object": "Result summary của signed adjustment; chi tiết nhiều sản phẩm nằm sau disclosure thay vì render toàn bộ mặc định.",
         "visible_action_ids": [],
         "trace_only_action_ids": [
           "ACT-03-RECORD-LATE-COST"
@@ -12677,7 +12696,7 @@
         "flutter_ds_component_candidates": [
           "VAppBar",
           "VEmptyState",
-          "DS v2 / Info Row",
+          "DS v2 / Summary Card",
           "DS v2 / Key-value Row",
           "VBanner",
           "VButton"
@@ -12690,13 +12709,13 @@
           "UC-13-01",
           "ACT-03-RECORD-LATE-COST"
         ],
-        "harness_status": "UIUX_HARDENED_v4.3.0",
-        "contract_version": "SCREEN_CONTRACT_v4.3.0"
+        "harness_status": "SEMANTIC_UX_v4.6.0",
+        "contract_version": "SCREEN_CONTRACT_v4.6.0"
       },
       "components": [
         "VAppBar",
         "VEmptyState",
-        "DS v2 / Info Row",
+        "DS v2 / Summary Card",
         "DS v2 / Key-value Row",
         "VBanner",
         "VButton"
@@ -12705,13 +12724,13 @@
       "entry_architecture": {
         "class": "ACTIVE_PRODUCT_SURFACE",
         "canonical_parent": "UIF-13",
-        "version": "4.3.0"
+        "version": "4.6.0"
       },
       "holistic_review": {
-        "version": "4.3.0",
+        "version": "4.6.0",
         "status": "PASS",
         "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
-        "scope": "BJ03_BJ13_BJ14_UIUX_DS_RUNTIME"
+        "scope": "VALUATION_SEMANTIC_UX_CLOSURE"
       },
       "mode": null,
       "dataRows": [
@@ -12730,7 +12749,738 @@
           "example": "Cần cập nhật",
           "ownership": "SERVER_DERIVED_RESULT"
         }
-      ]
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.0"
+    },
+    {
+      "id": "SCR-090",
+      "name": "Kho",
+      "surface_type": "hub navigation",
+      "purpose": "Hub điều hướng chính của Theme 7; tìm hàng, quick action, attention và workspace.",
+      "navigation_area": "IA-WH-HUB",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "LOADING_ATTENTION",
+        "NO_ATTENTION",
+        "PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Hub điều hướng chính của Theme 7; tìm hàng, quick action, attention và workspace.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSearchBar",
+          "VQuickActionButton",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-090"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSearchBar",
+        "VQuickActionButton",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Tra cứu tồn",
+          "destination": "SCR-001",
+          "trace": "UIF-01 / BJ-01"
+        },
+        {
+          "label": "Nhận hàng",
+          "destination": "SCR-006",
+          "trace": "UIF-02 / BJ-02"
+        },
+        {
+          "label": "Lấy hàng",
+          "destination": "SCR-025",
+          "trace": "UIF-05 / BJ-05"
+        },
+        {
+          "label": "Kiểm kê",
+          "destination": "SCR-042",
+          "trace": "UIF-08 / BJ-08"
+        },
+        {
+          "label": "Tồn kho",
+          "destination": "SCR-091",
+          "trace": "PAT-NAV"
+        },
+        {
+          "label": "Nhập, xuất & hoàn trả",
+          "destination": "SCR-092",
+          "trace": "PAT-NAV"
+        },
+        {
+          "label": "Kiểm kê & xử lý",
+          "destination": "SCR-093",
+          "trace": "PAT-NAV"
+        },
+        {
+          "label": "Giá trị kho",
+          "destination": "SCR-094",
+          "trace": "PAT-NAV"
+        },
+        {
+          "label": "Báo cáo & lịch sử",
+          "destination": "SCR-095",
+          "trace": "PAT-NAV"
+        },
+        {
+          "label": "Thiết lập kho",
+          "destination": "SCR-096",
+          "trace": "PAT-NAV"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-091",
+      "name": "Tồn kho",
+      "surface_type": "navigation",
+      "purpose": "Workspace tra cứu số lượng, khả dụng, lô và tình trạng hàng.",
+      "navigation_area": "IA-WH-INVENTORY",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace tra cứu số lượng, khả dụng, lô và tình trạng hàng.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-091"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Tồn kho & khả dụng",
+          "destination": "SCR-001",
+          "trace": "UIF-01 / BJ-01"
+        },
+        {
+          "label": "Tình trạng hàng",
+          "destination": "SCR-036",
+          "trace": "UIF-09 / BJ-09"
+        },
+        {
+          "label": "Chính sách tồn & cận hạn",
+          "destination": "SCR-062 / SCR-063",
+          "trace": "SUPPORTING_CAPABILITY"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-092",
+      "name": "Nhập, xuất & hoàn trả",
+      "surface_type": "navigation",
+      "purpose": "Workspace các nghiệp vụ hàng đi vào, đi ra hoặc quay lại kho.",
+      "navigation_area": "IA-WH-MOVEMENT",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace các nghiệp vụ hàng đi vào, đi ra hoặc quay lại kho.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-092"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Nhận hàng",
+          "destination": "SCR-006",
+          "trace": "UIF-02 / BJ-02"
+        },
+        {
+          "label": "Lấy & bàn giao",
+          "destination": "SCR-025",
+          "trace": "UIF-05 / BJ-05"
+        },
+        {
+          "label": "Hàng khách trả",
+          "destination": "SCR-030",
+          "trace": "UIF-06 / BJ-06"
+        },
+        {
+          "label": "Trả nhà cung cấp",
+          "destination": "SCR-036",
+          "trace": "UIF-07 / BJ-07"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-093",
+      "name": "Kiểm kê & xử lý",
+      "surface_type": "navigation",
+      "purpose": "Workspace kiểm kê, hàng cần xử lý, sửa sai và đối soát sai lệch.",
+      "navigation_area": "IA-WH-CONTROL",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace kiểm kê, hàng cần xử lý, sửa sai và đối soát sai lệch.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-093"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Kiểm kê kho",
+          "destination": "SCR-042",
+          "trace": "UIF-08 / BJ-08"
+        },
+        {
+          "label": "Hàng cần xử lý",
+          "destination": "SCR-036",
+          "trace": "UIF-09 / BJ-09"
+        },
+        {
+          "label": "Hủy & sửa sai nghiệp vụ",
+          "destination": "SCR-048",
+          "trace": "UIF-11 / BJ-11"
+        },
+        {
+          "label": "Đối soát sai lệch",
+          "destination": "SCR-078",
+          "trace": "UIF-16 / BJ-16"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-094",
+      "name": "Giá trị kho",
+      "surface_type": "navigation",
+      "purpose": "Workspace xác lập giá trị hàng nhập, điều chỉnh giá trị và giá vốn.",
+      "navigation_area": "IA-WH-VALUATION",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "FINANCIAL_PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace xác lập giá trị hàng nhập, điều chỉnh giá trị và giá vốn.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-094"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Giá trị hàng nhập",
+          "destination": "SCR-014",
+          "trace": "UIF-03 / BJ-03 / UC-03-01"
+        },
+        {
+          "label": "Chi phí mua bổ sung",
+          "destination": "SCR-085",
+          "trace": "UIF-13 / BJ-13 / UC-13-01"
+        },
+        {
+          "label": "Giá vốn",
+          "destination": "SCR-072",
+          "trace": "UIF-14 / BJ-14"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-095",
+      "name": "Báo cáo & lịch sử",
+      "surface_type": "navigation",
+      "purpose": "Workspace báo cáo tồn, thẻ kho và lịch sử biến động.",
+      "navigation_area": "IA-WH-HISTORY",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "PERMISSION_FILTERED"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace báo cáo tồn, thẻ kho và lịch sử biến động.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-095"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Báo cáo tồn & thẻ kho",
+          "destination": "SCR-054",
+          "trace": "UIF-15 / BJ-15"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
+    },
+    {
+      "id": "SCR-096",
+      "name": "Thiết lập kho",
+      "surface_type": "navigation",
+      "purpose": "Workspace các thiết lập và khởi tạo có tần suất thấp.",
+      "navigation_area": "IA-WH-SETUP",
+      "screen_class": "NAVIGATION",
+      "authority": "PAT-NAV",
+      "related_business_journeys": [],
+      "related_use_cases": [],
+      "related_supporting_artifacts": [
+        "PAT-NAV"
+      ],
+      "states": [
+        "READY",
+        "PERMISSION_FILTERED",
+        "NOT_APPLICABLE"
+      ],
+      "action_ids": [],
+      "action_contracts": [],
+      "actors": [
+        "Người dùng có quyền truy cập Kho"
+      ],
+      "fields": [],
+      "cards": [],
+      "notice": "",
+      "sensitive_data": "Navigation surface không sở hữu dữ liệu nghiệp vụ; destination tự áp dụng masking/permission.",
+      "legacy_aliases": {},
+      "prototype_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+      "evidence_level": "RUNTIME_INTERACTION_VALIDATED_v4.6.3",
+      "owner_scope": {
+        "kind": "NAVIGATION_ARCHITECTURE",
+        "ids": [
+          "PAT-NAV"
+        ]
+      },
+      "design_readiness": {
+        "checkpoint_version": "4.6.4-navigation-ia",
+        "freeze_id": "T7-NAV-IA-v4.6.4",
+        "status": "DOCUMENTED",
+        "structural_disposition": "KEEP",
+        "primary_object": "Workspace các thiết lập và khởi tạo có tần suất thấp.",
+        "visible_action_ids": [],
+        "trace_only_action_ids": [],
+        "gap_ids": [],
+        "data_contract_level": "NAVIGATION_DESTINATION_CONTRACT",
+        "data_rows": [],
+        "flutter_ds_component_candidates": [
+          "VPageScaffold",
+          "VAppBar",
+          "VSection",
+          "DS v2 / List Row"
+        ],
+        "module_presentation_pattern_candidates": [],
+        "evidence_sources": [
+          "PAT-NAV",
+          "SCR-096"
+        ],
+        "harness_status": "WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3",
+        "contract_version": "SCREEN_CONTRACT_v4.6.4"
+      },
+      "components": [
+        "VPageScaffold",
+        "VAppBar",
+        "VSection",
+        "DS v2 / List Row"
+      ],
+      "themeComposition": "Theme7WarehouseNavigation",
+      "entry_architecture": {
+        "class": "NAVIGATION_SURFACE",
+        "canonical_parent": "PAT-NAV",
+        "version": "4.6.4"
+      },
+      "holistic_review": {
+        "version": "4.6.4",
+        "status": "PASS",
+        "evidence_level": "DOCUMENT_CONTRACT_VALIDATED",
+        "scope": "WAREHOUSE_NAVIGATION_IA"
+      },
+      "mode": null,
+      "dataRows": [],
+      "navigation_destinations": [
+        {
+          "label": "Khởi tạo tồn đầu kỳ",
+          "destination": "SCR-066",
+          "trace": "UIF-12 / BJ-12"
+        },
+        {
+          "label": "Chính sách tồn & cận hạn",
+          "destination": "SCR-062 / SCR-063",
+          "trace": "SUPPORTING_CAPABILITY"
+        }
+      ],
+      "contract_version": "SCREEN_CONTRACT_v4.6.4"
     }
   ],
   "design_readiness_checkpoint": {
@@ -12748,7 +13498,7 @@
       "SCR-087"
     ]
   },
-  "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED_v4.3.0",
+  "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
   "figma_ds_migration": {
     "release": "2.0.1",
     "authority": "Figma Design System v2.0.2",

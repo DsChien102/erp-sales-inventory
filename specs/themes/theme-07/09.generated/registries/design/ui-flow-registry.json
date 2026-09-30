@@ -1,11 +1,11 @@
 {
   "schema_version": "2.0",
-  "patch_version": "4.3.0",
-  "freeze_id": "T7-VALUATION-UIUX-v4.3.0",
+  "patch_version": "v4.6.1",
+  "freeze_id": "T07-UIF-V4.6.1",
   "source_baseline": "v4.3.0",
   "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
-  "prototype_status": "VALUATION_UIUX_RUNTIME_HARDENED_v4.3.0",
-  "evidence_level": "E2_CONTRACT_RUNTIME_VISUAL_VALIDATED",
+  "prototype_status": "SEMANTIC_UX_v4.6.1",
+  "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
   "flows": [
     {
       "id": "UIF-01",
@@ -180,9 +180,9 @@
         }
       ],
       "transition_count": 8,
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-016",
         "SCR-018"
@@ -850,11 +850,12 @@
       "screen_ids": [
         "SCR-085",
         "SCR-086",
-        "SCR-088",
         "SCR-089"
       ],
       "compatibility_screen_ids": [
-        "SCR-018"
+        "SCR-018",
+        "SCR-087",
+        "SCR-088"
       ],
       "action_ids": [
         "ACT-03-RECORD-LATE-COST"
@@ -872,22 +873,25 @@
         }
       ],
       "transition_count": 9,
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-018",
-        "SCR-087"
+        "SCR-087",
+        "SCR-088"
       ],
       "patterns_promoted": [
         "SIGNED_VALUE_ADJUSTMENT_QUEUE",
         "SOURCE_SCOPE_ALLOCATION_ON_ONE_SURFACE",
         "VALUE_COMPONENT_PROVENANCE",
-        "READ_ONLY_FINAL_REVIEW",
         "DIRTY_COST_SCOPE_HANDOFF",
         "UNKNOWN_RECOVERY",
         "FINANCIAL_MASKING",
-        "NO_ARCHITECTURE_EXPLANATION_UI"
+        "NO_ARCHITECTURE_EXPLANATION_UI",
+        "CONFIRMATION_SHEET_BEFORE_COMMIT",
+        "ALLOCATION_METRIC_EXPLAINABILITY",
+        "NO_EQUAL_SPLIT_FALLBACK"
       ],
       "holistic_review": {
         "version": "1.9.0",
@@ -902,6 +906,9 @@
       ],
       "entry_screen_ids": [
         "SCR-085"
+      ],
+      "contextual_surfaces": [
+        "Review/confirm mutation uses DS v2 / Confirmation Sheet on SCR-086; SCR-088 is retired."
       ]
     },
     {
@@ -940,9 +947,9 @@
         }
       ],
       "transition_count": 10,
-      "prototype_status": "UIUX_HARDENED_v4.3.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.3.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.3.0",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-073",
         "SCR-075",
@@ -1177,5 +1184,6 @@
     "valuation_full_state_smoke": "54/54",
     "browser_errors": 0,
     "evidence": "03.design/prototype/html/qa/"
-  }
+  },
+  "version": "4.6.1"
 }

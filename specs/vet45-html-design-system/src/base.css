@@ -1,0 +1,48 @@
+@import url('./tokens.css');
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{font-family:var(--vet45-font-sans);color:var(--vet45-v2-text-primary);background:var(--vet45-v2-surface-canvas)}
+body{min-height:100vh}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:0;background:none}
+a{color:inherit}
+svg{display:block}
+[hidden],.v-hidden{display:none!important}
+
+/* Typography - exact Figma text styles. */
+.v-d1{font-family:var(--vet45-font-sans);font-size:40px;line-height:44px;font-weight:800;letter-spacing:-1px}
+.v-h1{font-family:var(--vet45-font-sans);font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.5px}
+.v-h2{font-family:var(--vet45-font-sans);font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.3px}
+.v-h3{font-family:var(--vet45-font-sans);font-size:18px;line-height:24px;font-weight:600;letter-spacing:-.2px}
+.v-h4{font-family:var(--vet45-font-sans);font-size:16px;line-height:22px;font-weight:600;letter-spacing:0}
+.v-body{font-family:var(--vet45-font-sans);font-size:14px;line-height:22px;font-weight:400;letter-spacing:0}
+.v-body-sm{font-family:var(--vet45-font-sans);font-size:13px;line-height:20px;font-weight:400;letter-spacing:0}
+.v-label{font-family:var(--vet45-font-sans);font-size:14px;line-height:20px;font-weight:600;letter-spacing:0}
+.v-label-sm{font-family:var(--vet45-font-sans);font-size:12px;line-height:16px;font-weight:600;letter-spacing:0}
+.v-action{font-family:var(--vet45-font-sans);font-size:14px;line-height:20px;font-weight:600;letter-spacing:0}
+.v-caption{font-family:var(--vet45-font-sans);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+.v-overline{font-family:var(--vet45-font-sans);font-size:11px;line-height:14px;font-weight:600;letter-spacing:.4px}
+.v-mono{font-family:var(--vet45-font-mono);font-size:14px;line-height:22px;font-weight:400;letter-spacing:0}
+.v-mono-sm{font-family:var(--vet45-font-mono);font-size:13px;line-height:20px;font-weight:400;letter-spacing:0}
+.v-mono-emphasis{font-family:var(--vet45-font-mono);font-size:16px;line-height:22px;font-weight:400;letter-spacing:0}
+
+/* Structural primitives. */
+.v-phone{width:min(100%,402px);height:874px;margin-inline:auto;background:var(--vet45-v2-surface-canvas);position:relative;overflow:hidden;border-radius:20px}
+.v-page{padding:var(--vet45-v2-layout-mobile-edge)}
+.v-section{display:flex;flex-direction:column;gap:var(--vet45-v2-space-3)}
+.v-stack{display:flex;flex-direction:column;gap:var(--vet45-v2-space-4)}
+.v-stack-2{display:flex;flex-direction:column;gap:var(--vet45-v2-space-2)}
+.v-row{display:flex;align-items:center;gap:var(--vet45-v2-space-3)}
+.v-row-2{display:flex;align-items:center;gap:var(--vet45-v2-space-2)}
+.v-grow{flex:1 1 auto;min-width:0}
+.v-muted{color:var(--vet45-v2-text-secondary)}
+.v-text-muted{color:var(--vet45-v2-text-muted)}
+.v-brand{color:var(--vet45-v2-text-brand)}
+.v-disabled,[data-state="disabled"]{--v-disabled-opacity:var(--vet45-v2-opacity-disabled)}
+.v-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+:focus-visible{outline:2px solid var(--vet45-v2-focus-ring);outline-offset:2px}
+
+@media(min-width:600px){.v-page{padding:var(--vet45-v2-layout-tablet-edge)}}
+@media(min-width:1024px){.v-page{padding:var(--vet45-v2-layout-desktop-edge)}}

@@ -1,0 +1,37 @@
+/* VET45 Theme 7 v4.6.0 — semantic UX composition only. */
+.v460-task{margin:0 0 var(--space-12,12px);}
+.v460-task__detail{margin-top:8px;display:grid;gap:8px;}
+.v460-selection-summary{margin-top:12px;}
+.v460-field-group{display:grid;gap:8px;}
+.v460-field-label{font-size:13px;font-weight:600;color:var(--color-text-primary,#1f2937);}
+.v460-field-label b{color:var(--color-danger,#d92d20);}
+.v460-choice-list{display:grid;gap:8px;}
+.v460-choice{width:100%;min-height:60px;border:1px solid var(--color-border-default,#d0d5dd);border-radius:10px;background:var(--color-surface,#fff);padding:10px 12px;display:flex;gap:12px;align-items:flex-start;text-align:left;color:inherit;}
+.v460-choice.is-selected{border-color:var(--color-primary,#16a34a);background:var(--color-success-subtle,#f0f9f2);}
+.v460-choice__radio{width:20px;height:20px;border:1.5px solid var(--color-border-strong,#98a2b3);border-radius:50%;display:grid;place-items:center;flex:0 0 20px;margin-top:1px;}
+.v460-choice.is-selected .v460-choice__radio{border-color:var(--color-primary,#16a34a);}
+.v460-choice.is-selected .v460-choice__radio span{width:10px;height:10px;border-radius:50%;background:var(--color-primary,#16a34a);}
+.v460-choice strong{display:block;font-size:14px;line-height:20px;}
+.v460-choice small{display:block;margin-top:2px;font-size:12px;line-height:17px;color:var(--color-text-secondary,#667085);}
+.v460-review-list{display:grid;gap:10px;}
+.v460-review-item{border:1px solid var(--color-border-subtle,#e4e7ec);border-radius:10px;background:var(--color-surface,#fff);overflow:hidden;}
+.v460-review-item .ds24-list-row{border:0;border-radius:0;}
+.v460-money-trailing{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;}
+.v460-details{margin-top:8px;}
+.v460-review-item .v460-details{margin:0 12px 10px;}
+.v460-allocation-list{border:1px solid var(--color-border-subtle,#e4e7ec);border-radius:10px;background:var(--color-surface,#fff);overflow:hidden;margin-bottom:12px;}
+.v460-allocation-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--color-border-subtle,#e4e7ec);}
+.v460-allocation-row:last-of-type{border-bottom:0;}
+.v460-allocation-row strong{font-size:13px;line-height:18px;}
+.v460-allocation-row small{display:block;font-size:11px;line-height:16px;color:var(--color-text-secondary,#667085);margin-top:2px;overflow-wrap:anywhere;}
+.v460-methods{margin:12px 0;}
+.v460-method-readonly{margin-top:12px;}
+.v460-method-summary{border:1px solid var(--color-border-subtle,#e4e7ec);border-radius:10px;background:var(--color-surface,#fff);padding:12px 14px;display:grid;gap:4px;}
+.v460-method-summary strong{font-size:14px;line-height:20px;color:var(--color-text-primary,#1f2937);}
+.v460-method-summary span{font-size:12px;line-height:18px;color:var(--color-text-secondary,#667085);overflow-wrap:anywhere;}
+.v460-helper{font-size:12px;line-height:18px;color:var(--color-text-secondary,#667085);margin:4px 0 8px;}
+.v460-policy{margin-bottom:12px;}
+.v460-cost-total,.v460-cost-delta{margin-bottom:12px;}
+/* Disabled field must look disabled, not merely read-only. */
+#product-root input:disabled{cursor:not-allowed;opacity:.6;background:var(--color-surface-subtle,#f2f4f7);}
+@media (max-width:390px){.v460-allocation-row{grid-template-columns:1fr;gap:6px}.v460-allocation-row>strong{justify-self:start}.v460-choice{padding:10px}}

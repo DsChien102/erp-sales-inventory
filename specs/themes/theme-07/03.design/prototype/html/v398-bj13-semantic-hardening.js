@@ -65,10 +65,16 @@
   }
   function metricSnapshot(t,x,method=t.selectedMethod){
     const quantityMethod=method==='FIXTURE_QTY';
-    const value=quantityMethod?Math.max(0,Number(x.baseQty)||0):Math.max(0,Number(x.initialDirectValue)||0);
-    const unit=quantityMethod?'base_quantity':'initial_direct_value_vnd';
-    const version=quantityMethod?'METRIC-QTY-v1':'METRIC-INITIAL-VALUE-v1';
+    const value=quantityMethod?Math.max(0,Number(x.quantityMetricValue)||0):Math.max(0,Number(x.initialDirectValue)||0);
+    const unit=quantityMethod?(x.quantityMetricUnit||''):'initial_valuation_value_vnd';
+    const version=quantityMethod?(x.quantityMetricVersion||'METRIC-QTY-v2'):'METRIC-INITIAL-VALUE-v2';
     return {method,metricValue:value,unit,metricVersion:version,metricHash:stableHash({exposure:x.valuationExposureKey,method,value,unit,version})};
+  }
+  function methodEligible(t,method=t.selectedMethod){
+    const targets=selectedTargets(t);if(!targets.length)return false;
+    const metrics=targets.map(x=>metricSnapshot(t,x,method));
+    if(method==='FIXTURE_QTY'){const units=new Set(metrics.map(m=>m.unit).filter(Boolean));if(units.size!==1||metrics.some(m=>!m.unit))return false;}
+    return metrics.reduce((n,m)=>n+m.metricValue,0)>0;
   }
   function lateCostBasisPayload(t=val13Current()){
     const targets=selectedTargets(t).slice().sort((a,b)=>a.valuationExposureKey.localeCompare(b.valuationExposureKey));
@@ -79,12 +85,12 @@
     const selected=selectedTargets(t).slice().sort((a,b)=>a.valuationExposureKey.localeCompare(b.valuationExposureKey));
     const total=Number(t.normalizedAmount||0); if(!selected.length||t.normalizedAmount==null||!t.selectedMethod)return [];
     const metrics=selected.map(x=>metricSnapshot(t,x));
-    let weightTotal=metrics.reduce((n,m)=>n+m.metricValue,0); if(weightTotal<=0) weightTotal=selected.length;
+    const weightTotal=metrics.reduce((n,m)=>n+m.metricValue,0); if(weightTotal<=0||!methodEligible(t,t.selectedMethod))return [];
     const amounts=new Map(); let used=0;
     selected.forEach((x,i)=>{
-      const weight=metrics[i].metricValue>0?metrics[i].metricValue:(weightTotal===selected.length?1:0);
+      const weight=metrics[i].metricValue;
       const amount=i===selected.length-1?total-used:Math.round(total*(weight/weightTotal));
-      used+=amount; amounts.set(x.valuationExposureKey,{amount,metric:metrics[i]});
+      used+=amount; amounts.set(x.valuationExposureKey,{amount,metric:metrics[i],ratio:weight/weightTotal});
     });
     return selected.map((x,i)=>({...x,allocatedAmount:amounts.get(x.valuationExposureKey).amount,allocationMetric:amounts.get(x.valuationExposureKey).metric,roundingAdjustment:i===selected.length-1?total-selected.slice(0,-1).reduce((n,y)=>n+amounts.get(y.valuationExposureKey).amount,0)-amounts.get(x.valuationExposureKey).amount:0}));
   }
@@ -100,7 +106,7 @@
   }
   function allInitialValued(t=val13Current()){return selectedTargets(t).every(x=>x.initialValued);}
   function canOpen(t=val13Current()){return t.status==='ACTIONABLE'&&t.accountingRoute==='LATE'&&t.normalizedAmount!=null&&selectedTargets(t).length>0&&allInitialValued(t);}
-  function canPreview(t=val13Current()){return canOpen(t)&&t.allowedMethods.some(m=>m.id===t.selectedMethod);}
+  function canPreview(t=val13Current()){return canOpen(t)&&t.allowedMethods.some(m=>m.id===t.selectedMethod)&&methodEligible(t,t.selectedMethod)&&allocate(t).length>0;}
 
   val13SelectedTargets=selectedTargets;
   val13AllocationWeight=(target,method)=>metricSnapshot(val13Current(),target,method).metricValue;
@@ -110,7 +116,7 @@
   val13CanPreview=canPreview;
   val13DirtyScope=(t=val13Current())=>dirtyScopes(t).map(x=>x.label);
   val13StatusMeta=function(t){if(t.status==='WAITING')return [t.waitingOwner||'Đang chờ','neutral'];return ['', 'neutral'];};
-  val13ResetTaskDraft=function(t){for(const x of (t.targets||[]))x.selected=t.targetScopeMode==='FIXED'?true:true;t.selectedMethod=t.allowedMethods?.length===1?t.allowedMethods[0].id:'';val13ReviewSourceVersion=null;val13PreviewHash=null;val13LastSourceChange=null;};
+  val13ResetTaskDraft=function(t){for(const x of (t.targets||[]))x.selected=true;const eligible=(t.allowedMethods||[]).filter(m=>methodEligible(t,m.id));t.selectedMethod=eligible.length===1?eligible[0].id:(eligible.some(m=>m.id===t.selectedMethod)?t.selectedMethod:'');val13ReviewSourceVersion=null;val13PreviewHash=null;val13LastSourceChange=null;};
   val13SourceCard=function(t){
     const context=ds24ContextStatusRow({title:t.sourceRef,subtitle:`${t.component} · ${t.supplier}`,label:t.status==='WAITING'?'Đang chờ':'',tone:'neutral',leading:null});
     const facts=`${ds24InfoRow('Giá trị nguồn',val13FmtSourceAmount(t))}${t.currency!=='VND'&&t.fxLabel?ds24InfoRow('Tỷ giá',t.fxLabel):''}${t.normalizedAmount!=null?ds24KeyValueRow('Sau chuẩn hóa',val13FmtMoney(t.normalizedAmount),true):''}`;
@@ -208,6 +214,6 @@
     renderers['SCR-085']=render085IV13;renderers['SCR-086']=render086IV13;renderers['SCR-087']=render087IV13;renderers['SCR-088']=render088IV13;renderers['SCR-089']=render089IV13;
   }
 
-  window.val13V398={lateCostBasisPayload,lateCostBasisHash,allocationHash,combinedPreviewHash,metricSnapshot,allocate,dirtyScopes,periodGroups,allInitialValued,economicIdentity:(t=val13Current())=>t.sourceComponentKey,touchExposure:(id)=>{const t=val13Current(),x=t.targets.find(y=>y.id===id);if(!x)return false;x.exposureVersion+=1;x.exposureHash=stableHash({key:x.valuationExposureKey,version:x.exposureVersion,qty:x.baseQty,value:x.initialDirectValue,refs:x.receiptValuationRefs,businessDate:x.businessDate,original:x.originalPeriod,posting:x.postingPeriod});return true;},shuffleTargets:(t=val13Current())=>{t.targets.reverse();return true;}};
+  window.val13V398={lateCostBasisPayload,lateCostBasisHash,allocationHash,combinedPreviewHash,metricSnapshot,methodEligible,allocate,dirtyScopes,periodGroups,allInitialValued,economicIdentity:(t=val13Current())=>t.sourceComponentKey,touchExposure:(id)=>{const t=val13Current(),x=t.targets.find(y=>y.id===id);if(!x)return false;x.exposureVersion+=1;x.exposureHash=stableHash({key:x.valuationExposureKey,version:x.exposureVersion,qty:x.baseQty,value:x.initialDirectValue,refs:x.receiptValuationRefs,businessDate:x.businessDate,original:x.originalPeriod,posting:x.postingPeriod});return true;},shuffleTargets:(t=val13Current())=>{t.targets.reverse();return true;}};
   if(window.__VET45_PROTOTYPE__) window.__VET45_PROTOTYPE__.version='3.9.8';
 })();

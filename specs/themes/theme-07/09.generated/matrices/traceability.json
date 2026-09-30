@@ -1423,7 +1423,6 @@
     "screens_current": [
       "SCR-085",
       "SCR-086",
-      "SCR-088",
       "SCR-089"
     ],
     "delivery_slices_current": [
@@ -1432,7 +1431,6 @@
       "BE-13-03",
       "FE-SCR-085",
       "FE-SCR-086",
-      "FE-SCR-088",
       "FE-SCR-089"
     ],
     "ui_flow": "UIF-13",

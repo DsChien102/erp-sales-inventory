@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "version": "4.6.6",
+  "parent": "4.6.5",
+  "scope": "Review-workbench role simulation in Theo BJ / UIF only",
+  "role_source": "Screen Contract actors",
+  "business_logic_changed": false,
+  "qa": [
+    "03.design/prototype/html/qa/BJ-ROLE-SIMULATION-QA-v4.6.6.json",
+    "03.design/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.6.json"
+  ]
+}

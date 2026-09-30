@@ -1,0 +1,12 @@
+{
+  "status": "NOT_APPLICABLE",
+  "version": "4.6.1",
+  "parent": "4.6.0",
+  "reason": "Generic validate_theme_structure.py targets the older unnumbered know-how/srs/prototype/harness tree, while Theme 7 uses the approved numbered skeleton. Structural skeleton is unchanged from v4.6.0.",
+  "applied_gates": [
+    "CURRENT-PACKAGE-VALIDATION-v4.6.1",
+    "EVD-CANONICAL-LINKS-v4.6.1",
+    "VALUATION-AUTHORITY-E2E-v4.6.1",
+    "SNAPSHOT-LED-VISUAL-QA-v4.6.1"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@vet45/html-design-system",
+  "version": "1.5.0",
+  "description": "Shared executable HTML Design System for all VET45 theme prototypes; live-Figma naming/anatomy/tokens with Flutter DS 1.4.1 API and behavior traceability.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/vet45-ds.js",
+    "./tokens.css": "./src/tokens.css",
+    "./base.css": "./src/base.css",
+    "./components.css": "./src/components.css",
+    "./patterns.css": "./src/patterns.css",
+    "./templates.css": "./src/templates.css",
+    "./contracts/figma-source.json": "./contracts/figma-source.json",
+    "./contracts/component-map.json": "./contracts/component-map.json",
+    "./contracts/pattern-map.json": "./contracts/pattern-map.json",
+    "./contracts/icon-registry.json": "./contracts/icon-registry.json",
+    "./contracts/variant-contracts.json": "./contracts/variant-contracts.json",
+    "./contracts/flutter-source.json": "./contracts/flutter-source.json",
+    "./contracts/flutter-public-api.json": "./contracts/flutter-public-api.json",
+    "./contracts/parity-matrix.json": "./contracts/parity-matrix.json",
+    "./contracts/flutter-test-contracts.json": "./contracts/flutter-test-contracts.json",
+    "./contracts/canonical-registry.json": "./contracts/canonical-registry.json",
+    "./contracts/figma-token-snapshot.json": "./contracts/figma-token-snapshot.json",
+    "./contracts/flutter-vicons-map.json": "./contracts/flutter-vicons-map.json"
+  }
+}

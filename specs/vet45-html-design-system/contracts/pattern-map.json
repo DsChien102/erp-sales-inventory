@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 2,
+  "sourcePage": "505:5891",
+  "expectedMasterCount": 22,
+  "masters": [
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Sticky Footer",
+      "id": "549:927",
+      "kind": "component-set",
+      "html": ".v-sticky-footer",
+      "status": "canonical",
+      "variantCount": 5,
+      "rule": "Commerce keeps payable total visible; preserve safe area.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / FAB Placement",
+      "id": "549:958",
+      "kind": "component-set",
+      "html": ".v-fab-placement",
+      "status": "canonical",
+      "variantCount": 2,
+      "rule": "402px contract: FAB 16px from right and above footer/nav; toast never overlaps.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Keyboard-safe Action Bar",
+      "id": "549:1007",
+      "kind": "component-set",
+      "html": ".v-keyboard-safe",
+      "status": "canonical",
+      "variantCount": 2,
+      "rule": "Actions stay reachable above software keyboard.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Action Sheet",
+      "id": "550:999",
+      "kind": "component-set",
+      "html": ".v-action-sheet",
+      "status": "canonical",
+      "variantCount": 3,
+      "rule": "Destructive action is final row; opening sheet never executes action.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Confirmation Sheet",
+      "id": "550:1058",
+      "kind": "component-set",
+      "html": ".v-confirmation-sheet",
+      "status": "canonical",
+      "variantCount": 5,
+      "rule": "Plain/Reason/Warning; Reason reuses VTextField; Warning reuses VBanner; 16px inset, 44px safe bottom.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Filter Sheet",
+      "id": "1149:6895",
+      "kind": "component-set",
+      "html": ".v-filter-sheet",
+      "status": "canonical",
+      "variantCount": 2,
+      "rule": "Business groups/values are instance content.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Toast Layer",
+      "id": "550:1347",
+      "kind": "component-set",
+      "html": ".v-toast-layer",
+      "status": "canonical",
+      "variantCount": 3,
+      "rule": "Toast never covers primary controls, nav or FAB.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "State",
+      "figma": "Loading Overlay",
+      "id": "550:1298",
+      "kind": "component-set",
+      "html": ".v-loading-overlay",
+      "status": "canonical",
+      "variantCount": 2,
+      "rule": "Blocking reserved for operations that truly prevent interaction.",
+      "figmaSection": "08. State Patterns"
+    },
+    {
+      "category": "Interaction & Overlay",
+      "figma": "DS v2 / Select Sheet",
+      "id": "550:1148",
+      "kind": "component",
+      "html": ".v-select-sheet",
+      "status": "canonical",
+      "rule": "Tapping a row selects entity; confirmation only for multi-step/high-impact selection.",
+      "figmaSection": "04. Interaction & Overlay Patterns"
+    },
+    {
+      "category": "List",
+      "figma": "DS v2 / Search & Filter Header",
+      "id": "547:2306",
+      "kind": "component-set",
+      "html": ".v-search-filter-header",
+      "status": "canonical",
+      "variantCount": 3,
+      "rule": "Filter never overlaps search; chips use 44px interaction targets around 34px source visual pills; Brand = selected.",
+      "figmaSection": "05. List Patterns"
+    },
+    {
+      "category": "List",
+      "figma": "DS v2 / Search Results Dropdown",
+      "id": "1280:6272",
+      "kind": "component-set",
+      "html": ".v-search-results",
+      "status": "canonical",
+      "variantCount": 6,
+      "rule": "Anchored below search; internal scroll; no View all; states remain local.",
+      "figmaSection": "05. List Patterns"
+    },
+    {
+      "category": "List",
+      "figma": "DS v2 / Search Results Dropdown/Product/Results",
+      "id": "1280:6203",
+      "kind": "component",
+      "html": ".v-search-results[data-result-type=\"product\"][data-state=\"results\"]",
+      "status": "canonical",
+      "figmaSection": "05. List Patterns"
+    },
+    {
+      "category": "List",
+      "figma": "DS v2 / Search Results Dropdown/Entity/Results",
+      "id": "1280:6136",
+      "kind": "component",
+      "html": ".v-search-results[data-result-type=\"entity\"][data-state=\"results\"]",
+      "status": "canonical",
+      "figmaSection": "05. List Patterns"
+    },
+    {
+      "category": "Form",
+      "figma": "DS v2 / Form Sheet",
+      "id": "1353:6355",
+      "kind": "component",
+      "html": ".v-form-sheet",
+      "status": "canonical",
+      "rule": "Near-full-height sheet; canonical fields/Icon Button/Sticky Footer only; preserve 42px safe bottom.",
+      "figmaSection": "06. Form Patterns"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Root List",
+      "id": "551:549",
+      "kind": "component",
+      "html": ".v-template[data-template=\"root-list\"]",
+      "status": "canonical",
+      "rule": "Root list with Tenant nav by default; nav slot can swap Platform without changing 402x874 anatomy.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Nested List",
+      "id": "551:1277",
+      "kind": "component",
+      "html": ".v-template[data-template=\"nested-list\"]",
+      "status": "canonical",
+      "rule": "Back navigation, search/filter, optional tabs, scroll body; bottom nav omitted by default.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Detail",
+      "id": "551:1396",
+      "kind": "component",
+      "html": ".v-template[data-template=\"detail\"]",
+      "status": "canonical",
+      "rule": "Back nav, scrollable details, one valid primary action in sticky footer.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Form",
+      "id": "551:1452",
+      "kind": "component",
+      "html": ".v-template[data-template=\"form\"]",
+      "status": "canonical",
+      "rule": "Scrollable fields + Secondary/Primary sticky actions; inline validation; keyboard-safe action bar.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Wizard",
+      "id": "551:1530",
+      "kind": "component",
+      "html": ".v-template[data-template=\"wizard\"]",
+      "status": "canonical",
+      "rule": "Progress + step content + Secondary/Primary navigation.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Search & Select",
+      "id": "551:1621",
+      "kind": "component",
+      "html": ".v-template[data-template=\"search-select\"]",
+      "status": "canonical",
+      "rule": "Full-screen search/select; selecting returns unless confirmation explicitly required.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / State",
+      "id": "551:1746",
+      "kind": "component",
+      "html": ".v-template[data-template=\"state\"]",
+      "status": "canonical",
+      "rule": "Empty/error/no-permission/blocked/no-result; no unrelated disabled footer.",
+      "figmaSection": "09. Page Templates"
+    },
+    {
+      "category": "Page Template",
+      "figma": "Mobile / Identity",
+      "id": "551:1777",
+      "kind": "component",
+      "html": ".v-template[data-template=\"identity\"]",
+      "status": "canonical",
+      "rule": "Isolated brand area, auth fields, one primary action; no tenant/platform app navigation.",
+      "figmaSection": "09. Page Templates"
+    }
+  ],
+  "governance": {
+    "detailPatterns": "under-review",
+    "templates": "structure-not-business-content",
+    "stateRule": "Use the smallest scope that accurately represents affected content; Initial Empty is distinct from No Results."
+  }
+}

@@ -6,7 +6,7 @@ title: "Điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v4.0.0
+source_baseline: v4.6.0
 ui_flow: UIF-13
 ---
 
@@ -64,6 +64,7 @@ flowchart TD
 | JA-02 | Quyền lợi mới chỉ dự kiến hoặc lỗi do người dùng nhập sai fact cũ | Không ghi BJ13: forecast chỉ mô phỏng; lỗi nhập liệu đi BJ11/correction | UC-13-01 / BC-IV-04 |
 | JA-03 | Kỳ gốc đã khóa | Adjustment được ghi ở kỳ mở theo policy nhưng vẫn giữ liên kết kỳ gốc để đối soát | UC-13-01 / BC-IV-04 |
 | JA-04 | Adjustment commit thành công | Product + posting period bị ảnh hưởng được đánh dấu cần BJ14 tính lại; không tự công bố giá vốn | UC-13-01 / BC-IV-04 |
+| JA-05 | Dựng phân bổ | `allocation_i = signed amount × metric_i / Σmetric`; metric phải hợp lệ và so sánh được trên toàn scope, tổng metric bằng 0 thì chặn; residual theo stable exposure order, không chia đều fallback | UC-13-01 / BC-IV-06 |
 
 ## 8. Truy vết
 

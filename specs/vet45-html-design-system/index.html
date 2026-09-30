@@ -1,0 +1,531 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VET45 HTML Design System v1.5.0 · Component Explorer</title>
+<link rel="stylesheet" href="src/templates.css"><style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f6f8f9;color:var(--vet45-v2-text-primary)}.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}aside{position:sticky;top:0;height:100vh;overflow:auto;padding:20px;border-right:1px solid var(--vet45-v2-border-default);background:#fff}main{padding:28px;min-width:0}.brand{font:700 18px/24px var(--vet45-font-sans);margin-bottom:4px}.sub{font:400 12px/18px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary);margin-bottom:16px}.search{width:100%;height:40px;padding:0 12px;border:1px solid var(--vet45-v2-border-default);border-radius:8px;font:400 13px/20px var(--vet45-font-sans);margin-bottom:12px}.filter-list{display:flex;flex-direction:column;gap:4px}.filter-list button{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:8px;font:500 12px/18px var(--vet45-font-sans);cursor:pointer;color:var(--vet45-v2-text-primary)}.filter-list button:hover,.filter-list button.active{background:var(--vet45-v2-surface-brand);color:var(--vet45-v2-text-brand)}.filter-list span{float:right;color:var(--vet45-v2-text-secondary)}.hero{background:#fff;border:1px solid var(--vet45-v2-border-default);border-radius:18px;padding:24px;margin-bottom:22px}.hero h1{margin:0 0 8px;font:700 28px/34px var(--vet45-font-sans)}.hero p{margin:0;color:var(--vet45-v2-text-secondary);max-width:900px}.hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-meta span{border:1px solid var(--vet45-v2-border-default);border-radius:8px;padding:6px 9px;background:#fff;font:600 11px/16px var(--vet45-font-sans)}.category-section{margin:0 0 28px}.category-section>h2{font:700 22px/28px var(--vet45-font-sans);margin:0 0 12px}.category-section>h2 span{font:600 12px/16px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}.component-card{background:#fff;border:1px solid var(--vet45-v2-border-default);border-radius:16px;padding:16px;min-width:0}.component-card header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.component-card h3{font:700 16px/22px var(--vet45-font-sans);margin:2px 0 0}.component-category{font:600 10px/14px var(--vet45-font-sans);letter-spacing:.4px;text-transform:uppercase;color:var(--vet45-v2-text-brand)}.status{font:600 10px/14px var(--vet45-font-sans);padding:4px 7px;border-radius:999px;background:var(--vet45-v2-surface-success);color:var(--vet45-v2-text-success)}.trace{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.trace code{font:400 10px/14px var(--vet45-font-mono);padding:4px 6px;border-radius:6px;background:var(--vet45-v2-surface-subtle);color:var(--vet45-v2-text-secondary)}.preview-stage{min-height:148px;border:1px dashed var(--vet45-v2-border-default);border-radius:12px;padding:18px;background:#fbfcfc;display:flex;align-items:center;justify-content:center;overflow:auto}.preview-stage>.v-field,.preview-stage>.v-search,.preview-stage>.v-tabs,.preview-stage>.v-segmented,.preview-stage>.v-appbar,.preview-stage>.v-bottom-nav,.preview-stage>.v-step-progress,.preview-stage>.v-list-topbar{width:min(370px,100%)}.preview-stage>.v-modal,.preview-stage>.v-bottom-sheet,.preview-stage>.v-numeric-keypad,.preview-stage>.v-action-sheet,.preview-stage>.v-confirmation-sheet,.preview-stage>.v-filter-sheet,.preview-stage>.v-select-sheet,.preview-stage>.v-form-sheet{position:relative;box-shadow:var(--vet45-shadow-e2);max-width:370px}.variant-box{margin-top:12px;padding-top:12px;border-top:1px solid var(--vet45-v2-border-default)}.variant-title{font:600 11px/16px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary);margin-bottom:6px}.axis{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:5px 0}.axis b{font:600 11px/16px var(--vet45-font-sans);min-width:78px}.axis span,.axis-empty{font:500 10px/14px var(--vet45-font-sans);padding:4px 7px;border-radius:999px;background:var(--vet45-v2-surface-subtle);color:var(--vet45-v2-text-secondary)}.rule{font:400 11px/17px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary);margin:10px 0 0}.catalog-phone{width:201px;height:437px;overflow:hidden;border:1px solid var(--vet45-v2-border-default);border-radius:18px;background:#fff}.catalog-phone>.v-template{transform:scale(.5);transform-origin:top left}.catalog-generic{min-width:240px;min-height:80px;padding:14px;border:1px solid var(--vet45-v2-border-default);border-radius:10px;display:flex;flex-direction:column;gap:4px}.catalog-generic span{font:400 11px/16px var(--vet45-font-mono);color:var(--vet45-v2-text-secondary)}.hidden{display:none!important}.section-label{font:700 12px/16px var(--vet45-font-sans);letter-spacing:.5px;color:var(--vet45-v2-text-brand);text-transform:uppercase;margin:36px 0 12px}@media(max-width:900px){.shell{grid-template-columns:1fr}aside{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--vet45-v2-border-default)}main{padding:16px}.filter-list{display:grid;grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}}
+</style></head><body><div class="shell"><aside><div class="brand">VET45 HTML DS</div><div class="sub">v1.5.0 · Full Component Explorer<br>Figma DS 2.0.3 · Flutter DS 1.4.1</div><input id="q" class="search" placeholder="Tìm component, selector, node ID…"><div class="filter-list"><button class="active" data-filter="all">Tất cả <span>87</span></button><button data-filter="Interaction">Interaction <span>4</span></button><button data-filter="Actions">Actions <span>12</span></button><button data-filter="Inputs &amp; Selection">Inputs &amp; Selection <span>10</span></button><button data-filter="Navigation">Navigation <span>10</span></button><button data-filter="Data Display">Data Display <span>19</span></button><button data-filter="Feedback &amp; Status">Feedback &amp; Status <span>7</span></button><button data-filter="Overlays">Overlays <span>3</span></button><button data-filter="Interaction &amp; Overlay">Interaction &amp; Overlay <span>8</span></button><button data-filter="State">State <span>1</span></button><button data-filter="List">List <span>4</span></button><button data-filter="Form">Form <span>1</span></button><button data-filter="Page Template">Page Template <span>8</span></button></div></aside><main><section class="hero"><h1>Component Explorer đầy đủ</h1><p>Trang này là catalog dùng để review Design System. Mỗi master Figma hiện có đều phải xuất hiện bằng preview thật, kèm selector HTML, node ID và variant/property contract. Nếu master mới được thêm vào Figma mà catalog chưa có, release gate phải fail.</p><div class="hero-meta"><span>65 component masters</span><span>22 patterns/templates</span><span>87 visual masters</span><span>59 variant sets</span><span>35 approved icons</span><span>402×874 mobile reference</span></div></section><div class="section-label">Components</div><section class="category-section" data-cat="Interaction"><h2>Interaction <span>4</span></h2><div class="cards"><article class="component-card" id="master-1062-8765" data-search="ds v2 / collapsible note interaction .v-collapsible" data-category="Interaction">
+<header><div><div class="component-category">Interaction</div><h3>DS v2 / Collapsible Note</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1062:8765</code><code>HTML impl: .v-collapsible</code></div>
+<div class="preview-stage"><div class="v-collapsible" data-state="collapsed"><div class="v-collapsible__header"><strong style="flex:1">Ghi chú</strong><span data-v-icon="chevron-down" data-size="20"></span></div><div class="v-collapsible__body"><textarea class="v-control">Nội dung mở rộng</textarea></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Collapsed</span><span>Expanded</span></div></div>
+<p class="rule">Collapsed uses chevron-down; expanded uses chevron-up; expanded body reuses VTextarea.</p>
+</article><article class="component-card" id="master-1001-7250" data-search="vswipeactionrecord interaction .v-swipe-record" data-category="Interaction">
+<header><div><div class="component-category">Interaction</div><h3>VSwipeActionRecord</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1001:7250</code><code>HTML impl: .v-swipe-record</code><code>Flutter: VSwipeReveal</code></div>
+<div class="preview-stage"><div class="v-swipe-record" data-status="hidden" data-action="hidden"><div class="v-swipe-record__action">Xóa</div><div class="v-swipe-record__record"><div class="v-record-card"><strong>Phiếu mẫu</strong></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Status</b><span>Hidden</span><span>Visible</span></div><div class="axis"><b>Action</b><span>Hidden</span><span>Revealed</span></div></div>
+<p class="rule">Swipe reveals action only; consuming feature owns confirmation/destination.</p>
+</article><article class="component-card" id="master-2144-9874" data-search="ds v2 / financial disclosure/collapsed interaction .v-financial-disclosure[data-state=&quot;collapsed&quot;]" data-category="Interaction">
+<header><div><div class="component-category">Interaction</div><h3>DS v2 / Financial Disclosure/Collapsed</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 2144:9874</code><code>HTML impl: .v-financial-disclosure[data-state=&quot;collapsed&quot;]</code></div>
+<div class="preview-stage"><div class="v-financial-disclosure" data-state="collapsed"><div class="v-financial-disclosure__header"><strong style="flex:1">Chi tiết tài chính</strong><span data-v-icon="chevron-down" data-size="20"></span></div><div class="v-financial-disclosure__body"><div class="v-kv-row"><span class="v-kv-row__key">Tổng</span><span class="v-kv-row__value">1.250.000 ₫</span></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-2144-9886" data-search="ds v2 / financial disclosure/expanded interaction .v-financial-disclosure[data-state=&quot;expanded&quot;]" data-category="Interaction">
+<header><div><div class="component-category">Interaction</div><h3>DS v2 / Financial Disclosure/Expanded</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 2144:9886</code><code>HTML impl: .v-financial-disclosure[data-state=&quot;expanded&quot;]</code></div>
+<div class="preview-stage"><div class="v-financial-disclosure" data-state="expanded"><div class="v-financial-disclosure__header"><strong style="flex:1">Chi tiết tài chính</strong><span data-v-icon="chevron-down" data-size="20"></span></div><div class="v-financial-disclosure__body"><div class="v-kv-row"><span class="v-kv-row__key">Tổng</span><span class="v-kv-row__value">1.250.000 ₫</span></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article></div></section><section class="category-section" data-cat="Actions"><h2>Actions <span>12</span></h2><div class="cards"><article class="component-card" id="master-521-529" data-search="vbutton actions .v-btn" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>VButton</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:529</code><code>HTML impl: .v-btn</code><code>Flutter: VButton</code></div>
+<div class="preview-stage"><button class="v-btn" data-hierarchy="primary" data-state="default" data-size="small"><span class="v-btn-leading" data-v-icon="plus" data-size="16" data-tone="inverse"></span><span>Thao tác</span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Hierarchy</b><span>Primary</span><span>Secondary</span><span>Tertiary</span><span>Danger</span></div><div class="axis"><b>State</b><span>Default</span><span>Pressed</span><span>Disabled</span><span>Loading</span></div><div class="axis"><b>Size</b><span>Small</span><span>Default</span><span>Large</span></div></div>
+<p class="rule">One clear Primary per screen; destructive uses Danger and confirmation; disabled = root opacity .4.</p>
+</article><article class="component-card" id="master-4431-10317" data-search="ds v2 / icon button actions .v-icon-btn" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / Icon Button</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 4431:10317</code><code>HTML impl: .v-icon-btn</code></div>
+<div class="preview-stage"><button class="v-icon-btn" data-hierarchy="neutral" data-state="default" data-size="default"><span data-v-icon="ellipsis" data-size="20" data-tone="primary"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Hierarchy</b><span>Neutral</span><span>Brand</span><span>Danger</span></div><div class="axis"><b>State</b><span>Default</span><span>Pressed</span><span>Disabled</span></div><div class="axis"><b>Size</b><span>Default</span><span>Large</span></div></div>
+<p class="rule">44px minimum target; Brand only active/selected; Danger only destructive.</p>
+</article><article class="component-card" id="master-4431-10396" data-search="ds v2 / link actions .v-link" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / Link</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 4431:10396</code><code>HTML impl: .v-link</code></div>
+<div class="preview-stage"><a class="v-link" data-tone="default" data-state="default">Liên kết</a></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Default</span><span>Danger</span></div><div class="axis"><b>State</b><span>Default</span><span>Pressed</span><span>Disabled</span></div></div>
+<p class="rule">Default brand text; Danger reserved for destructive/session-ending links.</p>
+</article><article class="component-card" id="master-521-663" data-search="ds v2 / fab/default/default actions .v-fab[data-size=&quot;default&quot;][data-state=&quot;default&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Default/Default</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:663</code><code>HTML impl: .v-fab[data-size=&quot;default&quot;][data-state=&quot;default&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="default" data-state="default"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-669" data-search="ds v2 / fab/default/pressed actions .v-fab[data-size=&quot;default&quot;][data-state=&quot;pressed&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Default/Pressed</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:669</code><code>HTML impl: .v-fab[data-size=&quot;default&quot;][data-state=&quot;pressed&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="default" data-state="pressed"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-674" data-search="ds v2 / fab/default/disabled actions .v-fab[data-size=&quot;default&quot;][data-state=&quot;disabled&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Default/Disabled</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:674</code><code>HTML impl: .v-fab[data-size=&quot;default&quot;][data-state=&quot;disabled&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="default" data-state="disabled"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-679" data-search="ds v2 / fab/small/default actions .v-fab[data-size=&quot;small&quot;][data-state=&quot;default&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Small/Default</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:679</code><code>HTML impl: .v-fab[data-size=&quot;small&quot;][data-state=&quot;default&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="small" data-state="default"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-684" data-search="ds v2 / fab/small/pressed actions .v-fab[data-size=&quot;small&quot;][data-state=&quot;pressed&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Small/Pressed</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:684</code><code>HTML impl: .v-fab[data-size=&quot;small&quot;][data-state=&quot;pressed&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="small" data-state="pressed"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-689" data-search="ds v2 / fab/small/disabled actions .v-fab[data-size=&quot;small&quot;][data-state=&quot;disabled&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / FAB/Small/Disabled</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:689</code><code>HTML impl: .v-fab[data-size=&quot;small&quot;][data-state=&quot;disabled&quot;]</code><code>Flutter: VFloatingActionButton</code></div>
+<div class="preview-stage"><button class="v-fab" data-size="small" data-state="disabled"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-695" data-search="ds v2 / action row/default actions .v-action-row[data-tone=&quot;default&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / Action Row/Default</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:695</code><code>HTML impl: .v-action-row[data-tone=&quot;default&quot;]</code></div>
+<div class="preview-stage"><div class="v-action-row" data-tone="default"><span data-v-icon="ellipsis" data-size="20" data-tone="primary"></span><div class="v-action-row__copy"><div class="v-action-row__title">Tên thao tác</div><div class="v-action-row__description">Mô tả ngắn về kết quả thao tác</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-708" data-search="ds v2 / action row/danger actions .v-action-row[data-tone=&quot;danger&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / Action Row/Danger</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:708</code><code>HTML impl: .v-action-row[data-tone=&quot;danger&quot;]</code></div>
+<div class="preview-stage"><div class="v-action-row" data-tone="danger"><span data-v-icon="trash-2" data-size="20" data-tone="danger"></span><div class="v-action-row__copy"><div class="v-action-row__title">Tên thao tác</div><div class="v-action-row__description">Mô tả ngắn về kết quả thao tác</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="danger"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-521-720" data-search="ds v2 / action row/disabled actions .v-action-row[data-state=&quot;disabled&quot;]" data-category="Actions">
+<header><div><div class="component-category">Actions</div><h3>DS v2 / Action Row/Disabled</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 521:720</code><code>HTML impl: .v-action-row[data-state=&quot;disabled&quot;]</code></div>
+<div class="preview-stage"><div class="v-action-row" data-state="disabled"><span data-v-icon="ellipsis" data-size="20" data-tone="primary"></span><div class="v-action-row__copy"><div class="v-action-row__title">Tên thao tác</div><div class="v-action-row__description">Mô tả ngắn về kết quả thao tác</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article></div></section><section class="category-section" data-cat="Inputs &amp; Selection"><h2>Inputs &amp; Selection <span>10</span></h2><div class="cards"><article class="component-card" id="master-522-7186" data-search="vtextfield inputs &amp; selection .v-field[data-kind=&quot;text&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VTextField</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7186</code><code>HTML impl: .v-field[data-kind=&quot;text&quot;]</code><code>Flutter: VTextField</code></div>
+<div class="preview-stage"><div class="v-field" data-catalog="figma" data-kind="text" data-state="default"><label>Nhãn trường</label><input class="v-control" placeholder="Nhập thông tin..."><span class="v-helper">Hướng dẫn hoặc mô tả ngắn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Error</span><span>Disabled</span></div></div>
+<p class="rule">Disabled is non-interactive and uses root opacity .4. Error copy explains correction.</p>
+</article><article class="component-card" id="master-522-7212" data-search="vtextarea inputs &amp; selection .v-field[data-kind=&quot;textarea&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VTextarea</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7212</code><code>HTML impl: .v-field[data-kind=&quot;textarea&quot;]</code><code>Flutter: VTextArea</code></div>
+<div class="preview-stage"><div class="v-field" data-catalog="figma" data-kind="textarea" data-state="default"><label>Nhãn trường</label><textarea class="v-control" placeholder="Nhập nội dung..."></textarea><span class="v-helper">Hướng dẫn hoặc mô tả ngắn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Error</span><span>Disabled</span></div></div>
+<p class="rule">Disabled is non-interactive and uses root opacity .4. Error copy explains correction.</p>
+</article><article class="component-card" id="master-522-7322" data-search="vmoneyfield inputs &amp; selection .v-field[data-kind=&quot;money&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VMoneyField</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7322</code><code>HTML impl: .v-field[data-kind=&quot;money&quot;]</code><code>Flutter: VMoneyField</code></div>
+<div class="preview-stage"><div class="v-field" data-catalog="figma" data-kind="money" data-state="default"><label>Nhãn trường</label><div class="v-money-shell"><input placeholder="Nhập số tiền"><span class="v-money-shell__currency">₫</span></div><span class="v-helper">Hướng dẫn hoặc mô tả ngắn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Error</span><span>Disabled</span></div></div>
+<p class="rule">Disabled is non-interactive and uses root opacity .4. Error copy explains correction.</p>
+</article><article class="component-card" id="master-522-7397" data-search="vcheckbox inputs &amp; selection .v-checkrow[data-kind=&quot;checkbox&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VCheckbox</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7397</code><code>HTML impl: .v-checkrow[data-kind=&quot;checkbox&quot;]</code><code>Flutter: VCheckbox</code></div>
+<div class="preview-stage"><div class="v-checkrow" data-kind="checkbox" data-state="off"><span class="v-checkbox"></span><span>Lựa chọn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Off</span><span>On</span><span>Disabled Off</span><span>Disabled On</span></div></div>
+
+</article><article class="component-card" id="master-522-7410" data-search="vradio inputs &amp; selection .v-checkrow[data-kind=&quot;radio&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VRadio</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7410</code><code>HTML impl: .v-checkrow[data-kind=&quot;radio&quot;]</code><code>Flutter: VRadio</code></div>
+<div class="preview-stage"><div class="v-checkrow" data-kind="radio" data-state="off"><span class="v-radio"></span><span>Lựa chọn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Off</span><span>On</span><span>Disabled Off</span><span>Disabled On</span></div></div>
+
+</article><article class="component-card" id="master-522-7427" data-search="vswitch inputs &amp; selection .v-checkrow[data-kind=&quot;switch&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VSwitch</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7427</code><code>HTML impl: .v-checkrow[data-kind=&quot;switch&quot;]</code><code>Flutter: VSwitch</code></div>
+<div class="preview-stage"><div class="v-checkrow v-switch-row" data-kind="switch" data-state="off"><span class="v-switch"></span><span>Bật thiết lập</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Off</span><span>On</span><span>Disabled Off</span><span>Disabled On</span></div></div>
+
+</article><article class="component-card" id="master-522-7291" data-search="vselect inputs &amp; selection .v-field[data-kind=&quot;select&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VSelect</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7291</code><code>HTML impl: .v-field[data-kind=&quot;select&quot;]</code><code>Flutter: VSelect</code></div>
+<div class="preview-stage"><div class="v-field" data-catalog="figma" data-kind="select" data-state="default"><label>Lựa chọn</label><div class="v-select-shell"><span class="v-select-shell__value">Nhập thông tin...</span><span data-v-icon="chevron-down" data-size="20" data-tone="secondary"></span></div><span class="v-helper">Hướng dẫn hoặc mô tả ngắn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Error</span><span>Disabled</span></div></div>
+<p class="rule">Disabled is non-interactive and uses root opacity .4. Error copy explains correction.</p>
+</article><article class="component-card" id="master-522-7245" data-search="vsearchbar inputs &amp; selection .v-search" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VSearchBar</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7245</code><code>HTML impl: .v-search</code><code>Flutter: VSearchBar</code></div>
+<div class="preview-stage"><div class="v-search" data-state="default"><span data-v-icon="search" data-size="20"></span><input class="v-control" value="" placeholder="Tìm kiếm"><span class="v-search__clear"><span data-v-icon="x" data-size="20" data-tone="secondary"></span></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Disabled</span></div></div>
+
+</article><article class="component-card" id="master-522-7368" data-search="vdatepicker inputs &amp; selection .v-field[data-kind=&quot;date&quot;]" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VDatePicker</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7368</code><code>HTML impl: .v-field[data-kind=&quot;date&quot;]</code><code>Flutter: VDatePicker</code></div>
+<div class="preview-stage"><div class="v-field" data-catalog="figma" data-kind="date" data-state="default"><label>Ngày áp dụng</label><div class="v-date-shell"><span class="v-date-shell__value">dd/mm/yyyy</span><span data-v-icon="clock" data-size="20" data-tone="secondary"></span></div><span class="v-helper">Hướng dẫn hoặc mô tả ngắn</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Focused</span><span>Filled</span><span>Error</span><span>Disabled</span></div></div>
+<p class="rule">Disabled is non-interactive and uses root opacity .4. Error copy explains correction.</p>
+</article><article class="component-card" id="master-522-7507" data-search="vfiledropzone inputs &amp; selection .v-dropzone" data-category="Inputs &amp; Selection">
+<header><div><div class="component-category">Inputs &amp; Selection</div><h3>VFileDropZone</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7507</code><code>HTML impl: .v-dropzone</code><code>Flutter: VFileDropZone</code></div>
+<div class="preview-stage"><div class="v-dropzone" data-state="default"><span data-v-icon="file-text" data-size="24" data-tone="primary"></span><div class="v-dropzone__title">Chọn hoặc kéo tệp</div><div class="v-dropzone__support">PDF, XLSX hoặc ảnh · tối đa 10 MB</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Drag</span><span>Error</span><span>Disabled</span></div></div>
+
+</article></div></section><section class="category-section" data-cat="Navigation"><h2>Navigation <span>10</span></h2><div class="cards"><article class="component-card" id="master-547-1594" data-search="vappbar navigation .v-appbar" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VAppBar</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:1594</code><code>HTML impl: .v-appbar</code><code>Flutter: VAppBar</code></div>
+<div class="preview-stage"><div class="v-appbar" data-type="root"><div class="v-appbar__copy"><div class="v-appbar__title">Tổng quan</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Root</span><span>Back</span><span>Context</span><span>Root context</span></div></div>
+<p class="rule">56px mobile bar; 16px horizontal inset; explicit 8px gaps; no bottom border in source master.</p>
+</article><article class="component-card" id="master-522-7478" data-search="vtab navigation .v-tab" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VTab</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7478</code><code>HTML impl: .v-tab</code></div>
+<div class="preview-stage"><div class="v-tab" data-state="default" style="width:201px;flex:none">Danh sách</div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Active</span><span>Disabled</span></div></div>
+<p class="rule">Standard 2-tab mobile layout = 201px each on 402px; active indicator 2px full width.</p>
+</article><article class="component-card" id="master-547-2501" data-search="vtabs navigation .v-tabs" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VTabs</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:2501</code><code>HTML impl: .v-tabs</code><code>Flutter: VTabs</code></div>
+<div class="preview-stage"><div class="v-tabs"><div class="v-tab" data-state="active">Tất cả</div><div class="v-tab">Đang xử lý</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Items</b><span>2</span><span>3</span></div></div>
+<p class="rule">2 or 3 peer views; not primary app navigation.</p>
+</article><article class="component-card" id="master-1049-9619" data-search="vsegmentedcontrol  navigation .v-segmented" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VSegmentedControl </h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1049:9619</code><code>HTML impl: .v-segmented</code><code>Flutter: VSegmentedControl</code></div>
+<div class="preview-stage"><div class="v-segmented"><div class="v-segmented__item" data-selected="true">Mục 1</div><div class="v-segmented__item">Mục 2</div><div class="v-segmented__item">Mục 3</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Selected</b><span>1</span><span>2</span><span>3</span></div></div>
+<p class="rule">Three mutually exclusive options; each remains within a 44px overall target.</p>
+</article><article class="component-card" id="master-526-4417" data-search="vsteps navigation .v-step-item" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VSteps</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4417</code><code>HTML impl: .v-step-item</code><code>Flutter: VSteps</code></div>
+<div class="preview-stage"><div class="v-step-item" data-state="complete"><div class="v-step-item__marker">1</div><div><strong>Bước xử lý</strong><div class="v-body-sm v-muted">Mô tả bước</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Complete</span><span>Current</span><span>Upcoming</span><span>Error</span></div></div>
+<p class="rule">Single step item primitive for wizard/list-style progress.</p>
+</article><article class="component-card" id="master-570-164" data-search="vbottomnavigationbar / tenant navigation .v-bottom-nav[data-app=&quot;tenant&quot;]" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VBottomNavigationBar / Tenant</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 570:164</code><code>HTML impl: .v-bottom-nav[data-app=&quot;tenant&quot;]</code><code>Flutter: VBottomNavigationBar</code></div>
+<div class="preview-stage"><div class="v-bottom-nav" data-app="tenant" data-active="1"><div class="v-bottom-nav__item" data-active="true"><span data-v-icon="package" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="search" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="plus" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="history" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="settings" data-size="22"></span></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Active</b><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div>
+<p class="rule">402x72; 48px interaction zone + 20px safe area; icon-only, accessible names in implementation.</p>
+</article><article class="component-card" id="master-547-2463" data-search="vbottomnavigationbar / platform navigation .v-bottom-nav[data-app=&quot;platform&quot;]" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VBottomNavigationBar / Platform</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:2463</code><code>HTML impl: .v-bottom-nav[data-app=&quot;platform&quot;]</code><code>Flutter: VBottomNavigationBar</code></div>
+<div class="preview-stage"><div class="v-bottom-nav" data-app="platform" data-active="1"><div class="v-bottom-nav__item" data-active="true"><span data-v-icon="package" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="search" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="plus" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="history" data-size="22"></span></div><div class="v-bottom-nav__item" data-active="false"><span data-v-icon="settings" data-size="22"></span></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Active</b><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div>
+<p class="rule">402x72; icon-only; active Brand, inactive Secondary.</p>
+</article><article class="component-card" id="master-547-2618" data-search="vstepprogress navigation .v-step-progress" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>VStepProgress</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:2618</code><code>HTML impl: .v-step-progress</code></div>
+<div class="preview-stage"><div class="v-step-progress"><div class="v-step-progress__point" data-state="complete">1</div><div class="v-step-progress__connector" data-complete="true"></div><div class="v-step-progress__point" data-state="current">2</div><div class="v-step-progress__connector"></div><div class="v-step-progress__point">3</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Current</b><span>1</span><span>2</span><span>3</span><span>4</span></div></div>
+<p class="rule">Responsive connected step progress; completed Brand; future Border/Default.</p>
+</article><article class="component-card" id="master-547-2223" data-search="ds v2 / list top bar navigation .v-list-topbar" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>DS v2 / List Top Bar</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:2223</code><code>HTML impl: .v-list-topbar</code></div>
+<div class="preview-stage"><div class="v-list-topbar" data-type="default"><div class="v-list-topbar__title">Danh sách</div><div class="v-list-topbar__count">12 mục</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Default</span><span>Count</span><span>Action</span></div></div>
+<p class="rule">Count is metadata; optional action is icon-only with 44px target.</p>
+</article><article class="component-card" id="master-1713-9357" data-search="ds v2 / context header navigation .v-context-header" data-category="Navigation">
+<header><div><div class="component-category">Navigation</div><h3>DS v2 / Context Header</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1713:9357</code><code>HTML impl: .v-context-header</code></div>
+<div class="preview-stage"><div class="v-context-header"><div class="v-context-header__identity"><div class="v-context-header__title">Kho mặc định</div><div class="v-context-header__subtitle">Đang hoạt động</div></div><div class="v-context-header__actions"><span data-v-icon="ellipsis" data-size="20"></span></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">370x44 dense context header; one-line title/subtitle; two 44px text actions; actions must not wrap.</p>
+</article></div></section><section class="category-section" data-cat="Data Display"><h2>Data Display <span>19</span></h2><div class="cards"><article class="component-card" id="master-525-284" data-search="vavatar data display .v-avatar" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>VAvatar</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:284</code><code>HTML impl: .v-avatar</code><code>Flutter: VAvatar</code></div>
+<div class="preview-stage"><div class="v-avatar" data-type="initials" data-size="32">NA</div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Initials</span><span>Icon</span></div><div class="axis"><b>Size</b><span>32</span><span>40</span><span>48</span></div></div>
+<p class="rule">Initials or user icon; images may replace fill while preserving size/shape.</p>
+</article><article class="component-card" id="master-525-309" data-search="vbadge data display .v-badge" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>VBadge</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:309</code><code>HTML impl: .v-badge</code><code>Flutter: VBadge</code></div>
+<div class="preview-stage"><span class="v-badge" data-tone="neutral" data-style="soft">Nhãn</span></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Neutral</span><span>Success</span><span>Warning</span><span>Danger</span><span>Info</span></div><div class="axis"><b>Style</b><span>Soft</span><span>Strong</span></div></div>
+<p class="rule">30px visual height; Soft for status-like, Strong for higher emphasis; semantic tone.</p>
+</article><article class="component-card" id="master-522-7449" data-search="vchip data display .v-chip" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>VChip</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 522:7449</code><code>HTML impl: .v-chip</code><code>Flutter: VChip</code></div>
+<div class="preview-stage"><span class="v-chip" data-tone="neutral" data-state="default">Nhãn</span></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Neutral</span><span>Brand</span><span>Success</span><span>Warning</span><span>Danger</span></div><div class="axis"><b>State</b><span>Default</span><span>Disabled</span></div></div>
+<p class="rule">34px visual pill; Neutral/Default white; Brand/Default selected; disabled preserves base visual with opacity .4.</p>
+</article><article class="component-card" id="master-525-382" data-search="ds v2 / metric card data display .v-metric-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Metric Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:382</code><code>HTML impl: .v-metric-card</code></div>
+<div class="preview-stage"><div class="v-card v-metric-card" data-trend="neutral"><div class="v-metric-card__label">Doanh thu</div><div class="v-metric-card__value">245.800.000₫</div><div class="v-metric-card__trend">— 0%</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Trend</b><span>Neutral</span><span>Up</span><span>Down</span></div></div>
+<p class="rule">Financial values use canonical numeric style.</p>
+</article><article class="component-card" id="master-525-539" data-search="ds v2 / entity card data display .v-entity-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Entity Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:539</code><code>HTML impl: .v-entity-card</code></div>
+<div class="preview-stage"><div class="v-entity-card" data-state="default"><span data-v-icon="warehouse" data-size="24"></span><div style="flex:1"><strong>Kho mặc định</strong><div class="v-body-sm v-muted">12 sản phẩm</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Selected</span><span>Disabled</span></div></div>
+<p class="rule">Selection changes surface/border only; business state stays nested/property.</p>
+</article><article class="component-card" id="master-525-552" data-search="ds v2 / summary card data display .v-summary-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Summary Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:552</code><code>HTML impl: .v-summary-card</code></div>
+<div class="preview-stage"><div class="v-summary-card" data-tone="neutral"><div class="v-summary-card__title">Tóm tắt</div><div class="v-summary-card__body">Nội dung tóm tắt quan trọng cho người dùng.</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Neutral</span><span>Brand</span><span>Warning</span><span>Danger</span></div></div>
+<p class="rule">Semantic tone only when summary communicates real warning/danger.</p>
+</article><article class="component-card" id="master-567-557" data-search="ds v2 / media card data display .v-media-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Media Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 567:557</code><code>HTML impl: .v-media-card</code></div>
+<div class="preview-stage"><div class="v-media-card" data-state="default" data-size="large"><div style="width:64px;height:64px;border-radius:8px;background:var(--vet45-v2-surface-subtle)"></div><div><strong>Sản phẩm mẫu</strong><div class="v-body-sm v-muted">SKU-001</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Pressed</span><span>Selected</span><span>Disabled</span></div><div class="axis"><b>Size</b><span>small</span><span>large</span></div></div>
+<p class="rule">Generic image-led card; do not substitute for Product Result or Order Line.</p>
+</article><article class="component-card" id="master-1001-7201" data-search="ds v2 / record card data display .v-record-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Record Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1001:7201</code><code>HTML impl: .v-record-card</code></div>
+<div class="preview-stage"><div class="v-record-card" data-status="hidden"><strong>Phiếu nhập #PN001</strong><div class="v-body-sm v-muted">Hôm nay · 10:30</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Status</b><span>Hidden</span><span>Visible</span></div></div>
+<p class="rule">Business labels/meaning belong to instances.</p>
+</article><article class="component-card" id="master-525-351" data-search="ds v2 / info row data display .v-info-row" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Info Row</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:351</code><code>HTML impl: .v-info-row</code></div>
+<div class="preview-stage"><div class="v-info-row" data-state="default"><span class="v-info-row__label">Nhãn</span><span class="v-info-row__value">Giá trị</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Disabled</span></div></div>
+<p class="rule">Read-only supporting metadata, not primary navigation.</p>
+</article><article class="component-card" id="master-525-358" data-search="ds v2 / key-value row data display .v-kv-row" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Key-value Row</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:358</code><code>HTML impl: .v-kv-row</code></div>
+<div class="preview-stage"><div class="v-kv-row" data-state="default"><span class="v-kv-row__key">Nhãn</span><span class="v-kv-row__value">1.250.000 ₫</span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Emphasis</span></div></div>
+<p class="rule">Emphasis reserved for totals/summary outcomes.</p>
+</article><article class="component-card" id="master-525-519" data-search="ds v2 / list row data display .v-list-row" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / List Row</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:519</code><code>HTML impl: .v-list-row</code></div>
+<div class="preview-stage"><div class="v-list-row" data-type="navigation" data-state="default" data-density="default"><span data-v-icon="package" data-size="24"></span><div class="v-list-row__content" style="flex:1"><strong>Sản phẩm A</strong><div class="v-body-sm v-muted">SKU-001</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Navigation</span><span>Selection</span><span>Status</span></div><div class="axis"><b>State</b><span>Default</span><span>Pressed</span><span>Selected</span><span>Disabled</span></div><div class="axis"><b>Density</b><span>Default</span><span>Compact</span></div></div>
+<p class="rule">Canonical navigation/selection/status anatomy; Compact intended for dense mobile summaries.</p>
+</article><article class="component-card" id="master-525-587" data-search="ds v2 / timeline item data display .v-timeline-item" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Timeline Item</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:587</code><code>HTML impl: .v-timeline-item</code></div>
+<div class="preview-stage"><div class="v-timeline-item" data-state="default"><div class="v-timeline-item__marker"></div><div><strong>Đã cập nhật</strong><div class="v-body-sm v-muted">10:30 · Hôm nay</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Success</span><span>Warning</span><span>Danger</span></div></div>
+<p class="rule">State indicates semantic outcome, not domain type.</p>
+</article><article class="component-card" id="master-525-621" data-search="ds v2 / audit item data display .v-audit-item" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Audit Item</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 525:621</code><code>HTML impl: .v-audit-item</code></div>
+<div class="preview-stage"><div class="v-audit-item" data-type="create"><span data-v-icon="plus" data-size="20"></span><div class="v-audit-item__copy"><div class="v-audit-item__title">Đã tạo bản ghi</div><div class="v-audit-item__meta">Nguyễn Văn An · 14:32</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Create</span><span>Update</span><span>Delete</span><span>System</span></div></div>
+<p class="rule">Delete is Danger; other events remain neutral unless outcome is semantic.</p>
+</article><article class="component-card" id="master-791-24159" data-search="ds v2 / avata card data display .v-avatar-card" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Avata Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 791:24159</code><code>HTML impl: .v-avatar-card</code></div>
+<div class="preview-stage"><div class="v-avatar-card" data-state="selected"><div class="v-avatar-card__avatar">TH</div><div class="v-avatar-card__name">Trần Thị Hoa</div><div class="v-avatar-card__email">hoa@minhphat.vn</div><div class="v-avatar-card__role">Kế toán</div><div class="v-avatar-card__radio"></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Pressed</span><span>Selected</span><span>Defualt</span><span>Disable</span></div></div>
+<p class="rule">Source spelling preserved for traceability.</p>
+</article><article class="component-card" id="master-1234-6260" data-search="ds v2 / product result card data display .v-product-result" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Product Result Card</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1234:6260</code><code>HTML impl: .v-product-result</code></div>
+<div class="preview-stage"><div class="v-product-result" data-state="default"><div class="v-product-result__image"><span data-v-icon="image" data-size="24" data-tone="secondary"></span></div><div class="v-product-result__copy"><div class="v-product-result__name">AD3EC 5L (tyx)</div><div class="v-product-result__commercial">Phụ gia thức ăn chăn nuôi - Can 5 lít</div><div class="v-product-result__footer"><div class="v-product-result__price">2.350.000đ</div><div class="v-product-result__unit">Can</div><div class="v-product-result__spacer"></div><div class="v-product-result__stock">25</div></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Low stock</span><span>Out of stock</span><span>Disabled</span></div></div>
+<p class="rule">Read-only product selection anatomy; do not use for editable order lines.</p>
+</article><article class="component-card" id="master-1683-5847" data-search="ds v2 / order line row data display .v-order-line" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Order Line Row</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1683:5847</code><code>HTML impl: .v-order-line</code></div>
+<div class="preview-stage"><div class="v-order-line" data-state="default" data-media="box"><div class="v-order-line__inner"><div class="v-order-line__image"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.25 3.55859L13.75 7.85026" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 6.66626C17.4997 6.37399 17.4225 6.08693 17.2763 5.8339C17.13 5.58086 16.9198 5.37073 16.6667 5.22459L10.8333 1.89126C10.58 1.74498 10.2926 1.66797 10 1.66797C9.70744 1.66797 9.42003 1.74498 9.16667 1.89126L3.33333 5.22459C3.08022 5.37073 2.86998 5.58086 2.72372 5.8339C2.57745 6.08693 2.5003 6.37399 2.5 6.66626V13.3329C2.5003 13.6252 2.57745 13.9123 2.72372 14.1653C2.86998 14.4183 3.08022 14.6285 3.33333 14.7746L9.16667 18.1079C9.42003 18.2542 9.70744 18.3312 10 18.3312C10.2926 18.3312 10.58 18.2542 10.8333 18.1079L16.6667 14.7746C16.9198 14.6285 17.13 14.4183 17.2763 14.1653C17.4225 13.9123 17.4997 13.6252 17.5 13.3329V6.66626Z" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.75 5.83301L10 9.99967L17.25 5.83301" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 18.3333V10" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="v-order-line__info"><div class="v-order-line__name">AD3EC 5L (tyx)</div><div class="v-order-line__meta">2.350.000đ/Can</div></div><div class="v-order-line__qty"><div class="v-order-line__hit"><div class="v-order-line__control v-order-line__control--button">−</div></div><div class="v-order-line__hit"><div class="v-order-line__control v-order-line__control--value">2</div></div><div class="v-order-line__hit"><div class="v-order-line__control v-order-line__control--button"><span data-v-icon="plus" data-size="16"></span></div></div></div><div class="v-order-line__warning">Cần kiểm tra tồn</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Default</span><span>Low stock</span><span>Swipe actions</span><span>Invalid</span><span>Discount</span></div><div class="axis"><b>Media</b><span>Box</span><span>Bottle</span></div></div>
+<p class="rule">Dense editable transaction line; controls preserve 44px hit areas; warning line uses Overline.</p>
+</article><article class="component-card" id="master-2099-5459" data-search="ds v2 / payment &amp; receivable summary row/default data display .v-payment-summary[data-state=&quot;default&quot;]" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Payment &amp; Receivable Summary Row/Default</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 2099:5459</code><code>HTML impl: .v-payment-summary[data-state=&quot;default&quot;]</code></div>
+<div class="preview-stage"><div class="v-payment-summary" data-state="default"><span class="v-payment-summary__leading" data-v-icon="banknote-arrow-down" data-size="20"></span><div class="v-payment-summary__title">Thanh toán &amp; công nợ</div><div class="v-payment-summary__paid">Đã thanh toán 4.445.238đ</div><div class="v-payment-summary__receivable">Còn phải thu 0đ</div><span class="v-payment-summary__trailing" data-v-icon="chevron-right" data-size="20"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-2099-5469" data-search="ds v2 / payment &amp; receivable summary row/outstanding data display .v-payment-summary[data-state=&quot;outstanding&quot;]" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Payment &amp; Receivable Summary Row/Outstanding</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 2099:5469</code><code>HTML impl: .v-payment-summary[data-state=&quot;outstanding&quot;]</code></div>
+<div class="preview-stage"><div class="v-payment-summary" data-state="outstanding"><span class="v-payment-summary__leading" data-v-icon="banknote-arrow-down" data-size="20"></span><div class="v-payment-summary__title">Thanh toán &amp; công nợ</div><div class="v-payment-summary__paid">Đã thanh toán 4.445.238đ</div><div class="v-payment-summary__receivable">Còn phải thu 0đ</div><span class="v-payment-summary__trailing" data-v-icon="chevron-right" data-size="20"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-2099-5479" data-search="ds v2 / payment &amp; receivable summary row/muted data display .v-payment-summary[data-state=&quot;muted&quot;]" data-category="Data Display">
+<header><div><div class="component-category">Data Display</div><h3>DS v2 / Payment &amp; Receivable Summary Row/Muted</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 2099:5479</code><code>HTML impl: .v-payment-summary[data-state=&quot;muted&quot;]</code></div>
+<div class="preview-stage"><div class="v-payment-summary" data-state="muted"><span class="v-payment-summary__leading" data-v-icon="banknote-arrow-down" data-size="20"></span><div class="v-payment-summary__title">Thanh toán &amp; công nợ</div><div class="v-payment-summary__paid">Đã thanh toán 4.445.238đ</div><div class="v-payment-summary__receivable">Còn phải thu 0đ</div><span class="v-payment-summary__trailing" data-v-icon="chevron-right" data-size="20"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article></div></section><section class="category-section" data-cat="Feedback &amp; Status"><h2>Feedback &amp; Status <span>7</span></h2><div class="cards"><article class="component-card" id="master-526-4215" data-search="vbanner feedback &amp; status .v-banner" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VBanner</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4215</code><code>HTML impl: .v-banner</code><code>Flutter: VBanner</code></div>
+<div class="preview-stage"><div class="v-banner" data-tone="info" data-density="default"><span data-v-icon="info" data-size="20" data-tone="info"></span><div class="v-banner__copy"><div class="v-banner__title">Thông tin</div><div class="v-banner__message">Nội dung giải thích ngắn và hướng xử lý tiếp theo</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Info</span><span>Success</span><span>Warning</span><span>Danger</span></div><div class="axis"><b>Density</b><span>Default</span><span>Compact</span></div></div>
+<p class="rule">Inline contextual feedback; semantic tone; Compact only for brief dense contexts.</p>
+</article><article class="component-card" id="master-526-4305" data-search="vtoast feedback &amp; status .v-toast" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VToast</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4305</code><code>HTML impl: .v-toast</code><code>Flutter: VToast</code></div>
+<div class="preview-stage"><div class="v-toast" data-tone="info"><div class="v-toast__icon"><span data-v-icon="info" data-size="16" data-tone="inverse"></span></div><div class="v-toast__message">Thông báo thao tác</div><span data-v-icon="x" data-size="20" data-tone="inverse"></span></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Info</span><span>Success</span><span>Warning</span><span>Danger</span></div></div>
+<p class="rule">Transient dark-bar feedback; never replaces validation/persistent alerts.</p>
+</article><article class="component-card" id="master-526-4352" data-search="vemptystate feedback &amp; status .v-empty-state" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VEmptyState</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4352</code><code>HTML impl: .v-empty-state</code><code>Flutter: VEmptyState</code></div>
+<div class="preview-stage"><div class="v-empty-state" data-type="empty"><div class="v-empty-state__icon"><span data-v-icon="info" data-size="32" data-tone="primary"></span></div><div class="v-empty-state__title">Chưa có dữ liệu</div><div class="v-empty-state__description">Dữ liệu sẽ xuất hiện khi có bản ghi phù hợp.</div><div class="v-empty-state__action">Tạo mới</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Empty</span><span>Error</span><span>No Permission</span><span>Blocked</span><span>No Result</span></div></div>
+<p class="rule">Types: Empty, Error, No Permission, Blocked, No Result; copy keeps next step clear.</p>
+</article><article class="component-card" id="master-526-4373" data-search="vloading feedback &amp; status .v-loading" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VLoading</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4373</code><code>HTML impl: .v-loading</code><code>Flutter: VLoading</code></div>
+<div class="preview-stage"><span class="v-loading" data-size="16"></span></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Size</b><span>16</span><span>20</span><span>24</span><span>32</span></div></div>
+<p class="rule">Indeterminate loading; never disable full screen unless operation truly blocks interaction.</p>
+</article><article class="component-card" id="master-526-4386" data-search="vprogress feedback &amp; status .v-progress" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VProgress</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4386</code><code>HTML impl: .v-progress</code><code>Flutter: VProgress</code></div>
+<div class="preview-stage"><div class="v-progress" data-type="linear"><div class="v-progress__bar"></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Linear</span><span>Indeterminate</span></div></div>
+<p class="rule">Use linear only when meaningful progress is known.</p>
+</article><article class="component-card" id="master-526-4380" data-search="vskeleton feedback &amp; status .v-skeleton" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>VSkeleton</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4380</code><code>HTML impl: .v-skeleton</code><code>Flutter: VSkeleton</code></div>
+<div class="preview-stage"><div class="v-skeleton" data-type="avatar"></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Type</b><span>Line</span><span>Avatar</span><span>Card</span></div></div>
+<p class="rule">Mirror expected content; initial loading; spinner for discrete action.</p>
+</article><article class="component-card" id="master-526-4442" data-search="ds v2 / readiness item feedback &amp; status .v-readiness" data-category="Feedback &amp; Status">
+<header><div><div class="component-category">Feedback &amp; Status</div><h3>DS v2 / Readiness Item</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 526:4442</code><code>HTML impl: .v-readiness</code></div>
+<div class="preview-stage"><div class="v-readiness" data-state="complete"><span data-v-icon="circle-check" data-size="24"></span><div><strong>Sẵn sàng</strong><div class="v-body-sm">Có thể tiếp tục</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>State</b><span>Complete</span><span>Warning</span><span>Blocked</span></div></div>
+<p class="rule">Copy states concrete condition/corrective action.</p>
+</article></div></section><section class="category-section" data-cat="Overlays"><h2>Overlays <span>3</span></h2><div class="cards"><article class="component-card" id="master-550-1275" data-search="vmodal overlays .v-modal" data-category="Overlays">
+<header><div><div class="component-category">Overlays</div><h3>VModal</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:1275</code><code>HTML impl: .v-modal</code><code>Flutter: VModal</code></div>
+<div class="preview-stage"><div class="v-modal" data-tone="default"><div class="v-modal__title">Xác nhận</div><div class="v-modal__description">Mô tả ngắn về tác động và điều kiện cần thiết.</div><div class="v-modal__space"></div><div class="v-modal__actions"><button class="v-btn" data-hierarchy="secondary" data-state="default" data-size="default"><span data-v-icon="plus" data-size="20"></span><span>Thao tác</span></button><button class="v-btn" data-hierarchy="primary" data-state="default" data-size="default"><span data-v-icon="plus" data-size="20" data-tone="inverse"></span><span>Thao tác</span></button></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Default</span><span>Danger</span></div></div>
+<p class="rule">Centered modal; mobile flows prefer bottom sheets unless modal behavior is materially clearer.</p>
+</article><article class="component-card" id="master-1829-16196" data-search="vnumerickeypadsheet overlays .v-numeric-keypad" data-category="Overlays">
+<header><div><div class="component-category">Overlays</div><h3>VNumericKeypadSheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1829:16196</code><code>HTML impl: .v-numeric-keypad</code><code>Flutter: VNumericKeypadSheet</code></div>
+<div class="preview-stage"><div class="v-numeric-keypad"><div class="v-numeric-keypad__handle-area"><div class="v-numeric-keypad__handle"></div></div><div class="v-numeric-keypad__header"><div class="v-numeric-keypad__header-copy"><div class="v-numeric-keypad__title">Nhập số lượng</div><div class="v-numeric-keypad__subtitle">Đơn vị: Can</div></div></div><div class="v-numeric-keypad__value">2</div><div class="v-keypad-grid"><div class="v-keypad-key">1</div><div class="v-keypad-key">2</div><div class="v-keypad-key">3</div><div class="v-keypad-key">4</div><div class="v-keypad-key">5</div><div class="v-keypad-key">6</div><div class="v-keypad-key">7</div><div class="v-keypad-key">8</div><div class="v-keypad-key">9</div><div class="v-keypad-key">.</div><div class="v-keypad-key">0</div><div class="v-keypad-key" data-key="backspace">⌫</div></div><div class="v-numeric-keypad__actions"><button class="v-btn" data-hierarchy="secondary" data-state="default" data-size="default"><span>Hủy</span></button><button class="v-btn" data-hierarchy="primary" data-state="default" data-size="default"><span>Xác nhận</span></button></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Mode</b><span>Quantity</span><span>Money</span></div></div>
+<p class="rule">Quantity/Money only; not phone, tax code, identifiers, or free-form numeric strings.</p>
+</article><article class="component-card" id="master-4695-6353" data-search="vbottomsheet overlays .v-bottom-sheet" data-category="Overlays">
+<header><div><div class="component-category">Overlays</div><h3>VBottomSheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 4695:6353</code><code>HTML impl: .v-bottom-sheet</code><code>Flutter: VBottomSheet</code></div>
+<div class="preview-stage"><div class="v-bottom-sheet"><div class="v-bottom-sheet__handle"></div><div class="v-bottom-sheet__title">Tiêu đề</div><div class="v-bottom-sheet__content"><div class="v-list-row"><strong>Nội dung sheet</strong></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">402px shell; top corners 20px; handle 48x4; 16px inset; 44px bottom safe area; no visual tone variants unless source defines them.</p>
+</article></div></section><div class="section-label">Patterns & Templates</div><section class="category-section" data-cat="Interaction &amp; Overlay"><h2>Interaction &amp; Overlay <span>8</span></h2><div class="cards"><article class="component-card" id="master-549-927" data-search="ds v2 / sticky footer interaction &amp; overlay .v-sticky-footer" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Sticky Footer</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 549:927</code><code>HTML impl: .v-sticky-footer</code></div>
+<div class="preview-stage"><div class="v-sticky-footer" data-layout="single" data-tone="default"><button class="v-btn" style="width:100%">Tiếp tục</button></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Layout</b><span>Single</span><span>Dual</span><span>Commerce</span></div><div class="axis"><b>Tone</b><span>Default</span><span>Danger</span></div></div>
+<p class="rule">Commerce keeps payable total visible; preserve safe area.</p>
+</article><article class="component-card" id="master-549-958" data-search="ds v2 / fab placement interaction &amp; overlay .v-fab-placement" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / FAB Placement</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 549:958</code><code>HTML impl: .v-fab-placement</code></div>
+<div class="preview-stage"><div class="v-fab-placement" data-toast="off"><button class="v-fab"><span data-v-icon="plus" data-size="24" data-tone="inverse"></span></button></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Toast</b><span>Off</span><span>On</span></div></div>
+<p class="rule">402px contract: FAB 16px from right and above footer/nav; toast never overlaps.</p>
+</article><article class="component-card" id="master-549-1007" data-search="ds v2 / keyboard-safe action bar interaction &amp; overlay .v-keyboard-safe" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Keyboard-safe Action Bar</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 549:1007</code><code>HTML impl: .v-keyboard-safe</code></div>
+<div class="preview-stage"><div class="v-keyboard-safe" data-layout="single"><div class="v-keyboard-safe__form"></div><div class="v-keyboard-safe__bar"><button class="v-btn" data-hierarchy="primary" data-width="fill">Hoàn tất</button></div><div class="v-keyboard-safe__keyboard">Bàn phím hệ thống</div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Layout</b><span>Single</span><span>Dual</span></div></div>
+<p class="rule">Actions stay reachable above software keyboard.</p>
+</article><article class="component-card" id="master-550-999" data-search="ds v2 / action sheet interaction &amp; overlay .v-action-sheet" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Action Sheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:999</code><code>HTML impl: .v-action-sheet</code></div>
+<div class="preview-stage"><div class="v-action-sheet" data-mode="default" data-count="2"><div class="v-sheet-handle"></div><div class="v-pattern-sheet-title">Thao tác</div><div class="v-action-sheet__actions"><div class="v-action-row" data-tone="default"><span data-v-icon="pencil" data-size="20"></span><div class="v-action-row__copy"><div class="v-action-row__title">Chỉnh sửa</div><div class="v-action-row__description">Cập nhật thông tin bản ghi</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div><div class="v-action-row" data-tone="default"><span data-v-icon="history" data-size="20"></span><div class="v-action-row__copy"><div class="v-action-row__title">Xem lịch sử</div><div class="v-action-row__description">Theo dõi các thay đổi</div></div><span data-v-icon="chevron-right" data-size="20" data-tone="secondary"></span></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Mode</b><span>Default</span><span>Danger</span></div><div class="axis"><b>Count</b><span>3</span><span>2</span></div></div>
+<p class="rule">Destructive action is final row; opening sheet never executes action.</p>
+</article><article class="component-card" id="master-550-1058" data-search="ds v2 / confirmation sheet interaction &amp; overlay .v-confirmation-sheet" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Confirmation Sheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:1058</code><code>HTML impl: .v-confirmation-sheet</code></div>
+<div class="preview-stage"><div class="v-confirmation-sheet" data-tone="default" data-content="reason"><div class="v-sheet-handle"></div><div class="v-confirmation-sheet__title">Xác nhận thay đổi</div><div class="v-confirmation-sheet__description">Kiểm tra thông tin trước khi tiếp tục.</div><div class="v-confirmation-sheet__reason"><div class="v-field" data-state="default"><label>Lý do</label><div class="v-control">Nhập thông tin...</div><div class="v-field__helper">Hướng dẫn hoặc mô tả ngắn</div></div></div><div class="v-confirmation-sheet__actions"><button class="v-btn" data-hierarchy="secondary" data-width="fill">Hủy</button><button class="v-btn" data-hierarchy="primary" data-width="fill">Xác nhận</button></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Tone</b><span>Default</span><span>Danger</span><span>Warning</span></div><div class="axis"><b>Content</b><span>Plain</span><span>Reason</span><span>Warning</span></div></div>
+<p class="rule">Plain/Reason/Warning; Reason reuses VTextField; Warning reuses VBanner; 16px inset, 44px safe bottom.</p>
+</article><article class="component-card" id="master-1149-6895" data-search="ds v2 / filter sheet interaction &amp; overlay .v-filter-sheet" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Filter Sheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1149:6895</code><code>HTML impl: .v-filter-sheet</code></div>
+<div class="preview-stage"><div class="v-filter-sheet" data-groups="3"><div class="v-sheet-handle"></div><div class="v-filter-sheet__title">Bộ lọc</div><div class="v-filter-group"><div class="v-label">Trạng thái</div><div class="v-filter-group__chips"><span class="v-chip" data-tone="brand">Tất cả</span><span class="v-chip">Còn hàng</span></div></div><div class="v-filter-group"><div class="v-label">Nhóm</div><div class="v-filter-group__chips"><span class="v-chip">A</span><span class="v-chip">B</span></div></div><div class="v-filter-group"><div class="v-label">Thời gian</div><div class="v-filter-group__chips"><span class="v-chip">Hôm nay</span></div></div><div class="v-filter-sheet__actions"><button class="v-btn" data-hierarchy="secondary">Đặt lại</button><button class="v-btn">Áp dụng</button></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Groups</b><span>3</span><span>5</span></div></div>
+<p class="rule">Business groups/values are instance content.</p>
+</article><article class="component-card" id="master-550-1347" data-search="ds v2 / toast layer interaction &amp; overlay .v-toast-layer" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Toast Layer</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:1347</code><code>HTML impl: .v-toast-layer</code></div>
+<div class="preview-stage"><div class="v-toast-layer" data-placement="top"><div class="v-toast" data-tone="success"><div class="v-toast__icon"><span data-v-icon="check" data-size="16" data-tone="inverse"></span></div><div class="v-toast__message">Đã cập nhật</div><span data-v-icon="x" data-size="20" data-tone="inverse"></span></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Placement</b><span>Top</span><span>Above Footer</span><span>Above FAB</span></div></div>
+<p class="rule">Toast never covers primary controls, nav or FAB.</p>
+</article><article class="component-card" id="master-550-1148" data-search="ds v2 / select sheet interaction &amp; overlay .v-select-sheet" data-category="Interaction &amp; Overlay">
+<header><div><div class="component-category">Interaction &amp; Overlay</div><h3>DS v2 / Select Sheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:1148</code><code>HTML impl: .v-select-sheet</code></div>
+<div class="preview-stage"><div class="v-select-sheet"><div class="v-sheet-handle"></div><div class="v-select-sheet__title">Chọn đối tượng</div><div class="v-search" data-state="default"><span class="v-search__leading"><span data-v-icon="search" data-size="20"></span></span><input class="v-control" placeholder="Tìm kiếm"></div><div class="v-select-sheet__results"><div class="v-list-row" data-type="selection" data-state="default"><div class="v-list-row__copy"><div class="v-list-row__title">Lựa chọn A</div></div></div><div class="v-list-row" data-type="selection" data-state="selected" data-density="compact"><div class="v-list-row__copy"><div class="v-list-row__title">Lựa chọn B</div></div></div><div class="v-list-row" data-type="selection"><div class="v-list-row__copy"><div class="v-list-row__title">Lựa chọn C</div></div></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Tapping a row selects entity; confirmation only for multi-step/high-impact selection.</p>
+</article></div></section><section class="category-section" data-cat="State"><h2>State <span>1</span></h2><div class="cards"><article class="component-card" id="master-550-1298" data-search="loading overlay state .v-loading-overlay" data-category="State">
+<header><div><div class="component-category">State</div><h3>Loading Overlay</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 550:1298</code><code>HTML impl: .v-loading-overlay</code></div>
+<div class="preview-stage"><div class="v-loading-overlay" data-mode="blocking"><div class="v-loading-overlay__content"><span class="v-loading" data-size="24"></span><div class="v-loading-overlay__label">Đang xử lý…</div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Mode</b><span>Blocking</span><span>Content</span></div></div>
+<p class="rule">Blocking reserved for operations that truly prevent interaction.</p>
+</article></div></section><section class="category-section" data-cat="List"><h2>List <span>4</span></h2><div class="cards"><article class="component-card" id="master-547-2306" data-search="ds v2 / search &amp; filter header list .v-search-filter-header" data-category="List">
+<header><div><div class="component-category">List</div><h3>DS v2 / Search &amp; Filter Header</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 547:2306</code><code>HTML impl: .v-search-filter-header</code></div>
+<div class="preview-stage"><div class="v-search-filter-header" data-layout="search"><div class="v-search"><span class="v-search__leading"><span data-v-icon="search" data-size="20"></span></span><input class="v-control" placeholder="Tìm kiếm"></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Layout</b><span>Filter</span><span>Chips</span><span>Search</span></div></div>
+<p class="rule">Filter never overlaps search; chips use 44px interaction targets around 34px source visual pills; Brand = selected.</p>
+</article><article class="component-card" id="master-1280-6272" data-search="ds v2 / search results dropdown list .v-search-results" data-category="List">
+<header><div><div class="component-category">List</div><h3>DS v2 / Search Results Dropdown</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1280:6272</code><code>HTML impl: .v-search-results</code></div>
+<div class="preview-stage"><div class="v-search-results" data-result-type="entity" data-state="loading"><div class="v-search-results__loading-label">Đang tìm kiếm…</div><div class="v-search-results__skeleton"></div><div class="v-search-results__skeleton"></div><div class="v-search-results__skeleton"></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><div class="axis"><b>Result type</b><span>Entity</span><span>Product</span></div><div class="axis"><b>State</b><span>Loading</span><span>No result</span><span>Error</span></div></div>
+<p class="rule">Anchored below search; internal scroll; no View all; states remain local.</p>
+</article><article class="component-card" id="master-1280-6203" data-search="ds v2 / search results dropdown/product/results list .v-search-results[data-result-type=&quot;product&quot;][data-state=&quot;results&quot;]" data-category="List">
+<header><div><div class="component-category">List</div><h3>DS v2 / Search Results Dropdown/Product/Results</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1280:6203</code><code>HTML impl: .v-search-results[data-result-type=&quot;product&quot;][data-state=&quot;results&quot;]</code></div>
+<div class="preview-stage"><div class="v-search-results" data-result-type="product" data-state="results"><div class="v-list-row"><strong>Kết quả 1</strong></div><div class="v-list-row"><strong>Kết quả 2</strong></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article><article class="component-card" id="master-1280-6136" data-search="ds v2 / search results dropdown/entity/results list .v-search-results[data-result-type=&quot;entity&quot;][data-state=&quot;results&quot;]" data-category="List">
+<header><div><div class="component-category">List</div><h3>DS v2 / Search Results Dropdown/Entity/Results</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1280:6136</code><code>HTML impl: .v-search-results[data-result-type=&quot;entity&quot;][data-state=&quot;results&quot;]</code></div>
+<div class="preview-stage"><div class="v-search-results" data-result-type="entity" data-state="results"><div class="v-list-row"><strong>Kết quả 1</strong></div><div class="v-list-row"><strong>Kết quả 2</strong></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+
+</article></div></section><section class="category-section" data-cat="Form"><h2>Form <span>1</span></h2><div class="cards"><article class="component-card" id="master-1353-6355" data-search="ds v2 / form sheet form .v-form-sheet" data-category="Form">
+<header><div><div class="component-category">Form</div><h3>DS v2 / Form Sheet</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 1353:6355</code><code>HTML impl: .v-form-sheet</code></div>
+<div class="preview-stage"><div class="v-form-sheet"><div class="v-form-sheet__handle-area"><div class="v-form-sheet__handle"></div></div><div class="v-form-sheet__header"><div class="v-form-sheet__title">Tạo khách hàng</div></div><div class="v-form-sheet__intro">Nhập thông tin cần thiết.</div><div class="v-form-sheet__fields"><div class="v-field"><label>Tên khách hàng</label><input class="v-control" placeholder="Nhập thông tin..."></div></div><div class="v-sticky-footer" data-layout="single"><button class="v-btn" data-width="fill">Tạo &amp; chọn</button></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Near-full-height sheet; canonical fields/Icon Button/Sticky Footer only; preserve 42px safe bottom.</p>
+</article></div></section><section class="category-section" data-cat="Page Template"><h2>Page Template <span>8</span></h2><div class="cards"><article class="component-card" id="master-551-549" data-search="mobile / root list page template .v-template[data-template=&quot;root-list&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Root List</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:549</code><code>HTML impl: .v-template[data-template=&quot;root-list&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="root-list"><div class="v-template__status"></div><div class="v-appbar" data-type="root"><div class="v-appbar__title">Tổng quan</div></div><div class="v-template__slot-header"><div class="v-list-topbar" data-type="count"><div class="v-list-topbar__title">Danh sách</div></div></div><div class="v-template__slot-search"><div class="v-search-filter-header" data-layout="filter"><div class="v-search-filter-header__top"><div class="v-search"><span class="v-search__leading"><span data-v-icon="search" data-size="20"></span></span><input class="v-control" placeholder="Tìm kiếm"></div></div></div></div><div class="v-template__content"></div><div class="v-bottom-nav" data-active="1"></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Root list with Tenant nav by default; nav slot can swap Platform without changing 402x874 anatomy.</p>
+</article><article class="component-card" id="master-551-1277" data-search="mobile / nested list page template .v-template[data-template=&quot;nested-list&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Nested List</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1277</code><code>HTML impl: .v-template[data-template=&quot;nested-list&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="nested-list"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Danh sách</div></div><div class="v-template__slot-search"><div class="v-search-filter-header" data-layout="filter"></div></div><div class="v-template__slot-tabs"><div class="v-tabs" data-items="3"><div class="v-tab" data-state="active">Tất cả</div><div class="v-tab">Đang xử lý</div><div class="v-tab">Hoàn tất</div></div></div><div class="v-template__content"></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Back navigation, search/filter, optional tabs, scroll body; bottom nav omitted by default.</p>
+</article><article class="component-card" id="master-551-1396" data-search="mobile / detail page template .v-template[data-template=&quot;detail&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Detail</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1396</code><code>HTML impl: .v-template[data-template=&quot;detail&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="detail"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Chi tiết</div></div><div class="v-template__content"></div><div class="v-sticky-footer" data-layout="single"><button class="v-btn" data-width="fill">Hoàn tất</button></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Back nav, scrollable details, one valid primary action in sticky footer.</p>
+</article><article class="component-card" id="master-551-1452" data-search="mobile / form page template .v-template[data-template=&quot;form&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Form</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1452</code><code>HTML impl: .v-template[data-template=&quot;form&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="form"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Biểu mẫu</div></div><div class="v-template__content"></div><div class="v-sticky-footer" data-layout="dual"><button class="v-btn" data-hierarchy="secondary">Hủy</button><button class="v-btn">Lưu</button></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Scrollable fields + Secondary/Primary sticky actions; inline validation; keyboard-safe action bar.</p>
+</article><article class="component-card" id="master-551-1530" data-search="mobile / wizard page template .v-template[data-template=&quot;wizard&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Wizard</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1530</code><code>HTML impl: .v-template[data-template=&quot;wizard&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="wizard"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Thiết lập</div></div><div class="v-template__slot-progress"><div class="v-step-progress" data-current="2"></div></div><div class="v-template__content"></div><div class="v-sticky-footer" data-layout="dual"><button class="v-btn" data-hierarchy="secondary">Quay lại</button><button class="v-btn">Tiếp tục</button></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Progress + step content + Secondary/Primary navigation.</p>
+</article><article class="component-card" id="master-551-1621" data-search="mobile / search &amp; select page template .v-template[data-template=&quot;search-select&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Search &amp; Select</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1621</code><code>HTML impl: .v-template[data-template=&quot;search-select&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="search-select"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Chọn đối tượng</div></div><div class="v-template__slot-search"><div class="v-search-filter-header" data-layout="search"></div></div><div class="v-template__content"></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Full-screen search/select; selecting returns unless confirmation explicitly required.</p>
+</article><article class="component-card" id="master-551-1746" data-search="mobile / state page template .v-template[data-template=&quot;state&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / State</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1746</code><code>HTML impl: .v-template[data-template=&quot;state&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="state"><div class="v-template__status"></div><div class="v-appbar" data-type="back"><div class="v-appbar__leading"><span data-v-icon="chevron-left" data-size="24"></span></div><div class="v-appbar__title">Trạng thái</div></div><div class="v-template__content"><div class="v-empty-state" data-type="empty"><div class="v-empty-state__icon"><span data-v-icon="inbox" data-size="32"></span></div><div class="v-empty-state__title">Chưa có dữ liệu</div><div class="v-empty-state__description">Dữ liệu sẽ xuất hiện tại đây.</div></div></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Empty/error/no-permission/blocked/no-result; no unrelated disabled footer.</p>
+</article><article class="component-card" id="master-551-1777" data-search="mobile / identity page template .v-template[data-template=&quot;identity&quot;]" data-category="Page Template">
+<header><div><div class="component-category">Page Template</div><h3>Mobile / Identity</h3></div><span class="status">canonical</span></header>
+<div class="trace"><code>Figma 551:1777</code><code>HTML impl: .v-template[data-template=&quot;identity&quot;]</code></div>
+<div class="preview-stage"><div class="catalog-phone"><div class="v-template" data-template="identity"><div class="v-template__status"></div><div class="v-template__brand-slot"><div class="v-brand-mark">V</div></div><div class="v-template__content"></div></div></div></div>
+<div class="variant-box"><div class="variant-title">Variant / property contract</div><span class="axis-empty">Single master · không có variant axis</span></div>
+<p class="rule">Isolated brand area, auth fields, one primary action; no tenant/platform app navigation.</p>
+</article></div></section></main></div>
+<script type="module" src="src/vet45-ds.js"></script><script>
+const q=document.getElementById('q');const buttons=[...document.querySelectorAll('[data-filter]')];let active='all';
+function apply(){const term=q.value.trim().toLowerCase();document.querySelectorAll('.component-card').forEach(c=>{const okCat=active==='all'||c.dataset.category===active;const okQ=!term||c.dataset.search.includes(term)||c.textContent.toLowerCase().includes(term);c.classList.toggle('hidden',!(okCat&&okQ));});document.querySelectorAll('.category-section').forEach(s=>{s.classList.toggle('hidden',![...s.querySelectorAll('.component-card')].some(c=>!c.classList.contains('hidden')));})}
+q.addEventListener('input',apply);buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter;apply();}));
+</script></body></html>

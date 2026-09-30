@@ -6,7 +6,7 @@ title: "Công bố giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.0
 ui_flow: UIF-14
 ---
 
@@ -121,6 +121,10 @@ Kết thúc khi publication batch commit nguyên tử và run chuyển `PUBLISHE
 | Stale/blocker | Không publication mutation | UC-14-01 tạo successor run sau khi nguồn được xử lý |
 | Effective-time invalid | Không sửa lịch sử cost version | Sửa yêu cầu/policy hợp lệ |
 | `UNKNOWN` | Chưa thể kết luận publication đã commit | BJ17 |
+
+### 7.1 Làm rõ v4.6.0 — kết quả công bố
+
+Kết quả publication phải phân biệt **total đã tính** với **incremental delta đã ghi**. `SCR-077` hiển thị các delta bằng nhãn `Điều chỉnh giá vốn xuất` và `Điều chỉnh giá trị tồn`; không gắn nhãn total như `Giá vốn xuất`/`Giá trị tồn cuối` cho hai số này. Kết quả cũng nêu số Product đã đối soát, số Product có `OfficialCostVersion` mới và thời điểm hiệu lực thực tế.
 
 ## 8. Liên hệ giao diện
 

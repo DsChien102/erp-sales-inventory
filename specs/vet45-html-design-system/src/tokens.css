@@ -1,0 +1,42 @@
+:root {
+  /* SOURCE: live Figma file QVJolM5tAdFKkhP7RIwe3y / DS v2. No Flutter value overrides these visual tokens. */
+  /* VET45 v2 / Color Primitive */
+  --vet45-v2-primary-50:#F1F9F2; --vet45-v2-primary-100:#DCEFDE; --vet45-v2-primary-200:#B8DFBD; --vet45-v2-primary-300:#8DCB96; --vet45-v2-primary-400:#5FB36C; --vet45-v2-primary-500:#3B9448; --vet45-v2-primary-600:#2F7A3A; --vet45-v2-primary-700:#26612F; --vet45-v2-primary-800:#1F4D26; --vet45-v2-primary-900:#163A1C; --vet45-v2-primary-surface:#EBF4EC;
+  --vet45-v2-neutral-0:#FFFFFF; --vet45-v2-neutral-50:#F8FAFB; --vet45-v2-neutral-100:#F6F8F9; --vet45-v2-neutral-200:#E5E8EB; --vet45-v2-neutral-300:#D0D5DA; --vet45-v2-neutral-400:#9AA3AD; --vet45-v2-neutral-500:#6B7480; --vet45-v2-neutral-600:#4A535E; --vet45-v2-neutral-700:#2F3640; --vet45-v2-neutral-900:#0E1116;
+  --vet45-v2-success-50:#DCEFDE; --vet45-v2-success-500:#3B9448;
+  --vet45-v2-warning-50:#FDF3E0; --vet45-v2-warning-100:#FBE9C6; --vet45-v2-warning-200:#F7D48E; --vet45-v2-warning-300:#F0BC4E; --vet45-v2-warning-400:#E5A41F; --vet45-v2-warning-500:#D98A0B; --vet45-v2-warning-600:#B87209; --vet45-v2-warning-700:#935A0A; --vet45-v2-warning-800:#70450C; --vet45-v2-warning-900:#53330D;
+  --vet45-v2-danger-50:#FBE8E8; --vet45-v2-danger-500:#D14343; --vet45-v2-info-50:#E8F0FC; --vet45-v2-info-500:#2F6FE0;
+  --vet45-v2-overlay-black-48:rgba(14,17,22,.478431); --vet45-v2-state-focus-12:rgba(59,148,72,.121569);
+
+  /* VET45 v2 / Color Semantic */
+  --vet45-v2-surface-canvas:#F6F8F9; --vet45-v2-surface-default:#FFFFFF; --vet45-v2-surface-subtle:#E5E8EB; --vet45-v2-surface-brand:#EBF4EC; --vet45-v2-surface-success:#DCEFDE; --vet45-v2-surface-warning:#FDF3E0; --vet45-v2-surface-danger:#FBE8E8; --vet45-v2-surface-info:#E8F0FC; --vet45-v2-surface-overlay:rgba(14,17,22,.478431); --vet45-v2-surface-toast:#0E1116;
+  --vet45-v2-text-primary:#0E1116; --vet45-v2-text-secondary:#6B7480; --vet45-v2-text-muted:#9AA3AD; --vet45-v2-text-inverse:#FFFFFF; --vet45-v2-text-brand:#26612F; --vet45-v2-text-success:#3B9448; --vet45-v2-text-warning:#D98A0B; --vet45-v2-text-danger:#D14343; --vet45-v2-text-info:#2F6FE0;
+  --vet45-v2-border-default:#E5E8EB; --vet45-v2-border-strong:#D0D5DA; --vet45-v2-border-brand:#B8DFBD; --vet45-v2-border-success:#3B9448; --vet45-v2-border-warning:#D98A0B; --vet45-v2-border-danger:#D14343; --vet45-v2-border-info:#2F6FE0;
+  --vet45-v2-action-primary-default:#3B9448; --vet45-v2-action-primary-pressed:#2F7A3A; --vet45-v2-action-on-primary:#FFFFFF; --vet45-v2-action-secondary-default:#FFFFFF; --vet45-v2-action-secondary-pressed:#E5E8EB; --vet45-v2-action-secondary-border:#D0D5DA; --vet45-v2-action-danger-default:#D14343; --vet45-v2-action-danger-pressed:#D14343;
+  --vet45-v2-icon-primary:#2F3640; --vet45-v2-icon-secondary:#6B7480; --vet45-v2-icon-muted:#9AA3AD; --vet45-v2-icon-brand:#26612F; --vet45-v2-icon-success:#3B9448; --vet45-v2-icon-warning:#D98A0B; --vet45-v2-icon-danger:#D14343; --vet45-v2-icon-info:#2F6FE0; --vet45-v2-icon-inverse:#FFFFFF; --vet45-v2-focus-ring:#3B9448;
+
+  /* VET45 v2 / Dimension */
+  --vet45-v2-space-0:0px; --vet45-v2-space-1:4px; --vet45-v2-space-2:8px; --vet45-v2-space-3:12px; --vet45-v2-space-4:16px; --vet45-v2-space-5:20px; --vet45-v2-space-6:24px; --vet45-v2-space-8:32px; --vet45-v2-space-10:40px; --vet45-v2-space-12:48px;
+  --vet45-v2-radius-1:4px; --vet45-v2-radius-2:6px; --vet45-v2-radius-3:8px; --vet45-v2-radius-4:12px; --vet45-v2-radius-5:16px; --vet45-v2-radius-6:20px; --vet45-v2-radius-pill:999px;
+  --vet45-v2-icon-16:16px; --vet45-v2-icon-20:20px; --vet45-v2-icon-24:24px; --vet45-v2-icon-32:32px; --vet45-v2-icon-48:48px; --vet45-v2-icon-72:72px;
+  /* Figma currently exposes Icon/Thin=1 and Icon/Thick=2 using the same WEB syntax. The two resolved values are preserved separately here and documented as a source collision. */
+  --vet45-v2-icon-stroke-thin:1px; --vet45-v2-icon-stroke:2px; --vet45-v2-icon-stroke-thick:2px;
+  --vet45-v2-touch-minimum:44px; --vet45-v2-layout-mobile-edge:16px; --vet45-v2-layout-tablet-edge:24px; --vet45-v2-layout-desktop-edge:32px; --vet45-v2-layout-mobile-width:402px; --vet45-v2-layout-mobile-height:874px;
+
+  /* VET45 v2 / Opacity */
+  --vet45-v2-opacity-disabled:.4; --vet45-v2-opacity-muted:.6; --vet45-v2-opacity-overlay:.48; --vet45-v2-opacity-subtle:.08; --vet45-v2-opacity-focus:.12; --vet45-v2-opacity-loading:.72;
+
+  /* Live Figma text styles */
+  --vet45-font-sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --vet45-font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --vet45-type-d1:800 40px/44px var(--vet45-font-sans); --vet45-type-h1:700 28px/34px var(--vet45-font-sans); --vet45-type-h2:700 22px/28px var(--vet45-font-sans); --vet45-type-h3:600 18px/24px var(--vet45-font-sans); --vet45-type-h4:600 16px/22px var(--vet45-font-sans); --vet45-type-body:400 14px/22px var(--vet45-font-sans); --vet45-type-body-small:400 13px/20px var(--vet45-font-sans); --vet45-type-label:600 14px/20px var(--vet45-font-sans); --vet45-type-label-small:600 12px/16px var(--vet45-font-sans); --vet45-type-action:600 14px/20px var(--vet45-font-sans); --vet45-type-caption:500 12px/16px var(--vet45-font-sans); --vet45-type-overline:600 11px/14px var(--vet45-font-sans); --vet45-type-mono-numeric:400 14px/22px var(--vet45-font-mono);
+
+  /* Live Figma effect styles */
+  --vet45-shadow-e1:0 1px 3px rgba(14,17,22,.08); --vet45-shadow-e2:0 4px 12px rgba(14,17,22,.10); --vet45-shadow-e3:0 12px 28px rgba(14,17,22,.14); --vet45-shadow-e4:0 24px 56px rgba(14,17,22,.20);
+  /* Component-local effects read directly from the masters. */
+  --vet45-shadow-modal:0 8px 24px rgba(0,0,0,.18); --vet45-shadow-sticky:0 -4px 6px rgba(0,0,0,.12); --vet45-shadow-dropdown:0 4px 12px rgba(0,0,0,.12);
+
+  /* Documented runtime rules, not Figma local variables. */
+  --vet45-duration-fast:150ms; --vet45-duration-medium:200ms; --vet45-duration-normal:300ms; --vet45-duration-slow:350ms; --vet45-duration-pulse:1000ms; --vet45-breakpoint-tablet:600px; --vet45-breakpoint-desktop:1024px;
+  --vet45-density-compact-small:32px; --vet45-density-compact-medium:40px; --vet45-density-compact-large:48px; --vet45-density-compact-field-v:10px; --vet45-density-compact-field-h:14px; --vet45-density-comfortable-small:36px; --vet45-density-comfortable-medium:44px; --vet45-density-comfortable-large:52px; --vet45-density-comfortable-field-v:12px; --vet45-density-comfortable-field-h:16px;
+}

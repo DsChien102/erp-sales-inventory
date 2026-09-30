@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.5.2
-parent: v4.5.1
-source_baseline: v4.5.1
-semantic_delta: BJ02_RECEIPT_FINALITY_ACTOR_PARTIAL_RECEIPT_AND_OUTBOUND_FACT_CLARIFICATION
+version: v4.6.7
+parent: v4.6.6
+source_baseline: v4.6.6
+semantic_delta: NAVIGATION_RATIONALE_ROLE_PROFILE_CONTRACT
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -73,40 +73,73 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - [Glossary](01.knowledge/glossary/glossary.md)
 - [Theme Overview](02.specification/overview/overview.md)
 - [Business Journey Map](02.specification/behavior/journeys/00-business-journey-map.md)
+- [Navigation & Information Architecture](03.design/patterns/PAT-NAV.md)
+- [UI/UX policy](03.design/patterns/PAT-UI-UX.md)
 - [Prototype manifest](03.design/prototype/README.md)
 - [Architecture foundation](02.specification/technical-contracts/FND-TECH-01.md)
 
 ## 6. Trạng thái hiện tại
 
-Bản **v4.5.2** là cumulative clarification patch trực tiếp trên **v4.5.1**, chỉ làm rõ semantic và trace liên quan BJ02. Không mở capability mới và không thay đổi UI/prototype.
+### 6.0 Lập luận điều hướng và Role Profile v4.6.7
 
-Các thay đổi chính của v4.5.2:
+- Bổ sung vào `PAT-NAV` các lập luận đã chốt về cách tổ chức Hub Kho: thiết kế cho trường hợp một người làm toàn bộ Kho, không dùng BJ làm menu, ưu tiên mục đích công việc, Search, quick action có chọn lọc, contextual action và `Cần chú ý` chỉ cho ngoại lệ.
+- Chính thức hóa bốn Navigation Profile đang có trong prototype: `FULL`, `WAREHOUSE`, `ACCOUNTING`, `SALES`.
+- Khóa rõ ba khái niệm khác nhau: **quyền**, **trách nhiệm**, **mức độ nổi bật trên điều hướng**. Navigation Profile không phải permission contract.
+- `SCR-090` tham chiếu Navigation Profile và xác định rõ profile chỉ thay đổi cách trình bày Hub; destination và business flow không đổi.
+- Chưa định nghĩa cơ chế tự động hợp nhất nhiều profile. Prototype vẫn mô phỏng một profile tại một thời điểm.
+- Không thay đổi BJ, UC, UIF, business rule, permission, Screen Contract nghiệp vụ hoặc HTML prototype.
 
-- Khóa điều kiện duyệt của nhánh nhận theo chứng từ: accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy; loại bỏ placeholder “ngoại lệ khác” chưa được Decision định nghĩa.
-- Sửa `UC-02-04` để **Hệ thống** là execution owner của atomic commit sau khi operation đã `READY`; người lập/người duyệt là actor upstream, không có CTA commit lần nữa.
-- Làm rõ một source/PO line có thể được nhận qua nhiều receipt; nhận thiếu là hợp lệ và lần sau dùng `remaining_receivable_qty` authoritative của nguồn.
-- Khóa finality handoff: chỉ `COMMITTED`/`GoodsReceipt=COMPLETED` mới kích hoạt BJ03; `UNKNOWN` sau phục hồi ngắn bàn giao BJ17.
-- Làm rõ Theme 7 phát `EVT-IO-01 inventory.receipt.recorded.v1` như **fact đã xảy ra** cho Theme 10/reporting; không gửi command cập nhật PO. Payload event được bổ sung source-line lineage, quantity/UOM và receipt business date cần thiết cho consumer.
-- Loại wording `value-entry` khỏi physical receipt commit; BJ02 chỉ đưa lượng đã nhận vào `VALUATION_PENDING`, BJ03 mới ghi value movement.
-- Không thay đổi `03.design/` hoặc `04.harness/`; các vùng này được bảo toàn nguyên trạng từ parent v4.5.1.
+### 6.1 Mô phỏng vai trò theo BJ/UIF v4.6.6
 
-### 6.1 Phạm vi kiểm tra v4.5.2
+- Bổ sung bộ điều khiển `Mô phỏng vai trò` trong tab **Theo BJ / UIF** của review workbench.
+- Danh sách vai trò lấy trực tiếp từ trường `actors` của các Screen Contract đang có trong UIF; không tạo mapping vai trò mới.
+- Khi đổi vai trò, workbench giữ màn hiện tại nếu màn đó đã khai báo actor tương ứng. Nếu không, workbench ưu tiên một màn hiện có chỉ thuộc actor đó; nếu không có thì dùng màn đầu tiên trong cùng UIF đã khai báo actor.
+- Screen navigation vẫn hiển thị đầy đủ hành trình; các màn ngoài vai trò đang review chỉ được làm mờ để nhìn rõ handoff.
+- Không thay đổi permission, quy tắc tách người yêu cầu/người duyệt, CTA, state transition, mutation, BJ, UC, UIF hoặc Screen Contract.
+- Bộ role profile của Hub Kho từ v4.6.5 giữ nguyên và độc lập với mô phỏng actor trong tab Theo BJ / UIF.
+- Evidence: `03.design/prototype/html/qa/BJ-ROLE-SIMULATION-QA-v4.6.6.*`.
 
-- Kiểm tra diff chỉ cho phép các artifact BJ02/UC02/BC-IO-02/BJ03/UC03-01/integration/technical contract và metadata package liên quan.
-- Kiểm tra không còn cụm “ngoại lệ khác” trong route duyệt của Document Receipt.
-- Kiểm tra `UC-02-04` có execution owner là Hệ thống và không tạo value movement.
-- Kiểm tra BJ02 thể hiện rõ `COMMITTED → BJ03`, `UNKNOWN → BJ17`, và outbound Receipt fact sang Theme 10/reporting.
-- Kiểm tra `03.design/` và `04.harness/` byte-identical với v4.5.1.
+### 6.2 Role-aware Hub prototype v4.6.5
 
-### 6.2 Thứ tự đọc đề xuất
+- Bổ sung bộ điều khiển vai trò trong **review workbench** cho `Chủ cửa hàng`, `Thủ kho`, `Kế toán`, `Nhân viên bán hàng`.
+- `Chủ cửa hàng` dùng profile `FULL`; ba role còn lại chỉ thay đổi quick action, `Cần chú ý`, thứ tự và visibility của workspace trên Hub Kho.
+- Đây là **prototype candidate để review UX**, chưa phải permission contract và không thay thế RBAC.
+- `PAT-NAV`, `SCR-090`–`SCR-096`, 17 BJ, 64 UC và 17 UIF không thay đổi trong v4.6.5.
+- Evidence: `03.design/prototype/html/qa/WAREHOUSE-ROLE-PROFILES-QA-v4.6.5.*`.
 
-1. Đọc `BJ-02` để hiểu route nhận theo chứng từ/nhập nhanh, partial receipt và finality handoff.
-2. Mở `UC-02-01` cho điều kiện approval và `UC-02-04` cho atomic system execution.
-3. Mở `BC-IO-02` để xem guard canonical của physical receipt.
-4. Mở `INT-01` và `FND-TECH-01` để xem outbound fact `EVT-IO-01`.
-5. Mở `BJ-03` để xác nhận chỉ quantity đã `COMMITTED` mới đi vào xác lập giá trị ban đầu.
+### 6.3 Navigation / Information Architecture v4.6.4
 
-### 6.3 Nguồn canonical để tiếp tục
+- `PAT-NAV` là authority chính thức cho Hub Kho, workspace, quick action, contextual/exception/setup entry và destination mapping.
+- Bổ sung `SCR-090`–`SCR-096` với `screen_class: NAVIGATION`; các screen này không có BJ/UC/UIF owner riêng.
+- `PAT-UI-UX` cho phép hai tuyến trace: business screen theo BJ/UC/UIF và navigation screen theo `PAT-NAV → destination`.
+- Không tạo BJ/UC/UIF giả cho việc mở menu hoặc chuyển workspace.
+- Business Journey, Use Case và 17 UIF hiện hữu không thay đổi trong release này.
+- HTML Hub Kho refined candidate v4.6.3 được dùng làm renderer tham chiếu cho các navigation screen mới; baseline cũ vẫn được giữ trong workbench để so sánh.
+
+
+### 6.4 Phạm vi kiểm tra v4.6.0
+
+- `T7-DR-196` — UI định giá chỉ làm việc với giá trị VND đã chuẩn hóa.
+- `T7-DR-197` — Căn cứ giá trực tiếp Phase 1 có nguồn có thẩm quyền, ngày căn cứ và bằng chứng tách biệt.
+- `T7-DR-198` — Công thức và điều kiện hợp lệ của phân bổ BJ13.
+- `T7-DR-199` — Phạm vi chốt kỳ BJ14 do policy cấp tenant cho phép.
+- `SCR-008` — Xác định header của một lần nhập nhanh trước khi ghi hàng thực nhận. Màn này chỉ xử lý nhà cung cấp, kho mặc định, ngày nhận và chứng từ giao nhận; Product/UOM/LOT/quantity nằm ở `SCR-009/SCR-084`.
+- `SCR-015` — Làm việc với các Product/UOM còn `VALUATION_PENDING`, hiểu căn cứ đang dùng và chọn các dòng đủ điều kiện để xác nhận giá trị ban đầu. Màn này là **workspace**, không phải màn rà soát cuối.
+- `SCR-017` — Cho kế toán kiểm tra **toàn bộ phạm vi sắp ghi** trước mutation. Đây là summary review, không lặp lại workspace `SCR-015`.
+- `SCR-086` — Giúp kế toán hiểu nguồn điều chỉnh, phạm vi source-owned, chọn **một phương pháp phân bổ hợp lệ**, xem được vì sao từng Product nhận số tiền đó và xác nhận ghi adjustment.
+- `SCR-089` — Thông báo finality của adjustment. Result screen ưu tiên kết quả nghiệp vụ, không lặp lại toàn bộ preview.
+- `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
+- `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
+
+### 6.5 Các điểm giao diện đã đồng bộ
+
+- Prototype HTML hiện hành dùng `v460-semantic-ux.css/js` làm lớp semantic/UX cuối cùng.
+- `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.
+- BJ13 không chia đều khi metric không hợp lệ; preview bị chặn theo `T7-DR-198`.
+- BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.
+- BJ14 đọc phương pháp và phạm vi chốt kỳ từ tenant policy; UI không hard-code lựa chọn theo run.
+
+### 6.6 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
 - Know-how: `01.knowledge/know-how/`
