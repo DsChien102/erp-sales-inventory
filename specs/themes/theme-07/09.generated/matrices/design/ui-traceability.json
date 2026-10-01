@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "version": "4.6.1",
+  "version": "4.6.4",
   "rows": [
     {
       "business_journey_id": "BJ-01",
@@ -105,7 +105,7 @@
       "use_case_id": "UC-02-01",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
@@ -140,21 +140,21 @@
       "use_case_id": "UC-02-02",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
       "use_case_id": "UC-02-03",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
       "use_case_id": "UC-02-03",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-011",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",

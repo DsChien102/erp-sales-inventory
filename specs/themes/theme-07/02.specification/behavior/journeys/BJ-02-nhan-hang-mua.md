@@ -22,7 +22,7 @@ Một chứng từ/source line có thể được nhận qua **nhiều receipt**
 
 **Kết thúc khi:** Kết quả ghi nhận tồn vật lý đã rõ; hoặc hồ sơ dừng/chờ mà không tạo tác động bán phần.
 
-**Không bao gồm:** Giá trị nhập chính thức, công nợ nhà cung cấp, payment hoặc quyền lợi thương mại; liên kết Quick Receipt với PO phát sinh sau (đối soát thuộc Theme 10).
+**Không bao gồm:** Giá trị nhập chính thức, công nợ nhà cung cấp, payment hoặc quyền lợi thương mại.
 
 ## 2. Tác nhân và trách nhiệm
 
@@ -61,9 +61,9 @@ flowchart TD
 
 | UC — Tên | Mục tiêu | Tác nhân | Đầu vào / Bắt đầu khi | Kết quả | Tiếp tục |
 |---|---|---|---|---|---|
-| [UC-02-01](../use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md) — Chuẩn bị nhận theo chứng từ | Ghi đúng lượng thực nhận so với dòng chứng từ và version nguồn. | Thủ kho | Chứng từ nguồn hợp lệ được chọn | `READY` nếu không vượt ngưỡng; `PENDING_APPROVAL` nếu accepted physical vượt tolerance/ngưỡng theo policy. | UC-02-03 nếu cần duyệt; UC-02-04 nếu `READY` |
-| [UC-02-02](../use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) — Chuẩn bị nhập hàng nhanh | Lập hồ sơ nhận cho hàng đã đến khi chưa có chứng từ mua phù hợp. | Thủ kho hoặc người có quyền lập hồ sơ nhận hàng nhanh | Hàng đã đến, chưa có chứng từ mua phù hợp và chính sách cho phép lập hồ sơ nhanh | Hồ sơ nhận nhanh được lưu với định danh nguồn/bằng chứng tối thiểu và version bị khóa khi gửi; Operation chuyển sang `PENDING_APPROVAL`; chưa tạo movement hoặc tăng tồn vật lý. | UC-02-03 |
-| [UC-02-03](../use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) — Phê duyệt yêu cầu nhận hàng | Ra quyết định độc lập với người lập, trên snapshot đã khóa. | Người có quyền và cấp phê duyệt phù hợp, khác người lập | Hồ sơ nhập hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ vượt tolerance/ngưỡng cần duyệt | Chấp thuận: operation được phép chuyển sang `READY`, nhưng chưa tạo movement; Từ chối: bắt buộc có lý do, kết thúc yêu cầu mà không thay đổi tồn. | UC-02-04 |
+| [UC-02-01](../use-cases/UC-02-01-chuan-bi-nhan-theo-chung-tu.md) — Chuẩn bị nhận theo chứng từ | Hồ sơ thực nhận sẵn sàng hoặc cần duyệt; Receipt draft gắn source/version. | Thủ kho | Chứng từ nguồn hợp lệ được chọn | `READY` nếu không vượt ngưỡng; `PENDING_APPROVAL` nếu accepted physical vượt tolerance/ngưỡng theo policy. | UC-02-03 nếu cần duyệt; UC-02-04 nếu `READY` |
+| [UC-02-02](../use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) — Chuẩn bị nhập hàng nhanh | Hồ sơ nhận nhanh được lưu với định danh nguồn/bằng chứng tối thiểu và version bị khóa khi gửi; Operation chuyển sang `PENDING_APPROVAL`; chưa tạo movement hoặc tăng tồn vật lý. | Thủ kho hoặc người có quyền lập hồ sơ nhận hàng nhanh | Hàng đã đến, chưa có chứng từ mua phù hợp và chính sách cho phép lập hồ sơ nhanh | Hồ sơ nhận nhanh được lưu với định danh nguồn/bằng chứng tối thiểu và version bị khóa khi gửi; Operation chuyển sang `PENDING_APPROVAL`; chưa tạo movement hoặc tăng tồn vật lý. | UC-02-03 |
+| [UC-02-03](../use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) — Phê duyệt yêu cầu nhận hàng | Chấp thuận: operation được phép chuyển sang `READY`, nhưng chưa tạo movement; Từ chối: bắt buộc có lý do, kết thúc yêu cầu mà không thay đổi tồn. | Người có quyền và cấp phê duyệt phù hợp, khác người lập | Hồ sơ nhập hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ vượt tolerance/ngưỡng cần duyệt | Chấp thuận: operation được phép chuyển sang `READY`, nhưng chưa tạo movement; Từ chối: bắt buộc có lý do, kết thúc yêu cầu mà không thay đổi tồn. | UC-02-04 |
 | [UC-02-04](../use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md) — Ghi nhận hàng vào tồn vật lý | Hệ thống commit nguyên tử operation đã `READY`. | Hệ thống | Operation đã `READY` và các guard còn hợp lệ | `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì movement/balance/lot, `VALUATION_PENDING` và outbox được ghi đúng một lần. | UC-02-05 chỉ khi finality chưa rõ |
 | [UC-02-05](../use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) — Truy vấn và phục hồi ngắn kết quả nhận hàng | Xác định finality của đúng operation đã gửi mà không thực hiện lại nhận hàng | Thủ kho; adapter nhận hàng | Đã có operation identity nhưng response/finality chưa rõ | COMMITTED/REJECTED được xác định hoặc UNKNOWN được bàn giao BJ17 | Kết thúc BJ02 hoặc BJ17 |
 
@@ -72,13 +72,16 @@ flowchart TD
 | Nơi nhận / Nơi cung cấp | Dữ kiện hoặc trách nhiệm bàn giao | Điều kiện bàn giao / tiếp tục |
 |---|---|---|
 | Theme 10 / nguồn mua → BJ02 | Chứng từ mua, Supplier, `source_line_id/version`, `remaining_receivable_qty`, transaction UOM và conversion snapshot nếu nhận theo chứng từ | Nguồn đủ hợp lệ để nhận; Quick không phụ thuộc Theme 10 |
-| BJ02 → Theme 10 / reporting | Fact `EVT-IO-01` về receipt đã commit, gồm source-line lineage, lượng thực nhận theo UOM, kho và ngày nhận | **Chỉ khi `COMMITTED`**; đây là integration fact đã xảy ra, không phải command yêu cầu Theme 10 cập nhật PO |
+| BJ02 → Theme 10 / reporting | Fact `EVT-IO-01 inventory.receipt.recorded.v1` về receipt đã commit, gồm source-line lineage, lượng thực nhận theo UOM, kho và ngày nhận | **Chỉ khi `COMMITTED`**; đây là integration fact đã xảy ra, không phải command yêu cầu Theme 10 cập nhật PO |
 | BJ03 | Receipt item/quantity đã commit, UOM/LOT/state và source lineage; lượng tương ứng ở `VALUATION_PENDING` | **Chỉ khi `effect_status=COMMITTED` / `GoodsReceipt=COMPLETED`**; `REJECTED` và `UNKNOWN` không được kích hoạt BJ03 |
 | BJ17 | Cùng operation identity, fingerprint và evidence/finality refs của receipt chưa xác định | Sau cửa sổ phục hồi ngắn của UC-02-05 vẫn là `UNKNOWN`; không tạo receipt mới |
 
 ## 6. Liên kết thiết kế
 
-[UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md) sở hữu routing giữa các màn hình, điểm vào/kết thúc và state hiển thị; chi tiết màn hình nằm tại `03.design/screens/`.
+- **UI Flow canonical:** [UIF-02 — Nhận hàng mua](../../../03.design/flows/UIF-02-BJ-02.md)
+- BJ này chỉ sở hữu **business boundary, mục tiêu, UC/handoff và acceptance ở cấp hành trình**.
+- Screen-to-screen routing, entry/terminal, actor handoff, state/recovery và transition nằm tại `UIF-02`; anatomy/action chi tiết nằm tại `03.design/screens/`.
+- Không copy Screen Flow vào BJ để tránh trùng với UC/UIF và để redesign UI không làm thay đổi semantic của Journey.
 
 ## 7. Nghiệm thu hành trình (Journey Acceptance)
 

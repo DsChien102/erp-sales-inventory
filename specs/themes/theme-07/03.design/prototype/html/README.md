@@ -1,10 +1,10 @@
-## v4.6.6 — BJ/UIF role simulation
+## v4.6.4 — BJ02 pending-approval continuity
 
-- Parent: `v4.6.5`. Chỉ thay review workbench; không sửa business logic.
-- Tab **Theo BJ / UIF** có `Mô phỏng vai trò`; lựa chọn được lấy trực tiếp từ `actors` của Screen Contract hiện có.
-- Đổi vai trò chỉ đổi ngữ cảnh review và màn đại diện trong cùng UIF; Screen navigation vẫn giữ đủ toàn hành trình để nhìn rõ handoff.
-- Không tự thêm permission hoặc rule người yêu cầu/người duyệt; các rule đó chỉ được thể hiện khi source hiện hành đã định nghĩa.
-- Hub role profiles v4.6.5 giữ nguyên. QA: `BJ-ROLE-SIMULATION-QA-v4.6.6` và `ALL-FLOWS-RUNTIME-SMOKE-v4.6.6`.
+- Parent: `v4.6.3`; scope chỉ tập trung BJ02 và integration tối thiểu với Warehouse Hub candidate.
+- Final candidate layer: `v464-warehouse-hub-bj02-continuity.css/js`.
+- `SCR-010/PENDING_APPROVAL`: sticky CTA **Về Kho** + Back về Kho; không còn đường quay về editor.
+- Hub candidate: thêm **Nhận hàng chờ phê duyệt** trong `Cần chú ý`, worklist và route vào `SCR-011` cho fixture Owner có quyền duyệt.
+- QA: `qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*` = 21/21 PASS; `qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.4.*` = 85/85 PASS.
 
 ## v4.5.0 — Snapshot-led visual QA hardening
 

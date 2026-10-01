@@ -5,7 +5,7 @@ theme: theme-07
 title: "UI/UX policy & patterns"
 owner: BA
 status: FROZEN
-source_baseline: v4.6.4
+source_baseline: v3.13.0
 ---
 # PAT-UI-UX — UI/UX policy & patterns
 
@@ -39,21 +39,15 @@ UI không được tạo thêm thực thể, trạng thái nghiệp vụ, nguồ
 flowchart TD
     BJ["Business Journey"] --> UC["Trường hợp sử dụng"]
     EP["Epic"] --> UC
-    UC --> BSC["Business Screen Contract"]
-    BSC --> ST["State → Action → Feedback"]
+    UC --> SC["Screen Contract"]
+    SC --> ST["State → Action → Feedback"]
     BJ --> FE["Gói giao FE"]
-
-    IA["PAT-NAV · Information Architecture"] --> NSC["Navigation Screen Contract"]
-    NSC --> DST["Business destination"]
-    DST --> UIF["UIF / BJ / UC"]
 ```
 
 - BJ là đơn vị giao việc và nghiệm thu đầu-cuối.
 - UC là đơn vị hành vi và checkpoint nghiệm thu.
-- `BUSINESS` Screen phục vụ hành vi nghiệp vụ và trace về BJ/UC/UIF phù hợp.
-- `NAVIGATION` Screen phục vụ kiến trúc thông tin và trace về `PAT-NAV` + destination; không cần BJ/UC/UIF owner riêng.
-- Một Screen có thể được nhiều destination hoặc flow tham chiếu nhưng chỉ có một Screen Contract canonical.
-- Navigation không tham gia tuyến thẩm quyền nghiệp vụ và không được giả làm mutation.
+- Screen là bề mặt giao diện dùng lại; một Screen có thể phục vụ nhiều BJ/UC.
+- Khu vực điều hướng chỉ phục vụ kiến trúc thông tin, không tham gia tuyến thẩm quyền.
 - Component/pattern thuộc Design System, không thuộc riêng BJ hoặc Screen.
 
 ### 3. Nguồn Design System
@@ -64,21 +58,7 @@ Các nguyên tắc bắt buộc: mobile-first; rõ ràng hơn thông minh; theo 
 
 ### 4. Kiến trúc thông tin
 
-Kiến trúc thông tin và điều hướng canonical được định nghĩa tại [`PAT-NAV`](PAT-NAV.md).
-
-`PAT-NAV` quyết định Hub, workspace, quick action, contextual/exception/setup entry và mapping destination. Nó không thay thế Domain, BJ, UC, UIF hoặc phạm vi giao việc.
-
-Các navigation surface canonical hiện tại:
-
-- `SCR-090` — Kho;
-- `SCR-091` — Tồn kho;
-- `SCR-092` — Nhập, xuất & hoàn trả;
-- `SCR-093` — Kiểm kê & xử lý;
-- `SCR-094` — Giá trị kho;
-- `SCR-095` — Báo cáo & lịch sử;
-- `SCR-096` — Thiết lập kho.
-
-Taxonomy `NAV-01`…`NAV-06` cũ chỉ còn vai trò migration/trace theo `PAT-NAV`.
+Sáu khu vực điều hướng được định nghĩa tại [`navigation-areas.md`](PAT-NAV.md). Chúng không thay thế Domain, BJ, UC hoặc phạm vi giao việc.
 
 ### 5. Screen Registry
 
@@ -88,11 +68,9 @@ Taxonomy `NAV-01`…`NAV-06` cũ chỉ còn vai trò migration/trace theo `PAT-N
 
 | Chỉ tiêu | Giá trị |
 |---|---:|
-| Screen Contract files | 96 |
-| Navigation Screen | 7 |
-| Business/supporting/historical Screen hiện hữu | 89 |
-| Business state fixture obligation hiện hữu | 479 |
-| UI Action mutation hiện hữu | 33 |
+| Màn hình canonical | 83 |
+| State fixture obligation | 479 |
+| UI Action | 33 |
 | Screen Group active | 0 |
 
 ### 6. Bao phủ Business Journey
@@ -122,32 +100,9 @@ Chi tiết theo BJ/UC nằm tại [`bj-ui-flow-map.md`](../../09.generated/matri
 
 ### 7. Quy tắc Screen Contract
 
-Mọi Screen Contract phải có: mục đích; `screen_class`; người dùng/thẩm quyền; dữ liệu hoặc destination; state; interaction; responsive/accessibility; điều kiện nghiệm thu; ranh giới bằng chứng.
+Mỗi Screen Contract phải có: mục đích; BJ/UC liên quan; người dùng và thẩm quyền; dữ liệu; state; action–BC–API; responsive/accessibility; điều kiện nghiệm thu; ranh giới bằng chứng.
 
-#### 7.1 `BUSINESS` Screen
-
-Bắt buộc trace về BJ/UC liên quan và UIF khi screen nằm trong một flow canonical. Nếu có mutation, mỗi hành động thay đổi dữ liệu có đúng một Action ID, một BC chính và một API chính. Double submit giữ cùng idempotency key; `UNKNOWN` giữ cùng operation identity để truy vấn hoặc phục hồi.
-
-#### 7.2 `NAVIGATION` Screen
-
-Bắt buộc có:
-
-- `authority: PAT-NAV`;
-- parent navigation surface;
-- destination mapping;
-- visibility/permission rule;
-- back behavior;
-- state có ý nghĩa với navigation.
-
-`NAVIGATION` Screen **không bắt buộc BJ/UC/UIF owner riêng** và không được tạo BJ/UC/UIF giả chỉ để đủ trace. Trace nghiệp vụ nằm ở từng destination:
-
-`Navigation Screen → Destination Screen → UIF → BJ/UC`.
-
-Nếu navigation action chỉ chuyển màn hình hoặc thực hiện query, không tạo Action/BC/API mutation contract.
-
-#### 7.3 Các class phụ thuộc nghiệp vụ
-
-`OVERLAY`, `RESULT`, `SYSTEM` và các surface phụ khác tiếp tục trace về Screen/UC/UIF hoặc behavioral contract sở hữu chúng; không trở thành navigation owner chỉ vì có Screen ID.
+Mỗi hành động thay đổi dữ liệu có đúng một Action ID, một BC chính và một API chính. Double submit giữ cùng idempotency key; `UNKNOWN` giữ cùng operation identity để truy vấn hoặc phục hồi.
 
 ### 8. Chuẩn nội dung và thuật ngữ
 
@@ -170,7 +125,7 @@ Harness chạy incremental theo BJ/UIF và sau mỗi vòng phải rerun regressi
 ### 10. Cổng chất lượng UI/UX
 
 1. 17/17 BJ và 70/70 UC có mapping Screen/UIF; canonical flow hiện có 202 transition sau correction UIF-01.
-2. `SCR-090`–`SCR-096` có mục đích, state và trace qua `PAT-NAV`; coverage Business Screen hiện hữu không đổi trong release này.
+2. 83/83 Screen có mục đích, state và trace nguồn.
 3. 33/33 UI Action có BC/API chính và không mồ côi.
 4. Không còn Screen Group active hoặc bước bàn giao qua công cụ thiết kế trung gian trong SRS/UI Contract.
 5. Mọi dữ liệu tài chính được che nhất quán theo quyền.

@@ -1,4 +1,4 @@
-# Screen Registry — Theme 7 v4.6.4
+# Screen Registry — Theme 7 v4.6.0
 
 > Nguồn hiện hành: Screen Contract + runtime/workbench. Màn `RETIRED` chỉ tồn tại để migration/trace và không phải route sản phẩm.
 
@@ -93,11 +93,3 @@
 | `SCR-087` | Phân bổ điều chỉnh — Đã hợp nhất | form | BJ-13 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
 | `SCR-088` | Rà soát điều chỉnh — Đã hợp nhất | review | BJ-13 | — | HISTORICAL_MIGRATION | RETIRED_v4.6.0 |
 | `SCR-089` | Kết quả điều chỉnh giá trị | result | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
-| `SCR-090` | Kho | hub navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-091` | Tồn kho | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-092` | Nhập, xuất & hoàn trả | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-093` | Kiểm kê & xử lý | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-094` | Giá trị kho | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-095` | Báo cáo & lịch sử | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-| `SCR-096` | Thiết lập kho | navigation | — | — | NAVIGATION_ARCHITECTURE | WAREHOUSE_HUB_REFINED_CANDIDATE_v4.6.3 |
-

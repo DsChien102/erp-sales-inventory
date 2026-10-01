@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.6.7
-parent: v4.6.6
-source_baseline: v4.6.6
-semantic_delta: NAVIGATION_RATIONALE_ROLE_PROFILE_CONTRACT
+version: v4.6.4
+parent: v4.6.3
+source_baseline: v4.6.3
+semantic_delta: BJ02_PENDING_APPROVAL_CONTINUITY
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -73,51 +73,20 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - [Glossary](01.knowledge/glossary/glossary.md)
 - [Theme Overview](02.specification/overview/overview.md)
 - [Business Journey Map](02.specification/behavior/journeys/00-business-journey-map.md)
-- [Navigation & Information Architecture](03.design/patterns/PAT-NAV.md)
-- [UI/UX policy](03.design/patterns/PAT-UI-UX.md)
 - [Prototype manifest](03.design/prototype/README.md)
 - [Architecture foundation](02.specification/technical-contracts/FND-TECH-01.md)
 
 ## 6. Trạng thái hiện tại
 
-### 6.0 Lập luận điều hướng và Role Profile v4.6.7
+### 6.1 Phạm vi kiểm tra v4.6.4
 
-- Bổ sung vào `PAT-NAV` các lập luận đã chốt về cách tổ chức Hub Kho: thiết kế cho trường hợp một người làm toàn bộ Kho, không dùng BJ làm menu, ưu tiên mục đích công việc, Search, quick action có chọn lọc, contextual action và `Cần chú ý` chỉ cho ngoại lệ.
-- Chính thức hóa bốn Navigation Profile đang có trong prototype: `FULL`, `WAREHOUSE`, `ACCOUNTING`, `SALES`.
-- Khóa rõ ba khái niệm khác nhau: **quyền**, **trách nhiệm**, **mức độ nổi bật trên điều hướng**. Navigation Profile không phải permission contract.
-- `SCR-090` tham chiếu Navigation Profile và xác định rõ profile chỉ thay đổi cách trình bày Hub; destination và business flow không đổi.
-- Chưa định nghĩa cơ chế tự động hợp nhất nhiều profile. Prototype vẫn mô phỏng một profile tại một thời điểm.
-- Không thay đổi BJ, UC, UIF, business rule, permission, Screen Contract nghiệp vụ hoặc HTML prototype.
+- Tập trung `BJ-02 — Nhận hàng mua`; các BJ khác giữ nguyên baseline trước đó.
+- `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng quay về Hub Kho và không mở lại editor của submitted revision.
+- Hub Kho candidate đưa **Nhận hàng chờ phê duyệt** lên đầu `Cần chú ý` và có worklist để mở lại yêu cầu đang chờ.
+- Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem submitted receipt read-only theo capability contract.
+- Runtime/visual QA mới nằm tại `03.design/prototype/html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*`.
 
-### 6.1 Mô phỏng vai trò theo BJ/UIF v4.6.6
-
-- Bổ sung bộ điều khiển `Mô phỏng vai trò` trong tab **Theo BJ / UIF** của review workbench.
-- Danh sách vai trò lấy trực tiếp từ trường `actors` của các Screen Contract đang có trong UIF; không tạo mapping vai trò mới.
-- Khi đổi vai trò, workbench giữ màn hiện tại nếu màn đó đã khai báo actor tương ứng. Nếu không, workbench ưu tiên một màn hiện có chỉ thuộc actor đó; nếu không có thì dùng màn đầu tiên trong cùng UIF đã khai báo actor.
-- Screen navigation vẫn hiển thị đầy đủ hành trình; các màn ngoài vai trò đang review chỉ được làm mờ để nhìn rõ handoff.
-- Không thay đổi permission, quy tắc tách người yêu cầu/người duyệt, CTA, state transition, mutation, BJ, UC, UIF hoặc Screen Contract.
-- Bộ role profile của Hub Kho từ v4.6.5 giữ nguyên và độc lập với mô phỏng actor trong tab Theo BJ / UIF.
-- Evidence: `03.design/prototype/html/qa/BJ-ROLE-SIMULATION-QA-v4.6.6.*`.
-
-### 6.2 Role-aware Hub prototype v4.6.5
-
-- Bổ sung bộ điều khiển vai trò trong **review workbench** cho `Chủ cửa hàng`, `Thủ kho`, `Kế toán`, `Nhân viên bán hàng`.
-- `Chủ cửa hàng` dùng profile `FULL`; ba role còn lại chỉ thay đổi quick action, `Cần chú ý`, thứ tự và visibility của workspace trên Hub Kho.
-- Đây là **prototype candidate để review UX**, chưa phải permission contract và không thay thế RBAC.
-- `PAT-NAV`, `SCR-090`–`SCR-096`, 17 BJ, 64 UC và 17 UIF không thay đổi trong v4.6.5.
-- Evidence: `03.design/prototype/html/qa/WAREHOUSE-ROLE-PROFILES-QA-v4.6.5.*`.
-
-### 6.3 Navigation / Information Architecture v4.6.4
-
-- `PAT-NAV` là authority chính thức cho Hub Kho, workspace, quick action, contextual/exception/setup entry và destination mapping.
-- Bổ sung `SCR-090`–`SCR-096` với `screen_class: NAVIGATION`; các screen này không có BJ/UC/UIF owner riêng.
-- `PAT-UI-UX` cho phép hai tuyến trace: business screen theo BJ/UC/UIF và navigation screen theo `PAT-NAV → destination`.
-- Không tạo BJ/UC/UIF giả cho việc mở menu hoặc chuyển workspace.
-- Business Journey, Use Case và 17 UIF hiện hữu không thay đổi trong release này.
-- HTML Hub Kho refined candidate v4.6.3 được dùng làm renderer tham chiếu cho các navigation screen mới; baseline cũ vẫn được giữ trong workbench để so sánh.
-
-
-### 6.4 Phạm vi kiểm tra v4.6.0
+### 6.2 Phạm vi kiểm tra v4.6.0
 
 - `T7-DR-196` — UI định giá chỉ làm việc với giá trị VND đã chuẩn hóa.
 - `T7-DR-197` — Căn cứ giá trực tiếp Phase 1 có nguồn có thẩm quyền, ngày căn cứ và bằng chứng tách biệt.
@@ -131,7 +100,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
 - `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
 
-### 6.5 Các điểm giao diện đã đồng bộ
+### 6.3 Các điểm giao diện đã đồng bộ
 
 - Prototype HTML hiện hành dùng `v460-semantic-ux.css/js` làm lớp semantic/UX cuối cùng.
 - `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.
@@ -139,7 +108,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.
 - BJ14 đọc phương pháp và phạm vi chốt kỳ từ tenant policy; UI không hard-code lựa chọn theo run.
 
-### 6.6 Nguồn canonical để tiếp tục
+### 6.4 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
 - Know-how: `01.knowledge/know-how/`

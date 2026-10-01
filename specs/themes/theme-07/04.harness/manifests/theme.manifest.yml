@@ -1,17 +1,16 @@
 theme: theme-07
-version: 4.6.7
-parent_version: 4.6.6
+version: 4.6.4
+parent_version: 4.6.3
 structure_baseline: V45-Theme-skeleton
-semantic_delta: NAVIGATION_RATIONALE_ROLE_PROFILE_CONTRACT
+semantic_delta: BJ02_PENDING_APPROVAL_CONTINUITY
 template_alignment: true
-source_baseline: v4.6.6
+source_baseline: v4.6.3
 merge_source: v3.13.0
 merge_source_parent: v3.12.0
 canonical_business_journeys: 17
 canonical_use_cases: 64
 canonical_ui_flows: 17
-canonical_navigation_screens: 7
-prototype_parity: V4_6_6_BJ_ROLE_SIMULATION_WORKBENCH
+prototype_parity: V4_6_4_BJ02_PENDING_APPROVAL_CONTINUITY_CANDIDATE
 
 slices:
   - id: SA-AGG-IO-01

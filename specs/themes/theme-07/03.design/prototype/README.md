@@ -5,31 +5,20 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v4.6.5
-version: v4.6.6
-parent: v4.6.5
+source_baseline: v4.6.3
+version: v4.6.4
+parent: v4.6.3
 ---
 # Prototype — Theme 07
 
-## v4.6.6 — Mô phỏng vai trò theo BJ / UIF
+## v4.6.4 — BJ02 pending-approval continuity
 
-- Parent package: `v4.6.5`.
-- Thêm `Mô phỏng vai trò` **chỉ trong review workbench** của tab `Theo BJ / UIF`.
-- Danh sách vai trò lấy trực tiếp từ `actors` đã có trong Screen Contract của UIF hiện tại; không tự tạo mapping vai trò mới.
-- Khi đổi vai trò, workbench chỉ đổi ngữ cảnh review và chọn một screen hiện hữu phù hợp; toàn bộ Screen navigation của BJ vẫn giữ nguyên để nhìn rõ handoff.
-- Không thêm hoặc sửa permission, rule người yêu cầu/người duyệt, CTA, state transition, mutation, BJ, UC, UIF hoặc Screen Contract.
-- Runtime layer mới: `html/v466-bj-role-simulation.css/js`.
-- QA: `html/qa/BJ-ROLE-SIMULATION-QA-v4.6.6.*` và `html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.6.*`.
-
-
-## v4.6.5 — Role-aware Warehouse Hub review
-
-- Parent package: `v4.6.4`.
-- Thêm role controller **chỉ trong review workbench** cho Chủ cửa hàng / Thủ kho / Kế toán / Nhân viên bán hàng.
-- Profile chỉ thay đổi mức ưu tiên và visibility trên `SCR-090 — Kho`; không mô phỏng permission enforcement.
-- Business destinations, PAT-NAV, SCR-090–SCR-096 và 17 UIF giữ nguyên.
-- Runtime layer mới: `v465-role-navigation-profiles.css/js`.
-- QA: `html/qa/WAREHOUSE-ROLE-PROFILES-QA-v4.6.5.*` và `html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.5.*`.
+- Parent package: `v4.6.3`.
+- `SCR-010/PENDING_APPROVAL` có primary CTA **Về Kho**; Back dùng cùng destination và không quay lại editor.
+- Warehouse Hub candidate có `Cần chú ý > Nhận hàng chờ phê duyệt` và worklist 3 fixture để review continuity.
+- Row được phép duyệt mở `SCR-011`; Back từ approver quay về worklist.
+- Thay đổi semantic được giới hạn ở `SCR-010`, `SCR-011`, `UIF-02`; BJ05–BJ17 không redesign.
+- QA: `html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*` và `html/qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.4.*`.
 
 
 ## v4.6.1 — Authority correction
@@ -86,7 +75,7 @@ parent: v4.6.5
 
 ## 1. Mục đích
 
-Prototype là design expression/verification medium hiện hành của baseline v4.6.6; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
+Prototype là design expression/verification medium hiện hành của baseline v4.6.1; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
 
 ## 2. Cách chạy
 

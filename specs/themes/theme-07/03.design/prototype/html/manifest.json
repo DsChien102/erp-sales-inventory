@@ -1,11 +1,11 @@
 {
-  "version": "4.6.6",
-  "parent": "4.6.5",
-  "status": "BJ_ROLE_SIMULATION_WORKBENCH",
-  "scope": "Workbench-only role simulation for Theo BJ / UIF, derived from existing Screen Contract actors. No permission, approval-separation rule, BJ/UC/UIF, Screen Contract or product business logic changes.",
+  "version": "4.6.4",
+  "parent": "4.6.3",
+  "status": "BJ02_PENDING_APPROVAL_CONTINUITY_CANDIDATE",
+  "scope": "BJ02-focused refinement on v4.6.3: pending review gets a safe return-to-Warehouse CTA/back behavior; Warehouse Hub candidate surfaces pending receipt approvals as a worklist under Cần chú ý.",
   "flows": 18,
-  "screens": 96,
-  "canonicalActiveScreens": 80,
+  "screens": 89,
+  "canonicalActiveScreens": 73,
   "activeStateRenders": 482,
   "inspect": true,
   "authority": {
@@ -49,8 +49,8 @@
     "bottomSheet": "VBottomSheet remains available for short contextual content; long direct-basis entry in BJ03 uses DS v2 / Form Sheet with independent body scroll and Sticky Footer."
   },
   "productApproval": "SEMANTIC_AUTHORITY_CORRECTED_v4.6.1",
-  "parentVersion": "4.6.5",
-  "notes": "v4.6.6 adds a workbench-only role controller to Theo BJ / UIF. Roles come directly from existing screen.actors; switching role only changes review context and never changes product business logic.",
+  "parentVersion": "4.6.3",
+  "notes": "v4.6.4 focuses BJ02: SCR-010/PENDING_APPROVAL is no longer a dead end; Back and primary CTA return to Warehouse. Candidate Hub adds Nhận hàng chờ phê duyệt and an approval worklist that routes authorized review to SCR-011.",
   "businessJourneyFlows": 17,
   "supportingCapabilityFlows": 1,
   "canonicalRouteOccurrences": 85,
@@ -63,7 +63,7 @@
     "fullThemeEndUserHardening": "qa/FULL-THEME-END-USER-HARDENING-QA-v3.10.1.json",
     "runtimeUi": "qa/RUNTIME-UI-QA-v3.10.1.json",
     "flowLogic": "qa/FLOW-LOGIC-E2E-QA-v3.10.1.json",
-    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.6.json",
+    "allFlowSmoke": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.0.json",
     "representativeCoherence": "qa/REPRESENTATIVE-COHERENCE-QA-v3.10.1.json",
     "deviceFrame": "qa/DEVICE-FRAME-QA-v3.10.1.json",
     "wave3CrossBjAuditRegression": "qa/WAVE-3-CROSS-BJ-AUDIT-v3.10.1.json",
@@ -83,13 +83,8 @@
     "snapshotReviewCaptures": "qa/v460-snapshot-review/",
     "snapshotContactSheets": "qa/v460-snapshot-contact-sheets/",
     "riskStateCaptures": "qa/v450-risk-state-captures/",
-    "warehouseHubCandidate": "qa/WAREHOUSE-HUB-CANDIDATE-QA-v4.6.3.json",
-    "warehouseHubCandidateCaptures": "qa/v463-warehouse-hub-candidate-captures/",
-    "allFlowSmokeCurrent": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.5.json",
-    "navigationIaContract": "qa/NAVIGATION-IA-CONTRACT-QA-v4.6.4.json",
-    "warehouseRoleProfiles": "qa/WAREHOUSE-ROLE-PROFILES-QA-v4.6.5.json",
-    "warehouseRoleProfileCaptures": "qa/v465-role-profile-captures/",
-    "bjRoleSimulation": "qa/BJ-ROLE-SIMULATION-QA-v4.6.6.json"
-  },
-  "canonicalNavigationScreens": 7
+    "warehouseHubCandidate": "qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.json",
+    "warehouseHubCandidateCaptures": "qa/v464-bj02-continuity-captures/",
+    "allFlowSmokeCurrent": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.4.json"
+  }
 }

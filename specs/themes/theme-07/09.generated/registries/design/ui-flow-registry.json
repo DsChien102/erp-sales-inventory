@@ -1,10 +1,10 @@
 {
   "schema_version": "2.0",
-  "patch_version": "v4.6.1",
+  "patch_version": "4.6.4",
   "freeze_id": "T07-UIF-V4.6.1",
-  "source_baseline": "v4.3.0",
+  "source_baseline": "v4.6.3",
   "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
-  "prototype_status": "SEMANTIC_UX_v4.6.1",
+  "prototype_status": "BJ02_PENDING_APPROVAL_CONTINUITY_CANDIDATE",
   "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
   "flows": [
     {
@@ -123,11 +123,23 @@
           "screen": "SCR-013",
           "actor": "Warehouse receiver",
           "from": "SCR-012 UNKNOWN only"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-010",
+          "actor": "Warehouse receiver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
         }
       ],
       "transition_count": 21,
-      "prototype_status": "BJ02_PILOT_CALIBRATING_v0.2.8",
-      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "prototype_status": "BJ02_PENDING_APPROVAL_CONTINUITY_v4.6.4",
+      "parity_status": "ALIGNED_TO_v4.6.4_PENDING_APPROVAL_CONTINUITY",
       "evidence_level": "PILOT_STATIC_VALIDATED",
       "holistic_review": {
         "version": "1.9.0",
@@ -1185,5 +1197,5 @@
     "browser_errors": 0,
     "evidence": "03.design/prototype/html/qa/"
   },
-  "version": "4.6.1"
+  "version": "4.6.4"
 }

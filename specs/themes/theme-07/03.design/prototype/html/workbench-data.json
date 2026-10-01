@@ -69,6 +69,22 @@
           "screen": "SCR-013",
           "actor": "Warehouse receiver",
           "from": "SCR-012 UNKNOWN only"
+        },
+        {
+          "id": "hub-pending-maker",
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-010",
+          "actor": "Warehouse receiver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt",
+          "urlParam": "entry=warehouse-hub-pending"
+        },
+        {
+          "id": "hub-pending-approver",
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt",
+          "urlParam": "entry=warehouse-hub-pending"
         }
       ]
     },
@@ -1721,7 +1737,7 @@
         "UC-02-02",
         "UC-02-03"
       ],
-      "purpose": "Rà soát lần nhận và từng Product+UOM line trước khi khóa revision; không cộng chéo transaction UOM. Đổi chứng từ sau khi có dữ liệu phải xác nhận reset an toàn.",
+      "purpose": "Rà soát lần nhận trước khi khóa revision; khi đã gửi phê duyệt thì chỉ xem và quay về Kho, không mở lại editor.",
       "actors": [
         "Thủ kho"
       ],
@@ -1759,6 +1775,14 @@
           "bc": "BC-IC-07",
           "api": "API-C-26",
           "tone": "primary"
+        },
+        {
+          "id": "NAV-02-RETURN-WAREHOUSE",
+          "label": "Về Kho",
+          "bc": "NAVIGATION_ONLY",
+          "api": "NONE",
+          "tone": "primary",
+          "state": "PENDING_APPROVAL"
         }
       ],
       "traceActions": [],
@@ -1767,7 +1791,8 @@
         "VCard",
         "VText",
         "VBanner",
-        "VButton"
+        "VButton",
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "uifs": [
@@ -1803,7 +1828,7 @@
       "uc": [
         "UC-02-03"
       ],
-      "purpose": "Người duyệt xem lý do cần duyệt, chứng từ giao nhận có thể preview, người gửi/thời điểm gửi, aggregate risk total và receipt-line facts để Duyệt/Từ chối đúng revision.",
+      "purpose": "Người duyệt xem yêu cầu nhận hàng từ task hoặc Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt, sau đó Duyệt/Từ chối đúng revision.",
       "actors": [
         "Người phê duyệt"
       ],
@@ -8014,5 +8039,5 @@
     "UIF-17",
     "CAP-01"
   ],
-  "version": "4.6.1"
+  "version": "4.6.4"
 }
