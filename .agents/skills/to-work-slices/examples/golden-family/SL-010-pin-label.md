@@ -90,27 +90,37 @@ flowchart TD
 
 ### Persistence
 
-```text
-example_labels.tenant_labels
-example_labels.idempotency_records
-```
-
 Draft lúc implement: `supabase/migrations/_drafts/example_labels_pin_tenant_label.sql`
 
-```mermaid
-erDiagram
-    TENANT_LABELS {
-        uuid id PK
-        uuid tenant_id
-        text label
-    }
-```
+Bảng `example_labels.tenant_labels`
 
-| Field | Type | Purpose |
-| --- | --- | --- |
-| `id` | uuid | PK |
-| `tenant_id` | uuid | tenant scope |
-| `label` | text | nhãn active |
+| Cột | Kiểu | Null | Ràng buộc |
+| --- | --- | --- | --- |
+| `id` | uuid | không | PK |
+| `tenant_id` | uuid | không | |
+| `label` | text | không | |
+
+Unique `(tenant_id)`
+
+Bảng `example_labels.idempotency_records`. Cột copy từ [`sales.idempotency_records`](../../../../../supabase/migrations/20260830005_sales_rebuild_schema.sql).
+
+| Cột | Kiểu | Null | Ràng buộc |
+| --- | --- | --- | --- |
+| `id` | uuid | không | PK |
+| `tenant_id` | uuid | không | |
+| `command_scope` | varchar(100) | không | |
+| `idempotency_key` | varchar(150) | không | |
+| `payload_hash` | varchar(128) | không | |
+| `status` | text | không | CHECK `in_progress` / `succeeded` / `failed` / `uncertain` |
+| `result_type` | varchar(100) | có | |
+| `result_id` | uuid | có | |
+| `result_snapshot` | jsonb | có | |
+| `correlation_id` | uuid | không | |
+| `expires_at` | timestamptz | có | |
+| `created_at` | timestamptz | không | DEFAULT `now()` |
+| `updated_at` | timestamptz | không | DEFAULT `now()` |
+
+Unique `(tenant_id, command_scope, idempotency_key)`
 
 | RPC | Params `p_*` | Returns |
 | --- | --- | --- |

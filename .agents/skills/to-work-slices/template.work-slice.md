@@ -99,7 +99,16 @@ Giữ mục khi slice đổi domain, persistence, transaction, hoặc file code.
 
 ### Persistence
 
-Bảng, đường draft `_drafts/`, field/RPC đủ để implement. Body SQL không bắt buộc trong markdown.
+Đường draft `_drafts/`. Body SQL không bắt buộc. Cột và ERD theo [reference.md](reference.md).
+
+Bảng `schema.bang`
+
+| Cột | Kiểu | Null | Ràng buộc |
+| --- | --- | --- | --- |
+| `id` | uuid | không | PK |
+| `tenant_id` | uuid | không | FK `iam.tenants(id)` |
+
+Unique hoặc index, nếu có, một dòng dưới table. Có FK thì một `erDiagram` đứng trước các table này. Bảng dùng chung: link file SQL nguồn trên dòng tên và copy đủ cột.
 
 ### Transaction / Idempotency
 

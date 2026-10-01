@@ -80,9 +80,11 @@ H3 đóng, chỉ H3 nào slice đụng:
 | H3 | Khi có | Tối thiểu |
 | --- | --- | --- |
 | Domain | Đổi state | Before / After hoặc state |
-| Persistence | Đổi bảng hoặc RPC | Bảng, đường `_drafts/`, field và RPC đủ để implement. Body SQL không bắt buộc trong markdown |
+| Persistence | Đổi bảng hoặc RPC | Mỗi bảng vật lý một table cột. Có FK thì một `erDiagram`. Đường `_drafts/`, field và RPC đủ để implement. Body SQL không bắt buộc |
 | Transaction / Idempotency | Mutation | `idempotencyKey` khác `command.id`. UK `(tenant_id, command_scope, idempotency_key)` cùng transaction với business và outbox |
 | Code Layout | Tạo hoặc sửa file | Một cây `modules/` và `apps/` nếu cả hai đổi. Mỗi segment một dòng, indent 4 space. Mọi file slice đụng |
+
+Mỗi bảng vật lý: dòng «Bảng `schema.bảng`», rồi table `Cột | Kiểu | Null | Ràng buộc`. Unique cấp bảng và index, kể cả `WHERE`, một dòng dưới table. Có FK thì một `erDiagram` đứng trước các table đó. Thực thể gồm bảng slice tạo hoặc sửa và bảng đầu kia của FK. Nhãn quan hệ là cột FK. Unique từng phần ghi trên nhãn. Bảng dùng chung: link file SQL nguồn trên dòng tên, copy đủ cột, kiểu, null, ràng buộc. RPC và mã lỗi giữ một dòng một mục.
 
 Query xóa Transaction / Idempotency.
 Design không đụng concern nào ở bảng thì xóa cả mục Design.
@@ -154,6 +156,7 @@ YAML trên file slice: `id`, `journey`, `usecase`, `sources`, `theme`. Fixture `
 - [ ] Scope & Rules đủ In Scope, Out of Scope, Boundary, Rules
 - [ ] Open Questions còn chặn thì chưa READY
 - [ ] Flow / Design / Contracts / Presentation, nếu có, đạt tối thiểu ở bảng Heading
+- [ ] Bảng vật lý đúng dạng Persistence. Có FK thì có `erDiagram`
 - [ ] Field, RPC, schema khớp SRS, hoặc lệch được ghi rõ
 - [ ] Blocked by khớp `depends_on`
 - [ ] Mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`

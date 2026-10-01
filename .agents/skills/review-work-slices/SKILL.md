@@ -48,7 +48,8 @@ Chạy checklist trong [reference.md](../to-work-slices/reference.md) cho từng
 ### 4. Propose READY (or BLOCKED)
 
 - Checklist xanh → hỏi: **OK đặt `READY_TO_IMPLEMENT`?**
-- Fail không sửa được trong lượt → đề xuất `BLOCKED` kèm `blocked_reason`, hoặc dừng để user bổ sung SRS.
+- Lỗ còn lại là quyết định SRS không chốt, hoặc phụ thuộc ngoài slice: dừng và bảo chạy `/unblock-work-slice` trên đúng slice.
+- Fail khác không sửa được trong lượt → đề xuất `BLOCKED` kèm `blocked_reason`, hoặc dừng để user bổ sung SRS.
 
 Chưa sửa catalog sang READY trước câu trả lời user.
 
