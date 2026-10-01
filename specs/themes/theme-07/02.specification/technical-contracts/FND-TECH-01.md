@@ -515,7 +515,7 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 
 ### 15. PROC-01 và boundary chuyển giao v4.1.0
 
-- [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) chỉ được gọi từ BJ-16 sau khi chứng minh ledger đúng/projection sai.
+- [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../../05.procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho.md) chỉ được gọi từ BJ-16 sau khi chứng minh ledger đúng/projection sai.
 - `BC-XD-01` là contract chuyển giao Theme 10 — Mua hàng; `BC-XD-02/03` thuộc Theme 2 — Sản phẩm; `BC-XD-04` thuộc Reporting/Analytics.
 - Các boundary contract này được giữ để khóa payload/finality trong thời gian `outbound/` còn nằm ở Theme 7, không tạo implementation ownership cho Theme 7.
 

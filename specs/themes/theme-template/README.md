@@ -21,7 +21,6 @@ theme-xx/
         domain/
             domain-foundation/
             entities/
-            aggregates/
             read-models/
             integrations/
         technical-contracts/
@@ -35,7 +34,6 @@ theme-xx/
             CATALOG.md
             SL-*.md
     05.procedures/
-    06.evidence/
     09.generated/
 ```
 
@@ -45,11 +43,11 @@ Khi tạo Theme, dùng [README.template.md](README.template.md) và [VERSION.tem
 
 - **Knowledge:** tri thức, quyết định và thuật ngữ.
 - **Behavior:** BJ, UC và BC; luồng giao diện cấp hành trình tiếp tục nằm trong BJ. Giữ quy ước BJ/UC V5.
-- **Domain:** Foundation mô tả trách nhiệm/bất biến; Entity mô tả đối tượng; Aggregate sở hữu ranh giới nhất quán; Read Model sở hữu mô hình đọc; Integration sở hữu nghĩa và ranh giới trao đổi giữa các Domain/Theme.
+- **Domain:** Foundation mô tả trách nhiệm/bất biến; Entity mô tả đối tượng, Aggregate root sở hữu ranh giới nhất quán; Read Model sở hữu mô hình đọc; Integration sở hữu nghĩa và ranh giới trao đổi giữa các Domain/Theme.
 - **Technical Contract:** quy tắc kỹ thuật dùng chung nhiều Slice hoặc toàn Theme. NFR đo được dùng mẫu NFR trong cùng thư mục. Không tạo tài liệu chỉ để lấp đủ chủ đề.
 - **Design:** Screen, Pattern, Design System và prototype. Prototype không quyết định quy tắc nghiệp vụ; HTML chạy được đặt trong 03.design/prototype/html/ khi Theme có runtime.
 - **Work Slice:** một outcome một file flat trong `BJ-<id>-harness/`. `CATALOG.md` là SSOT `design_status`. Template: `.agents/skills/to-work-slices/`.
-- **Procedures/Evidence/Generated:** quy trình vận hành, bằng chứng và dữ liệu sinh tự động. Generated không phải nguồn biên tập tay.
+- **Procedures/Generated:** quy trình vận hành và dữ liệu sinh tự động. Generated không phải nguồn biên tập tay.
 
 Xem [Doctrine và Directory Contract](../README.md) để đối chiếu trách nhiệm từng vùng.
 
@@ -81,7 +79,7 @@ Bảng này ghi đường dẫn lịch sử → đường dẫn hiện hành; kh
 | 04.harness/slices/SL-002-*.sample.md | 04.harness/BJ-xx-harness/SL-002-quick-receipt.md |
 | 04.harness/manifests/ | **Xóa** — thay bằng `BJ-<id>-harness/CATALOG.md` |
 | 06.procedures/ | 05.procedures/ |
-| 07.evidence/ | 06.evidence/ |
+| 07.evidence/ | Bỏ — không còn trong cây Theme |
 | 09.generated/ | Giữ nguyên |
 
 ID nguồn nghiệp vụ/Domain/Screen giữ nguyên. Sample harness không áp máy móc cho Theme thật. Outcome có UI thì file gồm Presentation. Outcome không UI thì không có mục đó.

@@ -80,7 +80,7 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 | Article ID | `KB-KGV-041` |
 | Cụm tri thức | [`KGV-C10`](00-table-of-contents.md#c10-vận-hành-phục-hồi-và-thay-đổi) |
 | Loại bài | `GOVERNANCE` |
-| Quyết định chính | [`BASELINE_FREEZE_GATE`](../../06.evidence/legacy-v3.10.1/specification/09-traceability-quality.md#baseline-freeze-gates), [`CONTRACT_CLOSURE_GATE`](../../06.evidence/legacy-v3.10.1/specification/09-traceability-quality.md#contract-closure-gate), [`T7-DR-003#REQ-01`](../decisions/decision-register.md#31-g01-ph%E1%BA%A1m-vi-th%E1%BA%A9m-quy%E1%BB%81n-v%C3%A0-m%C3%B4-h%C3%ACnh-c%E1%BB%ADa-h%C3%A0ngkho), [`UI_CONTENT_STANDARD`](../../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/08-ui-ux.md#quy-uoc-noi-dung-giao-dien), [`T7-DR-090#REQ-01`](../decisions/decision-register.md#312-g12-s%E1%BB%95-nghi%E1%BB%87p-v%E1%BB%A5-b%C3%A1o-c%C3%A1o-%C4%91%E1%BB%91i-so%C3%A1t-c%E1%BA%A3nh-b%C3%A1o-v%C3%A0-ph%E1%BB%A5c-h%E1%BB%93i) |
+| Quyết định chính | [`T7-DR-003#REQ-01`](../decisions/decision-register.md#31-g01-ph%E1%BA%A1m-vi-th%E1%BA%A9m-quy%E1%BB%81n-v%C3%A0-m%C3%B4-h%C3%ACnh-c%E1%BB%ADa-h%C3%A0ngkho), [`T7-DR-090#REQ-01`](../decisions/decision-register.md#312-g12-s%E1%BB%95-nghi%E1%BB%87p-v%E1%BB%A5-b%C3%A1o-c%C3%A1o-%C4%91%E1%BB%91i-so%C3%A1t-c%E1%BA%A3nh-b%C3%A1o-v%C3%A0-ph%E1%BB%A5c-h%E1%BB%93i) |
 | Trạng thái quyết định | `ACTIVE` |
 | Mức bằng chứng của bài | `STATIC_VALIDATED` |
 | Giới hạn | Bài giải thích quản trị thay đổi quy tắc; không quyết định quy ước semantic versioning cụ thể, công cụ ký số hoặc cơ cấu hội đồng phê chuẩn |

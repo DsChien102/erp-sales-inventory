@@ -65,7 +65,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - **BA:** `01.knowledge/` → `02.specification/` → `03.design/`.
 - **SA:** `02.specification/domain/` + UC/BC → `02.specification/domain/` + `02.specification/technical-contracts/`.
 - **SE:** `04.harness/` và các nguồn được Slice tham chiếu.
-- **QA/Harness:** `06.evidence/` + `09.generated/`.
+- **QA/Harness:** `09.generated/`.
 
 ## 5. Tài liệu chính
 
@@ -149,4 +149,3 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - Screen Contract: `03.design/screens/`
 - Domain/Entity/BC/Technical Contract: `02.specification/`
 - HTML prototype: `03.design/prototype/html/`
-- Release evidence: `06.evidence/`

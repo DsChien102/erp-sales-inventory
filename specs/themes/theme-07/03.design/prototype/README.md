@@ -205,5 +205,5 @@ Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư
 ## 6. Known gaps
 
 - Runtime HTML v3.10.1 được giữ tại `03.design/prototype/html/` để chạy prototype.
-- Runtime bundle, kể cả QA nội bộ mà manifest của prototype tham chiếu, là frozen runtime artifact; nguồn evidence canonical của package vẫn nằm ở `06.evidence/`.
+- Runtime bundle, kể cả QA nội bộ mà manifest của prototype tham chiếu, là frozen runtime artifact.
 - Không file runtime nào được coi là nguồn business semantics.

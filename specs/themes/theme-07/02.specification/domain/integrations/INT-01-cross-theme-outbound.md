@@ -106,11 +106,7 @@ Wire/API/event chi tiết nằm ở `FND-TECH-01`; integration semantic không �
 | Event đã phát nhưng consumer chưa nhận | Retry cùng event identity; không rollback Theme 7 commit |
 | Không rõ mutation Theme 7 đã commit hay chưa | Dùng finality/UNKNOWN recovery contract; không gửi command mới mù quáng |
 
-## 8. Temporary outbound reference artifacts
-
-Các gói lịch sử chuyển giao Theme 5/10/2/Reporting vẫn được giữ dưới `06.evidence/outbound-v3.10.1/` để truy vết. Chúng là **evidence**, không phải canonical Theme 7 capability và không được dùng để đếm BJ/UC hiện hành.
-
-## 9. Verification
+## 8. Verification
 
 - Theme 10 source không bị copy thành owned entity của Theme 7.
 - Quick Receipt có đường hoàn tất BJ03 khi Theme 10 không có source.
