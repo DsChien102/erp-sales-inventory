@@ -303,6 +303,7 @@ pricing:
 
 sales:
   _apply_settlement_obligation_adjustment: 20260830006_sales_shared_rpc_helpers.sql
+  _assert_exchange_price: 20260830012_sales_return_exchange_session_rpcs.sql
   _assert_sales_actor: 20260830006_sales_shared_rpc_helpers.sql
   _base_quantity_micros: 20260830012_sales_return_exchange_session_rpcs.sql
   _begin_sales_idempotency: 20260830006_sales_shared_rpc_helpers.sql
@@ -311,8 +312,10 @@ sales:
   _draft_payload: 20260830007_sales_draft_rpcs.sql
   _emit_sales_settlement_changed: 20260830006_sales_shared_rpc_helpers.sql
   _get_return_exchange_context: 20260830012_sales_return_exchange_session_rpcs.sql
+  _price_exchange_unit: 20260830012_sales_return_exchange_session_rpcs.sql
   _product_unit_conversion_rate: 20260830012_sales_return_exchange_session_rpcs.sql
   _recompute_sales_settlement: 20260830006_sales_shared_rpc_helpers.sql
+  _sales_order_current_lines: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_order_lines_payload: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_receipt_envelope: 20260830010_sales_inquiry_receipt_rpcs.sql
   _sales_receipt_lines_payload: 20260830010_sales_inquiry_receipt_rpcs.sql
@@ -351,6 +354,7 @@ sales:
   precheck_return_exchange: 20260830012_sales_return_exchange_session_rpcs.sql
   precheck_sales_order_cancellation: 20260830011_sales_adjustment_cancellation_rpcs.sql
   precheck_sales_order_checkout: 20260830008_sales_checkout_rpcs.sql
+  preview_return_exchange_pricing: 20260830012_sales_return_exchange_session_rpcs.sql
   record_sales_payment: 20260904001_sales_normalize_outbox_and_commands.sql
   record_sales_receipt_activity: 20260830010_sales_inquiry_receipt_rpcs.sql
   record_sales_refund: 20260904001_sales_normalize_outbox_and_commands.sql

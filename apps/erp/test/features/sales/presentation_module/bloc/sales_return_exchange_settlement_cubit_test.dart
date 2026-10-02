@@ -305,6 +305,48 @@ void main() {
     expect(pending.state.status, SalesReturnExchangeSettlementStatus.processing);
   });
 
+  test('PRICE_CHANGED marks settlement stale without evaluating again', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      evaluateError: const SalesContractException('PRICE_CHANGED'),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+
+    await cubit.loadAndEvaluate();
+
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.stale);
+    expect(
+      cubit.state.screenError,
+      'Giá món đổi đã thay đổi. Vui lòng quay lại màn đổi/trả để cập nhật giá.',
+    );
+    expect(module.queries.whereType<EvaluateReturnPricingImpactQuery>(), hasLength(1));
+  });
+
+  test('PRICE_CHANGED on confirm marks stale without evaluating again', () async {
+    final module = _RecordingSalesModule(
+      detail: detail(),
+      commandErrorsQueue: const [SalesContractException('PRICE_CHANGED')],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.loadAndEvaluate();
+    final evaluationsBefore = module.queries.whereType<EvaluateReturnPricingImpactQuery>().length;
+
+    expect(await cubit.confirm(), isNull);
+
+    expect(cubit.state.status, SalesReturnExchangeSettlementStatus.stale);
+    expect(
+      cubit.state.screenError,
+      'Giá món đổi đã thay đổi. Vui lòng quay lại màn đổi/trả để cập nhật giá.',
+    );
+    expect(
+      module.queries.whereType<EvaluateReturnPricingImpactQuery>(),
+      hasLength(evaluationsBefore),
+    );
+    expect(module.commands, hasLength(1));
+  });
+
   test('STALE_VERSION reloads detail then requires new confirmation', () async {
     final module = _RecordingSalesModule(
       detail: detail(),

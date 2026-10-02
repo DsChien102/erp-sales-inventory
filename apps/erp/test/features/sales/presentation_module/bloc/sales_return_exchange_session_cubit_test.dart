@@ -212,12 +212,152 @@ void main() {
     expect(cubit.state.fieldError, isNot(contains('policy')));
   });
 
+  test('addExchangeProduct uses the server preview price and tenant context', () async {
+    final module = _RecordingSalesModule(
+      preview: const ReturnExchangePricingPreviewDto(
+        lines: [
+          ReturnExchangePricedLineDto(
+            productUnitId: 'u-1',
+            unitPrice: MoneyDto(amountMinor: 80000, currencyCode: 'VND'),
+            sourceCode: 'CUSTOMER_PRIVATE_RULE',
+          ),
+        ],
+      ),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.load();
+
+    await cubit.addExchangeProduct(
+      const SalesProductSelection(
+        productId: 'p-1',
+        productUnitId: 'u-1',
+        productName: 'Sản phẩm X',
+        sku: 'SKU-X',
+        unitLabel: 'Hộp',
+        unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+      ),
+    );
+
+    expect(cubit.state.exchangeEdits.single.unitPrice.amountMinor, 80000);
+    final preview = module.queries.whereType<PreviewReturnExchangePricingQuery>().single;
+    expect(preview.tenantId, 'tenant-1');
+    expect(preview.actorId, 'actor-1');
+  });
+
+  test('PRICING_BLOCKED does not add the exchange line', () async {
+    final module = _RecordingSalesModule(
+      previewError: const SalesContractException('PRICING_BLOCKED'),
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.load();
+
+    await cubit.addExchangeProduct(
+      const SalesProductSelection(
+        productId: 'p-1',
+        productUnitId: 'u-1',
+        productName: 'Sản phẩm X',
+        sku: 'SKU-X',
+        unitLabel: 'Hộp',
+        unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+      ),
+    );
+
+    expect(cubit.state.exchangeEdits, isEmpty);
+    expect(cubit.state.screenError, 'Không xác định được giá sản phẩm.');
+  });
+
+  test('refreshed exchange price forces a new save instead of reusing the old one', () async {
+    final module = _RecordingSalesModule();
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await prepareReady(cubit);
+    await cubit.addExchangeProduct(
+      const SalesProductSelection(
+        productId: 'product-x',
+        productUnitId: 'unit-x',
+        productName: 'Vitamin C',
+        sku: 'SKU-X',
+        unitLabel: 'Hộp',
+        unitPrice: MoneyDto(amountMinor: 1000, currencyCode: 'VND'),
+      ),
+    );
+    expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
+    expect(module.commands, hasLength(1));
+
+    // Không đổi giá: lưu lại được bỏ qua (dòng không đổi).
+    await cubit.refreshExchangePrices();
+    expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
+    expect(module.commands, hasLength(1));
+
+    // Giá đổi (vd. sau PRICE_CHANGED ở quyết toán): phải lưu lại với giá mới.
+    module.previewAmountMinor = 1200;
+    await cubit.refreshExchangePrices();
+    expect(cubit.state.exchangeEdits.single.unitPrice.amountMinor, 1200);
+    expect(await cubit.saveAndGetReturnExchangeId(), isNotNull);
+    expect(module.commands, hasLength(2));
+  });
+
+  test('network failure while previewing does not claim the price is unknown', () async {
+    final module = _RecordingSalesModule(previewError: Exception('socket closed'));
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await cubit.load();
+
+    await cubit.addExchangeProduct(
+      const SalesProductSelection(
+        productId: 'p-1',
+        productUnitId: 'u-1',
+        productName: 'Sản phẩm X',
+        sku: 'SKU-X',
+        unitLabel: 'Hộp',
+        unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+      ),
+    );
+
+    expect(cubit.state.exchangeEdits, isEmpty);
+    expect(cubit.state.screenError, 'Không lấy được giá sản phẩm. Vui lòng thử lại.');
+  });
+
+  test('PRICE_CHANGED reloads the session and refreshes exchange prices', () async {
+    final module = _RecordingSalesModule(
+      commandErrorsQueue: const [SalesContractException('PRICE_CHANGED')],
+    );
+    final cubit = build(module);
+    addTearDown(cubit.close);
+    await prepareReady(cubit);
+    await cubit.addExchangeProduct(
+      const SalesProductSelection(
+        productId: 'product-x',
+        productUnitId: 'unit-x',
+        productName: 'Vitamin C',
+        sku: 'SKU-X',
+        unitLabel: 'Hộp',
+        unitPrice: MoneyDto(amountMinor: 1000, currencyCode: 'VND'),
+      ),
+    );
+    final previewBefore = module.queries.whereType<PreviewReturnExchangePricingQuery>().length;
+
+    expect(await cubit.saveAndGetReturnExchangeId(), isNull);
+
+    expect(
+      cubit.state.screenError,
+      'Giá món đổi đã thay đổi. Đã cập nhật giá mới, vui lòng kiểm tra lại.',
+    );
+    // load() làm mới giá đúng 1 lần; không gọi lại thêm lần nữa sau load().
+    expect(
+      module.queries.whereType<PreviewReturnExchangePricingQuery>().length,
+      previewBefore + 1,
+    );
+  });
+
   test('exchange selection keeps product and product-unit IDs with catalog labels', () async {
     final cubit = build(_RecordingSalesModule());
     addTearDown(cubit.close);
     await cubit.load();
 
-    cubit.addExchangeProduct(
+    await cubit.addExchangeProduct(
       const SalesProductSelection(
         productId: 'product-x',
         productUnitId: 'unit-x',
@@ -275,7 +415,7 @@ void main() {
     final cubit = build(module);
     addTearDown(cubit.close);
     await prepareReady(cubit);
-    cubit.addExchangeProduct(
+    await cubit.addExchangeProduct(
       const SalesProductSelection(
         productId: 'product-x',
         productUnitId: 'unit-x',
@@ -502,6 +642,8 @@ final class _RecordingSalesModule implements ISalesModule {
     ReturnableOrderLinesDto? returnable,
     ReturnExchangeFormPolicyDto? policy,
     ReturnExchangeDraftDto? draft,
+    this.preview,
+    this.previewError,
     this.commandErrorsQueue = const <Object?>[],
   }) : detail = detail ?? _detail(),
        precheck = precheck ?? _precheck(),
@@ -522,8 +664,13 @@ final class _RecordingSalesModule implements ISalesModule {
   final ReturnableOrderLinesDto returnable;
   final ReturnExchangeFormPolicyDto policy;
   final ReturnExchangeDraftDto draft;
+  final ReturnExchangePricingPreviewDto? preview;
+  final Object? previewError;
   final List<Object?> commandErrorsQueue;
   int _commandCall = 0;
+
+  /// Giá xem trước mặc định; đổi giữa test để giả lập giá vừa thay đổi.
+  int previewAmountMinor = 1000;
 
   final List<Object> queries = <Object>[];
   final List<Object> commands = <Object>[];
@@ -535,6 +682,24 @@ final class _RecordingSalesModule implements ISalesModule {
     if (query is PrecheckReturnExchangeQuery) return precheck as TResult;
     if (query is GetReturnableOrderLinesQuery) return returnable as TResult;
     if (query is GetReturnExchangeFormPolicyQuery) return policy as TResult;
+    if (query is PreviewReturnExchangePricingQuery) {
+      final previewQuery = query as PreviewReturnExchangePricingQuery;
+      final error = previewError;
+      if (error != null) throw error;
+      final configured = preview;
+      if (configured != null) return configured as TResult;
+      return ReturnExchangePricingPreviewDto(
+            lines: [
+              for (final line in previewQuery.lines)
+                ReturnExchangePricedLineDto(
+                  productUnitId: line.productUnitId,
+                  unitPrice: MoneyDto(amountMinor: previewAmountMinor, currencyCode: 'VND'),
+                  sourceCode: 'LIST',
+                ),
+            ],
+          )
+          as TResult;
+    }
     throw UnsupportedError('unexpected query ${query.runtimeType}');
   }
 

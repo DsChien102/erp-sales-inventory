@@ -16,6 +16,7 @@ final class SalesOrderCurrentLineDto {
     required this.unit,
     required this.heldQuantity,
     required this.unitPrice,
+    this.originalUnitPrice,
     required this.source,
   });
 
@@ -23,5 +24,6 @@ final class SalesOrderCurrentLineDto {
   final ProductUnitSnapshotDto unit;
   final QuantityDto heldQuantity;
   final MoneyDto unitPrice;
+  final MoneyDto? originalUnitPrice;
   final SalesOrderLineSource source;
 }

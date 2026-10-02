@@ -73,6 +73,7 @@ final salesModuleManifest = GeneratedModuleManifest(
     PrecheckReturnExchangeQuery,
     PrecheckSalesOrderCancellationQuery,
     PrecheckSalesOrderCheckoutQuery,
+    PreviewReturnExchangePricingQuery,
     PreviewSalesPricingQuery,
     SearchSalesOrdersQuery,
   ],

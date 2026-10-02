@@ -151,7 +151,7 @@ class _SalesCheckoutPageState extends State<SalesCheckoutPage> {
         VToast.show(
           context,
           title: 'Đơn bị chặn khi hoàn tất',
-          message: 'Vui lòng quay lại đơn để kiểm tra.',
+          message: state.attemptErrorMessage ?? 'Vui lòng quay lại đơn để kiểm tra.',
           type: VToastType.danger,
           onTap: _returnToCompose,
         );

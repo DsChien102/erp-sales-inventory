@@ -323,7 +323,9 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
     if (!mounted || result == null) return;
     switch (result) {
       case SalesCheckoutPrepareReady(:final args):
-        SalesCheckoutRoute($extra: args).push(context);
+        await SalesCheckoutRoute($extra: args).push(context);
+        if (!mounted) return;
+        await _cubit.refreshPricingPreview();
       case SalesCheckoutPrepareBlocked(:final message):
         VToast.show(
           context,

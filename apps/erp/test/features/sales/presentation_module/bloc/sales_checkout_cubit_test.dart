@@ -298,6 +298,29 @@ void main() {
       await cubit.close();
     });
 
+    test('price changed finalize tells the seller to return and refresh', () async {
+      final module = _RecordingSalesModule(
+        result: _readyResult(),
+        commandResult: const CheckoutResultDto(
+          idempotencyKey: 'k',
+          salesOrderId: '',
+          salesOrderVersion: 0,
+          status: CheckoutResultStatus.blocked,
+          blockedCode: 'PRICE_CHANGED',
+        ),
+      );
+      final cubit = _cubit(module: module);
+
+      await cubit.finalizeCheckout();
+
+      expect(cubit.state.attemptStatus, SalesCheckoutAttemptStatus.blocked);
+      expect(
+        cubit.state.attemptErrorMessage,
+        'Giá đã thay đổi. Vui lòng quay lại đơn để cập nhật giá.',
+      );
+      await cubit.close();
+    });
+
     test('blocked finalize precheck stops before command', () async {
       final module = _RecordingSalesModule(result: _blockedResult());
       final cubit = _cubit(module: module);

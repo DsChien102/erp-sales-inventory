@@ -12,7 +12,8 @@ void main() {
   test('order lines drop pricing/tax snapshots and own their checks', () {
     final start = schemaSql.indexOf('create table if not exists sales.sales_order_lines (');
     final table = schemaSql.substring(start, schemaSql.indexOf('\n);', start));
-    expect(table, isNot(contains('pricing_snapshot')));
+    // Spec 2026-09-28: pricing_snapshot quay lại (nguồn giá server lúc chốt).
+    expect(table, contains('pricing_snapshot jsonb not null'));
     expect(table, isNot(contains('tax_snapshot')));
     expect(table, contains('constraint sales_order_lines_base_qty_positive'));
     expect(table, contains('constraint sales_order_lines_commercial_balance'));

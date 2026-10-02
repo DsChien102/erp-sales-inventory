@@ -66,6 +66,15 @@ final class SupabaseReturnExchangeReadGateway implements IReturnExchangeReadGate
   }
 
   @override
+  Future<ReturnExchangePricingPreviewDto> previewPricing(PreviewReturnExchangePricingQuery query) {
+    return _call(
+      'preview_return_exchange_pricing',
+      ReturnExchangeRpcMapper.previewPricingParams(query),
+      ReturnExchangeRpcMapper.previewPricingFromJson,
+    );
+  }
+
+  @override
   Future<ReturnExchangeValuationDto> evaluate(
     EvaluateReturnPricingImpactQuery query, {
     required ReturnExchangeReferenceDecision referenceDecision,
@@ -134,6 +143,8 @@ final class SupabaseReturnExchangeReadGateway implements IReturnExchangeReadGate
     'RETURN_EXCHANGE_BLOCKED',
     'RETURN_QUANTITY_EXCEEDED',
     'STALE_VERSION',
+    'PRICE_CHANGED',
+    'PRICING_BLOCKED',
     'IDEMPOTENCY_CONFLICT',
     'IMPACT_PENDING',
     'DEPENDENCY_UNAVAILABLE',

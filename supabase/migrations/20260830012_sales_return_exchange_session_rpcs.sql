@@ -2,7 +2,7 @@
 -- Kind: draft
 -- Intent: sales_return_exchange_session_rpcs
 -- Context: TH-05 / clean-bootstrap Group I session + FE form/detail RPCs
--- Touches: precheck_return_exchange, get_returnable_order_lines, _get_return_exchange_context, start_return_exchange, update_return_exchange, cancel_return_exchange, get_return_exchange_form_policy, get_return_exchange_detail, _product_unit_conversion_rate, _base_quantity_micros
+-- Touches: precheck_return_exchange, get_returnable_order_lines, _get_return_exchange_context, start_return_exchange, update_return_exchange, cancel_return_exchange, get_return_exchange_form_policy, get_return_exchange_detail, _product_unit_conversion_rate, _base_quantity_micros, _price_exchange_unit, _assert_exchange_price, preview_return_exchange_pricing
 -- Safety: non-destructive; RPC owner only; schema owned by 005
 -- Depends on: 005_sales_rebuild_schema.sql; 006_sales_shared_rpc_helpers.sql
 -- Promoted from _drafts/012_sales_return_exchange_session_rpcs.sql
@@ -295,7 +295,8 @@ begin
         )
       ),
       'originalUnitPrice', jsonb_build_object(
-        'amountMinor', l.unit_price_minor,
+        -- Giá sau giảm/đơn vị: số khách thực trả cho 1 đơn vị (S3).
+        'amountMinor', round(l.line_total_minor::numeric * 1000000 / l.quantity_micros)::bigint,
         'currencyCode', v_order.currency_code
       )
     ) as obj,
@@ -463,6 +464,139 @@ $$;
 -- ===========================================================================
 -- Session mutations
 -- ===========================================================================
+-- Plan 2: giá món đổi = giá bán hiện tại cho khách của đơn gốc, do Pricing tính
+-- (cùng hàm màn bán hàng). Không nhận điều chỉnh tay; giá sàn chỉ cảnh báo.
+create or replace function sales._price_exchange_unit(
+  p_tenant_id uuid,
+  p_order sales.sales_orders,
+  p_product_id uuid,
+  p_product_unit_id uuid
+) returns jsonb
+language plpgsql
+security definer
+set search_path = sales, public, pg_temp
+as $$
+declare
+  v_pricing jsonb;
+  v_line jsonb;
+begin
+  v_pricing := pricing.preview_sales_working_state_pricing(
+    p_tenant_id, p_order.store_id, p_order.customer_partner_id, p_order.currency_code, 0, now(),
+    jsonb_build_array(jsonb_build_object(
+      'local_line_id', '1',
+      'product_id', p_product_id,
+      'product_unit_id', p_product_unit_id,
+      'quantity_micros', 1000000
+    ))
+  );
+  v_line := v_pricing -> 'lines' -> 0;
+  if v_line is null
+     or jsonb_array_length(coalesce(v_line -> 'blocking_codes', '[]'::jsonb)) > 0 then
+    raise exception using message = jsonb_build_object(
+      'code', 'PRICING_BLOCKED',
+      'message', 'Exchange item pricing is blocked.',
+      'details', jsonb_build_object(
+        'productUnitId', p_product_unit_id,
+        'blockingCodes', coalesce(v_line -> 'blocking_codes', '[]'::jsonb)
+      )
+    )::text;
+  end if;
+  return jsonb_build_object(
+    'unitPriceMinor', (v_line ->> 'applied_unit_price_minor')::bigint,
+    'sourceCode', v_line ->> 'source_code',
+    'warningCodes', coalesce(v_line -> 'warning_codes', '[]'::jsonb)
+  );
+end;
+$$;
+
+revoke all on function sales._price_exchange_unit(uuid, sales.sales_orders, uuid, uuid) from public, anon, authenticated;
+
+-- Giá món đổi server tính phải bằng giá mong đợi (giá app xem trước khi lưu
+-- phiếu, hoặc giá đã ghi trên dòng đổi khi định giá/xác nhận). Lệch hoặc thiếu
+-- giá mong đợi → PRICE_CHANGED. Trả giá server để nơi gọi ghi lại.
+create or replace function sales._assert_exchange_price(
+  p_tenant_id uuid,
+  p_order sales.sales_orders,
+  p_product_id uuid,
+  p_product_unit_id uuid,
+  p_expected_unit_price_minor bigint
+) returns bigint
+language plpgsql
+security definer
+set search_path = sales, public, pg_temp
+as $$
+declare
+  v_actual_minor bigint;
+begin
+  v_actual_minor := (
+    sales._price_exchange_unit(p_tenant_id, p_order, p_product_id, p_product_unit_id)
+      ->> 'unitPriceMinor'
+  )::bigint;
+  if v_actual_minor is distinct from p_expected_unit_price_minor then
+    raise exception using message = jsonb_build_object(
+      'code', 'PRICE_CHANGED',
+      'message', 'Exchange item price changed.',
+      'details', jsonb_build_object(
+        'productUnitId', p_product_unit_id,
+        'expectedUnitPriceMinor', p_expected_unit_price_minor,
+        'actualUnitPriceMinor', v_actual_minor
+      )
+    )::text;
+  end if;
+  return v_actual_minor;
+end;
+$$;
+
+revoke all on function sales._assert_exchange_price(uuid, sales.sales_orders, uuid, uuid, bigint) from public, anon, authenticated;
+
+create or replace function sales.preview_return_exchange_pricing(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_sales_order_id uuid,
+  p_lines jsonb
+) returns jsonb
+language plpgsql
+security definer
+set search_path = sales, iam, public, pg_temp
+as $$
+declare
+  v_order sales.sales_orders%rowtype;
+  v_line jsonb;
+  v_priced jsonb;
+  v_result jsonb := '[]'::jsonb;
+begin
+  select * into v_order
+  from sales.sales_orders
+  where id = p_sales_order_id and tenant_id = p_tenant_id;
+  if not found then
+    raise exception using message = jsonb_build_object(
+      'code', 'NOT_FOUND', 'message', 'Sales order not found.'
+    )::text;
+  end if;
+
+  perform sales._assert_sales_actor(p_tenant_id, p_actor_id, v_order.store_id, 'sales.return_exchange.create');
+
+  for v_line in select * from jsonb_array_elements(coalesce(p_lines, '[]'::jsonb)) loop
+    v_priced := sales._price_exchange_unit(p_tenant_id, v_order,
+      (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid);
+    v_result := v_result || jsonb_build_array(jsonb_build_object(
+      'productUnitId', v_line ->> 'product_unit_id',
+      'unitPrice', jsonb_build_object(
+        'amountMinor', (v_priced ->> 'unitPriceMinor')::bigint,
+        'currencyCode', v_order.currency_code
+      ),
+      'sourceCode', v_priced ->> 'sourceCode',
+      'warningCodes', v_priced -> 'warningCodes'
+    ));
+  end loop;
+
+  return jsonb_build_object('lines', v_result);
+end;
+$$;
+
+revoke all on function sales.preview_return_exchange_pricing(uuid, uuid, uuid, jsonb) from public, anon;
+grant execute on function sales.preview_return_exchange_pricing(uuid, uuid, uuid, jsonb) to authenticated;
+
 create or replace function sales.start_return_exchange(
   command_id text,
   tenant_id uuid,
@@ -765,7 +899,11 @@ begin
           )::text;
         end if;
       else
-        select sol.unit_price_minor, sol.product_snapshot, sol.product_unit_snapshot,
+        -- Giá trị 1 đơn vị hàng trả = giá khách thực trả (đã trừ chiết khấu),
+        -- khớp tiền hoàn ở evaluate_return_exchange_valuation. Không chép
+        -- unit_price_minor: với dòng có chiết khấu đó là giá niêm yết.
+        select round(sol.line_total_minor::numeric * 1000000 / sol.quantity_micros)::bigint,
+               sol.product_snapshot, sol.product_unit_snapshot,
                sol.product_id, sol.product_unit_id
           into v_unit_price_minor, v_product_snapshot, v_unit_snapshot,
                v_src_product_id, v_src_product_unit_id
@@ -798,7 +936,12 @@ begin
       );
       v_product_snapshot := v_product_src;
       v_unit_snapshot := v_unit_src;
-      v_unit_price_minor := coalesce((v_priced ->> 'amountMinor')::bigint, 0);
+      -- Plan 2: server tự tính giá món đổi; giá app gửi chỉ để đối chiếu.
+      v_unit_price_minor := sales._assert_exchange_price(
+        start_return_exchange.tenant_id, v_order,
+        (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid,
+        (v_priced ->> 'amountMinor')::bigint
+      );
     end if;
 
     if v_role = 'returned'
@@ -1102,7 +1245,11 @@ begin
           )::text;
         end if;
       else
-        select sol.unit_price_minor, sol.product_snapshot, sol.product_unit_snapshot,
+        -- Giá trị 1 đơn vị hàng trả = giá khách thực trả (đã trừ chiết khấu),
+        -- khớp tiền hoàn ở evaluate_return_exchange_valuation. Không chép
+        -- unit_price_minor: với dòng có chiết khấu đó là giá niêm yết.
+        select round(sol.line_total_minor::numeric * 1000000 / sol.quantity_micros)::bigint,
+               sol.product_snapshot, sol.product_unit_snapshot,
                sol.product_id, sol.product_unit_id
           into v_unit_price_minor, v_product_snapshot, v_unit_snapshot,
                v_src_product_id, v_src_product_unit_id
@@ -1129,7 +1276,12 @@ begin
           -> (v_line ->> 'product_unit_id'), '{}'::jsonb);
       v_product_snapshot := v_product_src;
       v_unit_snapshot := v_unit_src;
-      v_unit_price_minor := coalesce((v_priced ->> 'amountMinor')::bigint, 0);
+      -- Plan 2: server tự tính giá món đổi; giá app gửi chỉ để đối chiếu.
+      v_unit_price_minor := sales._assert_exchange_price(
+        update_return_exchange.tenant_id, v_order,
+        (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid,
+        (v_priced ->> 'amountMinor')::bigint
+      );
     end if;
 
     if v_role = 'returned'

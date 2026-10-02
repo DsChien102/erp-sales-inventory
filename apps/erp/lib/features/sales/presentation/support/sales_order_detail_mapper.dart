@@ -155,12 +155,18 @@ final class SalesOrderDetailMapper {
   }
 
   static SalesOrderDetailItemVm _line(app.SalesOrderLineDto line) {
+    final quantity = line.quantity.quantityMicros ~/ app.QuantityDto.scale;
+    final discount = line.discountTotal?.amountMinor ?? 0;
+    final hasDiscount = discount > 0 && quantity > 0;
     return SalesOrderDetailItemVm(
       lineId: line.lineId,
       productName: line.product.displayName,
       unitName: line.unit.unitName,
-      quantity: line.quantity.quantityMicros ~/ app.QuantityDto.scale,
-      unitPriceMinor: line.unitPrice.amountMinor,
+      quantity: quantity,
+      unitPriceMinor: hasDiscount
+          ? (line.lineTotal.amountMinor / quantity).round()
+          : line.unitPrice.amountMinor,
+      originalUnitPriceMinor: hasDiscount ? line.unitPrice.amountMinor : null,
       totalAmountMinor: line.lineTotal.amountMinor,
     );
   }
@@ -174,6 +180,7 @@ final class SalesOrderDetailMapper {
       unitName: line.unit.unitName,
       quantity: line.heldQuantity.quantityMicros ~/ app.QuantityDto.scale,
       unitPriceMinor: line.unitPrice.amountMinor,
+      originalUnitPriceMinor: line.originalUnitPrice?.amountMinor,
       totalAmountMinor:
           line.unitPrice.amountMinor * (line.heldQuantity.quantityMicros ~/ app.QuantityDto.scale),
     );

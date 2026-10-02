@@ -5,6 +5,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../../models/return_exchange_order/sales_return_exchange_result.dart';
 import '../../support/sales_return_exchange_attempt_factory.dart';
 import '../../support/sales_return_exchange_mapper.dart';
+import '../../support/sales_return_exchange_pricing_copy.dart';
 import 'sales_return_exchange_settlement_state.dart';
 
 class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettlementState> {
@@ -135,6 +136,15 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
       );
     } on SalesContractException catch (error) {
       if (generation != _loadGeneration || isClosed) return;
+      if (error.code == 'PRICE_CHANGED') {
+        emit(
+          state.copyWith(
+            status: SalesReturnExchangeSettlementStatus.stale,
+            screenError: SalesReturnExchangePricingCopy.priceChangedGoBack,
+          ),
+        );
+        return;
+      }
       if (error.code == 'RETURN_EXCHANGE_BLOCKED') {
         final blockers = _blockersFrom(error);
         emit(
@@ -289,6 +299,16 @@ class SalesReturnExchangeSettlementCubit extends Cubit<SalesReturnExchangeSettle
         version: state.draftVersion ?? 0,
         status: ReturnExchangeStatus.processing,
       );
+    }
+    if (error.code == 'PRICE_CHANGED') {
+      _currentAttempt = null;
+      emit(
+        state.copyWith(
+          status: SalesReturnExchangeSettlementStatus.stale,
+          screenError: SalesReturnExchangePricingCopy.priceChangedGoBack,
+        ),
+      );
+      return null;
     }
     if (error.code == 'STALE_VERSION') {
       _currentAttempt = null;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_sales_application/application.dart';
+import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
 
 void main() {
@@ -34,6 +35,23 @@ void main() {
       final rows = SalesReceiptPdfGenerator.summaryRows(_documentA());
       expect(rows, contains(('Tổng đơn', '90.000đ')));
       expect(rows.map((row) => row.$1), isNot(contains('Điều chỉnh sau bán')));
+    });
+
+    test('discounted line generates a receipt and keeps the strike-through branch', () async {
+      final bytes = await SalesReceiptPdfGenerator.generate(_documentDiscounted());
+      expect(bytes, isNotEmpty);
+      expect(bytes.length, greaterThan(100));
+
+      final source = File(
+        'lib/features/sales/presentation/support/sales_receipt_pdf_generator.dart',
+      ).readAsStringSync();
+      final lineStart = source.indexOf('static pw.Widget _line(');
+      expect(lineStart, greaterThanOrEqualTo(0));
+      final line = source.substring(lineStart);
+      expect(line, contains('final hasDiscount = line.discountTotal.amountMinor > 0;'));
+      expect(line, contains('decoration: pw.TextDecoration.lineThrough'));
+      expect(line, contains('MoneyFormatter.formatMinor(discountedUnitPriceMinor)'));
+      expect(MoneyFormatter.formatMinor(90000), contains('90.000'));
     });
 
     test('sanitizes filename from receipt number', () {
@@ -72,6 +90,43 @@ void main() {
     });
   });
 }
+
+SalesReceiptDocumentDto _documentDiscounted() => SalesReceiptDocumentDto(
+  receiptNumber: 'PBH-20260928-0004',
+  orderNumber: 'SO-0004',
+  soldAt: DateTime.utc(2026, 9, 28, 3, 0),
+  store: const StoreSnapshotDto(
+    storeId: 'store-d',
+    storeCode: 'HCM-01',
+    displayName: 'Chi nhánh Quận 1',
+  ),
+  seller: const ActorSnapshotDto(actorId: 'seller-d', displayName: 'Minh Anh'),
+  lines: const <SalesReceiptLineDto>[
+    SalesReceiptLineDto(
+      lineId: 'line-d1',
+      product: ProductSnapshotDto(
+        productId: 'product-d1',
+        sku: 'SKU-D1',
+        displayName: 'Vaccine D',
+      ),
+      unit: ProductUnitSnapshotDto(
+        productUnitId: 'unit-d1',
+        unitCode: 'VIAL',
+        unitName: 'Lọ',
+      ),
+      quantity: QuantityDto(quantityMicros: 2 * QuantityDto.scale),
+      unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+      discountTotal: MoneyDto(amountMinor: 20000, currencyCode: 'VND'),
+      lineTotal: MoneyDto(amountMinor: 180000, currencyCode: 'VND'),
+    ),
+  ],
+  subtotal: const MoneyDto(amountMinor: 200000, currencyCode: 'VND'),
+  discountTotal: const MoneyDto(amountMinor: 20000, currencyCode: 'VND'),
+  orderTotal: const MoneyDto(amountMinor: 180000, currencyCode: 'VND'),
+  paidTotal: const MoneyDto(amountMinor: 180000, currencyCode: 'VND'),
+  outstandingTotal: const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
+  payments: const <PaymentIntentSummaryDto>[],
+);
 
 SalesReceiptDocumentDto _documentA() => SalesReceiptDocumentDto(
   receiptNumber: 'PBH-20260812-0001',

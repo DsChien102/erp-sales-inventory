@@ -9,12 +9,10 @@ class SalesOrderSavedSearchChips extends StatelessWidget {
   const SalesOrderSavedSearchChips({
     super.key,
     required this.selected,
-    required this.counts,
     required this.onSelected,
   });
 
   final SalesOrderSavedSearchPreset selected;
-  final Map<SalesOrderSavedSearchPreset, int> counts;
   final ValueChanged<SalesOrderSavedSearchPreset> onSelected;
 
   @override
@@ -27,7 +25,7 @@ class SalesOrderSavedSearchChips extends StatelessWidget {
           for (final preset in SalesOrderSavedSearchPreset.values)
             VChip(
               key: Key('chip_sales_saved_search_${preset.name}'),
-              label: preset.labelWithCount(counts[preset] ?? 0),
+              label: preset.label,
               tone: selected == preset ? VComponentTone.success : VComponentTone.neutral,
               onTap: () => onSelected(preset),
             ),

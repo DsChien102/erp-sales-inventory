@@ -703,6 +703,7 @@ declare
   v_source_order_version bigint;
   v_source_settlement_version bigint;
   v_plan_pricing_version integer;
+  v_exchange_line record;
   v_resulting_version bigint;
   v_sold_base_micros bigint;
   v_returned_base_micros bigint;
@@ -900,6 +901,21 @@ begin
       'message', 'Stored return/exchange line policies or snapshots failed revalidation.'
     )::text;
   end if;
+
+  -- Plan 2: giá món đổi phải còn đúng tại lúc xác nhận.
+  for v_exchange_line in
+    select rl.product_id, rl.product_unit_id, rl.unit_value_minor
+    from sales.return_exchange_lines rl
+    where rl.tenant_id = confirm_return_exchange.tenant_id
+      and rl.return_exchange_order_id = v_session.id
+      and rl.line_role = 'exchange'
+  loop
+    perform sales._assert_exchange_price(
+      confirm_return_exchange.tenant_id, v_order,
+      v_exchange_line.product_id, v_exchange_line.product_unit_id,
+      v_exchange_line.unit_value_minor
+    );
+  end loop;
 
   for v_line in
     select

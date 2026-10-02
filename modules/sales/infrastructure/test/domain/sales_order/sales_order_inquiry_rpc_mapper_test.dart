@@ -193,6 +193,47 @@ void main() {
       expect(dto.lines.single.unit.unitCode, 'BOX');
     });
 
+    test('maps line discount and current-line original unit price', () {
+      final payload = validDetailPayload();
+      ((payload['lines'] as List).single as Map<String, dynamic>)['discountTotal'] = {
+        'amountMinor': 20000,
+        'currencyCode': 'VND',
+      };
+      payload['currentLines'] = <Object?>[
+        <String, dynamic>{
+          'product': <String, dynamic>{'productId': 'p-a', 'sku': null, 'displayName': 'A'},
+          'unit': <String, dynamic>{'productUnitId': 'u-a', 'unitCode': null, 'unitName': 'lọ'},
+          'heldQuantity': <String, dynamic>{'quantityMicros': 2000000},
+          'unitPrice': <String, dynamic>{'amountMinor': 90000, 'currencyCode': 'VND'},
+          'originalUnitPrice': <String, dynamic>{'amountMinor': 100000, 'currencyCode': 'VND'},
+          'source': 'original',
+        },
+      ];
+
+      final dto = SalesOrderInquiryRpcMapper.detailFromJson(payload);
+
+      expect(dto.lines.single.discountTotal!.amountMinor, 20000);
+      expect(dto.currentLines.single.originalUnitPrice!.amountMinor, 100000);
+    });
+
+    test('omits discount and original unit price when the keys are absent', () {
+      final payload = validDetailPayload()
+        ..['currentLines'] = <Object?>[
+          <String, dynamic>{
+            'product': <String, dynamic>{'productId': 'p-a', 'sku': null, 'displayName': 'A'},
+            'unit': <String, dynamic>{'productUnitId': 'u-a', 'unitCode': null, 'unitName': 'lọ'},
+            'heldQuantity': <String, dynamic>{'quantityMicros': 1000000},
+            'unitPrice': <String, dynamic>{'amountMinor': 100000, 'currencyCode': 'VND'},
+            'source': 'original',
+          },
+        ];
+
+      final dto = SalesOrderInquiryRpcMapper.detailFromJson(payload);
+
+      expect(dto.lines.single.discountTotal, isNull);
+      expect(dto.currentLines.single.originalUnitPrice, isNull);
+    });
+
     test('allows null customer, orderNote and currentReceiptId', () {
       final payload = validDetailPayload()
         ..['customer'] = null

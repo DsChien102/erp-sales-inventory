@@ -219,6 +219,7 @@ abstract final class SalesOrderInquiryRpcMapper {
       quantity: QuantityDto(quantityMicros: _int(json['quantityMicros'])),
       unitPrice: _money(_map(json['unitPrice'])),
       lineTotal: _money(_map(json['lineTotal'])),
+      discountTotal: json['discountTotal'] == null ? null : _money(_map(json['discountTotal'])),
       note: json['note'] as String?,
     );
   }
@@ -229,6 +230,9 @@ abstract final class SalesOrderInquiryRpcMapper {
       unit: _unit(_map(json['unit'])),
       heldQuantity: QuantityDto(quantityMicros: _int(_map(json['heldQuantity'])['quantityMicros'])),
       unitPrice: _money(_map(json['unitPrice'])),
+      originalUnitPrice: json['originalUnitPrice'] == null
+          ? null
+          : _money(_map(json['originalUnitPrice'])),
       source: _lineSource(_string(json, 'source')),
     );
   }

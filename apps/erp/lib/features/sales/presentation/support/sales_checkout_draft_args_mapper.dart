@@ -78,6 +78,9 @@ abstract final class SalesCheckoutDraftArgsMapper {
             productUnitId: line.identity.productUnitId,
             quantity: QuantityDto(quantityMicros: line.input.quantity * QuantityDto.scale),
             unitPrice: line.pricing.appliedUnitPrice,
+            manualUnitPriceMinor: line.input.manual.unitPriceMinor,
+            manualDiscountMinor: line.input.manual.discountMinor,
+            manualDiscountBasisPoints: line.input.manual.discountBasisPoints,
           ),
       ],
     );

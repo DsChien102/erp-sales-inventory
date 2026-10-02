@@ -75,6 +75,7 @@ abstract final class CheckoutPrecheckRpcMapper {
       salesOrderId: json['salesOrderId'] as String? ?? '',
       salesOrderVersion: _int(json['salesOrderVersion']),
       status: _checkoutAttemptStatus(_string(json, 'status')),
+      blockedCode: json['blockedCode'] as String?,
     );
   }
 
@@ -97,6 +98,9 @@ abstract final class CheckoutPrecheckRpcMapper {
           'product_unit_id': line.productUnitId,
           'quantity_micros': line.quantity.quantityMicros,
           'unit_price': line.unitPrice == null ? null : _money(line.unitPrice!),
+          'manual_unit_price_minor': line.manualUnitPriceMinor,
+          'manual_discount_minor': line.manualDiscountMinor,
+          'manual_discount_basis_points': line.manualDiscountBasisPoints,
           'note': line.note,
         },
     ];

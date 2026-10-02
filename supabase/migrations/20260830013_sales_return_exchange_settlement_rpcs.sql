@@ -41,6 +41,9 @@ declare
   v_line record;
   v_unit_price_minor bigint;
   v_priced jsonb;
+  v_orig_line_total_minor bigint;
+  v_orig_quantity_micros bigint;
+  v_line_value_minor bigint;
   v_is_walk_in boolean;
   v_correlation_id text;
   v_valuation_id uuid;
@@ -142,6 +145,7 @@ begin
       rl.original_sales_order_line_id,
       rl.source_exchange_line_id,
       rl.line_role,
+      rl.product_id,
       rl.product_unit_id,
       rl.unit_value_minor
     from sales.return_exchange_lines rl
@@ -167,33 +171,32 @@ begin
           'message', 'Returned lines must reference a returnable unit.'
         )::text;
       else
-        select unit_price_minor into v_unit_price_minor
+        -- S3: giá trị trả = phần thành tiền (đã trừ chiết khấu) tương ứng số lượng trả.
+        select line_total_minor, quantity_micros
+        into v_orig_line_total_minor, v_orig_quantity_micros
         from sales.sales_order_lines
         where id = v_line.original_sales_order_line_id
           and sales_order_id = v_order.id
           and tenant_id = evaluate_return_exchange_valuation.tenant_id;
-        if not found then
+        if not found or coalesce(v_orig_quantity_micros, 0) <= 0 then
           raise exception using message = jsonb_build_object(
             'code', 'RETURN_EXCHANGE_BLOCKED',
             'message', 'Original sales order line snapshot is missing.'
           )::text;
         end if;
+        v_line_value_minor := round(v_orig_line_total_minor::numeric * v_line.quantity_micros / v_orig_quantity_micros)::bigint;
       end if;
-      v_return_value_minor := v_return_value_minor
-        + (v_unit_price_minor * v_line.quantity_micros / 1000000);
+      if v_line.source_exchange_line_id is not null then
+        v_line_value_minor := v_unit_price_minor * v_line.quantity_micros / 1000000;
+      end if;
+      v_return_value_minor := v_return_value_minor + v_line_value_minor;
     elsif v_line.line_role = 'exchange' then
-      -- B3a: doc dung wire key (khop mapper referenceDecisionToJson + start_return_exchange):
-      -- exchange_prices_by_product_unit_id[unit].amountMinor.
-      v_priced := coalesce(reference_decision -> 'exchange_prices_by_product_unit_id', '{}'::jsonb)
-        -> v_line.product_unit_id::text;
-
-      v_unit_price_minor := null;
-      if v_priced is not null and v_priced <> 'null'::jsonb then
-        v_unit_price_minor := (v_priced ->> 'amountMinor')::bigint;
-      end if;
-      if v_unit_price_minor is null then
-        v_unit_price_minor := v_line.unit_value_minor;
-      end if;
+      -- Plan 2: giá món đổi = giá server đã ghi; tính lại để phát hiện giá vừa đổi.
+      v_unit_price_minor := v_line.unit_value_minor;
+      perform sales._assert_exchange_price(
+        evaluate_return_exchange_valuation.tenant_id, v_order,
+        v_line.product_id, v_line.product_unit_id, v_unit_price_minor
+      );
 
       if v_unit_price_minor is null then
         raise exception using message = jsonb_build_object(

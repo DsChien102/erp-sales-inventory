@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import '../../models/shared/sales_sellable_product_vm.dart';
 import '../../support/sales_return_exchange_attempt_factory.dart';
+import '../../support/sales_return_exchange_pricing_copy.dart';
 import '../../support/sales_return_exchange_session_draft.dart';
 import 'sales_return_exchange_session_state.dart';
 
@@ -126,9 +127,14 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
 
       if (!precheck.allowed) {
         emit(base.copyWith(status: SalesReturnExchangeSessionStatus.blocked));
-        return;
+      } else {
+        emit(base.copyWith(status: SalesReturnExchangeSessionStatus.ready));
       }
-      emit(base.copyWith(status: SalesReturnExchangeSessionStatus.ready));
+      try {
+        await refreshExchangePrices();
+      } on Object {
+        // Preview failure keeps the loaded lines. Save and confirm still re-price.
+      }
     } on SalesContractException catch (error) {
       if (generation != _loadGeneration || isClosed) return;
       emit(
@@ -216,8 +222,40 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     );
   }
 
-  void addExchangeProduct(SalesProductSelection selection) {
+  Future<void> addExchangeProduct(SalesProductSelection selection) async {
     _invalidateAttempt();
+    final MoneyDto unitPrice;
+    try {
+      // Query Sales không tự điền tenant/actor: phải truyền từ executionContext
+      // như các query khác trong cubit (load()). Thiếu → RPC nhận '' → lỗi uuid.
+      final tenantId = await executionContext.requireTenantId();
+      final actorId = await executionContext.requireUserId();
+      final preview = await salesModule.executeQueryAsync<ReturnExchangePricingPreviewDto>(
+        PreviewReturnExchangePricingQuery(
+          tenantId: tenantId,
+          actorId: actorId,
+          salesOrderId: state.orderId,
+          lines: [
+            ReturnExchangePricingLineInput(
+              productId: selection.productId,
+              productUnitId: selection.productUnitId,
+            ),
+          ],
+        ),
+      );
+      unitPrice = preview.lines.single.unitPrice;
+    } on SalesContractException catch (error) {
+      // PRICING_BLOCKED / DEPENDENCY_UNAVAILABLE… có thông điệp riêng.
+      if (isClosed) return;
+      emit(state.copyWith(screenError: _messageFor(error)));
+      return;
+    } catch (_) {
+      // Lỗi mạng/khác: không nói "không xác định được giá" để tránh hiểu nhầm.
+      if (isClosed) return;
+      emit(state.copyWith(screenError: SalesReturnExchangePricingCopy.previewFailed));
+      return;
+    }
+    if (isClosed) return;
     final edits = [...state.exchangeEdits];
     final index = edits.indexWhere(
       (e) => e.productUnitId == selection.productUnitId,
@@ -225,6 +263,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
     if (index >= 0) {
       edits[index] = edits[index].copyWith(
         quantityMicros: edits[index].quantityMicros + QuantityDto.scale,
+        unitPrice: unitPrice,
       );
     } else {
       edits.add(
@@ -234,7 +273,7 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
           productName: selection.productName,
           sku: selection.sku,
           unitLabel: selection.unitLabel,
-          unitPrice: selection.unitPrice,
+          unitPrice: unitPrice,
           quantityMicros: QuantityDto.scale,
         ),
       );
@@ -246,6 +285,41 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
         clearFieldError: true,
       ),
     );
+  }
+
+  Future<void> refreshExchangePrices() async {
+    if (state.exchangeEdits.isEmpty) return;
+    final tenantId = await executionContext.requireTenantId();
+    final actorId = await executionContext.requireUserId();
+    final preview = await salesModule.executeQueryAsync<ReturnExchangePricingPreviewDto>(
+      PreviewReturnExchangePricingQuery(
+        tenantId: tenantId,
+        actorId: actorId,
+        salesOrderId: state.orderId,
+        lines: [
+          for (final edit in state.exchangeEdits)
+            ReturnExchangePricingLineInput(
+              productId: edit.productId,
+              productUnitId: edit.productUnitId,
+            ),
+        ],
+      ),
+    );
+    if (isClosed) return;
+    final byUnit = {for (final line in preview.lines) line.productUnitId: line.unitPrice};
+    final refreshed = [
+      for (final edit in state.exchangeEdits)
+        edit.copyWith(unitPrice: byUnit[edit.productUnitId] ?? edit.unitPrice),
+    ];
+    final changed = [
+      for (var i = 0; i < refreshed.length; i++)
+        refreshed[i].unitPrice.amountMinor != state.exchangeEdits[i].unitPrice.amountMinor,
+    ].any((c) => c);
+    if (!changed) return;
+    // Giá đổi → bỏ lượt lưu đang giữ (vd. sau lỗi retryable), để lần lưu sau
+    // tạo lệnh mới với giá mới thay vì gửi lại lệnh cũ mang giá cũ.
+    _invalidateAttempt();
+    emit(state.copyWith(exchangeEdits: refreshed));
   }
 
   void setExchangeQuantity(String productUnitId, int quantity) {
@@ -435,8 +509,11 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
   }
 
   Future<String?> _handleSaveError(SalesContractException error) async {
-    if (error.code == 'STALE_VERSION' || error.code == 'RETURN_QUANTITY_EXCEEDED') {
+    if (error.code == 'STALE_VERSION' ||
+        error.code == 'RETURN_QUANTITY_EXCEEDED' ||
+        error.code == 'PRICE_CHANGED') {
       _currentAttempt = null;
+      // load() tự làm mới giá món đổi ở cuối, không gọi refreshExchangePrices() lần nữa.
       await load();
       if (!isClosed) {
         emit(
@@ -476,6 +553,8 @@ class SalesReturnExchangeSessionCubit extends Cubit<SalesReturnExchangeSessionSt
       error.code == 'DEPENDENCY_UNAVAILABLE' || error.code == 'IMPACT_PENDING';
 
   String _messageFor(SalesContractException error) {
+    if (error.code == 'PRICE_CHANGED') return SalesReturnExchangePricingCopy.priceChanged;
+    if (error.code == 'PRICING_BLOCKED') return SalesReturnExchangePricingCopy.pricingBlocked;
     final rpcMessage = error.details['rpcMessage'];
     if (error.code == 'DEPENDENCY_UNAVAILABLE' &&
         rpcMessage is String &&

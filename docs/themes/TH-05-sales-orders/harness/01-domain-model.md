@@ -216,8 +216,6 @@ Reporting / other modules may consume Sales **facts**; downstream failure must n
 | `EInvoicePolicyPort` | application port | post-sale legal blocker |
 | `CheckoutOrchestrator` | application | reload snapshot, validate, commit owners |
 
-**Rủi ro đã biết — giá trị hàng trả bỏ qua giảm giá dòng (2026-09-25).** `evaluate_return_exchange_valuation` (`20260830013`) tính giá trị hàng trả từ dòng đơn gốc bằng `sales_order_lines.unit_price_minor × số lượng trả` — tức **giá trước giảm**, không trừ `discount_amount_minor`. Hiện **chưa phát sinh lỗi** vì app luôn gửi `unitPrice` = giá đã áp dụng (sau chiết khấu) và `discountTotal = 0` (`sales_checkout_draft_args_mapper.dart`), nên `discount_amount_minor` luôn 0. Khi có tính năng lưu giảm giá **tách riêng** khỏi đơn giá (khuyến mãi TH-04, phiếu in giá gạch ngang), phải đổi giá trị trả mỗi đơn vị sang `line_total_minor / quantity_micros` của dòng gốc — nếu không sẽ hoàn dư / thu thêm thiếu đúng phần giảm giá của hàng trả.
-
 ## 11. Snapshot policy
 
 - Snapshot immutable: sales/store/actor, customer, buyer tax, product/unit, pricing/promotion, tax/rounding.

@@ -279,6 +279,12 @@ class SalesCheckoutCubit extends Cubit<SalesCheckoutState> {
             status: SalesCheckoutStatus.blocked,
             attemptStatus: SalesCheckoutAttemptStatus.blocked,
             checkoutResult: result,
+            attemptErrorMessage: switch (result.blockedCode) {
+              'PRICE_CHANGED' => 'Giá đã thay đổi. Vui lòng quay lại đơn để cập nhật giá.',
+              'PRICING_BLOCKED' => 'Không xác định được giá sản phẩm. Vui lòng quay lại đơn.',
+              _ => null,
+            },
+            clearAttemptErrorMessage: result.blockedCode == null,
             clearPrecheck: true,
             clearAttempt: true,
           ),

@@ -11,7 +11,9 @@ import '../shared/return_exchange_detail_dto.dart';
 import '../shared/return_exchange_draft_dto.dart';
 import '../shared/return_exchange_form_policy_dto.dart';
 import '../shared/return_exchange_line_input.dart';
+import '../return_exchange_order/queries/preview_return_exchange_pricing/preview_return_exchange_pricing_query.dart';
 import '../shared/return_exchange_precheck_dto.dart';
+import '../shared/return_exchange_pricing_preview_dto.dart';
 import '../shared/return_exchange_settlement_plan_dto.dart';
 import '../shared/return_exchange_valuation_dto.dart';
 import '../shared/returnable_order_lines_dto.dart';
@@ -26,13 +28,15 @@ final class FakeReturnExchangeReadGateway implements IReturnExchangeReadGateway 
     ReturnExchangeDetailDto? detailResult,
     ReturnExchangeContext? contextResult,
     ReturnExchangeValuationDto? evaluateResult,
+    ReturnExchangePricingPreviewDto? previewResult,
     this.error,
   }) : _precheckResult = precheckResult,
        _returnableResult = returnableResult,
        _formPolicyResult = formPolicyResult,
        _detailResult = detailResult,
        _contextResult = contextResult,
-       _evaluateResult = evaluateResult;
+       _evaluateResult = evaluateResult,
+       _previewResult = previewResult;
 
   final ReturnExchangePrecheckDto? _precheckResult;
   final ReturnableOrderLinesDto? _returnableResult;
@@ -40,6 +44,7 @@ final class FakeReturnExchangeReadGateway implements IReturnExchangeReadGateway 
   final ReturnExchangeDetailDto? _detailResult;
   final ReturnExchangeContext? _contextResult;
   final ReturnExchangeValuationDto? _evaluateResult;
+  final ReturnExchangePricingPreviewDto? _previewResult;
   final Object? error;
 
   int precheckCalls = 0;
@@ -48,12 +53,14 @@ final class FakeReturnExchangeReadGateway implements IReturnExchangeReadGateway 
   int getDetailCalls = 0;
   int getContextCalls = 0;
   int evaluateCalls = 0;
+  int previewPricingCalls = 0;
 
   PrecheckReturnExchangeQuery? lastPrecheckQuery;
   GetReturnableOrderLinesQuery? lastReturnableQuery;
   GetReturnExchangeFormPolicyQuery? lastFormPolicyQuery;
   GetReturnExchangeDetailQuery? lastDetailQuery;
   EvaluateReturnPricingImpactQuery? lastEvaluateQuery;
+  PreviewReturnExchangePricingQuery? lastPreviewQuery;
   ReturnExchangeReferenceDecision? lastEvaluateDecision;
   String? lastContextReturnExchangeId;
 
@@ -156,6 +163,16 @@ final class FakeReturnExchangeReadGateway implements IReturnExchangeReadGateway 
           sourceSettlementVersion: 1,
           reservationIds: const <String>[],
         );
+  }
+
+  @override
+  Future<ReturnExchangePricingPreviewDto> previewPricing(
+    PreviewReturnExchangePricingQuery query,
+  ) async {
+    previewPricingCalls += 1;
+    lastPreviewQuery = query;
+    if (error != null) throw error!;
+    return _previewResult ?? const ReturnExchangePricingPreviewDto(lines: []);
   }
 
   @override

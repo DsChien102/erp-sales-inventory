@@ -36,6 +36,35 @@ void main() {
       expect(snapshot.lines.single.unitPrice!.amountMinor, 125000);
     });
 
+    test('maps manual discount basis points from compose input', () {
+      final line = _pricedLine().copyWith(
+        input: _pricedLine().input.copyWith(
+          manual: const ComposeManualPricing(discountBasisPoints: 1500),
+        ),
+      );
+      final state = SalesComposeLoaded(
+        draftId: 'draft-7',
+        customer: const SalesComposeCustomerVm(
+          displayName: 'Phòng khám A',
+          phone: '0903000000',
+          partnerId: 'partner-7',
+        ),
+        lines: <SalesComposeLineVm>[line],
+        pricing: const SalesComposePricingSlice(
+          status: SalesComposePricingStatus.ready,
+          contextVersion: 4,
+          pricedContextVersion: 4,
+        ),
+        draftVersion: 3,
+      );
+
+      final args = _fromCompose(state);
+
+      expect(args.lines.single.manualDiscountBasisPoints, 1500);
+      expect(args.lines.single.manualUnitPriceMinor, isNull);
+      expect(args.lines.single.manualDiscountMinor, isNull);
+    });
+
     test('walk-in maps customerId to null', () {
       final state = SalesComposeLoaded(
         draftId: 'draft-walk-in',

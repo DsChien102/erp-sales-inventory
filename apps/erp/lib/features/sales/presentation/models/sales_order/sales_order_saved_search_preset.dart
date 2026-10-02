@@ -14,6 +14,4 @@ extension SalesOrderSavedSearchPresetX on SalesOrderSavedSearchPreset {
     };
   }
 
-  /// Chip label with count — only shows count when count > 0 (SG-07 Figma).
-  String labelWithCount(int count) => count > 0 ? '$label ($count)' : label;
 }

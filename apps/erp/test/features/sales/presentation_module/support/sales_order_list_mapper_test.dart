@@ -65,6 +65,30 @@ void main() {
       expect(filter.eInvoiceStatus, IntegrationDeliveryStatus.queued);
     });
 
+    test('e-invoice chips map all, pending, and issued onto list filter status', () {
+      SalesOrderListFilterInput filterFor(SalesOrderListEInvoiceFilter eInvoiceFilter) {
+        return SalesOrderListMapper.toFilterInput(
+          preset: SalesOrderSavedSearchPreset.all,
+          timeFilter: SalesOrderListTimeFilter.all,
+          lifecycleFilter: SalesOrderListLifecycleFilter.all,
+          settlementFilter: SalesOrderListSettlementFilter.all,
+          postSaleFilter: SalesOrderListPostSaleFilter.all,
+          eInvoiceFilter: eInvoiceFilter,
+          now: DateTime.utc(2026, 8, 12),
+        );
+      }
+
+      expect(filterFor(SalesOrderListEInvoiceFilter.all).eInvoiceStatus, isNull);
+      expect(
+        filterFor(SalesOrderListEInvoiceFilter.pending).eInvoiceStatus,
+        IntegrationDeliveryStatus.queued,
+      );
+      expect(
+        filterFor(SalesOrderListEInvoiceFilter.issued).eInvoiceStatus,
+        IntegrationDeliveryStatus.delivered,
+      );
+    });
+
     test('today filter correctly maps early morning ICT (previous day UTC)', () {
       // 01:00 AM ICT on 2026-08-12 is 18:00 UTC on 2026-08-11
       final earlyMorningUtc = DateTime.utc(2026, 8, 11, 18, 0);

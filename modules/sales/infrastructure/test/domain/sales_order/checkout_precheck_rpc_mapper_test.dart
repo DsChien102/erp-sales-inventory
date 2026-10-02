@@ -115,10 +115,39 @@ void main() {
       expect(dto.monetarySummary.grandTotal.amountMinor, 1000000);
       expect(dto.receivableRequirement.amount.amountMinor, 600000);
     });
+
+    test('finalize lines carry manual pricing intents', () {
+      final params = CheckoutPrecheckRpcMapper.finalizeParams(_command(
+        lines: const <CheckoutLineInput>[
+          CheckoutLineInput(
+            productId: 'product-1',
+            productUnitId: 'unit-1',
+            quantity: QuantityDto(quantityMicros: QuantityDto.scale),
+            unitPrice: MoneyDto(amountMinor: 85000, currencyCode: 'VND'),
+            manualDiscountBasisPoints: 1500,
+          ),
+        ],
+      ));
+      final line = (params['p_lines'] as List).single as Map<String, dynamic>;
+      expect(line['manual_unit_price_minor'], isNull);
+      expect(line['manual_discount_minor'], isNull);
+      expect(line['manual_discount_basis_points'], 1500);
+    });
+
+    test('checkout result maps blockedCode', () {
+      final result = CheckoutPrecheckRpcMapper.checkoutResultFromJson(<String, dynamic>{
+        'idempotencyKey': 'k',
+        'salesOrderId': '',
+        'salesOrderVersion': 0,
+        'status': 'blocked',
+        'blockedCode': 'PRICE_CHANGED',
+      });
+      expect(result.blockedCode, 'PRICE_CHANGED');
+    });
   });
 }
 
-FinalizeSalesOrderCommand _command() {
+FinalizeSalesOrderCommand _command({List<CheckoutLineInput>? lines}) {
   return FinalizeSalesOrderCommand(
     id: 'attempt-1',
     tenantId: 'tenant-1',
@@ -129,14 +158,15 @@ FinalizeSalesOrderCommand _command() {
     currencyCode: 'VND',
     orderNote: ' Giao chiều ',
     paymentDueDate: DateTime(2026, 8, 30, 16),
-    lines: const <CheckoutLineInput>[
-      CheckoutLineInput(
-        productId: 'product-1',
-        productUnitId: 'unit-1',
-        quantity: QuantityDto(quantityMicros: QuantityDto.scale),
-        unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
-      ),
-    ],
+    lines: lines ??
+        const <CheckoutLineInput>[
+          CheckoutLineInput(
+            productId: 'product-1',
+            productUnitId: 'unit-1',
+            quantity: QuantityDto(quantityMicros: QuantityDto.scale),
+            unitPrice: MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+          ),
+        ],
     paymentIntents: const <PaymentIntentInput>[],
     idempotencyKey: 'checkout:attempt-1',
     payloadHash: 'hash-1',

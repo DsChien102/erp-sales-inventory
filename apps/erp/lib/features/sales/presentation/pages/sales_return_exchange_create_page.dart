@@ -97,10 +97,18 @@ class _SalesReturnExchangeCreatePageState extends State<SalesReturnExchangeCreat
   Future<void> _handleProceed() async {
     final id = await _cubit.saveAndGetReturnExchangeId();
     if (!mounted || id == null) return;
-    SalesReturnSettleRoute(
+    await SalesReturnSettleRoute(
       orderId: widget.orderId,
       returnExchangeId: id,
     ).push(context);
+    if (!mounted) return;
+    // Quay về từ quyết toán (vd. PRICE_CHANGED): làm mới giá món đổi. Giá đổi thì
+    // cubit bỏ lượt lưu cũ, nên lần "Tiếp tục" sau lưu giá mới thay vì lặp lỗi.
+    try {
+      await _cubit.refreshExchangePrices();
+    } on Object {
+      // Lỗi xem giá: giữ giá hiện có; lưu/định giá ở server vẫn đối chiếu lại.
+    }
   }
 
   bool _showProceedBar(SalesReturnExchangeSessionStatus status) {

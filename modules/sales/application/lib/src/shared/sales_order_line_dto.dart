@@ -11,6 +11,7 @@ final class SalesOrderLineDto {
     required this.quantity,
     required this.unitPrice,
     required this.lineTotal,
+    this.discountTotal,
     this.note,
   });
 
@@ -20,5 +21,6 @@ final class SalesOrderLineDto {
   final QuantityDto quantity;
   final MoneyDto unitPrice;
   final MoneyDto lineTotal;
+  final MoneyDto? discountTotal;
   final String? note;
 }

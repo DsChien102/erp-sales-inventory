@@ -118,6 +118,15 @@ abstract final class ReturnExchangeRpcMapper {
     'status',
   };
 
+  static const _previewPricingKeys = <String>{'lines'};
+
+  static const _previewPricingLineKeys = <String>{
+    'productUnitId',
+    'unitPrice',
+    'sourceCode',
+    'warningCodes',
+  };
+
   static const _formPolicyKeys = <String>{'reasons', 'conditions'};
 
   static const _policyOptionKeys = <String>{'code', 'displayName', 'sortOrder'};
@@ -199,6 +208,49 @@ abstract final class ReturnExchangeRpcMapper {
       'sales_order_id': query.salesOrderId,
       'expected_source_version': query.expectedSourceVersion,
     };
+  }
+
+  static Map<String, dynamic> previewPricingParams(PreviewReturnExchangePricingQuery query) {
+    return <String, dynamic>{
+      'p_tenant_id': query.tenantId,
+      'p_actor_id': query.actorId,
+      'p_sales_order_id': query.salesOrderId,
+      'p_lines': [
+        for (final line in query.lines)
+          <String, dynamic>{'product_id': line.productId, 'product_unit_id': line.productUnitId},
+      ],
+    };
+  }
+
+  static ReturnExchangePricingPreviewDto previewPricingFromJson(Map<String, dynamic> json) {
+    _rejectUnknownKeys(json, _previewPricingKeys);
+    final lines = json['lines'];
+    if (lines is! List) {
+      throw const FormatException('Expected lines list.');
+    }
+    return ReturnExchangePricingPreviewDto(
+      lines: [
+        for (final line in lines) _previewPricingLineFromJson(line),
+      ],
+    );
+  }
+
+  static ReturnExchangePricedLineDto _previewPricingLineFromJson(Object? value) {
+    if (value is! Map) {
+      throw const FormatException('Expected preview pricing line object.');
+    }
+    final json = value.cast<String, dynamic>();
+    _rejectUnknownKeys(json, _previewPricingLineKeys);
+    final warningCodes = json['warningCodes'];
+    if (warningCodes is! List) {
+      throw const FormatException('Expected warningCodes list.');
+    }
+    return ReturnExchangePricedLineDto(
+      productUnitId: _string(json, 'productUnitId'),
+      unitPrice: _moneyFromJson(json['unitPrice']),
+      sourceCode: _string(json, 'sourceCode'),
+      warningCodes: warningCodes.map((code) => code.toString()).toList(growable: false),
+    );
   }
 
   static Map<String, dynamic> formPolicyParams(GetReturnExchangeFormPolicyQuery query) {

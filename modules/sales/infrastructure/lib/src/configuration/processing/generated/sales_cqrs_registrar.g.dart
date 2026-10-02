@@ -431,6 +431,15 @@ void registerGeneratedSalesQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  SalesCommandRegistration.registerQueryHandler<PreviewReturnExchangePricingQuery, ReturnExchangePricingPreviewDto, PreviewReturnExchangePricingQueryHandler>(
+    bus: bus,
+    factory: () => PreviewReturnExchangePricingQueryHandler(
+      permissionChecker: container.get<IPermissionChecker>(),
+      returnExchangeReadGateway: container.get<IReturnExchangeReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   SalesCommandRegistration.registerQueryHandler<PreviewSalesPricingQuery, PricingPreviewDto, PreviewSalesPricingQueryHandler>(
     bus: bus,
     factory: () => PreviewSalesPricingQueryHandler(

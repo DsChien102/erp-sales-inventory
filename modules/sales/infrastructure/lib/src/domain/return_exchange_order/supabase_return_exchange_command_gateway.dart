@@ -132,6 +132,8 @@ final class SupabaseReturnExchangeCommandGateway implements IReturnExchangeComma
     'RETURN_EXCHANGE_BLOCKED',
     'RETURN_QUANTITY_EXCEEDED',
     'STALE_VERSION',
+    'PRICE_CHANGED',
+    'PRICING_BLOCKED',
     'IDEMPOTENCY_CONFLICT',
     'IMPACT_PENDING',
     'DEPENDENCY_UNAVAILABLE',

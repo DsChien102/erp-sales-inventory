@@ -1095,7 +1095,10 @@ begin
                 and rl.line_role = 'returned'
                 and rl.original_sales_order_line_id = l.id
             ), 0), 0)),
-          'unitPrice', jsonb_build_object('amountMinor', l.unit_price_minor, 'currencyCode', v_order.currency_code),
+          'unitPrice', jsonb_build_object('amountMinor', round(l.line_total_minor::numeric * 1000000 / l.quantity_micros)::bigint, 'currencyCode', v_order.currency_code),
+          'originalUnitPrice', case when l.discount_amount_minor > 0
+            then jsonb_build_object('amountMinor', l.unit_price_minor, 'currencyCode', v_order.currency_code)
+          end,
           'source', 'original'
         ) as obj,
         l.line_sequence as sort_seq, l.id as sort_id,

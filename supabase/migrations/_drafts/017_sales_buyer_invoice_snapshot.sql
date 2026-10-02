@@ -50,6 +50,11 @@ declare
   v_gross_minor bigint;
   v_discount_minor bigint;
   v_line_total_minor bigint;
+  v_pricing jsonb;
+  v_pricing_lines jsonb := '[]'::jsonb;
+  v_priced jsonb;
+  v_is_discount_mode boolean;
+  v_pricing_snapshot jsonb;
   v_subtotal_minor bigint := 0;
   v_order_discount_minor bigint := 0;
   v_persisted_line_inputs jsonb := '[]'::jsonb;
@@ -206,6 +211,23 @@ begin
       )::text;
     end if;
 
+    -- Server tự tính giá bằng đúng hàm màn bán hàng dùng; không dùng đơn giá app gửi.
+    select coalesce(jsonb_agg(jsonb_build_object(
+      'local_line_id', l.ordinality::text,
+      'product_id', l.value ->> 'product_id',
+      'product_unit_id', l.value ->> 'product_unit_id',
+      'quantity_micros', (l.value ->> 'quantity_micros')::bigint,
+      'manual_unit_price_minor', l.value -> 'manual_unit_price_minor',
+      'manual_discount_minor', l.value -> 'manual_discount_minor',
+      'manual_discount_basis_points', l.value -> 'manual_discount_basis_points'
+    ) order by l.ordinality), '[]'::jsonb)
+    into v_pricing_lines
+    from jsonb_array_elements(p_lines) with ordinality as l(value, ordinality);
+
+    v_pricing := pricing.preview_sales_working_state_pricing(
+      p_tenant_id, p_store_id, p_customer_id, v_currency_code, 0, now(), v_pricing_lines
+    );
+
     for v_line in select * from jsonb_array_elements(p_lines) loop
       v_line_index := v_line_index + 1;
       v_commercial_line := p_commercial_snapshot -> 'lines' -> (v_line_index - 1);
@@ -220,12 +242,52 @@ begin
         )::text;
       end if;
 
-      -- A3: giữ đúng cấu phần tiền theo dòng. App gửi discountTotal trong commercial snapshot;
-      -- gross = đơn giá × số lượng, net = gross - giảm giá. Tax chưa có ở app nên = 0.
-      v_unit_price_minor := (v_line -> 'unit_price' ->> 'amount_minor')::bigint;
-      v_gross_minor := v_unit_price_minor * (v_line ->> 'quantity_micros')::bigint / 1000000;
-      v_discount_minor := coalesce((v_commercial_line -> 'discountTotal' ->> 'amountMinor')::bigint, 0);
-      v_line_total_minor := v_gross_minor - v_discount_minor;
+      -- Tiền dòng do server tính (spec 2026-09-28 §4.1): chỉ giảm tiền/% sinh chiết khấu;
+      -- giá riêng / sửa đơn giá / niêm yết: đơn giá = giá áp dụng, chiết khấu 0. Thuế 0.
+      v_priced := v_pricing -> 'lines' -> (v_line_index - 1);
+      if v_priced is null or (v_priced ->> 'local_line_id') <> v_line_index::text then
+        raise exception using message = jsonb_build_object(
+          'code', 'CONTEXT_INVALID',
+          'message', 'Pricing result does not match checkout lines.'
+        )::text;
+      end if;
+      if jsonb_array_length(coalesce(v_priced -> 'blocking_codes', '[]'::jsonb)) > 0 then
+        raise exception using message = jsonb_build_object(
+          'code', 'PRICING_BLOCKED',
+          'message', 'Line pricing is blocked.',
+          'details', jsonb_build_object('lineIndex', v_line_index, 'blockingCodes', v_priced -> 'blocking_codes')
+        )::text;
+      end if;
+
+      v_is_discount_mode := (v_priced ->> 'source_code') = 'MANUAL'
+        and (v_line ->> 'manual_unit_price_minor') is null
+        and ((v_line ->> 'manual_discount_minor') is not null
+          or (v_line ->> 'manual_discount_basis_points') is not null);
+      v_line_total_minor := (v_priced ->> 'line_total_minor')::bigint;
+      if v_is_discount_mode then
+        v_unit_price_minor := (v_priced ->> 'list_price_minor')::bigint;
+        v_gross_minor := v_unit_price_minor * (v_line ->> 'quantity_micros')::bigint / 1000000;
+      else
+        v_unit_price_minor := (v_priced ->> 'applied_unit_price_minor')::bigint;
+        v_gross_minor := v_line_total_minor;
+      end if;
+      v_discount_minor := v_gross_minor - v_line_total_minor;
+
+      v_pricing_snapshot := jsonb_strip_nulls(jsonb_build_object(
+        'sourceCode', case
+          when (v_priced ->> 'source_code') <> 'MANUAL' then v_priced ->> 'source_code'
+          when (v_line ->> 'manual_unit_price_minor') is not null then 'MANUAL_PRICE'
+          when (v_line ->> 'manual_discount_minor') is not null then 'MANUAL_DISCOUNT_AMOUNT'
+          else 'MANUAL_DISCOUNT_PERCENT'
+        end,
+        'listUnitPriceMinor', (v_priced ->> 'list_price_minor')::bigint,
+        'appliedUnitPriceMinor', (v_priced ->> 'applied_unit_price_minor')::bigint,
+        'manualDiscountMinor', case when v_is_discount_mode then (v_line ->> 'manual_discount_minor')::bigint end,
+        'discountBasisPoints', case when v_is_discount_mode then (v_line ->> 'manual_discount_basis_points')::integer end,
+        'warningCodes', coalesce(v_priced -> 'warning_codes', '[]'::jsonb),
+        'pricedAt', now()
+      ));
+
       if v_discount_minor < 0 or v_discount_minor > v_gross_minor then
         raise exception using message = jsonb_build_object(
           'code', 'COMMERCIAL_TOTAL_MISMATCH',
@@ -241,14 +303,23 @@ begin
          or jsonb_typeof(v_commercial_line -> 'unit') <> 'object'
          or trim(v_commercial_line -> 'unit' ->> 'productUnitId') <> trim(v_line ->> 'product_unit_id')
          or nullif(trim(coalesce(v_commercial_line -> 'unit' ->> 'unitName', '')), '') is null
-         or coalesce((v_commercial_line ->> 'quantityMicros')::bigint, 0) <> (v_line ->> 'quantity_micros')::bigint
-         or coalesce((v_commercial_line -> 'unitPrice' ->> 'amountMinor')::bigint, -1)
-            <> (v_line -> 'unit_price' ->> 'amount_minor')::bigint
-         or coalesce((v_commercial_line -> 'lineTotal' ->> 'amountMinor')::bigint, -1)
-            <> v_line_total_minor then
+         or coalesce((v_commercial_line ->> 'quantityMicros')::bigint, 0) <> (v_line ->> 'quantity_micros')::bigint then
         raise exception using message = jsonb_build_object(
           'code', 'CHECKOUT_BLOCKED',
           'message', 'Commercial line snapshot does not match checkout lines.'
+        )::text;
+      end if;
+
+      -- Số khách đã xem khác số server tính (giá vừa đổi) → không tạo đơn.
+      if coalesce((v_commercial_line -> 'lineTotal' ->> 'amountMinor')::bigint, -1) <> v_line_total_minor then
+        raise exception using message = jsonb_build_object(
+          'code', 'PRICE_CHANGED',
+          'message', 'Line price changed since preview.',
+          'details', jsonb_build_object(
+            'lineId', v_commercial_line ->> 'lineId',
+            'expectedLineTotalMinor', (v_commercial_line -> 'lineTotal' ->> 'amountMinor')::bigint,
+            'actualLineTotalMinor', v_line_total_minor
+          )
         )::text;
       end if;
 
@@ -303,6 +374,7 @@ begin
           'gross_amount_minor', v_gross_minor,
           'discount_amount_minor', v_discount_minor,
           'line_total_minor', v_line_total_minor,
+          'pricing_snapshot', v_pricing_snapshot,
           'note', nullif(trim(coalesce(v_line ->> 'note', '')), ''),
           'product_snapshot', jsonb_build_object(
             'productId', trim(v_commercial_line -> 'product' ->> 'productId'),
@@ -439,7 +511,7 @@ begin
         id, tenant_id, sales_order_id, line_sequence, product_id, product_unit_id,
         quantity_micros, base_quantity_micros, unit_price_minor, gross_amount_minor,
         discount_amount_minor, tax_amount_minor, line_total_minor,
-        product_snapshot, product_unit_snapshot, line_note
+        product_snapshot, product_unit_snapshot, line_note, pricing_snapshot
       ) values (
         (v_line ->> 'lineId')::uuid, p_tenant_id, v_order_id, v_line_index,
         (v_line ->> 'product_id')::uuid, (v_line ->> 'product_unit_id')::uuid,
@@ -448,7 +520,8 @@ begin
         (v_line ->> 'discount_amount_minor')::bigint, 0, (v_line ->> 'line_total_minor')::bigint,
         coalesce(v_line -> 'product_snapshot', '{}'::jsonb),
         coalesce(v_line -> 'product_unit_snapshot', '{}'::jsonb),
-        nullif(trim(coalesce(v_line ->> 'note', '')), '')
+        nullif(trim(coalesce(v_line ->> 'note', '')), ''),
+        coalesce(v_line -> 'pricing_snapshot', '{}'::jsonb)
       );
     end loop;
 
@@ -565,11 +638,15 @@ begin
       'status', case
         when v_error_code in (
           'CHECKOUT_BLOCKED', 'STALE_VERSION', 'CONTEXT_INVALID',
-          'PRODUCT_NOT_SELLABLE', 'RECEIVABLE_DUE_DATE_REQUIRED'
+          'PRODUCT_NOT_SELLABLE', 'RECEIVABLE_DUE_DATE_REQUIRED',
+          'PRICE_CHANGED', 'PRICING_BLOCKED'
         ) then 'blocked'
         else 'failed'
       end
     );
+    if v_result ->> 'status' = 'blocked' then
+      v_result := v_result || jsonb_build_object('blockedCode', v_error_code);
+    end if;
 
     if v_error_code in (
       'PERMISSION_DENIED', 'DATA_SCOPE_DENIED', 'IDEMPOTENCY_CONFLICT',

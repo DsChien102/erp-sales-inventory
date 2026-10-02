@@ -118,5 +118,7 @@ final class SupabaseCheckoutGateway implements ICheckoutGateway {
     'DATA_SCOPE_DENIED',
     'CONTEXT_INVALID',
     'CHECKOUT_RESULT_NOT_FOUND',
+    'PRICE_CHANGED',
+    'PRICING_BLOCKED',
   };
 }

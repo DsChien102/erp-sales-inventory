@@ -1,10 +1,10 @@
 import 'package:vet45_sales_application/application.dart';
 
-/// Deferred Catalog/Pricing/Inventory adapter until owner ports are wired.
+/// Deferred Catalog/Inventory adapter until owner ports are wired.
 ///
-/// It lets return/exchange drafts proceed without inventing pricing snapshots or
-/// stock reservations. Authoritative reference checks are reintroduced by
-/// replacing this adapter with owner-backed providers.
+/// Exchange unit prices are a client preview from `preview_return_exchange_pricing`.
+/// The server prices the line itself and compares that preview. Product, unit,
+/// and stock lookups stay on this adapter.
 final class UnavailableReturnExchangeReferencePort implements IReturnExchangeReferencePort {
   @override
   Future<ReturnExchangeReferenceDecision> evaluate({
@@ -23,7 +23,7 @@ final class UnavailableReturnExchangeReferencePort implements IReturnExchangeRef
           line.productUnitId: PricingSnapshotDto(
             unitPrice:
                 line.exchangeUnitPrice ?? const MoneyDto(amountMinor: 0, currencyCode: 'VND'),
-            source: 'deferred_reference',
+            source: 'client_preview',
             pricedAt: now,
           ),
       },

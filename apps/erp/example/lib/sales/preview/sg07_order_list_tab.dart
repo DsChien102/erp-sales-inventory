@@ -10,12 +10,6 @@ class SalesSg07OrderListTab extends StatelessWidget {
 
   static Future<void> _noop() async {}
 
-  static const _counts = {
-    SalesOrderSavedSearchPreset.all: 12,
-    SalesOrderSavedSearchPreset.outstandingReceivable: 3,
-    SalesOrderSavedSearchPreset.eInvoicePending: 5,
-  };
-
   @override
   Widget build(BuildContext context) {
     return previewList([
@@ -32,7 +26,6 @@ class SalesSg07OrderListTab extends StatelessWidget {
         title: 'SalesOrderSavedSearchChips',
         child: SalesOrderSavedSearchChips(
           selected: SalesOrderSavedSearchPreset.all,
-          counts: _counts,
           onSelected: (_) {},
         ),
       ),

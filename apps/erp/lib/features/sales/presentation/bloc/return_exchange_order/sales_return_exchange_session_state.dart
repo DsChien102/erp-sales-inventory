@@ -70,14 +70,14 @@ final class SalesExchangeLineEdit extends Equatable {
   final MoneyDto unitPrice;
   final int quantityMicros;
 
-  SalesExchangeLineEdit copyWith({int? quantityMicros}) {
+  SalesExchangeLineEdit copyWith({int? quantityMicros, MoneyDto? unitPrice}) {
     return SalesExchangeLineEdit(
       productId: productId,
       productUnitId: productUnitId,
       productName: productName,
       sku: sku,
       unitLabel: unitLabel,
-      unitPrice: unitPrice,
+      unitPrice: unitPrice ?? this.unitPrice,
       quantityMicros: quantityMicros ?? this.quantityMicros,
     );
   }

@@ -85,6 +85,104 @@ void main() {
       expect(vm.createdAtFormatted, '01/08/2026 16:00');
     });
 
+    test('strikes through the list price when the original line has a discount', () {
+      final dto = _detailDto(
+        salesOrderId: 'order-discount',
+        orderNumber: 'SO-2026-00002',
+        version: 1,
+        committedAt: DateTime.utc(2026, 9, 28, 3, 0),
+        lifecycleStatus: app.SalesOrderLifecycleStatus.completed,
+        customerName: 'Đại lý An Bình',
+        customerPhone: '0903456789',
+        storeName: 'Chi nhánh Quận 1',
+        sellerName: 'Minh Anh',
+        orderNote: null,
+        productName: 'Vaccine A',
+        unitName: 'Lọ',
+        quantityMicros: 2000000,
+        unitPriceMinor: 100000,
+        lineTotalMinor: 180000,
+        discountTotalMinor: 20000,
+        totalMinor: 180000,
+      );
+
+      final vm = SalesOrderDetailMapper.toVm(dto);
+
+      expect(vm.items.single.originalUnitPriceMinor, 100000);
+      expect(vm.items.single.unitPriceMinor, 90000);
+      expect(vm.items.single.totalAmountMinor, 180000);
+    });
+
+    test('keeps the unit price when the original line has no discount', () {
+      final dto = _detailDto(
+        salesOrderId: 'order-list',
+        orderNumber: 'SO-2026-00003',
+        version: 1,
+        committedAt: DateTime.utc(2026, 9, 28, 3, 0),
+        lifecycleStatus: app.SalesOrderLifecycleStatus.completed,
+        customerName: null,
+        customerPhone: null,
+        storeName: 'Chi nhánh Quận 1',
+        sellerName: 'Minh Anh',
+        orderNote: null,
+        productName: 'Vaccine A',
+        unitName: 'Lọ',
+        quantityMicros: 1000000,
+        unitPriceMinor: 100000,
+        lineTotalMinor: 100000,
+        totalMinor: 100000,
+      );
+
+      final vm = SalesOrderDetailMapper.toVm(dto);
+
+      expect(vm.items.single.originalUnitPriceMinor, isNull);
+      expect(vm.items.single.unitPriceMinor, 100000);
+    });
+
+    test('maps the current line original unit price when the server sends one', () {
+      final dto = _detailDto(
+        salesOrderId: 'order-current',
+        orderNumber: 'SO-2026-00004',
+        version: 2,
+        committedAt: DateTime.utc(2026, 9, 28, 3, 0),
+        lifecycleStatus: app.SalesOrderLifecycleStatus.completed,
+        customerName: null,
+        customerPhone: null,
+        storeName: 'Chi nhánh Quận 1',
+        sellerName: 'Minh Anh',
+        orderNote: null,
+        productName: 'Vaccine A',
+        unitName: 'Lọ',
+        quantityMicros: 2000000,
+        unitPriceMinor: 100000,
+        lineTotalMinor: 180000,
+        totalMinor: 180000,
+        currentLines: [
+          app.SalesOrderCurrentLineDto(
+            product: const app.ProductSnapshotDto(
+              productId: 'product-1',
+              sku: 'SKU-1',
+              displayName: 'Vaccine A',
+            ),
+            unit: const app.ProductUnitSnapshotDto(
+              productUnitId: 'unit-1',
+              unitCode: 'UNIT',
+              unitName: 'Lọ',
+            ),
+            heldQuantity: const app.QuantityDto(quantityMicros: 2000000),
+            unitPrice: const app.MoneyDto(amountMinor: 90000, currencyCode: 'VND'),
+            originalUnitPrice: const app.MoneyDto(amountMinor: 100000, currencyCode: 'VND'),
+            source: app.SalesOrderLineSource.original,
+          ),
+        ],
+      );
+
+      final vm = SalesOrderDetailMapper.toVm(dto);
+
+      expect(vm.currentItems.single.originalUnitPriceMinor, 100000);
+      expect(vm.currentItems.single.unitPriceMinor, 90000);
+    });
+
     test('maps cancelled lifecycle and nullable customer from dto only', () {
       final dto = _detailDto(
         salesOrderId: 'order-walk-in',
@@ -184,7 +282,9 @@ app.SalesOrderDetailDto _detailDto({
   required int quantityMicros,
   required int unitPriceMinor,
   required int lineTotalMinor,
+  int? discountTotalMinor,
   required int totalMinor,
+  List<app.SalesOrderCurrentLineDto> currentLines = const [],
 }) {
   return app.SalesOrderDetailDto(
     order: app.SalesOrderDto(
@@ -225,9 +325,13 @@ app.SalesOrderDetailDto _detailDto({
         quantity: app.QuantityDto(quantityMicros: quantityMicros),
         unitPrice: app.MoneyDto(amountMinor: unitPriceMinor, currencyCode: 'VND'),
         lineTotal: app.MoneyDto(amountMinor: lineTotalMinor, currencyCode: 'VND'),
+        discountTotal: discountTotalMinor == null
+            ? null
+            : app.MoneyDto(amountMinor: discountTotalMinor, currencyCode: 'VND'),
       ),
     ],
     orderNote: orderNote,
     currentReceiptId: 'receipt-1',
+    currentLines: currentLines,
   );
 }

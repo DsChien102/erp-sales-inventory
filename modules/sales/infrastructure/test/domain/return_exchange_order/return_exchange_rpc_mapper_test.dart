@@ -952,6 +952,38 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test('preview pricing params and response', () {
+      final params = ReturnExchangeRpcMapper.previewPricingParams(
+        PreviewReturnExchangePricingQuery(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          salesOrderId: 'order-1',
+          lines: const [ReturnExchangePricingLineInput(productId: 'p-1', productUnitId: 'u-1')],
+        ),
+      );
+      expect(params, <String, dynamic>{
+        'p_tenant_id': 'tenant-1',
+        'p_actor_id': 'actor-1',
+        'p_sales_order_id': 'order-1',
+        'p_lines': [
+          {'product_id': 'p-1', 'product_unit_id': 'u-1'},
+        ],
+      });
+
+      final dto = ReturnExchangeRpcMapper.previewPricingFromJson({
+        'lines': [
+          {
+            'productUnitId': 'u-1',
+            'unitPrice': {'amountMinor': 80000, 'currencyCode': 'VND'},
+            'sourceCode': 'CUSTOMER_PRIVATE_RULE',
+            'warningCodes': <dynamic>[],
+          },
+        ],
+      });
+      expect(dto.lines.single.unitPrice.amountMinor, 80000);
+      expect(dto.lines.single.sourceCode, 'CUSTOMER_PRIVATE_RULE');
+    });
   });
 }
 

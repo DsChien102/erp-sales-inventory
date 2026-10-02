@@ -115,7 +115,6 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
                 VPagePadding(
                   child: SalesOrderSavedSearchChips(
                     selected: state.preset,
-                    counts: state.presetCounts,
                     onSelected: _cubit.selectPreset,
                   ),
                 ),

@@ -163,6 +163,7 @@ create table if not exists sales.sales_order_lines (
   line_total_minor bigint not null,
   product_snapshot jsonb not null,
   product_unit_snapshot jsonb not null,
+  pricing_snapshot jsonb not null default '{}'::jsonb,           -- nguồn giá lúc chốt (tra cứu, không dùng tính tiền)
   line_note text,
   created_at timestamptz not null default now(),
   constraint sales_order_lines_seq_unique unique (sales_order_id, line_sequence), -- FC-06
