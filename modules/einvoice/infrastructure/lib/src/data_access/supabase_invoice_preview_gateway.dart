@@ -1,9 +1,11 @@
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_einvoice_application/application.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../errors/einvoice_error_mapper.dart';
 import 'einvoice_rpc_mapper.dart';
+import 'electronic_invoice_rpc_mapper.dart';
 
 final class SupabaseInvoicePreviewGateway implements IInvoicePreviewGateway {
   SupabaseInvoicePreviewGateway({required SupabaseSchemaRpcClient rpcClient})
@@ -64,19 +66,28 @@ final class SupabaseInvoicePreviewGateway implements IInvoicePreviewGateway {
   @override
   Future<void> storeResult({
     required String tenantId,
-    required String previewRequestId,
+    required String salesOrderId,
+    required String requestId,
+    required String status,
     String? viewerRef,
-    Map<String, Object?>? previewPayload,
+    String? failureCode,
+    String? failureMessage,
+    FailureSource? failureSource,
   }) async {
     try {
       await _rpcClient.callList(
         'store_preview_result',
         params: {
           'p_tenant_id': tenantId,
-          'p_preview_request_id': previewRequestId,
-          if (viewerRef != null) 'p_viewer_ref': viewerRef,
-          if (previewPayload != null) 'p_preview_payload': previewPayload,
-          'p_status': 'ready',
+          'p_sales_order_id': salesOrderId,
+          'p_request_id': requestId,
+          'p_status': status,
+          'p_viewer_ref': viewerRef,
+          'p_failure_code': failureCode,
+          'p_failure_message': failureMessage,
+          'p_failure_source': ElectronicInvoiceRpcMapper.failureSourceToRpc(
+            failureSource,
+          ),
         },
       );
     } on RpcException catch (error) {

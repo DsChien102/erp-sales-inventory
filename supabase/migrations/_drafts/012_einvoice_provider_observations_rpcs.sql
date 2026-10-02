@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: einvoice_s4c_provider_observations
 -- Context: TH-08 / EP-03 / US-03
--- Touches: _provider_observation_command_id, get_latest_provider_observation, load_provider_observation_context, record_provider_interaction_result, record_provider_observation, request_provider_observation_refresh, start_provider_interaction
+-- Touches: _provider_observation_command_id, get_latest_provider_observation, load_provider_observation_context, record_provider_observation, request_provider_observation_refresh
 -- Safety: idempotent ; medium
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql, 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql
 
@@ -16,13 +16,12 @@ create table if not exists einvoice.invoice_provider_observations (
   observed_at timestamptz not null,
   deduplication_key text not null,
   details_snapshot jsonb not null default '{}'::jsonb,
-  provider_interaction_reference uuid not null,
+  correlation_id uuid not null,
   created_at timestamptz not null default now(),
   unique (tenant_id, deduplication_key),
+  unique (tenant_id, id),
   foreign key (tenant_id, electronic_invoice_id)
-    references einvoice.electronic_invoices (tenant_id, id),
-  foreign key (tenant_id, provider_interaction_reference)
-    references einvoice.provider_interaction_records (tenant_id, id)
+    references einvoice.electronic_invoices (tenant_id, id)
 );
 
 alter table einvoice.invoice_provider_observations enable row level security;
@@ -83,247 +82,6 @@ begin
       raise exception 'VALIDATION_ERROR: details_snapshot key not allowed: %', v_key;
     end if;
   end loop;
-end;
-$$;
-
-create or replace function einvoice.start_provider_interaction(
-  p_tenant_id uuid,
-  p_provider_connection_id uuid,
-  p_direction text,
-  p_operation_type text,
-  p_target_type text,
-  p_target_id uuid,
-  p_correlation_id uuid,
-  p_request_reference varchar(255)
-) returns table(
-  interaction_reference uuid,
-  tenant_id uuid,
-  version bigint,
-  provider_connection_id uuid,
-  direction text,
-  operation_type text,
-  target_type text,
-  target_id uuid,
-  correlation_id uuid,
-  request_reference varchar(255),
-  response_reference varchar(255),
-  provider_reference varchar(255),
-  status text,
-  outcome text,
-  safe_error_code varchar(100),
-  started_at timestamptz,
-  completed_at timestamptz
-) language plpgsql security definer set search_path = einvoice, public as $$
-declare
-  v_row einvoice.provider_interaction_records%rowtype;
-begin
-  if p_direction not in ('OUTBOUND', 'INBOUND_CALLBACK') then
-    raise exception 'VALIDATION_ERROR: invalid direction %', p_direction;
-  end if;
-
-  if not exists (
-    select 1
-    from einvoice.provider_connections pc
-    where pc.id = p_provider_connection_id
-      and pc.tenant_id = p_tenant_id
-  ) then
-    raise exception 'NOT_FOUND: provider connection';
-  end if;
-
-  select pir.*
-  into v_row
-  from einvoice.provider_interaction_records pir
-  where pir.tenant_id = p_tenant_id
-    and pir.correlation_id = p_correlation_id
-    and pir.operation_type = p_operation_type;
-
-  if found then
-    return query select
-      v_row.id,
-      v_row.tenant_id,
-      v_row.version,
-      v_row.provider_connection_id,
-      v_row.direction,
-      v_row.operation_type,
-      v_row.target_type,
-      v_row.target_id,
-      v_row.correlation_id,
-      v_row.request_reference,
-      v_row.response_reference,
-      v_row.provider_reference,
-      v_row.status,
-      v_row.outcome,
-      v_row.safe_error_code,
-      v_row.started_at,
-      v_row.completed_at;
-    return;
-  end if;
-
-  insert into einvoice.provider_interaction_records (
-    tenant_id,
-    version,
-    provider_connection_id,
-    direction,
-    operation_type,
-    target_type,
-    target_id,
-    correlation_id,
-    request_reference,
-    status,
-    started_at
-  ) values (
-    p_tenant_id,
-    0,
-    p_provider_connection_id,
-    p_direction,
-    p_operation_type,
-    p_target_type,
-    p_target_id,
-    p_correlation_id,
-    p_request_reference,
-    'STARTED',
-    now()
-  )
-  returning * into v_row;
-
-  return query select
-    v_row.id,
-    v_row.tenant_id,
-    v_row.version,
-    v_row.provider_connection_id,
-    v_row.direction,
-    v_row.operation_type,
-    v_row.target_type,
-    v_row.target_id,
-    v_row.correlation_id,
-    v_row.request_reference,
-    v_row.response_reference,
-    v_row.provider_reference,
-    v_row.status,
-    v_row.outcome,
-    v_row.safe_error_code,
-    v_row.started_at,
-    v_row.completed_at;
-end;
-$$;
-
-create or replace function einvoice.record_provider_interaction_result(
-  p_tenant_id uuid,
-  p_interaction_reference uuid,
-  p_expected_version bigint,
-  p_outcome text,
-  p_response_reference varchar(255) default null,
-  p_provider_reference varchar(255) default null,
-  p_safe_error_code varchar(100) default null
-) returns table(
-  interaction_reference uuid,
-  tenant_id uuid,
-  version bigint,
-  provider_connection_id uuid,
-  direction text,
-  operation_type text,
-  target_type text,
-  target_id uuid,
-  correlation_id uuid,
-  request_reference varchar(255),
-  response_reference varchar(255),
-  provider_reference varchar(255),
-  status text,
-  outcome text,
-  safe_error_code varchar(100),
-  started_at timestamptz,
-  completed_at timestamptz
-) language plpgsql security definer set search_path = einvoice, public as $$
-declare
-  v_row einvoice.provider_interaction_records%rowtype;
-begin
-  if p_outcome not in (
-    'SUCCEEDED', 'DEFINITE_FAILURE', 'TIMEOUT', 'UNAVAILABLE',
-    'NOT_FOUND', 'MISMATCH', 'CHECK_REQUIRED'
-  ) then
-    raise exception 'VALIDATION_ERROR: invalid outcome %', p_outcome;
-  end if;
-
-  select pir.*
-  into v_row
-  from einvoice.provider_interaction_records pir
-  where pir.id = p_interaction_reference
-    and pir.tenant_id = p_tenant_id
-  for update;
-
-  if not found then
-    raise exception 'NOT_FOUND: provider interaction';
-  end if;
-
-  if v_row.status = 'COMPLETED' then
-    if v_row.outcome = p_outcome
-       and v_row.response_reference is not distinct from p_response_reference
-       and v_row.provider_reference is not distinct from p_provider_reference
-       and v_row.safe_error_code is not distinct from p_safe_error_code then
-      return query select
-        v_row.id,
-        v_row.tenant_id,
-        v_row.version,
-        v_row.provider_connection_id,
-        v_row.direction,
-        v_row.operation_type,
-        v_row.target_type,
-        v_row.target_id,
-        v_row.correlation_id,
-        v_row.request_reference,
-        v_row.response_reference,
-        v_row.provider_reference,
-        v_row.status,
-        v_row.outcome,
-        v_row.safe_error_code,
-        v_row.started_at,
-        v_row.completed_at;
-      return;
-    end if;
-    raise exception 'INTERACTION_RESULT_CONFLICT: interaction already finalized';
-  end if;
-
-  if v_row.version <> p_expected_version then
-    raise exception 'STATE_CHANGED: interaction version mismatch';
-  end if;
-
-  update einvoice.provider_interaction_records pir
-  set
-    version = pir.version + 1,
-    status = 'COMPLETED',
-    outcome = p_outcome,
-    response_reference = p_response_reference,
-    provider_reference = p_provider_reference,
-    safe_error_code = p_safe_error_code,
-    completed_at = now(),
-    updated_at = now()
-  where pir.id = p_interaction_reference
-    and pir.tenant_id = p_tenant_id
-    and pir.version = p_expected_version
-  returning * into v_row;
-
-  if not found then
-    raise exception 'STATE_CHANGED: interaction version mismatch';
-  end if;
-
-  return query select
-    v_row.id,
-    v_row.tenant_id,
-    v_row.version,
-    v_row.provider_connection_id,
-    v_row.direction,
-    v_row.operation_type,
-    v_row.target_type,
-    v_row.target_id,
-    v_row.correlation_id,
-    v_row.request_reference,
-    v_row.response_reference,
-    v_row.provider_reference,
-    v_row.status,
-    v_row.outcome,
-    v_row.safe_error_code,
-    v_row.started_at,
-    v_row.completed_at;
 end;
 $$;
 
@@ -442,11 +200,15 @@ begin
     v_invoice.id,
     v_invoice.provider_connection_id,
     v_invoice.provider_invoice_reference,
-    v_invoice.series,
+    v_invoice.invoice_series,
     (v_cmd.payload ->> 'trigger_id')::uuid,
     (v_cmd.payload ->> 'correlation_id')::uuid;
 end;
 $$;
+
+drop function if exists einvoice.record_provider_observation(
+  uuid, uuid, text, text, text, timestamptz, text, jsonb, uuid
+);
 
 create or replace function einvoice.record_provider_observation(
   p_tenant_id uuid,
@@ -457,7 +219,7 @@ create or replace function einvoice.record_provider_observation(
   p_observed_at timestamptz,
   p_deduplication_key text,
   p_details_snapshot jsonb,
-  p_provider_interaction_reference uuid
+  p_correlation_id uuid
 ) returns table(
   observation_id uuid,
   electronic_invoice_id uuid,
@@ -470,28 +232,13 @@ create or replace function einvoice.record_provider_observation(
   replayed boolean
 ) language plpgsql security definer set search_path = einvoice, public as $$
 declare
-  v_interaction einvoice.provider_interaction_records%rowtype;
   v_observation_id uuid;
   v_replayed boolean := false;
   v_correlation_id uuid;
 begin
   perform einvoice._validate_observation_details_snapshot(p_details_snapshot);
 
-  select pir.*
-  into v_interaction
-  from einvoice.provider_interaction_records pir
-  where pir.id = p_provider_interaction_reference
-    and pir.tenant_id = p_tenant_id;
-
-  if not found then
-    raise exception 'NOT_FOUND: provider interaction';
-  end if;
-
-  if v_interaction.status <> 'COMPLETED' then
-    raise exception 'VALIDATION_ERROR: interaction not finalized';
-  end if;
-
-  v_correlation_id := v_interaction.correlation_id;
+  v_correlation_id := p_correlation_id;
 
   insert into einvoice.invoice_provider_observations (
     tenant_id,
@@ -502,7 +249,7 @@ begin
     observed_at,
     deduplication_key,
     details_snapshot,
-    provider_interaction_reference
+    correlation_id
   ) values (
     p_tenant_id,
     p_electronic_invoice_id,
@@ -512,7 +259,7 @@ begin
     p_observed_at,
     p_deduplication_key,
     coalesce(p_details_snapshot, '{}'::jsonb),
-    p_provider_interaction_reference
+    p_correlation_id
   )
   on conflict (tenant_id, deduplication_key) do nothing
   returning id into v_observation_id;
@@ -525,18 +272,6 @@ begin
     where ipo.tenant_id = p_tenant_id
       and ipo.deduplication_key = p_deduplication_key;
   end if;
-
-  update einvoice.electronic_invoices ei
-  set
-    latest_provider_state_code = p_provider_state_code,
-    last_provider_observed_at = p_observed_at,
-    updated_at = now()
-  where ei.tenant_id = p_tenant_id
-    and ei.id = p_electronic_invoice_id
-    and (
-      ei.last_provider_observed_at is null
-      or ei.last_provider_observed_at < p_observed_at
-    );
 
   if p_provider_state_code in ('NOT_FOUND', 'MISMATCH') then
     insert into einvoice.outbox_messages (
@@ -553,7 +288,7 @@ begin
         'observation_id', v_observation_id,
         'electronic_invoice_id', p_electronic_invoice_id,
         'provider_state_code', p_provider_state_code,
-        'provider_interaction_reference', p_provider_interaction_reference
+        'correlation_id', p_correlation_id
       ),
       p_observed_at
     ) on conflict (id) do nothing;
@@ -622,12 +357,9 @@ begin
     ipo.observed_at,
     ipo.provider_state_description,
     ipo.provider_reference,
-    pir.correlation_id,
+    ipo.correlation_id,
     ipo.details_snapshot
   from einvoice.invoice_provider_observations ipo
-  left join einvoice.provider_interaction_records pir
-    on pir.tenant_id = ipo.tenant_id
-    and pir.id = ipo.provider_interaction_reference
   where ipo.tenant_id = p_tenant_id
     and ipo.electronic_invoice_id = v_invoice.id
   order by ipo.observed_at desc, ipo.created_at desc
@@ -639,12 +371,6 @@ revoke all on function einvoice._provider_observation_command_id(uuid, uuid, tex
   from public, anon, authenticated;
 revoke all on function einvoice._validate_observation_details_snapshot(jsonb)
   from public, anon, authenticated;
-revoke all on function einvoice.start_provider_interaction(
-  uuid, uuid, text, text, text, uuid, uuid, varchar
-) from public, anon, authenticated;
-revoke all on function einvoice.record_provider_interaction_result(
-  uuid, uuid, bigint, text, varchar, varchar, varchar
-) from public, anon, authenticated;
 revoke all on function einvoice.request_provider_observation_refresh(
   uuid, uuid, uuid, text, text
 ) from public, anon, authenticated;
@@ -658,12 +384,6 @@ revoke all on function einvoice.get_latest_provider_observation(uuid, uuid, uuid
 
 grant execute on function einvoice._provider_observation_command_id(uuid, uuid, text)
   to service_role;
-grant execute on function einvoice.start_provider_interaction(
-  uuid, uuid, text, text, text, uuid, uuid, varchar
-) to service_role;
-grant execute on function einvoice.record_provider_interaction_result(
-  uuid, uuid, bigint, text, varchar, varchar, varchar
-) to service_role;
 grant execute on function einvoice.request_provider_observation_refresh(
   uuid, uuid, uuid, text, text
 ) to service_role;

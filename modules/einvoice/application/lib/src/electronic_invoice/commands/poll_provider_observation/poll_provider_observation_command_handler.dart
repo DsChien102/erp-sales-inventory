@@ -5,9 +5,7 @@ import '../../../exceptions/provider_call_ambiguous_exception.dart';
 import '../../../ports/i_einvoice_command_dispatcher.dart';
 import '../../../ports/i_electronic_invoice_command_gateway.dart';
 import '../../../ports/i_electronic_invoice_provider_port.dart';
-import '../../../ports/i_provider_interaction_gateway.dart';
 import '../../shared/electronic_invoice_provider_context_dto.dart';
-import '../../shared/provider_call_correlation_id.dart';
 import '../record_provider_observation/record_provider_observation_command.dart';
 import 'poll_provider_observation_command.dart';
 
@@ -17,16 +15,13 @@ final class PollProviderObservationCommandHandler
   PollProviderObservationCommandHandler({
     required IElectronicInvoiceCommandGateway commandGateway,
     required IElectronicInvoiceProviderPort providerPort,
-    required IProviderInteractionGateway interactionGateway,
     required IEinvoiceCommandDispatcher commandDispatcher,
   }) : _commandGateway = commandGateway,
        _providerPort = providerPort,
-       _interactionGateway = interactionGateway,
        _commandDispatcher = commandDispatcher;
 
   final IElectronicInvoiceCommandGateway _commandGateway;
   final IElectronicInvoiceProviderPort _providerPort;
-  final IProviderInteractionGateway _interactionGateway;
   final IEinvoiceCommandDispatcher _commandDispatcher;
 
   @override
@@ -39,28 +34,9 @@ final class PollProviderObservationCommandHandler
       return;
     }
 
-    final correlationId = ProviderCallCorrelationId.forWorkerAttempt(
-      commandId: command.id,
-      workerAttemptNumber: command.workerAttemptNumber,
-    );
-
-    final interaction = await _interactionGateway.start(
-      tenantId: command.tenantId,
-      providerConnectionId: context.providerConnectionId,
-      direction: ProviderInteractionDirection.outbound,
-      operationType: PollProviderObservationCommand.type,
-      targetType: 'ELECTRONIC_INVOICE',
-      targetId: context.electronicInvoiceId,
-      correlationId: correlationId,
-      requestReference: command.id,
-    );
-
-    if (interaction.status == ProviderInteractionStatus.completed) {
-      return;
-    }
-
+    final ProviderObservationOutcome outcome;
     try {
-      final outcome = await _providerPort.observe(
+      outcome = await _providerPort.observe(
         ElectronicInvoiceProviderContextDto(
           tenantId: context.tenantId,
           providerConnectionId: context.providerConnectionId,
@@ -70,52 +46,33 @@ final class PollProviderObservationCommandHandler
           operationId: context.commandId,
         ),
       );
-
-      switch (outcome) {
-        case ProviderObservationAmbiguous ambiguous:
-          await _interactionGateway.finalize(
-            tenantId: command.tenantId,
-            interactionReference: interaction.interactionReference,
-            expectedVersion: interaction.version,
-            outcome: ProviderInteractionOutcome.unavailable,
-            safeErrorCode: ambiguous.safeErrorCode,
-          );
-          throw StateError(ambiguous.safeErrorCode);
-        case ProviderObservationFound():
-        case ProviderObservationNotFound():
-        case ProviderObservationMismatch():
-          final finalized = await _interactionGateway.finalize(
-            tenantId: command.tenantId,
-            interactionReference: interaction.interactionReference,
-            expectedVersion: interaction.version,
-            outcome: ProviderInteractionOutcome.succeeded,
-            providerReference: outcome.providerReference,
-          );
-          final record = _observationFields(outcome);
-          await _commandDispatcher.execute(
-            RecordProviderObservationCommand(
-              tenantId: command.tenantId,
-              electronicInvoiceId: context.electronicInvoiceId,
-              providerStateCode: record.providerStateCode,
-              safeDescription: record.safeDescription,
-              providerReference: record.providerReference,
-              observedAt: record.observedAt,
-              deduplicationKey: 'provider_observation:${command.id}',
-              detailsSnapshot: record.detailsSnapshot,
-              providerInteractionReference: finalized.interactionReference,
-              source: 'WORKER',
-            ),
-          );
-      }
     } on ProviderCallAmbiguousException catch (error) {
-      await _interactionGateway.finalize(
-        tenantId: command.tenantId,
-        interactionReference: interaction.interactionReference,
-        expectedVersion: interaction.version,
-        outcome: ProviderInteractionOutcome.timeout,
-        safeErrorCode: error.safeErrorCode,
-      );
+      // Do not invent an observation when MISA did not answer. Leave the
+      // command to retry.
       throw StateError(error.safeErrorCode);
+    }
+
+    switch (outcome) {
+      case ProviderObservationAmbiguous ambiguous:
+        throw StateError(ambiguous.safeErrorCode);
+      case ProviderObservationFound():
+      case ProviderObservationNotFound():
+      case ProviderObservationMismatch():
+        final record = _observationFields(outcome);
+        await _commandDispatcher.execute(
+          RecordProviderObservationCommand(
+            tenantId: command.tenantId,
+            electronicInvoiceId: context.electronicInvoiceId,
+            providerStateCode: record.providerStateCode,
+            safeDescription: record.safeDescription,
+            providerReference: record.providerReference,
+            observedAt: record.observedAt,
+            deduplicationKey: 'provider_observation:${command.id}',
+            detailsSnapshot: record.detailsSnapshot,
+            correlationId: context.correlationId,
+            source: 'WORKER',
+          ),
+        );
     }
   }
 

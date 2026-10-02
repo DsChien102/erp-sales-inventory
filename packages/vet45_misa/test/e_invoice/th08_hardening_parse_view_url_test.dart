@@ -116,6 +116,35 @@ void main() {
       expect(result.error, 'meinvoice_preview_invalid_url');
     });
 
+    test('sends classification query flags when provided', () async {
+      Uri? requested;
+      final client = MeInvoiceClient(
+        config: MeInvoiceConfig(
+          baseUrl: MeInvoiceConfig.testBaseUrl,
+          accessToken: 'test-token',
+          accessTokenExpiresAt: DateTime.now().toUtc().add(const Duration(days: 1)),
+        ),
+        httpClient: MockClient((request) async {
+          requested = request.url;
+          return http.Response(
+            jsonEncode({'Success': true, 'Data': 'https://meinvoice.vn/viewer/ok'}),
+            200,
+          );
+        }),
+      );
+
+      final result = await client.previewPublished(
+        transactionIds: const ['tx-1'],
+        companyTaxCode: '0101234567',
+        query: MeInvoiceInvoiceQuery.fromInvSeries('2C26MYY'),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(requested?.path, endsWith('/invoice/publishview'));
+      expect(requested?.queryParameters['invoiceWithCode'], 'true');
+      expect(requested?.queryParameters['invoiceCalcu'], 'true');
+    });
+
     test('accepts https meinvoice viewer URL', () async {
       final result =
           await _clientReturning(

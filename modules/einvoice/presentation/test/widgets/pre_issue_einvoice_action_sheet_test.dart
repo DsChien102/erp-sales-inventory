@@ -68,6 +68,28 @@ void main() {
       expect(find.byType(PreIssueEInvoiceActionSheet), findsOneWidget);
     });
 
+    testWidgets('provider not connected disables issue and keeps preview enabled', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildSubject(
+          state: const PreIssueSheetState(isProviderConnected: false),
+        ),
+      );
+
+      final issue = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_issue')),
+      );
+      expect(issue.enabled, isFalse);
+      expect(issue.onTap, isNull);
+
+      final preview = tester.widget<EInvoiceActionItem>(
+        find.byKey(const Key('action_preview')),
+      );
+      expect(preview.enabled, isTrue);
+      expect(preview.onTap, isNotNull);
+    });
+
     testWidgets('buyer not ready shows warning banner and link button', (tester) async {
       await tester.pumpWidget(
         buildSubject(state: PreIssueSheetState.buyerNotReady),

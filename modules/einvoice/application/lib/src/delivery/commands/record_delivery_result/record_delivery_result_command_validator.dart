@@ -12,11 +12,8 @@ final class RecordDeliveryResultCommandValidator
     if (command.deliveryId.trim().isEmpty) {
       throw ValidationException('deliveryId is required');
     }
-    if (command.attemptId.trim().isEmpty) {
-      throw ValidationException('attemptId is required');
-    }
-    if (command.interactionReference.trim().isEmpty) {
-      throw ValidationException('interactionReference is required');
+    if (command.retryCount < 0 || command.retryCount > 2) {
+      throw ValidationException('retryCount must be between 0 and 2');
     }
   }
 }

@@ -39,7 +39,7 @@ void main() {
         expect(op.expiresAt, DateTime.utc(2026, 8, 31, 9, 5));
 
         final replay = await harness.requestOfficialView();
-        expect(replay.operationId, op.operationId);
+        expect(replay.operationId, op.requestId);
         expect(
           harness.internalClient.countPending(
             FetchOfficialInvoiceViewCommand.type,
@@ -67,7 +67,9 @@ void main() {
 
         final op = harness.state.officialOps.values.single;
         expect(op.status, InvoiceDocumentStatus.checkRequired);
-        expect(op.generation, 1);
+        expect(op.failureCode, 'PROVIDER_RESULT_UNDETERMINED');
+        expect(op.failureSource, FailureSource.internal);
+        final previousRequestId = op.requestId;
 
         harness.fakeMeInvoiceClient.enqueuePreviewPublishedResult(
           MeInvoiceResult.ok('https://meinvoice.vn/viewer/replay'),
@@ -77,7 +79,8 @@ void main() {
           actorId: Slice4TestHarness.actorId,
           salesOrderId: Slice4TestHarness.salesOrderId,
         );
-        expect(replay.operationId, op.operationId);
+        expect(replay.operationId, isNot(previousRequestId));
+        expect(replay.operationId, op.requestId);
         expect(replay.status, InvoiceDocumentStatus.pending);
 
         await harness.runWorker();
@@ -91,7 +94,6 @@ void main() {
       () async {
         final first = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-pdf-1',
         );
         expect(first.status, InvoiceDocumentStatus.pending);
 
@@ -106,9 +108,8 @@ void main() {
 
         final replay = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-pdf-1',
         );
-        expect(replay.operationId, op.operationId);
+        expect(replay.operationId, op.requestId);
         expect(harness.fakeMeInvoiceClient.downloadCount, 1);
         expect(harness.state.storageUploadCount, 1);
       },
@@ -128,7 +129,6 @@ void main() {
 
       await harness.requestDocument(
         documentType: InvoiceDocumentType.xml,
-        idempotencyKey: 'idem-xml-1',
       );
       await harness.runWorker();
 
@@ -148,7 +148,6 @@ void main() {
       await expectLater(
         harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-no-pdf',
         ),
         throwsA(
           isA<StateError>().having(
@@ -163,42 +162,22 @@ void main() {
     });
 
     test(
-      'same idempotency key with different intent -> IDEMPOTENCY_CONFLICT',
+      'pending document replay returns the same request id; PDF and XML are independent',
       () async {
-        final op = Slice4DocumentOperation(
-          operationId: 'op-conflict-1',
-          tenantId: Slice4TestHarness.tenantId,
-          electronicInvoiceId: Slice4TestHarness.electronicInvoiceId,
-          salesOrderId: Slice4TestHarness.salesOrderId,
+        final pdf = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          generation: 1,
-          attemptOrdinal: 1,
-          documentVersion: 0,
-          providerConnectionId: Slice4TestHarness.providerConnectionId,
-          idempotencyKey: 'shared-key',
-          correlationId: 'corr-conflict',
-          commandId: 'cmd-conflict-1',
-          documentIntent: 'order-other:pdf',
         );
-        harness.state.documentOps[op.operationId] = op;
-        harness
-                .state
-                .documentOpsByIdempotency['${Slice4TestHarness.tenantId}:shared-key'] =
-            op;
+        final pdfReplay = await harness.requestDocument(
+          documentType: InvoiceDocumentType.pdf,
+        );
+        expect(pdfReplay.operationId, pdf.operationId);
+        expect(harness.internalClient.commands, hasLength(1));
 
-        await expectLater(
-          harness.requestDocument(
-            documentType: InvoiceDocumentType.xml,
-            idempotencyKey: 'shared-key',
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (e) => e.message,
-              'message',
-              'IDEMPOTENCY_CONFLICT',
-            ),
-          ),
+        final xml = await harness.requestDocument(
+          documentType: InvoiceDocumentType.xml,
         );
+        expect(xml.operationId, isNot(pdf.operationId));
+        expect(harness.internalClient.commands, hasLength(2));
       },
     );
 
@@ -220,7 +199,7 @@ void main() {
     });
 
     test(
-      'definite empty document records FAILED; later request creates next generation',
+      'definite empty document records FAILED; later request gets a new request id',
       () async {
         harness.fakeMeInvoiceClient.enqueueDownloadResult(
           const MeInvoiceResult.failed('empty_data'),
@@ -228,7 +207,6 @@ void main() {
 
         final first = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-empty-1',
         );
         await harness.runWorker();
 
@@ -247,7 +225,6 @@ void main() {
 
         final second = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-empty-2',
         );
         expect(second.operationId, isNot(first.operationId));
         await harness.runWorker();
@@ -273,7 +250,6 @@ void main() {
 
         final requested = await harness.requestDocument(
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-timeout',
         );
         await harness.runWorker();
         await harness.runWorker();
@@ -282,6 +258,7 @@ void main() {
         final op = harness.state.documentOps[requested.operationId]!;
         expect(op.status, InvoiceDocumentStatus.checkRequired);
         expect(op.status, isNot(InvoiceDocumentStatus.failed));
+        expect(op.failureSource, FailureSource.internal);
         expect(harness.state.storageUploadCount, 0);
       },
     );
@@ -299,7 +276,6 @@ void main() {
 
       await harness.requestDocument(
         documentType: InvoiceDocumentType.pdf,
-        idempotencyKey: 'idem-bad-bytes',
       );
       await harness.runWorker();
 
@@ -368,12 +344,11 @@ void main() {
 
         expect(harness.fakeMeInvoiceClient.getStatusCount, 2);
         expect(harness.state.observations, hasLength(2));
-        expect(harness.interactionGateway.startCount, 2);
       },
     );
 
     test(
-      'th08_e2e_e03_u03_sc01_01 observation success appends one interaction and one observation',
+      'th08_e2e_e03_u03_sc01_01 observation success records one row with the command correlation id',
       () async {
         harness.commandGateway.enqueueObservation(
           tenantId: Slice4TestHarness.tenantId,
@@ -393,13 +368,16 @@ void main() {
         await harness.runWorker();
 
         expect(harness.state.observations, hasLength(1));
-        expect(harness.interactionGateway.startCount, 1);
+        expect(
+          harness.state.observations.single.correlationId,
+          'corr-obs-trigger-success',
+        );
         expect(harness.state.attentionEvents, isEmpty);
       },
     );
 
     test(
-      'observation timeout -> interaction only, no observation row',
+      'observation timeout records nothing and does not open an interaction',
       () async {
         harness.commandGateway.enqueueObservation(
           tenantId: Slice4TestHarness.tenantId,
@@ -413,11 +391,6 @@ void main() {
         await harness.runWorker();
 
         expect(harness.state.observations, isEmpty);
-        expect(harness.interactionGateway.startCount, 1);
-        expect(
-          harness.state.interactionsByCorrelation.values.single.outcome,
-          ProviderInteractionOutcome.timeout,
-        );
       },
     );
 

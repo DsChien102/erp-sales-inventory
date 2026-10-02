@@ -7,15 +7,13 @@ import 'package:vet45_shared_application/application.dart';
 final class _FakeDispatcher implements IEinvoiceCommandDispatcher {
   final List<RecordDeliveryResultCommand> recordCalls = [];
   bool throwOnRecord = false;
-  int? throwOnRecordAttempt;
 
   @override
   Future<TResult> execute<TResult>(ICommand<TResult> command) async {
     switch (command) {
       case RecordDeliveryResultCommand c:
         recordCalls.add(c);
-        final attempt = recordCalls.length;
-        if (throwOnRecord || throwOnRecordAttempt == attempt) {
+        if (throwOnRecord) {
           throw StateError('simulated record delivery result failure');
         }
         return RecordDeliveryResultDto(
@@ -39,9 +37,8 @@ DeliveryAttemptContextDto _context() {
   return const DeliveryAttemptContextDto(
     tenantId: 'tenant-1',
     deliveryId: 'del-1',
-    attemptId: 'att-1',
+    retryCount: 0,
     deliveryVersion: 1,
-    attemptVersion: 0,
     providerConnectionId: 'conn-1',
     providerTransactionId: 'tx-inv-1',
     invoiceSeries: '1C25TYY',
@@ -63,16 +60,28 @@ DeliveryProviderContextDto _providerContext() {
 
 SendInvoiceEmailCommand _command() {
   return SendInvoiceEmailCommand(
-    id: 'att-1',
+    id: 'cmd-1',
     tenantId: 'tenant-1',
     deliveryId: 'del-1',
-    attemptId: 'att-1',
+    retryCount: 0,
+  );
+}
+
+SendInvoiceEmailCommandHandler _handler({
+  required FakeDeliveryCommandGateway gateway,
+  required FakeInvoiceDeliveryProviderPort provider,
+  required _FakeDispatcher dispatcher,
+}) {
+  return SendInvoiceEmailCommandHandler(
+    commandGateway: gateway,
+    providerPort: provider,
+    commandDispatcher: dispatcher,
   );
 }
 
 void main() {
   group('SendInvoiceEmailCommand', () {
-    test('serializes only tenant, delivery and attempt ids', () {
+    test('serializes tenant, delivery and retry count', () {
       final command = _command();
       final json = command.toJson();
 
@@ -80,8 +89,9 @@ void main() {
       expect(json.keys.toSet(), {
         'tenant_id',
         'delivery_id',
-        'attempt_id',
+        'retry_count',
       });
+      expect(json['retry_count'], 0);
       expect(json, isNot(contains('recipient_email')));
       expect(json, isNot(contains('password')));
       expect(json, isNot(contains('access_token')));
@@ -96,7 +106,7 @@ void main() {
 
       expect(restored.tenantId, original.tenantId);
       expect(restored.deliveryId, original.deliveryId);
-      expect(restored.attemptId, original.attemptId);
+      expect(restored.retryCount, original.retryCount);
       expect(restored.id, original.id);
     });
   });
@@ -107,18 +117,15 @@ void main() {
         ..attemptContext = _context()
         ..prepareResult = const PrepareDeliverySkip();
       final provider = FakeInvoiceDeliveryProviderPort();
-      final interactions = FakeProviderInteractionGateway();
       final dispatcher = _FakeDispatcher();
 
-      await SendInvoiceEmailCommandHandler(
-        commandGateway: gateway,
-        providerPort: provider,
-        interactionGateway: interactions,
-        commandDispatcher: dispatcher,
+      await _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
       ).handle(_command());
 
       expect(provider.sendCalls, 0);
-      expect(interactions.startCalls, isEmpty);
       expect(dispatcher.recordCalls, isEmpty);
     });
 
@@ -127,59 +134,53 @@ void main() {
         ..attemptContext = _context()
         ..prepareResult = const PrepareDeliveryRecordUnknown(
           deliveryVersion: 1,
-          attemptVersion: 1,
-          interactionReference: 'pi-existing',
         );
       final provider = FakeInvoiceDeliveryProviderPort();
-      final interactions = FakeProviderInteractionGateway();
       final dispatcher = _FakeDispatcher();
 
-      await SendInvoiceEmailCommandHandler(
-        commandGateway: gateway,
-        providerPort: provider,
-        interactionGateway: interactions,
-        commandDispatcher: dispatcher,
+      await _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
       ).handle(_command());
 
       expect(provider.sendCalls, 0);
-      expect(interactions.startCalls, isEmpty);
       expect(dispatcher.recordCalls, hasLength(1));
       expect(
         dispatcher.recordCalls.single.evidence.kind,
         DeliveryResultKind.undetermined,
       );
       expect(
-        dispatcher.recordCalls.single.interactionReference,
-        'pi-existing',
+        dispatcher.recordCalls.single.evidence.safeCode,
+        'DISPATCH_STATE_UNCERTAIN',
       );
+      expect(
+        dispatcher.recordCalls.single.evidence.failureSource,
+        FailureSource.internal,
+      );
+      expect(dispatcher.recordCalls.single.retryCount, 0);
     });
 
-    test('callProvider starts interaction, calls provider once, records success', () async {
+    test('callProvider calls provider once and records success', () async {
       final gateway = FakeDeliveryCommandGateway()
         ..attemptContext = _context()
         ..prepareResult = PrepareDeliveryCallProvider(
           providerContext: _providerContext(),
           deliveryVersion: 1,
-          attemptVersion: 1,
         );
       final provider = FakeInvoiceDeliveryProviderPort()
         ..outcome = const DeliveryProviderSucceeded(
           providerReference: 'misa-email-1',
         );
-      final interactions = FakeProviderInteractionGateway();
       final dispatcher = _FakeDispatcher();
 
-      await SendInvoiceEmailCommandHandler(
-        commandGateway: gateway,
-        providerPort: provider,
-        interactionGateway: interactions,
-        commandDispatcher: dispatcher,
+      await _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
       ).handle(_command());
 
       expect(provider.sendCalls, 1);
-      expect(interactions.startCalls, hasLength(1));
-      expect(interactions.finalizeCalls, hasLength(1));
-      expect(interactions.finalizeCalls.single.outcome, ProviderInteractionOutcome.succeeded);
       expect(dispatcher.recordCalls, hasLength(1));
       expect(
         dispatcher.recordCalls.single.evidence.kind,
@@ -189,10 +190,7 @@ void main() {
         dispatcher.recordCalls.single.evidence.providerReference,
         'misa-email-1',
       );
-      expect(
-        dispatcher.recordCalls.single.interactionReference,
-        startsWith('int-'),
-      );
+      expect(dispatcher.recordCalls.single.evidence.failureSource, isNull);
     });
   });
 
@@ -205,17 +203,14 @@ void main() {
         ..prepareResult = PrepareDeliveryCallProvider(
           providerContext: _providerContext(),
           deliveryVersion: 2,
-          attemptVersion: 1,
         );
       final provider = FakeInvoiceDeliveryProviderPort()..outcome = outcome;
-      final interactions = FakeProviderInteractionGateway();
       final dispatcher = _FakeDispatcher();
 
-      await SendInvoiceEmailCommandHandler(
-        commandGateway: gateway,
-        providerPort: provider,
-        interactionGateway: interactions,
-        commandDispatcher: dispatcher,
+      await _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
       ).handle(_command());
 
       expect(dispatcher.recordCalls, hasLength(1));
@@ -228,6 +223,7 @@ void main() {
       );
       expect(recorded.evidence.kind, DeliveryResultKind.definiteFailure);
       expect(recorded.evidence.safeCode, 'AUTH_REJECTED');
+      expect(recorded.evidence.failureSource, FailureSource.provider);
     });
 
     test('maps retryable failure evidence', () async {
@@ -236,6 +232,7 @@ void main() {
       );
       expect(recorded.evidence.kind, DeliveryResultKind.retryableFailure);
       expect(recorded.evidence.safeCode, 'HTTP_429');
+      expect(recorded.evidence.failureSource, FailureSource.provider);
     });
 
     test('maps undetermined evidence', () async {
@@ -244,25 +241,23 @@ void main() {
       );
       expect(recorded.evidence.kind, DeliveryResultKind.undetermined);
       expect(recorded.evidence.safeCode, 'PROVIDER_TIMEOUT');
+      expect(recorded.evidence.failureSource, FailureSource.provider);
     });
 
-    test('exception after barrier records undetermined and does not rethrow', () async {
+    test('transport failure records undetermined internal evidence', () async {
       final gateway = FakeDeliveryCommandGateway()
         ..attemptContext = _context()
         ..prepareResult = PrepareDeliveryCallProvider(
           providerContext: _providerContext(),
           deliveryVersion: 1,
-          attemptVersion: 1,
         );
       final provider = FakeInvoiceDeliveryProviderPort()..throwOnSend = true;
-      final interactions = FakeProviderInteractionGateway();
       final dispatcher = _FakeDispatcher();
 
-      await SendInvoiceEmailCommandHandler(
-        commandGateway: gateway,
-        providerPort: provider,
-        interactionGateway: interactions,
-        commandDispatcher: dispatcher,
+      await _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
       ).handle(_command());
 
       expect(provider.sendCalls, 1);
@@ -271,89 +266,59 @@ void main() {
         dispatcher.recordCalls.single.evidence.kind,
         DeliveryResultKind.undetermined,
       );
-      expect(interactions.finalizeCalls, hasLength(1));
       expect(
-        interactions.finalizeCalls.single.outcome,
-        ProviderInteractionOutcome.unavailable,
+        dispatcher.recordCalls.single.evidence.safeCode,
+        'PROVIDER_TRANSPORT_FAILURE',
+      );
+      expect(
+        dispatcher.recordCalls.single.evidence.failureSource,
+        FailureSource.internal,
       );
     });
 
-    test(
-      'start throw after callProvider records undetermined without provider call',
-      () async {
-        final gateway = FakeDeliveryCommandGateway()
-          ..attemptContext = _context()
-          ..prepareResult = PrepareDeliveryCallProvider(
-            providerContext: _providerContext(),
-            deliveryVersion: 1,
-            attemptVersion: 1,
-          );
-        final provider = FakeInvoiceDeliveryProviderPort();
-        final interactions = FakeProviderInteractionGateway()..throwOnStart = true;
-        final dispatcher = _FakeDispatcher();
-
-        await SendInvoiceEmailCommandHandler(
-          commandGateway: gateway,
-          providerPort: provider,
-          interactionGateway: interactions,
-          commandDispatcher: dispatcher,
-        ).handle(_command());
-
-        expect(provider.sendCalls, 0);
-        expect(interactions.startCalls, hasLength(1));
-        expect(interactions.finalizeCalls, isEmpty);
-        expect(dispatcher.recordCalls, hasLength(1));
-        expect(
-          dispatcher.recordCalls.single.evidence.kind,
-          DeliveryResultKind.undetermined,
+    test('record failure rethrows and the next run records UNKNOWN', () async {
+      final gateway = FakeDeliveryCommandGateway()
+        ..attemptContext = _context()
+        ..prepareResult = PrepareDeliveryCallProvider(
+          providerContext: _providerContext(),
+          deliveryVersion: 1,
         );
-        expect(
-          dispatcher.recordCalls.single.evidence.safeCode,
-          'PROVIDER_TRANSPORT_FAILURE',
+      final provider = FakeInvoiceDeliveryProviderPort()
+        ..outcome = const DeliveryProviderSucceeded(
+          providerReference: 'misa-email-1',
         );
-      },
-    );
+      final dispatcher = _FakeDispatcher()..throwOnRecord = true;
+      final handler = _handler(
+        gateway: gateway,
+        provider: provider,
+        dispatcher: dispatcher,
+      );
 
-    test(
-      'record failure after successful finalize does not re-finalize conflictingly',
-      () async {
-        final gateway = FakeDeliveryCommandGateway()
-          ..attemptContext = _context()
-          ..prepareResult = PrepareDeliveryCallProvider(
-            providerContext: _providerContext(),
-            deliveryVersion: 1,
-            attemptVersion: 1,
-          );
-        final provider = FakeInvoiceDeliveryProviderPort()
-          ..outcome = const DeliveryProviderSucceeded(
-            providerReference: 'misa-email-1',
-          );
-        final interactions = FakeProviderInteractionGateway();
-        final dispatcher = _FakeDispatcher()..throwOnRecordAttempt = 1;
+      await expectLater(handler.handle(_command()), throwsStateError);
+      expect(provider.sendCalls, 1);
+      expect(dispatcher.recordCalls, hasLength(1));
+      expect(
+        dispatcher.recordCalls.single.evidence.kind,
+        DeliveryResultKind.success,
+      );
 
-        await SendInvoiceEmailCommandHandler(
-          commandGateway: gateway,
-          providerPort: provider,
-          interactionGateway: interactions,
-          commandDispatcher: dispatcher,
-        ).handle(_command());
+      gateway.prepareResult = const PrepareDeliveryRecordUnknown(
+        deliveryVersion: 2,
+      );
+      dispatcher.throwOnRecord = false;
+      await handler.handle(_command());
 
-        expect(provider.sendCalls, 1);
-        expect(interactions.finalizeCalls, hasLength(1));
-        expect(
-          interactions.finalizeCalls.single.outcome,
-          ProviderInteractionOutcome.succeeded,
-        );
-        expect(dispatcher.recordCalls, hasLength(2));
-        expect(
-          dispatcher.recordCalls.first.evidence.kind,
-          DeliveryResultKind.success,
-        );
-        expect(
-          dispatcher.recordCalls.last.evidence.kind,
-          DeliveryResultKind.undetermined,
-        );
-      },
-    );
+      expect(provider.sendCalls, 1);
+      expect(dispatcher.recordCalls, hasLength(2));
+      expect(
+        dispatcher.recordCalls.last.evidence.kind,
+        DeliveryResultKind.undetermined,
+      );
+      expect(
+        dispatcher.recordCalls.last.evidence.safeCode,
+        'DISPATCH_STATE_UNCERTAIN',
+      );
+      expect(dispatcher.recordCalls.last.expectedDeliveryVersion, 2);
+    });
   });
 }

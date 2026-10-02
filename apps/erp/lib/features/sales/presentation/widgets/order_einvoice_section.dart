@@ -219,12 +219,19 @@ class _OrderEInvoiceSectionView extends StatelessWidget {
             ) ??
             false);
 
+    bool providerConnected(OrderEInvoiceState value) {
+      final blockers = value.readiness?.blockers;
+      if (blockers == null) return true;
+      return !blockers.any((blocker) => blocker.code == EInvoiceBlockedCodes.providerNotConnected);
+    }
+
     PreIssueSheetState preIssueSheetState(OrderEInvoiceState value) {
       final issuance = value.projection.issuanceDisplayState;
       return PreIssueSheetState(
         isPreviewLoading: value.status == OrderEInvoiceStatus.previewing,
         isBuyerNotReady: value.isBuyerNotReady,
         isPreviewEnabled: isPreviewSupported,
+        isProviderConnected: providerConnected(value),
         isFailed: issuance == IssuanceDisplayState.failed,
         failureCode: value.failureCode,
         lastFailureMessage: value.lastFailureMessage,

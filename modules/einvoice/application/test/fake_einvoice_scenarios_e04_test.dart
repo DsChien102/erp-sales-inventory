@@ -42,10 +42,8 @@ void main() {
         RecordDeliveryResultCommand(
           tenantId: 't1',
           deliveryId: 'del-1',
-          attemptId: 'att-1',
+          retryCount: 0,
           expectedDeliveryVersion: 1,
-          expectedAttemptVersion: 1,
-          interactionReference: 'ix-1',
           evidence: const DeliveryResultEvidence(
             kind: DeliveryResultKind.success,
             providerReference: 'prov-1',

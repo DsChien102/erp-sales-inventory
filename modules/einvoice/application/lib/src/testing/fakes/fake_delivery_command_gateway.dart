@@ -70,7 +70,7 @@ final class FakeDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<DeliveryAttemptContextDto?> loadAttemptContext({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
   }) async {
     return attemptContext;
   }
@@ -79,9 +79,7 @@ final class FakeDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<PrepareDeliveryProviderCallResult> prepareProviderCall({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
-    required int expectedDeliveryVersion,
-    required int expectedAttemptVersion,
+    required int retryCount,
     required String requestReference,
   }) async {
     return prepareResult;
@@ -99,7 +97,7 @@ final class FakeDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<void> recordCommandDeadLetter({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   }) async {}
 }

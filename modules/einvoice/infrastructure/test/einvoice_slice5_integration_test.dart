@@ -265,7 +265,7 @@ void main() {
       final processing = harness.state.deliveries.values
           .where((d) => d.id == started.deliveryId)
           .single;
-      expect(processing.status, 'PROCESSING');
+      expect(processing.status, 'QUEUED');
       expect(processing.deliveryNo, 2);
       expect(processing.deliveryIntent, 'RESEND');
 
@@ -617,13 +617,13 @@ void main() {
 
     test('scn_e04_dead_letter_queued', () async {
       await harness.startAutoDelivery();
-      final attempt = harness.state.attempts.values.single;
-      expect(attempt.status, 'QUEUED');
+      final delivery = harness.soleDelivery()!;
+      expect(delivery.status, 'QUEUED');
       await harness.recordCommandDeadLetter(
-        deliveryId: attempt.deliveryId,
-        attemptId: attempt.id,
+        deliveryId: delivery.id,
+        retryCount: delivery.retryCount,
       );
-      expect(harness.state.deliveries[attempt.deliveryId]!.status, 'FAILED');
+      expect(harness.state.deliveries[delivery.id]!.status, 'FAILED');
     });
 
     test('scn_e04_dead_letter_submitted', () async {

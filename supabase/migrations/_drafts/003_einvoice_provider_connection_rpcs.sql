@@ -40,19 +40,19 @@ begin
 
   select pc.id, pc.connection_version into v_connection_id, v_version
   from einvoice.provider_connections pc
-  where pc.tenant_id = p_tenant_id and pc.status <> 'disconnected'
+  where pc.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
   limit 1;
 
   if v_connection_id is null then
-    insert into einvoice.provider_connections (tenant_id, status, created_by)
-    values (p_tenant_id, 'checkRequired', p_actor_id)
+    insert into einvoice.provider_connections (tenant_id, status)
+    values (p_tenant_id, 'CHECK_REQUIRED')
     returning id, connection_version into v_connection_id, v_version;
   else
     if p_expected_connection_version is not null and p_expected_connection_version <> v_version then
       raise exception 'STATE_CHANGED: connection version mismatch';
     end if;
     update einvoice.provider_connections
-    set status = 'checkRequired', connection_version = connection_version + 1, updated_at = now()
+    set status = 'CHECK_REQUIRED', connection_version = connection_version + 1
     where id = v_connection_id
     returning connection_version into v_version;
   end if;
@@ -64,8 +64,7 @@ begin
   )
   on conflict on constraint provider_credentials_pkey do update set
     username = excluded.username,
-    password_ciphertext = excluded.password_ciphertext,
-    updated_at = now();
+    password_ciphertext = excluded.password_ciphertext;
 
   perform einvoice.enqueue_internal_command(
     p_tenant_id,
@@ -77,7 +76,7 @@ begin
     )
   );
 
-  return query select v_connection_id, 'checkRequired'::text;
+  return query select v_connection_id, 'CHECK_REQUIRED'::text;
 end;
 $$;
 
@@ -109,7 +108,7 @@ begin
     raise exception 'NO_PERMISSION: service role required';
   end if;
 
-  if p_status not in ('connected', 'reconnectRequired') then
+  if p_status not in ('CONNECTED', 'RECONNECT_REQUIRED') then
     raise exception 'VALIDATION_ERROR: invalid worker connection status';
   end if;
 
@@ -118,14 +117,13 @@ begin
   -- overwriting that newer state.
   update einvoice.provider_connections pc
   set
-    status = p_status::einvoice.provider_connection_status,
+    status = p_status,
     capabilities_snapshot = coalesce(p_capabilities, capabilities_snapshot),
     last_verified_at = coalesce(p_verified_at, last_verified_at),
-    connection_version = connection_version + 1,
-    updated_at = now()
+    connection_version = connection_version + 1
   where pc.id = p_connection_id
     and pc.tenant_id = p_tenant_id
-    and pc.status = 'checkRequired'
+    and pc.status = 'CHECK_REQUIRED'
     and pc.connection_version = p_expected_connection_version;
 
   if not found then
@@ -188,11 +186,10 @@ begin
         )
         from einvoice.provider_connections pc
         left join einvoice.provider_credentials c on c.connection_id = pc.id
-        where pc.tenant_id = p_tenant_id and pc.status <> 'disconnected'
-        order by pc.updated_at desc
+        where pc.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
         limit 1
       ),
-      jsonb_build_object('status', 'disconnected')
+      jsonb_build_object('status', 'DISCONNECTED')
     ) as connection
   from iam.tenants t
   left join iam.tenant_legal_profiles lp on lp.tenant_id = t.id
@@ -280,7 +277,7 @@ begin
     raise exception 'NOT_FOUND: provider connection';
   end if;
 
-  if v_status = 'disconnected' then
+  if v_status = 'DISCONNECTED' then
     raise exception 'INVALID_STATUS: disconnected connection cannot reconnect';
   end if;
 
@@ -291,8 +288,7 @@ begin
 
   update einvoice.provider_credentials as credentials
   set username = p_username,
-      password_ciphertext = einvoice._encrypt_credential(p_password),
-      updated_at = now()
+      password_ciphertext = einvoice._encrypt_credential(p_password)
   where credentials.connection_id = p_connection_id
     and credentials.tenant_id = p_tenant_id;
 
@@ -301,7 +297,7 @@ begin
   end if;
 
   update einvoice.provider_connections
-  set status = 'checkRequired', connection_version = connection_version + 1, updated_at = now()
+  set status = 'CHECK_REQUIRED', connection_version = connection_version + 1
   where id = p_connection_id and tenant_id = p_tenant_id
   returning connection_version into v_version;
 
@@ -315,7 +311,7 @@ begin
     )
   );
 
-  return query select p_connection_id, 'checkRequired'::text;
+  return query select p_connection_id, 'CHECK_REQUIRED'::text;
 end;
 $$;
 
@@ -342,14 +338,37 @@ begin
   end if;
 
   update einvoice.provider_connections
-  set status = 'disconnected', connection_version = connection_version + 1, updated_at = now()
-  where id = p_connection_id and tenant_id = p_tenant_id;
+  set status = 'DISCONNECTED', connection_version = connection_version + 1
+  where id = p_connection_id
+    and tenant_id = p_tenant_id
+    and status <> 'DISCONNECTED';
 
   if not found then
+    if exists (
+      select 1
+      from einvoice.provider_connections pc
+      where pc.id = p_connection_id and pc.tenant_id = p_tenant_id
+    ) then
+      -- Already disconnected (repeat call, or a stale id from before a
+      -- reconnect): never touch the credentials or the tenant settings, which
+      -- now belong to the active connection.
+      return query select p_connection_id, 'DISCONNECTED'::text;
+      return;
+    end if;
     raise exception 'NOT_FOUND: provider connection';
   end if;
 
-  return query select p_connection_id, 'disconnected'::text;
+  delete from einvoice.provider_credentials
+  where connection_id = p_connection_id and tenant_id = p_tenant_id;
+
+  update einvoice.tenant_settings
+  set default_template_id = null,
+      default_invoice_series = null,
+      profile_version = profile_version + 1,
+      updated_at = now()
+  where tenant_id = p_tenant_id;
+
+  return query select p_connection_id, 'DISCONNECTED'::text;
 end;
 $$;
 
@@ -371,12 +390,12 @@ begin
   select
     c.username,
     einvoice._decrypt_credential(c.password_ciphertext) as password,
-    coalesce(nullif(c.tax_code, ''), lp.tax_code) as tax_code,
+    lp.tax_code as tax_code,
     null::text as base_url
   from einvoice.provider_credentials c
   join einvoice.provider_connections pc on pc.id = c.connection_id
   left join iam.tenant_legal_profiles lp on lp.tenant_id = c.tenant_id
-  where c.tenant_id = p_tenant_id and pc.status <> 'disconnected'
+  where c.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
   limit 1;
 end;
 $$;

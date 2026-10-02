@@ -30,17 +30,25 @@ begin
 
   return query
   select
-    ip.profile_version,
-    ip.default_template ->> 'template_id',
-    ip.default_signing ->> 'signing_config_id',
-    ip.default_signing ->> 'method',
-    ip.compatibility_warnings
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
+    ts.profile_version,
+    ts.default_template_id,
+    case
+      when ts.default_invoice_series is null then null
+      when substr(ts.default_invoice_series, 5, 1) = 'M' then 'sign-nosign'
+      else 'sign-hsm'
+    end,
+    case
+      when ts.default_invoice_series is null then null
+      when substr(ts.default_invoice_series, 5, 1) = 'M' then 'noSign'
+      else 'hsm'
+    end,
+    '[]'::jsonb
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
   union all
   select 0, null::text, null::text, null::text, '[]'::jsonb
   where not exists (
-    select 1 from einvoice.issuance_profiles where tenant_id = p_tenant_id
+    select 1 from einvoice.tenant_settings where tenant_id = p_tenant_id
   )
   limit 1;
 end;
@@ -69,7 +77,7 @@ declare
   v_is_mtt boolean;
   v_method text;
   v_sign_type int;
-  v_signing jsonb;
+  v_invoice_series varchar(100);
 begin
   if auth.uid() is null
      or p_actor_id is null
@@ -83,7 +91,7 @@ begin
   from einvoice.provider_connections pc,
        jsonb_array_elements(coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)) as elem
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
+    and pc.status = 'CONNECTED'
     and (elem ->> 'template_id' = p_template_id or elem ->> 'templateId' = p_template_id)
   limit 1;
 
@@ -114,49 +122,32 @@ begin
     raise exception 'SIGNING_CONFIGURATION_NOT_AVAILABLE: non-MTT template requires SignType=2';
   end if;
 
-  v_signing := jsonb_build_object(
-    'signing_config_id', p_signing_config_id,
-    'method', v_method,
-    'sign_type', v_sign_type,
-    'is_available', true
+  v_invoice_series := coalesce(
+    nullif(btrim(v_template ->> 'invoice_series'), ''),
+    nullif(btrim(v_template ->> 'symbol'), '')
   );
 
-  v_template := v_template || jsonb_build_object(
-    'template_id', coalesce(v_template ->> 'template_id', p_template_id),
-    'invoice_series', coalesce(
-      nullif(btrim(v_template ->> 'invoice_series'), ''),
-      nullif(btrim(v_template ->> 'symbol'), '')
-    ),
-    'symbol', coalesce(
-      nullif(btrim(v_template ->> 'invoice_series'), ''),
-      nullif(btrim(v_template ->> 'symbol'), '')
-    ),
-    'is_mtt', v_is_mtt,
-    'invoice_with_code', coalesce(
-      (v_template ->> 'invoice_with_code')::boolean,
-      upper(substr(coalesce(v_template ->> 'invoice_series', v_template ->> 'symbol', ''), 2, 1)) = 'C'
-    ),
-    'is_send_summary', coalesce((v_template ->> 'is_send_summary')::boolean, false),
-    'is_available', coalesce((v_template ->> 'is_available')::boolean, true)
-  );
+  if v_invoice_series is null then
+    raise exception 'TEMPLATE_NOT_AVAILABLE: template has no invoice series';
+  end if;
 
-  insert into einvoice.issuance_profiles as ip (
-    tenant_id, default_template, default_signing, profile_version
+  insert into einvoice.tenant_settings as ts (
+    tenant_id, default_template_id, default_invoice_series, profile_version
   )
   values (
     p_tenant_id,
-    v_template,
-    v_signing,
+    coalesce(v_template ->> 'template_id', p_template_id),
+    v_invoice_series,
     1
   )
   on conflict (tenant_id) do update set
-    default_template = excluded.default_template,
-    default_signing = excluded.default_signing,
-    profile_version = ip.profile_version + 1,
+    default_template_id = excluded.default_template_id,
+    default_invoice_series = excluded.default_invoice_series,
+    profile_version = ts.profile_version + 1,
     updated_at = now()
   where p_expected_profile_version is null
-     or ip.profile_version = p_expected_profile_version
-  returning ip.profile_version into v_version;
+     or ts.profile_version = p_expected_profile_version
+  returning ts.profile_version into v_version;
 
   if v_version is null then
     raise exception 'STATE_CHANGED: profile version mismatch';
@@ -190,16 +181,16 @@ begin
 
   return query
   select
-    coalesce(iap.auto_issue_enabled, false),
-    coalesce(iap.auto_send_enabled, false),
-    coalesce(iap.policy_version, 0),
-    coalesce(iap.blockers, '[]'::jsonb)
-  from einvoice.invoice_automation_policies iap
-  where iap.tenant_id = p_tenant_id
+    coalesce(ts.auto_issue_enabled, false),
+    coalesce(ts.auto_send_enabled, false),
+    coalesce(ts.policy_version, 0),
+    '[]'::jsonb
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
   union all
   select false, false, 0, '[]'::jsonb
   where not exists (
-    select 1 from einvoice.invoice_automation_policies where tenant_id = p_tenant_id
+    select 1 from einvoice.tenant_settings where tenant_id = p_tenant_id
   )
   limit 1;
 end;
@@ -225,7 +216,6 @@ declare
   v_version int;
   v_auto_issue_enabled boolean;
   v_auto_send_enabled boolean;
-  v_blockers jsonb;
 begin
   if auth.uid() is null
      or p_actor_id is null
@@ -234,7 +224,7 @@ begin
     raise exception 'NO_PERMISSION: einvoice.manage_configuration required';
   end if;
 
-  insert into einvoice.invoice_automation_policies as iap (
+  insert into einvoice.tenant_settings as ts (
     tenant_id, auto_issue_enabled, auto_send_enabled, policy_version
   ) values (
     p_tenant_id,
@@ -243,23 +233,22 @@ begin
     1
   )
   on conflict (tenant_id) do update set
-    auto_issue_enabled = coalesce(p_auto_issue_enabled, iap.auto_issue_enabled),
-    auto_send_enabled = coalesce(p_auto_send_enabled, iap.auto_send_enabled),
-    policy_version = iap.policy_version + 1,
+    auto_issue_enabled = coalesce(p_auto_issue_enabled, ts.auto_issue_enabled),
+    auto_send_enabled = coalesce(p_auto_send_enabled, ts.auto_send_enabled),
+    policy_version = ts.policy_version + 1,
     updated_at = now()
-  where iap.policy_version = p_expected_policy_version
-  returning iap.policy_version,
-            iap.auto_issue_enabled,
-            iap.auto_send_enabled,
-            iap.blockers
-  into v_version, v_auto_issue_enabled, v_auto_send_enabled, v_blockers;
+  where ts.policy_version = p_expected_policy_version
+  returning ts.policy_version,
+            ts.auto_issue_enabled,
+            ts.auto_send_enabled
+  into v_version, v_auto_issue_enabled, v_auto_send_enabled;
 
   if v_version is null then
     raise exception 'STATE_CHANGED: policy version mismatch';
   end if;
 
   return query
-  select v_auto_issue_enabled, v_auto_send_enabled, v_version, v_blockers;
+  select v_auto_issue_enabled, v_auto_send_enabled, v_version, '[]'::jsonb;
 end;
 $$;
 
@@ -283,22 +272,22 @@ begin
   return query
   select
     case
-      when pc.status is distinct from 'connected' then 'notReady'
-      when ip.id is null then 'notReady'
+      when pc.status is distinct from 'CONNECTED' then 'notReady'
+      when ts.default_template_id is null then 'notReady'
       else 'ready'
     end,
     case
-      when pc.status is distinct from 'connected'
+      when pc.status is distinct from 'CONNECTED'
         then jsonb_build_array(jsonb_build_object('code','provider_not_connected','message','Not connected'))
-      when ip.id is null
+      when ts.default_template_id is null
         then jsonb_build_array(jsonb_build_object('code','template_unavailable','message','No default template'))
       else '[]'::jsonb
     end,
     '[]'::jsonb
   from (select 1) s
   left join einvoice.provider_connections pc
-    on pc.tenant_id = p_tenant_id and pc.status <> 'disconnected'
-  left join einvoice.issuance_profiles ip on ip.tenant_id = p_tenant_id;
+    on pc.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
+  left join einvoice.tenant_settings ts on ts.tenant_id = p_tenant_id;
 end;
 $$;
 
@@ -335,7 +324,7 @@ begin
   select pc.id, pc.status, pc.capabilities_snapshot
   into v_connection
   from einvoice.provider_connections pc
-  where pc.tenant_id = p_tenant_id and pc.status = 'connected'
+  where pc.tenant_id = p_tenant_id and pc.status = 'CONNECTED'
   limit 1;
 
   if v_connection.id is null then

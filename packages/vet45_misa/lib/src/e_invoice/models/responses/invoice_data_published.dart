@@ -8,11 +8,16 @@ final class MeInvoiceInvoiceDataPublished {
     required this.transactionId,
     this.data,
     this.bytes,
+    this.diagnostics,
   });
 
   final String transactionId;
   final String? data;
   final List<int>? bytes;
+
+  /// Non-document fields of the provider item (e.g. per-item `ErrorCode`),
+  /// clipped — for logs when `Data` is missing. Never contains document content.
+  final String? diagnostics;
 
   factory MeInvoiceInvoiceDataPublished.fromJson(Map<String, dynamic> json) {
     final rawData = MeInvoiceJsonHelpers.readString(json, 'Data');
@@ -36,7 +41,22 @@ final class MeInvoiceInvoiceDataPublished {
           MeInvoiceJsonHelpers.readString(json, 'TransactionID') ?? '',
       data: rawData,
       bytes: bytes,
+      diagnostics: _diagnostics(json),
     );
+  }
+
+  static String? _diagnostics(Map<String, dynamic> json) {
+    final parts = <String>[];
+    for (final entry in json.entries) {
+      if (entry.key.toLowerCase() == 'data') {
+        continue;
+      }
+      final text = '${entry.value ?? ''}';
+      parts.add(
+        '${entry.key}=${text.length <= 120 ? text : '${text.substring(0, 120)}…'}',
+      );
+    }
+    return parts.isEmpty ? null : parts.join(' ');
   }
 
   Map<String, dynamic> toJson() {

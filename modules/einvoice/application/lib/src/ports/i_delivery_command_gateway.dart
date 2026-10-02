@@ -15,15 +15,13 @@ abstract interface class IDeliveryCommandGateway {
   Future<DeliveryAttemptContextDto?> loadAttemptContext({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
   });
 
   Future<PrepareDeliveryProviderCallResult> prepareProviderCall({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
-    required int expectedDeliveryVersion,
-    required int expectedAttemptVersion,
+    required int retryCount,
     required String requestReference,
   });
 
@@ -32,7 +30,7 @@ abstract interface class IDeliveryCommandGateway {
   Future<void> recordCommandDeadLetter({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   });
 }

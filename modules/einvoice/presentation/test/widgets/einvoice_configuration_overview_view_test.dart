@@ -56,6 +56,15 @@ final class _DisconnectedOverviewModule implements IEInvoiceModule {
   }
 }
 
+SettingsNavigationItem _issuanceCard(WidgetTester tester) {
+  return tester.widget<SettingsNavigationItem>(
+    find.ancestor(
+      of: find.text('Cấu hình phát hành'),
+      matching: find.byType(SettingsNavigationItem),
+    ),
+  );
+}
+
 void main() {
   Future<void> pumpOverview(
     WidgetTester tester, {
@@ -128,6 +137,34 @@ void main() {
 
     expect(find.text('Chưa kết nối MISA meInvoice'), findsOneWidget);
     expect(module.templateQueryCount, 0);
+    expect(_issuanceCard(tester).enabled, isFalse);
+  });
+
+  testWidgets('disconnected issuance card ignores tap', (tester) async {
+    var opened = false;
+    final module = _DisconnectedOverviewModule();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: BlocProvider(
+          create: (_) => EInvoiceConfigurationOverviewCubit(
+            einvoiceModule: module,
+            executionContext: FakeExecutionContext(),
+          )..load(),
+          child: Scaffold(
+            body: EInvoiceConfigurationOverviewView(
+              onIssuanceTap: () => opened = true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Cấu hình phát hành'));
+    await tester.pumpAndSettle();
+
+    expect(opened, isFalse);
   });
 
   testWidgets(
@@ -153,6 +190,7 @@ void main() {
         find.text('C22TAA · Có mã của cơ quan thuế'),
         findsOneWidget,
       );
+      expect(_issuanceCard(tester).enabled, isTrue);
       expect(
         find.text('Phát hành thủ công · Gửi email thủ công'),
         findsOneWidget,

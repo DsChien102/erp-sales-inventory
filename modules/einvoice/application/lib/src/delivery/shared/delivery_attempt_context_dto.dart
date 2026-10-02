@@ -2,9 +2,8 @@ final class DeliveryAttemptContextDto {
   const DeliveryAttemptContextDto({
     required this.tenantId,
     required this.deliveryId,
-    required this.attemptId,
+    required this.retryCount,
     required this.deliveryVersion,
-    required this.attemptVersion,
     required this.providerConnectionId,
     required this.providerTransactionId,
     required this.invoiceSeries,
@@ -14,9 +13,8 @@ final class DeliveryAttemptContextDto {
 
   final String tenantId;
   final String deliveryId;
-  final String attemptId;
+  final int retryCount;
   final int deliveryVersion;
-  final int attemptVersion;
   final String providerConnectionId;
   final String providerTransactionId;
   final String invoiceSeries;

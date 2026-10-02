@@ -17,9 +17,12 @@ void main() {
   });
 
   group('buyer completion is keyed by order, not version', () {
-    test('unique constraint is per order', () {
-      expect(d005, contains('unique (tenant_id, sales_order_id)\n'));
-      expect(d005, isNot(contains('unique (tenant_id, sales_order_id, sales_order_version)')));
+    test('one row per order', () {
+      expect(d005, contains('primary key (tenant_id, sales_order_id)'));
+      expect(
+        d005,
+        isNot(contains('unique (tenant_id, sales_order_id, sales_order_version)')),
+      );
     });
 
     test('no lookup filters completion by version', () {
@@ -59,7 +62,7 @@ void main() {
       expect(start, contains("'ORDER_FULLY_RETURNED'::text as reason;"));
       final reevaluate = _lastFunctionBlock(d008, 'einvoice.reevaluate_auto_issuance');
       expect(reevaluate, contains("if coalesce(v_source.blockers, '[]'::jsonb) ? 'ORDER_FULLY_RETURNED' then"));
-      expect(reevaluate, contains("set process_status = 'SKIPPED',"));
+      expect(reevaluate, contains("set status = 'SKIPPED',"));
     });
 
     test('reevaluate refreshes the process source version before starting', () {

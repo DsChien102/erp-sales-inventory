@@ -30,7 +30,7 @@ void main() {
             'p_expected_connection_version': 4,
           });
           return [
-            {'connection_id': 'connection-1', 'status': 'checkRequired'},
+            {'connection_id': 'connection-1', 'status': 'CHECK_REQUIRED'},
           ];
         });
       final gateway = SupabaseProviderConnectionCommandGateway(
@@ -68,7 +68,7 @@ void main() {
               },
               'connection': {
                 'connection_id': 'connection-1',
-                'status': 'connected',
+                'status': 'CONNECTED',
                 'connection_version': 7,
                 'last_checked_at': '2026-08-30T01:00:00.000Z',
                 'masked_account': 'sa***@example.vn',
@@ -103,11 +103,11 @@ void main() {
           'p_tenant_id': 'tenant-1',
           'p_connection_id': 'connection-1',
           'p_expected_connection_version': 9,
-          'p_status': 'connected',
+          'p_status': 'CONNECTED',
           'p_correlation_id': 'sync-1',
         });
         return [
-          {'connection_id': 'connection-1', 'status': 'connected'},
+          {'connection_id': 'connection-1', 'status': 'CONNECTED'},
         ];
       });
     final gateway = SupabaseProviderConnectionCommandGateway(
@@ -139,7 +139,7 @@ void main() {
           'p_expected_connection_version': 11,
         });
         return [
-          {'connection_id': 'connection-1', 'status': 'checkRequired'},
+          {'connection_id': 'connection-1', 'status': 'CHECK_REQUIRED'},
         ];
       });
     final gateway = SupabaseProviderConnectionCommandGateway(

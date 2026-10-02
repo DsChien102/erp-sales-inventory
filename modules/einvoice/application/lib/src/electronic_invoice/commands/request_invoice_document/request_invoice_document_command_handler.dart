@@ -21,6 +21,5 @@ final class RequestInvoiceDocumentCommandHandler
     actorId: command.actorId,
     salesOrderId: command.salesOrderId,
     documentType: command.documentType,
-    idempotencyKey: command.idempotencyKey,
   );
 }

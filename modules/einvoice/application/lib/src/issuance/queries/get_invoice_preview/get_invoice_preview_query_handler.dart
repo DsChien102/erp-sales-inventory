@@ -24,7 +24,6 @@ final class GetInvoicePreviewQueryHandler
     return cached ??
         const InvoicePreviewResultDto(
           viewerRef: null,
-          previewPayload: null,
           warnings: [],
         );
   }

@@ -1,3 +1,5 @@
+import 'package:vet45_einvoice_domain/domain.dart';
+
 import '../issuance/commands/request_invoice_preview/request_invoice_preview_result.dart';
 
 /// Persists a preview request (which enqueues the einvoice.preview_invoice job)
@@ -16,10 +18,16 @@ abstract interface class IInvoicePreviewGateway {
     required String salesOrderId,
   });
 
+  /// Worker ghi kết quả của đúng yêu cầu [requestId]; bỏ qua (không lỗi) khi
+  /// đơn đã có yêu cầu mới hơn hoặc yêu cầu này đã có kết quả.
   Future<void> storeResult({
     required String tenantId,
-    required String previewRequestId,
+    required String salesOrderId,
+    required String requestId,
+    required String status,
     String? viewerRef,
-    Map<String, Object?>? previewPayload,
+    String? failureCode,
+    String? failureMessage,
+    FailureSource? failureSource,
   });
 }

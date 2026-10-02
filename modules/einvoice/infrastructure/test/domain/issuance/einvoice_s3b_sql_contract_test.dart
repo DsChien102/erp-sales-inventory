@@ -32,6 +32,8 @@ String _extractFunction(String sql, String signaturePrefix) {
 
 void main() {
   late String sql;
+  late String claimSql;
+  late String statusSql;
   late String draftPath;
   late String pollCommandIdHelper;
   late String openReconciliationCaseFn;
@@ -54,6 +56,14 @@ void main() {
       reason: 'Draft 009 must exist under supabase/migrations/_drafts/',
     );
     sql = draft.readAsStringSync();
+    claimSql = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '020_einvoice_misa_publish_retry_policy.sql',
+    ).readAsStringSync();
+    statusSql = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '022_einvoice_attempt_status_provider_failure_message.sql',
+    ).readAsStringSync();
     pollCommandIdHelper = _extractFunction(
       sql,
       'create or replace function einvoice._reconciliation_poll_command_id(',
@@ -67,7 +77,7 @@ void main() {
       'create or replace function einvoice.record_issuance_undetermined(',
     );
     claimReconciliationCaseFn = _extractFunction(
-      sql,
+      claimSql,
       'create or replace function einvoice.claim_issuance_reconciliation_case(',
     );
     recordReconciliationPendingFn = _extractFunction(
@@ -83,7 +93,7 @@ void main() {
       'create or replace function einvoice.recover_internal_finalization(',
     );
     getIssuanceAttemptStatusFn = _extractFunction(
-      sql,
+      statusSql,
       'create or replace function einvoice.get_issuance_attempt_status(',
     );
     seedDueCommandsFn = _extractFunction(
@@ -101,7 +111,7 @@ void main() {
       expect(
         sql,
         contains(
-          '-- Touches: einvoice.open_reconciliation_case, einvoice.record_issuance_undetermined, einvoice.claim_issuance_reconciliation_case, einvoice.record_reconciliation_pending, einvoice.resolve_reconciliation_case, einvoice.recover_internal_finalization, einvoice.get_issuance_attempt_status, einvoice.claim_internal_commands_batch, einvoice._reconciliation_poll_command_id, einvoice.seed_due_issuance_reconciliation_commands',
+          '-- Touches: einvoice.open_reconciliation_case, einvoice.record_issuance_undetermined, einvoice.record_reconciliation_pending, einvoice.resolve_reconciliation_case, einvoice.recover_internal_finalization, einvoice.claim_internal_commands_batch, einvoice._reconciliation_poll_command_id, einvoice.seed_due_issuance_reconciliation_commands',
         ),
       );
       expect(sql, contains('-- Kind: cohesive'));
@@ -193,7 +203,7 @@ void main() {
         () {
           expect(
             recordReconciliationPendingFn,
-            contains('attempt_count = p_check_sequence'),
+            contains('check_count = p_check_sequence'),
           );
           expect(
             recordReconciliationPendingFn,
@@ -231,7 +241,11 @@ void main() {
       expect(getIssuanceAttemptStatusFn, contains('null::text'));
       expect(
         getIssuanceAttemptStatusFn,
-        isNot(contains('v_attempt.failure_message')),
+        contains("v_attempt.failure_source = 'PROVIDER'"),
+      );
+      expect(
+        getIssuanceAttemptStatusFn,
+        contains('v_attempt.failure_message'),
       );
     });
 
@@ -253,7 +267,7 @@ void main() {
           ),
         );
         expect(
-          sql,
+          statusSql,
           contains(
             'grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to authenticated, service_role;',
           ),

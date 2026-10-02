@@ -20,10 +20,8 @@ final class RecordDeliveryResultCommandHandler
       DeliveryResultRecord(
         tenantId: command.tenantId,
         deliveryId: command.deliveryId,
-        attemptId: command.attemptId,
+        retryCount: command.retryCount,
         expectedDeliveryVersion: command.expectedDeliveryVersion,
-        expectedAttemptVersion: command.expectedAttemptVersion,
-        interactionReference: command.interactionReference,
         evidence: command.evidence,
       ),
     );

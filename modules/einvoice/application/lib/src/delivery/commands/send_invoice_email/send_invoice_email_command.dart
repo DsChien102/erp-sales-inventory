@@ -10,7 +10,7 @@ final class SendInvoiceEmailCommand extends InternalCommandBase<void>
     String? id,
     required this.tenantId,
     required this.deliveryId,
-    required this.attemptId,
+    required this.retryCount,
     this.workerAttemptNumber = 1,
   }) : super(id);
 
@@ -22,14 +22,14 @@ final class SendInvoiceEmailCommand extends InternalCommandBase<void>
   @override
   final String tenantId;
   final String deliveryId;
-  final String attemptId;
+  final int retryCount;
   final int workerAttemptNumber;
 
   @override
   Map<String, dynamic> toJson() => stripInternalCommandRowId(<String, dynamic>{
     'tenant_id': tenantId,
     'delivery_id': deliveryId,
-    'attempt_id': attemptId,
+    'retry_count': retryCount,
   });
 
   factory SendInvoiceEmailCommand.fromJson(
@@ -42,7 +42,7 @@ final class SendInvoiceEmailCommand extends InternalCommandBase<void>
       id: id,
       tenantId: payload.tenantId,
       deliveryId: payload.deliveryId,
-      attemptId: payload.attemptId,
+      retryCount: payload.retryCount,
       workerAttemptNumber: readInternalCommandWorkerAttemptNumber(n),
     );
   }

@@ -8,12 +8,9 @@ final class InvoiceDocumentCommandDeadLetterHandler
     implements IEinvoiceInternalCommandDeadLetterHandler {
   InvoiceDocumentCommandDeadLetterHandler({
     required IElectronicInvoiceCommandGateway commandGateway,
-    required IProviderInteractionGateway interactionGateway,
-  }) : _commandGateway = commandGateway,
-       _interactionGateway = interactionGateway;
+  }) : _commandGateway = commandGateway;
 
   final IElectronicInvoiceCommandGateway _commandGateway;
-  final IProviderInteractionGateway _interactionGateway;
 
   @override
   Future<void> handleDeadLetter({
@@ -21,48 +18,49 @@ final class InvoiceDocumentCommandDeadLetterHandler
     required ClaimedInternalCommand command,
     required Object error,
   }) async {
-    final operationId = command.payload['operation_id']?.toString();
-    if (operationId == null || operationId.isEmpty) {
+    final electronicInvoiceId = command.payload['electronic_invoice_id']
+        ?.toString();
+    final requestId = command.payload['request_id']?.toString();
+    final documentType = _documentType(
+      command.payload['document_type']?.toString(),
+    );
+    if (electronicInvoiceId == null ||
+        electronicInvoiceId.isEmpty ||
+        requestId == null ||
+        requestId.isEmpty ||
+        documentType == null) {
       return;
     }
 
     final context = await _commandGateway.loadDocumentContext(
       tenantId: tenantId,
-      operationId: operationId,
+      electronicInvoiceId: electronicInvoiceId,
+      documentType: documentType,
+      requestId: requestId,
     );
     if (context == null || context.status != InvoiceDocumentStatus.pending) {
       return;
     }
 
-    final attemptNumber = command.retryCount + 1;
-    final correlationId = ProviderCallCorrelationId.forWorkerAttempt(
-      commandId: command.commandId,
-      workerAttemptNumber: attemptNumber,
-    );
-
-    final interaction = await _interactionGateway.start(
-      tenantId: tenantId,
-      providerConnectionId: context.providerConnectionId,
-      direction: ProviderInteractionDirection.outbound,
-      operationType: DownloadInvoiceDocumentCommand.type,
-      targetType: 'INVOICE_DOCUMENT_OPERATION',
-      targetId: operationId,
-      correlationId: correlationId,
-      requestReference: command.commandId,
-    );
-
     await _commandGateway.recordDocumentResult(
       InvoiceDocumentResultRecord(
         tenantId: tenantId,
-        operationId: context.operationId,
+        electronicInvoiceId: context.electronicInvoiceId,
+        documentType: context.documentType,
+        requestId: context.requestId,
         status: InvoiceDocumentStatus.checkRequired,
         failureCode: 'PROVIDER_RESULT_UNDETERMINED',
         failureMessage: error.toString(),
-        providerInteractionReference: interaction.interactionReference,
-        expectedOperationVersion: context.expectedVersion,
-        expectedDocumentVersion: context.documentVersion,
-        invoiceDocumentId: context.invoiceDocumentId,
+        failureSource: FailureSource.internal,
       ),
     );
+  }
+
+  InvoiceDocumentType? _documentType(String? raw) {
+    return switch (raw?.toUpperCase()) {
+      'PDF' => InvoiceDocumentType.pdf,
+      'XML' => InvoiceDocumentType.xml,
+      _ => null,
+    };
   }
 }

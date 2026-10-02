@@ -65,7 +65,7 @@ void main() {
     sql = draft.readAsStringSync();
     processTable = _extractTable(
       sql,
-      'create table if not exists einvoice.automatic_trigger_process_records',
+      'create table if not exists einvoice.auto_issuance_processes',
     );
     startAttemptHelper = _extractFunction(
       sql,
@@ -98,7 +98,7 @@ void main() {
       expect(
         sql,
         contains(
-          '-- Touches: einvoice.issuance_attempts, einvoice.automatic_trigger_process_records, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance',
+          '-- Touches: einvoice.issuance_attempts, einvoice.auto_issuance_processes, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance',
         ),
       );
       expect(sql, contains('-- Kind: cohesive'));
@@ -126,21 +126,15 @@ void main() {
       for (final field in <String>[
         'id uuid primary key default gen_random_uuid()',
         'tenant_id uuid not null',
-        'process_type text not null',
         'sales_order_id uuid not null',
-        'sales_order_version text not null',
-        'trigger_key varchar(255) not null',
+        'sales_order_version text',
+        'buyer_partner_id uuid',
+        'trigger_key text not null',
         'provider_idempotency_key varchar(150) not null',
-        'process_status text not null',
-        'retry_count integer not null default 0',
-        'next_retry_at timestamptz null',
-        'blocker_code varchar(100) null',
-        'buyer_invoice_completion_id uuid null',
-        'claimed_at timestamptz null',
-        'claim_token varchar(100) null',
+        'status text not null',
+        'blocker_code text',
+        'last_evaluated_at timestamptz',
         'created_at timestamptz not null default now()',
-        'updated_at timestamptz not null default now()',
-        'version bigint not null default 0',
       ]) {
         expect(
           processTable,
@@ -148,6 +142,9 @@ void main() {
           reason: 'missing $field in table',
         );
       }
+      expect(processTable, isNot(contains('process_type')));
+      expect(processTable, isNot(contains('process_status')));
+      expect(processTable, isNot(contains('updated_at')));
       expect(processTable, contains("'PENDING_REEVALUATION'"));
       expect(processTable, contains("'ATTEMPT_STARTED'"));
       expect(processTable, contains("'SKIPPED'"));
@@ -176,15 +173,12 @@ void main() {
         for (final field in <String>[
           'invoice_issuance_id',
           'attempt_no',
-          'trigger_type',
           'status',
           'provider_connection_id',
-          'issuance_profile_id',
           'idempotency_key',
           'intent_hash',
           'snapshot_schema_version',
           'attempt_snapshot',
-          'canonical_model_version',
           'canonical_payload_hash',
           'internal_finalization_state',
           'initiated_by_actor_type',
@@ -196,6 +190,19 @@ void main() {
             reason: 'missing attempt field $field',
           );
         }
+
+        expect(
+          startAttemptHelper,
+          isNot(contains('trigger_type')),
+        );
+        expect(
+          startAttemptHelper,
+          isNot(contains('canonical_model_version')),
+        );
+        expect(
+          startAttemptHelper,
+          isNot(contains('issuance_profile_id')),
+        );
 
         for (final snapshotKey in <String>[
           "'source_order'",
@@ -255,14 +262,14 @@ void main() {
       },
     );
 
-    test('buyer_lineage retains partner, completion and source version', () {
+    test('buyer_lineage retains partner, completed-at and source version', () {
       expect(
         startAttemptHelper,
         contains("'buyerPartnerId', p_buyer_partner_id"),
       );
       expect(
         startAttemptHelper,
-        contains("'buyerInvoiceCompletionId', p_buyer_completion_id"),
+        contains("'buyerCompletedAt', v_buyer_completed_at"),
       );
       expect(
         startAttemptHelper,
@@ -290,9 +297,8 @@ void main() {
     test('is the sole insertion path and handles skip, block and start', () {
       expect(
         startAutoIssuanceFn,
-        contains('insert into einvoice.automatic_trigger_process_records'),
+        contains('insert into einvoice.auto_issuance_processes'),
       );
-      expect(startAutoIssuanceFn, contains("'AUTOMATIC'"));
       expect(startAutoIssuanceFn, contains("'PENDING_REEVALUATION'"));
       expect(startAutoIssuanceFn, contains("'ATTEMPT_STARTED'"));
       expect(startAutoIssuanceFn, contains("'SKIPPED'"));
@@ -330,8 +336,9 @@ void main() {
       () {
         expect(
           listOpenProcessesFn,
-          contains('einvoice.automatic_trigger_process_records'),
+          contains('einvoice.auto_issuance_processes'),
         );
+        expect(listOpenProcessesFn, contains('pr.buyer_partner_id'));
         expect(listOpenProcessesFn, contains("'PENDING_REEVALUATION'"));
         expect(listOpenProcessesFn, isNot(contains('partner.partners')));
       },
@@ -345,7 +352,7 @@ void main() {
         expect(
           reevaluateAutoIssuanceFn,
           isNot(
-            contains('insert into einvoice.automatic_trigger_process_records'),
+            contains('insert into einvoice.auto_issuance_processes'),
           ),
         );
         expect(reevaluateAutoIssuanceFn, contains("'PENDING_REEVALUATION'"));
@@ -373,25 +380,12 @@ void main() {
     );
 
     test(
-      'scn_e02_u05_sc11_01: selects version-bound completion and reuses locked lineage without Theme 03 call',
+      'scn_e02_u05_sc11_01: reuses completed buyer data through the order helper, without reading a completion row',
       () {
-        expect(
-          retryIssuanceFn,
-          contains('from einvoice.buyer_invoice_completions bc'),
-        );
-        expect(retryIssuanceFn, isNot(contains('bc.sales_order_version =')));
-        expect(
-          retryIssuanceFn,
-          contains('and bc.sales_order_id = p_sales_order_id'),
-        );
+        expect(retryIssuanceFn, contains('einvoice._start_issuance_attempt'));
+        expect(retryIssuanceFn, isNot(contains('v_buyer_completion')));
         expect(retryIssuanceFn, isNot(contains('partner.partners')));
         expect(retryIssuanceFn, isNot(contains('partner.')));
-        expect(
-          retryIssuanceFn,
-          contains(
-            'p_buyer_completion_id => case when found then v_buyer_completion.id else null end',
-          ),
-        );
       },
     );
 
@@ -437,13 +431,8 @@ void main() {
       }.entries) {
         expect(
           entryPoint.value,
-          contains('and ip.default_template is not null'),
+          contains('ts.default_template_id is not null'),
           reason: '${entryPoint.key} must require a configured template',
-        );
-        expect(
-          entryPoint.value,
-          contains('and ip.default_signing is not null'),
-          reason: '${entryPoint.key} must require configured signing',
         );
         expect(
           entryPoint.value,

@@ -47,7 +47,7 @@ begin
   if v_attempt.status in ('SUCCEEDED', 'FAILED') then
     return query select
       v_attempt.status,
-      v_attempt.provider_publish_retry_count,
+      v_attempt.retry_count,
       false;
     return;
   end if;
@@ -63,7 +63,7 @@ begin
   if found then
     return query select
       v_attempt.status,
-      v_attempt.provider_publish_retry_count,
+      v_attempt.retry_count,
       true;
     return;
   end if;
@@ -80,16 +80,11 @@ begin
     raise exception 'STATE_INVALID: missing source publish command canonical payload';
   end if;
 
-  v_next_retry_count := v_attempt.provider_publish_retry_count + 1;
+  v_next_retry_count := v_attempt.retry_count + 1;
 
   if v_next_retry_count > 3 then
     update einvoice.issuance_attempts
-    set provider_result_code = p_provider_code,
-        provider_result_message = p_provider_message,
-        last_provider_publish_code = p_provider_code,
-        next_provider_publish_retry_at = null,
-        version = version + 1,
-        updated_at = now()
+    set version = version + 1
     where id = p_attempt_id;
 
     perform einvoice.record_issuance_failure(
@@ -115,13 +110,8 @@ begin
 
   update einvoice.issuance_attempts
   set status = 'PREPARING',
-      provider_publish_retry_count = v_next_retry_count,
-      next_provider_publish_retry_at = now() + v_delay,
-      last_provider_publish_code = p_provider_code,
-      provider_result_code = p_provider_code,
-      provider_result_message = p_provider_message,
-      version = version + 1,
-      updated_at = now()
+      retry_count = v_next_retry_count,
+      version = version + 1
   where id = p_attempt_id;
 
   v_cmd_id := gen_random_uuid();
@@ -154,8 +144,7 @@ begin
 end;
 $$;
 
--- Draft 009 defines the same input signature with a nine-column OUT row.
--- PostgreSQL cannot change that row type through CREATE OR REPLACE.
+-- Bản duy nhất; `drop` để chạy lại draft trên DB cũ.
 drop function if exists einvoice.claim_issuance_reconciliation_case(uuid, uuid, varchar);
 
 create or replace function einvoice.claim_issuance_reconciliation_case(
@@ -205,8 +194,7 @@ begin
 
   update einvoice.invoice_reconciliation_cases
   set claimed_at = now(),
-      claim_token = v_claim_token,
-      updated_at = now()
+      claim_token = v_claim_token
   where id = p_case_id;
 
   return query select
@@ -216,13 +204,13 @@ begin
     v_attempt.idempotency_key,
     v_attempt.canonical_payload_hash,
     v_attempt.invoice_series,
+    -- Cột nguồn là text, cột trả về là varchar: RETURN QUERY không tự ép kiểu.
     coalesce(
       v_attempt.provider_invoice_reference,
-      v_attempt.provider_request_reference,
-      v_attempt.provider_interaction_reference
-    ),
-    v_case.reason_code,
-    v_case.attempt_count,
+      v_attempt.provider_request_reference
+    )::varchar(255),
+    v_case.reason_code::varchar(100),
+    v_case.check_count,
     5::integer;
 end;
 $$;

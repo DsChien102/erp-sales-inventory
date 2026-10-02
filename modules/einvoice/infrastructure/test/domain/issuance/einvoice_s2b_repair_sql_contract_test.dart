@@ -44,6 +44,9 @@ String _extractFunction(String sql, String signaturePrefix) {
 
 void main() {
   late String sql;
+  late String draft008;
+  late String draft009;
+  late String draft014;
   late String preparePublishFn;
   late String markProviderCallStartedFn;
   late String recordSuccessFn;
@@ -66,6 +69,18 @@ void main() {
       reason: 'S2b draft SQL 007 must exist under supabase/migrations/_drafts/',
     );
     sql = draft.readAsStringSync();
+    draft008 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '008_einvoice_auto_issuance_and_retry_rpcs.sql',
+    ).readAsStringSync();
+    draft009 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '009_einvoice_issuance_reconciliation_rpcs.sql',
+    ).readAsStringSync();
+    draft014 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '014_einvoice_delivery_results_and_projection_rpcs.sql',
+    ).readAsStringSync();
     preparePublishFn = _extractFunction(
       sql,
       'create or replace function einvoice.prepare_issuance_publish(',
@@ -91,11 +106,11 @@ void main() {
       'create or replace function einvoice.record_publish_command_dead_letter(',
     );
     recordUndeterminedFn = _extractFunction(
-      sql,
+      draft009,
       'create or replace function einvoice.record_issuance_undetermined(',
     );
     projectionFn = _extractFunction(
-      sql,
+      draft014,
       'create or replace function einvoice.get_order_invoice_projection(',
     );
     claimInternalCommandsFn = _extractFunction(
@@ -117,8 +132,6 @@ void main() {
         'einvoice.record_issuance_failure',
         'einvoice.record_issuance_command_integrity_failure',
         'einvoice.record_publish_command_dead_letter',
-        'einvoice.record_issuance_undetermined',
-        'einvoice.get_order_invoice_projection',
         'einvoice.claim_internal_commands_batch',
         'einvoice.retry_or_dead_letter_internal_command',
       ];
@@ -135,7 +148,7 @@ void main() {
           sql,
           'create table if not exists einvoice.invoice_issuances',
         );
-        expect(issuancesTable, contains('version bigint not null default 0'));
+        expect(issuancesTable, isNot(contains('version bigint')));
 
         final attemptsTable = _extractTable(
           sql,
@@ -147,7 +160,7 @@ void main() {
           sql,
           'create table if not exists einvoice.electronic_invoices',
         );
-        expect(invoicesTable, contains('version bigint not null default 0'));
+        expect(invoicesTable, isNot(contains('version bigint')));
 
         final casesTable = _extractTable(
           sql,
@@ -167,33 +180,28 @@ void main() {
         'tenant_id',
         'invoice_issuance_id',
         'attempt_no',
-        'trigger_type',
         'status',
         'provider_connection_id',
-        'issuance_profile_id',
+        'invoice_series',
         'idempotency_key',
         'intent_hash',
         'snapshot_schema_version',
         'attempt_snapshot',
-        'canonical_model_version',
         'canonical_payload_hash',
-        'provider_interaction_reference',
         'provider_request_reference',
         'provider_invoice_reference',
-        'provider_result_code',
-        'provider_result_message',
         'provider_result_snapshot',
         'failure_code',
         'failure_message',
+        'failure_source',
         'internal_finalization_state',
-        'started_at',
+        'retry_count',
         'submitted_at',
         'provider_confirmed_at',
         'completed_at',
         'initiated_by_actor_type',
         'initiated_by_actor_id',
         'created_at',
-        'updated_at',
         'version',
       ];
       for (final field in expectedFields) {
@@ -203,14 +211,26 @@ void main() {
           reason: 'issuance_attempts must contain canonical field: $field',
         );
       }
+      for (final gone in const [
+        'trigger_type',
+        'canonical_model_version',
+        'provider_interaction_reference',
+        'provider_result_code',
+        'provider_result_message',
+        'started_at',
+        'updated_at',
+      ]) {
+        expect(attemptsTable, isNot(contains(gone)), reason: gone);
+      }
+      expect(attemptsTable, isNot(contains('issuance_profile_id')));
     });
 
     test(
       'attempt_snapshot in issue_invoice contains all 11 canonical components',
       () {
-        final issueInvoiceFn = _extractFunction(
-          sql,
-          'create or replace function einvoice.issue_invoice(',
+        final startHelper = _extractFunction(
+          draft008,
+          'create or replace function einvoice._start_issuance_attempt(',
         );
         final components = [
           "'source_order'",
@@ -227,7 +247,7 @@ void main() {
         ];
         for (final component in components) {
           expect(
-            issueInvoiceFn,
+            startHelper,
             contains(component),
             reason: 'AttemptSnapshot must contain component $component',
           );
@@ -237,53 +257,41 @@ void main() {
 
     test('buyer_lineage preserves the source-owned base BuyerInvoiceSnapshot '
         'captured before any buyer completion merge', () {
-      final issueInvoiceFn = _extractFunction(
-        sql,
-        'create or replace function einvoice.issue_invoice(',
+      final startHelper = _extractFunction(
+        draft008,
+        'create or replace function einvoice._start_issuance_attempt(',
       );
 
       expect(
-        issueInvoiceFn,
-        contains("v_base_buyer_snapshot := coalesce(v_source.buyer_snapshot"),
+        startHelper,
+        contains("v_base_buyer_snapshot := coalesce(p_buyer_snapshot"),
       );
       expect(
-        issueInvoiceFn,
+        startHelper,
         contains("'buyerInvoiceSnapshot', v_base_buyer_snapshot"),
       );
       expect(
-        issueInvoiceFn,
-        isNot(contains("'buyerInvoiceSnapshot', v_source.commercial_snapshot")),
+        startHelper,
+        isNot(contains("'buyerInvoiceSnapshot', p_commercial_snapshot")),
       );
-
-      final baseCapture = issueInvoiceFn.indexOf('v_base_buyer_snapshot := ');
-      final completionLookup = issueInvoiceFn.indexOf(
-        'from einvoice.buyer_invoice_completions',
-      );
-      expect(
-        baseCapture,
-        lessThan(completionLookup),
-        reason:
-            'base snapshot must be captured before the buyer completion '
-            'lookup and any merge derived from it',
-      );
+      expect(startHelper, isNot(contains('v_buyer_completion')));
+      expect(startHelper, contains('for share'));
     });
 
-    test('buyer_lineage retains partner, completion and source version', () {
-      final issueInvoiceFn = _extractFunction(
-        sql,
-        'create or replace function einvoice.issue_invoice(',
+    test('buyer_lineage retains partner and source version', () {
+      final startHelper = _extractFunction(
+        draft008,
+        'create or replace function einvoice._start_issuance_attempt(',
       );
 
       expect(
-        issueInvoiceFn,
-        contains("'buyerPartnerId', v_source.buyer_partner_id"),
+        startHelper,
+        contains("'buyerPartnerId', p_buyer_partner_id"),
       );
+      expect(startHelper, isNot(contains('buyerInvoiceCompletionId')));
+      expect(startHelper, isNot(contains('v_buyer_completion')));
       expect(
-        issueInvoiceFn,
-        contains("'buyerInvoiceCompletionId', v_buyer_completion.id"),
-      );
-      expect(
-        issueInvoiceFn,
+        startHelper,
         contains("'buyerInvoiceSnapshotSourceVersion', p_source_version"),
       );
     });
@@ -345,10 +353,8 @@ void main() {
           contains("status in ('SUBMITTED', 'WAITING_RESULT')"),
         );
         expect(recordDeadLetterFn, contains("status = 'RECONCILING'"));
-        expect(
-          recordDeadLetterFn,
-          contains("reconciliation_purpose = 'DETERMINE_RESULT'"),
-        );
+        expect(recordDeadLetterFn, contains("target_type = 'ISSUANCE_ATTEMPT'"));
+        expect(recordDeadLetterFn, isNot(contains('reconciliation_purpose')));
       },
     );
 

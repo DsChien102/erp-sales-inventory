@@ -9,7 +9,7 @@ final class ProviderObservationAttentionRequiredIntegrationEvent extends EInvoic
     required this.observationId,
     required this.electronicInvoiceId,
     required this.providerStateCode,
-    required this.providerInteractionReference,
+    required this.correlationId,
   }) : super(eventType: type);
 
   static const String type = 'einvoice.provider_observation_attention_required';
@@ -17,14 +17,14 @@ final class ProviderObservationAttentionRequiredIntegrationEvent extends EInvoic
   final String observationId;
   final String electronicInvoiceId;
   final String providerStateCode;
-  final String providerInteractionReference;
+  final String correlationId;
 
   @override
   Map<String, dynamic> toPayload() => envelopePayload(<String, dynamic>{
     'observation_id': observationId,
     'electronic_invoice_id': electronicInvoiceId,
     'provider_state_code': providerStateCode,
-    'provider_interaction_reference': providerInteractionReference,
+    'correlation_id': correlationId,
   });
 
   factory ProviderObservationAttentionRequiredIntegrationEvent.fromPayload(
@@ -36,10 +36,7 @@ final class ProviderObservationAttentionRequiredIntegrationEvent extends EInvoic
       'electronic_invoice_id',
     );
     final providerStateCode = _requiredString(payload, 'provider_state_code');
-    final providerInteractionReference = _requiredString(
-      payload,
-      'provider_interaction_reference',
-    );
+    final correlationId = _requiredString(payload, 'correlation_id');
 
     return ProviderObservationAttentionRequiredIntegrationEvent(
       id: _requiredString(payload, 'id'),
@@ -48,7 +45,7 @@ final class ProviderObservationAttentionRequiredIntegrationEvent extends EInvoic
       observationId: observationId,
       electronicInvoiceId: electronicInvoiceId,
       providerStateCode: providerStateCode,
-      providerInteractionReference: providerInteractionReference,
+      correlationId: correlationId,
     );
   }
 

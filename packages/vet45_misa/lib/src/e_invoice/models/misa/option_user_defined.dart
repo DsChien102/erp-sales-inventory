@@ -6,6 +6,7 @@ final class MeInvoiceOptionUserDefined {
     this.mainCurrency,
     this.quantityDecimalDigits,
     this.unitPriceOcDecimalDigits,
+    this.unitPriceDecimalDigits,
     this.amountOcDecimalDigits,
     this.amountDecimalDigits,
     this.coefficientDecimalDigits,
@@ -15,6 +16,7 @@ final class MeInvoiceOptionUserDefined {
   final String? mainCurrency;
   final String? quantityDecimalDigits;
   final String? unitPriceOcDecimalDigits;
+  final String? unitPriceDecimalDigits;
   final String? amountOcDecimalDigits;
   final String? amountDecimalDigits;
   final String? coefficientDecimalDigits;
@@ -30,6 +32,10 @@ final class MeInvoiceOptionUserDefined {
       unitPriceOcDecimalDigits: MeInvoiceJsonHelpers.readString(
         json,
         'UnitPriceOCDecimalDigits',
+      ),
+      unitPriceDecimalDigits: MeInvoiceJsonHelpers.readString(
+        json,
+        'UnitPriceDecimalDigits',
       ),
       amountOcDecimalDigits: MeInvoiceJsonHelpers.readString(
         json,
@@ -62,6 +68,11 @@ final class MeInvoiceOptionUserDefined {
       map,
       'UnitPriceOCDecimalDigits',
       unitPriceOcDecimalDigits,
+    );
+    MeInvoiceJsonHelpers.writeStringIfPresent(
+      map,
+      'UnitPriceDecimalDigits',
+      unitPriceDecimalDigits,
     );
     MeInvoiceJsonHelpers.writeStringIfPresent(
       map,

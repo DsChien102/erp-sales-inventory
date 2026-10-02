@@ -15,7 +15,7 @@ final class RecordProviderObservationCommand extends CommandBase<ProviderObserva
     required this.observedAt,
     required this.deduplicationKey,
     required this.detailsSnapshot,
-    required this.providerInteractionReference,
+    required this.correlationId,
     required this.source,
   }) : super(id);
 
@@ -28,6 +28,6 @@ final class RecordProviderObservationCommand extends CommandBase<ProviderObserva
   final DateTime observedAt;
   final String deduplicationKey;
   final Map<String, Object?> detailsSnapshot;
-  final String providerInteractionReference;
+  final String correlationId;
   final String source;
 }

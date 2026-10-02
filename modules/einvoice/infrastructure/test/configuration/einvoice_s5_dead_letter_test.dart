@@ -194,19 +194,19 @@ final class _StoredCommand {
 }
 
 final class _TrackingDeliveryCommandGateway implements IDeliveryCommandGateway {
-  final List<Map<String, String>> deadLetters = [];
+  final List<Map<String, Object>> deadLetters = [];
 
   @override
   Future<void> recordCommandDeadLetter({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   }) async {
     deadLetters.add({
       'tenantId': tenantId,
       'deliveryId': deliveryId,
-      'attemptId': attemptId,
+      'retryCount': retryCount,
       'safeFailureCode': safeFailureCode,
     });
   }
@@ -224,16 +224,14 @@ final class _TrackingDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<DeliveryAttemptContextDto?> loadAttemptContext({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
   }) => throw UnimplementedError();
 
   @override
   Future<PrepareDeliveryProviderCallResult> prepareProviderCall({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
-    required int expectedDeliveryVersion,
-    required int expectedAttemptVersion,
+    required int retryCount,
     required String requestReference,
   }) => throw UnimplementedError();
 
@@ -271,7 +269,7 @@ void main() {
             commandType: SendInvoiceEmailCommand.type,
             payload: {
               'delivery_id': 'del-queued-1',
-              'attempt_id': 'att-queued-1',
+              'retry_count': 0,
             },
             enqueuedAt: DateTime.utc(2026, 9, 2),
             claimToken: 'tok-1',
@@ -282,7 +280,7 @@ void main() {
 
         expect(gateway.deadLetters, hasLength(1));
         expect(gateway.deadLetters.single['deliveryId'], 'del-queued-1');
-        expect(gateway.deadLetters.single['attemptId'], 'att-queued-1');
+        expect(gateway.deadLetters.single['retryCount'], 0);
         expect(
           gateway.deadLetters.single['safeFailureCode'],
           'WORKER_EXHAUSTED_BEFORE_DISPATCH',
@@ -304,7 +302,7 @@ void main() {
             payload: {
               'tenantId': 'tenant-1',
               'deliveryId': 'del-1',
-              'attemptId': 'att-1',
+              'retryCount': 1,
             },
             enqueuedAt: DateTime.utc(2026),
             claimToken: 'tok',
@@ -312,7 +310,7 @@ void main() {
           ),
           error: const FormatException('deserialization'),
         );
-        expect(gateway.deadLetters.single['attemptId'], 'att-1');
+        expect(gateway.deadLetters.single['retryCount'], 1);
       },
     );
 
@@ -357,7 +355,7 @@ void main() {
             id: 'cmd-send-exhaust-1',
             tenantId: 'tenant-1',
             deliveryId: 'del-1',
-            attemptId: 'att-1',
+            retryCount: 0,
           ),
         );
 

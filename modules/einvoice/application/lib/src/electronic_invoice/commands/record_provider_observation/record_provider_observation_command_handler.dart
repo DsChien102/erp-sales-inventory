@@ -28,7 +28,7 @@ final class RecordProviderObservationCommandHandler
         observedAt: command.observedAt,
         deduplicationKey: command.deduplicationKey,
         detailsSnapshot: command.detailsSnapshot,
-        providerInteractionReference: command.providerInteractionReference,
+        correlationId: command.correlationId,
         source: command.source,
       ),
     );

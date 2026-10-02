@@ -75,8 +75,9 @@ void main() {
 
     test('retry RPC persists attempt number, next-at and provider code', () {
       expect(retryFn, contains('provider_publish_retry_count'));
-      expect(retryFn, contains('next_provider_publish_retry_at'));
-      expect(retryFn, contains('last_provider_publish_code'));
+      expect(retryFn, contains('v_attempt.retry_count'));
+      expect(retryFn, isNot(contains('next_provider_publish_retry_at')));
+      expect(retryFn, isNot(contains('last_provider_publish_code')));
       expect(retryFn, contains("set status = 'PREPARING'"));
       expect(retryFn, contains('internal_commands'));
     });
@@ -84,27 +85,32 @@ void main() {
     test('issuance attempt schema owns durable retry metadata', () {
       expect(
         issuanceSchemaSql,
-        contains('provider_publish_retry_count integer not null default 0'),
+        contains('retry_count int not null default 0'),
       );
       expect(
         issuanceSchemaSql,
-        contains('next_provider_publish_retry_at timestamptz null'),
+        isNot(contains('next_provider_publish_retry_at')),
       );
       expect(
         issuanceSchemaSql,
-        contains('last_provider_publish_code varchar(100) null'),
+        isNot(contains('last_provider_publish_code')),
+      );
+      expect(
+        issuanceSchemaSql,
+        isNot(contains('provider_publish_retry_count integer')),
       );
       expect(sql, isNot(contains('alter table einvoice.issuance_attempts')));
     });
 
     test('successful terminal result clears the pending retry schedule', () {
-      expect(successFn, contains('next_provider_publish_retry_at = null'));
+      expect(successFn, isNot(contains('next_provider_publish_retry_at')));
     });
 
     test('retry RPC caps at three attempts then fails closed', () {
       expect(retryFn, contains('if v_next_retry_count > 3'));
       expect(retryFn, contains('einvoice.record_issuance_failure('));
-      expect(failureFn, contains("settled_result = 'FAILED'"));
+      expect(failureFn, contains("failure_source = 'PROVIDER'"));
+      expect(failureFn, isNot(contains('settled_result')));
       expect(failureFn, contains("'einvoice.issuance.failed'"));
     });
 

@@ -37,7 +37,6 @@ void main() {
           actorId: 'actor-1',
           salesOrderId: 'order-1',
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-1',
         ),
       );
 
@@ -79,71 +78,6 @@ void main() {
       expect(gateway.lastTenantId, 'tenant-1');
       expect(gateway.lastActorId, 'actor-1');
       expect(gateway.lastSalesOrderId, 'order-1');
-    });
-  });
-
-  group('ProviderInteractionRecord wire mapping', () {
-    test('maps canonical wire values', () {
-      expect(
-        ProviderInteractionDirection.fromWire('OUTBOUND'),
-        ProviderInteractionDirection.outbound,
-      );
-      expect(ProviderInteractionDirection.outbound.toWire(), 'OUTBOUND');
-      expect(
-        ProviderInteractionStatus.fromWire('COMPLETED'),
-        ProviderInteractionStatus.completed,
-      );
-      expect(
-        ProviderInteractionOutcome.fromWire('TIMEOUT'),
-        ProviderInteractionOutcome.timeout,
-      );
-    });
-
-    test('rejects unknown wire values', () {
-      expect(
-        () => ProviderInteractionDirection.fromWire('SIDEWAYS'),
-        throwsArgumentError,
-      );
-      expect(
-        () => ProviderInteractionOutcome.fromWire('FABRICATED'),
-        throwsArgumentError,
-      );
-    });
-
-    test('enforces started/completed lifecycle', () {
-      final started = ProviderInteractionRecord(
-        interactionReference: 'int-1',
-        tenantId: 'tenant-1',
-        version: 0,
-        providerConnectionId: 'conn-1',
-        direction: ProviderInteractionDirection.outbound,
-        operationType: 'einvoice.fetch_official_view',
-        targetType: 'OFFICIAL_VIEW_OPERATION',
-        targetId: 'op-1',
-        correlationId: 'corr-1',
-        requestReference: 'cmd-1',
-        status: ProviderInteractionStatus.started,
-        startedAt: DateTime.utc(2026, 8, 31),
-      );
-      expect(started.outcome, isNull);
-
-      expect(
-        () => ProviderInteractionRecord(
-          interactionReference: 'int-2',
-          tenantId: 'tenant-1',
-          version: 1,
-          providerConnectionId: 'conn-1',
-          direction: ProviderInteractionDirection.outbound,
-          operationType: 'einvoice.fetch_official_view',
-          targetType: 'OFFICIAL_VIEW_OPERATION',
-          targetId: 'op-1',
-          correlationId: 'corr-2',
-          requestReference: 'cmd-2',
-          status: ProviderInteractionStatus.completed,
-          startedAt: DateTime.utc(2026, 8, 31),
-        ),
-        throwsArgumentError,
-      );
     });
   });
 }

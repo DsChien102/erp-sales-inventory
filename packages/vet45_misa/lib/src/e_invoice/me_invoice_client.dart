@@ -18,6 +18,7 @@ import 'models/requests/invoice_publish_request.dart';
 import 'models/requests/invoice_query.dart';
 import 'models/requests/send_email_request.dart';
 import 'models/requests/transaction_ids_body.dart';
+import 'models/responses/api_response.dart';
 import 'models/responses/invoice_data_published.dart';
 import 'models/responses/publish_invoice_result.dart';
 
@@ -201,6 +202,7 @@ final class MeInvoiceClient implements IMeInvoiceClient {
   Future<MeInvoiceResult<String>> previewPublished({
     required List<String> transactionIds,
     required String companyTaxCode,
+    MeInvoiceInvoiceQuery? query,
   }) async {
     final gate = _guard<String>();
     if (gate != null) {
@@ -213,6 +215,10 @@ final class MeInvoiceClient implements IMeInvoiceClient {
     final raw = await _api!.postRaw(
       '/invoice/publishview',
       body: encodeTransactionIdsBody(transactionIds),
+      // Same classification flags as status/download: without `invoiceCalcu`
+      // MISA resolves MTT invoices against the regular store and the viewer
+      // link lands on "Vui lòng thực hiện tra cứu lại".
+      query: query?.toQueryParameters(),
       extraHeaders: <String, String>{'CompanyTaxCode': companyTaxCode},
     );
     if (!raw.isSuccess) {
@@ -268,9 +274,25 @@ final class MeInvoiceClient implements IMeInvoiceClient {
       MeInvoiceInvoiceDataPublished.fromJson,
     );
     if (items.isEmpty) {
-      return const MeInvoiceResult.failed('meinvoice_download_empty_data');
+      return MeInvoiceResult.failed(
+        'meinvoice_download_empty_data: ${_envelopeSummary(raw.data!)}',
+      );
     }
     return MeInvoiceResult.ok(items);
+  }
+
+  /// Short provider envelope summary for diagnostics (no document bytes, no credentials).
+  static String _envelopeSummary(MeInvoiceApiResponse response) {
+    String clip(Object? value) {
+      final text = '${value ?? ''}'.trim();
+      return text.length <= 200 ? text : '${text.substring(0, 200)}…';
+    }
+
+    return 'success=${response.success}'
+        ' errorCode=${clip(response.errorCode)}'
+        ' description=${clip(response.descriptionErrorCode)}'
+        ' errors=${clip(response.errors)}'
+        ' dataType=${response.data?.runtimeType}';
   }
 
   @override

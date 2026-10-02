@@ -333,12 +333,12 @@ void main() {
     );
 
     test(
-      'issuance and delivery RPCs compare provider_connection_status as connected',
+      'issuance and delivery RPCs compare the upper-case connection status',
       () {
-        expect(draft007Sql, isNot(contains("'CONNECTED'")));
-        expect(draft008Sql, isNot(contains("'CONNECTED'")));
-        expect(draft013Sql, isNot(contains("'CONNECTED'")));
-        expect(draft008Sql, contains("pc.status = 'connected'"));
+        expect(draft007Sql, isNot(contains("'connected'")));
+        expect(draft008Sql, isNot(contains("'connected'")));
+        expect(draft013Sql, isNot(contains("'connected'")));
+        expect(draft008Sql, contains("pc.status = 'CONNECTED'"));
       },
     );
   });

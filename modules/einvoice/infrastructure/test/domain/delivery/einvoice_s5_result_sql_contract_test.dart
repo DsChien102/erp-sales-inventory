@@ -37,6 +37,7 @@ void main() {
   late String recordFn;
   late String deadLetterFn;
   late String reconCmdHelper;
+  late String openCaseFn;
   late String grantsTail;
 
   setUpAll(() {
@@ -66,6 +67,10 @@ void main() {
       sql,
       'create or replace function einvoice._delivery_reconciliation_command_id(',
     );
+    openCaseFn = _extractFunction(
+      sql,
+      'create or replace function einvoice._open_delivery_reconciliation_case(',
+    );
     final revokeStart = sql.indexOf(
       'revoke all on function einvoice._delivery_reconciliation_command_id(',
     );
@@ -85,6 +90,7 @@ void main() {
         sql,
         contains(
           '-- Touches: einvoice._delivery_reconciliation_command_id, '
+          'einvoice._open_delivery_reconciliation_case, '
           'einvoice.prepare_delivery_provider_call, '
           'einvoice.record_delivery_result, '
           'einvoice.record_delivery_command_dead_letter, '
@@ -96,12 +102,13 @@ void main() {
   });
 
   group('prepare_delivery_provider_call barrier', () {
-    test('is service_role only and locks delivery/attempt rows', () {
+    test('is service_role only and locks the delivery row', () {
       expect(prepareFn, contains("'service_role'"));
       expect(prepareFn, contains('for update'));
-      expect(prepareFn, contains('p_expected_delivery_version'));
-      expect(prepareFn, contains('p_expected_attempt_version'));
+      expect(prepareFn, contains('p_retry_count'));
       expect(prepareFn, contains('p_request_reference'));
+      expect(prepareFn, isNot(contains('p_expected_delivery_version')));
+      expect(prepareFn, isNot(contains('p_expected_attempt_version')));
     });
 
     test('returns CALL_PROVIDER, SKIP, or RECORD_UNKNOWN', () {
@@ -139,7 +146,7 @@ void main() {
       expect(
         sql,
         contains(
-          'grant execute on function einvoice.prepare_delivery_provider_call(\n  uuid, uuid, uuid, bigint, bigint, text\n) to service_role',
+          'grant execute on function einvoice.prepare_delivery_provider_call(\n  uuid, uuid, int, text\n) to service_role',
         ),
       );
     });
@@ -147,14 +154,15 @@ void main() {
 
   group('record_delivery_result state machine', () {
     test(
-      'locks rows and enforces tenant/delivery/attempt relation + versions',
+      'locks the delivery and enforces retry count plus version',
       () {
         expect(recordFn, contains('for update'));
-        expect(recordFn, contains('p_expected_delivery_version'));
-        expect(recordFn, contains('p_expected_attempt_version'));
+        expect(recordFn, contains('p_retry_count'));
+        expect(recordFn, contains('p_expected_version'));
+        expect(recordFn, contains('p_failure_source'));
         expect(recordFn, contains('STATE_CHANGED'));
-        expect(recordFn, contains('invoice_delivery_id = p_delivery_id'));
         expect(recordFn, contains("'service_role'"));
+        expect(recordFn, isNot(contains('invoice_delivery_id')));
       },
     );
 
@@ -166,15 +174,17 @@ void main() {
       expect(recordFn, contains("'SUCCEEDED'"));
       expect(recordFn, contains("'FAILED'"));
       expect(recordFn, contains("'UNKNOWN'"));
-      expect(recordFn, contains("'PROCESSING'"));
+      expect(recordFn, contains('_delivery_public_status'));
+      expect(recordFn, isNot(contains("'PROCESSING'")));
     });
 
-    test('retryable failure caps at three attempts and enqueues next send', () {
-      expect(recordFn, contains('attempt_no'));
-      expect(recordFn, contains('< 3'));
+    test('retryable failure caps at three tries and enqueues the next send', () {
+      expect(recordFn, contains('v_delivery.retry_count < 2'));
+      expect(recordFn, contains('retry_count = v_delivery.retry_count + 1'));
       expect(recordFn, contains('einvoice.send_invoice_email'));
       expect(recordFn, contains('_delivery_send_command_id'));
       expect(recordFn, contains("'QUEUED'"));
+      expect(recordFn, isNot(contains('attempt_no')));
     });
 
     test('retry insert and result paths omit is_simulated', () {
@@ -186,7 +196,7 @@ void main() {
       'duplicate/reordered results are idempotent and never reverse success',
       () {
         expect(recordFn, contains("'SUCCEEDED'"));
-        expect(recordFn, contains("v_delivery.status = 'SUCCEEDED'"));
+        expect(recordFn, contains("status in ('SUCCEEDED', 'FAILED', 'UNKNOWN')"));
         // Success path must never demote a SUCCEEDED delivery.
         expect(
           recordFn,
@@ -225,13 +235,16 @@ void main() {
     test(
       'opens one PENDING VERIFY_DELIVERY case with first check schedule',
       () {
-        expect(recordFn, contains("'DELIVERY_ATTEMPT'"));
-        expect(recordFn, contains("'VERIFY_DELIVERY'"));
-        expect(recordFn, contains("'PENDING'"));
-        expect(recordFn, contains('attempt_count'));
-        expect(recordFn, contains('0'));
-        expect(recordFn, contains("interval '30 seconds'"));
-        expect(recordFn, isNot(contains("'UNRESOLVED'")));
+        expect(recordFn, contains('_open_delivery_reconciliation_case'));
+        expect(openCaseFn, contains("'INVOICE_DELIVERY'"));
+        expect(openCaseFn, isNot(contains("'VERIFY_DELIVERY'")));
+        expect(openCaseFn, contains("'PENDING'"));
+        expect(openCaseFn, contains('check_count'));
+        expect(openCaseFn, isNot(contains('attempt_count')));
+        expect(openCaseFn, contains('0'));
+        expect(openCaseFn, contains("interval '30 seconds'"));
+        expect(openCaseFn, isNot(contains("'UNRESOLVED'")));
+        expect(openCaseFn, isNot(contains("'DELIVERY_ATTEMPT'")));
       },
     );
 
@@ -240,11 +253,11 @@ void main() {
       () {
         expect(reconCmdHelper, contains('sha256'));
         expect(
-          recordFn,
+          openCaseFn,
           contains('einvoice._delivery_reconciliation_command_id('),
         );
-        expect(recordFn, contains("'einvoice.reconcile_invoice_delivery'"));
-        expect(recordFn, contains('on conflict'));
+        expect(openCaseFn, contains("'einvoice.reconcile_invoice_delivery'"));
+        expect(openCaseFn, contains('on conflict'));
 
         final undeterminedStart = recordFn.indexOf(
           "p_outcome_kind = 'UNDETERMINED'",
@@ -260,7 +273,7 @@ void main() {
           isFalse,
         );
         expect(
-          undeterminedSlice.contains("'einvoice.reconcile_invoice_delivery'"),
+          undeterminedSlice.contains('_open_delivery_reconciliation_case'),
           isTrue,
         );
       },
@@ -278,7 +291,10 @@ void main() {
     });
 
     test('UNKNOWN remains terminal on the same delivery (append-only)', () {
-      expect(recordFn, contains("status = 'UNKNOWN'"));
+      expect(
+        recordFn,
+        contains("then 'UNKNOWN' else 'FAILED'"),
+      );
       // No path from UNKNOWN back to queued/processing for the delivery.
       expect(
         recordFn,
@@ -313,13 +329,15 @@ void main() {
       () {
         expect(deadLetterFn, contains("'SUBMITTED'"));
         expect(deadLetterFn, contains("'UNKNOWN'"));
-        expect(deadLetterFn, contains("'VERIFY_DELIVERY'"));
-        expect(deadLetterFn, contains("'PENDING'"));
+        expect(deadLetterFn, contains('_open_delivery_reconciliation_case'));
+        expect(openCaseFn, contains("'INVOICE_DELIVERY'"));
+        expect(openCaseFn, isNot(contains("'VERIFY_DELIVERY'")));
+        expect(openCaseFn, contains("'PENDING'"));
         expect(
-          deadLetterFn,
+          openCaseFn,
           contains('einvoice._delivery_reconciliation_command_id('),
         );
-        expect(deadLetterFn, contains("'einvoice.reconcile_invoice_delivery'"));
+        expect(openCaseFn, contains("'einvoice.reconcile_invoice_delivery'"));
         expect(
           deadLetterFn,
           isNot(contains("'einvoice.delivery.attention_required'")),

@@ -20,7 +20,7 @@ final class ProviderObservationDto {
   final String? providerReference;
   final String? source;
 
-  /// Derived from referenced [ProviderInteractionRecord] at read time.
+  /// Correlation id stored on the observation row.
   final String? correlationId;
   final Map<String, Object?> detailsSnapshot;
 }

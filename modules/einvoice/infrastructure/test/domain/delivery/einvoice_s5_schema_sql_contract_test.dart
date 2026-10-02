@@ -29,7 +29,6 @@ String _extractTable(String sql, String tablePrefix) {
 void main() {
   late String sql;
   late String deliveriesTable;
-  late String attemptsTable;
 
   setUpAll(() {
     final draft = File(
@@ -45,10 +44,6 @@ void main() {
     deliveriesTable = _extractTable(
       sql,
       'create table if not exists einvoice.invoice_deliveries',
-    );
-    attemptsTable = _extractTable(
-      sql,
-      'create table if not exists einvoice.delivery_attempts',
     );
   });
 
@@ -86,24 +81,22 @@ void main() {
         'electronic_invoice_id',
         'delivery_no',
         'delivery_intent',
-        'trigger_type',
-        'channel',
         'recipient_snapshot_schema_version',
         'recipient_snapshot',
         'idempotency_key',
-        'intent_hash',
         'status',
+        'retry_count',
+        'provider_connection_id',
         'provider_delivery_reference',
-        'provider_result_code',
-        'provider_result_message',
+        'provider_request_reference',
         'failure_code',
         'failure_message',
+        'failure_source',
         'initiated_by_actor_type',
         'initiated_by_actor_id',
-        'started_at',
+        'submitted_at',
         'completed_at',
         'created_at',
-        'updated_at',
         'version',
       ];
       for (final field in expected) {
@@ -118,35 +111,38 @@ void main() {
     });
 
     test(
-      'uses enum/check constraints for status, intent, trigger, channel',
+      'uses enum/check constraints for status, intent, and actor',
       () {
         expect(
           deliveriesTable,
-          contains("status in ('PROCESSING','SUCCEEDED','FAILED','UNKNOWN')"),
+          contains(
+            "status in ('QUEUED', 'SUBMITTED', 'SUCCEEDED', 'FAILED', 'UNKNOWN')",
+          ),
         );
         expect(
           deliveriesTable,
-          contains("delivery_intent in ('INITIAL_SEND','RESEND')"),
+          contains("delivery_intent in ('INITIAL_SEND', 'RESEND')"),
         );
         expect(
           deliveriesTable,
-          contains("trigger_type in ('AUTOMATIC','MANUAL')"),
+          contains('retry_count between 0 and 2'),
         );
-        expect(deliveriesTable, contains("channel in ('EMAIL')"));
         expect(
           deliveriesTable,
-          contains("initiated_by_actor_type in ('SYSTEM','USER')"),
+          contains("failure_source in ('PROVIDER', 'INTERNAL')"),
+        );
+        expect(
+          deliveriesTable,
+          contains("initiated_by_actor_type in ('SYSTEM', 'USER')"),
         );
       },
     );
 
-    test('keeps completion and result message fields nullable', () {
-      expect(deliveriesTable, contains('completed_at timestamptz null'));
-      expect(deliveriesTable, contains('provider_result_message text null'));
-      expect(deliveriesTable, contains('failure_message text null'));
-      expect(deliveriesTable, contains('provider_delivery_reference'));
-      expect(deliveriesTable, contains('provider_result_code'));
-      expect(deliveriesTable, contains('failure_code'));
+    test('keeps completion and failure message fields nullable', () {
+      expect(deliveriesTable, contains('completed_at timestamptz'));
+      expect(deliveriesTable, contains('failure_message text'));
+      expect(deliveriesTable, contains('provider_delivery_reference text'));
+      expect(deliveriesTable, contains('failure_code text'));
     });
 
     test('enforces unique delivery_no and idempotency key', () {
@@ -158,70 +154,18 @@ void main() {
     });
   });
 
-  group('delivery_attempts canonical schema', () {
-    test('has every frozen column with exact names', () {
-      final expected = [
-        'id',
-        'tenant_id',
-        'invoice_delivery_id',
-        'attempt_no',
-        'status',
-        'provider_connection_id',
-        'provider_interaction_reference',
-        'provider_request_reference',
-        'provider_result_code',
-        'provider_result_message',
-        'failure_code',
-        'failure_message',
-        'queued_at',
-        'submitted_at',
-        'completed_at',
-        'created_at',
-        'updated_at',
-        'version',
-      ];
-      for (final field in expected) {
-        expect(
-          attemptsTable,
-          contains(field),
-          reason: 'delivery_attempts missing $field',
-        );
-      }
-      expect(attemptsTable, contains('invoice_delivery_id'));
-      expect(attemptsTable, contains('provider_interaction_reference'));
-      expect(attemptsTable, contains('provider_request_reference'));
-      expect(attemptsTable, contains('version bigint not null default 0'));
-    });
-
-    test('uses attempt status checks and nullable result fields', () {
-      expect(
-        attemptsTable,
-        contains(
-          "status in ('QUEUED','SUBMITTED','SUCCEEDED','FAILED','UNKNOWN')",
-        ),
-      );
-      expect(attemptsTable, contains('provider_result_message text null'));
-      expect(attemptsTable, contains('failure_message text null'));
-      expect(attemptsTable, contains('submitted_at timestamptz null'));
-      expect(attemptsTable, contains('completed_at timestamptz null'));
-      expect(
-        attemptsTable,
-        contains('unique (tenant_id, invoice_delivery_id, attempt_no)'),
-      );
-    });
-  });
-
   group('indexes, RLS, and immutable recipient semantics', () {
     test(
       'creates partial unique indexes for INITIAL_SEND and active locks',
       () {
-        expect(sql, contains("status = 'PROCESSING'"));
+        expect(sql, contains("where delivery_intent = 'INITIAL_SEND'"));
         expect(
           sql,
           isNot(contains("where status in ('PROCESSING','UNKNOWN')")),
         );
-        expect(sql, contains("status in ('QUEUED','SUBMITTED')"));
+        expect(sql, contains("where status in ('QUEUED','SUBMITTED')"));
         expect(sql, contains('create unique index'));
+        expect(sql, isNot(contains('delivery_attempts')));
       },
     );
 
@@ -235,21 +179,10 @@ void main() {
       expect(
         sql,
         contains(
-          'alter table einvoice.delivery_attempts enable row level security',
-        ),
-      );
-      expect(
-        sql,
-        contains(
           'revoke all on einvoice.invoice_deliveries from anon, authenticated',
         ),
       );
-      expect(
-        sql,
-        contains(
-          'revoke all on einvoice.delivery_attempts from anon, authenticated',
-        ),
-      );
+      expect(sql, isNot(contains('delivery_attempts')));
     });
 
     test('never mutates recipient_snapshot after insert in this draft', () {
@@ -271,14 +204,7 @@ void main() {
           ),
         ),
       );
-      expect(
-        sql,
-        isNot(
-          contains(
-            'alter table einvoice.delivery_attempts add column if not exists is_simulated',
-          ),
-        ),
-      );
+      expect(sql, isNot(contains('delivery_attempts')));
     });
 
     test('does not copy provider/raw/recipient text into message columns', () {

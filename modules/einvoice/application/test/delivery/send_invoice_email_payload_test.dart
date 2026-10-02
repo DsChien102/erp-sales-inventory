@@ -6,12 +6,12 @@ void main() {
     final command = SendInvoiceEmailCommand.fromJson({
       'tenantId': 'tenant',
       'deliveryId': 'delivery',
-      'attemptId': 'attempt',
+      'retryCount': 1,
     }, id: 'command');
     expect(command.toJson(), {
       'tenant_id': 'tenant',
       'delivery_id': 'delivery',
-      'attempt_id': 'attempt',
+      'retry_count': 1,
     });
   });
   test('conflicting aliases reject instead of selecting one identity', () {
@@ -20,7 +20,7 @@ void main() {
         'tenant_id': 'tenant',
         'tenantId': 'other',
         'delivery_id': 'delivery',
-        'attempt_id': 'attempt',
+        'retry_count': 0,
       }, id: 'command'),
       throwsFormatException,
     );
@@ -31,7 +31,19 @@ void main() {
         () => SendInvoiceEmailCommand.fromJson({
           'tenant_id': 'tenant',
           'delivery_id': bad,
-          'attempt_id': 'attempt',
+          'retry_count': 0,
+        }, id: 'command'),
+        throwsFormatException,
+      );
+    });
+  }
+  for (final bad in [null, '0', -1, 3, 1.5]) {
+    test('invalid retry count $bad rejects', () {
+      expect(
+        () => SendInvoiceEmailCommand.fromJson({
+          'tenant_id': 'tenant',
+          'delivery_id': 'delivery',
+          'retry_count': bad,
         }, id: 'command'),
         throwsFormatException,
       );

@@ -23,7 +23,6 @@ void main() {
     const tenantId = '11111111-1111-1111-1111-111111111111';
     const caseId = '44444444-4444-4444-4444-444444444444';
     const deliveryId = '22222222-2222-2222-2222-222222222222';
-    const attemptId = '33333333-3333-3333-3333-333333333333';
 
     setUp(() {
       supabase = FakeEinvoiceRpcSupabase();
@@ -46,7 +45,6 @@ void main() {
             'tenant_id': tenantId,
             'reconciliation_case_id': caseId,
             'delivery_id': deliveryId,
-            'attempt_id': attemptId,
             'provider_connection_id': 'conn-1',
             'supports_delivery_result_observation': false,
             'check_sequence': 1,
@@ -65,7 +63,6 @@ void main() {
       expect(context, isNotNull);
       expect(context!.supportsDeliveryResultObservation, isFalse);
       expect(context.deliveryId, deliveryId);
-      expect(context.attemptId, attemptId);
       expect(context.caseVersion, 0);
     });
 
@@ -93,7 +90,6 @@ void main() {
           'p_reconciliation_case_id': caseId,
           'p_expected_case_version': 0,
           'p_check_sequence': 1,
-          'p_interaction_reference': null,
           'p_observation_kind': 'UNSUPPORTED',
           'p_provider_reference': null,
           'p_safe_code': 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED',

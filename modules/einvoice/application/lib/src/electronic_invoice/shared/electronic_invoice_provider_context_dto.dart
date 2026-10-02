@@ -9,9 +9,7 @@ final class ElectronicInvoiceProviderContextDto {
     required this.providerInvoiceReference,
     required this.invoiceSeries,
     required this.operationId,
-    this.operationGeneration,
     this.documentType,
-    this.documentVersion,
   });
 
   final String tenantId;
@@ -20,7 +18,5 @@ final class ElectronicInvoiceProviderContextDto {
   final String providerInvoiceReference;
   final String invoiceSeries;
   final String operationId;
-  final int? operationGeneration;
   final InvoiceDocumentType? documentType;
-  final int? documentVersion;
 }

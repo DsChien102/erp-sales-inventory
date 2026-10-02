@@ -12,7 +12,7 @@ void main() {
       },
       'connection': {
         'connection_id': 'connection-1',
-        'status': 'connected',
+        'status': 'CONNECTED',
         'connection_version': 7,
         'masked_account': 'ke***@anphu.vn',
       },

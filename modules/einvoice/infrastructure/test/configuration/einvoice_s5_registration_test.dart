@@ -102,7 +102,7 @@ void main() {
         payload: {
           'tenant_id': 'tenant-1',
           'delivery_id': 'del-1',
-          'attempt_id': 'att-1',
+          'retry_count': 0,
         },
         id: 'cmd-send-1',
       );

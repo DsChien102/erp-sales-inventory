@@ -52,8 +52,8 @@ String _deterministicUuid(String seed) {
 String deliveryIntentHash(Map<String, dynamic> intent) =>
     _sha256Hex(jsonEncode(intent));
 
-String deliverySendCommandId(String attemptId) =>
-    _deterministicUuid('$attemptId|send_invoice_email|1');
+String deliverySendCommandId(String deliveryId, int retryCount) =>
+    _deterministicUuid('$deliveryId|send_invoice_email|$retryCount');
 
 String deliveryReconciliationCommandId(String caseId, int sequence) =>
     _deterministicUuid('$caseId|$sequence');
@@ -72,7 +72,9 @@ String deliveryReconciliationCommandId(String caseId, int sequence) =>
       hasSecondaryAttention: latest == 'FAILED' || latest == 'UNKNOWN',
     );
   }
-  if (statuses.contains('PROCESSING')) {
+  if (statuses.contains('PROCESSING') ||
+      statuses.contains('QUEUED') ||
+      statuses.contains('SUBMITTED')) {
     return (displayState: 'SENDING', hasSecondaryAttention: false);
   }
   if (statuses.contains('UNKNOWN')) {
@@ -152,7 +154,8 @@ final class Slice5DeliveryRecord {
     required this.initiatedByActorType,
     this.initiatedByActorId,
     this.startedAt,
-  }) : status = 'PROCESSING',
+  }) : status = 'QUEUED',
+       retryCount = 0,
        version = 0;
 
   final String id;
@@ -169,6 +172,7 @@ final class Slice5DeliveryRecord {
   final String? initiatedByActorId;
   final DateTime? startedAt;
   String status;
+  int retryCount;
   int version;
   String? providerDeliveryReference;
   DateTime? completedAt;
@@ -221,39 +225,6 @@ final class Slice5ReconciliationCaseRecord {
   DateTime? nextCheckAt;
 }
 
-final class Slice5Interaction {
-  Slice5Interaction({
-    required this.interactionReference,
-    required this.tenantId,
-    required this.version,
-    required this.providerConnectionId,
-    required this.direction,
-    required this.operationType,
-    required this.targetType,
-    required this.targetId,
-    required this.correlationId,
-    required this.requestReference,
-    required this.startedAt,
-  });
-
-  final String interactionReference;
-  final String tenantId;
-  int version;
-  final String providerConnectionId;
-  final ProviderInteractionDirection direction;
-  final String operationType;
-  final String targetType;
-  final String targetId;
-  final String correlationId;
-  final String requestReference;
-  final DateTime startedAt;
-  ProviderInteractionOutcome? outcome;
-  String? safeErrorCode;
-  String? providerReference;
-  DateTime? completedAt;
-  bool completed = false;
-}
-
 final class Slice5OutboxMessage {
   Slice5OutboxMessage({
     required this.messageId,
@@ -281,7 +252,6 @@ final class Slice5State {
   final Map<String, Slice5DeliveryRecord> deliveries = {};
   final Map<String, Slice5AttemptRecord> attempts = {};
   final Map<String, Slice5ReconciliationCaseRecord> reconciliationCases = {};
-  final Map<String, Slice5Interaction> interactionsByCorrelation = {};
   final List<Slice5OutboxMessage> outbox = [];
   final List<DeliveryResultRecordedIntegrationEvent> resultEvents = [];
   final List<DeliveryAttentionRequiredIntegrationEvent> attentionEvents = [];
@@ -618,109 +588,6 @@ final class Slice5OutboxClient implements IEinvoiceOutboxClient {
   }) async {}
 }
 
-final class Slice5ProviderInteractionGateway
-    implements IProviderInteractionGateway {
-  Slice5ProviderInteractionGateway({
-    required this.state,
-    required this.fixedNow,
-  });
-
-  final Slice5State state;
-  final DateTime fixedNow;
-  int startCount = 0;
-
-  @override
-  Future<ProviderInteractionRecord> start({
-    required String tenantId,
-    required String providerConnectionId,
-    required ProviderInteractionDirection direction,
-    required String operationType,
-    required String targetType,
-    required String targetId,
-    required String correlationId,
-    required String requestReference,
-  }) async {
-    startCount++;
-    final existing = state.interactionsByCorrelation[correlationId];
-    if (existing != null && existing.completed) {
-      return _toRecord(existing);
-    }
-    final interaction = Slice5Interaction(
-      interactionReference: 'int-$correlationId',
-      tenantId: tenantId,
-      version: 0,
-      providerConnectionId: providerConnectionId,
-      direction: direction,
-      operationType: operationType,
-      targetType: targetType,
-      targetId: targetId,
-      correlationId: correlationId,
-      requestReference: requestReference,
-      startedAt: fixedNow,
-    );
-    state.interactionsByCorrelation[correlationId] = interaction;
-    return ProviderInteractionRecord(
-      interactionReference: interaction.interactionReference,
-      tenantId: tenantId,
-      version: 0,
-      providerConnectionId: providerConnectionId,
-      direction: direction,
-      operationType: operationType,
-      targetType: targetType,
-      targetId: targetId,
-      correlationId: correlationId,
-      requestReference: requestReference,
-      status: ProviderInteractionStatus.started,
-      startedAt: fixedNow,
-    );
-  }
-
-  @override
-  Future<ProviderInteractionRecord> finalize({
-    required String tenantId,
-    required String interactionReference,
-    required int expectedVersion,
-    required ProviderInteractionOutcome outcome,
-    String? responseReference,
-    String? providerReference,
-    String? safeErrorCode,
-  }) async {
-    final interaction = state.interactionsByCorrelation.values.firstWhere(
-      (item) => item.interactionReference == interactionReference,
-    );
-    interaction.version = expectedVersion + 1;
-    interaction.outcome = outcome;
-    interaction.providerReference = providerReference;
-    interaction.safeErrorCode = safeErrorCode;
-    interaction.completedAt = fixedNow;
-    interaction.completed = true;
-    return _toRecord(interaction);
-  }
-
-  ProviderInteractionRecord _toRecord(Slice5Interaction interaction) {
-    return ProviderInteractionRecord(
-      interactionReference: interaction.interactionReference,
-      tenantId: interaction.tenantId,
-      version: interaction.version,
-      providerConnectionId: interaction.providerConnectionId,
-      direction: interaction.direction,
-      operationType: interaction.operationType,
-      targetType: interaction.targetType,
-      targetId: interaction.targetId,
-      correlationId: interaction.correlationId,
-      requestReference: interaction.requestReference,
-      status: interaction.completed
-          ? ProviderInteractionStatus.completed
-          : ProviderInteractionStatus.started,
-      startedAt: interaction.startedAt,
-      outcome: interaction.outcome,
-      completedAt: interaction.completedAt,
-      providerReference: interaction.providerReference,
-      safeErrorCode: interaction.safeErrorCode,
-    );
-  }
-}
-
 /// Scriptable observation port for capability-aware reconciliation tests.
 final class CapableDeliveryObservationProviderPort
     implements IInvoiceDeliveryObservationProviderPort {
@@ -828,6 +695,9 @@ final class Slice5DeliveryRpcEngine {
     electronicInvoiceId,
   ).map((d) => d.status).toList(growable: false);
 
+  String _publicStatus(String status) =>
+      status == 'QUEUED' || status == 'SUBMITTED' ? 'PROCESSING' : status;
+
   void _emitResultEvent(Slice5DeliveryRecord delivery) {
     final invoice = _invoiceById(
       delivery.tenantId,
@@ -837,7 +707,7 @@ final class Slice5DeliveryRpcEngine {
       _statusesForInvoice(delivery.tenantId, delivery.electronicInvoiceId),
     );
     final statusCamel = switch (delivery.status) {
-      'PROCESSING' => 'processing',
+      'PROCESSING' || 'QUEUED' || 'SUBMITTED' => 'processing',
       'SUCCEEDED' => 'succeeded',
       'FAILED' => 'failed',
       'UNKNOWN' => 'unknown',
@@ -875,7 +745,6 @@ final class Slice5DeliveryRpcEngine {
 
   void _emitAttention({
     required Slice5DeliveryRecord delivery,
-    required Slice5AttemptRecord attempt,
     required Slice5ReconciliationCaseRecord caseRecord,
     required String safeErrorCode,
   }) {
@@ -890,7 +759,6 @@ final class Slice5DeliveryRpcEngine {
       electronicInvoiceId: delivery.electronicInvoiceId,
       salesOrderId: invoice.salesOrderId,
       deliveryId: delivery.id,
-      attemptId: attempt.id,
       reconciliationCaseId: caseRecord.id,
       safeErrorCode: safeErrorCode,
     );
@@ -958,7 +826,7 @@ final class Slice5DeliveryRpcEngine {
     if (_deliveriesForInvoice(
       tenantId,
       electronicInvoiceId,
-    ).any((d) => d.status == 'PROCESSING')) {
+    ).any((d) => d.status == 'QUEUED' || d.status == 'SUBMITTED')) {
       throw RpcException('OPERATION_IN_PROGRESS: delivery currently locked');
     }
 
@@ -1077,7 +945,7 @@ final class Slice5DeliveryRpcEngine {
     if (existing.isNotEmpty) {
       final delivery = existing.first;
       return [
-        {'delivery_id': delivery.id, 'status': delivery.status},
+        {'delivery_id': delivery.id, 'status': _publicStatus(delivery.status)},
       ];
     }
 
@@ -1093,7 +961,7 @@ final class Slice5DeliveryRpcEngine {
     if (_deliveriesForInvoice(
       tenantId,
       invoice.electronicInvoiceId,
-    ).any((d) => d.status == 'PROCESSING')) {
+    ).any((d) => d.status == 'QUEUED' || d.status == 'SUBMITTED')) {
       throw RpcException('OPERATION_IN_PROGRESS: delivery currently locked');
     }
 
@@ -1164,10 +1032,10 @@ final class Slice5DeliveryRpcEngine {
     state.attempts[attemptId] = attempt;
     internalClient.enqueue(
       SendInvoiceEmailCommand(
-        id: deliverySendCommandId(attemptId),
+        id: deliverySendCommandId(deliveryId, 0),
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
+        retryCount: 0,
       ),
     );
     return (deliveryId: deliveryId, attemptId: attemptId);
@@ -1176,13 +1044,17 @@ final class Slice5DeliveryRpcEngine {
   Future<dynamic> _loadAttemptContext(Map<String, dynamic>? params) async {
     final tenantId = params!['p_tenant_id'] as String;
     final deliveryId = params['p_delivery_id'] as String;
-    final attemptId = params['p_attempt_id'] as String;
+    final retryCount = params['p_retry_count'] as int;
     final delivery = state.deliveries[deliveryId];
-    final attempt = state.attempts[attemptId];
     if (delivery == null ||
-        attempt == null ||
         delivery.tenantId != tenantId ||
-        attempt.deliveryId != deliveryId) {
+        delivery.retryCount != retryCount) {
+      return <Map<String, dynamic>>[];
+    }
+    final attempt = state.attempts.values
+        .where((item) => item.deliveryId == deliveryId)
+        .firstOrNull;
+    if (attempt == null) {
       return <Map<String, dynamic>>[];
     }
     final invoice = _invoiceById(tenantId, delivery.electronicInvoiceId)!;
@@ -1190,9 +1062,8 @@ final class Slice5DeliveryRpcEngine {
       {
         'tenant_id': tenantId,
         'delivery_id': deliveryId,
-        'attempt_id': attemptId,
+        'retry_count': delivery.retryCount,
         'delivery_version': delivery.version,
-        'attempt_version': attempt.version,
         'provider_connection_id': attempt.providerConnectionId,
         'provider_transaction_id': invoice.providerInvoiceReference,
         'invoice_series': invoice.invoiceSeries,
@@ -1205,20 +1076,13 @@ final class Slice5DeliveryRpcEngine {
   Future<dynamic> _prepareProviderCall(Map<String, dynamic>? params) async {
     final tenantId = params!['p_tenant_id'] as String;
     final deliveryId = params['p_delivery_id'] as String;
-    final attemptId = params['p_attempt_id'] as String;
-    final expectedDeliveryVersion =
-        params['p_expected_delivery_version'] as int;
-    final expectedAttemptVersion = params['p_expected_attempt_version'] as int;
-    final requestReference = params['p_request_reference'] as String;
+    final retryCount = params['p_retry_count'] as int;
     final delivery = state.deliveries[deliveryId]!;
-    final attempt = state.attempts[attemptId]!;
-    if (delivery.version != expectedDeliveryVersion ||
-        attempt.version != expectedAttemptVersion) {
-      throw RpcException('STATE_CHANGED: expected version mismatch');
-    }
-    if (attempt.status == 'SUCCEEDED' ||
-        attempt.status == 'FAILED' ||
-        attempt.status == 'UNKNOWN' ||
+    final attempt = state.attempts.values
+        .where((item) => item.deliveryId == deliveryId)
+        .first;
+    final invoice = _invoiceById(tenantId, delivery.electronicInvoiceId)!;
+    if (delivery.retryCount != retryCount ||
         delivery.status == 'SUCCEEDED' ||
         delivery.status == 'FAILED' ||
         delivery.status == 'UNKNOWN') {
@@ -1226,57 +1090,41 @@ final class Slice5DeliveryRpcEngine {
         {
           'action': 'SKIP',
           'delivery_version': delivery.version,
-          'attempt_version': attempt.version,
           'provider_connection_id': null,
           'provider_transaction_id': null,
           'invoice_series': null,
           'recipient_email': null,
           'recipient_name': null,
-          'interaction_reference': null,
         },
       ];
     }
-    if (attempt.status == 'SUBMITTED') {
+    if (delivery.status == 'SUBMITTED') {
       return [
         {
           'action': 'RECORD_UNKNOWN',
           'delivery_version': delivery.version,
-          'attempt_version': attempt.version,
           'provider_connection_id': attempt.providerConnectionId,
-          'provider_transaction_id': _invoiceById(
-            tenantId,
-            delivery.electronicInvoiceId,
-          )!.providerInvoiceReference,
-          'invoice_series': _invoiceById(
-            tenantId,
-            delivery.electronicInvoiceId,
-          )!.invoiceSeries,
+          'provider_transaction_id': invoice.providerInvoiceReference,
+          'invoice_series': invoice.invoiceSeries,
           'recipient_email': delivery.recipientSnapshot['toEmail'],
           'recipient_name': delivery.recipientSnapshot['recipientName'],
-          'interaction_reference':
-              attempt.interactionReference ??
-              attempt.providerRequestReference ??
-              requestReference,
         },
       ];
     }
+    delivery.status = 'SUBMITTED';
     attempt.status = 'SUBMITTED';
-    attempt.providerRequestReference = requestReference;
+    attempt.providerRequestReference = params['p_request_reference'] as String;
     attempt.submittedAt = fixedNow;
-    attempt.version++;
     delivery.version++;
-    final invoice = _invoiceById(tenantId, delivery.electronicInvoiceId)!;
     return [
       {
         'action': 'CALL_PROVIDER',
         'delivery_version': delivery.version,
-        'attempt_version': attempt.version,
         'provider_connection_id': attempt.providerConnectionId,
         'provider_transaction_id': invoice.providerInvoiceReference,
         'invoice_series': invoice.invoiceSeries,
         'recipient_email': delivery.recipientSnapshot['toEmail'],
         'recipient_name': delivery.recipientSnapshot['recipientName'],
-        'interaction_reference': null,
       },
     ];
   }
@@ -1284,29 +1132,37 @@ final class Slice5DeliveryRpcEngine {
   Future<dynamic> _recordDeliveryResult(Map<String, dynamic>? params) async {
     final tenantId = params!['p_tenant_id'] as String;
     final deliveryId = params['p_delivery_id'] as String;
-    final attemptId = params['p_attempt_id'] as String;
+    final retryCount = params['p_retry_count'] as int;
+    final expectedVersion = params['p_expected_version'] as int;
     final outcomeKind = params['p_outcome_kind'] as String;
     final providerReference = params['p_provider_reference'] as String?;
     final safeCode = params['p_safe_code'] as String?;
     final delivery = state.deliveries[deliveryId]!;
-    final attempt = state.attempts[attemptId]!;
+    final attempt = state.attempts.values
+        .where((item) => item.deliveryId == deliveryId)
+        .first;
 
-    if (delivery.status == 'SUCCEEDED' ||
-        attempt.status == 'SUCCEEDED' ||
-        attempt.status == 'FAILED' ||
-        attempt.status == 'UNKNOWN') {
+    if (delivery.retryCount != retryCount ||
+        delivery.status == 'SUCCEEDED' ||
+        delivery.status == 'FAILED' ||
+        delivery.status == 'UNKNOWN') {
       final projection = deliveryDisplayProjection(
         _statusesForInvoice(tenantId, delivery.electronicInvoiceId),
       );
       return [
         {
-          'delivery_status': delivery.status,
+          'delivery_status': _publicStatus(delivery.status),
           'display_state': projection.displayState,
           'has_secondary_attention': projection.hasSecondaryAttention,
         },
       ];
     }
 
+    if (delivery.version != expectedVersion) {
+      throw RpcException('STATE_CHANGED: expected version mismatch');
+    }
+
+    var completed = true;
     switch (outcomeKind) {
       case 'SUCCESS':
         attempt.status = 'SUCCEEDED';
@@ -1317,23 +1173,16 @@ final class Slice5DeliveryRpcEngine {
         delivery.status = 'FAILED';
       case 'RETRYABLE_FAILURE':
         attempt.status = 'FAILED';
-        if (attempt.attemptNo < 3) {
-          final nextAttemptId = 'att-${++state.attemptCounter}';
-          final nextAttempt = Slice5AttemptRecord(
-            id: nextAttemptId,
-            tenantId: tenantId,
-            deliveryId: deliveryId,
-            attemptNo: attempt.attemptNo + 1,
-            providerConnectionId: attempt.providerConnectionId,
-          );
-          state.attempts[nextAttemptId] = nextAttempt;
-          delivery.status = 'PROCESSING';
+        if (delivery.retryCount < 2) {
+          delivery.retryCount += 1;
+          delivery.status = 'QUEUED';
+          completed = false;
           internalClient.enqueue(
             SendInvoiceEmailCommand(
-              id: deliverySendCommandId(nextAttemptId),
+              id: deliverySendCommandId(deliveryId, delivery.retryCount),
               tenantId: tenantId,
               deliveryId: deliveryId,
-              attemptId: nextAttemptId,
+              retryCount: delivery.retryCount,
             ),
           );
         } else {
@@ -1353,8 +1202,10 @@ final class Slice5DeliveryRpcEngine {
           'VALIDATION_ERROR: unknown outcome kind $outcomeKind',
         );
     }
-    attempt.completedAt = fixedNow;
-    delivery.completedAt = fixedNow;
+    if (completed) {
+      attempt.completedAt = fixedNow;
+      delivery.completedAt = fixedNow;
+    }
     attempt.version++;
     delivery.version++;
     _emitResultEvent(delivery);
@@ -1363,7 +1214,7 @@ final class Slice5DeliveryRpcEngine {
     );
     return [
       {
-        'delivery_status': delivery.status,
+        'delivery_status': _publicStatus(delivery.status),
         'display_state': projection.displayState,
         'has_secondary_attention': projection.hasSecondaryAttention,
       },
@@ -1408,13 +1259,13 @@ final class Slice5DeliveryRpcEngine {
   Future<void> recordCommandDeadLetterDirect({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   }) {
     return _recordCommandDeadLetter({
       'p_tenant_id': tenantId,
       'p_delivery_id': deliveryId,
-      'p_attempt_id': attemptId,
+      'p_retry_count': retryCount,
       'p_safe_failure_code': safeFailureCode,
     });
   }
@@ -1422,16 +1273,24 @@ final class Slice5DeliveryRpcEngine {
   Future<dynamic> _recordCommandDeadLetter(Map<String, dynamic>? params) async {
     final tenantId = params!['p_tenant_id'] as String;
     final deliveryId = params['p_delivery_id'] as String;
-    final attemptId = params['p_attempt_id'] as String;
+    final retryCount = params['p_retry_count'] as int;
     final safeCode =
         (params['p_safe_failure_code'] as String?) ??
         'WORKER_EXHAUSTED_BEFORE_DISPATCH';
     final delivery = state.deliveries[deliveryId]!;
-    final attempt = state.attempts[attemptId]!;
-    if (attempt.status == 'QUEUED') {
+    final attempt = state.attempts.values
+        .where((item) => item.deliveryId == deliveryId)
+        .first;
+    if (delivery.retryCount != retryCount ||
+        delivery.status == 'SUCCEEDED' ||
+        delivery.status == 'FAILED' ||
+        delivery.status == 'UNKNOWN') {
+      return null;
+    }
+    if (delivery.status == 'QUEUED') {
       attempt.status = 'FAILED';
       delivery.status = 'FAILED';
-    } else if (attempt.status == 'SUBMITTED') {
+    } else if (delivery.status == 'SUBMITTED') {
       attempt.status = 'UNKNOWN';
       delivery.status = 'UNKNOWN';
       _openReconciliationCase(
@@ -1465,7 +1324,9 @@ final class Slice5DeliveryRpcEngine {
     final hasInitial = deliveries.any(
       (d) => d.deliveryIntent == 'INITIAL_SEND',
     );
-    final locked = deliveries.any((d) => d.status == 'PROCESSING');
+    final locked = deliveries.any(
+      (d) => d.status == 'QUEUED' || d.status == 'SUBMITTED',
+    );
     final projection = deliveryDisplayProjection(
       _statusesForInvoice(tenantId, invoice.electronicInvoiceId),
     );
@@ -1477,7 +1338,7 @@ final class Slice5DeliveryRpcEngine {
             'kind': d.deliveryIntent,
             'triggerType': d.triggerType,
             'recipientEmail': d.recipientSnapshot['toEmail'],
-            'status': d.status,
+            'status': _publicStatus(d.status),
             'initiatedByActorType': d.initiatedByActorType,
             'initiatedByActorId': d.initiatedByActorId,
             'startedAt': (d.startedAt ?? fixedNow).toIso8601String(),
@@ -1572,7 +1433,7 @@ final class Slice5DeliveryRpcEngine {
             'kind': d.deliveryIntent,
             'triggerType': d.triggerType,
             'recipientEmail': d.recipientSnapshot['toEmail'],
-            'status': d.status,
+            'status': _publicStatus(d.status),
             'initiatedByActorType': d.initiatedByActorType,
             'initiatedByActorId': d.initiatedByActorId,
             'startedAt': (d.startedAt ?? fixedNow).toIso8601String(),
@@ -1641,7 +1502,6 @@ final class Slice5DeliveryRpcEngine {
       caseRecord.nextCheckAt = null;
       _emitAttention(
         delivery: delivery,
-        attempt: attempt,
         caseRecord: caseRecord,
         safeErrorCode: safeCode ?? 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED',
       );
@@ -1663,7 +1523,6 @@ final class Slice5DeliveryRpcEngine {
         caseRecord.nextCheckAt = null;
         _emitAttention(
           delivery: delivery,
-          attempt: attempt,
           caseRecord: caseRecord,
           safeErrorCode: safeCode ?? 'PROVIDER_DELIVERY_PENDING',
         );
@@ -1687,7 +1546,7 @@ final class Slice5DeliveryRpcEngine {
     return [
       {
         'case_status': caseRecord.status,
-        'delivery_status': delivery.status,
+        'delivery_status': _publicStatus(delivery.status),
         'next_check_at': caseRecord.nextCheckAt?.toIso8601String(),
         'has_secondary_attention': projection.hasSecondaryAttention,
       },
@@ -1708,7 +1567,6 @@ final class Slice5TestHarness {
   late final Slice5State state;
   late final Slice5InternalCommandClient internalClient;
   late final Slice5DeliveryRpcEngine rpcEngine;
-  late final Slice5ProviderInteractionGateway interactionGateway;
   late final FakeMeInvoiceClient fakeMeInvoiceClient;
   late final MeInvoiceDeliveryProviderAdapter deliveryAdapter;
   late final CapableDeliveryObservationProviderPort capableObservationPort;
@@ -1738,10 +1596,6 @@ final class Slice5TestHarness {
     rpcEngine = Slice5DeliveryRpcEngine(
       state: state,
       internalClient: internalClient,
-      fixedNow: fixedNow,
-    );
-    interactionGateway = Slice5ProviderInteractionGateway(
-      state: state,
       fixedNow: fixedNow,
     );
     capableObservationPort = CapableDeliveryObservationProviderPort();
@@ -1815,7 +1669,6 @@ final class Slice5TestHarness {
     final sendEmailHandler = SendInvoiceEmailCommandHandler(
       commandGateway: commandGateway,
       providerPort: deliveryAdapter,
-      interactionGateway: interactionGateway,
       commandDispatcher: commandDispatcher,
     );
     final recordResultHandler = RecordDeliveryResultCommandHandler(
@@ -1826,7 +1679,6 @@ final class Slice5TestHarness {
       observationPort: supportsDeliveryObservation
           ? capableObservationPort
           : unsupportedObservationPort,
-      interactionGateway: interactionGateway,
     );
     sheetHandler = GetSendInvoiceSheetContextQueryHandler(gateway: readGateway);
     historyHandler = GetInvoiceDeliveryHistoryQueryHandler(
@@ -2034,13 +1886,13 @@ final class Slice5TestHarness {
 
   Future<void> recordCommandDeadLetter({
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     String safeFailureCode = 'WORKER_EXHAUSTED_BEFORE_DISPATCH',
   }) {
     return rpcEngine.recordCommandDeadLetterDirect(
       tenantId: tenantId,
       deliveryId: deliveryId,
-      attemptId: attemptId,
+      retryCount: retryCount,
       safeFailureCode: safeFailureCode,
     );
   }

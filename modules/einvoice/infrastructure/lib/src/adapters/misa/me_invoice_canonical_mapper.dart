@@ -145,7 +145,38 @@ abstract final class MeInvoiceCanonicalMapper {
     final normalized = _normalizeCanonicalAmounts(
       Map<String, dynamic>.from(canonicalInvoice),
     );
-    return _convertKeys(normalized);
+    _normalizeBuyerTaxCode(normalized);
+    final wire = _convertKeys(normalized);
+    wire['OptionUserDefined'] = _optionUserDefined;
+    return wire;
+  }
+
+  /// MISA mặc định 0 chữ số thập phân khi thiếu OptionUserDefined; gửi tường
+  /// minh cho đúng tài liệu. Tiền là VND nguyên, số lượng bán theo đơn vị
+  /// nguyên (UI chỉ nhập số nguyên) nên các trường tiền/số lượng là "0";
+  /// tỷ lệ % (DiscountRate) dùng 2 chữ số.
+  /// Cho phép bán số lượng lẻ thì phải nâng QuantityDecimalDigits.
+  static const _optionUserDefined = <String, String>{
+    'MainCurrency': 'VND',
+    'QuantityDecimalDigits': '0',
+    'UnitPriceOCDecimalDigits': '0',
+    'UnitPriceDecimalDigits': '0',
+    'AmountOCDecimalDigits': '0',
+    'AmountDecimalDigits': '0',
+    'CoefficientDecimalDigits': '2',
+    'ExchangRateDecimalDigits': '0',
+  };
+
+  /// MST 13 số bắt buộc dạng `10-3` (TT 86/2024/TT-BTC); MISA từ chối 13 số
+  /// viết liền (`BuyerTaxCode_TaxCodeInvalid`). Buyer snapshot chụp lúc checkout
+  /// bất biến, nên chỉ chuẩn hóa định dạng trên wire — không đổi nội dung.
+  static void _normalizeBuyerTaxCode(Map<String, dynamic> input) {
+    final raw = input['buyerTaxCode'];
+    if (raw is! String) return;
+    final compact = raw.replaceAll(RegExp(r'\s'), '');
+    input['buyerTaxCode'] = RegExp(r'^[0-9]{13}$').hasMatch(compact)
+        ? '${compact.substring(0, 10)}-${compact.substring(10)}'
+        : compact;
   }
 
   /// Fills Original-Currency (`*Oc`) twins when only base amounts are present.
@@ -239,7 +270,19 @@ abstract final class MeInvoiceCanonicalMapper {
     if (line['sortOrder'] == null && line['lineNumber'] != null) {
       line['sortOrder'] = line['lineNumber'];
     }
-    line.putIfAbsent('discountRate', () => 0);
+    // MISA: DiscountAmountOC = AmountOC × DiscountRate / 100. Giảm tiền/% đều
+    // quy về tỷ lệ trên thành tiền trước chiết khấu, làm tròn 2 chữ số
+    // (khớp CoefficientDecimalDigits).
+    if (line['discountRate'] == null) {
+      final gross = _readAmount(line['amountOc'] ?? line['amount']);
+      final discount = _readAmount(
+        line['discountAmountOc'] ?? line['discountAmount'],
+      );
+      line['discountRate'] =
+          gross != null && gross > 0 && discount != null && discount > 0
+          ? (discount * 10000 / gross).round() / 100
+          : 0;
+    }
     if (_readAmount(line['discountAmountOc']) == null &&
         _readAmount(line['discountAmount']) == null) {
       line['discountAmountOc'] = 0;

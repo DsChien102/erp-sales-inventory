@@ -1,8 +1,8 @@
 -- Title: einvoice S5 delivery result state machine + projection fields
 -- Kind: cohesive
 -- Intent: einvoice_s5_delivery_results
--- Context: TH-08 EP-04 S5 — prepare/record/dead-letter delivery outcomes, UNKNOWN→PENDING VERIFY_DELIVERY handoff, projection delivery fields
--- Touches: einvoice._delivery_reconciliation_command_id, einvoice.prepare_delivery_provider_call, einvoice.record_delivery_result, einvoice.record_delivery_command_dead_letter, einvoice.get_order_invoice_projection
+-- Context: TH-08 EP-04 S5 — prepare/record/dead-letter delivery outcomes, projection delivery fields
+-- Touches: einvoice._delivery_reconciliation_command_id, einvoice._open_delivery_reconciliation_case, einvoice.prepare_delivery_provider_call, einvoice.record_delivery_result, einvoice.record_delivery_command_dead_letter, einvoice.get_order_invoice_projection
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped; safe Vet45-authored messages only; no legal issuance mutation
 -- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql, 013_einvoice_delivery_schema_and_start_rpcs.sql
 
@@ -33,6 +33,93 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
+-- Mở tối đa một hồ sơ đối soát cho lần gửi UNKNOWN.
+-- ---------------------------------------------------------------------------
+create or replace function einvoice._open_delivery_reconciliation_case(
+  p_tenant_id uuid,
+  p_delivery_id uuid,
+  p_provider_connection_id uuid,
+  p_reason_code text
+) returns void
+language plpgsql
+security definer
+set search_path = einvoice, public
+as $$
+declare
+  v_case_id uuid;
+  v_correlation_id varchar(100);
+  v_next_check timestamptz;
+  v_cmd_id uuid;
+begin
+  -- Lần gửi UNKNOWN là trạng thái cuối → tối đa một hồ sơ cho mỗi lần gửi.
+  if exists (
+    select 1
+    from einvoice.invoice_reconciliation_cases irc
+    where irc.tenant_id = p_tenant_id
+      and irc.target_type = 'INVOICE_DELIVERY'
+      and irc.target_id = p_delivery_id
+      and irc.status = 'PENDING'
+  ) then
+    return;
+  end if;
+
+  v_case_id := gen_random_uuid();
+  v_correlation_id := 'einvoice:delivery-reconcile:' || v_case_id::text;
+  v_next_check := now() + interval '30 seconds';
+
+  insert into einvoice.invoice_reconciliation_cases (
+    id,
+    tenant_id,
+    target_type,
+    target_id,
+    provider_connection_id,
+    reason_code,
+    status,
+    check_count,
+    next_check_at,
+    correlation_id,
+    version
+  ) values (
+    v_case_id,
+    p_tenant_id,
+    'INVOICE_DELIVERY',
+    p_delivery_id,
+    p_provider_connection_id,
+    p_reason_code,
+    'PENDING',
+    0,
+    v_next_check,
+    v_correlation_id,
+    0
+  );
+
+  v_cmd_id := einvoice._delivery_reconciliation_command_id(v_case_id, 1);
+  insert into einvoice.internal_commands (
+    id,
+    tenant_id,
+    command_type,
+    payload,
+    source_event_id,
+    enqueued_at,
+    created_at
+  ) values (
+    v_cmd_id,
+    p_tenant_id,
+    'einvoice.reconcile_invoice_delivery',
+    jsonb_build_object(
+      'tenantId', p_tenant_id,
+      'reconciliationCaseId', v_case_id,
+      'checkSequence', 1
+    ),
+    v_cmd_id,
+    v_next_check,
+    now()
+  )
+  on conflict (id) do nothing;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
 -- prepare_delivery_provider_call — atomic SUBMITTED barrier
 -- ---------------------------------------------------------------------------
 -- Drop old signatures (incl. boolean simulation flag) to avoid overload ambiguity.
@@ -41,20 +128,16 @@ drop function if exists einvoice.prepare_delivery_provider_call(uuid, uuid, uuid
 create or replace function einvoice.prepare_delivery_provider_call(
   p_tenant_id uuid,
   p_delivery_id uuid,
-  p_attempt_id uuid,
-  p_expected_delivery_version bigint,
-  p_expected_attempt_version bigint,
+  p_retry_count int,
   p_request_reference text
 ) returns table(
   action text,
   delivery_version bigint,
-  attempt_version bigint,
   provider_connection_id uuid,
   provider_transaction_id text,
   invoice_series text,
   recipient_email text,
-  recipient_name text,
-  interaction_reference text
+  recipient_name text
 )
 language plpgsql
 security definer
@@ -62,7 +145,6 @@ set search_path = einvoice, public
 as $$
 declare
   v_delivery einvoice.invoice_deliveries%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_invoice einvoice.electronic_invoices%rowtype;
 begin
   if coalesce(
@@ -87,112 +169,65 @@ begin
     raise exception 'NOT_FOUND: invoice delivery';
   end if;
 
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = p_attempt_id
-    and a.invoice_delivery_id = p_delivery_id
-  for update;
-
-  if not found then
-    raise exception 'NOT_FOUND: delivery attempt';
-  end if;
-
-  if v_delivery.version is distinct from p_expected_delivery_version
-     or v_attempt.version is distinct from p_expected_attempt_version then
-    raise exception 'STATE_CHANGED: expected version mismatch';
-  end if;
-
   select ei.*
   into v_invoice
   from einvoice.electronic_invoices ei
   where ei.tenant_id = p_tenant_id
     and ei.id = v_delivery.electronic_invoice_id;
 
-  if v_attempt.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN')
+  -- Lệnh của lần thử cũ, hoặc lần gửi đã xong: không làm gì.
+  if v_delivery.retry_count <> p_retry_count
      or v_delivery.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN') then
-    return query select
-      'SKIP'::text,
-      v_delivery.version,
-      v_attempt.version,
-      null::uuid,
-      null::text,
-      null::text,
-      null::text,
-      null::text,
-      null::text;
+    return query select 'SKIP'::text, v_delivery.version,
+      null::uuid, null::text, null::text, null::text, null::text;
     return;
   end if;
 
-  if v_attempt.status = 'SUBMITTED' then
-    return query select
-      'RECORD_UNKNOWN'::text,
-      v_delivery.version,
-      v_attempt.version,
-      v_attempt.provider_connection_id,
+  -- Lần chạy trước đã qua chốt rồi mất dấu: không gọi MISA lần hai.
+  if v_delivery.status = 'SUBMITTED' then
+    return query select 'RECORD_UNKNOWN'::text, v_delivery.version,
+      v_delivery.provider_connection_id,
       v_invoice.provider_invoice_reference::text,
-      v_invoice.series::text,
+      v_invoice.invoice_series::text,
       v_delivery.recipient_snapshot ->> 'toEmail',
-      nullif(v_delivery.recipient_snapshot ->> 'recipientName', ''),
-      coalesce(
-        v_attempt.provider_interaction_reference::text,
-        v_attempt.provider_request_reference,
-        p_request_reference
-      );
+      nullif(v_delivery.recipient_snapshot ->> 'recipientName', '');
     return;
   end if;
 
-  if v_attempt.status <> 'QUEUED' then
-    raise exception 'INVALID_STATUS: %', v_attempt.status;
+  if v_delivery.status <> 'QUEUED' then
+    raise exception 'INVALID_STATUS: %', v_delivery.status;
   end if;
 
-  update einvoice.delivery_attempts
+  update einvoice.invoice_deliveries d
   set status = 'SUBMITTED',
+      submitted_at = now(),
       provider_request_reference = p_request_reference,
-      submitted_at = coalesce(submitted_at, now()),
-      version = version + 1,
-      updated_at = now()
-  where id = p_attempt_id;
-
-  update einvoice.invoice_deliveries
-  set version = version + 1,
-      updated_at = now()
-  where id = p_delivery_id;
-
-  select d.version, a.version
-  into v_delivery.version, v_attempt.version
-  from einvoice.invoice_deliveries d
-  join einvoice.delivery_attempts a on a.invoice_delivery_id = d.id
+      version = d.version + 1
   where d.id = p_delivery_id
-    and a.id = p_attempt_id;
+  returning d.version into v_delivery.version;
 
-  return query select
-    'CALL_PROVIDER'::text,
-    v_delivery.version,
-    v_attempt.version,
-    v_attempt.provider_connection_id,
+  return query select 'CALL_PROVIDER'::text, v_delivery.version,
+    v_delivery.provider_connection_id,
     v_invoice.provider_invoice_reference::text,
-    v_invoice.series::text,
+    v_invoice.invoice_series::text,
     v_delivery.recipient_snapshot ->> 'toEmail',
-    nullif(v_delivery.recipient_snapshot ->> 'recipientName', ''),
-    null::text;
+    nullif(v_delivery.recipient_snapshot ->> 'recipientName', '');
 end;
 $$;
 
 -- ---------------------------------------------------------------------------
 -- record_delivery_result
 -- ---------------------------------------------------------------------------
+drop function if exists einvoice.record_delivery_result(uuid, uuid, uuid, bigint, bigint, text, text, text, text);
 create or replace function einvoice.record_delivery_result(
   p_tenant_id uuid,
   p_delivery_id uuid,
-  p_attempt_id uuid,
-  p_expected_delivery_version bigint,
-  p_expected_attempt_version bigint,
-  p_interaction_reference text,
+  p_retry_count int,
+  p_expected_version bigint,
   p_outcome_kind text,
   p_provider_reference text,
-  p_safe_code text
+  p_safe_code text,
+  p_failure_source text
 ) returns table(
   delivery_status text,
   display_state text,
@@ -204,19 +239,13 @@ set search_path = einvoice, public
 as $$
 declare
   v_delivery einvoice.invoice_deliveries%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_invoice einvoice.electronic_invoices%rowtype;
   v_statuses text[];
   v_projection record;
+  v_safe_code text := nullif(btrim(coalesce(p_safe_code, '')), '');
   v_safe_message text;
-  v_next_attempt_id uuid;
   v_cmd_id uuid;
-  v_case_id uuid;
-  v_correlation_id varchar(100);
-  v_next_check timestamptz;
-  v_existing_case einvoice.invoice_reconciliation_cases%rowtype;
   v_display_camel text;
-  v_status_camel text;
 begin
   if coalesce(
     nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role',
@@ -231,6 +260,11 @@ begin
     raise exception 'VALIDATION_ERROR: unknown outcome kind %', p_outcome_kind;
   end if;
 
+  if p_outcome_kind <> 'SUCCESS'
+     and coalesce(p_failure_source, '') not in ('PROVIDER', 'INTERNAL') then
+    raise exception 'VALIDATION_ERROR: failure source required';
+  end if;
+
   select d.*
   into v_delivery
   from einvoice.invoice_deliveries d
@@ -242,82 +276,28 @@ begin
     raise exception 'NOT_FOUND: invoice delivery';
   end if;
 
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = p_attempt_id
-    and a.invoice_delivery_id = p_delivery_id
-  for update;
+  -- Gọi lặp hoặc kết quả của lần thử cũ: trả trạng thái hiện tại, không ghi.
+  -- SUCCEEDED không bao giờ bị đảo ngược.
+  if v_delivery.retry_count <> p_retry_count
+     or v_delivery.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN') then
+    select coalesce(array_agg(d.status order by d.delivery_no), '{}'::text[])
+    into v_statuses
+    from einvoice.invoice_deliveries d
+    where d.tenant_id = p_tenant_id
+      and d.electronic_invoice_id = v_delivery.electronic_invoice_id;
 
-  if not found then
-    raise exception 'NOT_FOUND: delivery attempt';
+    select p.* into v_projection
+    from einvoice._delivery_display_projection(v_statuses) p;
+
+    return query select
+      einvoice._delivery_public_status(v_delivery.status),
+      v_projection.display_state,
+      v_projection.has_secondary_attention;
+    return;
   end if;
 
-  if v_delivery.version is distinct from p_expected_delivery_version
-     or v_attempt.version is distinct from p_expected_attempt_version then
-    -- Idempotent terminal replay: same outcome already applied.
-    if v_delivery.status = 'SUCCEEDED'
-       or v_attempt.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN') then
-      select coalesce(array_agg(d.status order by d.delivery_no), '{}'::text[])
-      into v_statuses
-      from einvoice.invoice_deliveries d
-      where d.tenant_id = p_tenant_id
-        and d.electronic_invoice_id = v_delivery.electronic_invoice_id;
-
-      select p.*
-      into v_projection
-      from einvoice._delivery_display_projection(v_statuses) p;
-
-      return query select
-        v_delivery.status::text,
-        v_projection.display_state,
-        v_projection.has_secondary_attention;
-      return;
-    end if;
-
+  if v_delivery.version is distinct from p_expected_version then
     raise exception 'STATE_CHANGED: expected version mismatch';
-  end if;
-
-  -- Never reverse a prior success on this delivery.
-  if v_delivery.status = 'SUCCEEDED' then
-    select coalesce(array_agg(d.status order by d.delivery_no), '{}'::text[])
-    into v_statuses
-    from einvoice.invoice_deliveries d
-    where d.tenant_id = p_tenant_id
-      and d.electronic_invoice_id = v_delivery.electronic_invoice_id;
-
-    select p.*
-    into v_projection
-    from einvoice._delivery_display_projection(v_statuses) p;
-
-    return query select
-      v_delivery.status::text,
-      v_projection.display_state,
-      v_projection.has_secondary_attention;
-    return;
-  end if;
-
-  if v_attempt.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN') then
-    select coalesce(array_agg(d.status order by d.delivery_no), '{}'::text[])
-    into v_statuses
-    from einvoice.invoice_deliveries d
-    where d.tenant_id = p_tenant_id
-      and d.electronic_invoice_id = v_delivery.electronic_invoice_id;
-
-    select p.*
-    into v_projection
-    from einvoice._delivery_display_projection(v_statuses) p;
-
-    return query select
-      v_delivery.status::text,
-      v_projection.display_state,
-      v_projection.has_secondary_attention;
-    return;
-  end if;
-
-  if v_attempt.status not in ('QUEUED', 'SUBMITTED') then
-    raise exception 'INVALID_STATUS: %', v_attempt.status;
   end if;
 
   select ei.*
@@ -326,7 +306,7 @@ begin
   where ei.tenant_id = p_tenant_id
     and ei.id = v_delivery.electronic_invoice_id;
 
-  v_safe_message := case coalesce(nullif(btrim(p_safe_code), ''), '')
+  v_safe_message := case coalesce(v_safe_code, '')
     when 'WORKER_EXHAUSTED_BEFORE_DISPATCH' then
       'Worker exhausted delivery command before provider dispatch'
     when 'DISPATCH_STATE_UNCERTAIN' then
@@ -340,226 +320,58 @@ begin
   end;
 
   if p_outcome_kind = 'SUCCESS' then
-    update einvoice.delivery_attempts
-    set status = 'SUCCEEDED',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = 'SUCCESS',
-        provider_result_message = 'Delivery acknowledged by provider',
-        failure_code = null,
-        failure_message = null,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
-
     update einvoice.invoice_deliveries
     set status = 'SUCCEEDED',
         provider_delivery_reference = nullif(btrim(coalesce(p_provider_reference, '')), ''),
-        provider_result_code = 'SUCCESS',
-        provider_result_message = 'Delivery acknowledged by provider',
         failure_code = null,
         failure_message = null,
+        failure_source = null,
         completed_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_delivery_id;
 
-  elsif p_outcome_kind = 'DEFINITE_FAILURE' then
-    update einvoice.delivery_attempts
-    set status = 'FAILED',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        provider_result_message = v_safe_message,
-        failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
-
+  elsif p_outcome_kind = 'RETRYABLE_FAILURE' and v_delivery.retry_count < 2 then
+    -- Hệ thống tự thử lại → tăng bộ đếm trên cùng dòng (S5).
     update einvoice.invoice_deliveries
-    set status = 'FAILED',
-        provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        provider_result_message = v_safe_message,
-        failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
+    set status = 'QUEUED',
+        retry_count = v_delivery.retry_count + 1,
+        failure_code = v_safe_code,
         failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
+        failure_source = p_failure_source,
+        version = version + 1
     where id = p_delivery_id;
 
-  elsif p_outcome_kind = 'RETRYABLE_FAILURE' then
-    update einvoice.delivery_attempts
-    set status = 'FAILED',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        provider_result_message = v_safe_message,
-        failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
+    v_cmd_id := einvoice._delivery_send_command_id(p_delivery_id, v_delivery.retry_count + 1);
+    perform einvoice.enqueue_internal_command(
+      p_tenant_id,
+      'einvoice.send_invoice_email',
+      jsonb_build_object(
+        'tenant_id', p_tenant_id,
+        'delivery_id', p_delivery_id,
+        'retry_count', v_delivery.retry_count + 1
+      ),
+      null,
+      v_cmd_id
+    );
 
-    if v_attempt.attempt_no < 3 then
-      insert into einvoice.delivery_attempts (
-        tenant_id,
-        invoice_delivery_id,
-        attempt_no,
-        status,
-        provider_connection_id,
-        queued_at,
-        version
-      ) values (
+  else
+    -- DEFINITE_FAILURE, RETRYABLE_FAILURE ở lần thử cuối, UNDETERMINED.
+    update einvoice.invoice_deliveries
+    set status = case when p_outcome_kind = 'UNDETERMINED' then 'UNKNOWN' else 'FAILED' end,
+        failure_code = v_safe_code,
+        failure_message = v_safe_message,
+        failure_source = p_failure_source,
+        completed_at = now(),
+        version = version + 1
+    where id = p_delivery_id;
+
+    if p_outcome_kind = 'UNDETERMINED' then
+      perform einvoice._open_delivery_reconciliation_case(
         p_tenant_id,
         p_delivery_id,
-        v_attempt.attempt_no + 1,
-        'QUEUED',
-        v_attempt.provider_connection_id,
-        now(),
-        0
-      )
-      returning id into v_next_attempt_id;
-
-      v_cmd_id := einvoice._delivery_send_command_id(v_next_attempt_id);
-      perform einvoice.enqueue_internal_command(
-        p_tenant_id,
-        'einvoice.send_invoice_email',
-        jsonb_build_object(
-          'tenant_id', p_tenant_id,
-          'delivery_id', p_delivery_id,
-          'attempt_id', v_next_attempt_id
-        ),
-        null,
-        v_cmd_id
+        v_delivery.provider_connection_id,
+        coalesce(v_safe_code, 'DISPATCH_STATE_UNCERTAIN')
       );
-
-      update einvoice.invoice_deliveries
-      set status = 'PROCESSING',
-          provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-          provider_result_message = v_safe_message,
-          failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-          failure_message = v_safe_message,
-          completed_at = null,
-          version = version + 1,
-          updated_at = now()
-      where id = p_delivery_id;
-    else
-      update einvoice.invoice_deliveries
-      set status = 'FAILED',
-          provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-          provider_result_message = v_safe_message,
-          failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-          failure_message = v_safe_message,
-          completed_at = now(),
-          version = version + 1,
-          updated_at = now()
-      where id = p_delivery_id;
-    end if;
-
-  elsif p_outcome_kind = 'UNDETERMINED' then
-    update einvoice.delivery_attempts
-    set status = 'UNKNOWN',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        provider_result_message = v_safe_message,
-        failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
-
-    update einvoice.invoice_deliveries
-    set status = 'UNKNOWN',
-        provider_result_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        provider_result_message = v_safe_message,
-        failure_code = nullif(btrim(coalesce(p_safe_code, '')), ''),
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_delivery_id;
-
-    select irc.*
-    into v_existing_case
-    from einvoice.invoice_reconciliation_cases irc
-    where irc.tenant_id = p_tenant_id
-      and irc.target_type = 'DELIVERY_ATTEMPT'
-      and irc.target_id = p_attempt_id
-      and irc.reconciliation_purpose = 'VERIFY_DELIVERY'
-      and irc.status = 'PENDING'
-    for update;
-
-    if found then
-      v_case_id := v_existing_case.id;
-      v_correlation_id := v_existing_case.correlation_id;
-    else
-      v_case_id := gen_random_uuid();
-      v_correlation_id := 'einvoice:delivery-reconcile:' || v_case_id::text;
-      v_next_check := now() + interval '30 seconds';
-
-      insert into einvoice.invoice_reconciliation_cases (
-        id,
-        tenant_id,
-        target_type,
-        target_id,
-        reconciliation_purpose,
-        provider_connection_id,
-        idempotency_key,
-        reason_code,
-        status,
-        attempt_count,
-        next_check_at,
-        correlation_id,
-        opened_by_actor_type,
-        opened_by_actor_id,
-        created_at,
-        updated_at,
-        version
-      ) values (
-        v_case_id,
-        p_tenant_id,
-        'DELIVERY_ATTEMPT',
-        p_attempt_id,
-        'VERIFY_DELIVERY',
-        v_attempt.provider_connection_id,
-        p_attempt_id::text,
-        coalesce(nullif(btrim(p_safe_code), ''), 'DISPATCH_STATE_UNCERTAIN'),
-        'PENDING',
-        0,
-        v_next_check,
-        v_correlation_id,
-        'SYSTEM',
-        null,
-        now(),
-        now(),
-        0
-      );
-
-      v_cmd_id := einvoice._delivery_reconciliation_command_id(v_case_id, 1);
-      insert into einvoice.internal_commands (
-        id,
-        tenant_id,
-        command_type,
-        payload,
-        source_event_id,
-        enqueued_at,
-        created_at
-      ) values (
-        v_cmd_id,
-        p_tenant_id,
-        'einvoice.reconcile_invoice_delivery',
-        jsonb_build_object(
-          'tenantId', p_tenant_id,
-          'reconciliationCaseId', v_case_id,
-          'checkSequence', 1
-        ),
-        v_cmd_id,
-        v_next_check,
-        now()
-      )
-      on conflict (id) do nothing;
     end if;
   end if;
 
@@ -578,14 +390,6 @@ begin
   into v_projection
   from einvoice._delivery_display_projection(v_statuses) p;
 
-  v_status_camel := case v_delivery.status
-    when 'PROCESSING' then 'processing'
-    when 'SUCCEEDED' then 'succeeded'
-    when 'FAILED' then 'failed'
-    when 'UNKNOWN' then 'unknown'
-    else lower(v_delivery.status)
-  end;
-
   v_display_camel := case v_projection.display_state
     when 'NOT_SENT' then 'notSent'
     when 'SENDING' then 'sending'
@@ -601,7 +405,7 @@ begin
       'tenant_id', p_tenant_id,
       'sales_order_id', v_invoice.sales_order_id,
       'delivery_id', p_delivery_id,
-      'delivery_status', v_status_camel,
+      'delivery_status', lower(einvoice._delivery_public_status(v_delivery.status)),
       'delivery_display_state', v_display_camel,
       'delivery_version', v_delivery.version,
       'has_secondary_attention', v_projection.has_secondary_attention
@@ -609,19 +413,21 @@ begin
   );
 
   return query select
-    v_delivery.status::text,
+    einvoice._delivery_public_status(v_delivery.status),
     v_projection.display_state,
     v_projection.has_secondary_attention;
 end;
 $$;
 
+
 -- ---------------------------------------------------------------------------
 -- record_delivery_command_dead_letter
 -- ---------------------------------------------------------------------------
+drop function if exists einvoice.record_delivery_command_dead_letter(uuid, uuid, uuid, text);
 create or replace function einvoice.record_delivery_command_dead_letter(
   p_tenant_id uuid,
   p_delivery_id uuid,
-  p_attempt_id uuid,
+  p_retry_count int,
   p_safe_failure_code text
 ) returns void
 language plpgsql
@@ -630,19 +436,12 @@ set search_path = einvoice, public
 as $$
 declare
   v_delivery einvoice.invoice_deliveries%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_invoice einvoice.electronic_invoices%rowtype;
   v_safe_code text;
   v_safe_message text;
   v_statuses text[];
   v_projection record;
-  v_case_id uuid;
-  v_correlation_id varchar(100);
-  v_next_check timestamptz;
-  v_cmd_id uuid;
-  v_existing_case einvoice.invoice_reconciliation_cases%rowtype;
   v_display_camel text;
-  v_status_camel text;
 begin
   if coalesce(
     nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role',
@@ -672,20 +471,8 @@ begin
     raise exception 'NOT_FOUND: invoice delivery';
   end if;
 
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = p_attempt_id
-    and a.invoice_delivery_id = p_delivery_id
-  for update;
-
-  if not found then
-    raise exception 'NOT_FOUND: delivery attempt';
-  end if;
-
-  if v_attempt.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN')
-     or v_delivery.status in ('SUCCEEDED', 'FAILED') then
+  if v_delivery.retry_count <> p_retry_count
+     or v_delivery.status in ('SUCCEEDED', 'FAILED', 'UNKNOWN') then
     return;
   end if;
 
@@ -695,123 +482,31 @@ begin
   where ei.tenant_id = p_tenant_id
     and ei.id = v_delivery.electronic_invoice_id;
 
-  if v_attempt.status = 'QUEUED' then
-    update einvoice.delivery_attempts
-    set status = 'FAILED',
-        failure_code = 'WORKER_EXHAUSTED_BEFORE_DISPATCH',
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
-
+  if v_delivery.status = 'QUEUED' then
+    -- Chưa qua chốt: chắc chắn chưa gửi thư.
     update einvoice.invoice_deliveries
     set status = 'FAILED',
         failure_code = 'WORKER_EXHAUSTED_BEFORE_DISPATCH',
         failure_message = v_safe_message,
+        failure_source = 'INTERNAL',
         completed_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_delivery_id;
-
-  elsif v_attempt.status = 'SUBMITTED' then
-    update einvoice.delivery_attempts
-    set status = 'UNKNOWN',
-        failure_code = v_safe_code,
-        failure_message = v_safe_message,
-        completed_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = p_attempt_id;
-
+  elsif v_delivery.status = 'SUBMITTED' then
     update einvoice.invoice_deliveries
     set status = 'UNKNOWN',
         failure_code = v_safe_code,
         failure_message = v_safe_message,
+        failure_source = 'INTERNAL',
         completed_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_delivery_id;
 
-    select irc.*
-    into v_existing_case
-    from einvoice.invoice_reconciliation_cases irc
-    where irc.tenant_id = p_tenant_id
-      and irc.target_type = 'DELIVERY_ATTEMPT'
-      and irc.target_id = p_attempt_id
-      and irc.reconciliation_purpose = 'VERIFY_DELIVERY'
-      and irc.status = 'PENDING'
-    for update;
-
-    if not found then
-      v_case_id := gen_random_uuid();
-      v_correlation_id := 'einvoice:delivery-reconcile:' || v_case_id::text;
-      v_next_check := now() + interval '30 seconds';
-
-      insert into einvoice.invoice_reconciliation_cases (
-        id,
-        tenant_id,
-        target_type,
-        target_id,
-        reconciliation_purpose,
-        provider_connection_id,
-        idempotency_key,
-        reason_code,
-        status,
-        attempt_count,
-        next_check_at,
-        correlation_id,
-        opened_by_actor_type,
-        opened_by_actor_id,
-        created_at,
-        updated_at,
-        version
-      ) values (
-        v_case_id,
-        p_tenant_id,
-        'DELIVERY_ATTEMPT',
-        p_attempt_id,
-        'VERIFY_DELIVERY',
-        v_attempt.provider_connection_id,
-        p_attempt_id::text,
-        v_safe_code,
-        'PENDING',
-        0,
-        v_next_check,
-        v_correlation_id,
-        'SYSTEM',
-        null,
-        now(),
-        now(),
-        0
-      );
-
-      v_cmd_id := einvoice._delivery_reconciliation_command_id(v_case_id, 1);
-      insert into einvoice.internal_commands (
-        id,
-        tenant_id,
-        command_type,
-        payload,
-        source_event_id,
-        enqueued_at,
-        created_at
-      ) values (
-        v_cmd_id,
-        p_tenant_id,
-        'einvoice.reconcile_invoice_delivery',
-        jsonb_build_object(
-          'tenantId', p_tenant_id,
-          'reconciliationCaseId', v_case_id,
-          'checkSequence', 1
-        ),
-        v_cmd_id,
-        v_next_check,
-        now()
-      )
-      on conflict (id) do nothing;
-    end if;
+    perform einvoice._open_delivery_reconciliation_case(
+      p_tenant_id, p_delivery_id, v_delivery.provider_connection_id, v_safe_code
+    );
   else
-    raise exception 'INVALID_STATUS: %', v_attempt.status;
+    raise exception 'INVALID_STATUS: %', v_delivery.status;
   end if;
 
   select d.*
@@ -829,14 +524,6 @@ begin
   into v_projection
   from einvoice._delivery_display_projection(v_statuses) p;
 
-  v_status_camel := case v_delivery.status
-    when 'PROCESSING' then 'processing'
-    when 'SUCCEEDED' then 'succeeded'
-    when 'FAILED' then 'failed'
-    when 'UNKNOWN' then 'unknown'
-    else lower(v_delivery.status)
-  end;
-
   v_display_camel := case v_projection.display_state
     when 'NOT_SENT' then 'notSent'
     when 'SENDING' then 'sending'
@@ -852,7 +539,7 @@ begin
       'tenant_id', p_tenant_id,
       'sales_order_id', v_invoice.sales_order_id,
       'delivery_id', p_delivery_id,
-      'delivery_status', v_status_camel,
+      'delivery_status', lower(einvoice._delivery_public_status(v_delivery.status)),
       'delivery_display_state', v_display_camel,
       'delivery_version', v_delivery.version,
       'has_secondary_attention', v_projection.has_secondary_attention
@@ -860,6 +547,7 @@ begin
   );
 end;
 $$;
+
 
 -- ---------------------------------------------------------------------------
 -- get_order_invoice_projection — drop then recreate (OUT row type change)
@@ -968,7 +656,7 @@ begin
   select exists (
     select 1 from einvoice.invoice_deliveries d
     where d.tenant_id = p_tenant_id and d.electronic_invoice_id = v_invoice.id
-      and d.status = 'PROCESSING'
+      and d.status in ('QUEUED', 'SUBMITTED')
   ) into v_pending;
 
   return query select
@@ -986,29 +674,31 @@ $$;
 -- ---------------------------------------------------------------------------
 revoke all on function einvoice._delivery_reconciliation_command_id(uuid, integer)
   from public, anon, authenticated, service_role;
+revoke all on function einvoice._open_delivery_reconciliation_case(uuid, uuid, uuid, text)
+  from public, anon, authenticated, service_role;
 revoke all on function einvoice.prepare_delivery_provider_call(
-  uuid, uuid, uuid, bigint, bigint, text
+  uuid, uuid, int, text
 ) from public, anon, authenticated, service_role;
--- Biến thể 7 tham số (thêm boolean) đã bị `drop function if exists` ở đầu file
+-- Biến thể 7 tham số (thêm boolean) đã bị `drop function if exists` ở đầu hàm prepare
 -- và không được tạo lại. `revoke` không có mệnh đề `if exists`, nên revoke nó
 -- trên DB sạch sẽ ném 42883. Đừng thêm lại.
 revoke all on function einvoice.record_delivery_result(
-  uuid, uuid, uuid, bigint, bigint, text, text, text, text
+  uuid, uuid, int, bigint, text, text, text, text
 ) from public, anon, authenticated, service_role;
 revoke all on function einvoice.record_delivery_command_dead_letter(
-  uuid, uuid, uuid, text
+  uuid, uuid, int, text
 ) from public, anon, authenticated, service_role;
 revoke all on function einvoice.get_order_invoice_projection(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
 
 grant execute on function einvoice.prepare_delivery_provider_call(
-  uuid, uuid, uuid, bigint, bigint, text
+  uuid, uuid, int, text
 ) to service_role;
 grant execute on function einvoice.record_delivery_result(
-  uuid, uuid, uuid, bigint, bigint, text, text, text, text
+  uuid, uuid, int, bigint, text, text, text, text
 ) to service_role;
 grant execute on function einvoice.record_delivery_command_dead_letter(
-  uuid, uuid, uuid, text
+  uuid, uuid, int, text
 ) to service_role;
 grant execute on function einvoice.get_order_invoice_projection(uuid, uuid, uuid)
   to authenticated, service_role;

@@ -104,6 +104,7 @@ class _EInvoiceConfigurationOverviewBody extends StatelessWidget {
               profile: state.profile,
               templates: state.templates,
             ),
+            enabled: !state.connectionIncomplete,
             onTap: onIssuanceTap,
           ),
           const VGap.md(),

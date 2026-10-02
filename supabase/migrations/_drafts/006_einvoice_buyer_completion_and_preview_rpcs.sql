@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: S2a read+command RPCs (get_issuance_readiness, complete_buyer_invoice_data, request_invoice_preview, get_invoice_preview, store_preview_result)
 -- Context: TH-08 EP-02/US-01.
--- Touches: einvoice.get_issuance_readiness, einvoice.complete_buyer_invoice_data, einvoice.build_canonical_invoice, einvoice.request_invoice_preview, einvoice.get_invoice_preview, einvoice.store_preview_result
+-- Touches: einvoice.get_issuance_readiness, einvoice.complete_buyer_invoice_data, einvoice._effective_buyer_snapshot, einvoice.build_canonical_invoice, einvoice.request_invoice_preview, einvoice.get_invoice_preview, einvoice.store_preview_result
 -- Safety: security definer, tenant scoped, raises stable CODE errors
 -- Depends on: 005_einvoice_buyer_completion_and_preview_schema.sql, 002_einvoice_install_module_messaging.sql, 018_sales_einvoice_source_contract.sql
 
@@ -31,13 +31,12 @@ create or replace function einvoice.get_issuance_readiness(
   source_blockers jsonb
 ) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
 declare
-  v_provider_status einvoice.provider_connection_status;
+  v_provider_status text;
   v_capabilities jsonb;
   v_config_ready boolean := false;
   v_provider_connected boolean := false;
   v_supports_preview boolean := false;
   v_warnings jsonb := '[]'::jsonb;
-  v_completion_status text := null;
   v_buyer_name text := '';
   v_buyer_tax_code text := null;
   v_buyer_email text := null;
@@ -64,10 +63,10 @@ begin
   select pc.status, pc.capabilities_snapshot
   into v_provider_status, v_capabilities
   from einvoice.provider_connections pc
-  where pc.tenant_id = p_tenant_id and pc.status <> 'disconnected'
+  where pc.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
   limit 1;
 
-  if v_provider_status = 'connected' then
+  if v_provider_status = 'CONNECTED' then
     v_provider_connected := true;
   end if;
 
@@ -77,21 +76,11 @@ begin
 
   -- 2. Check issuance profile & policy
   if exists (
-    select 1 from einvoice.issuance_profiles ip
-    where ip.tenant_id = p_tenant_id
-      and ip.default_template is not null
-      and ip.default_signing is not null
+    select 1 from einvoice.tenant_settings ts
+    where ts.tenant_id = p_tenant_id
+      and ts.default_template_id is not null
   ) and v_provider_connected then
     v_config_ready := true;
-  end if;
-
-  select coalesce(ip.compatibility_warnings, '[]'::jsonb)
-  into v_warnings
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id;
-
-  if v_warnings is null then
-    v_warnings := '[]'::jsonb;
   end if;
 
   -- 3. Load sales order source snapshot
@@ -99,10 +88,9 @@ begin
   into v_source
   from sales.get_einvoice_source_snapshot(p_tenant_id, p_sales_order_id);
 
-  -- 4. Check buyer completion if exists
-  select bc.status, (bc.resolved_values ->> 'name'), (bc.resolved_values ->> 'taxCode'),
-         (bc.resolved_values ->> 'email'), (bc.resolved_values ->> 'address')
-  into v_completion_status, v_buyer_name, v_buyer_tax_code, v_buyer_email, v_buyer_address
+  -- 4. Dữ liệu người mua đã bổ sung (nếu có)
+  select bc.buyer_name, bc.buyer_tax_code, bc.buyer_email, bc.buyer_address
+  into v_buyer_name, v_buyer_tax_code, v_buyer_email, v_buyer_address
   from einvoice.buyer_invoice_completions bc
   where bc.tenant_id = p_tenant_id and bc.sales_order_id = p_sales_order_id;
 
@@ -179,7 +167,7 @@ begin
     v_buyer_email,
     v_buyer_tax_code,
     v_buyer_address,
-    coalesce(v_completion_status, 'locked'),
+    'locked'::text,
     (coalesce(v_source.available, false) and jsonb_array_length(coalesce(v_source.commercial_snapshot -> 'lines', '[]'::jsonb)) > 0),
     v_warnings,
     coalesce(v_source.blockers, '[]'::jsonb);
@@ -197,11 +185,28 @@ create or replace function einvoice.complete_buyer_invoice_data(
   locked boolean,
   eligible_fields jsonb,
   resolved_values jsonb
-) language plpgsql security definer set search_path = einvoice, public as $$
+) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
 declare
-  v_version_text varchar(100) := p_expected_order_version::text;
   v_partner_id uuid;
+  v_name text;
+  v_tax_code text;
+  v_email text;
+  v_address text;
 begin
+  -- Chỉ màn hình gọi hàm này (không có lệnh nền), nên bắt buộc có phiên
+  -- người dùng — khác các hàm vừa phục vụ màn hình vừa phục vụ worker.
+  if auth.uid() is null or p_actor_id is null or p_actor_id <> auth.uid() then
+    raise exception 'NO_PERMISSION: actor mismatch';
+  end if;
+  -- Cùng quyền với issue_invoice; Dart đòi einvoice.issue cho lệnh này.
+  if not iam.has_permission(p_tenant_id, 'einvoice.issue')
+     and not iam.has_permission(p_tenant_id, 'einvoice.manage_issuance') then
+    raise exception 'NO_PERMISSION: einvoice.issue required';
+  end if;
+  if not sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id) then
+    raise exception 'NO_PERMISSION: sales order not accessible';
+  end if;
+
   -- Người mua bất biến sau checkout: completion gắn theo đơn; version chỉ lưu vết.
   select s.buyer_partner_id
   into v_partner_id
@@ -211,38 +216,95 @@ begin
     raise exception 'VALIDATION_ERROR: buyer partner required';
   end if;
 
-  insert into einvoice.buyer_invoice_completions (
+  insert into einvoice.buyer_invoice_completions as bc (
     tenant_id,
     sales_order_id,
     sales_order_version,
-    buyer_partner_id,
-    status,
-    eligible_fields,
-    resolved_values,
-    locked_at,
-    version
+    buyer_name,
+    buyer_tax_code,
+    buyer_email,
+    buyer_address,
+    completed_by_user_id,
+    completed_at
   ) values (
     p_tenant_id,
     p_sales_order_id,
-    v_version_text,
-    v_partner_id,
-    'locked',
-    p_eligible_fields,
-    p_resolved_values,
-    now(),
-    1
+    p_expected_order_version::text,
+    nullif(btrim(coalesce(p_resolved_values ->> 'name', '')), ''),
+    nullif(btrim(coalesce(p_resolved_values ->> 'taxCode', '')), ''),
+    nullif(btrim(coalesce(p_resolved_values ->> 'email', '')), ''),
+    nullif(btrim(coalesce(p_resolved_values ->> 'address', '')), ''),
+    p_actor_id,
+    now()
   )
   on conflict (tenant_id, sales_order_id) do update set
     sales_order_version = excluded.sales_order_version,
-    status = 'locked',
-    eligible_fields = p_eligible_fields,
-    resolved_values = p_resolved_values,
-    locked_at = now(),
-    version = einvoice.buyer_invoice_completions.version + 1,
-    updated_at = now();
+    buyer_name = excluded.buyer_name,
+    buyer_tax_code = excluded.buyer_tax_code,
+    buyer_email = excluded.buyer_email,
+    buyer_address = excluded.buyer_address,
+    completed_by_user_id = excluded.completed_by_user_id,
+    completed_at = excluded.completed_at
+  returning bc.buyer_name, bc.buyer_tax_code, bc.buyer_email, bc.buyer_address
+  into v_name, v_tax_code, v_email, v_address;
 
-  return query select true, p_eligible_fields, p_resolved_values;
+  -- Kiểm tra sau khi ghi: câu ghi đã chờ khoá "for share" của lần phát hành
+  -- đang chạy (nếu có) nên giờ thấy được nó; ném lỗi thì cả câu ghi rollback.
+  if exists (
+    select 1
+    from einvoice.electronic_invoices ei
+    where ei.tenant_id = p_tenant_id
+      and ei.sales_order_id = p_sales_order_id
+  ) then
+    raise exception 'ALREADY_ISSUED: invoice already issued for this order';
+  end if;
+
+  if exists (
+    select 1
+    from einvoice.issuance_attempts ia
+    join einvoice.invoice_issuances ii on ii.id = ia.invoice_issuance_id
+    where ii.tenant_id = p_tenant_id
+      and ii.sales_order_id = p_sales_order_id
+      and ia.status in ('PREPARING', 'SUBMITTED', 'WAITING_RESULT', 'RECONCILING')
+  ) then
+    raise exception 'OPERATION_IN_PROGRESS: an issuance attempt is running';
+  end if;
+
+  return query select
+    true,
+    p_eligible_fields,
+    jsonb_strip_nulls(jsonb_build_object(
+      'name', v_name,
+      'taxCode', v_tax_code,
+      'email', v_email,
+      'address', v_address
+    ));
 end;
+$$;
+
+-- EffectiveBuyerInvoiceData = ảnh chụp Theme 05 + dữ liệu đã bổ sung (đè khi có).
+-- Dùng chung cho phát hành và xem trước để hai bên thấy cùng một người mua.
+create or replace function einvoice._effective_buyer_snapshot(
+  p_tenant_id uuid,
+  p_sales_order_id uuid,
+  p_base_snapshot jsonb
+) returns jsonb
+language sql
+stable
+security definer
+set search_path = einvoice, public
+as $$
+  select coalesce(p_base_snapshot, '{}'::jsonb) || coalesce((
+    select jsonb_strip_nulls(jsonb_build_object(
+      'buyerLegalName', bc.buyer_name,
+      'buyerTaxCode', bc.buyer_tax_code,
+      'buyerEmail', bc.buyer_email,
+      'buyerAddress', bc.buyer_address
+    ))
+    from einvoice.buyer_invoice_completions bc
+    where bc.tenant_id = p_tenant_id
+      and bc.sales_order_id = p_sales_order_id
+  ), '{}'::jsonb);
 $$;
 
 create or replace function einvoice.build_canonical_invoice(
@@ -265,8 +327,6 @@ declare
   v_is_mtt boolean;
   v_is_invoice_summary boolean := false;
   v_sign_type int;
-  v_signing_config_id text;
-  v_sign_type_jsonb jsonb;
   v_lines jsonb;
   v_totals jsonb;
   v_tax_rates jsonb;
@@ -284,21 +344,13 @@ begin
   -- separate query so a matching template id cannot silently replace the
   -- selected contract with a different series.
   select
-    nullif(btrim(ip.default_template ->> 'template_id'), ''),
-    coalesce(
-      nullif(btrim(ip.default_template ->> 'invoice_series'), ''),
-      -- `symbol` is a legacy alias only for the frozen selection.
-      nullif(btrim(ip.default_template ->> 'symbol'), '')
-    ),
-    nullif(btrim(ip.default_signing ->> 'signing_config_id'), ''),
-    ip.default_signing -> 'sign_type'
+    ts.default_template_id,
+    ts.default_invoice_series
   into
     v_selected_template_id,
-    v_selected_inv_series,
-    v_signing_config_id,
-    v_sign_type_jsonb
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
+    v_selected_inv_series
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
   limit 1;
 
   if v_selected_template_id is null or v_selected_inv_series is null then
@@ -320,7 +372,7 @@ begin
     coalesce(pc.capabilities_snapshot -> 'templates', '[]'::jsonb)
   ) as elem
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
+    and pc.status = 'CONNECTED'
     and coalesce(elem ->> 'template_id', elem ->> 'templateId') = v_selected_template_id
     and jsonb_typeof(elem -> 'is_available') = 'boolean'
     and (elem ->> 'is_available')::boolean
@@ -353,30 +405,7 @@ begin
   v_invoice_with_code := upper(substr(v_inv_series, 2, 1)) = 'C';
   v_is_mtt := upper(substr(v_inv_series, 5, 1)) = 'M';
 
-  if v_signing_config_id is null
-     or v_sign_type_jsonb is null
-     or v_sign_type_jsonb not in ('2'::jsonb, '5'::jsonb) then
-    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
-      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
-      'details', 'explicit SignType 2 or 5 is required on issuance profile'
-    )::text;
-  end if;
-
-  v_sign_type := (v_sign_type_jsonb #>> '{}')::int;
-
-  if v_is_mtt and v_sign_type is distinct from 5 then
-    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
-      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
-      'details', 'MTT template requires SignType=5'
-    )::text;
-  end if;
-
-  if (not v_is_mtt) and v_sign_type is distinct from 2 then
-    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
-      'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE',
-      'details', 'non-MTT template requires SignType=2'
-    )::text;
-  end if;
+  v_sign_type := case when v_is_mtt then 5 else 2 end;
 
   -- BR-06 / BR-07 phải áp tại nơi dựng payload, không chỉ ở get_issuance_readiness:
   -- preview và issue gọi thẳng hàm này với buyer_snapshot gốc từ Sales.
@@ -587,8 +616,7 @@ create or replace function einvoice.request_invoice_preview(
 language plpgsql security definer set search_path = einvoice, iam, sales, public
 as $$
 declare
-  v_id uuid;
-  v_correlation_id uuid := gen_random_uuid();
+  v_request_id uuid := gen_random_uuid();
   v_provider_connection_id uuid;
   v_source record;
   v_canonical jsonb;
@@ -610,7 +638,7 @@ begin
   into v_provider_connection_id
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
-    and pc.status <> 'disconnected'
+    and pc.status <> 'DISCONNECTED'
   limit 1;
 
   if v_provider_connection_id is null then
@@ -631,37 +659,43 @@ begin
     p_tenant_id,
     p_sales_order_id,
     p_expected_order_version::text,
-    v_source.buyer_snapshot,
+    einvoice._effective_buyer_snapshot(
+      p_tenant_id,
+      p_sales_order_id,
+      v_source.buyer_snapshot
+    ),
     v_source.commercial_snapshot
   );
 
-  -- Version-bound (BR-13/EC-01): supersede any prior active preview for this order.
-  update einvoice.invoice_preview_operations
-  set status = 'SUPERSEDED', updated_at = now()
-  where tenant_id = p_tenant_id
-    and sales_order_id = p_sales_order_id
-    and status in ('PENDING', 'READY');
-
-  insert into einvoice.invoice_preview_operations (
+  -- Version-bound (BR-13/EC-01): yêu cầu mới thay bản xem trước cũ của đơn.
+  insert into einvoice.invoice_previews as p (
     tenant_id,
-    provider_connection_id,
     sales_order_id,
-    correlation_id,
-    order_version,
+    request_id,
+    sales_order_version,
     status,
-    preview_payload,
-    expires_at
+    expires_at,
+    requested_at
   ) values (
     p_tenant_id,
-    v_provider_connection_id,
     p_sales_order_id,
-    v_correlation_id,
+    v_request_id,
     p_expected_order_version::text,
     'PENDING',
-    v_canonical,
-    now() + interval '15 minutes'
+    now() + interval '15 minutes',
+    now()
   )
-  returning id into v_id;
+  on conflict (tenant_id, sales_order_id) do update set
+    request_id = excluded.request_id,
+    sales_order_version = excluded.sales_order_version,
+    status = 'PENDING',
+    viewer_ref = null,
+    failure_code = null,
+    failure_message = null,
+    failure_source = null,
+    completed_at = null,
+    expires_at = excluded.expires_at,
+    requested_at = excluded.requested_at;
 
   perform einvoice.enqueue_internal_command(
     p_tenant_id,
@@ -669,16 +703,18 @@ begin
     jsonb_build_object(
       'tenant_id', p_tenant_id,
       'sales_order_id', p_sales_order_id,
-      'preview_request_id', v_id,
+      'preview_request_id', v_request_id,
       'order_version', p_expected_order_version,
       'provider_connection_id', v_provider_connection_id,
       'canonical_invoice', v_canonical
     ),
-    p_source_event_id => v_id
+    p_source_event_id => v_request_id
   );
-  return query select v_id;
+  return query select v_request_id;
 end;
 $$;
+
+drop function if exists einvoice.get_invoice_preview(uuid, uuid, uuid);
 
 create or replace function einvoice.get_invoice_preview(
   p_tenant_id uuid,
@@ -686,8 +722,8 @@ create or replace function einvoice.get_invoice_preview(
   p_sales_order_id uuid
 ) returns table(
   viewer_ref text,
-  preview_payload jsonb,
-  status text
+  status text,
+  failure_code text
 ) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
 begin
   if auth.uid() is not null then
@@ -702,27 +738,27 @@ begin
     end if;
   end if;
 
+  -- Link MISA của bản xem trước hết hạn cùng dòng → dòng hết hạn coi như không có.
   return query
-  select
-    ipo.viewer_ref,
-    ipo.preview_payload,
-    ipo.status
-  from einvoice.invoice_preview_operations ipo
-  where ipo.tenant_id = p_tenant_id
-    and ipo.sales_order_id = p_sales_order_id
-    and ipo.status in ('PENDING', 'READY')
-    and ipo.expires_at > now()
-  order by ipo.created_at desc
-  limit 1;
+  select p.viewer_ref, p.status, p.failure_code
+  from einvoice.invoice_previews p
+  where p.tenant_id = p_tenant_id
+    and p.sales_order_id = p_sales_order_id
+    and p.expires_at > now();
 end;
 $$;
 
+drop function if exists einvoice.store_preview_result(uuid, uuid, text, jsonb, text);
+
 create or replace function einvoice.store_preview_result(
   p_tenant_id uuid,
-  p_preview_request_id uuid,
+  p_sales_order_id uuid,
+  p_request_id uuid,
+  p_status text,
   p_viewer_ref text default null,
-  p_preview_payload jsonb default null,
-  p_status text default 'READY'
+  p_failure_code text default null,
+  p_failure_message text default null,
+  p_failure_source text default null
 ) returns table(updated boolean) language plpgsql security definer set search_path = einvoice, public as $$
 begin
   -- Worker-only writeback: reject non-service roles.
@@ -733,13 +769,20 @@ begin
     raise exception 'NO_PERMISSION: store_preview_result is service-role only';
   end if;
 
-  update einvoice.invoice_preview_operations
+  -- Chỉ yêu cầu hiện hành và chưa có kết quả: kết quả muộn của yêu cầu cũ,
+  -- hay lần ghi thứ hai của cùng yêu cầu, trả updated = false.
+  update einvoice.invoice_previews p
   set
+    status = p_status,
     viewer_ref = p_viewer_ref,
-    preview_payload = p_preview_payload,
-    status = upper(coalesce(p_status, 'READY')),
-    updated_at = now()
-  where id = p_preview_request_id and tenant_id = p_tenant_id;
+    failure_code = p_failure_code,
+    failure_message = p_failure_message,
+    failure_source = p_failure_source,
+    completed_at = now()
+  where p.tenant_id = p_tenant_id
+    and p.sales_order_id = p_sales_order_id
+    and p.request_id = p_request_id
+    and p.status = 'PENDING';
 
   return query select found;
 end;
@@ -754,11 +797,13 @@ grant execute on function einvoice.get_issuance_readiness(uuid, uuid, uuid) to a
 revoke all on function einvoice.complete_buyer_invoice_data(uuid, uuid, uuid, int, jsonb, jsonb) from public, anon;
 grant execute on function einvoice.complete_buyer_invoice_data(uuid, uuid, uuid, int, jsonb, jsonb) to authenticated, service_role;
 
+revoke all on function einvoice._effective_buyer_snapshot(uuid, uuid, jsonb) from public, anon, authenticated;
+
 revoke all on function einvoice.request_invoice_preview(uuid, uuid, uuid, int) from public, anon;
 grant execute on function einvoice.request_invoice_preview(uuid, uuid, uuid, int) to authenticated, service_role;
 
 revoke all on function einvoice.get_invoice_preview(uuid, uuid, uuid) from public, anon;
 grant execute on function einvoice.get_invoice_preview(uuid, uuid, uuid) to authenticated, service_role;
 
-revoke all on function einvoice.store_preview_result(uuid, uuid, text, jsonb, text) from public, anon, authenticated;
-grant execute on function einvoice.store_preview_result(uuid, uuid, text, jsonb, text) to service_role;
+revoke all on function einvoice.store_preview_result(uuid, uuid, uuid, text, text, text, text, text) from public, anon, authenticated;
+grant execute on function einvoice.store_preview_result(uuid, uuid, uuid, text, text, text, text, text) to service_role;

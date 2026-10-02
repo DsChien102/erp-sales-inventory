@@ -1,0 +1,139 @@
+-- Title: E-invoice attempt status — expose provider failure message
+-- Kind: patch
+-- Intent: einvoice_attempt_status_provider_failure_message
+-- Context: Banner "Phát hành hóa đơn điện tử không thành công" chỉ hiện câu chung;
+--          người bán không biết MISA từ chối vì sao (vd. "Mã số thuế người mua không hợp lệ").
+-- Touches: einvoice.get_issuance_attempt_status
+-- Safety: security definer, tenant scoped, read-only. Chỉ trả `last_error_message` khi
+--         attempt FAILED và message do provider trả về (failure_source = PROVIDER);
+--         lỗi nội bộ (COMMAND_INTEGRITY, PUBLISH_COMMAND_DEAD_LETTER — message là reason code) vẫn null.
+--         Cắt tối đa 500 ký tự.
+-- Depends on: 009_einvoice_issuance_reconciliation_rpcs.sql
+
+create or replace function einvoice.get_issuance_attempt_status(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_sales_order_id uuid
+) returns table(
+  attempt_id uuid,
+  status text,
+  internal_finalization_status text,
+  has_electronic_invoice boolean,
+  has_active_operation boolean,
+  failure_code varchar(100),
+  last_error_message text
+) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
+declare
+  v_issuance einvoice.invoice_issuances%rowtype;
+  v_attempt einvoice.issuance_attempts%rowtype;
+  v_case einvoice.invoice_reconciliation_cases%rowtype;
+  v_has_invoice boolean := false;
+  v_internal_fin text := 'pending';
+  v_has_active_op boolean := false;
+  v_safe_failure_code varchar(100) := null;
+  v_safe_failure_message text := null;
+begin
+  if auth.uid() is not null then
+    if auth.uid() <> p_actor_id then
+      raise exception 'NO_PERMISSION: actor mismatch';
+    end if;
+    if not iam.has_permission(p_tenant_id, 'einvoice.issue') then
+      raise exception 'NO_PERMISSION: einvoice.issue required';
+    end if;
+    if not sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id) then
+      raise exception 'NO_PERMISSION: sales order not accessible';
+    end if;
+  end if;
+
+  select ii.*
+  into v_issuance
+  from einvoice.invoice_issuances ii
+  where ii.tenant_id = p_tenant_id
+    and ii.sales_order_id = p_sales_order_id
+    and ii.issuance_type = 'ORIGINAL';
+
+  if not found then
+    return query select
+      null::uuid,
+      'PREPARING'::text,
+      'pending'::text,
+      false,
+      false,
+      null::varchar(100),
+      null::text;
+    return;
+  end if;
+
+  select ia.*
+  into v_attempt
+  from einvoice.issuance_attempts ia
+  where ia.invoice_issuance_id = v_issuance.id
+    and ia.tenant_id = p_tenant_id
+  order by ia.attempt_no desc
+  limit 1;
+
+  if not found then
+    return query select
+      null::uuid,
+      'PREPARING'::text,
+      'pending'::text,
+      false,
+      false,
+      null::varchar(100),
+      null::text;
+    return;
+  end if;
+
+  select exists (
+    select 1
+    from einvoice.electronic_invoices ei
+    where ei.tenant_id = p_tenant_id
+      and ei.sales_order_id = p_sales_order_id
+  ) into v_has_invoice;
+
+  select irc.*
+  into v_case
+  from einvoice.invoice_reconciliation_cases irc
+  where irc.tenant_id = p_tenant_id
+    and irc.target_type = 'ISSUANCE_ATTEMPT'
+    and irc.target_id = v_attempt.id
+  order by irc.created_at desc
+  limit 1;
+
+  if v_has_invoice then
+    v_internal_fin := 'completed';
+  else
+    v_internal_fin := lower(v_attempt.internal_finalization_state);
+  end if;
+
+  if v_attempt.status in ('PREPARING', 'SUBMITTED', 'WAITING_RESULT') then
+    v_has_active_op := true;
+  elsif v_attempt.status = 'RECONCILING' and (v_case.id is null or v_case.status = 'PENDING') then
+    v_has_active_op := true;
+  else
+    v_has_active_op := false;
+  end if;
+
+  if v_attempt.failure_code is not null then
+    v_safe_failure_code := regexp_replace(v_attempt.failure_code, '[^A-Za-z0-9_]', '', 'g');
+  end if;
+
+  -- Chỉ thông báo do MISA trả (failure_source = PROVIDER); lỗi nội bộ trả null.
+  if v_attempt.status = 'FAILED'
+     and v_attempt.failure_source = 'PROVIDER'
+     and v_attempt.failure_message is not null then
+    v_safe_failure_message := nullif(left(btrim(v_attempt.failure_message), 500), '');
+  end if;
+
+  return query select
+    v_attempt.id,
+    v_attempt.status,
+    v_internal_fin,
+    v_has_invoice,
+    v_has_active_op,
+    v_safe_failure_code,
+    v_safe_failure_message;
+end;
+$$;
+
+grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to authenticated, service_role;

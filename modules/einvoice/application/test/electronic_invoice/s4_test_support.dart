@@ -17,7 +17,6 @@ final class RecordingElectronicInvoiceCommandGateway implements IElectronicInvoi
       String actorId,
       String salesOrderId,
       InvoiceDocumentType documentType,
-      String idempotencyKey,
     })
   >
   documentRequests = [];
@@ -45,14 +44,12 @@ final class RecordingElectronicInvoiceCommandGateway implements IElectronicInvoi
     required String actorId,
     required String salesOrderId,
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   }) async {
     documentRequests.add((
       tenantId: tenantId,
       actorId: actorId,
       salesOrderId: salesOrderId,
       documentType: documentType,
-      idempotencyKey: idempotencyKey,
     ));
     return const InvoiceDocumentRetrievalDto(
       operationId: 'op-doc-1',
@@ -63,13 +60,16 @@ final class RecordingElectronicInvoiceCommandGateway implements IElectronicInvoi
   @override
   Future<OfficialViewOperationContextDto?> loadOfficialViewContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   }) async => null;
 
   @override
   Future<InvoiceDocumentOperationContextDto?> loadDocumentContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
   }) async => null;
 
   @override
@@ -168,7 +168,8 @@ final class StubOfficialViewCommandGateway extends RecordingElectronicInvoiceCom
   @override
   Future<OfficialViewOperationContextDto?> loadOfficialViewContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   }) async => officialViewContext;
 
   @override
@@ -177,8 +178,27 @@ final class StubOfficialViewCommandGateway extends RecordingElectronicInvoiceCom
   }
 }
 
+final class StubDocumentCommandGateway extends RecordingElectronicInvoiceCommandGateway {
+  InvoiceDocumentOperationContextDto? documentContext;
+  InvoiceDocumentResultRecord? lastDocumentResult;
+
+  @override
+  Future<InvoiceDocumentOperationContextDto?> loadDocumentContext({
+    required String tenantId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
+  }) async => documentContext;
+
+  @override
+  Future<void> recordDocumentResult(InvoiceDocumentResultRecord record) async {
+    lastDocumentResult = record;
+  }
+}
+
 final class StubElectronicInvoiceProviderPort implements IElectronicInvoiceProviderPort {
   OfficialViewProviderOutcome? officialOutcome;
+  InvoiceDocumentProviderOutcome? documentOutcome;
   int fetchOfficialViewCalls = 0;
 
   @override
@@ -194,7 +214,10 @@ final class StubElectronicInvoiceProviderPort implements IElectronicInvoiceProvi
   Future<InvoiceDocumentProviderOutcome> downloadDocument(
     ElectronicInvoiceProviderContextDto context,
     InvoiceDocumentType documentType,
-  ) => throw UnimplementedError();
+  ) async {
+    return documentOutcome ??
+        const InvoiceDocumentProviderAmbiguous(safeErrorCode: 'PROVIDER_TIMEOUT');
+  }
 
   @override
   Future<ProviderObservationOutcome> observe(

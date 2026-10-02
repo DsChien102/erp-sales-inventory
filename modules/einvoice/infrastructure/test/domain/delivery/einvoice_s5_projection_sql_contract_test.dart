@@ -66,6 +66,7 @@ void main() {
         sql,
         contains(
           '-- Touches: einvoice._delivery_reconciliation_command_id, '
+          'einvoice._open_delivery_reconciliation_case, '
           'einvoice.prepare_delivery_provider_call, '
           'einvoice.record_delivery_result, '
           'einvoice.record_delivery_command_dead_letter, '
@@ -86,11 +87,8 @@ void main() {
       expect(projectionFn, isNot(contains('delivery_is_simulated')));
       expect(projectionFn, isNot(contains('is_simulated')));
       expect(projectionFn, isNot(contains('v_simulated')));
-      expect(projectionFn, contains("d.status = 'PROCESSING'"));
-      expect(
-        projectionFn,
-        isNot(contains("d.status in ('PROCESSING', 'UNKNOWN')")),
-      );
+      expect(projectionFn, contains("d.status in ('QUEUED', 'SUBMITTED')"));
+      expect(projectionFn, isNot(contains("d.status = 'PROCESSING'")));
     });
 
     test(

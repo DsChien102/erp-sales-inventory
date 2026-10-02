@@ -50,7 +50,6 @@ final class SupabaseElectronicInvoiceCommandGateway
     required String actorId,
     required String salesOrderId,
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   }) async {
     try {
       final rows = await _rpcClient.callList(
@@ -60,7 +59,6 @@ final class SupabaseElectronicInvoiceCommandGateway
           actorId: actorId,
           salesOrderId: salesOrderId,
           documentType: documentType,
-          idempotencyKey: idempotencyKey,
         ),
       );
       if (rows.isEmpty) {
@@ -78,14 +76,16 @@ final class SupabaseElectronicInvoiceCommandGateway
   @override
   Future<OfficialViewOperationContextDto?> loadOfficialViewContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   }) async {
     try {
       final rows = await _rpcClient.callList(
         'load_official_view_operation_context',
         params: ElectronicInvoiceRpcMapper.loadOfficialViewContextParams(
           tenantId: tenantId,
-          operationId: operationId,
+          electronicInvoiceId: electronicInvoiceId,
+          requestId: requestId,
         ),
       );
       if (rows.isEmpty) {
@@ -102,14 +102,18 @@ final class SupabaseElectronicInvoiceCommandGateway
   @override
   Future<InvoiceDocumentOperationContextDto?> loadDocumentContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
   }) async {
     try {
       final rows = await _rpcClient.callList(
         'load_invoice_document_operation_context',
         params: ElectronicInvoiceRpcMapper.loadDocumentContextParams(
           tenantId: tenantId,
-          operationId: operationId,
+          electronicInvoiceId: electronicInvoiceId,
+          documentType: documentType,
+          requestId: requestId,
         ),
       );
       if (rows.isEmpty) {

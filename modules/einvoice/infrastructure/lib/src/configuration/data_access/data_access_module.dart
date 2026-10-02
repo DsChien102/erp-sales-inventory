@@ -32,7 +32,6 @@ import '../../domain/issuance/supabase_issuance_reconciliation_gateway.dart';
 import '../../domain/issuance/supabase_issuance_result_gateway.dart';
 import '../../domain/issuance/supabase_publish_series_lease_gateway.dart';
 import '../../domain/issuance/supabase_order_invoice_projection_read_gateway.dart';
-import '../../provider_interactions/supabase_provider_interaction_gateway.dart';
 import '../../storage/invoice_document_signed_url_resolver.dart';
 import '../../storage/supabase_invoice_document_storage_port.dart';
 
@@ -226,13 +225,6 @@ final class EinvoiceDataAccessModule {
         SupabaseInvoiceDocumentStoragePort(supabase: supabase),
       );
     }
-    if (!container.isRegistered<IProviderInteractionGateway>()) {
-      container.registerSingleton<IProviderInteractionGateway>(
-        SupabaseProviderInteractionGateway(
-          rpcClient: container.get<SupabaseSchemaRpcClient>(),
-        ),
-      );
-    }
     if (!container.isRegistered<IElectronicInvoiceCommandGateway>()) {
       container.registerSingleton<IElectronicInvoiceCommandGateway>(
         SupabaseElectronicInvoiceCommandGateway(
@@ -257,6 +249,7 @@ final class EinvoiceDataAccessModule {
                 clientFactory: container.get<TenantMeInvoiceClientFactory>(),
                 defaultAppId: misaAppId,
                 defaultBaseUrl: misaBaseUrl,
+                logger: loggerFactory.named('einvoice.misa'),
               )
             : WorkerOnlyElectronicInvoiceProviderPort(),
       );

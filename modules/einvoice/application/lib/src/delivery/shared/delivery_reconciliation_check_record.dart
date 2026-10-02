@@ -7,7 +7,6 @@ final class DeliveryReconciliationCheckRecord {
     required this.expectedCaseVersion,
     required this.checkSequence,
     required this.kind,
-    this.interactionReference,
     this.providerReference,
     this.safeCode,
   });
@@ -16,7 +15,6 @@ final class DeliveryReconciliationCheckRecord {
   final String reconciliationCaseId;
   final int expectedCaseVersion;
   final int checkSequence;
-  final String? interactionReference;
   final DeliveryObservationKind kind;
   final String? providerReference;
   final String? safeCode;

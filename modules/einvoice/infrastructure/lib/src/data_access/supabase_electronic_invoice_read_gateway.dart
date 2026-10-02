@@ -138,6 +138,7 @@ final class SupabaseElectronicInvoiceReadGateway
         operationId: item.operationId,
         fileRef: item.fileRef,
         checksum: item.checksum,
+        failureCode: item.failureCode,
       );
     }
 
@@ -149,6 +150,7 @@ final class SupabaseElectronicInvoiceReadGateway
       fileRef: item.fileRef,
       checksum: item.checksum,
       expiresAt: _signedUrlResolver.accessLeaseExpiresAt(),
+      failureCode: item.failureCode,
     );
   }
 

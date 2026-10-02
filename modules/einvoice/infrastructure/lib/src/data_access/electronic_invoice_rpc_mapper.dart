@@ -20,29 +20,39 @@ abstract final class ElectronicInvoiceRpcMapper {
     required String actorId,
     required String salesOrderId,
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   }) {
     return {
       'p_tenant_id': tenantId,
       'p_actor_id': actorId,
       'p_sales_order_id': salesOrderId,
       'p_document_type': documentTypeToRpc(documentType),
-      'p_idempotency_key': idempotencyKey,
     };
   }
 
   static Map<String, dynamic> loadOfficialViewContextParams({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   }) {
-    return {'p_tenant_id': tenantId, 'p_operation_id': operationId};
+    return {
+      'p_tenant_id': tenantId,
+      'p_electronic_invoice_id': electronicInvoiceId,
+      'p_request_id': requestId,
+    };
   }
 
   static Map<String, dynamic> loadDocumentContextParams({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
   }) {
-    return {'p_tenant_id': tenantId, 'p_operation_id': operationId};
+    return {
+      'p_tenant_id': tenantId,
+      'p_electronic_invoice_id': electronicInvoiceId,
+      'p_document_type': documentTypeToRpc(documentType),
+      'p_request_id': requestId,
+    };
   }
 
   static Map<String, dynamic> loadObservationContextParams({
@@ -57,10 +67,9 @@ abstract final class ElectronicInvoiceRpcMapper {
   ) {
     return {
       'p_tenant_id': record.tenantId,
-      'p_operation_id': record.operationId,
+      'p_electronic_invoice_id': record.electronicInvoiceId,
+      'p_request_id': record.requestId,
       'p_status': _documentStatusToRpc(record.status),
-      'p_expected_version': record.expectedVersion,
-      'p_provider_interaction_reference': record.providerInteractionReference,
       if (record.viewerUrl != null) 'p_viewer_url': record.viewerUrl,
       if (record.viewerToken != null) 'p_viewer_token': record.viewerToken,
       if (record.expiresAt != null)
@@ -68,6 +77,7 @@ abstract final class ElectronicInvoiceRpcMapper {
       if (record.failureCode != null) 'p_failure_code': record.failureCode,
       if (record.failureMessage != null)
         'p_failure_message': record.failureMessage,
+      'p_failure_source': failureSourceToRpc(record.failureSource),
     };
   }
 
@@ -76,19 +86,16 @@ abstract final class ElectronicInvoiceRpcMapper {
   ) {
     return {
       'p_tenant_id': record.tenantId,
-      'p_operation_id': record.operationId,
+      'p_electronic_invoice_id': record.electronicInvoiceId,
+      'p_document_type': documentTypeToRpc(record.documentType),
+      'p_request_id': record.requestId,
       'p_status': _documentStatusToRpc(record.status),
-      'p_expected_operation_version': record.expectedOperationVersion,
-      'p_provider_interaction_reference': record.providerInteractionReference,
-      'p_expected_document_version': record.expectedDocumentVersion,
       if (record.fileRef != null) 'p_storage_reference': record.fileRef,
       if (record.checksum != null) 'p_checksum': record.checksum,
-      if (record.contentType != null) 'p_content_type': record.contentType,
-      if (record.fileName != null) 'p_file_name': record.fileName,
-      if (record.fileSize != null) 'p_file_size': record.fileSize,
       if (record.failureCode != null) 'p_failure_code': record.failureCode,
       if (record.failureMessage != null)
         'p_failure_message': record.failureMessage,
+      'p_failure_source': failureSourceToRpc(record.failureSource),
     };
   }
 
@@ -112,7 +119,7 @@ abstract final class ElectronicInvoiceRpcMapper {
     Map<String, dynamic> row,
   ) {
     return InvoiceDocumentRetrievalDto(
-      operationId: row['operation_id'] as String?,
+      operationId: row['request_id'] as String?,
       status: mapDocumentStatus(row['status'] as String),
       fileRef: row['storage_reference'] as String?,
       checksum: row['checksum'] as String?,
@@ -146,6 +153,7 @@ abstract final class ElectronicInvoiceRpcMapper {
           ? row['official_viewer_token'] as String?
           : null,
       officialViewerExpiresAt: includeViewer ? officialExpiresAt : null,
+      officialViewFailureCode: row['official_view_failure_code'] as String?,
     );
   }
 
@@ -160,7 +168,7 @@ abstract final class ElectronicInvoiceRpcMapper {
         statusRaw: row['pdf_status'] as String?,
         storageReference: row['pdf_storage_reference'] as String?,
         checksum: row['pdf_checksum'] as String?,
-        accessExpiresAt: _parseDateTime(row['pdf_access_expires_at']),
+        failureCode: row['pdf_failure_code'] as String?,
       ),
       xml: _documentItemFromRow(
         documentType: InvoiceDocumentType.xml,
@@ -168,7 +176,7 @@ abstract final class ElectronicInvoiceRpcMapper {
         statusRaw: row['xml_status'] as String?,
         storageReference: row['xml_storage_reference'] as String?,
         checksum: row['xml_checksum'] as String?,
-        accessExpiresAt: _parseDateTime(row['xml_access_expires_at']),
+        failureCode: row['xml_failure_code'] as String?,
       ),
     );
   }
@@ -179,7 +187,7 @@ abstract final class ElectronicInvoiceRpcMapper {
     required String? statusRaw,
     required String? storageReference,
     required String? checksum,
-    required DateTime? accessExpiresAt,
+    required String? failureCode,
   }) {
     if (statusRaw == null) {
       return null;
@@ -190,7 +198,7 @@ abstract final class ElectronicInvoiceRpcMapper {
       operationId: operationId,
       fileRef: storageReference,
       checksum: checksum,
-      expiresAt: accessExpiresAt,
+      failureCode: failureCode,
     );
   }
 
@@ -198,16 +206,13 @@ abstract final class ElectronicInvoiceRpcMapper {
     Map<String, dynamic> row,
   ) {
     return OfficialViewOperationContextDto(
-      operationId: row['operation_id'] as String,
       tenantId: row['tenant_id'] as String,
       electronicInvoiceId: row['electronic_invoice_id'] as String,
-      generation: (row['generation'] as num).toInt(),
-      attemptOrdinal: (row['attempt_ordinal'] as num).toInt(),
+      requestId: row['request_id'] as String,
       status: mapDocumentStatus(row['status'] as String),
       providerConnectionId: row['provider_connection_id'] as String,
       providerInvoiceReference: row['provider_invoice_reference'] as String,
       invoiceSeries: row['invoice_series'] as String,
-      expectedVersion: (row['expected_version'] as num).toInt(),
     );
   }
 
@@ -215,19 +220,14 @@ abstract final class ElectronicInvoiceRpcMapper {
     Map<String, dynamic> row,
   ) {
     return InvoiceDocumentOperationContextDto(
-      operationId: row['operation_id'] as String,
       tenantId: row['tenant_id'] as String,
       electronicInvoiceId: row['electronic_invoice_id'] as String,
       documentType: mapDocumentType(row['document_type'] as String),
-      generation: (row['generation'] as num).toInt(),
-      attemptOrdinal: (row['attempt_ordinal'] as num).toInt(),
-      documentVersion: (row['document_version'] as num).toInt(),
+      requestId: row['request_id'] as String,
       status: mapDocumentStatus(row['status'] as String),
       providerConnectionId: row['provider_connection_id'] as String,
       providerInvoiceReference: row['provider_invoice_reference'] as String,
       invoiceSeries: row['invoice_series'] as String,
-      expectedVersion: (row['expected_version'] as num).toInt(),
-      invoiceDocumentId: row['invoice_document_id'] as String?,
     );
   }
 
@@ -272,6 +272,12 @@ abstract final class ElectronicInvoiceRpcMapper {
     }
   }
 
+  static String? failureSourceToRpc(FailureSource? source) => switch (source) {
+    FailureSource.provider => 'PROVIDER',
+    FailureSource.internal => 'INTERNAL',
+    null => null,
+  };
+
   static String documentTypeToRpc(InvoiceDocumentType type) {
     return switch (type) {
       InvoiceDocumentType.pdf => 'PDF',
@@ -304,7 +310,7 @@ abstract final class ElectronicInvoiceRpcMapper {
       'p_observed_at': record.observedAt.toUtc().toIso8601String(),
       'p_deduplication_key': record.deduplicationKey,
       'p_details_snapshot': record.detailsSnapshot,
-      'p_provider_interaction_reference': record.providerInteractionReference,
+      'p_correlation_id': record.correlationId,
     };
   }
 
@@ -315,7 +321,7 @@ abstract final class ElectronicInvoiceRpcMapper {
     final correlationId = row['correlation_id'] as String?;
     if (correlationId == null || correlationId.trim().isEmpty) {
       throw RpcException(
-        'Provider observation row missing correlation_id from interaction join',
+        'Provider observation row missing correlation_id',
       );
     }
     return ProviderObservationDto(

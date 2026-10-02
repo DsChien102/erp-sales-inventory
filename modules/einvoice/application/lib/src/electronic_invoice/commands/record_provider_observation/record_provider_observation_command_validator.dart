@@ -32,8 +32,8 @@ final class RecordProviderObservationCommandValidator
     if (command.deduplicationKey.trim().isEmpty) {
       throw ValidationException('deduplicationKey is required');
     }
-    if (command.providerInteractionReference.trim().isEmpty) {
-      throw ValidationException('providerInteractionReference is required');
+    if (command.correlationId.trim().isEmpty) {
+      throw ValidationException('correlationId is required');
     }
     if (command.source.trim().isEmpty) {
       throw ValidationException('source is required');

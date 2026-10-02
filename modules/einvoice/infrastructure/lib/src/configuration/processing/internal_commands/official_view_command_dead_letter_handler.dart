@@ -8,12 +8,9 @@ final class OfficialViewCommandDeadLetterHandler
     implements IEinvoiceInternalCommandDeadLetterHandler {
   OfficialViewCommandDeadLetterHandler({
     required IElectronicInvoiceCommandGateway commandGateway,
-    required IProviderInteractionGateway interactionGateway,
-  }) : _commandGateway = commandGateway,
-       _interactionGateway = interactionGateway;
+  }) : _commandGateway = commandGateway;
 
   final IElectronicInvoiceCommandGateway _commandGateway;
-  final IProviderInteractionGateway _interactionGateway;
 
   @override
   Future<void> handleDeadLetter({
@@ -21,45 +18,34 @@ final class OfficialViewCommandDeadLetterHandler
     required ClaimedInternalCommand command,
     required Object error,
   }) async {
-    final operationId = command.payload['operation_id']?.toString();
-    if (operationId == null || operationId.isEmpty) {
+    final electronicInvoiceId = command.payload['electronic_invoice_id']
+        ?.toString();
+    final requestId = command.payload['request_id']?.toString();
+    if (electronicInvoiceId == null ||
+        electronicInvoiceId.isEmpty ||
+        requestId == null ||
+        requestId.isEmpty) {
       return;
     }
 
     final context = await _commandGateway.loadOfficialViewContext(
       tenantId: tenantId,
-      operationId: operationId,
+      electronicInvoiceId: electronicInvoiceId,
+      requestId: requestId,
     );
     if (context == null || context.status != InvoiceDocumentStatus.pending) {
       return;
     }
 
-    final attemptNumber = command.retryCount + 1;
-    final correlationId = ProviderCallCorrelationId.forWorkerAttempt(
-      commandId: command.commandId,
-      workerAttemptNumber: attemptNumber,
-    );
-
-    final interaction = await _interactionGateway.start(
-      tenantId: tenantId,
-      providerConnectionId: context.providerConnectionId,
-      direction: ProviderInteractionDirection.outbound,
-      operationType: FetchOfficialInvoiceViewCommand.type,
-      targetType: 'OFFICIAL_VIEW_OPERATION',
-      targetId: operationId,
-      correlationId: correlationId,
-      requestReference: command.commandId,
-    );
-
     await _commandGateway.recordOfficialViewResult(
       OfficialViewResultRecord(
         tenantId: tenantId,
-        operationId: context.operationId,
+        electronicInvoiceId: context.electronicInvoiceId,
+        requestId: context.requestId,
         status: InvoiceDocumentStatus.checkRequired,
         failureCode: 'PROVIDER_RESULT_UNDETERMINED',
         failureMessage: error.toString(),
-        providerInteractionReference: interaction.interactionReference,
-        expectedVersion: context.expectedVersion,
+        failureSource: FailureSource.internal,
       ),
     );
   }

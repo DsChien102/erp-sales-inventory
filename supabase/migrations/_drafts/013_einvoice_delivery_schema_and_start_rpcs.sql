@@ -1,8 +1,8 @@
 -- Title: einvoice S5 delivery schema + start/read/load RPCs
 -- Kind: cohesive
 -- Intent: einvoice_s5_delivery_schema_and_start
--- Context: TH-08 EP-04 S5 — InvoiceDelivery / DeliveryAttempt schema and atomic start/read contracts
--- Touches: einvoice._delivery_send_command_id, einvoice._delivery_intent_hash, einvoice._delivery_display_projection, einvoice._start_invoice_delivery, einvoice.start_auto_delivery, einvoice.send_electronic_invoice, einvoice.get_send_invoice_sheet_context, einvoice.get_invoice_delivery_history, einvoice.load_delivery_attempt_context
+-- Context: TH-08 EP-04 S5 — InvoiceDelivery schema and atomic start/read contracts
+-- Touches: einvoice._delivery_send_command_id, einvoice._delivery_public_status, einvoice._delivery_display_projection, einvoice._start_invoice_delivery, einvoice.start_auto_delivery, einvoice.send_electronic_invoice, einvoice.get_send_invoice_sheet_context, einvoice.get_invoice_delivery_history, einvoice.load_delivery_attempt_context
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped; safe Vet45-authored messages only
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql, 007_einvoice_issuance_schema_and_publish_rpcs.sql, 010_einvoice_official_view_rpcs.sql, 016_partner_einvoice_recipient_snapshot.sql
 --
@@ -10,41 +10,44 @@
 --   namespace = 9d4c1d80-8d2c-5f2a-8b86-ff34c8a8e275
 --   name      = <tenantId>|<electronicInvoiceId>|auto_initial
 
-create unique index if not exists electronic_invoices_tenant_id_id_idx
-  on einvoice.electronic_invoices (tenant_id, id);
-
 -- ---------------------------------------------------------------------------
--- Schema: invoice_deliveries
+-- Schema: invoice_deliveries — một lần gửi một dòng (S5). Tự thử lại là bộ đếm
+-- retry_count; định danh một lần thử = (id, retry_count).
 -- ---------------------------------------------------------------------------
 create table if not exists einvoice.invoice_deliveries (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null,
   electronic_invoice_id uuid not null,
   delivery_no integer not null check (delivery_no > 0),
-  delivery_intent text not null check (delivery_intent in ('INITIAL_SEND','RESEND')),
-  trigger_type text not null check (trigger_type in ('AUTOMATIC','MANUAL')),
-  channel text not null check (channel in ('EMAIL')),
+  delivery_intent text not null
+    check (delivery_intent in ('INITIAL_SEND', 'RESEND')),
   recipient_snapshot_schema_version integer not null default 1,
   recipient_snapshot jsonb not null,
   idempotency_key uuid not null,
-  intent_hash varchar(128) not null,
-  status text not null check (status in ('PROCESSING','SUCCEEDED','FAILED','UNKNOWN')),
-  provider_delivery_reference varchar(255) null,
-  provider_result_code varchar(100) null,
-  provider_result_message text null,
-  failure_code varchar(100) null,
-  failure_message text null,
-  initiated_by_actor_type text not null check (initiated_by_actor_type in ('SYSTEM','USER')),
-  initiated_by_actor_id uuid null,
-  started_at timestamptz not null default now(),
-  completed_at timestamptz null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  status text not null
+    check (status in ('QUEUED', 'SUBMITTED', 'SUCCEEDED', 'FAILED', 'UNKNOWN')),
+  retry_count int not null default 0 check (retry_count between 0 and 2),
+  provider_connection_id uuid not null,
+  provider_delivery_reference text,
+  provider_request_reference text,
+  failure_code text,
+  failure_message text,
+  failure_source text
+    check (failure_source is null or failure_source in ('PROVIDER', 'INTERNAL')),
+  initiated_by_actor_type text not null
+    check (initiated_by_actor_type in ('SYSTEM', 'USER')),
+  initiated_by_actor_id uuid,
   version bigint not null default 0,
+  created_at timestamptz not null default now(),
+  submitted_at timestamptz,
+  completed_at timestamptz,
+  unique (tenant_id, id),
   unique (tenant_id, electronic_invoice_id, delivery_no),
   unique (tenant_id, idempotency_key),
   foreign key (tenant_id, electronic_invoice_id)
-    references einvoice.electronic_invoices (tenant_id, id)
+    references einvoice.electronic_invoices (tenant_id, id),
+  foreign key (tenant_id, provider_connection_id)
+    references einvoice.provider_connections (tenant_id, id)
 );
 
 create unique index if not exists invoice_deliveries_one_initial_send
@@ -54,7 +57,7 @@ create unique index if not exists invoice_deliveries_one_initial_send
 drop index if exists einvoice.invoice_deliveries_one_active_lock;
 create unique index invoice_deliveries_one_active_lock
   on einvoice.invoice_deliveries (tenant_id, electronic_invoice_id)
-  where status = 'PROCESSING';
+  where status in ('QUEUED','SUBMITTED');
 
 create index if not exists invoice_deliveries_invoice_chrono_idx
   on einvoice.invoice_deliveries (tenant_id, electronic_invoice_id, delivery_no);
@@ -63,45 +66,12 @@ alter table einvoice.invoice_deliveries enable row level security;
 revoke all on einvoice.invoice_deliveries from anon, authenticated;
 
 -- ---------------------------------------------------------------------------
--- Schema: delivery_attempts
--- ---------------------------------------------------------------------------
-create table if not exists einvoice.delivery_attempts (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null,
-  invoice_delivery_id uuid not null references einvoice.invoice_deliveries(id),
-  attempt_no integer not null check (attempt_no > 0),
-  status text not null check (status in ('QUEUED','SUBMITTED','SUCCEEDED','FAILED','UNKNOWN')),
-  provider_connection_id uuid not null references einvoice.provider_connections(id),
-  provider_interaction_reference uuid null,
-  provider_request_reference varchar(255) null,
-  provider_result_code varchar(100) null,
-  provider_result_message text null,
-  failure_code varchar(100) null,
-  failure_message text null,
-  queued_at timestamptz not null default now(),
-  submitted_at timestamptz null,
-  completed_at timestamptz null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  version bigint not null default 0,
-  unique (tenant_id, invoice_delivery_id, attempt_no)
-);
-
-create unique index if not exists delivery_attempts_one_active
-  on einvoice.delivery_attempts (tenant_id, invoice_delivery_id)
-  where status in ('QUEUED','SUBMITTED');
-
-create index if not exists delivery_attempts_delivery_idx
-  on einvoice.delivery_attempts (tenant_id, invoice_delivery_id, attempt_no);
-
-alter table einvoice.delivery_attempts enable row level security;
-revoke all on einvoice.delivery_attempts from anon, authenticated;
-
--- ---------------------------------------------------------------------------
 -- Helpers
 -- ---------------------------------------------------------------------------
+drop function if exists einvoice._delivery_send_command_id(uuid);
 create or replace function einvoice._delivery_send_command_id(
-  p_attempt_id uuid
+  p_delivery_id uuid,
+  p_retry_count int
 ) returns uuid
 language plpgsql
 immutable
@@ -110,7 +80,7 @@ declare
   v_raw text;
   v_hex text;
 begin
-  v_raw := p_attempt_id::text || '|send_invoice_email|1';
+  v_raw := p_delivery_id::text || '|send_invoice_email|' || p_retry_count::text;
   v_hex := encode(sha256(v_raw::bytea), 'hex');
   return (
     substr(v_hex, 1, 8) || '-' ||
@@ -120,15 +90,6 @@ begin
     substr(v_hex, 21, 12)
   )::uuid;
 end;
-$$;
-
-create or replace function einvoice._delivery_intent_hash(
-  p_intent jsonb
-) returns text
-language sql
-immutable
-as $$
-  select encode(extensions.digest(convert_to(p_intent::text, 'UTF8'), 'sha256'), 'hex');
 $$;
 
 create or replace function einvoice._delivery_display_projection(
@@ -167,7 +128,7 @@ begin
     return;
   end if;
 
-  if 'PROCESSING' = any (p_statuses) then
+  if p_statuses && array['QUEUED', 'SUBMITTED']::text[] then
     display_state := 'SENDING';
     has_secondary_attention := false;
     return next;
@@ -187,22 +148,30 @@ begin
 end;
 $$;
 
+-- Trạng thái trả cho Dart và sự kiện: hai trạng thái kỹ thuật QUEUED/SUBMITTED
+-- gộp thành PROCESSING như trước khi gộp bảng (Dart, sự kiện không đổi).
+create or replace function einvoice._delivery_public_status(
+  p_status text
+) returns text
+language sql
+immutable
+as $$
+  select case when p_status in ('QUEUED', 'SUBMITTED') then 'PROCESSING' else p_status end;
+$$;
+
+drop function if exists einvoice._start_invoice_delivery(uuid, uuid, text, text, text, jsonb, uuid, text, text, uuid, uuid, uuid);
 create or replace function einvoice._start_invoice_delivery(
   p_tenant_id uuid,
   p_electronic_invoice_id uuid,
   p_delivery_intent text,
-  p_trigger_type text,
-  p_channel text,
   p_recipient_snapshot jsonb,
   p_idempotency_key uuid,
-  p_intent_hash text,
   p_actor_type text,
   p_actor_id uuid,
   p_provider_connection_id uuid,
   p_source_event_id uuid default null
 ) returns table(
   delivery_id uuid,
-  attempt_id uuid,
   status text
 )
 language plpgsql
@@ -211,7 +180,6 @@ set search_path = einvoice, public
 as $$
 declare
   v_delivery_id uuid;
-  v_attempt_id uuid;
   v_delivery_no integer;
   v_cmd_id uuid;
   v_existing einvoice.invoice_deliveries%rowtype;
@@ -228,38 +196,34 @@ begin
       electronic_invoice_id,
       delivery_no,
       delivery_intent,
-      trigger_type,
-      channel,
       recipient_snapshot_schema_version,
       recipient_snapshot,
       idempotency_key,
-      intent_hash,
       status,
+      retry_count,
+      provider_connection_id,
       initiated_by_actor_type,
       initiated_by_actor_id,
-      started_at,
       version
     ) values (
       p_tenant_id,
       p_electronic_invoice_id,
       v_delivery_no,
       p_delivery_intent,
-      p_trigger_type,
-      p_channel,
       1,
       p_recipient_snapshot,
       p_idempotency_key,
-      p_intent_hash,
-      'PROCESSING',
+      'QUEUED',
+      0,
+      p_provider_connection_id,
       p_actor_type,
       p_actor_id,
-      now(),
       0
     )
     returning id into v_delivery_id;
   exception
     when unique_violation then
-      -- Concurrent idempotency winner: replay or conflict by intent_hash.
+      -- Concurrent idempotency winner: replay or conflict by stored fields.
       select d.*
       into v_existing
       from einvoice.invoice_deliveries d
@@ -267,18 +231,13 @@ begin
         and d.idempotency_key = p_idempotency_key;
 
       if found then
-        if v_existing.intent_hash is distinct from p_intent_hash then
+        -- Cùng khoá chống lặp: cùng hoá đơn và cùng người nhận là gọi lặp.
+        if v_existing.electronic_invoice_id is distinct from p_electronic_invoice_id
+           or lower(v_existing.recipient_snapshot ->> 'toEmail')
+              is distinct from lower(p_recipient_snapshot ->> 'toEmail') then
           raise exception 'IDEMPOTENCY_CONFLICT: payload differs for key %', p_idempotency_key;
         end if;
-
-        select a.id
-        into v_attempt_id
-        from einvoice.delivery_attempts a
-        where a.tenant_id = p_tenant_id
-          and a.invoice_delivery_id = v_existing.id
-          and a.attempt_no = 1;
-
-        return query select v_existing.id, v_attempt_id, v_existing.status::text;
+        return query select v_existing.id, einvoice._delivery_public_status(v_existing.status);
         return;
       end if;
 
@@ -294,13 +253,13 @@ begin
         raise exception 'INITIAL_DELIVERY_ALREADY_CLAIMED: initial delivery already exists';
       end if;
 
-      -- Concurrent active PROCESSING lock unique loser.
+      -- Concurrent active QUEUED/SUBMITTED lock unique loser.
       if exists (
         select 1
         from einvoice.invoice_deliveries d
         where d.tenant_id = p_tenant_id
           and d.electronic_invoice_id = p_electronic_invoice_id
-          and d.status = 'PROCESSING'
+          and d.status in ('QUEUED', 'SUBMITTED')
       ) then
         raise exception 'OPERATION_IN_PROGRESS: delivery currently locked';
       end if;
@@ -308,26 +267,7 @@ begin
       raise;
   end;
 
-  insert into einvoice.delivery_attempts (
-    tenant_id,
-    invoice_delivery_id,
-    attempt_no,
-    status,
-    provider_connection_id,
-    queued_at,
-    version
-  ) values (
-    p_tenant_id,
-    v_delivery_id,
-    1,
-    'QUEUED',
-    p_provider_connection_id,
-    now(),
-    0
-  )
-  returning id into v_attempt_id;
-
-  v_cmd_id := einvoice._delivery_send_command_id(v_attempt_id);
+  v_cmd_id := einvoice._delivery_send_command_id(v_delivery_id, 0);
 
   perform einvoice.enqueue_internal_command(
     p_tenant_id,
@@ -335,13 +275,13 @@ begin
     jsonb_build_object(
       'tenant_id', p_tenant_id,
       'delivery_id', v_delivery_id,
-      'attempt_id', v_attempt_id
+      'retry_count', 0
     ),
     p_source_event_id,
     v_cmd_id
   );
 
-  return query select v_delivery_id, v_attempt_id, 'PROCESSING'::text;
+  return query select v_delivery_id, 'PROCESSING'::text;
 end;
 $$;
 
@@ -364,11 +304,10 @@ set search_path = einvoice, extensions, public
 as $$
 declare
   v_invoice einvoice.electronic_invoices%rowtype;
-  v_policy einvoice.invoice_automation_policies%rowtype;
+  v_attempt_snapshot jsonb;
+  v_policy einvoice.tenant_settings%rowtype;
   v_connection einvoice.provider_connections%rowtype;
   v_existing einvoice.invoice_deliveries%rowtype;
-  v_intent jsonb;
-  v_intent_hash text;
   v_buyer_partner_id uuid;
   v_recipient_row record;
   v_email text;
@@ -390,15 +329,6 @@ begin
     raise exception 'VALIDATION_ERROR: idempotency_key is required';
   end if;
 
-  -- Intent for stable auto_initial key (namespace 9d4c1d80-8d2c-5f2a-8b86-ff34c8a8e275).
-  v_intent := jsonb_build_object(
-    'operation', 'AUTO_INITIAL_SEND',
-    'electronic_invoice_id', p_electronic_invoice_id,
-    'channel', 'EMAIL',
-    'seed', 'auto_initial'
-  );
-  v_intent_hash := einvoice._delivery_intent_hash(v_intent);
-
   select d.*
   into v_existing
   from einvoice.invoice_deliveries d
@@ -407,7 +337,9 @@ begin
   for update;
 
   if found then
-    if v_existing.intent_hash <> v_intent_hash then
+    -- Khoá tự gửi suy từ (tổ chức, hoá đơn): chỉ khớp đúng lần gửi đầu của hoá đơn này.
+    if v_existing.electronic_invoice_id <> p_electronic_invoice_id
+       or v_existing.delivery_intent <> 'INITIAL_SEND' then
       raise exception 'IDEMPOTENCY_CONFLICT: payload differs for key %', p_idempotency_key;
     end if;
     return query select 'started'::text, v_existing.id, null::text;
@@ -425,9 +357,16 @@ begin
     raise exception 'NOT_FOUND: electronic invoice not found';
   end if;
 
+  -- Bản chụp người mua gốc (BuyerInvoiceSnapshot) nằm trong lần phát hành thành công.
+  select ia.attempt_snapshot
+  into v_attempt_snapshot
+  from einvoice.issuance_attempts ia
+  where ia.tenant_id = v_invoice.tenant_id
+    and ia.id = v_invoice.successful_attempt_id;
+
   select ap.*
   into v_policy
-  from einvoice.invoice_automation_policies ap
+  from einvoice.tenant_settings ap
   where ap.tenant_id = p_tenant_id;
 
   if not found or not coalesce(v_policy.auto_send_enabled, false) then
@@ -440,7 +379,7 @@ begin
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
     and pc.id = v_invoice.provider_connection_id
-    and pc.status = 'connected';
+    and pc.status = 'CONNECTED';
 
   if not found
      or coalesce((v_connection.capabilities_snapshot ->> 'supports_email_delivery')::boolean, false)
@@ -453,7 +392,7 @@ begin
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
     and d.electronic_invoice_id = p_electronic_invoice_id
-    and d.status = 'PROCESSING'
+    and d.status in ('QUEUED', 'SUBMITTED')
   limit 1;
 
   if v_active is not null then
@@ -479,7 +418,7 @@ begin
   v_buyer_partner_id := nullif(
     trim(
       coalesce(
-        v_invoice.invoice_snapshot #>> '{attemptSnapshot,buyer_lineage,buyerPartnerId}',
+        v_attempt_snapshot #>> '{buyer_lineage,buyerPartnerId}',
         ''
       )
     ),
@@ -510,7 +449,7 @@ begin
     v_email := nullif(
       btrim(
         coalesce(
-          v_invoice.invoice_snapshot #>> '{attemptSnapshot,buyer_lineage,buyerInvoiceSnapshot,email}',
+          v_attempt_snapshot #>> '{buyer_lineage,buyerInvoiceSnapshot,buyerEmail}',
           ''
         )
       ),
@@ -520,7 +459,7 @@ begin
       v_name := nullif(
         btrim(
           coalesce(
-            v_invoice.invoice_snapshot #>> '{attemptSnapshot,buyer_lineage,buyerInvoiceSnapshot,name}',
+            v_attempt_snapshot #>> '{buyer_lineage,buyerInvoiceSnapshot,buyerLegalName}',
             ''
           )
         ),
@@ -555,11 +494,8 @@ begin
       p_tenant_id,
       p_electronic_invoice_id,
       'INITIAL_SEND',
-      'AUTOMATIC',
-      'EMAIL',
       v_snapshot,
       p_idempotency_key,
-      v_intent_hash,
       'SYSTEM',
       null,
       v_connection.id,
@@ -603,8 +539,6 @@ declare
   v_invoice einvoice.electronic_invoices%rowtype;
   v_connection einvoice.provider_connections%rowtype;
   v_existing einvoice.invoice_deliveries%rowtype;
-  v_intent jsonb;
-  v_intent_hash text;
   v_email text;
   v_snapshot jsonb;
   v_intent_kind text;
@@ -658,16 +592,6 @@ begin
 
   v_intent_kind := case when v_has_initial then 'RESEND' else 'INITIAL_SEND' end;
 
-  v_intent := jsonb_build_object(
-    'operation', 'MANUAL_SEND',
-    'sales_order_id', p_sales_order_id,
-    'electronic_invoice_id', v_invoice.id,
-    'delivery_intent', v_intent_kind,
-    'recipient_email', v_email,
-    'channel', 'EMAIL'
-  );
-  v_intent_hash := einvoice._delivery_intent_hash(v_intent);
-
   select d.*
   into v_existing
   from einvoice.invoice_deliveries d
@@ -676,10 +600,13 @@ begin
   for update;
 
   if found then
-    if v_existing.intent_hash <> v_intent_hash then
+    -- So với dòng đã lưu, không so delivery_intent: lần gọi lặp sau lần gửi
+    -- đầu sẽ tính ra RESEND dù là cùng một yêu cầu.
+    if v_existing.electronic_invoice_id is distinct from v_invoice.id
+       or lower(v_existing.recipient_snapshot ->> 'toEmail') is distinct from lower(v_email) then
       raise exception 'IDEMPOTENCY_CONFLICT: payload differs for key %', p_idempotency_key;
     end if;
-    return query select v_existing.id, v_existing.status;
+    return query select v_existing.id, einvoice._delivery_public_status(v_existing.status);
     return;
   end if;
 
@@ -688,7 +615,7 @@ begin
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
     and pc.id = v_invoice.provider_connection_id
-    and pc.status = 'connected';
+    and pc.status = 'CONNECTED';
 
   if not found
      or coalesce((v_connection.capabilities_snapshot ->> 'supports_email_delivery')::boolean, false)
@@ -701,7 +628,7 @@ begin
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
     and d.electronic_invoice_id = v_invoice.id
-    and d.status = 'PROCESSING'
+    and d.status in ('QUEUED', 'SUBMITTED')
   limit 1;
 
   if v_active is not null then
@@ -722,11 +649,8 @@ begin
     p_tenant_id,
     v_invoice.id,
     v_intent_kind,
-    'MANUAL',
-    'EMAIL',
     v_snapshot,
     p_idempotency_key,
-    v_intent_hash,
     'USER',
     p_actor_id,
     v_connection.id,
@@ -758,6 +682,7 @@ set search_path = einvoice, public
 as $$
 declare
   v_invoice einvoice.electronic_invoices%rowtype;
+  v_attempt_snapshot jsonb;
   v_has_initial boolean;
   v_mode text;
   v_locked boolean;
@@ -796,6 +721,13 @@ begin
     raise exception 'NOT_FOUND: electronic invoice not found';
   end if;
 
+  -- Bản chụp người mua gốc (BuyerInvoiceSnapshot) nằm trong lần phát hành thành công.
+  select ia.attempt_snapshot
+  into v_attempt_snapshot
+  from einvoice.issuance_attempts ia
+  where ia.tenant_id = v_invoice.tenant_id
+    and ia.id = v_invoice.successful_attempt_id;
+
   select exists (
     select 1
     from einvoice.invoice_deliveries d
@@ -812,7 +744,7 @@ begin
     from einvoice.invoice_deliveries d
     where d.tenant_id = p_tenant_id
       and d.electronic_invoice_id = v_invoice.id
-      and d.status = 'PROCESSING'
+      and d.status in ('QUEUED', 'SUBMITTED')
   )
   into v_locked;
 
@@ -832,12 +764,15 @@ begin
         'deliveryId', d.id,
         'deliveryNo', d.delivery_no,
         'kind', d.delivery_intent,
-        'triggerType', d.trigger_type,
+        'triggerType', case
+          when d.initiated_by_actor_type = 'SYSTEM' then 'AUTOMATIC'
+          else 'MANUAL'
+        end,
         'recipientEmail', d.recipient_snapshot ->> 'toEmail',
-        'status', d.status,
+        'status', einvoice._delivery_public_status(d.status),
         'initiatedByActorType', d.initiated_by_actor_type,
         'initiatedByActorId', d.initiated_by_actor_id,
-        'startedAt', d.started_at,
+        'startedAt', d.created_at,
         'completedAt', d.completed_at,
         'failureCode', d.failure_code
       )
@@ -856,7 +791,7 @@ begin
   v_buyer_partner_id := nullif(
     trim(
       coalesce(
-        v_invoice.invoice_snapshot #>> '{attemptSnapshot,buyer_lineage,buyerPartnerId}',
+        v_attempt_snapshot #>> '{buyer_lineage,buyerPartnerId}',
         ''
       )
     ),
@@ -886,7 +821,7 @@ begin
           and d.status = 'SUCCEEDED'
           and nullif(d.recipient_snapshot ->> 'buyerPartnerId', '')::uuid
               = v_buyer_partner_id
-        order by d.started_at desc, d.delivery_no desc
+        order by d.created_at desc, d.delivery_no desc
         limit 1;
 
         if found and nullif(btrim(coalesce(v_last_success.email, '')), '') is not null then
@@ -984,12 +919,15 @@ begin
         'deliveryId', d.id,
         'deliveryNo', d.delivery_no,
         'kind', d.delivery_intent,
-        'triggerType', d.trigger_type,
+        'triggerType', case
+          when d.initiated_by_actor_type = 'SYSTEM' then 'AUTOMATIC'
+          else 'MANUAL'
+        end,
         'recipientEmail', d.recipient_snapshot ->> 'toEmail',
-        'status', d.status,
+        'status', einvoice._delivery_public_status(d.status),
         'initiatedByActorType', d.initiated_by_actor_type,
         'initiatedByActorId', d.initiated_by_actor_id,
-        'startedAt', d.started_at,
+        'startedAt', d.created_at,
         'completedAt', d.completed_at,
         'failureCode', d.failure_code
       )
@@ -1017,13 +955,12 @@ drop function if exists einvoice.load_delivery_attempt_context(uuid, uuid, uuid)
 create or replace function einvoice.load_delivery_attempt_context(
   p_tenant_id uuid,
   p_delivery_id uuid,
-  p_attempt_id uuid
+  p_retry_count int
 ) returns table(
   tenant_id uuid,
   delivery_id uuid,
-  attempt_id uuid,
+  retry_count int,
   delivery_version bigint,
-  attempt_version bigint,
   provider_connection_id uuid,
   provider_transaction_id text,
   invoice_series text,
@@ -1036,7 +973,6 @@ set search_path = einvoice, public
 as $$
 declare
   v_delivery einvoice.invoice_deliveries%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_invoice einvoice.electronic_invoices%rowtype;
 begin
   if coalesce(
@@ -1056,14 +992,8 @@ begin
     return;
   end if;
 
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = p_attempt_id
-    and a.invoice_delivery_id = p_delivery_id;
-
-  if not found then
+  -- Lệnh của lần thử cũ (đã chuyển sang lần thử sau hoặc đã xong): bỏ qua.
+  if v_delivery.retry_count <> p_retry_count then
     return;
   end if;
 
@@ -1080,12 +1010,11 @@ begin
   return query select
     p_tenant_id,
     v_delivery.id,
-    v_attempt.id,
+    v_delivery.retry_count,
     v_delivery.version,
-    v_attempt.version,
-    v_attempt.provider_connection_id,
+    v_delivery.provider_connection_id,
     v_invoice.provider_invoice_reference::text,
-    v_invoice.series::text,
+    v_invoice.invoice_series::text,
     v_delivery.recipient_snapshot ->> 'toEmail',
     nullif(v_delivery.recipient_snapshot ->> 'recipientName', '');
 end;
@@ -1094,14 +1023,14 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Grants
 -- ---------------------------------------------------------------------------
-revoke all on function einvoice._delivery_send_command_id(uuid)
+revoke all on function einvoice._delivery_send_command_id(uuid, int)
   from public, anon, authenticated, service_role;
-revoke all on function einvoice._delivery_intent_hash(jsonb)
+revoke all on function einvoice._delivery_public_status(text)
   from public, anon, authenticated, service_role;
 revoke all on function einvoice._delivery_display_projection(text[])
   from public, anon, authenticated, service_role;
 revoke all on function einvoice._start_invoice_delivery(
-  uuid, uuid, text, text, text, jsonb, uuid, text, text, uuid, uuid, uuid
+  uuid, uuid, text, jsonb, uuid, text, uuid, uuid, uuid
 ) from public, anon, authenticated, service_role;
 revoke all on function einvoice.start_auto_delivery(uuid, uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
@@ -1111,7 +1040,7 @@ revoke all on function einvoice.get_send_invoice_sheet_context(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
 revoke all on function einvoice.get_invoice_delivery_history(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
-revoke all on function einvoice.load_delivery_attempt_context(uuid, uuid, uuid)
+revoke all on function einvoice.load_delivery_attempt_context(uuid, uuid, int)
   from public, anon, authenticated, service_role;
 
 grant execute on function einvoice.send_electronic_invoice(uuid, uuid, uuid, text, uuid)
@@ -1125,5 +1054,5 @@ grant execute on function einvoice.get_invoice_delivery_history(uuid, uuid, uuid
 -- security-definer public/worker RPCs still call them as owner.
 grant execute on function einvoice.start_auto_delivery(uuid, uuid, uuid, uuid)
   to service_role;
-grant execute on function einvoice.load_delivery_attempt_context(uuid, uuid, uuid)
+grant execute on function einvoice.load_delivery_attempt_context(uuid, uuid, int)
   to service_role;

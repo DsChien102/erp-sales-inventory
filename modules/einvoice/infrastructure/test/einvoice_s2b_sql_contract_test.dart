@@ -32,7 +32,11 @@ String _extractFunction(String sql, String signaturePrefix) {
 
 void main() {
   late String sql;
+  late String draft008;
+  late String draft009;
+  late String draft014;
   late String issueInvoiceFn;
+  late String startHelper;
   late String preparePublishFn;
   late String recordSuccessFn;
   late String recordUndeterminedFn;
@@ -48,9 +52,25 @@ void main() {
       reason: 'S2b draft SQL must exist under supabase/migrations/_drafts/',
     );
     sql = draft.readAsStringSync();
+    draft008 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '008_einvoice_auto_issuance_and_retry_rpcs.sql',
+    ).readAsStringSync();
+    draft009 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '009_einvoice_issuance_reconciliation_rpcs.sql',
+    ).readAsStringSync();
+    draft014 = File(
+      '${_repoRoot().path}/supabase/migrations/_drafts/'
+      '014_einvoice_delivery_results_and_projection_rpcs.sql',
+    ).readAsStringSync();
     issueInvoiceFn = _extractFunction(
-      sql,
+      draft008,
       'create or replace function einvoice.issue_invoice(',
+    );
+    startHelper = _extractFunction(
+      draft008,
+      'create or replace function einvoice._start_issuance_attempt(',
     );
     preparePublishFn = _extractFunction(
       sql,
@@ -61,7 +81,7 @@ void main() {
       'create or replace function einvoice.record_issuance_success(',
     );
     recordUndeterminedFn = _extractFunction(
-      sql,
+      draft009,
       'create or replace function einvoice.record_issuance_undetermined(',
     );
   });
@@ -86,24 +106,24 @@ void main() {
           'create table if not exists einvoice.invoice_reconciliation_cases',
         ),
       );
-      expect(sql, contains('canonical_model_version text not null'));
+      expect(sql, isNot(contains('canonical_model_version')));
       expect(sql, contains('canonical_payload_hash varchar(128) not null'));
       expect(sql, contains('intent_hash varchar(128) not null'));
       expect(sql, contains('provider_connection_id uuid not null'));
-      expect(sql, contains('issuance_profile_id uuid not null'));
+      expect(sql, isNot(contains('issuance_profile_id')));
       expect(sql, contains('internal_finalization_state'));
       expect(sql, isNot(contains('canonical_payload jsonb not null')));
       expect(sql, isNot(contains('provider_correlation_key')));
       expect(sql, isNot(contains('safe_provider_evidence')));
       expect(sql, contains('created_at timestamptz not null default now()'));
-      expect(sql, contains('updated_at timestamptz not null default now()'));
+      expect(sql, isNot(contains('updated_at')));
     });
 
     test('issue_invoice uses opaque sourceVersion and replay idempotency', () {
-      expect(sql, contains('p_source_version text'));
+      expect(draft008, contains('p_source_version text'));
       expect(sql, isNot(contains('p_expected_order_version')));
-      expect(issueInvoiceFn, contains("'operation','ISSUE_ORIGINAL'"));
-      expect(issueInvoiceFn, contains("'source_version',p_source_version"));
+      expect(issueInvoiceFn, contains("'operation', 'ISSUE_ORIGINAL'"));
+      expect(issueInvoiceFn, contains("'source_version', p_source_version"));
       expect(issueInvoiceFn, contains('convert_to(v_intent::text'));
       expect(issueInvoiceFn, contains('for update'));
       expect(issueInvoiceFn, contains('intent_hash'));
@@ -112,8 +132,9 @@ void main() {
         issueInvoiceFn,
         contains('einvoice.load_issuance_source_snapshot'),
       );
-      expect(issueInvoiceFn, contains("'einvoice.publish_invoice'"));
-      expect(issueInvoiceFn, contains("'einvoice.issuance.processing'"));
+      expect(issueInvoiceFn, contains('einvoice._start_issuance_attempt'));
+      expect(startHelper, contains("'einvoice.publish_invoice'"));
+      expect(startHelper, contains("'einvoice.issuance.processing'"));
     });
 
     test('prepare_issuance_publish implements one-way dispatch barrier', () {
@@ -143,10 +164,7 @@ void main() {
         recordUndeterminedFn,
         contains("target_type = 'ISSUANCE_ATTEMPT'"),
       );
-      expect(
-        recordUndeterminedFn,
-        contains("reconciliation_purpose = 'DETERMINE_RESULT'"),
-      );
+      expect(recordUndeterminedFn, isNot(contains('reconciliation_purpose')));
       expect(recordUndeterminedFn, contains('next_check_at'));
       expect(sql, isNot(contains("'einvoice.poll_issuance_status'")));
     });
@@ -154,7 +172,7 @@ void main() {
 
   group('hash contract', () {
     test('uses PostgreSQL jsonb text digest for canonical payload hash', () {
-      expect(issueInvoiceFn, contains('convert_to(v_canonical_jsonb::text'));
+      expect(startHelper, contains('convert_to(v_canonical_jsonb::text'));
       expect(
         preparePublishFn,
         contains('convert_to(p_canonical_payload::text'),
@@ -221,14 +239,14 @@ void main() {
 
   group('task brief frozen contracts', () {
     test('matches plan Step 1 SQL surface assertions', () {
-      expect(sql, contains('p_source_version text'));
+      expect(draft008, contains('p_source_version text'));
       expect(sql, isNot(contains('p_expected_order_version')));
       expect(sql, isNot(contains('canonical_payload jsonb not null')));
-      expect(sql, contains('canonical_model_version text not null'));
+      expect(sql, isNot(contains('canonical_model_version')));
       expect(sql, contains('canonical_payload_hash varchar(128) not null'));
       expect(sql, contains('intent_hash varchar(128) not null'));
       expect(sql, contains('provider_connection_id uuid not null'));
-      expect(sql, contains('issuance_profile_id uuid not null'));
+      expect(sql, isNot(contains('issuance_profile_id')));
       expect(sql, contains('internal_finalization_state'));
       expect(sql, isNot(contains('provider_correlation_key')));
       expect(sql, isNot(contains('safe_provider_evidence')));
@@ -236,7 +254,7 @@ void main() {
       expect(sql, contains("'RECONCILE_ONLY'"));
       expect(sql, contains("'SKIP'"));
       expect(sql, contains("target_type = 'ISSUANCE_ATTEMPT'"));
-      expect(sql, contains("reconciliation_purpose = 'DETERMINE_RESULT'"));
+      expect(sql, isNot(contains('reconciliation_purpose')));
       expect(sql, contains('next_check_at'));
       expect(sql, isNot(contains("'einvoice.poll_issuance_status'")));
       expect(sql, contains('exception when others then'));
@@ -244,14 +262,14 @@ void main() {
       expect(sql, contains('record_issuance_command_integrity_failure'));
       expect(sql, contains("'COMMAND_INTEGRITY'"));
       expect(sql, contains('created_at timestamptz not null default now()'));
-      expect(sql, contains('updated_at timestamptz not null default now()'));
+      expect(sql, isNot(contains('updated_at')));
     });
   });
 
   group('projection', () {
     test('get_order_invoice_projection maps display states and actions', () {
       final projectionFn = _extractFunction(
-        sql,
+        draft014,
         'create or replace function einvoice.get_order_invoice_projection(',
       );
       expect(projectionFn, contains("'notIssued'"));

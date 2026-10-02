@@ -12,6 +12,7 @@ final class ElectronicInvoiceDetailDto {
     this.officialViewerUrl,
     this.officialViewerToken,
     this.officialViewerExpiresAt,
+    this.officialViewFailureCode,
   });
 
   final String electronicInvoiceId;
@@ -24,4 +25,5 @@ final class ElectronicInvoiceDetailDto {
   final String? officialViewerUrl;
   final String? officialViewerToken;
   final DateTime? officialViewerExpiresAt;
+  final String? officialViewFailureCode;
 }

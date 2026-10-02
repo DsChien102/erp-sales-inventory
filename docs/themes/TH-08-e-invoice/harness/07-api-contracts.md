@@ -25,7 +25,7 @@ Source of truth FE↔BE khi implement. Domain symbols: [01-domain-model.md](01-d
 | `TEMPLATE_NOT_AVAILABLE` | Template đã chọn mất / đổi loại / không còn trong capability | Blocker SG-01 / order |
 | `SIGNING_CONFIGURATION_NOT_AVAILABLE` | Signing config thiếu hoặc không tương thích template (MTT≠5, non-MTT≠2) | Blocker SG-01 / order |
 | `UNSUPPORTED_TAX_DATA` | Nguồn Sales vi phạm contract `KCT-only` (line/total tax ≠ 0 hoặc tax snapshot không rỗng) | Fail closed trước preview/issue |
-| `IDEMPOTENCY_CONFLICT` | Cùng `idempotencyKey` nhưng `intent_hash` khác | Refresh + new key |
+| `IDEMPOTENCY_CONFLICT` | Cùng `idempotencyKey` nhưng khác ý định (phát hành: `intent_hash`; gửi hoá đơn: khác hoá đơn hoặc email) | Refresh + new key |
 | `ORDER_NOT_COMPLETED` | SalesOrder chưa Hoàn tất | Hide issue actions |
 | `ALREADY_ISSUED` | Đã có ElectronicInvoice gốc | Hide issue, show view |
 | `OPERATION_IN_PROGRESS` | Attempt/delivery đang chạy / reconciling | Show processing state |
@@ -117,7 +117,7 @@ Spec: [Epic-01-provider-connection-config/US-02.md](../Epic-01-provider-connecti
 | `GetIssuanceProfileQuery` | tenantId, actorId | `IssuanceProfileDto` (current default + compatibility warnings) | NO_PERMISSION, NOT_FOUND |
 | `SetDefaultIssuanceConfigurationCommand` | tenantId, actorId, templateId, signingConfigId, expectedProfileVersion? | `IssuanceProfileDto` | NO_PERMISSION, VALIDATION_ERROR, INVALID_STATUS, PROVIDER_NOT_CONNECTED, STATE_CHANGED |
 
-FR-01..02: list + display templates/signing. FR-03..05: set default + compatibility check. FR-06..08: stale template warnings surfaced in DTO.
+FR-01..02: list + display templates/signing. FR-03..05: set default + compatibility check. FR-06..08: stale template warnings surfaced in DTO — chưa cài; khi làm thì **tính lúc đọc** bằng cách so `tenant_settings.default_template_id` / `default_invoice_series` với `capabilities_snapshot.templates`, không lưu cột.
 
 ### RPC mapping (BE) — drafted
 
@@ -215,8 +215,8 @@ Spec: [Epic-02-issue-from-sales-order/US-01.md](../Epic-02-issue-from-sales-orde
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `GetIssuanceReadinessQuery` | tenantId, actorId, salesOrderId | `IssuanceReadinessDto` (level, blockers, warnings, buyerCompletionState) | NO_PERMISSION, NOT_FOUND, ORDER_NOT_COMPLETED |
-| `CompleteBuyerInvoiceDataCommand` | tenantId, actorId, salesOrderId, expectedOrderVersion | `BuyerCompletionResultDto` (locked?, effectiveBuyer preview) | NO_PERMISSION, NOT_FOUND, BUYER_DATA_INCOMPLETE, BUYER_TAX_CODE_REQUIRED, STATE_CHANGED |
-| `RequestInvoicePreviewCommand` | tenantId, actorId, salesOrderId, expectedOrderVersion | `InvoicePreviewResultDto` (viewerRef \| previewPayload, warnings[]) | NO_PERMISSION, NOT_FOUND, ISSUANCE_NOT_READY, ORDER_NOT_COMPLETED, CONFIG_NOT_READY, PROVIDER_NOT_CONNECTED, PROVIDER_UNAVAILABLE |
+| `CompleteBuyerInvoiceDataCommand` | tenantId, actorId, salesOrderId, expectedOrderVersion | `BuyerCompletionResultDto` (locked?, effectiveBuyer preview) | NO_PERMISSION, NOT_FOUND, BUYER_DATA_INCOMPLETE, BUYER_TAX_CODE_REQUIRED, STATE_CHANGED, ALREADY_ISSUED, OPERATION_IN_PROGRESS |
+| `RequestInvoicePreviewCommand` | tenantId, actorId, salesOrderId, expectedOrderVersion | `InvoicePreviewResultDto` (viewerRef?, failureCode?, warnings[]) | NO_PERMISSION, NOT_FOUND, ISSUANCE_NOT_READY, ORDER_NOT_COMPLETED, CONFIG_NOT_READY, PROVIDER_NOT_CONNECTED, PROVIDER_UNAVAILABLE |
 | `GetInvoicePreviewQuery` | tenantId, actorId, salesOrderId | `InvoicePreviewResultDto` (cached if fresh) | same as preview command |
 
 Preview **không** tạo IssuanceAttempt / ElectronicInvoice (DR-02).
@@ -228,6 +228,8 @@ Preview **không** tạo IssuanceAttempt / ElectronicInvoice (DR-02).
 | Readiness | `einvoice.get_issuance_readiness` | drafted |
 | Complete buyer | `einvoice.complete_buyer_invoice_data` | drafted |
 | Preview | `einvoice.request_invoice_preview` | drafted |
+| Store preview result | `einvoice.store_preview_result(tenant, sales_order_id, request_id, status, viewer_ref, failure_code, failure_message, failure_source)` | drafted |
+| Get preview | `einvoice.get_invoice_preview` trả `(viewer_ref, status, failure_code)` | drafted |
 
 ### Worker mapping
 
@@ -346,7 +348,7 @@ Spec: [Epic-02-issue-from-sales-order/US-03.md](../Epic-02-issue-from-sales-orde
 
 **Quy định Stable Identity:**
 - Sales completion tạo process với `triggerKey = sales_order_finalized.v1:<eventId>:<salesOrderId>:<sourceVersion>`; provider `RefID` dùng UUIDv5 namespace `514eaf96-eed8-5f7b-9705-4a840c910684` trên chuỗi `<tenantId>|<salesOrderId>|<sourceVersion>`.
-- Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `AutomaticTriggerProcessRecord`, tuyệt đối không suy diễn business identity mới từ Partner event.
+- Partner event chỉ dùng `sourceEventId = <eventId>` để dedupe inbox/re-evaluation; nó phải load `processId`, original `triggerKey` và provider idempotency key từ `auto_issuance_processes`, tuyệt đối không suy diễn business identity mới từ Partner event.
 
 ### Commands / Queries
 
@@ -486,25 +488,24 @@ Chỉ khi attempt trước **definite FAILED** — không retry khi RECONCILING 
 
 ---
 
-## §S4 async resource contract (frozen before BE)
+## §S4 async resource contract (S3 — một dòng hiện hành)
 
-- Command request chỉ ghi operation + enqueue `internal_commands` trong cùng DB transaction; handler/RPC không chờ hoặc gọi MISA.
-- Kết quả request luôn có `operationId` và `status` (`PENDING`, `AVAILABLE`, `FAILED`, `CHECK_REQUIRED`). URL/token/fileRef/checksum chỉ có khi `AVAILABLE`.
-- `CHECK_REQUIRED is an unresolved lock` on the same `operationId`/generation: replay re-arms that operation; only definite `FAILED` or expired AVAILABLE allows a new generation.
-- Replay cùng invoice/resource identity trả operation hiện có; một invoice chỉ có một active official-view operation và một active document operation cho mỗi `documentType`.
+- Command request ghi đè dòng hiện hành của tài nguyên (một dòng / hoá đơn cho xem chính thức; một dòng / (hoá đơn, loại tệp) cho PDF/XML) và enqueue `internal_commands` trong cùng DB transaction; handler/RPC không chờ hoặc gọi MISA. Mỗi yêu cầu sinh `request_id` mới; kết quả muộn của yêu cầu cũ bị bỏ qua.
+- Kết quả request luôn có `operationId` (chính là `request_id` hiện hành) và `status` (`PENDING`, `AVAILABLE`, `FAILED`, `CHECK_REQUIRED`). URL/token/fileRef/checksum chỉ có khi `AVAILABLE`.
+- `CHECK_REQUIRED` do dead-letter ghi với `failure_source = INTERNAL`. Không còn dòng mới mỗi lần làm mới.
 - UI poll read model: official view qua `GetElectronicInvoiceDetailQuery`; PDF/XML qua `GetInvoiceDocumentsQuery`. Poll dừng ở `AVAILABLE` hoặc `FAILED`.
-- URL tải/xem phải ngắn hạn; query recheck tenant + permission trước khi trả URL. Hết hạn thì request re-arm operation, không dùng URL cũ.
-- Worker mới được gọi `previewPublished`, `download`, `getStatus`; raw provider payload không trả về client và observation không được đổi authoritative issuance state.
+- URL tải/xem phải ngắn hạn; query recheck tenant + permission trước khi trả URL. Hết hạn thì yêu cầu mới ghi đè dòng, không dùng URL cũ.
+- Worker mới được gọi `previewPublished`, `download`, `getStatus`; raw provider payload không trả về client và observation không được đổi authoritative issuance state. Mỗi lần gọi MISA ghi kết quả lên dòng nghiệp vụ (`failure_source`); không còn bảng nhật ký — [06-provider-interaction-records.md](../../../superpowers/specs/einvoice-schema-refactor/06-provider-interaction-records.md).
 
-### Operation status transitions (frozen)
+### Operation status transitions (S3)
 
 ```text
 PENDING --provider success--> AVAILABLE
 PENDING --definite rejection/no document--> FAILED
 PENDING --auth/config/content uncertain--> CHECK_REQUIRED
-PENDING --timeout/5xx/transport ambiguous--> retry same operation
-ambiguous retry exhaustion --> CHECK_REQUIRED; keep logical resource lock
-Request replay at CHECK_REQUIRED re-arms the same operation; no competing generation
+PENDING --timeout/5xx/transport ambiguous--> retry same request
+ambiguous retry exhaustion / dead-letter --> CHECK_REQUIRED (failure_source = INTERNAL)
+Kết quả của request_id cũ bị bỏ qua
 ```
 
 ### Access scope (frozen)
@@ -521,11 +522,11 @@ Observation collection là explicit policy/support trigger với caller-owned `t
 
 ### S4 implementation evidence (Slice 4 BE + worker)
 
-Verified in repo (không live MISA trong CI): `modules/einvoice/infrastructure/test/einvoice_slice4_integration_test.dart`, `modules/einvoice/application/test/electronic_invoice/s4_worker_handlers_test.dart`, `apps/messaging_worker/test/einvoice_worker_slice4_test.dart`. Internal commands: `einvoice.fetch_official_view` (max 2 attempts), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation` (trigger-scoped). Worker injects `_worker_attempt_number` via `ProcessInternalCommandsCommandHandler`. Signed viewer/download URL TTL 5 phút; Storage bucket private, scoped SELECT only. BE DB lane `in_progress`: drafts `010`/`011`/`012`/`018` chưa promote; `sales.can_access_sales_order` chỉ stub trong draft 010.
+Verified in repo (không live MISA trong CI): `modules/einvoice/infrastructure/test/einvoice_slice4_integration_test.dart`, `modules/einvoice/application/test/electronic_invoice/s4_worker_handlers_test.dart`, `apps/messaging_worker/test/einvoice_worker_slice4_test.dart`. Internal commands: `einvoice.fetch_official_view` (max 2 attempts), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation` (trigger-scoped). Worker injects `_worker_attempt_number` via `ProcessInternalCommandsCommandHandler`. Signed viewer/download URL TTL 5 phút; Storage bucket private, scoped SELECT only. BE DB lane `in_progress`: drafts `010`/`011`/`012`/`018` chưa promote; `sales.can_access_sales_order` chỉ stub trong draft 010. Cập nhật bởi refactor 2026-10-01 (gói 2).
 
 ### S4 implementation evidence (Slice 4 FE — app-owned presentation)
 
-Verified in `apps/erp` (không gọi MISA/OS thật trong widget tests):
+Verified in `apps/erp` (không gọi MISA/OS thật trong widget tests). Cập nhật bởi refactor 2026-10-01 (gói 2).
 
 | Concern | Implementation | Test ids |
 | ------- | -------------- | -------- |
@@ -549,8 +550,8 @@ Spec: [Epic-03-issued-invoice-documents/US-01.md](../Epic-03-issued-invoice-docu
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `GetElectronicInvoiceDetailQuery` | tenantId, actorId, salesOrderId | `ElectronicInvoiceDetailDto` (identity, snapshot summary, providerRef, officialViewOperationId/status, viewer fields?) | NO_PERMISSION, NOT_FOUND |
-| `RequestOfficialInvoiceViewCommand` | tenantId, actorId, salesOrderId | `OfficialInvoiceViewDto` (operationId, status, viewerUrl?/token?/expiresAt?) | NO_PERMISSION, NOT_FOUND, OPERATION_IN_PROGRESS, SYSTEM_ERROR |
+| `GetElectronicInvoiceDetailQuery` | tenantId, actorId, salesOrderId | `ElectronicInvoiceDetailDto` (electronicInvoiceId, salesOrderId, invoiceNumber?, providerRef, issuedAt?, officialViewOperationId/status, officialViewerUrl?/token?/expiresAt?, officialViewFailureCode?) | NO_PERMISSION, NOT_FOUND |
+| `RequestOfficialInvoiceViewCommand` | tenantId, actorId, salesOrderId | `OfficialInvoiceViewDto` (operationId?, status, viewerUrl?, token?, expiresAt?) | NO_PERMISSION, NOT_FOUND, OPERATION_IN_PROGRESS, SYSTEM_ERROR |
 | `GetOrderInvoiceProjectionQuery` | tenantId, actorId, salesOrderId | `OrderInvoiceProjectionDto` (displayState=Đã phát hành, action=view) | NO_PERMISSION, NOT_FOUND |
 
 Entry từ Theme 05 row action — không standalone list (SG-05 no UI).
@@ -588,8 +589,8 @@ Spec: [Epic-03-issued-invoice-documents/US-02.md](../Epic-03-issued-invoice-docu
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `GetInvoiceDocumentsQuery` | tenantId, actorId, salesOrderId | `InvoiceDocumentsDto` (pdf/xml item: operationId?, status, URL/fileRef/checksum?) | NO_PERMISSION, NOT_FOUND |
-| `RequestInvoiceDocumentCommand` | tenantId, actorId, salesOrderId, documentType (`pdf` \| `xml`), idempotencyKey | `InvoiceDocumentRetrievalDto` (operationId, status, downloadUrl?/fileRef?/checksum?) | NO_PERMISSION, NOT_FOUND, OPERATION_IN_PROGRESS, SYSTEM_ERROR |
+| `GetInvoiceDocumentsQuery` | tenantId, actorId, salesOrderId | `InvoiceDocumentsDto` (pdf/xml item: operationId?, status, downloadUrl?/fileRef?/checksum?, expiresAt?, failureCode?) | NO_PERMISSION, NOT_FOUND |
+| `RequestInvoiceDocumentCommand` | tenantId, actorId, salesOrderId, documentType (`pdf` \| `xml`) | `InvoiceDocumentRetrievalDto` (operationId, status, downloadUrl?/fileRef?/checksum?) | NO_PERMISSION, NOT_FOUND, OPERATION_IN_PROGRESS, SYSTEM_ERROR |
 
 FR-03..08: separate operations per document type; metadata + checksum stored on success.
 
@@ -626,18 +627,7 @@ Spec: [Epic-03-issued-invoice-documents/US-03.md](../Epic-03-issued-invoice-docu
 
 **Server/worker-only** — observation không có màn riêng MVP. Không có tenant-wide scheduled observation scan hoặc due-command seeder RPC.
 
-### Observation interaction semantics (frozen)
-
-```text
-Timeout/unavailable records interaction failure and creates no fabricated observation.
-Each outbound provider-call attempt or inbound callback creates one ProviderInteractionRecord.
-Provider fact creates append-only ProviderObservationRecord referencing the interaction.
-NOT_FOUND/MISMATCH appends observation and outbox event einvoice.provider_observation_attention_required.
-Observation collection is explicit policy/support trigger with caller-owned triggerId.
-Replay of the same triggerId reuses one command; distinct authorized triggers on the same day remain distinct.
-Rate protection is max one in-flight observation call per provider connection plus worker backoff/429 handling; it is not a daily uniqueness rule.
-ProviderObservationRecord correlation is resolved through provider_interaction_reference; no correlation_id column on invoice_provider_observations.
-```
+Mỗi lần gọi MISA ghi kết quả lên dòng nghiệp vụ (`failure_source`); không còn bảng nhật ký — [06-provider-interaction-records.md](../../../superpowers/specs/einvoice-schema-refactor/06-provider-interaction-records.md).
 
 SRS “Theme 11” alerts naming drift: repo harness là `TH-10-alerts-and-risk`. E-invoice emits neutral integration event `einvoice.provider_observation_attention_required`; không import alerts module.
 
@@ -645,7 +635,7 @@ SRS “Theme 11” alerts naming drift: repo harness là `TH-10-alerts-and-risk`
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `RecordProviderObservationCommand` | tenantId, electronicInvoiceId, allow-listed typed fields + `providerInteractionReference`, source | `ProviderObservationDto` (source/providerStateCode; correlation derived from interaction) | NOT_FOUND, VALIDATION_ERROR, SYSTEM_ERROR |
+| `RecordProviderObservationCommand` | tenantId, electronicInvoiceId, providerStateCode, safeDescription?, providerReference?, observedAt, deduplicationKey, detailsSnapshot, correlationId, source | `ProviderObservationDto` (source/providerStateCode, correlationId) | NOT_FOUND, VALIDATION_ERROR, SYSTEM_ERROR |
 | `GetLatestProviderObservationQuery` | tenantId, actorId, salesOrderId | `ProviderObservationDto?` | NO_PERMISSION, NOT_FOUND |
 
 Append-only history (FR-02). Distinct from authoritative issuance state (FR-04).
@@ -703,11 +693,11 @@ name      = <tenantId>|<electronicInvoiceId>|auto_initial
 | Check | Authoritative source | Failure |
 | ----- | -------------------- | ------- |
 | ElectronicInvoice tồn tại + đã registered | E-invoice authoritative row | `NOT_FOUND`, không delivery |
-| Auto-send còn bật | `einvoice.automation_policies.auto_send_enabled` | skip `POLICY_OFF` |
+| Auto-send còn bật | `einvoice.tenant_settings.auto_send_enabled` | skip `POLICY_OFF` |
 | Connection active hỗ trợ email | `provider_connections.capabilities_snapshot.supports_email_delivery` | `DELIVERY_NOT_SUPPORTED` |
 | Recipient hợp lệ | current Partner snapshot → immutable `BuyerInvoiceSnapshot` lineage | skip `INVALID_OR_MISSING_EMAIL` |
 
-**Recipient fallback (automatic initial):** current Partner invoice email → `invoice_snapshot.attemptSnapshot.buyer_lineage.buyerInvoiceSnapshot.email`. `attemptSnapshot.buyer` là `EffectiveBuyerInvoiceData` và **không** được dùng thay cho base snapshot. Không có `buyerPartnerId` ổn định thì fallback duy nhất là `buyerInvoiceSnapshot.email`; cấm history tenant-wide / cross-customer.
+**Recipient fallback (automatic initial):** current Partner invoice email → `issuance_attempts.attempt_snapshot.buyer_lineage.buyerInvoiceSnapshot.buyerEmail` (lần phát hành thành công). `attemptSnapshot.buyer` là `EffectiveBuyerInvoiceData` và **không** được dùng thay cho base snapshot. Không có `buyerPartnerId` ổn định thì fallback duy nhất là `buyerInvoiceSnapshot.buyerEmail`; cấm history tenant-wide / cross-customer.
 
 Tối đa **một** `INITIAL_SEND` business delivery / invoice. Manual thắng race → auto trả `initialDeliveryAlreadyClaimed`.
 
@@ -800,7 +790,7 @@ Spec: [Epic-04-send-resend-einvoice/US-03.md](../Epic-04-send-resend-einvoice/US
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `RecordDeliveryResultCommand` | tenantId, deliveryId, attemptId, expectedDeliveryVersion, expectedAttemptVersion, interactionReference, `DeliveryResultEvidence` | `RecordDeliveryResultDto` (deliveryStatus, displayState, hasSecondaryAttention) | NOT_FOUND, INVALID_STATUS, STATE_CHANGED, SYSTEM_ERROR |
+| `RecordDeliveryResultCommand` | tenantId, deliveryId, retryCount, expectedDeliveryVersion, DeliveryResultEvidence (kind, providerReference?, safeCode?, failureSource?) | `RecordDeliveryResultDto` (deliveryStatus, displayState, hasSecondaryAttention) | NOT_FOUND, INVALID_STATUS, STATE_CHANGED, SYSTEM_ERROR |
 | `ReconcileInvoiceDeliveryCommand` | tenantId, reconciliationCaseId, checkSequence | `DeliveryReconciliationResultDto` (caseStatus, deliveryStatus, nextCheckAt?, hasSecondaryAttention) | NOT_FOUND, INVALID_STATUS, STATE_CHANGED |
 | `GetInvoiceDeliveryHistoryQuery` | tenantId, actorId, salesOrderId | `InvoiceDeliveryHistoryDto` (deliveries[], displayState, hasSecondaryAttention) | NO_PERMISSION, NOT_FOUND |
 | `GetOrderInvoiceProjectionQuery` | tenantId, actorId, salesOrderId | `OrderInvoiceProjectionDto` (delivery display) | NO_PERMISSION, NOT_FOUND |
@@ -814,6 +804,7 @@ final class DeliveryResultEvidence {
   final DeliveryResultKind kind;
   final String? providerReference;
   final String? safeCode;
+  final FailureSource? failureSource;
 }
 ```
 
@@ -836,7 +827,7 @@ Không persist access token, credential, HTTP header, signature, raw response, r
 
 | `supports_delivery_result_observation` | Hành vi |
 | -------------------------------------- | ------- |
-| `true` | Một typed observation / check sequence. Evidence terminal → resolve delivery/attempt/case. Undetermined → lịch `[30s, 2m, 10m, 30m, 2h]`; check thứ 5 undetermined → `UNRESOLVED` + attention |
+| `true` | Một typed observation / check sequence. Evidence terminal → resolve delivery/case. Undetermined → lịch `[30s, 2m, 10m, 30m, 2h]`; check thứ 5 undetermined → `UNRESOLVED` + attention |
 | `false` | **Không** outbound HTTP. Check đầu tiên ghi safe code `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, chuyển case sang `UNRESOLVED`, clear `next_check_at`, emit attention |
 
 MISA hiện tại luôn `supports_delivery_result_observation = false`. Evidence terminal xác thực đến muộn cho cùng attempt có thể chuyển `PENDING` hoặc `UNRESOLVED` → `RESOLVED` mà không tạo delivery mới hay gửi lại email.
@@ -847,32 +838,32 @@ MISA hiện tại luôn `supports_delivery_result_observation = false`. Evidence
 
 | Use case | RPC | Status |
 | -------- | --- | ------ |
-| Load attempt context | `einvoice.load_delivery_attempt_context` | drafted |
-| Prepare provider call (barrier) | `einvoice.prepare_delivery_provider_call` | drafted |
-| Record result | `einvoice.record_delivery_result` | drafted |
-| Command dead-letter | `einvoice.record_delivery_command_dead_letter` | drafted |
+| Load attempt context | `einvoice.load_delivery_attempt_context(tenant, delivery_id, retry_count)` | drafted |
+| Prepare provider call (barrier) | `einvoice.prepare_delivery_provider_call(tenant, delivery_id, retry_count, request_reference)` | drafted |
+| Record result | `einvoice.record_delivery_result(tenant, delivery_id, retry_count, expected_version, outcome_kind, provider_reference, safe_code, failure_source)` | drafted |
+| Command dead-letter | `einvoice.record_delivery_command_dead_letter(tenant, delivery_id, retry_count, safe_failure_code)` | drafted |
 | Load reconciliation context | `einvoice.load_delivery_reconciliation_context` | drafted |
-| Record reconciliation check | `einvoice.record_delivery_reconciliation_check` | drafted |
+| Record reconciliation check | `einvoice.record_delivery_reconciliation_check` — bỏ `p_interaction_reference` | drafted |
 | History | `einvoice.get_invoice_delivery_history` | drafted |
 | Projection | `einvoice.get_order_invoice_projection` | drafted |
 
-Delivery case dùng lại bảng canonical `einvoice.invoice_reconciliation_cases` (`target_type = 'DELIVERY_ATTEMPT'`, `reconciliation_purpose = 'VERIFY_DELIVERY'`) — **không** tạo bảng case riêng cho delivery.
+Delivery case dùng lại bảng canonical `einvoice.invoice_reconciliation_cases` (`target_type = 'INVOICE_DELIVERY'` — bảng 13) — **không** tạo bảng case riêng cho delivery.
 
 ### Worker mapping
 
 | Step | Job type | Client method |
 | ---- | -------- | ------------- |
-| Send | `einvoice.send_invoice_email` (tenantId, deliveryId, attemptId) | `IMeInvoiceClient.sendEmail` |
+| Send | `einvoice.send_invoice_email` (tenantId, deliveryId, retryCount) | `IMeInvoiceClient.sendEmail` |
 | Reconcile | `einvoice.reconcile_invoice_delivery` (tenantId, reconciliationCaseId, checkSequence) | none khi capability = false |
 
-Mỗi outbound call thực tế có đúng một `ProviderInteractionRecord` target `DELIVERY_ATTEMPT` (reuse contract S4 nguyên vẹn): `start` trước HTTP, finalize một lần với outcome allow-listed.
+Mỗi lần gọi MISA ghi kết quả lên dòng nghiệp vụ (`failure_source`); không còn bảng nhật ký — [06-provider-interaction-records.md](../../../superpowers/specs/einvoice-schema-refactor/06-provider-interaction-records.md).
 
 ### Integration events
 
 | Event | Payload (safe) |
 | ----- | -------------- |
 | `einvoice.delivery.result_recorded` | + `salesOrderId`, `deliveryId`, `deliveryStatus`, `deliveryDisplayState`, `deliveryVersion`, `hasSecondaryAttention` |
-| `einvoice.delivery.attention_required` | tenant/invoice/SalesOrder/delivery/attempt/case id + safe error code — chỉ khi reconciliation đạt `UNRESOLVED` |
+| `einvoice.delivery.attention_required` | tenant/invoice/SalesOrder/delivery/case id + safe error code — chỉ khi reconciliation đạt `UNRESOLVED` |
 
 `UNKNOWN` + tạo case `PENDING` + command reconciliation đầu tiên + result event là atomic. Chuyển `UNRESOLVED` + attention event là atomic.
 
@@ -972,13 +963,13 @@ Draft-only update in `013_einvoice_delivery_schema_and_start_rpcs.sql` and
 `014_einvoice_delivery_results_and_projection_rpcs.sql`; not applied/promoted.
 Email mock / `is_simulated` provenance has been removed (Option B).
 
-- `einvoice.send_invoice_email` produces `tenant_id`, `delivery_id`, `attempt_id`.
+- `einvoice.send_invoice_email` produces `tenant_id`, `delivery_id`, `retry_count`.
   Delivery deserializer/dead-letter parser accept legacy camelCase aliases, reject
   missing/non-string/blank identities and conflicting aliases. Claimed tenant must
   match payload tenant; dead-letter may use claimed tenant when legacy payload omits it.
-- `prepare_delivery_provider_call(uuid, uuid, uuid, bigint, bigint, text)` is the
+- `prepare_delivery_provider_call(tenant, delivery_id, retry_count, request_reference)` is the
   only signature (boolean `p_is_simulated` overload dropped). At the atomic
-  `QUEUED → SUBMITTED` barrier it bumps versions and stores the request reference.
+  `QUEUED → SUBMITTED` barrier it stores the request reference.
   Only worker service role may call.
 - `get_order_invoice_projection` exposes `delivery_pending boolean` (true while any
   delivery is `PROCESSING`, including pending resends when sticky

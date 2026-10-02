@@ -22,17 +22,19 @@ abstract interface class IElectronicInvoiceCommandGateway {
     required String actorId,
     required String salesOrderId,
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   });
 
   Future<OfficialViewOperationContextDto?> loadOfficialViewContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   });
 
   Future<InvoiceDocumentOperationContextDto?> loadDocumentContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
   });
 
   Future<ProviderObservationOperationContextDto?> loadObservationContext({

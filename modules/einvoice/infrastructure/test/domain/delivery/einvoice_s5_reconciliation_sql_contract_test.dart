@@ -99,9 +99,11 @@ void main() {
       expect(loadFn, contains('p_check_sequence'));
     });
 
-    test('validates DELIVERY_ATTEMPT target and VERIFY_DELIVERY purpose', () {
-      expect(loadFn, contains("'DELIVERY_ATTEMPT'"));
-      expect(loadFn, contains("'VERIFY_DELIVERY'"));
+    test('validates INVOICE_DELIVERY target', () {
+      expect(loadFn, contains("v_case.target_type is distinct from 'INVOICE_DELIVERY'"));
+      expect(loadFn, isNot(contains('delivery_attempts')));
+      expect(recordFn, contains("failure_source = 'PROVIDER'"));
+      expect(recordFn, isNot(contains('p_interaction_reference')));
     });
 
     test('exposes capability flag fail-closed from capabilities_snapshot', () {

@@ -52,7 +52,7 @@ void main() {
 
       expect(previewGateway.enqueuedFor, 'so-1');
       expect(result.viewerRef, isNull);
-      expect(result.previewPayload, isNull);
+      expect(result.failureCode, isNull);
       expect(result.warnings, ['Cảnh báo 1']);
     });
 
@@ -83,7 +83,7 @@ void main() {
 
       expect(previewGateway.enqueuedFor, 'so-2');
       expect(result.viewerRef, isNull);
-      expect(result.previewPayload, isNull);
+      expect(result.failureCode, isNull);
     });
 
     test(
@@ -124,7 +124,7 @@ void main() {
     test('returns cached preview when present', () async {
       const cachedDto = InvoicePreviewResultDto(
         viewerRef: 'https://preview.provider.com/view/123',
-        previewPayload: {'status': 'ready'},
+        failureCode: 'PROVIDER_REJECTED_INVOICE_DATA',
         warnings: ['warn'],
       );
       final previewGateway = FakeInvoicePreviewGateway(
@@ -144,7 +144,7 @@ void main() {
       );
 
       expect(result.viewerRef, 'https://preview.provider.com/view/123');
-      expect(result.previewPayload, {'status': 'ready'});
+      expect(result.failureCode, 'PROVIDER_REJECTED_INVOICE_DATA');
       expect(result.warnings, ['warn']);
     });
 
@@ -166,7 +166,7 @@ void main() {
       );
 
       expect(result.viewerRef, isNull);
-      expect(result.previewPayload, isNull);
+      expect(result.failureCode, isNull);
       expect(result.warnings, isEmpty);
     });
   });

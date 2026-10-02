@@ -6,11 +6,9 @@ final class DownloadInvoiceDocumentCommand extends InternalCommandBase<void>
   DownloadInvoiceDocumentCommand({
     String? id,
     required this.tenantId,
-    required this.operationId,
     required this.electronicInvoiceId,
     required this.documentType,
-    required this.operationGeneration,
-    required this.attemptOrdinal,
+    required this.requestId,
     required this.correlationId,
     this.workerAttemptNumber = 1,
   }) : super(id);
@@ -22,22 +20,18 @@ final class DownloadInvoiceDocumentCommand extends InternalCommandBase<void>
 
   @override
   final String tenantId;
-  final String operationId;
   final String electronicInvoiceId;
   final InvoiceDocumentType documentType;
-  final int operationGeneration;
-  final int attemptOrdinal;
+  final String requestId;
   final String correlationId;
   final int workerAttemptNumber;
 
   @override
   Map<String, dynamic> toJson() => stripInternalCommandRowId({
     'tenant_id': tenantId,
-    'operation_id': operationId,
     'electronic_invoice_id': electronicInvoiceId,
     'document_type': _documentTypeToWire(documentType),
-    'operation_generation': operationGeneration,
-    'attempt_ordinal': attemptOrdinal,
+    'request_id': requestId,
     'correlation_id': correlationId,
   });
 
@@ -49,12 +43,11 @@ final class DownloadInvoiceDocumentCommand extends InternalCommandBase<void>
     return DownloadInvoiceDocumentCommand(
       id: id,
       tenantId: normalized['tenant_id'] as String,
-      operationId: normalized['operation_id'] as String,
       electronicInvoiceId: normalized['electronic_invoice_id'] as String,
-      documentType: _documentTypeFromWire(normalized['document_type'] as String),
-      operationGeneration:
-          (normalized['operation_generation'] as num?)?.toInt() ?? 1,
-      attemptOrdinal: (normalized['attempt_ordinal'] as num?)?.toInt() ?? 1,
+      documentType: _documentTypeFromWire(
+        normalized['document_type'] as String,
+      ),
+      requestId: normalized['request_id'] as String,
       correlationId: normalized['correlation_id'] as String,
       workerAttemptNumber: readInternalCommandWorkerAttemptNumber(normalized),
     );

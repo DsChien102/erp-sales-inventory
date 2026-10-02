@@ -264,7 +264,7 @@ void main() {
       RegExp('expected_connection_version').allMatches(connectionSql),
       hasLength(greaterThanOrEqualTo(7)),
     );
-    expect(recordFunction, contains("pc.status = 'checkRequired'"));
+    expect(recordFunction, contains("pc.status = 'CHECK_REQUIRED'"));
     expect(
       recordFunction,
       contains('pc.connection_version = p_expected_connection_version'),
@@ -341,12 +341,12 @@ void main() {
   test('profile and policy mutations qualify insert target returns', () {
     expect(
       configurationSql,
-      contains('returning ip.profile_version into v_version'),
+      contains('returning ts.profile_version into v_version'),
     );
-    expect(configurationSql, contains('returning iap.policy_version,'));
-    expect(configurationSql, contains('iap.auto_issue_enabled,'));
-    expect(configurationSql, contains('iap.auto_send_enabled,'));
-    expect(configurationSql, contains('iap.blockers'));
+    expect(configurationSql, contains('returning ts.policy_version,'));
+    expect(configurationSql, contains('ts.auto_issue_enabled,'));
+    expect(configurationSql, contains('ts.auto_send_enabled'));
+    expect(configurationSql, isNot(contains('iap.blockers')));
   });
 
   test('theme8 bundle carries the same S1 access contract', () {

@@ -11,7 +11,7 @@ void main() {
         observationId: 'obs-1',
         electronicInvoiceId: 'invoice-1',
         providerStateCode: 'MISMATCH',
-        providerInteractionReference: 'interaction-1',
+        correlationId: 'corr-1',
       );
 
       final payload = event.toPayload();
@@ -19,7 +19,7 @@ void main() {
       expect(payload['observation_id'], 'obs-1');
       expect(payload['electronic_invoice_id'], 'invoice-1');
       expect(payload['provider_state_code'], 'MISMATCH');
-      expect(payload['provider_interaction_reference'], 'interaction-1');
+      expect(payload['correlation_id'], 'corr-1');
       expect(payload, isNot(contains('raw_response')));
       expect(payload, isNot(contains('details_snapshot')));
       expect(payload, isNot(contains('access_token')));
@@ -33,7 +33,7 @@ void main() {
         observationId: 'obs-1',
         electronicInvoiceId: 'invoice-1',
         providerStateCode: 'NOT_FOUND',
-        providerInteractionReference: 'interaction-1',
+        correlationId: 'corr-1',
       );
 
       final decoded = ProviderObservationAttentionRequiredIntegrationEvent.fromPayload(
@@ -45,10 +45,7 @@ void main() {
       expect(decoded.observationId, event.observationId);
       expect(decoded.electronicInvoiceId, event.electronicInvoiceId);
       expect(decoded.providerStateCode, event.providerStateCode);
-      expect(
-        decoded.providerInteractionReference,
-        event.providerInteractionReference,
-      );
+      expect(decoded.correlationId, event.correlationId);
     });
   });
 }

@@ -35,7 +35,7 @@ void main() {
       expect(gateway.officialViewRequests, isEmpty);
     });
 
-    test('blank idempotency key rejects before gateway call', () async {
+    test('blank sales order rejects document request before gateway call', () async {
       final gateway = RecordingElectronicInvoiceCommandGateway();
       final handler = RequestInvoiceDocumentCommandHandler(gateway: gateway);
       final validator = RequestInvoiceDocumentCommandValidator();
@@ -53,9 +53,8 @@ void main() {
           RequestInvoiceDocumentCommand(
             tenantId: 'tenant-1',
             actorId: 'actor-1',
-            salesOrderId: 'order-1',
+            salesOrderId: ' ',
             documentType: InvoiceDocumentType.pdf,
-            idempotencyKey: ' ',
           ),
         ),
         throwsA(isA<ValidationException>()),

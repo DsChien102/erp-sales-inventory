@@ -167,6 +167,48 @@ void main() {
     );
 
     test(
+      'previewPublished sends MTT classification derived from invoice series',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        await adapter.fetchOfficialView(_context(invoiceSeries: '2C26MYY'));
+
+        expect(fakeClient.lastPreviewPublishedQuery?.invoiceWithCode, isTrue);
+        expect(fakeClient.lastPreviewPublishedQuery?.invoiceCalcu, isTrue);
+      },
+    );
+
+    test(
+      'previewPublished sends non-MTT classification for regular series',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        await adapter.fetchOfficialView(_context());
+
+        expect(fakeClient.lastPreviewPublishedQuery?.invoiceWithCode, isTrue);
+        expect(fakeClient.lastPreviewPublishedQuery?.invoiceCalcu, isFalse);
+      },
+    );
+
+    test(
+      'previewPublished is not called for malformed invoice series',
+      () async {
+        final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);
+
+        final outcome = await adapter.fetchOfficialView(
+          _context(invoiceSeries: '1C26XYY'),
+        );
+
+        expect(fakeClient.previewPublishedCount, 0);
+        expect(outcome, isA<OfficialViewProviderCheckRequired>());
+        expect(
+          (outcome as OfficialViewProviderCheckRequired).safeErrorCode,
+          'INVOICE_SERIES_INVALID',
+        );
+      },
+    );
+
+    test(
       'download receives transaction id, series query and PDF type',
       () async {
         final adapter = _adapter(fakeClient: fakeClient, supabase: supabase);

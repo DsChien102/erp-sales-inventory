@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:vet45_einvoice_application/application.dart';
-import 'package:vet45_einvoice_application/testing.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 
 final class _FakeReconciliationGateway implements IDeliveryReconciliationGateway {
@@ -53,7 +52,6 @@ DeliveryReconciliationContextDto _context({
     tenantId: 'tenant-1',
     reconciliationCaseId: 'case-1',
     deliveryId: 'del-1',
-    attemptId: 'att-1',
     providerConnectionId: 'conn-1',
     supportsDeliveryResultObservation: supportsObservation,
     checkSequence: checkSequence,
@@ -104,16 +102,13 @@ void main() {
     test('missing or stale case is a no-op', () async {
       final gateway = _FakeReconciliationGateway()..context = null;
       final observation = _FakeObservationPort();
-      final interactions = FakeProviderInteractionGateway();
 
       await ReconcileInvoiceDeliveryCommandHandler(
         reconciliationGateway: gateway,
         observationPort: observation,
-        interactionGateway: interactions,
       ).handle(_command());
 
       expect(observation.observeCalls, 0);
-      expect(interactions.startCalls, isEmpty);
       expect(gateway.recordCalls, isEmpty);
     });
 
@@ -123,65 +118,47 @@ void main() {
         final gateway = _FakeReconciliationGateway()
           ..context = _context(supportsObservation: false);
         final observation = _FakeObservationPort();
-        final interactions = FakeProviderInteractionGateway();
 
         await ReconcileInvoiceDeliveryCommandHandler(
           reconciliationGateway: gateway,
           observationPort: observation,
-          interactionGateway: interactions,
         ).handle(_command());
 
         expect(observation.observeCalls, 0);
-        expect(interactions.startCalls, isEmpty);
-        expect(interactions.finalizeCalls, isEmpty);
         expect(gateway.recordCalls, hasLength(1));
         final record = gateway.recordCalls.single;
         expect(record.kind, DeliveryObservationKind.unsupported);
         expect(record.safeCode, 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED');
-        expect(record.interactionReference, isNull);
         expect(record.checkSequence, 1);
         expect(record.expectedCaseVersion, 0);
       },
     );
 
-    test(
-      'supported capability performs exactly one observation interaction',
-      () async {
-        final gateway = _FakeReconciliationGateway()
-          ..context = _context(supportsObservation: true)
-          ..recordResult = const DeliveryReconciliationResultDto(
-            caseStatus: ReconciliationCaseStatus.resolved,
-            deliveryStatus: DeliveryStatus.succeeded,
-            nextCheckAt: null,
-            hasSecondaryAttention: false,
-          );
-        final observation = _FakeObservationPort()
-          ..outcome = const DeliveryObservedSucceeded(
-            providerReference: 'prov-del-1',
-          );
-        final interactions = FakeProviderInteractionGateway();
-
-        await ReconcileInvoiceDeliveryCommandHandler(
-          reconciliationGateway: gateway,
-          observationPort: observation,
-          interactionGateway: interactions,
-        ).handle(_command());
-
-        expect(observation.observeCalls, 1);
-        expect(interactions.startCalls, hasLength(1));
-        expect(
-          interactions.startCalls.single.operationType,
-          ReconcileInvoiceDeliveryCommand.type,
+    test('supported capability observes once and records the check', () async {
+      final gateway = _FakeReconciliationGateway()
+        ..context = _context(supportsObservation: true)
+        ..recordResult = const DeliveryReconciliationResultDto(
+          caseStatus: ReconciliationCaseStatus.resolved,
+          deliveryStatus: DeliveryStatus.succeeded,
+          nextCheckAt: null,
+          hasSecondaryAttention: false,
         );
-        expect(interactions.startCalls.single.targetType, 'DELIVERY_ATTEMPT');
-        expect(interactions.startCalls.single.targetId, 'att-1');
-        expect(interactions.finalizeCalls, hasLength(1));
-        expect(gateway.recordCalls, hasLength(1));
-        expect(gateway.recordCalls.single.kind, DeliveryObservationKind.succeeded);
-        expect(gateway.recordCalls.single.providerReference, 'prov-del-1');
-        expect(gateway.recordCalls.single.interactionReference, isNotNull);
-      },
-    );
+      final observation = _FakeObservationPort()
+        ..outcome = const DeliveryObservedSucceeded(
+          providerReference: 'prov-del-1',
+        );
+
+      await ReconcileInvoiceDeliveryCommandHandler(
+        reconciliationGateway: gateway,
+        observationPort: observation,
+      ).handle(_command());
+
+      expect(observation.observeCalls, 1);
+      expect(observation.lastContext?.deliveryId, 'del-1');
+      expect(gateway.recordCalls, hasLength(1));
+      expect(gateway.recordCalls.single.kind, DeliveryObservationKind.succeeded);
+      expect(gateway.recordCalls.single.providerReference, 'prov-del-1');
+    });
 
     test('terminal definite failure records resolution check', () async {
       final gateway = _FakeReconciliationGateway()
@@ -196,12 +173,10 @@ void main() {
         ..outcome = const DeliveryObservedDefiniteFailure(
           'PROVIDER_DELIVERY_REJECTED',
         );
-      final interactions = FakeProviderInteractionGateway();
 
       await ReconcileInvoiceDeliveryCommandHandler(
         reconciliationGateway: gateway,
         observationPort: observation,
-        interactionGateway: interactions,
       ).handle(_command());
 
       expect(gateway.recordCalls.single.kind, DeliveryObservationKind.definiteFailure);
@@ -221,12 +196,10 @@ void main() {
         ..outcome = const DeliveryObservationUndetermined(
           'PROVIDER_DELIVERY_PENDING',
         );
-      final interactions = FakeProviderInteractionGateway();
 
       await ReconcileInvoiceDeliveryCommandHandler(
         reconciliationGateway: gateway,
         observationPort: observation,
-        interactionGateway: interactions,
       ).handle(_command(checkSequence: 2));
 
       expect(observation.observeCalls, 1);

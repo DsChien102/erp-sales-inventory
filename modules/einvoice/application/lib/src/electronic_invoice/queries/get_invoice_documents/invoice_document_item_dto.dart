@@ -9,6 +9,7 @@ final class InvoiceDocumentItemDto {
     this.fileRef,
     this.checksum,
     this.expiresAt,
+    this.failureCode,
   });
 
   final InvoiceDocumentType documentType;
@@ -18,4 +19,5 @@ final class InvoiceDocumentItemDto {
   final String? fileRef;
   final String? checksum;
   final DateTime? expiresAt;
+  final String? failureCode;
 }

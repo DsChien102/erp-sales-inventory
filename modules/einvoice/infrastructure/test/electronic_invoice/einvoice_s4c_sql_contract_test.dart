@@ -35,8 +35,6 @@ void main() {
   late String requestFn;
   late String recordObservationFn;
   late String getLatestFn;
-  late String startInteractionFn;
-  late String finalizeInteractionFn;
 
   setUpAll(() {
     final draft = File(
@@ -57,14 +55,6 @@ void main() {
       sql,
       'create or replace function einvoice.get_latest_provider_observation(',
     );
-    startInteractionFn = _extractFunction(
-      sql,
-      'create or replace function einvoice.start_provider_interaction(',
-    );
-    finalizeInteractionFn = _extractFunction(
-      sql,
-      'create or replace function einvoice.record_provider_interaction_result(',
-    );
   });
 
   group('S4c draft header and observation schema', () {
@@ -73,7 +63,7 @@ void main() {
       expect(
         sql,
         contains(
-          '-- Touches: _provider_observation_command_id, get_latest_provider_observation, load_provider_observation_context, record_provider_interaction_result, record_provider_observation, request_provider_observation_refresh, start_provider_interaction',
+          '-- Touches: _provider_observation_command_id, get_latest_provider_observation, load_provider_observation_context, record_provider_observation, request_provider_observation_refresh',
         ),
       );
       expect(sql, isNot(contains('seed_due_provider_observation_commands')));
@@ -89,23 +79,17 @@ void main() {
       );
     });
 
-    test(
-      'observation table references interaction without correlation_id column',
-      () {
-        final tableStart = sql.indexOf(
-          'create table if not exists einvoice.invoice_provider_observations',
-        );
-        expect(tableStart, greaterThanOrEqualTo(0));
-        final tableEnd = sql.indexOf(');', tableStart);
-        final tableSql = sql.substring(tableStart, tableEnd);
-        expect(
-          tableSql,
-          contains('provider_interaction_reference uuid not null'),
-        );
-        expect(tableSql, isNot(contains('correlation_id')));
-        expect(tableSql, isNot(contains('updated_at')));
-      },
-    );
+    test('observation row carries its own correlation id', () {
+      final tableStart = sql.indexOf(
+        'create table if not exists einvoice.invoice_provider_observations',
+      );
+      expect(tableStart, greaterThanOrEqualTo(0));
+      final tableEnd = sql.indexOf(');', tableStart);
+      final tableSql = sql.substring(tableStart, tableEnd);
+      expect(tableSql, contains('correlation_id uuid not null'));
+      expect(tableSql, isNot(contains('provider_interaction_reference')));
+      expect(tableSql, isNot(contains('updated_at')));
+    });
   });
 
   group('S4c trigger-scoped command identity', () {
@@ -129,24 +113,7 @@ void main() {
     });
   });
 
-  group('S4c interaction audit and observation record', () {
-    test('start interaction validates direction and tenant connection', () {
-      expect(startInteractionFn, contains("'OUTBOUND', 'INBOUND_CALLBACK'"));
-      expect(startInteractionFn, contains('provider_connections'));
-      expect(startInteractionFn, contains('correlation_id = p_correlation_id'));
-      expect(startInteractionFn, contains("'STARTED'"));
-    });
-
-    test(
-      'finalize interaction compare-and-sets version and handles conflict',
-      () {
-        expect(finalizeInteractionFn, contains('p_expected_version'));
-        expect(finalizeInteractionFn, contains("'COMPLETED'"));
-        expect(finalizeInteractionFn, contains('INTERACTION_RESULT_CONFLICT'));
-        expect(finalizeInteractionFn, contains("'TIMEOUT'"));
-      },
-    );
-
+  group('S4c observation record', () {
     test(
       'record observation validates details and enqueues attention outbox',
       () {
@@ -158,8 +125,10 @@ void main() {
           recordObservationFn,
           contains('on conflict (tenant_id, deduplication_key) do nothing'),
         );
-        expect(recordObservationFn, contains('latest_provider_state_code'));
-        expect(recordObservationFn, contains('last_provider_observed_at'));
+        expect(recordObservationFn, contains('p_correlation_id uuid'));
+        expect(recordObservationFn, isNot(contains('latest_provider_state_code')));
+        expect(recordObservationFn, isNot(contains('last_provider_observed_at')));
+        expect(recordObservationFn, isNot(contains('provider_interaction')));
         expect(recordObservationFn, contains("'NOT_FOUND', 'MISMATCH'"));
         expect(
           recordObservationFn,
@@ -174,11 +143,11 @@ void main() {
       },
     );
 
-    test('get latest observation joins interaction for correlation_id', () {
+    test('get latest observation reads correlation from the row', () {
       expect(getLatestFn, contains('iam.has_permission'));
       expect(getLatestFn, contains('sales.can_access_sales_order'));
-      expect(getLatestFn, contains('provider_interaction_records pir'));
-      expect(getLatestFn, contains('pir.correlation_id'));
+      expect(getLatestFn, contains('ipo.correlation_id'));
+      expect(getLatestFn, isNot(contains('provider_interaction_records')));
     });
   });
 }

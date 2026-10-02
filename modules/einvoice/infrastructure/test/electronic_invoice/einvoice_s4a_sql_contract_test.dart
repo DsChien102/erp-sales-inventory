@@ -77,22 +77,19 @@ void main() {
       );
       expect(
         sql,
+        contains('create table if not exists einvoice.official_invoice_views'),
+      );
+      expect(sql, contains('request_id uuid not null'));
+      expect(sql, contains('failure_source text'));
+      expect(
+        sql,
         contains(
-          'create table if not exists einvoice.official_invoice_view_operations',
+          "status in ('PENDING', 'AVAILABLE', 'FAILED', 'CHECK_REQUIRED')",
         ),
       );
-      expect(
-        sql,
-        contains('generation integer not null check (generation > 0)'),
-      );
-      expect(sql, contains('attempt_ordinal integer not null default 1'));
-      expect(
-        sql,
-        contains("status in ('PENDING','AVAILABLE','FAILED','CHECK_REQUIRED')"),
-      );
-      expect(sql, contains('provider_interaction_reference uuid null'));
+      expect(sql, isNot(contains('provider_interaction_reference')));
       final tableStart = sql.indexOf(
-        'create table if not exists einvoice.official_invoice_view_operations',
+        'create table if not exists einvoice.official_invoice_views',
       );
       final tableEnd = sql.indexOf(');', tableStart);
       final tableSql = sql.substring(tableStart, tableEnd);
@@ -145,8 +142,11 @@ void main() {
         expect(requestFn, contains("'einvoice.fetch_official_view'"));
         expect(requestFn, contains('on conflict (id) do nothing'));
         expect(sql, contains('einvoice._official_view_command_id'));
-        expect(requestFn, contains('CHECK_REQUIRED'));
-        expect(requestFn, contains('attempt_ordinal = v_attempt_ordinal'));
+        expect(
+          requestFn,
+          contains('on conflict (tenant_id, electronic_invoice_id) do update set'),
+        );
+        expect(requestFn, contains('v_operation.request_id'));
       },
     );
 
@@ -156,7 +156,7 @@ void main() {
         caseSensitive: false,
       ).allMatches(requestFn).toList();
 
-      expect(commandEnqueues, hasLength(2));
+      expect(commandEnqueues, hasLength(1));
       for (final enqueue in commandEnqueues) {
         expect(
           RegExp(r'\bv_cmd_id\b').allMatches(enqueue.group(1)!).length,
@@ -166,20 +166,17 @@ void main() {
       }
     });
 
-    test('each fetch command payload carries its attempt ordinal', () {
+    test('fetch command payload carries the request id', () {
       final payloads = RegExp(
         r"jsonb_build_object\(([\s\S]*?)\)\s*,\s*v_cmd_id",
         caseSensitive: false,
       ).allMatches(requestFn).toList();
 
-      expect(payloads, hasLength(2));
+      expect(payloads, hasLength(1));
       for (final payload in payloads) {
-        expect(
-          payload.group(1),
-          contains("'attempt_ordinal', v_attempt_ordinal"),
-          reason:
-              'Dart command deserialization requires a numeric attempt_ordinal',
-        );
+        expect(payload.group(1), contains("'request_id', v_request_id"));
+        expect(payload.group(1), contains("'correlation_id', v_request_id"));
+        expect(payload.group(1), isNot(contains('attempt_ordinal')));
       }
     });
 
@@ -198,7 +195,7 @@ void main() {
 
     test('worker context casts varchar invoice identity fields to text', () {
       expect(loadContextFn, contains('ei.provider_invoice_reference::text'));
-      expect(loadContextFn, contains('ei.series::text'));
+      expect(loadContextFn, contains('ei.invoice_series::text'));
     });
 
     test(
@@ -206,8 +203,10 @@ void main() {
       () {
         expect(recordResultFn, contains("interval '5 minutes'"));
         expect(recordResultFn, contains('least('));
-        expect(recordResultFn, contains('p_expected_version'));
-        expect(recordResultFn, contains('provider_interaction_reference'));
+        expect(recordResultFn, contains('p_request_id'));
+        expect(recordResultFn, contains('p_failure_source'));
+        expect(recordResultFn, isNot(contains('p_expected_version')));
+        expect(recordResultFn, isNot(contains('provider_interaction_reference')));
       },
     );
   });

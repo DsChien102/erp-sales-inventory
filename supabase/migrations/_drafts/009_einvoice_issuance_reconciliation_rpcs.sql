@@ -1,18 +1,9 @@
 -- Title: einvoice S3b — reconciliation RPCs, due-time claiming, and recovery
 -- Kind: cohesive
 -- Intent: einvoice_s3b_reconciliation
--- Touches: einvoice.open_reconciliation_case, einvoice.record_issuance_undetermined, einvoice.claim_issuance_reconciliation_case, einvoice.record_reconciliation_pending, einvoice.resolve_reconciliation_case, einvoice.recover_internal_finalization, einvoice.get_issuance_attempt_status, einvoice.claim_internal_commands_batch, einvoice._reconciliation_poll_command_id, einvoice.seed_due_issuance_reconciliation_commands
+-- Touches: einvoice.open_reconciliation_case, einvoice.record_issuance_undetermined, einvoice.record_reconciliation_pending, einvoice.resolve_reconciliation_case, einvoice.recover_internal_finalization, einvoice.claim_internal_commands_batch, einvoice._reconciliation_poll_command_id, einvoice.seed_due_issuance_reconciliation_commands
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql, 005_einvoice_buyer_completion_and_preview_schema.sql, 007_einvoice_issuance_schema_and_publish_rpcs.sql, 008_einvoice_auto_issuance_and_retry_rpcs.sql
-
-alter table einvoice.invoice_reconciliation_cases
-  add column if not exists claimed_at timestamptz null;
-
-alter table einvoice.invoice_reconciliation_cases
-  add column if not exists claim_token varchar(100) null;
-
-alter table einvoice.invoice_reconciliation_cases
-  add column if not exists terminal_evidence jsonb null;
 
 -- 1. Private helper: deterministic reconciliation poll command ID
 create or replace function einvoice._reconciliation_poll_command_id(
@@ -76,8 +67,7 @@ begin
     set status = 'RECONCILING',
         failure_code = null,
         failure_message = null,
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_attempt_id;
   end if;
 
@@ -87,7 +77,6 @@ begin
   where irc.tenant_id = p_tenant_id
     and irc.target_type = 'ISSUANCE_ATTEMPT'
     and irc.target_id = p_attempt_id
-    and irc.reconciliation_purpose = 'DETERMINE_RESULT'
     and irc.status = 'PENDING'
   for update;
 
@@ -104,36 +93,24 @@ begin
       tenant_id,
       target_type,
       target_id,
-      reconciliation_purpose,
       provider_connection_id,
-      idempotency_key,
       reason_code,
       status,
-      attempt_count,
+      check_count,
       next_check_at,
       correlation_id,
-      opened_by_actor_type,
-      opened_by_actor_id,
-      created_at,
-      updated_at,
       version
     ) values (
       v_case_id,
       p_tenant_id,
       'ISSUANCE_ATTEMPT',
       p_attempt_id,
-      'DETERMINE_RESULT',
       v_attempt.provider_connection_id,
-      v_attempt.idempotency_key,
       coalesce(nullif(p_reason, ''), 'MANUAL_RECONCILIATION'),
       'PENDING',
       0,
       v_next_check,
       v_correlation_id,
-      'SYSTEM',
-      null,
-      now(),
-      now(),
       0
     );
 
@@ -219,7 +196,6 @@ begin
     where irc.tenant_id = p_tenant_id
       and irc.target_type = 'ISSUANCE_ATTEMPT'
       and irc.target_id = p_attempt_id
-      and irc.reconciliation_purpose = 'DETERMINE_RESULT'
       and irc.status = 'PENDING'
     limit 1;
 
@@ -238,8 +214,7 @@ begin
   set status = 'RECONCILING',
       failure_code = null,
       failure_message = null,
-      version = version + 1,
-      updated_at = now()
+      version = version + 1
   where id = p_attempt_id;
 
   select irc.*
@@ -248,7 +223,6 @@ begin
   where irc.tenant_id = p_tenant_id
     and irc.target_type = 'ISSUANCE_ATTEMPT'
     and irc.target_id = p_attempt_id
-    and irc.reconciliation_purpose = 'DETERMINE_RESULT'
     and irc.status = 'PENDING'
   for update;
 
@@ -265,36 +239,24 @@ begin
       tenant_id,
       target_type,
       target_id,
-      reconciliation_purpose,
       provider_connection_id,
-      idempotency_key,
       reason_code,
       status,
-      attempt_count,
+      check_count,
       next_check_at,
       correlation_id,
-      opened_by_actor_type,
-      opened_by_actor_id,
-      created_at,
-      updated_at,
       version
     ) values (
       v_case_id,
       p_tenant_id,
       'ISSUANCE_ATTEMPT',
       p_attempt_id,
-      'DETERMINE_RESULT',
       v_attempt.provider_connection_id,
-      v_attempt.idempotency_key,
       coalesce(nullif(p_reason_code, ''), 'PROVIDER_TIMEOUT'),
       'PENDING',
       0,
       v_next_check,
       v_case_correlation_id,
-      'SYSTEM',
-      null,
-      now(),
-      now(),
       0
     );
 
@@ -331,77 +293,6 @@ begin
 end;
 $$;
 
--- 4. Claim issuance reconciliation case
-create or replace function einvoice.claim_issuance_reconciliation_case(
-  p_tenant_id uuid,
-  p_case_id uuid,
-  p_worker_id varchar(100)
-) returns table(
-  case_id uuid,
-  attempt_id uuid,
-  claim_token varchar(100),
-  idempotency_key varchar(150),
-  payload_hash varchar(128),
-  invoice_series varchar(100),
-  provider_reference varchar(255),
-  check_sequence integer,
-  max_checks integer
-) language plpgsql security definer set search_path = einvoice, public as $$
-declare
-  v_case einvoice.invoice_reconciliation_cases%rowtype;
-  v_attempt einvoice.issuance_attempts%rowtype;
-  v_claim_token varchar(100);
-begin
-  select irc.*
-  into v_case
-  from einvoice.invoice_reconciliation_cases irc
-  where irc.id = p_case_id
-    and irc.tenant_id = p_tenant_id
-    and irc.status = 'PENDING'
-  for update skip locked;
-
-  if not found then
-    return;
-  end if;
-
-  select ia.*
-  into v_attempt
-  from einvoice.issuance_attempts ia
-  where ia.id = v_case.target_id
-    and ia.tenant_id = p_tenant_id;
-
-  if not found then
-    return;
-  end if;
-
-  v_claim_token := gen_random_uuid()::varchar(100);
-
-  update einvoice.invoice_reconciliation_cases
-  set claimed_at = now(),
-      claim_token = v_claim_token,
-      updated_at = now()
-  where id = p_case_id;
-
-  return query select
-    v_case.id,
-    v_attempt.id,
-    v_claim_token,
-    v_attempt.idempotency_key,
-    v_attempt.canonical_payload_hash,
-    coalesce(
-      nullif(trim(v_attempt.invoice_series), ''),
-      nullif(trim(v_attempt.provider_result_snapshot ->> 'invoice_series'), '')
-    ),
-    coalesce(
-      v_attempt.provider_invoice_reference,
-      v_attempt.provider_request_reference,
-      v_attempt.provider_interaction_reference
-    ),
-    v_case.attempt_count,
-    5::integer;
-end;
-$$;
-
 -- 5. Record reconciliation pending (reschedule next poll check)
 create or replace function einvoice.record_reconciliation_pending(
   p_tenant_id uuid,
@@ -435,12 +326,11 @@ begin
   v_next_check := now() + (greatest(p_next_delay_seconds, 1) || ' seconds')::interval;
 
   update einvoice.invoice_reconciliation_cases
-  set attempt_count = p_check_sequence,
+  set check_count = p_check_sequence,
       next_check_at = v_next_check,
       claimed_at = null,
       claim_token = null,
-      version = version + 1,
-      updated_at = now()
+      version = version + 1
   where id = p_case_id;
 
   v_cmd_id := einvoice._reconciliation_poll_command_id(p_case_id, p_check_sequence);
@@ -513,8 +403,7 @@ begin
     if p_evidence is not null and v_case.terminal_evidence is null then
       update einvoice.invoice_reconciliation_cases
       set terminal_evidence = p_evidence,
-          version = version + 1,
-          updated_at = now()
+          version = version + 1
       where id = p_case_id;
     end if;
 
@@ -545,8 +434,6 @@ begin
           provider_request_reference,
           p_evidence->>'provider_reference'
         ),
-        provider_result_code = 'SUCCESS',
-        provider_result_message = p_evidence->>'invoice_number',
         provider_result_snapshot = p_evidence,
         provider_confirmed_at = coalesce(provider_confirmed_at, now()),
         internal_finalization_state = case
@@ -556,8 +443,7 @@ begin
         failure_code = null,
         failure_message = null,
         completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = v_attempt.id;
 
     update einvoice.invoice_reconciliation_cases
@@ -569,8 +455,7 @@ begin
         claimed_at = null,
         claim_token = null,
         resolved_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_case_id;
 
     return query select
@@ -593,21 +478,13 @@ begin
 
     update einvoice.issuance_attempts
     set status = 'FAILED',
-        provider_result_code = p_evidence->>'provider_code',
-        provider_result_message = p_evidence->>'provider_message',
         provider_result_snapshot = p_evidence,
         failure_code = p_evidence->>'provider_code',
         failure_message = p_evidence->>'provider_message',
+        failure_source = 'PROVIDER',
         completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = v_attempt.id;
-
-    update einvoice.invoice_issuances
-    set settled_result = 'FAILED',
-        version = version + 1,
-        updated_at = now()
-    where id = v_attempt.invoice_issuance_id;
 
     update einvoice.invoice_reconciliation_cases
     set status = 'RESOLVED',
@@ -618,8 +495,7 @@ begin
         claimed_at = null,
         claim_token = null,
         resolved_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_case_id;
 
     return query select
@@ -639,8 +515,7 @@ begin
         claimed_at = null,
         claim_token = null,
         resolved_at = now(),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_case_id;
 
     return query select
@@ -678,7 +553,6 @@ declare
   v_issued_at timestamptz;
   v_case einvoice.invoice_reconciliation_cases%rowtype;
   v_success_evidence jsonb;
-  v_invoice_snapshot jsonb;
 begin
   select ia.*
   into v_attempt
@@ -716,7 +590,7 @@ begin
       v_existing_invoice.id,
       v_existing_invoice.sales_order_id,
       v_existing_invoice.invoice_number,
-      v_existing_invoice.series,
+      v_existing_invoice.invoice_series,
       v_existing_invoice.provider_invoice_reference,
       v_existing_invoice.issued_at,
       'EXISTING'::text;
@@ -769,68 +643,34 @@ begin
   end if;
 
   v_issued_at := (v_success_evidence->>'issued_at')::timestamptz;
-  v_invoice_snapshot := jsonb_build_object(
-    'schemaVersion', v_attempt.snapshot_schema_version,
-    'attemptSnapshot', v_attempt.attempt_snapshot,
-    'providerReference', v_provider_reference,
-    'invoiceNumber', v_invoice_number,
-    'series', v_invoice_series,
-    'issuedAt', v_issued_at
-  );
-
-  v_invoice_id := gen_random_uuid();
 
   insert into einvoice.electronic_invoices (
-    id,
-    tenant_id,
-    invoice_issuance_id,
-    successful_attempt_id,
-    sales_order_id,
-    provider_connection_id,
-    provider_invoice_reference,
-    invoice_number,
-    template_code,
-    series,
-    issued_at,
-    snapshot_schema_version,
-    invoice_snapshot,
-    version
+    tenant_id, invoice_issuance_id, successful_attempt_id, sales_order_id,
+    provider_connection_id, provider_invoice_reference, invoice_number,
+    invoice_series, issued_at
   ) values (
-    v_invoice_id,
-    p_tenant_id,
-    v_issuance.id,
-    p_attempt_id,
-    v_issuance.sales_order_id,
-    v_attempt.provider_connection_id,
-    v_provider_reference,
-    v_invoice_number,
-    coalesce(v_attempt.attempt_snapshot ->> 'templateCode', 'UNKNOWN'),
-    v_invoice_series,
-    v_issued_at,
-    v_attempt.snapshot_schema_version,
-    v_invoice_snapshot,
-    0
-  );
+    p_tenant_id, v_attempt.invoice_issuance_id, p_attempt_id, v_issuance.sales_order_id,
+    v_attempt.provider_connection_id, v_provider_reference, v_invoice_number,
+    v_invoice_series, v_issued_at
+  )
+  on conflict (tenant_id, invoice_issuance_id) do nothing
+  returning id into v_invoice_id;
+
+  if v_invoice_id is null then
+    select ei.id into v_invoice_id
+    from einvoice.electronic_invoices ei
+    where ei.tenant_id = p_tenant_id
+      and ei.invoice_issuance_id = v_attempt.invoice_issuance_id;
+  end if;
 
   update einvoice.issuance_attempts
   set status = 'SUCCEEDED',
       provider_invoice_reference = v_provider_reference,
-      provider_result_code = 'SUCCESS',
-      provider_result_message = v_invoice_number,
       provider_result_snapshot = v_success_evidence,
       internal_finalization_state = 'COMPLETED',
       completed_at = coalesce(completed_at, now()),
-      version = version + 1,
-      updated_at = now()
+      version = version + 1
   where id = p_attempt_id;
-
-  update einvoice.invoice_issuances
-  set settled_result = 'ISSUED',
-      successful_attempt_id = p_attempt_id,
-      electronic_invoice_id = v_invoice_id,
-      version = version + 1,
-      updated_at = now()
-  where id = v_attempt.invoice_issuance_id;
 
   update einvoice.invoice_reconciliation_cases
   set status = 'RESOLVED',
@@ -841,12 +681,10 @@ begin
       claimed_at = null,
       claim_token = null,
       resolved_at = coalesce(resolved_at, now()),
-      version = version + 1,
-      updated_at = now()
+      version = version + 1
   where tenant_id = p_tenant_id
     and target_type = 'ISSUANCE_ATTEMPT'
-    and target_id = p_attempt_id
-    and reconciliation_purpose = 'DETERMINE_RESULT';
+    and target_id = p_attempt_id;
 
   perform einvoice.enqueue_outbox_message(
     p_tenant_id,
@@ -872,125 +710,6 @@ begin
 end;
 $$;
 
--- 8. Get issuance attempt status
-create or replace function einvoice.get_issuance_attempt_status(
-  p_tenant_id uuid,
-  p_actor_id uuid,
-  p_sales_order_id uuid
-) returns table(
-  attempt_id uuid,
-  status text,
-  internal_finalization_status text,
-  has_electronic_invoice boolean,
-  has_active_operation boolean,
-  failure_code varchar(100),
-  last_error_message text
-) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
-declare
-  v_issuance einvoice.invoice_issuances%rowtype;
-  v_attempt einvoice.issuance_attempts%rowtype;
-  v_case einvoice.invoice_reconciliation_cases%rowtype;
-  v_has_invoice boolean := false;
-  v_internal_fin text := 'pending';
-  v_has_active_op boolean := false;
-  v_safe_failure_code varchar(100) := null;
-begin
-  if auth.uid() is not null then
-    if auth.uid() <> p_actor_id then
-      raise exception 'NO_PERMISSION: actor mismatch';
-    end if;
-    if not iam.has_permission(p_tenant_id, 'einvoice.issue') then
-      raise exception 'NO_PERMISSION: einvoice.issue required';
-    end if;
-    if not sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id) then
-      raise exception 'NO_PERMISSION: sales order not accessible';
-    end if;
-  end if;
-
-  select ii.*
-  into v_issuance
-  from einvoice.invoice_issuances ii
-  where ii.tenant_id = p_tenant_id
-    and ii.sales_order_id = p_sales_order_id
-    and ii.issuance_type = 'ORIGINAL';
-
-  if not found then
-    return query select
-      null::uuid,
-      'PREPARING'::text,
-      'pending'::text,
-      false,
-      false,
-      null::varchar(100),
-      null::text;
-    return;
-  end if;
-
-  select ia.*
-  into v_attempt
-  from einvoice.issuance_attempts ia
-  where ia.invoice_issuance_id = v_issuance.id
-    and ia.tenant_id = p_tenant_id
-  order by ia.attempt_no desc
-  limit 1;
-
-  if not found then
-    return query select
-      null::uuid,
-      'PREPARING'::text,
-      'pending'::text,
-      false,
-      false,
-      null::varchar(100),
-      null::text;
-    return;
-  end if;
-
-  select exists (
-    select 1
-    from einvoice.electronic_invoices ei
-    where ei.tenant_id = p_tenant_id
-      and ei.sales_order_id = p_sales_order_id
-  ) into v_has_invoice;
-
-  select irc.*
-  into v_case
-  from einvoice.invoice_reconciliation_cases irc
-  where irc.tenant_id = p_tenant_id
-    and irc.target_type = 'ISSUANCE_ATTEMPT'
-    and irc.target_id = v_attempt.id
-  order by irc.created_at desc
-  limit 1;
-
-  if v_has_invoice then
-    v_internal_fin := 'completed';
-  else
-    v_internal_fin := lower(v_attempt.internal_finalization_state);
-  end if;
-
-  if v_attempt.status in ('PREPARING', 'SUBMITTED', 'WAITING_RESULT') then
-    v_has_active_op := true;
-  elsif v_attempt.status = 'RECONCILING' and (v_case.id is null or v_case.status = 'PENDING') then
-    v_has_active_op := true;
-  else
-    v_has_active_op := false;
-  end if;
-
-  if v_attempt.failure_code is not null then
-    v_safe_failure_code := regexp_replace(v_attempt.failure_code, '[^A-Za-z0-9_]', '', 'g');
-  end if;
-
-  return query select
-    v_attempt.id,
-    v_attempt.status,
-    v_internal_fin,
-    v_has_invoice,
-    v_has_active_op,
-    v_safe_failure_code,
-    null::text;
-end;
-$$;
-
 -- 9. Seed due issuance reconciliation commands
 create or replace function einvoice.seed_due_issuance_reconciliation_commands(
   p_tenant_id uuid,
@@ -1007,7 +726,7 @@ begin
       irc.id as case_id,
       irc.target_id as attempt_id,
       irc.correlation_id,
-      irc.attempt_count,
+      irc.check_count,
       irc.next_check_at
     from einvoice.invoice_reconciliation_cases irc
     where irc.tenant_id = p_tenant_id
@@ -1016,7 +735,7 @@ begin
     order by irc.next_check_at
     limit greatest(p_limit, 1)
   loop
-    v_cmd_id := einvoice._reconciliation_poll_command_id(v_case.case_id, v_case.attempt_count + 1);
+    v_cmd_id := einvoice._reconciliation_poll_command_id(v_case.case_id, v_case.check_count + 1);
 
     insert into einvoice.internal_commands (
       id,
@@ -1123,11 +842,9 @@ $$;
 -- Grants
 grant execute on function einvoice.open_reconciliation_case(uuid, uuid, text) to service_role;
 grant execute on function einvoice.record_issuance_undetermined(uuid, uuid, varchar, varchar, varchar) to service_role;
-grant execute on function einvoice.claim_issuance_reconciliation_case(uuid, uuid, varchar) to service_role;
 grant execute on function einvoice.record_reconciliation_pending(uuid, uuid, varchar, integer, integer) to service_role;
 grant execute on function einvoice.resolve_reconciliation_case(uuid, uuid, text, jsonb) to service_role;
 grant execute on function einvoice.recover_internal_finalization(uuid, uuid) to service_role;
-grant execute on function einvoice.get_issuance_attempt_status(uuid, uuid, uuid) to authenticated, service_role;
 grant execute on function einvoice.seed_due_issuance_reconciliation_commands(uuid, int) to service_role;
 grant execute on function einvoice.claim_internal_commands_batch(uuid, int) to service_role;
 
@@ -1138,11 +855,11 @@ declare
   v_cmd_id uuid;
 begin
   for v_case in
-    select id, tenant_id, target_id, correlation_id, attempt_count, next_check_at
+    select id, tenant_id, target_id, correlation_id, check_count, next_check_at
     from einvoice.invoice_reconciliation_cases
     where status = 'PENDING'
   loop
-    v_cmd_id := einvoice._reconciliation_poll_command_id(v_case.id, v_case.attempt_count + 1);
+    v_cmd_id := einvoice._reconciliation_poll_command_id(v_case.id, v_case.check_count + 1);
     insert into einvoice.internal_commands (
       id,
       tenant_id,

@@ -21,12 +21,14 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
     required String defaultBaseUrl,
     http.Client? httpClient,
     DateTime Function()? now,
+    ILogger? logger,
   }) : _rpcClient = rpcClient,
        _clientFactory = clientFactory,
        _defaultAppId = defaultAppId,
        _defaultBaseUrl = defaultBaseUrl,
        _httpClient = httpClient ?? http.Client(),
-       _now = now ?? DateTime.now;
+       _now = now ?? DateTime.now,
+       _logger = logger;
 
   final SupabaseSchemaRpcClient _rpcClient;
   final TenantMeInvoiceClientFactory _clientFactory;
@@ -34,12 +36,37 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
   final String _defaultBaseUrl;
   final http.Client _httpClient;
   final DateTime Function() _now;
+  final ILogger? _logger;
+
+  /// Provider said no (or returned nothing) — the command still succeeds, so
+  /// this line is the only trace of why. Never logs credentials or document bytes.
+  void _logProviderFailure({
+    required String operation,
+    required ElectronicInvoiceProviderContextDto context,
+    required MeInvoiceInvoiceQuery query,
+    required String detail,
+  }) {
+    final clipped = detail.length <= 400 ? detail : '${detail.substring(0, 400)}…';
+    _logger?.warning(
+      'MISA $operation failed series=${context.invoiceSeries}'
+      ' invoiceWithCode=${query.invoiceWithCode} invoiceCalcu=${query.invoiceCalcu}'
+      ' tx=${context.providerInvoiceReference} detail=$clipped',
+    );
+  }
 
   @override
   Future<OfficialViewProviderOutcome> fetchOfficialView(
     ElectronicInvoiceProviderContextDto context,
   ) async {
     try {
+      final query = MeInvoiceInvoiceQuery.tryFromInvSeries(
+        context.invoiceSeries,
+      );
+      if (query == null) {
+        return const OfficialViewProviderCheckRequired(
+          safeErrorCode: 'INVOICE_SERIES_INVALID',
+        );
+      }
       final creds = await _readCredentials(tenantId: context.tenantId);
       if (creds == null) {
         return const OfficialViewProviderCheckRequired(
@@ -63,7 +90,16 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
       final result = await client.previewPublished(
         transactionIds: [context.providerInvoiceReference],
         companyTaxCode: companyTaxCode,
+        query: query,
       );
+      if (!result.isSuccess) {
+        _logProviderFailure(
+          operation: 'publishview',
+          context: context,
+          query: query,
+          detail: result.error ?? 'unknown_error',
+        );
+      }
 
       return MeInvoiceOfficialViewClassifier.classify(
         result: result,
@@ -110,6 +146,23 @@ final class MeInvoiceElectronicInvoiceProviderAdapter
           InvoiceDocumentType.xml => MeInvoiceDownloadDataType.xml,
         },
       );
+      if (!result.isSuccess) {
+        _logProviderFailure(
+          operation: 'download(${documentType.name})',
+          context: context,
+          query: query,
+          detail: result.error ?? 'unknown_error',
+        );
+      } else if ((result.data?.firstOrNull?.bytes ?? const <int>[]).isEmpty) {
+        _logProviderFailure(
+          operation: 'download(${documentType.name})',
+          context: context,
+          query: query,
+          detail:
+              'items=${result.data?.length ?? 0} without document bytes'
+              ' item={${result.data?.firstOrNull?.diagnostics ?? ''}}',
+        );
+      }
 
       return MeInvoiceDocumentClassifier.classify(
         result: result,

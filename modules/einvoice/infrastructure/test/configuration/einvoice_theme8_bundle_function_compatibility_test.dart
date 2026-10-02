@@ -72,7 +72,7 @@ String _extractFunction(String sql, String functionName) {
 }
 
 Set<String> _declaredColumns(String createTableSql) => RegExp(
-  r'^  ([a-z_][a-z0-9_]*)\s+(?:uuid|text|varchar|integer|bigint|timestamptz|jsonb|boolean)\b',
+  r'^  ([a-z_][a-z0-9_]*)\s+(?:uuid|text|varchar|integer|int|bigint|timestamptz|jsonb|boolean)\b',
   caseSensitive: false,
   multiLine: true,
 ).allMatches(createTableSql).map((match) => match.group(1)!).toSet();
@@ -191,13 +191,26 @@ void main() {
       ),
       ..._addedColumns(s3bSql, 'invoice_reconciliation_cases'),
     };
+    final root = _repoRoot();
     final reconciliationRowtypeSql = [
-      'claim_issuance_reconciliation_case',
-      'record_reconciliation_pending',
-      'resolve_reconciliation_case',
-      'recover_internal_finalization',
-      'get_issuance_attempt_status',
-    ].map((name) => _extractFunction(s3bSql, name)).join('\n');
+      _extractFunction(s3bSql, 'record_reconciliation_pending'),
+      _extractFunction(s3bSql, 'resolve_reconciliation_case'),
+      _extractFunction(s3bSql, 'recover_internal_finalization'),
+      _extractFunction(
+        File(
+          '${root.path}/supabase/migrations/_drafts/'
+          '020_einvoice_misa_publish_retry_policy.sql',
+        ).readAsStringSync(),
+        'claim_issuance_reconciliation_case',
+      ),
+      _extractFunction(
+        File(
+          '${root.path}/supabase/migrations/_drafts/'
+          '022_einvoice_attempt_status_provider_failure_message.sql',
+        ).readAsStringSync(),
+        'get_issuance_attempt_status',
+      ),
+    ].join('\n');
 
     expect(
       _rowReferences(s3bSql, const [
@@ -286,7 +299,7 @@ void main() {
         'record_issuance_success',
       );
 
-      expect(attemptTableSql, contains('provider_result_snapshot jsonb null'));
+      expect(attemptTableSql, contains('provider_result_snapshot jsonb'));
       expect(
         recordSuccessSql,
         contains('provider_result_snapshot = jsonb_build_object('),
@@ -330,7 +343,13 @@ void main() {
   });
 
   test('S3b reports the persisted internal finalization state', () {
-    final statusSql = _extractFunction(s3bSql, 'get_issuance_attempt_status');
+    final statusSql = _extractFunction(
+      File(
+        '${_repoRoot().path}/supabase/migrations/_drafts/'
+        '022_einvoice_attempt_status_provider_failure_message.sql',
+      ).readAsStringSync(),
+      'get_issuance_attempt_status',
+    );
 
     expect(statusSql, contains('lower(v_attempt.internal_finalization_state)'));
   });

@@ -65,17 +65,21 @@ void main() {
       expect(
         sql,
         contains(
-          '-- Touches: einvoice.acquire_publish_series_lease, einvoice.renew_publish_series_lease, einvoice.release_publish_series_lease, einvoice.reschedule_internal_command',
+          '-- Touches: einvoice.publish_series_leases, einvoice.acquire_publish_series_lease, einvoice.renew_publish_series_lease, einvoice.release_publish_series_lease, einvoice.reschedule_internal_command',
         ),
       );
     });
 
     test('lease table uses composite PK and owner_token + leased_until', () {
-      expect(sql, contains('einvoice.provider_series_dispatch_leases'));
+      expect(sql, contains('einvoice.publish_series_leases'));
+      expect(sql, isNot(contains('einvoice.provider_series_dispatch_leases')));
+      expect(sql, contains('primary key (tenant_id, invoice_series)'));
       expect(
         sql,
-        contains(
-          'primary key (tenant_id, provider_connection_id, invoice_series)',
+        isNot(
+          contains(
+            'primary key (tenant_id, provider_connection_id, invoice_series)',
+          ),
         ),
       );
       expect(sql, contains('owner_token varchar(100)'));
@@ -93,11 +97,11 @@ void main() {
     });
 
     test('first insert is race-safe and conflict path locks current row', () {
+      expect(acquireFn, contains('#variable_conflict use_column'));
       expect(
         acquireFn,
         contains(
-          'on conflict on constraint provider_series_dispatch_leases_pkey '
-          'do nothing',
+          'on conflict (tenant_id, invoice_series) do nothing',
         ),
       );
       expect(acquireFn, contains('for update'));
@@ -106,20 +110,15 @@ void main() {
     test('lease mutations qualify columns that collide with table outputs', () {
       expect(
         acquireFn,
-        contains('update einvoice.provider_series_dispatch_leases as psdl'),
+        contains('update einvoice.publish_series_leases as psdl'),
       );
-      expect(
-        acquireFn,
-        contains(
-          'and psdl.provider_connection_id = '
-          'v_attempt.provider_connection_id',
-        ),
-      );
+      expect(acquireFn, isNot(contains('psdl.provider_connection_id')));
       expect(acquireFn, contains('and psdl.invoice_series = v_series'));
       expect(
         renewFn,
-        contains('update einvoice.provider_series_dispatch_leases as psdl'),
+        contains('update einvoice.publish_series_leases as psdl'),
       );
+      expect(renewFn, isNot(contains('psdl.provider_connection_id')));
       expect(renewFn, contains('and psdl.leased_until > v_now'));
     });
 

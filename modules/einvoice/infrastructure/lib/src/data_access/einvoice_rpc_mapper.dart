@@ -57,7 +57,7 @@ abstract final class EinvoiceRpcMapper {
       'p_tenant_id': command.tenantId,
       'p_connection_id': command.connectionId,
       'p_expected_connection_version': command.expectedConnectionVersion,
-      'p_status': command.status.name,
+      'p_status': connectionStatusToWire(command.status),
       if (command.capabilities != null)
         'p_capabilities': {
           'supports_email_delivery':
@@ -104,7 +104,7 @@ abstract final class EinvoiceRpcMapper {
   ) {
     return ProviderConnectionResultDto(
       connectionId: row['connection_id'] as String,
-      status: ProviderConnectionStatus.values.byName(row['status'] as String),
+      status: connectionStatusFromWire(row['status'] as String),
     );
   }
 
@@ -113,7 +113,7 @@ abstract final class EinvoiceRpcMapper {
   ) {
     return ProviderConnectionCheckResultDto(
       connectionId: row['connection_id'] as String,
-      status: ProviderConnectionStatus.values.byName(row['status'] as String),
+      status: connectionStatusFromWire(row['status'] as String),
       checkedAt: DateTime.parse(row['checked_at'] as String),
     );
   }
@@ -132,9 +132,7 @@ abstract final class EinvoiceRpcMapper {
       connection: ProviderConnectionSummaryDto(
         connectionId: connection['connection_id'] as String?,
         status: connection['status'] != null
-            ? ProviderConnectionStatus.values.byName(
-                connection['status'] as String,
-              )
+            ? connectionStatusFromWire(connection['status'] as String)
             : ProviderConnectionStatus.disconnected,
         lastCheckedAt: connection['last_checked_at'] != null
             ? DateTime.parse(connection['last_checked_at'] as String)
@@ -332,13 +330,33 @@ abstract final class EinvoiceRpcMapper {
   static InvoicePreviewResultDto invoicePreviewResultFromRow(
     Map<String, dynamic> row,
   ) {
-    final payload = row['preview_payload'];
     return InvoicePreviewResultDto(
       viewerRef: row['viewer_ref'] as String?,
-      previewPayload: payload is Map
-          ? Map<String, Object?>.from(payload)
-          : null,
+      failureCode: row['failure_code'] as String?,
       warnings: const [],
+    );
+  }
+
+  static const _connectionStatusWire = <ProviderConnectionStatus, String>{
+    ProviderConnectionStatus.disconnected: 'DISCONNECTED',
+    ProviderConnectionStatus.connected: 'CONNECTED',
+    ProviderConnectionStatus.checkRequired: 'CHECK_REQUIRED',
+    ProviderConnectionStatus.reconnectRequired: 'RECONNECT_REQUIRED',
+  };
+
+  static String connectionStatusToWire(ProviderConnectionStatus status) =>
+      _connectionStatusWire[status]!;
+
+  static ProviderConnectionStatus connectionStatusFromWire(String raw) {
+    for (final entry in _connectionStatusWire.entries) {
+      if (entry.value == raw) {
+        return entry.key;
+      }
+    }
+    throw ArgumentError.value(
+      raw,
+      'status',
+      'unknown provider connection status',
     );
   }
 }

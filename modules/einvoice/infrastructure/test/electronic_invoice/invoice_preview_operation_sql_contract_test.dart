@@ -38,29 +38,26 @@ void main() {
     ).readAsStringSync();
   });
 
-  test('draft 005 defines invoice_preview_operations', () {
+  test('draft 005 defines invoice_previews', () {
     expect(
       schemaSql,
-      contains(
-        'create table if not exists einvoice.invoice_preview_operations',
-      ),
+      contains('create table if not exists einvoice.invoice_previews'),
     );
-    expect(schemaSql, contains('preview_payload jsonb null'));
-    expect(schemaSql, contains('provider_connection_id uuid not null'));
+    expect(schemaSql, isNot(contains('preview_payload jsonb null')));
     expect(
       schemaSql,
       isNot(contains('alter table einvoice.provider_interaction_records')),
     );
-    expect(schemaSql, contains('einvoice.invoice_preview_operations'));
+    expect(schemaSql, contains('einvoice.invoice_previews'));
     expect(
       schemaSql,
       contains(
-        'Touches: einvoice.buyer_invoice_completions, einvoice.invoice_preview_operations',
+        'Touches: einvoice.buyer_invoice_completions, einvoice.invoice_previews',
       ),
     );
   });
 
-  test('preview RPC names unchanged and use invoice_preview_operations', () {
+  test('preview RPC names unchanged and use invoice_previews', () {
     expect(rpcSql, contains('einvoice.request_invoice_preview'));
     expect(rpcSql, contains('einvoice.get_invoice_preview'));
     expect(rpcSql, contains('einvoice.store_preview_result'));
@@ -78,11 +75,11 @@ void main() {
       'create or replace function einvoice.store_preview_result(',
     );
 
-    expect(requestFn, contains('invoice_preview_operations'));
+    expect(requestFn, contains('invoice_previews'));
     expect(requestFn, isNot(contains('provider_interaction_records')));
-    expect(getFn, contains('invoice_preview_operations'));
+    expect(getFn, contains('invoice_previews'));
     expect(getFn, isNot(contains('provider_interaction_records')));
-    expect(storeFn, contains('invoice_preview_operations'));
+    expect(storeFn, contains('invoice_previews'));
     expect(storeFn, isNot(contains('provider_interaction_records')));
   });
 

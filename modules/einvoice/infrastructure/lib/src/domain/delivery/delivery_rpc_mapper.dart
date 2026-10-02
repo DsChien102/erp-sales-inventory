@@ -2,6 +2,8 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../data_access/electronic_invoice_rpc_mapper.dart';
+
 /// Typed RPC param/row mapping for delivery start/result/read gateways.
 abstract final class DeliveryRpcMapper {
   static Map<String, dynamic> startAutoParams(
@@ -30,29 +32,25 @@ abstract final class DeliveryRpcMapper {
   static Map<String, dynamic> loadAttemptContextParams({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_delivery_id': deliveryId,
-      'p_attempt_id': attemptId,
+      'p_retry_count': retryCount,
     };
   }
 
   static Map<String, dynamic> prepareProviderCallParams({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
-    required int expectedDeliveryVersion,
-    required int expectedAttemptVersion,
+    required int retryCount,
     required String requestReference,
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_delivery_id': deliveryId,
-      'p_attempt_id': attemptId,
-      'p_expected_delivery_version': expectedDeliveryVersion,
-      'p_expected_attempt_version': expectedAttemptVersion,
+      'p_retry_count': retryCount,
       'p_request_reference': requestReference,
     };
   }
@@ -61,26 +59,27 @@ abstract final class DeliveryRpcMapper {
     return <String, dynamic>{
       'p_tenant_id': record.tenantId,
       'p_delivery_id': record.deliveryId,
-      'p_attempt_id': record.attemptId,
-      'p_expected_delivery_version': record.expectedDeliveryVersion,
-      'p_expected_attempt_version': record.expectedAttemptVersion,
-      'p_interaction_reference': record.interactionReference,
+      'p_retry_count': record.retryCount,
+      'p_expected_version': record.expectedDeliveryVersion,
       'p_outcome_kind': _outcomeKindToRpc(record.evidence.kind),
       'p_provider_reference': record.evidence.providerReference,
       'p_safe_code': record.evidence.safeCode,
+      'p_failure_source': ElectronicInvoiceRpcMapper.failureSourceToRpc(
+        record.evidence.failureSource,
+      ),
     };
   }
 
   static Map<String, dynamic> recordCommandDeadLetterParams({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_delivery_id': deliveryId,
-      'p_attempt_id': attemptId,
+      'p_retry_count': retryCount,
       'p_safe_failure_code': safeFailureCode,
     };
   }
@@ -105,7 +104,6 @@ abstract final class DeliveryRpcMapper {
       'p_reconciliation_case_id': record.reconciliationCaseId,
       'p_expected_case_version': record.expectedCaseVersion,
       'p_check_sequence': record.checkSequence,
-      'p_interaction_reference': record.interactionReference,
       'p_observation_kind': _observationKindToRpc(record.kind),
       'p_provider_reference': record.providerReference,
       'p_safe_code': record.safeCode,
@@ -119,7 +117,6 @@ abstract final class DeliveryRpcMapper {
       tenantId: _requiredString(row, 'tenant_id'),
       reconciliationCaseId: _requiredString(row, 'reconciliation_case_id'),
       deliveryId: _requiredString(row, 'delivery_id'),
-      attemptId: _requiredString(row, 'attempt_id'),
       providerConnectionId: _requiredString(row, 'provider_connection_id'),
       supportsDeliveryResultObservation: _requiredBool(
         row,
@@ -205,9 +202,8 @@ abstract final class DeliveryRpcMapper {
     return DeliveryAttemptContextDto(
       tenantId: _requiredString(row, 'tenant_id'),
       deliveryId: _requiredString(row, 'delivery_id'),
-      attemptId: _requiredString(row, 'attempt_id'),
+      retryCount: _requiredInt(row, 'retry_count'),
       deliveryVersion: _requiredInt(row, 'delivery_version'),
-      attemptVersion: _requiredInt(row, 'attempt_version'),
       providerConnectionId: _requiredString(row, 'provider_connection_id'),
       providerTransactionId: _requiredString(row, 'provider_transaction_id'),
       invoiceSeries: _requiredString(row, 'invoice_series'),
@@ -234,13 +230,10 @@ abstract final class DeliveryRpcMapper {
           recipientName: row['recipient_name']?.toString(),
         ),
         deliveryVersion: _requiredInt(row, 'delivery_version'),
-        attemptVersion: _requiredInt(row, 'attempt_version'),
       ),
       'SKIP' => const PrepareDeliverySkip(),
       'RECORD_UNKNOWN' => PrepareDeliveryRecordUnknown(
         deliveryVersion: _requiredInt(row, 'delivery_version'),
-        attemptVersion: _requiredInt(row, 'attempt_version'),
-        interactionReference: _requiredString(row, 'interaction_reference'),
       ),
       _ => throw RpcException('Unknown prepare delivery action: $action'),
     };
@@ -262,7 +255,6 @@ abstract final class DeliveryRpcMapper {
           recipientName: mapped.providerContext.recipientName,
         ),
         deliveryVersion: mapped.deliveryVersion,
-        attemptVersion: mapped.attemptVersion,
       );
     }
     return mapped;

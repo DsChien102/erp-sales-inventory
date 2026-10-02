@@ -60,7 +60,7 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<DeliveryAttemptContextDto?> loadAttemptContext({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
   }) async {
     try {
       final rows = await _rpcClient.callList(
@@ -68,7 +68,7 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
         params: DeliveryRpcMapper.loadAttemptContextParams(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
+          retryCount: retryCount,
         ),
       );
       if (rows.isEmpty) {
@@ -86,15 +86,13 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<PrepareDeliveryProviderCallResult> prepareProviderCall({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
-    required int expectedDeliveryVersion,
-    required int expectedAttemptVersion,
+    required int retryCount,
     required String requestReference,
   }) async {
     _logger?.info({
       'event': 'einvoice.delivery.prepare',
       'deliveryId': deliveryId,
-      'attemptId': attemptId,
+      'retryCount': retryCount,
       'requestReference': requestReference,
     });
     try {
@@ -103,9 +101,7 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
         params: DeliveryRpcMapper.prepareProviderCallParams(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
-          expectedDeliveryVersion: expectedDeliveryVersion,
-          expectedAttemptVersion: expectedAttemptVersion,
+          retryCount: retryCount,
           requestReference: requestReference,
         ),
       );
@@ -145,7 +141,7 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
   Future<void> recordCommandDeadLetter({
     required String tenantId,
     required String deliveryId,
-    required String attemptId,
+    required int retryCount,
     required String safeFailureCode,
   }) async {
     try {
@@ -154,7 +150,7 @@ final class SupabaseDeliveryCommandGateway implements IDeliveryCommandGateway {
         params: DeliveryRpcMapper.recordCommandDeadLetterParams(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
+          retryCount: retryCount,
           safeFailureCode: safeFailureCode,
         ),
       );

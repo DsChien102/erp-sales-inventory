@@ -54,6 +54,7 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   MeInvoiceInvoiceData? lastPreviewInvoice;
   List<String>? lastTransactionIds;
   String? lastCompanyTaxCode;
+  MeInvoiceInvoiceQuery? lastPreviewPublishedQuery;
   MeInvoiceInvoiceQuery? lastDownloadQuery;
   MeInvoiceDownloadDataType? lastDownloadDataType;
   MeInvoiceStatusInputType? lastStatusInputType;
@@ -186,10 +187,12 @@ final class FakeMeInvoiceClient implements IMeInvoiceClient {
   Future<MeInvoiceResult<String>> previewPublished({
     required List<String> transactionIds,
     required String companyTaxCode,
+    MeInvoiceInvoiceQuery? query,
   }) async {
     previewPublishedCount++;
     lastTransactionIds = List<String>.from(transactionIds);
     lastCompanyTaxCode = companyTaxCode;
+    lastPreviewPublishedQuery = query;
     if (_previewPublishedQueue.isNotEmpty) {
       return _previewPublishedQueue.removeAt(0);
     }

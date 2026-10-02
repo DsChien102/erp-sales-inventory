@@ -100,25 +100,24 @@ void main() {
   });
 
   group('RecordDeliveryResultCommand', () {
-    test('carries expected versions, interaction reference and evidence', () {
+    test('carries retry count, expected delivery version and evidence', () {
       final command = RecordDeliveryResultCommand(
         tenantId: 't1',
         deliveryId: 'del-1',
-        attemptId: 'att-1',
+        retryCount: 1,
         expectedDeliveryVersion: 3,
-        expectedAttemptVersion: 2,
-        interactionReference: 'pi-del-1-att-1',
         evidence: const DeliveryResultEvidence(
           kind: DeliveryResultKind.undetermined,
           safeCode: 'PROVIDER_TIMEOUT',
+          failureSource: FailureSource.provider,
         ),
       );
 
+      expect(command.retryCount, 1);
       expect(command.expectedDeliveryVersion, 3);
-      expect(command.expectedAttemptVersion, 2);
-      expect(command.interactionReference, 'pi-del-1-att-1');
       expect(command.evidence.kind, DeliveryResultKind.undetermined);
       expect(command.evidence.safeCode, 'PROVIDER_TIMEOUT');
+      expect(command.evidence.failureSource, FailureSource.provider);
       expect(command.evidence.providerReference, isNull);
     });
 

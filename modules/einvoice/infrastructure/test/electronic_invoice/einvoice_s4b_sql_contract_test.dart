@@ -77,18 +77,18 @@ void main() {
       );
       expect(
         sql,
-        contains(
-          'create table if not exists einvoice.invoice_document_operations',
-        ),
-      );
-      expect(
-        sql,
         contains('create table if not exists einvoice.invoice_documents'),
       );
-      expect(sql, contains('intent_hash varchar(128) not null'));
-      expect(sql, contains('idempotency_key varchar(150) not null'));
-      expect(sql, contains('version bigint not null default 0'));
-      expect(sql, contains('requested_at timestamptz null'));
+      expect(sql, contains('request_id uuid not null'));
+      expect(
+        sql,
+        contains(
+          'primary key (tenant_id, electronic_invoice_id, document_type)',
+        ),
+      );
+      expect(sql, isNot(contains('invoice_document_operations')));
+      expect(sql, isNot(contains('intent_hash')));
+      expect(sql, isNot(contains('idempotency_key')));
       expect(sql, isNot(contains('download_url')));
     });
 
@@ -109,34 +109,28 @@ void main() {
         expect(sql, contains('supported_document_types'));
         expect(requestFn, contains('_document_type_supported'));
         expect(requestFn, contains('DOCUMENT_UNAVAILABLE'));
-        expect(requestFn, contains('IDEMPOTENCY_CONFLICT'));
-        expect(requestFn, contains('intent_hash'));
+        expect(requestFn, isNot(contains('IDEMPOTENCY_CONFLICT')));
+        expect(requestFn, isNot(contains('intent_hash')));
       },
     );
 
-    test(
-      'request_invoice_document includes extensions on search_path for pgcrypto digest',
-      () {
-        expect(
-          requestFn,
-          contains('set search_path = einvoice, iam, sales, extensions, public'),
-          reason:
-              'request_invoice_document must include extensions so pgcrypto digest() resolves',
-        );
-        expect(
-          requestFn,
-          contains('extensions.digest('),
-          reason:
-              'request_invoice_document explicitly qualifies digest with extensions schema',
-        );
-      },
-    );
+    test('request_invoice_document hashes the request id without pgcrypto search_path', () {
+      expect(
+        requestFn,
+        contains('set search_path = einvoice, iam, sales, public'),
+      );
+      expect(requestFn, isNot(contains('extensions.digest(')));
+    });
 
-    test('request re-arms CHECK_REQUIRED on same operation', () {
-      expect(requestFn, contains("'CHECK_REQUIRED'"));
-      expect(requestFn, contains('attempt_ordinal = v_attempt_ordinal'));
+    test('request reuses pending or available and otherwise upserts one command', () {
+      expect(requestFn, contains("'PENDING'"));
+      expect(requestFn, contains("'AVAILABLE'"));
       expect(requestFn, contains("'einvoice.download_invoice_document'"));
       expect(requestFn, contains('on conflict (id) do nothing'));
+      expect(
+        requestFn,
+        contains('on conflict (tenant_id, electronic_invoice_id, document_type)'),
+      );
     });
 
     test('list read uses public access guard', () {
@@ -159,16 +153,18 @@ void main() {
       );
     });
 
-    test('load_invoice_document_operation_context returns OCC version and text casts', () {
-      expect(loadContextFn, contains('d.version::integer'));
+    test('load_invoice_document_operation_context returns text casts', () {
+      expect(loadContextFn, isNot(contains('d.version::integer')));
       expect(loadContextFn, contains('ei.provider_invoice_reference::text'));
-      expect(loadContextFn, contains('ei.series::text'));
+      expect(loadContextFn, contains('ei.invoice_series::text'));
     });
 
-    test('request_invoice_document enqueues operation_generation and attempt_ordinal in payload', () {
-      expect(requestFn, contains("'operation_generation', v_generation"));
-      expect(requestFn, contains("'attempt_ordinal', v_attempt_ordinal"));
-      expect(requestFn, contains("'operation_generation', v_latest.generation"));
+    test('request_invoice_document enqueues request id and document type', () {
+      expect(requestFn, contains("'document_type', v_doc_type"));
+      expect(requestFn, contains("'request_id', v_request_id"));
+      expect(requestFn, contains("'correlation_id', v_request_id"));
+      expect(requestFn, isNot(contains('operation_generation')));
+      expect(requestFn, isNot(contains('attempt_ordinal')));
     });
   });
 

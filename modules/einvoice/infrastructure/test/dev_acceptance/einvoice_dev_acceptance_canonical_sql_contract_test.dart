@@ -148,6 +148,14 @@ void main() {
         ),
       );
       expect(draft006Sql, contains('totals identity violated'));
+      expect(
+        draft006Sql,
+        contains("'discountAmount',   trim_scale((ln ->> 'discountMinor')::numeric),"),
+      );
+      expect(
+        draft006Sql,
+        contains("'totalDiscountAmount', trim_scale((v_totals ->> 'discountMinor')::numeric),"),
+      );
     });
 
     test('buyer classification follows BR-06 and BR-07', () {
@@ -263,7 +271,7 @@ void main() {
       );
       expect(
         issuanceSql,
-        contains('v_completion_values'),
+        contains('einvoice._effective_buyer_snapshot('),
         reason: 'completion must merge into effective buyer for payload',
       );
     });
@@ -294,21 +302,31 @@ void main() {
     test(
       'issue_invoice invokes build_canonical_invoice and does not construct partial payload',
       () {
+        final helper = _extractFunction(
+          draft008Sql,
+          'create or replace function einvoice._start_issuance_attempt(',
+        );
         final issueFn = _extractFunction(
-          draft007Sql,
+          draft008Sql,
           'create or replace function einvoice.issue_invoice(',
         );
+        expect(helper.isNotEmpty, isTrue);
         expect(issueFn.isNotEmpty, isTrue);
 
         expect(
-          issueFn,
+          helper,
           contains('einvoice.build_canonical_invoice('),
-          reason: 'issue_invoice must call build_canonical_invoice helper',
+          reason: 'the start helper must call build_canonical_invoice',
         );
         expect(
           issueFn,
+          contains('einvoice._start_issuance_attempt'),
+          reason: 'issue_invoice delegates canonical build to the start helper',
+        );
+        expect(
+          helper,
           isNot(contains("'modelVersion', '1.0.0'")),
-          reason: 'issue_invoice must not construct independent partial JSON',
+          reason: 'the start helper must not construct independent partial JSON',
         );
       },
     );

@@ -20,7 +20,7 @@ void main() {
           observedAt: DateTime.utc(2026, 8, 31, 9),
           deduplicationKey: 'provider_observation:cmd-1',
           detailsSnapshot: const {'transactionId': 'tx-1'},
-          providerInteractionReference: 'interaction-1',
+          correlationId: 'corr-1',
           source: 'WORKER',
         ),
       );
@@ -36,7 +36,7 @@ void main() {
   group('RecordProviderObservationCommandValidator', () {
     final validator = RecordProviderObservationCommandValidator();
 
-    test('rejects blank interaction reference', () async {
+    test('rejects blank correlation id', () async {
       await expectLater(
         validator.validate(
           RecordProviderObservationCommand(
@@ -46,7 +46,7 @@ void main() {
             observedAt: DateTime.utc(2026, 8, 31, 9),
             deduplicationKey: 'provider_observation:cmd-1',
             detailsSnapshot: const {},
-            providerInteractionReference: '  ',
+            correlationId: '  ',
             source: 'WORKER',
           ),
         ),
@@ -64,7 +64,7 @@ void main() {
             observedAt: DateTime.utc(2026, 8, 31, 9),
             deduplicationKey: 'provider_observation:cmd-1',
             detailsSnapshot: const {'rawPayload': 'secret'},
-            providerInteractionReference: 'interaction-1',
+            correlationId: 'corr-1',
             source: 'WORKER',
           ),
         ),

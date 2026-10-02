@@ -1,3 +1,5 @@
+import 'package:vet45_einvoice_domain/domain.dart';
+
 import '../../issuance/commands/request_invoice_preview/request_invoice_preview_result.dart';
 import '../../ports/i_invoice_preview_gateway.dart';
 
@@ -7,7 +9,18 @@ final class FakeInvoicePreviewGateway implements IInvoicePreviewGateway {
   final String requestId;
   final InvoicePreviewResultDto? cached;
   String? enqueuedFor;
-  String? storedRequestId;
+  final List<
+    ({
+      String requestId,
+      String salesOrderId,
+      String status,
+      String? viewerRef,
+      String? failureCode,
+      String? failureMessage,
+      FailureSource? failureSource,
+    })
+  >
+  stored = [];
 
   @override
   Future<String> persistRequestAndEnqueue({
@@ -30,10 +43,22 @@ final class FakeInvoicePreviewGateway implements IInvoicePreviewGateway {
   @override
   Future<void> storeResult({
     required String tenantId,
-    required String previewRequestId,
+    required String salesOrderId,
+    required String requestId,
+    required String status,
     String? viewerRef,
-    Map<String, Object?>? previewPayload,
+    String? failureCode,
+    String? failureMessage,
+    FailureSource? failureSource,
   }) async {
-    storedRequestId = previewRequestId;
+    stored.add((
+      requestId: requestId,
+      salesOrderId: salesOrderId,
+      status: status,
+      viewerRef: viewerRef,
+      failureCode: failureCode,
+      failureMessage: failureMessage,
+      failureSource: failureSource,
+    ));
   }
 }

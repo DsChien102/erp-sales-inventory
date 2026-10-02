@@ -1,58 +1,54 @@
 -- Title: einvoice S3a/S3c — automatic trigger process records + start helper & retry transactions
 -- Kind: cohesive
 -- Intent: einvoice_s3_start_and_retry
--- Touches: einvoice.issuance_attempts, einvoice.automatic_trigger_process_records, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance
+-- Touches: einvoice.issuance_attempts, einvoice.auto_issuance_processes, einvoice._start_issuance_attempt, einvoice.issue_invoice, einvoice.start_auto_issuance, einvoice.list_open_auto_issuance_processes, einvoice.reevaluate_auto_issuance, einvoice.retry_issuance
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped
 -- Depends on: 001_einvoice_configuration_schema.sql, 002_einvoice_install_module_messaging.sql, 005_einvoice_buyer_completion_and_preview_schema.sql, 007_einvoice_issuance_schema_and_publish_rpcs.sql
 
--- 1. einvoice.automatic_trigger_process_records table
-create table if not exists einvoice.automatic_trigger_process_records (
+-- 1. einvoice.auto_issuance_processes — một dòng / đơn hàng (S7, bảng 14).
+create table if not exists einvoice.auto_issuance_processes (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null,
-  process_type text not null check (process_type in ('SALES_ORDER_COMPLETED')),
   sales_order_id uuid not null,
-  sales_order_version text not null,
-  trigger_key varchar(255) not null,
+  sales_order_version text,
+  buyer_partner_id uuid,
+  trigger_key text not null,
   provider_idempotency_key varchar(150) not null,
-  process_status text not null check (
-    process_status in ('PENDING_REEVALUATION', 'ATTEMPT_STARTED', 'SKIPPED')
+  status text not null check (
+    status in ('PENDING_REEVALUATION', 'ATTEMPT_STARTED', 'SKIPPED')
   ),
-  retry_count integer not null default 0,
-  next_retry_at timestamptz null,
-  blocker_code varchar(100) null,
-  buyer_invoice_completion_id uuid null references einvoice.buyer_invoice_completions(id),
-  claimed_at timestamptz null,
-  claim_token varchar(100) null,
+  blocker_code text,
+  last_evaluated_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  version bigint not null default 0,
-  unique (tenant_id, sales_order_id, sales_order_version, process_type),
+  unique (tenant_id, sales_order_id),
   unique (tenant_id, trigger_key)
 );
 
-create index if not exists auto_trigger_process_open_idx
-  on einvoice.automatic_trigger_process_records (tenant_id, process_status, sales_order_id)
-  where process_status = 'PENDING_REEVALUATION';
+create index if not exists auto_issuance_processes_pending_buyer_idx
+  on einvoice.auto_issuance_processes (tenant_id, buyer_partner_id)
+  where status = 'PENDING_REEVALUATION';
 
-alter table einvoice.automatic_trigger_process_records enable row level security;
+alter table einvoice.auto_issuance_processes enable row level security;
+revoke all on einvoice.auto_issuance_processes from anon, authenticated;
 
 -- 2. einvoice._start_issuance_attempt (private helper)
+drop function if exists einvoice._start_issuance_attempt(
+  uuid, uuid, text, text, varchar, text, text, uuid, uuid, uuid, jsonb, jsonb, boolean
+);
+
 create or replace function einvoice._start_issuance_attempt(
   p_tenant_id uuid,
   p_sales_order_id uuid,
   p_source_version text,
-  p_trigger_type text,
   p_idempotency_key varchar(150),
   p_intent_hash text,
   p_actor_type text,
   p_actor_id uuid,
   p_provider_connection_id uuid,
-  p_issuance_profile_id uuid,
   p_buyer_partner_id uuid,
   p_buyer_snapshot jsonb,
   p_commercial_snapshot jsonb,
-  p_acknowledge_warnings boolean default false,
-  p_buyer_completion_id uuid default null
+  p_acknowledge_warnings boolean default false
 ) returns table(
   issuance_id uuid,
   attempt_id uuid,
@@ -71,35 +67,15 @@ declare
   v_sign_type smallint;
   v_base_buyer_snapshot jsonb;
   v_effective_buyer jsonb;
-  v_completion_values jsonb := '{}'::jsonb;
+  v_buyer_completed_at timestamptz;
 begin
-  insert into einvoice.invoice_issuances (
-    tenant_id,
-    sales_order_id,
-    issuance_type,
-    initiated_at,
-    created_by_actor_type,
-    created_by_actor_id
-  ) values (
-    p_tenant_id,
-    p_sales_order_id,
-    'ORIGINAL',
-    now(),
-    p_actor_type,
-    p_actor_id
-  )
-  on conflict (tenant_id, sales_order_id, issuance_type) do update set
-    updated_at = now()
+  -- Cập nhật không đổi giá trị để vừa trả id vừa khoá dòng neo tới hết giao
+  -- dịch: hai lần tạo song song phải xếp hàng, không trùng attempt_no.
+  insert into einvoice.invoice_issuances (tenant_id, sales_order_id, issuance_type)
+  values (p_tenant_id, p_sales_order_id, 'ORIGINAL')
+  on conflict (tenant_id, sales_order_id, issuance_type)
+  do update set issuance_type = excluded.issuance_type
   returning id into v_issuance_id;
-
-  if v_issuance_id is null then
-    select ii.id
-    into v_issuance_id
-    from einvoice.invoice_issuances ii
-    where ii.tenant_id = p_tenant_id
-      and ii.sales_order_id = p_sales_order_id
-      and ii.issuance_type = 'ORIGINAL';
-  end if;
 
   select coalesce(max(ia.attempt_no), 0) + 1
   into v_attempt_no
@@ -110,19 +86,21 @@ begin
   -- buyer-completion merge produces the effective buyer.
   v_base_buyer_snapshot := coalesce(p_buyer_snapshot, '{}'::jsonb);
 
-  -- EffectiveBuyerInvoiceData cho payload; lineage giữ base nguyên bản (S5 freeze)
-  select coalesce(bc.resolved_values, '{}'::jsonb)
-  into v_completion_values
+  -- Khoá dòng bổ sung (nếu có) tới hết giao dịch: complete_buyer_invoice_data
+  -- chạy song song phải chờ, rồi thấy lần phát hành này và từ chối ghi đè.
+  select bc.completed_at
+  into v_buyer_completed_at
   from einvoice.buyer_invoice_completions bc
-  where bc.id = p_buyer_completion_id;
+  where bc.tenant_id = p_tenant_id
+    and bc.sales_order_id = p_sales_order_id
+  for share;
 
-  v_effective_buyer := v_base_buyer_snapshot || jsonb_strip_nulls(
-    jsonb_build_object(
-      'buyerLegalName',  nullif(btrim(coalesce(v_completion_values ->> 'name', '')), ''),
-      'buyerTaxCode',    nullif(btrim(coalesce(v_completion_values ->> 'taxCode', '')), ''),
-      'buyerEmail',      nullif(btrim(coalesce(v_completion_values ->> 'email', '')), ''),
-      'buyerAddress',    nullif(btrim(coalesce(v_completion_values ->> 'address', '')), '')
-    ));
+  -- EffectiveBuyerInvoiceData cho payload; lineage giữ base nguyên bản (S5 freeze)
+  v_effective_buyer := einvoice._effective_buyer_snapshot(
+    p_tenant_id,
+    p_sales_order_id,
+    v_base_buyer_snapshot
+  );
 
   v_attempt_snapshot := jsonb_build_object(
     'schemaVersion', 1,
@@ -135,12 +113,11 @@ begin
     'buyer', v_effective_buyer,
     'buyer_lineage', jsonb_build_object(
       'buyerPartnerId', p_buyer_partner_id,
-      'buyerInvoiceCompletionId', p_buyer_completion_id,
+      'buyerCompletedAt', v_buyer_completed_at,
       'buyerInvoiceSnapshotSourceVersion', p_source_version,
       'buyerInvoiceSnapshot', v_base_buyer_snapshot
     ),
     'invoice_context', jsonb_build_object(
-      'issuanceProfileId', p_issuance_profile_id,
       'providerConnectionId', p_provider_connection_id
     ),
     'lines', coalesce(p_commercial_snapshot -> 'lines', '[]'::jsonb),
@@ -206,19 +183,13 @@ begin
     tenant_id,
     invoice_issuance_id,
     attempt_no,
-    trigger_type,
     status,
     provider_connection_id,
-    issuance_profile_id,
     invoice_series,
-    invoice_with_code,
-    is_invoice_summary,
-    sign_type,
     idempotency_key,
     intent_hash,
     snapshot_schema_version,
     attempt_snapshot,
-    canonical_model_version,
     canonical_payload_hash,
     internal_finalization_state,
     initiated_by_actor_type,
@@ -227,32 +198,19 @@ begin
     p_tenant_id,
     v_issuance_id,
     v_attempt_no,
-    p_trigger_type,
     'PREPARING',
     p_provider_connection_id,
-    p_issuance_profile_id,
     v_invoice_series,
-    v_invoice_with_code,
-    v_is_invoice_summary,
-    v_sign_type,
     p_idempotency_key,
     p_intent_hash,
     1,
     v_attempt_snapshot,
-    '1.0.0',
     v_canonical_hash,
     'PENDING',
     p_actor_type,
     p_actor_id
   )
   returning id into v_attempt_id;
-
-  update einvoice.invoice_issuances
-  set last_attempt_id = v_attempt_id,
-      settled_result = null,
-      version = version + 1,
-      updated_at = now()
-  where id = v_issuance_id;
 
   perform einvoice.enqueue_internal_command(
     p_tenant_id,
@@ -284,7 +242,7 @@ end;
 $$;
 
 revoke all on function einvoice._start_issuance_attempt(
-  uuid, uuid, text, text, varchar, text, text, uuid, uuid, uuid, uuid, jsonb, jsonb, boolean, uuid
+  uuid, uuid, text, varchar, text, text, uuid, uuid, uuid, jsonb, jsonb, boolean
 ) from public;
 
 -- 3. einvoice.issue_invoice
@@ -306,9 +264,8 @@ declare
   v_existing einvoice.issuance_attempts%rowtype;
   v_source record;
   v_provider_connection_id uuid;
-  v_issuance_profile_id uuid;
+  v_settings_tenant_id uuid;
   v_issuance_id uuid;
-  v_buyer_completion einvoice.buyer_invoice_completions%rowtype;
 begin
   if auth.uid() is not null then
     if auth.uid() <> p_actor_id then
@@ -404,8 +361,7 @@ begin
   into v_provider_connection_id
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
-  order by pc.created_at asc
+    and pc.status = 'CONNECTED'
   limit 1;
 
   if v_provider_connection_id is null then
@@ -416,15 +372,14 @@ begin
     )::text;
   end if;
 
-  select ip.id
-  into v_issuance_profile_id
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
-    and ip.default_template is not null
-    and ip.default_signing is not null
+  select ts.tenant_id
+  into v_settings_tenant_id
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
+    and ts.default_template_id is not null
   limit 1;
 
-  if v_issuance_profile_id is null then
+  if v_settings_tenant_id is null then
     raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
       'details', jsonb_build_object(
         'blockers', jsonb_build_array('NO_ACTIVE_ISSUANCE_PROFILE')
@@ -432,38 +387,21 @@ begin
     )::text;
   end if;
 
-  select bc.*
-  into v_buyer_completion
-  from einvoice.buyer_invoice_completions bc
-  where bc.tenant_id = p_tenant_id
-    and bc.sales_order_id = p_sales_order_id
-  for update;
-
-  if found and v_buyer_completion.status = 'open' then
-    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
-      'details', jsonb_build_object(
-        'blockers', jsonb_build_array('BUYER_SOURCE_UNAVAILABLE')
-      )
-    )::text;
-  end if;
-
+  -- 5. Ready: create attempt via helper
   return query
   select * from einvoice._start_issuance_attempt(
     p_tenant_id => p_tenant_id,
     p_sales_order_id => p_sales_order_id,
     p_source_version => p_source_version,
-    p_trigger_type => 'MANUAL',
     p_idempotency_key => p_idempotency_key,
     p_intent_hash => v_intent_hash,
     p_actor_type => 'USER',
     p_actor_id => p_actor_id,
     p_provider_connection_id => v_provider_connection_id,
-    p_issuance_profile_id => v_issuance_profile_id,
     p_buyer_partner_id => v_source.buyer_partner_id,
     p_buyer_snapshot => v_source.buyer_snapshot,
     p_commercial_snapshot => v_source.commercial_snapshot,
-    p_acknowledge_warnings => coalesce(p_acknowledge_warnings, false),
-    p_buyer_completion_id => case when found then v_buyer_completion.id else null end
+    p_acknowledge_warnings => coalesce(p_acknowledge_warnings, false)
   );
 end;
 $$;
@@ -487,13 +425,12 @@ create or replace function einvoice.start_auto_issuance(
   reason text
 ) language plpgsql security definer set search_path = einvoice, extensions, public as $$
 declare
-  v_existing_proc einvoice.automatic_trigger_process_records%rowtype;
-  v_policy einvoice.invoice_automation_policies%rowtype;
+  v_existing_proc einvoice.auto_issuance_processes%rowtype;
+  v_policy einvoice.tenant_settings%rowtype;
   v_source record;
   v_source_version text;
   v_provider_connection_id uuid;
-  v_issuance_profile_id uuid;
-  v_buyer_completion einvoice.buyer_invoice_completions%rowtype;
+  v_settings_tenant_id uuid;
   v_proc_id uuid;
   v_start_res record;
   v_intent jsonb;
@@ -511,47 +448,76 @@ begin
   -- 1. Check duplicate trigger key (idempotent replay)
   select pr.*
   into v_existing_proc
-  from einvoice.automatic_trigger_process_records pr
+  from einvoice.auto_issuance_processes pr
   where pr.tenant_id = p_tenant_id
     and pr.trigger_key = p_trigger_key
   for update;
 
   if found then
     return query select
-      (v_existing_proc.process_status = 'ATTEMPT_STARTED')::boolean as started,
-      (v_existing_proc.process_status = 'SKIPPED')::boolean as skipped,
+      (v_existing_proc.status = 'ATTEMPT_STARTED')::boolean as started,
+      (v_existing_proc.status = 'SKIPPED')::boolean as skipped,
       v_existing_proc.id as process_id,
       null::uuid as attempt_id,
-      v_existing_proc.process_status as status,
+      v_existing_proc.status as status,
       v_existing_proc.blocker_code as reason;
+    return;
+  end if;
+
+  -- 1b. Một dòng / đơn. Sales phát sales_order_finalized.v1 một lần cho mỗi
+  -- đơn; nhánh này là lưới an toàn khi có sự kiện thứ hai khác trigger_key.
+  select pr.*
+  into v_existing_proc
+  from einvoice.auto_issuance_processes pr
+  where pr.tenant_id = p_tenant_id
+    and pr.sales_order_id = p_sales_order_id
+  for update;
+
+  if found then
+    if v_existing_proc.status = 'PENDING_REEVALUATION' then
+      return query
+      select * from einvoice.reevaluate_auto_issuance(
+        p_tenant_id, v_existing_proc.id, p_trigger_key
+      );
+      return;
+    end if;
+    return query select
+      (v_existing_proc.status = 'ATTEMPT_STARTED')::boolean,
+      (v_existing_proc.status = 'SKIPPED')::boolean,
+      v_existing_proc.id,
+      null::uuid,
+      v_existing_proc.status,
+      v_existing_proc.blocker_code;
     return;
   end if;
 
   -- 2. Check Automation Policy
   select ap.*
   into v_policy
-  from einvoice.invoice_automation_policies ap
+  from einvoice.tenant_settings ap
   where ap.tenant_id = p_tenant_id;
 
   if not found or not coalesce(v_policy.auto_issue_enabled, false) then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      'unknown',
+      null,
+      null,
       p_trigger_key,
       p_idempotency_key,
       'SKIPPED',
-      'AUTOMATION_POLICY_DISABLED'
+      'AUTOMATION_POLICY_DISABLED',
+      now()
     )
     returning id into v_proc_id;
 
@@ -573,24 +539,26 @@ begin
     and ei.sales_order_id = p_sales_order_id;
 
   if found then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      'unknown',
+      null,
+      null,
       p_trigger_key,
       p_idempotency_key,
       'SKIPPED',
-      'ALREADY_ISSUED'
+      'ALREADY_ISSUED',
+      now()
     )
     returning id into v_proc_id;
 
@@ -614,24 +582,26 @@ begin
   limit 1;
 
   if found then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      'unknown',
+      null,
+      null,
       p_trigger_key,
       p_idempotency_key,
       'SKIPPED',
-      'OPERATION_IN_PROGRESS'
+      'OPERATION_IN_PROGRESS',
+      now()
     )
     returning id into v_proc_id;
 
@@ -650,28 +620,30 @@ begin
   into v_source
   from einvoice.load_issuance_source_snapshot(p_tenant_id, p_sales_order_id) s;
 
-  v_source_version := coalesce(v_source.source_version, 'unknown');
+  v_source_version := v_source.source_version;
 
   -- Đơn đã trả hết: không còn gì để xuất hóa đơn → SKIPPED (không chờ lại).
   if coalesce(v_source.blockers, '[]'::jsonb) ? 'ORDER_FULLY_RETURNED' then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      v_source_version,
+      v_source.source_version,
+      v_source.buyer_partner_id,
       p_trigger_key,
       p_idempotency_key,
       'SKIPPED',
-      'ORDER_FULLY_RETURNED'
+      'ORDER_FULLY_RETURNED',
+      now()
     )
     returning id into v_proc_id;
 
@@ -686,24 +658,26 @@ begin
   end if;
 
   if not coalesce(v_source.available, false) or not coalesce(v_source.order_completed, false) then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      v_source_version,
+      v_source.source_version,
+      v_source.buyer_partner_id,
       p_trigger_key,
       p_idempotency_key,
       'PENDING_REEVALUATION',
-      coalesce((v_source.blockers->>0), 'SOURCE_SNAPSHOT_UNAVAILABLE')
+      coalesce((v_source.blockers->>0), 'SOURCE_SNAPSHOT_UNAVAILABLE'),
+      now()
     )
     returning id into v_proc_id;
 
@@ -721,29 +695,30 @@ begin
   into v_provider_connection_id
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
-  order by pc.created_at asc
+    and pc.status = 'CONNECTED'
   limit 1;
 
   if v_provider_connection_id is null then
-    insert into einvoice.automatic_trigger_process_records (
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      v_source_version,
+      v_source.source_version,
+      v_source.buyer_partner_id,
       p_trigger_key,
       p_idempotency_key,
       'PENDING_REEVALUATION',
-      'NO_ACTIVE_PROVIDER_CONNECTION'
+      'NO_ACTIVE_PROVIDER_CONNECTION',
+      now()
     )
     returning id into v_proc_id;
 
@@ -757,33 +732,34 @@ begin
     return;
   end if;
 
-  select ip.id
-  into v_issuance_profile_id
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
-    and ip.default_template is not null
-    and ip.default_signing is not null
+  select ts.tenant_id
+  into v_settings_tenant_id
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
+    and ts.default_template_id is not null
   limit 1;
 
-  if v_issuance_profile_id is null then
-    insert into einvoice.automatic_trigger_process_records (
+  if v_settings_tenant_id is null then
+    insert into einvoice.auto_issuance_processes (
       tenant_id,
-      process_type,
       sales_order_id,
       sales_order_version,
+      buyer_partner_id,
       trigger_key,
       provider_idempotency_key,
-      process_status,
-      blocker_code
+      status,
+      blocker_code,
+      last_evaluated_at
     ) values (
       p_tenant_id,
-      'SALES_ORDER_COMPLETED',
       p_sales_order_id,
-      v_source_version,
+      v_source.source_version,
+      v_source.buyer_partner_id,
       p_trigger_key,
       p_idempotency_key,
       'PENDING_REEVALUATION',
-      'NO_ACTIVE_ISSUANCE_PROFILE'
+      'NO_ACTIVE_ISSUANCE_PROFILE',
+      now()
     )
     returning id into v_proc_id;
 
@@ -797,57 +773,7 @@ begin
     return;
   end if;
 
-  select bc.*
-  into v_buyer_completion
-  from einvoice.buyer_invoice_completions bc
-  where bc.tenant_id = p_tenant_id
-    and bc.sales_order_id = p_sales_order_id
-  for update;
-
-  if found and v_buyer_completion.status = 'open' then
-    insert into einvoice.automatic_trigger_process_records (
-      tenant_id,
-      process_type,
-      sales_order_id,
-      sales_order_version,
-      trigger_key,
-      provider_idempotency_key,
-      process_status,
-      blocker_code,
-      buyer_invoice_completion_id
-    ) values (
-      p_tenant_id,
-      'SALES_ORDER_COMPLETED',
-      p_sales_order_id,
-      v_source_version,
-      p_trigger_key,
-      p_idempotency_key,
-      'PENDING_REEVALUATION',
-      'BUYER_DATA_INCOMPLETE',
-      v_buyer_completion.id
-    )
-    returning id into v_proc_id;
-
-    return query select
-      false as started,
-      false as skipped,
-      v_proc_id as process_id,
-      null::uuid as attempt_id,
-      'PENDING_REEVALUATION'::text as status,
-      'BUYER_DATA_INCOMPLETE'::text as reason;
-    return;
-  end if;
-
-  -- 5. Ready: Lock completion (if present), create attempt via helper, and record ATTEMPT_STARTED
-  if found and v_buyer_completion.status = 'open' then
-    update einvoice.buyer_invoice_completions
-    set status = 'locked',
-        locked_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = v_buyer_completion.id;
-  end if;
-
+  -- 5. Ready: create attempt via helper, and record ATTEMPT_STARTED
   v_intent := jsonb_build_object(
     'operation', 'ISSUE_ORIGINAL',
     'sales_order_id', p_sales_order_id,
@@ -865,38 +791,35 @@ begin
     p_tenant_id => p_tenant_id,
     p_sales_order_id => p_sales_order_id,
     p_source_version => v_source_version,
-    p_trigger_type => 'AUTOMATIC',
     p_idempotency_key => p_idempotency_key,
     p_intent_hash => v_intent_hash,
     p_actor_type => 'SYSTEM',
     p_actor_id => null,
     p_provider_connection_id => v_provider_connection_id,
-    p_issuance_profile_id => v_issuance_profile_id,
     p_buyer_partner_id => v_source.buyer_partner_id,
     p_buyer_snapshot => v_source.buyer_snapshot,
     p_commercial_snapshot => v_source.commercial_snapshot,
-    p_acknowledge_warnings => false,
-    p_buyer_completion_id => case when found then v_buyer_completion.id else null end
+    p_acknowledge_warnings => false
   );
 
-  insert into einvoice.automatic_trigger_process_records (
+  insert into einvoice.auto_issuance_processes (
     tenant_id,
-    process_type,
     sales_order_id,
     sales_order_version,
+    buyer_partner_id,
     trigger_key,
     provider_idempotency_key,
-    process_status,
-    buyer_invoice_completion_id
+    status,
+    last_evaluated_at
   ) values (
     p_tenant_id,
-    'SALES_ORDER_COMPLETED',
     p_sales_order_id,
-    v_source_version,
+    v_source.source_version,
+    v_source.buyer_partner_id,
     p_trigger_key,
     p_idempotency_key,
     'ATTEMPT_STARTED',
-    case when found then v_buyer_completion.id else null end
+    now()
   )
   returning id into v_proc_id;
 
@@ -930,12 +853,11 @@ begin
     pr.id as process_id,
     pr.sales_order_id,
     p_partner_id as partner_id,
-    pr.process_status as status
-  from einvoice.automatic_trigger_process_records pr
-  left join einvoice.buyer_invoice_completions bc on bc.id = pr.buyer_invoice_completion_id
+    pr.status
+  from einvoice.auto_issuance_processes pr
   where pr.tenant_id = p_tenant_id
-    and pr.process_status = 'PENDING_REEVALUATION'
-    and (bc.buyer_partner_id = p_partner_id or pr.buyer_invoice_completion_id is null);
+    and pr.status = 'PENDING_REEVALUATION'
+    and pr.buyer_partner_id = p_partner_id;
 end;
 $$;
 
@@ -957,18 +879,17 @@ create or replace function einvoice.reevaluate_auto_issuance(
   reason text
 ) language plpgsql security definer set search_path = einvoice, extensions, public as $$
 declare
-  v_proc einvoice.automatic_trigger_process_records%rowtype;
+  v_proc einvoice.auto_issuance_processes%rowtype;
   v_source record;
   v_provider_connection_id uuid;
-  v_issuance_profile_id uuid;
-  v_buyer_completion einvoice.buyer_invoice_completions%rowtype;
+  v_settings_tenant_id uuid;
   v_intent jsonb;
   v_intent_hash text;
   v_start_res record;
 begin
   select pr.*
   into v_proc
-  from einvoice.automatic_trigger_process_records pr
+  from einvoice.auto_issuance_processes pr
   where pr.id = p_process_id
     and pr.tenant_id = p_tenant_id
   for update;
@@ -977,13 +898,13 @@ begin
     raise exception 'NOT_FOUND: automatic trigger process record';
   end if;
 
-  if v_proc.process_status <> 'PENDING_REEVALUATION' then
+  if v_proc.status <> 'PENDING_REEVALUATION' then
     return query select
-      (v_proc.process_status = 'ATTEMPT_STARTED')::boolean as started,
-      (v_proc.process_status = 'SKIPPED')::boolean as skipped,
+      (v_proc.status = 'ATTEMPT_STARTED')::boolean as started,
+      (v_proc.status = 'SKIPPED')::boolean as skipped,
       v_proc.id as process_id,
       null::uuid as attempt_id,
-      v_proc.process_status as status,
+      v_proc.status as status,
       v_proc.blocker_code as reason;
     return;
   end if;
@@ -994,11 +915,10 @@ begin
   from einvoice.load_issuance_source_snapshot(p_tenant_id, v_proc.sales_order_id) s;
 
   if coalesce(v_source.blockers, '[]'::jsonb) ? 'ORDER_FULLY_RETURNED' then
-    update einvoice.automatic_trigger_process_records
-    set process_status = 'SKIPPED',
+    update einvoice.auto_issuance_processes
+    set status = 'SKIPPED',
         blocker_code = 'ORDER_FULLY_RETURNED',
-        updated_at = now(),
-        version = version + 1
+        last_evaluated_at = now()
     where id = v_proc.id;
 
     return query select
@@ -1014,10 +934,9 @@ begin
   -- Đơn đổi version (đổi/trả) trong lúc chờ: attempt phải gắn version hiện tại
   -- của nguồn; provider idempotency key giữ nguyên.
   if v_source.source_version is distinct from v_proc.sales_order_version then
-    update einvoice.automatic_trigger_process_records
+    update einvoice.auto_issuance_processes
     set sales_order_version = v_source.source_version,
-        updated_at = now(),
-        version = version + 1
+        last_evaluated_at = now()
     where id = v_proc.id;
     v_proc.sales_order_version := v_source.source_version;
   end if;
@@ -1037,8 +956,7 @@ begin
   into v_provider_connection_id
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
-  order by pc.created_at asc
+    and pc.status = 'CONNECTED'
   limit 1;
 
   if v_provider_connection_id is null then
@@ -1052,15 +970,14 @@ begin
     return;
   end if;
 
-  select ip.id
-  into v_issuance_profile_id
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
-    and ip.default_template is not null
-    and ip.default_signing is not null
+  select ts.tenant_id
+  into v_settings_tenant_id
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
+    and ts.default_template_id is not null
   limit 1;
 
-  if v_issuance_profile_id is null then
+  if v_settings_tenant_id is null then
     return query select
       false as started,
       false as skipped,
@@ -1071,34 +988,7 @@ begin
     return;
   end if;
 
-  select bc.*
-  into v_buyer_completion
-  from einvoice.buyer_invoice_completions bc
-  where bc.tenant_id = p_tenant_id
-    and bc.sales_order_id = v_proc.sales_order_id
-  for update;
-
-  if found and v_buyer_completion.status = 'open' then
-    return query select
-      false as started,
-      false as skipped,
-      v_proc.id as process_id,
-      null::uuid as attempt_id,
-      'PENDING_REEVALUATION'::text as status,
-      'BUYER_DATA_INCOMPLETE'::text as reason;
-    return;
-  end if;
-
-  -- Ready: lock completion and start attempt
-  if found and v_buyer_completion.status = 'open' then
-    update einvoice.buyer_invoice_completions
-    set status = 'locked',
-        locked_at = now(),
-        version = version + 1,
-        updated_at = now()
-    where id = v_buyer_completion.id;
-  end if;
-
+  -- Ready: start attempt
   v_intent := jsonb_build_object(
     'operation', 'ISSUE_ORIGINAL',
     'sales_order_id', v_proc.sales_order_id,
@@ -1116,25 +1006,21 @@ begin
     p_tenant_id => p_tenant_id,
     p_sales_order_id => v_proc.sales_order_id,
     p_source_version => v_proc.sales_order_version,
-    p_trigger_type => 'AUTOMATIC',
     p_idempotency_key => v_proc.provider_idempotency_key,
     p_intent_hash => v_intent_hash,
     p_actor_type => 'SYSTEM',
     p_actor_id => null,
     p_provider_connection_id => v_provider_connection_id,
-    p_issuance_profile_id => v_issuance_profile_id,
     p_buyer_partner_id => v_source.buyer_partner_id,
     p_buyer_snapshot => v_source.buyer_snapshot,
     p_commercial_snapshot => v_source.commercial_snapshot,
-    p_acknowledge_warnings => false,
-    p_buyer_completion_id => case when found then v_buyer_completion.id else null end
+    p_acknowledge_warnings => false
   );
 
-  update einvoice.automatic_trigger_process_records
-  set process_status = 'ATTEMPT_STARTED',
+  update einvoice.auto_issuance_processes
+  set status = 'ATTEMPT_STARTED',
       blocker_code = null,
-      updated_at = now(),
-      version = version + 1
+      last_evaluated_at = now()
   where id = p_process_id;
 
   return query select
@@ -1173,8 +1059,7 @@ declare
   v_existing_invoice uuid;
   v_source record;
   v_provider_connection_id uuid;
-  v_issuance_profile_id uuid;
-  v_buyer_completion einvoice.buyer_invoice_completions%rowtype;
+  v_settings_tenant_id uuid;
 begin
   if auth.uid() is not null then
     if auth.uid() <> p_actor_id then
@@ -1311,8 +1196,7 @@ begin
   into v_provider_connection_id
   from einvoice.provider_connections pc
   where pc.tenant_id = p_tenant_id
-    and pc.status = 'connected'
-  order by pc.created_at asc
+    and pc.status = 'CONNECTED'
   limit 1;
 
   if v_provider_connection_id is null then
@@ -1323,36 +1207,17 @@ begin
     )::text;
   end if;
 
-  select ip.id
-  into v_issuance_profile_id
-  from einvoice.issuance_profiles ip
-  where ip.tenant_id = p_tenant_id
-    and ip.default_template is not null
-    and ip.default_signing is not null
+  select ts.tenant_id
+  into v_settings_tenant_id
+  from einvoice.tenant_settings ts
+  where ts.tenant_id = p_tenant_id
+    and ts.default_template_id is not null
   limit 1;
 
-  if v_issuance_profile_id is null then
+  if v_settings_tenant_id is null then
     raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
       'details', jsonb_build_object(
         'blockers', jsonb_build_array('NO_ACTIVE_ISSUANCE_PROFILE')
-      )
-    )::text;
-  end if;
-
-  -- 5. Canonical retry branching:
-  -- (1) scn_e02_u05_sc11_01: same version + completion LOCKED -> reuse locked completion/lineage without Theme 03 resolve
-  -- (2) completion gắn theo đơn: version đơn đổi (đổi/trả) vẫn dùng completion đã khóa
-  select bc.*
-  into v_buyer_completion
-  from einvoice.buyer_invoice_completions bc
-  where bc.tenant_id = p_tenant_id
-    and bc.sales_order_id = p_sales_order_id
-  for update;
-
-  if found and v_buyer_completion.status = 'open' then
-    raise exception 'ISSUANCE_NOT_READY: %', jsonb_build_object(
-      'details', jsonb_build_object(
-        'blockers', jsonb_build_array('BUYER_SOURCE_UNAVAILABLE')
       )
     )::text;
   end if;
@@ -1362,18 +1227,15 @@ begin
     p_tenant_id => p_tenant_id,
     p_sales_order_id => p_sales_order_id,
     p_source_version => v_source.source_version,
-    p_trigger_type => 'MANUAL',
     p_idempotency_key => p_idempotency_key,
     p_intent_hash => v_intent_hash,
     p_actor_type => 'USER',
     p_actor_id => p_actor_id,
     p_provider_connection_id => v_provider_connection_id,
-    p_issuance_profile_id => v_issuance_profile_id,
     p_buyer_partner_id => v_source.buyer_partner_id,
     p_buyer_snapshot => v_source.buyer_snapshot,
     p_commercial_snapshot => v_source.commercial_snapshot,
-    p_acknowledge_warnings => coalesce(p_acknowledge_warnings, false),
-    p_buyer_completion_id => case when found then v_buyer_completion.id else null end
+    p_acknowledge_warnings => coalesce(p_acknowledge_warnings, false)
   );
 end;
 $$;

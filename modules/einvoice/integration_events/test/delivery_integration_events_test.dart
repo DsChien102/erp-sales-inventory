@@ -110,7 +110,6 @@ void main() {
         electronicInvoiceId: 'ei-1',
         salesOrderId: 'so-1',
         deliveryId: 'del-1',
-        attemptId: 'att-1',
         reconciliationCaseId: 'case-1',
         safeErrorCode: 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED',
       );
@@ -120,7 +119,7 @@ void main() {
       expect(payload['electronic_invoice_id'], 'ei-1');
       expect(payload['sales_order_id'], 'so-1');
       expect(payload['delivery_id'], 'del-1');
-      expect(payload['attempt_id'], 'att-1');
+      expect(payload, isNot(contains('attempt_id')));
       expect(payload['reconciliation_case_id'], 'case-1');
       expect(payload['safe_error_code'], 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED');
       expect(payload, isNot(contains('recipient_email')));
@@ -141,7 +140,6 @@ void main() {
           'electronic_invoice_id': 'ei-1',
           'sales_order_id': 'so-1',
           'delivery_id': 'del-1',
-          'attempt_id': 'att-1',
           'reconciliation_case_id': '',
           'safe_error_code': 'X',
         }),

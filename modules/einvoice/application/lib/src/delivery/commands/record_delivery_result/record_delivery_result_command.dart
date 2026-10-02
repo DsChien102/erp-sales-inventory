@@ -10,19 +10,15 @@ final class RecordDeliveryResultCommand extends CommandBase<RecordDeliveryResult
     String? id,
     required this.tenantId,
     required this.deliveryId,
-    required this.attemptId,
+    required this.retryCount,
     required this.expectedDeliveryVersion,
-    required this.expectedAttemptVersion,
-    required this.interactionReference,
     required this.evidence,
   }) : super(id);
 
   @override
   final String tenantId;
   final String deliveryId;
-  final String attemptId;
+  final int retryCount;
   final int expectedDeliveryVersion;
-  final int expectedAttemptVersion;
-  final String interactionReference;
   final DeliveryResultEvidence evidence;
 }

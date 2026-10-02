@@ -15,6 +15,7 @@ class PreIssueSheetState {
     this.isPreviewLoading = false,
     this.isBuyerNotReady = false,
     this.isPreviewEnabled = true,
+    this.isProviderConnected = true,
     this.isFailed = false,
     this.failureCode,
     this.lastFailureMessage,
@@ -23,6 +24,9 @@ class PreIssueSheetState {
   final bool isPreviewLoading;
   final bool isBuyerNotReady;
   final bool isPreviewEnabled;
+
+  /// False when issuance readiness reports `PROVIDER_NOT_CONNECTED`.
+  final bool isProviderConnected;
   final bool isFailed;
   final String? failureCode;
   final String? lastFailureMessage;
@@ -79,7 +83,8 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
       Navigator.of(context).pop(action);
     }
 
-    final isIssueEnabled = !state.isBuyerNotReady && !state.isPreviewLoading;
+    final isIssueEnabled =
+        state.isProviderConnected && !state.isBuyerNotReady && !state.isPreviewLoading;
     final isPreviewEnabled = state.isPreviewEnabled && !state.isPreviewLoading;
     final isSendEnabled = false; // always disabled pre-issue
 

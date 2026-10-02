@@ -378,7 +378,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => DownloadInvoiceDocumentCommandHandler(
       commandGateway: container.get<IElectronicInvoiceCommandGateway>(),
       providerPort: container.get<IElectronicInvoiceProviderPort>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
       storagePort: container.get<IInvoiceDocumentStoragePort>(),
     ),
     inner: (command) =>
@@ -396,7 +395,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => FetchOfficialInvoiceViewCommandHandler(
       commandGateway: container.get<IElectronicInvoiceCommandGateway>(),
       providerPort: container.get<IElectronicInvoiceProviderPort>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
     ),
     inner: (command) =>
         container.get<FetchOfficialInvoiceViewCommandHandler>().handle(command),
@@ -431,7 +429,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => PollProviderObservationCommandHandler(
       commandGateway: container.get<IElectronicInvoiceCommandGateway>(),
       providerPort: container.get<IElectronicInvoiceProviderPort>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
       commandDispatcher: container.get<IEinvoiceCommandDispatcher>(),
     ),
     inner: (command) =>
@@ -449,7 +446,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => PreviewInvoiceCommandHandler(
       providerPort: container.get<IMeInvoiceProviderPort>(),
       previewGateway: container.get<IInvoicePreviewGateway>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
     ),
     inner: (command) =>
         container.get<PreviewInvoiceCommandHandler>().handle(command),
@@ -483,7 +479,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => ReconcileInvoiceDeliveryCommandHandler(
       reconciliationGateway: container.get<IDeliveryReconciliationGateway>(),
       observationPort: container.get<IInvoiceDeliveryObservationProviderPort>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
     ),
     inner: (command) =>
         container.get<ReconcileInvoiceDeliveryCommandHandler>().handle(command),
@@ -515,7 +510,6 @@ void registerGeneratedEinvoiceHandlers({
     factory: () => SendInvoiceEmailCommandHandler(
       commandGateway: container.get<IDeliveryCommandGateway>(),
       providerPort: container.get<IInvoiceDeliveryProviderPort>(),
-      interactionGateway: container.get<IProviderInteractionGateway>(),
       commandDispatcher: container.get<IEinvoiceCommandDispatcher>(),
     ),
     inner: (command) =>

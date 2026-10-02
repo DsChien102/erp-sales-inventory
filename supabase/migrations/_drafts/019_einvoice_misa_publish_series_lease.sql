@@ -1,24 +1,24 @@
 -- Title: einvoice H1 — durable publish series lease + internal command reschedule
 -- Kind: patch
 -- Intent: einvoice_misa_publish_series_lease
--- Touches: einvoice.acquire_publish_series_lease, einvoice.renew_publish_series_lease, einvoice.release_publish_series_lease, einvoice.reschedule_internal_command
+-- Touches: einvoice.publish_series_leases, einvoice.acquire_publish_series_lease, einvoice.renew_publish_series_lease, einvoice.release_publish_series_lease, einvoice.reschedule_internal_command
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped, service_role only
 -- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 002_einvoice_install_module_messaging.sql
 
-create table if not exists einvoice.provider_series_dispatch_leases (
+-- Khoá phát hành tuần tự theo ký hiệu: mỗi (tổ chức, ký hiệu) một dòng.
+create table if not exists einvoice.publish_series_leases (
   tenant_id uuid not null,
-  provider_connection_id uuid not null references einvoice.provider_connections(id),
   invoice_series varchar(100) not null,
   owner_token varchar(100) not null,
   lease_version bigint not null default 1 check (lease_version > 0),
   leased_until timestamptz not null,
-  updated_at timestamptz not null default now(),
-  primary key (tenant_id, provider_connection_id, invoice_series)
+  created_at timestamptz not null default now(),
+  primary key (tenant_id, invoice_series)
 );
 
-alter table einvoice.provider_series_dispatch_leases enable row level security;
+alter table einvoice.publish_series_leases enable row level security;
 
-revoke all on table einvoice.provider_series_dispatch_leases from anon, authenticated;
+revoke all on table einvoice.publish_series_leases from anon, authenticated;
 
 create or replace function einvoice.acquire_publish_series_lease(
   p_tenant_id uuid,
@@ -33,12 +33,13 @@ create or replace function einvoice.acquire_publish_series_lease(
   leased_until timestamptz,
   retry_after_seconds integer
 ) language plpgsql security definer set search_path = einvoice, public as $$
+#variable_conflict use_column
 declare
   v_attempt einvoice.issuance_attempts%rowtype;
   v_series varchar(100);
   v_now timestamptz := clock_timestamp();
   v_lease_until timestamptz;
-  v_existing einvoice.provider_series_dispatch_leases%rowtype;
+  v_existing einvoice.publish_series_leases%rowtype;
 begin
   if p_owner_token is null or btrim(p_owner_token) = '' then
     raise exception 'VALIDATION_ERROR: owner_token is required';
@@ -64,24 +65,20 @@ begin
     secs => greatest(coalesce(p_lease_seconds, 300), 30)
   );
 
-  insert into einvoice.provider_series_dispatch_leases (
+  insert into einvoice.publish_series_leases (
     tenant_id,
-    provider_connection_id,
     invoice_series,
     owner_token,
     lease_version,
-    leased_until,
-    updated_at
+    leased_until
   ) values (
     p_tenant_id,
-    v_attempt.provider_connection_id,
     v_series,
     p_owner_token,
     1,
-    v_lease_until,
-    v_now
+    v_lease_until
   )
-  on conflict on constraint provider_series_dispatch_leases_pkey do nothing
+  on conflict (tenant_id, invoice_series) do nothing
   returning * into v_existing;
 
   if found then
@@ -97,9 +94,8 @@ begin
 
   select psdl.*
   into v_existing
-  from einvoice.provider_series_dispatch_leases psdl
+  from einvoice.publish_series_leases psdl
   where psdl.tenant_id = p_tenant_id
-    and psdl.provider_connection_id = v_attempt.provider_connection_id
     and psdl.invoice_series = v_series
   for update;
 
@@ -109,22 +105,18 @@ begin
   );
 
   if v_existing.owner_token = p_owner_token then
-    update einvoice.provider_series_dispatch_leases as psdl
+    update einvoice.publish_series_leases as psdl
     set lease_version = v_existing.lease_version,
-        leased_until = v_lease_until,
-        updated_at = v_now
+        leased_until = v_lease_until
     where psdl.tenant_id = p_tenant_id
-      and psdl.provider_connection_id = v_attempt.provider_connection_id
       and psdl.invoice_series = v_series
     returning psdl.* into v_existing;
   elsif v_existing.leased_until <= v_now then
-    update einvoice.provider_series_dispatch_leases as psdl
+    update einvoice.publish_series_leases as psdl
     set owner_token = p_owner_token,
         lease_version = v_existing.lease_version + 1,
-        leased_until = v_lease_until,
-        updated_at = v_now
+        leased_until = v_lease_until
     where psdl.tenant_id = p_tenant_id
-      and psdl.provider_connection_id = v_attempt.provider_connection_id
       and psdl.invoice_series = v_series
     returning psdl.* into v_existing;
   else
@@ -151,6 +143,7 @@ begin
 end;
 $$;
 
+-- giữ chữ ký cho worker; khoá không còn theo kết nối.
 create or replace function einvoice.renew_publish_series_lease(
   p_tenant_id uuid,
   p_provider_connection_id uuid,
@@ -167,13 +160,11 @@ declare
   v_leased_until timestamptz;
   v_renewed boolean;
 begin
-  update einvoice.provider_series_dispatch_leases as psdl
+  update einvoice.publish_series_leases as psdl
   set leased_until = v_now + make_interval(
         secs => greatest(coalesce(p_lease_seconds, 300), 30)
-      ),
-      updated_at = v_now
+      )
   where psdl.tenant_id = p_tenant_id
-    and psdl.provider_connection_id = p_provider_connection_id
     and psdl.invoice_series = p_invoice_series
     and psdl.owner_token = p_owner_token
     and psdl.lease_version = p_lease_version
@@ -186,6 +177,7 @@ begin
 end;
 $$;
 
+-- giữ chữ ký cho worker; khoá không còn theo kết nối.
 create or replace function einvoice.release_publish_series_lease(
   p_tenant_id uuid,
   p_provider_connection_id uuid,
@@ -195,11 +187,9 @@ create or replace function einvoice.release_publish_series_lease(
 ) returns void
 language plpgsql security definer set search_path = einvoice, public as $$
 begin
-  update einvoice.provider_series_dispatch_leases
-  set leased_until = now(),
-      updated_at = now()
+  update einvoice.publish_series_leases
+  set leased_until = now()
   where tenant_id = p_tenant_id
-    and provider_connection_id = p_provider_connection_id
     and invoice_series = p_invoice_series
     and owner_token = p_owner_token
     and lease_version = p_lease_version;

@@ -120,7 +120,6 @@ final class _TrackingReconciliationGateway
         tenantId: 'tenant-1',
         reconciliationCaseId: 'case-1',
         deliveryId: 'del-1',
-        attemptId: 'att-1',
         providerConnectionId: 'conn-1',
         supportsDeliveryResultObservation: false,
         checkSequence: 1,

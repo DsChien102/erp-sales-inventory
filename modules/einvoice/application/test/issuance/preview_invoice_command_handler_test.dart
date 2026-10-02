@@ -1,68 +1,152 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 
 void main() {
   group('PreviewInvoiceCommandHandler', () {
-    final sampleInvoice = <String, Object?>{
-      'refId': 'ref-100',
+    const sampleInvoice = <String, Object?>{
       'invSeries': '1C25TYY',
       'signType': 2,
       'totalAmount': 110000,
     };
 
-    test('uses distinct provider-call correlation per worker attempt', () async {
+    test('stores READY with the viewer ref', () async {
       final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
-      final interactionGateway = FakeProviderInteractionGateway();
       final providerPort = _FakeMeInvoiceProviderPort(
-        const MeInvoicePreviewOutcome.success(viewerRef: 'https://viewer/1'),
+        outcome: const MeInvoicePreviewOutcome.success(
+          viewerRef: 'https://viewer/1',
+        ),
       );
-
       final handler = PreviewInvoiceCommandHandler(
         providerPort: providerPort,
         previewGateway: previewGateway,
-        interactionGateway: interactionGateway,
       );
 
-      await handler.handle(
-        PreviewInvoiceCommand(
-          id: 'cmd-preview-1',
-          tenantId: 'tenant-1',
-          salesOrderId: 'order-1',
-          previewRequestId: 'req-1',
-          providerConnectionId: 'conn-1',
-          orderVersion: 1,
-          canonicalInvoice: sampleInvoice,
-          workerAttemptNumber: 1,
+      await handler.handle(_command(sampleInvoice));
+
+      expect(previewGateway.stored, hasLength(1));
+      expect(previewGateway.stored.single.status, 'READY');
+      expect(previewGateway.stored.single.viewerRef, 'https://viewer/1');
+      expect(previewGateway.stored.single.requestId, 'req-1');
+      expect(previewGateway.stored.single.salesOrderId, 'order-1');
+    });
+
+    test('records a data rejection as FAILED and does not retry', () async {
+      final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: _FakeMeInvoiceProviderPort(
+          outcome: const MeInvoicePreviewOutcome.invalidData(
+            detail: 'Invalid_[Invoice.TaxRateInfo]',
+          ),
         ),
+        previewGateway: previewGateway,
       );
 
-      await handler.handle(
-        PreviewInvoiceCommand(
-          id: 'cmd-preview-1',
-          tenantId: 'tenant-1',
-          salesOrderId: 'order-1',
-          previewRequestId: 'req-1',
-          providerConnectionId: 'conn-1',
-          orderVersion: 1,
-          canonicalInvoice: sampleInvoice,
-          workerAttemptNumber: 2,
-        ),
-      );
+      await handler.handle(_command(sampleInvoice));
 
-      expect(interactionGateway.startCalls, hasLength(2));
+      expect(previewGateway.stored, hasLength(1));
+      expect(previewGateway.stored.single.status, 'FAILED');
       expect(
-        interactionGateway.startCalls[0].correlationId,
-        isNot(interactionGateway.startCalls[1].correlationId),
+        previewGateway.stored.single.failureCode,
+        'PROVIDER_REJECTED_INVOICE_DATA',
       );
+      expect(
+        previewGateway.stored.single.failureSource,
+        FailureSource.provider,
+      );
+      expect(
+        previewGateway.stored.single.failureMessage,
+        'Invalid_[Invoice.TaxRateInfo]',
+      );
+    });
+
+    test('records an auth failure as FAILED', () async {
+      final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: _FakeMeInvoiceProviderPort(
+          outcome: const MeInvoicePreviewOutcome.authFailed(),
+        ),
+        previewGateway: previewGateway,
+      );
+
+      await handler.handle(_command(sampleInvoice));
+
+      expect(previewGateway.stored.single.status, 'FAILED');
+      expect(previewGateway.stored.single.failureCode, 'PROVIDER_AUTH_FAILED');
+      expect(
+        previewGateway.stored.single.failureSource,
+        FailureSource.provider,
+      );
+    });
+
+    test('leaves the row pending when MISA is unavailable', () async {
+      final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: _FakeMeInvoiceProviderPort(
+          outcome: const MeInvoicePreviewOutcome.providerUnavailable(),
+        ),
+        previewGateway: previewGateway,
+      );
+
+      expect(
+        () => handler.handle(_command(sampleInvoice)),
+        throwsA(isA<StateError>()),
+      );
+      expect(previewGateway.stored, isEmpty);
+    });
+
+    test('leaves the row pending when the call throws', () async {
+      final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: _FakeMeInvoiceProviderPort(error: TimeoutException('misa')),
+        previewGateway: previewGateway,
+      );
+
+      expect(
+        () => handler.handle(_command(sampleInvoice)),
+        throwsA(isA<TimeoutException>()),
+      );
+      expect(previewGateway.stored, isEmpty);
+    });
+
+    test('adds refId from the preview request id', () async {
+      final providerPort = _FakeMeInvoiceProviderPort(
+        outcome: const MeInvoicePreviewOutcome.success(
+          viewerRef: 'https://viewer/1',
+        ),
+      );
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: providerPort,
+        previewGateway: FakeInvoicePreviewGateway(requestId: 'req-1'),
+      );
+
+      await handler.handle(_command(sampleInvoice));
+
+      expect(providerPort.lastCanonical?['refId'], 'req-1');
     });
   });
 }
 
-final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
-  _FakeMeInvoiceProviderPort(this.outcome);
+PreviewInvoiceCommand _command(Map<String, Object?> canonical) {
+  return PreviewInvoiceCommand(
+    tenantId: 'tenant-1',
+    salesOrderId: 'order-1',
+    previewRequestId: 'req-1',
+    providerConnectionId: 'conn-1',
+    orderVersion: 1,
+    canonicalInvoice: canonical,
+  );
+}
 
-  final MeInvoicePreviewOutcome outcome;
+final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
+  _FakeMeInvoiceProviderPort({this.outcome, this.error});
+
+  final MeInvoicePreviewOutcome? outcome;
+  final Object? error;
+  Map<String, Object?>? lastCanonical;
 
   @override
   Future<MeInvoiceAuthOutcome> authenticateAndListTemplates({
@@ -74,7 +158,14 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   Future<MeInvoicePreviewOutcome> previewUnpublished({
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
-  }) async => outcome;
+  }) async {
+    lastCanonical = canonicalInvoice;
+    final thrown = error;
+    if (thrown != null) {
+      throw thrown;
+    }
+    return outcome!;
+  }
 
   @override
   void validateCanonical({required Map<String, Object?> canonicalInvoice}) {}
@@ -86,7 +177,8 @@ final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
     required String invoiceSeries,
     required String idempotencyKey,
     required String payloadHash,
-    IssuanceProviderStatusLookup statusLookup = IssuanceProviderStatusLookup.providerTransactionId,
+    IssuanceProviderStatusLookup statusLookup =
+        IssuanceProviderStatusLookup.providerTransactionId,
   }) => throw UnimplementedError();
 
   @override

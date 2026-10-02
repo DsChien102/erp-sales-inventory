@@ -9,12 +9,10 @@ final class PrepareDeliveryCallProvider extends PrepareDeliveryProviderCallResul
   const PrepareDeliveryCallProvider({
     required this.providerContext,
     required this.deliveryVersion,
-    required this.attemptVersion,
   });
 
   final DeliveryProviderContextDto providerContext;
   final int deliveryVersion;
-  final int attemptVersion;
 }
 
 /// Attempt/delivery already terminal or superseded; acknowledge without HTTP.
@@ -26,11 +24,7 @@ final class PrepareDeliverySkip extends PrepareDeliveryProviderCallResult {
 final class PrepareDeliveryRecordUnknown extends PrepareDeliveryProviderCallResult {
   const PrepareDeliveryRecordUnknown({
     required this.deliveryVersion,
-    required this.attemptVersion,
-    required this.interactionReference,
   });
 
   final int deliveryVersion;
-  final int attemptVersion;
-  final String interactionReference;
 }

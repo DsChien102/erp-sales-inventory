@@ -17,6 +17,7 @@ export 'src/issuance_profile/provider_template_ref.dart';
 export 'src/issuance_profile/signing_configuration_ref.dart';
 export 'src/issuance_profile/effective_issuance_configuration.dart';
 export 'src/shared/configuration_readiness_level.dart';
+export 'src/shared/failure_source.dart';
 export 'src/shared/issuance_purpose.dart';
 export 'src/shared/services/configuration_readiness_evaluator.dart';
 export 'src/provider_connection/rules/connection_must_be_verified_rule.dart';

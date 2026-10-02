@@ -155,22 +155,23 @@ void main() {
       expect(sheetFn, contains('mode'));
       expect(sheetFn, contains('operation_locked'));
       expect(sheetFn, contains('display_state'));
-      expect(sheetFn, contains("d.status = 'PROCESSING'"));
-      expect(sheetFn, isNot(contains("d.status in ('PROCESSING', 'UNKNOWN')")));
+      expect(sheetFn, contains("d.status in ('QUEUED', 'SUBMITTED')"));
+      expect(sheetFn, isNot(contains("d.status = 'PROCESSING'")));
       expect(sheetFn, contains('history'));
     });
   });
 
   group('Worker load context', () {
     test(
-      'derives identity from persisted delivery/attempt/invoice context',
+      'derives identity from the delivery row and invoice',
       () {
         expect(loadAttemptFn, contains('invoice_deliveries'));
-        expect(loadAttemptFn, contains('delivery_attempts'));
+        expect(loadAttemptFn, isNot(contains('delivery_attempts')));
         expect(loadAttemptFn, contains('electronic_invoices'));
         expect(loadAttemptFn, contains('provider_connection_id'));
+        expect(loadAttemptFn, contains('retry_count'));
         expect(loadAttemptFn, contains('delivery_version'));
-        expect(loadAttemptFn, contains('attempt_version'));
+        expect(loadAttemptFn, isNot(contains('attempt_version')));
         expect(loadAttemptFn, contains('recipient_email'));
         expect(loadAttemptFn, contains('invoice_series'));
       },

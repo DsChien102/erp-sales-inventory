@@ -32,9 +32,8 @@ final class _TrackingInternalCommandClient implements IEinvoiceInternalCommandCl
         commandType: FetchOfficialInvoiceViewCommand.type,
         payload: {
           'tenant_id': tenantId,
-          'operation_id': 'op-worker-1',
           'electronic_invoice_id': 'ei-s4-1',
-          'attempt_ordinal': 1,
+          'request_id': 'op-worker-1',
           'correlation_id': 'corr-worker-1',
         },
         enqueuedAt: DateTime.utc(2026, 8, 31, 9),
@@ -176,7 +175,7 @@ void main() {
       EinvoiceCommandsExecutor.bind(commandBus);
 
       commandBus.register<FetchOfficialInvoiceViewCommand, void>((cmd) async {
-        fetchCalls.add(cmd.operationId);
+        fetchCalls.add(cmd.requestId);
       });
 
       final processInternalHandler = ProcessInternalCommandsCommandHandler(
@@ -205,7 +204,7 @@ void main() {
       // Bootstrap rebinds the executor to the runtime bus; restore test bus wiring.
       EinvoiceCommandsExecutor.bind(commandBus);
       commandBus.register<FetchOfficialInvoiceViewCommand, void>((cmd) async {
-        fetchCalls.add(cmd.operationId);
+        fetchCalls.add(cmd.requestId);
       });
     });
 

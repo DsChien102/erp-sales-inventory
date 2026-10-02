@@ -38,6 +38,7 @@ abstract interface class IMeInvoiceClient {
   Future<MeInvoiceResult<String>> previewPublished({
     required List<String> transactionIds,
     required String companyTaxCode,
+    MeInvoiceInvoiceQuery? query,
   });
 
   Future<MeInvoiceResult<List<MeInvoiceInvoiceDataPublished>>> download({

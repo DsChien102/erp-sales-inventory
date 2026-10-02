@@ -6,7 +6,7 @@ import 'i_einvoice_internal_command_dead_letter_handler.dart';
 /// Dead-letters exhausted `einvoice.send_invoice_email` commands.
 ///
 /// Always passes [WORKER_EXHAUSTED_BEFORE_DISPATCH]; SQL classifies QUEUED →
-/// FAILED vs SUBMITTED → UNKNOWN + PENDING VERIFY_DELIVERY from attempt status.
+/// FAILED vs SUBMITTED → UNKNOWN + PENDING VERIFY_DELIVERY from delivery status.
 final class DeliveryCommandDeadLetterHandler
     implements IEinvoiceInternalCommandDeadLetterHandler {
   const DeliveryCommandDeadLetterHandler({
@@ -38,7 +38,7 @@ final class DeliveryCommandDeadLetterHandler
     await _commandGateway.recordCommandDeadLetter(
       tenantId: tenantId,
       deliveryId: payload.deliveryId,
-      attemptId: payload.attemptId,
+      retryCount: payload.retryCount,
       safeFailureCode: safeFailureCode,
     );
   }

@@ -99,4 +99,106 @@ void main() {
       expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
     });
   });
+
+  group('MeInvoicePublishClassifier — mã từ chối theo tài liệu MISA', () {
+    MeInvoicePublishOutcome classifyItem(String errorCode) {
+      return MeInvoicePublishClassifier.classify(
+        idempotencyKey: 'key-1',
+        result: MeInvoiceResult.ok([
+          MeInvoicePublishInvoiceResultItem(
+            refId: 'key-1',
+            errorCode: errorCode,
+            descriptionErrorCode: 'desc',
+          ),
+        ]),
+        canonicalInvoice: const {'invDate': '2026-08-01'},
+      );
+    }
+
+    for (final code in const [
+      'InvalidInvoiceData',
+      'TaxRateInfo_VATRateName',
+      'BuyerTaxCode_TaxCodeInvalid',
+      'InvalidTaxCode',
+      'InvalidInvoiceDate',
+      'InvalidXMLContainEmoji',
+      'InvoiceTemplateNotExist',
+      'DeclarationNotExist',
+      'InvalidDeclaration',
+      'ExistDeclarationNotReceive',
+      'InvoiceTemplateNotValidInDeclaration',
+      'LicenseInfo_NotBuy',
+      'LicenseInfo_OutOfInvoice',
+      'LicenseInfo_Expired',
+      'CallSignServiceFail',
+    ]) {
+      test('item $code là definiteFailure', () {
+        final outcome = classifyItem(code);
+        expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
+        expect((outcome as MeInvoicePublishDefiniteFailure).providerCode, code);
+      });
+    }
+
+    for (final code in const [
+      'InvoiceDetail_ItemName',
+      'RequireError_BuyerLegalName',
+      'StockInTaxCode_NotInfo_1_StockInLegalName',
+      'Invalid_[Invoice.TaxRateInfo]',
+    ]) {
+      test('item mã theo tiền tố $code là definiteFailure', () {
+        expect(classifyItem(code), isA<MeInvoicePublishDefiniteFailure>());
+      });
+    }
+
+    for (final code in const [
+      'Exception',
+      'SignEsignHSMError',
+      'SignSoftDream78Exception',
+      'CreateInvoiceDataError',
+      'DuplicateRefID',
+      'SomeUnknownCode',
+    ]) {
+      test('item $code vẫn là undetermined', () {
+        expect(classifyItem(code), isA<MeInvoicePublishUndetermined>());
+      });
+    }
+
+    test('envelope lỗi dữ liệu theo tiền tố là definiteFailure', () {
+      final outcome = MeInvoicePublishClassifier.classify(
+        idempotencyKey: 'key-1',
+        result: const MeInvoiceResult.failed(
+          'InvoiceDetail_Quantity: Số lượng không hợp lệ',
+        ),
+        canonicalInvoice: const {'invDate': '2026-08-01'},
+      );
+
+      expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
+      final failure = outcome as MeInvoicePublishDefiniteFailure;
+      expect(failure.providerCode, 'InvoiceDetail_Quantity');
+      expect(failure.providerMessage, 'Số lượng không hợp lệ');
+    });
+
+    test('envelope LicenseInfo_Expired là definiteFailure', () {
+      final outcome = MeInvoicePublishClassifier.classify(
+        idempotencyKey: 'key-1',
+        result: const MeInvoiceResult.failed('LicenseInfo_Expired: hết hạn'),
+        canonicalInvoice: const {'invDate': '2026-08-01'},
+      );
+
+      expect(outcome, isA<MeInvoicePublishDefiniteFailure>());
+    });
+
+    test('mã từ chối phát hành không lan sang isDefiniteFailure chung', () {
+      // isDefiniteFailure còn dùng cho /invoice/status: lỗi khi hỏi trạng thái
+      // không chứng minh hóa đơn chưa phát hành.
+      expect(
+        MeInvoicePublishErrorCodes.isDefiniteFailure('LicenseInfo_Expired'),
+        isFalse,
+      );
+      expect(
+        MeInvoicePublishErrorCodes.isPublishRejection('LicenseInfo_Expired'),
+        isTrue,
+      );
+    });
+  });
 }

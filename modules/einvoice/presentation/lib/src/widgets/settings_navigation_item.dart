@@ -8,19 +8,22 @@ class SettingsNavigationItem extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
+    this.enabled = true,
   });
 
   final VIcons icon;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
     return VCard(
-      onTap: onTap,
+      enabled: enabled,
+      onTap: enabled ? onTap : null,
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space4,
         vertical: VSpacing.space4,

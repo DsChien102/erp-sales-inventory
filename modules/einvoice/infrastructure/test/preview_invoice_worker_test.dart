@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
+import 'package:vet45_einvoice_domain/domain.dart';
 
 final class _FakeMeInvoiceProviderPort implements IMeInvoiceProviderPort {
   _FakeMeInvoiceProviderPort(this.outcome);
@@ -57,19 +58,17 @@ void main() {
       'totalAmount': 110000,
     };
 
-    test('stores viewerRef on MISA preview success', () async {
+    test('stores READY with the viewer ref', () async {
       final gateway = FakeInvoicePreviewGateway(requestId: 'req-1');
       final port = _FakeMeInvoiceProviderPort(
         const MeInvoicePreviewOutcome.success(
           viewerRef: 'https://meinvoice.vn/viewer/preview-123',
         ),
       );
-      final interactionGateway = FakeProviderInteractionGateway();
 
       final handler = PreviewInvoiceCommandHandler(
         providerPort: port,
         previewGateway: gateway,
-        interactionGateway: interactionGateway,
       );
 
       await handler.handle(
@@ -84,57 +83,47 @@ void main() {
       );
 
       expect(port.calls, 1);
-      expect(port.lastCanonicalInvoice, sampleInvoice);
-      expect(gateway.storedRequestId, 'req-1');
-      expect(interactionGateway.startCalls, hasLength(1));
-    });
-
-    test('throws PROVIDER_NOT_CONNECTED when auth fails', () async {
-      final gateway = FakeInvoicePreviewGateway(requestId: 'req-1');
-      final port = _FakeMeInvoiceProviderPort(
-        const MeInvoicePreviewOutcome.authFailed(),
-      );
-      final interactionGateway = FakeProviderInteractionGateway();
-
-      final handler = PreviewInvoiceCommandHandler(
-        providerPort: port,
-        previewGateway: gateway,
-        interactionGateway: interactionGateway,
-      );
-
+      expect(gateway.stored, hasLength(1));
+      expect(gateway.stored.single.status, 'READY');
       expect(
-        () => handler.handle(
-          PreviewInvoiceCommand(
-            tenantId: 'tenant-1',
-            salesOrderId: 'order-1',
-            previewRequestId: 'req-1',
-            providerConnectionId: 'conn-1',
-            orderVersion: 1,
-            canonicalInvoice: sampleInvoice,
-          ),
-        ),
-        throwsA(
-          isA<StateError>().having(
-            (e) => e.message,
-            'message',
-            'PROVIDER_NOT_CONNECTED',
-          ),
-        ),
+        gateway.stored.single.viewerRef,
+        'https://meinvoice.vn/viewer/preview-123',
       );
-      expect(gateway.storedRequestId, isNull);
+      expect(gateway.stored.single.requestId, 'req-1');
     });
 
-    test('throws PROVIDER_UNAVAILABLE when provider unavailable', () async {
+    test('records an auth failure as FAILED and does not retry', () async {
       final gateway = FakeInvoicePreviewGateway(requestId: 'req-1');
-      final port = _FakeMeInvoiceProviderPort(
-        const MeInvoicePreviewOutcome.providerUnavailable(),
-      );
-      final interactionGateway = FakeProviderInteractionGateway();
-
       final handler = PreviewInvoiceCommandHandler(
-        providerPort: port,
+        providerPort: _FakeMeInvoiceProviderPort(
+          const MeInvoicePreviewOutcome.authFailed(),
+        ),
         previewGateway: gateway,
-        interactionGateway: interactionGateway,
+      );
+
+      await handler.handle(
+        PreviewInvoiceCommand(
+          tenantId: 'tenant-1',
+          salesOrderId: 'order-1',
+          previewRequestId: 'req-1',
+          providerConnectionId: 'conn-1',
+          orderVersion: 1,
+          canonicalInvoice: sampleInvoice,
+        ),
+      );
+
+      expect(gateway.stored.single.status, 'FAILED');
+      expect(gateway.stored.single.failureCode, 'PROVIDER_AUTH_FAILED');
+      expect(gateway.stored.single.failureSource, FailureSource.provider);
+    });
+
+    test('leaves the row pending when MISA is unavailable', () async {
+      final gateway = FakeInvoicePreviewGateway(requestId: 'req-1');
+      final handler = PreviewInvoiceCommandHandler(
+        providerPort: _FakeMeInvoiceProviderPort(
+          const MeInvoicePreviewOutcome.providerUnavailable(),
+        ),
+        previewGateway: gateway,
       );
 
       expect(
@@ -156,7 +145,7 @@ void main() {
           ),
         ),
       );
-      expect(gateway.storedRequestId, isNull);
+      expect(gateway.stored, isEmpty);
     });
   });
 }

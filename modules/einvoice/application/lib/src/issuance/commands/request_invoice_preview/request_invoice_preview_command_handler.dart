@@ -47,7 +47,6 @@ final class RequestInvoicePreviewCommandHandler
 
     return InvoicePreviewResultDto(
       viewerRef: null,
-      previewPayload: null,
       warnings: [for (final w in evaluation.warnings) w.message],
     );
   }

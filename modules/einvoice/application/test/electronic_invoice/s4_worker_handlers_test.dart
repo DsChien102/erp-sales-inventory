@@ -12,9 +12,8 @@ void main() {
       final command = FetchOfficialInvoiceViewCommand(
         id: 'cmd-official-1',
         tenantId: 'tenant-1',
-        operationId: 'op-1',
         electronicInvoiceId: 'ei-1',
-        attemptOrdinal: 1,
+        requestId: 'req-1',
         correlationId: 'corr-1',
       );
 
@@ -24,7 +23,7 @@ void main() {
 
       final restored = FetchOfficialInvoiceViewCommand.fromJson(payload, id: 'cmd-official-1');
       expect(restored.commandType, FetchOfficialInvoiceViewCommand.type);
-      expect(restored.operationId, 'op-1');
+      expect(restored.requestId, 'req-1');
       expect(restored.workerAttemptNumber, 1);
     });
 
@@ -32,11 +31,9 @@ void main() {
       final command = DownloadInvoiceDocumentCommand(
         id: 'cmd-doc-1',
         tenantId: 'tenant-1',
-        operationId: 'op-doc-1',
         electronicInvoiceId: 'ei-1',
         documentType: InvoiceDocumentType.xml,
-        operationGeneration: 2,
-        attemptOrdinal: 1,
+        requestId: 'req-doc-1',
         correlationId: 'corr-doc-1',
       );
 
@@ -45,7 +42,7 @@ void main() {
         id: 'cmd-doc-1',
       );
       expect(restored.documentType, InvoiceDocumentType.xml);
-      expect(restored.operationGeneration, 2);
+      expect(restored.requestId, 'req-doc-1');
     });
 
     test('PollProviderObservationCommand rejects blank triggerId', () {
@@ -90,9 +87,8 @@ void main() {
       final payload = FetchOfficialInvoiceViewCommand(
         id: 'cmd-1',
         tenantId: 'tenant-1',
-        operationId: 'op-1',
         electronicInvoiceId: 'ei-1',
-        attemptOrdinal: 1,
+        requestId: 'req-1',
         correlationId: 'corr-1',
         workerAttemptNumber: 1,
       ).toJson();
@@ -120,20 +116,31 @@ void main() {
   });
 
   group('FetchOfficialInvoiceViewCommandHandler', () {
-    test('audits provider call and records AVAILABLE on success', () async {
-      final commandGateway = StubOfficialViewCommandGateway();
-      commandGateway.officialViewContext = OfficialViewOperationContextDto(
-        operationId: 'op-1',
+    OfficialViewOperationContextDto pendingContext() {
+      return const OfficialViewOperationContextDto(
         tenantId: 'tenant-1',
         electronicInvoiceId: 'ei-1',
-        generation: 1,
-        attemptOrdinal: 1,
+        requestId: 'req-1',
         status: InvoiceDocumentStatus.pending,
         providerConnectionId: 'conn-1',
         providerInvoiceReference: 'ref-1',
         invoiceSeries: '1C26TYY',
-        expectedVersion: 0,
       );
+    }
+
+    FetchOfficialInvoiceViewCommand pendingCommand({required String id}) {
+      return FetchOfficialInvoiceViewCommand(
+        id: id,
+        tenantId: 'tenant-1',
+        electronicInvoiceId: 'ei-1',
+        requestId: 'req-1',
+        correlationId: 'corr-1',
+      );
+    }
+
+    test('records AVAILABLE on success without an interaction log', () async {
+      final commandGateway = StubOfficialViewCommandGateway();
+      commandGateway.officialViewContext = pendingContext();
 
       final providerPort = StubElectronicInvoiceProviderPort();
       providerPort.officialOutcome = OfficialViewProviderSuccess(
@@ -142,80 +149,133 @@ void main() {
         providerReference: 'tx-1',
       );
 
-      final interactionGateway = FakeProviderInteractionGateway();
       final handler = FetchOfficialInvoiceViewCommandHandler(
         commandGateway: commandGateway,
         providerPort: providerPort,
-        interactionGateway: interactionGateway,
       );
 
-      await handler.handle(
-        FetchOfficialInvoiceViewCommand(
-          id: 'cmd-official-1',
-          tenantId: 'tenant-1',
-          operationId: 'op-1',
-          electronicInvoiceId: 'ei-1',
-          attemptOrdinal: 1,
-          correlationId: 'corr-1',
-        ),
-      );
+      await handler.handle(pendingCommand(id: 'cmd-official-1'));
 
       expect(providerPort.fetchOfficialViewCalls, 1);
-      expect(
-        interactionGateway.startCalls.single.operationType,
-        FetchOfficialInvoiceViewCommand.type,
-      );
-      expect(interactionGateway.finalizeCalls.single.outcome, ProviderInteractionOutcome.succeeded);
       expect(commandGateway.lastOfficialViewResult?.status, InvoiceDocumentStatus.available);
       expect(commandGateway.lastOfficialViewResult?.viewerUrl, 'https://viewer.example/invoice');
+      expect(commandGateway.lastOfficialViewResult?.requestId, 'req-1');
     });
 
-    test('ambiguous outcome finalizes interaction and rethrows for retry', () async {
+    test('MISA ambiguous throws and does not record a result', () async {
       final commandGateway = StubOfficialViewCommandGateway();
-      commandGateway.officialViewContext = OfficialViewOperationContextDto(
-        operationId: 'op-1',
-        tenantId: 'tenant-1',
-        electronicInvoiceId: 'ei-1',
-        generation: 1,
-        attemptOrdinal: 1,
-        status: InvoiceDocumentStatus.pending,
-        providerConnectionId: 'conn-1',
-        providerInvoiceReference: 'ref-1',
-        invoiceSeries: '1C26TYY',
-        expectedVersion: 0,
-      );
+      commandGateway.officialViewContext = pendingContext();
 
       final providerPort = StubElectronicInvoiceProviderPort();
       providerPort.officialOutcome = const OfficialViewProviderAmbiguous(
         safeErrorCode: 'PROVIDER_TIMEOUT',
       );
 
-      final interactionGateway = FakeProviderInteractionGateway();
       final handler = FetchOfficialInvoiceViewCommandHandler(
         commandGateway: commandGateway,
         providerPort: providerPort,
-        interactionGateway: interactionGateway,
       );
 
       await expectLater(
-        handler.handle(
-          FetchOfficialInvoiceViewCommand(
-            id: 'cmd-official-2',
-            tenantId: 'tenant-1',
-            operationId: 'op-1',
-            electronicInvoiceId: 'ei-1',
-            attemptOrdinal: 1,
-            correlationId: 'corr-2',
-          ),
-        ),
+        handler.handle(pendingCommand(id: 'cmd-official-2')),
         throwsA(isA<StateError>()),
       );
 
       expect(commandGateway.lastOfficialViewResult, isNull);
-      expect(
-        interactionGateway.finalizeCalls.single.outcome,
-        ProviderInteractionOutcome.unavailable,
+    });
+
+    test('MISA definite failure records a provider failure source', () async {
+      final commandGateway = StubOfficialViewCommandGateway();
+      commandGateway.officialViewContext = pendingContext();
+
+      final providerPort = StubElectronicInvoiceProviderPort();
+      providerPort.officialOutcome = const OfficialViewProviderDefiniteFailure(
+        failureCode: 'INVOICE_NOT_FOUND',
+        failureMessage: 'Invoice missing at provider',
       );
+
+      final handler = FetchOfficialInvoiceViewCommandHandler(
+        commandGateway: commandGateway,
+        providerPort: providerPort,
+      );
+
+      await handler.handle(pendingCommand(id: 'cmd-official-3'));
+
+      expect(commandGateway.lastOfficialViewResult?.status, InvoiceDocumentStatus.failed);
+      expect(
+        commandGateway.lastOfficialViewResult?.failureSource,
+        FailureSource.provider,
+      );
+      expect(commandGateway.lastOfficialViewResult?.failureCode, 'INVOICE_NOT_FOUND');
+    });
+  });
+
+  group('DownloadInvoiceDocumentCommandHandler', () {
+    InvoiceDocumentOperationContextDto pendingContext() {
+      return const InvoiceDocumentOperationContextDto(
+        tenantId: 'tenant-1',
+        electronicInvoiceId: 'ei-1',
+        documentType: InvoiceDocumentType.pdf,
+        requestId: 'req-doc-1',
+        status: InvoiceDocumentStatus.pending,
+        providerConnectionId: 'conn-1',
+        providerInvoiceReference: 'ref-1',
+        invoiceSeries: '1C26TYY',
+      );
+    }
+
+    DownloadInvoiceDocumentCommand pendingCommand() {
+      return DownloadInvoiceDocumentCommand(
+        id: 'cmd-doc-1',
+        tenantId: 'tenant-1',
+        electronicInvoiceId: 'ei-1',
+        documentType: InvoiceDocumentType.pdf,
+        requestId: 'req-doc-1',
+        correlationId: 'req-doc-1',
+      );
+    }
+
+    test('MISA ambiguous throws and does not record a result', () async {
+      final commandGateway = StubDocumentCommandGateway();
+      commandGateway.documentContext = pendingContext();
+      final providerPort = StubElectronicInvoiceProviderPort();
+      providerPort.documentOutcome = const InvoiceDocumentProviderAmbiguous(
+        safeErrorCode: 'PROVIDER_TIMEOUT',
+      );
+
+      final handler = DownloadInvoiceDocumentCommandHandler(
+        commandGateway: commandGateway,
+        providerPort: providerPort,
+        storagePort: _UnusedDocumentStorage(),
+      );
+
+      await expectLater(
+        handler.handle(pendingCommand()),
+        throwsA(isA<StateError>()),
+      );
+      expect(commandGateway.lastDocumentResult, isNull);
+    });
+
+    test('MISA definite failure records a provider failure source', () async {
+      final commandGateway = StubDocumentCommandGateway();
+      commandGateway.documentContext = pendingContext();
+      final providerPort = StubElectronicInvoiceProviderPort();
+      providerPort.documentOutcome = const InvoiceDocumentProviderDefiniteFailure(
+        failureCode: 'DOCUMENT_EMPTY',
+        failureMessage: 'Provider returned no bytes',
+      );
+
+      final handler = DownloadInvoiceDocumentCommandHandler(
+        commandGateway: commandGateway,
+        providerPort: providerPort,
+        storagePort: _UnusedDocumentStorage(),
+      );
+
+      await handler.handle(pendingCommand());
+
+      expect(commandGateway.lastDocumentResult?.status, InvoiceDocumentStatus.failed);
+      expect(commandGateway.lastDocumentResult?.failureSource, FailureSource.provider);
+      expect(commandGateway.lastDocumentResult?.failureCode, 'DOCUMENT_EMPTY');
     });
   });
 
@@ -227,9 +287,8 @@ void main() {
       'totalAmount': 110000,
     };
 
-    test('wraps preview with interaction and stores viewer ref', () async {
+    test('stores READY with the viewer ref', () async {
       final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-1');
-      final interactionGateway = FakeProviderInteractionGateway();
       final providerPort = _PreviewProviderPort(
         const MeInvoicePreviewOutcome.success(
           viewerRef: 'https://meinvoice.vn/viewer/preview-123',
@@ -239,7 +298,6 @@ void main() {
       final handler = PreviewInvoiceCommandHandler(
         providerPort: providerPort,
         previewGateway: previewGateway,
-        interactionGateway: interactionGateway,
       );
 
       await handler.handle(
@@ -253,9 +311,12 @@ void main() {
         ),
       );
 
-      expect(interactionGateway.startCalls.single.targetType, 'INVOICE_PREVIEW_OPERATION');
-      expect(interactionGateway.finalizeCalls.single.outcome, ProviderInteractionOutcome.succeeded);
-      expect(previewGateway.storedRequestId, 'req-1');
+      expect(previewGateway.stored, hasLength(1));
+      expect(previewGateway.stored.single.status, 'READY');
+      expect(
+        previewGateway.stored.single.viewerRef,
+        'https://meinvoice.vn/viewer/preview-123',
+      );
     });
   });
 }
@@ -295,5 +356,16 @@ final class _PreviewProviderPort implements IMeInvoiceProviderPort {
     required String tenantId,
     required Map<String, Object?> canonicalInvoice,
     required String idempotencyKey,
+  }) => throw UnimplementedError();
+}
+
+final class _UnusedDocumentStorage implements IInvoiceDocumentStoragePort {
+  @override
+  Future<StoredInvoiceDocumentDto> store({
+    required String tenantId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required int documentVersion,
+    required List<int> bytes,
   }) => throw UnimplementedError();
 }

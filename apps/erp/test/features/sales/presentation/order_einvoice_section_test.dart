@@ -578,6 +578,50 @@ void main() {
   });
 
   group('OrderEInvoiceSection Integration Tests', () {
+    testWidgets('provider not connected disables issue and keeps preview enabled', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildSubject(
+          scenario: FakeEInvoiceScenario.retryAfterFailOk,
+          projection: const OrderInvoiceProjectionDto(
+            salesOrderId: 'so-fake-001',
+            issuanceDisplayState: IssuanceDisplayState.failed,
+            actions: [OrderInvoiceAction.issue],
+          ),
+          onCubitCreated: (cubit) {
+            cubit.emit(
+              cubit.state.copyWith(
+                readiness: const IssuanceReadinessDto(
+                  level: IssuanceReadinessLevel.notReady,
+                  blockers: [
+                    ReadinessBlockerDto(
+                      code: EInvoiceBlockedCodes.providerNotConnected,
+                      message: 'Chưa kết nối nhà cung cấp',
+                    ),
+                  ],
+                  warnings: [],
+                  buyerCompletionState: BuyerCompletionStatus.locked,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+
+      await tester.tap(find.byType(OrderEInvoiceRow));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.widget<EInvoiceActionItem>(find.byKey(const Key('action_issue'))).enabled,
+        isFalse,
+      );
+      expect(
+        tester.widget<EInvoiceActionItem>(find.byKey(const Key('action_preview'))).enabled,
+        isTrue,
+      );
+    });
+
     testWidgets('wgt_e02_u05_fr02_01 failed row keeps normal issue label', (tester) async {
       await tester.pumpWidget(
         buildSubject(

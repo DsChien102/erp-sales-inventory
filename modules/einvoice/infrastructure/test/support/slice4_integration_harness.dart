@@ -285,107 +285,55 @@ final class Slice4ElectronicInvoiceRecord {
 
 final class Slice4OfficialViewOperation {
   Slice4OfficialViewOperation({
-    required this.operationId,
+    required this.requestId,
     required this.tenantId,
     required this.electronicInvoiceId,
     required this.salesOrderId,
-    required this.generation,
-    required this.attemptOrdinal,
     required this.providerConnectionId,
     required this.correlationId,
     required this.commandId,
   });
 
-  final String operationId;
+  String requestId;
   final String tenantId;
   final String electronicInvoiceId;
   final String salesOrderId;
-  int generation;
-  int attemptOrdinal;
   InvoiceDocumentStatus status = InvoiceDocumentStatus.pending;
-  int version = 0;
   final String providerConnectionId;
-  final String correlationId;
-  final String commandId;
+  String correlationId;
+  String commandId;
   String? viewerUrl;
   DateTime? expiresAt;
   String? failureCode;
+  FailureSource? failureSource;
 }
 
 final class Slice4DocumentOperation {
   Slice4DocumentOperation({
-    required this.operationId,
+    required this.requestId,
     required this.tenantId,
     required this.electronicInvoiceId,
     required this.salesOrderId,
     required this.documentType,
-    required this.generation,
-    required this.attemptOrdinal,
-    required this.documentVersion,
     required this.providerConnectionId,
-    required this.idempotencyKey,
     required this.correlationId,
     required this.commandId,
-    this.documentIntent,
   });
 
-  final String operationId;
+  String requestId;
   final String tenantId;
   final String electronicInvoiceId;
   final String salesOrderId;
   final InvoiceDocumentType documentType;
-  int generation;
-  int attemptOrdinal;
-  int documentVersion;
   InvoiceDocumentStatus status = InvoiceDocumentStatus.pending;
-  int version = 0;
   final String providerConnectionId;
-  final String idempotencyKey;
-  final String? documentIntent;
-  final String correlationId;
-  final String commandId;
+  String correlationId;
+  String commandId;
   String? downloadUrl;
   String? checksum;
-  DateTime? accessExpiresAt;
   String? fileRef;
   String? failureCode;
-}
-
-final class Slice4Interaction {
-  Slice4Interaction({
-    required this.interactionReference,
-    required this.tenantId,
-    required this.version,
-    required this.providerConnectionId,
-    required this.direction,
-    required this.operationType,
-    required this.targetType,
-    required this.targetId,
-    required this.correlationId,
-    required this.requestReference,
-    required this.startedAt,
-    this.outcome,
-    this.safeErrorCode,
-    this.providerReference,
-    this.completedAt,
-  });
-
-  final String interactionReference;
-  final String tenantId;
-  int version;
-  final String providerConnectionId;
-  final ProviderInteractionDirection direction;
-  final String operationType;
-  final String targetType;
-  final String targetId;
-  final String correlationId;
-  final String requestReference;
-  final DateTime startedAt;
-  ProviderInteractionOutcome? outcome;
-  String? safeErrorCode;
-  String? providerReference;
-  DateTime? completedAt;
-  bool completed = false;
+  FailureSource? failureSource;
 }
 
 final class Slice4State {
@@ -394,9 +342,9 @@ final class Slice4State {
   final Map<String, Slice4ElectronicInvoiceRecord> invoicesBySalesOrder = {};
   final Map<String, List<String>> supportedDocumentTypes = {};
   final Map<String, Slice4OfficialViewOperation> officialOps = {};
+  int officialViewRequestSeq = 0;
   final Map<String, Slice4DocumentOperation> documentOps = {};
-  final Map<String, Slice4DocumentOperation> documentOpsByIdempotency = {};
-  final Map<String, Slice4Interaction> interactionsByCorrelation = {};
+  int documentRequestSeq = 0;
   final List<ProviderObservationRecord> observations = [];
   final List<ProviderObservationAttentionRequiredIntegrationEvent>
   attentionEvents = [];
@@ -442,54 +390,60 @@ final class Slice4ElectronicInvoiceCommandGateway
     _requireAccess(actorId, salesOrderId);
     final invoice = _invoice(salesOrderId);
 
-    final existing = state.officialOps.values
-        .where((op) => op.salesOrderId == salesOrderId)
-        .toList(growable: false);
-    if (existing.isNotEmpty) {
-      final op = existing.last;
-      if (op.status == InvoiceDocumentStatus.available ||
-          op.status == InvoiceDocumentStatus.checkRequired ||
-          op.status == InvoiceDocumentStatus.pending) {
+    final existing = state.officialOps[invoice.electronicInvoiceId];
+    if (existing != null) {
+      final unexpiredAvailable =
+          existing.status == InvoiceDocumentStatus.available &&
+          existing.expiresAt != null &&
+          existing.expiresAt!.isAfter(fixedNow);
+      if (existing.status == InvoiceDocumentStatus.pending ||
+          unexpiredAvailable) {
         return OfficialInvoiceViewDto(
-          operationId: op.operationId,
-          status: op.status,
-          viewerUrl: op.viewerUrl,
-          expiresAt: op.expiresAt,
+          operationId: existing.requestId,
+          status: existing.status,
+          viewerUrl: existing.viewerUrl,
+          expiresAt: existing.expiresAt,
         );
       }
     }
 
-    final operationId = 'op-official-${state.officialOps.length + 1}';
-    final attemptOrdinal = 1;
-    final commandId = 'cmd-official-$operationId-$attemptOrdinal';
-    final correlationId = 'corr-official-$operationId';
-
-    final op = Slice4OfficialViewOperation(
-      operationId: operationId,
-      tenantId: tenantId,
-      electronicInvoiceId: invoice.electronicInvoiceId,
-      salesOrderId: salesOrderId,
-      generation: 1,
-      attemptOrdinal: attemptOrdinal,
-      providerConnectionId: invoice.providerConnectionId,
-      correlationId: correlationId,
-      commandId: commandId,
-    );
-    state.officialOps[operationId] = op;
+    state.officialViewRequestSeq++;
+    final requestId = 'req-official-${state.officialViewRequestSeq}';
+    final commandId = 'cmd-official-$requestId';
+    final correlationId = requestId;
+    final op =
+        existing ??
+        Slice4OfficialViewOperation(
+          requestId: requestId,
+          tenantId: tenantId,
+          electronicInvoiceId: invoice.electronicInvoiceId,
+          salesOrderId: salesOrderId,
+          providerConnectionId: invoice.providerConnectionId,
+          correlationId: correlationId,
+          commandId: commandId,
+        );
+    op.requestId = requestId;
+    op.correlationId = correlationId;
+    op.commandId = commandId;
+    op.status = InvoiceDocumentStatus.pending;
+    op.viewerUrl = null;
+    op.expiresAt = null;
+    op.failureCode = null;
+    op.failureSource = null;
+    state.officialOps[invoice.electronicInvoiceId] = op;
 
     internalClient.enqueue(
       FetchOfficialInvoiceViewCommand(
         id: commandId,
         tenantId: tenantId,
-        operationId: operationId,
         electronicInvoiceId: invoice.electronicInvoiceId,
-        attemptOrdinal: attemptOrdinal,
+        requestId: requestId,
         correlationId: correlationId,
       ),
     );
 
     return OfficialInvoiceViewDto(
-      operationId: operationId,
+      operationId: requestId,
       status: InvoiceDocumentStatus.pending,
     );
   }
@@ -498,32 +452,11 @@ final class Slice4ElectronicInvoiceCommandGateway
     required String tenantId,
     required String actorId,
     required String salesOrderId,
-  }) async {
-    _requireAccess(actorId, salesOrderId);
-    final op = state.officialOps.values.lastWhere(
-      (item) => item.salesOrderId == salesOrderId,
-    );
-    if (op.status == InvoiceDocumentStatus.checkRequired) {
-      op.status = InvoiceDocumentStatus.pending;
-      op.attemptOrdinal++;
-      op.version++;
-      final commandId = 'cmd-official-${op.operationId}-${op.attemptOrdinal}';
-      internalClient.enqueue(
-        FetchOfficialInvoiceViewCommand(
-          id: commandId,
-          tenantId: tenantId,
-          operationId: op.operationId,
-          electronicInvoiceId: op.electronicInvoiceId,
-          attemptOrdinal: op.attemptOrdinal,
-          correlationId: 'corr-replay-${op.attemptOrdinal}',
-        ),
-      );
-    }
-    return OfficialInvoiceViewDto(
-      operationId: op.operationId,
-      status: op.status,
-      viewerUrl: op.viewerUrl,
-      expiresAt: op.expiresAt,
+  }) {
+    return requestOfficialView(
+      tenantId: tenantId,
+      actorId: actorId,
+      salesOrderId: salesOrderId,
     );
   }
 
@@ -533,7 +466,6 @@ final class Slice4ElectronicInvoiceCommandGateway
     required String actorId,
     required String salesOrderId,
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   }) async {
     _requireAccess(actorId, salesOrderId);
     final invoice = _invoice(salesOrderId);
@@ -545,58 +477,68 @@ final class Slice4ElectronicInvoiceCommandGateway
       throw StateError('DOCUMENT_UNAVAILABLE');
     }
 
-    final existing =
-        state.documentOpsByIdempotency['$tenantId:$idempotencyKey'];
-    if (existing != null) {
-      if (existing.documentIntent != null &&
-          existing.documentIntent != '$salesOrderId:${documentType.name}') {
-        throw StateError('IDEMPOTENCY_CONFLICT');
-      }
+    final existing = state.documentOps.values
+        .where(
+          (op) =>
+              op.electronicInvoiceId == invoice.electronicInvoiceId &&
+              op.documentType == documentType,
+        )
+        .firstOrNull;
+    if (existing != null &&
+        (existing.status == InvoiceDocumentStatus.pending ||
+            existing.status == InvoiceDocumentStatus.available)) {
       return InvoiceDocumentRetrievalDto(
-        operationId: existing.operationId,
+        operationId: existing.requestId,
         status: existing.status,
         downloadUrl: existing.downloadUrl,
         checksum: existing.checksum,
+        fileRef: existing.fileRef,
       );
     }
 
-    final operationId = 'op-doc-${state.documentOps.length + 1}';
-    final attemptOrdinal = 1;
-    final commandId = 'cmd-doc-$operationId-$attemptOrdinal';
-    final correlationId = 'corr-doc-$operationId';
-    final op = Slice4DocumentOperation(
-      operationId: operationId,
-      tenantId: tenantId,
-      electronicInvoiceId: invoice.electronicInvoiceId,
-      salesOrderId: salesOrderId,
-      documentType: documentType,
-      generation: 1,
-      attemptOrdinal: attemptOrdinal,
-      documentVersion: 0,
-      providerConnectionId: invoice.providerConnectionId,
-      idempotencyKey: idempotencyKey,
-      correlationId: correlationId,
-      commandId: commandId,
-      documentIntent: '$salesOrderId:${documentType.name}',
-    );
-    state.documentOps[operationId] = op;
-    state.documentOpsByIdempotency['$tenantId:$idempotencyKey'] = op;
+    state.documentRequestSeq++;
+    final requestId = 'req-doc-${state.documentRequestSeq}';
+    final commandId = 'cmd-doc-$requestId';
+    final correlationId = requestId;
+    final op =
+        existing ??
+        Slice4DocumentOperation(
+          requestId: requestId,
+          tenantId: tenantId,
+          electronicInvoiceId: invoice.electronicInvoiceId,
+          salesOrderId: salesOrderId,
+          documentType: documentType,
+          providerConnectionId: invoice.providerConnectionId,
+          correlationId: correlationId,
+          commandId: commandId,
+        );
+    if (existing != null) {
+      state.documentOps.remove(existing.requestId);
+    }
+    op.requestId = requestId;
+    op.correlationId = correlationId;
+    op.commandId = commandId;
+    op.status = InvoiceDocumentStatus.pending;
+    op.downloadUrl = null;
+    op.checksum = null;
+    op.fileRef = null;
+    op.failureCode = null;
+    op.failureSource = null;
+    state.documentOps[requestId] = op;
 
     internalClient.enqueue(
       DownloadInvoiceDocumentCommand(
         id: commandId,
         tenantId: tenantId,
-        operationId: operationId,
         electronicInvoiceId: invoice.electronicInvoiceId,
         documentType: documentType,
-        operationGeneration: op.generation,
-        attemptOrdinal: attemptOrdinal,
+        requestId: requestId,
         correlationId: correlationId,
       ),
     );
 
     return InvoiceDocumentRetrievalDto(
-      operationId: operationId,
+      operationId: requestId,
       status: InvoiceDocumentStatus.pending,
     );
   }
@@ -604,50 +546,53 @@ final class Slice4ElectronicInvoiceCommandGateway
   @override
   Future<OfficialViewOperationContextDto?> loadOfficialViewContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required String requestId,
   }) async {
-    final op = state.officialOps[operationId];
-    if (op == null || op.tenantId != tenantId) return null;
+    final op = state.officialOps[electronicInvoiceId];
+    if (op == null || op.tenantId != tenantId || op.requestId != requestId) {
+      return null;
+    }
     final invoice = state.invoicesBySalesOrder.values.firstWhere(
       (item) => item.electronicInvoiceId == op.electronicInvoiceId,
     );
     return OfficialViewOperationContextDto(
-      operationId: op.operationId,
       tenantId: op.tenantId,
       electronicInvoiceId: op.electronicInvoiceId,
-      generation: op.generation,
-      attemptOrdinal: op.attemptOrdinal,
+      requestId: op.requestId,
       status: op.status,
       providerConnectionId: op.providerConnectionId,
       providerInvoiceReference: invoice.providerInvoiceReference,
       invoiceSeries: invoice.invoiceSeries,
-      expectedVersion: op.version,
     );
   }
 
   @override
   Future<InvoiceDocumentOperationContextDto?> loadDocumentContext({
     required String tenantId,
-    required String operationId,
+    required String electronicInvoiceId,
+    required InvoiceDocumentType documentType,
+    required String requestId,
   }) async {
-    final op = state.documentOps[operationId];
-    if (op == null || op.tenantId != tenantId) return null;
+    final op = state.documentOps[requestId];
+    if (op == null ||
+        op.tenantId != tenantId ||
+        op.electronicInvoiceId != electronicInvoiceId ||
+        op.documentType != documentType) {
+      return null;
+    }
     final invoice = state.invoicesBySalesOrder.values.firstWhere(
       (item) => item.electronicInvoiceId == op.electronicInvoiceId,
     );
     return InvoiceDocumentOperationContextDto(
-      operationId: op.operationId,
       tenantId: op.tenantId,
       electronicInvoiceId: op.electronicInvoiceId,
       documentType: op.documentType,
-      generation: op.generation,
-      attemptOrdinal: op.attemptOrdinal,
-      documentVersion: op.documentVersion,
+      requestId: op.requestId,
       status: op.status,
       providerConnectionId: op.providerConnectionId,
       providerInvoiceReference: invoice.providerInvoiceReference,
       invoiceSeries: invoice.invoiceSeries,
-      expectedVersion: op.version,
     );
   }
 
@@ -679,28 +624,37 @@ final class Slice4ElectronicInvoiceCommandGateway
 
   @override
   Future<void> recordOfficialViewResult(OfficialViewResultRecord record) async {
-    final op = state.officialOps[record.operationId];
-    if (op == null || op.version != record.expectedVersion) return;
+    final op = state.officialOps[record.electronicInvoiceId];
+    if (op == null ||
+        op.tenantId != record.tenantId ||
+        op.requestId != record.requestId ||
+        op.status != InvoiceDocumentStatus.pending) {
+      return;
+    }
     op.status = record.status;
     op.viewerUrl = record.viewerUrl;
     op.expiresAt = record.expiresAt;
     op.failureCode = record.failureCode;
-    op.version++;
+    op.failureSource = record.failureSource;
   }
 
   @override
   Future<void> recordDocumentResult(InvoiceDocumentResultRecord record) async {
-    final op = state.documentOps[record.operationId];
-    if (op == null || op.version != record.expectedOperationVersion) return;
+    final op = state.documentOps[record.requestId];
+    if (op == null ||
+        op.tenantId != record.tenantId ||
+        op.electronicInvoiceId != record.electronicInvoiceId ||
+        op.documentType != record.documentType ||
+        op.status != InvoiceDocumentStatus.pending) {
+      return;
+    }
     op.status = record.status;
-    op.downloadUrl = record.downloadUrl;
     op.checksum = record.checksum;
-    op.accessExpiresAt = record.accessExpiresAt;
     op.fileRef = record.fileRef;
     op.failureCode = record.failureCode;
-    op.version++;
-    if (record.status == InvoiceDocumentStatus.available) {
-      op.documentVersion++;
+    op.failureSource = record.failureSource;
+    if (record.fileRef != null) {
+      op.downloadUrl = 'https://signed.example/${record.fileRef}';
     }
   }
 
@@ -719,7 +673,7 @@ final class Slice4ElectronicInvoiceCommandGateway
           observationId: 'obs-${state.observations.length}',
           electronicInvoiceId: record.electronicInvoiceId,
           providerStateCode: record.providerStateCode,
-          providerInteractionReference: record.providerInteractionReference,
+          correlationId: record.correlationId,
         ),
       );
     }
@@ -768,123 +722,6 @@ final class Slice4ElectronicInvoiceCommandGateway
   }
 }
 
-final class Slice4ProviderInteractionGateway
-    implements IProviderInteractionGateway {
-  Slice4ProviderInteractionGateway({
-    required this.state,
-    required this.fixedNow,
-  });
-
-  final Slice4State state;
-  final DateTime fixedNow;
-  int startCount = 0;
-
-  @override
-  Future<ProviderInteractionRecord> start({
-    required String tenantId,
-    required String providerConnectionId,
-    required ProviderInteractionDirection direction,
-    required String operationType,
-    required String targetType,
-    required String targetId,
-    required String correlationId,
-    required String requestReference,
-  }) async {
-    startCount++;
-    final existing = state.interactionsByCorrelation[correlationId];
-    if (existing != null && existing.completed) {
-      return ProviderInteractionRecord(
-        interactionReference: existing.interactionReference,
-        tenantId: existing.tenantId,
-        version: existing.version,
-        providerConnectionId: existing.providerConnectionId,
-        direction: existing.direction,
-        operationType: existing.operationType,
-        targetType: existing.targetType,
-        targetId: existing.targetId,
-        correlationId: existing.correlationId,
-        requestReference: existing.requestReference,
-        status: ProviderInteractionStatus.completed,
-        startedAt: existing.startedAt,
-        outcome: existing.outcome,
-        completedAt: existing.completedAt,
-        providerReference: existing.providerReference,
-        safeErrorCode: existing.safeErrorCode,
-      );
-    }
-
-    final interaction = Slice4Interaction(
-      interactionReference: 'int-$correlationId',
-      tenantId: tenantId,
-      version: 0,
-      providerConnectionId: providerConnectionId,
-      direction: direction,
-      operationType: operationType,
-      targetType: targetType,
-      targetId: targetId,
-      correlationId: correlationId,
-      requestReference: requestReference,
-      startedAt: fixedNow,
-    );
-    state.interactionsByCorrelation[correlationId] = interaction;
-
-    return ProviderInteractionRecord(
-      interactionReference: interaction.interactionReference,
-      tenantId: tenantId,
-      version: 0,
-      providerConnectionId: providerConnectionId,
-      direction: direction,
-      operationType: operationType,
-      targetType: targetType,
-      targetId: targetId,
-      correlationId: correlationId,
-      requestReference: requestReference,
-      status: ProviderInteractionStatus.started,
-      startedAt: fixedNow,
-    );
-  }
-
-  @override
-  Future<ProviderInteractionRecord> finalize({
-    required String tenantId,
-    required String interactionReference,
-    required int expectedVersion,
-    required ProviderInteractionOutcome outcome,
-    String? responseReference,
-    String? providerReference,
-    String? safeErrorCode,
-  }) async {
-    final interaction = state.interactionsByCorrelation.values.firstWhere(
-      (item) => item.interactionReference == interactionReference,
-    );
-    interaction.version = expectedVersion + 1;
-    interaction.outcome = outcome;
-    interaction.providerReference = providerReference;
-    interaction.safeErrorCode = safeErrorCode;
-    interaction.completedAt = fixedNow.add(const Duration(minutes: 1));
-    interaction.completed = true;
-
-    return ProviderInteractionRecord(
-      interactionReference: interaction.interactionReference,
-      tenantId: tenantId,
-      version: interaction.version,
-      providerConnectionId: interaction.providerConnectionId,
-      direction: interaction.direction,
-      operationType: interaction.operationType,
-      targetType: interaction.targetType,
-      targetId: interaction.targetId,
-      correlationId: interaction.correlationId,
-      requestReference: interaction.requestReference,
-      status: ProviderInteractionStatus.completed,
-      startedAt: interaction.startedAt,
-      outcome: outcome,
-      completedAt: interaction.completedAt,
-      providerReference: providerReference,
-      safeErrorCode: safeErrorCode,
-    );
-  }
-}
-
 final class Slice4DocumentStoragePort implements IInvoiceDocumentStoragePort {
   Slice4DocumentStoragePort({required this.state});
 
@@ -922,7 +759,6 @@ final class Slice4TestHarness {
   late final Slice4State state;
   late final Slice4InternalCommandClient internalClient;
   late final Slice4ElectronicInvoiceCommandGateway commandGateway;
-  late final Slice4ProviderInteractionGateway interactionGateway;
   late final Slice4DocumentStoragePort storagePort;
   late final FakeMeInvoiceClient fakeMeInvoiceClient;
   late final MeInvoiceElectronicInvoiceProviderAdapter providerAdapter;
@@ -937,10 +773,6 @@ final class Slice4TestHarness {
     commandGateway = Slice4ElectronicInvoiceCommandGateway(
       state: state,
       internalClient: internalClient,
-      fixedNow: fixedNow,
-    );
-    interactionGateway = Slice4ProviderInteractionGateway(
-      state: state,
       fixedNow: fixedNow,
     );
     storagePort = Slice4DocumentStoragePort(state: state);
@@ -995,7 +827,6 @@ final class Slice4TestHarness {
 
     container
       ..registerSingleton<IElectronicInvoiceCommandGateway>(commandGateway)
-      ..registerSingleton<IProviderInteractionGateway>(interactionGateway)
       ..registerSingleton<IInvoiceDocumentStoragePort>(storagePort)
       ..registerSingleton<IElectronicInvoiceProviderPort>(providerAdapter)
       ..registerSingleton<IEinvoiceCommandDispatcher>(commandDispatcher)
@@ -1011,18 +842,15 @@ final class Slice4TestHarness {
     final fetchOfficialHandler = FetchOfficialInvoiceViewCommandHandler(
       commandGateway: commandGateway,
       providerPort: providerAdapter,
-      interactionGateway: interactionGateway,
     );
     final downloadDocumentHandler = DownloadInvoiceDocumentCommandHandler(
       commandGateway: commandGateway,
       providerPort: providerAdapter,
-      interactionGateway: interactionGateway,
       storagePort: storagePort,
     );
     final pollObservationHandler = PollProviderObservationCommandHandler(
       commandGateway: commandGateway,
       providerPort: providerAdapter,
-      interactionGateway: interactionGateway,
       commandDispatcher: commandDispatcher,
     );
     final recordObservationHandler = RecordProviderObservationCommandHandler(
@@ -1054,12 +882,10 @@ final class Slice4TestHarness {
           FetchOfficialInvoiceViewCommand.type:
               OfficialViewCommandDeadLetterHandler(
                 commandGateway: commandGateway,
-                interactionGateway: interactionGateway,
               ),
           DownloadInvoiceDocumentCommand.type:
               InvoiceDocumentCommandDeadLetterHandler(
                 commandGateway: commandGateway,
-                interactionGateway: interactionGateway,
               ),
         };
 
@@ -1113,7 +939,6 @@ final class Slice4TestHarness {
 
   Future<InvoiceDocumentRetrievalDto> requestDocument({
     required InvoiceDocumentType documentType,
-    required String idempotencyKey,
   }) async {
     return commandBus.execute(
       RequestInvoiceDocumentCommand(
@@ -1121,7 +946,6 @@ final class Slice4TestHarness {
         actorId: actorId,
         salesOrderId: salesOrderId,
         documentType: documentType,
-        idempotencyKey: idempotencyKey,
       ),
     );
   }

@@ -22,7 +22,7 @@ void main() {
 
     const tenantId = '11111111-1111-1111-1111-111111111111';
     const deliveryId = '22222222-2222-2222-2222-222222222222';
-    const attemptId = '33333333-3333-3333-3333-333333333333';
+    const retryCount = 0;
 
     setUp(() {
       supabase = FakeEinvoiceRpcSupabase();
@@ -47,9 +47,7 @@ void main() {
       final result = await gateway.prepareProviderCall(
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
-        expectedDeliveryVersion: 1,
-        expectedAttemptVersion: 1,
+        retryCount: retryCount,
         requestReference: 'request',
       );
       expect(result, isA<PrepareDeliveryCallProvider>());
@@ -164,13 +162,13 @@ void main() {
           expect(params, {
             'p_tenant_id': tenantId,
             'p_delivery_id': deliveryId,
-            'p_attempt_id': attemptId,
+            'p_retry_count': retryCount,
           });
           return [
             {
               'tenant_id': tenantId,
               'delivery_id': deliveryId,
-              'attempt_id': attemptId,
+              'retry_count': retryCount,
               'delivery_version': 2,
               'attempt_version': 1,
               'provider_connection_id': 'pc-1',
@@ -185,12 +183,12 @@ void main() {
         final context = await gateway.loadAttemptContext(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
+          retryCount: retryCount,
         );
 
         expect(context, isNotNull);
         expect(context!.deliveryVersion, 2);
-        expect(context.attemptVersion, 1);
+        expect(context.retryCount, 0);
         expect(context.recipientName, isNull);
         expect(context.recipientEmail, 'buyer@example.com');
       },
@@ -204,7 +202,7 @@ void main() {
       final context = await gateway.loadAttemptContext(
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
+        retryCount: retryCount,
       );
 
       expect(context, isNull);
@@ -217,9 +215,7 @@ void main() {
         expect(params, {
           'p_tenant_id': tenantId,
           'p_delivery_id': deliveryId,
-          'p_attempt_id': attemptId,
-          'p_expected_delivery_version': 1,
-          'p_expected_attempt_version': 0,
+          'p_retry_count': retryCount,
           'p_request_reference': 'req-1',
         });
         return [
@@ -240,16 +236,13 @@ void main() {
       final result = await gateway.prepareProviderCall(
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
-        expectedDeliveryVersion: 1,
-        expectedAttemptVersion: 0,
+        retryCount: retryCount,
         requestReference: 'req-1',
       );
 
       expect(result, isA<PrepareDeliveryCallProvider>());
       final call = result as PrepareDeliveryCallProvider;
       expect(call.deliveryVersion, 2);
-      expect(call.attemptVersion, 1);
       expect(call.providerContext.providerConnectionId, 'pc-1');
       expect(call.providerContext.recipientName, 'Buyer');
     });
@@ -274,9 +267,7 @@ void main() {
         await gateway.prepareProviderCall(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
-          expectedDeliveryVersion: 1,
-          expectedAttemptVersion: 1,
+          retryCount: retryCount,
           requestReference: 'req-1',
         ),
         isA<PrepareDeliverySkip>(),
@@ -300,14 +291,11 @@ void main() {
       final unknown = await gateway.prepareProviderCall(
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
-        expectedDeliveryVersion: 2,
-        expectedAttemptVersion: 1,
+        retryCount: retryCount,
         requestReference: 'req-2',
       );
       expect(unknown, isA<PrepareDeliveryRecordUnknown>());
       final recordUnknown = unknown as PrepareDeliveryRecordUnknown;
-      expect(recordUnknown.interactionReference, 'ix-1');
       expect(recordUnknown.deliveryVersion, 3);
     });
 
@@ -316,13 +304,12 @@ void main() {
         expect(params, {
           'p_tenant_id': tenantId,
           'p_delivery_id': deliveryId,
-          'p_attempt_id': attemptId,
-          'p_expected_delivery_version': 2,
-          'p_expected_attempt_version': 1,
-          'p_interaction_reference': 'ix-1',
+          'p_retry_count': retryCount,
+          'p_expected_version': 2,
           'p_outcome_kind': 'SUCCESS',
           'p_provider_reference': 'prov-ref',
           'p_safe_code': null,
+          'p_failure_source': null,
         });
         return [
           {
@@ -337,10 +324,8 @@ void main() {
         const DeliveryResultRecord(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
+          retryCount: retryCount,
           expectedDeliveryVersion: 2,
-          expectedAttemptVersion: 1,
-          interactionReference: 'ix-1',
           evidence: DeliveryResultEvidence(
             kind: DeliveryResultKind.success,
             providerReference: 'prov-ref',
@@ -396,10 +381,8 @@ void main() {
             DeliveryResultRecord(
               tenantId: tenantId,
               deliveryId: deliveryId,
-              attemptId: attemptId,
+              retryCount: retryCount,
               expectedDeliveryVersion: 1,
-              expectedAttemptVersion: 1,
-              interactionReference: 'ix-1',
               evidence: DeliveryResultEvidence(
                 kind: entry.$1,
                 safeCode: 'SAFE_CODE',
@@ -424,7 +407,7 @@ void main() {
         expect(params, {
           'p_tenant_id': tenantId,
           'p_delivery_id': deliveryId,
-          'p_attempt_id': attemptId,
+          'p_retry_count': retryCount,
           'p_safe_failure_code': 'WORKER_EXHAUSTED_BEFORE_DISPATCH',
         });
         return null;
@@ -433,7 +416,7 @@ void main() {
       await gateway.recordCommandDeadLetter(
         tenantId: tenantId,
         deliveryId: deliveryId,
-        attemptId: attemptId,
+        retryCount: retryCount,
         safeFailureCode: 'WORKER_EXHAUSTED_BEFORE_DISPATCH',
       );
 
@@ -452,9 +435,7 @@ void main() {
         gateway.prepareProviderCall(
           tenantId: tenantId,
           deliveryId: deliveryId,
-          attemptId: attemptId,
-          expectedDeliveryVersion: 1,
-          expectedAttemptVersion: 0,
+          retryCount: retryCount,
           requestReference: 'req-1',
         ),
         throwsA(

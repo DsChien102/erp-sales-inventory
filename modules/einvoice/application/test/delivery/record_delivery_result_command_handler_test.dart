@@ -12,10 +12,8 @@ void main() {
       final command = RecordDeliveryResultCommand(
         tenantId: 'tenant-1',
         deliveryId: 'del-1',
-        attemptId: 'att-1',
+        retryCount: 0,
         expectedDeliveryVersion: 1,
-        expectedAttemptVersion: 1,
-        interactionReference: 'pi-1',
         evidence: const DeliveryResultEvidence(
           kind: DeliveryResultKind.success,
           providerReference: 'misa-tx-1',
@@ -25,14 +23,12 @@ void main() {
       expect(() => validator.validate(command), returnsNormally);
     });
 
-    test('rejects empty interactionReference', () async {
+    test('rejects retryCount outside 0-2', () async {
       final command = RecordDeliveryResultCommand(
         tenantId: 'tenant-1',
         deliveryId: 'del-1',
-        attemptId: 'att-1',
+        retryCount: 3,
         expectedDeliveryVersion: 1,
-        expectedAttemptVersion: 1,
-        interactionReference: ' ',
         evidence: const DeliveryResultEvidence(
           kind: DeliveryResultKind.undetermined,
           safeCode: 'PROVIDER_TIMEOUT',
@@ -55,10 +51,8 @@ void main() {
         RecordDeliveryResultCommand(
           tenantId: 'tenant-1',
           deliveryId: 'del-1',
-          attemptId: 'att-1',
+          retryCount: 1,
           expectedDeliveryVersion: 3,
-          expectedAttemptVersion: 2,
-          interactionReference: 'pi-del-1',
           evidence: const DeliveryResultEvidence(
             kind: DeliveryResultKind.retryableFailure,
             safeCode: 'HTTP_429',
@@ -70,10 +64,8 @@ void main() {
       expect(gateway.lastRecordResult, isNotNull);
       expect(gateway.lastRecordResult!.tenantId, 'tenant-1');
       expect(gateway.lastRecordResult!.deliveryId, 'del-1');
-      expect(gateway.lastRecordResult!.attemptId, 'att-1');
+      expect(gateway.lastRecordResult!.retryCount, 1);
       expect(gateway.lastRecordResult!.expectedDeliveryVersion, 3);
-      expect(gateway.lastRecordResult!.expectedAttemptVersion, 2);
-      expect(gateway.lastRecordResult!.interactionReference, 'pi-del-1');
       expect(
         gateway.lastRecordResult!.evidence.kind,
         DeliveryResultKind.retryableFailure,

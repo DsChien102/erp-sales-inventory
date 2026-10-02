@@ -1,7 +1,7 @@
 -- Title: einvoice S5 capability-aware delivery reconciliation load/record
 -- Kind: cohesive
 -- Intent: einvoice_s5_delivery_reconciliation
--- Context: TH-08 EP-04 S5 — load/record VERIFY_DELIVERY checks, unsupported MISA path, five-check schedule, attention on UNRESOLVED
+-- Context: TH-08 EP-04 S5 — load/record delivery reconciliation checks, unsupported MISA path, five-check schedule, attention on UNRESOLVED
 -- Touches: einvoice.load_delivery_reconciliation_context, einvoice.record_delivery_reconciliation_check
 -- Safety: idempotent DDL, RLS enabled, security definer RPCs, tenant scoped; safe Vet45-authored messages only; no legal issuance mutation; service_role only
 -- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql, 013_einvoice_delivery_schema_and_start_rpcs.sql, 014_einvoice_delivery_results_and_projection_rpcs.sql
@@ -9,6 +9,7 @@
 -- ---------------------------------------------------------------------------
 -- load_delivery_reconciliation_context
 -- ---------------------------------------------------------------------------
+drop function if exists einvoice.load_delivery_reconciliation_context(uuid, uuid, integer);
 create or replace function einvoice.load_delivery_reconciliation_context(
   p_tenant_id uuid,
   p_reconciliation_case_id uuid,
@@ -17,7 +18,6 @@ create or replace function einvoice.load_delivery_reconciliation_context(
   tenant_id uuid,
   reconciliation_case_id uuid,
   delivery_id uuid,
-  attempt_id uuid,
   provider_connection_id uuid,
   supports_delivery_result_observation boolean,
   check_sequence integer,
@@ -30,7 +30,6 @@ set search_path = einvoice, public
 as $$
 declare
   v_case einvoice.invoice_reconciliation_cases%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_delivery einvoice.invoice_deliveries%rowtype;
   v_connection einvoice.provider_connections%rowtype;
   v_supports boolean;
@@ -57,8 +56,7 @@ begin
     return;
   end if;
 
-  if v_case.target_type is distinct from 'DELIVERY_ATTEMPT'
-     or v_case.reconciliation_purpose is distinct from 'VERIFY_DELIVERY' then
+  if v_case.target_type is distinct from 'INVOICE_DELIVERY' then
     return;
   end if;
 
@@ -67,18 +65,7 @@ begin
     return;
   end if;
 
-  if v_case.attempt_count + 1 is distinct from p_check_sequence then
-    return;
-  end if;
-
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = v_case.target_id
-  for update;
-
-  if not found then
+  if v_case.check_count + 1 is distinct from p_check_sequence then
     return;
   end if;
 
@@ -86,7 +73,7 @@ begin
   into v_delivery
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
-    and d.id = v_attempt.invoice_delivery_id
+    and d.id = v_case.target_id
   for update;
 
   if not found then
@@ -108,7 +95,6 @@ begin
     p_tenant_id,
     v_case.id,
     v_delivery.id,
-    v_attempt.id,
     v_case.provider_connection_id,
     v_supports,
     p_check_sequence,
@@ -120,12 +106,12 @@ $$;
 -- ---------------------------------------------------------------------------
 -- record_delivery_reconciliation_check
 -- ---------------------------------------------------------------------------
+drop function if exists einvoice.record_delivery_reconciliation_check(uuid, uuid, bigint, integer, text, text, text, text);
 create or replace function einvoice.record_delivery_reconciliation_check(
   p_tenant_id uuid,
   p_reconciliation_case_id uuid,
   p_expected_case_version bigint,
   p_check_sequence integer,
-  p_interaction_reference text,
   p_observation_kind text,
   p_provider_reference text,
   p_safe_code text
@@ -141,7 +127,6 @@ set search_path = einvoice, public
 as $$
 declare
   v_case einvoice.invoice_reconciliation_cases%rowtype;
-  v_attempt einvoice.delivery_attempts%rowtype;
   v_delivery einvoice.invoice_deliveries%rowtype;
   v_invoice einvoice.electronic_invoices%rowtype;
   v_kind text := upper(btrim(coalesce(p_observation_kind, '')));
@@ -176,24 +161,17 @@ begin
     raise exception 'NOT_FOUND: reconciliation case';
   end if;
 
-  if v_case.target_type is distinct from 'DELIVERY_ATTEMPT'
-     or v_case.reconciliation_purpose is distinct from 'VERIFY_DELIVERY' then
-    raise exception 'VALIDATION_ERROR: case is not VERIFY_DELIVERY / DELIVERY_ATTEMPT';
+  if v_case.target_type is distinct from 'INVOICE_DELIVERY' then
+    raise exception 'VALIDATION_ERROR: case is not an INVOICE_DELIVERY case';
   end if;
 
   if v_case.version is distinct from p_expected_case_version then
     if v_case.status in ('RESOLVED', 'UNRESOLVED') then
-      select a.*
-      into v_attempt
-      from einvoice.delivery_attempts a
-      where a.tenant_id = p_tenant_id
-        and a.id = v_case.target_id;
-
       select d.*
       into v_delivery
       from einvoice.invoice_deliveries d
       where d.tenant_id = p_tenant_id
-        and d.id = v_attempt.invoice_delivery_id;
+        and d.id = v_case.target_id;
 
       select coalesce(array_agg(d.status order by d.delivery_no), '{}'::text[])
       into v_statuses
@@ -215,22 +193,11 @@ begin
     raise exception 'STATE_CHANGED: expected version mismatch';
   end if;
 
-  select a.*
-  into v_attempt
-  from einvoice.delivery_attempts a
-  where a.tenant_id = p_tenant_id
-    and a.id = v_case.target_id
-  for update;
-
-  if not found then
-    raise exception 'NOT_FOUND: delivery attempt';
-  end if;
-
   select d.*
   into v_delivery
   from einvoice.invoice_deliveries d
   where d.tenant_id = p_tenant_id
-    and d.id = v_attempt.invoice_delivery_id
+    and d.id = v_case.target_id
   for update;
 
   if not found then
@@ -249,17 +216,12 @@ begin
        and v_kind in ('SUCCESS', 'DEFINITE_FAILURE', 'UNSUPPORTED') then
       update einvoice.invoice_reconciliation_cases
       set status = 'RESOLVED',
-          attempt_count = greatest(attempt_count, p_check_sequence),
+          check_count = greatest(check_count, p_check_sequence),
           next_check_at = null,
           last_checked_at = now(),
           resolved_at = coalesce(resolved_at, now()),
           resolution_code = coalesce(resolution_code, 'ALREADY_SUCCEEDED'),
-          latest_provider_interaction_reference = coalesce(
-            nullif(btrim(coalesce(p_interaction_reference, '')), ''),
-            latest_provider_interaction_reference
-          ),
-          version = version + 1,
-          updated_at = now()
+          version = version + 1
       where id = p_reconciliation_case_id
       returning * into v_case;
     end if;
@@ -326,111 +288,62 @@ begin
   if v_kind = 'UNSUPPORTED' then
     update einvoice.invoice_reconciliation_cases
     set status = 'UNRESOLVED',
-        attempt_count = p_check_sequence,
+        check_count = p_check_sequence,
         next_check_at = null,
         last_checked_at = now(),
         last_error_code = coalesce(v_safe_code, 'DELIVERY_RESULT_OBSERVATION_UNSUPPORTED'),
-        last_error_message = coalesce(
-          v_safe_message,
-          'Delivery result observation is not supported by the provider'
-        ),
-        latest_provider_interaction_reference = nullif(
-          btrim(coalesce(p_interaction_reference, '')),
-          ''
-        ),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_reconciliation_case_id
     returning * into v_case;
     v_emit_attention := true;
 
   elsif v_kind = 'SUCCESS' then
-    update einvoice.delivery_attempts
-    set status = 'SUCCEEDED',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = 'SUCCESS',
-        provider_result_message = 'Delivery acknowledged by provider',
-        failure_code = null,
-        failure_message = null,
-        completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
-    where id = v_attempt.id;
-
     update einvoice.invoice_deliveries
     set status = 'SUCCEEDED',
         provider_delivery_reference = coalesce(
           nullif(btrim(coalesce(p_provider_reference, '')), ''),
           provider_delivery_reference
         ),
-        provider_result_code = 'SUCCESS',
-        provider_result_message = 'Delivery acknowledged by provider',
         failure_code = null,
         failure_message = null,
+        failure_source = null,
         completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = v_delivery.id
     returning * into v_delivery;
 
     update einvoice.invoice_reconciliation_cases
     set status = 'RESOLVED',
-        attempt_count = greatest(attempt_count, p_check_sequence),
+        check_count = greatest(check_count, p_check_sequence),
         next_check_at = null,
         last_checked_at = now(),
         resolved_at = coalesce(resolved_at, now()),
         resolution_code = 'SUCCESS',
         last_error_code = null,
-        last_error_message = null,
-        latest_provider_interaction_reference = nullif(
-          btrim(coalesce(p_interaction_reference, '')),
-          ''
-        ),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_reconciliation_case_id
     returning * into v_case;
 
   elsif v_kind = 'DEFINITE_FAILURE' then
-    update einvoice.delivery_attempts
-    set status = 'FAILED',
-        provider_interaction_reference = nullif(p_interaction_reference, '')::uuid,
-        provider_result_code = v_safe_code,
-        provider_result_message = v_safe_message,
-        failure_code = v_safe_code,
-        failure_message = v_safe_message,
-        completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
-    where id = v_attempt.id;
-
     update einvoice.invoice_deliveries
     set status = 'FAILED',
-        provider_result_code = v_safe_code,
-        provider_result_message = v_safe_message,
         failure_code = v_safe_code,
         failure_message = v_safe_message,
+        failure_source = 'PROVIDER',
         completed_at = coalesce(completed_at, now()),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = v_delivery.id
     returning * into v_delivery;
 
     update einvoice.invoice_reconciliation_cases
     set status = 'RESOLVED',
-        attempt_count = greatest(attempt_count, p_check_sequence),
+        check_count = greatest(check_count, p_check_sequence),
         next_check_at = null,
         last_checked_at = now(),
         resolved_at = coalesce(resolved_at, now()),
         resolution_code = coalesce(v_safe_code, 'DEFINITE_FAILURE'),
         last_error_code = v_safe_code,
-        last_error_message = v_safe_message,
-        latest_provider_interaction_reference = nullif(
-          btrim(coalesce(p_interaction_reference, '')),
-          ''
-        ),
-        version = version + 1,
-        updated_at = now()
+        version = version + 1
     where id = p_reconciliation_case_id
     returning * into v_case;
 
@@ -438,20 +351,11 @@ begin
     if p_check_sequence >= 5 then
       update einvoice.invoice_reconciliation_cases
       set status = 'UNRESOLVED',
-          attempt_count = p_check_sequence,
+          check_count = p_check_sequence,
           next_check_at = null,
           last_checked_at = now(),
           last_error_code = coalesce(v_safe_code, 'PROVIDER_DELIVERY_PENDING'),
-          last_error_message = coalesce(
-            v_safe_message,
-            'Delivery result is still undetermined'
-          ),
-          latest_provider_interaction_reference = nullif(
-            btrim(coalesce(p_interaction_reference, '')),
-            ''
-          ),
-          version = version + 1,
-          updated_at = now()
+          version = version + 1
       where id = p_reconciliation_case_id
       returning * into v_case;
       v_emit_attention := true;
@@ -467,20 +371,11 @@ begin
 
       update einvoice.invoice_reconciliation_cases
       set status = 'PENDING',
-          attempt_count = p_check_sequence,
+          check_count = p_check_sequence,
           next_check_at = v_next_check,
           last_checked_at = now(),
           last_error_code = coalesce(v_safe_code, 'PROVIDER_DELIVERY_PENDING'),
-          last_error_message = coalesce(
-            v_safe_message,
-            'Delivery result is still undetermined'
-          ),
-          latest_provider_interaction_reference = nullif(
-            btrim(coalesce(p_interaction_reference, '')),
-            ''
-          ),
-          version = version + 1,
-          updated_at = now()
+          version = version + 1
       where id = p_reconciliation_case_id
       returning * into v_case;
 
@@ -522,7 +417,6 @@ begin
         'sales_order_id', v_invoice.sales_order_id,
         'electronic_invoice_id', v_invoice.id,
         'delivery_id', v_delivery.id,
-        'attempt_id', v_attempt.id,
         'reconciliation_case_id', v_case.id,
         'safe_error_code', coalesce(
           v_case.last_error_code,
@@ -562,12 +456,12 @@ revoke all on function einvoice.load_delivery_reconciliation_context(
   uuid, uuid, integer
 ) from public, anon, authenticated, service_role;
 revoke all on function einvoice.record_delivery_reconciliation_check(
-  uuid, uuid, bigint, integer, text, text, text, text
+  uuid, uuid, bigint, integer, text, text, text
 ) from public, anon, authenticated, service_role;
 
 grant execute on function einvoice.load_delivery_reconciliation_context(
   uuid, uuid, integer
 ) to service_role;
 grant execute on function einvoice.record_delivery_reconciliation_check(
-  uuid, uuid, bigint, integer, text, text, text, text
+  uuid, uuid, bigint, integer, text, text, text
 ) to service_role;

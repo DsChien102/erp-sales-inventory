@@ -3,9 +3,10 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../support/order_einvoice_copy.dart';
 
-/// Presentation widget displaying safe allow-listed issuance failure feedback.
+/// Presentation widget displaying issuance failure feedback.
 ///
-/// Never exposes raw provider payload, credentials, failureOrigin or internal retry internals.
+/// Shows the provider rejection message when the backend supplies one; never
+/// exposes raw provider payload, credentials, failureOrigin or internal retry internals.
 class IssuanceFailureBanner extends StatelessWidget {
   const IssuanceFailureBanner({
     super.key,

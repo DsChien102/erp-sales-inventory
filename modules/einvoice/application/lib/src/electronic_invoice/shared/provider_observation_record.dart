@@ -8,7 +8,7 @@ final class ProviderObservationRecord {
     required this.observedAt,
     required this.deduplicationKey,
     required this.detailsSnapshot,
-    required this.providerInteractionReference,
+    required this.correlationId,
     required this.source,
   });
 
@@ -20,6 +20,6 @@ final class ProviderObservationRecord {
   final DateTime observedAt;
   final String deduplicationKey;
   final Map<String, Object?> detailsSnapshot;
-  final String providerInteractionReference;
+  final String correlationId;
   final String source;
 }

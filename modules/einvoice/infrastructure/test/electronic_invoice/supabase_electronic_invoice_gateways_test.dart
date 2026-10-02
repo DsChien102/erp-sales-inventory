@@ -95,19 +95,20 @@ void main() {
         ..registerHandler('load_official_view_operation_context', (
           params,
         ) async {
-          expect(params, {'p_tenant_id': 'tenant-1', 'p_operation_id': 'op-1'});
+          expect(params, {
+            'p_tenant_id': 'tenant-1',
+            'p_electronic_invoice_id': 'invoice-1',
+            'p_request_id': 'req-1',
+          });
           return [
             {
-              'operation_id': 'op-1',
               'tenant_id': 'tenant-1',
               'electronic_invoice_id': 'invoice-1',
-              'generation': 1,
-              'attempt_ordinal': 2,
+              'request_id': 'req-1',
               'status': 'PENDING',
               'provider_connection_id': 'conn-1',
               'provider_invoice_reference': 'prov-ref',
               'invoice_series': 'AA/26E',
-              'expected_version': 3,
             },
           ];
         });
@@ -118,14 +119,14 @@ void main() {
 
       final context = await gateway.loadOfficialViewContext(
         tenantId: 'tenant-1',
-        operationId: 'op-1',
+        electronicInvoiceId: 'invoice-1',
+        requestId: 'req-1',
       );
 
       expect(context, isNotNull);
-      expect(context!.operationId, 'op-1');
-      expect(context.attemptOrdinal, 2);
+      expect(context!.requestId, 'req-1');
+      expect(context.electronicInvoiceId, 'invoice-1');
       expect(context.invoiceSeries, 'AA/26E');
-      expect(context.expectedVersion, 3);
     });
 
     test('recordOfficialViewResult sends frozen worker params', () async {
@@ -135,13 +136,10 @@ void main() {
         ) async {
           final normalized = params ?? <String, dynamic>{};
           expect(normalized['p_tenant_id'], 'tenant-1');
-          expect(normalized['p_operation_id'], 'op-1');
+          expect(normalized['p_electronic_invoice_id'], 'invoice-1');
+          expect(normalized['p_request_id'], 'req-1');
           expect(normalized['p_status'], 'AVAILABLE');
-          expect(normalized['p_expected_version'], 2);
-          expect(
-            normalized['p_provider_interaction_reference'],
-            'interaction-1',
-          );
+          expect(normalized['p_failure_source'], isNull);
           expect(normalized['p_viewer_url'], 'https://viewer.example');
           return [
             {
@@ -161,11 +159,10 @@ void main() {
       await gateway.recordOfficialViewResult(
         OfficialViewResultRecord(
           tenantId: 'tenant-1',
-          operationId: 'op-1',
+          electronicInvoiceId: 'invoice-1',
+          requestId: 'req-1',
           status: InvoiceDocumentStatus.available,
           viewerUrl: 'https://viewer.example',
-          providerInteractionReference: 'interaction-1',
-          expectedVersion: 2,
         ),
       );
 
@@ -197,6 +194,7 @@ void main() {
               'official_viewer_url': 'https://viewer.example',
               'official_viewer_token': 'token',
               'official_viewer_expires_at': '2030-01-01T00:00:00.000Z',
+              'official_view_failure_code': null,
             },
           ];
         });
@@ -215,6 +213,7 @@ void main() {
       expect(detail.invoiceNumber, '00000001');
       expect(detail.officialViewStatus, InvoiceDocumentStatus.available);
       expect(detail.officialViewerUrl, 'https://viewer.example');
+      expect(detail.officialViewFailureCode, isNull);
     });
 
     test('getDocuments signs AVAILABLE storage references', () async {
@@ -234,12 +233,12 @@ void main() {
               'pdf_status': 'AVAILABLE',
               'pdf_storage_reference': 'tenant-1/invoice-1/pdf/v1/a.pdf',
               'pdf_checksum': 'checksum',
-              'pdf_access_expires_at': null,
+              'pdf_failure_code': null,
               'xml_operation_id': null,
               'xml_status': null,
               'xml_storage_reference': null,
               'xml_checksum': null,
-              'xml_access_expires_at': null,
+              'xml_failure_code': null,
             },
           ];
         });
@@ -270,15 +269,13 @@ void main() {
               'p_actor_id': 'actor-1',
               'p_sales_order_id': 'order-1',
               'p_document_type': 'PDF',
-              'p_idempotency_key': 'idem-1',
             });
             return [
               {
-                'operation_id': 'op-pdf',
+                'request_id': 'op-pdf',
                 'status': 'AVAILABLE',
                 'storage_reference': 'tenant-1/invoice-1/pdf/v1/a.pdf',
                 'checksum': 'checksum',
-                'access_expires_at': null,
               },
             ];
           });
@@ -292,7 +289,6 @@ void main() {
           actorId: 'actor-1',
           salesOrderId: 'order-1',
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'idem-1',
         );
 
         expect(result.downloadUrl, contains('ttl=300'));

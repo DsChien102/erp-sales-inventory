@@ -76,7 +76,7 @@ abstract final class MeInvoicePublishClassifier {
     }
 
     if (!item.isSuccess &&
-        MeInvoicePublishErrorCodes.isDefiniteFailure(item.errorCode)) {
+        MeInvoicePublishErrorCodes.isPublishRejection(item.errorCode)) {
       return MeInvoicePublishDefiniteFailure(
         providerCode: item.errorCode!,
         providerMessage: _safeMessage(item),
@@ -147,7 +147,7 @@ abstract final class MeInvoicePublishClassifier {
 
   static bool _isEnvelopeDefiniteFailure(String error) {
     final code = error.split(':').first.trim();
-    return MeInvoicePublishErrorCodes.isDefiniteFailure(code);
+    return MeInvoicePublishErrorCodes.isPublishRejection(code);
   }
 
   static MeInvoiceSafeProviderEvidence _safeEvidence(

@@ -40,34 +40,35 @@ void main() {
       expect(find.text('raw backend detail'), findsNothing);
     });
 
-    testWidgets('renders provider rejected failure message for PROVIDER_REJECTED code', (
+    testWidgets('renders provider rejected copy for PROVIDER_REJECTED without message', (
       tester,
     ) async {
+      await tester.pumpWidget(buildSubject(failureCode: 'PROVIDER_REJECTED'));
+
+      expect(find.text(OrderEInvoiceCopy.failureBannerTitle), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.failureBannerProviderRejectedMessage), findsOneWidget);
+    });
+
+    testWidgets('renders provider message when backend supplies one', (tester) async {
       await tester.pumpWidget(
         buildSubject(
-          failureCode: 'PROVIDER_REJECTED',
-          lastFailureMessage: 'raw misa error',
+          failureCode: 'BuyerTaxCode_TaxCodeInvalid',
+          lastFailureMessage: '  Mã số thuế người mua không hợp lệ ',
         ),
       );
 
       expect(find.text(OrderEInvoiceCopy.failureBannerTitle), findsOneWidget);
-      expect(find.text(OrderEInvoiceCopy.failureBannerProviderRejectedMessage), findsOneWidget);
-      expect(find.text('raw misa error'), findsNothing);
+      expect(find.text('Mã số thuế người mua không hợp lệ'), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.failureBannerDefaultMessage), findsNothing);
     });
 
-    testWidgets('renders default copy for unknown code and ignores raw provider message', (
-      tester,
-    ) async {
+    testWidgets('renders default copy for unknown code with blank message', (tester) async {
       await tester.pumpWidget(
-        buildSubject(
-          failureCode: 'SYSTEM_ERROR',
-          lastFailureMessage: 'raw misa technical error',
-        ),
+        buildSubject(failureCode: 'SYSTEM_ERROR', lastFailureMessage: '   '),
       );
 
       expect(find.text(OrderEInvoiceCopy.failureBannerTitle), findsOneWidget);
       expect(find.text(OrderEInvoiceCopy.failureBannerDefaultMessage), findsOneWidget);
-      expect(find.text('raw misa technical error'), findsNothing);
     });
   });
 }

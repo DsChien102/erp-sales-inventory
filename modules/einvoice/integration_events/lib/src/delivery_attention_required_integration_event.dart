@@ -12,7 +12,6 @@ final class DeliveryAttentionRequiredIntegrationEvent extends EInvoiceIntegratio
     required this.electronicInvoiceId,
     required this.salesOrderId,
     required this.deliveryId,
-    required this.attemptId,
     required this.reconciliationCaseId,
     required this.safeErrorCode,
   }) : super(eventType: type);
@@ -22,7 +21,6 @@ final class DeliveryAttentionRequiredIntegrationEvent extends EInvoiceIntegratio
   final String electronicInvoiceId;
   final String salesOrderId;
   final String deliveryId;
-  final String attemptId;
   final String reconciliationCaseId;
   final String safeErrorCode;
 
@@ -31,7 +29,6 @@ final class DeliveryAttentionRequiredIntegrationEvent extends EInvoiceIntegratio
     'electronic_invoice_id': electronicInvoiceId,
     'sales_order_id': salesOrderId,
     'delivery_id': deliveryId,
-    'attempt_id': attemptId,
     'reconciliation_case_id': reconciliationCaseId,
     'safe_error_code': safeErrorCode,
   });
@@ -46,7 +43,6 @@ final class DeliveryAttentionRequiredIntegrationEvent extends EInvoiceIntegratio
       electronicInvoiceId: _requiredString(payload, 'electronic_invoice_id'),
       salesOrderId: _requiredString(payload, 'sales_order_id'),
       deliveryId: _requiredString(payload, 'delivery_id'),
-      attemptId: _requiredString(payload, 'attempt_id'),
       reconciliationCaseId: _requiredString(payload, 'reconciliation_case_id'),
       safeErrorCode: _requiredString(payload, 'safe_error_code'),
     );

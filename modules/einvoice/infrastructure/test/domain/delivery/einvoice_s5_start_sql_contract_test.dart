@@ -102,11 +102,14 @@ void main() {
 
     test('idempotency replay and IDEMPOTENCY_CONFLICT are defined', () {
       expect(sendManualFn, contains('idempotency_key'));
-      expect(sendManualFn, contains('intent_hash'));
+      expect(sendManualFn, contains('electronic_invoice_id'));
+      expect(sendManualFn, contains("recipient_snapshot ->> 'toEmail'"));
       expect(sendManualFn, contains('IDEMPOTENCY_CONFLICT'));
       expect(startAutoFn, contains('idempotency_key'));
-      expect(startAutoFn, contains('intent_hash'));
+      expect(startAutoFn, contains('electronic_invoice_id'));
+      expect(startAutoFn, contains("'INITIAL_SEND'"));
       expect(startAutoFn, contains('IDEMPOTENCY_CONFLICT'));
+      expect(sql, isNot(contains('intent_hash')));
     });
 
     test('load_delivery_attempt_context is service_role only', () {
@@ -166,7 +169,7 @@ void main() {
         grantsTail,
         isNot(
           contains(
-            'grant execute on function einvoice._delivery_intent_hash(jsonb)\n'
+            'grant execute on function einvoice._delivery_public_status(text)\n'
             '  to service_role',
           ),
         ),
@@ -190,7 +193,7 @@ void main() {
       expect(
         grantsTail,
         contains(
-          'grant execute on function einvoice.load_delivery_attempt_context(uuid, uuid, uuid)\n'
+          'grant execute on function einvoice.load_delivery_attempt_context(uuid, uuid, int)\n'
           '  to service_role',
         ),
       );
@@ -206,7 +209,7 @@ void main() {
 
   group('Atomic start and race invariants', () {
     test(
-      'inserts delivery, recipient snapshot, first attempt, and command',
+      'inserts one delivery row, recipient snapshot, and send command',
       () {
         expect(startAutoFn, contains('einvoice._start_invoice_delivery'));
         expect(sendManualFn, contains('einvoice._start_invoice_delivery'));
@@ -215,10 +218,9 @@ void main() {
           contains('insert into einvoice.invoice_deliveries'),
         );
         expect(startHelperFn, contains('recipient_snapshot'));
-        expect(
-          startHelperFn,
-          contains('insert into einvoice.delivery_attempts'),
-        );
+        expect(startHelperFn, contains("'QUEUED'"));
+        expect(startHelperFn, contains('retry_count'));
+        expect(startHelperFn, isNot(contains('delivery_attempts')));
         expect(startHelperFn, contains('einvoice.enqueue_internal_command'));
         expect(startHelperFn, contains("'einvoice.send_invoice_email'"));
       },
@@ -231,11 +233,12 @@ void main() {
       expect(sql, isNot(contains('is_simulated')));
     });
 
-    test('internal command payload is ids-only with attempt-tied identity', () {
+    test('internal command payload is ids-only with retry-tied identity', () {
       expect(sql, contains('_delivery_send_command_id'));
       expect(startHelperFn, contains("'tenant_id'"));
       expect(startHelperFn, contains("'delivery_id'"));
-      expect(startHelperFn, contains("'attempt_id'"));
+      expect(startHelperFn, contains("'retry_count'"));
+      expect(startHelperFn, isNot(contains("'attempt_id'")));
       expect(startHelperFn, isNot(contains("'recipientEmail'")));
       expect(startHelperFn, isNot(contains('recipientEmail')));
     });
@@ -255,8 +258,10 @@ void main() {
       expect(startHelperFn, contains('IDEMPOTENCY_CONFLICT'));
       expect(startHelperFn, contains('INITIAL_DELIVERY_ALREADY_CLAIMED'));
       expect(startHelperFn, contains('OPERATION_IN_PROGRESS'));
-      expect(startHelperFn, contains('intent_hash'));
       expect(startHelperFn, contains('idempotency_key'));
+      expect(startHelperFn, contains('electronic_invoice_id'));
+      expect(startHelperFn, contains("recipient_snapshot ->> 'toEmail'"));
+      expect(startHelperFn, isNot(contains('intent_hash')));
       // Auto maps helper INITIAL claim race to skip disposition.
       expect(
         RegExp(
@@ -274,10 +279,10 @@ void main() {
     });
 
     test(
-      'auto uses AUTOMATIC/SYSTEM and stable auto identity seed comment',
+      'auto uses SYSTEM and stable auto identity seed comment',
       () {
-        expect(startAutoFn, contains("'AUTOMATIC'"));
         expect(startAutoFn, contains("'SYSTEM'"));
+        expect(sql, contains("'AUTOMATIC'"));
         expect(sql, contains('9d4c1d80-8d2c-5f2a-8b86-ff34c8a8e275'));
         expect(sql, contains('auto_initial'));
         expect(startAutoFn, contains('p_idempotency_key'));
@@ -289,16 +294,16 @@ void main() {
     test('server derives INITIAL vs RESEND for manual send', () {
       expect(sendManualFn, contains("'INITIAL_SEND'"));
       expect(sendManualFn, contains("'RESEND'"));
-      expect(sendManualFn, contains("'MANUAL'"));
       expect(sendManualFn, contains("'USER'"));
       expect(sendManualFn, contains("'USER_INPUT'"));
+      expect(sql, contains("'MANUAL'"));
     });
   });
 
   group('Eligibility and recipient resolution', () {
     test('auto re-reads auto_send_enabled and email capability', () {
       expect(startAutoFn, contains('auto_send_enabled'));
-      expect(startAutoFn, contains('invoice_automation_policies'));
+      expect(startAutoFn, contains('tenant_settings'));
       expect(startAutoFn, contains("'POLICY_OFF'"));
       expect(startAutoFn, contains("capabilities_snapshot"));
       expect(startAutoFn, contains('supports_email_delivery'));
@@ -339,7 +344,7 @@ void main() {
       expect(sql, isNot(contains("{attemptSnapshot,buyer,email}")));
       expect(
         sql,
-        contains("{attemptSnapshot,buyer_lineage,buyerInvoiceSnapshot,email}"),
+        contains("{buyer_lineage,buyerInvoiceSnapshot,buyerEmail}"),
       );
     });
 

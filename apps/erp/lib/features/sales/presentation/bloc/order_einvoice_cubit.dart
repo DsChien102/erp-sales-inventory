@@ -663,7 +663,6 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
-      final key = _idempotencyKeys.next();
 
       final result = await _mediator.executeCommandAsync(
         RequestInvoiceDocumentCommand(
@@ -671,7 +670,6 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           actorId: actorId,
           salesOrderId: state.salesOrderId,
           documentType: type,
-          idempotencyKey: key,
         ),
       );
       if (isClosed) return false;

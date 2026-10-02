@@ -36,6 +36,7 @@ void main() {
   late String draft004;
   late String draft006;
   late String draft007;
+  late String draft008;
 
   setUpAll(() {
     final root = _repoRoot();
@@ -50,6 +51,10 @@ void main() {
     draft007 = File(
       '${root.path}/supabase/migrations/_drafts/'
       '007_einvoice_issuance_schema_and_publish_rpcs.sql',
+    ).readAsStringSync();
+    draft008 = File(
+      '${root.path}/supabase/migrations/_drafts/'
+      '008_einvoice_auto_issuance_and_retry_rpcs.sql',
     ).readAsStringSync();
   });
 
@@ -83,7 +88,10 @@ void main() {
         );
         expect(fn, isNot(contains("'1C26TAA'")));
         expect(fn, contains('TEMPLATE_NOT_AVAILABLE'));
-        expect(fn, contains('SIGNING_CONFIGURATION_NOT_AVAILABLE'));
+        expect(
+          fn,
+          contains('v_sign_type := case when v_is_mtt then 5 else 2 end;'),
+        );
         expect(fn, contains("'signType'"));
         expect(fn, contains("'invoiceWithCode'"));
         expect(fn, contains("'isInvoiceSummary'"));
@@ -103,7 +111,7 @@ void main() {
         expect(fn, contains('v_selected_template_id text'));
         expect(fn, contains('v_selected_inv_series text'));
         expect(fn, contains('v_current_inv_series text'));
-        expect(fn, contains("pc.status = 'connected'"));
+        expect(fn, contains("pc.status = 'CONNECTED'"));
         expect(
           fn,
           contains("jsonb_typeof(elem -> 'is_available') = 'boolean'"),
@@ -116,16 +124,7 @@ void main() {
             '= v_selected_template_id',
           ),
         );
-        expect(
-          fn,
-          isNot(
-            contains(
-              "nullif(btrim(ip.default_template ->> 'invoice_series'), ''),\n"
-              "      nullif(btrim(ip.default_template ->> 'symbol'), '')",
-            ),
-          ),
-          reason: 'current capability series must never fall back to selection',
-        );
+        expect(fn, contains('ts.default_invoice_series'));
       },
     );
 
@@ -167,10 +166,11 @@ void main() {
         'create or replace function einvoice.build_canonical_invoice(',
       );
 
-      expect(fn, contains('v_sign_type_jsonb jsonb'));
-      expect(fn, contains('v_sign_type_jsonb is null'));
-      expect(fn, contains("v_sign_type_jsonb not in ('2'::jsonb, '5'::jsonb)"));
-      expect(fn, contains("'code', 'SIGNING_CONFIGURATION_NOT_AVAILABLE'"));
+      expect(
+        fn,
+        contains('v_sign_type := case when v_is_mtt then 5 else 2 end;'),
+      );
+      expect(fn, isNot(contains('v_sign_type_jsonb')));
       expect(fn, isNot(contains('v_signing_method')));
       expect(fn, isNot(contains("'sign-nosign'")));
       expect(fn, isNot(contains("'sign-mtt'")));
@@ -181,15 +181,15 @@ void main() {
       'issue_invoice persists immutable invoice_series from canonical snapshot',
       () {
         final fn = _extractFunction(
-          draft007,
-          'create or replace function einvoice.issue_invoice(',
+          draft008,
+          'create or replace function einvoice._start_issuance_attempt(',
         );
         expect(draft007, contains('invoice_series varchar(100) not null'));
         expect(
           draft007,
           isNot(contains('add column if not exists invoice_series')),
         );
-        expect(fn, contains('invoice_series'));
+        expect(fn, contains('invoice_series,'));
         expect(fn, contains("v_canonical_jsonb ->> 'invSeries'"));
       },
     );

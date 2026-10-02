@@ -5,9 +5,8 @@ final class FetchOfficialInvoiceViewCommand extends InternalCommandBase<void>
   FetchOfficialInvoiceViewCommand({
     String? id,
     required this.tenantId,
-    required this.operationId,
     required this.electronicInvoiceId,
-    required this.attemptOrdinal,
+    required this.requestId,
     required this.correlationId,
     this.workerAttemptNumber = 1,
   }) : super(id);
@@ -19,18 +18,16 @@ final class FetchOfficialInvoiceViewCommand extends InternalCommandBase<void>
 
   @override
   final String tenantId;
-  final String operationId;
   final String electronicInvoiceId;
-  final int attemptOrdinal;
+  final String requestId;
   final String correlationId;
   final int workerAttemptNumber;
 
   @override
   Map<String, dynamic> toJson() => stripInternalCommandRowId({
     'tenant_id': tenantId,
-    'operation_id': operationId,
     'electronic_invoice_id': electronicInvoiceId,
-    'attempt_ordinal': attemptOrdinal,
+    'request_id': requestId,
     'correlation_id': correlationId,
   });
 
@@ -42,9 +39,8 @@ final class FetchOfficialInvoiceViewCommand extends InternalCommandBase<void>
     return FetchOfficialInvoiceViewCommand(
       id: id,
       tenantId: normalized['tenant_id'] as String,
-      operationId: normalized['operation_id'] as String,
       electronicInvoiceId: normalized['electronic_invoice_id'] as String,
-      attemptOrdinal: (normalized['attempt_ordinal'] as num).toInt(),
+      requestId: normalized['request_id'] as String,
       correlationId: normalized['correlation_id'] as String,
       workerAttemptNumber: readInternalCommandWorkerAttemptNumber(normalized),
     );

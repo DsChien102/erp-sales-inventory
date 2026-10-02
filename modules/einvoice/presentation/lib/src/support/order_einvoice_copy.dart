@@ -81,8 +81,12 @@ abstract final class OrderEInvoiceCopy {
     String? failureCode,
     String? lastFailureMessage,
   }) {
+    if (failureCode == 'COMMAND_INTEGRITY') return failureBannerIntegrityMessage;
+    // Backend only returns provider-originated rejection text (e.g. MISA
+    // "Mã số thuế người mua không hợp lệ"); show it so the seller knows what to fix.
+    final providerMessage = lastFailureMessage?.trim();
+    if (providerMessage != null && providerMessage.isNotEmpty) return providerMessage;
     return switch (failureCode) {
-      'COMMAND_INTEGRITY' => failureBannerIntegrityMessage,
       'PROVIDER_REJECTED' => failureBannerProviderRejectedMessage,
       _ => failureBannerDefaultMessage,
     };

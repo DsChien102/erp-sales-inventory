@@ -19,6 +19,7 @@ import 'internal_commands/delivery_reconciliation_command_dead_letter_handler.da
 import 'internal_commands/i_einvoice_internal_command_dead_letter_handler.dart';
 import 'internal_commands/invoice_document_command_dead_letter_handler.dart';
 import 'internal_commands/official_view_command_dead_letter_handler.dart';
+import 'internal_commands/preview_command_dead_letter_handler.dart';
 import 'internal_commands/process_internal_commands_command.dart';
 import 'internal_commands/process_internal_commands_command_handler.dart';
 import 'internal_commands/publish_invoice_command_dead_letter_handler.dart';
@@ -75,17 +76,18 @@ final class EinvoiceProcessingModule {
             PublishInvoiceCommand.type: PublishInvoiceCommandDeadLetterHandler(
               resultGateway: container.get<IIssuanceResultGateway>(),
             ),
-          if (container.isRegistered<IElectronicInvoiceCommandGateway>() &&
-              container.isRegistered<IProviderInteractionGateway>()) ...{
+          if (container.isRegistered<IInvoicePreviewGateway>())
+            PreviewInvoiceCommand.type: PreviewCommandDeadLetterHandler(
+              previewGateway: container.get<IInvoicePreviewGateway>(),
+            ),
+          if (container.isRegistered<IElectronicInvoiceCommandGateway>()) ...{
             FetchOfficialInvoiceViewCommand
                 .type: OfficialViewCommandDeadLetterHandler(
               commandGateway: container.get<IElectronicInvoiceCommandGateway>(),
-              interactionGateway: container.get<IProviderInteractionGateway>(),
             ),
             DownloadInvoiceDocumentCommand
                 .type: InvoiceDocumentCommandDeadLetterHandler(
               commandGateway: container.get<IElectronicInvoiceCommandGateway>(),
-              interactionGateway: container.get<IProviderInteractionGateway>(),
             ),
           },
           if (container.isRegistered<IDeliveryCommandGateway>())

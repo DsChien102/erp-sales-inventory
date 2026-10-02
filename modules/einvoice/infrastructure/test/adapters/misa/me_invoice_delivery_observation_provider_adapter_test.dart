@@ -12,7 +12,6 @@ void main() {
           tenantId: 'tenant-1',
           reconciliationCaseId: 'case-1',
           deliveryId: 'del-1',
-          attemptId: 'att-1',
           providerConnectionId: 'conn-1',
           providerDeliveryReference: 'ref-1',
         ),
@@ -30,7 +29,6 @@ void main() {
           tenantId: 't',
           reconciliationCaseId: 'c',
           deliveryId: 'd',
-          attemptId: 'a',
           providerConnectionId: 'p',
         ),
       );

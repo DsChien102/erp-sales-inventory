@@ -10,7 +10,6 @@ import 'package:vet45_einvoice_infrastructure/src/configuration/processing/gener
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/internal_commands/invoice_document_command_dead_letter_handler.dart';
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/internal_commands/official_view_command_dead_letter_handler.dart';
 import 'package:vet45_einvoice_infrastructure/src/configuration/processing/internal_commands/process_internal_commands_command_handler.dart';
-import 'package:vet45_einvoice_infrastructure/src/provider_interactions/supabase_provider_interaction_gateway.dart';
 import 'package:vet45_einvoice_infrastructure/src/data_access/supabase_electronic_invoice_command_gateway.dart';
 import 'package:vet45_einvoice_infrastructure/src/data_access/supabase_electronic_invoice_read_gateway.dart';
 
@@ -30,10 +29,6 @@ void main() {
     tearDown(() => container.reset());
 
     test('registers S4 gateways and worker handlers', () {
-      expect(
-        container.get<IProviderInteractionGateway>(),
-        isA<SupabaseProviderInteractionGateway>(),
-      );
       expect(
         container.get<IElectronicInvoiceCommandGateway>(),
         isA<SupabaseElectronicInvoiceCommandGateway>(),
@@ -87,9 +82,8 @@ void main() {
         commandType: FetchOfficialInvoiceViewCommand.type,
         payload: {
           'tenant_id': 'tenant-1',
-          'operation_id': 'op-1',
           'electronic_invoice_id': 'ei-1',
-          'attempt_ordinal': 1,
+          'request_id': 'req-1',
           'correlation_id': 'corr-1',
         },
         id: 'cmd-official-1',
@@ -100,11 +94,9 @@ void main() {
         commandType: DownloadInvoiceDocumentCommand.type,
         payload: {
           'tenant_id': 'tenant-1',
-          'operation_id': 'op-doc-1',
           'electronic_invoice_id': 'ei-1',
           'document_type': 'PDF',
-          'operation_generation': 1,
-          'attempt_ordinal': 1,
+          'request_id': 'req-doc-1',
           'correlation_id': 'corr-doc-1',
         },
         id: 'cmd-doc-1',

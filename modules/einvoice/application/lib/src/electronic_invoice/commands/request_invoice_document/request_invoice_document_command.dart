@@ -13,7 +13,6 @@ final class RequestInvoiceDocumentCommand extends CommandBase<InvoiceDocumentRet
     required this.actorId,
     required this.salesOrderId,
     required this.documentType,
-    required this.idempotencyKey,
   }) : super(id);
 
   @override
@@ -21,5 +20,4 @@ final class RequestInvoiceDocumentCommand extends CommandBase<InvoiceDocumentRet
   final String actorId;
   final String salesOrderId;
   final InvoiceDocumentType documentType;
-  final String idempotencyKey;
 }

@@ -25,7 +25,6 @@ void main() {
           actorId: 'a1',
           salesOrderId: 'so-1',
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'doc-1',
         ),
       );
       expect(request.operationId, isNotEmpty);
@@ -53,7 +52,6 @@ void main() {
           actorId: 'a1',
           salesOrderId: 'so-1',
           documentType: InvoiceDocumentType.xml,
-          idempotencyKey: 'doc-xml-1',
         ),
       );
       expect(request.operationId, isNotEmpty);
@@ -101,7 +99,6 @@ void main() {
           actorId: 'a1',
           salesOrderId: 'so-1',
           documentType: InvoiceDocumentType.pdf,
-          idempotencyKey: 'doc-1',
         ),
       );
       expect(result.operationId, 'op-doc-failed-1');

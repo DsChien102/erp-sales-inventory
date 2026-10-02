@@ -75,16 +75,15 @@ void main() {
         commandType: FetchOfficialInvoiceViewCommand.type,
         payload: {
           'tenant_id': 'tenant-1',
-          'operation_id': 'op-1',
           'electronic_invoice_id': 'ei-1',
-          'attempt_ordinal': 1,
+          'request_id': 'req-1',
           'correlation_id': 'corr-1',
         },
         id: 'cmd-official-1',
       );
 
       expect(command, isA<FetchOfficialInvoiceViewCommand>());
-      expect((command as FetchOfficialInvoiceViewCommand).operationId, 'op-1');
+      expect((command as FetchOfficialInvoiceViewCommand).requestId, 'req-1');
     });
 
     test('internal command client has no observation seeder', () {

@@ -1,4 +1,4 @@
--- Title: einvoice S4a official invoice view operations
+-- Title: einvoice S4a official invoice views
 -- Kind: patch
 -- Intent: einvoice_s4a_official_view
 -- Context: TH-08 / EP-03 / US-01
@@ -6,43 +6,36 @@
 -- Safety: idempotent ; medium
 -- Depends on: 007_einvoice_issuance_schema_and_publish_rpcs.sql, 009_einvoice_issuance_reconciliation_rpcs.sql, 018_sales_einvoice_source_contract.sql
 
-create unique index if not exists electronic_invoices_tenant_id_id_idx
-  on einvoice.electronic_invoices (tenant_id, id);
-
-create table if not exists einvoice.official_invoice_view_operations (
-  id uuid primary key default gen_random_uuid(),
+create table if not exists einvoice.official_invoice_views (
   tenant_id uuid not null,
-  version bigint not null default 0,
   electronic_invoice_id uuid not null,
-  generation integer not null check (generation > 0),
-  attempt_ordinal integer not null default 1 check (attempt_ordinal > 0),
-  status text not null check (status in ('PENDING','AVAILABLE','FAILED','CHECK_REQUIRED')),
-  provider_viewer_url text null,
-  viewer_token text null,
-  expires_at timestamptz null,
-  failure_code text null,
-  failure_message text null,
-  provider_interaction_reference uuid null,
+  request_id uuid not null,
+  status text not null
+    check (status in ('PENDING', 'AVAILABLE', 'FAILED', 'CHECK_REQUIRED')),
+  provider_viewer_url text,
+  viewer_token text,
+  expires_at timestamptz,
+  failure_code text,
+  failure_message text,
+  failure_source text
+    check (failure_source is null or failure_source in ('PROVIDER', 'INTERNAL')),
   requested_at timestamptz not null default now(),
-  completed_at timestamptz null,
+  completed_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (tenant_id, electronic_invoice_id, generation),
+  primary key (tenant_id, electronic_invoice_id),
   foreign key (tenant_id, electronic_invoice_id)
     references einvoice.electronic_invoices (tenant_id, id),
-  foreign key (tenant_id, provider_interaction_reference)
-    references einvoice.provider_interaction_records (tenant_id, id)
+  check (status <> 'AVAILABLE' or provider_viewer_url is not null),
+  check (status not in ('FAILED', 'CHECK_REQUIRED') or failure_code is not null)
 );
 
-create index if not exists official_invoice_view_operations_invoice_idx
-  on einvoice.official_invoice_view_operations (tenant_id, electronic_invoice_id, generation desc);
+alter table einvoice.official_invoice_views enable row level security;
+revoke all on einvoice.official_invoice_views from anon, authenticated;
 
-alter table einvoice.official_invoice_view_operations enable row level security;
-revoke all on einvoice.official_invoice_view_operations from anon, authenticated;
+drop function if exists einvoice._official_view_command_id(uuid, integer);
 
 create or replace function einvoice._official_view_command_id(
-  p_operation_id uuid,
-  p_attempt_ordinal integer
+  p_request_id uuid
 ) returns uuid
 language plpgsql
 immutable
@@ -51,7 +44,7 @@ declare
   v_raw text;
   v_hex text;
 begin
-  v_raw := p_operation_id::text || '|official_view|' || p_attempt_ordinal::text;
+  v_raw := p_request_id::text || '|official_view';
   v_hex := encode(sha256(v_raw::bytea), 'hex');
   return (
     substr(v_hex, 1, 8) || '-' ||
@@ -76,10 +69,8 @@ create or replace function einvoice.request_official_invoice_view(
 ) language plpgsql security definer set search_path = einvoice, public as $$
 declare
   v_invoice einvoice.electronic_invoices%rowtype;
-  v_operation einvoice.official_invoice_view_operations%rowtype;
-  v_generation integer;
-  v_operation_id uuid;
-  v_attempt_ordinal integer;
+  v_operation einvoice.official_invoice_views%rowtype;
+  v_request_id uuid;
   v_cmd_id uuid;
 begin
   if auth.uid() is null
@@ -110,116 +101,49 @@ begin
 
   select o.*
   into v_operation
-  from einvoice.official_invoice_view_operations o
+  from einvoice.official_invoice_views o
   where o.tenant_id = p_tenant_id
     and o.electronic_invoice_id = v_invoice.id
-  order by o.generation desc
-  limit 1;
+  for update;
 
-  if found then
-    if v_operation.status = 'PENDING' then
-      return query select
-        v_cmd_id,
-        v_operation.status,
-        v_operation.provider_viewer_url,
-        v_operation.viewer_token,
-        v_operation.expires_at;
-      return;
-    end if;
-
-    if v_operation.status = 'AVAILABLE'
-       and v_operation.expires_at is not null
-       and v_operation.expires_at > now() then
-      return query select
-        v_operation.id,
-        v_operation.status,
-        v_operation.provider_viewer_url,
-        v_operation.viewer_token,
-        v_operation.expires_at;
-      return;
-    end if;
-
-    if v_operation.status = 'CHECK_REQUIRED' then
-      v_attempt_ordinal := v_operation.attempt_ordinal + 1;
-      update einvoice.official_invoice_view_operations o
-      set
-        status = 'PENDING',
-        attempt_ordinal = v_attempt_ordinal,
-        version = o.version + 1,
-        provider_viewer_url = null,
-        viewer_token = null,
-        expires_at = null,
-        failure_code = null,
-        failure_message = null,
-        completed_at = null,
-        requested_at = now(),
-        updated_at = now()
-      where o.id = v_operation.id
-        and o.tenant_id = p_tenant_id
-        and o.version = v_operation.version;
-
-      if not found then
-        raise exception 'STATE_CHANGED: official view operation version mismatch';
-      end if;
-
-      v_cmd_id := einvoice._official_view_command_id(v_operation.id, v_attempt_ordinal);
-      insert into einvoice.internal_commands (
-        id, tenant_id, command_type, payload, source_event_id, enqueued_at
-      ) values (
-        v_cmd_id,
-        p_tenant_id,
-        'einvoice.fetch_official_view',
-        jsonb_build_object(
-          'tenant_id', p_tenant_id,
-          'operation_id', v_operation.id,
-          'electronic_invoice_id', v_invoice.id,
-          'attempt_ordinal', v_attempt_ordinal,
-          'correlation_id', v_operation.id
-        ),
-        v_cmd_id,
-        now()
-      ) on conflict (id) do nothing;
-
-      return query select
-        v_operation.id,
-        'PENDING'::text,
-        null::text,
-        null::text,
-        null::timestamptz;
-      return;
-    end if;
+  if found and (
+    v_operation.status = 'PENDING'
+    or (
+      v_operation.status = 'AVAILABLE'
+      and v_operation.expires_at is not null
+      and v_operation.expires_at > now()
+    )
+  ) then
+    return query select
+      v_operation.request_id,
+      v_operation.status,
+      v_operation.provider_viewer_url,
+      v_operation.viewer_token,
+      v_operation.expires_at;
+    return;
   end if;
 
-  select coalesce(max(o.generation), 0) + 1
-  into v_generation
-  from einvoice.official_invoice_view_operations o
-  where o.tenant_id = p_tenant_id
-    and o.electronic_invoice_id = v_invoice.id;
+  v_request_id := gen_random_uuid();
 
-  v_operation_id := gen_random_uuid();
-  v_attempt_ordinal := 1;
-
-  insert into einvoice.official_invoice_view_operations (
-    id,
-    tenant_id,
-    version,
-    electronic_invoice_id,
-    generation,
-    attempt_ordinal,
-    status,
-    requested_at
+  insert into einvoice.official_invoice_views as o (
+    tenant_id, electronic_invoice_id, request_id, status, requested_at
   ) values (
-    v_operation_id,
-    p_tenant_id,
-    0,
-    v_invoice.id,
-    v_generation,
-    v_attempt_ordinal,
-    'PENDING',
-    now()
-  );
+    p_tenant_id, v_invoice.id, v_request_id, 'PENDING', now()
+  )
+  on conflict (tenant_id, electronic_invoice_id) do update set
+    request_id = excluded.request_id,
+    status = 'PENDING',
+    provider_viewer_url = null,
+    viewer_token = null,
+    expires_at = null,
+    failure_code = null,
+    failure_message = null,
+    failure_source = null,
+    completed_at = null,
+    requested_at = now();
 
-  v_cmd_id := einvoice._official_view_command_id(v_operation_id, v_attempt_ordinal);
+  v_cmd_id := einvoice._official_view_command_id(v_request_id);
+
   insert into einvoice.internal_commands (
     id, tenant_id, command_type, payload, source_event_id, enqueued_at
   ) values (
@@ -228,23 +152,24 @@ begin
     'einvoice.fetch_official_view',
     jsonb_build_object(
       'tenant_id', p_tenant_id,
-      'operation_id', v_operation_id,
       'electronic_invoice_id', v_invoice.id,
-      'attempt_ordinal', v_attempt_ordinal,
-      'correlation_id', v_operation_id
+      'request_id', v_request_id,
+      'correlation_id', v_request_id
     ),
     v_cmd_id,
     now()
   ) on conflict (id) do nothing;
 
   return query select
-    v_operation_id,
+    v_request_id,
     'PENDING'::text,
     null::text,
     null::text,
     null::timestamptz;
 end;
 $$;
+
+drop function if exists einvoice.get_electronic_invoice_detail(uuid, uuid, uuid);
 
 create or replace function einvoice.get_electronic_invoice_detail(
   p_tenant_id uuid,
@@ -260,11 +185,12 @@ create or replace function einvoice.get_electronic_invoice_detail(
   official_view_status text,
   official_viewer_url text,
   official_viewer_token text,
-  official_viewer_expires_at timestamptz
+  official_viewer_expires_at timestamptz,
+  official_view_failure_code text
 ) language plpgsql security definer set search_path = einvoice, public as $$
 declare
   v_invoice einvoice.electronic_invoices%rowtype;
-  v_operation einvoice.official_invoice_view_operations%rowtype;
+  v_operation einvoice.official_invoice_views%rowtype;
 begin
   if auth.uid() is null
      or p_actor_id is null
@@ -293,11 +219,9 @@ begin
 
   select o.*
   into v_operation
-  from einvoice.official_invoice_view_operations o
+  from einvoice.official_invoice_views o
   where o.tenant_id = p_tenant_id
-    and o.electronic_invoice_id = v_invoice.id
-  order by o.generation desc
-  limit 1;
+    and o.electronic_invoice_id = v_invoice.id;
 
   return query select
     v_invoice.id,
@@ -305,28 +229,29 @@ begin
     v_invoice.invoice_number::text,
     v_invoice.provider_invoice_reference::text,
     v_invoice.issued_at,
-  case when found then v_operation.id else null end,
-  case when found then v_operation.status else null end,
-  case when found then v_operation.provider_viewer_url else null end,
-  case when found then v_operation.viewer_token else null end,
-  case when found then v_operation.expires_at else null end;
+    case when found then v_operation.request_id else null end,
+    case when found then v_operation.status else null end,
+    case when found then v_operation.provider_viewer_url else null end,
+    case when found then v_operation.viewer_token else null end,
+    case when found then v_operation.expires_at else null end,
+    case when found then v_operation.failure_code else null end;
 end;
 $$;
 
+drop function if exists einvoice.load_official_view_operation_context(uuid, uuid);
+
 create or replace function einvoice.load_official_view_operation_context(
   p_tenant_id uuid,
-  p_operation_id uuid
+  p_electronic_invoice_id uuid,
+  p_request_id uuid
 ) returns table(
-  operation_id uuid,
   tenant_id uuid,
   electronic_invoice_id uuid,
-  generation integer,
-  attempt_ordinal integer,
+  request_id uuid,
   status text,
   provider_connection_id uuid,
   provider_invoice_reference text,
-  invoice_series text,
-  expected_version bigint
+  invoice_series text
 ) language plpgsql security definer set search_path = einvoice, public as $$
 begin
   if coalesce(
@@ -338,45 +263,46 @@ begin
 
   return query
   select
-    o.id,
     o.tenant_id,
     o.electronic_invoice_id,
-    o.generation,
-    o.attempt_ordinal,
+    o.request_id,
     o.status,
     ei.provider_connection_id,
     ei.provider_invoice_reference::text,
-    ei.series::text,
-    o.version
-  from einvoice.official_invoice_view_operations o
+    ei.invoice_series::text
+  from einvoice.official_invoice_views o
   join einvoice.electronic_invoices ei
     on ei.tenant_id = o.tenant_id
    and ei.id = o.electronic_invoice_id
   where o.tenant_id = p_tenant_id
-    and o.id = p_operation_id;
+    and o.electronic_invoice_id = p_electronic_invoice_id
+    and o.request_id = p_request_id;
 end;
 $$;
 
+drop function if exists einvoice.record_official_invoice_view_result(
+  uuid, uuid, text, bigint, uuid, text, text, timestamptz, text, text
+);
+
 create or replace function einvoice.record_official_invoice_view_result(
   p_tenant_id uuid,
-  p_operation_id uuid,
+  p_electronic_invoice_id uuid,
+  p_request_id uuid,
   p_status text,
-  p_expected_version bigint,
-  p_provider_interaction_reference uuid,
   p_viewer_url text default null,
   p_viewer_token text default null,
   p_expires_at timestamptz default null,
   p_failure_code text default null,
-  p_failure_message text default null
+  p_failure_message text default null,
+  p_failure_source text default null
 ) returns table(
-  operation_id uuid,
+  request_id uuid,
   status text,
   viewer_url text,
   viewer_token text,
   expires_at timestamptz
 ) language plpgsql security definer set search_path = einvoice, public as $$
 declare
-  v_operation einvoice.official_invoice_view_operations%rowtype;
   v_status text := upper(p_status);
   v_expires_at timestamptz;
 begin
@@ -391,36 +317,6 @@ begin
     raise exception 'VALIDATION_ERROR: invalid official view result status';
   end if;
 
-  select o.*
-  into v_operation
-  from einvoice.official_invoice_view_operations o
-  where o.tenant_id = p_tenant_id
-    and o.id = p_operation_id
-  for update;
-
-  if not found then
-    raise exception 'NOT_FOUND: official view operation not found';
-  end if;
-
-  if v_operation.status in ('AVAILABLE', 'FAILED', 'CHECK_REQUIRED')
-     and v_operation.status = v_status then
-    return query select
-      v_operation.id,
-      v_operation.status,
-      v_operation.provider_viewer_url,
-      v_operation.viewer_token,
-      v_operation.expires_at;
-    return;
-  end if;
-
-  if v_operation.status <> 'PENDING' then
-    raise exception 'INVALID_STATUS: official view operation is not pending';
-  end if;
-
-  if v_operation.version <> p_expected_version then
-    raise exception 'STATE_CHANGED: official view operation version mismatch';
-  end if;
-
   if v_status = 'AVAILABLE' then
     if coalesce(trim(p_viewer_url), '') = '' then
       raise exception 'VALIDATION_ERROR: viewer url required for AVAILABLE';
@@ -433,49 +329,44 @@ begin
     v_expires_at := null;
   end if;
 
-  update einvoice.official_invoice_view_operations o
+  update einvoice.official_invoice_views o
   set
     status = v_status,
     provider_viewer_url = case when v_status = 'AVAILABLE' then p_viewer_url else null end,
     viewer_token = case when v_status = 'AVAILABLE' then p_viewer_token else null end,
     expires_at = v_expires_at,
-    failure_code = case when v_status in ('FAILED', 'CHECK_REQUIRED') then p_failure_code else null end,
-    failure_message = case when v_status in ('FAILED', 'CHECK_REQUIRED') then p_failure_message else null end,
-    provider_interaction_reference = p_provider_interaction_reference,
-    completed_at = now(),
-    version = o.version + 1,
-    updated_at = now()
-  where o.id = p_operation_id
-    and o.tenant_id = p_tenant_id
-    and o.version = p_expected_version;
-
-  if not found then
-    raise exception 'STATE_CHANGED: official view operation version mismatch';
-  end if;
+    failure_code = case when v_status = 'AVAILABLE' then null else p_failure_code end,
+    failure_message = case when v_status = 'AVAILABLE' then null else p_failure_message end,
+    failure_source = case when v_status = 'AVAILABLE' then null else p_failure_source end,
+    completed_at = now()
+  where o.tenant_id = p_tenant_id
+    and o.electronic_invoice_id = p_electronic_invoice_id
+    and o.request_id = p_request_id
+    and o.status = 'PENDING';
 
   return query
   select
-    o.id,
+    o.request_id,
     o.status,
     o.provider_viewer_url,
     o.viewer_token,
     o.expires_at
-  from einvoice.official_invoice_view_operations o
-  where o.id = p_operation_id
-    and o.tenant_id = p_tenant_id;
+  from einvoice.official_invoice_views o
+  where o.tenant_id = p_tenant_id
+    and o.electronic_invoice_id = p_electronic_invoice_id;
 end;
 $$;
 
-revoke all on function einvoice._official_view_command_id(uuid, integer)
+revoke all on function einvoice._official_view_command_id(uuid)
   from public, anon, authenticated, service_role;
 revoke all on function einvoice.request_official_invoice_view(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
 revoke all on function einvoice.get_electronic_invoice_detail(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
-revoke all on function einvoice.load_official_view_operation_context(uuid, uuid)
+revoke all on function einvoice.load_official_view_operation_context(uuid, uuid, uuid)
   from public, anon, authenticated, service_role;
 revoke all on function einvoice.record_official_invoice_view_result(
-  uuid, uuid, text, bigint, uuid, text, text, timestamptz, text, text
+  uuid, uuid, uuid, text, text, text, timestamptz, text, text, text
 ) from public, anon, authenticated, service_role;
 
 grant execute on function einvoice.request_official_invoice_view(uuid, uuid, uuid)
@@ -483,10 +374,10 @@ grant execute on function einvoice.request_official_invoice_view(uuid, uuid, uui
 grant execute on function einvoice.get_electronic_invoice_detail(uuid, uuid, uuid)
   to authenticated;
 
-grant execute on function einvoice._official_view_command_id(uuid, integer)
+grant execute on function einvoice._official_view_command_id(uuid)
   to service_role;
-grant execute on function einvoice.load_official_view_operation_context(uuid, uuid)
+grant execute on function einvoice.load_official_view_operation_context(uuid, uuid, uuid)
   to service_role;
 grant execute on function einvoice.record_official_invoice_view_result(
-  uuid, uuid, text, bigint, uuid, text, text, timestamptz, text, text
+  uuid, uuid, uuid, text, text, text, timestamptz, text, text, text
 ) to service_role;
