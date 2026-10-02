@@ -31,14 +31,15 @@ Tenant có đúng một cặp mặc định để mutation kho sau resolve đư�
 
 ### In Scope
 
-- `EnsureDefaultStoreWarehousePair`: actor có `inventory.default_pair.ensure` gọi khi tenant chưa có kho active, kể cả tenant tạo trước thao tác này
-- Ensure gọi `iam._ensure_tenant_default_store`, rồi ghi một kho và một gán trong cùng transaction
+- `EnsureDefaultStoreWarehousePair`: actor có `inventory.default_pair.ensure` gọi khi tenant chưa có cặp hoàn chỉnh
+- Ensure đọc kho và gán dưới advisory lock trước. Chưa có kho active thì gọi `iam._ensure_tenant_default_store`, ghi kho và gán. Đúng một kho active thiếu gán thì chỉ ghi gán. Đã đủ cặp thì trả cặp đang có
 - `GetDefaultStoreWarehousePair`: actor có `inventory.default_pair.read` đọc cặp
 - `matches(storeId, warehouseId)` trên port của slice này, để mutation kho sau kiểm cặp
+- Cổng ERP trên `DashboardPage`: khi tenant context vừa `valid`, chờ `Get` rồi `Ensure` nếu thiếu cặp trước khi vào shell
 
 ### Out of Scope
 
-- Presentation — không có màn hình thiết lập, bộ chọn kho, chọn kho, định tuyến, chia đơn, chuyển kho, đóng hoặc đổi kho
+- Màn hình thiết lập kho, bộ chọn kho, chọn kho, định tuyến, chia đơn, chuyển kho, đóng hoặc đổi kho
 - Ghi kho hoặc gán bên trong command tạo tenant của Theme 1
 - Tạo Store trong inventory
 - Cờ `is_default`, mã cửa hàng, khoảng hiệu lực
@@ -46,6 +47,8 @@ Tenant có đúng một cặp mặc định để mutation kho sau resolve đư�
 - Mutation kho tự tạo cặp khi chưa có
 - Mutation tồn — [SL-002](SL-002-quick-receipt.md) và các slice sau
 - Đổi tên cửa hàng khi store `active` đã có và `display_name` của tenant đổi sau lần ghi
+- Sửa `iam._ensure_tenant_default_store`
+- Seed `role_permissions` cho hai mã của slice — `iam.has_permission` đã cho membership active với mã ngoài `tenant.*` / `iam.*`
 - Số dư đầu kỳ — [BJ-12](../../02.specification/behavior/journeys/BJ-12-khoi-tao-so-du-ton-kho-au-ky.md)
 - Nhập hàng nhanh — [SL-002](SL-002-quick-receipt.md)
 - Fact outbox và integration command
@@ -56,7 +59,8 @@ Tenant có đúng một cặp mặc định để mutation kho sau resolve đư�
 | --- | --- |
 | Cửa hàng | Theme 1 — `iam.stores`, `iam._ensure_tenant_default_store` |
 | Kho và gán | Theme 7 / `inventory` |
-| `display_name` và `name` của tenant | Theme 1 — IAM đọc khi tạo store |
+| `display_name` của tenant | Theme 1 — helper IAM đọc khi tạo hoặc kích hoạt lại store |
+| Cổng vào shell | ERP — `DashboardPage`, không nằm trong `TenantContextCubit` |
 | Tồn, phiếu nhận, opening batch | `DOM-IO` / `DOM-IC` |
 
 ### Rules
@@ -88,28 +92,39 @@ abstract final class InventoryPermissions {
 
 ```mermaid
 flowchart TD
-    A["Tenant chưa có kho active"] --> B["Ensure"]
-    B --> C["iam._ensure_tenant_default_store"]
-    C --> D["Ghi kho Kho mặc định và gán active"]
-    D --> E["Get hoặc matches đọc cặp"]
+    A["Tenant context valid"] --> B["Get"]
+    B -->|capHoanChinh| C["Shell"]
+    B -->|DEFAULT_PAIR_MISSING| D["Ensure"]
+    D --> E["Lock đọc kho và gán"]
+    E -->|chuaCoKho| F["Helper IAM + ghi kho + gán + receipt"]
+    E -->|motKhoThieuGan| G["Helper IAM + ghi gán + ghi đè receipt"]
+    E -->|capDu| H["Trả cặp replayed true"]
+    F --> C
+    G --> C
+    H --> C
+    B -->|loiKhac| I["ErrorView"]
+    D -->|DEFAULT_PAIR_LIMIT_hoac_loi| I
 ```
 
-1. Tenant đã tồn tại và chưa có kho active. Tenant mới và tenant tạo trước Ensure dùng cùng command.
-2. Ensure gọi `iam._ensure_tenant_default_store`. Chưa có store `active` thì helper tạo store `code = default`, hoặc kích hoạt lại bản `default` đang inactive và ghi tên lúc đó. Tên lấy `display_name`, rồi `name`, rồi `Default Store`. Sau đó ghi một kho tên «Kho mặc định», `status = active`, và một gán `status = active`.
-3. Lần Ensure sau trả lại cặp đó, `replayed: true`. Store đang `active` giữ nguyên tên. Tên kho giữ «Kho mặc định».
-4. Get và `matches` đọc cùng cặp. Client không gửi `store_id` hay `warehouse_id` trên Ensure.
+1. Tenant đã tồn tại. App, trên `DashboardPage`, khi context vừa `valid` (vào app và đổi tenant), gọi `Get`. Có cặp hoàn chỉnh thì vào shell.
+2. `Get` trả `DEFAULT_PAIR_MISSING` thì gọi `Ensure`. Command không nhận field.
+3. Ensure lấy advisory lock, rồi đọc kho và gán trước receipt.
+4. Chưa có kho active: gọi `iam._ensure_tenant_default_store`. Helper lấy store `active` `code = default`, không có thì store `active` sớm nhất, không có thì insert hoặc kích hoạt lại `code = default`. Tên store lúc tạo hoặc kích hoạt lại: `display_name` đã trim, rỗng thì `Default Store`. Không đọc `tenants.name`. Sau đó ghi một kho «Kho mặc định» và một gán active, rồi ghi một dòng receipt.
+5. Đúng một kho active, chưa có gán active: không tạo kho, không đổi tên kho. Gọi helper lấy store, ghi gán vào kho đó, ghi đè snapshot trên đúng một dòng receipt.
+6. Đã có một kho active và một gán active trỏ đúng kho đó: trả cặp đang có, `replayed: true`. Không gọi helper, không ghi receipt.
+7. Get và `matches` đọc cùng định nghĩa cặp hoàn chỉnh. Client không gửi `store_id` hay `warehouse_id` trên Ensure.
 
 ### Failure Flow
 
-1. Kho thứ hai hoặc gán `active` thứ hai → `DEFAULT_PAIR_LIMIT` → không ghi bản mới.
+1. Hình khác một kho active và một gán active trỏ đúng kho đó, khi Ensure cố ghi thêm → `DEFAULT_PAIR_LIMIT` → không ghi bản mới, không ghi receipt `succeeded`.
 2. Command không có field vị trí → Ensure không tạo kho từ vị trí device.
-3. Get hoặc `matches` khi chưa có cặp active → `DEFAULT_PAIR_MISSING` → không ghi kho mới.
+3. Get hoặc `matches` khi chưa có cặp hoàn chỉnh → `DEFAULT_PAIR_MISSING` → không ghi kho mới.
 4. `matches` nhận id khác cặp → `DEFAULT_PAIR_MISMATCH` → không ghi kho mới.
 5. Actor không có `inventory.default_pair.ensure` → `Permission denied: inventory.default_pair.ensure` → không ghi kho hay gán.
-6. Actor không có `inventory.default_pair.read` → `Permission denied: inventory.default_pair.read` → không ghi kho hay gán.
-7. Cùng `idempotencyKey`, khác `payload_hash` → `IDEMPOTENCY_CONFLICT` → không ghi kho mới.
-8. Tenant không tồn tại → `RESOURCE_NOT_FOUND` → không ghi kho hay gán.
-9. `idempotencyKey` rỗng → `CONTEXT_INVALID` → không ghi kho hay gán. Key khác tenant id khi chưa có cặp active → `CONTEXT_INVALID` → không ghi. Đã có cặp thì key khác tenant id vẫn trả cặp đó, `replayed: true`, không ghi kho mới.
+6. Actor không có `inventory.default_pair.read` → `Permission denied: inventory.default_pair.read` → không trả cặp.
+7. Tenant không tồn tại → `RESOURCE_NOT_FOUND` → không ghi kho hay gán.
+8. `p_tenant_id` null → `CONTEXT_INVALID` → không ghi kho hay gán.
+9. Cổng dashboard: `DEFAULT_PAIR_LIMIT` hoặc lỗi khác → không vào shell. `OrganizationEmptyView` chữ lỗi cặp, «Thử lại» chạy lại `Get`/`Ensure`, có lối chọn tổ chức khác.
 
 ---
 
@@ -118,20 +133,22 @@ flowchart TD
 ### Domain
 
 **Before:** tenant không có kho active và gán active để mutation resolve.
-**After:** một store `active` trên `iam.stores` (ưu tiên `code = default`), một kho `active` tên «Kho mặc định», và một gán `active`.
+**After:** một store `active` trên `iam.stores` (ưu tiên `code = default`), một kho `active` tên «Kho mặc định», và một gán `active` trỏ đúng kho đó.
 
 | Quyết định | Nội dung |
 | --- | --- |
-| Cửa hàng | `iam.stores`. Ensure gọi `iam._ensure_tenant_default_store`. Inventory không insert store. Trạng thái cửa hàng là `iam.stores.status` |
-| Tên cửa hàng | Helper IAM: `display_name`, rồi `name`, rồi `Default Store`. Store `active` đã có thì lần sau giữ tên. Chưa có store `active` mà có bản `code = default` inactive thì helper đặt lại `active` và ghi tên theo chuỗi lúc gọi |
+| Cửa hàng | `iam.stores`. Ensure gọi `iam._ensure_tenant_default_store` khi cần store. Inventory không insert store. Trạng thái cửa hàng là `iam.stores.status` |
+| Tên cửa hàng | Helper IAM đã ship: `coalesce(nullif(trim(display_name), ''), 'Default Store')`. Không đọc `tenants.name`. Store `active` đã có thì lần sau giữ tên. Chưa có store `active` mà có bản `code = default` inactive thì helper đặt lại `active` và ghi đè `display_name` |
 | Nhiều store `active` | Helper lấy bản `code = default`. Không có thì bản `active` sớm nhất theo `created_at`, `id`. Không insert store mới |
 | Kho | `display_name` «Kho mặc định», `status = active`. Không cột `code`. Tên kho không đổi khi gọi lại Ensure |
 | Gán | `status = active`, nối `store_id` của IAM với `warehouse_id`. Không cột `is_default` |
+| Cặp hoàn chỉnh | Đúng một kho `active` và đúng một gán `active` trỏ đúng kho đó |
 | Người ghi | `inventory.default_pair.ensure`. Theme 1 không ghi kho hay gán lúc tạo tenant |
+| Caller ERP | `DashboardPage` sau context `valid`. `TenantContextCubit` không gọi inventory |
 
 ### Persistence
 
-Draft lúc implement: `supabase/migrations/_drafts/inventory_default_pair.sql`. Draft không tạo `iam.stores`.
+Draft lúc implement: `supabase/migrations/_drafts/inventory_default_pair.sql`. Draft không tạo `iam.stores`. Không sửa helper IAM.
 
 ```mermaid
 erDiagram
@@ -155,7 +172,7 @@ Bảng `iam.stores`. Nguồn [`20260830001_iam_active_store_context_group_a.sql`
 Unique `(tenant_id, code)`
 Unique `(tenant_id, id)`
 
-Bảng `iam.tenants`. Slice không sửa. FK đích là `id`. Helper đọc `display_name` (text, có null) rồi `name` (text, không null). Nguồn [`20260630000001_iam_foundation.sql`](../../../../../supabase/migrations/20260630000001_iam_foundation.sql), [`20260811015_iam_tenant_profile_legal.sql`](../../../../../supabase/migrations/20260811015_iam_tenant_profile_legal.sql).
+Bảng `iam.tenants`. Slice không sửa. FK đích là `id`. Helper đọc `display_name` (text, có null). Không đọc `name`. Nguồn [`20260630000001_iam_foundation.sql`](../../../../../supabase/migrations/20260630000001_iam_foundation.sql), [`20260811015_iam_tenant_profile_legal.sql`](../../../../../supabase/migrations/20260811015_iam_tenant_profile_legal.sql), helper [`20260916001_iam_ensure_default_store_scope_helpers.sql`](../../../../../supabase/migrations/20260916001_iam_ensure_default_store_scope_helpers.sql).
 
 Bảng `inventory.warehouses`
 
@@ -205,36 +222,42 @@ Unique `(tenant_id, command_scope, idempotency_key)`
 
 | RPC | Tham số |
 | --- | --- |
-| `inventory.ensure_default_store_warehouse_pair` | `p_tenant_id`, `p_idempotency_key`, `p_payload_hash`, `p_correlation_id`. Gọi [`iam._ensure_tenant_default_store(p_tenant_id)`](../../../../../supabase/migrations/20260916001_iam_ensure_default_store_scope_helpers.sql) trong cùng transaction. Helper `returns uuid`: store `active` và `code = default`, không có thì store `active` sớm nhất, không có thì insert `code = default` |
+| `inventory.ensure_default_store_warehouse_pair` | `p_tenant_id`, `p_correlation_id`. Server tự đặt `idempotency_key = tenant_id` và `payload_hash` hash thân rỗng khi tạo hoặc vá. Gọi [`iam._ensure_tenant_default_store(p_tenant_id)`](../../../../../supabase/migrations/20260916001_iam_ensure_default_store_scope_helpers.sql) khi cần store. Helper `returns uuid`: store `active` và `code = default`, không có thì store `active` sớm nhất, không có thì insert hoặc kích hoạt lại `code = default` |
 | `inventory.get_default_store_warehouse_pair` | `p_tenant_id` |
 
 `p_tenant_id` và `p_correlation_id` lấy từ execution context.
 
 | Code | Khi nào | Hệ quả |
 | --- | --- | --- |
-| `DEFAULT_PAIR_MISSING` | Get hoặc `matches` khi chưa có cặp active | Không ghi kho mới |
+| `DEFAULT_PAIR_MISSING` | Get hoặc `matches` khi chưa có cặp hoàn chỉnh | Không ghi kho mới |
 | `DEFAULT_PAIR_MISMATCH` | `matches` nhận id khác cặp | Không ghi kho mới |
-| `DEFAULT_PAIR_LIMIT` | Kho thứ hai hoặc gán active thứ hai | Không ghi bản mới |
-| `IDEMPOTENCY_CONFLICT` | Cùng key, khác `payload_hash` | Không ghi kho mới |
+| `DEFAULT_PAIR_LIMIT` | Ensure gặp hình khác một kho + một gán đúng kho, khi cố ghi thêm | Không ghi bản mới, không ghi receipt `succeeded` |
 | `Permission denied: inventory.default_pair.ensure` | Actor không có quyền Ensure | Không ghi kho hay gán |
-| `Permission denied: inventory.default_pair.read` | Actor không có quyền Get | Không ghi kho hay gán |
+| `Permission denied: inventory.default_pair.read` | Actor không có quyền Get | Không trả cặp |
 | `RESOURCE_NOT_FOUND` | Helper IAM không thấy tenant | Không ghi kho hay gán |
-| `CONTEXT_INVALID` | `p_tenant_id` null, `idempotencyKey` rỗng, hoặc key khác tenant id khi chưa có cặp active | Không ghi kho hay gán |
+| `CONTEXT_INVALID` | `p_tenant_id` null | Không ghi kho hay gán |
 
-`payload_hash` băm thân lệnh nghiệp vụ. Thân đó rỗng: không có tên, store, warehouse, vị trí. Không băm `command.id` hay `correlation_id`.
+`payload_hash` là hằng số hash thân rỗng: không có tên, store, warehouse, vị trí. Không băm `command.id` hay `correlation_id`. Client không gửi key hay hash.
 Vi phạm unique index một bản `active` map thành `DEFAULT_PAIR_LIMIT`.
 `matches` không có RPC riêng. Gateway đọc `inventory.get_default_store_warehouse_pair` rồi so id. Trùng thì trả void.
 
 ### Transaction / Idempotency
 
 - `command_scope`: `inventory.default_pair`
-- `idempotencyKey` là id của tenant, khác `command.id`
-- Unique `(tenant_id, command_scope, idempotency_key)` trên `inventory.idempotency_records`, cùng transaction với `iam._ensure_tenant_default_store`, kho, và gán
-- `pg_advisory_xact_lock` trên `(tenant_id, command_scope, idempotency_key)` trước khi ghi. Idempotency `succeeded` chỉ sau khi helper, kho, và gán đã nằm trong transaction đó
-- Cùng key, cùng `payload_hash` → trả `result_snapshot`, `replayed: true`
-- Cùng key, khác `payload_hash` → `IDEMPOTENCY_CONFLICT`
-- Đã có đúng một cặp active thì Ensure trả cặp đó dù lần gọi mang key khác, `replayed: true`. Không ghi kho thứ hai. Key mới thì ghi một dòng idempotency `succeeded` với snapshot cặp hiện có
+- Client không gửi `idempotencyKey`. Server tự đặt `idempotency_key = tenant_id` khi tạo hoặc vá
+- `pg_advisory_xact_lock` trên `(tenant_id, command_scope, tenant_id)` trước khi đọc kho và gán
+- Đọc kho và gán dưới lock trước khi nhìn receipt. Trạng thái kho và gán là nguồn đúng
+- Đã đủ cặp → trả cặp đang có, `replayed: true`. Không gọi helper, không ghi receipt
+- Tạo mới hoặc vá gán → ghi hoặc ghi đè đúng một dòng receipt `succeeded` với snapshot cặp vừa commit. Snapshot cũ không chặn lần vá
+- Unique `(tenant_id, command_scope, idempotency_key)` trên `inventory.idempotency_records`
 - Không outbox. Get và `matches` không ghi
+
+### Presentation — cổng dashboard
+
+- Hook: [`DashboardPage`](../../../../../apps/erp/lib/features/dashboard/presentation/dashboard_page.dart) khi `TenantContextState` vừa `valid` (bootstrap và `switchTo`)
+- Spinner `VLoading` cho đến khi `Get` xong. `DEFAULT_PAIR_MISSING` thì gọi `Ensure`. Có cặp thì vào shell
+- Lỗi khác và `DEFAULT_PAIR_LIMIT`: không vào dashboard. Cùng [`OrganizationEmptyView`](../../../../../apps/erp/lib/features/iam/presentation/organizations/widgets/organization_empty_view.dart), chữ nói lỗi cặp, không dùng «Không thể tải danh sách tổ chức». «Thử lại» chạy lại `Get`/`Ensure`. Có lối chọn tổ chức khác
+- `TenantContextCubit` không gọi inventory
 
 ### Code Layout
 
@@ -287,6 +310,16 @@ supabase/
     migrations/
         _drafts/
             inventory_default_pair.sql
+apps/
+    erp/
+        lib/
+            features/
+                dashboard/
+                    presentation/
+                        bloc/
+                            default_pair_gate_cubit.dart
+                        widgets/
+                            default_pair_gate_error_view.dart
 ```
 
 ---
@@ -295,15 +328,13 @@ supabase/
 
 ### EnsureDefaultStoreWarehousePairCommand
 
-> Actor có `inventory.default_pair.ensure` gọi sau khi tenant đã tồn tại. Chưa có kho active thì gọi `iam._ensure_tenant_default_store`, ghi kho «Kho mặc định» và gán active. Đã có đúng một cặp thì trả cặp đó, `replayed: true`, không đổi tên kho. `@RequiresPermission(InventoryPermissions.defaultPairEnsure)`.
+> Actor có `inventory.default_pair.ensure` gọi sau khi tenant đã tồn tại. Đọc kho và gán dưới lock. Chưa có kho thì gọi helper IAM, ghi kho «Kho mặc định» và gán. Đúng một kho thiếu gán thì chỉ ghi gán. Đã đủ cặp thì trả cặp đó, `replayed: true`, không đổi tên kho, không ghi receipt. `@RequiresPermission(InventoryPermissions.defaultPairEnsure)`.
 
 ```dart
-class EnsureDefaultStoreWarehousePairCommand {
-  final String idempotencyKey; // tenant id; ≠ command.id
-}
+class EnsureDefaultStoreWarehousePairCommand {}
 ```
 
-Command không nhận tên, `storeId`, `warehouseId`, hay vị trí. `p_tenant_id` và `p_correlation_id` lấy từ execution context.
+Command không nhận tên, `storeId`, `warehouseId`, `idempotencyKey`, hay vị trí. `p_tenant_id` và `p_correlation_id` lấy từ execution context.
 
 ### EnsureDefaultStoreWarehousePairResultDto
 
@@ -319,7 +350,7 @@ class EnsureDefaultStoreWarehousePairResultDto {
 
 ### GetDefaultStoreWarehousePairQuery
 
-> Actor có `inventory.default_pair.read` đọc cặp. Chưa có cặp active thì `DEFAULT_PAIR_MISSING`. `@RequiresPermission(InventoryPermissions.defaultPairRead)`.
+> Actor có `inventory.default_pair.read` đọc cặp. Chưa có cặp hoàn chỉnh thì `DEFAULT_PAIR_MISSING`. `@RequiresPermission(InventoryPermissions.defaultPairRead)`.
 
 ```dart
 class GetDefaultStoreWarehousePairQuery {}
@@ -340,8 +371,8 @@ class DefaultStoreWarehousePairDto {
 
 `IDefaultStoreWarehousePairPort.ensure` → `EnsureDefaultStoreWarehousePairResultDto`.
 `IDefaultStoreWarehousePairPort.get` → `DefaultStoreWarehousePairDto`.
-`IDefaultStoreWarehousePairPort.matches(storeId, warehouseId)` → void. Chưa có cặp active thì `DEFAULT_PAIR_MISSING`. Id khác cặp thì `DEFAULT_PAIR_MISMATCH`.
-`FakeDefaultStoreWarehousePairPort`: lần đầu ghi một kho «Kho mặc định» và một gán active. Store lấy từ fake IAM: chưa có store `active` thì tạo hoặc kích hoạt lại `code = default`, tên `display_name`, rồi `name`, rồi `Default Store`. Store `active` đã có thì lần sau giữ tên, `replayed: true`. Nhiều store `active` thì lấy `code = default`, không có thì bản sớm nhất. Kho thứ hai hoặc gán active thứ hai ném `DEFAULT_PAIR_LIMIT`. Không có field vị trí nên không tạo kho từ device. Actor thiếu quyền đọc ném `Permission denied: inventory.default_pair.read`.
+`IDefaultStoreWarehousePairPort.matches(storeId, warehouseId)` → void. Chưa có cặp hoàn chỉnh thì `DEFAULT_PAIR_MISSING`. Id khác cặp thì `DEFAULT_PAIR_MISMATCH`.
+`FakeDefaultStoreWarehousePairPort`: đọc kho và gán trước. Chưa có kho thì tạo kho «Kho mặc định» và gán, store từ fake IAM theo helper đã ship (`display_name` trim, rỗng → `Default Store`; inactive `code = default` → kích hoạt và ghi đè tên). Đúng một kho thiếu gán thì chỉ ghi gán. Đã đủ cặp thì `replayed: true`, không ghi receipt. Hình khác ném `DEFAULT_PAIR_LIMIT`. Không có field vị trí nên không tạo kho từ device. Actor thiếu quyền đọc ném `Permission denied: inventory.default_pair.read`.
 
 ---
 
@@ -349,34 +380,36 @@ class DefaultStoreWarehousePairDto {
 
 ### Acceptance Criteria
 
-- [ ] **AC-01** Given tenant chưa có store và chưa có kho, `display_name` là «Mậu Hiên», When Ensure, Then store IAM tên «Mậu Hiên», một kho «Kho mặc định» `active`, một gán `active`
-- [ ] **AC-02** Given tenant chưa có `display_name` và chưa có `name`, When Ensure, Then tên cửa hàng là `Default Store`, tên kho là «Kho mặc định»
-- [ ] **AC-03** Given đã có cặp và store đang `active`, When Ensure lần hai kể cả khi `display_name` đã đổi, Then cùng id, `replayed: true`, tên kho và tên store giữ nguyên
-- [ ] **AC-04** Given đã có một kho hoặc một gán active, When ghi bản thứ hai, Then `DEFAULT_PAIR_LIMIT` và không có bản mới
-- [ ] **AC-05** Given command Ensure, When đọc field, Then không có vị trí, `storeId`, `warehouseId`, hay tên, và Ensure không tạo kho từ vị trí device
-- [ ] **AC-06** Given chưa có cặp active, When Get hoặc `matches`, Then `DEFAULT_PAIR_MISSING` và không ghi kho mới
+- [ ] **AC-01** Given tenant chưa có store và chưa có kho, `display_name` là «Mậu Hiên», When Ensure, Then store IAM tên «Mậu Hiên», một kho «Kho mặc định» `active`, một gán `active`, và một dòng receipt
+- [ ] **AC-02** Given tenant `display_name` trống hoặc chỉ khoảng trắng, When Ensure, Then tên cửa hàng là `Default Store`, tên kho là «Kho mặc định»
+- [ ] **AC-03** Given đã có cặp hoàn chỉnh và store đang `active`, When Ensure lần hai kể cả khi `display_name` đã đổi, Then cùng id, `replayed: true`, tên kho và tên store giữ nguyên, không ghi receipt
+- [ ] **AC-04** Given đã có một kho active và một gán active, When ghi kho hoặc gán thứ hai, Then `DEFAULT_PAIR_LIMIT` và không có bản mới
+- [ ] **AC-05** Given command Ensure, When đọc field, Then không có vị trí, `storeId`, `warehouseId`, `idempotencyKey`, hay tên, và Ensure không tạo kho từ vị trí device
+- [ ] **AC-06** Given chưa có cặp hoàn chỉnh, kể cả đúng một kho active thiếu gán, When Get hoặc `matches`, Then `DEFAULT_PAIR_MISSING` và không ghi kho mới
 - [ ] **AC-07** Given đã có cặp, When `matches` nhận id khác, Then `DEFAULT_PAIR_MISMATCH` và không ghi kho mới
 - [ ] **AC-08** Given actor không có `inventory.default_pair.ensure`, When Ensure, Then `Permission denied: inventory.default_pair.ensure` và không ghi kho hay gán
-- [ ] **AC-09** Given actor không có `inventory.default_pair.read`, When Get, Then `Permission denied: inventory.default_pair.read` và không ghi kho hay gán
-- [ ] **AC-10** Given cùng `idempotencyKey` đã `succeeded`, When Ensure với `payload_hash` khác, Then `IDEMPOTENCY_CONFLICT` và không ghi kho mới
+- [ ] **AC-09** Given actor không có `inventory.default_pair.read`, When Get, Then `Permission denied: inventory.default_pair.read` và không trả cặp
+- [ ] **AC-10** Given đúng một kho active, chưa có gán active, và có thể đã có receipt `succeeded` cũ, When Ensure, Then không tạo kho thứ hai, không đổi tên kho, ghi gán vào kho đó, ghi đè snapshot receipt, trả cặp
 - [ ] **AC-11** Given tenant không tồn tại, When Ensure, Then `RESOURCE_NOT_FOUND` và không ghi kho hay gán
-- [ ] **AC-12** Given chưa có store `active`, có store `code = default` đang inactive, When Ensure, Then store đó `active`, tên theo chuỗi lúc gọi, một kho «Kho mặc định» và một gán `active`
-- [ ] **AC-13** Given chưa có cặp active và `idempotencyKey` rỗng hoặc khác tenant id, When Ensure, Then `CONTEXT_INVALID` và không ghi kho hay gán
+- [ ] **AC-12** Given chưa có store `active`, có store `code = default` đang inactive, When Ensure, Then store đó `active`, tên theo `display_name` lúc gọi hoặc `Default Store`, một kho «Kho mặc định» và một gán `active`
+- [ ] **AC-13** Given tenant context vừa `valid` trên `DashboardPage`, When chưa có cặp, Then spinner đến khi `Get`/`Ensure` xong rồi vào shell; When `DEFAULT_PAIR_LIMIT` hoặc lỗi khác, Then không vào shell, `OrganizationEmptyView` chữ lỗi cặp, «Thử lại» chạy lại `Get`/`Ensure`, có lối chọn tổ chức khác
 
 ### Tests
 
 | Test id | Given / When / Then | Layer |
 | --- | --- | --- |
-| `scn_ensure_named_store` | Chưa có store, chưa có kho, `display_name` = Mậu Hiên / Ensure / store «Mậu Hiên», warehouse «Kho mặc định», gán active | application fake |
-| `scn_ensure_fallback_store_name` | Chưa có `display_name`, chưa có `name` / Ensure / store `Default Store` | application fake |
-| `scn_ensure_replay` | Đã có cặp, store active, `display_name` đổi / Ensure / `replayed: true`, tên kho và tên store cũ | application fake |
-| `scn_second_rejected` | Đã có một kho / ghi kho thứ hai / `DEFAULT_PAIR_LIMIT`, vẫn một kho | application fake |
-| `scn_no_device_warehouse` | Command Ensure / đọc field / không có vị trí, không tạo kho từ device | application fake |
-| `scn_missing_pair` | Chưa có cặp active / Get / `DEFAULT_PAIR_MISSING` | application fake |
+| `scn_ensure_named_store` | Chưa có store, chưa có kho, `display_name` = Mậu Hiên / Ensure / store «Mậu Hiên», warehouse «Kho mặc định», gán active, có receipt | application fake |
+| `scn_ensure_fallback_store_name` | `display_name` trống hoặc whitespace / Ensure / store `Default Store` | application fake |
+| `scn_ensure_replay` | Đã có cặp, store active, `display_name` đổi / Ensure / `replayed: true`, tên kho và tên store cũ, không ghi receipt | application fake |
+| `scn_second_rejected` | Đã có một kho và một gán / ghi kho thứ hai / `DEFAULT_PAIR_LIMIT`, vẫn một kho | application fake |
+| `scn_no_device_warehouse` | Command Ensure / đọc field / không có vị trí hay `idempotencyKey`, không tạo kho từ device | application fake |
+| `scn_missing_pair` | Chưa có cặp hoàn chỉnh / Get / `DEFAULT_PAIR_MISSING` | application fake |
+| `scn_missing_pair_warehouse_only` | Đúng một kho active, chưa có gán / Get / `DEFAULT_PAIR_MISSING` | application fake |
+| `scn_patch_missing_assignment` | Đúng một kho active, thiếu gán, có thể có receipt cũ / Ensure / không kho thứ hai, ghi gán, ghi đè snapshot | application fake |
 | `scn_mismatch` | Đã có cặp / `matches` nhận warehouse id khác / `DEFAULT_PAIR_MISMATCH`, không ghi kho mới | application fake |
 | `scn_tenant_member_rejected` | Actor không có `inventory.default_pair.ensure` / Ensure / `Permission denied: inventory.default_pair.ensure`, không ghi kho | application fake |
-| `scn_read_denied` | Actor không có `inventory.default_pair.read` / Get / `Permission denied: inventory.default_pair.read`, không ghi kho | application fake |
-| `scn_idempotency_conflict` | Cùng key đã succeeded / Ensure với hash khác / `IDEMPOTENCY_CONFLICT`, không ghi kho mới | application fake |
+| `scn_read_denied` | Actor không có `inventory.default_pair.read` / Get / `Permission denied: inventory.default_pair.read`, không trả cặp | application fake |
 | `scn_tenant_missing` | Tenant không tồn tại / Ensure / `RESOURCE_NOT_FOUND`, không ghi kho | application fake |
 | `scn_reactivate_default_store` | Store `code = default` inactive, chưa có store active / Ensure / store đó active, tên theo chuỗi lúc gọi, một kho và một gán | application fake |
-| `scn_key_not_tenant` | Chưa có cặp và key rỗng hoặc khác tenant id / Ensure / `CONTEXT_INVALID`, không ghi kho | application fake |
+| `scn_dashboard_gate_success` | Context valid, chưa có cặp / Get rồi Ensure / vào shell | presentation |
+| `scn_dashboard_gate_error` | Context valid, Ensure `DEFAULT_PAIR_LIMIT` / không vào shell, chữ lỗi cặp, thử lại và chọn tổ chức khác | presentation |
