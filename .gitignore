@@ -94,3 +94,6 @@ apps/erp/.env
 deploy/deploy.env
 # App env files remain ignored via **/.env rules above
 
+# Local agent plans and specs
+docs/superpowers/
+
