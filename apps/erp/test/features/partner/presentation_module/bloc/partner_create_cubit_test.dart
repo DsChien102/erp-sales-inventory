@@ -247,7 +247,7 @@ void main() {
     await cubit.submit();
 
     expect(cubit.state.errors['email'], 'Email không hợp lệ');
-    expect(cubit.state.errors['taxCode'], 'MST phải có 10 hoặc 13 chữ số');
+    expect(cubit.state.errors['taxCode'], 'MST phải có 10 số, 12 số hoặc dạng 10-3 số');
   });
 
   test('possible duplicate waits for confirmation then creates', () async {

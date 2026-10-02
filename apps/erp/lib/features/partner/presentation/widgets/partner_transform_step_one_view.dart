@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
+import '../bloc/partner_create_form_validator.dart';
 import 'partner_transform_blocking_banner.dart';
 import 'partner_transform_organization_form.dart';
 import 'partner_transform_primary_contact_card.dart';
@@ -212,7 +213,7 @@ class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneVie
         intlName: _optional(_internationalName),
         phone: _phone.trim(),
         email: _optional(_email),
-        taxCode: _optional(_taxCode),
+        taxCode: _optional(PartnerCreateFormValidator.normalizeTaxCode(_taxCode)),
       ),
     );
   }

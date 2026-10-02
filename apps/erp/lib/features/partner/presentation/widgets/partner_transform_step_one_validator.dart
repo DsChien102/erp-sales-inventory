@@ -1,11 +1,13 @@
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
+import '../bloc/partner_create_form_validator.dart';
+
 /// Field-level validation for transform step-one organization draft.
 abstract final class PartnerTransformStepOneValidator {
   static const organizationTypeRequired = 'Vui lòng chọn loại tổ chức';
   static const organizationNameRequired = 'Vui lòng nhập tên tổ chức';
-  static const taxCodeInvalid = 'MST phải có 10 hoặc 13 chữ số';
+  static const taxCodeInvalid = PartnerCreateFormValidator.taxCodeInvalid;
 
   static Map<String, String> validate({
     required OrganizationType? organizationType,
@@ -28,14 +30,9 @@ abstract final class PartnerTransformStepOneValidator {
     if (!VEmailValidator.isValid(email)) {
       errors['email'] = VEmailValidator.defaultInvalidEmailMessage;
     }
-    if (!_isValidTaxCode(taxCode)) {
+    if (!PartnerCreateFormValidator.isValidTaxCode(taxCode)) {
       errors['taxCode'] = taxCodeInvalid;
     }
     return errors;
-  }
-
-  static bool _isValidTaxCode(String value) {
-    final trimmed = value.trim();
-    return trimmed.isEmpty || RegExp(r'^[0-9]{10}([0-9]{3})?$').hasMatch(trimmed);
   }
 }

@@ -136,7 +136,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Email không hợp lệ'), findsOneWidget);
-    expect(find.text('MST phải có 10 hoặc 13 chữ số'), findsOneWidget);
+    expect(find.text('MST phải có 10 số, 12 số hoặc dạng 10-3 số'), findsOneWidget);
   });
 
   testWidgets(

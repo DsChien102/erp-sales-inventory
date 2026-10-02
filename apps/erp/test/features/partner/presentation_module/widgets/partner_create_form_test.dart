@@ -296,7 +296,7 @@ void main() {
     expect(state.primaryContactSecondaryPhone, '088 345 6789');
   });
 
-  testWidgets('tax code accepts digits only', (tester) async {
+  testWidgets('tax code accepts digits and dash only', (tester) async {
     await tester.pumpWidget(buildForm(type: PartnerType.organization));
     final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
     cubit.setActiveSection(PartnerCreateSection.invoice);
@@ -308,7 +308,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(cubit.state.taxCode, '010123456');
+    expect(cubit.state.taxCode, '01012-3456');
   });
 
   testWidgets('wgt_e01_u02_fr04_01: invalid submit opens inline errors', (

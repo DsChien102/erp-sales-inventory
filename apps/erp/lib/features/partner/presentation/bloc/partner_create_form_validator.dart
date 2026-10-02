@@ -59,11 +59,8 @@ abstract final class PartnerCreateFormValidator {
           );
         }
       case PartnerCreateSection.invoice:
-        final taxDigits = digitsOnly(state.taxCode);
-        if (state.taxCode.trim().isNotEmpty &&
-            taxDigits.length != 10 &&
-            taxDigits.length != 13) {
-          errors['taxCode'] = 'MST phải có 10 hoặc 13 chữ số';
+        if (!isValidTaxCode(state.taxCode)) {
+          errors['taxCode'] = taxCodeInvalid;
         }
         validateEmail(state.invoiceEmail, 'invoiceEmail', errors);
       case PartnerCreateSection.delivery:
@@ -122,4 +119,24 @@ abstract final class PartnerCreateFormValidator {
   }
 
   static String digitsOnly(String value) => value.replaceAll(RegExp(r'\D'), '');
+
+  static const taxCodeInvalid = 'MST phải có 10 số, 12 số hoặc dạng 10-3 số';
+
+  /// Same rule as `iam` tenant tax code: 10 digits, 12 digits (CCCD), or 10-3.
+  static final _taxCodePattern = RegExp(r'^([0-9]{10}|[0-9]{12}|[0-9]{10}-[0-9]{3})$');
+
+  /// Strips whitespace; 13 digits typed without separator become `10-3`.
+  static String normalizeTaxCode(String value) {
+    final compact = value.replaceAll(RegExp(r'\s'), '');
+    if (RegExp(r'^[0-9]{13}$').hasMatch(compact)) {
+      return '${compact.substring(0, 10)}-${compact.substring(10)}';
+    }
+    return compact;
+  }
+
+  /// Empty is valid (tax code is optional at this layer).
+  static bool isValidTaxCode(String value) {
+    final normalized = normalizeTaxCode(value);
+    return normalized.isEmpty || _taxCodePattern.hasMatch(normalized);
+  }
 }

@@ -257,7 +257,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
             ),
             email: PartnerCreateDraftMapper.nullable(state.email.trim()),
             taxCode: PartnerCreateDraftMapper.nullable(
-              PartnerCreateFormValidator.digitsOnly(state.taxCode),
+              PartnerCreateFormValidator.normalizeTaxCode(state.taxCode),
             ),
             name: PartnerCreateDraftMapper.nullable(
               PartnerCreateDraftMapper.displayName(state),

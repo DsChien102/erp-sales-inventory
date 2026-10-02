@@ -12,6 +12,7 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
     this.isRequired = false,
     this.keyboardType,
     this.digitsOnly = false,
+    this.inputFormatters,
     this.isEmail = false,
     this.emailValidateOnChanged = true,
     this.isPhone = false,
@@ -26,6 +27,9 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
   final bool isRequired;
   final TextInputType? keyboardType;
   final bool digitsOnly;
+
+  /// Custom formatters; takes precedence over [digitsOnly] when non-null.
+  final List<TextInputFormatter>? inputFormatters;
   final bool isEmail;
   final bool emailValidateOnChanged;
   final bool isPhone;
@@ -115,8 +119,8 @@ class _PartnerTransformLabeledTextFieldState
               keyboardType: widget.keyboardType,
               hintText: widget.hintText,
               onChanged: widget.onChanged,
-              inputFormatters:
-                  widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+              inputFormatters: widget.inputFormatters ??
+                  (widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null),
             ),
           if (hasError) VFieldError(widget.errorText!),
         ],
