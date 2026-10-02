@@ -15,6 +15,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+### Fixed
+
+### Internal
+
+## [1.7.5+42] - 2026-10-02
+
+### Changed
+
 - Readiness: card điều kiện bắt buộc / hồ sơ pháp lý không còn bấm để điều hướng (chỉ còn CTA dưới cùng).
 - Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
