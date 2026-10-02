@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../organization_profile/data/vn_administrative_units_loader.dart';
+import '../organization_profile/widgets/vn_administrative_unit_picker_sheet.dart';
 
 class PlatformOnboardingStepOrganization extends StatelessWidget {
   const PlatformOnboardingStepOrganization({
@@ -141,71 +142,194 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
             final wards = province?.wards ?? const <VnWard>[];
             final wardValue = _containsWardName(wards, selectedWard) ? selectedWard : null;
 
+            final canSelectWard = !isLoading && !hasError && province != null;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _SearchDropdownField(
                   label: 'Tỉnh / thành phố',
-                  child: VCombobox<String>(
-                    value: provinceValue,
+                  child: Semantics(
+                    button: true,
                     enabled: !isLoading && !hasError && units.isNotEmpty,
-                    displayTextForValue: (v) => v ?? '',
-                    onChanged: onProvinceChanged,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VComboboxContent(
-                          child: VComboboxList(
-                            children: [
-                              for (final unit in units)
-                                VComboboxItem<String>(
-                                  value: unit.fullName,
-                                  searchText: unit.fullName,
-                                  child: Text(unit.fullName),
-                                ),
-                            ],
+                    child: InkWell(
+                      key: const Key('field_select_province'),
+                      onTap: (!isLoading && !hasError && units.isNotEmpty)
+                          ? () async {
+                              final result = await showVnAdministrativeUnitPickerSheet(
+                                context: context,
+                                units: units,
+                                initialProvinceCode: province?.code,
+                                initialCommuneCode: _findWardByName(wards, selectedWard)?.code,
+                                initialTab: 0,
+                              );
+                              if (result != null) {
+                                onProvinceChanged(result.province.fullName);
+                                onWardChanged(result.ward?.fullName);
+                              }
+                            }
+                          : null,
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      child: Container(
+                        height: VCombobox.controlHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
+                        decoration: BoxDecoration(
+                          color: (!isLoading && !hasError && units.isNotEmpty)
+                              ? context.vColors.surface
+                              : context.vColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(VRadius.input),
+                          border: Border.all(
+                            color: (!isLoading && !hasError && units.isNotEmpty)
+                                ? context.vColors.borderDefault
+                                : context.vColors.borderDefault.withValues(alpha: 0.5),
                           ),
                         ),
-                        VComboboxInput(
-                          hintText: hasError
-                              ? 'Không tải được tỉnh / thành phố'
-                              : isLoading
-                              ? 'Đang tải tỉnh / thành phố'
-                              : 'Chọn tỉnh / thành phố',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 18,
+                              color: (!isLoading && !hasError && units.isNotEmpty)
+                                  ? context.vColors.textSecondary
+                                  : context.vColors.textMuted,
+                            ),
+                            const SizedBox(width: VSpacing.space2),
+                            Expanded(
+                              child: Text(
+                                provinceValue ??
+                                    (hasError
+                                        ? 'Không tải được tỉnh / thành phố'
+                                        : isLoading
+                                            ? 'Đang tải tỉnh / thành phố'
+                                            : 'Chọn tỉnh / thành phố'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: VTypography.bodyDefault.copyWith(
+                                  color: (provinceValue != null)
+                                      ? context.vColors.textPrimary
+                                      : context.vColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            if (provinceValue != null) ...[
+                              GestureDetector(
+                                key: const Key('field_select_province_clear'),
+                                onTap: () {
+                                  onProvinceChanged(null);
+                                  onWardChanged(null);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(VSpacing.space1),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    size: 16,
+                                    color: context.vColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: VSpacing.space1),
+                            ],
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: context.vColors.textSecondary,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 const VGap.md(),
                 _SearchDropdownField(
                   label: 'Xã / phường',
-                  child: VCombobox<String>(
-                    value: wardValue,
-                    enabled: !isLoading && !hasError && province != null,
-                    displayTextForValue: (v) => v ?? '',
-                    onChanged: onWardChanged,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VComboboxContent(
-                          child: VComboboxList(
-                            children: [
-                              for (final ward in wards)
-                                VComboboxItem<String>(
-                                  value: ward.fullName,
-                                  searchText: ward.fullName,
-                                  child: Text(ward.fullName),
-                                ),
-                            ],
+                  child: Semantics(
+                    button: true,
+                    enabled: canSelectWard,
+                    child: InkWell(
+                      key: const Key('field_select_ward'),
+                      onTap: canSelectWard
+                          ? () async {
+                              final result = await showVnAdministrativeUnitPickerSheet(
+                                context: context,
+                                units: units,
+                                initialProvinceCode: province.code,
+                                initialCommuneCode: _findWardByName(wards, selectedWard)?.code,
+                                initialTab: 1,
+                              );
+                              if (result != null) {
+                                onProvinceChanged(result.province.fullName);
+                                onWardChanged(result.ward?.fullName);
+                              }
+                            }
+                          : null,
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      child: Container(
+                        height: VCombobox.controlHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
+                        decoration: BoxDecoration(
+                          color: canSelectWard
+                              ? context.vColors.surface
+                              : context.vColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(VRadius.input),
+                          border: Border.all(
+                            color: canSelectWard
+                                ? context.vColors.borderDefault
+                                : context.vColors.borderDefault.withValues(alpha: 0.5),
                           ),
                         ),
-                        VComboboxInput(
-                          hintText: province == null
-                              ? 'Chọn tỉnh / thành phố trước'
-                              : 'Chọn xã / phường',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.apartment_outlined,
+                              size: 18,
+                              color: canSelectWard
+                                  ? context.vColors.textSecondary
+                                  : context.vColors.textMuted,
+                            ),
+                            const SizedBox(width: VSpacing.space2),
+                            Expanded(
+                              child: Text(
+                                wardValue ??
+                                    (province == null
+                                        ? 'Chọn tỉnh / thành phố trước'
+                                        : 'Chọn xã / phường'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: VTypography.bodyDefault.copyWith(
+                                  color: (wardValue != null)
+                                      ? context.vColors.textPrimary
+                                      : context.vColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            if (wardValue != null) ...[
+                              GestureDetector(
+                                key: const Key('field_select_ward_clear'),
+                                onTap: () => onWardChanged(null),
+                                behavior: HitTestBehavior.opaque,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(VSpacing.space1),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    size: 16,
+                                    color: context.vColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: VSpacing.space1),
+                            ],
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: canSelectWard
+                                  ? context.vColors.textSecondary
+                                  : context.vColors.textMuted,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -221,7 +345,6 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
             displayTextForValue: (v) => switch (v) {
               'HOUSEHOLD_BUSINESS' => 'Hộ kinh doanh',
               'ENTERPRISE' => 'Doanh nghiệp',
-              'VETERINARY_CLINIC' => 'Phòng khám thú y',
               _ => '',
             },
             onChanged: onEntityTypeChanged,
@@ -240,11 +363,6 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                         value: 'ENTERPRISE',
                         searchText: 'Doanh nghiệp',
                         child: Text('Doanh nghiệp'),
-                      ),
-                      VComboboxItem<String>(
-                        value: 'VETERINARY_CLINIC',
-                        searchText: 'Phòng khám thú y',
-                        child: Text('Phòng khám thú y'),
                       ),
                     ],
                   ),
@@ -295,6 +413,14 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  static VnWard? _findWardByName(List<VnWard> wards, String? name) {
+    if (name == null) return null;
+    for (final ward in wards) {
+      if (ward.fullName == name) return ward;
+    }
+    return null;
   }
 
   VnAdministrativeUnit? _findProvinceByName(

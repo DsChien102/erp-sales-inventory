@@ -211,15 +211,10 @@ class _TenantReadinessView extends StatelessWidget {
               ],
               TenantRequiredSetupCard(
                 blockers: readiness.blockers,
-                onIssueTap: (code, route) => _onIssueTap(context, code, route),
               ),
               const VGap.md(),
               TenantLegalProfileInfoCard(
                 isReady: canStartActivation,
-                hasWarning: readiness.warnings.contains(
-                  TenantReadinessIssueCodes.legalProfileMissing,
-                ),
-                onIssueTap: (code, route) => _onIssueTap(context, code, route),
               ),
             ],
           ),

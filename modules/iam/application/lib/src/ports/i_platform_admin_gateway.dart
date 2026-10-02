@@ -9,7 +9,6 @@ import '../platform/shared/platform_tenant_summary_dto.dart';
 import '../platform/shared/platform_user_detail_dto.dart';
 import '../platform/shared/platform_user_status.dart';
 import '../platform/shared/platform_user_summary_dto.dart';
-import '../platform/shared/tenant_onboarding_operation_dto.dart';
 import '../platform/shared/tenant_onboarding_result_dto.dart';
 
 /// Port for platform-scoped Admin reads/mutations (TH-01 S15/S16).
@@ -64,6 +63,7 @@ abstract interface class IPlatformAdminGateway {
     String? communeCode,
     String? legalName,
     String? taxCode,
+    String? legalEntityType,
     String? registeredAddressText,
     String? ownerUserId,
     String? ownerEmail,
@@ -71,15 +71,6 @@ abstract interface class IPlatformAdminGateway {
     String? ownerFamilyName,
     String? ownerPhone,
     String? correlationId,
-  });
-
-  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
-    String operationId,
-  );
-
-  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
-    required String operationId,
-    required String idempotencyKey,
   });
 
   /// Re-assign owner on a provisioning tenant with no active owner membership.
@@ -121,6 +112,13 @@ abstract interface class IPlatformAdminGateway {
 
   Future<void> restorePlatformTenant({
     required String tenantId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  });
+
+  Future<void> closePlatformTenant({
+    required String tenantId,
+    required String reason,
     required int expectedVersion,
     required String idempotencyKey,
   });

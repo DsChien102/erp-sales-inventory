@@ -65,19 +65,19 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(_richTextContaining('Tên tổ chức *'), findsOneWidget);
-    expect(_richTextContaining('Số điện thoại *'), findsOneWidget);
-    expect(_richTextContaining('Email liên hệ *'), findsOneWidget);
-    expect(_richTextContaining('Địa chỉ liên hệ *'), findsOneWidget);
-    expect(_richTextContaining('Tỉnh / thành phố *'), findsNothing);
-    expect(_richTextContaining('Xã / phường *'), findsNothing);
+    expect(_fieldLabel('Tên tổ chức', isRequired: true), findsOneWidget);
+    expect(_fieldLabel('Số điện thoại', isRequired: true), findsOneWidget);
+    expect(_fieldLabel('Email liên hệ', isRequired: true), findsOneWidget);
+    expect(_fieldLabel('Địa chỉ liên hệ', isRequired: true), findsOneWidget);
+    expect(_fieldLabel('Tỉnh / thành phố', isRequired: true), findsNothing);
+    expect(_fieldLabel('Xã / phường', isRequired: true), findsNothing);
 
     await cubit.close();
   });
 }
 
-Finder _richTextContaining(String text) {
+Finder _fieldLabel(String text, {bool isRequired = false}) {
   return find.byWidgetPredicate(
-    (widget) => widget is RichText && widget.text.toPlainText().contains(text),
+    (widget) => widget is VFieldLabel && widget.text == text && widget.isRequired == isRequired,
   );
 }

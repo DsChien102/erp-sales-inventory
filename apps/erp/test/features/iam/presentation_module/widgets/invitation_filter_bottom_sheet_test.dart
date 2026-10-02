@@ -82,5 +82,44 @@ void main() {
     expect(appliedCriteria!.status, 'Tất cả');
     expect(appliedCriteria!.sendResult, 'Tất cả');
     expect(appliedCriteria!.timeRange, 'Tất cả');
+    expect(appliedCriteria!.customDateRange, isNull);
+  });
+
+  testWidgets('InvitationFilterBottomSheet displays custom date range when selected',
+      (WidgetTester tester) async {
+    final customRange = DateTimeRange(
+      start: DateTime(2026, 8, 1),
+      end: DateTime(2026, 8, 15),
+    );
+    InvitationFilterCriteria? appliedCriteria;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: InvitationFilterBottomSheet(
+            initialCriteria: InvitationFilterCriteria(
+              status: 'Đang chờ',
+              sendResult: 'Thu hồi',
+              timeRange: 'Tùy chọn',
+              customDateRange: customRange,
+            ),
+            onApply: (criteria) {
+              appliedCriteria = criteria;
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(find.textContaining('Khoảng thời gian: 01/08 - 15/08/2026'), findsOneWidget);
+
+    await tester.tap(find.text('Áp dụng'));
+    await tester.pumpAndSettle();
+
+    expect(appliedCriteria, isNotNull);
+    expect(appliedCriteria!.status, 'Đang chờ');
+    expect(appliedCriteria!.sendResult, 'Thu hồi');
+    expect(appliedCriteria!.timeRange, 'Tùy chọn');
+    expect(appliedCriteria!.customDateRange, equals(customRange));
   });
 }

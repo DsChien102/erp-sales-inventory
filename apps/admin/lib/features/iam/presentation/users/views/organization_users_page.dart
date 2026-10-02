@@ -10,9 +10,9 @@ import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
 import '../widgets/organization_users_body.dart';
-import 'organization_invite_member_page.dart';
 
-/// Trang Danh sách người dùng & Lời mời — composition root for [OrganizationUsersCubit].
+/// Danh sách thành viên tổ chức trên Platform Admin (chỉ đọc Membership thật).
+/// Lời mời thành viên thông thường thuộc Tenant App — không có điểm vào tại đây.
 class OrganizationUsersPage extends StatelessWidget {
   const OrganizationUsersPage({
     super.key,
@@ -41,7 +41,7 @@ class OrganizationUsersPage extends StatelessWidget {
       create: (_) => OrganizationUsersCubit(
         iamModule: iamModule!,
         executionContext: executionContext!,
-      )..loadInitial(),
+      )..loadMembers(reset: true),
       child: const _OrganizationUsersView(),
     );
   }
@@ -51,13 +51,10 @@ class _OrganizationUsersView extends StatelessWidget {
   const _OrganizationUsersView();
 
   String _subtitle(OrganizationUsersState state) {
-    final isMember = state.activeTab == OrganizationUsersTab.members;
-    final status = isMember ? state.memberStatus : state.invitationStatus;
-    final failure = isMember ? state.memberFailure : state.invitationFailure;
-    final items = isMember ? state.members : state.invitations;
-    final search = isMember ? state.memberSearch : state.invitationSearch;
-    final filter = isMember ? state.memberFilter : state.invitationFilter;
-    final isFiltered = search.trim().isNotEmpty || filter != null;
+    final status = state.memberStatus;
+    final failure = state.memberFailure;
+    final items = state.members;
+    final isFiltered = state.memberSearch.trim().isNotEmpty || state.memberFilter != null;
 
     if (status == IamLoadStatus.failure) {
       if (failure?.code == IamBlockedCodes.permissionDenied) {
@@ -66,64 +63,20 @@ class _OrganizationUsersView extends StatelessWidget {
       return 'Không tải được';
     }
     if (status == IamLoadStatus.loading || status == IamLoadStatus.initial) {
-      return isMember ? 'Đang tải thành viên' : 'Đang tải lời mời';
+      return 'Đang tải thành viên';
     }
     if (isFiltered && items.isEmpty) return '0 kết quả';
-    return isMember ? '${items.length} thành viên' : '${items.length} lời mời';
-  }
-
-  Future<void> _navigateInvite(BuildContext context) async {
-    dynamic result;
-    try {
-      result = await context.push('/more/users/invite');
-    } catch (_) {
-      if (context.mounted) {
-        result = await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const OrganizationInviteMemberPage(),
-          ),
-        );
-      }
-    }
-    if (result == true && context.mounted) {
-      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
-    }
+    return '${items.length} thành viên';
   }
 
   Future<void> _openMember(BuildContext context, MemberUiModel member) async {
     try {
       await context.push('/more/users/members/${member.id}');
-      // A lifecycle action (suspend / reactivate / remove) inside the detail
-      // page mutates member status; refresh on return so the list badge never
-      // shows a stale value.
       if (context.mounted) {
         await context.read<OrganizationUsersCubit>().loadMembers(reset: true);
       }
     } catch (_) {
       // Navigator fallback omitted — production uses go_router paths.
-    }
-  }
-
-  Future<void> _openInvitation(
-    BuildContext context,
-    InvitationUiModel invitation,
-  ) async {
-    dynamic result;
-    try {
-      result = await context.push(
-        '/more/users/invitations/${invitation.id}',
-      );
-    } catch (_) {
-      result = null;
-    }
-    if (result == true && context.mounted) {
-      VToast.show(
-        context,
-        title: 'Đã thu hồi lời mời.',
-        message: '',
-        type: VToastType.success,
-      );
-      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
     }
   }
 
@@ -136,8 +89,6 @@ class _OrganizationUsersView extends StatelessWidget {
           subtitle: _subtitle(state),
           body: OrganizationUsersBody(
             onMemberTap: (m) => _openMember(context, m),
-            onInvitationTap: (i) => _openInvitation(context, i),
-            onInviteTap: () => _navigateInvite(context),
           ),
         );
       },

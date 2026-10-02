@@ -19,6 +19,8 @@ changelogs when relevant.
 
 ### Fixed
 
+- `VEmptyState`: không còn RenderFlex overflow khi chiều cao parent bị siết (vd. bàn phím mở trên màn tạo đơn).
+
 ### Internal
 
 ## [1.4.1] - 2026-09-13

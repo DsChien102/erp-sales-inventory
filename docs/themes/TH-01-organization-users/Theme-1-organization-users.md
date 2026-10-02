@@ -39,13 +39,13 @@ VET45 phục vụ hộ kinh doanh và doanh nghiệp thương mại nhỏ tại 
 - Resource có thực sự thuộc Tenant hiện hành không?
 
 Tenant không đồng nhất với Store, Warehouse, công ty hay pháp nhân\. Tenant là ranh giới dữ liệu, quyền truy cập, cấu hình và giao dịch của một đơn vị kinh doanh được quản trị độc lập\. Một Tenant có thể đại diện cho hộ kinh doanh, doanh nghiệp hoặc một business unit độc lập; Phase 1 không hỗ trợ nhiều công ty/pháp nhân trong cùng Tenant\.
-Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin tạo hoặc chọn Platform User dự kiến làm Owner, khởi tạo Tenant ở trạng thái `provisioning`, tạo Owner Membership và gán initial system role\. Owner sau đó đăng nhập Tenant App, hoàn thiện readiness và activate Tenant\.
+Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin khởi tạo Tenant ở trạng thái `provisioning` và gửi Owner Invitation; Platform User profile và Owner Membership chỉ được tạo khi người nhận chấp nhận lời mời\. Owner sau đó đăng nhập Tenant App, hoàn thiện readiness và activate Tenant\.
 
 ## 1\.3 In scope
 
 - VET45 System Admin tạo Platform User thông qua privileged Platform Identity flow\.
 
-- Tạo Platform User ở trạng thái chờ kích hoạt và gửi activation invitation; System Admin không đặt, xem hoặc biết credential của người dùng\.
+- Gửi lời mời chỉ lưu Invitation và trạng thái gửi. Người được mời bằng email mới chưa trở thành Platform User và chưa có Tenant Membership trước khi accept.
 
 - Quản lý trạng thái Platform User tối thiểu gồm chờ kích hoạt, đang hoạt động và đã tạm ngừng\.
 
@@ -53,7 +53,7 @@ Trong Phase 1, Tenant user không tự tạo Tenant\. VET45 System Admin tạo h
 
 - VET45 System Admin khởi tạo Tenant và chỉ định Owner đầu tiên\.
 
-- Chọn Platform User hiện hữu hoặc tạo Platform User mới trong luồng khởi tạo Tenant\.
+- Chọn Auth user hiện hữu hoặc mời email mới làm Owner; không tạo Platform User giả khi gửi lời mời\.
 
 - Gán system role mặc định `Chủ cửa hàng` cho Owner đầu tiên khi khởi tạo Tenant\.
 
@@ -372,29 +372,24 @@ Tenant
 **Cross\-domain onboarding orchestration**
 
 ```Plaintext
-Resolve Platform User by canonical email
-├── Existing user → select
-└── Missing user
-    → Platform Identity creates pending_activation user
-    → sends activation invitation
+Resolve invitee by canonical email
+├── Existing Auth user → Owner Invitation (owner_user_id known; no Membership yet)
+└── New email → Owner Invitation only (no Platform User, no Membership)
 
 Create Tenant provisioning
-→ create active Owner Membership
-→ assign initial active system role
+→ persist Owner Invitation (is_owner) + delivery queued
 → persist onboarding result / retry state
-→ Owner activates identity
+→ invitee accepts (verified Auth) → upsert profile + Owner Membership
 → Owner opens Tenant App
 → readiness passes
 → activate Tenant
 ```
 
-- Platform User creation và Theme 1 Tenant creation không giả định cùng database transaction\.
+- Gửi lời mời không tạo `iam.platform_user_profiles` hay `iam.memberships`\.
 
-- Tenant \+ Owner Membership \+ initial role assignment phải atomic trong Theme 1 boundary\.
+- Accept Invitation hợp lệ bằng Auth identity đã xác minh email sẽ upsert Platform User profile thật và tạo active Tenant Membership trong cùng transaction tiêu thụ Invitation\.
 
 - Cross\-capability orchestration dùng correlation ID, idempotency, retry và explicit partial\-failure state\.
-
-- Nếu Platform User đã tạo nhưng Tenant creation lỗi, không tự xóa User; System Admin có thể resume/retry\.
 
 **Concurrency and idempotency**
 
@@ -444,7 +439,7 @@ Sở hữu Tenant lifecycle, Tenant profile, current Legal Profile, ownership, a
 
 - Tenant được tạo ở trạng thái `provisioning`\.
 
-- Tạo Tenant, Owner Membership và role mặc định phải atomic\.
+- Tạo Tenant, Owner Membership và role mặc định phải atomic khi accept; khi gửi chỉ atomic Tenant \+ Invitation\.
 
 - Owner đầu tiên được gán role mặc định `Chủ cửa hàng`\.
 
@@ -526,7 +521,7 @@ Activation blockers tối thiểu:
 
 |Command|Actor / permission|Main preconditions|Result|Scope|
 |---|---|---|---|---|
-|CreateTenant|`platform.tenant.create`|Owner User tồn tại; role Chủ cửa hàng active|Tenant provisioning \+ Owner Membership|MVP|
+|CreateTenant|`platform.tenant.create`|Role Chủ cửa hàng active|Tenant provisioning \+ Owner Invitation|MVP|
 |UpdateTenantProfile|Owner policy hoặc `tenant.profile.update`|Tenant mutable; version hợp lệ|Update allowlisted fields|MVP|
 |CreateTenantLegalProfile|`tenant.legal_profile.update`|Chưa có profile; dữ liệu hợp lệ|Tạo Legal Profile|MVP|
 |UpdateTenantLegalProfile|`tenant.legal_profile.update`|Profile tồn tại; version hợp lệ|Cập nhật Legal Profile|MVP|
@@ -1031,7 +1026,7 @@ Các nguyên tắc mô hình:
 
 - `created_by_user_id` của Tenant có thể là VET45 System Admin và không bắt buộc là Owner hoặc Membership trong Tenant\.
 
-- Tenant Membership có thể tham chiếu Platform User `pending_activation`; effective access chỉ có khi identity active/verified\.
+- Tenant Membership chỉ tham chiếu Platform User thật (Auth user); Invitation pending không phải Membership\.
 
 - Platform User activation invitation không lưu trong `tenant_invitations`\.
 
@@ -1436,7 +1431,7 @@ Operation này không phải aggregate của Theme 1\. Nó tham chiếu kết qu
 
 ### 3\.5\.2 Cross\-entity consistency
 
-- Tạo Tenant phải tạo Tenant, active Owner Membership, role mặc định `Chủ cửa hàng` và outbox record trong cùng transaction của Theme 1\.
+- Tạo Tenant phải tạo Tenant, Owner Invitation (`is_owner`) và outbox record trong cùng transaction của Theme 1; Owner Membership chỉ khi accept\.
 
 - Tenant active hoặc suspended phải có đúng một active Owner Membership\.
 
@@ -1578,7 +1573,7 @@ Tenant user không tự tạo Tenant trong MVP\. VET45 chủ động provision P
 
 - Khởi tạo Tenant ở trạng thái provisioning\.
 
-- Tạo Owner Membership và gán role mặc định `Chủ cửa hàng`\.
+- Gửi Owner Invitation với role mặc định `Chủ cửa hàng`; Membership chỉ sau accept\.
 
 - Hiển thị blocker và warning của TenantReadiness\.
 
@@ -1708,7 +1703,7 @@ Platform Admin cần xử lý các trạng thái chờ kích hoạt, đang hoạ
 
 **Functional requirements**
 
-- User pending activation có action gửi lại activation invitation và tạm ngừng\.
+- PA-D-01 loại người chỉ có Invitation và bỏ filter “Chờ kích hoạt”; PA-D-03 hiển thị email ngay dưới tên; bỏ các thao tác người dùng pending của PA-O-02\.
 
 - User active có action yêu cầu đặt lại mật khẩu và tạm ngừng\.
 
@@ -1790,7 +1785,7 @@ System Admin cần một flow onboarding thống nhất để tạo hoặc chọ
 
 - Role Owner đầu tiên cố định là `Chủ cửa hàng` và hiển thị read\-only\.
 
-- Tạo Tenant, Owner Membership và role assignment phải atomic trong Theme 1\.
+- Tạo Tenant và Owner Invitation phải atomic trong Theme 1; profile/Membership khi accept\.
 
 - Thành công mở Tenant detail ở trạng thái provisioning và hiển thị toast\.
 
@@ -1814,7 +1809,7 @@ System Admin cần một flow onboarding thống nhất để tạo hoặc chọ
 
 - Tenant được tạo ở trạng thái provisioning\.
 
-- Retry không tạo duplicate User, Tenant hoặc Membership\.
+- Retry không tạo duplicate Tenant, Invitation hoặc Membership sau accept\.
 
 **Scenarios**
 
@@ -1824,15 +1819,15 @@ System Admin cần một flow onboarding thống nhất để tạo hoặc chọ
 
 - When System Admin xác nhận tạo tổ chức
 
-- Then hệ thống tạo Tenant provisioning và Owner Membership với role Chủ cửa hàng
+- Then hệ thống tạo Tenant provisioning và Owner Invitation (chưa có Membership)
 
-**Scenario SC\-02 — Khởi tạo với Platform User mới**
+**Scenario SC\-02 — Khởi tạo với email mới**
 
-- Given email chưa có Platform User
+- Given email chưa có Auth user
 
 - When System Admin hoàn tất onboarding
 
-- Then Platform Identity tạo pending User, gửi activation invitation và Theme 1 tạo Tenant
+- Then Theme 1 tạo Tenant và Owner Invitation; chưa có Platform User hay Membership cho đến khi accept
 
 **References**
 
@@ -3429,7 +3424,7 @@ Quản lý danh sách Membership, Tenant Invitation và flow mời thành viên\
 
 **UI contract**
 
-- Giao diện có hai tab `Thành viên` và `Lời mời`\.
+- Giao diện Tenant App có hai tab `Thành viên` và `Lời mời`\. Platform Admin không quản lý lời mời thành viên thông thường\.
 
 - Hỗ trợ search, status filter và count\.
 
@@ -3752,9 +3747,15 @@ Cho Platform Admin xem, tra cứu và quản lý lifecycle của Platform User\.
 
 - Active User có action đặt lại mật khẩu và tạm ngừng\.
 
-- Pending User có action gửi lại activation invitation và tạm ngừng\.
+- PA-D-01 loại người chỉ có Invitation và bỏ filter “Chờ kích hoạt”; PA-D-03 hiển thị email ngay dưới tên; bỏ các thao tác người dùng pending của PA-O-02.
 
-- Suspended User có action khôi phục\.
+- PA-SG-02 quản lý Owner Invitation tại Platform Admin → Tổ chức: giữ nút “Thao tác” hiện có; ở Tenant `settingUp` với Invitation `pending`/`expired`, sheet chỉ có “Gửi lại email” (không có “Tạm ngừng tổ chức”), mở sheet “Gửi lại email thiết lập?”; reuse cùng invitation khi gửi lại/đổi email. Không mở sheet rỗng nếu không còn thao tác hợp lệ. Khi Tenant đã `active` hoặc `suspended`, không hiện gửi lại email, giữ “Thay đổi chủ sở hữu” và các thao tác hiện tại. Không sửa banner/nền trang trong slice UI này.
+
+- TA-D-01 chỉ liệt kê Membership thật. Invitation thành viên pending nằm ở Tenant App → Lời mời; Platform Admin không quản lý loại lời mời này.
+
+- Readiness của Owner phân biệt đang chờ và hết hạn trước khi accept, cả hai có `canActivate=false`; trạng thái hết hạn trên readiness không có thao tác khôi phục.
+
+- Active User có action đặt lại mật khẩu và tạm ngừng.
 
 - Platform Admin không nhập hoặc xem mật khẩu\.
 
@@ -3783,7 +3784,7 @@ Cho Platform Admin xem, tra cứu và quản lý lifecycle của Platform User\.
 
 **Purpose**
 
-Cung cấp wizard ba bước để chọn hoặc tạo Platform User, khởi tạo tổ chức và chỉ định Owner đầu tiên\.
+Cung cấp wizard ba bước để mời Owner (email mới hoặc Auth user hiện hữu), khởi tạo tổ chức; không tạo Platform User/Membership trước accept\.
 
 **Entry points**
 
@@ -3994,7 +3995,7 @@ Không cung cấp API xem EffectivePermissions của một thành viên khác tr
 |POST|`/platform/users/{user_id}/suspend`|`platform.user.suspend`|Tạm ngừng Platform User|
 |POST|`/platform/users/{user_id}/restore`|`platform.user.restore`|Khôi phục Platform User theo identity policy|
 |GET|`/platform/tenants`|`platform.tenant.view`|Tìm kiếm và liệt kê Tenant|
-|POST|`/platform/tenants`|`platform.tenant.create`|Tạo Tenant, Owner Membership và role mặc định|
+|POST|`/platform/tenants`|`platform.tenant.create`|Tạo Tenant provisioning và Owner Invitation; Membership khi accept|
 |GET|`/platform/tenants/{tenant_id}`|`platform.tenant.view`|Đọc chi tiết quản trị Tenant|
 |GET|`/platform/tenants/{tenant_id}/members`|`platform.tenant.member.view`|Đọc Membership của Tenant mà không cần TenantContext|
 |POST|`/platform/tenants/{tenant_id}/transfer-ownership`|`platform.tenant.owner.transfer`|Chuyển Owner ở cấp nền tảng và giữ nguyên role|
@@ -4009,13 +4010,11 @@ Không cung cấp API xem EffectivePermissions của một thành viên khác tr
 
 **Flow**
 
-- Resolve Platform User bằng canonical email\.
+- Resolve invitee bằng canonical email (Auth user hiện hữu hoặc email mới)\.
 
-- Tái sử dụng User hiện hữu hoặc tạo User mới ở trạng thái pending activation\.
+- Chỉ lưu Owner Invitation và trạng thái gửi; không tạo User pending hay Membership\.
 
-- Gửi activation invitation khi cần\.
-
-- Tạo Tenant provisioning, Owner Membership và role mặc định `Chủ cửa hàng` trong cùng transaction của Theme 1\.
+- Tạo Tenant provisioning trong cùng transaction của Theme 1\.
 
 - Lưu operation status, completed steps và correlation ID\.
 
@@ -4029,7 +4028,7 @@ Không cung cấp API xem EffectivePermissions của một thành viên khác tr
 
 - Không xóa Platform User chỉ vì bước tạo Tenant thất bại\.
 
-- Rollback trong Theme 1 phải bao phủ Tenant, Owner Membership, default role assignment và outbox\.
+- Rollback trong Theme 1 phải bao phủ Tenant, Owner Invitation và outbox; không unwind Membership giả vì Invitation mới không pre-create\.
 
 - Pending Owner identity không được xem là Tenant activation thành công\.
 

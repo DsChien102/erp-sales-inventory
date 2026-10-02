@@ -38,7 +38,6 @@ create table iam.audit_logs (
   detail_items jsonb not null default '[]'::jsonb,
   redaction_flags text[] not null default '{}',
   occurred_at timestamptz not null default now(),
-  created_at timestamptz not null default now(),
   constraint audit_logs_scope_chk
     check (scope in ('tenant', 'platform')),
   constraint audit_logs_tenant_scope_chk
@@ -152,6 +151,7 @@ begin
          'iam.tenant.activated',
          'iam.tenant.suspended',
          'iam.tenant.restored',
+         'iam.tenant.closed',
          'iam.tenant.ownership_transferred' then return 'organization';
     when 'iam.tenant.invitation_created',
          'tenant.invitation.created',
@@ -164,7 +164,9 @@ begin
     when 'iam.account.profile_updated',
          'iam.user.profile_updated' then return 'account';
     when 'iam.account.password_reset_completed',
-         'iam.account.signed_out' then return 'security';
+         'iam.account.signed_out',
+         'iam.platform_user.suspended',
+         'iam.platform_user.restored' then return 'security';
     else
       raise exception 'AUDIT_EVENT_UNREGISTERED:%', p_event_code;
   end case;
@@ -277,7 +279,7 @@ begin
     target_type, target_id, target_display_name_snapshot,
     target_secondary_identifier, target_snapshot, source,
     correlation_id, tracking_id, source_event_refs, detail_items,
-    redaction_flags, occurred_at, created_at
+    redaction_flags, occurred_at
   )
   values (
     p_scope, p_tenant_id,
@@ -295,7 +297,7 @@ begin
     v_source_event_refs,
     iam._audit_redact(coalesce(p_detail_items, '[]'::jsonb)),
     coalesce(p_redaction_flags, '{}'),
-    coalesce(p_occurred_at, v_now), v_now
+    coalesce(p_occurred_at, v_now)
   )
   returning id into v_id;
 
@@ -350,13 +352,13 @@ begin
       when 'system' then 'Hệ thống'
       else 'Nhân viên vận hành nền tảng'
     end) as actor_role,
-    coalesce(t.name, a.target_type, '') as target_org_name,
-    coalesce(t.code, a.target_id, left(coalesce(t.id::text, ''), 8)) as target_org_code,
+    coalesce(t.display_name, a.target_type, '') as target_org_name,
+    coalesce(a.target_id, left(coalesce(t.id::text, ''), 8)) as target_org_code,
     a.target_type as target_type,
     -- Tên hiển thị của đối tượng: tenant → tên tổ chức; account/user → tên/email
     -- người dùng resolve theo target_id; fallback snapshot lúc ghi.
     coalesce(
-      t.name,
+      t.display_name,
       (select coalesce(
                 nullif(trim(concat_ws(' ', p2.family_middle_name, p2.given_name)), ''),
                 u2.email::text, p2.email)
@@ -463,7 +465,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = auth.uid()
-      and m.status = 'active'
+      and m.is_active
   ) or not iam.has_permission(p_tenant_id, 'tenant.audit.view') then
     raise exception 'TENANT_PERMISSION_DENIED';
   end if;
@@ -539,7 +541,7 @@ begin
       nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') ilike '%' || v_query || '%' or
       nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%' or
       t.display_name ilike '%' || v_query || '%' or
-      t.code ilike '%' || v_query || '%' or
+      left(t.id::text, 8) ilike '%' || v_query || '%' or
       inv_role.code ilike '%' || v_query || '%' or
       inv_role.label ilike '%' || v_query || '%' or
       sm.role ilike '%' || v_query || '%' or
@@ -566,7 +568,7 @@ begin
       nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') as u_display_name,
       m.role as m_role,
       t.display_name as t_display_name,
-      t.code as t_code,
+      left(t.id::text, 8) as t_code,
       inv_role.code as inv_role,
       inv.invitee_email as inv_email,
       nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') as su_full_name,
@@ -580,9 +582,9 @@ begin
       from iam.memberships am
       where am.tenant_id = a.tenant_id
         and am.user_id = a.actor_user_id
-        and am.status in ('active', 'inactive')
+        and am.removed_at is null
       order by
-        case am.status when 'active' then 0 else 1 end,
+        case when am.is_active then 0 else 1 end,
         am.updated_at desc,
         am.created_at desc,
         am.id desc
@@ -639,7 +641,7 @@ begin
         nullif(trim(concat_ws(' ', up.family_middle_name, up.given_name)), '') ilike '%' || v_query || '%' or
         nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') ilike '%' || v_query || '%' or
         t.display_name ilike '%' || v_query || '%' or
-        t.code ilike '%' || v_query || '%' or
+        left(t.id::text, 8) ilike '%' || v_query || '%' or
         inv_role.code ilike '%' || v_query || '%' or
         inv_role.label ilike '%' || v_query || '%' or
         sm.role ilike '%' || v_query || '%' or
@@ -823,7 +825,7 @@ begin
     from iam.memberships m
     where m.tenant_id = p_tenant_id
       and m.user_id = auth.uid()
-      and m.status = 'active'
+      and m.is_active
   ) or not iam.has_permission(p_tenant_id, 'tenant.audit.view') then
     raise exception 'TENANT_PERMISSION_DENIED';
   end if;
@@ -860,7 +862,7 @@ begin
     nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), '') as u_display_name,
     m.role as m_role,
     t.display_name as t_display_name,
-    t.code as t_code,
+    left(t.id::text, 8) as t_code,
     inv_role.code as inv_role,
     inv.invitee_email as inv_email,
     nullif(trim(concat_ws(' ', sup.family_middle_name, sup.given_name)), '') as su_full_name,
@@ -875,9 +877,9 @@ begin
     from iam.memberships am
     where am.tenant_id = a.tenant_id
       and am.user_id = a.actor_user_id
-      and am.status in ('active', 'inactive')
+      and am.removed_at is null
     order by
-      case am.status when 'active' then 0 else 1 end,
+      case when am.is_active then 0 else 1 end,
       am.updated_at desc,
       am.created_at desc,
       am.id desc
@@ -1152,8 +1154,8 @@ begin
         nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
         coalesce(u.email::text, 'Hệ thống')
       ) as actor_name,
-      coalesce(t.name, '') as target_org_name,
-      coalesce(t.code, left(coalesce(t.id::text, ''), 8)) as target_org_code
+      coalesce(t.display_name, '') as target_org_name,
+      left(coalesce(t.id::text, ''), 8) as target_org_code
     from iam.audit_logs a
     left join auth.users u on u.id = a.actor_user_id
     left join iam.tenants t on t.id = a.tenant_id
@@ -1169,8 +1171,8 @@ begin
       and (
         p_action is null or p_action = ''
         or a.event_code ilike '%' || p_action || '%'
-        or coalesce(t.name, '') ilike '%' || p_action || '%'
-        or coalesce(t.code, '') ilike '%' || p_action || '%'
+        or coalesce(t.display_name, '') ilike '%' || p_action || '%'
+        or left(coalesce(t.id::text, ''), 8) ilike '%' || p_action || '%'
       )
       and (
         v_cur_occurred is null

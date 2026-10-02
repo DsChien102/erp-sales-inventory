@@ -52,15 +52,6 @@ $$;
 revoke all on function iam.get_auth_user_snapshot(uuid) from public, anon, authenticated;
 grant execute on function iam.get_auth_user_snapshot(uuid) to service_role;
 
-create table if not exists iam.tenant_activation_operations (
-  tenant_id uuid not null references iam.tenants (id) on delete cascade,
-  idempotency_key text not null,
-  payload_hash text not null,
-  result jsonb not null,
-  created_at timestamptz not null default now(),
-  primary key (tenant_id, idempotency_key)
-);
-
 -- ── get_tenant_readiness ──────────────────────────────────────────────────────
 
 create or replace function iam.get_tenant_readiness(p_tenant_id uuid)
@@ -94,7 +85,7 @@ begin
     raise exception 'RESOURCE_NOT_FOUND';
   end if;
 
-  if coalesce(v_tenant.display_name, v_tenant.name, '') = '' then
+  if coalesce(v_tenant.display_name, '') = '' then
     v_blockers := v_blockers || to_jsonb('TENANT_DISPLAY_NAME_MISSING'::text);
   end if;
   if coalesce(v_tenant.contact_email, '') = '' then
@@ -110,18 +101,32 @@ begin
   select count(*) into v_owner_count
   from iam.memberships m
   where m.tenant_id = p_tenant_id
-    and (m.is_owner is true or m.role = 'owner')
-    and m.status = 'active';
+    and m.is_owner is true
+    and m.is_active;
 
   if v_owner_count <> 1 then
-    v_blockers := v_blockers || to_jsonb('OWNER_MEMBERSHIP_INVALID'::text);
+    if v_owner_count = 0 and v_tenant.status = 'provisioning' then
+      if exists (
+        select 1 from iam.tenant_invitations i
+        where i.tenant_id = p_tenant_id
+          and i.is_owner is true
+          and i.status = 'pending'
+          and i.expires_at > now()
+      ) then
+        v_blockers := v_blockers || to_jsonb('OWNER_ACCEPTANCE_PENDING'::text);
+      else
+        v_blockers := v_blockers || to_jsonb('OWNER_INVITATION_EXPIRED'::text);
+      end if;
+    else
+      v_blockers := v_blockers || to_jsonb('OWNER_MEMBERSHIP_INVALID'::text);
+    end if;
   else
     -- Owner identity readiness: Auth-confirmed identity + verified email.
     select m.user_id into v_owner_user
     from iam.memberships m
     where m.tenant_id = p_tenant_id
-      and (m.is_owner is true or m.role = 'owner')
-      and m.status = 'active'
+      and m.is_owner is true
+      and m.is_active
     limit 1;
 
     select iam._platform_user_effective_status(u.email_confirmed_at)
@@ -193,7 +198,7 @@ set search_path = iam, pg_temp
 as $$
 declare
   v_tenant iam.tenants;
-  v_existing iam.tenant_activation_operations;
+  v_existing iam.idempotency_records;
   v_readiness jsonb;
   v_blockers jsonb;
   v_payload_hash text := md5(p_expected_version::text);
@@ -229,8 +234,8 @@ begin
   perform 1
   from iam.memberships m
   where m.tenant_id = p_tenant_id
-    and (m.is_owner is true or m.role = 'owner')
-    and m.status = 'active'
+    and m.is_owner is true
+    and m.is_active
   for update;
 
   if v_tenant.status <> 'provisioning' then

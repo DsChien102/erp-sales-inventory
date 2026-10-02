@@ -54,7 +54,7 @@ void main() {
     await cubit.close();
   });
 
-  test('acceptExistingAccountOk signs in then accepts in order', () async {
+  test('loginAndAccept signs in, accepts, then signs out without tenant bootstrap', () async {
     final keys = FakeIdempotencyKeyFactory();
     final module = RecordingIamModule(
       FakeIamModule(scenario: FakeIamScenario.acceptExistingAccountOk),
@@ -70,21 +70,24 @@ void main() {
     expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
     expect(module.commandsOf<SignInTenantUserCommand>().single, isA<SignInTenantUserCommand>());
     expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
+    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
     final accept = module.commandsOf<AcceptInvitationCommand>().single;
     expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
 
     expect(module.queriesOf<InspectInvitationTokenQuery>(), isNotEmpty);
     expect(module.queriesOf<GetCurrentSessionQuery>(), isNotEmpty);
-    expect(module.queriesOf<GetTenantContextQuery>(), isNotEmpty);
+    expect(module.queriesOf<GetTenantContextQuery>(), isEmpty);
 
-    // Order: SignIn before Accept
+    // Order: verify the account, accept the invitation, then force re-login.
     final signInIndex = module.commands.indexWhere((c) => c is SignInTenantUserCommand);
     final acceptIndex = module.commands.indexWhere((c) => c is AcceptInvitationCommand);
+    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
     expect(signInIndex, lessThan(acceptIndex));
+    expect(acceptIndex, lessThan(signOutIndex));
     await cubit.close();
   });
 
-  test('acceptExistingAccount accepts immediately without signing in', () async {
+  test('acceptExistingAccount accepts then signs out before completion', () async {
     final keys = FakeIdempotencyKeyFactory();
     final module = RecordingIamModule(
       FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
@@ -102,8 +105,12 @@ void main() {
 
     expect(module.commandsOf<SignInTenantUserCommand>(), isEmpty);
     expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
+    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
     final accept = module.commandsOf<AcceptInvitationCommand>().single;
     expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
+    final acceptIndex = module.commands.indexWhere((c) => c is AcceptInvitationCommand);
+    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
+    expect(acceptIndex, lessThan(signOutIndex));
 
     await cubit.close();
   });
@@ -138,7 +145,7 @@ void main() {
     await cubit.close();
   });
 
-  test('registerAndAcceptOk registers without email in profile', () async {
+  test('registerAndAccept registers then signs out without tenant bootstrap', () async {
     final module = RecordingIamModule(
       FakeIamModule(scenario: FakeIamScenario.registerAndAcceptOk),
     );
@@ -154,6 +161,13 @@ void main() {
     expect(command.profile.givenName, 'An');
     expect(command.profile.familyName, 'Nguyen');
     expect(command.credentialProof, 'password-1');
+    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
+    expect(module.queriesOf<GetTenantContextQuery>(), isEmpty);
+    final registerIndex = module.commands.indexWhere(
+      (c) => c is RegisterFromInvitationCommand,
+    );
+    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
+    expect(registerIndex, lessThan(signOutIndex));
     expect(cubit.state.toString(), isNot(contains('password-1')));
     expect(cubit.state.toString(), isNot(contains('tok-new')));
     await cubit.close();
@@ -421,4 +435,3 @@ final class _TerminalFailAcceptModule implements IIamModule {
     throw UnsupportedError(query.runtimeType.toString());
   }
 }
-

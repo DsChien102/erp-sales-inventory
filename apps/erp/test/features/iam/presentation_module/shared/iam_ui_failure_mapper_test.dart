@@ -5,6 +5,17 @@ import 'package:vet45_shared_application/application.dart';
 
 void main() {
   group('IamUiFailureMapper', () {
+    test('PLATFORM_USER_SUSPENDED shows suspended account message', () {
+      final failure = IamUiFailureMapper.from(
+        const IamBlockedException(IamBlockedCodes.platformUserSuspended),
+      );
+      expect(failure.code, IamBlockedCodes.platformUserSuspended);
+      expect(
+        failure.message,
+        'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
+      );
+    });
+
     test('STATE_CHANGED requires reload', () {
       final failure = IamUiFailureMapper.from(
         const IamBlockedException(IamBlockedCodes.stateChanged),

@@ -132,14 +132,17 @@ iam:
   _audit_event_category: 20260826004_iam_audit_logs_v2_rebuild.sql
   _audit_redact: 20260826004_iam_audit_logs_v2_rebuild.sql
   _cleanup_pending_profile_on_auth_user: 20260911004_iam_onboarding_owner_membership_with_invitation.sql
-  _ensure_membership_default_store_scope: 20260916001_iam_ensure_default_store_scope_helpers.sql
   _ensure_tenant_default_store: 20260916001_iam_ensure_default_store_scope_helpers.sql
   _generate_invitation_code: 20260811017_iam_tenant_invitation_create.sql
+  _idempotency_find: 20260811005_iam_platform_user_lifecycle.sql
+  _idempotency_store: 20260811005_iam_platform_user_lifecycle.sql
   _invitation_detail_json: 20260811018_iam_tenant_invitation_resend_revoke.sql
   _invitation_token_hash: 20260811020_iam_tenant_invitation_acceptance.sql
+  _is_platform_user_suspended: 20260911001_iam_patch_platform_user_status_enum.sql
   _load_invitation_by_token: 20260811020_iam_tenant_invitation_acceptance.sql
   _mask_reset_email: 20260811025_iam_password_reset_by_email.sql
   _membership_detail_json: 20260820004_iam_tenant_member_detail_user_info.sql
+  _membership_status_code: 20260811014_iam_tenant_membership_lifecycle.sql
   _mutate_membership_status: 20260811014_iam_tenant_membership_lifecycle.sql
   _password_reset_operation_json: 20260811021_iam_password_reset_operations.sql
   _password_reset_public_json: 20260811025_iam_password_reset_by_email.sql
@@ -152,10 +155,13 @@ iam:
   accept_owner_activation: 20260811023_iam_owner_activation.sql
   activate_tenant: 20260916007_iam_patch_activate_tenant_default_store_scope.sql
   append_audit_log: 20260826004_iam_audit_logs_v2_rebuild.sql
+  assert_my_platform_access: 20260911001_iam_patch_platform_user_status_enum.sql
   assign_member_role: 20260820005_iam_assign_member_role_fix.sql
   begin_password_reset_operation: 20260826001_iam_fix_utc_now_offset.sql
   begin_password_reset_operation_by_email: 20260826001_iam_fix_utc_now_offset.sql
   bootstrap_owner: 20260914001_iam_get_session_context_multi_tenant.sql
+  can_access_store: 20260830001_iam_active_store_context_group_a.sql
+  close_platform_tenant: 20260811011_iam_platform_tenant_lifecycle.sql
   complete_password_reset_operation_by_email: 20260811025_iam_password_reset_by_email.sql
   create_tenant_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
   create_tenant_onboarding: 20260916004_iam_patch_onboarding_default_store_scope.sql
@@ -175,7 +181,6 @@ iam:
   get_tenant_context: 20260811024_iam_patch_owner_role_canonicalization.sql
   get_tenant_invitation: 20260826001_iam_fix_utc_now_offset.sql
   get_tenant_member: 20260820004_iam_tenant_member_detail_user_info.sql
-  get_tenant_onboarding_operation: 20260811006_iam_create_tenant_onboarding.sql
   get_tenant_readiness: 20260811016_iam_tenant_readiness_activate.sql
   has_permission: 20260811024_iam_patch_owner_role_canonicalization.sql
   has_platform_permission: 20260811003_iam_platform_admin_authz.sql
@@ -205,7 +210,6 @@ iam:
   resolve_or_create_platform_user_for_onboarding: 20260811006_iam_create_tenant_onboarding.sql
   restore_platform_tenant: 20260811011_iam_platform_tenant_lifecycle.sql
   restore_platform_user: 20260811005_iam_platform_user_lifecycle.sql
-  retry_tenant_onboarding_operation: 20260811006_iam_create_tenant_onboarding.sql
   revoke_tenant_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
   search_platform_audit_logs: 20260826004_iam_audit_logs_v2_rebuild.sql
   search_platform_tenants: 20260811010_iam_platform_tenants_read.sql

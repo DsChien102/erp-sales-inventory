@@ -192,6 +192,40 @@ void main() {
       expect(session.establishedTenantId, isNull);
     });
 
+    test('bootstrap on suspended/closed tenant returns invalidated (no auto-pick)', () async {
+      for (final reason in [
+        TenantContextInvalidationReason.tenantSuspended,
+        TenantContextInvalidationReason.tenantClosed,
+      ]) {
+        final session = _FakeSessionPort();
+        final handler = GetTenantContextQueryHandler(
+          accessGateway: _ScenarioAccessGateway((id) async {
+            return TenantContextDto(
+              status: TenantContextStatus.invalidated,
+              tenantId: 'tenant-x',
+              tenantName: 'Tiền',
+              invalidationReason: reason,
+              blockedErrorCode: reason == TenantContextInvalidationReason.tenantClosed
+                  ? 'TENANT_CLOSED'
+                  : 'TENANT_SUSPENDED',
+            );
+          }),
+          preferencePort: _FakePreferencePort('tenant-x'),
+          sessionPort: session,
+          currentTenant: _FakeCurrentTenant(null),
+        );
+
+        final result = await handler.handle(
+          GetTenantContextQuery(bootstrapFromLastSelected: true),
+        );
+
+        expect(result.status, TenantContextStatus.invalidated, reason: '$reason');
+        expect(result.invalidationReason, reason);
+        expect(result.tenantName, 'Tiền');
+        expect(session.establishedTenantId, isNull);
+      }
+    });
+
     test('context_none — no preference / no session', () async {
       final handler = GetTenantContextQueryHandler(
         accessGateway: _ScenarioAccessGateway(

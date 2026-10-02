@@ -1,9 +1,8 @@
 /// Result of tenant + first-owner onboarding (EP-01/US-03).
 ///
-/// Hybrid: onboarding always creates Owner Membership immediately (new and
-/// existing owners) and issues an activation invitation. [ownerMembershipId]
-/// / [ownerUserId] are set when the RPC returns them; [activationIssued] is
-/// true when an activation invitation was queued.
+/// Trước khi accept Invitation, [ownerMembershipId] là null. [ownerUserId] là
+/// null với người được mời mới hoặc là ID Auth user đã có; onboarding không
+/// tạo profile hay Membership cho người được mời.
 final class TenantOnboardingResultDto {
   const TenantOnboardingResultDto({
     required this.tenantId,
@@ -22,10 +21,10 @@ final class TenantOnboardingResultDto {
   final String correlationId;
   final bool isNewUser;
 
-  /// Owner membership created at onboarding (hybrid).
+  /// Owner membership after accept; null while Invitation is still pending.
   final String? ownerMembershipId;
   final String? ownerUserId;
 
-  /// True when an activation invitation / code was queued.
+  /// True when an owner invitation / activation email was queued.
   final bool activationIssued;
 }

@@ -162,7 +162,7 @@ as $$
 declare
   v_version int;
   v_fp text;
-  v_existing text;
+  v_existing iam.idempotency_records;
 begin
   if not iam.has_platform_permission('platform.user.suspend') then
     raise exception 'PLATFORM_PERMISSION_DENIED';
@@ -170,17 +170,15 @@ begin
   if p_reason is null or trim(p_reason) = '' then
     raise exception 'VALIDATION_ERROR';
   end if;
+  if p_user_id = auth.uid() then
+    raise exception 'VALIDATION_ERROR';
+  end if;
   if p_idempotency_key is null or trim(p_idempotency_key) = '' then
     raise exception 'VALIDATION_ERROR';
   end if;
   v_fp := p_user_id::text || '|' || p_reason || '|' || p_expected_version::text;
-  select payload_fingerprint into v_existing
-  from iam.platform_user_lifecycle_operations
-  where idempotency_key = p_idempotency_key;
-  if v_existing is not null then
-    if v_existing <> v_fp then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('platform_user.suspend', 'platform', p_idempotency_key, v_fp);
+  if v_existing.idempotency_key is not null then
     return;
   end if;
   select coalesce(version, 1) into v_version
@@ -195,9 +193,25 @@ begin
   values (p_user_id, 'suspended', v_version + 1)
   on conflict (user_id) do update
     set status = 'suspended', version = iam.platform_user_profiles.version + 1;
-  insert into iam.platform_user_lifecycle_operations(
-    idempotency_key, user_id, action, payload_fingerprint
-  ) values (p_idempotency_key, p_user_id, 'suspend', v_fp);
+  perform iam._idempotency_store('platform_user.suspend', 'platform', p_idempotency_key, v_fp, null);
+
+  perform iam.append_audit_log(
+    p_scope => 'platform',
+    p_tenant_id => null,
+    p_actor_user_id => auth.uid(),
+    p_event_code => 'iam.platform_user.suspended',
+    p_subject_type => 'account',
+    p_subject_id => p_user_id::text,
+    p_result => 'success',
+    p_source => 'admin',
+    p_tracking_id => p_idempotency_key,
+    p_before => jsonb_build_object('version', p_expected_version),
+    p_after => jsonb_build_object(
+      'status', 'suspended',
+      'reason', trim(p_reason),
+      'version', p_expected_version + 1
+    )
+  );
 end;
 $$;
 

@@ -19,12 +19,28 @@ class OrganizationDetailAlerts extends StatelessWidget {
     switch (organization.status) {
       case OrganizationStatus.settingUp:
         final alerts = <Widget>[];
-        if (organization.unverifiedEmail) {
-          final ownerDisplayName = organization.ownerName != null &&
-                  organization.ownerName!.isNotEmpty &&
-                  organization.ownerName != 'Chưa xác định'
-              ? organization.ownerName!
-              : 'Chủ sở hữu';
+        final ownerDisplayName =
+            organization.ownerName != null &&
+                organization.ownerName!.isNotEmpty &&
+                organization.ownerName != 'Chưa xác định'
+            ? organization.ownerName!
+            : 'Chủ sở hữu';
+        final invitationState = organization.ownerInvitationState?.trim().toLowerCase();
+        if (invitationState == 'expired') {
+          alerts.add(
+            _buildAlertBox(
+              colors: colors,
+              backgroundColor: colors.warningBg,
+              border: null,
+              icon: VIcons.warning,
+              iconColor: colors.warning,
+              titleColor: colors.warning,
+              title: 'Lời mời hết hạn',
+              description:
+                  'Lời mời thiết lập dành cho $ownerDisplayName đã hết hạn. Hãy gửi lại email để tiếp tục.',
+            ),
+          );
+        } else if (organization.unverifiedEmail) {
           alerts.add(
             _buildAlertBox(
               colors: colors,
@@ -34,8 +50,7 @@ class OrganizationDetailAlerts extends StatelessWidget {
               iconColor: colors.warning,
               titleColor: colors.warning,
               title: 'Email Chủ sở hữu chưa xác minh',
-              description:
-                  '$ownerDisplayName cần xác minh email trước khi kích hoạt tổ chức.',
+              description: '$ownerDisplayName cần xác minh email trước khi kích hoạt tổ chức.',
             ),
           );
         }

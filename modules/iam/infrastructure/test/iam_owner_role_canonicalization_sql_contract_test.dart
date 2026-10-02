@@ -40,7 +40,10 @@ void main() {
     });
 
     test('has_permission denies non-active memberships', () {
-      expect(hasPermissionBody, contains('m.status'));
+      expect(
+        hasPermissionBody,
+        contains('iam._membership_status_code(m.is_active, m.removed_at)'),
+      );
       expect(
         hasPermissionBody,
         contains("v_role is null or coalesce(v_status, 'active') <> 'active'"),

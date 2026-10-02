@@ -14,7 +14,7 @@ void main() {
       expect(sql, contains('pricing.evaluate_sales_manual_price'));
       expect(sql, contains('p_tenant_id'));
       expect(sql, contains('p_store_id'));
-      expect(sql, contains('membership_store_scopes'));
+      expect(sql, contains('iam.can_access_store('));
       expect(sql, contains('is_ready_to_sell'));
       expect(sql, contains('product_unit_id'));
       expect(sql, contains('customer_price_rules'));

@@ -19,6 +19,7 @@ class MyAccountUiModel {
   final String emailStatus;
   final String phoneNumber;
   final String? avatarUrl;
+  final bool isOwner;
 
   const MyAccountUiModel({
     required this.firstName,
@@ -27,13 +28,17 @@ class MyAccountUiModel {
     required this.emailStatus,
     required this.phoneNumber,
     this.avatarUrl,
+    this.isOwner = false,
   });
 
   String get fullName => '$lastName $firstName'.trim();
 
   bool get hasName => fullName.isNotEmpty;
 
-  factory MyAccountUiModel.fromDto(MyIdentityProfileDto dto) {
+  factory MyAccountUiModel.fromDto(
+    MyIdentityProfileDto dto, {
+    bool isOwner = false,
+  }) {
     return MyAccountUiModel(
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -41,6 +46,7 @@ class MyAccountUiModel {
       emailStatus: dto.emailVerified ? 'Đã xác minh' : 'Chưa xác minh',
       phoneNumber: dto.phoneNumber ?? '',
       avatarUrl: dto.avatarUrl,
+      isOwner: isOwner,
     );
   }
 
@@ -311,7 +317,10 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
           );
         }
 
-        final accountData = MyAccountUiModel.fromDto(state.profile!);
+        final accountData = MyAccountUiModel.fromDto(
+          state.profile!,
+          isOwner: state.isOwner,
+        );
         final iamModule = context.read<MyAccountCubit>().iamModule;
 
         return _MyAccountScaffold(
@@ -411,6 +420,14 @@ class _MyAccountScaffold extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (data.isOwner) ...[
+                  const VGap.horizontalSm(),
+                  const VBadge(
+                    label: 'Chủ sở hữu',
+                    tone: VComponentTone.success,
+                    variant: VBadgeVariant.soft,
+                  ),
+                ],
               ],
             ),
           ),

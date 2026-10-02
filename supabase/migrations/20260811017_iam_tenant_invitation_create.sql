@@ -71,7 +71,7 @@ create table if not exists iam.tenant_invitations (
   status text not null default 'pending'
     check (status in ('pending', 'accepted', 'declined', 'revoked', 'expired')),
   token_hash text not null,
-  invited_by_membership_id uuid not null,
+  invited_by_membership_id uuid references iam.memberships (id) on delete set null,
   accepted_membership_id uuid,
   expires_at timestamptz not null,
   status_changed_at timestamptz not null default timezone('utc', now()),
@@ -91,23 +91,14 @@ create unique index if not exists tenant_invitations_pending_email_uidx
   on iam.tenant_invitations (tenant_id, invitee_email)
   where status = 'pending';
 
-create unique index if not exists tenant_invitations_accepted_membership_uidx
+-- Non-unique: a re-invited member reuses the same membership row, so one
+-- membership can carry several accepted invitations over time.
+create index if not exists tenant_invitations_accepted_membership_idx
   on iam.tenant_invitations (accepted_membership_id)
   where accepted_membership_id is not null;
 
 create index if not exists tenant_invitations_tenant_status_expires_idx
   on iam.tenant_invitations (tenant_id, status, expires_at);
-
--- ── Idempotency store ───────────────────────────────────────────────────────
-
-create table if not exists iam.tenant_invitation_operations (
-  tenant_id uuid not null,
-  idempotency_key text not null,
-  payload_hash text not null,
-  result jsonb not null,
-  created_at timestamptz not null default timezone('utc', now()),
-  primary key (tenant_id, idempotency_key)
-);
 
 -- ── create_tenant_invitation ────────────────────────────────────────────────
 
@@ -128,7 +119,7 @@ declare
   v_role iam.role_definitions;
   v_actor_membership iam.memberships;
   v_existing_membership iam.memberships;
-  v_existing_op iam.tenant_invitation_operations;
+  v_existing_op iam.idempotency_records;
   v_payload_hash text;
   v_invitation iam.tenant_invitations;
   v_raw_token text;
@@ -187,7 +178,7 @@ begin
   from iam.memberships m
   where m.tenant_id = p_tenant_id
     and m.user_id = v_caller
-    and m.status = 'active'
+    and m.is_active
   for update;
 
   if not found then
@@ -199,16 +190,14 @@ begin
   join auth.users u on u.id = m.user_id
   where m.tenant_id = p_tenant_id
     and lower(trim(u.email::text)) = v_email
-    and m.status in ('active', 'inactive')
+    and m.removed_at is null
   limit 1;
 
   if found then
-    if v_existing_membership.status = 'active' then
+    if v_existing_membership.is_active then
       raise exception 'DUPLICATE_MEMBERSHIP';
     end if;
-    if v_existing_membership.status = 'inactive' then
-      raise exception 'MEMBERSHIP_INACTIVE';
-    end if;
+    raise exception 'MEMBERSHIP_INACTIVE';
   end if;
 
   if exists (

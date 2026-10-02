@@ -68,7 +68,6 @@ begin
   update iam.tenants
   set
     display_name = p_display_name,
-    name = p_display_name,
     contact_email = p_contact_email,
     contact_phone = p_contact_phone,
     contact_address_text = p_contact_address_text,
@@ -97,7 +96,7 @@ begin
   left join auth.users u on u.id = m.user_id
   where m.tenant_id = p_tenant_id
     and m.user_id = auth.uid()
-    and m.status = 'active'
+    and m.is_active
   order by m.updated_at desc, m.created_at desc, m.id desc
   limit 1;
 
@@ -154,11 +153,11 @@ begin
       end
     ),
     p_target_display_name => v_row.display_name,
-    p_target_secondary_identifier => v_row.code,
+    p_target_secondary_identifier => left(v_row.id::text, 8),
     p_target_snapshot => jsonb_build_object(
       'display_name', v_row.display_name,
-      'subject_code', v_row.code,
-      'secondary_label', v_row.code
+      'subject_code', left(v_row.id::text, 8),
+      'secondary_label', left(v_row.id::text, 8)
     ),
     p_redaction_flags => array[
       'before.contact_email',
@@ -197,6 +196,7 @@ declare
   v_profile iam.tenant_legal_profiles;
   v_duplicate_count int := 0;
   v_audit_before jsonb;
+  v_tax_code text := regexp_replace(coalesce(p_tax_code, ''), '\D', '', 'g');
 begin
   if auth.uid() is null then
     raise exception 'AUTHENTICATION_REQUIRED';
@@ -204,6 +204,10 @@ begin
 
   if not iam.has_permission(p_tenant_id, 'tenant.legal_profile.update') then
     raise exception 'PERMISSION_DENIED';
+  end if;
+
+  if v_tax_code !~ '^[0-9]{10,13}$' then
+    raise exception 'VALIDATION_ERROR';
   end if;
 
   select * into v_row from iam.tenants t where t.id = p_tenant_id for update;
@@ -217,7 +221,7 @@ begin
 
   select count(*) into v_duplicate_count
   from iam.tenant_legal_profiles lp
-  where lp.tax_code = p_tax_code
+  where lp.tax_code = v_tax_code
     and lp.tenant_id <> p_tenant_id;
 
   if v_duplicate_count > 0 and not p_allow_duplicate_tax_code then
@@ -265,7 +269,7 @@ begin
     p_tenant_id,
     p_legal_entity_type,
     p_legal_name,
-    p_tax_code,
+    v_tax_code,
     p_registered_address_text,
     p_province_code,
     p_commune_code,
@@ -438,7 +442,7 @@ declare
   v_caller uuid := auth.uid();
   v_inv iam.tenant_invitations;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_raw_token text;
   v_token_hash text;
@@ -468,17 +472,8 @@ begin
     p_expected_version::text || '|resend'
   );
 
-  select * into v_existing
-  from iam.tenant_invitation_mutate_operations o
-  where o.tenant_id = p_tenant_id
-    and o.invitation_id = p_invitation_id
-    and o.operation = 'resend'
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('tenant.invitation.resend', p_invitation_id::text, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
     return v_existing.result;
   end if;
 
@@ -587,11 +582,7 @@ begin
     null
   );
 
-  insert into iam.tenant_invitation_mutate_operations (
-    tenant_id, invitation_id, operation, idempotency_key, payload_hash, result
-  ) values (
-    p_tenant_id, p_invitation_id, 'resend', p_idempotency_key, v_payload_hash, v_result
-  );
+  perform iam._idempotency_store('tenant.invitation.resend', p_invitation_id::text, p_idempotency_key, v_payload_hash, v_result);
 
   return v_result;
 end;
@@ -615,7 +606,7 @@ declare
   v_caller uuid := auth.uid();
   v_inv iam.tenant_invitations;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_reason text;
   v_now timestamptz := now();

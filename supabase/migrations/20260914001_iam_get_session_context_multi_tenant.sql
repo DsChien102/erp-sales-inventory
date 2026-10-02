@@ -23,6 +23,7 @@ declare
   v_user_id uuid := auth.uid();
   v_role text;
   v_status text;
+  v_is_owner boolean;
   v_store_id uuid;
 begin
   if v_user_id is null then
@@ -35,8 +36,8 @@ begin
       message = '{"code":"CONTEXT_INVALID","message":"Tenant id is required to bootstrap store.","details":{}}';
   end if;
 
-  select m.role, m.status
-  into v_role, v_status
+  select m.role, iam._membership_status_code(m.is_active, m.removed_at), coalesce(m.is_owner, false)
+  into v_role, v_status, v_is_owner
   from iam.memberships m
   where m.tenant_id = p_tenant_id
     and m.user_id = v_user_id;
@@ -61,7 +62,7 @@ begin
       message = '{"code":"TENANT_ACCESS_DENIED","message":"Tenant access denied.","details":{}}';
   end if;
 
-  if v_role not in ('owner', 'store_owner') then
+  if not coalesce(v_is_owner, false) then
     raise exception using errcode = 'P0001',
       message = '{"code":"PERMISSION_DENIED","message":"Only tenant owners can bootstrap stores.","details":{}}';
   end if;
@@ -76,20 +77,6 @@ begin
   on conflict (tenant_id, code) do update
   set display_name = excluded.display_name, status = 'active'
   returning id into v_store_id;
-
-  insert into iam.membership_store_scopes (
-    tenant_id,
-    user_id,
-    store_id,
-    is_default
-  ) values (
-    p_tenant_id,
-    v_user_id,
-    v_store_id,
-    true
-  )
-  on conflict (tenant_id, user_id, store_id) do update
-  set is_default = true;
 
   return p_tenant_id;
 end;
@@ -108,19 +95,24 @@ declare
   v_status text;
   v_is_owner boolean;
   v_active_count int;
-  v_store_ids uuid[];
   v_active_store_id uuid;
   v_active_store_code text;
   v_active_store_display_name text;
   v_permissions text[];
+  v_tenant_status text;
 begin
   if v_user_id is null then
     raise exception using errcode = 'P0001',
       message = '{"code":"NOT_AUTHENTICATED","message":"Not authenticated.","details":{}}';
   end if;
 
+  if iam._is_platform_user_suspended(v_user_id) then
+    raise exception using errcode = 'P0001',
+      message = '{"code":"PLATFORM_USER_SUSPENDED","message":"Platform user is suspended.","details":{}}';
+  end if;
+
   if p_tenant_id is not null then
-    select m.tenant_id, m.role, m.status, coalesce(m.is_owner, false)
+    select m.tenant_id, m.role, iam._membership_status_code(m.is_active, m.removed_at), coalesce(m.is_owner, false)
     into v_tenant_id, v_role, v_status, v_is_owner
     from iam.memberships m
     where m.user_id = v_user_id
@@ -147,53 +139,63 @@ begin
     into v_active_count
     from iam.memberships m
     where m.user_id = v_user_id
-      and m.status = 'active';
+      and m.is_active;
 
     -- Ambiguous / empty: caller must pick tenant explicitly (multi-tenant UX).
     if coalesce(v_active_count, 0) = 0 or v_active_count > 1 then
       return null;
     end if;
 
-    select m.tenant_id, m.role, m.status, coalesce(m.is_owner, false)
+    select m.tenant_id, m.role, iam._membership_status_code(m.is_active, m.removed_at), coalesce(m.is_owner, false)
     into v_tenant_id, v_role, v_status, v_is_owner
     from iam.memberships m
     where m.user_id = v_user_id
-      and m.status = 'active'
+      and m.is_active
     order by m.created_at
     limit 1;
   end if;
 
-  select array_agg(scope.store_id)
-  into v_store_ids
-  from iam.membership_store_scopes scope
-  join iam.stores store on store.id = scope.store_id
-    and store.tenant_id = scope.tenant_id
-  where scope.tenant_id = v_tenant_id
-    and scope.user_id = v_user_id
-    and scope.is_default
-    and store.status = 'active';
+  select coalesce(t.status, 'active')
+  into v_tenant_status
+  from iam.tenants t
+  where t.id = v_tenant_id;
 
-  if coalesce(cardinality(v_store_ids), 0) = 0
-    and v_role in ('owner', 'store_owner') then
-    perform iam.bootstrap_owner(v_tenant_id, 'My Store');
-
-    select array_agg(scope.store_id)
-    into v_store_ids
-    from iam.membership_store_scopes scope
-    join iam.stores store on store.id = scope.store_id
-      and store.tenant_id = scope.tenant_id
-    where scope.tenant_id = v_tenant_id
-      and scope.user_id = v_user_id
-      and scope.is_default
-      and store.status = 'active';
+  if v_tenant_status = 'suspended' then
+    raise exception using errcode = 'P0001',
+      message = '{"code":"TENANT_SUSPENDED","message":"Tenant is suspended.","details":{}}';
+  end if;
+  if v_tenant_status = 'closed' then
+    raise exception using errcode = 'P0001',
+      message = '{"code":"TENANT_CLOSED","message":"Tenant is closed.","details":{}}';
   end if;
 
-  if coalesce(cardinality(v_store_ids), 0) <> 1 then
+  -- Single-store era: the tenant's active store (default first) is the active store.
+  select store.id
+  into v_active_store_id
+  from iam.stores store
+  where store.tenant_id = v_tenant_id
+    and store.status = 'active'
+  order by (store.code = 'default') desc, store.created_at, store.id
+  limit 1;
+
+  if v_active_store_id is null
+    and coalesce(v_is_owner, false) then
+    perform iam.bootstrap_owner(v_tenant_id, 'My Store');
+
+    select store.id
+    into v_active_store_id
+    from iam.stores store
+    where store.tenant_id = v_tenant_id
+      and store.status = 'active'
+    order by (store.code = 'default') desc, store.created_at, store.id
+    limit 1;
+  end if;
+
+  if v_active_store_id is null
+    or not iam.can_access_store(v_tenant_id, v_active_store_id, v_user_id) then
     raise exception using errcode = 'P0001',
       message = '{"code":"CONTEXT_INVALID","message":"Exactly one active default store is required.","details":{}}';
   end if;
-
-  v_active_store_id := v_store_ids[1];
 
   select store.code, store.display_name
   into v_active_store_code, v_active_store_display_name
@@ -207,7 +209,7 @@ begin
       message = '{"code":"CONTEXT_INVALID","message":"Active store identity is required.","details":{}}';
   end if;
 
-  if coalesce(v_is_owner, false) or v_role in ('owner', 'store_owner') then
+  if coalesce(v_is_owner, false) then
     v_permissions := array[]::text[];
   else
     select coalesce(array_agg(rp.permission order by rp.permission), array[]::text[])

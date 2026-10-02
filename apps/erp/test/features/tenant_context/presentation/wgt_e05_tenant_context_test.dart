@@ -1,5 +1,7 @@
 import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
+import 'package:erp/features/dashboard/presentation/models/dashboard_navigation.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
+import 'package:erp/features/sales/presentation/pages/sales_order_list_page.dart';
 import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_cubit.dart';
 import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_state.dart';
 import 'package:erp/features/tenant_context/presentation/mappers/accessible_tenant_ui_mapper.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
@@ -609,6 +612,43 @@ void main() {
 
       expect(find.text('Tổ chức không thể truy cập'), findsOneWidget);
       expect(ctx.status, TenantContextStatus.invalidated);
+    });
+
+    testWidgets('blocked state shows empty view on orders tab', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = FakeIamModule();
+      registerModule(module);
+
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => DashboardPage(
+              iamModule: module,
+              autoBootstrap: false,
+              initialTab: DashboardTab.orders,
+              initialState: const TenantContextState(
+                userDisplayName: '',
+                status: TenantContextLoadStatus.blocked,
+                emptyStateType: OrganizationEmptyStateType.inaccessible,
+                suspendedOrgName: 'Vua',
+                blockedErrorCode: IamBlockedCodes.tenantSuspended,
+              ),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tổ chức không thể truy cập'), findsOneWidget);
+      expect(find.byType(SalesOrderListPage), findsNothing);
     });
   });
 }

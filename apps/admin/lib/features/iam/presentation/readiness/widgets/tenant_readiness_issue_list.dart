@@ -251,6 +251,8 @@ const _profileIssueCodes = {
 
 const _ownerIssueCodes = {
   TenantReadinessIssueCodes.ownerMembershipInvalid,
+  TenantReadinessIssueCodes.ownerAcceptancePending,
+  TenantReadinessIssueCodes.ownerInvitationExpired,
   TenantReadinessIssueCodes.ownerIdentityInactive,
   TenantReadinessIssueCodes.ownerIdentityUnavailable,
   TenantReadinessIssueCodes.ownerEmailUnverified,

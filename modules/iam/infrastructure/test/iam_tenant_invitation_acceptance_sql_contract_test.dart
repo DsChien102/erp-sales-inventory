@@ -79,7 +79,7 @@ void main() {
         sql.indexOf('create or replace function iam.decline_invitation('),
       );
       expect(acceptFn, contains('from iam.owner_activations oa'));
-      expect(acceptFn, contains("role = 'owner'"));
+      expect(acceptFn, contains("role = 'store_owner'"));
       expect(acceptFn, contains("status = 'active'"));
       expect(acceptFn, contains('iam._membership_detail_json(v_membership)'));
     });

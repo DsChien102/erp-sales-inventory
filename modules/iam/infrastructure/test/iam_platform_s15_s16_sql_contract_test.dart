@@ -215,12 +215,11 @@ void main() {
     );
   });
 
-  test('006 onboarding get/retry operations exist', () {
+  test('006 onboarding no longer defines dead get/retry operation rpcs', () {
     final sql = drafts['006_iam_create_tenant_onboarding.sql']!;
-    expect(sql, contains('get_tenant_onboarding_operation'));
-    expect(sql, contains('retry_tenant_onboarding_operation'));
-    expect(sql, contains('completed_steps'));
-    expect(sql, contains('failed_step'));
+    expect(sql, isNot(contains('get_tenant_onboarding_operation')));
+    expect(sql, isNot(contains('retry_tenant_onboarding_operation')));
+    expect(sql, contains('create or replace function iam.create_tenant_onboarding('));
   });
 
   test('005 draft get_platform_tenant keeps owner_email_verified (merged 003)', () {

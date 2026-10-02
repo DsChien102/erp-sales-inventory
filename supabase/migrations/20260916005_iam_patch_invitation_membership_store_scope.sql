@@ -23,11 +23,14 @@ begin
 
   update iam.memberships m
   set
-    status = 'removed',
+    is_active = false,
+    removed_at = v_now,
+    status_changed_at = v_now,
+    version = version + 1,
     updated_at = v_now
   where m.id = p_membership_id
     and coalesce(m.is_owner, false) is not true
-    and coalesce(m.status, 'active') = 'active';
+    and m.is_active;
 end;
 $$;
 
@@ -48,11 +51,9 @@ declare
   v_role iam.role_definitions;
   v_actor_membership iam.memberships;
   v_existing_membership iam.memberships;
-  v_existing_op iam.tenant_invitation_operations;
+  v_existing_op iam.idempotency_records;
   v_payload_hash text;
   v_invitation iam.tenant_invitations;
-  v_invitee_user_id uuid;
-  v_target_membership_id uuid;
   v_raw_token text;
   v_token_hash text;
   v_now timestamptz := now();
@@ -85,15 +86,8 @@ begin
     p_tenant_id::text || '|' || v_email || '|' || p_initial_role_id::text
   );
 
-  select * into v_existing_op
-  from iam.tenant_invitation_operations o
-  where o.tenant_id = p_tenant_id
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing_op.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing_op := iam._idempotency_find('tenant.invitation.create', p_tenant_id::text, p_idempotency_key, v_payload_hash);
+  if v_existing_op.idempotency_key is not null then
     return v_existing_op.result;
   end if;
 
@@ -105,15 +99,11 @@ begin
     raise exception 'ROLE_NOT_ASSIGNABLE';
   end if;
 
-  if v_role.code in ('owner', 'store_owner') then
-    raise exception 'ROLE_NOT_ASSIGNABLE';
-  end if;
-
   select * into v_actor_membership
   from iam.memberships m
   where m.tenant_id = p_tenant_id
     and m.user_id = v_caller
-    and m.status = 'active'
+    and m.is_active
   for update;
 
   if not found then
@@ -129,16 +119,14 @@ begin
       (u.id is not null and lower(trim(u.email::text)) = v_email)
       or (p.email is not null and lower(trim(p.email)) = v_email)
     )
-    and m.status in ('active', 'inactive')
+    and m.removed_at is null
   limit 1;
 
   if found then
-    if v_existing_membership.status = 'active' then
+    if v_existing_membership.is_active then
       raise exception 'DUPLICATE_MEMBERSHIP';
     end if;
-    if v_existing_membership.status = 'inactive' then
-      raise exception 'MEMBERSHIP_INACTIVE';
-    end if;
+    raise exception 'MEMBERSHIP_INACTIVE';
   end if;
 
   if exists (
@@ -151,49 +139,7 @@ begin
     raise exception 'INVITATION_PENDING_EXISTS';
   end if;
 
-  select u.id into v_invitee_user_id
-  from auth.users u
-  where lower(trim(u.email::text)) = v_email
-  limit 1;
-
-  if v_invitee_user_id is null then
-    select p.user_id into v_invitee_user_id
-    from iam.platform_user_profiles p
-    where lower(p.email) = v_email
-    limit 1;
-  end if;
-
-  if v_invitee_user_id is null then
-    v_invitee_user_id := gen_random_uuid();
-    insert into iam.platform_user_profiles (
-      user_id, email, status, created_at, updated_at
-    )
-    values (
-      v_invitee_user_id,
-      v_email,
-      'pending_activation',
-      v_now,
-      v_now
-    );
-  end if;
-
-  insert into iam.memberships (
-    tenant_id, user_id, role, status, is_owner, version, created_at, updated_at
-  )
-  values (
-    p_tenant_id,
-    v_invitee_user_id,
-    coalesce(v_role.code, 'staff'),
-    'active',
-    false,
-    1,
-    v_now,
-    v_now
-  )
-  returning id into v_target_membership_id;
-
   perform iam._ensure_tenant_default_store(p_tenant_id);
-  perform iam._ensure_membership_default_store_scope(p_tenant_id, v_invitee_user_id);
 
   v_raw_token := iam._generate_invitation_code();
   v_token_hash := iam._invitation_token_hash(v_raw_token);
@@ -207,7 +153,6 @@ begin
     status,
     token_hash,
     invited_by_membership_id,
-    target_membership_id,
     expires_at,
     status_changed_at,
     version,
@@ -223,7 +168,6 @@ begin
     'pending',
     v_token_hash,
     v_actor_membership.id,
-    v_target_membership_id,
     v_expires_at,
     v_now,
     1,
@@ -284,7 +228,6 @@ begin
       'invitation_id', v_invitation.id,
       'invitee_email_masked', v_masked,
       'initial_role_id', p_initial_role_id,
-      'target_membership_id', v_target_membership_id,
       'delivery_correlation_id', v_correlation_id
     )
   );
@@ -306,18 +249,7 @@ begin
     'declined_at', null
   );
 
-  insert into iam.tenant_invitation_operations (
-    tenant_id,
-    idempotency_key,
-    payload_hash,
-    result
-  )
-  values (
-    p_tenant_id,
-    p_idempotency_key,
-    v_payload_hash,
-    v_result
-  );
+  perform iam._idempotency_store('tenant.invitation.create', p_tenant_id::text, p_idempotency_key, v_payload_hash, v_result);
 
   return v_result;
 end;
@@ -338,7 +270,7 @@ declare
   v_role iam.role_definitions;
   v_hash text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_now timestamptz := now();
   v_result jsonb;
   v_delivery_status text;
@@ -350,16 +282,8 @@ begin
   v_hash := iam._invitation_token_hash(p_token);
   v_payload_hash := md5(v_hash || '|decline');
 
-  select * into v_existing
-  from iam.tenant_invitation_token_operations o
-  where o.token_hash = v_hash
-    and o.operation = 'decline'
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('tenant.invitation.decline', v_hash, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
     return v_existing.result;
   end if;
 
@@ -437,11 +361,7 @@ begin
     'declined_at', v_now
   );
 
-  insert into iam.tenant_invitation_token_operations (
-    token_hash, operation, idempotency_key, payload_hash, result
-  ) values (
-    v_hash, 'decline', p_idempotency_key, v_payload_hash, v_result
-  );
+  perform iam._idempotency_store('tenant.invitation.decline', v_hash, p_idempotency_key, v_payload_hash, v_result);
 
   return v_result;
 end;
@@ -464,7 +384,7 @@ declare
   v_inv iam.tenant_invitations;
   v_tenant iam.tenants;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_reason text;
   v_now timestamptz := now();
@@ -488,17 +408,8 @@ begin
     p_expected_version::text || '|revoke|' || v_reason
   );
 
-  select * into v_existing
-  from iam.tenant_invitation_mutate_operations o
-  where o.tenant_id = p_tenant_id
-    and o.invitation_id = p_invitation_id
-    and o.operation = 'revoke'
-    and o.idempotency_key = p_idempotency_key;
-
-  if found then
-    if v_existing.payload_hash <> v_payload_hash then
-      raise exception 'IDEMPOTENCY_CONFLICT';
-    end if;
+  v_existing := iam._idempotency_find('tenant.invitation.revoke', p_invitation_id::text, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
     return v_existing.result;
   end if;
 
@@ -526,7 +437,7 @@ begin
   update iam.tenant_invitations
   set
     status = 'revoked',
-    revoke_reason = v_reason,
+    status_reason = v_reason,
     token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex'),
     version = version + 1,
     status_changed_at = v_now,
@@ -567,11 +478,7 @@ begin
     null
   );
 
-  insert into iam.tenant_invitation_mutate_operations (
-    tenant_id, invitation_id, operation, idempotency_key, payload_hash, result
-  ) values (
-    p_tenant_id, p_invitation_id, 'revoke', p_idempotency_key, v_payload_hash, v_result
-  );
+  perform iam._idempotency_store('tenant.invitation.revoke', p_invitation_id::text, p_idempotency_key, v_payload_hash, v_result);
 
   return v_result;
 end;

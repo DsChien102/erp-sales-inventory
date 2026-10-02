@@ -16,36 +16,36 @@ enum OrganizationStatus {
 /// Dynamic styling extension cho [OrganizationStatus]
 extension OrganizationStatusX on OrganizationStatus {
   String get filterLabel => switch (this) {
-        OrganizationStatus.all => 'Tất cả',
-        OrganizationStatus.settingUp => 'Thiết lập',
-        OrganizationStatus.active => 'Hoạt động',
-        OrganizationStatus.suspended => 'Tạm ngừng',
-        OrganizationStatus.closed => 'Đã đóng',
-      };
+    OrganizationStatus.all => 'Tất cả',
+    OrganizationStatus.settingUp => 'Thiết lập',
+    OrganizationStatus.active => 'Hoạt động',
+    OrganizationStatus.suspended => 'Tạm ngừng',
+    OrganizationStatus.closed => 'Đã đóng',
+  };
 
   VComponentTone get tone => switch (this) {
-        OrganizationStatus.settingUp => VComponentTone.warning,
-        OrganizationStatus.active => VComponentTone.success,
-        OrganizationStatus.suspended => VComponentTone.danger,
-        OrganizationStatus.closed => VComponentTone.neutral,
-        OrganizationStatus.all => VComponentTone.primary,
-      };
+    OrganizationStatus.settingUp => VComponentTone.warning,
+    OrganizationStatus.active => VComponentTone.success,
+    OrganizationStatus.suspended => VComponentTone.danger,
+    OrganizationStatus.closed => VComponentTone.neutral,
+    OrganizationStatus.all => VComponentTone.primary,
+  };
 
   Color getBadgeBackgroundColor(VColorScheme colors) => switch (this) {
-        OrganizationStatus.settingUp => colors.warningBg,
-        OrganizationStatus.active => colors.successBg,
-        OrganizationStatus.suspended => colors.dangerBg,
-        OrganizationStatus.closed => const Color(0xFFFDE8E8), // soft danger/pink bg for PA-D-05
-        OrganizationStatus.all => colors.primary,
-      };
+    OrganizationStatus.settingUp => colors.warningBg,
+    OrganizationStatus.active => colors.successBg,
+    OrganizationStatus.suspended => colors.dangerBg,
+    OrganizationStatus.closed => const Color(0xFFFDE8E8), // soft danger/pink bg for PA-D-05
+    OrganizationStatus.all => colors.primary,
+  };
 
   Color getBadgeTextColor(VColorScheme colors) => switch (this) {
-        OrganizationStatus.settingUp => colors.warning,
-        OrganizationStatus.active => colors.success,
-        OrganizationStatus.suspended => colors.danger,
-        OrganizationStatus.closed => colors.danger, // red text for PA-D-05
-        OrganizationStatus.all => colors.primary,
-      };
+    OrganizationStatus.settingUp => colors.warning,
+    OrganizationStatus.active => colors.success,
+    OrganizationStatus.suspended => colors.danger,
+    OrganizationStatus.closed => colors.danger, // red text for PA-D-05
+    OrganizationStatus.all => colors.primary,
+  };
 }
 
 /// Model cho thành viên thuộc tổ chức.
@@ -105,6 +105,12 @@ class OrganizationUiModel {
   final DateTime? closedAt;
   final String? closedBy;
   final String? closeReason;
+  final String? ownerInvitationEmail;
+  final String? ownerInvitationState;
+  final DateTime? ownerInvitationExpiresAt;
+  final String? ownerInvitationGivenName;
+  final String? ownerInvitationFamilyName;
+  final String? ownerInvitationPhone;
 
   const OrganizationUiModel({
     required this.id,
@@ -130,23 +136,33 @@ class OrganizationUiModel {
     this.closedAt,
     this.closedBy,
     this.closeReason,
+    this.ownerInvitationEmail,
+    this.ownerInvitationState,
+    this.ownerInvitationExpiresAt,
+    this.ownerInvitationGivenName,
+    this.ownerInvitationFamilyName,
+    this.ownerInvitationPhone,
   });
 
   /// Active members eligible as new owner (excludes current owner).
   List<OrganizationMemberUiModel> get transferOwnershipCandidates {
-    return members
-        .where((m) {
-          if (m.isOwner) return false;
-          final ownerId = ownerUserId;
-          if (ownerId != null && ownerId.isNotEmpty && m.id == ownerId) {
-            return false;
-          }
-          return true;
-        })
-        .toList();
+    return members.where((m) {
+      if (m.isOwner) return false;
+      final ownerId = ownerUserId;
+      if (ownerId != null && ownerId.isNotEmpty && m.id == ownerId) {
+        return false;
+      }
+      return true;
+    }).toList();
   }
 
-  int get memberCount => members.isNotEmpty ? members.length : 1;
+  int get memberCount => members.length;
+
+  /// PA-SG-02: chỉ hiện “Gửi lại email” khi Invitation hiệu lực pending/expired.
+  bool get canResendOwnerInvitation {
+    final state = ownerInvitationState?.trim().toLowerCase();
+    return state == 'pending' || state == 'expired';
+  }
 
   /// Helper lấy chuỗi 2 chữ cái đầu nếu [initials] chưa có.
   String get resolvedInitials {

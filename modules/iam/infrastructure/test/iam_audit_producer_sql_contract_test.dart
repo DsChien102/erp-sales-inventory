@@ -58,9 +58,10 @@ void main() {
 
   test('platform suspend/restore produce audit and drop dual-write', () {
     final sql = read('011_iam_platform_tenant_lifecycle.sql');
-    expect(appendCalls(sql), 2);
+    expect(appendCalls(sql), 3);
     expect(sql, contains("'iam.tenant.suspended'"));
     expect(sql, contains("'iam.tenant.restored'"));
+    expect(sql, contains("'iam.tenant.closed'"));
     expect(sql, isNot(contains('insert into iam.platform_audit_logs')));
   });
 

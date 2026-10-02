@@ -103,6 +103,13 @@ abstract final class TenantAuditEventCatalog {
       icon: VIcons.restore,
       searchAliases: ['mở lại tổ chức', 'restore tenant'],
     ),
+    IamAuditEvents.tenantClosed: TenantAuditEventCatalogEntry(
+      eventCode: IamAuditEvents.tenantClosed,
+      title: 'Đóng tổ chức',
+      category: TenantAuditEventCategory.organization,
+      icon: VIcons.warning,
+      searchAliases: ['đóng tổ chức', 'close tenant'],
+    ),
     IamAuditEvents.tenantOwnershipTransferred: TenantAuditEventCatalogEntry(
       eventCode: IamAuditEvents.tenantOwnershipTransferred,
       title: 'Chuyển chủ sở hữu tổ chức',

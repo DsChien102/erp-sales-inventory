@@ -32,12 +32,14 @@ class InvitationListSection extends StatelessWidget {
           p.loadingMoreInvitations != c.loadingMoreInvitations ||
           p.invitationSearch != c.invitationSearch ||
           p.invitationFilter != c.invitationFilter ||
+          p.invitationSendResultFilter != c.invitationSendResultFilter ||
+          p.invitationTimeRangeFilter != c.invitationTimeRangeFilter ||
+          p.invitationCustomDateRange != c.invitationCustomDateRange ||
           p.invitationNextCursor != c.invitationNextCursor,
       builder: (context, state) {
         final colors = context.vColors;
         final cubit = context.read<OrganizationUsersCubit>();
-        final isFiltered = state.invitationSearch.trim().isNotEmpty ||
-            state.invitationFilter != null;
+        final isFiltered = state.isInvitationFiltered;
 
         if (state.invitationStatus == IamLoadStatus.loading ||
             state.invitationStatus == IamLoadStatus.initial) {

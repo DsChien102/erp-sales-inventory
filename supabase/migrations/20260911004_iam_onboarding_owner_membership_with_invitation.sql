@@ -226,10 +226,10 @@ begin
 
   -- Hybrid: Owner Membership ngay khi onboarding (trước accept).
   insert into iam.memberships (
-    tenant_id, user_id, role, status, is_owner, version, created_at, updated_at
+    tenant_id, user_id, role, is_owner, version, created_at, updated_at
   )
   values (
-    v_tenant_id, v_owner_user_id, 'store_owner', 'active', true, 1, v_now, v_now
+    v_tenant_id, v_owner_user_id, 'store_owner', true, 1, v_now, v_now
   )
   returning id into v_membership_id;
 

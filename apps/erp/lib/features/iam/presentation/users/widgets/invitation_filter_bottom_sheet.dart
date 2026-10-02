@@ -6,24 +6,35 @@ class InvitationFilterCriteria {
   final String status; // 'Tất cả', 'Đang chờ', 'Hết hạn'
   final String sendResult; // 'Tất cả', 'Đã gửi', 'Gửi lỗi', 'Thu hồi'
   final String timeRange; // 'Tất cả', '7 ngày', '30 ngày', 'Tùy chọn'
+  final DateTimeRange? customDateRange;
 
   const InvitationFilterCriteria({
     this.status = 'Tất cả',
     this.sendResult = 'Tất cả',
     this.timeRange = 'Tất cả',
+    this.customDateRange,
   });
 
-  bool get isFilterActive => status != 'Tất cả' || sendResult != 'Tất cả' || timeRange != 'Tất cả';
+  bool get isFilterActive =>
+      status != 'Tất cả' ||
+      sendResult != 'Tất cả' ||
+      timeRange != 'Tất cả' ||
+      customDateRange != null;
 
   InvitationFilterCriteria copyWith({
     String? status,
     String? sendResult,
     String? timeRange,
+    DateTimeRange? customDateRange,
+    bool clearCustomDateRange = false,
   }) {
     return InvitationFilterCriteria(
       status: status ?? this.status,
       sendResult: sendResult ?? this.sendResult,
       timeRange: timeRange ?? this.timeRange,
+      customDateRange: clearCustomDateRange
+          ? null
+          : (customDateRange ?? this.customDateRange),
     );
   }
 
@@ -34,10 +45,15 @@ class InvitationFilterCriteria {
           runtimeType == other.runtimeType &&
           status == other.status &&
           sendResult == other.sendResult &&
-          timeRange == other.timeRange;
+          timeRange == other.timeRange &&
+          customDateRange == other.customDateRange;
 
   @override
-  int get hashCode => status.hashCode ^ sendResult.hashCode ^ timeRange.hashCode;
+  int get hashCode =>
+      status.hashCode ^
+      sendResult.hashCode ^
+      timeRange.hashCode ^
+      customDateRange.hashCode;
 }
 
 /// Bottom Sheet TA-BS-02 — Lọc lời mời.
@@ -82,6 +98,37 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
   void initState() {
     super.initState();
     _currentCriteria = widget.initialCriteria;
+  }
+
+  Future<void> _selectCustomDateRange() async {
+    final now = DateTime.now();
+    final initialRange = _currentCriteria.customDateRange ??
+        DateTimeRange(
+          start: now.subtract(const Duration(days: 7)),
+          end: now,
+        );
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      initialDateRange: initialRange,
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        _currentCriteria = _currentCriteria.copyWith(
+          timeRange: 'Tùy chọn',
+          customDateRange: picked,
+        );
+      });
+    }
+  }
+
+  String _formatDateRange(DateTimeRange range) {
+    final startStr =
+        '${range.start.day.toString().padLeft(2, '0')}/${range.start.month.toString().padLeft(2, '0')}';
+    final endStr =
+        '${range.end.day.toString().padLeft(2, '0')}/${range.end.month.toString().padLeft(2, '0')}/${range.end.year}';
+    return '$startStr - $endStr';
   }
 
   void _resetFilter() {
@@ -188,13 +235,32 @@ class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomShee
                 label: opt,
                 isSelected: isSelected,
                 onTap: () {
-                  setState(() {
-                    _currentCriteria = _currentCriteria.copyWith(timeRange: opt);
-                  });
+                  if (opt == 'Tùy chọn') {
+                    _selectCustomDateRange();
+                  } else {
+                    setState(() {
+                      _currentCriteria = _currentCriteria.copyWith(
+                        timeRange: opt,
+                        clearCustomDateRange: true,
+                      );
+                    });
+                  }
                 },
               );
             }).toList(),
           ),
+          if (_currentCriteria.timeRange == 'Tùy chọn' &&
+              _currentCriteria.customDateRange != null) ...[
+            const VGap.xs(),
+            VText(
+              'Khoảng thời gian: ${_formatDateRange(_currentCriteria.customDateRange!)}',
+              variant: VTextVariant.bodySmall,
+              style: TextStyle(
+                color: colors.success,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           const VGap.lg(),
 
           // Buttons row

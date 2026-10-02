@@ -13,16 +13,36 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+- Đóng tổ chức: thao tác terminal trên chi tiết tổ chức (lý do bắt buộc, không khôi phục).
+
 ### Changed
 
-- Login: `SignInPlatformAdminCommand` — gate `platform.user.view` trong IAM handler (không còn check quyền ở UI sau sign-in).
+- Chi tiết tổ chức: badge «Chủ sở hữu» cạnh tên thành viên khi `isOwner`.
+- Hồ sơ pháp lý / onboarding: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`); onboarding chọn loại chủ thể, bỏ "Phòng khám thú y".
+- Danh sách/chi tiết người dùng nền tảng chỉ hiện tài khoản Auth thật; bỏ lọc và thao tác “Chờ kích hoạt”.
+- Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
+- Chi tiết tổ chức đang thiết lập: “Thao tác” chỉ còn “Gửi lại email” khi Owner Invitation `pending`/`expired` (có thể đổi email); không mở sheet rỗng.
+- Người dùng tổ chức (Admin): chỉ danh sách thành viên; bỏ tab/CTA lời mời thành viên (quản lý ở Tenant App).
 
 ### Fixed
 
+- Người dùng nền tảng: filter chip status căn trái (không còn nằm giữa màn hình).
 - Multi-tenant IAM session: guard không gọi `get_session_context` khi chưa bind tenant (shared với ERP).
+- Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
+- Map mã `TENANT_CLOSED` → thông báo «Tổ chức đã đóng.»
 
 ### Internal
 
+- IAM: `reinvite_provisioning_owner` reuse cùng invitation row (xoay token; giữ tên/SĐT khi cùng email); Admin map `owner_invitation_*` — cần `supabase db reset`.
+- IAM: `search_platform_users` / `get_platform_user` lấy Auth làm gốc, không hiện profile placeholder từ invitation — cần `supabase db reset`.
+- IAM: `get_tenant_readiness` thêm `OWNER_ACCEPTANCE_PENDING` / `OWNER_INVITATION_EXPIRED` khi provisioning chưa có owner — cần `supabase db reset`.
+- IAM: dọn upgrade guard legacy password reset; domain model ghi rõ lưu `code_hash`.
+- IAM: `audit_logs` bỏ cột `created_at` (chỉ còn `occurred_at`) — cần `supabase db reset`.
+- IAM: gộp 8 bảng `*_operations` thành `iam.idempotency_records`; xoá get/retry onboarding operation — cần `supabase db reset`.
+- IAM: `tenant_legal_profiles` CHECK MST 10–13; onboarding `p_org_legal_entity_type` — cần `supabase db reset`.
+- IAM: `close_platform_tenant` + audit `iam.tenant.closed`; `iam.tenants` shared status — cần `supabase db reset`.
+- IAM: `_ensure_membership_default_store_scope` bỏ qua UUID pending chưa có trong `auth.users` (merge vào `20260916001`).
+- IAM: `create_tenant_invitation` không còn chặn invite với role `owner` / `store_owner` (chỉ còn check role `active`).
 - IAM: tách platform/tenant sign-in; restore persisted auth thuộc Admin DI; bỏ `IamSessionCoordinator`.
 - Draft SQL `019_iam_get_session_context_multi_tenant` (shared IAM) — cần apply local nếu Admin dùng active-store context.
 

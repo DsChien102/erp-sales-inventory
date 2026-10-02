@@ -34,7 +34,7 @@ begin
   from iam.memberships m
   where m.tenant_id = p_tenant_id
     and m.is_owner is true
-    and coalesce(m.status, 'active') = 'active'
+    and m.is_active
   order by m.created_at
   limit 1
   for update;
@@ -47,7 +47,10 @@ begin
   update iam.memberships
   set
     is_owner = false,
-    status = 'removed',
+    is_active = false,
+    removed_at = v_now,
+    status_changed_at = v_now,
+    version = version + 1,
     updated_at = v_now
   where id = v_membership_id;
 end;
@@ -72,7 +75,7 @@ declare
   v_hash text;
   v_email text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_membership iam.memberships;
   v_effective_role text;
   v_should_be_owner boolean := false;
@@ -170,7 +173,7 @@ begin
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.is_owner is true
-      and coalesce(m.status, 'active') = 'active'
+      and m.is_active
     order by m.created_at
     limit 1
     for update;
@@ -198,7 +201,7 @@ begin
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
       and m.user_id = v_caller
-      and m.status = 'active'
+      and m.is_active
     for update;
 
     if found then
@@ -289,8 +292,8 @@ begin
       select 1
       from iam.memberships m
       where m.tenant_id = v_inv.tenant_id
-        and m.status = 'active'
-        and (m.is_owner is true or m.role = 'owner')
+        and m.is_active
+        and m.is_owner is true
     );
     v_effective_role := case
       when v_should_be_owner then 'store_owner'
@@ -298,10 +301,10 @@ begin
     end;
 
     insert into iam.memberships (
-      tenant_id, user_id, role, status, is_owner, version, created_at, updated_at
+      tenant_id, user_id, role, is_owner, version, created_at, updated_at
     )
     values (
-      v_inv.tenant_id, v_caller, v_effective_role, 'active', v_should_be_owner, 1, v_now, v_now
+      v_inv.tenant_id, v_caller, v_effective_role, v_should_be_owner, 1, v_now, v_now
     )
     returning * into v_membership;
   else
@@ -431,7 +434,7 @@ declare
   v_role iam.role_definitions;
   v_hash text;
   v_payload_hash text;
-  v_existing iam.tenant_invitation_token_operations;
+  v_existing iam.idempotency_records;
   v_now timestamptz := now();
   v_result jsonb;
   v_delivery_status text;
@@ -551,7 +554,7 @@ declare
   v_inv iam.tenant_invitations;
   v_tenant iam.tenants;
   v_role iam.role_definitions;
-  v_existing iam.tenant_invitation_mutate_operations;
+  v_existing iam.idempotency_records;
   v_payload_hash text;
   v_reason text;
   v_now timestamptz := now();
@@ -710,8 +713,8 @@ begin
     select 1
     from iam.memberships m
     where m.tenant_id = v_inv.tenant_id
-      and m.status = 'active'
-      and (m.is_owner is true or m.role = 'owner')
+      and m.is_active
+      and m.is_owner is true
   );
 
   select exists (
@@ -721,7 +724,7 @@ begin
 
   return jsonb_build_object(
     'tenant_id', v_inv.tenant_id,
-    'tenant_name', coalesce(v_tenant.name, ''),
+    'tenant_name', coalesce(v_tenant.display_name, ''),
     'invitee_email', v_inv.invitee_email,
     'initial_role_id', case when v_should_be_owner then 'owner' else v_inv.initial_role_id::text end,
     'initial_role_label', case when v_should_be_owner then 'Chủ sở hữu' else coalesce(v_role.label, '') end,

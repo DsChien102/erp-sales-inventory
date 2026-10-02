@@ -22,7 +22,7 @@ void main() {
     expect(definition, contains('auth.uid() is null'));
     expect(definition, contains('iam.memberships'));
     expect(definition, contains("iam.has_permission(p_tenant_id, 'catalog.product.view')"));
-    expect(definition, contains('iam.membership_store_scopes'));
+    expect(definition, contains('iam.can_access_store('));
     expect(definition, contains("store.status = 'active'"));
 
     // Every requested id gets an answer, so callers never read business meaning

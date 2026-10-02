@@ -29,6 +29,17 @@ final class LoginAuditAuthenticator implements IAuthenticator {
   }) async {
     await _inner.signIn(email: email, password: password);
     try {
+      await _rpcClient.callScalar<Object?>('assert_my_platform_access');
+    } on RpcException catch (error) {
+      if (error.message.toUpperCase().contains(
+        IamBlockedCodes.platformUserSuspended,
+      )) {
+        await _inner.signOut();
+        throw const IamBlockedException(IamBlockedCodes.platformUserSuspended);
+      }
+      // Other failures do not block sign-in; server RPCs still deny suspended users.
+    }
+    try {
       await _rpcClient.callScalar<Object?>('record_my_platform_login');
     } on RpcException {
       // Last-login capture must not block an otherwise valid auth session.

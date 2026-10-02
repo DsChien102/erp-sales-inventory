@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../models/organization_ui_model.dart';
 import '../widgets/organization_actions_bottom_sheet.dart';
+import '../widgets/organization_close_confirmation_bottom_sheet.dart';
 import '../widgets/organization_detail_alerts.dart';
 import '../widgets/organization_detail_bottom_bar.dart';
 import '../widgets/organization_detail_header_card.dart';
@@ -11,6 +12,7 @@ import '../widgets/organization_detail_owner_card.dart';
 import '../widgets/organization_detail_platform_info_card.dart';
 import '../widgets/organization_restore_confirmation_bottom_sheet.dart';
 import '../widgets/organization_suspend_confirmation_bottom_sheet.dart';
+import '../widgets/owner_invitation_resend_sheet.dart';
 import 'organization_change_owner_page.dart';
 
 /// Trang Chi tiết Tổ chức (Organization Detail Page).
@@ -23,11 +25,17 @@ class OrganizationDetailPage extends StatefulWidget {
   /// When set, suspend uses this callback instead of the local fake toast path.
   final Future<bool> Function(String reason)? onSuspendConfirmed;
 
+  /// When set, close uses this callback.
+  final Future<bool> Function(String reason)? onCloseConfirmed;
+
   /// When set, restore uses this callback instead of the local fake toast path.
   final Future<bool> Function()? onRestoreConfirmed;
 
   /// When set, ownership transfer confirmation delegates to this callback.
   final Future<bool> Function(String newOwnerUserId)? onTransferOwnership;
+
+  /// PA-SG-02: gửi lại Owner Invitation (email đã chuẩn hóa).
+  final Future<bool> Function(String email)? onResendOwnerInvitation;
 
   final ValueChanged<OrganizationMemberUiModel>? onMemberTap;
 
@@ -38,8 +46,10 @@ class OrganizationDetailPage extends StatefulWidget {
     this.onActionTap,
     this.showSuccessToastOnBuild = false,
     this.onSuspendConfirmed,
+    this.onCloseConfirmed,
     this.onRestoreConfirmed,
     this.onTransferOwnership,
+    this.onResendOwnerInvitation,
     this.onMemberTap,
   });
 
@@ -68,6 +78,13 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final org = widget.organization;
+    final hasActiveOwner = org.ownerUserId?.trim().isNotEmpty == true;
+    final hasAvailableActions =
+        org.status != OrganizationStatus.closed &&
+        (org.status != OrganizationStatus.settingUp ||
+            hasActiveOwner ||
+            org.canResendOwnerInvitation);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -121,24 +138,33 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           ],
         ),
       ),
-      bottomNavigationBar: widget.organization.status == OrganizationStatus.closed
-          ? null
-          : OrganizationDetailBottomBar(
+      bottomNavigationBar: hasAvailableActions
+          ? OrganizationDetailBottomBar(
               onActionTap: widget.onActionTap ?? () => _handleActionTap(context),
-            ),
+            )
+          : null,
     );
   }
 
   void _handleActionTap(BuildContext context) {
+    final org = widget.organization;
+    final hasActiveOwner = org.ownerUserId?.trim().isNotEmpty == true;
+    // Không mở sheet rỗng khi settingUp mà không có thao tác hợp lệ.
+    if (org.status == OrganizationStatus.settingUp &&
+        !hasActiveOwner &&
+        !org.canResendOwnerInvitation) {
+      return;
+    }
+
     showVBottomSheet(
       context: context,
       child: OrganizationActionsBottomSheet(
-        organization: widget.organization,
+        organization: org,
         onChangeOwnerTap: () async {
           final result = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (context) => OrganizationChangeOwnerPage(
-                organization: widget.organization,
+                organization: org,
                 onConfirmTransfer: widget.onTransferOwnership,
               ),
             ),
@@ -154,6 +180,49 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         },
         onSuspendTap: () => _showSuspendConfirmation(context),
         onRestoreTap: () => _showRestoreConfirmation(context),
+        onCloseTap: () => _showCloseConfirmation(context),
+        onResendOwnerInvitationTap: () => _showResendOwnerInvitation(context),
+      ),
+    );
+  }
+
+  void _showResendOwnerInvitation(BuildContext context) {
+    final org = widget.organization;
+    final initialEmail = org.ownerInvitationEmail ?? org.ownerEmail ?? '';
+    showVBottomSheet(
+      context: context,
+      child: OwnerInvitationResendSheet(
+        initialEmail: initialEmail,
+        onSubmit: (email) async {
+          final callback = widget.onResendOwnerInvitation;
+          if (callback != null) {
+            final ok = await callback(email);
+            if (!context.mounted) return false;
+            if (ok) {
+              VToast.show(
+                context,
+                title: 'Thành công',
+                message: 'Đã gửi lại email thiết lập.',
+                type: VToastType.success,
+              );
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: 'Không thể gửi lại email. Vui lòng thử lại.',
+                type: VToastType.danger,
+              );
+            }
+            return ok;
+          }
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã gửi lại email thiết lập.',
+            type: VToastType.success,
+          );
+          return true;
+        },
       ),
     );
   }
@@ -185,8 +254,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             return;
           }
 
-          final isError = reason.trim().toLowerCase() == 'error' ||
-              reason.trim().toLowerCase() == 'lỗi';
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
           if (isError) {
             VToast.show(
               context,
@@ -199,6 +268,55 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
               context,
               title: 'Thành công',
               message: 'Đã tạm ngừng tổ chức thành công.',
+              type: VToastType.success,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _showCloseConfirmation(BuildContext context) {
+    showVBottomSheet(
+      context: context,
+      child: OrganizationCloseConfirmationBottomSheet(
+        onConfirm: (reason) async {
+          final callback = widget.onCloseConfirmed;
+          if (callback != null) {
+            final ok = await callback(reason);
+            if (!context.mounted) return;
+            if (ok) {
+              VToast.show(
+                context,
+                title: 'Thành công',
+                message: 'Đã đóng tổ chức.',
+                type: VToastType.success,
+              );
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: 'Không thể đóng tổ chức. Vui lòng thử lại.',
+                type: VToastType.danger,
+              );
+            }
+            return;
+          }
+
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
+          if (isError) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: 'Không thể đóng tổ chức. Vui lòng thử lại.',
+              type: VToastType.danger,
+            );
+          } else {
+            VToast.show(
+              context,
+              title: 'Thành công',
+              message: 'Đã đóng tổ chức.',
               type: VToastType.success,
             );
           }
@@ -234,8 +352,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             return;
           }
 
-          final isError = reason.trim().toLowerCase() == 'error' ||
-              reason.trim().toLowerCase() == 'lỗi';
+          final isError =
+              reason.trim().toLowerCase() == 'error' || reason.trim().toLowerCase() == 'lỗi';
           if (isError) {
             VToast.show(
               context,

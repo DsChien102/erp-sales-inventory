@@ -23,7 +23,7 @@ void main() {
   test('availability is advisory-only with permission, scope, and camelCase keys', () {
     final body = _functionSql(sql, 'sales.get_available_post_sale_actions');
     expect(body, contains("iam.has_permission(tenant_id, 'sales.order.view')"));
-    expect(body, contains('iam.membership_store_scopes'));
+    expect(body, contains('iam.can_access_store('));
     expect(body, contains('expected_source_version'));
     expect(body, contains("'STALE_VERSION'"));
     expect(body, contains("'canCancel'"));

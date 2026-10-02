@@ -23,6 +23,7 @@ final class CreateTenantOnboardingCommand extends CommandBase<TenantOnboardingRe
     this.communeCode,
     this.legalName,
     this.taxCode,
+    this.legalEntityType,
     this.registeredAddressText,
     this.correlationId,
   }) : super(id);
@@ -38,6 +39,9 @@ final class CreateTenantOnboardingCommand extends CommandBase<TenantOnboardingRe
   final String? communeCode;
   final String? legalName;
   final String? taxCode;
+
+  /// `HOUSEHOLD_BUSINESS` | `ENTERPRISE`; required when legal name + tax code given.
+  final String? legalEntityType;
   final String? registeredAddressText;
   final String? correlationId;
 }

@@ -41,11 +41,9 @@ class TenantRequiredSetupCard extends StatelessWidget {
   const TenantRequiredSetupCard({
     super.key,
     required this.blockers,
-    required this.onIssueTap,
   });
 
   final List<String> blockers;
-  final void Function(String issueCode, String? route) onIssueTap;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +70,6 @@ class TenantRequiredSetupCard extends StatelessWidget {
             title: 'Hồ sơ tổ chức',
             subtitle: profileIssue == null ? 'Thông tin cơ bản hợp lệ' : 'Thiếu thông tin',
             issueCode: profileIssue,
-            onIssueTap: onIssueTap,
           ),
           const VGap.sm(),
           _SetupRequirementTile(
@@ -81,7 +78,6 @@ class TenantRequiredSetupCard extends StatelessWidget {
                 ? 'Đã xác thực'
                 : TenantReadinessCtaMapper.labelFor(ownerIssue),
             issueCode: ownerIssue,
-            onIssueTap: onIssueTap,
           ),
           const VGap.sm(),
           _SetupRequirementTile(
@@ -90,7 +86,6 @@ class TenantRequiredSetupCard extends StatelessWidget {
                 ? 'Đã phân quyền'
                 : TenantReadinessCtaMapper.labelFor(roleIssue),
             issueCode: roleIssue,
-            onIssueTap: onIssueTap,
           ),
         ],
       ),
@@ -109,28 +104,17 @@ class TenantLegalProfileInfoCard extends StatelessWidget {
   const TenantLegalProfileInfoCard({
     super.key,
     required this.isReady,
-    required this.hasWarning,
-    required this.onIssueTap,
   });
 
   final bool isReady;
-  final bool hasWarning;
-  final void Function(String issueCode, String? route) onIssueTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    const issueCode = TenantReadinessIssueCodes.legalProfileMissing;
     return VCard(
       backgroundColor: colors.infoBg,
       border: Border.all(color: colors.infoBg),
       padding: const EdgeInsets.all(VSpacing.space4),
-      onTap: hasWarning
-          ? () => onIssueTap(
-              issueCode,
-              TenantReadinessCtaMapper.routeFor(issueCode),
-            )
-          : null,
       child: Row(
         children: [
           VIcon(
@@ -171,13 +155,11 @@ class _SetupRequirementTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.issueCode,
-    required this.onIssueTap,
   });
 
   final String title;
   final String subtitle;
   final String? issueCode;
-  final void Function(String issueCode, String? route) onIssueTap;
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +175,6 @@ class _SetupRequirementTile extends StatelessWidget {
       backgroundColor: background,
       border: Border.all(color: background),
       padding: const EdgeInsets.all(VSpacing.space4),
-      onTap: issueCode == null
-          ? null
-          : () => onIssueTap(
-              issueCode!,
-              TenantReadinessCtaMapper.routeFor(issueCode!),
-            ),
       child: Row(
         children: [
           VIcon(
@@ -251,6 +227,8 @@ const _profileIssueCodes = {
 
 const _ownerIssueCodes = {
   TenantReadinessIssueCodes.ownerMembershipInvalid,
+  TenantReadinessIssueCodes.ownerAcceptancePending,
+  TenantReadinessIssueCodes.ownerInvitationExpired,
   TenantReadinessIssueCodes.ownerIdentityInactive,
   TenantReadinessIssueCodes.ownerIdentityUnavailable,
   TenantReadinessIssueCodes.ownerEmailUnverified,

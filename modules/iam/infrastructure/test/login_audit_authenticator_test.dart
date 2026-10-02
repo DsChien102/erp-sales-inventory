@@ -11,6 +11,7 @@ void main() {
   test('records platform login after successful Supabase auth sign-in', () async {
     final inner = _RecordingAuthenticator();
     final supabase = FakeIamRpcSupabase()
+      ..registerHandler('assert_my_platform_access', (_) async => null)
       ..registerHandler('record_my_platform_login', (_) async => null);
     final authenticator = LoginAuditAuthenticator(
       inner: inner,
@@ -23,6 +24,39 @@ void main() {
     expect(
       supabase.calls.map((c) => c.functionName),
       contains('record_my_platform_login'),
+    );
+  });
+
+  test('signs out and blocks suspended platform user', () async {
+    final inner = _RecordingAuthenticator();
+    final supabase = FakeIamRpcSupabase()
+      ..registerHandler(
+        'assert_my_platform_access',
+        (_) async => throw Exception(
+          '{"code":"PLATFORM_USER_SUSPENDED","message":"Platform user is suspended."}',
+        ),
+      )
+      ..registerHandler('record_my_platform_login', (_) async => null);
+    final authenticator = LoginAuditAuthenticator(
+      inner: inner,
+      rpcClient: _rpcClient(supabase),
+    );
+
+    await expectLater(
+      () => authenticator.signIn(email: 'suspended@vet45.com', password: 'secret'),
+      throwsA(
+        isA<IamBlockedException>().having(
+          (e) => e.code,
+          'code',
+          IamBlockedCodes.platformUserSuspended,
+        ),
+      ),
+    );
+
+    expect(inner.signedInEmail, isNull);
+    expect(
+      supabase.calls.map((c) => c.functionName),
+      isNot(contains('record_my_platform_login')),
     );
   });
 

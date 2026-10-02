@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import 'support/stub_platform_admin_gateway.dart';
 
@@ -10,6 +11,9 @@ final class _RecordingGateway extends StubPlatformAdminGateway {
   String? suspendTenantId;
   String? suspendReason;
   String? restoreTenantId;
+  String? closeTenantId;
+  String? closeReason;
+  String? closeKey;
   String? transferTenantId;
   String? transferNewOwner;
   String? transferKey;
@@ -77,6 +81,19 @@ final class _RecordingGateway extends StubPlatformAdminGateway {
   }
 
   @override
+  Future<void> closePlatformTenant({
+    required String tenantId,
+    required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
+    closeTenantId = tenantId;
+    closeReason = reason;
+    closeKey = idempotencyKey;
+    lastExpectedVersion = expectedVersion;
+  }
+
+  @override
   Future<void> transferPlatformTenantOwnership({
     required String tenantId,
     required String newOwnerUserId,
@@ -133,6 +150,36 @@ void main() {
       expect(gateway.transferNewOwner, 'u-2');
       expect(gateway.transferKey, 'k3');
       expect(gateway.lastExpectedVersion, 4);
+    });
+
+    test('close passes reason + version + idempotencyKey', () async {
+      final gateway = _RecordingGateway();
+      await ClosePlatformTenantCommandHandler(platformGateway: gateway).handle(
+        ClosePlatformTenantCommand(
+          tenantId: 't-1',
+          reason: 'Kết thúc hợp đồng',
+          expectedVersion: 5,
+          idempotencyKey: 'k-close',
+        ),
+      );
+      expect(gateway.closeTenantId, 't-1');
+      expect(gateway.closeReason, 'Kết thúc hợp đồng');
+      expect(gateway.closeKey, 'k-close');
+      expect(gateway.lastExpectedVersion, 5);
+    });
+
+    test('close validator requires reason', () async {
+      expect(
+        () => ClosePlatformTenantCommandValidator().validate(
+          ClosePlatformTenantCommand(
+            tenantId: 't-1',
+            reason: '  ',
+            expectedVersion: 1,
+            idempotencyKey: 'k',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
     });
   });
 }

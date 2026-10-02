@@ -101,7 +101,17 @@ class OrganizationDetailMembersCard extends StatelessWidget {
                             ),
                           ),
 
+                          if (member.isOwner) ...[
+                            const VGap.horizontalSm(),
+                            const VBadge(
+                              label: 'Chủ sở hữu',
+                              tone: VComponentTone.success,
+                              variant: VBadgeVariant.soft,
+                            ),
+                          ],
+
                           // Chevron Right
+                          const VGap.horizontalSm(),
                           VIcon(
                             icon: VIcons.chevronRight,
                             size: 20,
