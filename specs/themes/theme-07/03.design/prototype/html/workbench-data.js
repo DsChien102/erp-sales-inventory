@@ -69,6 +69,22 @@ window.VET45_HARNESS_DATA = {
           "screen": "SCR-013",
           "actor": "Warehouse receiver",
           "from": "SCR-012 UNKNOWN only"
+        },
+        {
+          "id": "hub-pending-maker",
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-010",
+          "actor": "Warehouse receiver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt",
+          "urlParam": "entry=warehouse-hub-pending"
+        },
+        {
+          "id": "hub-pending-approver",
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt",
+          "urlParam": "entry=warehouse-hub-pending"
         }
       ]
     },
@@ -1417,8 +1433,7 @@ window.VET45_HARNESS_DATA = {
         "VALIDATION_ERROR",
         "CONFLICT",
         "LOCKED",
-        "PERMISSION_DENIED",
-        "DRAFT_VALIDATION_FAILED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "fields": [
@@ -1440,12 +1455,10 @@ window.VET45_HARNESS_DATA = {
         ]
       ],
       "cards": [],
-      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Không hiển thị giải thích kiến trúc về tenant/business clock.",
+      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Dữ liệu trước submit chỉ sống trong phiên màn hình; rời flow, refresh hoặc đóng app thì mất.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VSection",
         "VText",
@@ -1533,12 +1546,10 @@ window.VET45_HARNESS_DATA = {
           "Chưa ghi nhận"
         ]
       ],
-      "notice": "Quick: tìm Product ngay trên Hàng thực nhận; Product nhiều UOM hiển thị tất cả UOM hợp lệ để chọn trực tiếp; chọn đủ Product+UOM mở ngay Chi tiết hàng thực nhận.",
+      "notice": "Quick: Product+UOM đang chuẩn bị chỉ sống trong session memory; không có server/local draft. Document mode giữ persistence riêng theo UC-02-01.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VSearchBar",
         "VCard",
@@ -1645,12 +1656,10 @@ window.VET45_HARNESS_DATA = {
         ]
       ],
       "cards": [],
-      "notice": "Bốn phân loại là authoritative inputs. Tổng kiểm nhận = cả 4 nhóm; Vào tồn vật lý = Đạt + Cách ly + Hỏng; Từ chối không vào tồn. HSD/NSX giữ original precision DAY/MONTH/YEAR.",
+      "notice": "Bốn phân loại là authoritative inputs. Quick: Xong chỉ cập nhật session memory; không command lưu nháp. Document mode giữ persistence riêng theo UC-02-01.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VPageScaffold",
         "VAppBar",
@@ -1721,7 +1730,7 @@ window.VET45_HARNESS_DATA = {
         "UC-02-02",
         "UC-02-03"
       ],
-      "purpose": "Rà soát lần nhận và từng Product+UOM line trước khi khóa revision; không cộng chéo transaction UOM. Đổi chứng từ sau khi có dữ liệu phải xác nhận reset an toàn.",
+      "purpose": "Rà soát lần nhận trước khi khóa revision; khi đã gửi phê duyệt thì chỉ xem và quay về Kho, không mở lại editor.",
       "actors": [
         "Thủ kho"
       ],
@@ -1731,8 +1740,6 @@ window.VET45_HARNESS_DATA = {
         "APPROVAL_REQUIRED",
         "PERMISSION_DENIED",
         "PENDING_APPROVAL",
-        "DRAFT_VALIDATION_FAILED",
-        "APPROVAL_PRICE_BASIS_REQUIRED",
         "APPROVER_CONFIGURATION_MISSING",
         "FINANCIAL_MASKED"
       ],
@@ -1750,7 +1757,7 @@ window.VET45_HARNESS_DATA = {
           "Đã xử lý"
         ]
       ],
-      "notice": "",
+      "notice": "Quick: submit create-and-submit không yêu cầu price/FX basis. Thành công mới có receiptId và PENDING_APPROVAL; thiếu approver hoặc dữ liệu BJ02 bắt buộc thì rejection không tạo phiếu.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [
         {
@@ -1759,6 +1766,14 @@ window.VET45_HARNESS_DATA = {
           "bc": "BC-IC-07",
           "api": "API-C-26",
           "tone": "primary"
+        },
+        {
+          "id": "NAV-02-RETURN-WAREHOUSE",
+          "label": "Về Kho",
+          "bc": "NAVIGATION_ONLY",
+          "api": "NONE",
+          "tone": "primary",
+          "state": "PENDING_APPROVAL"
         }
       ],
       "traceActions": [],
@@ -1767,7 +1782,8 @@ window.VET45_HARNESS_DATA = {
         "VCard",
         "VText",
         "VBanner",
-        "VButton"
+        "VButton",
+        "DS v2 / Sticky Footer"
       ],
       "themeComposition": "Theme7ReviewSurface",
       "uifs": [
@@ -1803,7 +1819,7 @@ window.VET45_HARNESS_DATA = {
       "uc": [
         "UC-02-03"
       ],
-      "purpose": "Người duyệt xem lý do cần duyệt, chứng từ giao nhận có thể preview, người gửi/thời điểm gửi, aggregate risk total và receipt-line facts để Duyệt/Từ chối đúng revision.",
+      "purpose": "Người duyệt rà soát evidence/ownership/hàng thực nhận và quyết định đúng submitted revision; Quick Receipt không yêu cầu aggregate risk/price-FX tại BJ02.",
       "actors": [
         "Người phê duyệt"
       ],
@@ -1832,7 +1848,7 @@ window.VET45_HARNESS_DATA = {
         ],
         [
           "Tổng giá trị rủi ro",
-          "10.200.000 đ · theo capability"
+          "Chỉ nhánh document/risk-based · theo capability"
         ],
         [
           "Chứng từ giao nhận",
@@ -1885,8 +1901,8 @@ window.VET45_HARNESS_DATA = {
         },
         {
           "label": "Tổng giá trị rủi ro",
-          "example": "10.200.000 đ",
-          "ownership": "SYSTEM_DERIVED_AGGREGATE_PERMISSION_GATED"
+          "example": "Chỉ document/risk-based; Quick không yêu cầu",
+          "ownership": "SYSTEM_DERIVED_CONDITIONAL_PERMISSION_GATED"
         },
         {
           "label": "Chứng từ giao nhận",
@@ -8014,5 +8030,5 @@ window.VET45_HARNESS_DATA = {
     "UIF-17",
     "CAP-01"
   ],
-  "version": "4.6.1"
+  "version": "4.6.8"
 };

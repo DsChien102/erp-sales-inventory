@@ -1,0 +1,117 @@
+{
+  "version": "4.6.7",
+  "parent": "4.6.6",
+  "status": "PASS",
+  "counts": {
+    "PASS": 21,
+    "FAIL": 0
+  },
+  "checks": [
+    {
+      "id": "PKG-01",
+      "status": "PASS",
+      "detail": "Root README version is v4.6.7"
+    },
+    {
+      "id": "PKG-02",
+      "status": "PASS",
+      "detail": "Root README parent is v4.6.6"
+    },
+    {
+      "id": "PKG-03",
+      "status": "PASS",
+      "detail": "HTML manifest version/parent aligned"
+    },
+    {
+      "id": "PKG-04",
+      "status": "PASS",
+      "detail": "Prototype runtime manifest version aligned"
+    },
+    {
+      "id": "PKG-05",
+      "status": "PASS",
+      "detail": "Harness manifest aligned to v4.6.7 delta"
+    },
+    {
+      "id": "PKG-06",
+      "status": "PASS",
+      "detail": "Focused semantic QA is PASS"
+    },
+    {
+      "id": "PKG-07",
+      "status": "PASS",
+      "detail": "No new broken relative links"
+    },
+    {
+      "id": "PKG-08",
+      "status": "PASS",
+      "detail": "All 36 JSON files parse"
+    },
+    {
+      "id": "PKG-09",
+      "status": "PASS",
+      "detail": "app.js syntax valid"
+    },
+    {
+      "id": "PKG-10",
+      "status": "PASS",
+      "detail": "v392-bj02-semantic-hardening.js syntax valid"
+    },
+    {
+      "id": "PKG-11",
+      "status": "PASS",
+      "detail": "v467-bj02-quick-approval-no-price-basis.js syntax valid"
+    },
+    {
+      "id": "PKG-12",
+      "status": "PASS",
+      "detail": "Mobile prototype static validator PASS"
+    },
+    {
+      "id": "PKG-13",
+      "status": "PASS",
+      "detail": "UC-02-01 preserved byte-for-byte"
+    },
+    {
+      "id": "PKG-14",
+      "status": "PASS",
+      "detail": "BC-IO-16 preserved byte-for-byte"
+    },
+    {
+      "id": "PKG-15",
+      "status": "PASS",
+      "detail": "No parent files removed"
+    },
+    {
+      "id": "PKG-16",
+      "status": "PASS",
+      "detail": "No OS garbage artifacts introduced"
+    },
+    {
+      "id": "PKG-17",
+      "status": "PASS",
+      "detail": "SCR-010 current runtime excludes price-basis state"
+    },
+    {
+      "id": "PKG-18",
+      "status": "PASS",
+      "detail": "SCR-010 still models missing approver"
+    },
+    {
+      "id": "PKG-19",
+      "status": "PASS",
+      "detail": "Global price-basis error remains available for non-Quick risk-based operations"
+    },
+    {
+      "id": "PKG-20",
+      "status": "PASS",
+      "detail": "API-C-26 Quick branch explicitly excludes price-basis error"
+    },
+    {
+      "id": "PKG-21",
+      "status": "PASS",
+      "detail": "Browser limitation is explicitly recorded, not mislabeled PASS"
+    }
+  ],
+  "browser_visual_gate": "BLOCKED/NOT_ASSERTED"
+}

@@ -830,7 +830,6 @@ function stateBanner(state) {
     CONFLICT: ["warning", "Dữ liệu vừa thay đổi", "Tải phiên bản hiện hành trước khi tiếp tục; hệ thống không ghi đè im lặng."],
     LOCKED: ["warning", "Kho đang được khóa", "Chỉ có thể xem dữ liệu. Mở công việc đang giữ khóa để biết thêm chi tiết."],
     VALIDATION_ERROR: ["error", "Cần kiểm tra dữ liệu", "Dữ liệu đã nhập được giữ lại. Sửa trường được đánh dấu trước khi tiếp tục."],
-    DRAFT_VALIDATION_FAILED: ["error", "Bản nháp chưa hợp lệ", "Một số dữ kiện bắt buộc còn thiếu hoặc không còn hợp lệ."],
     VALIDATION_FAILED: ["error", "Kiểm tra dữ liệu chưa đạt", "Không có dữ liệu nào được ghi nhận; sửa lỗi theo từng dòng hàng."],
     LOT_CONFLICT: ["error", "Thông tin lô không khớp", "Mã lô ND2408 đã tồn tại với hạn dùng khác. Hãy đối chiếu nhãn nhà sản xuất."],
     SOURCE_VERSION_STALE: ["warning", "Chứng từ nguồn đã đổi", "Lượng còn được phép nhận vừa thay đổi. Mở phiên bản hiện hành để đối chiếu."],
@@ -1509,18 +1508,15 @@ function render084(state) {
 function render010(state) {
   if (state === "PERMISSION_DENIED") return appShell({ title: "Rà soát nhận hàng", body: deniedBody(), centered: true });
   const pending = state === "PENDING_APPROVAL";
-  const priceBlocked = state === "APPROVAL_PRICE_BASIS_REQUIRED";
   const approverBlocked = state === "APPROVER_CONFIGURATION_MISSING";
   const requiresApproval = bj02RequiresApproval();
   const noLines = bj02Lines.length === 0;
   const incomplete = !noLines && !allReceiptLinesHandled();
-  const disabled = pending || state === "DRAFT_VALIDATION_FAILED" || priceBlocked || approverBlocked || noLines || incomplete;
+  const disabled = pending || approverBlocked || noLines || incomplete;
   const routeNotice = pending
     ? vBanner("info", "Đã gửi phê duyệt", "Đang chờ người duyệt; tồn kho chưa thay đổi.", "", "Compact")
-    : priceBlocked
-      ? vBanner("error", "Chưa đủ căn cứ tính cấp duyệt", "Hồ sơ vẫn ở Nháp cho đến khi có căn cứ giá và tỷ giá hợp lệ.")
-      : approverBlocked
-        ? vBanner("error", "Chưa có người duyệt phù hợp", "Hồ sơ vẫn ở Nháp. Cần cấu hình người duyệt đủ quyền và phạm vi.")
+    : approverBlocked
+        ? vBanner("error", "Chưa có người duyệt phù hợp", "Chưa thể tạo phiếu. Cần cấu hình người duyệt đủ quyền và phạm vi rồi gửi lại trong phiên hiện tại.")
         : requiresApproval
           ? flowMode === "quick" ? vBanner("info", "Cần phê duyệt trước khi ghi nhận", "Gửi hồ sơ duyệt; tồn kho chưa thay đổi.", "", "Compact") : vBanner("warning", "Có lượng nhận vượt chứng từ", "Gửi hồ sơ để người có thẩm quyền xem xét. Tồn kho chưa thay đổi.")
           : "";
@@ -1543,7 +1539,7 @@ function render011(state) {
     return appShell({ title: "Phê duyệt yêu cầu nhận hàng", subtitle: "Việc dành cho người phê duyệt", body: `<div class="empty-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("inbox","icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Không có yêu cầu để duyệt</h3><p data-ds-component="VEmptyDescription">Yêu cầu chỉ xuất hiện sau khi người lập gửi hồ sơ hợp lệ.</p></div>`, centered: true, backAction: "exit-approval" });
   }
   const reasonNotice = !decided ? vBanner(flowMode === "quick" ? "info" : "warning", "Lý do cần duyệt", flowMode === "quick" ? "Nhập hàng nhanh bắt buộc phê duyệt." : "Có lượng Đạt vượt chứng từ nguồn.", "", "Compact") : approvalRejectReason ? vBanner("error", "Đã từ chối", approvalRejectReason) : "";
-  const requestFacts = `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}${financialMasked ? bj02InfoRow("Giá trị làm căn cứ duyệt", "Không có quyền xem") : bj02KeyValueRow("Giá trị làm căn cứ duyệt", `${riskValue.toLocaleString("vi-VN")} đ`)}`;
+  const requestFacts = flowMode === "quick" ? `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}` : `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}${financialMasked ? bj02InfoRow("Giá trị làm căn cứ duyệt", "Không có quyền xem") : bj02KeyValueRow("Giá trị làm căn cứ duyệt", `${riskValue.toLocaleString("vi-VN")} đ`)}`;
   const body = `${stateNotice}${reasonNotice}<section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong></div><div class="bj02-info-stack">${bj02SourceRows()}</div></section><section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin yêu cầu</strong></div><div class="bj02-info-stack">${requestFacts}</div></section><section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Hàng thực nhận</strong><span>${bj02ReviewProductCount()} sản phẩm · ${bj02Lines.length} dòng</span></div><div class="bj02-review-products">${bj02ReviewProductBlocks()}</div></section>${bj02ReviewDetailSheet()}`;
   const footer = decided ? "" : `<footer class="app-actions is-split approval-actions figma-sticky-footer" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="Dual" data-ds-prop-tone="Default" data-figma-node="549:927"><button class="button button--secondary" data-action="open-reject" data-ds-component="VButton" type="button" ${disabled ? "disabled" : ""}>Từ chối</button><button class="button button--primary" data-action="approve" data-ds-component="VButton" type="button" ${disabled ? "disabled" : ""}>Duyệt</button></footer>`;
   return appShell({ title: "Phê duyệt yêu cầu nhận hàng", subtitle: "Việc dành cho người phê duyệt · Nguyễn Văn An gửi", body, actions: footer, backAction: "exit-approval" });
@@ -3256,7 +3252,7 @@ function updateReceiptBalance() {
   if (addLot && !["LOCKED", "READ_ONLY"].includes(currentState)) addLot.disabled = totalDelivered <= 0;
 
   const reviewButton = document.querySelector('[data-next="SCR-010"]');
-  const blockerStates = ["LOCKED", "READ_ONLY", "LOT_CONFLICT", "VALIDATION_FAILED", "APPROVAL_PRICE_BASIS_REQUIRED", "APPROVER_CONFIGURATION_MISSING", "DRAFT_VALIDATION_FAILED"];
+  const blockerStates = ["LOCKED", "READ_ONLY", "LOT_CONFLICT", "VALIDATION_FAILED", "APPROVER_CONFIGURATION_MISSING"];
   if (reviewButton && !blockerStates.includes(currentState)) reviewButton.disabled = totalDelivered <= 0 || !requiredLotValuesPresent;
   collectReceiptDraft();
 }

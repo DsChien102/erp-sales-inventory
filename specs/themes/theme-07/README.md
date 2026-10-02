@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.6.5
-parent: v4.6.4
-source_baseline: v4.6.4
-semantic_delta: WAREHOUSE_HUB_FLAT_ROLE_AWARE_NAVIGATION
+version: v4.6.8
+parent: v4.6.7
+source_baseline: v4.6.7
+semantic_delta: BJ02_DESIGN_STATE_CLEANUP
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,16 +78,35 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-### 6.1 Phạm vi kiểm tra v4.6.5
+- **v4.6.8:** Design state cleanup cho BJ02; state model của `SCR-008/SCR-010` và generated runtime-state registry khớp trực tiếp source design, không còn state Quick cũ và không cần runtime filter.
+- **v4.6.7:** Quick Receipt vẫn no-draft nhưng **không còn `APPROVAL_PRICE_BASIS_REQUIRED` tại BJ02**; submit không yêu cầu price/FX basis, chỉ giữ `APPROVER_CONFIGURATION_MISSING` cho lỗi cấu hình người duyệt.
+- **v4.6.6:** UC-02-02 không có `DRAFT`; Quick Receipt chỉ sống trong phiên UI trước submit, create-and-submit hợp lệ mới tạo receipt ở `PENDING_APPROVAL`; `BC-IO-16/API-C-25` không áp dụng.
 
-- Baseline trực tiếp: package v4.6.4 do người dùng cung cấp; giữ nguyên semantic BJ02 pending-approval continuity.
-- Hub Kho candidate khôi phục mô phỏng 4 vai trò: **Chủ cửa hàng, Thủ kho, Kế toán, Nhân viên bán hàng**.
-- `Quản lý kho` bỏ các workspace nhóm trung gian; hiển thị **một list phẳng các chức năng phù hợp vai trò**.
-- Chức năng đã xuất hiện tại Quick Action không lặp lại trong `Quản lý kho`.
-- `Cần chú ý` cũng theo role; BJ02 phân biệt maker xem submitted receipt read-only và approver mở `SCR-011`.
-- `SCR-091`–`SCR-096` được giữ để trace/migration nhưng không còn là bước điều hướng từ Hub.
+### 6.1 Phạm vi thay đổi v4.6.8
 
-### 6.2 Phạm vi kiểm tra v4.6.4
+- Không thay đổi nghiệp vụ so với v4.6.7; chỉ làm sạch design/runtime-state registry của BJ02.
+- `SCR-010` canonical chỉ còn `READY`, `VALIDATION_ERROR`, `APPROVAL_REQUIRED`, `PERMISSION_DENIED`, `PENDING_APPROVAL`, `APPROVER_CONFIGURATION_MISSING`, `FINANCIAL_MASKED`.
+- `SCR-008` không còn state draft legacy trong generated registry.
+- Bỏ runtime filter phòng thủ; workbench, manifest và generated registry cùng một nguồn state canonical.
+- `PRICE_BASIS_REQUIRED` của BJ10 không thay đổi.
+
+### 6.2 Phạm vi thay đổi v4.6.7
+
+- Chỉ sửa semantic Quick Receipt/BJ02 và các contract/UI/harness dẫn xuất; `UC-02-01` không thay đổi.
+- Bỏ `APPROVAL_PRICE_BASIS_REQUIRED` khỏi UC-02-02, BC-IC-07, API-C-26 Quick branch, SCR-010 và runtime state của BJ02.
+- Quick Receipt payload không mang price/FX basis; thiếu price/FX không chặn tạo receipt ở `PENDING_APPROVAL`.
+- `APPROVER_CONFIGURATION_MISSING` vẫn chặn tạo receipt khi không resolve được approver theo policy Quick Receipt.
+- Price/FX tiếp tục thuộc BJ03/BJ13 theo authority hiện hành.
+
+### 6.3 Phạm vi thay đổi v4.6.6
+
+- Chỉ thay đổi semantic của **UC-02-02 — Nhập hàng nhanh** và các contract/trace/UI/harness dẫn xuất bắt buộc; **UC-02-01 — Nhận theo chứng từ giữ nguyên**.
+- `SCR-008 → SCR-009 → SCR-084 → SCR-010` của Quick Receipt chỉ dùng session memory; rời flow, refresh hoặc đóng app thì mất dữ liệu chưa gửi.
+- Submit Quick Receipt là một lệnh create-and-submit mang full payload + `idempotencyKey`; success mới tạo `GoodsReceipt`, `ApprovalCase`, `receiptId` và trạng thái đầu `PENDING_APPROVAL`.
+- Rejection trước create không để lại receipt. Theo v4.6.7, `APPROVAL_PRICE_BASIS_REQUIRED` đã bị loại khỏi Quick Receipt; `APPROVER_CONFIGURATION_MISSING` được giữ. Nhánh Quick không dùng `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc `DRAFT_*`.
+- `BC-IO-16` / `API-C-25` vẫn tồn tại cho lifecycle có draft nhưng bị loại khỏi Quick Receipt.
+
+### 6.4 Phạm vi kiểm tra v4.6.4
 
 - Tập trung `BJ-02 — Nhận hàng mua`; các BJ khác giữ nguyên baseline trước đó.
 - `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng quay về Hub Kho và không mở lại editor của submitted revision.
@@ -95,7 +114,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem submitted receipt read-only theo capability contract.
 - Runtime/visual QA mới nằm tại `03.design/prototype/html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*`.
 
-### 6.3 Phạm vi kiểm tra v4.6.0
+### 6.5 Phạm vi kiểm tra v4.6.0
 
 - `T7-DR-196` — UI định giá chỉ làm việc với giá trị VND đã chuẩn hóa.
 - `T7-DR-197` — Căn cứ giá trực tiếp Phase 1 có nguồn có thẩm quyền, ngày căn cứ và bằng chứng tách biệt.
@@ -109,7 +128,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
 - `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
 
-### 6.4 Các điểm giao diện đã đồng bộ
+### 6.5 Các điểm giao diện đã đồng bộ
 
 - Prototype HTML hiện hành dùng `v460-semantic-ux.css/js` làm lớp semantic/UX cuối cùng.
 - `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.

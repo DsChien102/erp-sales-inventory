@@ -1,8 +1,8 @@
 {
-  "version": "4.6.5",
-  "parent": "4.6.4",
-  "status": "WAREHOUSE_HUB_FLAT_ROLE_AWARE_CANDIDATE",
-  "scope": "Warehouse Hub navigation refinement on user-cleaned v4.6.4 baseline: role-aware Quick Actions/attention and one flat management list without workspace grouping or duplicate quick actions.",
+  "version": "4.6.8",
+  "parent": "4.6.7",
+  "status": "BJ02_DESIGN_STATE_CLEANUP_CANDIDATE",
+  "scope": "BJ02 design-only cleanup on v4.6.7: SCR-010 canonical state list and runtime/generated registries no longer carry stale Quick Receipt draft or price/FX blocker states.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,
@@ -49,8 +49,8 @@
     "bottomSheet": "VBottomSheet remains available for short contextual content; long direct-basis entry in BJ03 uses DS v2 / Form Sheet with independent body scroll and Sticky Footer."
   },
   "productApproval": "SEMANTIC_AUTHORITY_CORRECTED_v4.6.1",
-  "parentVersion": "4.6.4",
-  "notes": "v4.6.5 keeps BJ02 pending-approval continuity and changes Warehouse Hub only: 4 role review profiles, role-filtered attention, flat Quản lý kho list, no duplicated Quick Actions.",
+  "parentVersion": "4.6.7",
+  "notes": "v4.6.8 makes the BJ02 design state model canonical without runtime filtering: Quick submit remains no-draft and price/FX-independent; APPROVER_CONFIGURATION_MISSING remains the only approval-configuration rejection on SCR-010.",
   "businessJourneyFlows": 17,
   "supportingCapabilityFlows": 1,
   "canonicalRouteOccurrences": 85,
@@ -72,7 +72,7 @@
     "valuationVisualIntegrity": "qa/VALUATION-VISUAL-INTEGRITY-v4.6.0.json",
     "valuationVisualContactSheet": "qa/v313-valuation-captures/VALUATION-CONTACT-SHEET-v3.13.0.png",
     "valuationAdversarial": "qa/VALUATION-ADVERSARIAL-QA-v3.13.0.json",
-    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v4.5.0.json",
+    "currentPackageValidation": "qa/CURRENT-PACKAGE-VALIDATION-v4.6.8.json",
     "valuationFullStateSmoke": "qa/VALUATION-FULL-STATE-SMOKE-v4.5.0.json",
     "valuationV430Captures": "qa/v430-valuation-captures/",
     "valuationGroupedSurface": "qa/VALUATION-GROUPED-SURFACE-v4.5.0.json",
@@ -86,6 +86,10 @@
     "warehouseHubCandidate": "qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.json",
     "warehouseHubCandidateCaptures": "qa/v464-bj02-continuity-captures/",
     "allFlowSmokeCurrent": "qa/ALL-FLOWS-RUNTIME-SMOKE-v4.6.4.json",
-    "warehouseHubRoleAware": "qa/WAREHOUSE-HUB-ROLE-AWARE-QA-v4.6.5.json"
+    "bj02QuickReceiptNoDraft": "qa/BJ02-QUICK-RECEIPT-NO-DRAFT-QA-v4.6.6.json",
+    "bj02QuickApprovalNoPriceBasis": "qa/BJ02-QUICK-APPROVAL-NO-PRICE-BASIS-QA-v4.6.7.json",
+    "bj02QuickApprovalLinkDelta": "qa/BJ02-QUICK-APPROVAL-LINK-DELTA-v4.6.7.json",
+    "bj02DesignStateCleanup": "qa/BJ02-DESIGN-STATE-CLEANUP-QA-v4.6.8.json",
+    "bj02DesignStateLinkDelta": "qa/BJ02-DESIGN-STATE-LINK-DELTA-v4.6.8.json"
   }
 }

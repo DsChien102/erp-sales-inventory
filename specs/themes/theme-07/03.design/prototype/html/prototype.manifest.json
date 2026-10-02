@@ -1,6 +1,6 @@
 {
   "productKind": "mobile_app",
-  "version": "4.6.5",
+  "version": "4.6.8",
   "defaultViewport": {
     "width": 402,
     "height": 874
@@ -141,7 +141,6 @@
     "ACTIVE_RECONCILED",
     "ALREADY_CONFIRMED",
     "APPROVAL_ALREADY_DECIDED",
-    "APPROVAL_PRICE_BASIS_REQUIRED",
     "APPROVAL_REQUIRED",
     "APPROVAL_REVIEW",
     "APPROVED",
@@ -168,7 +167,6 @@
     "CORRECTION_REQUIRED",
     "CORRECTION_ROUTE",
     "DEPENDENCY_BLOCKED",
-    "DRAFT_VALIDATION_FAILED",
     "DUPLICATE_LINE",
     "EMPTY",
     "ESCALATED",
@@ -260,12 +258,8 @@
     "feedback-semantic",
     "stable-screen-exit",
     "dual-footer-horizontal",
-    "warehouse-hub-flat-management-list",
-    "warehouse-role-profile-owner",
-    "warehouse-role-profile-warehouse",
-    "warehouse-role-profile-accounting",
-    "warehouse-role-profile-sales",
-    "warehouse-no-duplicate-quick-actions"
+    "bj02-quick-receipt-no-draft",
+    "bj02-design-state-cleanup"
   ],
   "devicePresets": [
     {
@@ -375,23 +369,5 @@
   "releaseNote": "Valuation semantic/UX closure for BJ02/BJ03/BJ13/BJ14; SCR-088 retired into SCR-086 confirmation; no user-facing FX; contract-owned allocation and costing policy.",
   "canonicalActiveScreens": 73,
   "canonicalRouteOccurrences": 85,
-  "activeStateRenders": 482,
-  "navigationProfiles": {
-    "owner": {
-      "label": "Chủ cửa hàng",
-      "profile": "FULL"
-    },
-    "warehouse": {
-      "label": "Thủ kho",
-      "profile": "WAREHOUSE"
-    },
-    "accounting": {
-      "label": "Kế toán",
-      "profile": "ACCOUNTING"
-    },
-    "sales": {
-      "label": "Nhân viên bán hàng",
-      "profile": "SALES"
-    }
-  }
+  "activeStateRenders": 482
 }

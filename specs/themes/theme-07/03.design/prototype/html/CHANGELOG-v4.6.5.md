@@ -1,17 +1,17 @@
-# v4.6.5 — Warehouse Hub flat role-aware navigation
+# CHANGELOG — v4.6.5
 
-Parent: user-provided cleaned `v4.6.4` package.
+## Scope
+
+Role-aware Warehouse Hub review profiles in the HTML prototype only.
 
 ## Changed
 
-- Restored the Warehouse Hub role review control for four system roles: Chủ cửa hàng, Thủ kho, Kế toán, Nhân viên bán hàng.
-- Replaced grouped `Quản lý kho` workspace entries with one flat capability list.
-- Removed any capability from the flat list when the same capability is already shown as a Quick Action for the selected role.
-- Role-filtered `Cần chú ý` signals.
-- Preserved BJ02 pending-approval continuity; maker opens `SCR-010` read-only while approver opens `SCR-011`.
-- Retained `SCR-091`–`SCR-096` only for trace/migration; they are no longer required navigation steps from `SCR-090`.
+- Added a workbench-only role controller for `Chủ cửa hàng`, `Thủ kho`, `Kế toán`, `Nhân viên bán hàng`.
+- `Chủ cửa hàng` uses `FULL`; other profiles adjust quick actions, `Cần chú ý`, workspace order and workspace visibility on `SCR-090 — Kho`.
+- Added runtime metadata for navigation profiles and role-specific QA captures.
 
-## Unchanged
+## Not changed
 
-- Business rules, mutation contracts, finality and inventory/costing semantics outside the Hub navigation presentation.
-- Contextual-only capabilities remain contextual-only.
+- No permission enforcement was added.
+- `PAT-NAV`, `PAT-UI-UX`, `SCR-090`–`SCR-096`, BJ, UC and UIF semantics are unchanged.
+- Business destination screens and mutations remain canonical.

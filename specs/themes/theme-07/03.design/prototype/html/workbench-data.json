@@ -1433,8 +1433,7 @@
         "VALIDATION_ERROR",
         "CONFLICT",
         "LOCKED",
-        "PERMISSION_DENIED",
-        "DRAFT_VALIDATION_FAILED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "fields": [
@@ -1456,12 +1455,10 @@
         ]
       ],
       "cards": [],
-      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Không hiển thị giải thích kiến trúc về tenant/business clock.",
+      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Dữ liệu trước submit chỉ sống trong phiên màn hình; rời flow, refresh hoặc đóng app thì mất.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VSection",
         "VText",
@@ -1549,12 +1546,10 @@
           "Chưa ghi nhận"
         ]
       ],
-      "notice": "Quick: tìm Product ngay trên Hàng thực nhận; Product nhiều UOM hiển thị tất cả UOM hợp lệ để chọn trực tiếp; chọn đủ Product+UOM mở ngay Chi tiết hàng thực nhận.",
+      "notice": "Quick: Product+UOM đang chuẩn bị chỉ sống trong session memory; không có server/local draft. Document mode giữ persistence riêng theo UC-02-01.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VSearchBar",
         "VCard",
@@ -1661,12 +1656,10 @@
         ]
       ],
       "cards": [],
-      "notice": "Bốn phân loại là authoritative inputs. Tổng kiểm nhận = cả 4 nhóm; Vào tồn vật lý = Đạt + Cách ly + Hỏng; Từ chối không vào tồn. HSD/NSX giữ original precision DAY/MONTH/YEAR.",
+      "notice": "Bốn phân loại là authoritative inputs. Quick: Xong chỉ cập nhật session memory; không command lưu nháp. Document mode giữ persistence riêng theo UC-02-01.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [],
-      "traceActions": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "traceActions": [],
       "components": [
         "VPageScaffold",
         "VAppBar",
@@ -1747,8 +1740,6 @@
         "APPROVAL_REQUIRED",
         "PERMISSION_DENIED",
         "PENDING_APPROVAL",
-        "DRAFT_VALIDATION_FAILED",
-        "APPROVAL_PRICE_BASIS_REQUIRED",
         "APPROVER_CONFIGURATION_MISSING",
         "FINANCIAL_MASKED"
       ],
@@ -1766,7 +1757,7 @@
           "Đã xử lý"
         ]
       ],
-      "notice": "",
+      "notice": "Quick: submit create-and-submit không yêu cầu price/FX basis. Thành công mới có receiptId và PENDING_APPROVAL; thiếu approver hoặc dữ liệu BJ02 bắt buộc thì rejection không tạo phiếu.",
       "sensitive": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "actions": [
         {
@@ -1828,7 +1819,7 @@
       "uc": [
         "UC-02-03"
       ],
-      "purpose": "Người duyệt xem yêu cầu nhận hàng từ task hoặc Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt, sau đó Duyệt/Từ chối đúng revision.",
+      "purpose": "Người duyệt rà soát evidence/ownership/hàng thực nhận và quyết định đúng submitted revision; Quick Receipt không yêu cầu aggregate risk/price-FX tại BJ02.",
       "actors": [
         "Người phê duyệt"
       ],
@@ -1857,7 +1848,7 @@
         ],
         [
           "Tổng giá trị rủi ro",
-          "10.200.000 đ · theo capability"
+          "Chỉ nhánh document/risk-based · theo capability"
         ],
         [
           "Chứng từ giao nhận",
@@ -1910,8 +1901,8 @@
         },
         {
           "label": "Tổng giá trị rủi ro",
-          "example": "10.200.000 đ",
-          "ownership": "SYSTEM_DERIVED_AGGREGATE_PERMISSION_GATED"
+          "example": "Chỉ document/risk-based; Quick không yêu cầu",
+          "ownership": "SYSTEM_DERIVED_CONDITIONAL_PERMISSION_GATED"
         },
         {
           "label": "Chứng từ giao nhận",
@@ -8039,5 +8030,5 @@
     "UIF-17",
     "CAP-01"
   ],
-  "version": "4.6.4"
+  "version": "4.6.8"
 }

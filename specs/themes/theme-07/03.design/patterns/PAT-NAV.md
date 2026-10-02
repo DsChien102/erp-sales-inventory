@@ -177,16 +177,3 @@ Xem `../design-system/design-system-profile.md`.
 ## 8. Screen tham chiếu
 
 Xem `../screens/`.
-
-
-## 9. Hub Kho hiện hành
-
-### Hub Kho v4.6.5 — list phẳng theo vai trò
-
-- `SCR-090` là navigation Hub duy nhất ở cấp Kho.
-- Sau Quick Action và `Cần chú ý`, section `Quản lý kho` hiển thị trực tiếp các business/module entry phù hợp với vai trò.
-- Không dùng các workspace nhóm `Tồn kho / Nhập xuất / Kiểm kê / Giá trị / Báo cáo / Thiết lập` làm bước trung gian bắt buộc.
-- `SCR-091`–`SCR-096` được giữ làm migration/trace artifacts và không global-discoverable từ Hub.
-- Chức năng đã xuất hiện ở Quick Action phải bị loại khỏi list `Quản lý kho`.
-- Vai trò chỉ chi phối priority/visibility; permission, assignment, warehouse scope và allowed-next-actions vẫn do contract nguồn quyết định.
-- `UIF-04`, `UIF-10`, `UIF-17` và actor-handoff task tiếp tục contextual-only; không materialize thành menu thường trực.

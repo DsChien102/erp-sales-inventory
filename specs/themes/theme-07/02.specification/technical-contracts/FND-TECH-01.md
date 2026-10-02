@@ -168,14 +168,26 @@ Không dùng HTTP timeout của client làm bằng chứng operation thất bạ
 | `BC-XD-04` | `QueryMarginComparison` | `API-Q-03` — `GET /v1/inventory-reports/margin-comparison` | Consistent report snapshot | Query result only | `TST-BC-XD-04` |
 | `BC-IV-04` | `RecordReceiptValueAdjustment` | `API-C-23` — `POST /v1/receipt-value-adjustments` | Signed value component + exposure allocations + 1..N posting-period adjustment batches/value movements + Product/posting-period dirty scopes + outbox, all-or-nothing | `EVT-IV-05 ReceiptValueAdjustmentRecorded` | `TST-BC-IV-04` |
 | `BC-IO-15` | `SavePickAllocation` | `API-C-24` — `PUT /v1/fulfillments/{id}/pick-allocation` | Allocation set/version + allocated/picked/physical-correction assertions; no issue movement | Synchronous result | `TST-BC-IO-15` |
-| `BC-IO-16` | `MaintainOperationDraft` | `API-C-25` — `POST /v1/inventory-operations`; `PUT /v1/inventory-operations/{id}` | Draft + lines + CommandReceipt | Synchronous result | `TST-BC-IO-16` |
+| `BC-IO-16` | `MaintainOperationDraft` | `API-C-25` — `POST /v1/inventory-operations`; `PUT /v1/inventory-operations/{id}` | Draft + lines + CommandReceipt; **không áp dụng `QUICK_RECEIPT`** | Synchronous result | `TST-BC-IO-16` |
 | `BC-IO-17` | `SynchronizeSupplierReturnAuthorization` | `IN-EVT-01` — `SupplierReturnAuthorized/Amended/Cancelled` | Source snapshot + exact source slices + `RTV_PENDING` state movements/balances + outbox | `EVT-IO-11 SupplierReturnPendingSynchronized` | `TST-BC-IO-17` |
-| `BC-IC-07` | `SubmitInventoryOperation` | `API-C-26` — `POST /v1/inventory-operations/{id}/submission` | Payload lock + risk/policy + approval case + CommandReceipt | Synchronous result | `TST-BC-IC-07` |
+| `BC-IC-07` | `SubmitInventoryOperation` | `API-C-26` — existing operation: `POST /v1/inventory-operations/{id}/submission`; **Quick Receipt: create-and-submit variant không yêu cầu `{id}` đã tồn tại** | Existing: payload lock + route; Quick: validate full command → create GoodsReceipt + ApprovalCase + CommandReceipt nguyên tử | Synchronous result | `TST-BC-IC-07` |
 | `BC-IC-08` | `CancelStockCount` | `API-C-27` — `POST /v1/stock-counts/{id}/cancellation` | Session cancel + lock release + CommandReceipt | `EVT-IC-05 StockCountCancelled` | `TST-BC-IC-08` |
 | `BC-IC-09` | `PrepareOpeningBalanceBatch` | `API-C-28` — `POST /v1/opening-balance-batches`; `PUT /v1/opening-balance-batches/{id}` | Batch staging/version + validation/approval refs | Synchronous result | `TST-BC-IC-09` |
 | `BC-XD-05` | `ConfigureInventoryProductPolicy` | External `API-X-04` — `PUT /v1/product-stock-policies/{product_id}` | Low-stock/near-expiry policy version; no inventory ledger | `EVT-XD-03 InventoryProductPolicyChanged` | `TST-BC-XD-05` |
 
 External adapters are contract boundaries, not ownership claims. If modules are deployed together initially, namespace/handler owner vẫn phải giữ như bảng.
+
+### 4.1 Quick Receipt create-and-submit trên `API-C-26`
+
+Nhánh `QUICK_RECEIPT` của `API-C-26` **không nhận một `{id}` đã tồn tại**. Request mang full Supplier/items/evidence/ownership cùng `idempotencyKey`; `receipt_business_date` và scope authoritative được server resolve theo contract.
+
+- Trước command không có `GoodsReceipt` và không có server/local draft.
+- Success: cùng transaction tạo `GoodsReceipt` + `ApprovalCase` + `CommandReceipt`; server cấp `receiptId`; trạng thái đầu = `PENDING_APPROVAL`.
+- Rejection: không tạo `GoodsReceipt`, không cấp `receiptId`. Thiếu approver → `APPROVER_CONFIGURATION_MISSING`; thiếu dòng/UOM/LOT/evidence/ownership hoặc duplicate Product+UOM bị từ chối toàn lệnh và **không dùng `DRAFT_*` / `OPERATION_NOT_DRAFT`**. `APPROVAL_PRICE_BASIS_REQUIRED` không áp dụng cho Quick Receipt; price/FX được xử lý ở chuỗi định giá.
+- Timeout/unknown: client giữ nguyên `idempotencyKey` để retry/query command outcome; không tạo identity mới.
+- `API-C-25` / `BC-IO-16` không được gọi trong Quick Receipt.
+
+Transport adapter có thể triển khai route create-and-submit riêng, nhưng contract bắt buộc là **không yêu cầu receipt/operation ID tồn tại trước lệnh Quick Receipt**.
 
 Ngoài các aggregate liệt kê, **mọi** transaction boundary của BC mutation trong ma trận đều bao gồm `CommandReceipt`; query không tạo receipt.
 
@@ -437,6 +449,7 @@ Mỗi permission mutation được AND với warehouse scope. Approval kiểm ma
 
 - Supplier return source sync/handover: `SOURCE_VERSION_CONFLICT`, `SOURCE_ALLOCATION_ID_CONFLICT`, `SOURCE_ALLOCATION_MISMATCH`, `SOURCE_SLICE_MISMATCH`, `SOURCE_STATE_AMBIGUOUS`, `INSUFFICIENT_RTV_PENDING`, `SOURCE_CANCELLED`.
 - Draft/approval/control: `APPROVAL_PRICE_BASIS_REQUIRED`, `APPROVAL_REQUIRED`, `APPROVER_CONFIGURATION_MISSING`, `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT`, `COUNT_NOT_READY`, `CONTROL_TOTAL_MISMATCH`, `MIGRATION_VALIDATION_FAILED`, `MASTER_NOT_FOUND`, `OPENING_BATCH_ALREADY_EXISTS`, `LOT_OR_EXPIRY_REQUIRED`.
+  - Quick Receipt chỉ dùng `APPROVER_CONFIGURATION_MISSING` trong các lỗi approval/configuration của BJ02; `APPROVAL_PRICE_BASIS_REQUIRED`, `DRAFT_VALIDATION_FAILED` và `OPERATION_NOT_DRAFT` **không thuộc nhánh Quick Receipt**.
 - Count/lock: `COUNT_ALREADY_ACTIVE`, `COUNT_ALREADY_SUBMITTED`, `COUNT_LINE_OUT_OF_SCOPE`, `COUNT_NOT_CANCELLABLE`, `COUNT_SCOPE_EMPTY`, `COUNT_SCOPE_HAS_UNRESOLVED_VALUATION`, `COUNT_ACTOR_NOT_ASSIGNED`, `COUNT_PHYSICAL_STATE_REQUIRED`, `COUNT_SURPLUS_VALUE_BASIS_REQUIRED`, `COUNT_APPROVAL_SNAPSHOT_STALE`, `COUNT_VALUE_BASIS_STALE`, `RECOUNT_REQUIRED`, `LOCK_LOST`, `LOCK_OWNERSHIP_MISMATCH`, `CANCELLATION_REASON_REQUIRED`.
 - Reservation/pick/fulfillment: `RESERVATION_NOT_ACTIVE`, `COMPONENT_SHORTAGE`, `INSUFFICIENT_AT_EXECUTION`, `PICK_ALLOCATION_CONFLICT`, `PICK_ALLOCATION_ALREADY_CONSUMED`, `PICK_EXCEEDS_RESERVATION`, `OVERRIDE_REASON_REQUIRED`, `WAREHOUSE_ROUTING_NOT_AVAILABLE`.
 - Receipt/return/state/disposal: `RECEIPT_EXCEEDS_TOLERANCE`, `RECEIPT_NOT_VALUATION_PENDING`, `CURRENCY_MISMATCH`, `CLASSIFICATION_TOTAL_MISMATCH`, `RETURN_ALREADY_CLASSIFIED`, `ORIGINAL_ISSUE_NOT_FOUND`, `LOT_MISMATCH`, `COMBO_COMPONENT_MISMATCH`, `RETURN_VALUE_BASIS_MISSING`, `STATE_TRANSITION_NOT_ALLOWED`, `STATE_SOURCE_SLICE_AMBIGUOUS`, `STATE_CHANGE_BASIS_STALE`, `STATE_POLICY_VERSION_STALE`, `APPROVAL_BASIS_MISMATCH`, `EXPIRED_SYSTEM_DERIVED`, `DISPOSAL_NOT_APPROVED`, `DISPOSAL_CONFIRMATION_REQUIRED`.

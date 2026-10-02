@@ -5,20 +5,34 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v4.6.4
-version: v4.6.5
-parent: v4.6.4
+source_baseline: v4.6.7
+version: v4.6.8
+parent: v4.6.7
 ---
 # Prototype — Theme 07
 
-## v4.6.5 — Hub Kho list phẳng theo vai trò
+## v4.6.8 — BJ02 design state cleanup
 
-- Parent package: `v4.6.4` từ file người dùng cung cấp.
-- Bốn role profile review: `Chủ cửa hàng`, `Thủ kho`, `Kế toán`, `Nhân viên bán hàng`.
-- `Quản lý kho` hiển thị trực tiếp các chức năng còn lại; không đi qua 5 workspace nhóm.
-- Quick Action theo role và được loại khỏi list để không lặp.
-- `Cần chú ý` theo role; BJ02 maker/approver giữ đúng destination khác nhau.
-- Runtime layer: `html/v465-role-navigation-profiles.css/js`, nạp sau v4.6.4 continuity layer.
+- Parent package: `v4.6.7`.
+- `SCR-010` Quick chỉ còn các state hợp lệ của BJ02: `READY`, `VALIDATION_ERROR`, `APPROVAL_REQUIRED`, `PERMISSION_DENIED`, `PENDING_APPROVAL`, `APPROVER_CONFIGURATION_MISSING`, `FINANCIAL_MASKED`.
+- Loại bỏ các state Quick cũ còn sót trong generated runtime-state registry; không dùng runtime patch để lọc state sau khi render.
+- `PRICE_BASIS_REQUIRED` của BJ10 và các state giá hợp lệ ở journey khác không bị thay đổi.
+
+## v4.6.7 — BJ02 Quick approval không phụ thuộc price/FX
+
+- Parent package: `v4.6.6`.
+- `SCR-010` Quick không có state chặn theo price/FX; submit chỉ kiểm dữ liệu BJ02 và cấu hình approver.
+- `API-C-26` Quick payload không mang price/FX; thiếu price/FX không chặn tạo receipt.
+- `SCR-011` Quick không hiển thị aggregate risk total như căn cứ bắt buộc; approval dựa trên policy Quick Receipt + evidence/ownership/hàng thực nhận.
+- `APPROVER_CONFIGURATION_MISSING` vẫn giữ khi không có approver phù hợp.
+
+## v4.6.6 — BJ02 Quick Receipt no-draft
+
+- Parent package: `v4.6.5` theo baseline người dùng cung cấp.
+- `UC-02-02`: `SCR-008 → SCR-009 → SCR-084 → SCR-010` chỉ dùng session memory; rời luồng/refresh/đóng app thì mất.
+- Không `ACT-02-SAVE-DRAFT`, không `BC-IO-16/API-C-25` cho Quick Receipt.
+- `ACT-02-SUBMIT` gửi full payload; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo receipt.
+- Các lỗi draft cũ không còn là Quick Receipt state/error semantics.
 
 ## v4.6.4 — BJ02 pending-approval continuity
 
@@ -84,7 +98,7 @@ parent: v4.6.4
 
 ## 1. Mục đích
 
-Prototype là design expression/verification medium hiện hành của baseline v4.6.5; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
+Prototype là design expression/verification medium hiện hành của baseline v4.6.1; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
 
 ## 2. Cách chạy
 

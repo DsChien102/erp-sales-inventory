@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "version": "4.6.0",
+  "version": "4.6.8",
   "actions": [
     {
       "id": "ACT-01-REFRESH",
@@ -17,19 +17,24 @@
     },
     {
       "id": "ACT-02-SAVE-DRAFT",
-      "label": "Tự lưu bản nháp",
+      "label": "Tự lưu bản nháp — nhận theo chứng từ",
       "bc": "BC-IO-16",
       "api": "API-C-25",
       "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
       "confirmation": "Không",
-      "effect": "Hệ thống tự giữ dữ liệu nháp an toàn; không tạo tác động nghiệp vụ cuối và không hiển thị CTA Lưu nháp.",
+      "effect": "Chỉ áp dụng UC-02-01/document mode có draft lifecycle. Không áp dụng UC-02-02 Quick Receipt; Quick chỉ giữ dữ liệu trong session memory trước submit.",
       "screen_ids": [
-        "SCR-008",
         "SCR-009"
       ],
       "evidence_level": "STATIC_VALIDATED_DERIVED",
       "ui_visibility": "TRACE_ONLY_SYSTEM",
-      "user_task": false
+      "user_task": false,
+      "applicable_use_cases": [
+        "UC-02-01"
+      ],
+      "excluded_use_cases": [
+        "UC-02-02"
+      ]
     },
     {
       "id": "ACT-02-SUBMIT",
@@ -38,7 +43,7 @@
       "api": "API-C-26",
       "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
       "confirmation": "Có",
-      "effect": "Khóa version đầu vào; nhập nhanh luôn chuyển PENDING_APPROVAL, không hỏi có cần duyệt và không đi thẳng READY; nhận theo chứng từ định tuyến theo ngoại lệ",
+      "effect": "Quick: create-and-submit nguyên tử không yêu cầu price/FX; success mới tạo receiptId/PENDING_APPROVAL. Thiếu approver hoặc dữ liệu BJ02 bắt buộc thì rejection không tạo phiếu; document giữ routing hiện hành.",
       "screen_ids": [
         "SCR-010"
       ],

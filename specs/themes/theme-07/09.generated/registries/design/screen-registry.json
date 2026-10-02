@@ -1,9 +1,9 @@
 {
   "schema_version": "2.0",
-  "version": "4.6.5",
+  "version": "4.6.8",
   "freeze_id": "T07-UI-V4.6.1",
   "source_decision_freeze_id": "T7-BASELINE-FREEZE-v4.0.0",
-  "prototype_status": "SEMANTIC_UX_v4.6.1",
+  "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
   "screen_group_status": "ACTIVE_WITH_RETIRED_MIGRATION_ALIASES",
   "screens": [
     {
@@ -971,29 +971,10 @@
         "VALIDATION_ERROR",
         "CONFLICT",
         "LOCKED",
-        "PERMISSION_DENIED",
-        "DRAFT_VALIDATION_FAILED"
+        "PERMISSION_DENIED"
       ],
-      "action_ids": [
-        "ACT-02-SAVE-DRAFT"
-      ],
-      "action_contracts": [
-        {
-          "id": "ACT-02-SAVE-DRAFT",
-          "label": "Tự lưu bản nháp",
-          "bc": "BC-IO-16",
-          "api": "API-C-25",
-          "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
-          "confirmation": "Không",
-          "effect": "Hệ thống giữ dữ liệu chuẩn bị nhận hàng an toàn; không tạo biến động tồn kho và không hiển thị CTA Lưu nháp.",
-          "screen_ids": [
-            "SCR-008",
-            "SCR-009"
-          ],
-          "evidence_level": "STATIC_VALIDATED_DERIVED",
-          "ui_visibility": "TRACE_ONLY_SYSTEM"
-        }
-      ],
+      "action_ids": [],
+      "action_contracts": [],
       "actors": [
         "Thủ kho"
       ],
@@ -1016,14 +997,14 @@
         ]
       ],
       "cards": [],
-      "notice": "Quick chỉ xuất hiện khi có capability. Kho nhận là kho mặc định Phase 1 và không thể thay đổi. Không hiển thị giải thích kiến trúc về tenant/business clock.",
+      "notice": "Quick chỉ xuất hiện khi có capability. Dữ liệu SCR-008 → SCR-010 chỉ sống trong session memory trước submit; không có server/local draft.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-02-03",
         "screen_group_id": "SG-02",
         "route": "#/sg-02/scr-03"
       },
-      "prototype_status": "SEMANTIC_UX_v4.6.0",
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
       "evidence_level": "RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.0",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -1045,9 +1026,7 @@
           "UIF-02-T07"
         ],
         "visible_action_ids": [],
-        "trace_only_action_ids": [
-          "ACT-02-SAVE-DRAFT"
-        ],
+        "trace_only_action_ids": [],
         "gap_ids": [],
         "data_contract_level": "CANONICAL_UI_CONTRACT",
         "data_rows": [
@@ -1198,18 +1177,24 @@
       "action_contracts": [
         {
           "id": "ACT-02-SAVE-DRAFT",
-          "label": "Tự lưu bản nháp",
+          "label": "Tự lưu bản nháp — nhận theo chứng từ",
           "bc": "BC-IO-16",
           "api": "API-C-25",
           "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
           "confirmation": "Không",
-          "effect": "Hệ thống giữ dữ liệu chuẩn bị nhận hàng an toàn; không tạo biến động tồn kho và không hiển thị CTA Lưu nháp.",
+          "effect": "Chỉ UC-02-01/document mode. UC-02-02 Quick Receipt không gọi save command và chỉ giữ dữ liệu trong session memory.",
           "screen_ids": [
             "SCR-008",
             "SCR-009"
           ],
           "evidence_level": "STATIC_VALIDATED_DERIVED",
-          "ui_visibility": "TRACE_ONLY_SYSTEM"
+          "ui_visibility": "TRACE_ONLY_SYSTEM",
+          "applicable_use_cases": [
+            "UC-02-01"
+          ],
+          "excluded_use_cases": [
+            "UC-02-02"
+          ]
         }
       ],
       "actors": [
@@ -1228,14 +1213,14 @@
           "Chưa ghi nhận"
         ]
       ],
-      "notice": "Quick: tìm Product ngay trên Hàng thực nhận; Product nhiều UOM hiển thị tất cả UOM hợp lệ để chọn trực tiếp; chọn đủ Product+UOM mở ngay Chi tiết hàng thực nhận.",
+      "notice": "Quick mode chỉ giữ Product+UOM trong session memory. Document mode có thể dùng background draft contract theo UC-02-01.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {
         "screen_id": "SCR-02-04",
         "screen_group_id": "SG-02",
         "route": "#/sg-02/scr-04"
       },
-      "prototype_status": "BJ02_PILOT_REFINED_v0.3.4",
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
       "evidence_level": "STATIC_VALIDATED_DERIVED",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -1350,8 +1335,6 @@
         "APPROVAL_REQUIRED",
         "PERMISSION_DENIED",
         "PENDING_APPROVAL",
-        "DRAFT_VALIDATION_FAILED",
-        "APPROVAL_PRICE_BASIS_REQUIRED",
         "APPROVER_CONFIGURATION_MISSING",
         "FINANCIAL_MASKED"
       ],
@@ -1367,7 +1350,7 @@
           "api": "API-C-26",
           "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
           "confirmation": "Có",
-          "effect": "Khóa version đầu vào; nhập nhanh luôn chuyển PENDING_APPROVAL, không hỏi có cần duyệt và không đi thẳng READY; nhận theo chứng từ định tuyến theo ngoại lệ",
+          "effect": "Quick: create-and-submit nguyên tử không yêu cầu price/FX; success mới tạo receiptId và PENDING_APPROVAL. Thiếu approver/dữ liệu BJ02 bắt buộc thì rejection không tạo phiếu. Document mode giữ routing hiện hành theo UC-02-01.",
           "screen_ids": [
             "SCR-010"
           ],
@@ -1410,8 +1393,8 @@
         "screen_group_id": "SG-02",
         "route": "#/sg-02/scr-05"
       },
-      "prototype_status": "BJ02_PENDING_APPROVAL_CONTINUITY_v4.6.4",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_VALIDATED_v4.6.4",
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
+      "evidence_level": "STATIC_SEMANTIC_VALIDATED_v4.6.8",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
         "ids": [
@@ -1492,11 +1475,11 @@
         "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
       },
       "deep_review": {
-        "version": "3.9.2",
+        "version": "4.6.8",
         "status": "LOCKED_DECISION_APPLIED",
         "notes": [
           "Quick cannot submit when accepted physical = 0.",
-          "Missing ownership or price basis keeps draft."
+          "Missing ownership/evidence or approver rejects Quick submit before receipt creation. Price/FX basis is not a BJ02 submit guard."
         ]
       }
     },
@@ -1504,7 +1487,7 @@
       "id": "SCR-011",
       "name": "Phê duyệt yêu cầu nhận hàng",
       "surface_type": "review",
-      "purpose": "Người duyệt xem lý do cần duyệt, chứng từ giao nhận có thể preview, người gửi/thời điểm gửi, aggregate risk total và receipt-line facts để Duyệt/Từ chối đúng revision.",
+      "purpose": "Người duyệt xem lý do, evidence, người gửi/thời điểm và receipt-line facts để quyết định đúng revision; Quick Receipt không yêu cầu aggregate risk/price-FX tại BJ02.",
       "navigation_area": "NAV-02",
       "related_business_journeys": [
         "BJ-02"
@@ -1558,7 +1541,7 @@
         ],
         [
           "Tổng giá trị rủi ro",
-          "10.200.000 đ · theo capability"
+          "Chỉ document/risk-based · theo capability; Quick không yêu cầu"
         ],
         [
           "Chứng từ giao nhận",
@@ -1618,8 +1601,8 @@
           },
           {
             "label": "Tổng giá trị rủi ro",
-            "example": "10.200.000 đ",
-            "ownership": "SYSTEM_DERIVED_AGGREGATE_PERMISSION_GATED"
+            "example": "Chỉ document/risk-based; Quick không yêu cầu",
+            "ownership": "SYSTEM_DERIVED_CONDITIONAL_PERMISSION_GATED"
           },
           {
             "label": "Chứng từ giao nhận",
@@ -1664,10 +1647,11 @@
         "scope": "PRODUCT_UI_SEMANTICS_ACTION_OWNERSHIP_RUNTIME_VISUAL"
       },
       "deep_review": {
-        "version": "3.9.2",
+        "version": "4.6.8",
         "status": "LOCKED_DECISION_APPLIED",
         "notes": [
-          "Unit-cost/FX details need not be exposed to approver; aggregate risk can be permission-gated."
+          "Quick approval uses submitted receipt facts/evidence/ownership and does not require price/FX or aggregate risk total at BJ02.",
+          "Document/risk-based approval may still expose aggregate risk when its contract requires it and permission allows."
         ]
       }
     },
@@ -12056,9 +12040,7 @@
         "PERMISSION_DENIED",
         "READ_ONLY"
       ],
-      "action_ids": [
-        "ACT-02-SAVE-DRAFT"
-      ],
+      "action_ids": [],
       "action_contracts": [],
       "actors": [
         "Thủ kho"
@@ -12110,10 +12092,10 @@
         ]
       ],
       "cards": [],
-      "notice": "Bốn phân loại là authoritative inputs. Tổng kiểm nhận = cả 4 nhóm; Vào tồn vật lý = Đạt + Cách ly + Hỏng; Từ chối không vào tồn. HSD/NSX giữ original precision DAY/MONTH/YEAR.",
+      "notice": "Quick: Xong cập nhật session memory rồi quay lại overview; không server/local draft, không command lưu. Document mode giữ persistence riêng theo UC-02-01.",
       "sensitive_data": "Không có dữ liệu nhạy cảm đặc thù ngoài permission masking chung.",
       "legacy_aliases": {},
-      "prototype_status": "BJ02_PILOT_REFINED_v1.3.4",
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
       "evidence_level": "PILOT_CONTRACT",
       "owner_scope": {
         "kind": "BUSINESS_JOURNEY",
@@ -12136,9 +12118,7 @@
           "UIF-02-T11"
         ],
         "visible_action_ids": [],
-        "trace_only_action_ids": [
-          "ACT-02-SAVE-DRAFT"
-        ],
+        "trace_only_action_ids": [],
         "gap_ids": [],
         "data_contract_level": "PILOT_EXPLICIT_CONTRACT",
         "data_rows": [
@@ -12202,9 +12182,7 @@
         "contract_version": "BJ02_PILOT_SCREEN_CONTRACT_v0.2.8",
         "harness_status": "PILOT_CALIBRATING"
       },
-      "product_action_labels": {
-        "ACT-02-SAVE-DRAFT": "Xong"
-      },
+      "product_action_labels": {},
       "contract_version": "BJ02_PILOT_SCREEN_CONTRACT_v0.2.9",
       "entry_architecture": {
         "class": "IN_FLOW_SURFACE",

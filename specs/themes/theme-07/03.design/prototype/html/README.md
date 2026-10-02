@@ -1,11 +1,3 @@
-# v4.6.5 — Flat role-aware Warehouse Hub
-
-- Final Hub layer: `v465-role-navigation-profiles.css/js`, loaded after `v464-warehouse-hub-bj02-continuity`.
-- Review roles: Chủ cửa hàng / Thủ kho / Kế toán / Nhân viên bán hàng.
-- `Quản lý kho` is a flat role-filtered capability list; workspace grouping is removed from the Hub.
-- Any capability promoted to Quick Action is omitted from the management list.
-- BJ02 pending worklist is role-aware: approver → `SCR-011`; maker → submitted receipt read-only `SCR-010`.
-
 ## v4.6.4 — BJ02 pending-approval continuity
 
 - Parent: `v4.6.3`; scope chỉ tập trung BJ02 và integration tối thiểu với Warehouse Hub candidate.
