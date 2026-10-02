@@ -18,6 +18,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Danh sách đơn: chip Tất cả / Còn phải thu / Chưa phát hành HĐĐT chỉ còn nhãn, không hiện số lượng.
+- Danh sách đơn: chip Hóa đơn điện tử Tất cả / Chưa phát hành / Đã phát hành lọc theo hóa đơn đã phát hành (`einvoice.electronic_invoices`), không còn stub `notRequired`.
+- HĐĐT: nút Phát hành hóa đơn điện tử tắt khi readiness có `PROVIDER_NOT_CONNECTED` (chưa kết nối MISA). Nút Xem trước giữ điều kiện riêng.
 - HĐĐT: chỉ cho phát hành lại khi projection `failed` có action issue/retry; khóa tap khi processing hoặc failed không retry được; widget test chứng minh auto progress → failure → retry.
 - HĐĐT màn kết quả bán hàng: hiển thị `OrderEInvoiceSection` live ngay trên hàng chứng từ (SG02-R02), bỏ card “Chưa phát hành” cố định và sheet mở khi bấm.
 - HĐĐT: polling projection qua `vet45_async_query` (`QueryClient.watchQuery`, 5s, key có tenant); bỏ `Timer.periodic` trên screen; refetch khi app resume.
@@ -30,6 +33,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
 
 ### Fixed
+- HĐĐT: card Cấu hình phát hành tắt khi chưa kết nối MISA, tránh mở màn chọn mẫu khi `list_provider_templates` trả `PROVIDER_NOT_CONNECTED`.
 - HĐĐT: đơn trả hết báo «Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.»; lệch version nguồn bảo tải lại rồi phát hành.
 - Chi tiết đơn tải lại sau khi quay về từ đổi/trả, cùng cách nhánh hủy đơn.
 - HĐĐT lưu PDF/XML: bỏ fallback mở browser; share native qua `XFile.fromData` + MIME/`fileNameOverrides` + `sharePositionOrigin` (iOS Share Sheet); fail-closed khi thiếu checksum hoặc tải lỗi; SG-06 đóng sau handoff thành công/dismiss, giữ mở khi lỗi; copy lỗi exporter đúng ngữ nghĩa lưu trên thiết bị.
@@ -60,6 +64,27 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- Einvoice: bỏ nhật ký gọi MISA (`provider_interaction_records`). Mỗi lần gọi ghi trên dòng nghiệp vụ. Draft `001`, `012`.
+- Einvoice: đối soát lần gửi đọc thẳng dòng `invoice_deliveries` (`INVOICE_DELIVERY`). Kết quả xác định ghi `failure_source`; sự kiện cảnh báo không còn `attempt_id`. Draft `015`.
+- Einvoice: worker gửi thư ghi kết quả trên một dòng `invoice_deliveries` (`retry_count` 0–2). `prepare` chốt `QUEUED` → `SUBMITTED`; lỗi khi ghi kết quả được ném lại để lần sau ghi `UNKNOWN` mà không gọi MISA lần hai. Draft `014`.
+- Einvoice: dữ liệu người mua bổ sung là cột có kiểu, một dòng mỗi đơn; xem trước một dòng hiện hành (`invoice_previews`) và ghi nhận thất bại. MISA từ chối dữ liệu thì `FAILED` ngay; mất kết nối giữ `PENDING` để thử lại. Draft `005`–`008`.
+- Einvoice: quan sát MISA (`invoice_provider_observations`) mang `correlation_id` riêng; ghi quan sát không còn cập nhật hóa đơn hay nhật ký tương tác. Khi MISA không phản hồi thì không tạo quan sát. Draft `012`.
+- Einvoice: gộp thao tác tải PDF/XML vào `invoice_documents` (một dòng hiện hành theo loại chứng từ, `request_id`); khi MISA không phản hồi giữ `PENDING` để thử lại. Draft `011`.
+- Einvoice: một dòng xem hoá đơn chính thức hiện hành (`official_invoice_views`), `request_id` thay bộ đếm; khi MISA không phản hồi giữ `PENDING` để thử lại. Draft `010`.
+- Einvoice: trạng thái kết nối nhà cung cấp trên RPC dùng chữ hoa (`DISCONNECTED` / `CONNECTED` / `CHECK_REQUIRED` / `RECONNECT_REQUIRED`); `provider_connections.status` là text, bỏ enum Postgres. Draft `001`, `003`, `004`, `006`, `007`, `008`, `013`.
+- Einvoice: `provider_credentials` bỏ `tax_code` và `updated_at`; ngắt kết nối xóa dòng tài khoản. Mã số thuế khi đọc credential lấy từ hồ sơ pháp lý. Draft `001`, `003`.
+- Einvoice: gộp `issuance_profiles` và `invoice_automation_policies` thành `tenant_settings`; ngắt kết nối xóa mẫu mặc định, giữ hai công tắc tự động. Draft `001`, `003`, `004`, `006`, `007`, `008`, `013`.
+- Sales: helper `sales._price_exchange_unit` và RPC đọc `preview_return_exchange_pricing` tính giá món đổi theo khách của đơn gốc (sửa tại chỗ `20260830012`).
+- Sales: `start`/`update`/`evaluate`/`confirm` đổi/trả ghi giá món đổi do server tính và báo `PRICE_CHANGED` khi lệch qua helper chung `sales._assert_exchange_price` (sửa tại chỗ `20260830012`, `20260830013`, `20260904001`). `REGISTRY.yaml` bổ sung `_sales_order_current_lines` còn thiếu.
+- Sales: query `PreviewReturnExchangePricingQuery` xem trước giá món đổi qua RPC `preview_return_exchange_pricing`.
+- Đổi/trả: món đổi lấy giá server lúc chọn; giá đổi giữa chừng báo để kiểm tra lại, không tự xác nhận. Quay về từ màn quyết toán thì làm mới giá món đổi (tránh lặp `PRICE_CHANGED`); màn quyết toán hướng dẫn quay lại màn đổi/trả.
+- Einvoice: mapper MISA tính `DiscountRate` từ chiết khấu / thành tiền trước giảm (2 chữ số); `CoefficientDecimalDigits` gửi `"2"`. Hash canonical không đổi.
+- Sales: chi tiết đơn gạch ngang giá gốc khi dòng có chiết khấu; dòng hiện tại sau đổi/trả trả giá sau giảm và `originalUnitPrice` (sửa tại chỗ `20260830010`).
+- Sales: checkout gửi `manual_*` để server tự tính giá; `PRICE_CHANGED` / `PRICING_BLOCKED` có thông điệp riêng; màn bán hàng tính lại giá sau khi quay về từ thanh toán.
+- Sales: `finalize_sales_order` (draft `017`) tự tính giá lúc chốt qua Pricing; lệch thành tiền thì `PRICE_CHANGED`, giá bị chặn thì `PRICING_BLOCKED`; ghi `pricing_snapshot`.
+- Sales: hàng trả từ dòng gốc định giá theo `line_total_minor` (S3); `get_returnable_order_lines` trả giá sau giảm/đơn vị. Sửa tại chỗ `20260830013`, `20260830012`.
+- Sales: `start_return_exchange` / `update_return_exchange` ghi `unit_value_minor` của dòng trả từ đơn gốc = giá sau giảm/đơn vị (trước là đơn giá gốc), khớp tiền hoàn. Sửa tại chỗ `20260830012`.
+- Sales: thêm lại `sales.sales_order_lines.pricing_snapshot` (nguồn giá lúc chốt, chỉ tra cứu) — sửa tại chỗ `20260830005`.
 - Einvoice: readiness nhận `sourceBlockers`; evaluator chặn `ORDER_FULLY_RETURNED` và không chồng blocker dữ liệu thương mại khi đơn đã trả hết.
 - Einvoice: readiness trả `source_blockers`; phát hành thủ công và retry chặn mọi blocker của Sales; auto bỏ qua đơn trả hết (`SKIPPED` / `ORDER_FULLY_RETURNED`); reevaluate làm mới version nguồn trước khi bắt đầu. Draft `006`, `008`.
 - Einvoice: completion người mua unique theo `(tenant_id, sales_order_id)`; `complete_buyer_invoice_data` lấy `buyer_partner_id` từ nguồn đơn, không còn `gen_random_uuid()`.
