@@ -13,6 +13,16 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Internal
+
+## [1.0.4+5] - 2026-10-02
+
+### Added
+
 - Đóng tổ chức: thao tác terminal trên chi tiết tổ chức (lý do bắt buộc, không khôi phục).
 
 ### Changed
