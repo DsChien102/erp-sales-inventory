@@ -1,0 +1,60 @@
+{
+  "htmlDsVersion": "2.0.2",
+  "authority": "Flutter VTypography / pubspec assets",
+  "flutterReferenceVersion": "1.4.1",
+  "runtimePolicy": {
+    "fontBinariesBundled": false,
+    "hostMustProvideFonts": true,
+    "silentFallbackAllowed": false,
+    "reason": "Artifact policy prohibits distributing font binaries. Exact parity requires host to load the same Flutter font assets.",
+    "bridge": "src/flutter-font-bridge.js",
+    "configuration": "window.__VET45_FLUTTER_ASSETS__.fontRoot or ?flutterFontRoot=",
+    "exactParitySignal": "document.documentElement.dataset.vet45FontParity === \"exact\""
+  },
+  "families": {
+    "sans": {
+      "cssFamily": "Inter",
+      "flutterFamily": "packages/vet45_design_system/Inter",
+      "requiredWeights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "sourceVersion": "4.001;git-9221beed3"
+    },
+    "mono": {
+      "cssFamily": "JetBrains Mono",
+      "flutterFamily": "packages/vet45_design_system/JetBrains Mono",
+      "requiredWeights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "sourceVersion": "2.304"
+    },
+    "icons": {
+      "cssFamily": "Lucide",
+      "dependency": "lucide_icons_flutter 3.1.15",
+      "upstream": "Lucide 1.24.0",
+      "render": "font-codepoint when exact host family is available; complete local SVG fallback for all 108 aliases",
+      "families": {
+        "default": "Lucide",
+        "thin": "Lucide100",
+        "extraLight": "Lucide200",
+        "light": "Lucide300",
+        "regular": "Lucide400",
+        "medium": "Lucide500",
+        "semiBold": "Lucide600"
+      }
+    }
+  },
+  "sourceAssets": {
+    "Inter": "assets/fonts/ttf_Inter/",
+    "JetBrains Mono": "assets/fonts/ttf_JetBrainsMono/",
+    "Lucide": "provided by lucide_icons_flutter dependency (not bundled in vet45_design_system zip)"
+  }
+}

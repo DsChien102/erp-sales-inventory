@@ -69,3 +69,19 @@ The following presentation rules are release gates for all subsequent Theme 7 Pr
 - Do not apply pill radius, semantic fill, badge background, or badge typography to helper/supporting copy unless the content is explicitly modeled as `VBadge`/status.
 - `VRadio` follows the Figma DS component `522:7410`: 20px control, label text, canonical On/Off/Disabled state. Additional explanatory copy may be composed as secondary `VText`, but must not mutate the radio component into a feature-specific chip/card treatment.
 - Disabled appearance is parent opacity `0.4`; no custom disabled color.
+
+## Locked composition rules — v4.4.0
+
+- **Homogeneous factual rows own one shared surface.** When two or more `DS v2 / Info Row` and/or `DS v2 / Key-value Row` instances belong to the same semantic block, the collection must have one visible surface boundary: surface background, thin border and canonical radius. Rows inside remain primitives separated by dividers; do not render one card per row.
+- **Emphasis stays inside the same block.** `Key-value Row / Emphasis` may keep its semantic brand surface, but it remains a row of the shared block rather than a separate floating card.
+- **Do not apply this rule to independent `List Row` collections.** Independent navigation/status rows keep the transparent collection layer and row gaps defined by the existing locked rule. Product→LOT/task subgroups that already own a valid surface must not be wrapped in another surface.
+- **Runtime gate is Theme-wide.** QA must scan every canonical UIF screen/state and fail when a minimal factual row group has no surface owner or when a new wrapper creates nested/card-soup surfaces.
+
+
+## Locked visual QA rules — v4.5.0
+
+- Visual QA không được chỉ dựa vào DOM/static validator: mọi release UI-wide phải có screenshot của từng active screen ở `402×874` và contact sheet theo UIF.
+- `VBanner` phải dùng đúng density/geometry của DS: Compact `72px`, Default `96px`; nếu copy vượt ngân sách của variant thì rút copy hoặc chọn variant phù hợp, không kéo cao component bằng CSS.
+- `DS v2 / Info Row` là primitive `44px` cho nhãn/giá trị ngắn. Giải thích dài phải dùng text/read-note phù hợp trong cùng surface, không ép wrap vào Info Row.
+- `VProgress` chỉ sở hữu progress bar; title/helper là content sibling của composition.
+- Không tạo broad selector để “normalize” toàn Theme nếu chưa có snapshot evidence; sửa ở primitive/source copy nhỏ nhất có thể.

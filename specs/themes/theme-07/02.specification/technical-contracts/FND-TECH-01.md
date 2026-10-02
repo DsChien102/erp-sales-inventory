@@ -5,13 +5,13 @@ theme: theme-07
 title: "Technical execution contracts"
 owner: SA
 status: FROZEN
-source_baseline: v3.10.1
+source_baseline: v4.6.0
 ---
 # FND-TECH-01 — Technical execution contracts
 
 ## 1. Vấn đề cần giải quyết
 
-Materialize các execution contract dùng chung đã tồn tại trong `07 — Hợp đồng kỹ thuật` của baseline v3.10.1 mà không thay đổi semantics.
+Materialize các execution contract dùng chung đã tồn tại trong `07 — Hợp đồng kỹ thuật` của baseline v4.6.0.
 
 ## 2. Scope
 
@@ -140,7 +140,7 @@ Không dùng HTTP timeout của client làm bằng chứng operation thất bạ
 | `BC-IO-01` | `QueryInventoryAvailability` | `API-Q-01` — `GET /v1/inventory/availability` | Read snapshot/transactional read | Query result only | `TST-BC-IO-01` |
 | `BC-IO-02` | `ReceivePurchasedGoods` | `API-C-02` — `POST /v1/inventory/receipts` | Operation + movement + `VALUATION_PENDING` balance + lot + receipt + outbox; no value movement | `EVT-IO-01 ReceiptRecorded` | `TST-BC-IO-02` |
 | `BC-IV-01` | `ConfirmInitialReceiptValue` | `API-C-20` — `POST /v1/receipt-valuations/confirm` | Recheck selected basis/scope version + deterministic allocated value + ReceiptValuation + receipt-business-date value movement + valuation-state balance transfer + exact Product/posting-period dirty scope + availability + outbox; **không tạo Official Cost** | `EVT-IV-03 ReceiptValuationConfirmed` | `TST-BC-IV-01` |
-| `BC-IV-05` | `BuildReceiptValuationPreview` | `API-Q-11` — `POST /v1/receipt-valuations/preview` | Build valid receipt-value basis from Theme 10 sources or Theme 7 direct price basis; apply tax policy, deterministic allocation/rounding and basis/scope hashes; read/derive only | Query result only | `TST-BC-IV-05` |
+| `BC-IV-05` | `BuildReceiptValuationPreview` | `API-Q-11` — `POST /v1/receipt-valuations/preview` | Build valid receipt-value basis from Theme 10 sources or Theme 7 direct price basis; consume normalized VND values, apply tax policy, deterministic allocation/rounding and basis/scope hashes; read/derive only | Query result only | `TST-BC-IV-05` |
 | `BC-IV-06` | `BuildReceiptValueAdjustmentPreview` | `API-Q-12` — `POST /v1/receipt-value-adjustments/preview` | Resolve signed value component + authoritative target scope + exposure/metric/period snapshots; derive basis/allocation hashes; no mutation | Query result only | `TST-BC-IV-06` |
 | `BC-IO-03` | `ReserveOrderQuantity` | `API-C-03` — `POST /v1/reservations` | ReservationGroup? + child Reservation + ReservationBucket + outbox; combo atomic | `EVT-IO-02 ReservationChanged` | `TST-BC-IO-03` |
 | `BC-IO-04` | `CompleteOnlinePosCheckout` | `API-C-04` — `POST /v1/pos-checkouts/inventory-completion` | Issue/value movement + balance + result + outbox | `EVT-IO-03 PosInventoryCompleted` | `TST-BC-IO-04` |
@@ -168,14 +168,26 @@ Không dùng HTTP timeout của client làm bằng chứng operation thất bạ
 | `BC-XD-04` | `QueryMarginComparison` | `API-Q-03` — `GET /v1/inventory-reports/margin-comparison` | Consistent report snapshot | Query result only | `TST-BC-XD-04` |
 | `BC-IV-04` | `RecordReceiptValueAdjustment` | `API-C-23` — `POST /v1/receipt-value-adjustments` | Signed value component + exposure allocations + 1..N posting-period adjustment batches/value movements + Product/posting-period dirty scopes + outbox, all-or-nothing | `EVT-IV-05 ReceiptValueAdjustmentRecorded` | `TST-BC-IV-04` |
 | `BC-IO-15` | `SavePickAllocation` | `API-C-24` — `PUT /v1/fulfillments/{id}/pick-allocation` | Allocation set/version + allocated/picked/physical-correction assertions; no issue movement | Synchronous result | `TST-BC-IO-15` |
-| `BC-IO-16` | `MaintainOperationDraft` | `API-C-25` — `POST /v1/inventory-operations`; `PUT /v1/inventory-operations/{id}` | Draft + lines + CommandReceipt | Synchronous result | `TST-BC-IO-16` |
+| `BC-IO-16` | `MaintainOperationDraft` | `API-C-25` — `POST /v1/inventory-operations`; `PUT /v1/inventory-operations/{id}` | Draft + lines + CommandReceipt; **không áp dụng `QUICK_RECEIPT`** | Synchronous result | `TST-BC-IO-16` |
 | `BC-IO-17` | `SynchronizeSupplierReturnAuthorization` | `IN-EVT-01` — `SupplierReturnAuthorized/Amended/Cancelled` | Source snapshot + exact source slices + `RTV_PENDING` state movements/balances + outbox | `EVT-IO-11 SupplierReturnPendingSynchronized` | `TST-BC-IO-17` |
-| `BC-IC-07` | `SubmitInventoryOperation` | `API-C-26` — `POST /v1/inventory-operations/{id}/submission` | Payload lock + risk/policy + approval case + CommandReceipt | Synchronous result | `TST-BC-IC-07` |
+| `BC-IC-07` | `SubmitInventoryOperation` | `API-C-26` — existing operation: `POST /v1/inventory-operations/{id}/submission`; **Quick Receipt: create-and-submit variant không yêu cầu `{id}` đã tồn tại** | Existing: payload lock + route; Quick: validate full command → create GoodsReceipt + ApprovalCase + CommandReceipt nguyên tử | Synchronous result | `TST-BC-IC-07` |
 | `BC-IC-08` | `CancelStockCount` | `API-C-27` — `POST /v1/stock-counts/{id}/cancellation` | Session cancel + lock release + CommandReceipt | `EVT-IC-05 StockCountCancelled` | `TST-BC-IC-08` |
 | `BC-IC-09` | `PrepareOpeningBalanceBatch` | `API-C-28` — `POST /v1/opening-balance-batches`; `PUT /v1/opening-balance-batches/{id}` | Batch staging/version + validation/approval refs | Synchronous result | `TST-BC-IC-09` |
 | `BC-XD-05` | `ConfigureInventoryProductPolicy` | External `API-X-04` — `PUT /v1/product-stock-policies/{product_id}` | Low-stock/near-expiry policy version; no inventory ledger | `EVT-XD-03 InventoryProductPolicyChanged` | `TST-BC-XD-05` |
 
 External adapters are contract boundaries, not ownership claims. If modules are deployed together initially, namespace/handler owner vẫn phải giữ như bảng.
+
+### 4.1 Quick Receipt create-and-submit trên `API-C-26`
+
+Nhánh `QUICK_RECEIPT` của `API-C-26` **không nhận một `{id}` đã tồn tại**. Request mang full Supplier/items/evidence/ownership cùng `idempotencyKey`; `receipt_business_date` và scope authoritative được server resolve theo contract.
+
+- Trước command không có `GoodsReceipt` và không có server/local draft.
+- Success: cùng transaction tạo `GoodsReceipt` + `ApprovalCase` + `CommandReceipt`; server cấp `receiptId`; trạng thái đầu = `PENDING_APPROVAL`.
+- Rejection: không tạo `GoodsReceipt`, không cấp `receiptId`. Thiếu approver → `APPROVER_CONFIGURATION_MISSING`; thiếu dòng/UOM/LOT/evidence/ownership hoặc duplicate Product+UOM bị từ chối toàn lệnh và **không dùng `DRAFT_*` / `OPERATION_NOT_DRAFT`**. `APPROVAL_PRICE_BASIS_REQUIRED` không áp dụng cho Quick Receipt; price/FX được xử lý ở chuỗi định giá.
+- Timeout/unknown: client giữ nguyên `idempotencyKey` để retry/query command outcome; không tạo identity mới.
+- `API-C-25` / `BC-IO-16` không được gọi trong Quick Receipt.
+
+Transport adapter có thể triển khai route create-and-submit riêng, nhưng contract bắt buộc là **không yêu cầu receipt/operation ID tồn tại trước lệnh Quick Receipt**.
 
 Ngoài các aggregate liệt kê, **mọi** transaction boundary của BC mutation trong ma trận đều bao gồm `CommandReceipt`; query không tạo receipt.
 
@@ -228,7 +240,7 @@ Pagination dùng cursor ổn định. Report/export ghi filters, timezone, view 
 - authoritative availability preview (advisory until commit);
 - exact `product_id + posting_period_id` dirty consequence nếu confirm thành công.
 
-Với Quick Receipt chưa có nguồn Theme 10, preview có thể sử dụng `THEME7_DIRECT` basis nếu người có quyền cung cấp đủ unit price, currency, tax-included/excluded meaning khi relevant, source/effective time và evidence/reason theo policy. Tax recoverability là system/policy decision, không phải user toggle.
+Với Quick Receipt chưa có nguồn Theme 10, preview có thể sử dụng `THEME7_DIRECT` basis nếu người có quyền cung cấp đủ unit price, currency, tax-included/excluded meaning khi relevant, căn cứ giá/effective time và evidence/reason theo policy. Client không nhập/chọn tỷ giá; khi currency khác VND, FX authoritative được resolve theo `T7-DR-062` và giữ trong provenance kỹ thuật. Tax recoverability là system/policy decision, không phải user toggle.
 
 Hai căn cứ chỉ conflict khi complete basis/value facts authoritative khác nhau. Commercial dispute do Theme 10 sở hữu phải trả trạng thái chờ/owner handoff; Theme 7 không chọn một PO/invoice value để bỏ qua dispute. Query failure/timeout không tạo business `UNKNOWN` và có thể refetch.
 
@@ -334,7 +346,7 @@ Mọi payload ngoài envelope phải chứa đúng các reference dưới đây;
 
 | Event | Required payload fields |
 |---|---|
-| `EVT-IO-01` | `operation_id`, `receipt_id`, `source_version`, `warehouse_id`, `line_ids`, `physical_delta`, `lot_ids`, `valuation_pending=true`; no official value fields |
+| `EVT-IO-01` | `operation_id`, `receipt_id`, `source_identity`, `source_version`, `warehouse_id`, `receipt_business_date`, `lines[]` với tối thiểu `{receipt_line_id, source_line_id, source_line_version, transaction_uom, conversion_snapshot_version, base_uom, accepted_qty, quarantine_qty, damaged_qty, rejected_qty, accepted_physical_base_qty, lot_ids?}`, `valuation_pending=true`; no official value fields |
 | `EVT-IV-03` | `operation_id`, `receipt_valuation_id`, `receipt_line_ids`, `value_movement_ids`, `released_quantity`, exact `product_id + posting_period_id` dirty scope |
 | `EVT-IO-02`, `EVT-IO-05` | `reservation_id`, `reservation_group_id?`, `reservation_bucket_version`, `source_line_id`, transaction-UOM snapshot/version, `requested`, `current_reserved`, `consumed`, `remaining_required`, `shortage`, `reservation_policy`, priority facts, trigger/reason, `allocation_review_required`, `status` |
 | `EVT-IO-03` | `operation_id`, `checkout_id`, `issue_movement_ids`, `value_movement_ids`, `allocation_ids`, `initial_cogs` |
@@ -437,6 +449,7 @@ Mỗi permission mutation được AND với warehouse scope. Approval kiểm ma
 
 - Supplier return source sync/handover: `SOURCE_VERSION_CONFLICT`, `SOURCE_ALLOCATION_ID_CONFLICT`, `SOURCE_ALLOCATION_MISMATCH`, `SOURCE_SLICE_MISMATCH`, `SOURCE_STATE_AMBIGUOUS`, `INSUFFICIENT_RTV_PENDING`, `SOURCE_CANCELLED`.
 - Draft/approval/control: `APPROVAL_PRICE_BASIS_REQUIRED`, `APPROVAL_REQUIRED`, `APPROVER_CONFIGURATION_MISSING`, `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT`, `COUNT_NOT_READY`, `CONTROL_TOTAL_MISMATCH`, `MIGRATION_VALIDATION_FAILED`, `MASTER_NOT_FOUND`, `OPENING_BATCH_ALREADY_EXISTS`, `LOT_OR_EXPIRY_REQUIRED`.
+  - Quick Receipt chỉ dùng `APPROVER_CONFIGURATION_MISSING` trong các lỗi approval/configuration của BJ02; `APPROVAL_PRICE_BASIS_REQUIRED`, `DRAFT_VALIDATION_FAILED` và `OPERATION_NOT_DRAFT` **không thuộc nhánh Quick Receipt**.
 - Count/lock: `COUNT_ALREADY_ACTIVE`, `COUNT_ALREADY_SUBMITTED`, `COUNT_LINE_OUT_OF_SCOPE`, `COUNT_NOT_CANCELLABLE`, `COUNT_SCOPE_EMPTY`, `COUNT_SCOPE_HAS_UNRESOLVED_VALUATION`, `COUNT_ACTOR_NOT_ASSIGNED`, `COUNT_PHYSICAL_STATE_REQUIRED`, `COUNT_SURPLUS_VALUE_BASIS_REQUIRED`, `COUNT_APPROVAL_SNAPSHOT_STALE`, `COUNT_VALUE_BASIS_STALE`, `RECOUNT_REQUIRED`, `LOCK_LOST`, `LOCK_OWNERSHIP_MISMATCH`, `CANCELLATION_REASON_REQUIRED`.
 - Reservation/pick/fulfillment: `RESERVATION_NOT_ACTIVE`, `COMPONENT_SHORTAGE`, `INSUFFICIENT_AT_EXECUTION`, `PICK_ALLOCATION_CONFLICT`, `PICK_ALLOCATION_ALREADY_CONSUMED`, `PICK_EXCEEDS_RESERVATION`, `OVERRIDE_REASON_REQUIRED`, `WAREHOUSE_ROUTING_NOT_AVAILABLE`.
 - Receipt/return/state/disposal: `RECEIPT_EXCEEDS_TOLERANCE`, `RECEIPT_NOT_VALUATION_PENDING`, `CURRENCY_MISMATCH`, `CLASSIFICATION_TOTAL_MISMATCH`, `RETURN_ALREADY_CLASSIFIED`, `ORIGINAL_ISSUE_NOT_FOUND`, `LOT_MISMATCH`, `COMBO_COMPONENT_MISMATCH`, `RETURN_VALUE_BASIS_MISSING`, `STATE_TRANSITION_NOT_ALLOWED`, `STATE_SOURCE_SLICE_AMBIGUOUS`, `STATE_CHANGE_BASIS_STALE`, `STATE_POLICY_VERSION_STALE`, `APPROVAL_BASIS_MISMATCH`, `EXPIRED_SYSTEM_DERIVED`, `DISPOSAL_NOT_APPROVED`, `DISPOSAL_CONFIRMATION_REQUIRED`.
@@ -515,7 +528,7 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 
 ### 15. PROC-01 và boundary chuyển giao v4.1.0
 
-- [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) chỉ được gọi từ BJ-16 sau khi chứng minh ledger đúng/projection sai.
+- [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../../05.procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho.md) chỉ được gọi từ BJ-16 sau khi chứng minh ledger đúng/projection sai.
 - `BC-XD-01` là contract chuyển giao Theme 10 — Mua hàng; `BC-XD-02/03` thuộc Theme 2 — Sản phẩm; `BC-XD-04` thuộc Reporting/Analytics.
 - Các boundary contract này được giữ để khóa payload/finality trong thời gian `outbound/` còn nằm ở Theme 7, không tạo implementation ownership cho Theme 7.
 
@@ -527,7 +540,9 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 - Request identifies stable `source_component_key`, current source revision/evidence and a **signed component amount**. BJ13 accepts only a business fact that became valid or changed after initial valuation; user-entry correction belongs to correction flow, not BJ13.
 - Response includes `target_scope_key/version/hash` and candidate membership. Fixed source coverage is not user-editable.
 - Each target is a `valuation_exposure_key/version/hash` snapshot with initial-valued base quantity/value and ReceiptValuation lineage.
-- Each allowed allocation method exposes authoritative metric `{value, unit, metric_version, metric_hash}`. Source and allocation are separate facts.
+- Each allowed allocation method exposes authoritative metric `{value, unit, metric_version, metric_hash}`. Source and allocation are separate facts. Value method uses initial valuation value before BJ13 adjustments. Quantity method is returned only when every target has a comparable metric with the same dimension/metric unit.
+- With normalized signed amount `A`, `M = Σmetric_i`; if `M > 0`, raw allocation is `A × metric_i / M`, then VND rounding + stable-order residual reconciliation. `M <= 0` is `ALLOCATION_METRIC_NOT_USABLE`; server never equal-splits as fallback.
+- Source adapter returns normalized VND amount. Currency/FX may remain provenance fields, but client UI does not request or render FX; missing normalized VND is `NORMALIZED_VALUE_REQUIRED`.
 - Response resolves `receipt_business_date`, `original_period_id`, `posting_period_id` per exposure, derives dirty `product_id + posting_period_id`, and returns `value_adjustment_basis_hash` plus `allocation_hash`.
 - Positive and negative components use the same contract. Projected/forecast commercial benefits are rejected until the benefit is established by an authoritative source.
 - Rounding uses stable exposure order; UI row order is never the residual rule. Query timeout is a safe refetch, not business `UNKNOWN`.
@@ -548,7 +563,7 @@ Trace attributes: `tenant_id`, `operation_id`, `bc_id`, `operation_request_id_ha
 
 **API-C-21 request / calculation snapshot**
 
-- Request carries `run_type`, `calculation_period_id`, one `posting_period_id`, `scope_origin`, immutable `scope_hash`; DIRTY origin additionally carries exact Product+posting-period membership, cause IDs and `dirty_scope_version/hash`.
+- Request carries `run_type`, `calculation_period_id`, one `posting_period_id`, `scope_origin`, immutable `scope_hash`; DIRTY origin additionally carries exact Product+posting-period membership, cause IDs and `dirty_scope_version/hash`. PERIOD_CLOSE scope value must come from the current tenant policy allowed set; Theme 7 không hard-code catalog scope ở technical contract. Server rejects an option not allowed by policy.
 - Server resolves one authoritative `cutoff_valuation_sequence`; `cutoff_ledger_sequence` and `cutoff_value_sequence` may be returned for audit but never define cross-ledger ordering.
 - Every quantity/value fact relevant to costing is ordered by `{valuation_sequence, within_transaction_ordinal}`. Both moving and periodic methods consume the same ordered fact set.
 - Server materializes one immutable `ProductCostResult` per Product and a run-level `product_result_set_hash`; global totals are aggregates only.

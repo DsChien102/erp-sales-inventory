@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "version": "3.13.0",
+  "version": "4.6.8",
   "actions": [
     {
       "id": "ACT-01-REFRESH",
@@ -17,19 +17,24 @@
     },
     {
       "id": "ACT-02-SAVE-DRAFT",
-      "label": "Tự lưu bản nháp",
+      "label": "Tự lưu bản nháp — nhận theo chứng từ",
       "bc": "BC-IO-16",
       "api": "API-C-25",
       "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
       "confirmation": "Không",
-      "effect": "Hệ thống tự giữ dữ liệu nháp an toàn; không tạo tác động nghiệp vụ cuối và không hiển thị CTA Lưu nháp.",
+      "effect": "Chỉ áp dụng UC-02-01/document mode có draft lifecycle. Không áp dụng UC-02-02 Quick Receipt; Quick chỉ giữ dữ liệu trong session memory trước submit.",
       "screen_ids": [
-        "SCR-008",
         "SCR-009"
       ],
       "evidence_level": "STATIC_VALIDATED_DERIVED",
       "ui_visibility": "TRACE_ONLY_SYSTEM",
-      "user_task": false
+      "user_task": false,
+      "applicable_use_cases": [
+        "UC-02-01"
+      ],
+      "excluded_use_cases": [
+        "UC-02-02"
+      ]
     },
     {
       "id": "ACT-02-SUBMIT",
@@ -38,7 +43,7 @@
       "api": "API-C-26",
       "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
       "confirmation": "Có",
-      "effect": "Khóa version đầu vào; nhập nhanh luôn chuyển PENDING_APPROVAL, không hỏi có cần duyệt và không đi thẳng READY; nhận theo chứng từ định tuyến theo ngoại lệ",
+      "effect": "Quick: create-and-submit nguyên tử không yêu cầu price/FX; success mới tạo receiptId/PENDING_APPROVAL. Thiếu approver hoặc dữ liệu BJ02 bắt buộc thì rejection không tạo phiếu; document giữ routing hiện hành.",
       "screen_ids": [
         "SCR-010"
       ],
@@ -92,13 +97,13 @@
       "bc": "BC-IV-04",
       "api": "API-C-23",
       "permission": "Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại",
-      "confirmation": "Rà soát cuối tại SCR-088; không có lớp xác nhận thứ hai. Máy chủ kiểm tra lại nguồn và phân bổ trước khi ghi.",
+      "confirmation": "Confirmation Sheet trên SCR-086 là bước xác nhận cuối trước mutation. Máy chủ kiểm tra lại nguồn và phân bổ trước khi ghi.",
       "effect": "Ghi điều chỉnh tăng/giảm vào giá trị hàng nhập theo nguồn và phân bổ đã xác nhận; không đổi số lượng, không sửa lịch sử BJ03 và đánh dấu phạm vi cần cập nhật giá vốn.",
       "screen_ids": [
-        "SCR-088"
+        "SCR-086"
       ],
-      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_DERIVED",
-      "harness_note": "v3.13.0: giữ ID action cũ để tương thích truy vết; nghĩa nghiệp vụ hiện hành là điều chỉnh giá trị hàng nhập, không giới hạn ở chi phí mua đến muộn."
+      "evidence_level": "RUNTIME_AND_VISUAL_VALIDATED_v4.6.0",
+      "harness_note": "v4.6.0: action được xác nhận bằng Confirmation Sheet trên SCR-086; SCR-088 retired."
     },
     {
       "id": "ACT-04-RESERVE",

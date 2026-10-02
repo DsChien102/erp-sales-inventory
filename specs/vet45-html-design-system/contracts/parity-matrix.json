@@ -1,0 +1,19 @@
+{
+  "htmlDsVersion": "2.0.2",
+  "flutterDsVersion": "1.4.1",
+  "authority": "Flutter",
+  "rules": [
+    "public API = lib/design_system.dart",
+    "tokens = lib/src/tokens + theme",
+    "visual anatomy/defaults/states = Flutter implementation",
+    "widget behavior = Flutter tests",
+    "preview IA = example/lib/main.dart",
+    "Figma/HTML v1.6 are legacy reference only"
+  ],
+  "fontBinaryPolicy": "not bundled; host requirement",
+  "iconPolicy": "VIcons semantic/codepoints exact; Lucide font host required for exact glyph parity; SVG fallback covers all 108 semantic aliases; interactive hosts retain control semantics",
+  "exportCount": 94,
+  "visualSelectorCount": 78,
+  "testCount": 287,
+  "iconCount": 108
+}

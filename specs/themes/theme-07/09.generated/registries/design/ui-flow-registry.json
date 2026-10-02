@@ -1,11 +1,11 @@
 {
   "schema_version": "2.0",
-  "patch_version": "4.2.0",
-  "freeze_id": "T7-UIF-PLAIN-BA-v4.2.0",
-  "source_baseline": "v4.2.0",
+  "patch_version": "4.6.8",
+  "freeze_id": "T07-UIF-V4.6.1",
+  "source_baseline": "v4.6.6",
   "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
-  "prototype_status": "VALUATION_DESIGN_HTML_PARITY_VALIDATED",
-  "evidence_level": "E2_CONTRACT_TRACE_VALIDATED",
+  "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
+  "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
   "flows": [
     {
       "id": "UIF-01",
@@ -96,7 +96,6 @@
       "action_ids": [
         "ACT-02-DECIDE",
         "ACT-02-RECEIVE",
-        "ACT-02-SAVE-DRAFT",
         "ACT-02-SUBMIT"
       ],
       "entry_contexts": [
@@ -123,11 +122,23 @@
           "screen": "SCR-013",
           "actor": "Warehouse receiver",
           "from": "SCR-012 UNKNOWN only"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-010",
+          "actor": "Warehouse receiver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
+        },
+        {
+          "type": "WAREHOUSE_HUB_ATTENTION",
+          "screen": "SCR-011",
+          "actor": "Receiving approver",
+          "from": "Warehouse Hub > Cần chú ý > Nhận hàng chờ phê duyệt"
         }
       ],
       "transition_count": 21,
-      "prototype_status": "BJ02_PILOT_CALIBRATING_v0.2.8",
-      "parity_status": "ALIGNED_TO_CURRENT_SCREEN_CONTRACTS",
+      "prototype_status": "BJ02_DESIGN_STATE_CLEANUP_v4.6.8",
+      "parity_status": "ALIGNED_TO_v4.6.8_DESIGN_STATE_CLEANUP",
       "evidence_level": "PILOT_STATIC_VALIDATED",
       "holistic_review": {
         "version": "1.9.0",
@@ -180,15 +191,15 @@
         }
       ],
       "transition_count": 8,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-016",
         "SCR-018"
       ],
       "contextual_surfaces": [
-        "Căn cứ giá trực tiếp và chi tiết nguồn mở bằng VBottomSheet khi cần"
+        "Căn cứ giá trực tiếp của nhập nhanh mở bằng DS v2 / Form Sheet; vùng form cuộn độc lập và Sticky Footer cố định."
       ],
       "patterns_promoted": [
         "VALUATION_WORK_QUEUE",
@@ -850,11 +861,12 @@
       "screen_ids": [
         "SCR-085",
         "SCR-086",
-        "SCR-088",
         "SCR-089"
       ],
       "compatibility_screen_ids": [
-        "SCR-018"
+        "SCR-018",
+        "SCR-087",
+        "SCR-088"
       ],
       "action_ids": [
         "ACT-03-RECORD-LATE-COST"
@@ -872,22 +884,25 @@
         }
       ],
       "transition_count": 9,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-018",
-        "SCR-087"
+        "SCR-087",
+        "SCR-088"
       ],
       "patterns_promoted": [
         "SIGNED_VALUE_ADJUSTMENT_QUEUE",
         "SOURCE_SCOPE_ALLOCATION_ON_ONE_SURFACE",
         "VALUE_COMPONENT_PROVENANCE",
-        "READ_ONLY_FINAL_REVIEW",
         "DIRTY_COST_SCOPE_HANDOFF",
         "UNKNOWN_RECOVERY",
         "FINANCIAL_MASKING",
-        "NO_ARCHITECTURE_EXPLANATION_UI"
+        "NO_ARCHITECTURE_EXPLANATION_UI",
+        "CONFIRMATION_SHEET_BEFORE_COMMIT",
+        "ALLOCATION_METRIC_EXPLAINABILITY",
+        "NO_EQUAL_SPLIT_FALLBACK"
       ],
       "holistic_review": {
         "version": "1.9.0",
@@ -902,6 +917,9 @@
       ],
       "entry_screen_ids": [
         "SCR-085"
+      ],
+      "contextual_surfaces": [
+        "Review/confirm mutation uses DS v2 / Confirmation Sheet on SCR-086; SCR-088 is retired."
       ]
     },
     {
@@ -940,9 +958,9 @@
         }
       ],
       "transition_count": 10,
-      "prototype_status": "DESIGN_PARITY_v3.13.0_REVALIDATED_v4.1.0",
-      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.1.0",
-      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED",
+      "prototype_status": "SEMANTIC_UX_v4.6.1",
+      "parity_status": "DESIGN_HTML_PARITY_VALIDATED_v4.6.1",
+      "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
       "retired_screen_ids": [
         "SCR-073",
         "SCR-075",
@@ -973,6 +991,9 @@
       ],
       "entry_screen_ids": [
         "SCR-072"
+      ],
+      "contextual_surfaces": [
+        "Rà soát công bố mở bằng DS v2 / Confirmation Sheet trên SCR-074; không tạo screen công bố trung gian."
       ]
     },
     {
@@ -1166,7 +1187,15 @@
     }
   ],
   "runtime_validation": {
-    "status": "NOT_RERUN",
-    "reason": "v4.0.0 changes canonical UIF/BJ/UC trace only; HTML prototype is intentionally carry-forward. Existing runtime evidence remains historical and is not promoted to v4 parity."
-  }
+    "status": "PASS",
+    "version": "v4.3.0",
+    "all_flow_renders": "86/86",
+    "valuation_flow_e2e": "29/29",
+    "valuation_visual_integrity": "19/19",
+    "valuation_full_state_smoke": "54/54",
+    "browser_errors": 0,
+    "evidence": "03.design/prototype/html/qa/"
+  },
+  "version": "4.6.8",
+  "patch": "BJ02_DESIGN_STATE_CLEANUP"
 }

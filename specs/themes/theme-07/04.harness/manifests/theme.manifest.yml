@@ -1,16 +1,16 @@
 theme: theme-07
-version: 4.2.0
-parent_version: 4.1.0
+version: 4.6.8
+parent_version: 4.6.7
 structure_baseline: V45-Theme-skeleton
-semantic_delta: UIF_PLAIN_BA_LANGUAGE_REWRITE_NO_SEMANTIC_CHANGE
+semantic_delta: BJ02_DESIGN_STATE_CLEANUP
 template_alignment: true
-source_baseline: v4.1.0
+source_baseline: v4.6.7
 merge_source: v3.13.0
 merge_source_parent: v3.12.0
 canonical_business_journeys: 17
 canonical_use_cases: 64
 canonical_ui_flows: 17
-prototype_parity: VALUATION_DESIGN_HTML_PARITY_VALIDATED
+prototype_parity: V4_6_8_BJ02_DESIGN_STATE_CLEANUP_CANDIDATE
 
 slices:
   - id: SA-AGG-IO-01
@@ -358,7 +358,6 @@ slices:
     sources:
       - UC-02-02
       - BC-IC-07
-      - BC-IO-16
       - SBC-COM-01
       - SBC-COM-02
       - SBC-COM-03

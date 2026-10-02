@@ -1,0 +1,10 @@
+{
+  "name": "@vet45/html-design-system",
+  "version": "2.0.2",
+  "private": true,
+  "type": "module",
+  "description": "HTML mirror of vet45_design_system Flutter 1.4.1",
+  "scripts": {
+    "qa": "bash qa.sh"
+  }
+}

@@ -6,7 +6,7 @@ title: "Xác lập giá trị nhập ban đầu"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.1
 ui_flow: UIF-03
 ---
 
@@ -22,7 +22,7 @@ Thành công khi đúng phạm vi hàng chờ giá được ghi value movement, 
 
 ### 2.1 Bắt đầu khi
 
-Có lượng hàng đã hoàn tất nhận vật lý, thuộc quyền sở hữu tenant, chưa từng được xác lập giá trị ban đầu và còn `VALUATION_PENDING`.
+Có lượng hàng từ BJ02 đã `COMMITTED` (`GoodsReceipt=COMPLETED`), thuộc quyền sở hữu tenant, chưa từng được xác lập giá trị ban đầu và còn `VALUATION_PENDING`.
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
@@ -45,7 +45,7 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **Tác nhân chính:** Kế toán kho hoặc người có quyền tài chính tương đương.
 - **Thẩm quyền:** Được xác nhận căn cứ và giá trị trong phạm vi tenant; không được sửa dữ liệu nguồn do Theme khác sở hữu. Với Quick receipt, chỉ người có quyền theo policy mới được lập hoặc chọn căn cứ giá trực tiếp.
 - **Sự kiện khởi phát:** Có hàng chờ xác lập giá trị sau BJ02.
-- **Điều kiện trước:** Receipt đã hoàn tất; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền.
+- **Điều kiện trước:** Receipt có `effect_status=COMMITTED` / `GoodsReceipt=COMPLETED`; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền. `REJECTED` hoặc `UNKNOWN` không đủ điều kiện vào UC này.
 
 ## 4. Đối tượng và dữ liệu nghiệp vụ
 
@@ -53,7 +53,7 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 |---|---|---|
 | Hàng thực nhận chờ giá | Quantity thực sự đã vào tồn; phạm vi UI theo receipt item, backend giữ exact technical scope | `DOM-IO`, `ENT-IO-01/02` |
 | Căn cứ thương mại | Giá mua, chiết khấu, thuế và thành phần thương mại đã được Theme 10 xác lập | Theme 10 / integration contract |
-| Căn cứ giá trực tiếp | Căn cứ dùng cho Quick khi không có nguồn Theme 10: đơn giá, tiền tệ, cách hiểu đã/chưa gồm thuế khi cần, nguồn, ngày nguồn, bằng chứng/tham chiếu, người xác lập | `DOM-IV`, `ENT-IV-01` |
+| Căn cứ giá trực tiếp | Căn cứ dùng cho Quick khi không có nguồn Theme 10: đơn giá, tiền tệ, cách hiểu đã/chưa gồm thuế khi cần, **căn cứ giá cụ thể**, ngày/hiệu lực, bằng chứng/tham chiếu và người xác lập; không có taxonomy “Loại nguồn” tự sinh | `DOM-IV`, `ENT-IV-01` |
 | Tax treatment | Phần thuế/phí được hoặc không được thu hồi theo chính sách tenant/giao dịch; người dùng không tự chọn khả năng khấu trừ | Policy có thẩm quyền; `T7-DR-189` |
 | Thành phần giá trị | Giá mua − khoản giảm giá trị mua + thuế/phí không thu hồi + chi phí mua trực tiếp đã đủ căn cứ | `BC-IV-05` |
 | Phạm vi căn cứ | Quantity mà nguồn thực sự chứng minh; không phải số lượng người dùng tự chia tùy ý | `T7-DR-188` |
@@ -91,7 +91,7 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AF-B-01 | Kế toán | Lập căn cứ giá trực tiếp bằng đơn giá mua, tiền tệ, cách hiểu giá đã/chưa gồm thuế khi cần, nguồn, ngày nguồn và bằng chứng/tham chiếu phù hợp. | T7-DR-187 — Căn cứ giá trực tiếp |
+| AF-B-01 | Kế toán | Lập căn cứ giá trực tiếp bằng đơn giá, tiền tệ, cách hiểu giá đã/chưa gồm thuế khi cần, căn cứ giá cụ thể, ngày/hiệu lực và bằng chứng/tham chiếu phù hợp. Người dùng không nhập/chọn tỷ giá; nếu cần quy đổi, hệ thống dùng FX authoritative theo contract hiện hành. | T7-DR-187/T7-DR-201 — Căn cứ giá trực tiếp |
 | AF-B-02 | Hệ thống | Kiểm tra quyền, tính đầy đủ và tax treatment; không yêu cầu tạo PO/hóa đơn giả. | T7-DR-186 — Quick không phụ thuộc Theme 10<br>T7-DR-189 — Tax treatment |
 | AF-B-03 | — | [Trở lại BF-04]. | BF-04 — Tính cấu thành giá trị |
 
@@ -176,6 +176,13 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 | Thất bại đã xác nhận | Không tạo tác động bán phần | Sửa điều kiện và thử lại theo cùng business intent |
 | `UNKNOWN` | Không thể kết luận commit/no-commit; không được xác nhận lại bằng identity mới | BJ17 đối soát/phục hồi |
 
+### 7.1 Làm rõ v4.6.0 — căn cứ trực tiếp và giá trị VND
+
+- UI không hiển thị hoặc yêu cầu nhập tỷ giá. Nguồn ngoại tệ phải được adapter nguồn chuẩn hóa sang VND trước khi scope ở trạng thái `READY`; thiếu normalized VND thì chờ nguồn.
+- Quick direct basis Phase 1 lưu đơn giá cùng tiền tệ và căn cứ giá cụ thể; không dùng taxonomy `Loại nguồn` tự sinh. Nếu căn cứ dùng ngoại tệ, tỷ giá authoritative được xử lý theo `T7-DR-062`/technical contract và không trở thành field người dùng phải nhập hoặc hiểu trên UI.
+- Ngày căn cứ/hiệu lực là bắt buộc; tham chiếu/bằng chứng là metadata hỗ trợ. Lý do bắt buộc khi kế toán phải tự xác lập trực tiếp.
+- User cung cấp fact giá/thuế theo nguồn; tax policy quyết định phần thuế không thu hồi được đưa vào inventory value.
+
 ## 8. Liên hệ giao diện
 
 **UI Flow canonical:** [UIF-03 — Xác lập giá trị ban đầu của hàng nhận](../../../03.design/flows/UIF-03-BJ-03.md)
@@ -233,3 +240,4 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **Domain / Entity:** `DOM-IV`, `ENT-IV-01`, `ENT-IV-02`, `DOM-IO`, `ENT-IO-01`, `ENT-IO-02`.
 - **Behavioral Contract:** `BC-IV-01`, `BC-IV-05`, `SBC-COM-02/03/04`.
 - **Decision:** `T7-DR-185…190`, `T7-DR-191`, `T7-DR-193`; `T7-DR-026` và `T7-DR-155` chỉ còn giá trị lịch sử.
+- **Bài tri thức liên quan:** [KB-KGV-008 — Hàng đã nhận nhưng chưa chốt giá và điều kiện đưa vào bán](../../../01.knowledge/know-how/KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia.md); [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-019 — Các thành phần hình thành giá trị hàng nhập](../../../01.knowledge/know-how/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md); [KB-KGV-043 — Kịch bản chiết khấu mua hàng theo kỳ](../../../01.knowledge/know-how/KB-KGV-043-kich-ban-chiet-khau-mua-hang-theo-ky.md)

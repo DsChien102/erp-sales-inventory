@@ -34,7 +34,7 @@
     const shortages=lines.filter(l=>shortage(l)>0);
     const totalHeld=lines.reduce((s,l)=>s+activeHold(l),0);
     const totalRemaining=lines.reduce((s,l)=>s+remaining(l),0);
-    if(shortages.length) return vBanner('warning','Chưa giữ đủ',`${shortages.length} dòng còn thiếu. Đơn bán sẽ quyết định tiếp tục, giảm lượng hoặc chờ hàng.`,'','Compact');
+    if(shortages.length) return vBanner('warning','Chưa giữ đủ',`${shortages.length} dòng còn thiếu. Đơn bán sẽ quyết định bước tiếp theo.`,'','Default');
     if(totalHeld===0&&totalRemaining===0) return vBanner('info','Không còn hàng đang giữ cho đơn này.','Các dòng hiện tại đã được bàn giao, giải phóng hoặc kết thúc.','','Compact');
     return '';
   }

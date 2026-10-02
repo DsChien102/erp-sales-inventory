@@ -6,7 +6,7 @@
   "supportingCapabilityFlows": 1,
   "canonicalRouteOccurrences": 89,
   "activeUniqueScreens": 77,
-  "declaredStateRenders": 518,
+  "declaredStateRenders": 440,
   "screens": [
     {
       "id": "SCR-001",
@@ -78,8 +78,7 @@
         "VALIDATION_ERROR",
         "CONFLICT",
         "LOCKED",
-        "PERMISSION_DENIED",
-        "DRAFT_VALIDATION_FAILED"
+        "PERMISSION_DENIED"
       ],
       "defaultState": "READY",
       "uifs": [
@@ -128,8 +127,6 @@
         "APPROVAL_REQUIRED",
         "PERMISSION_DENIED",
         "PENDING_APPROVAL",
-        "DRAFT_VALIDATION_FAILED",
-        "APPROVAL_PRICE_BASIS_REQUIRED",
         "APPROVER_CONFIGURATION_MISSING",
         "FINANCIAL_MASKED"
       ],

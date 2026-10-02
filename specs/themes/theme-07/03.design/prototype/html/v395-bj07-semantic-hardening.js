@@ -229,7 +229,7 @@
     const req=io07Current(),sourceChanged=state==='SOURCE_CHANGED'||Number(req.reviewSourceVersion||req.sourceVersion)!==Number(req.sourceVersion),mismatch=io07HasMismatch(req)||state==='PHYSICAL_MISMATCH',ready=io07AllVerified(req)&&!sourceChanged&&!mismatch&&req.queue!=='WAITING';
     const context=ds24InfoGroup('Thông tin bàn giao',`${ds24InfoRow('Nhà cung cấp',req.supplier)}${ds24InfoRow('Yêu cầu trả',req.id)}${ds24InfoRow('Chứng từ nguồn',req.source)}${ds24InfoRow('Kho',req.warehouse)}`,'io07-handover-context');
     const review=`${ds24SectionTitle('Hàng sẽ bàn giao',`${req.groups.length} nhóm sản phẩm`)}${io07ReviewGroups(req,{statusLabel:'Đã kiểm',statusTone:'Success'})}`;
-    if(!ready){const why=sourceChanged?'Yêu cầu nguồn đã thay đổi sau khi mở rà soát. Chỉ phần bị ảnh hưởng cần kiểm lại.':'Có phần hàng chưa đủ điều kiện bàn giao theo yêu cầu hiện hành.';return appShell({title:'Bàn giao trả nhà cung cấp',body:`${context}${vBanner('warning','Cần kiểm lại trước khi bàn giao',why,'','Compact')}${review}`,actions:primaryFooter('Kiểm lại hàng','data-io07-action="back-to-preparation"')});}
+    if(!ready){const why=sourceChanged?'Yêu cầu nguồn đã đổi. Chỉ phần bị ảnh hưởng cần kiểm lại.':'Một số hàng chưa đủ điều kiện bàn giao. Hãy kiểm lại.';return appShell({title:'Bàn giao trả nhà cung cấp',body:`${context}${vBanner('warning','Cần kiểm lại trước khi bàn giao',why,'','Default')}${review}`,actions:primaryFooter('Kiểm lại hàng','data-io07-action="back-to-preparation"')});}
     return appShell({title:'Bàn giao trả nhà cung cấp',body:`${context}${review}`,actions:primaryFooter('Xác nhận đã bàn giao','data-io07-action="confirm-handover"')});
   };
 

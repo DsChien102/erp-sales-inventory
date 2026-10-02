@@ -156,3 +156,4 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 - **Domain:** `DOM-IO`.
 - **BC:** `BC-IO-02`, `SBC-COM-03/04`.
 - **Decision:** Nhóm G03, G10.
+- **Bài tri thức liên quan:** [KB-KGV-027 — Vòng đời của một Inventory Operation](../../../01.knowledge/know-how/KB-KGV-027-vong-doi-cua-mot-inventory-operation.md); [KB-KGV-028 — Idempotency, phiên bản nguồn và xử lý kết quả chưa xác định](../../../01.knowledge/know-how/KB-KGV-028-idempotency-phien-ban-nguon-va-xu-ly-ket-qua-chua-xac-dinh.md); [KB-KGV-032 — Movement ledger, số dư dẫn xuất và phục hồi sau sự cố](../../../01.knowledge/know-how/KB-KGV-032-movement-ledger-so-du-dan-xuat-va-phuc-hoi-sau-su-co.md)

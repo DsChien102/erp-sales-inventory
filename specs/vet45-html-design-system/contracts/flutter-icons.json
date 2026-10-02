@@ -1,0 +1,551 @@
+{
+  "flutterDsVersion": "1.4.1",
+  "source": "lib/src/foundations/icons/v_icons.dart",
+  "dependency": "lucide_icons_flutter 3.1.15",
+  "lucideUpstreamVersion": "1.24.0",
+  "count": 108,
+  "icons": [
+    {
+      "semantic": "arrowLeft",
+      "lucide": "arrowLeft",
+      "codepoint": 57416
+    },
+    {
+      "semantic": "arrowRight",
+      "lucide": "arrowRight",
+      "codepoint": 57417
+    },
+    {
+      "semantic": "chevronLeft",
+      "lucide": "chevronLeft",
+      "codepoint": 57454
+    },
+    {
+      "semantic": "chevronRight",
+      "lucide": "chevronRight",
+      "codepoint": 57455
+    },
+    {
+      "semantic": "chevronDown",
+      "lucide": "chevronDown",
+      "codepoint": 57453
+    },
+    {
+      "semantic": "chevronUp",
+      "lucide": "chevronUp",
+      "codepoint": 57456
+    },
+    {
+      "semantic": "chevronRightRounded",
+      "lucide": "chevronRight",
+      "codepoint": 57455
+    },
+    {
+      "semantic": "chevronLeftRounded",
+      "lucide": "chevronLeft",
+      "codepoint": 57454
+    },
+    {
+      "semantic": "arrowBack",
+      "lucide": "arrowLeft",
+      "codepoint": 57416
+    },
+    {
+      "semantic": "arrowForward",
+      "lucide": "arrowRight",
+      "codepoint": 57417
+    },
+    {
+      "semantic": "arrowForwardRounded",
+      "lucide": "arrowRight",
+      "codepoint": 57417
+    },
+    {
+      "semantic": "expandLess",
+      "lucide": "chevronUp",
+      "codepoint": 57456
+    },
+    {
+      "semantic": "expandMore",
+      "lucide": "chevronDown",
+      "codepoint": 57453
+    },
+    {
+      "semantic": "expandLessRounded",
+      "lucide": "chevronUp",
+      "codepoint": 57456
+    },
+    {
+      "semantic": "arrowDropUp",
+      "lucide": "chevronUp",
+      "codepoint": 57456
+    },
+    {
+      "semantic": "arrowDropDown",
+      "lucide": "chevronDown",
+      "codepoint": 57453
+    },
+    {
+      "semantic": "search",
+      "lucide": "search",
+      "codepoint": 57681
+    },
+    {
+      "semantic": "add",
+      "lucide": "plus",
+      "codepoint": 57661
+    },
+    {
+      "semantic": "addCircle",
+      "lucide": "plusCircle",
+      "codepoint": 57473
+    },
+    {
+      "semantic": "close",
+      "lucide": "x",
+      "codepoint": 57778
+    },
+    {
+      "semantic": "delete",
+      "lucide": "trash2",
+      "codepoint": 57742
+    },
+    {
+      "semantic": "edit",
+      "lucide": "edit3",
+      "codepoint": 57648
+    },
+    {
+      "semantic": "refresh",
+      "lucide": "refreshCw",
+      "codepoint": 57669
+    },
+    {
+      "semantic": "moreVert",
+      "lucide": "moreVertical",
+      "codepoint": 57527
+    },
+    {
+      "semantic": "moreHoriz",
+      "lucide": "moreHorizontal",
+      "codepoint": 57526
+    },
+    {
+      "semantic": "tune",
+      "lucide": "slidersHorizontal",
+      "codepoint": 58010
+    },
+    {
+      "semantic": "swapVert",
+      "lucide": "arrowUpDown",
+      "codepoint": 58237
+    },
+    {
+      "semantic": "download",
+      "lucide": "download",
+      "codepoint": 57522
+    },
+    {
+      "semantic": "power",
+      "lucide": "power",
+      "codepoint": 57664
+    },
+    {
+      "semantic": "powerOff",
+      "lucide": "powerOff",
+      "codepoint": 57865
+    },
+    {
+      "semantic": "check",
+      "lucide": "check",
+      "codepoint": 57452
+    },
+    {
+      "semantic": "logout",
+      "lucide": "logOut",
+      "codepoint": 57614
+    },
+    {
+      "semantic": "visibility",
+      "lucide": "eye",
+      "codepoint": 57530
+    },
+    {
+      "semantic": "visibilityOff",
+      "lucide": "eyeOff",
+      "codepoint": 57531
+    },
+    {
+      "semantic": "warning",
+      "lucide": "alertTriangle",
+      "codepoint": 57747
+    },
+    {
+      "semantic": "error",
+      "lucide": "circleX",
+      "codepoint": 57476
+    },
+    {
+      "semantic": "success",
+      "lucide": "checkCircle2",
+      "codepoint": 57894
+    },
+    {
+      "semantic": "info",
+      "lucide": "info",
+      "codepoint": 57593
+    },
+    {
+      "semantic": "shield",
+      "lucide": "shield",
+      "codepoint": 57688
+    },
+    {
+      "semantic": "cloud",
+      "lucide": "cloud",
+      "codepoint": 57480
+    },
+    {
+      "semantic": "cloudOff",
+      "lucide": "cloudOff",
+      "codepoint": 57485
+    },
+    {
+      "semantic": "cloudUpload",
+      "lucide": "cloudUpload",
+      "codepoint": 57489
+    },
+    {
+      "semantic": "fileUp",
+      "lucide": "fileUp",
+      "codepoint": 58154
+    },
+    {
+      "semantic": "fileSpreadsheet",
+      "lucide": "fileSpreadsheet",
+      "codepoint": 58150
+    },
+    {
+      "semantic": "calendar",
+      "lucide": "calendar",
+      "codepoint": 57443
+    },
+    {
+      "semantic": "phone",
+      "lucide": "phone",
+      "codepoint": 57651
+    },
+    {
+      "semantic": "location",
+      "lucide": "mapPin",
+      "codepoint": 57617
+    },
+    {
+      "semantic": "people",
+      "lucide": "users",
+      "codepoint": 57764
+    },
+    {
+      "semantic": "group",
+      "lucide": "users",
+      "codepoint": 57764
+    },
+    {
+      "semantic": "home",
+      "lucide": "home",
+      "codepoint": 57589
+    },
+    {
+      "semantic": "receipt",
+      "lucide": "receipt",
+      "codepoint": 58323
+    },
+    {
+      "semantic": "inventory",
+      "lucide": "box",
+      "codepoint": 57441
+    },
+    {
+      "semantic": "store",
+      "lucide": "store",
+      "codepoint": 58340
+    },
+    {
+      "semantic": "notification",
+      "lucide": "bell",
+      "codepoint": 57433
+    },
+    {
+      "semantic": "apartment",
+      "lucide": "building2",
+      "codepoint": 58000
+    },
+    {
+      "semantic": "person",
+      "lucide": "user",
+      "codepoint": 57759
+    },
+    {
+      "semantic": "personAdd",
+      "lucide": "userPlus",
+      "codepoint": 57762
+    },
+    {
+      "semantic": "personCheck",
+      "lucide": "userCheck",
+      "codepoint": 57760
+    },
+    {
+      "semantic": "personRemove",
+      "lucide": "userX",
+      "codepoint": 57763
+    },
+    {
+      "semantic": "description",
+      "lucide": "fileText",
+      "codepoint": 57548
+    },
+    {
+      "semantic": "gridView",
+      "lucide": "grid",
+      "codepoint": 57577
+    },
+    {
+      "semantic": "stickyNote",
+      "lucide": "stickyNote",
+      "codepoint": 58115
+    },
+    {
+      "semantic": "accountBalanceWallet",
+      "lucide": "wallet",
+      "codepoint": 57860
+    },
+    {
+      "semantic": "warehouse",
+      "lucide": "warehouse",
+      "codepoint": 58342
+    },
+    {
+      "semantic": "straighten",
+      "lucide": "ruler",
+      "codepoint": 57675
+    },
+    {
+      "semantic": "chart",
+      "lucide": "lineChart",
+      "codepoint": 58021
+    },
+    {
+      "semantic": "image",
+      "lucide": "image",
+      "codepoint": 57590
+    },
+    {
+      "semantic": "camera",
+      "lucide": "camera",
+      "codepoint": 57444
+    },
+    {
+      "semantic": "clipboard",
+      "lucide": "clipboardList",
+      "codepoint": 57478
+    },
+    {
+      "semantic": "history",
+      "lucide": "history",
+      "codepoint": 57845
+    },
+    {
+      "semantic": "inbox",
+      "lucide": "inbox",
+      "codepoint": 57591
+    },
+    {
+      "semantic": "ban",
+      "lucide": "ban",
+      "codepoint": 57425
+    },
+    {
+      "semantic": "play",
+      "lucide": "play",
+      "codepoint": 57660
+    },
+    {
+      "semantic": "restore",
+      "lucide": "rotateCcw",
+      "codepoint": 57672
+    },
+    {
+      "semantic": "tag",
+      "lucide": "tag",
+      "codepoint": 57727
+    },
+    {
+      "semantic": "coins",
+      "lucide": "coins",
+      "codepoint": 57495
+    },
+    {
+      "semantic": "gripVertical",
+      "lucide": "gripVertical",
+      "codepoint": 57579
+    },
+    {
+      "semantic": "trendingUp",
+      "lucide": "trendingUp",
+      "codepoint": 57745
+    },
+    {
+      "semantic": "trendingDown",
+      "lucide": "trendingDown",
+      "codepoint": 57744
+    },
+    {
+      "semantic": "listView",
+      "lucide": "list",
+      "codepoint": 57606
+    },
+    {
+      "semantic": "checkList",
+      "lucide": "listChecks",
+      "codepoint": 57808
+    },
+    {
+      "semantic": "circle",
+      "lucide": "circle",
+      "codepoint": 57462
+    },
+    {
+      "semantic": "lock",
+      "lucide": "lock",
+      "codepoint": 57611
+    },
+    {
+      "semantic": "settings",
+      "lucide": "settings",
+      "codepoint": 57684
+    },
+    {
+      "semantic": "star",
+      "lucide": "star",
+      "codepoint": 57718
+    },
+    {
+      "semantic": "mail",
+      "lucide": "mail",
+      "codepoint": 57615
+    },
+    {
+      "semantic": "truck",
+      "lucide": "truck",
+      "codepoint": 57748
+    },
+    {
+      "semantic": "creditCard",
+      "lucide": "creditCard",
+      "codepoint": 57514
+    },
+    {
+      "semantic": "briefcase",
+      "lucide": "briefcase",
+      "codepoint": 57442
+    },
+    {
+      "semantic": "pause",
+      "lucide": "pause",
+      "codepoint": 57646
+    },
+    {
+      "semantic": "contact",
+      "lucide": "contact",
+      "codepoint": 57500
+    },
+    {
+      "semantic": "bolt",
+      "lucide": "zap",
+      "codepoint": 57780
+    },
+    {
+      "semantic": "qrCode",
+      "lucide": "qrCode",
+      "codepoint": 57823
+    },
+    {
+      "semantic": "printer",
+      "lucide": "printer",
+      "codepoint": 57665
+    },
+    {
+      "semantic": "share2",
+      "lucide": "share2",
+      "codepoint": 57686
+    },
+    {
+      "semantic": "fileCheck",
+      "lucide": "fileCheck",
+      "codepoint": 57537
+    },
+    {
+      "semantic": "receiptText",
+      "lucide": "receiptText",
+      "codepoint": 58796
+    },
+    {
+      "semantic": "send",
+      "lucide": "send",
+      "codepoint": 57682
+    },
+    {
+      "semantic": "minus",
+      "lucide": "minus",
+      "codepoint": 57620
+    },
+    {
+      "semantic": "banknoteArrowDown",
+      "lucide": "banknoteArrowDown",
+      "codepoint": 58956
+    },
+    {
+      "semantic": "badgePercent",
+      "lucide": "badgePercent",
+      "codepoint": 58489
+    },
+    {
+      "semantic": "scanLine",
+      "lucide": "scanLine",
+      "codepoint": 57944
+    },
+    {
+      "semantic": "clock",
+      "lucide": "clock",
+      "codepoint": 57479
+    },
+    {
+      "semantic": "clipboardClock",
+      "lucide": "clipboardClock",
+      "codepoint": 59016
+    },
+    {
+      "semantic": "rotateCcwKey",
+      "lucide": "rotateCcw",
+      "codepoint": 57672
+    },
+    {
+      "semantic": "fileXCorner",
+      "lucide": "fileX",
+      "codepoint": 57549
+    },
+    {
+      "semantic": "pencil",
+      "lucide": "pencil",
+      "codepoint": 57849
+    },
+    {
+      "semantic": "save",
+      "lucide": "save",
+      "codepoint": 57677
+    }
+  ],
+  "renderPolicy": "Exact parity uses host-supplied Lucide font with source codepoints. SVG fallback is provided for common icons only; missing font is a parity failure.",
+  "authority": "Flutter 1.4.1 lib/src/foundations/icons/v_icons.dart"
+}

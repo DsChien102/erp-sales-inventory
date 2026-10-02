@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.2.0
-parent: v4.1.0
-source_baseline: v4.1.0
-semantic_delta: UIF_PLAIN_BA_LANGUAGE_REWRITE_NO_SEMANTIC_CHANGE
+version: v4.6.8
+parent: v4.6.7
+source_baseline: v4.6.7
+semantic_delta: BJ02_DESIGN_STATE_CLEANUP
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -65,7 +65,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - **BA:** `01.knowledge/` → `02.specification/` → `03.design/`.
 - **SA:** `02.specification/domain/` + UC/BC → `02.specification/domain/` + `02.specification/technical-contracts/`.
 - **SE:** `04.harness/` và các nguồn được Slice tham chiếu.
-- **QA/Harness:** `06.evidence/` + `09.generated/`.
+- **QA/Harness:** `09.generated/`.
 
 ## 5. Tài liệu chính
 
@@ -78,31 +78,71 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-Bản **v4.2.0** là cumulative update trực tiếp trên **v4.1.0**. Lượt này chỉ cải thiện cách viết và cách tổ chức của toàn bộ **17 UI Flow (UIF)** để người đọc có thể hiểu luồng màn hình trước, rồi mới đi xuống phần truy vết kỹ thuật khi cần.
+- **v4.6.8:** Design state cleanup cho BJ02; state model của `SCR-008/SCR-010` và generated runtime-state registry khớp trực tiếp source design, không còn state Quick cũ và không cần runtime filter.
+- **v4.6.7:** Quick Receipt vẫn no-draft nhưng **không còn `APPROVAL_PRICE_BASIS_REQUIRED` tại BJ02**; submit không yêu cầu price/FX basis, chỉ giữ `APPROVER_CONFIGURATION_MISSING` cho lỗi cấu hình người duyệt.
+- **v4.6.6:** UC-02-02 không có `DRAFT`; Quick Receipt chỉ sống trong phiên UI trước submit, create-and-submit hợp lệ mới tạo receipt ở `PENDING_APPROVAL`; `BC-IO-16/API-C-25` không áp dụng.
 
-Các thay đổi của v4.2.0:
+### 6.1 Phạm vi thay đổi v4.6.8
 
-- Viết lại `UIF-01 … UIF-17` theo **Plain BA Language**: tiếng Việt nghiệp vụ, câu ngắn, nói rõ ai làm gì, điều kiện nào và đi đến đâu.
-- Mỗi UIF được tách thành hai lớp đọc: **phần luồng cho BA/Designer/FE/QA** và **phần truy vết kỹ thuật cho Dev/QA/Harness**.
-- Giảm lặp các quy tắc dùng chung; UIF chỉ giữ những tình huống ảnh hưởng trực tiếp đến cách đi qua màn hình.
-- Giữ nguyên toàn bộ **183 transition ID**, Action ID, liên kết UC/BC, điểm đầu/cuối và topology màn hình của v4.1.0.
-- Không thay đổi Business Journey, Use Case, Screen Contract hoặc HTML prototype trong lượt này.
+- Không thay đổi nghiệp vụ so với v4.6.7; chỉ làm sạch design/runtime-state registry của BJ02.
+- `SCR-010` canonical chỉ còn `READY`, `VALIDATION_ERROR`, `APPROVAL_REQUIRED`, `PERMISSION_DENIED`, `PENDING_APPROVAL`, `APPROVER_CONFIGURATION_MISSING`, `FINANCIAL_MASKED`.
+- `SCR-008` không còn state draft legacy trong generated registry.
+- Bỏ runtime filter phòng thủ; workbench, manifest và generated registry cùng một nguồn state canonical.
+- `PRICE_BASIS_REQUIRED` của BJ10 không thay đổi.
 
-### 6.1 Thứ tự đọc đề xuất
+### 6.2 Phạm vi thay đổi v4.6.7
 
-1. Đọc `BJ-*` để hiểu mục tiêu và ranh giới nghiệp vụ.
-2. Mở `UIF-*` từ liên kết trong BJ để xem người dùng đi qua các màn hình như thế nào.
-3. Đọc phần 1–6 của UIF để hiểu luồng bằng ngôn ngữ nghiệp vụ.
-4. Chỉ dùng phần **Truy vết kỹ thuật** khi cần đối chiếu Action/UC/BC hoặc kiểm thử tự động.
-5. Mở `SCR-*` khi cần chi tiết nội dung, trạng thái và hành động của một màn hình cụ thể.
+- Chỉ sửa semantic Quick Receipt/BJ02 và các contract/UI/harness dẫn xuất; `UC-02-01` không thay đổi.
+- Bỏ `APPROVAL_PRICE_BASIS_REQUIRED` khỏi UC-02-02, BC-IC-07, API-C-26 Quick branch, SCR-010 và runtime state của BJ02.
+- Quick Receipt payload không mang price/FX basis; thiếu price/FX không chặn tạo receipt ở `PENDING_APPROVAL`.
+- `APPROVER_CONFIGURATION_MISSING` vẫn chặn tạo receipt khi không resolve được approver theo policy Quick Receipt.
+- Price/FX tiếp tục thuộc BJ03/BJ13 theo authority hiện hành.
 
-### 6.2 Nguồn canonical để tiếp tục
+### 6.3 Phạm vi thay đổi v4.6.6
+
+- Chỉ thay đổi semantic của **UC-02-02 — Nhập hàng nhanh** và các contract/trace/UI/harness dẫn xuất bắt buộc; **UC-02-01 — Nhận theo chứng từ giữ nguyên**.
+- `SCR-008 → SCR-009 → SCR-084 → SCR-010` của Quick Receipt chỉ dùng session memory; rời flow, refresh hoặc đóng app thì mất dữ liệu chưa gửi.
+- Submit Quick Receipt là một lệnh create-and-submit mang full payload + `idempotencyKey`; success mới tạo `GoodsReceipt`, `ApprovalCase`, `receiptId` và trạng thái đầu `PENDING_APPROVAL`.
+- Rejection trước create không để lại receipt. Theo v4.6.7, `APPROVAL_PRICE_BASIS_REQUIRED` đã bị loại khỏi Quick Receipt; `APPROVER_CONFIGURATION_MISSING` được giữ. Nhánh Quick không dùng `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc `DRAFT_*`.
+- `BC-IO-16` / `API-C-25` vẫn tồn tại cho lifecycle có draft nhưng bị loại khỏi Quick Receipt.
+
+### 6.4 Phạm vi kiểm tra v4.6.4
+
+- Tập trung `BJ-02 — Nhận hàng mua`; các BJ khác giữ nguyên baseline trước đó.
+- `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng quay về Hub Kho và không mở lại editor của submitted revision.
+- Hub Kho candidate đưa **Nhận hàng chờ phê duyệt** lên đầu `Cần chú ý` và có worklist để mở lại yêu cầu đang chờ.
+- Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem submitted receipt read-only theo capability contract.
+- Runtime/visual QA mới nằm tại `03.design/prototype/html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*`.
+
+### 6.5 Phạm vi kiểm tra v4.6.0
+
+- `T7-DR-196` — UI định giá chỉ làm việc với giá trị VND đã chuẩn hóa.
+- `T7-DR-197` — Căn cứ giá trực tiếp Phase 1 có nguồn có thẩm quyền, ngày căn cứ và bằng chứng tách biệt.
+- `T7-DR-198` — Công thức và điều kiện hợp lệ của phân bổ BJ13.
+- `T7-DR-199` — Phạm vi chốt kỳ BJ14 do policy cấp tenant cho phép.
+- `SCR-008` — Xác định header của một lần nhập nhanh trước khi ghi hàng thực nhận. Màn này chỉ xử lý nhà cung cấp, kho mặc định, ngày nhận và chứng từ giao nhận; Product/UOM/LOT/quantity nằm ở `SCR-009/SCR-084`.
+- `SCR-015` — Làm việc với các Product/UOM còn `VALUATION_PENDING`, hiểu căn cứ đang dùng và chọn các dòng đủ điều kiện để xác nhận giá trị ban đầu. Màn này là **workspace**, không phải màn rà soát cuối.
+- `SCR-017` — Cho kế toán kiểm tra **toàn bộ phạm vi sắp ghi** trước mutation. Đây là summary review, không lặp lại workspace `SCR-015`.
+- `SCR-086` — Giúp kế toán hiểu nguồn điều chỉnh, phạm vi source-owned, chọn **một phương pháp phân bổ hợp lệ**, xem được vì sao từng Product nhận số tiền đó và xác nhận ghi adjustment.
+- `SCR-089` — Thông báo finality của adjustment. Result screen ưu tiên kết quả nghiệp vụ, không lặp lại toàn bộ preview.
+- `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
+- `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
+
+### 6.5 Các điểm giao diện đã đồng bộ
+
+- Prototype HTML hiện hành dùng `v460-semantic-ux.css/js` làm lớp semantic/UX cuối cùng.
+- `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.
+- BJ13 không chia đều khi metric không hợp lệ; preview bị chặn theo `T7-DR-198`.
+- BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.
+- BJ14 đọc phương pháp và phạm vi chốt kỳ từ tenant policy; UI không hard-code lựa chọn theo run.
+
+### 6.5 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
+- Know-how: `01.knowledge/know-how/`
 - Business Journey: `02.specification/behavior/journeys/`
 - Use Case: `02.specification/behavior/use-cases/`
 - UI Flow: `03.design/flows/`
 - Screen Contract: `03.design/screens/`
 - Domain/Entity/BC/Technical Contract: `02.specification/`
 - HTML prototype: `03.design/prototype/html/`
-- Release evidence: `06.evidence/`

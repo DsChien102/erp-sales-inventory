@@ -1,6 +1,6 @@
-# Screen Registry — Theme 7 v3.13.0
+# Screen Registry — Theme 7 v4.6.0
 
-> Nguồn hiện hành: Screen Contract + `workbench-data.json`. Màn `RETIRED` chỉ tồn tại để migration/trace và không phải route sản phẩm.
+> Nguồn hiện hành: Screen Contract + runtime/workbench. Màn `RETIRED` chỉ tồn tại để migration/trace và không phải route sản phẩm.
 
 | Screen | Tên | Surface | BJ | UC | Trạng thái | Prototype |
 |---|---|---|---|---|---|---|
@@ -11,23 +11,23 @@
 | `SCR-005` | Nguồn và thời điểm cập nhật | overlay | BJ-01 | UC-01-03 | BUSINESS_JOURNEY | OVERLAY_IN_SCR-003_v3.9.1 |
 | `SCR-006` | Chọn cách nhận hàng | choice | BJ-02 | UC-02-01, UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-007` | Chứng từ chờ nhận | list | BJ-02 | UC-02-01 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
-| `SCR-008` | Thông tin nhập hàng nhanh | form | BJ-02 | UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
+| `SCR-008` | Thông tin nhập hàng nhanh | form | BJ-02 | UC-02-02 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-009` | Hàng thực nhận | list | BJ-02 | UC-02-01, UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_REFINED_v0.3.4 |
 | `SCR-010` | Rà soát và gửi xử lý | review | BJ-02 | UC-02-01, UC-02-02, UC-02-03 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-011` | Phê duyệt yêu cầu nhận hàng | review | BJ-02 | UC-02-03 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-012` | Kết quả nhận hàng | result | BJ-02 | UC-02-04, UC-02-05 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
 | `SCR-013` | Đối soát kết quả nhận hàng | timeline | BJ-02 | UC-02-05 | BUSINESS_JOURNEY | BJ02_PILOT_CALIBRATING_v0.2.9 |
-| `SCR-014` | Hàng chờ xác lập giá trị | list | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
-| `SCR-015` | Xác lập giá trị nhập ban đầu | detail | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-014` | Hàng chờ xác lập giá trị | list | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | UIUX_HARDENED_v4.3.0 |
+| `SCR-015` | Xác lập giá trị nhập ban đầu | detail | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-016` | Căn cứ và cách tính — Đã hợp nhất | form | BJ-03 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
-| `SCR-017` | Rà soát giá trị nhập ban đầu | review | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-017` | Rà soát giá trị nhập ban đầu | review | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-018` | Ghi chi phí mua bổ sung — Đã thay thế | form | BJ-13 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
-| `SCR-019` | Kết quả xác lập giá trị | result | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
-| `SCR-020` | Đơn cần giữ hàng | list | BJ-04 | UC-04-01 | BUSINESS_JOURNEY | RETIRED_FROM_UIF04_v1.3.4 |
+| `SCR-019` | Kết quả xác lập giá trị | result | BJ-03 | UC-03-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
+| `SCR-020` | Đơn cần giữ hàng | list | BJ-04 | UC-04-01 | HISTORICAL_MIGRATION | RETIRED_FROM_UIF04_v1.3.4 |
 | `SCR-021` | Giữ hàng theo đơn | detail | BJ-04 | UC-04-01, UC-04-02, UC-04-03, UC-04-04 | BUSINESS_JOURNEY | ACTIVE_v3.9.6 |
-| `SCR-022` | Rà soát giữ hàng | review | BJ-04 | UC-04-01 | BUSINESS_JOURNEY | RETIRED_FROM_UIF04_v1.3.4 |
-| `SCR-023` | Giải phóng hoặc phân bổ lại | form | BJ-04 | UC-04-02, UC-04-03, UC-04-04 | BUSINESS_JOURNEY | RETIRED_FROM_UIF04_v1.3.4 |
-| `SCR-024` | Kết quả reservation | result | BJ-04 | UC-04-01, UC-04-02, UC-04-03, UC-04-04 | BUSINESS_JOURNEY | RETIRED_FROM_UIF04_v1.3.4 |
+| `SCR-022` | Rà soát giữ hàng | review | BJ-04 | UC-04-01 | HISTORICAL_MIGRATION | RETIRED_FROM_UIF04_v1.3.4 |
+| `SCR-023` | Giải phóng hoặc phân bổ lại | form | BJ-04 | UC-04-02, UC-04-03, UC-04-04 | HISTORICAL_MIGRATION | RETIRED_FROM_UIF04_v1.3.4 |
+| `SCR-024` | Kết quả reservation | result | BJ-04 | UC-04-01, UC-04-02, UC-04-03, UC-04-04 | HISTORICAL_MIGRATION | RETIRED_FROM_UIF04_v1.3.4 |
 | `SCR-025` | Đơn cần lấy hàng | list | BJ-05 | UC-05-01 | BUSINESS_JOURNEY | ACTIVE_v1.3.7 |
 | `SCR-026` | Hàng cần lấy | detail | BJ-05 | UC-05-01, UC-05-04 | BUSINESS_JOURNEY | ACTIVE_v1.3.7 |
 | `SCR-027` | Chi tiết lấy hàng | form | BJ-05 | UC-05-02, UC-05-04 | BUSINESS_JOURNEY | ACTIVE_v1.3.7 |
@@ -65,22 +65,22 @@
 | `SCR-059` | Kết quả xuất báo cáo | result | BJ-15 | UC-15-04 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-060` | Chỉ báo tồn kho | dashboard | BJ-01 | UC-01-04, UC-01-05 | BUSINESS_JOURNEY | MERGED_INTO_SCR-001 |
 | `SCR-061` | Chi tiết chỉ báo sản phẩm | detail | BJ-01 | UC-01-04, UC-01-05 | BUSINESS_JOURNEY | MERGED_INTO_SCR-003 |
-| `SCR-062` | Cấu hình chính sách tồn | form | — | — | SUPPORTING_CAPABILITY | RENDERED_v3.6.0 |
-| `SCR-063` | Cấu hình hàng cận hạn | form | — | — | SUPPORTING_CAPABILITY | RENDERED_v3.6.0 |
-| `SCR-064` | Rà soát chính sách | review | — | — | SUPPORTING_CAPABILITY | RENDERED_v3.6.0 |
-| `SCR-065` | Kết quả cập nhật | result | — | — | SUPPORTING_CAPABILITY | RENDERED_v3.6.0 |
+| `SCR-062` | Cấu hình chính sách tồn | form | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
+| `SCR-063` | Cấu hình hàng cận hạn | form | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
+| `SCR-064` | Rà soát chính sách | review | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
+| `SCR-065` | Kết quả cập nhật | result | — | — | BUSINESS_JOURNEY | RENDERED_v3.6.0 |
 | `SCR-066` | Khởi tạo tồn kho | status / entry | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-067` | Dữ liệu tồn kho đầu kỳ | form | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-068` | Kết quả kiểm tra dữ liệu | validation result | BJ-12 | UC-12-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-069` | Rà soát số dư đầu kỳ | review | BJ-12 | UC-12-02 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-070` | Duyệt số dư đầu kỳ | approval review | BJ-12 | UC-12-02, UC-12-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
 | `SCR-071` | Kết quả khởi tạo tồn kho | result | BJ-12 | UC-12-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.8.0 |
-| `SCR-072` | Công việc giá vốn | list | BJ-14 | UC-14-01, UC-14-04 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-072` | Công việc giá vốn | list | BJ-14 | UC-14-01, UC-14-04 | BUSINESS_JOURNEY | UIUX_HARDENED_v4.3.0 |
 | `SCR-073` | Thiết lập lần tính — Đã hợp nhất | form | BJ-14 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
-| `SCR-074` | Tính và rà soát giá vốn | dashboard | BJ-14 | UC-14-01, UC-14-04 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-074` | Tính và rà soát giá vốn | dashboard | BJ-14 | UC-14-01, UC-14-04 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-075` | Blocker và adjustment — Đã hợp nhất | detail | BJ-14 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
 | `SCR-076` | Rà soát công bố — Đã hợp nhất | review | BJ-14 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
-| `SCR-077` | Kết quả công bố giá vốn | result | BJ-14 | UC-14-04 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-077` | Kết quả công bố giá vốn | result | BJ-14 | UC-14-04 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-078` | Hồ sơ cần kiểm tra | list | BJ-16, BJ-17 | UC-16-01, UC-17-01 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-079` | Bằng chứng & kết luận | timeline | BJ-16, BJ-17 | UC-16-02, UC-16-03, UC-17-01, UC-17-04 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-080` | Phương án xử lý | form | BJ-16, BJ-17 | UC-16-02, UC-16-03, UC-17-02, UC-17-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.7.0 |
@@ -88,8 +88,8 @@
 | `SCR-082` | Rà soát kết quả | review | BJ-16, BJ-17 | UC-16-04, UC-17-02, UC-17-03 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-083` | Kết quả xử lý | result | BJ-16, BJ-17 | UC-16-04, UC-17-02, UC-17-03, UC-17-04 | BUSINESS_JOURNEY | PRODUCT_CORRECTED_v1.7.0 |
 | `SCR-084` | Chi tiết hàng thực nhận | form | BJ-02 | UC-02-01, UC-02-02 | BUSINESS_JOURNEY | BJ02_PILOT_REFINED_v1.3.4 |
-| `SCR-085` | Điều chỉnh giá trị hàng nhập | list | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
-| `SCR-086` | Nguồn, phạm vi và phân bổ | detail | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-085` | Điều chỉnh giá trị hàng nhập | list | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | UIUX_HARDENED_v4.3.0 |
+| `SCR-086` | Phân bổ điều chỉnh giá trị | detail | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |
 | `SCR-087` | Phân bổ điều chỉnh — Đã hợp nhất | form | BJ-13 | — | HISTORICAL_MIGRATION | RETIRED_v3.13.0 |
-| `SCR-088` | Rà soát điều chỉnh giá trị | review | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
-| `SCR-089` | Kết quả điều chỉnh giá trị | result | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | DESIGN_PARITY_v3.13.0 |
+| `SCR-088` | Rà soát điều chỉnh — Đã hợp nhất | review | BJ-13 | — | HISTORICAL_MIGRATION | RETIRED_v4.6.0 |
+| `SCR-089` | Kết quả điều chỉnh giá trị | result | BJ-13 | UC-13-01 | BUSINESS_JOURNEY | SEMANTIC_UX_v4.6.0 |

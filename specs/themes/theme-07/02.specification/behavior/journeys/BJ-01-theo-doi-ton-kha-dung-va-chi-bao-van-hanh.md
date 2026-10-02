@@ -81,6 +81,7 @@ flowchart TD
 
 | Nguồn | Vai trò đối với hành trình |
 |---|---|
+| [KB-KGV-005 — Tồn vật lý, lượng đủ điều kiện bán, lượng giữ và tồn khả dụng](../../../01.knowledge/know-how/KB-KGV-005-ton-vat-ly-va-ton-kha-dung.md); [KB-KGV-033 — Thẻ kho, báo cáo lịch sử và đối soát nguồn](../../../01.knowledge/know-how/KB-KGV-033-the-kho-bao-cao-lich-su-va-doi-soat-nguon.md); [KB-KGV-036 — Nhận biết tồn thấp và gợi ý lượng bổ sung](../../../01.knowledge/know-how/KB-KGV-036-ton-du-kien-va-de-xuat-bo-sung-hang.md); [KB-KGV-038 — Chỉ báo dẫn xuất và hồ sơ cần xử lý](../../../01.knowledge/know-how/KB-KGV-038-canh-bao-ton-kho-va-vong-doi-xu-ly.md) | **Bài tri thức cốt lõi** giúp hiểu nền nghiệp vụ của Journey; rule triển khai vẫn theo Decision/BJ/UC/BC canonical |
 | [Decision Register](../../../01.knowledge/decisions/decision-register.md) — Decision Register theo UC/BC | Nguồn quyết định nghiệp vụ và trạng thái hiệu lực |
 | `DOM-IO` | Domain authority và invariants dùng cho Journey |
 | [Use Case Map](../use-cases/00-use-case-map.md) | Danh mục UC canonical của Theme 7 |

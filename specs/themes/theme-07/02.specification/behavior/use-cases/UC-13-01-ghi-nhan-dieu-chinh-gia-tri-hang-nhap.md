@@ -6,7 +6,7 @@ title: "Ghi nhận điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.0
 ui_flow: UIF-13
 ---
 
@@ -146,6 +146,18 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 | Lỗi nhập liệu cũ | Không dùng BJ13 để che lỗi | BJ11/correction |
 | `UNKNOWN` | Không kết luận commit/no-commit | BJ17 |
 
+### 7.1 Làm rõ v4.6.0 — công thức phân bổ
+
+Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm_i`:
+
+`allocation_i = A × m_i / M` khi `M > 0`.
+
+- Theo giá trị: `m_i` là giá trị nhập ban đầu của exposure trước mọi adjustment BJ13.
+- Theo lượng: chỉ được dùng khi source/policy cung cấp metric quantity có cùng dimension/metric-unit trên toàn scope; không lấy trực tiếp các quantity khác UOM để cộng chung.
+- Làm tròn VND theo stable exposure order; exposure cuối nhận residual để tổng phân bổ đúng bằng `A`.
+- `M <= 0` hoặc metric không so sánh được => method không hợp lệ, không fallback chia đều.
+- Bước rà soát vẫn bắt buộc về hành vi nhưng v4.6.0 dùng Confirmation Sheet ngay trên `SCR-086`; không cần `SCR-088` là screen riêng.
+
 ## 8. Liên hệ giao diện
 
 **UI Flow canonical:** [UIF-13 — Điều chỉnh giá trị hàng nhập](../../../03.design/flows/UIF-13-BJ-13.md)
@@ -197,3 +209,4 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 - **Domain / Entity:** `DOM-IV`, `ENT-IV-01/02/05/06/07/08`.
 - **Behavioral Contract:** `BC-IV-04`, `BC-IV-06`, `SBC-COM-02/03/04`.
 - **Decision:** `T7-DR-191…193`, `T7-DR-157…163`.
+- **Bài tri thức liên quan:** [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-018 — Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](../../../01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md); [KB-KGV-019 — Các thành phần hình thành giá trị hàng nhập](../../../01.knowledge/know-how/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md); [KB-KGV-043 — Kịch bản chiết khấu mua hàng theo kỳ](../../../01.knowledge/know-how/KB-KGV-043-kich-ban-chiet-khau-mua-hang-theo-ky.md)

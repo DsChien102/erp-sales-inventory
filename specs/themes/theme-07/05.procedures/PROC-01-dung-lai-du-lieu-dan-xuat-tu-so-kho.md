@@ -45,10 +45,10 @@ PROC-01 trả validation evidence về BJ-16. Chỉ BJ-16 có quyền close/reop
 
 ## 5. Step contracts chi tiết
 
-- [PROC-01-STEP-01-chuan](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md)
-- [PROC-01-STEP-02-bao](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md)
-- [PROC-01-STEP-03-dung](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md)
-- [PROC-01-STEP-04-xac](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md)
+- PROC-01-STEP-01 — Chuẩn bị phạm vi dựng lại
+- PROC-01-STEP-02 — Bảo vệ phiên bản dữ liệu dẫn xuất
+- PROC-01-STEP-03 — Dựng lại từ ledger
+- PROC-01-STEP-04 — Xác minh và công bố kết quả
 
 ## 2. Trigger
 
@@ -68,7 +68,7 @@ Theo guard/precondition của các step source.
 
 > **Phiên bản:** 4.1.0  
 > **Loại:** Procedure Step  
-> **Procedure:** [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md)  
+> **Procedure:** PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho  
 > **Trạng thái:** SPECIFIED_FOR_REVIEW
 
 ### 1. Tổng quan bước kỹ thuật
@@ -132,7 +132,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 | Phạm vi | Cách dùng |
 |---|---|
-| BA | [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
+| BA | PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
 | BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
 | FE | Giao theo procedure package; step này là một lát nghiệm thu theo màn hình × state × action. |
 | QA | Tạo test từ AS-PROC-01-STEP-01-*, BC test prefix và rule/bất biến ở phần 2. |
@@ -148,7 +148,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 > **Phiên bản:** 4.1.0  
 > **Loại:** Procedure Step dùng chung  
-> **Procedure:** [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md)  
+> **Procedure:** PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho  
 > **Trạng thái:** SPECIFIED_FOR_REVIEW
 
 ### 1. Tổng quan bước kỹ thuật
@@ -212,7 +212,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 | Phạm vi | Cách dùng |
 |---|---|
-| BA | [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
+| BA | PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
 | BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
 | FE | Giao theo procedure package; step này là một lát nghiệm thu theo màn hình × state × action. |
 | QA | Tạo test từ AS-PROC-01-STEP-02-*, BC test prefix và rule/bất biến ở phần 2. |
@@ -228,7 +228,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 > **Phiên bản:** 4.1.0  
 > **Loại:** Procedure Step  
-> **Procedure:** [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md)  
+> **Procedure:** PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho  
 > **Trạng thái:** SPECIFIED_FOR_REVIEW
 
 ### 1. Tổng quan bước kỹ thuật
@@ -292,7 +292,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 | Phạm vi | Cách dùng |
 |---|---|
-| BA | [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
+| BA | PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
 | BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
 | FE | Giao theo procedure package; step này là một lát nghiệm thu theo màn hình × state × action. |
 | QA | Tạo test từ AS-PROC-01-STEP-03-*, BC test prefix và rule/bất biến ở phần 2. |
@@ -308,7 +308,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 > **Phiên bản:** 4.1.0  
 > **Loại:** Procedure Step  
-> **Procedure:** [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md)  
+> **Procedure:** PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho  
 > **Trạng thái:** SPECIFIED_FOR_REVIEW
 
 ### 1. Tổng quan bước kỹ thuật
@@ -372,7 +372,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 | Phạm vi | Cách dùng |
 |---|---|
-| BA | [PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho](../06.evidence/legacy-v3.10.1/implementation/legacy-harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md) xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
+| BA | PROC-01 — Dựng lại dữ liệu dẫn xuất từ sổ kho xác định vị trí nghiệp vụ; file này khóa hành vi và tiêu chí nghiệm thu. |
 | BE | Cài đặt handler/transaction theo BC và API ở phần 5; không lấy nhóm màn hình cũ làm phạm vi backend. |
 | FE | Giao theo procedure package; step này là một lát nghiệm thu theo màn hình × state × action. |
 | QA | Tạo test từ AS-PROC-01-STEP-04-*, BC test prefix và rule/bất biến ở phần 2. |

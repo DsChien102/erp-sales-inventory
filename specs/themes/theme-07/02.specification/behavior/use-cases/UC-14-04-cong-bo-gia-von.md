@@ -6,7 +6,7 @@ title: "Công bố giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.0
 ui_flow: UIF-14
 ---
 
@@ -122,6 +122,10 @@ Kết thúc khi publication batch commit nguyên tử và run chuyển `PUBLISHE
 | Effective-time invalid | Không sửa lịch sử cost version | Sửa yêu cầu/policy hợp lệ |
 | `UNKNOWN` | Chưa thể kết luận publication đã commit | BJ17 |
 
+### 7.1 Làm rõ v4.6.0 — kết quả công bố
+
+Kết quả publication phải phân biệt **total đã tính** với **incremental delta đã ghi**. `SCR-077` hiển thị các delta bằng nhãn `Điều chỉnh giá vốn xuất` và `Điều chỉnh giá trị tồn`; không gắn nhãn total như `Giá vốn xuất`/`Giá trị tồn cuối` cho hai số này. Kết quả cũng nêu số Product đã đối soát, số Product có `OfficialCostVersion` mới và thời điểm hiệu lực thực tế.
+
 ## 8. Liên hệ giao diện
 
 **UI Flow canonical:** [UIF-14 — Tính và công bố giá vốn](../../../03.design/flows/UIF-14-BJ-14.md)
@@ -165,3 +169,4 @@ Kết thúc khi publication batch commit nguyên tử và run chuyển `PUBLISHE
 - **Domain / Entity:** `DOM-IV`, `ENT-IV-02/03/04/05/06/09`.
 - **Behavioral Contract:** `BC-IV-03`.
 - **Decision:** `T7-DR-052`, `T7-DR-164…170`, `T7-DR-194/195`.
+- **Bài tri thức liên quan:** [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-017 — Công bố giá vốn chính thức và ghi nhận giá vốn hàng bán](../../../01.knowledge/know-how/KB-KGV-017-cong-bo-don-gia-ton-kho-va-ghi-nhan-gia-von-xuat-ban.md); [KB-KGV-018 — Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](../../../01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md); [KB-KGV-044 — Từ giá vốn tham chiếu định giá đến giá bán giao dịch](../../../01.knowledge/know-how/KB-KGV-044-tu-gia-von-tham-chieu-den-gia-ban-giao-dich.md); [KB-KGV-045 — Rà soát giá vốn tham chiếu định giá sau chốt kỳ](../../../01.knowledge/know-how/KB-KGV-045-ra-soat-gia-von-tham-chieu-sau-chot-ky.md)

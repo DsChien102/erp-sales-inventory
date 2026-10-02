@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "version": "v4.0.0",
+  "version": "4.6.4",
   "rows": [
     {
       "business_journey_id": "BJ-01",
@@ -105,7 +105,7 @@
       "use_case_id": "UC-02-01",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
@@ -140,21 +140,21 @@
       "use_case_id": "UC-02-02",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
       "use_case_id": "UC-02-03",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-010",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
       "use_case_id": "UC-02-03",
       "ui_flow_id": "UIF-02",
       "screen_id": "SCR-011",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E2_CANONICAL_TRACE_v4.6.4"
     },
     {
       "business_journey_id": "BJ-02",
@@ -182,35 +182,35 @@
       "use_case_id": "UC-03-01",
       "ui_flow_id": "UIF-03",
       "screen_id": "SCR-014",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-03",
       "use_case_id": "UC-03-01",
       "ui_flow_id": "UIF-03",
       "screen_id": "SCR-015",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-03",
       "use_case_id": "UC-03-01",
       "ui_flow_id": "UIF-03",
       "screen_id": "SCR-016",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-03",
       "use_case_id": "UC-03-01",
       "ui_flow_id": "UIF-03",
       "screen_id": "SCR-017",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-03",
       "use_case_id": "UC-03-01",
       "ui_flow_id": "UIF-03",
       "screen_id": "SCR-019",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-04",
@@ -749,77 +749,70 @@
       "use_case_id": "UC-13-01",
       "ui_flow_id": "UIF-13",
       "screen_id": "SCR-085",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-13",
       "use_case_id": "UC-13-01",
       "ui_flow_id": "UIF-13",
       "screen_id": "SCR-086",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-13",
       "use_case_id": "UC-13-01",
       "ui_flow_id": "UIF-13",
       "screen_id": "SCR-087",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
-    },
-    {
-      "business_journey_id": "BJ-13",
-      "use_case_id": "UC-13-01",
-      "ui_flow_id": "UIF-13",
-      "screen_id": "SCR-088",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-13",
       "use_case_id": "UC-13-01",
       "ui_flow_id": "UIF-13",
       "screen_id": "SCR-089",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-01",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-072",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-01",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-073",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-01",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-074",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-01",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-076",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-04",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-076",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-14",
       "use_case_id": "UC-14-04",
       "ui_flow_id": "UIF-14",
       "screen_id": "SCR-077",
-      "evidence_level": "E2_CANONICAL_TRACE_v4.0.0"
+      "evidence_level": "E3_RUNTIME_VISUAL_VALIDATED_v4.6.1"
     },
     {
       "business_journey_id": "BJ-15",

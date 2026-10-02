@@ -5,7 +5,7 @@ theme: theme-07
 title: "Dựng preview giá trị nhập ban đầu"
 owner: BA
 status: FROZEN
-source_baseline: v3.12.0
+source_baseline: v4.6.1
 ---
 # BC-IV-05 — Dựng preview giá trị nhập ban đầu
 
@@ -24,8 +24,8 @@ Trả danh sách hàng đang chờ giá trị, các căn cứ có thể sử d�
 - Worklist filter hoặc receipt item cần xử lý.
 - Căn cứ/source hiện có và version/effectivity của chúng.
 - Exact quantity còn `VALUATION_PENDING`.
-- Tax/FX/allocation policy version khi cần.
-- Với Quick: direct price basis draft nếu kế toán đang bổ sung căn cứ.
+- Tax treatment/policy version khi cần; nếu nguồn ngoại tệ thì currency + FX authoritative được resolve theo contract hiện hành và giữ trong provenance kỹ thuật.
+- Với Quick: direct price basis draft gồm đơn giá, tiền tệ, căn cứ giá cụ thể, ngày/hiệu lực, cách hiểu thuế và bằng chứng/tham chiếu khi có; UI không có field tỷ giá.
 
 ## 4. Điều kiện trước
 
@@ -39,10 +39,11 @@ Actor được phép xem dữ liệu tài chính; receipt thuộc tenant; quanti
    - `CONFLICT` — có các căn cứ hợp lệ dẫn tới value khác nhau và owner resolution chưa xong;
    - `WAITING_EVIDENCE` — thiếu fact bắt buộc để tính value.
 3. Với nhận theo chứng từ, sử dụng commercial facts mà Theme 10 đã xác lập; nếu Theme 10 đang dispute, trả trạng thái chờ thay vì tự chọn PO/invoice.
-4. Với Quick, cho phép dựng preview từ direct basis hợp lệ theo quyền/policy.
-5. Áp công thức tổng quát: **giá mua − khoản giảm giá trị mua + thuế/phí không thu hồi + chi phí mua trực tiếp đã biết ± component hợp lệ**.
-6. Thuế/phí thu hồi được không đi vào inventory value; tax treatment do policy cung cấp.
-7. Trả `basis_version/hash`, scope version, calculation hash và breakdown đủ để confirm recheck.
+4. Với Quick, cho phép dựng preview từ direct basis hợp lệ theo quyền/policy. UI không nhập/chọn tỷ giá và không có taxonomy `Loại nguồn` do Theme 7 tự đặt. Direct basis phải có căn cứ giá cụ thể, ngày/hiệu lực, tiền tệ và lý do khi form được dùng vì chưa có nguồn mua cấu trúc.
+5. UI phân biệt **nguồn có thẩm quyền** với **bằng chứng hỗ trợ**: email/file/mã tham chiếu không được dùng thay cho source authority.
+6. Áp công thức tổng quát: **giá mua − khoản giảm giá trị mua + thuế/phí không thu hồi + chi phí mua trực tiếp đã biết ± component hợp lệ**.
+7. Thuế/phí thu hồi được không đi vào inventory value; tax treatment do policy cung cấp. User chỉ cung cấp fact trên căn cứ (ví dụ giá đã/chưa gồm thuế, số thuế trên nguồn khi cần), không quyết định recoverability. Preview phải áp tax policy để derive phần thuế không thu hồi; không được gán thẳng toàn bộ số thuế user nhập thành `non-recoverable tax` nếu policy không nói vậy.
+8. Trả `basis_version/hash`, scope version, calculation hash và breakdown đủ để confirm recheck.
 
 ## 6. Điều kiện bắt buộc
 
@@ -61,11 +62,11 @@ Query có thể refetch an toàn. Query timeout không tạo business `UNKNOWN` 
 
 ## 9. Kết quả và semantics lỗi
 
-`VALUATION_SCOPE_NOT_FOUND`, `PRICE_EVIDENCE_REQUIRED`, `VALUATION_BASIS_CONFLICT`, `FINANCIAL_FIELD_FORBIDDEN`, `FX_BASIS_REQUIRED`.
+`VALUATION_SCOPE_NOT_FOUND`, `PRICE_EVIDENCE_REQUIRED`, `VALUATION_BASIS_CONFLICT`, `FINANCIAL_FIELD_FORBIDDEN`, `NORMALIZED_VALUE_REQUIRED`. `FX_BASIS_REQUIRED` chỉ là compatibility/internal source error và không được biến thành field nhập tỷ giá trên UI Theme 7.
 
 ## 10. Domain và UC sử dụng
 
 - **Domain / Entity:** đọc `ENT-IO-01/02`, `ENT-IV-01`, policy/source references.
 - **UC:** `UC-03-01`.
 - **API trace:** `API-Q-11`.
-- **Decision:** `T7-DR-025`, `150…154`, `186…190`.
+- **Decision:** `T7-DR-025`, `150…154`, `186…190`, `200…201`.

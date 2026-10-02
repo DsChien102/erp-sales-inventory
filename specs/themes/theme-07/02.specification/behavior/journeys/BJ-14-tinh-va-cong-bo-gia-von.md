@@ -6,7 +6,7 @@ title: "Tính và công bố giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v4.0.0
+source_baseline: v4.6.0
 ui_flow: UIF-14
 ---
 
@@ -68,11 +68,13 @@ flowchart TD
 | JA-02 | Có blocker hoặc input/policy thay đổi | Run không được công bố; blocker có owner hoặc run stale và phải tạo successor sau khi xử lý | UC-14-01 / BC-IV-02 |
 | JA-03 | Run sẵn sàng và còn current | Công bố chỉ dùng phương pháp tenant đã chọn; phương pháp còn lại chỉ đối chiếu và không tự ghi ledger | UC-14-04 / BC-IV-03 |
 | JA-04 | Publication commit | COGS/value adjustment cần thiết và `OfficialCostVersion` commit cùng batch; không sửa receipt/issue/sale/value movement lịch sử | UC-14-04 / BC-IV-03 |
+| JA-05 | Tạo period-close run | Chỉ scope option tenant policy cho phép mới xuất hiện; nếu có nhiều option user phải chọn rõ, nếu chỉ có một option thì hiển thị read-only; khóa snapshot ngay khi tạo run | UC-14-01 / BC-IV-02 |
 
 ## 8. Truy vết
 
 | Nguồn | Vai trò đối với hành trình |
 |---|---|
+| [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-016 — Vì sao sử dụng song song hai phương pháp tính giá vốn?](../../../01.knowledge/know-how/KB-KGV-016-vi-sao-tinh-song-song-hai-phuong-phap-gia-von.md); [KB-KGV-017 — Công bố giá vốn chính thức và ghi nhận giá vốn hàng bán](../../../01.knowledge/know-how/KB-KGV-017-cong-bo-don-gia-ton-kho-va-ghi-nhan-gia-von-xuat-ban.md); [KB-KGV-018 — Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](../../../01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md); [KB-KGV-045 — Rà soát giá vốn tham chiếu định giá sau chốt kỳ](../../../01.knowledge/know-how/KB-KGV-045-ra-soat-gia-von-tham-chieu-sau-chot-ky.md) | **Bài tri thức cốt lõi** giúp hiểu nền nghiệp vụ của Journey; rule triển khai vẫn theo Decision/BJ/UC/BC canonical |
 | [Decision Register](../../../01.knowledge/decisions/decision-register.md) — G07 | Nguồn quyết định nghiệp vụ và trạng thái hiệu lực |
 | `DOM-IV`, `DOM-IO` | Domain authority và invariants dùng cho Journey |
 | [Use Case Map](../use-cases/00-use-case-map.md) | Danh mục UC canonical của Theme 7 |

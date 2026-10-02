@@ -6,7 +6,7 @@ title: "Tính và rà soát giá vốn"
 owner: BA
 status: IN_REVIEW
 aligned_to: UC.template.md
-source_baseline: v4.1.0
+source_baseline: v4.6.1
 ui_flow: UIF-14
 ---
 
@@ -82,7 +82,7 @@ Kết thúc khi run có trạng thái `READY_FOR_REVIEW` với ProductCostResult
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AF-B-01 | Kế toán | Chọn phạm vi chốt trong giới hạn policy cho phép. | T7-DR-195 — Period-close scope |
+| AF-B-01 | Kế toán | Chọn phạm vi chốt trong đúng tập lựa chọn tenant policy trả về; nếu có nhiều lựa chọn thì phải chọn rõ, không dùng default do UI tự đặt. | T7-DR-195 — Period-close scope |
 | AF-B-02 | Hệ thống | Khóa immutable scope snapshot và cutoff cho run. | |
 | AF-B-03 | — | [Trở lại BF-03]. | BF-03 — Kiểm tra blocker |
 
@@ -123,6 +123,13 @@ Kết thúc khi run có trạng thái `READY_FOR_REVIEW` với ProductCostResult
 | `READY_FOR_REVIEW` | Có immutable ProductCostResult, method áp dụng theo tenant và số đối chiếu; chưa ledger mutation | UC-14-04 |
 | `BLOCKED` | Không publication/adjustment; blocker có Product/owner rõ | Xử lý ở journey nguồn rồi tạo successor run |
 | Stale trước tạo run | Không dùng dữ liệu cũ | Dựng lại scope/run |
+
+### 7.1 Làm rõ v4.6.0 — policy và phạm vi
+
+- Costing method lấy từ tenant policy snapshot; UI chỉ hiển thị method hiện hành, không hard-code hoặc cho chọn lại theo run.
+- Dirty/ad-hoc run luôn dùng exact dirty scope do hệ thống sở hữu.
+- Period-close chỉ hiển thị scope option tenant policy cho phép. Nếu policy trả nhiều option thì user phải chọn rõ; nếu chỉ một option thì UI hiển thị read-only. Tên/ID scope trong prototype chỉ là fixture, không phải catalog nghiệp vụ canonical.
+- Khi run được tạo, method + scope + policy version được khóa trong input snapshot.
 
 ## 8. Liên hệ giao diện
 
@@ -166,4 +173,5 @@ Kết thúc khi run có trạng thái `READY_FOR_REVIEW` với ProductCostResult
 - **Journey:** `BJ-14` — Tính và công bố giá vốn.
 - **Domain / Entity:** `DOM-IV`, `ENT-IV-03`, `ENT-IV-09`.
 - **Behavioral Contract:** `BC-IV-02`.
-- **Decision:** `T7-DR-049`, `T7-DR-164…170`, `T7-DR-194/195`.
+- **Decision:** `T7-DR-049`, `T7-DR-164…170`, `T7-DR-194/195`, `T7-DR-202`.
+- **Bài tri thức liên quan:** [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-016 — Vì sao sử dụng song song hai phương pháp tính giá vốn?](../../../01.knowledge/know-how/KB-KGV-016-vi-sao-tinh-song-song-hai-phuong-phap-gia-von.md); [KB-KGV-018 — Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](../../../01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md); [KB-KGV-045 — Rà soát giá vốn tham chiếu định giá sau chốt kỳ](../../../01.knowledge/know-how/KB-KGV-045-ra-soat-gia-von-tham-chieu-sau-chot-ky.md)

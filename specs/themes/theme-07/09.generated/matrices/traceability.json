@@ -17,7 +17,14 @@
       "FE-SCR-001",
       "FE-SCR-054"
     ],
-    "ui_flow": "UIF-01"
+    "ui_flow": "UIF-01",
+    "know_how": [
+      "KB-KGV-001",
+      "KB-KGV-003",
+      "KB-KGV-005",
+      "KB-KGV-006",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-01-02",
@@ -39,7 +46,14 @@
       "FE-SCR-003",
       "FE-SCR-004"
     ],
-    "ui_flow": "UIF-01"
+    "ui_flow": "UIF-01",
+    "know_how": [
+      "KB-KGV-001",
+      "KB-KGV-003",
+      "KB-KGV-005",
+      "KB-KGV-006",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-01-03",
@@ -63,7 +77,14 @@
       "FE-SCR-056",
       "FE-SCR-057"
     ],
-    "ui_flow": "UIF-01"
+    "ui_flow": "UIF-01",
+    "know_how": [
+      "KB-KGV-001",
+      "KB-KGV-003",
+      "KB-KGV-005",
+      "KB-KGV-006",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-01-04",
@@ -86,7 +107,13 @@
       "FE-SCR-060",
       "FE-SCR-061"
     ],
-    "ui_flow": "UIF-01"
+    "ui_flow": "UIF-01",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-036",
+      "KB-KGV-038"
+    ]
   },
   {
     "uc": "UC-01-05",
@@ -111,7 +138,13 @@
       "FE-SCR-060",
       "FE-SCR-061"
     ],
-    "ui_flow": "UIF-01"
+    "ui_flow": "UIF-01",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-036",
+      "KB-KGV-038"
+    ]
   },
   {
     "uc": "UC-02-01",
@@ -141,7 +174,15 @@
       "FE-SCR-010",
       "FE-SCR-084"
     ],
-    "ui_flow": "UIF-02"
+    "ui_flow": "UIF-02",
+    "know_how": [
+      "KB-KGV-007",
+      "KB-KGV-008",
+      "KB-KGV-024",
+      "KB-KGV-025",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-02-02",
@@ -153,7 +194,6 @@
       "SBC-COM-02",
       "SBC-COM-03",
       "SBC-COM-04",
-      "BC-IO-16",
       "BC-IC-07"
     ],
     "screens_current": [
@@ -171,7 +211,15 @@
       "FE-SCR-010",
       "FE-SCR-084"
     ],
-    "ui_flow": "UIF-02"
+    "ui_flow": "UIF-02",
+    "know_how": [
+      "KB-KGV-007",
+      "KB-KGV-008",
+      "KB-KGV-024",
+      "KB-KGV-025",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-02-03",
@@ -194,7 +242,15 @@
       "FE-SCR-010",
       "FE-SCR-011"
     ],
-    "ui_flow": "UIF-02"
+    "ui_flow": "UIF-02",
+    "know_how": [
+      "KB-KGV-007",
+      "KB-KGV-008",
+      "KB-KGV-024",
+      "KB-KGV-025",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-02-04",
@@ -215,7 +271,15 @@
       "BE-02-04",
       "FE-SCR-012"
     ],
-    "ui_flow": "UIF-02"
+    "ui_flow": "UIF-02",
+    "know_how": [
+      "KB-KGV-007",
+      "KB-KGV-008",
+      "KB-KGV-024",
+      "KB-KGV-025",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-02-05",
@@ -234,7 +298,12 @@
       "FE-SCR-012",
       "FE-SCR-013"
     ],
-    "ui_flow": "UIF-02"
+    "ui_flow": "UIF-02",
+    "know_how": [
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-03-01",
@@ -247,7 +316,6 @@
     "screens_current": [
       "SCR-014",
       "SCR-015",
-      "SCR-016",
       "SCR-017",
       "SCR-019"
     ],
@@ -260,7 +328,13 @@
       "FE-SCR-017",
       "FE-SCR-019"
     ],
-    "ui_flow": "UIF-03"
+    "ui_flow": "UIF-03",
+    "know_how": [
+      "KB-KGV-008",
+      "KB-KGV-015",
+      "KB-KGV-019",
+      "KB-KGV-043"
+    ]
   },
   {
     "uc": "UC-04-01",
@@ -279,7 +353,12 @@
       "FE-SCR-022",
       "FE-SCR-024"
     ],
-    "ui_flow": "UIF-04"
+    "ui_flow": "UIF-04",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-009",
+      "KB-KGV-027"
+    ]
   },
   {
     "uc": "UC-04-02",
@@ -297,7 +376,12 @@
       "FE-SCR-023",
       "FE-SCR-024"
     ],
-    "ui_flow": "UIF-04"
+    "ui_flow": "UIF-04",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-009",
+      "KB-KGV-027"
+    ]
   },
   {
     "uc": "UC-04-03",
@@ -315,7 +399,12 @@
       "FE-SCR-023",
       "FE-SCR-024"
     ],
-    "ui_flow": "UIF-04"
+    "ui_flow": "UIF-04",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-009",
+      "KB-KGV-027"
+    ]
   },
   {
     "uc": "UC-04-04",
@@ -333,7 +422,13 @@
       "FE-SCR-023",
       "FE-SCR-024"
     ],
-    "ui_flow": "UIF-04"
+    "ui_flow": "UIF-04",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-009",
+      "KB-KGV-027",
+      "KB-KGV-028"
+    ]
   },
   {
     "uc": "UC-05-01",
@@ -356,7 +451,12 @@
       "FE-SCR-025",
       "FE-SCR-026"
     ],
-    "ui_flow": "UIF-05"
+    "ui_flow": "UIF-05",
+    "know_how": [
+      "KB-KGV-009",
+      "KB-KGV-010",
+      "KB-KGV-025"
+    ]
   },
   {
     "uc": "UC-05-02",
@@ -377,7 +477,12 @@
       "BE-05-02",
       "FE-SCR-027"
     ],
-    "ui_flow": "UIF-05"
+    "ui_flow": "UIF-05",
+    "know_how": [
+      "KB-KGV-009",
+      "KB-KGV-010",
+      "KB-KGV-025"
+    ]
   },
   {
     "uc": "UC-05-03",
@@ -400,7 +505,12 @@
       "FE-SCR-028",
       "FE-SCR-029"
     ],
-    "ui_flow": "UIF-05"
+    "ui_flow": "UIF-05",
+    "know_how": [
+      "KB-KGV-009",
+      "KB-KGV-010",
+      "KB-KGV-025"
+    ]
   },
   {
     "uc": "UC-05-04",
@@ -424,7 +534,12 @@
       "FE-SCR-026",
       "FE-SCR-027"
     ],
-    "ui_flow": "UIF-05"
+    "ui_flow": "UIF-05",
+    "know_how": [
+      "KB-KGV-009",
+      "KB-KGV-010",
+      "KB-KGV-025"
+    ]
   },
   {
     "uc": "UC-05-05",
@@ -448,7 +563,15 @@
       "FE-SCR-028",
       "FE-SCR-029"
     ],
-    "ui_flow": "UIF-05"
+    "ui_flow": "UIF-05",
+    "know_how": [
+      "KB-KGV-009",
+      "KB-KGV-010",
+      "KB-KGV-017",
+      "KB-KGV-025",
+      "KB-KGV-029",
+      "KB-KGV-039"
+    ]
   },
   {
     "uc": "UC-06-01",
@@ -472,7 +595,13 @@
       "FE-SCR-031",
       "FE-SCR-032"
     ],
-    "ui_flow": "UIF-06"
+    "ui_flow": "UIF-06",
+    "know_how": [
+      "KB-KGV-012",
+      "KB-KGV-020",
+      "KB-KGV-025",
+      "KB-KGV-035"
+    ]
   },
   {
     "uc": "UC-06-02",
@@ -498,7 +627,13 @@
       "FE-SCR-032",
       "FE-SCR-034"
     ],
-    "ui_flow": "UIF-06"
+    "ui_flow": "UIF-06",
+    "know_how": [
+      "KB-KGV-012",
+      "KB-KGV-020",
+      "KB-KGV-025",
+      "KB-KGV-035"
+    ]
   },
   {
     "uc": "UC-06-03",
@@ -523,7 +658,13 @@
       "FE-SCR-031",
       "FE-SCR-035"
     ],
-    "ui_flow": "UIF-06"
+    "ui_flow": "UIF-06",
+    "know_how": [
+      "KB-KGV-012",
+      "KB-KGV-020",
+      "KB-KGV-025",
+      "KB-KGV-035"
+    ]
   },
   {
     "uc": "UC-06-04",
@@ -547,7 +688,13 @@
       "FE-SCR-033",
       "FE-SCR-035"
     ],
-    "ui_flow": "UIF-06"
+    "ui_flow": "UIF-06",
+    "know_how": [
+      "KB-KGV-012",
+      "KB-KGV-020",
+      "KB-KGV-025",
+      "KB-KGV-035"
+    ]
   },
   {
     "uc": "UC-07-01",
@@ -570,7 +717,13 @@
       "FE-SCR-036",
       "FE-SCR-037"
     ],
-    "ui_flow": "UIF-07"
+    "ui_flow": "UIF-07",
+    "know_how": [
+      "KB-KGV-010",
+      "KB-KGV-013",
+      "KB-KGV-015",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-07-02",
@@ -594,7 +747,13 @@
       "FE-SCR-038",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-07"
+    "ui_flow": "UIF-07",
+    "know_how": [
+      "KB-KGV-010",
+      "KB-KGV-013",
+      "KB-KGV-015",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-07-03",
@@ -617,7 +776,13 @@
       "FE-SCR-038",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-07"
+    "ui_flow": "UIF-07",
+    "know_how": [
+      "KB-KGV-010",
+      "KB-KGV-013",
+      "KB-KGV-015",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-07-04",
@@ -640,7 +805,13 @@
       "FE-SCR-039",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-07"
+    "ui_flow": "UIF-07",
+    "know_how": [
+      "KB-KGV-010",
+      "KB-KGV-013",
+      "KB-KGV-015",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-08-01",
@@ -659,7 +830,11 @@
       "FE-SCR-042",
       "FE-SCR-043"
     ],
-    "ui_flow": "UIF-08"
+    "ui_flow": "UIF-08",
+    "know_how": [
+      "KB-KGV-011",
+      "KB-KGV-030"
+    ]
   },
   {
     "uc": "UC-08-02",
@@ -677,7 +852,11 @@
       "FE-SCR-044",
       "FE-SCR-047"
     ],
-    "ui_flow": "UIF-08"
+    "ui_flow": "UIF-08",
+    "know_how": [
+      "KB-KGV-011",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-08-03",
@@ -695,7 +874,12 @@
       "FE-SCR-045",
       "FE-SCR-047"
     ],
-    "ui_flow": "UIF-08"
+    "ui_flow": "UIF-08",
+    "know_how": [
+      "KB-KGV-011",
+      "KB-KGV-021",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-08-04",
@@ -715,7 +899,13 @@
       "FE-SCR-046",
       "FE-SCR-047"
     ],
-    "ui_flow": "UIF-08"
+    "ui_flow": "UIF-08",
+    "know_how": [
+      "KB-KGV-011",
+      "KB-KGV-020",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-08-05",
@@ -737,7 +927,11 @@
       "FE-SCR-045",
       "FE-SCR-047"
     ],
-    "ui_flow": "UIF-08"
+    "ui_flow": "UIF-08",
+    "know_how": [
+      "KB-KGV-011",
+      "KB-KGV-027"
+    ]
   },
   {
     "uc": "UC-09-01",
@@ -763,7 +957,13 @@
       "FE-SCR-037",
       "FE-SCR-038"
     ],
-    "ui_flow": "UIF-09"
+    "ui_flow": "UIF-09",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-025",
+      "KB-KGV-034"
+    ]
   },
   {
     "uc": "UC-09-02",
@@ -786,7 +986,13 @@
       "FE-SCR-038",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-09"
+    "ui_flow": "UIF-09",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-025",
+      "KB-KGV-034"
+    ]
   },
   {
     "uc": "UC-09-03",
@@ -811,7 +1017,13 @@
       "FE-SCR-037",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-09"
+    "ui_flow": "UIF-09",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-025",
+      "KB-KGV-034"
+    ]
   },
   {
     "uc": "UC-09-04",
@@ -836,7 +1048,13 @@
       "FE-SCR-041",
       "FE-SCR-056"
     ],
-    "ui_flow": "UIF-09"
+    "ui_flow": "UIF-09",
+    "know_how": [
+      "KB-KGV-005",
+      "KB-KGV-014",
+      "KB-KGV-025",
+      "KB-KGV-034"
+    ]
   },
   {
     "uc": "UC-10-01",
@@ -862,7 +1080,13 @@
       "FE-SCR-037",
       "FE-SCR-040"
     ],
-    "ui_flow": "UIF-10"
+    "ui_flow": "UIF-10",
+    "know_how": [
+      "KB-KGV-014",
+      "KB-KGV-020",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-10-02",
@@ -883,7 +1107,13 @@
       "BE-10-02",
       "FE-SCR-040"
     ],
-    "ui_flow": "UIF-10"
+    "ui_flow": "UIF-10",
+    "know_how": [
+      "KB-KGV-014",
+      "KB-KGV-020",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-10-03",
@@ -904,7 +1134,13 @@
       "BE-10-03",
       "FE-SCR-040"
     ],
-    "ui_flow": "UIF-10"
+    "ui_flow": "UIF-10",
+    "know_how": [
+      "KB-KGV-014",
+      "KB-KGV-020",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-10-04",
@@ -925,7 +1161,13 @@
       "BE-10-04",
       "FE-SCR-041"
     ],
-    "ui_flow": "UIF-10"
+    "ui_flow": "UIF-10",
+    "know_how": [
+      "KB-KGV-014",
+      "KB-KGV-020",
+      "KB-KGV-029",
+      "KB-KGV-031"
+    ]
   },
   {
     "uc": "UC-11-01",
@@ -950,7 +1192,13 @@
       "FE-SCR-048",
       "FE-SCR-049"
     ],
-    "ui_flow": "UIF-11"
+    "ui_flow": "UIF-11",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-11-02",
@@ -973,7 +1221,13 @@
       "FE-SCR-052",
       "FE-SCR-053"
     ],
-    "ui_flow": "UIF-11"
+    "ui_flow": "UIF-11",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-11-03",
@@ -998,7 +1252,13 @@
       "FE-SCR-050",
       "FE-SCR-052"
     ],
-    "ui_flow": "UIF-11"
+    "ui_flow": "UIF-11",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-11-04",
@@ -1022,7 +1282,13 @@
       "FE-SCR-051",
       "FE-SCR-053"
     ],
-    "ui_flow": "UIF-11"
+    "ui_flow": "UIF-11",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-11-05",
@@ -1045,7 +1311,13 @@
       "FE-SCR-049",
       "FE-SCR-053"
     ],
-    "ui_flow": "UIF-11"
+    "ui_flow": "UIF-11",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029"
+    ]
   },
   {
     "uc": "UC-12-01",
@@ -1070,7 +1342,14 @@
       "FE-SCR-067",
       "FE-SCR-068"
     ],
-    "ui_flow": "UIF-12"
+    "ui_flow": "UIF-12",
+    "know_how": [
+      "KB-KGV-003",
+      "KB-KGV-004",
+      "KB-KGV-015",
+      "KB-KGV-022",
+      "KB-KGV-023"
+    ]
   },
   {
     "uc": "UC-12-02",
@@ -1093,7 +1372,14 @@
       "FE-SCR-069",
       "FE-SCR-070"
     ],
-    "ui_flow": "UIF-12"
+    "ui_flow": "UIF-12",
+    "know_how": [
+      "KB-KGV-003",
+      "KB-KGV-004",
+      "KB-KGV-015",
+      "KB-KGV-022",
+      "KB-KGV-023"
+    ]
   },
   {
     "uc": "UC-12-03",
@@ -1116,7 +1402,14 @@
       "FE-SCR-070",
       "FE-SCR-071"
     ],
-    "ui_flow": "UIF-12"
+    "ui_flow": "UIF-12",
+    "know_how": [
+      "KB-KGV-003",
+      "KB-KGV-004",
+      "KB-KGV-015",
+      "KB-KGV-022",
+      "KB-KGV-023"
+    ]
   },
   {
     "uc": "UC-13-01",
@@ -1129,22 +1422,23 @@
     "screens_current": [
       "SCR-085",
       "SCR-086",
-      "SCR-087",
-      "SCR-088",
       "SCR-089"
     ],
     "delivery_slices_current": [
       "BE-13-01",
       "BE-13-02",
       "BE-13-03",
-      "FE-SCR-018",
       "FE-SCR-085",
       "FE-SCR-086",
-      "FE-SCR-087",
-      "FE-SCR-088",
       "FE-SCR-089"
     ],
-    "ui_flow": "UIF-13"
+    "ui_flow": "UIF-13",
+    "know_how": [
+      "KB-KGV-015",
+      "KB-KGV-018",
+      "KB-KGV-019",
+      "KB-KGV-043"
+    ]
   },
   {
     "uc": "UC-14-01",
@@ -1155,21 +1449,22 @@
     ],
     "screens_current": [
       "SCR-072",
-      "SCR-073",
-      "SCR-074",
-      "SCR-076"
+      "SCR-074"
     ],
     "delivery_slices_current": [
       "BE-14-01",
       "BE-14-02",
       "BE-14-03",
       "FE-SCR-072",
-      "FE-SCR-073",
-      "FE-SCR-074",
-      "FE-SCR-075",
-      "FE-SCR-076"
+      "FE-SCR-074"
     ],
-    "ui_flow": "UIF-14"
+    "ui_flow": "UIF-14",
+    "know_how": [
+      "KB-KGV-015",
+      "KB-KGV-016",
+      "KB-KGV-018",
+      "KB-KGV-045"
+    ]
   },
   {
     "uc": "UC-14-04",
@@ -1179,15 +1474,22 @@
       "BC-IV-03"
     ],
     "screens_current": [
-      "SCR-076",
+      "SCR-074",
       "SCR-077"
     ],
     "delivery_slices_current": [
       "BE-14-04",
-      "FE-SCR-076",
+      "FE-SCR-074",
       "FE-SCR-077"
     ],
-    "ui_flow": "UIF-14"
+    "ui_flow": "UIF-14",
+    "know_how": [
+      "KB-KGV-015",
+      "KB-KGV-017",
+      "KB-KGV-018",
+      "KB-KGV-044",
+      "KB-KGV-045"
+    ]
   },
   {
     "uc": "UC-15-01",
@@ -1206,7 +1508,14 @@
       "BE-15-01",
       "FE-SCR-054"
     ],
-    "ui_flow": "UIF-15"
+    "ui_flow": "UIF-15",
+    "know_how": [
+      "KB-KGV-006",
+      "KB-KGV-029",
+      "KB-KGV-030",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-15-02",
@@ -1225,7 +1534,14 @@
       "BE-15-02",
       "FE-SCR-055"
     ],
-    "ui_flow": "UIF-15"
+    "ui_flow": "UIF-15",
+    "know_how": [
+      "KB-KGV-006",
+      "KB-KGV-029",
+      "KB-KGV-030",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-15-03",
@@ -1248,7 +1564,14 @@
       "FE-SCR-056",
       "FE-SCR-057"
     ],
-    "ui_flow": "UIF-15"
+    "ui_flow": "UIF-15",
+    "know_how": [
+      "KB-KGV-006",
+      "KB-KGV-029",
+      "KB-KGV-030",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-15-04",
@@ -1269,7 +1592,14 @@
       "FE-SCR-058",
       "FE-SCR-059"
     ],
-    "ui_flow": "UIF-15"
+    "ui_flow": "UIF-15",
+    "know_how": [
+      "KB-KGV-006",
+      "KB-KGV-029",
+      "KB-KGV-030",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-16-01",
@@ -1290,7 +1620,13 @@
       "BE-16-01",
       "FE-SCR-078"
     ],
-    "ui_flow": "UIF-16"
+    "ui_flow": "UIF-16",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-028",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-16-02",
@@ -1313,7 +1649,13 @@
       "FE-SCR-079",
       "FE-SCR-080"
     ],
-    "ui_flow": "UIF-16"
+    "ui_flow": "UIF-16",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-028",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-16-03",
@@ -1337,7 +1679,13 @@
       "FE-SCR-080",
       "FE-SCR-081"
     ],
-    "ui_flow": "UIF-16"
+    "ui_flow": "UIF-16",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-028",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-16-04",
@@ -1360,7 +1708,13 @@
       "FE-SCR-082",
       "FE-SCR-083"
     ],
-    "ui_flow": "UIF-16"
+    "ui_flow": "UIF-16",
+    "know_how": [
+      "KB-KGV-021",
+      "KB-KGV-028",
+      "KB-KGV-032",
+      "KB-KGV-033"
+    ]
   },
   {
     "uc": "UC-17-01",
@@ -1383,7 +1737,13 @@
       "FE-SCR-078",
       "FE-SCR-079"
     ],
-    "ui_flow": "UIF-17"
+    "ui_flow": "UIF-17",
+    "know_how": [
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-17-02",
@@ -1408,7 +1768,13 @@
       "FE-SCR-082",
       "FE-SCR-083"
     ],
-    "ui_flow": "UIF-17"
+    "ui_flow": "UIF-17",
+    "know_how": [
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-17-03",
@@ -1433,7 +1799,13 @@
       "FE-SCR-082",
       "FE-SCR-083"
     ],
-    "ui_flow": "UIF-17"
+    "ui_flow": "UIF-17",
+    "know_how": [
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029",
+      "KB-KGV-032"
+    ]
   },
   {
     "uc": "UC-17-04",
@@ -1456,6 +1828,12 @@
       "FE-SCR-079",
       "FE-SCR-083"
     ],
-    "ui_flow": "UIF-17"
+    "ui_flow": "UIF-17",
+    "know_how": [
+      "KB-KGV-027",
+      "KB-KGV-028",
+      "KB-KGV-029",
+      "KB-KGV-032"
+    ]
   }
 ]

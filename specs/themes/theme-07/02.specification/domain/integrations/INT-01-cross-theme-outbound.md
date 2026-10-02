@@ -25,7 +25,7 @@ Tài liệu này khóa **ý nghĩa dữ liệu và ownership khi Theme 7 trao đ
 | Boundary | Producer | Consumer | Source of truth | Theme 7 được làm gì | Theme 7 không được làm gì |
 |---|---|---|---|---|---|
 | Căn cứ thương mại mua hàng | Theme 10 | Theme 7 | Theme 10 | Dùng thành phần đã xác lập để tính giá trị lượng thực nhận | Sửa PO/hóa đơn hoặc tự giải quyết commercial dispute thuộc Theme 10 |
-| Receipt facts | Theme 7 | Theme 10 / reporting | Theme 7 | Cung cấp lượng/ngày nhận và receipt lineage | Biến receipt thành PO/hóa đơn |
+| Receipt facts | Theme 7 | Theme 10 / reporting | Theme 7 | Công bố fact receipt đã `COMMITTED`: source/line lineage, lượng thực nhận theo UOM, kho và ngày nhận | Gửi command yêu cầu Theme 10 sửa/cập nhật PO hoặc biến receipt thành PO/hóa đơn |
 | Giá trị nhập ban đầu | Theme 7 | Accounting/reporting | Theme 7 | Công bố fact initial value đã commit | Trình bày nó như Official Cost |
 | Điều chỉnh giá trị hàng nhập | Theme 7 | Accounting/reporting | Theme 7, với provenance về source owner | Công bố signed adjustment + original/posting period | Viết lại receipt valuation lịch sử |
 | Giá vốn chính thức | Theme 7 | Accounting/Pricing/Reporting | Theme 7/BJ14 | Công bố `OfficialCostVersion` có hiệu lực | Tự đổi giá bán hoặc công nợ |
@@ -79,10 +79,12 @@ Nếu sau đó Theme 10 tiếp nhận một hóa đơn hoặc commercial source 
 
 | Fact outbound | Trigger | Nội dung chính | Finality |
 |---|---|---|---|
-| Receipt recorded | BJ02 commit | Receipt/line/quantity/UOM/warehouse/business date | Final theo operation/finality contract |
+| Receipt recorded | BJ02 `COMMITTED` | Receipt + source document/line lineage + quantity classification/UOM + warehouse + receipt business date | Chỉ durable commit mới phát; `REJECTED`/`UNKNOWN` không được công bố như fact đã nhận |
 | Initial value confirmed | BJ03 commit | Receipt valuation, covered quantity, value movements, provenance, dirty cost scope | Không kèm Official Cost mới |
 | Receipt value adjustment recorded | BJ13 commit | Signed component/allocation/value movements/original & posting periods/dirty scope | Không tự công bố Official Cost |
 | Official cost published | BJ14 publication | Product, OfficialCostVersion, effective time, source run/method snapshot | Chỉ publication thành công mới authoritative |
+
+`Receipt recorded` là **integration fact ở thì quá khứ**, không phải command. Theme 10 tiêu thụ fact này để tự cập nhật trạng thái/số lượng còn nhận của PO theo ownership của mình; Theme 7 không gửi lệnh “cập nhật PO” và không sở hữu `remaining_receivable_qty` sau khi Theme 10 xử lý fact.
 
 Wire/API/event chi tiết nằm ở `FND-TECH-01`; integration semantic không được copy event schema thành nguồn thứ hai.
 
@@ -104,11 +106,7 @@ Wire/API/event chi tiết nằm ở `FND-TECH-01`; integration semantic không �
 | Event đã phát nhưng consumer chưa nhận | Retry cùng event identity; không rollback Theme 7 commit |
 | Không rõ mutation Theme 7 đã commit hay chưa | Dùng finality/UNKNOWN recovery contract; không gửi command mới mù quáng |
 
-## 8. Temporary outbound reference artifacts
-
-Các gói lịch sử chuyển giao Theme 5/10/2/Reporting vẫn được giữ dưới `06.evidence/outbound-v3.10.1/` để truy vết. Chúng là **evidence**, không phải canonical Theme 7 capability và không được dùng để đếm BJ/UC hiện hành.
-
-## 9. Verification
+## 8. Verification
 
 - Theme 10 source không bị copy thành owned entity của Theme 7.
 - Quick Receipt có đường hoàn tất BJ03 khi Theme 10 không có source.

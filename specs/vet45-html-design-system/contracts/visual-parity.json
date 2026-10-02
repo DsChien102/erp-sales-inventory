@@ -1,0 +1,29 @@
+{
+  "htmlDsVersion": "2.0.2",
+  "flutterReferenceVersion": "1.4.1",
+  "authority": "Flutter source package",
+  "typography": {
+    "interVersion": "4.001;git-9221beed3",
+    "jetBrainsMonoVersion": "2.304",
+    "requiredWeights": [
+      400,
+      500,
+      600,
+      700,
+      800
+    ],
+    "syntheticWeightsAllowed": false
+  },
+  "icons": {
+    "semanticAliasCount": 108,
+    "lucideIconsFlutterVersion": "3.1.15",
+    "lucideUpstream": "1.24.0",
+    "fallbackCoverage": "108/108",
+    "emptyPlaceholderAllowed": false
+  },
+  "knownVisualCorrections": [
+    "Typography H4 preview label 14px",
+    "all semantic icons visible without Lucide font",
+    "explicit font-weight bindings"
+  ]
+}

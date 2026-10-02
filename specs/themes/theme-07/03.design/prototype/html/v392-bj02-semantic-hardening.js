@@ -35,13 +35,6 @@
   function v392AcceptedPhysicalTotal(){ return bj02Lines.reduce((n,line)=>n+v392AcceptedPhysical(line),0); }
   function v392InspectedTotal(){ return bj02Lines.reduce((n,line)=>n+lineTotals(line).totalReceived,0); }
   function v392RejectedTotal(){ return bj02Lines.reduce((n,line)=>n+lineTotals(line).rejected,0); }
-  function v392HasPriceBasis(){
-    return bj02Lines.every((line)=>{
-      if(line?.status === 'NOT_RECEIVED') return true;
-      const basis=line.priceBasisSnapshot || productById(line.productId)?.priceBasisSnapshot;
-      return Boolean(basis && Number(basis.unitPriceVndPerBase)>0 && basis.priceVersion && basis.fxVersion);
-    });
-  }
   function v392SourceRemaining(line){ return Math.max(0,Number(line?.remainingReceivableQty)||0); }
   function v392FormatDateWithPrecision(value,precision='DAY'){
     const v=String(value||'').trim();
@@ -233,7 +226,7 @@
   };
   renderers['SCR-008']=function(state){
     if(state==='PERMISSION_DENIED') return appShell({title:'Nhập hàng nhanh',body:deniedBody(),centered:true});
-    const locked=state==='LOCKED', hasError=['VALIDATION_ERROR','DRAFT_VALIDATION_FAILED'].includes(state);
+    const locked=state==='LOCKED', hasError=state==='VALIDATION_ERROR';
     const supplierValid=supplierCatalog.some((x)=>x.id===bj02Header.supplierId&&x.name===bj02Header.supplier.trim());
     const evidence=v392EvidenceRefs(), evidenceReady=evidence.length>0;
     const supplierValue=supplierValid?bj02Header.supplier:'Chọn nhà cung cấp';
@@ -242,7 +235,7 @@
       <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Kho nhận</label><span class="input-shell is-readonly"><input value="${v392Esc(V392.warehouse.name)}" readonly aria-readonly="true"/></span></div>
       <div class="form-field" data-ds-component="VTextField" data-figma-node="522:7186" data-ds-prop-state="Filled"><label>Ngày nhận</label><span class="input-shell is-readonly"><span class="bj02-date-leading">${icon('calendar','icon--sm')}</span><input value="${v392DateText(bj02Header.businessDate)}" readonly aria-readonly="true"/></span><small>Ngày nghiệp vụ của tenant do hệ thống xác lập.</small></div>
       <div class="form-field" data-ds-component="VFileDropZone" data-figma-node="522:7507"><label>Chứng từ giao nhận <span class="required">*</span></label><label class="file-drop-zone"><input data-bj02-evidence-file type="file" multiple ${locked?'disabled':''}/><span class="file-drop-icon">${icon('cloudUpload','icon--24')}</span><span class="file-drop-copy"><strong>${evidenceReady?'Đã chọn chứng từ':'Chọn hoặc kéo tệp'}</strong><small>${evidenceReady?'Có thể chọn lại để thay bộ chứng từ':'Phiếu giao hàng, biên bản bàn giao, vận đơn hoặc bản scan/ảnh rõ nội dung'}</small></span></label>${evidenceReady?`<div class="v392-evidence-chips">${evidence.map((x)=>`<span>${v392Esc(x.name)}</span>`).join('')}</div>`:''}</div>
-      ${vBanner('info','Xác nhận quyền sở hữu','Khi tiếp tục, bạn xác nhận hàng này đã thuộc đơn vị. Hệ thống lưu người xác nhận, thời điểm và tham chiếu chứng từ giao nhận.','','Compact')}
+      ${vBanner('info','Xác nhận quyền sở hữu','Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận.','','Default')}
     </div>${bj02SupplierSelectSheet(locked)}`;
     const disabled=locked||!supplierValid||!evidenceReady||!V392.capabilities.assertOwnership;
     return appShell({title:'Nhập hàng nhanh',body,actions:primaryFooter('Xác nhận & tiếp tục','data-v392-quick-continue',disabled)});
@@ -258,13 +251,12 @@
 
   renderers['SCR-010']=function(state){
     if(state==='PERMISSION_DENIED') return appShell({title:'Rà soát nhận hàng',body:deniedBody(),centered:true});
-    const pending=state==='PENDING_APPROVAL', priceBlocked=state==='APPROVAL_PRICE_BASIS_REQUIRED'||!v392HasPriceBasis(), approverBlocked=state==='APPROVER_CONFIGURATION_MISSING';
+    const pending=state==='PENDING_APPROVAL', approverBlocked=state==='APPROVER_CONFIGURATION_MISSING';
     const requiresApproval=bj02RequiresApproval(), noLines=bj02Lines.length===0, incomplete=!noLines&&!allReceiptLinesHandled();
     const quickZero=flowMode==='quick'&&v392AcceptedPhysicalTotal()===0;
-    const disabled=pending||state==='DRAFT_VALIDATION_FAILED'||priceBlocked||approverBlocked||noLines||incomplete||quickZero||(flowMode==='quick'&&!v392OwnershipReady());
+    const disabled=pending||approverBlocked||noLines||incomplete||quickZero||(flowMode==='quick'&&!v392OwnershipReady());
     const routeNotice=pending?vBanner('info','Đã gửi phê duyệt','Đang chờ người duyệt; tồn kho chưa thay đổi.','','Compact'):
-      priceBlocked?vBanner('error','Chưa đủ căn cứ tính cấp duyệt','Hồ sơ vẫn ở Nháp cho đến khi có căn cứ giá/tỷ giá có phiên bản theo đơn vị cơ sở.'):
-      approverBlocked?vBanner('error','Chưa có người duyệt phù hợp','Hồ sơ vẫn ở Nháp. Cần cấu hình người duyệt đủ quyền và phạm vi.'):
+      approverBlocked?vBanner('error','Chưa có người duyệt phù hợp','Chưa thể tạo phiếu. Cần cấu hình người duyệt đủ quyền và phạm vi rồi gửi lại trong phiên hiện tại.'):
       quickZero?vBanner('error','Chưa có hàng vào tồn','Nhập hàng nhanh chỉ gửi được khi Đạt + Cách ly + Hỏng lớn hơn 0.'):
       requiresApproval?(flowMode==='quick'?vBanner('info','Cần phê duyệt trước khi ghi nhận','Nhập hàng nhanh luôn cần người duyệt độc lập. Tồn kho chưa thay đổi.','','Compact'):vBanner('warning','Lượng vào tồn vượt chứng từ','Đạt + Cách ly + Hỏng vượt lượng còn được nhận. Hồ sơ cần phê duyệt.')):'';
     const stateNotice=['PENDING_APPROVAL','APPROVAL_REQUIRED'].includes(state)?'':stateBanner(state);
@@ -284,7 +276,7 @@
     const over=bj02Lines.some((line)=>flowMode==='document'&&lineAcceptedBase(line)>documentLineAllowanceBase(line));
     const reason=!decided?vBanner(flowMode==='quick'?'info':'warning','Lý do cần duyệt',flowMode==='quick'?'Nhập hàng nhanh bắt buộc phê duyệt.':over?'Lượng vào tồn vật lý vượt chứng từ nguồn.':'Hồ sơ được định tuyến theo chính sách phê duyệt.','','Compact'):approvalRejectReason?vBanner('error','Đã từ chối',approvalRejectReason):'';
     const risk=receiptRiskValue();
-    const riskRow=V392.capabilities.viewApprovalRiskTotal&&state!=='FINANCIAL_MASKED'?bj02KeyValueRow('Tổng giá trị rủi ro',`${risk.toLocaleString('vi-VN')} đ`,true):bj02InfoRow('Tổng giá trị rủi ro','Không có quyền xem');
+    const riskRow=flowMode==='quick'?'':(V392.capabilities.viewApprovalRiskTotal&&state!=='FINANCIAL_MASKED'?bj02KeyValueRow('Tổng giá trị rủi ro',`${risk.toLocaleString('vi-VN')} đ`,true):bj02InfoRow('Tổng giá trị rủi ro','Không có quyền xem'));
     const facts=`${bj02InfoRow('Người gửi',V392.submitted.maker)}${bj02InfoRow('Gửi lúc',V392.submitted.submittedAt)}${riskRow}`;
     const evidenceAction=`<button class="button button--secondary button--full v392-evidence-preview" data-v392-open-evidence type="button" data-ds-component="VButton">${icon('fileText','icon--sm')} Xem chứng từ giao nhận</button>`;
     const body=`${state==='APPROVAL_REQUIRED'?'':stateBanner(state)}${reason}<section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong></div><div class="bj02-info-stack">${bj02SourceRows()}</div>${evidenceAction}</section><section class="bj02-review-section"><div class="bj02-section-heading"><strong>Thông tin yêu cầu</strong></div><div class="bj02-info-stack">${facts}</div></section><section class="bj02-review-section"><div class="bj02-section-heading"><strong>Hàng thực nhận</strong><span>${bj02ReviewProductCount()} mặt hàng · ${bj02Lines.length} dòng</span></div><div class="bj02-review-products">${bj02ReviewProductBlocks()}</div></section>${bj02ReviewDetailSheet()}${v392EvidencePreviewSheet()}`;
@@ -299,7 +291,7 @@
     if(state==='REJECTED_EXECUTION') return appShell({title:'Kết quả nhận hàng',body:`<div class="empty-state result-empty" data-ds-component="VEmptyState"><h2>Chưa ghi nhận hàng</h2><p>Yêu cầu bị chặn trước khi tồn kho thay đổi.</p></div>`,centered:true});
     const physical=v392AcceptedPhysicalTotal(), zeroImpact=physical===0;
     const hero=zeroImpact?resultHero('Đã ghi nhận kết quả lần nhận','Không có hàng vào tồn vật lý trong lần nhận này.'):resultHero('Đã ghi nhận hàng',`Đã tăng tồn vật lý theo ${bj02Lines.length} dòng hàng được xử lý.`);
-    const valuation=state==='VALUATION_PENDING_RESULT'&&physical>0?vBanner('info','Đang chờ xác nhận giá','Phần Đạt chờ xác nhận giá trước khi có thể trở thành khả dụng; Cách ly/Hỏng giữ nguyên trạng thái đã phân loại.') : '';
+    const valuation=state==='VALUATION_PENDING_RESULT'&&physical>0?vBanner('info','Đang chờ xác nhận giá','Phần Đạt chờ xác nhận giá; Cách ly/Hỏng giữ nguyên trạng thái.') : '';
     const body=`${hero}<section class="bj02-review-section result-lines-card"><div class="bj02-section-heading"><strong>Kết quả theo dòng hàng</strong></div><div class="bj02-review-products">${bj02ReviewProductBlocks({interactive:false})}</div></section>${valuation}`;
     return appShell({title:'Kết quả nhận hàng',body,actions:primaryFooter('Xong','data-action="exit-flow"')});
   };

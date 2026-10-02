@@ -6,7 +6,7 @@ title: "Điều chỉnh giá trị hàng nhập"
 owner: BA
 status: IN_REVIEW
 aligned_to: BJ.template.md
-source_baseline: v4.0.0
+source_baseline: v4.6.0
 ui_flow: UIF-13
 ---
 
@@ -64,11 +64,13 @@ flowchart TD
 | JA-02 | Quyền lợi mới chỉ dự kiến hoặc lỗi do người dùng nhập sai fact cũ | Không ghi BJ13: forecast chỉ mô phỏng; lỗi nhập liệu đi BJ11/correction | UC-13-01 / BC-IV-04 |
 | JA-03 | Kỳ gốc đã khóa | Adjustment được ghi ở kỳ mở theo policy nhưng vẫn giữ liên kết kỳ gốc để đối soát | UC-13-01 / BC-IV-04 |
 | JA-04 | Adjustment commit thành công | Product + posting period bị ảnh hưởng được đánh dấu cần BJ14 tính lại; không tự công bố giá vốn | UC-13-01 / BC-IV-04 |
+| JA-05 | Dựng phân bổ | `allocation_i = signed amount × metric_i / Σmetric`; metric phải hợp lệ và so sánh được trên toàn scope, tổng metric bằng 0 thì chặn; residual theo stable exposure order, không chia đều fallback | UC-13-01 / BC-IV-06 |
 
 ## 8. Truy vết
 
 | Nguồn | Vai trò đối với hành trình |
 |---|---|
+| [KB-KGV-015 — Đơn giá tồn kho chính thức và tổng giá trị ghi sổ](../../../01.knowledge/know-how/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md); [KB-KGV-018 — Đối soát giá vốn cuối kỳ và cập nhật đột xuất giữa kỳ](../../../01.knowledge/know-how/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md); [KB-KGV-019 — Các thành phần hình thành giá trị hàng nhập](../../../01.knowledge/know-how/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-tri-hang-nhap.md); [KB-KGV-043 — Kịch bản chiết khấu mua hàng theo kỳ](../../../01.knowledge/know-how/KB-KGV-043-kich-ban-chiet-khau-mua-hang-theo-ky.md) | **Bài tri thức cốt lõi** giúp hiểu nền nghiệp vụ của Journey; rule triển khai vẫn theo Decision/BJ/UC/BC canonical |
 | [Decision Register](../../../01.knowledge/decisions/decision-register.md) — G07 | Nguồn quyết định nghiệp vụ và trạng thái hiệu lực |
 | `DOM-IV`, `DOM-IO` | Domain authority và invariants dùng cho Journey |
 | [Use Case Map](../use-cases/00-use-case-map.md) | Danh mục UC canonical của Theme 7 |

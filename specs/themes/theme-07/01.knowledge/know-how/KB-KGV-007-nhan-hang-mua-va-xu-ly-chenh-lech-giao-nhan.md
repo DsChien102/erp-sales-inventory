@@ -41,7 +41,7 @@ Cho phép nhận từng phần; ghi nhận thiếu/thừa so với đơn mua; ph
 
 #### Nhập hàng nhanh luôn phải được phê duyệt
 
-Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu hoặc người duyệt đủ điều kiện, hồ sơ giữ ở Nháp để bổ sung. Căn cứ giá của BJ03 là nghiệp vụ định giá riêng sau khi nhận hàng đã hoàn tất. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
+Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu hoặc người duyệt đủ điều kiện, lệnh gửi bị từ chối và không tạo receipt; người dùng chỉ có thể bổ sung dữ liệu còn thiếu trong phiên Quick hiện tại rồi gửi lại. Căn cứ giá của BJ03 là nghiệp vụ định giá riêng sau khi nhận hàng đã hoàn tất. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
 
 #### Một receipt, một nhà cung cấp và nhiều mục hàng
 

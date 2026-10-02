@@ -1,0 +1,149 @@
+{
+  "version": "4.6.8",
+  "parent": "4.6.7",
+  "scope": "BJ02 design state cleanup for SCR-010",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "SCR010-READY",
+      "description": "SCR-010 declares READY",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-VALIDATION_ERROR",
+      "description": "SCR-010 declares VALIDATION_ERROR",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-APPROVAL_REQUIRED",
+      "description": "SCR-010 declares APPROVAL_REQUIRED",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-PERMISSION_DENIED",
+      "description": "SCR-010 declares PERMISSION_DENIED",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-PENDING_APPROVAL",
+      "description": "SCR-010 declares PENDING_APPROVAL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-APPROVER_CONFIGURATION_MISSING",
+      "description": "SCR-010 declares APPROVER_CONFIGURATION_MISSING",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-FINANCIAL_MASKED",
+      "description": "SCR-010 declares FINANCIAL_MASKED",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-NO-PRICE-ENUM",
+      "description": "SCR-010 active design text does not carry obsolete price-basis enum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SCR010-NO-DRAFT-ENUM",
+      "description": "SCR-010 active design text does not carry old draft validation enum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "UIF02-NO-PRICE-ENUM",
+      "description": "UIF-02 does not declare obsolete price-basis state/error enum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "WORKBENCH-STATES",
+      "description": "Workbench SCR-010 state list equals canonical",
+      "status": "PASS",
+      "detail": "['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED']"
+    },
+    {
+      "id": "WORKBENCH-NO-BAD",
+      "description": "Workbench SCR-010 has no stale Quick state",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "id": "PROTO-VERSION",
+      "description": "Prototype manifest version is 4.6.8",
+      "status": "PASS",
+      "detail": "4.6.8"
+    },
+    {
+      "id": "PROTO-NO-PRICE",
+      "description": "Global prototype state catalog does not include obsolete price-basis enum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "PROTO-NO-DRAFT",
+      "description": "Global prototype state catalog does not include old Quick draft validation enum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "RUNTIME-v467-bj02-quick-approval-no-price-basis",
+      "description": "Runtime patch has no stale enum/filter",
+      "status": "PASS",
+      "detail": "03.design/prototype/html/v467-bj02-quick-approval-no-price-basis.js"
+    },
+    {
+      "id": "RUNTIME-v468-bj02-design-state-cleanup",
+      "description": "Runtime patch has no stale enum/filter",
+      "status": "PASS",
+      "detail": "03.design/prototype/html/v468-bj02-design-state-cleanup.js"
+    },
+    {
+      "id": "INDEX-V468",
+      "description": "v4.6.8 cleanup patch is loaded",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "GENERATED-REGISTRY-CLEAN",
+      "description": "All generated runtime-state registries are clean for SCR-010",
+      "status": "PASS",
+      "detail": "runtime-state-registry-v3.5.0.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.5.1.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.6.0.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.6.1.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.6.2.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.6.3.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.6.4.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v3.7.0.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED'] | runtime-state-registry-v4.6.8.json:['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED']"
+    },
+    {
+      "id": "CANONICAL-REGISTRY",
+      "description": "Current v4.6.8 runtime state registry is canonical for SCR-010",
+      "status": "PASS",
+      "detail": "['READY', 'VALIDATION_ERROR', 'APPROVAL_REQUIRED', 'PERMISSION_DENIED', 'PENDING_APPROVAL', 'APPROVER_CONFIGURATION_MISSING', 'FINANCIAL_MASKED']"
+    },
+    {
+      "id": "BJ10-PRICE-STATE-PRESERVED",
+      "description": "BJ10 PRICE_BASIS_REQUIRED remains preserved",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "UC0201-UNCHANGED",
+      "description": "UC-02-01 is byte-identical to v4.6.7 parent",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "SPEC-UNCHANGED",
+      "description": "No specification artifact changed in v4.6.8",
+      "status": "PASS",
+      "detail": "[]"
+    }
+  ],
+  "limitations": [
+    "Browser visual smoke not asserted in this static cleanup evidence; runtime/static parity is validated."
+  ]
+}

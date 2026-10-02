@@ -160,11 +160,10 @@ theme-xx/
         slices/
         manifests/
     05.procedures/
-    06.evidence/
     09.generated/
 ```
 
-Các thư mục con evidence/specification, design, implementation, release và generated/registries, matrices, indexes được tạo khi có đầu ra thực tế. Prototype HTML chạy được nằm trong 03.design/prototype/html/ nếu Theme có runtime. Không bỏ runtime vì chuyển cấu trúc.
+Các thư mục con `09.generated/registries`, `matrices`, `indexes` được tạo khi có đầu ra thực tế. Prototype HTML chạy được nằm trong 03.design/prototype/html/ nếu Theme có runtime. Không bỏ runtime vì chuyển cấu trúc.
 
 ## B.2 Directory Contract
 
@@ -192,7 +191,6 @@ Các thư mục con evidence/specification, design, implementation, release và 
 | 04.harness/slices/ | Owner theo thay đổi; BA/SA/SE/QA phối hợp | Một đơn vị thay đổi có nguồn, phạm vi, thiết kế cục bộ, phụ thuộc, đầu ra và kiểm chứng |
 | 04.harness/manifests/ | Harness | Danh mục Slice, artifact, path, dependency, coverage, trạng thái và blocker |
 | 05.procedures/ | SA/SE | Trigger, điều kiện, các bước, an toàn, rollback/recovery và owner |
-| 06.evidence/ | QA/Shared | Bằng chứng truy về Slice/artifact/build; không tạo yêu cầu mới |
 | 09.generated/ | Harness | Registry/matrix/index sinh tự động, có thể tạo lại, dẫn về nguồn |
 
 ## B.3 Nguyên tắc chuyển đổi
@@ -204,5 +202,5 @@ Các thư mục con evidence/specification, design, implementation, release và 
 5. Dùng một thư mục slices; ranh giới theo mục tiêu thay đổi, không theo vai trò.
 6. Cập nhật link, manifest, README và kiểm tra orphan/dependency sau di chuyển.
 7. Giữ số 09 cho Generated; không cần lấp số 07/08 khi chưa có lý do.
-8. Giữ nguyên prototype, Design System, quyết định, traceability và evidence khi migrate Theme thật.
+8. Giữ nguyên prototype, Design System, quyết định và traceability khi migrate Theme thật.
 9. Generated là kết quả sinh từ nguồn; không biên tập tay và không trở thành nguồn thay thế.

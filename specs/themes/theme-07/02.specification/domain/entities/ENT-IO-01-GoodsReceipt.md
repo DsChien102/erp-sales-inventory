@@ -8,7 +8,7 @@ title: GoodsReceipt
 owner: BA/SA
 status: DRAFT
 aligned_to: ENTITY.template.md + ENT-IO-01.sample.md
-source_baseline: v3.10.1
+source_baseline: v4.6.7
 
 ---
 
@@ -85,7 +85,7 @@ classDiagram
 | `warehouseScope` | Kho / cửa hàng ngữ cảnh | Có | Phase 1: cặp mặc định đang hoạt động |
 | `supplierId` | Nhà cung cấp của lần nhận | Có (purchase/quick) | Header-level; mọi dòng kế thừa cùng supplier; **KHÔNG ĐƯỢC** multi-supplier trong một receipt |
 | `businessDate` | Ngày nhận nghiệp vụ | Có | Theo lịch nghiệp vụ tenant |
-| `status` | Trạng thái vòng đời | Có | Bắt đầu `DRAFT` |
+| `status` | Trạng thái vòng đời | Có | Nhận theo chứng từ có thể bắt đầu `DRAFT`; **Quick Receipt chỉ tồn tại sau create-and-submit thành công và bắt đầu ở `PENDING_APPROVAL`** |
 | `lines` | Các dòng hàng nhận | Có (≥1 khi submit) | Child `GoodsReceiptLine` |
 | `reasonCode` | Lý do nghiệp vụ (nếu policy yêu cầu) | Theo policy | Gắn với loại nhận |
 
@@ -93,9 +93,10 @@ classDiagram
 
 | Hành vi | Điều kiện / Invariant | Hệ quả / Domain Event |
 |---|---|---|
-| `createDraft(...)` | Tenant/store/warehouse hợp lệ; supplier tồn tại khi bắt buộc | Hồ sơ `DRAFT`; chưa có movement |
-| `addOrUpdateLine(...)` | Chỉ khi `DRAFT`; quantity > 0; tracking/lot theo product policy | Cập nhật dòng; chưa khóa payload |
-| `submitForApproval()` | `DRAFT`; đủ dòng; Quick Receipt **luôn** cần duyệt | `DRAFT → PENDING_APPROVAL`; phát `GoodsReceiptSubmitted`; payload không còn mutable |
+| `createDraft(...)` | Chỉ áp dụng lifecycle có draft, ví dụ nhận theo chứng từ; **không dùng cho Quick Receipt** | Hồ sơ `DRAFT`; chưa có movement |
+| `addOrUpdateLine(...)` | Chỉ với receipt đã tồn tại ở `DRAFT`; **không dùng trước submit Quick Receipt** | Cập nhật dòng; chưa khóa payload |
+| `createQuickAndSubmit(...)` | Full Quick payload + `idempotencyKey` hợp lệ; Supplier/items/evidence/ownership/approver đủ; **không yêu cầu price/FX basis** | Tạo receipt trực tiếp `PENDING_APPROVAL`, cấp `receiptId`, tạo `ApprovalCase`; payload immutable; không movement |
+| `submitForApproval()` | Receipt đã tồn tại theo lifecycle hỗ trợ submit từ draft | Chuyển sang `PENDING_APPROVAL`; payload không còn mutable |
 | `markReadyAfterApproval()` | Đang `PENDING_APPROVAL`; quyết định duyệt từ IC hợp lệ | `PENDING_APPROVAL → READY` |
 | `rejectByApproval()` | Đang `PENDING_APPROVAL`; IC từ chối | `→ APPROVAL_REJECTED`; không movement |
 | `completePhysicalReceipt()` | `READY`; all-or-nothing trên toàn bộ dòng | `→ COMPLETED`; append movement (`VALUATION_PENDING`); phát `GoodsReceiptCompleted` |
@@ -105,7 +106,8 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> DRAFT
+    [*] --> DRAFT: createDraft (document / draft-supported)
+    [*] --> PENDING_APPROVAL: createQuickAndSubmit (Quick)
     DRAFT --> PENDING_APPROVAL: submitForApproval
     DRAFT --> CANCELLED: cancel
     PENDING_APPROVAL --> READY: markReadyAfterApproval
@@ -122,7 +124,7 @@ stateDiagram-v2
 
 | Trạng thái | Ý nghĩa | Payload mutable? |
 |---|---|---|
-| `DRAFT` | Soạn thảo / chỉnh dòng | Có |
+| `DRAFT` | Soạn thảo / chỉnh dòng của lifecycle hỗ trợ draft; **không phải trạng thái Quick Receipt** | Có |
 | `PENDING_APPROVAL` | Chờ duyệt (bắt buộc với Quick) | Không |
 | `READY` | Đã duyệt, sẵn sàng ghi nhận vật lý | Không |
 | `PROCESSING` | Đang thực thi ghi nhận | Không |
@@ -131,7 +133,7 @@ stateDiagram-v2
 | `EXECUTION_REJECTED` | Thực thi thất bại có lý do rõ | Không |
 | `CANCELLED` | Hủy trước khi hoàn tất vật lý | Không |
 
-Với Quick Receipt: **không** có nhánh `DRAFT → READY`. Draft/save/submit **chưa** tạo movement vật lý.
+Với Quick Receipt: **không tồn tại nhánh `DRAFT`**. Trước submit chỉ có dữ liệu phiên UI ngoài Aggregate. Create-and-submit hợp lệ tạo receipt trực tiếp `PENDING_APPROVAL`; validation/routing rejection không tạo receipt. Quick Receipt không có `DRAFT → READY` và không tạo movement trước phê duyệt.
 
 ## 6. Domain Events phát sinh
 
@@ -150,7 +152,7 @@ Với Quick Receipt: **không** có nhánh `DRAFT → READY`. Draft/save/submit 
 | Loại | ID |
 |---|---|
 | Domain Foundation | `DOM-IO` |
-| Behavioral Contract | `BC-IO-16`, `BC-IC-07`, `BC-IO-02` |
+| Behavioral Contract | `BC-IC-07`, `BC-IO-02`; `BC-IO-16` chỉ cho lifecycle có draft, **không dùng Quick Receipt** |
 | Use Case | `UC-02-02`, `UC-02-03`, `UC-02-04` |
 | Child Entity | `ENT-IO-02` (`GoodsReceiptLine`) — đặc tả riêng khi cần |
 | Quyết định | Nhóm G03 (nhận hàng & xác nhận giá trị), G10 (operation / finality) |

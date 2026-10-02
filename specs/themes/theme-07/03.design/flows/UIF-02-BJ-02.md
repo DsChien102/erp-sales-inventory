@@ -5,8 +5,8 @@ theme: theme-07
 title: "Nhận hàng mua"
 owner: BA/UX
 status: IN_REVIEW
-version: v4.2.0
-source_baseline: v4.1.0
+version: v4.6.7
+source_baseline: v4.6.5
 business_journey: BJ-02
 canonical: true
 parity: ALIGNED_TO_CURRENT_SCREEN_CONTRACTS
@@ -33,7 +33,7 @@ Mô tả toàn bộ luồng nhận hàng mua: chọn cách nhận, ghi nhận h�
 |---|---|---|---|
 | Vào từ chức năng | `SCR-006` | Thủ kho | Kho > Nhận hàng |
 | Mở từ ngữ cảnh liên quan | `SCR-009` | Thủ kho | Chứng từ mua > Nhận hàng |
-| Công việc được giao | `SCR-011` | Người duyệt nhận hàng | Công việc phê duyệt được giao |
+| Công việc được giao | `SCR-011` | Người duyệt nhận hàng | Kho > Cần chú ý > Nhận hàng chờ phê duyệt, notification hoặc deep-link được giao |
 | Tiếp tục để xác minh kết quả | `SCR-013` | Thủ kho | Chỉ từ kết quả nhận hàng chưa xác định (`UNKNOWN`) |
 
 Luồng kết thúc khi người dùng đã nhận được kết quả cuối cùng hoặc công việc được chuyển rõ sang một hành trình khác. Trạng thái `UNKNOWN` không được coi là thành công; phải tiếp tục xác minh với đúng thao tác gốc.
@@ -62,7 +62,7 @@ flowchart TD
     SCR_006 -->|"Chọn Nhận theo chứng từ"| SCR_007
     SCR_006 -->|"Chọn Nhập hàng nhanh"| SCR_008
     SCR_007 -->|"Chọn chứng từ chờ nhận"| SCR_009
-    SCR_008 -->|"Tiếp tục; nền tự lưu bản nháp"| SCR_009
+    SCR_008 -->|"Tiếp tục trong phiên"| SCR_009
     SCR_009 -->|"Chọn hoặc thêm một sản phẩm và đơn vị tính"| SCR_084
     SCR_084 -->|"Xong một mặt hàng"| SCR_009
     SCR_009 -->|"Rà soát"| SCR_010
@@ -90,12 +90,12 @@ flowchart TD
 | `UIF-02-T03` | `SCR-006` — Chọn cách nhận hàng | Chọn Nhận theo chứng từ | Có quyền nhận theo chứng từ | `SCR-007` — Chứng từ chờ nhận | — |
 | `UIF-02-T04` | `SCR-006` — Chọn cách nhận hàng | Chọn Nhập hàng nhanh | Có quyền dùng Nhập hàng nhanh | `SCR-008` — Thông tin nhập hàng nhanh | chưa được phép dùng chức năng → giữ tại SCR-006 |
 | `UIF-02-T05` | `SCR-007` — Chứng từ chờ nhận | Chọn chứng từ chờ nhận | Nguồn dữ liệu và phiên bản còn hợp lệ | `SCR-009` — Hàng thực nhận | Dữ liệu đã thay đổi → SCR-007 |
-| `UIF-02-T06` | `SCR-008` — Thông tin nhập hàng nhanh | Tiếp tục; nền tự lưu bản nháp | thông tin nhập nhanh hợp lệ | `SCR-009` — Hàng thực nhận | Lưu lỗi → giữ dữ liệu; không biến động tồn |
+| `UIF-02-T06` | `SCR-008` — Thông tin nhập hàng nhanh | Tiếp tục trong phiên | thông tin nhập nhanh hợp lệ | `SCR-009` — Hàng thực nhận | Validation lỗi → giữ dữ liệu **chỉ trong phiên hiện tại**; không có server/local draft |
 | `UIF-02-T07` | `SCR-009` — Hàng thực nhận | Chọn hoặc thêm một sản phẩm và đơn vị tính | Mặt hàng có thể chỉnh sửa | `SCR-084` — Chi tiết hàng thực nhận | — |
-| `UIF-02-T08` | `SCR-084` — Chi tiết hàng thực nhận | Xong một mặt hàng | Dữ liệu mặt hàng hợp lệ | `SCR-009` — Hàng thực nhận | Báo lỗi ngay tại trường nhập; bản nháp giữ an toàn |
+| `UIF-02-T08` | `SCR-084` — Chi tiết hàng thực nhận | Xong một mặt hàng | Dữ liệu mặt hàng hợp lệ | `SCR-009` — Hàng thực nhận | Báo lỗi ngay tại trường nhập; Quick giữ dữ liệu **chỉ trong memory phiên UI** |
 | `UIF-02-T09` | `SCR-009` — Hàng thực nhận | Rà soát | Có ít nhất một mặt hàng hợp lệ | `SCR-010` — Rà soát và gửi xử lý | Thiếu dữ liệu → ở SCR-009 |
-| `UIF-02-T10` | `SCR-010` — Rà soát và gửi xử lý | Gửi xử lý và cần duyệt | Người lập có quyền gửi; không tự duyệt | Chuyển sang người duyệt | Người lập công việc kết thúc ở đang chờ duyệt (`PENDING_APPROVAL`) |
-| `UIF-02-T11` | Chuyển sang người duyệt | Người duyệt mở công việc được giao | Người duyệt hợp lệ và khác người lập | `SCR-011` — Phê duyệt yêu cầu nhận hàng | Không giả lập phiên làm việc người lập |
+| `UIF-02-T10` | `SCR-010` — Rà soát và gửi xử lý | Gửi xử lý và cần duyệt | Người lập có quyền gửi; không tự duyệt | Chuyển sang người duyệt | Người lập kết thúc task ở `PENDING_APPROVAL`; có thể **Về Kho**, không quay lại editor |
+| `UIF-02-T11` | Chuyển sang người duyệt | Người duyệt mở công việc được giao | Người duyệt hợp lệ và khác người lập | `SCR-011` — Phê duyệt yêu cầu nhận hàng | Có thể vào từ Hub > Cần chú ý > Nhận hàng chờ phê duyệt; không giả lập phiên làm việc người lập |
 | `UIF-02-T12` | `SCR-011` — Phê duyệt yêu cầu nhận hàng | Từ chối hoặc yêu cầu bổ sung | Người duyệt hợp lệ | Kết thúc | Lý do từ chối bắt buộc |
 | `UIF-02-T13` | `SCR-011` — Phê duyệt yêu cầu nhận hàng | Duyệt | Người duyệt hợp lệ | Hệ thống thực hiện ghi nhận | Phê duyệt chỉ cấp quyền thực thi |
 | `UIF-02-T14` | `SCR-010` — Rà soát và gửi xử lý | Gửi xử lý và không cần duyệt | Chính sách xác định không cần duyệt | Hệ thống thực hiện ghi nhận | Không yêu cầu người dùng xác nhận thêm một lần nữa |
@@ -109,7 +109,9 @@ flowchart TD
 
 Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chống ghi nhận lặp vẫn lấy từ UC/Behavioral Contract/Screen Contract. UIF chỉ nhắc lại những điểm ảnh hưởng trực tiếp đến cách đi qua màn hình.
 
-- Khi công việc chuyển sang người duyệt hoặc một vai trò khác, phiên làm việc của người hiện tại kết thúc tại trạng thái chờ. Người tiếp theo mở công việc từ danh sách được giao; hệ thống không tự chuyển sang phiên của họ.
+- **Quick Receipt không có draft persistence:** `SCR-008 → SCR-009 → SCR-084 → SCR-010` chỉ dùng state trong phiên UI. Điều hướng nội bộ giữ state memory; rời Quick flow, refresh hoặc đóng app thì mất. Không có autosave server, local storage hoặc `ACT-02-SAVE-DRAFT` cho UC-02-02.
+- Submit Quick Receipt ở `SCR-010` gửi full payload một lần qua `BC-IC-07/API-C-26`; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo receipt. **Payload BJ02 không yêu cầu price/FX basis; thiếu price/FX không tạo state/error trong BJ02.**
+- Khi công việc chuyển sang người duyệt hoặc một vai trò khác, phiên làm việc của người hiện tại kết thúc tại trạng thái chờ. Người lập có thể **Về Kho** và theo dõi từ `Cần chú ý > Nhận hàng chờ phê duyệt`; không quay lại editor của submitted revision. Người tiếp theo mở đúng record từ worklist/notification/deep-link; hệ thống không tự chuyển sang phiên của họ.
 - Nếu kết quả chưa xác định (`UNKNOWN`), không thực hiện lại bằng một thao tác mới. Hệ thống giữ nguyên mã thao tác gốc để xác minh; khi chưa đủ bằng chứng, chuyển sang `BJ-17`.
 - Nếu dữ liệu nguồn đã thay đổi, phải nạp lại dữ liệu hiện hành và rà soát lại trước khi tiếp tục. Phần người dùng đã nhập chỉ được giữ lại khi còn an toàn.
 
@@ -148,9 +150,9 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 | `UIF-02-T03` | `SCR-006` | `SCR-007` | `NAVIGATION` | `—` | UC-02-01 |
 | `UIF-02-T04` | `SCR-006` | `SCR-008` | `NAVIGATION` | `—` | UC-02-02 |
 | `UIF-02-T05` | `SCR-007` | `SCR-009` | `NAVIGATION` | `—` | UC-02-01 |
-| `UIF-02-T06` | `SCR-008` | `SCR-009` | `NAVIGATION` | `ACT-02-SAVE-DRAFT` | UC-02-02 / BC-IO-16 |
+| `UIF-02-T06` | `SCR-008` | `SCR-009` | `NAVIGATION` | `—` | UC-02-02 |
 | `UIF-02-T07` | `SCR-009` | `SCR-084` | `NAVIGATION` | `—` | UC-02-01, UC-02-02 |
-| `UIF-02-T08` | `SCR-084` | `SCR-009` | `NAVIGATION` | `ACT-02-SAVE-DRAFT` | UC-02-01, UC-02-02 / BC-IO-16 |
+| `UIF-02-T08` | `SCR-084` | `SCR-009` | `NAVIGATION` | `—` | UC-02-01, UC-02-02 |
 | `UIF-02-T09` | `SCR-009` | `SCR-010` | `NAVIGATION` | `—` | UC-02-01, UC-02-02 |
 | `UIF-02-T10` | `SCR-010` | `HANDOFF_APPROVAL` | `HANDOFF` | `ACT-02-SUBMIT` | UC-02-01/02/03 / BC-IC-07 |
 | `UIF-02-T11` | `HANDOFF_APPROVAL` | `SCR-011` | `HANDOFF` | `—` | UC-02-03 / BC-IC-06 |
@@ -181,3 +183,11 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 - [Business Journey Map](../../02.specification/behavior/journeys/00-business-journey-map.md)
 - [Use Case Map](../../02.specification/behavior/use-cases/00-use-case-map.md)
 - [Prototype manifest](../prototype/README.md)
+
+
+### v4.6.4 — Continuity khi chờ phê duyệt
+
+- Hub Kho tổng hợp các receipt `PENDING_APPROVAL` dưới mục **Nhận hàng chờ phê duyệt** trong `Cần chú ý`.
+- Đây là entry/aggregation của task đang tồn tại, không tạo thêm business mutation và không thay đổi topology nghiệp vụ của `UIF-02`.
+- `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng về Hub Kho.
+- Từ collection pending, destination phụ thuộc capability: chỉ xem → submitted receipt read-only; có quyền duyệt → `SCR-011`.

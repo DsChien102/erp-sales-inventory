@@ -1,0 +1,188 @@
+/* VET45 Theme 7 v4.6.2 — Warehouse Hub candidate comparison
+ * Design-only candidate. Existing v4.6.1 Warehouse navigation remains intact and is the default.
+ * Review switch lives outside the Product viewport.
+ */
+.t462-hub-switch {
+  display: grid;
+  gap: 8px;
+}
+.t462-hub-switch__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--vet45-v2-text-secondary);
+}
+.t462-hub-switch__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 3px;
+  border: 1px solid var(--vet45-v2-border-default);
+  border-radius: 10px;
+  background: var(--vet45-v2-surface-subtle, var(--vet45-v2-surface-default));
+}
+.t462-hub-switch__controls button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--vet45-v2-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.t462-hub-switch__controls button.is-active {
+  background: var(--vet45-v2-surface-default);
+  color: var(--vet45-v2-text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+}
+.t462-hub-switch__note {
+  margin: 0;
+  color: var(--vet45-v2-text-tertiary, var(--vet45-v2-text-secondary));
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.t462-warehouse-hub .app-content,
+.t462-workspace-screen .app-content {
+  padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+}
+.t462-warehouse-hub .body-stack,
+.t462-workspace-screen .body-stack {
+  gap: 20px;
+}
+.t462-search-wrap {
+  margin-bottom: -2px;
+}
+.t462-section {
+  display: grid;
+  gap: 10px;
+}
+.t462-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.t462-section-heading h2 {
+  margin: 0;
+  color: var(--vet45-v2-text-primary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.t462-section-heading span {
+  color: var(--vet45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.t462-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.t462-quick-action {
+  min-width: 0;
+  min-height: 86px;
+  padding: 14px;
+  border: 1px solid var(--vet45-v2-border-default);
+  border-radius: var(--vet45-v2-radius-lg, 12px);
+  background: var(--vet45-v2-surface-default);
+  color: var(--vet45-v2-text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.t462-quick-action:active { transform: translateY(1px); }
+.t462-quick-action__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--vet45-v2-surface-brand-subtle, #edf6ff);
+  color: var(--vet45-v2-icon-brand, var(--vet45-v2-text-primary));
+}
+.t462-quick-action__label {
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: 650;
+}
+
+.t462-attention-list,
+.t462-workspace-list,
+.t462-sublist {
+  display: grid;
+  gap: 8px;
+}
+.t462-attention-row {
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--vet45-v2-border-default);
+  border-radius: var(--vet45-v2-radius-md, 10px);
+  background: var(--vet45-v2-surface-default);
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  color: var(--vet45-v2-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+.t462-attention-row__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--vet45-v2-surface-warning-subtle, #fff7e6);
+  color: var(--vet45-v2-text-warning, #8a5a00);
+}
+.t462-attention-row__copy { min-width: 0; display: grid; gap: 2px; }
+.t462-attention-row__copy strong { font-size: 14px; line-height: 19px; font-weight: 600; }
+.t462-attention-row__copy span { color: var(--vet45-v2-text-secondary); font-size: 12px; line-height: 16px; }
+.t462-attention-row__count { font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+.t462-workspace-list .ds24-list-row,
+.t462-sublist .ds24-list-row {
+  margin: 0;
+}
+.t462-workspace-list .ds24-list-row__copy strong,
+.t462-sublist .ds24-list-row__copy strong {
+  font-weight: 600;
+}
+.t462-workspace-meta {
+  padding: 10px 12px;
+  border-radius: var(--vet45-v2-radius-md, 10px);
+  background: var(--vet45-v2-surface-subtle, #f7f8fa);
+  color: var(--vet45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 17px;
+}
+.t462-context-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--vet45-v2-radius-md, 10px);
+  background: var(--vet45-v2-surface-subtle, #f7f8fa);
+  color: var(--vet45-v2-text-secondary);
+  font-size: 12px;
+  line-height: 17px;
+}
+.t462-context-note svg { flex: 0 0 auto; margin-top: 1px; }
+
+@media (max-width: 370px) {
+  .t462-quick-grid { gap: 8px; }
+  .t462-quick-action { min-height: 82px; padding: 12px; }
+}

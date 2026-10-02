@@ -1,0 +1,28 @@
+{
+  "version": "4.6.8",
+  "parent": {
+    "total_relative_links": 2211,
+    "broken": [
+      {
+        "source": "03.design/patterns/PAT-NAV.md",
+        "target": "../../06.evidence/design/legacy-contracts/entry-architecture.md",
+        "reason": "missing"
+      }
+    ],
+    "broken_count": 1
+  },
+  "candidate": {
+    "total_relative_links": 2211,
+    "broken": [
+      {
+        "source": "03.design/patterns/PAT-NAV.md",
+        "target": "../../06.evidence/design/legacy-contracts/entry-architecture.md",
+        "reason": "missing"
+      }
+    ],
+    "broken_count": 1
+  },
+  "new_broken": [],
+  "resolved_broken": [],
+  "status": "PASS"
+}

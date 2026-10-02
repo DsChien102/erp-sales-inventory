@@ -1,5 +1,10 @@
 const HARNESS = window.VET45_HARNESS_DATA || { flows: [], screens: [], runOrder: [] };
 const FIGMA_DS_MAP = window.VET45_FIGMA_DS_MAP || { componentMappings:{}, profileMappings:{}, themeComponentMappings:{}, internalMappings:{} };
+// v4.6.1 review fixtures. These are runtime inputs, not business decisions.
+window.__VET45_MONEY_CURRENCY_CATALOG__ = window.__VET45_MONEY_CURRENCY_CATALOG__ || [{id:"VND",label:"VND"},{id:"USD",label:"USD"}];
+window.__VET45_FX_SOURCE_FIXTURE__ = window.__VET45_FX_SOURCE_FIXTURE__ || {VND:{rate:1,version:"LOCAL-VND"},USD:{rate:24450,version:"FX-DEMO-USD-202609"}};
+window.__VET45_TAX_TREATMENT_POLICY__ = window.__VET45_TAX_TREATMENT_POLICY__ || {version:"TAX-HKD-DEMO-v1",recoverableRate:0};
+window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"},{id:"DIRTY_PRODUCTS_ONLY",label:"Sản phẩm cần tính lại"}],fixture:true};
 // v2.7.1 — live Figma DS correction: List Row density/affordance, grouped Info Row surfaces, VToast, and Key-value Row fidelity; BJ05 business behavior unchanged.
 // Figma DS v2.0.3 is UI authority; business authority remains in BJ/UC/decision/contracts.
 const FIGMA_MIGRATED_FLOWS = new Set([
@@ -209,7 +214,7 @@ const val03Receipts = [
   ]},
   {id:"VAL03-R3",receipt:"PN-260901-03",supplier:"Phương Nam",warehouse:"Kho chính",receivedAt:"01/09/2026",sourceVersion:2,ageDays:3,waitingOwner:"",groups:[
     {id:"VAL03-G4",name:"Vaccine Canine X",code:"SP-00421",uom:"lọ",tracking:"LOT",officialCostStatus:"NONE",sources:[
-      {id:"SUP",label:"Xác nhận nhà cung cấp 01/09",version:"v2",unitPrice:4.1,currency:"USD",fxRate:24450,fxLabel:"Tỷ giá kế toán 24.450 VND/USD",unitLineDiscount:0,unitDocDiscount:0,unitKnownCost:0,unitNonDeductibleVat:0,provenance:["Giá mua · Xác nhận NCC 01/09","Tỷ giá · Tỷ giá kế toán"]}
+      {id:"SUP",label:"Xác nhận nhà cung cấp 01/09",version:"v2",unitPrice:4.1,currency:"USD",fxRate:24450,fxLabel:"FX authoritative",unitLineDiscount:0,unitDocDiscount:0,unitKnownCost:0,unitNonDeductibleVat:0,provenance:["Giá mua · Xác nhận NCC 01/09","FX authoritative · provenance kỹ thuật"]}
     ],selectedSource:"SUP",reason:"",slices:[{id:"VAL03-S6",scopeKey:"ROL-406|LOT-CX2609|SELLABLE",scopeVersion:1,lineId:"ROL-406",lot:"CX2609",physicalState:"SELLABLE",stateLabel:"Đủ điều kiện bán",pendingQty:10,selected:false,selectedQty:10,partialOpen:false,availabilityDelta:10,availabilityNote:"Sẽ tăng khả dụng"}]}
   ]},
   {id:"VAL03-R4",receipt:"PN-260902-07",supplier:"VietVet",warehouse:"Kho chính",receivedAt:"02/09/2026",sourceVersion:1,ageDays:2,waitingOwner:"",groups:[
@@ -367,17 +372,17 @@ function render019IV03(state){
 // authoritative allowed set and calculation in production.
 // ============================================================================
 const val13Tasks = [
-  {id:"LC13-001",sourceRef:"Hóa đơn vận chuyển VC-8842 · dòng 1",sourceVersion:2,evidence:"VC-8842.pdf",supplier:"Vận tải An Phát",component:"Chi phí vận chuyển",sourceAmount:1200000,currency:"VND",normalizedAmount:1200000,fxLabel:"VND",ageDays:4,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"08/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đã khóa; ghi điều chỉnh ở kỳ mở hiện tại",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị hàng nhận"},{id:"FIXTURE_QTY",label:"Theo lượng nhận"}],selectedMethod:"FIXTURE_VALUE",targets:[
+  {id:"LC13-001",sourceRef:"Hóa đơn vận chuyển VC-8842 · dòng 1",sourceVersion:2,evidence:"VC-8842.pdf",supplier:"Vận tải An Phát",component:"Chi phí vận chuyển",sourceAmount:1200000,currency:"VND",normalizedAmount:1200000,fxLabel:"VND",ageDays:4,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"08/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đã khóa; ghi điều chỉnh ở kỳ mở hiện tại",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị nhập ban đầu"}],selectedMethod:"FIXTURE_VALUE",targets:[
     {id:"LC13-T1",receipt:"PN-260816-04",lineId:"ROL-401",product:"Nobivac DHPPi",code:"SP-00142",uom:"hộp",lot:"DH2507",qty:50,receivedValue:4085000,selected:true},
     {id:"LC13-T2",receipt:"PN-260816-04",lineId:"ROL-404",product:"Amoxicillin LA",code:"SP-00088",uom:"chai",lot:null,qty:24,receivedValue:2880000,selected:true},
     {id:"LC13-T3",receipt:"PN-260821-03",lineId:"ROL-512",product:"Vaccine Canine X",code:"SP-00421",uom:"lọ",lot:"CX2608",qty:40,receivedValue:4010000,selected:true}
   ]},
-  {id:"LC13-002",sourceRef:"Phí bảo hiểm INS-2609-17 · dòng 2",sourceVersion:1,evidence:"INS-2609-17.pdf",supplier:"Bảo hiểm Minh Thành",component:"Phí bảo hiểm hàng mua",sourceAmount:250,currency:"USD",normalizedAmount:6125000,fxRate:24500,fxLabel:"Tỷ giá kế toán 24.500 VND/USD",ageDays:2,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"09/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đang mở",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị hàng nhận"}],selectedMethod:"FIXTURE_VALUE",targets:[
+  {id:"LC13-002",sourceRef:"Phí bảo hiểm INS-2609-17 · dòng 2",sourceVersion:1,evidence:"INS-2609-17.pdf",supplier:"Bảo hiểm Minh Thành",component:"Phí bảo hiểm hàng mua",sourceAmount:250,currency:"USD",normalizedAmount:6125000,fxRate:24500,fxLabel:"Tỷ giá kế toán 24.500 VND/USD",ageDays:2,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"09/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đang mở",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị nhập ban đầu"}],selectedMethod:"FIXTURE_VALUE",targets:[
     {id:"LC13-T4",receipt:"PN-260901-03",lineId:"ROL-601",product:"Vaccine Canine X",code:"SP-00421",uom:"lọ",lot:"CX2609",qty:10,receivedValue:1002450,selected:true},
     {id:"LC13-T5",receipt:"PN-260901-08",lineId:"ROL-633",product:"Doxycycline 100mg",code:"SP-00611",uom:"hộp",lot:null,qty:60,receivedValue:7200000,selected:true}
   ]},
-  {id:"LC13-003",sourceRef:"Hóa đơn vận chuyển VC-8890 · dòng 1",sourceVersion:1,evidence:"VC-8890.pdf",supplier:"Logistics Đông Dương",component:"Chi phí vận chuyển",sourceAmount:180,currency:"USD",normalizedAmount:null,fxLabel:"",ageDays:6,status:"WAITING",waitingOwner:"Chờ tỷ giá Kế toán",originalPeriod:"08/2026",postingPeriod:"",periodReason:"",policyVersion:"",allowedMethods:[],selectedMethod:"",targets:[]},
-  {id:"LC13-004",sourceRef:"Điều chỉnh chiết khấu CK-2609-06 · dòng 1",sourceVersion:3,evidence:"CK-2609-06.pdf",supplier:"Minh Dũng",component:"Điều chỉnh chiết khấu mua",sourceAmount:-350000,currency:"VND",normalizedAmount:-350000,fxLabel:"VND",ageDays:1,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"09/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đang mở",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị hàng nhận"}],selectedMethod:"FIXTURE_VALUE",targets:[
+  {id:"LC13-003",sourceRef:"Hóa đơn vận chuyển VC-8890 · dòng 1",sourceVersion:1,evidence:"VC-8890.pdf",supplier:"Logistics Đông Dương",component:"Chi phí vận chuyển",sourceAmount:180,currency:"USD",normalizedAmount:null,fxLabel:"",ageDays:6,status:"WAITING",waitingOwner:"Chờ nguồn hoàn tất quy đổi giá trị",originalPeriod:"08/2026",postingPeriod:"",periodReason:"",policyVersion:"",allowedMethods:[],selectedMethod:"",targets:[]},
+  {id:"LC13-004",sourceRef:"Điều chỉnh chiết khấu CK-2609-06 · dòng 1",sourceVersion:3,evidence:"CK-2609-06.pdf",supplier:"Minh Dũng",component:"Điều chỉnh chiết khấu mua",sourceAmount:-350000,currency:"VND",normalizedAmount:-350000,fxLabel:"VND",ageDays:1,status:"ACTIONABLE",waitingOwner:"",originalPeriod:"09/2026",postingPeriod:"09/2026",periodReason:"Kỳ gốc đang mở",policyVersion:"ALC-POL-v5",allowedMethods:[{id:"FIXTURE_VALUE",label:"Theo giá trị nhập ban đầu"}],selectedMethod:"FIXTURE_VALUE",targets:[
     {id:"LC13-T6",receipt:"PN-260902-07",lineId:"ROL-407",product:"Dung dịch sát khuẩn",code:"SP-00510",uom:"chai",lot:null,qty:12,receivedValue:552000,selected:true},
     {id:"LC13-T7",receipt:"PN-260902-07",lineId:"ROL-408",product:"Bơm tiêm 5ml",code:"SP-00511",uom:"hộp",lot:null,qty:8,receivedValue:640000,selected:true}
   ]}
@@ -490,7 +495,7 @@ function render089IV13(state){
 // ============================================================================
 const val14Runs=[
   {id:"COST-0826",label:"Tháng 08/2026",kind:"PERIOD_CLOSE",status:"READY_FOR_REVIEW",period:"08/2026",scope:"184 sản phẩm",cutoff:"31/08/2026 · 23:59",policyMethod:"PERIODIC",policyLabel:"Bình quân cuối kỳ",policyVersion:"Chính sách giá vốn",moving:{inventory:1242800000,cogs:488120000},periodic:{inventory:1245920000,cogs:486300000},cogsTrueUp:-1820000,endingAdjustment:3120000,effectiveAt:"01/09/2026 · 00:00",blockers:[],inputVersion:7,runVersion:3,supersedes:null},
-  {id:"COST-0903",label:"Cập nhật 03/09/2026",kind:"AD_HOC",status:"DIRTY",period:"09/2026",scope:"3 sản phẩm",cutoff:"04/09/2026 · 10:00",policyMethod:"MOVING",policyLabel:"Bình quân liên hoàn",policyVersion:"Chính sách giá vốn",moving:{inventory:186400000,cogs:52700000},periodic:{inventory:186180000,cogs:52920000},cogsTrueUp:220000,endingAdjustment:-220000,effectiveAt:"04/09/2026 · 10:00",blockers:[],inputVersion:4,runVersion:0,supersedes:"COST-0902"},
+  {id:"COST-0903",label:"Cập nhật 03/09/2026",kind:"AD_HOC",status:"DIRTY",period:"09/2026",scope:"3 sản phẩm",cutoff:"04/09/2026 · 10:00",policyMethod:"PERIODIC",policyLabel:"Bình quân cuối kỳ",policyVersion:"Chính sách giá vốn",moving:{inventory:186400000,cogs:52700000},periodic:{inventory:186180000,cogs:52920000},cogsTrueUp:220000,endingAdjustment:-220000,effectiveAt:"04/09/2026 · 10:00",blockers:[],inputVersion:4,runVersion:0,supersedes:"COST-0902"},
   {id:"COST-0901-B",label:"Tháng 09/2026",kind:"PERIOD_CLOSE",status:"BLOCKED",period:"09/2026",scope:"Toàn bộ sản phẩm",cutoff:"30/09/2026 · 23:59",policyMethod:"PERIODIC",policyLabel:"Bình quân cuối kỳ",policyVersion:"Chính sách giá vốn",moving:null,periodic:null,cogsTrueUp:0,endingAdjustment:0,effectiveAt:"01/10/2026 · 00:00",blockers:[{title:"2 dòng hàng còn chờ xác nhận giá",owner:"Định giá tồn kho"},{title:"1 đối soát chưa có kết quả cuối",owner:"Kiểm soát tồn kho"}],inputVersion:2,runVersion:1,supersedes:null}
 ];
 let val14SelectedRunId="COST-0826",val14SetupKind="PERIOD_CLOSE",val14SetupPeriod="08/2026",val14SetupScope="Toàn bộ sản phẩm",val14SuccessorOf=null,val14PublishReviewVersion=null,val14LastResult=null,val14CalcTimer=null;
@@ -825,7 +830,6 @@ function stateBanner(state) {
     CONFLICT: ["warning", "Dữ liệu vừa thay đổi", "Tải phiên bản hiện hành trước khi tiếp tục; hệ thống không ghi đè im lặng."],
     LOCKED: ["warning", "Kho đang được khóa", "Chỉ có thể xem dữ liệu. Mở công việc đang giữ khóa để biết thêm chi tiết."],
     VALIDATION_ERROR: ["error", "Cần kiểm tra dữ liệu", "Dữ liệu đã nhập được giữ lại. Sửa trường được đánh dấu trước khi tiếp tục."],
-    DRAFT_VALIDATION_FAILED: ["error", "Bản nháp chưa hợp lệ", "Một số dữ kiện bắt buộc còn thiếu hoặc không còn hợp lệ."],
     VALIDATION_FAILED: ["error", "Kiểm tra dữ liệu chưa đạt", "Không có dữ liệu nào được ghi nhận; sửa lỗi theo từng dòng hàng."],
     LOT_CONFLICT: ["error", "Thông tin lô không khớp", "Mã lô ND2408 đã tồn tại với hạn dùng khác. Hãy đối chiếu nhãn nhà sản xuất."],
     SOURCE_VERSION_STALE: ["warning", "Chứng từ nguồn đã đổi", "Lượng còn được phép nhận vừa thay đổi. Mở phiên bản hiện hành để đối chiếu."],
@@ -1504,18 +1508,15 @@ function render084(state) {
 function render010(state) {
   if (state === "PERMISSION_DENIED") return appShell({ title: "Rà soát nhận hàng", body: deniedBody(), centered: true });
   const pending = state === "PENDING_APPROVAL";
-  const priceBlocked = state === "APPROVAL_PRICE_BASIS_REQUIRED";
   const approverBlocked = state === "APPROVER_CONFIGURATION_MISSING";
   const requiresApproval = bj02RequiresApproval();
   const noLines = bj02Lines.length === 0;
   const incomplete = !noLines && !allReceiptLinesHandled();
-  const disabled = pending || state === "DRAFT_VALIDATION_FAILED" || priceBlocked || approverBlocked || noLines || incomplete;
+  const disabled = pending || approverBlocked || noLines || incomplete;
   const routeNotice = pending
     ? vBanner("info", "Đã gửi phê duyệt", "Đang chờ người duyệt; tồn kho chưa thay đổi.", "", "Compact")
-    : priceBlocked
-      ? vBanner("error", "Chưa đủ căn cứ tính cấp duyệt", "Hồ sơ vẫn ở Nháp cho đến khi có căn cứ giá và tỷ giá hợp lệ.")
-      : approverBlocked
-        ? vBanner("error", "Chưa có người duyệt phù hợp", "Hồ sơ vẫn ở Nháp. Cần cấu hình người duyệt đủ quyền và phạm vi.")
+    : approverBlocked
+        ? vBanner("error", "Chưa có người duyệt phù hợp", "Chưa thể tạo phiếu. Cần cấu hình người duyệt đủ quyền và phạm vi rồi gửi lại trong phiên hiện tại.")
         : requiresApproval
           ? flowMode === "quick" ? vBanner("info", "Cần phê duyệt trước khi ghi nhận", "Gửi hồ sơ duyệt; tồn kho chưa thay đổi.", "", "Compact") : vBanner("warning", "Có lượng nhận vượt chứng từ", "Gửi hồ sơ để người có thẩm quyền xem xét. Tồn kho chưa thay đổi.")
           : "";
@@ -1538,7 +1539,7 @@ function render011(state) {
     return appShell({ title: "Phê duyệt yêu cầu nhận hàng", subtitle: "Việc dành cho người phê duyệt", body: `<div class="empty-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("inbox","icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">Không có yêu cầu để duyệt</h3><p data-ds-component="VEmptyDescription">Yêu cầu chỉ xuất hiện sau khi người lập gửi hồ sơ hợp lệ.</p></div>`, centered: true, backAction: "exit-approval" });
   }
   const reasonNotice = !decided ? vBanner(flowMode === "quick" ? "info" : "warning", "Lý do cần duyệt", flowMode === "quick" ? "Nhập hàng nhanh bắt buộc phê duyệt." : "Có lượng Đạt vượt chứng từ nguồn.", "", "Compact") : approvalRejectReason ? vBanner("error", "Đã từ chối", approvalRejectReason) : "";
-  const requestFacts = `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}${financialMasked ? bj02InfoRow("Giá trị làm căn cứ duyệt", "Không có quyền xem") : bj02KeyValueRow("Giá trị làm căn cứ duyệt", `${riskValue.toLocaleString("vi-VN")} đ`)}`;
+  const requestFacts = flowMode === "quick" ? `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}` : `${bj02InfoRow("Người lập", "Nguyễn Văn An · 09:41")}${financialMasked ? bj02InfoRow("Giá trị làm căn cứ duyệt", "Không có quyền xem") : bj02KeyValueRow("Giá trị làm căn cứ duyệt", `${riskValue.toLocaleString("vi-VN")} đ`)}`;
   const body = `${stateNotice}${reasonNotice}<section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin lần nhận</strong></div><div class="bj02-info-stack">${bj02SourceRows()}</div></section><section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Thông tin yêu cầu</strong></div><div class="bj02-info-stack">${requestFacts}</div></section><section class="bj02-review-section" data-ds-component="VSection"><div class="bj02-section-heading"><strong>Hàng thực nhận</strong><span>${bj02ReviewProductCount()} sản phẩm · ${bj02Lines.length} dòng</span></div><div class="bj02-review-products">${bj02ReviewProductBlocks()}</div></section>${bj02ReviewDetailSheet()}`;
   const footer = decided ? "" : `<footer class="app-actions is-split approval-actions figma-sticky-footer" data-ds-component="DS v2 / Sticky Footer" data-ds-prop-layout="Dual" data-ds-prop-tone="Default" data-figma-node="549:927"><button class="button button--secondary" data-action="open-reject" data-ds-component="VButton" type="button" ${disabled ? "disabled" : ""}>Từ chối</button><button class="button button--primary" data-action="approve" data-ds-component="VButton" type="button" ${disabled ? "disabled" : ""}>Duyệt</button></footer>`;
   return appShell({ title: "Phê duyệt yêu cầu nhận hàng", subtitle: "Việc dành cho người phê duyệt · Nguyễn Văn An gửi", body, actions: footer, backAction: "exit-approval" });
@@ -1719,7 +1720,7 @@ function bj01Empty(filtered=true) {
 function render001BJ01(state) {
   if(state==="PERMISSION_DENIED") return appShell({title:"Tồn kho",body:deniedBody(),centered:true,back:false});
   if(state==="LOADING") return appShell({title:"Tồn kho",body:bj01Context()+loadingBody(),back:false});
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ","Làm mới trước khi dùng số lượng này để ra quyết định.")}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
+  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ","Hãy làm mới trước khi sử dụng.")}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
   const visible=state==="EMPTY"||state==="FILTER_EMPTY"?[]:bj01Products.filter((p)=>bj01MatchesFilter(p)&&bj01MatchesSearch(p));
   const empty=state==="EMPTY"?bj01Empty(false):(!visible.length?bj01Empty(true):"");
   const rows=visible.map((p)=>ds24ListRow({title:`${p.name} · ${p.code}`,subtitle:bj01RowSubtitle(p),attrs:`data-bj01-product="${p.id}" data-bj01-search-text="${escapeAttribute(bj01SearchText(p))}"`,})).join('');
@@ -1762,7 +1763,7 @@ function render003BJ01(state) {
   if(state==="PERMISSION_DENIED") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:deniedBody(),centered:true,back:true,backAction:entryBack});
   if(state==="LOADING") return appShell({title:"Chi tiết tồn kho",subtitle:entrySubtitle,body:loadingBody(),back:true,backAction:entryBack});
   const p=bj01ProductById(bj01SelectedProductId);
-  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ",`Dữ liệu hiện tại đến ${esc(bj01AsOf())}. Làm mới trước khi dùng số lượng này để ra quyết định.`)}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
+  const stale=state==="STALE"?`${vBanner("warning","Dữ liệu có thể đã cũ",`Dữ liệu đến ${esc(bj01AsOf())}. Hãy làm mới trước khi sử dụng.`)}<button class="ds24-button ds24-button--secondary ds24-inline-action" data-bj01-refresh type="button" data-ds-component="VButton" data-figma-node="521:529">${icon('rotate','icon--sm')}Làm mới</button>`:"";
   const productContext=ds24ListRow({title:p.name,subtitle:`${p.code} · ${p.stockUom}`,leading:'package',type:'Status',interactive:false,density:'Compact',attrs:'data-ds-role="inventory-product-summary"'});
   const configNote=p.monitoringConfigStatus==='NOT_CONFIGURED'?`<p class="ds24-context bj01-config-note" data-ds-component="VText">Chưa cấu hình ngưỡng tồn; chưa thể xác định trạng thái tồn thấp/bình thường.</p>`:"";
   let body=`${bj01Context()}${stale}${productContext}${bj01AvailabilityRows(p)}${configNote}${bj01AttentionBanner(p)}`;
@@ -2360,7 +2361,7 @@ function render031IO06(state){
   if(state==="PERMISSION_DENIED") return appShell({title:"Hàng khách trả",subtitle:entrySubtitle,body:deniedBody(),centered:true});
   if(state==="LOADING") return appShell({title:"Hàng khách trả",subtitle:entrySubtitle,body:loadingBody()});
   const req=io06CurrentRequest();io06RefreshRequestState(req);const lines=io06CurrentLines();const waiting=req.queue==="WAITING";
-  const blocker=["CONFLICT","LOCKED","RETURN_CAP_CHANGED","SOURCE_CHANGED"].includes(state)?vBanner("warning",state==="RETURN_CAP_CHANGED"?"Lượng được nhận đã thay đổi":"Yêu cầu đã thay đổi",state==="RETURN_CAP_CHANGED"?"Làm mới và kiểm lại từng dòng trước khi tiếp tục.":"Làm mới để dùng dữ liệu hiện hành.","","Compact"):"";
+  const blocker=["CONFLICT","LOCKED","RETURN_CAP_CHANGED","SOURCE_CHANGED"].includes(state)?vBanner("warning",state==="RETURN_CAP_CHANGED"?"Lượng được nhận đã thay đổi":"Yêu cầu đã thay đổi",state==="RETURN_CAP_CHANGED"?"Làm mới và kiểm lại từng dòng trước khi tiếp tục.":"Làm mới để dùng dữ liệu hiện hành.","",state==="RETURN_CAP_CHANGED"?"Default":"Compact"):"";
   const pending=io06PendingCasesForRequest(req.id).length;
   const waitBanner=waiting?vBanner("warning",`Đang chờ duyệt ${pending} ngoại lệ lô`,`Các dòng đã kiểm được giữ nguyên; hiện chưa thể ghi nhận.`,"","Compact"):"";
   const verifiedCount=lines.filter(io06LinePhysicalValid).length;
@@ -2785,8 +2786,8 @@ function render052CR11(state){
   if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-052"),state);
   if(state==="PERMISSION_DENIED")return appShell({title:"Kiểm soát nghiệp vụ",body:deniedBody(),centered:true});
   const op=cr11Current();
-  if(state==="DEPENDENCY_BLOCKED")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa thể sửa sai","Một nghiệp vụ phía sau đang phụ thuộc vào lượng hàng này. Hãy xử lý dependency thực tế trước; hệ thống không sửa số dư để lách điều kiện.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Hàng",op.product],["Tác động hiện tại",op.impact]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
-  if(state==="PERIOD_POLICY_VIOLATION")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa có kỳ mở để ghi nhận sửa sai","Nghiệp vụ gốc vẫn được giữ nguyên. Cần có kỳ ghi nhận hiện hành hợp lệ trước khi tiếp tục.")}${crFactCard(op.id,[["Ngày nghiệp vụ gốc","01/09/2026"],["Kỳ gốc","Đã khóa"]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
+  if(state==="DEPENDENCY_BLOCKED")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa thể sửa sai","Có nghiệp vụ phía sau đang phụ thuộc. Hãy xử lý nghiệp vụ đó trước.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Hàng",op.product],["Tác động hiện tại",op.impact]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
+  if(state==="PERIOD_POLICY_VIOLATION")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa có kỳ mở để ghi nhận sửa sai","Cần có kỳ ghi nhận hiện hành hợp lệ trước khi tiếp tục.")}${crFactCard(op.id,[["Ngày nghiệp vụ gốc","01/09/2026"],["Kỳ gốc","Đã khóa"]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
   const cancelMode=state==="CANCEL_UNEXECUTED"||op.route==="CANCEL";
   if(cancelMode){
     const err=state==="VALIDATION_ERROR"&&!cr11CancelReason.trim()?vBanner("error","Cần nhập lý do hủy","Lý do giúp truy vết vì sao yêu cầu dừng trước khi thực thi."):"";
@@ -2904,8 +2905,8 @@ function render079CR(state){
 function render080CR(state){
   if(!["UIF-16","UIF-17"].includes(activeFlowId))return renderGeneric(screens.find(s=>s.id==="SCR-080"),state);
   if(state==="PERMISSION_DENIED")return appShell({title:"Phương án xử lý",body:deniedBody(),centered:true});
-  if(state==="LOCKED")return appShell({title:"Phương án xử lý",body:vBanner("warning","Phạm vi đang do hồ sơ khác bảo vệ","Không thực hiện thao tác song song trên cùng phạm vi. Mở hồ sơ đang bảo vệ phạm vi để tiếp tục.")});
-  if(state==="CONFLICT")return appShell({title:"Phương án xử lý",body:vBanner("warning","Kết luận đã thay đổi","Bằng chứng mới đã được xác nhận làm thay đổi phương án. Quay lại bước bằng chứng để rà soát.")});
+  if(state==="LOCKED")return appShell({title:"Phương án xử lý",body:vBanner("warning","Phạm vi đang do hồ sơ khác bảo vệ","Không xử lý song song cùng phạm vi. Mở hồ sơ đang bảo vệ để tiếp tục.")});
+  if(state==="CONFLICT")return appShell({title:"Phương án xử lý",body:vBanner("warning","Kết luận đã thay đổi","Bằng chứng mới làm thay đổi phương án. Quay lại bước bằng chứng để rà soát.")});
   if(activeFlowId==="UIF-17"){
     const c=cr17Current();
     if(c.evidence==="INSUFFICIENT"||state==="INSUFFICIENT_EVIDENCE")return appShell({title:"Phương án xử lý",body:`${vBanner("warning","Chưa có phương án xử lý an toàn","Giữ nguyên trạng thái chưa xác định và phạm vi được bảo vệ; hồ sơ đã chuyển người có trách nhiệm.")}${crFactCard("Phạm vi xử lý",[["Nghiệp vụ",c.operation,true],["Người xử lý",c.owner],["Định danh","Giữ nguyên"]])}`,actions:primaryFooter("Xem trạng thái xử lý",'data-cr17-action="show-escalated"')});
@@ -3008,7 +3009,7 @@ function render067CF12(state){
 function render068CF12(state){
   if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả kiểm tra dữ liệu",body:deniedBody(),centered:true});
   if(state==="LOADING")return appShell({title:"Kết quả kiểm tra dữ liệu",body:loadingBody()});
-  if(state==="CONFLICT")return appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Nguồn dữ liệu đã thay đổi","Không dùng kết quả kiểm tra cũ để gửi phê duyệt. Chọn lại tệp hoặc tải lại phạm vi hiện hành.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
+  if(state==="CONFLICT")return appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Nguồn dữ liệu đã thay đổi","Kết quả kiểm tra cũ không còn hiệu lực. Chọn lại tệp hoặc tải lại phạm vi.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
   if(state==="VALIDATION_FAILED"){
     const body=`${vBanner("error","Còn dòng chưa hợp lệ","Không có dữ liệu nào được ghi nhận. Sửa các dòng lỗi trong nguồn rồi kiểm tra lại.")}${cfSummaryGrid([["Dòng đọc được",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Lỗi cần sửa","3"]])}${crFactCard("Dòng 18 · Vaccine Newcastle",[["Vấn đề","Chưa xác định sản phẩm trong VET45",true],["Cách xử lý","Sửa dữ liệu nguồn; không tạo sản phẩm trong luồng này"]])}${crFactCard("Dòng 44 · Amox 500",[["Vấn đề","Trùng cùng sản phẩm + kho + tình trạng + lô",true],["Cách xử lý","Giữ một dòng dữ liệu chính thức; không tự cộng gộp"]])}${crFactCard("Dòng 61 · Nobivac DHPPi",[["Vấn đề","Thiếu hạn dùng bắt buộc của lô",true],["Cách xử lý","Bổ sung hạn dùng đúng theo nhãn lô"]])}`;
     return appShell({title:"Kết quả kiểm tra dữ liệu",body,actions:primaryFooter("Chọn lại tệp",'data-cf12-action="back-file"')});
@@ -3085,7 +3086,7 @@ function render054CF15(state){
   return appShell({title:"Tra cứu kho",body,actions:primaryFooter("Xem báo cáo",'data-cf15-action="query"'),back:false});
 }
 function cf15ContextBanner(state,mode){
-  const stale=state==="STALE"?vBanner("warning","Dữ liệu đang cập nhật","Kết quả hiển thị theo mốc đã ghi bên dưới. Không dùng số liệu chưa cập nhật làm căn cứ để sửa tồn kho."):"";
+  const stale=state==="STALE"?vBanner("warning","Dữ liệu đang cập nhật","Dùng mốc dữ liệu bên dưới; không sửa tồn kho từ số liệu chưa cập nhật."):"";
   return `${stale}<div class="cf-context-row"><span>${cf15DateLabel(mode)} · ${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}</span><strong>Đến 07/09/2026 · 11:00</strong></div>`;
 }
 function cf15ProductSheet(product,financeAllowed){
@@ -3251,7 +3252,7 @@ function updateReceiptBalance() {
   if (addLot && !["LOCKED", "READ_ONLY"].includes(currentState)) addLot.disabled = totalDelivered <= 0;
 
   const reviewButton = document.querySelector('[data-next="SCR-010"]');
-  const blockerStates = ["LOCKED", "READ_ONLY", "LOT_CONFLICT", "VALIDATION_FAILED", "APPROVAL_PRICE_BASIS_REQUIRED", "APPROVER_CONFIGURATION_MISSING", "DRAFT_VALIDATION_FAILED"];
+  const blockerStates = ["LOCKED", "READ_ONLY", "LOT_CONFLICT", "VALIDATION_FAILED", "APPROVER_CONFIGURATION_MISSING"];
   if (reviewButton && !blockerStates.includes(currentState)) reviewButton.disabled = totalDelivered <= 0 || !requiredLotValuesPresent;
   collectReceiptDraft();
 }

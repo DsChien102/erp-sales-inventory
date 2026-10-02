@@ -16,7 +16,7 @@ ui_flow: UIF-02
 
 Chuẩn bị hồ sơ nhận hàng theo chứng từ nguồn, ghi đúng hàng thực nhận và các chênh lệch trước khi gửi duyệt/thực thi.
 
-**Kết quả cần đạt:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi có ngoại lệ.
+**Kết quả cần đạt:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi nhận vượt tolerance/ngưỡng theo policy.
 
 ## 2. Bối cảnh và ranh giới
 
@@ -34,7 +34,7 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Thủ kho; người duyệt khi có ngoại lệ.
+- **Tác nhân chính:** Thủ kho. Người duyệt chỉ tham gia ở UC-02-03 nếu hồ sơ vượt ngưỡng cần phê duyệt.
 - **Thẩm quyền:** Được lập/cập nhật hồ sơ nháp trong phạm vi được cấp; chưa có quyền tạo tác động cuối nếu Journey còn bước phê duyệt hoặc thực thi riêng.
 - **Sự kiện khởi phát:** Chứng từ nguồn hợp lệ được chọn.
 - **Điều kiện trước:** Nguồn/version cần dùng còn hiện hành; tác nhân có quyền lập hồ sơ trong đúng tenant/cửa hàng/kho; các master/policy bắt buộc cho việc chuẩn bị đã resolve được.
@@ -56,15 +56,15 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 | BF-01 | Thủ kho | Chọn chứng từ nguồn đủ điều kiện nhận hàng. |  |
 | BF-02 | Hệ thống | Nạp source version hiện hành, Supplier và toàn bộ source items cần nhận; khóa UOM theo chứng từ. | EF-A — Chứng từ stale/không còn hợp lệ |
 | BF-03 | Thủ kho | Ghi lượng thực nhận theo từng sản phẩm/UOM; với LOT ghi theo từng lô và phân loại Đạt/Cách ly/Hỏng/Từ chối. | BR nguồn BJ02 |
-| BF-04 | Hệ thống | Tính chênh lệch thiếu/vượt theo source line và đánh giá policy phê duyệt. | AF-A — Có ngoại lệ cần phê duyệt |
+| BF-04 | Hệ thống | Tính cumulative accepted physical quantity (`Đạt + Cách ly + Hỏng`) theo source line, quy đổi base UOM và so với `remaining_receivable_qty`/tolerance theo ApprovalPolicy. | AF-A — Nhận vượt ngưỡng cần phê duyệt |
 | BF-05 | Thủ kho | Rà soát receipt draft và gửi xử lý. |  |
 | BF-06 | Hệ thống | Lưu draft/version; nếu không cần duyệt chuyển `READY`, nếu cần duyệt chuyển `PENDING_APPROVAL`. | EF-B — Kết quả lưu/gửi chưa xác định |
 | BF-07 | — | [Kết thúc UC]. | |
 
 ### 5.2 Luồng thay thế (Alternate Flow)
 
-#### AF-A — Có ngoại lệ cần phê duyệt
-**Phát sinh tại:** BF-04. **Điều kiện:** Nhận vượt hoặc ngoại lệ khác vượt ngưỡng policy .
+#### AF-A — Nhận vượt ngưỡng cần phê duyệt
+**Phát sinh tại:** BF-04. **Điều kiện:** cumulative accepted physical quantity vượt tolerance/ngưỡng cho phép của source theo ApprovalPolicy (`T7-DR-022`, `T7-DR-116`, `T7-DR-078`, `T7-DR-080`). Ngoài điều kiện này, chưa có Decision nào định nghĩa thêm trigger approval cho Document Receipt.
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
@@ -101,6 +101,7 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 | BR-06 | LOT/expiry theo Product policy | LOT/expiry theo Product policy; LOT bắt buộc lot code, expiry theo `expiry_required`, manufacture date optional.| Decision / DOM-IO / DOM-IC / BC nguồn |
 | BR-07 | Hàng cách ly/hỏng vẫn tăng physical đúng state | Hàng cách ly/hỏng vẫn tăng physical đúng state; rejected không tăng physical.| Decision / DOM-IO / DOM-IC / BC nguồn |
 | BR-08 | Draft multi-item chưa tạo movement | Draft multi-item chưa tạo movement; execution cuối cùng vẫn all-or-nothing theo operation contract.| Decision / DOM-IO / DOM-IC / BC nguồn |
+| BR-09 | Điều kiện duyệt của Document Receipt | Nhánh theo chứng từ chỉ chuyển `PENDING_APPROVAL` khi accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy; không tự suy thêm trigger approval khi chưa có Decision định nghĩa. | `T7-DR-022`, `T7-DR-116`, `T7-DR-078`, `T7-DR-080` |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
 - `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.
@@ -114,11 +115,11 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| Thành công | Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi có ngoại lệ. | Hồ sơ chỉ được bàn giao sang bước duyệt/thực thi khi các điều kiện của UC đã đạt; chưa ghi ledger trước commit point. |
+| Thành công | Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi nhận vượt tolerance/ngưỡng theo policy. | Hồ sơ chỉ được bàn giao sang bước duyệt/thực thi khi các điều kiện của UC đã đạt; chưa ghi ledger trước commit point. |
 | Không đủ điều kiện / Bị từ chối | Nếu dữ liệu, nguồn hoặc version chưa đủ điều kiện, hồ sơ không được đưa qua commit point; dữ liệu hợp lệ đã nhập được giữ theo contract để sửa/refresh khi an toàn. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
 | Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
 
-**Ảnh hưởng nghiệp vụ chính:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi có ngoại lệ.
+**Ảnh hưởng nghiệp vụ chính:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi nhận vượt tolerance/ngưỡng theo policy.
 
 ## 8. Liên hệ giao diện
 
@@ -138,11 +139,11 @@ Không ghi tăng tồn ở bước chuẩn bị và không sửa số lượng/�
 ### AS-UC-02-01-01 — Chuẩn bị nhận theo chứng từ — luồng chính
 - **Given:** Chứng từ nguồn hợp lệ được chọn
 - **When:** Chọn chứng từ nguồn đủ điều kiện nhận hàng.
-- **Then:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi có ngoại lệ.
+- **Then:** Receipt draft gắn đúng source/version, Supplier và các dòng thực nhận; hồ sơ sẵn sàng thực thi hoặc chuyển phê duyệt khi nhận vượt tolerance/ngưỡng theo policy.
 
-### AS-UC-02-01-02 — Chuẩn bị nhận theo chứng từ — Có ngoại lệ cần phê duyệt
-- **Given:** Nhận vượt hoặc ngoại lệ khác vượt ngưỡng policy.
-- **When:** Hệ thống phát hiện điều kiện “Có ngoại lệ cần phê duyệt” tại BF-04.
+### AS-UC-02-01-02 — Chuẩn bị nhận theo chứng từ — Nhận vượt ngưỡng cần phê duyệt
+- **Given:** cumulative accepted physical quantity vượt tolerance/ngưỡng cho phép của source theo ApprovalPolicy.
+- **When:** Hệ thống phát hiện điều kiện “Nhận vượt ngưỡng cần phê duyệt” tại BF-04.
 - **Then:** Giữ snapshot/source version và đưa hồ sơ sang UC-02-03; chưa tạo movement. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
 
 ### AS-UC-02-01-03 — Chuẩn bị nhận theo chứng từ — Chứng từ stale hoặc không còn hợp lệ
