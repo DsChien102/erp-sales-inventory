@@ -5,10 +5,10 @@ theme: theme-07
 title: "Theme 07 — Kho & Giá vốn"
 owner: BA/SA
 status: FROZEN
-version: v4.6.4
-parent: v4.6.3
-source_baseline: v4.6.3
-semantic_delta: BJ02_PENDING_APPROVAL_CONTINUITY
+version: v4.6.5
+parent: v4.6.4
+source_baseline: v4.6.4
+semantic_delta: WAREHOUSE_HUB_FLAT_ROLE_AWARE_NAVIGATION
 structure_baseline: V45-Theme-skeleton
 ---
 # T07 — Theme 07 — Kho & Giá vốn
@@ -78,7 +78,16 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ## 6. Trạng thái hiện tại
 
-### 6.1 Phạm vi kiểm tra v4.6.4
+### 6.1 Phạm vi kiểm tra v4.6.5
+
+- Baseline trực tiếp: package v4.6.4 do người dùng cung cấp; giữ nguyên semantic BJ02 pending-approval continuity.
+- Hub Kho candidate khôi phục mô phỏng 4 vai trò: **Chủ cửa hàng, Thủ kho, Kế toán, Nhân viên bán hàng**.
+- `Quản lý kho` bỏ các workspace nhóm trung gian; hiển thị **một list phẳng các chức năng phù hợp vai trò**.
+- Chức năng đã xuất hiện tại Quick Action không lặp lại trong `Quản lý kho`.
+- `Cần chú ý` cũng theo role; BJ02 phân biệt maker xem submitted receipt read-only và approver mở `SCR-011`.
+- `SCR-091`–`SCR-096` được giữ để trace/migration nhưng không còn là bước điều hướng từ Hub.
+
+### 6.2 Phạm vi kiểm tra v4.6.4
 
 - Tập trung `BJ-02 — Nhận hàng mua`; các BJ khác giữ nguyên baseline trước đó.
 - `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng quay về Hub Kho và không mở lại editor của submitted revision.
@@ -86,7 +95,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem submitted receipt read-only theo capability contract.
 - Runtime/visual QA mới nằm tại `03.design/prototype/html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*`.
 
-### 6.2 Phạm vi kiểm tra v4.6.0
+### 6.3 Phạm vi kiểm tra v4.6.0
 
 - `T7-DR-196` — UI định giá chỉ làm việc với giá trị VND đã chuẩn hóa.
 - `T7-DR-197` — Căn cứ giá trực tiếp Phase 1 có nguồn có thẩm quyền, ngày căn cứ và bằng chứng tách biệt.
@@ -100,7 +109,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
 - `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
 
-### 6.3 Các điểm giao diện đã đồng bộ
+### 6.4 Các điểm giao diện đã đồng bộ
 
 - Prototype HTML hiện hành dùng `v460-semantic-ux.css/js` làm lớp semantic/UX cuối cùng.
 - `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.
@@ -108,7 +117,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.
 - BJ14 đọc phương pháp và phạm vi chốt kỳ từ tenant policy; UI không hard-code lựa chọn theo run.
 
-### 6.4 Nguồn canonical để tiếp tục
+### 6.5 Nguồn canonical để tiếp tục
 
 - Quyết định: `01.knowledge/decisions/decision-register.md`
 - Know-how: `01.knowledge/know-how/`

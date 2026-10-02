@@ -1,0 +1,601 @@
+{
+  "authority": "Flutter example/lib/preview",
+  "tabOrder": [
+    "Tokens",
+    "Primitives",
+    "Components",
+    "Forms",
+    "UI Audit"
+  ],
+  "sectionCount": 63,
+  "tabs": [
+    {
+      "file": "tokens_tab.dart",
+      "sections": [
+        "Colors — Primary",
+        "Colors — Neutrals",
+        "Colors — Blue (info)",
+        "Colors — Yellow (warning)",
+        "Colors — Red (danger)",
+        "Typography",
+        "Shadows",
+        "Radius & Spacing",
+        "Duration"
+      ],
+      "count": 9,
+      "sha256": "f7d1e296c99cda3b2391fed7e7d64d20d19451e3f11056466126a3ae6b8b6d78",
+      "sectionDetails": [
+        {
+          "title": "Colors — Primary",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Colors — Neutrals",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Colors — Blue (info)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Colors — Yellow (warning)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Colors — Red (danger)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Typography",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Shadows",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Radius & Spacing",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Duration",
+          "description": "Motion timing tokens (VDuration).",
+          "stateLabels": []
+        }
+      ]
+    },
+    {
+      "file": "primitives_tab.dart",
+      "sections": [
+        "VText",
+        "VBadge",
+        "VChip",
+        "VIcon",
+        "VIcons catalog",
+        "VIconBox",
+        "VDivider",
+        "VSkeleton"
+      ],
+      "count": 8,
+      "sha256": "dd8abe488c28f1db58a13b05b2eb74f846b7d8300de6f68313c969b94c247093",
+      "sectionDetails": [
+        {
+          "title": "VText",
+          "description": "All VTextVariant values + color / overflow / align.",
+          "stateLabels": [
+            "Colors",
+            "maxLines + overflow ellipsis",
+            "textAlign center"
+          ]
+        },
+        {
+          "title": "VBadge",
+          "description": "Every VComponentTone in soft and strong variant.",
+          "stateLabels": [
+            "soft — tinted surface + tone foreground",
+            "strong — tone fill + inverted foreground",
+            "small (isSmall) — soft then strong",
+            "dot / icon / ambient tone"
+          ]
+        },
+        {
+          "title": "VChip",
+          "description": "Every VComponentTone, plus selectable, removable, disabled.",
+          "stateLabels": [
+            "All tones (static)",
+            "All tones (with icon, clickable)",
+            "Selectable — tone primary when selected",
+            "Ambient tone via VComponentScope",
+            "Removable",
+            "Disabled"
+          ]
+        },
+        {
+          "title": "VIcon",
+          "description": "",
+          "stateLabels": [
+            "Sizes and colors",
+            "Weight — default (null) rồi thin → semiBold, cùng icon ở size 32",
+            "Weight ở size nhỏ (16) — cùng thứ tự"
+          ]
+        },
+        {
+          "title": "VIcons catalog",
+          "description": "Toàn bộ token trong enum VIcons — tìm theo tên để chọn icon khi implement UI.",
+          "stateLabels": []
+        },
+        {
+          "title": "VIconBox",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VDivider",
+          "description": "Horizontal / vertical separator; default thickness 1, color borderDefault.",
+          "stateLabels": [
+            "Horizontal (default)",
+            "Horizontal + indent",
+            "Custom color / thickness",
+            "Vertical"
+          ]
+        },
+        {
+          "title": "VSkeleton",
+          "description": "Shadcn-style loading bones. Prefer VSkeletonScope when composing many.",
+          "stateLabels": [
+            "Standalone bones",
+            "Scoped layout (shared pulse)",
+            "semanticLabel"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "components_tab.dart",
+      "sections": [
+        "VBanner",
+        "VSegmentedControl",
+        "VSwipeReveal",
+        "VNumericKeypadSheet",
+        "VFileDropZone",
+        "VButton",
+        "VTextField",
+        "VTextArea",
+        "VCheckbox / VRadio / VSwitch",
+        "VSearchBar",
+        "VTabs",
+        "VTabs (Có Disable)",
+        "VTabs compound (line + swipe)",
+        "VTabs compound (plain + disabled)",
+        "VTabs compound (vertical)",
+        "VTabs compound (scrollable list)",
+        "VTabs compound (swipe disabled on body)",
+        "VLoading",
+        "VSteps",
+        "VProgress",
+        "VAvatar",
+        "VCard",
+        "VComponentScope",
+        "VEmptyState",
+        "VTable",
+        "VToast",
+        "Overlays",
+        "VFloatingActionButton",
+        "VAppBar",
+        "VBottomNavigationBar",
+        "Responsive",
+        "VGap",
+        "VPagePadding",
+        "VSection",
+        "VPageScaffold"
+      ],
+      "count": 35,
+      "sha256": "faae3aa1d577cde3337b48f74c095d5a37398e91a061470ea306a86162907418",
+      "sectionDetails": [
+        {
+          "title": "VBanner",
+          "description": "Inline status banner — info / success / warning / error (+ footer).",
+          "stateLabels": [
+            "tone + description",
+            "With footer"
+          ]
+        },
+        {
+          "title": "VSegmentedControl",
+          "description": "Three-option mutually exclusive selection — selected uses brand fill; overall height 44px.",
+          "stateLabels": [
+            "interactive",
+            "two segments",
+            "disabled"
+          ]
+        },
+        {
+          "title": "VSwipeReveal",
+          "description": "Primitive swipe-left shell. Compose foreground child + actionsBuilder.",
+          "stateLabels": [
+            "default — vuốt trái",
+            "disabled"
+          ]
+        },
+        {
+          "title": "VNumericKeypadSheet",
+          "description": "Bottom sheet keypad — Quantity (có `.`) / Money (có `000`). Preserve value until Lưu.",
+          "stateLabels": [
+            "embedded — quantity",
+            "embedded — money",
+            "show as sheet"
+          ]
+        },
+        {
+          "title": "VFileDropZone",
+          "description": "Drop zone chọn file — empty / valid / invalid / disabled (Excel: chưa nhập / kéo hợp lệ / không hợp lệ / chặn quyền). Cả 4 state đều dùng border nét đứt. Prop action: CTA nằm trong zone (nút chọn file).",
+          "stateLabels": [
+            "empty + action — chưa nhập",
+            "valid — đang kéo hợp lệ",
+            "invalid — excel không hợp lệ",
+            "disabled — chặn quyền",
+            "legacy onTap (không action)"
+          ]
+        },
+        {
+          "title": "VButton",
+          "description": "Variants: primary / secondary (bordered) / tertiary (ex-ghost) / link. Semantic via tone (danger, warning). Link underlines on hover/focus/press.",
+          "stateLabels": [
+            "Variants",
+            "Tone × variant",
+            "Link",
+            "Sizes",
+            "Disabled / fullWidth / with icon"
+          ]
+        },
+        {
+          "title": "VTextField",
+          "description": "Prefer VField + VFieldLabel / VFieldDescription / VFieldError. Flat label/helper/error is deprecated (legacy rows below). States: enabled / disabled / error. Tone, emphasis, affixes, dense, border.",
+          "stateLabels": [
+            "Compose (preferred)",
+            "Default (bare control)",
+            "Legacy flat label + helper",
+            "Required (legacy)",
+            "Error (legacy)",
+            "Disabled (enabled: false)",
+            "State disabled",
+            "Prefix icon",
+            "Suffix icon (password)",
+            "Suffix text",
+            "Prefix + suffix text",
+            "Tone primary",
+            "Tone danger",
+            "Emphasis strong",
+            "Dense",
+            "No border"
+          ]
+        },
+        {
+          "title": "VTextArea",
+          "description": "",
+          "stateLabels": [
+            "DefaultFormField",
+            "Required with Validator",
+            "Max Lines & Initial Value",
+            "With Character Counter (0/100)"
+          ]
+        },
+        {
+          "title": "VCheckbox / VRadio / VSwitch",
+          "description": "",
+          "stateLabels": [
+            "VCheckbox",
+            "VRadio (RadioGroup)",
+            "VSwitch"
+          ]
+        },
+        {
+          "title": "VSearchBar",
+          "description": "",
+          "stateLabels": [
+            "outlined (editable)"
+          ]
+        },
+        {
+          "title": "VTabs",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs (Có Disable)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs compound (line + swipe)",
+          "description": "VTabsList + VTabsTrigger + VTabsContent — vuốt trên bar hoặc body để đổi tab.",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs compound (plain + disabled)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs compound (vertical)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs compound (scrollable list)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTabs compound (swipe disabled on body)",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VLoading",
+          "description": "Xoay tròn thông thường, chế độ hiển thị nhiệm vụ và dạng hộp thoại overlay.",
+          "stateLabels": [
+            "Spinner mặc định",
+            "Hiển thị nhiệm vụ (Task mode)",
+            "Hộp thoại Modal Overlay"
+          ]
+        },
+        {
+          "title": "VSteps",
+          "description": "Hiển thị các bước tiến trình dạng ngang (stepper) hoặc dạng danh sách (list).",
+          "stateLabels": []
+        },
+        {
+          "title": "VProgress",
+          "description": "Thanh tiến trình bo góc dày dặn kèm hiệu ứng chuyển động mượt mà.",
+          "stateLabels": []
+        },
+        {
+          "title": "VAvatar",
+          "description": "Partner initials avatar — name in, colors/initials handled internally.",
+          "stateLabels": [
+            "Sizes",
+            "Edge names",
+            "Tappable"
+          ]
+        },
+        {
+          "title": "VCard",
+          "description": "tone → border + background via VComponentScope; emphasis → shadow. enabled soft-inherit; disabled → borderDefault + onTap off + cascade. Compound: Header/Title/Icon/Action/Content/Footer must sit in parent ancestry (set padding: EdgeInsets.zero).",
+          "stateLabels": [
+            "Default (subtle, neutral)",
+            "Disabled (enabled: false)",
+            "Tappable",
+            "Tones",
+            "Emphasis (shadow)",
+            "Tone + strong (danger)",
+            "Composed (Header + Content + Footer)",
+            "Minimal (title + content)",
+            "Content only (padding zero)",
+            "Tone inherit (card → icon / title)"
+          ]
+        },
+        {
+          "title": "VComponentScope",
+          "description": "Ambient soft inherit: tone + enabled. Local prop wins; missing scope OK.",
+          "stateLabels": [
+            "Tone scope → Button + IconBox",
+            "Enabled scope → children disabled"
+          ]
+        },
+        {
+          "title": "VEmptyState",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VTable",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VToast",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Overlays",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VFloatingActionButton",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VAppBar",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VBottomNavigationBar",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "Responsive",
+          "description": "Breakpoint tokens (mobile <600, tablet ≥600, desktop ≥1024). Resize cửa sổ / chạy web để xem đổi layout.",
+          "stateLabels": [
+            "Current breakpoint (VResponsive)",
+            "VResponsiveValue (columns label)",
+            "VResponsiveVisibility",
+            "VContentWidth",
+            "VResponsiveGrid"
+          ]
+        },
+        {
+          "title": "VGap",
+          "description": "Vertical and horizontal spacing from tokens.",
+          "stateLabels": [
+            "Vertical",
+            "Horizontal"
+          ]
+        },
+        {
+          "title": "VPagePadding",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VSection",
+          "description": "",
+          "stateLabels": []
+        },
+        {
+          "title": "VPageScaffold",
+          "description": "Page shell preview (embedded).",
+          "stateLabels": []
+        }
+      ]
+    },
+    {
+      "file": "forms_tab.dart",
+      "sections": [
+        "VPhoneField",
+        "VField (preferred)",
+        "VVerificationCodeField",
+        "VEmailField",
+        "VPasswordField",
+        "VMoneyField",
+        "VNumberField",
+        "VDatePicker",
+        "VSelect",
+        "VCombobox",
+        "VChoiceList"
+      ],
+      "count": 11,
+      "sha256": "753e989af80f97a67084276f600d0c63553c7c11ddc59a02519b912068cf56ff",
+      "sectionDetails": [
+        {
+          "title": "VPhoneField",
+          "description": "9–11 chữ số, cho phép dấu cách. Chữ và ký tự khác bị từ chối khi nhập/dán.",
+          "stateLabels": [
+            "Optional / empty",
+            "Filled / spaces",
+            "Required / live validation",
+            "Disabled",
+            "External error",
+            "Manual validation",
+            "Initial value / sync"
+          ]
+        },
+        {
+          "title": "VField (preferred)",
+          "description": "Compose Label + input child + Description/Error. Flat label/helper/error on inputs is deprecated.",
+          "stateLabels": [
+            "Compose + helper",
+            "Compose + invalid"
+          ]
+        },
+        {
+          "title": "VVerificationCodeField",
+          "description": "",
+          "stateLabels": [
+            "Default + helper + onCompleted",
+            "External error / danger",
+            "Alphanumeric 8-char (uppercase)"
+          ]
+        },
+        {
+          "title": "VEmailField",
+          "description": "",
+          "stateLabels": [
+            "Optional (built-in validation)",
+            "Required",
+            "External errorText override"
+          ]
+        },
+        {
+          "title": "VPasswordField",
+          "description": "",
+          "stateLabels": [
+            "Optional (built-in validation)",
+            "Required",
+            "External errorText override",
+            "Disabled",
+            "Toggle visibility (initially visible)"
+          ]
+        },
+        {
+          "title": "VMoneyField",
+          "description": "",
+          "stateLabels": [
+            "Optional",
+            "Required + min/max"
+          ]
+        },
+        {
+          "title": "VNumberField",
+          "description": "",
+          "stateLabels": [
+            "Integer",
+            "Decimal"
+          ]
+        },
+        {
+          "title": "VDatePicker",
+          "description": "",
+          "stateLabels": [
+            "Empty (icon left — default)",
+            "Filled (icon right)"
+          ]
+        },
+        {
+          "title": "VSelect",
+          "description": "",
+          "stateLabels": [
+            "Basic",
+            "Required"
+          ]
+        },
+        {
+          "title": "VCombobox",
+          "description": "Searchable single-select; input chrome matches VTextField. Compose demos tách theo kiểu item (4–10 options); Footer = create item từ query.",
+          "stateLabels": [
+            "Compose · searchable",
+            "Disabled",
+            "Empty overlay",
+            "Compose · plain text",
+            "Compose · 2-line",
+            "Compose · VCard",
+            "Compose · searchText alias",
+            "Compose · skeleton loading",
+            "Compose · create (Footer)"
+          ]
+        },
+        {
+          "title": "VChoiceList",
+          "description": "",
+          "stateLabels": [
+            "Single + childBuilder",
+            "Multiple + minSelections",
+            "Required"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui_audit_tab.dart",
+      "sections": [],
+      "count": 0,
+      "sha256": "13015aad1a87ac06d691d0e5492f37b7853bc63134db343939c48d5e4154368f",
+      "sectionDetails": []
+    }
+  ],
+  "previewSectionSha256": "2bab12417b5068dab7cc0f3211ff2283b868c50abaeb2f4c41d2a14f16655966",
+  "mainSha256": "07f82da393a4d45d69e02f91f473ef5189fe1a98859852537c8f47a573621b74"
+}

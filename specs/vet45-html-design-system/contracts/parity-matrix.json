@@ -1,78 +1,19 @@
 {
-  "htmlDsVersion": "1.5.0",
-  "figmaFileKey": "QVJolM5tAdFKkhP7RIwe3y",
+  "htmlDsVersion": "2.0.2",
   "flutterDsVersion": "1.4.1",
-  "resolutionRule": "Figma master/variable/style wins for visual values when present. Flutter wins for public API/behavior/accessibility/density semantics and visual APIs absent from Figma. Never blend conflicting values.",
-  "drift": [
-    {
-      "area": "Primary/50",
-      "figma": "#F1F9F2",
-      "flutter": "#E8F6EC",
-      "html": "#F1F9F2",
-      "resolution": "Figma visual authority"
-    },
-    {
-      "area": "Space/0",
-      "figma": "0",
-      "flutter": "1",
-      "html": "0",
-      "resolution": "Figma variable authority"
-    },
-    {
-      "area": "Typography H4",
-      "figma": "16/22 600",
-      "flutter": "14 with 22/16 line ratio",
-      "html": "16/22 600",
-      "resolution": "Figma text style authority"
-    },
-    {
-      "area": "Body Default",
-      "figma": "14/22 400",
-      "flutter": "14/22 500",
-      "html": "14/22 400",
-      "resolution": "Figma text style authority"
-    },
-    {
-      "area": "Label Small",
-      "figma": "12/16 600",
-      "flutter": "11/14 600",
-      "html": "12/16 600",
-      "resolution": "Figma text style authority"
-    },
-    {
-      "area": "Caption",
-      "figma": "12/16 500 +0.1",
-      "flutter": "12/16 600",
-      "html": "12/16 500 +0.1",
-      "resolution": "Figma text style authority"
-    },
-    {
-      "area": "Elevation e1-e4",
-      "figma": "1/3/.08; 4/12/.10; 12/28/.14; 24/56/.20",
-      "flutter": "2/8/.04; 4/16/.08; 8/24/.12; 16/32/.16",
-      "html": "Figma values",
-      "resolution": "Figma effect style authority"
-    },
-    {
-      "area": "VBottomSheet shell",
-      "figma": "top radius 20, handle 48×4, padding 12/16/44",
-      "flutter": "top radius 16, handle 36×4, safe-area dynamic",
-      "html": "Figma visual geometry + safe-area behavior contract",
-      "resolution": "Figma visual; Flutter behavior"
-    },
-    {
-      "area": "VNumericKeypadSheet",
-      "figma": "402×512, top radius 20, bottom safe padding 42",
-      "flutter": "top radius 24, dynamic safe area",
-      "html": "Figma visual geometry + safe-area behavior contract",
-      "resolution": "Figma visual; Flutter behavior"
-    }
+  "authority": "Flutter",
+  "rules": [
+    "public API = lib/design_system.dart",
+    "tokens = lib/src/tokens + theme",
+    "visual anatomy/defaults/states = Flutter implementation",
+    "widget behavior = Flutter tests",
+    "preview IA = example/lib/main.dart",
+    "Figma/HTML v1.6 are legacy reference only"
   ],
-  "coverage": {
-    "figmaComponentMasters": 65,
-    "figmaPatternTemplateMasters": 22,
-    "figmaVariantSets": 59,
-    "approvedIcons": 35,
-    "flutterPublicExports": 94
-  }
+  "fontBinaryPolicy": "not bundled; host requirement",
+  "iconPolicy": "VIcons semantic/codepoints exact; Lucide font host required for exact glyph parity; SVG fallback covers all 108 semantic aliases; interactive hosts retain control semantics",
+  "exportCount": 94,
+  "visualSelectorCount": 78,
+  "testCount": 287,
+  "iconCount": 108
 }

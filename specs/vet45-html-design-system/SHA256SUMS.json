@@ -1,0 +1,292 @@
+{
+  "version": "2.0.2",
+  "flutterAuthority": "1.4.1",
+  "fileCount": 57,
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "7bfcad71365ac5edeecb5d4212664bafdc85568d7aecd6c9f8639e5f23636263",
+      "bytes": 5091
+    },
+    {
+      "path": "README.md",
+      "sha256": "928b27ab8b90a38251722c04e6a9fc5c020b169ebf4c511657e5e2cf6a214702",
+      "bytes": 9026
+    },
+    {
+      "path": "VERSION",
+      "sha256": "b4b16faea52dc04ccfe32f7b342094855923ebf599a3cac1940470a2d6d7c261",
+      "bytes": 6
+    },
+    {
+      "path": "contracts/canonical-registry.json",
+      "sha256": "bf399d3c01a5aa031f0831f5d42bb3c2ff9fd830220dc5617d78444c9cf1fa36",
+      "bytes": 16479
+    },
+    {
+      "path": "contracts/component-map.json",
+      "sha256": "bc0dafb89e7f97527865caeb09c8f442aa42b1e2a5af2b1cd8b11dd0b08d4d37",
+      "bytes": 16433
+    },
+    {
+      "path": "contracts/flutter-audit-snapshot.json",
+      "sha256": "e8ed00d02441ae000ef20ca371b8f0a20896a9d953c2bdc74d55634a6a791390",
+      "bytes": 14094
+    },
+    {
+      "path": "contracts/flutter-component-signatures.json",
+      "sha256": "65390365b2f7561390aaaab2b5b431dc10ed7533bc73e30b3bcef9350bee4171",
+      "bytes": 86612
+    },
+    {
+      "path": "contracts/flutter-icons.json",
+      "sha256": "cbb72ac892272574657b6917e6d4e4f923df42e0475ee033c18f97755cbbc697",
+      "bytes": 10807
+    },
+    {
+      "path": "contracts/flutter-public-api.json",
+      "sha256": "aa9c156efeb40d5ad8411c8d07e8f5623d92c09a757f857cab78537ee0c6029d",
+      "bytes": 36183
+    },
+    {
+      "path": "contracts/flutter-source-tree.json",
+      "sha256": "57c4f489776a7cecc110e3c482e7fb0cefd8831c296b0907409c45ca40c4f861",
+      "bytes": 18212
+    },
+    {
+      "path": "contracts/flutter-source.json",
+      "sha256": "805f90cdc5d6a6e8c8d3d07e01df9baa21da65cd1866ac9fd063f219e8d1b476",
+      "bytes": 602
+    },
+    {
+      "path": "contracts/flutter-test-contracts.json",
+      "sha256": "0c806f7ec60591be9a3f12921892dcbecf2773813b59b98a03c1b641501eb3bf",
+      "bytes": 22448
+    },
+    {
+      "path": "contracts/flutter-vicons-map.json",
+      "sha256": "dffb192efcdf58dfc699e409568e1bd99bbcecbc114ab6c1d13474ffa9357ba3",
+      "bytes": 3139
+    },
+    {
+      "path": "contracts/font-contract.json",
+      "sha256": "ac833389f4d95be06ff87e676a1082f45fd635064b56676c8a58b9887677eb7b",
+      "bytes": 1869
+    },
+    {
+      "path": "contracts/foundation-values.json",
+      "sha256": "1c6bbc4f09dd684ee111ba9798be19941ded6d52b27a3eeb7ec703908931eabd",
+      "bytes": 7228
+    },
+    {
+      "path": "contracts/parity-matrix.json",
+      "sha256": "24ec344e3013656ec559c0898af649fdc3de3bd28cd24edf917ad8c707bac74a",
+      "bytes": 717
+    },
+    {
+      "path": "contracts/preview-structure.json",
+      "sha256": "86a2920db5e09b58816a5af9c309be3ea834eadbf7437d2856a70d08129d6b97",
+      "bytes": 17900
+    },
+    {
+      "path": "contracts/public-symbol-coverage.json",
+      "sha256": "72f227a48b710ef7292645c4b15e7f171dbc3020bfb9641753b1ecdd6384bc0d",
+      "bytes": 37814
+    },
+    {
+      "path": "contracts/qa-baseline.json",
+      "sha256": "956a124ce57c9283beddf1782242ca49c915d215519fca9b3374c7e9834fd73f",
+      "bytes": 276
+    },
+    {
+      "path": "contracts/runtime-api.json",
+      "sha256": "45476a7156024f845a0eb24705de9b22dec4546cd5cdf6645215df1c3493ce2a",
+      "bytes": 1542
+    },
+    {
+      "path": "contracts/source-parity.json",
+      "sha256": "1a696a5534012ed7a3658794c6b2ca8b871062bee7e1536e6d420373cc956708",
+      "bytes": 4083
+    },
+    {
+      "path": "contracts/variant-contracts.json",
+      "sha256": "2af38fdc1104ae4005cab6c85386276849081ecd6721b9b273b98938402a4999",
+      "bytes": 4110
+    },
+    {
+      "path": "contracts/visual-parity.json",
+      "sha256": "9ff5d987ad169dc719501632e9d2a9ed2569807a59556d8c9eaa03ec912329ff",
+      "bytes": 697
+    },
+    {
+      "path": "docs/flutter-parity.md",
+      "sha256": "f90ad2593ac6ee697fb56b6bfb91d428af916a347878b25e2ccff8fbf2a71c61",
+      "bytes": 1353
+    },
+    {
+      "path": "docs/foundations.md",
+      "sha256": "2adb91c3956a8d265fb91bfa3794a9000387ffaa29f5b6dc2a5f68c4a80484a4",
+      "bytes": 1336
+    },
+    {
+      "path": "docs/governance.md",
+      "sha256": "25ada8ab5347f92b93d41d654c83737da906b3a0db07324cad560942f0281354",
+      "bytes": 1041
+    },
+    {
+      "path": "docs/maintenance.md",
+      "sha256": "3634932285f2904e2861a84130e5c07cb74ce2f9956e8cb93c5cb3acf62865aa",
+      "bytes": 705
+    },
+    {
+      "path": "docs/parity-audit-v1.6.0.md",
+      "sha256": "7c3962a02dbafdc781c7715f728ca02e5c2010c5660a9c12472a76e4d54575c5",
+      "bytes": 2173
+    },
+    {
+      "path": "docs/patterns-and-templates.md",
+      "sha256": "4d0a877e19b6505178beacbed0885098131121206b3b0c505e1ae05e305ca33e",
+      "bytes": 466
+    },
+    {
+      "path": "index.html",
+      "sha256": "12c716f6a85bfeae6ae45220ed6b4b9ed20bc454f80748f2bcfe860e8eaee996",
+      "bytes": 83225
+    },
+    {
+      "path": "legacy/compat-v1.6.css",
+      "sha256": "638e1ffe3bff72d298cb428f54068eba887c1544347e2bb6b3cad9cbdd358fb1",
+      "bytes": 181
+    },
+    {
+      "path": "package.json",
+      "sha256": "fe5b5fec02080afddfc7130c1cc192034bb4e6ad2061dd39d77f742e75ded8f8",
+      "bytes": 215
+    },
+    {
+      "path": "qa.sh",
+      "sha256": "94d6864e82d99cd8325a16ac9cc0dde88b3185f7bf7e4380ef08ddb3a04db5c2",
+      "bytes": 316
+    },
+    {
+      "path": "scripts/extract_foundation_contract.py",
+      "sha256": "d5c27bdae077d3dc755ddd5b63317b92b4f4393b537c0485674db7e2c7da0f97",
+      "bytes": 4282
+    },
+    {
+      "path": "scripts/qa.py",
+      "sha256": "582ca46b99339a9a1f919832e621c9e87e6ec01206931cd1076a52a22ffd4f25",
+      "bytes": 14259
+    },
+    {
+      "path": "scripts/qa_browser.py",
+      "sha256": "26819f6ea178d8acc521ee7f23b162b8f7d289d450145e4f421fc402a26e3210",
+      "bytes": 21074
+    },
+    {
+      "path": "scripts/qa_fonts.py",
+      "sha256": "7e3947fcff1775c4e2f0b46a9e049e135ea1458e4aa55257d5bb917f3a8820b7",
+      "bytes": 6081
+    },
+    {
+      "path": "scripts/update_checksums.py",
+      "sha256": "fc887c54163eeb8a9c6f2be1b3ea20ba681d008db470a2646865a9b793f3fa14",
+      "bytes": 647
+    },
+    {
+      "path": "showcase/index.html",
+      "sha256": "76bcb891fd866c9323bfd608b8c6ffbed85324179f9a54506ee69a0266978888",
+      "bytes": 83229
+    },
+    {
+      "path": "src/audit/README.md",
+      "sha256": "8fec71d2d7a3666bc3a0043f032524b9764358498fe63f0267abc2d9a87026f8",
+      "bytes": 188
+    },
+    {
+      "path": "src/base.css",
+      "sha256": "b9f4b1c4d39095058e0a9fd12450d638eefeed64f5ceb45ab43f42e9ac149fcb",
+      "bytes": 3719
+    },
+    {
+      "path": "src/components/index.css",
+      "sha256": "f6ed9a4f982ce80d61e50efaa17be3524347924313327c581fbe3f3c6d362787",
+      "bytes": 138
+    },
+    {
+      "path": "src/components.css",
+      "sha256": "53cc98a2760eff4c9889feb3ca7e66de934cf02fd61200445c98aa6425e81588",
+      "bytes": 36203
+    },
+    {
+      "path": "src/flutter-font-bridge.js",
+      "sha256": "1e8118d7ea36620509c488821df4cb32e657417ea94393ecffb7ea8963948a9b",
+      "bytes": 2949
+    },
+    {
+      "path": "src/fonts.css",
+      "sha256": "649f5188bd680335a530cdf7bce8c9f64483073da2acdad5f14e84f6ea1d3f2f",
+      "bytes": 1878
+    },
+    {
+      "path": "src/forms/index.css",
+      "sha256": "adf6464baeccb8934996f7e66717cb2d3c2e982e5d3515b2a02297ff527fb472",
+      "bytes": 72
+    },
+    {
+      "path": "src/forms.css",
+      "sha256": "7ae14511f82a8adbe91e826861a5db1744a97194065a0796b33c6c98e0d5de64",
+      "bytes": 5765
+    },
+    {
+      "path": "src/foundation/index.js",
+      "sha256": "152e88eea9c40f6a1e70ab02fd32c549a67a7324dbcbfe6c92ed3f1c2112263b",
+      "bytes": 129
+    },
+    {
+      "path": "src/patterns/index.css",
+      "sha256": "0b59aa3cb0189ebc831b92693fbe17b91ffee5edc37536f652d0e2524425b806",
+      "bytes": 78
+    },
+    {
+      "path": "src/patterns.css",
+      "sha256": "be15c3ed1aa9a8a726e3f6318746002cf5eb6c406a6bad6292f9220b46360512",
+      "bytes": 2062
+    },
+    {
+      "path": "src/preview-material-icons.js",
+      "sha256": "8fc22402aa88c2f6c67e8fc4fe9c8893c0e042f533eb9e96cc258eb14460e509",
+      "bytes": 2484
+    },
+    {
+      "path": "src/primitives/index.css",
+      "sha256": "9ea2fae5e0699af64539540b6a4227648be97b81703843e70ec32e2d457acd19",
+      "bytes": 138
+    },
+    {
+      "path": "src/templates.css",
+      "sha256": "d7b90dff66de375388802b034d18d5cb35e615504c7191f0a4ffb0ac312e966c",
+      "bytes": 31
+    },
+    {
+      "path": "src/theme/index.css",
+      "sha256": "a437dd5213d4ec49b618a7c0dca3d7479144b6d64881e1e445177c1a33b7f934",
+      "bytes": 131
+    },
+    {
+      "path": "src/tokens/index.css",
+      "sha256": "4a9997f9917862f084279c6c647b6c99dc24ab282fe76f866a73768b84ca341c",
+      "bytes": 117
+    },
+    {
+      "path": "src/tokens.css",
+      "sha256": "3c09fc62e636638159bdb650a06a100f9fe78b5fa9f57c7f541080a852e80e06",
+      "bytes": 6095
+    },
+    {
+      "path": "src/vet45-ds.js",
+      "sha256": "2324ea5f67e135acc756e15229cae2e0b66fd309cba42dec636c65c87b7d3f15",
+      "bytes": 51205
+    }
+  ]
+}

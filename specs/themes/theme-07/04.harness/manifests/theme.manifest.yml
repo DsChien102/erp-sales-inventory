@@ -1,16 +1,16 @@
 theme: theme-07
-version: 4.6.4
-parent_version: 4.6.3
+version: 4.6.5
+parent_version: 4.6.4
 structure_baseline: V45-Theme-skeleton
-semantic_delta: BJ02_PENDING_APPROVAL_CONTINUITY
+semantic_delta: WAREHOUSE_HUB_FLAT_ROLE_AWARE_NAVIGATION
 template_alignment: true
-source_baseline: v4.6.3
+source_baseline: v4.6.4
 merge_source: v3.13.0
 merge_source_parent: v3.12.0
 canonical_business_journeys: 17
 canonical_use_cases: 64
 canonical_ui_flows: 17
-prototype_parity: V4_6_4_BJ02_PENDING_APPROVAL_CONTINUITY_CANDIDATE
+prototype_parity: V4_6_5_WAREHOUSE_HUB_FLAT_ROLE_AWARE_CANDIDATE
 
 slices:
   - id: SA-AGG-IO-01

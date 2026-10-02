@@ -1,73 +1,53 @@
-# 1.5.0
-
-- Re-baseline naming: 87/87 master names are immutable Figma source identities; Flutter public API and HTML selectors are separate trace fields, never replacement names.
-- Rebuilt live token layer from current Figma variables/styles/effects; documented Figma↔Flutter drift and the Icon/Thin–Icon/Thick WEB syntax collision.
-- Fixed the structural cause of broken catalog previews: 214/214 `v-*` classes used by `index.html` now have CSS implementation (0 missing).
-- Rebuilt exact anatomy for `DS v2 / Avata Card`, `DS v2 / Product Result Card`, `DS v2 / Order Line Row`, Payment & Receivable rows, `VToast`, `VEmptyState`, `VModal`, and named Numeric Keypad children.
-- Removed silent/semantic icon substitutions in the affected masters. Product image and payment glyphs use their source Figma vectors; Order Line uses its custom source vector instead of an invented `box` mapping.
-- Added canonical registry, live token snapshot and exact Flutter `VIcons` semantic mapping contract.
-- Added release gates for 0 missing catalog CSS classes, 0 missing catalog icons, and exact Figma heading identity.
-- Removed stale pre-canonical rules for the six user-reported broken components; each root now has a single canonical implementation.
-- Materialized exact Figma SVGs for the critical icon set used by those previews and semantic toast/payment examples; added shape-completeness gates.
-
-# 1.4.0
-
-- Re-baseline runtime HTML/CSS theo node/component master trực tiếp từ Figma DS.
-- Khôi phục đầy đủ `src/` + `contracts/` bị thiếu trong working package; catalog không còn fallback CSS.
-- Sửa anatomy/geometry cho Actions, selection controls, Navigation, Data Display, Feedback, Overlay, Patterns và 8 mobile templates.
-- FAB bỏ shadow tự chế; selection controls tách visual size khỏi touch target; Metric/Product/Payment sửa theo master thật.
-- Modal/Numeric Keypad/Bottom Sheet và Sticky Footer/Keyboard-safe/Confirmation được khóa theo exact Figma geometry.
-- Structural gate 87/87 PASS; browser-wide pixel gate không được đánh PASS khi Chromium sandbox không ổn định.
-
-# 1.3.0
-
-- Root `index.html` is now the full Component Explorer, not a redirect/partial showcase.
-- Renders all 65 Figma component masters and all 22 pattern/template masters as review cards.
-- Exposes Figma node ID, canonical HTML selector and complete variant/property axes for every master.
-- Adds searchable/category-filterable catalog for day-to-day DS review.
-- Fixes focused/error state parity for Money/Select/Date/Search chrome.
-- Fixes checkbox on-state when no explicit check icon is supplied.
-- Fixes legacy Action Row sample anatomy/typography compatibility.
-- Keeps `showcase/index.html` as curated overview, with link to the full explorer.
-
 # Changelog
 
-## 1.3.0
-- Re-baseline Figma DS v2 và cross-check Flutter DS 1.4.1.
-- Thêm public visual API coverage, compound Card/Combobox/Table/Verification Code/form mappings.
-- Khóa 35 approved icon source node IDs; bỏ silent icon fallback.
-- Thêm parity matrix và drift governance.
+## 2.0.2 — Flutter raster + icon parity hardening
 
+- Added `src/flutter-font-bridge.js` so the browser can load the **exact Inter / JetBrains Mono files from the authoritative Flutter checkout** without redistributing font binaries. Silent fallback is now externally detectable through `data-vet45-font-parity`.
+- Split preview-only Material glyphs from the public `VIcons`/Lucide contract. The Flutter example uses Material `home`, `receipt_long`, `more_horiz` and `store` in specific samples; HTML now mirrors that instead of forcing unrelated Lucide aliases.
+- Corrected non-canonical preview icon aliases (`plus`, `eye`, `orders`, `box`).
+- Expanded the Floating Action Button sample to the same three source states: primary add, info QR, disabled printer.
+- Re-aligned bottom navigation sample labels/items to Flutter (`Home`, `Orders`, `More`) while retaining the Flutter icon-only rendered navigation contract.
+- QA now gates the 2.0.2 version, the exact Flutter font bridge, Material-preview separation, semantic `VIcons`, no bundled font binaries, source hashes, component geometry and runtime interactions.
 
-## 1.1.0 — 2026-09-29
+# 2.0.1
 
-### QA parity rebuild
+## Visual parity hardening
 
-Release này thay thế cách làm “bản rút gọn” của v1.0.0 bằng inventory và release gate dựa trực tiếp trên Figma DS v2.0.3.
+- Fixed Typography H4 preview label to 14 px, matching Flutter `VTypography.headingH4`.
+- Added explicit local face bindings for Inter and JetBrains Mono weights 400–800 and disabled synthetic weights.
+- Expanded runtime typography verification to every required weight.
+- Expanded local SVG fallback coverage from partial to all 108 Flutter `VIcons` aliases.
+- Added release gates for complete icon fallback coverage and zero missing-icon placeholders.
+- Rebuilt browser regression evidence against Flutter `vet45_design_system` 1.4.1.
 
-**Đã sửa:**
+# 2.0.0
 
-- Bổ sung inventory đầy đủ: 65 component masters và 22 pattern/template masters.
-- Bổ sung các master bị thiếu ở v1: `VBottomSheet`, `Context Header`, `Payment & Receivable Summary Row`, `Select Sheet`, `Form Sheet`, Financial Disclosure và đủ 8 Mobile Page Templates.
-- Sửa `VButton/Danger`: source Figma là **white + Danger border/text**, Pressed = Danger/50; v1 đã thể hiện sai kiểu filled red.
-- Sửa `VBadge` visual height từ 24px → **30px**.
-- Sửa `VChip` visual height từ 36px → **34px**.
-- Sửa `VAppBar`: **402×56**, padding ngang 16, gap 8, không thêm bottom border ngoài source.
-- Sửa input anatomy: 44px control, radius 8, Default border, Focused 2px Brand border, Error Danger border/helper, Disabled root opacity .4.
-- Sửa Checkbox/Radio/Switch theo control geometry của source.
-- Sửa List Row default/compact, semantic selected/pressed/disabled states.
-- Sửa Banner/Toast/Empty/Loading/Progress/Skeleton/Readiness geometry.
-- Bổ sung exact bottom sheet shell: top radius 20, handle 48×4, inset 16, bottom safe area 44.
-- Bổ sung Sticky Footer 92/128, Action/Confirmation/Filter Sheet, Loading Overlay, Search & Filter Header, Search Results Dropdown.
-- Bổ sung template CSS cho 8 archetype 402×874.
-- Bổ sung traceability contracts và approved icon registry.
-- Nâng QA từ existence-check thành release gate có master counts và critical parity assertions.
+## Flutter-authoritative re-baseline
 
-### Source issues không tự sửa
+- Breaking authority change: Flutter `vet45_design_system` 1.4.1 is now the canonical source of truth.
+- Rebuilt foundation tokens from Flutter `VColors`, `VColorScheme`, `VSpacing`, `VRadius`, `VBorders`, `VShadows`, `VDuration`, `VOpacity`, `VBreakpoints`, `VDensity`, and `VTypography`.
+- Rebuilt canonical registry from `lib/design_system.dart` (94 public exports).
+- Added source-level constructor/token inventory for 116 classes.
+- Rebuilt VIcons contract from Flutter source: 108 semantic aliases/codepoints, Lucide 3.1.15 family/weight contract.
+- Rebuilt HTML component layer around Flutter public primitives/components/forms/patterns.
+- Restored `VCard` as canonical because Flutter exports it.
+- Removed `VQuantitySelector` from canonical assumptions because Flutter 1.4.1 does not export it.
+- Preview organization now mirrors Flutter example exactly: Tokens / Primitives / Components / Forms / UI Audit.
+- Figma/v1.6 source contracts retained only as legacy reference; they no longer override Flutter.
+- Added explicit host font contract; no font binaries are distributed.
+- Replaced Figma-centric release gate with Flutter source/hash/API/token/component gate.
 
-- Figma đang cho `Icon/Thin` và `Icon/Thick` cùng WEB code syntax `--vet45-v2-icon-stroke` dù giá trị 1 và 2 khác nhau. HTML DS giữ alias riêng và ghi issue trong `figma-source.json`.
-- Source có tên `DS v2 / Avata Card` và variant `Defualt` / `Disable`. Contract giữ nguyên tên source để trace; HTML API normalize state.
+- Canonical runtime package generated from Flutter 1.4.1: fresh tokens, component/form/pattern CSS, JS interaction runtime, 94-export registry, 287-test evidence, 108-icon codepoint inventory.
+- Preview now mirrors the Flutter example exactly at the organization level: 5 tabs and 63 PreviewSection entries, plus the Flutter-style UI Audit matrix and metrics.
+- Public API extraction now covers 94 export statements / 155 public symbols, including generic top-level helpers previously missed by the first parser.
+- Added runtime browser equivalents for `VTextNormalizer`, dropdown filtering/search matching, `showVConfirmDialog`, `showVBottomSheet`, and `showVNumericKeypadSheet`.
+- Separated `VBottomSheet` / `VNumericKeypadSheet` component anatomy from their modal overlay hosts, matching Flutter widget/helper responsibility.
+- Fixed `VSelect` menu rows and `VComboboxItem` touch rows to the Flutter 44 px contract.
+- Expanded Chromium computed-style parity checks across primitives, actions, forms, navigation, feedback, overlays and responsive patterns.
+- Added interaction regression coverage for Vietnamese search/filter, confirm dialog, bottom sheet, numeric keypad sheet, select, segmented control, tabs, money/number formatting and verification-code focus.
+- Added exhaustive `foundation-values.json` generated from Flutter Dart source (50 colors, 22 spacing values/aliases, 12 radius values/aliases, borders, opacity, durations, breakpoints, both density modes, 20 typography styles and 4 shadow levels).
+- `VText` now maps all 20 Flutter `VTextVariant` values 1:1, including all JetBrains Mono variants and semantic tone foreground mapping.
+- Tokens preview now mirrors Flutter `tokens_tab.dart` typography section, including the complete mono scale and numeric comparison rows.
+- Strengthened font parity contract: Inter and JetBrains Mono weights used by Flutter typography are verified in Chromium against the exact project-supplied TTF assets during QA, without bundling those binaries in the HTML artifact.
+- Added `extract_foundation_contract.py`, `qa_fonts.py`, and deterministic checksum regeneration for future Flutter-to-HTML updates.
 
-## 1.0.0
-
-Baseline đầu tiên. Phạm vi chỉ đủ chứng minh mô hình shared HTML DS; chưa đạt parity đầy đủ với Figma và QA chưa chặn được thiếu master/variant.

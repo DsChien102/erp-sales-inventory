@@ -1,10 +1,10 @@
 {
   "schema_version": "2.0",
-  "patch_version": "4.6.4",
+  "patch_version": "4.6.5",
   "freeze_id": "T07-UIF-V4.6.1",
   "source_baseline": "v4.6.3",
   "source_ui_ux_freeze": "T7-UIUX-FREEZE-v4.2.0-rc1",
-  "prototype_status": "BJ02_PENDING_APPROVAL_CONTINUITY_CANDIDATE",
+  "prototype_status": "WAREHOUSE_HUB_FLAT_ROLE_AWARE_CANDIDATE",
   "evidence_level": "STATIC_RUNTIME_VISUAL_INTERACTION_VALIDATED_v4.6.1",
   "flows": [
     {

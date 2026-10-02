@@ -1,0 +1,14 @@
+/* Flutter 1.4.1 typography contract. Font binaries are intentionally not bundled.
+   Exact source assets: Inter 4.001 and JetBrains Mono 2.304 from the supplied Flutter package. */
+@font-face{font-family:"Inter";font-style:normal;font-weight:400;font-display:swap;src:local("Inter Regular"),local("Inter-Regular")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:500;font-display:swap;src:local("Inter Medium"),local("Inter-Medium")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:600;font-display:swap;src:local("Inter SemiBold"),local("Inter-SemiBold")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:700;font-display:swap;src:local("Inter Bold"),local("Inter-Bold")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:800;font-display:swap;src:local("Inter ExtraBold"),local("Inter-ExtraBold")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400;font-display:swap;src:local("JetBrains Mono Regular"),local("JetBrainsMono-Regular")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:local("JetBrains Mono Medium"),local("JetBrainsMono-Medium")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:600;font-display:swap;src:local("JetBrains Mono SemiBold"),local("JetBrainsMono-SemiBold")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:700;font-display:swap;src:local("JetBrains Mono Bold"),local("JetBrainsMono-Bold")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:800;font-display:swap;src:local("JetBrains Mono ExtraBold"),local("JetBrainsMono-ExtraBold")}
+:root{--v-font-sans:"Inter",sans-serif;--v-font-mono:"JetBrains Mono",monospace;--v-font-icons:"Lucide";}
+/* Missing exact families is a parity failure; the release QA injects the supplied Flutter source fonts for measurement. */

@@ -1,72 +1,21 @@
-@import url('./components.css');
-
-/* ============================================================
-   INTERACTION & OVERLAY PATTERNS
-   ============================================================ */
-.v-sticky-footer{width:100%;min-height:92px;padding:12px 16px 24px;display:flex;align-items:center;gap:8px;background:#fff;box-shadow:var(--vet45-shadow-sticky);z-index:30}.v-sticky-footer[data-layout="dual"]>*{flex:1}.v-sticky-footer[data-layout="commerce"]{min-height:128px;display:grid;grid-template-columns:1fr 1fr;align-content:start}.v-sticky-footer[data-layout="commerce"] .v-sticky-footer__total{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;min-height:36px}.v-sticky-footer[data-layout="commerce"]>*:not(.v-sticky-footer__total){width:100%}
-.v-sticky-footer[data-tone="danger"] .v-btn[data-hierarchy="primary"]{background:#fff;color:var(--vet45-v2-text-danger);border:1px solid var(--vet45-v2-border-danger)}
-
-.v-fab-placement{width:402px;max-width:100%;height:180px;position:relative;background:var(--vet45-v2-surface-canvas)}.v-fab-placement .v-fab{position:absolute;right:16px;bottom:16px}.v-fab-placement[data-toast="on"] .v-toast{position:absolute;left:16px;right:16px;bottom:88px;width:auto}
-.v-keyboard-safe{width:402px;max-width:100%;height:332px;position:relative;background:var(--vet45-v2-surface-canvas);overflow:hidden}.v-keyboard-safe__keyboard{position:absolute;left:0;right:0;bottom:0;height:220px;background:var(--vet45-v2-neutral-300);display:grid;place-items:center;color:var(--vet45-v2-text-secondary);font:600 12px/16px var(--vet45-font-sans)}.v-keyboard-safe__bar{position:absolute;left:0;right:0;bottom:220px;min-height:68px;padding:12px 16px;display:flex;gap:8px;background:#fff;box-shadow:var(--vet45-shadow-sticky)}.v-keyboard-safe__bar>*{flex:1}
-
-.v-action-sheet{width:min(402px,100vw);padding:12px 16px 44px;display:flex;flex-direction:column;gap:12px;border-radius:20px 20px 0 0;background:#fff}.v-action-sheet__actions{display:flex;flex-direction:column;gap:0}.v-action-sheet__row{min-height:72px;padding:12px 0;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--vet45-v2-border-default)}.v-action-sheet__row:last-child{border-bottom:0}.v-action-sheet__row[data-tone="danger"]{color:var(--vet45-v2-text-danger)}
-.v-confirmation-sheet{width:min(402px,100vw);padding:12px 16px 44px;display:flex;flex-direction:column;gap:12px;border-radius:20px 20px 0 0;background:#fff}.v-confirmation-sheet__actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.v-confirmation-sheet[data-content="reason"] .v-confirmation-sheet__reason{display:flex}.v-confirmation-sheet[data-content="warning"] .v-confirmation-sheet__warning{display:flex}.v-confirmation-sheet__reason,.v-confirmation-sheet__warning{display:none}.v-confirmation-sheet[data-tone="danger"] .v-confirmation-sheet__confirm{background:#fff;color:var(--vet45-v2-text-danger);border:1px solid var(--vet45-v2-border-danger)}
-.v-select-sheet{width:min(402px,100vw);height:560px;padding:12px 16px 44px;display:flex;flex-direction:column;gap:12px;border-radius:20px 20px 0 0;background:#fff;overflow:hidden}.v-select-sheet__results{display:flex;flex-direction:column;gap:8px;overflow:auto}
-.v-filter-sheet{width:min(402px,100vw);padding:12px 16px 42px;display:flex;flex-direction:column;gap:12px;border-radius:20px 20px 0 0;background:#fff}.v-filter-sheet[data-groups="3"]{min-height:406px}.v-filter-sheet[data-groups="5"]{min-height:574px}.v-filter-group{display:flex;flex-direction:column;gap:8px}.v-filter-group__chips{display:flex;flex-wrap:wrap;gap:8px}.v-filter-sheet__actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.v-toast-layer{width:402px;max-width:100%;height:220px;position:relative;background:var(--vet45-v2-surface-canvas)}.v-toast-layer .v-toast{position:absolute;left:16px;right:16px;width:auto}.v-toast-layer[data-placement="top"] .v-toast{top:16px}.v-toast-layer[data-placement="above-footer"] .v-toast{bottom:16px}.v-toast-layer[data-placement="above-fab"] .v-toast{bottom:88px}
-.v-loading-overlay{width:100%;position:relative;display:grid;place-items:center}.v-loading-overlay[data-mode="blocking"]{height:874px;background:var(--vet45-v2-surface-overlay);color:#fff}.v-loading-overlay[data-mode="content"]{height:300px;background:var(--vet45-v2-surface-canvas)}
-
-/* ============================================================
-   LIST PATTERNS
-   ============================================================ */
-.v-search-filter-header{width:402px;max-width:100%;min-height:68px;padding:8px 16px;display:flex;flex-direction:column;gap:8px}.v-search-filter-header__top{height:44px;display:flex;align-items:center;gap:8px}.v-search-filter-header__top .v-search{flex:1}.v-search-filter-header__chips{display:flex;align-items:center;gap:8px;overflow-x:auto;min-height:36px}.v-search-filter-header[data-layout="search"] .v-search-filter-header__filter,.v-search-filter-header[data-layout="search"] .v-search-filter-header__chips{display:none}.v-search-filter-header[data-layout="filter"] .v-search-filter-header__chips{display:none}.v-search-filter-header[data-layout="chips"]{min-height:120px}
-.v-search-results{width:370px;max-width:100%;padding:8px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--vet45-v2-border-default);border-radius:12px;background:#fff;box-shadow:var(--vet45-shadow-dropdown);overflow:auto}.v-search-results[data-state="loading"][data-result-type="entity"]{height:228px}.v-search-results[data-state="loading"][data-result-type="product"]{height:276px}.v-search-results[data-state="no-result"],.v-search-results[data-state="error"]{height:88px}.v-search-results__state{min-height:70px;display:flex;align-items:center;justify-content:center;text-align:center;font:400 13px/20px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary)}.v-search-results__items{display:flex;flex-direction:column;gap:8px}.v-search-results[data-state]:not([data-state="results"]) .v-search-results__items{display:none}.v-search-results[data-state="results"] .v-search-results__state{display:none}
-
-/* ============================================================
-   FORM PATTERNS
-   ============================================================ */
-.v-form-group{display:flex;flex-direction:column;gap:12px}.v-form-group+.v-form-group{margin-top:24px}.v-form-group__title{font:600 16px/22px var(--vet45-font-sans)}.v-form-validation-summary{margin-top:12px}.v-form-actions{display:flex;gap:8px}.v-form-actions>*{flex:1}
-.v-form-sheet{width:min(402px,100vw);height:764px;border-radius:16px 16px 0 0;background:#fff;display:flex;flex-direction:column;overflow:hidden}.v-form-sheet__handle-area{height:24px;display:grid;place-items:center}.v-form-sheet__handle{width:48px;height:4px;border-radius:999px;background:var(--vet45-v2-neutral-300)}.v-form-sheet__header{height:44px;padding:0 16px;display:flex;align-items:center}.v-form-sheet__title{flex:1;font:600 18px/24px var(--vet45-font-sans)}.v-form-sheet__intro{height:40px;padding:0 16px;font:400 13px/20px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary)}.v-form-sheet__fields{flex:1;padding:0 16px;display:flex;flex-direction:column;gap:8px;overflow:auto}.v-form-sheet>.v-sticky-footer{box-shadow:none;flex:0 0 auto}
-
-/* ============================================================
-   STATE / PAGE STRUCTURE HELPERS
-   ============================================================ */
-.v-state-region{display:grid;place-items:center}.v-state-region[data-scope="page"]{min-height:calc(874px - 56px)}.v-state-region[data-scope="section"]{min-height:240px}.v-state-region[data-scope="inline"]{min-height:88px}
-.v-page-scaffold{width:100%;min-height:100%;display:flex;flex-direction:column;background:var(--vet45-v2-surface-canvas)}.v-page-scaffold__header{flex:0 0 auto}.v-page-scaffold__body{flex:1;min-height:0;overflow:auto}.v-page-scaffold__bottom{flex:0 0 auto}.v-page-padding{padding-inline:16px}.v-content-width{width:min(100%,var(--v-content-max,1200px));margin-inline:auto}.v-section-block{display:flex;flex-direction:column;gap:12px}
-
-@media(min-width:600px){.v-page-padding{padding-inline:24px}}
-@media(min-width:1024px){.v-page-padding{padding-inline:32px}}
-
-/* Flutter-aligned layout patterns that have no standalone Figma master. */
-.v-gap{display:block;flex:0 0 var(--v-gap,8px);width:var(--v-gap,8px);height:var(--v-gap,8px)}
-.v-responsive{display:contents}.v-responsive-grid{display:grid;grid-template-columns:repeat(var(--v-grid-cols,1),minmax(0,1fr));gap:var(--v-grid-gap,16px)}
-.v-responsive[data-show="tablet"],.v-responsive[data-show="desktop"]{display:none}
-@media(min-width:600px){.v-responsive[data-show="mobile"]{display:none}.v-responsive[data-show="tablet"]{display:contents}.v-responsive-grid{--v-grid-cols:2}}
-@media(min-width:1024px){.v-responsive[data-show="tablet"]{display:none}.v-responsive[data-show="desktop"]{display:contents}.v-responsive-grid{--v-grid-cols:3}}
-
-/* ============================================================
-   v1.4.0 FIGMA PATTERN-PARITY OVERRIDES
-   ============================================================ */
-.v-keyboard-safe{height:332px}.v-keyboard-safe__form{height:124px}.v-keyboard-safe__keyboard{height:116px}.v-keyboard-safe__bar{height:92px;min-height:92px;bottom:116px;padding:12px 16px 24px}
-.v-confirmation-sheet__actions{display:flex;flex-direction:column;gap:12px}.v-confirmation-sheet__actions>*{width:100%}
-.v-action-sheet{min-height:266px}
-.v-action-sheet__row{height:72px;min-height:72px;padding:0}
-.v-filter-sheet[data-groups="3"]{height:406px;min-height:406px}
-
-/* ============================================================
-   v1.5.0 LIVE-FIGMA PATTERN ANATOMY
-   ============================================================ */
-.v-pattern-sheet-title,.v-action-sheet__title,.v-confirmation-sheet__title,.v-filter-sheet__title,.v-select-sheet__title{font:600 18px/24px var(--vet45-font-sans);letter-spacing:-.2px;color:var(--vet45-v2-text-primary)}
-.v-confirmation-sheet__description{font:400 14px/22px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary)}
-.v-action-sheet,.v-confirmation-sheet,.v-filter-sheet,.v-select-sheet{border-radius:20px 20px 0 0}
-.v-action-sheet__handle,.v-confirmation-sheet__handle,.v-filter-sheet__handle,.v-select-sheet__handle{width:48px;height:4px;border-radius:2px;background:var(--vet45-v2-border-default);align-self:center}
-.v-select-sheet__title,.v-filter-sheet__title{width:370px;max-width:100%;height:28px}
-.v-confirmation-sheet__title{width:370px;max-width:100%;height:24px}.v-confirmation-sheet__description{width:370px;max-width:100%;min-height:34px}
-.v-loading-overlay__content{width:180px;min-height:112px;padding:20px;border-radius:16px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--vet45-v2-text-primary);box-shadow:var(--vet45-shadow-e2)}
-.v-loading-overlay__label{font:400 14px/22px var(--vet45-font-sans);color:var(--vet45-v2-text-primary);text-align:center}
-.v-search-results__loading-label{height:20px;font:400 13px/20px var(--vet45-font-sans);color:var(--vet45-v2-text-secondary)}
-.v-search-results__skeleton{height:56px;border-radius:8px;background:var(--vet45-v2-surface-subtle);position:relative;overflow:hidden}.v-search-results__skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.58),transparent);animation:v-skeleton 1.2s linear infinite}
-/* Figma 549:959: form 124 + footer 92 + keyboard 116. */
-.v-keyboard-safe__form{position:absolute;left:0;right:0;top:0;height:124px}.v-keyboard-safe__bar{position:absolute;left:0;right:0;top:124px;bottom:auto;height:92px;padding:12px 16px 24px}.v-keyboard-safe__keyboard{position:absolute;left:0;right:0;top:216px;bottom:auto;height:116px}
-/* Figma Confirmation Reason has vertically stacked full-width actions. */
-.v-confirmation-sheet__actions{display:flex;flex-direction:column;gap:12px}.v-confirmation-sheet__actions>*{width:100%}
+@import url('./forms.css');
+/* Flutter vet45_design_system 1.4.1 patterns. */
+.v-gap{display:block;width:var(--v-gap,8px);height:var(--v-gap,8px);flex:0 0 var(--v-gap,8px)}
+.v-gap[data-v-axis="horizontal"]{height:auto;width:var(--v-gap,8px)}
+/* VPagePadding defaults to 16 on every breakpoint. Override explicitly only. */
+.v-page-padding{padding-inline:var(--v-page-horizontal,var(--v-screen-mobile));padding-block:var(--v-page-vertical,0)}
+.v-section{display:flex;flex-direction:column;align-items:stretch}
+.v-section__header{display:flex;align-items:flex-start;margin-bottom:var(--v-section-gap,8px)}
+.v-section__copy{flex:1;min-width:0}.v-section__title{font:var(--v-type-h3);letter-spacing:var(--v-track-h3)}
+.v-section__subtitle{margin-top:4px;font:var(--v-type-body-small);color:var(--v-text-secondary)}.v-section__body{min-width:0}
+.v-page-scaffold{min-height:100dvh;background:var(--v-background);display:flex;flex-direction:column}
+.v-page-scaffold__body{flex:1;min-height:0}.v-page-scaffold__bottom{background:var(--v-surface);box-shadow:0 -4px 16px rgba(14,17,22,.0784313725);padding-bottom:env(safe-area-inset-bottom)}
+/* VResponsive is parent-width driven in Flutter. JS mirrors LayoutBuilder by setting data-v-breakpoint. */
+.v-responsive,.v-content-width,.v-responsive-grid{min-width:0}
+.v-content-width{width:100%;max-width:none;margin-inline:auto}
+.v-content-width[data-v-breakpoint="tablet"]{max-width:840px}.v-content-width[data-v-breakpoint="desktop"]{max-width:1120px}
+.v-responsive-grid{display:grid;grid-template-columns:repeat(var(--v-columns,1),minmax(0,1fr));column-gap:var(--v-grid-spacing,16px);row-gap:var(--v-grid-run-spacing,16px)}
+.v-responsive-grid[data-v-breakpoint="mobile"]{--v-columns:var(--v-columns-mobile,1)}
+.v-responsive-grid[data-v-breakpoint="tablet"]{--v-columns:var(--v-columns-tablet,2)}
+.v-responsive-grid[data-v-breakpoint="desktop"]{--v-columns:var(--v-columns-desktop,3)}
+.v-responsive-visibility[data-v-visible="false"]{display:none!important}.v-responsive-visibility[data-v-visible="true"]{display:contents}

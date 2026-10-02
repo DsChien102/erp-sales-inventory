@@ -1,54 +1,42 @@
-# Foundations — extracted from Figma DS v2
+# Foundations — Flutter 1.4.1 canonical
 
-## Color
-
-HTML sử dụng cùng WEB variable names mà Figma đã khai báo khi có thể. Primitive và semantic layers đều nằm trong `src/tokens.css`; product UI ưu tiên semantic tokens.
+HTML DS 2.0.0 mirrors the supplied `vet45_design_system` Flutter package 1.4.1. Flutter source is authoritative for every value below.
 
 ## Typography
 
-- Display/D1 — Inter Extra Bold 40/44, -1px
-- H1 — Bold 28/34, -0.5px
-- H2 — Bold 22/28, -0.3px
-- H3 — Semi Bold 18/24, -0.2px
-- H4 — Semi Bold 16/22
-- Body/Default — Regular 14/22
-- Body/Small — Regular 13/20
-- Label/Default — Semi Bold 14/20
-- Label/Small — Semi Bold 12/16
-- Action/Default — Semi Bold 14/20
-- Caption — Medium 12/16, +0.1px
-- Overline — Semi Bold 11/14, +0.4px
-- Mono/Numeric — JetBrains Mono 14/22
-- Mono/Small — JetBrains Mono 13/20
-- Mono/Emphasis — JetBrains Mono 16/22
+Host families must be the same families used by Flutter: **Inter** and **JetBrains Mono**. Binary font files are deliberately not redistributed by this package.
 
-## Dimension
+| Token | Flutter value |
+|---|---|
+| D1 | 40/44, 800, letter-spacing -1 |
+| H1 | 28/34, 700, -0.5 |
+| H2 | 22/28, 700, -0.3 |
+| H3 | 18/24, 600, -0.2 |
+| H4 | 14/19.25, 600 |
+| Body Default | 14/22, 500 |
+| Body Small | 13/20, 500 |
+| Label Default | 14/20, 600 |
+| Label Small | 11/14, 600 |
+| Caption | 12/16, 600 |
+| Action Default | 14/20, 600 |
+| Mono Numeric | 14/20, 500 |
 
-Spacing: 0, 4, 8, 12, 16, 20, 24, 32, 40, 48.  
-Radius: 4, 6, 8, 12, 16, 20, Pill.  
-Touch minimum: 44.  
-Mobile reference: 402×874.  
-Page edge: mobile 16, tablet 24, desktop 32.
+## Spacing
 
-## Breakpoints
+`1, 4, 8, 12, 16, 20, 24, 32, 40, 48, 72`. Mobile page edge is 16. Minimum touch target is 44.
 
-- Mobile: `< 600px`
-- Tablet: `600–1023px`
-- Desktop: `≥ 1024px`
+## Radius
 
-Breakpoints thay đổi layout structure/behavior, không dùng để target model thiết bị cụ thể.
+`4, 6, 8, 12, 16, 20, pill 999`. Input/button 8, card 12, sheet 16, icon box 12.
 
 ## Density
 
-Compact: control 32/40/48; field padding 10/14.  
-Comfortable: 36/44/52; field padding 12/16.
+Comfortable controls: 36 / 44 / 52. Compact controls: 32 / 40 / 48.
 
-Density là runtime preset; không mặc định Compact=desktop hay Comfortable=mobile.
+## Opacity and motion
 
-## Motion
+Disabled is whole-subtree opacity **0.4**. Durations: 150 / 200 / 300 / 350 / 1000 ms.
 
-Fast 150ms · Medium 200ms · Normal 300ms · Slow 350ms · Pulse 1000ms.
+## Color
 
-## Icons
-
-Lucide là vendor source mặc định; product UI dùng approved VET45 registry thay vì chèn icon tùy ý. Icon size và touch target độc lập. Disabled không phải icon tone; dùng parent/component opacity 0.4.
+Primitive and semantic palettes are generated from Flutter `VColors` and `VColorScheme`. Use semantic CSS variables from `src/tokens.css`; Themes must not hard-code replacement component colors.

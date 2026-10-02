@@ -1,6 +1,4 @@
-/* VET45 Theme 7 v4.6.5 — Role-aware Warehouse Hub review profiles
- * Workbench-only controller. Product IA stays PAT-NAV; this layer only changes emphasis/visibility for UX review.
- */
+/* VET45 Theme 7 v4.6.5 — Role-aware flat Warehouse Hub */
 .t465-role-switch {
   display: grid;
   gap: 8px;
@@ -42,6 +40,12 @@
   font-size: 11px;
   line-height: 15px;
 }
-.t462-quick-grid.t465-quick-grid--single {
-  grid-template-columns: 1fr;
+.t462-quick-grid.t465-quick-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.t465-flat-capability-list {
+  width: 100%;
+}
+.t465-flat-capability-row[hidden] {
+  display: none !important;
 }

@@ -1,30 +1,17 @@
 {
-  "htmlDsVersion": "1.5.0",
-  "figmaDsVersion": "2.0.3",
+  "htmlDsVersion": "2.0.2",
   "expected": {
-    "componentMasters": 65,
-    "patternTemplateMasters": 22,
-    "iconRegistry": 35,
-    "variableCollections": 4,
-    "mobileReference": {
-      "width": 402,
-      "height": 874
-    },
-    "catalogCssMissingClasses": 0,
-    "catalogMissingIcons": 0
-  },
-  "criticalParity": [
-    "VButton Danger is white + red border; Pressed uses Danger/50, not filled red.",
-    "VBadge visual height 30px; VChip visual height 34px.",
-    "VAppBar 402x56 with 16px inset and no bottom border in source master.",
-    "VBottomSheet top radius 20px, handle 48x4, horizontal inset 16px, bottom safe area 44px.",
-    "Sticky Footer Single/Dual is 402x92 with 12/16/24 padding; Commerce is 402x128.",
-    "All eight 402x874 mobile Page Templates exist in contracts and showcase.",
-    "Disabled states use root opacity .4 where defined.",
-    "Initial Empty and No Results remain distinct state semantics.",
-    "Every catalog v-* class used by index.html must resolve to a CSS selector; zero missing is release-blocking.",
-    "Catalog headings preserve Figma master names exactly, including source typos/trailing spaces for traceability.",
-    "Icons used by a Figma master resolve to that source glyph/custom vector; no question-mark or silent semantic fallback."
-  ],
-  "flutterDsVersion": "1.4.1"
+    "flutterVersion": "1.4.1",
+    "exports": 94,
+    "tests": 287,
+    "icons": 108,
+    "fontBinaries": 0,
+    "previewTabs": [
+      "Tokens",
+      "Primitives",
+      "Components",
+      "Forms",
+      "UI Audit"
+    ]
+  }
 }

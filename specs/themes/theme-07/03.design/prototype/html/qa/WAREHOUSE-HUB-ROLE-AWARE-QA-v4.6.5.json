@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "checks": 12,
+  "findings": [],
+  "summaries": {
+    "owner": {
+      "label": "Chủ cửa hàng",
+      "quick": [
+        "UIF-02",
+        "UIF-05",
+        "UIF-08",
+        "UIF-01"
+      ],
+      "flat": [
+        "UIF-06",
+        "UIF-07",
+        "UIF-09",
+        "UIF-11",
+        "UIF-16",
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-15",
+        "UIF-12",
+        "CAP-01"
+      ],
+      "attention": [
+        "pending:approver",
+        "UIF-09",
+        "UIF-16",
+        "UIF-17"
+      ]
+    },
+    "warehouse": {
+      "label": "Thủ kho",
+      "quick": [
+        "UIF-02",
+        "UIF-05",
+        "UIF-08",
+        "UIF-01"
+      ],
+      "flat": [
+        "UIF-06",
+        "UIF-07",
+        "UIF-09",
+        "UIF-11",
+        "UIF-16",
+        "UIF-15"
+      ],
+      "attention": [
+        "pending:maker",
+        "UIF-09",
+        "UIF-17"
+      ]
+    },
+    "accounting": {
+      "label": "Kế toán",
+      "quick": [
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-15"
+      ],
+      "flat": [
+        "UIF-01",
+        "UIF-16"
+      ],
+      "attention": [
+        "UIF-16"
+      ]
+    },
+    "sales": {
+      "label": "Nhân viên bán hàng",
+      "quick": [
+        "UIF-01",
+        "UIF-05"
+      ],
+      "flat": [],
+      "attention": []
+    }
+  }
+}

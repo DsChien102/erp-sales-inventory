@@ -5,11 +5,20 @@ theme: theme-07
 title: "Theme 07 mobile prototype mapping"
 owner: BA
 status: FROZEN
-source_baseline: v4.6.3
-version: v4.6.4
-parent: v4.6.3
+source_baseline: v4.6.4
+version: v4.6.5
+parent: v4.6.4
 ---
 # Prototype — Theme 07
+
+## v4.6.5 — Hub Kho list phẳng theo vai trò
+
+- Parent package: `v4.6.4` từ file người dùng cung cấp.
+- Bốn role profile review: `Chủ cửa hàng`, `Thủ kho`, `Kế toán`, `Nhân viên bán hàng`.
+- `Quản lý kho` hiển thị trực tiếp các chức năng còn lại; không đi qua 5 workspace nhóm.
+- Quick Action theo role và được loại khỏi list để không lặp.
+- `Cần chú ý` theo role; BJ02 maker/approver giữ đúng destination khác nhau.
+- Runtime layer: `html/v465-role-navigation-profiles.css/js`, nạp sau v4.6.4 continuity layer.
 
 ## v4.6.4 — BJ02 pending-approval continuity
 
@@ -75,7 +84,7 @@ parent: v4.6.3
 
 ## 1. Mục đích
 
-Prototype là design expression/verification medium hiện hành của baseline v4.6.1; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
+Prototype là design expression/verification medium hiện hành của baseline v4.6.5; không phải nguồn business rule. Runtime HTML được giữ nguyên tại `03.design/prototype/html/` để package có thể chạy prototype độc lập, trong khi manifest này giữ vai trò mô tả cách chạy và mapping theo template.
 
 ## 2. Cách chạy
 

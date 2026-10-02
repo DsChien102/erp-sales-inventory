@@ -1,0 +1,1675 @@
+{
+  "flutterDsVersion": "1.4.1",
+  "items": [
+    {
+      "export": "src/tokens/v_colors.dart",
+      "sha256": "88ba9e3daed732392a702408cf1d34a95f4f713fc1b559394802885b0a3b3c0b",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VColors",
+          "constructors": [
+            "VColors._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_borders.dart",
+      "sha256": "d8bda2ffdf518a85bbe199785f15979fcec1e886f5549a19697d33ca76494df9",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VBorders",
+          "constructors": [
+            "VBorders._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_radius.dart",
+      "sha256": "23ff9c69a89b6bb9bdf2c35b58c9a5eab04dfabacba57021adbb9ab99910ec93",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VRadius",
+          "constructors": [
+            "VRadius._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_spacing.dart",
+      "sha256": "f2a301f42c5373d07ecce708a703817842af54b2612ba67ab361fba8ae302fd7",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSpacing",
+          "constructors": [
+            "VSpacing._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_breakpoints.dart",
+      "sha256": "673ab35f942d1d7537bda06996bb9f1d1f7b852b2658f8f1b0e13c784459f19f",
+      "enums": {
+        "VBreakpoint": [
+          "mobile",
+          "tablet"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VBreakpoints",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_typography.dart",
+      "sha256": "f6d5bc57ef6be528b48d6c5288e889abeea53c449635fab53d5945bcea3e1ca5",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTypography",
+          "constructors": [
+            "VTypography._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_shadows.dart",
+      "sha256": "4d736c0cbd89b69ff921d5c0de98bcef41538ede4d806ec1babacb83d887533d",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VShadows",
+          "constructors": [
+            "VShadows._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_assets.dart",
+      "sha256": "78a4b88cc9799248743b838197d0a29728a25dc2ea269d2c64c37861636b37f1",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VAssets",
+          "constructors": [
+            "VAssets._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_duration.dart",
+      "sha256": "096155e15bfdee8bcea8341a106c5aea8cdafbe384fd8fa2aa5dcb04b9cd69a0",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VDuration",
+          "constructors": [
+            "VDuration._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/tokens/v_opacity.dart",
+      "sha256": "64a4a6b255ad817db7f0bcc631376f41d2ba69321d466d0424470a91a0857709",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VOpacity",
+          "constructors": [
+            "VOpacity._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/theme/v_theme.dart",
+      "sha256": "484cad5ba10d18cbd156c1845fe6fdd978037960d1bc96bfde312874456ec5be",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTheme",
+          "constructors": [
+            "VTheme._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/theme/v_color_scheme.dart",
+      "sha256": "63da2884899fbd3ec47459fab2f6423abc1c41051e6b4dc388b8c42bf910bfb2",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VColorScheme",
+          "constructors": [
+            "const VColorScheme({ required this.background, required this.surface, required this.surfaceAlt, required this.surfaceBrand, required this.borderDefault, required this.borderStrong, required this.borderBrand, required this.textPrimary, required this.textSecondary, required this.textMuted, required this.textBrand, required this.textInverse, required this.primary, required this.primaryHover, required this.primaryPressed, required this.primaryFocus, @Deprecated('Use vDisabledOpacity / VOpacity.disabled') required this.primaryDisabled, required this.surfaceHover, required this.surfacePressed, required this.focusRing, @Deprecated('Use vDisabledOpacity / VOpacity.disabled') required this.disabledBg, @Deprecated('Use vDisabledOpacity / VOpacity.disabled') required this.disabledBorder, @Deprecated('Use vDisabledOpacity / VOpacity.disabled') required this.disabledFg, required this.toastSurface, required this.success, required this.successBg, required this.successBgPressed, required this.warning, required this.warningHover, required this.warningPressed, required this.warningBg, required this.warningBgPressed, required this.danger, required this.dangerHover, required this.dangerPressed, required this.dangerBg, required this.dangerBgPressed, required this.info, required this.infoHover, required this.infoPressed, required this.infoBg, required this.infoBgPressed, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/theme/v_density.dart",
+      "sha256": "44f4a5f9fe3e498197b81b1dab2b4c4d66f4626cc6691a4a3df144b9774154f4",
+      "enums": {
+        "VDensityMode": [
+          "compact",
+          "comfortable"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VDensity",
+          "constructors": [
+            "const VDensity({ required this.mode, required this.controlHeightSmall, required this.controlHeightMedium, required this.controlHeightLarge, required this.fieldVerticalPadding, required this.fieldHorizontalPadding, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_context_extensions.dart",
+      "sha256": "0690fb2a2ccbf08eb4b4a89cc217ad7b8a9aacf75e448551c3c3fc89cbc91faa",
+      "enums": {},
+      "classes": []
+    },
+    {
+      "export": "src/foundation/v_component_contracts.dart",
+      "sha256": "5ecdfffaeac90a25f2000d58ad4941abbb6118313a1f3ca94c666fc1be33da8d",
+      "enums": {
+        "VComponentTone": [
+          "neutral",
+          "primary",
+          "success",
+          "warning",
+          "danger",
+          "info"
+        ],
+        "VComponentEmphasis": [
+          "subtle",
+          "medium",
+          "strong"
+        ]
+      },
+      "classes": []
+    },
+    {
+      "export": "src/foundation/v_component_scope.dart",
+      "sha256": "f4f3584a266bd442c65528697a571ad2f09c2161a3965531013573ecfbf0518a",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComponentScope",
+          "constructors": [
+            "const VComponentScope({ super.key, this.tone, this.enabled, required super.child, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_inspector_scope.dart",
+      "sha256": "2bdbcb3317f5d489055c1f0f538292c4f5830534239bcba148823043d250c986",
+      "enums": {},
+      "classes": []
+    },
+    {
+      "export": "src/foundations/icons/v_icons.dart",
+      "sha256": "e2c05b9c7fa81389f2b74325b0f3ad0f84daed8f3b30f248af986fb57f16da54",
+      "enums": {
+        "VIcons": [
+          "arrowLeft",
+          "arrowRight",
+          "chevronLeft",
+          "chevronRight",
+          "chevronDown",
+          "chevronUp",
+          "chevronRightRounded",
+          "chevronLeftRounded",
+          "arrowBack",
+          "arrowForward",
+          "arrowForwardRounded",
+          "expandLess",
+          "expandMore",
+          "expandLessRounded",
+          "arrowDropUp",
+          "arrowDropDown",
+          "search",
+          "add",
+          "addCircle",
+          "close",
+          "delete",
+          "edit",
+          "refresh",
+          "moreVert",
+          "moreHoriz",
+          "tune",
+          "swapVert",
+          "download",
+          "power",
+          "powerOff",
+          "check",
+          "logout",
+          "visibility",
+          "visibilityOff",
+          "warning",
+          "error",
+          "success",
+          "info",
+          "shield",
+          "cloud",
+          "cloudOff",
+          "cloudUpload",
+          "fileUp",
+          "fileSpreadsheet",
+          "calendar",
+          "phone",
+          "location",
+          "people",
+          "group",
+          "home",
+          "receipt",
+          "inventory",
+          "store",
+          "notification",
+          "apartment",
+          "person",
+          "personAdd",
+          "personCheck",
+          "personRemove",
+          "description",
+          "gridView",
+          "stickyNote",
+          "accountBalanceWallet",
+          "warehouse",
+          "straighten",
+          "chart",
+          "image",
+          "camera",
+          "clipboard",
+          "history",
+          "inbox",
+          "ban",
+          "play",
+          "restore",
+          "tag",
+          "coins",
+          "gripVertical",
+          "trendingUp",
+          "trendingDown",
+          "listView",
+          "checkList",
+          "circle",
+          "lock",
+          "settings",
+          "star",
+          "mail",
+          "truck",
+          "creditCard",
+          "briefcase",
+          "pause",
+          "contact",
+          "bolt",
+          "qrCode",
+          "printer",
+          "share2",
+          "fileCheck",
+          "receiptText",
+          "send",
+          "minus",
+          "banknoteArrowDown",
+          "badgePercent",
+          "scanLine",
+          "clock",
+          "clipboardClock",
+          "rotateCcwKey",
+          "fileXCorner",
+          "pencil",
+          "save"
+        ]
+      },
+      "classes": []
+    },
+    {
+      "export": "src/foundation/v_text_normalizer.dart",
+      "sha256": "67a93368cbc6122297b84369698ba821419d569d3bf4dc650b58d8fb0667f5ef",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTextNormalizer",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_datetime.dart",
+      "sha256": "80ad3c7edacdf4ea613e1fd2496f88ea80747a0003b0e11e0d8456ea5013f199",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VDateTime",
+          "constructors": [
+            "const VDateTime._();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_route_overlay_guard.dart",
+      "sha256": "57dde45aa7cbf9538438f5642070eaa2f491485e80167538afbb5f92212cf2c0",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VRouteOverlayGuard",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_layout.dart",
+      "sha256": "ca0c099dd8a1dd88cf074356088457c148b4b34023d7a0030e85797ed989146c",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VOverlayMenuLayout",
+          "constructors": []
+        },
+        {
+          "name": "VOverlayMenuPanelMetrics",
+          "constructors": [
+            "const VOverlayMenuPanelMetrics({ required this.shellHeight, required this.listViewportHeight, required this.needsScroll, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_overlay_menu_shell.dart",
+      "sha256": "ff58e8c5998956a794d7ed0774d05f53694f52b9c5938f2cddf68376db67d5ed",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VOverlayMenuShell",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/foundation/v_dropdown_filter.dart",
+      "sha256": "7df9755535c5d505db7a5002ff6cd2b55f06b6f2026be506bdd1756de753c385",
+      "enums": {},
+      "classes": []
+    },
+    {
+      "export": "src/audit/v_component_audit_snapshot.dart",
+      "sha256": "6c0f8aa70259662ab7e0ce0a15ff775a4e42adc87dd28b76d41bc867e3de5d83",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComponentAuditEntry",
+          "constructors": [
+            "const VComponentAuditEntry({ required this.category, required this.exportPath, required this.exists, required this.classNames, required this.primaryClass, required this.role, required this.hasSemantics, required this.hasTone, required this.hasEmphasis, required this.hasState, required this.hasSemanticLabel, required this.toneExpect, required this.emphasisExpect, required this.stateExpect, required this.semanticLabelExpect, required this.toneStatus, required this.emphasisStatus, required this.stateStatus, required this.semanticLabelStatus, });",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_app_bar.dart', exists: true, classNames: ['VAppBarTitle', 'VAppBarSubtitle', 'VAppBar'], primaryClass: 'VAppBar', role: '",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_avatar.dart', exists: true, classNames: ['VAvatar'], primaryClass: 'VAvatar', role: 'unmapped', hasSemantics: false,",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_banner.dart', exists: true, classNames: ['VBanner'], primaryClass: 'VBanner', role: 'unmapped', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_bottom_navigation_bar.dart', exists: true, classNames: ['VBottomNavigationItem', 'VBottomNavigationBar'], primaryClass: 'VBot",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_bottom_sheet.dart', exists: true, classNames: ['VBottomSheet'], primaryClass: 'VBottomSheet', role: 'overlay_shell',",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_button.dart', exists: true, classNames: ['VButton'], primaryClass: 'VButton', role: 'action', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_card.dart', exists: true, classNames: ['VCard', 'VCardHeader', 'VCardIcon', 'VCardTitle', 'VCardAction', 'VCardContent', 'VCardFo",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_checkbox.dart', exists: true, classNames: ['VCheckbox'], primaryClass: 'VCheckbox', role: 'toggle', hasSemantics: tru",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_combobox.dart', exists: true, classNames: ['VCombobox'], primaryClass: 'VCombobox', role: 'unmapped', hasSemantics: t",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_empty_state.dart', exists: true, classNames: ['VEmptyState', 'VEmptyHeader', 'VEmptyMedia', 'VEmptyTitle', 'VEmptyDescription', '",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_file_drop_zone.dart', exists: true, classNames: ['VFileDropZone'], primaryClass: 'VFileDropZone', role: 'input', hasS",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_floating_action_button.dart', exists: true, classNames: ['VFloatingActionButton'], primaryClass: 'VFloatingActionButton',",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_loading.dart', exists: true, classNames: ['VLoading'], primaryClass: 'VLoading', role: 'status_display', hasSemantics",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_modal.dart', exists: true, classNames: ['VConfirmDialog'], primaryClass: 'VConfirmDialog', role: 'overlay_shell', has",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_numeric_keypad_sheet.dart', exists: true, classNames: ['VNumericKeypadSheet'], primaryClass: 'VNumericKeypadSheet', role:",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_progress.dart', exists: true, classNames: ['VProgress'], primaryClass: 'VProgress', role: 'status_display', hasSemant",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_radio.dart', exists: true, classNames: ['VRadio'], primaryClass: 'VRadio', role: 'toggle', hasSemantics: true, ha",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_search_bar.dart', exists: true, classNames: ['VSearchBar'], primaryClass: 'VSearchBar', role: 'input', hasSemantics:",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_segmented_control.dart', exists: true, classNames: ['VSegmentedControl'], primaryClass: 'VSegmentedControl', role: 'navig",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_steps.dart', exists: true, classNames: ['VStepItem', 'VSteps'], primaryClass: 'VSteps', role: 'navigation_chrome', ha",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_swipe_reveal.dart', exists: true, classNames: ['VSwipeReveal'], primaryClass: 'VSwipeReveal', role: 'unmapped', hasSe",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_switch.dart', exists: true, classNames: ['VSwitch'], primaryClass: 'VSwitch', role: 'toggle', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_table.dart', exists: true, classNames: ['VTableHeader', 'VTable'], primaryClass: 'VTable', role: 'container', hasSema",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_tabs.dart', exists: true, classNames: ['VTabs', 'VTabsList', 'VTabsTrigger', 'VTabsContent'], primaryClass: 'VTabs', role",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_text_area.dart', exists: true, classNames: ['VTextArea'], primaryClass: 'VTextArea', role: 'unmapped', hasSemantics:",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_text_field.dart', exists: true, classNames: ['VTextField'], primaryClass: 'VTextField', role: 'input', hasSemantics:",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_text_form_field.dart', exists: true, classNames: ['VTextFormField'], primaryClass: 'VTextFormField', role: 'unmapped',",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_toast.dart', exists: true, classNames: ['VToast'], primaryClass: 'VToast', role: 'status_display', hasSemantics: true",
+            "VComponentAuditEntry( category: 'components', exportPath: 'src/components/v_verification_code_field.dart', exists: true, classNames: ['VVerificationCodeField'], primaryClass: 'VVerificationCodeField',",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_choice_list.dart', exists: true, classNames: ['VChoiceList'], primaryClass: 'VChoiceList', role: 'input', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_date_picker.dart', exists: true, classNames: ['VDatePicker'], primaryClass: 'VDatePicker', role: 'input', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_email_field.dart', exists: true, classNames: ['VEmailField'], primaryClass: 'VEmailField', role: 'input', hasSemantics: false,",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_money_field.dart', exists: true, classNames: ['VMoneyField'], primaryClass: 'VMoneyField', role: 'input', hasSemantics: false,",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_number_field.dart', exists: true, classNames: ['VNumberField'], primaryClass: 'VNumberField', role: 'input', hasSemantics: fals",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_password_field.dart', exists: true, classNames: ['VPasswordField'], primaryClass: 'VPasswordField', role: 'unmapped', hasSemant",
+            "VComponentAuditEntry( category: 'forms', exportPath: 'src/forms/v_select.dart', exists: true, classNames: ['VSelect'], primaryClass: 'VSelect', role: 'input', hasSemantics: true, hasTone: t",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_content_width.dart', exists: true, classNames: ['VContentWidth'], primaryClass: 'VContentWidth', role: 'unmapped', hasSem",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_field.dart', exists: true, classNames: ['VField', 'VFieldLabel', 'VFieldDescription', 'VFieldError'], primaryClass: 'VField',",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_gap.dart', exists: true, classNames: ['VGap'], primaryClass: 'VGap', role: 'layout_pattern', hasSemantics: false, has",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_page_padding.dart', exists: true, classNames: ['VPagePadding'], primaryClass: 'VPagePadding', role: 'layout_pattern', has",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_page_scaffold.dart', exists: true, classNames: ['VPageScaffold'], primaryClass: 'VPageScaffold', role: 'layout_pattern',",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_responsive.dart', exists: true, classNames: ['VResponsiveValue', 'VResponsive'], primaryClass: 'VResponsive', role: 'unmapped",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_responsive_grid.dart', exists: true, classNames: ['VResponsiveGrid'], primaryClass: 'VResponsiveGrid', role: 'unmapped',",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_responsive_visibility.dart', exists: true, classNames: ['VResponsiveVisibility'], primaryClass: 'VResponsiveVisibility', role",
+            "VComponentAuditEntry( category: 'patterns', exportPath: 'src/patterns/v_section.dart', exists: true, classNames: ['VSection'], primaryClass: 'VSection', role: 'container', hasSemantics: false,",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_badge.dart', exists: true, classNames: ['VBadge'], primaryClass: 'VBadge', role: 'status_display', hasSemantics: true",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_chip.dart', exists: true, classNames: ['VChip'], primaryClass: 'VChip', role: 'status_display', hasSemantics: true,",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_divider.dart', exists: true, classNames: ['VDivider'], primaryClass: 'VDivider', role: 'layout_pattern', hasSemantics",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_icon.dart', exists: true, classNames: ['VIcon'], primaryClass: 'VIcon', role: 'typography_primitive', hasSemantics: t",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_icon_box.dart', exists: true, classNames: ['VIconBox'], primaryClass: 'VIconBox', role: 'status_display', hasSemantic",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_skeleton.dart', exists: true, classNames: ['VSkeletonScope', 'VSkeleton'], primaryClass: 'VSkeleton', role: 'layout_patte",
+            "VComponentAuditEntry( category: 'primitives', exportPath: 'src/primitives/v_text.dart', exists: true, classNames: ['VText'], primaryClass: 'VText', role: 'typography_primitive', hasSemantics: f"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_gap.dart",
+      "sha256": "f4958a5e0b436aca869d4cbde60f67877b07fcb24071be7272c881423738485f",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VGap",
+          "constructors": [
+            "const VGap(this.size, {super.key, this.axis = Axis.vertical});",
+            "const VGap.xs({super.key, this.axis = Axis.vertical}) : size = VSpacing.xs; const VGap.sm({super.key, this.axis = Axis.vertical}) : size = VSpacing.sm; const VGap.md({super.key, this.axis = Axis.vertical}) : size = VSpacing.md; const VGap.lg({super.key, this.axis = Axis.vertical}) : size = VSpacing.lg; const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl; const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.sm({super.key, this.axis = Axis.vertical}) : size = VSpacing.sm; const VGap.md({super.key, this.axis = Axis.vertical}) : size = VSpacing.md; const VGap.lg({super.key, this.axis = Axis.vertical}) : size = VSpacing.lg; const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl; const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.md({super.key, this.axis = Axis.vertical}) : size = VSpacing.md; const VGap.lg({super.key, this.axis = Axis.vertical}) : size = VSpacing.lg; const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl; const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.lg({super.key, this.axis = Axis.vertical}) : size = VSpacing.lg; const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl; const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl; const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.xxl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xxl; const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal; const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal; const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal; const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );",
+            "const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal; final double size; final Axis axis; @override Widget build(BuildContext context) { return vInspectorHide( axis == Axis.vertical ? SizedBox(height: size) : SizedBox(width: size), );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_field.dart",
+      "sha256": "a8333a761e41f8d09c481a9a27432f181f191d9e8355a560125dfe2549eef6c2",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VFieldScope",
+          "constructors": [
+            "const VFieldScope({ super.key, required this.invalid, required super.child, });",
+            "VFieldScope( invalid: invalid, child: vInspectorShow(child), ), );"
+          ]
+        },
+        {
+          "name": "VField",
+          "constructors": [
+            "const VField({ super.key, required this.child, this.invalid = false, });"
+          ]
+        },
+        {
+          "name": "VFieldLabel",
+          "constructors": [
+            "const VFieldLabel( this.text, { super.key, this.isRequired = false, });"
+          ]
+        },
+        {
+          "name": "VFieldDescription",
+          "constructors": [
+            "const VFieldDescription(this.text, {super.key});",
+            "VFieldDescription(helperText), ], ), );"
+          ]
+        },
+        {
+          "name": "VFieldError",
+          "constructors": [
+            "const VFieldError(this.text, {super.key});",
+            "VFieldError(errorText) else if (helperText != null) VFieldDescription(helperText), ], ), );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_page_padding.dart",
+      "sha256": "213fa339e0aed200170908a1cd987525d3a8cb86c58b24a74346b4b3e67064d8",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPagePadding",
+          "constructors": [
+            "const VPagePadding({ super.key, required this.child, this.horizontal, this.vertical, this.applyBottomSafeArea = false, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_section.dart",
+      "sha256": "2439ecd79e3331c8113b55b5c948007e1f412340049643963e0b08b81bfc7466",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSection",
+          "constructors": [
+            "const VSection({ super.key, this.title, this.subtitle, this.trailing, required this.child, this.gapAfterHeader = VSpacing.sm, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_page_scaffold.dart",
+      "sha256": "2d91180f2b7c14544ce3d467f72d853912b2900b8efa66d8d6dc917bb403143c",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPageScaffold",
+          "constructors": [
+            "const VPageScaffold({ super.key, required this.title, this.subtitle, this.titleStyle, required this.body, this.leading, this.actions, this.showBackButton = true, this.centerTitle = false, this.bottomBar, this.floatingActionButton, this.resizeToAvoidBottomInset = true, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_responsive.dart",
+      "sha256": "9c3108524cfceea55e4dc3c7d2b62e336c0fa086e5ae626c302ea964c923b175",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VResponsiveValue",
+          "constructors": [
+            "const VResponsiveValue({ required this.mobile, this.tablet, this.desktop, });"
+          ]
+        },
+        {
+          "name": "VResponsive",
+          "constructors": [
+            "const VResponsive({ super.key, required this.builder, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_responsive_visibility.dart",
+      "sha256": "d056e87702915718b3f848cc5eb8c3205533cc53472caed3ed5cada538d64167",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VResponsiveVisibility",
+          "constructors": [
+            "const VResponsiveVisibility({ super.key, required this.child, this.visibleOn, this.visibleFrom, this.visibleUntil, this.maintainState = false, this.maintainAnimation = false, this.maintainSize = false, }) : assert( visibleOn != null || visibleFrom != null || visibleUntil != null, 'Provide visibleOn, visibleFrom, and/or visibleUntil', );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_content_width.dart",
+      "sha256": "77207450818436931769e3a56db921b8d3d016e9487a841b75ccf89129ffee2e",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VContentWidth",
+          "constructors": [
+            "const VContentWidth({ super.key, required this.child, this.maxWidth, this.alignment = Alignment.topCenter, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/patterns/v_responsive_grid.dart",
+      "sha256": "62fb206f5bb622cfe24ae609b92f80476ba18705f355d4751f01e6f42bdeed06",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VResponsiveGrid",
+          "constructors": [
+            "const VResponsiveGrid({ super.key, required this.children, this.columns = const VResponsiveValue( mobile: 1, tablet: 2, desktop: 3, ), this.spacing = VSpacing.md, this.runSpacing = VSpacing.md, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_badge.dart",
+      "sha256": "e7a8d3f889cd8ac23070748326a022ed761a55eb4b1256a50ca7fe73697475d6",
+      "enums": {
+        "VBadgeVariant": [
+          "soft",
+          "strong"
+        ],
+        "VBadgeStatus": [
+          "draft",
+          "pending",
+          "processing",
+          "completed",
+          "paid",
+          "partiallyPaid",
+          "outstanding",
+          "overdue",
+          "cancelled",
+          "locked",
+          "success",
+          "warning",
+          "danger",
+          "info"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VBadge",
+          "constructors": [
+            "const VBadge({ super.key, required this.label, // ignore: deprecated_member_use_from_same_package @Deprecated('Use tone + variant instead. Will be removed in a future release.') this.status, this.showDot = false, this.iconData, this.isSmall = false, this.tone, this.variant = VBadgeVariant.soft, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_chip.dart",
+      "sha256": "f8f3f9e89d7a7701126acbf5fc68100e57c56b308333b541c29b4b34eb8cc99e",
+      "enums": {
+        "VChipEmphasis": [
+          "subdued",
+          "base",
+          "strong"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VChip",
+          "constructors": [
+            "const VChip({ super.key, required this.label, this.tone, @Deprecated('Use tone instead. Will be removed in a future release.') this.emphasis, @Deprecated('Use tone: VComponentTone.primary when the chip is selected.') this.selected, this.onTap, this.onRemove, this.icon, @Deprecated('Use icon instead') this.leadingIcon, this.enabled, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_divider.dart",
+      "sha256": "aeeaedbd4ddedcea34eb7de29944ce6f330d0972c7619f0005741e9aaa24f8cc",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VDivider",
+          "constructors": [
+            "const VDivider({ super.key, this.axis = Axis.horizontal, this.thickness = VBorders.thin, this.color, this.indent = 0, this.endIndent = 0, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_icon.dart",
+      "sha256": "b8e67ae2f0664f315f15a8920c065ad50a0c7a5372088dd8c2ae4125cc31ba63",
+      "enums": {
+        "VIconSize": [],
+        "VIconColor": [
+          "primary",
+          "secondary",
+          "muted",
+          "success",
+          "warning",
+          "danger",
+          "info",
+          "white"
+        ],
+        "VIconWeight": []
+      },
+      "classes": [
+        {
+          "name": "VIcon",
+          "constructors": [
+            "const VIcon({ super.key, this.icon, @Deprecated('Use icon parameter with VIcons instead') this.iconData, this.assetPath, this.size, this.color, this.iconSize, this.iconColor, this.weight, }) : assert( icon != null || iconData != null || assetPath != null, 'Either icon, iconData, or assetPath must be provided', );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_icon_box.dart",
+      "sha256": "21d976b541aab347254d275c8172b54b5b5b3ac7dc4a9abead0536c89b09763e",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VIconBox",
+          "constructors": [
+            "const VIconBox({ super.key, this.icon, this.iconData, this.assetPath, this.label, this.size = 40.0, this.iconSize = 20.0, this.backgroundColor, this.iconColor, this.borderRadius, this.isCircular = false, this.onTap, this.borderColor, this.borderWidth, this.tone, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_skeleton.dart",
+      "sha256": "b82517d55652bea6a25da05eab71ad26fc9b0563f49aeff1ad27ca14c864d551",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSkeletonScope",
+          "constructors": [
+            "const VSkeletonScope({ super.key, required this.child, this.duration = VDuration.pulse, });"
+          ]
+        },
+        {
+          "name": "VSkeleton",
+          "constructors": [
+            "const VSkeleton({ super.key, this.width, this.height, this.borderRadius = VRadius.r4, this.margin, this.color, this.semanticLabel, }) : isCircle = false; /// Circular bone (avatar / icon placeholder). const VSkeleton.circle({ super.key, required double size, this.margin, this.color, this.semanticLabel, }) : width = size, height = size, borderRadius = null, isCircle = true; final double? width; final double? height; final double? borderRadius; final EdgeInsetsGeometry? margin; final Color? color; final String? semanticLabel; final bool isCircle; @override State<VSkeleton> createState() => _VSkeletonState();",
+            "const VSkeleton.circle({ super.key, required double size, this.margin, this.color, this.semanticLabel, }) : width = size, height = size, borderRadius = null, isCircle = true; final double? width; final double? height; final double? borderRadius; final EdgeInsetsGeometry? margin; final Color? color; final String? semanticLabel; final bool isCircle; @override State<VSkeleton> createState() => _VSkeletonState();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/primitives/v_text.dart",
+      "sha256": "efefcc5d3a141aef64946b55f593c98ca0f9833763e8f45a44048f88c7928747",
+      "enums": {
+        "VTextVariant": [
+          "displayD1",
+          "headingH1",
+          "headingH2",
+          "headingH3",
+          "headingH4",
+          "bodyDefault",
+          "bodySmall",
+          "caption",
+          "labelDefault",
+          "labelSmall",
+          "actionDefault",
+          "displayD1Mono",
+          "headingH1Mono",
+          "headingH2Mono",
+          "headingH3Mono",
+          "headingH4Mono",
+          "bodyDefaultMono",
+          "bodySmallMono",
+          "labelDefaultMono",
+          "monoNumeric"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VText",
+          "constructors": [
+            "const VText( this.data, { super.key, this.variant = VTextVariant.bodyDefault, this.color, this.tone, this.textAlign, this.maxLines, this.overflow, this.softWrap, this.style, this.semanticsLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_avatar.dart",
+      "sha256": "cef159bf12bf9d7d49ead04826ea84523d6cab482bd84be7da1d94b348bd8b96",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VAvatar",
+          "constructors": [
+            "const VAvatar._({ super.key, required this.label, this.size = 40.0, this.textSize, this.backgroundColor, this.foregroundColor, this.onTap, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_banner.dart",
+      "sha256": "29d50308019e145904126d762b97d78c5787d0386af8c502d7c0092946283211",
+      "enums": {
+        "VBannerStatus": [
+          "info",
+          "success",
+          "warning",
+          "error"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VBanner",
+          "constructors": [
+            "const VBanner({ super.key, required this.title, this.status, this.tone, this.description, @Deprecated('Use description instead') this.message, this.trailing, this.footer, this.semanticLabel, }) : assert( status != null || tone != null, 'Provide either status or tone', );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_button.dart",
+      "sha256": "3c009fe8729cb9730a5d4d07c95584fb4df242fe2e2085fb6a50095d2cfb89cd",
+      "enums": {
+        "VButtonVariant": [
+          "primary",
+          "secondary",
+          "tertiary",
+          "link"
+        ],
+        "VButtonSize": [
+          "small",
+          "medium",
+          "large"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VButton",
+          "constructors": [
+            "const VButton({ super.key, required this.label, this.onPressed, this.isLoading = false, this.leading, this.trailing, @Deprecated('Use leading with VIcons instead') this.leadingIcon, @Deprecated('Use trailing with VIcons instead') this.trailingIcon, this.fullWidth = false, this.variant = VButtonVariant.primary, this.size = VButtonSize.medium, this.flexibleText = true, this.expandText = false, this.textAlign = TextAlign.center, this.foregroundColor, this.tone, this.emphasis = VComponentEmphasis.strong, this.enabled, this.semanticLabel, }) : icon = null, _iconOnly = false; /// Icon-only button (no label). [icon] is required. const VButton.icon({ super.key, required VIcons this.icon, this.onPressed, this.isLoading = false, this.fullWidth = false, this.variant = VButtonVariant.primary, this.size = VButtonSize.medium, this.foregroundColor, this.tone, this.emphasis = VComponentEmphasis.strong, this.enabled, this.semanticLabel, }) : label = '', leading = null, trailing = null, leadingIcon = null, trailingIcon = null, flexibleText = true, expandText = false, textAlign = TextAlign.center, _iconOnly = true; final String label; /// Centered icon for [VButton.icon]; null on labeled constructor. final VIcons? icon; final VoidCallback? onPressed; final bool isLoading; /// Leading icon token (canonical). final VIcons? leading; /// Trailing icon token (canonical). final VIcons? trailing; /// Deprecated: pass a raw widget. Prefer [leading]. @Deprecated('Use leading with VIcons instead') final Widget? leadingIcon; /// Deprecated: pass a raw widget. Prefer [trailing]. @Deprecated('Use trailing",
+            "const VButton.icon({ super.key, required VIcons this.icon, this.onPressed, this.isLoading = false, this.fullWidth = false, this.variant = VButtonVariant.primary, this.size = VButtonSize.medium, this.foregroundColor, this.tone, this.emphasis = VComponentEmphasis.strong, this.enabled, this.semanticLabel, }) : label = '', leading = null, trailing = null, leadingIcon = null, trailingIcon = null, flexibleText = true, expandText = false, textAlign = TextAlign.center, _iconOnly = true; final String label; /// Centered icon for [VButton.icon]; null on labeled constructor. final VIcons? icon; final VoidCallback? onPressed; final bool isLoading; /// Leading icon token (canonical). final VIcons? leading; /// Trailing icon token (canonical). final VIcons? trailing; /// Deprecated: pass a raw widget. Prefer [leading]. @Deprecated('Use leading with VIcons instead') final Widget? leadingIcon; /// Deprecated: pass a raw widget. Prefer [trailing]. @Deprecated('Use trailing with VIcons instead') final Widget? trailingIcon; final bool fullWidth; final VButtonVariant variant; final VButtonSize size; final bool flexibleText; /// When true, the label occupies remaining width between icons ([Expanded]). final bool expandText; /// Alignment applied only to the label text slot. final TextAlign textAlign; final Color? foregroundColor; final VComponentTone? tone; final VComponentEmphasis emphasis; final bool? enabled; final String? semanticLabel; final bool _iconOnly; static TextStyle _textStyleForVariant(VButtonVariant variant) { return switch (variant) { VButtonVariant.primary => VTypography.bodySm"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_card.dart",
+      "sha256": "22adc9ccfb8a8990400bbf4f55ad8c601fdf05b0090583557a10c54d3d5142d9",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VCard",
+          "constructors": [
+            "const VCard({ super.key, required this.child, this.padding, this.onTap, @Deprecated('Use emphasis: VComponentEmphasis.medium instead') this.elevated = false, this.tone, this.emphasis = VComponentEmphasis.subtle, this.enabled, this.backgroundColor, this.border, this.borderRadius, });"
+          ]
+        },
+        {
+          "name": "VCardHeader",
+          "constructors": [
+            "const VCardHeader({ super.key, this.title, this.action, this.padding, this.tone, });"
+          ]
+        },
+        {
+          "name": "VCardIcon",
+          "constructors": [
+            "const VCardIcon({ super.key, this.icon, this.iconData, this.tone, this.size = 40, });"
+          ]
+        },
+        {
+          "name": "VCardTitle",
+          "constructors": [
+            "const VCardTitle( this.title, { super.key, this.description, this.tone, });"
+          ]
+        },
+        {
+          "name": "VCardAction",
+          "constructors": [
+            "const VCardAction({super.key, required this.child});"
+          ]
+        },
+        {
+          "name": "VCardContent",
+          "constructors": [
+            "const VCardContent({ super.key, required this.child, this.denseTop = true, });"
+          ]
+        },
+        {
+          "name": "VCardFooter",
+          "constructors": [
+            "const VCardFooter({ super.key, required this.child, this.alignment = MainAxisAlignment.end, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_checkbox.dart",
+      "sha256": "b1ed2d55cb0fd7129866d985fd0c20ff0da68e27a6c679cede8abf08e83d15db",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VCheckbox",
+          "constructors": [
+            "const VCheckbox({ super.key, required this.value, required this.onChanged, this.label, this.enabled, this.tone = VComponentTone.primary, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_radio.dart",
+      "sha256": "2e4da40d6414d74a5e0ad19cc388135dd3c8cdaf31285113f832532828efd52e",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VRadio",
+          "constructors": [
+            "const VRadio({ super.key, required this.value, required this.onChanged, this.label, this.enabled, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_switch.dart",
+      "sha256": "90d23e087a462a4740bb1d9942250130719758f5ddb58ecb5c5496f429c289b5",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSwitch",
+          "constructors": [
+            "const VSwitch({ super.key, required this.value, this.onChanged, this.label, this.enabled, this.tone = VComponentTone.primary, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_floating_action_button.dart",
+      "sha256": "4977a9a73eed0cce2a064a30566e2048f97bfb9dd01bb6985a6fa1dd4af29192",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VFloatingActionButton",
+          "constructors": [
+            "const VFloatingActionButton({ super.key, this.icon, @Deprecated('Use icon instead') this.iconData, this.onTap, this.backgroundColor, this.iconColor, this.tone = VComponentTone.primary, this.emphasis = VComponentEmphasis.strong, this.enabled, this.semanticLabel, }) : assert(icon != null || iconData != null, 'Either icon or iconData must be provided');"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_text_field.dart",
+      "sha256": "48d8e95c0df4cba66d2f480523c476a740924f9d54d1f7c680e85e4e24973dfb",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTextField",
+          "constructors": [
+            "const VTextField({ super.key, this.controller, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText, this.enabled, this.obscureText = false, this.keyboardType, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.start, this.autofocus = false, this.focusNode, this.onSubmitted, this.border = true, this.isDense = false, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_text_area.dart",
+      "sha256": "b5cc5a0fcd542c28c7871f75f129a05f489cc1e9546f97868a16e77c8ccbebd9",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTextArea",
+          "constructors": [
+            "const VTextArea({ super.key, this.controller, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText, this.enabled, this.obscureText = false, this.keyboardType, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.minLines = defaultMinLines, this.maxLines, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.start, this.autofocus = false, this.focusNode, this.onFieldSubmitted, this.border = true, this.isDense = false, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, this.validator, this.onSaved, this.initialValue, this.autovalidateMode, this.maxLength, this.maxLengthEnforcement, this.showCounter = true, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_text_form_field.dart",
+      "sha256": "11ba84273e1bdd4625d21f3176ffc8b50ce38ea9ef39e983ad27b9e938fb728d",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTextFormField",
+          "constructors": [
+            "const VTextFormField({ super.key, super.controller, @Deprecated('Use VField + VFieldLabel instead') super.label, super.hintText, @Deprecated('Use VFieldDescription instead') super.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) super.errorText, super.prefixIcon, super.suffixIcon, super.suffixIconConstraints, super.suffixText, super.enabled, super.obscureText = false, super.keyboardType, super.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') super.isRequired = false, super.minLines = defaultMinLines, super.maxLines, super.inputFormatters, super.textStyle, super.textAlign = TextAlign.start, super.autofocus = false, super.focusNode, super.onFieldSubmitted, super.border = true, super.isDense = false, super.tone = VComponentTone.neutral, super.emphasis = VComponentEmphasis.medium, super.semanticLabel, super.validator, super.onSaved, super.initialValue, super.autovalidateMode, super.maxLength, super.maxLengthEnforcement, super.showCounter = true, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_verification_code_field.dart",
+      "sha256": "55a89f08f991ca7703e2ea961b33ed4eb4eea686966b9f2c697eb3cc193c5956",
+      "enums": {
+        "VVerificationCodeCharset": [
+          "numeric",
+          "alphanumeric"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VVerificationCodeField",
+          "constructors": [
+            "const VVerificationCodeField({ super.key, this.length = 6, this.charset = VVerificationCodeCharset.numeric, this.onCompleted, this.onChanged, @Deprecated('Use VField + VFieldLabel instead') this.label, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.enabled, this.autofocus = false, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, this.enableAutofill = true, }) : assert(length > 0, 'length must be greater than 0');"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_search_bar.dart",
+      "sha256": "aa3dadaab4cc605d17c297f73810a2b09b2183fd35d96b0d5d3f177810e694a5",
+      "enums": {
+        "VSearchBarVariant": [
+          "outlined",
+          "filled",
+          "header"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VSearchBar",
+          "constructors": [
+            "const VSearchBar({ super.key, this.hintText = 'Tìm kiếm...', this.variant = VSearchBarVariant.outlined, this.controller, this.onChanged, this.onSubmitted, this.onTap, this.onClear, this.readOnly = false, this.autofocus = false, this.focusNode, this.suffix, this.enabled, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_tabs.dart",
+      "sha256": "0c9408b8bd4720a24f8bd092c686ea7b7fd789b94f0e4aadf765f7c76039ad63",
+      "enums": {
+        "VTabsOrientation": [
+          "horizontal",
+          "vertical"
+        ],
+        "VTabsListVariant": [
+          "line",
+          "plain"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VTabs",
+          "constructors": [
+            "const VTabs({ super.key, @Deprecated('Use VTabsList + VTabsTrigger inside child instead.') this.tabs, required this.selectedIndex, required this.onTabSelected, this.child, this.orientation = VTabsOrientation.horizontal, @Deprecated('Use VTabsList(isScrollable:) inside child instead.') this.isScrollable = false, this.tone = VComponentTone.primary, this.emphasis = VComponentEmphasis.medium, this.disabledIndices, this.semanticLabel, }) : assert( tabs == null || child == null, 'Provide either deprecated tabs or child composition, not both.', );"
+          ]
+        },
+        {
+          "name": "VTabsList",
+          "constructors": [
+            "VTabsList( isScrollable: isScrollable, children: [ for (final label in tabs!) VTabsTrigger(label: label), ], );",
+            "const VTabsList({ super.key, required this.children, this.variant = VTabsListVariant.line, this.isScrollable = false, });"
+          ]
+        },
+        {
+          "name": "VTabsTrigger",
+          "constructors": [
+            "const VTabsTrigger({ super.key, required this.label, this.icon, this.trailing, this.enabled = true, });"
+          ]
+        },
+        {
+          "name": "VTabsContent",
+          "constructors": [
+            "const VTabsContent({ super.key, required this.children, this.swipeEnabled = true, this.expand = true, this.physics, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_empty_state.dart",
+      "sha256": "c362798ff7fa1435d9eb421d12b35526308a401914dfc6b632b8f0310159a3db",
+      "enums": {
+        "VEmptyMediaVariant": [
+          "icon",
+          "plain"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VEmptyState",
+          "constructors": [
+            "const VEmptyState({ super.key, this.child, this.bordered = false, this.filled = false, this.backgroundColor, this.border, this.borderRadius, this.padding, this.semanticLabel, this.tone, @Deprecated( 'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead', ) this.iconEmoji, @Deprecated( 'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead', ) this.icon, @Deprecated( 'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead', ) this.iconData, @Deprecated( 'Use child with VEmptyHeader / VEmptyMedia / VEmptyTitle instead', ) this.title, @Deprecated( 'Use child with VEmptyHeader / VEmptyDescription instead', ) this.description, @Deprecated( 'Use child with VEmptyContent + VButton instead', ) this.actionLabel, @Deprecated( 'Use child with VEmptyContent + VButton instead', ) this.actionLeadingIcon, @Deprecated( 'Use child with VEmptyContent + VButton(leading:) instead', ) this.actionLeading, @Deprecated( 'Use child with VEmptyContent + VButton instead', ) this.onActionPressed, @Deprecated( 'Pass emphasis on VButton inside VEmptyContent instead', ) this.emphasis = VComponentEmphasis.medium, }) : assert( child != null || (title != null && (iconEmoji != null || icon != null || iconData != null)), 'Provide child (composition) or title + icon/iconData/iconEmoji (legacy)', );"
+          ]
+        },
+        {
+          "name": "VEmptyHeader",
+          "constructors": [
+            "VEmptyHeader( children: [ VEmptyMedia( // ignore: deprecated_member_use_from_same_package icon: icon, // ignore: deprecated_member_use_from_same_package iconData: iconData, // ignore: deprecated_member_use_from_same_package emoji: iconEmoji, ), VEmptyTitle(legacyTitle), if (legacyDescription != null) VEmptyDescription(legacyDescription), ], ), if (legacyActionLabel != null && legacyOnAction != null) ...[ const VGap.xl(), VEmptyContent( child: VButton( label: legacyActionLabel, onPressed: legacyOnAction, leading: legacyActionLeadingToken, // ignore: deprecated_member_use_from_same_package leadingIcon: legacyActionLeadingToken == null ? legacyActionLeading : null, size: VButtonSize.medium, emphasis: legacyEmphasis, ), ), ], ], );",
+            "const VEmptyHeader({ super.key, required this.children, this.tone, });"
+          ]
+        },
+        {
+          "name": "VEmptyMedia",
+          "constructors": [
+            "VEmptyMedia( // ignore: deprecated_member_use_from_same_package icon: icon, // ignore: deprecated_member_use_from_same_package iconData: iconData, // ignore: deprecated_member_use_from_same_package emoji: iconEmoji, ), VEmptyTitle(legacyTitle), if (legacyDescription != null) VEmptyDescription(legacyDescription), ], ), if (legacyActionLabel != null && legacyOnAction != null) ...[ const VGap.xl(), VEmptyContent( child: VButton( label: legacyActionLabel, onPressed: legacyOnAction, leading: legacyActionLeadingToken, // ignore: deprecated_member_use_from_same_package leadingIcon: legacyActionLeadingToken == null ? legacyActionLeading : null, size: VButtonSize.medium, emphasis: legacyEmphasis, ), ), ], ], );",
+            "const VEmptyMedia({ super.key, this.child, this.icon, this.iconData, this.emoji, this.variant = VEmptyMediaVariant.icon, this.tone, this.size = 64, }) : assert( child != null || icon != null || iconData != null || emoji != null, 'Provide child, icon, iconData, or emoji', );"
+          ]
+        },
+        {
+          "name": "VEmptyTitle",
+          "constructors": [
+            "VEmptyTitle(legacyTitle), if (legacyDescription != null) VEmptyDescription(legacyDescription), ], ), if (legacyActionLabel != null && legacyOnAction != null) ...[ const VGap.xl(), VEmptyContent( child: VButton( label: legacyActionLabel, onPressed: legacyOnAction, leading: legacyActionLeadingToken, // ignore: deprecated_member_use_from_same_package leadingIcon: legacyActionLeadingToken == null ? legacyActionLeading : null, size: VButtonSize.medium, emphasis: legacyEmphasis, ), ), ], ], );",
+            "const VEmptyTitle( this.text, { super.key, this.tone, });"
+          ]
+        },
+        {
+          "name": "VEmptyDescription",
+          "constructors": [
+            "const VEmptyDescription( this.text, { super.key, });"
+          ]
+        },
+        {
+          "name": "VEmptyContent",
+          "constructors": [
+            "VEmptyContent( child: VButton( label: legacyActionLabel, onPressed: legacyOnAction, leading: legacyActionLeadingToken, // ignore: deprecated_member_use_from_same_package leadingIcon: legacyActionLeadingToken == null ? legacyActionLeading : null, size: VButtonSize.medium, emphasis: legacyEmphasis, ), ), ], ], );",
+            "const VEmptyContent({super.key, required this.child});"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_file_drop_zone.dart",
+      "sha256": "4e1530d13156ae0308fad5bd8f9071a4dc4b20dfbb1f7b68f09d744a0aecf36b",
+      "enums": {
+        "VFileDropZoneState": [
+          "empty",
+          "valid",
+          "invalid",
+          "disabled"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VFileDropZone",
+          "constructors": [
+            "const VFileDropZone({ super.key, required this.title, this.subtitle, this.state = VFileDropZoneState.empty, this.onTap, this.icon, this.trailing, this.action, this.minHeight = 148, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_toast.dart",
+      "sha256": "47c88874faa7311c217d209ed50ef25aaae7fadb05967179b77f527d83e42aac",
+      "enums": {
+        "VToastType": [
+          "success",
+          "warning",
+          "danger",
+          "info"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VToast",
+          "constructors": [
+            "const VToast({ super.key, required this.title, required this.message, required this.type, this.onTap, this.onClose, this.emphasis = VComponentEmphasis.strong, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox.dart",
+      "sha256": "23f43bcbc7fbe6c4ff5f019f0bb6593e20255e88ced5b753224bce5e1afc81fa",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VCombobox",
+          "constructors": [
+            "const VCombobox({ super.key, required this.child, this.value, this.onChanged, this.enabled, this.open, this.onOpenChange, this.filter, this.displayTextForValue, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        },
+        {
+          "name": "VComboboxController",
+          "constructors": [
+            "VComboboxController._(this._host);"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_empty.dart",
+      "sha256": "2baea5e35f2e7da72f1a59fb78b5c08d452b141591f7e540b52683f20973d773",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxEmpty",
+          "constructors": [
+            "const VComboboxEmpty({super.key, this.message});"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_input.dart",
+      "sha256": "81d90e6806c197c094d7bb0621966bcbe37d2dfb51de62353d47123eac0da061",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxInput",
+          "constructors": [
+            "const VComboboxInput({ super.key, this.hintText, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_content.dart",
+      "sha256": "75d5da47bff697781909caff9e973e1572d616ba0af9b62ee48b926cd0c6a1ee",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxContent",
+          "constructors": [
+            "const VComboboxContent({ super.key, required this.child, this.footer, this.padding, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_list.dart",
+      "sha256": "1f70e65ffb6c1f9e4a671996af5d45f355104f3c705a5788fffb6e13396482b3",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxList",
+          "constructors": [
+            "const VComboboxList({ super.key, required this.children, this.empty = const VComboboxEmpty(), });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_item.dart",
+      "sha256": "d08ff72c23480e94581e23082b0a9c54ede015ab28830f1ed9458f50d9f41f1c",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxItem",
+          "constructors": [
+            "const VComboboxItem({ super.key, required this.value, required this.child, this.searchText, this.enabled = true, this.onSelect, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_combobox_footer.dart",
+      "sha256": "348f1f39f16ffb95cde797c80995b020802936b48f5ecdea4638f0186d3a2cc5",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VComboboxFooter",
+          "constructors": [
+            "const VComboboxFooter({ super.key, required this.builder, this.child, this.padding = const EdgeInsets.only(top: VSpacing.space1), });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_bottom_navigation_bar.dart",
+      "sha256": "3fd4247aa84acde41cba2098d6d438d5e56e39c434ac8ec5724f161740fba186",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VBottomNavigationItem",
+          "constructors": [
+            "const VBottomNavigationItem({ required this.icon, required this.label, this.enabled = true, });"
+          ]
+        },
+        {
+          "name": "VBottomNavigationBar",
+          "constructors": [
+            "const VBottomNavigationBar({ super.key, required this.currentIndex, required this.items, required this.onTap, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_modal.dart",
+      "sha256": "a6d56e616522b4b5c28250e9b8bb2459137146d7a171f94651534a7454eb4658",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VConfirmDialog",
+          "constructors": [
+            "const VConfirmDialog({ super.key, required this.title, required this.message, required this.cancelLabel, required this.actionLabel, this.isDestructive = false, required this.onAction, this.tone, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_bottom_sheet.dart",
+      "sha256": "ca8cb382a448697f994222d1dd5158ca94117b09a0b702a7b856c9a428d26e04",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VBottomSheet",
+          "constructors": [
+            "const VBottomSheet({ super.key, this.title, required this.child, this.tone, this.semanticLabel, this.maxHeightFraction = 0.95, }) : assert(maxHeightFraction > 0 && maxHeightFraction <= 1);"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_app_bar.dart",
+      "sha256": "787274405cefe4ec7d08a0ee3fc4061a770d696c0236eec533f9d8200cda517f",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VAppBarTitle",
+          "constructors": [
+            "const VAppBarTitle({super.key, required this.title, this.style});",
+            "VAppBarTitle(title: title, style: titleStyle), const SizedBox(height: 2), VAppBarSubtitle(text: subtitle!), ], ) : VAppBarTitle(title: title, style: titleStyle), leading: resolvedLeading, actions: resolvedActions, bottom: PreferredSize( preferredSize: const Size.fromHeight(1), child: Container(color: dynamicColors.borderDefault, height: 1), ), ), );"
+          ]
+        },
+        {
+          "name": "VAppBarSubtitle",
+          "constructors": [
+            "const VAppBarSubtitle({super.key, required this.text});",
+            "VAppBarSubtitle(text: subtitle!), ], ) : VAppBarTitle(title: title, style: titleStyle), leading: resolvedLeading, actions: resolvedActions, bottom: PreferredSize( preferredSize: const Size.fromHeight(1), child: Container(color: dynamicColors.borderDefault, height: 1), ), ), );"
+          ]
+        },
+        {
+          "name": "VAppBar",
+          "constructors": [
+            "const VAppBar({ super.key, required this.title, this.titleStyle, this.subtitle, this.leading, this.actions, this.showBackButton = true, this.centerTitle = false, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_table.dart",
+      "sha256": "2bd52d48651696b1735930d93db2615f0d086da089ecc5842efc1b8248031c74",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VTableHeader",
+          "constructors": [
+            "const VTableHeader({ required this.title, this.isNumeric = false, });"
+          ]
+        },
+        {
+          "name": "VTable",
+          "constructors": [
+            "const VTable({ super.key, required this.headers, required this.rows, this.columnWidths, this.emphasis = VComponentEmphasis.medium, this.tone, this.stripedRows = false, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_loading.dart",
+      "sha256": "993eec5839d294cd0256ce77e6052b6a30d25c7798db972ebee714dec4c8745a",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VLoading",
+          "constructors": [
+            "const VLoading({ super.key, this.title, this.description, this.size = 40.0, this.strokeWidth = 4.0, this.color, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_steps.dart",
+      "sha256": "c657ef78e01ef3676b5027ac7aa92e1452e3b312edb02bb5410d8f6c7ff25cb6",
+      "enums": {
+        "VStepStatus": [
+          "completed",
+          "active",
+          "inactive"
+        ],
+        "VStepsType": [
+          "horizontal",
+          "list"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VStepItem",
+          "constructors": [
+            "const VStepItem({ required this.title, this.subtitle, this.status, });"
+          ]
+        },
+        {
+          "name": "VSteps",
+          "constructors": [
+            "const VSteps({ super.key, required this.steps, required this.currentStep, this.type = VStepsType.horizontal, this.direction = Axis.horizontal, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_progress.dart",
+      "sha256": "9de835ac6c2f1ca0f1ecd4f3f1c1e6e742f13845a6ec4a9f68bb710c7574f527",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VProgress",
+          "constructors": [
+            "const VProgress({ super.key, required this.value, this.height = 8.0, this.color, this.backgroundColor, this.borderRadius, this.animated = true, this.duration = const Duration(milliseconds: 300), this.semanticLabel, }) : assert(value >= 0.0 && value <= 1.0);"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_segmented_control.dart",
+      "sha256": "5c00f25387030afbe8c3dcae6bc5ef1002e52c5b92d94e1830211def1d1cd2da",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSegmentedControl",
+          "constructors": [
+            "const VSegmentedControl({ super.key, required this.segments, required this.selectedIndex, required this.onChanged, this.enabled, this.tone = VComponentTone.primary, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_numeric_keypad_sheet.dart",
+      "sha256": "351227f95f3423372292ac166508fb89a2b671ff29abde759abff8e74b3e14f2",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VNumericKeypadSheet",
+          "constructors": [
+            "const VNumericKeypadSheet({ super.key, required this.mode, required this.onCancel, required this.onSave, this.title, this.unitLabel, this.initialRaw = '', this.allowDecimal = true, this.maxIntegerDigits = 12, this.tone = VComponentTone.primary, this.emphasis = VComponentEmphasis.medium, this.enabled, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/components/v_swipe_reveal.dart",
+      "sha256": "f1e9a6eca047e65d6f474010d30c323667a8b56d45ec49601d59210844f471c1",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSwipeReveal",
+          "constructors": [
+            "const VSwipeReveal({ super.key, required this.child, required this.actionsBuilder, required this.actionExtent, this.enabled = true, this.initiallyRevealed = false, this.onTap, this.height, this.clipBorderRadius, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_email_validator.dart",
+      "sha256": "271526ef4c68cccfb467b8c6bc173b39520a0508f3750a0788c5c785396ad28d",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VEmailValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_phone_field.dart",
+      "sha256": "92782a9bcea6754367a448d234889f5aad4fe23d5f2bff06381374144509876a",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPhoneField",
+          "constructors": [
+            "const VPhoneField({ super.key, this.controller, this.initialValue, this.label, this.hintText, this.helperText, this.errorText, this.isRequired = false, this.enabled = true, this.focusNode, this.autofocus = false, this.onChanged, this.onSubmitted, this.validateOnChanged = true, this.debounceDuration = VDuration.normal, this.requiredMessage = VPhoneValidator.defaultRequiredMessage, this.invalidMessage = VPhoneValidator.defaultInvalidMessage, this.invalid, this.semanticLabel, }) : assert( controller == null || initialValue == null, 'controller and initialValue cannot both supply text', );"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_phone_validator.dart",
+      "sha256": "dc08548f1683060c4ec5045ed13f31bd570049dc8f12e28d265a53b95c1fc5a3",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPhoneValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_password_validator.dart",
+      "sha256": "8d80741242f7da0156cacfab3cd84596733e927a2e17ead54893f9f57d73824c",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPasswordValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_money_validator.dart",
+      "sha256": "768506cec6f448d9d72608be61c0c0678d36a0042b0b1648b5a4d11cf13b7101",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VMoneyValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_number_validator.dart",
+      "sha256": "64c332a1da7105522ec932849bd31f9eb0aa0aa0efb3ba1beebd088133a4f517",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VNumberValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_select_validator.dart",
+      "sha256": "83e49c1e92a2ac0acea41e55d23731e53ccc76dfac6de66b3cf67b11386718dc",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSelectValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/validators/v_choice_list_validator.dart",
+      "sha256": "5cd8f85163001a7e068fca24f3f75e68dc386b0c039878708238462214208aba",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VChoiceListValidator",
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "export": "src/forms/formatters/v_money_input_formatter.dart",
+      "sha256": "a45b2db3603919c487693e3b5d2ca6ec159afdbcf74fe7dc2a8b425fa4841773",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VMoneyInputFormatter",
+          "constructors": [
+            "const VMoneyInputFormatter();"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/formatters/v_number_input_formatter.dart",
+      "sha256": "53586a62cb8662fef156c93996b5a9e1061f7d6f347ffc37e338de83c309dacf",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VNumberInputFormatter",
+          "constructors": [
+            "const VNumberInputFormatter({ this.allowDecimal = false, this.allowNegative = false, this.decimalPlaces = 2, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/models/v_choice_option.dart",
+      "sha256": "a34655e9e5f0e42b107aa7afade88c48e135141ff7bb1153ae61e2ae148a9dc9",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VChoiceOption",
+          "constructors": [
+            "const VChoiceOption({ required this.value, required this.label, this.helpText, this.disabled = false, this.childBuilder, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_email_field.dart",
+      "sha256": "3ddecc14a16fcddfd7976a676fd1756089ba6013ed656f4956ee151c3ced23e8",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VEmailField",
+          "constructors": [
+            "const VEmailField({ super.key, this.controller, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText, this.enabled, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.start, this.autofocus = false, this.focusNode, this.onSubmitted, this.border = true, this.debounceDuration = VDuration.normal, this.validateOnChanged = true, this.invalidEmailMessage = VEmailValidator.defaultInvalidEmailMessage, this.requiredEmailMessage = VEmailValidator.defaultRequiredEmailMessage, this.minLength = VEmailValidator.defaultMinLength, this.maxLength = VEmailValidator.defaultMaxLength, this.minLengthEmailMessage, this.maxLengthEmailMessage, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_password_field.dart",
+      "sha256": "86efa90268388cb889090da3e72891871a5a560bb667feb67bf6a97b53dbbb87",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VPasswordField",
+          "constructors": [
+            "const VPasswordField({ super.key, this.controller, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText, this.enabled, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.start, this.autofocus = false, this.focusNode, this.onSubmitted, this.border = true, this.debounceDuration = VDuration.normal, this.validateOnChanged = true, this.initiallyObscured = true, this.requiredPasswordMessage = VPasswordValidator.defaultRequiredPasswordMessage, this.minLength = VPasswordValidator.defaultMinLength, this.maxLength = VPasswordValidator.defaultMaxLength, this.minLengthPasswordMessage, this.maxLengthPasswordMessage, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_money_field.dart",
+      "sha256": "64b789ebd846f039d248229a3609874a780041aad47c28bd7c54a06d5c0cc542",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VMoneyField",
+          "constructors": [
+            "const VMoneyField({ super.key, this.controller, this.value, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText = 'đ', this.enabled, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.min, this.max, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.end, this.autofocus = false, this.focusNode, this.onSubmitted, this.border = true, this.debounceDuration = VDuration.normal, this.requiredMessage = VMoneyValidator.defaultRequiredMessage, this.invalidMessage = VMoneyValidator.defaultInvalidMessage, this.minMessage, this.maxMessage, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_number_field.dart",
+      "sha256": "436655263f0afbe0589b9561c2a5c209ab864a31e29d83f9363bb8d2737f5823",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VNumberField",
+          "constructors": [
+            "const VNumberField({ super.key, this.controller, this.value, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.prefixIcon, this.suffixIcon, this.suffixIconConstraints, this.suffixText, this.enabled, this.onChanged, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.allowDecimal = false, this.allowNegative = false, this.decimalPlaces = 2, this.min, this.max, this.inputFormatters, this.textStyle, this.textAlign = TextAlign.start, this.autofocus = false, this.focusNode, this.onSubmitted, this.border = true, this.debounceDuration = VDuration.normal, this.requiredMessage = VNumberValidator.defaultRequiredMessage, this.invalidMessage = VNumberValidator.defaultInvalidMessage, this.minMessage, this.maxMessage, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_select.dart",
+      "sha256": "107da8b36900d5f4ce7cfa7c211a1d834dd2b9bea7effc75111a3e4d3e3ae2bf",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VSelect",
+          "constructors": [
+            "const VSelect({ super.key, required this.value, required this.items, required this.onChanged, @Deprecated('Use VField + VFieldLabel instead') this.label, this.hintText = 'Chọn...', @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, this.enabled, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.requiredMessage = VSelectValidator.defaultRequiredMessage, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_choice_list.dart",
+      "sha256": "bc8b187271372585232bba7d8a4cf359ad7069bb06f9c016b8a388f3e35817cf",
+      "enums": {},
+      "classes": [
+        {
+          "name": "VChoiceList",
+          "constructors": [
+            "const VChoiceList({ super.key, @Deprecated('Use VField + VFieldLabel instead') this.title, required this.choices, required this.selected, required this.onChanged, this.allowMultiple = false, this.enabled, this.titleHidden = false, @Deprecated('Use VFieldDescription instead') this.helperText, @Deprecated( 'Use VField(invalid: true) + VFieldError for message; keep error chrome via tone/domain', ) this.errorText, @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.isRequired = false, this.minSelections, this.maxSelections, this.requiredMessage = VChoiceListValidator.defaultRequiredMessage, this.minSelectionsMessage, this.maxSelectionsMessage, this.semanticLabel, this.invalid, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, });"
+          ]
+        }
+      ]
+    },
+    {
+      "export": "src/forms/v_date_picker.dart",
+      "sha256": "811d608d81c3bca57c50cd0672cb290898cfa4a7c3862934d19bde7ffb910cec",
+      "enums": {
+        "VDatePickerIconPosition": [
+          "left",
+          "right"
+        ]
+      },
+      "classes": [
+        {
+          "name": "VDatePicker",
+          "constructors": [
+            "const VDatePicker({ super.key, this.value, @Deprecated('Use VField + VFieldLabel instead') required this.label, this.hintText = 'Chọn ngày', @Deprecated('Use VFieldLabel(..., isRequired: true) instead') this.required = false, this.onChanged, this.onTap, this.firstDate, this.lastDate, this.initialDate, this.enabled, this.tone = VComponentTone.neutral, this.emphasis = VComponentEmphasis.medium, this.semanticLabel, this.iconPosition = VDatePickerIconPosition.left, });"
+          ]
+        }
+      ]
+    }
+  ]
+}
