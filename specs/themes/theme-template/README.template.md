@@ -51,13 +51,12 @@ là hướng dẫn, có thể xóa sau khi hoàn thiện.
 - `01.knowledge/`: tri thức, quyết định, thuật ngữ.
 - `02.specification/behavior/`: BJ, UC, BC; UI Flow nằm trong BJ.
 - `02.specification/domain/`: domain-foundation, entities, aggregates, read-models, integrations; vùng chung BA/SA.
-- `02.specification/technical-contracts/`: quy tắc kỹ thuật dùng chung nhiều Slice/toàn Theme.
 - `03.design/`: screens, patterns, design-system, prototype; giữ runtime chạy được khi có.
 - `04.harness/`: `BJ-<id>-harness/` flat + `CATALOG.md`. Một Work Slice là một outcome, một file.
 - `05.procedures/`: quy trình kỹ thuật/vận hành.
 - `09.generated/`: registry/matrix/index sinh tự động.
 
-Slice dẫn UC Flow/Scenario, Screen, Domain và Technical Contract liên quan; chứa thiết kế cục bộ, đầu ra và cách kiểm chứng. Không sao chép quy tắc chuẩn vào nhiều Slice.
+Slice dẫn UC Flow/Scenario, Screen và Domain liên quan; chứa contract của outcome, thiết kế cục bộ, đầu ra và cách kiểm chứng. Quy tắc nền tảng dẫn từ `docs/architecture`. Không sao chép quy tắc Domain vào nhiều Slice.
 
 ## 8. Phiên bản
 

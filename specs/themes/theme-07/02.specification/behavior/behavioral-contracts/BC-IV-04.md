@@ -70,7 +70,7 @@ Source component record, allocations, batches, lines, value movements, dirty cau
 Giữ compatibility với mã lỗi triển khai hiện hành nhưng semantic canonical là **value adjustment**:
 `LATE_COST_SOURCE_REQUIRED`, `LATE_COST_SOURCE_STALE`, `LATE_COST_ALREADY_RECORDED`, `LATE_COST_ROUTE_DIRECT`, `LATE_COST_TARGET_SCOPE_INVALID`, `LATE_COST_TARGET_NOT_INITIAL_VALUED`, `LATE_COST_ALLOCATION_METHOD_INVALID`, `LATE_COST_BASIS_STALE`, `LATE_COST_ALLOCATION_MISMATCH`, `LATE_COST_EXPOSURE_STALE`, `POSTING_PERIOD_NOT_OPEN`.
 
-> Các tên lỗi `LATE_COST_*` là compatibility name từ baseline cũ; Technical Contract có thể version hóa tên mới mà không đổi business meaning của BC này.
+> Các tên lỗi `LATE_COST_*` là compatibility name từ baseline cũ; work slice lúc review để implement có thể version hóa tên mới mà không đổi business meaning của BC này.
 
 ## 10. Domain và UC sử dụng
 

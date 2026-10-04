@@ -177,7 +177,7 @@ flowchart TB
 
 - Inbound commercial components phải có source identity, source version/effective time, scope và trạng thái đủ điều kiện sử dụng.
 - Hóa đơn NCC không phải điều kiện bắt buộc của Quick receipt; hóa đơn đến sau có thể tạo adjustment nếu initial value đã commit.
-- Outbox fact canonical: initial value confirmed, value adjustment recorded, official cost published; wire name/version thuộc Technical Contract.
+- Outbox fact canonical: initial value confirmed, value adjustment recorded, official cost published; wire name/version thuộc work slice lúc review để implement.
 
 ## 7. Entity liên quan
 

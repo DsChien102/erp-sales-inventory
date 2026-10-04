@@ -85,8 +85,8 @@ Thủ kho gửi phiếu nhận nhanh tới `PENDING_APPROVAL` và hệ thống c
 | [UC-02-02 BR-09](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) / [BR-10](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) | Client không gửi kho hay ngày nhận. Result trả `warehouseId` và `receiptBusinessDate` do server resolve |
 | [UC-02-02 BR-11](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) / [T7-DR-118](../../01.knowledge/decisions/decision-register.md#t7-dr-118) | `evidenceIds` có ít nhất một id. Ownership assertion là fact có cấu trúc, không phải checkbox. Server ghi assertion từ actor đã xác thực trong cùng transaction với phiếu. MIME, kích thước và số lượng file lấy từ Shared Attachment Policy, không hard-code trần riêng cho BJ-02 |
 | [BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md) | `operation_type=QUICK_RECEIPT` luôn tạo ApprovalCase. CommandReceipt cùng transaction với phiếu mới |
-| [T7-DR-072](../../01.knowledge/decisions/decision-register.md#t7-dr-072) / [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) | Client giữ `operationRequestId` ổn định cho ý định nhận nhanh, khác `idempotencyKey`. Cùng khóa mà payload khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`. [DOM-IO INV-IO-09](../../02.specification/domain/domain-foundation/DOM-IO.md) ghi `IDEMPOTENCY_CONFLICT`; slice theo mã FND |
-| [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) §2.1 | Trước mutation: kho chưa `ACTIVE` → `INVENTORY_NOT_ACTIVATED`. Product `DISCONTINUED` → `PRODUCT_DISCONTINUED_FOR_RECEIPT`. Product `ARCHIVED` → `PRODUCT_ARCHIVED`. Không tạo phiếu |
+| [T7-DR-072](../../01.knowledge/decisions/decision-register.md#t7-dr-072) | Client giữ `operationRequestId` ổn định cho ý định nhận nhanh, khác `idempotencyKey`. Cùng khóa mà payload khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`. [DOM-IO INV-IO-09](../../02.specification/domain/domain-foundation/DOM-IO.md) ghi `IDEMPOTENCY_CONFLICT`. Quy tắc nền tảng idempotency dẫn từ `docs/architecture`; slice ghi cách outcome này áp dụng |
+| Trước mutation | Kho chưa `ACTIVE` → `INVENTORY_NOT_ACTIVATED`. Product `DISCONTINUED` → `PRODUCT_DISCONTINUED_FOR_RECEIPT`. Product `ARCHIVED` → `PRODUCT_ARCHIVED`. Không tạo phiếu |
 | [T7-DR-121](../../01.knowledge/decisions/decision-register.md#t7-dr-121) / [SCR-006](../../03.design/screens/SCR-006.md) | Không có capability thì không hiện lối nhập nhanh. Blocker tạm thời: hàng điều hướng Disabled kèm lý do, không đi sâu |
 
 Phiếu nhận nhanh bắt đầu ở `PENDING_APPROVAL` khi gửi thành công. `READY`, `COMMITTED`, `REJECTED`, `UNKNOWN` thuộc các slice sau. [ENT-IO-01](../../02.specification/domain/entities/ENT-IO-01-GoodsReceipt.md) vẫn mô tả bắt đầu `DRAFT`. Slice này không đổi entity.
@@ -96,6 +96,8 @@ Handler FND là `SubmitInventoryOperation` (`API-C-26`). Path FND có `{id}` vì
 ### Open Questions
 
 Những câu này còn chặn `READY_TO_IMPLEMENT`.
+
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
 
 - [T7-DR-027](../../01.knowledge/decisions/decision-register.md#t7-dr-027) vẫn bắt lifecycle `DRAFT → PENDING_APPROVAL` và giữ `DRAFT` khi thiếu dữ kiện. Slice không tạo `DRAFT`. Căn cứ giá trước submit ([BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md), `APPROVAL_PRICE_BASIS_REQUIRED`) chờ BA: [vet45#11](https://gitlab.hamsa.co/vet45/vet45/-/issues/11).
 - Tên bảng và cột cho phiếu, dòng, ApprovalCase, CommandReceipt, và cột của `ownership_assertion`. Entity có thuộc tính nghiệp vụ, chưa có declarative SQL.
@@ -176,7 +178,7 @@ Draft lúc implement: `supabase/migrations/_drafts/inventory_quick_receipt.sql`.
 
 Submit hợp lệ trong một transaction: tạo phiếu đã ở `PENDING_APPROVAL` và khóa payload, tạo ApprovalCase, ghi CommandReceipt. Không business outbox.
 
-- `idempotencyKey` ≠ `command.id`. `operationRequestId` ≠ `idempotencyKey`. [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) tách hai khóa và hash riêng
+- `idempotencyKey` ≠ `command.id`. `operationRequestId` ≠ `idempotencyKey`. Hai khóa và hash được tách riêng. Quy tắc nền tảng idempotency dẫn từ `docs/architecture`
 - `CommandReceipt` theo `(tenant_id, command_type, Idempotency-Key)` cùng transaction với kết quả. Literal `command_type` nằm ở Open Questions
 - Cùng key và cùng hash → snapshot trước. Hash khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`
 - Không `expectedVersion`, không `VERSION_CONFLICT`, không `OPERATION_NOT_DRAFT`

@@ -93,5 +93,5 @@ Không thay physical state và không tự đổi dữ liệu Theme 10.
 
 - **Domain / Entity:** `DOM-IV`; `ENT-IV-01`, `ENT-IV-02`; đọc `DOM-IO` / receipt facts.
 - **UC:** `UC-03-01`.
-- **API/Event trace:** `API-C-20`, `EVT-IV-03` hoặc mapping tương đương trong Technical Contract.
+- **API/Event trace:** `API-C-20`, `EVT-IV-03`. Mapping thực thi thuộc work slice lúc review để implement.
 - **Decision:** `T7-DR-021`, `025`, `051`, `150…156`, `185…191`.

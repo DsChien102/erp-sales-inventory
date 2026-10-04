@@ -72,6 +72,8 @@ Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một 
 
 ### Open Questions
 
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
+
 - DTO snapshot cho SCR-011 (Supplier, kho, ngày, evidence, dòng Product+UOM, phân loại, LOT) chưa có fence. Không đưa `subjectSnapshot` thô vào query DTO khi chưa có shape.
 - `decision` ngoài `APPROVE` / `REJECT` (ENT-IC-02 còn `REQUEST_RECOUNT`) không thuộc UC-02-03. Slice chỉ hai giá trị này cho đến khi review nói khác.
 - Tên RPC và `p_*` của `API-C-19` / `API-Q-08` chưa có trong nguồn declarative.
@@ -173,7 +175,7 @@ apps/
 
 ## Contracts
 
-Handler [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md): `DecideApproval` (`API-C-19`). Hàng đợi: `API-Q-08`. Snapshot hiển thị theo [SCR-011](../../03.design/screens/SCR-011.md).
+Handler: `DecideApproval` (`API-C-19`). Hàng đợi: `API-Q-08`. Snapshot hiển thị theo [SCR-011](../../03.design/screens/SCR-011.md).
 
 ### GetReceiptApprovalCaseQuery
 
@@ -229,7 +231,7 @@ class DecideReceiptApprovalResultDto {
 
 ### Integration
 
-- Fact sau quyết định: `EVT-IC-04` / `inventory.approval.decided.v1` ([FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) §6.3–6.4).
+- Fact sau quyết định: `EVT-IC-04` / `inventory.approval.decided.v1`.
 - Không phát event yêu cầu ghi tồn.
 
 ---

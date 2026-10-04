@@ -365,5 +365,5 @@ Nguồn: `specs/themes/theme-07/01.knowledge/decisions/decision-register.md`
 - **Multi-warehouse / IN_TRANSIT / Transfer:** Phase sau — Aggregate intent `StockTransfer` riêng, không nhét vào God Root.
 - **SERIAL tracking:** Aggregate riêng khi mở chính sách `SERIAL`.
 - **Cycle-count lock phân vùng:** thuộc IC / coordination; IO chỉ tuân thủ khi lock active.
-- Chi tiết Dart / RPC / DDL thuộc Technical Contract dùng chung và thiết kế cục bộ trong Slice — không ghi trong Domain Foundation.
+- Chi tiết Dart / RPC / DDL thuộc work slice lúc review để implement — không ghi trong Domain Foundation.
 

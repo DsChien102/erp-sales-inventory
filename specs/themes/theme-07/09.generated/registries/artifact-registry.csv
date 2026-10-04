@@ -244,8 +244,6 @@ PRJ-09,read-model,SA,DRAFT,02.specification/domain/read-models/PRJ-09-TrustAndRe
 PRJ-10,read-model,SA,DRAFT,02.specification/domain/read-models/PRJ-10-MarginComparisonView.md,2eb608d01304b582f0bdd0336deafb54f50c5cb047e3ee05884c0393efa83131,2944,theme-07,MarginComparisonView,v3.10.1
 PRJ-IO-01,projection,BA/SA,DRAFT,02.specification/domain/read-models/PRJ-IO-01-TransactionalBalance.md,f409b824599db91fa2107cd9402152acf7c950ee02d404a7d928bfadb15d0b0e,2958,theme-07,TransactionalBalance,v3.10.1
 OVERVIEW,theme-overview,BA,FROZEN,02.specification/overview/overview.md,3e4ab87bfb3bbc7be5f2e0b08cdb1a17b76f1f7827db48c10f35575f396f8a59,18137,theme-07,Theme 07 — Kho & Giá vốn,v3.12.0
-FND-TECH-01,foundation,SA,FROZEN,02.specification/technical-contracts/FND-TECH-01.md,641f2a15172068f9dca9723e9e2d2b33b939e36bd62fc3ad96e609d0cf101db3,55977,theme-07,Technical execution contracts,v4.6.0
-NFR-01,nfr,SA,FROZEN,02.specification/technical-contracts/NFR-01-performance-capacity-observability.md,ad160db39a26d1c01f07017563ae645d3189b5e7e9a4457950876a5580e49b16,2853,theme-07,"Performance, capacity, durability & observability",v3.10.1
 DS-PROFILE,design-system-profile,BA,FROZEN,03.design/design-system/design-system-profile.md,2e0c42ff9cb007af418abc858e085bd43f69faebd271f562ae5ea3ac312a7285,4389,theme-07,Theme 07 Design System Profile,v3.13.0
 ,,,,03.design/design-system/ds-gap-register.md,d7f068096e5bc8aaa9b000fab254f7e997f296249242e22d5cd720dcdf855101,5030,,,
 UIF-01,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-01-BJ-01.md,5e34b4ab712b6149d1517e410dbbd9c00640a5b56e654ee5a31efc9effa14bec,9866,theme-07,"Theo dõi tồn, khả dụng và chỉ báo vận hành",v4.1.0

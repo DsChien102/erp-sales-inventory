@@ -66,8 +66,8 @@ Tenant có đúng một cặp mặc định để mutation kho sau resolve đư�
 | [INV-ORG-02](../../02.specification/domain/domain-foundation/DOM-COM.md) | Phase 1 đúng một kho `active` và một gán `active`. Không tạo kho từ vị trí user/device. Slice không tạo Store; cửa hàng là bản trên `iam.stores` |
 | [Overview §3.1](../../02.specification/overview/overview.md) | Một cửa hàng hoạt động và một kho hoạt động. UI không có bộ chọn kho |
 | [KB-KGV-003](../../01.knowledge/know-how/KB-KGV-003-kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho.md) | Mọi giao dịch ghi `store_id` và `warehouse_id`. Server điền cặp và kiểm lại qua `matches`. SRS không có cột `code` của kho; slice không thêm. Tên kho là «Kho mặc định» |
-| [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) §2.1 | FND ghi `CommandReceipt` và lệch payload là `IDEMPOTENCY_PAYLOAD_MISMATCH`. Slice ghi `inventory.idempotency_records` và mã `IDEMPOTENCY_CONFLICT`. Không outbox |
-| Permission | SRS không có mã. Slice chốt `inventory.default_pair.ensure` và `inventory.default_pair.read`. «Một quan hệ hoạt động» là `status = active` cộng unique một bản active, không cột `is_default` |
+| Transaction | Mutation ghi receipt trong cùng transaction. Command không nhận `idempotencyKey` từ client. Server tự đặt `idempotency_key = tenant_id` và `payload_hash` hash thân rỗng khi tạo hoặc vá. Không outbox. Quy tắc nền tảng idempotency dẫn từ `docs/architecture` |
+| Permission | SRS không có mã. Slice chốt `inventory.default_pair.ensure` và `inventory.default_pair.read`. Mọi membership active được gọi; owner luôn qua; membership không active từ chối. «Một quan hệ hoạt động» là `status = active` cộng unique một bản active, không cột `is_default` |
 
 ```dart
 abstract final class InventoryPermissions {
@@ -75,6 +75,10 @@ abstract final class InventoryPermissions {
   static const defaultPairRead = 'inventory.default_pair.read';
 }
 ```
+
+### Open Questions
+
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
 
 ---
 

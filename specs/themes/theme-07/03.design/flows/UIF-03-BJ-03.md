@@ -79,7 +79,7 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 - Nhập nhanh: mở bảng nhập nhanh ngay trên `SCR-015`; đóng bảng vẫn ở cùng màn hình và không tạo bước điều hướng mới.
 - Khi nguồn dữ liệu thay đổi (`SOURCE_CHANGED`), phải làm mới và rà soát lại trước khi xác nhận.
 - Nếu kết quả chưa xác định (`UNKNOWN`), không thực hiện lại bằng một thao tác mới. Hệ thống giữ nguyên mã thao tác gốc để xác minh; khi chưa đủ bằng chứng, chuyển sang `BJ-17`.
-- Dữ liệu tài chính chỉ hiển thị cho người có quyền phù hợp. UIF mô tả luồng người dùng; cách che dữ liệu chi tiết được quy định tại Screen Contract và Technical Contract.
+- Dữ liệu tài chính chỉ hiển thị cho người có quyền phù hợp. UIF mô tả luồng người dùng; cách che dữ liệu chi tiết được quy định tại Screen Contract. Contract thực thi thuộc work slice lúc review để implement.
 - Các màn hình đã hợp nhất hoặc chỉ dùng cho tương thích không được xem là một bước điều hướng độc lập của luồng hiện hành.
 
 ## 6. Màn hình và Trường hợp sử dụng liên quan

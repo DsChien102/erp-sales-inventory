@@ -70,6 +70,8 @@ Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn 
 
 ### Open Questions
 
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
+
 - UC-02-05 nói `operation_id` / command identity. Slice đang khóa query bằng `receiptId` của GoodsReceipt. Cần review xác nhận hai id này là một identity với client, hay phải trả cả hai.
 - Độ dài «cửa sổ phục hồi ngắn» chưa có số trong UC-02-05.
 - Shape evidence refs đưa sang BJ-17 chưa có field list.
@@ -153,7 +155,7 @@ apps/
 
 ## Contracts
 
-Đọc theo [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) `API-Q-04`.
+Đọc theo `API-Q-04`.
 
 ### QueryReceiptFinalityQuery
 

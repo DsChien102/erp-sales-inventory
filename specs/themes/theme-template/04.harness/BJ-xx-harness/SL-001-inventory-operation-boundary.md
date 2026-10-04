@@ -9,7 +9,6 @@ sources:
   - ENT-IO-01
   - AGG-IO-01
   - BC-IO-16
-  - FND-01
 theme: theme-07
 sample_status: NON_CANONICAL_EXAMPLE
 ```
@@ -47,14 +46,18 @@ Chốt ranh giới InventoryOperation để các use case sau dùng chung lifecy
 | Concern | Owner |
 | --- | --- |
 | Root, lifecycle, bất biến | AGG-IO-01 |
-| Chống trùng dùng chung | FND-01 |
+| Chống trùng dùng chung | `docs/architecture` (idempotency). Slice ghi cách outcome này áp dụng |
 
 ### Rules
 
 | ID | Quy tắc (slice) |
 | --- | --- |
 | [BC-IO-16](../../02.specification/behavior/behavioral-contracts/BC-IO-16.sample.md) | Sửa nháp không phát sinh tồn hay phê duyệt |
-| [FND-01](../../02.specification/technical-contracts/FND-01-Idempotency.sample.md) | Cơ chế chống trùng dùng chung. CommandReceipt không thành child entity |
+| Idempotency | Quy tắc nền tảng dẫn từ `docs/architecture`. CommandReceipt không thành child entity |
+
+### Open Questions
+
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
 
 ---
 

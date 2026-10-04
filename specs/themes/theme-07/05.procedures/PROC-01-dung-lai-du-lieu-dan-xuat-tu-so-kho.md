@@ -118,7 +118,7 @@ Theo guard/precondition của các step source.
 
 ### 5. Hợp đồng kỹ thuật
 
-Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../02.specification/technical-contracts/FND-TECH-01.md#4-bc-realization-matrix).
+Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa được ghi đủ tại procedure này. Hiện thực API, event và transaction thuộc work slice lúc review để implement.
 
 | BC | Handler | Adapter/API | Transaction boundary | Event/kết quả | Test prefix |
 |---|---|---|---|---|---|
@@ -198,7 +198,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 ### 5. Hợp đồng kỹ thuật
 
-Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../02.specification/technical-contracts/FND-TECH-01.md#4-bc-realization-matrix).
+Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa được ghi đủ tại procedure này. Hiện thực API, event và transaction thuộc work slice lúc review để implement.
 
 | BC | Handler | Adapter/API | Transaction boundary | Event/kết quả | Test prefix |
 |---|---|---|---|---|---|
@@ -278,7 +278,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 ### 5. Hợp đồng kỹ thuật
 
-Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../02.specification/technical-contracts/FND-TECH-01.md#4-bc-realization-matrix).
+Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa được ghi đủ tại procedure này. Hiện thực API, event và transaction thuộc work slice lúc review để implement.
 
 | BC | Handler | Adapter/API | Transaction boundary | Event/kết quả | Test prefix |
 |---|---|---|---|---|---|
@@ -358,7 +358,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 ### 5. Hợp đồng kỹ thuật
 
-Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../02.specification/technical-contracts/FND-TECH-01.md#4-bc-realization-matrix).
+Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa được ghi đủ tại procedure này. Hiện thực API, event và transaction thuộc work slice lúc review để implement.
 
 | BC | Handler | Adapter/API | Transaction boundary | Event/kết quả | Test prefix |
 |---|---|---|---|---|---|
@@ -382,7 +382,7 @@ Xem [hợp đồng kỹ thuật dùng chung và ma trận hiện thực BC](../0
 
 ## 5. Safety / guardrails
 
-Theo technical/finality/reconciliation constraints trong source procedure và `FND-TECH-01`.
+Theo technical/finality/reconciliation constraints trong source procedure. Contract thực thi thuộc work slice lúc review để implement.
 
 ## 6. Rollback / recovery
 

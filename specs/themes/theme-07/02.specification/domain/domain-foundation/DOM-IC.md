@@ -183,4 +183,4 @@ flowchart TB
 ## 9. Điểm chưa chốt
 
 - Chu kỳ kiểm kê tự động/cycle count nâng cao thuộc Phase sau.
-- Procedure rebuild projection thuộc Technical Contract; IC chỉ sở hữu điều kiện và quyết định cho phép thực hiện.
+- Procedure rebuild projection thuộc work slice lúc review để implement; IC chỉ sở hữu điều kiện và quyết định cho phép thực hiện.

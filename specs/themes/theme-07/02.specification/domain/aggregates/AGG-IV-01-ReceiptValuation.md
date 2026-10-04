@@ -38,7 +38,7 @@ Giữ một sự thật bất biến rằng **một phạm vi lượng hàng th�
 
 ## 6. Concurrency / finality
 
-Quantity được bảo vệ khỏi double valuation bằng scope/version + transaction/CAS theo `BC-IV-01` và `FND-TECH-01`. Timeout chưa rõ commit trả `UNKNOWN`; recovery theo CommandReceipt/finality contract.
+Quantity được bảo vệ khỏi double valuation bằng scope/version + transaction/CAS theo `BC-IV-01`. Transaction của outcome thuộc work slice lúc review để implement. Timeout chưa rõ commit trả `UNKNOWN`; recovery theo CommandReceipt/finality contract.
 
 ## 7. Trace
 

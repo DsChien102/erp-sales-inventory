@@ -68,7 +68,7 @@ Thực thể không có lifecycle mutable riêng sau khi được ghi nhận. B�
 
 | Event | Khi nào | Ý nghĩa |
 |---|---|---|
-| — | Không phát event riêng | Event được phát bởi Aggregate Root sở hữu hoặc Technical Contract mapping từ commit set |
+| — | Không phát event riêng | Event được phát bởi Aggregate Root sở hữu. Mapping wire từ commit set thuộc work slice lúc review để implement |
 
 ## 7. Liên kết truy vết
 

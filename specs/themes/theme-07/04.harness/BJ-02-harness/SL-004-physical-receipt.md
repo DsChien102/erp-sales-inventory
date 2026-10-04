@@ -70,6 +70,8 @@ Hệ thống commit phiếu nhận nhanh đã `READY` vào tồn vật lý đún
 
 ### Open Questions
 
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
+
 - Cách hệ thống nhận lệnh sau `READY` (cùng transaction với quyết định duyệt, hay internal command ngay sau đó) chưa được UC khóa. UI không gửi command này.
 - DTO dòng kết quả (Product, UOM, phân loại, lot code, expiry) cho SCR-012 chưa có fence.
 - Quick receipt không có `source_line_id`. Payload `EVT-IO-01` vẫn liệt kê `source_line_id`. Cách điền lineage khi không có chứng từ nguồn chưa được khóa.
@@ -185,7 +187,7 @@ apps/
 
 ## Contracts
 
-Handler [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md): `ReceivePurchasedGoods` (`API-C-02`). Đọc kết quả: `API-Q-04`. UI không gửi command commit.
+Handler: `ReceivePurchasedGoods` (`API-C-02`). Đọc kết quả: `API-Q-04`. UI không gửi command commit.
 
 ### ReceivePurchasedGoodsCommand
 
@@ -229,7 +231,7 @@ class GoodsReceiptResultDto {
 
 ### Integration
 
-- Fact khi `COMMITTED`: `EVT-IO-01` / `inventory.receipt.recorded.v1`. Payload tối thiểu theo [FND-TECH-01](../../02.specification/technical-contracts/FND-TECH-01.md) §6.4: `operation_id`, `receipt_id`, `source_identity`, `source_version`, `warehouse_id`, `receipt_business_date`, `lines[]`, `valuation_pending=true`. Không field giá chính thức.
+- Fact khi `COMMITTED`: `EVT-IO-01` / `inventory.receipt.recorded.v1`. Payload tối thiểu: `operation_id`, `receipt_id`, `source_identity`, `source_version`, `warehouse_id`, `receipt_business_date`, `lines[]`, `valuation_pending=true`. Không field giá chính thức.
 - `REJECTED` và `UNKNOWN` không phát `EVT-IO-01` và không kích hoạt BJ-03.
 - Fact này không phải command yêu cầu Theme 10 sửa chứng từ mua.
 

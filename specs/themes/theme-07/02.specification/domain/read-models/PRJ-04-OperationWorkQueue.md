@@ -51,7 +51,7 @@ Các rule derive được giữ nguyên trong ghi chú của data shape nguồn.
 
 ## 6. Consistency và freshness
 
-Xem `DOM-COM` và `FND-TECH-01` cho consistency/time semantics của baseline.
+Consistency/time semantics nghiệp vụ xem `DOM-COM`. Contract thực thi của outcome thuộc work slice lúc review để implement.
 
 ## 7. Query shape
 

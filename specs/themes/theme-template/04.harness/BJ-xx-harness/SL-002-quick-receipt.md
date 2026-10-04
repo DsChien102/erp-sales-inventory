@@ -10,7 +10,6 @@ sources:
   - BC-IO-16
   - BC-IC-07
   - SCR-009
-  - FND-01
   - AGG-IO-01
 theme: theme-07
 sample_status: NON_CANONICAL_EXAMPLE
@@ -62,6 +61,8 @@ Người lập gửi hồ sơ nhận hàng nhanh và hồ sơ chờ duyệt, ch�
 
 ### Open Questions
 
+- Contract chi tiết của outcome này (API, event, transaction, lỗi) chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
+
 - Tên Command, Query, DTO và field Dart chưa có trong sample. Chưa `READY` khi mục Contracts còn là shape minh họa.
 - Tên bảng và danh sách file code chưa có trong sample.
 
@@ -97,7 +98,7 @@ Tên bảng lấy từ domain khi theme thật chốt. Draft lúc đó: `supabas
 ### Transaction / Idempotency
 
 - `idempotencyKey` ≠ `command.id`
-- UK `(tenant_id, command_scope, idempotency_key)` theo [FND-01](../../02.specification/technical-contracts/FND-01-Idempotency.sample.md)
+- UK `(tenant_id, command_scope, idempotency_key)` theo quy tắc nền tảng idempotency trong `docs/architecture`
 - Cùng transaction: mutation hồ sơ, fact outbox nếu lifecycle đã xảy ra, begin/complete idempotency
 - Handoff phê duyệt hoặc tồn, khi có, đi `integration_commands`
 

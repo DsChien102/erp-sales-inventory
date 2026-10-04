@@ -233,7 +233,7 @@ Xem [Business Journey Map](../behavior/journeys/00-business-journey-map.md).
 | 04 | `04-data-entities.md` | Thực thể, quan hệ, lifecycle và projection |
 | 05 | `05-use-cases/` | Registry và 97 hồ sơ UC: hành vi, nghiệm thu, UI, kỹ thuật và delivery trace |
 | 06 | `06-shared-behavioral-contracts.md` | Registry và định nghĩa hợp đồng hành vi dùng chung |
-| 07 | `07-technical-contracts.md` | Quy tắc kỹ thuật, API/event/error/permission catalog dùng chung |
+| 07 | `07-technical-contracts.md` | Catalog lịch sử của baseline. Contract của outcome nằm trong work slice lúc review để implement |
 | 08 | `08-ui-ux.md` | Bản đồ Screen Group và quy tắc handoff UI Contract/prototype |
 | 09 | `09-traceability-quality.md` | Truy vết, test catalog, quality gates và freeze evidence |
 

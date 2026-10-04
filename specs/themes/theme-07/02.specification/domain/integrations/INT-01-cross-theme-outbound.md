@@ -86,14 +86,14 @@ Nếu sau đó Theme 10 tiếp nhận một hóa đơn hoặc commercial source 
 
 `Receipt recorded` là **integration fact ở thì quá khứ**, không phải command. Theme 10 tiêu thụ fact này để tự cập nhật trạng thái/số lượng còn nhận của PO theo ownership của mình; Theme 7 không gửi lệnh “cập nhật PO” và không sở hữu `remaining_receivable_qty` sau khi Theme 10 xử lý fact.
 
-Wire/API/event chi tiết nằm ở `FND-TECH-01`; integration semantic không được copy event schema thành nguồn thứ hai.
+Wire/API/event chi tiết của outcome thuộc work slice lúc review để implement; integration semantic không được copy event schema thành nguồn thứ hai.
 
 ## 6. Consistency, ordering và chống lặp
 
 - Mỗi inbound component có stable source/component identity và source version.
 - Consumer phải idempotent; retry không tạo thêm ReceiptValuation hoặc ValueAdjustmentSource cho cùng business fact.
 - Source revision thay đổi không được tạo business identity mới nếu vẫn là cùng economic component.
-- Event delivery có thể at-least-once; consumer dùng inbox/dedup theo Technical Contract.
+- Event delivery có thể at-least-once; consumer dùng inbox/dedup theo quy tắc nền tảng trong `docs/architecture`.
 - Theme 7 không suy total-order giữa Theme khác; mọi mutation phải recheck source/scope version ngay trước commit.
 
 ## 7. Failure và recovery
@@ -113,4 +113,4 @@ Wire/API/event chi tiết nằm ở `FND-TECH-01`; integration semantic không �
 - Source trước/sau initial valuation route đúng BJ03/BJ13.
 - `ReceiptValuationConfirmed` không chứa/khởi tạo Official Cost mới.
 - `OfficialCostVersion` chỉ xuất hiện sau BJ14 publication.
-- Duplicate/stale/source-conflict tests được bao phủ bởi `FND-TECH-01` và BC tương ứng.
+- Duplicate/stale/source-conflict tests được bao phủ bởi BC tương ứng và contract của work slice lúc review để implement.

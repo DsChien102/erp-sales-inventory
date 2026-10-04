@@ -19,7 +19,7 @@ Phạm vi Domain Entity (Clear / Concise / Visual):
 - Mô tả State + Behavior + Domain Event của thực thể trong miền nghiệp vụ.
 - KHÔNG mô tả table/SQL, optimistic lock `version`, CommandReceipt, idempotency key,
   payload hash kỹ thuật, API envelope, hay outbox wire name — các mục đó thuộc
-  Technical Contract dùng chung hoặc thiết kế cục bộ trong Slice.
+  work slice lúc review để implement.
 - Vai trò Root/Child dẫn theo Aggregate đã chốt; Entity không tự quyết định ranh giới transaction.
 - Value Object dùng VALUE_OBJECT.template.md — không dùng file này.
 - Lifecycle / Invariants tổng quát của subdomain thuộc DOM-*; file ENT chỉ ghi

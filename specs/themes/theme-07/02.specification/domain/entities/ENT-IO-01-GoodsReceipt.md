@@ -145,7 +145,7 @@ Với Quick Receipt: **không tồn tại nhánh `DRAFT`**. Trước submit ch�
 | `GoodsReceiptCompleted` | `completePhysicalReceipt()` commit | Đã nhận vật lý; movement tồn tại |
 | `GoodsReceiptCancelled` | `cancel()` | Hủy trước hoàn tất vật lý |
 
-> Integration / outbox facts (wire name versioned) được map từ các domain event này ở Technical Contract — không khai báo ở đây.
+> Integration / outbox facts (wire name versioned) được map từ các domain event này trong work slice lúc review để implement — không khai báo ở đây.
 
 ## 7. Liên kết truy vết
 

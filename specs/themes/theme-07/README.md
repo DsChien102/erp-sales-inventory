@@ -63,7 +63,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 ## 4. Điểm bắt đầu theo vai trò
 
 - **BA:** `01.knowledge/` → `02.specification/` → `03.design/`.
-- **SA:** `02.specification/domain/` + UC/BC → `02.specification/domain/` + `02.specification/technical-contracts/`.
+- **SA:** `02.specification/domain/` + UC/BC. Contract của outcome nằm trong work slice lúc review để implement.
 - **SE:** `04.harness/` và các nguồn được Slice tham chiếu.
 - **QA/Harness:** `09.generated/`.
 
@@ -74,7 +74,6 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - [Theme Overview](02.specification/overview/overview.md)
 - [Business Journey Map](02.specification/behavior/journeys/00-business-journey-map.md)
 - [Prototype manifest](03.design/prototype/README.md)
-- [Architecture foundation](02.specification/technical-contracts/FND-TECH-01.md)
 
 ## 6. Trạng thái hiện tại
 
@@ -144,5 +143,5 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - Use Case: `02.specification/behavior/use-cases/`
 - UI Flow: `03.design/flows/`
 - Screen Contract: `03.design/screens/`
-- Domain/Entity/BC/Technical Contract: `02.specification/`
+- Domain/Entity/BC: `02.specification/`
 - HTML prototype: `03.design/prototype/html/`

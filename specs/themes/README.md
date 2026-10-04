@@ -36,11 +36,10 @@ BA tổ chức tri thức, hành vi và trải nghiệm; BA/SA cùng xây Domain
 
 ## 2.1 Các nguồn chuẩn
 
-Knowledge cung cấp căn cứ cho Specification. Specification gồm ba vùng:
+Knowledge cung cấp căn cứ cho Specification. Specification gồm hai vùng:
 
 - **Behavior:** Business Journey, Use Case và Behavioral Contract.
 - **Domain:** Domain Foundation, Entity/Value Object, Aggregate, Read Model và Integration.
-- **Technical Contract:** quy tắc kỹ thuật dùng chung nhiều Slice hoặc toàn Theme.
 
 Design hiện thực hóa hành vi bằng Screen Contract, Pattern, Design System và Prototype. UI Flow cấp hành trình tiếp tục nằm trong BJ, không tạo một nhánh tài liệu riêng.
 
@@ -55,12 +54,13 @@ Specification và Design cùng là nguồn cho Slice; Slice dẫn tới implemen
 | Root, thành viên và ranh giới nhất quán khi thay đổi | Aggregate |
 | Câu hỏi nghiệp vụ, dữ liệu đọc, projection, freshness/consistency, rebuild | Read Model |
 | Ownership, producer/consumer, nghĩa dữ liệu, versioning, failure và reconciliation giữa các Domain/Theme | Integration |
-| Idempotency, concurrency, event delivery, security, observability dùng chung | Technical Contract |
-| Endpoint, orchestration, transaction hoặc FE state chỉ phục vụ một Slice | Design / Contracts của Slice |
+| Idempotency, concurrency, event delivery, security, observability dùng chung | `docs/architecture`. Slice ghi cách outcome này áp dụng |
+| Endpoint, orchestration, transaction, lỗi hoặc FE state của một outcome | Work slice, lúc review để implement |
+| Ngưỡng NFR cần đo cho một outcome | Verification của work slice đó |
 
-Không còn top-level Architecture. Tư duy kiến trúc vẫn tồn tại tại nguồn có trách nhiệm tương ứng. Entity không tự quyết định ranh giới transaction; Aggregate không được gom mọi đối tượng có quan hệ vào một cụm. Read Model thuộc Domain và mô tả mặt đọc của mô hình nghiệp vụ.
+Không còn top-level Architecture và không còn nguồn Technical Contract. Tư duy kiến trúc vẫn tồn tại tại nguồn có trách nhiệm tương ứng. Entity không tự quyết định ranh giới transaction; Aggregate không được gom mọi đối tượng có quan hệ vào một cụm. Read Model thuộc Domain và mô tả mặt đọc của mô hình nghiệp vụ.
 
-Chỉ tạo Technical Contract khi thật sự có quy tắc dùng chung; không tạo file để lấp đủ danh mục. NFR phải đo/kiểm tra được. Tiêu chí chỉ phục vụ một Slice nằm trong Verification của Slice đó.
+Contract của một outcome được viết trong work slice lúc review để implement. Quy tắc nền tảng đã có trong `docs/architecture` (idempotency, outbox, event delivery) thì slice dẫn tới đó và chỉ ghi cách outcome này áp dụng. Ngưỡng NFR chỉ xuất hiện trong Verification của slice khi slice đó cần đo.
 
 ## 2.3 Từ nghiệp vụ đến Slice
 
@@ -72,11 +72,11 @@ Một Slice có thể đồng thời thay đổi Domain, Application, backend, f
 
 ## 2.4 Application và Domain
 
-**Application Command/Query** biểu diễn yêu cầu đi vào Application; điều phối đọc dữ liệu, gọi Domain, áp dụng Technical Contract và trả kết quả. Thiết kế cục bộ nằm trong Slice.
+**Application Command/Query** biểu diễn yêu cầu đi vào Application; điều phối đọc dữ liệu, gọi Domain, áp dụng quy tắc nền tảng từ `docs/architecture` cùng contract của outcome trong Slice, rồi trả kết quả. Thiết kế cục bộ nằm trong Slice.
 
 **Domain Operation / Aggregate behavior** thuộc mô hình Domain và bảo vệ các bất biến của Aggregate, không được thiết kế chỉ theo một màn hình hay UC.
 
-API/Event được công bố khi cần. Ranh giới dùng chung giữa Domain/Theme nằm ở Integration; quy tắc kỹ thuật chung nằm ở Technical Contract; mapping riêng một thao tác/giao diện nằm trong Slice. Giao diện sử dụng interface đã công bố, không tự thay thế quy tắc Domain.
+API/Event của một outcome được viết trong work slice lúc review để implement. Ranh giới dùng chung giữa Domain/Theme nằm ở Integration. Giao diện sử dụng interface đã công bố, không tự thay thế quy tắc Domain.
 
 ## 2.5 Nội dung một Slice
 
@@ -88,7 +88,7 @@ Một Slice có bảy phần: Objective; Scope & Rules; Flow; Design; Dependenci
 - Verification gắn tiêu chí và kiểm tra với nguồn chuẩn.
 - Delivery ghi đầu ra, evidence, câu hỏi mở và trạng thái thực tế.
 
-Không sao chép toàn bộ nguồn vào Slice. Nếu phát hiện thiếu hoặc sai quy tắc dùng chung, sửa nguồn Domain/Technical Contract rồi tham chiếu lại. SE không tự suy ra mục tiêu nghiệp vụ từ Prototype hoặc tự thêm yêu cầu ngoài Slice.
+Không sao chép toàn bộ nguồn vào Slice. Nếu phát hiện thiếu hoặc sai quy tắc Domain, sửa nguồn Domain rồi tham chiếu lại. Contract của outcome được viết trong Slice lúc review để implement. SE không tự suy ra mục tiêu nghiệp vụ từ Prototype hoặc tự thêm yêu cầu ngoài Slice.
 
 # 3. Nguyên tắc phối hợp
 
@@ -150,7 +150,6 @@ theme-xx/
             aggregates/
             read-models/
             integrations/
-        technical-contracts/
     03.design/
         screens/
         patterns/
@@ -183,7 +182,6 @@ Các thư mục con `09.generated/registries`, `matrices`, `indexes` được t�
 | 02.specification/domain/aggregates/ | BA/SA | Root, thành viên, consistency boundary, invariant, hành vi và concurrency |
 | 02.specification/domain/read-models/ | BA/SA | Mô hình đọc, projection, nguồn, freshness/consistency, rebuild và consumers |
 | 02.specification/domain/integrations/ | BA/SA | Nghĩa trao đổi, owner, producer/consumer, versioning, consistency, failure và reconciliation |
-| 02.specification/technical-contracts/ | SA | Quy tắc kỹ thuật/NFR dùng chung có phạm vi, hợp đồng và kiểm chứng rõ |
 | 03.design/screens/ | BA | Screen, UC, entry/exit, data, action, state, validation, feedback, permission và component |
 | 03.design/patterns/ | BA | Tương tác/bố cục dùng chung và phạm vi biến thể |
 | 03.design/design-system/ | BA | Version, component và ngoại lệ được chấp thuận |
@@ -198,7 +196,7 @@ Các thư mục con `09.generated/registries`, `matrices`, `indexes` được t�
 1. Xác định cumulative parent đang được chấp nhận, không mặc định một version cũ.
 2. Giữ ID nguồn nghiệp vụ, Domain, BC và Screen. Đổi ID Slice khi cần phải có mapping.
 3. Di chuyển/phân loại trước; không nhân bản tài liệu để giữ path cũ. Lịch sử thuộc Git.
-4. Đưa Aggregate/Read Model/Integration vào Domain; phân loại Foundation/NFR theo phạm vi dùng chung hay cục bộ.
+4. Đưa Aggregate/Read Model/Integration vào Domain. Contract của outcome và ngưỡng đo nằm trong work slice.
 5. Dùng một thư mục slices; ranh giới theo mục tiêu thay đổi, không theo vai trò.
 6. Cập nhật link, manifest, README và kiểm tra orphan/dependency sau di chuyển.
 7. Giữ số 09 cho Generated; không cần lấp số 07/08 khi chưa có lý do.

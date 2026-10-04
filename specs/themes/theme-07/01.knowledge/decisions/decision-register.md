@@ -460,14 +460,14 @@ Các nội dung sau không phải quyết định nghiệp vụ và không nhậ
 
 | Rule key | Nội dung | Người chịu trách nhiệm | Người phối hợp | Nơi tiếp nhận dự kiến | Trạng thái |
 |---|---|---|---|---|---|
-| `PERFORMANCE_SLO` | Mục tiêu độ trễ | Solution Architect | Platform Lead | `srs/07-technical-contracts.md#nfr-hieu-nang` | `ACTIVE` |
-| `CAPACITY_TARGET` | Mục tiêu năng lực xử lý | Solution Architect | Platform Lead | `srs/07-technical-contracts.md#nfr-nang-luc-xu-ly` | `ACTIVE` |
+| `PERFORMANCE_SLO` | Mục tiêu độ trễ | Solution Architect | Platform Lead | Ngưỡng chưa thuộc specification. Slice ghi vào Verification khi cần đo | `ACTIVE` |
+| `CAPACITY_TARGET` | Mục tiêu năng lực xử lý | Solution Architect | Platform Lead | Ngưỡng chưa thuộc specification. Slice ghi vào Verification khi cần đo | `ACTIVE` |
 | `BASELINE_FREEZE_GATE` | Cổng đóng băng baseline | Release Owner | BA Lead | `srs/09-traceability-quality.md#baseline-freeze-gates` | `ACTIVE` |
 | `TERMINOLOGY_STANDARD` | Quy ước sử dụng thuật ngữ | BA Lead | Nhóm thẩm định miền | `know-how/glossary/glossary.md#quy-uoc-su-dung-thuat-ngu` | `ACTIVE` |
 | `CONTRACT_CLOSURE_GATE` | Cổng khép kín hợp đồng | Solution Architect | BA Lead; QA/Harness Owner | `srs/09-traceability-quality.md#contract-closure-gate` | `ACTIVE` |
 | `EXPERIENCE_MAP_AUTHORITY` | Thẩm quyền của bản đồ trải nghiệm | BA Lead | Product Designer | `srs/08-ui-ux.md#experience-map-va-authority-giao-dien` | `ACTIVE` |
 | `UI_CONTENT_STANDARD` | Quy ước nội dung giao diện | Product Designer | BA Lead | `srs/08-ui-ux.md#quy-uoc-noi-dung-giao-dien` | `ACTIVE` |
-| `DURABILITY_RPO` | Chỉ tiêu định lượng về độ bền, RPO và khả năng dựng lại | Solution Architect | Platform Lead | `srs/07-technical-contracts.md#durability-rpo-va-rebuildability` | `ACTIVE` |
+| `DURABILITY_RPO` | Chỉ tiêu định lượng về độ bền, RPO và khả năng dựng lại | Solution Architect | Platform Lead | Ngưỡng chưa thuộc specification. Slice ghi vào Verification khi cần đo | `ACTIVE` |
 | `PROGRESSIVE_DISCLOSURE` | Chỉ hỏi dữ liệu cần thiết; điền sẵn ngữ cảnh; ẩn ID kỹ thuật; hiển thị LOT/hạn dùng theo chính sách; đề xuất FEFO/FIFO có kiểm soát quyền; và đặt ranh giới xác nhận theo mức rủi ro | Product Designer | BA Lead | `srs/08-ui-ux.md#prefill-progressive-disclosure-va-confirmation` | `ACTIVE` |
 
 ## 6. Kiểm soát hợp nhất

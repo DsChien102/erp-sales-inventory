@@ -46,15 +46,15 @@ Theo `DOM-IO`, Entity và BC liên quan.
 
 ## 8. Concurrency và consistency
 
-Theo `FND-TECH-01`.
+Concurrency và consistency của outcome được ghi trong work slice lúc review để implement.
 
 ## 9. Persistence boundary
 
-Theo Entity/source technical contract; schema vật lý không được suy thêm.
+Theo Entity. Schema vật lý và contract thực thi thuộc work slice lúc review để implement; không suy thêm trong Aggregate.
 
 ## 10. Domain Events
 
-Theo event mapping trong `FND-TECH-01`.
+Event mapping (wire name, version) của outcome được ghi trong work slice lúc review để implement.
 
 ## 11. Dependencies
 
