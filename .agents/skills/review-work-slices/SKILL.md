@@ -1,15 +1,16 @@
 ---
 name: review-work-slices
 description: >-
-  Fill gaps in IN_REVIEW vertical Work Slices against SRS, run the bar B
-  checklist, and after user confirmation set CATALOG design_status to
-  READY_TO_IMPLEMENT (or BLOCKED). The only path that may set READY.
+  Author the technical contract of IN_REVIEW Work Slices from architecture
+  and the current codebase, check business flow against SRS, run bar B, and
+  after user confirmation set CATALOG design_status to READY_TO_IMPLEMENT
+  (or BLOCKED). The only path that may set READY.
 disable-model-invocation: true
 ---
 
 # Review Work Slices
 
-Làm kín Work Slice `IN_REVIEW`, chạy checklist **bar B**, rồi sau **user OK** ghi catalog `READY_TO_IMPLEMENT` hoặc `BLOCKED` kèm `blocked_reason`.
+Làm kín Work Slice `IN_REVIEW`: ghi technical contract từ kiến trúc và code hiện tại, đối chiếu luồng với SRS, chạy checklist **bar B**, rồi sau **user OK** ghi catalog `READY_TO_IMPLEMENT` hoặc `BLOCKED` kèm `blocked_reason`.
 
 **Pipeline:** `/to-work-slices` → **`/review-work-slices`** → `/implement-work-slice`.
 Đây là cửa duy nhất được ghi `READY_TO_IMPLEMENT`.
@@ -20,10 +21,12 @@ Làm kín Work Slice `IN_REVIEW`, chạy checklist **bar B**, rồi sau **user O
 
 ## Bound
 
-- Điền nội dung SL từ SRS, chạy bar B, và sau user OK chuyển `IN_REVIEW` → `READY_TO_IMPLEMENT`, hoặc `BLOCKED` kèm `blocked_reason`.
+- SRS khóa luồng nghiệp vụ. Slice khóa technical contract. Chạy bar B, rồi sau user OK chuyển `IN_REVIEW` → `READY_TO_IMPLEMENT`, hoặc `BLOCKED` kèm `blocked_reason`.
 - Cắt lại outcome là việc của `/to-work-slices`.
 - Dart/SQL và promote migration là việc của `/implement-work-slice`.
-- Checklist fail thì báo thiếu gì. Có thể `BLOCKED` khi SRS không đủ để làm kín trong slice.
+- Không bịa hành vi SRS chưa khóa. Không sửa SRS.
+- Fork hành vi hoặc seam: ghi Open Questions rồi dừng, bảo chạy `/unblock-work-slice`.
+- Phụ thuộc ngoài slice: đề xuất `BLOCKED`.
 
 ## Process
 
@@ -33,27 +36,51 @@ Input: path `CATALOG.md`, và/hoặc list `SL-*`. Mặc định: mọi hàng `IN
 
 **Xong khi:** danh sách file và hàng catalog đã liệt kê.
 
-### 2. Fill gaps
+### 2. Read the slice's concerns
 
-Đối chiếu từng slice với SRS. Điền fence, Code Layout, State × feedback, Scenarios theo [reference.md](../to-work-slices/reference.md). Field/RPC lấy từ SRS. Thiếu nguồn thì Open Questions hoặc đề xuất `BLOCKED`.
+Trước khi ghi contract, với từng slice, đọc đúng concern nó đụng:
 
-**Xong khi:** lỗ bar B nào SRS trả lời được thì đã điền. Phần còn thiếu nằm ở Open Questions hoặc đề xuất blocked.
+| Concern | Đọc |
+| --- | --- |
+| Mutation | [vet45-idempotency-and-commands.mdc](../../../.cursor/rules/vet45-idempotency-and-commands.mdc) |
+| Integration | [vet45-integration-events.mdc](../../../.cursor/rules/vet45-integration-events.mdc) |
+| File mới | [vet45-architecture.mdc](../../../.cursor/rules/vet45-architecture.mdc) và layout `modules/iam/` |
+| Persistence | `supabase/schema.lock.yaml` và SQL declarative của schema đó |
+| Code Layout nêu module và module tồn tại | Thư mục module đó |
 
-### 3. Run bar B checklist
+**Xong khi:** đã đối chiếu nguồn của từng concern slice đụng.
+
+### 3. Write the technical contract
+
+Đối chiếu luồng với SRS. Ghi Design, Contracts, và các mục còn thiếu theo [reference.md](../to-work-slices/reference.md).
+
+- Rule hoặc code chỉ có một cách đúng: ghi thẳng vào Design hoặc Contracts.
+- SRS im về tên kỹ thuật, rule và code không ép một đáp án: chọn và ghi. Không hỏi.
+- Đụng seam đang có: một dòng ngay dưới H3 liên quan. Dùng lại, hoặc từ chối seam đó.
+- Hai cách hợp lệ mà đổi hành vi SRS chưa khóa, hoặc dùng lại seam hay tạo mới: một Open Question, nêu cả hai nguồn. Chưa `READY`.
+- SRS trái hard rule: Open Question nêu cả hai nguồn. Không sửa SRS.
+- SRS chưa khóa luồng nghiệp vụ: không bịa. Open Question, hoặc đề xuất `BLOCKED` khi phụ thuộc ngoài slice.
+- Open Question chỉ nói SRS chưa có tên RPC, bảng, hoặc mã lỗi: thay bằng quyết định trong slice và xóa câu đó.
+
+Open Questions là H2 cuối, sau Verification. Hết câu thì xóa H2 đó.
+
+**Xong khi:** technical contract đủ theo tối thiểu Heading, hoặc lỗ còn lại là Open Question hay đề xuất `BLOCKED`.
+
+### 4. Run bar B checklist
 
 Chạy checklist trong [reference.md](../to-work-slices/reference.md) cho từng slice. `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED` trước khi slice này READY.
 
 **Xong khi:** pass/fail từng mục đã báo, kèm chỗ thiếu.
 
-### 4. Propose READY (or BLOCKED)
+### 5. Propose READY (or BLOCKED)
 
 - Checklist xanh → hỏi: **OK đặt `READY_TO_IMPLEMENT`?**
-- Lỗ còn lại là quyết định SRS không chốt, hoặc phụ thuộc ngoài slice: dừng và bảo chạy `/unblock-work-slice` trên đúng slice.
-- Fail khác không sửa được trong lượt → đề xuất `BLOCKED` kèm `blocked_reason`, hoặc dừng để user bổ sung SRS.
+- Còn Open Question chặn (hành vi chưa khóa, hoặc fork seam): dừng và bảo chạy `/unblock-work-slice` trên đúng slice.
+- Phụ thuộc ngoài slice: đề xuất `BLOCKED` kèm `blocked_reason`.
 
 Chưa sửa catalog sang READY trước câu trả lời user.
 
-### 5. Write catalog status
+### 6. Write catalog status
 
 Sau user OK:
 

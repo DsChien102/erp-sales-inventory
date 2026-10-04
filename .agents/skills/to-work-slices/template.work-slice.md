@@ -8,7 +8,7 @@ sources: [] # BC/SCR/ENT/… ; journey và usecase là key riêng
 theme: # theme-xx
 ```
 
-**design_status** sống trên [`CATALOG.md`](CATALOG.md). Coder implement khi catalog = `READY_TO_IMPLEMENT`. Field/RPC lấy từ SRS. Bar B: [reference.md](reference.md).
+**design_status** sống trên [`CATALOG.md`](CATALOG.md). Coder implement khi catalog = `READY_TO_IMPLEMENT`. Hành vi lấy từ SRS. Technical contract nằm trong slice. Bar B: [reference.md](reference.md).
 
 **Format:** tối đa một dòng trống giữa block. Heading không đánh số. Thứ tự H2 cố định. Mục optional không thuộc scope thì xóa cả mục và ghi tên mục vào Out of Scope.
 
@@ -56,12 +56,6 @@ Giữ dòng nào đúng với slice. Xóa dòng mục nào thực sự có mặt
 | [`…`](…) | … |
 
 Slice không thêm rule mới: một dòng trỏ rule nguồn.
-
-### Open Questions
-
-Chỉ giữ H3 này khi còn việc chưa chốt. Câu hỏi còn chặn thì catalog chưa `READY_TO_IMPLEMENT`.
-
-- …
 
 ---
 
@@ -217,3 +211,11 @@ Giữ H3 khi có Presentation.
 | Scenario | Actor | Across | Given / When / Then | Seed / fixture | Pass / fail |
 | --- | --- | --- | --- | --- | --- |
 | … | … | UI → mediator → RPC → DB | G: … / W: … / T: … | … | pass khi …; fail khi … |
+
+---
+
+## Open Questions
+
+Chỉ giữ H2 này khi còn việc chưa chốt. Đặt cuối file, sau Verification. Câu hỏi còn chặn thì catalog chưa `READY_TO_IMPLEMENT`.
+
+- …

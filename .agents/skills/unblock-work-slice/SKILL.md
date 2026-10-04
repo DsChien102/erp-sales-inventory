@@ -1,15 +1,16 @@
 ---
 name: unblock-work-slice
 description: >-
-  Unblock one IN_REVIEW Work Slice that failed bar B by asking the user for
-  decisions the SRS does not settle, writing them into the slice, and sending
-  it back to /review-work-slices.
+  Unblock one IN_REVIEW Work Slice by asking the user only the Open Questions
+  review already wrote (unlocked business flow, or reuse an existing seam
+  versus a new one), writing the answers into the slice, and sending it back
+  to /review-work-slices.
 disable-model-invocation: true
 ---
 
 # Unblock Work Slice
 
-Gỡ các lỗ bar B khiến một Work Slice `IN_REVIEW` chưa để `/review-work-slices` ghi `READY_TO_IMPLEMENT`. Hỏi quyết định SRS không chốt, ghi vào slice sau khi user OK, rồi trả slice về review.
+Gỡ các lỗ bar B khiến một Work Slice `IN_REVIEW` chưa để `/review-work-slices` ghi `READY_TO_IMPLEMENT`. Hỏi Open Question mà review đã ghi, ghi vào slice sau khi user OK, rồi trả slice về review. Tên kỹ thuật không có fork thì trả về review để ghi, không hỏi.
 
 **Nhánh:** `/review-work-slices` còn lỗ Quyết định hoặc Chặn → **`/unblock-work-slice`** → `/review-work-slices`.
 **SSOT hình slice và checklist:** [reference.md](../to-work-slices/reference.md)
@@ -43,16 +44,17 @@ Input: path `SL-*.md`, hoặc một `SL-id` cùng path `CATALOG.md`. Catalog có
 
 | Lớp | Khi | Việc |
 | --- | --- | --- |
-| Điền | SRS trả lời được | Đưa vào danh sách sẽ ghi. Không hỏi. |
+| Điền | Hành vi SRS đã khóa mà slice chưa chép | Đưa vào danh sách sẽ ghi. Không hỏi. |
+| Trả review | Tên kỹ thuật SRS im, không đụng seam, không đổi hành vi | Không hỏi. Báo chạy lại `/review-work-slices` để ghi contract. |
 | Chờ | `depends_on` chưa `READY_TO_IMPLEMENT` hoặc `VERIFIED` | Báo trong phân loại. Không hỏi bỏ cổng. |
-| Quyết định | SRS không chốt, và lỗ còn chặn READY | Hỏi. |
+| Quyết định | Open Question review đã ghi: luồng SRS chưa khóa, hoặc dùng lại seam hay tạo mới | Hỏi. |
 | Chặn | Phụ thuộc ngoài slice, hoặc không đủ nguồn để chọn một phương án | Đề xuất một câu `blocked_reason`, hỏi user xác nhận. |
-
-Field, RPC, và rule lấy từ SRS.
 
 User bác một mục Điền thì chuyển mục đó sang Quyết định và hỏi.
 
-Đưa bảng phân loại cho user trước vòng hỏi: mục Điền sẽ ghi, mục Chờ, và frontier Quyết định cùng Chặn.
+Đưa bảng phân loại cho user trước vòng hỏi: mục Điền sẽ ghi, mục Trả review, mục Chờ, và frontier Quyết định cùng Chặn.
+
+Chỉ còn lớp Trả review: không phỏng vấn, sang handoff.
 
 **Xong khi:** mọi mục checklist fail có đúng một lớp, và bảng đó đã đưa ra.
 
@@ -71,7 +73,7 @@ Câu trả lời là tách, gộp, hoặc cắt lại outcome: dừng, trỏ `/t
 Danh sách ghi gồm mục Điền, quyết định đã chốt, và câu Chặn.
 
 - Quyết định ghi vào heading sẵn có mà lỗ đó thuộc về. Open Question tương ứng ra khỏi slice khi nội dung đã nằm ở heading đó.
-- Câu Chặn nằm ở Open Questions, viết thành một câu `blocked_reason` để review chép lên catalog. Slice chưa có H3 Open Questions thì thêm H3 đó.
+- Câu Chặn nằm ở H2 Open Questions cuối file, sau Verification, viết thành một câu `blocked_reason` để review chép lên catalog. Slice chưa có H2 đó thì thêm. Hết câu thì xóa H2.
 - Lệch SRS ghi cạnh field hoặc rule.
 - Open Question không chặn READY giữ nguyên.
 

@@ -20,7 +20,7 @@ Implement từng Work Slice đã `READY_TO_IMPLEMENT`. Một outcome, một lư�
 3. Trong một outcome, làm theo thứ tự nội bộ: surface Contracts, rồi persistence và domain, rồi Presentation, rồi test trong Verification. **Xong khi:** thứ tự đó nằm trong một lượt của outcome.
 4. Với từng outcome:
    - Nghi thức `.agents/skills/implement/SKILL.md`: `/tdd` tại seam đã chốt, typecheck, test liên quan, full suite cuối outcome, `/code-review`, **một commit** cho cả outcome.
-   - Field/RPC lấy từ slice và SRS. File mới nằm trong Code Layout.
+   - Technical contract chỉ từ slice. SRS chỉ để kiểm slice không lệch luồng nghiệp vụ. Slice thiếu field kỹ thuật thì dừng, không code, chuyển `/review-work-slices`. File mới nằm trong Code Layout.
    - **Xong khi:** AC và `scn_*` của outcome xanh, code-review không còn finding chặn, một commit trên branch.
 5. Cập nhật hàng catalog → `VERIFIED`. **Xong khi:** `CATALOG.md` ghi `VERIFIED` cho `id` vừa xong.
 6. Lặp outcome tiếp theo trong scope. **Xong khi:** không còn hàng in-scope ở `READY_TO_IMPLEMENT`, hoặc user dừng scope.
@@ -30,7 +30,7 @@ Implement từng Work Slice đã `READY_TO_IMPLEMENT`. Một outcome, một lư�
 - Matt skills (`implement`, `to-spec`, `to-tickets`, `grilling`, …) giữ nguyên.
 - Catalog không có status `IMPLEMENTING`.
 - Hàng `BLOCKED`: bỏ qua và báo `blocked_reason`.
-- Catalog READY nhưng fail bar B: dừng, chuyển `/review-work-slices`.
+- Catalog READY nhưng fail bar B, hoặc slice thiếu field kỹ thuật: dừng, chuyển `/review-work-slices`. Technical contract không lấy từ SRS.
 - Scope vượt harness: dừng và xác nhận với user.
 - Golden [examples/golden-family/](../to-work-slices/examples/golden-family/) là `EXAMPLE_ONLY`.
 - `READY_TO_IMPLEMENT` chỉ hợp lệ sau `/review-work-slices`.

@@ -24,7 +24,7 @@ Cắt plan, BJ/SRS, hoặc hội thoại thành **Work Slice dọc**: một outc
 
 > **Một Work Slice là một outcome kiểm được, trong một file, gồm đúng các mục heading mà outcome đó cần để implement và verify.**
 
-> **Quiz theo outcome. Publish `design_status = IN_REVIEW` trên CATALOG.md. Field/RPC lấy từ SRS.**
+> **Quiz theo outcome. Publish `design_status = IN_REVIEW` trên CATALOG.md. SRS khóa luồng nghiệp vụ. Technical contract là việc của `/review-work-slices`.**
 
 > **Refactor rộng / expand–contract dùng `/to-tickets`, không dùng harness này.**
 
@@ -40,7 +40,7 @@ Trace trong YAML: `BJ`/`CAP`, `UC`/`OP`, `BC`/`API`. Không thêm User Story.
 
 ### 2. Explore the codebase (optional)
 
-Khi cần: vocabulary domain, ADR khu vực chạm, trạng thái module. Prefactor tách thành outcome riêng trên danh sách quiz.
+Khi cần: vocabulary domain, ADR khu vực chạm, trạng thái module. Prefactor tách thành outcome riêng trên danh sách quiz. Bước này không viết technical contract.
 
 **Xong khi:** đủ để đặt slug theo glossary, hoặc context đã đủ nên bỏ qua.
 
@@ -54,7 +54,7 @@ Mỗi outcome đề xuất:
 - **What it delivers:** outcome kiểm được
 - **Sources:** BJ/UC/BC/… từ SRS
 
-Field/RPC chỉ từ SRS. Thiếu thì Open Questions trên slice.
+Điền Objective, Flow, Rules, Acceptance Criteria từ SRS. Design và Contracts chỉ để khung heading khi outcome cần. Không điền tên RPC, bảng, hay field kỹ thuật. Hành vi SRS chưa khóa thì một H2 Open Questions cuối file.
 
 ### 4. Quiz the user
 
@@ -72,11 +72,11 @@ Lặp đến khi user **approve**. Chưa ghi file trước approve.
 Sau approve:
 
 1. Đảm bảo `CATALOG.md` — copy [CATALOG.template.md](CATALOG.template.md) nếu thiếu.
-2. Copy [template.work-slice.md](template.work-slice.md) thành `SL-NNN-<slug>.md`. Điền từ SRS. Xóa H2 optional ngoài scope và ghi tên chúng vào Out of Scope.
+2. Copy [template.work-slice.md](template.work-slice.md) thành `SL-NNN-<slug>.md`. Điền luồng nghiệp vụ từ SRS. Để trống tên kỹ thuật trong Design và Contracts. Xóa H2 optional ngoài scope và ghi tên chúng vào Out of Scope. Open Questions, nếu có, là H2 cuối.
 3. Catalog: `depends_on` và `sources` trong YAML khớp file. Mọi slice vừa publish = `IN_REVIEW`.
 4. **Dừng.** Tiếp: `/review-work-slices`.
 
-**Xong khi:** mỗi outcome một file `SL-NNN-<slug>.md`, catalog `IN_REVIEW`, mục bắt buộc có nội dung hoặc lý do còn thiếu nằm ở Open Questions.
+**Xong khi:** mỗi outcome một file `SL-NNN-<slug>.md`, catalog `IN_REVIEW`. Luồng nghiệp vụ đã điền, hoặc lỗ hành vi nằm ở H2 Open Questions cuối file. Technical contract chưa cần kín.
 
 ## Khi nào dùng
 

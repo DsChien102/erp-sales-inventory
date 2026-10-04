@@ -6,7 +6,7 @@ SSOT trạng thái design: **`CATALOG.md`** trong harness theo BJ.
 **Skills:** `/to-work-slices` (publish `IN_REVIEW`) → `/review-work-slices` (làm kín bar B → user OK → `READY`) → `/implement-work-slice`.
 **READY** chỉ do `/review-work-slices` ghi.
 
-**Bar B:** agent implement xong cả outcome từ slice mà không bịa field và không hỏi thêm. Surface, AC, layout của mọi mục có mặt đều kín, kèm link nguồn đọc được.
+**Bar B:** agent implement xong cả outcome từ slice mà không bịa field và không hỏi thêm. Hành vi khớp SRS. Technical contract nằm đủ trong slice. Surface, AC, layout của mọi mục có mặt đều kín, kèm link nguồn đọc được.
 **Golden:** [examples/golden-family/](examples/golden-family/) (`EXAMPLE_ONLY`).
 **Skeleton:** `specs/themes/theme-template/04.harness/BJ-xx-harness/`.
 
@@ -44,9 +44,10 @@ Không đánh số. Thứ tự H2:
 6. Contracts
 7. Presentation
 8. Verification
+9. Open Questions
 
 Bốn mục luôn có: Objective, Blocked by, Scope & Rules, Verification.
-Bốn mục kia chỉ có khi đúng cò. Ngoài menu này không thêm H2.
+Năm mục kia chỉ có khi đúng cò. Ngoài menu này không thêm H2.
 
 | H2 | Có mặt khi |
 | --- | --- |
@@ -54,14 +55,14 @@ Bốn mục kia chỉ có khi đúng cò. Ngoài menu này không thêm H2.
 | Design | Đổi domain, persistence, transaction, hoặc file code |
 | Contracts | Publish hoặc consume Command, Query, DTO, hoặc integration |
 | Presentation | Có màn hình hoặc tương tác trên app |
+| Open Questions | Còn việc chưa chốt. Đứng cuối file, sau Verification. Câu còn chặn thì chưa `READY` |
 
-Mục không có mặt: xóa hẳn heading. Out of Scope gọi tên từng H2 optional đã xóa.
+Mục không có mặt: xóa hẳn heading. Out of Scope gọi tên từng H2 optional đã xóa, trừ Open Questions. Hết câu thì xóa H2 đó, không ghi vào Out of Scope.
 
 ### Scope & Rules
 
 Luôn đủ H3: In Scope, Out of Scope, Boundary, Rules.
 Rules là bảng ID | quy tắc. Slice không thêm rule mới thì một dòng trỏ rule nguồn.
-Open Questions là H3 cuối, chỉ khi còn việc chưa chốt. Câu hỏi còn chặn thì chưa `READY`.
 
 ### Objective và Blocked by
 
@@ -94,7 +95,7 @@ Design không đụng concern nào ở bảng thì xóa cả mục Design.
 Mỗi Command, Query, DTO là một H3. Command và Query có blockquote 1–2 câu, rồi Dart fence đủ field. DTO có fence đủ field.
 Integration là H3 khi có fact outbox hoặc `integration_commands`.
 Không có type và không có Integration thì xóa cả mục Contracts.
-Thiếu field so với SRS: ghi Open Questions, chưa `READY`.
+Technical contract đủ field trong fence. SRS im về tên kỹ thuật thì slice ghi quyết định đó.
 
 Fact outbox: `{context}_{entity}_{past}.v1`. Handoff: `integration_commands`. Outbox không mang yêu cầu đi làm việc (`*.requested`, apply, retry, reconcile).
 
@@ -112,6 +113,21 @@ Cây file nằm ở Design → Code Layout.
 | Acceptance Criteria | Luôn. Checklist `- [ ] **AC-0n**` Given / When / Then |
 | Tests | Luôn. Cột Test id, Given / When / Then, Layer |
 | Scenarios | Khi có Presentation. Cột Scenario, Actor, Across, Given / When / Then, Seed / fixture, Pass / fail |
+
+### Open Questions
+
+H2 cuối. Chỉ khi còn câu chưa chốt. Câu còn chặn thì chưa `READY`.
+
+---
+
+## Nguồn
+
+SRS khóa luồng nghiệp vụ: Objective, Flow, Rules, Acceptance Criteria.
+Slice khóa technical contract trong Design và Contracts: RPC, `p_*`, bảng, DTO, mã lỗi, path module, cách gắn idempotency và outbox cho outcome này.
+
+SRS im về tên kỹ thuật: slice ghi quyết định. SRS chưa khóa hành vi: Open Questions, chưa `READY`. SRS trái hard rule: Open Question nêu cả hai nguồn. Slice không sửa SRS.
+
+Đụng seam đang có (bảng, RPC, file, command đã tồn tại): một dòng ngay dưới H3 liên quan. Dòng nói dùng lại cái gì, hoặc từ chối seam nào. Không có seam thì không thêm dòng. Dòng seam không vào bảng Rules.
 
 ---
 
@@ -152,12 +168,14 @@ YAML trên file slice: `id`, `journey`, `usecase`, `sources`, `theme`. Fixture `
 ## Checklist trước READY_TO_IMPLEMENT
 
 - [ ] Đủ Objective, Blocked by, Scope & Rules, Verification. Không H2 ngoài menu. Không mục Delivery
-- [ ] Mỗi H2 optional vắng mặt được gọi tên trong Out of Scope
+- [ ] Mỗi H2 optional vắng mặt được gọi tên trong Out of Scope, trừ Open Questions
 - [ ] Scope & Rules đủ In Scope, Out of Scope, Boundary, Rules
-- [ ] Open Questions còn chặn thì chưa READY
+- [ ] Open Questions, nếu có, là H2 cuối sau Verification. Câu còn chặn thì chưa READY. Hết câu thì không còn H2 đó
 - [ ] Flow / Design / Contracts / Presentation, nếu có, đạt tối thiểu ở bảng Heading
 - [ ] Bảng vật lý đúng dạng Persistence. Có FK thì có `erDiagram`
-- [ ] Field, RPC, schema khớp SRS, hoặc lệch được ghi rõ
+- [ ] Hành vi (Flow, Rules, Acceptance Criteria) khớp SRS. Lệch hành vi thì ghi rõ, hoặc còn Open Question
+- [ ] Technical contract đủ trong Design và Contracts. Tên kỹ thuật không chờ SRS
+- [ ] Seam đang có thì một dòng dưới H3 liên quan
 - [ ] Blocked by khớp `depends_on`
 - [ ] Mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`
 - [ ] Hàng `CATALOG.md` cập nhật. `BLOCKED` thì có `blocked_reason`
