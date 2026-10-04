@@ -12,7 +12,7 @@ source_baseline: v3.10.1
 
 ## 1. Ý định
 
-Tính projected cost theo sản phẩm trước PO/receipt.
+Tính projected cost theo sản phẩm trước PO/goods receipt.
 
 ## 2. Phạm vi áp dụng
 

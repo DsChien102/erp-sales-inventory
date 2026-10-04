@@ -50,7 +50,7 @@ classDiagram
 | `normalizedAmountVnd` | Số tiền authoritative sau tax/FX treatment | Có | Bằng tổng allocation |
 | `taxFxProvenance` | Treatment/rate/version dùng chuẩn hóa | Theo component | Không cho user tự chọn recoverability |
 | `allocationPolicy` | Method/version dùng phân bổ | Có | Allowed by policy |
-| `targetScope` | Receipt valuation exposures được source/policy bao phủ | Có | User không tùy ý bỏ target |
+| `targetScope` | Phiếu nhận hàng valuation exposures được source/policy bao phủ | Có | User không tùy ý bỏ target |
 | `status` | DRAFT/COMMITTED | Có | Committed immutable |
 
 ## 4. Hành vi nghiệp vụ cốt lõi

@@ -56,7 +56,7 @@ Không thực hiện các mục tiêu thuộc Use Case khác trong cùng Journey
 | BF-01 | Hệ thống | Nhận supplier-return intent đã được upstream phê duyệt cùng source/version và phạm vi sản phẩm/lô/lượng. | |
 | BF-02 | Hệ thống | Đối chiếu source authorization với lượng tenant đang thực có, trạng thái vật lý và LOT identity hiện hành. | EF-A — Source stale hoặc lượng không còn đủ |
 | BF-03 | Hệ thống | Tính lượng tối đa được phép trả theo đồng thời giới hạn source và lượng tenant thực có. | BR-01 — Giới hạn lượng |
-| BF-04 | Hệ thống | Giữ liên kết receipt/source nhập gốc khi nguồn cung cấp và tạo validated return scope cho bước đồng bộ chờ trả. | BR-02 — Nguồn nhập |
+| BF-04 | Hệ thống | Giữ liên kết phiếu nhận hàng/source nhập gốc khi nguồn cung cấp và tạo validated return scope cho bước đồng bộ chờ trả. | BR-02 — Nguồn nhập |
 | BF-05 | Hệ thống | Trả phạm vi hợp lệ cùng source/version; chưa giảm tồn vật lý và chưa thay đổi công nợ NCC. | BR-04 — Mốc giảm vật lý |
 | BF-06 | — | [Kết thúc UC]. | |
 
@@ -85,7 +85,7 @@ Không thực hiện các mục tiêu thuộc Use Case khác trong cùng Journey
 | Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
 |---|---|---|---|
 | BR-01 | Giới hạn lượng | Lượng trả không vượt đồng thời lượng còn được source cho phép và lượng tenant thực có theo đúng sản phẩm/lô| Decision / DOM-IO / BC nguồn |
-| BR-02 | Nguồn nhập | Giữ liên kết đến receipt/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới| Decision / DOM-IO / BC nguồn |
+| BR-02 | Nguồn nhập | Giữ liên kết đến phiếu nhận hàng/source nhập gốc khi nguồn cung cấp; không tự tạo quan hệ thương mại mới| Decision / DOM-IO / BC nguồn |
 | BR-03 | Mốc loại khỏi khả dụng | Khi supplier return đã được chấp thuận và lượng chuyển RTV_PENDING| Decision / DOM-IO / BC nguồn |
 | BR-04 | Mốc giảm vật lý | Chỉ khi có bằng chứng bàn giao thực tế; tạo hồ sơ chờ trả không giảm physical| Decision / DOM-IO / BC nguồn |
 | BR-05 | Sửa trước bàn giao | Không sửa trực tiếp payload đã khóa; source version mới tạo thay đổi có truy vết và chỉ giải phóng phần chưa bàn giao| Decision / DOM-IO / BC nguồn |

@@ -23,8 +23,8 @@ Read model không phải nguồn authority để commit.
 
 ### 2.1 Initial-value work item
 
-- receipt item / Product / transaction UOM / quantity còn `VALUATION_PENDING`;
-- receipt type: document hoặc Quick;
+- mục hàng nhận / Product / transaction UOM / quantity còn `VALUATION_PENDING`;
+- Phiếu nhận hàng type: document hoặc Quick;
 - basis readiness: `READY`, `NEEDS_RECONCILIATION`, `MISSING_BASIS`;
 - source summary đủ để người dùng hiểu việc cần làm; không expose `basis_hash` như product copy;
 - current scope/basis version token cho command recheck.
@@ -32,7 +32,7 @@ Read model không phải nguồn authority để commit.
 ### 2.2 Value-adjustment work item
 
 - source component, signed amount, source/evidence summary;
-- target receipt/value exposure;
+- target phiếu nhận hàng/value exposure;
 - allocation readiness/method/result;
 - original/posting period;
 - exact Product + posting-period dirty consequence.
@@ -47,7 +47,7 @@ Read model không phải nguồn authority để commit.
 
 ## 3. Nguồn dữ liệu
 
-- `ReceiptValuation`, valuation-state balances và receipt references.
+- `ReceiptValuation`, valuation-state balances và phiếu nhận hàng references.
 - `ValueAdjustmentSource/Allocation`, `ValuationAdjustmentBatch/Line`.
 - `CostCalculationRun`, `ProductCostResult`, `OfficialCostVersion`.
 - Tenant policy/reference chỉ được project theo version đã bind; projection không sở hữu policy.

@@ -12,14 +12,14 @@ source_baseline: v4.6.7
 
 ## 1. Ý định
 
-Xác lập payload submitted và định tuyến operation sang chờ duyệt hoặc sẵn sàng. Với operation risk-based, contract tính/snapshot risk theo policy. Với `QUICK_RECEIPT`, contract đồng thời **tạo receipt và submit trong một command**, luôn route sang phê duyệt và **không yêu cầu price/FX basis tại BJ02**; không yêu cầu receipt/operation đã tồn tại trước đó.
+Xác lập payload submitted và định tuyến operation sang chờ duyệt hoặc sẵn sàng. Với operation risk-based, contract tính/snapshot risk theo policy. Với `QUICK_RECEIPT`, contract đồng thời **tạo goods receipt và submit trong một command**, luôn route sang phê duyệt và **không yêu cầu price/FX basis tại BJ02**; không yêu cầu goods receipt/operation đã tồn tại trước đó.
 
 ## 2. Phạm vi áp dụng
 
 - Loại: Command
 - Owner nguồn: IC + IO
 - Journey chính: Cross-cutting
-- Quick Receipt: create-and-submit nguyên tử; không qua BC-IO-16.
+- Quick receipt: create-and-submit nguyên tử; không qua BC-IO-16.
 
 ## 3. Đầu vào nghiệp vụ
 
@@ -33,7 +33,7 @@ Một command đầy đủ gồm:
 
 - `idempotencyKey`;
 - Supplier;
-- receipt items (Product + transaction UOM + quantity classifications + LOT/HSD theo policy);
+- mục hàng nhận (Product + transaction UOM + quantity classifications + LOT/HSD theo policy);
 - evidence refs / ownership assertion;
 - tenant/warehouse/actor context theo envelope.
 
@@ -52,39 +52,38 @@ Khóa payload hiện hành → snapshot risk/policy → route sang `PENDING_APPR
 
 ### 5.2 Nhánh `QUICK_RECEIPT`
 
-1. Validate toàn bộ command **trước khi tạo receipt**.
+1. Validate toàn bộ command **trước khi tạo goods receipt**.
 2. Nếu validation/routing không đạt, reject toàn bộ command; không tạo `GoodsReceipt`, không tạo `receiptId`, không để lại business draft.
 3. Nếu hợp lệ, trong cùng transaction:
    - tạo `GoodsReceipt` với immutable submitted payload;
    - cấp `receiptId`;
-   - snapshot Quick Receipt policy, maker/evidence/ownership và dữ liệu nhận hàng cần cho quyết định;
+   - snapshot quick receipt policy, maker/evidence/ownership và dữ liệu nhận hàng cần cho quyết định;
    - tạo `ApprovalCase(QUICK_RECEIPT)` bind đúng payload/basis hash;
-   - đặt trạng thái receipt đầu tiên = `PENDING_APPROVAL`;
-   - ghi `CommandReceipt` để bảo đảm idempotency/finality.
-4. Quick Receipt luôn cần approval; không hỏi người dùng có cần duyệt và không được đi thẳng `READY`.
-5. Retry/recovery cùng `idempotencyKey` phải trả lại đúng outcome đã commit; không tạo receipt thứ hai.
+   - đặt trạng thái goods receipt đầu tiên = `PENDING_APPROVAL`.
+4. Quick receipt luôn cần approval; không hỏi người dùng có cần duyệt và không được đi thẳng `READY`.
+5. Retry/recovery cùng `idempotencyKey` phải trả lại đúng outcome đã commit; không tạo goods receipt thứ hai.
 
 ## 6. Điều kiện bắt buộc
 
-Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5. `receiptId` của Quick Receipt không được allocate như một business receipt trước khi command create-and-submit commit thành công.
+Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5. `receiptId` của quick receipt không được allocate như một business goods receipt trước khi command create-and-submit commit thành công.
 
 ## 7. Ảnh hưởng trạng thái
 
 - Existing operation: immutable submitted payload và route/status theo lifecycle hiện hành.
-- Quick Receipt success: **non-existent → `PENDING_APPROVAL`** trong một transaction.
-- Quick Receipt rejection: **non-existent → non-existent**; không có business state `DRAFT`.
+- Quick receipt success: **non-existent → `PENDING_APPROVAL`** trong một transaction.
+- Quick receipt rejection: **non-existent → non-existent**; không có business state `DRAFT`.
 
 ## 9. Kết quả và semantics lỗi
 
-### Quick Receipt
+### Quick receipt
 
-- `APPROVER_CONFIGURATION_MISSING` — không resolve được approver phù hợp; không tạo receipt.
-- `APPROVAL_PRICE_BASIS_REQUIRED` **không thuộc nhánh Quick Receipt**; thiếu price/FX không chặn create-and-submit tại BJ02.
-- Thiếu dòng/UOM/LOT/evidence hoặc duplicate Product+UOM → validation rejection của toàn command; **không trả `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc bất kỳ mã `DRAFT_*` nào** cho nhánh Quick Receipt.
+- `APPROVER_CONFIGURATION_MISSING` — không resolve được approver phù hợp; không tạo goods receipt.
+- `APPROVAL_PRICE_BASIS_REQUIRED` **không thuộc nhánh quick receipt**; thiếu price/FX không chặn create-and-submit tại BJ02.
+- Thiếu dòng/UOM/LOT/evidence hoặc duplicate Product+UOM → validation rejection của toàn command; **không trả `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc bất kỳ mã `DRAFT_*` nào** cho nhánh quick receipt.
 
 ### Operation có draft lifecycle
 
-Các mã draft/state hiện hành của loại operation khác vẫn có thể áp dụng theo contract sở hữu; thay đổi này không sửa UC-02-01 hoặc các operation ngoài Quick Receipt.
+Các mã draft/state hiện hành của loại operation khác vẫn có thể áp dụng theo contract sở hữu; thay đổi này không sửa UC-02-01 hoặc các operation ngoài quick receipt.
 
 ## 10. Domain và UC sử dụng
 

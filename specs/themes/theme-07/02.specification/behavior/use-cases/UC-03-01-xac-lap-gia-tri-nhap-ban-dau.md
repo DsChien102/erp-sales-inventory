@@ -43,15 +43,15 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
 - **Tác nhân chính:** Kế toán kho hoặc người có quyền tài chính tương đương.
-- **Thẩm quyền:** Được xác nhận căn cứ và giá trị trong phạm vi tenant; không được sửa dữ liệu nguồn do Theme khác sở hữu. Với Quick receipt, chỉ người có quyền theo policy mới được lập hoặc chọn căn cứ giá trực tiếp.
+- **Thẩm quyền:** Được xác nhận căn cứ và giá trị trong phạm vi tenant; không được sửa dữ liệu nguồn do Theme khác sở hữu. Với phiếu nhận hàng nhanh, chỉ người có quyền theo policy mới được lập hoặc chọn căn cứ giá trực tiếp.
 - **Sự kiện khởi phát:** Có hàng chờ xác lập giá trị sau BJ02.
-- **Điều kiện trước:** Receipt có `effect_status=COMMITTED` / `GoodsReceipt=COMPLETED`; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền. `REJECTED` hoặc `UNKNOWN` không đủ điều kiện vào UC này.
+- **Điều kiện trước:** Phiếu nhận hàng có `effect_status=COMMITTED` / `GoodsReceipt=COMPLETED`; quantity mục tiêu đang `VALUATION_PENDING`; Product/UOM và conversion snapshot hợp lệ; chính sách thuế/tỷ giá cần thiết có nguồn có thẩm quyền. `REJECTED` hoặc `UNKNOWN` không đủ điều kiện vào UC này.
 
 ## 4. Đối tượng và dữ liệu nghiệp vụ
 
 | Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
 |---|---|---|
-| Hàng thực nhận chờ giá | Quantity thực sự đã vào tồn; phạm vi UI theo receipt item, backend giữ exact technical scope | `DOM-IO`, `ENT-IO-01/02` |
+| Hàng thực nhận chờ giá | Quantity thực sự đã vào tồn; phạm vi UI theo mục hàng nhận, backend giữ exact technical scope | `DOM-IO`, `ENT-IO-01/02` |
 | Căn cứ thương mại | Giá mua, chiết khấu, thuế và thành phần thương mại đã được Theme 10 xác lập | Theme 10 / integration contract |
 | Căn cứ giá trực tiếp | Căn cứ dùng cho Quick khi không có nguồn Theme 10: đơn giá, tiền tệ, cách hiểu đã/chưa gồm thuế khi cần, **căn cứ giá cụ thể**, ngày/hiệu lực, bằng chứng/tham chiếu và người xác lập; không có taxonomy “Loại nguồn” tự sinh | `DOM-IV`, `ENT-IV-01` |
 | Tax treatment | Phần thuế/phí được hoặc không được thu hồi theo chính sách tenant/giao dịch; người dùng không tự chọn khả năng khấu trừ | Policy có thẩm quyền; `T7-DR-189` |
@@ -65,8 +65,8 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| BF-01 | Kế toán | Mở hàng đang chờ xác lập giá trị và chọn receipt item cần xử lý. | |
-| BF-02 | Hệ thống | Tập hợp quantity còn chờ giá, căn cứ hiện có, tax treatment, tỷ giá và các thành phần giá trị đã đủ nguồn; đồng thời xác định phạm vi mà từng căn cứ thực sự bao phủ. | AF-A — Nhận theo chứng từ<br>AF-B — Nhập hàng nhanh<br>AF-C — Căn cứ chỉ bao phủ một phần lượng<br>EF-A — Chưa đủ căn cứ<br>EF-B — Mâu thuẫn thương mại thuộc Theme 10 |
+| BF-01 | Kế toán | Mở hàng đang chờ xác lập giá trị và chọn mục hàng nhận cần xử lý. | |
+| BF-02 | Hệ thống | Tập hợp quantity còn chờ giá, căn cứ hiện có, tax treatment, tỷ giá và các thành phần giá trị đã đủ nguồn; đồng thời xác định phạm vi mà từng căn cứ thực sự bao phủ. | AF-A — Nhận theo chứng từ<br>AF-B — Phiếu nhận hàng nhanh<br>AF-C — Căn cứ chỉ bao phủ một phần lượng<br>EF-A — Chưa đủ căn cứ<br>EF-B — Mâu thuẫn thương mại thuộc Theme 10 |
 | BF-03 | Kế toán | Rà soát căn cứ, bổ sung thông tin thuộc thẩm quyền Theme 7 nếu cần và xác nhận căn cứ sẽ dùng. | AF-D — Nhiều căn cứ trực tiếp của Quick |
 | BF-04 | Hệ thống | Tính cấu thành giá trị nhập ban đầu theo đúng phạm vi, UOM, thuế, tỷ giá, phân bổ và làm tròn; trả kết quả để rà soát nhưng chưa mutation. | BR-01 — Công thức giá trị nhập<br>BR-02 — Phạm vi theo căn cứ |
 | BF-05 | Kế toán | Rà soát quantity, nguồn và tổng giá trị; xác nhận ghi nhận. | EF-C — Nguồn thay đổi trước xác nhận |
@@ -77,7 +77,7 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 
 #### AF-A — Nhận theo chứng từ
 
-**Phát sinh tại:** BF-02. **Điều kiện:** receipt có liên kết nguồn mua do Theme 10 quản lý.
+**Phát sinh tại:** BF-02. **Điều kiện:** phiếu nhận hàng có liên kết nguồn mua do Theme 10 quản lý.
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
@@ -85,9 +85,9 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 | AF-A-02 | Kế toán | Rà soát dữ liệu nguồn ở chế độ read-only; không sửa PO/hóa đơn trong Theme 7. | T7-DR-190 — Quyền xử lý xung đột |
 | AF-A-03 | — | [Trở lại BF-04]. | BF-04 — Tính cấu thành giá trị |
 
-#### AF-B — Nhập hàng nhanh
+#### AF-B — Phiếu nhận hàng nhanh
 
-**Phát sinh tại:** BF-02. **Điều kiện:** Quick receipt không có căn cứ thương mại đủ dùng từ Theme 10.
+**Phát sinh tại:** BF-02. **Điều kiện:** phiếu nhận hàng nhanh không có căn cứ thương mại đủ dùng từ Theme 10.
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
@@ -204,9 +204,9 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **When:** kế toán xác nhận giá trị nhập ban đầu.
 - **Then:** value movement chỉ ghi cho quantity được căn cứ bao phủ, provenance giữ source/version và không tạo `OfficialCostVersion`.
 
-### AS-UC-03-01-02 — Quick receipt không có Theme 10
+### AS-UC-03-01-02 — phiếu nhận hàng nhanh không có Theme 10
 - **Bao phủ:** BF-01 → BF-07; AF-B; BR-01 → BR-03.
-- **Given:** Quick receipt đã hoàn tất và kế toán có quyền lập căn cứ giá trực tiếp.
+- **Given:** phiếu nhận hàng nhanh đã hoàn tất và kế toán có quyền lập căn cứ giá trực tiếp.
 - **When:** kế toán xác nhận căn cứ trực tiếp đầy đủ.
 - **Then:** BJ03 hoàn tất không cần PO/hóa đơn giả và giá trị được tính theo tax policy của tenant.
 
@@ -228,9 +228,9 @@ Kết thúc khi một trong các kết quả sau đã rõ:
 - **When:** kế toán xác nhận.
 - **Then:** toàn command bị từ chối trước mutation và yêu cầu rà soát lại dữ liệu hiện hành.
 
-### AS-UC-03-01-06 — Hóa đơn đến sau Quick receipt đã valued
+### AS-UC-03-01-06 — Hóa đơn đến sau phiếu nhận hàng nhanh đã valued
 - **Bao phủ:** BR-05.
-- **Given:** Quick receipt đã hoàn tất BJ03 và sau đó Theme 10 xác lập hóa đơn có giá khác.
+- **Given:** phiếu nhận hàng nhanh đã hoàn tất BJ03 và sau đó Theme 10 xác lập hóa đơn có giá khác.
 - **When:** chênh lệch trở thành business fact hợp lệ.
 - **Then:** không mở lại/sửa BJ03; chênh lệch được bàn giao sang BJ13.
 

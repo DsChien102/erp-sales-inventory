@@ -14,7 +14,7 @@ Design + HTML parity for `BJ03 → BJ13 → BJ14`; no new business semantic.
 
 ## Product UX
 
-- Quick receipt can add a direct price basis without Theme 10 dependency.
+- nhập hàng nhanh can add a direct price basis without Theme 10 dependency.
 - Document commercial conflict remains source-owned and cannot be bypassed by arbitrary price selection.
 - Initial value result no longer bootstraps Official Cost.
 - Later value changes are signed adjustments.

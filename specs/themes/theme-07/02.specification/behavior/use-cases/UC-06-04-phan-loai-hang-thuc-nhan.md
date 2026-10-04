@@ -16,7 +16,7 @@ ui_flow: UIF-06
 
 Phân loại hàng khách trả đã nằm trong `RETURN_PENDING` sang trạng thái vật lý phù hợp mà không ghi quantity/value lần hai.
 
-**Kết quả cần đạt:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của receipt không bị ghi lại.
+**Kết quả cần đạt:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của phiếu nhận hàng không bị ghi lại.
 
 ## 2. Bối cảnh và ranh giới
 
@@ -53,10 +53,10 @@ Không thay đổi lượng đã nhận và không ghi thêm movement nhận hà
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| BF-01 | Thủ kho | Mở return receipt đã commit và kiểm tra tình trạng thực tế của từng sản phẩm/lô. |  |
-| BF-02 | Thủ kho | Phân loại lượng hàng vào trạng thái vật lý phù hợp; tổng phân loại phải bằng lượng receipt cần xử lý. | EF-A — Tổng phân loại không khớp |
+| BF-01 | Thủ kho | Mở phiếu nhận hàng của hàng trả đã commit và kiểm tra tình trạng thực tế của từng sản phẩm/lô. |  |
+| BF-02 | Thủ kho | Phân loại lượng hàng vào trạng thái vật lý phù hợp; tổng phân loại phải bằng lượng phiếu nhận hàng cần xử lý. | EF-A — Tổng phân loại không khớp |
 | BF-03 | Hệ thống | Kiểm tra state transition hợp lệ và quyền xử lý với từng trạng thái. |  |
-| BF-04 | Hệ thống | Ghi state movement/physical-state balance; không tạo quantity/value movement mới cho receipt. | EF-B — Kết quả state change chưa xác định |
+| BF-04 | Hệ thống | Ghi state movement/physical-state balance; không tạo quantity/value movement mới cho phiếu nhận hàng. | EF-B — Kết quả state change chưa xác định |
 | BF-05 | Hệ thống | Trả kết quả phân loại và availability được tính lại theo trạng thái mới. |  |
 | BF-06 | — | [Kết thúc UC]. | |
 
@@ -88,7 +88,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 |---|---|---|---|
 | BR-01 | Nguồn | Chỉ phân loại quantity đã authoritative ở `RETURN_PENDING`; `ReturnCondition` từ Theme 5 là declared context, không quyết định output stock state| Decision / DOM-IO / BC nguồn |
 | BR-02 | Combo | Chỉ thành phần thực nhận tăng tồn; không tạo tồn combo; các dòng trong cùng yêu cầu nhận trả commit hoặc rollback cùng nhau| Decision / DOM-IO / BC nguồn |
-| BR-03 | Lô | Dùng actual LOT/LOT version đã resolve ở receipt; expiry eligibility được server derive từ authoritative `expiry_date` + tenant business date| Decision / DOM-IO / BC nguồn |
+| BR-03 | Lô | Dùng actual LOT/LOT version đã resolve ở phiếu nhận hàng; expiry eligibility được server derive từ authoritative `expiry_date` + tenant business date| Decision / DOM-IO / BC nguồn |
 | BR-04 | Mốc ghi giá trị | Ghi value movement cùng lúc nhận vật lý vào RETURN_PENDING; phân loại không ghi giá trị lần hai| Decision / DOM-IO / BC nguồn |
 | BR-05 | Căn cứ giá | Dùng giá đã đối soát của sản phẩm và kỳ xuất gốc; nếu kỳ gốc chưa đối soát thì dùng snapshot tại lần xuất và giữ liên kết để điều chỉnh theo policy| Decision / DOM-IO / BC nguồn |
 | BR-06 | Phân loại | LOT chưa hết hạn thì `Bán được + Cách ly + Hỏng = pending quantity`; expired quantity = 0. LOT đã hết hạn thì toàn pending quantity = `EXPIRED`, ba lượng user classification = 0 và không có permission override. Không cộng quantity khác UOM thành một tổng. Routine Phase 1 không yêu cầu reason/evidence/approval mặc định| Decision / DOM-IO / BC nguồn |
@@ -104,11 +104,11 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| Thành công | Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của receipt không bị ghi lại. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
+| Thành công | Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của phiếu nhận hàng không bị ghi lại. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
 | Không đủ điều kiện / Bị từ chối | Nếu precondition, version, quyền hoặc invariant không còn hợp lệ, hệ thống từ chối trước effect; nếu finality chưa rõ thì giữ cùng operation identity để recovery. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
 | Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
 
-**Ảnh hưởng nghiệp vụ chính:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của receipt không bị ghi lại.
+**Ảnh hưởng nghiệp vụ chính:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của phiếu nhận hàng không bị ghi lại.
 
 ## 8. Liên hệ giao diện
 
@@ -124,13 +124,13 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 ### AS-UC-06-04-01 — Phân loại hàng thực nhận — luồng chính
 - **Given:** Có lượng `RETURN_PENDING`
-- **When:** Mở return receipt đã commit và kiểm tra tình trạng thực tế của từng sản phẩm/lô.
-- **Then:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của receipt không bị ghi lại.
+- **When:** Mở phiếu nhận hàng của hàng trả đã commit và kiểm tra tình trạng thực tế của từng sản phẩm/lô.
+- **Then:** Mỗi lượng hàng trả được chuyển sang trạng thái Đạt/Cách ly/Hỏng/.. theo policy; quantity/value của phiếu nhận hàng không bị ghi lại.
 
 ### AS-UC-06-04-02 — Phân loại hàng thực nhận — Tổng phân loại không khớp
 - **Given:** Tổng các nhóm tình trạng khác lượng cần phân loại.
 - **When:** Hệ thống phát hiện điều kiện “Tổng phân loại không khớp” tại BF-02.
-- **Then:** Không cho commit; chỉ rõ phần thiếu/thừa để sửa. Luồng chính tiếp tục tại BF-02: Phân loại lượng hàng vào trạng thái vật lý phù hợp; tổng phân loại phải bằng lượng receipt cần xử lý.
+- **Then:** Không cho commit; chỉ rõ phần thiếu/thừa để sửa. Luồng chính tiếp tục tại BF-02: Phân loại lượng hàng vào trạng thái vật lý phù hợp; tổng phân loại phải bằng lượng phiếu nhận hàng cần xử lý.
 
 ### AS-UC-06-04-03 — Phân loại hàng thực nhận — Kết quả state change chưa xác định
 - **Given:** Không rõ state movement đã commit.

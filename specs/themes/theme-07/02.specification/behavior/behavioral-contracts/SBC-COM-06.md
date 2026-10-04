@@ -33,7 +33,7 @@ Các điều kiện trước được quy định bởi common envelope/permissi
 | Trạng thái/thuộc tính | Hành vi bắt buộc |
 |---|---|
 | `ACTIVE` | Cho phép mutation theo các guard còn lại. |
-| `DISCONTINUED` | Chặn cam kết mua và receipt mới; chỉ cho receipt tiếp tục khi có source continuation assertion/version được chụp trước mốc ngừng. Vẫn cho bán hết, return, RTV, correction và disposal. |
+| `DISCONTINUED` | Chặn cam kết mua và goods receipt mới; chỉ cho goods receipt tiếp tục khi có source continuation assertion/version được chụp trước mốc ngừng. Vẫn cho bán hết, return, RTV, correction và disposal. |
 | `ARCHIVED` | Chặn mọi mutation mới; chỉ cho query lịch sử có quyền. |
 | Base UOM sau movement | Bất biến; trả `BASE_UOM_IMMUTABLE`, chỉ sản phẩm mới hoặc migration có kiểm soát được phép thay đổi. |
 

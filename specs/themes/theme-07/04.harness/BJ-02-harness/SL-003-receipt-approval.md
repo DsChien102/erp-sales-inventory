@@ -1,4 +1,4 @@
-# Work Slice: SL-003 — Phê duyệt phiếu nhận
+# Work Slice: SL-003 — Phê duyệt goods receipt
 
 ```yaml
 id: SL-003
@@ -22,13 +22,13 @@ theme: theme-07
 
 ## Objective
 
-Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một quyết định: duyệt thì phiếu `READY`, từ chối thì `REJECTED`, cả hai không ghi movement.
+Người duyệt đọc snapshot quick receipt đang chờ và ghi một quyết định: duyệt thì phiếu `READY`, từ chối thì `REJECTED`, cả hai không ghi movement.
 
 ---
 
 ## Blocked by
 
-- [SL-002](SL-002-quick-receipt.md) — phiếu nhận nhanh gửi xong mới có `PENDING_APPROVAL` và `approvalCaseId`
+- [SL-002](SL-002-quick-receipt.md) — quick receipt gửi xong mới có `PENDING_APPROVAL` và `approvalCaseId`
 
 ---
 
@@ -36,7 +36,7 @@ Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một 
 
 ### In Scope
 
-- Đọc việc duyệt được giao cho phiếu nhận nhanh
+- Đọc việc duyệt được giao cho quick receipt
 - `DecideApproval` ([BC-IC-06](../../02.specification/behavior/behavioral-contracts/BC-IC-06.md)): duyệt → phiếu `READY`. Từ chối có lý do → phiếu `REJECTED`
 - Quyết định đầu tiên thắng. Người duyệt khác người lập. Không sửa payload. Không movement
 - SCR-011: Duyệt và Từ chối. Lý do từ chối bắt buộc
@@ -47,7 +47,7 @@ Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một 
 
 - Nhận theo chứng từ vượt ngưỡng — hàng `SL-001` trên catalog
 - Ghi tồn sau `READY` — [SL-004](SL-004-physical-receipt.md)
-- Hàng đợi duyệt dùng chung ngoài phiếu nhận nhanh
+- Hàng đợi duyệt dùng chung ngoài quick receipt
 - SCR-012 — [SL-004](SL-004-physical-receipt.md)
 - Command yêu cầu ghi tồn trên outbox
 
@@ -63,7 +63,7 @@ Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một 
 
 | ID | Quy tắc (slice) |
 | --- | --- |
-| [UC-02-03 BR-01](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | Nhập hàng nhanh luôn phải có quyết định duyệt |
+| [UC-02-03 BR-01](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | Quick receipt luôn phải có quyết định duyệt |
 | [UC-02-03 BR-02](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | Người duyệt còn quyền, đúng kho, đúng cấp, khác người lập |
 | [UC-02-03 BR-03](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | Quyết định commit hợp lệ đầu tiên thắng |
 | [UC-02-03 BR-04](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | Duyệt chỉ đưa phiếu sang `READY`. Không giữ hàng, không movement |
@@ -89,7 +89,7 @@ Người duyệt đọc snapshot phiếu nhận nhanh đang chờ và ghi một 
 1. Người duyệt mở việc được giao, không phải menu của người lập.
 2. Hệ thống trả snapshot bất biến của phiếu đang `PENDING_APPROVAL`.
 3. Người duyệt chọn Duyệt, hoặc Từ chối kèm lý do.
-4. Một transaction ghi quyết định, chuyển phiếu, ghi CommandReceipt và fact `EVT-IC-04`.
+4. Một transaction ghi quyết định, chuyển phiếu và fact `EVT-IC-04`.
 5. UI hiện kết quả. Back về danh sách việc của người duyệt. Không movement.
 
 ### Failure Flow
@@ -125,7 +125,7 @@ Tên bảng ApprovalCase chưa đặt. Draft lúc implement: `supabase/migration
 
 ### Transaction / Idempotency
 
-Một transaction: recheck quyền, cấp, segregation, snapshot hash; append quyết định; phiếu `READY` hoặc `REJECTED`; CommandReceipt; outbox fact khi quyết định đã ghi.
+Một transaction: recheck quyền, cấp, segregation, snapshot hash; append quyết định; phiếu `READY` hoặc `REJECTED`; idempotency record; outbox fact khi quyết định đã ghi.
 
 - `idempotencyKey` ≠ `command.id`
 - Unique `(tenant_id, command_scope, idempotency_key)`

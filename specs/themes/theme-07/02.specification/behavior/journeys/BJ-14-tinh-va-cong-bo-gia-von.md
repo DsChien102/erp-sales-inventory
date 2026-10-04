@@ -67,7 +67,7 @@ flowchart TD
 | JA-01 | Tạo lần tính | Costing method được lấy từ tenant policy, người dùng không được chọn lại theo run; cả hai phương pháp dùng cùng valuation snapshot/cut-off | UC-14-01 / BC-IV-02 |
 | JA-02 | Có blocker hoặc input/policy thay đổi | Run không được công bố; blocker có owner hoặc run stale và phải tạo successor sau khi xử lý | UC-14-01 / BC-IV-02 |
 | JA-03 | Run sẵn sàng và còn current | Công bố chỉ dùng phương pháp tenant đã chọn; phương pháp còn lại chỉ đối chiếu và không tự ghi ledger | UC-14-04 / BC-IV-03 |
-| JA-04 | Publication commit | COGS/value adjustment cần thiết và `OfficialCostVersion` commit cùng batch; không sửa receipt/issue/sale/value movement lịch sử | UC-14-04 / BC-IV-03 |
+| JA-04 | Publication commit | COGS/value adjustment cần thiết và `OfficialCostVersion` commit cùng batch; không sửa phiếu nhận hàng/issue/sale/value movement lịch sử | UC-14-04 / BC-IV-03 |
 | JA-05 | Tạo period-close run | Chỉ scope option tenant policy cho phép mới xuất hiện; nếu có nhiều option user phải chọn rõ, nếu chỉ có một option thì hiển thị read-only; khóa snapshot ngay khi tạo run | UC-14-01 / BC-IV-02 |
 
 ## 8. Truy vết

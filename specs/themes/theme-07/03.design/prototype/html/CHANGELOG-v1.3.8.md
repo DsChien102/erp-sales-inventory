@@ -16,12 +16,12 @@ Scope: **BJ06 / UIF06 deep correction**. No redesign of BJ01/BJ02/BJ04/BJ05/BJ07
 - SCR-034 provides separate approver task list, exact case binding, viewable evidence, real reject typing and final decision state.
 - SCR-033 classification starts unconfirmed; per-line draft editor has `Hủy / Xong`; expiry hard guard; no mixed-UOM aggregate.
 - SCR-035 has explicit received/completed/rejected/permission/UNKNOWN states, no Back to consumed mutation and safe continuation/queue actions.
-- Completed requests leave active maker queue; deferred receipt re-enters directly at classification.
+- Completed requests leave active maker queue; deferred goods receipt re-enters directly at classification.
 
 ## Contract / registry corrections
 
 - Reconciled BJ06 BJ/UC, UIF-06, SCR-030…035 contracts, Component Usage, Action Registry, Screen Registry, UIF Registry, BJ↔UIF map and workbench metadata.
-- Corrected approval screen ownership to UC-06-02 and corrected receipt/classification action ownership.
+- Corrected approval screen ownership to UC-06-02 and corrected goods receipt/classification action ownership.
 
 ## QA
 

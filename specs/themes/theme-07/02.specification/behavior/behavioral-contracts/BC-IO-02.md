@@ -22,15 +22,15 @@ Ghi lượng đạt thực nhận và lô; mọi lượng đạt vào `VALUATION
 
 ## 3. Đầu vào nghiệp vụ
 
-Receipt source/version; source line/version + authoritative `remaining_receivable_qty`; exactly-one Supplier; `receipt_business_date`; receipt-item grouping; Product/UOM + conversion snapshot; accepted/quarantine/damaged/rejected; tracking + lot precision; delivery evidence refs; ownership assertion; versioned price/FX basis.
+Goods receipt source/version; source line/version + authoritative `remaining_receivable_qty`; exactly-one Supplier; `receipt_business_date`; receipt-item grouping; Product/UOM + conversion snapshot; accepted/quarantine/damaged/rejected; tracking + lot precision; delivery evidence refs; ownership assertion; versioned price/FX basis.
 
 ## 4. Điều kiện trước
 
-Supplier/Product/UOM/version hợp lệ; một receipt không trộn Supplier; warehouse unlocked; ownership assertion hợp lệ; document UOM/source line version current; `accepted_physical_base_qty` không vượt source remainder nếu chưa có approval; Quick không duplicate Product+UOM và không submit khi accepted physical=0; `NONE` không lot data; `LOT` có manufacturer lot + original DAY/MONTH/YEAR precision và expiry nếu required; conflict lot attributes chặn.
+Supplier/Product/UOM/version hợp lệ; một goods receipt không trộn Supplier; warehouse unlocked; ownership assertion hợp lệ; document UOM/source line version current; `accepted_physical_base_qty` không vượt source remainder nếu chưa có approval; Quick không duplicate Product+UOM và không submit khi accepted physical=0; `NONE` không lot data; `LOT` có manufacturer lot + original DAY/MONTH/YEAR precision và expiry nếu required; conflict lot attributes chặn.
 
 ## 5. Quy tắc nghiệp vụ
 
-Validate toàn operation → kiểm tra route/approval đã hợp lệ (**Quick luôn cần approval; Document cần approval khi cumulative accepted physical quantity vượt tolerance/ngưỡng của source theo ApprovalPolicy**) → create/reuse lot → append receipt/state movement vào `VALUATION_PENDING` → update balance → lưu direct-price evidence chỉ làm staging cho BC-IV-01 → store discrepancy result/outbox. Không tự suy thêm trigger approval cho Document Receipt nếu chưa có Decision định nghĩa.
+Validate toàn operation → kiểm tra route/approval đã hợp lệ (**Quick luôn cần approval; Document cần approval khi cumulative accepted physical quantity vượt tolerance/ngưỡng của source theo ApprovalPolicy**) → create/reuse lot → append goods receipt/state movement vào `VALUATION_PENDING` → update balance → lưu direct-price evidence chỉ làm staging cho BC-IV-01 → store discrepancy result/outbox. Không tự suy thêm trigger approval cho nhận theo chứng từ nếu chưa có Decision định nghĩa.
 
 ## 6. Điều kiện bắt buộc
 

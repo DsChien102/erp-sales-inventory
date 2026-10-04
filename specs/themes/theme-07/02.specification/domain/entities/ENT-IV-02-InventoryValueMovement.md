@@ -45,7 +45,7 @@ classDiagram
 |---|---|---:|---|
 | `productId` | Sản phẩm chịu tác động giá trị | Có | Authority scope tenant+product |
 | `sourceRef` | ReceiptValuation/adjustment/issue/correction gây ra movement | Có | Có source identity |
-| `valueType` | Loại tăng/giảm giá trị | Có | Initial receipt, issue COGS, adjustment, true-up… |
+| `valueType` | Loại tăng/giảm giá trị | Có | Initial phiếu nhận hàng, issue COGS, adjustment, true-up… |
 | `amountVnd` | Số tiền có dấu | Có | VND |
 | `businessDate` | Ngày nghiệp vụ | Có | Không đồng nhất recordedAt |
 | `postingPeriod` | Kỳ ghi nhận | Có | Giữ original period khi cần |

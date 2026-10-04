@@ -76,7 +76,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | Mở đầu | Trạng thái kích hoạt `PREPARING`; chuẩn bị/validate opening batch, duyệt độc lập, commit, báo cáo migration và chuyển nguyên tử sang `ACTIVE` |
 | Chính sách tồn sản phẩm | Threshold/target; ngưỡng cận hạn mặc định và ghi đè theo sản phẩm; hành động `WARN`/`BLOCK_SALE`; chỉ báo dẫn xuất |
 | Quản trị | RBAC + warehouse scope; che dữ liệu tài chính; phê duyệt theo rủi ro; audit |
-| Tin cậy | Idempotency cho mọi mutation bằng `CommandReceipt`, source version, atomic commit, `UNKNOWN`, transactional outbox, reconciliation/rebuild |
+| Tin cậy | Idempotency cho mọi mutation bằng idempotency record, source version, atomic commit, `UNKNOWN`, transactional outbox, reconciliation/rebuild |
 | Liên miền | Kịch bản chiết khấu mua hàng theo kỳ; handoff pricing cost basis; rà soát cuối kỳ; ba cách nhìn lợi nhuận |
 
 ### 2.1A Định hướng tương lai, chưa triển khai
@@ -111,7 +111,7 @@ Capability chưa thuộc Phase 1 không xuất hiện dưới dạng màn hình 
 | Người phê duyệt | Duyệt operation theo mức rủi ro | Quyền và scope được kiểm lại tại thời điểm quyết định |
 | Chủ cửa hàng/Quản trị | Xem báo cáo, cấu hình threshold/target, quyết định định giá | Không được sửa tay ledger hoặc kết quả operation |
 | Hệ thống Sản phẩm | Sở hữu sản phẩm, UOM, `tracking_mode`, `expiry_required`, combo snapshot | Không sửa balance |
-| Hệ thống Mua hàng | Sở hữu PO/receipt intent, assertion quyền sở hữu, giá/chứng từ nguồn | Không ghi movement trực tiếp |
+| Hệ thống Mua hàng | Sở hữu PO/phiếu nhận hàng intent, assertion quyền sở hữu, giá/chứng từ nguồn | Không ghi movement trực tiếp |
 | Hệ thống Bán hàng/POS | Sở hữu đơn, bàn giao, return request | Không quyết định số dư cuối |
 | Hệ thống Kế toán | Nhận kết quả giá trị/adjustment để hạch toán | Không sửa Inventory Operation |
 | Hệ thống Định giá/Khuyến mại | Sở hữu pricing cost basis, floor/list price, promotion và sales price | Không tạo COGS hoặc value movement |
@@ -159,9 +159,9 @@ Xem [Business Journey Map](../behavior/journeys/00-business-journey-map.md).
 
 | Domain | Trách nhiệm hiện hành |
 |---|---|
-| `DOM-IO` | tiếp nhận yêu cầu có identity/version; quản lý lifecycle Inventory Operation; ghi movement số lượng; cập nhật transactional balance; giữ hàng; trạng thái hàng; hồ sơ lô; return/issue/receipt/correction; phát outbox event. |
+| `DOM-IO` | tiếp nhận yêu cầu có identity/version; quản lý lifecycle Inventory Operation; ghi movement số lượng; cập nhật transactional balance; giữ hàng; trạng thái hàng; hồ sơ lô; return/issue/phiếu nhận hàng/correction; phát outbox event. |
 | `DOM-IC` | policy snapshot và phê duyệt; warehouse scope; stock count; inventory lock; opening balance governance; Reconciliation Case; recovery/rebuild gate. |
-| `DOM-IV` | receipt valuation; value movement ledger; hai phương pháp bình quân; cost calculation run; official cost version; valuation adjustment; COGS initial snapshot và true-up. |
+| `DOM-IV` | phiếu nhận hàng valuation; value movement ledger; hai phương pháp bình quân; cost calculation run; official cost version; valuation adjustment; COGS initial snapshot và true-up. |
 
 ## 7. Giả định và ràng buộc
 
@@ -198,7 +198,7 @@ Xem [Business Journey Map](../behavior/journeys/00-business-journey-map.md).
 
 - 100% mutation tồn đi qua Inventory Operation và có movement truy vết được.
 - 0 trường hợp oversell do race trong test cạnh tranh chuẩn.
-- 100% receipt sản phẩm `LOT` bị chặn nếu thiếu mã lô; thiếu hạn bị chặn khi `expiry_required=true`.
+- 100% phiếu nhận hàng sản phẩm `LOT` bị chặn nếu thiếu mã lô; thiếu hạn bị chặn khi `expiry_required=true`.
 - 100% retry cùng request ID trả lại cùng kết quả; payload khác bị từ chối.
 - 100% chốt kỳ tạo adjustment liên kết, không update bản ghi xuất gốc.
 - 100% số dư projection có thể dựng lại từ ledger trong bài kiểm tra phục hồi.

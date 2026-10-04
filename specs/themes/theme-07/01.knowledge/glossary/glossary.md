@@ -116,7 +116,7 @@ Bất biến cấm giao dịch làm lượng đủ điều kiện xuất xuống
 Đơn vị ghi trên chứng từ hoặc dùng khi thao tác.
 
 **Mục hàng nhận (Receipt item)**:
-Nhóm trong một phiếu nhận ứng với một sản phẩm và một đơn vị giao dịch. Một mục có thể gồm nhiều lô hoặc nhiều tình trạng.
+Nhóm trong một phiếu nhận hàng ứng với một sản phẩm và một đơn vị giao dịch. Một mục có thể gồm nhiều lô hoặc nhiều tình trạng.
 
 **Tỷ lệ quy đổi (Conversion rate)**:
 Quan hệ giữa một đơn vị giao dịch và đơn vị cơ sở.
@@ -158,6 +158,12 @@ Mức chi tiết gốc của một hạn dùng, theo tháng và năm hoặc theo
 Tình huống một lần nhập sau khai ngày sản xuất hoặc hạn dùng khác hồ sơ lô đã có.
 
 ### Vòng đời nghiệp vụ tồn kho
+
+**Phiếu nhận hàng (Goods receipt)**:
+Hồ sơ một lần nhận hàng vào kho của đơn vị vận hành. Hồ sơ giữ nhà cung cấp, các mục hàng, lô khi có, và trạng thái vật lý của lần nhận. Chỉ khi hoàn tất mới ghi biến động tồn.
+
+**Phiếu nhận hàng nhanh (Quick receipt)**:
+Phiếu nhận hàng lập khi hàng đã đến nhưng chưa có chứng từ mua phù hợp. Phiếu này không có trạng thái nháp. Lệnh gửi hợp lệ tạo phiếu ở trạng thái chờ duyệt, và luôn cần duyệt trước khi ghi tồn.
 
 **Nghiệp vụ tồn kho (Inventory Operation)**:
 Ý định có định danh làm thay đổi số lượng, trạng thái hoặc giá trị tồn kho.

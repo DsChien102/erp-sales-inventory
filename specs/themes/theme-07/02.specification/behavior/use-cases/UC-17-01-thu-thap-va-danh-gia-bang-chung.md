@@ -30,7 +30,7 @@ Có kết luận commit, no-commit hoặc chưa đủ bằng chứng; Evidence a
 
 ### 2.3 Không bao gồm
 
-Không retry mutation hoặc kết luận thành công/thất bại khi chưa đủ bằng chứng. UC chỉ thu thập receipt, ledger/outbox/inbox và trạng thái nguồn để đánh giá finality.
+Không retry mutation hoặc kết luận thành công/thất bại khi chưa đủ bằng chứng. UC chỉ thu thập phiếu nhận hàng, ledger/outbox/inbox và trạng thái nguồn để đánh giá finality.
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
@@ -54,7 +54,7 @@ Không retry mutation hoặc kết luận thành công/thất bại khi chưa đ
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
 | BF-01 | Nhân viên đối soát/Owner operation | Mở operation `UNKNOWN` bằng đúng operation/command identity. |  |
-| BF-02 | Hệ thống | Thu thập CommandReceipt, movement/balance/outbox refs, logs/ack và source correlation có thể xác minh. |  |
+| BF-02 | Hệ thống | Thu thập idempotency record, movement/balance/outbox refs, logs/ack và source correlation có thể xác minh. |  |
 | BF-03 | Hệ thống | Đánh giá bằng chứng commit/no-commit mà không suy timeout thành thất bại. | AF-A — Có bằng chứng commit<br>AF-B — Có bằng chứng no-commit |
 | BF-04 | Nhân viên đối soát | Rà soát phần bằng chứng còn thiếu và kết luận assessment hiện tại. | EF-A — Bằng chứng mâu thuẫn/nghiêm trọng |
 | BF-05 | — | [Kết thúc UC]. | |
@@ -96,7 +96,7 @@ Không retry mutation hoặc kết luận thành công/thất bại khi chưa đ
 | BR-03 | Có bằng chứng commit | Chỉ xác lập kết quả từ tác động đã có; không ghi movement/balance/outbox lần hai| Decision / DOM-IC / BC nguồn |
 | BR-04 | Có bằng chứng no-commit | Có thể tiếp tục cùng ID sau khi xác minh không tồn tại tác động bán phần| Decision / DOM-IC / BC nguồn |
 | BR-05 | Chưa đủ bằng chứng | Giữ UNKNOWN và trạng thái nguồn tương ứng; không đoán kết quả để “mở đường” cho người dùng| Decision / DOM-IC / BC nguồn |
-| BR-06 | Boundary liên miền | Sales/Purchase giữ trạng thái chờ theo contract của mình; Theme 7 không tự hoàn tất đơn, refund payment hoặc tạo lại receipt| Decision / DOM-IC / BC nguồn |
+| BR-06 | Boundary liên miền | Sales/Purchase giữ trạng thái chờ theo contract của mình; Theme 7 không tự hoàn tất đơn, refund payment hoặc tạo lại phiếu nhận hàng| Decision / DOM-IC / BC nguồn |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
 - `BC-COMMON-EXTENSIONS` — Shared behavioral contract extensions.

@@ -22,7 +22,7 @@ System-owned intake/update của supplier-return intent đã được Purchase/s
 
 ## 3. Đầu vào nghiệp vụ
 
-`source_request_id`, monotonic `source_version`, stable `source_line_id/source_allocation_id`, Product, transaction UOM + conversion/precision snapshot, authorized quantity, LOT allocation, source receipt lineage khi có; delta add/change/remove/cancel.
+`source_request_id`, monotonic `source_version`, stable `source_line_id/source_allocation_id`, Product, transaction UOM + conversion/precision snapshot, authorized quantity, LOT allocation, source goods receipt lineage khi có; delta add/change/remove/cancel.
 
 ## 4. Điều kiện trước
 

@@ -69,7 +69,7 @@ Ví dụ này chỉ minh họa cách áp dụng các quy tắc đã nêu. Con s�
 
 Mỗi yêu cầu cần có identity ổn định, phiên bản và ranh giới transaction rõ. Trạng thái chỉ được chuyển bằng transition hợp lệ; retry phải tiếp tục trên cùng dấu vết thay vì tạo kết quả thứ hai. Dữ liệu nghiệp vụ và bản ghi phát sự kiện phải được commit nguyên tử, còn việc giao sự kiện được phục hồi bằng idempotency và đối soát.
 
-`operation_request_id` nhận diện ý định nghiệp vụ của Inventory Operation. `idempotency_key` nhận diện một lần gọi lệnh có thể được gửi lại và được áp dụng cho **mọi mutation**, không chỉ lệnh tạo operation. Hai khóa không được dùng thay nhau; mỗi invocation mutation có một `CommandReceipt` lưu actor, command, payload hash và kết quả để trả lại đúng response hoặc chặn cùng khóa với payload khác.
+`operation_request_id` nhận diện ý định nghiệp vụ của Inventory Operation. `idempotency_key` nhận diện một lần gọi lệnh có thể được gửi lại và được áp dụng cho **mọi mutation**, không chỉ lệnh tạo operation. Hai khóa không được dùng thay nhau; mỗi invocation mutation có một idempotency record lưu actor, command, payload hash và kết quả để trả lại đúng response hoặc chặn cùng khóa với payload khác.
 
 Khi triển khai một trường hợp cụ thể, người xử lý nên ghi rõ nguồn chứng từ, đối tượng hàng, kho, trạng thái, thời điểm nghiệp vụ và kết quả mong đợi. Nếu một dữ kiện thuộc thẩm quyền của hệ thống khác chưa có, hồ sơ phải dừng ở trạng thái an toàn thay vì tự suy đoán. Nếu một bước có thể ảnh hưởng đồng thời đến nhiều số dư hoặc cả số lượng lẫn giá trị, toàn bộ thay đổi phải được commit nguyên tử và để lại dấu vết đối soát.
 

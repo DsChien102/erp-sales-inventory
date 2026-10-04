@@ -56,7 +56,7 @@ Không xóa `CountScopeSnapshot`, submission hoặc ApprovalCase lịch sử; kh
 |---|---|---|---|
 | BF-01 | Người dùng | Chọn hủy trong session context và nhập lý do. | BR-01 — Hủy có lý do |
 | BF-02 | Hệ thống | Recheck session chưa final, lock current, cancellation policy và không có mutation `UNKNOWN` xung đột. | EF-A — Không được hủy |
-| BF-03 | Hệ thống | Commit `CANCELLED`, lock release, command receipt và outbox atomically; không tạo adjustment. | EF-B — Kết quả chưa xác định |
+| BF-03 | Hệ thống | Commit `CANCELLED`, lock release và outbox atomically; không tạo adjustment. | EF-B — Kết quả chưa xác định |
 | BF-04 | Hệ thống | Trả kết quả hủy; evidence lịch sử vẫn truy vết được. | BR-02 — Evidence không bị xóa |
 | BF-05 | — | [Kết thúc UC]. | |
 

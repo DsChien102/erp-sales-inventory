@@ -1,4 +1,4 @@
-# Work Slice: SL-005 — Tra cứu finality phiếu nhận
+# Work Slice: SL-005 — Tra cứu finality goods receipt
 
 ```yaml
 id: SL-005
@@ -16,13 +16,13 @@ sources:
 theme: theme-07
 ```
 
-**design_status** trên [`CATALOG.md`](CATALOG.md). Field và RPC lấy từ SRS. Query không tạo CommandReceipt.
+**design_status** trên [`CATALOG.md`](CATALOG.md). Field và RPC lấy từ SRS. Query không tạo idempotency record.
 
 ---
 
 ## Objective
 
-Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn giao BJ-17, và không tạo lần nhận mới.
+Tra cứu đúng goods receipt đã gửi trả finality đã có, hoặc bàn giao BJ-17, và không tạo lần nhận mới.
 
 ---
 
@@ -44,7 +44,7 @@ Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn 
 
 ### Out of Scope
 
-- Tạo receipt, movement, balance hoặc outbox mới
+- Tạo goods receipt, movement, balance hoặc outbox mới
 - Retry bằng identity mới hoặc payload khác
 - Thực thi BJ-17 và màn hình BJ-17
 - Nhận theo chứng từ
@@ -54,7 +54,7 @@ Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn 
 
 | Concern | Owner |
 | --- | --- |
-| Đọc result và CommandReceipt | Query `QueryReceiptFinality`. Bản ghi do [SL-004](SL-004-physical-receipt.md) ghi |
+| Đọc result và idempotency record | Query `QueryReceiptFinality`. Bản ghi do [SL-004](SL-004-physical-receipt.md) ghi |
 | SCR-013 | `apps/erp` |
 | BJ-17 | Ngoài slice này |
 
@@ -63,10 +63,10 @@ Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn 
 | ID | Quy tắc (slice) |
 | --- | --- |
 | [UC-02-05 BR-01](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | Dùng cùng operation / idempotency identity |
-| [UC-02-05 BR-02](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | Query không tạo lại receipt, movement, balance hoặc outbox |
+| [UC-02-05 BR-02](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | Query không tạo lại goods receipt, movement, balance hoặc outbox |
 | [UC-02-05 BR-03](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | Chưa đủ bằng chứng thì giữ `UNKNOWN` |
 | [UC-02-05 BR-04](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | Cùng identity nhưng payload khác là conflict |
-| [JA-05](../../02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md) | `UNKNOWN` sau phục hồi ngắn không kích hoạt BJ-03 và không phát sinh receipt mới |
+| [JA-05](../../02.specification/behavior/journeys/BJ-02-nhan-hang-mua.md) | `UNKNOWN` sau phục hồi ngắn không kích hoạt BJ-03 và không phát sinh goods receipt mới |
 
 ### Open Questions
 
@@ -104,7 +104,7 @@ Tra cứu đúng phiếu nhận đã gửi trả finality đã có, hoặc bàn 
 
 ### Persistence
 
-Không tạo bảng mới. Đọc result và CommandReceipt mà SL-004 ghi. Query không mở transaction ghi movement, balance, lot hay outbox.
+Không tạo bảng mới. Query không mở transaction ghi movement, balance, lot hay outbox.
 
 | RPC | Params `p_*` | Returns |
 | --- | --- | --- |
@@ -159,7 +159,7 @@ apps/
 
 ### QueryReceiptFinalityQuery
 
-> Đọc khi client đã có identity phiếu nhận nhưng chưa có finality. Outcome: `COMMITTED`, `REJECTED`, hoặc `UNKNOWN`. Không tạo effect mới.
+> Đọc khi client đã có identity goods receipt nhưng chưa có finality. Outcome: `COMMITTED`, `REJECTED`, hoặc `UNKNOWN`. Không tạo effect mới.
 
 ```dart
 class QueryReceiptFinalityQuery {
@@ -238,7 +238,7 @@ SCR-013 chỉ mở từ SCR-012 khi finality chưa rõ. Không có trong menu.
 - [ ] **AC-01** Given phiếu đã `COMMITTED` và client không nhận response, When tra cứu cùng identity, Then đúng result và movement cùng outbox không tăng
 - [ ] **AC-02** Given phiếu `REJECTED` trước effect, When tra cứu, Then effect none và không gợi ý nhận lại trên cùng phiếu
 - [ ] **AC-03** Given payload hash lệch identity đã bind, When query, Then conflict, không suy ra finality và không tạo phiếu mới
-- [ ] **AC-04** Given hết cửa sổ mà vẫn `UNKNOWN`, When đối soát, Then `handoffBj17: true`, không `EVT-IO-01`, không phát fact receipt
+- [ ] **AC-04** Given hết cửa sổ mà vẫn `UNKNOWN`, When đối soát, Then `handoffBj17: true`, không `EVT-IO-01`, không phát fact goods receipt
 - [ ] **AC-05** Given SCR-012 đang `UNKNOWN`, When mở đối soát, Then SCR-013 cùng phiếu và không có nút nhận mới
 
 ### Tests

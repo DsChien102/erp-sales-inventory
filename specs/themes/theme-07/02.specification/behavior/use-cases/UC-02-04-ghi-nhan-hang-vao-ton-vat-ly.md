@@ -53,11 +53,11 @@ Không sửa chứng từ mua, không tự xác lập giá trị nhập và khô
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| BF-01 | Hệ thống | Tự bắt đầu thực thi receipt đang ở trạng thái `READY` bằng operation identity hiện hành; không yêu cầu người dùng bấm thêm một CTA commit. | UIF-02 / execution owner |
+| BF-01 | Hệ thống | Tự bắt đầu thực thi phiếu nhận hàng đang ở trạng thái `READY` bằng operation identity hiện hành; không yêu cầu người dùng bấm thêm một CTA commit. | UIF-02 / execution owner |
 | BF-02 | Hệ thống | Recheck source/approval/version, quantity classification, LOT/HSD và current balance trong transaction. | EF-A — Stale hoặc vi phạm bất biến |
 | BF-03 | Hệ thống | Tạo quantity movement cho phần thực nhận; hàng Từ chối không tạo movement, hàng Cách ly/Hỏng vào đúng physical state. |  |
-| BF-04 | Hệ thống | Cập nhật balance/lot và outbox/result trong cùng atomic boundary; receipt owned goods chưa có giá chuyển `VALUATION_PENDING` theo contract. | EF-B — Kết quả commit chưa xác định |
-| BF-05 | Hệ thống | Trả authoritative receipt result cùng effect refs và discrepancy. |  |
+| BF-04 | Hệ thống | Cập nhật balance/lot và outbox/result trong cùng atomic boundary; phiếu nhận hàng owned goods chưa có giá chuyển `VALUATION_PENDING` theo contract. | EF-B — Kết quả commit chưa xác định |
+| BF-05 | Hệ thống | Trả authoritative phiếu nhận hàng result cùng effect refs và discrepancy. |  |
 | BF-06 | — | [Kết thúc UC]. | |
 
 ### 5.2 Luồng thay thế (Alternate Flow)
@@ -90,7 +90,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 | BR-02 | Hàng từ chối | Không tạo movement; vẫn lưu discrepancy/evidence| Decision / DOM-IO / BC nguồn |
 | BR-03 | Tình trạng ngay khi nhận | Hàng cách ly/hỏng vẫn tăng tồn vật lý vào đúng trạng thái; không được mặc định chuyển thành sellable| Decision / DOM-IO / BC nguồn |
 | BR-04 | LOT/expiry | NONE không hỏi hạn dùng; LOT mới mở yêu cầu hạn dùng theo product policy| Decision / DOM-IO / BC nguồn |
-| BR-05 | Nhận từng phần | Cho phép nhiều receipt cùng tham chiếu một source line. Mỗi lần thực thi phải recheck `remaining_receivable_qty` authoritative và source version; receipt hiện tại không tự đánh dấu source đã nhận đủ. | `T7-DR-022`, `T7-DR-117` / DOM-IO / BC nguồn |
+| BR-05 | Nhận từng phần | Cho phép nhiều phiếu nhận hàng cùng tham chiếu một source line. Mỗi lần thực thi phải recheck `remaining_receivable_qty` authoritative và source version; phiếu nhận hàng hiện tại không tự đánh dấu source đã nhận đủ. | `T7-DR-022`, `T7-DR-117` / DOM-IO / BC nguồn |
 | BR-06 | Nguyên tử | Movement, balance, lot, result và outbox cùng commit hoặc không có gì commit| Decision / DOM-IO / BC nguồn |
 
 - `SBC-COM-01` — Bao yêu cầu và định danh.
@@ -104,11 +104,11 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| `COMMITTED` | Quantity movement/balance/lot, `VALUATION_PENDING`, receipt result và outbox được ghi đúng một lần; không có value movement. | BJ03 chỉ được kích hoạt cho quantity đã commit; `EVT-IO-01` là fact outbound cho Theme 10/reporting. |
+| `COMMITTED` | Quantity movement/balance/lot, `VALUATION_PENDING`, phiếu nhận hàng result và outbox được ghi đúng một lần; không có value movement. | BJ03 chỉ được kích hoạt cho quantity đã commit; `EVT-IO-01` là fact outbound cho Theme 10/reporting. |
 | `REJECTED` | Precondition/version/quyền/invariant không còn hợp lệ; hệ thống từ chối trước effect và không có partial effect. | Kết thúc nhánh hiện tại; sửa/refresh nguồn nếu business cho phép; không kích hoạt BJ03. |
 | `UNKNOWN` | Chưa đủ bằng chứng commit/no-commit; giữ cùng command/operation identity và không tạo effect thứ hai. | UC-02-05; nếu hết cửa sổ phục hồi ngắn vẫn `UNKNOWN` thì bàn giao BJ17. |
 
-**Ảnh hưởng nghiệp vụ chính:** Nếu `COMMITTED`, receipt làm tăng tồn vật lý đúng state, đưa lượng tương ứng vào `VALUATION_PENDING` và phát outbox fact; giá trị nhập chỉ được ghi ở BJ03.
+**Ảnh hưởng nghiệp vụ chính:** Nếu `COMMITTED`, phiếu nhận hàng làm tăng tồn vật lý đúng state, đưa lượng tương ứng vào `VALUATION_PENDING` và phát outbox fact; giá trị nhập chỉ được ghi ở BJ03.
 
 ## 8. Liên hệ giao diện
 
@@ -123,7 +123,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 ### AS-UC-02-04-01 — Ghi nhận hàng vào tồn vật lý — luồng chính
 - **Given:** Hồ sơ hợp lệ và đủ thẩm quyền
-- **When:** Hệ thống bắt đầu thực thi receipt ở trạng thái `READY` với operation identity hiện hành.
+- **When:** Hệ thống bắt đầu thực thi phiếu nhận hàng ở trạng thái `READY` với operation identity hiện hành.
 - **Then:** Operation kết thúc `COMMITTED`, `REJECTED` hoặc `UNKNOWN`; nếu commit thì quantity movement/balance/lot, `VALUATION_PENDING`, result và outbox được ghi đúng một lần và không tạo value movement.
 
 ### AS-UC-02-04-02 — Ghi nhận hàng vào tồn vật lý — Stale hoặc vi phạm bất biến

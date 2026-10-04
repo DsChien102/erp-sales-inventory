@@ -13,7 +13,7 @@ source_baseline: v4.6.7
 
 ### Câu trả lời ngắn
 
-Chính sách phê duyệt được quản lý tập trung theo loại operation, lý do và mức rủi ro; đơn vị vận hành cấu hình ngưỡng/cấp và phiên bản chính sách được chụp khi gửi. Giá trị rủi ro của hồ sơ nhiều dòng bằng tổng trị tuyệt đối giá trị từng dòng sau quy đổi VND, không bù trừ dòng tăng và giảm. Mỗi dòng ưu tiên đơn giá chính thức, nếu chưa có thì dùng giá nguồn có phiên bản. Với operation có draft lifecycle **và được định tuyến theo giá trị rủi ro**, thiếu căn cứ giá/tỷ giá có thể giữ operation ở `DRAFT`. **Nhập hàng nhanh là ngoại lệ:** BJ02 bắt buộc duyệt nhưng không dùng price/FX basis làm điều kiện submit; khi Supplier/items/evidence/ownership hợp lệ và có approver phù hợp, receipt được tạo ở `PENDING_APPROVAL` dù căn cứ giá chưa được xác lập. Giá/tỷ giá được xử lý ở chuỗi định giá phía sau. Tại lúc quyết định, người duyệt phải còn quyền, phạm vi kho, cấp phù hợp và khác người lập. Mỗi operation chỉ cần một người đáp ứng cấp cao nhất suy ra, không duyệt tuần tự qua cấp thấp. Phê duyệt không giữ tồn; điều kiện phải được kiểm tra lại khi thực thi.
+Chính sách phê duyệt được quản lý tập trung theo loại operation, lý do và mức rủi ro; đơn vị vận hành cấu hình ngưỡng/cấp và phiên bản chính sách được chụp khi gửi. Giá trị rủi ro của hồ sơ nhiều dòng bằng tổng trị tuyệt đối giá trị từng dòng sau quy đổi VND, không bù trừ dòng tăng và giảm. Mỗi dòng ưu tiên đơn giá chính thức, nếu chưa có thì dùng giá nguồn có phiên bản. Với operation có draft lifecycle **và được định tuyến theo giá trị rủi ro**, thiếu căn cứ giá/tỷ giá có thể giữ operation ở `DRAFT`. **Nhập hàng nhanh là ngoại lệ:** BJ02 bắt buộc duyệt nhưng không dùng price/FX basis làm điều kiện submit; khi Supplier/items/evidence/ownership hợp lệ và có approver phù hợp, goods receipt được tạo ở `PENDING_APPROVAL` dù căn cứ giá chưa được xác lập. Giá/tỷ giá được xử lý ở chuỗi định giá phía sau. Tại lúc quyết định, người duyệt phải còn quyền, phạm vi kho, cấp phù hợp và khác người lập. Mỗi operation chỉ cần một người đáp ứng cấp cao nhất suy ra, không duyệt tuần tự qua cấp thấp. Phê duyệt không giữ tồn; điều kiện phải được kiểm tra lại khi thực thi.
 
 ### Vì sao vấn đề này quan trọng?
 
@@ -35,11 +35,11 @@ Phê duyệt kiểm soát thẩm quyền chấp nhận rủi ro, không bảo đ
 Hệ thống quản lý tồn kho và giá vốn sở hữu chính sách duyệt theo loại operation, lý do và rủi ro; đơn vị vận hành cấu hình ngưỡng/cấp và chụp phiên bản lúc gửi.
 #### Công thức giá trị rủi ro và nhánh thiếu căn cứ giá
 
-Ngưỡng duyệt `Σ |base_quantity_i × price_basis_i × fx_to_vnd_i|` chỉ áp cho operation mà ApprovalPolicy định tuyến theo giá trị. Mỗi dòng ưu tiên đơn giá chính thức tại lúc gửi; nếu chưa có thì dùng giá nguồn. Không bù trừ giá trị dòng tăng với dòng giảm. **Quick Receipt không đi qua guard này tại BJ02**: không yêu cầu price/FX, không sinh `APPROVAL_PRICE_BASIS_REQUIRED`, và không tạo `risk_value = UNKNOWN`; yêu cầu được route theo chính sách phê duyệt bắt buộc dành cho Quick Receipt. Nếu không có approver hợp lệ thì trả `APPROVER_CONFIGURATION_MISSING`.
+Ngưỡng duyệt `Σ |base_quantity_i × price_basis_i × fx_to_vnd_i|` chỉ áp cho operation mà ApprovalPolicy định tuyến theo giá trị. Mỗi dòng ưu tiên đơn giá chính thức tại lúc gửi; nếu chưa có thì dùng giá nguồn. Không bù trừ giá trị dòng tăng với dòng giảm. **nhập hàng nhanh không đi qua guard này tại BJ02**: không yêu cầu price/FX, không sinh `APPROVAL_PRICE_BASIS_REQUIRED`, và không tạo `risk_value = UNKNOWN`; yêu cầu được route theo chính sách phê duyệt bắt buộc dành cho nhập hàng nhanh. Nếu không có approver hợp lệ thì trả `APPROVER_CONFIGURATION_MISSING`.
 
 #### Nhập hàng nhanh không có nhánh bỏ qua phê duyệt
 
-Nhập hàng nhanh đủ điều kiện gửi luôn được **tạo mới trực tiếp ở `PENDING_APPROVAL`**; giao diện không hỏi “có cần duyệt không” và không cung cấp nhánh đi thẳng `READY`. Tại BJ02, Quick Receipt dùng policy phê duyệt bắt buộc riêng, **không dùng ngưỡng tiền/price-FX basis để quyết định có được tạo receipt hay không**. Trước submit không có receipt `DRAFT`; chỉ thiếu dữ kiện BJ02 bắt buộc hoặc thiếu approver phù hợp mới làm create-and-submit bị từ chối.
+Nhập hàng nhanh đủ điều kiện gửi luôn được **tạo mới trực tiếp ở `PENDING_APPROVAL`**; giao diện không hỏi “có cần duyệt không” và không cung cấp nhánh đi thẳng `READY`. Tại BJ02, nhập hàng nhanh dùng policy phê duyệt bắt buộc riêng, **không dùng ngưỡng tiền/price-FX basis để quyết định có được tạo goods receipt hay không**. Trước submit không có goods receipt `DRAFT`; chỉ thiếu dữ kiện BJ02 bắt buộc hoặc thiếu approver phù hợp mới làm create-and-submit bị từ chối.
 #### Điều kiện của người duyệt tại đúng thời điểm
 
 Tại lúc duyệt, người duyệt phải còn quyền, phạm vi kho và cấp phù hợp, đồng thời không phải người lập.
@@ -65,11 +65,11 @@ Adjustment giảm 50 đơn vị P được gửi khi đơn giá chính thức l�
 
 Ví dụ này chỉ minh họa cách áp dụng các quy tắc đã nêu. Con số, tên sản phẩm và thời điểm là giả định; chúng không tạo thêm một ngoại lệ, quyền phê duyệt hay mốc ghi nhận mới.
 
-Với nhập hàng nhanh, hồ sơ luôn phải chờ người đủ điều kiện quyết định. Ở BJ02, việc chọn approver/cấp duyệt của Quick phải dựa trên policy dành cho Quick Receipt và **không yêu cầu price/FX basis**; bước phê duyệt không biến mất.
+Với nhập hàng nhanh, hồ sơ luôn phải chờ người đủ điều kiện quyết định. Ở BJ02, việc chọn approver/cấp duyệt của Quick phải dựa trên policy dành cho nhập hàng nhanh và **không yêu cầu price/FX basis**; bước phê duyệt không biến mất.
 
 ### Ngoại lệ và những cách làm sai
 
-- **Thiếu giá thì chặn Nhập hàng nhanh:** Sai. Quick Receipt tại BJ02 không dùng price/FX làm điều kiện gửi; không sinh `APPROVAL_PRICE_BASIS_REQUIRED`. Price/FX thuộc chuỗi định giá phía sau. Với operation risk-based khác, thiếu căn cứ vẫn phải xử lý theo lifecycle/guard của operation đó.
+- **Thiếu giá thì chặn Nhập hàng nhanh:** Sai. nhập hàng nhanh tại BJ02 không dùng price/FX làm điều kiện gửi; không sinh `APPROVAL_PRICE_BASIS_REQUIRED`. Price/FX thuộc chuỗi định giá phía sau. Với operation risk-based khác, thiếu căn cứ vẫn phải xử lý theo lifecycle/guard của operation đó.
 - **Duyệt tuần tự qua mọi cấp:** Mỗi hồ sơ chỉ cần một quyết định của người đáp ứng cấp cao nhất đã suy ra.
 - **Coi phê duyệt là giữ hàng:** Phê duyệt chỉ cấp phép thực thi; không thay đổi hoặc bảo đảm số dư.
 - **Cho nhập hàng nhanh dưới ngưỡng đi thẳng `READY`:** Sai; nhập hàng nhanh luôn chờ phê duyệt sau khi đủ dữ kiện gửi.
@@ -87,11 +87,11 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 
 ### Điều cần ghi nhớ
 
-- **Operation risk-based snapshot policy và giá trị rủi ro khi gửi; Quick Receipt chỉ snapshot policy/evidence/ownership cần cho quyết định BJ02.**
-- **Thiếu price/FX không chặn Quick Receipt; với operation risk-based khác, thiếu căn cứ xử lý theo lifecycle/guard tương ứng.**
+- **Operation risk-based snapshot policy và giá trị rủi ro khi gửi; nhập hàng nhanh chỉ snapshot policy/evidence/ownership cần cho quyết định BJ02.**
+- **Thiếu price/FX không chặn nhập hàng nhanh; với operation risk-based khác, thiếu căn cứ xử lý theo lifecycle/guard tương ứng.**
 - **Người duyệt phải đủ điều kiện tại lúc quyết định và không phải người lập.**
 - **Từ chối duyệt là final; thực thi vẫn phải kiểm tra lại điều kiện hiện hành.**
-- **Nhập hàng nhanh luôn cần phê duyệt; tại BJ02, policy Quick Receipt không phụ thuộc price/FX basis.**
+- **Nhập hàng nhanh luôn cần phê duyệt; tại BJ02, policy nhập hàng nhanh không phụ thuộc price/FX basis.**
 
 - **Khi không đủ bằng chứng để đi tiếp, hệ thống phải thất bại an toàn và giữ nguyên dữ liệu có thẩm quyền.**
 

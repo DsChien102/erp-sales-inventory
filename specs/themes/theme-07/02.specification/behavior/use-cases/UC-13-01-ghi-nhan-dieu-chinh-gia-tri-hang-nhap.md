@@ -47,7 +47,7 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 | Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
 |---|---|---|
 | Nguồn điều chỉnh | Business fact có thể dương hoặc âm, có source identity/version và bằng chứng | Theme 10, kế toán hoặc nguồn có thẩm quyền |
-| Phạm vi mục tiêu | Receipt valuation exposure mà nguồn thực sự liên quan | `DOM-IV`, `ENT-IV-01` |
+| Phạm vi mục tiêu | Phiếu nhận hàng valuation exposure mà nguồn thực sự liên quan | `DOM-IV`, `ENT-IV-01` |
 | Cách phân bổ | Theo policy cho phép, ví dụ quantity, value hoặc số tiền trực tiếp; metric phải có snapshot ổn định | `BC-IV-06` |
 | Giá trị điều chỉnh | Signed amount sau tax/FX normalization; tổng allocation phải khớp nguồn | `ENT-IV-07/08` |
 | Kỳ gốc / kỳ ghi nhận | Giữ lineage về kỳ hàng nhập; nếu kỳ gốc khóa thì ghi ở kỳ mở theo policy | `T7-DR-163`, `T7-DR-192` |
@@ -71,7 +71,7 @@ Kết thúc khi adjustment được commit đúng một lần; hoặc yêu cầu
 
 #### AF-A — Một nguồn áp dụng nhiều target
 
-**Phát sinh tại:** BF-02. **Điều kiện:** một hóa đơn/chi phí/credit note liên quan nhiều receipt valuation exposure.
+**Phát sinh tại:** BF-02. **Điều kiện:** một hóa đơn/chi phí/credit note liên quan nhiều phiếu nhận hàng valuation exposure.
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
@@ -175,7 +175,7 @@ Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm
 
 ### AS-UC-13-01-01 — Chi phí vận chuyển đến sau
 - **Bao phủ:** BF-01 → BF-07; AF-A; BR-01 → BR-03.
-- **Given:** phí vận chuyển có nguồn hợp lệ xuất hiện sau khi các receipt target đã initial-valued.
+- **Given:** phí vận chuyển có nguồn hợp lệ xuất hiện sau khi các phiếu nhận hàng target đã initial-valued.
 - **When:** kế toán xác nhận allocation.
 - **Then:** adjustment dương được ghi đúng phạm vi và Product + posting period được đánh dấu cần cập nhật giá vốn.
 
@@ -199,7 +199,7 @@ Với normalized signed source amount `A`, target `i` có metric `m_i`, `M = Σm
 
 ### AS-UC-13-01-05 — Kỳ gốc đã khóa
 - **Bao phủ:** BF-02 → BF-06.
-- **Given:** adjustment liên quan receipt thuộc kỳ đã khóa nhưng policy cho phép ghi ở kỳ mở kế tiếp.
+- **Given:** adjustment liên quan phiếu nhận hàng thuộc kỳ đã khóa nhưng policy cho phép ghi ở kỳ mở kế tiếp.
 - **When:** kế toán xác nhận.
 - **Then:** posting period là kỳ mở theo policy, original period vẫn được giữ trong lineage.
 

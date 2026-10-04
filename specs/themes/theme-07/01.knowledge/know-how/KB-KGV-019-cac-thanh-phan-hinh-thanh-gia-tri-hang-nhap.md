@@ -64,13 +64,13 @@ Phase hiện tại phục vụ hộ kinh doanh nên VAT đầu vào được xem
 Theme 10 sở hữu nguồn thương mại như đơn mua, hóa đơn NCC, giá, chiết khấu và trạng thái tranh chấp thương mại. Theme 7 dùng các thành phần Theme 10 đã xác lập để tính giá trị cho **lượng hàng thực tế đã nhận**; Theme 7 không sửa dữ liệu nguồn.
 
 ### Nhập hàng nhanh
-Quick Receipt không phụ thuộc Theme 10. Khi chưa có nguồn thương mại cấu trúc, người có quyền tài chính có thể lập **căn cứ giá trực tiếp** trong Theme 7. Căn cứ này phải nói rõ giá, tiền tệ, cách hiểu đã/chưa gồm thuế khi cần, nguồn, thời điểm và dấu vết người xác lập.
+nhập hàng nhanh không phụ thuộc Theme 10. Khi chưa có nguồn thương mại cấu trúc, người có quyền tài chính có thể lập **căn cứ giá trực tiếp** trong Theme 7. Căn cứ này phải nói rõ giá, tiền tệ, cách hiểu đã/chưa gồm thuế khi cần, nguồn, thời điểm và dấu vết người xác lập.
 
 Nếu hóa đơn đến sau và làm thay đổi giá trị đã xác nhận thì phần chênh lệch đi BJ13, không mở lại BJ03 để viết lại lịch sử.
 
 ## 7. Phân bổ
 
-Nguồn và cách phân bổ là hai fact khác nhau. Ví dụ hóa đơn vận chuyển 1.000.000 đồng là nguồn; việc phân 600.000 cho Receipt A và 400.000 cho Receipt B là kết quả phân bổ.
+Nguồn và cách phân bổ là hai fact khác nhau. Ví dụ hóa đơn vận chuyển 1.000.000 đồng là nguồn; việc phân 600.000 cho Goods receipt A và 400.000 cho Goods receipt B là kết quả phân bổ.
 
 Phase 1 có thể dùng cách phân bổ được policy cho phép như theo số lượng, theo giá trị hàng hoặc số tiền nhập trực tiếp. Tổng kết quả phải khớp tổng nguồn sau quy tắc làm tròn xác định; không được tạo chênh lệch âm thầm.
 

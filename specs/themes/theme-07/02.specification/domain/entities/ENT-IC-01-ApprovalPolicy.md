@@ -14,14 +14,14 @@ source_baseline: v3.12.0
 
 ## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Phiên bản chính sách xác định **khi nào hồ sơ cần duyệt, cấp duyệt nào và ai đủ điều kiện duyệt**. Policy không thực hiện mutation của nghiệp vụ nguồn và không có cờ bỏ qua duyệt Quick Receipt.
+Phiên bản chính sách xác định **khi nào hồ sơ cần duyệt, cấp duyệt nào và ai đủ điều kiện duyệt**. Policy không thực hiện mutation của nghiệp vụ nguồn và không có cờ bỏ qua duyệt phiếu nhận hàng nhanh.
 
 | Thuộc tính | Giá trị |
 |---|---|
 | Vai trò DDD | `AGGREGATE_ROOT` |
 | Aggregate Root | `ApprovalPolicy` |
 | Domain sở hữu | `DOM-IC` |
-| Domain không sở hữu | Payload receipt/count/state change → Domain nguồn; role/user lifecycle → IAM |
+| Domain không sở hữu | Payload phiếu nhận hàng/count/state change → Domain nguồn; role/user lifecycle → IAM |
 
 ### 1.1 Ranh giới Aggregate (Visual)
 
@@ -42,7 +42,7 @@ classDiagram
 | Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
 |---|---|---:|---|
 | `policyId` | Định danh ổn định của chính sách | Có | Giữ nguyên qua các version |
-| `operationType` | Loại nghiệp vụ mà policy áp dụng | Có | Ví dụ Quick Receipt, State Change, Count |
+| `operationType` | Loại nghiệp vụ mà policy áp dụng | Có | Ví dụ phiếu nhận hàng nhanh, State Change, Count |
 | `reasonSelectors` | Điều kiện nghiệp vụ dùng để route | Có | Không được vô hiệu invariant bắt buộc duyệt |
 | `riskSelectors` | Cách xác định mức rủi ro/ngưỡng | Có | Dùng snapshot nguồn |
 | `requiredApprovalLevel` | Cấp duyệt tối thiểu | Có | Do policy xác định |

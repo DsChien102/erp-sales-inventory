@@ -14,14 +14,14 @@ source_baseline: v4.6.6
 
 Tạo hoặc sửa payload `DRAFT` cho **các operation có lifecycle nháp** mà không tạo movement/lot/approval.
 
-> **Loại trừ bắt buộc:** `QUICK_RECEIPT` / UC-02-02 **không sử dụng BC-IO-16**. Dữ liệu nhập hàng nhanh trước submit chỉ tồn tại trong phiên UI; không tạo operation/receipt draft.
+> **Loại trừ bắt buộc:** `QUICK_RECEIPT` / UC-02-02 **không sử dụng BC-IO-16**. Dữ liệu quick receipt trước submit chỉ tồn tại trong phiên UI; không tạo operation/bản nháp goods receipt.
 
 ## 2. Phạm vi áp dụng
 
 - Loại: Command
 - Owner nguồn: IO
-- Journey chính: Cross-cutting, ngoại trừ Quick Receipt.
-- API: `API-C-25` chỉ phục vụ operation có draft; **không dùng cho Nhập hàng nhanh**.
+- Journey chính: Cross-cutting, ngoại trừ quick receipt.
+- API: `API-C-25` chỉ phục vụ operation có draft; **không dùng cho Quick receipt**.
 
 ## 3. Đầu vào nghiệp vụ
 
@@ -29,11 +29,11 @@ Create/update command idempotency key, `operation_request_id`, operation ID?, ex
 
 ## 4. Điều kiện trước
 
-Operation mới theo lifecycle cho phép draft hoặc status `DRAFT`; source current; permission/scope; optimistic version. Nếu `operation_type=QUICK_RECEIPT`, server phải từ chối việc dùng contract này vì Quick Receipt không maintain draft.
+Operation mới theo lifecycle cho phép draft hoặc status `DRAFT`; source current; permission/scope; optimistic version. Nếu `operation_type=QUICK_RECEIPT`, server phải từ chối việc dùng contract này vì quick receipt không maintain draft.
 
 ## 5. Quy tắc nghiệp vụ
 
-Persist/update draft + CommandReceipt; validate theo loại operation; chưa khóa submitted payload hash và chưa tạo business outbox. Contract này không được dùng như cơ chế autosave cho `SCR-008/SCR-009/SCR-084` ở Quick Receipt.
+Persist/update draft; validate theo loại operation; chưa khóa submitted payload hash và chưa tạo business outbox. Contract này không được dùng như cơ chế autosave cho `SCR-008/SCR-009/SCR-084` ở quick receipt.
 
 ## 6. Điều kiện bắt buộc
 
@@ -41,7 +41,7 @@ Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5; mi
 
 ## 7. Ảnh hưởng trạng thái
 
-Stable operation ID, draft version và validation findings **chỉ đối với operation có draft lifecycle**. Không có state effect cho Quick Receipt.
+Stable operation ID, draft version và validation findings **chỉ đối với operation có draft lifecycle**. Không có state effect cho quick receipt.
 
 ## 9. Kết quả và semantics lỗi
 

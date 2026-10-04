@@ -21,7 +21,7 @@ theme: theme-07
 
 ## Objective
 
-Hệ thống commit phiếu nhận nhanh đã `READY` vào tồn vật lý đúng một lần, và thủ kho thấy kết quả mà không có nút ghi nhận thêm.
+Hệ thống commit quick receipt đã `READY` vào tồn vật lý đúng một lần, và thủ kho thấy kết quả mà không có nút ghi nhận thêm.
 
 ---
 
@@ -74,7 +74,7 @@ Hệ thống commit phiếu nhận nhanh đã `READY` vào tồn vật lý đún
 
 - Cách hệ thống nhận lệnh sau `READY` (cùng transaction với quyết định duyệt, hay internal command ngay sau đó) chưa được UC khóa. UI không gửi command này.
 - DTO dòng kết quả (Product, UOM, phân loại, lot code, expiry) cho SCR-012 chưa có fence.
-- Quick receipt không có `source_line_id`. Payload `EVT-IO-01` vẫn liệt kê `source_line_id`. Cách điền lineage khi không có chứng từ nguồn chưa được khóa.
+- quick receipt không có `source_line_id`. Payload `EVT-IO-01` vẫn liệt kê `source_line_id`. Cách điền lineage khi không có chứng từ nguồn chưa được khóa.
 - Tên RPC và `p_*` của `API-C-02` / `API-Q-04` chưa có trong nguồn declarative.
 - Tên bảng movement, balance, lot chưa có trong nguồn declarative.
 
@@ -86,12 +86,12 @@ Hệ thống commit phiếu nhận nhanh đã `READY` vào tồn vật lý đún
 
 1. Phiếu nhận nhanh đang `READY`.
 2. Hệ thống gọi `ReceivePurchasedGoods`. UI không gửi command này.
-3. Một transaction ghi quantity movement, balance, lot, `VALUATION_PENDING`, CommandReceipt và fact `EVT-IO-01`.
+3. Một transaction ghi quantity movement, balance, lot, `VALUATION_PENDING` và fact `EVT-IO-01`.
 4. Thủ kho thấy SCR-012 với kết quả. Không có nút ghi nhận.
 
 ### Failure Flow
 
-1. Guard fail trước effect → rollback → phiếu `REJECTED`, `effectStatus: NONE`, không movement, không outbox receipt.
+1. Guard fail trước effect → rollback → phiếu `REJECTED`, `effectStatus: NONE`, không movement, không outbox goods receipt.
 2. Chưa chứng minh commit hay rollback → `UNKNOWN`, không chạy như operation mới, không movement thứ hai khi gọi lại cùng key.
 3. Cùng key và cùng hash → snapshot trước, không movement thứ hai. Hash khác → `IDEMPOTENCY_CONFLICT`.
 
@@ -136,7 +136,7 @@ Tên bảng chưa đặt. Draft lúc implement: `supabase/migrations/_drafts/inv
 
 ### Transaction / Idempotency
 
-Khi commit thành công, một transaction: recheck phiếu `READY`, version, LOT, phân loại; quantity movement (hàng từ chối không có movement); balance và lot; đánh dấu `VALUATION_PENDING`; CommandReceipt; outbox `inventory.receipt.recorded.v1`. Không value movement.
+Khi commit thành công, một transaction: recheck phiếu `READY`, version, LOT, phân loại; quantity movement (hàng từ chối không có movement); balance và lot; đánh dấu `VALUATION_PENDING`; idempotency record; outbox `inventory.receipt.recorded.v1`. Không value movement.
 
 - `idempotencyKey` ≠ `command.id`
 - Unique `(tenant_id, command_scope, idempotency_key)` trong cùng transaction với movement và outbox
@@ -191,7 +191,7 @@ Handler: `ReceivePurchasedGoods` (`API-C-02`). Đọc kết quả: `API-Q-04`. U
 
 ### ReceivePurchasedGoodsCommand
 
-> Hệ thống gọi khi phiếu nhận nhanh đang `READY`. Outcome: `COMMITTED`, `REJECTED` hoặc `UNKNOWN`. `COMMITTED` ghi movement và fact đúng một lần. Cùng `idempotencyKey` không tạo movement thứ hai.
+> Hệ thống gọi khi quick receipt đang `READY`. Outcome: `COMMITTED`, `REJECTED` hoặc `UNKNOWN`. `COMMITTED` ghi movement và fact đúng một lần. Cùng `idempotencyKey` không tạo movement thứ hai.
 
 ```dart
 class ReceivePurchasedGoodsCommand {

@@ -21,7 +21,7 @@ Phiên bản đơn giá vốn chính thức cho một Product. **Chỉ BJ14 publ
 | Vai trò DDD | `AGGREGATE_ROOT` |
 | Aggregate Root | `OfficialCostVersion` |
 | Domain sở hữu | `DOM-IV` |
-| Domain không sở hữu | Receipt value → ReceiptValuation; tenant costing method policy → policy owner; pricing basis → Theme 4 |
+| Domain không sở hữu | Phiếu nhận hàng value → ReceiptValuation; tenant costing method policy → policy owner; pricing basis → Theme 4 |
 
 ### 1.1 Ranh giới Aggregate (Visual)
 

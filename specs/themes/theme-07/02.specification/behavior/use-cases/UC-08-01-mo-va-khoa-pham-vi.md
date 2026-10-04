@@ -58,7 +58,7 @@ Không nhập số đếm, không tự xử lý lượng `VALUATION_PENDING`, kh
 | BF-02 | Hệ thống | Chuẩn hóa phạm vi và resolve exact `CountScopeSnapshot`. | AF-A — Phạm vi theo nhóm sản phẩm<br>EF-A — Phạm vi không hợp lệ |
 | BF-03 | Hệ thống | Acquire scope barrier, chờ hoặc serialize các mutation đang chạy trong phạm vi. | EF-B — Xung đột khóa |
 | BF-04 | Hệ thống | Chốt `cutoff_ledger_sequence` và dựng book snapshot theo `PhysicalCountKey`. | EF-C — Có valuation chưa giải quyết |
-| BF-05 | Hệ thống | Commit session, scope snapshot, count lines, book snapshot, lock và command receipt trong cùng transaction. | EF-D — Kết quả chưa xác định |
+| BF-05 | Hệ thống | Commit session, scope snapshot, count lines, book snapshot và lock trong cùng transaction. | EF-D — Kết quả chưa xác định |
 | BF-06 | — | [Kết thúc UC]. | |
 
 ### 5.2 Luồng thay thế (Alternate Flow)

@@ -44,8 +44,8 @@ classDiagram
 | Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
 |---|---|---:|---|
 | `productId` | Sản phẩm chịu điều chỉnh | Có | Authority scope |
-| `adjustmentType` | Loại delta | Có | Receipt adjustment / COGS true-up / ending value… |
-| `sourceExposureRef` | Receipt/issue/value movement liên quan | Có khi relevant | Trace origin |
+| `adjustmentType` | Loại delta | Có | Phiếu nhận hàng adjustment / COGS true-up / ending value… |
+| `sourceExposureRef` | Phiếu nhận hàng/issue/value movement liên quan | Có khi relevant | Trace origin |
 | `quantityBasis` | Quantity dùng để tính delta | Theo type | Không tạo quantity movement |
 | `old/newUnitCost` | Các mốc cost để giải thích true-up | Theo type | Không cần cho mọi adjustment |
 | `deltaAmountVnd` | Số tiền tăng/giảm | Có | Signed |

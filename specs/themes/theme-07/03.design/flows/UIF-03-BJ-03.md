@@ -63,8 +63,8 @@ flowchart TD
 | Bước | Từ đâu | Người dùng / hệ thống làm gì | Điều kiện cần | Đi đến | Nếu không thể tiếp tục |
 |---|---|---|---|---|---|
 | `UIF-03-T01` | Bắt đầu | Có công việc xác lập giá trị | Có quyền xem giá trị | `SCR-014` — Hàng chờ xác lập giá trị | — |
-| `UIF-03-T02` | Mở từ ngữ cảnh liên quan | Mở đúng phiếu nhận hoặc công việc | xác định đúng tổ chức và phiếu nhận | `SCR-015` — Xác lập giá trị nhập ban đầu | Dữ liệu đã thay đổi → xác định lại |
-| `UIF-03-T03` | `SCR-014` — Hàng chờ xác lập giá trị | Mở công việc | Mặt hàng trên phiếu nhận vẫn đang chờ xác lập giá trị | `SCR-015` — Xác lập giá trị nhập ban đầu | Công việc vẫn mở được để xem lý do đang bị chặn |
+| `UIF-03-T02` | Mở từ ngữ cảnh liên quan | Mở đúng goods receipt hoặc công việc | xác định đúng tổ chức và goods receipt | `SCR-015` — Xác lập giá trị nhập ban đầu | Dữ liệu đã thay đổi → xác định lại |
+| `UIF-03-T03` | `SCR-014` — Hàng chờ xác lập giá trị | Mở công việc | Mặt hàng trên goods receipt vẫn đang chờ xác lập giá trị | `SCR-015` — Xác lập giá trị nhập ban đầu | Công việc vẫn mở được để xem lý do đang bị chặn |
 | `UIF-03-T04` | `SCR-015` — Xác lập giá trị nhập ban đầu | Chuyển sang rà soát khi có ít nhất một mặt hàng đủ điều kiện xử lý | Nguồn dữ liệu còn hợp lệ và không còn vướng mắc về chứng từ mua trong phạm vi đang xử lý | `SCR-017` — Rà soát giá trị nhập ban đầu | Thiếu căn cứ hoặc còn vướng mắc → ở lại SCR-015 |
 | `UIF-03-T05` | `SCR-017` — Rà soát giá trị nhập ban đầu | Quay lại chỉnh căn cứ | Chưa ghi nhận chính thức | `SCR-015` — Xác lập giá trị nhập ban đầu | Giữ bản nháp khi an toàn |
 | `UIF-03-T06` | `SCR-017` — Rà soát giá trị nhập ban đầu | Xác nhận giá trị nhập ban đầu | Kết quả xem trước và phiên bản nguồn dữ liệu còn hợp lệ | `SCR-019` — Kết quả xác lập giá trị | Nếu bị từ chối (`REJECTED`), không ghi thay đổi giá trị |

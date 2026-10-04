@@ -1,4 +1,4 @@
-# Work Slice: SL-002 — Gửi phiếu nhận nhanh
+# Work Slice: SL-002 — Gửi quick receipt
 
 ```yaml
 id: SL-002
@@ -28,7 +28,7 @@ theme: theme-07
 
 ## Objective
 
-Thủ kho gửi phiếu nhận nhanh tới `PENDING_APPROVAL` và hệ thống chưa tăng tồn.
+Thủ kho gửi quick receipt tới `PENDING_APPROVAL` và hệ thống chưa tăng tồn.
 
 ---
 
@@ -44,7 +44,7 @@ Thủ kho gửi phiếu nhận nhanh tới `PENDING_APPROVAL` và hệ thống c
 ### In Scope
 
 - Một lệnh gửi (`BC-IC-07`) mang Supplier, các mục hàng và evidence
-- Gửi thành công tạo phiếu ở `PENDING_APPROVAL`, khóa payload, tạo ApprovalCase, ghi CommandReceipt. Chưa movement
+- Gửi thành công tạo phiếu ở `PENDING_APPROVAL`, khóa payload, tạo ApprovalCase. Chưa movement
 - Gửi bị từ chối thì không tạo phiếu
 - Một Supplier đã tồn tại. Product đã tồn tại. Không tạo PO, Supplier hay Product
 - Kho và `receiptBusinessDate` do server điền trên result
@@ -67,7 +67,7 @@ Thủ kho gửi phiếu nhận nhanh tới `PENDING_APPROVAL` và hệ thống c
 
 | Concern | Owner |
 | --- | --- |
-| Phiếu, payload, ApprovalCase, CommandReceipt | Inventory, lệnh `SubmitQuickReceipt` |
+| Phiếu, payload, ApprovalCase | Inventory, lệnh `SubmitQuickReceipt` |
 | Cặp cửa hàng/kho mặc định | [SL-006](SL-006-default-warehouse.md) |
 | Màn hình nhập nhanh | `apps/erp`, SCR-006 đến SCR-010 |
 
@@ -84,7 +84,7 @@ Thủ kho gửi phiếu nhận nhanh tới `PENDING_APPROVAL` và hệ thống c
 | [UC-02-02 BR-08](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) | Thiếu approver thì từ chối, không tạo phiếu (`APPROVER_CONFIGURATION_MISSING`). SRS ghi «giữ `DRAFT`». Slice này không giữ nháp |
 | [UC-02-02 BR-09](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) / [BR-10](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) | Client không gửi kho hay ngày nhận. Result trả `warehouseId` và `receiptBusinessDate` do server resolve |
 | [UC-02-02 BR-11](../../02.specification/behavior/use-cases/UC-02-02-chuan-bi-nhap-hang-nhanh.md) / [T7-DR-118](../../01.knowledge/decisions/decision-register.md#t7-dr-118) | `evidenceIds` có ít nhất một id. Ownership assertion là fact có cấu trúc, không phải checkbox. Server ghi assertion từ actor đã xác thực trong cùng transaction với phiếu. MIME, kích thước và số lượng file lấy từ Shared Attachment Policy, không hard-code trần riêng cho BJ-02 |
-| [BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md) | `operation_type=QUICK_RECEIPT` luôn tạo ApprovalCase. CommandReceipt cùng transaction với phiếu mới |
+| [BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md) | `operation_type=QUICK_RECEIPT` luôn tạo ApprovalCase |
 | [T7-DR-072](../../01.knowledge/decisions/decision-register.md#t7-dr-072) | Client giữ `operationRequestId` ổn định cho ý định nhận nhanh, khác `idempotencyKey`. Cùng khóa mà payload khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`. [DOM-IO INV-IO-09](../../02.specification/domain/domain-foundation/DOM-IO.md) ghi `IDEMPOTENCY_CONFLICT`. Quy tắc nền tảng idempotency dẫn từ `docs/architecture`; slice ghi cách outcome này áp dụng |
 | Trước mutation | Kho chưa `ACTIVE` → `INVENTORY_NOT_ACTIVATED`. Product `DISCONTINUED` → `PRODUCT_DISCONTINUED_FOR_RECEIPT`. Product `ARCHIVED` → `PRODUCT_ARCHIVED`. Không tạo phiếu |
 | [T7-DR-121](../../01.knowledge/decisions/decision-register.md#t7-dr-121) / [SCR-006](../../03.design/screens/SCR-006.md) | Không có capability thì không hiện lối nhập nhanh. Blocker tạm thời: hàng điều hướng Disabled kèm lý do, không đi sâu |
@@ -100,9 +100,9 @@ Những câu này còn chặn `READY_TO_IMPLEMENT`.
 - Contract chi tiết của outcome này (API, event, transaction, lỗi) trước đây nằm ở FND-TECH-01 và chưa được ghi trong slice. Điền khi review để implement. Quy tắc nền tảng (idempotency, outbox) dẫn từ docs/architecture; slice chỉ ghi cách outcome này áp dụng.
 
 - [T7-DR-027](../../01.knowledge/decisions/decision-register.md#t7-dr-027) vẫn bắt lifecycle `DRAFT → PENDING_APPROVAL` và giữ `DRAFT` khi thiếu dữ kiện. Slice không tạo `DRAFT`. Căn cứ giá trước submit ([BC-IC-07](../../02.specification/behavior/behavioral-contracts/BC-IC-07.md), `APPROVAL_PRICE_BASIS_REQUIRED`) chờ BA: [vet45#11](https://gitlab.hamsa.co/vet45/vet45/-/issues/11).
-- Tên bảng và cột cho phiếu, dòng, ApprovalCase, CommandReceipt, và cột của `ownership_assertion`. Entity có thuộc tính nghiệp vụ, chưa có declarative SQL.
+- Tên bảng và cột cho phiếu, dòng, ApprovalCase, và cột của `ownership_assertion`. Entity có thuộc tính nghiệp vụ, chưa có declarative SQL.
 - Tên RPC và `p_*`. `API-C-26` là `POST /v1/inventory-operations/{id}/submission` — path có `{id}` vì giả định phiếu đã tồn tại.
-- Literal `command_type` trên `CommandReceipt`. FND khóa bộ ba `(tenant_id, command_type, Idempotency-Key)`, không khóa chuỗi của lệnh này.
+- Literal `command_scope` trên idempotency record. Nền khóa bộ ba `(tenant_id, command_scope, idempotency_key)`, không khóa chuỗi của lệnh này.
 - Mã lỗi cho mục trùng Product+UOM, accepted physical = 0, thiếu UOM, và thiếu evidence. Catalog không có mã riêng. Slice không dùng `DRAFT_VALIDATION_FAILED`.
 - `max_file_count`, MIME và kích thước: [BC-COMMON-EXTENSIONS](../../02.specification/behavior/behavioral-contracts/BC-COMMON-EXTENSIONS.md) trỏ Shared Attachment Policy lúc runtime. Theme 07 không có policy version hay số trần.
 - Path route app shell chưa có trong SRS. Prototype chỉ có hash `#/sg-02/scr-01`, `#/sg-02/scr-04`, `#/sg-02/scr-05`.
@@ -124,7 +124,7 @@ flowchart TD
 1. Thủ kho chọn «Nhập hàng nhanh» trên SCR-006 khi có capability.
 2. Thủ kho khai Supplier, thấy kho và ngày nhận read-only, đính chứng từ trong trần Shared Attachment Policy, rồi sang dòng hàng trong phiên.
 3. Thủ kho thêm mục Product+UOM và phân loại số lượng, rồi gửi trên SCR-010.
-4. Server tạo phiếu `PENDING_APPROVAL`, ApprovalCase và CommandReceipt trong một transaction.
+4. Server tạo phiếu `PENDING_APPROVAL` và ApprovalCase trong một transaction.
 5. UI dừng ở chờ duyệt. Tồn không tăng.
 
 ### Failure Flow
@@ -176,10 +176,9 @@ Draft lúc implement: `supabase/migrations/_drafts/inventory_quick_receipt.sql`.
 
 ### Transaction / Idempotency
 
-Submit hợp lệ trong một transaction: tạo phiếu đã ở `PENDING_APPROVAL` và khóa payload, tạo ApprovalCase, ghi CommandReceipt. Không business outbox.
+Submit hợp lệ trong một transaction: tạo phiếu đã ở `PENDING_APPROVAL` và khóa payload, tạo ApprovalCase, ghi idempotency record theo `(tenant_id, command_scope, idempotency_key)`. Không business outbox. Literal `command_scope` nằm ở Open Questions.
 
 - `idempotencyKey` ≠ `command.id`. `operationRequestId` ≠ `idempotencyKey`. Hai khóa và hash được tách riêng. Quy tắc nền tảng idempotency dẫn từ `docs/architecture`
-- `CommandReceipt` theo `(tenant_id, command_type, Idempotency-Key)` cùng transaction với kết quả. Literal `command_type` nằm ở Open Questions
 - Cùng key và cùng hash → snapshot trước. Hash khác → `IDEMPOTENCY_PAYLOAD_MISMATCH`
 - Không `expectedVersion`, không `VERSION_CONFLICT`, không `OPERATION_NOT_DRAFT`
 - Submit từ chối thì transaction không để lại phiếu
@@ -233,7 +232,7 @@ Form giữa SCR-008, SCR-009, SCR-084 và SCR-010 chỉ sống trong phiên. Kh�
 
 ### SubmitQuickReceiptCommand
 
-> Gọi khi thủ kho gửi phiếu nhận nhanh. Chưa có `receiptId`. Client đã giữ `operationRequestId` cho ý định này. Outcome thành công: tạo phiếu, khóa payload, tạo ApprovalCase, chuyển `PENDING_APPROVAL`. Chưa movement. Outcome từ chối: không tạo phiếu.
+> Gọi khi thủ kho gửi quick receipt. Chưa có `receiptId`. Client đã giữ `operationRequestId` cho ý định này. Outcome thành công: tạo phiếu, khóa payload, tạo ApprovalCase, chuyển `PENDING_APPROVAL`. Chưa movement. Outcome từ chối: không tạo phiếu.
 
 ```dart
 class SubmitQuickReceiptCommand {

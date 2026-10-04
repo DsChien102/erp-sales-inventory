@@ -19,9 +19,9 @@ Parent: `v0.3.4`. This is a cumulative release.
 - Physical stock changes only at actual handover.
 
 ## BJ-06
-- Designed return queue → receipt overview → line/LOT receipt → receipt milestone → classification.
+- Designed return queue → goods receipt overview → line/LOT goods receipt → goods receipt milestone → classification.
 - Wrong LOT uses separate maker-checker approver surface; approval itself does not post stock.
-- Receipt posts once to `RETURN_PENDING`; classification has `Bán được / Cách ly / Hỏng / Hết hạn` and no second value posting.
+- Goods receipt posts once to `RETURN_PENDING`; classification has `Bán được / Cách ly / Hỏng / Hết hạn` and no second value posting.
 - Cumulative return cap and expired→sellable are hard guards.
 
 ## BJ-07

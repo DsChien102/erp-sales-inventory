@@ -14,7 +14,7 @@ ui_flow: UIF-02
 
 ## 1. Mục tiêu và kết quả nghiệp vụ
 
-Ra quyết định phê duyệt độc lập cho Quick Receipt và các receipt theo chứng từ có accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy.
+Ra quyết định phê duyệt độc lập cho phiếu nhận hàng nhanh và các phiếu nhận hàng theo chứng từ có accepted physical vượt tolerance/ngưỡng của source theo ApprovalPolicy.
 
 **Kết quả cần đạt:** Yêu cầu được duyệt sang `READY` hoặc bị từ chối có lý do; không tạo movement trong UC phê duyệt.
 
@@ -22,7 +22,7 @@ Ra quyết định phê duyệt độc lập cho Quick Receipt và các receipt 
 
 ### 2.1 Bắt đầu khi
 
-Hồ sơ nhập hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt
+Hồ sơ phiếu nhận hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
@@ -34,9 +34,9 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 
 ## 3. Tác nhân, thẩm quyền và điều kiện trước
 
-- **Tác nhân chính:** Người có quyền phê duyệt phù hợp, khác người lập. Với Quick Receipt, eligibility/cấp được resolve theo policy Quick Receipt không phụ thuộc price/FX tại BJ02.
+- **Tác nhân chính:** Người có quyền phê duyệt phù hợp, khác người lập. Với phiếu nhận hàng nhanh, eligibility/cấp được resolve theo policy phiếu nhận hàng nhanh không phụ thuộc price/FX tại BJ02.
 - **Thẩm quyền:** Chỉ tác nhân có quyền phê duyệt đúng policy và phạm vi mới được ra quyết định; quyết định không thay thế bước thực thi nghiệp vụ phía sau.
-- **Sự kiện khởi phát:** Hồ sơ nhập hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt.
+- **Sự kiện khởi phát:** Hồ sơ phiếu nhận hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt.
 - **Điều kiện trước:** Hồ sơ/case đúng version đang ở trạng thái chờ quyết định; tác nhân có quyền phê duyệt theo policy và đọc được snapshot/evidence làm căn cứ.
 
 ## 4. Đối tượng và dữ liệu nghiệp vụ
@@ -92,7 +92,7 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 
 | Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
 |---|---|---|---|
-| BR-01 | Route vào bước duyệt | Nhập hàng nhanh luôn phải có quyết định duyệt theo policy Quick Receipt và không cần price/FX basis để vào UC này; nhận theo chứng từ chỉ vào UC này khi cumulative accepted physical quantity vượt tolerance/ngưỡng của source theo ApprovalPolicy. | `T7-DR-027`, `T7-DR-022`, `T7-DR-116`, `T7-DR-078`, `T7-DR-080` |
+| BR-01 | Route vào bước duyệt | Phiếu nhận hàng nhanh luôn phải có quyết định duyệt theo policy phiếu nhận hàng nhanh và không cần price/FX basis để vào UC này; nhận theo chứng từ chỉ vào UC này khi cumulative accepted physical quantity vượt tolerance/ngưỡng của source theo ApprovalPolicy. | `T7-DR-027`, `T7-DR-022`, `T7-DR-116`, `T7-DR-078`, `T7-DR-080` |
 | BR-02 | Người duyệt phải còn quyền | Người duyệt phải còn quyền, phạm vi kho và cấp phù hợp tại thời điểm quyết định, đồng thời khác người lập.| Decision / DOM-IC / BC nguồn |
 | BR-03 | Quyết định đầu tiên commit hợp lệ thắng | Quyết định đầu tiên commit hợp lệ thắng; yêu cầu sau không ghi đè.| Decision / DOM-IC / BC nguồn |
 | BR-04 | Phê duyệt chỉ cho phép thực thi | Phê duyệt chỉ cho phép thực thi, không giữ hàng và không tạo movement; các guard phải được kiểm tra lại khi ghi tồn.| Decision / DOM-IC / BC nguồn |
@@ -128,7 +128,7 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 ## 9. Kịch bản nghiệm thu (Acceptance Scenarios)
 
 ### AS-UC-02-03-01 — Phê duyệt yêu cầu nhận hàng — luồng chính
-- **Given:** Hồ sơ nhập hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt
+- **Given:** Hồ sơ phiếu nhận hàng nhanh đã gửi hoặc hồ sơ nhận theo chứng từ có accepted physical vượt tolerance/ngưỡng cần duyệt
 - **When:** Mở yêu cầu đang `PENDING_APPROVAL` từ task/deep link của mình.
 - **Then:** Yêu cầu được duyệt sang `READY` hoặc bị từ chối có lý do; không tạo movement trong UC phê duyệt.
 
@@ -153,5 +153,5 @@ Không tự ghi hàng vào tồn và không sửa payload nhận hàng đã khó
 - **Domain:** `DOM-IC`.
 - **Behavioral Contract:** `SBC-COM-01`, `BC-COMMON-EXTENSIONS`, `SBC-COM-02`, `SBC-COM-03`, `SBC-COM-04`, `BC-IC-06`.
 
-- **Nguồn quyết định:** [Nhóm G03 — Nhận hàng mua và giải phóng khả dụng](../../../01.knowledge/decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B); [Nhóm G11 — Quyền và phê duyệt](../../../01.knowledge/decisions/decision-register.md#311-g11-quy%E1%BB%81n-ph%C3%AA-duy%E1%BB%87t-v%C3%A0-b%E1%BA%A3o-v%E1%BB%87-d%E1%BB%AF-li%E1%BB%87u); [Nhóm G03 — Nhập hàng nhanh bắt buộc duyệt](../../../01.knowledge/decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B)
+- **Nguồn quyết định:** [Nhóm G03 — Nhận hàng mua và giải phóng khả dụng](../../../01.knowledge/decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B); [Nhóm G11 — Quyền và phê duyệt](../../../01.knowledge/decisions/decision-register.md#311-g11-quy%E1%BB%81n-ph%C3%AA-duy%E1%BB%87t-v%C3%A0-b%E1%BA%A3o-v%E1%BB%87-d%E1%BB%AF-li%E1%BB%87u); [Nhóm G03 — Phiếu nhận hàng nhanh bắt buộc duyệt](../../../01.knowledge/decisions/decision-register.md#33-g03-nh%E1%BA%ADn-h%C3%A0ng-v%C3%A0-x%C3%A1c-nh%E1%BA%ADn-gi%C3%A1-tr%E1%BB%8B)
 - **Bài tri thức liên quan:** [Nhận hàng mua và xử lý chênh lệch giao nhận](../../../01.knowledge/know-how/KB-KGV-007-nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan.md); [Hàng đã nhận nhưng chưa chốt giá](../../../01.knowledge/know-how/KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia.md); [Chính sách NONE, LOT hoặc SERIAL](../../../01.knowledge/know-how/KB-KGV-024-chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial.md); [Danh tính và vòng đời của một lô hàng](../../../01.knowledge/know-how/KB-KGV-025-danh-tinh-va-vong-doi-cua-mot-lo-hang.md); [Tính nguyên tử khi ghi tồn kho và phát sự kiện](../../../01.knowledge/know-how/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md); [Phê duyệt inventory operation theo mức rủi ro](../../../01.knowledge/know-how/KB-KGV-031-phe-duyet-inventory-operation-theo-muc-rui-ro.md)

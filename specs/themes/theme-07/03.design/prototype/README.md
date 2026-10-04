@@ -22,17 +22,17 @@ parent: v4.6.7
 
 - Parent package: `v4.6.6`.
 - `SCR-010` Quick không có state chặn theo price/FX; submit chỉ kiểm dữ liệu BJ02 và cấu hình approver.
-- `API-C-26` Quick payload không mang price/FX; thiếu price/FX không chặn tạo receipt.
-- `SCR-011` Quick không hiển thị aggregate risk total như căn cứ bắt buộc; approval dựa trên policy Quick Receipt + evidence/ownership/hàng thực nhận.
+- `API-C-26` Quick payload không mang price/FX; thiếu price/FX không chặn tạo goods receipt.
+- `SCR-011` Quick không hiển thị aggregate risk total như căn cứ bắt buộc; approval dựa trên policy nhập hàng nhanh + evidence/ownership/hàng thực nhận.
 - `APPROVER_CONFIGURATION_MISSING` vẫn giữ khi không có approver phù hợp.
 
-## v4.6.6 — BJ02 Quick Receipt no-draft
+## v4.6.6 — BJ02 nhập hàng nhanh no-draft
 
 - Parent package: `v4.6.5` theo baseline người dùng cung cấp.
 - `UC-02-02`: `SCR-008 → SCR-009 → SCR-084 → SCR-010` chỉ dùng session memory; rời luồng/refresh/đóng app thì mất.
-- Không `ACT-02-SAVE-DRAFT`, không `BC-IO-16/API-C-25` cho Quick Receipt.
-- `ACT-02-SUBMIT` gửi full payload; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo receipt.
-- Các lỗi draft cũ không còn là Quick Receipt state/error semantics.
+- Không `ACT-02-SAVE-DRAFT`, không `BC-IO-16/API-C-25` cho nhập hàng nhanh.
+- `ACT-02-SUBMIT` gửi full payload; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo goods receipt.
+- Các lỗi draft cũ không còn là nhập hàng nhanh state/error semantics.
 
 ## v4.6.4 — BJ02 pending-approval continuity
 

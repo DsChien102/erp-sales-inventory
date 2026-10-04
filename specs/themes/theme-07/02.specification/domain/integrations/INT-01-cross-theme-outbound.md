@@ -17,7 +17,7 @@ Tài liệu này khóa **ý nghĩa dữ liệu và ownership khi Theme 7 trao đ
 
 - Theme 10 sở hữu sự thật thương mại của mua hàng khi sự thật đó tồn tại: đơn mua, hóa đơn NCC, giá/chiết khấu và trạng thái tranh chấp thương mại.
 - Theme 7 sở hữu lượng hàng thực nhận, giá trị tồn kho ban đầu, điều chỉnh giá trị hàng nhập và giá vốn chính thức.
-- **Quick Receipt không phụ thuộc Theme 10.** Theme 7 có thể xác lập căn cứ giá trực tiếp theo policy và authority của mình.
+- **phiếu nhận hàng nhanh không phụ thuộc Theme 10.** Theme 7 có thể xác lập căn cứ giá trực tiếp theo policy và authority của mình.
 - Căn cứ thương mại có trước khi BJ03 xác nhận có thể tham gia giá trị nhập ban đầu; căn cứ hợp lệ xuất hiện/thay đổi sau đó được route sang BJ13.
 
 ## 2. Catalog producer / consumer
@@ -25,9 +25,9 @@ Tài liệu này khóa **ý nghĩa dữ liệu và ownership khi Theme 7 trao đ
 | Boundary | Producer | Consumer | Source of truth | Theme 7 được làm gì | Theme 7 không được làm gì |
 |---|---|---|---|---|---|
 | Căn cứ thương mại mua hàng | Theme 10 | Theme 7 | Theme 10 | Dùng thành phần đã xác lập để tính giá trị lượng thực nhận | Sửa PO/hóa đơn hoặc tự giải quyết commercial dispute thuộc Theme 10 |
-| Receipt facts | Theme 7 | Theme 10 / reporting | Theme 7 | Công bố fact receipt đã `COMMITTED`: source/line lineage, lượng thực nhận theo UOM, kho và ngày nhận | Gửi command yêu cầu Theme 10 sửa/cập nhật PO hoặc biến receipt thành PO/hóa đơn |
+| Fact phiếu nhận hàng | Theme 7 | Theme 10 / reporting | Theme 7 | Công bố fact phiếu nhận hàng đã `COMMITTED`: source/line lineage, lượng thực nhận theo UOM, kho và ngày nhận | Gửi command yêu cầu Theme 10 sửa/cập nhật PO hoặc biến phiếu nhận hàng thành PO/hóa đơn |
 | Giá trị nhập ban đầu | Theme 7 | Accounting/reporting | Theme 7 | Công bố fact initial value đã commit | Trình bày nó như Official Cost |
-| Điều chỉnh giá trị hàng nhập | Theme 7 | Accounting/reporting | Theme 7, với provenance về source owner | Công bố signed adjustment + original/posting period | Viết lại receipt valuation lịch sử |
+| Điều chỉnh giá trị hàng nhập | Theme 7 | Accounting/reporting | Theme 7, với provenance về source owner | Công bố signed adjustment + original/posting period | Viết lại phiếu nhận hàng valuation lịch sử |
 | Giá vốn chính thức | Theme 7 | Accounting/Pricing/Reporting | Theme 7/BJ14 | Công bố `OfficialCostVersion` có hiệu lực | Tự đổi giá bán hoặc công nợ |
 | Tax treatment | Policy owner có thẩm quyền | Theme 7 | Policy owner | Tiêu thụ kết quả recoverable/non-recoverable | Cho user BJ03 tự chọn treatment |
 
@@ -65,11 +65,11 @@ Không route dựa trên “loại chứng từ” một cách máy móc. Cùng 
 
 Nếu Theme 10 đánh dấu PO/invoice/commercial source đang tranh chấp hoặc chưa xác lập, Theme 7 giữ trạng thái chờ. Theme 7 không được cho kế toán chọn một nguồn bất kỳ để bỏ qua conflict thương mại.
 
-## 4. Quick Receipt không phụ thuộc Theme 10
+## 4. Phiếu nhận hàng nhanh không phụ thuộc Theme 10
 
-Quick Receipt có thể hoàn tất BJ03 bằng `THEME7_DIRECT` basis theo `UC-03-01`, miễn căn cứ đáp ứng policy về authority, nguồn, thời điểm, tiền tệ, cách hiểu thuế và evidence/reason.
+Phiếu nhận hàng nhanh có thể hoàn tất BJ03 bằng `THEME7_DIRECT` basis theo `UC-03-01`, miễn căn cứ đáp ứng policy về authority, nguồn, thời điểm, tiền tệ, cách hiểu thuế và evidence/reason.
 
-Nếu sau đó Theme 10 tiếp nhận một hóa đơn hoặc commercial source và liên kết được với Quick Receipt:
+Nếu sau đó Theme 10 tiếp nhận một hóa đơn hoặc commercial source và liên kết được với phiếu nhận hàng nhanh:
 
 - nếu giá trị ban đầu chưa xác nhận, source có thể tham gia BJ03;
 - nếu BJ03 đã hoàn tất và source làm thay đổi giá trị, Theme 7 tạo signed adjustment qua BJ13;
@@ -79,12 +79,12 @@ Nếu sau đó Theme 10 tiếp nhận một hóa đơn hoặc commercial source 
 
 | Fact outbound | Trigger | Nội dung chính | Finality |
 |---|---|---|---|
-| Receipt recorded | BJ02 `COMMITTED` | Receipt + source document/line lineage + quantity classification/UOM + warehouse + receipt business date | Chỉ durable commit mới phát; `REJECTED`/`UNKNOWN` không được công bố như fact đã nhận |
-| Initial value confirmed | BJ03 commit | Receipt valuation, covered quantity, value movements, provenance, dirty cost scope | Không kèm Official Cost mới |
-| Receipt value adjustment recorded | BJ13 commit | Signed component/allocation/value movements/original & posting periods/dirty scope | Không tự công bố Official Cost |
+| Phiếu nhận hàng đã ghi nhận | BJ02 `COMMITTED` | Phiếu nhận hàng + source document/line lineage + quantity classification/UOM + warehouse + receipt business date | Chỉ durable commit mới phát; `REJECTED`/`UNKNOWN` không được công bố như fact đã nhận |
+| Initial value confirmed | BJ03 commit | Phiếu nhận hàng valuation, covered quantity, value movements, provenance, dirty cost scope | Không kèm Official Cost mới |
+| điều chỉnh giá trị hàng nhập recorded | BJ13 commit | Signed component/allocation/value movements/original & posting periods/dirty scope | Không tự công bố Official Cost |
 | Official cost published | BJ14 publication | Product, OfficialCostVersion, effective time, source run/method snapshot | Chỉ publication thành công mới authoritative |
 
-`Receipt recorded` là **integration fact ở thì quá khứ**, không phải command. Theme 10 tiêu thụ fact này để tự cập nhật trạng thái/số lượng còn nhận của PO theo ownership của mình; Theme 7 không gửi lệnh “cập nhật PO” và không sở hữu `remaining_receivable_qty` sau khi Theme 10 xử lý fact.
+`phiếu nhận hàng đã ghi nhận` là **integration fact ở thì quá khứ**, không phải command. Theme 10 tiêu thụ fact này để tự cập nhật trạng thái/số lượng còn nhận của PO theo ownership của mình; Theme 7 không gửi lệnh “cập nhật PO” và không sở hữu `remaining_receivable_qty` sau khi Theme 10 xử lý fact.
 
 Wire/API/event chi tiết của outcome thuộc work slice lúc review để implement; integration semantic không được copy event schema thành nguồn thứ hai.
 
@@ -109,7 +109,7 @@ Wire/API/event chi tiết của outcome thuộc work slice lúc review để imp
 ## 8. Verification
 
 - Theme 10 source không bị copy thành owned entity của Theme 7.
-- Quick Receipt có đường hoàn tất BJ03 khi Theme 10 không có source.
+- Phiếu nhận hàng nhanh có đường hoàn tất BJ03 khi Theme 10 không có source.
 - Source trước/sau initial valuation route đúng BJ03/BJ13.
 - `ReceiptValuationConfirmed` không chứa/khởi tạo Official Cost mới.
 - `OfficialCostVersion` chỉ xuất hiện sau BJ14 publication.

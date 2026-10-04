@@ -5,9 +5,9 @@ Parent: **v2.4.5**.
 ## Product / business corrections
 
 - Revalidated BJ02 end-to-end before UI migration.
-- Preserved one Receipt → one Supplier.
+- Preserved one Goods receipt → one Supplier.
 - Preserved no quick-create Supplier/Product inside receiving.
-- Quick receipt remains approval-required and maker/approver responsibilities remain distinct.
+- nhập hàng nhanh remains approval-required and maker/approver responsibilities remain distinct.
 - SCR-084 keeps exactly four authoritative quantity inputs: Đạt / Cách ly / Hỏng / Từ chối; total is derived.
 - UNKNOWN result uses same-operation recovery and never blind-retries a mutation.
 

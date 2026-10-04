@@ -36,8 +36,8 @@ source_baseline: v3.12.0
 
 ### 2.2 Domain không sở hữu
 
-- Quantity movement, reservation, lot, issue/receipt: `DOM-IO`.
-- Receipt valuation, value ledger, cost run, Official Cost: `DOM-IV`.
+- Quantity movement, reservation, lot, issue/phiếu nhận hàng: `DOM-IO`.
+- Phiếu nhận hàng valuation, value ledger, cost run, Official Cost: `DOM-IV`.
 - Role definition và user lifecycle: IAM/Theme 1.
 - PO/SO/invoice/master data: Theme owner tương ứng.
 
@@ -130,7 +130,7 @@ stateDiagram-v2
 | `INV-IC-04` | Stock count **PHẢI** khóa predicate + materialized keys tại cut-off và bảo vệ cả key mới có thể phát sinh trong phạm vi đã khóa. |
 | `INV-IC-05` | Mỗi count/recount **PHẢI** tạo submission bất biến; recount không overwrite first count. |
 | `INV-IC-06` | Projection drift **PHẢI** được xử lý bằng đối soát/rebuild từ ledger; không sửa balance tay. |
-| `INV-IC-07` | Quick receipt hợp lệ **BẮT BUỘC** tạo `ApprovalCase`; policy chỉ route approver, không có cờ bỏ duyệt. |
+| `INV-IC-07` | phiếu nhận hàng nhanh hợp lệ **BẮT BUỘC** tạo `ApprovalCase`; policy chỉ route approver, không có cờ bỏ duyệt. |
 | `INV-IC-08` | Dữ liệu tài chính hạn chế **PHẢI** được lọc ở server/API/export/event/log, không chỉ ẩn UI. |
 | `INV-IC-09` | Approval **PHẢI** bind immutable subject/basis version; executor phải recheck basis trước commit. |
 | `INV-IC-10` | Trước opening commit, inventory ở `PREPARING`; mutation thường **PHẢI** bị chặn. |
@@ -174,7 +174,7 @@ flowchart TB
 
 | Decision ID | Quyết định | Chi phối đối với domain này |
 |---|---|---|
-| `T7-DR-027` | Quick receipt luôn cần duyệt | ApprovalPolicy/ApprovalCase |
+| `T7-DR-027` | phiếu nhận hàng nhanh luôn cần duyệt | ApprovalPolicy/ApprovalCase |
 | `T7-DR-035…037`, `174…175` | Count scope, rounds và approval | StockCountSession |
 | `T7-DR-069` | Opening activation | OpeningBalanceBatch |
 | `T7-DR-079…083`, `179…184` | Permission, maker-checker, immutable basis | Approval/state change |

@@ -26,7 +26,7 @@ Ghi nhận các business fact xuất hiện hoặc trở nên hợp lệ sau ini
 
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
-| Kế toán mua hàng hoặc kế toán kho | Ghi signed adjustment khi business fact hợp lệ xuất hiện/thay đổi sau BJ03 và phân bổ về đúng receipt exposure. | Không dùng BJ13 để sửa lỗi nhập liệu; không ghi projected benefit vào ledger. |
+| Kế toán mua hàng hoặc kế toán kho | Ghi signed adjustment khi business fact hợp lệ xuất hiện/thay đổi sau BJ03 và phân bổ về đúng phiếu nhận hàng exposure. | Không dùng BJ13 để sửa lỗi nhập liệu; không ghi projected benefit vào ledger. |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 

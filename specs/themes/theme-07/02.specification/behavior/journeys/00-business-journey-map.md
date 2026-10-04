@@ -66,7 +66,7 @@ flowchart LR
     B02 -.->|Finality chưa rõ| B17
 
     B03 -->|Initial inventory value + dirty scope| B14
-    B03 -->|Receipt/value provenance| B13
+    B03 -->|Goods receipt/value provenance| B13
     B13 -->|Signed value adjustment + dirty scope| B14
 
     B01 -->|Availability| B04
@@ -106,7 +106,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     T10["Theme 10<br/>Nguồn thương mại nếu có"]
-    Q["Quick Receipt<br/>Căn cứ trực tiếp Theme 7"]
+    Q["phiếu nhận hàng nhanh<br/>Căn cứ trực tiếp Theme 7"]
     B02["BJ-02<br/>Lượng hàng thực nhận"]
     B03["BJ-03<br/>Giá trị nhập ban đầu"]
     B13["BJ-13<br/>Điều chỉnh giá trị hàng nhập"]

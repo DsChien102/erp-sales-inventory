@@ -46,7 +46,7 @@ Nếu biến mọi điều kiện thành một bản ghi cảnh báo, hệ thố
 
 ### Ví dụ minh họa
 
-Sản phẩm P có khả dụng 8 dưới ngưỡng 10 nên hiện badge “Sắp hết”. Khi receipt hoàn tất và khả dụng lên 35, badge tự biến mất; không có hồ sơ để đóng. Ngược lại, nếu projection hiển thị 35 nhưng movement ledger dựng ra 34, hệ thống khóa phạm vi bị ảnh hưởng và mở Reconciliation Case. Case chỉ đóng sau khi có bằng chứng rebuild projection và kết quả đối chiếu bằng nhau.
+Sản phẩm P có khả dụng 8 dưới ngưỡng 10 nên hiện badge “Sắp hết”. Khi goods receipt hoàn tất và khả dụng lên 35, badge tự biến mất; không có hồ sơ để đóng. Ngược lại, nếu projection hiển thị 35 nhưng movement ledger dựng ra 34, hệ thống khóa phạm vi bị ảnh hưởng và mở Reconciliation Case. Case chỉ đóng sau khi có bằng chứng rebuild projection và kết quả đối chiếu bằng nhau.
 
 ### Ngoại lệ và cách làm sai
 

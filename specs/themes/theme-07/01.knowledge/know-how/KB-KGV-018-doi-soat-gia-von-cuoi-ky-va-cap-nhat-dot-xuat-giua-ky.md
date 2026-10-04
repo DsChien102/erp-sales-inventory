@@ -17,7 +17,7 @@ Chốt giá vốn chỉ được thực hiện trên tập movement ổn định
 
 ### Vì sao vấn đề này quan trọng?
 
-Bình quân cuối kỳ phụ thuộc cả lượng và giá trị trong kỳ. Một operation chưa rõ kết quả hoặc một receipt chưa có giá có thể thay đổi tử số hoặc mẫu số sau khi công bố. Blocker và cut-off giúp kỳ đóng có thể chứng minh. Batch liên kết giúp ba ảnh hưởng — lượng đã xuất, tồn còn lại và phiên bản giá mới — không bị tách rời.
+Bình quân cuối kỳ phụ thuộc cả lượng và giá trị trong kỳ. Một operation chưa rõ kết quả hoặc một goods receipt chưa có giá có thể thay đổi tử số hoặc mẫu số sau khi công bố. Blocker và cut-off giúp kỳ đóng có thể chứng minh. Batch liên kết giúp ba ảnh hưởng — lượng đã xuất, tồn còn lại và phiên bản giá mới — không bị tách rời.
 
 ## 2. Nội dung nền tảng
 
@@ -33,7 +33,7 @@ Bình quân cuối kỳ phụ thuộc cả lượng và giá trị trong kỳ. M
 
 ### Quy tắc vận hành
 
-1. Không chốt khi còn `UNKNOWN`, receipt chờ giá trực tiếp, kiểm kê/điều chỉnh/correction chưa hoàn tất hoặc đối soát trọng yếu chưa đóng.
+1. Không chốt khi còn `UNKNOWN`, goods receipt chờ giá trực tiếp, kiểm kê/điều chỉnh/correction chưa hoàn tất hoặc đối soát trọng yếu chưa đóng.
 2. Hệ thống tính song song hai phương pháp; tenant chỉ định phương pháp nguồn cho phiên bản chính thức.
 3. Kế toán xem dữ liệu đầu vào, chênh lệch và phạm vi trước khi công bố; không cần thêm một lớp duyệt thứ hai.
 4. Batch chốt kỳ ghi đúng phần chênh của giá vốn hàng đã xuất và tồn cuối kỳ, đồng thời tạo phiên bản giá vốn mới.
@@ -45,7 +45,7 @@ Bình quân cuối kỳ phụ thuộc cả lượng và giá trị trong kỳ. M
 
 ### Ví dụ minh họa
 
-Kỳ tháng 8 có một receipt đang `VALUATION_PENDING`; hệ thống chặn công bố vì giá trị nhập ban đầu chưa được xác lập. Sau khi BJ03 xác lập giá trị nhập ban đầu và đối soát lại, run tháng 8 tính kết quả, kế toán kiểm tra rồi công bố batch. Batch gồm COGS true-up cho hàng đã bán, valuation adjustment cho hàng còn lại và giá vốn chính thức phiên bản mới có hiệu lực từ đầu kỳ tiếp theo.
+Kỳ tháng 8 có một goods receipt đang `VALUATION_PENDING`; hệ thống chặn công bố vì giá trị nhập ban đầu chưa được xác lập. Sau khi BJ03 xác lập giá trị nhập ban đầu và đối soát lại, run tháng 8 tính kết quả, kế toán kiểm tra rồi công bố batch. Batch gồm COGS true-up cho hàng đã bán, valuation adjustment cho hàng còn lại và giá vốn chính thức phiên bản mới có hiệu lực từ đầu kỳ tiếp theo.
 
 Nếu ngày 15 cần cập nhật khẩn cấp, hệ thống lập run đến cut-off ngày 15. Giá mới chỉ dùng cho lần bàn giao sau cut-off; phần trước cut-off được giữ nguyên và điều chỉnh bằng bản ghi liên kết.
 

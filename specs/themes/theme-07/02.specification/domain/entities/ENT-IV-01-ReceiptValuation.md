@@ -14,14 +14,14 @@ source_baseline: v3.12.0
 
 ## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Hồ sơ bất biến xác lập **giá trị nhập ban đầu** cho exact quantity của một receipt item mà căn cứ hợp lệ thực sự bao phủ. ReceiptValuation giữ provenance và value; không tạo Official Cost.
+Hồ sơ bất biến xác lập **giá trị nhập ban đầu** cho exact quantity của một mục hàng nhận mà căn cứ hợp lệ thực sự bao phủ. ReceiptValuation giữ provenance và value; không tạo Official Cost.
 
 | Thuộc tính | Giá trị |
 |---|---|
 | Vai trò DDD | `AGGREGATE_ROOT` |
 | Aggregate Root | `ReceiptValuation` |
 | Domain sở hữu | `DOM-IV` |
-| Domain không sở hữu | Receipt physical facts → DOM-IO; PO/invoice/commercial dispute → Theme 10; OfficialCostVersion → BJ14/CostCalculationRun |
+| Domain không sở hữu | Phiếu nhận hàng physical facts → DOM-IO; PO/invoice/commercial dispute → Theme 10; OfficialCostVersion → BJ14/CostCalculationRun |
 
 ### 1.1 Ranh giới Aggregate (Visual)
 
@@ -41,11 +41,11 @@ classDiagram
 
 | Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
 |---|---|---:|---|
-| `receiptItemRef` | Dòng hàng thực nhận/commercial receipt item | Có | UI mental object; backend map xuống technical scope |
+| `receiptItemRef` | Dòng hàng thực nhận/commercial mục hàng nhận | Có | UI mental object; backend map xuống technical scope |
 | `valuationBasisKey` | Stable identity của bộ căn cứ | Có | Không đồng nhất Product+UOM |
 | `basisVersion` | Phiên bản căn cứ tại commit | Có | Freshness guard |
 | `coveredScope` | Exact quantity/lot/state được căn cứ chứng minh | Có | Partial chỉ do source coverage |
-| `transactionQuantity` | Quantity + transaction UOM | Có | Theo receipt source |
+| `transactionQuantity` | Quantity + transaction UOM | Có | Theo phiếu nhận hàng source |
 | `baseQuantity` | Quantity chuẩn hóa base UOM | Có | Dùng downstream costing |
 | `componentSnapshot` | Giá mua, giảm giá trị mua, tax treatment, known direct cost, FX/allocation provenance | Có | Internal basis; không phải UI jargon |
 | `confirmedValueAmount` | Giá trị VND authoritative của covered scope | Có | Server allocated/rounded |

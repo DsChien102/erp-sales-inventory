@@ -16,12 +16,12 @@ Trả danh sách hàng đang chờ giá trị, các căn cứ có thể sử d�
 ## 2. Phạm vi áp dụng
 
 - **Loại:** Query / preview.
-- **Owner:** `DOM-IV`, đọc receipt facts của `DOM-IO` và nguồn thương mại/tax/FX có thẩm quyền.
+- **Owner:** `DOM-IV`, đọc fact goods receipt của `DOM-IO` và nguồn thương mại/tax/FX có thẩm quyền.
 - **Journey / UC:** `BJ-03` / `UC-03-01`.
 
 ## 3. Đầu vào nghiệp vụ
 
-- Worklist filter hoặc receipt item cần xử lý.
+- Worklist filter hoặc mục hàng nhận cần xử lý.
 - Căn cứ/source hiện có và version/effectivity của chúng.
 - Exact quantity còn `VALUATION_PENDING`.
 - Tax treatment/policy version khi cần; nếu nguồn ngoại tệ thì currency + FX authoritative được resolve theo contract hiện hành và giữ trong provenance kỹ thuật.
@@ -29,7 +29,7 @@ Trả danh sách hàng đang chờ giá trị, các căn cứ có thể sử d�
 
 ## 4. Điều kiện trước
 
-Actor được phép xem dữ liệu tài chính; receipt thuộc tenant; quantity còn pending; nguồn ngoài Theme chỉ được đọc theo authority của nguồn.
+Actor được phép xem dữ liệu tài chính; goods receipt thuộc tenant; quantity còn pending; nguồn ngoài Theme chỉ được đọc theo authority của nguồn.
 
 ## 5. Quy tắc nghiệp vụ
 
@@ -48,13 +48,13 @@ Actor được phép xem dữ liệu tài chính; receipt thuộc tenant; quanti
 ## 6. Điều kiện bắt buộc
 
 - Không tạo “giá gốc” hoặc “chiết khấu” nếu source chỉ cho biết giá mua cuối cùng.
-- Không bắt buộc hóa đơn nhà cung cấp để Quick receipt đủ điều kiện BJ03.
+- Không bắt buộc hóa đơn nhà cung cấp để quick receipt đủ điều kiện BJ03.
 - Không expose `DirectCostBasis` như thuật ngữ người dùng bắt buộc hiểu.
 - Partial scope chỉ xuất hiện khi source/evidence coverage thực sự nhỏ hơn quantity còn pending.
 
 ## 7. Ảnh hưởng trạng thái
 
-Read-only. Không tạo movement, CommandReceipt, Official Cost hoặc mutation nguồn.
+Read-only. Không tạo movement, Official Cost hoặc mutation nguồn.
 
 ## 8. Tính nguyên tử và kết quả cuối
 

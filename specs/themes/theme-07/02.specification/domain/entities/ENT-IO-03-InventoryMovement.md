@@ -65,7 +65,7 @@ classDiagram
 | `productId` | Sản phẩm | Có | |
 | `warehouseScope` | Kho | Có | |
 | `lotId` | Lô | Khi LOT | |
-| `movementKind` | Receipt / issue / state / adjust… | Có | |
+| `movementKind` | Phiếu nhận hàng / issue / state / adjust… | Có | |
 | `fromState` / `toState` | Chuyển trạng thái vật lý | Khi state transfer | |
 | `quantityDelta` | Biến động số lượng | Có | ≠ 0 |
 | `valuationStateSnapshot` | Trục định giá tại thời điểm | Khi cần chứng minh | STATE_TRANSFER không đổi valuation axis |

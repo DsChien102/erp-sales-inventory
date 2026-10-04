@@ -41,7 +41,7 @@ Result gồm `operation_id?`, `status`, `result_code`, `entity_version?`, `commi
 
 Metadata này không phải nguồn finality, không tạo transition hoặc mutation. Nếu metadata mâu thuẫn với `status/result_code`, trạng thái và bằng chứng authoritative thắng; lỗi hợp đồng phải được ghi nhận.
 
-Mọi BC mutation — không chỉ create/update/submit — phải persist hoặc hoàn tất `CommandReceipt` trong cùng transaction với kết quả authoritative của command.
+Mọi BC mutation — không chỉ create/update/submit — phải persist hoặc hoàn tất idempotency record trong cùng transaction với kết quả authoritative của command.
 
 <a id="sbc-com-04"></a>
 

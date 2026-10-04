@@ -17,7 +17,7 @@ Khóa một lần tính giá vốn theo đúng kỳ, scope, cutoff và **phươn
 
 **Thuộc Aggregate:** `ENT-IV-03 CostCalculationRun`, `ENT-IV-09 ProductCostResult`.
 
-**Không thuộc Aggregate:** tenant costing policy master; receipt/value adjustment facts nguồn; `OfficialCostVersion` đã công bố là aggregate riêng.
+**Không thuộc Aggregate:** tenant costing policy master; phiếu nhận hàng/value adjustment facts nguồn; `OfficialCostVersion` đã công bố là aggregate riêng.
 
 ## 3. Invariant
 

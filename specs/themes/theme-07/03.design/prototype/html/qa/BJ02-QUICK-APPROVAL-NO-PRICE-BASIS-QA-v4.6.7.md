@@ -5,7 +5,7 @@
 
 ## Scope
 
-BJ02 Quick Receipt approval does not depend on price/FX basis at submit
+BJ02 nhập hàng nhanh approval does not depend on price/FX basis at submit
 
 ## Checks
 

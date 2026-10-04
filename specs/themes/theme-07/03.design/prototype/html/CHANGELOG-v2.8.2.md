@@ -14,6 +14,6 @@ Parent: v2.8.1.
 - Fixed the maker Back-navigation defect caused by using the review catalog order as navigation history. `SCR-033` now backs to `SCR-030`, never to approver-only `SCR-034`; `SCR-032→031` and `SCR-031→030` are explicit.
 - Reordered the review catalog so maker route screens are contiguous and approver work remains visibly independent.
 - Compressed repeated request metadata on SCR-031 and SCR-033 into one canonical Compact Status List Row with progress.
-- Kept required business milestones and CTAs: all-or-nothing receipt, optional defer after receipt, independent wrong-LOT approval, and final classification.
+- Kept required business milestones and CTAs: all-or-nothing goods receipt, optional defer after goods receipt, independent wrong-LOT approval, and final classification.
 
 No business rule or inventory finality rule changed.

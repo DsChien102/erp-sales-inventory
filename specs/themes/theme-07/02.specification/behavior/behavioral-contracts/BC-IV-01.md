@@ -23,7 +23,7 @@ Ghi **giá trị nhập ban đầu** cho đúng lượng hàng đã nhận và �
 
 Mỗi phạm vi được xác nhận phải có:
 
-- receipt item và exact quantity được căn cứ bao phủ;
+- mục hàng nhận và exact quantity được căn cứ bao phủ;
 - `valuation_basis_key`, version/hash của căn cứ hiện hành;
 - scope/version dùng để bảo vệ quantity còn `VALUATION_PENDING`;
 - transaction UOM + snapshot quy đổi sang base UOM;
@@ -32,12 +32,12 @@ Mỗi phạm vi được xác nhận phải có:
 - source/provenance và evidence reference cần thiết;
 - command/idempotency identity.
 
-Đối với Quick receipt, căn cứ trực tiếp có thể được xác lập trong Theme 7 theo `T7-DR-186/187`. Đối với nhận theo chứng từ, Theme 7 tiêu thụ nguồn thương mại hợp lệ từ Theme 10 và không sửa nguồn đó.
+Đối với quick receipt, căn cứ trực tiếp có thể được xác lập trong Theme 7 theo `T7-DR-186/187`. Đối với nhận theo chứng từ, Theme 7 tiêu thụ nguồn thương mại hợp lệ từ Theme 10 và không sửa nguồn đó.
 
 ## 4. Điều kiện trước
 
 - Actor có quyền tài chính phù hợp.
-- Receipt đã hoàn tất vật lý và quantity thuộc tenant.
+- Goods receipt đã hoàn tất vật lý và quantity thuộc tenant.
 - Exact quantity còn `VALUATION_PENDING` và chưa được ghi initial value trước đó.
 - Phạm vi xác nhận do **căn cứ/source coverage** chứng minh; không chấp nhận quantity do người dùng tùy ý chia.
 - Căn cứ, source revision, tax/FX/allocation policy và scope version còn current.
@@ -91,7 +91,7 @@ Không thay physical state và không tự đổi dữ liệu Theme 10.
 
 ## 10. Domain và UC sử dụng
 
-- **Domain / Entity:** `DOM-IV`; `ENT-IV-01`, `ENT-IV-02`; đọc `DOM-IO` / receipt facts.
+- **Domain / Entity:** `DOM-IV`; `ENT-IV-01`, `ENT-IV-02`; đọc `DOM-IO` / fact goods receipt.
 - **UC:** `UC-03-01`.
 - **API/Event trace:** `API-C-20`, `EVT-IV-03`. Mapping thực thi thuộc work slice lúc review để implement.
 - **Decision:** `T7-DR-021`, `025`, `051`, `150…156`, `185…191`.

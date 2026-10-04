@@ -32,7 +32,7 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 | Module entry reviewed | Screen | Product meaning |
 |---|---|---|
 | Tồn kho | `SCR-001` | Tra cứu tồn/khả dụng |
-| Nhận hàng | `SCR-006` | Chọn cách nhận hàng; document context có thể deep-link vào receipt flow |
+| Nhận hàng | `SCR-006` | Chọn cách nhận hàng; document context có thể deep-link vào goods receipt flow |
 | Hàng chờ xác nhận giá nhập | `SCR-014` (UIF03) | Work queue của Inventory Valuation |
 | Chi phí mua bổ sung | `SCR-085` (UIF13) | Late-cost source work queue |
 | Giá vốn | `SCR-072` (UIF14) | Cost run worklist |

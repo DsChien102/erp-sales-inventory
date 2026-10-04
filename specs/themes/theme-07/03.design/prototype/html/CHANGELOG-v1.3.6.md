@@ -16,7 +16,7 @@ Parent: `v1.3.5` · Cumulative incremental release.
 - Physical/value chỉ giảm theo lượng thực bàn giao sau server recheck + actor confirmation.
 
 ## BJ06 / UIF06
-- Return request hỗ trợ nhiều dòng và all-or-nothing receipt commit.
+- Return request hỗ trợ nhiều dòng và all-or-nothing goods receipt commit.
 - Queue phân biệt actionable với waiting; `Cần phân loại` đi thẳng vào task classification.
 - Wrong-LOT giữ maker-checker; maker cung cấp reason + ảnh nhãn LOT, approver xem evidence độc lập.
 - Classification là overview nhiều line/LOT; tap line mở contextual editor với Bán được/Cách ly/Hỏng/Hết hạn.

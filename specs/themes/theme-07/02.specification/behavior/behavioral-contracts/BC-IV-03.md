@@ -45,7 +45,7 @@ Ready run/version, input/scope hashes, cutoff sequence, `ProductCostResult` hash
 ## 6. Điều kiện bắt buộc
 
 - BJ14 là **owner duy nhất** tạo/cập nhật `OfficialCostVersion`.
-- Publication không sửa receipt, issue, sale, PO, invoice hoặc movement lịch sử.
+- Publication không sửa goods receipt, issue, sale, PO, invoice hoặc movement lịch sử.
 - Rerun cùng facts/baseline phải cho delta 0.
 - Stale/blocker trước commit phải dừng publication và tạo successor run qua UC-14-01 khi cần.
 

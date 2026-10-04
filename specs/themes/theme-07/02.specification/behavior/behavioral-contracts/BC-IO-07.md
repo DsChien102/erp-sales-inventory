@@ -38,11 +38,11 @@ Các constraint bắt buộc là các guard và rule nguồn ở mục 4–5; mi
 
 ## 7. Ảnh hưởng trạng thái
 
-Physical/value tăng đúng actual quantity, available không tăng; result linked to source return request + original issue; server trả `recorded_at`. Không tự tạo business “return receipt number” riêng.
+Physical/value tăng đúng actual quantity, available không tăng; result linked to source return request + original issue; server trả `recorded_at`. Không tự tạo business return goods receipt number riêng.
 
 ## 8. Tính nguyên tử và kết quả cuối
 
-Physical/value tăng đúng actual quantity, available không tăng; result linked to source return request + original issue; server trả `recorded_at`. Không tự tạo business “return receipt number” riêng.
+Physical/value tăng đúng actual quantity, available không tăng; result linked to source return request + original issue; server trả `recorded_at`. Không tự tạo business return goods receipt number riêng.
 
 ## 9. Kết quả và semantics lỗi
 

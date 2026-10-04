@@ -41,19 +41,19 @@ Cho phép nhận từng phần; ghi nhận thiếu/thừa so với đơn mua; ph
 
 #### Nhập hàng nhanh luôn phải được phê duyệt
 
-Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu hoặc người duyệt đủ điều kiện, lệnh gửi bị từ chối và không tạo receipt; người dùng chỉ có thể bổ sung dữ liệu còn thiếu trong phiên Quick hiện tại rồi gửi lại. Căn cứ giá của BJ03 là nghiệp vụ định giá riêng sau khi nhận hàng đã hoàn tất. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
+Nhập hàng nhanh chỉ rút gọn việc chọn chứng từ nguồn; không rút gọn kiểm soát. Khi đủ dữ kiện bắt buộc để gửi, hồ sơ luôn chuyển sang `PENDING_APPROVAL`; hệ thống không hỏi “có cần duyệt không” và không có nhánh đi thẳng `READY`. Chỉ sau một quyết định phê duyệt hợp lệ hồ sơ mới được phép tiếp tục ghi nhận tồn vật lý. Nếu còn thiếu căn cứ nguồn, quyền sở hữu hoặc người duyệt đủ điều kiện, lệnh gửi bị từ chối và không tạo goods receipt; người dùng chỉ có thể bổ sung dữ liệu còn thiếu trong phiên Quick hiện tại rồi gửi lại. Căn cứ giá của BJ03 là nghiệp vụ định giá riêng sau khi nhận hàng đã hoàn tất. Từ chối không tạo movement; luồng phê duyệt BJ-02 chỉ có Duyệt hoặc Từ chối.
 
-#### Một receipt, một nhà cung cấp và nhiều mục hàng
+#### Một goods receipt, một nhà cung cấp và nhiều mục hàng
 
-Một receipt mua gắn đúng **một Supplier**. Một Supplier có thể có nhiều receipt khác nhau; quy tắc này chỉ cấm trộn hàng của nhiều Supplier vào cùng một receipt. Receipt có thể chứa nhiều sản phẩm. Supplier và Product phải tồn tại trước khi nhận hàng; BJ-02 không tạo master data mới trong lúc nhận.
+Một goods receipt mua gắn đúng **một Supplier**. Một Supplier có thể có nhiều goods receipt khác nhau; quy tắc này chỉ cấm trộn hàng của nhiều Supplier vào cùng một goods receipt. Goods receipt có thể chứa nhiều sản phẩm. Supplier và Product phải tồn tại trước khi nhận hàng; BJ-02 không tạo master data mới trong lúc nhận.
 
-Ở mức nghiệp vụ/UI, mỗi **mục hàng** gồm một Product và một đơn vị giao dịch. Nhận theo chứng từ dùng UOM của source. Nhập hàng nhanh dùng UOM hợp lệ của Product; nếu cùng Product được giao theo hai UOM, ví dụ hộp và lọ, chúng là hai mục riêng. Trong Quick receipt không tạo hai mục trùng cùng Product + cùng UOM.
+Ở mức nghiệp vụ/UI, mỗi **mục hàng** gồm một Product và một đơn vị giao dịch. Nhận theo chứng từ dùng UOM của source. Nhập hàng nhanh dùng UOM hợp lệ của Product; nếu cùng Product được giao theo hai UOM, ví dụ hộp và lọ, chúng là hai mục riêng. Trong nhập hàng nhanh không tạo hai mục trùng cùng Product + cùng UOM.
 
 Một mục hàng có thể chứa nhiều lô hoặc nhiều tình trạng thực nhận. Khi persist, mục này có thể materialize thành nhiều `InventoryOperationLine` kỹ thuật theo lot/state; các line vẫn phải truy được về cùng receipt-item reference.
 
 #### Xử lý đủ các sản phẩm trên chứng từ
 
-Khi chọn một chứng từ có nhiều sản phẩm, receipt draft phải nạp đủ các source items thuộc phạm vi nhận. Người dùng xử lý từng mục. Nếu một mục chưa được giao trong chuyến này, có thể xác nhận **Chưa nhận lần này**: actual quantity bằng 0 và phần còn lại của source không bị giảm. `Chưa nhận lần này` khác `Chưa ghi nhận`: trạng thái đầu là user đã xử lý mục, trạng thái sau là task còn bỏ dở.
+Khi chọn một chứng từ có nhiều sản phẩm, bản nháp goods receipt phải nạp đủ các source items thuộc phạm vi nhận. Người dùng xử lý từng mục. Nếu một mục chưa được giao trong chuyến này, có thể xác nhận **Chưa nhận lần này**: actual quantity bằng 0 và phần còn lại của source không bị giảm. `Chưa nhận lần này` khác `Chưa ghi nhận`: trạng thái đầu là user đã xử lý mục, trạng thái sau là task còn bỏ dở.
 
 #### Số lượng, tình trạng và lô
 
@@ -80,7 +80,7 @@ Ví dụ này chỉ minh họa cách áp dụng các quy tắc đã nêu. Con s�
 - **Đưa hàng từ chối vào tồn hỏng:** Lượng chưa được tiếp nhận không thuộc tồn vật lý và không được tạo movement.
 - **Tự bỏ qua phần thừa:** Phần vượt ngưỡng phải dừng để phê duyệt, không được hợp thức hóa bằng sửa dòng đơn mua sau đó.
 - **Cho nhập hàng nhanh đi thẳng thực thi vì giá trị nhỏ:** Nhập hàng nhanh luôn phải chờ một quyết định phê duyệt hợp lệ.
-- **Tạo nhanh Product/Supplier để đi tiếp:** Master data phải được chuẩn bị ở domain sở hữu trước khi receipt tiếp tục.
+- **Tạo nhanh Product/Supplier để đi tiếp:** Master data phải được chuẩn bị ở domain sở hữu trước khi goods receipt tiếp tục.
 - **Bỏ sót sản phẩm trên chứng từ:** Chọn source phải nạp đủ các mục cần nhận; mục chưa giao phải được xác nhận `Chưa nhận lần này`, không được biến mất khỏi task.
 - **Gộp hai UOM thành một số lượng:** Mỗi mục hàng dùng một transaction UOM; cùng Product nhưng UOM khác phải giữ thành các mục riêng.
 
@@ -102,7 +102,7 @@ Khi triển khai một trường hợp cụ thể, người xử lý nên ghi r�
 - **Nhận từng phần và chênh lệch thiếu/thừa phải được ghi nhận.**
 - **Nhập hàng nhanh luôn vào Chờ phê duyệt trước khi có thể ghi tồn vật lý.**
 - **Lượng bị từ chối thuộc hồ sơ giao nhận của nguồn, không thuộc sổ kho.**
-- **Một receipt chỉ thuộc một Supplier nhưng có thể có nhiều sản phẩm/mục hàng.**
+- **Một goods receipt chỉ thuộc một Supplier nhưng có thể có nhiều sản phẩm/mục hàng.**
 - **Supplier/Product chưa có thì chuẩn bị master trước; BJ-02 không tạo mới.**
 - **Mỗi mục dùng một UOM; cùng Product khác UOM là các mục riêng.**
 

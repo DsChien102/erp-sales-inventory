@@ -21,7 +21,7 @@ Dòng phân bổ bất biến của `ValueAdjustmentSource` tới một valuatio
 | Vai trò DDD | `CHILD_ENTITY` |
 | Aggregate Root | `ValueAdjustmentSource` |
 | Domain sở hữu | `DOM-IV` |
-| Domain không sở hữu | Receipt quantity/value gốc → ReceiptValuation/DOM-IO; allocation policy master → policy owner |
+| Domain không sở hữu | Phiếu nhận hàng quantity/value gốc → ReceiptValuation/DOM-IO; allocation policy master → policy owner |
 
 ### 1.1 Ranh giới Aggregate (Visual)
 
@@ -44,7 +44,7 @@ classDiagram
 | Thuộc tính | Ý nghĩa | Bắt buộc | Ghi chú |
 |---|---|---:|---|
 | `valuationExposureKey` | Exact initial-valued exposure được target | Có | Stable identity |
-| `receiptItemRef` | Dòng receipt/commercial item liên quan | Có | Trace source |
+| `receiptItemRef` | Dòng phiếu nhận hàng/commercial item liên quan | Có | Trace source |
 | `receiptValuationRefs` | Các initial valuation records tạo exposure | Có | Không overwrite |
 | `productId` | Sản phẩm chịu allocation | Có | Dirty cost scope |
 | `initialValuedBaseQuantity` | Quantity đã initial-valued | Có | Metric input |
@@ -52,7 +52,7 @@ classDiagram
 | `allocationMetricSnapshot` | Metric/version/hash dùng phân bổ | Có | Bất biến |
 | `allocatedAmountVnd` | Signed amount phân bổ | Có | Tổng lines = normalized source amount |
 | `roundingAdjustmentVnd` | Residual deterministic | Có thể 0 | Theo stable exposure order |
-| `originalPeriod` | Kỳ receipt gốc | Có | Trace economic origin |
+| `originalPeriod` | Kỳ phiếu nhận hàng gốc | Có | Trace economic origin |
 | `postingPeriod` | Kỳ ghi adjustment | Có | Theo open/locked policy |
 | `dirtyCostScope` | Product + posting period cần BJ14 tính lại | Có | System-owned |
 

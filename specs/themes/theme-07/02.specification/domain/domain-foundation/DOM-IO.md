@@ -100,7 +100,7 @@ Chỉ các thuật ngữ dùng trong DOM này (diagram, lifecycle, invariant, en
 
 | Thuật ngữ                                  | Vai trò                 | Định nghĩa                                                                                        |
 | ------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| GoodsReceipt                               | Aggregate Root (intent) | Lệnh nhập kho (PO / NCC / quick receipt); khóa payload sau submit; `COMPLETED` → append Movement. |
+| GoodsReceipt                               | Aggregate Root (intent) | Lệnh nhập kho (PO / NCC / phiếu nhận hàng nhanh); khóa payload sau submit; `COMPLETED` → append Movement. |
 | GoodsIssue                                 | Aggregate Root (intent) | Lệnh xuất kho (bán / điều chuyển / trả NCC); tiêu thụ reservation; chống xuất âm Sellable.        |
 | StockDisposal                              | Aggregate Root (intent) | Lệnh xuất hủy / hao hụt; `COMPLETED` → append Movement.                                           |
 | StockAdjustment                            | Aggregate Root (intent) | Lệnh điều chỉnh kiểm kê khi thuộc phạm vi IO.                                                     |
@@ -219,7 +219,7 @@ classDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT : Operation có draft lifecycle
-    [*] --> PENDING_APPROVAL : Quick Receipt create-and-submit hợp lệ
+    [*] --> PENDING_APPROVAL : phiếu nhận hàng nhanh create-and-submit hợp lệ
     DRAFT --> DRAFT : Sửa payload
     DRAFT --> PENDING_APPROVAL : Submit cần duyệt\nKhóa PayloadHash
     DRAFT --> READY : Submit không cần duyệt\nKhóa PayloadHash
@@ -266,7 +266,7 @@ stateDiagram-v2
 `OUTSIDE → RETURN_PENDING → SELLABLE | QUARANTINE | DAMAGED | EXPIRED`.
 
 - **CHỈ** bước nhận thực tế tăng vật lý; phân loại **CHỈ** đổi trạng thái.
-- Quick Receipt (`GoodsReceipt` quick): trước submit **không có Aggregate/receipt `DRAFT`**. Create-and-submit hợp lệ tạo receipt trực tiếp ở `PENDING_APPROVAL`; command bị từ chối thì không tạo receipt. Quick Receipt **không được** đi thẳng `READY` và không dùng `BC-IO-16`/`API-C-25` (`[T7-DR-027](../../../01.knowledge/decisions/decision-register.md)`).
+- Phiếu nhận hàng nhanh (`GoodsReceipt` quick): trước submit **không có Aggregate/phiếu nhận hàng `DRAFT`**. Create-and-submit hợp lệ tạo phiếu nhận hàng trực tiếp ở `PENDING_APPROVAL`; command bị từ chối thì không tạo phiếu nhận hàng. Phiếu nhận hàng nhanh **không được** đi thẳng `READY` và không dùng `BC-IO-16`/`API-C-25` (`[T7-DR-027](../../../01.knowledge/decisions/decision-register.md)`).
 
 
 
@@ -282,17 +282,17 @@ stateDiagram-v2
 | INV-IO-05  | Với giao dịch xuất thông thường, `GoodsIssue` và `StockAvailabilityEngine` **KHÔNG ĐƯỢC** cho phép thao tác làm âm tồn Sellable hoặc ATP.                                                                                                                                                 |
 | INV-IO-06  | Mọi thay đổi trên `ReservationBucket` và Aggregate intent **CẦN** kiểm tra `version` (optimistic concurrency). Commit hợp lệ đầu tiên thắng; commit muộn **PHẢI** bị từ chối vì conflict.                                                                                                 |
 | INV-IO-07  | Khi giữ hàng, `ReservationBucket` **CHỈ ĐƯỢC** giảm ATP. Hệ thống **KHÔNG ĐƯỢC** trừ Physical On-Hand chỉ vì tạo `Reservation`.                                                                                                                                                           |
-| INV-IO-08  | Payload submitted **PHẢI** bất biến sau commit submit. Với operation có draft lifecycle, khóa khi rời `DRAFT`; với Quick Receipt, payload đã bất biến ngay khi receipt được tạo ở `PENDING_APPROVAL`.                                                                                                                                                                               |
+| INV-IO-08  | Payload submitted **PHẢI** bất biến sau commit submit. Với operation có draft lifecycle, khóa khi rời `DRAFT`; với phiếu nhận hàng nhanh, payload đã bất biến ngay khi phiếu nhận hàng được tạo ở `PENDING_APPROVAL`.                                                                                                                                                                               |
 | INV-IO-09  | Cùng `idempotencyKey` hoặc `operation_request_id` nhưng `PayloadHash` khác bản đã lưu thì hệ thống **PHẢI** từ chối với `IDEMPOTENCY_CONFLICT`.                                                                                                                                           |
 | INV-IO-12  | `UNKNOWN` **KHÔNG ĐƯỢC** coi là failure nghiệp vụ và **KHÔNG ĐƯỢC** auto-cancel. Client **NÊN** poll / reconcile bằng cùng identity đến khi xác định `COMPLETED` hoặc `EXECUTION_REJECTED`. Hệ thống **CÓ THỂ** ghi nhận `UNKNOWN` khi timeout hoặc đứt mạng giữa `PROCESSING` và commit. |
-| INV-IO-14  | Hủy sau bàn giao **KHÔNG ĐƯỢC** tự tăng tồn. Hệ thống **CHỈ ĐƯỢC** tăng vật lý khi có return receipt thực tế (`GoodsReceipt` return / customer return complete).                                                                                                                          |
+| INV-IO-14  | Hủy sau bàn giao **KHÔNG ĐƯỢC** tự tăng tồn. Hệ thống **CHỈ ĐƯỢC** tăng vật lý khi có phiếu nhận hàng của hàng trả thực tế (`GoodsReceipt` return / customer return complete).                                                                                                                          |
 | INV-IO-10  | Tổng `ReservationBucket` theo product + warehouse **PHẢI** bằng tổng lượng Reservation còn hiệu lực. Balance theo lô **KHÔNG ĐƯỢC** chứa reserved.                                                                                                                                        |
 | INV-IO-11  | `PickAllocation` **KHÔNG ĐƯỢC** đổi physical. **CHỈ ĐƯỢC** có một active allocation set version; handover **CHỈ ĐƯỢC** consume version còn hiệu lực sau khi kiểm eligibility.                                                                                                             |
 | INV-IO-13  | Combo return **BẮT BUỘC** kiểm cap, lô, số lượng và giá trị trên từng component; toàn request **PHẢI** all-or-nothing.                                                                                                                                                                    |
 | INV-LOT-01 | Sản phẩm `tracking_policy = NONE` thì hệ thống **KHÔNG ĐƯỢC** nhận thông tin lô. Sản phẩm `LOT` thì **BẮT BUỘC** có `lot_key` và hạn sử dụng hợp lệ trên Aggregate nhận/xuất liên quan.                                                                                                   |
 | INV-LOT-02 | `expiry_required` **CHỈ ĐƯỢC** hợp lệ khi `tracking_mode=LOT`.                                                                                                                                                                                                                            |
 | INV-LOT-03 | Sản phẩm `LOT` **BẮT BUỘC** có mã lô nhà sản xuất/đóng gói trong mọi mutation liên quan.                                                                                                                                                                                                  |
-| INV-LOT-04 | Cùng tenant + product + lot code **PHẢI** là cùng một lô trên mọi receipt/kho.                                                                                                                                                                                                            |
+| INV-LOT-04 | Cùng tenant + product + lot code **PHẢI** là cùng một lô trên mọi phiếu nhận hàng/kho.                                                                                                                                                                                                            |
 | INV-LOT-05 | Lot record **CHỈ ĐƯỢC** chính thức khi operation đầu tiên phát sinh tồn commit.                                                                                                                                                                                                           |
 | INV-LOT-06 | Xung đột manufacture/expiry data **PHẢI** chặn commit cho đến khi sửa có lịch sử.                                                                                                                                                                                                         |
 | INV-LOT-07 | Lượng hết hạn **KHÔNG ĐƯỢC** thuộc sellable/available dù background job chưa materialize trạng thái.                                                                                                                                                                                      |
@@ -361,7 +361,6 @@ flowchart TB
 | [ENT-IO-12](../entities/ENT-IO-12-HandoverEvidence.md) | `HandoverEvidence` | Immutable evidence | Bằng chứng bàn giao gắn `GoodsIssue` |
 | [ENT-IO-13](../entities/ENT-IO-13-SupplierReturnPhysicalObservation.md) | `SupplierReturnPhysicalObservation` | Immutable evidence | Quan sát lệch RTV; không stock effect |
 | [ENT-IO-14](../entities/ENT-IO-14-ReservationGroup.md) | `ReservationGroup` | Aggregate Root | Atomic combo reservation scope |
-| — | `CommandReceipt` / IdempotencyRecord | Infrastructure | Application/Infra — **không** Domain Entity |
 | — | `InventoryOperation` | Abstract concept | Envelope / UL — **không** implement như God Root |
 | — | `ENT-IO-04` | — | **Retired** → [PRJ-IO-01](../read-models/PRJ-IO-01-TransactionalBalance.md) |
 
@@ -383,7 +382,7 @@ Nguồn: `[decision-register.md](../../../01.knowledge/decisions/decision-regist
 | ----------- | ------------------------------ | ---------------------------------------------------------------------- |
 | T7-DR-004   | 1 store / 1 warehouse Phase 1  | `WarehouseScope` mặc định đơn giản                                     |
 | T7-DR-020   | Two-Axis Receipt               | IO ghi vật lý; IV chốt giá; ATP cần `VALUATION_CONFIRMED`              |
-| T7-DR-027   | Quick receipt bắt buộc duyệt, không có draft | `GoodsReceipt` (quick): create-and-submit thành công tạo trực tiếp `PENDING_APPROVAL`; rejection không tạo receipt; không shortcut READY |
+| T7-DR-027   | phiếu nhận hàng nhanh bắt buộc duyệt, không có draft | `GoodsReceipt` (quick): create-and-submit thành công tạo trực tiếp `PENDING_APPROVAL`; rejection không tạo phiếu nhận hàng; không shortcut READY |
 | T7-DR-028   | Chống xuất âm Sellable         | `GoodsIssue` + `StockAvailabilityEngine`                               |
 | T7-DR-029   | Reservation tách khỏi Physical | `ReservationBucket` chỉ giảm ATP                                       |
 | T7-DR-070   | Payload lock sau submit        | Mọi Aggregate intent                                                   |

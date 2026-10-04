@@ -8,7 +8,7 @@ Scope: **Inventory Operations + BJ03 semantic hierarchy correction**.
 - UIF02: Product search rows expose selection affordance; LOT review rows have explicit `Lô` identity.
 - UIF03: self-describing valuation quantity input; structured scope rows; labeled group value; grouped availability/result effects; normal late-cost guidance becomes quiet footnote.
 - UIF05: queue metadata budget reduced; `dòng hàng` vocabulary; partial handover allowance explained near CTA; allocation wording uses LOT when appropriate.
-- UIF06: source LOT and actual LOT rendered as separate labeled facts; approver evidence has explicit role label; receipt/classification result grouped by Product+UOM → allocation and hides zero classification states.
+- UIF06: source LOT and actual LOT rendered as separate labeled facts; approver evidence has explicit role label; goods receipt/classification result grouped by Product+UOM → allocation and hides zero classification states.
 - UIF07: SCR-037 Product+UOM parent and LOT/allocation children use distinct visual grammar; normal unverified child has `Kiểm` action hint; verification field is explicitly `đối chiếu`, not edit; SCR-039/041 use the same parent-child hierarchy.
 - Shared contract drift in SCR-037 corrected: UIF07 is explicitly a physical-verification action context, not generic read-only detail.
 

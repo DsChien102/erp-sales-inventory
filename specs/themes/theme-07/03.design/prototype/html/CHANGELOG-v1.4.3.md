@@ -35,7 +35,7 @@ The HTML UIF selector is review tooling only and is not treated as Product navig
 
 - Module entry mental model is **Hàng chờ xác nhận giá nhập** rather than domain jargon.
 - BJ02 may create valuation work, but warehouse actor is not auto-routed into BJ03.
-- Assigned receipt/valuation task can deep-link to `SCR-015` and Back returns to the valuation worklist.
+- Assigned goods receipt/valuation task can deep-link to `SCR-015` and Back returns to the valuation worklist.
 - Initial valuation vs late-cost BJ13 boundary is documented explicitly.
 
 ### BJ04 / UIF04
@@ -54,7 +54,7 @@ The HTML UIF selector is review tooling only and is not treated as Product navig
 
 - Maker and wrong-LOT approver are modeled as separate actor sessions.
 - `SCR-034` is an `ACTOR_HANDOFF_TASK`; maker never navigates into the approver surface.
-- `SCR-035` has two explicit mental roles: **Đã nhận hàng khách trả** (intermediate receipt milestone) vs **Kết quả phân loại hàng trả** (terminal result).
+- `SCR-035` has two explicit mental roles: **Đã nhận hàng khách trả** (intermediate goods receipt milestone) vs **Kết quả phân loại hàng trả** (terminal result).
 
 ### BJ07 / UIF07
 
@@ -68,7 +68,7 @@ The HTML UIF selector is review tooling only and is not treated as Product navig
 
 - No SRS business rule, lifecycle, data entity, approval authority or commit semantics changed.
 - BJ05 partial handover rules remain unchanged.
-- BJ06 wrong-LOT maker-checker and receipt/classification commit semantics remain unchanged.
+- BJ06 wrong-LOT maker-checker and goods receipt/classification commit semantics remain unchanged.
 - BJ07 exact-source preparation, source-amendment and physical/value commit rules remain unchanged.
 - UIF08–UIF17 are outside Product-correction scope; their runtime topology/text is protected against parent v1.4.2.
 

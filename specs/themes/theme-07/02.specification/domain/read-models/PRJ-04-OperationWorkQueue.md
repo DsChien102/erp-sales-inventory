@@ -31,7 +31,7 @@ Theme 07; owner kỹ thuật cụ thể được xác định bởi Architecture
 | `source_type` | `VARCHAR(40)` | — | Bắt buộc | — | — |
 | `source_document_id` | `VARCHAR(128)` | — | Nullable | `NULL` | — |
 | `business_date` | `DATE` | — | Bắt buộc | — | — |
-| `approval_required` | `BOOLEAN` | — | Bắt buộc | `false` | Luôn true với quick receipt đã submit |
+| `approval_required` | `BOOLEAN` | — | Bắt buộc | `false` | Luôn true với phiếu nhận hàng nhanh đã submit |
 | `approval_case_id` | `UUID` | Tham chiếu logic → `ApprovalCase` | Nullable | `NULL` | — |
 | `required_level` | `INTEGER` | — | Nullable | `NULL` | — |
 | `lock_status` | `VARCHAR(20)` | — | Nullable | `NULL` | — |

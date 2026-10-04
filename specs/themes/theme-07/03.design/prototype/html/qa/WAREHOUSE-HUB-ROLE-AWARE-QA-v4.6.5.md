@@ -15,7 +15,7 @@
 - Quick Action is a subset of visible role capabilities: PASS.
 - No Quick Action is repeated in the flat management list: PASS.
 - Contextual-only `UIF-04`, `UIF-10`, `UIF-17` are not promoted to global management rows: PASS.
-- Owner pending receipt profile uses approver path; Warehouse maker profile uses read-only submitted receipt path: PASS.
+- Owner pending goods receipt profile uses approver path; Warehouse maker profile uses read-only goods receipt đã gửi path: PASS.
 - Candidate introduces no new broken relative Markdown link compared with the user-provided baseline: PASS.
 
 ## Role matrix

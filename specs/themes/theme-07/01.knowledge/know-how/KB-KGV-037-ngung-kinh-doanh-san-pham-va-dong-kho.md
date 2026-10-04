@@ -26,14 +26,14 @@ Trạng thái `DISCONTINUED` chặn yêu cầu mua mới và nhập mua mới kh
 ### Quy tắc vận hành
 
 1. `DISCONTINUED` ngăn cam kết mua mới theo chính sách nguồn.
-2. Receipt từ chứng từ đã có chỉ được nhận nếu nguồn khẳng định phiên bản/chính sách vẫn cho phép.
+2. Goods receipt từ chứng từ đã có chỉ được nhận nếu nguồn khẳng định phiên bản/chính sách vẫn cho phép.
 3. Các nghiệp vụ xử lý tồn và nghĩa vụ đã phát sinh vẫn hoạt động.
 4. Archive chỉ khi vật lý = 0, giữ = 0 và không còn operation mở.
 5. Dữ liệu lịch sử, movement và liên kết chứng từ vẫn được giữ sau archive.
 6. Trong phạm vi hiện tại, không có đóng kho, đổi kho mặc định hoặc tạo topology hoạt động thứ hai.
 7. Yêu cầu đóng/đổi kho phải bị từ chối có cấu trúc, không được thực hiện bằng sửa cờ trực tiếp.
 8. `ARCHIVED` chặn mọi mutation mới; chỉ còn quyền đọc lịch sử có kiểm soát.
-9. Receipt cho sản phẩm `DISCONTINUED` chỉ được tiếp tục khi request mang tham chiếu chứng từ nguồn và phiên bản/chính sách đã được chụp trước mốc ngừng; nếu không phải trả lỗi có cấu trúc.
+9. Goods receipt cho sản phẩm `DISCONTINUED` chỉ được tiếp tục khi request mang tham chiếu chứng từ nguồn và phiên bản/chính sách đã được chụp trước mốc ngừng; nếu không phải trả lỗi có cấu trúc.
 10. Đơn vị cơ sở của sản phẩm đã có movement là bất biến; thay đổi phải qua sản phẩm mới hoặc migration có kiểm soát.
 
 ### Ví dụ minh họa

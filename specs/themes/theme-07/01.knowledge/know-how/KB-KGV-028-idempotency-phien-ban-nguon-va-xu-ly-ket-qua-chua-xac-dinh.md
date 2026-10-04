@@ -38,7 +38,7 @@ Timeout không được mặc định là thất bại: operation chuyển `UNKN
 
 Nguồn gửi request ID ổn định; Hệ thống quản lý tồn kho và giá vốn ánh xạ một operation và trả cùng kết quả. Cùng ID nhưng payload khác bị chặn.
 
-Với Inventory Operation, khóa nghiệp vụ này được chuẩn hóa là `operation_request_id`. Mọi lệnh làm thay đổi dữ liệu còn phải có `idempotency_key` riêng cho invocation; hệ thống lưu `CommandReceipt` cho lệnh tạo, sửa, gửi, duyệt, thực thi, cấu hình và các mutation khác. Log/telemetry chỉ lưu các hash cần đối soát, không ghi payload nhạy cảm nguyên văn.
+Với Inventory Operation, khóa nghiệp vụ này được chuẩn hóa là `operation_request_id`. Mọi lệnh làm thay đổi dữ liệu còn phải có `idempotency_key` riêng cho invocation; hệ thống lưu idempotency record cho lệnh tạo, sửa, gửi, duyệt, thực thi, cấu hình và các mutation khác. Log/telemetry chỉ lưu các hash cần đối soát, không ghi payload nhạy cảm nguyên văn.
 #### Từ chối phiên bản nguồn cũ hơn
 
 Yêu cầu mang phiên bản nguồn tăng dần; từ chối phiên bản cũ hơn. Thay đổi bằng hủy/thay thế có liên kết.

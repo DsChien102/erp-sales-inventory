@@ -5,7 +5,7 @@ Parent: `v1.4.3`.
 ## Corrected
 
 - Data entity: `TransactionalBalance` now materializes valuation state as a separate axis from physical stock state.
-- ReceiptValuation supports multiple partial direct confirmations on one technical receipt line through identified scope/version/quantity semantics.
+- ReceiptValuation supports multiple partial direct confirmations on one technical goods receipt line through identified scope/version/quantity semantics.
 - Added `BC-IV-05 / API-Q-11` non-mutating valuation preview; UC03-01/02 no longer trace to commit API.
 - BC-IV-01 now confirms exact identified scope, preserves physical state and uses authoritative availability evaluation.
 - Queue distinguishes actionable vs waiting evidence; waiting rows are read-only.

@@ -17,7 +17,7 @@ Giữ phiên bản **giá vốn chính thức** có hiệu lực cho tenant + Pr
 
 **Thuộc Aggregate:** `ENT-IV-04 OfficialCostVersion`.
 
-**Không thuộc Aggregate:** initial receipt value, source invoices, tenant policy master, pricing-basis decision của Theme giá bán.
+**Không thuộc Aggregate:** giá trị nhập ban đầu, source invoices, tenant policy master, pricing-basis decision của Theme giá bán.
 
 ## 3. Invariant
 

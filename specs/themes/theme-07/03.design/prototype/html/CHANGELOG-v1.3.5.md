@@ -5,7 +5,7 @@
 - Locked `T7-DR-111` — evidence policy: normal handover uses immutable system evidence + actor confirmation; BJ06 wrong-LOT requires system snapshot + reason code + at least one image of the actual LOT label; `Khác` requires description.
 
 ## BJ02
-- `SCR-008`: warehouse remains a disabled `VSelect` at `Kho mặc định`; receipt date cannot be before the current tenant day; delivery evidence is required file upload via `VFileDropZone` instead of text.
+- `SCR-008`: warehouse remains a disabled `VSelect` at `Kho mặc định`; goods receipt date cannot be before the current tenant day; delivery evidence is required file upload via `VFileDropZone` instead of text.
 - `SCR-009`: multi-UOM Product exposes all valid UOM choices directly; no dropdown; single-UOM Product uses its UOM immediately; once Product+UOM is resolved the flow opens `SCR-084` directly.
 - `SCR-084`: LOT collection append action renamed to `Thêm lô khác`; `Xong` remains the only item-completion action.
 - Preserved the v1.3.4 quantity model: `Đạt / Cách ly / Hỏng / Từ chối` are authoritative inputs and total received is derived.

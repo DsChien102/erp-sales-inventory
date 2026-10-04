@@ -15,9 +15,9 @@ Scope: chỉ `BJ-02 / UIF-02`; các UIF khác giữ baseline v0.2.7.
 
 ## Quantity / source feedback
 
-- Document partial receipt là hợp lệ: `VBanner.info` nêu phần còn chưa nhận.
+- Document partial goods receipt là hợp lệ: `VBanner.info` nêu phần còn chưa nhận.
 - Document over-source: `VBanner.warning` ngay khi nhập; approval/source guard vẫn do business contract/server quyết định.
-- Exact receipt không thêm banner dư thừa.
+- Exact goods receipt không thêm banner dư thừa.
 - Exception quantity vượt tổng actual bị chặn bằng cross-field error.
 - `Xong` cập nhật enable/disable theo dữ liệu hiện tại, không giữ trạng thái disabled cũ.
 

@@ -25,13 +25,13 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-- trả đúng receipt/result đã commit; hoặc
+- trả đúng kết quả phiếu nhận hàng đã commit; hoặc
 - trả rejection authoritative với `effect_status=NONE`; hoặc
 - vẫn chưa đủ bằng chứng finality và bàn giao BJ17 sau cửa sổ phục hồi ngắn.
 
 ### 2.3 Không bao gồm
 
-- Không tạo receipt/movement mới.
+- Không tạo phiếu nhận hàng hoặc movement mới.
 - Không dùng một operation identity mới để “thử lại”.
 - Không sửa payload đã bind với idempotency identity.
 
@@ -46,10 +46,10 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 
 | Đối tượng / Dữ liệu | Ý nghĩa và yêu cầu | Nguồn |
 |---|---|---|
-| `operation_id` / command identity | Nhận diện đúng lệnh đã gửi | `BC-IO-02`, CommandReceipt |
+| `operation_id` / command identity | Nhận diện đúng lệnh đã gửi | `BC-IO-02`, idempotency record |
 | Payload fingerprint | Chứng minh retry vẫn là cùng yêu cầu | Idempotency contract |
 | Operation result | `COMMITTED`, `REJECTED`, `PROCESSING/UNKNOWN` và effect refs | `DOM-IO` |
-| Receipt/movement refs | Chỉ trả nếu durable commit đã tồn tại | Ledger/operation result |
+| Phiếu nhận hàng/movement refs | Chỉ trả nếu durable commit đã tồn tại | Ledger/operation result |
 
 ## 5. Các luồng của Use Case
 
@@ -58,8 +58,8 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
 | BF-01 | Thủ kho / Adapter | Gửi truy vấn bằng đúng operation identity đã có. | |
-| BF-02 | Hệ thống | Tìm CommandReceipt/operation result và đối chiếu tenant + payload fingerprint. | EF-A — Sai identity/payload |
-| BF-03 | Hệ thống | Nếu operation đã commit, trả authoritative receipt/result và toàn bộ effect refs đã commit. | AF-A — Đã commit |
+| BF-02 | Hệ thống | Tìm idempotency record và operation result, rồi đối chiếu tenant + payload fingerprint. | EF-A — Sai identity/payload |
+| BF-03 | Hệ thống | Nếu operation đã commit, trả authoritative kết quả phiếu nhận hàng và toàn bộ effect refs đã commit. | AF-A — Đã commit |
 | BF-04 | Hệ thống | Nếu operation đã bị từ chối trước commit, trả rejection code/reason và `effect_status=NONE`. | AF-B — Đã từ chối |
 | BF-05 | Hệ thống | Nếu chưa chứng minh commit/no-commit, giữ cùng identity và trả trạng thái chưa xác định cùng hướng verify/retry an toàn. | AF-C — Chưa có finality |
 | BF-06 | — | [Kết thúc UC hoặc bàn giao BJ17 theo AF-C]. | |
@@ -71,7 +71,7 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
-| AF-A-01 | Hệ thống | Trả đúng receipt/result đã có; không tạo movement/balance/outbox thứ hai. | BC-IO-02 — Receive purchased goods |
+| AF-A-01 | Hệ thống | Trả đúng kết quả phiếu nhận hàng đã có; không tạo movement/balance/outbox thứ hai. | BC-IO-02 — Receive purchased goods |
 | AF-A-02 | — | [Kết thúc UC]. | |
 
 #### AF-B — Operation đã bị từ chối
@@ -106,7 +106,7 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 | Mã | Quy tắc | Nội dung | Căn cứ |
 |---|---|---|---|
 | BR-01 | Same identity | Recovery phải dùng cùng operation/idempotency identity.| G10 / `SBC-COM-03` |
-| BR-02 | Không duplicate effect | Query/retry không tạo lại receipt, movement, balance hoặc outbox đã commit.| `BC-IO-02` |
+| BR-02 | Không duplicate effect | Query/retry không tạo lại phiếu nhận hàng, movement, balance hoặc outbox đã commit.| `BC-IO-02` |
 | BR-03 | UNKNOWN không phải FAILED | Không đủ bằng chứng commit/no-commit thì giữ `UNKNOWN`.| `SBC-COM-03/04` |
 | BR-04 | Payload fingerprint bất biến | Cùng identity nhưng payload khác là conflict, không phải retry.| Idempotency contract |
 
@@ -114,7 +114,7 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| `COMMITTED` | Trả result/receipt đã commit; không có effect mới | Kết thúc BJ02 |
+| `COMMITTED` | Trả result/phiếu nhận hàng đã commit; không có effect mới | Kết thúc BJ02 |
 | `REJECTED` | Effect NONE, lý do rõ | Sửa dữ liệu và tạo yêu cầu mới nếu business cho phép |
 | `UNKNOWN` | Không tạo operation mới | BJ17 với cùng identity/evidence |
 
@@ -133,7 +133,7 @@ Kết quả của UC là một trong ba trạng thái có thể kiểm chứng: 
 ### AS-UC-02-05-01 — Response commit bị mất
 - **Given:** operation đã commit nhưng response trước bị mất.
 - **When:** client query bằng đúng operation identity.
-- **Then:** trả đúng receipt/result đã commit và không tạo effect thứ hai.
+- **Then:** trả đúng kết quả phiếu nhận hàng đã commit và không tạo effect thứ hai.
 
 ### AS-UC-02-05-02 — Operation bị từ chối
 - **Given:** operation bị reject trước commit.

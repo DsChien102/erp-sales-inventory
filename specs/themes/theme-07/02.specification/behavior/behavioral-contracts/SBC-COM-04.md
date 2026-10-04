@@ -32,7 +32,7 @@ Các điều kiện trước được quy định bởi common envelope/permissi
 
 Khi một BC mutation hoàn tất, operation result, movement/value movement, balance, lot/state effect và outbox liên quan commit cùng transaction. Lỗi một phần rollback toàn bộ. Event delivery xảy ra sau commit và không quyết định finality.
 
-Vì là yêu cầu cắt ngang, mọi dòng `Entity` của BC mutation mặc nhiên bao gồm ghi/hoàn tất `ENT-IO-10 CommandReceipt`, dù bảng chi tiết chỉ liệt kê các aggregate nghiệp vụ chính.
+Vì là yêu cầu cắt ngang, mọi BC mutation hoàn tất idempotency record trong cùng transaction. Bảng entity của BC chỉ liệt kê aggregate nghiệp vụ. Idempotency record không phải entity Theme 7.
 
 <a id="sbc-com-05"></a>
 

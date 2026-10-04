@@ -6,8 +6,8 @@ Generated from the actual v4.6.8 package tree. User-pruned files are not restore
 
 - BJ02 business semantics are unchanged from v4.6.7.
 - `SCR-010` state list is canonical in source design and active workbench; no runtime post-load filtering is required.
-- Stale Quick Receipt draft/price-basis blocker states were removed from generated runtime-state registries.
-- `APPROVER_CONFIGURATION_MISSING` remains valid for Quick Receipt approval configuration.
+- Stale nhập hàng nhanh draft/price-basis blocker states were removed from generated runtime-state registries.
+- `APPROVER_CONFIGURATION_MISSING` remains valid for nhập hàng nhanh approval configuration.
 - BJ10 `PRICE_BASIS_REQUIRED` remains unchanged.
 
 ## Key entry points

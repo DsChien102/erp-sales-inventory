@@ -17,7 +17,7 @@ source_baseline: v3.12.0
 
 | Sứ mệnh cốt lõi | Trách nhiệm chính | Phạm vi thẩm quyền |
 |---|---|---|
-| Initial valuation | Xác lập giá trị nhập ban đầu cho lượng thực nhận | Không sửa PO/hóa đơn/receipt vật lý |
+| Initial valuation | Xác lập giá trị nhập ban đầu cho lượng thực nhận | Không sửa PO/hóa đơn/phiếu nhận hàng vật lý |
 | Value ledger | Append `InventoryValueMovement` cho mọi thay đổi giá trị | Không sửa movement cũ |
 | Value adjustment | Ghi thành phần tăng/giảm phát sinh sau initial valuation | Không dùng adjustment để che lỗi nhập liệu |
 | Costing | Tính song song hai phương pháp trên cùng fact set | Phương pháp công bố do tenant policy chọn trước |
@@ -38,7 +38,7 @@ source_baseline: v3.12.0
 
 | Khái niệm ngoài ranh giới | Owner |
 |---|---|
-| Receipt quantity, physical state, lot, reservation | `DOM-IO` |
+| Phiếu nhận hàng quantity, physical state, lot, reservation | `DOM-IO` |
 | Approval/reconciliation/lock | `DOM-IC` |
 | PO, điều kiện mua, hóa đơn NCC, dispute thương mại | Theme 10 |
 | Payables | Theme 6 |
@@ -72,7 +72,7 @@ flowchart LR
 | Thuật ngữ | Vai trò | Định nghĩa |
 |---|---|---|
 | ReceiptValuation | Aggregate Root | Hồ sơ initial value đã xác nhận cho exact quantity được căn cứ bao phủ |
-| Căn cứ giá trực tiếp | Concept | Source do Theme 7 cho phép lập cho Quick receipt khi không phụ thuộc Theme 10 |
+| Căn cứ giá trực tiếp | Concept | Source do Theme 7 cho phép lập cho phiếu nhận hàng nhanh khi không phụ thuộc Theme 10 |
 | DirectCostBasis | Internal Value Model | Mô hình nội bộ gom component/source/tax/FX/allocation; không phải thuật ngữ bắt buộc trên UI |
 | InventoryValueMovement | Ledger | Sự thật giá trị append-only |
 | ValueAdjustmentSource | Aggregate Root | Một economic component có dấu làm thay đổi giá trị hàng nhập sau BJ03 |
@@ -113,7 +113,7 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> VALUATION_PENDING: physical receipt completed
+    [*] --> VALUATION_PENDING: phiếu nhận hàng vật lý completed
     VALUATION_PENDING --> VALUATION_CONFIRMED: initial value committed
     VALUATION_CONFIRMED --> [*]
 ```
@@ -145,7 +145,7 @@ Run đã tạo không bị sửa để “tính lại”; rerun tạo successor 
 |---|---|
 | `INV-IV-01` | `InventoryValueMovement` **PHẢI** là nguồn sự thật append-only của carrying value; không sửa tay số dư giá trị. |
 | `INV-IV-02` | BJ03 **CHỈ** xác lập initial inventory value và dirty scope; **KHÔNG ĐƯỢC** tạo `OfficialCostVersion`. |
-| `INV-IV-03` | Quick receipt **PHẢI** hoàn tất BJ03 mà không phụ thuộc Theme 10 khi có căn cứ giá trực tiếp hợp lệ. |
+| `INV-IV-03` | phiếu nhận hàng nhanh **PHẢI** hoàn tất BJ03 mà không phụ thuộc Theme 10 khi có căn cứ giá trực tiếp hợp lệ. |
 | `INV-IV-04` | Theme 7 **KHÔNG ĐƯỢC** sửa PO/hóa đơn/commercial facts; conflict thương mại thuộc Theme 10 phải được owner giải quyết. |
 | `INV-IV-05` | Tax treatment **PHẢI** đến từ policy có thẩm quyền; chỉ phần thuế/phí không thu hồi vào inventory value. User không chọn recoverability trong BJ03. |
 | `INV-IV-06` | Initial valuation scope **PHẢI** theo coverage của căn cứ; user không tự chia quantity để thay đổi giá trị/phân bổ. |
@@ -156,7 +156,7 @@ Run đã tạo không bị sửa để “tính lại”; rerun tạo successor 
 | `INV-IV-11` | Hai phương pháp có thể tính song song trên cùng fact set; method không được chọn chỉ dùng đối chiếu và không tự ghi sổ. |
 | `INV-IV-12` | BJ14 là owner duy nhất của `OfficialCostVersion`; publish mới tạo version và clear dirty causes đã reconcile. |
 | `INV-IV-13` | Official cost scope Phase 1 là tenant + product + base UOM; không tách theo warehouse/lot. |
-| `INV-IV-14` | Publish/adjustment chỉ ghi delta cần thiết; không sửa issue/receipt/value movement lịch sử. |
+| `INV-IV-14` | Publish/adjustment chỉ ghi delta cần thiết; không sửa issue/phiếu nhận hàng/value movement lịch sử. |
 
 ## 6. Quan hệ với Domain khác
 
@@ -164,7 +164,7 @@ Run đã tạo không bị sửa để “tính lại”; rerun tạo successor 
 
 ```mermaid
 flowchart TB
-    IO["DOM-IO\nphysical receipt/issue facts"] --> IV[DOM-IV]
+    IO["DOM-IO\nphiếu nhận hàng vật lý/issue facts"] --> IV[DOM-IV]
     T10["Theme 10\nPO / invoice / commercial components"] --> IV
     TAX["Accounting/Tax policy owner"] --> IV
     IC[DOM-IC] -->|control/reconciliation| IV
@@ -176,7 +176,7 @@ flowchart TB
 ### 6.2 Messaging
 
 - Inbound commercial components phải có source identity, source version/effective time, scope và trạng thái đủ điều kiện sử dụng.
-- Hóa đơn NCC không phải điều kiện bắt buộc của Quick receipt; hóa đơn đến sau có thể tạo adjustment nếu initial value đã commit.
+- Hóa đơn NCC không phải điều kiện bắt buộc của phiếu nhận hàng nhanh; hóa đơn đến sau có thể tạo adjustment nếu initial value đã commit.
 - Outbox fact canonical: initial value confirmed, value adjustment recorded, official cost published; wire name/version thuộc work slice lúc review để implement.
 
 ## 7. Entity liên quan

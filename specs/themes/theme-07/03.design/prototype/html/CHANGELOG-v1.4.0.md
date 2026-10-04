@@ -4,8 +4,8 @@ Parent: **v1.3.9**.
 
 ## Corrected
 
-- `SCR-014`: receipt valuation worklist with search, `Tất cả / Có thể xử lý / Thiếu căn cứ`, explicit no-result, and item/part counts instead of mixed-UOM quantity totals.
-- `SCR-015`: Product+UOM identified quantity scope; selected quantity is bounded valuation scope and never edits received quantity; missing-evidence scope is read-only while eligible parts of the same receipt may proceed.
+- `SCR-014`: goods receipt valuation worklist with search, `Tất cả / Có thể xử lý / Thiếu căn cứ`, explicit no-result, and item/part counts instead of mixed-UOM quantity totals.
+- `SCR-015`: Product+UOM identified quantity scope; selected quantity is bounded valuation scope and never edits received quantity; missing-evidence scope is read-only while eligible parts of the same goods receipt may proceed.
 - `SCR-016`: authoritative price/tax/FX evidence is read-only. Valid-source conflict has no preselection and requires explicit source selection + reason. Foreign currency shows original source unit price and approved accounting FX provenance separately.
 - Direct cost composition is system-derived from source price, line/document discount, known purchase cost, non-deductible tax and approved FX; late landed cost remains owned by BJ13.
 - `SCR-017`: one explicit `Xác nhận giá trị` commit surface; money may aggregate in VND while quantity remains per UOM; value effect is separated from availability/sellability effect; source/version stale blocks commit and shows a business-facing before→after source delta.

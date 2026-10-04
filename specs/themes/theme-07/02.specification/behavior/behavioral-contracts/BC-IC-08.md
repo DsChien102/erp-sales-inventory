@@ -30,7 +30,7 @@ Authorized canceller; reason bắt buộc; session chưa final; không có appro
 
 ## 5. Quy tắc nghiệp vụ
 
-Set session `CANCELLED` + release owned lock + persist CommandReceipt/outbox atomically; không xóa CountScopeSnapshot/Submission/ApprovalCase; không tạo adjustment.
+Set session `CANCELLED` + release owned lock + outbox atomically; không xóa CountScopeSnapshot/Submission/ApprovalCase; không tạo adjustment.
 
 ## 6. Điều kiện bắt buộc
 

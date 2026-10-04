@@ -17,7 +17,7 @@ Giữ một sự thật bất biến rằng **một phạm vi lượng hàng th�
 
 **Thuộc Aggregate:** `ENT-IV-01 ReceiptValuation` và snapshot/value objects của căn cứ, covered scope, UOM conversion, component provenance.
 
-**Không thuộc Aggregate:** receipt physical facts (`DOM-IO`), PO/invoice/commercial dispute (Theme 10), `OfficialCostVersion` (BJ14).
+**Không thuộc Aggregate:** phiếu nhận hàng physical facts (`DOM-IO`), PO/invoice/commercial dispute (Theme 10), `OfficialCostVersion` (BJ14).
 
 ## 3. Aggregate Root
 
@@ -38,7 +38,7 @@ Giữ một sự thật bất biến rằng **một phạm vi lượng hàng th�
 
 ## 6. Concurrency / finality
 
-Quantity được bảo vệ khỏi double valuation bằng scope/version + transaction/CAS theo `BC-IV-01`. Transaction của outcome thuộc work slice lúc review để implement. Timeout chưa rõ commit trả `UNKNOWN`; recovery theo CommandReceipt/finality contract.
+Quantity được bảo vệ khỏi double valuation bằng scope/version + transaction/CAS theo `BC-IV-01`. Transaction của outcome thuộc work slice lúc review để implement. Timeout chưa rõ commit trả `UNKNOWN`; recovery theo idempotency record và finality contract.
 
 ## 7. Trace
 

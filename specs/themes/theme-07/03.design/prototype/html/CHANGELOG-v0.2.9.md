@@ -6,7 +6,7 @@
 - SCR-008: supplier unresolved-master inline validation.
 - SCR-009: clearer two-level item summary; true read-only propagation; real EMPTY state.
 - SCR-084: contextual source quantity, derived LOT total, inline lot deletion, auto-expanded existing exceptions, not-received confirm after entered data.
-- SCR-010/011: actual lot evidence, full receipt context, normalized approval feedback.
+- SCR-010/011: actual lot evidence, full goods receipt context, normalized approval feedback.
 - SCR-012: result grouping semantics + lot identity; valuation notice state-specific.
 - SCR-013: human evidence timeline, one UNKNOWN loading state, VEmptyState for no new result.
 - Regression QA: document search now truly hides non-matching cards despite card display rules.

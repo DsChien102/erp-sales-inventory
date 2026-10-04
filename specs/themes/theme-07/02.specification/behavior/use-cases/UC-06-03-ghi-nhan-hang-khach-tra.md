@@ -16,7 +16,7 @@ ui_flow: UIF-06
 
 Ghi lượng hàng khách thực tế trả vào tồn vật lý ở `RETURN_PENDING` cùng giá trị theo căn cứ kỳ xuất gốc, trước khi phân loại sử dụng tiếp.
 
-**Kết quả cần đạt:** Return receipt, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
+**Kết quả cần đạt:** Phiếu nhận hàng của hàng trả, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
 
 ## 2. Bối cảnh và ranh giới
 
@@ -26,7 +26,7 @@ Các dòng thực nhận đã hợp lệ
 
 ### 2.2 Kết thúc và thời điểm ghi nhận kết quả
 
-Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Return receipt có quantity/value provenance.
+Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Phiếu nhận hàng của hàng trả có quantity/value provenance.
 
 ### 2.3 Không bao gồm
 
@@ -56,8 +56,8 @@ Không sửa giao dịch bán gốc và không tự đưa hàng trả về trạ
 | BF-01 | Thủ kho | Xác nhận các dòng/lô thực tế đã nhận lại từ khách sau bước eligibility. |  |
 | BF-02 | Hệ thống | Recheck return cap, source sale/version, LOT identity và phạm vi ngoại lệ đã được duyệt. | EF-A — Vượt trần hoặc source stale |
 | BF-03 | Hệ thống | Ghi quantity movement tăng vào `RETURN_PENDING` và value movement theo giá đã đối soát của kỳ xuất gốc/snapshot fallback theo decision. |  |
-| BF-04 | Hệ thống | Cập nhật balance, return receipt và outbox/result trong cùng transaction. | EF-B — Kết quả commit chưa xác định |
-| BF-05 | Hệ thống | Trả receipt result và chuyển hàng thực nhận sang UC-06-04 để phân loại. |  |
+| BF-04 | Hệ thống | Cập nhật balance, phiếu nhận hàng của hàng trả và outbox/result trong cùng transaction. | EF-B — Kết quả commit chưa xác định |
+| BF-05 | Hệ thống | Trả phiếu nhận hàng result và chuyển hàng thực nhận sang UC-06-04 để phân loại. |  |
 | BF-06 | — | [Kết thúc UC]. | |
 
 ### 5.2 Luồng thay thế (Alternate Flow)
@@ -75,7 +75,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 | EF-A-02 | — | [Kết thúc UC.] | |
 
 #### EF-B — Kết quả commit chưa xác định
-**Phát sinh tại:** BF-04. **Điều kiện:** Không chứng minh được receipt transaction đã commit .
+**Phát sinh tại:** BF-04. **Điều kiện:** Không chứng minh được phiếu nhận hàng transaction đã commit .
 
 | Step ID | Tác nhân | Hành động | Ghi chú và tham chiếu |
 |---|---|---|---|
@@ -86,9 +86,9 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Mã | Tên quy tắc nội bộ | Nội dung | Căn cứ |
 |---|---|---|---|
-| BR-01 | Trần trả | Mỗi line commit actual quantity trong `0.remaining_authorized_quantity` của ReturnExchangeLine hiện hành và cumulative cap dòng giao gốc; request phải có ít nhất một actual quantity > 0. Toàn mutation của một receipt attempt commit/rollback cùng nhau| Decision / DOM-IO / BC nguồn |
+| BR-01 | Trần trả | Mỗi line commit actual quantity trong `0.remaining_authorized_quantity` của ReturnExchangeLine hiện hành và cumulative cap dòng giao gốc; request phải có ít nhất một actual quantity > 0. Toàn mutation của một phiếu nhận hàng attempt commit/rollback cùng nhau| Decision / DOM-IO / BC nguồn |
 | BR-02 | Combo | Chỉ thành phần thực nhận tăng tồn; không tạo tồn combo; các dòng trong cùng yêu cầu nhận trả commit hoặc rollback cùng nhau| Decision / DOM-IO / BC nguồn |
-| BR-03 | Lô | Product theo LOT phải giữ source LOT allocation và actual LOT đã resolve/physical-verify; wrong-LOT chỉ hợp lệ khi current `LINE_EXCEPTION` case đúng subject snapshot/hash đã APPROVED. Receipt recheck source version, UOM precision, LOT version/data integrity và cumulative cap trước commit| Decision / DOM-IO / BC nguồn |
+| BR-03 | Lô | Product theo LOT phải giữ source LOT allocation và actual LOT đã resolve/physical-verify; wrong-LOT chỉ hợp lệ khi current `LINE_EXCEPTION` case đúng subject snapshot/hash đã APPROVED. Phiếu nhận hàng recheck source version, UOM precision, LOT version/data integrity và cumulative cap trước commit| Decision / DOM-IO / BC nguồn |
 | BR-04 | Mốc ghi giá trị | Ghi value movement cùng lúc nhận vật lý vào RETURN_PENDING; phân loại không ghi giá trị lần hai| Decision / DOM-IO / BC nguồn |
 | BR-05 | Căn cứ giá | Dùng giá đã đối soát của sản phẩm và kỳ xuất gốc; nếu kỳ gốc chưa đối soát thì dùng snapshot tại lần xuất và giữ liên kết để điều chỉnh theo policy| Decision / DOM-IO / BC nguồn |
 | BR-06 | Kết quả | authoritative result giữ source return request + SalesOrder + per-line Product/UOM/LOT/actual quantity và `recorded_at`; internal operation/correlation/version không show mặc định| Decision / DOM-IO / BC nguồn |
@@ -104,11 +104,11 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 
 | Trường hợp | Trạng thái / Ảnh hưởng nghiệp vụ | Hướng tiếp tục |
 |---|---|---|
-| Thành công | Return receipt, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
+| Thành công | Phiếu nhận hàng của hàng trả, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect. | Hành trình tiếp tục từ kết quả authoritative vừa ghi theo Business Journey sở hữu; không suy bước tiếp theo chỉ từ thứ tự UC. |
 | Không đủ điều kiện / Bị từ chối | Nếu precondition, version, quyền hoặc invariant không còn hợp lệ, hệ thống từ chối trước effect; nếu finality chưa rõ thì giữ cùng operation identity để recovery. | Sửa dữ liệu, refresh nguồn hoặc bàn giao owner/recovery theo đúng AF/EF tương ứng; không sửa trực tiếp dữ liệu có thẩm quyền. |
 | Chưa xác định (`UNKNOWN`) | Không coi mất phản hồi là thất bại. Giữ cùng command/operation identity và không tạo effect thứ hai. | Đối soát/recovery theo cùng identity trước mọi lần tiếp tục. |
 
-**Ảnh hưởng nghiệp vụ chính:** Return receipt, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
+**Ảnh hưởng nghiệp vụ chính:** Phiếu nhận hàng của hàng trả, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
 
 ## 8. Liên hệ giao diện
 
@@ -126,7 +126,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 ### AS-UC-06-03-01 — Ghi nhận hàng khách trả — luồng chính
 - **Given:** Các dòng thực nhận đã hợp lệ
 - **When:** Xác nhận các dòng/lô thực tế đã nhận lại từ khách sau bước eligibility.
-- **Then:** Return receipt, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
+- **Then:** Phiếu nhận hàng của hàng trả, quantity/value movement và balance commit nguyên tử cho lượng thực nhận; hoặc không có effect.
 
 ### AS-UC-06-03-02 — Ghi nhận hàng khách trả — Vượt trần hoặc source stale
 - **Given:** Tổng lượng trả vượt lượng đã giao còn được phép nhận hoặc source đã thay đổi.
@@ -134,7 +134,7 @@ Không có luồng thay thế riêng ngoài các nhánh kết quả đã thể h
 - **Then:** Reject toàn phần vượt/không hợp lệ trước commit; không cộng tồn. UC kết thúc với kết quả của nhánh này; không tiếp tục luồng chính và không tạo thêm effect ngoài kết quả đã nêu.
 
 ### AS-UC-06-03-03 — Ghi nhận hàng khách trả — Kết quả commit chưa xác định
-- **Given:** Không chứng minh được receipt transaction đã commit.
+- **Given:** Không chứng minh được phiếu nhận hàng transaction đã commit.
 - **When:** Hệ thống phát hiện điều kiện “Kết quả commit chưa xác định” tại BF-04.
 - **Then:** Giữ operation identity, trả `UNKNOWN` và verify trước retry. Giữ nguyên identity/evidence hiện có và bàn giao recovery/finality; không tạo effect trùng hoặc thử lại mù.
 

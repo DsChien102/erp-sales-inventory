@@ -34,7 +34,7 @@ Các điều kiện trước được quy định bởi common envelope/permissi
 - Tenant/store/warehouse hoạt động và đúng cặp mặc định.
 - Tenant inventory activation phải là `ACTIVE`; khi còn `PREPARING`, mọi mutation thường trả `INVENTORY_NOT_ACTIVATED`, trừ prepare/commit opening balance và các query được phép.
 - Source version không cũ hơn version đã ghi nhận.
-- Cùng `command_type + idempotency_key` phải có cùng payload hash và một `CommandReceipt`; `operation_request_id` là identity nghiệp vụ riêng, không bị thay bằng command identity.
+- Cùng `command_scope + idempotency_key` phải có cùng payload hash và một idempotency record; `operation_request_id` là identity nghiệp vụ riêng, không bị thay bằng command identity.
 - Không có Inventory Lock xung đột.
 - Entity version khớp khi command sửa aggregate mutable.
 - Operation ở trạng thái cho phép; payload khóa sau `DRAFT`.

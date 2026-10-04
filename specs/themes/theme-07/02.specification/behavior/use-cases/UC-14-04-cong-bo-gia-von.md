@@ -16,7 +16,7 @@ ui_flow: UIF-14
 
 Kế toán công bố một run đã sẵn sàng, để hệ thống ghi **chỉ phần chênh lệch cần thiết** cho giá vốn hàng đã xuất và giá trị tồn cuối, đồng thời tạo/cập nhật `OfficialCostVersion` theo phương pháp đã cấu hình ở tenant.
 
-Công bố không sửa receipt, issue, sale order, value movement gốc hoặc giả lập rằng cost version mới đã tồn tại trong quá khứ.
+Công bố không sửa phiếu nhận hàng, issue, sale order, value movement gốc hoặc giả lập rằng cost version mới đã tồn tại trong quá khứ.
 
 ## 2. Bối cảnh và ranh giới
 
@@ -107,7 +107,7 @@ Kết thúc khi publication batch commit nguyên tử và run chuyển `PUBLISHE
 |---|---|---|---|
 | BR-01 | Method không phải quyết định của run | Publication bắt buộc dùng method/version tenant đã khóa trong run.| T7-DR-194 |
 | BR-02 | Chỉ ghi incremental delta | Không re-post toàn lịch sử; rerun cùng fact/baseline phải delta 0.| T7-DR-166 |
-| BR-03 | Không rewrite giao dịch gốc | Receipt, issue, sale và movement gốc bất biến; chênh lệch đi adjustment liên kết.| T7-DR-052/059 |
+| BR-03 | Không rewrite giao dịch gốc | Phiếu nhận hàng, issue, sale và movement gốc bất biến; chênh lệch đi adjustment liên kết.| T7-DR-052/059 |
 | BR-04 | Official Cost chỉ sinh tại BJ14 | Không nhận bootstrap từ BJ03.| T7-DR-185/195 |
 
 - `BC-IV-03` — Công bố valuation và Official Cost.

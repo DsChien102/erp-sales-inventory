@@ -109,8 +109,8 @@ flowchart TD
 
 Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chống ghi nhận lặp vẫn lấy từ UC/Behavioral Contract/Screen Contract. UIF chỉ nhắc lại những điểm ảnh hưởng trực tiếp đến cách đi qua màn hình.
 
-- **Quick Receipt không có draft persistence:** `SCR-008 → SCR-009 → SCR-084 → SCR-010` chỉ dùng state trong phiên UI. Điều hướng nội bộ giữ state memory; rời Quick flow, refresh hoặc đóng app thì mất. Không có autosave server, local storage hoặc `ACT-02-SAVE-DRAFT` cho UC-02-02.
-- Submit Quick Receipt ở `SCR-010` gửi full payload một lần qua `BC-IC-07/API-C-26`; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo receipt. **Payload BJ02 không yêu cầu price/FX basis; thiếu price/FX không tạo state/error trong BJ02.**
+- **nhập hàng nhanh không có draft persistence:** `SCR-008 → SCR-009 → SCR-084 → SCR-010` chỉ dùng state trong phiên UI. Điều hướng nội bộ giữ state memory; rời Quick flow, refresh hoặc đóng app thì mất. Không có autosave server, local storage hoặc `ACT-02-SAVE-DRAFT` cho UC-02-02.
+- Submit nhập hàng nhanh ở `SCR-010` gửi full payload một lần qua `BC-IC-07/API-C-26`; success mới có `receiptId` và `PENDING_APPROVAL`; rejection không tạo goods receipt. **Payload BJ02 không yêu cầu price/FX basis; thiếu price/FX không tạo state/error trong BJ02.**
 - Khi công việc chuyển sang người duyệt hoặc một vai trò khác, phiên làm việc của người hiện tại kết thúc tại trạng thái chờ. Người lập có thể **Về Kho** và theo dõi từ `Cần chú ý > Nhận hàng chờ phê duyệt`; không quay lại editor của submitted revision. Người tiếp theo mở đúng record từ worklist/notification/deep-link; hệ thống không tự chuyển sang phiên của họ.
 - Nếu kết quả chưa xác định (`UNKNOWN`), không thực hiện lại bằng một thao tác mới. Hệ thống giữ nguyên mã thao tác gốc để xác minh; khi chưa đủ bằng chứng, chuyển sang `BJ-17`.
 - Nếu dữ liệu nguồn đã thay đổi, phải nạp lại dữ liệu hiện hành và rà soát lại trước khi tiếp tục. Phần người dùng đã nhập chỉ được giữ lại khi còn an toàn.
@@ -187,7 +187,7 @@ Các quy tắc chung về quyền, quay lại, dữ liệu thay đổi và chố
 
 ### v4.6.4 — Continuity khi chờ phê duyệt
 
-- Hub Kho tổng hợp các receipt `PENDING_APPROVAL` dưới mục **Nhận hàng chờ phê duyệt** trong `Cần chú ý`.
+- Hub Kho tổng hợp các goods receipt `PENDING_APPROVAL` dưới mục **Nhận hàng chờ phê duyệt** trong `Cần chú ý`.
 - Đây là entry/aggregation của task đang tồn tại, không tạo thêm business mutation và không thay đổi topology nghiệp vụ của `UIF-02`.
 - `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng về Hub Kho.
-- Từ collection pending, destination phụ thuộc capability: chỉ xem → submitted receipt read-only; có quyền duyệt → `SCR-011`.
+- Từ collection pending, destination phụ thuộc capability: chỉ xem → goods receipt đã gửi read-only; có quyền duyệt → `SCR-011`.

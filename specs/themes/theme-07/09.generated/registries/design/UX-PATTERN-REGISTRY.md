@@ -142,7 +142,7 @@ Export review locks filters/timezone/as-of before file generation.
 
 ## TWO_STAGE_PHYSICAL_CLASSIFICATION
 
-Physical receipt and later quality classification are separate tasks when evidence may not exist at receipt time.
+Goods receipt vật lý and later quality classification are separate tasks when evidence may not exist at goods receipt time.
 
 **Adopted/validated by:** `UIF-06`.
 
@@ -161,7 +161,7 @@ Costing/complex review surfaces show blockers before derived totals or publish C
 | `EVIDENCE_INPUT_MATCHES_ARTIFACT` | Bằng chứng là file/ảnh phải dùng upload; textarea chỉ dùng cho lý do/mô tả. Không dùng text field giả làm file evidence. | BJ02 delivery evidence, BJ06 wrong-LOT |
 | `DECISIVE_SELECTION_ADVANCES` | Khi lựa chọn đã xác định đủ object cho mental task kế tiếp, chuyển thẳng sang task đó; không bắt user tap lại item vừa tạo. | Quick Product+UOM → SCR-084 |
 | `APPEND_IS_NOT_COMPLETE` | Action thêm phần tử vào collection đặt ở cấp collection và dùng nhãn “Thêm … khác”; completion phải có CTA riêng. | LOT editor |
-| `TEMPORAL_GUARD_IN_CONTROL` | Date không hợp lệ theo business rule phải bị chặn ngay trong picker và vẫn được server kiểm lại. | Quick receipt date |
+| `TEMPORAL_GUARD_IN_CONTROL` | Date không hợp lệ theo business rule phải bị chặn ngay trong picker và vẫn được server kiểm lại. | nhập hàng nhanh date |
 
 ## HOMOGENEOUS_NAVIGATION_LIST
 

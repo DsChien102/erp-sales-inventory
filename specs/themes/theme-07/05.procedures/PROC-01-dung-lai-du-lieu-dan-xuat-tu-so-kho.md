@@ -126,7 +126,7 @@ Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa �
 
 - Request của từng operation nằm cùng dòng BC/operation; không tách heading rời khỏi operation mà nó giải thích.
 - Server kiểm tra lại quyền, scope, lifecycle, version và idempotency; UI validation không thay thế server guard.
-- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ command receipt/operation result và ledger evidence.
+- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ idempotency record, operation result và ledger evidence.
 
 ### 6. Truy vết và lát giao hàng
 
@@ -206,7 +206,7 @@ Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa �
 
 - Request của từng operation nằm cùng dòng BC/operation; không tách heading rời khỏi operation mà nó giải thích.
 - Server kiểm tra lại quyền, scope, lifecycle, version và idempotency; UI validation không thay thế server guard.
-- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ command receipt/operation result và ledger evidence.
+- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ idempotency record, operation result và ledger evidence.
 
 ### 6. Truy vết và lát giao hàng
 
@@ -286,7 +286,7 @@ Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa �
 
 - Request của từng operation nằm cùng dòng BC/operation; không tách heading rời khỏi operation mà nó giải thích.
 - Server kiểm tra lại quyền, scope, lifecycle, version và idempotency; UI validation không thay thế server guard.
-- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ command receipt/operation result và ledger evidence.
+- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ idempotency record, operation result và ledger evidence.
 
 ### 6. Truy vết và lát giao hàng
 
@@ -366,7 +366,7 @@ Câu hỏi mở: ma trận hiện thực BC từng nằm ở FND-TECH-01 chưa �
 
 - Request của từng operation nằm cùng dòng BC/operation; không tách heading rời khỏi operation mà nó giải thích.
 - Server kiểm tra lại quyền, scope, lifecycle, version và idempotency; UI validation không thay thế server guard.
-- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ command receipt/operation result và ledger evidence.
+- HTTP timeout không phải bằng chứng thất bại. Kết quả authoritative lấy từ idempotency record, operation result và ledger evidence.
 
 ### 6. Truy vết và lát giao hàng
 

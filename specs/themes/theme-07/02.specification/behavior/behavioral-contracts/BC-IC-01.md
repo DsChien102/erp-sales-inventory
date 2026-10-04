@@ -30,7 +30,7 @@ Permission; no conflicting lock/session; scope valid/non-empty; assigned counter
 
 ## 5. Quy tắc nghiệp vụ
 
-Normalize/resolve `CountScopeSnapshot` → acquire scope barrier → serialize/chờ in-flight mutation thuộc scope → chốt cutoff ledger sequence → materialize PhysicalCountKey/book snapshot tại cutoff → persist scope/session/lines/lock + receipt atomically.
+Normalize/resolve `CountScopeSnapshot` → acquire scope barrier → serialize/chờ in-flight mutation thuộc scope → chốt cutoff ledger sequence → materialize PhysicalCountKey/book snapshot tại cutoff → persist scope/session/lines/lock + goods receipt atomically.
 
 ## 6. Điều kiện bắt buộc
 

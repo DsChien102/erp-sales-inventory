@@ -14,7 +14,7 @@ source_baseline: v3.10.1
 
 ## 1. Định vị nghiệp vụ & ranh giới Aggregate
 
-Hồ sơ **lô sản xuất** trong tenant: mã NSX/đóng gói chuẩn hóa, hạn dùng, thuộc tính manufacture. Dùng chung mọi kho/receipt của cùng product.
+Hồ sơ **lô sản xuất** trong tenant: mã NSX/đóng gói chuẩn hóa, hạn dùng, thuộc tính manufacture. Dùng chung mọi kho/phiếu nhận hàng của cùng product.
 
 | Thuộc tính | Giá trị |
 |---|---|

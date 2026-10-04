@@ -26,7 +26,7 @@ Ghi đúng **hàng thực tế quay về từ khách**, liên kết được v�
 
 | Tác nhân | Trách nhiệm | Phạm vi thẩm quyền |
 |---|---|---|
-| Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Xác minh hàng thực nhận, truy vết giao dịch gốc và phân loại hàng khách trả. | Theme 7 chỉ sở hữu receipt/physical state; quyết định hoàn tiền/thương mại thuộc Theme nguồn. |
+| Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Xác minh hàng thực nhận, truy vết giao dịch gốc và phân loại hàng khách trả. | Theme 7 chỉ sở hữu phiếu nhận hàng/physical state; quyết định hoàn tiền/thương mại thuộc Theme nguồn. |
 
 ## 3. Sơ đồ hành trình nghiệp vụ
 
@@ -47,7 +47,7 @@ flowchart TD
 |---|---|---|---|---|---|
 | [UC-06-01](../use-cases/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md) — Xác minh hàng được phép nhận trả | Hàng đủ điều kiện nhận, cần ngoại lệ hoặc bị từ chối; Return validation result. | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Có return intent và hàng vật lý | Hàng đủ điều kiện nhận, cần ngoại lệ hoặc bị từ chối; Return validation result. | UC-06-02 |
 | [UC-06-02](../use-cases/UC-06-02-xu-ly-ngoai-le-truy-vet.md) — Xử lý ngoại lệ truy vết | Ngoại lệ được chấp thuận hoặc từ chối có bằng chứng; Trace exception decision. | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Lô thực nhận không khớp lô đã xuất | Ngoại lệ được chấp thuận hoặc từ chối có bằng chứng; Trace exception decision. | UC-06-03 |
-| [UC-06-03](../use-cases/UC-06-03-ghi-nhan-hang-khach-tra.md) — Ghi nhận hàng khách trả | Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Return receipt có quantity/value provenance. | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Các dòng thực nhận đã hợp lệ | Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Return receipt có quantity/value provenance. | UC-06-04 |
+| [UC-06-03](../use-cases/UC-06-03-ghi-nhan-hang-khach-tra.md) — Ghi nhận hàng khách trả | Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Phiếu nhận hàng của hàng trả có quantity/value provenance. | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Các dòng thực nhận đã hợp lệ | Toàn yêu cầu được commit vào `RETURN_PENDING` hoặc không có gì commit; Phiếu nhận hàng của hàng trả có quantity/value provenance. | UC-06-04 |
 | [UC-06-04](../use-cases/UC-06-04-phan-loai-hang-thuc-nhan.md) — Phân loại hàng thực nhận | Toàn lượng được phân loại hoặc giữ pending với việc cần xử lý; Classification result. | Thủ kho; bộ phận trả hàng cung cấp ý định thương mại | Có lượng `RETURN_PENDING` | Toàn lượng được phân loại hoặc giữ pending với việc cần xử lý; Classification result. | Kết thúc / theo nhánh trên sơ đồ |
 
 ## 5. Bàn giao và ranh giới liên quan
@@ -55,7 +55,7 @@ flowchart TD
 | Nơi nhận / Nơi cung cấp | Dữ kiện hoặc trách nhiệm bàn giao | Điều kiện bàn giao / tiếp tục |
 |---|---|---|
 | Theme 5 / return source | Return intent và source sale lineage | Nguồn cho phép tiếp nhận |
-| BJ09 | Hàng sau nhận cần phân loại trạng thái | Physical receipt đã ghi |
+| BJ09 | Hàng sau nhận cần phân loại trạng thái | Phiếu nhận hàng vật lý đã ghi |
 
 ## 6. Liên kết thiết kế
 

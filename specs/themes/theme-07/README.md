@@ -42,7 +42,7 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 | Mở đầu | Trạng thái kích hoạt `PREPARING`; chuẩn bị/validate opening batch, duyệt độc lập, commit, báo cáo migration và chuyển nguyên tử sang `ACTIVE` |
 | Chính sách tồn sản phẩm | Threshold/target; ngưỡng cận hạn mặc định và ghi đè theo sản phẩm; hành động `WARN`/`BLOCK_SALE`; chỉ báo dẫn xuất |
 | Quản trị | RBAC + warehouse scope; che dữ liệu tài chính; phê duyệt theo rủi ro; audit |
-| Tin cậy | Idempotency cho mọi mutation bằng `CommandReceipt`, source version, atomic commit, `UNKNOWN`, transactional outbox, reconciliation/rebuild |
+| Tin cậy | Idempotency cho mọi mutation bằng idempotency record, source version, atomic commit, `UNKNOWN`, transactional outbox, reconciliation/rebuild |
 | Liên miền | Kịch bản chiết khấu mua hàng theo kỳ; handoff pricing cost basis; rà soát cuối kỳ; ba cách nhìn lợi nhuận |
 
 ### 2.2 Ngoài phạm vi
@@ -78,8 +78,8 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 ## 6. Trạng thái hiện tại
 
 - **v4.6.8:** Design state cleanup cho BJ02; state model của `SCR-008/SCR-010` và generated runtime-state registry khớp trực tiếp source design, không còn state Quick cũ và không cần runtime filter.
-- **v4.6.7:** Quick Receipt vẫn no-draft nhưng **không còn `APPROVAL_PRICE_BASIS_REQUIRED` tại BJ02**; submit không yêu cầu price/FX basis, chỉ giữ `APPROVER_CONFIGURATION_MISSING` cho lỗi cấu hình người duyệt.
-- **v4.6.6:** UC-02-02 không có `DRAFT`; Quick Receipt chỉ sống trong phiên UI trước submit, create-and-submit hợp lệ mới tạo receipt ở `PENDING_APPROVAL`; `BC-IO-16/API-C-25` không áp dụng.
+- **v4.6.7:** nhập hàng nhanh vẫn no-draft nhưng **không còn `APPROVAL_PRICE_BASIS_REQUIRED` tại BJ02**; submit không yêu cầu price/FX basis, chỉ giữ `APPROVER_CONFIGURATION_MISSING` cho lỗi cấu hình người duyệt.
+- **v4.6.6:** UC-02-02 không có `DRAFT`; nhập hàng nhanh chỉ sống trong phiên UI trước submit, create-and-submit hợp lệ mới tạo goods receipt ở `PENDING_APPROVAL`; `BC-IO-16/API-C-25` không áp dụng.
 
 ### 6.1 Phạm vi thay đổi v4.6.8
 
@@ -91,26 +91,26 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 
 ### 6.2 Phạm vi thay đổi v4.6.7
 
-- Chỉ sửa semantic Quick Receipt/BJ02 và các contract/UI/harness dẫn xuất; `UC-02-01` không thay đổi.
+- Chỉ sửa semantic nhập hàng nhanh/BJ02 và các contract/UI/harness dẫn xuất; `UC-02-01` không thay đổi.
 - Bỏ `APPROVAL_PRICE_BASIS_REQUIRED` khỏi UC-02-02, BC-IC-07, API-C-26 Quick branch, SCR-010 và runtime state của BJ02.
-- Quick Receipt payload không mang price/FX basis; thiếu price/FX không chặn tạo receipt ở `PENDING_APPROVAL`.
-- `APPROVER_CONFIGURATION_MISSING` vẫn chặn tạo receipt khi không resolve được approver theo policy Quick Receipt.
+- nhập hàng nhanh payload không mang price/FX basis; thiếu price/FX không chặn tạo goods receipt ở `PENDING_APPROVAL`.
+- `APPROVER_CONFIGURATION_MISSING` vẫn chặn tạo goods receipt khi không resolve được approver theo policy nhập hàng nhanh.
 - Price/FX tiếp tục thuộc BJ03/BJ13 theo authority hiện hành.
 
 ### 6.3 Phạm vi thay đổi v4.6.6
 
 - Chỉ thay đổi semantic của **UC-02-02 — Nhập hàng nhanh** và các contract/trace/UI/harness dẫn xuất bắt buộc; **UC-02-01 — Nhận theo chứng từ giữ nguyên**.
-- `SCR-008 → SCR-009 → SCR-084 → SCR-010` của Quick Receipt chỉ dùng session memory; rời flow, refresh hoặc đóng app thì mất dữ liệu chưa gửi.
-- Submit Quick Receipt là một lệnh create-and-submit mang full payload + `idempotencyKey`; success mới tạo `GoodsReceipt`, `ApprovalCase`, `receiptId` và trạng thái đầu `PENDING_APPROVAL`.
-- Rejection trước create không để lại receipt. Theo v4.6.7, `APPROVAL_PRICE_BASIS_REQUIRED` đã bị loại khỏi Quick Receipt; `APPROVER_CONFIGURATION_MISSING` được giữ. Nhánh Quick không dùng `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc `DRAFT_*`.
-- `BC-IO-16` / `API-C-25` vẫn tồn tại cho lifecycle có draft nhưng bị loại khỏi Quick Receipt.
+- `SCR-008 → SCR-009 → SCR-084 → SCR-010` của nhập hàng nhanh chỉ dùng session memory; rời flow, refresh hoặc đóng app thì mất dữ liệu chưa gửi.
+- Submit nhập hàng nhanh là một lệnh create-and-submit mang full payload + `idempotencyKey`; success mới tạo `GoodsReceipt`, `ApprovalCase`, `receiptId` và trạng thái đầu `PENDING_APPROVAL`.
+- Rejection trước create không để lại goods receipt. Theo v4.6.7, `APPROVAL_PRICE_BASIS_REQUIRED` đã bị loại khỏi nhập hàng nhanh; `APPROVER_CONFIGURATION_MISSING` được giữ. Nhánh Quick không dùng `DRAFT_VALIDATION_FAILED`, `OPERATION_NOT_DRAFT` hoặc `DRAFT_*`.
+- `BC-IO-16` / `API-C-25` vẫn tồn tại cho lifecycle có draft nhưng bị loại khỏi nhập hàng nhanh.
 
 ### 6.4 Phạm vi kiểm tra v4.6.4
 
 - Tập trung `BJ-02 — Nhận hàng mua`; các BJ khác giữ nguyên baseline trước đó.
 - `SCR-010/PENDING_APPROVAL` có CTA **Về Kho**; Back cũng quay về Hub Kho và không mở lại editor của submitted revision.
 - Hub Kho candidate đưa **Nhận hàng chờ phê duyệt** lên đầu `Cần chú ý` và có worklist để mở lại yêu cầu đang chờ.
-- Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem submitted receipt read-only theo capability contract.
+- Người có quyền duyệt mở `SCR-011`; người chỉ có quyền xem chỉ được xem goods receipt đã gửi read-only theo capability contract.
 - Runtime/visual QA mới nằm tại `03.design/prototype/html/qa/WAREHOUSE-HUB-BJ02-CONTINUITY-QA-v4.6.4.*`.
 
 ### 6.5 Phạm vi kiểm tra v4.6.0

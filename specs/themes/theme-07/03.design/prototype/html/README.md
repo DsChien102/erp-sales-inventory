@@ -68,7 +68,7 @@ Historical sections below describe previous baselines only and do not override v
 
 ## v3.9.7 — Wave 3 / BJ03 direct valuation semantic hardening
 - Baseline: v3.9.6; frozen-source remains immutable.
-- Direct valuation basis is keyed by receipt item/commercial source line, not Product+UOM presentation grouping.
+- Direct valuation basis is keyed by mục hàng nhận/commercial source line, not Product+UOM presentation grouping.
 - Server preview builds complete `DirectCostBasis` candidates with component provenance, deterministic allocation/rounding and basis/scope freshness tokens.
 - Review shows transaction-UOM direct cost plus normalized base-UOM consequence; normal READY state is not rendered as a semantic badge.
 - Confirm rechecks selected basis hash/version + scope version atomically, writes receipt-business-date value movements and performs compare-and-create initial Official Cost bootstrap.
@@ -212,7 +212,7 @@ Structurally migrated screens: `SCR-030 / 031 / 032 / 033 / 034 / 035`.
 - Editable quantities/reasons use canonical `VTextField` (`522:7186`) and `VTextarea` (`522:7212`).
 - Normal temporary sheets use `VBottomSheet`; no arbitrary X close control is added.
 - Business state uses `VBadge`/`VBanner` only when semantically useful; normal states avoid success noise.
-- Receipt remains all-or-nothing. Wrong-LOT approval is per line and snapshot-based. Classification remains Product+UOM+LOT and never aggregates unlike UOMs.
+- Goods receipt remains all-or-nothing. Wrong-LOT approval is per line and snapshot-based. Classification remains Product+UOM+LOT and never aggregates unlike UOMs.
 
 ## Current Product migration
 

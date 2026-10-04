@@ -30,7 +30,7 @@ Basis/hash current; exact policy version/hash hợp lệ; transition whitelist/p
 
 ## 5. Quy tắc nghiệp vụ
 
-Lock exact source balances + affected reservation bucket/group theo deterministic order → recheck basis/policy/approval → append `STATE_TRANSFER` per source slice với `valuation_state_snapshot` giữ nguyên → decrement source stock_state và increment destination stock_state trong **cùng valuation_state** → nếu eligibility giảm, reconcile reservation capacity atomically; giữ consumed history, không rewrite active PickAllocation và phát `allocation_review_required` khi cần → CommandReceipt/outbox cùng transaction.
+Lock exact source balances + affected reservation bucket/group theo deterministic order → recheck basis/policy/approval → append `STATE_TRANSFER` per source slice với `valuation_state_snapshot` giữ nguyên → decrement source stock_state và increment destination stock_state trong **cùng valuation_state** → nếu eligibility giảm, reconcile reservation capacity atomically; giữ consumed history, không rewrite active PickAllocation và phát `allocation_review_required` khi cần → outbox cùng transaction.
 
 ## 6. Điều kiện bắt buộc
 
