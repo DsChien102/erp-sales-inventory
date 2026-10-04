@@ -463,7 +463,7 @@ Các nội dung sau không phải quyết định nghiệp vụ và không nhậ
 | `PERFORMANCE_SLO` | Mục tiêu độ trễ | Solution Architect | Platform Lead | Ngưỡng chưa thuộc specification. Slice ghi vào Verification khi cần đo | `ACTIVE` |
 | `CAPACITY_TARGET` | Mục tiêu năng lực xử lý | Solution Architect | Platform Lead | Ngưỡng chưa thuộc specification. Slice ghi vào Verification khi cần đo | `ACTIVE` |
 | `BASELINE_FREEZE_GATE` | Cổng đóng băng baseline | Release Owner | BA Lead | `srs/09-traceability-quality.md#baseline-freeze-gates` | `ACTIVE` |
-| `TERMINOLOGY_STANDARD` | Quy ước sử dụng thuật ngữ | BA Lead | Nhóm thẩm định miền | `know-how/glossary/glossary.md#quy-uoc-su-dung-thuat-ngu` | `ACTIVE` |
+| `TERMINOLOGY_STANDARD` | Quy ước sử dụng thuật ngữ | BA Lead | Nhóm thẩm định miền | `01.knowledge/glossary/glossary.md` | `ACTIVE` |
 | `CONTRACT_CLOSURE_GATE` | Cổng khép kín hợp đồng | Solution Architect | BA Lead; QA/Harness Owner | `srs/09-traceability-quality.md#contract-closure-gate` | `ACTIVE` |
 | `EXPERIENCE_MAP_AUTHORITY` | Thẩm quyền của bản đồ trải nghiệm | BA Lead | Product Designer | `srs/08-ui-ux.md#experience-map-va-authority-giao-dien` | `ACTIVE` |
 | `UI_CONTENT_STANDARD` | Quy ước nội dung giao diện | Product Designer | BA Lead | `srs/08-ui-ux.md#quy-uoc-noi-dung-giao-dien` | `ACTIVE` |

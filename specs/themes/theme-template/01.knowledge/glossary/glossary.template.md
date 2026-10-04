@@ -8,19 +8,25 @@ status: DRAFT
 ---
 
 <!--
-Hướng dẫn dùng template:
-- Nội dung trong <!-- --> là hướng dẫn, có thể xóa sau khi hoàn thiện.
-- Chỉ giữ các mục Optional khi thực sự cần.
-- Không sao chép lại nội dung đã có nguồn chuẩn khác; ưu tiên tham chiếu bằng ID/link.
-- Mỗi phát biểu quan trọng phải lần ngược được về nguồn hoặc quyết định liên quan.
+Luật viết, theo format Language của skill domain-modeling:
+- Xóa comment này khi glossary của theme đã có nội dung thật.
+- Ngay dưới tiêu đề là một hoặc hai câu: theme này là gì và vì sao tồn tại.
+- Mục thuật ngữ nằm dưới ## Ngôn ngữ. Thêm ### khi các thuật ngữ tách thành cụm.
+- Heading là **Tiếng Việt (English)** khi có tên Anh chuẩn. Không có tên Anh thì chỉ tiếng Việt.
+- Mỗi mục là một hoặc hai câu về bản chất của khái niệm. Không viết ví dụ, enum, công thức, ghi chú phạm vi triển khai hay cơ chế kỹ thuật.
+- _Avoid_ chỉ ghi từ bị cấm. Không lặp tên Anh đã có trong heading. Bỏ dòng _Avoid_ nếu không có từ bị cấm.
+- Hai thuật ngữ chuẩn dễ nhầm không đưa vào _Avoid_ của nhau. Phân biệt nằm trong hai định nghĩa.
+- Chỉ ghi thuật ngữ riêng của theme. Khái niệm lập trình chung không thuộc glossary.
 -->
+
 # Glossary — <THEME-ID>
 
-## 1. Thuật ngữ chuẩn
+<Một hoặc hai câu mô tả theme này là gì và vì sao tồn tại.>
 
-| Thuật ngữ | Nghĩa trong Theme | Thuật ngữ tránh dùng / đồng nghĩa | Ghi chú |
-|---|---|---|---|
-| <Thuật ngữ> | <Định nghĩa ngắn, rõ> | <Nếu có> | <Optional> |
+## Ngôn ngữ
 
-## 2. Quy ước đặt tên
-<!-- Optional. Chỉ dùng nếu Theme có quy ước tên riêng cho object/state/action. -->
+### <Cụm, nếu các thuật ngữ tách thành nhóm>
+
+**Thuật ngữ mẫu (Sample term)**:
+Một câu nói khái niệm này là gì trong theme.
+_Avoid_: tên bị cấm
