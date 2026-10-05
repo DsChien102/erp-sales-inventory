@@ -15,9 +15,13 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Vào app: khi tổ chức hợp lệ, chờ thiết lập cửa hàng và kho mặc định trước khi vào trang chủ. Nếu lỗi, có thể thử lại hoặc chọn tổ chức khác.
+
 ### Fixed
 
 ### Internal
+
+- Inventory: RPC cặp cửa hàng/kho mặc định. Draft `inventory_default_pair.sql`.
 
 ## [1.7.5+42] - 2026-10-02
 

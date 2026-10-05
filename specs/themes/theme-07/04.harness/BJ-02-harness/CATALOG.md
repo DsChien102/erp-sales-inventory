@@ -12,6 +12,6 @@ Schema: [reference.md](../../../../../.agents/skills/to-work-slices/reference.md
 | [SL-003](SL-003-receipt-approval.md) | Phê duyệt goods receipt | IN_REVIEW | SL-002 | [UC-02-03](../../02.specification/behavior/use-cases/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md) | |
 | [SL-004](SL-004-physical-receipt.md) | Ghi nhận tồn vật lý | IN_REVIEW | SL-003 | [UC-02-04](../../02.specification/behavior/use-cases/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md) | |
 | [SL-005](SL-005-receipt-finality.md) | Tra cứu finality goods receipt | IN_REVIEW | SL-004 | [UC-02-05](../../02.specification/behavior/use-cases/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md) | |
-| [SL-006](SL-006-default-warehouse.md) | Thiết lập cặp cửa hàng/kho mặc định | READY_TO_IMPLEMENT | | | |
+| [SL-006](SL-006-default-warehouse.md) | Thiết lập cặp cửa hàng/kho mặc định | VERIFIED | | | |
 
 `READY_TO_IMPLEMENT` chỉ khi mọi `depends_on` đã `READY_TO_IMPLEMENT` hoặc `VERIFIED`.

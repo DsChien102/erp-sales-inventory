@@ -21,6 +21,8 @@ dependencies:
   vet45_iam_application: ^1.0.0
   vet45_iam_domain: ^1.0.0
   vet45_iam_infrastructure: ^1.0.0
+  vet45_inventory_application: ^1.0.0
+  vet45_inventory_infrastructure: ^1.0.0
   vet45_catalog_domain: ^1.0.0
   vet45_catalog_application: ^1.0.0
   vet45_catalog_infrastructure: ^1.0.0
