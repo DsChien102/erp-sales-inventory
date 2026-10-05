@@ -73,12 +73,11 @@ classDiagram
 
 ## 4. Hành vi nghiệp vụ cốt lõi
 
-Hành vi mutate dòng **đi qua Root** `GoodsReceipt.addOrUpdateLine` / complete — Child không tự commit movement.
+Hành vi mutate dòng đi qua Root `createQuickAndSubmit` / `completePhysicalReceipt`. Child không tự commit movement.
 
 | Hành vi (qua Root) | Điều kiện / Invariant | Hệ quả |
 |---|---|---|
-| Thêm/sửa dòng | Aggregate `DRAFT`; qty > 0; lot/policy hợp lệ | Cập nhật line |
-| Khóa cùng submit | Sau submit Root | Line bất biến cùng payload |
+| Tạo dòng | `createQuickAndSubmit` trên Root | Dòng bất biến cùng payload. Không sửa khi phiếu đã tồn tại |
 | Materialize movement | Root `completePhysicalReceipt` | Mỗi line → movement `VALUATION_PENDING` |
 
 ## 5. Vòng đời & chuyển dịch trạng thái
