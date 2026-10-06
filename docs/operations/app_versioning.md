@@ -56,10 +56,9 @@ Changelog cutter: [`scripts/release/cut_changelog_unreleased.py`](../../scripts/
 2. On release, run **that unit’s** `bump_version.sh` (updates version manifest + cuts changelog).
 3. Use `--commit` / `--tag` / `--push` when ready, or commit manually.
 
-PR / MR checklist:
+PR checklist:
 
-- GitLab: [`.gitlab/merge_request_templates/Default.md`](../../.gitlab/merge_request_templates/Default.md)
-- GitHub (mirror): [`.github/pull_request_template.md`](../../.github/pull_request_template.md)
+- GitHub: [`.github/pull_request_template.md`](../../.github/pull_request_template.md)
 
 ## Bump scripts (per unit)
 

@@ -128,7 +128,7 @@ Các module/package khác vẫn workspace-pinned — ghi note dưới **Internal
 
 Chi tiết (framework flat `flutter_exec` / `dart_lib` / …): [docs/operations/app_versioning.md](docs/operations/app_versioning.md).
 
-MR template (GitLab): [`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md).
+PR template (GitHub): [`.github/pull_request_template.md`](.github/pull_request_template.md).
 
 ## Messaging worker (tuỳ chọn)
 
