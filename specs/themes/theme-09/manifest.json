@@ -1,0 +1,189 @@
+{
+  "theme": "Theme 09 - Ke toan",
+  "version": "v0.1.0",
+  "baseline_id": "T09-BASELINE-v0.1.0",
+  "status": "IN_REVIEW",
+  "freeze": "NOT_FROZEN",
+  "parent": null,
+  "scope": [
+    "knowledge",
+    "specification.overview",
+    "specification.domain",
+    "architecture.aggregates"
+  ],
+  "counts": {
+    "decisions": 52,
+    "aggregates": 10,
+    "know_how_articles": 10,
+    "files_before_checksum": 39
+  },
+  "validation": {
+    "static_gate": "PASS",
+    "blocker": 0,
+    "high": 0,
+    "limitations": [
+      "BJ/UC not in scope",
+      "Design/prototype not in scope",
+      "API/event runtime not in scope",
+      "Tax submission not in scope"
+    ]
+  },
+  "files": [
+    {
+      "path": "00.baseline/assumption-register.md",
+      "bytes": 1800
+    },
+    {
+      "path": "00.baseline/open-question-register.md",
+      "bytes": 2806
+    },
+    {
+      "path": "00.baseline/scope-baseline.md",
+      "bytes": 3389
+    },
+    {
+      "path": "00.baseline/source-register.md",
+      "bytes": 3469
+    },
+    {
+      "path": "01.knowledge/decisions/decision-register.md",
+      "bytes": 13078
+    },
+    {
+      "path": "01.knowledge/glossary/glossary.md",
+      "bytes": 7196
+    },
+    {
+      "path": "01.knowledge/glossary/terminology-standard.md",
+      "bytes": 1152
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-001-ban-chat-theme-ke-toan.md",
+      "bytes": 1437
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-002-tu-giao-dich-den-ghi-so.md",
+      "bytes": 985
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-003-ky-ke-toan-va-khoa-so.md",
+      "bytes": 840
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-004-dieu-chinh-khong-sua-lich-su.md",
+      "bytes": 800
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-005-so-ke-toan-hkd-tt152.md",
+      "bytes": 1388
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-006-ke-toan-va-thue.md",
+      "bytes": 799
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-007-ranh-gioi-lien-theme.md",
+      "bytes": 941
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-008-hoa-don-khong-dong-nghia-doanh-thu.md",
+      "bytes": 860
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-009-late-event-va-ky-khoa.md",
+      "bytes": 794
+    },
+    {
+      "path": "01.knowledge/know-how/KB-T09-010-mo-rong-hkd-sang-dn-sieu-nho.md",
+      "bytes": 940
+    },
+    {
+      "path": "01.knowledge/know-how/README.md",
+      "bytes": 1123
+    },
+    {
+      "path": "02.specification/behavior/README.md",
+      "bytes": 208
+    },
+    {
+      "path": "02.specification/domain/domain-foundation/domain-foundation.md",
+      "bytes": 5763
+    },
+    {
+      "path": "02.specification/domain/entities/entity-catalog.md",
+      "bytes": 7997
+    },
+    {
+      "path": "02.specification/overview/overview.md",
+      "bytes": 6040
+    },
+    {
+      "path": "03.design/README.md",
+      "bytes": 206
+    },
+    {
+      "path": "04.architecture/aggregates/aggregate-catalog.md",
+      "bytes": 4729
+    },
+    {
+      "path": "04.architecture/foundations/README.md",
+      "bytes": 211
+    },
+    {
+      "path": "04.architecture/integrations/README.md",
+      "bytes": 212
+    },
+    {
+      "path": "04.architecture/nfr/README.md",
+      "bytes": 203
+    },
+    {
+      "path": "04.architecture/read-models/README.md",
+      "bytes": 211
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 929
+    },
+    {
+      "path": "README.md",
+      "bytes": 4180
+    },
+    {
+      "path": "REVIEW-START-HERE.md",
+      "bytes": 4272
+    },
+    {
+      "path": "VERSION.md",
+      "bytes": 529
+    },
+    {
+      "path": "evidence/README.md",
+      "bytes": 208
+    },
+    {
+      "path": "evidence/baseline-validation.md",
+      "bytes": 2692
+    },
+    {
+      "path": "generated/README.md",
+      "bytes": 209
+    },
+    {
+      "path": "generated/checksums.sha256",
+      "bytes": 3986
+    },
+    {
+      "path": "generated/id-registry.json",
+      "bytes": 2343
+    },
+    {
+      "path": "harness/README.md",
+      "bytes": 207
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 3980
+    }
+  ]
+}

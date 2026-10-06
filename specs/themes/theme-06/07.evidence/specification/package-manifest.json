@@ -1,0 +1,22 @@
+{
+  "theme": "theme-06",
+  "title": "Công nợ",
+  "version": "2.1.3",
+  "status": "IN_REVIEW",
+  "qa_verdict": "READY_FOR_REVIEW",
+  "scope": {
+    "domain_docs": 1,
+    "entity_docs": 10,
+    "aggregate_docs": 7,
+    "business_journeys": 6,
+    "decisions": 40,
+    "know_how_articles": 9
+  },
+  "architecture_note": "Aggregates are candidate boundaries; not Architecture Freeze.",
+  "evidence": [
+    "EVD-001",
+    "EVD-002",
+    "EVD-003",
+    "EVD-004"
+  ]
+}
