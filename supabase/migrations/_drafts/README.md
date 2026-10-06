@@ -2,6 +2,15 @@
 
 Thư mục này chứa **SQL thiết kế tạm** — **không** được Supabase CLI apply khi `supabase db reset` / `migration up`.
 
+## Function / view / trigger / policy đã adopt
+
+Object **stateless đã có** trong `schema.lock.yaml` (hoặc module greenfield như partner) **không** viết lại bằng draft patch copy body. Sửa file nguồn dưới:
+
+- `modules/<m>/infrastructure/supabase/sql/{functions,views,triggers,policies}/`
+- `supabase/sql/<schema>/...` (schema shared)
+
+DDL table / backfill / đổi cột vẫn draft ở đây (`<intent>.pre.sql` / `<intent>.post.sql` khi dùng `migrate:generate`). Chi tiết: [14-declarative-sql-objects.md](../../../docs/architecture/14-declarative-sql-objects.md).
+
 ## Khi nào dùng
 
 - Agent hoặc slice BE cần ghi RPC, view, RLS, index mới

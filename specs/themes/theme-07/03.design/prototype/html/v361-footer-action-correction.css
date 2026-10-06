@@ -1,0 +1,36 @@
+/* VET45 Theme 7 v3.6.1 — Sticky Footer dual-action correction
+ * DS v2 / Sticky Footer Dual geometry: 402x92, px16, pt12, pb24, gap8,
+ * two 181x44 VButtons. Secondary/destructive action is left; primary is right.
+ */
+.figma-calibrated-shell > .app-actions.v361-dual-footer,
+.app-actions.v361-dual-footer {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: column !important;
+  flex-direction: row !important;
+  align-items: start !important;
+  gap: var(--vet45-v2-space-2) !important;
+  min-height: 92px !important;
+  height: 92px !important;
+  padding: var(--vet45-v2-space-3) var(--vet45-v2-space-4) var(--vet45-v2-space-6) !important;
+  box-sizing: border-box !important;
+}
+
+.app-actions.v361-dual-footer > button {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: var(--vet45-v2-touch-minimum) !important;
+  height: var(--vet45-v2-touch-minimum) !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Canonical danger hierarchy for the destructive side of a Dual/Danger footer. */
+.app-actions.v361-dual-footer--danger > .button--secondary[data-ds-prop-tone="VComponentTone.danger"],
+.app-actions.v361-dual-footer--danger > .v360-session-cancel,
+.app-actions.v361-dual-footer--danger > .ac310-danger-text,
+.app-actions.v361-dual-footer--danger > .ds24-button--danger {
+  color: var(--vet45-v2-text-danger) !important;
+  border-color: var(--vet45-v2-border-danger) !important;
+  background: var(--vet45-v2-surface-default) !important;
+}

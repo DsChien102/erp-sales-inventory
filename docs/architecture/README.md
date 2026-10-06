@@ -23,6 +23,7 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [05-layered-module-structure.md](05-layered-module-structure.md) | Layer responsibilities, handler pattern |
 | [09-application-commands.md](09-application-commands.md) | Business command vs internal command, pipeline, durable queue |
 | [13-idempotency-and-message-processing.md](13-idempotency-and-message-processing.md) | Idempotency, messageId vs idempotencyKey, Outbox/Inbox, RPC helpers |
+| [14-declarative-sql-objects.md](14-declarative-sql-objects.md) | (Proposed) File nguồn duy nhất cho RPC/view/trigger/policy, migration sinh từ lock |
 | [06-cross-cutting-concerns.md](06-cross-cutting-concerns.md) | IAM, tenant, DI, module settings |
 | [07-integration-and-messaging.md](07-integration-and-messaging.md) | Integration events, outbox, worker |
 | [12-railway-image-source.md](12-railway-image-source.md) | ADR Accepted: Railway pull image từ GitLab registry |

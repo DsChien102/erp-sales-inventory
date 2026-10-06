@@ -1,0 +1,182 @@
+/* VET45 Theme 7 v3.0.1 — Operations + Valuation UI hardening.
+ * Scope: UIF-01/02/04/05/06/07 and UIF-03/13/14.
+ * Purpose: optional List Row leading icon, canonical Product -> child hierarchy,
+ * overflow safety, non-empty evidence sheets, and user-facing terminology cleanup.
+ * Business handlers and persistence semantics are unchanged.
+ */
+
+/* --------------------------------------------------------------------------
+   Shared List Row rule: leading icon is semantic, never decorative by default.
+   When hidden, the copy starts at the canonical content inset (no empty icon slot).
+   -------------------------------------------------------------------------- */
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"]
+) .figma-calibrated-shell .ds24-list-row--no-leading > .ds24-list-row__copy {
+  margin-inline-start: 0 !important;
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"]
+) .figma-calibrated-shell .ds24-list-row__copy {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"]
+) .figma-calibrated-shell .ds24-list-row__copy > strong,
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"]
+) .figma-calibrated-shell .ds24-list-row__copy > small {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],
+  [data-active-uif="UIF-04"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],
+  [data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"]
+) .figma-calibrated-shell .ds24-list-row__trailing {
+  flex-shrink: 0 !important;
+  max-width: 46% !important;
+}
+
+/* Queue/list badges keep their own width; copy yields first instead of overlapping. */
+body:is([data-active-uif="UIF-03"],[data-active-uif="UIF-05"],[data-active-uif="UIF-06"],[data-active-uif="UIF-07"],[data-active-uif="UIF-13"],[data-active-uif="UIF-14"])
+  .figma-calibrated-shell :is(.valuation-work-list,.bj05-queue,.io06-queue,.io07-queue) .ds24-badge {
+  flex: 0 0 auto !important;
+  max-width: 116px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ07 — use actual canonical List Row instances for both hierarchy levels.
+   Parent is Status/Compact with meaningful product icon; LOT/allocation rows are
+   Navigation/Default with no leading icon. Remove legacy connector/custom-row skin.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-07"] .io07-grouped-collection .io07-product-group >
+  .ds24-list-row[data-layout-role="rtv-product-summary"] {
+  width: 370px !important;
+  min-width: 370px !important;
+  max-width: 370px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-07"] .io07-product-group + .io07-product-group {
+  padding-top: var(--vet45-v2-space-2) !important;
+  border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list {
+  gap: var(--vet45-v2-space-2) !important;
+  padding: var(--vet45-v2-space-2) 0 var(--vet45-v2-space-3) !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list::before { content: none !important; display: none !important; }
+body[data-active-uif="UIF-07"] .io07-allocation-list >
+  .ds24-list-row[data-layout-role="rtv-allocation-row"] {
+  position: static !important;
+}
+body[data-active-uif="UIF-07"] .io07-allocation-list >
+  .ds24-list-row[data-layout-role="rtv-allocation-row"]::before,
+body[data-active-uif="UIF-07"] .io07-allocation-list >
+  .ds24-list-row[data-layout-role="rtv-allocation-row"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ03 — Product parent is now canonical DS List Row Status/Compact. Multi-scope
+   children remain a composition of VCheckbox + VText (multi-select semantics),
+   not a new feature component. Remove the decorative tree connector and let the
+   checkbox + density difference establish hierarchy.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-03"] .valuation-product-group >
+  .ds24-list-row[data-layout-role="valuation-product-header"] {
+  width: 370px !important;
+  min-width: 370px !important;
+  max-width: 370px !important;
+  margin: 0 !important;
+}
+body[data-active-uif="UIF-03"] .valuation-product-group + .valuation-product-group {
+  padding-top: var(--vet45-v2-space-2) !important;
+  border-top: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-child-list {
+  padding: var(--vet45-v2-space-1) 0 var(--vet45-v2-space-2) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-child-list::before { content: none !important; display: none !important; }
+body[data-active-uif="UIF-03"] .valuation-child-row {
+  min-height: 56px !important;
+  padding: 6px 16px !important;
+  grid-template-columns: 20px minmax(0,1fr) !important;
+  column-gap: var(--vet45-v2-space-2) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-child-row > .valuation-child-branch { display: none !important; }
+body[data-active-uif="UIF-03"] .valuation-child-item:not(:last-child)::after {
+  left: 44px !important;
+  right: 16px !important;
+}
+body[data-active-uif="UIF-03"] .val03-partial-controls {
+  margin: -2px 16px 8px 44px !important;
+}
+body[data-active-uif="UIF-03"] .valuation-readonly-child {
+  min-height: 56px !important;
+  padding: 6px 16px !important;
+  grid-template-columns: minmax(0,1fr) minmax(90px,auto) !important;
+  column-gap: var(--vet45-v2-space-2) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-readonly-child > .valuation-child-branch { display: none !important; }
+body[data-active-uif="UIF-03"] .valuation-readonly-child:not(:last-child)::after {
+  left: 16px !important;
+  right: 16px !important;
+}
+body[data-active-uif="UIF-03"] .valuation-product-value {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: var(--vet45-v2-space-1) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-product-value > small { display: none !important; }
+body[data-active-uif="UIF-03"] .valuation-product-value > strong {
+  font: 600 12px/16px Inter, system-ui, sans-serif !important;
+}
+
+/* Evidence sheet must remain useful even if opened from a stale/empty selection. */
+body[data-active-uif="UIF-03"] .valuation-evidence-sheet .sheet-content > .empty-state {
+  min-height: 156px !important;
+  padding-block: var(--vet45-v2-space-4) !important;
+}
+body[data-active-uif="UIF-03"] .valuation-evidence-sheet .sheet-actions {
+  margin-top: var(--vet45-v2-space-1) !important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ13 / BJ14 — queue/read-only density hardening.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-13"] .valuation-work-list .ds24-list-row__copy > strong,
+body[data-active-uif="UIF-14"] .valuation-work-list .ds24-list-row__copy > strong {
+  max-width: 100% !important;
+}
+body[data-active-uif="UIF-13"] .val13-select-field > small {
+  color: var(--vet45-v2-text-secondary) !important;
+  font: 400 12px/16px Inter, system-ui, sans-serif !important;
+}
+
+/* LOT selection is not a product identity; hiding decorative package icon is intentional. */
+body:is([data-active-uif="UIF-05"],[data-active-uif="UIF-06"]) .ds24-list-row--no-leading:is(.bj05-selection-row,.io06-selection-row) {
+  padding-left: 16px !important;
+}
+
+/* BJ04 product reservation rows now delegate to the canonical List Row helper. */
+body[data-active-uif="UIF-04"] .bj04-reservation-row.ds24-list-row {
+  padding: 0 24px 0 16px !important;
+}

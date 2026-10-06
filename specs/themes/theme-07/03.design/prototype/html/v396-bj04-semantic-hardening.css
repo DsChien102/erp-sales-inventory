@@ -1,0 +1,4 @@
+/* VET45 Theme 7 v3.9.6 — BJ04 reservation semantic hardening */
+.v396-reservation-section{margin-top:16px}
+.v396-reservation-row .ds24-list-row__subtitle{line-height:1.45}
+.v396-reservation-row[data-lifecycle="CONSUMED"]{opacity:.82}

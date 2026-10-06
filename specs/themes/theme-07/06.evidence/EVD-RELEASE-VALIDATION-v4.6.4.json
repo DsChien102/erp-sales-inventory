@@ -1,0 +1,57 @@
+{
+  "verdict": "READY_FOR_REVIEW",
+  "version": "4.6.4",
+  "parent": "4.6.3",
+  "blocker": 0,
+  "high": 0,
+  "current_package": {
+    "status": "PASS",
+    "passed": 24,
+    "total": 24
+  },
+  "focused_bj02": {
+    "status": "PASS",
+    "passed": 21,
+    "total": 21,
+    "browser_errors": 0
+  },
+  "runtime": {
+    "status": "PASS",
+    "renders": 85,
+    "expected": 85,
+    "errors": 0
+  },
+  "mobile_static": {
+    "status": "PASS",
+    "counts": {
+      "BLOCKER": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    }
+  },
+  "canonical_links_delta": {
+    "status": "PASS",
+    "new_broken": 0,
+    "preexisting_broken": 231
+  },
+  "visual_review": {
+    "status": "PASS",
+    "captures": 4,
+    "viewport": "402x874"
+  },
+  "generic_validator": "NOT_APPLICABLE_CURRENT_SKELETON",
+  "limits": [
+    "READY_FOR_REVIEW is not a production RELEASE_READY claim.",
+    "Warehouse Hub candidate remains review-mode; current Hub remains the default comparison baseline.",
+    "No production integration/E2E or backend permission evidence is claimed.",
+    "Post-extract archive verification is recorded at handoff."
+  ],
+  "diff": {
+    "status": "PASS",
+    "added": 22,
+    "modified": 17,
+    "removed": 0,
+    "unexpected": 0
+  }
+}

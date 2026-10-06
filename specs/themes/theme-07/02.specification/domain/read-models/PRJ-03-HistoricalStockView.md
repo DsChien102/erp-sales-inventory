@@ -1,0 +1,66 @@
+---
+id: PRJ-03
+type: read-model
+theme: theme-07
+title: HistoricalStockView
+owner: SA
+status: DRAFT
+source_baseline: v3.10.1
+materialization: template-migration
+---
+# PRJ-03 — HistoricalStockView
+
+## 1. Mục đích
+
+Projection/read model được materialize từ định nghĩa `PRJ-03` của baseline v3.10.1.
+
+## 2. Owner
+
+Theme 07; owner kỹ thuật cụ thể được xác định bởi Architecture, không thay đổi business ownership từ source.
+
+## 3. Data shape
+
+| Trường | Kiểu dữ liệu logic | PK/FK | Bắt buộc/nullable | Mặc định | Ràng buộc/ghi chú |
+|---|---|---|---|---|---|
+| `snapshot_id` | `UUID` | PK logic | Bắt buộc | — | Immutable report snapshot |
+| `tenant_id` | `UUID` | Khóa projection | Bắt buộc | — | — |
+| `warehouse_id` | `UUID` | Khóa projection | Bắt buộc | — | — |
+| `product_id` | `UUID` | Khóa projection | Bắt buộc | — | — |
+| `lot_id` | `UUID` | Khóa projection | Nullable | `NULL` | — |
+| `stock_state` | `VARCHAR(40)` | Khóa projection | Bắt buộc | — | — |
+| `view_mode` | `VARCHAR(20)` | — | Bắt buộc | — | `BUSINESS_DATE` hoặc `RECORDED_AT` |
+| `cutoff_date` | `DATE` | — | Bắt buộc | — | — |
+| `cutoff_sequence` | `BIGINT` | — | Bắt buộc | — | — |
+| `opening_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | — |
+| `inbound_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | — |
+| `outbound_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | — |
+| `closing_quantity` | `DECIMAL(20,6)` | — | Bắt buộc | `0` | Opening + inbound − outbound |
+| `generated_at` | `TIMESTAMPTZ` | — | Bắt buộc | — | Cũng là `as_of` của snapshot |
+
+## 4. Nguồn dữ liệu
+
+Xem Entity/ledger references được ghi trực tiếp trong data shape nguồn.
+
+## 5. Projection rules
+
+Các rule derive được giữ nguyên trong ghi chú của data shape nguồn.
+
+## 6. Consistency và freshness
+
+Consistency/time semantics nghiệp vụ xem `DOM-COM`. Contract thực thi của outcome thuộc work slice lúc review để implement.
+
+## 7. Query shape
+
+Query/filter/paging contract được giữ ở BC/API technical source nếu có.
+
+## 8. Rebuild / backfill
+
+Xem `PROC-01` và BC reconciliation nếu projection tham gia rebuild.
+
+## 9. Failure / degradation
+
+Theo technical/finality contract của baseline v3.10.1.
+
+## 10. Verification
+
+Đối chiếu data shape, source sequence/as-of và các BC/query tiêu thụ projection.

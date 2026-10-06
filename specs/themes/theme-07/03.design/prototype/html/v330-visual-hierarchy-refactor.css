@@ -1,0 +1,209 @@
+/* VET45 Theme 7 v3.3.0 — visual hierarchy refactor.
+ * Figma DS authority: Layout / Surface Grouping + Spacing & Density,
+ * canonical DS v2 / List Row and existing form/data-display primitives.
+ * Goal: hierarchy from spacing + row responsibility, not nested/repeated surfaces.
+ */
+
+/* BJ08 — stock count / recount ------------------------------------------------
+   Product identity is a canonical List Row. Facts and quantity entry are local
+   content below it. Each product task is separated by semantic whitespace.
+   No collection card, no gray pseudo-header, no card-on-card composition. */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-count-collection,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-list {
+  width: 370px !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--vet45-v2-space-5, 20px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--vet45-v2-space-2, 8px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group + .ac321-product-input-group,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group + .ac310-product-control-group {
+  padding-top: 0 !important;
+  border-top: 0 !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-input-group > .ds24-list-row,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-group > .ds24-list-row {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 64px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius: var(--vet45-v2-radius-4,12px) !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+  box-shadow: none !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
+  border-top: 0 !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field {
+  width: 100% !important;
+  gap: 6px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field__control,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field__control {
+  min-height: 44px !important;
+}
+
+/* BJ07 — product -> LOT hierarchy -------------------------------------------
+   The repeated product groups are separated by whitespace. Product identity
+   remains a canonical compact List Row; child LOT rows are flat subordinate
+   rows with indentation/dividers. No single rounded collection wrapping all
+   products and no gray product-header bands. */
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {
+  box-sizing: border-box !important;
+  width: 370px !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--vet45-v2-space-5,20px) !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-product-group,
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-review-product {
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-product-group + .io07-product-group,
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-review-product + .io07-review-product {
+  border-top: 0 !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection [data-layout-role="rtv-product-summary"],
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection [data-layout-role="rtv-review-product"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 64px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius: var(--vet45-v2-radius-4,12px) !important;
+  background: var(--vet45-v2-surface-default,#fff) !important;
+  box-shadow: none !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list {
+  width: calc(100% - 20px) !important;
+  margin: 6px 0 0 20px !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  border-left: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row[data-layout-role="rtv-allocation-row"],
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 60px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8px 12px 8px 14px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row + .ds24-list-row,
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row[data-layout-role="rtv-allocation-row"] + .ds24-list-row[data-layout-role="rtv-allocation-row"] {
+  border-top: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-review-kv {
+  width: calc(100% - 20px) !important;
+  margin: 6px 0 0 20px !important;
+  padding: 0 12px 0 14px !important;
+  border-left: 1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+
+/* Filter-chip density: preserve canonical chip anatomy but stop rows from
+   becoming a large wrapped visual block. One-line scroll is preferable to
+   arbitrary multi-row wrapping until business-specific Filter Sheet mapping
+   is explicitly introduced. */
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width: 370px !important;
+  max-width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: var(--vet45-v2-space-2,8px) !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll::-webkit-scrollbar { display:none; }
+body:is(
+  [data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],
+  [data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],
+  [data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll > .ds24-chip {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 401px) {
+  body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-count-collection,
+  body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-list,
+  body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection { width:100% !important; max-width:100% !important; }
+}

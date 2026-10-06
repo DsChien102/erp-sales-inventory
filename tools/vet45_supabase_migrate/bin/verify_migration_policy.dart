@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:vet45_supabase_migrate/migration_policy.dart';
 import 'package:vet45_supabase_migrate/promote_drafts_service.dart';
 import 'package:vet45_supabase_migrate/repo_root.dart';
+import 'package:vet45_supabase_migrate/schema_lock.dart';
 
 Future<void> main(List<String> args) async {
   if (args.contains('--help') || args.contains('-h')) {
@@ -17,11 +18,17 @@ Future<void> main(List<String> args) async {
     final migrationsDir = Directory(
       '${repoRoot.path}/$migrationsRelativePath',
     );
+    final lockFile = File('${repoRoot.path}/$schemaLockRelativePath');
+    final schemaLock = SchemaLock.load(lockFile);
 
     final verifier = MigrationPolicyVerifier();
     final violations = verifier.verifyDirectory(
       migrationsDirectory: migrationsDir,
-      options: MigrationPolicyOptions(strict: strict),
+      options: MigrationPolicyOptions(
+        strict: strict,
+        schemaLock: schemaLock,
+        repoRoot: repoRoot,
+      ),
     );
 
     final errors =
@@ -62,6 +69,7 @@ void _printUsage() {
 Usage: dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart <options>
 
 Validates cohesive migration policy on promoted files (skips bootstrap_grandfathered).
+Also guards adopted objects (schema.lock) and generated region byte-match.
 
 Options:
   --strict    Treat warnings as errors

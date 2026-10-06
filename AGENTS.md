@@ -121,6 +121,8 @@ melos run test
 melos run codegen          # khi module bật build_runner
 melos run migrate:verify-policy -- --strict   # sau promote migration
 melos run migrate:seed-registry -- --write    # regenerate REGISTRY.yaml
+melos run schema:verify-lock                  # nguồn ↔ schema.lock
+melos run schema:verify-drift -- --database-url "$DATABASE_URL"  # sau db reset
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test
 cd apps/messaging_worker && dart test
@@ -132,33 +134,39 @@ cd apps/messaging_worker && dart test
 
 `supabase/migrations/` là **migration chính thức** — Supabase CLI apply theo version (`YYYYMMDDxxx_*.sql`). Trong collaboration, nhiều agent/branch cùng thêm file timestamp dễ gây **trùng version**, `db reset` fail, hoặc sequence lệch.
 
+**Function / view / trigger / policy** ưu tiên luồng declarative (Accepted): [docs/architecture/14-declarative-sql-objects.md](docs/architecture/14-declarative-sql-objects.md).
+
 ### Quy tắc bắt buộc
 
 
-| Việc                           | Agent được                                                                      | Agent không được                                              |
-| ------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Thiết kế DDL/RPC/RLS cho slice | Viết SQL tạm vào `[supabase/migrations/_drafts/](supabase/migrations/_drafts/)` | Tạo/sửa `supabase/migrations/[0-9]*.sql`                      |
-| Map contract BE                | Cập nhật harness `07-api-contracts.md` + Dart gateway/RPC client                | Giả định draft đã apply trên DB                               |
-| Verify local DB                | `melos run test`, harness scripts                                               | `supabase db reset` để “thử” draft SQL (trừ khi user yêu cầu) |
-| Promote migration              | —                                                                               | Tự đổi tên draft → timestamp migration                        |
+| Việc | Agent được | Agent không được |
+| --- | --- | --- |
+| Sửa RPC/view/trigger/policy đã adopt (hoặc module greenfield) | Sửa file nguồn dưới `modules/<m>/infrastructure/supabase/sql/...` (+ `_drafts/<intent>.pre/.post.sql` nếu cần DDL) | Tạo/sửa `supabase/migrations/[0-9]*.sql`; copy body vào patch draft |
+| Object cũ chưa adopt | `melos run schema:adopt -- <schema.fn>` rồi sửa nguồn | Patch migration `create or replace` object đã có trong `schema.lock.yaml` |
+| Thử trên Supabase dev | `melos run schema:apply-dev` (env allowlist) | Apply thẳng staging/prod |
+| Thiết kế DDL table / backfill / RPC chưa declarative | Viết SQL tạm vào [`supabase/migrations/_drafts/`](supabase/migrations/_drafts/) | Tạo/sửa `supabase/migrations/[0-9]*.sql` |
+| Map contract BE | Cập nhật harness `07-api-contracts.md` + Dart gateway/RPC client | Giả định draft đã apply trên DB |
+| Verify local DB | `melos run test`, harness scripts | `supabase db reset` để “thử” draft SQL (trừ khi user yêu cầu) |
+| Promote migration | — | Tự `migrate:generate` / đổi tên draft → timestamp (chỉ khi user yêu cầu) |
 
 **Draft naming:** `<scope>_<short_description>.sql` hoặc `NNN_<scope>_patch_<intent>_<part>.sql` cho slice lớn — quy ước chi tiết: [`supabase/migrations/_drafts/README.md`](supabase/migrations/_drafts/README.md).
 
-**Chỉ tạo file `YYYYMMDDxxx_*.sql`** khi user **yêu cầu rõ** promote migration hoặc maintain schema chính thức. Khi promote: `melos run migrate:promote-drafts` (tùy chọn `--bundle-intent` để gom draft cùng intent); header `Kind` / `Intent` / `Touches` theo [`supabase/migrations/README.md`](supabase/migrations/README.md); cập nhật [`REGISTRY.yaml`](supabase/migrations/REGISTRY.yaml).
+**Chỉ tạo file `YYYYMMDDxxx_*.sql`** khi user **yêu cầu rõ** promote (`migrate:generate` hoặc `migrate:promote-drafts`). Khi generate: header `Kind: generated` / `Intent` / `Touches` tự điền; lock cập nhật trong `supabase/schema.lock.yaml`. Khi promote drafts: header theo [`supabase/migrations/README.md`](supabase/migrations/README.md); cập nhật [`REGISTRY.yaml`](supabase/migrations/REGISTRY.yaml) cho object chưa adopt.
 
 **Cohesive policy (patch/surgical):**
 
 - `-- Touches:` phải liệt kê **đúng** mọi RPC `create or replace` trong file — CI kiểm tra qua `melos run migrate:verify-policy`
 - **Cấm** copy body RPC không đổi từ migration cũ “cho đồng bộ”
-- Tra cứu owner RPC: `supabase/migrations/REGISTRY.yaml`
+- **Cấm** non-generated migration `create or replace` object đã có trong lock
+- Tra cứu owner RPC: `supabase/migrations/REGISTRY.yaml` (chưa adopt) hoặc `supabase/schema.lock.yaml` (đã adopt)
 - 29 migration bundled hiện tại nằm trong `bootstrap_grandfathered` — không re-split
 
-**Lane BE không có DB:** implement application/infrastructure với RPC name + params khớp draft; test dùng fakes/in-memory — không block slice vì thiếu migration applied.
+**Lane BE không có DB:** implement application/infrastructure với RPC name + params khớp nguồn/draft; thử object declarative bằng `schema:apply-dev`; test dùng fakes/in-memory — không block slice vì thiếu migration applied.
 
 ## Anti-patterns (từ chối)
 
-- Tạo `supabase/migrations/2026....sql` trong slice agent thông thường (dùng `_drafts/` thay thế)
-- Patch migration `create or replace` RPC không nằm trong `-- Touches:` hoặc copy body RPC không đổi từ migration cũ
+- Tạo `supabase/migrations/2026....sql` trong slice agent thông thường (dùng nguồn declarative hoặc `_drafts/` thay thế)
+- Patch migration `create or replace` RPC không nằm trong `-- Touches:`, copy body RPC không đổi từ migration cũ, hoặc `create or replace` object đã có trong `schema.lock.yaml`
 - God aggregate, God Widget (page > 500 dòng), cross-module table access, anemic domain-only-in-SQL
 - Inline dialog (`AlertDialog`) trong `*_page.dart` — tách file `widgets/`
 - `Widget _buildXxx()` subtree lớn trong `State` — tách class widget riêng

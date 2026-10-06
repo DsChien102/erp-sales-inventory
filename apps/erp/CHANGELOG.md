@@ -40,6 +40,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Hồ sơ pháp lý: MST chấp nhận 10–13 chữ số (tự bỏ dấu `-`).
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
 
+- Vào app: khi tổ chức hợp lệ, chờ thiết lập cửa hàng và kho mặc định trước khi vào trang chủ. Nếu lỗi, có thể thử lại hoặc chọn tổ chức khác.
+
 ### Fixed
 - HĐĐT: card Cấu hình phát hành tắt khi chưa kết nối MISA, tránh mở màn chọn mẫu khi `list_provider_templates` trả `PROVIDER_NOT_CONNECTED`.
 - HĐĐT: đơn trả hết báo «Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.»; lệch version nguồn bảo tải lại rồi phát hành.
@@ -72,6 +74,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- Inventory: RPC cặp cửa hàng/kho mặc định. Draft `inventory_default_pair.sql`.
 - Einvoice: bỏ nhật ký gọi MISA (`provider_interaction_records`). Mỗi lần gọi ghi trên dòng nghiệp vụ. Draft `001`, `012`.
 - Einvoice: đối soát lần gửi đọc thẳng dòng `invoice_deliveries` (`INVOICE_DELIVERY`). Kết quả xác định ghi `failure_source`; sự kiện cảnh báo không còn `attempt_id`. Draft `015`.
 - Einvoice: worker gửi thư ghi kết quả trên một dòng `invoice_deliveries` (`retry_count` 0–2). `prepare` chốt `QUEUED` → `SUBMITTED`; lỗi khi ghi kết quả được ném lại để lần sau ghi `UNKNOWN` mà không gọi MISA lần hai. Draft `014`.

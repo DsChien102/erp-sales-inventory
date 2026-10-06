@@ -2,6 +2,8 @@ import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_inventory_application/application.dart';
+import 'package:vet45_inventory_infrastructure/infrastructure.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_infrastructure/infrastructure.dart';
 import 'package:vet45_einvoice_application/application.dart';
@@ -113,4 +115,13 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerSingleton<IEInvoiceModule>(einvoiceRuntime.module);
+
+  final inventoryModule = InventoryStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    executionContext: iamRuntime.executionContext,
+    permissionChecker: iamRuntime.permissionChecker,
+    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+  );
+  getIt.registerSingleton<IInventoryModule>(inventoryModule);
 }

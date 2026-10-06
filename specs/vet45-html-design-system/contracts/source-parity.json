@@ -1,0 +1,182 @@
+{
+  "authority": "Flutter vet45_design_system 1.4.1 Dart source",
+  "criticalVisualContracts": {
+    "VButton": {
+      "mediumHeight": 44,
+      "smallHeight": 36,
+      "largeHeight": 52,
+      "radius": 8,
+      "iconSizes": [
+        16,
+        18,
+        20
+      ],
+      "smallPadding": 12,
+      "mediumPadding": 16,
+      "largePadding": 24,
+      "disabledOpacity": 0.4
+    },
+    "VCard": {
+      "padding": 16,
+      "radius": 12,
+      "defaultBorder": "borderStrong",
+      "defaultEmphasis": "subtle",
+      "mediumShadow": "e1",
+      "strongShadow": "e2"
+    },
+    "VBanner": {
+      "radius": 12,
+      "padding": 16,
+      "iconSize": 20,
+      "iconTitleGap": 12,
+      "contentIndent": 32
+    },
+    "VInput": {
+      "mediumHeight": 44,
+      "paddingHorizontal": 12,
+      "paddingVertical": 8,
+      "affixGap": 4,
+      "radius": 8,
+      "focusRing": 3
+    },
+    "VSelect": {
+      "mediumHeight": 44,
+      "radius": 8,
+      "menuMaxHeight": 300,
+      "menuPadding": 8,
+      "valuePaddingHorizontal": 16,
+      "menuItemHeight": 44
+    },
+    "VDatePicker": {
+      "mediumHeight": 44,
+      "radius": 8,
+      "paddingHorizontal": 12,
+      "iconSize": 20,
+      "iconGap": 8,
+      "defaultIconPosition": "left"
+    },
+    "VEmptyState": {
+      "padding": 24,
+      "radius": 12,
+      "contentGap": 32
+    },
+    "VFileDropZone": {
+      "minHeight": 148,
+      "radius": 12,
+      "paddingHorizontal": 16,
+      "paddingVertical": 24,
+      "dash": 8,
+      "gap": 5,
+      "dashLength": 8,
+      "gapLength": 5,
+      "strokeWidth": 1.5,
+      "strokeCap": "round"
+    },
+    "VToast": {
+      "radius": 16,
+      "marginHorizontal": 16,
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+      "paddingVertical": 14,
+      "iconBox": 26,
+      "iconSize": 16
+    },
+    "VBottomNavigationBar": {
+      "iconSize": 29,
+      "minItemHeight": 50,
+      "topPadding": 10,
+      "bottomPaddingWithoutSafeArea": 12
+    },
+    "VBottomSheet": {
+      "radiusTop": 16,
+      "handleWidth": 36,
+      "handleHeight": 4,
+      "handleVerticalMargin": 8,
+      "maxHeightFraction": 0.95,
+      "componentPositioning": "embedded; modal positioning belongs to showVBottomSheet host"
+    },
+    "VNumericKeypadSheet": {
+      "radiusTop": 24,
+      "handleWidth": 48,
+      "handleHeight": 4,
+      "displayHorizontalPadding": 16,
+      "displayVerticalPadding": 20,
+      "componentPositioning": "embedded; modal positioning belongs to showVNumericKeypadSheet host"
+    },
+    "VSteps": {
+      "circleSize": 32,
+      "connectorThickness": 2
+    },
+    "VFloatingActionButton": {
+      "size": 56,
+      "iconSize": 28
+    },
+    "VSegmentedControl": {
+      "outerPadding": 4,
+      "outerRadius": 10,
+      "gap": 4,
+      "segmentSize": "VButton.medium"
+    },
+    "VVerificationCodeField": {
+      "cellWidth": 48,
+      "cellHeight": 56,
+      "gap": 8,
+      "responsiveMinCellHeight": 48,
+      "defaultLength": 6
+    },
+    "VTextArea": {
+      "defaultMinLines": 2,
+      "paddingHorizontal": 8,
+      "paddingVertical": 12,
+      "densePaddingHorizontal": 4,
+      "densePaddingVertical": 8
+    },
+    "VIcon": {
+      "defaultSize": 24,
+      "sizes": {
+        "xs": 16,
+        "sm": 20,
+        "md": 24,
+        "lg": 32,
+        "xl": 40
+      },
+      "weightFamilies": {
+        "thin": "Lucide100",
+        "extraLight": "Lucide200",
+        "light": "Lucide300",
+        "regular": "Lucide400",
+        "medium": "Lucide500",
+        "semiBold": "Lucide600"
+      }
+    },
+    "VPagePadding": {
+      "defaultHorizontal": 16,
+      "responsiveByParent": false
+    },
+    "VContentWidth": {
+      "mobileMax": null,
+      "tabletMax": 840,
+      "desktopMax": 1120,
+      "breakpoints": [
+        600,
+        1024
+      ]
+    },
+    "VResponsiveGrid": {
+      "columns": [
+        1,
+        2,
+        3
+      ],
+      "spacing": 16,
+      "runSpacing": 16,
+      "measure": "parent"
+    },
+    "VComboboxItem": {
+      "minHeight": 44,
+      "paddingHorizontal": 8,
+      "paddingVertical": 4,
+      "radius": 6
+    }
+  }
+}

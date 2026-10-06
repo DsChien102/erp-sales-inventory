@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_inventory_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 import '../../../core/di/injection.dart';
@@ -11,8 +12,10 @@ import '../../../core/errors/exception_mapper.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
+import 'bloc/default_pair_gate_cubit.dart';
 import 'models/dashboard_navigation.dart';
 import 'widgets/dashboard_header.dart';
+import 'widgets/default_pair_gate_error_view.dart';
 import 'widgets/erp_bottom_navigation.dart';
 import 'widgets/metric_tile.dart';
 import 'widgets/revenue_summary_card.dart';
@@ -32,8 +35,7 @@ Future<void> signOutSuspendedAccountAndGoToLogin(
     VToast.show(
       context,
       title: 'Tài khoản bị tạm ngừng',
-      message:
-          'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
+      message: 'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
       type: VToastType.danger,
     );
   }
@@ -51,12 +53,14 @@ class DashboardPage extends StatelessWidget {
     super.key,
     this.initialTab = DashboardTab.home,
     this.iamModule,
+    this.inventoryModule,
     this.autoBootstrap = true,
     this.initialState,
   });
 
   final DashboardTab initialTab;
   final IIamModule? iamModule;
+  final IInventoryModule? inventoryModule;
   final bool autoBootstrap;
   final TenantContextState? initialState;
 
@@ -85,15 +89,22 @@ class DashboardPage extends StatelessWidget {
         }
         return cubit;
       },
-      child: _DashboardPageBody(initialTab: initialTab),
+      child: _DashboardPageBody(
+        initialTab: initialTab,
+        inventoryModule: inventoryModule,
+      ),
     );
   }
 }
 
 class _DashboardPageBody extends StatefulWidget {
-  const _DashboardPageBody({required this.initialTab});
+  const _DashboardPageBody({
+    required this.initialTab,
+    required this.inventoryModule,
+  });
 
   final DashboardTab initialTab;
+  final IInventoryModule? inventoryModule;
 
   @override
   State<_DashboardPageBody> createState() => _DashboardPageState();
@@ -202,23 +213,21 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       }
 
       if (state.isBlocked) {
-        final accountSuspended =
-            state.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
+        final accountSuspended = state.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         return SafeArea(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(VSpacing.screenMobile),
               child: OrganizationEmptyView(
-                type: state.emptyStateType ??
-                    OrganizationEmptyStateType.noAuthorizedOrganizations,
+                type: state.emptyStateType ?? OrganizationEmptyStateType.noAuthorizedOrganizations,
                 suspendedOrgName: state.suspendedOrgName,
                 isClosed: state.blockedErrorCode == IamBlockedCodes.tenantClosed,
                 isAccountSuspended: accountSuspended,
                 onAction: accountSuspended
                     ? () => signOutSuspendedAccountAndGoToLogin(
-                          context,
-                          showToast: false,
-                        )
+                        context,
+                        showToast: false,
+                      )
                     : () => _openSelector(context),
               ),
             ),
@@ -259,10 +268,6 @@ class _DashboardPageState extends State<_DashboardPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
-    final showHeader = _currentTab == DashboardTab.home;
-    final showAppBar = _currentTab == DashboardTab.more;
-
     return BlocListener<TenantContextCubit, TenantContextState>(
       // bootstrap() phát loading trước blocked → không so với `ready`.
       listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
@@ -286,28 +291,67 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       },
       child: BlocBuilder<TenantContextCubit, TenantContextState>(
         builder: (context, state) {
-          return Scaffold(
-            backgroundColor: dynamicColors.background,
-            appBar: showAppBar
-                ? VAppBar(
-                    title: _getTabTitle(_currentTab),
-                    showBackButton: false,
-                  )
-                : null,
-            body: Column(
-              children: [
-                if (showHeader) const DashboardHeader(),
-                Expanded(child: _buildBody(context, state)),
-              ],
-            ),
-            bottomNavigationBar: ErpBottomNavigation(
-              selectedIndex: _currentTab.index,
-              onItemSelected: (index) {
-                final tab = DashboardTab.fromIndex(index);
-                setTab(tab);
+          if (!state.isValid) {
+            return _buildScaffold(context, state);
+          }
+          return BlocProvider(
+            key: ValueKey(state.current?.tenantId),
+            create: (_) {
+              final module = widget.inventoryModule ?? getIt<IInventoryModule>();
+              return DefaultPairGateCubit(inventoryModule: module)..load();
+            },
+            child: BlocBuilder<DefaultPairGateCubit, DefaultPairGateState>(
+              builder: (context, gate) {
+                if (gate.status != DefaultPairGateStatus.ready) {
+                  return _buildGateHold(context, gate);
+                }
+                return _buildScaffold(context, state);
               },
             ),
           );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGateHold(BuildContext context, DefaultPairGateState gate) {
+    final dynamicColors = context.vColors;
+    return Scaffold(
+      backgroundColor: dynamicColors.background,
+      body: gate.status == DefaultPairGateStatus.loading
+          ? const Center(child: VLoading())
+          : SafeArea(
+              child: DefaultPairGateErrorView(
+                onRetry: () => context.read<DefaultPairGateCubit>().load(),
+                onChooseOrganization: () => _openSelector(context),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, TenantContextState state) {
+    final dynamicColors = context.vColors;
+    final showHeader = _currentTab == DashboardTab.home;
+    final showAppBar = _currentTab == DashboardTab.more;
+    return Scaffold(
+      backgroundColor: dynamicColors.background,
+      appBar: showAppBar
+          ? VAppBar(
+              title: _getTabTitle(_currentTab),
+              showBackButton: false,
+            )
+          : null,
+      body: Column(
+        children: [
+          if (showHeader) const DashboardHeader(),
+          Expanded(child: _buildBody(context, state)),
+        ],
+      ),
+      bottomNavigationBar: ErpBottomNavigation(
+        selectedIndex: _currentTab.index,
+        onItemSelected: (index) {
+          final tab = DashboardTab.fromIndex(index);
+          setTab(tab);
         },
       ),
     );

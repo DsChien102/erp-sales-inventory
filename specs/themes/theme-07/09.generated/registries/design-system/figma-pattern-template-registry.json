@@ -1,0 +1,10 @@
+{
+  "schemaVersion":1,
+  "source":{"fileKey":"QVJolM5tAdFKkhP7RIwe3y","pageId":"505:5891","designSystemVersion":"2.0.2","capturedAt":"2026-09-08"},
+  "assets":[
+    ["549:927","COMPONENT_SET","DS v2 / Sticky Footer","04. Interaction & Overlay Patterns"],["549:958","COMPONENT_SET","DS v2 / FAB Placement","04. Interaction & Overlay Patterns"],["549:1007","COMPONENT_SET","DS v2 / Keyboard-safe Action Bar","04. Interaction & Overlay Patterns"],["550:999","COMPONENT_SET","DS v2 / Action Sheet","04. Interaction & Overlay Patterns"],["550:1058","COMPONENT_SET","DS v2 / Confirmation Sheet","04. Interaction & Overlay Patterns"],["550:1148","COMPONENT","DS v2 / Select Sheet","04. Interaction & Overlay Patterns"],["1149:6895","COMPONENT_SET","DS v2 / Filter Sheet","04. Interaction & Overlay Patterns"],["550:1347","COMPONENT_SET","DS v2 / Toast Layer","04. Interaction & Overlay Patterns"],["550:1298","COMPONENT_SET","Loading Overlay","04. Interaction & Overlay Patterns"],
+    ["547:2306","COMPONENT_SET","DS v2 / Search & Filter Header","05. List Patterns"],["1280:6203","COMPONENT","DS v2 / Search Results Dropdown/Product/Results","05. List Patterns"],["1280:6136","COMPONENT","DS v2 / Search Results Dropdown/Entity/Results","05. List Patterns"],["1280:6272","COMPONENT_SET","DS v2 / Search Results Dropdown","05. List Patterns"],["1353:6355","COMPONENT","DS v2 / Form Sheet","06. Form Patterns"],
+    ["551:549","COMPONENT","Mobile / Root List","09. Page Templates"],["551:1277","COMPONENT","Mobile / Nested List","09. Page Templates"],["551:1396","COMPONENT","Mobile / Detail","09. Page Templates"],["551:1452","COMPONENT","Mobile / Form","09. Page Templates"],["551:1530","COMPONENT","Mobile / Wizard","09. Page Templates"],["551:1621","COMPONENT","Mobile / Search & Select","09. Page Templates"],["551:1746","COMPONENT","Mobile / State","09. Page Templates"],["551:1777","COMPONENT","Mobile / Identity","09. Page Templates"]
+  ],
+  "governance":{"detailPatterns":"UNDER_REVIEW","identityTemplate":"UNDER_REVIEW","businessContent":"must remain Product UI/specimen content"}
+}

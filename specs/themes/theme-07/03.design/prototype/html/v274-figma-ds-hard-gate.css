@@ -1,0 +1,369 @@
+/*
+ * VET45 Theme 7 v2.7.4 — Figma DS hard gate.
+ * UI authority: live Figma Design System file QVJolM5tAdFKkhP7RIwe3y.
+ * This layer fixes typography fallback and bottom-sheet/component fidelity only.
+ * Business behavior is unchanged.
+ */
+
+/* Typography: Inter remains canonical. Generic fallbacks prevent UA-serif fallback
+   when Inter is not installed on the review machine. Form controls inherit exactly. */
+.figma-calibrated-shell,
+.figma-calibrated-shell button,
+.figma-calibrated-shell input,
+.figma-calibrated-shell textarea,
+.figma-calibrated-shell select {
+  font-family: var(--figma-font-sans) !important;
+  font-synthesis: none;
+}
+.figma-calibrated-shell .vet45-text-style-13,
+.figma-calibrated-shell .vet45-text-style-14,
+.figma-calibrated-shell .vet45-text-style-15 {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+}
+
+/* VButton live DS: disabled is parent opacity 0.4, not a separate gray color. */
+.figma-calibrated-shell [data-ds-component="VButton"].button,
+.figma-calibrated-shell [data-ds-component="VButton"].ds24-button {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+}
+.figma-calibrated-shell [data-ds-component="VButton"].button--primary:disabled,
+.figma-calibrated-shell [data-ds-component="VButton"].ds24-button--primary:disabled {
+  color: var(--vet45-v2-text-inverse) !important;
+  background: var(--vet45-v2-action-primary-default) !important;
+  border-color: transparent !important;
+  opacity: var(--vet45-v2-opacity-disabled) !important;
+  pointer-events: none !important;
+}
+
+/* Canonical VBottomSheet shell for legacy renderers that already claim VBottomSheet.
+   No feature-specific visual tone is introduced. */
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] {
+  width: 402px !important;
+  max-width: 100% !important;
+  max-height: 88% !important;
+  padding: 12px 16px 44px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  border: 0 !important;
+  border-radius: 20px 20px 0 0 !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-shadow: none !important;
+  overflow-y: auto !important;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-handle {
+  width: 48px !important;
+  height: 4px !important;
+  min-height: 4px !important;
+  flex: 0 0 4px !important;
+  margin: 0 auto !important;
+  border-radius: var(--vet45-v2-radius-pill) !important;
+  background: var(--vet45-v2-border-strong) !important;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] .sheet-title {
+  width: 370px !important;
+  margin: 0 !important;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] .sheet-title h3 {
+  margin: 0 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-divider {
+  display: none !important;
+}
+.figma-calibrated-shell .bottom-sheet[data-ds-component="VBottomSheet"] > .sheet-content {
+  width: 370px !important;
+  margin: 0 !important;
+}
+
+/* BJ05 canonical Form Sheet 1353:6355. Directly mirrors live Figma anatomy:
+   24 handle area + 44 header + 40 intro + fields + 92 sticky footer. */
+body[data-active-uif="UIF-05"] .bj05-form-sheet-backdrop {
+  z-index: 90 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  background: var(--vet45-v2-surface-overlay) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet {
+  position: relative !important;
+  inset: auto !important;
+  width: 402px !important;
+  height: 764px !important;
+  max-height: calc(100% - 24px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__handle-area {
+  width: 402px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__handle {
+  width: 48px !important;
+  height: 4px !important;
+  margin: 0 !important;
+  flex: 0 0 4px !important;
+  border-radius: var(--vet45-v2-radius-pill) !important;
+  background: var(--vet45-v2-border-strong) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__header {
+  width: 402px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  flex: 0 0 44px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__header h3 {
+  width: 300px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-icon-button {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  flex: 0 0 44px !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  color: var(--vet45-v2-icon-primary) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-icon-button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__intro {
+  width: 402px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  flex: 0 0 40px !important;
+  padding: 0 16px !important;
+  overflow: hidden !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__intro p {
+  width: 370px !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__fields {
+  width: 402px !important;
+  height: 560px !important;
+  min-height: 0 !important;
+  flex: 1 1 560px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__fields::-webkit-scrollbar { display: none; }
+body[data-active-uif="UIF-05"] .bj05-selection-list {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-selection-row {
+  width: 370px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 76px !important;
+  padding: 0 24px 0 16px !important;
+  gap: 12px !important;
+  border-radius: var(--vet45-v2-radius-4) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  border-color: var(--vet45-v2-border-default) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-selection-row.is-selected {
+  background: var(--vet45-v2-surface-default) !important;
+  border-color: var(--vet45-v2-border-default) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea {
+  width: 370px !important;
+  height: 140px !important;
+  min-height: 140px !important;
+  flex: 0 0 140px !important;
+  gap: 8px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea > span {
+  min-height: 20px !important;
+  color: var(--vet45-v2-text-primary) !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea__control {
+  width: 370px !important;
+  height: 88px !important;
+  min-height: 88px !important;
+  max-height: 88px !important;
+  padding: 12px 16px !important;
+  border: var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default) !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+  background: var(--vet45-v2-surface-default) !important;
+  color: var(--vet45-v2-text-primary) !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  font-weight: 400 !important;
+  resize: none !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea__control::placeholder {
+  color: var(--vet45-v2-text-secondary) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-textarea > small {
+  min-height: 16px !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1px !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__footer {
+  width: 402px !important;
+  height: 92px !important;
+  min-height: 92px !important;
+  flex: 0 0 92px !important;
+  padding: 12px 16px 24px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-shadow: var(--vet45-v2-elevation-sticky-footer) !important;
+}
+body[data-active-uif="UIF-05"] .bj05-form-sheet__footer [data-ds-component="VButton"] {
+  width: 370px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: var(--vet45-v2-radius-3) !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+}
+
+/* Any DOM that claims the canonical Confirmation Sheet must render as the live
+   bottom sheet, never as the historical centered dialog. */
+.figma-calibrated-shell .confirm-backdrop:has(> [data-ds-component="DS v2 / Confirmation Sheet"]) {
+  padding: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  background: var(--vet45-v2-surface-overlay) !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] {
+  box-sizing: border-box !important;
+  width: 402px !important;
+  max-width: 402px !important;
+  min-height: 280px !important;
+  margin: 0 !important;
+  padding: 12px 16px 44px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  border: 0 !important;
+  border-radius: 20px 20px 0 0 !important;
+  background: var(--vet45-v2-surface-default) !important;
+  box-shadow: none !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]::before {
+  content: "";
+  width: 48px;
+  height: 4px;
+  min-height: 4px;
+  margin: 0 auto;
+  border-radius: var(--vet45-v2-radius-pill);
+  background: var(--vet45-v2-border-strong);
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] h3 {
+  width: 370px !important;
+  margin: 0 !important;
+  color: var(--vet45-v2-text-primary) !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"][data-ds-prop-tone="Danger"] h3,
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"][data-ds-prop-is-destructive="true"] h3 {
+  color: var(--vet45-v2-text-danger) !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] > p {
+  width: 370px !important;
+  margin: 0 !important;
+  color: var(--vet45-v2-text-secondary) !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  font-weight: 400 !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] .confirm-dialog-actions {
+  width: 370px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+.figma-calibrated-shell .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] .confirm-dialog-actions > [data-ds-component="VButton"] {
+  width: 370px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+}
+
+/* Migrated BJ02 detail overlay claims VBottomSheet directly. Keep the live shell
+   geometry/typography contract even though its arbitrary content is feature-specific. */
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet[data-ds-component="VBottomSheet"] {
+  border-radius: 20px 20px 0 0 !important;
+  font-family: var(--figma-font-sans) !important;
+}
+body[data-active-uif="UIF-02"] .bj02-review-detail-sheet[data-ds-component="VBottomSheet"] > h2 {
+  font-family: var(--figma-font-sans) !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+}
+
+/* Canonical numeric sheets across migrated flows use 24px top radius and Inter. */
+.figma-calibrated-shell [data-ds-component="VNumericKeypadSheet"] {
+  border-radius: 24px 24px 0 0 !important;
+  font-family: var(--figma-font-sans) !important;
+}

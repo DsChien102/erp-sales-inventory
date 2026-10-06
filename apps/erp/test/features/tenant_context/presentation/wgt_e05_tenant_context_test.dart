@@ -12,16 +12,22 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
 
 void main() {
   final getIt = GetIt.instance;
 
   setUp(() async {
     await getIt.reset();
+    getIt.registerSingleton<IInventoryModule>(
+      const ReadyDefaultPairInventoryModule(),
+    );
   });
 
   tearDown(() async {

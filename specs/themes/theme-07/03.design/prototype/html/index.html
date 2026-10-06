@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VET45 Theme 7 — full prototype harness with task-driven Warehouse Home." />
+    <title>VET45 · Theme 7 Prototype Harness</title>
+    <link rel="stylesheet" href="figma-ds.exact.css" />
+    <link rel="stylesheet" href="figma-ds.styles.exact.css" />
+    <link rel="stylesheet" href="tokens.generated.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="bj01-ds-fidelity.css" />
+    <link rel="stylesheet" href="bj02-ds-fidelity.css" />
+    <link rel="stylesheet" href="v251-ui-ds-corrections.css" />
+    <link rel="stylesheet" href="v252-bj02-quick-flow-ui.css" />
+    <link rel="stylesheet" href="v252-figma-live-sync.css" />
+    <link rel="stylesheet" href="v253-info-row-live-sync.css" />
+    <link rel="stylesheet" href="v254-bj02-input-ux-correction.css" />
+    <link rel="stylesheet" href="v255-bj02-review-density.css" />
+    <link rel="stylesheet" href="v260-bj04-ds-fidelity.css" />
+    <link rel="stylesheet" href="v270-bj05-ds-fidelity.css" />
+    <link rel="stylesheet" href="v271-figma-ds-corrections.css" />
+    <link rel="stylesheet" href="v272-detail-composition-fidelity.css" />
+    <link rel="stylesheet" href="v273-ui-hardening.css" />
+    <link rel="stylesheet" href="v274-figma-ds-hard-gate.css" />
+    <link rel="stylesheet" href="v275-cross-bj-ds-fidelity.css" />
+    <link rel="stylesheet" href="v276-bj05-compact-detail.css" />
+    <link rel="stylesheet" href="v280-bj05-sheet-bj06-figma-ds.css" />
+    <link rel="stylesheet" href="v281-device-frame-correction.css" />
+    <link rel="stylesheet" href="v282-bj05-bj06-ux-correction.css" />
+    <link rel="stylesheet" href="v290-bj07-figma-ds.css" />
+    <link rel="stylesheet" href="v291-bj07-ux-correction.css" />
+    <link rel="stylesheet" href="v292-product-hierarchy-surfaces.css" />
+    <link rel="stylesheet" href="v293-grouped-collection-density.css" />
+    <link rel="stylesheet" href="v294-product-lot-hierarchy.css" />
+    <link rel="stylesheet" href="v300-valuation-cluster.css" />
+    <link rel="stylesheet" href="v301-operation-valuation-polish.css" />
+  <link rel="stylesheet" href="v310-audit-control-cluster.css" />
+  <link rel="stylesheet" href="v320-audit-control-ui-correction.css" />
+  <link rel="stylesheet" href="v321-ds-composition-correction.css" />
+  <link rel="stylesheet" href="v330-visual-hierarchy-refactor.css" />
+  <link rel="stylesheet" href="v340-professional-composition.css" />
+    <link rel="stylesheet" href="v350-flow-logic-correction.css">
+    <link rel="stylesheet" href="v351-list-chip-navigation-correction.css">
+    <link rel="stylesheet" href="v360-full-theme-completion.css">
+    <link rel="stylesheet" href="v361-footer-action-correction.css">
+    <link rel="stylesheet" href="v362-list-rhythm-correction.css">
+    <link rel="stylesheet" href="v363-list-navigation-state-correction.css">
+    <link rel="stylesheet" href="v364-radio-helper-correction.css">
+    <link rel="stylesheet" href="v370-integrated-theme-navigation.css">
+    <link rel="stylesheet" href="v371-flat-hub-navigation.css">
+    <link rel="stylesheet" href="v380-task-driven-warehouse-home.css">
+    <link rel="stylesheet" href="v381-function-catalog-sheet-cleanup.css">
+    <link rel="stylesheet" href="v382-warehouse-home-action-placement.css">
+    <link rel="stylesheet" href="v383-warehouse-home-clarity-polish.css">
+    <link rel="stylesheet" href="v390-full-theme-end-user-hardening.css">
+    <link rel="stylesheet" href="v391-bj01-semantic-hardening.css">
+    <link rel="stylesheet" href="v392-bj02-semantic-hardening.css">
+    <link rel="stylesheet" href="v393-bj05-semantic-hardening.css">
+    <link rel="stylesheet" href="v394-bj06-semantic-hardening.css">
+  <link rel="stylesheet" href="v395-bj07-semantic-hardening.css">
+  <link rel="stylesheet" href="v396-bj04-semantic-hardening.css">
+  <link rel="stylesheet" href="v397-bj03-semantic-hardening.css">
+  <link rel="stylesheet" href="v398-bj13-semantic-hardening.css">
+  <link rel="stylesheet" href="v399-bj14-semantic-hardening.css">
+  <link rel="stylesheet" href="v313-valuation-design.css">
+  <link rel="stylesheet" href="v430-valuation-uiux.css">
+  <link rel="stylesheet" href="v431-grouped-surface-regression-fix.css">
+  <link rel="stylesheet" href="v440-theme-wide-grouped-surface.css">
+  <link rel="stylesheet" href="v450-theme-visual-qa.css">
+  <link rel="stylesheet" href="v460-semantic-ux.css">
+  <link rel="stylesheet" href="v464-warehouse-hub-bj02-continuity.css">
+</head>
+  <body>
+    <div class="review-app" data-review-workbench>
+      <header class="review-topbar">
+        <div class="brand-lockup" aria-label="VET45">
+          <div class="brand-mark">V</div>
+          <div>
+            <strong>VET45</strong>
+            <span>UI/UX Review</span>
+          </div>
+        </div>
+        <div class="review-title">
+          <span class="eyebrow">Theme 7 · Figma DS Working Freeze</span>
+          <h1 id="workbench-title">Theme 7 · Prototype Harness</h1>
+        </div>
+        <div class="review-meta">
+          <span class="review-badge">v4.5.0 · Snapshot-led visual QA</span>
+          <span id="workbench-count" class="review-badge review-badge--muted">17 BJ + CAP-01</span>
+        </div>
+      </header>
+
+      <div class="review-layout">
+        <aside class="review-sidebar" aria-label="Danh sách màn hình">
+          <div class="sidebar-intro">
+            <span class="eyebrow">Harness flow</span>
+            <label class="flow-label" for="flow-selector">BJ / UIF</label>
+            <select id="flow-selector" class="flow-selector" aria-label="Chọn Business Journey / UI Flow"></select>
+            <h2 id="sidebar-flow-title">UIF</h2>
+            <p id="sidebar-flow-intent"></p>
+          </div>
+          <nav id="screen-navigation" class="screen-navigation"></nav>
+          <div class="sidebar-note">
+            <span class="note-dot"></span>
+            <p><strong>Cumulative Theme 7 Harness.</strong> HTML prototype là artifact thiết kế Theme 7; Figma cung cấp Design System và tham khảo thiết kế các theme trước. BJ/UC/UIF/Screen Contract quyết định nghiệp vụ và hành vi.</p>
+          </div>
+        </aside>
+
+        <main class="review-stage">
+          <div class="stage-toolbar">
+            <div>
+              <span id="current-screen-id" class="eyebrow"></span>
+              <h2 id="current-screen-name"></h2>
+            </div>
+            <div class="stage-actions">
+              <div class="viewport-switcher" aria-label="Chọn viewport">
+                <button class="viewport-button is-active" data-viewport="mobile" type="button">Mobile · 402 × 874</button>
+              </div>
+              <button id="inspect-toggle" class="inspect-toggle" type="button" aria-pressed="false" title="Inspect component & box model">Inspect</button>
+            </div>
+          </div>
+
+          <div class="stage-canvas">
+            <div id="device-preview" class="device-preview is-mobile">
+              <div id="app-screen" class="app-screen" aria-live="polite"></div>
+            </div>
+          </div>
+        </main>
+
+        <aside class="review-inspector" aria-label="Thông tin thiết kế">
+          <section class="inspector-section">
+            <span class="eyebrow">Trạng thái</span>
+            <div id="state-switcher" class="state-switcher"></div>
+          </section>
+          <section class="inspector-section">
+            <span class="eyebrow">Design Contract</span>
+            <div id="traceability" class="traceability"></div>
+          </section>
+          <section id="inspect-section" class="inspector-section inspect-panel" hidden>
+            <div class="inspect-panel-heading">
+              <span class="eyebrow">Inspect</span>
+              <span id="inspect-pin-status" class="inspect-pin-status">Hover component</span>
+            </div>
+            <div id="inspect-details" class="inspect-details">Bật Inspect rồi rê chuột lên UI trong thiết bị.</div>
+          </section>
+          <section class="inspector-section">
+            <span class="eyebrow">Chủ đích thiết kế</span>
+            <p id="design-rationale" class="design-rationale"></p>
+          </section>
+          <section class="inspector-section inspector-section--accent">
+            <span class="eyebrow">Nguyên tắc xuyên suốt</span>
+            <ul class="principle-list">
+              <li>Một hành động chính trong mỗi trạng thái.</li>
+              <li>Không dùng màu làm tín hiệu duy nhất.</li>
+              <li>Giữ dữ liệu khi lỗi có thể sửa an toàn.</li>
+              <li>UNKNOWN không đồng nghĩa thất bại.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <div id="inspect-overlay" class="inspect-overlay" hidden aria-hidden="true">
+      <div class="inspect-box inspect-box--margin"></div>
+      <div class="inspect-box inspect-box--border"></div>
+      <div class="inspect-box inspect-box--padding"></div>
+      <div class="inspect-box inspect-box--content"></div>
+      <div class="inspect-tag"></div>
+    </div>
+
+    <script src="workbench-data.js"></script>
+    <script src="figma-ds-runtime-map.js"></script>
+    <script src="app.js"></script>
+  <script src="v310-audit-control-cluster.js"></script>
+  <script src="v320-audit-control-ui-correction.js"></script>
+  <script src="v340-professional-composition.js"></script>
+  <script src="v350-flow-logic-correction.js"></script>
+  <script src="v351-list-chip-navigation-correction.js"></script>
+  <script src="v360-full-theme-completion.js"></script>
+  <script src="v361-footer-action-correction.js"></script>
+  <script src="v362-list-rhythm-correction.js"></script>
+  <script src="v363-list-navigation-state-correction.js"></script>
+  <script src="v364-radio-helper-correction.js"></script>
+  <script src="v370-integrated-theme-navigation.js"></script>
+  <script src="v371-flat-hub-navigation.js"></script>
+  <script src="v380-task-driven-warehouse-home.js"></script>
+  <script src="v381-function-catalog-sheet-cleanup.js"></script>
+  <script src="v382-warehouse-home-action-placement.js"></script>
+  <script src="v383-warehouse-home-clarity-polish.js"></script>
+  <script src="v390-full-theme-end-user-hardening.js"></script>
+  <script src="v392-bj02-semantic-hardening.js"></script>
+  <script src="v393-bj05-semantic-hardening.js"></script>
+  <script src="v394-bj06-semantic-hardening.js"></script>
+  <script src="v395-bj07-semantic-hardening.js"></script>
+  <script src="v396-bj04-semantic-hardening.js"></script>
+  <script src="v397-bj03-semantic-hardening.js"></script>
+  <script src="v398-bj13-semantic-hardening.js"></script>
+  <script src="v399-bj14-semantic-hardening.js"></script>
+  <script src="v3100-bj08-semantic-hardening.js"></script>
+  <script src="v3101-bj09-semantic-hardening.js"></script>
+  <script src="v313-valuation-design.js"></script>
+  <script src="v430-valuation-uiux.js"></script>
+  <script src="v431-grouped-surface-regression-fix.js"></script>
+  <script src="v440-theme-wide-grouped-surface.js"></script>
+  <script src="v450-theme-visual-qa.js"></script>
+  <script src="v460-semantic-ux.js"></script>
+  <script src="v461-semantic-correction.js"></script>
+  <script src="v464-warehouse-hub-bj02-continuity.js"></script>
+  <script src="v466-bj02-quick-receipt-no-draft.js"></script>
+  <script src="v467-bj02-quick-approval-no-price-basis.js"></script>
+  <script src="v468-bj02-design-state-cleanup.js"></script>
+  </body>
+</html>

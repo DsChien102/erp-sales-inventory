@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_einvoice_application/application.dart';
@@ -45,5 +46,6 @@ void main() {
     expect(getIt.isRegistered<IEInvoiceModule>(), isTrue);
     expect(getIt<IEInvoiceModule>(), isA<EinvoiceModule>());
     expect(getIt<IEInvoiceModule>(), isNot(isA<FakeEInvoiceModule>()));
+    expect(getIt.isRegistered<IInventoryModule>(), isTrue);
   });
 }

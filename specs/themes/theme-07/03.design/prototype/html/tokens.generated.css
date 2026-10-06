@@ -1,0 +1,54 @@
+/* TRANSITIONAL LEGACY ADAPTER — Theme 7 v2.1.2 readiness.
+   Canonical source is figma-ds.exact.css + figma-ds.styles.exact.css, which use the exact WEB variable names from live Figma DS v2.0.2.
+   This file exists ONLY so the pre-migration UIF renderer keeps running unchanged while each UIF is replaced.
+   New/migrated Product UI MUST use --vet45-v2-* variables directly and MUST NOT add new --v-* conventions. */
+:root {
+  /* Transitional aliases retained only for the legacy UIF renderer. */
+  --figma-surface-canvas:var(--vet45-v2-surface-canvas);
+  --figma-surface-default:var(--vet45-v2-surface-default);
+  --figma-surface-subtle:var(--vet45-v2-surface-subtle);
+  --figma-surface-brand:var(--vet45-v2-surface-brand);
+  --figma-surface-success:var(--vet45-v2-surface-success);
+  --figma-surface-warning:var(--vet45-v2-surface-warning);
+  --figma-surface-danger:var(--vet45-v2-surface-danger);
+  --figma-surface-info:var(--vet45-v2-surface-info);
+  --figma-surface-toast:var(--vet45-v2-surface-toast);
+  --figma-text-primary:var(--vet45-v2-text-primary);
+  --figma-text-secondary:var(--vet45-v2-text-secondary);
+  --figma-text-muted:var(--vet45-v2-text-muted);
+  --figma-text-inverse:var(--vet45-v2-text-inverse);
+  --figma-text-brand:var(--vet45-v2-text-brand);
+  --figma-text-success:var(--vet45-v2-text-success);
+  --figma-text-warning:var(--vet45-v2-text-warning);
+  --figma-text-danger:var(--vet45-v2-text-danger);
+  --figma-text-info:var(--vet45-v2-text-info);
+  --figma-border-default:var(--vet45-v2-border-default);
+  --figma-border-strong:var(--vet45-v2-border-strong);
+  --figma-border-brand:var(--vet45-v2-border-brand);
+  --figma-action-primary:var(--vet45-v2-action-primary-default);
+  --figma-action-primary-pressed:var(--vet45-v2-action-primary-pressed);
+  --figma-action-on-primary:var(--vet45-v2-action-on-primary);
+  --figma-action-danger:var(--vet45-v2-action-danger-default);
+  --figma-focus-ring:var(--vet45-v2-focus-ring);
+
+  --figma-space-0:var(--vet45-v2-space-0); --figma-space-1:var(--vet45-v2-space-1); --figma-space-2:var(--vet45-v2-space-2); --figma-space-3:var(--vet45-v2-space-3); --figma-space-4:var(--vet45-v2-space-4); --figma-space-5:var(--vet45-v2-space-5); --figma-space-6:var(--vet45-v2-space-6); --figma-space-8:var(--vet45-v2-space-8); --figma-space-10:var(--vet45-v2-space-10); --figma-space-12:var(--vet45-v2-space-12);
+  --figma-radius-1:var(--vet45-v2-radius-1); --figma-radius-2:var(--vet45-v2-radius-2); --figma-radius-3:var(--vet45-v2-radius-3); --figma-radius-4:var(--vet45-v2-radius-4); --figma-radius-5:var(--vet45-v2-radius-5); --figma-radius-6:var(--vet45-v2-radius-6); --figma-radius-pill:var(--vet45-v2-radius-pill);
+  --figma-icon-16:var(--vet45-v2-icon-16); --figma-icon-20:var(--vet45-v2-icon-20); --figma-icon-24:var(--vet45-v2-icon-24); --figma-icon-32:var(--vet45-v2-icon-32); --figma-icon-48:var(--vet45-v2-icon-48); --figma-icon-72:var(--vet45-v2-icon-72); --figma-icon-stroke:var(--vet45-v2-icon-stroke);
+  --figma-touch-minimum:var(--vet45-v2-touch-minimum); --figma-mobile-edge:var(--vet45-v2-layout-mobile-edge); --figma-tablet-edge:var(--vet45-v2-layout-tablet-edge); --figma-desktop-edge:var(--vet45-v2-layout-desktop-edge); --figma-mobile-width:var(--vet45-v2-layout-mobile-width); --figma-mobile-height:var(--vet45-v2-layout-mobile-height);
+  --figma-elevation-e1:var(--vet45-v2-elevation-e1); --figma-elevation-e2:var(--vet45-v2-elevation-e2); --figma-elevation-e3:var(--vet45-v2-elevation-e3); --figma-elevation-e4:var(--vet45-v2-elevation-e4);
+  --figma-font-sans:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --figma-font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --v-color-background:var(--vet45-v2-surface-canvas); --v-color-toast-surface:var(--vet45-v2-surface-toast); --v-color-surface:var(--vet45-v2-surface-default); --v-color-surface-default:var(--vet45-v2-surface-default); --v-color-surface-alt:var(--vet45-v2-surface-subtle); --v-color-surface-subtle:var(--vet45-v2-surface-subtle); --v-color-surface-brand:var(--vet45-v2-surface-brand);
+  --v-color-border-default:var(--vet45-v2-border-default); --v-color-border-strong:var(--vet45-v2-border-strong);
+  --v-color-text-primary:var(--vet45-v2-text-primary); --v-color-text-secondary:var(--vet45-v2-text-secondary); --v-color-text-muted:var(--vet45-v2-text-muted); --v-color-text-brand:var(--vet45-v2-text-brand); --v-color-text-inverse:var(--vet45-v2-text-inverse);
+  --v-color-primary:var(--vet45-v2-action-primary-default); --v-color-primary-hover:var(--vet45-v2-action-primary-pressed); --v-color-primary-pressed:var(--vet45-v2-action-primary-pressed); --v-color-focus-ring:var(--vet45-v2-focus-ring);
+  --v-color-success:var(--vet45-v2-text-success); --v-color-success-bg:var(--vet45-v2-surface-success); --v-color-warning:var(--vet45-v2-text-warning); --v-color-warning-text:var(--vet45-v2-text-warning); --v-color-warning-bg:var(--vet45-v2-surface-warning); --v-color-danger:var(--vet45-v2-text-danger); --v-color-danger-bg:var(--vet45-v2-surface-danger); --v-color-info:var(--vet45-v2-text-info); --v-color-info-bg:var(--vet45-v2-surface-info);
+  --v-space-0:var(--vet45-v2-space-0); --v-space-1:var(--vet45-v2-space-1); --v-space-2:var(--vet45-v2-space-2); --v-space-3:var(--vet45-v2-space-3); --v-space-4:var(--vet45-v2-space-4); --v-space-5:var(--vet45-v2-space-5); --v-space-6:var(--vet45-v2-space-6); --v-space-8:var(--vet45-v2-space-8); --v-space-10:var(--vet45-v2-space-10); --v-space-12:var(--vet45-v2-space-12);
+  --v-screen-mobile:var(--vet45-v2-layout-mobile-edge); --v-screen-tablet:var(--vet45-v2-layout-tablet-edge); --v-screen-desktop:var(--vet45-v2-layout-desktop-edge); --v-min-touch-target:var(--vet45-v2-touch-minimum);
+  --v-radius-4:var(--vet45-v2-radius-1); --v-radius-6:var(--vet45-v2-radius-2); --v-radius-8:var(--vet45-v2-radius-3); --v-radius-12:var(--vet45-v2-radius-4); --v-radius-16:var(--vet45-v2-radius-5); --v-radius-20:var(--vet45-v2-radius-6); --v-radius-pill:var(--vet45-v2-radius-pill); --v-radius-input:var(--vet45-v2-radius-3); --v-radius-button:var(--vet45-v2-radius-3); --v-radius-card:var(--vet45-v2-radius-4); --v-radius-sheet:var(--vet45-v2-radius-5); --v-radius-md:var(--vet45-v2-radius-3); --v-radius-lg:var(--vet45-v2-radius-4);
+  --v-shadow-e1:var(--vet45-v2-elevation-e1); --v-shadow-e2:var(--vet45-v2-elevation-e2); --v-shadow-e3:var(--vet45-v2-elevation-e3);
+
+  /* Legacy-only values with no live Figma variable. Do not use in migrated Product UI. */
+  --v-space-18:72px; --v-control-small:36px; --v-control-medium:44px; --v-control-large:52px; --v-field-padding-v:12px; --v-field-padding-h:16px;
+}

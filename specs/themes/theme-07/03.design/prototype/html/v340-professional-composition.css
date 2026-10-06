@@ -1,0 +1,240 @@
+/* VET45 Theme 7 v3.4.0 — professional composition correction
+ * Figma authority: 02 Layout / Surface Grouping + Spacing & Density,
+ * 05 List Patterns, 06 Form Patterns, canonical DS v2 primitives.
+ * Rule: one semantic group = one boundary; no pseudo headers, no nested peer cards.
+ */
+
+/* --------------------------------------------------------------------------
+   Global chip integrity. Canonical VChip stays intact; dense sets wrap instead
+   of exposing half a chip at the viewport edge. No custom chip anatomy.
+   -------------------------------------------------------------------------- */
+.figma-calibrated-shell .ds24-chip-scroll,
+.figma-calibrated-shell .io07-chip-scroll,
+.figma-calibrated-shell .bj05-chip-scroll {
+  box-sizing:border-box !important;
+  width:370px !important;
+  max-width:100% !important;
+  height:auto !important;
+  min-height:44px !important;
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  align-content:flex-start !important;
+  gap:8px !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+.figma-calibrated-shell :is(.ds24-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll) > .ds24-chip {
+  flex:0 0 auto !important;
+  max-width:100% !important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ08 count / recount. One product task is one grouped surface. The canonical
+   List Row becomes the flat identity row inside that surface; form/facts are
+   subordinate content, never their own cards.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-product-control-list,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-count-collection {
+  width:370px !important;
+  max-width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:16px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) {
+  box-sizing:border-box !important;
+  width:370px !important;
+  max-width:100% !important;
+  margin:0 !important;
+  padding:0 0 12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+  border:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+  border-radius:12px !important;
+  background:var(--vet45-v2-surface-default,#fff) !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) + :is(.ac310-product-control-group,.ac321-product-input-group) {
+  padding-top:0 !important;
+  border-top:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-group,.ac321-product-input-group) > .ds24-list-row {
+  box-sizing:border-box !important;
+  width:100% !important;
+  max-width:none !important;
+  min-height:60px !important;
+  margin:0 !important;
+  padding:10px 12px !important;
+  border:0 !important;
+  border-bottom:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
+  box-sizing:border-box !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:12px 16px 0 !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent {
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-surface,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts {
+  width:100% !important;
+  max-width:100% !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"],
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] {
+  box-sizing:border-box !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-height:40px !important;
+  height:40px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ac310-key-value-stack > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"],
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-facts > [data-ds-component="DS v2 / Key-value Row"] + [data-ds-component="DS v2 / Key-value Row"] {
+  border-top:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac340-recount-facts + .ds24-field {
+  padding-top:12px !important;
+  border-top:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field {
+  width:100% !important;
+  gap:6px !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac310-control-indent .ds24-field__control,
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac321-product-field .ds24-field__control {
+  min-height:44px !important;
+}
+
+/* Approval review uses the same one-boundary rule as count/recount. */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac340-review-list {
+  width:370px;max-width:100%;display:flex;flex-direction:column;gap:16px;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac340-review-group {
+  box-sizing:border-box;width:370px;max-width:100%;overflow:hidden;
+  border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:12px;background:var(--vet45-v2-surface-default,#fff);
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac340-review-group > .ac310-product-row {
+  border:0 !important;border-bottom:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+  border-radius:0 !important;background:transparent !important;
+}
+body[data-active-uif="UIF-08"] .figma-calibrated-shell .ac340-review-group > .ac310-surface {
+  width:100% !important;max-width:100% !important;margin:0 !important;padding:8px 16px !important;
+  border:0 !important;border-radius:0 !important;background:transparent !important;
+}
+
+/* --------------------------------------------------------------------------
+   Audit & Control product + detail pairs. When a canonical product row is
+   immediately followed by a grouped fact surface, visually join them into one
+   surface instead of rendering two touching cards. This improves all similar
+   detail screens in the cluster without inventing a component.
+   -------------------------------------------------------------------------- */
+body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],[data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"])
+.figma-calibrated-shell .body-stack > .ac310-product-row:has(+ .ac310-surface) {
+  border-radius:12px 12px 0 0 !important;
+  border-bottom:0 !important;
+}
+body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-10"],[data-active-uif="UIF-11"],[data-active-uif="UIF-12"],[data-active-uif="UIF-15"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"])
+.figma-calibrated-shell .body-stack > .ac310-product-row + .ac310-surface {
+  margin-top:-12px !important;
+  border-radius:0 0 12px 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ07 Product -> LOT. Each product/UOM is one grouped surface, and LOT rows are
+   flat children inside it. Product groups are separated by whitespace; no
+   collection-level card and no left connector pseudo hierarchy.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {
+  box-sizing:border-box !important;
+  width:370px !important;max-width:100% !important;
+  display:flex !important;flex-direction:column !important;gap:16px !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;overflow:visible !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection :is(.io07-product-group,.io07-review-product) {
+  box-sizing:border-box !important;width:100% !important;margin:0 !important;padding:0 !important;
+  border:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;border-radius:12px !important;
+  background:var(--vet45-v2-surface-default,#fff) !important;overflow:hidden !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection :is(.io07-product-group,.io07-review-product) + :is(.io07-product-group,.io07-review-product) {
+  border-top:1px solid var(--vet45-v2-border-default,#e5e8eb) !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection [data-layout-role="rtv-product-summary"],
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection [data-layout-role="rtv-review-product"] {
+  box-sizing:border-box !important;width:100% !important;min-height:60px !important;margin:0 !important;padding:10px 12px !important;
+  border:0 !important;border-bottom:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+  border-radius:0 !important;background:transparent !important;box-shadow:none !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list {
+  box-sizing:border-box !important;width:100% !important;margin:0 !important;padding:0 !important;
+  display:flex !important;flex-direction:column !important;gap:0 !important;border:0 !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row {
+  box-sizing:border-box !important;width:100% !important;min-height:56px !important;margin:0 !important;
+  padding:8px 12px 8px 40px !important;border:0 !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-allocation-list > .ds24-list-row + .ds24-list-row {
+  border-top:1px solid var(--vet45-v2-border-subtle,var(--vet45-v2-border-default,#e5e8eb)) !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-review-kv {
+  box-sizing:border-box !important;width:100% !important;margin:0 !important;padding:4px 16px 8px !important;border:0 !important;
+}
+body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection .io07-review-kv > [data-ds-component="DS v2 / Key-value Row"] {
+  width:100% !important;max-width:100% !important;margin:0 !important;
+}
+
+@media (max-width:401px){
+  .figma-calibrated-shell :is(.ds24-chip-scroll,.io07-chip-scroll,.bj05-chip-scroll),
+  body[data-active-uif="UIF-08"] .figma-calibrated-shell :is(.ac310-product-control-list,.ac310-product-control-group,.ac340-review-list,.ac340-review-group),
+  body[data-active-uif="UIF-07"] .figma-calibrated-shell .io07-grouped-collection {width:100% !important;max-width:100% !important;}
+}
+
+/* Specificity override for earlier v3.2/v3.3 chip-scroll rules. */
+body:is(
+  [data-active-uif="UIF-01"],[data-active-uif="UIF-02"],[data-active-uif="UIF-03"],[data-active-uif="UIF-04"],
+  [data-active-uif="UIF-05"],[data-active-uif="UIF-06"],[data-active-uif="UIF-07"],[data-active-uif="UIF-08"],
+  [data-active-uif="UIF-09"],[data-active-uif="UIF-10"],[data-active-uif="UIF-11"],[data-active-uif="UIF-12"],
+  [data-active-uif="UIF-13"],[data-active-uif="UIF-14"],[data-active-uif="UIF-15"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"]
+) .figma-calibrated-shell .ds24-chip-scroll {
+  width:370px !important;
+  max-width:100% !important;
+  height:auto !important;
+  min-height:44px !important;
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  align-content:flex-start !important;
+  gap:8px !important;
+  padding:0 !important;
+  overflow:visible !important;
+}

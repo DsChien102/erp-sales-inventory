@@ -4,8 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
 
 /// e2e_e05_u01/u02/u03 — ERP tenant context via FakeIamModule (Group A).
 void main() {
@@ -13,6 +16,9 @@ void main() {
 
   setUp(() async {
     await getIt.reset();
+    getIt.registerSingleton<IInventoryModule>(
+      const ReadyDefaultPairInventoryModule(),
+    );
   });
 
   tearDown(() async {

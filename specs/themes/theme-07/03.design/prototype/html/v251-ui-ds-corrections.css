@@ -1,0 +1,438 @@
+/* VET45 Theme 7 v2.5.1 — corrective DS fidelity gate for BJ01 + BJ02.
+   Live Figma authority: Foundations/Icons + Components + Patterns/Templates.
+   This file is intentionally loaded LAST so no inherited Theme7 CSS can override
+   the exact master anatomy below. No new shared component is introduced here. */
+
+/* --------------------------------------------------------------------------
+   BJ01 — Key-value Row 525:358. Robust alignment only; typography belongs to
+   the Figma component/variant. Default = Inter 13 + JetBrains Mono 14/22;
+   Emphasis = Inter 14/16. The minimum gap only prevents collision on long copy
+   and does not change the normal justify-between geometry.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-01"] .ds24-key-value-stack {
+  width:338px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:0!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row {
+  width:338px!important;
+  height:44px!important;
+  min-height:44px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  column-gap:8px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span,
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  flex:0 0 auto!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  margin:0!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > span {
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:13px!important;
+  line-height:20px!important;
+  font-weight:400!important;
+  color:var(--vet45-v2-text-secondary)!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row > strong {
+  margin-left:auto!important;
+  font-family:"JetBrains Mono",ui-monospace,monospace!important;
+  font-size:14px!important;
+  line-height:22px!important;
+  font-weight:400!important;
+  color:var(--vet45-v2-text-primary)!important;
+  text-align:right!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis {
+  padding:0 12px!important;
+  border-radius:8px!important;
+  background:var(--vet45-v2-surface-brand)!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > span {
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  font-weight:600!important;
+  color:var(--vet45-v2-text-primary)!important;
+}
+body[data-active-uif="UIF-01"] .ds24-key-value-row--emphasis > strong {
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:16px!important;
+  line-height:22px!important;
+  font-weight:600!important;
+  color:var(--vet45-v2-text-brand)!important;
+}
+
+/* --------------------------------------------------------------------------
+   BJ02 — page shell and exact action region.
+   Sticky Footer 549:256 / 549:877 = 402x92, pt12, pb24, px16, 44px buttons.
+   -------------------------------------------------------------------------- */
+body[data-active-uif="UIF-02"] .figma-calibrated-shell { position:relative!important; }
+body[data-active-uif="UIF-02"] .figma-sticky-footer {
+  width:402px!important;
+  height:92px!important;
+  min-height:92px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  padding:12px 16px 24px!important;
+  gap:8px!important;
+  border:0!important;
+  background:var(--vet45-v2-surface-default)!important;
+  box-shadow:0 -4px 3px rgba(0,0,0,.12)!important;
+}
+body[data-active-uif="UIF-02"] .figma-sticky-footer.is-split {
+  display:grid!important;
+  grid-template-columns:181px 181px!important;
+  gap:8px!important;
+}
+body[data-active-uif="UIF-02"] .figma-sticky-footer .button {
+  width:100%!important;
+  height:44px!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:0 16px!important;
+  border-radius:8px!important;
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  font-weight:600!important;
+}
+
+/* VBanner 526:4215. Direct 20px semantic icon; never a decorative circle. */
+body[data-active-uif="UIF-02"] .v-banner[data-ds-component="VBanner"] {
+  width:370px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  grid-template-columns:none!important;
+  gap:12px!important;
+  margin:0!important;
+  border-width:1px!important;
+  border-style:solid!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Default"] { padding:16px!important; }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Compact"] {
+  height:72px!important;
+  min-height:72px!important;
+  padding:12px 16px!important;
+}
+body[data-active-uif="UIF-02"] .v-banner.v-banner--info { height:auto!important; min-height:0!important; background:var(--vet45-v2-surface-info)!important; border-color:var(--vet45-v2-border-info)!important; color:var(--vet45-v2-text-info)!important; }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--success { background:var(--vet45-v2-surface-success)!important; border-color:var(--vet45-v2-border-success)!important; color:var(--vet45-v2-text-success)!important; }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--warning { background:var(--vet45-v2-surface-warning)!important; border-color:var(--vet45-v2-border-warning)!important; color:var(--vet45-v2-text-warning)!important; }
+body[data-active-uif="UIF-02"] .v-banner.v-banner--error { background:var(--vet45-v2-surface-danger)!important; border-color:var(--vet45-v2-border-danger)!important; color:var(--vet45-v2-text-danger)!important; }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Default"]:is(.v-banner--success,.v-banner--warning,.v-banner--error) { height:96px!important; min-height:96px!important; }
+body[data-active-uif="UIF-02"] .v-banner[data-ds-prop-density="Compact"]:is(.v-banner--info,.v-banner--success,.v-banner--warning,.v-banner--error) { height:72px!important; min-height:72px!important; }
+body[data-active-uif="UIF-02"] .v-banner-icon {
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+body[data-active-uif="UIF-02"] .v-banner-icon .icon { width:20px!important; height:20px!important; }
+body[data-active-uif="UIF-02"] .v-banner-copy {
+  width:286px!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:4px!important;
+}
+body[data-active-uif="UIF-02"] .v-banner-copy strong {
+  margin:0!important;
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  font-weight:600!important;
+  color:currentColor!important;
+}
+body[data-active-uif="UIF-02"] .v-banner-copy span {
+  width:286px!important;
+  margin:0!important;
+  font-family:"Inter",system-ui,sans-serif!important;
+  font-size:13px!important;
+  line-height:20px!important;
+  font-weight:400!important;
+  color:var(--vet45-v2-text-primary)!important;
+}
+
+/* Form typography and fields. */
+body[data-active-uif="UIF-02"] .compact-section-heading { width:370px!important; margin:0!important; padding:0!important; }
+body[data-active-uif="UIF-02"] .compact-section-heading .v-section-copy { display:flex!important; flex-direction:column!important; gap:4px!important; }
+body[data-active-uif="UIF-02"] .compact-section-heading h2 { margin:0!important; font:600 18px/24px "Inter",system-ui,sans-serif!important; letter-spacing:-.2px!important; }
+body[data-active-uif="UIF-02"] .compact-section-heading p { margin:0!important; font:400 13px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; }
+body[data-active-uif="UIF-02"] .form-stack { gap:16px!important; }
+body[data-active-uif="UIF-02"] .form-field.is-disabled { opacity:.4!important; }
+body[data-active-uif="UIF-02"] .form-field.is-disabled > * { opacity:1!important; }
+
+/* VSelect 522:7291; Product UI is Fill Container 370px. */
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger,
+body[data-active-uif="UIF-02"] .bj02-native-select-shell {
+  width:370px!important;
+  height:44px!important;
+  min-height:44px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:0 16px!important;
+  border:1px solid var(--vet45-v2-border-default)!important;
+  border-radius:8px!important;
+  background:var(--vet45-v2-surface-default)!important;
+  color:var(--vet45-v2-text-secondary)!important;
+  text-align:left!important;
+}
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger.is-filled { color:var(--vet45-v2-text-primary)!important; }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger.is-error { border-color:var(--vet45-v2-border-danger)!important; }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger > span { flex:1 1 auto!important; min-width:0!important; overflow:hidden!important; text-overflow:ellipsis!important; white-space:nowrap!important; font:400 14px/22px "Inter",system-ui,sans-serif!important; }
+body[data-active-uif="UIF-02"] .bj02-vselect-trigger .icon,
+body[data-active-uif="UIF-02"] .bj02-native-select-shell .icon { width:20px!important; height:20px!important; flex:0 0 20px!important; color:var(--vet45-v2-icon-secondary)!important; pointer-events:none!important; }
+body[data-active-uif="UIF-02"] .bj02-native-select-shell { position:relative!important; }
+body[data-active-uif="UIF-02"] .bj02-native-select-shell select { flex:1 1 auto!important; min-width:0!important; height:42px!important; padding:0!important; border:0!important; outline:0!important; appearance:none!important; background:transparent!important; color:var(--vet45-v2-text-primary)!important; font:400 14px/22px "Inter",system-ui,sans-serif!important; }
+
+/* Select Sheet 550:1148. */
+body[data-active-uif="UIF-02"] .bj02-select-backdrop {
+  position:absolute!important;
+  inset:0!important;
+  z-index:60!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  background:rgba(14,17,22,.36)!important;
+}
+body[data-active-uif="UIF-02"] .bj02-select-sheet {
+  width:402px!important;
+  height:560px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:12px 16px 44px!important;
+  border-radius:20px 20px 0 0!important;
+  background:var(--vet45-v2-surface-default)!important;
+  overflow:hidden!important;
+}
+body[data-active-uif="UIF-02"] .bj02-sheet-handle { width:48px!important; height:4px!important; flex:0 0 4px!important; border-radius:999px!important; background:var(--vet45-v2-border-strong)!important; }
+body[data-active-uif="UIF-02"] .bj02-select-sheet h2 { width:370px!important; height:28px!important; margin:0!important; font:600 18px/24px "Inter",system-ui,sans-serif!important; letter-spacing:-.2px!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-search { width:370px!important; height:44px!important; display:flex!important; align-items:center!important; gap:8px!important; padding:0 16px!important; border:1px solid var(--vet45-v2-border-default)!important; border-radius:8px!important; background:var(--vet45-v2-surface-default)!important; box-sizing:border-box!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-search > span,
+body[data-active-uif="UIF-02"] .bj02-sheet-search .icon { width:20px!important; height:20px!important; flex:0 0 20px!important; color:var(--vet45-v2-icon-primary)!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-search input { flex:1 1 auto!important; min-width:0!important; height:22px!important; padding:0!important; border:0!important; outline:0!important; background:transparent!important; font:400 14px/22px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-primary)!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-list { width:370px!important; min-height:0!important; flex:1 1 auto!important; display:flex!important; flex-direction:column!important; gap:12px!important; overflow-y:auto!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-list-row {
+  width:370px!important;
+  height:76px!important;
+  min-height:76px!important;
+  flex:0 0 76px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:0 24px 0 16px!important;
+  border:1px solid var(--vet45-v2-border-default)!important;
+  border-radius:12px!important;
+  background:var(--vet45-v2-surface-default)!important;
+  color:var(--vet45-v2-text-primary)!important;
+  text-align:left!important;
+}
+body[data-active-uif="UIF-02"] .bj02-sheet-list-row.is-selected { border-color:var(--vet45-v2-border-brand)!important; background:var(--vet45-v2-surface-brand)!important; }
+body[data-active-uif="UIF-02"] .bj02-sheet-list-row.is-selected .bj02-radio-control { border-color:var(--vet45-v2-action-primary-default)!important; box-shadow:inset 0 0 0 5px var(--vet45-v2-action-primary-default)!important; }
+
+/* VFileDropZone 522:7507. Keep the master state Default even after a file is
+   selected; only text properties change. There is no invented Uploaded state. */
+body[data-active-uif="UIF-02"] .file-drop-zone,
+body[data-active-uif="UIF-02"] .file-drop-zone.has-file {
+  width:310px!important;
+  height:116px!important;
+  min-height:116px!important;
+  padding:20px 0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  border:1px dashed var(--vet45-v2-border-default)!important;
+  border-radius:12px!important;
+  background:var(--vet45-v2-surface-default)!important;
+}
+body[data-active-uif="UIF-02"] .file-drop-icon { width:24px!important; height:24px!important; flex:0 0 24px!important; }
+body[data-active-uif="UIF-02"] .file-drop-icon .icon { width:24px!important; height:24px!important; }
+body[data-active-uif="UIF-02"] .file-drop-copy { display:flex!important; flex-direction:column!important; align-items:center!important; gap:8px!important; max-width:286px!important; }
+body[data-active-uif="UIF-02"] .file-drop-copy strong { max-width:286px!important; font:600 14px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-primary)!important; }
+body[data-active-uif="UIF-02"] .file-drop-copy small { font:500 12px/16px "Inter",system-ui,sans-serif!important; letter-spacing:.1px!important; color:var(--vet45-v2-text-secondary)!important; }
+
+/* Info Row 525:351 current live master + Key-value Row 525:358. */
+body[data-active-uif="UIF-02"] .bj02-info-stack { width:338px!important; align-self:center!important; display:flex!important; flex-direction:column!important; gap:0!important; }
+body[data-active-uif="UIF-02"] .bj02-info-row {
+  width:338px!important;
+  height:44px!important;
+  min-height:44px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+body[data-active-uif="UIF-02"] .bj02-info-row > span { flex:0 0 auto!important; font:400 13px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; white-space:nowrap!important; }
+body[data-active-uif="UIF-02"] .bj02-info-row > strong { flex:0 0 auto!important; min-width:0!important; font:600 14px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-primary)!important; text-align:right!important; white-space:nowrap!important; overflow:visible!important; text-overflow:clip!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row {
+  width:338px!important;
+  height:44px!important;
+  min-height:44px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  column-gap:8px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+body[data-active-uif="UIF-02"] .bj02-key-value-row > span { flex:0 0 auto!important; font:400 13px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; white-space:nowrap!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row > strong { flex:0 0 auto!important; margin-left:auto!important; font:400 14px/22px "JetBrains Mono",ui-monospace,monospace!important; color:var(--vet45-v2-text-primary)!important; white-space:nowrap!important; text-align:right!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis { padding:0 12px!important; border-radius:8px!important; background:var(--vet45-v2-surface-brand)!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > span { font:600 14px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-primary)!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-row.is-emphasis > strong { font:600 16px/22px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-brand)!important; }
+
+/* SCR009 context uses VSection + existing Info Rows instead of a feature Summary Card. */
+body[data-active-uif="UIF-02"] .bj02-context-section,
+body[data-active-uif="UIF-02"] .bj02-review-section {
+  width:370px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body[data-active-uif="UIF-02"] .bj02-section-heading {
+  width:370px!important;
+  min-height:28px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+}
+body[data-active-uif="UIF-02"] .bj02-section-heading > strong { font:600 14px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-primary)!important; }
+body[data-active-uif="UIF-02"] .bj02-section-heading > span { font:500 12px/16px "Inter",system-ui,sans-serif!important; letter-spacing:.1px!important; color:var(--vet45-v2-text-secondary)!important; }
+body[data-active-uif="UIF-02"] .bj02-section-heading .inline-edit { min-width:44px!important; height:44px!important; padding:0!important; border:0!important; background:transparent!important; color:var(--vet45-v2-text-brand)!important; font:600 14px/20px "Inter",system-ui,sans-serif!important; }
+
+/* Product review is Product UI composition of existing VSection + Key-value Row;
+   no new shared Theme7 component/card identity. */
+body[data-active-uif="UIF-02"] .bj02-review-products { width:370px!important; display:flex!important; flex-direction:column!important; gap:24px!important; }
+body[data-active-uif="UIF-02"] .bj02-review-product { width:370px!important; display:flex!important; flex-direction:column!important; gap:8px!important; padding:0!important; border:0!important; background:transparent!important; }
+body[data-active-uif="UIF-02"] .bj02-review-product + .bj02-review-product { padding-top:16px!important; border-top:1px solid var(--vet45-v2-border-default)!important; }
+body[data-active-uif="UIF-02"] .bj02-product-heading { width:370px!important; display:flex!important; flex-direction:column!important; gap:2px!important; }
+body[data-active-uif="UIF-02"] .bj02-product-heading > strong { font:600 14px/20px "Inter",system-ui,sans-serif!important; }
+body[data-active-uif="UIF-02"] .bj02-product-heading > span { font:400 13px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; }
+body[data-active-uif="UIF-02"] .bj02-key-value-stack { width:338px!important; align-self:center!important; display:flex!important; flex-direction:column!important; gap:0!important; }
+body[data-active-uif="UIF-02"] .bj02-review-product > .bj02-key-value-row { align-self:center!important; }
+body[data-active-uif="UIF-02"] .bj02-lot-review { width:338px!important; align-self:center!important; display:flex!important; flex-direction:column!important; gap:4px!important; padding-top:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-subsection-heading { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-subsection-heading > strong { font:600 13px/20px "Inter",system-ui,sans-serif!important; }
+body[data-active-uif="UIF-02"] .bj02-subsection-heading > span { font:400 12px/16px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; }
+
+/* Classification: explicit 44px numeric hit areas wrapping canonical Key-value Row.
+   Numeric editing itself is VNumericKeypadSheet; previous values persist until Lưu. */
+body[data-active-uif="UIF-02"] .classification-quantities { width:370px!important; padding:0!important; border:0!important; }
+body[data-active-uif="UIF-02"] .bj02-quantity-hit-stack { width:338px!important; margin:0 auto!important; display:flex!important; flex-direction:column!important; gap:0!important; }
+body[data-active-uif="UIF-02"] .bj02-quantity-hit { width:338px!important; height:44px!important; min-height:44px!important; padding:0!important; border:0!important; background:transparent!important; text-align:left!important; border-radius:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-quantity-hit:not(:disabled):active { background:var(--vet45-v2-surface-subtle)!important; }
+body[data-active-uif="UIF-02"] .bj02-quantity-hit:disabled { opacity:.4!important; }
+body[data-active-uif="UIF-02"] .bj02-derived-total { align-self:center!important; }
+body[data-active-uif="UIF-02"] .quantity-source-context,
+body[data-active-uif="UIF-02"] .derived-total-row { display:none!important; }
+
+/* VNumericKeypadSheet 1829:6657. */
+body[data-active-uif="UIF-02"] .bj02-numeric-backdrop { position:absolute!important; inset:0!important; z-index:70!important; display:flex!important; align-items:flex-end!important; background:rgba(14,17,22,.36)!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-sheet {
+  width:402px!important;
+  height:512px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:12px!important;
+  padding:12px 16px 42px!important;
+  overflow:hidden!important;
+  border-radius:24px 24px 0 0!important;
+  background:var(--vet45-v2-surface-default)!important;
+}
+body[data-active-uif="UIF-02"] .bj02-numeric-handle { width:48px!important; height:4px!important; flex:0 0 4px!important; align-self:center!important; border-radius:2px!important; background:var(--vet45-v2-border-default)!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-head { width:370px!important; height:46px!important; display:flex!important; align-items:center!important; justify-content:space-between!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-head > div { display:flex!important; flex-direction:column!important; gap:2px!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-head h2 { margin:0!important; font:600 18px/24px "Inter",system-ui,sans-serif!important; letter-spacing:-.2px!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-head span { font:400 13px/20px "Inter",system-ui,sans-serif!important; color:var(--vet45-v2-text-secondary)!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-display { width:370px!important; height:64px!important; flex:0 0 64px!important; display:flex!important; align-items:center!important; justify-content:center!important; border:1px solid var(--vet45-v2-border-brand)!important; border-radius:12px!important; background:var(--vet45-v2-surface-default)!important; font:700 28px/34px "Inter",system-ui,sans-serif!important; letter-spacing:-.5px!important; }
+body[data-active-uif="UIF-02"] .bj02-keypad-grid { width:370px!important; height:232px!important; display:flex!important; flex-direction:column!important; gap:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-keypad-row { width:370px!important; height:52px!important; display:flex!important; gap:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-keypad-key { width:118px!important; height:52px!important; flex:0 0 118px!important; display:flex!important; align-items:center!important; justify-content:center!important; padding:0!important; border:1px solid var(--vet45-v2-border-default)!important; border-radius:12px!important; background:var(--vet45-v2-surface-default)!important; color:var(--vet45-v2-text-primary)!important; font:700 22px/28px "Inter",system-ui,sans-serif!important; letter-spacing:-.3px!important; }
+body[data-active-uif="UIF-02"] .bj02-keypad-key:disabled { opacity:.4!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-actions { width:370px!important; height:44px!important; display:flex!important; gap:8px!important; }
+body[data-active-uif="UIF-02"] .bj02-numeric-actions .button { width:181px!important; height:44px!important; min-height:44px!important; margin:0!important; border-radius:8px!important; }
+
+/* LOT editor: keep Product composition light; avoid nested card soup. */
+body[data-active-uif="UIF-02"] .lot-accordion-list { gap:8px!important; }
+body[data-active-uif="UIF-02"] .lot-accordion-item { border:1px solid var(--vet45-v2-border-default)!important; border-radius:12px!important; background:var(--vet45-v2-surface-default)!important; }
+body[data-active-uif="UIF-02"] .lot-accordion-toggle { min-height:60px!important; padding:12px 16px!important; }
+body[data-active-uif="UIF-02"] .active-lot-editor { padding:16px!important; border-top:1px solid var(--vet45-v2-border-default)!important; border-bottom:0!important; }
+body[data-active-uif="UIF-02"] .lot-fields-compact { gap:16px!important; }
+body[data-active-uif="UIF-02"] .section-label { margin:0!important; }
+
+/* Legacy feature cards must not reappear in BJ02 review/result. */
+body[data-active-uif="UIF-02"] .review-card { border:0!important; border-radius:0!important; background:transparent!important; box-shadow:none!important; }
+body[data-active-uif="UIF-02"] .review-card-header,
+body[data-active-uif="UIF-02"] .review-card-body { padding:0!important; }
+
+/* UIF-02 product identity is page content inside VSection, not an independent
+   card. Keep it flat so VSection remains structural and avoid card soup. */
+body[data-active-uif="UIF-02"] .line-product-identity {
+  width: 370px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--vet45-v2-space-3, 12px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body[data-active-uif="UIF-02"] .line-product-identity strong {
+  font-family: Inter, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  color: var(--vet45-v2-text-primary, #0e1116) !important;
+}
+body[data-active-uif="UIF-02"] .line-product-identity span {
+  margin-top: 4px !important;
+  font-family: Inter, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: var(--vet45-v2-text-secondary, #6b7480) !important;
+}

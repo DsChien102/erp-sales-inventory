@@ -11,6 +11,8 @@ dependencies:
   get_it: ^9.2.1
   meta: ^1.17.0
   supabase: ^2.12.2
+  vet45_adapters: ^0.1.0
+  vet45_annotations: ^0.1.0
   vet45_inventory_application: ^1.0.0
   vet45_inventory_domain: ^1.0.0
   vet45_inventory_integration_events: ^1.0.0

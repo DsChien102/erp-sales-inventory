@@ -1,3 +1,12 @@
 library;
 
 export 'src/contracts/i_inventory_module.dart';
+export 'src/default_pair/commands/ensure_default_store_warehouse_pair/ensure_default_store_warehouse_pair_command.dart';
+export 'src/default_pair/commands/ensure_default_store_warehouse_pair/ensure_default_store_warehouse_pair_command_handler.dart';
+export 'src/default_pair/commands/ensure_default_store_warehouse_pair/ensure_default_store_warehouse_pair_command_validator.dart';
+export 'src/default_pair/ports/i_default_store_warehouse_pair_port.dart';
+export 'src/default_pair/queries/get_default_store_warehouse_pair/get_default_store_warehouse_pair_query.dart';
+export 'src/default_pair/queries/get_default_store_warehouse_pair/get_default_store_warehouse_pair_query_handler.dart';
+export 'src/default_pair/shared/default_store_warehouse_pair_dto.dart';
+export 'src/default_pair/shared/ensure_default_store_warehouse_pair_result_dto.dart';
+export 'src/default_pair/testing/fake_default_store_warehouse_pair_port.dart';
