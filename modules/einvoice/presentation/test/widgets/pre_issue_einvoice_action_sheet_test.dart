@@ -107,6 +107,22 @@ void main() {
       );
     });
 
+    testWidgets('buyer not ready hides the correction link when correction is unavailable', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildSubject(
+          state: const PreIssueSheetState(
+            isBuyerNotReady: true,
+            showBuyerCorrection: false,
+          ),
+        ),
+      );
+
+      expect(find.text(OrderEInvoiceCopy.buyerWarningTitle), findsOneWidget);
+      expect(find.text(OrderEInvoiceCopy.buyerCorrectionAction), findsNothing);
+    });
+
     testWidgets('failed state shows failure banner while keeping issue action enabled', (
       tester,
     ) async {

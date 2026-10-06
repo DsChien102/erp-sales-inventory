@@ -12,6 +12,7 @@ import '../bloc/sales_order/sales_transaction_result_state.dart';
 import '../navigation/sales_typed_routes.dart';
 import '../services/i_invoice_document_exporter.dart';
 import '../services/i_invoice_viewer_launcher.dart';
+import '../support/order_einvoice_payable.dart';
 import '../support/sales_pdf_runner.dart';
 import '../support/sales_receipt_pdf_generator.dart';
 import 'order_einvoice_section.dart';
@@ -62,7 +63,13 @@ class SalesResultDocumentsSection extends StatelessWidget {
     final salesOrderId = order?.salesOrderId ?? state.checkout?.salesOrderId;
     final orderVersion = order?.version ?? state.checkout?.salesOrderVersion;
     final orderCode = order?.orderNumber;
-    final totalMinor = order?.total.amountMinor ?? state.payment?.orderTotal.amountMinor;
+    final originalTotalMinor = order?.total.amountMinor;
+    final totalMinor = originalTotalMinor == null && state.payment?.orderTotal == null
+        ? null
+        : OrderEInvoicePayable.minor(
+            originalTotalMinor: originalTotalMinor ?? 0,
+            currentPayableMinor: state.payment?.orderTotal.amountMinor,
+          );
 
     final resolvedMediator =
         eInvoiceMediator ??
@@ -170,6 +177,7 @@ class SalesResultDocumentsSection extends StatelessWidget {
             executionContext: resolvedExecutionContext,
             viewerLauncher: viewerLauncher,
             documentExporter: documentExporter,
+            buyerPartnerId: state.order?.customer?.customerId,
           )
         else
           const SalesEInvoiceEntryCard(

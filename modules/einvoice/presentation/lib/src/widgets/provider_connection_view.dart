@@ -328,14 +328,7 @@ class _ProviderConnectionInfo extends StatelessWidget {
     if (!context.mounted) {
       return;
     }
-    if (result == ProviderConnectionSubmitResult.disconnected) {
-      VToast.show(
-        context,
-        title: ProviderConnectionCopy.disconnectSuccessTitle,
-        message: ProviderConnectionCopy.disconnectSuccessMessage,
-        type: VToastType.success,
-      );
-    } else if (result == ProviderConnectionSubmitResult.failed) {
+    if (result == ProviderConnectionSubmitResult.failed) {
       VToast.show(
         context,
         title: ProviderConnectionCopy.genericErrorTitle,

@@ -337,11 +337,11 @@ begin
     raise exception 'VALIDATION_ERROR: disconnect requires confirmation';
   end if;
 
-  update einvoice.provider_connections
-  set status = 'DISCONNECTED', connection_version = connection_version + 1
-  where id = p_connection_id
-    and tenant_id = p_tenant_id
-    and status <> 'DISCONNECTED';
+  update einvoice.provider_connections pc
+  set status = 'DISCONNECTED', connection_version = pc.connection_version + 1
+  where pc.id = p_connection_id
+    and pc.tenant_id = p_tenant_id
+    and pc.status <> 'DISCONNECTED';
 
   if not found then
     if exists (
@@ -358,8 +358,8 @@ begin
     raise exception 'NOT_FOUND: provider connection';
   end if;
 
-  delete from einvoice.provider_credentials
-  where connection_id = p_connection_id and tenant_id = p_tenant_id;
+  delete from einvoice.provider_credentials c
+  where c.connection_id = p_connection_id and c.tenant_id = p_tenant_id;
 
   update einvoice.tenant_settings
   set default_template_id = null,

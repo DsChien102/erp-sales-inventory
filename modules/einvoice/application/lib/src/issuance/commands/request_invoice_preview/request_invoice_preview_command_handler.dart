@@ -32,6 +32,12 @@ final class RequestInvoicePreviewCommandHandler
     final evaluation = IssuanceReadinessEvaluator.evaluate(input);
 
     if (!evaluation.canPreview) {
+      final missingTemplate = evaluation.blockers.any(
+        (blocker) => blocker.code == EInvoiceBlockedCodes.configNotReady,
+      );
+      if (missingTemplate) {
+        throw const EInvoiceBlockedException(EInvoiceBlockedCodes.configNotReady);
+      }
       throw const EInvoiceBlockedException(
         EInvoiceBlockedCodes.issuanceNotReady,
         message: 'Không đủ điều kiện xem trước',

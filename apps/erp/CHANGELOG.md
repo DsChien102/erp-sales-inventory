@@ -18,6 +18,14 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- HĐĐT: sheet xác nhận phát hành hiện tổng phải thu sau đổi trả, không còn tổng đơn lúc bán.
+- HĐĐT: bấm phát hành khi chưa chọn mẫu hóa đơn hiện toast «Chưa chọn mẫu hóa đơn», không mở sheet xác nhận.
+- HĐĐT: xem trước khi chưa chọn mẫu hóa đơn hiện toast «Chưa chọn mẫu hóa đơn», không còn câu chung «Không đủ điều kiện xem trước».
+- HĐĐT: xem trước hoặc phát hành lỗi thì đóng bottom sheet và hiện toast lý do.
+- HĐĐT: chưa chọn mẫu hóa đơn thì tắt cả xem trước và phát hành.
+- HĐĐT: mã số thuế và địa chỉ còn thiếu trên snapshot đơn được lấy từ hồ sơ xuất hóa đơn của đối tác; banner tắt khi hồ sơ đã đủ.
+- HĐĐT: link «Cập nhật thông tin khách hàng» mở màn sửa hồ sơ của khách trên đơn; không hiện link khi đơn không có đối tác.
+- Kết nối MISA: ngắt kết nối thành công không còn hiện toast.
 - Danh sách đơn: chip Tất cả / Còn phải thu / Chưa phát hành HĐĐT chỉ còn nhãn, không hiện số lượng.
 - Danh sách đơn: chip Hóa đơn điện tử Tất cả / Chưa phát hành / Đã phát hành lọc theo hóa đơn đã phát hành (`einvoice.electronic_invoices`), không còn stub `notRequired`.
 - HĐĐT: nút Phát hành hóa đơn điện tử tắt khi readiness có `PROVIDER_NOT_CONNECTED` (chưa kết nối MISA). Nút Xem trước giữ điều kiện riêng.

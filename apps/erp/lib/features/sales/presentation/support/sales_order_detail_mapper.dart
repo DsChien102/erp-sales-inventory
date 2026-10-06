@@ -21,6 +21,7 @@ final class SalesOrderDetailMapper {
       createdAtFormatted: formatCommittedAt(dto.committedAt),
       customerName: dto.customer?.displayName ?? 'Khách lẻ',
       customerPhone: dto.customer?.phoneNumber ?? '',
+      customerId: dto.customer?.customerId,
       storeName: dto.store.displayName,
       sellerName: dto.seller.displayName,
       totalAmountMinor: dto.order.total.amountMinor,

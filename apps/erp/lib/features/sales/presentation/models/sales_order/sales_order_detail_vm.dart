@@ -99,6 +99,7 @@ class SalesOrderDetailVm extends Equatable {
     required this.createdAtFormatted,
     required this.customerName,
     required this.customerPhone,
+    this.customerId,
     required this.storeName,
     required this.totalAmountMinor,
     required this.paidAmountMinor,
@@ -132,6 +133,9 @@ class SalesOrderDetailVm extends Equatable {
   final String createdAtFormatted;
   final String customerName;
   final String customerPhone;
+
+  /// Partner id of the order customer. Null for a walk-in sale.
+  final String? customerId;
   final String storeName;
   final String sellerName;
   final int totalAmountMinor;
@@ -176,6 +180,7 @@ class SalesOrderDetailVm extends Equatable {
     createdAtFormatted,
     customerName,
     customerPhone,
+    customerId,
     storeName,
     sellerName,
     totalAmountMinor,

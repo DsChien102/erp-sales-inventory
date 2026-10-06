@@ -14,6 +14,7 @@ class PreIssueSheetState {
   const PreIssueSheetState({
     this.isPreviewLoading = false,
     this.isBuyerNotReady = false,
+    this.showBuyerCorrection = true,
     this.isPreviewEnabled = true,
     this.isProviderConnected = true,
     this.isFailed = false,
@@ -23,6 +24,9 @@ class PreIssueSheetState {
 
   final bool isPreviewLoading;
   final bool isBuyerNotReady;
+
+  /// False when the order has no partner to open on the edit screen.
+  final bool showBuyerCorrection;
   final bool isPreviewEnabled;
 
   /// False when issuance readiness reports `PROVIDER_NOT_CONNECTED`.
@@ -125,6 +129,7 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
               ],
               if (state.isBuyerNotReady) ...[
                 _BuyerNotReadyWarning(
+                  showCorrection: state.showBuyerCorrection,
                   onCorrect: state.isPreviewLoading
                       ? null
                       : () => select(PreIssueAction.correctBuyer),
@@ -179,8 +184,12 @@ class PreIssueEInvoiceActionSheet extends StatelessWidget {
 }
 
 class _BuyerNotReadyWarning extends StatelessWidget {
-  const _BuyerNotReadyWarning({this.onCorrect});
+  const _BuyerNotReadyWarning({
+    required this.showCorrection,
+    this.onCorrect,
+  });
 
+  final bool showCorrection;
   final VoidCallback? onCorrect;
 
   @override
@@ -200,16 +209,18 @@ class _BuyerNotReadyWarning extends StatelessWidget {
             title: OrderEInvoiceCopy.buyerWarningTitle,
             description: OrderEInvoiceCopy.buyerWarningDescription,
           ),
-          const VGap.sm(),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: VButton(
-              label: OrderEInvoiceCopy.buyerCorrectionAction,
-              variant: VButtonVariant.link,
-              foregroundColor: colors.textBrand,
-              onPressed: onCorrect,
+          if (showCorrection) ...[
+            const VGap.sm(),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: VButton(
+                label: OrderEInvoiceCopy.buyerCorrectionAction,
+                variant: VButtonVariant.link,
+                foregroundColor: colors.textBrand,
+                onPressed: onCorrect,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

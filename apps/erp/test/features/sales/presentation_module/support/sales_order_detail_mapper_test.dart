@@ -32,6 +32,7 @@ void main() {
       expect(vm.orderVersion, 7);
       expect(vm.createdAtFormatted, '12/08/2026 10:15');
       expect(vm.customerName, 'Đại lý An Bình');
+      expect(vm.customerId, 'customer-1');
       expect(vm.customerPhone, '0903456789');
       expect(vm.storeName, 'Chi nhánh Quận 1');
       expect(vm.sellerName, 'Minh Anh');

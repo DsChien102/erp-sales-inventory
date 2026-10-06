@@ -86,6 +86,50 @@ void main() {
       expect(result.failureCode, isNull);
     });
 
+    test('missing default template blocks preview with CONFIG_NOT_READY', () async {
+      final readinessGateway = FakeIssuanceReadinessReadGateway(
+        result: IssuanceReadinessInput(
+          orderCompleted: true,
+          hasElectronicInvoice: false,
+          hasActiveOperation: false,
+          configReady: false,
+          providerConnected: true,
+          providerSupportsPreview: true,
+          buyer: const EffectiveBuyerInvoiceData(
+            buyerType: BuyerType.organization,
+            name: 'HKD',
+            taxCode: '1234567890',
+            address: 'xã Hát Môn',
+          ),
+          buyerCompletionState: BuyerCompletionStatus.locked,
+        ),
+      );
+      final previewGateway = FakeInvoicePreviewGateway(requestId: 'req-template');
+      final handler = RequestInvoicePreviewCommandHandler(
+        readinessGateway: readinessGateway,
+        previewGateway: previewGateway,
+      );
+
+      expect(
+        () => handler.handle(
+          RequestInvoicePreviewCommand(
+            tenantId: 't1',
+            actorId: 'a1',
+            salesOrderId: 'so-template',
+            expectedOrderVersion: 1,
+          ),
+        ),
+        throwsA(
+          isA<EInvoiceBlockedException>().having(
+            (error) => error.code,
+            'code',
+            EInvoiceBlockedCodes.configNotReady,
+          ),
+        ),
+      );
+      expect(previewGateway.enqueuedFor, isNull);
+    });
+
     test(
       'scn_e02_u01_fr02_01: order not completed blocks preview with ISSUANCE_NOT_READY',
       () async {

@@ -4,6 +4,7 @@ import 'package:async_query/async_query.dart';
 import 'package:async_query_flutter/async_query_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_application/testing.dart';
@@ -189,6 +190,49 @@ void main() {
             onCubitCreated: onCubitCreated,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildCorrectionSubject({String? buyerPartnerId}) {
+    final module = FakeEInvoiceModule(scenario: FakeEInvoiceScenario.previewOk);
+    final mediator = _TestMediator(module);
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => Scaffold(
+            body: OrderEInvoiceSection(
+              salesOrderId: 'so-fake-001',
+              orderCode: 'DH-001',
+              orderVersion: 1,
+              initialProjection: const OrderInvoiceProjectionDto(
+                salesOrderId: 'so-fake-001',
+                issuanceDisplayState: IssuanceDisplayState.failed,
+                actions: [OrderInvoiceAction.issue],
+              ),
+              isBuyerNotReady: true,
+              buyerPartnerId: buyerPartnerId,
+              mediator: mediator,
+              executionContext: executionContext,
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/partner/:partnerId/edit',
+          builder: (context, state) => Scaffold(
+            body: Text('edit-${state.pathParameters['partnerId']}'),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    return QueryClientProvider(
+      client: queryClient,
+      child: MaterialApp.router(
+        theme: VTheme.lightTheme,
+        routerConfig: router,
       ),
     );
   }
@@ -511,6 +555,55 @@ void main() {
     },
   );
 
+  testWidgets('issue without a saved template shows the template toast', (tester) async {
+    await tester.pumpWidget(
+      buildSubject(
+        scenario: FakeEInvoiceScenario.configReadinessBlocked,
+        projection: const OrderInvoiceProjectionDto(
+          salesOrderId: 'so-fake-001',
+          issuanceDisplayState: IssuanceDisplayState.failed,
+          actions: [OrderInvoiceAction.issue],
+        ),
+      ),
+    );
+    await tester.tap(find.byType(OrderEInvoiceRow));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('action_issue')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(IssueInvoiceConfirmationSheet), findsNothing);
+    expect(
+      find.text('Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('preview failure closes the sheet and shows a toast', (tester) async {
+    await tester.pumpWidget(
+      buildSubject(
+        scenario: FakeEInvoiceScenario.previewConfigNotReady,
+        projection: const OrderInvoiceProjectionDto(
+          salesOrderId: 'so-fake-001',
+          issuanceDisplayState: IssuanceDisplayState.failed,
+          actions: [OrderInvoiceAction.issue],
+        ),
+      ),
+    );
+    await tester.tap(find.byType(OrderEInvoiceRow));
+    await tester.pumpAndSettle();
+    expect(find.byType(PreIssueEInvoiceActionSheet), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('action_preview')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PreIssueEInvoiceActionSheet), findsNothing);
+    expect(
+      find.text('Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('preview keeps pre-issue sheet open and disables issue', (tester) async {
     final previewGate = Completer<void>();
     await tester.pumpWidget(
@@ -543,6 +636,27 @@ void main() {
 
     previewGate.complete();
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('buyer correction opens the customer edit screen', (tester) async {
+    await tester.pumpWidget(buildCorrectionSubject(buyerPartnerId: 'customer-1'));
+    await tester.tap(find.byType(OrderEInvoiceRow));
+    await tester.pumpAndSettle();
+
+    expect(find.text(OrderEInvoiceCopy.buyerWarningTitle), findsOneWidget);
+    await tester.tap(find.text(OrderEInvoiceCopy.buyerCorrectionAction));
+    await tester.pumpAndSettle();
+
+    expect(find.text('edit-customer-1'), findsOneWidget);
+  });
+
+  testWidgets('buyer correction link stays hidden without a partner', (tester) async {
+    await tester.pumpWidget(buildCorrectionSubject());
+    await tester.tap(find.byType(OrderEInvoiceRow));
+    await tester.pumpAndSettle();
+
+    expect(find.text(OrderEInvoiceCopy.buyerWarningTitle), findsOneWidget);
+    expect(find.text(OrderEInvoiceCopy.buyerCorrectionAction), findsNothing);
   });
 
   testWidgets('dismissing pre-issue sheet while previewing cancels preview', (tester) async {

@@ -8,6 +8,7 @@ import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/core/formatting/money_formatter.dart';
 import 'package:erp/features/sales/presentation.dart';
+import 'package:erp/features/sales/presentation/support/order_einvoice_payable.dart';
 import 'package:erp/features/sales/presentation/support/sales_order_detail_original_receipt_actions.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -462,7 +463,16 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                             salesOrderId: vm.orderId,
                             orderVersion: vm.orderVersion,
                             orderCode: vm.orderNumber,
-                            orderTotalFormatted: MoneyFormatter.formatMinor(vm.totalAmountMinor),
+                            orderTotalFormatted: MoneyFormatter.formatMinor(
+                              OrderEInvoicePayable.minor(
+                                originalTotalMinor: vm.totalAmountMinor,
+                                currentPayableMinor: state.payment?.orderTotalMinor,
+                                currentHoldingTotals: [
+                                  for (final item in vm.currentItems) item.totalAmountMinor,
+                                ],
+                                hasReturnOrExchange: returns.isNotEmpty,
+                              ),
+                            ),
                             initialProjection:
                                 state.eInvoiceProjection ??
                                 OrderInvoiceProjectionDto(
@@ -473,6 +483,7 @@ class _SalesOrderDetailPageState extends State<SalesOrderDetailPage> {
                             hasLoadedInitialProjection: state.eInvoiceProjection != null,
                             mediator: GetIt.instance<IEInvoiceModule>(),
                             executionContext: GetIt.instance<IExecutionContext>(),
+                            buyerPartnerId: vm.customerId,
                           )
                         : null,
                     onRetryPayment: _cubit.retryPaymentSection,

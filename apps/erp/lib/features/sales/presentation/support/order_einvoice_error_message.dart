@@ -1,3 +1,5 @@
+import 'package:vet45_einvoice_application/application.dart';
+
 /// Ánh xạ lỗi kỹ thuật của luồng HĐĐT sang câu người bán hàng đọc được.
 ///
 /// Dùng bởi [OrderEInvoiceCubit] khi emit `errorMessage`. Không bao giờ trả
@@ -9,6 +11,11 @@ abstract final class OrderEInvoiceErrorMessage {
 
   /// Trả về câu tiếng Việt tương ứng với [error]; không bao giờ lộ chi tiết kỹ thuật.
   static String of(Object? error) {
+    if (error is EInvoiceBlockedException) {
+      final spoken = error.message?.trim();
+      if (spoken != null && spoken.isNotEmpty) return spoken;
+    }
+
     final raw = error?.toString() ?? '';
     if (raw.isEmpty) return _actionFallback;
 
@@ -39,6 +46,9 @@ abstract final class OrderEInvoiceErrorMessage {
     }
     if (raw.contains('SOURCE_VERSION_MISMATCH')) {
       return 'Đơn hàng vừa thay đổi (đổi/trả). Vui lòng tải lại rồi phát hành.';
+    }
+    if (raw.contains('CONFIG_NOT_READY')) {
+      return 'Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành.';
     }
     if (raw.contains('ISSUANCE_NOT_READY')) {
       return 'Đơn hàng chưa đủ điều kiện phát hành hóa đơn. '

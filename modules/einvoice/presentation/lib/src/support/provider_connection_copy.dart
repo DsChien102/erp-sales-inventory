@@ -39,9 +39,6 @@ abstract final class ProviderConnectionCopy {
   static const connectSuccessMessage = 'Kết nối MISA meInvoice thành công.';
   static const reconnectSuccessTitle = 'Đã kết nối lại';
   static const reconnectSuccessMessage = 'Tài khoản kết nối MISA đã được cập nhật.';
-  static const disconnectSuccessTitle = 'Đã ngắt kết nối';
-  static const disconnectSuccessMessage =
-      'Không thể phát hành hóa đơn điện tử mới cho đến khi kết nối lại.';
   static const recheckSuccessTitle = 'Kết nối hợp lệ';
   static const recheckSuccessMessage = 'Đã xác minh trạng thái kết nối hiện tại.';
   static const authFailedTitle = 'Không kết nối được';

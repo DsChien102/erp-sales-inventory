@@ -1,7 +1,17 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/sales/presentation/support/order_einvoice_error_message.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_einvoice_application/application.dart';
 
 void main() {
+  test('missing invoice template says to choose a template', () {
+    expect(
+      OrderEInvoiceErrorMessage.of(
+        const EInvoiceBlockedException(EInvoiceBlockedCodes.configNotReady),
+      ),
+      'Chưa chọn mẫu hóa đơn. Vui lòng cập nhật cấu hình phát hành.',
+    );
+  });
+
   test('fully returned order has its own message', () {
     expect(
       OrderEInvoiceErrorMessage.of(

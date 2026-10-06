@@ -226,10 +226,13 @@ Preview **không** tạo IssuanceAttempt / ElectronicInvoice (DR-02).
 | Use case | RPC | Status |
 | -------- | --- | ------ |
 | Readiness | `einvoice.get_issuance_readiness` | drafted |
+| Buyer profile fallback | `partner.get_einvoice_buyer_profile(p_tenant_id, p_partner_id)` → `(invoice_name, tax_code, invoice_address)` | drafted |
 | Complete buyer | `einvoice.complete_buyer_invoice_data` | drafted |
 | Preview | `einvoice.request_invoice_preview` | drafted |
 | Store preview result | `einvoice.store_preview_result(tenant, sales_order_id, request_id, status, viewer_ref, failure_code, failure_message, failure_source)` | drafted |
 | Get preview | `einvoice.get_invoice_preview` trả `(viewer_ref, status, failure_code)` | drafted |
+
+`einvoice._effective_buyer_snapshot` ghép người mua theo thứ tự completion, snapshot đơn, rồi `partner.get_einvoice_buyer_profile` cho trường còn trống khi đơn chưa có hóa đơn. Readiness chỉ đọc helper này. Lúc người dùng bắt đầu phát hành, trường snapshot đang trống được ghi vào `einvoice.buyer_invoice_completions`. E-invoice không đọc bảng `partner`.
 
 ### Worker mapping
 
@@ -708,7 +711,7 @@ Tối đa **một** `INITIAL_SEND` business delivery / invoice. Manual thắng r
 | Auto delivery (internal) | `einvoice.start_auto_delivery` | drafted |
 | Recipient snapshot (source-owned) | `partner.get_einvoice_recipient_snapshot(p_tenant_id, p_partner_id)` → `(partner_id, invoice_email, recipient_name, source_version, is_active)` | drafted |
 
-E-invoice **không** query bảng Partner/Sales; chỉ gọi public function source-owned `partner.get_einvoice_recipient_snapshot(...)` và `sales.can_access_sales_order(...)`. Partner draft: `service_role` (+ owner) execute only — **không** grant `authenticated`.
+E-invoice **không** query bảng Partner/Sales; gọi public function source-owned `partner.get_einvoice_recipient_snapshot(...)`, `partner.get_einvoice_buyer_profile(...)` và `sales.can_access_sales_order(...)`. Partner draft: `service_role` (+ owner) execute only — **không** grant `authenticated`.
 
 ### Worker mapping
 

@@ -273,9 +273,11 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
     );
   }
 
-  /// Loads the configured MISA template (serial/symbol) for confirmation UI.
-  /// Best-effort: missing manage_configuration simply leaves existing values.
-  Future<void> ensureIssuanceTemplateDisplay() async {
+  /// Loads the saved default template for the confirmation sheet.
+  ///
+  /// Returns false when the issuance profile has no template. A failed profile
+  /// read returns true so a transient error does not block the sheet.
+  Future<bool> ensureIssuanceTemplateDisplay() async {
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
@@ -283,6 +285,7 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
         tenantId: tenantId,
         actorId: actorId,
       );
+      if (template.saved == false) return false;
       emit(
         state.copyWith(
           templateNumber: template.number,
@@ -290,21 +293,25 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
           authorityMode: template.authority,
         ),
       );
+      return true;
     } catch (_) {
-      // Keep prior display values.
+      return true;
     }
   }
 
-  Future<({String number, String symbol, String authority})> _loadIssuanceTemplateDisplay({
+  Future<({bool? saved, String number, String symbol, String authority})>
+  _loadIssuanceTemplateDisplay({
     required String tenantId,
     required String actorId,
   }) async {
     IssuanceProfileDto? profile;
+    var profileLoaded = false;
     List<ProviderTemplateDto> templates = const [];
     try {
       profile = await _mediator.executeQueryAsync(
         GetIssuanceProfileQuery(tenantId: tenantId, actorId: actorId),
       );
+      profileLoaded = true;
     } catch (_) {}
     try {
       templates = await _mediator.executeQueryAsync(
@@ -336,7 +343,11 @@ class OrderEInvoiceCubit extends Cubit<OrderEInvoiceState> {
 
     final symbol = selected?.symbol?.trim();
     final serial = selected?.serial?.trim();
+    final savedTemplateId = profile?.templateId?.trim();
     return (
+      saved: profileLoaded
+          ? savedTemplateId != null && savedTemplateId.isNotEmpty
+          : null,
       number: (serial != null && serial.isNotEmpty) ? serial : '—',
       symbol: (symbol != null && symbol.isNotEmpty)
           ? symbol

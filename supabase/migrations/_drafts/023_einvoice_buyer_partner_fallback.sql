@@ -1,0 +1,533 @@
+-- Title: E-invoice buyer fields missing on the order snapshot fall back to the partner invoice profile
+-- Kind: patch
+-- Intent: einvoice_buyer_partner_fallback
+-- Context: TH-08 — readiness và phát hành điền trường người mua còn trống từ hồ sơ xuất hóa đơn
+-- Touches: partner.get_einvoice_buyer_profile, einvoice._effective_buyer_snapshot, einvoice.get_issuance_readiness, einvoice._start_issuance_attempt
+-- Safety: security definer, tenant scoped; get_issuance_readiness stays read-only
+-- Depends on: 006_einvoice_buyer_completion_and_preview_rpcs.sql, 008_einvoice_auto_issuance_and_retry_rpcs.sql, 016_partner_einvoice_recipient_snapshot.sql, 018_sales_einvoice_source_contract.sql
+
+create or replace function partner.get_einvoice_buyer_profile(
+  p_tenant_id uuid,
+  p_partner_id uuid
+)
+returns table (
+  invoice_name text,
+  tax_code text,
+  invoice_address text
+)
+language sql
+stable
+security definer
+set search_path = partner, pg_temp
+as $$
+  select
+    nullif(btrim(coalesce(pp.invoice_name, op.invoice_name)), ''),
+    nullif(btrim(coalesce(pp.tax_code, op.tax_code)), ''),
+    nullif(btrim(coalesce(pp.invoice_address, op.invoice_address)), '')
+  from partner.partners p
+  left join partner.person_profiles pp
+    on pp.partner_id = p.partner_id
+   and pp.tenant_id = p.tenant_id
+  left join partner.organization_profiles op
+    on op.partner_id = p.partner_id
+   and op.tenant_id = p.tenant_id
+  where p.tenant_id = p_tenant_id
+    and p.partner_id = p_partner_id;
+$$;
+
+revoke all on function partner.get_einvoice_buyer_profile(uuid, uuid)
+  from public, anon, authenticated;
+grant execute on function partner.get_einvoice_buyer_profile(uuid, uuid)
+  to service_role;
+
+-- Completion đè snapshot. Trường còn trống lấy từ hồ sơ đối tác khi đơn chưa có hóa đơn.
+create or replace function einvoice._effective_buyer_snapshot(
+  p_tenant_id uuid,
+  p_sales_order_id uuid,
+  p_base_snapshot jsonb
+) returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = einvoice, sales, public
+as $$
+declare
+  v_merged jsonb;
+  v_partner_id uuid;
+  v_invoice_name text;
+  v_tax_code text;
+  v_invoice_address text;
+begin
+  v_merged := coalesce(p_base_snapshot, '{}'::jsonb) || coalesce((
+    select jsonb_strip_nulls(jsonb_build_object(
+      'buyerLegalName', bc.buyer_name,
+      'buyerTaxCode', bc.buyer_tax_code,
+      'buyerEmail', bc.buyer_email,
+      'buyerAddress', bc.buyer_address
+    ))
+    from einvoice.buyer_invoice_completions bc
+    where bc.tenant_id = p_tenant_id
+      and bc.sales_order_id = p_sales_order_id
+  ), '{}'::jsonb);
+
+  if exists (
+    select 1
+    from einvoice.electronic_invoices ei
+    where ei.tenant_id = p_tenant_id
+      and ei.sales_order_id = p_sales_order_id
+  ) then
+    return v_merged;
+  end if;
+
+  select s.buyer_partner_id
+  into v_partner_id
+  from sales.get_einvoice_source_snapshot(p_tenant_id, p_sales_order_id) s;
+
+  if v_partner_id is null then
+    return v_merged;
+  end if;
+
+  select bp.invoice_name, bp.tax_code, bp.invoice_address
+  into v_invoice_name, v_tax_code, v_invoice_address
+  from partner.get_einvoice_buyer_profile(p_tenant_id, v_partner_id) bp;
+
+  if nullif(btrim(coalesce(v_merged ->> 'buyerLegalName', '')), '') is null
+     and v_invoice_name is not null then
+    v_merged := v_merged || jsonb_build_object('buyerLegalName', v_invoice_name);
+  end if;
+  if nullif(btrim(coalesce(v_merged ->> 'buyerTaxCode', '')), '') is null
+     and v_tax_code is not null then
+    v_merged := v_merged || jsonb_build_object('buyerTaxCode', v_tax_code);
+  end if;
+  if nullif(btrim(coalesce(v_merged ->> 'buyerAddress', '')), '') is null
+     and v_invoice_address is not null then
+    v_merged := v_merged || jsonb_build_object('buyerAddress', v_invoice_address);
+  end if;
+
+  return v_merged;
+end;
+$$;
+
+revoke all on function einvoice._effective_buyer_snapshot(uuid, uuid, jsonb)
+  from public, anon, authenticated;
+
+create or replace function einvoice.get_issuance_readiness(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_sales_order_id uuid
+) returns table(
+  order_completed boolean,
+  has_electronic_invoice boolean,
+  has_active_operation boolean,
+  config_ready boolean,
+  provider_connected boolean,
+  provider_supports_preview boolean,
+  buyer_type text,
+  buyer_name text,
+  buyer_email text,
+  buyer_tax_code text,
+  buyer_address text,
+  buyer_completion_state text,
+  commercial_data_mappable boolean,
+  config_warnings jsonb,
+  source_blockers jsonb
+) language plpgsql security definer set search_path = einvoice, iam, sales, public as $$
+declare
+  v_provider_status text;
+  v_capabilities jsonb;
+  v_config_ready boolean := false;
+  v_provider_connected boolean := false;
+  v_supports_preview boolean := false;
+  v_warnings jsonb := '[]'::jsonb;
+  v_buyer_name text := '';
+  v_buyer_tax_code text := null;
+  v_buyer_email text := null;
+  v_buyer_address text := null;
+  v_buyer_type text;
+  v_source record;
+  v_effective_buyer jsonb;
+  v_has_electronic_invoice boolean := false;
+  v_has_active_operation boolean := false;
+begin
+  if auth.uid() is not null then
+    if auth.uid() <> p_actor_id then
+      raise exception 'NO_PERMISSION: actor mismatch';
+    end if;
+    if not iam.has_permission(p_tenant_id, 'einvoice.view') then
+      raise exception 'NO_PERMISSION: einvoice.view required';
+    end if;
+    if not sales.can_access_sales_order(p_tenant_id, p_actor_id, p_sales_order_id) then
+      raise exception 'NO_PERMISSION: sales order not accessible';
+    end if;
+  end if;
+
+  select pc.status, pc.capabilities_snapshot
+  into v_provider_status, v_capabilities
+  from einvoice.provider_connections pc
+  where pc.tenant_id = p_tenant_id and pc.status <> 'DISCONNECTED'
+  limit 1;
+
+  if v_provider_status = 'CONNECTED' then
+    v_provider_connected := true;
+  end if;
+
+  if v_capabilities is not null then
+    v_supports_preview := coalesce((v_capabilities ->> 'supports_preview')::boolean, false);
+  end if;
+
+  if exists (
+    select 1 from einvoice.tenant_settings ts
+    where ts.tenant_id = p_tenant_id
+      and ts.default_template_id is not null
+  ) and v_provider_connected then
+    v_config_ready := true;
+  end if;
+
+  select *
+  into v_source
+  from sales.get_einvoice_source_snapshot(p_tenant_id, p_sales_order_id);
+
+  if v_source.buyer_partner_id is null then
+    v_buyer_type     := 'retail';
+    v_buyer_name     := 'Bán cho người tiêu dùng';
+    v_buyer_tax_code := null;
+    v_buyer_email    := null;
+    v_buyer_address  := null;
+  else
+    v_buyer_type := coalesce(v_source.buyer_snapshot ->> 'buyerType', 'individual');
+    if v_buyer_type not in ('individual', 'organization') then
+      v_buyer_type := 'individual';
+    end if;
+
+    v_effective_buyer := einvoice._effective_buyer_snapshot(
+      p_tenant_id,
+      p_sales_order_id,
+      coalesce(v_source.buyer_snapshot, '{}'::jsonb)
+    );
+    v_buyer_name     := nullif(btrim(coalesce(v_effective_buyer ->> 'buyerLegalName', '')), '');
+    v_buyer_tax_code := nullif(btrim(coalesce(v_effective_buyer ->> 'buyerTaxCode', '')), '');
+    v_buyer_email    := nullif(btrim(coalesce(v_effective_buyer ->> 'buyerEmail', '')), '');
+    v_buyer_address  := nullif(btrim(coalesce(v_effective_buyer ->> 'buyerAddress', '')), '');
+  end if;
+
+  v_buyer_name := coalesce(v_buyer_name, '');
+
+  if v_buyer_type = 'organization'
+     and v_buyer_tax_code is not null
+     and btrim(v_buyer_tax_code) <> ''
+     and (v_buyer_address is null or btrim(v_buyer_address) = '') then
+    null;
+  end if;
+
+  select exists (
+    select 1 from einvoice.electronic_invoices
+    where tenant_id = p_tenant_id and sales_order_id = p_sales_order_id
+  ) into v_has_electronic_invoice;
+
+  select exists (
+    select 1
+    from einvoice.issuance_attempts ia
+    join einvoice.invoice_issuances ii on ii.id = ia.invoice_issuance_id
+    where ii.tenant_id = p_tenant_id
+      and ii.sales_order_id = p_sales_order_id
+      and ia.status in ('PREPARING', 'SUBMITTED', 'WAITING_RESULT', 'RECONCILING')
+  ) into v_has_active_operation;
+
+  return query select
+    coalesce(v_source.order_completed, false),
+    v_has_electronic_invoice,
+    v_has_active_operation,
+    v_config_ready,
+    v_provider_connected,
+    v_supports_preview,
+    v_buyer_type,
+    v_buyer_name,
+    v_buyer_email,
+    v_buyer_tax_code,
+    v_buyer_address,
+    'locked'::text,
+    (coalesce(v_source.available, false) and jsonb_array_length(coalesce(v_source.commercial_snapshot -> 'lines', '[]'::jsonb)) > 0),
+    v_warnings,
+    coalesce(v_source.blockers, '[]'::jsonb);
+end;
+$$;
+
+revoke all on function einvoice.get_issuance_readiness(uuid, uuid, uuid) from public, anon;
+grant execute on function einvoice.get_issuance_readiness(uuid, uuid, uuid) to authenticated, service_role;
+
+create or replace function einvoice._start_issuance_attempt(
+  p_tenant_id uuid,
+  p_sales_order_id uuid,
+  p_source_version text,
+  p_idempotency_key varchar(150),
+  p_intent_hash text,
+  p_actor_type text,
+  p_actor_id uuid,
+  p_provider_connection_id uuid,
+  p_buyer_partner_id uuid,
+  p_buyer_snapshot jsonb,
+  p_commercial_snapshot jsonb,
+  p_acknowledge_warnings boolean default false
+) returns table(
+  issuance_id uuid,
+  attempt_id uuid,
+  status text
+) language plpgsql security definer set search_path = einvoice, extensions, public as $$
+declare
+  v_issuance_id uuid;
+  v_attempt_id uuid;
+  v_attempt_no integer := 1;
+  v_attempt_snapshot jsonb;
+  v_canonical_jsonb jsonb;
+  v_canonical_hash text;
+  v_invoice_series text;
+  v_invoice_with_code boolean;
+  v_is_invoice_summary boolean;
+  v_sign_type smallint;
+  v_base_buyer_snapshot jsonb;
+  v_effective_buyer jsonb;
+  v_buyer_completed_at timestamptz;
+  v_partner_invoice_name text;
+  v_partner_tax_code text;
+  v_partner_invoice_address text;
+  v_fill_name text;
+  v_fill_tax_code text;
+  v_fill_address text;
+  v_has_electronic_invoice boolean;
+begin
+  insert into einvoice.invoice_issuances (tenant_id, sales_order_id, issuance_type)
+  values (p_tenant_id, p_sales_order_id, 'ORIGINAL')
+  on conflict (tenant_id, sales_order_id, issuance_type)
+  do update set issuance_type = excluded.issuance_type
+  returning id into v_issuance_id;
+
+  select coalesce(max(ia.attempt_no), 0) + 1
+  into v_attempt_no
+  from einvoice.issuance_attempts ia
+  where ia.invoice_issuance_id = v_issuance_id;
+
+  v_base_buyer_snapshot := coalesce(p_buyer_snapshot, '{}'::jsonb);
+
+  select bc.completed_at
+  into v_buyer_completed_at
+  from einvoice.buyer_invoice_completions bc
+  where bc.tenant_id = p_tenant_id
+    and bc.sales_order_id = p_sales_order_id
+  for share;
+
+  select exists (
+    select 1
+    from einvoice.electronic_invoices ei
+    where ei.tenant_id = p_tenant_id
+      and ei.sales_order_id = p_sales_order_id
+  ) into v_has_electronic_invoice;
+
+  if p_actor_id is not null
+     and p_buyer_partner_id is not null
+     and not v_has_electronic_invoice then
+    select bp.invoice_name, bp.tax_code, bp.invoice_address
+    into v_partner_invoice_name, v_partner_tax_code, v_partner_invoice_address
+    from partner.get_einvoice_buyer_profile(p_tenant_id, p_buyer_partner_id) bp;
+
+    v_fill_name := case
+      when nullif(btrim(coalesce(v_base_buyer_snapshot ->> 'buyerLegalName', '')), '') is null
+      then nullif(btrim(coalesce(v_partner_invoice_name, '')), '')
+      else null
+    end;
+    v_fill_tax_code := case
+      when nullif(btrim(coalesce(v_base_buyer_snapshot ->> 'buyerTaxCode', '')), '') is null
+      then nullif(btrim(coalesce(v_partner_tax_code, '')), '')
+      else null
+    end;
+    v_fill_address := case
+      when nullif(btrim(coalesce(v_base_buyer_snapshot ->> 'buyerAddress', '')), '') is null
+      then nullif(btrim(coalesce(v_partner_invoice_address, '')), '')
+      else null
+    end;
+
+    if v_fill_name is not null
+       or v_fill_tax_code is not null
+       or v_fill_address is not null then
+      insert into einvoice.buyer_invoice_completions as bc (
+        tenant_id,
+        sales_order_id,
+        sales_order_version,
+        buyer_name,
+        buyer_tax_code,
+        buyer_address,
+        completed_by_user_id,
+        completed_at
+      ) values (
+        p_tenant_id,
+        p_sales_order_id,
+        p_source_version,
+        v_fill_name,
+        v_fill_tax_code,
+        v_fill_address,
+        p_actor_id,
+        now()
+      )
+      on conflict (tenant_id, sales_order_id) do update set
+        sales_order_version = excluded.sales_order_version,
+        buyer_name = coalesce(bc.buyer_name, excluded.buyer_name),
+        buyer_tax_code = coalesce(bc.buyer_tax_code, excluded.buyer_tax_code),
+        buyer_address = coalesce(bc.buyer_address, excluded.buyer_address),
+        completed_by_user_id = excluded.completed_by_user_id,
+        completed_at = excluded.completed_at;
+
+      select c.completed_at
+      into v_buyer_completed_at
+      from einvoice.buyer_invoice_completions c
+      where c.tenant_id = p_tenant_id
+        and c.sales_order_id = p_sales_order_id;
+    end if;
+  end if;
+
+  v_effective_buyer := einvoice._effective_buyer_snapshot(
+    p_tenant_id,
+    p_sales_order_id,
+    v_base_buyer_snapshot
+  );
+
+  v_attempt_snapshot := jsonb_build_object(
+    'schemaVersion', 1,
+    'source_order', jsonb_build_object(
+      'salesOrderId', p_sales_order_id,
+      'sourceVersion', p_source_version,
+      'status', 'COMPLETED'
+    ),
+    'seller', coalesce(p_commercial_snapshot -> 'seller', '{}'::jsonb),
+    'buyer', v_effective_buyer,
+    'buyer_lineage', jsonb_build_object(
+      'buyerPartnerId', p_buyer_partner_id,
+      'buyerCompletedAt', v_buyer_completed_at,
+      'buyerInvoiceSnapshotSourceVersion', p_source_version,
+      'buyerInvoiceSnapshot', v_base_buyer_snapshot
+    ),
+    'invoice_context', jsonb_build_object(
+      'providerConnectionId', p_provider_connection_id
+    ),
+    'lines', coalesce(p_commercial_snapshot -> 'lines', '[]'::jsonb),
+    'totals', coalesce(p_commercial_snapshot -> 'totals', '{}'::jsonb),
+    'payment_information', null,
+    'automation_policy', jsonb_build_object(
+      'acknowledgeWarnings', coalesce(p_acknowledge_warnings, false)
+    ),
+    'readiness_result', jsonb_build_object('blockers', '[]'::jsonb),
+    'mapping_schema_version', '1.0.0'
+  );
+
+  v_canonical_jsonb := einvoice.build_canonical_invoice(
+    p_tenant_id,
+    p_sales_order_id,
+    p_source_version,
+    v_effective_buyer,
+    p_commercial_snapshot
+  );
+
+  v_invoice_series := nullif(
+    upper(btrim(v_canonical_jsonb ->> 'invSeries')),
+    ''
+  );
+  if v_invoice_series is null
+     or v_invoice_series !~ '^[1256][CK].{2}[TM]'
+     or jsonb_typeof(v_canonical_jsonb -> 'invoiceWithCode') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'isInvoiceSummary') is distinct from 'boolean'
+     or jsonb_typeof(v_canonical_jsonb -> 'signType') is distinct from 'number' then
+    raise exception 'STATE_INVALID: canonical provider contract is missing or malformed';
+  end if;
+
+  v_invoice_with_code := (v_canonical_jsonb ->> 'invoiceWithCode')::boolean;
+  v_is_invoice_summary := (v_canonical_jsonb ->> 'isInvoiceSummary')::boolean;
+  v_sign_type := (v_canonical_jsonb ->> 'signType')::smallint;
+
+  if v_sign_type not in (2, 5)
+     or v_invoice_with_code is distinct from (substr(v_invoice_series, 2, 1) = 'C')
+     or v_sign_type is distinct from (
+       case
+         when substr(v_invoice_series, 5, 1) = 'M' then 5
+         else 2
+       end
+     ) then
+    raise exception 'STATE_INVALID: canonical provider contract is inconsistent';
+  end if;
+
+  v_attempt_snapshot := v_attempt_snapshot || jsonb_build_object(
+    'provider_contract', jsonb_build_object(
+      'invoice_series', v_invoice_series,
+      'invoice_with_code', v_invoice_with_code,
+      'is_invoice_summary', v_is_invoice_summary,
+      'sign_type', v_sign_type
+    )
+  );
+
+  v_canonical_hash := encode(
+    digest(convert_to(v_canonical_jsonb::text, 'UTF8'), 'sha256'),
+    'hex'
+  );
+
+  insert into einvoice.issuance_attempts (
+    tenant_id,
+    invoice_issuance_id,
+    attempt_no,
+    status,
+    provider_connection_id,
+    invoice_series,
+    idempotency_key,
+    intent_hash,
+    snapshot_schema_version,
+    attempt_snapshot,
+    canonical_payload_hash,
+    internal_finalization_state,
+    initiated_by_actor_type,
+    initiated_by_actor_id
+  ) values (
+    p_tenant_id,
+    v_issuance_id,
+    v_attempt_no,
+    'PREPARING',
+    p_provider_connection_id,
+    v_invoice_series,
+    p_idempotency_key,
+    p_intent_hash,
+    1,
+    v_attempt_snapshot,
+    v_canonical_hash,
+    'PENDING',
+    p_actor_type,
+    p_actor_id
+  )
+  returning id into v_attempt_id;
+
+  perform einvoice.enqueue_internal_command(
+    p_tenant_id,
+    'einvoice.publish_invoice',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'attempt_id', v_attempt_id,
+      'canonical_invoice', v_canonical_jsonb,
+      'payload_hash', v_canonical_hash,
+      'idempotency_key', p_idempotency_key
+    ),
+    p_source_event_id => v_attempt_id
+  );
+
+  perform einvoice.enqueue_outbox_message(
+    p_tenant_id,
+    'einvoice.issuance.processing',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'sales_order_id', p_sales_order_id,
+      'issuance_id', v_issuance_id,
+      'attempt_id', v_attempt_id,
+      'status', 'PREPARING'
+    )
+  );
+
+  return query select v_issuance_id, v_attempt_id, 'PREPARING'::text;
+end;
+$$;
+
+revoke all on function einvoice._start_issuance_attempt(
+  uuid, uuid, text, varchar, text, text, uuid, uuid, uuid, jsonb, jsonb, boolean
+) from public;

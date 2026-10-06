@@ -137,8 +137,8 @@ void main() {
         );
         final notFound = body.indexOf("'NOT_FOUND: provider connection'");
         final deleted = body.indexOf(
-          'delete from einvoice.provider_credentials\n'
-          '  where connection_id = p_connection_id and tenant_id = p_tenant_id;',
+          'delete from einvoice.provider_credentials c\n'
+          '  where c.connection_id = p_connection_id and c.tenant_id = p_tenant_id;',
         );
         final returns = body.lastIndexOf(
           "return query select p_connection_id, 'DISCONNECTED'::text;",
@@ -162,9 +162,9 @@ void main() {
         expect(
           body,
           contains(
-            "  where id = p_connection_id\n"
-            "    and tenant_id = p_tenant_id\n"
-            "    and status <> 'DISCONNECTED';",
+            "  where pc.id = p_connection_id\n"
+            "    and pc.tenant_id = p_tenant_id\n"
+            "    and pc.status <> 'DISCONNECTED';",
           ),
         );
         final alreadyDisconnected = body.indexOf(
