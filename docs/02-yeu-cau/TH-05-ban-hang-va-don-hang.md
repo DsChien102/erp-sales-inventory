@@ -291,7 +291,7 @@ Bảng đầy đủ. Các user story ở mục 4 dẫn lại mã này. Mã giữ
 | BR-26 | Kết quả hoàn tất: đơn `completed`, dòng đơn kèm snapshot, settlement, mỗi khoản thu thành 1 giao dịch `collection` nguồn `checkout`; nháp nguồn → `converted`; ghi sự kiện `sales_order_finalized.v1` | finalize |
 | BR-27 | Mất kết nối khi hoàn tất: tra kết quả bằng chính `idempotency_key` (`get_checkout_result`); **không cho thanh toán lại**. Kết quả bị chặn / lỗi cũng được lưu để tra lại | `get_checkout_result` |
 | BR-28 | Sau hoàn tất tạo phiếu bán hàng. Lỗi tạo phiếu không ảnh hưởng đơn; có "Tạo lại phiếu bán hàng" | result page |
-| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08) | outbox / SCOPE |
+| BR-29 | Sau hoàn tất, phát hành HĐĐT tự động nếu tổ chức bật (TH-08 BR-32) | hiện: outbox; sau refactor: trigger → `einvoice.internal_commands` |
 
 **Thu tiền sau bán** 🆕
 
@@ -2137,7 +2137,7 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 | `pricing.resolve_applicable_customer_price_rule`, `create_/update_customer_price_rule` | TH-04 | Lưu làm giá riêng |
 | `partner.*` (tìm, tạo nhanh, kiểm trùng) | TH-03 | Khách hàng |
 | `iam.get_active_store_context`, hồ sơ người dùng | TH-01 | Snapshot cửa hàng, người bán |
-| `sales.outbox_messages` → messaging worker | TH-08 | HĐĐT tự động |
+| Đơn Hoàn tất → `einvoice.internal_commands` (hiện: `sales.outbox_messages` → messaging worker) | TH-08 | HĐĐT tự động |
 
 ### 6.4 Mã lỗi và thông điệp app
 
@@ -2216,7 +2216,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 | Nội dung v1 | Thay bằng trong app |
 |---|---|
-| Kiến trúc 4 domain, outbox/inbox, `integration_commands`, `*_impact_request`, retry/đối soát downstream, màn trạng thái tích hợp | Một schema `sales`; chỉ ghi outbox cho HĐĐT |
+| Kiến trúc 4 domain, outbox/inbox, `integration_commands`, `*_impact_request`, retry/đối soát downstream, màn trạng thái tích hợp | Một schema `sales`; bỏ outbox, HĐĐT tự động nhận việc qua trigger (TH-08 KI-20) |
 | `CheckoutAttempt` với trạng thái received / validating / processing… | `idempotency_records` + `get_checkout_result` |
 | Ca bán (`sales_shifts`), mở / đóng ca | Không có |
 | Khoá / mở khoá đơn | Không có (`lock_status` luôn `unlocked`) |
@@ -2249,7 +2249,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesOrderRepository / SalesPaymentRepository / ReturnExchangeRepository / ReceiptRepository → RPC` |
 | Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `PriceRuleRepository` (P5), `ProductRepository` (P3), `PartnerRepository` (P4) |
 | Rule Aggregate trong `modules/sales/domain` | Hàm thuần (tính tổng, cộng dồn dòng, kiểm vượt tổng, tiền thừa), giữ test cũ |
-| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | **Giữ nguyên** (TH-08 KI-19, quyết định 2026-10-07) |
+| Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | Trigger trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
 | Trigger lịch sử giao dịch đối tác | Trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (PLAN 4.3, TH-03 KI-02) |
 
 ### 9.2 Theo PR của P6

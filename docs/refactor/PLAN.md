@@ -20,7 +20,7 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inv
 | P4 | Partner | 2 ngày | P2 |
 | P5 | Pricing | 2 ngày | P3, P4 |
 | P6 | Sales | 6 ngày | P3, P4, P5 |
-| P7 | E-invoice | 4 ngày | P6 |
+| P7 | E-invoice | 8 ngày | P6 |
 | P8 | Platform admin (gộp app) | 3 ngày | P2 |
 | P9 | Dọn dẹp code + DB | 3 ngày | P1–P8 |
 | P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 |
@@ -194,25 +194,25 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 | 6.4 | Phiếu/biên lai | generate/get receipt, original receipt, printed/shared, slip preview |
 | 6.5 | Huỷ đơn + đổi/trả | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel) |
 
-**Integration event:** giữ outbox `sales_order_finalized.v1` → messaging worker phát HĐĐT tự động (TH-08 KI-19, quyết định 2026-10-07). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả **không** làm ở P6: thuộc Theme 7 (P11, `BC-IO-04`, `BC-IO-07`, `BC-IO-13`).
+**Integration event:** bỏ outbox. Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở P7.5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả **không** làm ở P6: thuộc Theme 7 (P11, `BC-IO-04`, `BC-IO-07`, `BC-IO-13`).
 
 **Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho kiểm ở P11 (Theme 7). Các màn sales trong checklist đều đã tick.
 
 ---
 
-## P7. E-invoice (4 ngày)
+## P7. E-invoice (8 ngày)
 
-Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ cơ chế hiện có** (RPC ghi hàng đợi → messaging worker gọi MISA → app hỏi lại trạng thái; đối soát nền). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (TH-08 KI-17).
+Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ hành vi hiện có** (hàng đợi, đối soát nền, phát hành và gửi tự động, chống trùng) nhưng **bỏ `apps/messaging_worker`**: mọi lệnh gọi MISA chuyển sang Edge Function `einvoice-processor` (TypeScript), kích hoạt bởi app và `pg_cron` mỗi 30 giây (TH-08 KI-20). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (KI-17).
 
 | # | Việc |
 |---|---|
 | 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06) |
 | 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16 |
 | 7.3 | **Trên đơn**: `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17 |
-| 7.4 | **Worker**: giữ `apps/messaging_worker` + `packages/vet45_misa`, đối soát nền, khóa ký hiệu; đổi chỗ import handler; app không gọi MISA |
-| 7.5 | Tự phát hành / tự gửi: giữ sự kiện `sales_order_finalized.v1` và `einvoice.electronic_invoice.registered` qua worker (không cần `autoIssueIfEnabled`, TH-08 KI-19) |
+| 7.4 | **Edge Function `einvoice-processor`**: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
+| 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20) |
 
-**Xong khi:** kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật; ngắt mạng worker giữa lúc phát hành thì đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
+**Xong khi:** với worker **đã tắt**: kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật, kể cả khi app đã đóng; MISA timeout thì `pg_cron` đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
 
 ---
 
@@ -236,8 +236,8 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 |---|---|---|
 | 9.1 | Xoá `modules/`, `apps/admin`, `apps/messaging_worker` | `grep -r "vet45_.*_application"` không còn kết quả |
 | 9.2 | Xoá package `vet45_generator`, `vet45_annotations`, `vet45_adapters`, `vet45_async_query`, `vet45_resend`; gộp phần còn dùng của `vet45_shared` vào `core/` | `flutter pub get` OK |
-| 9.3 | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`, `packages/vet45_misa`) | `flutter analyze` sạch |
-| 9.4 | DB: bỏ outbox/inbox/idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |
+| 9.3 | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`). Xoá `packages/vet45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
+| 9.4 | DB: bỏ outbox/inbox của mọi schema (kể cả `sales`, `einvoice`) và RPC/view messaging của `platform`; **giữ `einvoice.internal_commands`** (hàng đợi của Edge Function). Bỏ idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |
 | 9.5 | **Gộp migration**: dump schema thành ~5 file baseline (`00_schemas`, `01_tables`, `02_functions`, `03_rls`, `04_triggers`) + `seed.sql`; chuyển migration cũ vào `supabase/_archive/` | `db reset` từ baseline + chạy lại checklist |
 | 9.6 | Xoá script/tool cũ: `tools/vet45_env`, `tools/vet45_supabase_migrate`, guard CI không còn dùng | — |
 

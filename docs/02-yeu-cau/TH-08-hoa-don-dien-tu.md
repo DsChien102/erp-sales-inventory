@@ -1,12 +1,12 @@
 # TH-08 — Hóa đơn điện tử
 
 > **Vai trò:** **đặc tả chuẩn (source of truth)** cho app sau refactor. Theme đã hoàn thành: **code hiện tại là phạm vi chuẩn**. Mọi quy tắc mặc định = hành vi code hiện tại (SCOPE: giữ 100% chức năng, giữ RPC). Gắn 🔧 = code hiện tại **sai**, phải sửa khi refactor. Gắn 🆕 = chưa có code, phải làm. Làm theo tài liệu, không chép lỗi của code cũ.
-> **Phiên bản:** 1.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
+> **Phiên bản:** 1.1 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
 > **Thay thế:** `docs/themes/TH-08-e-invoice/Theme-8-e-invoice.md` (spec v1, 4 epic) cho mục đích làm app. Spec v1 và harness (`docs/themes/TH-08-e-invoice/harness/`) giữ lại làm tài liệu tham khảo kỹ thuật. Chỗ spec v1 khác code: **code thắng** (quyết định 2026-10-07), ghi ở [mục 7.3](#73-vấn-đề-đã-biết-và-quyết-định) và [mục 8](#8-ngoài-phạm-vi-so-với-spec-v1).
 > **Nguồn đối chiếu:**
 > - DB: schema `einvoice`, **23 file nháp** `supabase/migrations/_drafts/001…023` (**chưa promote** thành migration chính thức), cùng `sales.get_einvoice_source_snapshot`, `sales.can_access_sales_order` (draft 018), `partner.get_einvoice_buyer_profile` (023), `partner.get_einvoice_recipient_snapshot` (016).
 > - App: `apps/erp/lib/features/einvoice/presentation/` (4 trang thiết lập), `apps/erp/lib/features/sales/presentation/` (khối HĐĐT trên đơn: `OrderEInvoiceSection`, `OrderEInvoiceCubit`, `OrderInvoiceDeliveryCubit`, 6 sheet/trang), module `modules/einvoice/` (domain, application, infrastructure, presentation).
-> - Worker: `apps/messaging_worker` + `packages/vet45_misa` (mọi lệnh gọi MISA).
+> - Bộ xử lý hiện tại: `apps/messaging_worker` (Dart) + `packages/vet45_misa`. **Sau refactor thay bằng Edge Function `einvoice-processor` + `pg_cron`** (quyết định 2026-10-07, xem [9.1](#91-kiến-trúc) và KI-20). Trong tài liệu, "**bộ xử lý**" là nơi chạy mọi lệnh gọi MISA, không phụ thuộc nó là bộ xử lý hay Edge Function.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả từng màn hình (trạng thái, thành phần, phác thảo); mục 6 RPC và thông điệp lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử.
 
@@ -19,7 +19,7 @@
 3. [Dữ liệu](#3-dữ-liệu)
 4. [Epic và user story](#4-epic-và-user-story)
 5. [Đặc tả màn hình](#5-đặc-tả-màn-hình)
-6. [Kỹ thuật: RPC, worker, lỗi](#6-kỹ-thuật-rpc-worker-lỗi)
+6. [Kỹ thuật: RPC, bộ xử lý, lỗi](#6-kỹ-thuật-rpc-bộ-xử-lý-lỗi)
 7. [Phân quyền & vấn đề đã biết](#7-phân-quyền--vấn-đề-đã-biết)
 8. [Ngoài phạm vi (so với spec v1)](#8-ngoài-phạm-vi-so-với-spec-v1)
 9. [Thay đổi khi refactor & kiểm thử](#9-thay-đổi-khi-refactor--kiểm-thử)
@@ -41,7 +41,7 @@ TH-08 cho cửa hàng phát hành **hóa đơn điện tử (HĐĐT)** qua **MIS
 
 - Đơn hàng (TH-05) và hóa đơn điện tử là hai chứng từ riêng. Lỗi phát hành **không** đổi trạng thái Hoàn tất hay số liệu của đơn.
 - Bên bán lấy từ **hồ sơ pháp lý** của tổ chức (TH-01). Bên mua lấy từ **ảnh chụp khách trên đơn** (TH-05), thiếu trường nào thì lấy từ **hồ sơ xuất hóa đơn** của đối tác (TH-03).
-- Mọi lệnh gọi MISA (đăng nhập, xem trước, phát hành, xem bản chính thức, tải PDF/XML, gửi email) chạy ở **messaging worker**. App chỉ gọi RPC Supabase: RPC ghi yêu cầu vào hàng đợi, worker gọi MISA rồi ghi kết quả; app hỏi lại kết quả theo chu kỳ.
+- Mọi lệnh gọi MISA (đăng nhập, xem trước, phát hành, xem bản chính thức, tải PDF/XML, gửi email) chạy ở **bộ xử lý** phía server. App chỉ gọi RPC Supabase: RPC ghi yêu cầu vào hàng đợi `einvoice.internal_commands`; bộ xử lý lấy việc từ hàng đợi, gọi MISA rồi ghi kết quả; app hỏi lại kết quả theo chu kỳ. Sau refactor bộ xử lý là Edge Function `einvoice-processor`, được app gọi ngay sau thao tác và được `pg_cron` gọi mỗi 30 giây (mục 6.1).
 - Phase 1 chỉ hỗ trợ **thuế KCT** (không chịu thuế): mọi dòng thuế = 0, tên thuế `KCT`. Đơn có thuế khác 0 bị chặn (`UNSUPPORTED_TAX_DATA`).
 - Đơn có đổi/trả: hóa đơn phát hành theo **hàng khách còn giữ** (dòng hiện tại của đơn). Đơn trả hết hàng thì không phát hành.
 
@@ -59,7 +59,7 @@ TH-08 cho cửa hàng phát hành **hóa đơn điện tử (HĐĐT)** qua **MIS
 |---|---|
 | Thiết lập | Kết nối / kết nối lại / ngắt kết nối MISA; chọn mẫu hóa đơn mặc định (hình thức ký suy từ mẫu); bật/tắt phát hành tự động và gửi email tự động; tổng quan mức sẵn sàng |
 | Trước phát hành | Kiểm tra điều kiện của đơn; xem trước bản nháp từ MISA |
-| Phát hành | Phát hành thủ công có xác nhận; phát hành lại sau lỗi; phát hành tự động khi đơn Hoàn tất; đối soát kết quả chưa rõ (nền, worker) |
+| Phát hành | Phát hành thủ công có xác nhận; phát hành lại sau lỗi; phát hành tự động khi đơn Hoàn tất; đối soát kết quả chưa rõ (nền, bộ xử lý) |
 | Sau phát hành | Mở bản chính thức từ MISA; lưu PDF / XML qua chia sẻ của hệ điều hành |
 | Gửi | Gửi email tự động sau phát hành; gửi / gửi lại thủ công; lịch sử gửi |
 
@@ -72,7 +72,7 @@ Sửa, điều chỉnh, thay thế, hủy hóa đơn đã phát hành; hóa đơ
 | Tác nhân | Việc làm trong theme |
 |---|---|
 | Thành viên tổ chức (Owner, Chủ cửa hàng, Nhân viên, Kế toán, Thủ kho) | Mọi thao tác: thiết lập, phát hành, xem, tải, gửi (vai trò chỉ là nhãn, xem [7.2](#72-phân-quyền)) |
-| Messaging worker | Gọi MISA; ghi kết quả; đối soát kết quả chưa rõ; phát hành và gửi tự động |
+| Bộ xử lý (Edge Function `einvoice-processor` + `pg_cron`; hiện là `apps/messaging_worker`) | Gọi MISA; ghi kết quả; đối soát kết quả chưa rõ; phát hành và gửi tự động |
 | MISA meInvoice | Xác thực, cung cấp mẫu, xem trước, phát hành, bản chính thức, PDF/XML, gửi email |
 | Hệ điều hành | Mở trình duyệt xem hóa đơn; chia sẻ / lưu tệp PDF, XML |
 
@@ -82,14 +82,15 @@ Sửa, điều chỉnh, thay thế, hủy hóa đơn đã phát hành; hóa đơ
 |---|---|---|
 | TH-01 Tổ chức | Hồ sơ pháp lý (MST dùng đăng nhập MISA; tên, địa chỉ bên bán); quyền; tổ chức hiện hành | — |
 | TH-03 Đối tác | Hồ sơ xuất hóa đơn (tên, MST, địa chỉ) bù trường còn trống; email nhận hóa đơn | Liên kết "Cập nhật thông tin khách hàng" mở `/partner/<id>/edit` |
-| TH-05 Bán hàng | Đơn Hoàn tất: dòng hàng hiện tại, tổng tiền, ảnh chụp khách, phiên bản đơn; sự kiện `sales_order_finalized.v1`; quyền truy cập đơn | Dòng "Hóa đơn điện tử" trên 2 màn; bộ lọc HĐĐT trong danh sách đơn |
+| TH-05 Bán hàng | Đơn Hoàn tất: dòng hàng hiện tại, tổng tiền, ảnh chụp khách, phiên bản đơn; tín hiệu đơn Hoàn tất; quyền truy cập đơn | Dòng "Hóa đơn điện tử" trên 2 màn; bộ lọc HĐĐT trong danh sách đơn |
 
 ```mermaid
 flowchart LR
     T01["TH-01<br/>Hồ sơ pháp lý"] --> T08["TH-08<br/>HĐĐT"]
     T03["TH-03<br/>Hồ sơ xuất HĐ, email"] --> T08
-    T05["TH-05<br/>Đơn Hoàn tất"] -->|sales_order_finalized.v1| T08
-    T08 -->|RPC → hàng đợi| W["Messaging worker"]
+    T05["TH-05<br/>Đơn Hoàn tất"] -->|trigger → hàng đợi| T08
+    T08 -->|RPC → hàng đợi| W["Edge Function<br/>einvoice-processor"]
+    CRON["pg_cron 30s"] --> W
     W <--> MISA["MISA meInvoice"]
     T08 -->|dòng HĐĐT| T05
 ```
@@ -124,7 +125,7 @@ flowchart LR
 ```mermaid
 stateDiagram-v2
     [*] --> CHECK_REQUIRED: Kết nối (lưu tài khoản)
-    CHECK_REQUIRED --> CONNECTED: Worker đăng nhập được + lấy được mẫu
+    CHECK_REQUIRED --> CONNECTED: Bộ xử lý đăng nhập được + lấy được mẫu
     CHECK_REQUIRED --> RECONNECT_REQUIRED: MISA từ chối tài khoản
     RECONNECT_REQUIRED --> CHECK_REQUIRED: Kết nối lại
     CONNECTED --> CHECK_REQUIRED: Kết nối lại / kiểm tra lại
@@ -139,7 +140,7 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> PREPARING: issue_invoice / retry_issuance / tự động
-    PREPARING --> SUBMITTED: worker chốt trước khi gọi MISA
+    PREPARING --> SUBMITTED: bộ xử lý chốt trước khi gọi MISA
     SUBMITTED --> WAITING_RESULT: MISA nhận, chờ kết quả
     SUBMITTED --> SUCCEEDED: MISA xác nhận
     SUBMITTED --> FAILED: MISA từ chối chắc chắn
@@ -213,8 +214,8 @@ Lúc bắt đầu một lượt phát hành, các trường bước 3 được *
 | Mã | Quy tắc | Nguồn |
 |---|---|---|
 | BR-01 | Mỗi tổ chức tối đa một kết nối MISA khác `DISCONNECTED` | `provider_connections` |
-| BR-02 | Kết nối nhận tài khoản + mật khẩu MISA; **MST lấy từ hồ sơ pháp lý**, không nhập. AppID và token do worker quản lý, không hiện trên UI | `connect_provider`, `read_provider_credentials` |
-| BR-03 | Lưu tài khoản → trạng thái `CHECK_REQUIRED` ngay; worker đăng nhập và lấy mẫu: được → `CONNECTED`; bị từ chối → `RECONNECT_REQUIRED`; MISA không phản hồi → giữ `CHECK_REQUIRED`, hàng đợi thử lại | `connect_provider`, `SyncProviderCapabilitiesCommandHandler` |
+| BR-02 | Kết nối nhận tài khoản + mật khẩu MISA; **MST lấy từ hồ sơ pháp lý**, không nhập. AppID và token do bộ xử lý quản lý, không hiện trên UI | `connect_provider`, `read_provider_credentials` |
+| BR-03 | Lưu tài khoản → trạng thái `CHECK_REQUIRED` ngay; bộ xử lý đăng nhập và lấy mẫu: được → `CONNECTED`; bị từ chối → `RECONNECT_REQUIRED`; MISA không phản hồi → giữ `CHECK_REQUIRED`, hàng đợi thử lại | `connect_provider`, `SyncProviderCapabilitiesCommandHandler` |
 | BR-04 | Mật khẩu mã hóa trong `provider_credentials`; không bao giờ trả về app. Màn chỉ hiện tài khoản đã che (`ab***@x.vn`) | `connect_provider` |
 | BR-05 | Kết nối lại chỉ áp dụng cho kết nối chưa ngắt; ngắt kết nối cần xác nhận, xóa dòng tài khoản, **giữ** mọi hóa đơn và lịch sử | `reconnect_provider`, `disconnect_provider` |
 | BR-06 | Mẫu hóa đơn chỉ chọn từ danh sách MISA trả về (mẫu `is_available`); không nhập tay mẫu số, ký hiệu, `SignType` | `list_provider_templates` |
@@ -234,7 +235,7 @@ Lúc bắt đầu một lượt phát hành, các trường bước 3 được *
 | BR-15 | Tổ chức chưa sẵn sàng (BR-10) → `CONFIG_NOT_READY` / `PROVIDER_NOT_CONNECTED` | evaluator |
 | BR-16 | Khách tổ chức thiếu MST → `BUYER_TAX_CODE_REQUIRED` (chặn phát hành); có MST thiếu địa chỉ → `BUYER_ADDRESS_REQUIRED`; khách cá nhân/tổ chức thiếu tên → `BUYER_DATA_INCOMPLETE`. **Khách cá nhân/tổ chức không bao giờ bị đổi thành Khách lẻ** | evaluator, `EffectiveBuyerInvoiceData` |
 | BR-17 | Dữ liệu dòng hàng không ánh xạ được (không có dòng nào) → `VALIDATION_ERROR` | evaluator |
-| BR-18 | Thuế: Phase 1 chỉ KCT. Thuế dòng / tổng ≠ 0 hoặc có ảnh chụp thuế → `UNSUPPORTED_TAX_DATA` | worker `build_canonical_invoice` |
+| BR-18 | Thuế: Phase 1 chỉ KCT. Thuế dòng / tổng ≠ 0 hoặc có ảnh chụp thuế → `UNSUPPORTED_TAX_DATA` | bộ xử lý (`build_canonical_invoice`) |
 | BR-19 | MISA không hỗ trợ xem trước → `PREVIEW_UNSUPPORTED` (chặn xem trước, không chặn phát hành) | evaluator |
 | BR-20 | Mức điều kiện: có blocker → **Chưa sẵn sàng**; không blocker, có cảnh báo → **Sẵn sàng có cảnh báo**; còn lại **Sẵn sàng**. Hiện chưa có loại cảnh báo nào được sinh ra | evaluator |
 
@@ -244,12 +245,12 @@ Lúc bắt đầu một lượt phát hành, các trường bước 3 được *
 |---|---|---|
 | BR-21 | Mỗi lượt có **khóa chống trùng** (UUID tạo ở app, gửi MISA làm `RefID`). Cùng khóa + cùng ý định → trả lượt cũ; cùng khóa khác ý định → `IDEMPOTENCY_CONFLICT` | `issue_invoice` |
 | BR-22 | Lượt phát hành kiểm lại **phiên bản đơn** (`source_version`): đơn vừa đổi/trả sau khi mở màn → `SOURCE_VERSION_MISMATCH` | `issue_invoice` |
-| BR-23 | Ảnh chụp lượt (bên bán, người mua hiệu lực, dòng, tổng, mẫu, ký hiệu, `SignType`, chính sách) được ghi **trước** khi gọi MISA và không đổi suốt lượt, kể cả khi worker thử lại | `_start_issuance_attempt` |
-| BR-24 | Worker chuyển lượt sang `SUBMITTED` **trước** khi gọi MISA; lượt đã `SUBMITTED` không bao giờ gọi phát hành lại, chỉ đối soát | `prepare_issuance_publish` |
+| BR-23 | Ảnh chụp lượt (bên bán, người mua hiệu lực, dòng, tổng, mẫu, ký hiệu, `SignType`, chính sách) được ghi **trước** khi gọi MISA và không đổi suốt lượt, kể cả khi bộ xử lý thử lại | `_start_issuance_attempt` |
+| BR-24 | Bộ xử lý chuyển lượt sang `SUBMITTED` **trước** khi gọi MISA; lượt đã `SUBMITTED` không bao giờ gọi phát hành lại, chỉ đối soát | `prepare_issuance_publish` |
 | BR-25 | Mỗi ký hiệu chỉ một lượt gọi phát hành tại một thời điểm trên toàn hệ thống (khóa thuê theo `InvSeries`); bận thì hẹn lại, không tính là lỗi | `publish_series_leases` |
-| BR-26 | MISA từ chối chắc chắn → `FAILED`, lưu thông điệp MISA (vd "Mã số thuế người mua không hợp lệ"). Mã `InvoiceNumberNotCotinuous` → thử lại ≤ 3 lần cùng `RefID`; `InvoiceDuplicated` / `DuplicateInvoiceRefID` → đối soát trước | worker, draft 020, 022 |
+| BR-26 | MISA từ chối chắc chắn → `FAILED`, lưu thông điệp MISA (vd "Mã số thuế người mua không hợp lệ"). Mã `InvoiceNumberNotCotinuous` → thử lại ≤ 3 lần cùng `RefID`; `InvoiceDuplicated` / `DuplicateInvoiceRefID` → đối soát trước | bộ xử lý, draft 020, 022 |
 | BR-27 | Timeout / 5xx / mất phản hồi sau khi gửi → `RECONCILING` + hồ sơ đối soát; **không** coi là lỗi, không cho phát hành lại | `record_issuance_undetermined` |
-| BR-28 | Đối soát tự động hỏi MISA theo lịch **30 giây, 2 phút, 10 phút, 30 phút, 2 giờ** (5 lần). Hết 5 lần vẫn chưa rõ → hồ sơ `UNRESOLVED`, đơn vẫn "Đang xử lý" và vẫn khóa phát hành. Kết quả MISA đến muộn vẫn được áp dụng | worker, `invoice_reconciliation_cases` |
+| BR-28 | Đối soát tự động hỏi MISA theo lịch **30 giây, 2 phút, 10 phút, 30 phút, 2 giờ** (5 lần). Hết 5 lần vẫn chưa rõ → hồ sơ `UNRESOLVED`, đơn vẫn "Đang xử lý" và vẫn khóa phát hành. Kết quả MISA đến muộn vẫn được áp dụng | bộ xử lý, `invoice_reconciliation_cases` |
 | BR-29 | MISA xác nhận nhưng ghi hóa đơn ở VET45 lỗi → chỉ ghi lại phần nội bộ, **không** gọi MISA phát hành lại | `recover_internal_finalization` |
 | BR-30 | Phát hành lại chỉ khi lượt mới nhất `FAILED` và chưa có hóa đơn; tạo **lượt mới** với ảnh chụp mới, giữ nguyên lượt cũ | `retry_issuance` |
 | BR-31 | Lỗi phát hành không đổi trạng thái hay số liệu đơn hàng | — |
@@ -258,16 +259,16 @@ Lúc bắt đầu một lượt phát hành, các trường bước 3 được *
 
 | Mã | Quy tắc | Nguồn |
 |---|---|---|
-| BR-32 | Đơn chuyển Hoàn tất → sự kiện `sales_order_finalized.v1` → worker gọi `start_auto_issuance`. Mỗi đơn một dòng theo dõi (`auto_issuance_processes`); sự kiện lặp dùng lại dòng cũ | draft 008 |
+| BR-32 | Đơn chuyển Hoàn tất → hàng đợi HĐĐT nhận việc phát hành tự động → bộ xử lý gọi `start_auto_issuance`. Hiện tại tín hiệu đi qua outbox `sales_order_finalized.v1` + bộ xử lý; 🆕 sau refactor là **trigger** trên `sales.sales_orders` (khi `lifecycle_status` thành `completed`) ghi thẳng vào `einvoice.internal_commands` (KI-20). Mỗi đơn một dòng theo dõi (`auto_issuance_processes`); tín hiệu lặp dùng lại dòng cũ | draft 008 |
 | BR-33 | Chính sách tắt → `SKIPPED` (`AUTOMATION_POLICY_DISABLED`). Đơn đã có hóa đơn / đang có lượt → `SKIPPED`. Đơn trả hết → `SKIPPED` | `start_auto_issuance` |
-| BR-34 | Chưa có kết nối / mẫu, hoặc nguồn đơn chưa đọc được → `PENDING_REEVALUATION` kèm mã chặn; khi hồ sơ đối tác của khách cập nhật (`partner.partner.profile_updated`) thì đánh giá lại dòng đang chờ, không tạo dòng mới | `start_auto_issuance`, `reevaluate_auto_issuance` |
+| BR-34 | Chưa có kết nối / mẫu, hoặc nguồn đơn chưa đọc được → `PENDING_REEVALUATION` kèm mã chặn; khi hồ sơ đối tác của khách cập nhật thì đánh giá lại các dòng đang chờ của đúng khách đó, không tạo dòng mới. Hiện qua sự kiện `partner.partner.profile_updated`; 🆕 sau refactor là trigger trên hồ sơ đối tác ghi việc `reevaluate_auto_issuance` vào hàng đợi | `start_auto_issuance`, `reevaluate_auto_issuance` |
 | BR-35 | Phát hành tự động dùng cùng ảnh chụp, khóa chống trùng (`RefID` = UUIDv5 của tổ chức + đơn + phiên bản) và xử lý kết quả như thủ công | draft 008 |
 
 **Xem và tài liệu**
 
 | Mã | Quy tắc | Nguồn |
 |---|---|---|
-| BR-36 | Bản xem chính thức, PDF, XML chỉ có khi đã có hóa đơn; đều do worker lấy từ MISA | drafts 010, 011 |
+| BR-36 | Bản xem chính thức, PDF, XML chỉ có khi đã có hóa đơn; đều do bộ xử lý lấy từ MISA | drafts 010, 011 |
 | BR-37 | Link xem / tải là link ký ngắn hạn (5 phút); chỉ trả khi trạng thái `AVAILABLE`, kiểm quyền mỗi lần đọc. Link MISA chỉ nhận `https` trên `*.meinvoice.vn` | như trên |
 | BR-38 | PDF và XML là hai yêu cầu độc lập; xử lý PDF không khóa XML và ngược lại | `invoice_documents` |
 | BR-39 | Tệp tải về được kiểm **SHA-256** trước khi giao cho chia sẻ của hệ điều hành; thiếu checksum → không giao | `IInvoiceDocumentExporter` |
@@ -282,8 +283,8 @@ Lúc bắt đầu một lượt phát hành, các trường bước 3 được *
 | BR-43 | Email chụp vào lần gửi, bất biến; không cập nhật hồ sơ đối tác, đơn hay hóa đơn | `recipient_snapshot` |
 | BR-44 | Có lần gửi đang `PROCESSING` → chặn gửi mới (`OPERATION_IN_PROGRESS`). `UNKNOWN` **không** chặn, người dùng gửi lại được | `send_electronic_invoice` |
 | BR-45 | Email gợi ý — gửi đầu tiên: email hồ sơ đối tác hiện hành → email lần gửi thành công gần nhất **cùng khách** (trong tổ chức). Gửi lại: email lần gửi gần nhất của hóa đơn này. Không có → để trống. Không có khách → không tra cứu | `get_send_invoice_sheet_context` |
-| BR-46 | Gửi tự động (khi bật): sau khi hóa đơn được ghi nhận, worker lấy email hồ sơ đối tác hiện hành → email trong ảnh chụp người mua của lượt thành công. Không có email hợp lệ → **không** tạo lần gửi (`INVALID_OR_MISSING_EMAIL`); gửi thủ công thắng trước → bỏ qua | `start_auto_delivery` |
-| BR-47 | Kết quả gửi: MISA xác nhận → `SUCCEEDED`; từ chối chắc chắn → `FAILED`; 429 trước khi MISA nhận → tự thử lại (≤ 3 lần); timeout / 5xx sau khi gửi → `UNKNOWN`. Không suy kết quả gửi từ trạng thái hóa đơn | worker, draft 014 |
+| BR-46 | Gửi tự động (khi bật): sau khi hóa đơn được ghi nhận, bộ xử lý lấy email hồ sơ đối tác hiện hành → email trong ảnh chụp người mua của lượt thành công. Không có email hợp lệ → **không** tạo lần gửi (`INVALID_OR_MISSING_EMAIL`); gửi thủ công thắng trước → bỏ qua | `start_auto_delivery` |
+| BR-47 | Kết quả gửi: MISA xác nhận → `SUCCEEDED`; từ chối chắc chắn → `FAILED`; 429 trước khi MISA nhận → tự thử lại (≤ 3 lần); timeout / 5xx sau khi gửi → `UNKNOWN`. Không suy kết quả gửi từ trạng thái hóa đơn | bộ xử lý, draft 014 |
 | BR-48 | Lỗi gửi không đổi trạng thái phát hành | — |
 
 ---
@@ -328,7 +329,7 @@ Ngoài sơ đồ: `buyer_invoice_completions` và `invoice_previews` (một dòn
 | `auto_issuance_processes` | `sales_order_id`, `sales_order_version`, `buyer_partner_id`, `trigger_key`, `provider_idempotency_key`, `status` (`PENDING_REEVALUATION`/`ATTEMPT_STARTED`/`SKIPPED`), `blocker_code` | Một dòng / đơn |
 | `publish_series_leases` | (`tenant_id`, `invoice_series`), `owner_token`, `lease_version`, `leased_until` | Khóa thuê theo ký hiệu |
 
-Hàng đợi `internal_commands`, `outbox_messages`, `inbox_messages` của schema `einvoice` do `platform.install_module_messaging('einvoice')` tạo (draft 002).
+Hàng đợi `internal_commands`, `outbox_messages`, `inbox_messages` của schema `einvoice` do `platform.install_module_messaging('einvoice')` tạo (draft 002). Sau refactor chỉ còn dùng `internal_commands` (hàng đợi của bộ xử lý); outbox/inbox bỏ ở P9 (KI-20).
 
 **Ảnh chụp lượt phát hành** (`attempt_snapshot`, bất biến): `source_order` (đơn, phiên bản, trạng thái), `seller`, `buyer` (người mua hiệu lực), `buyer_lineage` (ảnh chụp gốc của đơn, `buyerPartnerId`, `buyerCompletedAt`), `invoice_context` (mẫu, ký hiệu, `SignType`, có/không mã), `lines`, `totals`, `payment_information`, `automation_policy`, `readiness_result`, `mapping_schema_version`.
 
@@ -355,7 +356,7 @@ Hàng đợi `internal_commands`, `outbox_messages`, `inbox_messages` của sche
 |---|---|---|
 | EP-01 Thiết lập | US-01.1 Kết nối và duy trì kết nối MISA · US-01.2 Chọn mẫu hóa đơn mặc định · US-01.3 Thiết lập tự động · US-01.4 Xem mức sẵn sàng | HD-01 … HD-05 |
 | EP-02 Phát hành | US-02.1 Kiểm tra điều kiện và xem trước · US-02.2 Phát hành thủ công · US-02.3 Phát hành tự động · US-02.4 Xác lập kết quả và đối soát · US-02.5 Phát hành lại sau lỗi | HD-06 … HD-08 |
-| EP-03 Sau phát hành | US-03.1 Xem hóa đơn chính thức · US-03.2 Lưu PDF / XML · US-03.3 Ghi nhận trạng thái MISA (chỉ worker) | HD-09, HD-10 |
+| EP-03 Sau phát hành | US-03.1 Xem hóa đơn chính thức · US-03.2 Lưu PDF / XML · US-03.3 Ghi nhận trạng thái MISA (chỉ bộ xử lý) | HD-09, HD-10 |
 | EP-04 Gửi hóa đơn | US-04.1 Gửi email tự động · US-04.2 Gửi và gửi lại thủ công · US-04.3 Kết quả gửi và lịch sử | HD-09, HD-11 … HD-13 |
 
 ```mermaid
@@ -371,7 +372,7 @@ flowchart TD
 
 #### US-01.1 — Kết nối và duy trì kết nối MISA
 
-**Bối cảnh.** Để phát hành, tổ chức cần tài khoản MISA meInvoice. MISA đăng nhập bằng MST + tài khoản + mật khẩu; MST đã có trong hồ sơ pháp lý (TH-01) nên người dùng chỉ nhập tài khoản và mật khẩu. Đăng nhập thật do worker làm, nên màn hiện "Chờ kết nối" rồi tự cập nhật.
+**Bối cảnh.** Để phát hành, tổ chức cần tài khoản MISA meInvoice. MISA đăng nhập bằng MST + tài khoản + mật khẩu; MST đã có trong hồ sơ pháp lý (TH-01) nên người dùng chỉ nhập tài khoản và mật khẩu. Đăng nhập thật do bộ xử lý làm, nên màn hiện "Chờ kết nối" rồi tự cập nhật.
 
 **Câu chuyện.** Là người quản lý cửa hàng, tôi muốn kết nối tài khoản MISA của cửa hàng để phát hành hóa đơn điện tử từ VET45.
 
@@ -386,7 +387,7 @@ flowchart TD
 **BR áp dụng:** BR-01 … BR-05.
 
 **AC**
-- AC-01: Nhập đủ tài khoản, mật khẩu, bấm "Kết nối" → màn "Chờ kết nối"; worker đăng nhập được → tự chuyển "Đã kết nối", tài khoản hiện dạng che.
+- AC-01: Nhập đủ tài khoản, mật khẩu, bấm "Kết nối" → màn "Chờ kết nối"; bộ xử lý đăng nhập được → tự chuyển "Đã kết nối", tài khoản hiện dạng che.
 - AC-02: Bỏ trống tài khoản → lỗi dưới ô "Vui lòng nhập tài khoản MISA"; bỏ trống mật khẩu → "Vui lòng nhập mật khẩu MISA"; không gọi RPC.
 - AC-03: MISA từ chối tài khoản → màn chuyển "Lỗi kết nối" với banner lỗi và nút "Kết nối lại".
 - AC-04: Ngắt kết nối → trạng thái về "Chưa kết nối", form trống; hóa đơn đã phát hành vẫn xem được.
@@ -395,8 +396,8 @@ flowchart TD
 **EC**
 - EC-01: Hai người cùng kết nối → người sau nhận `STATE_CHANGED` ("Không thực hiện được — Có lỗi xảy ra, vui lòng thử lại."), tải lại màn.
 - EC-02: MISA không phản hồi → kết nối ở "Chờ kết nối", hàng đợi thử lại; không kết luận tài khoản sai.
-- EC-03: Hồ sơ pháp lý chưa có MST → worker đăng nhập thất bại → "Lỗi kết nối". Người dùng phải bổ sung MST ở TH-01 rồi "Kết nối lại".
-- EC-04: Người dùng rời màn khi đang "Chờ kết nối" → worker vẫn chạy; mở lại màn thấy trạng thái mới.
+- EC-03: Hồ sơ pháp lý chưa có MST → bộ xử lý đăng nhập thất bại → "Lỗi kết nối". Người dùng phải bổ sung MST ở TH-01 rồi "Kết nối lại".
+- EC-04: Người dùng rời màn khi đang "Chờ kết nối" → bộ xử lý vẫn chạy; mở lại màn thấy trạng thái mới.
 
 **Kịch bản**
 
@@ -412,13 +413,13 @@ Feature: Kết nối MISA meInvoice
     Then tôi thấy "Mã số thuế đơn vị phát hành" là "0312345678" và không sửa được
     When tôi nhập tài khoản "ketoan@anphat.vn", mật khẩu hợp lệ và bấm "Kết nối"
     Then tôi thấy banner "Đang chờ kết nối"
-    When worker đăng nhập MISA thành công và lấy được danh sách mẫu
+    When bộ xử lý đăng nhập MISA thành công và lấy được danh sách mẫu
     Then màn tự chuyển trạng thái "Đã kết nối"
     And tài khoản hiện là "ke***@anphat.vn"
 
   Scenario: Sai mật khẩu
     When tôi kết nối với mật khẩu sai
-    And worker bị MISA từ chối đăng nhập
+    And bộ xử lý bị MISA từ chối đăng nhập
     Then trạng thái là "Lỗi kết nối"
     And tôi thấy nút "Kết nối lại" và "Ngắt kết nối"
 
@@ -491,7 +492,7 @@ Feature: Mẫu hóa đơn mặc định
 - AC-03: 🔧 Tổ chức chưa có mẫu mặc định, bật "Tự động phát hành", bấm "Lưu" → toast "Chưa đủ điều kiện", cờ vẫn tắt.
 
 **EC**
-- EC-01: Bật gửi tự động khi MISA không hỗ trợ gửi email → lưu được; worker bỏ qua lần gửi (`DELIVERY_NOT_SUPPORTED`). Giữ nguyên (KI-10).
+- EC-01: Bật gửi tự động khi MISA không hỗ trợ gửi email → lưu được; bộ xử lý bỏ qua lần gửi (`DELIVERY_NOT_SUPPORTED`). Giữ nguyên (KI-10).
 - EC-02: Hai người cùng lưu → `STATE_CHANGED`.
 
 ```gherkin
@@ -624,7 +625,7 @@ Feature: Kiểm tra và xem trước hóa đơn
 - FR-02: Sheet xác nhận (HD-08): tiêu đề "Phát hành hóa đơn điện tử?"; dòng 1 "Đơn hàng <mã> · Tổng tiền <số tiền>"; dòng 2 "Mẫu <mẫu số> · Ký hiệu <ký hiệu> · <Có mã CQT | Máy tính tiền | Không ký>"; nút "Phát hành hóa đơn điện tử" (chính) và "Hủy".
 - FR-03: Tổng tiền trên sheet là **số khách còn phải trả sau đổi/trả** (không phải tổng ban đầu khi đã có đổi/trả).
 - FR-04: Xác nhận → app tạo khóa chống trùng (UUID v4) và gọi `issue_invoice(..., source_version = phiên bản đơn, idempotency_key)`. Thành công → dòng HĐĐT chuyển ngay "Đang xử lý", không bấm được; khối HĐĐT hỏi lại mỗi 5 giây.
-- FR-05: Worker chạy lượt: kiểm hợp đồng dữ liệu (`validateCanonical`), lấy khóa ký hiệu, chuyển `SUBMITTED`, gọi MISA, ghi kết quả.
+- FR-05: Bộ xử lý chạy lượt: kiểm hợp đồng dữ liệu (`validateCanonical`), lấy khóa ký hiệu, chuyển `SUBMITTED`, gọi MISA, ghi kết quả.
 - FR-06: MISA xác nhận và VET45 ghi xong hóa đơn → dòng chuyển "Đã phát hành". MISA từ chối → "Phát hành lỗi".
 - FR-07: Lỗi khi gọi `issue_invoice` → toast "Hóa đơn điện tử — <thông điệp>" (bảng 6.4), dòng giữ trạng thái cũ.
 
@@ -641,9 +642,9 @@ Feature: Kiểm tra và xem trước hóa đơn
 **EC**
 - EC-01: Hai người cùng xác nhận → một người tạo lượt, người kia nhận `OPERATION_IN_PROGRESS` ("Yêu cầu đang được xử lý, vui lòng chờ giây lát.").
 - EC-02: Kết nối bị ngắt giữa lúc mở sheet và xác nhận → `ISSUANCE_NOT_READY` (`NO_ACTIVE_PROVIDER_CONNECTION`).
-- EC-03: Đơn có thuế ≠ 0 → worker chặn `UNSUPPORTED_TAX_DATA`, lượt `FAILED`, banner "Dữ liệu đơn hàng hoặc cấu hình không khớp. Vui lòng kiểm tra lại." (mã `COMMAND_INTEGRITY`).
+- EC-03: Đơn có thuế ≠ 0 → bộ xử lý chặn `UNSUPPORTED_TAX_DATA`, lượt `FAILED`, banner "Dữ liệu đơn hàng hoặc cấu hình không khớp. Vui lòng kiểm tra lại." (mã `COMMAND_INTEGRITY`).
 - EC-04: Ký hiệu đang có lượt khác gọi MISA → lượt này chờ, không lỗi (BR-25).
-- EC-05: App bị tắt khi đang "Đang xử lý" → worker vẫn chạy; mở lại đơn thấy trạng thái mới; không gửi yêu cầu mới.
+- EC-05: App bị tắt khi đang "Đang xử lý" → bộ xử lý vẫn chạy; mở lại đơn thấy trạng thái mới; không gửi yêu cầu mới.
 
 ```gherkin
 Feature: Phát hành thủ công
@@ -670,7 +671,7 @@ Feature: Phát hành thủ công
     And đơn "DH-000129" vẫn Hoàn tất, số tiền không đổi
 
   Scenario: Mất phản hồi sau khi gửi MISA
-    When tôi phát hành và worker gọi MISA bị timeout
+    When tôi phát hành và bộ xử lý gọi MISA bị timeout
     Then dòng vẫn là "Đang xử lý"
     And có hồ sơ đối soát kiểm lại sau 30 giây
     And tôi không thể phát hành lại đơn này
@@ -683,9 +684,9 @@ Feature: Phát hành thủ công
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn đơn Hoàn tất tự có hóa đơn để nhân viên không quên phát hành.
 
 **FR**
-- FR-01: Đơn chuyển Hoàn tất → `sales.outbox_messages` có `sales_order_finalized.v1` → worker gọi `start_auto_issuance(trigger_key, idempotency_key)`.
+- FR-01: Đơn chuyển Hoàn tất → hàng đợi HĐĐT có việc phát hành tự động (BR-32) → bộ xử lý gọi `start_auto_issuance(trigger_key, idempotency_key)`.
 - FR-02: Kết quả theo dòng `auto_issuance_processes`: `ATTEMPT_STARTED` (đã tạo lượt), `SKIPPED` (chính sách tắt, đã có hóa đơn, đang có lượt, đơn trả hết), `PENDING_REEVALUATION` (chưa kết nối, chưa có mẫu, nguồn đơn chưa đọc được).
-- FR-03: Hồ sơ đối tác cập nhật (`partner.partner.profile_updated`) → worker tìm các đơn `PENDING_REEVALUATION` của đúng khách đó và gọi `reevaluate_auto_issuance`.
+- FR-03: Hồ sơ đối tác cập nhật → bộ xử lý tìm các đơn `PENDING_REEVALUATION` của đúng khách đó và gọi `reevaluate_auto_issuance` (BR-34).
 - FR-04: Trên UI, phát hành tự động trông như thủ công: dòng HĐĐT "Đang xử lý" → "Đã phát hành" / "Phát hành lỗi". Không có sheet xác nhận.
 
 **BR áp dụng:** BR-32 … BR-35, BR-21 … BR-29.
@@ -694,12 +695,12 @@ Feature: Phát hành thủ công
 - AC-01: Chính sách bật, tổ chức sẵn sàng, khách lẻ → đơn Hoàn tất có lượt `AUTOMATIC` trong vài giây.
 - AC-02: Sự kiện đến 2 lần → vẫn một dòng `auto_issuance_processes`, một lượt.
 - AC-03: Chính sách tắt → `SKIPPED`, đơn "Chưa phát hành", người dùng vẫn phát hành tay được.
-- AC-04: Người dùng đã phát hành tay trước khi worker xử lý sự kiện → `SKIPPED` (`OPERATION_IN_PROGRESS` / `ALREADY_ISSUED`).
+- AC-04: Người dùng đã phát hành tay trước khi bộ xử lý xử lý sự kiện → `SKIPPED` (`OPERATION_IN_PROGRESS` / `ALREADY_ISSUED`).
 - AC-05: 🔧 Khách tổ chức thiếu MST → `PENDING_REEVALUATION` (`BUYER_TAX_CODE_REQUIRED`), không gọi MISA; cập nhật MST trong hồ sơ khách → tự đánh giá lại và phát hành (KI-04).
 
 **EC**
 - EC-01: Tổ chức chưa kết nối khi đơn Hoàn tất → `PENDING_REEVALUATION` (`NO_ACTIVE_PROVIDER_CONNECTION`). Kết nối xong **không** tự đánh giá lại; chỉ cập nhật hồ sơ khách mới kích hoạt. Người dùng phát hành tay. Giữ nguyên (KI-11).
-- EC-02: Tắt chính sách khi sự kiện đang chờ trong hàng đợi → worker đọc chính sách lúc xử lý → `SKIPPED`.
+- EC-02: Tắt chính sách khi sự kiện đang chờ trong hàng đợi → bộ xử lý đọc chính sách lúc xử lý → `SKIPPED`.
 
 ```gherkin
 Feature: Phát hành tự động
@@ -722,12 +723,12 @@ Feature: Phát hành tự động
 
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn hệ thống tự xác định kết quả khi mạng lỗi, để không bao giờ có hai hóa đơn cho một đơn.
 
-**FR** (chỉ worker, không có màn)
+**FR** (chỉ bộ xử lý, không có màn)
 - FR-01: Kết quả chưa rõ → `record_issuance_undetermined`: lượt `RECONCILING`, mở hồ sơ đối soát `PENDING`, `next_check_at = +30 giây`.
-- FR-02: Worker hỏi MISA bằng `RefID` theo lịch 30 giây → 2 phút → 10 phút → 30 phút → 2 giờ. Thấy hóa đơn → `record_issuance_success`; MISA xác nhận không có → `record_issuance_failure`; vẫn chưa rõ → lần sau.
+- FR-02: Bộ xử lý hỏi MISA bằng `RefID` theo lịch 30 giây → 2 phút → 10 phút → 30 phút → 2 giờ. Thấy hóa đơn → `record_issuance_success`; MISA xác nhận không có → `record_issuance_failure`; vẫn chưa rõ → lần sau.
 - FR-03: Hết 5 lần → hồ sơ `UNRESOLVED`; lượt vẫn `RECONCILING`, đơn vẫn "Đang xử lý", vẫn khóa phát hành.
-- FR-04: MISA xác nhận nhưng ghi `electronic_invoices` lỗi → `internal_finalization_state = UNRESOLVED`, worker chạy `recover_internal_finalization` chỉ ghi phần nội bộ.
-- FR-05: Thành công → hóa đơn được ghi, phát `einvoice.electronic_invoice.registered` (kích hoạt gửi tự động).
+- FR-04: MISA xác nhận nhưng ghi `electronic_invoices` lỗi → `internal_finalization_state = UNRESOLVED`, bộ xử lý chạy `recover_internal_finalization` chỉ ghi phần nội bộ.
+- FR-05: Thành công → hóa đơn được ghi và việc gửi tự động được đưa vào hàng đợi (hiện qua sự kiện `einvoice.electronic_invoice.registered`; 🆕 sau refactor `record_issuance_success` ghi thẳng lệnh `start_auto_delivery` vào `internal_commands`).
 
 **BR áp dụng:** BR-24, BR-26 … BR-29.
 
@@ -747,7 +748,7 @@ Feature: Đối soát kết quả phát hành
   Scenario: MISA đã phát hành nhưng mất phản hồi
     Given đơn "DH-000150" có lượt phát hành bị timeout
     Then đơn "DH-000150" hiện "Đang xử lý"
-    When sau 2 phút worker hỏi MISA và MISA trả hóa đơn số 0000124
+    When sau 2 phút bộ xử lý hỏi MISA và MISA trả hóa đơn số 0000124
     Then đơn "DH-000150" hiện "Đã phát hành"
     And MISA chỉ nhận một yêu cầu phát hành cho đơn này
 ```
@@ -806,7 +807,7 @@ Feature: Phát hành lại
 
 **FR**
 - FR-01: Bấm "Xem hóa đơn điện tử" ("Mở hóa đơn chính thức từ MISA"): sheet **giữ mở**, mục này hiện vòng xoay, hai mục còn lại mờ.
-- FR-02: App gọi `request_official_invoice_view` (ghi yêu cầu mới, worker lấy link MISA), rồi hỏi `get_electronic_invoice_detail` tối đa 12 lần, cách 1,5 giây tăng dần đến 5 giây, chỉ nhận kết quả có cùng `operationId`.
+- FR-02: App gọi `request_official_invoice_view` (ghi yêu cầu mới, bộ xử lý lấy link MISA), rồi hỏi `get_electronic_invoice_detail` tối đa 12 lần, cách 1,5 giây tăng dần đến 5 giây, chỉ nhận kết quả có cùng `operationId`.
 - FR-03: Có link → mở trình duyệt hệ thống. Không mở được → toast "Không thể mở liên kết xem hóa đơn trên thiết bị."
 - FR-04: Yêu cầu `FAILED` / `CHECK_REQUIRED` → toast "Không thể mở bản thể hiện hóa đơn lúc này. Vui lòng thử lại."; hết lượt hỏi → "Đang tải bản thể hiện hóa đơn. Vui lòng thử lại sau giây lát."
 
@@ -828,7 +829,7 @@ Feature: Xem hóa đơn chính thức
     Given đơn "DH-000129" đã phát hành hóa đơn số 0000123
     When tôi bấm dòng "Hóa đơn điện tử" rồi "Xem hóa đơn điện tử"
     Then mục "Xem hóa đơn điện tử" hiện vòng xoay và các mục khác mờ
-    When worker lấy được link MISA
+    When bộ xử lý lấy được link MISA
     Then trình duyệt mở hóa đơn số 0000123
 ```
 
@@ -863,16 +864,16 @@ Feature: Lưu tài liệu hóa đơn
     Given đơn "DH-000129" đã phát hành
     When tôi mở "Tài liệu XML & PDF" và bấm "Lưu bản PDF"
     Then mục "Lưu bản PDF" hiện vòng xoay
-    When worker tải xong PDF từ MISA
+    When bộ xử lý tải xong PDF từ MISA
     Then tôi thấy bảng chia sẻ của hệ điều hành với tệp PDF
 ```
 
-#### US-03.3 — Ghi nhận trạng thái tại MISA (chỉ worker)
+#### US-03.3 — Ghi nhận trạng thái tại MISA (chỉ bộ xử lý)
 
 **Bối cảnh.** Bộ phận hỗ trợ có thể cần biết trạng thái hiện tại của hóa đơn bên MISA (ví dụ đã bị xử lý ngoài VET45).
 
 **FR**
-- FR-01: `request_provider_observation_refresh` (chỉ `service_role`, có `trigger_id`) → worker hỏi MISA `getStatus` → `record_provider_observation` ghi thêm một dòng `invoice_provider_observations`.
+- FR-01: `request_provider_observation_refresh` (chỉ `service_role`, có `trigger_id`) → bộ xử lý hỏi MISA `getStatus` → `record_provider_observation` ghi thêm một dòng `invoice_provider_observations`.
 - FR-02: `get_latest_provider_observation` trả quan sát mới nhất. App **không** có màn hay nút nào gọi chức năng này.
 - FR-03: Quan sát không đổi hóa đơn hay trạng thái "Đã phát hành"; sai lệch phát sự kiện `einvoice.provider_observation_attention_required`.
 
@@ -889,9 +890,9 @@ Feature: Lưu tài liệu hóa đơn
 **Câu chuyện.** Là chủ cửa hàng, tôi muốn hóa đơn tự gửi cho khách để khỏi gửi tay.
 
 **FR**
-- FR-01: Hóa đơn được ghi nhận → sự kiện `einvoice.electronic_invoice.registered` → worker gọi `start_auto_delivery` với khóa `UUIDv5(<tổ chức>|<hóa đơn>|auto_initial)`.
+- FR-01: Hóa đơn được ghi nhận → hàng đợi có việc gửi tự động (US-02.4 FR-05) → bộ xử lý gọi `start_auto_delivery` với khóa `UUIDv5(<tổ chức>|<hóa đơn>|auto_initial)`.
 - FR-02: Kiểm lúc xử lý: chính sách còn bật (nếu không → bỏ qua `POLICY_OFF`); MISA hỗ trợ gửi email (nếu không → `DELIVERY_NOT_SUPPORTED`); email hợp lệ theo BR-46 (nếu không → bỏ qua `INVALID_OR_MISSING_EMAIL`); chưa có lần gửi đầu tiên (nếu có → bỏ qua).
-- FR-03: Đủ điều kiện → tạo lần gửi `INITIAL_SEND`, `initiated_by_actor_type = SYSTEM`, worker gọi MISA `sendEmail`.
+- FR-03: Đủ điều kiện → tạo lần gửi `INITIAL_SEND`, `initiated_by_actor_type = SYSTEM`, bộ xử lý gọi MISA `sendEmail`.
 
 **BR áp dụng:** BR-41 … BR-48.
 
@@ -901,7 +902,7 @@ Feature: Lưu tài liệu hóa đơn
 - AC-03: Sự kiện lặp → vẫn 1 lần gửi.
 
 **EC**
-- EC-01: Người dùng gửi tay trước khi worker chạy → lần tự động bị bỏ qua (gửi tay đã là lần đầu tiên).
+- EC-01: Người dùng gửi tay trước khi bộ xử lý chạy → lần tự động bị bỏ qua (gửi tay đã là lần đầu tiên).
 
 ```gherkin
 Feature: Gửi email tự động
@@ -973,7 +974,7 @@ Feature: Gửi hóa đơn thủ công
 **Câu chuyện.** Là nhân viên, tôi muốn xem lịch sử gửi hóa đơn để trả lời khách "đã gửi chưa".
 
 **FR**
-- FR-01: Worker ghi kết quả qua `record_delivery_result` (thành công / lỗi chắc chắn / thử lại / chưa rõ). Chưa rõ → `UNKNOWN` + hồ sơ đối soát; vì MISA không có API kiểm kết quả gửi, lần kiểm đầu ghi `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, hồ sơ chuyển `UNRESOLVED` và phát `einvoice.delivery.attention_required`.
+- FR-01: Bộ xử lý ghi kết quả qua `record_delivery_result` (thành công / lỗi chắc chắn / thử lại / chưa rõ). Chưa rõ → `UNKNOWN` + hồ sơ đối soát; vì MISA không có API kiểm kết quả gửi, lần kiểm đầu ghi `DELIVERY_RESULT_OBSERVATION_UNSUPPORTED`, hồ sơ chuyển `UNRESOLVED` và phát `einvoice.delivery.attention_required`.
 - FR-02: Màn "Lịch sử gửi hóa đơn" (HD-13), nhóm "Các lần gửi": mỗi dòng "<trạng thái> · <email>", dòng phụ "dd/MM/yyyy · HH:mm · <Tự động | Người dùng>", badge trạng thái (Đang gửi / Đã gửi / Gửi lỗi / Không xác định kết quả).
 - FR-03: Trạng thái rỗng "Chưa có lịch sử gửi hóa đơn."; lỗi tải "Không thể tải lịch sử gửi hóa đơn." + nút "Thử lại".
 - FR-04: Badge gửi trong sheet sau phát hành theo bảng [2.3](#23-trạng-thái-hiển-thị); khối HĐĐT tiếp tục hỏi lại mỗi 5 giây khi có lần gửi đang chạy.
@@ -1346,16 +1347,34 @@ Xong → chia sẻ hệ điều hành; lỗi → toast "Hóa đơn điện tử 
 
 ---
 
-## 6. Kỹ thuật: RPC, worker, lỗi
+## 6. Kỹ thuật: RPC, bộ xử lý, lỗi
 
-### 6.1 Đường đi hiện tại
+### 6.1 Đường đi
+
+**Hiện tại**
 
 ```text
 Page/Widget ─▶ Cubit ─▶ IModuleMediator / IEInvoiceModule ─▶ Command/Query handler
             ─▶ Gateway (infrastructure) ─▶ supabase.schema('einvoice').rpc(...)
-RPC ghi dữ liệu + internal_commands ─▶ messaging_worker claim ─▶ handler ─▶ packages/vet45_misa ─▶ MISA
-Worker ghi kết quả bằng RPC service_role ─▶ app hỏi lại (async_query refetchInterval / vòng lặp trong cubit)
+RPC ghi dữ liệu + internal_commands ─▶ messaging_worker (Dart, chạy liên tục) claim ─▶ handler ─▶ packages/vet45_misa ─▶ MISA
+Bộ xử lý ghi kết quả bằng RPC service_role ─▶ app hỏi lại (async_query refetchInterval / vòng lặp trong cubit)
 ```
+
+**Sau refactor** 🆕 (KI-20)
+
+```text
+Page ─▶ Cubit ─▶ EInvoiceRepository ─▶ supabase.schema('einvoice').rpc(...)   (ghi yêu cầu + internal_commands)
+                                   └─▶ supabase.functions.invoke('einvoice-processor', {tenant})   (gọi ngay, không chờ kết quả)
+pg_cron mỗi 30 giây ─▶ pg_net POST /functions/v1/einvoice-processor   (quét mọi tổ chức có việc đến hạn)
+einvoice-processor (Deno/TypeScript, service_role):
+  claim internal_commands đến hạn ─▶ client MISA (TypeScript) ─▶ RPC record_* ─▶ complete / fail
+App hỏi lại kết quả như hiện tại (Timer trong cubit)
+```
+
+- Hai đường kích hoạt cùng lấy việc từ một hàng đợi; RPC `claim_*` khóa từng việc nên chạy song song không xử lý trùng.
+- Mỗi lần gọi Edge Function xử lý tối đa một số việc giới hạn (để dưới hạn thời gian chạy của Edge Function); việc còn lại để lần sau.
+- Mật khẩu MISA giải mã qua `read_provider_credentials` (service_role); token MISA giữ theo tổ chức trong lúc chạy, không lưu DB.
+- Việc hẹn giờ (đối soát 30 giây → 2 giờ, thử lại, khóa ký hiệu bận) dùng `next_check_at` / thời điểm đến hạn của `internal_commands`; `pg_cron` bảo đảm được quét dù không ai mở app.
 
 UI thiết lập nằm ở `modules/einvoice/presentation` (dùng lại trong 4 trang mỏng của `apps/erp/lib/features/einvoice`); UI trên đơn nằm ở `apps/erp/lib/features/sales/presentation` (một phần widget dùng từ module, một phần bản sao trong app).
 
@@ -1385,9 +1404,9 @@ UI thiết lập nằm ở `modules/einvoice/presentation` (dùng lại trong 4 
 | | `request_invoice_document(type)`, `get_invoice_documents` | `download_document` | US-03.2 |
 | Gửi | `get_send_invoice_sheet_context`, `send_electronic_invoice(email, idempotency_key)`, `get_invoice_delivery_history` | `send` | US-04.2, US-04.3 |
 
-**Worker gọi (`service_role`)**: `record_connection_verified`, `read_provider_credentials`, `store_preview_result`, `prepare_issuance_publish`, `mark_issuance_provider_call_started`, `record_issuance_success` / `_failure` / `_undetermined` / `_command_integrity_failure`, `record_retryable_provider_publish_rejection`, `claim_issuance_reconciliation_case`, `resolve_reconciliation_case`, `recover_internal_finalization`, `start_auto_issuance`, `reevaluate_auto_issuance`, `record_official_invoice_view_result`, `record_invoice_document_result`, `request_provider_observation_refresh`, `record_provider_observation`, `start_auto_delivery`, `load_delivery_attempt_context`, `prepare_delivery_provider_call`, `record_delivery_result`, `record_delivery_command_dead_letter`, `record_delivery_reconciliation_check`; khóa thuê ký hiệu (draft 019); hàng đợi `claim_*` / `complete_*` / `fail_*` (draft 002).
+**Bộ xử lý gọi (`service_role`)**: `record_connection_verified`, `read_provider_credentials`, `store_preview_result`, `prepare_issuance_publish`, `mark_issuance_provider_call_started`, `record_issuance_success` / `_failure` / `_undetermined` / `_command_integrity_failure`, `record_retryable_provider_publish_rejection`, `claim_issuance_reconciliation_case`, `resolve_reconciliation_case`, `recover_internal_finalization`, `start_auto_issuance`, `reevaluate_auto_issuance`, `record_official_invoice_view_result`, `record_invoice_document_result`, `request_provider_observation_refresh`, `record_provider_observation`, `start_auto_delivery`, `load_delivery_attempt_context`, `prepare_delivery_provider_call`, `record_delivery_result`, `record_delivery_command_dead_letter`, `record_delivery_reconciliation_check`; khóa thuê ký hiệu (draft 019); hàng đợi `claim_*` / `complete_*` / `fail_*` (draft 002).
 
-**Lệnh nội bộ cho worker** (`internal_commands.command_type`): `einvoice.sync_capabilities`, `einvoice.preview_invoice`, `einvoice.publish_invoice`, `einvoice.poll_issuance_status`, `einvoice.fetch_official_view` (tối đa 2 lượt thử), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation`, `einvoice.send_invoice_email`, `einvoice.reconcile_invoice_delivery`.
+**Lệnh nội bộ cho bộ xử lý** (`internal_commands.command_type`, giữ nguyên tên khi chuyển sang Edge Function): `einvoice.sync_capabilities`, `einvoice.preview_invoice`, `einvoice.publish_invoice`, `einvoice.poll_issuance_status`, `einvoice.fetch_official_view` (tối đa 2 lượt thử), `einvoice.download_invoice_document` (3), `einvoice.poll_provider_observation`, `einvoice.send_invoice_email`, `einvoice.reconcile_invoice_delivery`.
 
 ### 6.3 Phụ thuộc
 
@@ -1397,9 +1416,10 @@ UI thiết lập nằm ở `modules/einvoice/presentation` (dùng lại trong 4 
 | `sales.get_einvoice_source_snapshot(tenant, order)` | Đơn Hoàn tất?, phiên bản, dòng hiện tại (sau đổi/trả, thuế = 0), tổng, ảnh chụp khách, chặn | draft 018 (TH-05) |
 | `sales.can_access_sales_order(tenant, actor, order)` | Phạm vi cửa hàng | draft 018 |
 | `partner.get_einvoice_buyer_profile`, `partner.get_einvoice_recipient_snapshot` | Bù trường người mua; email gợi ý / gửi tự động | drafts 023, 016 (TH-03) |
-| `sales.outbox_messages` → `sales_order_finalized.v1` | Phát hành tự động | TH-05 |
-| `partner.partner.profile_updated` | Đánh giá lại phát hành tự động | TH-03 |
-| `packages/vet45_misa` | Client MISA (token theo tổ chức, `RefID`, phân loại lỗi) | worker |
+| Đơn Hoàn tất: hiện outbox `sales_order_finalized.v1`; 🆕 trigger trên `sales.sales_orders` | Phát hành tự động | TH-05 |
+| Hồ sơ đối tác cập nhật: hiện sự kiện `partner.partner.profile_updated`; 🆕 trigger trên hồ sơ đối tác | Đánh giá lại phát hành tự động | TH-03 |
+| Client MISA: hiện `packages/vet45_misa` (Dart); 🆕 viết lại bằng TypeScript trong Edge Function | Token theo tổ chức, `RefID`, phân loại lỗi | bộ xử lý |
+| `pg_cron`, `pg_net` 🆕 | Gọi `einvoice-processor` mỗi 30 giây | Supabase |
 | `url_launcher`, chia sẻ tệp hệ điều hành | Mở link, lưu PDF/XML | app |
 
 ### 6.4 Mã lỗi và thông điệp app
@@ -1469,14 +1489,14 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 |---|---|---|---|
 | KI-01 | 🔧 HD-04 hiện "Đồng bộ gần nhất: 10:38, 05/08/2026" là chuỗi cố định (`EInvoiceConfigurationDisplay.lastSyncedLabel`) | Hiện `last_verified_at` của kết nối; không có thì bỏ dòng | P7 PR 7.2 |
 | KI-02 | 🔧 `update_automation_policy` không kiểm sẵn sàng khi bật phát hành tự động; thông điệp "Chưa đủ điều kiện" ở app không bao giờ xuất hiện | Bật `auto_issue_enabled` khi BR-10 chưa đạt → `CONFIG_NOT_READY`. Tắt luôn được | P7 PR 7.1 |
-| KI-03 | `get_configuration_readiness` chỉ kiểm kết nối và mẫu, trả tối đa 1 blocker, mã chữ thường (`provider_not_connected`, `template_unavailable`); không kiểm hồ sơ pháp lý (MST được kiểm gián tiếp khi worker đăng nhập MISA) | **Giữ nguyên** | — |
+| KI-03 | `get_configuration_readiness` chỉ kiểm kết nối và mẫu, trả tối đa 1 blocker, mã chữ thường (`provider_not_connected`, `template_unavailable`); không kiểm hồ sơ pháp lý (MST được kiểm gián tiếp khi bộ xử lý đăng nhập MISA) | **Giữ nguyên** | — |
 | KI-04 | 🔧 Server không kiểm thông tin người mua khi phát hành: `issue_invoice`, `retry_issuance`, `start_auto_issuance` để khách tổ chức thiếu MST / địa chỉ đi tới MISA rồi mới lỗi. Chỉ UI chặn | Ba RPC kiểm người mua hiệu lực như evaluator: thiếu → `ISSUANCE_NOT_READY` với `BUYER_*` trong `details.blockers`; tự động → `PENDING_REEVALUATION` (`blocker_code = BUYER_TAX_CODE_REQUIRED` …) để cập nhật hồ sơ khách kích hoạt đánh giá lại | P7 PR 7.1 |
 | KI-05 | Spec v1 cho xem trước khi khách tổ chức thiếu MST; code khóa cả xem trước khi người mua thiếu | **Giữ code** | — |
 | KI-06 | 🔧 Lượt phát hành chép trường người mua từ hồ sơ khách vào `buyer_invoice_completions` bằng `coalesce(cũ, mới)`: sửa MST / địa chỉ trong hồ sơ khách sau một lượt lỗi **không** có tác dụng, đơn không bao giờ phát hành được | Khi chưa có hóa đơn, mỗi lượt mới chép lại từ hồ sơ khách hiện hành các trường mà ảnh chụp đơn để trống (ghi đè giá trị đã chép). Không đụng trường của ảnh chụp đơn | P7 PR 7.1 |
 | KI-07 | Trường người mua lấy từ **ảnh chụp đơn** (TH-05) sai thì không có cách sửa trong TH-08 | **Giữ nguyên**; sửa dữ liệu khách trên đơn là việc của TH-05 (ngoài phạm vi) | — |
 | KI-08 | 🔧 HD-12 dòng "Đã gửi gần nhất đến …" lấy lần gửi cuối bất kể trạng thái | Lấy lần **thành công** gần nhất; chưa có lần thành công thì ẩn dòng | P7 PR 7.3 |
 | KI-09 | Lịch sử gửi xếp cũ → mới; người gửi chỉ hiện "Người dùng" (spec v1 muốn mới → cũ và tên người gửi) | **Giữ nguyên** | — |
-| KI-10 | Bật "Tự động gửi email" khi MISA không hỗ trợ gửi email vẫn lưu được; worker bỏ qua từng hóa đơn | **Giữ nguyên** (MISA hiện luôn hỗ trợ) | — |
+| KI-10 | Bật "Tự động gửi email" khi MISA không hỗ trợ gửi email vẫn lưu được; bộ xử lý bỏ qua từng hóa đơn | **Giữ nguyên** (MISA hiện luôn hỗ trợ) | — |
 | KI-11 | Đơn chờ phát hành tự động (`PENDING_REEVALUATION`) vì chưa kết nối / chưa có mẫu không tự chạy lại khi thiết lập xong; chỉ cập nhật hồ sơ khách kích hoạt | **Giữ nguyên**; người dùng phát hành tay | — |
 | KI-12 | Hồ sơ đối soát `UNRESOLVED` giữ đơn "Đang xử lý" vô thời hạn; không có màn / nút cho người dùng thường | **Giữ nguyên** (đúng spec: không mở khóa mù); hỗ trợ kỹ thuật xử lý bằng SQL | — |
 | KI-13 | Tệp tải về tên `invoice_<id nội bộ đơn>.pdf|xml` | **Giữ nguyên** | — |
@@ -1485,7 +1505,8 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | KI-16 | Trang kết nối hỏi lại bằng khóa truy vấn cố định `'current-tenant'` thay vì id tổ chức | Đưa việc hỏi lại vào cubit, khóa theo tổ chức | P7 PR 7.2 |
 | KI-17 | UI HĐĐT bị tách đôi: một phần ở `modules/einvoice/presentation`, một phần là **bản sao** trong `apps/erp/.../sales/presentation/widgets/einvoice` (post-issue, tài liệu, gửi, gửi lại, lịch sử) | Gộp về `apps/erp/lib/features/einvoice/presentation`, xóa bản trùng | P7 PR 7.2 |
 | KI-18 | 23 file SQL của theme còn ở `_drafts`, chưa vào `supabase/migrations` / `REGISTRY.yaml` | Promote theo đúng thứ tự 001 → 023 (gộp bản `create or replace` sau cùng) | P7 PR 7.1 |
-| KI-19 | TH-05 / PLAN P6 ghi "`SalesCheckoutCubit` gọi `EInvoiceRepository.autoIssueIfEnabled`" thay sự kiện; code dùng outbox `sales_order_finalized.v1` → worker | **Giữ code** (worker là nơi duy nhất gọi MISA); `autoIssueIfEnabled` không cần | — |
+| KI-19 | TH-05 / PLAN P6 từng ghi "`SalesCheckoutCubit` gọi `EInvoiceRepository.autoIssueIfEnabled`". Phát hành tự động phải chạy cả khi app tắt và qua cùng hàng đợi với đối soát | Không dùng `autoIssueIfEnabled`; dùng trigger khi đơn Hoàn tất (KI-20) | P7 |
+| KI-20 | 🆕 Bỏ `apps/messaging_worker` (cần máy chủ chạy liên tục). Thay bằng Edge Function `einvoice-processor` (TypeScript) xử lý `einvoice.internal_commands`, kích hoạt bởi app (ngay sau thao tác) và `pg_cron` + `pg_net` (mỗi 30 giây). Tín hiệu đơn Hoàn tất / hồ sơ khách đổi chuyển từ outbox/inbox sang trigger ghi thẳng `internal_commands`; `record_issuance_success` tự xếp việc gửi tự động. Hành vi (BR-21 … BR-48) giữ nguyên | Quyết định 2026-10-07 | P7 PR 7.4, 7.5 |
 
 ---
 
@@ -1503,7 +1524,7 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | Xem trước khi khách tổ chức thiếu MST | Không cho (KI-05) |
 | Thuế VAT các mức | Chỉ KCT (BR-18) |
 | Kiểm kết quả gửi email với MISA | MISA không có API; `UNKNOWN` → `UNRESOLVED` ngay |
-| Màn quan sát trạng thái MISA, nút "Kiểm tra trạng thái" | Không có màn; chỉ worker (US-03.3) |
+| Màn quan sát trạng thái MISA, nút "Kiểm tra trạng thái" | Không có màn; chỉ bộ xử lý (US-03.3) |
 | CC/BCC, nhiều người nhận, chia sẻ Zalo/Messenger | Không làm |
 | Danh sách HĐĐT riêng, màn chi tiết hóa đơn do VET45 dựng | Không làm; thay bằng bộ lọc HĐĐT ở danh sách đơn (TH-05) |
 | Nhiều kết nối / nhiều hồ sơ pháp lý / nhà cung cấp khác | Không làm |
@@ -1520,7 +1541,8 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | Module `modules/einvoice` (domain / application / infrastructure / presentation / integration_events), mediator, CQRS handler | `apps/erp/lib/features/einvoice/`: `data/einvoice_repository.dart` gọi `supabase.schema('einvoice').rpc(...)`; cubit gọi repository |
 | UI tách đôi module + bản sao trong `features/sales` (KI-17) | Một chỗ `features/einvoice/presentation`; `features/sales` chỉ nhúng `OrderEInvoiceSection` |
 | `vet45_async_query` (`QueryClient`, `refetchInterval`) để hỏi lại | **Giữ hành vi hỏi lại** (5 giây trên đơn, 2 giây ở kết nối, vòng lặp xem trước / xem / tải) nhưng viết bằng `Timer` trong cubit; bỏ phụ thuộc `async_query` |
-| Worker: `apps/messaging_worker` dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | **Giữ nguyên** worker, hàng đợi, đối soát nền, khóa ký hiệu (quyết định 2026-10-07: code thắng PLAN P7.4). Handler worker giữ trong package riêng mà worker phụ thuộc |
+| Bộ xử lý `apps/messaging_worker` (Dart, chạy liên tục, cần hosting) dùng handler trong `modules/einvoice/application` + `packages/vet45_misa` | 🆕 Edge Function `supabase/functions/einvoice-processor` (TypeScript): client MISA + handler phát hành, đối soát, xem, tải, gửi; kích hoạt bởi app và `pg_cron` mỗi 30 giây. Giữ nguyên hàng đợi `internal_commands`, khóa ký hiệu, lịch đối soát, RPC `record_*` (KI-20). Xóa bộ xử lý ở P9 |
+| Outbox `sales_order_finalized.v1`, sự kiện `partner.partner.profile_updated`, `einvoice.electronic_invoice.registered` | Trigger / RPC ghi thẳng `einvoice.internal_commands` (KI-19, KI-20) |
 | RPC | **Giữ nguyên chữ ký**; chỉ sửa thân theo KI-02, KI-04, KI-06 |
 
 ### 9.2 Chia PR của P7
@@ -1530,7 +1552,8 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 | 7.1 | **DB**: promote drafts 001 → 023 thành migration chính thức + `REGISTRY.yaml`; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06); test SQL | KI-02, 04, 06, 18 |
 | 7.2 | **Thiết lập**: chuyển HD-01 … HD-05 vào `features/einvoice/presentation`, `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng); bỏ chuỗi cố định, bỏ màn chết, sửa khóa hỏi lại | KI-01, 15, 16, 17 |
 | 7.3 | **Trên đơn**: `OrderEInvoiceSection` + `OrderEInvoiceCubit` + `OrderInvoiceDeliveryCubit` dùng repository; gộp HD-06 … HD-13 về một chỗ; sửa dòng tóm tắt gửi lại | KI-08, 17 |
-| 7.4 | **Worker**: đổi chỗ import handler sau khi module bị gỡ; chạy lại test worker và checklist MISA sandbox (`harness/S1-MISA-SANDBOX-CHECKLIST.md`, `DEV-LIVE-ACCEPTANCE-CHECKLIST.md`) | — |
+| 7.4 | 🆕 **Edge Function `einvoice-processor`**: client MISA TypeScript (đăng nhập + token theo tổ chức, lấy mẫu, xem trước, phát hành, `getStatus`, tải, gửi email; phân loại lỗi như `vet45_misa`), handler cho 9 loại lệnh ở 6.2, giới hạn số việc mỗi lần gọi; chép kịch bản test của `vet45_misa` (80 test) sang Deno test | KI-20 |
+| 7.5 | 🆕 **Kích hoạt**: `pg_cron` + `pg_net` gọi `einvoice-processor` mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger đơn Hoàn tất và hồ sơ khách đổi ghi `internal_commands`; `record_issuance_success` xếp việc gửi tự động. Chạy checklist MISA sandbox (`docs/themes/TH-08-e-invoice/harness/S1-MISA-SANDBOX-CHECKLIST.md`, `DEV-LIVE-ACCEPTANCE-CHECKLIST.md`) với Edge Function, **tắt** bộ xử lý | KI-19, KI-20 |
 
 ### 9.3 Kiểm thử bắt buộc
 
@@ -1557,11 +1580,13 @@ Router chỉ kiểm `einvoice.manage_configuration` ở `/more/einvoice`; ba mà
 **E2E (MISA sandbox, theo checklist harness)**
 - Kết nối → chọn mẫu → bán đơn khách lẻ → phát hành → xem → lưu PDF → gửi email → gửi lại.
 - Bật tự động phát hành + gửi email → hoàn tất đơn khách có email → hóa đơn và email tự đến.
-- Ngắt mạng worker giữa lúc phát hành → đơn "Đang xử lý" → bật lại → đối soát ra "Đã phát hành", MISA chỉ có một hóa đơn.
+- Giả lập MISA timeout ngay sau khi nhận yêu cầu phát hành → đơn "Đang xử lý" → `pg_cron` đối soát ra "Đã phát hành", MISA chỉ có một hóa đơn.
+- Đóng app ngay sau khi bấm phát hành / đơn Hoàn tất khi bật tự động → `pg_cron` vẫn xử lý xong, mở lại app thấy kết quả.
+- App và `pg_cron` cùng gọi `einvoice-processor` một lúc → mỗi việc chỉ xử lý một lần.
 
 ### 9.4 Giữ nguyên
 
-- Chữ ký mọi RPC ở 6.2 và tên lệnh nội bộ worker.
-- Mọi lệnh gọi MISA chỉ ở worker; app không gọi `*.meinvoice.vn`.
+- Chữ ký mọi RPC ở 6.2 và tên lệnh nội bộ trong `internal_commands`.
+- Mọi lệnh gọi MISA chỉ ở bộ xử lý phía server; app không gọi `*.meinvoice.vn`.
 - Ba chiều trạng thái tách nhau; "Đang xử lý" gom mọi trạng thái kỹ thuật; không có nút "Thử lại" hay "Kiểm tra kết quả" cho người dùng thường.
 - Thông điệp tiếng Việt ở 6.4 và các màn.
