@@ -1,4 +1,4 @@
-package com.agapi.vet45
+package com.dschien.erp
 
 import io.flutter.embedding.android.FlutterActivity
 

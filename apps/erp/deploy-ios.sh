@@ -43,8 +43,8 @@ esac
 
 expected_bundle_id() {
   case "$1" in
-    staging) echo "com.agapi.vet45.staging" ;;
-    production) echo "com.agapi.vet45" ;;
+    staging) echo "com.dschien.erp.staging" ;;
+    production) echo "com.dschien.erp" ;;
   esac
 }
 
