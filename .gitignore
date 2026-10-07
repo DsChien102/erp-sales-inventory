@@ -97,3 +97,8 @@ deploy/deploy.env
 # Local agent plans and specs
 docs/superpowers/
 
+
+# Flutter iOS generated files (machine-specific paths)
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
