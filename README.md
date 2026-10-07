@@ -76,7 +76,7 @@ Lệnh `melos run debug` chạy ERP theo **active environment** (mặc định `
 | `melos run debug:ios` | iOS + active env |
 | `melos run worker:serve` | Messaging worker HTTP (active env) |
 
-Chi tiết flavor, bundle ID, CircleCI: [docs/operations/environments.md](docs/operations/environments.md).
+Chi tiết flavor, bundle ID: [docs/operations/environments.md](docs/operations/environments.md).
 
 **Config:** `--dart-define` / `--dart-define-from-file` (compile-time).
 
@@ -162,9 +162,7 @@ Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/
 
 ## CI
 
-CircleCI (`.circleci/config.yml`):
-
-- **verify** — mọi push/PR: `verify_workspace`. Trên `dev`/`main`: approval → worker verify/deploy staging. Trên `main`: approval → worker verify/deploy production.
+Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze --no-select` và `melos run test --no-select`.
 
 ## Tài liệu
 

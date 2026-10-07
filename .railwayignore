@@ -1,4 +1,0 @@
-# Railway upload respects .gitignore. Force-include root lockfile for Docker builds if tracked later.
-!pubspec.lock
-**/ios/Flutter/ephemeral/
-**/macos/Flutter/ephemeral/

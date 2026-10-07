@@ -31,7 +31,7 @@
 
 - Poll outbox/inbox, flush integration handlers
 - Không expose public API cho client tick (security)
-- Deploy: GitLab build/push, Railway pull image — [ADR 12](12-railway-image-source.md) (Accepted); playbook [railway_messaging_worker.md](../operations/railway_messaging_worker.md)
+- Deploy: chưa cấu hình (hạ tầng GitLab/Railway cũ đã gỡ; tham khảo [ADR 12](12-railway-image-source.md))
 
 ## Tooling
 

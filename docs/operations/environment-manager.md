@@ -57,7 +57,6 @@ Each **target** (registered directory/app) declares which secrets it needs. Sync
 | `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
 | `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
 | `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning). Action `publish` only builds/pushes the registry image |
-| `railway` | `.railway/vet45.target.json` | none (`writeEnvFile: false`) | Reads the same profile file. `sync-env` pushes shared keys + per-service secrets; `rollout` pulls images. Does not build |
 | `deploy` | `deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `deploy/deploy.env` |
 | `design_system` | `packages/vet45_design_system/example/vet45.target.json` | none (`writeEnvFile: false`) | — |
 
@@ -248,9 +247,7 @@ melos run supabase -- db push
 # Deploy (active env must be staging|production)
 melos run build:ios
 melos run deploy:ios
-vet45 run worker publish
-vet45 run railway sync-env
-vet45 run railway rollout
+vet45 run worker publish        # needs WORKER_IMAGE
 ```
 
 ## Canonical secrets keys
@@ -370,18 +367,9 @@ melos run worker:docker
 
 `worker:docker` sets `WORKER_ENV_FILE` and `WORKER_IMAGE_TAG`. `WORKER_SUPABASE_URL` (and `docker-compose.local.yml`) is set **only** for env `local`.
 
-## Railway deploy
+## Worker image
 
-App target publishes the image. Railway target reads the same profile file (`writeEnvFile: false`) and pushes shared + service secrets, then pulls.
-
-```bash
-vet45 use staging
-vet45 run worker publish
-vet45 run railway sync-env
-vet45 run railway rollout
-```
-
-Knobs (`WORKER_LOG_LEVEL`, batch, tick) stay in `.railway/railway.ts` — not the profile. `WORKER_LOG_LEVEL=WARNING` in IaC keeps Railway logs quiet (RPC/command `INFO` suppressed). Tick summary lines still print.
+Chưa cấu hình hosting cho worker (Railway target đã gỡ). `vet45 run worker publish` chỉ build + push image tới `WORKER_IMAGE`.
 
 ## Platform admin bootstrap
 

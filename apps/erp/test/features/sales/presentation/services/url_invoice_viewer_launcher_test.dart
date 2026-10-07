@@ -17,7 +17,7 @@ void main() {
       );
 
       const testUrl =
-          'https://xvebhrcoidwbvnytrhln.supabase.co/storage/v1/object/sign/einvoice-documents/invoice.pdf';
+          'https://example.supabase.co/storage/v1/object/sign/einvoice-documents/invoice.pdf';
       final ok = await launcher.launch(testUrl);
 
       expect(ok, isTrue);

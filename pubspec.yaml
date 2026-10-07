@@ -210,7 +210,7 @@ melos:
     deploy:worker:
       run: dart run tools/vet45_env/bin/run.dart run worker deploy
       stdio: inherit
-      description: Deploy messaging worker to Railway — active env (staging|production)
+      description: Publish messaging worker image — active env (staging|production)
 
     deploy:worker:staging:
       run: dart run tools/vet45_env/bin/run.dart use-sync-run staging worker deploy
@@ -308,7 +308,7 @@ melos:
       description: Compare declarative SQL sources with live DB (run after supabase db reset)
 
   repository:
-    type: gitlab
-    origin: https://gitlab.hamsa.co
-    owner: vet45
-    name: vet45
+    type: github
+    origin: https://github.com
+    owner: DsChien102
+    name: erp-sales-inventory

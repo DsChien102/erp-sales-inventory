@@ -4,9 +4,9 @@
 
 | Flavor | `APP_ENV` | Bundle ID | Supabase | TestFlight |
 |---|---|---|---|---|
-| `development` | `development` | `com.agapi.vet45.dev` | Dev project (remote) | Không |
-| `staging` | `staging` | `com.agapi.vet45.staging` | Staging project | App ASC riêng |
-| `production` | `production` | `com.agapi.vet45` | Production project | App ASC chính |
+| `development` | `development` | `com.dschien.erp.dev` | Dev project (remote) | Không |
+| `staging` | `staging` | `com.dschien.erp.staging` | Staging project | App ASC riêng |
+| `production` | `production` | `com.dschien.erp` | Production project | App ASC chính |
 
 Messaging worker Railway: `staging` / `production` — map 1:1 với ERP staging/production.
 
@@ -90,44 +90,11 @@ Low-level scripts (same manifest sync):
 
 Xem [testflight-asc-setup.md](testflight-asc-setup.md) để tạo app ASC staging/production.
 
-## CircleCI
-
-File: [.circleci/config.yml](../../.circleci/config.yml)
-
-| Workflow | Mô tả |
-|---|---|
-| `verify` | Mọi push/PR — `verify_workspace`; trên `dev`/`main` thêm chuỗi deploy staging; trên `main` thêm chuỗi deploy production |
-
-**Contexts cần tạo trên CircleCI:**
-
-| Context | Variables |
-|---|---|
-| `vet45-staging` | `ERP_STAGING_SUPABASE_URL`, `ERP_STAGING_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_DOMAIN` |
-| `vet45-production` | `ERP_PRODUCTION_SUPABASE_URL`, `ERP_PRODUCTION_SUPABASE_ANON_KEY`, worker secrets tương ứng (kể cả `RESEND_*`) |
-| `vet45-deploy` | `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY_IDENTIFIER`, API key |
-
-Phase 1: chỉ bật `verify` nếu chưa có macOS executor / signing.
-
 ## Đồng bộ messaging worker
 
-Project Railway sạch / chuyển giao: [railway_messaging_worker.md](railway_messaging_worker.md). Nguồn image: [ADR 12](../architecture/12-railway-image-source.md) (Accepted).
+Chưa có hosting cho worker (Railway / CircleCI đã gỡ). Chạy local: `melos run worker:docker` hoặc `melos run worker:serve`. Build + push image: `WORKER_IMAGE=<registry>/messaging-worker vet45 run worker publish`.
 
-Infra (knobs, healthcheck): [`.railway/railway.ts`](../../.railway/railway.ts). Image: `vet45 run worker publish`. Secrets: `vet45 run railway sync-env`. Pull: `vet45 run railway rollout`.
-
-```bash
-vet45 use staging
-vet45 run worker publish
-vet45 run railway sync-env
-vet45 run railway rollout
-vet45 run railway plan              # preview IaC (Node 22)
-```
-
-Trước khi tắt `MESSAGING_CLIENT_POLL_ENABLED` trên staging ERP, publish và rollout worker:
-
-```bash
-vet45 run worker publish
-vet45 run railway rollout
-```
+Khi chưa có worker chạy cho môi trường đó, giữ `MESSAGING_CLIENT_POLL_ENABLED=true` trên ERP để client tự poll outbox.
 
 ## iOS flavors
 

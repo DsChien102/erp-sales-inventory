@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Build messaging-worker image and push to the GitLab registry.
-# Does not set Railway variables or redeploy. After publish:
-#   vet45 run railway rollout
+# Build messaging-worker image and push it to the registry in WORKER_IMAGE.
+# Does not deploy anything; no hosting target is configured yet.
 #
 # Pushes:
-#   registry.gitlab.hamsa.co/vet45/vet45/messaging-worker:<pubspec version>
-#   registry.gitlab.hamsa.co/vet45/vet45/messaging-worker:<staging|production>
+#   ${WORKER_IMAGE}:<pubspec version>
+#   ${WORKER_IMAGE}:<staging|production>
 #
 # Usage:
 #   ./apps/messaging_worker/scripts/publish.sh [--env staging|production] [--verify] [--ci]
@@ -15,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 RAILWAY_ENV="${RAILWAY_ENVIRONMENT:-staging}"
-IMAGE="${WORKER_IMAGE:-registry.gitlab.hamsa.co/vet45/vet45/messaging-worker}"
+IMAGE="${WORKER_IMAGE:?Set WORKER_IMAGE (e.g. ghcr.io/<owner>/messaging-worker)}"
 PLATFORM="${WORKER_IMAGE_PLATFORM:-linux/amd64}"
 RUN_VERIFY=false
 CI_MODE=false
@@ -29,7 +28,7 @@ while [[ $# -gt 0 ]]; do
     --verify) RUN_VERIFY=true; shift ;;
     --ci) CI_MODE=true; shift ;;
     --secrets)
-      echo "ERROR: --secrets moved to: vet45 run railway sync-env"
+      echo "ERROR: --secrets is no longer supported (no hosting target configured)"
       exit 1
       ;;
     *)
@@ -116,5 +115,3 @@ echo "==> Pushing ${ENV_REF} (Railway environment pointer)"
 docker push "$ENV_REF"
 
 echo "Published ${VERSION_REF} -> ${ENV_REF}."
-echo "Next: vet45 run railway sync-env   # if secrets changed"
-echo "      vet45 run railway rollout"

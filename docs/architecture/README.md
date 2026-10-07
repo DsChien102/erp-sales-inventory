@@ -26,7 +26,7 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [14-declarative-sql-objects.md](14-declarative-sql-objects.md) | (Proposed) File nguồn duy nhất cho RPC/view/trigger/policy, migration sinh từ lock |
 | [06-cross-cutting-concerns.md](06-cross-cutting-concerns.md) | IAM, tenant, DI, module settings |
 | [07-integration-and-messaging.md](07-integration-and-messaging.md) | Integration events, outbox, worker |
-| [12-railway-image-source.md](12-railway-image-source.md) | ADR Accepted: Railway pull image từ GitLab registry |
+| [12-railway-image-source.md](12-railway-image-source.md) | ADR (lỗi thời — hạ tầng đã gỡ): Railway pull image từ GitLab registry |
 | [08-data-and-security.md](08-data-and-security.md) | Postgres schema, RLS, multi-tenant |
 | [app-link-in-depth.md](app-link-in-depth.md) | Cơ chế App Links (Android) / Universal Links (iOS): verify + handoff |
 | [harness-engineering.md](harness-engineering.md) | Harness Engineering — context, constraints, verification, flywheel |

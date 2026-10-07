@@ -6,15 +6,15 @@ Thực hiện một lần trên [App Store Connect](https://appstoreconnect.appl
 
 | App name | Bundle ID | Mục đích |
 |---|---|---|
-| **VET45 Staging** | `com.agapi.vet45.staging` | TestFlight only — QA / UAT |
-| **VET45** | `com.agapi.vet45` | TestFlight beta + App Store production |
+| **VET45 Staging** | `com.dschien.erp.staging` | TestFlight only — QA / UAT |
+| **VET45** | `com.dschien.erp` | TestFlight beta + App Store production |
 
 **Không** gộp staging và production vào một app ASC.
 
 ## 2. Provisioning
 
 - Xcode automatic signing hoặc fastlane match cho từng bundle ID
-- Đảm bảo `flutter build ipa --flavor staging` ký đúng `com.agapi.vet45.staging`
+- Đảm bảo `flutter build ipa --flavor staging` ký đúng `com.dschien.erp.staging`
 
 ## 3. API key (shared)
 
@@ -56,8 +56,8 @@ Chi tiết version/changelog: [app_versioning.md](app_versioning.md). Manual: s�
 
 ## 6. Checklist
 
-- [ ] App **VET45 Staging** tạo với bundle `com.agapi.vet45.staging`
-- [ ] App **VET45** có bundle `com.agapi.vet45`
+- [ ] App **VET45 Staging** tạo với bundle `com.dschien.erp.staging`
+- [ ] App **VET45** có bundle `com.dschien.erp`
 - [ ] TestFlight group staging có QA
 - [ ] Build staging upload thành công
 - [ ] Build production upload thành công (app riêng)

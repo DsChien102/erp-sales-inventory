@@ -1,5 +1,7 @@
 # ADR 12 — Nguồn image service trên Railway
 
+> **Lỗi thời (06/10/2026):** Hạ tầng GitLab registry + Railway + CircleCI của dự án cũ đã gỡ khỏi repo (`.railway/`, `.circleci/` không còn). Giữ tài liệu này để tham khảo khi dựng lại deploy.
+
 **Status:** Accepted  
 **Ngày:** 2026-09-08  
 **Accepted:** 2026-09-09

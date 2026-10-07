@@ -1,5 +1,7 @@
 # Railway messaging worker (handover)
 
+> **Lỗi thời (06/10/2026):** Hạ tầng GitLab registry + Railway + CircleCI của dự án cũ đã gỡ khỏi repo (`.railway/`, `.circleci/` không còn). Giữ tài liệu này để tham khảo khi dựng lại deploy.
+
 Playbook chuyển giao: dựng **project Railway sạch** rồi deploy `messaging-worker`. Tài liệu này dành cho ops / người nhận repo — không phải kiến trúc messaging (xem [07-integration-and-messaging.md](../architecture/07-integration-and-messaging.md)).
 
 ## Phạm vi
@@ -8,8 +10,8 @@ Railway **chỉ** chạy worker Dart. ERP và Admin (Flutter) **không** deploy 
 
 | Environment Railway | ERP flavor | Supabase |
 | ------------------- | ---------- | -------- |
-| `staging` | `staging` (`com.agapi.vet45.staging`) | Project staging |
-| `production` | `production` (`com.agapi.vet45`) | Project production |
+| `staging` | `staging` (`com.dschien.erp.staging`) | Project staging |
+| `production` | `production` (`com.dschien.erp`) | Project production |
 
 Tên project IaC: `VET45`. Tên service: `messaging-worker`.
 
