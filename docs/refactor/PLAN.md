@@ -272,7 +272,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 | 8.2 | ⬜ | ⬜ | ⬜ | Chuyển từ `apps/admin`: tổng quan, danh sách/chi tiết tổ chức (tạm ngưng/khôi phục/đóng/chuyển owner), người dùng nền tảng, audit log |
 | 8.3 | ⬜ | ⬜ | ⬜ | **Không chuyển**: wizard khởi tạo (`platform_onboarding_page`), "gửi lại lời mời owner", "gửi lại kích hoạt" |
 | 8.4 | ⬜ | ⬜ | ⬜ | Menu "Chuyển không gian" cho user vừa là admin vừa là thành viên |
-| 8.5 | ⬜ | ⬜ | ⬜ | `scripts/create-platform-admin.sh` + admin mẫu trong `seed.sql` |
+| 8.5 | ⬜ | ⬜ | ⬜ | Tạo platform admin bằng `vet45 admin create --email …` (đã có trong `tools/vet45_env`, không viết script mới) + admin mẫu trong `seed.sql` cho local; ghi cách dùng vào README |
 
 **Xong khi:** admin đăng nhập vào `/admin`, thấy tổ chức vừa đăng ký ở P2, tạm ngưng được (owner bị chặn) và khôi phục được.
 
@@ -286,10 +286,10 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 |---|---|---|---|---|---|
 | 9.1 | ⬜ | ⬜ | ⬜ | Xoá `modules/`, `apps/admin`, `apps/messaging_worker` | `grep -r "vet45_.*_application"` không còn kết quả |
 | 9.2 | ⬜ | ⬜ | ⬜ | Xoá package `vet45_generator`, `vet45_annotations`, `vet45_adapters`, `vet45_async_query`, `vet45_resend`; gộp phần còn dùng của `vet45_shared` vào `core/` | `flutter pub get` OK |
-| 9.3 | ⬜ | ⬜ | ⬜ | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`). Xoá `packages/vet45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
+| 9.3 | ⬜ | ⬜ | ⬜ | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`, `tools/vet45_env`). Lệnh `melos run env:*` đổi thành `.vet45/bin/vet45 …` (dựng bằng `dart compile exe`) hoặc `dart run tools/vet45_env/bin/run.dart …`. Xoá `packages/vet45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
 | 9.4 | ⬜ | ⬜ | ⬜ | DB: bỏ outbox/inbox của mọi schema (kể cả `sales`, `einvoice`) và RPC/view messaging của `platform`; **giữ `einvoice.internal_commands`** (hàng đợi của Edge Function). Bỏ idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |
 | 9.5 | ⬜ | ⬜ | ⬜ | **Gộp migration**: dump schema thành ~5 file baseline (`00_schemas`, `01_tables`, `02_functions`, `03_rls`, `04_triggers`) + `seed.sql`; chuyển migration cũ vào `supabase/_archive/` | `db reset` từ baseline + chạy lại checklist |
-| 9.6 | ⬜ | ⬜ | ⬜ | Xoá script/tool cũ: `tools/vet45_env`, `tools/vet45_supabase_migrate`, guard CI không còn dùng | — |
+| 9.6 | ⬜ | ⬜ | ⬜ | Xoá `tools/vet45_supabase_migrate` và guard CI không còn dùng. **Giữ `tools/vet45_env`** (đổi môi trường local/Dev/Prod, `sync` env, `link`, `doctor`, `admin create`), gọn lại: bỏ target `admin`, `worker` và action `run worker …`, bỏ key `MESSAGING_CLIENT_POLL_ENABLED`, `WORKER_*`; thêm key secrets cho Edge Function (`MISA_*`, `RESEND_*`) nếu cần | `vet45 doctor` sạch; `vet45 switch` + `sync` sinh đúng `apps/erp/.env` |
 
 **Xong khi:** đạt toàn bộ **Definition of Done ở SCOPE mục 6**.
 
@@ -305,7 +305,8 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 | 10.2 | ⬜ | ⬜ | ⬜ | Sơ đồ cho báo cáo: kiến trúc tổng thể, use case theo vai trò (Owner / Nhân viên / Platform Admin), sequence đăng ký cửa hàng, sequence checkout → HĐĐT |
 | 10.3 | ⬜ | ⬜ | ⬜ | Cập nhật README: cách chạy local (Supabase + seed + app) |
 | 10.4 | ⬜ | ⬜ | ⬜ | Kịch bản demo bảo vệ: đăng ký cửa hàng → thêm sản phẩm → thêm khách → bán hàng → phát hành HĐĐT → đổi trả → admin tạm ngưng tổ chức |
-| 10.5 | ⬜ | ⬜ | ⬜ | Merge `refactor/simple-arch` → `dev` → `main`, tag `v2.0.0` |
+| 10.5 | ⬜ | ⬜ | ⬜ | (Tùy chọn) Đổi tên công cụ `vet45` / thư mục `.vet45` / `tools/vet45_env` cho khớp tên dự án mới |
+| 10.6 | ⬜ | ⬜ | ⬜ | Merge `refactor/simple-arch` → `dev` → `main`, tag `v2.0.0` |
 
 ---
 
