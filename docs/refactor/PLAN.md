@@ -54,6 +54,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 |---|---|---|---|---|
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
 | 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
+| 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | 📝 | ⬜ | ⬜ |
 
 
 ---
@@ -125,7 +126,7 @@ Chi tiết từng việc:
 |---|---|---|---|---|---|
 | **1.1** | Cấu trúc thư mục `core/` | 1.1 | ✅ [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ |
 | **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ✅ [plan](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ |
-| **1-B** | `SessionController` + router guard 6 trường hợp | 1.3, 1.4 | ⬜ | ⬜ | ⬜ |
+| **1-B** | `SessionController` + router guard (3 nhánh hiện có; 3 nhánh mới làm ở 2-B1 / P8) | 1.3, 1.4 | 📝 [plan](plans/P1/1-B-session-controller-guard.md) | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -138,7 +139,7 @@ Chi tiết từng việc:
 | 1.5 | Feature mẫu | Làm **trước 1 feature nhỏ**: `partner_change_history` (1 query, 1 cubit) theo đủ 8 bước, để làm mẫu cho cả nhóm |
 | 1.6 | Lint | Script `tool/check_feature_imports.dart` kiểm 3 luật phụ thuộc của SCOPE 3.1 cho tầng `data/`, `logic/` (feature khác chỉ dùng repository của nhau) |
 
-**Xong khi:** app chạy như cũ; feature mẫu chạy qua repository; guard đúng 6 trường hợp; có test cho `SessionController` và guard.
+**Xong khi:** app chạy như cũ; feature mẫu chạy qua repository; guard là hàm thuần có test (3 nhánh hiện có, 3 nhánh mới của TH-01 2.3 thêm ở 2-B1 / P8); có test cho `SessionController` và guard.
 
 ---
 
@@ -150,7 +151,7 @@ Chi tiết từng việc:
 |---|---|---|---|---|---|
 | **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | ⬜ | ⬜ | ⬜ |
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời, audit log, `/invitation` | 2B.5, 2B.6 (phần còn lại) | ⬜ | ⬜ | ⬜ |
-| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ⬜ | ⬜ | ⬜ |
+| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ⬜ | ⬜ | ⬜ |
 | **2-B2** | (b) Email qua Edge Function `send-email` + các sửa KI của TH-01 | 2A.4, TH-01 mục 9.2 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
