@@ -53,6 +53,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | Việc | File plan | Plan | Làm | Review |
 |---|---|---|---|---|
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
+| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | 📝 | ⬜ | ⬜ |
 
 
 ---
@@ -123,7 +124,7 @@ Chi tiết từng việc:
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **1.1** | Cấu trúc thư mục `core/` | 1.1 | ✅ [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ |
-| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ⬜ | ⬜ | ⬜ |
+| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | 📝 [plan](plans/P1/1-A-app-exception-feature-mau.md) | ⬜ | ⬜ |
 | **1-B** | `SessionController` + router guard 6 trường hợp | 1.3, 1.4 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
@@ -135,7 +136,7 @@ Chi tiết từng việc:
 | 1.3 | `SessionController` | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module |
 | 1.4 | Router guard | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active |
 | 1.5 | Feature mẫu | Làm **trước 1 feature nhỏ**: `partner_change_history` (1 query, 1 cubit) theo đủ 8 bước, để làm mẫu cho cả nhóm |
-| 1.6 | Lint | Thêm rule cấm `features/*/presentation` import `features/*/data` của feature khác (dùng `custom_lint` hoặc script grep trong CI) |
+| 1.6 | Lint | Script `tool/check_feature_imports.dart` kiểm 3 luật phụ thuộc của SCOPE 3.1 cho tầng `data/`, `logic/` (feature khác chỉ dùng repository của nhau) |
 
 **Xong khi:** app chạy như cũ; feature mẫu chạy qua repository; guard đúng 6 trường hợp; có test cho `SessionController` và guard.
 

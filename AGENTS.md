@@ -21,12 +21,14 @@ Branch `refactor/simple-arch` đang chuyển từ modular monolith / DDD / CQRS 
 apps/erp/lib/
   core/        supabase, router (guard), session (SessionController), errors (AppException), formatting
   features/<feature>/
-    data/          <feature>_repository.dart  → supabase.schema('<schema>').rpc(...)
-    presentation/  pages/, cubit/, widgets/
+    data/          models/ + <feature>_repository.dart  → SupabaseRpc → supabase.schema('<schema>').rpc(...)
+    logic/         cubit + state; rule nghiệp vụ phía client (hàm thuần)
+    presentation/  pages/, widgets/
 ```
 
 - Luồng: `Page → Cubit → Repository → RPC`. Không CommandBus/QueryBus, không mediator, không module package mới.
-- Feature không import `data/` của feature khác; dùng chung qua `core/`.
+- Phụ thuộc: `presentation → logic → data`. Feature khác chỉ dùng **repository** (`data/`) của nhau, không import `logic/`/`presentation/` của nhau (SCOPE 3.1). Kiểm bằng `dart run tool/check_feature_imports.dart` (từ 1-A).
+- Lỗi: repository ném `AppException` (`core/errors`), UI hiển thị `e.userMessage()`.
 - Nghiệp vụ và kiểm tra quyền nằm trong RPC Postgres (`iam.has_permission`); app chỉ hiển thị.
 - Gọi dịch vụ ngoài (MISA meInvoice, email) qua **Supabase Edge Function** (`supabase/functions/*`), kích hoạt bởi app và `pg_cron`. Không có worker chạy riêng (TH-08 KI-20).
 - Code cũ trong `modules/`, `packages/vet45_shared`, `apps/admin`, `apps/messaging_worker` còn đến P9; chỉ đọc để chuyển, không thêm code mới vào đó.
