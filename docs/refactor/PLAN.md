@@ -73,6 +73,7 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 | 0.3 | Tag mốc `v-legacy-arch` tại commit đầu branch và push | Luôn quay lại được bản cũ |
 | 0.4 | Chạy app bản cũ trên Supabase local và lập **checklist màn hình** `docs/refactor/CHECKLIST.md`: mỗi màn 1 dòng (route, thao tác chính, ☐ đã kiểm tra sau refactor) | Danh sách nghiệm thu khoảng 100 màn |
 | 0.5 | Chạy toàn bộ test hiện có và ghi lại số pass/fail làm mốc | Biết test nào vốn đã fail |
+| 0.6 | Chuyển tài liệu / rule / skill của kiến trúc cũ vào `docs/_legacy/`; viết lại `AGENTS.md` và rule Cursor theo kiến trúc mới | AI agent không viết code theo kiểu cũ |
 
 **Xong khi:** branch sạch, có tag, có checklist và mốc test.
 
@@ -261,7 +262,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 
 | Phase | Trạng thái | PR | Ghi chú |
 |---|---|---|---|
-| P0 | ☐ | | |
+| P0 | ☑ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
 | P1 | ☐ | | |
 | P2 | ☐ | | |
 | P3 | ☐ | | |

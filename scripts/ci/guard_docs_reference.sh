@@ -7,9 +7,9 @@ failed=0
 
 docs=(
   "$root/AGENTS.md"
-  "$root/docs/architecture/harness-engineering.md"
-  "$root/docs/harness/PROGRESS.md"
-  "$root/docs/themes/TH-03-partner/README.md"
+  "$root/docs/_legacy/README.md"
+  "$root/docs/refactor/SCOPE.md"
+  "$root/docs/refactor/PLAN.md"
 )
 
 resolve_target() {

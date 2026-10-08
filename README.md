@@ -169,10 +169,11 @@ Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze 
 | Tài liệu | Nội dung |
 | -------- | -------- |
 | [AGENTS.md](AGENTS.md) | Onboarding cho AI coding agents |
-| [docs/architecture/](docs/architecture/) | Kiến trúc nền — modular monolith, layers, messaging |
+| [docs/refactor/](docs/refactor/) | Refactor sang kiến trúc đơn giản — SCOPE, PLAN, CHECKLIST |
+| [docs/02-yeu-cau/](docs/02-yeu-cau/) | Đặc tả nghiệp vụ chuẩn TH-01…08 |
+| [docs/_legacy/](docs/_legacy/README.md) | Kiến trúc cũ (modular monolith) — chỉ để đọc code cũ |
 | [docs/themes/](docs/themes/) | Theme sản phẩm TH-01..TH-11 |
 | [docs/operations/](docs/operations/) | Môi trường, TestFlight, deploy |
-| [docs/MODULES_IMPLEMENTATION_TEMPLATE.md](docs/MODULES_IMPLEMENTATION_TEMPLATE.md) | Template implement module |
 | [apps/erp/README.md](apps/erp/README.md) | Ghi chú riêng cho Flutter shell |
 
 ## Kiến trúc tóm tắt
@@ -180,9 +181,9 @@ Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze 
 - **Theme ≠ module** — một theme có thể span nhiều bounded context.
 - Module **không import** implementation nội bộ module khác; giao tiếp qua integration events và snapshot ports.
 - **Domain** thuần Dart; **Application** điều phối command/query; **Infrastructure** gọi Supabase RPC.
-- UI thuộc ship unit: `apps/erp/lib/features/` (Admin: `apps/admin/lib/features/`). Xem [ADR 11](docs/architecture/11-app-owned-presentation.md).
+- UI thuộc ship unit: `apps/erp/lib/features/` (Admin: `apps/admin/lib/features/`). Xem [AGENTS.md](AGENTS.md).
 
-Đọc thêm: [docs/architecture/01-vision-and-principles.md](docs/architecture/01-vision-and-principles.md).
+Đọc thêm: [AGENTS.md](AGENTS.md), [docs/refactor/SCOPE.md](docs/refactor/SCOPE.md).
 
 ## License
 
