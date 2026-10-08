@@ -1,6 +1,6 @@
 # 2-A2 — Chuyển IAM: thành viên, lời mời, vai trò, nhật ký quản trị
 
-> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 2B.6 (phần còn lại, trừ phiên / đăng nhập → 2-A3)
 > Tài liệu liên quan: [PLAN.md](../../PLAN.md) P2; [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) ID-10, ID-14…ID-20; mẫu: [2-A1](2-A1-iam-tai-khoan-to-chuc.md)
 
@@ -159,7 +159,17 @@ Gợi ý 3 commit: (1) thành viên + vai trò (member detail, select role, prev
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày, commit được review: 2026-10-08, working tree trên `7cb1d435f` (chưa commit).
+- Kết quả: **Đạt.**
+  - Tham số của 13 RPC khớp gateway cũ (`list_tenant_members`, `get_tenant_member`, `assign_member_role`, 3 hàm membership, 5 hàm lời mời, `list_assignable_invitation_roles`, `get_tenant_readiness`, `get_tenant_audit_log`). Sửa đúng chỗ plan ghi sai: RPC tìm nhật ký là `search_tenant_audit_logs_v2` (10 tham số, có `p_event_codes`); bản 9 tham số đã bị `20260826004` xoá.
+  - `idempotencyKey` của lời mời giữ cách cũ (sinh lại khi email / vai trò đổi).
+  - `dart analyze lib test`: không có error; cảnh báo duy nhất ở `order_einvoice_section_test.dart`, không liên quan. `check_feature_imports`: 0 vi phạm.
+  - Grep `IIamModule|IExecutionContext` trong `features/iam`, `features/more`: chỉ còn `presentation/testing/recording_iam_module.dart` và `presentation/readiness/` (đúng dự kiến, 2-B2 xoá).
+  - `flutter test` toàn `apps/erp`: 1.395 pass / 61 fail, không lỗi mới. Hai test IAM trong danh sách fail (`production_boundary_test` "presentation.dart does not export Fake*", `e2e_e02_u07_fr01_01` audit forensic detail) đã fail trên HEAD trước 2-A2.
+  - Kiểm tay trên Dev: chưa làm (bạn tự kiểm theo mục 5).
+- Góp ý (không chặn):
+  1. **`core/iam/`** (`IamLoadStatus`, `IamUiFailure`, `IamUiFailureMapper`) được dời vào `core` để `features/more/logic` dùng mà không vi phạm R3. Hiệu quả nhưng làm `core` phụ thuộc `vet45_iam_application` (`IamBlockedCodes`). Cách gọn hơn, xử lý ở 2-A3 hoặc 2-B2: chuyển `IamFeatureAccessCubit` về `features/iam/logic` (hub "Người dùng & vai trò" vốn thuộc IAM), rồi trả 3 file về `features/iam/logic`.
+  2. **`SessionController.readSession()`** trả `SessionDto` của package IAM cũ. Tạm được; 2-A3 thay bằng state riêng của `SessionController` cùng lúc xử lý góp ý 1-B (core import features).
+  3. **`test/features/iam/support/iam_module_repositories.dart`** bọc `FakeIamModule` thành repository để giữ kịch bản test cũ. Ít sửa test, nhưng test cubit vẫn phụ thuộc module cũ → phải viết lại khi xoá module ở P9. Ghi `TODO(P9)` ở đầu file.
+  4. Shim re-export ở đường dẫn cũ (`presentation/users/bloc/*`, `mappers/*`, `more/presentation/bloc/*`…): thêm vào danh sách dọn ở P9 cùng các shim 2-A1.
+  5. `IamFeatureAccessCubit` nuốt lỗi readiness (giữ như cũ) — để 2-B2 khi bỏ readiness.
