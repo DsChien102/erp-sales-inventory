@@ -28,6 +28,7 @@ apps/erp/lib/
 
 - Luồng: `Page → Cubit → Repository → RPC`. Không CommandBus/QueryBus, không mediator, không module package mới.
 - Phụ thuộc: `presentation → logic → data`. Feature khác chỉ dùng **repository** (`data/`) của nhau, không import `logic/`/`presentation/` của nhau (SCOPE 3.1). Kiểm bằng `dart run tool/check_feature_imports.dart` (từ 1-A).
+- Page được import kiểu repository (`data/`) **chỉ để tạo cubit** (`BlocProvider(create: (_) => XCubit(repository: …))`); mọi lời gọi dữ liệu đi qua cubit.
 - Lỗi: repository ném `AppException` (`core/errors`), UI hiển thị `e.userMessage()`.
 - Nghiệp vụ và kiểm tra quyền nằm trong RPC Postgres (`iam.has_permission`); app chỉ hiển thị.
 - Gọi dịch vụ ngoài (MISA meInvoice, email) qua **Supabase Edge Function** (`supabase/functions/*`), kích hoạt bởi app và `pg_cron`. Không có worker chạy riêng (TH-08 KI-20).

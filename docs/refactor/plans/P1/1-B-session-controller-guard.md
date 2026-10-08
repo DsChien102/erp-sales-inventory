@@ -1,6 +1,6 @@
 # 1-B — `SessionController` + router guard
 
-> Phase: P1 · Bước (a) chuyển kiến trúc · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P1 · Bước (a) chuyển kiến trúc · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 1.3 (`SessionController`), 1.4 (router guard), cộng 2 góp ý từ review 1-A và dọn `Failure`/`Either`
 > Tài liệu liên quan: [PLAN.md](../../PLAN.md) P1; [SCOPE.md](../../SCOPE.md) 3.5; [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 2.3 (bảng định tuyến), ID-08, ID-09
 
@@ -214,11 +214,11 @@ Gợi ý 3 commit (đăng xuất đi qua `SessionController` ở **4 chỗ**: ro
 
 ## 5. Kiểm tra
 
-- [ ] `dart analyze lib test tool` (trong `apps/erp`): không issue mới.
-- [ ] `dart run tool/check_feature_imports.dart`: 0 vi phạm (sau khi áp R3 cho mọi file).
-- [ ] `grep -rn "TenantContextCubit\|TenantContextState\|restorePersistedAuthSession\|exception_mapper\|Either<Failure" lib test`: rỗng.
-- [ ] `flutter test test/core test/features/dashboard test/features/tenant_context test/features/partner`: đạt.
-- [ ] `flutter test` toàn bộ `apps/erp`: không test lỗi mới so với 61 lỗi trong [TEST-BASELINE.md](../../TEST-BASELINE.md).
+- [x] `dart analyze lib test tool` (trong `apps/erp`): không issue mới. (2026-10-08: không lỗi mới; các `info` deprecated là sẵn có.)
+- [x] `dart run tool/check_feature_imports.dart`: 0 vi phạm (sau khi áp R3 cho mọi file).
+- [x] `grep -rn "TenantContextCubit\|TenantContextState\|restorePersistedAuthSession\|exception_mapper\|Either<Failure" lib test`: rỗng.
+- [x] `flutter test test/core test/features/dashboard test/features/tenant_context test/features/partner`: đạt (239 tests).
+- [x] `flutter test` toàn bộ `apps/erp` (Claude chạy khi review): 1.372 đạt / 61 lỗi, không lỗi mới. Trước đó bạn chưa chạy lại cả suite. Đã chạy thêm auth login, more, my-account: lỗi duy nhất là `e2e_e06_u02_fr01_01: edit profile save`, đã có trong [TEST-BASELINE.md](../../TEST-BASELINE.md).
 - [ ] Chạy app với Dev, kiểm tay:
   - [ ] Mở app khi chưa đăng nhập → `/login`; đăng nhập → trang chủ, tên tổ chức đúng như trước.
   - [ ] Đổi tổ chức trong sheet (nếu tài khoản có ≥ 2 tổ chức) → dữ liệu đổi theo.
@@ -233,11 +233,26 @@ Gợi ý 3 commit (đăng xuất đi qua `SessionController` ở **4 chỗ**: ro
 - `refreshListenable` làm router chạy lại guard khi `authStatus` đổi — nơi nào đang tự `context.go('/login')` sau đăng xuất vẫn chạy được (guard trả `null` khi đã ở `/login`). Không gây lặp điều hướng vì chỉ nghe `authStatus`.
 - Hành vi mới duy nhất: hết phiên giữa chừng thì tự về `/login`. Ghi vào CHANGELOG.
 - `SessionController` vẫn phụ thuộc `IIamModule`, `IamSession`, `IIamSessionPort`, `TenantAccessRevokedSignal` (gói cũ) — chấp nhận tạm, 2-A2 thay bằng RPC; ghi chú `// TODO(2-A2)` ở các chỗ gọi module.
-- Không có GitNexus để chạy `impact`; phạm vi theo grep ở mục 2 (5 file lib + 4 file test dùng `TenantContext*`; 3 chỗ dùng `guard()`, trong đó `signOutSuspendedAccountAndGoToLogin` được gọi ở 2 nơi).
+- Không có GitNexus lúc viết plan; lúc làm đã chạy `impact` upstream trên `TenantContextCubit`: risk MEDIUM, 10 caller trực tiếp (Dashboard, header, selector, 4 file test). Không có HIGH/CRITICAL.
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày: 2026-10-08 · Review trên thư mục làm việc (chưa commit) của branch `refactor/p1-core`
+- Kết quả: ✅ **đạt**
+- Đối chiếu plan:
+  - `SessionController` (dời từ `TenantContextCubit`) giữ nguyên `bootstrap` / `loadAccessibleTenants` / `switchTo` / `_emitResolvedContext`; thêm `authStatus`, `userId`, `start()` nghe `onAuthStateChange`, accessor `tenantId` / `requireTenantId` / `hasPermission`, `signOut()`. `applyTenantContextPermissions` thành hàm private dùng `_iamSession`. Có `TODO(2-A2)` ở các chỗ gọi module.
+  - `identityRevoked` thay callback; Dashboard có `BlocListener` gọi `signOutSuspendedAccountAndGoToLogin` (giữ toast). Hai `BlocListener` (tài khoản / tổ chức bị chặn) giữ đúng câu chữ cũ.
+  - Singleton trong DI (`dispose` đóng controller), Dashboard dùng `BlocProvider.value` + `_SessionBootstrap` gọi `bootstrap()` mỗi lần Dashboard mở — đúng thời điểm cũ. Test vẫn tạo controller cục bộ khi truyền `iamModule` / `initialState`.
+  - `routeGuard` thuần đúng bảng bước 4 (giữ `/login/reset-password` → `/` khi đã đăng nhập, `/invitation` không chặn); `sessionRefresh` chỉ nghe `authStatus`; `redirect` an toàn khi `SessionController` chưa đăng ký.
+  - 4 chỗ đăng xuất dùng `signOut()`; xoá `failure.dart`, `result.dart`, `exception_mapper.dart`, `restore_persisted_auth_session.dart`, bỏ `fpdart`.
+  - `PartnerRepository` lấy tenant từ `SessionController`. Góp ý 1-A: R3 áp mọi file, quy ước page–repository ghi vào AGENTS.md. CHANGELOG ghi hành vi mới (hết phiên tự về đăng nhập).
+- Claude chạy lại:
+  - `dart analyze` trên các file đổi / mới: không error, không warning; chỉ `info` (deprecated `VBadgeStatus` có sẵn ở dashboard; 2 `unnecessary_import` trong test).
+  - `dart run tool/check_feature_imports.dart`: thoát 0.
+  - Test core + dashboard + tenant_context + partner: 239 đạt.
+  - **Toàn bộ `apps/erp`: 1.372 đạt / 61 lỗi**; danh sách test lỗi trùng khớp lần review 1-A (không lỗi mới); +12 test mới (guard 5, session 7).
+- Góp ý (không chặn):
+  1. **`core/` đang import `features/`**: `session_controller.dart` import `package:erp/features/iam/presentation.dart` (`IamUiFailureMapper`, `OrganizationEmptyStateType`, `SelectOrganizationItemUiModel`) và `features/tenant_context/.../accessible_tenant_ui_mapper.dart`. Ngược chiều phụ thuộc mong muốn (feature → core). Chấp nhận tạm vì là code cũ dời sang; **xử lý ở 2-A2**: lỗi dùng `AppException`, kiểu UI chọn tổ chức chuyển vào `core/session` hoặc để feature tự map từ `SessionState`.
+  2. **Đổi người dùng không qua `signedOut`**: `_apply` khi `userId` khác chỉ `copyWith(authStatus, userId)`, giữ nguyên `current` / `tenants` của người trước cho đến khi `bootstrap()` chạy. Thực tế guard chỉ cho vào `/login` khi đã `signedOut` nên khó xảy ra; nhưng nên phòng thủ: khi `userId` đổi thì `emit(SessionState(authStatus: signedIn, userId: …))` (state sạch) + 1 test "A → B không còn tổ chức của A". Làm ở 2-A2 hoặc ngay khi tiện.
+  3. Xoá 2 import thừa `package:vet45_iam_application/application.dart` trong `default_pair_gate_test.dart`, `wgt_e05_tenant_context_test.dart`.
+- Còn lại cho bạn: commit (gợi ý 3 commit bước 7), kiểm tay trên Dev (mục 5) rồi tick CHECKLIST các dòng APP-01, APP-04, ID-01, ID-08, ID-09, ID-x1, ID-x3, ID-x6.

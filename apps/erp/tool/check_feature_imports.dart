@@ -2,8 +2,8 @@ import 'dart:io';
 
 /// Chặn import sai tầng / sai feature cho code mới trong `lib/features`.
 ///
-/// Chỉ xét file nằm trong `data/` và `logic/`. Code cũ chỉ có `presentation/`
-/// nên không bị báo lỗi giả.
+/// R1, R2 chỉ xét nguồn `data/` và `logic/`. R3 xét mọi file trong `lib/features`
+/// (kể cả `presentation/`).
 ///
 /// Chạy từ `apps/erp`: `dart run tool/check_feature_imports.dart`
 void main() {
@@ -17,9 +17,7 @@ void main() {
   for (final entity in features.listSync(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
     final source = _locate(entity.path);
-    if (source == null || (source.layer != 'data' && source.layer != 'logic')) {
-      continue;
-    }
+    if (source == null) continue;
     final lines = entity.readAsLinesSync();
     for (var i = 0; i < lines.length; i++) {
       final uri = _importUri(lines[i]);

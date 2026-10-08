@@ -54,7 +54,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 |---|---|---|---|---|
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
 | 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
-| 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | 📝 | ⬜ | ⬜ |
+| 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ | ✅ |
 
 
 ---
@@ -126,7 +126,7 @@ Chi tiết từng việc:
 |---|---|---|---|---|---|
 | **1.1** | Cấu trúc thư mục `core/` | 1.1 | ✅ [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ |
 | **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ✅ [plan](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ |
-| **1-B** | `SessionController` + router guard (3 nhánh hiện có; 3 nhánh mới làm ở 2-B1 / P8) | 1.3, 1.4 | 📝 [plan](plans/P1/1-B-session-controller-guard.md) | ⬜ | ⬜ |
+| **1-B** | `SessionController` + router guard (3 nhánh hiện có; 3 nhánh mới làm ở 2-B1 / P8) | 1.3, 1.4 | ✅ [plan](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ |
 
 Chi tiết từng việc:
 
