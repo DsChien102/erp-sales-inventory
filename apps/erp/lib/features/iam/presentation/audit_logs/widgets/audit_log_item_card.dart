@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import '../../../data/models/tenant_audit_log.dart';
 import '../models/audit_log_ui_model.dart';
 
 /// Card hiển thị từng nhật ký thao tác trong danh sách (PA-D-02).

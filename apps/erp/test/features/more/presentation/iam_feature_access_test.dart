@@ -12,6 +12,9 @@ import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../iam/support/iam_module_repositories.dart';
+import 'package:erp/features/iam/data/models/tenant_readiness.dart' show TenantReadiness;
+
 void main() {
   group('IamFeatureAccessState permissions', () {
     test('maps SessionDto.hasPermission for active capabilities', () {
@@ -67,7 +70,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      iamModule: _StaticSessionModule(
+      session: sessionFromDto(
         const SessionDto(
           isAuthenticated: true,
           userId: 'u1',
@@ -75,6 +78,7 @@ void main() {
           permissions: [],
         ),
       ),
+      organizations: ScriptedReadinessRepository(),
     );
     await cubit.load();
     addTearDown(cubit.close);
@@ -100,7 +104,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      iamModule: _StaticSessionModule(
+      session: sessionFromDto(
         const SessionDto(
           isAuthenticated: true,
           userId: 'owner-1',
@@ -109,6 +113,7 @@ void main() {
           permissions: [],
         ),
       ),
+      organizations: ScriptedReadinessRepository(),
     );
     await cubit.load();
     addTearDown(cubit.close);
@@ -168,23 +173,24 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = _CountingSessionModule(
-      const SessionDto(
-        isAuthenticated: true,
-        userId: 'owner-1',
-        role: 'store_owner',
-        isOwner: true,
-        tenantId: 'org-001',
-        permissions: [],
-      ),
-    );
+    final readiness = ScriptedReadinessRepository();
 
     await tester.pumpWidget(
       MaterialApp(
         theme: VTheme.lightTheme,
         home: Scaffold(
           body: MorePage(
-            iamModule: module,
+            session: sessionFromDto(
+              const SessionDto(
+                isAuthenticated: true,
+                userId: 'owner-1',
+                role: 'store_owner',
+                isOwner: true,
+                tenantId: 'org-001',
+                permissions: [],
+              ),
+            ),
+            organizations: readiness,
             tenantBlocked: true,
           ),
         ),
@@ -192,8 +198,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(module.sessionQueries, 0);
-    expect(module.readinessQueries, 0);
+    expect(readiness.calls, 0);
     expect(find.text('Người dùng & vai trò'), findsOneWidget);
 
     final usersCard = tester.widget<VCard>(
@@ -214,7 +219,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = IamFeatureAccessCubit(
-        iamModule: _StaticSessionModule(
+        session: sessionFromDto(
           const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -222,6 +227,7 @@ void main() {
             isOwner: true,
           ),
         ),
+        organizations: ScriptedReadinessRepository(),
       );
       await cubit.load();
       addTearDown(cubit.close);
@@ -251,12 +257,23 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _DelayedReadinessModule();
+      final gate = Completer<TenantReadiness>();
 
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: UsersAndRolesPage(iamModule: module),
+          home: UsersAndRolesPage(
+            session: sessionFromDto(
+              const SessionDto(
+                isAuthenticated: true,
+                userId: 'owner-1',
+                role: 'store_owner',
+                isOwner: true,
+                tenantId: 'org-001',
+              ),
+            ),
+            organizations: ScriptedReadinessRepository(pending: gate.future),
+          ),
         ),
       );
       await tester.pump();
@@ -270,7 +287,8 @@ void main() {
       expect(skeletonWidget.height, 148);
       expect(skeletonWidget.borderRadius, VRadius.card);
 
-      module.completeReadiness(
+      gate.complete(
+        copyReadiness(
         TenantReadinessDto(
           tenantId: 'org-001',
           status: TenantLifecycleStatus.active,
@@ -279,6 +297,7 @@ void main() {
           evaluatedAt: DateTime.utc(2026, 8, 25),
           tenantVersion: 3,
           canActivate: false,
+        ),
         ),
       );
       await tester.pumpAndSettle();
@@ -297,8 +316,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        iamModule: _SessionWithReadinessModule(
+      final cubit = _SessionWithReadinessModule(
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -318,8 +336,7 @@ void main() {
             tenantVersion: 1,
             canActivate: false,
           ),
-        ),
-      );
+        ).toCubit();
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -349,8 +366,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        iamModule: _SessionWithReadinessModule(
+      final cubit = _SessionWithReadinessModule(
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -371,8 +387,7 @@ void main() {
             tenantVersion: 1,
             canActivate: false,
           ),
-        ),
-      );
+        ).toCubit();
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -402,8 +417,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        iamModule: _SessionWithReadinessModule(
+      final cubit = _SessionWithReadinessModule(
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -420,8 +434,7 @@ void main() {
             tenantVersion: 2,
             canActivate: true,
           ),
-        ),
-      );
+        ).toCubit();
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -452,8 +465,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        iamModule: _SessionWithReadinessModule(
+      final cubit = _SessionWithReadinessModule(
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -470,8 +482,7 @@ void main() {
             tenantVersion: 3,
             canActivate: false,
           ),
-        ),
-      );
+        ).toCubit();
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -497,8 +508,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        iamModule: _SessionWithReadinessModule(
+      final cubit = _SessionWithReadinessModule(
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
@@ -515,8 +525,7 @@ void main() {
             tenantVersion: 4,
             canActivate: false,
           ),
-        ),
-      );
+        ).toCubit();
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -551,7 +560,10 @@ void main() {
           permissions: [IamPermissions.memberView],
         ),
       );
-      final cubit = IamFeatureAccessCubit(iamModule: module);
+      final cubit = IamFeatureAccessCubit(
+        session: sessionFromDto(module.session),
+        organizations: ScriptedReadinessRepository(onRead: () => module.readinessQueries++),
+      );
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -569,60 +581,6 @@ void main() {
   );
 }
 
-final class _StaticSessionModule implements IIamModule {
-  _StaticSessionModule(this.session);
-
-  final SessionDto session;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetCurrentSessionQuery) {
-      return session as TResult;
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
-}
-
-final class _CountingSessionModule implements IIamModule {
-  _CountingSessionModule(this.session);
-
-  final SessionDto session;
-  int sessionQueries = 0;
-  int readinessQueries = 0;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetCurrentSessionQuery) {
-      sessionQueries++;
-      return session as TResult;
-    }
-    if (query is GetTenantReadinessQuery) {
-      readinessQueries++;
-      return TenantReadinessDto(
-            tenantId: 'org-001',
-            status: TenantLifecycleStatus.active,
-            blockers: const [],
-            warnings: const [],
-            evaluatedAt: DateTime.utc(2026, 9, 18),
-            tenantVersion: 1,
-            canActivate: false,
-          )
-          as TResult;
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
-}
-
 final class _SessionWithReadinessModule implements IIamModule {
   _SessionWithReadinessModule({
     required this.session,
@@ -631,6 +589,13 @@ final class _SessionWithReadinessModule implements IIamModule {
 
   final SessionDto session;
   final TenantReadinessDto readiness;
+
+  IamFeatureAccessCubit toCubit() {
+    return IamFeatureAccessCubit(
+      session: sessionFromDto(session),
+      organizations: ScriptedReadinessRepository(readiness: copyReadiness(readiness)),
+    );
+  }
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
@@ -644,37 +609,6 @@ final class _SessionWithReadinessModule implements IIamModule {
     }
     if (query is GetTenantReadinessQuery) {
       return readiness as TResult;
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
-}
-
-final class _DelayedReadinessModule implements IIamModule {
-  final Completer<TenantReadinessDto> _readiness = Completer<TenantReadinessDto>();
-
-  void completeReadiness(TenantReadinessDto readiness) {
-    _readiness.complete(readiness);
-  }
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetCurrentSessionQuery) {
-      return const SessionDto(
-            isAuthenticated: true,
-            userId: 'owner-1',
-            role: 'store_owner',
-            isOwner: true,
-            tenantId: 'org-001',
-          )
-          as TResult;
-    }
-    if (query is GetTenantReadinessQuery) {
-      return await _readiness.future as TResult;
     }
     throw UnsupportedError(query.runtimeType.toString());
   }

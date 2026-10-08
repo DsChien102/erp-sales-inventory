@@ -1,9 +1,1 @@
-/// Shared load lifecycle for IAM presentation surfaces.
-enum IamLoadStatus {
-  initial,
-  loading,
-  success,
-  empty,
-  failure,
-  unauthorized,
-}
+export '../../../core/iam/iam_load_status.dart';

@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   OrganizationInvitationDetailCubit buildCubit({
@@ -12,8 +12,7 @@ void main() {
   }) {
     return OrganizationInvitationDetailCubit(
       invitationId: invitationId,
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      invitations: IamModuleInvitationRepository(module),
       keyFactory: keyFactory ?? FakeIdempotencyKeyFactory(),
     );
   }

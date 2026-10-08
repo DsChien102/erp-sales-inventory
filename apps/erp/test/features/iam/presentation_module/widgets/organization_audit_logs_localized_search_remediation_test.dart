@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   testWidgets(
@@ -21,8 +21,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: OrganizationAuditLogsPage(
-            iamModule: recording,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            auditLogs: IamModuleAuditLogRepository(recording),
             clockLocal: () => DateTime(2026, 8, 20),
           ),
         ),

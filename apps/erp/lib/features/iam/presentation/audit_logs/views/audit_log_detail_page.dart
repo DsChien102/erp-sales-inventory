@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../data/audit_log_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/tenant_audit_logs_cubit.dart';
 import '../bloc/tenant_audit_logs_state.dart';
@@ -15,15 +15,13 @@ class AuditLogDetailPage extends StatelessWidget {
   const AuditLogDetailPage({
     super.key,
     required this.auditLogId,
-    this.iamModule,
-    this.executionContext,
+    this.auditLogs,
     this.cubit,
     this.onBackPressed,
   });
 
   final String auditLogId;
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final AuditLogRepository? auditLogs;
   final TenantAuditLogsCubit? cubit;
   final VoidCallback? onBackPressed;
 
@@ -39,13 +37,12 @@ class AuditLogDetailPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'AuditLogDetailPage requires iamModule + executionContext or cubit',
+      auditLogs != null,
+      'AuditLogDetailPage requires auditLogs or cubit',
     );
     return BlocProvider(
       create: (_) => TenantAuditLogsCubit(
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        auditLogs: auditLogs!,
       )..loadDetail(auditLogId),
       child: _AuditLogDetailView(
         auditLogId: auditLogId,

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/features/iam/data/models/tenant_invitation.dart';
+
 import 'package:erp/features/iam/presentation.dart';
 
 InvitationSummaryDto _summary({

@@ -93,6 +93,49 @@ final class SessionController extends Cubit<SessionState> {
 
   bool hasPermission(String code) => _iamSession?.hasPermission(code) ?? false;
 
+  String? get role => _blankToNull(_iamSession?.role);
+
+  bool get isOwner => _iamSession?.isOwner ?? false;
+
+  String? get email => _auth?.currentUser?.email;
+
+  List<String> get permissions =>
+      _iamSession?.permissions.toList(growable: false) ?? const [];
+
+  /// Ảnh phiên mà hub IAM đang đọc (`SessionDto.hasPermission` = owner hoặc quyền).
+  /// Hết hạn token thì ném [AppException] `SESSION_EXPIRED`, giống `GetCurrentSessionQuery`.
+  SessionDto readSession() {
+    final auth = _auth;
+    if (auth != null) {
+      final current = auth.currentSession;
+      if (current == null) return const SessionDto(isAuthenticated: false);
+      if (current.isExpired) {
+        throw const AppException('SESSION_EXPIRED');
+      }
+    } else if (state.authStatus != AuthStatus.signedIn) {
+      return const SessionDto(isAuthenticated: false);
+    }
+
+    final userId = _blankToNull(_iamSession?.userId) ?? _blankToNull(state.userId);
+    if (userId == null) return const SessionDto(isAuthenticated: false);
+    return SessionDto(
+      isAuthenticated: true,
+      userId: userId,
+      email: email,
+      tenantId: _blankToNull(_iamSession?.tenantId),
+      activeStoreId: _blankToNull(_iamSession?.activeStoreId),
+      role: role,
+      isOwner: isOwner,
+      permissions: permissions,
+    );
+  }
+
+  static String? _blankToNull(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
+  }
+
   Future<String> requireTenantId() async {
     final id = tenantId?.trim();
     if (id == null || id.isEmpty) {

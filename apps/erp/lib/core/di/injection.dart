@@ -19,6 +19,9 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/iam/data/account_repository.dart';
+import '../../features/iam/data/audit_log_repository.dart';
+import '../../features/iam/data/invitation_repository.dart';
+import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../router/session_refresh.dart';
@@ -100,6 +103,24 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<OrganizationRepository>(
       () => OrganizationRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<MemberRepository>(
+      () => MemberRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<InvitationRepository>(
+      () => InvitationRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<AuditLogRepository>(
+      () => AuditLogRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
       ),

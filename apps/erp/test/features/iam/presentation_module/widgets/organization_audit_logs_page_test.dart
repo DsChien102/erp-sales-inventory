@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   testWidgets('loads audit logs and renders total count in subtitle', (tester) async {
@@ -16,8 +16,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          auditLogs: IamModuleAuditLogRepository(FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk)),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -45,8 +44,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          iamModule: recording,
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          auditLogs: IamModuleAuditLogRepository(recording),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -74,8 +72,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          iamModule: recording,
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          auditLogs: IamModuleAuditLogRepository(recording),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -100,10 +97,9 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-001',
-          iamModule: FakeIamModule(
+          auditLogs: IamModuleAuditLogRepository(FakeIamModule(
             scenario: FakeIamScenario.tenantAuditActorUnavailable,
-          ),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          )),
         ),
       ),
     );
@@ -125,8 +121,7 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-001',
-          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          auditLogs: IamModuleAuditLogRepository(FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk)),
         ),
       ),
     );
@@ -147,10 +142,9 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-999',
-          iamModule: FakeIamModule(
+          auditLogs: IamModuleAuditLogRepository(FakeIamModule(
             scenario: FakeIamScenario.tenantAuditCrossTenant,
-          ),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          )),
         ),
       ),
     );

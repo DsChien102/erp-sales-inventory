@@ -4,7 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../../iam/support/iam_module_repositories.dart';
+
+const _owner = SessionDto(
+  isAuthenticated: true,
+  userId: 'owner-1',
+  role: 'store_owner',
+  isOwner: true,
+);
 
 void main() {
   testWidgets(
@@ -16,7 +24,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = IamFeatureAccessCubit(
-        iamModule: _OwnerSessionModule(),
+        session: sessionFromDto(_owner),
+        organizations: ScriptedReadinessRepository(),
       );
       await cubit.load();
       addTearDown(cubit.close);
@@ -47,7 +56,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final cubit = IamFeatureAccessCubit(iamModule: _OwnerSessionModule());
+    final cubit = IamFeatureAccessCubit(
+      session: sessionFromDto(_owner),
+      organizations: ScriptedReadinessRepository(),
+    );
     await cubit.load();
     addTearDown(cubit.close);
 
@@ -78,7 +90,16 @@ void main() {
 
     var queryCount = 0;
     final cubit = IamFeatureAccessCubit(
-      iamModule: _CountingSessionModule(onQuery: () => queryCount++),
+      session: sessionFromDto(
+        const SessionDto(
+          isAuthenticated: true,
+          userId: 'owner-1',
+          role: 'store_owner',
+          isOwner: true,
+          tenantId: 'org-001',
+        ),
+      ),
+      organizations: ScriptedReadinessRepository(onRead: () => queryCount++),
     );
     await cubit.load();
     addTearDown(cubit.close);
@@ -99,45 +120,4 @@ void main() {
 
     expect(queryCount, greaterThan(initialCount));
   });
-}
-
-final class _CountingSessionModule implements IIamModule {
-  _CountingSessionModule({required this.onQuery});
-
-  final VoidCallback onQuery;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    onQuery();
-    return const SessionDto(
-          isAuthenticated: true,
-          userId: 'owner-1',
-          role: 'store_owner',
-          isOwner: true,
-        )
-        as TResult;
-  }
-}
-
-final class _OwnerSessionModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    return const SessionDto(
-          isAuthenticated: true,
-          userId: 'owner-1',
-          role: 'store_owner',
-          isOwner: true,
-        )
-        as TResult;
-  }
 }

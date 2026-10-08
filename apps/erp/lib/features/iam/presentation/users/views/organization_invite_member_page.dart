@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../../../../core/session/session_controller.dart';
+import '../../../data/invitation_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../../shared/idempotency_key_factory.dart';
 import '../bloc/organization_invite_member_cubit.dart';
 import '../bloc/organization_invite_member_state.dart';
-import '../iam_module_invitation_role_options_source.dart';
+import '../invitation_role_options_source.dart';
 import '../invitation_role_options.dart';
 
 /// Trang Mời thành viên (TA-D-03 / S7).
 class OrganizationInviteMemberPage extends StatelessWidget {
   const OrganizationInviteMemberPage({
     super.key,
-    this.iamModule,
-    this.executionContext,
+    this.session,
+    this.invitations,
     this.roleOptionsSource,
     this.keyFactory,
     this.cubit,
   });
 
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final SessionController? session;
+  final InvitationRepository? invitations;
   final InvitationRoleOptionsSource? roleOptionsSource;
   final IdempotencyKeyFactory? keyFactory;
   final OrganizationInviteMemberCubit? cubit;
@@ -38,17 +38,17 @@ class OrganizationInviteMemberPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationInviteMemberPage requires iamModule + executionContext or cubit',
+      session != null && invitations != null,
+      'OrganizationInviteMemberPage requires session + invitations or cubit',
     );
-    final module = iamModule!;
+    final repository = invitations!;
     return BlocProvider(
       create: (_) => OrganizationInviteMemberCubit(
-        iamModule: module,
-        executionContext: executionContext!,
+        session: session!,
+        invitations: repository,
         roleOptionsSource:
             roleOptionsSource ??
-            IamModuleInvitationRoleOptionsSource(iamModule: module),
+            IamModuleInvitationRoleOptionsSource(invitations: repository),
         keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
       )..loadRoleOptions(),
       child: const _InviteMemberView(),

@@ -15,6 +15,9 @@ import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/audit_log_repository.dart';
+import 'package:erp/features/iam/data/invitation_repository.dart';
+import 'package:erp/features/iam/data/member_repository.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:erp/features/iam/presentation.dart';
 
@@ -148,7 +151,8 @@ final appRouter = GoRouter(
       path: '/more/users-and-roles',
       name: 'more.users-and-roles',
       builder: (context, state) => UsersAndRolesPage(
-        iamModule: getIt<IIamModule>(),
+        session: getIt<SessionController>(),
+        organizations: getIt<OrganizationRepository>(),
       ),
     ),
     GoRoute(
@@ -162,8 +166,8 @@ final appRouter = GoRouter(
           );
         }
         return OrganizationUsersPage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          members: getIt<MemberRepository>(),
+          invitations: getIt<InvitationRepository>(),
         );
       },
     ),
@@ -171,8 +175,8 @@ final appRouter = GoRouter(
       path: '/more/users/invite',
       name: 'more.users.invite',
       builder: (context, state) => OrganizationInviteMemberPage(
-        iamModule: getIt<IIamModule>(),
-        executionContext: getIt<IExecutionContext>(),
+        session: getIt<SessionController>(),
+        invitations: getIt<InvitationRepository>(),
       ),
     ),
     GoRoute(
@@ -188,8 +192,7 @@ final appRouter = GoRouter(
         }
         return OrganizationInvitationDetailPage(
           invitationId: invitationId,
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          invitations: getIt<InvitationRepository>(),
         );
       },
     ),
@@ -206,8 +209,7 @@ final appRouter = GoRouter(
         }
         return OrganizationMemberDetailPage(
           membershipId: membershipId,
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          members: getIt<MemberRepository>(),
         );
       },
     ),
@@ -250,8 +252,7 @@ final appRouter = GoRouter(
           );
         }
         return OrganizationAuditLogsPage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          auditLogs: getIt<AuditLogRepository>(),
         );
       },
     ),
@@ -272,8 +273,7 @@ final appRouter = GoRouter(
         }
         return AuditLogDetailPage(
           auditLogId: auditLogId,
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          auditLogs: getIt<AuditLogRepository>(),
         );
       },
     ),

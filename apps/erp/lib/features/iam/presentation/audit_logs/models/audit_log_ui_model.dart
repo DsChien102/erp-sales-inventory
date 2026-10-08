@@ -1,5 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import '../../../data/models/tenant_audit_log.dart';
 
 /// Trạng thái của nhật ký thao tác.
 enum AuditLogStatus { success, blocked, error }

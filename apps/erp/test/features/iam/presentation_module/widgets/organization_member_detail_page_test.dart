@@ -5,7 +5,7 @@ import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   Future<void> pumpPage(
@@ -23,8 +23,7 @@ void main() {
       MaterialApp(
         home: OrganizationMemberDetailPage(
           membershipId: membershipId,
-          iamModule: FakeIamModule(scenario: scenario),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          members: IamModuleMemberRepository(FakeIamModule(scenario: scenario)),
           cubit: cubit,
         ),
       ),
@@ -97,8 +96,7 @@ void main() {
     );
     final cubit = OrganizationMemberDetailCubit(
       membershipId: 'mem-staff-1',
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
     );
     await cubit.load();
 
@@ -138,8 +136,7 @@ void main() {
     );
     final cubit = OrganizationMemberDetailCubit(
       membershipId: 'mem-staff-1',
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
     );
     await cubit.load();
 

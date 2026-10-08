@@ -3,7 +3,7 @@ import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   OrganizationMemberDetailCubit buildCubit({
@@ -12,8 +12,7 @@ void main() {
   }) {
     return OrganizationMemberDetailCubit(
       membershipId: membershipId,
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
     );
   }
 

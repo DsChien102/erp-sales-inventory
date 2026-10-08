@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../data/invitation_repository.dart';
+import '../../../data/member_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/organization_users_cubit.dart';
 import '../bloc/organization_users_state.dart';
@@ -16,13 +17,13 @@ import 'organization_invite_member_page.dart';
 class OrganizationUsersPage extends StatelessWidget {
   const OrganizationUsersPage({
     super.key,
-    this.iamModule,
-    this.executionContext,
+    this.members,
+    this.invitations,
     this.cubit,
   });
 
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final MemberRepository? members;
+  final InvitationRepository? invitations;
   final OrganizationUsersCubit? cubit;
 
   @override
@@ -34,13 +35,13 @@ class OrganizationUsersPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationUsersPage requires iamModule + executionContext or cubit',
+      members != null && invitations != null,
+      'OrganizationUsersPage requires members + invitations or cubit',
     );
     return BlocProvider(
       create: (_) => OrganizationUsersCubit(
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        members: members!,
+        invitations: invitations!,
       )..loadInitial(),
       child: const _OrganizationUsersView(),
     );

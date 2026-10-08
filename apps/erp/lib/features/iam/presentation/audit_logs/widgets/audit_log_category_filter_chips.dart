@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+
+import '../../../data/models/tenant_audit_log.dart';
 
 /// Dải chip lọc danh mục nhật ký thao tác (Tất cả, Thành viên, Vai trò, Tổ chức).
 class AuditLogCategoryFilterChips extends StatelessWidget {

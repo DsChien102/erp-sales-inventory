@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/application.dart' hide TenantAuditEventCategory, TenantAuditLogResult, TenantAuditDisplayOrigin, TenantAuditLogSummaryDto, TenantAuditLogDetailDto, TenantAuditActorDto, TenantAuditSubjectDto;
+import 'package:erp/features/iam/data/models/tenant_audit_log.dart';
+
 import 'package:erp/features/iam/presentation.dart';
 
 void main() {

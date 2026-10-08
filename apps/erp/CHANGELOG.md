@@ -76,6 +76,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- IAM thành viên, lời mời và nhật ký quản trị đi qua `MemberRepository`, `InvitationRepository`, `AuditLogRepository`. Hub Người dùng & vai trò đọc phiên từ `SessionController` và readiness từ `OrganizationRepository`. Hành vi màn hình giữ nguyên.
 - IAM tài khoản, hồ sơ tổ chức và đặt lại mật khẩu đi qua `AccountRepository`, `OrganizationRepository`, `AuthRepository`. Luật MST và mật khẩu nằm ở `core/validation`.
 - `AppException` đọc 3 định dạng lỗi RPC, lỗi Auth và lỗi mạng; `SupabaseRpc` là chỗ gọi RPC dùng chung. Lịch sử thao tác đi `PartnerRepository.getActionLogs`. Script `tool/check_feature_imports.dart` chặn import sai tầng cho `data/` và `logic/`.
 - Dời cấu hình môi trường từ `lib/configurations/` vào `lib/core/config/` (không đổi hành vi).

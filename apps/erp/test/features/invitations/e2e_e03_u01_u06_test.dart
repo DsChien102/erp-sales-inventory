@@ -1,6 +1,7 @@
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../iam/support/iam_module_repositories.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -66,8 +67,8 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationUsersPage(
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            members: IamModuleMemberRepository(module),
+            invitations: IamModuleInvitationRepository(module),
           ),
         ),
       );
@@ -95,8 +96,8 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationInviteMemberPage(
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            session: testSessionController(),
+            invitations: IamModuleInvitationRepository(module),
             keyFactory: FakeIdempotencyKeyFactory(),
           ),
         ),
@@ -279,8 +280,7 @@ void main() {
             path: '/more/users/invitations/:invitationId',
             builder: (context, state) => OrganizationInvitationDetailPage(
               invitationId: state.pathParameters['invitationId']!,
-              iamModule: module,
-              executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            invitations: IamModuleInvitationRepository(module),
               keyFactory: FakeIdempotencyKeyFactory(),
             ),
           ),
@@ -329,8 +329,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: OrganizationMemberDetailPage(
             membershipId: 'mem-staff-1',
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            members: IamModuleMemberRepository(module),
           ),
         ),
       );
@@ -361,8 +360,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: OrganizationMemberDetailPage(
             membershipId: 'mem-owner-1',
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            members: IamModuleMemberRepository(module),
           ),
         ),
       );
@@ -386,8 +384,8 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationUsersPage(
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            members: IamModuleMemberRepository(module),
+            invitations: IamModuleInvitationRepository(module),
           ),
         ),
       );

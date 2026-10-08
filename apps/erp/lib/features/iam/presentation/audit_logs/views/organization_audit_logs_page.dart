@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_iam_application/application.dart' hide TenantAuditEventCategory, TenantAuditLogResult, TenantAuditDisplayOrigin, TenantAuditLogSummaryDto;
 
+import '../../../data/models/tenant_audit_log.dart';
+
+import '../../../data/audit_log_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/tenant_audit_filter.dart';
 import '../bloc/tenant_audit_logs_cubit.dart';
@@ -25,14 +27,12 @@ import 'audit_log_detail_page.dart';
 class OrganizationAuditLogsPage extends StatelessWidget {
   const OrganizationAuditLogsPage({
     super.key,
-    this.iamModule,
-    this.executionContext,
+    this.auditLogs,
     this.cubit,
     this.clockLocal,
   });
 
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final AuditLogRepository? auditLogs;
   final TenantAuditLogsCubit? cubit;
   final DateTime Function()? clockLocal;
 
@@ -45,13 +45,12 @@ class OrganizationAuditLogsPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationAuditLogsPage requires iamModule + executionContext or cubit',
+      auditLogs != null,
+      'OrganizationAuditLogsPage requires auditLogs or cubit',
     );
     return BlocProvider(
       create: (_) => TenantAuditLogsCubit(
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        auditLogs: auditLogs!,
         clockLocal: clockLocal,
       )..search(),
       child: const _AuditLogsView(),

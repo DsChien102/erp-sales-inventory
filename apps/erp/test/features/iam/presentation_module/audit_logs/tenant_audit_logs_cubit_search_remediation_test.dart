@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   test(
@@ -12,8 +12,7 @@ void main() {
         FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
       );
       final cubit = TenantAuditLogsCubit(
-        iamModule: recording,
-        executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+        auditLogs: IamModuleAuditLogRepository(recording),
         initialFilter: TenantAuditFilter(
           fromLocal: DateTime(2026, 8, 1),
           toLocal: DateTime(2026, 8, 20),
@@ -46,8 +45,7 @@ void main() {
       FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
     );
     final cubit = TenantAuditLogsCubit(
-      iamModule: recording,
-      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+      auditLogs: IamModuleAuditLogRepository(recording),
       initialFilter: TenantAuditFilter(
         fromLocal: DateTime(2026, 8, 1),
         toLocal: DateTime(2026, 8, 20),

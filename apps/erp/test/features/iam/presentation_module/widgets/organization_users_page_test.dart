@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   testWidgets('wgt_e03_u01_fr01_01: OrganizationUsersPage loads real members (no FakeUsersData)', (
@@ -16,8 +16,8 @@ void main() {
 
     final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
       clock: () => DateTime.utc(2026, 7, 31),
     );
@@ -48,8 +48,8 @@ void main() {
 
     final module = FakeIamModule(scenario: FakeIamScenario.invitationsSearchOk);
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
       clock: () => DateTime.utc(2026, 7, 31),
     );
@@ -81,8 +81,8 @@ void main() {
 
     final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
     );
 
@@ -112,10 +112,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = OrganizationUsersCubit(
-      iamModule: FakeIamModule(
+      members: IamModuleMemberRepository(FakeIamModule(
         scenario: FakeIamScenario.memberInvitationForbidden,
-      ),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      )),
+      invitations: IamModuleInvitationRepository(FakeIamModule(
+        scenario: FakeIamScenario.memberInvitationForbidden,
+      )),
       searchDebounce: Duration.zero,
     );
 
@@ -140,8 +142,8 @@ void main() {
 
     final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
     );
 
@@ -193,8 +195,8 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.invitationsSearchOk);
       final cubit = OrganizationUsersCubit(
-        iamModule: module,
-        executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        members: IamModuleMemberRepository(module),
+        invitations: IamModuleInvitationRepository(module),
         searchDebounce: Duration.zero,
         clock: () => DateTime.utc(2026, 7, 31),
       );
@@ -251,8 +253,8 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.invitationsSearchOk);
       final cubit = OrganizationUsersCubit(
-        iamModule: module,
-        executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        members: IamModuleMemberRepository(module),
+        invitations: IamModuleInvitationRepository(module),
         searchDebounce: Duration.zero,
         clock: () => DateTime.utc(2026, 7, 31),
       );

@@ -2,17 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/session/session_controller.dart';
+import '../../../iam/data/organization_repository.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
 /// Trang Quản lý "Người dùng & vai trò" — gated theo session permissions.
 class UsersAndRolesPage extends StatelessWidget {
-  const UsersAndRolesPage({super.key, this.iamModule, this.accessCubit});
+  const UsersAndRolesPage({
+    super.key,
+    this.session,
+    this.organizations,
+    this.accessCubit,
+  });
 
-  final IIamModule? iamModule;
+  final SessionController? session;
+  final OrganizationRepository? organizations;
   final IamFeatureAccessCubit? accessCubit;
 
   @override
@@ -25,7 +32,10 @@ class UsersAndRolesPage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (_) => IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())..load(),
+      create: (_) => IamFeatureAccessCubit(
+        session: session ?? getIt<SessionController>(),
+        organizations: organizations ?? getIt<OrganizationRepository>(),
+      )..load(),
       child: const _UsersAndRolesView(),
     );
   }

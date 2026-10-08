@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 void main() {
   Future<void> pumpDetail(
@@ -23,8 +23,7 @@ void main() {
       MaterialApp(
         home: OrganizationInvitationDetailPage(
           invitationId: invitationId,
-          iamModule: module,
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          invitations: IamModuleInvitationRepository(module),
           keyFactory: FakeIdempotencyKeyFactory(),
           clock: () => DateTime.utc(2026, 7, 31),
           cubit: cubit,
@@ -78,8 +77,7 @@ void main() {
     );
     final cubit = OrganizationInvitationDetailCubit(
       invitationId: 'inv-1',
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      invitations: IamModuleInvitationRepository(module),
       keyFactory: FakeIdempotencyKeyFactory(),
     );
     await cubit.load();

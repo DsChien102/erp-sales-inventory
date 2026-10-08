@@ -11,6 +11,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../iam/support/scripted_iam_repositories.dart';
+import '../iam/support/iam_module_repositories.dart';
 
 final class _AuditAcceptanceIamModule implements IIamModule {
   static const activationAuditId = 'AUD-T-ACTIVATE-042';
@@ -311,8 +312,7 @@ void main() {
           GoRoute(
             path: '/more/audit-logs',
             builder: (context, state) => OrganizationAuditLogsPage(
-              iamModule: module,
-              executionContext: FakeExecutionContext(tenantId: 'org-001'),
+              auditLogs: IamModuleAuditLogRepository(module),
               clockLocal: () => DateTime(2026, 8, 20),
             ),
           ),
@@ -320,8 +320,7 @@ void main() {
             path: '/more/audit-logs/:auditLogId',
             builder: (context, state) => AuditLogDetailPage(
               auditLogId: state.pathParameters['auditLogId']!,
-              iamModule: module,
-              executionContext: FakeExecutionContext(tenantId: 'org-001'),
+              auditLogs: IamModuleAuditLogRepository(module),
             ),
           ),
         ],
@@ -435,8 +434,7 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationAuditLogsPage(
-            iamModule: module,
-            executionContext: FakeExecutionContext(tenantId: 'org-001'),
+            auditLogs: IamModuleAuditLogRepository(module),
           ),
         ),
       );

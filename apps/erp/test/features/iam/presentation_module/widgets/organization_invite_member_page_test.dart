@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 final class _FakeRoles implements InvitationRoleOptionsSource {
   @override
@@ -29,8 +29,8 @@ void main() {
       FakeIamModule(scenario: FakeIamScenario.inviteOk),
     );
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(module),
       roleOptionsSource: _FakeRoles(),
       keyFactory: FakeIdempotencyKeyFactory(),
     );
@@ -71,8 +71,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: FakeIamModule(scenario: FakeIamScenario.inviteOk),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(FakeIamModule(scenario: FakeIamScenario.inviteOk)),
       roleOptionsSource: _FakeRoles(),
       keyFactory: FakeIdempotencyKeyFactory(),
     );

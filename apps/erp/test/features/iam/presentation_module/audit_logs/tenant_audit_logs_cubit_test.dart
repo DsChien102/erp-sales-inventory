@@ -4,15 +4,15 @@ import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_filte
 import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_logs_cubit.dart';
 import 'package:erp/features/iam/presentation/shared/iam_load_status.dart';
 import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
+import 'package:erp/features/iam/data/models/tenant_audit_log.dart' as audit;
 
 void main() {
   final clock = DateTime(2026, 7, 31, 10);
 
   TenantAuditLogsCubit buildCubit(IIamModule module) {
     return TenantAuditLogsCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      auditLogs: IamModuleAuditLogRepository(module),
       clockLocal: () => clock,
     );
   }
@@ -52,8 +52,8 @@ void main() {
       TenantAuditFilter(
         fromLocal: DateTime(2026, 7, 1),
         toLocal: DateTime(2026, 7, 31),
-        result: TenantAuditLogResult.success,
-        eventCategory: TenantAuditEventCategory.member,
+        result: audit.TenantAuditLogResult.success,
+        eventCategory: audit.TenantAuditEventCategory.member,
         subjectType: 'membership',
         eventCodes: const ['iam.membership.deactivated'],
       ),

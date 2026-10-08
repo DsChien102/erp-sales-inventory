@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:vet45_iam_application/application.dart';
-
+import '../../../data/models/tenant_audit_log.dart';
 import '../catalog/tenant_audit_event_catalog.dart';
 import '../catalog/tenant_audit_field_catalog.dart';
 import '../models/audit_log_ui_model.dart';

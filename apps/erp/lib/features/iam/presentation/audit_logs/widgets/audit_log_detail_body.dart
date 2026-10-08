@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-
+import '../../../data/models/tenant_audit_log.dart';
 import '../models/audit_log_ui_model.dart';
 import 'audit_detail_row.dart';
 import 'audit_log_change_diff_item.dart';

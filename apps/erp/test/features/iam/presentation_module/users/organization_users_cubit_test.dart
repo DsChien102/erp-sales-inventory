@@ -4,7 +4,7 @@ import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 final class _ScriptedIamModule implements IIamModule {
   _ScriptedIamModule({required this.onCommand, required this.onQuery});
@@ -31,8 +31,8 @@ void main() {
       FakeIamModule(scenario: FakeIamScenario.membersSearchOk),
     );
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -45,10 +45,12 @@ void main() {
 
   test('forbidden emits typed permission failure', () async {
     final cubit = OrganizationUsersCubit(
-      iamModule: FakeIamModule(
+      members: IamModuleMemberRepository(FakeIamModule(
         scenario: FakeIamScenario.memberInvitationForbidden,
-      ),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      )),
+      invitations: IamModuleInvitationRepository(FakeIamModule(
+        scenario: FakeIamScenario.memberInvitationForbidden,
+      )),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -106,8 +108,8 @@ void main() {
     );
     final module = RecordingIamModule(scripted);
     final cubit = OrganizationUsersCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(module),
+      invitations: IamModuleInvitationRepository(module),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -153,8 +155,8 @@ void main() {
       },
     );
     final cubit = OrganizationUsersCubit(
-      iamModule: scripted,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(scripted),
+      invitations: IamModuleInvitationRepository(scripted),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -209,8 +211,8 @@ void main() {
     );
 
     final cubit = OrganizationUsersCubit(
-      iamModule: scripted,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(scripted),
+      invitations: IamModuleInvitationRepository(scripted),
       searchDebounce: Duration.zero,
       clock: () => DateTime.utc(2026, 8, 5),
     );
@@ -287,8 +289,8 @@ void main() {
     );
 
     final cubit = OrganizationUsersCubit(
-      iamModule: scripted,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      members: IamModuleMemberRepository(scripted),
+      invitations: IamModuleInvitationRepository(scripted),
       searchDebounce: Duration.zero,
       clock: () => now,
     );

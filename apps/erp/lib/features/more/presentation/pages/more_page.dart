@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/session/session_controller.dart';
+import '../../../iam/data/organization_repository.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({
     super.key,
-    this.iamModule,
+    this.session,
+    this.organizations,
     this.accessCubit,
     this.tenantBlocked = false,
   });
 
-  final IIamModule? iamModule;
+  final SessionController? session;
+  final OrganizationRepository? organizations;
   final IamFeatureAccessCubit? accessCubit;
   final bool tenantBlocked;
 
@@ -69,7 +71,10 @@ class MorePage extends StatelessWidget {
 
     return BlocProvider(
       create: (_) {
-        final cubit = IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>());
+        final cubit = IamFeatureAccessCubit(
+          session: session ?? getIt<SessionController>(),
+          organizations: organizations ?? getIt<OrganizationRepository>(),
+        );
         // Tổ chức bị chặn: mọi RPC theo tổ chức đều bị từ chối → không gọi.
         if (!tenantBlocked) cubit.load();
         return cubit;

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../data/invitation_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../../shared/idempotency_key_factory.dart';
 import '../bloc/organization_invitation_detail_cubit.dart';
@@ -18,16 +18,14 @@ class OrganizationInvitationDetailPage extends StatelessWidget {
   const OrganizationInvitationDetailPage({
     super.key,
     required this.invitationId,
-    this.iamModule,
-    this.executionContext,
+    this.invitations,
     this.keyFactory,
     this.clock,
     this.cubit,
   });
 
   final String invitationId;
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final InvitationRepository? invitations;
   final IdempotencyKeyFactory? keyFactory;
   final DateTime Function()? clock;
   final OrganizationInvitationDetailCubit? cubit;
@@ -41,15 +39,13 @@ class OrganizationInvitationDetailPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationInvitationDetailPage requires iamModule + '
-      'executionContext or cubit',
+      invitations != null,
+      'OrganizationInvitationDetailPage requires invitations or cubit',
     );
     return BlocProvider(
       create: (_) => OrganizationInvitationDetailCubit(
         invitationId: invitationId,
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        invitations: invitations!,
         keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
       )..load(),
       child: _InvitationDetailView(clock: clock),

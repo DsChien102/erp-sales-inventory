@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../../data/member_repository.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/organization_member_detail_cubit.dart';
 import '../bloc/organization_member_detail_state.dart';
@@ -23,14 +23,12 @@ class OrganizationMemberDetailPage extends StatelessWidget {
   const OrganizationMemberDetailPage({
     super.key,
     required this.membershipId,
-    this.iamModule,
-    this.executionContext,
+    this.members,
     this.cubit,
   });
 
   final String membershipId;
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final MemberRepository? members;
   final OrganizationMemberDetailCubit? cubit;
 
   @override
@@ -42,15 +40,13 @@ class OrganizationMemberDetailPage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationMemberDetailPage requires iamModule + '
-      'executionContext or cubit',
+      members != null,
+      'OrganizationMemberDetailPage requires members or cubit',
     );
     return BlocProvider(
       create: (_) => OrganizationMemberDetailCubit(
         membershipId: membershipId,
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        members: members!,
       )..load(),
       child: const _MemberDetailView(),
     );

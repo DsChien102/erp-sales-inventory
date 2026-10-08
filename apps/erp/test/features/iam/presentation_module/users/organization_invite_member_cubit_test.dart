@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import '../../support/iam_module_repositories.dart';
 
 final class FakeInvitationRoleOptionsSource
     implements InvitationRoleOptionsSource {
@@ -27,8 +27,8 @@ void main() {
       FakeIamModule(scenario: FakeIamScenario.inviteOk),
     );
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(module),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -51,8 +51,8 @@ void main() {
       FakeIamModule(scenario: FakeIamScenario.inviteOk),
     );
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(module),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -68,8 +68,8 @@ void main() {
 
   test('delivery failed is create success with warning', () async {
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: FakeIamModule(scenario: FakeIamScenario.inviteDeliveryFailed),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(FakeIamModule(scenario: FakeIamScenario.inviteDeliveryFailed)),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -87,10 +87,10 @@ void main() {
 
   test('conflict keeps form without created invitation', () async {
     final cubit = OrganizationInviteMemberCubit(
-      iamModule: FakeIamModule(
+      session: testSessionController(),
+      invitations: IamModuleInvitationRepository(FakeIamModule(
         scenario: FakeIamScenario.inviteDuplicateMembership,
-      ),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      )),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
