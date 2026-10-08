@@ -120,7 +120,7 @@ Chi tiết từng việc:
 
 ## P1. Nền `core/` (2 ngày)
 
-**Trạng thái:** 🔄 Đang làm
+**Trạng thái:** ✅ Xong code, merge `7c455c6a7` (2026-10-08) — còn kiểm tay trên Dev theo plan 1-B mục 5
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
@@ -405,7 +405,7 @@ Chi tiết từng việc:
 | Phase | Trạng thái | PR | Ghi chú |
 |---|---|---|---|
 | P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
-| P1 | 🔄 | `16bcfe263` (1.1) | Branch `refactor/p1-core` |
+| P1 | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
 | P2 | ⬜ | | |
 | P3 | ⬜ | | |
 | P4 | ⬜ | | |
