@@ -1,16 +1,16 @@
 # Plan từng việc refactor
 
-Mỗi việc trong [PLAN.md](../PLAN.md) (mã `1.2`, `2A.3`, `3.5`…) có một file plan ở đây trước khi làm. **Claude viết plan và review; người dùng tự code.**
+Mỗi **plan** trong bảng Plan của từng phase ở [PLAN.md](../PLAN.md) (mã `1-A`, `2-B1`, `7-3`…; một plan gom nhiều việc nhỏ, khoảng 0,5–1,5 ngày làm) có một file ở đây trước khi làm. **Claude viết plan và review; người dùng tự code.**
 
 ```text
 plans/
   P1/1.1-cau-truc-core.md
-  P1/1.2-app-exception.md
-  P2/2A.1-create-tenant-for-owner.md
+  P1/1-A-app-exception-feature-mau.md
+  P2/2-B1-dang-ky-cua-hang.md
   ...
 ```
 
-Tên file: `<mã việc>-<tên ngắn không dấu>.md`.
+Tên file: `<mã plan>-<tên ngắn không dấu>.md`. Đầu file ghi các việc chi tiết mà plan gồm (cột "Gồm việc").
 
 ## Mẫu
 
