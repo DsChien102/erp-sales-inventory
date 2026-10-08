@@ -74,6 +74,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- Dời cấu hình môi trường từ `lib/configurations/` vào `lib/core/config/` (không đổi hành vi).
 - Inventory: RPC cặp cửa hàng/kho mặc định. Draft `inventory_default_pair.sql`.
 - Einvoice: bỏ nhật ký gọi MISA (`provider_interaction_records`). Mỗi lần gọi ghi trên dòng nghiệp vụ. Draft `001`, `012`.
 - Einvoice: đối soát lần gửi đọc thẳng dòng `invoice_deliveries` (`INVOICE_DELIVERY`). Kết quả xác định ghi `failure_source`; sự kiện cảnh báo không còn `attempt_id`. Draft `015`.

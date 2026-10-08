@@ -52,7 +52,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 
 | Việc | File plan | Plan | Làm | Review |
 |---|---|---|---|---|
-| 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | 📝 | ⬜ | ⬜ |
+| 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | 📝 | ✅ | ⬜ |
 
 
 ---
@@ -116,7 +116,7 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 
 | # | Plan | Làm | Review | Việc | Chi tiết |
 |---|---|---|---|---|---|
-| 1.1 | 📝 [plan](plans/P1/1.1-cau-truc-core.md) | ⬜ | ⬜ | Cấu trúc thư mục | Tạo `lib/core/{supabase,router,session,di,errors,formatting}` (đã có một phần, chỉnh lại) |
+| 1.1 | 📝 [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ⬜ | Cấu trúc thư mục | Dời `lib/configurations/` → `lib/core/config/` trên `refactor/p1-core` |
 | 1.2 | ⬜ | ⬜ | ⬜ | `AppException` + bộ map lỗi | Một lớp lỗi chung, map từ `PostgrestException.message` (mã `PERMISSION_DENIED`, `VALIDATION_ERROR`…) sang thông báo tiếng Việt. Gộp từ `exception_mapper.dart` và các `IamBlockedCodes` |
 | 1.3 | ⬜ | ⬜ | ⬜ | `SessionController` | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module |
 | 1.4 | ⬜ | ⬜ | ⬜ | Router guard | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active |
