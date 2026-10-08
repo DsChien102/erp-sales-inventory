@@ -76,6 +76,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- IAM tài khoản, hồ sơ tổ chức và đặt lại mật khẩu đi qua `AccountRepository`, `OrganizationRepository`, `AuthRepository`. Luật MST và mật khẩu nằm ở `core/validation`.
 - `AppException` đọc 3 định dạng lỗi RPC, lỗi Auth và lỗi mạng; `SupabaseRpc` là chỗ gọi RPC dùng chung. Lịch sử thao tác đi `PartnerRepository.getActionLogs`. Script `tool/check_feature_imports.dart` chặn import sai tầng cho `data/` và `logic/`.
 - Dời cấu hình môi trường từ `lib/configurations/` vào `lib/core/config/` (không đổi hành vi).
 - Inventory: RPC cặp cửa hàng/kho mặc định. Draft `inventory_default_pair.sql`.

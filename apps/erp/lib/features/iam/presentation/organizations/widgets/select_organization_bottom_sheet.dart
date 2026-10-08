@@ -14,6 +14,7 @@ class SelectOrganizationItemUiModel {
   final TenantLifecycleStatus status;
   final bool isCurrent;
   final bool isSelectable;
+  final bool isOwner;
 
   const SelectOrganizationItemUiModel({
     required this.id,
@@ -23,6 +24,7 @@ class SelectOrganizationItemUiModel {
     required this.status,
     this.isCurrent = false,
     this.isSelectable = true,
+    this.isOwner = false,
   });
 }
 

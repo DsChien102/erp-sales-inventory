@@ -1,85 +1,11 @@
+import 'package:erp/core/validation/password_policy.dart';
+import 'package:erp/features/iam/logic/password_reset_cubit.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
 
-/// Local scripted delegate for Cubit unit tests (ScriptedIamModule not in package).
-final class _ScriptedIamModule implements IIamModule {
-  _ScriptedIamModule({
-    required this.onCommand,
-    required this.onQuery,
-  });
-
-  final Future<Object?> Function(Object message) onCommand;
-  final Future<Object?> Function(Object message) onQuery;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(
-    ICommand<TResult> command,
-  ) async {
-    return await onCommand(command) as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    return await onQuery(query) as TResult;
-  }
-}
-
-final class _RecordingPageIamModule implements IIamModule {
-  _RecordingPageIamModule({
-    this.verifyResult = true,
-  });
-
-  final bool verifyResult;
-  Duration resendAvailableAfter = const Duration(seconds: 3);
-  final List<Type> commandTypes = <Type>[];
-  DateTime Function() clock = DateTime.now;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(
-    ICommand<TResult> command,
-  ) async {
-    commandTypes.add(command.runtimeType);
-    final now = clock().toUtc();
-    return switch (command) {
-      RequestMyPasswordResetCommand() =>
-        PasswordResetRequestResultDto(
-              operationId: 'op-1',
-              maskedEmail: 'l***@example.com',
-              expiresAt: now.add(const Duration(minutes: 10)),
-              resendAvailableAt: now.add(resendAvailableAfter),
-            )
-            as TResult,
-      ResendMyPasswordResetCommand() =>
-        PasswordResetRequestResultDto(
-              operationId: 'op-1',
-              maskedEmail: 'l***@example.com',
-              expiresAt: now.add(const Duration(minutes: 10)),
-              resendAvailableAt: now.add(const Duration(seconds: 3)),
-            )
-            as TResult,
-      VerifyMyPasswordResetCommand() =>
-        PasswordResetVerifyResultDto(verified: verifyResult) as TResult,
-      CompleteMyPasswordResetCommand() =>
-        const PasswordResetCompletionResultDto(
-              currentSessionRotated: true,
-              otherSessionsRevoked: true,
-            )
-            as TResult,
-      _ => throw UnsupportedError('${command.runtimeType}'),
-    };
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    throw UnsupportedError('${query.runtimeType}');
-  }
-}
+import '../../support/scripted_iam_repositories.dart';
 
 Future<void> _settleRequest(WidgetTester tester) async {
   await tester.pump();
@@ -108,92 +34,46 @@ Future<void> _verifyResetCode(WidgetTester tester, String code) async {
 void main() {
   group('PasswordResetCubit', () {
     test('failed initial request retries Request command', () async {
-      var requestCount = 0;
-      final scripted = _ScriptedIamModule(
-        onCommand: (message) async {
-          if (message is RequestMyPasswordResetCommand) {
-            requestCount += 1;
-            if (requestCount == 1) {
-              throw const IamBlockedException(IamBlockedCodes.systemError);
-            }
-            return PasswordResetRequestResultDto(
-              operationId: 'reset-op-1',
-              maskedEmail: 'l***@example.com',
-              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
-              resendAvailableAt: DateTime.utc(2026, 7, 31, 9, 1),
-            );
-          }
-          throw UnsupportedError(message.runtimeType.toString());
-        },
-        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
+      final auth = RecordingAuthRepository(
+        failFirstRequest: true,
+        clock: () => DateTime.utc(2026, 7, 31, 9),
       );
-      final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
-        iamModule: module,
+        authRepository: auth,
         clock: () => DateTime.utc(2026, 7, 31, 9),
       );
       await cubit.request();
       await cubit.retry();
-      expect(module.commandsOf<RequestMyPasswordResetCommand>(), hasLength(2));
-      expect(module.commandsOf<ResendMyPasswordResetCommand>(), isEmpty);
+      expect(auth.calls.where((call) => call == 'requestMy'), hasLength(2));
+      expect(auth.calls.where((call) => call.startsWith('resendMy')), isEmpty);
       await cubit.close();
     });
 
     test('public requestEmail uses by-email commands', () async {
-      final scripted = _ScriptedIamModule(
-        onCommand: (message) async {
-          if (message is RequestPasswordResetByEmailCommand) {
-            expect(message.email, 'lan@example.com');
-            return PasswordResetRequestResultDto(
-              operationId: 'op-public-1',
-              maskedEmail: 'l***@example.com',
-              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
-              resendAvailableAt: DateTime.utc(2026, 7, 31, 9, 1),
-            );
-          }
-          throw UnsupportedError(message.runtimeType.toString());
-        },
-        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
+      final auth = RecordingAuthRepository(
+        clock: () => DateTime.utc(2026, 7, 31, 9),
       );
-      final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
-        iamModule: module,
+        authRepository: auth,
         requestEmail: 'lan@example.com',
         clock: () => DateTime.utc(2026, 7, 31, 9),
       );
       await cubit.request();
-      expect(
-        module.commandsOf<RequestPasswordResetByEmailCommand>(),
-        hasLength(1),
-      );
-      expect(module.commandsOf<RequestMyPasswordResetCommand>(), isEmpty);
+      expect(auth.calls, ['requestByEmail:lan@example.com']);
       await cubit.close();
     });
 
     test('resend uses operationId returned by request', () async {
-      final scripted = _ScriptedIamModule(
-        onCommand: (message) async {
-          if (message is RequestMyPasswordResetCommand || message is ResendMyPasswordResetCommand) {
-            return PasswordResetRequestResultDto(
-              operationId: 'reset-op-1',
-              maskedEmail: 'l***@example.com',
-              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
-              resendAvailableAt: DateTime.utc(2026, 7, 31, 9),
-            );
-          }
-          throw UnsupportedError(message.runtimeType.toString());
-        },
-        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
+      final auth = RecordingAuthRepository(
+        clock: () => DateTime.utc(2026, 7, 31, 9),
       );
-      final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
-        iamModule: module,
+        authRepository: auth,
         clock: () => DateTime.utc(2026, 7, 31, 9),
       );
       await cubit.request();
       await cubit.resend();
-      final command = module.commandsOf<ResendMyPasswordResetCommand>().single;
-      expect(command.operationId, 'reset-op-1');
+      expect(auth.calls, contains('resendMy:op-1'));
       await cubit.close();
     });
   });
@@ -207,20 +87,19 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       var now = DateTime.utc(2026, 7, 31, 9);
-      final module = _RecordingPageIamModule();
-      module.clock = () => now;
+      final auth = RecordingAuthRepository(clock: () => now);
 
       await tester.pumpWidget(
         MaterialApp(
           home: ResetPasswordPage(
-            iamModule: module,
+            authRepository: auth,
             clock: () => now,
           ),
         ),
       );
       await _settleRequest(tester);
 
-      expect(module.commandTypes, contains(RequestMyPasswordResetCommand));
+      expect(auth.calls, contains('requestMy'));
       expect(
         find.textContaining('Mã 6 chữ số đã được gửi tới l***@example.com'),
         findsOneWidget,
@@ -245,7 +124,7 @@ void main() {
       await tester.tap(resendFinder);
       await _settleRequest(tester);
 
-      expect(module.commandTypes, contains(ResendMyPasswordResetCommand));
+      expect(auth.calls, contains('resendMy:op-1'));
       expect(
         find.byWidgetPredicate(
           (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
@@ -263,18 +142,18 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingPageIamModule(verifyResult: false);
+      final auth = RecordingAuthRepository(verifyResult: false);
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ResetPasswordPage(iamModule: module),
+          home: ResetPasswordPage(authRepository: auth),
         ),
       );
       await _settleRequest(tester);
 
       await _verifyResetCode(tester, '123456');
 
-      expect(module.commandTypes, contains(VerifyMyPasswordResetCommand));
+      expect(auth.calls, contains('verifyMy'));
       expect(find.text('Xác minh email'), findsOneWidget);
       expect(find.text('Tạo mật khẩu mới'), findsNothing);
     },
@@ -288,18 +167,18 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingPageIamModule();
+      final auth = RecordingAuthRepository();
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ResetPasswordPage(iamModule: module),
+          home: ResetPasswordPage(authRepository: auth),
         ),
       );
       await _settleRequest(tester);
 
       await _verifyResetCode(tester, '123456');
 
-      expect(module.commandTypes, contains(VerifyMyPasswordResetCommand));
+      expect(auth.calls, contains('verifyMy'));
       expect(find.text('Tạo mật khẩu mới'), findsOneWidget);
     },
   );
@@ -312,7 +191,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingPageIamModule();
+      final auth = RecordingAuthRepository();
       Object? popResult;
 
       await tester.pumpWidget(
@@ -324,7 +203,7 @@ void main() {
                   onPressed: () async {
                     popResult = await Navigator.of(context).push<Object?>(
                       MaterialPageRoute<Object?>(
-                        builder: (_) => ResetPasswordPage(iamModule: module),
+                        builder: (_) => ResetPasswordPage(authRepository: auth),
                       ),
                     );
                   },
@@ -351,10 +230,7 @@ void main() {
       await _settleRequest(tester);
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
-      expect(
-        module.commandTypes.where((t) => t == CompleteMyPasswordResetCommand).length,
-        1,
-      );
+      expect(auth.calls.where((call) => call == 'completeMy'), hasLength(1));
       expect(popResult, isTrue);
       expect(find.textContaining('Password#123'), findsNothing);
       expect(find.text('123456'), findsNothing);

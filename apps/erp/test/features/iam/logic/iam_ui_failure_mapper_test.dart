@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:erp/features/iam/presentation/shared/iam_ui_failure_mapper.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/iam/logic/iam_ui_failure_mapper.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {
@@ -128,6 +129,34 @@ void main() {
         'Tài khoản chưa thuộc tổ chức nào đang hoạt động.',
       );
       expect(failure.retryable, isFalse);
+    });
+
+    test('AppException NO_PERMISSION keeps the old permission sentence', () {
+      final failure = IamUiFailureMapper.from(
+        const AppException(AppErrorCode.noPermission),
+      );
+      expect(failure.code, IamBlockedCodes.permissionDenied);
+      expect(failure.message, 'Bạn không có quyền thực hiện thao tác này.');
+    });
+
+    test('AppException STATE_CHANGED requires reload', () {
+      final failure = IamUiFailureMapper.from(
+        const AppException(AppErrorCode.stateChanged),
+      );
+      expect(failure.code, IamBlockedCodes.stateChanged);
+      expect(failure.requiresReload, isTrue);
+    });
+
+    test('AppException NETWORK_ERROR uses the network sentence', () {
+      final failure = IamUiFailureMapper.from(
+        const AppException(AppErrorCode.network),
+      );
+      expect(failure.code, IamBlockedCodes.systemError);
+      expect(
+        failure.message,
+        'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
+      );
+      expect(failure.retryable, isTrue);
     });
 
     test('unknown error maps to SYSTEM_ERROR', () {

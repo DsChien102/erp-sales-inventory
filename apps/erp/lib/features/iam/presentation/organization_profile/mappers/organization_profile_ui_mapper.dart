@@ -1,10 +1,10 @@
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:vet45_iam_domain/domain.dart';
 
 import '../models/organization_profile_ui_model.dart';
 
 abstract final class OrganizationProfileUiMapper {
-  static OrganizationProfileUiModel fromTenant(TenantDto tenant) {
+  static OrganizationProfileUiModel fromTenant(TenantProfile tenant) {
     final legal = tenant.legalProfile;
     return OrganizationProfileUiModel(
       id: tenant.tenantId,
@@ -27,7 +27,7 @@ abstract final class OrganizationProfileUiMapper {
     );
   }
 
-  static LegalProfileUiModel fromLegal(TenantLegalProfileDto legal) {
+  static LegalProfileUiModel fromLegal(TenantLegalProfile legal) {
     return LegalProfileUiModel(
       entityType: legal.legalEntityType.code,
       entityTypeLabel: _entityTypeLabel(legal.legalEntityType),

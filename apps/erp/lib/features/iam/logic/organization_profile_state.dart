@@ -1,7 +1,7 @@
-import 'package:vet45_iam_application/application.dart';
-
-import '../../shared/iam_load_status.dart';
-import '../../shared/iam_ui_failure.dart';
+import '../data/models/tenant_profile.dart';
+import '../data/models/upsert_legal_profile_result.dart';
+import 'iam_load_status.dart';
+import 'iam_ui_failure.dart';
 import 'organization_profile_form_input.dart';
 
 final class OrganizationProfileState {
@@ -17,10 +17,10 @@ final class OrganizationProfileState {
   });
 
   final IamLoadStatus status;
-  final TenantDto? tenant;
+  final TenantProfile? tenant;
   final bool isSubmittingProfile;
   final bool isSubmittingLegal;
-  final DuplicateTaxCodeWarningDto? duplicateWarning;
+  final DuplicateTaxCodeWarning? duplicateWarning;
   final LegalProfileFormInput? pendingLegalInput;
   final IamUiFailure? failure;
   final String? successMessage;
@@ -29,10 +29,10 @@ final class OrganizationProfileState {
 
   OrganizationProfileState copyWith({
     IamLoadStatus? status,
-    TenantDto? tenant,
+    TenantProfile? tenant,
     bool? isSubmittingProfile,
     bool? isSubmittingLegal,
-    DuplicateTaxCodeWarningDto? duplicateWarning,
+    DuplicateTaxCodeWarning? duplicateWarning,
     LegalProfileFormInput? pendingLegalInput,
     IamUiFailure? failure,
     String? successMessage,
@@ -47,16 +47,10 @@ final class OrganizationProfileState {
       tenant: clearTenant ? null : (tenant ?? this.tenant),
       isSubmittingProfile: isSubmittingProfile ?? this.isSubmittingProfile,
       isSubmittingLegal: isSubmittingLegal ?? this.isSubmittingLegal,
-      duplicateWarning: clearDuplicate
-          ? null
-          : (duplicateWarning ?? this.duplicateWarning),
-      pendingLegalInput: clearPendingLegal
-          ? null
-          : (pendingLegalInput ?? this.pendingLegalInput),
+      duplicateWarning: clearDuplicate ? null : (duplicateWarning ?? this.duplicateWarning),
+      pendingLegalInput: clearPendingLegal ? null : (pendingLegalInput ?? this.pendingLegalInput),
       failure: clearFailure ? null : (failure ?? this.failure),
-      successMessage: clearSuccessMessage
-          ? null
-          : (successMessage ?? this.successMessage),
+      successMessage: clearSuccessMessage ? null : (successMessage ?? this.successMessage),
     );
   }
 }

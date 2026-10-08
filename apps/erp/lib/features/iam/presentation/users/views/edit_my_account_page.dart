@@ -1,11 +1,12 @@
+import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../shared/iam_load_status.dart';
-import '../bloc/my_account_edit_cubit.dart';
-import '../bloc/my_account_edit_state.dart';
+import '../../../logic/my_account_edit_cubit.dart';
+import '../../../logic/my_account_edit_state.dart';
 import 'my_account_page.dart';
 
 /// Trang Chỉnh sửa thông tin cá nhân (TA-D-02).
@@ -13,13 +14,13 @@ class EditMyAccountPage extends StatelessWidget {
   const EditMyAccountPage({
     super.key,
     this.data,
-    this.iamModule,
+    this.accountRepository,
     this.cubit,
   });
 
-  /// Test-only seed when [iamModule]/[cubit] are null. Production injects module.
+  /// Test-only seed when [accountRepository]/[cubit] are null.
   final MyAccountUiModel? data;
-  final IIamModule? iamModule;
+  final AccountRepository? accountRepository;
   final MyAccountEditCubit? cubit;
 
   @override
@@ -30,15 +31,15 @@ class EditMyAccountPage extends StatelessWidget {
         child: const _EditMyAccountBody(),
       );
     }
-    if (iamModule != null) {
+    if (accountRepository != null) {
       return BlocProvider(
-        create: (_) => MyAccountEditCubit(iamModule: iamModule!)..load(),
+        create: (_) => MyAccountEditCubit(accountRepository: accountRepository!)..load(),
         child: const _EditMyAccountBody(),
       );
     }
     assert(
       data != null,
-      'EditMyAccountPage requires data when iamModule/cubit is null',
+      'EditMyAccountPage requires data when accountRepository/cubit is null',
     );
     return _EditMyAccountSampleBody(data: data!);
   }
@@ -170,7 +171,7 @@ class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
     super.dispose();
   }
 
-  void _seedFromProfile(MyIdentityProfileDto profile) {
+  void _seedFromProfile(MyAccount profile) {
     if (_controllersSeeded) return;
     _controllersSeeded = true;
     _firstNameController.text = profile.firstName;

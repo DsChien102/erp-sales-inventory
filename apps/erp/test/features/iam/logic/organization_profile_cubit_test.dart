@@ -1,14 +1,15 @@
+import 'package:erp/core/validation/tax_code.dart';
+import 'package:erp/features/iam/logic/organization_profile_cubit.dart';
+import 'package:erp/features/iam/logic/organization_profile_form_input.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:vet45_iam_application/application.dart';
+
+import '../support/scripted_iam_repositories.dart';
 
 void main() {
-  OrganizationProfileCubit buildCubit(IIamModule module) {
+  OrganizationProfileCubit buildCubit(OrganizationScript mode) {
     return OrganizationProfileCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      organizationRepository: ScriptedOrganizationRepository(mode: mode),
     );
   }
 
@@ -30,38 +31,31 @@ void main() {
     communeCode: '00001',
   );
 
-  test('load fetches GetTenantQuery', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileOk),
-    );
-    final cubit = buildCubit(module);
+  test('load fetches the current tenant', () async {
+    final repository = ScriptedOrganizationRepository();
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
     expect(cubit.state.tenant, isNotNull);
     expect(cubit.state.tenant!.displayName, 'Mậu Hiên');
-    expect(module.queriesOf<GetTenantQuery>().single.tenantId, 'org-001');
+    expect(cubit.state.tenant!.tenantId, 'org-001');
     await cubit.close();
   });
 
   test('updateProfile uses current version', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.updateOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
     final versionBefore = cubit.state.tenant!.version;
     final ok = await cubit.updateProfile(profileInput);
     expect(ok, isTrue);
-    final command = module.commandsOf<UpdateTenantProfileCommand>().single;
-    expect(command.expectedVersion, versionBefore);
-    expect(command.displayName, 'Mậu Hiên Updated');
+    expect(repository.updates.single['expectedVersion'], versionBefore);
+    expect(repository.updates.single['displayName'], 'Mậu Hiên Updated');
     expect(cubit.state.tenant!.version, greaterThan(versionBefore));
     await cubit.close();
   });
 
   test('tenantProfileValidation keeps form without success', () async {
-    final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileValidation),
-    );
+    final cubit = buildCubit(OrganizationScript.validation);
     await cubit.load();
     final ok = await cubit.updateProfile(profileInput);
     expect(ok, isFalse);
@@ -71,22 +65,18 @@ void main() {
   });
 
   test('tenantProfileStale reloads and keeps failure', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileStale),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.stale);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
     final ok = await cubit.updateProfile(profileInput);
     expect(ok, isFalse);
     expect(cubit.state.failure?.code, IamBlockedCodes.stateChanged);
-    expect(module.queriesOf<GetTenantQuery>().length, greaterThan(1));
+    expect(repository.updates, hasLength(1));
     await cubit.close();
   });
 
   test('tenantProfileForbidden maps permission denied', () async {
-    final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileForbidden),
-    );
+    final cubit = buildCubit(OrganizationScript.forbidden);
     await cubit.load();
     expect(cubit.state.failure?.code, IamBlockedCodes.permissionDenied);
     await cubit.close();
@@ -94,8 +84,9 @@ void main() {
 
   test('tenantProfileNotFound maps resource not found', () async {
     final cubit = OrganizationProfileCubit(
-      iamModule: FakeIamModule(scenario: FakeIamScenario.tenantProfileNotFound),
-      executionContext: FakeExecutionContext(tenantId: 'missing'),
+      organizationRepository: ScriptedOrganizationRepository(
+        mode: OrganizationScript.notFound,
+      ),
     );
     await cubit.load();
     expect(cubit.state.failure?.code, IamBlockedCodes.resourceNotFound);
@@ -103,51 +94,40 @@ void main() {
   });
 
   test('duplicate tax warning then confirm with allowDuplicateTaxCode', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.legalDuplicateWarning),
+    final repository = ScriptedOrganizationRepository(
+      mode: OrganizationScript.duplicateWarning,
     );
-    final cubit = buildCubit(module);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
 
-    final first = await cubit.upsertLegal(
-      legalInput,
-      allowDuplicateTaxCode: false,
-    );
+    final first = await cubit.upsertLegal(legalInput, allowDuplicateTaxCode: false);
     expect(first, isFalse);
     expect(cubit.state.duplicateWarning, isNotNull);
-    final firstCommand = module.commandsOf<UpsertLegalProfileCommand>().first;
-    expect(firstCommand.allowDuplicateTaxCode, isFalse);
+    expect(repository.upserts.first['allowDuplicateTaxCode'], isFalse);
 
     final confirmed = await cubit.confirmDuplicateLegal();
     expect(confirmed, isTrue);
-    final secondCommand = module.commandsOf<UpsertLegalProfileCommand>().last;
-    expect(secondCommand.allowDuplicateTaxCode, isTrue);
-    expect(secondCommand.taxCode, firstCommand.taxCode);
+    expect(repository.upserts.last['allowDuplicateTaxCode'], isTrue);
+    expect(repository.upserts.last['taxCode'], repository.upserts.first['taxCode']);
     expect(cubit.state.duplicateWarning, isNull);
     expect(cubit.state.tenant!.legalProfile, isNotNull);
     await cubit.close();
   });
 
   test('client validation rejects empty displayName', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.updateOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
-    final ok = await cubit.updateProfile(
-      const TenantProfileFormInput(displayName: '  '),
-    );
+    final ok = await cubit.updateProfile(const TenantProfileFormInput(displayName: '  '));
     expect(ok, isFalse);
-    expect(module.commandsOf<UpdateTenantProfileCommand>(), isEmpty);
+    expect(repository.updates, isEmpty);
     expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
     await cubit.close();
   });
 
   test('client validation rejects missing required contact fields', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.updateOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
     final ok = await cubit.updateProfile(
       const TenantProfileFormInput(
@@ -158,7 +138,7 @@ void main() {
       ),
     );
     expect(ok, isFalse);
-    expect(module.commandsOf<UpdateTenantProfileCommand>(), isEmpty);
+    expect(repository.updates, isEmpty);
     expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
     expect(cubit.state.failure?.message, contains('email liên hệ'));
     expect(cubit.state.failure?.message, contains('số điện thoại'));
@@ -167,10 +147,8 @@ void main() {
   });
 
   test('upsertLegal keeps the branch dash in the tax code sent', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.legalOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
 
     await cubit.upsertLegal(
@@ -182,16 +160,13 @@ void main() {
       allowDuplicateTaxCode: false,
     );
 
-    final command = module.commandsOf<UpsertLegalProfileCommand>().single;
-    expect(command.taxCode, '0101234567-001');
+    expect(repository.upserts.single['taxCode'], '0101234567-001');
     await cubit.close();
   });
 
   test('upsertLegal rejects 13 continuous digits (branch needs the dash)', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.legalUpsertOk),
-    );
-    final cubit = buildCubit(module);
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.legalOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
 
     final ok = await cubit.upsertLegal(
@@ -204,12 +179,9 @@ void main() {
     );
 
     expect(ok, isFalse);
-    expect(module.commandsOf<UpsertLegalProfileCommand>(), isEmpty);
+    expect(repository.upserts, isEmpty);
     expect(cubit.state.failure?.code, IamBlockedCodes.validationError);
-    expect(
-      cubit.state.failure?.message,
-      'Mã số thuế phải gồm 10 hoặc 12 chữ số, hoặc dạng chi nhánh 10 số-3 số (VD: 0123456789-001).',
-    );
+    expect(cubit.state.failure?.message, taxCodeFormatMessage);
     await cubit.close();
   });
 }

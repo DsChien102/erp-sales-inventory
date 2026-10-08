@@ -1,6 +1,5 @@
-import 'package:vet45_iam_application/application.dart';
-
-import '../../shared/iam_ui_failure.dart';
+import '../data/models/password_reset_result.dart';
+import 'iam_ui_failure.dart';
 
 enum PasswordResetStep { initial, verifyCode, createNewPassword }
 
@@ -16,10 +15,10 @@ final class PasswordResetState {
   });
 
   final PasswordResetStep step;
-  final PasswordResetRequestResultDto? request;
+  final PasswordResetRequestResult? request;
   final bool isSubmitting;
   final bool verified;
-  final PasswordResetCompletionResultDto? completion;
+  final PasswordResetCompletionResult? completion;
   final IamUiFailure? failure;
   final DateTime nowUtc;
 
@@ -39,10 +38,10 @@ final class PasswordResetState {
 
   PasswordResetState copyWith({
     PasswordResetStep? step,
-    PasswordResetRequestResultDto? request,
+    PasswordResetRequestResult? request,
     bool? isSubmitting,
     bool? verified,
-    PasswordResetCompletionResultDto? completion,
+    PasswordResetCompletionResult? completion,
     IamUiFailure? failure,
     DateTime? nowUtc,
     bool clearFailure = false,

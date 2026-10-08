@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../../organizations/widgets/organization_empty_view.dart';
 import '../../shared/iam_load_status.dart';
-import '../bloc/organization_profile_cubit.dart';
-import '../bloc/organization_profile_state.dart';
+import '../../../logic/organization_profile_cubit.dart';
+import '../../../logic/organization_profile_state.dart';
 import '../mappers/organization_profile_ui_mapper.dart';
 import '../models/organization_profile_ui_model.dart';
 import '../widgets/organization_profile_actions_bottom_sheet.dart';
@@ -17,13 +17,11 @@ import '../widgets/organization_profile_actions_bottom_sheet.dart';
 class OrganizationProfilePage extends StatelessWidget {
   const OrganizationProfilePage({
     super.key,
-    this.iamModule,
-    this.executionContext,
+    this.organizationRepository,
     this.cubit,
   });
 
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final OrganizationRepository? organizationRepository;
   final OrganizationProfileCubit? cubit;
 
   @override
@@ -35,13 +33,12 @@ class OrganizationProfilePage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationProfilePage requires iamModule + executionContext or cubit',
+      organizationRepository != null,
+      'OrganizationProfilePage requires organizationRepository or cubit',
     );
     return BlocProvider(
       create: (_) => OrganizationProfileCubit(
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        organizationRepository: organizationRepository!,
       )..load(),
       child: const _OrganizationProfileView(),
     );

@@ -13,6 +13,9 @@ import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
+import 'package:erp/features/auth/data/auth_repository.dart';
+import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 // Sales (typed routes via go_router_builder)
@@ -114,7 +117,7 @@ final appRouter = GoRouter(
           builder: (context, state) {
             final email = state.extra as String? ?? '';
             return ResetPasswordPage(
-              iamModule: getIt<IIamModule>(),
+              authRepository: getIt<AuthRepository>(),
               requestEmail: email,
             );
           },
@@ -278,7 +281,9 @@ final appRouter = GoRouter(
       path: '/more/my-account',
       name: 'more.my-account',
       builder: (context, state) => MyAccountPage(
-        iamModule: getIt<IIamModule>(),
+        accountRepository: getIt<AccountRepository>(),
+        authRepository: getIt<AuthRepository>(),
+        session: getIt<SessionController>(),
         onLogout: () async {
           try {
             final result = await getIt<SessionController>().signOut();
@@ -317,14 +322,14 @@ final appRouter = GoRouter(
       path: '/more/my-account/edit',
       name: 'more.my-account.edit',
       builder: (context, state) => EditMyAccountPage(
-        iamModule: getIt<IIamModule>(),
+        accountRepository: getIt<AccountRepository>(),
       ),
     ),
     GoRoute(
       path: '/more/my-account/reset-password',
       name: 'more.my-account.reset-password',
       builder: (context, state) => ResetPasswordPage(
-        iamModule: getIt<IIamModule>(),
+        authRepository: getIt<AuthRepository>(),
       ),
     ),
     GoRoute(
@@ -338,8 +343,7 @@ final appRouter = GoRouter(
           );
         }
         return OrganizationProfilePage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          organizationRepository: getIt<OrganizationRepository>(),
         );
       },
     ),
@@ -354,8 +358,7 @@ final appRouter = GoRouter(
           return OrganizationEditProfilePage(cubit: cubit);
         }
         return OrganizationEditProfilePage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          organizationRepository: getIt<OrganizationRepository>(),
         );
       },
     ),
@@ -370,8 +373,7 @@ final appRouter = GoRouter(
           return OrganizationLegalProfileFormPage(cubit: cubit);
         }
         return OrganizationLegalProfileFormPage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          organizationRepository: getIt<OrganizationRepository>(),
         );
       },
     ),

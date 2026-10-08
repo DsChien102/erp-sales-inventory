@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/validation/password_policy.dart';
 
 /// ID-D-02 — Trang Kích hoạt tài khoản cho người được mời chưa có tài khoản.
 ///

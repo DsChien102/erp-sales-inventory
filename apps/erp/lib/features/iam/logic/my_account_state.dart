@@ -1,7 +1,6 @@
-import 'package:vet45_iam_application/application.dart';
-
-import '../../shared/iam_load_status.dart';
-import '../../shared/iam_ui_failure.dart';
+import '../data/models/my_account.dart';
+import 'iam_load_status.dart';
+import 'iam_ui_failure.dart';
 
 final class MyAccountState {
   const MyAccountState({
@@ -12,13 +11,13 @@ final class MyAccountState {
   });
 
   final IamLoadStatus status;
-  final MyIdentityProfileDto? profile;
+  final MyAccount? profile;
   final IamUiFailure? failure;
   final bool isOwner;
 
   MyAccountState copyWith({
     IamLoadStatus? status,
-    MyIdentityProfileDto? profile,
+    MyAccount? profile,
     IamUiFailure? failure,
     bool? isOwner,
     bool clearFailure = false,

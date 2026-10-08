@@ -17,6 +17,9 @@ import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../features/auth/data/auth_repository.dart';
+import '../../features/iam/data/account_repository.dart';
+import '../../features/iam/data/organization_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../router/session_refresh.dart';
 import '../session/session_controller.dart';
@@ -87,6 +90,24 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
       () => PartnerRepository(
         rpc: getIt<SupabaseRpc>(),
         tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<AccountRepository>(
+      () => AccountRepository(
+        rpc: getIt<SupabaseRpc>(),
+        auth: supabaseModule.client.auth,
+      ),
+    )
+    ..registerLazySingleton<OrganizationRepository>(
+      () => OrganizationRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthRepository(
+        rpc: getIt<SupabaseRpc>(),
+        auth: supabaseModule.client.auth,
       ),
     );
 

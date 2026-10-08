@@ -1,11 +1,14 @@
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/auth/data/auth_repository.dart';
+import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../shared/iam_load_status.dart';
-import '../bloc/my_account_cubit.dart';
-import '../bloc/my_account_state.dart';
+import '../../../logic/my_account_cubit.dart';
+import '../../../logic/my_account_state.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/my_account_actions_bottom_sheet.dart';
 import 'edit_my_account_page.dart';
@@ -36,7 +39,7 @@ class MyAccountUiModel {
   bool get hasName => fullName.isNotEmpty;
 
   factory MyAccountUiModel.fromDto(
-    MyIdentityProfileDto dto, {
+    MyAccount dto, {
     bool isOwner = false,
   }) {
     return MyAccountUiModel(
@@ -65,14 +68,18 @@ class MyAccountPage extends StatelessWidget {
     super.key,
     this.data,
     this.onLogout,
-    this.iamModule,
+    this.accountRepository,
+    this.authRepository,
+    this.session,
     this.cubit,
   });
 
-  /// Test-only seed when [iamModule]/[cubit] are null. Production injects module.
+  /// Test-only seed when repositories/[cubit] are null.
   final MyAccountUiModel? data;
   final Future<void> Function()? onLogout;
-  final IIamModule? iamModule;
+  final AccountRepository? accountRepository;
+  final AuthRepository? authRepository;
+  final SessionController? session;
   final MyAccountCubit? cubit;
 
   @override
@@ -80,18 +87,29 @@ class MyAccountPage extends StatelessWidget {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _MyAccountBody(onLogout: onLogout),
+        child: _MyAccountBody(
+          onLogout: onLogout,
+          accountRepository: accountRepository,
+          authRepository: authRepository,
+        ),
       );
     }
-    if (iamModule != null) {
+    if (accountRepository != null && session != null) {
       return BlocProvider(
-        create: (_) => MyAccountCubit(iamModule: iamModule!)..load(),
-        child: _MyAccountBody(onLogout: onLogout),
+        create: (_) => MyAccountCubit(
+          accountRepository: accountRepository!,
+          session: session!,
+        )..load(),
+        child: _MyAccountBody(
+          onLogout: onLogout,
+          accountRepository: accountRepository,
+          authRepository: authRepository,
+        ),
       );
     }
     assert(
       data != null,
-      'MyAccountPage requires data when iamModule/cubit is null',
+      'MyAccountPage requires data when repositories/cubit are null',
     );
     return _MyAccountSampleBody(
       data: data!,
@@ -190,9 +208,15 @@ class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
 }
 
 class _MyAccountBody extends StatefulWidget {
-  const _MyAccountBody({this.onLogout});
+  const _MyAccountBody({
+    this.onLogout,
+    this.accountRepository,
+    this.authRepository,
+  });
 
   final Future<void> Function()? onLogout;
+  final AccountRepository? accountRepository;
+  final AuthRepository? authRepository;
 
   @override
   State<_MyAccountBody> createState() => _MyAccountBodyState();
@@ -217,10 +241,7 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
     return '${local.substring(0, 2)}***$domain';
   }
 
-  Future<void> _showActionsBottomSheet(
-    MyAccountUiModel accountData,
-    IIamModule iamModule,
-  ) async {
+  Future<void> _showActionsBottomSheet(MyAccountUiModel accountData) async {
     setState(() => _isActionsOpen = true);
     final accountCubit = context.read<MyAccountCubit>();
 
@@ -230,8 +251,7 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
         final updated = await Navigator.of(context).push<MyAccountUiModel>(
           MaterialPageRoute(
             builder: (context) => EditMyAccountPage(
-              data: accountData,
-              iamModule: iamModule,
+              accountRepository: widget.accountRepository,
             ),
           ),
         );
@@ -251,7 +271,7 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
           MaterialPageRoute(
             builder: (context) => ResetPasswordPage(
               emailMasked: _maskEmail(accountData.email),
-              iamModule: iamModule,
+              authRepository: widget.authRepository,
             ),
           ),
         );
@@ -321,12 +341,10 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
           state.profile!,
           isOwner: state.isOwner,
         );
-        final iamModule = context.read<MyAccountCubit>().iamModule;
-
         return _MyAccountScaffold(
           accountData: accountData,
           isActionsOpen: _isActionsOpen,
-          onShowActions: () => _showActionsBottomSheet(accountData, iamModule),
+          onShowActions: () => _showActionsBottomSheet(accountData),
         );
       },
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/validation/password_policy.dart';
 
 /// Step 2 — create new password after code verified.
 class ResetPasswordCreatePasswordStep extends StatelessWidget {

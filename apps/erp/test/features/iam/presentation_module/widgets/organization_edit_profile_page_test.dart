@@ -1,10 +1,10 @@
+import 'package:erp/features/iam/logic/organization_profile_cubit.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../support/scripted_iam_repositories.dart';
 
 void main() {
   testWidgets('wgt_e02_u02_fr01_01: edit profile submits UpdateTenantProfileCommand', (
@@ -15,13 +15,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
-    );
-    final cubit = OrganizationProfileCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
-    );
+    final repository = ScriptedOrganizationRepository(mode: OrganizationScript.updateOk);
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
 
     await tester.pumpWidget(
@@ -38,11 +33,8 @@ void main() {
     await tester.tap(find.widgetWithText(VButton, 'Lưu thay đổi'));
     await tester.pumpAndSettle();
 
-    expect(module.commandsOf<UpdateTenantProfileCommand>(), hasLength(1));
-    expect(
-      module.commandsOf<UpdateTenantProfileCommand>().single.displayName,
-      'Mậu Hiên Updated',
-    );
+    expect(repository.updates, hasLength(1));
+    expect(repository.updates.single['displayName'], 'Mậu Hiên Updated');
     await cubit.close();
   });
 
@@ -53,8 +45,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = OrganizationProfileCubit(
-      iamModule: FakeIamModule(scenario: FakeIamScenario.tenantProfileOk),
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      organizationRepository: ScriptedOrganizationRepository(),
     );
     await cubit.load();
 

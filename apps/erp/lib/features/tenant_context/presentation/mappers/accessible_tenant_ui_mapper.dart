@@ -20,6 +20,7 @@ final class AccessibleTenantUiMapper {
       status: dto.status,
       isCurrent: dto.isCurrent,
       isSelectable: isSelectable,
+      isOwner: dto.isOwner,
     );
   }
 

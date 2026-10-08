@@ -1,22 +1,31 @@
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../iam/support/scripted_iam_repositories.dart';
 
 /// e2e_e06_u01/u02/u03/u04 — ERP My Account via FakeIamModule (Group E / S14).
 void main() {
   final getIt = GetIt.instance;
+  final sessions = <SessionController>[];
 
   setUp(() async {
     await getIt.reset();
   });
 
   tearDown(() async {
+    for (final controller in sessions) {
+      await controller.close();
+    }
+    sessions.clear();
     await getIt.reset();
   });
 
@@ -26,7 +35,20 @@ void main() {
       ..registerSingleton<IIamModule>(module);
   }
 
-  Widget wrap(FakeIamModule module, {bool warnRemoteSignOut = false}) {
+  SessionController sessionFor(IIamModule module) {
+    final controller = SessionController(iamModule: module);
+    sessions.add(controller);
+    return controller;
+  }
+
+  Widget wrap(
+    FakeIamModule module, {
+    bool warnRemoteSignOut = false,
+    ScriptedAccountRepository? account,
+    RecordingAuthRepository? auth,
+  }) {
+    final accountRepository = account ?? ScriptedAccountRepository();
+    final authRepository = auth ?? RecordingAuthRepository();
     final router = GoRouter(
       initialLocation: '/more/my-account',
       routes: [
@@ -39,7 +61,9 @@ void main() {
         GoRoute(
           path: '/more/my-account',
           builder: (context, state) => MyAccountPage(
-            iamModule: module,
+            accountRepository: accountRepository,
+            authRepository: authRepository,
+            session: sessionFor(module),
             onLogout: () async {
               final result = await module.executeCommandAsync<SignOutResultDto>(SignOutCommand());
               if (!result.localCleared) return;
@@ -57,11 +81,15 @@ void main() {
         ),
         GoRoute(
           path: '/more/my-account/edit',
-          builder: (context, state) => EditMyAccountPage(iamModule: module),
+          builder: (context, state) => EditMyAccountPage(
+            accountRepository: accountRepository,
+          ),
         ),
         GoRoute(
           path: '/more/my-account/reset-password',
-          builder: (context, state) => ResetPasswordPage(iamModule: module),
+          builder: (context, state) => ResetPasswordPage(
+            authRepository: authRepository,
+          ),
         ),
       ],
     );

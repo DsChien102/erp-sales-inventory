@@ -1,8 +1,8 @@
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../support/scripted_iam_repositories.dart';
 
 void main() {
   testWidgets('wgt_e02_u01_fr01_01: loads tenant profile without mock defaults', (tester) async {
@@ -14,8 +14,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationProfilePage(
-          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantProfileOk),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          organizationRepository: ScriptedOrganizationRepository(),
         ),
       ),
     );
@@ -44,9 +43,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationProfilePage(
-          iamModule:
-              FakeIamModule(scenario: FakeIamScenario.tenantProfileForbidden),
-          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          organizationRepository: ScriptedOrganizationRepository(
+            mode: OrganizationScript.forbidden,
+          ),
         ),
       ),
     );

@@ -12,6 +12,8 @@ import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../iam/support/scripted_iam_repositories.dart';
+
 void main() {
   setUp(() async {
     await getIt.reset();
@@ -180,6 +182,7 @@ void main() {
       final module = RecordingIamModule(
         FakeIamModule(scenario: FakeIamScenario.passwordResetByEmailOk),
       );
+      final auth = RecordingAuthRepository();
       final cubit = LoginCubit(iamModule: module);
       addTearDown(cubit.close);
 
@@ -193,7 +196,7 @@ void main() {
               GoRoute(
                 path: 'reset-password',
                 builder: (context, state) => ResetPasswordPage(
-                  iamModule: module,
+                  authRepository: auth,
                   requestEmail: state.extra as String? ?? '',
                 ),
               ),
@@ -215,15 +218,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Xác minh email'), findsOneWidget);
-      expect(
-        module.commands.whereType<RequestPasswordResetByEmailCommand>(),
-        hasLength(1),
-      );
-      expect(
-        module.commands.whereType<RequestPasswordResetByEmailCommand>().single.email,
-        'lan@example.com',
-      );
-      expect(module.commands.whereType<RequestMyPasswordResetCommand>(), isEmpty);
+      expect(auth.calls, ['requestByEmail:lan@example.com']);
     },
   );
 

@@ -1,3 +1,5 @@
+import 'package:erp/features/iam/logic/organization_profile_cubit.dart';
+import 'package:erp/features/iam/logic/organization_profile_form_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -5,9 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../iam/support/scripted_iam_repositories.dart';
 
 final class _AuditAcceptanceIamModule implements IIamModule {
   static const activationAuditId = 'AUD-T-ACTIVATE-042';
@@ -188,10 +191,7 @@ void main() {
     'e2e_e02_u01_fr01_01: load profile → edit → UpdateTenantProfileCommand',
     (tester) async {
       await phone(tester);
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
-      );
-      register(module);
+      final repository = ScriptedOrganizationRepository(mode: OrganizationScript.updateOk);
 
       final router = GoRouter(
         initialLocation: '/more/organization-profile',
@@ -199,16 +199,14 @@ void main() {
           GoRoute(
             path: '/more/organization-profile',
             builder: (context, state) => OrganizationProfilePage(
-              iamModule: module,
-              executionContext: FakeExecutionContext(tenantId: 'org-001'),
+              organizationRepository: repository,
             ),
           ),
           GoRoute(
             path: '/more/organization-profile/edit',
             builder: (context, state) {
               final cubit = OrganizationProfileCubit(
-                iamModule: module,
-                executionContext: FakeExecutionContext(tenantId: 'org-001'),
+                organizationRepository: repository,
               )..load();
               return OrganizationEditProfilePage(cubit: cubit);
             },
@@ -236,7 +234,7 @@ void main() {
       await tester.tap(find.widgetWithText(VButton, 'Lưu thay đổi'));
       await tester.pumpAndSettle();
 
-      expect(module.commandsOf<UpdateTenantProfileCommand>(), hasLength(1));
+      expect(repository.updates, hasLength(1));
     },
   );
 
@@ -244,15 +242,11 @@ void main() {
     'e2e_e02_u01_fr01_02: legal duplicate warning then confirm',
     (tester) async {
       await phone(tester);
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.legalDuplicateWarning),
+      final repository = ScriptedOrganizationRepository(
+        mode: OrganizationScript.duplicateWarning,
       );
-      register(module);
 
-      final cubit = OrganizationProfileCubit(
-        iamModule: module,
-        executionContext: FakeExecutionContext(tenantId: 'org-001'),
-      );
+      final cubit = OrganizationProfileCubit(organizationRepository: repository);
       await cubit.load();
 
       await tester.pumpWidget(
@@ -273,10 +267,7 @@ void main() {
       await tester.tap(find.widgetWithText(VButton, 'Vẫn lưu'));
       await tester.pumpAndSettle();
 
-      expect(
-        module.commandsOf<UpsertLegalProfileCommand>(),
-        isNotEmpty,
-      );
+      expect(repository.upserts, isNotEmpty);
       await cubit.close();
     },
   );
@@ -285,14 +276,10 @@ void main() {
     'e2e_e02_u01_fr01_03: profile STATE_CHANGED / stale version surfaces failure',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
-        scenario: FakeIamScenario.tenantProfileStale,
-      );
-      register(module);
-
       final cubit = OrganizationProfileCubit(
-        iamModule: module,
-        executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        organizationRepository: ScriptedOrganizationRepository(
+          mode: OrganizationScript.stale,
+        ),
       );
       await cubit.load();
 

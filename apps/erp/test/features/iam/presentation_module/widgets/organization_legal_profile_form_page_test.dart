@@ -1,10 +1,10 @@
+import 'package:erp/features/iam/logic/organization_profile_cubit.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../support/scripted_iam_repositories.dart';
 
 void main() {
   testWidgets('wgt_e02_u03_fr01_01: legal form does not use endsWith 999 simulation', (tester) async {
@@ -13,13 +13,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantProfileOk),
-    );
-    final cubit = OrganizationProfileCubit(
-      iamModule: module,
-      executionContext: FakeExecutionContext(tenantId: 'org-001'),
-    );
+    final repository = ScriptedOrganizationRepository();
+    final cubit = OrganizationProfileCubit(organizationRepository: repository);
     await cubit.load();
 
     await tester.pumpWidget(
@@ -40,7 +35,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Mã số thuế đã được ghi nhận'), findsNothing);
-    expect(module.commandsOf<UpsertLegalProfileCommand>(), hasLength(1));
+    expect(repository.upserts, hasLength(1));
     await cubit.close();
   });
 }

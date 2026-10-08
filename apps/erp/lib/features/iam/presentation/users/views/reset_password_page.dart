@@ -1,14 +1,14 @@
 import 'dart:async';
 
+import 'package:erp/core/validation/password_policy.dart';
+import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
 
 import '../../shared/iam_ui_failure.dart';
-import '../bloc/password_reset_cubit.dart';
-import '../bloc/password_reset_state.dart';
+import '../../../logic/password_reset_cubit.dart';
+import '../../../logic/password_reset_state.dart';
 import '../widgets/reset_password_create_password_step.dart';
 import '../widgets/reset_password_verify_code_step.dart';
 
@@ -18,7 +18,7 @@ class ResetPasswordPage extends StatelessWidget {
     super.key,
     this.emailMasked = '',
     this.requestEmail,
-    this.iamModule,
+    this.authRepository,
     this.cubit,
     this.clock,
   });
@@ -27,7 +27,7 @@ class ResetPasswordPage extends StatelessWidget {
 
   /// Logged-out forgot-password: request a code for this email (public commands).
   final String? requestEmail;
-  final IIamModule? iamModule;
+  final AuthRepository? authRepository;
   final PasswordResetCubit? cubit;
   final DateTime Function()? clock;
 
@@ -39,11 +39,11 @@ class ResetPasswordPage extends StatelessWidget {
         child: const _ResetPasswordBody(),
       );
     }
-    if (iamModule != null) {
+    if (authRepository != null) {
       return BlocProvider(
         create: (_) {
           final created = PasswordResetCubit(
-            iamModule: iamModule!,
+            authRepository: authRepository!,
             requestEmail: requestEmail,
             clock: clock,
           );

@@ -1,16 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
 
-import '../../shared/iam_load_status.dart';
-import '../../shared/iam_ui_failure_mapper.dart';
+import '../data/account_repository.dart';
+import 'iam_load_status.dart';
+import 'iam_ui_failure.dart';
+import 'iam_ui_failure_mapper.dart';
 import 'my_account_edit_state.dart';
 
 final class MyAccountEditCubit extends Cubit<MyAccountEditState> {
-  MyAccountEditCubit({required IIamModule iamModule})
-    : _iamModule = iamModule,
+  MyAccountEditCubit({required AccountRepository accountRepository})
+    : _accountRepository = accountRepository,
       super(const MyAccountEditState());
 
-  final IIamModule _iamModule;
+  final AccountRepository _accountRepository;
 
   Future<void> load() async {
     if (isClosed) return;
@@ -23,9 +25,7 @@ final class MyAccountEditCubit extends Cubit<MyAccountEditState> {
     );
 
     try {
-      final profile = await _iamModule.executeQueryAsync<MyIdentityProfileDto>(
-        GetMyIdentityProfileQuery(),
-      );
+      final profile = await _accountRepository.getMyAccount();
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -54,14 +54,25 @@ final class MyAccountEditCubit extends Cubit<MyAccountEditState> {
     if (isClosed || state.isSubmitting) return false;
     emit(state.copyWith(isSubmitting: true, clearFailure: true, clearSaved: true));
 
-    try {
-      final saved = await _iamModule.executeCommandAsync<MyIdentityProfileDto>(
-        UpdateMyIdentityProfileCommand(
-          firstName: firstName,
-          lastName: lastName,
-          phoneNumber: phoneNumber,
-          avatarUrl: avatarUrl,
+    if (firstName.trim().isEmpty || lastName.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          failure: IamUiFailure(
+            code: IamBlockedCodes.validationError,
+            message: firstName.trim().isEmpty ? 'firstName is required' : 'lastName is required',
+          ),
         ),
+      );
+      return false;
+    }
+
+    try {
+      final saved = await _accountRepository.updateMyAccount(
+        avatarReference: avatarUrl,
+        givenName: firstName,
+        familyName: lastName,
+        phone: phoneNumber,
       );
       if (isClosed) return false;
       emit(

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../../organizations/widgets/organization_empty_view.dart';
 import '../../shared/iam_load_status.dart';
-import '../bloc/organization_profile_cubit.dart';
-import '../bloc/organization_profile_form_input.dart';
-import '../bloc/organization_profile_state.dart';
+import '../../../logic/organization_profile_cubit.dart';
+import '../../../logic/organization_profile_form_input.dart';
+import '../../../logic/organization_profile_state.dart';
 import '../data/vn_administrative_units_loader.dart';
 import '../mappers/organization_profile_ui_mapper.dart';
 import '../widgets/administrative_units_form_section.dart';
@@ -17,13 +17,11 @@ import '../widgets/administrative_units_form_section.dart';
 class OrganizationEditProfilePage extends StatelessWidget {
   const OrganizationEditProfilePage({
     super.key,
-    this.iamModule,
-    this.executionContext,
+    this.organizationRepository,
     this.cubit,
   });
 
-  final IIamModule? iamModule;
-  final IExecutionContext? executionContext;
+  final OrganizationRepository? organizationRepository;
   final OrganizationProfileCubit? cubit;
 
   @override
@@ -35,13 +33,12 @@ class OrganizationEditProfilePage extends StatelessWidget {
       );
     }
     assert(
-      iamModule != null && executionContext != null,
-      'OrganizationEditProfilePage requires iamModule + executionContext or cubit',
+      organizationRepository != null,
+      'OrganizationEditProfilePage requires organizationRepository or cubit',
     );
     return BlocProvider(
       create: (_) => OrganizationProfileCubit(
-        iamModule: iamModule!,
-        executionContext: executionContext!,
+        organizationRepository: organizationRepository!,
       )..load(),
       child: const _EditProfileView(),
     );
