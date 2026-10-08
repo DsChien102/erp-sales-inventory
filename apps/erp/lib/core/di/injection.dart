@@ -17,8 +17,10 @@ import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
-import '../supabase/supabase_module.dart';
+import '../../features/partner/data/partner_repository.dart';
 import '../session/restore_persisted_auth_session.dart';
+import '../supabase/supabase_module.dart';
+import '../supabase/supabase_rpc.dart';
 
 final getIt = GetIt.instance;
 
@@ -68,6 +70,15 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<ICurrentUser>(iamRuntime.session)
     ..registerSingleton<ICurrentTenant>(iamRuntime.session)
     ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
+
+  getIt
+    ..registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client))
+    ..registerLazySingleton<PartnerRepository>(
+      () => PartnerRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<IExecutionContext>().requireTenantId(),
+      ),
+    );
 
   final catalogModule = CatalogStartup.initialize(
     supabase: supabaseModule.client,

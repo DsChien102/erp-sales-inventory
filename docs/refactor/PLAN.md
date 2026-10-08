@@ -53,7 +53,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | Việc | File plan | Plan | Làm | Review |
 |---|---|---|---|---|
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
-| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | 📝 | ⬜ | ⬜ |
+| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
 
 
 ---
@@ -124,7 +124,7 @@ Chi tiết từng việc:
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **1.1** | Cấu trúc thư mục `core/` | 1.1 | ✅ [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ |
-| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | 📝 [plan](plans/P1/1-A-app-exception-feature-mau.md) | ⬜ | ⬜ |
+| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ✅ [plan](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ |
 | **1-B** | `SessionController` + router guard 6 trường hợp | 1.3, 1.4 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:

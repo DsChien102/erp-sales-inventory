@@ -64,6 +64,7 @@ import '../../features/partner/presentation/pages/partner_contacts_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
 import '../../features/partner/presentation/pages/partner_transform_page.dart';
+import '../../features/partner/data/partner_repository.dart';
 import '../../features/partner/presentation/pages/partner_change_history_page.dart';
 
 // Pricing
@@ -558,8 +559,7 @@ final appRouter = GoRouter(
         return PartnerChangeHistoryPage(
           partnerId: partnerId,
           partnerName: partnerName,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<PartnerRepository>(),
         );
       },
     ),

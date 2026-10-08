@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../support/partner_action_log_diff.dart';
+import 'partner_action_log_diff.dart';
 
 enum PartnerChangeHistoryStatus {
   initial,
@@ -30,14 +30,14 @@ class PartnerChangeHistoryEntry extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        occurredAt,
-        actorDisplayName,
-        changeType,
-        summary,
-        reason,
-        changes,
-      ];
+    id,
+    occurredAt,
+    actorDisplayName,
+    changeType,
+    summary,
+    reason,
+    changes,
+  ];
 }
 
 class PartnerChangeHistoryState extends Equatable {

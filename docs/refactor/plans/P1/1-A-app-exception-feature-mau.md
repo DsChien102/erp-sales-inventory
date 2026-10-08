@@ -1,6 +1,6 @@
 # 1-A — `AppException`, bộ gọi RPC dùng chung, feature mẫu `partner_change_history`, kiểm tra import
 
-> Phase: P1 · Bước (a) chuyển kiến trúc · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P1 · Bước (a) chuyển kiến trúc · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 1.2 (`AppException` + bộ map lỗi), 1.5 (feature mẫu), 1.6 (lint)
 > Tài liệu liên quan: [PLAN.md](../../PLAN.md) P1 và "Cách chuyển MỘT feature"; [SCOPE.md](../../SCOPE.md) mục 3.1 (cấu trúc `data/ logic/ presentation/`, 3 luật phụ thuộc); [TH-03](../../../02-yeu-cau/TH-03-doi-tac-giao-dich.md) PT-12
 
@@ -263,25 +263,39 @@ Gợi ý tách 2 commit cho dễ review: (1) `core`: `AppException`, `SupabaseRp
 
 ## 5. Kiểm tra
 
-- [ ] `dart analyze lib/core lib/features/partner tool test/core test/features/partner`: không issue mới.
-- [ ] `flutter test test/core test/features/partner`: đạt.
-- [ ] `flutter test` toàn bộ `apps/erp`: không test lỗi mới so với [TEST-BASELINE.md](../../TEST-BASELINE.md) (hiện 61 lỗi có sẵn). Test cubit cũ dời đi nên tổng số test thay đổi nhẹ — ghi lại số mới.
-- [ ] `dart run tool/check_feature_imports.dart`: không vi phạm.
-- [ ] `grep -rn "IPartnerModule\|IExecutionContext" lib/features/partner/logic lib/features/partner/data`: rỗng.
+- [x] `dart analyze lib/core lib/features/partner tool test/core test/features/partner`: không issue.
+- [x] `flutter test test/core test/features/partner`: 195 đạt.
+- [x] `flutter test` toàn bộ `apps/erp`: **1.360 đạt / 61 lỗi**. Đúng 61 tên trong [TEST-BASELINE.md](../../TEST-BASELINE.md) (trước đó 1.343 đạt). Thêm 17 test (bộ `AppException`, `fromJson`, kịch bản `NO_PERMISSION`).
+- [x] `dart run tool/check_feature_imports.dart`: không vi phạm.
+- [x] `grep` `IPartnerModule|IExecutionContext` trong `lib/features/partner/logic` và `data`: rỗng.
 - [ ] Chạy app với Dev: mở một đối tác → "Lịch sử thao tác" hiện danh sách như trước; tắt mạng rồi mở lại → hiện "Không thể kết nối đến máy chủ…".
-- [ ] CHECKLIST: tick cột "Mới" dòng **PT-12**.
+- [ ] CHECKLIST: tick cột "Mới" dòng **PT-12** sau lần chạy app ở trên.
 
 ## 6. Rủi ro / lưu ý
 
 - **Thứ tự quét mã trong chuỗi**: mapper cũ của partner tìm mã ở *bất kỳ đâu* trong message (`contains`). Bộ mới yêu cầu mã ở **đầu** message. Đã kiểm `partner.get_partner_action_logs`: chỉ ném `'not authenticated'` và `'permission denied: partner.detail.view'` → rơi vào nhánh 1b.2.3, ra `AUTHENTICATION_REQUIRED` / `NO_PERMISSION`. RPC của các feature khác sẽ được kiểm khi chuyển ở phase của chúng (ghi trong plan từng phase).
 - `TenantAccessRevokedSignal` và `IExecutionContext` vẫn là phụ thuộc vào gói cũ — chấp nhận tạm, 1-B thay.
 - Module partner cũ vẫn dùng `get_partner_action_logs` qua `IPartnerModule` ở chỗ khác? Grep cho thấy chỉ màn lịch sử dùng; `FakePartnerModule` scenario `actionLogs*` sẽ không còn ai gọi — để nguyên, xoá cùng module ở P9.
-- Web: tránh `dart:io` trong `core/errors` (xem lưu ý bước 1b).
+- Web: tránh `dart:io` trong `core/errors` (xem lưu ý bước 1b). Đã nhận diện lỗi mạng bằng `runtimeType` / `toString()`, không import `dart:io`.
+- `PartnerActionLogDiff` dời từ `presentation/support/` sang `logic/` (nội dung giữ nguyên) để cubit trong `logic/` không import `presentation/` (luật R2).
 - Không có GitNexus để chạy `impact`; phạm vi xác định bằng grep: `PartnerChangeHistoryCubit` chỉ được dùng ở page, barrel và test; `PartnerChangeHistoryState` ở page, body widget, test.
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày: 2026-10-08 · Review trên thư mục làm việc (chưa commit) của branch `refactor/p1-core`
+- Kết quả: ✅ **đạt**
+- Đối chiếu plan:
+  - `AppException.from` đúng thứ tự 1b: JSON → `MÃ: chi tiết` (kể cả chi tiết JSON) → chữ tự do / `42501` / `PGRST301` / `not authenticated` → `AuthException` → lỗi mạng → `SYSTEM_ERROR`; chuẩn hoá `PERMISSION_DENIED`, `RESOURCE_NOT_FOUND`. Không import `dart:io` (chạy được trên web).
+  - `AppErrorMessages` đủ 10 câu; `SupabaseRpc` có `call` / `rows` / `firstRow`, giữ `TenantAccessRevokedSignal`.
+  - Model, `PartnerRepository.getActionLogs`, cubit sang `logic/`, page, router, DI, barrel đúng plan. `logic/` và `data/` không còn `IPartnerModule` / `IExecutionContext`.
+  - Lệch plan **hợp lý**: `PartnerActionLogDiff` dời sang `logic/` (plan định giữ ở `presentation/support/`, nhưng cubit cần nó và R2 cấm `logic → presentation`).
+  - CHANGELOG và `AGENTS.md` (lệnh kiểm import) được cập nhật.
+- Claude chạy lại:
+  - `dart analyze` (core, partner, tool, test liên quan): không issue.
+  - `dart run tool/check_feature_imports.dart`: thoát 0.
+  - `flutter test test/core test/features/partner`: 195 đạt.
+  - `flutter test` toàn bộ `apps/erp`: **1.360 đạt / 61 lỗi**; danh sách tên test lỗi **trùng khớp** lần chạy trước (không lỗi mới); +17 test mới.
+- Góp ý (không chặn, gộp vào 1-B):
+  1. Script kiểm import chỉ xét file nguồn trong `data/`, `logic/`, nên luật **R3** ("feature B không import `logic/` của feature A") chưa áp cho file `presentation/` của feature khác. Plan định R3 áp cho mọi file. Sửa: tính R3 cho mọi file trong `lib/features`, chỉ giới hạn R1/R2 theo tầng nguồn. Hiện chưa có vi phạm vì chỉ partner có `logic/`.
+  2. Page `partner_change_history_page.dart` import `PartnerRepository` (presentation → data) để tạo cubit. Chấp nhận được (chỉ dùng kiểu để truyền vào cubit, không gọi hàm); ghi quy ước này vào AGENTS.md ở 1-B để các phase sau làm giống nhau.
+- Còn lại cho bạn: commit (gợi ý 2 commit như bước 10), chạy app mở "Lịch sử thao tác" của một đối tác, rồi tick **PT-12** cột "Mới" trong CHECKLIST.

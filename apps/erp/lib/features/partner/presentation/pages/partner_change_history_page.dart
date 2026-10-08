@@ -1,10 +1,9 @@
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/application.dart';
-import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/partner_change_history_body.dart';
 
@@ -13,22 +12,17 @@ class PartnerChangeHistoryPage extends StatelessWidget {
     super.key,
     required this.partnerId,
     required this.partnerName,
-    required this.partnerModule,
-    required this.executionContext,
+    required this.repository,
   });
 
   final String partnerId;
   final String partnerName;
-  final IPartnerModule partnerModule;
-  final IExecutionContext executionContext;
+  final PartnerRepository repository;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PartnerChangeHistoryCubit(
-        partnerModule: partnerModule,
-        executionContext: executionContext,
-      )..loadHistory(partnerId),
+      create: (_) => PartnerChangeHistoryCubit(repository: repository)..loadHistory(partnerId),
       child: _PartnerChangeHistoryView(
         partnerId: partnerId,
         partnerName: partnerName,

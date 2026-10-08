@@ -18,6 +18,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Lịch sử thao tác đối tác: khi tải lỗi, màn hiện câu tiếng Việt từ `AppException` thay cho chuỗi exception thô.
 - HĐĐT: sheet xác nhận phát hành hiện tổng phải thu sau đổi trả, không còn tổng đơn lúc bán.
 - HĐĐT: bấm phát hành khi chưa chọn mẫu hóa đơn hiện toast «Chưa chọn mẫu hóa đơn», không mở sheet xác nhận.
 - HĐĐT: xem trước khi chưa chọn mẫu hóa đơn hiện toast «Chưa chọn mẫu hóa đơn», không còn câu chung «Không đủ điều kiện xem trước».
@@ -74,6 +75,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- `AppException` đọc 3 định dạng lỗi RPC, lỗi Auth và lỗi mạng; `SupabaseRpc` là chỗ gọi RPC dùng chung. Lịch sử thao tác đi `PartnerRepository.getActionLogs`. Script `tool/check_feature_imports.dart` chặn import sai tầng cho `data/` và `logic/`.
 - Dời cấu hình môi trường từ `lib/configurations/` vào `lib/core/config/` (không đổi hành vi).
 - Inventory: RPC cặp cửa hàng/kho mặc định. Draft `inventory_default_pair.sql`.
 - Einvoice: bỏ nhật ký gọi MISA (`provider_interaction_records`). Mỗi lần gọi ghi trên dòng nghiệp vụ. Draft `001`, `012`.

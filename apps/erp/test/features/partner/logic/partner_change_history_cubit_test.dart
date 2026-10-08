@@ -1,16 +1,27 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_partner_application/testing.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/partner/data/models/partner_action_log.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
 import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockRepo extends Mock implements PartnerRepository {}
 
 void main() {
-  test('loadHistory maps action logs from module query', () async {
-    final cubit = PartnerChangeHistoryCubit(
-      partnerModule: FakePartnerModule(
-        scenario: FakePartnerScenario.actionLogsMixed,
+  PartnerChangeHistoryCubit cubitReturning(PartnerActionLogPage page) {
+    final repository = _MockRepo();
+    when(
+      () => repository.getActionLogs(
+        any(),
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
       ),
-      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
-    );
+    ).thenAnswer((_) async => page);
+    return PartnerChangeHistoryCubit(repository: repository);
+  }
+
+  test('loadHistory maps action logs from the repository', () async {
+    final cubit = cubitReturning(_mixedPage());
 
     await cubit.loadHistory('p-1');
 
@@ -42,12 +53,7 @@ void main() {
   });
 
   test('entries without snapshots keep generic summary and no changes', () async {
-    final cubit = PartnerChangeHistoryCubit(
-      partnerModule: FakePartnerModule(
-        scenario: FakePartnerScenario.actionLogsMixed,
-      ),
-      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
-    );
+    final cubit = cubitReturning(_mixedPage());
 
     await cubit.loadHistory('p-1');
 
@@ -56,11 +62,8 @@ void main() {
   });
 
   test('loadHistory shows empty success when no logs', () async {
-    final cubit = PartnerChangeHistoryCubit(
-      partnerModule: FakePartnerModule(
-        scenario: FakePartnerScenario.actionLogsEmpty,
-      ),
-      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+    final cubit = cubitReturning(
+      const PartnerActionLogPage(items: [], total: 0, page: 1, limit: 20),
     );
 
     await cubit.loadHistory('p-1');
@@ -68,4 +71,58 @@ void main() {
     expect(cubit.state.status, PartnerChangeHistoryStatus.success);
     expect(cubit.state.items, isEmpty);
   });
+
+  test('loadHistory shows the Vietnamese sentence for NO_PERMISSION', () async {
+    final repository = _MockRepo();
+    when(
+      () => repository.getActionLogs(
+        any(),
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenThrow(const AppException(AppErrorCode.noPermission));
+    final cubit = PartnerChangeHistoryCubit(repository: repository);
+
+    await cubit.loadHistory('p-1');
+
+    expect(cubit.state.status, PartnerChangeHistoryStatus.failure);
+    expect(cubit.state.errorMessage, 'Bạn không có quyền thực hiện thao tác này.');
+  });
+}
+
+PartnerActionLogPage _mixedPage() {
+  const actor = '8acac7ec-0000-4000-8000-000000000001';
+  return PartnerActionLogPage(
+    total: 3,
+    page: 1,
+    limit: 20,
+    items: [
+      PartnerActionLog(
+        actionLogId: 'al-1',
+        actionType: PartnerActionType.addContact,
+        actorUserId: actor,
+        createdAt: DateTime(2026, 7, 16, 18, 26),
+      ),
+      PartnerActionLog(
+        actionLogId: 'al-2',
+        actionType: PartnerActionType.update,
+        actorUserId: actor,
+        createdAt: DateTime(2026, 7, 15, 23, 26),
+        beforeState: const {
+          'display_name': 'Nguyễn Văn A',
+          'person_profile': {'phone': '0901234567', 'tax_code': null},
+        },
+        afterState: const {
+          'display_name': 'Nguyễn Văn A',
+          'person_profile': {'phone': '0907654321', 'tax_code': '2201018022'},
+        },
+      ),
+      PartnerActionLog(
+        actionLogId: 'al-3',
+        actionType: PartnerActionType.create,
+        actorUserId: actor,
+        createdAt: DateTime(2026, 7, 14, 23, 26),
+      ),
+    ],
+  );
 }
