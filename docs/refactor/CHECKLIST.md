@@ -38,16 +38,16 @@
 | ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | |
 | ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | |
 | ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | |
-| ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☐ | |
+| ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | |
 | ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | |
 | ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | |
 | ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | |
 | ID-09 | Tổ chức không thể truy cập | (màn chặn) | Tổ chức tạm ngừng / đóng | ☐ | ☐ | |
 | ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | Điều hướng 3 mục | ☐ | ☐ | |
-| ID-11 | Hồ sơ tổ chức | `/more/organization-profile` | Xem thông tin | ☐ | ☐ | |
-| ID-12 | Sửa thông tin tổ chức | `…/edit` | Lưu, kiểm dữ liệu | ☐ | ☐ | |
-| ID-13 | Hồ sơ pháp lý | `…/legal` | Lưu MST, tên, địa chỉ | ☐ | ☐ | Dùng cho TH-08 |
+| ID-11 | Hồ sơ tổ chức | `/more/organization-profile` | Xem thông tin | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
+| ID-12 | Sửa thông tin tổ chức | `…/edit` | Lưu, kiểm dữ liệu | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
+| ID-13 | Hồ sơ pháp lý | `…/legal` | Lưu MST, tên, địa chỉ | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev. Dùng cho TH-08 |
 | ID-14 | Người dùng (Thành viên / Lời mời) | `/more/users` | 2 tab, tìm, lọc | ☐ | ☐ | |
 | ID-15 | Mời thành viên | `/more/users/invite` | Mời, chọn vai trò (gồm Chủ cửa hàng) | ☐ | ☐ | |
 | ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | Gửi lại, thu hồi | ☐ | ☐ | Route cũ còn `/more/users/invitation-detail` |
@@ -58,9 +58,9 @@
 | ID-19b | Chi tiết vai trò | `/more/roles/detail` | Xem quyền | ☐ | ☐ | |
 | ID-20a | Lịch sử quản trị | `/more/audit-logs` | Danh sách, lọc | ☐ | ☐ | |
 | ID-20b | Chi tiết lịch sử | `/more/audit-logs/:id` | Xem chi tiết | ☐ | ☐ | Route cũ còn `/more/audit-logs/detail` |
-| ID-21 | Tài khoản của tôi | `/more/my-account` | Xem, đăng xuất | ☐ | ☐ | |
-| ID-22 | Sửa tài khoản | `/more/my-account/edit` | Lưu tên, SĐT | ☐ | ☐ | |
-| ID-23 | Đặt lại mật khẩu (đã đăng nhập) | `/more/my-account/reset-password` | Đổi mật khẩu | ☐ | ☐ | |
+| ID-21 | Tài khoản của tôi | `/more/my-account` | Xem, đăng xuất | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
+| ID-22 | Sửa tài khoản | `/more/my-account/edit` | Lưu tên, SĐT | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
+| ID-23 | Đặt lại mật khẩu (đã đăng nhập) | `/more/my-account/reset-password` | Đổi mật khẩu | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-x1 | Đăng nhập lỗi mạng | `/login` | Thông điệp lỗi, không treo | ☐ | ☐ | Trạng thái A-03 |
 | ID-x2 | Banner "Tham gia tổ chức thành công" | `/login` | Hiện sau kích hoạt lời mời | ☐ | ☐ | A-04 |
 | ID-x3 | Router guard: chưa đăng nhập | mọi route | Về `/login` | ☐ | ☐ | SCOPE 3.5 |

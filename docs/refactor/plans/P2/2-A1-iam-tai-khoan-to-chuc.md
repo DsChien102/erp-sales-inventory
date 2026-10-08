@@ -1,6 +1,6 @@
 # 2-A1 — Chuyển IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, đặt lại mật khẩu
 
-> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 2B.6 (một phần: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu)
 > Tài liệu liên quan: [PLAN.md](../../PLAN.md) P2 + "Cách chuyển MỘT feature"; [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) ID-04, ID-11, ID-12, ID-13, ID-21, ID-22, ID-23; mẫu: [1-A](../P1/1-A-app-exception-feature-mau.md)
 
@@ -196,7 +196,21 @@ Gợi ý 3 commit: (1) `core/validation` + `IamUiFailureMapper` hiểu `AppExcep
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày: 2026-10-08 · Review trên thư mục làm việc (chưa commit) của branch `refactor/simple-arch`
+- Kết quả: ✅ **đạt**
+- Đối chiếu plan:
+  - `core/validation/tax_code.dart`, `password_policy.dart` (giữ tên lớp `PasswordPolicy`); mọi chỗ dùng (kể cả `invitation_registration_form.dart`) đã trỏ sang `core/`.
+  - `IamUiFailureMapper` dời sang `logic/`, nhánh `AppException` đúng bước 2 (mạng → câu mạng cũ; `NO_PERMISSION` / `NOT_FOUND` → mã IAM cũ) — câu trên màn giữ nguyên. Có file `presentation/shared/*.dart` chỉ `export` sang `logic/` để importer cũ không phải sửa — hợp lý.
+  - `AuthRepository`: 8 hàm đúng tên RPC của `PasswordResetOperationStore` / adapter public (đã đối chiếu migration `20260811021`, `20260811025`); `completeMyPasswordReset` giữ đúng thứ tự (kiểm `verified` → `STATE_CHANGED`, `updateUser` + map mật khẩu yếu → `PASSWORD_POLICY_VIOLATION`, `signOut(others)`, mark completed); che email `l***@…`.
+  - `AccountRepository`, `OrganizationRepository`: tham số RPC khớp gateway cũ; `UpsertLegalProfileResult.fromJson` chép đúng nhánh `warning` / `profile`.
+  - 4 cubit + state + form input sang `logic/`; `logic/`, `data/` không còn `IIamModule` / `IExecutionContext`.
+  - Đã kiểm định dạng lỗi các RPC trong phạm vi: mã ở đầu chuỗi (`STATE_CHANGED`, `RESET_CODE_INVALID`, `PERMISSION_DENIED`…). Vài câu chữ thường (`'authentication required'`, `'platform user not found'`, `'invalid avatar reference'`) ra `SYSTEM_ERROR` — **giống** mapper cũ, không đổi hành vi.
+- Claude chạy lại:
+  - `dart analyze` toàn bộ file đổi / mới: không issue.
+  - `dart run tool/check_feature_imports.dart`: thoát 0.
+  - Test core + iam + auth + tenant_admin + my_account: 361 đạt / 4 lỗi — cả 4 thuộc test đã có trong TEST-BASELINE.
+  - **Toàn bộ `apps/erp`: 1.391 đạt / 61 lỗi**; danh sách test lỗi trùng khớp lần review 1-B (không lỗi mới); +19 test.
+- Góp ý (không chặn):
+  1. **CHECKLIST**: 7 dòng ID-04, ID-11…13, ID-21…23 đã tick cột "Mới" kèm ghi chú "chưa kiểm tay". Theo quy ước CHECKLIST, "Mới" chỉ tick khi màn **đã kiểm và đạt tài liệu TH (kể cả sửa 🔧)** — các mục 🔧 của TH-01 cho nhóm này làm ở 2-B2. Đề xuất để ☐ + ghi chú "(a) xong 2-A1", tick sau khi kiểm tay và xong 2-B2.
+  2. `MyAccountCubit` gọi `session.loadAccessibleTenants()` → cập nhật danh sách tổ chức chung của phiên (cờ `tenantsLoading`, `selectorFailure`). Không sai (cùng dữ liệu), chỉ lưu ý khi sheet chọn tổ chức đang mở cùng lúc.
+- Còn lại cho bạn: commit (gợi ý 3 commit bước 8); kiểm tay trên Dev mục 5 (đặt lại mật khẩu: mã **không tới email** vì worker đã bỏ — đọc mã trong DB hoặc để 2-B2).

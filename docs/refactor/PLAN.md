@@ -55,7 +55,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
 | 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
 | 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ | ✅ |
-| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu | [plans/P2/2-A1-iam-tai-khoan-to-chuc.md](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | 📝 | ⬜ | ⬜ |
+| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu | [plans/P2/2-A1-iam-tai-khoan-to-chuc.md](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ✅ | ✅ | ✅ |
 
 
 ---
@@ -150,7 +150,7 @@ Chi tiết từng việc:
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | 📝 [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ⬜ | ⬜ |
+| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | ✅ [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ✅ | ✅ |
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời, audit log, `/invitation` | 2B.5, 2B.6 (phần còn lại) | ⬜ | ⬜ | ⬜ |
 | **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ⬜ | ⬜ | ⬜ |
 | **2-B2** | (b) Email qua Edge Function `send-email` + các sửa KI của TH-01 | 2A.4, TH-01 mục 9.2 | ⬜ | ⬜ | ⬜ |
