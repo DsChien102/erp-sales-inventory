@@ -5,7 +5,8 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/errors/exception_mapper.dart';
+import '../../../../core/errors/app_exception.dart';
+import '../../../../core/session/session_controller.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
@@ -22,44 +23,36 @@ class MorePage extends StatelessWidget {
   final bool tenantBlocked;
 
   Future<void> _logout(BuildContext context) async {
-    final result = await guard(
-      () => (iamModule ?? getIt<IIamModule>()).executeCommandAsync<SignOutResultDto>(
-        SignOutCommand(),
-      ),
-    );
-
-    if (!context.mounted) return;
-
-    result.fold(
-      (failure) {
+    try {
+      final result = await getIt<SessionController>().signOut();
+      if (!context.mounted) return;
+      if (!result.localCleared) {
         VToast.show(
           context,
           title: 'Đăng xuất thất bại',
-          message: failure.message,
+          message: 'Không thể đóng phiên trên máy.',
           type: VToastType.danger,
         );
-      },
-      (signOut) {
-        if (!signOut.localCleared) {
-          VToast.show(
-            context,
-            title: 'Đăng xuất thất bại',
-            message: 'Không thể đóng phiên trên máy.',
-            type: VToastType.danger,
-          );
-          return;
-        }
-        if (!signOut.remoteSucceeded) {
-          VToast.show(
-            context,
-            title: 'Cảnh báo',
-            message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
-            type: VToastType.warning,
-          );
-        }
-        context.go('/login');
-      },
-    );
+        return;
+      }
+      if (!result.remoteSucceeded) {
+        VToast.show(
+          context,
+          title: 'Cảnh báo',
+          message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+          type: VToastType.warning,
+        );
+      }
+      context.go('/login');
+    } on AppException catch (error) {
+      if (!context.mounted) return;
+      VToast.show(
+        context,
+        title: 'Đăng xuất thất bại',
+        message: error.userMessage(),
+        type: VToastType.danger,
+      );
+    }
   }
 
   @override

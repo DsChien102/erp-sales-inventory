@@ -2,8 +2,8 @@ import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
 import 'package:erp/features/dashboard/presentation/models/dashboard_navigation.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/sales/presentation/pages/sales_order_list_page.dart';
-import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_cubit.dart';
-import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_state.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/core/session/session_state.dart';
 import 'package:erp/features/tenant_context/presentation/mappers/accessible_tenant_ui_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,8 +12,9 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
+import 'package:vet45_inventory_application/application.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -131,7 +132,7 @@ void main() {
       );
       registerModule(module);
 
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: module,
         userDisplayName: 'Lan',
       );
@@ -183,12 +184,12 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: FakeIamModule(),
         userDisplayName: 'Lan',
-        initialState: TenantContextState(
+        initialState: SessionState(
           userDisplayName: 'Lan',
-          status: TenantContextLoadStatus.ready,
+          status: TenantLoadStatus.ready,
           tenants: const [
             SelectOrganizationItemUiModel(
               id: 'org-provisioning',
@@ -251,12 +252,12 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: FakeIamModule(),
         userDisplayName: 'Lan',
-        initialState: TenantContextState(
+        initialState: SessionState(
           userDisplayName: 'Lan',
-          status: TenantContextLoadStatus.ready,
+          status: TenantLoadStatus.ready,
           tenants: const [
             SelectOrganizationItemUiModel(
               id: 'org-closed',
@@ -321,18 +322,18 @@ void main() {
         );
         registerModule(module);
 
-        final cubit = TenantContextCubit(
+        final cubit = SessionController(
           iamModule: module,
           userDisplayName: 'Lan',
         );
         await cubit.bootstrap();
-        expect(cubit.state.status, TenantContextLoadStatus.ready);
+        expect(cubit.state.status, TenantLoadStatus.ready);
         expect(cubit.state.contextFailure, isNull);
 
         module.failNextList = true;
         await cubit.loadAccessibleTenants();
 
-        expect(cubit.state.status, TenantContextLoadStatus.ready);
+        expect(cubit.state.status, TenantLoadStatus.ready);
         expect(cubit.state.selectorFailure, isNotNull);
         expect(cubit.state.tenants, isEmpty);
         expect(cubit.state.contextFailure, isNull);
@@ -358,7 +359,7 @@ void main() {
         FakeIamModule(scenario: FakeIamScenario.tenantsMulti),
       );
       registerModule(module);
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: module,
         userDisplayName: 'Lan',
       );
@@ -406,21 +407,20 @@ void main() {
     });
 
     test('switch success applies TenantContextDto.permissions', () async {
-      final applied = <TenantContextDto>[];
       final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
-      final cubit = TenantContextCubit(
+      final session = IamSession()..applyAuthenticatedUser('user-1');
+      final cubit = SessionController(
         iamModule: module,
+        iamSession: session,
+        sessionPort: session,
         userDisplayName: 'Lan',
-        applyPermissions: applied.add,
       );
       await cubit.bootstrap();
-      applied.clear();
 
       final ok = await cubit.switchTo('org-002');
       expect(ok, isTrue);
-      expect(applied, hasLength(1));
-      expect(applied.single.permissions, isNotEmpty);
-      expect(applied.single.tenantId, 'org-002');
+      expect(session.permissions, isNotEmpty);
+      expect(session.tenantId, 'org-002');
 
       await cubit.close();
     });
@@ -435,7 +435,7 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
       registerModule(module);
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: module,
         userDisplayName: 'Lan',
       );
@@ -495,7 +495,7 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.switchDenied);
       registerModule(module);
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: module,
         userDisplayName: 'Lan',
       );
@@ -638,9 +638,9 @@ void main() {
               iamModule: module,
               autoBootstrap: false,
               initialTab: DashboardTab.orders,
-              initialState: const TenantContextState(
+              initialState: const SessionState(
                 userDisplayName: '',
-                status: TenantContextLoadStatus.blocked,
+                status: TenantLoadStatus.blocked,
                 emptyStateType: OrganizationEmptyStateType.inaccessible,
                 suspendedOrgName: 'Vua',
                 blockedErrorCode: IamBlockedCodes.tenantSuspended,

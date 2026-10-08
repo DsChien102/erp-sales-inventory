@@ -1,34 +1,11 @@
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:erp/features/iam/presentation.dart';
 
-import '../../../../core/di/injection.dart';
-import 'bloc/tenant_context_cubit.dart';
-
-/// Syncs [IamSession] (router/navigation permission checks) from switch/bootstrap.
-void applyTenantContextPermissions(TenantContextDto context) {
-  if (!getIt.isRegistered<IamSession>()) return;
-  final session = getIt<IamSession>();
-  final userId = session.userId;
-  final tenantId = context.tenantId;
-  if (userId == null || userId.isEmpty || tenantId == null || tenantId.isEmpty) {
-    return;
-  }
-  session.apply(
-    PrincipalAccessDto(
-      userId: userId,
-      tenantId: tenantId,
-      role: context.roleLabel ?? session.role ?? '',
-      isOwner: context.isOwner,
-      permissions: context.permissions,
-    ),
-  );
-}
+import '../../../core/session/session_controller.dart';
 
 Future<void> openTenantContextSelector(BuildContext context) async {
-  final cubit = context.read<TenantContextCubit>();
+  final cubit = context.read<SessionController>();
   if (cubit.state.tenants.isEmpty &&
       !cubit.state.tenantsLoading &&
       cubit.state.selectorFailure == null) {

@@ -18,6 +18,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Hết phiên giữa chừng (đăng xuất từ nơi khác hoặc token hết hạn) thì app tự về màn đăng nhập.
 - Lịch sử thao tác đối tác: khi tải lỗi, màn hiện câu tiếng Việt từ `AppException` thay cho chuỗi exception thô.
 - HĐĐT: sheet xác nhận phát hành hiện tổng phải thu sau đổi trả, không còn tổng đơn lúc bán.
 - HĐĐT: bấm phát hành khi chưa chọn mẫu hóa đơn hiện toast «Chưa chọn mẫu hóa đơn», không mở sheet xác nhận.

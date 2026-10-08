@@ -8,9 +8,8 @@ import 'package:vet45_inventory_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 import '../../../core/di/injection.dart';
-import '../../../core/errors/exception_mapper.dart';
-import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
-import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
+import '../../../core/session/session_controller.dart';
+import '../../../core/session/session_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
 import 'bloc/default_pair_gate_cubit.dart';
 import 'models/dashboard_navigation.dart';
@@ -39,11 +38,9 @@ Future<void> signOutSuspendedAccountAndGoToLogin(
       type: VToastType.danger,
     );
   }
-  await guard(
-    () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(
-      SignOutCommand(),
-    ),
-  );
+  try {
+    await getIt<SessionController>().signOut();
+  } catch (_) {}
   if (!context.mounted) return;
   context.go('/login');
 }
@@ -62,7 +59,7 @@ class DashboardPage extends StatelessWidget {
   final IIamModule? iamModule;
   final IInventoryModule? inventoryModule;
   final bool autoBootstrap;
-  final TenantContextState? initialState;
+  final SessionState? initialState;
 
   static void navigateToTab(BuildContext context, DashboardTab tab) {
     final state = context.findAncestorStateOfType<_DashboardPageState>();
@@ -75,26 +72,61 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final module = iamModule ?? getIt<IIamModule>();
-    return BlocProvider(
-      create: (_) {
-        final cubit = TenantContextCubit(
-          iamModule: module,
-          initialState: initialState,
-          applyPermissions: applyTenantContextPermissions,
-          onIdentityRevoked: (_) => signOutSuspendedAccountAndGoToLogin(context),
-        );
-        if (autoBootstrap) {
-          cubit.bootstrap();
-        }
-        return cubit;
-      },
-      child: _DashboardPageBody(
-        initialTab: initialTab,
-        inventoryModule: inventoryModule,
+    final body = _DashboardPageBody(
+      initialTab: initialTab,
+      inventoryModule: inventoryModule,
+    );
+    // Test truyền module/state riêng: cubit cục bộ, được đóng khi rời widget.
+    // App thật dùng singleton — BlocProvider(create:) sẽ close() nó khi rời Dashboard.
+    if (iamModule != null || initialState != null) {
+      return BlocProvider(
+        create: (_) {
+          final cubit = SessionController(
+            iamModule: iamModule ?? getIt<IIamModule>(),
+            initialState: initialState,
+          );
+          if (autoBootstrap) {
+            cubit.bootstrap();
+          }
+          return cubit;
+        },
+        child: body,
+      );
+    }
+
+    return BlocProvider.value(
+      value: getIt<SessionController>(),
+      child: _SessionBootstrap(
+        enabled: autoBootstrap,
+        child: body,
       ),
     );
   }
+}
+
+class _SessionBootstrap extends StatefulWidget {
+  const _SessionBootstrap({required this.enabled, required this.child});
+
+  final bool enabled;
+  final Widget child;
+
+  @override
+  State<_SessionBootstrap> createState() => _SessionBootstrapState();
+}
+
+class _SessionBootstrapState extends State<_SessionBootstrap> {
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.enabled) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<SessionController>().bootstrap();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _DashboardPageBody extends StatefulWidget {
@@ -137,7 +169,7 @@ class _DashboardPageState extends State<_DashboardPageBody> {
 
   Future<void> _openSelector(BuildContext context) => openTenantContextSelector(context);
 
-  Widget _buildHomeBody(BuildContext context, TenantContextState state) {
+  Widget _buildHomeBody(BuildContext context, SessionState state) {
     final dynamicColors = context.vColors;
     return CustomScrollView(
       slivers: [
@@ -204,11 +236,10 @@ class _DashboardPageState extends State<_DashboardPageBody> {
     );
   }
 
-  Widget _buildBody(BuildContext context, TenantContextState state) {
+  Widget _buildBody(BuildContext context, SessionState state) {
     // Tab "Khác" luôn mở: chứa Đăng xuất + Tài khoản của tôi.
     if (_currentTab != DashboardTab.more) {
-      if (state.status == TenantContextLoadStatus.loading ||
-          state.status == TenantContextLoadStatus.initial) {
+      if (state.status == TenantLoadStatus.loading || state.status == TenantLoadStatus.initial) {
         return const SafeArea(child: Center(child: VLoading()));
       }
 
@@ -235,14 +266,14 @@ class _DashboardPageState extends State<_DashboardPageBody> {
         );
       }
 
-      if (state.status == TenantContextLoadStatus.failure) {
+      if (state.status == TenantLoadStatus.failure) {
         return SafeArea(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(VSpacing.screenMobile),
               child: OrganizationEmptyView(
                 type: OrganizationEmptyStateType.loadError,
-                onAction: () => context.read<TenantContextCubit>().bootstrap(),
+                onAction: () => context.read<SessionController>().bootstrap(),
               ),
             ),
           ),
@@ -268,28 +299,38 @@ class _DashboardPageState extends State<_DashboardPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TenantContextCubit, TenantContextState>(
-      // bootstrap() phát loading trước blocked → không so với `ready`.
-      listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
-      listener: (context, state) {
-        // Chỉ toast + về dashboard khi tổ chức tạm ngừng/đóng (đang ở trang con).
-        // Bỏ qua: chưa có org; tài khoản bị tạm ngừng (sign-out qua onIdentityRevoked).
-        final orgBlocked =
-            state.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
-            state.blockedErrorCode == IamBlockedCodes.tenantClosed;
-        if (!orgBlocked) return;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<SessionController, SessionState>(
+          listenWhen: (previous, current) => !previous.identityRevoked && current.identityRevoked,
+          listener: (context, state) {
+            signOutSuspendedAccountAndGoToLogin(context);
+          },
+        ),
+        BlocListener<SessionController, SessionState>(
+          // bootstrap() phát loading trước blocked → không so với `ready`.
+          listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
+          listener: (context, state) {
+            // Chỉ toast + về dashboard khi tổ chức tạm ngừng/đóng (đang ở trang con).
+            // Bỏ qua: chưa có org; tài khoản bị tạm ngừng (sign-out qua identityRevoked).
+            final orgBlocked =
+                state.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
+                state.blockedErrorCode == IamBlockedCodes.tenantClosed;
+            if (!orgBlocked) return;
 
-        VToast.show(
-          context,
-          title: 'Tổ chức không thể truy cập',
-          message: state.blockedErrorCode == IamBlockedCodes.tenantClosed
-              ? 'Tổ chức đã đóng.'
-              : 'Tổ chức đang bị tạm ngừng.',
-          type: VToastType.danger,
-        );
-        context.goNamed('dashboard', extra: DashboardTab.home);
-      },
-      child: BlocBuilder<TenantContextCubit, TenantContextState>(
+            VToast.show(
+              context,
+              title: 'Tổ chức không thể truy cập',
+              message: state.blockedErrorCode == IamBlockedCodes.tenantClosed
+                  ? 'Tổ chức đã đóng.'
+                  : 'Tổ chức đang bị tạm ngừng.',
+              type: VToastType.danger,
+            );
+            context.goNamed('dashboard', extra: DashboardTab.home);
+          },
+        ),
+      ],
+      child: BlocBuilder<SessionController, SessionState>(
         builder: (context, state) {
           if (!state.isValid) {
             return _buildScaffold(context, state);
@@ -329,7 +370,7 @@ class _DashboardPageState extends State<_DashboardPageBody> {
     );
   }
 
-  Widget _buildScaffold(BuildContext context, TenantContextState state) {
+  Widget _buildScaffold(BuildContext context, SessionState state) {
     final dynamicColors = context.vColors;
     final showHeader = _currentTab == DashboardTab.home;
     final showAppBar = _currentTab == DashboardTab.more;

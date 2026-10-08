@@ -18,7 +18,8 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../features/partner/data/partner_repository.dart';
-import '../session/restore_persisted_auth_session.dart';
+import '../router/session_refresh.dart';
+import '../session/session_controller.dart';
 import '../supabase/supabase_module.dart';
 import '../supabase/supabase_rpc.dart';
 
@@ -52,13 +53,22 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   // Bootstrap session identity only (no tenant context).
-  // Tenant selection is deferred to TenantContextCubit.bootstrap() which reads
+  // Tenant selection is deferred to SessionController.bootstrap() which reads
   // user_preferences and validates via get_tenant_context — ensuring the
   // last-selected tenant (not the oldest membership) is restored on login.
-  restorePersistedAuthSession(
-    authenticator: iamRuntime.authenticator,
+  final session = SessionController(
+    iamModule: iamRuntime.module,
+    auth: supabaseModule.client.auth,
+    iamSession: iamRuntime.session,
     sessionPort: iamRuntime.sessionPort,
+  )..start();
+  getIt.registerSingleton<SessionController>(
+    session,
+    dispose: (controller) {
+      controller.close();
+    },
   );
+  sessionRefresh.attach(session);
 
   getIt
     ..registerSingleton<IIamModule>(iamRuntime.module)
@@ -76,7 +86,7 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(
         rpc: getIt<SupabaseRpc>(),
-        tenantId: () => getIt<IExecutionContext>().requireTenantId(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
       ),
     );
 

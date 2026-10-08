@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
-import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_state.dart';
+import 'package:erp/core/session/session_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -110,8 +110,8 @@ Widget _app(IInventoryModule inventoryModule) {
           autoBootstrap: false,
           iamModule: FakeIamModule(scenario: FakeIamScenario.tenantsMulti),
           inventoryModule: inventoryModule,
-          initialState: const TenantContextState(
-            status: TenantContextLoadStatus.ready,
+          initialState: const SessionState(
+            status: TenantLoadStatus.ready,
             userDisplayName: 'Lan',
             current: TenantContextDto(
               status: TenantContextStatus.valid,
