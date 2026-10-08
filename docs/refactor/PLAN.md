@@ -55,6 +55,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
 | 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
 | 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ | ✅ |
+| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu | [plans/P2/2-A1-iam-tai-khoan-to-chuc.md](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | 📝 | ⬜ | ⬜ |
 
 
 ---
@@ -145,11 +146,11 @@ Chi tiết từng việc:
 
 ## P2. Auth, đăng ký cửa hàng, IAM (5 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
+**Trạng thái:** 🔄 Đang làm
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | ⬜ | ⬜ | ⬜ |
+| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | 📝 [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ⬜ | ⬜ |
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời, audit log, `/invitation` | 2B.5, 2B.6 (phần còn lại) | ⬜ | ⬜ | ⬜ |
 | **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ⬜ | ⬜ | ⬜ |
 | **2-B2** | (b) Email qua Edge Function `send-email` + các sửa KI của TH-01 | 2A.4, TH-01 mục 9.2 | ⬜ | ⬜ | ⬜ |
@@ -406,7 +407,7 @@ Chi tiết từng việc:
 |---|---|---|---|
 | P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
 | P1 | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
-| P2 | ⬜ | | |
+| P2 | 🔄 | | |
 | P3 | ⬜ | | |
 | P4 | ⬜ | | |
 | P5 | ⬜ | | |
