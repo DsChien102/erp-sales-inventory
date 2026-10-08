@@ -59,6 +59,7 @@ apps/erp/lib/
 melos run env:sync            # sinh apps/erp/.env từ profile đang chọn
 melos run analyze
 cd apps/erp && flutter test   # so với docs/refactor/TEST-BASELINE.md
+cd apps/erp && dart run tool/check_feature_imports.dart
 supabase db reset             # local
 supabase migration list --linked
 ```
