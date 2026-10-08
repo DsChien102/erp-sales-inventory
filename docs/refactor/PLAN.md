@@ -75,8 +75,10 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 8. **Kiểm tra**: `dart analyze` sạch, test cubit/repository chạy qua, tự bấm hết màn hình của feature trong checklist P0. Sau đó mở PR.
 
 **Quy tắc khi làm:**
-- **Không sửa UI** (page/widget) ngoài việc đổi import và dependency.
-- **Không sửa RPC** trong lúc chuyển feature. Thay đổi DB chỉ làm ở P2 (đăng ký) và P9 (dọn dẹp).
+- **Tách hai bước, hai PR** (chốt 2026-10-08):
+  - **(a) Chuyển kiến trúc**: không đổi hành vi, không sửa UI ngoài import/dependency, không sửa RPC.
+  - **(b) Sửa theo tài liệu TH**: các mục 🔧 / 🆕 của theme đó (UI, RPC bằng migration mới, Edge Function). Mỗi mục có plan riêng.
+  - Làm (a) trước (b). Có lỗi thì biết ngay do chuyển kiến trúc hay do sửa nghiệp vụ.
 - Module cũ **vẫn chạy song song** tới P9: feature nào chưa chuyển thì vẫn dùng module.
 - Theo `CLAUDE.md`: chạy GitNexus `impact` trước khi sửa symbol, và `detect_changes` trước khi commit.
 - Mỗi feature (hoặc nhóm màn hình lớn) là **1 PR vào `refactor/simple-arch`**.
@@ -102,11 +104,11 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 
 ## P1. Nền `core/` (2 ngày)
 
-**Trạng thái:** ⬜ Chưa làm
+**Trạng thái:** 🔄 Đang làm
 
 | # | Plan | Làm | Review | Việc | Chi tiết |
 |---|---|---|---|---|---|
-| 1.1 | ⬜ | ⬜ | ⬜ | Cấu trúc thư mục | Tạo `lib/core/{supabase,router,session,di,errors,formatting}` (đã có một phần, chỉnh lại) |
+| 1.1 | [📝](plans/P1/1.1-cau-truc-core.md) | ⬜ | ⬜ | Cấu trúc thư mục | Tạo `lib/core/{supabase,router,session,di,errors,formatting}` (đã có một phần, chỉnh lại) |
 | 1.2 | ⬜ | ⬜ | ⬜ | `AppException` + bộ map lỗi | Một lớp lỗi chung, map từ `PostgrestException.message` (mã `PERMISSION_DENIED`, `VALIDATION_ERROR`…) sang thông báo tiếng Việt. Gộp từ `exception_mapper.dart` và các `IamBlockedCodes` |
 | 1.3 | ⬜ | ⬜ | ⬜ | `SessionController` | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module |
 | 1.4 | ⬜ | ⬜ | ⬜ | Router guard | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active |
@@ -304,7 +306,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 | Phase | Trạng thái | PR | Ghi chú |
 |---|---|---|---|
 | P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
-| P1 | ⬜ | | |
+| P1 | 🔄 | | |
 | P2 | ⬜ | | |
 | P3 | ⬜ | | |
 | P4 | ⬜ | | |
