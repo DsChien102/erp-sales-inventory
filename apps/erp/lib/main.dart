@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import 'configurations/app_logging.dart';
-import 'configurations/env.dart';
-import 'configurations/env_banner.dart';
+import 'core/config/app_logging.dart';
+import 'core/config/env.dart';
+import 'core/config/env_banner.dart';
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
 import 'core/supabase/supabase_module.dart';

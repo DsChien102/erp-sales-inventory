@@ -1,6 +1,6 @@
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_cubit.dart';
-import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_state.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/core/session/session_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
@@ -8,9 +8,9 @@ import 'package:vet45_shared_application/application.dart';
 
 void main() {
   test('copyWith keeps blockedErrorCode when clearing context failure', () {
-    const state = TenantContextState(userDisplayName: '');
+    const state = SessionState(userDisplayName: '');
     final blocked = state.copyWith(
-      status: TenantContextLoadStatus.blocked,
+      status: TenantLoadStatus.blocked,
       blockedErrorCode: IamBlockedCodes.tenantClosed,
       clearContextFailure: true,
     );
@@ -18,31 +18,31 @@ void main() {
   });
 
   test('copyWith can clear branch display name', () {
-    const state = TenantContextState(userDisplayName: '', branchDisplayName: 'Vua');
+    const state = SessionState(userDisplayName: '', branchDisplayName: 'Vua');
     expect(state.copyWith(clearBranchDisplayName: true).branchDisplayName, isNull);
   });
 
   test('becameBlocked listenWhen ignores loading hop from ready', () {
     // Mirrors dashboard BlocListener listenWhen (5g).
-    bool listenWhen(TenantContextState previous, TenantContextState current) =>
+    bool listenWhen(SessionState previous, SessionState current) =>
         !previous.isBlocked && current.isBlocked;
 
-    const ready = TenantContextState(
+    const ready = SessionState(
       userDisplayName: '',
-      status: TenantContextLoadStatus.ready,
+      status: TenantLoadStatus.ready,
     );
-    const loading = TenantContextState(
+    const loading = SessionState(
       userDisplayName: '',
-      status: TenantContextLoadStatus.loading,
+      status: TenantLoadStatus.loading,
     );
-    const blocked = TenantContextState(
+    const blocked = SessionState(
       userDisplayName: '',
-      status: TenantContextLoadStatus.blocked,
+      status: TenantLoadStatus.blocked,
     );
 
     // Old condition (ready → blocked) fails on the real bootstrap path:
-    expect(ready.status == TenantContextLoadStatus.ready && loading.isBlocked, isFalse);
-    expect(loading.status == TenantContextLoadStatus.ready && blocked.isBlocked, isFalse);
+    expect(ready.status == TenantLoadStatus.ready && loading.isBlocked, isFalse);
+    expect(loading.status == TenantLoadStatus.ready && blocked.isBlocked, isFalse);
 
     // New condition fires once when entering blocked via loading:
     expect(listenWhen(ready, loading), isFalse);
@@ -53,17 +53,15 @@ void main() {
   test(
     'bootstrap identityInactive → inaccessible + platformUserSuspended + sign-out once',
     () async {
-      final codes = <String>[];
-      final cubit = TenantContextCubit(
+      final cubit = SessionController(
         iamModule: _PlatformUserSuspendedIamModule(),
-        onIdentityRevoked: codes.add,
       );
 
       await cubit.bootstrap();
 
       expect(cubit.state.emptyStateType, OrganizationEmptyStateType.inaccessible);
       expect(cubit.state.blockedErrorCode, IamBlockedCodes.platformUserSuspended);
-      expect(codes, [IamBlockedCodes.platformUserSuspended]);
+      expect(cubit.state.identityRevoked, isTrue);
 
       await cubit.close();
     },

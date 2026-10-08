@@ -12,6 +12,9 @@ import 'package:erp/core/supabase/supabase_module.dart';
 class _FakeGoTrueClient extends Fake implements GoTrueClient {
   @override
   User? get currentUser => null;
+
+  @override
+  Stream<AuthState> get onAuthStateChange => const Stream.empty();
 }
 
 class _FakeSupabaseClient extends Fake implements SupabaseClient {

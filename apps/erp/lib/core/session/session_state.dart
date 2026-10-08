@@ -2,7 +2,9 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:erp/features/iam/presentation.dart';
 
-enum TenantContextLoadStatus {
+enum AuthStatus { unknown, signedOut, signedIn }
+
+enum TenantLoadStatus {
   initial,
   loading,
   ready,
@@ -10,13 +12,16 @@ enum TenantContextLoadStatus {
   failure,
 }
 
-final class TenantContextState {
-  const TenantContextState({
-    this.status = TenantContextLoadStatus.initial,
+final class SessionState {
+  const SessionState({
+    this.authStatus = AuthStatus.unknown,
+    this.userId,
+    this.identityRevoked = false,
+    this.status = TenantLoadStatus.initial,
     this.current,
     this.tenants = const [],
     this.branchDisplayName,
-    required this.userDisplayName,
+    this.userDisplayName = '',
     this.contextFailure,
     this.selectorFailure,
     this.switchFailure,
@@ -28,7 +33,13 @@ final class TenantContextState {
     this.openSelectorRequested = false,
   });
 
-  final TenantContextLoadStatus status;
+  final AuthStatus authStatus;
+  final String? userId;
+
+  /// Tài khoản bị tạm ngừng. Dashboard nghe cạnh này để đăng xuất.
+  final bool identityRevoked;
+
+  final TenantLoadStatus status;
   final TenantContextDto? current;
   final List<SelectOrganizationItemUiModel> tenants;
   final String? branchDisplayName;
@@ -44,12 +55,16 @@ final class TenantContextState {
   final bool openSelectorRequested;
 
   bool get isValid =>
-      status == TenantContextLoadStatus.ready && current?.status == TenantContextStatus.valid;
+      status == TenantLoadStatus.ready && current?.status == TenantContextStatus.valid;
 
-  bool get isBlocked => status == TenantContextLoadStatus.blocked;
+  bool get isBlocked => status == TenantLoadStatus.blocked;
 
-  TenantContextState copyWith({
-    TenantContextLoadStatus? status,
+  SessionState copyWith({
+    AuthStatus? authStatus,
+    String? userId,
+    bool? identityRevoked,
+    bool clearIdentityRevoked = false,
+    TenantLoadStatus? status,
     TenantContextDto? current,
     List<SelectOrganizationItemUiModel>? tenants,
     String? branchDisplayName,
@@ -70,8 +85,12 @@ final class TenantContextState {
     bool clearEmptyState = false,
     bool clearBranchDisplayName = false,
     bool clearBlockedErrorCode = false,
+    bool clearUserId = false,
   }) {
-    return TenantContextState(
+    return SessionState(
+      authStatus: authStatus ?? this.authStatus,
+      userId: clearUserId ? null : (userId ?? this.userId),
+      identityRevoked: clearIdentityRevoked ? false : (identityRevoked ?? this.identityRevoked),
       status: status ?? this.status,
       current: clearCurrent ? null : (current ?? this.current),
       tenants: tenants ?? this.tenants,
@@ -79,24 +98,12 @@ final class TenantContextState {
           ? null
           : (branchDisplayName ?? this.branchDisplayName),
       userDisplayName: userDisplayName ?? this.userDisplayName,
-      contextFailure: clearContextFailure
-          ? null
-          : (contextFailure ?? this.contextFailure),
-      selectorFailure: clearSelectorFailure
-          ? null
-          : (selectorFailure ?? this.selectorFailure),
-      switchFailure: clearSwitchFailure
-          ? null
-          : (switchFailure ?? this.switchFailure),
-      blockedErrorCode: clearBlockedErrorCode
-          ? null
-          : (blockedErrorCode ?? this.blockedErrorCode),
-      emptyStateType: clearEmptyState
-          ? null
-          : (emptyStateType ?? this.emptyStateType),
-      suspendedOrgName: clearEmptyState
-          ? null
-          : (suspendedOrgName ?? this.suspendedOrgName),
+      contextFailure: clearContextFailure ? null : (contextFailure ?? this.contextFailure),
+      selectorFailure: clearSelectorFailure ? null : (selectorFailure ?? this.selectorFailure),
+      switchFailure: clearSwitchFailure ? null : (switchFailure ?? this.switchFailure),
+      blockedErrorCode: clearBlockedErrorCode ? null : (blockedErrorCode ?? this.blockedErrorCode),
+      emptyStateType: clearEmptyState ? null : (emptyStateType ?? this.emptyStateType),
+      suspendedOrgName: clearEmptyState ? null : (suspendedOrgName ?? this.suspendedOrgName),
       tenantsLoading: tenantsLoading ?? this.tenantsLoading,
       isSwitching: isSwitching ?? this.isSwitching,
       openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,

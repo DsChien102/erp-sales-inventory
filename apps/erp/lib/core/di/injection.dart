@@ -17,8 +17,11 @@ import 'package:vet45_sales_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../features/partner/data/partner_repository.dart';
+import '../router/session_refresh.dart';
+import '../session/session_controller.dart';
 import '../supabase/supabase_module.dart';
-import '../session/restore_persisted_auth_session.dart';
+import '../supabase/supabase_rpc.dart';
 
 final getIt = GetIt.instance;
 
@@ -50,13 +53,22 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   // Bootstrap session identity only (no tenant context).
-  // Tenant selection is deferred to TenantContextCubit.bootstrap() which reads
+  // Tenant selection is deferred to SessionController.bootstrap() which reads
   // user_preferences and validates via get_tenant_context — ensuring the
   // last-selected tenant (not the oldest membership) is restored on login.
-  restorePersistedAuthSession(
-    authenticator: iamRuntime.authenticator,
+  final session = SessionController(
+    iamModule: iamRuntime.module,
+    auth: supabaseModule.client.auth,
+    iamSession: iamRuntime.session,
     sessionPort: iamRuntime.sessionPort,
+  )..start();
+  getIt.registerSingleton<SessionController>(
+    session,
+    dispose: (controller) {
+      controller.close();
+    },
   );
+  sessionRefresh.attach(session);
 
   getIt
     ..registerSingleton<IIamModule>(iamRuntime.module)
@@ -68,6 +80,15 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<ICurrentUser>(iamRuntime.session)
     ..registerSingleton<ICurrentTenant>(iamRuntime.session)
     ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
+
+  getIt
+    ..registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client))
+    ..registerLazySingleton<PartnerRepository>(
+      () => PartnerRepository(
+        rpc: getIt<SupabaseRpc>(),
+        tenantId: () => getIt<SessionController>().requireTenantId(),
+      ),
+    );
 
   final catalogModule = CatalogStartup.initialize(
     supabase: supabaseModule.client,

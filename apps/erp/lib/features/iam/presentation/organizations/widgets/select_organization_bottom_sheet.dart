@@ -290,7 +290,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
 /// Helper function mở VBottomSheet Chọn tổ chức.
 ///
 /// [onConfirmSwitch] replaces the fake delay on the production path — ERP
-/// wires this to `TenantContextCubit.switchTo`. Returns `true` on success.
+/// wires this to `SessionController.switchTo`. Returns `true` on success.
 Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
   required BuildContext context,
   List<SelectOrganizationItemUiModel>? organizations,

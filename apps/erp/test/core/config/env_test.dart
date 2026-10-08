@@ -1,4 +1,4 @@
-import 'package:erp/configurations/app_environment.dart';
+import 'package:erp/core/config/app_environment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

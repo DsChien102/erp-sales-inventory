@@ -64,6 +64,7 @@ import '../../features/partner/presentation/pages/partner_contacts_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
 import '../../features/partner/presentation/pages/partner_transform_page.dart';
+import '../../features/partner/data/partner_repository.dart';
 import '../../features/partner/presentation/pages/partner_change_history_page.dart';
 
 // Pricing
@@ -78,24 +79,20 @@ import '../../features/pricing/presentation/pages/pricing_pick_product_page.dart
 import '../../features/pricing/presentation/pages/pricing_pick_unit_page.dart';
 
 import '../di/injection.dart';
-import '../errors/exception_mapper.dart';
+import '../errors/app_exception.dart';
+import '../session/session_controller.dart';
+import 'route_guard.dart';
+import 'session_refresh.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
+  refreshListenable: sessionRefresh,
   redirect: (context, state) {
-    final isAuthenticated = getIt<ICurrentUser>().userId != null;
-    final location = state.matchedLocation;
-    final isPublicRoute = location.startsWith('/login') || location == '/invitation';
-
-    if (!isAuthenticated && !isPublicRoute) {
-      return '/login';
-    }
-
-    if (isAuthenticated && location.startsWith('/login')) {
-      return '/';
-    }
-
-    return null;
+    if (!getIt.isRegistered<SessionController>()) return null;
+    return routeGuard(
+      session: getIt<SessionController>().state,
+      location: state.matchedLocation,
+    );
   },
   routes: [
     GoRoute(
@@ -283,40 +280,36 @@ final appRouter = GoRouter(
       builder: (context, state) => MyAccountPage(
         iamModule: getIt<IIamModule>(),
         onLogout: () async {
-          final result = await guard(
-            () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(SignOutCommand()),
-          );
-          if (!context.mounted) return;
-          result.fold(
-            (failure) {
+          try {
+            final result = await getIt<SessionController>().signOut();
+            if (!context.mounted) return;
+            if (!result.localCleared) {
               VToast.show(
                 context,
                 title: 'Đăng xuất thất bại',
-                message: failure.message,
+                message: 'Không thể đóng phiên trên máy.',
                 type: VToastType.danger,
               );
-            },
-            (signOut) {
-              if (!signOut.localCleared) {
-                VToast.show(
-                  context,
-                  title: 'Đăng xuất thất bại',
-                  message: 'Không thể đóng phiên trên máy.',
-                  type: VToastType.danger,
-                );
-                return;
-              }
-              if (!signOut.remoteSucceeded) {
-                VToast.show(
-                  context,
-                  title: 'Cảnh báo',
-                  message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
-                  type: VToastType.warning,
-                );
-              }
-              context.go('/login');
-            },
-          );
+              return;
+            }
+            if (!result.remoteSucceeded) {
+              VToast.show(
+                context,
+                title: 'Cảnh báo',
+                message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+                type: VToastType.warning,
+              );
+            }
+            context.go('/login');
+          } on AppException catch (error) {
+            if (!context.mounted) return;
+            VToast.show(
+              context,
+              title: 'Đăng xuất thất bại',
+              message: error.userMessage(),
+              type: VToastType.danger,
+            );
+          }
         },
       ),
     ),
@@ -558,8 +551,7 @@ final appRouter = GoRouter(
         return PartnerChangeHistoryPage(
           partnerId: partnerId,
           partnerName: partnerName,
-          partnerModule: getIt<IPartnerModule>(),
-          executionContext: getIt<IExecutionContext>(),
+          repository: getIt<PartnerRepository>(),
         );
       },
     ),

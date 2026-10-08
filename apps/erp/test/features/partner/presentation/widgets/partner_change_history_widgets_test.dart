@@ -1,12 +1,13 @@
+import 'package:erp/features/partner/data/models/partner_action_log.dart';
+import 'package:erp/features/partner/data/partner_repository.dart';
+import 'package:erp/features/partner/presentation.dart';
 import 'package:erp/features/partner/presentation/pages/partner_change_history_page.dart';
 import 'package:erp/features/partner/presentation/widgets/partner_change_history_body.dart';
 import 'package:erp/features/partner/presentation/widgets/partner_change_history_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_partner_application/testing.dart';
-import 'package:erp/features/partner/presentation.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
   final occurredAt = DateTime.utc(2026, 7, 16, 11, 26);
@@ -119,10 +120,7 @@ void main() {
           home: PartnerChangeHistoryPage(
             partnerId: 'p-1',
             partnerName: 'Nguyễn Văn A',
-            partnerModule: FakePartnerModule(
-              scenario: FakePartnerScenario.actionLogsEmpty,
-            ),
-            executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+            repository: _emptyRepository(),
           ),
         ),
       );
@@ -135,4 +133,20 @@ void main() {
       expect(find.byType(VPageScaffold), findsOneWidget);
     },
   );
+}
+
+class _MockPartnerRepository extends Mock implements PartnerRepository {}
+
+PartnerRepository _emptyRepository() {
+  final repository = _MockPartnerRepository();
+  when(
+    () => repository.getActionLogs(
+      any(),
+      page: any(named: 'page'),
+      limit: any(named: 'limit'),
+    ),
+  ).thenAnswer(
+    (_) async => const PartnerActionLogPage(items: [], total: 0, page: 1, limit: 20),
+  );
+  return repository;
 }

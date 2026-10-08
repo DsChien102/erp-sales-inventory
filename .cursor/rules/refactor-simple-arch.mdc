@@ -6,7 +6,7 @@ alwaysApply: true
 # Refactor `refactor/simple-arch`
 
 - Đọc [AGENTS.md](../../AGENTS.md) trước khi làm. Kế hoạch: `docs/refactor/SCOPE.md`, `docs/refactor/PLAN.md`. Đặc tả chuẩn: `docs/02-yeu-cau/`.
-- Kiến trúc đích: `apps/erp/lib/features/<feature>/{data,presentation}`, luồng `Page → Cubit → Repository → supabase.schema(x).rpc(...)`. Dịch vụ ngoài qua Supabase Edge Function + `pg_cron`.
+- Kiến trúc đích: `apps/erp/lib/features/<feature>/{data,logic,presentation}`, luồng `Page → Cubit → Repository → supabase.schema(x).rpc(...)`. Dịch vụ ngoài qua Supabase Edge Function + `pg_cron`.
 - **Không** dùng CommandBus/QueryBus, mediator, module package, outbox/inbox, messaging worker cho code mới. Tài liệu kiến trúc cũ ở `docs/_legacy/` chỉ để đọc code cũ.
-- Feature không import `data/` của feature khác.
+- `presentation → logic → data`; feature khác chỉ dùng repository (`data/`) của nhau.
 - Không ghi lên Supabase remote (`db push`, `config push`) khi chưa hỏi người dùng; không đụng project Prod trước P10.

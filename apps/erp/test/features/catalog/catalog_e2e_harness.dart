@@ -64,6 +64,9 @@ Widget buildMeasurementUnitsRouter(ProductListItemModel product) {
 class FakeGoTrueClient extends Fake implements GoTrueClient {
   @override
   User? get currentUser => null;
+
+  @override
+  Stream<AuthState> get onAuthStateChange => const Stream.empty();
 }
 
 class FakeSupabaseClient extends Fake implements SupabaseClient {

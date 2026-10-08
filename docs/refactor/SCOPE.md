@@ -80,7 +80,7 @@ apps/erp/lib/
 | `vet45_generator`, `vet45_annotations`, `vet45_adapters` | **Bỏ** |
 | `vet45_shared`, `vet45_async_query` | **Gộp** phần còn dùng vào `core/`, bỏ phần CQRS |
 | `vet45_design_system` | **Giữ** (chuyển thành `packages/design_system` hoặc `core/design_system`) |
-| `vet45_misa` | **Giữ nguyên** client MISA, gọi từ `features/einvoice/data` |
+| `vet45_misa` | **Bỏ ở P9**: client MISA viết lại bằng TypeScript trong Edge Function `einvoice-processor` (TH-08 KI-20, quyết định 2026-10-07) |
 | `vet45_resend` | **Chuyển** sang Edge Function `send-email` (API key nằm ở server) |
 | `vet45_lints` | Giữ thành `analysis_options.yaml` |
 | BLoC | **Giữ.** Ưu tiên Cubit cho màn đơn giản |

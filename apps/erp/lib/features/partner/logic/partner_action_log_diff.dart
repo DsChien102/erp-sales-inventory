@@ -106,8 +106,8 @@ class PartnerActionLogDiff {
       final kind = oldValue == emptyValueLabel
           ? PartnerFieldChangeKind.added
           : newValue == emptyValueLabel
-              ? PartnerFieldChangeKind.removed
-              : PartnerFieldChangeKind.modified;
+          ? PartnerFieldChangeKind.removed
+          : PartnerFieldChangeKind.modified;
       changes.add(
         PartnerFieldChange(
           label: _labelFor(key),
@@ -133,13 +133,12 @@ class PartnerActionLogDiff {
     source.forEach((key, value) {
       if (prefix.isEmpty && _ignoredKeys.contains(key)) return;
       final isProfileWrapper =
-          prefix.isEmpty &&
-          (key == 'person_profile' || key == 'organization_profile');
+          prefix.isEmpty && (key == 'person_profile' || key == 'organization_profile');
       final path = isProfileWrapper
           ? ''
           : prefix.isEmpty
-              ? key
-              : '$prefix.$key';
+          ? key
+          : '$prefix.$key';
       if (value is Map) {
         result.addAll(_flatten(value.cast<String, dynamic>(), path));
       } else {
