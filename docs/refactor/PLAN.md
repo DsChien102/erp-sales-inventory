@@ -24,7 +24,7 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inv
 | P8 | Platform admin (gộp app) | 3 ngày | P2 |
 | P9 | Dọn dẹp code + DB | 3 ngày | P1–P8 |
 | P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 |
-| | **Tổng** | **~34 ngày làm việc** | |
+| | **Tổng** | **~39 ngày làm việc** | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
@@ -45,6 +45,14 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inv
 | Review | chưa review | 🔄 có góp ý, đang sửa | đạt | — không cần |
 
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
+
+Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/P1/1.1-cau-truc-core.md)`.
+
+### Danh sách plan
+
+| Việc | File plan | Plan | Làm | Review |
+|---|---|---|---|---|
+| 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | 📝 | ⬜ | ⬜ |
 
 
 ---
@@ -108,7 +116,7 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 
 | # | Plan | Làm | Review | Việc | Chi tiết |
 |---|---|---|---|---|---|
-| 1.1 | [📝](plans/P1/1.1-cau-truc-core.md) | ⬜ | ⬜ | Cấu trúc thư mục | Tạo `lib/core/{supabase,router,session,di,errors,formatting}` (đã có một phần, chỉnh lại) |
+| 1.1 | 📝 [plan](plans/P1/1.1-cau-truc-core.md) | ⬜ | ⬜ | Cấu trúc thư mục | Tạo `lib/core/{supabase,router,session,di,errors,formatting}` (đã có một phần, chỉnh lại) |
 | 1.2 | ⬜ | ⬜ | ⬜ | `AppException` + bộ map lỗi | Một lớp lỗi chung, map từ `PostgrestException.message` (mã `PERMISSION_DENIED`, `VALIDATION_ERROR`…) sang thông báo tiếng Việt. Gộp từ `exception_mapper.dart` và các `IamBlockedCodes` |
 | 1.3 | ⬜ | ⬜ | ⬜ | `SessionController` | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module |
 | 1.4 | ⬜ | ⬜ | ⬜ | Router guard | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active |
