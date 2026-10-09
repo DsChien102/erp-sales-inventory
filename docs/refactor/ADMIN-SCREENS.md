@@ -2,7 +2,7 @@
 
 > 2026-10-09 · Kiểm kê từ code `apps/admin/lib` (router, pages, widgets, bottom sheet).
 > Quyết định đã chốt (2026-10-09): **chỉ giữ** quản lý tổ chức (tạm ngừng / khôi phục / đóng) và **chuyển chủ sở hữu**. Bỏ Tổng quan, Người dùng nền tảng, Nhật ký nền tảng.
-> Vị trí đặt trong `erp`: **chưa chốt** (mục 4).
+> Vị trí đặt trong `erp`: **phương án A** — nhóm "Quản trị nền tảng" cuối tab Thêm (chốt 2026-10-09). Khung màn: bảng thiết kế "Vị trí quản trị tổ chức trong app ERP" (A1, A2, C1–C7).
 
 ## 1. Danh sách màn của `apps/admin`
 
@@ -58,7 +58,7 @@ Cả 7 RPC đã có (`20260811010…012`, `20260911003`); kiểm lại chữ ký
 | M3 Tổng quan, M9 Nhật ký nền tảng | Không xem nhật ký nền tảng trên app (dữ liệu vẫn ghi vào `iam.audit_logs`) | Xem bảng trong Supabase |
 | TH-01 EP-09 | US-09.1, US-09.5, US-09.6 → ngoài phạm vi | Cập nhật TH-01 khi chốt vị trí |
 
-## 4. Vị trí trong `erp` — chưa chốt
+## 4. Vị trí trong `erp` — đã chốt A (2026-10-09)
 
 Chỉ còn 2 nhóm màn (danh sách tổ chức → chi tiết → 4 thao tác), nên hai phương án:
 
@@ -69,4 +69,4 @@ Chỉ còn 2 nhóm màn (danh sách tổ chức → chi tiết → 4 thao tác),
 | Admin không có cửa hàng | Vào từ `/no-organization` ▸ "Quản trị nền tảng" | Đăng nhập vào thẳng `/admin` |
 | Khối lượng | Ít (2 trang + 4 sheet + guard 1 nhánh) | Nhiều (shell, 5 tab cho 1 chức năng, guard G3/G4, nhớ khu) |
 
-Với phạm vi đã thu gọn, **A hợp lý hơn**. Khi chốt, Claude cập nhật [LUONG-UNG-DUNG](../02-yeu-cau/LUONG-UNG-DUNG.md), TH-01 (EP-09, mục 5.11) và PLAN P8, rồi thiết kế màn.
+**Chọn A.** Đã cập nhật TH-01 (1.2, 2.3, US-02.2, EP-09, 5.1, 5.11, mục 8, 9), PLAN P8, CHECKLIST, SCOPE (ghi chú) và [LUONG-UNG-DUNG](../02-yeu-cau/LUONG-UNG-DUNG.md).

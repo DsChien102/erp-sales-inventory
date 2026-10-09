@@ -6,7 +6,7 @@
 ## Tổng quan
 
 ```text
-P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inventory ─▶ P4 Partner ─▶ P5 Pricing ─▶ P6 Sales ─▶ P7 E-invoice ─▶ P8 Platform admin ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
+P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inventory ─▶ P4 Partner ─▶ P5 Pricing ─▶ P6 Sales ─▶ P7 E-invoice ─▶ P8 Quản trị tổ chức ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
                                      │                                                                                       ▲
                                      └───────────────────────────── P8 có thể làm song song từ sau P2 ───────────────────────┘
 ```
@@ -21,7 +21,7 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inv
 | P5 | Pricing | 2 ngày | P3, P4 |
 | P6 | Sales | 6 ngày | P3, P4, P5 |
 | P7 | E-invoice | 8 ngày | P6 |
-| P8 | Platform admin (gộp app) | 3 ngày | P2 |
+| P8 | Quản trị tổ chức (gộp phần tổ chức của `apps/admin` vào tab Thêm) | 2 ngày | P2 |
 | P9 | Dọn dẹp code + DB | 3 ngày | P1–P8 |
 | P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 |
 | | **Tổng** | **~39 ngày làm việc** | |
@@ -338,27 +338,30 @@ Chi tiết từng việc:
 
 ---
 
-## P8. Platform admin: gộp app (3 ngày, làm song song được từ sau P2)
+## P8. Quản trị tổ chức cho Platform Admin (2 ngày, làm song song được từ sau P2)
+
+> Phương án A (chốt 2026-10-09): không có khu `/admin`; nhóm "Quản trị nền tảng" cuối tab **Thêm**. Màn và khung: [ADMIN-SCREENS.md](ADMIN-SCREENS.md); đặc tả: TH-01 EP-09 (US-09.2…09.4), ID-31…ID-33.
 
 **Trạng thái:** ⬜ Chưa làm
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **8** | Gộp platform admin vào `/admin` | 8.1, 8.2, 8.4, 8.5 | ⬜ | ⬜ | ⬜ |
+| **8** | Quản trị tổ chức trong tab Thêm | 8.1…8.6 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
 | # | Việc |
 |---|---|
-| 8.1 | Tạo `features/platform_admin/` + shell `/admin` (bottom nav riêng) |
-| 8.2 | Chuyển từ `apps/admin`: tổng quan, danh sách/chi tiết tổ chức (tạm ngưng/khôi phục/đóng/chuyển owner), người dùng nền tảng, audit log |
-| 8.4 | Menu "Chuyển không gian" cho user vừa là admin vừa là thành viên |
+| 8.1 | `features/platform_admin/` (data / logic / presentation); `SessionController.isPlatformAdmin`; guard: `/more/platform/**` chỉ cho Platform Admin |
+| 8.2 | Chuyển từ `apps/admin`: danh sách tổ chức (ID-31), chi tiết (ID-32), sheet Thao tác + xác nhận tạm ngừng / khôi phục / đóng, thay đổi chủ sở hữu (ID-33) + xác nhận |
+| 8.3 | Điểm vào: nhóm "Quản trị nền tảng" cuối tab Thêm; nút "Quản trị nền tảng" trên `/no-organization` (admin chưa có cửa hàng) |
+| 8.4 | KI-08: `transfer_platform_tenant_ownership` chặn người nhận đã là Owner tổ chức khác (BR-32) |
 | 8.5 | Tạo platform admin bằng `vet45 admin create --email …` (đã có trong `tools/vet45_env`, không viết script mới) + admin mẫu trong `seed.sql` cho local; ghi cách dùng vào README |
 | 8.6 | KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, trạng thái `provisioning` / `pending_activation` (dời từ 2-B3) |
 
-**Không chuyển** từ `apps/admin`: wizard khởi tạo (`platform_onboarding_page`), "gửi lại lời mời owner", "gửi lại kích hoạt".
+**Không chuyển** từ `apps/admin`: wizard khởi tạo (`platform_onboarding_page`), "gửi lại email thiết lập / lời mời owner", "gửi lại kích hoạt", tổng quan, người dùng nền tảng, nhật ký nền tảng, khung 5 tab, "Chuyển không gian".
 
-**Xong khi:** admin đăng nhập vào `/admin`, thấy tổ chức vừa đăng ký ở P2, tạm ngưng được (owner bị chặn) và khôi phục được.
+**Xong khi:** Platform Admin đăng nhập, mở Thêm ▸ Quản trị nền tảng ▸ Tổ chức, thấy tổ chức vừa đăng ký ở P2, tạm ngừng được (Owner thấy ID-09), khôi phục được, chuyển Owner được; người thường không thấy mục này và gõ route thì bị chặn.
 
 ---
 

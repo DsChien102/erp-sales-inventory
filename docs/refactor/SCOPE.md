@@ -97,6 +97,8 @@ apps/erp/lib/
 ### 3.4 Một app cho cả người dùng cửa hàng và quản trị nền tảng
 
 - **Một màn đăng nhập.** Sau khi đăng nhập, session kiểm tra user có trong `iam.platform_admins` hay không.
+> ⚠️ **Cập nhật 2026-10-09 (phương án A):** không dựng khu `/admin`. Platform Admin chỉ quản lý tổ chức (tạm ngừng / khôi phục / đóng, chuyển Owner) ở nhóm "Quản trị nền tảng" cuối tab **Thêm** (`/more/platform/**`); bỏ tổng quan, người dùng nền tảng, nhật ký nền tảng, "Chuyển không gian". Chuẩn: TH-01 mục 1.2, 2.3, EP-09 và [ADMIN-SCREENS.md](ADMIN-SCREENS.md).
+
 - **Định tuyến theo vai trò:**
   - User cửa hàng thì vào `/` (shell ERP: bán hàng, sản phẩm, đối tác...).
   - Platform admin thì vào `/admin` (shell quản trị: tổ chức, người dùng, audit log, overview).
@@ -265,6 +267,9 @@ sequenceDiagram
 Guard: `/signup` chỉ mở khi **chưa đăng nhập**. `/admin/**` chỉ dành cho platform admin, còn route cửa hàng cần tenant `active`. **Mọi RPC và trigger vẫn tự kiểm tra quyền.**
 
 #### Khu vực `/admin` (giám sát, không tạo tổ chức)
+
+> ⚠️ **Cập nhật 2026-10-09 (phương án A):** không dựng khu `/admin`. Platform Admin chỉ quản lý tổ chức (tạm ngừng / khôi phục / đóng, chuyển Owner) ở nhóm "Quản trị nền tảng" cuối tab **Thêm** (`/more/platform/**`); bỏ tổng quan, người dùng nền tảng, nhật ký nền tảng, "Chuyển không gian". Chuẩn: TH-01 mục 1.2, 2.3, EP-09 và [ADMIN-SCREENS.md](ADMIN-SCREENS.md).
+
 
 | Route | Màn (chuyển từ `apps/admin`) | Thay đổi |
 |---|---|---|

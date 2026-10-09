@@ -17,7 +17,7 @@
 | P5 | Giá riêng (TH-04) | 10 |
 | P6 | Bán hàng, đơn hàng (TH-05) | 19 |
 | P7 | Hóa đơn điện tử (TH-08) | 13 |
-| P8 | Platform admin (TH-01 ID-30…35) | 6 |
+| P8 | Quản trị tổ chức (TH-01 ID-31…33) | 3 |
 | — | Khung chung | 4 |
 
 ---
@@ -67,7 +67,7 @@
 | ID-x4 | Router guard: chưa xác minh 🆕 | mọi route | Về `/verify-email` | — | ☐ | |
 | ID-x5 | Router guard: không có tổ chức 🆕 | mọi route | Về `/no-organization` | — | ☐ | |
 | ID-x6 | Router guard: tổ chức bị chặn | mọi route | Màn ID-09 | ☐ | ☐ | |
-| ID-x7 | Router guard: platform admin 🆕 | mọi route | Về `/admin` | — | ☐ | |
+| ID-x7 | Router guard: Quản trị nền tảng 🆕 | `/more/platform/**` | Người không phải Platform Admin → `/` | — | ☐ | Phương án A (2026-10-09): không còn khu `/admin` |
 
 ## P3 — TH-02 Sản phẩm và giá bán
 
@@ -174,12 +174,12 @@
 
 | Mã | Màn | Route mới | Route cũ (`apps/admin`) | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
-| ID-30 | Tổng quan nền tảng | `/admin` | `/dashboard/home` | ☐ | ☐ | |
-| ID-31 | Tổ chức | `/admin/organizations` | `/dashboard/organizations` | ☐ | ☐ | Bản cũ có `organizations/new` — bỏ (SCOPE 3.5) |
-| ID-32 | Chi tiết tổ chức | `/admin/organizations/:id` | `/dashboard/organizations/:tenantId` | ☐ | ☐ | Tạm ngừng / khôi phục / đóng |
-| ID-33 | Thay đổi chủ sở hữu | `/admin/organizations/:id/owner` | (trong chi tiết) | ☐ | ☐ | |
-| ID-34 | Người dùng nền tảng | `/admin/users`, `/:id` | `/dashboard/users`, `/:userId` | ☐ | ☐ | |
-| ID-35 | Nhật ký nền tảng | `/admin/audit-logs` | `/dashboard/audit` | ☐ | ☐ | |
+| ~~ID-30~~ | Tổng quan nền tảng | — | `/dashboard/home` | — | — | ⏭ Bỏ (2026-10-09) |
+| ID-31 | Tổ chức (Thêm ▸ Quản trị nền tảng) | `/more/platform/organizations` | `/dashboard/organizations` | ☐ | ☐ | Bản cũ có `organizations/new` — bỏ (SCOPE 3.5) |
+| ID-32 | Chi tiết tổ chức | `/more/platform/organizations/:id` | `/dashboard/organizations/:tenantId` | ☐ | ☐ | Tạm ngừng / khôi phục / đóng |
+| ID-33 | Thay đổi chủ sở hữu | `/more/platform/organizations/:id/owner` | (trong chi tiết) | ☐ | ☐ | |
+| ~~ID-34~~ | Người dùng nền tảng | — | `/dashboard/users`, `/:userId` | — | — | ⏭ Bỏ (2026-10-09) |
+| ~~ID-35~~ | Nhật ký nền tảng | — | `/dashboard/audit` | — | — | ⏭ Bỏ (2026-10-09) |
 
 ---
 
