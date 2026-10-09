@@ -57,7 +57,7 @@ pg_cron mỗi phút: gửi lại job queued / failed (≤ 5 lần) — lưới a
 create table if not exists iam.email_jobs (
   id uuid primary key,                         -- = p_message_id của RPC
   tenant_id uuid,                              -- null cho đặt lại mật khẩu
-  template_id text not null check (template_id in ('tenant_invitation', 'password_reset_code')),
+  template_id text not null,                   -- KHÔNG giới hạn bằng check: còn 'activation_invitation' (onboarding cũ, xoá ở 2-B3)
   to_email text not null,
   locale text not null default 'vi',
   correlation_id text not null,
@@ -74,6 +74,7 @@ create table if not exists iam.email_jobs (
   updated_at timestamptz not null default now()
 );
 alter table iam.email_jobs enable row level security;   -- không policy: client không đọc được
+grant usage on schema iam to service_role;              -- Edge Function gọi rpc bằng service_role; hiện schema iam chỉ cấp cho anon / authenticated
 create index … on iam.email_jobs (status, created_at) where status in ('queued', 'failed');
 ```
 
@@ -90,6 +91,7 @@ create index … on iam.email_jobs (status, created_at) where status in ('queued
 `iam._email_template_data(p_template_id text, p_refs jsonb) returns jsonb` (`stable`, `security definer`):
 - `tenant_invitation` (`refs.invitation_id`): `tenant_name` (`tenants.display_name`), `role_label` (`role_definitions.label`), `inviter_name` (tên trong `platform_user_profiles` của người mời qua `invited_by_membership_id`; không có → `null`), `expires_at`.
 - `password_reset_code`: `expires_in_minutes = 10`.
+- Template khác (vd `activation_invitation` của onboarding cũ, 8 migration còn dùng): trả `{}`. Edge Function gặp template không biết → `complete_email_job(false, 'UNKNOWN_TEMPLATE')` (không ném lỗi ở DB, để RPC cũ không hỏng).
 - Không tìm thấy dữ liệu → trả `{}` (không chặn RPC; template có câu dự phòng).
 
 ### Bước 3 — Claim / complete (gọi từ Edge Function)
@@ -174,7 +176,7 @@ Gợi ý: (1) migration + test SQL; (2) Edge Function + template + test; (3) run
 - [ ] Kịch bản SQL Bước 6 chạy hết, không `raise`.
 - [ ] `deno test` pass.
 - [ ] `flutter test` toàn `apps/erp`: không lỗi mới so với 2-B1 (1.424 pass / 61 fail) — app không đổi, chỉ để chắc.
-- [ ] Kiểm tay trên Dev (email người nhận = email tài khoản Resend khi chưa có tên miền):
+- [ ] Kiểm tay trên Dev — **để sau khi mua tên miền và xác minh trên Resend** (quyết định 2026-10-09). Trước đó chỉ cần các mục tự động ở trên + deploy function; review đóng ở 🔄 cho tới khi kiểm xong:
   - [ ] "Quên mật khẩu" với email của bạn → nhận mã 6 số trong ~1 phút → đặt lại được.
   - [ ] Owner mời email của bạn (dùng tài khoản Owner khác) → nhận email có mã lời mời, tên tổ chức, vai trò; chi tiết lời mời hiện "Đã gửi email".
   - [ ] "Gửi lại" lời mời → email mới, mã cũ không dùng được (BR-41).
