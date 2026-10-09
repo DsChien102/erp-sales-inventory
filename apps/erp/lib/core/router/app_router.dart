@@ -14,6 +14,7 @@ import 'package:vet45_einvoice_application/application.dart';
 import 'package:vet45_einvoice_domain/domain.dart';
 import 'package:vet45_einvoice_presentation/presentation.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
+import 'package:erp/features/auth/data/invitation_acceptance_repository.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/audit_log_repository.dart';
 import 'package:erp/features/iam/data/invitation_repository.dart';
@@ -107,7 +108,8 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return LoginPage(
-          iamModule: getIt<IIamModule>(),
+          auth: getIt<AuthRepository>(),
+          session: getIt<SessionController>(),
           prefilledEmail: extra?['prefilledEmail'] as String?,
           organizationName: extra?['organizationName'] as String?,
           showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
@@ -131,7 +133,10 @@ final appRouter = GoRouter(
       path: '/invitation',
       name: 'invitation',
       builder: (context, state) => InvitationTokenPage(
-        iamModule: getIt<IIamModule>(),
+        invitations: getIt<InvitationAcceptanceRepository>(),
+        auth: getIt<AuthRepository>(),
+        account: getIt<AccountRepository>(),
+        session: getIt<SessionController>(),
       ),
     ),
     GoRoute(

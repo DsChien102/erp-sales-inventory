@@ -1,36 +1,27 @@
 import 'dart:io';
 
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/auth/logic/login_cubit.dart';
+import 'package:erp/features/auth/logic/login_state.dart';
+import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/auth/presentation/bloc/login_cubit.dart';
-import 'package:erp/features/auth/presentation/bloc/login_state.dart';
-import 'package:erp/features/auth/presentation/pages/login_page.dart';
+import 'package:vet45_iam_application/application.dart';
 
-final class _ThrowingIamModule implements IIamModule {
-  _ThrowingIamModule(this.errorToThrow);
-
-  final Object errorToThrow;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(dynamic command) {
-    return Future.error(errorToThrow);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(dynamic query) {
-    throw UnimplementedError();
-  }
-}
+import '../support/scripted_auth.dart';
 
 void main() {
   group('Login error mapping and presentation', () {
     test('authInvalid emits invalidCredentials with Vietnamese copy', () async {
-      final module = FakeIamModule(scenario: FakeIamScenario.authInvalid);
-      final cubit = LoginCubit(iamModule: module);
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+        ),
+        session: loginSession(),
+      );
 
       await cubit.submit(email: 'asdasd@gmail.com', password: 'secret');
 
@@ -44,10 +35,15 @@ void main() {
     });
 
     test('AuthException with invalid_credentials maps to user friendly message', () async {
-      final module = _ThrowingIamModule(
-        const AuthException('Invalid login credentials', code: 'invalid_credentials'),
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: const AuthException(
+            'Invalid login credentials',
+            code: 'invalid_credentials',
+          ),
+        ),
+        session: loginSession(),
       );
-      final cubit = LoginCubit(iamModule: module);
 
       await cubit.submit(email: 'asdasd@gmail.com', password: 'secret');
 
@@ -61,10 +57,12 @@ void main() {
     });
 
     test('Network failure maps to server connection message', () async {
-      final module = _ThrowingIamModule(
-        SocketException('Failed host lookup: localhost'),
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: const SocketException('Failed host lookup: localhost'),
+        ),
+        session: loginSession(),
       );
-      final cubit = LoginCubit(iamModule: module);
 
       await cubit.submit(email: 'asdasd@gmail.com', password: 'secret');
 
@@ -77,14 +75,34 @@ void main() {
       await cubit.close();
     });
 
+    test('repository wraps AuthException before the cubit maps it', () async {
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: AppException.from(
+            const AuthException('Invalid login credentials', code: 'invalid_credentials'),
+          ),
+        ),
+        session: loginSession(),
+      );
+
+      await cubit.submit(email: 'asdasd@gmail.com', password: 'secret');
+
+      expect(cubit.state.failure?.code, IamBlockedCodes.invalidCredentials);
+      await cubit.close();
+    });
+
     testWidgets('LoginPage shows invalid credentials on email VFieldError', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule(scenario: FakeIamScenario.authInvalid);
-      final cubit = LoginCubit(iamModule: module);
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+        ),
+        session: loginSession(),
+      );
       addTearDown(cubit.close);
 
       final router = GoRouter(

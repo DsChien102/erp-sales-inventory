@@ -1,0 +1,151 @@
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/auth/data/invitation_acceptance_repository.dart';
+import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
+import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
+import 'package:erp/features/iam/data/models/tenant_invitation.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+import 'package:erp/features/iam/presentation/testing/fake_idempotency_key_factory.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_domain/domain.dart';
+
+import 'scripted_auth.dart';
+
+/// Lời mời giả theo các kịch bản [FakeIamScenario] mà cubit/trang kích hoạt đang dùng.
+class ScriptedInvitations extends InvitationAcceptanceRepository {
+  ScriptedInvitations({
+    required this.scenario,
+    this.acceptError,
+    List<String>? log,
+    this.declineFailures = 0,
+  }) : _log = log,
+       super(rpc: testRpc());
+
+  final FakeIamScenario scenario;
+  final Object? acceptError;
+  final List<String>? _log;
+  int declineFailures;
+
+  final accepts = <String>[];
+  final declines = <String>[];
+
+  @override
+  Future<InvitationTokenInspection> inspect(String token) async {
+    _log?.add('inspect');
+    if (scenario == FakeIamScenario.inspectInvalidNoLeak ||
+        scenario == FakeIamScenario.acceptRotatedToken) {
+      throw const IamBlockedException(IamBlockedCodes.invitationTokenInvalid);
+    }
+    if (scenario == FakeIamScenario.acceptExpired) {
+      throw const IamBlockedException(IamBlockedCodes.invitationExpired);
+    }
+    if (scenario == FakeIamScenario.acceptDeclined) {
+      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
+    }
+    final exists = switch (scenario) {
+      FakeIamScenario.inspectNewAccount ||
+      FakeIamScenario.registerAndAcceptOk ||
+      FakeIamScenario.registerIdentityConflict => false,
+      _ => true,
+    };
+    return InvitationTokenInspection(
+      tenantId: 'org-001',
+      tenantName: 'Mậu Hiên',
+      inviteeEmail: 'invitee@example.com',
+      initialRoleId: 'role-staff',
+      initialRoleLabel: 'Nhân viên bán hàng',
+      expiresAt: DateTime.utc(2026, 8, 5),
+      accountExists: exists,
+      givenName: exists ? null : 'Chiến',
+      familyName: exists ? null : 'Đỗ Sỹ',
+      phone: exists ? null : '0901234567',
+    );
+  }
+
+  @override
+  Future<TenantMemberDetail> accept(
+    String token, {
+    required String idempotencyKey,
+  }) async {
+    accepts.add(idempotencyKey);
+    _log?.add('accept');
+    if (acceptError != null) throw acceptError!;
+    if (scenario == FakeIamScenario.acceptEmailMismatch) {
+      throw const IamBlockedException(IamBlockedCodes.invitationEmailMismatch);
+    }
+    if (scenario == FakeIamScenario.acceptConcurrent) {
+      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
+    }
+    if (scenario == FakeIamScenario.acceptTenantSuspended) {
+      throw const IamBlockedException(IamBlockedCodes.tenantSuspended);
+    }
+    return TenantMemberDetail(
+      membershipId: 'mem-accepted-1',
+      tenantId: 'org-001',
+      userId: 'invitee-user',
+      role: 'staff',
+      isOwner: false,
+      isSoleOwner: false,
+      status: MembershipStatus.active,
+      version: 1,
+      joinedAt: DateTime.utc(2026, 7, 30),
+    );
+  }
+
+  @override
+  Future<TenantInvitationDetail> decline(
+    String token, {
+    required String idempotencyKey,
+  }) async {
+    declines.add(idempotencyKey);
+    _log?.add('decline');
+    if (declineFailures > 0) {
+      declineFailures -= 1;
+      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
+    }
+    return TenantInvitationDetail(
+      invitationId: 'inv-1',
+      inviteeEmail: 'invitee@example.com',
+      initialRoleId: 'role-staff',
+      initialRoleLabel: 'Staff',
+      status: 'declined',
+      expiresAt: DateTime.utc(2026, 8, 5),
+      deliveryStatus: 'sent',
+      deliveryCorrelationId: 'corr',
+      version: 2,
+      createdAt: DateTime.utc(2026, 7, 29),
+      createdBy: 'lan-le',
+      declinedAt: DateTime.utc(2026, 7, 30),
+    );
+  }
+}
+
+/// Trang nhận lời mời gắn repository giả, dùng cho widget test.
+class InvitationPageHarness {
+  InvitationPageHarness({
+    FakeIamScenario scenario = FakeIamScenario.inspectExistingAccount,
+    Object? acceptError,
+    Object? signUpError,
+    List<String>? log,
+  }) : invitations = ScriptedInvitations(
+         scenario: scenario,
+         acceptError: acceptError,
+         log: log,
+       ),
+       auth = ScriptedAuthRepository(signUpError: signUpError, log: log),
+       account = ScriptedAccountRepository(log: log),
+       session = loginSession(email: 'invitee@example.com', log: log);
+
+  final ScriptedInvitations invitations;
+  final ScriptedAuthRepository auth;
+  final ScriptedAccountRepository account;
+  final SessionController session;
+
+  InvitationTokenPage get page => InvitationTokenPage(
+    invitations: invitations,
+    auth: auth,
+    account: account,
+    session: session,
+    keyFactory: FakeIdempotencyKeyFactory(),
+  );
+}

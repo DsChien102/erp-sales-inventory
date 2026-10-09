@@ -2,9 +2,11 @@ import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
 import 'package:erp/features/dashboard/presentation/models/dashboard_navigation.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/sales/presentation/pages/sales_order_list_page.dart';
+import 'package:erp/core/session/models/accessible_tenant.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
-import 'package:erp/features/tenant_context/presentation/mappers/accessible_tenant_ui_mapper.dart';
+import 'package:erp/features/iam/logic/iam_role_label_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +14,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:erp/features/iam/presentation.dart';
@@ -20,6 +21,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import '../../../core/session/fake_session_repository.dart';
 
 void main() {
   final getIt = GetIt.instance;
@@ -41,14 +43,14 @@ void main() {
       ..registerSingleton<IIamModule>(module);
   }
 
-  Widget wrapDashboard(IIamModule module) {
+  Widget wrapDashboard(FakeSessionRepository repository) {
     final router = GoRouter(
       initialLocation: '/',
       routes: [
         GoRoute(
           path: '/',
           builder: (context, state) => DashboardPage(
-            iamModule: module,
+            repository: repository,
             autoBootstrap: true,
           ),
         ),
@@ -58,67 +60,50 @@ void main() {
   }
 
   group('wgt_e05_u01_fr01_01 — list accessible tenants', () {
-    test('mapper: owner may select their provisioning tenant (self-onboard)', () {
-      const dto = AccessibleTenantDto(
-        tenantId: 'org-provisioning',
+    test('owner may select their provisioning tenant', () {
+      const tenant = AccessibleTenant(
+        id: 'org-provisioning',
         name: 'Đang thiết lập',
-        roleLabel: 'Chủ cửa hàng',
-        status: TenantLifecycleStatus.provisioning,
+        code: 'TEN-PROV',
+        roleCode: 'store_owner',
+        status: TenantStatus.provisioning,
         isOwner: true,
       );
-      // The DTO's canonical flag stays active-only …
-      expect(dto.isSelectable, isFalse);
-      // … but the ERP selector lets an owner enter to complete activation.
-      final ui = AccessibleTenantUiMapper.fromDto(dto);
-      expect(ui.isSelectable, isTrue);
-      expect(ui.status, TenantLifecycleStatus.provisioning);
+      expect(tenant.isSelectable, isTrue);
+      expect(IamRoleLabelMapper.toDisplayLabel(tenant.roleCode), 'Chủ cửa hàng');
     });
 
-    test('mapper: non-owner cannot select a provisioning tenant', () {
-      const dto = AccessibleTenantDto(
-        tenantId: 'org-provisioning-staff',
+    test('non-owner cannot select a provisioning tenant', () {
+      const tenant = AccessibleTenant(
+        id: 'org-provisioning-staff',
         name: 'Đang thiết lập',
-        roleLabel: 'Staff',
-        status: TenantLifecycleStatus.provisioning,
+        code: 'TEN-PROV',
+        roleCode: 'staff',
+        status: TenantStatus.provisioning,
       );
-      final ui = AccessibleTenantUiMapper.fromDto(dto);
-      expect(ui.isSelectable, isFalse);
+      expect(tenant.isSelectable, isFalse);
     });
 
-    test('mapper marks suspended/closed as not selectable', () {
-      const suspended = AccessibleTenantDto(
-        tenantId: 'org-003',
+    test('suspended and closed tenants are not selectable', () {
+      const suspended = AccessibleTenant(
+        id: 'org-003',
         name: 'ASC Commerce',
-        roleLabel: 'Staff',
-        status: TenantLifecycleStatus.suspended,
+        code: 'TEN-ORG003',
+        roleCode: 'staff',
+        status: TenantStatus.suspended,
       );
-      final suspendedUi = AccessibleTenantUiMapper.fromDto(suspended);
-      expect(suspendedUi.isSelectable, isFalse);
-      expect(suspendedUi.status, TenantLifecycleStatus.suspended);
+      expect(suspended.isSelectable, isFalse);
 
-      const closed = AccessibleTenantDto(
-        tenantId: 'org-004',
+      const closed = AccessibleTenant(
+        id: 'org-004',
         name: 'Đã đóng',
-        roleLabel: 'Chủ cửa hàng',
-        status: TenantLifecycleStatus.closed,
+        code: 'TEN-ORG004',
+        roleCode: 'store_owner',
+        status: TenantStatus.closed,
         isOwner: true,
       );
-      final closedUi = AccessibleTenantUiMapper.fromDto(closed);
-      expect(closedUi.isSelectable, isFalse);
-      expect(closedUi.status, TenantLifecycleStatus.closed);
-      expect(closedUi.code, startsWith('TEN-'));
-    });
-
-    test('mapper: maps technical roleCode store_owner to Chủ cửa hàng', () {
-      const dto = AccessibleTenantDto(
-        tenantId: 'org-store-owner',
-        name: 'Sỹ Chiến',
-        roleLabel: 'store_owner',
-        status: TenantLifecycleStatus.provisioning,
-        isOwner: true,
-      );
-      final ui = AccessibleTenantUiMapper.fromDto(dto);
-      expect(ui.roleLabel, 'Chủ cửa hàng');
+      expect(closed.isSelectable, isFalse);
+      expect(closed.code, startsWith('TEN-'));
     });
 
     testWidgets('selector: suspended not tappable', (tester) async {
@@ -127,13 +112,11 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule(
+      final repository = FakeSessionRepository(
         scenario: FakeIamScenario.tenantsSuspendedDisabled,
       );
-      registerModule(module);
-
       final cubit = SessionController(
-        iamModule: module,
+        repository: repository,
         userDisplayName: 'Lan',
       );
       await cubit.loadAccessibleTenants();
@@ -185,27 +168,25 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = SessionController(
-        iamModule: FakeIamModule(),
+        repository: FakeSessionRepository(),
         userDisplayName: 'Lan',
         initialState: SessionState(
           userDisplayName: 'Lan',
           status: TenantLoadStatus.ready,
           tenants: const [
-            SelectOrganizationItemUiModel(
+            AccessibleTenant(
               id: 'org-provisioning',
               name: 'Đang thiết lập',
               code: 'TEN-PROV',
-              roleLabel: 'Owner',
-              status: TenantLifecycleStatus.provisioning,
-              isSelectable: false,
+              roleCode: 'Owner',
+              status: TenantStatus.provisioning,
             ),
-            SelectOrganizationItemUiModel(
+            AccessibleTenant(
               id: 'org-active',
               name: 'Thú y Minh Phát',
               code: 'TEN-ACTIVE',
-              roleLabel: 'Owner',
-              status: TenantLifecycleStatus.active,
-              isSelectable: true,
+              roleCode: 'Owner',
+              status: TenantStatus.active,
             ),
           ],
         ),
@@ -253,27 +234,25 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = SessionController(
-        iamModule: FakeIamModule(),
+        repository: FakeSessionRepository(),
         userDisplayName: 'Lan',
         initialState: SessionState(
           userDisplayName: 'Lan',
           status: TenantLoadStatus.ready,
           tenants: const [
-            SelectOrganizationItemUiModel(
+            AccessibleTenant(
               id: 'org-closed',
               name: 'Org Closed',
               code: 'TEN-CLOSED',
-              roleLabel: 'Owner',
-              status: TenantLifecycleStatus.closed,
-              isSelectable: false,
+              roleCode: 'Owner',
+              status: TenantStatus.closed,
             ),
-            SelectOrganizationItemUiModel(
+            AccessibleTenant(
               id: 'org-active',
               name: 'Thú y Minh Phát',
               code: 'TEN-ACTIVE',
-              roleLabel: 'Owner',
-              status: TenantLifecycleStatus.active,
-              isSelectable: true,
+              roleCode: 'Owner',
+              status: TenantStatus.active,
             ),
           ],
         ),
@@ -317,20 +296,18 @@ void main() {
     testWidgets(
       'selector load failure keeps ready context (isolated selectorFailure)',
       (tester) async {
-        final module = _SelectorFailModule(
-          FakeIamModule(scenario: FakeIamScenario.bootstrapValid),
+        final repository = FakeSessionRepository(
+          scenario: FakeIamScenario.bootstrapValid,
         );
-        registerModule(module);
-
         final cubit = SessionController(
-          iamModule: module,
+          repository: repository,
           userDisplayName: 'Lan',
         );
         await cubit.bootstrap();
         expect(cubit.state.status, TenantLoadStatus.ready);
         expect(cubit.state.contextFailure, isNull);
 
-        module.failNextList = true;
+        repository.failNextList = true;
         await cubit.loadAccessibleTenants();
 
         expect(cubit.state.status, TenantLoadStatus.ready);
@@ -355,15 +332,14 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _SelectorFailModule(
-        FakeIamModule(scenario: FakeIamScenario.tenantsMulti),
+      final repository = FakeSessionRepository(
+        scenario: FakeIamScenario.tenantsMulti,
       );
-      registerModule(module);
       final cubit = SessionController(
-        iamModule: module,
+        repository: repository,
         userDisplayName: 'Lan',
       );
-      module.failNextList = true;
+      repository.failNextList = true;
       await cubit.loadAccessibleTenants();
       expect(cubit.state.selectorFailure, isNotNull);
 
@@ -406,13 +382,12 @@ void main() {
       await cubit.close();
     });
 
-    test('switch success applies TenantContextDto.permissions', () async {
-      final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
+    test('switch success applies tenant permissions', () async {
+      final repository = FakeSessionRepository(scenario: FakeIamScenario.switchOk);
       final session = IamSession()..applyAuthenticatedUser('user-1');
       final cubit = SessionController(
-        iamModule: module,
+        repository: repository,
         iamSession: session,
-        sessionPort: session,
         userDisplayName: 'Lan',
       );
       await cubit.bootstrap();
@@ -433,10 +408,10 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
-      registerModule(module);
+      final repository = FakeSessionRepository(scenario: FakeIamScenario.switchOk);
+      registerModule(FakeIamModule(scenario: FakeIamScenario.switchOk));
       final cubit = SessionController(
-        iamModule: module,
+        repository: repository,
         userDisplayName: 'Lan',
       );
       await cubit.bootstrap();
@@ -479,7 +454,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(cubit.state.branchDisplayName, 'Phòng khám Minh Tâm');
-      expect(module.switchTenantCount, 1);
+      expect(repository.switchCount, 1);
       expect(find.textContaining('Đã chuyển sang'), findsOneWidget);
 
       await cubit.close();
@@ -493,10 +468,10 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule(scenario: FakeIamScenario.switchDenied);
-      registerModule(module);
+      final repository = FakeSessionRepository(scenario: FakeIamScenario.switchDenied);
+      registerModule(FakeIamModule(scenario: FakeIamScenario.switchDenied));
       final cubit = SessionController(
-        iamModule: module,
+        repository: repository,
         userDisplayName: 'Lan',
       );
       await cubit.bootstrap();
@@ -546,7 +521,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('TENANT_ACCESS_DENIED'), findsOneWidget);
-      expect(module.switchTenantCount, 0);
+      expect(repository.switchCount, 0);
       expect(cubit.state.branchDisplayName, beforeBranch);
       expect(cubit.state.switchFailure, isNotNull);
       expect(cubit.state.isSwitching, isFalse);
@@ -560,7 +535,7 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.bootstrapValid);
       registerModule(module);
 
-      await tester.pumpWidget(wrapDashboard(module));
+      await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
       await tester.pumpAndSettle();
 
       expect(find.byType(DashboardHeader), findsOneWidget);
@@ -572,7 +547,7 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
       registerModule(module);
 
-      await tester.pumpWidget(wrapDashboard(module));
+      await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
       await tester.pumpAndSettle();
 
       expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
@@ -585,7 +560,7 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.bootstrapInvalid);
       registerModule(module);
 
-      await tester.pumpWidget(wrapDashboard(module));
+      await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
       await tester.pumpAndSettle();
 
       expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
@@ -594,13 +569,12 @@ void main() {
     testWidgets('context invalidated → inaccessible empty state', (
       tester,
     ) async {
-      final module = FakeIamModule(
-        scenario: FakeIamScenario.contextInvalidated,
-      );
-      registerModule(module);
-
-      final ctx = await module.executeQueryAsync<TenantContextDto>(
-        GetTenantContextQuery(),
+      const ctx = TenantContext(
+        status: TenantContextStatus.invalidated,
+        tenantId: 'org-001',
+        tenantName: 'Thú y Minh Phát',
+        invalidationReason: TenantContextInvalidationReason.tenantSuspended,
+        blockedErrorCode: 'TENANT_SUSPENDED',
       );
 
       await tester.pumpWidget(
@@ -635,7 +609,7 @@ void main() {
           GoRoute(
             path: '/',
             builder: (context, state) => DashboardPage(
-              iamModule: module,
+              repository: FakeSessionRepository(),
               autoBootstrap: false,
               initialTab: DashboardTab.orders,
               initialState: const SessionState(
@@ -657,25 +631,4 @@ void main() {
       expect(find.byType(SalesOrderListPage), findsNothing);
     });
   });
-}
-
-final class _SelectorFailModule implements IIamModule {
-  _SelectorFailModule(this.delegate);
-
-  final FakeIamModule delegate;
-  bool failNextList = false;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    return delegate.executeCommandAsync(command);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (failNextList && query is ListAccessibleTenantsQuery) {
-      failNextList = false;
-      throw const IamBlockedException(IamBlockedCodes.systemError);
-    }
-    return delegate.executeQueryAsync(query);
-  }
 }

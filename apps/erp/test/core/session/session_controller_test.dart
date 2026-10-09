@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
+import 'fake_session_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class _MockAuth extends Mock implements GoTrueClient {}
 
@@ -16,45 +16,15 @@ class _MockUser extends Mock implements User {}
 
 class _MockAuthSession extends Mock implements Session {}
 
-class _RecordingPort implements IIamSessionPort {
-  final applied = <String>[];
-  int clearCount = 0;
-
-  @override
-  void apply(PrincipalAccessDto context) {}
-
-  @override
-  void applyAuthenticatedUser(String userId) => applied.add(userId);
-
-  @override
-  void clear() => clearCount++;
-
-  @override
-  SessionDto get snapshot => const SessionDto(isAuthenticated: false);
-}
-
-class _ThrowingIamModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    throw Exception('sign-out failed');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    throw UnimplementedError();
-  }
-}
-
 void main() {
   late _MockAuth auth;
   late StreamController<AuthState> events;
-  late _RecordingPort port;
 
   setUp(() {
     auth = _MockAuth();
     events = StreamController<AuthState>.broadcast();
-    port = _RecordingPort();
     when(() => auth.onAuthStateChange).thenAnswer((_) => events.stream);
+    when(() => auth.signOut()).thenAnswer((_) async {});
   });
 
   tearDown(() async {
@@ -62,15 +32,14 @@ void main() {
   });
 
   SessionController controller({
-    IIamModule? iamModule,
+    FakeSessionRepository? repository,
     IamSession? iamSession,
     SessionState? initialState,
   }) {
     return SessionController(
-      iamModule: iamModule ?? FakeIamModule(),
+      repository: repository ?? FakeSessionRepository(),
       auth: auth,
       iamSession: iamSession,
-      sessionPort: port,
       initialState: initialState,
     );
   }
@@ -79,27 +48,27 @@ void main() {
     final user = _MockUser();
     when(() => user.id).thenReturn('user-1');
     when(() => auth.currentUser).thenReturn(user);
+    final iam = IamSession();
 
-    final cubit = controller();
+    final cubit = controller(iamSession: iam);
     cubit.start();
 
     expect(cubit.state.authStatus, AuthStatus.signedIn);
     expect(cubit.state.userId, 'user-1');
-    expect(port.applied, ['user-1']);
-    expect(port.clearCount, 0);
+    expect(iam.userId, 'user-1');
 
     cubit.close();
   });
 
-  test('start without a current user signs out and clears the port', () {
+  test('start without a current user signs out and clears the session', () {
     when(() => auth.currentUser).thenReturn(null);
+    final iam = IamSession()..applyAuthenticatedUser('old');
 
-    final cubit = controller();
+    final cubit = controller(iamSession: iam);
     cubit.start();
 
     expect(cubit.state.authStatus, AuthStatus.signedOut);
-    expect(port.clearCount, 1);
-    expect(port.applied, isEmpty);
+    expect(iam.userId, isNull);
 
     cubit.close();
   });
@@ -118,7 +87,6 @@ void main() {
       ),
     );
     cubit.start();
-    port.applied.clear();
 
     events.add(const AuthState(AuthChangeEvent.signedOut, null));
     await Future<void>.delayed(Duration.zero);
@@ -131,22 +99,57 @@ void main() {
     await cubit.close();
   });
 
-  test('repeated signedIn for the same user does not apply again', () async {
+  test('repeated signedIn for the same user does not clear tenant', () async {
     final user = _MockUser();
     when(() => user.id).thenReturn('user-1');
     when(() => auth.currentUser).thenReturn(user);
     final authSession = _MockAuthSession();
     when(() => authSession.user).thenReturn(user);
+    final iam = IamSession();
 
-    final cubit = controller();
+    final cubit = controller(iamSession: iam);
     cubit.start();
-    expect(port.applied, ['user-1']);
+    iam.apply(
+      const PrincipalAccessDto(
+        userId: 'user-1',
+        tenantId: 'org-001',
+        role: 'staff',
+        isOwner: false,
+        permissions: ['tenant.access'],
+      ),
+    );
 
     events.add(AuthState(AuthChangeEvent.signedIn, authSession));
     await Future<void>.delayed(Duration.zero);
 
-    expect(port.applied, ['user-1']);
     expect(cubit.state.authStatus, AuthStatus.signedIn);
+    expect(iam.tenantId, 'org-001');
+
+    await cubit.close();
+  });
+
+  test('signing in a different user drops the previous organization', () async {
+    final iam = IamSession()..applyAuthenticatedUser('user-a');
+    final repository = FakeSessionRepository();
+    final cubit = controller(
+      repository: repository,
+      iamSession: iam,
+      initialState: const SessionState(
+        authStatus: AuthStatus.signedIn,
+        userId: 'user-a',
+      ),
+    );
+    await cubit.bootstrap();
+    expect(cubit.state.current?.tenantId, 'org-001');
+    expect(cubit.state.tenants, isNotEmpty);
+
+    cubit.applySignedInUser('user-b');
+
+    expect(cubit.state.authStatus, AuthStatus.signedIn);
+    expect(cubit.state.userId, 'user-b');
+    expect(cubit.state.current, isNull);
+    expect(cubit.state.tenants, isEmpty);
+    expect(cubit.tenantId, isNull);
 
     await cubit.close();
   });
@@ -168,8 +171,11 @@ void main() {
     await cubit.close();
   });
 
-  test('signOut with localCleared emits signedOut', () async {
+  test('signOut clears local session even when remote sign-out fails', () async {
+    when(() => auth.signOut()).thenThrow(Exception('sign-out failed'));
+    final iam = IamSession()..applyAuthenticatedUser('user-1');
     final cubit = controller(
+      iamSession: iam,
       initialState: const SessionState(
         authStatus: AuthStatus.signedIn,
         userId: 'user-1',
@@ -179,16 +185,44 @@ void main() {
     final result = await cubit.signOut();
 
     expect(result.localCleared, isTrue);
+    expect(result.remoteSucceeded, isFalse);
     expect(cubit.state.authStatus, AuthStatus.signedOut);
-    expect(cubit.state.userId, isNull);
+    expect(iam.userId, isNull);
 
     await cubit.close();
   });
 
-  test('signOut wraps module errors in AppException', () async {
-    final cubit = controller(iamModule: _ThrowingIamModule());
+  test('switchTo the current organization is a validation error', () async {
+    final iam = IamSession()..applyAuthenticatedUser('user-1');
+    final cubit = controller(iamSession: iam);
+    await cubit.bootstrap();
 
-    expect(cubit.signOut, throwsA(isA<AppException>()));
+    final ok = await cubit.switchTo('org-001');
+
+    expect(ok, isFalse);
+    expect(cubit.state.switchFailure?.code, AppErrorCode.validation);
+    expect(
+      cubit.state.switchFailure?.message,
+      'Target tenant must differ from the current tenant context',
+    );
+
+    await cubit.close();
+  });
+
+  test('setLastSelected failure rolls the session back to the previous tenant', () async {
+    final iam = IamSession()..applyAuthenticatedUser('user-1');
+    final repository = FakeSessionRepository();
+    final cubit = controller(repository: repository, iamSession: iam);
+    await cubit.bootstrap();
+    expect(iam.tenantId, 'org-001');
+
+    repository.failSetLastSelected = true;
+    final ok = await cubit.switchTo('org-002');
+
+    expect(ok, isFalse);
+    expect(cubit.state.switchFailure?.code, AppErrorCode.unknown);
+    expect(iam.tenantId, 'org-001');
+    expect(repository.lastSelectedTenantId, 'org-001');
 
     await cubit.close();
   });

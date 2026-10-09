@@ -1,19 +1,36 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/iam/iam_ui_failure.dart';
+import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/core/validation/password_policy.dart';
+import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:erp/features/iam/presentation.dart';
 
+import '../data/auth_repository.dart';
+import '../data/invitation_acceptance_repository.dart';
+import '../data/models/invitation_registration_result.dart';
 import 'invitation_acceptance_state.dart';
 
 final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
   InvitationAcceptanceCubit({
-    required IIamModule iamModule,
-    required IdempotencyKeyFactory keyFactory,
-  }) : _iamModule = iamModule,
-       _keyFactory = keyFactory,
+    required InvitationAcceptanceRepository invitations,
+    required AuthRepository auth,
+    required AccountRepository account,
+    required SessionController session,
+    required String Function(String intent) nextKey,
+  }) : _invitations = invitations,
+       _auth = auth,
+       _account = account,
+       _session = session,
+       _nextKey = nextKey,
        super(const InvitationAcceptanceState());
 
-  final IIamModule _iamModule;
-  final IdempotencyKeyFactory _keyFactory;
+  final InvitationAcceptanceRepository _invitations;
+  final AuthRepository _auth;
+  final AccountRepository _account;
+  final SessionController _session;
+  final String Function(String intent) _nextKey;
 
   /// Opaque invitation token — never exposed via public state/getters.
   String? _token;
@@ -53,9 +70,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     );
 
     try {
-      final inspection = await _iamModule.executeQueryAsync<InvitationTokenInspectionDto>(
-        InspectInvitationTokenQuery(token: trimmed),
-      );
+      final inspection = await _invitations.inspect(trimmed);
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -78,16 +93,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     final token = _token;
     final inspection = state.inspection;
     if (token == null || inspection == null) {
-      emit(
-        state.copyWith(
-          step: InvitationAcceptanceStep.tokenEntry,
-          failure: const IamUiFailure(
-            code: IamBlockedCodes.invitationTokenInvalid,
-            message: 'Mã lời mời không hợp lệ.',
-          ),
-          tokenPresent: false,
-        ),
-      );
+      _emitMissingToken();
       return;
     }
 
@@ -100,15 +106,9 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     );
 
     try {
-      await _iamModule.executeCommandAsync(
-        SignInTenantUserCommand(
-          email: inspection.inviteeEmail,
-          password: password,
-        ),
-      );
-      final session = await _iamModule.executeQueryAsync<SessionDto>(
-        GetCurrentSessionQuery(),
-      );
+      final userId = await _auth.signIn(email: inspection.inviteeEmail, password: password);
+      _session.applySignedInUser(userId);
+      final session = _session.readSession();
       if (!session.isAuthenticated || !_emailsMatch(session.email, inspection.inviteeEmail)) {
         emit(
           state.copyWith(
@@ -123,11 +123,9 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
         return;
       }
 
-      final key = _acceptKey ??= _keyFactory.next('accept-invitation');
-      final membership = await _iamModule.executeCommandAsync<TenantMemberDetailDto>(
-        AcceptInvitationCommand(token: token, idempotencyKey: key),
-      );
-      await _signOutAfterAcceptance();
+      final key = _acceptKey ??= _nextKey('accept-invitation');
+      final membership = await _invitations.accept(token, idempotencyKey: key);
+      await _session.signOut();
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -149,16 +147,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     final token = _token;
     final inspection = state.inspection;
     if (token == null || inspection == null) {
-      emit(
-        state.copyWith(
-          step: InvitationAcceptanceStep.tokenEntry,
-          failure: const IamUiFailure(
-            code: IamBlockedCodes.invitationTokenInvalid,
-            message: 'Mã lời mời không hợp lệ.',
-          ),
-          tokenPresent: false,
-        ),
-      );
+      _emitMissingToken();
       return;
     }
 
@@ -171,11 +160,9 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     );
 
     try {
-      final key = _acceptKey ??= _keyFactory.next('accept-invitation');
-      final membership = await _iamModule.executeCommandAsync<TenantMemberDetailDto>(
-        AcceptInvitationCommand(token: token, idempotencyKey: key),
-      );
-      await _signOutAfterAcceptance();
+      final key = _acceptKey ??= _nextKey('accept-invitation');
+      final membership = await _invitations.accept(token, idempotencyKey: key);
+      await _session.signOut();
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -201,16 +188,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     if (isClosed || state.isSubmitting) return;
     final token = _token;
     if (token == null) {
-      emit(
-        state.copyWith(
-          step: InvitationAcceptanceStep.tokenEntry,
-          tokenPresent: false,
-          failure: const IamUiFailure(
-            code: IamBlockedCodes.invitationTokenInvalid,
-            message: 'Mã lời mời không hợp lệ.',
-          ),
-        ),
-      );
+      _emitMissingToken();
       return;
     }
 
@@ -223,28 +201,51 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     );
 
     try {
-      final key = _registerKey ??= _keyFactory.next('register-from-invitation');
-      final result = await _iamModule.executeCommandAsync<InvitationRegistrationResultDto>(
-        RegisterFromInvitationCommand(
-          token: token,
-          profile: InvitationRegistrationProfileInput(
-            givenName: givenName.trim(),
-            familyName: familyName.trim(),
-            phone: phone?.trim().isEmpty == true ? null : phone?.trim(),
-          ),
-          credentialProof: password,
-          idempotencyKey: key,
-        ),
+      final trimmedGiven = givenName.trim();
+      final trimmedFamily = familyName.trim();
+      final trimmedPassword = password.trim();
+      final trimmedPhone = phone?.trim();
+      final key = _registerKey ??= _nextKey('register-from-invitation');
+      if (key.trim().isEmpty) {
+        throw const AppException(AppErrorCode.validation);
+      }
+      if (!PasswordPolicy.isValid(trimmedPassword) ||
+          trimmedGiven.isEmpty ||
+          trimmedFamily.isEmpty) {
+        throw const AppException(AppErrorCode.validation);
+      }
+
+      final inspection = await _invitations.inspect(token);
+      if (inspection.accountExists) {
+        throw const AppException('PLATFORM_USER_ALREADY_EXISTS');
+      }
+
+      final userId = await _auth.signUpFromInvitation(
+        email: inspection.inviteeEmail,
+        password: trimmedPassword,
+        givenName: trimmedGiven,
+        familyName: trimmedFamily,
+        phone: trimmedPhone == null || trimmedPhone.isEmpty ? null : trimmedPhone,
       );
-      await _signOutAfterAcceptance();
+      await _account.updateMyAccount(
+        avatarReference: null,
+        givenName: trimmedGiven,
+        familyName: trimmedFamily,
+        phone: trimmedPhone == null || trimmedPhone.isEmpty ? null : trimmedPhone,
+      );
+      final membership = await _invitations.accept(token, idempotencyKey: key);
+      await _session.signOut();
       if (isClosed) return;
       _clearSecrets();
       emit(
         state.copyWith(
           step: InvitationAcceptanceStep.accepted,
           isSubmitting: false,
-          registrationResult: result,
-          acceptedMembership: result.membership,
+          registrationResult: InvitationRegistrationResult(
+            userId: userId,
+            membership: membership,
+          ),
+          acceptedMembership: membership,
           tokenPresent: false,
           clearFailure: true,
         ),
@@ -273,16 +274,7 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     if (isClosed || state.isSubmitting) return;
     final token = _token;
     if (token == null) {
-      emit(
-        state.copyWith(
-          step: InvitationAcceptanceStep.tokenEntry,
-          tokenPresent: false,
-          failure: const IamUiFailure(
-            code: IamBlockedCodes.invitationTokenInvalid,
-            message: 'Mã lời mời không hợp lệ.',
-          ),
-        ),
-      );
+      _emitMissingToken();
       return;
     }
 
@@ -299,10 +291,11 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     );
 
     try {
-      final key = _declineKey ??= _keyFactory.next('decline-invitation');
-      await _iamModule.executeCommandAsync(
-        DeclineInvitationCommand(token: token, idempotencyKey: key),
-      );
+      final key = _declineKey ??= _nextKey('decline-invitation');
+      if (key.trim().isEmpty) {
+        throw const AppException(AppErrorCode.validation);
+      }
+      await _invitations.decline(token, idempotencyKey: key);
       if (isClosed) return;
       _clearSecrets();
       emit(
@@ -335,9 +328,16 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     return super.close();
   }
 
-  Future<void> _signOutAfterAcceptance() async {
-    await _iamModule.executeCommandAsync<SignOutResultDto>(
-      SignOutCommand(),
+  void _emitMissingToken() {
+    emit(
+      state.copyWith(
+        step: InvitationAcceptanceStep.tokenEntry,
+        failure: const IamUiFailure(
+          code: IamBlockedCodes.invitationTokenInvalid,
+          message: 'Mã lời mời không hợp lệ.',
+        ),
+        tokenPresent: false,
+      ),
     );
   }
 
@@ -354,9 +354,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
   }) {
     if (isClosed) return;
     final failure = IamUiFailureMapper.from(error);
-    // Inspect-time failures keep the user on the entry screen so they can
-    // paste another code; the view surfaces [state.failure] as a toast. For
-    // terminal codes we still strip any nuance beyond the contract code.
     final surfaced = _isTerminalTokenFailure(failure.code)
         ? _genericTokenFailure(failure)
         : failure;
@@ -404,7 +401,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     }
 
     if (failure.code == IamBlockedCodes.tenantSuspended) {
-      // Keep token so user can retry later.
       emit(
         state.copyWith(
           step: InvitationAcceptanceStep.blocked,
@@ -446,7 +442,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
         code == IamBlockedCodes.invitationAlreadyUsed;
   }
 
-  /// Generic copy — do not reveal invitation existence nuances beyond contract codes.
   static IamUiFailure _genericTokenFailure(IamUiFailure failure) {
     return IamUiFailure(
       code: failure.code,

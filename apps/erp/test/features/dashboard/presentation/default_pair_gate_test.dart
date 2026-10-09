@@ -3,17 +3,18 @@ import 'dart:async';
 import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/dashboard/presentation/widgets/erp_bottom_navigation.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../../../core/session/fake_session_repository.dart';
 
 void main() {
   testWidgets('scn_dashboard_gate_success', (tester) async {
@@ -108,12 +109,12 @@ Widget _app(IInventoryModule inventoryModule) {
         name: 'dashboard',
         builder: (context, state) => DashboardPage(
           autoBootstrap: false,
-          iamModule: FakeIamModule(scenario: FakeIamScenario.tenantsMulti),
+          repository: FakeSessionRepository(scenario: FakeIamScenario.tenantsMulti),
           inventoryModule: inventoryModule,
           initialState: const SessionState(
             status: TenantLoadStatus.ready,
             userDisplayName: 'Lan',
-            current: TenantContextDto(
+            current: TenantContext(
               status: TenantContextStatus.valid,
               tenantId: 'tenant-test',
               tenantName: 'Thú y Minh Phát',

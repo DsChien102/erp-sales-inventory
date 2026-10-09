@@ -2,7 +2,8 @@ import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+
+import '../../support/scripted_auth.dart';
 
 void main() {
   testWidgets('login page does not overflow when keyboard is open', (tester) async {
@@ -15,7 +16,10 @@ void main() {
             padding: EdgeInsets.only(top: 59, bottom: 34),
             viewInsets: EdgeInsets.only(bottom: 327),
           ),
-          child: LoginPage(iamModule: FakeIamModule()),
+          child: LoginPage(
+            auth: ScriptedAuthRepository(),
+            session: loginSession(),
+          ),
         ),
       ),
     );

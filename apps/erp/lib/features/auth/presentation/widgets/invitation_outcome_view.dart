@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../bloc/invitation_acceptance_state.dart';
+import '../../logic/invitation_acceptance_state.dart';
 
 class InvitationOutcomeView extends StatelessWidget {
   const InvitationOutcomeView({

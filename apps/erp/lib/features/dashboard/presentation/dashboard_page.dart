@@ -9,6 +9,7 @@ import 'package:erp/features/iam/presentation.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/session/session_controller.dart';
+import '../../../core/session/session_repository.dart';
 import '../../../core/session/session_state.dart';
 import '../../tenant_context/presentation/tenant_context_selector.dart';
 import 'bloc/default_pair_gate_cubit.dart';
@@ -49,14 +50,14 @@ class DashboardPage extends StatelessWidget {
   const DashboardPage({
     super.key,
     this.initialTab = DashboardTab.home,
-    this.iamModule,
+    this.repository,
     this.inventoryModule,
     this.autoBootstrap = true,
     this.initialState,
   });
 
   final DashboardTab initialTab;
-  final IIamModule? iamModule;
+  final SessionRepository? repository;
   final IInventoryModule? inventoryModule;
   final bool autoBootstrap;
   final SessionState? initialState;
@@ -78,11 +79,11 @@ class DashboardPage extends StatelessWidget {
     );
     // Test truyền module/state riêng: cubit cục bộ, được đóng khi rời widget.
     // App thật dùng singleton — BlocProvider(create:) sẽ close() nó khi rời Dashboard.
-    if (iamModule != null || initialState != null) {
+    if (repository != null || initialState != null) {
       return BlocProvider(
         create: (_) {
           final cubit = SessionController(
-            iamModule: iamModule ?? getIt<IIamModule>(),
+            repository: repository ?? getIt<SessionRepository>(),
             initialState: initialState,
           );
           if (autoBootstrap) {

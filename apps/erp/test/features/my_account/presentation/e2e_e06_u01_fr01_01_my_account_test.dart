@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
+import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
 
 /// e2e_e06_u01/u02/u03/u04 — ERP My Account via FakeIamModule (Group E / S14).
@@ -17,8 +21,11 @@ void main() {
   final getIt = GetIt.instance;
   final sessions = <SessionController>[];
 
+  var signOutCalls = 0;
+
   setUp(() async {
     await getIt.reset();
+    signOutCalls = 0;
   });
 
   tearDown(() async {
@@ -35,8 +42,23 @@ void main() {
       ..registerSingleton<IIamModule>(module);
   }
 
-  SessionController sessionFor(IIamModule module) {
-    final controller = SessionController(iamModule: module);
+  SessionController sessionFor({
+    bool remoteFails = false,
+    FakeIamScenario scenario = FakeIamScenario.usersSearchOk,
+  }) {
+    final auth = _MockAuth();
+    when(() => auth.onAuthStateChange).thenAnswer((_) => const Stream.empty());
+    when(() => auth.currentUser).thenReturn(null);
+    when(() => auth.currentSession).thenReturn(null);
+    when(() => auth.signOut()).thenAnswer((_) async {
+      signOutCalls += 1;
+      if (remoteFails) throw Exception('remote sign-out failed');
+    });
+    final controller = SessionController(
+      repository: FakeSessionRepository(scenario: scenario),
+      auth: auth,
+      iamSession: IamSession()..applyAuthenticatedUser('user-1'),
+    );
     sessions.add(controller);
     return controller;
   }
@@ -49,6 +71,10 @@ void main() {
   }) {
     final accountRepository = account ?? ScriptedAccountRepository();
     final authRepository = auth ?? RecordingAuthRepository();
+    final session = sessionFor(
+      remoteFails: warnRemoteSignOut,
+      scenario: module.scenario,
+    );
     final router = GoRouter(
       initialLocation: '/more/my-account',
       routes: [
@@ -63,9 +89,9 @@ void main() {
           builder: (context, state) => MyAccountPage(
             accountRepository: accountRepository,
             authRepository: authRepository,
-            session: sessionFor(module),
+            session: session,
             onLogout: () async {
-              final result = await module.executeCommandAsync<SignOutResultDto>(SignOutCommand());
+              final result = await session.signOut();
               if (!result.localCleared) return;
               if (warnRemoteSignOut && !result.remoteSucceeded && context.mounted) {
                 VToast.show(
@@ -205,7 +231,7 @@ void main() {
     await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
     await tester.pumpAndSettle();
 
-    expect(module.signOutCount, 1);
+    expect(signOutCalls, 1);
     expect(find.text('Login'), findsOneWidget);
   });
 
@@ -238,3 +264,5 @@ void main() {
     },
   );
 }
+
+class _MockAuth extends Mock implements GoTrueClient {}

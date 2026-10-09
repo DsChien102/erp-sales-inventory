@@ -3,33 +3,35 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../features/tenant_context/presentation/mappers/accessible_tenant_ui_mapper.dart';
 import '../errors/app_exception.dart';
+import '../iam/iam_ui_failure.dart';
+import '../iam/iam_ui_failure_mapper.dart';
+import 'models/accessible_tenant.dart';
+import 'models/session_principal.dart';
+import 'models/sign_out_result.dart';
+import 'models/tenant_context.dart';
+import 'session_repository.dart';
 import 'session_state.dart';
 
 /// Một nguồn sự thật về phiên đăng nhập và tổ chức đang chọn.
 ///
-/// Thân bootstrap / đổi tổ chức vẫn gọi IAM module cũ.
-/// TODO(2-A2): đổi sang RPC `iam.get_tenant_context`, `list_accessible_tenants`,
-/// `switch_tenant_context` khi chuyển IAM.
+/// Ghi vào [IamSession] (module cũ đọc tenant / cửa hàng qua đây đến P9).
+/// `readSession()` vẫn trả [SessionDto]; `apply` vẫn nhận [PrincipalAccessDto].
+/// TODO(P9): bỏ hai kiểu package cũ khi không còn module đọc chúng.
 final class SessionController extends Cubit<SessionState> {
   SessionController({
-    required IIamModule iamModule,
+    required SessionRepository repository,
     GoTrueClient? auth,
     IamSession? iamSession,
-    IIamSessionPort? sessionPort,
     String userDisplayName = '',
     SessionState? initialState,
     Stream<String>? tenantAccessRevoked,
-  }) : _iamModule = iamModule,
+  }) : _repository = repository,
        _auth = auth,
        _iamSession = iamSession,
-       _sessionPort = sessionPort,
        super(
          initialState ?? SessionState(userDisplayName: userDisplayName),
        ) {
@@ -38,19 +40,17 @@ final class SessionController extends Cubit<SessionState> {
     );
   }
 
-  final IIamModule _iamModule;
+  final SessionRepository _repository;
   final GoTrueClient? _auth;
   final IamSession? _iamSession;
-  final IIamSessionPort? _sessionPort;
   late final StreamSubscription<String> _revokedSubscription;
   StreamSubscription<AuthState>? _authSub;
 
-  /// Gọi 1 lần trong initDependencies (thay restorePersistedAuthSession).
+  /// Gọi 1 lần trong initDependencies.
   void start() {
     final auth = _auth;
-    final sessionPort = _sessionPort;
-    if (auth == null || sessionPort == null) {
-      throw StateError('SessionController.start() cần auth và sessionPort');
+    if (auth == null) {
+      throw StateError('SessionController.start() cần auth');
     }
     _apply(auth.currentUser?.id);
     _authSub = auth.onAuthStateChange.listen((event) {
@@ -64,16 +64,30 @@ final class SessionController extends Cubit<SessionState> {
     });
   }
 
+  /// Gắn user ngay sau `signIn`, không chờ `onAuthStateChange`.
+  void applySignedInUser(String userId) => _apply(userId);
+
   void _apply(String? userId) {
     final trimmed = userId?.trim();
     if (trimmed == null || trimmed.isEmpty) {
-      _sessionPort?.clear();
+      _iamSession?.clear();
       emit(const SessionState(authStatus: AuthStatus.signedOut));
       return;
     }
-    // Supabase phát signedIn cả khi app quay lại foreground.
-    if (state.userId != trimmed) {
-      _sessionPort?.applyAuthenticatedUser(trimmed);
+    final previous = state.userId;
+    if (previous != null && previous != trimmed) {
+      _iamSession?.applyAuthenticatedUser(trimmed);
+      emit(
+        SessionState(
+          authStatus: AuthStatus.signedIn,
+          userId: trimmed,
+          userDisplayName: state.userDisplayName,
+        ),
+      );
+      return;
+    }
+    if (previous != trimmed) {
+      _iamSession?.applyAuthenticatedUser(trimmed);
     }
     if (state.authStatus == AuthStatus.signedIn && state.userId == trimmed) {
       return;
@@ -103,7 +117,7 @@ final class SessionController extends Cubit<SessionState> {
       _iamSession?.permissions.toList(growable: false) ?? const [];
 
   /// Ảnh phiên mà hub IAM đang đọc (`SessionDto.hasPermission` = owner hoặc quyền).
-  /// Hết hạn token thì ném [AppException] `SESSION_EXPIRED`, giống `GetCurrentSessionQuery`.
+  /// Hết hạn token thì ném [AppException] `SESSION_EXPIRED`.
   SessionDto readSession() {
     final auth = _auth;
     if (auth != null) {
@@ -152,20 +166,19 @@ final class SessionController extends Cubit<SessionState> {
     return session.requireActiveStoreId();
   }
 
-  /// Thay guard(SignOutCommand). Trả kết quả để UI hiện cảnh báo như cũ.
-  /// TODO(2-A2): gọi đăng xuất trực tiếp, không qua SignOutCommand.
-  Future<SignOutResultDto> signOut() async {
+  /// Đăng xuất Supabase rồi xoá phiên cục bộ. Lỗi máy chủ không chặn xoá local.
+  Future<SignOutResult> signOut() async {
+    var remote = false;
     try {
-      final result = await _iamModule.executeCommandAsync<SignOutResultDto>(
-        SignOutCommand(),
-      );
-      if (result.localCleared) {
-        emit(const SessionState(authStatus: AuthStatus.signedOut));
-      }
-      return result;
-    } catch (error) {
-      throw AppException.from(error);
+      await _auth?.signOut();
+      remote = _auth != null;
+    } catch (_) {
+      remote = false;
+    } finally {
+      _iamSession?.clear();
     }
+    emit(const SessionState(authStatus: AuthStatus.signedOut));
+    return SignOutResult(localCleared: true, remoteSucceeded: remote);
   }
 
   void _onTenantAccessRevoked(String code) {
@@ -180,7 +193,6 @@ final class SessionController extends Cubit<SessionState> {
 
   @override
   Future<void> close() {
-    // Do not await cancel(): broadcast cancel can hang under flutter_test fake async.
     _revokedSubscription.cancel();
     _authSub?.cancel();
     return super.close();
@@ -202,10 +214,7 @@ final class SessionController extends Cubit<SessionState> {
     );
 
     try {
-      // TODO(2-A2): iam.get_tenant_context
-      final context = await _iamModule.executeQueryAsync<TenantContextDto>(
-        GetTenantContextQuery(bootstrapFromLastSelected: true),
-      );
+      final context = await _bootstrapFromLastSelected();
       if (isClosed) return;
 
       await loadAccessibleTenants();
@@ -223,6 +232,53 @@ final class SessionController extends Cubit<SessionState> {
     }
   }
 
+  Future<TenantContext> _bootstrapFromLastSelected() async {
+    final lastSelected = _blankToNull(await _repository.getLastSelectedTenantId());
+    final bootstrapId = lastSelected ?? _blankToNull(tenantId);
+    if (bootstrapId == null) return TenantContext.none;
+
+    final context = await _repository.getTenantContext(bootstrapId);
+    if (context.status == TenantContextStatus.invalidated &&
+        (context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
+            context.invalidationReason == TenantContextInvalidationReason.tenantClosed)) {
+      return context;
+    }
+    if (context.status != TenantContextStatus.valid || context.tenantId == null) {
+      return TenantContext.none;
+    }
+
+    await _bindSession(context.tenantId!);
+    if (lastSelected == null) {
+      await _repository.setLastSelectedTenantId(context.tenantId);
+    }
+    return context;
+  }
+
+  Future<void> _bindSession(String tenantId) async {
+    final principal = await _repository.getSessionContext(tenantId);
+    final storeId = principal?.activeStoreId?.trim();
+    if (principal == null || storeId == null || storeId.isEmpty) {
+      throw const AppException(
+        AppErrorCode.unknown,
+        serverMessage: 'Active store context is required.',
+      );
+    }
+    _iamSession?.apply(_principalDto(principal));
+  }
+
+  PrincipalAccessDto _principalDto(SessionPrincipal principal) {
+    return PrincipalAccessDto(
+      userId: principal.userId,
+      tenantId: principal.tenantId,
+      activeStoreId: principal.activeStoreId,
+      activeStoreCode: principal.activeStoreCode,
+      activeStoreDisplayName: principal.activeStoreDisplayName,
+      role: principal.role,
+      isOwner: principal.isOwner,
+      permissions: principal.permissions,
+    );
+  }
+
   Future<void> loadAccessibleTenants() async {
     if (isClosed) return;
     final keepStatus = state.status;
@@ -234,16 +290,13 @@ final class SessionController extends Cubit<SessionState> {
     );
 
     try {
-      // TODO(2-A2): iam.list_accessible_tenants
-      final dtos = await _iamModule.executeQueryAsync<List<AccessibleTenantDto>>(
-        ListAccessibleTenantsQuery(),
-      );
+      final tenants = await _repository.listAccessibleTenants(currentTenantId: tenantId);
       if (isClosed) return;
 
       emit(
         state.copyWith(
           status: keepStatus,
-          tenants: AccessibleTenantUiMapper.fromList(dtos),
+          tenants: tenants,
           tenantsLoading: false,
           clearSelectorFailure: true,
         ),
@@ -262,7 +315,7 @@ final class SessionController extends Cubit<SessionState> {
   }
 
   /// Returns `true` when switch succeeds. Confirmation is UI-only.
-  Future<bool> switchTo(String tenantId) async {
+  Future<bool> switchTo(String targetTenantId) async {
     if (isClosed) return false;
     emit(
       state.copyWith(
@@ -272,10 +325,38 @@ final class SessionController extends Cubit<SessionState> {
     );
 
     try {
-      // TODO(2-A2): iam.switch_tenant_context
-      final context = await _iamModule.executeCommandAsync<TenantContextDto>(
-        SwitchTenantContextCommand(targetTenantId: tenantId),
-      );
+      final previousTenantId = tenantId;
+      final current = previousTenantId?.trim();
+      if (current != null && current.isNotEmpty && targetTenantId.trim() == current) {
+        throw const AppException(
+          AppErrorCode.validation,
+          serverMessage: 'Target tenant must differ from the current tenant context',
+        );
+      }
+
+      final context = await _repository.switchTenantContext(targetTenantId);
+      if (context.status != TenantContextStatus.valid || context.tenantId == null) {
+        throw AppException(context.blockedErrorCode ?? 'TENANT_ACCESS_DENIED');
+      }
+
+      try {
+        await _bindSession(context.tenantId!);
+      } catch (error) {
+        throw _mapSwitchSessionError(error);
+      }
+
+      try {
+        await _repository.setLastSelectedTenantId(context.tenantId);
+      } catch (_) {
+        final prior = previousTenantId?.trim();
+        if (prior != null && prior.isNotEmpty) {
+          try {
+            await _bindSession(prior);
+          } catch (_) {}
+        }
+        throw const AppException(AppErrorCode.unknown);
+      }
+
       if (isClosed) return false;
 
       await loadAccessibleTenants();
@@ -336,14 +417,14 @@ final class SessionController extends Cubit<SessionState> {
   }
 
   /// Retry load for selector sheet. Returns tenants on success, `null` on fail.
-  Future<List<SelectOrganizationItemUiModel>?> retryLoadAccessibleTenants() async {
+  Future<List<AccessibleTenant>?> retryLoadAccessibleTenants() async {
     await loadAccessibleTenants();
     if (isClosed) return null;
     if (state.selectorFailure != null) return null;
     return state.tenants;
   }
 
-  void _applyTenantContextPermissions(TenantContextDto context) {
+  void _applyTenantContextPermissions(TenantContext context) {
     final session = _iamSession;
     if (session == null) return;
     final userId = session.userId;
@@ -355,6 +436,7 @@ final class SessionController extends Cubit<SessionState> {
       PrincipalAccessDto(
         userId: userId,
         tenantId: tenantId,
+        activeStoreId: session.activeStoreId,
         role: context.roleLabel ?? session.role ?? '',
         isOwner: context.isOwner,
         permissions: context.permissions,
@@ -362,9 +444,46 @@ final class SessionController extends Cubit<SessionState> {
     );
   }
 
+  AppException _mapSwitchSessionError(Object error) {
+    if (error is AppException) {
+      final code = _knownSwitchCode(error);
+      if (code != null) return AppException(code);
+    }
+    return const AppException(AppErrorCode.unknown);
+  }
+
+  String? _knownSwitchCode(AppException error) {
+    final message = error.code.trim();
+    const knownCodes = <String>{
+      IamBlockedCodes.contextInvalid,
+      IamBlockedCodes.membershipInactive,
+      IamBlockedCodes.membershipRemoved,
+      'TENANT_ACCESS_DENIED',
+      'TENANT_SUSPENDED',
+      'TENANT_CLOSED',
+      'NOT_AUTHENTICATED',
+    };
+    if (knownCodes.contains(message)) return message;
+
+    final lower = '${error.code} ${error.serverMessage ?? ''} ${error.cause}'.toLowerCase();
+    if (lower.contains('context_invalid')) return IamBlockedCodes.contextInvalid;
+    if (lower.contains('membership_inactive')) return IamBlockedCodes.membershipInactive;
+    if (lower.contains('membership_removed')) return IamBlockedCodes.membershipRemoved;
+    if (lower.contains('tenant_access_denied')) return 'TENANT_ACCESS_DENIED';
+    return null;
+  }
+
   IamUiFailure _mapFailure(Object error) {
-    if (error is ApplicationException) {
-      final trimmed = error.message.trim();
+    if (error is AppException) {
+      if (error.code == AppErrorCode.validation &&
+          error.serverMessage != null &&
+          error.serverMessage!.trim().isNotEmpty) {
+        return IamUiFailure(
+          code: error.code,
+          message: error.serverMessage!.trim(),
+        );
+      }
+      final trimmed = error.code.trim();
       if (trimmed.isNotEmpty && trimmed == trimmed.toUpperCase() && trimmed.contains('_')) {
         return IamUiFailure(code: trimmed, message: trimmed);
       }
@@ -377,7 +496,7 @@ final class SessionController extends Cubit<SessionState> {
         failure.code == IamBlockedCodes.tenantClosed;
   }
 
-  void _emitResolvedContext(TenantContextDto context) {
+  void _emitResolvedContext(TenantContext context) {
     if (context.status == TenantContextStatus.valid) {
       _applyTenantContextPermissions(context);
     }

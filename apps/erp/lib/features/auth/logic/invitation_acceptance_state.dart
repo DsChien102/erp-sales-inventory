@@ -1,5 +1,8 @@
-import 'package:vet45_iam_application/application.dart';
-import 'package:erp/features/iam/presentation.dart';
+import 'package:erp/core/iam/iam_ui_failure.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+
+import '../data/models/invitation_registration_result.dart';
+import '../data/models/invitation_token_inspection.dart';
 
 enum InvitationAcceptanceStep {
   tokenEntry,
@@ -24,23 +27,23 @@ final class InvitationAcceptanceState {
   });
 
   final InvitationAcceptanceStep step;
-  final InvitationTokenInspectionDto? inspection;
+  final InvitationTokenInspection? inspection;
 
   /// Whether Cubit holds a private token — never exposes the raw value.
   final bool tokenPresent;
   final bool isSubmitting;
   final IamUiFailure? failure;
-  final TenantMemberDetailDto? acceptedMembership;
-  final InvitationRegistrationResultDto? registrationResult;
+  final TenantMemberDetail? acceptedMembership;
+  final InvitationRegistrationResult? registrationResult;
 
   InvitationAcceptanceState copyWith({
     InvitationAcceptanceStep? step,
-    InvitationTokenInspectionDto? inspection,
+    InvitationTokenInspection? inspection,
     bool? tokenPresent,
     bool? isSubmitting,
     IamUiFailure? failure,
-    TenantMemberDetailDto? acceptedMembership,
-    InvitationRegistrationResultDto? registrationResult,
+    TenantMemberDetail? acceptedMembership,
+    InvitationRegistrationResult? registrationResult,
     bool clearInspection = false,
     bool clearFailure = false,
     bool clearAcceptedMembership = false,

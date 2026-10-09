@@ -18,6 +18,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/auth/data/invitation_acceptance_repository.dart';
 import '../../features/iam/data/account_repository.dart';
 import '../../features/iam/data/audit_log_repository.dart';
 import '../../features/iam/data/invitation_repository.dart';
@@ -26,6 +27,7 @@ import '../../features/iam/data/organization_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../router/session_refresh.dart';
 import '../session/session_controller.dart';
+import '../session/session_repository.dart';
 import '../supabase/supabase_module.dart';
 import '../supabase/supabase_rpc.dart';
 
@@ -58,15 +60,18 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     integrationEventBus: getIt<IEventsBus>(),
   );
 
+  getIt.registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client));
+  getIt.registerLazySingleton<SessionRepository>(
+    () => SessionRepository(rpc: getIt<SupabaseRpc>()),
+  );
+
   // Bootstrap session identity only (no tenant context).
   // Tenant selection is deferred to SessionController.bootstrap() which reads
-  // user_preferences and validates via get_tenant_context — ensuring the
-  // last-selected tenant (not the oldest membership) is restored on login.
+  // the last-selected tenant and validates via get_tenant_context.
   final session = SessionController(
-    iamModule: iamRuntime.module,
+    repository: getIt<SessionRepository>(),
     auth: supabaseModule.client.auth,
     iamSession: iamRuntime.session,
-    sessionPort: iamRuntime.sessionPort,
   )..start();
   getIt.registerSingleton<SessionController>(
     session,
@@ -88,7 +93,6 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
 
   getIt
-    ..registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client))
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(
         rpc: getIt<SupabaseRpc>(),
@@ -130,6 +134,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
         rpc: getIt<SupabaseRpc>(),
         auth: supabaseModule.client.auth,
       ),
+    )
+    ..registerLazySingleton<InvitationAcceptanceRepository>(
+      () => InvitationAcceptanceRepository(rpc: getIt<SupabaseRpc>()),
     );
 
   final catalogModule = CatalogStartup.initialize(

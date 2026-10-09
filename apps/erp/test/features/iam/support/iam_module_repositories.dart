@@ -12,8 +12,9 @@ import 'package:erp/features/iam/data/models/tenant_readiness.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_iam_application/application.dart' as app;
-import 'package:vet45_iam_application/testing.dart' show FakeIamModule;
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+
+import '../../../core/session/fake_session_repository.dart';
 
 /// Bọc `IIamModule` (kịch bản fake còn lại) thành repository để test cubit
 /// không dựng cubit bằng module. Hành vi kịch bản giữ nguyên.
@@ -46,7 +47,7 @@ SessionController testSessionController({
     );
   }
   return SessionController(
-    iamModule: FakeIamModule(),
+    repository: FakeSessionRepository(),
     iamSession: iam,
     initialState: SessionState(
       authStatus: signedIn ? AuthStatus.signedIn : AuthStatus.signedOut,

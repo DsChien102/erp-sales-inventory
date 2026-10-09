@@ -1,13 +1,14 @@
-import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
+import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_registration_form.dart';
 import 'package:erp/features/auth/presentation/widgets/invitation_token_entry_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../support/scripted_invitations.dart';
 
 Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
   expect(find.byType(VVerificationCodeField), findsOneWidget);
@@ -33,7 +34,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       const rawToken = 'K7P29XQM';
-      final module = FakeIamModule(
+      final harness = InvitationPageHarness(
         scenario: FakeIamScenario.inspectExistingAccount,
       );
       final router = GoRouter(
@@ -41,7 +42,7 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, _) => InvitationTokenPage(iamModule: module),
+            builder: (_, _) => harness.page,
           ),
         ],
       );
@@ -77,11 +78,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: InvitationTokenPage(
-            iamModule: FakeIamModule(
-              scenario: FakeIamScenario.inspectExistingAccount,
-            ),
-          ),
+          home: InvitationPageHarness(
+            scenario: FakeIamScenario.inspectExistingAccount,
+          ).page,
         ),
       );
       await tester.pumpAndSettle();
@@ -110,8 +109,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+      final harness = InvitationPageHarness(
+        scenario: FakeIamScenario.inspectExistingAccount,
       );
       Object? receivedExtra;
       final router = GoRouter(
@@ -119,7 +118,7 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, _) => InvitationTokenPage(iamModule: module),
+            builder: (_, _) => harness.page,
           ),
           GoRoute(
             path: '/login',
@@ -147,7 +146,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('LOGIN_PAGE'), findsOneWidget);
-      expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
+      expect(harness.invitations.accepts, hasLength(1));
       expect(receivedExtra, isA<Map<String, dynamic>>());
       final map = receivedExtra as Map<String, dynamic>;
       expect(map['prefilledEmail'], 'invitee@example.com');
@@ -164,11 +163,13 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _FailAcceptModule();
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: InvitationTokenPage(iamModule: module),
+          home: InvitationPageHarness(
+            scenario: FakeIamScenario.inspectExistingAccount,
+            acceptError: const IamBlockedException(IamBlockedCodes.idempotencyConflict),
+          ).page,
         ),
       );
       await tester.pumpAndSettle();
@@ -201,11 +202,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: InvitationTokenPage(
-            iamModule: FakeIamModule(
-              scenario: FakeIamScenario.inspectNewAccount,
-            ),
-          ),
+          home: InvitationPageHarness(
+            scenario: FakeIamScenario.inspectNewAccount,
+          ).page,
         ),
       );
       await tester.pumpAndSettle();
@@ -242,7 +241,7 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: InvitationRegistrationForm(
-            inspection: InvitationTokenInspectionDto(
+            inspection: InvitationTokenInspection(
               tenantId: 'org-001',
               tenantName: 'Dschien',
               inviteeEmail: 'dosychien9@gmail.com',
@@ -391,11 +390,9 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, _) => InvitationTokenPage(
-              iamModule: FakeIamModule(
-                scenario: FakeIamScenario.registerAndAcceptOk,
-              ),
-            ),
+            builder: (_, _) => InvitationPageHarness(
+              scenario: FakeIamScenario.registerAndAcceptOk,
+            ).page,
           ),
           GoRoute(
             path: '/login',
@@ -449,33 +446,4 @@ void main() {
       expect(map['showSuccessBanner'], true);
     },
   );
-}
-
-final class _FailAcceptModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    if (command is AcceptInvitationCommand) {
-      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
-    }
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is InspectInvitationTokenQuery) {
-      return Future.value(
-        InvitationTokenInspectionDto(
-              tenantId: 'org-001',
-              tenantName: 'Org',
-              inviteeEmail: 'invitee@example.com',
-              initialRoleId: 'role-staff',
-              initialRoleLabel: 'Staff',
-              expiresAt: DateTime.utc(2026, 8, 5),
-              accountExists: true,
-            )
-            as TResult,
-      );
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
 }

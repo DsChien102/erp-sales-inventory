@@ -1,6 +1,6 @@
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
-import 'package:erp/features/iam/presentation.dart';
+import '../iam/iam_ui_failure.dart';
+import 'models/accessible_tenant.dart';
+import 'models/tenant_context.dart';
 
 enum AuthStatus { unknown, signedOut, signedIn }
 
@@ -10,6 +10,16 @@ enum TenantLoadStatus {
   ready,
   blocked,
   failure,
+}
+
+/// Các trạng thái rỗng / lỗi của giao diện tổ chức.
+enum OrganizationEmptyStateType {
+  noOrganizations,
+  noAuthorizedOrganizations,
+  inaccessible,
+  noResults,
+  loadError,
+  unauthorized,
 }
 
 final class SessionState {
@@ -40,8 +50,8 @@ final class SessionState {
   final bool identityRevoked;
 
   final TenantLoadStatus status;
-  final TenantContextDto? current;
-  final List<SelectOrganizationItemUiModel> tenants;
+  final TenantContext? current;
+  final List<AccessibleTenant> tenants;
   final String? branchDisplayName;
   final String userDisplayName;
   final IamUiFailure? contextFailure;
@@ -65,8 +75,8 @@ final class SessionState {
     bool? identityRevoked,
     bool clearIdentityRevoked = false,
     TenantLoadStatus? status,
-    TenantContextDto? current,
-    List<SelectOrganizationItemUiModel>? tenants,
+    TenantContext? current,
+    List<AccessibleTenant>? tenants,
     String? branchDisplayName,
     String? userDisplayName,
     IamUiFailure? contextFailure,

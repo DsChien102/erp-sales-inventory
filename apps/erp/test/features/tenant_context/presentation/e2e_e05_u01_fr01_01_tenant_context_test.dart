@@ -9,6 +9,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import '../../../core/session/fake_session_repository.dart';
 
 /// e2e_e05_u01/u02/u03 — ERP tenant context via FakeIamModule (Group A).
 void main() {
@@ -31,14 +32,14 @@ void main() {
       ..registerSingleton<IIamModule>(module);
   }
 
-  Widget wrap(FakeIamModule module) {
+  Widget wrap(FakeSessionRepository repository) {
     final router = GoRouter(
       initialLocation: '/',
       routes: [
         GoRoute(
           path: '/',
           builder: (context, state) => DashboardPage(
-            iamModule: module,
+            repository: repository,
             autoBootstrap: true,
           ),
         ),
@@ -61,10 +62,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.bootstrapValid);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.bootstrapValid);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
@@ -79,10 +80,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.tenantsMulti);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.tenantsMulti);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     await openSelectorFromHeader(tester);
@@ -100,10 +101,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.switchOk);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     await openSelectorFromHeader(tester);
@@ -114,7 +115,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Phòng khám Minh Tâm'), findsWidgets);
-    expect(module.currentTenantId, 'org-002');
+    expect(repository.lastSelectedTenantId, 'org-002');
     expect(find.textContaining('Đã chuyển sang'), findsOneWidget);
   });
 
@@ -126,10 +127,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.contextNone);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
@@ -151,10 +152,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.switchSuspended);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.switchSuspended);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     await openSelectorFromHeader(tester);
@@ -164,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Chọn tổ chức'), findsOneWidget);
     expect(find.textContaining('Chuyển sang ASC'), findsNothing);
-    expect(module.switchTenantCount, 0);
+    expect(repository.switchCount, 0);
   });
 
   testWidgets('e2e_e05_u01_fr01_03: closed tenant badge and not tappable', (
@@ -175,10 +176,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.tenantsClosedDisabled);
-    registerModule(module);
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.tenantsClosedDisabled);
+    registerModule(FakeIamModule(scenario: repository.scenario));
 
-    await tester.pumpWidget(wrap(module));
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
     await openSelectorFromHeader(tester);
@@ -188,6 +189,6 @@ void main() {
     await tester.tap(find.text('Closed Clinic'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Chuyển sang'), findsNothing);
-    expect(module.switchTenantCount, 0);
+    expect(repository.switchCount, 0);
   });
 }

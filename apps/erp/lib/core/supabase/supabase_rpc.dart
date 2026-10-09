@@ -11,10 +11,12 @@ class SupabaseRpc {
   final SupabaseClient _client;
 
   /// Gọi RPC; mọi lỗi thành [AppException].
+  /// [params] `null` nghĩa là gọi RPC không gửi object tham số
+  /// (`get_tenant_context` khi chưa có tenant).
   Future<dynamic> call(
     String schema,
     String fn, {
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params = const {},
   }) async {
     try {
       if (schema == 'public') {
@@ -31,7 +33,7 @@ class SupabaseRpc {
   Future<List<Map<String, dynamic>>> rows(
     String schema,
     String fn, {
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params = const {},
   }) async {
     final result = await call(schema, fn, params: params);
     if (result == null) return const [];
@@ -51,7 +53,7 @@ class SupabaseRpc {
   Future<Map<String, dynamic>> firstRow(
     String schema,
     String fn, {
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params = const {},
   }) async {
     final list = await rows(schema, fn, params: params);
     if (list.isEmpty) {

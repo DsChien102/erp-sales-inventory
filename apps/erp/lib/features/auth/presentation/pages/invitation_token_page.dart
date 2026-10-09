@@ -4,11 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:erp/features/iam/presentation.dart';
 
 import '../../../../core/di/injection.dart';
-import '../bloc/invitation_acceptance_cubit.dart';
-import '../bloc/invitation_acceptance_state.dart';
+import '../../../../core/session/session_controller.dart';
+import '../../../iam/data/account_repository.dart';
+import '../../../iam/presentation/shared/idempotency_key_factory.dart';
+import '../../data/auth_repository.dart';
+import '../../data/invitation_acceptance_repository.dart';
+import '../../logic/invitation_acceptance_cubit.dart';
+import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
@@ -17,12 +21,18 @@ import 'invitation_registration_page.dart';
 class InvitationTokenPage extends StatelessWidget {
   const InvitationTokenPage({
     super.key,
-    this.iamModule,
+    this.invitations,
+    this.auth,
+    this.account,
+    this.session,
     this.keyFactory,
     this.cubit,
   });
 
-  final IIamModule? iamModule;
+  final InvitationAcceptanceRepository? invitations;
+  final AuthRepository? auth;
+  final AccountRepository? account;
+  final SessionController? session;
   final IdempotencyKeyFactory? keyFactory;
   final InvitationAcceptanceCubit? cubit;
 
@@ -34,10 +44,14 @@ class InvitationTokenPage extends StatelessWidget {
         child: const _InvitationTokenView(),
       );
     }
+    final keys = keyFactory ?? const UuidIdempotencyKeyFactory();
     return BlocProvider(
       create: (_) => InvitationAcceptanceCubit(
-        iamModule: iamModule ?? getIt<IIamModule>(),
-        keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
+        invitations: invitations ?? getIt<InvitationAcceptanceRepository>(),
+        auth: auth ?? getIt<AuthRepository>(),
+        account: account ?? getIt<AccountRepository>(),
+        session: session ?? getIt<SessionController>(),
+        nextKey: keys.next,
       ),
       child: const _InvitationTokenView(),
     );

@@ -14,6 +14,78 @@ class AuthRepository {
   final SupabaseRpc _rpc;
   final GoTrueClient _auth;
 
+  /// Đăng nhập email/mật khẩu, kiểm tra tài khoản nền tảng, ghi nhận lần đăng nhập.
+  /// Trả `userId`. Lỗi mật khẩu / email chưa xác nhận đi qua [AppException.from].
+  Future<String> signIn({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await _auth.signInWithPassword(email: email, password: password);
+    } catch (error) {
+      throw AppException.from(error);
+    }
+
+    try {
+      await _rpc.call('iam', 'assert_my_platform_access');
+    } on AppException catch (error) {
+      if (_containsPlatformUserSuspended(error)) {
+        await _auth.signOut();
+        throw const AppException('PLATFORM_USER_SUSPENDED');
+      }
+    }
+
+    try {
+      await _rpc.call('iam', 'record_my_platform_login');
+    } on AppException {
+      // Ghi nhận lần đăng nhập không được chặn phiên hợp lệ.
+    }
+
+    final userId = _auth.currentUser?.id.trim();
+    if (userId == null || userId.isEmpty) {
+      throw const AppException(AppErrorCode.authRequired);
+    }
+    return userId;
+  }
+
+  /// Tạo tài khoản từ lời mời. Trả `userId` khi đã có session và email đã xác nhận.
+  Future<String> signUpFromInvitation({
+    required String email,
+    required String password,
+    required String givenName,
+    required String familyName,
+    String? phone,
+  }) async {
+    final canonical = email.trim().toLowerCase();
+    final trimmedPhone = phone?.trim();
+    try {
+      final response = await _auth.signUp(
+        email: canonical,
+        password: password,
+        data: <String, dynamic>{
+          'first_name': givenName,
+          'last_name': familyName,
+          if (trimmedPhone != null && trimmedPhone.isNotEmpty) 'phone': trimmedPhone,
+        },
+      );
+      final user = response.user;
+      final returnedEmail = (user?.email ?? '').trim().toLowerCase();
+      if (user == null ||
+          response.session == null ||
+          user.emailConfirmedAt == null ||
+          returnedEmail != canonical) {
+        throw const AppException(AppErrorCode.unknown);
+      }
+      return user.id;
+    } on AppException {
+      rethrow;
+    } on AuthException catch (error) {
+      throw _mapInvitationAuthException(error);
+    } catch (_) {
+      throw const AppException(AppErrorCode.unknown);
+    }
+  }
+
   Future<PasswordResetRequestResult> requestMyPasswordReset() async {
     final email = _requireSignedInEmail();
     final row = await _rpc.firstRow('iam', 'begin_password_reset_operation');
@@ -151,6 +223,40 @@ class AuthRepository {
       }
       throw const AppException(AppErrorCode.unknown);
     }
+  }
+
+  bool _containsPlatformUserSuspended(AppException error) {
+    final blob = '${error.code} ${error.serverMessage ?? ''} ${error.cause}'.toUpperCase();
+    return blob.contains('PLATFORM_USER_SUSPENDED');
+  }
+
+  AppException _mapInvitationAuthException(AuthException error) {
+    const duplicateCodes = <String>{'email_exists', 'user_already_exists'};
+    const validationCodes = <String>{
+      'weak_password',
+      'validation_failed',
+      'email_address_invalid',
+    };
+    final code = error.code?.trim().toLowerCase();
+    if (code != null && duplicateCodes.contains(code)) {
+      return const AppException('PLATFORM_USER_ALREADY_EXISTS');
+    }
+    if (code != null && validationCodes.contains(code)) {
+      return const AppException(AppErrorCode.validation);
+    }
+    if (code != null && code.isNotEmpty) {
+      return const AppException(AppErrorCode.unknown);
+    }
+    final message = error.message.toLowerCase();
+    if (message.contains('already') ||
+        message.contains('registered') ||
+        message.contains('exists')) {
+      return const AppException('PLATFORM_USER_ALREADY_EXISTS');
+    }
+    if (message.contains('password') || message.contains('weak') || message.contains('invalid')) {
+      return const AppException(AppErrorCode.validation);
+    }
+    return const AppException(AppErrorCode.unknown);
   }
 
   Future<void> _signOutOtherSessions() async {

@@ -1,26 +1,35 @@
-import 'package:erp/features/auth/presentation/bloc/invitation_acceptance_cubit.dart';
-import 'package:erp/features/auth/presentation/bloc/invitation_acceptance_state.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/auth/logic/invitation_acceptance_cubit.dart';
+import 'package:erp/features/auth/logic/invitation_acceptance_state.dart';
+import 'package:erp/features/iam/presentation/testing/fake_idempotency_key_factory.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
-import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
+
+import '../../support/scripted_auth.dart';
+import '../../support/scripted_invitations.dart';
 
 void main() {
   InvitationAcceptanceCubit buildCubit({
-    required IIamModule module,
-    IdempotencyKeyFactory? keyFactory,
+    required ScriptedInvitations invitations,
+    ScriptedAuthRepository? auth,
+    ScriptedAccountRepository? account,
+    FakeIdempotencyKeyFactory? keys,
+    List<String>? log,
   }) {
     return InvitationAcceptanceCubit(
-      iamModule: module,
-      keyFactory: keyFactory ?? FakeIdempotencyKeyFactory(),
+      invitations: invitations,
+      auth: auth ?? ScriptedAuthRepository(log: log),
+      account: account ?? ScriptedAccountRepository(log: log),
+      session: loginSession(email: 'invitee@example.com', log: log),
+      nextKey: (keys ?? FakeIdempotencyKeyFactory()).next,
     );
   }
 
   test('inspectExistingAccount goes to existing login without exposing token', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.inspectExistingAccount),
     );
     await cubit.inspect('opaque-secret-token');
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
@@ -32,7 +41,7 @@ void main() {
 
   test('inspectNewAccount goes to registration', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.inspectNewAccount),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.inspectNewAccount),
     );
     await cubit.inspect('token-new');
     expect(cubit.state.step, InvitationAcceptanceStep.newAccountRegistration);
@@ -42,11 +51,9 @@ void main() {
 
   test('inspectInvalidNoLeak stays on entry with a failure to toast', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.inspectInvalidNoLeak),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.inspectInvalidNoLeak),
     );
     await cubit.inspect('bad-token');
-    // Invalid code keeps the user on the entry screen so they can re-enter;
-    // the view surfaces state.failure as a toast.
     expect(cubit.state.step, InvitationAcceptanceStep.tokenEntry);
     expect(cubit.state.failure?.code, IamBlockedCodes.invitationTokenInvalid);
     expect(cubit.state.tokenPresent, isFalse);
@@ -55,44 +62,32 @@ void main() {
   });
 
   test('loginAndAccept signs in, accepts, then signs out without tenant bootstrap', () async {
+    final log = <String>[];
     final keys = FakeIdempotencyKeyFactory();
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.acceptExistingAccountOk),
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.acceptExistingAccountOk,
+      log: log,
     );
-    final cubit = buildCubit(module: module, keyFactory: keys);
+    final cubit = buildCubit(invitations: invitations, keys: keys, log: log);
     await cubit.inspect('tok-1');
     await cubit.loginAndAccept(password: 'secret');
 
     expect(cubit.state.step, InvitationAcceptanceStep.accepted);
     expect(cubit.state.acceptedMembership?.status, MembershipStatus.active);
     expect(cubit.state.tokenPresent, isFalse);
-
-    expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
-    expect(module.commandsOf<SignInTenantUserCommand>().single, isA<SignInTenantUserCommand>());
-    expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
-    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
-    final accept = module.commandsOf<AcceptInvitationCommand>().single;
-    expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
-
-    expect(module.queriesOf<InspectInvitationTokenQuery>(), isNotEmpty);
-    expect(module.queriesOf<GetCurrentSessionQuery>(), isNotEmpty);
-    expect(module.queriesOf<GetTenantContextQuery>(), isEmpty);
-
-    // Order: verify the account, accept the invitation, then force re-login.
-    final signInIndex = module.commands.indexWhere((c) => c is SignInTenantUserCommand);
-    final acceptIndex = module.commands.indexWhere((c) => c is AcceptInvitationCommand);
-    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
-    expect(signInIndex, lessThan(acceptIndex));
-    expect(acceptIndex, lessThan(signOutIndex));
+    expect(invitations.accepts, ['accept-invitation-test-idempotency-key']);
+    expect(log, ['inspect', 'signIn', 'accept', 'signOut']);
     await cubit.close();
   });
 
   test('acceptExistingAccount accepts then signs out before completion', () async {
+    final log = <String>[];
     final keys = FakeIdempotencyKeyFactory();
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.inspectExistingAccount,
+      log: log,
     );
-    final cubit = buildCubit(module: module, keyFactory: keys);
+    final cubit = buildCubit(invitations: invitations, keys: keys, log: log);
     await cubit.inspect('tok-1');
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
 
@@ -102,54 +97,56 @@ void main() {
     expect(cubit.state.acceptedMembership?.status, MembershipStatus.active);
     expect(cubit.state.tokenPresent, isFalse);
     expect(cubit.state.failure, isNull);
-
-    expect(module.commandsOf<SignInTenantUserCommand>(), isEmpty);
-    expect(module.commandsOf<AcceptInvitationCommand>(), hasLength(1));
-    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
-    final accept = module.commandsOf<AcceptInvitationCommand>().single;
-    expect(accept.idempotencyKey, 'accept-invitation-test-idempotency-key');
-    final acceptIndex = module.commands.indexWhere((c) => c is AcceptInvitationCommand);
-    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
-    expect(acceptIndex, lessThan(signOutIndex));
-
+    expect(log.where((event) => event == 'signIn'), isEmpty);
+    expect(invitations.accepts, ['accept-invitation-test-idempotency-key']);
+    expect(log.indexOf('accept'), lessThan(log.indexOf('signOut')));
     await cubit.close();
   });
 
   test('acceptExistingAccount error falls back to existingAccountLogin with failure', () async {
-    final module = _FailAcceptModule();
-    final cubit = buildCubit(module: module);
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.inspectExistingAccount,
+      acceptError: const IamBlockedException(IamBlockedCodes.idempotencyConflict),
+    );
+    final cubit = buildCubit(invitations: invitations);
     await cubit.inspect('tok-1');
-    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
-
     await cubit.acceptExistingAccount();
 
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
     expect(cubit.state.failure?.code, IamBlockedCodes.idempotencyConflict);
     expect(cubit.state.tokenPresent, isTrue);
-
     await cubit.close();
   });
 
   test('acceptExistingAccount terminal error transitions to blocked', () async {
-    final module = _TerminalFailAcceptModule();
-    final cubit = buildCubit(module: module);
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.inspectExistingAccount,
+      acceptError: const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed),
+    );
+    final cubit = buildCubit(invitations: invitations);
     await cubit.inspect('tok-1');
-    expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
-
     await cubit.acceptExistingAccount();
 
     expect(cubit.state.step, InvitationAcceptanceStep.blocked);
     expect(cubit.state.failure?.code, IamBlockedCodes.invitationAlreadyUsed);
     expect(cubit.state.tokenPresent, isFalse);
-
     await cubit.close();
   });
 
   test('registerAndAccept registers then signs out without tenant bootstrap', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.registerAndAcceptOk),
+    final log = <String>[];
+    final auth = ScriptedAuthRepository(log: log);
+    final account = ScriptedAccountRepository(log: log);
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.registerAndAcceptOk,
+      log: log,
     );
-    final cubit = buildCubit(module: module);
+    final cubit = buildCubit(
+      invitations: invitations,
+      auth: auth,
+      account: account,
+      log: log,
+    );
     await cubit.inspect('tok-new');
     await cubit.registerAndAccept(
       givenName: 'An',
@@ -157,59 +154,52 @@ void main() {
       password: 'password-1',
     );
     expect(cubit.state.step, InvitationAcceptanceStep.accepted);
-    final command = module.commandsOf<RegisterFromInvitationCommand>().single;
-    expect(command.profile.givenName, 'An');
-    expect(command.profile.familyName, 'Nguyen');
-    expect(command.credentialProof, 'password-1');
-    expect(module.commandsOf<SignOutCommand>(), hasLength(1));
-    expect(module.queriesOf<GetTenantContextQuery>(), isEmpty);
-    final registerIndex = module.commands.indexWhere(
-      (c) => c is RegisterFromInvitationCommand,
-    );
-    final signOutIndex = module.commands.indexWhere((c) => c is SignOutCommand);
-    expect(registerIndex, lessThan(signOutIndex));
+    expect(auth.signUps.single.givenName, 'An');
+    expect(auth.signUps.single.familyName, 'Nguyen');
+    expect(auth.signUps.single.password, 'password-1');
+    expect(account.updates, 1);
+    expect(log.indexOf('signUp'), lessThan(log.indexOf('signOut')));
+    expect(log, isNot(contains('bootstrap')));
     expect(cubit.state.toString(), isNot(contains('password-1')));
     expect(cubit.state.toString(), isNot(contains('tok-new')));
     await cubit.close();
   });
 
   test('registerIdentityConflict switches to existing login', () async {
+    final auth = ScriptedAuthRepository(
+      signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
+    );
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.registerIdentityConflict),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.registerIdentityConflict),
+      auth: auth,
     );
     await cubit.inspect('tok');
     await cubit.registerAndAccept(
       givenName: 'A',
       familyName: 'B',
-      password: 'x',
+      password: 'password-1',
     );
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
-    expect(
-      cubit.state.failure?.code,
-      IamBlockedCodes.platformUserAlreadyExists,
-    );
+    expect(cubit.state.failure?.code, IamBlockedCodes.platformUserAlreadyExists);
     expect(cubit.state.tokenPresent, isTrue);
     await cubit.close();
   });
 
   test('acceptEmailMismatch keeps locked-email login step', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptEmailMismatch),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptEmailMismatch),
     );
     await cubit.inspect('tok');
     await cubit.loginAndAccept(password: 'secret');
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
-    expect(
-      cubit.state.failure?.code,
-      IamBlockedCodes.invitationEmailMismatch,
-    );
+    expect(cubit.state.failure?.code, IamBlockedCodes.invitationEmailMismatch);
     expect(cubit.state.tokenPresent, isTrue);
     await cubit.close();
   });
 
   test('acceptExpired stays on entry with an expired failure', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptExpired),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptExpired),
     );
     await cubit.inspect('tok');
     expect(cubit.state.step, InvitationAcceptanceStep.tokenEntry);
@@ -220,7 +210,7 @@ void main() {
 
   test('acceptRotatedToken stays on entry as invalid', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptRotatedToken),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptRotatedToken),
     );
     await cubit.inspect('old-token');
     expect(cubit.state.step, InvitationAcceptanceStep.tokenEntry);
@@ -230,7 +220,7 @@ void main() {
 
   test('acceptDeclined stays on entry as already used', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptDeclined),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptDeclined),
     );
     await cubit.inspect('tok');
     expect(cubit.state.step, InvitationAcceptanceStep.tokenEntry);
@@ -240,7 +230,7 @@ void main() {
 
   test('acceptConcurrent blocks terminal after accept', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptConcurrent),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptConcurrent),
     );
     await cubit.inspect('tok');
     await cubit.loginAndAccept(password: 'secret');
@@ -252,7 +242,7 @@ void main() {
 
   test('acceptTenantSuspended keeps token for retry later', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.acceptTenantSuspended),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.acceptTenantSuspended),
     );
     await cubit.inspect('tok');
     await cubit.loginAndAccept(password: 'secret');
@@ -264,7 +254,7 @@ void main() {
 
   test('acceptRetryAfterIdentityCreated accepts after login', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(
+      invitations: ScriptedInvitations(
         scenario: FakeIamScenario.acceptRetryAfterIdentityCreated,
       ),
     );
@@ -276,49 +266,38 @@ void main() {
   });
 
   test('declineOk clears token; decline retry reuses stable key', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.declineOk),
-    );
-    final cubit = buildCubit(
-      module: module,
-      keyFactory: FakeIdempotencyKeyFactory(),
-    );
+    final keys = FakeIdempotencyKeyFactory();
+    final invitations = ScriptedInvitations(scenario: FakeIamScenario.declineOk);
+    final cubit = buildCubit(invitations: invitations, keys: keys);
     await cubit.inspect('tok');
     await cubit.decline();
     expect(cubit.state.step, InvitationAcceptanceStep.declined);
     expect(cubit.state.tokenPresent, isFalse);
-    expect(
-      module.commandsOf<DeclineInvitationCommand>().single.idempotencyKey,
-      'decline-invitation-test-idempotency-key',
-    );
+    expect(invitations.declines, ['decline-invitation-test-idempotency-key']);
     await cubit.close();
 
-    final keys = FakeIdempotencyKeyFactory();
-    final scriptedModule = RecordingIamModule(_FailThenSucceedDeclineModule());
-    final scriptedCubit = buildCubit(module: scriptedModule, keyFactory: keys);
-    await scriptedCubit.inspect('tok');
-    await scriptedCubit.decline();
-    expect(
-      scriptedCubit.state.step,
-      InvitationAcceptanceStep.existingAccountLogin,
+    final retryKeys = FakeIdempotencyKeyFactory();
+    final retry = ScriptedInvitations(
+      scenario: FakeIamScenario.inspectExistingAccount,
+      declineFailures: 1,
     );
-    expect(
-      scriptedCubit.state.failure?.code,
-      IamBlockedCodes.idempotencyConflict,
-    );
-    expect(keys.calls, 1);
-    await scriptedCubit.decline();
-    expect(scriptedCubit.state.step, InvitationAcceptanceStep.declined);
-    expect(keys.calls, 1);
-    final cmds = scriptedModule.commandsOf<DeclineInvitationCommand>().toList();
-    expect(cmds, hasLength(2));
-    expect(cmds[0].idempotencyKey, cmds[1].idempotencyKey);
-    await scriptedCubit.close();
+    final retryCubit = buildCubit(invitations: retry, keys: retryKeys);
+    await retryCubit.inspect('tok');
+    await retryCubit.decline();
+    expect(retryCubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
+    expect(retryCubit.state.failure?.code, IamBlockedCodes.idempotencyConflict);
+    expect(retryKeys.calls, 1);
+    await retryCubit.decline();
+    expect(retryCubit.state.step, InvitationAcceptanceStep.declined);
+    expect(retryKeys.calls, 1);
+    expect(retry.declines, hasLength(2));
+    expect(retry.declines[0], retry.declines[1]);
+    await retryCubit.close();
   });
 
   test('reset clears public state and private token', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.inspectExistingAccount),
+      invitations: ScriptedInvitations(scenario: FakeIamScenario.inspectExistingAccount),
     );
     await cubit.inspect('opaque');
     cubit.reset();
@@ -327,111 +306,4 @@ void main() {
     expect(cubit.state.inspection, isNull);
     await cubit.close();
   });
-}
-
-final class _FailThenSucceedDeclineModule implements IIamModule {
-  bool _failedOnce = false;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    if (command is DeclineInvitationCommand) {
-      if (!_failedOnce) {
-        _failedOnce = true;
-        throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
-      }
-      return Future.value(
-        InvitationDetailDto(
-              invitationId: 'inv-1',
-              inviteeEmail: 'invitee@example.com',
-              initialRoleId: 'role-staff',
-              initialRoleLabel: 'Staff',
-              status: 'declined',
-              expiresAt: DateTime.utc(2026, 8, 5),
-              deliveryStatus: 'sent',
-              deliveryCorrelationId: 'corr',
-              version: 2,
-              createdAt: DateTime.utc(2026, 7, 29),
-              createdBy: 'lan-le',
-              declinedAt: DateTime.utc(2026, 7, 30),
-            )
-            as TResult,
-      );
-    }
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is InspectInvitationTokenQuery) {
-      return Future.value(
-        InvitationTokenInspectionDto(
-              tenantId: 'org-001',
-              tenantName: 'Org',
-              inviteeEmail: 'invitee@example.com',
-              initialRoleId: 'role-staff',
-              initialRoleLabel: 'Staff',
-              expiresAt: DateTime.utc(2026, 8, 5),
-              accountExists: true,
-            )
-            as TResult,
-      );
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
-}
-
-final class _FailAcceptModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    if (command is AcceptInvitationCommand) {
-      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
-    }
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is InspectInvitationTokenQuery) {
-      return Future.value(
-        InvitationTokenInspectionDto(
-          tenantId: 'org-001',
-          tenantName: 'Org',
-          inviteeEmail: 'invitee@example.com',
-          initialRoleId: 'role-staff',
-          initialRoleLabel: 'Staff',
-          expiresAt: DateTime.utc(2026, 8, 5),
-          accountExists: true,
-        ) as TResult,
-      );
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
-}
-
-final class _TerminalFailAcceptModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    if (command is AcceptInvitationCommand) {
-      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
-    }
-    throw UnsupportedError(command.runtimeType.toString());
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
-    if (query is InspectInvitationTokenQuery) {
-      return Future.value(
-        InvitationTokenInspectionDto(
-          tenantId: 'org-001',
-          tenantName: 'Org',
-          inviteeEmail: 'invitee@example.com',
-          initialRoleId: 'role-staff',
-          initialRoleLabel: 'Staff',
-          expiresAt: DateTime.utc(2026, 8, 5),
-          accountExists: true,
-        ) as TResult,
-      );
-    }
-    throw UnsupportedError(query.runtimeType.toString());
-  }
 }

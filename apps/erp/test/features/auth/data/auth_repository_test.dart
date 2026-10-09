@@ -22,7 +22,7 @@ class _Rpc extends SupabaseRpc {
   Future<Map<String, dynamic>> firstRow(
     String schema,
     String fn, {
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params = const {},
   }) async {
     calls.add(fn);
     final row = payloads[fn];
@@ -36,7 +36,7 @@ class _Rpc extends SupabaseRpc {
   Future<dynamic> call(
     String schema,
     String fn, {
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params = const {},
   }) async {
     calls.add(fn);
     return payloads[fn];

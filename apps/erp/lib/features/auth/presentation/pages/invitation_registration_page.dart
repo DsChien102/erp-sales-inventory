@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/invitation_acceptance_cubit.dart';
-import '../bloc/invitation_acceptance_state.dart';
+import '../../logic/invitation_acceptance_cubit.dart';
+import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_registration_form.dart';
 import '../widgets/invitation_token_entry_form.dart';
 

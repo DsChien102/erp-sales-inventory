@@ -1,37 +1,16 @@
+import 'package:erp/core/session/models/accessible_tenant.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_domain/domain.dart';
+
 import '../../shared/iam_role_label_mapper.dart';
 import 'confirm_switch_organization_bottom_sheet.dart';
 import 'organization_empty_view.dart';
 
-/// Item mô hình đại diện cho một tổ chức trong VBottomSheet Chọn tổ chức.
-class SelectOrganizationItemUiModel {
-  final String id;
-  final String name;
-  final String code;
-  final String roleLabel;
-  final TenantLifecycleStatus status;
-  final bool isCurrent;
-  final bool isSelectable;
-  final bool isOwner;
-
-  const SelectOrganizationItemUiModel({
-    required this.id,
-    required this.name,
-    required this.code,
-    required this.roleLabel,
-    required this.status,
-    this.isCurrent = false,
-    this.isSelectable = true,
-    this.isOwner = false,
-  });
-}
-
 /// VBottomSheet Chọn tổ chức (TA-O-01 — Chọn tổ chức).
 class SelectOrganizationBottomSheet extends StatefulWidget {
-  final List<SelectOrganizationItemUiModel> organizations;
-  final ValueChanged<SelectOrganizationItemUiModel>? onOrganizationSelected;
+  final List<AccessibleTenant> organizations;
+  final ValueChanged<AccessibleTenant>? onOrganizationSelected;
   final OrganizationEmptyStateType? emptyStateType;
   final String? suspendedOrgName;
   final VoidCallback? onEmptyAction;
@@ -39,7 +18,7 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
   /// When non-null, "Thử lại" on [OrganizationEmptyStateType.loadError] calls
   /// this and replaces the sheet content with the returned list (or keeps
   /// loadError when the future returns `null`).
-  final Future<List<SelectOrganizationItemUiModel>?> Function()? onRetryLoad;
+  final Future<List<AccessibleTenant>?> Function()? onRetryLoad;
 
   const SelectOrganizationBottomSheet({
     super.key,
@@ -58,14 +37,14 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
 class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  late List<SelectOrganizationItemUiModel> _organizations;
+  late List<AccessibleTenant> _organizations;
   OrganizationEmptyStateType? _emptyStateType;
   bool _retrying = false;
 
   @override
   void initState() {
     super.initState();
-    _organizations = List<SelectOrganizationItemUiModel>.of(widget.organizations);
+    _organizations = List<AccessibleTenant>.of(widget.organizations);
     _emptyStateType = widget.emptyStateType;
   }
 
@@ -75,7 +54,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     super.dispose();
   }
 
-  List<SelectOrganizationItemUiModel> get _filteredOrganizations {
+  List<AccessibleTenant> get _filteredOrganizations {
     if (_searchQuery.isEmpty) return _organizations;
     return _organizations.where((org) {
       return org.name.toLowerCase().contains(_searchQuery) ||
@@ -83,7 +62,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     }).toList();
   }
 
-  void _handleSelectOrganization(SelectOrganizationItemUiModel org) {
+  void _handleSelectOrganization(AccessibleTenant org) {
     if (org.isCurrent || !org.isSelectable) return;
     widget.onOrganizationSelected?.call(org);
     Navigator.of(context).pop(org);
@@ -98,7 +77,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
         if (!mounted) return;
         if (refreshed != null) {
           setState(() {
-            _organizations = List<SelectOrganizationItemUiModel>.of(refreshed);
+            _organizations = List<AccessibleTenant>.of(refreshed);
             _emptyStateType = refreshed.isEmpty
                 ? OrganizationEmptyStateType.noAuthorizedOrganizations
                 : null;
@@ -206,7 +185,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
 
   Widget _buildOrganizationCard(
     dynamic colors,
-    SelectOrganizationItemUiModel org,
+    AccessibleTenant org,
   ) {
     final isCurrent = org.isCurrent;
     final canTap = !isCurrent && org.isSelectable;
@@ -223,7 +202,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     final Color subtitleColor = muted ? colors.disabledFg : colors.textSecondary;
 
     final String statusSuffix = _statusSuffix(org);
-    final String displayRole = IamRoleLabelMapper.toDisplayLabel(org.roleLabel);
+    final String displayRole = IamRoleLabelMapper.toDisplayLabel(org.roleCode);
 
     return VCard(
       padding: const EdgeInsets.all(VSpacing.space4),
@@ -279,12 +258,12 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     );
   }
 
-  String _statusSuffix(SelectOrganizationItemUiModel org) {
+  String _statusSuffix(AccessibleTenant org) {
     return switch (org.status) {
-      TenantLifecycleStatus.suspended => ' · Tạm ngừng',
-      TenantLifecycleStatus.closed => ' · Đã đóng',
-      TenantLifecycleStatus.provisioning => '',
-      TenantLifecycleStatus.active => '',
+      TenantStatus.suspended => ' · Tạm ngừng',
+      TenantStatus.closed => ' · Đã đóng',
+      TenantStatus.provisioning => '',
+      TenantStatus.active => '',
     };
   }
 }
@@ -293,17 +272,17 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
 ///
 /// [onConfirmSwitch] replaces the fake delay on the production path — ERP
 /// wires this to `SessionController.switchTo`. Returns `true` on success.
-Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
+Future<AccessibleTenant?> showSelectOrganizationBottomSheet({
   required BuildContext context,
-  List<SelectOrganizationItemUiModel>? organizations,
-  ValueChanged<SelectOrganizationItemUiModel>? onOrganizationSelected,
-  Future<bool> Function(SelectOrganizationItemUiModel org)? onConfirmSwitch,
+  List<AccessibleTenant>? organizations,
+  ValueChanged<AccessibleTenant>? onOrganizationSelected,
+  Future<bool> Function(AccessibleTenant org)? onConfirmSwitch,
   OrganizationEmptyStateType? emptyStateType,
   String? suspendedOrgName,
   VoidCallback? onEmptyAction,
-  Future<List<SelectOrganizationItemUiModel>?> Function()? onRetryLoad,
+  Future<List<AccessibleTenant>?> Function()? onRetryLoad,
 }) async {
-  final selectedOrg = await showVBottomSheet<SelectOrganizationItemUiModel>(
+  final selectedOrg = await showVBottomSheet<AccessibleTenant>(
     context: context,
     child: SelectOrganizationBottomSheet(
       organizations: organizations ?? const [],

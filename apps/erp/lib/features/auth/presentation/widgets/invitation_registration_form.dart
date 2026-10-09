@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:erp/core/validation/password_policy.dart';
+
+import '../../data/models/invitation_token_inspection.dart';
 
 /// ID-D-02 — Trang Kích hoạt tài khoản cho người được mời chưa có tài khoản.
 ///
 /// Layout giữ nguyên thiết kế gốc (banner + 6 field + bottom bar); dữ liệu lấy
-/// từ [InvitationTokenInspectionDto] của backend — email khoá theo lời mời.
+/// từ [InvitationTokenInspection] của backend — email khoá theo lời mời.
 class InvitationRegistrationForm extends StatefulWidget {
   const InvitationRegistrationForm({
     super.key,
@@ -16,7 +17,7 @@ class InvitationRegistrationForm extends StatefulWidget {
     this.onBack,
   });
 
-  final InvitationTokenInspectionDto inspection;
+  final InvitationTokenInspection inspection;
   final bool isSubmitting;
   final Future<void> Function({
     required String givenName,

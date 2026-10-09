@@ -35,15 +35,15 @@
 
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
-| ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | |
+| ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | (a) xong 2-A3 |
 | ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | |
 | ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | |
 | ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | |
-| ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | |
-| ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | |
-| ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | |
-| ID-09 | Tổ chức không thể truy cập | (màn chặn) | Tổ chức tạm ngừng / đóng | ☐ | ☐ | |
+| ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | (a) xong 2-A3 |
+| ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | (a) xong 2-A3 |
+| ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | (a) xong 2-A3 |
+| ID-09 | Tổ chức không thể truy cập | (màn chặn) | Tổ chức tạm ngừng / đóng | ☐ | ☐ | (a) xong 2-A3 |
 | ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | Điều hướng 3 mục | ☐ | ☐ | (a) xong 2-A2 |
 | ID-11 | Hồ sơ tổ chức | `/more/organization-profile` | Xem thông tin | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-12 | Sửa thông tin tổ chức | `…/edit` | Lưu, kiểm dữ liệu | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |

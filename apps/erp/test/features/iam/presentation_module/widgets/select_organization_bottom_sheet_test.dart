@@ -1,35 +1,33 @@
+import 'package:erp/core/session/models/accessible_tenant.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_domain/domain.dart';
 
 import 'package:erp/features/iam/presentation/organizations/widgets/select_organization_bottom_sheet.dart';
 
-const _fixtureOrganizations = <SelectOrganizationItemUiModel>[
-  SelectOrganizationItemUiModel(
+const _fixtureOrganizations = <AccessibleTenant>[
+  AccessibleTenant(
     id: 'org-01',
     name: 'Thú y Minh Phát',
     code: 'TEN-000138',
-    roleLabel: 'Chủ cửa hàng',
-    status: TenantLifecycleStatus.active,
+    roleCode: 'Chủ cửa hàng',
+    status: TenantStatus.active,
     isCurrent: true,
-    isSelectable: true,
   ),
-  SelectOrganizationItemUiModel(
+  AccessibleTenant(
     id: 'org-02',
     name: 'Phòng khám Minh Tâm',
     code: 'TEN-000204',
-    roleLabel: 'Kế toán',
-    status: TenantLifecycleStatus.active,
-    isSelectable: true,
+    roleCode: 'Kế toán',
+    status: TenantStatus.active,
   ),
-  SelectOrganizationItemUiModel(
+  AccessibleTenant(
     id: 'org-03',
     name: 'ASC Commerce',
     code: 'TEN-000095',
-    roleLabel: 'Nhân viên bán hàng',
-    status: TenantLifecycleStatus.suspended,
-    isSelectable: false,
+    roleCode: 'Nhân viên bán hàng',
+    status: TenantStatus.suspended,
   ),
 ];
 
@@ -91,14 +89,13 @@ void main() {
           home: Scaffold(
             body: SelectOrganizationBottomSheet(
               organizations: [
-                SelectOrganizationItemUiModel(
+                AccessibleTenant(
                   id: 'org-raw',
                   name: 'Sỹ Chiến',
                   code: 'TEN-DA84BD',
-                  roleLabel: 'store_owner',
-                  status: TenantLifecycleStatus.provisioning,
+                  roleCode: 'store_owner',
+                  status: TenantStatus.provisioning,
                   isCurrent: false,
-                  isSelectable: true,
                 ),
               ],
             ),

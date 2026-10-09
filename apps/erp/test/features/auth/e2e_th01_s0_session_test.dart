@@ -5,13 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_inventory_application/application.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
+import '../../core/session/fake_session_repository.dart';
 import '../dashboard/presentation/ready_default_pair_inventory_module.dart';
+import 'support/scripted_auth.dart';
 
 /// e2e_th01_s0_session — sign-in → session query → dashboard (S0).
 void main() {
@@ -40,24 +39,22 @@ void main() {
     (tester) async {
       await setPhone(tester);
 
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.authSignInOk),
-      );
-      getIt
-        ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-        ..registerSingleton<IIamModule>(module);
+      final auth = ScriptedAuthRepository();
+      final session = loginSession();
+      addTearDown(session.close);
+      final tenants = FakeSessionRepository();
 
       final router = GoRouter(
         initialLocation: '/login',
         routes: [
           GoRoute(
             path: '/login',
-            builder: (context, state) => LoginPage(iamModule: module),
+            builder: (context, state) => LoginPage(auth: auth, session: session),
           ),
           GoRoute(
             path: '/',
             builder: (context, state) => DashboardPage(
-              iamModule: module,
+              repository: tenants,
               autoBootstrap: true,
             ),
           ),
@@ -76,8 +73,7 @@ void main() {
       await tester.tap(find.text('Đăng nhập'));
       await tester.pumpAndSettle();
 
-      expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
-      expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
+      expect(auth.signIns, hasLength(1));
       expect(find.text('Tổng quan hôm nay'), findsOneWidget);
     },
   );
@@ -87,17 +83,20 @@ void main() {
     (tester) async {
       await setPhone(tester);
 
-      final module = FakeIamModule(scenario: FakeIamScenario.authInvalid);
-      getIt
-        ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-        ..registerSingleton<IIamModule>(module);
+      final session = loginSession();
+      addTearDown(session.close);
 
       final router = GoRouter(
         initialLocation: '/login',
         routes: [
           GoRoute(
             path: '/login',
-            builder: (context, state) => LoginPage(iamModule: module),
+            builder: (context, state) => LoginPage(
+              auth: ScriptedAuthRepository(
+                signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+              ),
+              session: session,
+            ),
           ),
           GoRoute(
             path: '/',

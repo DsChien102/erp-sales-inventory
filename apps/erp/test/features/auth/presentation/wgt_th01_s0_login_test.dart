@@ -1,5 +1,5 @@
-import 'package:erp/features/auth/presentation/bloc/login_cubit.dart';
-import 'package:erp/features/auth/presentation/bloc/login_state.dart';
+import 'package:erp/features/auth/logic/login_cubit.dart';
+import 'package:erp/features/auth/logic/login_state.dart';
 import 'package:erp/features/auth/presentation/pages/login_page.dart';
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/router/app_router.dart';
@@ -7,12 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import '../../iam/support/scripted_iam_repositories.dart';
+import '../support/scripted_auth.dart';
 
 void main() {
   setUp(() async {
@@ -27,17 +26,13 @@ void main() {
   test(
     'wgt_th01_s0_login_session_sequence submits sign-in then queries the session snapshot',
     () async {
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.authSignInOk),
-      );
-      final cubit = LoginCubit(iamModule: module);
+      final auth = ScriptedAuthRepository();
+      final cubit = LoginCubit(auth: auth, session: loginSession());
 
       await cubit.submit(email: 'lan@example.com', password: 'secret-123');
 
-      expect(module.commands, hasLength(1));
-      expect(module.commands.first, isA<SignInTenantUserCommand>());
-      expect(module.queries, hasLength(1));
-      expect(module.queries.first, isA<GetCurrentSessionQuery>());
+      expect(auth.signIns, hasLength(1));
+      expect(auth.signIns.single.email, 'lan@example.com');
       expect(cubit.state.status, LoginStatus.success);
       expect(cubit.state.session?.isAuthenticated, isTrue);
       await cubit.close();
@@ -47,15 +42,15 @@ void main() {
   test(
     'wgt_th01_s0_login_session_sequence keeps failure when session is unauthenticated',
     () async {
-      final module = RecordingIamModule(
-        _UnauthenticatedAfterSignInModule(),
+      final auth = ScriptedAuthRepository();
+      final cubit = LoginCubit(
+        auth: auth,
+        session: loginSession(authenticated: false),
       );
-      final cubit = LoginCubit(iamModule: module);
 
       await cubit.submit(email: 'lan@example.com', password: 'secret-123');
 
-      expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
-      expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
+      expect(auth.signIns, hasLength(1));
       expect(cubit.state.status, LoginStatus.failure);
       expect(cubit.state.failure?.code, IamBlockedCodes.authenticationRequired);
       await cubit.close();
@@ -65,7 +60,12 @@ void main() {
   test(
     'wgt_th01_s0_login_blocks_when_sign_in_has_no_active_membership',
     () async {
-      final cubit = LoginCubit(iamModule: _NoActiveMembershipModule());
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(
+          signInError: const IamBlockedException(IamBlockedCodes.noActiveMembership),
+        ),
+        session: loginSession(),
+      );
 
       await cubit.submit(email: 'lan@example.com', password: 'secret-123');
 
@@ -87,10 +87,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.authSignInOk),
-      );
-      final cubit = LoginCubit(iamModule: module);
+      final auth = ScriptedAuthRepository();
+      final cubit = LoginCubit(auth: auth, session: loginSession());
       addTearDown(cubit.close);
 
       final router = GoRouter(
@@ -120,8 +118,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('HOME_OK'), findsOneWidget);
-      expect(module.commands.first, isA<SignInTenantUserCommand>());
-      expect(module.queries.first, isA<GetCurrentSessionQuery>());
+      expect(auth.signIns, hasLength(1));
     },
   );
 
@@ -134,7 +131,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = LoginCubit(
-        iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+        auth: ScriptedAuthRepository(),
+        session: loginSession(),
       );
       addTearDown(cubit.close);
 
@@ -179,11 +177,11 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.passwordResetByEmailOk),
-      );
       final auth = RecordingAuthRepository();
-      final cubit = LoginCubit(iamModule: module);
+      final cubit = LoginCubit(
+        auth: ScriptedAuthRepository(),
+        session: loginSession(),
+      );
       addTearDown(cubit.close);
 
       final router = GoRouter(
@@ -231,7 +229,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = LoginCubit(
-        iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+        auth: ScriptedAuthRepository(),
+        session: loginSession(),
       );
       addTearDown(cubit.close);
 
@@ -270,7 +269,8 @@ void main() {
           theme: VTheme.lightTheme,
           home: Scaffold(
             body: LoginPage(
-              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              auth: ScriptedAuthRepository(),
+              session: loginSession(),
               showSuccessBanner: true,
               organizationName: 'Mậu Hiên',
             ),
@@ -300,7 +300,8 @@ void main() {
           theme: VTheme.lightTheme,
           home: Scaffold(
             body: LoginPage(
-              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              auth: ScriptedAuthRepository(),
+              session: loginSession(),
               showSuccessBanner: true,
               organizationName: null,
             ),
@@ -330,7 +331,8 @@ void main() {
           theme: VTheme.lightTheme,
           home: Scaffold(
             body: LoginPage(
-              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              auth: ScriptedAuthRepository(),
+              session: loginSession(),
               showSuccessBanner: true,
               organizationName: '   ',
             ),
@@ -360,7 +362,8 @@ void main() {
           theme: VTheme.lightTheme,
           home: Scaffold(
             body: LoginPage(
-              iamModule: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
+              auth: ScriptedAuthRepository(),
+              session: loginSession(),
               showSuccessBanner: false,
               organizationName: 'Mậu Hiên',
             ),
@@ -372,28 +375,4 @@ void main() {
       expect(find.text('Tham gia tổ chức thành công'), findsNothing);
     },
   );
-}
-
-final class _NoActiveMembershipModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    throw const IamBlockedException(IamBlockedCodes.noActiveMembership);
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    throw StateError('query should not run after sign-in failure');
-  }
-}
-
-final class _UnauthenticatedAfterSignInModule implements IIamModule {
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    return null as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    return const SessionDto(isAuthenticated: false) as TResult;
-  }
 }

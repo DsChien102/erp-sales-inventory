@@ -6,21 +6,24 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../bloc/login_cubit.dart';
-import '../bloc/login_state.dart';
+import '../../../../core/session/session_controller.dart';
+import '../../data/auth_repository.dart';
+import '../../logic/login_cubit.dart';
+import '../../logic/login_state.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
-    this.iamModule,
+    this.auth,
+    this.session,
     this.cubit,
     this.prefilledEmail,
     this.organizationName,
     this.showSuccessBanner = false,
   });
 
-  /// Production router injects GetIt module; tests pass explicit module/cubit.
-  final IIamModule? iamModule;
+  final AuthRepository? auth;
+  final SessionController? session;
   final LoginCubit? cubit;
   final String? prefilledEmail;
   final String? organizationName;
@@ -40,7 +43,10 @@ class LoginPage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (_) => LoginCubit(iamModule: iamModule ?? getIt<IIamModule>()),
+      create: (_) => LoginCubit(
+        auth: auth ?? getIt<AuthRepository>(),
+        session: session ?? getIt<SessionController>(),
+      ),
       child: _LoginView(
         prefilledEmail: prefilledEmail,
         organizationName: organizationName,

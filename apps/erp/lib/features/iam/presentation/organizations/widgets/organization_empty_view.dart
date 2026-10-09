@@ -1,15 +1,8 @@
+import 'package:erp/core/session/session_state.dart';
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-/// Các trạng thái rỗng / lỗi của giao diện Tổ chức.
-enum OrganizationEmptyStateType {
-  noOrganizations, // Chưa có tổ chức
-  noAuthorizedOrganizations, // Chưa có tổ chức được cấp quyền (Card 2)
-  inaccessible, // Tổ chức không thể truy cập (Card 1)
-  noResults, // Không tìm thấy tổ chức
-  loadError, // Không thể tải danh sách (Card 3)
-  unauthorized, // Không có quyền xem tổ chức
-}
+export 'package:erp/core/session/session_state.dart' show OrganizationEmptyStateType;
 
 /// Component hiển thị trang rỗng / lỗi cho Tổ chức bám sát thiết kế.
 class OrganizationEmptyView extends StatelessWidget {

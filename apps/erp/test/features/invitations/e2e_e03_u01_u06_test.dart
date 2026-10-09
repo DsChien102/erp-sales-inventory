@@ -1,4 +1,3 @@
-import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../iam/support/iam_module_repositories.dart';
@@ -10,6 +9,8 @@ import 'package:erp/features/iam/presentation.dart';
 import 'package:erp/features/iam/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+import '../auth/support/scripted_invitations.dart';
 
 /// e2e_e03_u01..u06 — members/invitations vertical (S6–S10) + S8 token paths.
 void main() {
@@ -127,7 +128,9 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, _) => InvitationTokenPage(iamModule: module),
+            builder: (_, _) => InvitationPageHarness(
+              scenario: FakeIamScenario.acceptExistingAccountOk,
+            ).page,
           ),
           GoRoute(
             path: '/login',
@@ -173,7 +176,9 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, _) => InvitationTokenPage(iamModule: module),
+            builder: (_, _) => InvitationPageHarness(
+              scenario: FakeIamScenario.registerAndAcceptOk,
+            ).page,
           ),
           GoRoute(
             path: '/login',
@@ -238,7 +243,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
-          home: InvitationTokenPage(iamModule: module),
+          home: InvitationPageHarness(
+            scenario: FakeIamScenario.inspectInvalidNoLeak,
+          ).page,
         ),
       );
       await tester.pumpAndSettle();
