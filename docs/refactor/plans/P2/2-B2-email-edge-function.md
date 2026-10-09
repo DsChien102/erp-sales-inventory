@@ -1,6 +1,6 @@
 # 2-B2 — Gửi email qua Edge Function `send-email`
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
 > Gồm việc: 2A.4 (TH-01 KI-07)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 6.3, BR-40, BR-41, BR-46, BR-64, BR-66; US-06.2, US-06.3, US-02.3
 
@@ -173,9 +173,9 @@ Gợi ý: (1) migration + test SQL; (2) Edge Function + template + test; (3) run
 
 ## 5. Kiểm tra
 
-- [ ] Kịch bản SQL Bước 6 chạy hết, không `raise`.
-- [ ] `deno test` pass.
-- [ ] `flutter test` toàn `apps/erp`: không lỗi mới so với 2-B1 (1.424 pass / 61 fail) — app không đổi, chỉ để chắc.
+- [ ] Kịch bản SQL Bước 6 chạy hết, không `raise`. Chưa chạy: Docker daemon không mở được lúc làm (`unix:///Users/macbook/.docker/run/docker.sock` không có).
+- [x] `deno test` pass (5 test template).
+- [x] `flutter test` toàn `apps/erp`: 1.424 pass / 61 fail — khớp mốc 2-B1, không lỗi mới.
 - [ ] Kiểm tay trên Dev — **để sau khi mua tên miền và xác minh trên Resend** (quyết định 2026-10-09). Trước đó chỉ cần các mục tự động ở trên + deploy function; review đóng ở 🔄 cho tới khi kiểm xong:
   - [ ] "Quên mật khẩu" với email của bạn → nhận mã 6 số trong ~1 phút → đặt lại được.
   - [ ] Owner mời email của bạn (dùng tài khoản Owner khác) → nhận email có mã lời mời, tên tổ chức, vai trò; chi tiết lời mời hiện "Đã gửi email".
@@ -195,7 +195,19 @@ Gợi ý: (1) migration + test SQL; (2) Edge Function + template + test; (3) run
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
+- Ngày, commit được review: 2026-10-09, working tree trên `31ea66cb3` (chưa commit).
+- Kết quả: **Code đạt; chưa chạy trên DB và chưa gửi mail thật** → Review 🔄.
+  - `20261009003`: nhánh không phải email của `enqueue_outbox_message` giữ y bản gốc (`20260623000001`); `create or replace` giữ nguyên quyền cũ. Giải mã `transient:` an toàn, thiếu trường → `VALIDATION_ERROR`. `_email_template_data` không bao giờ ném (lỗi → `{}`), template lạ (`activation_invitation`) không làm hỏng RPC cũ. Claim / complete đúng: tối đa 5 lần, xoá `secret` khi gửi xong hoặc hết lượt, outcome chỉ chuyển `failed` khi hết lượt. Quyền: `revoke` khỏi client, `grant` cho `service_role` + `usage` schema `iam`.
+  - `20261009004`: lỗi `pg_net` / thiếu Vault bị nuốt trong trigger; `retry_email_jobs` giới hạn 20 job / phút; lịch cron `unschedule` trước khi tạo lại (chạy lại không trùng).
+  - `send-email`: so secret thời gian hằng, kiểm UUID, `Idempotency-Key = job.id`, lỗi mạng / template lạ đều ghi job `failed`, log không có mã / nội dung. `config.toml`: `verify_jwt = false`. `deno check` không lỗi; `deno test`: 5/5 pass (escape HTML, câu dự phòng, không còn `undefined`).
+  - Kịch bản `supabase/tests/iam_email_jobs.sql`: đủ 7 trường hợp của Bước 6 — **chưa chạy** (không có Docker / Supabase local).
+  - 2 migration **chưa có trên Dev**; function chưa deploy; secrets / Vault chưa đặt.
+  - App không đổi → không chạy lại `flutter test` (mốc bạn ghi: 1.424 / 61).
+- Việc còn lại để đóng review (gộp với việc còn lại của 2-B1):
+  1. Chạy 2 kịch bản SQL (`iam_signup_trigger.sql`, `iam_email_jobs.sql`) cùng 4 migration trong `begin … rollback` trên Dev (`supabase db query --linked -f …`) — Claude chạy khi bạn đồng ý.
+  2. `supabase db push` 4 migration (`20261009001…004`) → `config push` (2-B1) → đặt secrets + Vault theo `RUNBOOK-email.md` → `functions deploy send-email`.
+  3. Sau khi có tên miền + Resend xác minh: kiểm tay mục 5.
 - Góp ý:
+  1. **Sửa (nhỏ, nên làm trước khi push):** `_email_template_data` ghép tên người mời `given_name` rồi `family_middle_name` → email hiện "Lan Nguyễn Thị". Đổi thứ tự `concat_ws(' ', family_middle_name, given_name)` → "Nguyễn Thị Lan" (cách hiển thị tên người Việt, giống app).
+  2. Job `activation_invitation` (onboarding cũ) sẽ bị thử 5 lần rồi mới `failed` vì `UNKNOWN_TEMPLATE` coi như lỗi tạm. Không hại; hết khi 2-B3 xoá onboarding cũ. Nếu muốn gọn: `complete_email_job` nhận lỗi `UNKNOWN_TEMPLATE` thì đặt `attempts = 5` luôn.
+  3. Thử lại không giãn cách (5 lần trong ~5 phút): Resend lỗi lâu hơn thì lời mời thành "Chưa gửi được email", Owner phải bấm "Gửi lại". Chấp nhận cho đồ án; ghi vào RUNBOOK.

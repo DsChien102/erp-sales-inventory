@@ -59,7 +59,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | 2-A2 IAM: thành viên, lời mời, vai trò, nhật ký | [plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅ | ✅ | ✅ |
 | 2-A3 Phiên, đăng nhập, nhận lời mời | [plans/P2/2-A3-phien-dang-nhap-loi-moi.md](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ | ✅ |
 | 2-B1 Đăng ký cửa hàng, xác minh email, định tuyến | [plans/P2/2-B1-dang-ky-cua-hang.md](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | ✅ | 🔄 |
-| 2-B2 Email qua Edge Function | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md) | 📝 | ⬜ | ⬜ |
+| 2-B2 Email qua Edge Function | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md) | ✅ | ✅ | 🔄 |
 
 
 ---
@@ -158,7 +158,7 @@ Chi tiết từng việc:
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời (quản trị), nhật ký quản trị, hub "Người dùng & vai trò" | 2B.6 (phần còn lại) | ✅ [plan](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅ | ✅ |
 | **2-A3** | (a) Phiên & đăng nhập: `SessionController` gọi RPC trực tiếp (`get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) và tự cập nhật `IamSession`; `LoginCubit`, đăng xuất, nhập mã lời mời `/invitation` (`InvitationAcceptanceCubit`); xử lý 2 góp ý review 1-B (`core` import `features`, reset state khi đổi người dùng) | 2B.5, 1-B góp ý | ✅ [plan](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ |
 | **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | 🔄 |
-| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend | 2A.4 | 📝 [plan](plans/P2/2-B2-email-edge-function.md) | ⬜ | ⬜ |
+| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend | 2A.4 | ✅ [plan](plans/P2/2-B2-email-edge-function.md) | ✅ | 🔄 |
 | **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-03 (FK `memberships.user_id`), KI-05 (xoá `provisioning` / `pending_activation` / onboarding cũ / readiness), KI-06, KI-10…KI-14 | TH-01 mục 9.2 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:

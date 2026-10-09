@@ -77,6 +77,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- IAM: email lời mời và mã đặt lại mật khẩu ghi `iam.email_jobs` rồi Edge Function `send-email` gọi Resend (`20261009003`, `20261009004`). App vẫn đọc trạng thái từ `iam.email_delivery_outcomes`.
 - IAM: trigger `iam._on_auth_user_confirmed` tạo tổ chức khi xác minh OTP đăng ký cửa hàng (`20261009001`, `20261009002`).
 - Phiên, đăng nhập và nhận lời mời đi qua `SessionRepository`, `AuthRepository`, `InvitationAcceptanceRepository`. `SessionController` không còn gọi `IIamModule`. Đổi tài khoản thì xóa tổ chức của phiên trước.
 - IAM tài khoản, hồ sơ tổ chức và đặt lại mật khẩu đi qua `AccountRepository`, `OrganizationRepository`, `AuthRepository`. Luật MST và mật khẩu nằm ở `core/validation`.

@@ -134,12 +134,15 @@ iam:
   _on_auth_user_confirmed: 20261009002_iam_on_auth_user_confirmed.sql
   _audit_redact: 20260826004_iam_audit_logs_v2_rebuild.sql
   _cleanup_pending_profile_on_auth_user: 20260911004_iam_onboarding_owner_membership_with_invitation.sql
+  _dispatch_email_job: 20261009004_iam_email_dispatch.sql
+  _email_template_data: 20261009003_iam_email_jobs.sql
   _ensure_tenant_default_store: 20260916001_iam_ensure_default_store_scope_helpers.sql
   _generate_invitation_code: 20260811017_iam_tenant_invitation_create.sql
   _idempotency_find: 20260811005_iam_platform_user_lifecycle.sql
   _idempotency_store: 20260811005_iam_platform_user_lifecycle.sql
   _invitation_detail_json: 20260811018_iam_tenant_invitation_resend_revoke.sql
   _invitation_token_hash: 20260811020_iam_tenant_invitation_acceptance.sql
+  _invoke_send_email: 20261009004_iam_email_dispatch.sql
   _is_platform_user_suspended: 20260911001_iam_patch_platform_user_status_enum.sql
   _load_invitation_by_token: 20260811020_iam_tenant_invitation_acceptance.sql
   _mask_reset_email: 20260811025_iam_password_reset_by_email.sql
@@ -163,12 +166,15 @@ iam:
   begin_password_reset_operation_by_email: 20260826001_iam_fix_utc_now_offset.sql
   bootstrap_owner: 20260914001_iam_get_session_context_multi_tenant.sql
   can_access_store: 20260830001_iam_active_store_context_group_a.sql
+  claim_email_job: 20261009003_iam_email_jobs.sql
   close_platform_tenant: 20260811011_iam_platform_tenant_lifecycle.sql
+  complete_email_job: 20261009003_iam_email_jobs.sql
   complete_password_reset_operation_by_email: 20260811025_iam_password_reset_by_email.sql
   create_tenant_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
   create_tenant_onboarding: 20260916004_iam_patch_onboarding_default_store_scope.sql
   deactivate_membership: 20260811014_iam_tenant_membership_lifecycle.sql
   decline_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
+  enqueue_outbox_message: 20261009003_iam_email_jobs.sql
   get_auth_user_snapshot: 20260811016_iam_tenant_readiness_activate.sql
   get_email_delivery_outcome_by_correlation: 20260811001_iam_notify_email_delivery_outcome.sql
   get_last_selected_tenant: 20260811008_iam_user_preferences.sql
@@ -212,6 +218,7 @@ iam:
   resolve_or_create_platform_user_for_onboarding: 20260811006_iam_create_tenant_onboarding.sql
   restore_platform_tenant: 20260811011_iam_platform_tenant_lifecycle.sql
   restore_platform_user: 20260811005_iam_platform_user_lifecycle.sql
+  retry_email_jobs: 20261009004_iam_email_dispatch.sql
   revoke_tenant_invitation: 20260916005_iam_patch_invitation_membership_store_scope.sql
   search_platform_audit_logs: 20260826004_iam_audit_logs_v2_rebuild.sql
   search_platform_tenants: 20260811010_iam_platform_tenants_read.sql

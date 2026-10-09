@@ -38,7 +38,7 @@
 | ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | (a) xong 2-A3 |
 | ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | |
 | ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | |
-| ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
+| ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; email qua Edge Function (2-B2); chưa kiểm tay hộp thư trên Dev |
 | ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | |
 | ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | (a) xong 2-A3 |
 | ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | (a) xong 2-A3 |
@@ -49,8 +49,8 @@
 | ID-12 | Sửa thông tin tổ chức | `…/edit` | Lưu, kiểm dữ liệu | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-13 | Hồ sơ pháp lý | `…/legal` | Lưu MST, tên, địa chỉ | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev. Dùng cho TH-08 |
 | ID-14 | Người dùng (Thành viên / Lời mời) | `/more/users` | 2 tab, tìm, lọc | ☐ | ☐ | (a) xong 2-A2 |
-| ID-15 | Mời thành viên | `/more/users/invite` | Mời, chọn vai trò (gồm Chủ cửa hàng) | ☐ | ☐ | (a) xong 2-A2 |
-| ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | Gửi lại, thu hồi | ☐ | ☐ | Route cũ còn `/more/users/invitation-detail`. (a) xong 2-A2 |
+| ID-15 | Mời thành viên | `/more/users/invite` | Mời, chọn vai trò (gồm Chủ cửa hàng) | ☐ | ☐ | (a) xong 2-A2; email qua Edge Function (2-B2); chưa kiểm tay hộp thư |
+| ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | Gửi lại, thu hồi | ☐ | ☐ | Route cũ còn `/more/users/invitation-detail`. (a) xong 2-A2; email qua Edge Function (2-B2); chưa kiểm tay hộp thư |
 | ID-17 | Chi tiết thành viên | `/more/users/members/:id` | Tạm ngừng / kích hoạt, đổi vai trò, chuyển Owner | ☐ | ☐ | Route cũ còn `/more/users/member-detail`. (a) xong 2-A2 |
 | ID-18a | Chọn vai trò | `/more/users/select-role` | Chọn vai trò | ☐ | ☐ | (a) xong 2-A2 |
 | ID-18b | Xem trước đổi vai trò | `/more/users/preview-role-change` | Xác nhận đổi | ☐ | ☐ | (a) xong 2-A2 |
