@@ -1,6 +1,6 @@
 # 2-A3 — Phiên, đăng nhập, nhận lời mời
 
-> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (a) chuyển kiến trúc · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 2B.5; góp ý review 1-B (1, 2, 3); góp ý review 2-A2 (2)
 > Tài liệu liên quan: [PLAN.md](../../PLAN.md) P2; [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) ID-01 (đăng nhập), ID-06/07 (mã lời mời, kích hoạt theo lời mời), ID-08 (chọn tổ chức), ID-09 (tổ chức không thể truy cập); mẫu: [1-B](../P1/1-B-session-controller-guard.md), [2-A2](2-A2-iam-thanh-vien-loi-moi-nhat-ky.md)
 
@@ -208,7 +208,19 @@ Gợi ý 3 commit: (1) `SessionRepository` + `SessionController` + state (kèm t
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày, commit được review: 2026-10-09, working tree trên `a9c4519d6` (chưa commit).
+- Kết quả: **Đạt.**
+  - `SessionRepository` + model (`TenantContext`, `AccessibleTenant`, `SessionPrincipal`) khớp mapper của `SupabaseIamAccessGateway`; `get_tenant_context` gọi không tham số khi chưa có tenant (`SupabaseRpc` nhận `params: null`).
+  - `SessionController`: bootstrap / switch / rollback / map lỗi chép đúng 2 handler cũ; `signOut` trực tiếp; đổi user → state mới (góp ý 1-B #2 xong, có test).
+  - `AuthRepository.signIn` giữ `assert_my_platform_access` (so `contains`) + `record_my_platform_login`; `signUpFromInvitation` giữ các kiểm của identity adapter và bảng map `AuthException`. `LoginCubit` / `InvitationAcceptanceCubit` gọi `applySignedInUser` ngay sau đăng nhập.
+  - `grep features/ lib/core/session` → rỗng (góp ý 1-B #1 xong). `IIamModule` chỉ còn ở `injection.dart` (đăng ký cho phần còn lại) và route `/more/readiness` (2-B2).
+  - `dart analyze lib test`: không error; warning duy nhất ở `order_einvoice_section_test.dart` (có từ trước). `check_feature_imports`: 0 vi phạm.
+  - `flutter test` toàn `apps/erp`: **1.404 pass / 61 fail**; danh sách fail trùng khớp 2-A2 (so theo file + tên), không lỗi mới.
+  - Đủ test plan yêu cầu: A → B, switch cùng tổ chức, rollback khi `set_last_selected_tenant` lỗi, `signOut` khi remote lỗi, `get_tenant_context` không tham số, 3 test đăng nhập (`PLATFORM_USER_SUSPENDED`, lỗi khác, `record_my_platform_login` lỗi).
+  - Kiểm tay trên Dev: chưa làm (bạn tự kiểm theo mục 5).
+- Thay đổi hành vi ngoài plan (tốt, ghi nhận):
+  - `_applyTenantContextPermissions` giờ truyền `activeStoreId: session.activeStoreId`. Bản cũ **không** truyền nên `IamSession.apply` đặt `activeStoreId = null` ngay sau bind → module cũ có thể báo “Active store context is required.”. Bản mới giữ cửa hàng. Khi kiểm tay mục “đổi tổ chức”, mở thêm một màn cần cửa hàng (bán hàng / tồn kho) để xác nhận.
+- Góp ý (không chặn):
+  1. **429 khi đăng nhập**: `AppException._fromAuth` trả mã `RATE_LIMITED`, nhưng `IamUiFailureMapper` chỉ biết `RESET_RATE_LIMITED` → hiện câu chung thay vì “Bạn đã gửi quá nhiều yêu cầu…” như cũ. Sửa 1 dòng: thêm `'RATE_LIMITED' => IamBlockedCodes.resetRateLimited` vào `switch` nhánh `AppException` của mapper (làm ở 2-B2 hoặc cùng commit này).
+  2. `_bindSession` ném `AppException(unknown, serverMessage: 'Active store context is required.')` → người dùng thấy câu lỗi chung (bản cũ cũng vậy qua `ApplicationException`). 2-B2 nên có thông báo riêng cho “tổ chức chưa có cửa hàng”.
+  3. `core/session` còn 3 import `vet45_*` (`SessionDto`, `PrincipalAccessDto`, `IamSession`, `TenantAccessRevokedSignal`) — đúng chủ ý, đã ghi `TODO(P9)`.
