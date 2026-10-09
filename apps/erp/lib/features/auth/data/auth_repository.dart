@@ -2,6 +2,7 @@ import 'package:supabase/supabase.dart';
 
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
+import 'package:erp/features/auth/data/models/signup_input.dart';
 import 'package:erp/features/iam/data/models/password_reset_result.dart';
 
 class AuthRepository {
@@ -48,8 +49,9 @@ class AuthRepository {
     return userId;
   }
 
-  /// Tạo tài khoản từ lời mời. Trả `userId` khi đã có session và email đã xác nhận.
-  Future<String> signUpFromInvitation({
+  /// Tạo tài khoản từ lời mời.
+  /// [needsVerification] khi Auth chưa trả session (xác minh email đang bật).
+  Future<({String userId, bool needsVerification})> signUpFromInvitation({
     required String email,
     required String password,
     required String givenName,
@@ -70,13 +72,13 @@ class AuthRepository {
       );
       final user = response.user;
       final returnedEmail = (user?.email ?? '').trim().toLowerCase();
-      if (user == null ||
-          response.session == null ||
-          user.emailConfirmedAt == null ||
-          returnedEmail != canonical) {
+      if (user == null || returnedEmail != canonical) {
         throw const AppException(AppErrorCode.unknown);
       }
-      return user.id;
+      if (_isObfuscatedExistingUser(user)) {
+        throw const AppException('PLATFORM_USER_ALREADY_EXISTS');
+      }
+      return (userId: user.id, needsVerification: response.session == null);
     } on AppException {
       rethrow;
     } on AuthException catch (error) {
@@ -84,6 +86,99 @@ class AuthRepository {
     } catch (_) {
       throw const AppException(AppErrorCode.unknown);
     }
+  }
+
+  /// Đăng ký cửa hàng mới. Tổ chức chỉ được tạo khi email được xác minh.
+  Future<void> signUpStore({
+    required SignupAccountInput account,
+    required SignupStoreInput store,
+  }) async {
+    final email = account.email.trim().toLowerCase();
+    try {
+      final response = await _auth.signUp(
+        email: email,
+        password: account.password,
+        data: <String, dynamic>{
+          'profile': account.toProfileMetadata(),
+          'signup_tenant': store.toMetadata(fallbackEmail: email),
+        },
+      );
+      final user = response.user;
+      if (user == null) {
+        throw const AppException(AppErrorCode.unknown);
+      }
+      if (_isObfuscatedExistingUser(user)) {
+        throw const AppException('PLATFORM_USER_ALREADY_EXISTS');
+      }
+    } on AppException {
+      rethrow;
+    } on AuthException catch (error) {
+      throw _mapInvitationAuthException(error);
+    } catch (_) {
+      throw const AppException(AppErrorCode.unknown);
+    }
+  }
+
+  /// Xác minh mã OTP đăng ký. Trả `userId` của session vừa tạo.
+  Future<String> verifySignupOtp({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _auth.verifyOTP(
+        email: email.trim().toLowerCase(),
+        token: code.trim(),
+        type: OtpType.signup,
+      );
+      final userId = response.user?.id.trim();
+      if (userId == null || userId.isEmpty) {
+        throw const AppException(AppErrorCode.unknown);
+      }
+      return userId;
+    } on AppException {
+      rethrow;
+    } on AuthException catch (error) {
+      throw _mapSignupOtpException(error);
+    } catch (_) {
+      throw const AppException(AppErrorCode.unknown);
+    }
+  }
+
+  Future<void> resendSignupOtp(String email) async {
+    try {
+      await _auth.resend(
+        email: email.trim().toLowerCase(),
+        type: OtpType.signup,
+      );
+    } on AppException {
+      rethrow;
+    } on AuthException catch (error) {
+      throw AppException.from(error);
+    } catch (_) {
+      throw const AppException(AppErrorCode.unknown);
+    }
+  }
+
+  bool _isObfuscatedExistingUser(User user) {
+    final identities = user.identities;
+    return identities != null && identities.isEmpty;
+  }
+
+  AppException _mapSignupOtpException(AuthException error) {
+    final code = error.code?.trim().toLowerCase() ?? '';
+    final message = error.message.toLowerCase();
+    if (error.statusCode == '500' || message.contains('database error')) {
+      return const AppException('SIGNUP_TENANT_FAILED');
+    }
+    if (code.contains('otp') ||
+        code.contains('expired') ||
+        code.contains('invalid') ||
+        message.contains('otp') ||
+        message.contains('expired') ||
+        message.contains('invalid')) {
+      return const AppException('OTP_INVALID');
+    }
+    return const AppException(AppErrorCode.unknown);
   }
 
   Future<PasswordResetRequestResult> requestMyPasswordReset() async {

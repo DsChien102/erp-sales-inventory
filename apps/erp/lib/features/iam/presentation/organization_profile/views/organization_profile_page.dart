@@ -161,6 +161,20 @@ class _OrganizationProfileView extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(VSpacing.screenMobile),
             children: [
+              if (!profile.hasLegalProfile) ...[
+                VBanner(
+                  key: const Key('legal_profile_org_banner'),
+                  title: 'Bổ sung hồ sơ pháp lý để xuất hoá đơn điện tử.',
+                  status: VBannerStatus.info,
+                  footer: VButton(
+                    key: const Key('legal_profile_org_banner_add'),
+                    label: 'Bổ sung',
+                    variant: VButtonVariant.link,
+                    onPressed: () => _openLegal(context),
+                  ),
+                ),
+                const VGap.md(),
+              ],
               VCard(
                 backgroundColor: colors.surface,
                 padding: const EdgeInsets.all(VSpacing.space4),

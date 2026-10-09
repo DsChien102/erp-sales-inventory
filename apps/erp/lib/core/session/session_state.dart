@@ -41,6 +41,7 @@ final class SessionState {
     this.tenantsLoading = false,
     this.isSwitching = false,
     this.openSelectorRequested = false,
+    this.legalProfileBannerDismissed = false,
   });
 
   final AuthStatus authStatus;
@@ -64,10 +65,18 @@ final class SessionState {
   final bool isSwitching;
   final bool openSelectorRequested;
 
+  /// Banner hồ sơ pháp lý đã đóng trong phiên hiện tại.
+  final bool legalProfileBannerDismissed;
+
   bool get isValid =>
       status == TenantLoadStatus.ready && current?.status == TenantContextStatus.valid;
 
   bool get isBlocked => status == TenantLoadStatus.blocked;
+
+  /// Đã đăng nhập nhưng không còn tổ chức nào chọn được.
+  bool get hasNoOrganization =>
+      status == TenantLoadStatus.blocked &&
+      emptyStateType == OrganizationEmptyStateType.noAuthorizedOrganizations;
 
   SessionState copyWith({
     AuthStatus? authStatus,
@@ -88,6 +97,7 @@ final class SessionState {
     bool? tenantsLoading,
     bool? isSwitching,
     bool? openSelectorRequested,
+    bool? legalProfileBannerDismissed,
     bool clearContextFailure = false,
     bool clearSelectorFailure = false,
     bool clearSwitchFailure = false,
@@ -117,6 +127,8 @@ final class SessionState {
       tenantsLoading: tenantsLoading ?? this.tenantsLoading,
       isSwitching: isSwitching ?? this.isSwitching,
       openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,
+      legalProfileBannerDismissed:
+          legalProfileBannerDismissed ?? this.legalProfileBannerDismissed,
     );
   }
 }

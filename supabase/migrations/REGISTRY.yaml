@@ -129,7 +129,9 @@ catalog:
   upsert_product_custom_field_values: 20260714010_catalog_patch_upsert_custom_field_values_skip_required_gate.sql
 
 iam:
-  _audit_event_category: 20260826004_iam_audit_logs_v2_rebuild.sql
+  _audit_event_category: 20261009001_iam_create_tenant_for_owner.sql
+  _create_tenant_for_owner: 20261009001_iam_create_tenant_for_owner.sql
+  _on_auth_user_confirmed: 20261009002_iam_on_auth_user_confirmed.sql
   _audit_redact: 20260826004_iam_audit_logs_v2_rebuild.sql
   _cleanup_pending_profile_on_auth_user: 20260911004_iam_onboarding_owner_membership_with_invitation.sql
   _ensure_tenant_default_store: 20260916001_iam_ensure_default_store_scope_helpers.sql
@@ -525,5 +527,7 @@ bootstrap_grandfathered:
   - 20260916005_iam_patch_invitation_membership_store_scope.sql
   - 20260916006_iam_patch_accept_invitation_default_store_scope.sql
   - 20260916007_iam_patch_activate_tenant_default_store_scope.sql
+  - 20261009001_iam_create_tenant_for_owner.sql
+  - 20261009002_iam_on_auth_user_confirmed.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql

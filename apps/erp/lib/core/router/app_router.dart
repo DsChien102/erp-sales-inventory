@@ -36,6 +36,9 @@ import '../../features/einvoice/presentation/pages/automation_policy_page.dart';
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/invitation_token_page.dart';
+import '../../features/auth/presentation/pages/no_organization_page.dart';
+import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/verify_email_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -128,6 +131,36 @@ final appRouter = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/signup',
+      name: 'signup',
+      builder: (context, state) => SignupPage(
+        auth: getIt<AuthRepository>(),
+        session: getIt<SessionController>(),
+      ),
+    ),
+    GoRoute(
+      path: '/verify-email',
+      name: 'verify_email',
+      builder: (context, state) {
+        final extra = state.extra;
+        final email = extra is String
+            ? extra
+            : state.uri.queryParameters['email'] ?? '';
+        return VerifyEmailPage(
+          email: email,
+          auth: getIt<AuthRepository>(),
+          session: getIt<SessionController>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/no-organization',
+      name: 'no_organization',
+      builder: (context, state) => NoOrganizationPage(
+        session: getIt<SessionController>(),
+      ),
     ),
     GoRoute(
       path: '/invitation',

@@ -12,6 +12,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 ## [Unreleased]
 
 ### Added
+- Đăng ký cửa hàng mới: wizard tài khoản → cửa hàng → mã OTP 6 số, màn xác minh email khi đăng nhập chưa xác nhận, và màn không thuộc tổ chức nào.
 - Thêm `OrderEInvoiceSection` và `OrderEInvoiceCubit` trong sales presentation, tích hợp luồng phát hành lại hóa đơn điện tử khi thất bại (retry issuance) qua `IModuleMediator` và `IExecutionContext`.
 - SG-08 / SG02-R01: chi tiết đơn hàng mở bề mặt e-invoice thật (`OrderEInvoiceSection`) thay sheet placeholder.
 - SG-06 / SG02-R02: màn kết quả bán hàng mở cùng `OrderEInvoiceSection` thay sheet placeholder.
@@ -76,6 +77,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Internal
 
+- IAM: trigger `iam._on_auth_user_confirmed` tạo tổ chức khi xác minh OTP đăng ký cửa hàng (`20261009001`, `20261009002`).
 - Phiên, đăng nhập và nhận lời mời đi qua `SessionRepository`, `AuthRepository`, `InvitationAcceptanceRepository`. `SessionController` không còn gọi `IIamModule`. Đổi tài khoản thì xóa tổ chức của phiên trước.
 - IAM tài khoản, hồ sơ tổ chức và đặt lại mật khẩu đi qua `AccountRepository`, `OrganizationRepository`, `AuthRepository`. Luật MST và mật khẩu nằm ở `core/validation`.
 - `AppException` đọc 3 định dạng lỗi RPC, lỗi Auth và lỗi mạng; `SupabaseRpc` là chỗ gọi RPC dùng chung. Lịch sử thao tác đi `PartnerRepository.getActionLogs`. Script `tool/check_feature_imports.dart` chặn import sai tầng cho `data/` và `logic/`.

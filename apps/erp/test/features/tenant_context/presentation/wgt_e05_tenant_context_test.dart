@@ -543,15 +543,17 @@ void main() {
       expect(find.text('Tổng quan hôm nay'), findsOneWidget);
     });
 
-    testWidgets('bootstrap none → blocked empty state', (tester) async {
+    testWidgets('bootstrap without last selected adopts the first tenant', (tester) async {
       final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
       registerModule(module);
 
-      await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
+      final repository = FakeSessionRepository(scenario: module.scenario);
+      await tester.pumpWidget(wrapDashboard(repository));
       await tester.pumpAndSettle();
 
-      expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
-      expect(find.text('Tổng quan hôm nay'), findsNothing);
+      expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
+      expect(find.text('Tổng quan hôm nay'), findsOneWidget);
+      expect(repository.lastSelectedTenantId, 'org-001');
     });
 
     testWidgets('bootstrap invalid → blocked empty state (OQ-07)', (

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'fake_session_repository.dart';
@@ -36,7 +35,7 @@ void main() {
   test('blocked cubit ignores further revoked signals', () async {
     final revoked = StreamController<String>.broadcast();
     final cubit = SessionController(
-      repository: FakeSessionRepository(scenario: FakeIamScenario.contextNone),
+      repository: FakeSessionRepository(noTenants: true),
       tenantAccessRevoked: revoked.stream,
     );
     await cubit.bootstrap();

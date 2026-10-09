@@ -28,5 +28,6 @@ void main() {
 
     expect(tester.takeException()?.toString(), isNot(contains('overflowed')));
     expect(find.text('Đăng nhập'), findsOneWidget);
+    expect(find.text('Đăng ký cửa hàng mới'), findsOneWidget);
   });
 }

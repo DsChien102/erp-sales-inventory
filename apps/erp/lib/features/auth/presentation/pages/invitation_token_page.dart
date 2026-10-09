@@ -16,6 +16,7 @@ import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
+import '../widgets/verify_email_view.dart';
 import 'invitation_registration_page.dart';
 
 class InvitationTokenPage extends StatelessWidget {
@@ -41,25 +42,30 @@ class InvitationTokenPage extends StatelessWidget {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: const _InvitationTokenView(),
+        child: _InvitationTokenView(auth: auth, session: session),
       );
     }
     final keys = keyFactory ?? const UuidIdempotencyKeyFactory();
+    final resolvedAuth = auth ?? getIt<AuthRepository>();
+    final resolvedSession = session ?? getIt<SessionController>();
     return BlocProvider(
       create: (_) => InvitationAcceptanceCubit(
         invitations: invitations ?? getIt<InvitationAcceptanceRepository>(),
-        auth: auth ?? getIt<AuthRepository>(),
+        auth: resolvedAuth,
         account: account ?? getIt<AccountRepository>(),
-        session: session ?? getIt<SessionController>(),
+        session: resolvedSession,
         nextKey: keys.next,
       ),
-      child: const _InvitationTokenView(),
+      child: _InvitationTokenView(auth: resolvedAuth, session: resolvedSession),
     );
   }
 }
 
 class _InvitationTokenView extends StatefulWidget {
-  const _InvitationTokenView();
+  const _InvitationTokenView({this.auth, this.session});
+
+  final AuthRepository? auth;
+  final SessionController? session;
 
   @override
   State<_InvitationTokenView> createState() => _InvitationTokenViewState();
@@ -183,6 +189,8 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         return true;
       case InvitationAcceptanceStep.newAccountRegistration:
         return state.inspection == null || !_confirmedNewAccount;
+      case InvitationAcceptanceStep.awaitingVerification:
+        return false;
       case InvitationAcceptanceStep.submitting:
         return state.inspection?.accountExists == true;
       case InvitationAcceptanceStep.accepted:
@@ -245,6 +253,13 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
           );
         }
         return const InvitationRegistrationPage();
+      case InvitationAcceptanceStep.awaitingVerification:
+        return VerifyEmailView(
+          email: state.verificationEmail ?? '',
+          auth: widget.auth ?? getIt<AuthRepository>(),
+          session: widget.session ?? getIt<SessionController>(),
+          onVerified: cubit.completeVerifiedRegistration,
+        );
       case InvitationAcceptanceStep.submitting:
         if (state.inspection?.accountExists == true) {
           return InvitationTokenEntryForm(

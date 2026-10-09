@@ -19,6 +19,7 @@ abstract final class IamUiFailureMapper {
       final code = switch (error.code) {
         AppErrorCode.noPermission => IamBlockedCodes.permissionDenied,
         AppErrorCode.notFound => IamBlockedCodes.resourceNotFound,
+        'RATE_LIMITED' => IamBlockedCodes.resetRateLimited,
         _ => error.code,
       };
       return _fromCode(code, fallbackMessage: null);
@@ -183,7 +184,9 @@ abstract final class IamUiFailureMapper {
     IamBlockedCodes.invitationAlreadyUsed: 'Lời mời đã được sử dụng.',
     IamBlockedCodes.invitationEmailMismatch: 'Email không khớp với lời mời.',
     IamBlockedCodes.invitationPendingExists: 'Đã có lời mời đang chờ xử lý.',
-    IamBlockedCodes.platformUserAlreadyExists: 'Người dùng nền tảng đã tồn tại.',
+    IamBlockedCodes.platformUserAlreadyExists: 'Email đã được đăng ký',
+    'OTP_INVALID': 'Mã xác minh không đúng hoặc đã hết hạn.',
+    'SIGNUP_TENANT_FAILED': 'Không tạo được cửa hàng. Vui lòng kiểm tra thông tin và thử lại.',
     IamBlockedCodes.stepUpAuthRequired: 'Cần xác thực bổ sung để tiếp tục thao tác.',
     IamBlockedCodes.ownerTargetInvalid: 'Đối tượng chủ sở hữu không hợp lệ.',
     IamBlockedCodes.platformPermissionDenied: 'Bạn không có quyền nền tảng cho thao tác này.',

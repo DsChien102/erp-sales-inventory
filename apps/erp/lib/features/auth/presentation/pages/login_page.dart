@@ -188,6 +188,10 @@ class _LoginViewState extends State<_LoginView> {
     return BlocConsumer<LoginCubit, LoginState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
+        if (state.status == LoginStatus.needsVerification) {
+          context.go('/verify-email', extra: state.verificationEmail);
+          return;
+        }
         if (state.status == LoginStatus.failure && state.failure != null) {
           final failure = state.failure!;
           // Sai email/mật khẩu: hiện trên field email, không toast.
@@ -347,6 +351,14 @@ class _LoginViewState extends State<_LoginView> {
                             isLoading: isSubmitting,
                             fullWidth: true,
                             onPressed: isSubmitting ? null : _submit,
+                          ),
+                          const VGap.md(),
+                          VButton(
+                            key: const Key('login_signup'),
+                            label: 'Đăng ký cửa hàng mới',
+                            variant: VButtonVariant.secondary,
+                            fullWidth: true,
+                            onPressed: isSubmitting ? null : () => context.push('/signup'),
                           ),
                           const VGap.lg(),
                           VText(

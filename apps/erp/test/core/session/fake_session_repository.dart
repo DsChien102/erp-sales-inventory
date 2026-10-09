@@ -11,11 +11,15 @@ class FakeSessionRepository implements SessionRepository {
     this.scenario = FakeIamScenario.usersSearchOk,
     this.failGetSession = false,
     this.failSetLastSelected = false,
+    this.noTenants = false,
+    this.suspendedOnly = false,
   }) {
     _seed();
   }
 
   final FakeIamScenario scenario;
+  final bool noTenants;
+  final bool suspendedOnly;
   bool failNextList = false;
   bool failGetSession;
   bool failSetLastSelected;
@@ -132,6 +136,14 @@ class FakeSessionRepository implements SessionRepository {
     String? last = 'org-001';
 
     switch (scenario) {
+      case _ when noTenants:
+        seeds = [];
+        current = null;
+        last = null;
+      case _ when suspendedOnly:
+        seeds = [asc];
+        current = null;
+        last = null;
       case FakeIamScenario.tenantsSingle:
       case FakeIamScenario.tenantsExcludesInactiveMembership:
         seeds = [minhPhat];

@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'fake_session_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 
 class _MockAuth extends Mock implements GoTrueClient {}
@@ -223,6 +224,45 @@ void main() {
     expect(cubit.state.switchFailure?.code, AppErrorCode.unknown);
     expect(iam.tenantId, 'org-001');
     expect(repository.lastSelectedTenantId, 'org-001');
+
+    await cubit.close();
+  });
+
+  test('bootstrap without a last selected tenant adopts the first selectable one', () async {
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.contextNone);
+    final cubit = controller(repository: repository, iamSession: IamSession());
+
+    await cubit.bootstrap();
+
+    expect(cubit.state.isValid, isTrue);
+    expect(cubit.state.current?.tenantId, 'org-001');
+    expect(repository.lastSelectedTenantId, 'org-001');
+
+    await cubit.close();
+  });
+
+  test('bootstrap with only a suspended tenant stays invalidated', () async {
+    final repository = FakeSessionRepository(suspendedOnly: true);
+    final cubit = controller(repository: repository);
+
+    await cubit.bootstrap();
+
+    expect(cubit.state.isBlocked, isTrue);
+    expect(cubit.state.hasNoOrganization, isFalse);
+    expect(cubit.state.current?.tenantId, 'org-003');
+    expect(cubit.state.emptyStateType, OrganizationEmptyStateType.inaccessible);
+
+    await cubit.close();
+  });
+
+  test('bootstrap with no tenants is blocked as no organization', () async {
+    final repository = FakeSessionRepository(noTenants: true);
+    final cubit = controller(repository: repository);
+
+    await cubit.bootstrap();
+
+    expect(cubit.state.hasNoOrganization, isTrue);
+    expect(cubit.state.current?.status, TenantContextStatus.none);
 
     await cubit.close();
   });

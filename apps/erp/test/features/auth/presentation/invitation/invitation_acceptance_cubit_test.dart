@@ -165,6 +165,41 @@ void main() {
     await cubit.close();
   });
 
+  test('registerAndAccept waits for email verification before accepting', () async {
+    final log = <String>[];
+    final auth = ScriptedAuthRepository(log: log, needsVerification: true);
+    final account = ScriptedAccountRepository(log: log);
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.registerAndAcceptOk,
+      log: log,
+    );
+    final cubit = buildCubit(
+      invitations: invitations,
+      auth: auth,
+      account: account,
+      log: log,
+    );
+    await cubit.inspect('tok-new');
+    await cubit.registerAndAccept(
+      givenName: 'An',
+      familyName: 'Nguyen',
+      password: 'password-1',
+    );
+
+    expect(cubit.state.step, InvitationAcceptanceStep.awaitingVerification);
+    expect(cubit.state.verificationEmail, isNotEmpty);
+    expect(account.updates, 0);
+    expect(invitations.accepts, isEmpty);
+
+    await cubit.completeVerifiedRegistration();
+
+    expect(cubit.state.step, InvitationAcceptanceStep.accepted);
+    expect(account.updates, 1);
+    expect(invitations.accepts, isNotEmpty);
+    expect(log.indexOf('signUp'), lessThan(log.indexOf('signOut')));
+    await cubit.close();
+  });
+
   test('registerIdentityConflict switches to existing login', () async {
     final auth = ScriptedAuthRepository(
       signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),

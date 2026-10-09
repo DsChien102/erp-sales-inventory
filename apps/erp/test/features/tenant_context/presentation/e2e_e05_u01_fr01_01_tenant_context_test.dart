@@ -119,7 +119,7 @@ void main() {
     expect(find.textContaining('Đã chuyển sang'), findsOneWidget);
   });
 
-  testWidgets('e2e_e05_u03_fr01_01: bootstrap none → blocked + selector CTA', (
+  testWidgets('e2e_e05_u03_fr01_01: bootstrap without last selected adopts first tenant', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(800, 1600);
@@ -133,15 +133,25 @@ void main() {
     await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
-    expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
-    expect(find.text('Kiểm tra lại'), findsOneWidget);
+    expect(find.textContaining('Thú y Minh Phát'), findsWidgets);
+    expect(repository.lastSelectedTenantId, 'org-001');
+    expect(find.text('Chưa có tổ chức được cấp quyền'), findsNothing);
+  });
 
-    await tester.tap(find.text('Kiểm tra lại'));
+  testWidgets('bootstrap with no tenants stays blocked', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = FakeSessionRepository(noTenants: true);
+    registerModule(FakeIamModule());
+
+    await tester.pumpWidget(wrap(repository));
     await tester.pumpAndSettle();
 
-    // Header placeholder + sheet title both say "Chọn tổ chức".
-    expect(find.text('Chọn tổ chức'), findsWidgets);
-    expect(find.text('Thú y Minh Phát'), findsOneWidget);
+    expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
+    expect(find.text('Kiểm tra lại'), findsOneWidget);
   });
 
   testWidgets('e2e_e05_u02_fr01_02: switch suspended → reject', (

@@ -2,6 +2,7 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_repository.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
+import 'package:erp/features/auth/data/models/signup_input.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,7 @@ class ScriptedAuthRepository extends AuthRepository {
     this.signInError,
     this.signUpError,
     this.userId = 'user-1',
+    this.needsVerification = false,
     List<String>? log,
   }) : _log = log,
        super(rpc: testRpc(), auth: _unusedAuth);
@@ -42,10 +44,15 @@ class ScriptedAuthRepository extends AuthRepository {
   final Object? signInError;
   final Object? signUpError;
   final String userId;
+  final bool needsVerification;
   final List<String>? _log;
 
   final signIns = <({String email, String password})>[];
   final signUps = <({String email, String givenName, String familyName, String password})>[];
+  final storeSignUps = <SignupStoreInput>[];
+  final otpCodes = <String>[];
+  final resentEmails = <String>[];
+  Object? verifyError;
 
   @override
   Future<String> signIn({
@@ -59,7 +66,7 @@ class ScriptedAuthRepository extends AuthRepository {
   }
 
   @override
-  Future<String> signUpFromInvitation({
+  Future<({String userId, bool needsVerification})> signUpFromInvitation({
     required String email,
     required String password,
     required String givenName,
@@ -74,7 +81,33 @@ class ScriptedAuthRepository extends AuthRepository {
     ));
     _log?.add('signUp');
     if (signUpError != null) throw signUpError!;
+    return (userId: userId, needsVerification: needsVerification);
+  }
+
+  @override
+  Future<void> signUpStore({
+    required SignupAccountInput account,
+    required SignupStoreInput store,
+  }) async {
+    storeSignUps.add(store);
+    _log?.add('signUpStore');
+    if (signUpError != null) throw signUpError!;
+  }
+
+  @override
+  Future<String> verifySignupOtp({
+    required String email,
+    required String code,
+  }) async {
+    otpCodes.add(code);
+    if (verifyError != null) throw verifyError!;
     return userId;
+  }
+
+  @override
+  Future<void> resendSignupOtp(String email) async {
+    resentEmails.add(email);
+    if (signUpError != null) throw signUpError!;
   }
 }
 

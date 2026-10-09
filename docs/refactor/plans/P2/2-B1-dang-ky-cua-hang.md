@@ -1,6 +1,6 @@
 # 2-B1 — Đăng ký cửa hàng mới, xác minh email, định tuyến sau đăng nhập
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
 > Gồm việc: 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 2.2, 2.3, BR-01…BR-14, BR-62…BR-65; EP-01 (US-01.1…01.5), US-02.1, US-02.2, US-02.4, US-05.4; màn 5.2, 5.3, 5.4; kiểm thử 9.3 (kịch bản 1, 2)
 
@@ -224,7 +224,21 @@ Gợi ý: (1) migration + test SQL + config; (2) bộ chọn địa chỉ sang c
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày, commit được review: 2026-10-09, working tree trên `b79c50ff8` (chưa commit).
+- Kết quả: **App đạt; DB chưa kiểm được** → Review 🔄 đến khi chạy kịch bản SQL.
+  - **DB (đọc code):** `_create_tenant_for_owner` và trigger đúng thiết kế (kiểm đủ trường, BR-07, tổ chức `active`, Owner `store_owner`, cửa hàng `default`, `user_preferences`, audit, `revoke` khỏi client). Bắt đúng lỗi plan bỏ sót: `iam.tenant.created` chưa có trong `_audit_event_category` → `append_audit_log` sẽ ném `AUDIT_EVENT_UNREGISTERED`; bản định nghĩa lại khác bản `20260826004` **đúng 1 dòng**, quyền giữ nguyên. Owner mới có cửa hàng hoạt động: `get_session_context` lấy cửa hàng `default` qua `can_access_store` (chỉ cần `memberships.is_active`, mặc định `true`), không cần store scope.
+  - **DB (chạy thật):** chưa. `supabase migration list`: `20261009001`, `20261009002` **chưa có trên Dev**; Docker không chạy nên không có Supabase local. Kịch bản `supabase/tests/iam_signup_trigger.sql` đủ 6 trường hợp nhưng chưa được chạy.
+  - **App:** `signUpStore` / `verifySignupOtp` / `resendSignupOtp` đúng; email đã tồn tại nhận qua `identities` rỗng; lỗi trigger (500 / "Database error") → `SIGNUP_TENANT_FAILED`. Guard, `session_refresh` (chỉ nghe `authStatus` + `hasNoOrganization`), bootstrap fallback, `/no-organization`, banner (chỉ Owner, đóng theo phiên, reset khi đổi tổ chức) đúng plan. Bước 8 lời mời: giữ token / key, xác minh xong mới `updateMyAccount` → `accept` → `signOut`. Góp ý 429 của 2-A3 đã sửa trong mapper.
+  - `dart analyze lib test`: không error; warning duy nhất có từ trước. `check_feature_imports`: 0 vi phạm.
+  - `flutter test` toàn `apps/erp`: **1.424 pass / 61 fail**, danh sách fail trùng khớp 2-A3, không lỗi mới.
+  - `config.toml`: bật xác minh, `max_frequency = "1m0s"`, template OTP — **chưa push**.
+- Việc còn lại để đóng review (theo thứ tự):
+  1. Chạy kịch bản SQL trên Dev (cần migration có mặt; xem cách làm Claude đề xuất trong hội thoại).
+  2. `supabase db push` 2 migration lên Dev.
+  3. `supabase config push` (bật xác minh + template). Phải sau bước 2.
+  4. Kiểm tay mục 5 (email của bạn; giới hạn 2 email/giờ khi chưa có SMTP riêng).
+- Góp ý (không chặn):
+  1. **`/verify-email` từ màn đăng nhập**: đăng nhập lỗi `email_not_confirmed` thì Supabase **không** gửi mã mới, nhưng `VerifyEmailCubit` khoá "Gửi lại mã" 60 giây ngay từ đầu → người dùng chờ vô ích, mã cũ có thể đã hết hạn. Khi vào từ đăng nhập, cho gửi lại ngay (`resendAvailableAt = now`).
+  2. **Toast "Chào mừng…"**: `verifyOtp` xong là `signedIn` → guard đẩy `/signup` → `/` gần như cùng lúc với `VToast.show` của trang đăng ký. Nhiều khả năng vẫn hiện (toast nằm ở overlay), nhưng kiểm tay; nếu mất thì chuyển toast sang trang chủ (cờ trong `SessionState` hoặc `extra`).
+  3. Bootstrap: tổ chức không chọn được mà cũng không tạm ngừng / đóng (vd `provisioning` của người không phải Owner) bị dựng thành ngữ cảnh "tạm ngừng". Hết khi 2-B2 bỏ `provisioning`.
+  4. Khi thêm SMTP riêng: sửa `config.toml` (`email_sent`, `[auth.email.smtp]`) **trước** lần `config push` kế tiếp.

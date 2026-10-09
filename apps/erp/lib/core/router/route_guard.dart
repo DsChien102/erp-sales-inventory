@@ -1,11 +1,24 @@
 import '../session/session_state.dart';
 
-// 2-B1 thêm '/signup', '/verify-email'.
-const _publicPrefixes = ['/login', '/invitation'];
+const _publicPrefixes = ['/login', '/invitation', '/signup', '/verify-email'];
+
+bool _isAuthEntry(String location) {
+  return location == '/login' ||
+      location.startsWith('/login/') ||
+      location == '/signup' ||
+      location.startsWith('/signup/') ||
+      location == '/verify-email' ||
+      location.startsWith('/verify-email/');
+}
+
+bool _staysWithoutOrganization(String location) {
+  return location == '/no-organization' ||
+      location == '/invitation' ||
+      location.startsWith('/invitation/');
+}
 
 /// Guard thuần. `null` = ở lại [location].
 ///
-/// 2-B1: email chưa xác minh → '/verify-email'; không có membership → '/no-organization'.
 /// P8: platform admin không có membership → '/admin'.
 String? routeGuard({required SessionState session, required String location}) {
   final isPublic = _publicPrefixes.any(
@@ -17,7 +30,11 @@ String? routeGuard({required SessionState session, required String location}) {
     case AuthStatus.signedOut:
       return isPublic ? null : '/login';
     case AuthStatus.signedIn:
-      if (location == '/login' || location.startsWith('/login/')) return '/';
+      if (_isAuthEntry(location)) return '/';
+      if (session.hasNoOrganization) {
+        return _staysWithoutOrganization(location) ? null : '/no-organization';
+      }
+      if (location == '/no-organization') return '/';
       return null;
   }
 }

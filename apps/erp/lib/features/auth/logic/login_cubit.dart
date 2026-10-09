@@ -31,6 +31,7 @@ final class LoginCubit extends Cubit<LoginState> {
         status: LoginStatus.submitting,
         clearFailure: true,
         clearSession: true,
+        clearVerificationEmail: true,
       ),
     );
 
@@ -61,10 +62,21 @@ final class LoginCubit extends Cubit<LoginState> {
         ),
       );
     } catch (error) {
+      final failure = IamUiFailureMapper.from(error);
+      if (failure.code == IamBlockedCodes.identityEmailNotVerified) {
+        emit(
+          state.copyWith(
+            status: LoginStatus.needsVerification,
+            failure: failure,
+            verificationEmail: email.trim(),
+          ),
+        );
+        return;
+      }
       emit(
         state.copyWith(
           status: LoginStatus.failure,
-          failure: IamUiFailureMapper.from(error),
+          failure: failure,
         ),
       );
     }

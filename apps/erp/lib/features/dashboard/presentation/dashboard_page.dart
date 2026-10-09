@@ -17,6 +17,7 @@ import 'models/dashboard_navigation.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/default_pair_gate_error_view.dart';
 import 'widgets/erp_bottom_navigation.dart';
+import 'widgets/legal_profile_home_banner.dart';
 import 'widgets/metric_tile.dart';
 import 'widgets/revenue_summary_card.dart';
 import 'widgets/task_item.dart';
@@ -184,6 +185,8 @@ class _DashboardPageState extends State<_DashboardPageBody> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               const SizedBox(height: VSpacing.space5),
+              if (state.current?.isOwner == true && !state.legalProfileBannerDismissed)
+                const LegalProfileHomeBanner(),
               const _SectionHeader(title: 'Tổng quan hôm nay'),
               const SizedBox(height: VSpacing.space2),
               const RevenueSummaryCard(),
