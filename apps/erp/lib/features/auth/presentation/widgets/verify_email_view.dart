@@ -21,6 +21,7 @@ class VerifyEmailView extends StatefulWidget {
     this.prompt,
     this.onVerified,
     this.clock,
+    this.allowImmediateResend = false,
   });
 
   final String email;
@@ -29,6 +30,7 @@ class VerifyEmailView extends StatefulWidget {
   final String? prompt;
   final VoidCallback? onVerified;
   final DateTime Function()? clock;
+  final bool allowImmediateResend;
 
   @override
   State<VerifyEmailView> createState() => _VerifyEmailViewState();
@@ -48,6 +50,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       session: widget.session,
       email: widget.email,
       clock: widget.clock,
+      allowImmediateResend: widget.allowImmediateResend,
     );
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _cubit.onTick());
   }

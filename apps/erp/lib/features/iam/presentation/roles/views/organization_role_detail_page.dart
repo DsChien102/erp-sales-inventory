@@ -1,83 +1,114 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../models/role_ui_model.dart';
+import '../../../../../core/di/injection.dart';
+import '../../../data/invitation_repository.dart';
+import '../../../data/member_repository.dart';
+import '../../../logic/iam_load_status.dart';
+import '../../../logic/role_ui_model.dart';
+import '../../../logic/roles_cubit.dart';
+import '../../../logic/roles_state.dart';
 
-/// Trang Chi tiết vai trò hệ thống (TA-D-02).
+/// Chi tiết vai trò hệ thống (US-07.1 FR-02).
 class OrganizationRoleDetailPage extends StatelessWidget {
-  final RoleUiModel role;
-
   const OrganizationRoleDetailPage({
     super.key,
-    required this.role,
+    this.role,
+    this.code,
+    this.invitations,
+    this.members,
+    this.cubit,
   });
+
+  final RoleUiModel? role;
+  final String? code;
+  final InvitationRepository? invitations;
+  final MemberRepository? members;
+  final RolesCubit? cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final known = role;
+    if (known != null) {
+      return _RoleDetailBody(role: known);
+    }
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _LoadedRoleDetail(code: code ?? ''),
+      );
+    }
+    return BlocProvider(
+      create: (_) => RolesCubit(
+        invitations: invitations ?? getIt<InvitationRepository>(),
+        members: members ?? getIt<MemberRepository>(),
+      )..load(),
+      child: _LoadedRoleDetail(code: code ?? ''),
+    );
+  }
+}
+
+class _LoadedRoleDetail extends StatelessWidget {
+  const _LoadedRoleDetail({required this.code});
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RolesCubit, RolesState>(
+      builder: (context, state) {
+        RoleUiModel? role;
+        for (final item in state.roles) {
+          if (item.id == code) {
+            role = item;
+            break;
+          }
+        }
+        if (role != null) return _RoleDetailBody(role: role);
+        if (state.status == IamLoadStatus.failure) {
+          return const VPageScaffold(
+            title: 'Chi tiết vai trò',
+            body: Center(child: Text(rolesLoadErrorMessage)),
+          );
+        }
+        return const VPageScaffold(
+          title: 'Chi tiết vai trò',
+          body: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+}
+
+class _RoleDetailBody extends StatelessWidget {
+  const _RoleDetailBody({required this.role});
+
+  final RoleUiModel role;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-
     return VPageScaffold(
       title: 'Chi tiết vai trò',
       body: ListView(
         padding: const EdgeInsets.all(VSpacing.screenMobile),
         children: [
-          // Thẻ Tóm tắt vai trò
           VCard(
             padding: const EdgeInsets.all(VSpacing.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: colors.surfaceAlt,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: VIcon(
-                          icon: VIcons.shield,
-                          size: 20,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    const VGap.horizontalSm(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: VText(
-                                  role.title,
-                                  variant: VTextVariant.headingH4,
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                              VBadge(
-                                label: '${role.permissionCount} quyền',
-                                tone: VComponentTone.info,
-                                variant: VBadgeVariant.soft,
-                                isSmall: true,
-                              ),
-                            ],
-                          ),
-                          const VGap.xs(),
-                          VText(
-                            role.description,
-                            variant: VTextVariant.bodySmall,
-                            color: colors.textSecondary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                VText(
+                  role.title,
+                  variant: VTextVariant.headingH4,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const VGap.xs(),
+                VText(
+                  role.description,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
                 ),
                 const VGap.md(),
                 VText(
@@ -89,72 +120,25 @@ class OrganizationRoleDetailPage extends StatelessWidget {
             ),
           ),
           const VGap.md(),
-
-          // Các nhóm quyền
-          ...role.groups.map((group) => Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.space4),
-                child: VCard(
-                  padding: const EdgeInsets.all(VSpacing.space4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      VText(
-                        group.title,
-                        variant: VTextVariant.headingH4,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      const VGap.md(),
-                      ...group.items.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: VSpacing.space2),
-                          child: Container(
-                            padding: const EdgeInsets.all(VSpacing.space3),
-                            decoration: BoxDecoration(
-                              color: colors.successBg,
-                              borderRadius: BorderRadius.circular(VRadius.card),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                VIcon(
-                                  icon: VIcons.success,
-                                  size: 22,
-                                  color: colors.success,
-                                ),
-                                const VGap.horizontalSm(),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      VText(
-                                        item.title,
-                                        variant: VTextVariant.bodyDefault,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: colors.success,
-                                        ),
-                                      ),
-                                      const VGap.xs(),
-                                      VText(
-                                        item.description,
-                                        variant: VTextVariant.bodySmall,
-                                        color: colors.textSecondary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )),
+          VText(
+            'Thành viên đang giữ vai trò',
+            variant: VTextVariant.headingH4,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const VGap.sm(),
+          if (role.memberNames.isEmpty)
+            VText(
+              'Chưa có thành viên đang giữ vai trò này.',
+              variant: VTextVariant.bodySmall,
+              color: colors.textSecondary,
+            )
+          else
+            ...role.memberNames.map(
+              (name) => Padding(
+                padding: const EdgeInsets.only(bottom: VSpacing.space2),
+                child: VText(name, variant: VTextVariant.bodyDefault),
+              ),
+            ),
         ],
       ),
     );

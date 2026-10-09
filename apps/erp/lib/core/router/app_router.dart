@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
@@ -190,7 +189,6 @@ final appRouter = GoRouter(
       name: 'more.users-and-roles',
       builder: (context, state) => UsersAndRolesPage(
         session: getIt<SessionController>(),
-        organizations: getIt<OrganizationRepository>(),
       ),
     ),
     GoRoute(
@@ -272,12 +270,44 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/roles',
       name: 'more.roles',
-      redirect: (context, state) => '/more/users-and-roles',
+      builder: (context, state) {
+        if (!getIt<IamSession>().isOwner) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem vai trò',
+          );
+        }
+        return OrganizationRolesPage(
+          invitations: getIt<InvitationRepository>(),
+          members: getIt<MemberRepository>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/roles/detail',
       name: 'more.roles.detail',
-      redirect: (context, state) => '/more/users-and-roles',
+      redirect: (context, state) => '/more/roles',
+    ),
+    GoRoute(
+      path: '/more/roles/:code',
+      name: 'more.roles.code',
+      builder: (context, state) {
+        if (!getIt<IamSession>().isOwner) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem vai trò',
+          );
+        }
+        final extra = state.extra;
+        if (extra is RoleUiModel) {
+          return OrganizationRoleDetailPage(role: extra);
+        }
+        return OrganizationRoleDetailPage(
+          code: state.pathParameters['code'],
+          invitations: getIt<InvitationRepository>(),
+          members: getIt<MemberRepository>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/audit-logs',
@@ -912,25 +942,6 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final ruleId = state.pathParameters['ruleId']!;
         return PricingHistoryPage(ruleId: ruleId);
-      },
-    ),
-    GoRoute(
-      path: '/more/readiness',
-      name: 'more.readiness',
-      builder: (context, state) {
-        if (!_hasTenantPermission(IamPermissions.tenantReadinessView)) {
-          return _permissionDeniedScaffold(
-            context,
-            message: 'Bạn không có quyền xem readiness',
-          );
-        }
-        return TenantReadinessPage(
-          iamModule: getIt<IIamModule>(),
-          executionContext: getIt<IExecutionContext>(),
-          canActivateTenant: _hasTenantPermission(
-            IamPermissions.tenantActivate,
-          ),
-        );
       },
     ),
   ],

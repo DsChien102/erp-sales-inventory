@@ -5,7 +5,6 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
-import '../../../iam/data/organization_repository.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
@@ -14,12 +13,10 @@ class UsersAndRolesPage extends StatelessWidget {
   const UsersAndRolesPage({
     super.key,
     this.session,
-    this.organizations,
     this.accessCubit,
   });
 
   final SessionController? session;
-  final OrganizationRepository? organizations;
   final IamFeatureAccessCubit? accessCubit;
 
   @override
@@ -34,7 +31,6 @@ class UsersAndRolesPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => IamFeatureAccessCubit(
         session: session ?? getIt<SessionController>(),
-        organizations: organizations ?? getIt<OrganizationRepository>(),
       )..load(),
       child: const _UsersAndRolesView(),
     );
@@ -55,10 +51,6 @@ class _UsersAndRolesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
       builder: (context, access) {
-        final colors = context.vColors;
-        final readinessBanner = access.readinessBanner;
-        final showReadinessSkeleton = access.showReadinessSkeleton;
-
         final items = <_HubMenuItem>[
           if (access.canViewTenantProfile)
             _HubMenuItem(
@@ -79,14 +71,7 @@ class _UsersAndRolesView extends StatelessWidget {
               icon: VIcons.shield,
               title: 'Vai trò',
               subtitle: 'Phạm vi thao tác theo từng vai trò',
-              onTap: () => _showComingSoonToast(context),
-            ),
-          if (access.canViewTenantProfile)
-            _HubMenuItem(
-              icon: VIcons.shield,
-              title: 'Quyền sở hữu',
-              subtitle: 'Chủ tổ chức và chuyển quyền sở hữu',
-              onTap: () => _showComingSoonToast(context),
+              onTap: () => _pushAndReload(context, '/more/roles'),
             ),
           if (access.canViewTenantAudit)
             _HubMenuItem(
@@ -108,80 +93,6 @@ class _UsersAndRolesView extends StatelessWidget {
                 vertical: VSpacing.space4,
               ),
               children: [
-                if (showReadinessSkeleton) ...[
-                  const VSkeleton(
-                    key: Key('iam_readiness_hub_banner_skeleton'),
-                    width: double.infinity,
-                    height: 148,
-                    borderRadius: VRadius.card,
-                  ),
-                  const VGap.sm(),
-                ] else if (readinessBanner != null) ...[
-                  VCard(
-                    key: const Key('iam_readiness_hub_banner'),
-                    backgroundColor: readinessBanner.tone == IamReadinessHubBannerTone.success
-                        ? colors.successBg
-                        : colors.warningBg,
-                    padding: const EdgeInsets.all(VSpacing.space4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VText(
-                          readinessBanner.eyebrow,
-                          variant: VTextVariant.bodySmall,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: readinessBanner.tone == IamReadinessHubBannerTone.success
-                                ? colors.success
-                                : colors.warning,
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          readinessBanner.title,
-                          variant: VTextVariant.headingH4,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          readinessBanner.body,
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textSecondary,
-                        ),
-                        const VGap.sm(),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () => _pushAndReload(context, '/more/readiness'),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                VText(
-                                  'Xem và hoàn tất',
-                                  variant: VTextVariant.bodySmall,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.primary,
-                                  ),
-                                ),
-                                const VGap.horizontalXs(),
-                                VIcon(
-                                  icon: VIcons.chevronRight,
-                                  size: 16,
-                                  color: colors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const VGap.sm(),
-                ],
                 for (var i = 0; i < items.length; i++) ...[
                   _HubMenuCard(item: items[i]),
                   if (i < items.length - 1) const VGap.sm(),
@@ -194,14 +105,6 @@ class _UsersAndRolesView extends StatelessWidget {
     );
   }
 
-  void _showComingSoonToast(BuildContext context) {
-    VToast.show(
-      context,
-      title: 'Chức năng làm sau',
-      message: '',
-      type: VToastType.info,
-    );
-  }
 }
 
 final class _HubMenuItem {

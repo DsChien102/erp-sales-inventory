@@ -216,8 +216,8 @@ void showSuspendConfirmBottomSheet({
                 joinedDate: member.joinedDate,
                 lastActiveDate: member.lastActiveDate,
                 dataVersion: member.dataVersion,
-                suspendedAt: member.suspendedAt ?? '14/07/2026 · 09:30',
-                suspendedBy: member.suspendedBy ?? 'Lê Thị Lan',
+                suspendedAt: member.suspendedAt ?? '—',
+                suspendedBy: member.suspendedBy,
               );
               onConfirmed(updated);
               VToast.show(
@@ -344,7 +344,7 @@ void showRemoveConfirmBottomSheet({
           ),
           const VGap.xs(),
           VText(
-            'Membership sẽ kết thúc vĩnh viễn. Người này cần lời mời mới nếu quay lại.',
+            'Thành viên sẽ kết thúc vĩnh viễn. Người này cần lời mời mới nếu quay lại.',
             variant: VTextVariant.bodyDefault,
             color: colors.textSecondary,
           ),
@@ -376,8 +376,8 @@ void showRemoveConfirmBottomSheet({
                 dataVersion: member.dataVersion,
                 suspendedAt: member.suspendedAt,
                 suspendedBy: member.suspendedBy,
-                removedAt: member.removedAt ?? '14/07/2026 · 09:45',
-                removedBy: member.removedBy ?? 'Lê Thị Lan',
+                removedAt: member.removedAt ?? '—',
+                removedBy: member.removedBy,
                 previousRole: member.previousRole ?? member.role,
               );
               onConfirmed(updated);

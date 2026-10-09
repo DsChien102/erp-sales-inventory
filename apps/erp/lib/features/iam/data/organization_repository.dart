@@ -1,8 +1,6 @@
 import 'package:erp/core/supabase/supabase_rpc.dart';
 
-import 'iam_json.dart';
 import 'models/tenant_profile.dart';
-import 'models/tenant_readiness.dart';
 import 'models/upsert_legal_profile_result.dart';
 
 class OrganizationRepository {
@@ -76,17 +74,5 @@ class OrganizationRepository {
       },
     );
     return UpsertLegalProfileResult.fromJson(row);
-  }
-
-  /// Giữ đến 2-B2 bỏ readiness.
-  Future<TenantReadiness> getReadiness() async {
-    final row = iamJsonMap(
-      await _rpc.call(
-        'iam',
-        'get_tenant_readiness',
-        params: {'p_tenant_id': await _tenantId()},
-      ),
-    );
-    return TenantReadiness.fromJson(row);
   }
 }

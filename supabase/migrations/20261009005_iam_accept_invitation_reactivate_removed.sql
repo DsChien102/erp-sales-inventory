@@ -1,0 +1,424 @@
+-- Title: IAM accept_invitation reactivates a removed membership
+-- Kind: patch
+-- Intent: iam_accept_invitation_reactivate_removed
+-- Context: TH-01 KI-02, BR-44, BR-33 — re-invite of a removed member reuses the same membership row
+-- Touches: iam.accept_invitation
+-- Safety: idempotent ; medium
+-- Depends on: 20260916006_iam_patch_accept_invitation_default_store_scope.sql
+
+create or replace function iam.accept_invitation(
+  p_token text,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_caller uuid := auth.uid();
+  v_inv iam.tenant_invitations;
+  v_tenant iam.tenants;
+  v_role iam.role_definitions;
+  v_hash text;
+  v_email text;
+  v_payload_hash text;
+  v_existing iam.idempotency_records;
+  v_membership iam.memberships;
+  v_effective_role text;
+  v_should_be_owner boolean := false;
+  v_linked_existing boolean := false;
+  v_now timestamptz := now();
+  v_result jsonb;
+  v_audit_before jsonb;
+begin
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  v_hash := iam._invitation_token_hash(p_token);
+  v_payload_hash := md5(v_hash || '|accept');
+
+  v_existing := iam._idempotency_find('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash);
+  if v_existing.idempotency_key is not null then
+    return v_existing.result;
+  end if;
+
+  v_inv := iam._load_invitation_by_token(p_token);
+
+  select * into v_tenant from iam.tenants t where t.id = v_inv.tenant_id for update;
+  if not found then
+    raise exception 'INVITATION_TOKEN_INVALID';
+  end if;
+
+  if coalesce(v_tenant.status, 'active') = 'suspended' then
+    raise exception 'TENANT_SUSPENDED';
+  end if;
+
+  if v_inv.status = 'revoked' then
+    raise exception 'INVITATION_REVOKED';
+  end if;
+  if v_inv.status in ('accepted', 'declined') then
+    raise exception 'INVITATION_ALREADY_USED';
+  end if;
+  if v_inv.status = 'expired' or v_inv.expires_at <= v_now then
+    if v_inv.is_owner is true and coalesce(v_tenant.status, 'active') = 'provisioning' then
+      update iam.tenant_invitations
+      set
+        status = 'expired',
+        status_changed_at = v_now,
+        version = version + 1,
+        updated_at = v_now,
+        token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
+      where id = v_inv.id
+        and status = 'pending';
+      perform iam._unwind_provisioning_owner_membership(v_inv.tenant_id);
+    elsif coalesce(v_inv.is_owner, false) is not true
+      and v_inv.target_membership_id is not null then
+      perform iam._unwind_staff_precreate_membership(v_inv.target_membership_id);
+    end if;
+    raise exception 'INVITATION_EXPIRED';
+  end if;
+  if v_inv.status <> 'pending' then
+    raise exception 'INVITATION_TOKEN_INVALID';
+  end if;
+
+  if v_caller is not null then
+    select lower(trim(u.email::text)) into v_email
+    from auth.users u
+    where u.id = v_caller;
+
+    if v_email is null or v_email <> v_inv.invitee_email then
+      raise exception 'INVITATION_EMAIL_MISMATCH';
+    end if;
+  else
+    select u.id into v_caller
+    from auth.users u
+    where lower(trim(u.email::text)) = v_inv.invitee_email
+    limit 1;
+
+    if v_caller is null then
+      raise exception 'INVITATION_EMAIL_MISMATCH';
+    end if;
+    v_email := v_inv.invitee_email;
+  end if;
+
+  insert into iam.platform_user_profiles (
+    user_id, email, status, email_verified,
+    given_name, family_middle_name, phone_number,
+    created_at, updated_at
+  )
+  values (
+    v_caller,
+    v_email,
+    'active',
+    true,
+    nullif(trim(coalesce(v_inv.given_name, '')), ''),
+    nullif(trim(coalesce(v_inv.family_name, '')), ''),
+    nullif(trim(coalesce(v_inv.phone, '')), ''),
+    v_now,
+    v_now
+  )
+  on conflict (user_id) do update
+  set email = excluded.email,
+      status = case
+        when iam.platform_user_profiles.status = 'suspended'
+          then iam.platform_user_profiles.status
+        else 'active'
+      end,
+      email_verified = true,
+      given_name = coalesce(
+        nullif(trim(iam.platform_user_profiles.given_name), ''),
+        excluded.given_name
+      ),
+      family_middle_name = coalesce(
+        nullif(trim(iam.platform_user_profiles.family_middle_name), ''),
+        excluded.family_middle_name
+      ),
+      phone_number = coalesce(
+        nullif(trim(iam.platform_user_profiles.phone_number), ''),
+        excluded.phone_number
+      ),
+      updated_at = v_now;
+
+  v_audit_before := jsonb_build_object(
+    'invitation_id', v_inv.id,
+    'status', v_inv.status,
+    'version', v_inv.version
+  );
+
+  if v_inv.is_owner is true then
+    select * into v_membership
+    from iam.memberships m
+    where m.tenant_id = v_inv.tenant_id
+      and m.is_owner is true
+      and m.is_active
+    order by m.created_at
+    limit 1
+    for update;
+
+    if found then
+      if v_membership.user_id <> v_caller then
+        update iam.memberships
+        set
+          user_id = v_caller,
+          role = 'store_owner',
+          is_owner = true,
+          updated_at = v_now
+        where id = v_membership.id
+        returning * into v_membership;
+      end if;
+      v_linked_existing := true;
+      v_should_be_owner := true;
+      v_effective_role := 'store_owner';
+    end if;
+  end if;
+
+  if not v_linked_existing
+     and coalesce(v_inv.is_owner, false) is not true
+     and v_inv.target_membership_id is not null then
+    select * into v_membership
+    from iam.memberships m
+    where m.id = v_inv.target_membership_id
+      and m.tenant_id = v_inv.tenant_id
+      and m.is_active
+    for update;
+
+    if found then
+      if v_membership.user_id <> v_caller then
+        update iam.memberships
+        set
+          user_id = v_caller,
+          updated_at = v_now
+        where id = v_membership.id
+        returning * into v_membership;
+      end if;
+      v_linked_existing := true;
+      v_effective_role := v_membership.role;
+      select * into v_role
+      from iam.role_definitions r
+      where r.code = v_membership.role;
+    end if;
+  end if;
+
+  if not v_linked_existing then
+    select * into v_membership
+    from iam.memberships m
+    where m.tenant_id = v_inv.tenant_id
+      and m.user_id = v_caller
+      and m.is_active
+    for update;
+
+    if found then
+      select * into v_role
+      from iam.role_definitions r
+      where r.code = v_membership.role;
+
+      update iam.tenant_invitations
+      set
+        status = 'accepted',
+        accepted_membership_id = v_membership.id,
+        status_changed_at = v_now,
+        version = version + 1,
+        updated_at = v_now,
+        token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
+      where id = v_inv.id
+      returning * into v_inv;
+
+      insert into iam.user_preferences (user_id, last_selected_tenant_id, updated_at)
+      values (v_caller, v_inv.tenant_id, v_now)
+      on conflict (user_id) do update
+        set last_selected_tenant_id = excluded.last_selected_tenant_id,
+            updated_at = excluded.updated_at;
+
+
+      perform iam.append_audit_log(
+        p_scope => 'tenant',
+        p_tenant_id => v_inv.tenant_id,
+        p_actor_user_id => v_caller,
+        p_event_code => 'iam.tenant.invitation_accepted',
+        p_subject_type => 'tenant',
+        p_subject_id => v_inv.tenant_id::text,
+        p_result => 'success',
+        p_source => 'iam',
+        p_tracking_id => p_idempotency_key,
+        p_before => v_audit_before,
+        p_after => jsonb_build_object(
+          'invitation_id', v_inv.id,
+          'status', v_inv.status,
+          'membership_id', v_membership.id,
+          'version', v_inv.version
+        ),
+        p_actor_type => 'tenant_member',
+        p_actor_membership_id => v_membership.id,
+        p_actor_display_name => nullif(trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)), ''),
+        p_actor_context_label => coalesce(v_role.label, v_membership.role::text),
+        p_actor_snapshot => jsonb_build_object(
+          'display_name', nullif(trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)), ''),
+          'actor_type', 'tenant_member',
+          'role_code', v_membership.role::text,
+          'role_label', coalesce(v_role.label, v_membership.role::text)
+        ),
+        p_target_display_name => v_tenant.display_name,
+        p_target_secondary_identifier => left(v_tenant.id::text, 8),
+        p_target_snapshot => jsonb_build_object(
+          'display_name', v_tenant.display_name,
+          'subject_code', left(v_tenant.id::text, 8),
+          'secondary_label', left(v_tenant.id::text, 8)
+        ),
+        p_correlation_id => p_idempotency_key,
+        p_detail_items => jsonb_build_array(
+          jsonb_build_object(
+            'field_key', 'status',
+            'before', v_audit_before->'status',
+            'after', to_jsonb(v_inv.status)
+          )
+        )
+      );
+
+      v_result := iam._membership_detail_json(v_membership);
+
+      perform iam._idempotency_store('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash, v_result);
+
+      return v_result;
+    end if;
+  end if;
+
+  if not v_linked_existing then
+    select * into v_role from iam.role_definitions r where r.id = v_inv.initial_role_id;
+    if not found or v_role.status <> 'active' then
+      raise exception 'ROLE_NOT_ASSIGNABLE';
+    end if;
+
+    v_should_be_owner := not exists (
+      select 1
+      from iam.memberships m
+      where m.tenant_id = v_inv.tenant_id
+        and m.is_active
+        and m.is_owner is true
+    );
+    v_effective_role := case
+      when v_should_be_owner then 'store_owner'
+      else coalesce(v_role.code, 'staff')
+    end;
+
+    select * into v_membership
+    from iam.memberships m
+    where m.tenant_id = v_inv.tenant_id
+      and m.user_id = v_caller
+    for update;
+
+    if found and v_membership.removed_at is not null then
+      update iam.memberships
+      set
+        is_active = true,
+        removed_at = null,
+        role = v_effective_role,
+        is_owner = v_should_be_owner,
+        version = version + 1,
+        status_changed_at = v_now,
+        updated_at = v_now
+      where id = v_membership.id
+      returning * into v_membership;
+    elsif found and v_membership.is_active then
+      raise exception 'DUPLICATE_MEMBERSHIP';
+    elsif found and v_membership.is_active is not true and v_membership.removed_at is null then
+      raise exception 'MEMBERSHIP_INACTIVE';
+    else
+      insert into iam.memberships (
+        tenant_id, user_id, role, is_owner, version, created_at, updated_at
+      )
+      values (
+        v_inv.tenant_id, v_caller, v_effective_role, v_should_be_owner, 1, v_now, v_now
+      )
+      returning * into v_membership;
+    end if;
+  else
+    select * into v_role from iam.role_definitions r where r.id = v_inv.initial_role_id;
+    if not found then
+      select * into v_role from iam.role_definitions r where r.code = 'store_owner';
+    end if;
+  end if;
+
+  update iam.tenant_invitations
+  set
+    status = 'accepted',
+    accepted_membership_id = v_membership.id,
+    status_changed_at = v_now,
+    version = version + 1,
+    updated_at = v_now,
+    token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
+  where id = v_inv.id
+  returning * into v_inv;
+
+  insert into iam.user_preferences (user_id, last_selected_tenant_id, updated_at)
+  values (v_caller, v_inv.tenant_id, v_now)
+  on conflict (user_id) do update
+    set last_selected_tenant_id = excluded.last_selected_tenant_id,
+        updated_at = excluded.updated_at;
+
+  v_result := iam._membership_detail_json(v_membership);
+
+  perform iam.append_audit_log(
+    p_scope => 'tenant',
+    p_tenant_id => v_inv.tenant_id,
+    p_actor_user_id => v_caller,
+    p_event_code => 'iam.tenant.invitation_accepted',
+    p_subject_type => 'tenant',
+    p_subject_id => v_inv.tenant_id::text,
+    p_result => 'success',
+    p_source => 'iam',
+    p_tracking_id => p_idempotency_key,
+    p_before => v_audit_before,
+    p_after => jsonb_build_object(
+      'invitation_id', v_inv.id,
+      'status', v_inv.status,
+      'membership_id', v_membership.id,
+      'version', v_inv.version
+    ),
+    p_actor_type => 'tenant_member',
+    p_actor_membership_id => v_membership.id,
+    p_actor_display_name => nullif(
+      trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)),
+      ''
+    ),
+    p_actor_context_label => coalesce(v_role.label, v_effective_role),
+    p_actor_snapshot => jsonb_build_object(
+      'display_name', nullif(
+        trim(concat_ws(' ', v_inv.family_name, v_inv.given_name)),
+        ''
+      ),
+      'actor_type', 'tenant_member',
+      'role_code', v_effective_role,
+      'role_label', coalesce(v_role.label, v_effective_role)
+    ),
+    p_target_display_name => v_tenant.display_name,
+    p_target_secondary_identifier => left(v_tenant.id::text, 8),
+    p_target_snapshot => jsonb_build_object(
+      'display_name', v_tenant.display_name,
+      'subject_code', left(v_tenant.id::text, 8),
+      'secondary_label', left(v_tenant.id::text, 8)
+    ),
+    p_correlation_id => p_idempotency_key,
+    p_detail_items => jsonb_build_array(
+      jsonb_build_object(
+        'field_key', 'status',
+        'before', v_audit_before->'status',
+        'after', to_jsonb(v_inv.status)
+      ),
+      jsonb_build_object(
+        'field_key', 'membership_id',
+        'before', null,
+        'after', to_jsonb(v_membership.id)
+      )
+    )
+  );
+
+  perform iam._idempotency_store('tenant.invitation.accept', v_hash, p_idempotency_key, v_payload_hash, v_result);
+
+  return v_result;
+end;
+$$;
+
+revoke all on function iam.accept_invitation(text, text) from public;
+grant execute on function iam.accept_invitation(text, text) to anon, authenticated;

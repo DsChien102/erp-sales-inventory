@@ -24,6 +24,9 @@ final class MemberUiModel {
   final String name;
   final String email;
   final String role;
+
+  /// Mã vai trò (`store_owner`, `staff`, `accountant`, `warehouse`).
+  final String roleCode;
   final MemberStatus status;
   final bool isOwner;
   final String identityText;
@@ -41,6 +44,7 @@ final class MemberUiModel {
     required this.name,
     required this.email,
     required this.role,
+    this.roleCode = '',
     required this.status,
     this.isOwner = false,
     this.identityText = 'Thành viên',

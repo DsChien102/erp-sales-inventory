@@ -6,7 +6,6 @@ import 'package:vet45_design_system/design_system.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/session/session_controller.dart';
-import '../../../iam/data/organization_repository.dart';
 import '../bloc/iam_feature_access_cubit.dart';
 import '../bloc/iam_feature_access_state.dart';
 
@@ -14,13 +13,11 @@ class MorePage extends StatelessWidget {
   const MorePage({
     super.key,
     this.session,
-    this.organizations,
     this.accessCubit,
     this.tenantBlocked = false,
   });
 
   final SessionController? session;
-  final OrganizationRepository? organizations;
   final IamFeatureAccessCubit? accessCubit;
   final bool tenantBlocked;
 
@@ -73,7 +70,6 @@ class MorePage extends StatelessWidget {
       create: (_) {
         final cubit = IamFeatureAccessCubit(
           session: session ?? getIt<SessionController>(),
-          organizations: organizations ?? getIt<OrganizationRepository>(),
         );
         // Tổ chức bị chặn: mọi RPC theo tổ chức đều bị từ chối → không gọi.
         if (!tenantBlocked) cubit.load();

@@ -34,7 +34,7 @@ abstract final class TenantAuditFieldCatalog {
     'suspended': 'Tạm ngừng',
     'deactivated': 'Đã tạm ngừng',
     'removed': 'Đã loại bỏ',
-    'provisioning': 'Đang khởi tạo',
+    'provisioning': 'Đang hoạt động',
     'store_owner': 'Chủ sở hữu',
     'store_manager': 'Quản lý chi nhánh',
     'veterinarian': 'Bác sĩ thú y',

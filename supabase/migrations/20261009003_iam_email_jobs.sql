@@ -84,8 +84,8 @@ begin
     'inviter_name', nullif(
       trim(both from concat_ws(
         ' ',
-        nullif(trim(both from p.given_name), ''),
-        nullif(trim(both from p.family_middle_name), '')
+        nullif(trim(both from p.family_middle_name), ''),
+        nullif(trim(both from p.given_name), '')
       )),
       ''
     ),
@@ -291,13 +291,20 @@ begin
     update iam.email_jobs
     set
       status = 'failed',
+      attempts = case
+        when p_error = 'UNKNOWN_TEMPLATE' then 5
+        else attempts
+      end,
       last_error = left(coalesce(p_error, ''), 500),
-      secret = case when attempts >= 5 then null else secret end,
+      secret = case
+        when p_error = 'UNKNOWN_TEMPLATE' or attempts >= 5 then null
+        else secret
+      end,
       updated_at = now()
     where id = p_job_id
     returning attempts into v_attempts;
 
-    if v_attempts >= 5 then
+    if p_error = 'UNKNOWN_TEMPLATE' or v_attempts >= 5 then
       v_outcome := 'failed';
     end if;
   end if;

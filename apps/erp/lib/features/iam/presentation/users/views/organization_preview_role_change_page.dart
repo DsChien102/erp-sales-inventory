@@ -4,17 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../models/user_ui_model.dart';
 
-class PermissionItem {
-  final String title;
-  final String description;
-
-  const PermissionItem({
-    required this.title,
-    required this.description,
-  });
-}
-
-/// Màn hình Xem trước thay đổi quyền (TA-D-04).
+/// Màn hình xem trước đổi vai trò (US-06.5).
 class OrganizationPreviewRoleChangePage extends StatelessWidget {
   final MemberUiModel member;
   final String newRole;
@@ -24,32 +14,6 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
     required this.member,
     required this.newRole,
   });
-
-  static const List<PermissionItem> _addedPermissions = [
-    PermissionItem(
-      title: 'Quản lý công nợ',
-      description: 'Xem và cập nhật khoản phải thu',
-    ),
-    PermissionItem(
-      title: 'Quản lý hóa đơn',
-      description: 'Lập và theo dõi hóa đơn',
-    ),
-    PermissionItem(
-      title: 'Xem báo cáo tài chính',
-      description: 'Truy cập báo cáo được phân quyền',
-    ),
-  ];
-
-  static const List<PermissionItem> _removedPermissions = [
-    PermissionItem(
-      title: 'Tạo đơn bán',
-      description: 'Không còn tạo giao dịch bán hàng',
-    ),
-    PermissionItem(
-      title: 'Thu tiền',
-      description: 'Không còn thực hiện thu tiền bán hàng',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -177,122 +141,10 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
             ),
           ),
           const VGap.md(),
-
-          // Section 2: Quyền được thêm Card
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VText(
-                  'Quyền được thêm',
-                  variant: VTextVariant.headingH4,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const VGap.md(),
-                ..._addedPermissions.map((perm) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: VSpacing.space2),
-                    padding: const EdgeInsets.all(VSpacing.space3),
-                    decoration: BoxDecoration(
-                      color: colors.successBg,
-                      borderRadius: BorderRadius.circular(VRadius.r12),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VIcon(
-                          icon: VIcons.success,
-                          size: 20,
-                          color: colors.success,
-                        ),
-                        const VGap.horizontalSm(),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VText(
-                                perm.title,
-                                variant: VTextVariant.bodyDefault,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.success,
-                                ),
-                              ),
-                              const VGap.xs(),
-                              VText(
-                                perm.description,
-                                variant: VTextVariant.bodySmall,
-                                color: colors.textSecondary,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-          const VGap.md(),
-
-          // Section 3: Quyền bị gỡ Card
-          VCard(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VText(
-                  'Quyền bị gỡ',
-                  variant: VTextVariant.headingH4,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const VGap.md(),
-                ..._removedPermissions.map((perm) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: VSpacing.space2),
-                    padding: const EdgeInsets.all(VSpacing.space3),
-                    decoration: BoxDecoration(
-                      color: colors.dangerBg,
-                      borderRadius: BorderRadius.circular(VRadius.r12),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VIcon(
-                          icon: VIcons.error,
-                          size: 20,
-                          color: colors.danger,
-                        ),
-                        const VGap.horizontalSm(),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VText(
-                                perm.title,
-                                variant: VTextVariant.bodyDefault,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.danger,
-                                ),
-                              ),
-                              const VGap.xs(),
-                              VText(
-                                perm.description,
-                                variant: VTextVariant.bodySmall,
-                                color: colors.textSecondary,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
+          VText(
+            'Vai trò là nhãn công việc; quyền nghiệp vụ của thành viên không thay đổi.',
+            variant: VTextVariant.bodyDefault,
+            color: colors.textSecondary,
           ),
         ],
       ),

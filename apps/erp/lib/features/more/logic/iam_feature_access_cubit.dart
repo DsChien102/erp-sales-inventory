@@ -5,29 +5,17 @@ import '../../../core/iam/iam_load_status.dart';
 import '../../../core/iam/iam_ui_failure.dart';
 import '../../../core/iam/iam_ui_failure_mapper.dart';
 import '../../../core/session/session_controller.dart';
-import '../../iam/data/organization_repository.dart';
 import 'iam_feature_access_state.dart';
 
 final class IamFeatureAccessCubit extends Cubit<IamFeatureAccessState> {
-  IamFeatureAccessCubit({
-    required SessionController session,
-    required OrganizationRepository organizations,
-  }) : _session = session,
-       _organizations = organizations,
-       super(const IamFeatureAccessState());
+  IamFeatureAccessCubit({required SessionController session})
+    : _session = session,
+      super(const IamFeatureAccessState());
 
   final SessionController _session;
-  final OrganizationRepository _organizations;
 
   Future<void> load() async {
-    emit(
-      state.copyWith(
-        status: IamLoadStatus.loading,
-        readinessStatus: IamLoadStatus.loading,
-        clearFailure: true,
-        clearReadiness: true,
-      ),
-    );
+    emit(state.copyWith(status: IamLoadStatus.loading, clearFailure: true));
 
     try {
       final session = _session.readSession();
@@ -49,34 +37,9 @@ final class IamFeatureAccessCubit extends Cubit<IamFeatureAccessState> {
         state.copyWith(
           status: IamLoadStatus.success,
           session: session,
-          readinessStatus: IamLoadStatus.initial,
           clearFailure: true,
-          clearReadiness: true,
         ),
       );
-
-      final tenantId = session.tenantId;
-      if (tenantId != null && tenantId.isNotEmpty && state.canViewReadiness) {
-        emit(state.copyWith(readinessStatus: IamLoadStatus.loading));
-        try {
-          final readiness = await _organizations.getReadiness();
-          if (isClosed) return;
-          emit(
-            state.copyWith(
-              readinessStatus: IamLoadStatus.success,
-              readiness: readiness,
-            ),
-          );
-        } catch (_) {
-          if (isClosed) return;
-          emit(
-            state.copyWith(
-              readinessStatus: IamLoadStatus.failure,
-              clearReadiness: true,
-            ),
-          );
-        }
-      }
     } catch (error) {
       emit(
         state.copyWith(

@@ -162,6 +162,55 @@ begin
     raise exception 'authenticated can execute claim_email_job';
   end if;
 
+  declare
+    v_unknown_id uuid := gen_random_uuid();
+    v_unknown_correlation text := gen_random_uuid()::text;
+  begin
+    perform iam.enqueue_outbox_message(
+      '00000000-0000-0000-0000-000000000000'::uuid,
+      'iam.email.delivery_requested',
+      jsonb_build_object(
+        'template_id', 'activation_invitation',
+        'to_email', 'unknown-template@example.com',
+        'correlation_id', v_unknown_correlation,
+        'locale', 'vi',
+        'refs', '{}'::jsonb,
+        'secret_payload_ciphertext', v_ciphertext
+      ),
+      v_unknown_id
+    );
+
+    if iam.claim_email_job(v_unknown_id) is null then
+      raise exception 'unknown template job should be claimable once';
+    end if;
+
+    perform iam.complete_email_job(v_unknown_id, false, null, 'UNKNOWN_TEMPLATE');
+
+    select status, secret is null, attempts
+    into v_status, v_secret_cleared, v_attempts
+    from iam.email_jobs
+    where id = v_unknown_id;
+
+    if v_status is distinct from 'failed'
+       or not v_secret_cleared
+       or v_attempts is distinct from 5 then
+      raise exception 'UNKNOWN_TEMPLATE should fail immediately status=% secret_null=% attempts=%',
+        v_status, v_secret_cleared, v_attempts;
+    end if;
+
+    select o.status into v_status
+    from iam.email_delivery_outcomes o
+    where o.correlation_id = v_unknown_correlation;
+
+    if v_status is distinct from 'failed' then
+      raise exception 'UNKNOWN_TEMPLATE outcome should be failed, got %', v_status;
+    end if;
+
+    if iam.claim_email_job(v_unknown_id) is not null then
+      raise exception 'UNKNOWN_TEMPLATE job should not be claimed again';
+    end if;
+  end;
+
   perform iam.enqueue_outbox_message(
     '00000000-0000-0000-0000-000000000000'::uuid,
     'iam.email.delivery_requested',

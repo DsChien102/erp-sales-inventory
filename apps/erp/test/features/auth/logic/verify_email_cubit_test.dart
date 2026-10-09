@@ -49,4 +49,22 @@ void main() {
     await cubit.close();
     await session.close();
   });
+
+  test('allowImmediateResend unlocks resend immediately', () async {
+    final auth = ScriptedAuthRepository();
+    final session = loginSession();
+    final cubit = VerifyEmailCubit(
+      auth: auth,
+      session: session,
+      email: 'lan@example.com',
+      allowImmediateResend: true,
+    );
+
+    expect(cubit.state.canResend, isTrue);
+    await cubit.resend();
+    expect(auth.resentEmails, ['lan@example.com']);
+
+    await cubit.close();
+    await session.close();
+  });
 }

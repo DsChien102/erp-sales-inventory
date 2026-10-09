@@ -2,6 +2,7 @@ import 'package:erp/features/more/presentation/bloc/iam_feature_access_cubit.dar
 import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
@@ -16,17 +17,14 @@ const _owner = SessionDto(
 
 void main() {
   testWidgets(
-    'UsersAndRolesPage renders all hub cards from the design',
+    'UsersAndRolesPage renders hub cards without ownership',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(
-        session: sessionFromDto(_owner),
-        organizations: ScriptedReadinessRepository(),
-      );
+      final cubit = IamFeatureAccessCubit(session: sessionFromDto(_owner));
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -43,12 +41,12 @@ void main() {
       expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
       expect(find.text('Người dùng'), findsOneWidget);
       expect(find.text('Vai trò'), findsOneWidget);
-      expect(find.text('Quyền sở hữu'), findsOneWidget);
+      expect(find.text('Quyền sở hữu'), findsNothing);
       expect(find.text('Lịch sử quản trị'), findsOneWidget);
     },
   );
 
-  testWidgets('UsersAndRolesPage shows coming soon toast for roles and ownership', (
+  testWidgets('UsersAndRolesPage opens roles instead of a coming-soon toast', (
     WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(800, 1600);
@@ -56,28 +54,50 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final cubit = IamFeatureAccessCubit(
-      session: sessionFromDto(_owner),
-      organizations: ScriptedReadinessRepository(),
-    );
+    final cubit = IamFeatureAccessCubit(session: sessionFromDto(_owner));
     await cubit.load();
     addTearDown(cubit.close);
 
+    final router = GoRouter(
+      initialLocation: '/more/users-and-roles',
+      routes: [
+        GoRoute(
+          path: '/more/users-and-roles',
+          builder: (context, state) => UsersAndRolesPage(accessCubit: cubit),
+        ),
+        GoRoute(
+          path: '/more/roles',
+          builder: (context, state) => const Scaffold(body: Text('ROLES')),
+        ),
+        GoRoute(
+          path: '/more/organization-profile',
+          builder: (context, state) => const SizedBox.shrink(),
+        ),
+        GoRoute(
+          path: '/more/users',
+          builder: (context, state) => const SizedBox.shrink(),
+        ),
+        GoRoute(
+          path: '/more/audit-logs',
+          builder: (context, state) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+
     await tester.pumpWidget(
-      MaterialApp(
+      MaterialApp.router(
         theme: VTheme.lightTheme,
-        home: UsersAndRolesPage(accessCubit: cubit),
+        routerConfig: router,
       ),
     );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Vai trò'));
     await tester.pumpAndSettle();
-    expect(find.text('Chức năng làm sau'), findsOneWidget);
 
-    await tester.tap(find.text('Quyền sở hữu'));
-    await tester.pumpAndSettle();
-    expect(find.text('Chức năng làm sau'), findsWidgets);
+    expect(find.text('ROLES'), findsOneWidget);
+    expect(find.text('Chức năng làm sau'), findsNothing);
+    expect(find.text('Quyền sở hữu'), findsNothing);
   });
 
   testWidgets('UsersAndRolesPage supports pull-to-refresh', (
@@ -88,7 +108,6 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    var queryCount = 0;
     final cubit = IamFeatureAccessCubit(
       session: sessionFromDto(
         const SessionDto(
@@ -99,11 +118,9 @@ void main() {
           tenantId: 'org-001',
         ),
       ),
-      organizations: ScriptedReadinessRepository(onRead: () => queryCount++),
     );
     await cubit.load();
     addTearDown(cubit.close);
-    final initialCount = queryCount;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -113,11 +130,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final refreshIndicator = tester.widget<RefreshIndicator>(find.byType(RefreshIndicator));
-    expect(refreshIndicator, isNotNull);
+    final refreshIndicator = tester.widget<RefreshIndicator>(
+      find.byType(RefreshIndicator),
+    );
     await refreshIndicator.onRefresh();
     await tester.pumpAndSettle();
 
-    expect(queryCount, greaterThan(initialCount));
+    expect(find.text('Vai trò'), findsOneWidget);
+    expect(find.text('Quyền sở hữu'), findsNothing);
   });
 }

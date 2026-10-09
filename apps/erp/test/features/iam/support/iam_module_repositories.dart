@@ -8,8 +8,6 @@ import 'package:erp/features/iam/data/models/cursor_page.dart';
 import 'package:erp/features/iam/data/models/tenant_audit_log.dart' as local;
 import 'package:erp/features/iam/data/models/tenant_invitation.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
-import 'package:erp/features/iam/data/models/tenant_readiness.dart';
-import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_iam_application/application.dart' as app;
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
@@ -445,39 +443,5 @@ SessionController sessionFromDto(app.SessionDto dto) {
     isOwner: dto.isOwner,
     permissions: dto.permissions,
   );
-}
-
-TenantReadiness copyReadiness(app.TenantReadinessDto dto) {
-  return TenantReadiness(
-    tenantId: dto.tenantId,
-    status: dto.status,
-    blockers: dto.blockers,
-    warnings: dto.warnings,
-    evaluatedAt: dto.evaluatedAt,
-    tenantVersion: dto.tenantVersion,
-    canActivate: dto.canActivate,
-  );
-}
-
-/// Readiness giả cho hub IAM. `pending` giữ future chưa xong (skeleton).
-final class ScriptedReadinessRepository extends OrganizationRepository {
-  ScriptedReadinessRepository({this.readiness, this.pending, this.onRead})
-    : super(rpc: _unusedRpc, tenantId: () async => 'org-001');
-
-  final TenantReadiness? readiness;
-  final Future<TenantReadiness>? pending;
-  final void Function()? onRead;
-  int calls = 0;
-
-  @override
-  Future<TenantReadiness> getReadiness() {
-    calls += 1;
-    onRead?.call();
-    final waiting = pending;
-    if (waiting != null) return waiting;
-    final value = readiness;
-    if (value == null) throw UnsupportedError('readiness');
-    return Future.value(value);
-  }
 }
 

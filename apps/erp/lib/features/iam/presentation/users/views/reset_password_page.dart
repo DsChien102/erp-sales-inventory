@@ -74,8 +74,10 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   late final TextEditingController _newPasswordController;
   late final TextEditingController _confirmPasswordController;
 
+  static const _resendCooldownSeconds = 60;
+
   Timer? _resendTimer;
-  int _secondsRemaining = 45;
+  int _secondsRemaining = _resendCooldownSeconds;
 
   bool _isVerifyingCode = false;
   bool _isSubmittingPassword = false;
@@ -92,7 +94,7 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
 
   void _startResendTimer() {
     _resendTimer?.cancel();
-    _secondsRemaining = 45;
+    _secondsRemaining = _resendCooldownSeconds;
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
         setState(() => _secondsRemaining--);

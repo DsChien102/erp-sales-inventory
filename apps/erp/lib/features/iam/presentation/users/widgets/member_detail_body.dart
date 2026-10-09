@@ -119,11 +119,6 @@ class MemberDetailBody extends StatelessWidget {
                       ? member.lastActiveDate
                       : '—',
                 ),
-                const VGap.md(),
-                _DetailRow(
-                  label: 'Phiên bản dữ liệu',
-                  value: member.dataVersion,
-                ),
               ] else if (isInactive) ...[
                 _DetailRow(
                   label: 'Tạm ngừng lúc',

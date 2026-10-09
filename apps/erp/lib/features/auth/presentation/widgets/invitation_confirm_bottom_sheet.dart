@@ -39,7 +39,7 @@ class _InvitationConfirmSheetContent extends StatelessWidget {
           ),
           const VGap.sm(),
           VText(
-            'Mã kích hoạt đã hợp lệ.',
+            'Mã lời mời hợp lệ.',
             variant: VTextVariant.bodyDefault,
             color: colors.textSecondary,
           ),

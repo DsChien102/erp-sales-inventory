@@ -89,7 +89,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Xác nhận lời mời tham gia tổ chức?'), findsOneWidget);
-      expect(find.text('Mã kích hoạt đã hợp lệ.'), findsOneWidget);
+      expect(find.text('Mã lời mời hợp lệ.'), findsOneWidget);
       expect(
         find.byKey(const Key('invitation_confirm_sheet_accept')),
         findsOneWidget,

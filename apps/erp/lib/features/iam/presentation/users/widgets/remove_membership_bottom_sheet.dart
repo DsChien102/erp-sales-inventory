@@ -14,7 +14,7 @@ Future<bool?> showRemoveMembershipBottomSheet({
       title: 'Loại thành viên khỏi tổ chức?',
       titleDanger: true,
       description:
-          'Membership sẽ kết thúc vĩnh viễn. Người này cần lời mời mới nếu quay lại.',
+          'Thành viên sẽ kết thúc vĩnh viễn. Người này cần lời mời mới nếu quay lại.',
       confirmLabel: 'Loại thành viên',
       confirmDanger: true,
       onConfirm: onConfirm,

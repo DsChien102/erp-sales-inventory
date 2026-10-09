@@ -16,6 +16,9 @@ abstract final class MemberUiMapper {
       role: IamRoleLabelMapper.toDisplayLabel(
         dto.roleLabel.isNotEmpty ? dto.roleLabel : dto.roleId,
       ),
+      roleCode: IamRoleLabelMapper.toRoleCode(
+        dto.roleLabel.isNotEmpty ? dto.roleLabel : dto.roleId,
+      ),
       status: _status(dto.status),
       isOwner: dto.isOwner,
       identityText: dto.isOwner ? 'Chủ sở hữu' : 'Chỉ đọc',
@@ -47,6 +50,7 @@ abstract final class MemberUiMapper {
       name: name,
       email: email,
       role: role,
+      roleCode: IamRoleLabelMapper.toRoleCode(dto.role),
       status: switch (dto.status) {
         MembershipStatus.active => MemberStatus.active,
         MembershipStatus.inactive => MemberStatus.suspended,

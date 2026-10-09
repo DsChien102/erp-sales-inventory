@@ -1306,9 +1306,9 @@ Số KI giữ từ bản 3.0.
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
 | KI-02 | `accept_invitation` luôn insert membership mới; mời lại người đã bị loại lỗi trùng khoá | **Sửa** theo BR-44 | P2 |
-| KI-03 | `memberships.user_id` không có FK tới `auth.users` | **Sửa:** thêm FK (BR-35) | P2 |
+| KI-03 | `memberships.user_id` không có FK tới `auth.users` | **Sửa:** thêm FK (BR-35) | P8 |
 | KI-04 | Màn IAM lặp ở `apps/erp` và `apps/admin` | **Hết** khi gộp 1 app | P1 / P8 |
-| KI-05 | Sót luồng cũ: `owner_activations`, `*_owner_activation`, `bootstrap_owner`, trạng thái `provisioning`, màn `/more/readiness`, sheet "Kích hoạt tổ chức?", nhãn "Đang khởi tạo / Đang thiết lập", bộ lọc "Mức hoàn thiện", cảnh báo "Email Chủ sở hữu chưa xác minh", nút "Khởi tạo tổ chức" | **Xoá** (mục 8) | P2 / P8 |
+| KI-05 | Sót luồng cũ: `owner_activations`, `*_owner_activation`, `bootstrap_owner`, trạng thái `provisioning`, màn `/more/readiness`, sheet "Kích hoạt tổ chức?", nhãn "Đang khởi tạo / Đang thiết lập", bộ lọc "Mức hoàn thiện", cảnh báo "Email Chủ sở hữu chưa xác minh", nút "Khởi tạo tổ chức" | **Xoá** (mục 8) | P2 (app cửa hàng) / P8 (DB, platform) |
 | KI-06 | Mục "Quyền sở hữu" trong hub chỉ hiện "Chức năng làm sau" | **Bỏ**; chuyển Owner chỉ ở `/admin` (BR-32) | P2 |
 | KI-07 | Email phụ thuộc `messaging_worker` | **Thay** bằng `email_jobs` + Edge Function (6.3) | P2 |
 | KI-08 | `transfer_platform_tenant_ownership` không kiểm người nhận đã là Owner nơi khác | **Sửa** theo BR-32 | P8 |

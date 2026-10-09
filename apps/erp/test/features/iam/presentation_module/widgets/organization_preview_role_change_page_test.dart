@@ -37,14 +37,12 @@ void main() {
     expect(find.text('Vai trò mới'), findsOneWidget);
     expect(find.text('Kế toán'), findsOneWidget);
 
-    expect(find.text('Quyền được thêm'), findsOneWidget);
-    expect(find.text('Quản lý công nợ'), findsOneWidget);
-    expect(find.text('Quản lý hóa đơn'), findsOneWidget);
-    expect(find.text('Xem báo cáo tài chính'), findsOneWidget);
-
-    expect(find.text('Quyền bị gỡ'), findsOneWidget);
-    expect(find.text('Tạo đơn bán'), findsOneWidget);
-    expect(find.text('Thu tiền'), findsOneWidget);
+    expect(find.text('Quyền được thêm'), findsNothing);
+    expect(find.text('Quyền bị gỡ'), findsNothing);
+    expect(
+      find.text('Vai trò là nhãn công việc; quyền nghiệp vụ của thành viên không thay đổi.'),
+      findsOneWidget,
+    );
 
     expect(find.text('Quay lại'), findsOneWidget);
     expect(find.text('Tiếp tục'), findsOneWidget);

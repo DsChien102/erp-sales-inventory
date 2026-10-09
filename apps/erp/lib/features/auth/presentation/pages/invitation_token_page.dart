@@ -205,11 +205,11 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
   static (String, VToastType) _entryFailureToast(String code) {
     return switch (code) {
       IamBlockedCodes.invitationTokenInvalid => (
-        'Mã kích hoạt không hợp lệ. Kiểm tra và nhập lại.',
+        'Mã lời mời không hợp lệ. Kiểm tra và nhập lại.',
         VToastType.danger,
       ),
       IamBlockedCodes.invitationExpired => (
-        'Mã kích hoạt đã hết hạn. Liên hệ người gửi để nhận mã mới.',
+        'Mã lời mời đã hết hạn. Liên hệ người gửi để nhận mã mới.',
         VToastType.warning,
       ),
       IamBlockedCodes.invitationRevoked => (

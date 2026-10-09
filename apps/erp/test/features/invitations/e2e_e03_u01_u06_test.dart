@@ -261,7 +261,7 @@ void main() {
       expect(find.text('Đã tham gia tổ chức'), findsNothing);
       // Generic, code-specific toast copy — never the raw token.
       expect(
-        find.textContaining('Mã kích hoạt không hợp lệ'),
+        find.textContaining('Mã lời mời không hợp lệ'),
         findsOneWidget,
       );
 

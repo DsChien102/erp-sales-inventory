@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 /// Filter criteria model for organization members list.
 class MemberFilterCriteria {
   final String status; // 'Tất cả', 'Hoạt động', 'Tạm ngừng'
-  final String role; // 'Tất cả', 'Quản trị', 'Bán hàng', 'Kế toán'
+  final String role; // 'Tất cả' hoặc tên vai trò TH-01 3.4
   final String sort; // 'Tất cả', 'Tên A–Z', 'Tên Z–A'
 
   const MemberFilterCriteria({
@@ -66,9 +66,10 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
 
   static const List<String> _roleOptions = [
     'Tất cả',
-    'Quản trị',
-    'Bán hàng',
+    'Chủ cửa hàng',
+    'Nhân viên bán hàng',
     'Kế toán',
+    'Thủ kho',
   ];
 
   static const List<String> _sortOptions = [

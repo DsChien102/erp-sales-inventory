@@ -35,7 +35,7 @@ Future<void> showMemberLifecycleActionsBottomSheet({
             _LifecycleActionItem(
               icon: VIcons.shield,
               title: 'Thay đổi vai trò',
-              subtitle: 'Cập nhật quyền vận hành',
+              subtitle: 'Cập nhật vai trò',
               onTap: () {
                 Navigator.of(context).pop();
                 onChangeRole();

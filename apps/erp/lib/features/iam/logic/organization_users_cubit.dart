@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/invitation_repository.dart';
 import '../data/member_repository.dart';
 import 'iam_load_status.dart';
+import 'iam_role_label_mapper.dart';
 import 'iam_ui_failure_mapper.dart';
 import 'invitation_ui_mapper.dart';
 import 'member_ui_mapper.dart';
@@ -299,12 +300,8 @@ final class OrganizationUsersCubit extends Cubit<OrganizationUsersState> {
   List<MemberUiModel> _filterAndSortMembers(List<MemberUiModel> items) {
     var result = List<MemberUiModel>.from(items);
     if (state.memberRoleFilter != null && state.memberRoleFilter != 'Tất cả') {
-      final query = state.memberRoleFilter!.toLowerCase();
-      result = result
-          .where((m) =>
-              m.role.toLowerCase().contains(query) ||
-              m.identityText.toLowerCase().contains(query))
-          .toList();
+      final code = IamRoleLabelMapper.toRoleCode(state.memberRoleFilter);
+      result = result.where((m) => m.roleCode == code).toList();
     }
     if (state.memberSort == 'Tên A–Z') {
       result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));

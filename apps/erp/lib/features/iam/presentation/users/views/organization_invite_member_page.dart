@@ -164,9 +164,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                     ),
                     const VGap.sm(),
                     VText(
-                      state.failure?.message ??
-                          'Danh sách vai trò trống. Kiểm tra catalog '
-                              'iam.role_definitions trên DB rồi thử lại.',
+                      state.failure?.message ?? 'Không tải được danh sách vai trò',
                       variant: VTextVariant.bodySmall,
                       color: colors.textSecondary,
                       textAlign: TextAlign.center,

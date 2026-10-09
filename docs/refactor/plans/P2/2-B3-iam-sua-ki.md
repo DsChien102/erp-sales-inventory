@@ -1,6 +1,6 @@
 # 2-B3 — Sửa các vấn đề đã biết của IAM (TH-01) và dọn readiness
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
 > Gồm việc: TH-01 mục 9.2 (KI-02, KI-06, KI-10…KI-14, phần app của KI-05), 2B.6 "bỏ readiness", US-07.1; góp ý còn treo của 2-B1 (#1) và 2-B2 (#1, #2)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 3.4, 7.3, US-06.1…06.6, US-07.1, BR-31, BR-33, BR-36, BR-44, BR-55, BR-66
 
@@ -157,7 +157,21 @@ Gợi ý: (1) DB KI-02 + sửa migration email; (2) bỏ readiness; (3) hub + va
 
 ## 6. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
-- Ngày, commit được review:
-- Kết quả:
-- Góp ý:
+- Ngày, commit được review: 2026-10-09, working tree trên `78952e915` (chưa commit).
+- Kết quả: **Code đạt; phần DB chờ đợt kiểm IAM** → Review 🔄 (cùng 2-B1, 2-B2).
+  - **Quyết định mục 1** đã áp dụng: TH-01 7.3 KI-03 → P8, KI-05 tách P2 (app) / P8 (DB, platform); PLAN thêm 8.6.
+  - **KI-02** (`20261009005`): so với `20260916006` chỉ khác đúng nhánh insert — tìm bản ghi `(tenant, user)` `for update`; đã loại → kích hoạt lại cùng `id` (`is_active`, `removed_at = null`, vai trò mới, `version + 1`, `status_changed_at`); đang hoạt động → `DUPLICATE_MEMBERSHIP`; tạm ngừng → `MEMBERSHIP_INACTIVE`; chưa có → insert. Quyền giữ như bản gốc. Kịch bản `iam_accept_invitation_reinvite.sql` có, chưa chạy.
+  - **Migration email** (sửa tại chỗ, chưa push): tên người mời "họ đệm + tên"; `UNKNOWN_TEMPLATE` → `attempts = 5`, xoá `secret`, outcome `failed` ngay; `retry_email_jobs` không còn chọn job này. Test SQL bổ sung trường hợp.
+  - **Readiness**: xoá màn, cubit, widget, model, `getReadiness`, sheet "Kích hoạt tổ chức?", nhãn "Đang khởi tạo" ở vùng cửa hàng. 4 file test bị xoá đều chỉ test readiness (kể cả `tenant_admin/e2e_e01_u04_u05_test.dart`).
+  - **Hub / vai trò**: bỏ "Quyền sở hữu"; "Vai trò" → `/more/roles` (chỉ Owner) với `RolesCubit` (vai trò + thành viên đang giữ, lặp hết `nextCursor`); bỏ "N quyền"; chi tiết `/more/roles/:code`. Xem trước đổi vai trò dùng câu BR-55.
+  - **KI-11 / 12 / 13 / 14**, góp ý 2-B1 #1 (`allowImmediateResend` khi vào từ đăng nhập): đúng plan. Grep chuỗi cũ trong vùng cửa hàng: chỉ còn "Kích hoạt tổ chức" là tên sự kiện audit `iam.tenant.activated` (cần giữ để đọc lịch sử cũ).
+  - `IIamModule` / `IExecutionContext`: hết trong `features/iam` (trừ `testing/`) và `features/more`. `app_router.dart` còn `IExecutionContext` ở 12 route catalog / partner / einvoice — ngoài IAM (lệnh grep Bước 3.8 của plan viết quá rộng).
+  - `dart analyze lib test`: không error; warning duy nhất có từ trước. `check_feature_imports`: 0 vi phạm.
+  - `flutter test` toàn `apps/erp`: **1.404 pass / 61 fail**; danh sách fail trùng khớp 2-B1; số pass giảm do xoá test readiness và thêm test mới (vai trò, bộ lọc, ngày thiếu).
+- Góp ý (không chặn):
+  1. `RolesCubit` suy ra mã vai trò từ **nhãn** (`IamRoleLabelMapper.toRoleCode(label)`) vì `list_assignable_invitation_roles` chỉ trả `role_id`, `label`. Đổi nhãn trong `role_definitions` là hỏng đếm. Khi đụng RPC này lần sau (vd P8), cho trả thêm `code`.
+  2. Route vai trò kiểm `getIt<IamSession>().isOwner`; nên dùng `SessionController.isOwner` cho đồng nhất với các phần đã chuyển (đổi khi dọn `IamSession` ở P9).
+- **Đợt kiểm IAM** (gộp việc còn lại của 2-B1, 2-B2, 2-B3), theo thứ tự:
+  1. Chạy 3 kịch bản SQL cùng 5 migration `20261009001…005` trong `begin … rollback` trên Dev (Claude chạy khi bạn đồng ý).
+  2. `db push` 5 migration → `config push` (bật xác minh email) → secrets + Vault (`RUNBOOK-email.md`) → `functions deploy send-email`.
+  3. Kiểm tay TH-01 9.3 kịch bản 1–4 (mail thật sau khi có tên miền).

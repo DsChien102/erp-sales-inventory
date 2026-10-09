@@ -12,6 +12,7 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
     required this.email,
     DateTime Function()? clock,
     Duration cooldown = const Duration(seconds: 60),
+    bool allowImmediateResend = false,
   }) : _auth = auth,
        _session = session,
        _clock = clock ?? DateTime.now,
@@ -19,7 +20,9 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
        super(
          VerifyEmailState(
            now: (clock ?? DateTime.now)(),
-           resendAvailableAt: (clock ?? DateTime.now)().add(cooldown),
+           resendAvailableAt: allowImmediateResend
+               ? (clock ?? DateTime.now)()
+               : (clock ?? DateTime.now)().add(cooldown),
          ),
        );
 

@@ -51,7 +51,7 @@ abstract final class OrganizationProfileUiMapper {
   static String _statusLabel(TenantLifecycleStatus status) {
     return switch (status) {
       TenantLifecycleStatus.active => 'Hoạt động',
-      TenantLifecycleStatus.provisioning => 'Đang khởi tạo',
+      TenantLifecycleStatus.provisioning => 'Hoạt động',
       TenantLifecycleStatus.suspended => 'Tạm ngừng',
       TenantLifecycleStatus.closed => 'Đã đóng',
     };
@@ -60,7 +60,7 @@ abstract final class OrganizationProfileUiMapper {
   static String _statusDescription(TenantLifecycleStatus status) {
     return switch (status) {
       TenantLifecycleStatus.active => 'Tổ chức đang hoạt động',
-      TenantLifecycleStatus.provisioning => 'Tổ chức đang được khởi tạo',
+      TenantLifecycleStatus.provisioning => 'Tổ chức đang hoạt động',
       TenantLifecycleStatus.suspended => 'Tổ chức đang tạm ngừng',
       TenantLifecycleStatus.closed => 'Tổ chức đã đóng',
     };

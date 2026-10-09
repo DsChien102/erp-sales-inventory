@@ -19,6 +19,10 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 
 ### Changed
 
+- Hub Người dùng & vai trò bỏ mục «Quyền sở hữu» và màn mức sẵn sàng. Mục Vai trò mở danh mục vai trò thật, không còn đếm «N quyền».
+- Đổi vai trò bỏ «Quyền được thêm / bị gỡ»: vai trò chỉ là nhãn công việc.
+- Lọc thành viên theo 4 vai trò cửa hàng. Chi tiết thành viên không còn ngày giờ giả và dòng «Phiên bản dữ liệu».
+- Gửi lại mã đặt lại mật khẩu đếm 60 giây. Lời mời thống nhất chữ «Mã lời mời». Từ đăng nhập, màn xác minh email gửi lại mã được ngay.
 - Hết phiên giữa chừng (đăng xuất từ nơi khác hoặc token hết hạn) thì app tự về màn đăng nhập.
 - Lịch sử thao tác đối tác: khi tải lỗi, màn hiện câu tiếng Việt từ `AppException` thay cho chuỗi exception thô.
 - HĐĐT: sheet xác nhận phát hành hiện tổng phải thu sau đổi trả, không còn tổng đơn lúc bán.
@@ -44,6 +48,9 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Readiness: phân biệt blocker “Đang chờ chủ sở hữu chấp nhận lời mời” và “Lời mời hết hạn” (không nút sửa trên readiness).
 
 - Vào app: khi tổ chức hợp lệ, chờ thiết lập cửa hàng và kho mặc định trước khi vào trang chủ. Nếu lỗi, có thể thử lại hoặc chọn tổ chức khác.
+
+### Internal
+- `accept_invitation` kích hoạt lại membership đã bị loại, không insert trùng. Job email `UNKNOWN_TEMPLATE` chuyển `failed` ngay. Cần migration `20261009005` (và bản `20261009003` nếu chưa đẩy).
 
 ### Fixed
 - HĐĐT: card Cấu hình phát hành tắt khi chưa kết nối MISA, tránh mở màn chọn mẫu khi `list_provider_templates` trả `PROVIDER_NOT_CONNECTED`.

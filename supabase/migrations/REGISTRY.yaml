@@ -156,7 +156,7 @@ iam:
   _tenant_json: 20260811015_iam_tenant_profile_legal.sql
   _unwind_provisioning_owner_membership: 20260911005_iam_hybrid_owner_accept_decline_unwind.sql
   _unwind_staff_precreate_membership: 20260916005_iam_patch_invitation_membership_store_scope.sql
-  accept_invitation: 20260916006_iam_patch_accept_invitation_default_store_scope.sql
+  accept_invitation: 20261009005_iam_accept_invitation_reactivate_removed.sql
   accept_owner_activation: 20260811023_iam_owner_activation.sql
   activate_tenant: 20260916007_iam_patch_activate_tenant_default_store_scope.sql
   append_audit_log: 20260826004_iam_audit_logs_v2_rebuild.sql
@@ -536,5 +536,6 @@ bootstrap_grandfathered:
   - 20260916007_iam_patch_activate_tenant_default_store_scope.sql
   - 20261009001_iam_create_tenant_for_owner.sql
   - 20261009002_iam_on_auth_user_confirmed.sql
+  - 20261009005_iam_accept_invitation_reactivate_removed.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql

@@ -29,16 +29,16 @@ void main() {
     // Verify chip options
     expect(find.text('Hoạt động'), findsOneWidget);
     expect(find.text('Tạm ngừng'), findsOneWidget);
-    expect(find.text('Quản trị'), findsOneWidget);
-    expect(find.text('Bán hàng'), findsOneWidget);
+    expect(find.text('Chủ cửa hàng'), findsOneWidget);
+    expect(find.text('Nhân viên bán hàng'), findsOneWidget);
     expect(find.text('Kế toán'), findsOneWidget);
+    expect(find.text('Thủ kho'), findsOneWidget);
     expect(find.text('Tên A–Z'), findsOneWidget);
     expect(find.text('Tên Z–A'), findsOneWidget);
 
-    // Tap 'Hoạt động', 'Bán hàng', 'Tên A–Z'
     await tester.tap(find.text('Hoạt động'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Bán hàng'));
+    await tester.tap(find.text('Nhân viên bán hàng'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Tên A–Z'));
     await tester.pumpAndSettle();
@@ -49,7 +49,7 @@ void main() {
 
     expect(appliedCriteria, isNotNull);
     expect(appliedCriteria!.status, 'Hoạt động');
-    expect(appliedCriteria!.role, 'Bán hàng');
+    expect(appliedCriteria!.role, 'Nhân viên bán hàng');
     expect(appliedCriteria!.sort, 'Tên A–Z');
   });
 
@@ -63,7 +63,7 @@ void main() {
           body: MemberFilterBottomSheet(
             initialCriteria: const MemberFilterCriteria(
               status: 'Hoạt động',
-              role: 'Quản trị',
+              role: 'Chủ cửa hàng',
               sort: 'Tên A–Z',
             ),
             onApply: (criteria) {

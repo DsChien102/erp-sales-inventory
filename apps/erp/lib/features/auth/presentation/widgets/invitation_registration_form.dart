@@ -156,7 +156,7 @@ class _InvitationRegistrationFormState extends State<InvitationRegistrationForm>
                 const VGap.lg(),
                 VBanner(
                   status: VBannerStatus.success,
-                  title: 'Mã kích hoạt hợp lệ',
+                  title: 'Mã lời mời hợp lệ',
                   description:
                       'Kích hoạt tài khoản để tiếp nhận lời mời và vào '
                       '${inspection.tenantName}.',

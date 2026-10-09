@@ -87,7 +87,10 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       var now = DateTime.utc(2026, 7, 31, 9);
-      final auth = RecordingAuthRepository(clock: () => now);
+      final auth = RecordingAuthRepository(
+        clock: () => now,
+        resendAfter: const Duration(seconds: 60),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -104,20 +107,10 @@ void main() {
         find.textContaining('Mã 6 chữ số đã được gửi tới l***@example.com'),
         findsOneWidget,
       );
-      expect(
-        find.byWidgetPredicate(
-          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Gửi lại mã sau 00:60'), findsOneWidget);
 
-      for (var i = 0; i < 5; i++) {
-        now = now.add(const Duration(seconds: 1));
-        await tester.pump(const Duration(seconds: 1));
-        if (find.widgetWithText(VButton, 'Gửi lại mã').evaluate().isNotEmpty) {
-          break;
-        }
-      }
+      now = now.add(const Duration(seconds: 60));
+      await tester.pump(const Duration(seconds: 1));
 
       final resendFinder = find.widgetWithText(VButton, 'Gửi lại mã');
       expect(resendFinder, findsOneWidget);

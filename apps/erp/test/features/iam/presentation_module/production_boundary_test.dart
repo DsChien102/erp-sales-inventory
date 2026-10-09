@@ -107,9 +107,12 @@ void main() {
     expect(router.contains("path: '/more/roles/detail'"), isTrue);
     expect(router.contains("path: '/more/users/select-role'"), isTrue);
     expect(router.contains("path: '/more/users/preview-role-change'"), isTrue);
-    // Each of the four is a redirect-only route (no builder for live fake pages).
+    final rolesIdx = router.indexOf("path: '/more/roles'");
+    expect(rolesIdx, greaterThanOrEqualTo(0));
+    final rolesWindow = router.substring(rolesIdx, router.indexOf('GoRoute(', rolesIdx + 1));
+    expect(rolesWindow.contains('OrganizationRolesPage'), isTrue);
+    expect(rolesWindow.contains('redirect:'), isFalse);
     for (final path in [
-      '/more/roles',
       '/more/roles/detail',
       '/more/users/select-role',
       '/more/users/preview-role-change',

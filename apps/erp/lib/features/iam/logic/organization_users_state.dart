@@ -41,7 +41,7 @@ final class OrganizationUsersState {
   /// Wire status: `active` | `inactive` | `removed`, or null = all.
   final String? memberFilter;
 
-  /// Selected role filter label (e.g. 'Quản trị', 'Bán hàng', 'Kế toán'), or null = all.
+  /// Nhãn vai trò đang lọc (TH-01 3.4), hoặc null = tất cả. So khớp theo mã vai trò.
   final String? memberRoleFilter;
 
   /// Selected sort option ('Tên A–Z', 'Tên Z–A'), or null = default (owner first).
