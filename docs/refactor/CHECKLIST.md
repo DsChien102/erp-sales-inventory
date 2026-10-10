@@ -36,10 +36,10 @@
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
 | ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | (a) xong 2-A3 |
-| ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | |
-| ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | |
+| ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | (b) xong 2-B1; đăng ký lại cùng email (A3), đếm ngược gửi lại (A4) ở 2-B4 |
+| ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | (b) xong 2-B1; gửi lại ngay khi vào từ đăng nhập (2-B3) |
 | ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; email qua Edge Function (2-B2); chưa kiểm tay hộp thư trên Dev |
-| ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | |
+| ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | (b) xong 2-B1 |
 | ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | (a) xong 2-A3 |
 | ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | (a) xong 2-A3 |
 | ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | (a) xong 2-A3 |
@@ -64,8 +64,8 @@
 | ID-x1 | Đăng nhập lỗi mạng | `/login` | Thông điệp lỗi, không treo | ☐ | ☐ | Trạng thái A-03 |
 | ID-x2 | Banner "Tham gia tổ chức thành công" | `/login` | Hiện sau kích hoạt lời mời | ☐ | ☐ | A-04 |
 | ID-x3 | Router guard: chưa đăng nhập | mọi route | Về `/login` | ☐ | ☐ | SCOPE 3.5 |
-| ID-x4 | Router guard: chưa xác minh 🆕 | mọi route | Về `/verify-email` | — | ☐ | |
-| ID-x5 | Router guard: không có tổ chức 🆕 | mọi route | Về `/no-organization` | — | ☐ | |
+| ID-x4 | Chưa xác minh email 🆕 | `/login` | Đăng nhập lỗi `email_not_confirmed` → `/verify-email` | — | ☐ | (b) xong 2-B1. Không phải guard: lúc này chưa có phiên |
+| ID-x5 | Router guard: không có tổ chức 🆕 | mọi route | Về `/no-organization` | — | ☐ | (b) xong 2-B1 (G5, G6) |
 | ID-x6 | Router guard: tổ chức bị chặn | mọi route | Màn ID-09 | ☐ | ☐ | |
 | ID-x7 | Router guard: Quản trị nền tảng 🆕 | `/more/platform/**` | Người không phải Platform Admin → `/` | — | ☐ | Phương án A (2026-10-09): không còn khu `/admin` |
 

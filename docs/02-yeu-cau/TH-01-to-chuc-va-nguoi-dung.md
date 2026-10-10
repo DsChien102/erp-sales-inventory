@@ -301,7 +301,7 @@ erDiagram
 | `audit_logs` | Lịch sử quản trị theo tổ chức |
 | `platform_audit_logs` | Nhật ký thao tác của Platform Admin |
 
-Bị bỏ khi refactor: `onboarding_operations`, `owner_activations`, `email_delivery_outcomes`, outbox / inbox (mục 8).
+Bị bỏ khi refactor: `onboarding_operations`, `owner_activations`, outbox / inbox (mục 8). 🆕 Thêm `email_jobs` (hàng đợi gửi email, 2-B2); `email_delivery_outcomes` **giữ** làm nơi đọc trạng thái gửi.
 
 ### 3.3 Trường chính
 
@@ -852,7 +852,7 @@ Scenario: SC-02 — Không loại được Owner
 - FR-02: Mỗi mục: hoạt động, người thực hiện, thời điểm, đối tượng, kết quả (Thành công / Lỗi / Bị chặn).
 - FR-03: Chi tiết "Chi tiết hoạt động": thời điểm, người thực hiện (hoặc "Không còn thông tin người thực hiện"), đối tượng, "Dữ liệu thay đổi" (Trước / Sau theo trường), "Thông tin truy vết" (Mã theo dõi, "Sao chép mã theo dõi"); dữ liệu nhạy cảm → "[Đã che theo chính sách]".
 - FR-04: Rỗng → "Chưa có hoạt động quản trị — Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây."; lọc không ra → "Không có hoạt động phù hợp" + "Xóa bộ lọc"; không tồn tại → "Không tìm thấy hoạt động — Nhật ký không tồn tại hoặc không thuộc tổ chức hiện tại."
-- FR-05: Ghi cho: đăng ký tổ chức, sửa hồ sơ, hồ sơ pháp lý, mời / gửi lại / thu hồi, chấp nhận / từ chối, đổi vai trò, tạm ngừng / kích hoạt lại / loại, thay đổi trạng thái tổ chức, chuyển Owner.
+- FR-05: Ghi cho: đăng ký tổ chức, sửa hồ sơ, hồ sơ pháp lý, mời / gửi lại / thu hồi, chấp nhận lời mời, đổi vai trò, tạm ngừng / kích hoạt lại / loại, thay đổi trạng thái tổ chức, chuyển Owner.
 
 **Quy tắc:** I-07.
 
@@ -1245,7 +1245,7 @@ Mã xác minh đăng ký: do Supabase Auth gửi (email template của Auth)
 | `tenant_invitation` | Tên tổ chức, người mời, vai trò, mã 8 ký tự, hạn 7 ngày, hướng dẫn mở app ▸ "Kích hoạt tài khoản" |
 | `password_reset_code` | Mã 6 số, hạn 10 phút, cảnh báo nếu không phải bạn yêu cầu |
 
-Trạng thái gửi của lời mời (Đang xếp hàng gửi / Đã gửi email / Chưa gửi được email) đọc từ `email_jobs` (BR-46).
+Trạng thái gửi của lời mời (Đang xếp hàng gửi / Đã gửi email / Chưa gửi được email) đọc từ `email_delivery_outcomes` theo `correlation_id`; Edge Function `send-email` cập nhật bảng này qua `complete_email_job` (BR-46). `email_jobs` giữ mã cần gửi và bị xoá mã khi gửi xong.
 
 ### 6.4 Ma trận quyền
 
@@ -1326,7 +1326,7 @@ Số KI giữ từ bản 3.0.
 | Lời mời Owner, nhánh "hybrid owner" trong `accept_invitation` / `decline_invitation`, `reinvite_provisioning_owner`, `send_activation_invitation`, `_unwind_provisioning_owner_membership` | Owner tự đăng ký |
 | Trạng thái `provisioning`, readiness, kích hoạt (`get_tenant_readiness`, `activate_tenant`, `/more/readiness`) | Tổ chức `active` ngay khi tạo |
 | Người dùng `pending_activation` với id tạm, trigger `_cleanup_pending_profile_on_auth_user` | Hồ sơ tạo khi xác minh email |
-| Bảng `onboarding_operations`, `owner_activations`, `email_delivery_outcomes`, outbox / inbox | Không còn dùng |
+| Bảng `onboarding_operations`, `owner_activations`, outbox / inbox (cho email) | Không còn dùng (`email_delivery_outcomes` vẫn dùng — mục 6.3) |
 | App `apps/admin` | Phần quản lý tổ chức gộp vào Thêm ▸ Quản trị nền tảng |
 | Tổng quan nền tảng, người dùng nền tảng, nhật ký nền tảng (`apps/admin`) | Bỏ (2026-10-09); làm bằng SQL / Supabase Dashboard khi cần |
 
