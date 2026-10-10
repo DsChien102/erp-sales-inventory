@@ -6,10 +6,10 @@
 ## Tổng quan
 
 ```text
-P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản trị tổ chức ─▶ P4 Partner ─▶ P3 Catalog+Inventory ─▶ P5 Pricing ─▶ P6 Sales ─▶ P7 E-invoice ─▶ Đợt kiểm IAM ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
+P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản trị tổ chức ─▶ P4 Partner ─▶ P3 Catalog+Inventory ─▶ P5 Pricing ─▶ P7 E-invoice ─▶ P6 Sales ─▶ Đợt kiểm IAM ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
 ```
 
-**Thứ tự thực hiện** (đổi ngày 2026-10-11; mã phase giữ nguyên để không phải sửa các tài liệu tham chiếu):
+**Thứ tự thực hiện** (đổi ngày 2026-10-11, cập nhật cùng ngày: E-invoice trước Sales; mã phase giữ nguyên để không phải sửa các tài liệu tham chiếu):
 
 | Bước | Phase | Lý do |
 |---|---|---|
@@ -17,8 +17,8 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản tr�
 | 2 | P4 Partner | Nhỏ, chỉ cần P2; P5 / P6 cần nó |
 | 3 | P3 Catalog + Inventory | Lớn; P5 / P6 cần nó |
 | 4 | P5 Pricing | Cần P3, P4 |
-| 5 | P6 Sales | Cần P3, P4, P5 |
-| 6 | P7 E-invoice | Cần P6 |
+| 5 | P7 E-invoice | Cần P2. Khu HĐĐT trên đơn (7.3) gắn vào **màn chi tiết đơn cũ** của Sales; hạ tầng Edge Function + `pg_cron` giống 2-B2 nên làm tiếp khi còn nhớ |
+| 6 | P6 Sales | Cần P3, P4, P5; khi chuyển màn chi tiết đơn phải **giữ** `OrderEInvoiceSection` của P7 |
 | 7 | **Đợt kiểm IAM** (đóng P2 và P8) | Kiểm 5 migration của P2 trong `rollback` → `db push` → `config push` → secrets / Vault → `functions deploy send-email` → kiểm tay TH-01 9.3 + P8 → tick CHECKLIST. Gửi mail tới người ngoài project cần tên miền + Resend |
 | 8 | P9 Dọn dẹp | Cần tất cả |
 | 9 | P10 Hoàn thiện báo cáo | Cần P9 |
@@ -33,8 +33,8 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản tr�
 | P3 | Catalog + Inventory | 5 ngày | P2 |
 | P4 | Partner | 2 ngày | P2 |
 | P5 | Pricing | 2 ngày | P3, P4 |
-| P6 | Sales | 6 ngày | P3, P4, P5 |
-| P7 | E-invoice | 8 ngày | P6 |
+| P6 | Sales | 6 ngày | P3, P4, P5 (giữ khu HĐĐT trên đơn từ P7) |
+| P7 | E-invoice | 8 ngày | P2 (7.3 gắn vào màn đơn cũ của Sales) |
 | P8 | Quản trị tổ chức (gộp phần tổ chức của `apps/admin` vào tab Thêm) | 2 ngày | P2 |
 | P9 | Dọn dẹp code + DB | 3 ngày | P1–P8 |
 | P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 |
@@ -346,7 +346,7 @@ Chi tiết từng việc:
 |---|---|
 | 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06) |
 | 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16 |
-| 7.3 | **Trên đơn**: `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17 |
+| 7.3 | **Trên đơn** (làm trước P6: gắn vào màn chi tiết đơn **cũ**, P6 giữ nguyên widget khi chuyển màn): `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17 |
 | 7.4 | **Edge Function `einvoice-processor`**: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
 | 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20) |
 
