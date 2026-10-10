@@ -32,6 +32,11 @@ import '../../features/einvoice/presentation/pages/provider_connection_page.dart
 import '../../features/einvoice/presentation/pages/default_issuance_configuration_page.dart';
 import '../../features/einvoice/presentation/pages/automation_policy_page.dart';
 
+// Platform admin (tab Thêm ▸ Quản trị nền tảng)
+import '../../features/platform_admin/presentation/pages/platform_change_owner_page.dart';
+import '../../features/platform_admin/presentation/pages/platform_organization_detail_page.dart';
+import '../../features/platform_admin/presentation/pages/platform_organizations_page.dart';
+
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/invitation_token_page.dart';
@@ -184,6 +189,25 @@ final appRouter = GoRouter(
       path: '/more/settings',
       name: 'more.settings',
       builder: (context, state) => const SystemSettingsPage(),
+    ),
+    GoRoute(
+      path: '/more/platform/organizations',
+      name: 'more.platform.organizations',
+      builder: (context, state) => const PlatformOrganizationsPage(),
+    ),
+    GoRoute(
+      path: '/more/platform/organizations/:tenantId',
+      name: 'more.platform.organization',
+      builder: (context, state) => PlatformOrganizationDetailPage(
+        tenantId: state.pathParameters['tenantId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/more/platform/organizations/:tenantId/owner',
+      name: 'more.platform.organization.owner',
+      builder: (context, state) => PlatformChangeOwnerPage(
+        tenantId: state.pathParameters['tenantId']!,
+      ),
     ),
     GoRoute(
       path: '/more/users-and-roles',

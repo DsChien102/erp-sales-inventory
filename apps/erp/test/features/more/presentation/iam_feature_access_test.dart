@@ -90,6 +90,44 @@ void main() {
     expect(find.text('Tài khoản của tôi'), findsOneWidget);
   });
 
+  testWidgets('MorePage shows the platform group only for a platform admin', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = IamFeatureAccessCubit(
+      session: sessionFromDto(
+        const SessionDto(isAuthenticated: true, userId: 'u1', role: 'staff', permissions: []),
+      ),
+    );
+    await cubit.load();
+    addTearDown(cubit.close);
+
+    Future<void> pumpMore({required bool isPlatformAdmin}) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: MorePage(accessCubit: cubit, isPlatformAdmin: isPlatformAdmin),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await pumpMore(isPlatformAdmin: false);
+    expect(find.text('QUẢN TRỊ NỀN TẢNG'), findsNothing);
+    expect(find.byKey(const Key('more_platform_organizations')), findsNothing);
+
+    await pumpMore(isPlatformAdmin: true);
+    expect(find.text('QUẢN TRỊ NỀN TẢNG'), findsOneWidget);
+    expect(find.text('Tổ chức'), findsOneWidget);
+    expect(find.text('Tạm ngừng, khôi phục, đóng, chuyển chủ sở hữu'), findsOneWidget);
+    // Đăng xuất vẫn là mục cuối.
+    expect(find.text('Đăng xuất'), findsOneWidget);
+  });
+
   testWidgets('MorePage keeps personal actions when tenant is blocked', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;

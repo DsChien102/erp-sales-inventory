@@ -97,6 +97,20 @@ supabase db push
 
 App Flutter chỉ dùng **anon key**; mutation nghiệp vụ quan trọng đi qua **Postgres RPC** (defense in depth + RLS).
 
+### Tạo Platform Admin
+
+Platform Admin quản lý tổ chức ngay trong app ERP (tab **Thêm ▸ Quản trị nền tảng**, hoặc nút "Quản trị nền tảng" ở màn "Bạn chưa thuộc tổ chức nào"). Không có đăng ký tự do; tạo bằng CLI `vet45 admin` (service role, dùng profile đang chọn):
+
+| Môi trường | Cách tạo |
+|---|---|
+| Local | `supabase db reset` nạp sẵn **admin@local.test** / `Vet45Local!2026` (`supabase/seed.sql`). Hoặc `vet45 admin create --email admin@local.test` |
+| Dev | `vet45 switch <profile>` → `vet45 admin create --email <email>` (in mật khẩu một lần; thêm `--password '…'` để tự đặt) |
+| Staging / Prod | như Dev, thêm `--yes` |
+| Đã có tài khoản | `vet45 admin grant --email <email>` |
+| Xem danh sách | `vet45 admin list` |
+
+Đăng nhập app ERP bằng chính email đó. Chi tiết: [environment-manager](docs/operations/environment-manager.md#platform-admin-bootstrap).
+
 ## Lệnh phát triển
 
 ```bash

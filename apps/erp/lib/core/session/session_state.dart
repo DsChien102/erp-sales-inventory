@@ -42,6 +42,7 @@ final class SessionState {
     this.isSwitching = false,
     this.openSelectorRequested = false,
     this.legalProfileBannerDismissed = false,
+    this.isPlatformAdmin = false,
   });
 
   final AuthStatus authStatus;
@@ -67,6 +68,10 @@ final class SessionState {
 
   /// Banner hồ sơ pháp lý đã đóng trong phiên hiện tại.
   final bool legalProfileBannerDismissed;
+
+  /// Người dùng có quyền `platform.tenant.view` (Platform Admin). Quyết định
+  /// nhóm "Quản trị nền tảng" và guard G7; RPC vẫn tự kiểm quyền (BR-60).
+  final bool isPlatformAdmin;
 
   bool get isValid =>
       status == TenantLoadStatus.ready && current?.status == TenantContextStatus.valid;
@@ -98,6 +103,7 @@ final class SessionState {
     bool? isSwitching,
     bool? openSelectorRequested,
     bool? legalProfileBannerDismissed,
+    bool? isPlatformAdmin,
     bool clearContextFailure = false,
     bool clearSelectorFailure = false,
     bool clearSwitchFailure = false,
@@ -129,6 +135,7 @@ final class SessionState {
       openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,
       legalProfileBannerDismissed:
           legalProfileBannerDismissed ?? this.legalProfileBannerDismissed,
+      isPlatformAdmin: isPlatformAdmin ?? this.isPlatformAdmin,
     );
   }
 }

@@ -15,11 +15,15 @@ class MorePage extends StatelessWidget {
     this.session,
     this.accessCubit,
     this.tenantBlocked = false,
+    this.isPlatformAdmin = false,
   });
 
   final SessionController? session;
   final IamFeatureAccessCubit? accessCubit;
   final bool tenantBlocked;
+
+  /// Hiện nhóm "Quản trị nền tảng" (A1). RPC vẫn tự kiểm quyền (BR-60).
+  final bool isPlatformAdmin;
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -62,6 +66,7 @@ class MorePage extends StatelessWidget {
         child: _MoreView(
           onLogout: _logout,
           tenantBlocked: tenantBlocked,
+          isPlatformAdmin: isPlatformAdmin,
         ),
       );
     }
@@ -78,6 +83,7 @@ class MorePage extends StatelessWidget {
       child: _MoreView(
         onLogout: _logout,
         tenantBlocked: tenantBlocked,
+        isPlatformAdmin: isPlatformAdmin,
       ),
     );
   }
@@ -87,17 +93,19 @@ class _MoreView extends StatelessWidget {
   const _MoreView({
     required this.onLogout,
     required this.tenantBlocked,
+    required this.isPlatformAdmin,
   });
 
   final Future<void> Function(BuildContext context) onLogout;
   final bool tenantBlocked;
+  final bool isPlatformAdmin;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
       builder: (context, access) {
         final blocked = tenantBlocked;
-        final menuItems = <_MoreMenuItem>[
+        final menuItems = <Widget>[
           const _MoreMenuItem(
             icon: VIcons.people,
             title: 'Khách hàng & NCC',
@@ -147,6 +155,16 @@ class _MoreView extends StatelessWidget {
             subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
             onTap: blocked ? null : () => context.push('/more/settings'),
           ),
+          if (isPlatformAdmin) ...[
+            const _MoreSectionHeader('QUẢN TRỊ NỀN TẢNG'),
+            _MoreMenuItem(
+              key: const Key('more_platform_organizations'),
+              icon: VIcons.apartment,
+              title: 'Tổ chức',
+              subtitle: 'Tạm ngừng, khôi phục, đóng, chuyển chủ sở hữu',
+              onTap: () => context.push('/more/platform/organizations'),
+            ),
+          ],
           _MoreMenuItem(
             icon: VIcons.logout,
             title: 'Đăng xuất',
@@ -170,8 +188,28 @@ class _MoreView extends StatelessWidget {
   }
 }
 
+class _MoreSectionHeader extends StatelessWidget {
+  const _MoreSectionHeader(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: VSpacing.space2),
+      child: VText(
+        label,
+        variant: VTextVariant.caption,
+        color: context.vColors.textSecondary,
+        style: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.5),
+      ),
+    );
+  }
+}
+
 class _MoreMenuItem extends StatelessWidget {
   const _MoreMenuItem({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,

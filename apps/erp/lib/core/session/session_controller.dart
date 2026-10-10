@@ -51,6 +51,8 @@ final class SessionController extends Cubit<SessionState> {
   DateTime? _lastRecheckAt;
   bool _holdSignedIn = false;
 
+  static const _platformReadPermission = 'platform.tenant.view';
+
   /// Gọi 1 lần trong initDependencies.
   void start() {
     final auth = _auth;
@@ -270,12 +272,20 @@ final class SessionController extends Cubit<SessionState> {
       ),
     );
 
+    final platformAdmin = _resolvePlatformAdmin();
     try {
       final context = await _bootstrapFromLastSelected();
       if (isClosed) return;
 
       await loadAccessibleTenants();
       if (isClosed) return;
+
+      // Trước khi emit ngữ cảnh: guard G5 cần biết admin không có tổ chức.
+      final isPlatformAdmin = await platformAdmin;
+      if (isClosed) return;
+      if (isPlatformAdmin != state.isPlatformAdmin) {
+        emit(state.copyWith(isPlatformAdmin: isPlatformAdmin));
+      }
 
       _emitResolvedContext(context);
     } catch (error) {
@@ -286,6 +296,18 @@ final class SessionController extends Cubit<SessionState> {
           contextFailure: IamUiFailureMapper.from(error),
         ),
       );
+    }
+  }
+
+  /// Chạy song song với việc nạp tổ chức. Lỗi → `false`, không chặn đăng nhập.
+  /// Đổi người dùng khi đang chờ → `false` (kết quả của người cũ bị bỏ).
+  Future<bool> _resolvePlatformAdmin() async {
+    final userId = state.userId;
+    try {
+      final allowed = await _repository.hasPlatformPermission(_platformReadPermission);
+      return allowed && state.userId == userId;
+    } catch (_) {
+      return false;
     }
   }
 

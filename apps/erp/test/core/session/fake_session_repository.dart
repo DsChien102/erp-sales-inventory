@@ -13,6 +13,7 @@ class FakeSessionRepository implements SessionRepository {
     this.failSetLastSelected = false,
     this.noTenants = false,
     this.suspendedOnly = false,
+    this.platformAdmin = false,
   }) {
     _seed();
   }
@@ -24,6 +25,11 @@ class FakeSessionRepository implements SessionRepository {
   bool failGetSession;
   bool failSetLastSelected;
 
+  /// `has_platform_permission` trả `true` khi bật; `failHasPlatformPermission` làm RPC lỗi.
+  bool platformAdmin;
+  bool failHasPlatformPermission = false;
+  final List<String> platformPermissionChecks = [];
+
   String? lastSelectedTenantId;
   int switchCount = 0;
   int tenantContextReads = 0;
@@ -31,6 +37,15 @@ class FakeSessionRepository implements SessionRepository {
 
   final List<AccessibleTenant> _tenants = [];
   final Map<String, TenantContext> _contexts = {};
+
+  @override
+  Future<bool> hasPlatformPermission(String permission) async {
+    platformPermissionChecks.add(permission);
+    if (failHasPlatformPermission) {
+      throw const AppException(AppErrorCode.unknown);
+    }
+    return platformAdmin;
+  }
 
   @override
   Future<String?> getLastSelectedTenantId() async => lastSelectedTenantId;

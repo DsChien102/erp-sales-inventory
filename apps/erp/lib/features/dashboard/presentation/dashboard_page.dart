@@ -291,6 +291,7 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       case DashboardTab.more:
         return MorePage(
           tenantBlocked: state.isBlocked,
+          isPlatformAdmin: state.isPlatformAdmin,
         );
       case DashboardTab.orders:
         return const SalesOrderListPage();

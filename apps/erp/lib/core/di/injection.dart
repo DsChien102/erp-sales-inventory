@@ -25,6 +25,7 @@ import '../../features/iam/data/invitation_repository.dart';
 import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
+import '../../features/platform_admin/data/platform_tenant_repository.dart';
 import '../router/session_refresh.dart';
 import '../session/session_controller.dart';
 import '../session/session_repository.dart';
@@ -137,6 +138,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     )
     ..registerLazySingleton<InvitationAcceptanceRepository>(
       () => InvitationAcceptanceRepository(rpc: getIt<SupabaseRpc>()),
+    )
+    ..registerLazySingleton<PlatformTenantRepository>(
+      () => PlatformTenantRepository(rpc: getIt<SupabaseRpc>()),
     );
 
   final catalogModule = CatalogStartup.initialize(

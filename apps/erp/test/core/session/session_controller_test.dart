@@ -272,6 +272,93 @@ void main() {
     await cubit.close();
   });
 
+  group('Platform Admin', () {
+    test('bootstrap of a platform admin with an organization sets the flag', () async {
+      final repository = FakeSessionRepository(platformAdmin: true);
+      final cubit = controller(repository: repository, iamSession: IamSession());
+
+      await cubit.bootstrap();
+
+      expect(cubit.state.isPlatformAdmin, isTrue);
+      expect(cubit.state.isValid, isTrue);
+      expect(repository.platformPermissionChecks, ['platform.tenant.view']);
+
+      await cubit.close();
+    });
+
+    test('bootstrap of a platform admin without an organization sets the flag', () async {
+      final repository = FakeSessionRepository(noTenants: true, platformAdmin: true);
+      final cubit = controller(repository: repository);
+
+      await cubit.bootstrap();
+
+      expect(cubit.state.hasNoOrganization, isTrue);
+      expect(cubit.state.isPlatformAdmin, isTrue);
+
+      await cubit.close();
+    });
+
+    test('an ordinary user is not a platform admin', () async {
+      final cubit = controller(repository: FakeSessionRepository());
+
+      await cubit.bootstrap();
+
+      expect(cubit.state.isPlatformAdmin, isFalse);
+
+      await cubit.close();
+    });
+
+    test('a failing permission check leaves the flag false and does not block sign-in', () async {
+      final repository = FakeSessionRepository()..failHasPlatformPermission = true;
+      final cubit = controller(repository: repository, iamSession: IamSession());
+
+      await cubit.bootstrap();
+
+      expect(cubit.state.isPlatformAdmin, isFalse);
+      expect(cubit.state.isValid, isTrue);
+
+      await cubit.close();
+    });
+
+    test('signing in a different user resets the flag', () async {
+      final iam = IamSession()..applyAuthenticatedUser('user-a');
+      final cubit = controller(
+        repository: FakeSessionRepository(platformAdmin: true),
+        iamSession: iam,
+        initialState: const SessionState(
+          authStatus: AuthStatus.signedIn,
+          userId: 'user-a',
+        ),
+      );
+      await cubit.bootstrap();
+      expect(cubit.state.isPlatformAdmin, isTrue);
+
+      cubit.applySignedInUser('user-b');
+
+      expect(cubit.state.isPlatformAdmin, isFalse);
+
+      await cubit.close();
+    });
+
+    test('signOut resets the flag', () async {
+      final cubit = controller(
+        repository: FakeSessionRepository(platformAdmin: true),
+        initialState: const SessionState(
+          authStatus: AuthStatus.signedIn,
+          userId: 'user-a',
+        ),
+      );
+      await cubit.bootstrap();
+      expect(cubit.state.isPlatformAdmin, isTrue);
+
+      await cubit.signOut();
+
+      expect(cubit.state.isPlatformAdmin, isFalse);
+
+      await cubit.close();
+    });
+  });
+
   test('PERMISSION_DENIED with a valid context does not bootstrap', () async {
     final revoked = StreamController<String>.broadcast();
     final repository = FakeSessionRepository();

@@ -1,6 +1,6 @@
 # 8-A — Quản trị tổ chức cho Platform Admin (app)
 
-> Phase: P8 · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P8 · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Gồm việc: 8.1, 8.2, 8.3, 8.5 (phần DB 8.4, 8.6 → [8-B](8-B-db-ki08-don-luong-cu.md), làm cùng đợt kiểm IAM)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) EP-09 (US-09.2…09.4), ID-31…ID-33, BR-12, BR-13, BR-32; [LUONG-UNG-DUNG](../../../02-yeu-cau/LUONG-UNG-DUNG.md) mục 2, 3 (G5, G7), 6; [ADMIN-SCREENS](../../ADMIN-SCREENS.md); bảng thiết kế "Vị trí quản trị tổ chức trong app ERP" (A1, A2, C1–C7).
 
@@ -141,7 +141,44 @@ Gợi ý: (1) `isPlatformAdmin` + guard; (2) repository + cubit; (3) màn + lố
 
 ## 7. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
+### Ghi chú triển khai (2026-10-11)
+
+Code do Claude làm theo yêu cầu "implement plan" (không phải bạn tự code); **chưa commit**. Chỗ khác với plan:
+
+| Mục | Plan | Làm | Lý do |
+|---|---|---|---|
+| Mã quyền kiểm Platform Admin (Bước 1) | `platform.tenant.read` | `platform.tenant.view` | Mã thật trong RPC (`get_platform_tenant`, `search_platform_tenants`); `read` không tồn tại. Hiện mọi mã `platform.*` đều đúng với admin (interim) nên cả hai chạy được |
+| `IdempotencyKeyFactory`, `IamRoleLabelMapper` | dùng từ `features/iam` | chuyển sang `lib/core/iam/` (file cũ thành re-export) | `check_feature_imports` R3 cấm `logic` import `logic` của feature khác |
+| 3 sheet xác nhận (suspend / restore / close) | 3 file | 1 widget `PlatformOrganizationConfirmSheet` (3 factory) | Chỉ khác chuỗi và ô lý do |
+| `OrganizationUiModel`, `OrganizationStatus` | chuyển sang `platform_admin` | bỏ; widget dùng thẳng `PlatformTenantSummary` / `PlatformTenantDetail` + `TenantStatus` | Model cũ chứa field onboarding (KI-05) |
+| Bộ lọc | chip + (sheet lọc cũ) | chỉ 4 chip; bỏ `OrganizationFilterBottomSheet` | Không còn "Mức hoàn thiện" |
+| Danh sách (`PlatformTenantsCubit`) | — | dùng thẳng dòng `search_platform_tenants`, không gọi `get_platform_tenant` cho từng dòng | Bản `apps/admin` gọi N+1 |
+| Chi tiết C2 | — | gọi song song `get_platform_tenant` + `list_platform_tenant_members`; hiện cả "Chủ sở hữu" lẫn "Thành viên tổ chức" ở mọi trạng thái | Theo C2 của plan |
+| Tổ chức `provisioning` (dữ liệu cũ) | — | hiện nhãn "Đang thiết lập", **không** có nút Thao tác | Không có chip lọc / thao tác cho trạng thái này |
+| Chuỗi xác nhận Đóng | — | "Tổ chức sẽ chuyển sang chỉ đọc vĩnh viễn và không thể khôi phục." (TH-01 US-09.3 FR-04) | `ADMIN-SCREENS` M6d có câu khác; plan nói theo TH-01 |
+| Khôi phục | không có ô lý do (Bước 5.3) | đúng như plan | RPC không có `p_reason` — **TH-01 US-09.3 FR-03 còn đòi "Lý do *"**, chờ 8-B quyết định |
+
+Kết quả chạy (2026-10-11): `dart analyze lib test` không error mới; `check_feature_imports` 0 vi phạm; `flutter test` toàn `apps/erp` **1.442 đạt / 61 lỗi** (mốc 2-B4: 1.419 / 61) — 61 lỗi vẫn ở catalog / pricing / my_account / onboarding step owner / production_boundary, không có file nào của 8-A.
+
+Việc **chưa làm / không kiểm được**: kiểm tay trên Dev (mục 5), `seed.sql` chưa chạy thử (không có Docker / Supabase local trong phiên này), CHECKLIST chưa đổi (chỉ ghi "(b) xong 8-A" sau khi kiểm tay), GitNexus `impact` / `detect_changes` không chạy được (không có công cụ / chỉ mục `.gitnexus` trong phiên — thay bằng grep người gọi).
+
+<!-- Claude ghi phần dưới sau khi bạn review / kiểm tay -->
 - Ngày, commit được review:
 - Kết quả:
 - Góp ý:
+
+### Review của Claude (phiên review, 2026-10-11)
+
+- Commit được review: working tree trên `a41f255a3` (chưa commit). Code do một phiên Claude khác viết theo yêu cầu của bạn; review độc lập như code của người khác.
+- Kết quả: **Đạt.**
+  - `isPlatformAdmin`: `has_platform_permission('platform.tenant.view')` chạy song song trong `bootstrap`, đặt cờ **trước** khi emit ngữ cảnh (guard G5 cần); lỗi → `false`; đổi user khi đang chờ → bỏ kết quả. `session_refresh` nghe thêm cờ này.
+  - Guard: G7 (người thường ở `/more/platform/**` → `/`), ngoại lệ G5 cho admin không có tổ chức; có test cả 3 route.
+  - `PlatformTenantRepository`: đúng chữ ký 7 RPC; `search` gửi đủ 6 tham số; model bỏ đúng field onboarding / readiness / lời mời Owner, giữ `version`.
+  - Cubit: khoá idempotency theo từng thao tác, xoá khoá khi thành công hoặc `STATE_CHANGED`; ứng viên Owner = thành viên đang hoạt động (RPC chỉ trả `is_active`) trừ Owner hiện tại; không còn N+1 như bản `apps/admin`.
+  - Màn: không còn "Khởi tạo tổ chức", "Mức hoàn thiện", "Gửi lại email", "Phiên bản dữ liệu"; lối vào ở tab Thêm và `/no-organization` chỉ khi `isPlatformAdmin`.
+  - `IdempotencyKeyFactory`, `IamRoleLabelMapper` dời sang `core/iam` để tránh R3 — chấp nhận (cùng lý do `core/iam` ở 2-A2).
+  - `dart analyze lib test`: không error; warning duy nhất có từ trước. `check_feature_imports`: 0 vi phạm. `flutter test` toàn `apps/erp`: **1.481 pass / 61 fail**, danh sách fail trùng khớp 2-B4.
+- Góp ý:
+  1. **Nên sửa (local):** `seed.sql` gọi `crypt(...)` / `gen_salt('bf')` không kèm schema, trong khi `pgcrypto` cài ở schema `extensions` (`20260725009`). Khi `db reset`, câu insert có thể lỗi "function does not exist" và khối `exception … raise notice` **lặng lẽ bỏ qua** → không có admin mẫu. Đổi thành `extensions.crypt(...)`, `extensions.gen_salt('bf')`. Kiểm khi có Supabase local.
+  2. Ghi nhận cho 8-B: Khôi phục không có ô lý do (RPC không nhận `p_reason`) — TH-01 US-09.3 FR-03 vẫn đòi; chuỗi xác nhận Đóng theo TH-01 (khác `ADMIN-SCREENS` M6d — nên sửa `ADMIN-SCREENS` cho khớp); tổ chức `provisioning` cũ hiện "Đang thiết lập", không có thao tác — hết khi 8-B bỏ `provisioning`.
+- Kiểm tay: gom vào đợt kiểm IAM (cần `vet45 admin create` trên Dev).
