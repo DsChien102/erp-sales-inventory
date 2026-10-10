@@ -6,10 +6,24 @@
 ## Tổng quan
 
 ```text
-P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Catalog+Inventory ─▶ P4 Partner ─▶ P5 Pricing ─▶ P6 Sales ─▶ P7 E-invoice ─▶ P8 Quản trị tổ chức ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
-                                     │                                                                                       ▲
-                                     └───────────────────────────── P8 có thể làm song song từ sau P2 ───────────────────────┘
+P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản trị tổ chức ─▶ P4 Partner ─▶ P3 Catalog+Inventory ─▶ P5 Pricing ─▶ P6 Sales ─▶ P7 E-invoice ─▶ Đợt kiểm IAM ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
 ```
+
+**Thứ tự thực hiện** (đổi ngày 2026-10-11; mã phase giữ nguyên để không phải sửa các tài liệu tham chiếu):
+
+| Bước | Phase | Lý do |
+|---|---|---|
+| 1 | P8 Quản trị tổ chức | Làm nối tiếp IAM khi còn nhớ ngữ cảnh; khung thiết kế đã duyệt |
+| 2 | P4 Partner | Nhỏ, chỉ cần P2; P5 / P6 cần nó |
+| 3 | P3 Catalog + Inventory | Lớn; P5 / P6 cần nó |
+| 4 | P5 Pricing | Cần P3, P4 |
+| 5 | P6 Sales | Cần P3, P4, P5 |
+| 6 | P7 E-invoice | Cần P6 |
+| 7 | **Đợt kiểm IAM** (đóng P2 và P8) | Kiểm 5 migration của P2 trong `rollback` → `db push` → `config push` → secrets / Vault → `functions deploy send-email` → kiểm tay TH-01 9.3 + P8 → tick CHECKLIST. Gửi mail tới người ngoài project cần tên miền + Resend |
+| 8 | P9 Dọn dẹp | Cần tất cả |
+| 9 | P10 Hoàn thiện báo cáo | Cần P9 |
+
+> ⚠️ Hệ quả của việc dời đợt kiểm IAM: P3–P7 sẽ chạy trên Dev **chưa có** 5 migration mới của P2 (trigger đăng ký, email job, sửa nhận lời mời) và Dev vẫn tắt xác minh email. Không ảnh hưởng nghiệp vụ P3–P7; nhưng nếu P3–P7 thêm migration mới thì phải push **sau** `20261009001…005` (đặt timestamp lớn hơn) hoặc làm đợt kiểm IAM trước lần push đầu tiên của P3–P7.
 
 | Phase | Nội dung | Ước lượng | Phụ thuộc |
 |---|---|---|---|
@@ -420,7 +434,7 @@ Chi tiết từng việc:
 |---|---|---|---|
 | P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
 | P1 | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
-| P2 | 🔄 | | |
+| P2 | 🔄 | — | Code xong 2-A1…2-B4 (2026-10-11). 2-B1, 2-B2, 2-B3 review 🔄 chờ **đợt kiểm IAM** (bước 7 trong thứ tự thực hiện) |
 | P3 | ⬜ | | |
 | P4 | ⬜ | | |
 | P5 | ⬜ | | |
