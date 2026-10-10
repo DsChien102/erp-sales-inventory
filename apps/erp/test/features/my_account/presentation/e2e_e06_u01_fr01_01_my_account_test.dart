@@ -207,7 +207,8 @@ void main() {
     await tester.tap(find.widgetWithText(VButton, 'Đặt lại mật khẩu'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tài khoản của tôi'), findsOneWidget);
+    expect(signOutCalls, 1);
+    expect(find.text('Login'), findsOneWidget);
   });
 
   testWidgets('e2e_e06_u04_fr01_01: logout clears session', (tester) async {

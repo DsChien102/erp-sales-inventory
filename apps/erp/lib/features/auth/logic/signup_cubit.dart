@@ -1,5 +1,6 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
@@ -9,9 +10,15 @@ import '../data/models/signup_input.dart';
 import 'signup_state.dart';
 
 final class SignupCubit extends Cubit<SignupState> {
-  SignupCubit({required AuthRepository auth}) : _auth = auth, super(const SignupState());
+  SignupCubit({
+    required AuthRepository auth,
+    required SessionController session,
+  }) : _auth = auth,
+       _session = session,
+       super(const SignupState());
 
   final AuthRepository _auth;
+  final SessionController _session;
 
   /// Kiểm bước tài khoản. Không gọi server.
   void continueToStore(SignupAccountInput account) {
@@ -69,6 +76,17 @@ final class SignupCubit extends Cubit<SignupState> {
       );
     } catch (error) {
       if (isClosed) return;
+      if (error is AppException && error.code == AppErrorCode.resendCooldown) {
+        emit(
+          state.copyWith(
+            step: SignupStep.verify,
+            submitting: false,
+            verifyCooldownSeconds: _cooldownSeconds(error),
+            clearFailure: true,
+          ),
+        );
+        return;
+      }
       final mapped = IamUiFailureMapper.from(error);
       final exists = error is AppException && error.code == 'PLATFORM_USER_ALREADY_EXISTS' ||
           mapped.code == IamBlockedCodes.platformUserAlreadyExists;
@@ -80,6 +98,49 @@ final class SignupCubit extends Cubit<SignupState> {
         ),
       );
     }
+  }
+
+  /// Sau khi mã OTP đúng: ghi lại mật khẩu vừa nhập, tải phiên, rồi mới gắn đăng nhập.
+  Future<void> completeAfterVerification(String userId) async {
+    if (isClosed || state.completed || state.submitting || state.step != SignupStep.verify) {
+      return;
+    }
+    emit(state.copyWith(submitting: true, clearFailure: true));
+
+    var passwordSyncFailed = false;
+    final password = state.account?.password ?? '';
+    if (password.isNotEmpty) {
+      try {
+        await _auth.updatePassword(password);
+      } catch (_) {
+        passwordSyncFailed = true;
+      }
+    }
+    if (isClosed) return;
+
+    await _session.bootstrap();
+    if (isClosed) return;
+
+    final tenantName = _session.state.current?.tenantName;
+    final entered = state.store?.name.trim() ?? '';
+    final differs = tenantName != null && tenantName.trim() != entered;
+    emit(
+      state.copyWith(
+        submitting: false,
+        completed: true,
+        tenantName: tenantName,
+        nameDiffers: differs,
+        passwordSyncFailed: passwordSyncFailed,
+        clearFailure: true,
+      ),
+    );
+    _session.applySignedInUser(userId);
+  }
+
+  static int _cooldownSeconds(AppException error) {
+    final raw = error.details?['seconds'];
+    if (raw is int && raw > 0) return raw;
+    return 60;
   }
 
   static String? _accountFailure(SignupAccountInput account) {

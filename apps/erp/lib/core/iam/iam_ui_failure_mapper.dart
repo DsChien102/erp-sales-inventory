@@ -16,6 +16,9 @@ abstract final class IamUiFailureMapper {
           retryable: true,
         );
       }
+      if (error.code == AppErrorCode.resendCooldown) {
+        return _resendCooldownFailure(error);
+      }
       final code = switch (error.code) {
         AppErrorCode.noPermission => IamBlockedCodes.permissionDenied,
         AppErrorCode.notFound => IamBlockedCodes.resourceNotFound,
@@ -55,6 +58,10 @@ abstract final class IamUiFailureMapper {
         return _fromCode(IamBlockedCodes.identityEmailNotVerified);
       }
       if (code == 'over_email_send_rate_limit' || error.statusCode == '429') {
+        final parsed = AppException.from(error);
+        if (parsed.code == AppErrorCode.resendCooldown) {
+          return _resendCooldownFailure(parsed);
+        }
         return _fromCode(IamBlockedCodes.resetRateLimited);
       }
       return IamUiFailure(
@@ -81,6 +88,15 @@ abstract final class IamUiFailureMapper {
       code: IamBlockedCodes.systemError,
       message: _messageFor(IamBlockedCodes.systemError),
       retryable: true,
+    );
+  }
+
+  static IamUiFailure _resendCooldownFailure(AppException error) {
+    final raw = error.details?['seconds'];
+    final seconds = raw is int ? raw : 0;
+    return IamUiFailure(
+      code: AppErrorCode.resendCooldown,
+      message: 'Vui lòng đợi $seconds giây rồi gửi lại.',
     );
   }
 

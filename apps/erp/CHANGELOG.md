@@ -35,6 +35,10 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Kết nối MISA: ngắt kết nối thành công không còn hiện toast.
 - Danh sách đơn: chip Tất cả / Còn phải thu / Chưa phát hành HĐĐT chỉ còn nhãn, không hiện số lượng.
 - Danh sách đơn: chip Hóa đơn điện tử Tất cả / Chưa phát hành / Đã phát hành lọc theo hóa đơn đã phát hành (`einvoice.electronic_invoices`), không còn stub `notRequired`.
+- Đặt lại mật khẩu khi đang đăng nhập thì đăng xuất về `/login` với banner thành công.
+- Đăng ký lại cùng email chưa xác minh: sau mã OTP, mật khẩu vừa nhập được ghi lại và tên cửa hàng lấy từ dữ liệu đã tạo.
+- Gửi lại mã OTP trước 60 giây hiện đếm ngược, không báo gửi quá nhiều yêu cầu.
+- Lời mời vào tổ chức đang tạm ngừng báo «Tổ chức đang tạm ngừng, chưa thể tham gia.»
 - HĐĐT: nút Phát hành hóa đơn điện tử tắt khi readiness có `PROVIDER_NOT_CONNECTED` (chưa kết nối MISA). Nút Xem trước giữ điều kiện riêng.
 - HĐĐT: chỉ cho phát hành lại khi projection `failed` có action issue/retry; khóa tap khi processing hoặc failed không retry được; widget test chứng minh auto progress → failure → retry.
 - HĐĐT màn kết quả bán hàng: hiển thị `OrderEInvoiceSection` live ngay trên hàng chứng từ (SG02-R02), bỏ card “Chưa phát hành” cố định và sheet mở khi bấm.
@@ -53,6 +57,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - `accept_invitation` kích hoạt lại membership đã bị loại, không insert trùng. Job email `UNKNOWN_TEMPLATE` chuyển `failed` ngay. Cần migration `20261009005` (và bản `20261009003` nếu chưa đẩy).
 
 ### Fixed
+- Bị loại hoặc tạm ngừng khỏi tổ chức đang mở: thao tác tiếp theo tải lại phiên. Còn tổ chức khác thì vào đó; hết thì màn không thuộc tổ chức.
 - HĐĐT: card Cấu hình phát hành tắt khi chưa kết nối MISA, tránh mở màn chọn mẫu khi `list_provider_templates` trả `PROVIDER_NOT_CONNECTED`.
 - HĐĐT: đơn trả hết báo «Đơn hàng đã trả hết hàng, không cần xuất hóa đơn.»; lệch version nguồn bảo tải lại rồi phát hành.
 - Chi tiết đơn tải lại sau khi quay về từ đổi/trả, cùng cách nhánh hủy đơn.
@@ -215,9 +220,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Catalog list: thêm `ProductCatalogErrorState` (`VEmptyState` danger + Thử lại).
 - Pricing / Partner: migrate `VBanner` — bỏ `icon` override; dùng `description` thay `message` nơi đã đụng.
 
-### Fixed
-
-### Internal
+- Bị loại hoặc tạm ngừng khỏi tổ chức đang mở: thao tác tiếp theo tải lại phiên. Còn tổ chức khác thì vào đó; hết thì màn không thuộc tổ chức.
 
 ## [1.7.3+39] - 2026-09-12
 

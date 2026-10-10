@@ -29,9 +29,11 @@ final class SessionController extends Cubit<SessionState> {
     String userDisplayName = '',
     SessionState? initialState,
     Stream<String>? tenantAccessRevoked,
+    DateTime Function()? clock,
   }) : _repository = repository,
        _auth = auth,
        _iamSession = iamSession,
+       _clock = clock ?? DateTime.now,
        super(
          initialState ?? SessionState(userDisplayName: userDisplayName),
        ) {
@@ -43,8 +45,11 @@ final class SessionController extends Cubit<SessionState> {
   final SessionRepository _repository;
   final GoTrueClient? _auth;
   final IamSession? _iamSession;
+  final DateTime Function() _clock;
   late final StreamSubscription<String> _revokedSubscription;
   StreamSubscription<AuthState>? _authSub;
+  DateTime? _lastRecheckAt;
+  bool _holdSignedIn = false;
 
   /// Gọi 1 lần trong initDependencies.
   void start() {
@@ -65,7 +70,23 @@ final class SessionController extends Cubit<SessionState> {
   }
 
   /// Gắn user ngay sau `signIn`, không chờ `onAuthStateChange`.
-  void applySignedInUser(String userId) => _apply(userId);
+  void applySignedInUser(String userId) {
+    _holdSignedIn = false;
+    _apply(userId);
+  }
+
+  /// Giữ trạng thái `signedIn` lại đến [applySignedInUser].
+  ///
+  /// OTP đăng ký làm `onAuthStateChange` phát `signedIn` trước khi app kịp
+  /// ghi lại mật khẩu. Guard G2 sẽ đưa `/signup` về `/` nếu gắn phiên ngay.
+  void holdSignedInApply() {
+    _holdSignedIn = true;
+  }
+
+  /// Bỏ giữ phiên khi xác minh thất bại, không gắn user đang chờ.
+  void releaseSignedInHold() {
+    _holdSignedIn = false;
+  }
 
   /// Ẩn banner hồ sơ pháp lý đến hết phiên, hoặc đến khi đổi người dùng / tổ chức.
   void dismissLegalProfileBanner() {
@@ -76,10 +97,12 @@ final class SessionController extends Cubit<SessionState> {
   void _apply(String? userId) {
     final trimmed = userId?.trim();
     if (trimmed == null || trimmed.isEmpty) {
+      _holdSignedIn = false;
       _iamSession?.clear();
       emit(const SessionState(authStatus: AuthStatus.signedOut));
       return;
     }
+    if (_holdSignedIn) return;
     final previous = state.userId;
     if (previous != null && previous != trimmed) {
       _iamSession?.applyAuthenticatedUser(trimmed);
@@ -193,8 +216,34 @@ final class SessionController extends Cubit<SessionState> {
       emit(state.copyWith(identityRevoked: true));
       return;
     }
+    if (code == TenantAccessRevokedSignal.permissionDenied) {
+      unawaited(_recheckMembership());
+      return;
+    }
     if (state.status != TenantLoadStatus.ready) return;
     bootstrap();
+  }
+
+  /// `PERMISSION_DENIED` vừa có thể là quyền thường, vừa có thể là thành viên
+  /// vừa bị loại. Chỉ tải lại phiên khi ngữ cảnh tổ chức không còn hợp lệ,
+  /// và không kiểm dày hơn 30 giây.
+  Future<void> _recheckMembership() async {
+    if (isClosed || state.status != TenantLoadStatus.ready) return;
+    final currentTenantId = _blankToNull(tenantId);
+    if (currentTenantId == null) return;
+    final now = _clock();
+    final last = _lastRecheckAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 30)) {
+      return;
+    }
+    _lastRecheckAt = now;
+    try {
+      final context = await _repository.getTenantContext(currentTenantId);
+      if (isClosed || context.status == TenantContextStatus.valid) return;
+      await bootstrap();
+    } catch (_) {
+      // Lỗi mạng không được đá người dùng khỏi tổ chức.
+    }
   }
 
   @override

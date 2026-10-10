@@ -18,6 +18,7 @@ abstract final class AppErrorCode {
   static const network = 'NETWORK_ERROR';
   static const idempotencyConflict = 'IDEMPOTENCY_CONFLICT';
   static const unknown = 'SYSTEM_ERROR';
+  static const resendCooldown = 'RESEND_COOLDOWN';
 }
 
 final class AppException implements Exception {
@@ -131,6 +132,16 @@ final class AppException implements Exception {
       );
     }
     if (code == 'over_email_send_rate_limit' || error.statusCode == '429') {
+      final cooldown = _resendAfter.firstMatch(error.message);
+      final seconds = cooldown == null ? null : int.tryParse(cooldown.group(1)!);
+      if (seconds != null) {
+        return _Parsed(
+          code: AppErrorCode.resendCooldown,
+          serverMessage: error.message,
+          details: {'seconds': seconds},
+          cause: error,
+        );
+      }
       return _Parsed(code: 'RATE_LIMITED', serverMessage: error.message, cause: error);
     }
     if (error.statusCode == '401') {
@@ -175,6 +186,11 @@ final class AppException implements Exception {
     'RESOURCE_NOT_FOUND' => AppErrorCode.notFound,
     _ => code,
   };
+
+  static final RegExp _resendAfter = RegExp(
+    r'after (\d+) seconds?',
+    caseSensitive: false,
+  );
 
   static final RegExp _codePattern = RegExp(
     r'^([A-Z][A-Z0-9_]{2,})(?::\s*(.*))?$',

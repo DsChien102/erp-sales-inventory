@@ -10,7 +10,6 @@ void main() {
       Exception('PostgrestException(message: TENANT_SUSPENDED)'),
     );
     TenantAccessRevokedSignal.notifyFromError(Exception('{"code":"TENANT_CLOSED"}'));
-    TenantAccessRevokedSignal.notifyFromError(Exception('PERMISSION_DENIED'));
     await Future<void>.delayed(Duration.zero);
 
     expect(events, [
@@ -30,6 +29,23 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(events, [TenantAccessRevokedSignal.platformUserSuspended]);
+    await sub.cancel();
+  });
+
+  test('PERMISSION_DENIED emits the new code; TENANT_SUSPENDED still wins', () async {
+    final events = <String>[];
+    final sub = TenantAccessRevokedSignal.stream.listen(events.add);
+
+    TenantAccessRevokedSignal.notifyFromError(Exception('PERMISSION_DENIED'));
+    TenantAccessRevokedSignal.notifyFromError(
+      Exception('TENANT_SUSPENDED PERMISSION_DENIED'),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    expect(events, [
+      TenantAccessRevokedSignal.permissionDenied,
+      TenantAccessRevokedSignal.tenantSuspended,
+    ]);
     await sub.cancel();
   });
 }

@@ -67,4 +67,30 @@ void main() {
     await cubit.close();
     await session.close();
   });
+
+  test('resend during the security window shows a countdown instead of an error', () async {
+    var now = DateTime.utc(2026, 10, 10, 9);
+    final auth = ScriptedAuthRepository()
+      ..resendError = const AppException(
+        AppErrorCode.resendCooldown,
+        details: {'seconds': 17},
+      );
+    final session = loginSession();
+    final cubit = VerifyEmailCubit(
+      auth: auth,
+      session: session,
+      email: 'lan@example.com',
+      clock: () => now,
+      allowImmediateResend: true,
+    );
+
+    await cubit.resend();
+
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.canResend, isFalse);
+    expect(cubit.state.remaining, const Duration(seconds: 17));
+
+    await cubit.close();
+    await session.close();
+  });
 }

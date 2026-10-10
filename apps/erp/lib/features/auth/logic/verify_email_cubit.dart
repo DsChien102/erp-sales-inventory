@@ -1,3 +1,4 @@
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,17 +13,19 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
     required this.email,
     DateTime Function()? clock,
     Duration cooldown = const Duration(seconds: 60),
+    Duration? initialCooldown,
     bool allowImmediateResend = false,
+    this.deferSignedIn = false,
   }) : _auth = auth,
        _session = session,
        _clock = clock ?? DateTime.now,
        _cooldown = cooldown,
        super(
-         VerifyEmailState(
-           now: (clock ?? DateTime.now)(),
-           resendAvailableAt: allowImmediateResend
-               ? (clock ?? DateTime.now)()
-               : (clock ?? DateTime.now)().add(cooldown),
+         _initial(
+           clock: clock ?? DateTime.now,
+           cooldown: cooldown,
+           initialCooldown: initialCooldown,
+           allowImmediateResend: allowImmediateResend,
          ),
        );
 
@@ -31,6 +34,20 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
   final DateTime Function() _clock;
   final Duration _cooldown;
   final String email;
+  final bool deferSignedIn;
+
+  static VerifyEmailState _initial({
+    required DateTime Function() clock,
+    required Duration cooldown,
+    required Duration? initialCooldown,
+    required bool allowImmediateResend,
+  }) {
+    final now = clock();
+    return VerifyEmailState(
+      now: now,
+      resendAvailableAt: allowImmediateResend ? now : now.add(initialCooldown ?? cooldown),
+    );
+  }
 
   void onTick() {
     if (isClosed) return;
@@ -45,12 +62,24 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
       return;
     }
     emit(state.copyWith(submitting: true, clearFailure: true));
+    if (deferSignedIn) _session.holdSignedInApply();
     try {
       final userId = await _auth.verifySignupOtp(email: email, code: trimmed);
-      _session.applySignedInUser(userId);
-      if (isClosed) return;
-      emit(state.copyWith(submitting: false, verified: true, clearFailure: true));
+      if (isClosed) {
+        if (deferSignedIn) _session.applySignedInUser(userId);
+        return;
+      }
+      if (!deferSignedIn) _session.applySignedInUser(userId);
+      emit(
+        state.copyWith(
+          submitting: false,
+          verified: true,
+          verifiedUserId: userId,
+          clearFailure: true,
+        ),
+      );
     } catch (error) {
+      if (deferSignedIn) _session.releaseSignedInHold();
       if (isClosed) return;
       emit(
         state.copyWith(
@@ -78,6 +107,18 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
       );
     } catch (error) {
       if (isClosed) return;
+      if (error is AppException && error.code == AppErrorCode.resendCooldown) {
+        final now = _clock();
+        emit(
+          state.copyWith(
+            submitting: false,
+            now: now,
+            resendAvailableAt: now.add(Duration(seconds: _cooldownSeconds(error))),
+            clearFailure: true,
+          ),
+        );
+        return;
+      }
       emit(
         state.copyWith(
           submitting: false,
@@ -86,5 +127,11 @@ final class VerifyEmailCubit extends Cubit<VerifyEmailState> {
         ),
       );
     }
+  }
+
+  static int _cooldownSeconds(AppException error) {
+    final raw = error.details?['seconds'];
+    if (raw is int && raw > 0) return raw;
+    return 60;
   }
 }

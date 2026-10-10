@@ -91,6 +91,18 @@ void main() {
       ).code,
       'RATE_LIMITED',
     );
+    final cooldown = AppException.from(
+      const AuthException(
+        'For security purposes, you can only request this after 42 seconds.',
+        statusCode: '429',
+      ),
+    );
+    expect(cooldown.code, AppErrorCode.resendCooldown);
+    expect(cooldown.details?['seconds'], 42);
+    expect(
+      AppException.from(const AuthException('over quota', statusCode: '429')).code,
+      'RATE_LIMITED',
+    );
     expect(
       AppException.from(const AuthException('unauthorized', statusCode: '401')).code,
       AppErrorCode.authRequired,

@@ -4,6 +4,7 @@ import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../shared/iam_load_status.dart';
@@ -91,6 +92,7 @@ class MyAccountPage extends StatelessWidget {
           onLogout: onLogout,
           accountRepository: accountRepository,
           authRepository: authRepository,
+          session: session,
         ),
       );
     }
@@ -104,6 +106,7 @@ class MyAccountPage extends StatelessWidget {
           onLogout: onLogout,
           accountRepository: accountRepository,
           authRepository: authRepository,
+          session: session,
         ),
       );
     }
@@ -114,6 +117,7 @@ class MyAccountPage extends StatelessWidget {
     return _MyAccountSampleBody(
       data: data!,
       onLogout: onLogout,
+      session: session,
     );
   }
 }
@@ -122,10 +126,12 @@ class _MyAccountSampleBody extends StatefulWidget {
   const _MyAccountSampleBody({
     required this.data,
     this.onLogout,
+    this.session,
   });
 
   final MyAccountUiModel data;
   final Future<void> Function()? onLogout;
+  final SessionController? session;
 
   @override
   State<_MyAccountSampleBody> createState() => _MyAccountSampleBodyState();
@@ -181,12 +187,7 @@ class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
           ),
         );
         if (result == true && mounted) {
-          VToast.show(
-            context,
-            title: 'Thành công',
-            message: 'Đã đặt lại mật khẩu.',
-            type: VToastType.success,
-          );
+          await _openLoginAfterPasswordReset(context, widget.session);
         }
       },
       onLogout: _showLogoutConfirmation,
@@ -212,11 +213,13 @@ class _MyAccountBody extends StatefulWidget {
     this.onLogout,
     this.accountRepository,
     this.authRepository,
+    this.session,
   });
 
   final Future<void> Function()? onLogout;
   final AccountRepository? accountRepository;
   final AuthRepository? authRepository;
+  final SessionController? session;
 
   @override
   State<_MyAccountBody> createState() => _MyAccountBodyState();
@@ -276,12 +279,7 @@ class _MyAccountBodyState extends State<_MyAccountBody> {
           ),
         );
         if (result == true && mounted) {
-          VToast.show(
-            context,
-            title: 'Thành công',
-            message: 'Đã đặt lại mật khẩu.',
-            type: VToastType.success,
-          );
+          await _openLoginAfterPasswordReset(context, widget.session);
         }
       },
       onLogout: _showLogoutConfirmation,
@@ -498,4 +496,15 @@ class _MyAccountScaffold extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _openLoginAfterPasswordReset(
+  BuildContext context,
+  SessionController? session,
+) async {
+  if (session != null) {
+    await session.signOut();
+  }
+  if (!context.mounted) return;
+  context.go('/login', extra: <String, dynamic>{'passwordResetSuccess': true});
 }

@@ -464,7 +464,11 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
           step: InvitationAcceptanceStep.blocked,
           isSubmitting: false,
           tokenPresent: _token != null,
-          failure: failure,
+          failure: IamUiFailure(
+            code: failure.code,
+            message: 'Tổ chức đang tạm ngừng, chưa thể tham gia.',
+            retryable: failure.retryable,
+          ),
         ),
       );
       return;

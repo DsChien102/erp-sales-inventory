@@ -113,4 +113,13 @@ void main() {
       ),
     );
   });
+
+  test('updatePassword treats an unchanged password as success', () async {
+    when(() => auth.updateUser(any())).thenThrow(
+      const AuthException('New password should be different from the old password.'),
+    );
+    final repository = AuthRepository(rpc: _Rpc({}), auth: auth);
+
+    await repository.updatePassword('Password1!');
+  });
 }

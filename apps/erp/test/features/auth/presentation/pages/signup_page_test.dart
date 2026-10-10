@@ -16,7 +16,7 @@ void main() {
 
     final auth = ScriptedAuthRepository();
     final session = loginSession();
-    final cubit = SignupCubit(auth: auth);
+    final cubit = SignupCubit(auth: auth, session: session);
     addTearDown(session.close);
     addTearDown(cubit.close);
 

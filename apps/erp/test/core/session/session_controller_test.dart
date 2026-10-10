@@ -10,6 +10,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_shared_application/application.dart';
 
 class _MockAuth extends Mock implements GoTrueClient {}
 
@@ -36,12 +37,16 @@ void main() {
     FakeSessionRepository? repository,
     IamSession? iamSession,
     SessionState? initialState,
+    Stream<String>? tenantAccessRevoked,
+    DateTime Function()? clock,
   }) {
     return SessionController(
       repository: repository ?? FakeSessionRepository(),
       auth: auth,
       iamSession: iamSession,
       initialState: initialState,
+      tenantAccessRevoked: tenantAccessRevoked,
+      clock: clock,
     );
   }
 
@@ -263,6 +268,130 @@ void main() {
 
     expect(cubit.state.hasNoOrganization, isTrue);
     expect(cubit.state.current?.status, TenantContextStatus.none);
+
+    await cubit.close();
+  });
+
+  test('PERMISSION_DENIED with a valid context does not bootstrap', () async {
+    final revoked = StreamController<String>.broadcast();
+    final repository = FakeSessionRepository();
+    final cubit = controller(
+      repository: repository,
+      iamSession: IamSession(),
+      tenantAccessRevoked: revoked.stream,
+    );
+    await cubit.bootstrap();
+    final reads = repository.tenantContextReads;
+    final statuses = <TenantLoadStatus>[];
+    final sub = cubit.stream.listen((state) => statuses.add(state.status));
+
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(repository.tenantContextReads, reads + 1);
+    expect(statuses, isEmpty);
+    expect(cubit.state.status, TenantLoadStatus.ready);
+    expect(cubit.state.current?.tenantId, 'org-001');
+
+    await sub.cancel();
+    await cubit.close();
+    await revoked.close();
+  });
+
+  test('PERMISSION_DENIED after membership removal bootstraps another organization', () async {
+    final revoked = StreamController<String>.broadcast();
+    final repository = FakeSessionRepository();
+    final cubit = controller(
+      repository: repository,
+      iamSession: IamSession(),
+      tenantAccessRevoked: revoked.stream,
+    );
+    await cubit.bootstrap();
+    expect(cubit.state.current?.tenantId, 'org-001');
+    repository.removeMembership('org-001');
+
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.status, TenantLoadStatus.ready);
+    expect(cubit.state.current?.tenantId, 'org-002');
+    expect(cubit.state.hasNoOrganization, isFalse);
+
+    await cubit.close();
+    await revoked.close();
+  });
+
+  test('PERMISSION_DENIED with no remaining organization is hasNoOrganization', () async {
+    final revoked = StreamController<String>.broadcast();
+    final repository = FakeSessionRepository();
+    final cubit = controller(
+      repository: repository,
+      iamSession: IamSession(),
+      tenantAccessRevoked: revoked.stream,
+    );
+    await cubit.bootstrap();
+    repository.removeMembership('org-001');
+    repository.removeMembership('org-002');
+    repository.removeMembership('org-003');
+
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.hasNoOrganization, isTrue);
+
+    await cubit.close();
+    await revoked.close();
+  });
+
+  test('two PERMISSION_DENIED signals within 30 seconds check context once', () async {
+    var now = DateTime.utc(2026, 10, 10, 8);
+    final revoked = StreamController<String>.broadcast();
+    final repository = FakeSessionRepository();
+    final cubit = controller(
+      repository: repository,
+      iamSession: IamSession(),
+      tenantAccessRevoked: revoked.stream,
+      clock: () => now,
+    );
+    await cubit.bootstrap();
+    final reads = repository.tenantContextReads;
+
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(repository.tenantContextReads, reads + 1);
+
+    now = now.add(const Duration(seconds: 30));
+    revoked.add(TenantAccessRevokedSignal.permissionDenied);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(repository.tenantContextReads, reads + 2);
+
+    await cubit.close();
+    await revoked.close();
+  });
+
+  test('holdSignedInApply ignores auth signedIn until applySignedInUser', () async {
+    final user = _MockUser();
+    when(() => user.id).thenReturn('user-1');
+    when(() => auth.currentUser).thenReturn(null);
+    final authSession = _MockAuthSession();
+    when(() => authSession.user).thenReturn(user);
+
+    final cubit = controller();
+    cubit.start();
+    cubit.holdSignedInApply();
+
+    events.add(AuthState(AuthChangeEvent.signedIn, authSession));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.authStatus, AuthStatus.signedOut);
+
+    cubit.applySignedInUser('user-1');
+    expect(cubit.state.authStatus, AuthStatus.signedIn);
+    expect(cubit.state.userId, 'user-1');
 
     await cubit.close();
   });

@@ -113,6 +113,8 @@ class AuthRepository {
     } on AppException {
       rethrow;
     } on AuthException catch (error) {
+      final limited = _authSendLimit(error);
+      if (limited != null) throw limited;
       throw _mapInvitationAuthException(error);
     } catch (_) {
       throw const AppException(AppErrorCode.unknown);
@@ -162,6 +164,15 @@ class AuthRepository {
   bool _isObfuscatedExistingUser(User user) {
     final identities = user.identities;
     return identities != null && identities.isEmpty;
+  }
+
+  /// 429 kèm "after N seconds" là đếm ngược gửi lại; hạn mức giờ vẫn là RATE_LIMITED.
+  AppException? _authSendLimit(AuthException error) {
+    final parsed = AppException.from(error);
+    if (parsed.code == AppErrorCode.resendCooldown || parsed.code == 'RATE_LIMITED') {
+      return parsed;
+    }
+    return null;
   }
 
   AppException _mapSignupOtpException(AuthException error) {
@@ -299,12 +310,17 @@ class AuthRepository {
     return email;
   }
 
+  /// Ghi mật khẩu của phiên đang đăng nhập.
+  /// Mật khẩu trùng mật khẩu hiện tại được coi là thành công.
+  Future<void> updatePassword(String newPassword) => _updatePassword(newPassword);
+
   Future<void> _updatePassword(String newPassword) async {
     try {
       await _auth.updateUser(UserAttributes(password: newPassword));
     } on AppException {
       rethrow;
     } catch (error) {
+      if (_isUnchangedPassword(error)) return;
       final code = error is AuthException ? error.code?.toLowerCase() : null;
       final text = error.toString().toLowerCase();
       if (code == 'weak_password' ||
@@ -318,6 +334,12 @@ class AuthRepository {
       }
       throw const AppException(AppErrorCode.unknown);
     }
+  }
+
+  bool _isUnchangedPassword(Object error) {
+    final message = error is AuthException ? error.message : error.toString();
+    final text = message.toLowerCase();
+    return text.contains('should be different') || text.contains('different from the old');
   }
 
   bool _containsPlatformUserSuspended(AppException error) {

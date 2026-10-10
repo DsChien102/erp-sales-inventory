@@ -258,7 +258,9 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
           email: state.verificationEmail ?? '',
           auth: widget.auth ?? getIt<AuthRepository>(),
           session: widget.session ?? getIt<SessionController>(),
-          onVerified: cubit.completeVerifiedRegistration,
+          onVerified: (_) {
+            cubit.completeVerifiedRegistration();
+          },
         );
       case InvitationAcceptanceStep.submitting:
         if (state.inspection?.accountExists == true) {

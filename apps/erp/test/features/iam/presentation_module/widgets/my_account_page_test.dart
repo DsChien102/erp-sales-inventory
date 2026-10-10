@@ -1,7 +1,12 @@
+import 'package:erp/core/session/session_state.dart';
+import 'package:erp/features/auth/presentation/pages/login_page.dart';
+import 'package:erp/features/iam/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:erp/features/iam/presentation.dart';
+
+import '../../../auth/support/scripted_auth.dart';
 
 void main() {
   testWidgets('wgt_e06_u01_fr01_01: MyAccountPage (TA-D-01) renders header, account summary and info rows',
@@ -214,5 +219,73 @@ void main() {
 
     expect(find.text('Chủ sở hữu'), findsOneWidget);
     expect(find.text('Tài khoản cá nhân'), findsOneWidget);
+  });
+
+  testWidgets('successful password reset signs out and opens the login banner', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final session = loginSession();
+    addTearDown(session.close);
+    final router = GoRouter(
+      initialLocation: '/account',
+      routes: [
+        GoRoute(
+          path: '/account',
+          builder: (context, state) => MyAccountPage(
+            data: MyAccountUiModel.sample,
+            session: session,
+          ),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return LoginPage(
+              auth: ScriptedAuthRepository(),
+              session: session,
+              passwordResetSuccess: extra?['passwordResetSuccess'] as bool? ?? false,
+            );
+          },
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: VTheme.lightTheme,
+        routerConfig: router,
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Thao tác'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đặt lại mật khẩu'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    await tester.enterText(find.byType(TextField).first, '123456');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+    await tester.pump();
+
+    final passwordFields = find.byType(TextField);
+    await tester.enterText(passwordFields.at(0), 'Password123!');
+    await tester.enterText(passwordFields.at(1), 'Password123!');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(VButton, 'Đặt lại mật khẩu'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(session.state.authStatus, AuthStatus.signedOut);
+    expect(router.routeInformationProvider.value.uri.path, '/login');
+    expect(find.text('Cập nhật mật khẩu thành công'), findsOneWidget);
+    expect(find.text('Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.'), findsOneWidget);
   });
 }

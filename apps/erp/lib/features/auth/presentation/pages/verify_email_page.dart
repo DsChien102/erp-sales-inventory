@@ -43,7 +43,7 @@ class VerifyEmailPage extends StatelessWidget {
               session: sessionController,
               prompt: 'Mã 6 chữ số đã được gửi tới ${maskEmail(email)}.',
               allowImmediateResend: true,
-              onVerified: () => context.go('/'),
+              onVerified: (_) => context.go('/'),
             ),
             const VGap.md(),
             VButton(

@@ -36,7 +36,7 @@
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
 | ID-01 | Đăng nhập | `/login` | Đăng nhập đúng/sai; banner từ luồng khác | ☐ | ☐ | (a) xong 2-A3 |
-| ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | (b) xong 2-B1; đăng ký lại cùng email (A3), đếm ngược gửi lại (A4) ở 2-B4 |
+| ID-02 🆕 | Đăng ký cửa hàng (3 bước) | `/signup` | Tạo tài khoản + cửa hàng | — | ☐ | (b) xong 2-B1; A3/A4 code xong 2-B4, chờ kiểm tay |
 | ID-03 🆕 | Xác minh email (OTP) | `/verify-email` | Nhập mã, gửi lại mã | — | ☐ | (b) xong 2-B1; gửi lại ngay khi vào từ đăng nhập (2-B3) |
 | ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; email qua Edge Function (2-B2); chưa kiểm tay hộp thư trên Dev |
 | ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | (b) xong 2-B1 |

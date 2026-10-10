@@ -1,6 +1,6 @@
 # 2-B4 — Hoàn thiện IAM sau rà soát
 
-> Phase: P2 · Bước (b) sửa · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P2 · Bước (b) sửa · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Nguồn: rà soát chức năng TH-01 ngày 2026-10-10, bạn duyệt từng mục (3, 4, 5, 8, 9). Mục 1, 2 bỏ qua (TH-01 đã sửa mục 2); mục 6, 7 Claude đã sửa tài liệu.
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) US-01.3, US-03.1, US-04.2, US-08.3; [LUONG-DANG-KY-XAC-MINH-EMAIL](../../../02-yeu-cau/LUONG-DANG-KY-XAC-MINH-EMAIL.md) A3, A4.
 
@@ -74,8 +74,8 @@ Gợi ý: (1) mất quyền; (2) đổi mật khẩu + câu lời mời; (3) đ�
 
 ## 3. Kiểm tra
 
-- [ ] `dart analyze lib test`: không error / warning mới. `check_feature_imports`: 0 vi phạm.
-- [ ] `flutter test` toàn `apps/erp` (và test của `packages/vet45_shared` nếu có): không lỗi mới so với 2-B3 (1.404 pass / 61 fail).
+- [x] `dart analyze` các file đã sửa: không issue mới. `check_feature_imports`: 0 vi phạm.
+- [x] `flutter test` toàn `apps/erp`: 1.417 đạt / 61 lỗi (mốc 2-B3 là 1.404 / 61; 13 test mới đều đạt). Test tín hiệu `vet45_shared`: 3 đạt.
 - [ ] Kiểm tay: gom vào đợt kiểm IAM (thêm kịch bản Bước 1: Owner loại nhân viên đang mở app → nhân viên thao tác bất kỳ → về `/no-organization` trong vài giây; Bước 4.6).
 
 ## 4. Rủi ro / lưu ý
@@ -86,7 +86,24 @@ Gợi ý: (1) mất quyền; (2) đổi mật khẩu + câu lời mời; (3) đ�
 
 ## 5. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
+- Lựa chọn Bước 4: `VerifyEmailView.deferSignedIn` và `SessionController.holdSignedInApply()`. `start()` nghe `onAuthStateChange`, nên OTP thành công gắn `signedIn` trước khi kịp `updatePassword`; guard G2 khi đó đưa `/signup` về `/`. Hold giữ trạng thái đến `applySignedInUser` ở cuối `completeAfterVerification`. OTP lỗi thì `releaseSignedInHold()`.
 - Ngày, commit được review:
 - Kết quả:
 - Góp ý:
+
+### Review của Claude
+
+- Ngày, commit được review: 2026-10-11, working tree trên `2dca20e02` (chưa commit).
+- Kết quả: **Đạt.**
+  - Bước 1: `TenantAccessRevokedSignal` phát `PERMISSION_DENIED` sau 3 mã cụ thể (test 3/3 ở `vet45_shared`); `_recheckMembership` chỉ chạy khi `ready`, có tổ chức, cách lần trước ≥ 30 giây; context còn `valid` thì bỏ qua, lỗi mạng bỏ qua.
+  - Bước 2: đổi mật khẩu xong → `signOut` → `/login` với `passwordResetSuccess` → banner "Cập nhật mật khẩu thành công"; router truyền `SessionController` cho `MyAccountPage`.
+  - Bước 3: câu "Tổ chức đang tạm ngừng, chưa thể tham gia." chỉ ở luồng lời mời.
+  - Bước 4: chọn hoãn `signedIn` (`holdSignedInApply` / `deferSignedIn`); `completeAfterVerification` ghi lại mật khẩu (trùng mật khẩu cũ coi như thành công), bootstrap, toast lấy tên tổ chức từ DB, báo khi tên khác.
+  - Bước 5: `RESEND_COOLDOWN` (+ số giây) tách khỏi `RATE_LIMITED`; xác minh và `/signup` chuyển thành đếm ngược.
+  - `dart analyze lib test`: không error; warning duy nhất có từ trước. `check_feature_imports`: 0 vi phạm.
+  - `flutter test` toàn `apps/erp`: **1.417 pass / 61 fail**, danh sách fail trùng khớp 2-B3.
+- Góp ý:
+  1. **Nên sửa (nhỏ):** `completeAfterVerification` gọi `bootstrap()` **trước** `applySignedInUser`. Trong `_apply`, `state.userId` vẫn null (đang giữ) nên gọi `_iamSession.applyAuthenticatedUser(userId)` → **xoá `tenantId` / `activeStoreId`** vừa bootstrap, trong khi state vẫn `ready` + `current`. Hiện tự lành vì trang chủ bootstrap lại khi mở, nhưng bootstrap 2 lần và có khoảng ngắn `requireTenantId()` ném lỗi. Sửa 1 dòng trong `_apply`: chỉ gọi `applyAuthenticatedUser` khi `_iamSession?.userId != trimmed`; thêm test "bootstrap khi đang giữ rồi applySignedInUser → tenantId còn nguyên".
+  2. Trường hợp hiếm: trang `/signup` bị đóng sau khi mã đúng nhưng trước cuối `completeAfterVerification` (`isClosed` → return) → cờ giữ không được tắt, phiên Supabase có mà app vẫn `signedOut` tới khi đăng nhập lại / mở lại app. Có thể gọi `_session.applySignedInUser(userId)` ở các nhánh `if (isClosed) return;` của `completeAfterVerification`.
+  3. Bước 1 chỉ phủ RPC đi qua `SupabaseRpc` / `SupabaseSchemaRpcClient` (cả hai gọi `notifyFromError`) — đủ cho app hiện tại.
+- Kiểm tay: gom vào đợt kiểm IAM (kịch bản bị loại khi đang dùng; đăng ký lại cùng email; đếm ngược).

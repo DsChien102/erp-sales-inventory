@@ -20,6 +20,7 @@ class LoginPage extends StatelessWidget {
     this.prefilledEmail,
     this.organizationName,
     this.showSuccessBanner = false,
+    this.passwordResetSuccess = false,
   });
 
   final AuthRepository? auth;
@@ -28,6 +29,7 @@ class LoginPage extends StatelessWidget {
   final String? prefilledEmail;
   final String? organizationName;
   final bool showSuccessBanner;
+  final bool passwordResetSuccess;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class LoginPage extends StatelessWidget {
           prefilledEmail: prefilledEmail,
           organizationName: organizationName,
           showSuccessBanner: showSuccessBanner,
+          passwordResetSuccess: passwordResetSuccess,
         ),
       );
     }
@@ -51,6 +54,7 @@ class LoginPage extends StatelessWidget {
         prefilledEmail: prefilledEmail,
         organizationName: organizationName,
         showSuccessBanner: showSuccessBanner,
+        passwordResetSuccess: passwordResetSuccess,
       ),
     );
   }
@@ -61,11 +65,13 @@ class _LoginView extends StatefulWidget {
     this.prefilledEmail,
     this.organizationName,
     this.showSuccessBanner = false,
+    this.passwordResetSuccess = false,
   });
 
   final String? prefilledEmail;
   final String? organizationName;
   final bool showSuccessBanner;
+  final bool passwordResetSuccess;
 
   @override
   State<_LoginView> createState() => _LoginViewState();
@@ -285,6 +291,14 @@ class _LoginViewState extends State<_LoginView> {
                             color: dynamicColors.textSecondary,
                           ),
                           const VGap.xl(),
+                          if (widget.passwordResetSuccess) ...[
+                            const VBanner(
+                              status: VBannerStatus.success,
+                              title: 'Cập nhật mật khẩu thành công',
+                              description: 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.',
+                            ),
+                            const VGap.lg(),
+                          ],
                           if (widget.showSuccessBanner) ...[
                             VBanner(
                               status: VBannerStatus.success,

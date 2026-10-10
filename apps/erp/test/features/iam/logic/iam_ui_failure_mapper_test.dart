@@ -55,6 +55,14 @@ void main() {
       expect(failure.retryable, isTrue);
     });
 
+    test('RESEND_COOLDOWN tells the user how many seconds to wait', () {
+      final failure = IamUiFailureMapper.from(
+        const AppException(AppErrorCode.resendCooldown, details: {'seconds': 15}),
+      );
+      expect(failure.code, AppErrorCode.resendCooldown);
+      expect(failure.message, 'Vui lòng đợi 15 giây rồi gửi lại.');
+    });
+
     test('exact ApplicationException code is preserved', () {
       final failure = IamUiFailureMapper.from(
         ApplicationException(IamBlockedCodes.permissionDenied),

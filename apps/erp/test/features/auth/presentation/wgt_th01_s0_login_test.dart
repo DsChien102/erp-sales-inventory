@@ -375,4 +375,29 @@ void main() {
       expect(find.text('Tham gia tổ chức thành công'), findsNothing);
     },
   );
+
+  testWidgets('LoginPage shows a success banner after an in-session password reset', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final session = loginSession();
+    addTearDown(session.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: LoginPage(
+          auth: ScriptedAuthRepository(),
+          session: session,
+          passwordResetSuccess: true,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cập nhật mật khẩu thành công'), findsOneWidget);
+    expect(find.text('Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.'), findsOneWidget);
+  });
 }

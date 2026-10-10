@@ -26,6 +26,7 @@ class FakeSessionRepository implements SessionRepository {
 
   String? lastSelectedTenantId;
   int switchCount = 0;
+  int tenantContextReads = 0;
   Object? switchError;
 
   final List<AccessibleTenant> _tenants = [];
@@ -47,6 +48,7 @@ class FakeSessionRepository implements SessionRepository {
 
   @override
   Future<TenantContext> getTenantContext(String? tenantId) async {
+    tenantContextReads++;
     if (tenantId == null) return TenantContext.none;
     final forced = overrideContext;
     if (forced != null) return forced;
@@ -110,6 +112,18 @@ class FakeSessionRepository implements SessionRepository {
     }
     switchCount++;
     return context;
+  }
+
+  /// Thành viên không còn trong tổ chức: ngữ cảnh invalidated, biến mất khỏi danh sách.
+  void removeMembership(String id) {
+    final existing = _contexts[id];
+    _contexts[id] = TenantContext(
+      status: TenantContextStatus.invalidated,
+      tenantId: id,
+      tenantName: existing?.tenantName,
+      invalidationReason: TenantContextInvalidationReason.membershipRemoved,
+    );
+    _tenants.removeWhere((tenant) => tenant.id == id);
   }
 
   void _seed() {

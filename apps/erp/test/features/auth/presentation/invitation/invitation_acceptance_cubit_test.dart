@@ -283,6 +283,7 @@ void main() {
     await cubit.loginAndAccept(password: 'secret');
     expect(cubit.state.step, InvitationAcceptanceStep.blocked);
     expect(cubit.state.failure?.code, IamBlockedCodes.tenantSuspended);
+    expect(cubit.state.failure?.message, 'Tổ chức đang tạm ngừng, chưa thể tham gia.');
     expect(cubit.state.tokenPresent, isTrue);
     await cubit.close();
   });

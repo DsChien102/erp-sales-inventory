@@ -11,13 +11,18 @@ abstract final class TenantAccessRevokedSignal {
   static const tenantClosed = 'TENANT_CLOSED';
   static const platformUserSuspended = 'PLATFORM_USER_SUSPENDED';
 
+  /// Không có quyền trên RPC. Có thể là quyền thường, hoặc thành viên vừa bị loại.
+  /// TODO(P9): chuyển vào core/session.
+  static const permissionDenied = 'PERMISSION_DENIED';
+
   static final StreamController<String> _controller =
       StreamController<String>.broadcast();
 
   static Stream<String> get stream => _controller.stream;
 
-  /// Emits [platformUserSuspended] / [tenantClosed] / [tenantSuspended]
-  /// when [error] carries that code.
+  /// Emits [platformUserSuspended] / [tenantClosed] / [tenantSuspended] /
+  /// [permissionDenied] when [error] carries that code.
+  /// Mã cụ thể đứng trước [permissionDenied] để không nuốt tạm ngừng / đóng.
   static void notifyFromError(Object error) {
     final text = error.toString().toUpperCase();
     // Tài khoản bị tạm ngừng ưu tiên cao nhất: chặn ở mọi tổ chức.
@@ -27,6 +32,8 @@ abstract final class TenantAccessRevokedSignal {
       _controller.add(tenantClosed);
     } else if (text.contains(tenantSuspended)) {
       _controller.add(tenantSuspended);
+    } else if (text.contains(permissionDenied)) {
+      _controller.add(permissionDenied);
     }
   }
 }

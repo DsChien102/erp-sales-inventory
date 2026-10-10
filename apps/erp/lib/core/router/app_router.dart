@@ -115,6 +115,7 @@ final appRouter = GoRouter(
           prefilledEmail: extra?['prefilledEmail'] as String?,
           organizationName: extra?['organizationName'] as String?,
           showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
+          passwordResetSuccess: extra?['passwordResetSuccess'] as bool? ?? false,
         );
       },
       routes: [

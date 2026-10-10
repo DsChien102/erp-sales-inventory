@@ -36,7 +36,7 @@ class SignupPage extends StatelessWidget {
       );
     }
     return BlocProvider(
-      create: (_) => SignupCubit(auth: repository),
+      create: (_) => SignupCubit(auth: repository, session: sessionController),
       child: _SignupView(auth: repository, session: sessionController),
     );
   }
@@ -121,10 +121,31 @@ class _SignupViewState extends State<_SignupView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SignupCubit, SignupState>(
-      listenWhen: (previous, current) => previous.step != current.step,
+      listenWhen: (previous, current) =>
+          previous.step != current.step || (!previous.completed && current.completed),
       listener: (context, state) {
         if (state.step == SignupStep.store && _contactEmail.text.trim().isEmpty) {
           _contactEmail.text = _email.text.trim();
+        }
+        if (state.completed) {
+          final name = state.tenantName?.trim();
+          final label = (name == null || name.isEmpty) ? 'cửa hàng' : name;
+          VToast.show(
+            context,
+            title: 'Chào mừng đến VET45!',
+            message: 'Cửa hàng $label đã sẵn sàng.',
+            type: VToastType.success,
+          );
+          if (state.nameDiffers) {
+            VToast.show(
+              context,
+              title: 'Thông báo',
+              message:
+                  'Cửa hàng được tạo theo thông tin lần đăng ký trước. Bạn có thể sửa trong Hồ sơ tổ chức.',
+              type: VToastType.info,
+            );
+          }
+          context.go('/');
         }
       },
       builder: (context, state) {
@@ -178,15 +199,12 @@ class _SignupViewState extends State<_SignupView> {
         email: state.account?.email.trim() ?? '',
         auth: widget.auth,
         session: widget.session,
-        onVerified: () {
-          final name = state.store?.name.trim() ?? '';
-          VToast.show(
-            context,
-            title: 'Chào mừng đến VET45!',
-            message: 'Cửa hàng $name đã sẵn sàng.',
-            type: VToastType.success,
-          );
-          context.go('/');
+        deferSignedIn: true,
+        initialResendCooldown: state.verifyCooldownSeconds == null
+            ? null
+            : Duration(seconds: state.verifyCooldownSeconds!),
+        onVerified: (userId) {
+          context.read<SignupCubit>().completeAfterVerification(userId);
         },
       ),
     };

@@ -52,7 +52,10 @@ class ScriptedAuthRepository extends AuthRepository {
   final storeSignUps = <SignupStoreInput>[];
   final otpCodes = <String>[];
   final resentEmails = <String>[];
+  final updatedPasswords = <String>[];
   Object? verifyError;
+  Object? resendError;
+  Object? updatePasswordError;
 
   @override
   Future<String> signIn({
@@ -107,7 +110,14 @@ class ScriptedAuthRepository extends AuthRepository {
   @override
   Future<void> resendSignupOtp(String email) async {
     resentEmails.add(email);
+    if (resendError != null) throw resendError!;
     if (signUpError != null) throw signUpError!;
+  }
+
+  @override
+  Future<void> updatePassword(String password) async {
+    updatedPasswords.add(password);
+    if (updatePasswordError != null) throw updatePasswordError!;
   }
 }
 
