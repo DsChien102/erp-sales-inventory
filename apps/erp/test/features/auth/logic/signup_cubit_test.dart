@@ -159,4 +159,19 @@ void main() {
     await cubit.close();
     await session.close();
   });
+
+  test('completeAfterVerification on a closed page still releases the signed-in hold', () async {
+    final auth = ScriptedAuthRepository();
+    final session = loginSession(authenticated: false);
+    final cubit = SignupCubit(auth: auth, session: session);
+    session.holdSignedInApply();
+    await cubit.close();
+
+    await cubit.completeAfterVerification('user-9');
+
+    expect(session.state.authStatus, AuthStatus.signedIn);
+    expect(session.state.userId, 'user-9');
+    expect(auth.updatedPasswords, isEmpty);
+    await session.close();
+  });
 }

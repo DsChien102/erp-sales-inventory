@@ -115,7 +115,9 @@ final class SessionController extends Cubit<SessionState> {
       );
       return;
     }
-    if (previous != trimmed) {
+    // Bootstrap lúc đang giữ phiên (đăng ký) đã gắn đúng user này vào IamSession;
+    // gọi lại applyAuthenticatedUser sẽ xoá tenant / cửa hàng vừa nạp.
+    if (previous != trimmed && _iamSession?.userId != trimmed) {
       _iamSession?.applyAuthenticatedUser(trimmed);
     }
     if (state.authStatus == AuthStatus.signedIn && state.userId == trimmed) {

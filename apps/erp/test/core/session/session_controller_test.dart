@@ -395,4 +395,23 @@ void main() {
 
     await cubit.close();
   });
+
+  test('bootstrap while held then applySignedInUser keeps the tenant and store', () async {
+    final repository = FakeSessionRepository(scenario: FakeIamScenario.contextNone);
+    final iam = IamSession();
+    final cubit = controller(repository: repository, iamSession: iam);
+    cubit.holdSignedInApply();
+
+    await cubit.bootstrap();
+    expect(cubit.tenantId, 'org-001');
+
+    cubit.applySignedInUser('user-1');
+
+    expect(cubit.state.authStatus, AuthStatus.signedIn);
+    expect(cubit.state.isValid, isTrue);
+    expect(cubit.tenantId, 'org-001');
+    expect(cubit.activeStoreId, 'store-org-001');
+
+    await cubit.close();
+  });
 }

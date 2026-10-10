@@ -102,7 +102,12 @@ final class SignupCubit extends Cubit<SignupState> {
 
   /// Sau khi mã OTP đúng: ghi lại mật khẩu vừa nhập, tải phiên, rồi mới gắn đăng nhập.
   Future<void> completeAfterVerification(String userId) async {
-    if (isClosed || state.completed || state.submitting || state.step != SignupStep.verify) {
+    // Trang đóng giữa chừng: vẫn gắn phiên để không kẹt cờ giữ của SessionController.
+    if (isClosed) {
+      _session.applySignedInUser(userId);
+      return;
+    }
+    if (state.completed || state.submitting || state.step != SignupStep.verify) {
       return;
     }
     emit(state.copyWith(submitting: true, clearFailure: true));
@@ -116,10 +121,16 @@ final class SignupCubit extends Cubit<SignupState> {
         passwordSyncFailed = true;
       }
     }
-    if (isClosed) return;
+    if (isClosed) {
+      _session.applySignedInUser(userId);
+      return;
+    }
 
     await _session.bootstrap();
-    if (isClosed) return;
+    if (isClosed) {
+      _session.applySignedInUser(userId);
+      return;
+    }
 
     final tenantName = _session.state.current?.tenantName;
     final entered = state.store?.name.trim() ?? '';
