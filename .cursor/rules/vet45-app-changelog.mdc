@@ -12,19 +12,15 @@ Khi implement / sửa code **ảnh hưởng ship unit**, luôn ghi bullet vào `
 | Unit | Changelog | Bump | Framework |
 | --- | --------- | ---- | --------- |
 | ERP | `apps/erp/CHANGELOG.md` | `./apps/erp/scripts/bump_version.sh` | `flutter_exec` |
-| Admin | `apps/admin/CHANGELOG.md` | `./apps/admin/scripts/bump_version.sh` | `flutter_exec` |
-| Messaging worker | `apps/messaging_worker/CHANGELOG.md` | `./apps/messaging_worker/scripts/bump_version.sh` | `dart_exec` |
 | Design system | `packages/vet45_design_system/CHANGELOG.md` | `./packages/vet45_design_system/scripts/bump_version.sh` | `flutter_lib` |
 
 Chi tiết: `docs/operations/app_versioning.md`.
 
 ## Map ảnh hưởng → unit nào
 
-- Đổi `apps/erp/**` hoặc UX IAM/catalog/… mà ERP ship → **erp**
-- Đổi `apps/admin/**` hoặc UI platform admin → **admin**
-- Đổi `apps/messaging_worker/**`, messaging claim/discovery RPC, worker env → **messaging_worker**
-- Đổi `packages/vet45_design_system/**` → **vet45_design_system**; nếu thay đổi **user-facing** trên ERP/Admin → **đồng thời** bullet app CHANGELOG
-- Đổi `modules/*` / `packages/*` khác dùng bởi nhiều app → ghi vào **mọi app bị ảnh hưởng lúc ship** (thường **erp** + **admin** nếu IAM presentation; **worker** nếu outbox/inbox/integration consume)
+- Đổi `apps/erp/**` hoặc UX IAM/platform admin/catalog/… mà ERP ship → **erp**
+- Đổi `packages/vet45_design_system/**` → **vet45_design_system**; nếu thay đổi **user-facing** trên ERP → **đồng thời** bullet app CHANGELOG
+- Đổi `modules/*` / `packages/*` khác dùng bởi nhiều app → ghi vào **mọi app bị ảnh hưởng lúc ship** (hiện chỉ **erp**)
 - Chỉ docs/tooling/harness không ship → **không** bắt buộc changelog (ghi MR “None”)
 
 ## Cách viết

@@ -37,7 +37,7 @@ void main() {
       root = await Directory.systemTemp.createTemp('vet45_action_test_');
       writeTestWorkspace(root);
       Directory('${root.path}/apps/erp').createSync(recursive: true);
-      Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
+      Directory('${root.path}/apps/worker').createSync(recursive: true);
       manifest = EnvManifest.load(root);
       process = _RecordingProcessRunner();
     });
@@ -192,7 +192,7 @@ void main() {
       expect(plan.environment['WORKER_IMAGE_TAG'], 'local');
       expect(
         plan.environment['WORKER_ENV_FILE'],
-        endsWith('apps/messaging_worker/.env'),
+        endsWith('apps/worker/.env'),
       );
       expect(process.invocations, isEmpty);
     });
@@ -245,7 +245,7 @@ void main() {
       expect(plan.environment['WORKER_IMAGE_TAG'], 'development');
       expect(
         plan.environment['WORKER_ENV_FILE'],
-        endsWith('apps/messaging_worker/.env'),
+        endsWith('apps/worker/.env'),
       );
     });
 

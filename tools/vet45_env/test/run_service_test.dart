@@ -21,7 +21,7 @@ void main() {
     root = await Directory.systemTemp.createTemp('vet45_run_test_');
     writeTestWorkspace(root);
     Directory('${root.path}/apps/erp').createSync(recursive: true);
-    Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
+    Directory('${root.path}/apps/worker').createSync(recursive: true);
     manifest = EnvManifest.load(root);
     process = _RecordingProcessRunner();
   });

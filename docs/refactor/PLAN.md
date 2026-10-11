@@ -78,7 +78,7 @@ Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `�
 | 2-B4 Hoàn thiện IAM sau rà soát | [plans/P2/2-B4-iam-hoan-thien.md](plans/P2/2-B4-iam-hoan-thien.md) | ✅ | ✅ | ✅ |
 | 8-A Quản trị tổ chức (app) | [plans/P8/8-A-quan-tri-to-chuc.md](plans/P8/8-A-quan-tri-to-chuc.md) | ✅ | ✅ | ✅ |
 | 8-C App bỏ phụ thuộc IAM cũ | [plans/P8/8-C-thay-iam-cu-bang-core.md](plans/P8/8-C-thay-iam-cu-bang-core.md) | ✅ | ✅ | ✅ |
-| 8-D Xoá modules/iam, apps/admin, worker | [plans/P8/8-D-xoa-iam-cu.md](plans/P8/8-D-xoa-iam-cu.md) | 📝 | ⬜ | ⬜ |
+| 8-D Xoá modules/iam, apps/admin, worker | [plans/P8/8-D-xoa-iam-cu.md](plans/P8/8-D-xoa-iam-cu.md) | ✅ | ✅ | ✅ |
 | 8-B DB: KI-08, dọn luồng cũ, KI-03 | [plans/P8/8-B-db-ki08-don-luong-cu.md](plans/P8/8-B-db-ki08-don-luong-cu.md) | 📝 | 🔄 | ⬜ |
 
 
@@ -368,7 +368,7 @@ Chi tiết từng việc:
 |---|---|---|---|---|---|
 | **8-A** | (app) Quản trị tổ chức trong tab Thêm: `isPlatformAdmin`, guard G7, repository + cubit, màn C1–C6, lối vào ở tab Thêm và `/no-organization`, admin mẫu | 8.1, 8.2, 8.3, 8.5 | ✅ [plan](plans/P8/8-A-quan-tri-to-chuc.md) | ✅ | ✅ |
 | **8-C** | (app) App không còn phụ thuộc `vet45_iam_*`: hằng số / DTO sang core, `SessionStore` + 4 lớp contract thay `IamSession` / `IamStartup`, Sales bỏ `IIamModule`, viết lại 27 test | Làm gọn IAM (2026-10-11) | ✅ [plan](plans/P8/8-C-thay-iam-cu-bang-core.md) | ✅ | ✅ |
-| **8-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script | Làm gọn IAM; kéo 9.1 lên | 📝 [plan](plans/P8/8-D-xoa-iam-cu.md) | ⬜ | ⬜ |
+| **8-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script | Làm gọn IAM; kéo 9.1 lên | ✅ [plan](plans/P8/8-D-xoa-iam-cu.md) | ✅ | ✅ |
 | **8-B** | (DB, sau 8-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 8.4, 8.6 | 📝 [khung](plans/P8/8-B-db-ki08-don-luong-cu.md) | 🔄 mục 1–2 | ⬜ |
 
 Chi tiết từng việc:
@@ -401,7 +401,7 @@ Chi tiết từng việc:
 
 | # | Việc | Kiểm tra |
 |---|---|---|
-| 9.1 | Xoá `modules/`, `apps/admin`, `apps/messaging_worker` | `grep -r "vet45_.*_application"` không còn kết quả |
+| 9.1 | Xoá `modules/` còn lại. `modules/iam`, `apps/admin`, `apps/messaging_worker` **đã xoá ở 8-D** | `grep -r "vet45_.*_application"` không còn kết quả |
 | 9.2 | Xoá package `vet45_generator`, `vet45_annotations`, `vet45_adapters`, `vet45_async_query`, `vet45_resend`; gộp phần còn dùng của `vet45_shared` vào `core/` | `flutter pub get` OK |
 | 9.3 | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`, `tools/vet45_env`). Lệnh `melos run env:*` đổi thành `.vet45/bin/vet45 …` (dựng bằng `dart compile exe`) hoặc `dart run tools/vet45_env/bin/run.dart …`. Xoá `packages/vet45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
 | 9.4 | DB: bỏ outbox/inbox của mọi schema (kể cả `sales`, `einvoice`) và RPC/view messaging của `platform`; **giữ `einvoice.internal_commands`** (hàng đợi của Edge Function). Bỏ idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |

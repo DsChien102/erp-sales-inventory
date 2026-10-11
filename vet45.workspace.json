@@ -40,8 +40,7 @@
       {
         "name": "supabase host",
         "targets": [
-          "erp",
-          "worker"
+          "erp"
         ],
         "keys": [
           "SUPABASE_CONNECTION_URL",

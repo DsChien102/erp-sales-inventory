@@ -103,7 +103,7 @@ Fact outbox: `{context}_{entity}_{past}.v1`. Handoff: `integration_commands`. Ou
 
 Có mục thì đủ năm H3, theo thứ tự: Screens, Route, State × feedback, Design system, Mediator.
 State × feedback có loading, empty, error, success.
-Mediator: `IModuleMediator`, fake khớp Contracts, presentation trong `apps/erp` hoặc `apps/admin`.
+Mediator: `IModuleMediator`, fake khớp Contracts, presentation trong `apps/erp`.
 Cây file nằm ở Design → Code Layout.
 
 ### Verification

@@ -1,6 +1,6 @@
 # 8-D — Xoá IAM cũ khỏi repo: `modules/iam`, `apps/admin`, `apps/messaging_worker`
 
-> Phase: P8 (làm gọn IAM, kéo việc 9.1 của P9 lên) · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Phase: P8 (làm gọn IAM, kéo việc 9.1 của P9 lên) · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Làm **sau [8-C](8-C-thay-iam-cu-bang-core.md)** (app `erp` đã hết phụ thuộc `vet45_iam_*`). Trước [8-B](8-B-db-ki08-don-luong-cu.md) (DB).
 > Mục tiêu đo được: `grep -rn "vet45_iam\|apps/admin\|messaging_worker" --include=*.yaml --include=*.dart --include=*.sh .` chỉ còn trong `docs/_legacy/` và CHANGELOG; `melos bootstrap` + `flutter test` (`apps/erp`) xanh như trước.
 
@@ -69,4 +69,16 @@ Một commit `chore: remove legacy IAM module, admin app and messaging worker (8
 
 ## 5. Review
 
-<!-- Claude ghi sau khi bạn code xong -->
+- Ngày, commit được review: 2026-10-11, working tree (staged) trên `3b87f7cc5`.
+- Kết quả: **Đạt.**
+  - Đã xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` (866 file). `modules/` còn 9 module nghiệp vụ; `apps/` chỉ còn `erp`.
+  - Các file xoá thêm đều hợp lệ: `docker-compose.yml`, `docker-compose.local.yml` **chỉ** có service `messaging-worker`; `.dockerignore` là của worker; `tools/setup_flavors.py` chỉ sửa `apps/admin/ios`; script worker / kiểm migration messaging; `collapse_presentation_into_apps.py` chuyển vào `docs/_legacy/scripts/`.
+  - Workspace (`pubspec.yaml`), `vet45.workspace.json`, `.vscode`, `.github`, `README.md`, `AGENTS.md`, script CI, skill / rule nội bộ đã bỏ admin / worker / module IAM. `git grep "vet45_iam\|apps/admin\|messaging_worker"` ngoài `docs/` chỉ còn 1 dòng chú thích trong `scripts/supabase/seed_partner_transaction_history_inbox.sql`.
+  - `flutter pub get` gốc: OK. `apps/erp`: analyze không error mới; `flutter test` **1.494 pass / 59 fail**, trùng khớp 8-C.
+  - `tools/vet45_env`: 107 pass / **1 fail** (`config_init_test` "init requires profile id…", `auth.env` được tạo) — **lỗi có từ trước**: chạy lại trên worktree ở HEAD (trước 8-D) cũng fail.
+- Góp ý:
+  1. `docs/operations/{app_versioning, environment-manager, environments}.md` (6 file trong `docs/operations`) vẫn hướng dẫn `apps/admin` / `apps/messaging_worker` như còn tồn tại → cập nhật hoặc chuyển vào `docs/_legacy/` (có thể làm ở P10).
+  2. Còn treo từ 8-A: `supabase/seed.sql` vẫn gọi `crypt(...)` / `gen_salt('bf')` không có schema (`pgcrypto` ở `extensions`) → admin mẫu local có thể không được tạo. Đổi thành `extensions.crypt` / `extensions.gen_salt`.
+  3. Còn treo từ 8-C: 3 import thừa `iam_fixtures.dart` trong test.
+  4. `tools/vet45_env/test/run_service_test.dart` vẫn có test "run worker serve …" (dùng target `worker` trong fixture) — vô hại; bỏ khi dọn `vet45_env` ở P10.5.
+  5. Lỗi `config_init_test` có từ trước — ghi vào TEST-BASELINE cho `tools/vet45_env`.

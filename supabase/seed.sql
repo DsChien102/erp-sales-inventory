@@ -1,7 +1,6 @@
 -- Vet45 dev seed — IAM baseline role permissions (temporary until SRS).
 -- Owner role bypasses permission checks in RPC; only non-owner roles need rows here.
--- Values must match vet45_iam_domain: IamPermissions + InterimPermissionCodes.
--- See modules/iam/docs/interim-domain.md
+-- Values must match apps/erp/lib/core/iam/iam_codes.dart (permission codes).
 
 insert into iam.role_permissions (role, permission)
 values

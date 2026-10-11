@@ -188,7 +188,7 @@ Giữ mục khi slice có màn hình hoặc tương tác trên app. Có mục th
 
 - Command/Query qua `IModuleMediator`
 - Fake khớp Contracts
-- Presentation thuộc `apps/erp` hoặc `apps/admin`
+- Presentation thuộc `apps/erp`
 
 ---
 

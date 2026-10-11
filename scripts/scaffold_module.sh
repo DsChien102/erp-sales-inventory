@@ -280,7 +280,7 @@ EOF
 }
 
 scaffold_presentation_only() {
-  echo "Error: module presentation packages are removed (ADR 11). Put UI in apps/erp or apps/admin." >&2
+  echo "Error: module presentation packages are removed (ADR 11). Put UI in apps/erp." >&2
   return 1
 }
 
@@ -292,7 +292,7 @@ scaffold_module() {
   create_integration_events "$module"
   create_infrastructure "$module"
   if [[ "$with_presentation" == "true" ]]; then
-    echo "Skip presentation layer — UI lives in apps/erp|admin (ADR 11). Not scaffolding modules/*/presentation."
+    echo "Skip presentation layer — UI lives in apps/erp (ADR 11). Not scaffolding modules/*/presentation."
   fi
 }
 

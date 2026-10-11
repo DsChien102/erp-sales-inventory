@@ -67,10 +67,9 @@ void main() {
     expect(violations, isEmpty, reason: violations.join('\n'));
   });
 
-  test('ERP/Admin production lib has no TH-01 Fake*Data or testing imports', () {
+  test('ERP production lib has no TH-01 Fake*Data or testing imports', () {
     final targets = [
       Directory('${root.path}/apps/erp/lib'),
-      Directory('${root.path}/apps/admin/lib'),
     ];
     final violations = <String>[];
     final pattern = RegExp(

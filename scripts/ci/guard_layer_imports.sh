@@ -32,7 +32,7 @@ done < <(find "$root/modules" -path '*/application/lib/*.dart' -print0 2>/dev/nu
 
 # Module presentation packages are forbidden (app-owned UI).
 while IFS= read -r -d '' file; do
-  report "module presentation package is forbidden (move UI to apps/erp|admin): $file"
+  report "module presentation package is forbidden (move UI to apps/erp): $file"
 done < <(find "$root/modules" -path '*/presentation/pubspec.yaml' -print0 2>/dev/null)
 
 # Cross-package src/ imports (deep imports into another package's private API).

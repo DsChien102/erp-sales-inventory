@@ -76,7 +76,7 @@ void main() {
   test('rejects duplicate target ids', () {
     writeTestWorkspace(root, includeAdmin: true);
     // Copy erp target as a second file with same id.
-    File('${root.path}/apps/admin/vet45.target.json').writeAsStringSync(
+    File('${root.path}/apps/second_app/vet45.target.json').writeAsStringSync(
       File('${root.path}/apps/erp/vet45.target.json').readAsStringSync(),
     );
     expect(
@@ -169,7 +169,7 @@ void main() {
     expect(result.writtenFiles['worker'], isNull);
     expect(result.writtenFiles['erp']!.existsSync(), isTrue);
     expect(
-      File('${root.path}/apps/messaging_worker/.env').existsSync(),
+      File('${root.path}/apps/worker/.env').existsSync(),
       isFalse,
     );
 

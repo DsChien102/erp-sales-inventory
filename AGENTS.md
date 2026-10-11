@@ -32,7 +32,7 @@ apps/erp/lib/
 - Lỗi: repository ném `AppException` (`core/errors`), UI hiển thị `e.userMessage()`.
 - Nghiệp vụ và kiểm tra quyền nằm trong RPC Postgres (`iam.has_permission`); app chỉ hiển thị.
 - Gọi dịch vụ ngoài (MISA meInvoice, email) qua **Supabase Edge Function** (`supabase/functions/*`), kích hoạt bởi app và `pg_cron`. Không có worker chạy riêng (TH-08 KI-20).
-- Code cũ trong `modules/`, `packages/vet45_shared`, `apps/admin`, `apps/messaging_worker` còn đến P9; chỉ đọc để chuyển, không thêm code mới vào đó.
+- Code cũ trong `modules/` và `packages/vet45_shared` còn đến P9 (IAM cũ, app admin và worker đã xoá ở 8-D); chỉ đọc để chuyển, không thêm code mới vào đó.
 
 ## Quy tắc làm việc
 

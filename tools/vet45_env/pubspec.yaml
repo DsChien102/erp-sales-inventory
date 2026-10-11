@@ -1,5 +1,5 @@
 name: vet45_env
-description: Vet45 monorepo environment manager — sync ERP/worker .env from manifest.
+description: Vet45 monorepo environment manager — sync ERP .env from manifest.
 publish_to: none
 resolution: workspace
 

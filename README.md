@@ -9,8 +9,7 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 | Client | Flutter 3.x, Dart SDK ≥ 3.11 |
 | State / routing | flutter_bloc, go_router |
 | DI | get_it |
-| Backend | Supabase (Auth, Postgres, Storage) |
-| Async messaging | Dart worker (`apps/messaging_worker`) trên Railway |
+| Backend | Supabase (Auth, Postgres, Storage, Edge Functions) |
 | Monorepo | Dart workspace + [Melos](https://melos.invertase.dev/) |
 
 ## Cấu trúc repository
@@ -18,11 +17,9 @@ Hệ thống ERP cho phòng khám thú y và cửa hàng bán lẻ thú y — **
 ```text
 vet45/
 ├── apps/
-│   ├── erp/                 # Flutter shell — UI, DI, feature adapters
-│   ├── admin/               # Platform admin Flutter app
-│   └── messaging_worker/    # Server-side integration event worker
+│   └── erp/                 # Flutter app duy nhất — UI, DI, feature, quản trị nền tảng
 ├── modules/                 # Bounded contexts (domain / application / infrastructure / …)
-│   ├── iam/, catalog/, sales/, partner/, inventory/, …
+│   ├── catalog/, sales/, partner/, inventory/, …   # code cũ, còn đến P9
 ├── packages/                # Shared kernel, adapters, design system, codegen
 ├── supabase/                # Local Supabase config + migrations
 ├── docs/                    # Kiến trúc, theme, module blueprints
@@ -65,8 +62,8 @@ Lệnh `melos run debug` chạy ERP theo **active environment** (mặc định `
 
 | Lệnh | Mô tả |
 | ---- | ----- |
-| `melos run env:development` | Development (mặc định) + sync ERP/worker `.env` |
-| `melos run env:local` | Supabase CLI local + sync ERP/worker `.env` |
+| `melos run env:development` | Development (mặc định) + sync ERP `.env` |
+| `melos run env:local` | Supabase CLI local + sync ERP `.env` |
 | `melos run env:doctor` | Kiểm tra config môi trường active |
 | `melos run debug` | ERP — active environment |
 | `melos run debug:dev` | Alias: `development` + sync + debug |
@@ -74,7 +71,6 @@ Lệnh `melos run debug` chạy ERP theo **active environment** (mặc định `
 | `melos run debug:prod` | Production + sync + debug |
 | `melos run debug:web` | Chrome + active env |
 | `melos run debug:ios` | iOS + active env |
-| `melos run worker:serve` | Messaging worker HTTP (active env) |
 
 Chi tiết flavor, bundle ID: [docs/operations/environments.md](docs/operations/environments.md).
 
@@ -120,7 +116,7 @@ melos run analyze        # dart analyze toàn workspace
 melos run test           # dart test các package có thư mục test/ (trừ erp)
 ./scripts/ci/verify_harness.sh   # Layer guards + doc link checks
 cd apps/erp && flutter test      # Unit/widget test shell app
-cd apps/messaging_worker && dart test
+dart test tools/vet45_env        # CLI quản lý môi trường
 ```
 
 **AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
@@ -129,38 +125,18 @@ Scaffold module mới: `./scripts/scaffold_module.sh`.
 
 ## Versioning & changelog (ship units)
 
-Ship units có version/changelog riêng: `erp`, `admin`, `messaging_worker`, `vet45_design_system`.
+Ship units có version/changelog riêng: `erp`, `vet45_design_system`.
 Các module/package khác vẫn workspace-pinned — ghi note dưới **Internal** của unit ship liên quan.
 
 ```bash
 # Ghi note vào <unit>/CHANGELOG.md → ## [Unreleased] khi làm feature
 ./apps/erp/scripts/bump_version.sh --patch --dry-run
-./apps/admin/scripts/bump_version.sh --build
-./apps/messaging_worker/scripts/bump_version.sh --minor --commit --tag
 ./packages/vet45_design_system/scripts/bump_version.sh --patch --dry-run
 ```
 
 Chi tiết (framework flat `flutter_exec` / `dart_lib` / …): [docs/operations/app_versioning.md](docs/operations/app_versioning.md).
 
 PR template (GitHub): [`.github/pull_request_template.md`](.github/pull_request_template.md).
-
-## Messaging worker (tuỳ chọn)
-
-Worker xử lý outbox/inbox và integration events server-side — không bắt buộc cho dev UI thuần.
-
-```bash
-# Remote dev: điền .vet45/profiles/<profileId>/development.env rồi melos run env:sync
-# Hoặc Supabase CLI local:
-supabase start
-melos run env:local
-melos run env:doctor
-melos run worker:serve          # dart trên host
-melos run worker:once
-melos run worker:docker         # docker compose (tag = active env)
-melos run worker:verify
-```
-
-Chi tiết: [docs/operations/environment-manager.md](docs/operations/environment-manager.md)
 
 ## Build iOS & TestFlight
 
@@ -195,7 +171,7 @@ Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze 
 - **Theme ≠ module** — một theme có thể span nhiều bounded context.
 - Module **không import** implementation nội bộ module khác; giao tiếp qua integration events và snapshot ports.
 - **Domain** thuần Dart; **Application** điều phối command/query; **Infrastructure** gọi Supabase RPC.
-- UI thuộc ship unit: `apps/erp/lib/features/` (Admin: `apps/admin/lib/features/`). Xem [AGENTS.md](AGENTS.md).
+- UI thuộc ship unit: `apps/erp/lib/features/` (gồm cả quản trị nền tảng: `features/platform_admin`). Xem [AGENTS.md](AGENTS.md).
 
 Đọc thêm: [AGENTS.md](AGENTS.md), [docs/refactor/SCOPE.md](docs/refactor/SCOPE.md).
 

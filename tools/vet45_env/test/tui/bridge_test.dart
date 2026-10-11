@@ -36,7 +36,7 @@ void main() {
       },
     );
     Directory('${root.path}/apps/erp').createSync(recursive: true);
-    Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
+    Directory('${root.path}/apps/worker').createSync(recursive: true);
     writeDotEnv(
       File('${root.path}/.vet45/profiles/default/local.env'),
       {

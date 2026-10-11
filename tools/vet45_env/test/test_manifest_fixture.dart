@@ -206,7 +206,7 @@ void writeTestWorkspace(
   if (includeAdmin) {
     _writeTarget(
       root,
-      dir: 'apps/admin',
+      dir: 'apps/second_app',
       id: 'admin',
       description: 'Flutter Platform Admin',
       kind: 'flutter',
@@ -239,7 +239,7 @@ void writeTestWorkspace(
   if (includeWorker) {
     _writeTarget(
       root,
-      dir: 'apps/messaging_worker',
+      dir: 'apps/worker',
       id: 'worker',
       description: 'Messaging worker',
       kind: 'dart-worker',

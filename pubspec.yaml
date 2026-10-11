@@ -7,8 +7,6 @@ environment:
 
 workspace:
   - apps/erp
-  - apps/admin
-  - apps/messaging_worker
   - packages/vet45_lints
   - packages/vet45_design_system
   - packages/vet45_annotations
@@ -28,10 +26,6 @@ workspace:
   - modules/sales/application
   - modules/sales/infrastructure
   - modules/sales/integration_events
-  - modules/iam/domain
-  - modules/iam/application
-  - modules/iam/infrastructure
-  - modules/iam/integration_events
   - modules/partner/domain
   - modules/partner/application
   - modules/partner/infrastructure
@@ -120,7 +114,7 @@ melos:
 
     env:sync:
       run: dart run tools/vet45_env/bin/run.dart sync
-      description: Align supabase link + sync ERP + worker .env files
+      description: Align supabase link + sync ERP .env files
 
     env:switch:
       run: dart run tools/vet45_env/bin/run.dart switch
@@ -207,21 +201,6 @@ melos:
       stdio: inherit
       description: Build + upload iOS IPA (production shortcut)
 
-    deploy:worker:
-      run: dart run tools/vet45_env/bin/run.dart run worker deploy
-      stdio: inherit
-      description: Publish messaging worker image — active env (staging|production)
-
-    deploy:worker:staging:
-      run: dart run tools/vet45_env/bin/run.dart use-sync-run staging worker deploy
-      stdio: inherit
-      description: Deploy messaging worker (staging shortcut)
-
-    deploy:worker:production:
-      run: dart run tools/vet45_env/bin/run.dart use-sync-run production worker deploy
-      stdio: inherit
-      description: Deploy messaging worker (production shortcut)
-
     codegen:
       run: dart run build_runner build --delete-conflicting-outputs
       packageFilters:
@@ -238,27 +217,7 @@ melos:
         dirExists: test
         ignore:
           - erp
-          - messaging_worker
       isPrivate: true
-
-    worker:once:
-      run: dart run tools/vet45_env/bin/run.dart run worker once
-      stdio: inherit
-      description: Run one messaging worker tick (requires Supabase + .env)
-
-    worker:serve:
-      run: dart run tools/vet45_env/bin/run.dart run worker serve
-      stdio: inherit
-      description: Run messaging worker HTTP server locally (port 8080)
-
-    worker:docker:
-      run: dart run tools/vet45_env/bin/run.dart run worker docker
-      stdio: inherit
-      description: Run messaging worker in Docker (AOT; image tag = active env)
-
-    worker:verify:
-      run: ./apps/messaging_worker/scripts/verify_build.sh
-      description: AOT compile worker and optional Docker image build
 
     design-system:example:
       run: cd packages/vet45_design_system/example && flutter pub get && flutter run
