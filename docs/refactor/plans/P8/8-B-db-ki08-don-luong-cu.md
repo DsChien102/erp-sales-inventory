@@ -1,6 +1,6 @@
 # 8-B — DB: chặn chuyển Owner sai (KI-08), dọn luồng onboarding cũ, FK thành viên (KI-03)
 
-> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (mục 1, 2 xong; S2–S4 chưa) | Review ⬜
+> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (S1–S4 + app xong 2026-10-11; chờ kiểm trên DB sạch) | Review ⬜
 > Gồm việc: 8.4, 8.6. Làm sau 8-C, 8-D (đã xong: không còn `apps/admin` / `modules/iam` gọi RPC cũ). **Push cùng đợt kiểm IAM.**
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) BR-07, BR-13, BR-32, BR-35, KI-03, KI-05, KI-08, mục 8.
 > Mọi migration mới đặt timestamp **sau `20261009005`** (5 migration P2 chưa push lên Dev).
@@ -79,7 +79,7 @@ Sau khi sửa: **reset Dev** (`supabase db reset --linked`, hỏi trước) rồ
 
 1. S1 (giữ), S2 (gộp), S3, S4, 2 kịch bản SQL, sửa app (mục 3).
 2. `dart analyze`, `flutter test` (`apps/erp`); `grep` 11 tên hàm cũ trong `supabase/migrations` → chỉ còn trong chú thích / `_drafts` / `docs/_legacy`.
-3. **Đợt kiểm IAM** (Claude chạy khi bạn đồng ý từng bước):
+3. **Đợt kiểm IAM** (bạn tự làm — reset / push DB không thuộc việc của Claude):
    1. `supabase db reset --linked` trên Dev (xoá sạch, chạy lại toàn bộ migration + `seed.sql`) — kiểm cả bộ migration đã sửa trên DB sạch.
    2. Chạy các kịch bản SQL (`iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_transfer_ownership_other_owner`, `iam_legacy_cleanup`) bằng `supabase db query --linked -f` (mỗi kịch bản tự `rollback`).
    3. `config push` → secrets + Vault (bạn) → `functions deploy send-email` → `vet45 admin create`.
@@ -102,3 +102,30 @@ Sau khi sửa: **reset Dev** (`supabase db reset --linked`, hỏi trước) rồ
 | 2 Lý do khôi phục | ✅ chốt: bỏ yêu cầu | Giữ RPC không `p_reason`; TH-01 BR-13, US-09.3 FR-03 và `ADMIN-SCREENS` M6c đã sửa (working tree, chưa commit) |
 
 <!-- Claude ghi phần dưới sau khi bạn code xong -->
+
+### Ghi chú triển khai (2026-10-11, S1–S4 + app)
+
+Làm đúng plan, trừ các điểm lệch dưới đây (đều chọn hướng gọn hơn, cần bạn duyệt khi review).
+
+| # | Hạng mục | Làm gì | Lệch plan? |
+|---|---|---|---|
+| S1 | KI-08 | `20260811012`: thêm dòng header; thân hàm giữ | không |
+| S2 | Gộp ghi đè P2 | `accept_invitation` KI-02 gộp vào `20260916006`, xoá `20261009005`; `iam.tenant.created` thêm vào `_audit_event_category` ở `20260826004`, bỏ đoạn đó khỏi `20261009001`; `enqueue_outbox_message` giữ nguyên, ghi lý do ở header `20261009003` | không |
+| S3.1 | Xoá 11 hàm + trigger | **Xoá hẳn 8 file**: `20260811023`, `20260820003`, `20260820006`, `20260911004`, `20260911005`, `20260911006`, `20260916004`, `20260916007` (+ `20261009005` ở S2). Cắt hàm khỏi `20260811005/006/016`, `20260826003`, `20260830001`, `20260914001`. REGISTRY cập nhật | **Có**: xoá thêm các bản **bị thay thế** của `accept/decline/revoke/inspect_invitation_token`, `get_platform_user`, `search_platform_users`, `get_my_platform_user_profile`, `get_session_context` để `grep` 11 tên cũ sạch |
+| S3.2 | Sửa bản mới nhất | `accept_invitation` (`20260916006`), `decline` / `revoke` (`20260916005`): bỏ nhánh Owner / `provisioning`, giữ `_unwind_staff_precreate_membership`. `inspect_invitation_token` **chuyển bản cuối vào `20260826003`** (vì `20260911005` bị xoá). `get_platform_tenant` (`20260911003`) bỏ `owner_invitation_*`. `search_platform_tenants` (`20260811010`) bỏ nhánh lời mời Owner, giữ chữ ký | **Có** (vị trí `inspect_invitation_token`) |
+| S3.2 | `_platform_user_effective_status` | **Xoá hàm** thay vì sửa. `get_platform_user` / `search_platform_users` (`20260911002`) dùng `p.status` và `join` hồ sơ (người chưa xác minh email chưa có hồ sơ nên không hiện). Bỏ khoá `activation_expires_at` | **Có** (màn người dùng nền tảng đã bỏ ở TH-01 US-09.5) |
+| S3.2 | `get_session_context` | Bỏ đoạn tự gọi `bootstrap_owner` khi chưa có cửa hàng. Tổ chức nào cũng có cửa hàng mặc định từ `_create_tenant_for_owner`; thiếu thì trả `CONTEXT_INVALID` | **Có** (plan ghi "chỉ trong chú thích", thực tế là code) |
+| S3.2 | `accept_invitation` | Bỏ luôn `v_should_be_owner` ("chưa có Owner thì người nhận thành Owner") để không vỡ index một Owner / người | **Có** |
+| S3.3 | `tenants.status` | Check ở `20260811002` và `20260811006` còn `active/suspended/closed`, default `active`. `onboarding_operations` chưa từng có `create table`; `owner_activations` hết cùng `20260811023` | không |
+| S3.4 | Enum | `20260911001` bỏ `pending_activation`; check ở `20260811004` bỏ; index `platform_user_profiles_pending_email_uidx` bỏ; cột `email` **giữ** (accept / trigger đăng ký dùng) | không |
+| S4.1 | FK | Không còn câu gỡ FK `memberships_user_id_fkey` (file `20260911004` xoá) và `platform_user_profiles_user_id_fkey` (cắt khỏi `20260826003`) | không |
+| S4.2 | Index | `memberships_one_owned_tenant_per_user_uidx` ở `20260811014` (thêm hậu tố `_uidx` theo quy ước của index bên cạnh) | tên khác chút |
+| Test SQL | | `supabase/tests/iam_legacy_cleanup.sql` mới; `iam_transfer_ownership_other_owner.sql` giữ | không |
+| App | | `TenantStatus.provisioning` bỏ; `isSelectable` = `active`; nhãn "Đang thiết lập" bỏ; 4 test + `FakeSessionRepository` + `FakeIamScenario.tenantsProvisioning` sửa | không |
+
+**Giữ nguyên, ngoài danh sách của plan** (xem lại ở review): cột `tenant_invitations.is_owner` / `given_name` / `family_name` / `phone` và ràng buộc `tenant_invitations_owner_inviter_chk`; hàm `iam.get_auth_user_snapshot` (chỉ còn tài liệu nhắc, file `20260811016`); nhãn `'provisioning'` trong `tenant_audit_field_catalog.dart` (hiển thị audit lịch sử); mẫu email `activation_invitation`.
+
+**Đã kiểm:** cú pháp toàn bộ file đổi (libpg_query: SQL + PL/pgSQL), mọi `grant` / `revoke` trỏ tới hàm đã định nghĩa trước, `grep` 11 tên cũ + `provisioning` / `pending_activation` / `owner_activations` trong `supabase/migrations` chỉ còn chú thích; `dart analyze` không lỗi mới; `flutter test` toàn bộ `apps/erp`: 1492 pass, 60 fail — 59 đã nằm trong [TEST-BASELINE](../../TEST-BASELINE.md), 1 (`product_measurement_units_e2e_test` `e2e_e04_u02_fr01_01b`) là test catalog dao động, chạy lại riêng thì pass; không có ca IAM / session nào mới hỏng. `verify_migration_policy` còn 4 lỗi cũ ở `20261009003/004` (Touches nhiều dòng), không do đợt này.
+
+**Chưa kiểm:** chạy thật trên DB sạch (bạn tự `db reset --linked` rồi chạy 5 kịch bản SQL, mục 4.3); `iam_legacy_cleanup.sql` chưa từng chạy nên có thể cần chỉnh.
+

@@ -9,14 +9,12 @@ extension TenantStatusUi on TenantStatus {
     TenantStatus.active => 'Đang hoạt động',
     TenantStatus.suspended => 'Đã tạm ngừng',
     TenantStatus.closed => 'Đã đóng',
-    TenantStatus.provisioning => 'Đang thiết lập',
   };
 
   VComponentTone get tone => switch (this) {
     TenantStatus.active => VComponentTone.success,
     TenantStatus.suspended => VComponentTone.danger,
     TenantStatus.closed => VComponentTone.danger,
-    TenantStatus.provisioning => VComponentTone.warning,
   };
 
   /// Thao tác vòng đời mở ra ở C3 theo trạng thái (BR-12, BR-13).

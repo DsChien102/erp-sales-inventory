@@ -2,54 +2,10 @@
 -- Kind: patch
 -- Intent: iam_signup_create_tenant_for_owner
 -- Context: TH-01 BR-06, BR-07
--- Touches: iam._create_tenant_for_owner, iam._audit_event_category
+-- Touches: iam._create_tenant_for_owner
 -- Safety: idempotent ; medium
 -- Depends on: 20260916001_iam_ensure_default_store_scope_helpers.sql, 20260826004_iam_audit_logs_v2_rebuild.sql
-
--- iam.tenant.created chưa nằm trong danh mục audit. Không đăng ký thì append_audit_log ném AUDIT_EVENT_UNREGISTERED.
-create or replace function iam._audit_event_category(p_event_code text)
-returns text
-language plpgsql
-immutable
-as $$
-begin
-  case p_event_code
-    when 'iam.membership.deactivated',
-         'iam.membership.reactivated',
-         'iam.membership.removed',
-         'iam.tenant.owner_activated',
-         'iam.owner.activated' then return 'member';
-    when 'iam.tenant.member_role_assigned',
-         'iam.membership.role_changed' then return 'role';
-    when 'iam.tenant.profile_updated',
-         'iam.tenant.legal_profile_updated',
-         'iam.tenant.activated',
-         'iam.tenant.created',
-         'iam.tenant.suspended',
-         'iam.tenant.restored',
-         'iam.tenant.closed',
-         'iam.tenant.ownership_transferred' then return 'organization';
-    when 'iam.tenant.invitation_created',
-         'tenant.invitation.created',
-         'iam.tenant.invitation_resent',
-         'tenant.invitation.resent',
-         'iam.tenant.invitation_revoked',
-         'tenant.invitation.revoked',
-         'iam.tenant.invitation_accepted',
-         'tenant.invitation.accepted' then return 'invitation';
-    when 'iam.account.profile_updated',
-         'iam.user.profile_updated' then return 'account';
-    when 'iam.account.password_reset_completed',
-         'iam.account.signed_out',
-         'iam.platform_user.suspended',
-         'iam.platform_user.restored' then return 'security';
-    else
-      raise exception 'AUDIT_EVENT_UNREGISTERED:%', p_event_code;
-  end case;
-end;
-$$;
-
-revoke all on function iam._audit_event_category(text) from public, anon, authenticated;
+-- Note: event 'iam.tenant.created' is registered in iam._audit_event_category (20260826004).
 
 create or replace function iam._create_tenant_for_owner(p_user_id uuid, p_payload jsonb)
 returns uuid

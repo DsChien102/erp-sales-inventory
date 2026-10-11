@@ -84,7 +84,7 @@ Post-MVP: `tenant.ownership.transfer`, `tenant.close` — không slice phase 1.
 
 ## Messaging
 
-Schema `iam`: outbox → inbox (self-consume) → `internal_commands` — [messaging_schema.md](../../../operations/messaging_schema.md).
+Schema `iam`: outbox → inbox (self-consume) → `internal_commands` — [messaging_schema.md](../../../_legacy/operations/messaging_schema.md).
 
 S-NOTIFY: mutation RPC ghi outbox `iam.email.delivery_requested` (`enqueue_outbox_message`, cùng txn) → `ProcessOutbox` → `IEventsBus` → IAM inbox → `ProcessInbox` → IE handler → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → `ProcessInternalCommands` → Resend. **Không** enqueue outbox từ Dart client. Layout = sales golden: `configuration/processing/{outbox,inbox,internal_commands}` + `IamStartup.processMessagingOnce`; email adapters ở `src/adapters/notification/`.
 

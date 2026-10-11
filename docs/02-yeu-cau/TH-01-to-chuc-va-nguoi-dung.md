@@ -7,7 +7,7 @@
 > **Phiên bản:** 4.0 · **Ngày:** 2026-10-07 · **Branch đối chiếu:** `refactor/simple-arch` @ `47b4cb188`
 > **Thay thế:** bản 3.0 (2026-10-06, cùng phạm vi, ít chi tiết hơn), bản 2.0 (luồng cũ qua 2 app), `Theme 1_ Tổ chức & người dùng.md` (v1), `docs/themes/TH-01-organization-users/`.
 > **Nguồn đối chiếu:**
-> - DB: schema `iam`, migration `20260811*` (vòng đời, mời, đặt lại mật khẩu, chuẩn hoá vai trò Owner), `20260820*`, `20260911004`, `20260916004`.
+> - DB: schema `iam`, migration `20260811*` (vòng đời, mời, đặt lại mật khẩu, chuẩn hoá vai trò Owner), `20260820*`, `20260826003`, `20260916005`–`006`, `20261009*` (đăng ký, email).
 > - App: `apps/erp/lib/features/{auth,iam,tenant_context}` (22 trang); `apps/admin` (sẽ gộp); [SCOPE.md](../refactor/SCOPE.md) mục 3.4–3.5, 4.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả màn hình; mục 6 RPC, email, lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 phần bị bỏ và ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử; mục 10 thuật ngữ.
@@ -196,7 +196,7 @@ Số BR giữ từ bản 3.0.
 |---|---|
 | BR-11 | Múi giờ `Asia/Ho_Chi_Minh` và tiền tệ `VND` do server gán; không sửa được |
 | BR-12 | Tổ chức `suspended` / `closed`: `has_permission` ném `TENANT_SUSPENDED` / `TENANT_CLOSED`. App hiện màn thông báo trạng thái, cho chọn tổ chức khác hoặc đăng xuất |
-| BR-13 | Tạm ngừng, khôi phục, đóng tổ chức bắt buộc nhập lý do; ghi `status_reason`, `status_changed_by` và nhật ký nền tảng. Chỉ khôi phục được từ `suspended`; `closed` là trạng thái cuối |
+| BR-13 | Tạm ngừng và đóng tổ chức bắt buộc nhập lý do; ghi `status_reason`, `status_changed_by` và nhật ký nền tảng. Khôi phục **không** nhập lý do (RPC `restore_platform_tenant` không nhận lý do; nhật ký nền tảng vẫn ghi người thực hiện, 2026-10-11). Chỉ khôi phục được từ `suspended`; `closed` là trạng thái cuối |
 | BR-14 | Chưa có hồ sơ pháp lý → hiện **banner nhắc** ở trang chủ và Hồ sơ tổ chức (không chặn) 🆕 |
 
 **Hồ sơ pháp lý**
@@ -907,7 +907,7 @@ Scenario: SC-02 — Không loại được Owner
 
 - FR-01: "Thao tác tổ chức": "Tạm ngừng tổ chức — Chặn toàn bộ quyền vận hành"; "Khôi phục tổ chức — Cho phép vận hành trở lại"; "Đóng tổ chức"; "Thay đổi chủ sở hữu — Chọn Chủ sở hữu mới".
 - FR-02: Tạm ngừng: "Tạm ngừng tổ chức? — Mọi nghiệp vụ trong tổ chức sẽ bị chặn. Dữ liệu và lịch sử vẫn được giữ lại."; "Lý do" * ("Lý do được lưu trong lịch sử quản trị.") → `suspend_platform_tenant` → "Đã tạm ngừng tổ chức thành công."
-- FR-03: Khôi phục (chỉ từ `suspended`): "Khôi phục tổ chức? — Thành viên có thể tiếp tục vận hành theo quyền hiện hành sau khi khôi phục." + "Lý do" * → `restore_platform_tenant`.
+- FR-03: Khôi phục (chỉ từ `suspended`): "Khôi phục tổ chức? — Thành viên có thể tiếp tục vận hành theo quyền hiện hành sau khi khôi phục." **không có ô lý do** → `restore_platform_tenant` → "Đã khôi phục tổ chức thành công." (2026-10-11: bỏ "Lý do" * vì RPC không nhận).
 - FR-04: Đóng: "Đóng tổ chức? — Tổ chức sẽ chuyển sang chỉ đọc vĩnh viễn và không thể khôi phục." + "Lý do đóng" * → `close_platform_tenant`.
 - FR-05: Thiếu lý do → "Vui lòng nhập lý do."
 

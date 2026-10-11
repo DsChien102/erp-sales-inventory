@@ -393,7 +393,7 @@ begin
   )
   values (
     v_user_id, v_given, v_family, v_phone, v_avatar,
-    'pending_activation', now(), now()
+    'active', now(), now()
   )
   on conflict (user_id) do update
     set given_name = excluded.given_name,

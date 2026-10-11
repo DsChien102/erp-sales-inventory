@@ -1,6 +1,6 @@
 # Vet45 Environment Manager
 
-Melos-centric workflow to keep ERP, messaging worker, and Supabase targets aligned during development.
+Melos-centric workflow to keep ERP and Supabase targets aligned during development.
 
 ## Concepts
 
@@ -18,7 +18,7 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 | `.vet45/state.json` | Gitignored `{ profile, environment }` — **required** active profile |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
 | `.vet45/bin/vet45[.exe]` | Local AOT binary from `melos run env:build` (fast CLI) |
-| Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) and worker |
+| Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) |
 
 ### Discovery
 
@@ -55,8 +55,6 @@ Each **target** (registered directory/app) declares which secrets it needs. Sync
 | Target | Manifest | Writes | Required secrets (canonical) |
 | ------ | -------- | ------ | ---------------------------- |
 | `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
-| `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
-| `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning). Action `publish` only builds/pushes the registry image |
 | `deploy` | `deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `deploy/deploy.env` |
 | `design_system` | `packages/vet45_design_system/example/vet45.target.json` | none (`writeEnvFile: false`) | — |
 
@@ -68,9 +66,9 @@ Key specs live in each `vet45.target.json` (`required`, `default`, `from` rename
 | ------- | ----- | ---- |
 | `env:sync` | All writable targets in the active env | Partial write; **exit 1** if any target fails |
 | `env:sync -- --target erp` | Only `erp` | Exit 1 only if erp fails |
-| `run erp …` / `run worker …` | Syncs that target only | Missing unrelated secrets do **not** block |
+| `run erp …` | Syncs that target only | Missing unrelated secrets do **not** block |
 
-Example: secrets without `SUPABASE_SERVICE_ROLE_KEY` still allow `melos run debug` (erp). Full `env:sync` writes erp, skips worker, and exits 1 so CI notices.
+> `admin` và `worker` đã bỏ khỏi workspace (8-D). `SUPABASE_SERVICE_ROLE_KEY` không còn khai báo trong target nào, nên `vet45 init` không scaffold key này; chỉ `vet45 admin …` dùng nó (xem [Platform admin bootstrap](#platform-admin-bootstrap)).
 
 ### Doctor behaviour
 
@@ -80,7 +78,7 @@ melos run env:doctor -- --target erp    # erp only
 melos run env:doctor -- --target deploy --offline
 ```
 
-Host alignment (erp vs worker Supabase URL) runs only when both targets pass.
+Host alignment (`doctor.alignHosts` trong `vet45.workspace.json`) chạy khi mọi target liệt kê đều qua; hiện chỉ còn `erp`.
 
 ## Environments
 
@@ -241,13 +239,11 @@ melos run env:use:staging
 melos run env:sync
 melos run debug                 # ERP — syncs erp only, then flutter run
 melos run debug:staging
-melos run worker:serve
 melos run supabase -- db push
 
 # Deploy (active env must be staging|production)
 melos run build:ios
 melos run deploy:ios
-vet45 run worker publish        # needs WORKER_IMAGE
 ```
 
 ## Canonical secrets keys
@@ -259,23 +255,9 @@ SUPABASE_URL=
 SUPABASE_PROJECT_REF=       # optional; derived from URL if omitted
 SUPABASE_DB_PASSWORD=       # optional; for supabase link
 SUPABASE_ANON_KEY=          # erp
-SUPABASE_SERVICE_ROLE_KEY=  # worker
-WORKER_TICK_SECRET=         # worker (auto-generated on worker sync if empty)
-RESEND_API_KEY=             # worker (optional locally; required on Railway to send mail)
-RESEND_FROM_DOMAIN=         # worker (optional)
-APP_LINK_BASE_URL=          # worker (optional)
+SUPABASE_SERVICE_ROLE_KEY=  # chỉ cho `vet45 admin …` (local lấy từ `supabase status`; remote điền tay)
 LOG_LEVEL=INFO              # erp
 MESSAGING_CLIENT_POLL_ENABLED=false
-
-# Messaging worker (synced to apps/messaging_worker/.env*)
-WORKER_LOG_LEVEL=WARNING
-WORKER_TENANT_BATCH_SIZE=20
-WORKER_MODULE_BATCH_SIZE=10
-WORKER_MAX_ROUNDS_PER_TICK=5
-WORKER_TICK_ACTIVE_SECONDS=3
-WORKER_TICK_IDLE_SECONDS=15
-WORKER_TICK_MAX_IDLE_SECONDS=30
-PORT=8080
 
 # Deploy-only (shared) — deploy/deploy.env
 APP_STORE_CONNECT_ISSUER_ID=
@@ -285,7 +267,6 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 `env:sync` maps only the keys declared for each target:
 
 - ERP: `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY`, `APP_ENV`, …
-- Worker: `WORKER_*` + `SUPABASE_URL` / service role
 - Deploy: not written to apps; `deploy-ios.sh` reads `DEPLOY_SECRETS_FILE`
 
 ## Tooling layout
@@ -331,10 +312,9 @@ Melos scripts call `dart run …/run.dart` (spawns AOT if built).
 | ----------- | ----- |
 | Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45 resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
 | Supabase CLI | `supabase` on PATH for `env:local` |
-| Git Bash | Optional; needed for `worker publish` / legacy `.sh` scripts via `bash` |
+| Git Bash | Optional; needed for legacy `.sh` scripts via `bash` |
 | Prompt activate | `scripts\env\activate.bat` (CMD) or `. .\scripts\env\activate.ps1` (PowerShell) |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
-| Docker Desktop | For `melos run worker:docker`; `host.docker.internal` only on env `local` |
 
 On Windows CMD: `scripts\env\vet45.bat sync --target erp`
 
@@ -350,34 +330,12 @@ vet45 doctor --target erp --offline
 # or: dart run tools/vet45_env/bin/vet45_env.dart …
 ```
 
-## Docker worker
-
-Image is env-agnostic (`vet45/messaging-worker:<environmentId>`). Runtime secrets come from the generated worker env file after `vet45 switch`.
-
-```bash
-# Local supabase start — rewrite URL to host.docker.internal
-supabase start
-vet45 switch --env local
-melos run worker:docker
-
-# Remote project — keep SUPABASE_URL from generated .env / .env.staging
-vet45 switch --env development   # or staging
-melos run worker:docker
-```
-
-`worker:docker` sets `WORKER_ENV_FILE` and `WORKER_IMAGE_TAG`. `WORKER_SUPABASE_URL` (and `docker-compose.local.yml`) is set **only** for env `local`.
-
-## Worker image
-
-Chưa cấu hình hosting cho worker (Railway target đã gỡ). `vet45 run worker publish` chỉ build + push image tới `WORKER_IMAGE`.
-
 ## Platform admin bootstrap
 
 Create an Auth user and grant `iam.platform_admins` using the active profile’s **service role** (same secrets as sync). Preferred over manual SQL:
 
 ```bash
-supabase start          # local
-vet45 sync              # pick up SERVICE_ROLE_KEY from supabase status
+supabase start          # local — service role lấy từ `supabase status`
 vet45 admin create --email admin@local.test [--password '...']
 vet45 admin grant --email admin@local.test
 vet45 admin list
@@ -395,8 +353,7 @@ insert into iam.platform_admins (user_id) values ('<auth-user-uuid>');
 
 | Symptom | Fix |
 | ------- | --- |
-| Full `env:sync` exit 1 but erp works | Fill worker keys, or use `env:sync -- --target erp` / `melos run debug` |
-| `Missing SUPABASE_SERVICE_ROLE_KEY` on worker | `supabase start` then `melos run env:sync -- --target worker` |
+| `Missing SUPABASE_SERVICE_ROLE_KEY` khi chạy `vet45 admin …` | Local: `supabase start`; remote: điền key vào `.vet45/profiles/<profileId>/<env>.env` |
 | Doctor fails on deploy | Add `deploy/deploy.env`, or `env:doctor -- --target erp` |
 | Switch remote dev/staging project | `melos run env:use:<env>` or `melos run env:link` |
 | `supabase cli link` mismatch | `melos run env:sync` then `melos run env:doctor` |

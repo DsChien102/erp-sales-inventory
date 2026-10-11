@@ -64,7 +64,7 @@ Constants: `PartnerPermissions` trong `modules/partner/domain/` — `@RequiresPe
 
 ## Messaging
 
-Schema `partner`: outbox/inbox/internal_commands — [messaging_schema.md](../../../operations/messaging_schema.md). Wiring worker sẽ đăng ký lại khi rebuild infrastructure slice S9.
+Schema `partner`: outbox/inbox/internal_commands — [messaging_schema.md](../../../_legacy/operations/messaging_schema.md). Wiring worker sẽ đăng ký lại khi rebuild infrastructure slice S9.
 
 ## Presentation layout (dự kiến)
 

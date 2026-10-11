@@ -8,14 +8,14 @@ Monorepo policy: **ship units** carry versions and Keep a Changelog files. Other
 | Unit | Path | Framework | Version shape | Bump script | Git tag |
 | --- | ---- | --------- | ------------- | ----------- | ------- |
 | ERP | `apps/erp` | `flutter_exec` | `MAJOR.MINOR.PATCH+BUILD` | [`apps/erp/scripts/bump_version.sh`](../../apps/erp/scripts/bump_version.sh) | `erp-v1.8.0+37` |
-| Admin | `apps/admin` | `flutter_exec` | `MAJOR.MINOR.PATCH+BUILD` | [`apps/admin/scripts/bump_version.sh`](../../apps/admin/scripts/bump_version.sh) | `admin-v1.0.1+2` |
-| Messaging worker | `apps/messaging_worker` | `dart_exec` | `MAJOR.MINOR.PATCH` | [`apps/messaging_worker/scripts/bump_version.sh`](../../apps/messaging_worker/scripts/bump_version.sh) | `messaging_worker-v0.2.0` |
 | Design system | `packages/vet45_design_system` | `flutter_lib` | `MAJOR.MINOR.PATCH` | [`packages/vet45_design_system/scripts/bump_version.sh`](../../packages/vet45_design_system/scripts/bump_version.sh) | `vet45_design_system-v1.0.1` |
 
 Mention other module/package work under **Internal** in the ship-unit changelog that
 actually ships the change. Design-system API/UI changes: update
-`packages/vet45_design_system/CHANGELOG.md`; if the change is user-facing in ERP/Admin,
+`packages/vet45_design_system/CHANGELOG.md`; if the change is user-facing in ERP,
 also add bullets there.
+
+> `apps/admin` và `apps/messaging_worker` đã xoá ở 8-D: quản trị nền tảng nằm trong ERP (tab **Thêm**), không còn worker chạy riêng.
 
 ## Architecture (agnostic common + framework files)
 
@@ -66,11 +66,7 @@ PR checklist:
 # Flutter apps — default is --build (+N only)
 ./apps/erp/scripts/bump_version.sh --build --dry-run
 ./apps/erp/scripts/bump_version.sh --patch --commit --tag
-./apps/admin/scripts/bump_version.sh --build --commit --push --ci
-
-# Dart executable (worker) — no build number; default is --patch
-./apps/messaging_worker/scripts/bump_version.sh --minor --commit --tag
-./apps/messaging_worker/scripts/bump_version.sh --patch --date 2026-08-20
+./apps/erp/scripts/bump_version.sh --build --commit --push --ci
 
 # Flutter library (design system) — no build number; default is --patch
 ./packages/vet45_design_system/scripts/bump_version.sh --patch --dry-run
@@ -79,8 +75,8 @@ PR checklist:
 
 Common flags: `--dry-run`, `--date YYYY-MM-DD`, `--skip-changelog`, `--commit`, `--tag`, `--push`, `--ci`, `--allow-dirty`, `--set VERSION`, `--output-file F`.
 
-| Flag | `flutter_exec` (erp, admin) | Semver frameworks (worker, design_system, …) |
-| ---- | --------------------------- | -------------------------------------------- |
+| Flag | `flutter_exec` (erp) | Semver frameworks (design_system, …) |
+| ---- | -------------------- | ------------------------------------ |
 | `--major` | `x+1.0.0+(N+1)` | `x+1.0.0` |
 | `--minor` | `x.y+1.0+(N+1)` | `x.y+1.0` |
 | `--patch` | `x.y.z+1+(N+1)` | `x.y.z+1` |
@@ -102,6 +98,6 @@ Every Flutter **app** bump that changes marketing version also increments **BUIL
 2. Review generated `CHANGELOG.md` section
 3. Commit (script `--commit` or manual): `chore(<unit>): bump version to …`
 4. Tag: script `--tag` or `git tag <unit>-v<version>`
-5. Deploy (TestFlight / Play / Railway) per existing ops docs when applicable
+5. Deploy (TestFlight) per existing ops docs when applicable
 
-Related: [testflight-asc-setup.md](testflight-asc-setup.md), [apps/messaging_worker/README.md](../../apps/messaging_worker/README.md).
+Related: [testflight-asc-setup.md](testflight-asc-setup.md).

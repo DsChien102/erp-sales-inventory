@@ -156,7 +156,7 @@ Code do Claude làm theo yêu cầu "implement plan" (không phải bạn tự c
 | Chi tiết C2 | — | gọi song song `get_platform_tenant` + `list_platform_tenant_members`; hiện cả "Chủ sở hữu" lẫn "Thành viên tổ chức" ở mọi trạng thái | Theo C2 của plan |
 | Tổ chức `provisioning` (dữ liệu cũ) | — | hiện nhãn "Đang thiết lập", **không** có nút Thao tác | Không có chip lọc / thao tác cho trạng thái này |
 | Chuỗi xác nhận Đóng | — | "Tổ chức sẽ chuyển sang chỉ đọc vĩnh viễn và không thể khôi phục." (TH-01 US-09.3 FR-04) | `ADMIN-SCREENS` M6d có câu khác; plan nói theo TH-01 |
-| Khôi phục | không có ô lý do (Bước 5.3) | đúng như plan | RPC không có `p_reason` — **TH-01 US-09.3 FR-03 còn đòi "Lý do *"**, chờ 8-B quyết định |
+| Khôi phục | không có ô lý do (Bước 5.3) | đúng như plan | RPC không có `p_reason` — đã chốt (2026-10-11): bỏ yêu cầu lý do khôi phục ở TH-01 BR-13 / US-09.3 FR-03 |
 
 Kết quả chạy (2026-10-11): `dart analyze lib test` không error mới; `check_feature_imports` 0 vi phạm; `flutter test` toàn `apps/erp` **1.442 đạt / 61 lỗi** (mốc 2-B4: 1.419 / 61) — 61 lỗi vẫn ở catalog / pricing / my_account / onboarding step owner / production_boundary, không có file nào của 8-A.
 

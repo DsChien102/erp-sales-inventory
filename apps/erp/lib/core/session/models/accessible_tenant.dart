@@ -22,9 +22,8 @@ final class AccessibleTenant {
   final bool isOwner;
   final bool isCurrent;
 
-  /// Active, hoặc tổ chức đang provisioning mà người dùng là chủ.
-  bool get isSelectable =>
-      status == TenantStatus.active || (status == TenantStatus.provisioning && isOwner);
+  /// Chỉ tổ chức đang hoạt động mới chọn được.
+  bool get isSelectable => status == TenantStatus.active;
 
   factory AccessibleTenant.fromJson(
     Map<String, dynamic> row, {

@@ -4,7 +4,6 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
 import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import '../../support/iam_fixtures.dart';
 
 void main() {
   Future<void> pumpPage(

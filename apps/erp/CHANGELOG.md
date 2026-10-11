@@ -54,7 +54,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Vào app: khi tổ chức hợp lệ, chờ thiết lập cửa hàng và kho mặc định trước khi vào trang chủ. Nếu lỗi, có thể thử lại hoặc chọn tổ chức khác.
 
 ### Internal
-- `accept_invitation` kích hoạt lại membership đã bị loại, không insert trùng. Job email `UNKNOWN_TEMPLATE` chuyển `failed` ngay. Cần migration `20261009005` (và bản `20261009003` nếu chưa đẩy).
+- `accept_invitation` kích hoạt lại membership đã bị loại, không insert trùng. Job email `UNKNOWN_TEMPLATE` chuyển `failed` ngay. Nằm trong migration `20260916006` (đã gộp); cần `20261009003` nếu chưa đẩy.
 
 ### Fixed
 - Bị loại hoặc tạm ngừng khỏi tổ chức đang mở: thao tác tiếp theo tải lại phiên. Còn tổ chức khác thì vào đó; hết thì màn không thuộc tổ chức.

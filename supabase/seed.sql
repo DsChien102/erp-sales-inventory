@@ -27,7 +27,7 @@ begin
     )
     values (
       '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated',
-      v_email, crypt('Vet45Local!2026', gen_salt('bf')), now(),
+      v_email, extensions.crypt('Vet45Local!2026', extensions.gen_salt('bf')), now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
       '{"email_verified":true,"first_name":"Admin","last_name":"Nền tảng"}'::jsonb,
       now(), now(), '', '', '', ''

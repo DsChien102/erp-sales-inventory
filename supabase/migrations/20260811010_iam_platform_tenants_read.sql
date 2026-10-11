@@ -266,22 +266,6 @@ begin
         where m.tenant_id = t.id
           and m.is_owner
           and m.is_active
-
-        union all
-
-        select
-          1 as owner_priority,
-          i.created_at as owner_created_at,
-          coalesce(
-            nullif(trim(concat_ws(' ', i.family_name, i.given_name)), ''),
-            i.invitee_email
-          )::text as owner_name,
-          i.invitee_email::text as owner_email
-        from iam.tenant_invitations i
-        where i.tenant_id = t.id
-          and i.is_owner is true
-          and i.status = 'pending'
-          and i.expires_at > now()
       ) candidates
       order by candidates.owner_priority, candidates.owner_created_at desc
       limit 1

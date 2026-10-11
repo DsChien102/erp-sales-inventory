@@ -262,7 +262,6 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     return switch (org.status) {
       TenantStatus.suspended => ' · Tạm ngừng',
       TenantStatus.closed => ' · Đã đóng',
-      TenantStatus.provisioning => '',
       TenantStatus.active => '',
     };
   }

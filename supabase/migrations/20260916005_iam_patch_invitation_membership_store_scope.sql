@@ -298,19 +298,7 @@ begin
     raise exception 'INVITATION_ALREADY_USED';
   end if;
   if v_inv.status = 'expired' or v_inv.expires_at <= v_now then
-    if v_inv.is_owner is true and coalesce(v_tenant.status, 'active') = 'provisioning' then
-      update iam.tenant_invitations
-      set
-        status = 'expired',
-        status_changed_at = v_now,
-        version = version + 1,
-        updated_at = v_now,
-        token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
-      where id = v_inv.id
-        and status = 'pending';
-      perform iam._unwind_provisioning_owner_membership(v_inv.tenant_id);
-    elsif coalesce(v_inv.is_owner, false) is not true
-      and v_inv.target_membership_id is not null then
+    if v_inv.target_membership_id is not null then
       perform iam._unwind_staff_precreate_membership(v_inv.target_membership_id);
     end if;
     raise exception 'INVITATION_EXPIRED';
@@ -329,10 +317,7 @@ begin
   where id = v_inv.id
   returning * into v_inv;
 
-  if v_inv.is_owner is true and coalesce(v_tenant.status, 'active') = 'provisioning' then
-    perform iam._unwind_provisioning_owner_membership(v_inv.tenant_id);
-  elsif coalesce(v_inv.is_owner, false) is not true
-    and v_inv.target_membership_id is not null then
+  if v_inv.target_membership_id is not null then
     perform iam._unwind_staff_precreate_membership(v_inv.target_membership_id);
   end if;
 
@@ -445,10 +430,7 @@ begin
   where id = v_inv.id
   returning * into v_inv;
 
-  if v_inv.is_owner is true and coalesce(v_tenant.status, 'active') = 'provisioning' then
-    perform iam._unwind_provisioning_owner_membership(p_tenant_id);
-  elsif coalesce(v_inv.is_owner, false) is not true
-    and v_inv.target_membership_id is not null then
+  if v_inv.target_membership_id is not null then
     perform iam._unwind_staff_precreate_membership(v_inv.target_membership_id);
   end if;
 

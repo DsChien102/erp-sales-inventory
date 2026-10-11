@@ -149,6 +149,7 @@ begin
     when 'iam.tenant.profile_updated',
          'iam.tenant.legal_profile_updated',
          'iam.tenant.activated',
+         'iam.tenant.created',
          'iam.tenant.suspended',
          'iam.tenant.restored',
          'iam.tenant.closed',

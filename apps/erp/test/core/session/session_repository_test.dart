@@ -65,24 +65,25 @@ void main() {
     expect(tenantStatusFromWire('nope'), TenantStatus.active);
   });
 
-  test('AccessibleTenant.isSelectable allows a provisioning owner', () {
-    const owner = AccessibleTenant(
+  test('AccessibleTenant.isSelectable only allows active tenants', () {
+    const active = AccessibleTenant(
       id: 'org-1',
       name: 'A',
       code: 'TEN-ORG1',
       roleCode: 'store_owner',
-      status: TenantStatus.provisioning,
+      status: TenantStatus.active,
       isOwner: true,
     );
-    const staff = AccessibleTenant(
+    const suspended = AccessibleTenant(
       id: 'org-1',
       name: 'A',
       code: 'TEN-ORG1',
-      roleCode: 'staff',
-      status: TenantStatus.provisioning,
+      roleCode: 'store_owner',
+      status: TenantStatus.suspended,
+      isOwner: true,
     );
-    expect(owner.isSelectable, isTrue);
-    expect(staff.isSelectable, isFalse);
+    expect(active.isSelectable, isTrue);
+    expect(suspended.isSelectable, isFalse);
     expect(AccessibleTenant.codeFor('org-001'), 'TEN-ORG001');
   });
 

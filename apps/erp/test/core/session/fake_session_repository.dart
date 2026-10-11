@@ -163,13 +163,6 @@ class FakeSessionRepository implements SessionRepository {
       TenantStatus.suspended,
     );
     const closed = _Seed('org-004', 'Closed Clinic', 'Nhân viên', TenantStatus.closed);
-    const provisioning = _Seed(
-      'org-005',
-      'Vet45 Provisioning',
-      'Chủ cửa hàng',
-      TenantStatus.provisioning,
-      isOwner: true,
-    );
 
     final multi = <_Seed>[minhPhat, minhTam, asc];
     late final List<_Seed> seeds;
@@ -188,8 +181,6 @@ class FakeSessionRepository implements SessionRepository {
       case FakeIamScenario.tenantsSingle:
       case FakeIamScenario.tenantsExcludesInactiveMembership:
         seeds = [minhPhat];
-      case FakeIamScenario.tenantsProvisioning:
-        seeds = [minhPhat, provisioning];
       case FakeIamScenario.switchClosed:
       case FakeIamScenario.tenantsClosedDisabled:
         seeds = [minhPhat, closed];
@@ -218,8 +209,7 @@ class FakeSessionRepository implements SessionRepository {
           isCurrent: seed.id == current,
         ),
       );
-      if (seed.status == TenantStatus.active ||
-          (seed.status == TenantStatus.provisioning && seed.isOwner)) {
+      if (seed.status == TenantStatus.active) {
         _contexts[seed.id] = TenantContext(
           status: TenantContextStatus.valid,
           tenantId: seed.id,

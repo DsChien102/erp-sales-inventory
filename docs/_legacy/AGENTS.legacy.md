@@ -215,7 +215,7 @@ Theme package: [docs/themes/TH-05-sales-orders/](docs/themes/TH-05-sales-orders/
 ## Liên kết
 
 - [docs/operations/environment-manager.md](docs/operations/environment-manager.md) — Melos env manager (`env:*`, active environment)
-- [docs/operations/railway_messaging_worker.md](docs/operations/railway_messaging_worker.md) — bootstrap Railway project + deploy messaging-worker
+- [docs/_legacy/operations/railway_messaging_worker.md](operations/railway_messaging_worker.md) — bootstrap Railway project + deploy messaging-worker
 - [docs/architecture/12-railway-image-source.md](docs/architecture/12-railway-image-source.md) — ADR Accepted: Railway pull image; service đã `source: image` thì không `railway up`
 - [docs/operations/app_versioning.md](docs/operations/app_versioning.md) — version + changelog cho ship units (`erp` / `admin` / `messaging_worker` / `vet45_design_system`)
 - [docs/architecture/](docs/architecture/) — kiến trúc platform (CQRS, module layout)

@@ -60,28 +60,17 @@ void main() {
   }
 
   group('wgt_e05_u01_fr01_01 — list accessible tenants', () {
-    test('owner may select their provisioning tenant', () {
+    test('owner may select their active tenant', () {
       const tenant = AccessibleTenant(
-        id: 'org-provisioning',
-        name: 'Đang thiết lập',
-        code: 'TEN-PROV',
+        id: 'org-active',
+        name: 'Thú y Minh Phát',
+        code: 'TEN-ACTIVE',
         roleCode: 'store_owner',
-        status: TenantStatus.provisioning,
+        status: TenantStatus.active,
         isOwner: true,
       );
       expect(tenant.isSelectable, isTrue);
       expect(IamRoleLabelMapper.toDisplayLabel(tenant.roleCode), 'Chủ cửa hàng');
-    });
-
-    test('non-owner cannot select a provisioning tenant', () {
-      const tenant = AccessibleTenant(
-        id: 'org-provisioning-staff',
-        name: 'Đang thiết lập',
-        code: 'TEN-PROV',
-        roleCode: 'staff',
-        status: TenantStatus.provisioning,
-      );
-      expect(tenant.isSelectable, isFalse);
     });
 
     test('suspended and closed tenants are not selectable', () {
@@ -153,72 +142,6 @@ void main() {
       expect(find.textContaining('Tạm ngừng'), findsOneWidget);
 
       await tester.tap(find.text('ASC Commerce'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Chọn tổ chức'), findsOneWidget);
-      expect(find.textContaining('Chuyển sang'), findsNothing);
-
-      await cubit.close();
-    });
-
-    testWidgets('selector: provisioning not tappable', (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final cubit = SessionController(
-        repository: FakeSessionRepository(),
-        userDisplayName: 'Lan',
-        initialState: SessionState(
-          userDisplayName: 'Lan',
-          status: TenantLoadStatus.ready,
-          tenants: const [
-            AccessibleTenant(
-              id: 'org-provisioning',
-              name: 'Đang thiết lập',
-              code: 'TEN-PROV',
-              roleCode: 'Owner',
-              status: TenantStatus.provisioning,
-            ),
-            AccessibleTenant(
-              id: 'org-active',
-              name: 'Thú y Minh Phát',
-              code: 'TEN-ACTIVE',
-              roleCode: 'Owner',
-              status: TenantStatus.active,
-            ),
-          ],
-        ),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
-            child: Scaffold(
-              body: Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      showSelectOrganizationBottomSheet(
-                        context: context,
-                        organizations: cubit.state.tenants,
-                      );
-                    },
-                    child: const Text('Open'),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Đang thiết lập'));
       await tester.pumpAndSettle();
 
       expect(find.text('Chọn tổ chức'), findsOneWidget);

@@ -15,11 +15,10 @@ enum TenantContextInvalidationReason {
 }
 
 /// Vòng đời tổ chức. Giá trị lạ map về [active], như gateway cũ.
-enum TenantStatus { active, provisioning, suspended, closed }
+enum TenantStatus { active, suspended, closed }
 
 TenantStatus tenantStatusFromWire(String? raw) {
   return switch (raw) {
-    'provisioning' => TenantStatus.provisioning,
     'suspended' => TenantStatus.suspended,
     'closed' => TenantStatus.closed,
     _ => TenantStatus.active,

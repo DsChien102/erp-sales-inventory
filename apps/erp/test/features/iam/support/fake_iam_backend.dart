@@ -60,7 +60,6 @@ enum FakeIamScenario {
   tenantsSingle,
   tenantsMulti,
   tenantsSuspendedDisabled,
-  tenantsProvisioning,
   tenantsClosedDisabled,
   tenantsExcludesInactiveMembership,
   switchOk,

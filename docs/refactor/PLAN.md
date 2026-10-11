@@ -383,7 +383,7 @@ Chi tiết từng việc:
 | **8-A** | (app) Quản trị tổ chức trong tab Thêm: `isPlatformAdmin`, guard G7, repository + cubit, màn C1–C6, lối vào ở tab Thêm và `/no-organization`, admin mẫu | 8.1, 8.2, 8.3, 8.5 | ✅ [plan](plans/P8/8-A-quan-tri-to-chuc.md) | ✅ | ✅ |
 | **8-C** | (app) App không còn phụ thuộc `vet45_iam_*`: hằng số / DTO sang core, `SessionStore` + 4 lớp contract thay `IamSession` / `IamStartup`, Sales bỏ `IIamModule`, viết lại 27 test | Làm gọn IAM (2026-10-11) | ✅ [plan](plans/P8/8-C-thay-iam-cu-bang-core.md) | ✅ | ✅ |
 | **8-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script | Làm gọn IAM; kéo 9.1 lên | ✅ [plan](plans/P8/8-D-xoa-iam-cu.md) | ✅ | ✅ |
-| **8-B** | (DB, sau 8-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 8.4, 8.6 | 📝 [khung](plans/P8/8-B-db-ki08-don-luong-cu.md) | 🔄 mục 1–2 | ⬜ |
+| **8-B** | (DB, sau 8-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 8.4, 8.6 | 📝 [chi tiết](plans/P8/8-B-db-ki08-don-luong-cu.md) | 🔄 code xong, chờ kiểm trên DB sạch | ⬜ |
 
 Chi tiết từng việc:
 

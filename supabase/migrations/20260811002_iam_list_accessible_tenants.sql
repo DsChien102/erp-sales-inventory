@@ -12,7 +12,7 @@ alter table iam.tenants drop constraint if exists tenants_status_chk;
 
 alter table iam.tenants
   add constraint tenants_status_chk
-  check (status in ('provisioning', 'active', 'suspended', 'closed'));
+  check (status in ('active', 'suspended', 'closed'));
 
 create or replace function iam.list_accessible_tenants()
 returns table (

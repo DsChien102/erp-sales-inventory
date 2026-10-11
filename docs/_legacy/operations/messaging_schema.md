@@ -1,5 +1,7 @@
 # Messaging schema (Postgres)
 
+> **Tài liệu cũ (legacy).** `apps/messaging_worker` đã xoá ở 8-D; không còn worker chạy riêng (TH-08 KI-20: Edge Function + `pg_cron`). Giữ để tham chiếu schema messaging trong DB và code cũ ở tag `v-legacy-arch`.
+
 Tài liệu vận hành cho migrations messaging foundation. Kiến trúc luồng: [architecture/07-integration-and-messaging.md](../architecture/07-integration-and-messaging.md).
 
 ## Migrations
@@ -124,7 +126,7 @@ apps/messaging_worker/scripts/verify_supabase.sh
 
 ## Liên kết
 
-- [infrastructure_layer_skill.md](../_legacy/infrastructure_layer_skill.md) §7
-- [MODULES_IMPLEMENTATION_TEMPLATE.md](../_legacy/MODULES_IMPLEMENTATION_TEMPLATE.md) §12
-- [integration_event_flow.md](../_legacy/integration_event_flow.md)
+- [infrastructure_layer_skill.md](../infrastructure_layer_skill.md) §7
+- [MODULES_IMPLEMENTATION_TEMPLATE.md](../MODULES_IMPLEMENTATION_TEMPLATE.md) §12
+- [integration_event_flow.md](../integration_event_flow.md)
 - [messaging_worker_scaling.md](messaging_worker_scaling.md) — concurrency (P1) và replica shard (P3)

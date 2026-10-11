@@ -1,5 +1,7 @@
 # Railway messaging worker (handover)
 
+> **Tài liệu cũ (legacy).** `apps/messaging_worker` đã xoá ở 8-D; không còn worker chạy riêng (TH-08 KI-20: Edge Function + `pg_cron`). Giữ để tham chiếu schema messaging trong DB và code cũ ở tag `v-legacy-arch`.
+
 > **Lỗi thời (06/10/2026):** Hạ tầng GitLab registry + Railway + CircleCI của dự án cũ đã gỡ khỏi repo (`.railway/`, `.circleci/` không còn). Giữ tài liệu này để tham khảo khi dựng lại deploy.
 
 Playbook chuyển giao: dựng **project Railway sạch** rồi deploy `messaging-worker`. Tài liệu này dành cho ops / người nhận repo — không phải kiến trúc messaging (xem [07-integration-and-messaging.md](../architecture/07-integration-and-messaging.md)).
@@ -19,12 +21,12 @@ Tên project IaC: `VET45`. Tên service: `messaging-worker`.
 
 | Lớp | SSOT | Lệnh | Ghi chú |
 | --- | ---- | ---- | ------- |
-| Infra | [`.railway/railway.ts`](../../.railway/railway.ts) | `vet45 run railway plan` rồi `apply` | Service, healthcheck, knobs `WORKER_*`, replicas. Shared keys: `ctx.shared` |
+| Infra | [`.railway/railway.ts`](../../../.railway/railway.ts) | `vet45 run railway plan` rồi `apply` | Service, healthcheck, knobs `WORKER_*`, replicas. Shared keys: `ctx.shared` |
 | Secrets | `.vet45/profiles/<profileId>/<env>.env` | `vet45 run railway sync-env` | Shared: `SUPABASE_URL`, `APP_LINK_BASE_URL`. Service: role key, tick, Resend. Không set knobs |
 | Image | monorepo root (Docker context) | `vet45 run worker publish` | Build `linux/amd64`, push version + pointer env. Không redeploy |
-| Rollout | [`.railway/services.txt`](../../.railway/services.txt) | `vet45 run railway rollout` | `redeploy --from-source` từng service trong file |
+| Rollout | [`.railway/services.txt`](../../../.railway/services.txt) | `vet45 run railway rollout` | `redeploy --from-source` từng service trong file |
 
-Chi tiết knobs IaC: [`.railway/README.md`](../../.railway/README.md). Scaling: [messaging_worker_scaling.md](messaging_worker_scaling.md).
+Chi tiết knobs IaC: [`.railway/README.md`](../../../.railway/README.md). Scaling: [messaging_worker_scaling.md](messaging_worker_scaling.md).
 
 **Accepted:** GitLab build/push, Railway pull — [ADR 12](../architecture/12-railway-image-source.md). `messaging-worker` là instance đầu (`source: image`). Không `railway up` service đã chuyển image. `apply` vẫn không đẩy image — phải push registry trước.
 
@@ -34,7 +36,7 @@ Chi tiết knobs IaC: [`.railway/README.md`](../../.railway/README.md). Scaling:
 2. **Node 22.** `railway config` / `tsx` không resolve `railway/iac` trên Node 24. Dùng `nvm exec 22` nếu máy đang Node khác.
 3. Clone monorepo, `melos bootstrap`, `npm install` trong `.railway/` (package `railway` — chỉ cho IaC, không phải runtime Flutter).
 4. Migration messaging đã apply trên Supabase đích; schema `platform` expose trong API settings. Danh sách file: [messaging_schema.md](messaging_schema.md).
-5. Profile env local: `vet45 init <profileId>` rồi điền `.vet45/profiles/<profileId>/staging.env` (và `production.env` khi lên prod). Xem [environment-manager.md](environment-manager.md).
+5. Profile env local: `vet45 init <profileId>` rồi điền `.vet45/profiles/<profileId>/staging.env` (và `production.env` khi lên prod). Xem [environment-manager.md](../../operations/environment-manager.md).
 
 ## Bootstrap project Railway sạch
 
@@ -165,7 +167,7 @@ curl -sf -X POST "https://<worker-host>/tick" \
 
 ## CI
 
-Token: `RAILWAY_TOKEN` (project-scoped). CircleCI contexts `vet45-staging` / `vet45-production` — xem [environments.md](environments.md).
+Token: `RAILWAY_TOKEN` (project-scoped). CircleCI contexts `vet45-staging` / `vet45-production` — xem [environments.md](../../operations/environments.md).
 
 `sync-env.sh --ci` đọc cùng tên biến: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET`, cộng `RESEND_*` / `APP_LINK_BASE_URL` nếu có. Wrapper cũ: `apps/messaging_worker/scripts/set_secrets.sh`.
 
@@ -192,9 +194,9 @@ Không commit `.env`, service role, hay `RAILWAY_TOKEN`.
 ## Liên kết
 
 - [12-railway-image-source.md](../architecture/12-railway-image-source.md) — ADR Accepted (mọi service Railway)
-- [`.railway/README.md`](../../.railway/README.md) — IaC plan/apply
-- [`apps/messaging_worker/README.md`](../../apps/messaging_worker/README.md) — local dev, redeploy, CI draft
-- [environments.md](environments.md) — map flavor ERP ↔ Railway ↔ Supabase
+- [`.railway/README.md`](../../../.railway/README.md) — IaC plan/apply
+- [`apps/messaging_worker/README.md`](../../../apps/messaging_worker/README.md) — local dev, redeploy, CI draft
+- [environments.md](../../operations/environments.md) — map flavor ERP ↔ Railway ↔ Supabase
 - [messaging_schema.md](messaging_schema.md) — RPC / view worker phụ thuộc
 - [messaging_worker_scaling.md](messaging_worker_scaling.md) — concurrency / replica
-- [environment-manager.md](environment-manager.md) — profile `.vet45`
+- [environment-manager.md](../../operations/environment-manager.md) — profile `.vet45`

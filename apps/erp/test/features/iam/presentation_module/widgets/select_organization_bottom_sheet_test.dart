@@ -94,7 +94,7 @@ void main() {
                   name: 'Sỹ Chiến',
                   code: 'TEN-DA84BD',
                   roleCode: 'store_owner',
-                  status: TenantStatus.provisioning,
+                  status: TenantStatus.active,
                   isCurrent: false,
                 ),
               ],

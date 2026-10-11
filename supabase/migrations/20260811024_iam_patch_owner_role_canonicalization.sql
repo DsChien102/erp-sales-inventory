@@ -117,7 +117,6 @@ begin
   end if;
 
   -- Suspended/closed tenant: raise a stable code so clients can leave the tenant.
-  -- provisioning stays allowed (owner completes profile before activation).
   if v_tenant_status = 'suspended' then
     raise exception 'TENANT_SUSPENDED';
   end if;

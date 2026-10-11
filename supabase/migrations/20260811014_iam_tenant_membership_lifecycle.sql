@@ -55,6 +55,12 @@ create unique index if not exists memberships_one_owner_per_tenant_uidx
   on iam.memberships (tenant_id)
   where is_owner and removed_at is null;
 
+-- BR-07 (KI-08): a user owns at most one tenant. Same predicate as iam._create_tenant_for_owner
+-- and iam.platform_transfer_tenant_ownership.
+create unique index if not exists memberships_one_owned_tenant_per_user_uidx
+  on iam.memberships (user_id)
+  where is_owner and removed_at is null;
+
 -- ── Helper: derive API status code from is_active/removed_at ────────────────
 
 create or replace function iam._membership_status_code(
@@ -203,7 +209,7 @@ begin
   end if;
 
   -- Global lock order for tenant-scoped mutations: tenant -> membership.
-  -- Keep this order aligned with iam.activate_tenant and ownership transfer
+  -- Keep this order aligned with ownership transfer
   -- to avoid membership/tenant lock inversion under concurrent requests.
   perform 1
   from iam.tenants t

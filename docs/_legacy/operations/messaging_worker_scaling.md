@@ -1,5 +1,7 @@
 # Messaging worker scaling
 
+> **Tài liệu cũ (legacy).** `apps/messaging_worker` đã xoá ở 8-D; không còn worker chạy riêng (TH-08 KI-20: Edge Function + `pg_cron`). Giữ để tham chiếu schema messaging trong DB và code cũ ở tag `v-legacy-arch`.
+
 Playbook vận hành cho `apps/messaging_worker`. Kiến trúc tổng quan: [architecture/07-integration-and-messaging.md](../architecture/07-integration-and-messaging.md).
 
 ## P1 — đã triển khai
@@ -47,7 +49,7 @@ Claim SQL (`claimed_at` / `claim_token` + `SKIP LOCKED`) vẫn là safety net; p
 | `WORKER_MODULE_BATCH_SIZE` | `10` | `100` | Batch size truyền vào `Process*` |
 | `WORKER_MAX_ROUNDS_PER_TICK` | `5` | `50` | Số round discovery lặp trong một tick |
 
-Khai báo env: [`apps/messaging_worker/vet45.target.json`](../../apps/messaging_worker/vet45.target.json).
+Khai báo env: [`apps/messaging_worker/vet45.target.json`](../../../apps/messaging_worker/vet45.target.json).
 
 ### Khi nào tăng `WORKER_CONCURRENCY`
 
@@ -105,6 +107,6 @@ Discovery RPC (tương lai) có thể thêm `p_replica_index` / `p_replica_count
 ## Liên kết
 
 - [messaging_schema.md](messaging_schema.md) — RPC và view backlog
-- [apps/messaging_worker/README.md](../../apps/messaging_worker/README.md) — deploy và local dev
+- [apps/messaging_worker/README.md](../../../apps/messaging_worker/README.md) — deploy và local dev
 - [railway_messaging_worker.md](railway_messaging_worker.md) — bootstrap project Railway sạch
-- [environment-manager.md](environment-manager.md) — sync env profile
+- [environment-manager.md](../../operations/environment-manager.md) — sync env profile
