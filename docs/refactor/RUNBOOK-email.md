@@ -1,12 +1,44 @@
-# Runbook — gửi email (Edge Function `send-email`)
+# Runbook — gửi email
 
-Email lời mời và mã đặt lại mật khẩu đi qua `iam.email_jobs` → `pg_net` → Edge Function `send-email` → Resend. App không đổi. Kiểm tay hộp thư làm sau khi tên miền đã xác minh trên Resend.
+Hai đường gửi, cùng tên miền **`mail.dschienerp.me`** (Namecheap, Resend region Tokyo), người gửi **`DSC ERP <no-reply@mail.dschienerp.me>`**:
 
-Thứ tự: Resend → secret → Vault → `db push` → deploy function. Không dán API key vào chat hoặc vào git.
+| Email | Ai gửi | Cấu hình |
+|---|---|---|
+| Mã xác minh đăng ký (6 số) | Supabase Auth qua SMTP Resend | `supabase/config.toml` `[auth.email.smtp]` + template `supabase/templates/confirmation.html` |
+| Lời mời nhân viên, mã đặt lại mật khẩu | `iam.email_jobs` → `pg_net` → Edge Function `send-email` → API Resend | secrets của function + Vault |
 
-## Dev (`pzlsjedtsntkarkivhve`)
+Không dán API key vào chat hoặc vào git.
 
-1. Trên Resend, tạo API key quyền Sending. Chưa có tên miền thì người gửi là `VET45 <onboarding@resend.dev>` — Resend chỉ giao thư tới email của chính tài khoản Resend. Khi đã xác minh tên miền, đổi thành `VET45 <no-reply@mail.<tên-miền>>`.
+## 0. Tên miền trên Resend (đã thêm 2026-10-11, chờ Verified)
+
+Bản ghi khai ở Namecheap ▸ `dschienerp.me` ▸ **Advanced DNS** ▸ Host Records (Host chỉ nhập phần ngắn; không cần MX):
+
+| Loại | Host | Giá trị |
+|---|---|---|
+| TXT | `resend._domainkey.mail` | chuỗi DKIM `p=…` chép nguyên từ Resend |
+| CNAME | `rsend.mail` | `rsend-apne1.forge.rmta.net` |
+| CNAME | `send.mail` | `send.forge.rmta.net` |
+| TXT | `_dmarc` | `v=DMARC1; p=none;` |
+
+Kiểm: `dig +short CNAME send.mail.dschienerp.me @dns1.registrar-servers.com` (nameserver Namecheap) rồi `@1.1.1.1`. Đủ thì bấm **Verify** trên Resend.
+
+## 1. Supabase Auth dùng SMTP Resend
+
+1. Resend ▸ API Keys ▸ tạo key `erp-dev`, quyền **Sending access**, domain `mail.dschienerp.me`.
+2. Ghi key vào `supabase/.env` (đã gitignore; CLI đọc file này khi gặp `env(...)` trong `config.toml`):
+
+   ```bash
+   echo 'RESEND_SMTP_PASS=re_…' >> supabase/.env
+   ```
+
+3. Áp lên Dev bằng **một** trong hai cách:
+   - Dashboard ▸ Authentication ▸ Emails ▸ SMTP Settings: Host `smtp.resend.com`, Port `465`, User `resend`, Password = key, Sender `no-reply@mail.dschienerp.me`, Name `DSC ERP`; Rate Limits ▸ email = 30/h; **hoặc**
+   - `supabase config push` (hỏi trước — áp ngay; đẩy luôn bật xác minh email, template, hạn mức 30/h). Đợt kiểm IAM dùng cách này.
+4. Local: khối SMTP bật thì `supabase start` cũng gửi thật qua Resend. Muốn đọc thư ở Mailpit (`http://127.0.0.1:54324`) thì tạm đặt `enabled = false`.
+
+## 2. Edge Function `send-email` — Dev (`pzlsjedtsntkarkivhve`)
+
+1. Dùng lại API key ở mục 1 (hoặc tạo key riêng `erp-dev-function`).
 2. Sinh secret webhook, ít nhất 32 byte:
 
    ```bash
@@ -18,9 +50,9 @@ Thứ tự: Resend → secret → Vault → `db push` → deploy function. Khôn
    ```bash
    supabase secrets set \
      RESEND_API_KEY=… \
-     EMAIL_FROM="VET45 <onboarding@resend.dev>" \
+     EMAIL_FROM="DSC ERP <no-reply@mail.dschienerp.me>" \
      EMAIL_WEBHOOK_SECRET=… \
-     APP_NAME=VET45
+     APP_NAME="DSC ERP"
    ```
 
 4. Trong SQL Editor của project Dev, ghi Vault (cùng giá trị `EMAIL_WEBHOOK_SECRET` ở bước 3):
@@ -32,10 +64,10 @@ Thứ tự: Resend → secret → Vault → `db push` → deploy function. Khôn
 
    Tên secret phải đúng `project_url` và `email_webhook_secret`. Thiếu một trong hai thì trigger không gọi HTTP; cron gửi lại sau khi Vault đủ.
 
-5. Đẩy migration và function — hỏi trước khi chạy, vì `db push` ghi lên remote:
+5. Đưa migration và function lên Dev — hỏi trước khi chạy. Đợt kiểm IAM dùng `db reset --linked` (đã sửa migration gốc, xem PLAN "Quy tắc migration"); về sau, khi chỉ thêm migration mới, dùng `db push`:
 
    ```bash
-   supabase db push
+   supabase db reset --linked
    supabase functions deploy send-email
    ```
 
@@ -60,7 +92,7 @@ supabase functions serve send-email --no-verify-jwt
 
 ## Prod
 
-Không cấu hình trước P10. Cùng các bước Dev, với project `xodvjcaaxtubnkibmrmn` và tên miền đã xác minh.
+Không cấu hình trước P10. Cùng các bước Dev, với project `xodvjcaaxtubnkibmrmn`; tạo API key riêng `erp-prod` trên cùng tên miền.
 
 ## Vận hành
 
