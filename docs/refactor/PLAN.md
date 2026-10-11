@@ -30,15 +30,15 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản tr�
 | P0 | Chuẩn bị branch, commit việc dở, chụp checklist | 0,5 ngày | — |
 | P1 | Dựng `core/` + mẫu feature | 2 ngày | P0 |
 | P2 | Auth, đăng ký cửa hàng, IAM | 5 ngày | P1 |
-| P3 | Catalog + Inventory | 5 ngày | P2 |
-| P4 | Partner | 2 ngày | P2 |
-| P5 | Pricing | 2 ngày | P3, P4 |
-| P6 | Sales | 6 ngày | P3, P4, P5 (giữ khu HĐĐT trên đơn từ P7) |
-| P7 | E-invoice | 8 ngày | P2 (7.3 gắn vào màn đơn cũ của Sales) |
+| P3 | Catalog + Inventory (+ dọn module) | 5,5 ngày | P2 |
+| P4 | Partner (+ dọn module, 3 module rỗng) | 2,5 ngày | P2 |
+| P5 | Pricing (+ dọn module) | 2,5 ngày | P3, P4 |
+| P6 | Sales (+ dọn module cuối, package module) | 6,5 ngày | P3, P4, P5 (giữ khu HĐĐT trên đơn từ P7) |
+| P7 | E-invoice (+ dọn module, `vet45_misa`) | 8,5 ngày | P2 (7.3 gắn vào màn đơn cũ của Sales) |
 | P8 | Quản trị tổ chức (gộp phần tổ chức của `apps/admin` vào tab Thêm) | 2 ngày | P2 |
-| P9 | Dọn dẹp code + DB | 3 ngày | P1–P8 |
+| P9 | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 2 ngày | P1–P8 |
 | P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 |
-| | **Tổng** | **~39 ngày làm việc** | |
+| | **Tổng** | **~40 ngày làm việc** | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
@@ -61,6 +61,15 @@ P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P8 Quản tr�
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
 
 Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/P1/1.1-cau-truc-core.md)`.
+
+### Quy tắc dọn module (chốt 2026-10-11)
+
+Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** của nó (4-C, 3-C, 5-C, 7-5, 6-C — giống 8-C / 8-D của IAM), không để dồn tới P9:
+
+1. App `erp` không còn import `vet45_<module>_*` — kể cả chỗ feature **khác** đang gọi chéo (đo 2026-10-11: `sales/presentation` gọi catalog 2, partner 1, pricing 2, einvoice 20; `pricing/presentation` gọi catalog 2, partner 1; `dashboard/presentation` gọi inventory 2).
+2. Xoá thư mục module + mục workspace / DI / router / test liên quan.
+3. DB của schema đó: bỏ outbox / inbox / RPC / bảng chỉ module cũ dùng — **sửa migration gốc** (quy tắc migration bên dưới).
+4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events` tới 7-5; 7-5 (einvoice) chạy trước 6-C (sales) theo thứ tự hiện tại nên không vướng. Package `vet45_adapters` / `vet45_annotations` / `vet45_generator` chỉ xoá được ở 6-C (module cuối).
 
 ### Quy tắc migration (chốt 2026-10-11)
 
@@ -243,6 +252,7 @@ Chi tiết từng việc:
 | **3-A3** | (a) Giá trong catalog | 3.4 | ⬜ | ⬜ | ⬜ |
 | **3-A4** | (a) Inventory | 3.5 | ⬜ | ⬜ | ⬜ |
 | **3-B** | (b) Các sửa KI của TH-02 | TH-02 mục 9.2 | ⬜ | ⬜ | ⬜ |
+| **3-C** | (dọn) **Dọn sạch module catalog + inventory**: app hết `vet45_catalog_*`, `vet45_inventory_*` (kể cả 2 chỗ ở `sales/presentation`, 2 ở `pricing/presentation`, 2 ở `dashboard/presentation`); xoá `modules/catalog`, `modules/inventory`; DB schema `catalog`, `inventory`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -273,6 +283,7 @@ Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-
 |---|---|---|---|---|---|
 | **4-A** | (a) Chuyển partner + rule MST dùng chung | 4.1, 4.2 | ⬜ | ⬜ | ⬜ |
 | **4-B** | (b) Trigger lịch sử giao dịch đối tác + các sửa KI của TH-03 | 4.3, TH-03 mục 9.2 | ⬜ | ⬜ | ⬜ |
+| **4-C** | (dọn) **Dọn sạch module partner**: app hết `vet45_partner_*` (kể cả 1 chỗ ở `sales/presentation`, 1 ở `pricing/presentation`, router, DI); xoá `modules/partner/{domain,application,infrastructure}` — **giữ `modules/partner/integration_events` tới 7-5** (einvoice phụ thuộc); DB schema `partner`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc). Kèm: xoá 3 module rỗng `accounting`, `costing`, `dashboard` (erp không dùng), `packages/vet45_resend` (chỉ worker dùng), kiểm `apps/erp/example` | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -298,6 +309,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 |---|---|---|---|---|---|
 | **5-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn) | 5.1, 5.2, 5.3 | ⬜ | ⬜ | ⬜ |
 | **5-B** | (b) Các sửa KI của TH-04 | TH-04 mục 9.2 | ⬜ | ⬜ | ⬜ |
+| **5-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -326,6 +338,7 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 | **6-A3** | (a) Tra cứu đơn + phiếu/biên lai | 6.3, 6.4 | ⬜ | ⬜ | ⬜ |
 | **6-A4** | (a) Huỷ đơn + đổi/trả | 6.5 | ⬜ | ⬜ | ⬜ |
 | **6-B** | (b) Các sửa KI của TH-05 | TH-05 mục 9.2 | ⬜ | ⬜ | ⬜ |
+| **6-C** | (dọn) **Dọn sạch module sales — module cuối**: app hết `vet45_sales_*`; xoá `modules/sales` → thư mục `modules/` **trống, xoá hẳn**; xoá `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator` (chỉ module dùng); bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chỉ phục vụ module cũ); DB schema `sales`: bỏ outbox / inbox | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -355,6 +368,7 @@ Chi tiết từng việc:
 | **7-2** | Dời toàn bộ UI HĐĐT (thiết lập + trên đơn), gộp bản trùng, `EInvoiceRepository` | 7.2, 7.3 | ⬜ | ⬜ | ⬜ |
 | **7-3** | Edge Function `einvoice-processor` + client MISA TypeScript | 7.4 | ⬜ | ⬜ | ⬜ |
 | **7-4** | Kích hoạt: `pg_cron`, `functions.invoke`, trigger thay outbox/inbox | 7.5 | ⬜ | ⬜ | ⬜ |
+| **7-5** | (dọn) **Dọn sạch module einvoice**: app hết `vet45_einvoice_*` (20 file ở `sales/presentation` đã chuyển ở 7-2); xoá `modules/einvoice` (gồm `presentation` + `example`), `packages/vet45_misa` (thay bằng client TypeScript 7-3), `packages/vet45_async_query`, `modules/partner/integration_events` (hết người dùng); DB schema `einvoice`: bỏ outbox / inbox, **giữ `internal_commands`** | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -408,15 +422,15 @@ Chi tiết từng việc:
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
-| **9-1** | Dọn code: xoá module, app admin, worker, package thừa, Melos; gọn `vet45_env` | 9.1, 9.2, 9.3, 9.6 | ⬜ | ⬜ | ⬜ |
+| **9-1** | Dọn code: gộp phần còn dùng của `vet45_shared` vào `core/` rồi xoá; bỏ Melos; gọn `vet45_env` (module / app / package cũ đã xoá ở 8-D, 4-C, 3-C, 5-C, 7-5, 6-C) | 9.1, 9.2, 9.3, 9.6 | ⬜ | ⬜ | ⬜ |
 | **9-2** | Dọn DB: bỏ outbox/inbox/onboarding, gộp migration baseline | 9.4, 9.5 | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
 | # | Việc | Kiểm tra |
 |---|---|---|
-| 9.1 | Xoá `modules/` còn lại. `modules/iam`, `apps/admin`, `apps/messaging_worker` **đã xoá ở 8-D** | `grep -r "vet45_.*_application"` không còn kết quả |
-| 9.2 | Xoá package `vet45_generator`, `vet45_annotations`, `vet45_adapters`, `vet45_async_query`, `vet45_resend`; gộp phần còn dùng của `vet45_shared` vào `core/` | `flutter pub get` OK |
+| 9.1 | Kiểm **không còn** `modules/`, `apps/admin`, `apps/messaging_worker` (xoá dần: 8-D IAM / admin / worker; 4-C partner + 3 module rỗng; 3-C catalog, inventory; 5-C pricing; 7-5 einvoice; 6-C sales) | `grep -r "vet45_.*_application"` không còn kết quả |
+| 9.2 | Gộp phần còn dùng của `vet45_shared` (`ApplicationException`, `TenantAccessRevokedSignal`…) vào `core/` rồi xoá `packages/vet45_shared` (các package khác đã xoá ở 4-C, 7-5, 6-C) | `flutter pub get` OK |
 | 9.3 | Bỏ Melos, `pubspec.yaml` gốc chỉ còn workspace nhỏ (`apps/erp`, `packages/vet45_design_system`, `tools/vet45_env`). Lệnh `melos run env:*` đổi thành `.vet45/bin/vet45 …` (dựng bằng `dart compile exe`) hoặc `dart run tools/vet45_env/bin/run.dart …`. Xoá `packages/vet45_misa` (đã viết lại bằng TypeScript trong Edge Function ở P7.4) | `flutter analyze` sạch |
 | 9.4 | DB: bỏ outbox/inbox của mọi schema (kể cả `sales`, `einvoice`) và RPC/view messaging của `platform`; **giữ `einvoice.internal_commands`** (hàng đợi của Edge Function). Bỏ idempotency/onboarding, RPC readiness/activate/onboarding, trạng thái `provisioning`/`pending_activation`; thêm lại FK `memberships.user_id` | `supabase db reset` OK |
 | 9.5 | **Gộp migration**: dump schema thành ~5 file baseline (`00_schemas`, `01_tables`, `02_functions`, `03_rls`, `04_triggers`) + `seed.sql`; chuyển migration cũ vào `supabase/_archive/` | `db reset` từ baseline + chạy lại checklist |
