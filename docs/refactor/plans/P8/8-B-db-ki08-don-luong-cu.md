@@ -1,6 +1,6 @@
 # 8-B — DB: chặn chuyển Owner sai (KI-08), dọn luồng onboarding cũ, FK thành viên (KI-03)
 
-> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (S1–S4 + app xong 2026-10-11; chờ kiểm trên DB sạch) | Review ⬜
+> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (S1–S4 + app xong 2026-10-11; chờ kiểm trên DB sạch) | Review 🔄
 > Gồm việc: 8.4, 8.6. Làm sau 8-C, 8-D (đã xong: không còn `apps/admin` / `modules/iam` gọi RPC cũ). **Push cùng đợt kiểm IAM.**
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) BR-07, BR-13, BR-32, BR-35, KI-03, KI-05, KI-08, mục 8.
 > Mọi migration mới đặt timestamp **sau `20261009005`** (5 migration P2 chưa push lên Dev).
@@ -129,3 +129,15 @@ Làm đúng plan, trừ các điểm lệch dưới đây (đều chọn hướn
 
 **Chưa kiểm:** chạy thật trên DB sạch (bạn tự `db reset --linked` rồi chạy 5 kịch bản SQL, mục 4.3); `iam_legacy_cleanup.sql` chưa từng chạy nên có thể cần chỉnh.
 
+### Review của Claude (2026-10-11)
+
+- Commit được review: `2ecd51279` (xoá 9 migration), `b26bc1992` (sửa ~30 migration, app, 2 kịch bản SQL). Lần trả lời trước Claude báo nhầm 8-B "chưa làm" vì chỉ đọc bảng trạng thái, không xem `git log` — đã sửa.
+- Kết quả: **Code đạt khi kiểm tĩnh; chưa chạy trên DB sạch** → Review 🔄 tới đợt kiểm IAM (`db reset --linked`).
+  - Kiểm tĩnh toàn bộ `supabase/migrations` (bỏ chú thích): **không còn** tên 11 hàm cũ / trigger `trg_cleanup_pending_profile`, không còn `pending_activation`, `'provisioning'`; mọi lời gọi `iam.<hàm>(…)` đều có định nghĩa trong bộ migration còn lại.
+  - 4 bảng idempotency cũ (`tenant_invitation_operations`, `…_mutate_…`, `…_token_…`, `platform_user_lifecycle_operations`) chỉ còn trong **thân hàm đã bị ghi đè** ở migration sau (bản mới nhất không dùng) và không tồn tại trên Dev — có từ trước 8-B, vô hại (PL/pgSQL không kiểm bảng lúc tạo hàm). Nên dọn khi gộp baseline (P9.5).
+  - S2: `20261009005` đã gộp vào `20260916006` (giữ kích hoạt lại thành viên đã loại, `DUPLICATE_MEMBERSHIP`, `MEMBERSHIP_INACTIVE`; bỏ nhánh Owner cũ, `v_should_be_owner`); `_audit_event_category` gộp về `20260826004`.
+  - S3: tenants `status` default `active`, check `('active','suspended','closed')` (`20260811002`, `20260811006`); enum `platform_user_status` = `active`, `suspended`.
+  - S4: không còn câu gỡ FK `memberships_user_id_fkey`, `platform_user_profiles_user_id_fkey`; index `memberships_one_owned_tenant_per_user_uidx` ở `20260811014`.
+  - App: bỏ `TenantStatus.provisioning`; `tenant_audit_field_catalog` vẫn dịch `'provisioning'` của **nhật ký cũ** thành "Đang hoạt động" — chấp nhận.
+  - `dart analyze lib test`: không error; 1 warning mới (`fake_session_repository.dart:240` tham số `isOwner` không dùng). `check_feature_imports`: 0 vi phạm. `flutter test`: **1.492 pass / 59 fail**, không lỗi mới so với 8-D (2 ca `provisioning` bị bỏ).
+- Việc còn lại để đóng 8-B: đợt kiểm IAM — `supabase db reset --linked` (Claude hỏi trước) → chạy `iam_legacy_cleanup.sql`, `iam_transfer_ownership_other_owner.sql` cùng 3 kịch bản P2 → kiểm tay kịch bản 6 (chuyển Owner).
