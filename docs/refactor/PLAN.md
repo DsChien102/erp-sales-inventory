@@ -62,6 +62,20 @@ Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [The
 
 Khi đã có file plan, cột **Plan** ghi trạng thái kèm link, ví dụ `📝 [plan](plans/P1/1.1-cau-truc-core.md)`.
 
+### Quy tắc migration (chốt 2026-10-11)
+
+**Sửa thẳng trong migration gốc, không tạo migration mới chỉ để ghi đè cái cũ.** Áp dụng cho mọi plan từ nay, cho tới khi Prod chạy thật (P10).
+
+| Trường hợp | Làm thế nào |
+|---|---|
+| Sửa một hàm / trigger / view đã có | Sửa trong file migration chứa **định nghĩa mới nhất** của đối tượng đó (`grep -l "function iam.<tên>(" supabase/migrations/*.sql \| tail -1`) |
+| Bỏ một đối tượng của luồng cũ | Xoá câu `create …` (và `grant`, trigger đi kèm) khỏi migration gốc; không viết `drop` ở migration mới |
+| Bảng / cột / ràng buộc | Sửa câu `create table` / `alter table` gốc (vd thêm FK ngay chỗ tạo cột; xoá câu `drop constraint` đã gỡ nó) |
+| Đối tượng **mới hoàn toàn** | Vẫn tạo migration mới (timestamp lớn nhất) |
+| Migration chỉ còn là bản ghi đè rỗng sau khi gộp | Xoá file + dòng trong `REGISTRY.yaml` |
+
+**Hệ quả bắt buộc:** Supabase chỉ chạy mỗi file một lần → sửa file **đã áp** thì Dev không tự nhận. Mỗi đợt có sửa migration đã áp: `supabase db reset --linked` trên Dev (xoá sạch DB Dev rồi chạy lại toàn bộ migration + `seed.sql`), sau đó `vet45 admin create` lại admin. Dev hiện gần như trống (0 tài khoản, chỉ dữ liệu seed — đo 2026-10-11) nên reset an toàn; **hỏi trước mỗi lần reset**. Prod chưa đụng tới — P10 dựng mới từ bộ migration cuối. **Sau khi Prod chạy thật, quay lại quy tắc cũ** (chỉ thêm migration mới).
+
 ### Danh sách plan
 
 | Việc | File plan | Plan | Làm | Review |

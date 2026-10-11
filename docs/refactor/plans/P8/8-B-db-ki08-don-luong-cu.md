@@ -1,6 +1,6 @@
 # 8-B — DB: chặn chuyển Owner sai (KI-08), dọn luồng onboarding cũ, FK thành viên (KI-03)
 
-> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (mục 2 xong; mục 1 phải làm lại) | Review ⬜
+> Phase: P8 · Trạng thái: Plan 📝 (chi tiết, 2026-10-11) | Làm 🔄 (mục 1, 2 xong; S2–S4 chưa) | Review ⬜
 > Gồm việc: 8.4, 8.6. Làm sau 8-C, 8-D (đã xong: không còn `apps/admin` / `modules/iam` gọi RPC cũ). **Push cùng đợt kiểm IAM.**
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) BR-07, BR-13, BR-32, BR-35, KI-03, KI-05, KI-08, mục 8.
 > Mọi migration mới đặt timestamp **sau `20261009005`** (5 migration P2 chưa push lên Dev).
@@ -30,46 +30,44 @@
 
 Dev trống nên dọn dữ liệu là thừa trên Dev, nhưng migration **vẫn phải an toàn** khi có dữ liệu (Prod, P10).
 
-## 2. Các migration
+## 2. Sửa migration (theo [quy tắc migration](../../PLAN.md#quy-tắc-migration-chốt-2026-10-11): sửa thẳng file gốc, không tạo file ghi đè)
 
-### M1 — `20261011001_iam_transfer_owner_ki08.sql` (KI-08, làm lại)
+Sau khi sửa: **reset Dev** (`supabase db reset --linked`, hỏi trước) rồi push lại toàn bộ — Dev gần như trống nên không mất gì. Bước dọn dữ liệu cũ của bản plan trước **bỏ** (DB dựng lại từ đầu không có dữ liệu `provisioning` / giữ chỗ).
 
-1. `git checkout HEAD -- supabase/migrations/20260811012_iam_platform_transfer_ownership.sql` (trả file đã áp về nguyên bản).
-2. Migration mới: `create or replace function iam.transfer_platform_tenant_ownership(...)` = thân hàm **bản đã sửa** (hiện trong working tree trước khi checkout — chép ra trước bước 1), gồm 2 kiểm sau kiểm thành viên:
-   - người nhận phải đang hoạt động (`is_active` và `removed_at is null`) → `OWNER_TARGET_INVALID`;
-   - người nhận không là Owner tổ chức khác (`is_owner` và `removed_at is null`, `tenant_id <> p_tenant_id`) → `OWNER_TARGET_ALREADY_OWNER`.
-3. Giữ quyền như bản gốc (`revoke … from public, anon; grant … to authenticated`).
-4. Giữ `supabase/tests/iam_transfer_ownership_other_owner.sql` (sửa phần đầu nếu nó giả định file `20260811012`).
-5. App: `ChangeOwnerCubit` đã map `OWNER_TARGET_ALREADY_OWNER` (vào cùng commit 8-C) — không đổi.
+### S1 — KI-08 (giữ cách sửa tại chỗ của phiên trước)
 
-### M2 — `20261011002_iam_drop_legacy_onboarding.sql` (KI-05 DB)
+- `20260811012_iam_platform_transfer_ownership.sql`: giữ bản đã sửa trong working tree (2 kiểm `OWNER_TARGET_INVALID`, `OWNER_TARGET_ALREADY_OWNER`). Thêm dòng `-- 8-B (2026-10-11): KI-08` vào header.
+- Giữ `supabase/tests/iam_transfer_ownership_other_owner.sql`; app (`ChangeOwnerCubit`) đã có.
 
-Thứ tự trong một migration:
+### S2 — Gộp các bản ghi đè mới của P2 (chưa áp ở đâu)
 
-1. **Viết lại hàm đang dùng, bỏ nhánh cũ** (chép bản mới nhất, chỉ bỏ nhánh):
-   - `accept_invitation` (bản mới nhất: `20261009005`): bỏ nhánh `v_inv.is_owner` / tổ chức `provisioning` / gọi `_unwind_provisioning_owner_membership`; giữ nhánh nhân viên (`target_membership_id`, `_unwind_staff_precreate_membership`, kích hoạt lại thành viên đã loại).
-   - `decline_invitation`, `revoke_tenant_invitation`, `inspect_invitation_token` (bản mới nhất: tìm theo `grep -l "function iam.<tên>(" supabase/migrations | tail -1`): bỏ nhánh Owner / `provisioning`.
-   - `get_platform_tenant` (`20260911003`): bỏ trường lời mời Owner / readiness (8-A đã không đọc chúng).
+| File ghi đè | Gộp vào | Sau đó |
+|---|---|---|
+| `20261009005_iam_accept_invitation_reactivate_removed.sql` (KI-02) | Thân `accept_invitation` trong `20260916006_iam_patch_accept_invitation_default_store_scope.sql` | Xoá file `…005` + dòng REGISTRY |
+| Đoạn `iam._audit_event_category` trong `20261009001_iam_create_tenant_for_owner.sql` | Thêm `'iam.tenant.created'` vào hàm gốc ở `20260826004_iam_audit_logs_v2_rebuild.sql` | Xoá đoạn đó khỏi `…001` (giữ `_create_tenant_for_owner`) |
+| `iam.enqueue_outbox_message` trong `20261009003_iam_email_jobs.sql` | **Ngoại lệ, giữ nguyên**: hàm gốc sinh bằng `format()` cho mọi schema trong `20260623000001`; tách riêng cho `iam` ở đó phức tạp hơn lợi. Ghi chú lý do trong header `…003` | — |
+
+### S3 — Bỏ luồng onboarding cũ (KI-05)
+
+1. **Xoá định nghĩa** (câu `create function` + `grant` / `revoke` đi kèm) ở **mọi** migration có chúng (`grep -l "function iam.<tên>(" supabase/migrations/*.sql`): `create_tenant_onboarding`, `reinvite_provisioning_owner`, `send_activation_invitation`, `resend_owner_activation`, `get_tenant_readiness`, `activate_tenant`, `bootstrap_owner`, `platform_identity_create_pending_user_for_onboarding`, `resolve_or_create_platform_user_for_onboarding`, `_unwind_provisioning_owner_membership`, `_cleanup_pending_profile_on_auth_user` + trigger `trg_cleanup_pending_profile` (`20260826003`). Migration nào chỉ còn rỗng → xoá file + REGISTRY.
+2. **Sửa bản mới nhất** của hàm đang dùng, bỏ nhánh Owner cũ / `provisioning` / `pending_activation`:
+   - `accept_invitation` (sau S2: `20260916006`), `decline_invitation`, `revoke_tenant_invitation`, `inspect_invitation_token` — bỏ gọi `_unwind_provisioning_owner_membership`, nhánh `is_owner`; **giữ** `_unwind_staff_precreate_membership`.
+   - `get_platform_tenant` (`20260911003`): bỏ trường lời mời Owner / readiness.
    - `get_my_platform_user_profile`, `update_my_platform_user_profile`, `_platform_user_effective_status`: bỏ nhánh `pending_activation`.
-2. **Dữ liệu cũ** (an toàn khi có dữ liệu; Dev = 0 dòng):
-   - `update iam.tenants set status = 'closed', status_reason = 'legacy provisioning (8-B)', status_changed_at = now() where status = 'provisioning';` (đóng, không xoá — giữ lịch sử).
-   - Lời mời Owner còn chờ: `update iam.tenant_invitations set status = 'revoked' … where is_owner and status = 'pending';`
-   - Hồ sơ giữ chỗ: `delete from iam.platform_user_profiles p where p.status = 'pending_activation' and not exists (select 1 from auth.users u where u.id = p.user_id);` còn lại `pending_activation` có user thật → `active`.
-   - Thành viên giữ chỗ (user không tồn tại): `delete from iam.memberships m where not exists (select 1 from auth.users u where u.id = m.user_id);` (Dev = 0).
-3. **Xoá** trigger `trg_cleanup_pending_profile` + hàm `_cleanup_pending_profile_on_auth_user`; 10 hàm cũ còn lại ở mục 1 (`drop function if exists iam.<tên>(<kiểu tham số>)` — lấy chữ ký bằng `\df` / `pg_get_function_identity_arguments`); `drop table if exists` 2 bảng (đã không còn, giữ cho Prod).
-4. **Ràng buộc trạng thái tổ chức**: thay check thành `status in ('active','suspended','closed')`.
-5. **Enum `pending_activation`**: Postgres không xoá được giá trị enum. **Giữ giá trị trong enum** (không còn hàm nào tạo ra nó) + thêm `check (status <> 'pending_activation')` trên `platform_user_profiles`. (Dựng lại kiểu enum để làm ở P9 nếu muốn — không cần cho hành vi.)
-6. `search_platform_tenants`: tham số `p_readiness_state`, `p_warning_code` **giữ** (8-A gửi `null`; đổi chữ ký sẽ phải sửa app) — chỉ bỏ nhánh xử lý readiness trong thân nếu có.
+   - `search_platform_tenants`: **giữ chữ ký** (app gửi `p_readiness_state`, `p_warning_code` = null), chỉ bỏ xử lý readiness trong thân.
+3. **Ràng buộc**: `iam.tenants.status` — sửa câu tạo check gốc thành `('active','suspended','closed')` và default `'active'` (hiện `20260811006` đặt default `'provisioning'`). Bảng `onboarding_operations`, `owner_activations`: xoá câu `create table` gốc (Dev đã không còn).
+4. **Enum `iam.platform_user_status`**: sửa câu `create type` gốc (`20260911001`) bỏ `pending_activation` — được vì DB dựng lại từ đầu; sửa luôn các migration cũ có dùng giá trị này (`20260811004` check cũ, `20260826003` index `platform_user_profiles_pending_email_uidx`, cột `email` cho hồ sơ giữ chỗ nếu chỉ phục vụ luồng cũ).
 
-### M3 — `20261011003_iam_memberships_user_fk.sql` (KI-03, BR-07 ở DB)
+### S4 — FK thành viên + BR-07 ở DB (KI-03)
 
-1. `alter table iam.memberships add constraint memberships_user_id_fkey foreign key (user_id) references auth.users(id) on delete cascade;` (M2 đã xoá mồ côi).
-2. `create unique index if not exists memberships_one_owned_tenant_per_user on iam.memberships (user_id) where is_owner and removed_at is null;` (BR-07; đóng khe hai lần chuyển Owner song song). Trước khi tạo, migration kiểm và `raise exception` rõ ràng nếu còn người sở hữu > 1 tổ chức (Dev = 0).
+1. `20260911004_iam_onboarding_owner_membership_with_invitation.sql`: **xoá** câu `alter table iam.memberships drop constraint if exists memberships_user_id_fkey` (FK gốc ở `20260630000001` sẽ còn nguyên). Tương tự kiểm `20260826003` (gỡ FK `platform_user_profiles.user_id`) — xoá câu gỡ FK.
+2. Index `memberships_one_owned_tenant_per_user on iam.memberships (user_id) where is_owner and removed_at is null`: thêm vào migration tạo cột `is_owner` / `removed_at` của memberships (`20260811014_iam_tenant_membership_lifecycle.sql`).
 
 ### Kịch bản SQL
 
-- `supabase/tests/iam_transfer_ownership_other_owner.sql` (có sẵn): chuyển cho người đã là Owner nơi khác → `OWNER_TARGET_ALREADY_OWNER`; cho người không hoạt động → `OWNER_TARGET_INVALID`; hợp lệ → đúng 1 Owner.
-- `supabase/tests/iam_legacy_cleanup.sql` (mới, `begin … rollback`): sau M2 không còn 11 hàm cũ (`to_regprocedure` null); tạo tổ chức `provisioning` → bị check chặn; `accept_invitation` / `decline_invitation` / `revoke_tenant_invitation` nhân viên vẫn chạy (gọi lại kịch bản 2-B3 `iam_accept_invitation_reinvite.sql`); FK chặn membership với user không tồn tại; index chặn Owner thứ hai cho cùng user.
+- `iam_transfer_ownership_other_owner.sql` (có sẵn).
+- `iam_legacy_cleanup.sql` (mới, `begin … rollback`): 11 hàm cũ không tồn tại (`to_regprocedure` null); không tạo được tổ chức `provisioning`; FK chặn membership với user không tồn tại; index chặn Owner thứ hai cho cùng user; lời mời nhân viên vẫn chạy (gọi kịch bản 2-B3).
+- Kiểm toàn bộ bộ migration trên DB **sạch**: chạy được trên Supabase local (`supabase db reset`) hoặc, nếu chưa có Docker, ngay trên Dev bằng `db reset --linked` (đợt kiểm IAM).
 
 ## 3. App (mục 6)
 
@@ -79,20 +77,20 @@ Thứ tự trong một migration:
 
 ## 4. Thứ tự làm và push
 
-1. Chép thân hàm KI-08 đã sửa ra file tạm → checkout `20260811012` → viết M1.
-2. Viết M2, M3, 2 kịch bản SQL, sửa app.
-3. `dart analyze`, `flutter test` (`apps/erp`).
-4. **Đợt kiểm IAM** (cùng 5 migration P2):
-   1. Ghép `20261009001…005` + M1–M3 + các kịch bản SQL (`iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_transfer_ownership_other_owner`, `iam_legacy_cleanup`) trong `begin … rollback` → `supabase db query --linked -f` (Claude chạy khi bạn đồng ý).
-   2. Đạt → `db push` (8 migration) → `config push` → secrets + Vault → `functions deploy send-email`.
-   3. `vet45 admin create` trên Dev → kiểm tay P2 (TH-01 9.3 kịch bản 1–4) + 8-A (kịch bản 5–6).
+1. S1 (giữ), S2 (gộp), S3, S4, 2 kịch bản SQL, sửa app (mục 3).
+2. `dart analyze`, `flutter test` (`apps/erp`); `grep` 11 tên hàm cũ trong `supabase/migrations` → chỉ còn trong chú thích / `_drafts` / `docs/_legacy`.
+3. **Đợt kiểm IAM** (Claude chạy khi bạn đồng ý từng bước):
+   1. `supabase db reset --linked` trên Dev (xoá sạch, chạy lại toàn bộ migration + `seed.sql`) — kiểm cả bộ migration đã sửa trên DB sạch.
+   2. Chạy các kịch bản SQL (`iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_transfer_ownership_other_owner`, `iam_legacy_cleanup`) bằng `supabase db query --linked -f` (mỗi kịch bản tự `rollback`).
+   3. `config push` → secrets + Vault (bạn) → `functions deploy send-email` → `vet45 admin create`.
+   4. Kiểm tay TH-01 9.3 kịch bản 1–6.
 
 ## 5. Rủi ro / lưu ý
 
+- **Sửa lịch sử migration**: chỉ hợp lệ khi chưa có Prod chạy thật. Prod (`xodvjcaaxtubnkibmrmn`) chưa đụng tới; ở P10 dựng từ bộ migration cuối — **nếu Prod đã có dữ liệu thật** thì phải đổi cách (so lệch schema), kiểm trước P10.
 - **Chép hàm dài** (`accept_invitation` ~300 dòng): chỉ bỏ nhánh Owner / `provisioning`; Claude sẽ diff với bản gốc khi review.
 - Tìm hàm tham chiếu bằng nội dung có thể dính **chú thích** (`has_permission`, `_mutate_membership_status`, `get_session_context`) — đọc thân hàm, chỉ sửa khi là code.
 - `drop function` sai chữ ký sẽ báo lỗi ngay (không âm thầm) → lấy chữ ký từ DB.
-- Prod (P10) có thể còn dữ liệu cũ: M2 đóng (không xoá) tổ chức `provisioning`, thu hồi lời mời Owner; xem lại số liệu Prod trước khi push ở P10.
 
 ## 6. Review
 
@@ -100,7 +98,7 @@ Thứ tự trong một migration:
 
 | # | Trạng thái | Chi tiết |
 |---|---|---|
-| 1 KI-08 | ⚠️ **làm lại theo M1** | Đã sửa thẳng `20260811012` (Dev đã áp → `db push` bỏ qua; Prod dựng mới sẽ khác Dev). Thân hàm và 2 kiểm dùng lại được; test SQL `iam_transfer_ownership_other_owner.sql` giữ; app (`ChangeOwnerCubit`) đã có trong commit 8-C |
+| 1 KI-08 | ✅ đúng quy tắc mới (S1) | Đã sửa thẳng `20260811012` — từ 2026-10-11 đây là cách chuẩn; Dev nhận qua `db reset --linked`. Thân hàm và 2 kiểm giữ nguyên; test SQL `iam_transfer_ownership_other_owner.sql` giữ; app (`ChangeOwnerCubit`) đã có trong commit 8-C |
 | 2 Lý do khôi phục | ✅ chốt: bỏ yêu cầu | Giữ RPC không `p_reason`; TH-01 BR-13, US-09.3 FR-03 và `ADMIN-SCREENS` M6c đã sửa (working tree, chưa commit) |
 
 <!-- Claude ghi phần dưới sau khi bạn code xong -->
