@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../iam/support/iam_module_repositories.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import '../iam/support/fake_iam_backend.dart';
+import '../iam/support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
+import '../iam/support/iam_fixtures.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -49,27 +49,27 @@ void main() {
     await enterInvitationCode(tester, code);
   }
 
-  void register(IIamModule module) {
+  void register(FakeIamBackend module) {
     getIt
       ..registerSingleton<IExecutionContext>(
         FakeExecutionContext(tenantId: 'org-001'),
       )
-      ..registerSingleton<IIamModule>(module);
+      ..registerSingleton<FakeIamBackend>(module);
   }
 
   testWidgets(
-    'e2e_e03_u01_fr01_01: list members then invitations via IIamModule',
+    'e2e_e03_u01_fr01_01: list members then invitations via FakeIamBackend',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
+      final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
       register(module);
 
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationUsersPage(
-            members: IamModuleMemberRepository(module),
-            invitations: IamModuleInvitationRepository(module),
+            members: FakeMemberRepository(module),
+            invitations: FakeInvitationRepository(module),
           ),
         ),
       );
@@ -88,9 +88,7 @@ void main() {
     'e2e_e03_u02_fr01_01: invite member loads roles and submits CreateInvitation',
     (tester) async {
       await phone(tester);
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.inviteOk),
-      );
+      final module = FakeIamBackend(scenario: FakeIamScenario.inviteOk);
       register(module);
 
       await tester.pumpWidget(
@@ -98,7 +96,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: OrganizationInviteMemberPage(
             session: testSessionController(),
-            invitations: IamModuleInvitationRepository(module),
+            invitations: FakeInvitationRepository(module),
             keyFactory: FakeIdempotencyKeyFactory(),
           ),
         ),
@@ -119,7 +117,7 @@ void main() {
     'e2e_e03_u03_fr01_01: opaque token → existing account accept',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
+      final module = FakeIamBackend(
         scenario: FakeIamScenario.acceptExistingAccountOk,
       );
       register(module);
@@ -169,7 +167,7 @@ void main() {
     'e2e_e03_u03_fr01_02: opaque token → new account registration fields',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(scenario: FakeIamScenario.registerAndAcceptOk);
+      final module = FakeIamBackend(scenario: FakeIamScenario.registerAndAcceptOk);
       register(module);
       final router = GoRouter(
         initialLocation: '/invitation',
@@ -234,7 +232,7 @@ void main() {
     'e2e_e03_u03_fr01_03: invalid code stays on entry with a toast, no outcome page',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
+      final module = FakeIamBackend(
         scenario: FakeIamScenario.inspectInvalidNoLeak,
       );
       register(module);
@@ -275,9 +273,7 @@ void main() {
     'e2e_e03_u04_fr01_01: invitation detail → resend then revoke',
     (tester) async {
       await phone(tester);
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.invitationResendOk),
-      );
+      final module = FakeIamBackend(scenario: FakeIamScenario.invitationResendOk);
       register(module);
 
       final router = GoRouter(
@@ -287,7 +283,7 @@ void main() {
             path: '/more/users/invitations/:invitationId',
             builder: (context, state) => OrganizationInvitationDetailPage(
               invitationId: state.pathParameters['invitationId']!,
-            invitations: IamModuleInvitationRepository(module),
+            invitations: FakeInvitationRepository(module),
               keyFactory: FakeIdempotencyKeyFactory(),
             ),
           ),
@@ -326,9 +322,7 @@ void main() {
     'e2e_e03_u05_fr01_01: member detail deactivate lifecycle',
     (tester) async {
       await phone(tester);
-      final module = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.memberDeactivateOk),
-      );
+      final module = FakeIamBackend(scenario: FakeIamScenario.memberDeactivateOk);
       register(module);
 
       await tester.pumpWidget(
@@ -336,7 +330,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: OrganizationMemberDetailPage(
             membershipId: 'mem-staff-1',
-            members: IamModuleMemberRepository(module),
+            members: FakeMemberRepository(module),
           ),
         ),
       );
@@ -357,7 +351,7 @@ void main() {
     'e2e_e03_u05_fr01_02: last owner protected blocks destructive action',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
+      final module = FakeIamBackend(
         scenario: FakeIamScenario.memberLastOwnerProtected,
       );
       register(module);
@@ -367,7 +361,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: OrganizationMemberDetailPage(
             membershipId: 'mem-owner-1',
-            members: IamModuleMemberRepository(module),
+            members: FakeMemberRepository(module),
           ),
         ),
       );
@@ -382,7 +376,7 @@ void main() {
     'e2e_e03_u01_fr01_02: permission denied on members list',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
+      final module = FakeIamBackend(
         scenario: FakeIamScenario.memberInvitationForbidden,
       );
       register(module);
@@ -391,8 +385,8 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationUsersPage(
-            members: IamModuleMemberRepository(module),
-            invitations: IamModuleInvitationRepository(module),
+            members: FakeMemberRepository(module),
+            invitations: FakeInvitationRepository(module),
           ),
         ),
       );

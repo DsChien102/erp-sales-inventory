@@ -1,14 +1,14 @@
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/auth/data/invitation_acceptance_repository.dart';
 import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:erp/features/iam/data/models/tenant_invitation.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
-import 'package:erp/features/iam/presentation/testing/fake_idempotency_key_factory.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import '../../iam/support/iam_fixtures.dart';
 
+import '../../iam/support/fake_iam_backend.dart';
 import 'scripted_auth.dart';
 
 /// Lời mời giả theo các kịch bản [FakeIamScenario] mà cubit/trang kích hoạt đang dùng.
@@ -34,13 +34,13 @@ class ScriptedInvitations extends InvitationAcceptanceRepository {
     _log?.add('inspect');
     if (scenario == FakeIamScenario.inspectInvalidNoLeak ||
         scenario == FakeIamScenario.acceptRotatedToken) {
-      throw const IamBlockedException(IamBlockedCodes.invitationTokenInvalid);
+      throw const AppException(IamBlockedCodes.invitationTokenInvalid);
     }
     if (scenario == FakeIamScenario.acceptExpired) {
-      throw const IamBlockedException(IamBlockedCodes.invitationExpired);
+      throw const AppException(IamBlockedCodes.invitationExpired);
     }
     if (scenario == FakeIamScenario.acceptDeclined) {
-      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
+      throw const AppException(IamBlockedCodes.invitationAlreadyUsed);
     }
     final exists = switch (scenario) {
       FakeIamScenario.inspectNewAccount ||
@@ -71,13 +71,13 @@ class ScriptedInvitations extends InvitationAcceptanceRepository {
     _log?.add('accept');
     if (acceptError != null) throw acceptError!;
     if (scenario == FakeIamScenario.acceptEmailMismatch) {
-      throw const IamBlockedException(IamBlockedCodes.invitationEmailMismatch);
+      throw const AppException(IamBlockedCodes.invitationEmailMismatch);
     }
     if (scenario == FakeIamScenario.acceptConcurrent) {
-      throw const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed);
+      throw const AppException(IamBlockedCodes.invitationAlreadyUsed);
     }
     if (scenario == FakeIamScenario.acceptTenantSuspended) {
-      throw const IamBlockedException(IamBlockedCodes.tenantSuspended);
+      throw const AppException(IamBlockedCodes.tenantSuspended);
     }
     return TenantMemberDetail(
       membershipId: 'mem-accepted-1',
@@ -101,7 +101,7 @@ class ScriptedInvitations extends InvitationAcceptanceRepository {
     _log?.add('decline');
     if (declineFailures > 0) {
       declineFailures -= 1;
-      throw const IamBlockedException(IamBlockedCodes.idempotencyConflict);
+      throw const AppException(IamBlockedCodes.idempotencyConflict);
     }
     return TenantInvitationDetail(
       invitationId: 'inv-1',

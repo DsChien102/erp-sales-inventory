@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import '../../support/fake_iam_backend.dart';
+import '../../support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 final class _FakeRoles implements InvitationRoleOptionsSource {
   @override
@@ -25,12 +25,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.inviteOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.inviteOk);
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(module),
+      invitations: FakeInvitationRepository(module),
       roleOptionsSource: _FakeRoles(),
       keyFactory: FakeIdempotencyKeyFactory(),
     );
@@ -72,7 +70,7 @@ void main() {
 
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(FakeIamModule(scenario: FakeIamScenario.inviteOk)),
+      invitations: FakeInvitationRepository(FakeIamBackend(scenario: FakeIamScenario.inviteOk)),
       roleOptionsSource: _FakeRoles(),
       keyFactory: FakeIdempotencyKeyFactory(),
     );

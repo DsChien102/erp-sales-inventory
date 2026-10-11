@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../../data/audit_log_repository.dart';
 import '../../shared/iam_load_status.dart';
@@ -10,7 +9,7 @@ import '../bloc/tenant_audit_logs_state.dart';
 import '../mappers/tenant_audit_ui_mapper.dart';
 import '../widgets/audit_log_detail_body.dart';
 
-/// Chi tiết nhật ký — loads by [auditLogId] via [GetTenantAuditLogQuery].
+/// Chi tiết nhật ký — loads by [auditLogId] via [AuditLogRepository.getDetail].
 class AuditLogDetailPage extends StatelessWidget {
   const AuditLogDetailPage({
     super.key,

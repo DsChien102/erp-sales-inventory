@@ -1,5 +1,5 @@
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart' hide TenantAuditEventCategory;
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../data/models/tenant_audit_log.dart';
 

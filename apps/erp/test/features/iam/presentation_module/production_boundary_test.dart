@@ -42,7 +42,7 @@ void main() {
 
   test('presentation.dart does not export Fake* or testing paths', () {
     final source = File(
-      '${root.path}/modules/iam/presentation/lib/presentation.dart',
+      '${root.path}/apps/erp/lib/features/iam/presentation.dart',
     ).readAsStringSync();
     expect(source.contains('Fake'), isFalse);
     expect(source.contains('testing/'), isFalse);
@@ -50,7 +50,7 @@ void main() {
   });
 
   test('IAM presentation lib (non-testing) does not import Fake*Data', () {
-    final lib = Directory('${root.path}/modules/iam/presentation/lib');
+    final lib = Directory('${root.path}/apps/erp/lib/features/iam/presentation');
     final violations = <String>[];
     for (final file in _dartFilesUnder(lib)) {
       if (_isTestPath(file.path) || file.path.endsWith('/testing.dart')) {
@@ -74,7 +74,7 @@ void main() {
     ];
     final violations = <String>[];
     final pattern = RegExp(
-      r'Fake[A-Za-z]+Data|vet45_iam_presentation/testing|/src/testing/|/mock/',
+      r'Fake[A-Za-z]+Data|/src/testing/|/mock/',
     );
     for (final dir in targets) {
       for (final file in _dartFilesUnder(dir)) {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 void main() {
   Future<void> pumpPage(
@@ -23,7 +22,7 @@ void main() {
       MaterialApp(
         home: OrganizationMemberDetailPage(
           membershipId: membershipId,
-          members: IamModuleMemberRepository(FakeIamModule(scenario: scenario)),
+          members: FakeMemberRepository(FakeIamBackend(scenario: scenario)),
           cubit: cubit,
         ),
       ),
@@ -91,12 +90,10 @@ void main() {
   });
 
   testWidgets('deactivate confirmation mutates to inactive', (tester) async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberDeactivateOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberDeactivateOk);
     final cubit = OrganizationMemberDetailCubit(
       membershipId: 'mem-staff-1',
-      members: IamModuleMemberRepository(module),
+      members: FakeMemberRepository(module),
     );
     await cubit.load();
 
@@ -131,12 +128,10 @@ void main() {
   });
 
   testWidgets('selecting new role and tapping Tiếp tục changes role immediately', (tester) async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberDeactivateOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberDeactivateOk);
     final cubit = OrganizationMemberDetailCubit(
       membershipId: 'mem-staff-1',
-      members: IamModuleMemberRepository(module),
+      members: FakeMemberRepository(module),
     );
     await cubit.load();
 

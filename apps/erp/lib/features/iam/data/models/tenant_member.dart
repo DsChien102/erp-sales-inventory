@@ -1,4 +1,5 @@
-import 'package:vet45_iam_domain/domain.dart';
+/// Trạng thái vòng đời của một thành viên trong tổ chức.
+enum MembershipStatus { active, inactive, removed }
 
 /// Dòng danh sách thành viên (`list_tenant_members`).
 final class TenantMember {

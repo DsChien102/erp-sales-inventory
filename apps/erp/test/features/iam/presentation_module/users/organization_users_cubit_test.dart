@@ -1,38 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/features/iam/data/models/cursor_page.dart';
+import 'package:erp/features/iam/data/models/tenant_invitation.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import 'package:vet45_shared_application/application.dart';
-import '../../support/iam_module_repositories.dart';
-
-final class _ScriptedIamModule implements IIamModule {
-  _ScriptedIamModule({required this.onCommand, required this.onQuery});
-
-  final Future<Object?> Function(Object message) onCommand;
-  final Future<Object?> Function(Object message) onQuery;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(
-    ICommand<TResult> command,
-  ) async {
-    return await onCommand(command) as TResult;
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    return await onQuery(query) as TResult;
-  }
-}
+import '../../support/iam_fixtures.dart';
 
 void main() {
   test('loads members and preserves nextCursor', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.membersSearchOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.membersSearchOk);
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(module),
-      invitations: IamModuleInvitationRepository(module),
+      members: FakeMemberRepository(module),
+      invitations: FakeInvitationRepository(module),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -45,10 +26,10 @@ void main() {
 
   test('forbidden emits typed permission failure', () async {
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(FakeIamModule(
+      members: FakeMemberRepository(FakeIamBackend(
         scenario: FakeIamScenario.memberInvitationForbidden,
       )),
-      invitations: IamModuleInvitationRepository(FakeIamModule(
+      invitations: FakeInvitationRepository(FakeIamBackend(
         scenario: FakeIamScenario.memberInvitationForbidden,
       )),
       searchDebounce: Duration.zero,
@@ -60,18 +41,14 @@ void main() {
 
   test('page 2 receives exact cursor from page 1', () async {
     var page = 0;
-    final scripted = _ScriptedIamModule(
-      onCommand: (message) async => throw UnsupportedError(message.runtimeType.toString()),
-      onQuery: (message) async {
-        if (message is! ListTenantMembersQuery) {
-          throw UnsupportedError(message.runtimeType.toString());
-        }
+    final scripted = FakeIamBackend(
+      onListMembers: (message) async {
         page += 1;
         if (page == 1) {
           expect(message.cursor, isNull);
-          return CursorPageDto<TenantMemberDto>(
+          return CursorPage<TenantMember>(
             items: [
-              TenantMemberDto(
+              TenantMember(
                 membershipId: 'm-1',
                 userId: 'u-1',
                 displayName: 'A',
@@ -88,9 +65,9 @@ void main() {
           );
         }
         expect(message.cursor, 'cursor-page-1');
-        return CursorPageDto<TenantMemberDto>(
+        return CursorPage<TenantMember>(
           items: [
-            TenantMemberDto(
+            TenantMember(
               membershipId: 'm-2',
               userId: 'u-2',
               displayName: 'B',
@@ -106,10 +83,9 @@ void main() {
         );
       },
     );
-    final module = RecordingIamModule(scripted);
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(module),
-      invitations: IamModuleInvitationRepository(module),
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -121,12 +97,11 @@ void main() {
   });
 
   test('always places owner at the top of the member list', () async {
-    final scripted = _ScriptedIamModule(
-      onCommand: (message) async => throw UnsupportedError(message.runtimeType.toString()),
-      onQuery: (message) async {
-        return CursorPageDto<TenantMemberDto>(
+    final scripted = FakeIamBackend(
+      onListMembers: (message) async {
+        return CursorPage<TenantMember>(
           items: [
-            TenantMemberDto(
+            TenantMember(
               membershipId: 'm-regular',
               userId: 'u-reg',
               displayName: 'Nguyen Duong',
@@ -138,7 +113,7 @@ void main() {
               joinedAt: DateTime.utc(2026, 1, 1),
               version: 1,
             ),
-            TenantMemberDto(
+            TenantMember(
               membershipId: 'm-owner',
               userId: 'u-owner',
               displayName: 'Đỗ Sỹ Chiến',
@@ -155,8 +130,8 @@ void main() {
       },
     );
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(scripted),
-      invitations: IamModuleInvitationRepository(scripted),
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
       searchDebounce: Duration.zero,
     );
     await cubit.loadMembers(reset: true);
@@ -168,7 +143,7 @@ void main() {
 
   test('filters invitations by sendResult (Đã gửi, Gửi lỗi, Thu hồi)', () async {
     final invitations = [
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-sent',
         inviteeEmail: 'sent@example.com',
         initialRoleId: 'r1',
@@ -179,7 +154,7 @@ void main() {
         deliveryCorrelationId: 'c1',
         version: 1,
       ),
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-failed',
         inviteeEmail: 'failed@example.com',
         initialRoleId: 'r1',
@@ -190,7 +165,7 @@ void main() {
         deliveryCorrelationId: 'c2',
         version: 1,
       ),
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-revoked',
         inviteeEmail: 'revoked@example.com',
         initialRoleId: 'r1',
@@ -203,16 +178,15 @@ void main() {
       ),
     ];
 
-    final scripted = _ScriptedIamModule(
-      onCommand: (m) async => throw UnsupportedError(m.runtimeType.toString()),
-      onQuery: (m) async {
-        return CursorPageDto<InvitationSummaryDto>(items: invitations);
+    final scripted = FakeIamBackend(
+      onListInvitations: (m) async {
+        return CursorPage<TenantInvitation>(items: invitations);
       },
     );
 
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(scripted),
-      invitations: IamModuleInvitationRepository(scripted),
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
       searchDebounce: Duration.zero,
       clock: () => DateTime.utc(2026, 8, 5),
     );
@@ -244,7 +218,7 @@ void main() {
     // expiresAt = createdAt + 7 days => createdAt = expiresAt - 7 days
     final invitations = [
       // Created on 2026-08-08 (2 days ago -> within 7 days & 30 days)
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-recent',
         inviteeEmail: 'recent@example.com',
         initialRoleId: 'r1',
@@ -256,7 +230,7 @@ void main() {
         version: 1,
       ),
       // Created on 2026-07-25 (16 days ago -> within 30 days, not within 7 days)
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-medium',
         inviteeEmail: 'medium@example.com',
         initialRoleId: 'r1',
@@ -268,7 +242,7 @@ void main() {
         version: 1,
       ),
       // Created on 2026-06-01 (> 60 days ago -> outside 30 days)
-      InvitationSummaryDto(
+      TenantInvitation(
         invitationId: 'inv-old',
         inviteeEmail: 'old@example.com',
         initialRoleId: 'r1',
@@ -281,16 +255,15 @@ void main() {
       ),
     ];
 
-    final scripted = _ScriptedIamModule(
-      onCommand: (m) async => throw UnsupportedError(m.runtimeType.toString()),
-      onQuery: (m) async {
-        return CursorPageDto<InvitationSummaryDto>(items: invitations);
+    final scripted = FakeIamBackend(
+      onListInvitations: (m) async {
+        return CursorPage<TenantInvitation>(items: invitations);
       },
     );
 
     final cubit = OrganizationUsersCubit(
-      members: IamModuleMemberRepository(scripted),
-      invitations: IamModuleInvitationRepository(scripted),
+      members: FakeMemberRepository(scripted),
+      invitations: FakeInvitationRepository(scripted),
       searchDebounce: Duration.zero,
       clock: () => now,
     );

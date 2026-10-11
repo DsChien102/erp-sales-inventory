@@ -3,9 +3,9 @@ import 'package:erp/core/session/models/accessible_tenant.dart';
 import 'package:erp/core/session/models/session_principal.dart';
 import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_repository.dart';
-import 'package:vet45_iam_application/testing.dart';
+import '../../features/iam/support/fake_iam_backend.dart';
 
-/// RPC phiên giả, cùng dữ liệu tổ chức với [FakeIamModule] cho các kịch bản EP-05.
+/// RPC phiên giả theo [FakeIamScenario] cho các kịch bản EP-05.
 class FakeSessionRepository implements SessionRepository {
   FakeSessionRepository({
     this.scenario = FakeIamScenario.usersSearchOk,
@@ -33,6 +33,7 @@ class FakeSessionRepository implements SessionRepository {
   String? lastSelectedTenantId;
   int switchCount = 0;
   int tenantContextReads = 0;
+  int sessionContextReads = 0;
   Object? switchError;
 
   final List<AccessibleTenant> _tenants = [];
@@ -45,6 +46,16 @@ class FakeSessionRepository implements SessionRepository {
       throw const AppException(AppErrorCode.unknown);
     }
     return platformAdmin;
+  }
+
+  /// `iam.has_permission`: trả `true` khi [permissionGranted] bật.
+  bool permissionGranted = true;
+  final List<({String tenantId, String permission})> permissionChecks = [];
+
+  @override
+  Future<bool> hasPermission(String tenantId, String permission) async {
+    permissionChecks.add((tenantId: tenantId, permission: permission));
+    return permissionGranted;
   }
 
   @override
@@ -82,6 +93,7 @@ class FakeSessionRepository implements SessionRepository {
 
   @override
   Future<SessionPrincipal?> getSessionContext(String tenantId) async {
+    sessionContextReads++;
     if (failGetSession) {
       throw const AppException(AppErrorCode.unknown);
     }

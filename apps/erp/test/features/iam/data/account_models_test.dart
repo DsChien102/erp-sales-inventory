@@ -3,7 +3,7 @@ import 'package:erp/features/iam/data/models/password_reset_result.dart';
 import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/models/upsert_legal_profile_result.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 
 void main() {
   test('MyAccount maps profile columns and keeps identity aliases', () {
@@ -54,7 +54,7 @@ void main() {
     });
 
     expect(profile.displayName, 'Mậu Hiên');
-    expect(profile.status, TenantLifecycleStatus.active);
+    expect(profile.status, TenantStatus.active);
     expect(profile.version, 2);
     expect(profile.legalProfile?.legalEntityType, LegalEntityType.enterprise);
     expect(profile.legalProfile?.taxCode, '0123456789');

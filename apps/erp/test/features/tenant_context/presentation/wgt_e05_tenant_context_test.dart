@@ -12,10 +12,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/session/session_store.dart';
+import '../../iam/support/fake_iam_backend.dart';
 import 'package:vet45_inventory_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -37,10 +37,10 @@ void main() {
     await getIt.reset();
   });
 
-  void registerModule(IIamModule module) {
+  void registerModule(FakeIamBackend module) {
     getIt
       ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IIamModule>(module);
+      ..registerSingleton<FakeIamBackend>(module);
   }
 
   Widget wrapDashboard(FakeSessionRepository repository) {
@@ -384,10 +384,10 @@ void main() {
 
     test('switch success applies tenant permissions', () async {
       final repository = FakeSessionRepository(scenario: FakeIamScenario.switchOk);
-      final session = IamSession()..applyAuthenticatedUser('user-1');
+      final session = SessionStore()..applyAuthenticatedUser('user-1');
       final cubit = SessionController(
         repository: repository,
-        iamSession: session,
+        store: session,
         userDisplayName: 'Lan',
       );
       await cubit.bootstrap();
@@ -409,7 +409,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final repository = FakeSessionRepository(scenario: FakeIamScenario.switchOk);
-      registerModule(FakeIamModule(scenario: FakeIamScenario.switchOk));
+      registerModule(FakeIamBackend(scenario: FakeIamScenario.switchOk));
       final cubit = SessionController(
         repository: repository,
         userDisplayName: 'Lan',
@@ -469,7 +469,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final repository = FakeSessionRepository(scenario: FakeIamScenario.switchDenied);
-      registerModule(FakeIamModule(scenario: FakeIamScenario.switchDenied));
+      registerModule(FakeIamBackend(scenario: FakeIamScenario.switchDenied));
       final cubit = SessionController(
         repository: repository,
         userDisplayName: 'Lan',
@@ -532,7 +532,7 @@ void main() {
 
   group('wgt_e05_u03_fr01_01 — bootstrap + blocked', () {
     testWidgets('bootstrap valid → header shows tenant', (tester) async {
-      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapValid);
+      final module = FakeIamBackend(scenario: FakeIamScenario.bootstrapValid);
       registerModule(module);
 
       await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
@@ -544,7 +544,7 @@ void main() {
     });
 
     testWidgets('bootstrap without last selected adopts the first tenant', (tester) async {
-      final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
+      final module = FakeIamBackend(scenario: FakeIamScenario.contextNone);
       registerModule(module);
 
       final repository = FakeSessionRepository(scenario: module.scenario);
@@ -559,7 +559,7 @@ void main() {
     testWidgets('bootstrap invalid → blocked empty state (OQ-07)', (
       tester,
     ) async {
-      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapInvalid);
+      final module = FakeIamBackend(scenario: FakeIamScenario.bootstrapInvalid);
       registerModule(module);
 
       await tester.pumpWidget(wrapDashboard(FakeSessionRepository(scenario: module.scenario)));
@@ -602,7 +602,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule();
+      final module = FakeIamBackend();
       registerModule(module);
 
       final router = GoRouter(

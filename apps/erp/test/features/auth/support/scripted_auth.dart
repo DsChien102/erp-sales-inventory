@@ -8,7 +8,7 @@ import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:erp/core/session/session_store.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 
@@ -154,7 +154,7 @@ SessionController loginSession({
   bool authenticated = true,
   String? email,
   SessionRepository? repository,
-  IamSession? iamSession,
+  SessionStore? store,
   List<String>? log,
 }) {
   final auth = _MockAuth();
@@ -173,6 +173,6 @@ SessionController loginSession({
   return SessionController(
     repository: repository ?? FakeSessionRepository(),
     auth: auth,
-    iamSession: iamSession ?? IamSession(),
+    store: store ?? SessionStore(),
   );
 }

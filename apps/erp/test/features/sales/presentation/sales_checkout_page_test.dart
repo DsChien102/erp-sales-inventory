@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:erp/features/sales/presentation/orchestration/sales_draft_list_scope.dart';
 import 'package:erp/features/sales/presentation/pages/sales_checkout_invalid_entry_page.dart';
 import 'package:erp/features/sales/presentation/pages/sales_checkout_page.dart';
@@ -10,7 +13,8 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import '../../iam/support/iam_test_session.dart';
+import '../../iam/support/scripted_iam_repositories.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
@@ -22,7 +26,8 @@ void main() {
   late _RecordingSalesModule salesModule;
   late _SalesFlowCatalogModule catalogModule;
   late _RecordingPricingModule pricingModule;
-  late _RecordingIamModule iamModule;
+  late ScriptedAccountRepository accounts;
+  late SessionController session;
   late Object? capturedExtra;
   late GoRouter router;
 
@@ -31,18 +36,26 @@ void main() {
     salesModule = _RecordingSalesModule();
     catalogModule = _SalesFlowCatalogModule();
     pricingModule = _RecordingPricingModule();
-    iamModule = _RecordingIamModule();
+    accounts = ScriptedAccountRepository(
+      profile: const MyAccount(
+        userId: 'user-demo',
+        email: 'an@example.com',
+        givenName: 'Nguyễn',
+        familyName: 'An',
+        phone: null,
+        emailVerified: true,
+      ),
+    );
+    session = _demoSession();
     pricingModule.previewFor = _pricingPreviewFor;
     capturedExtra = null;
 
     GetIt.instance.registerSingleton<ISalesModule>(salesModule);
-    GetIt.instance.registerSingleton<IIamModule>(iamModule);
+    GetIt.instance.registerSingleton<AccountRepository>(accounts);
     GetIt.instance.registerSingleton<IExecutionContext>(
       const _TestExecutionContext(),
     );
-    GetIt.instance.registerSingleton<IActiveStoreContext>(
-      const _TestActiveStoreContext(),
-    );
+    GetIt.instance.registerSingleton<SessionController>(session);
     GetIt.instance.registerSingleton<IPartnerModule>(_SalesFlowPartnerModule());
     GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
     GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
@@ -115,11 +128,12 @@ void main() {
   testWidgets('compose checkout falls back to seller email when profile name is blank', (
     tester,
   ) async {
-    iamModule.identityProfile = const MyIdentityProfileDto(
+    accounts.profile = const MyAccount(
       userId: 'user-demo',
-      firstName: '',
-      lastName: '',
       email: 'seller@example.com',
+      givenName: '',
+      familyName: '',
+      phone: null,
       emailVerified: true,
     );
 
@@ -135,15 +149,33 @@ void main() {
     expect(args.commercialSnapshot.seller.displayName, 'seller@example.com');
   });
 
-  testWidgets('store context mismatch fails closed without navigation', (
+  testWidgets('store snapshot without a code fails closed without navigation', (
     tester,
   ) async {
-    iamModule.storeContext = const ActiveStoreContextDto(
-      userId: 'user-demo',
-      tenantId: 'tenant-demo',
-      storeId: 'different-store',
-      storeCode: 'HN-01',
-      displayName: 'Chi nhánh Hà Nội',
+    GetIt.instance.unregister<SessionController>();
+    GetIt.instance.registerSingleton<SessionController>(
+      _demoSession(activeStoreCode: ''),
+    );
+
+    await pumpCheckoutCapableCompose(tester, router: router);
+    await tester.ensureVisible(find.byKey(const Key('btn_compose_checkout')));
+    await tester.tap(find.byKey(const Key('btn_compose_checkout')));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, '/sales/compose');
+    expect(capturedExtra, isNull);
+  });
+
+  testWidgets('seller profile of another user fails closed without navigation', (
+    tester,
+  ) async {
+    accounts.profile = const MyAccount(
+      userId: 'someone-else',
+      email: 'other@example.com',
+      givenName: 'Binh',
+      familyName: 'Tran',
+      phone: null,
+      emailVerified: true,
     );
 
     await pumpCheckoutCapableCompose(tester, router: router);
@@ -158,7 +190,7 @@ void main() {
   testWidgets('IAM context failure does not navigate to checkout', (
     tester,
   ) async {
-    iamModule.error = StateError('IAM unavailable');
+    accounts.getError = StateError('IAM unavailable');
 
     await pumpCheckoutCapableCompose(tester, router: router);
     await tester.ensureVisible(find.byKey(const Key('btn_compose_checkout')));
@@ -713,16 +745,6 @@ final class _TestExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'user-demo';
 }
 
-final class _TestActiveStoreContext implements IActiveStoreContext {
-  const _TestActiveStoreContext();
-
-  @override
-  String? get activeStoreId => 'store-demo';
-
-  @override
-  Future<String> requireActiveStoreId() async => 'store-demo';
-}
-
 final class _RecordingSalesModule implements ISalesModule {
   CheckoutPrecheckDto result = _readyResult();
   Future<CheckoutPrecheckDto>? resultFuture;
@@ -755,40 +777,14 @@ final class _RecordingSalesModule implements ISalesModule {
   }
 }
 
-final class _RecordingIamModule implements IIamModule {
-  Object? error;
-  ActiveStoreContextDto storeContext = const ActiveStoreContextDto(
-    userId: 'user-demo',
+SessionController _demoSession({String activeStoreCode = 'HCM-01'}) {
+  return testSessionController(
     tenantId: 'tenant-demo',
-    storeId: 'store-demo',
-    storeCode: 'HCM-01',
-    displayName: 'Chi nhánh Hồ Chí Minh',
-  );
-  MyIdentityProfileDto identityProfile = const MyIdentityProfileDto(
     userId: 'user-demo',
-    firstName: 'Nguyễn',
-    lastName: 'An',
-    email: 'an@example.com',
-    emailVerified: true,
+    activeStoreId: 'store-demo',
+    activeStoreCode: activeStoreCode,
+    activeStoreDisplayName: 'Chi nhánh Hồ Chí Minh',
   );
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw StateError('Unexpected IAM command $command');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    final thrown = error;
-    if (thrown != null) throw thrown;
-    if (query is GetActiveStoreContextQuery) {
-      return storeContext as TResult;
-    }
-    if (query is GetMyIdentityProfileQuery) {
-      return identityProfile as TResult;
-    }
-    throw StateError('Unexpected IAM query $query');
-  }
 }
 
 final class _SalesFlowCatalogModule implements ICatalogModule {

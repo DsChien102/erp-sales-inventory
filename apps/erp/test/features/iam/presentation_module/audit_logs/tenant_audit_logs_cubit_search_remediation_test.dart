@@ -1,18 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import '../../support/iam_module_repositories.dart';
 
 void main() {
   test(
     'Cubit resolves complete localized labels but keeps raw event-code text and structured filters independent',
     () async {
-      final recording = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-      );
+      final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
       final cubit = TenantAuditLogsCubit(
-        auditLogs: IamModuleAuditLogRepository(recording),
+        auditLogs: FakeAuditLogRepository(recording),
         initialFilter: TenantAuditFilter(
           fromLocal: DateTime(2026, 8, 1),
           toLocal: DateTime(2026, 8, 20),
@@ -41,11 +38,9 @@ void main() {
   );
 
   test('Cubit intersects localized labels with structured event-code filters', () async {
-    final recording = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
     final cubit = TenantAuditLogsCubit(
-      auditLogs: IamModuleAuditLogRepository(recording),
+      auditLogs: FakeAuditLogRepository(recording),
       initialFilter: TenantAuditFilter(
         fromLocal: DateTime(2026, 8, 1),
         toLocal: DateTime(2026, 8, 20),

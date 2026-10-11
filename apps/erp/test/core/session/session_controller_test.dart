@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/session/models/session_principal.dart';
 import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
+import 'package:erp/core/session/session_store.dart';
+import '../../features/iam/support/fake_iam_backend.dart';
 import 'fake_session_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 
 class _MockAuth extends Mock implements GoTrueClient {}
@@ -35,7 +36,7 @@ void main() {
 
   SessionController controller({
     FakeSessionRepository? repository,
-    IamSession? iamSession,
+    SessionStore? store,
     SessionState? initialState,
     Stream<String>? tenantAccessRevoked,
     DateTime Function()? clock,
@@ -43,7 +44,7 @@ void main() {
     return SessionController(
       repository: repository ?? FakeSessionRepository(),
       auth: auth,
-      iamSession: iamSession,
+      store: store,
       initialState: initialState,
       tenantAccessRevoked: tenantAccessRevoked,
       clock: clock,
@@ -54,9 +55,9 @@ void main() {
     final user = _MockUser();
     when(() => user.id).thenReturn('user-1');
     when(() => auth.currentUser).thenReturn(user);
-    final iam = IamSession();
+    final iam = SessionStore();
 
-    final cubit = controller(iamSession: iam);
+    final cubit = controller(store: iam);
     cubit.start();
 
     expect(cubit.state.authStatus, AuthStatus.signedIn);
@@ -68,9 +69,9 @@ void main() {
 
   test('start without a current user signs out and clears the session', () {
     when(() => auth.currentUser).thenReturn(null);
-    final iam = IamSession()..applyAuthenticatedUser('old');
+    final iam = SessionStore()..applyAuthenticatedUser('old');
 
-    final cubit = controller(iamSession: iam);
+    final cubit = controller(store: iam);
     cubit.start();
 
     expect(cubit.state.authStatus, AuthStatus.signedOut);
@@ -111,12 +112,12 @@ void main() {
     when(() => auth.currentUser).thenReturn(user);
     final authSession = _MockAuthSession();
     when(() => authSession.user).thenReturn(user);
-    final iam = IamSession();
+    final iam = SessionStore();
 
-    final cubit = controller(iamSession: iam);
+    final cubit = controller(store: iam);
     cubit.start();
     iam.apply(
-      const PrincipalAccessDto(
+      const SessionPrincipal(
         userId: 'user-1',
         tenantId: 'org-001',
         role: 'staff',
@@ -135,11 +136,11 @@ void main() {
   });
 
   test('signing in a different user drops the previous organization', () async {
-    final iam = IamSession()..applyAuthenticatedUser('user-a');
+    final iam = SessionStore()..applyAuthenticatedUser('user-a');
     final repository = FakeSessionRepository();
     final cubit = controller(
       repository: repository,
-      iamSession: iam,
+      store: iam,
       initialState: const SessionState(
         authStatus: AuthStatus.signedIn,
         userId: 'user-a',
@@ -161,7 +162,7 @@ void main() {
   });
 
   test('requireTenantId without a tenant throws AUTHENTICATION_REQUIRED', () async {
-    final cubit = controller(iamSession: IamSession());
+    final cubit = controller(store: SessionStore());
 
     expect(
       cubit.requireTenantId,
@@ -179,9 +180,9 @@ void main() {
 
   test('signOut clears local session even when remote sign-out fails', () async {
     when(() => auth.signOut()).thenThrow(Exception('sign-out failed'));
-    final iam = IamSession()..applyAuthenticatedUser('user-1');
+    final iam = SessionStore()..applyAuthenticatedUser('user-1');
     final cubit = controller(
-      iamSession: iam,
+      store: iam,
       initialState: const SessionState(
         authStatus: AuthStatus.signedIn,
         userId: 'user-1',
@@ -199,8 +200,8 @@ void main() {
   });
 
   test('switchTo the current organization is a validation error', () async {
-    final iam = IamSession()..applyAuthenticatedUser('user-1');
-    final cubit = controller(iamSession: iam);
+    final iam = SessionStore()..applyAuthenticatedUser('user-1');
+    final cubit = controller(store: iam);
     await cubit.bootstrap();
 
     final ok = await cubit.switchTo('org-001');
@@ -216,9 +217,9 @@ void main() {
   });
 
   test('setLastSelected failure rolls the session back to the previous tenant', () async {
-    final iam = IamSession()..applyAuthenticatedUser('user-1');
+    final iam = SessionStore()..applyAuthenticatedUser('user-1');
     final repository = FakeSessionRepository();
-    final cubit = controller(repository: repository, iamSession: iam);
+    final cubit = controller(repository: repository, store: iam);
     await cubit.bootstrap();
     expect(iam.tenantId, 'org-001');
 
@@ -235,7 +236,7 @@ void main() {
 
   test('bootstrap without a last selected tenant adopts the first selectable one', () async {
     final repository = FakeSessionRepository(scenario: FakeIamScenario.contextNone);
-    final cubit = controller(repository: repository, iamSession: IamSession());
+    final cubit = controller(repository: repository, store: SessionStore());
 
     await cubit.bootstrap();
 
@@ -275,7 +276,7 @@ void main() {
   group('Platform Admin', () {
     test('bootstrap of a platform admin with an organization sets the flag', () async {
       final repository = FakeSessionRepository(platformAdmin: true);
-      final cubit = controller(repository: repository, iamSession: IamSession());
+      final cubit = controller(repository: repository, store: SessionStore());
 
       await cubit.bootstrap();
 
@@ -310,7 +311,7 @@ void main() {
 
     test('a failing permission check leaves the flag false and does not block sign-in', () async {
       final repository = FakeSessionRepository()..failHasPlatformPermission = true;
-      final cubit = controller(repository: repository, iamSession: IamSession());
+      final cubit = controller(repository: repository, store: SessionStore());
 
       await cubit.bootstrap();
 
@@ -321,10 +322,10 @@ void main() {
     });
 
     test('signing in a different user resets the flag', () async {
-      final iam = IamSession()..applyAuthenticatedUser('user-a');
+      final iam = SessionStore()..applyAuthenticatedUser('user-a');
       final cubit = controller(
         repository: FakeSessionRepository(platformAdmin: true),
-        iamSession: iam,
+        store: iam,
         initialState: const SessionState(
           authStatus: AuthStatus.signedIn,
           userId: 'user-a',
@@ -364,7 +365,7 @@ void main() {
     final repository = FakeSessionRepository();
     final cubit = controller(
       repository: repository,
-      iamSession: IamSession(),
+      store: SessionStore(),
       tenantAccessRevoked: revoked.stream,
     );
     await cubit.bootstrap();
@@ -390,7 +391,7 @@ void main() {
     final repository = FakeSessionRepository();
     final cubit = controller(
       repository: repository,
-      iamSession: IamSession(),
+      store: SessionStore(),
       tenantAccessRevoked: revoked.stream,
     );
     await cubit.bootstrap();
@@ -413,7 +414,7 @@ void main() {
     final repository = FakeSessionRepository();
     final cubit = controller(
       repository: repository,
-      iamSession: IamSession(),
+      store: SessionStore(),
       tenantAccessRevoked: revoked.stream,
     );
     await cubit.bootstrap();
@@ -436,7 +437,7 @@ void main() {
     final repository = FakeSessionRepository();
     final cubit = controller(
       repository: repository,
-      iamSession: IamSession(),
+      store: SessionStore(),
       tenantAccessRevoked: revoked.stream,
       clock: () => now,
     );
@@ -485,8 +486,8 @@ void main() {
 
   test('bootstrap while held then applySignedInUser keeps the tenant and store', () async {
     final repository = FakeSessionRepository(scenario: FakeIamScenario.contextNone);
-    final iam = IamSession();
-    final cubit = controller(repository: repository, iamSession: iam);
+    final iam = SessionStore();
+    final cubit = controller(repository: repository, store: iam);
     cubit.holdSignedInApply();
 
     await cubit.bootstrap();

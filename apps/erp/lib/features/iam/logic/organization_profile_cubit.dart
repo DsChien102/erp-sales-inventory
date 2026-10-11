@@ -1,8 +1,8 @@
 import 'package:erp/core/validation/tax_code.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
+import '../data/models/tenant_profile.dart';
 import '../data/organization_repository.dart';
 import 'iam_load_status.dart';
 import 'iam_ui_failure.dart';

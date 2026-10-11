@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/presentation.dart';
 
 import '../../iam/support/scripted_iam_repositories.dart';
@@ -62,7 +63,7 @@ void main() {
     () async {
       final cubit = LoginCubit(
         auth: ScriptedAuthRepository(
-          signInError: const IamBlockedException(IamBlockedCodes.noActiveMembership),
+          signInError: const AppException(IamBlockedCodes.noActiveMembership),
         ),
         session: loginSession(),
       );

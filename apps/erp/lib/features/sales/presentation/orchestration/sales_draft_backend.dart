@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
@@ -33,7 +33,7 @@ abstract final class SalesDraftBackend {
 
     final tenantId = await di<IExecutionContext>().requireTenantId();
     final actorId = await di<IExecutionContext>().requireUserId();
-    final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+    final storeId = await di<SessionController>().requireActiveStoreId();
 
     final customerSnapshot = await _resolveCustomerForPersist(di, request.customer);
     final catalogOutcome = await _resolveProducts(
@@ -141,7 +141,7 @@ abstract final class SalesDraftBackend {
 
     final tenantId = await di<IExecutionContext>().requireTenantId();
     final actorId = await di<IExecutionContext>().requireUserId();
-    final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+    final storeId = await di<SessionController>().requireActiveStoreId();
     final restore = await di<ISalesModule>().executeQueryAsync(
       GetSalesOrderDraftForRestoreQuery(
         tenantId: tenantId,

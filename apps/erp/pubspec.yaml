@@ -19,9 +19,6 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   vet45_design_system: ^1.0.0
-  vet45_iam_application: ^1.0.0
-  vet45_iam_domain: ^1.0.0
-  vet45_iam_infrastructure: ^1.0.0
   vet45_inventory_application: ^1.0.0
   vet45_inventory_infrastructure: ^1.0.0
   vet45_catalog_domain: ^1.0.0

@@ -1,7 +1,9 @@
-import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_sales_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/features/iam/data/account_repository.dart';
+import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:erp/features/sales/presentation.dart';
+import 'package:get_it/get_it.dart';
+import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 abstract final class SalesCheckoutOrchestrator {
@@ -9,32 +11,25 @@ abstract final class SalesCheckoutOrchestrator {
     return (SalesComposeState state) async {
       try {
         final executionContext = GetIt.instance<IExecutionContext>();
-        final activeStoreContext = GetIt.instance<IActiveStoreContext>();
-        final iamModule = GetIt.instance<IIamModule>();
+        final session = GetIt.instance<SessionController>();
+        final accounts = GetIt.instance<AccountRepository>();
         final salesModule = GetIt.instance<ISalesModule>();
         final tenantId = (await executionContext.requireTenantId()).trim();
         final actorId = (await executionContext.requireUserId()).trim();
-        final activeStoreId = (await activeStoreContext.requireActiveStoreId()).trim();
+        final activeStoreId = (await session.requireActiveStoreId()).trim();
         if (tenantId.isEmpty || actorId.isEmpty || activeStoreId.isEmpty) {
           throw StateError('Checkout identity context is incomplete.');
         }
 
-        final storeContext = await iamModule.executeQueryAsync(
-          GetActiveStoreContextQuery(tenantId: tenantId),
-        );
-        final sellerProfile = await iamModule.executeQueryAsync(
-          GetMyIdentityProfileQuery(),
-        );
-        final storeCode = storeContext.storeCode.trim();
-        final storeDisplayName = storeContext.displayName.trim();
+        // Mã / tên cửa hàng nằm sẵn trong phiên (nạp cùng get_session_context).
+        final sellerProfile = await accounts.getMyAccount();
+        final storeCode = (session.activeStoreCode ?? '').trim();
+        final storeDisplayName = (session.activeStoreDisplayName ?? '').trim();
         final sellerDisplayName = _sellerDisplayName(
           sellerProfile: sellerProfile,
           actorId: actorId,
         );
-        if (storeContext.tenantId.trim() != tenantId ||
-            storeContext.userId.trim() != actorId ||
-            storeContext.storeId.trim() != activeStoreId ||
-            sellerProfile.userId.trim() != actorId ||
+        if (sellerProfile.userId.trim() != actorId ||
             storeCode.isEmpty ||
             storeDisplayName.isEmpty ||
             sellerDisplayName.isEmpty) {
@@ -91,7 +86,7 @@ abstract final class SalesCheckoutOrchestrator {
   }
 
   static String _sellerDisplayName({
-    required MyIdentityProfileDto sellerProfile,
+    required MyAccount sellerProfile,
     required String actorId,
   }) {
     final fullName = sellerProfile.fullName.trim();

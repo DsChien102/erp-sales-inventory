@@ -1,10 +1,12 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../support/iam_fixtures.dart';
 
 void main() {
-  test('production entrypoint does not export Fake symbols', () {
+  test('production entrypoint resolves shared production types', () {
     // Compile-time: presentation.dart must not re-export Fake* / testing paths.
     // Runtime smoke: shared production types resolve.
     const failure = IamUiFailure(
@@ -15,7 +17,7 @@ void main() {
     expect(failure.code, IamBlockedCodes.systemError);
 
     final mapped = IamUiFailureMapper.from(
-      const IamBlockedException(IamBlockedCodes.stateChanged),
+      const AppException(IamBlockedCodes.stateChanged),
     );
     expect(mapped.requiresReload, isTrue);
 
@@ -24,22 +26,9 @@ void main() {
     expect(key.length, greaterThan('invite-'.length));
   });
 
-  test('testing entrypoint exports fake data and recording module', () {
+  test('test fixtures stay deterministic', () {
     expect(FakeUsersData.sampleMembers, isNotEmpty);
     expect(FakeRolesData.sampleRoles, isNotEmpty);
     expect(FakeIdempotencyKeyFactory().next('create'), 'create-test-idempotency-key');
-  });
-
-  test('RecordingIamModule records queries and commands', () async {
-    final delegate = FakeIamModule(scenario: FakeIamScenario.authSessionOk);
-    final module = RecordingIamModule(delegate);
-
-    await module.executeQueryAsync<SessionDto>(GetCurrentSessionQuery());
-    expect(module.queriesOf<GetCurrentSessionQuery>(), hasLength(1));
-
-    await module.executeCommandAsync<void>(
-      SignInTenantUserCommand(email: 'a@b.com', password: 'secret'),
-    );
-    expect(module.commandsOf<SignInTenantUserCommand>(), hasLength(1));
   });
 }

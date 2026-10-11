@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import '../../support/fake_iam_backend.dart';
+import '../../support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 final class FakeInvitationRoleOptionsSource
     implements InvitationRoleOptionsSource {
@@ -23,12 +24,10 @@ final class FakeInvitationRoleOptionsSource
 void main() {
   test('submit sends CreateInvitationCommand with exact roleId and key',
       () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.inviteOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.inviteOk);
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(module),
+      invitations: FakeInvitationRepository(module),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -47,12 +46,10 @@ void main() {
   });
 
   test('double submit issues one command', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.inviteOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.inviteOk);
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(module),
+      invitations: FakeInvitationRepository(module),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -69,7 +66,7 @@ void main() {
   test('delivery failed is create success with warning', () async {
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(FakeIamModule(scenario: FakeIamScenario.inviteDeliveryFailed)),
+      invitations: FakeInvitationRepository(FakeIamBackend(scenario: FakeIamScenario.inviteDeliveryFailed)),
       roleOptionsSource: FakeInvitationRoleOptionsSource(
         const [InvitationRoleOption(roleId: 'role-staff', label: 'Nhân viên')],
       ),
@@ -88,7 +85,7 @@ void main() {
   test('conflict keeps form without created invitation', () async {
     final cubit = OrganizationInviteMemberCubit(
       session: testSessionController(),
-      invitations: IamModuleInvitationRepository(FakeIamModule(
+      invitations: FakeInvitationRepository(FakeIamBackend(
         scenario: FakeIamScenario.inviteDuplicateMembership,
       )),
       roleOptionsSource: FakeInvitationRoleOptionsSource(

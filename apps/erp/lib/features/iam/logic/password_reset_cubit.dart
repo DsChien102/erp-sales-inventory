@@ -1,7 +1,7 @@
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import 'iam_ui_failure.dart';
 import 'iam_ui_failure_mapper.dart';

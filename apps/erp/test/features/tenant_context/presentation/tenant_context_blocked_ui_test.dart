@@ -2,7 +2,7 @@ import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 

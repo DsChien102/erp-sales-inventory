@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/models/session_snapshot.dart';
+import '../../../iam/support/iam_test_session.dart';
 
-import '../../../iam/support/iam_module_repositories.dart';
 
-const _owner = SessionDto(
+const _owner = SessionSnapshot(
   isAuthenticated: true,
   userId: 'owner-1',
   role: 'store_owner',
@@ -24,7 +24,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = IamFeatureAccessCubit(session: sessionFromDto(_owner));
+      final cubit = IamFeatureAccessCubit(session: sessionFromSnapshot(_owner));
       await cubit.load();
       addTearDown(cubit.close);
 
@@ -54,7 +54,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final cubit = IamFeatureAccessCubit(session: sessionFromDto(_owner));
+    final cubit = IamFeatureAccessCubit(session: sessionFromSnapshot(_owner));
     await cubit.load();
     addTearDown(cubit.close);
 
@@ -109,8 +109,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      session: sessionFromDto(
-        const SessionDto(
+      session: sessionFromSnapshot(
+        const SessionSnapshot(
           isAuthenticated: true,
           userId: 'owner-1',
           role: 'store_owner',

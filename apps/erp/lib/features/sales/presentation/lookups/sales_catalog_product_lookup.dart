@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -110,7 +110,7 @@ abstract final class SalesCatalogProductLookup {
 
   static Future<({String tenantId, String storeId})> _scope(GetIt di) async {
     final tenantId = await di<IExecutionContext>().requireTenantId();
-    final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+    final storeId = await di<SessionController>().requireActiveStoreId();
     return (tenantId: tenantId, storeId: storeId);
   }
 

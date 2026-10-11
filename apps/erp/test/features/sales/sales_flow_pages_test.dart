@@ -1,3 +1,5 @@
+import '../iam/support/iam_test_session.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
@@ -38,16 +39,6 @@ final class TestExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'user-demo';
 }
 
-final class TestActiveStoreContext implements IActiveStoreContext {
-  const TestActiveStoreContext();
-
-  @override
-  String? get activeStoreId => 'store-demo';
-
-  @override
-  Future<String> requireActiveStoreId() async => 'store-demo';
-}
-
 void main() {
   late _SalesFlowCatalogModule catalogModule;
   late _RecordingSalesModule salesModule;
@@ -66,8 +57,12 @@ void main() {
       _SalesFlowPartnerModule(),
     );
     GetIt.instance.registerSingleton<ICatalogModule>(catalogModule);
-    GetIt.instance.registerSingleton<IActiveStoreContext>(
-      const TestActiveStoreContext(),
+    GetIt.instance.registerSingleton<SessionController>(
+      testSessionController(
+        tenantId: 'tenant-demo',
+        userId: 'user-demo',
+        activeStoreId: 'store-demo',
+      ),
     );
     GetIt.instance.registerSingleton<pricing.IPricingModule>(pricingModule);
   });

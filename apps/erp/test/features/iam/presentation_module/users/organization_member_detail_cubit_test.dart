@@ -1,25 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 void main() {
   OrganizationMemberDetailCubit buildCubit({
-    required IIamModule module,
+    required FakeIamBackend module,
     String membershipId = 'mem-staff-1',
   }) {
     return OrganizationMemberDetailCubit(
       membershipId: membershipId,
-      members: IamModuleMemberRepository(module),
+      members: FakeMemberRepository(module),
     );
   }
 
   test('load uses GetTenantMemberQuery by membershipId', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberDetailOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberDetailOk);
     final cubit = buildCubit(module: module);
     await cubit.load();
     final query = module.queriesOf<GetTenantMemberQuery>().single;
@@ -31,9 +29,7 @@ void main() {
   });
 
   test('deactivate uses displayed version', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberDeactivateOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberDeactivateOk);
     final cubit = buildCubit(module: module);
     await cubit.load();
     final before = cubit.state.member!;
@@ -47,7 +43,7 @@ void main() {
 
   test('reactivate restores active', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.memberReactivateOk),
+      module: FakeIamBackend(scenario: FakeIamScenario.memberReactivateOk),
       membershipId: 'mem-inactive-1',
     );
     await cubit.load();
@@ -59,7 +55,7 @@ void main() {
 
   test('remove sets removed and hides actions', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.memberRemoveOk),
+      module: FakeIamBackend(scenario: FakeIamScenario.memberRemoveOk),
     );
     await cubit.load();
     await cubit.remove();
@@ -71,7 +67,7 @@ void main() {
 
   test('sole owner hides destructive actions', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.memberDetailOk),
+      module: FakeIamBackend(scenario: FakeIamScenario.memberDetailOk),
       membershipId: 'mem-owner-1',
     );
     await cubit.load();
@@ -83,9 +79,7 @@ void main() {
   });
 
   test('LAST_OWNER_PROTECTED does not local-mutate', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberLastOwnerProtected),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberLastOwnerProtected);
     final cubit = buildCubit(module: module);
     await cubit.load();
     await cubit.deactivate();
@@ -96,9 +90,7 @@ void main() {
   });
 
   test('STATE_CHANGED reloads without applying local mutation', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberStateChanged),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberStateChanged);
     final cubit = buildCubit(module: module);
     await cubit.load();
     final versionBefore = cubit.state.member!.version;
@@ -111,9 +103,7 @@ void main() {
   });
 
   test('MEMBERSHIP_REMOVED reloads detail and keeps failure', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.memberRemovedTerminal),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.memberRemovedTerminal);
     final cubit = buildCubit(
       module: module,
       membershipId: 'mem-inactive-1',
@@ -129,7 +119,7 @@ void main() {
 
   test('forbidden keeps current member without mutation', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.memberForbidden),
+      module: FakeIamBackend(scenario: FakeIamScenario.memberForbidden),
     );
     await cubit.load();
     await cubit.remove();

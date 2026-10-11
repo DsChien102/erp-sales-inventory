@@ -2,7 +2,7 @@ import 'package:erp/core/validation/tax_code.dart';
 import 'package:erp/features/iam/logic/organization_profile_cubit.dart';
 import 'package:erp/features/iam/logic/organization_profile_form_input.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../support/scripted_iam_repositories.dart';
 

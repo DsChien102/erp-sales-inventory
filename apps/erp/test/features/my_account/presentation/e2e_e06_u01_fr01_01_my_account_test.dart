@@ -7,16 +7,15 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:erp/core/session/session_store.dart';
+import '../../iam/support/fake_iam_backend.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../../core/session/fake_session_repository.dart';
 import '../../iam/support/scripted_iam_repositories.dart';
 
-/// e2e_e06_u01/u02/u03/u04 — ERP My Account via FakeIamModule (Group E / S14).
+/// e2e_e06_u01/u02/u03/u04 — ERP My Account via FakeIamBackend (Group E / S14).
 void main() {
   final getIt = GetIt.instance;
   final sessions = <SessionController>[];
@@ -36,10 +35,10 @@ void main() {
     await getIt.reset();
   });
 
-  void registerModule(FakeIamModule module) {
+  void registerModule(FakeIamBackend module) {
     getIt
       ..registerSingleton<IExecutionContext>(FakeExecutionContext())
-      ..registerSingleton<IIamModule>(module);
+      ..registerSingleton<FakeIamBackend>(module);
   }
 
   SessionController sessionFor({
@@ -57,14 +56,14 @@ void main() {
     final controller = SessionController(
       repository: FakeSessionRepository(scenario: scenario),
       auth: auth,
-      iamSession: IamSession()..applyAuthenticatedUser('user-1'),
+      store: SessionStore()..applyAuthenticatedUser('user-1'),
     );
     sessions.add(controller);
     return controller;
   }
 
   Widget wrap(
-    FakeIamModule module, {
+    FakeIamBackend module, {
     bool warnRemoteSignOut = false,
     ScriptedAccountRepository? account,
     RecordingAuthRepository? auth,
@@ -128,7 +127,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.myAccountOk);
+    final module = FakeIamBackend(scenario: FakeIamScenario.myAccountOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -145,7 +144,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.myAccountUpdateOk);
+    final module = FakeIamBackend(scenario: FakeIamScenario.myAccountUpdateOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -175,7 +174,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
+    final module = FakeIamBackend(scenario: FakeIamScenario.passwordResetCompleteOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -217,7 +216,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.myAccountOk);
+    final module = FakeIamBackend(scenario: FakeIamScenario.myAccountOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -244,7 +243,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = FakeIamModule(scenario: FakeIamScenario.signOutRemoteError);
+      final module = FakeIamBackend(scenario: FakeIamScenario.signOutRemoteError);
       registerModule(module);
 
       await tester.pumpWidget(wrap(module, warnRemoteSignOut: true));

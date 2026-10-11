@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import '../../support/iam_module_repositories.dart';
 
 void main() {
   testWidgets(
@@ -15,13 +14,11 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final recording = RecordingIamModule(
-        FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-      );
+      final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
       await tester.pumpWidget(
         MaterialApp(
           home: OrganizationAuditLogsPage(
-            auditLogs: IamModuleAuditLogRepository(recording),
+            auditLogs: FakeAuditLogRepository(recording),
             clockLocal: () => DateTime(2026, 8, 20),
           ),
         ),

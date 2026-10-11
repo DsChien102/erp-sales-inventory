@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 void main() {
   Future<void> pumpDetail(
@@ -18,12 +17,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: scenario);
+    final module = FakeIamBackend(scenario: scenario);
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationInvitationDetailPage(
           invitationId: invitationId,
-          invitations: IamModuleInvitationRepository(module),
+          invitations: FakeInvitationRepository(module),
           keyFactory: FakeIdempotencyKeyFactory(),
           clock: () => DateTime.utc(2026, 7, 31),
           cubit: cubit,
@@ -72,12 +71,10 @@ void main() {
   testWidgets('resend action sends mutation from pending detail', (
     tester,
   ) async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.invitationResendOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationResendOk);
     final cubit = OrganizationInvitationDetailCubit(
       invitationId: 'inv-1',
-      invitations: IamModuleInvitationRepository(module),
+      invitations: FakeInvitationRepository(module),
       keyFactory: FakeIdempotencyKeyFactory(),
     );
     await cubit.load();

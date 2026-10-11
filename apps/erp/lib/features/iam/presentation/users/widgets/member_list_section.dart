@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../shared/iam_load_status.dart';
 import '../bloc/organization_users_cubit.dart';

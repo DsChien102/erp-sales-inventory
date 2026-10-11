@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_domain/domain.dart';
 
+import '../../../data/models/tenant_member.dart';
 import '../models/user_ui_model.dart';
 
 /// Read-only body for member detail (summary + info + access status).

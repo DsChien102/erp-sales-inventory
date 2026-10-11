@@ -8,7 +8,7 @@ import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/models/upsert_legal_profile_result.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 
 SupabaseRpc get _unusedRpc => SupabaseRpc(
   SupabaseClient(
@@ -168,7 +168,7 @@ TenantProfile sampleTenantProfile() {
   return TenantProfile(
     tenantId: 'org-001',
     displayName: 'Mậu Hiên',
-    status: TenantLifecycleStatus.active,
+    status: TenantStatus.active,
     version: 1,
     businessTimezone: 'Asia/Ho_Chi_Minh',
     baseCurrencyCode: 'VND',
@@ -207,8 +207,15 @@ final class ScriptedAccountRepository extends AccountRepository {
   MyAccount profile;
   int updateCount = 0;
 
+  /// Khi khác null, `getMyAccount` ném lỗi này.
+  Object? getError;
+
   @override
-  Future<MyAccount> getMyAccount() async => profile;
+  Future<MyAccount> getMyAccount() async {
+    final error = getError;
+    if (error != null) throw error;
+    return profile;
+  }
 
   @override
   Future<MyAccount> updateMyAccount({

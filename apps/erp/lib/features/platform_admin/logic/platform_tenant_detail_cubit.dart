@@ -3,7 +3,7 @@ import 'package:erp/core/iam/iam_ui_failure.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/iam/idempotency_key_factory.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../data/models/platform_tenant.dart';
 import '../data/platform_tenant_repository.dart';

@@ -115,6 +115,22 @@ void main() {
     expect(cubit.state.selected?.userId, 'user-2');
   });
 
+  test('OWNER_TARGET_ALREADY_OWNER says the member owns another organization', () async {
+    await cubit.load();
+    cubit.toggle('user-2');
+    repository.mutationError = serverError('OWNER_TARGET_ALREADY_OWNER');
+
+    final ok = await cubit.confirm();
+
+    expect(ok, isFalse);
+    expect(cubit.state.completed, isFalse);
+    expect(
+      cubit.state.failure?.message,
+      'Người này đã là chủ sở hữu của một tổ chức khác.',
+    );
+    expect(cubit.state.selected?.userId, 'user-2');
+  });
+
   test('STATE_CHANGED shows the reload message', () async {
     await cubit.load();
     cubit.toggle('user-2');

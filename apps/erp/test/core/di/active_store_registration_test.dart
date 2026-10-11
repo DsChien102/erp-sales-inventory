@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:erp/core/session/models/session_principal.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/core/session/session_store.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/supabase/supabase_module.dart';
@@ -25,13 +27,28 @@ void main() {
     await getIt.reset();
   });
 
-  test('ERP registers an active store context backed by the IAM session', () async {
+  test('ERP resolves the active store from the one session store', () async {
     await initDependencies(
       supabaseModule: SupabaseModule(_FakeSupabaseClient()),
     );
 
-    expect(getIt<IamSession>().activeStoreId, isNull);
-    expect(getIt<IActiveStoreContext>(), isA<IActiveStoreContext>());
-    expect(getIt<IActiveStoreContext>(), isNot(same(getIt<IamSession>())));
+    final store = getIt<SessionStore>();
+    expect(store.activeStoreId, isNull);
+    expect(getIt<SessionController>().activeStoreId, isNull);
+
+    store.apply(
+      const SessionPrincipal(
+        userId: 'user-1',
+        tenantId: 'org-001',
+        activeStoreId: 'store-1',
+        role: 'staff',
+        isOwner: false,
+        permissions: [],
+      ),
+    );
+
+    expect(getIt<SessionController>().activeStoreId, 'store-1');
+    expect(await getIt<SessionController>().requireActiveStoreId(), 'store-1');
+    expect(await getIt<IExecutionContext>().requireTenantId(), 'org-001');
   });
 }

@@ -5,19 +5,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/features/iam/data/models/tenant_audit_log.dart';
+import '../iam/support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../iam/support/scripted_iam_repositories.dart';
-import '../iam/support/iam_module_repositories.dart';
 
-final class _AuditAcceptanceIamModule implements IIamModule {
+/// Dữ liệu và hành vi tìm / xem chi tiết nhật ký cho luồng nghiệm thu S13.
+abstract final class _AuditAcceptance {
   static const activationAuditId = 'AUD-T-ACTIVATE-042';
-  final auditQueries = <SearchTenantAuditLogsQuery>[];
 
-  static final _activationSummary = TenantAuditLogSummaryDto(
+  static final _activationSummary = TenantAuditLogItem(
     auditLogId: activationAuditId,
     eventCode: IamAuditEvents.tenantActivated,
     eventCategory: TenantAuditEventCategory.organization,
@@ -25,7 +27,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
     occurredAt: DateTime(2026, 8, 20, 9, 30),
     source: 'tenant-app',
     trackingId: 'TRK-ACTIVATE-042',
-    actor: const TenantAuditActorDto(
+    actor: const TenantAuditActor(
       userId: 'user-owner-042',
       displayName: 'Lê Thị Lan',
       actorType: 'user',
@@ -33,7 +35,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
       roleLabel: 'Chủ sở hữu',
       displayOrigin: TenantAuditDisplayOrigin.snapshot,
     ),
-    subject: const TenantAuditSubjectDto(
+    subject: const TenantAuditSubject(
       type: 'tenant',
       id: 'org-001',
       displayName: 'Phòng khám Vet 45',
@@ -43,7 +45,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
     ),
   );
 
-  static final _profileUpdateSummary = TenantAuditLogSummaryDto(
+  static final _profileUpdateSummary = TenantAuditLogItem(
     auditLogId: 'AUD-T-PROFILE-043',
     eventCode: IamAuditEvents.tenantProfileUpdated,
     eventCategory: TenantAuditEventCategory.organization,
@@ -51,7 +53,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
     occurredAt: DateTime(2026, 8, 20, 9),
     source: 'tenant-app',
     trackingId: 'TRK-PROFILE-043',
-    actor: const TenantAuditActorDto(
+    actor: const TenantAuditActor(
       userId: 'user-manager-043',
       displayName: 'Nguyễn Văn An',
       actorType: 'user',
@@ -59,7 +61,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
       roleLabel: 'Quản lý chi nhánh',
       displayOrigin: TenantAuditDisplayOrigin.snapshot,
     ),
-    subject: const TenantAuditSubjectDto(
+    subject: const TenantAuditSubject(
       type: 'tenant',
       id: 'org-001',
       displayName: 'Phòng khám Vet 45',
@@ -69,7 +71,7 @@ final class _AuditAcceptanceIamModule implements IIamModule {
     ),
   );
 
-  static final _activationDetail = TenantAuditLogDetailDto(
+  static final _activationDetail = TenantAuditLogDetail(
     auditLogId: activationAuditId,
     tenantId: 'org-001',
     eventCode: IamAuditEvents.tenantActivated,
@@ -95,69 +97,56 @@ final class _AuditAcceptanceIamModule implements IIamModule {
     },
   );
 
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnsupportedError('No command is expected in the audit acceptance flow.');
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is SearchTenantAuditLogsQuery) {
-      final auditQuery = query as SearchTenantAuditLogsQuery;
-      auditQueries.add(auditQuery);
-      var items = [_activationSummary, _profileUpdateSummary];
-      if (auditQuery.tenantId != 'org-001') {
-        items = const [];
-      }
+  static Future<TenantAuditLogPage> search(SearchTenantAuditLogsQuery auditQuery) async {
+    var items = [_activationSummary, _profileUpdateSummary];
+    if (auditQuery.tenantId != 'org-001') {
+      items = const [];
+    }
+    items = items
+        .where(
+          (item) =>
+              !item.occurredAt.isBefore(auditQuery.fromUtc) &&
+              item.occurredAt.isBefore(auditQuery.toUtc),
+        )
+        .toList();
+    if (auditQuery.result != null) {
+      items = items.where((item) => item.result.code == auditQuery.result).toList();
+    }
+    if (auditQuery.eventCategory != null) {
+      items = items
+          .where((item) => item.eventCategory?.code == auditQuery.eventCategory)
+          .toList();
+    }
+    if (auditQuery.subjectType != null) {
+      items = items.where((item) => item.subject.type == auditQuery.subjectType).toList();
+    }
+    final eventCodes = auditQuery.eventCodes;
+    if (eventCodes != null && eventCodes.isNotEmpty) {
+      items = items.where((item) => eventCodes.contains(item.eventCode)).toList();
+    }
+    final freeText = auditQuery.query?.trim().toLowerCase();
+    if (freeText != null && freeText.isNotEmpty) {
       items = items
           .where(
-            (item) =>
-                !item.occurredAt.isBefore(auditQuery.fromUtc) &&
-                item.occurredAt.isBefore(auditQuery.toUtc),
+            (item) => [
+              item.auditLogId,
+              item.eventCode,
+              item.trackingId,
+              item.actor.displayName,
+              item.subject.displayName,
+              item.subject.code,
+            ].whereType<String>().any((value) => value.toLowerCase().contains(freeText)),
           )
           .toList();
-      if (auditQuery.result != null) {
-        items = items.where((item) => item.result.code == auditQuery.result).toList();
-      }
-      if (auditQuery.eventCategory != null) {
-        items = items.where((item) => item.eventCategory == auditQuery.eventCategory).toList();
-      }
-      if (auditQuery.subjectType != null) {
-        items = items.where((item) => item.subject.type == auditQuery.subjectType).toList();
-      }
-      final eventCodes = auditQuery.eventCodes;
-      if (eventCodes != null && eventCodes.isNotEmpty) {
-        items = items.where((item) => eventCodes.contains(item.eventCode)).toList();
-      }
-      final freeText = auditQuery.query?.trim().toLowerCase();
-      if (freeText != null && freeText.isNotEmpty) {
-        items = items
-            .where(
-              (item) => [
-                item.auditLogId,
-                item.eventCode,
-                item.trackingId,
-                item.actor.displayName,
-                item.subject.displayName,
-                item.subject.code,
-              ].whereType<String>().any((value) => value.toLowerCase().contains(freeText)),
-            )
-            .toList();
-      }
-      return TenantAuditLogSearchPageDto(
-            items: items,
-            totalCount: items.length,
-          )
-          as TResult;
     }
-    if (query is GetTenantAuditLogQuery) {
-      final detailQuery = query as GetTenantAuditLogQuery;
-      if (detailQuery.tenantId == 'org-001' && detailQuery.auditLogId == activationAuditId) {
-        return _activationDetail as TResult;
-      }
-      throw const IamBlockedException(IamBlockedCodes.resourceNotFound);
+    return TenantAuditLogPage(items: items, totalCount: items.length);
+  }
+
+  static Future<TenantAuditLogDetail> detail(GetTenantAuditLogQuery query) async {
+    if (query.tenantId == 'org-001' && query.auditLogId == activationAuditId) {
+      return _activationDetail;
     }
-    throw UnsupportedError('Unexpected query ${query.runtimeType}.');
+    throw const AppException(IamBlockedCodes.resourceNotFound);
   }
 }
 
@@ -180,12 +169,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  void register(IIamModule module) {
-    getIt
-      ..registerSingleton<IExecutionContext>(
-        FakeExecutionContext(tenantId: 'org-001'),
-      )
-      ..registerSingleton<IIamModule>(module);
+  void register() {
+    getIt.registerSingleton<IExecutionContext>(
+      FakeExecutionContext(tenantId: 'org-001'),
+    );
   }
 
   testWidgets(
@@ -303,8 +290,11 @@ void main() {
     'e2e_e02_u07_fr01_01: audit list/search → activation forensic detail',
     (tester) async {
       await phone(tester);
-      final module = _AuditAcceptanceIamModule();
-      register(module);
+      final module = FakeIamBackend(
+        onSearchAudit: _AuditAcceptance.search,
+        onGetAuditDetail: _AuditAcceptance.detail,
+      );
+      register();
 
       final router = GoRouter(
         initialLocation: '/more/audit-logs',
@@ -312,7 +302,7 @@ void main() {
           GoRoute(
             path: '/more/audit-logs',
             builder: (context, state) => OrganizationAuditLogsPage(
-              auditLogs: IamModuleAuditLogRepository(module),
+              auditLogs: FakeAuditLogRepository(module),
               clockLocal: () => DateTime(2026, 8, 20),
             ),
           ),
@@ -320,7 +310,7 @@ void main() {
             path: '/more/audit-logs/:auditLogId',
             builder: (context, state) => AuditLogDetailPage(
               auditLogId: state.pathParameters['auditLogId']!,
-              auditLogs: IamModuleAuditLogRepository(module),
+              auditLogs: FakeAuditLogRepository(module),
             ),
           ),
         ],
@@ -335,8 +325,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Lịch sử quản trị'), findsOneWidget);
-      expect(module.auditQueries, hasLength(1));
-      final initialAuditQuery = module.auditQueries.single;
+      expect(module.queriesOf<SearchTenantAuditLogsQuery>().toList(), hasLength(1));
+      final initialAuditQuery = module.queriesOf<SearchTenantAuditLogsQuery>().single;
       expect(initialAuditQuery.tenantId, 'org-001');
       expect(initialAuditQuery.fromUtc, DateTime.utc(2026, 7, 21, 17));
       expect(initialAuditQuery.toUtc, DateTime.utc(2026, 8, 20, 17));
@@ -358,8 +348,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
 
-      expect(module.auditQueries, hasLength(2));
-      final searchAuditQuery = module.auditQueries.last;
+      expect(module.queriesOf<SearchTenantAuditLogsQuery>().toList(), hasLength(2));
+      final searchAuditQuery = module.queriesOf<SearchTenantAuditLogsQuery>().toList().last;
       expect(searchAuditQuery.tenantId, 'org-001');
       expect(searchAuditQuery.fromUtc, DateTime.utc(2026, 7, 21, 17));
       expect(searchAuditQuery.toUtc, DateTime.utc(2026, 8, 20, 17));
@@ -425,16 +415,16 @@ void main() {
     'e2e_e02_u07_fr01_02: audit forbidden shows unauthorized state',
     (tester) async {
       await phone(tester);
-      final module = FakeIamModule(
+      final module = FakeIamBackend(
         scenario: FakeIamScenario.tenantAuditForbidden,
       );
-      register(module);
+      register();
 
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
           home: OrganizationAuditLogsPage(
-            auditLogs: IamModuleAuditLogRepository(module),
+            auditLogs: FakeAuditLogRepository(module),
           ),
         ),
       );

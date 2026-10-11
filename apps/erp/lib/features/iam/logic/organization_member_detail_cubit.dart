@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../data/member_repository.dart';
 import '../data/models/tenant_member.dart';
@@ -156,7 +156,7 @@ final class OrganizationMemberDetailCubit
             isSubmitting: false,
             clearMutation: true,
             failure: IamUiFailureMapper.from(
-              const IamBlockedException(IamBlockedCodes.systemError),
+              const AppException(IamBlockedCodes.systemError),
             ),
           ),
         );

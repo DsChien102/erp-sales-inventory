@@ -1,7 +1,5 @@
 import 'package:async_query/async_query.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_inventory_infrastructure/infrastructure.dart';
 import 'package:vet45_catalog_application/application.dart';
@@ -27,8 +25,10 @@ import '../../features/iam/data/organization_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../../features/platform_admin/data/platform_tenant_repository.dart';
 import '../router/session_refresh.dart';
+import '../session/session_contracts.dart';
 import '../session/session_controller.dart';
 import '../session/session_repository.dart';
+import '../session/session_store.dart';
 import '../supabase/supabase_module.dart';
 import '../supabase/supabase_rpc.dart';
 
@@ -55,16 +55,13 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerLazySingleton<IEventsBus>(() => InMemoryEventBusClient());
 
-  final iamRuntime = await IamStartup.initialize(
-    supabase: supabaseModule.client,
-    loggerFactory: getIt<ILoggerFactory>(),
-    integrationEventBus: getIt<IEventsBus>(),
-  );
-
   getIt.registerLazySingleton<SupabaseRpc>(() => SupabaseRpc(supabaseModule.client));
   getIt.registerLazySingleton<SessionRepository>(
     () => SessionRepository(rpc: getIt<SupabaseRpc>()),
   );
+
+  final sessionStore = SessionStore(repository: getIt<SessionRepository>());
+  getIt.registerSingleton<SessionStore>(sessionStore);
 
   // Bootstrap session identity only (no tenant context).
   // Tenant selection is deferred to SessionController.bootstrap() which reads
@@ -72,7 +69,7 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final session = SessionController(
     repository: getIt<SessionRepository>(),
     auth: supabaseModule.client.auth,
-    iamSession: iamRuntime.session,
+    store: sessionStore,
   )..start();
   getIt.registerSingleton<SessionController>(
     session,
@@ -82,16 +79,23 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
   sessionRefresh.attach(session);
 
+  // Ngữ cảnh / quyền cho các module nghiệp vụ cũ, đọc cùng SessionStore.
+  final executionContext = CoreExecutionContext(store: sessionStore);
+  final permissionChecker = CorePermissionChecker(
+    store: sessionStore,
+    repository: getIt<SessionRepository>(),
+    executionContext: executionContext,
+  );
+  final tenantAccessChecker = CoreTenantAccessChecker(
+    repository: getIt<SessionRepository>(),
+  );
+
   getIt
-    ..registerSingleton<IIamModule>(iamRuntime.module)
-    ..registerSingleton<IExecutionContext>(iamRuntime.executionContext)
-    ..registerSingleton<IPermissionChecker>(iamRuntime.permissionChecker)
-    ..registerSingleton<ITenantAccessChecker>(iamRuntime.tenantAccessChecker)
-    ..registerSingleton<IActiveStoreContext>(iamRuntime.activeStoreContext)
-    ..registerSingleton<IamSession>(iamRuntime.session)
-    ..registerSingleton<ICurrentUser>(iamRuntime.session)
-    ..registerSingleton<ICurrentTenant>(iamRuntime.session)
-    ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
+    ..registerSingleton<IExecutionContext>(executionContext)
+    ..registerSingleton<ICurrentUser>(executionContext)
+    ..registerSingleton<ICurrentTenant>(executionContext)
+    ..registerSingleton<IPermissionChecker>(permissionChecker)
+    ..registerSingleton<ITenantAccessChecker>(tenantAccessChecker);
 
   getIt
     ..registerLazySingleton<PartnerRepository>(
@@ -146,8 +150,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final catalogModule = CatalogStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
   );
 
   getIt.registerSingleton<ICatalogModule>(catalogModule);
@@ -155,8 +159,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final partnerModule = PartnerStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
   );
 
   getIt.registerSingleton<IPartnerModule>(partnerModule);
@@ -164,9 +168,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final pricingModule = PricingStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    executionContext: iamRuntime.executionContext,
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    executionContext: executionContext,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
   );
 
   getIt.registerSingleton<IPricingModule>(pricingModule);
@@ -174,8 +178,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final salesModule = SalesStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
   );
 
   getIt.registerSingleton<ISalesModule>(salesModule);
@@ -183,8 +187,8 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final einvoiceRuntime = EinvoiceStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
     integrationEventBus: getIt<IEventsBus>(),
   );
 
@@ -193,9 +197,9 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   final inventoryModule = InventoryStartup.initialize(
     supabase: supabaseModule.client,
     loggerFactory: getIt<ILoggerFactory>(),
-    executionContext: iamRuntime.executionContext,
-    permissionChecker: iamRuntime.permissionChecker,
-    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+    executionContext: executionContext,
+    permissionChecker: permissionChecker,
+    tenantAccessChecker: tenantAccessChecker,
   );
   getIt.registerSingleton<IInventoryModule>(inventoryModule);
 }

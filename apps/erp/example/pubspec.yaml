@@ -83,14 +83,6 @@ dependency_overrides:
     path: ../../../modules/einvoice/integration_events
   vet45_einvoice_presentation:
     path: ../../../modules/einvoice/presentation
-  vet45_iam_application:
-    path: ../../../modules/iam/application
-  vet45_iam_domain:
-    path: ../../../modules/iam/domain
-  vet45_iam_infrastructure:
-    path: ../../../modules/iam/infrastructure
-  vet45_iam_integration_events:
-    path: ../../../modules/iam/integration_events
   vet45_inventory_application:
     path: ../../../modules/inventory/application
   vet45_inventory_domain:

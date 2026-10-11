@@ -1,26 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_filter.dart';
 import 'package:erp/features/iam/presentation/audit_logs/bloc/tenant_audit_logs_cubit.dart';
 import 'package:erp/features/iam/presentation/shared/iam_load_status.dart';
-import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import '../../support/iam_module_repositories.dart';
 import 'package:erp/features/iam/data/models/tenant_audit_log.dart' as audit;
 
 void main() {
   final clock = DateTime(2026, 7, 31, 10);
 
-  TenantAuditLogsCubit buildCubit(IIamModule module) {
+  TenantAuditLogsCubit buildCubit(FakeIamBackend module) {
     return TenantAuditLogsCubit(
-      auditLogs: IamModuleAuditLogRepository(module),
+      auditLogs: FakeAuditLogRepository(module),
       clockLocal: () => clock,
     );
   }
 
   test('search sends UTC end-exclusive range and populates totalCount', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
     final cubit = buildCubit(module);
     await cubit.search();
     final query = module.queriesOf<SearchTenantAuditLogsQuery>().single;
@@ -44,9 +41,7 @@ void main() {
   });
 
   test('applyFilter forwards structured category, eventCodes, and subjectType', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
     final cubit = buildCubit(module);
     await cubit.applyFilter(
       TenantAuditFilter(
@@ -62,16 +57,14 @@ void main() {
     final query = module.queriesOf<SearchTenantAuditLogsQuery>().single;
     expect(query.query, isNull);
     expect(query.result, 'success');
-    expect(query.eventCategory, TenantAuditEventCategory.member);
+    expect(query.eventCategory, 'member');
     expect(query.subjectType, 'membership');
     expect(query.eventCodes, ['iam.membership.deactivated']);
     await cubit.close();
   });
 
   test('loadNextPage passes opaque cursor without decoding', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
     final cubit = buildCubit(module);
     await cubit.search();
     expect(cubit.state.nextCursor, 'opaque-next-cursor');
@@ -84,7 +77,7 @@ void main() {
 
   test('tenantAuditEmpty yields empty list and zero totalCount', () async {
     final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditEmpty),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditEmpty),
     );
     await cubit.search();
     expect(cubit.state.items, isEmpty);
@@ -95,7 +88,7 @@ void main() {
 
   test('tenantAuditForbidden maps permission denied', () async {
     final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditForbidden),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditForbidden),
     );
     await cubit.search();
     expect(cubit.state.failure?.code, IamBlockedCodes.permissionDenied);
@@ -104,7 +97,7 @@ void main() {
 
   test('tenantAuditProviderError maps system error', () async {
     final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditProviderError),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditProviderError),
     );
     await cubit.search();
     expect(cubit.state.failure?.code, IamBlockedCodes.systemError);
@@ -113,14 +106,14 @@ void main() {
 
   test('loadDetail ok and actor unavailable', () async {
     final ok = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditDetailOk),
     );
     await ok.loadDetail('AUD-T-001');
     expect(ok.state.selectedDetail?.actorUnavailable, isFalse);
     await ok.close();
 
     final unavailable = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditActorUnavailable),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditActorUnavailable),
     );
     await unavailable.loadDetail('AUD-T-001');
     expect(unavailable.state.selectedDetail?.actorUnavailable, isTrue);
@@ -129,7 +122,7 @@ void main() {
 
   test('cross-tenant detail is generic not found', () async {
     final cubit = buildCubit(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditCrossTenant),
+      FakeIamBackend(scenario: FakeIamScenario.tenantAuditCrossTenant),
     );
     await cubit.loadDetail('AUD-T-999');
     expect(cubit.state.detailFailure?.code, IamBlockedCodes.resourceNotFound);

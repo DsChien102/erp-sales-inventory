@@ -2,37 +2,37 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../errors/app_exception.dart';
+import '../iam/iam_codes.dart';
 import '../iam/iam_ui_failure.dart';
 import '../iam/iam_ui_failure_mapper.dart';
 import 'models/accessible_tenant.dart';
 import 'models/session_principal.dart';
+import 'models/session_snapshot.dart';
 import 'models/sign_out_result.dart';
 import 'models/tenant_context.dart';
 import 'session_repository.dart';
 import 'session_state.dart';
+import 'session_store.dart';
 
 /// Một nguồn sự thật về phiên đăng nhập và tổ chức đang chọn.
 ///
-/// Ghi vào [IamSession] (module cũ đọc tenant / cửa hàng qua đây đến P9).
-/// `readSession()` vẫn trả [SessionDto]; `apply` vẫn nhận [PrincipalAccessDto].
-/// TODO(P9): bỏ hai kiểu package cũ khi không còn module đọc chúng.
+/// Ghi vào [SessionStore]; module nghiệp vụ cũ đọc tenant / cửa hàng qua
+/// `CoreExecutionContext` / `CorePermissionChecker` cùng store này.
 final class SessionController extends Cubit<SessionState> {
   SessionController({
     required SessionRepository repository,
     GoTrueClient? auth,
-    IamSession? iamSession,
+    SessionStore? store,
     String userDisplayName = '',
     SessionState? initialState,
     Stream<String>? tenantAccessRevoked,
     DateTime Function()? clock,
   }) : _repository = repository,
        _auth = auth,
-       _iamSession = iamSession,
+       _store = store ?? SessionStore(repository: repository),
        _clock = clock ?? DateTime.now,
        super(
          initialState ?? SessionState(userDisplayName: userDisplayName),
@@ -44,7 +44,7 @@ final class SessionController extends Cubit<SessionState> {
 
   final SessionRepository _repository;
   final GoTrueClient? _auth;
-  final IamSession? _iamSession;
+  final SessionStore _store;
   final DateTime Function() _clock;
   late final StreamSubscription<String> _revokedSubscription;
   StreamSubscription<AuthState>? _authSub;
@@ -100,14 +100,14 @@ final class SessionController extends Cubit<SessionState> {
     final trimmed = userId?.trim();
     if (trimmed == null || trimmed.isEmpty) {
       _holdSignedIn = false;
-      _iamSession?.clear();
+      _store.clear();
       emit(const SessionState(authStatus: AuthStatus.signedOut));
       return;
     }
     if (_holdSignedIn) return;
     final previous = state.userId;
     if (previous != null && previous != trimmed) {
-      _iamSession?.applyAuthenticatedUser(trimmed);
+      _store.applyAuthenticatedUser(trimmed);
       emit(
         SessionState(
           authStatus: AuthStatus.signedIn,
@@ -117,10 +117,10 @@ final class SessionController extends Cubit<SessionState> {
       );
       return;
     }
-    // Bootstrap lúc đang giữ phiên (đăng ký) đã gắn đúng user này vào IamSession;
+    // Bootstrap lúc đang giữ phiên (đăng ký) đã gắn đúng user này vào store;
     // gọi lại applyAuthenticatedUser sẽ xoá tenant / cửa hàng vừa nạp.
-    if (previous != trimmed && _iamSession?.userId != trimmed) {
-      _iamSession?.applyAuthenticatedUser(trimmed);
+    if (previous != trimmed && _store.userId != trimmed) {
+      _store.applyAuthenticatedUser(trimmed);
     }
     if (state.authStatus == AuthStatus.signedIn && state.userId == trimmed) {
       return;
@@ -134,43 +134,46 @@ final class SessionController extends Cubit<SessionState> {
     );
   }
 
-  String? get tenantId => _iamSession?.tenantId;
+  String? get tenantId => _store.tenantId;
 
-  String? get activeStoreId => _iamSession?.activeStoreId;
+  String? get activeStoreId => _store.activeStoreId;
 
-  bool hasPermission(String code) => _iamSession?.hasPermission(code) ?? false;
+  String? get activeStoreCode => _store.activeStoreCode;
 
-  String? get role => _blankToNull(_iamSession?.role);
+  String? get activeStoreDisplayName => _store.activeStoreDisplayName;
 
-  bool get isOwner => _iamSession?.isOwner ?? false;
+  bool hasPermission(String code) => _store.hasPermission(code);
+
+  String? get role => _blankToNull(_store.role);
+
+  bool get isOwner => _store.isOwner;
 
   String? get email => _auth?.currentUser?.email;
 
-  List<String> get permissions =>
-      _iamSession?.permissions.toList(growable: false) ?? const [];
+  List<String> get permissions => _store.permissions.toList(growable: false);
 
-  /// Ảnh phiên mà hub IAM đang đọc (`SessionDto.hasPermission` = owner hoặc quyền).
+  /// Ảnh phiên mà hub IAM đang đọc (`SessionSnapshot.hasPermission` = owner hoặc quyền).
   /// Hết hạn token thì ném [AppException] `SESSION_EXPIRED`.
-  SessionDto readSession() {
+  SessionSnapshot readSession() {
     final auth = _auth;
     if (auth != null) {
       final current = auth.currentSession;
-      if (current == null) return const SessionDto(isAuthenticated: false);
+      if (current == null) return const SessionSnapshot(isAuthenticated: false);
       if (current.isExpired) {
         throw const AppException('SESSION_EXPIRED');
       }
     } else if (state.authStatus != AuthStatus.signedIn) {
-      return const SessionDto(isAuthenticated: false);
+      return const SessionSnapshot(isAuthenticated: false);
     }
 
-    final userId = _blankToNull(_iamSession?.userId) ?? _blankToNull(state.userId);
-    if (userId == null) return const SessionDto(isAuthenticated: false);
-    return SessionDto(
+    final userId = _blankToNull(_store.userId) ?? _blankToNull(state.userId);
+    if (userId == null) return const SessionSnapshot(isAuthenticated: false);
+    return SessionSnapshot(
       isAuthenticated: true,
       userId: userId,
       email: email,
-      tenantId: _blankToNull(_iamSession?.tenantId),
-      activeStoreId: _blankToNull(_iamSession?.activeStoreId),
+      tenantId: _blankToNull(_store.tenantId),
+      activeStoreId: _blankToNull(_store.activeStoreId),
       role: role,
       isOwner: isOwner,
       permissions: permissions,
@@ -191,13 +194,8 @@ final class SessionController extends Cubit<SessionState> {
     return id;
   }
 
-  Future<String> requireActiveStoreId() {
-    final session = _iamSession;
-    if (session == null) {
-      throw const AppException(AppErrorCode.authRequired);
-    }
-    return session.requireActiveStoreId();
-  }
+  /// Cửa hàng đang hoạt động; trống thì nạp lại từ server (xem [SessionStore]).
+  Future<String> requireActiveStoreId() => _store.requireActiveStoreId();
 
   /// Đăng xuất Supabase rồi xoá phiên cục bộ. Lỗi máy chủ không chặn xoá local.
   Future<SignOutResult> signOut() async {
@@ -208,7 +206,7 @@ final class SessionController extends Cubit<SessionState> {
     } catch (_) {
       remote = false;
     } finally {
-      _iamSession?.clear();
+      _store.clear();
     }
     emit(const SessionState(authStatus: AuthStatus.signedOut));
     return SignOutResult(localCleared: true, remoteSucceeded: remote);
@@ -382,20 +380,7 @@ final class SessionController extends Cubit<SessionState> {
         serverMessage: 'Active store context is required.',
       );
     }
-    _iamSession?.apply(_principalDto(principal));
-  }
-
-  PrincipalAccessDto _principalDto(SessionPrincipal principal) {
-    return PrincipalAccessDto(
-      userId: principal.userId,
-      tenantId: principal.tenantId,
-      activeStoreId: principal.activeStoreId,
-      activeStoreCode: principal.activeStoreCode,
-      activeStoreDisplayName: principal.activeStoreDisplayName,
-      role: principal.role,
-      isOwner: principal.isOwner,
-      permissions: principal.permissions,
-    );
+    _store.apply(principal);
   }
 
   Future<void> loadAccessibleTenants() async {
@@ -545,19 +530,19 @@ final class SessionController extends Cubit<SessionState> {
   }
 
   void _applyTenantContextPermissions(TenantContext context) {
-    final session = _iamSession;
-    if (session == null) return;
-    final userId = session.userId;
+    final userId = _store.userId;
     final tenantId = context.tenantId;
     if (userId == null || userId.isEmpty || tenantId == null || tenantId.isEmpty) {
       return;
     }
-    session.apply(
-      PrincipalAccessDto(
+    _store.apply(
+      SessionPrincipal(
         userId: userId,
         tenantId: tenantId,
-        activeStoreId: session.activeStoreId,
-        role: context.roleLabel ?? session.role ?? '',
+        activeStoreId: _store.activeStoreId,
+        activeStoreCode: _store.activeStoreCode,
+        activeStoreDisplayName: _store.activeStoreDisplayName,
+        role: context.roleLabel ?? _store.role ?? '',
         isOwner: context.isOwner,
         permissions: context.permissions,
       ),

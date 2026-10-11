@@ -1,5 +1,5 @@
 import 'package:erp/core/iam/iam_ui_failure.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/models/session_snapshot.dart';
 
 enum LoginStatus { initial, submitting, success, failure, needsVerification }
 
@@ -12,7 +12,7 @@ final class LoginState {
   });
 
   final LoginStatus status;
-  final SessionDto? session;
+  final SessionSnapshot? session;
   final IamUiFailure? failure;
   final String? verificationEmail;
 
@@ -20,7 +20,7 @@ final class LoginState {
 
   LoginState copyWith({
     LoginStatus? status,
-    SessionDto? session,
+    SessionSnapshot? session,
     IamUiFailure? failure,
     String? verificationEmail,
     bool clearFailure = false,

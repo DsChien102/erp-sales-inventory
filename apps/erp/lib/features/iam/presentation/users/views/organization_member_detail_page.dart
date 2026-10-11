@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../data/member_repository.dart';
+import '../../../data/models/tenant_member.dart';
 import '../../shared/iam_load_status.dart';
 import '../bloc/organization_member_detail_cubit.dart';
 import '../bloc/organization_member_detail_state.dart';
@@ -18,7 +18,7 @@ import '../widgets/remove_membership_bottom_sheet.dart';
 import '../models/user_ui_model.dart';
 import 'organization_select_role_page.dart';
 
-/// Chi tiết thành viên — loads by [membershipId] via [GetTenantMemberQuery].
+/// Chi tiết thành viên — loads by [membershipId] via [MemberRepository.getMember].
 class OrganizationMemberDetailPage extends StatelessWidget {
   const OrganizationMemberDetailPage({
     super.key,

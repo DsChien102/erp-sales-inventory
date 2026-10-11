@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:erp/core/validation/tax_code.dart';
+import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../organizations/widgets/organization_empty_view.dart';
 import '../../shared/iam_load_status.dart';

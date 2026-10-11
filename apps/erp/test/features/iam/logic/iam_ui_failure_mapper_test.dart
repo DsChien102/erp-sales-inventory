@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/iam/logic/iam_ui_failure_mapper.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -8,7 +8,7 @@ void main() {
   group('IamUiFailureMapper', () {
     test('PLATFORM_USER_SUSPENDED shows suspended account message', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.platformUserSuspended),
+        const AppException(IamBlockedCodes.platformUserSuspended),
       );
       expect(failure.code, IamBlockedCodes.platformUserSuspended);
       expect(
@@ -19,7 +19,7 @@ void main() {
 
     test('STATE_CHANGED requires reload', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.stateChanged),
+        const AppException(IamBlockedCodes.stateChanged),
       );
       expect(failure.requiresReload, isTrue);
       expect(failure.code, IamBlockedCodes.stateChanged);
@@ -29,7 +29,7 @@ void main() {
 
     test('STEP_UP_AUTH_REQUIRED requests step-up UX', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.stepUpAuthRequired),
+        const AppException(IamBlockedCodes.stepUpAuthRequired),
       );
       expect(failure.requiresStepUp, isTrue);
       expect(failure.code, IamBlockedCodes.stepUpAuthRequired);
@@ -39,7 +39,7 @@ void main() {
 
     test('SYSTEM_ERROR is retryable', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.systemError),
+        const AppException(IamBlockedCodes.systemError),
       );
       expect(failure.code, IamBlockedCodes.systemError);
       expect(failure.retryable, isTrue);
@@ -49,7 +49,7 @@ void main() {
 
     test('RESET_RATE_LIMITED is retryable', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.resetRateLimited),
+        const AppException(IamBlockedCodes.resetRateLimited),
       );
       expect(failure.code, IamBlockedCodes.resetRateLimited);
       expect(failure.retryable, isTrue);
@@ -86,9 +86,9 @@ void main() {
       // message (`RpcException(error.toString())`), so a known code must still
       // render its curated sentence rather than the driver dump.
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(
+        const AppException(
           IamBlockedCodes.invitationTokenInvalid,
-          message:
+          serverMessage:
               'PostgrestException(message: INVITATION_TOKEN_INVALID, '
               'code: P0001, details: Bad Request, hint: null)',
         ),
@@ -100,9 +100,9 @@ void main() {
 
     test('permission denied dump is replaced by the curated sentence', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(
+        const AppException(
           IamBlockedCodes.permissionDenied,
-          message:
+          serverMessage:
               'PostgrestException(message: permission denied for schema iam, '
               'code: 42501, details: Unauthorized, hint: null)',
         ),
@@ -110,12 +110,13 @@ void main() {
       expect(failure.message, 'Bạn không có quyền thực hiện thao tác này.');
     });
 
-    test('unknown code still falls back to the raw message', () {
+    test('unknown code keeps the code and never shows the server detail', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException('SOME_UNMAPPED_CODE', message: 'chi tiết lạ'),
+        const AppException('SOME_UNMAPPED_CODE', serverMessage: 'chi tiết lạ'),
       );
       expect(failure.code, 'SOME_UNMAPPED_CODE');
-      expect(failure.message, 'chi tiết lạ');
+      expect(failure.message, 'SOME_UNMAPPED_CODE');
+      expect(failure.message, isNot(contains('chi tiết lạ')));
     });
 
     test('ValidationException maps to VALIDATION_ERROR', () {
@@ -129,7 +130,7 @@ void main() {
 
     test('NO_ACTIVE_MEMBERSHIP uses curated login copy', () {
       final failure = IamUiFailureMapper.from(
-        const IamBlockedException(IamBlockedCodes.noActiveMembership),
+        const AppException(IamBlockedCodes.noActiveMembership),
       );
       expect(failure.code, IamBlockedCodes.noActiveMembership);
       expect(

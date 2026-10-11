@@ -1,11 +1,11 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:supabase/supabase.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'iam_codes.dart';
 import 'iam_ui_failure.dart';
 
-/// Maps application/IAM exceptions to stable [IamUiFailure] values.
+/// Maps application / data exceptions to stable [IamUiFailure] values.
 abstract final class IamUiFailureMapper {
   static IamUiFailure from(Object error) {
     if (error is AppException) {
@@ -26,9 +26,6 @@ abstract final class IamUiFailureMapper {
         _ => error.code,
       };
       return _fromCode(code, fallbackMessage: null);
-    }
-    if (error is IamBlockedException) {
-      return _fromCode(error.code, fallbackMessage: error.message);
     }
     if (error is ValidationException) {
       return IamUiFailure(

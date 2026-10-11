@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
+import '../../support/iam_fixtures.dart';
 
 void main() {
   testWidgets('OrganizationRoleDetailPage renders role summary and permission groups (TA-D-02)', (

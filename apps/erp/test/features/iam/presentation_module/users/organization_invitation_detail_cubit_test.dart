@@ -1,26 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/testing.dart';
-import '../../support/iam_module_repositories.dart';
+import '../../support/iam_fixtures.dart';
 
 void main() {
   OrganizationInvitationDetailCubit buildCubit({
-    required IIamModule module,
+    required FakeIamBackend module,
     String invitationId = 'inv-1',
     IdempotencyKeyFactory? keyFactory,
   }) {
     return OrganizationInvitationDetailCubit(
       invitationId: invitationId,
-      invitations: IamModuleInvitationRepository(module),
+      invitations: FakeInvitationRepository(module),
       keyFactory: keyFactory ?? FakeIdempotencyKeyFactory(),
     );
   }
 
   test('load uses GetInvitationQuery by id', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.invitationResendOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationResendOk);
     final cubit = buildCubit(module: module);
     await cubit.load();
     final query = module.queriesOf<GetInvitationQuery>().single;
@@ -32,9 +30,7 @@ void main() {
 
   test('resend and revoke use displayed version and independent keys',
       () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.invitationResendOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationResendOk);
     final keys = FakeIdempotencyKeyFactory();
     final cubit = buildCubit(module: module, keyFactory: keys);
     await cubit.load();
@@ -60,9 +56,7 @@ void main() {
   });
 
   test('empty revoke reason does not send command', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.invitationRevokeOk),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationRevokeOk);
     final cubit = buildCubit(module: module);
     await cubit.load();
     await cubit.revoke(reason: '   ');
@@ -72,9 +66,7 @@ void main() {
   });
 
   test('STATE_CHANGED reloads detail before next action', () async {
-    final module = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.invitationStateChanged),
-    );
+    final module = FakeIamBackend(scenario: FakeIamScenario.invitationStateChanged);
     final cubit = buildCubit(module: module);
     await cubit.load();
     expect(module.queriesOf<GetInvitationQuery>(), hasLength(1));
@@ -90,7 +82,7 @@ void main() {
 
   test('resend delivery failed keeps pending with warning', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(
+      module: FakeIamBackend(
         scenario: FakeIamScenario.invitationResendDeliveryFailed,
       ),
     );
@@ -105,7 +97,7 @@ void main() {
 
   test('terminal invitation hides mutations', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(scenario: FakeIamScenario.invitationResendOk),
+      module: FakeIamBackend(scenario: FakeIamScenario.invitationResendOk),
       invitationId: 'inv-expired',
     );
     await cubit.load();
@@ -118,7 +110,7 @@ void main() {
 
   test('invitationTerminalReject maps failure', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(
+      module: FakeIamBackend(
         scenario: FakeIamScenario.invitationTerminalReject,
       ),
     );
@@ -130,7 +122,7 @@ void main() {
 
   test('cross-tenant mutation maps not found', () async {
     final cubit = buildCubit(
-      module: FakeIamModule(
+      module: FakeIamBackend(
         scenario: FakeIamScenario.invitationCrossTenantNotFound,
       ),
     );

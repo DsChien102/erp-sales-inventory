@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart' as iam;
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -26,7 +26,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
       salesModule: GetIt.instance<ISalesModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
       activeStoreContext: _SalesActiveStoreAdapter(
-        GetIt.instance<iam.IActiveStoreContext>(),
+        GetIt.instance<SessionController>(),
       ),
     )..load(isRefresh: true);
   }
@@ -143,7 +143,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
 final class _SalesActiveStoreAdapter implements ISalesActiveStoreContext {
   const _SalesActiveStoreAdapter(this._inner);
 
-  final iam.IActiveStoreContext _inner;
+  final SessionController _inner;
 
   @override
   String? get activeStoreId => _inner.activeStoreId;

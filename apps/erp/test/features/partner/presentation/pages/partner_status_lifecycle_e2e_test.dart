@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:erp/core/session/session_controller.dart';
+import '../../../../core/session/fake_session_repository.dart';
+import 'package:erp/core/session/session_store.dart';
+import 'package:erp/core/session/models/session_principal.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_domain/domain.dart';
@@ -29,9 +31,9 @@ void main() {
     required List<String> permissions,
     String initialLocation = '/partner/p-person-1',
   }) {
-    final session = IamSession()
+    final session = SessionStore()
       ..apply(
-        PrincipalAccessDto(
+        SessionPrincipal(
           userId: 'user-1',
           tenantId: 'tenant-1',
           role: 'staff',
@@ -45,7 +47,9 @@ void main() {
         FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
       )
       ..registerSingleton<IPartnerModule>(partnerModule)
-      ..registerSingleton<IamSession>(session);
+      ..registerSingleton<SessionController>(
+        SessionController(repository: FakeSessionRepository(), store: session),
+      );
 
     final router = GoRouter(
       initialLocation: initialLocation,

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_sales_application/application.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
@@ -38,7 +38,7 @@ void main() {
       await tester.pumpAndSettle();
       final di = GetIt.instance;
       expect(await di<IExecutionContext>().requireTenantId(), _tenantId);
-      expect(await di<IActiveStoreContext>().requireActiveStoreId(), _storeId);
+      expect(await di<SessionController>().requireActiveStoreId(), _storeId);
 
       final products = await SalesCatalogProductLookup.bindSearch(di)(
         _productId,

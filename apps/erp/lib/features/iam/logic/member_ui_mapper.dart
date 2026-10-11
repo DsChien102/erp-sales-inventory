@@ -1,5 +1,3 @@
-import 'package:vet45_iam_domain/domain.dart';
-
 import '../data/models/tenant_member.dart';
 import 'iam_date_formatter.dart';
 import 'iam_role_label_mapper.dart';

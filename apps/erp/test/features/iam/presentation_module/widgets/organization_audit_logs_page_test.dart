@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/testing.dart';
+import '../../support/fake_iam_backend.dart';
 import 'package:erp/features/iam/presentation.dart';
-import 'package:erp/features/iam/presentation/testing/recording_iam_module.dart';
-import '../../support/iam_module_repositories.dart';
 
 void main() {
   testWidgets('loads audit logs and renders total count in subtitle', (tester) async {
@@ -16,7 +14,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          auditLogs: IamModuleAuditLogRepository(FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk)),
+          auditLogs: FakeAuditLogRepository(FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk)),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -37,14 +35,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final recording = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
 
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          auditLogs: IamModuleAuditLogRepository(recording),
+          auditLogs: FakeAuditLogRepository(recording),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -56,7 +52,7 @@ void main() {
 
     final queries = recording.queriesOf<SearchTenantAuditLogsQuery>().toList();
     expect(queries.length, greaterThan(1));
-    expect(queries.last.eventCategory?.code, 'member');
+    expect(queries.last.eventCategory, 'member');
   });
 
   testWidgets('search text field triggers debounced search with query', (tester) async {
@@ -65,14 +61,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final recording = RecordingIamModule(
-      FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
-    );
+    final recording = FakeIamBackend(scenario: FakeIamScenario.tenantAuditSearchOk);
 
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationAuditLogsPage(
-          auditLogs: IamModuleAuditLogRepository(recording),
+          auditLogs: FakeAuditLogRepository(recording),
           clockLocal: () => DateTime(2026, 7, 31),
         ),
       ),
@@ -97,7 +91,7 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-001',
-          auditLogs: IamModuleAuditLogRepository(FakeIamModule(
+          auditLogs: FakeAuditLogRepository(FakeIamBackend(
             scenario: FakeIamScenario.tenantAuditActorUnavailable,
           )),
         ),
@@ -121,7 +115,7 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-001',
-          auditLogs: IamModuleAuditLogRepository(FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk)),
+          auditLogs: FakeAuditLogRepository(FakeIamBackend(scenario: FakeIamScenario.tenantAuditDetailOk)),
         ),
       ),
     );
@@ -142,7 +136,7 @@ void main() {
       MaterialApp(
         home: AuditLogDetailPage(
           auditLogId: 'AUD-T-999',
-          auditLogs: IamModuleAuditLogRepository(FakeIamModule(
+          auditLogs: FakeAuditLogRepository(FakeIamBackend(
             scenario: FakeIamScenario.tenantAuditCrossTenant,
           )),
         ),

@@ -1,6 +1,7 @@
+import '../../iam/support/iam_test_session.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_sales_application/application.dart' as sales;
@@ -19,7 +20,9 @@ void main() {
     di
       ..registerSingleton<IPricingModule>(pricing)
       ..registerSingleton<IExecutionContext>(const _ExecutionContext())
-      ..registerSingleton<IActiveStoreContext>(const _ActiveStoreContext());
+      ..registerSingleton<SessionController>(
+        testSessionController(tenantId: 'tenant-1', userId: 'user-1', activeStoreId: 'store-1'),
+      );
   });
 
   test('manual evaluation maps owner result without mutation', () async {
@@ -288,10 +291,3 @@ final class _ExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'user-1';
 }
 
-final class _ActiveStoreContext implements IActiveStoreContext {
-  const _ActiveStoreContext();
-  @override
-  String? get activeStoreId => 'store-1';
-  @override
-  Future<String> requireActiveStoreId() async => 'store-1';
-}

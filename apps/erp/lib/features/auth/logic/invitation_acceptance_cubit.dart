@@ -5,7 +5,7 @@ import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/validation/password_policy.dart';
 import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../data/auth_repository.dart';
 import '../data/invitation_acceptance_repository.dart';

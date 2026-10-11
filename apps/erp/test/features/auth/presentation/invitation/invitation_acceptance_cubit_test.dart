@@ -1,11 +1,11 @@
 import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/features/auth/logic/invitation_acceptance_cubit.dart';
 import 'package:erp/features/auth/logic/invitation_acceptance_state.dart';
-import 'package:erp/features/iam/presentation/testing/fake_idempotency_key_factory.dart';
+import '../../../iam/support/iam_fixtures.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
+import '../../../iam/support/fake_iam_backend.dart';
 
 import '../../support/scripted_auth.dart';
 import '../../support/scripted_invitations.dart';
@@ -106,7 +106,7 @@ void main() {
   test('acceptExistingAccount error falls back to existingAccountLogin with failure', () async {
     final invitations = ScriptedInvitations(
       scenario: FakeIamScenario.inspectExistingAccount,
-      acceptError: const IamBlockedException(IamBlockedCodes.idempotencyConflict),
+      acceptError: const AppException(IamBlockedCodes.idempotencyConflict),
     );
     final cubit = buildCubit(invitations: invitations);
     await cubit.inspect('tok-1');
@@ -121,7 +121,7 @@ void main() {
   test('acceptExistingAccount terminal error transitions to blocked', () async {
     final invitations = ScriptedInvitations(
       scenario: FakeIamScenario.inspectExistingAccount,
-      acceptError: const IamBlockedException(IamBlockedCodes.invitationAlreadyUsed),
+      acceptError: const AppException(IamBlockedCodes.invitationAlreadyUsed),
     );
     final cubit = buildCubit(invitations: invitations);
     await cubit.inspect('tok-1');

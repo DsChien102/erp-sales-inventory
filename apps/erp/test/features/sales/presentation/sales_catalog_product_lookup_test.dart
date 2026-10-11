@@ -1,7 +1,8 @@
+import '../../iam/support/iam_test_session.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:erp/features/sales/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -17,7 +18,9 @@ void main() {
     di
       ..registerSingleton<ICatalogModule>(catalog)
       ..registerSingleton<IExecutionContext>(const _ExecutionContext())
-      ..registerSingleton<IActiveStoreContext>(const _ActiveStoreContext());
+      ..registerSingleton<SessionController>(
+        testSessionController(tenantId: 'tenant-1', userId: 'user-1', activeStoreId: 'store-1'),
+      );
   });
 
   test('search passes tenant, active store, limit, and maps owner fields', () async {
@@ -102,16 +105,6 @@ final class _ExecutionContext implements IExecutionContext {
 
   @override
   Future<String> requireUserId() async => 'user-1';
-}
-
-final class _ActiveStoreContext implements IActiveStoreContext {
-  const _ActiveStoreContext();
-
-  @override
-  String? get activeStoreId => 'store-1';
-
-  @override
-  Future<String> requireActiveStoreId() async => 'store-1';
 }
 
 const _unit = SellableProductUnitDto(

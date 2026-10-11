@@ -1,5 +1,5 @@
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/session/models/session_snapshot.dart';
 
 import '../../../core/iam/iam_load_status.dart';
 import '../../../core/iam/iam_ui_failure.dart';
@@ -12,7 +12,7 @@ final class IamFeatureAccessState {
   });
 
   final IamLoadStatus status;
-  final SessionDto? session;
+  final SessionSnapshot? session;
   final IamUiFailure? failure;
 
   bool _has(String code) => session?.hasPermission(code) ?? false;
@@ -31,7 +31,7 @@ final class IamFeatureAccessState {
 
   IamFeatureAccessState copyWith({
     IamLoadStatus? status,
-    SessionDto? session,
+    SessionSnapshot? session,
     IamUiFailure? failure,
     bool clearFailure = false,
     bool clearSession = false,

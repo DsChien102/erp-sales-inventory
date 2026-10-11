@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/errors/app_exception.dart';
+import '../../../iam/support/fake_iam_backend.dart';
 
 import '../../support/scripted_invitations.dart';
 
@@ -168,7 +169,7 @@ void main() {
           theme: VTheme.lightTheme,
           home: InvitationPageHarness(
             scenario: FakeIamScenario.inspectExistingAccount,
-            acceptError: const IamBlockedException(IamBlockedCodes.idempotencyConflict),
+            acceptError: const AppException(IamBlockedCodes.idempotencyConflict),
           ).page,
         ),
       );

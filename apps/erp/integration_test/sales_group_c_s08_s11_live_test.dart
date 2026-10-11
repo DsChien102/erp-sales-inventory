@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_sales_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -41,7 +41,7 @@ void main() {
       final sales = di<ISalesModule>();
       final tenantId = await executionContext.requireTenantId();
       final actorId = await executionContext.requireUserId();
-      final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+      final storeId = await di<SessionController>().requireActiveStoreId();
       expect(tenantId, _tenantId);
       expect(storeId, _storeId);
 

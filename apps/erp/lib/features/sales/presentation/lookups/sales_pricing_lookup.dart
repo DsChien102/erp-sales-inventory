@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:vet45_pricing_application/application.dart' as pricing;
 import 'package:vet45_sales_application/application.dart' as sales;
 import 'package:erp/features/sales/presentation.dart';
@@ -29,7 +29,7 @@ abstract final class SalesPricingLookup {
   ) async {
     try {
       final tenantId = await di<IExecutionContext>().requireTenantId();
-      final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+      final storeId = await di<SessionController>().requireActiveStoreId();
       final result = await di<pricing.IPricingModule>().executeQueryAsync(
         pricing.PreviewSalesWorkingStatePricingQuery(
           tenantId: tenantId,
@@ -91,7 +91,7 @@ abstract final class SalesPricingLookup {
   ) async {
     try {
       final tenantId = await di<IExecutionContext>().requireTenantId();
-      final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+      final storeId = await di<SessionController>().requireActiveStoreId();
       final result = await di<pricing.IPricingModule>().executeQueryAsync(
         pricing.EvaluateSalesManualPriceQuery(
           tenantId: tenantId,
@@ -143,7 +143,7 @@ abstract final class SalesPricingLookup {
       final context = di<IExecutionContext>();
       final tenantId = await context.requireTenantId();
       final actorId = await context.requireUserId();
-      final storeId = await di<IActiveStoreContext>().requireActiveStoreId();
+      final storeId = await di<SessionController>().requireActiveStoreId();
       final module = di<pricing.IPricingModule>();
       final existing = await _resolve(module, tenantId, request, customerId);
       if (existing != null && !request.confirmOverwrite) {

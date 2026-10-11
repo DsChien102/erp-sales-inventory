@@ -1,4 +1,4 @@
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/session/models/tenant_context.dart';
 
 /// Hồ sơ tổ chức đọc từ `get_tenant` / `update_tenant_profile`.
 final class TenantProfile {
@@ -22,7 +22,7 @@ final class TenantProfile {
 
   final String tenantId;
   final String displayName;
-  final TenantLifecycleStatus status;
+  final TenantStatus status;
   final int version;
   final String businessTimezone;
   final String baseCurrencyCode;
@@ -46,7 +46,7 @@ final class TenantProfile {
     return TenantProfile(
       tenantId: row['tenant_id'] as String,
       displayName: row['display_name'] as String? ?? row['name'] as String? ?? '',
-      status: _lifecycle(row['status'] as String?),
+      status: tenantStatusFromWire(row['status'] as String?),
       version: (row['version'] as num?)?.toInt() ?? 1,
       businessTimezone: row['business_timezone'] as String? ?? 'Asia/Ho_Chi_Minh',
       baseCurrencyCode: row['base_currency_code'] as String? ?? 'VND',
@@ -83,6 +83,22 @@ final class TenantProfile {
       legalProfile: legalProfile,
     );
   }
+}
+
+/// Loại hình pháp lý của tổ chức (hồ sơ pháp lý).
+enum LegalEntityType { householdBusiness, enterprise }
+
+extension LegalEntityTypeCodes on LegalEntityType {
+  String get code => switch (this) {
+    LegalEntityType.householdBusiness => 'HOUSEHOLD_BUSINESS',
+    LegalEntityType.enterprise => 'ENTERPRISE',
+  };
+
+  static LegalEntityType? fromCode(String? raw) => switch (raw) {
+    'HOUSEHOLD_BUSINESS' => LegalEntityType.householdBusiness,
+    'ENTERPRISE' => LegalEntityType.enterprise,
+    _ => null,
+  };
 }
 
 final class TenantLegalProfile {
@@ -128,11 +144,3 @@ final class TenantLegalProfile {
   }
 }
 
-TenantLifecycleStatus _lifecycle(String? raw) {
-  return switch (raw) {
-    'provisioning' => TenantLifecycleStatus.provisioning,
-    'suspended' => TenantLifecycleStatus.suspended,
-    'closed' => TenantLifecycleStatus.closed,
-    _ => TenantLifecycleStatus.active,
-  };
-}

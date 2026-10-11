@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:erp/features/catalog/presentation.dart';
@@ -296,7 +295,7 @@ final appRouter = GoRouter(
       path: '/more/roles',
       name: 'more.roles',
       builder: (context, state) {
-        if (!getIt<IamSession>().isOwner) {
+        if (!getIt<SessionController>().isOwner) {
           return _permissionDeniedScaffold(
             context,
             message: 'Bạn không có quyền xem vai trò',
@@ -317,7 +316,7 @@ final appRouter = GoRouter(
       path: '/more/roles/:code',
       name: 'more.roles.code',
       builder: (context, state) {
-        if (!getIt<IamSession>().isOwner) {
+        if (!getIt<SessionController>().isOwner) {
           return _permissionDeniedScaffold(
             context,
             message: 'Bạn không có quyền xem vai trò',
@@ -474,7 +473,7 @@ final appRouter = GoRouter(
       path: '/more/einvoice',
       name: 'more.einvoice.overview',
       builder: (context, state) {
-        final session = getIt<IamSession>();
+        final session = getIt<SessionController>();
         void goBack() {
           if (context.canPop()) {
             context.pop();
@@ -973,7 +972,7 @@ final appRouter = GoRouter(
 );
 
 bool _hasTenantPermission(String code) {
-  return getIt<IamSession>().hasPermission(code);
+  return getIt<SessionController>().hasPermission(code);
 }
 
 Widget _permissionDeniedScaffold(

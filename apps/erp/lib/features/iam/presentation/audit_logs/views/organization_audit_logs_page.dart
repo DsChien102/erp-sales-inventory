@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart' hide TenantAuditEventCategory, TenantAuditLogResult, TenantAuditDisplayOrigin, TenantAuditLogSummaryDto;
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../data/models/tenant_audit_log.dart';
 

@@ -5,16 +5,16 @@ import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/session/models/session_snapshot.dart';
+import '../../iam/support/iam_test_session.dart';
 import 'package:erp/features/iam/presentation.dart';
 
-import '../../iam/support/iam_module_repositories.dart';
 
 void main() {
   group('IamFeatureAccessState permissions', () {
-    test('maps SessionDto.hasPermission for active capabilities', () {
-      const session = SessionDto(
+    test('maps SessionSnapshot.hasPermission for active capabilities', () {
+      const session = SessionSnapshot(
         isAuthenticated: true,
         userId: 'u1',
         role: 'staff',
@@ -33,7 +33,7 @@ void main() {
     });
 
     test('owner role grants all mapped permissions via hasPermission', () {
-      const session = SessionDto(
+      const session = SessionSnapshot(
         isAuthenticated: true,
         userId: 'owner-1',
         role: 'store_owner',
@@ -64,8 +64,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      session: sessionFromDto(
-        const SessionDto(
+      session: sessionFromSnapshot(
+        const SessionSnapshot(
           isAuthenticated: true,
           userId: 'u1',
           role: 'staff',
@@ -97,8 +97,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      session: sessionFromDto(
-        const SessionDto(isAuthenticated: true, userId: 'u1', role: 'staff', permissions: []),
+      session: sessionFromSnapshot(
+        const SessionSnapshot(isAuthenticated: true, userId: 'u1', role: 'staff', permissions: []),
       ),
     );
     await cubit.load();
@@ -135,8 +135,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final cubit = IamFeatureAccessCubit(
-      session: sessionFromDto(
-        const SessionDto(
+      session: sessionFromSnapshot(
+        const SessionSnapshot(
           isAuthenticated: true,
           userId: 'owner-1',
           role: 'store_owner',
@@ -208,8 +208,8 @@ void main() {
         theme: VTheme.lightTheme,
         home: Scaffold(
           body: MorePage(
-            session: sessionFromDto(
-              const SessionDto(
+            session: sessionFromSnapshot(
+              const SessionSnapshot(
                 isAuthenticated: true,
                 userId: 'owner-1',
                 role: 'store_owner',
@@ -245,8 +245,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final cubit = IamFeatureAccessCubit(
-        session: sessionFromDto(
-          const SessionDto(
+        session: sessionFromSnapshot(
+          const SessionSnapshot(
             isAuthenticated: true,
             userId: 'owner-1',
             role: 'store_owner',

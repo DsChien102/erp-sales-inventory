@@ -5,7 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:vet45_inventory_application/application.dart';
 
 import '../../core/session/fake_session_repository.dart';
@@ -93,7 +94,7 @@ void main() {
             path: '/login',
             builder: (context, state) => LoginPage(
               auth: ScriptedAuthRepository(
-                signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+                signInError: const AppException(IamBlockedCodes.invalidCredentials),
               ),
               session: session,
             ),

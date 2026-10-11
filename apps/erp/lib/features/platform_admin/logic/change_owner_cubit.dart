@@ -1,9 +1,10 @@
+import 'package:erp/core/errors/app_exception.dart';
 import 'package:erp/core/iam/iam_load_status.dart';
 import 'package:erp/core/iam/iam_ui_failure.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/iam/idempotency_key_factory.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../data/models/platform_tenant.dart';
 import '../data/platform_tenant_repository.dart';
@@ -116,8 +117,18 @@ final class ChangeOwnerCubit extends Cubit<ChangeOwnerState> {
     emit(state.copyWith(clearFailure: true));
   }
 
+  /// Máy chủ chặn người nhận đã là Owner tổ chức khác (BR-07, BR-32, KI-08).
+  static const _ownerTargetAlreadyOwner = 'OWNER_TARGET_ALREADY_OWNER';
+
   static IamUiFailure _mapFailure(Object error) {
     final failure = IamUiFailureMapper.from(error);
+    if (failure.code == _ownerTargetAlreadyOwner ||
+        (error is AppException && error.code == _ownerTargetAlreadyOwner)) {
+      return const IamUiFailure(
+        code: _ownerTargetAlreadyOwner,
+        message: 'Người này đã là chủ sở hữu của một tổ chức khác.',
+      );
+    }
     if (failure.code == IamBlockedCodes.ownerTargetInvalid) {
       return IamUiFailure(code: failure.code, message: 'Không thể chọn thành viên này.');
     }

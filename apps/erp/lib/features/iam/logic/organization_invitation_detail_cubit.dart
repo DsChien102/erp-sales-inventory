@@ -1,5 +1,5 @@
+import 'package:erp/core/iam/iam_codes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_iam_application/application.dart' hide InvitationDetailDto;
 
 import '../data/invitation_repository.dart';
 import '../data/models/tenant_invitation.dart';

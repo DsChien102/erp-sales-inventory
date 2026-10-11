@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:erp/core/iam/iam_codes.dart';
 
 import '../support/scripted_auth.dart';
 
@@ -18,7 +18,7 @@ void main() {
     test('authInvalid emits invalidCredentials with Vietnamese copy', () async {
       final cubit = LoginCubit(
         auth: ScriptedAuthRepository(
-          signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+          signInError: const AppException(IamBlockedCodes.invalidCredentials),
         ),
         session: loginSession(),
       );
@@ -99,7 +99,7 @@ void main() {
 
       final cubit = LoginCubit(
         auth: ScriptedAuthRepository(
-          signInError: const IamBlockedException(IamBlockedCodes.invalidCredentials),
+          signInError: const AppException(IamBlockedCodes.invalidCredentials),
         ),
         session: loginSession(),
       );

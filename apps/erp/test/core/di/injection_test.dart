@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:erp/core/session/session_contracts.dart';
+import 'package:erp/core/session/session_controller.dart';
+import 'package:erp/core/session/session_store.dart';
 import 'package:vet45_inventory_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
@@ -33,15 +34,16 @@ void main() {
     await getIt.reset();
   });
 
-  test('initDependencies registers IAM cross-cutting services', () async {
+  test('initDependencies registers session-backed cross-cutting services', () async {
     await initDependencies(supabaseModule: SupabaseModule(_FakeSupabaseClient()));
 
-    expect(getIt.isRegistered<IIamModule>(), isTrue);
-    expect(getIt.isRegistered<IExecutionContext>(), isTrue);
-    expect(getIt.isRegistered<IPermissionChecker>(), isTrue);
-    expect(getIt.isRegistered<ITenantAccessChecker>(), isTrue);
-    expect(getIt.isRegistered<IamSession>(), isTrue);
-    expect(getIt.isRegistered<ICurrentUser>(), isTrue);
+    expect(getIt.isRegistered<SessionStore>(), isTrue);
+    expect(getIt.isRegistered<SessionController>(), isTrue);
+    expect(getIt<IExecutionContext>(), isA<CoreExecutionContext>());
+    expect(getIt<ICurrentUser>(), isA<CoreExecutionContext>());
+    expect(getIt<ICurrentTenant>(), isA<CoreExecutionContext>());
+    expect(getIt<IPermissionChecker>(), isA<CorePermissionChecker>());
+    expect(getIt<ITenantAccessChecker>(), isA<CoreTenantAccessChecker>());
     expect(getIt.isRegistered<ICatalogModule>(), isTrue);
     expect(getIt<ICatalogModule>(), isNot(isA<FakeCatalogModule>()));
     expect(getIt.isRegistered<IPartnerModule>(), isTrue);

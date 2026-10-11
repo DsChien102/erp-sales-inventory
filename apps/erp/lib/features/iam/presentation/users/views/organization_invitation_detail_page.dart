@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 
 import '../../../data/invitation_repository.dart';
 import '../../shared/iam_load_status.dart';
@@ -13,7 +12,7 @@ import '../mappers/invitation_ui_mapper.dart';
 import '../models/user_ui_model.dart';
 import '../widgets/revoke_invitation_bottom_sheet.dart';
 
-/// Chi tiết lời mời — loads by [invitationId] via [GetInvitationQuery].
+/// Chi tiết lời mời — loads by [invitationId] via [InvitationRepository.getInvitation].
 class OrganizationInvitationDetailPage extends StatelessWidget {
   const OrganizationInvitationDetailPage({
     super.key,

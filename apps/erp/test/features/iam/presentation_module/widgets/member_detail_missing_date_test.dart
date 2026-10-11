@@ -3,7 +3,7 @@ import 'package:erp/features/iam/presentation/users/widgets/member_detail_body.d
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_domain/domain.dart';
+import 'package:erp/features/iam/data/models/tenant_member.dart';
 
 void main() {
   testWidgets('missing pause and removal times render an em dash', (tester) async {

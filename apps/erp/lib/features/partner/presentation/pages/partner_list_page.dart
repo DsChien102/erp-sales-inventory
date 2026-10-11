@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/features/partner/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -47,7 +47,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
     }
   }
 
-  bool get _canCreate => GetIt.instance<IamSession>().hasPermission(PartnerPermissions.create);
+  bool get _canCreate => GetIt.instance<SessionController>().hasPermission(PartnerPermissions.create);
 
   Future<void> _openCreateFlow() async {
     final partnerType = await showPartnerCreateActionSheet(context);
@@ -118,7 +118,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final canView = GetIt.instance<IamSession>().hasPermission(PartnerPermissions.view);
+    final canView = GetIt.instance<SessionController>().hasPermission(PartnerPermissions.view);
 
     if (!canView) {
       return VPageScaffold(
