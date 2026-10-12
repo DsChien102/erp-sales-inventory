@@ -51,8 +51,6 @@ final class SessionController extends Cubit<SessionState> {
   DateTime? _lastRecheckAt;
   bool _holdSignedIn = false;
 
-  static const _platformReadPermission = 'platform.tenant.view';
-
   /// Gọi 1 lần trong initDependencies.
   void start() {
     final auth = _auth;
@@ -214,10 +212,6 @@ final class SessionController extends Cubit<SessionState> {
 
   void _onTenantAccessRevoked(String code) {
     if (isClosed) return;
-    if (code == TenantAccessRevokedSignal.platformUserSuspended) {
-      emit(state.copyWith(identityRevoked: true));
-      return;
-    }
     if (code == TenantAccessRevokedSignal.permissionDenied) {
       unawaited(_recheckMembership());
       return;
@@ -270,20 +264,12 @@ final class SessionController extends Cubit<SessionState> {
       ),
     );
 
-    final platformAdmin = _resolvePlatformAdmin();
     try {
       final context = await _bootstrapFromLastSelected();
       if (isClosed) return;
 
       await loadAccessibleTenants();
       if (isClosed) return;
-
-      // Trước khi emit ngữ cảnh: guard G5 cần biết admin không có tổ chức.
-      final isPlatformAdmin = await platformAdmin;
-      if (isClosed) return;
-      if (isPlatformAdmin != state.isPlatformAdmin) {
-        emit(state.copyWith(isPlatformAdmin: isPlatformAdmin));
-      }
 
       _emitResolvedContext(context);
     } catch (error) {
@@ -297,24 +283,11 @@ final class SessionController extends Cubit<SessionState> {
     }
   }
 
-  /// Chạy song song với việc nạp tổ chức. Lỗi → `false`, không chặn đăng nhập.
-  /// Đổi người dùng khi đang chờ → `false` (kết quả của người cũ bị bỏ).
-  Future<bool> _resolvePlatformAdmin() async {
-    final userId = state.userId;
-    try {
-      final allowed = await _repository.hasPlatformPermission(_platformReadPermission);
-      return allowed && state.userId == userId;
-    } catch (_) {
-      return false;
-    }
-  }
-
   Future<TenantContext> _bootstrapFromLastSelected() async {
     final lastSelected = _blankToNull(await _repository.getLastSelectedTenantId());
     final bootstrapId = lastSelected ?? _blankToNull(tenantId);
     if (bootstrapId != null) {
       final context = await _repository.getTenantContext(bootstrapId);
-      if (_isSuspendedOrClosed(context)) return context;
       if (context.status == TenantContextStatus.valid && context.tenantId != null) {
         return _adoptTenant(context, remember: lastSelected == null);
       }
@@ -322,45 +295,17 @@ final class SessionController extends Cubit<SessionState> {
     return _fallbackAccessibleTenant();
   }
 
-  /// Không có tổ chức chọn gần nhất hợp lệ: lấy tổ chức chọn được đầu tiên.
-  /// Chỉ còn tổ chức tạm ngừng / đã đóng thì trả ngữ cảnh invalidated (ID-09).
+  /// Không có tổ chức chọn gần nhất hợp lệ: lấy tổ chức đầu tiên còn membership.
   Future<TenantContext> _fallbackAccessibleTenant() async {
     final tenants = await _repository.listAccessibleTenants();
     if (tenants.isEmpty) return TenantContext.none;
 
-    final selectable = tenants.where((tenant) => tenant.isSelectable);
-    if (selectable.isNotEmpty) {
-      final picked = await _repository.getTenantContext(selectable.first.id);
-      if (_isSuspendedOrClosed(picked)) return picked;
-      if (picked.status == TenantContextStatus.valid && picked.tenantId != null) {
-        return _adoptTenant(picked, remember: true);
-      }
+    final picked = await _repository.getTenantContext(tenants.first.id);
+    if (picked.status == TenantContextStatus.valid && picked.tenantId != null) {
+      return _adoptTenant(picked, remember: true);
     }
-
-    if (tenants.every((tenant) => !tenant.isSelectable)) {
-      final first = tenants.first;
-      final context = await _repository.getTenantContext(first.id);
-      if (context.status == TenantContextStatus.invalidated) return context;
-      final closed = first.status == TenantStatus.closed;
-      return TenantContext(
-        status: TenantContextStatus.invalidated,
-        tenantId: first.id,
-        tenantName: first.name,
-        tenantStatus: first.status,
-        invalidationReason: closed
-            ? TenantContextInvalidationReason.tenantClosed
-            : TenantContextInvalidationReason.tenantSuspended,
-        blockedErrorCode: closed ? 'TENANT_CLOSED' : 'TENANT_SUSPENDED',
-      );
-    }
-
+    if (picked.status == TenantContextStatus.invalidated) return picked;
     return TenantContext.none;
-  }
-
-  bool _isSuspendedOrClosed(TenantContext context) {
-    return context.status == TenantContextStatus.invalidated &&
-        (context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
-            context.invalidationReason == TenantContextInvalidationReason.tenantClosed);
   }
 
   Future<TenantContext> _adoptTenant(TenantContext context, {required bool remember}) async {
@@ -492,10 +437,6 @@ final class SessionController extends Cubit<SessionState> {
           switchFailure: failure,
         ),
       );
-
-      if (_shouldReloadTenantsAfterSwitchFailure(failure)) {
-        await loadAccessibleTenants();
-      }
       return false;
     }
   }
@@ -564,8 +505,6 @@ final class SessionController extends Cubit<SessionState> {
       IamBlockedCodes.membershipInactive,
       IamBlockedCodes.membershipRemoved,
       'TENANT_ACCESS_DENIED',
-      'TENANT_SUSPENDED',
-      'TENANT_CLOSED',
       'NOT_AUTHENTICATED',
     };
     if (knownCodes.contains(message)) return message;
@@ -596,20 +535,12 @@ final class SessionController extends Cubit<SessionState> {
     return IamUiFailureMapper.from(error);
   }
 
-  bool _shouldReloadTenantsAfterSwitchFailure(IamUiFailure failure) {
-    return failure.code == IamBlockedCodes.tenantSuspended ||
-        failure.code == IamBlockedCodes.tenantClosed;
-  }
-
   void _emitResolvedContext(TenantContext context) {
     if (context.status == TenantContextStatus.valid) {
       _applyTenantContextPermissions(context);
     }
     final tenantChanged = state.current?.tenantId != context.tenantId;
     final keepBanner = !tenantChanged && state.legalProfileBannerDismissed;
-    final identityRevoked =
-        context.blockedErrorCode == IamBlockedCodes.platformUserSuspended ||
-        context.invalidationReason == TenantContextInvalidationReason.identityInactive;
     switch (context.status) {
       case TenantContextStatus.valid:
         emit(
@@ -639,26 +570,15 @@ final class SessionController extends Cubit<SessionState> {
         );
         break;
       case TenantContextStatus.invalidated:
-        final inaccessible =
-            context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
-            context.invalidationReason == TenantContextInvalidationReason.tenantClosed ||
-            context.invalidationReason == TenantContextInvalidationReason.identityInactive ||
-            context.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
-            context.blockedErrorCode == IamBlockedCodes.tenantClosed ||
-            context.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         emit(
           state.copyWith(
             status: TenantLoadStatus.blocked,
             current: context,
             clearBranchDisplayName: true,
             blockedErrorCode: context.blockedErrorCode,
-            emptyStateType: inaccessible
-                ? OrganizationEmptyStateType.inaccessible
-                : OrganizationEmptyStateType.noAuthorizedOrganizations,
-            suspendedOrgName: context.tenantName,
+            emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
             openSelectorRequested: true,
             clearContextFailure: true,
-            identityRevoked: identityRevoked ? true : null,
           ),
         );
         break;

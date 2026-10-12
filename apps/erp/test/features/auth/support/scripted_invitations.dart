@@ -76,9 +76,6 @@ class ScriptedInvitations extends InvitationAcceptanceRepository {
     if (scenario == FakeIamScenario.acceptConcurrent) {
       throw const AppException(IamBlockedCodes.invitationAlreadyUsed);
     }
-    if (scenario == FakeIamScenario.acceptTenantSuspended) {
-      throw const AppException(IamBlockedCodes.tenantSuspended);
-    }
     return TenantMemberDetail(
       membershipId: 'mem-accepted-1',
       tenantId: 'org-001',

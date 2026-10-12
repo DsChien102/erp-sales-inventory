@@ -23,10 +23,10 @@ PLAN ghi "guard đúng 6 trường hợp" (TH-01 mục 2.3). 3 trong 6 trường
 | Tổ chức `active` → `/` | **1-B** (như hiện tại) |
 | Email chưa xác minh → `/verify-email` | **2-B1** (màn mới) |
 | Không có membership → `/no-organization` | **2-B1** (màn mới; hiện là sheet chọn tổ chức rỗng) |
-| Platform admin → `/admin`, "Chuyển không gian" | **P8** |
+| Platform admin → `/admin`, "Chuyển không gian" | **P3** |
 | Không hợp lệ thì lấy "tổ chức hoạt động đầu tiên" | **2-B1** (hiện code mở sheet chọn — OQ-07) |
 
-Hàm guard được thiết kế sẵn chỗ cho 3 nhánh này (xem bước 4) để 2-B1 và P8 chỉ thêm nhánh.
+Hàm guard được thiết kế sẵn chỗ cho 3 nhánh này (xem bước 4) để 2-B1 và P3 chỉ thêm nhánh.
 
 Thân bên trong `SessionController` **vẫn gọi IAM module cũ** (`GetTenantContextQuery`, `ListAccessibleTenantsQuery`, `SwitchTenantContextCommand`, `SignOutCommand`) và đọc `IamSession`. Đổi sang gọi RPC trực tiếp (`iam.get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) làm ở **2-A2** khi chuyển IAM. Lý do: các handler đó còn ghi `IamSession` mà ~119 file cũ (`IExecutionContext`) đang dựa vào; tách ra bây giờ sẽ phải viết lại cả phần đồng bộ phiên.
 
@@ -168,7 +168,7 @@ String? routeGuard({required SessionState session, required String location}) {
       return isPublic ? null : '/login';
     case AuthStatus.signedIn:
       // 2-B1: email chưa xác minh → '/verify-email'; không có membership → '/no-organization'
-      // P8:   platform admin không có membership → '/admin'
+      // P3:   platform admin không có membership → '/admin'
       if (location == '/login' || location.startsWith('/login/')) return '/';
       return null;
   }

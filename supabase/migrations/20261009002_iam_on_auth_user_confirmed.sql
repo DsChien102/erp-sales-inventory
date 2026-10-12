@@ -27,11 +27,10 @@ begin
   end if;
 
   insert into iam.platform_user_profiles (
-    user_id, status, email_verified, email, given_name, family_middle_name, phone_number, updated_at
+    user_id, email_verified, email, given_name, family_middle_name, phone_number, updated_at
   )
   values (
     new.id,
-    'active',
     true,
     lower(new.email::text),
     v_given,
@@ -40,11 +39,7 @@ begin
     v_now
   )
   on conflict (user_id) do update
-  set status = case
-        when iam.platform_user_profiles.status = 'suspended' then 'suspended'
-        else 'active'
-      end,
-      email_verified = true,
+  set email_verified = true,
       email = excluded.email,
       given_name = coalesce(iam.platform_user_profiles.given_name, excluded.given_name),
       family_middle_name = coalesce(

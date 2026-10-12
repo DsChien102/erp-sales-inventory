@@ -389,11 +389,11 @@ begin
 
   insert into iam.platform_user_profiles (
     user_id, given_name, family_middle_name, phone_number, avatar_reference,
-    status, created_at, updated_at
+    created_at, updated_at
   )
   values (
     v_user_id, v_given, v_family, v_phone, v_avatar,
-    'active', now(), now()
+    now(), now()
   )
   on conflict (user_id) do update
     set given_name = excluded.given_name,

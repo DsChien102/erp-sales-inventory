@@ -53,37 +53,15 @@ void main() {
     );
     final invalidated = TenantContext.fromJson(const {
       'status': 'invalidated',
-      'invalidation_reason': 'tenantSuspended',
-      'blocked_error_code': 'TENANT_SUSPENDED',
+      'invalidation_reason': 'membershipRemoved',
+      'blocked_error_code': 'MEMBERSHIP_REMOVED',
     });
     expect(invalidated.status, TenantContextStatus.invalidated);
-    expect(invalidated.invalidationReason, TenantContextInvalidationReason.tenantSuspended);
+    expect(invalidated.invalidationReason, TenantContextInvalidationReason.membershipRemoved);
     expect(
       TenantContext.fromJson(const {'invalidation_reason': 'ownershipChanged'}).invalidationReason,
       TenantContextInvalidationReason.ownershipChanged,
     );
-    expect(tenantStatusFromWire('nope'), TenantStatus.active);
-  });
-
-  test('AccessibleTenant.isSelectable only allows active tenants', () {
-    const active = AccessibleTenant(
-      id: 'org-1',
-      name: 'A',
-      code: 'TEN-ORG1',
-      roleCode: 'store_owner',
-      status: TenantStatus.active,
-      isOwner: true,
-    );
-    const suspended = AccessibleTenant(
-      id: 'org-1',
-      name: 'A',
-      code: 'TEN-ORG1',
-      roleCode: 'store_owner',
-      status: TenantStatus.suspended,
-      isOwner: true,
-    );
-    expect(active.isSelectable, isTrue);
-    expect(suspended.isSelectable, isFalse);
     expect(AccessibleTenant.codeFor('org-001'), 'TEN-ORG001');
   });
 

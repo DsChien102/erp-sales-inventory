@@ -53,10 +53,6 @@ begin
     raise exception 'INVITATION_TOKEN_INVALID';
   end if;
 
-  if coalesce(v_tenant.status, 'active') = 'suspended' then
-    raise exception 'TENANT_SUSPENDED';
-  end if;
-
   if v_inv.status = 'revoked' then
     raise exception 'INVITATION_REVOKED';
   end if;
@@ -94,14 +90,13 @@ begin
   end if;
 
   insert into iam.platform_user_profiles (
-    user_id, email, status, email_verified,
+    user_id, email, email_verified,
     given_name, family_middle_name, phone_number,
     created_at, updated_at
   )
   values (
     v_caller,
     v_email,
-    'active',
     true,
     nullif(trim(coalesce(v_inv.given_name, '')), ''),
     nullif(trim(coalesce(v_inv.family_name, '')), ''),
@@ -111,11 +106,6 @@ begin
   )
   on conflict (user_id) do update
   set email = excluded.email,
-      status = case
-        when iam.platform_user_profiles.status = 'suspended'
-          then iam.platform_user_profiles.status
-        else 'active'
-      end,
       email_verified = true,
       given_name = coalesce(
         nullif(trim(iam.platform_user_profiles.given_name), ''),

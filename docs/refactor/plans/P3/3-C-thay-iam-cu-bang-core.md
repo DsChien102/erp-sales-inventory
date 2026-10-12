@@ -1,7 +1,7 @@
-# 8-C — App không còn phụ thuộc IAM cũ (`vet45_iam_*`)
+# 3-C — App không còn phụ thuộc IAM cũ (`vet45_iam_*`)
 
-> Phase: P8 (làm gọn IAM, chốt 2026-10-11 — kéo một phần P9 lên) · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
-> Thứ tự: **8-C → [8-D](8-D-xoa-iam-cu.md) → [8-B](8-B-db-ki08-don-luong-cu.md) + đợt kiểm IAM**.
+> Phase: P3 (làm gọn IAM, chốt 2026-10-11 — kéo một phần P9 lên) · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
+> Thứ tự: **3-C → [3-D](3-D-xoa-iam-cu.md) → [3-B](3-B-db-ki08-don-luong-cu.md) + đợt kiểm IAM**.
 > Mục tiêu đo được: `grep -rn "vet45_iam" apps/erp` **rỗng**; `apps/erp/pubspec.yaml` không còn 3 gói `vet45_iam_*`; app và test chạy như trước.
 
 ## 1. Hiện trạng (đo 2026-10-11)
@@ -67,7 +67,7 @@ Gợi ý: (1) hằng số / DTO; (2) session core + DI; (3) Sales; (4) test; (5)
 
 - [ ] `grep -rn "vet45_iam" apps/erp` rỗng; `apps/erp/pubspec.yaml` không còn `vet45_iam_*`.
 - [ ] `dart analyze lib test`: không error / warning mới. `check_feature_imports`: 0 vi phạm.
-- [ ] `flutter test` toàn `apps/erp`: không lỗi mới so với 8-A (1.481 pass / 61 fail; số pass có thể đổi do viết lại test — so theo danh sách fail).
+- [ ] `flutter test` toàn `apps/erp`: không lỗi mới so với 3-A (1.481 pass / 61 fail; số pass có thể đổi do viết lại test — so theo danh sách fail).
 - [ ] Chạy app trên Dev (kiểm tay ngắn): đăng nhập → trang chủ → mở một màn catalog, một màn partner, tạo một đơn nháp Sales (cần cửa hàng + tên người bán) → không lỗi "Tenant is required" / "Active store context is required".
 
 ## 4. Rủi ro / lưu ý
@@ -85,9 +85,9 @@ Gợi ý: (1) hằng số / DTO; (2) session core + DI; (3) Sales; (4) test; (5)
   - `SessionStore` giữ đúng quy tắc tạm `role != null || permissions.contains(code)`; `requireActiveStoreId` tự nạp lại một lần dùng chung; `_applyTenantContextPermissions` giữ cả `activeStoreCode` / `activeStoreDisplayName` (Sales cần).
   - `CoreExecutionContext`, `CorePermissionChecker`, `CoreTenantAccessChecker` giữ nguyên chuỗi `ApplicationException` cũ (`User is required`, `Permission denied: …`, `Tenant access denied: …`); DI truyền vào cả 6 `*Startup.initialize`.
   - Sales: cửa hàng từ phiên, người bán từ `AccountRepository.getMyAccount()`; kiểm "cửa hàng của query khác phiên" cũ bỏ (giờ cùng một nguồn) — thay bằng 2 test mới: thiếu mã cửa hàng / hồ sơ người bán của người khác → dừng, không điều hướng.
-  - Test: 21 test pass ở 8-A không còn tên cũ — đều là **đổi tên** theo kiểu mới (`SessionSnapshot`, "session store", "via repositories") hoặc test của widget đã xoá (onboarding, người dùng nền tảng, `RecordingIamModule`). Test mapper đổi từ `IamBlockedException` sang `AppException`; hành vi nhánh `AppException` không đổi từ 2-A1.
+  - Test: 21 test pass ở 3-A không còn tên cũ — đều là **đổi tên** theo kiểu mới (`SessionSnapshot`, "session store", "via repositories") hoặc test của widget đã xoá (onboarding, người dùng nền tảng, `RecordingIamModule`). Test mapper đổi từ `IamBlockedException` sang `AppException`; hành vi nhánh `AppException` không đổi từ 2-A1.
   - `check_feature_imports`: 0 vi phạm. `flutter test` toàn `apps/erp`: **1.494 pass / 59 fail**; không lỗi mới; 2 lỗi cũ biến mất cùng file test bị xoá.
 - Góp ý:
   1. 3 warning mới `unused_import` (`../../support/iam_fixtures.dart`) trong `organization_member_detail_cubit_test`, `organization_users_cubit_test`, `organization_member_detail_page_test` — xoá 3 dòng import.
-  2. Working tree đang lẫn thay đổi 8-B chưa xong (sửa tại chỗ `20260811012`, `supabase/tests/iam_transfer_ownership_other_owner.sql`, TH-01 / `ADMIN-SCREENS` bỏ lý do khôi phục). Commit 8-C **không** gồm các file `supabase/` và tài liệu đó; xử lý ở 8-B.
+  2. Working tree đang lẫn thay đổi 3-B chưa xong (sửa tại chỗ `20260811012`, `supabase/tests/iam_transfer_ownership_other_owner.sql`, TH-01 / `ADMIN-SCREENS` bỏ lý do khôi phục). Commit 3-C **không** gồm các file `supabase/` và tài liệu đó; xử lý ở 3-B.
   3. Kiểm tay ngắn trên Dev (mục 3): đăng nhập → màn catalog / partner → tạo đơn nháp Sales — gom vào đợt kiểm IAM.

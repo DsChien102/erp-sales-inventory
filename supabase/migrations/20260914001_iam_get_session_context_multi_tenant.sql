@@ -26,16 +26,10 @@ declare
   v_active_store_code text;
   v_active_store_display_name text;
   v_permissions text[];
-  v_tenant_status text;
 begin
   if v_user_id is null then
     raise exception using errcode = 'P0001',
       message = '{"code":"NOT_AUTHENTICATED","message":"Not authenticated.","details":{}}';
-  end if;
-
-  if iam._is_platform_user_suspended(v_user_id) then
-    raise exception using errcode = 'P0001',
-      message = '{"code":"PLATFORM_USER_SUSPENDED","message":"Platform user is suspended.","details":{}}';
   end if;
 
   if p_tenant_id is not null then
@@ -80,20 +74,6 @@ begin
       and m.is_active
     order by m.created_at
     limit 1;
-  end if;
-
-  select coalesce(t.status, 'active')
-  into v_tenant_status
-  from iam.tenants t
-  where t.id = v_tenant_id;
-
-  if v_tenant_status = 'suspended' then
-    raise exception using errcode = 'P0001',
-      message = '{"code":"TENANT_SUSPENDED","message":"Tenant is suspended.","details":{}}';
-  end if;
-  if v_tenant_status = 'closed' then
-    raise exception using errcode = 'P0001',
-      message = '{"code":"TENANT_CLOSED","message":"Tenant is closed.","details":{}}';
   end if;
 
   -- Single-store era: the tenant's active store (default first) is the active store.

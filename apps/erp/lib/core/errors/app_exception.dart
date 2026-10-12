@@ -13,8 +13,6 @@ abstract final class AppErrorCode {
   static const validation = 'VALIDATION_ERROR';
   static const stateChanged = 'STATE_CHANGED';
   static const authRequired = 'AUTHENTICATION_REQUIRED';
-  static const tenantSuspended = 'TENANT_SUSPENDED';
-  static const tenantClosed = 'TENANT_CLOSED';
   static const network = 'NETWORK_ERROR';
   static const idempotencyConflict = 'IDEMPOTENCY_CONFLICT';
   static const unknown = 'SYSTEM_ERROR';

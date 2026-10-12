@@ -8,21 +8,15 @@ export 'package:erp/core/session/session_state.dart' show OrganizationEmptyState
 class OrganizationEmptyView extends StatelessWidget {
   final OrganizationEmptyStateType type;
   final VoidCallback onAction;
-  final String? suspendedOrgName;
   final String? customActionLabel;
   final bool isCompact;
-  final bool isClosed;
-  final bool isAccountSuspended;
 
   const OrganizationEmptyView({
     super.key,
     required this.type,
     required this.onAction,
-    this.suspendedOrgName,
     this.customActionLabel,
     this.isCompact = false,
-    this.isClosed = false,
-    this.isAccountSuspended = false,
   });
 
   @override
@@ -40,23 +34,6 @@ class OrganizationEmptyView extends StatelessWidget {
 
     switch (type) {
       case OrganizationEmptyStateType.inaccessible:
-        icon = VIcons.error;
-        iconBgColor = colors.dangerBg;
-        iconColor = colors.danger;
-        title = isAccountSuspended
-            ? 'Tài khoản bị tạm ngừng'
-            : 'Tổ chức không thể truy cập';
-        titleColor = colors.danger;
-        final orgName = suspendedOrgName ?? 'Tổ chức';
-        description = isAccountSuspended
-            ? 'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.'
-            : (isClosed
-                ? '$orgName đã đóng. Bạn không thể truy cập dữ liệu của tổ chức này.'
-                : '$orgName đang tạm ngừng. Bạn không thể truy cập dữ liệu của tổ chức này.');
-        actionLabel = isAccountSuspended ? 'Đăng xuất' : 'Chọn tổ chức khác';
-        actionTextColor = colors.danger;
-        break;
-
       case OrganizationEmptyStateType.noAuthorizedOrganizations:
         icon = VIcons.info;
         iconBgColor = colors.surfaceAlt;

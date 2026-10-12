@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:erp/core/iam/iam_codes.dart';
 import 'package:vet45_inventory_application/application.dart';
 import 'package:erp/features/iam/presentation.dart';
 
@@ -25,27 +24,6 @@ import '../../more/presentation/pages/more_page.dart';
 import '../../catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../partner/presentation/pages/partner_list_page.dart';
 import '../../sales/presentation/pages/sales_order_list_page.dart';
-
-/// Signs out and navigates to login when the platform account is suspended.
-/// Always navigates even if remote sign-out fails (network).
-Future<void> signOutSuspendedAccountAndGoToLogin(
-  BuildContext context, {
-  bool showToast = true,
-}) async {
-  if (showToast) {
-    VToast.show(
-      context,
-      title: 'Tài khoản bị tạm ngừng',
-      message: 'Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên.',
-      type: VToastType.danger,
-    );
-  }
-  try {
-    await getIt<SessionController>().signOut();
-  } catch (_) {}
-  if (!context.mounted) return;
-  context.go('/login');
-}
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({
@@ -248,22 +226,13 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       }
 
       if (state.isBlocked) {
-        final accountSuspended = state.blockedErrorCode == IamBlockedCodes.platformUserSuspended;
         return SafeArea(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(VSpacing.screenMobile),
               child: OrganizationEmptyView(
                 type: state.emptyStateType ?? OrganizationEmptyStateType.noAuthorizedOrganizations,
-                suspendedOrgName: state.suspendedOrgName,
-                isClosed: state.blockedErrorCode == IamBlockedCodes.tenantClosed,
-                isAccountSuspended: accountSuspended,
-                onAction: accountSuspended
-                    ? () => signOutSuspendedAccountAndGoToLogin(
-                        context,
-                        showToast: false,
-                      )
-                    : () => _openSelector(context),
+                onAction: () => _openSelector(context),
               ),
             ),
           ),
@@ -291,7 +260,6 @@ class _DashboardPageState extends State<_DashboardPageBody> {
       case DashboardTab.more:
         return MorePage(
           tenantBlocked: state.isBlocked,
-          isPlatformAdmin: state.isPlatformAdmin,
         );
       case DashboardTab.orders:
         return const SalesOrderListPage();
@@ -304,39 +272,8 @@ class _DashboardPageState extends State<_DashboardPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<SessionController, SessionState>(
-          listenWhen: (previous, current) => !previous.identityRevoked && current.identityRevoked,
-          listener: (context, state) {
-            signOutSuspendedAccountAndGoToLogin(context);
-          },
-        ),
-        BlocListener<SessionController, SessionState>(
-          // bootstrap() phát loading trước blocked → không so với `ready`.
-          listenWhen: (previous, current) => !previous.isBlocked && current.isBlocked,
-          listener: (context, state) {
-            // Chỉ toast + về dashboard khi tổ chức tạm ngừng/đóng (đang ở trang con).
-            // Bỏ qua: chưa có org; tài khoản bị tạm ngừng (sign-out qua identityRevoked).
-            final orgBlocked =
-                state.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
-                state.blockedErrorCode == IamBlockedCodes.tenantClosed;
-            if (!orgBlocked) return;
-
-            VToast.show(
-              context,
-              title: 'Tổ chức không thể truy cập',
-              message: state.blockedErrorCode == IamBlockedCodes.tenantClosed
-                  ? 'Tổ chức đã đóng.'
-                  : 'Tổ chức đang bị tạm ngừng.',
-              type: VToastType.danger,
-            );
-            context.goNamed('dashboard', extra: DashboardTab.home);
-          },
-        ),
-      ],
-      child: BlocBuilder<SessionController, SessionState>(
-        builder: (context, state) {
+    return BlocBuilder<SessionController, SessionState>(
+      builder: (context, state) {
           if (!state.isValid) {
             return _buildScaffold(context, state);
           }
@@ -356,7 +293,6 @@ class _DashboardPageState extends State<_DashboardPageBody> {
             ),
           );
         },
-      ),
     );
   }
 

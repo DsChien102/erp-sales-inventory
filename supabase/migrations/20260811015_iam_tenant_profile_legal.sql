@@ -71,7 +71,6 @@ begin
   return jsonb_build_object(
     'tenant_id', p_tenant.id,
     'display_name', p_tenant.display_name,
-    'status', p_tenant.status,
     'version', p_tenant.version,
     'business_timezone', p_tenant.business_timezone,
     'base_currency_code', p_tenant.base_currency_code,

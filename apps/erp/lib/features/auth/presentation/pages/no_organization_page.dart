@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
-import '../../../../core/session/session_state.dart';
 
 class NoOrganizationPage extends StatelessWidget {
   const NoOrganizationPage({super.key, this.session});
@@ -44,24 +42,6 @@ class NoOrganizationPage extends StatelessWidget {
                 label: 'Nhập mã lời mời',
                 fullWidth: true,
                 onPressed: () => context.go('/invitation'),
-              ),
-              BlocBuilder<SessionController, SessionState>(
-                bloc: sessionController,
-                buildWhen: (previous, current) =>
-                    previous.isPlatformAdmin != current.isPlatformAdmin,
-                builder: (context, state) {
-                  if (!state.isPlatformAdmin) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(top: VSpacing.space3),
-                    child: VButton(
-                      key: const Key('no_organization_platform_admin'),
-                      label: 'Quản trị nền tảng',
-                      variant: VButtonVariant.secondary,
-                      fullWidth: true,
-                      onPressed: () => context.push('/more/platform/organizations'),
-                    ),
-                  );
-                },
               ),
               const VGap.md(),
               VButton(

@@ -5,24 +5,11 @@ enum TenantContextStatus { valid, invalidated, none }
 enum TenantContextInvalidationReason {
   membershipRemoved,
   membershipInactive,
-  tenantSuspended,
-  tenantClosed,
   accessDenied,
   identityInactive,
   roleNoLongerAssignable,
   permissionsChanged,
   ownershipChanged,
-}
-
-/// Vòng đời tổ chức. Giá trị lạ map về [active], như gateway cũ.
-enum TenantStatus { active, suspended, closed }
-
-TenantStatus tenantStatusFromWire(String? raw) {
-  return switch (raw) {
-    'suspended' => TenantStatus.suspended,
-    'closed' => TenantStatus.closed,
-    _ => TenantStatus.active,
-  };
 }
 
 /// Kết quả `get_tenant_context` / `switch_tenant_context`.
@@ -34,7 +21,6 @@ final class TenantContext {
     this.roleLabel,
     this.isOwner = false,
     this.permissions = const [],
-    this.tenantStatus,
     this.invalidationReason,
     this.blockedErrorCode,
   });
@@ -49,7 +35,6 @@ final class TenantContext {
   final String? roleLabel;
   final bool isOwner;
   final List<String> permissions;
-  final TenantStatus? tenantStatus;
   final TenantContextInvalidationReason? invalidationReason;
   final String? blockedErrorCode;
 
@@ -62,7 +47,6 @@ final class TenantContext {
       _ => TenantContextStatus.none,
     };
 
-    final tenantStatusRaw = json['tenant_status'] as String?;
     return TenantContext(
       status: status,
       tenantId: json['tenant_id'] as String?,
@@ -70,7 +54,6 @@ final class TenantContext {
       roleLabel: json['role'] as String?,
       isOwner: json['is_owner'] as bool? ?? false,
       permissions: _stringList(json['permissions']),
-      tenantStatus: tenantStatusRaw == null ? null : tenantStatusFromWire(tenantStatusRaw),
       invalidationReason: _invalidationReason(json['invalidation_reason'] as String?),
       blockedErrorCode: json['blocked_error_code'] as String?,
     );
@@ -81,8 +64,6 @@ TenantContextInvalidationReason? _invalidationReason(String? raw) {
   return switch (raw) {
     'membershipRemoved' => TenantContextInvalidationReason.membershipRemoved,
     'membershipInactive' => TenantContextInvalidationReason.membershipInactive,
-    'tenantSuspended' => TenantContextInvalidationReason.tenantSuspended,
-    'tenantClosed' => TenantContextInvalidationReason.tenantClosed,
     'accessDenied' => TenantContextInvalidationReason.accessDenied,
     'identityInactive' => TenantContextInvalidationReason.identityInactive,
     'roleNoLongerAssignable' => TenantContextInvalidationReason.roleNoLongerAssignable,

@@ -37,18 +37,16 @@ final class SessionState {
     this.switchFailure,
     this.blockedErrorCode,
     this.emptyStateType,
-    this.suspendedOrgName,
     this.tenantsLoading = false,
     this.isSwitching = false,
     this.openSelectorRequested = false,
     this.legalProfileBannerDismissed = false,
-    this.isPlatformAdmin = false,
   });
 
   final AuthStatus authStatus;
   final String? userId;
 
-  /// Tài khoản bị tạm ngừng. Dashboard nghe cạnh này để đăng xuất.
+  /// Tài khoản bị đăng xuất từ tín hiệu phiên. Dashboard nghe cạnh này.
   final bool identityRevoked;
 
   final TenantLoadStatus status;
@@ -61,17 +59,12 @@ final class SessionState {
   final IamUiFailure? switchFailure;
   final String? blockedErrorCode;
   final OrganizationEmptyStateType? emptyStateType;
-  final String? suspendedOrgName;
   final bool tenantsLoading;
   final bool isSwitching;
   final bool openSelectorRequested;
 
   /// Banner hồ sơ pháp lý đã đóng trong phiên hiện tại.
   final bool legalProfileBannerDismissed;
-
-  /// Người dùng có quyền `platform.tenant.view` (Platform Admin). Quyết định
-  /// nhóm "Quản trị nền tảng" và guard G7; RPC vẫn tự kiểm quyền (BR-60).
-  final bool isPlatformAdmin;
 
   bool get isValid =>
       status == TenantLoadStatus.ready && current?.status == TenantContextStatus.valid;
@@ -98,12 +91,10 @@ final class SessionState {
     IamUiFailure? switchFailure,
     String? blockedErrorCode,
     OrganizationEmptyStateType? emptyStateType,
-    String? suspendedOrgName,
     bool? tenantsLoading,
     bool? isSwitching,
     bool? openSelectorRequested,
     bool? legalProfileBannerDismissed,
-    bool? isPlatformAdmin,
     bool clearContextFailure = false,
     bool clearSelectorFailure = false,
     bool clearSwitchFailure = false,
@@ -129,13 +120,11 @@ final class SessionState {
       switchFailure: clearSwitchFailure ? null : (switchFailure ?? this.switchFailure),
       blockedErrorCode: clearBlockedErrorCode ? null : (blockedErrorCode ?? this.blockedErrorCode),
       emptyStateType: clearEmptyState ? null : (emptyStateType ?? this.emptyStateType),
-      suspendedOrgName: clearEmptyState ? null : (suspendedOrgName ?? this.suspendedOrgName),
       tenantsLoading: tenantsLoading ?? this.tenantsLoading,
       isSwitching: isSwitching ?? this.isSwitching,
       openSelectorRequested: openSelectorRequested ?? this.openSelectorRequested,
       legalProfileBannerDismissed:
           legalProfileBannerDismissed ?? this.legalProfileBannerDismissed,
-      isPlatformAdmin: isPlatformAdmin ?? this.isPlatformAdmin,
     );
   }
 }

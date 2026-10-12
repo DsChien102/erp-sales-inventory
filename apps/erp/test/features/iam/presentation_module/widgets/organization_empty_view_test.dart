@@ -41,22 +41,21 @@ void main() {
         home: Scaffold(
           body: OrganizationEmptyView(
             type: OrganizationEmptyStateType.inaccessible,
-            suspendedOrgName: 'ASC Commerce',
             onAction: () => actionCalled = true,
           ),
         ),
       ),
     );
 
-    expect(find.text('Tổ chức không thể truy cập'), findsOneWidget);
+    expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
     expect(
       find.text(
-          'ASC Commerce đang tạm ngừng. Bạn không thể truy cập dữ liệu của tổ chức này.'),
+          'Bạn chưa được cấp quyền truy cập tổ chức nào. Hãy kiểm tra lời mời hoặc liên hệ Chủ cửa hàng.'),
       findsOneWidget,
     );
-    expect(find.text('Chọn tổ chức khác'), findsOneWidget);
+    expect(find.text('Kiểm tra lại'), findsOneWidget);
 
-    await tester.tap(find.text('Chọn tổ chức khác'));
+    await tester.tap(find.text('Kiểm tra lại'));
     expect(actionCalled, isTrue);
   });
 

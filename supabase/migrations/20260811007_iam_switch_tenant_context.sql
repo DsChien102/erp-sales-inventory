@@ -15,7 +15,6 @@ declare
   v_user_id uuid := auth.uid();
   v_role text;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
@@ -26,8 +25,8 @@ begin
     raise exception 'TENANT_ACCESS_DENIED';
   end if;
 
-  select m.role, t.name, coalesce(t.status, 'active')
-  into v_role, v_tenant_name, v_tenant_status
+  select m.role, t.name
+  into v_role, v_tenant_name
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
@@ -35,14 +34,6 @@ begin
 
   if v_role is null then
     raise exception 'TENANT_ACCESS_DENIED';
-  end if;
-
-  if v_tenant_status = 'suspended' then
-    raise exception 'TENANT_SUSPENDED';
-  end if;
-
-  if v_tenant_status = 'closed' then
-    raise exception 'TENANT_CLOSED';
   end if;
 
   if v_role = 'owner' then
@@ -60,8 +51,7 @@ begin
     'tenant_id', p_target_tenant_id,
     'tenant_name', v_tenant_name,
     'role', v_role,
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;

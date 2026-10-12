@@ -11,7 +11,7 @@ App cũ dùng chữ "kích hoạt" cho 3 việc khác nhau. Sau refactor:
 |---|---|---|
 | Platform Admin **tạo tổ chức** (`provisioning`) và gửi **lời mời Owner** (mã 8 ký tự) | Platform Admin | **Bỏ.** Chủ cửa hàng tự đăng ký ở `/signup` |
 | Owner **"Kích hoạt tài khoản"**: nhập mã lời mời → đặt mật khẩu | Owner | **Bỏ** cho Owner. Thay bằng **xác minh email** bằng mã 6 số Supabase gửi |
-| Owner **"Kích hoạt tổ chức"** ở màn readiness → `active` | Owner | **Bỏ.** Tổ chức `active` ngay khi email được xác minh |
+| Owner **"Kích hoạt tổ chức"** ở màn readiness → `active` | Owner | **Bỏ.** Tổ chức dùng được ngay khi email được xác minh. Không còn trạng thái tổ chức hay tài khoản bị chặn (3-E, 2026-10-12) |
 | Nhân viên **"Kích hoạt tài khoản"**: nhập mã lời mời → đặt mật khẩu → tham gia | Nhân viên | **Giữ**, thêm bước nhập mã 6 số khi nhân viên chưa có tài khoản |
 
 Từ nay trong app và tài liệu:

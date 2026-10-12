@@ -12,12 +12,12 @@
 | Phase | Nhóm | Số mục |
 |---|---|---|
 | P2 | Auth, tổ chức, người dùng (TH-01) | 33 |
-| P3 | Sản phẩm, cài đặt sản phẩm (TH-02) | 22 |
+| P5 | Sản phẩm, cài đặt sản phẩm (TH-02) | 22 |
 | P4 | Đối tác (TH-03) | 12 |
-| P5 | Giá riêng (TH-04) | 10 |
-| P6 | Bán hàng, đơn hàng (TH-05) | 19 |
+| P6 | Giá riêng (TH-04) | 10 |
+| P8 | Bán hàng, đơn hàng (TH-05) | 19 |
 | P7 | Hóa đơn điện tử (TH-08) | 13 |
-| P8 | Quản trị tổ chức (TH-01 ID-31…33) | 3 |
+| P3 | Quản trị tổ chức (TH-01 ID-31…33) | 3 |
 | — | Khung chung | 4 |
 
 ---
@@ -28,7 +28,7 @@
 |---|---|---|---|---|---|---|
 | APP-01 | Trang chủ (dashboard) | `/` | Mở được sau đăng nhập; điều hướng tab | ☐ | ☐ | |
 | APP-02 | Thêm → Thiết lập hệ thống | `/more/settings` | Liệt kê các mục thiết lập (có "Hóa đơn điện tử") | ☐ | ☐ | |
-| APP-03 | Mức sẵn sàng | `/more/readiness` | Mở được, số liệu đúng | ☐ | ☐ | Bỏ ở app cửa hàng (2-B3). DB và màn platform để P8 |
+| APP-03 | Mức sẵn sàng | `/more/readiness` | Mở được, số liệu đúng | ☐ | ☐ | Bỏ ở app cửa hàng (2-B3). DB và màn platform để P3 |
 | APP-04 | Chọn cửa hàng / tổ chức | (sheet) | Đổi cửa hàng, dữ liệu tải lại theo cửa hàng | ☐ | ☐ | TH-01 ID-08 |
 
 ## P2 — TH-01 Tổ chức và người dùng
@@ -43,7 +43,8 @@
 | ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | (a) xong 2-A3 |
 | ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | (a) xong 2-A3 |
 | ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | (a) xong 2-A3 |
-| ID-09 | Tổ chức không thể truy cập | (màn chặn) | Tổ chức tạm ngừng / đóng | ☐ | ☐ | (a) xong 2-A3 |
+| ID-09 | Tổ chức không thể truy cập | (màn chặn) | Bỏ màn tạm ngừng / đóng (3-E). Mất quyền membership đi `/no-organization` | ☐ | — | Bỏ 2026-10-12 |
+| ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | Điều hướng 3 mục | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | Điều hướng 3 mục | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-11 | Hồ sơ tổ chức | `/more/organization-profile` | Xem thông tin | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
 | ID-12 | Sửa thông tin tổ chức | `…/edit` | Lưu, kiểm dữ liệu | ☐ | ☑ | Chuyển kiến trúc 2-A1; chưa kiểm tay trên Dev |
@@ -66,10 +67,10 @@
 | ID-x3 | Router guard: chưa đăng nhập | mọi route | Về `/login` | ☐ | ☐ | SCOPE 3.5 |
 | ID-x4 | Chưa xác minh email 🆕 | `/login` | Đăng nhập lỗi `email_not_confirmed` → `/verify-email` | — | ☐ | (b) xong 2-B1. Không phải guard: lúc này chưa có phiên |
 | ID-x5 | Router guard: không có tổ chức 🆕 | mọi route | Về `/no-organization` | — | ☐ | (b) xong 2-B1 (G5, G6) |
-| ID-x6 | Router guard: tổ chức bị chặn | mọi route | Màn ID-09 | ☐ | ☐ | |
-| ID-x7 | Router guard: Quản trị nền tảng 🆕 | `/more/platform/**` | Người không phải Platform Admin → `/` | — | ☐ | Phương án A (2026-10-09): không còn khu `/admin` |
+| ~~ID-x6~~ | Router guard: tổ chức bị chặn | — | — | — | — | Bỏ 2026-10-12 (3-E): không còn trạng thái tổ chức bị chặn |
+| ~~ID-x7~~ | Router guard: Quản trị nền tảng | — | — | — | — | Bỏ 2026-10-12 (3-E) |
 
-## P3 — TH-02 Sản phẩm và giá bán
+## P5 — TH-02 Sản phẩm và giá bán
 
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
@@ -113,7 +114,7 @@
 | PT-11 | Chuyển thành tổ chức | `/partner/:id/transform` | Chuyển | ☐ | ☐ | |
 | PT-12 | Lịch sử thao tác | `/partner/:id/history` | Xem | ☐ | ☐ | Feature mẫu P1.5 |
 
-## P5 — TH-04 Chính sách giá
+## P6 — TH-04 Chính sách giá
 
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
@@ -128,7 +129,7 @@
 | PR-09 | Nhập Excel | `/pricing/import` | 3 chế độ nhập | ☐ | ☐ | |
 | PR-10 | Lịch sử giá riêng | `/pricing/:ruleId/history` | Xem | ☐ | ☐ | |
 
-## P6 — TH-05 Bán hàng và đơn hàng
+## P8 — TH-05 Bán hàng và đơn hàng
 
 | Mã | Màn | Route | Thao tác chính | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
@@ -170,16 +171,16 @@
 | HD-12 | Gửi lại hóa đơn | (sheet) | Gửi lại | ☐ | ☐ | KI-08 |
 | HD-13 | Lịch sử gửi | (trang) | Xem | ☐ | ☐ | |
 
-## P8 — Platform admin (gộp từ `apps/admin`)
+## P3 — Quản trị nền tảng (bỏ toàn bộ, 2026-10-12)
 
 | Mã | Màn | Route mới | Route cũ (`apps/admin`) | Cũ | Mới | Ghi chú |
 |---|---|---|---|---|---|---|
-| ~~ID-30~~ | Tổng quan nền tảng | — | `/dashboard/home` | — | — | ⏭ Bỏ (2026-10-09) |
-| ID-31 | Tổ chức (Thêm ▸ Quản trị nền tảng) | `/more/platform/organizations` | `/dashboard/organizations` | ☐ | ☐ | Bản cũ có `organizations/new` — bỏ (SCOPE 3.5) |
-| ID-32 | Chi tiết tổ chức | `/more/platform/organizations/:id` | `/dashboard/organizations/:tenantId` | ☐ | ☐ | Tạm ngừng / khôi phục / đóng |
-| ID-33 | Thay đổi chủ sở hữu | `/more/platform/organizations/:id/owner` | (trong chi tiết) | ☐ | ☐ | |
-| ~~ID-34~~ | Người dùng nền tảng | — | `/dashboard/users`, `/:userId` | — | — | ⏭ Bỏ (2026-10-09) |
-| ~~ID-35~~ | Nhật ký nền tảng | — | `/dashboard/audit` | — | — | ⏭ Bỏ (2026-10-09) |
+| ~~ID-30~~ | Tổng quan nền tảng | — | `/dashboard/home` | — | — | Bỏ (2026-10-09) |
+| ~~ID-31~~ | Tổ chức | — | `/dashboard/organizations` | — | — | Bỏ 2026-10-12 (3-E) |
+| ~~ID-32~~ | Chi tiết tổ chức | — | `/dashboard/organizations/:tenantId` | — | — | Bỏ 2026-10-12 (3-E) |
+| ~~ID-33~~ | Thay đổi chủ sở hữu | — | (trong chi tiết) | — | — | Bỏ 2026-10-12 (3-E) |
+| ~~ID-34~~ | Người dùng nền tảng | — | `/dashboard/users`, `/:userId` | — | — | Bỏ (2026-10-09) |
+| ~~ID-35~~ | Nhật ký nền tảng | — | `/dashboard/audit` | — | — | Bỏ (2026-10-09) |
 
 ---
 

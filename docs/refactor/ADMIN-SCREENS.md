@@ -1,8 +1,7 @@
-# Màn hình của `apps/admin` và phương án chuyển sang `apps/erp`
+# Màn hình của `apps/admin` — bỏ toàn bộ, 2026-10-12
 
-> 2026-10-09 · Kiểm kê từ code `apps/admin/lib` (router, pages, widgets, bottom sheet).
-> Quyết định đã chốt (2026-10-09): **chỉ giữ** quản lý tổ chức (tạm ngừng / khôi phục / đóng) và **chuyển chủ sở hữu**. Bỏ Tổng quan, Người dùng nền tảng, Nhật ký nền tảng.
-> Vị trí đặt trong `erp`: **phương án A** — nhóm "Quản trị nền tảng" cuối tab Thêm (chốt 2026-10-09). Khung màn: bảng thiết kế "Vị trí quản trị tổ chức trong app ERP" (A1, A2, C1–C7).
+> 2026-10-12 (3-E): **bỏ toàn bộ.** Không còn Platform Admin, không còn nhóm "Quản trị nền tảng", không tạm ngừng / đóng tổ chức, không chuyển Owner.
+> Phần dưới là kiểm kê lịch sử (2026-10-09) từ code `apps/admin` lúc còn tồn tại. Không làm theo bảng này.
 
 ## 1. Danh sách màn của `apps/admin`
 
@@ -69,4 +68,4 @@ Chỉ còn 2 nhóm màn (danh sách tổ chức → chi tiết → 4 thao tác),
 | Admin không có cửa hàng | Vào từ `/no-organization` ▸ "Quản trị nền tảng" | Đăng nhập vào thẳng `/admin` |
 | Khối lượng | Ít (2 trang + 4 sheet + guard 1 nhánh) | Nhiều (shell, 5 tab cho 1 chức năng, guard G3/G4, nhớ khu) |
 
-**Chọn A.** Đã cập nhật TH-01 (1.2, 2.3, US-02.2, EP-09, 5.1, 5.11, mục 8, 9), PLAN P8, CHECKLIST, SCOPE (ghi chú) và [LUONG-UNG-DUNG](../02-yeu-cau/LUONG-UNG-DUNG.md).
+**Chọn A.** Đã cập nhật TH-01 (1.2, 2.3, US-02.2, EP-09, 5.1, 5.11, mục 8, 9), PLAN P3, CHECKLIST, SCOPE (ghi chú) và [LUONG-UNG-DUNG](../02-yeu-cau/LUONG-UNG-DUNG.md).

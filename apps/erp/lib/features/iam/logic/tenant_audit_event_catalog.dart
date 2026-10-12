@@ -91,27 +91,6 @@ abstract final class TenantAuditEventCatalog {
       icon: VIcons.success,
       searchAliases: ['mở tổ chức', 'activate tenant'],
     ),
-    IamAuditEvents.tenantSuspended: TenantAuditEventCatalogEntry(
-      eventCode: IamAuditEvents.tenantSuspended,
-      title: 'Tạm ngừng tổ chức',
-      category: TenantAuditEventCategory.organization,
-      icon: VIcons.warning,
-      searchAliases: ['khóa tổ chức', 'suspend tenant'],
-    ),
-    IamAuditEvents.tenantRestored: TenantAuditEventCatalogEntry(
-      eventCode: IamAuditEvents.tenantRestored,
-      title: 'Khôi phục tổ chức',
-      category: TenantAuditEventCategory.organization,
-      icon: VIcons.restore,
-      searchAliases: ['mở lại tổ chức', 'restore tenant'],
-    ),
-    IamAuditEvents.tenantOwnershipTransferred: TenantAuditEventCatalogEntry(
-      eventCode: IamAuditEvents.tenantOwnershipTransferred,
-      title: 'Chuyển chủ sở hữu tổ chức',
-      category: TenantAuditEventCategory.organization,
-      icon: VIcons.personCheck,
-      searchAliases: ['chuyển quyền', 'transfer ownership'],
-    ),
 
     // 4. Invitation
     IamAuditEvents.invitationCreated: TenantAuditEventCatalogEntry(

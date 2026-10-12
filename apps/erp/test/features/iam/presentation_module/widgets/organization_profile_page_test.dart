@@ -22,7 +22,6 @@ void main() {
 
     expect(find.text('Hồ sơ tổ chức'), findsWidgets);
     expect(find.text('Mậu Hiên'), findsWidgets);
-    expect(find.text('Hoạt động'), findsOneWidget);
     expect(find.text('contact@mauhien.vn'), findsOneWidget);
     expect(find.text('Thao tác'), findsOneWidget);
 

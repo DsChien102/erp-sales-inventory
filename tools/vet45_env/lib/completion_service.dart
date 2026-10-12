@@ -25,12 +25,10 @@ class CompletionService {
     'status',
     'profile',
     'supabase',
-    'admin',
     'completion',
   ];
 
   static const profileSubcommands = ['list', 'use', 'init'];
-  static const adminSubcommands = ['create', 'grant', 'list'];
   static const completionShells = ['bash', 'zsh'];
   static const commonFlags = [
     '--profile',
@@ -117,17 +115,6 @@ _vet45() {
         COMPREPLY=( \$(compgen -W "$profiles" -- "\$cur") )
       fi
       ;;
-    admin)
-      if [ "\$cword" -eq 2 ]; then
-        COMPREPLY=( \$(compgen -W "${adminSubcommands.join(' ')}" -- "\$cur") )
-      elif [[ "\$cur" == -* ]]; then
-        COMPREPLY=( \$(compgen -W "$flags" -- "\$cur") )
-      elif [ "\$prev" = "--env" ]; then
-        COMPREPLY=( \$(compgen -W "$environments" -- "\$cur") )
-      elif [ "\$prev" = "--profile" ]; then
-        COMPREPLY=( \$(compgen -W "$profiles" -- "\$cur") )
-      fi
-      ;;
     run)
       if [ "\$cword" -eq 2 ]; then
         COMPREPLY=( \$(compgen -W "${runTargets.join(' ')}" -- "\$cur") )
@@ -178,7 +165,7 @@ complete -F _vet45 vet45
 #compdef vet45
 
 _vet45() {
-  local -a commands profiles environments targets flags profile_cmds admin_cmds run_targets shells
+  local -a commands profiles environments targets flags profile_cmds run_targets shells
   local -A run_actions
   commands=($commands)
   profiles=($profiles)
@@ -186,7 +173,6 @@ _vet45() {
   targets=($targets)
   flags=($flags)
   profile_cmds=(${profileSubcommands.map((c) => "'$c'").join(' ')})
-  admin_cmds=(${adminSubcommands.map((c) => "'$c'").join(' ')})
   run_targets=(${runTargets.map((t) => "'$t'").join(' ')})
   shells=(${completionShells.map((s) => "'$s'").join(' ')})
 
@@ -209,20 +195,6 @@ $actionGroups
           case \$CURRENT in
             3) _describe 'profile subcommand' profile_cmds ;;
             4) _describe 'profile id' profiles ;;
-          esac
-          ;;
-        admin)
-          case \$CURRENT in
-            3) _describe 'admin subcommand' admin_cmds ;;
-            *)
-              if [[ \$words[\$CURRENT] == -* ]]; then
-                _describe 'flag' flags
-              elif [[ \$words[\$CURRENT-1] == '--env' ]]; then
-                _describe 'environment' environments
-              elif [[ \$words[\$CURRENT-1] == '--profile' ]]; then
-                _describe 'profile id' profiles
-              fi
-              ;;
           esac
           ;;
         run)

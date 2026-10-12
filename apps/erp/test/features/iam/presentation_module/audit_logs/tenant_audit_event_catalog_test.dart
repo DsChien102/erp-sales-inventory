@@ -6,7 +6,7 @@ import 'package:erp/features/iam/presentation/audit_logs/catalog/tenant_audit_ev
 
 void main() {
   group('TenantAuditEventCatalog', () {
-    test('covers all 19 canonical IamAuditEvents with Vietnamese titles and icons', () {
+    test('covers every canonical IamAuditEvents code with Vietnamese titles and icons', () {
       for (final eventCode in IamAuditEvents.all) {
         final entry = TenantAuditEventCatalog.entryFor(eventCode);
         expect(entry.eventCode, eventCode);
@@ -47,7 +47,6 @@ void main() {
       );
       expect(orgEvents, contains('iam.tenant.profile_updated'));
       expect(orgEvents, contains('iam.tenant.activated'));
-      expect(orgEvents, contains('iam.tenant.suspended'));
 
       final memberEvents = TenantAuditEventCatalog.codesForCategory(
         TenantAuditEventCategory.member,

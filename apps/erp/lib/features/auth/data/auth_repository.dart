@@ -28,15 +28,6 @@ class AuthRepository {
     }
 
     try {
-      await _rpc.call('iam', 'assert_my_platform_access');
-    } on AppException catch (error) {
-      if (_containsPlatformUserSuspended(error)) {
-        await _auth.signOut();
-        throw const AppException('PLATFORM_USER_SUSPENDED');
-      }
-    }
-
-    try {
       await _rpc.call('iam', 'record_my_platform_login');
     } on AppException {
       // Ghi nhận lần đăng nhập không được chặn phiên hợp lệ.
@@ -340,11 +331,6 @@ class AuthRepository {
     final message = error is AuthException ? error.message : error.toString();
     final text = message.toLowerCase();
     return text.contains('should be different') || text.contains('different from the old');
-  }
-
-  bool _containsPlatformUserSuspended(AppException error) {
-    final blob = '${error.code} ${error.serverMessage ?? ''} ${error.cause}'.toUpperCase();
-    return blob.contains('PLATFORM_USER_SUSPENDED');
   }
 
   AppException _mapInvitationAuthException(AuthException error) {

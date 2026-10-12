@@ -93,19 +93,7 @@ supabase db push
 
 App Flutter chỉ dùng **anon key**; mutation nghiệp vụ quan trọng đi qua **Postgres RPC** (defense in depth + RLS).
 
-### Tạo Platform Admin
-
-Platform Admin quản lý tổ chức ngay trong app ERP (tab **Thêm ▸ Quản trị nền tảng**, hoặc nút "Quản trị nền tảng" ở màn "Bạn chưa thuộc tổ chức nào"). Không có đăng ký tự do; tạo bằng CLI `vet45 admin` (service role, dùng profile đang chọn):
-
-| Môi trường | Cách tạo |
-|---|---|
-| Local | `supabase db reset` nạp sẵn **admin@local.test** / `Vet45Local!2026` (`supabase/seed.sql`). Hoặc `vet45 admin create --email admin@local.test` |
-| Dev | `vet45 switch <profile>` → `vet45 admin create --email <email>` (in mật khẩu một lần; thêm `--password '…'` để tự đặt) |
-| Staging / Prod | như Dev, thêm `--yes` |
-| Đã có tài khoản | `vet45 admin grant --email <email>` |
-| Xem danh sách | `vet45 admin list` |
-
-Đăng nhập app ERP bằng chính email đó. Chi tiết: [environment-manager](docs/operations/environment-manager.md#platform-admin-bootstrap).
+Tổ chức tạo bằng **Đăng ký cửa hàng mới** trên màn đăng nhập. Không có vai trò Platform Admin và không có lệnh `vet45 admin`.
 
 ## Lệnh phát triển
 
@@ -171,7 +159,7 @@ Chưa cấu hình CI/CD. Kiểm tra local trước khi push: `melos run analyze 
 - **Theme ≠ module** — một theme có thể span nhiều bounded context.
 - Module **không import** implementation nội bộ module khác; giao tiếp qua integration events và snapshot ports.
 - **Domain** thuần Dart; **Application** điều phối command/query; **Infrastructure** gọi Supabase RPC.
-- UI thuộc ship unit: `apps/erp/lib/features/` (gồm cả quản trị nền tảng: `features/platform_admin`). Xem [AGENTS.md](AGENTS.md).
+- UI thuộc ship unit: `apps/erp/lib/features/`. Xem [AGENTS.md](AGENTS.md).
 
 Đọc thêm: [AGENTS.md](AGENTS.md), [docs/refactor/SCOPE.md](docs/refactor/SCOPE.md).
 

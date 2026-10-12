@@ -1184,7 +1184,7 @@ Số KI giữ từ bản 2.1 (KI-01 đã đóng trước đó).
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-02 | `partner_history_views` không bao giờ được ghi (handler stub), nên khách đã có đơn vẫn xoá được | **Sửa:** trigger trên `sales.sales_orders` (US-07.2); xoá handler stub. BR-31 chạy đúng | P4 (trigger), kiểm lại ở P6 |
+| KI-02 | `partner_history_views` không bao giờ được ghi (handler stub), nên khách đã có đơn vẫn xoá được | **Sửa:** trigger trên `sales.sales_orders` (US-07.2); xoá handler stub. BR-31 chạy đúng | P4 (trigger), kiểm lại ở P8 |
 | KI-03 | Sắp xếp "Vai trò giao dịch A-Z / Z-A" có trên UI nhưng server không hỗ trợ | **Bỏ** hai lựa chọn (BR-37) | P4 |
 | KI-04 | Cảnh báo trùng: DB chỉ cảnh báo, app chặn | **Giữ hành vi app** làm quy tắc chính thức (BR-15) | — |
 | KI-05 | Server không kiểm người liên hệ có sẵn khi không đặt làm người chính | **Sửa** (BR-17, US-04.3 AC-01). Kiểm trùng người liên hệ mới giữ ở app | P4 |
@@ -1239,7 +1239,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | Handler stub ghi `partner_history_views` | Trigger DB trên `sales.sales_orders` (KI-02) |
 | `search_partners` phân biệt dấu | Thêm `unaccent` (KI-07) |
 | Lịch sử thao tác ghi trong từng RPC | **Giữ nguyên** |
-| Tìm / tạo nhanh khách ở sales qua `IPartnerModule` | Dùng `PartnerRepository` (P6 PR 6.1) |
+| Tìm / tạo nhanh khách ở sales qua `IPartnerModule` | Dùng `PartnerRepository` (P8 PR 8.1) |
 | Các RPC `partner.*` còn lại | **Giữ nguyên**, trừ sửa ở 7.3 |
 
 ### 9.2 Chia PR của P4

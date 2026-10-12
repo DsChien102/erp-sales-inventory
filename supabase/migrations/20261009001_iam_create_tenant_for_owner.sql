@@ -50,7 +50,6 @@ begin
     contact_address_text,
     province_code,
     commune_code,
-    status,
     status_changed_at,
     activated_at,
     updated_at
@@ -62,7 +61,6 @@ begin
     v_address_text,
     v_province_code,
     v_commune_code,
-    'active',
     v_now,
     v_now,
     v_now

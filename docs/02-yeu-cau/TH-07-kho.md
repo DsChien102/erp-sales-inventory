@@ -35,7 +35,7 @@ Khi làm Theme 7 phải tuân theo `INT-01` và các behavioral contract dưới
 
 ## 3. Lỗi đã thấy trong tồn kho cơ bản hiện tại
 
-Đã chuyển sang [TH-02 mục 7.3](TH-02-san-pham-va-gia-ban.md#73-vấn-đề-đã-biết-và-quyết-định) (cùng mã KI-01…KI-07, sửa ở P3 PR 3.5). Bảng dưới giữ để tra nhanh.
+Đã chuyển sang [TH-02 mục 7.3](TH-02-san-pham-va-gia-ban.md#73-vấn-đề-đã-biết-và-quyết-định) (cùng mã KI-01…KI-07, sửa ở P5 PR 5.5). Bảng dưới giữ để tra nhanh.
 
 | Mã | Vấn đề |
 |---|---|

@@ -12,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:erp/core/iam/iam_codes.dart';
 import 'package:erp/core/session/session_store.dart';
 import '../../iam/support/fake_iam_backend.dart';
 import 'package:vet45_inventory_application/application.dart';
@@ -60,160 +59,15 @@ void main() {
   }
 
   group('wgt_e05_u01_fr01_01 — list accessible tenants', () {
-    test('owner may select their active tenant', () {
+    test('owner role label maps to Chủ cửa hàng', () {
       const tenant = AccessibleTenant(
         id: 'org-active',
         name: 'Thú y Minh Phát',
         code: 'TEN-ACTIVE',
         roleCode: 'store_owner',
-        status: TenantStatus.active,
         isOwner: true,
       );
-      expect(tenant.isSelectable, isTrue);
       expect(IamRoleLabelMapper.toDisplayLabel(tenant.roleCode), 'Chủ cửa hàng');
-    });
-
-    test('suspended and closed tenants are not selectable', () {
-      const suspended = AccessibleTenant(
-        id: 'org-003',
-        name: 'ASC Commerce',
-        code: 'TEN-ORG003',
-        roleCode: 'staff',
-        status: TenantStatus.suspended,
-      );
-      expect(suspended.isSelectable, isFalse);
-
-      const closed = AccessibleTenant(
-        id: 'org-004',
-        name: 'Đã đóng',
-        code: 'TEN-ORG004',
-        roleCode: 'store_owner',
-        status: TenantStatus.closed,
-        isOwner: true,
-      );
-      expect(closed.isSelectable, isFalse);
-      expect(closed.code, startsWith('TEN-'));
-    });
-
-    testWidgets('selector: suspended not tappable', (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final repository = FakeSessionRepository(
-        scenario: FakeIamScenario.tenantsSuspendedDisabled,
-      );
-      final cubit = SessionController(
-        repository: repository,
-        userDisplayName: 'Lan',
-      );
-      await cubit.loadAccessibleTenants();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
-            child: Scaffold(
-              body: Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      showSelectOrganizationBottomSheet(
-                        context: context,
-                        organizations: cubit.state.tenants,
-                      );
-                    },
-                    child: const Text('Open'),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Thú y Minh Phát'), findsOneWidget);
-      expect(find.text('Phòng khám Minh Tâm'), findsOneWidget);
-      expect(find.text('ASC Commerce'), findsOneWidget);
-      expect(find.textContaining('Tạm ngừng'), findsOneWidget);
-
-      await tester.tap(find.text('ASC Commerce'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Chọn tổ chức'), findsOneWidget);
-      expect(find.textContaining('Chuyển sang'), findsNothing);
-
-      await cubit.close();
-    });
-
-    testWidgets('selector: closed not tappable', (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final cubit = SessionController(
-        repository: FakeSessionRepository(),
-        userDisplayName: 'Lan',
-        initialState: SessionState(
-          userDisplayName: 'Lan',
-          status: TenantLoadStatus.ready,
-          tenants: const [
-            AccessibleTenant(
-              id: 'org-closed',
-              name: 'Org Closed',
-              code: 'TEN-CLOSED',
-              roleCode: 'Owner',
-              status: TenantStatus.closed,
-            ),
-            AccessibleTenant(
-              id: 'org-active',
-              name: 'Thú y Minh Phát',
-              code: 'TEN-ACTIVE',
-              roleCode: 'Owner',
-              status: TenantStatus.active,
-            ),
-          ],
-        ),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
-            child: Scaffold(
-              body: Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      showSelectOrganizationBottomSheet(
-                        context: context,
-                        organizations: cubit.state.tenants,
-                      );
-                    },
-                    child: const Text('Open'),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Đã đóng'), findsOneWidget);
-
-      await tester.tap(find.text('Org Closed'));
-      await tester.pumpAndSettle();
-      expect(find.text('Chọn tổ chức'), findsOneWidget);
-      expect(find.textContaining('Chuyển sang'), findsNothing);
-
-      await cubit.close();
     });
 
     testWidgets(
@@ -498,16 +352,15 @@ void main() {
         status: TenantContextStatus.invalidated,
         tenantId: 'org-001',
         tenantName: 'Thú y Minh Phát',
-        invalidationReason: TenantContextInvalidationReason.tenantSuspended,
-        blockedErrorCode: 'TENANT_SUSPENDED',
+        invalidationReason: TenantContextInvalidationReason.membershipRemoved,
+        blockedErrorCode: 'MEMBERSHIP_REMOVED',
       );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: OrganizationEmptyView(
-              type: OrganizationEmptyStateType.inaccessible,
-              suspendedOrgName: ctx.tenantName,
+              type: OrganizationEmptyStateType.noAuthorizedOrganizations,
               onAction: () {},
             ),
           ),
@@ -515,7 +368,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Tổ chức không thể truy cập'), findsOneWidget);
+      expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
       expect(ctx.status, TenantContextStatus.invalidated);
     });
 
@@ -540,9 +393,7 @@ void main() {
               initialState: const SessionState(
                 userDisplayName: '',
                 status: TenantLoadStatus.blocked,
-                emptyStateType: OrganizationEmptyStateType.inaccessible,
-                suspendedOrgName: 'Vua',
-                blockedErrorCode: IamBlockedCodes.tenantSuspended,
+                emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
               ),
             ),
           ),
@@ -552,7 +403,7 @@ void main() {
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
-      expect(find.text('Tổ chức không thể truy cập'), findsOneWidget);
+      expect(find.text('Chưa có tổ chức được cấp quyền'), findsOneWidget);
       expect(find.byType(SalesOrderListPage), findsNothing);
     });
   });

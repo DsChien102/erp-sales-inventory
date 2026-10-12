@@ -17,7 +17,6 @@ Future<void> openTenantContextSelector(BuildContext context) async {
     context: context,
     organizations: cubit.state.tenants,
     emptyStateType: cubit.selectorEmptyStateType,
-    suspendedOrgName: cubit.state.suspendedOrgName,
     onRetryLoad: cubit.retryLoadAccessibleTenants,
     onEmptyAction: () => cubit.loadAccessibleTenants(),
     onConfirmSwitch: (org) async {

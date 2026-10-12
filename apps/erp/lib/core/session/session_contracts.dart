@@ -45,9 +45,8 @@ final class CoreExecutionContext implements IExecutionContext, ICurrentUser, ICu
 
 /// Kiểm tra quyền cho pipeline lệnh của module nghiệp vụ.
 ///
-/// - `platform.*`: RPC `has_platform_permission` (không cần tổ chức).
-/// - Chủ sở hữu, hoặc phiên đã có quyền: qua, không gọi mạng.
-/// - Còn lại: RPC `iam.has_permission(p_tenant_id, p_permission)`.
+/// Chủ sở hữu, hoặc phiên đã có quyền: qua, không gọi mạng.
+/// Còn lại: RPC `iam.has_permission(p_tenant_id, p_permission)`.
 final class CorePermissionChecker implements IPermissionChecker {
   CorePermissionChecker({
     required SessionStore store,
@@ -63,12 +62,6 @@ final class CorePermissionChecker implements IPermissionChecker {
 
   @override
   Future<void> require(String permissionCode) async {
-    if (permissionCode.startsWith('platform.')) {
-      final allowed = await _repository.hasPlatformPermission(permissionCode);
-      if (!allowed) throw _denied(permissionCode);
-      return;
-    }
-
     if (_store.isOwner || _store.hasPermission(permissionCode)) {
       return;
     }

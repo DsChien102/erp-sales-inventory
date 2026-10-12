@@ -1,5 +1,4 @@
 import 'package:erp/core/session/models/accessible_tenant.dart';
-import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -12,7 +11,6 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
   final List<AccessibleTenant> organizations;
   final ValueChanged<AccessibleTenant>? onOrganizationSelected;
   final OrganizationEmptyStateType? emptyStateType;
-  final String? suspendedOrgName;
   final VoidCallback? onEmptyAction;
 
   /// When non-null, "Thử lại" on [OrganizationEmptyStateType.loadError] calls
@@ -25,7 +23,6 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
     this.organizations = const [],
     this.onOrganizationSelected,
     this.emptyStateType,
-    this.suspendedOrgName,
     this.onEmptyAction,
     this.onRetryLoad,
   });
@@ -63,7 +60,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
   }
 
   void _handleSelectOrganization(AccessibleTenant org) {
-    if (org.isCurrent || !org.isSelectable) return;
+    if (org.isCurrent) return;
     widget.onOrganizationSelected?.call(org);
     Navigator.of(context).pop(org);
   }
@@ -133,7 +130,6 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
           else if (_emptyStateType != null)
             OrganizationEmptyView(
               type: _emptyStateType!,
-              suspendedOrgName: widget.suspendedOrgName,
               onAction: _handleEmptyAction,
               isCompact: true,
             )
@@ -161,7 +157,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
                 onChanged: (selectedId) {
                   if (selectedId == null) return;
                   final org = items.where((o) => o.id == selectedId).firstOrNull;
-                  if (org != null && org.isSelectable && !org.isCurrent) {
+                  if (org != null && !org.isCurrent) {
                     _handleSelectOrganization(org);
                   }
                 },
@@ -188,7 +184,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
     AccessibleTenant org,
   ) {
     final isCurrent = org.isCurrent;
-    final canTap = !isCurrent && org.isSelectable;
+    final canTap = !isCurrent;
     final muted = !canTap && !isCurrent;
 
     final Color iconColor = isCurrent
@@ -201,7 +197,6 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
 
     final Color subtitleColor = muted ? colors.disabledFg : colors.textSecondary;
 
-    final String statusSuffix = _statusSuffix(org);
     final String displayRole = IamRoleLabelMapper.toDisplayLabel(org.roleCode);
 
     return VCard(
@@ -240,7 +235,7 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
                 ),
                 const VGap.xs(),
                 VText(
-                  '${org.code} · $displayRole$statusSuffix',
+                  '${org.code} · $displayRole',
                   variant: VTextVariant.bodySmall,
                   color: subtitleColor,
                 ),
@@ -257,14 +252,6 @@ class _SelectOrganizationBottomSheetState extends State<SelectOrganizationBottom
       ),
     );
   }
-
-  String _statusSuffix(AccessibleTenant org) {
-    return switch (org.status) {
-      TenantStatus.suspended => ' · Tạm ngừng',
-      TenantStatus.closed => ' · Đã đóng',
-      TenantStatus.active => '',
-    };
-  }
 }
 
 /// Helper function mở VBottomSheet Chọn tổ chức.
@@ -277,7 +264,6 @@ Future<AccessibleTenant?> showSelectOrganizationBottomSheet({
   ValueChanged<AccessibleTenant>? onOrganizationSelected,
   Future<bool> Function(AccessibleTenant org)? onConfirmSwitch,
   OrganizationEmptyStateType? emptyStateType,
-  String? suspendedOrgName,
   VoidCallback? onEmptyAction,
   Future<List<AccessibleTenant>?> Function()? onRetryLoad,
 }) async {
@@ -286,7 +272,6 @@ Future<AccessibleTenant?> showSelectOrganizationBottomSheet({
     child: SelectOrganizationBottomSheet(
       organizations: organizations ?? const [],
       emptyStateType: emptyStateType,
-      suspendedOrgName: suspendedOrgName,
       onEmptyAction: onEmptyAction,
       onRetryLoad: onRetryLoad,
     ),
@@ -351,7 +336,6 @@ Future<AccessibleTenant?> showSelectOrganizationBottomSheet({
       onOrganizationSelected: onOrganizationSelected,
       onConfirmSwitch: onConfirmSwitch,
       emptyStateType: emptyStateType,
-      suspendedOrgName: suspendedOrgName,
       onEmptyAction: onEmptyAction,
       onRetryLoad: onRetryLoad,
     );

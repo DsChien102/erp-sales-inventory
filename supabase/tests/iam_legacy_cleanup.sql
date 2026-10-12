@@ -13,7 +13,6 @@ declare
   v_tenant uuid;
   v_tenant_2 uuid;
   v_count int;
-  v_state text;
   v_role text;
   v_is_owner boolean;
 begin
@@ -54,20 +53,31 @@ begin
     raise exception 'FAIL: legacy onboarding tables still exist';
   end if;
 
-  -- 2) Không tạo được tổ chức 'provisioning' / hồ sơ 'pending_activation'.
-  begin
-    insert into iam.tenants (display_name, status) values ('Provisioning', 'provisioning');
-    raise exception 'FAIL: provisioning tenant must be rejected';
-  exception when check_violation then
-    null;
-  end;
+  -- 2) Cột trạng thái tổ chức và enum tài khoản nền tảng không còn.
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'iam'
+      and table_name = 'tenants'
+      and column_name = 'status'
+  ) then
+    raise exception 'FAIL: iam.tenants.status still exists';
+  end if;
 
-  begin
-    perform 'pending_activation'::iam.platform_user_status;
-    raise exception 'FAIL: pending_activation must not be a valid platform user status';
-  exception when invalid_text_representation then
-    null;
-  end;
+  if exists (
+    select 1
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    where n.nspname = 'iam'
+      and t.typname = 'platform_user_status'
+  ) then
+    raise exception 'FAIL: iam.platform_user_status still exists';
+  end if;
+
+  if to_regclass('iam.platform_admins') is not null
+     or to_regclass('iam.platform_audit_logs') is not null then
+    raise exception 'FAIL: platform admin tables still exist';
+  end if;
 
   -- 3) FK: membership không trỏ được tới user không tồn tại (KI-03 / BR-35).
   insert into auth.users (
@@ -99,9 +109,8 @@ begin
     raise exception 'FAIL: tenant was not created for the owner';
   end if;
 
-  select t.status into v_state from iam.tenants t where t.id = v_tenant;
-  if v_state is distinct from 'active' then
-    raise exception 'FAIL: new tenant must be active, got %', v_state;
+  if not exists (select 1 from iam.tenants t where t.id = v_tenant) then
+    raise exception 'FAIL: new tenant was not stored';
   end if;
 
   begin
@@ -113,7 +122,7 @@ begin
   end;
 
   -- 4) Index: một người chỉ là Owner của một tổ chức (BR-07).
-  insert into iam.tenants (display_name, status) values ('Nha thuoc thu hai', 'active')
+  insert into iam.tenants (display_name) values ('Nha thuoc thu hai')
   returning id into v_tenant_2;
 
   begin

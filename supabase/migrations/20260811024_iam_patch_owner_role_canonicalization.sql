@@ -93,35 +93,20 @@ declare
   v_role text;
   v_is_owner boolean;
   v_status text;
-  v_tenant_status text;
 begin
   if v_user_id is null then
     return false;
   end if;
 
-  if iam._is_platform_user_suspended(v_user_id) then
-    return false;
-  end if;
-
-  select m.role, m.is_owner, iam._membership_status_code(m.is_active, m.removed_at),
-         coalesce(t.status, 'active')
-  into v_role, v_is_owner, v_status, v_tenant_status
+  select m.role, m.is_owner, iam._membership_status_code(m.is_active, m.removed_at)
+  into v_role, v_is_owner, v_status
   from iam.memberships m
-  join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
     and m.tenant_id = p_tenant_id;
 
   -- Not a member, or membership no longer active.
   if v_role is null or coalesce(v_status, 'active') <> 'active' then
     return false;
-  end if;
-
-  -- Suspended/closed tenant: raise a stable code so clients can leave the tenant.
-  if v_tenant_status = 'suspended' then
-    raise exception 'TENANT_SUSPENDED';
-  end if;
-  if v_tenant_status = 'closed' then
-    raise exception 'TENANT_CLOSED';
   end if;
 
   -- Owner: full access.
@@ -219,28 +204,18 @@ declare
   v_role text;
   v_is_owner boolean;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
     raise exception 'not authenticated';
   end if;
 
-  if iam._is_platform_user_suspended(v_user_id) then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'identityInactive',
-      'blocked_error_code', 'PLATFORM_USER_SUSPENDED',
-      'tenant_id', p_tenant_id
-    );
-  end if;
-
   if p_tenant_id is null then
     return jsonb_build_object('status', 'none');
   end if;
 
-  select m.role, m.is_owner, t.display_name, coalesce(t.status, 'active')
-  into v_role, v_is_owner, v_tenant_name, v_tenant_status
+  select m.role, m.is_owner, t.display_name
+  into v_role, v_is_owner, v_tenant_name
   from iam.tenants t
   left join iam.memberships m
     on m.tenant_id = t.id
@@ -262,32 +237,7 @@ begin
       'invalidation_reason', 'membershipRemoved',
       'blocked_error_code', 'MEMBERSHIP_REMOVED',
       'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'suspended' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantSuspended',
-      'blocked_error_code', 'TENANT_SUSPENDED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'closed' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantClosed',
-      'blocked_error_code', 'TENANT_CLOSED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
+      'tenant_name', v_tenant_name
     );
   end if;
 
@@ -307,8 +257,7 @@ begin
     'tenant_name', v_tenant_name,
     'role', v_role,
     'is_owner', coalesce(v_is_owner, false),
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;
@@ -325,7 +274,6 @@ declare
   v_role text;
   v_is_owner boolean;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
@@ -336,12 +284,8 @@ begin
     raise exception 'TENANT_ACCESS_DENIED';
   end if;
 
-  if iam._is_platform_user_suspended(v_user_id) then
-    raise exception 'PLATFORM_USER_SUSPENDED';
-  end if;
-
-  select m.role, m.is_owner, t.display_name, coalesce(t.status, 'active')
-  into v_role, v_is_owner, v_tenant_name, v_tenant_status
+  select m.role, m.is_owner, t.display_name
+  into v_role, v_is_owner, v_tenant_name
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
@@ -349,14 +293,6 @@ begin
 
   if v_role is null then
     raise exception 'TENANT_ACCESS_DENIED';
-  end if;
-
-  if v_tenant_status = 'suspended' then
-    raise exception 'TENANT_SUSPENDED';
-  end if;
-
-  if v_tenant_status = 'closed' then
-    raise exception 'TENANT_CLOSED';
   end if;
 
   if coalesce(v_is_owner, false) then
@@ -375,8 +311,7 @@ begin
     'tenant_name', v_tenant_name,
     'role', v_role,
     'is_owner', coalesce(v_is_owner, false),
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;

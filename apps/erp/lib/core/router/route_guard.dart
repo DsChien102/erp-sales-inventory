@@ -17,15 +17,9 @@ bool _staysWithoutOrganization(String location) {
       location.startsWith('/invitation/');
 }
 
-/// Khu "Quản trị nền tảng" trong tab Thêm (chỉ Platform Admin).
-bool _isPlatformArea(String location) {
-  return location == '/more/platform' || location.startsWith('/more/platform/');
-}
-
 /// Guard thuần. `null` = ở lại [location].
 ///
-/// G5: không có tổ chức → `/no-organization` (trừ `/invitation`; Platform Admin
-/// được vào `/more/platform/**`). G7: ngoài Platform Admin không vào khu đó.
+/// G5: không có tổ chức → `/no-organization` (trừ `/invitation`).
 String? routeGuard({required SessionState session, required String location}) {
   final isPublic = _publicPrefixes.any(
     (prefix) => location == prefix || location.startsWith('$prefix/'),
@@ -39,11 +33,9 @@ String? routeGuard({required SessionState session, required String location}) {
       if (_isAuthEntry(location)) return '/';
       if (session.hasNoOrganization) {
         if (_staysWithoutOrganization(location)) return null;
-        if (session.isPlatformAdmin && _isPlatformArea(location)) return null;
         return '/no-organization';
       }
       if (location == '/no-organization') return '/';
-      if (_isPlatformArea(location) && !session.isPlatformAdmin) return '/';
       return null;
   }
 }

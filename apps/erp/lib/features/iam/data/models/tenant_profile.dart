@@ -1,11 +1,8 @@
-import 'package:erp/core/session/models/tenant_context.dart';
-
 /// Hồ sơ tổ chức đọc từ `get_tenant` / `update_tenant_profile`.
 final class TenantProfile {
   const TenantProfile({
     required this.tenantId,
     required this.displayName,
-    required this.status,
     required this.version,
     required this.businessTimezone,
     required this.baseCurrencyCode,
@@ -22,7 +19,6 @@ final class TenantProfile {
 
   final String tenantId;
   final String displayName;
-  final TenantStatus status;
   final int version;
   final String businessTimezone;
   final String baseCurrencyCode;
@@ -46,7 +42,6 @@ final class TenantProfile {
     return TenantProfile(
       tenantId: row['tenant_id'] as String,
       displayName: row['display_name'] as String? ?? row['name'] as String? ?? '',
-      status: tenantStatusFromWire(row['status'] as String?),
       version: (row['version'] as num?)?.toInt() ?? 1,
       businessTimezone: row['business_timezone'] as String? ?? 'Asia/Ho_Chi_Minh',
       baseCurrencyCode: row['base_currency_code'] as String? ?? 'VND',
@@ -68,7 +63,6 @@ final class TenantProfile {
     return TenantProfile(
       tenantId: tenantId,
       displayName: displayName,
-      status: status,
       version: version ?? this.version,
       businessTimezone: businessTimezone,
       baseCurrencyCode: baseCurrencyCode,

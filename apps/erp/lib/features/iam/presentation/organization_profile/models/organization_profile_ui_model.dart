@@ -27,8 +27,6 @@ class LegalProfileUiModel {
 class OrganizationProfileUiModel {
   final String id;
   final String name;
-  final String statusLabel;
-  final String statusDescription;
   final String phone;
   final String email;
   final String address;
@@ -42,8 +40,6 @@ class OrganizationProfileUiModel {
   const OrganizationProfileUiModel({
     required this.id,
     required this.name,
-    required this.statusLabel,
-    required this.statusDescription,
     required this.phone,
     required this.email,
     required this.address,

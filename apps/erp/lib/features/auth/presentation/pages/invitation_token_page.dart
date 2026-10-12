@@ -274,18 +274,11 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         return const SizedBox.shrink();
       case InvitationAcceptanceStep.declined:
       case InvitationAcceptanceStep.blocked:
-        final keepToken =
-            state.tokenPresent && state.failure?.code == IamBlockedCodes.tenantSuspended;
         return InvitationOutcomeView(
           step: state.step,
           message: state.failure?.message,
           onEnterWorkspace: null,
-          onEnterOtherToken: keepToken ? null : () => cubit.reset(),
-          onRetryLater: keepToken
-              ? () {
-                  context.go('/login');
-                }
-              : null,
+          onEnterOtherToken: () => cubit.reset(),
         );
     }
   }

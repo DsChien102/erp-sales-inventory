@@ -51,7 +51,7 @@ begin
   select count(*) into v_tenant_count
   from iam.tenants t
   join iam.memberships m on m.tenant_id = t.id
-  where m.user_id = v_user and m.is_owner and m.removed_at is null and t.status = 'active' and t.display_name = 'Thu y An Phat';
+  where m.user_id = v_user and m.is_owner and m.removed_at is null and t.display_name = 'Thu y An Phat';
   if v_tenant_count <> 1 then
     raise exception 'FAIL: expected 1 active tenant, got %', v_tenant_count;
   end if;
@@ -88,7 +88,7 @@ begin
 
   if not exists (
     select 1 from iam.platform_user_profiles p
-    where p.user_id = v_user and p.status = 'active' and p.email_verified
+    where p.user_id = v_user and p.email_verified
   ) then
     raise exception 'FAIL: profile not active';
   end if;
@@ -191,7 +191,7 @@ begin
   end if;
   if not exists (
     select 1 from iam.platform_user_profiles p
-    where p.user_id = v_invited and p.status = 'active' and p.given_name = 'Minh'
+    where p.user_id = v_invited and p.given_name = 'Minh'
   ) then
     raise exception 'FAIL: invited user missing profile';
   end if;

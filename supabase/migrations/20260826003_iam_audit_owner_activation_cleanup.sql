@@ -1,7 +1,7 @@
 -- Title: iam audit cleanup + invitation columns + record login + inspect invitation token
 -- Kind: patch
 -- Intent: iam_audit_owner_activation_cleanup
--- Touches: iam.suspend_platform_user, iam.restore_platform_user, iam.request_platform_password_reset, iam._platform_audit_redacted_payload, iam.platform_audit_logs, iam.tenant_invitations, iam.platform_user_profiles, iam.record_my_platform_login, iam.inspect_invitation_token
+-- Touches: iam.tenant_invitations, iam.platform_user_profiles, iam.record_my_platform_login, iam.inspect_invitation_token
 -- Safety: idempotent ; medium
 -- Depends on: 002_iam_fix_utc_now_offset, 004_iam_tenant_audit_history_v2_payloads
 -- Promoted from _drafts/006_iam_audit_owner_activation_cleanup.sql
@@ -9,12 +9,6 @@
 -- 8-B (2026-10-11): KI-05 — legacy owner onboarding (create_tenant_onboarding, resend_owner_activation,
 --   owner_activations drop, pending profile trigger / index, FK drop on platform_user_profiles) removed from
 --   this file; accept_invitation / get_platform_user / search_platform_users live in later migrations.
-
-drop function if exists iam.suspend_platform_user(uuid, text);
-drop function if exists iam.restore_platform_user(uuid);
-drop function if exists iam.request_platform_password_reset(uuid);
-drop function if exists iam._platform_audit_redacted_payload(jsonb);
-drop table if exists iam.platform_audit_logs;
 
 -- tenant_invitations: cột is_owner / given_name / family_name / phone và cho phép không có
 -- "người mời". Cột được giữ nguyên; luồng Owner là trigger đăng ký + _create_tenant_for_owner
@@ -73,10 +67,10 @@ begin
   where u.id = v_user_id;
 
   insert into iam.platform_user_profiles (
-    user_id, email, status, last_login_at, created_at, updated_at
+    user_id, email, last_login_at, created_at, updated_at
   )
   values (
-    v_user_id, v_email, 'active', now(), now(), now()
+    v_user_id, v_email, now(), now(), now()
   )
   on conflict (user_id) do update
     set email = coalesce(excluded.email, iam.platform_user_profiles.email),

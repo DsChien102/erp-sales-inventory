@@ -22,13 +22,12 @@ Nguyên tắc vàng: **đổi cách tổ chức code, không đổi hành vi ng�
 
 | Module | Theme | Nhóm chức năng giữ nguyên | Màn hình |
 |---|---|---|---|
-| **iam / auth** | TH-01 | Đăng nhập/đăng xuất (tenant user, platform admin); quên/đặt lại mật khẩu; hồ sơ cá nhân; tổ chức (profile, hồ sơ pháp lý); **tự đăng ký & tự tạo tổ chức (thiết kế lại, xem 3.5)**; thành viên & vai trò (gán role, vô hiệu/kích hoạt lại, chuyển owner); lời mời (tạo, gửi lại, thu hồi, chấp nhận, đăng ký từ lời mời); audit log; chuyển tenant/store | ~23 (ERP) |
+| **iam / auth** | TH-01 | Đăng nhập/đăng xuất; quên/đặt lại mật khẩu; hồ sơ cá nhân; tổ chức (profile, hồ sơ pháp lý); **tự đăng ký & tự tạo tổ chức (thiết kế lại, xem 3.5)**; thành viên & vai trò (gán role, vô hiệu/kích hoạt lại); lời mời (tạo, gửi lại, thu hồi, chấp nhận, đăng ký từ lời mời); audit log; chuyển tenant/store | ~23 (ERP) |
 | **catalog** | TH-02 | Sản phẩm (tạo nhanh/guided, sửa, ảnh, vô hiệu/khôi phục/xoá, kiểm tra trùng mã, readiness, lịch sử thay đổi); đơn vị tính & quy đổi; barcode / tìm kiếm SP bán được; trường tuỳ chỉnh (nhóm, field, giá trị); giá: giá gốc thủ công, khung giá theo đơn vị, quy tắc giá cửa hàng + lịch sử; tồn kho cơ bản (điều chỉnh, lịch sử tồn) | ~23 |
 | **partner** | TH-03 | Khách hàng/NCC: tạo, sửa, chuyển cá nhân → tổ chức, liên hệ tổ chức, vô hiệu/kích hoạt/xoá mềm, kiểm tra trùng, validate MST, lịch sử thay đổi & lịch sử giao dịch | 8 |
 | **pricing** | TH-04 | Giá riêng theo khách (CRUD, tắt/bật lại, lịch sử), nhớ giá từ đơn, áp giá khi bán, import Excel (template, preview, xác nhận/huỷ) | 9 |
 | **sales** | TH-05 | Lập đơn, đơn nháp (lưu/khôi phục/huỷ), checkout & thanh toán, công nợ đơn, hoàn tiền, phiếu/biên lai (tạo, in, chia sẻ), danh sách/tìm/chi tiết/timeline đơn, huỷ đơn có lý do, đổi/trả hàng (tạo, định giá, xác nhận, hoàn tất, huỷ) | ~20 |
 | **einvoice** | TH-08 | Kết nối nhà cung cấp MISA (kết nối/xác minh/ngắt), cấu hình phát hành mặc định & chính sách tự động; xem trước, phát hành, retry, tra trạng thái; tải/xem bản chính thức; gửi HĐ qua email + lịch sử gửi; xử lý đối soát | 4 + màn trong sales |
-| **platform admin** (đang là app `admin` riêng → gộp vào app chính) | TH-01 | Giám sát nền tảng: tổ chức (tạm ngưng/khôi phục/đóng, chuyển owner), người dùng, audit log, overview. **Không còn khởi tạo tổ chức** (3.5) | ~10 riêng + dùng chung IAM |
 
 ### 2.2 Module hiện chỉ là khung (8–9 file, chưa có nghiệp vụ)
 
@@ -85,7 +84,7 @@ apps/erp/lib/
 | `vet45_lints` | Giữ thành `analysis_options.yaml` |
 | BLoC | **Giữ.** Ưu tiên Cubit cho màn đơn giản |
 | Multi-tenant + RLS | **Giữ** (phạm vi hiện tại có tenant/store) |
-| 2 app `erp` + `admin` | **Gộp thành 1 app** (`apps/erp`). Màn quản trị nền tảng nằm ở `features/platform_admin/`, chỉ hiện với platform admin (xem 3.4). Xoá `apps/admin` |
+| 2 app `erp` + `admin` | **Gộp thành 1 app** (`apps/erp`). Không còn Platform Admin (3-E, 2026-10-12). Xoá `apps/admin` |
 
 ### 3.3 Database
 
@@ -94,23 +93,19 @@ apps/erp/lib/
 - **Gộp 166 migration** thành baseline mới (~5 file): `00_schemas`, `01_tables`, `02_functions_rpc`, `03_rls`, `04_triggers`, cùng `seed.sql`.
 - Giữ chữ ký RPC đang dùng cho checkout / đổi trả / thanh toán để UI không phải đổi.
 
-### 3.4 Một app cho cả người dùng cửa hàng và quản trị nền tảng
+### 3.4 Một app
 
-- **Một màn đăng nhập.** Sau khi đăng nhập, session kiểm tra user có trong `iam.platform_admins` hay không.
-> ⚠️ **Cập nhật 2026-10-09 (phương án A):** không dựng khu `/admin`. Platform Admin chỉ quản lý tổ chức (tạm ngừng / khôi phục / đóng, chuyển Owner) ở nhóm "Quản trị nền tảng" cuối tab **Thêm** (`/more/platform/**`); bỏ tổng quan, người dùng nền tảng, nhật ký nền tảng, "Chuyển không gian". Chuẩn: TH-01 mục 1.2, 2.3, EP-09 và [ADMIN-SCREENS.md](ADMIN-SCREENS.md).
-
-- **Định tuyến theo vai trò:**
-  - User cửa hàng thì vào `/` (shell ERP: bán hàng, sản phẩm, đối tác...).
-  - Platform admin thì vào `/admin` (shell quản trị: tổ chức, người dùng, audit log, overview).
-  - Nếu một user vừa là platform admin vừa là thành viên tenant, menu "Chuyển không gian" cho phép đổi giữa hai shell.
-- **Guard ở router** chặn mọi route `/admin/**` với user không phải platform admin. **RLS/RPC vẫn kiểm tra quyền phía DB**, router guard chỉ để ẩn UI.
-- Các màn IAM đang bị trùng giữa 2 app (tổ chức, thành viên, vai trò, audit log, tài khoản của tôi...) chỉ giữ **một bản** trong `features/iam/`.
-- Bỏ cấu hình build và deploy riêng của admin: `apps/admin/deploy-ios.sh`, bundle id và xcconfig của admin.
+- **Một màn đăng nhập.** Sau khi đăng nhập, app chỉ phân biệt Owner và thành viên.
+- **Cập nhật 2026-10-12 (3-E):** bỏ hẳn Platform Admin. Không còn nhóm "Quản trị nền tảng", không tạm ngừng / đóng tổ chức, không tạm ngừng tài khoản, không chuyển Owner.
+- **Định tuyến:** người có tổ chức vào `/`; người không còn tổ chức vào `/no-organization`.
+- **Guard ở router** chỉ chặn chưa đăng nhập và chưa có tổ chức. RPC vẫn kiểm tra quyền phía DB.
+- Các màn IAM chỉ giữ một bản trong `features/iam/`.
+- Bỏ cấu hình build và deploy riêng của admin.
 
 ### 3.5 Luồng khởi tạo tổ chức: người dùng tự đăng ký, tự tạo (thiết kế lại)
 
 > **Quyết định:** phần này **được phép đổi luồng nghiệp vụ** (khác các module còn lại vốn giữ nguyên).
-> Bỏ luồng cũ "Platform Admin tạo tenant, mời owner qua mã, owner chấp nhận, readiness, kích hoạt". Thay bằng **tự phục vụ**: người dùng tự đăng ký, tự tạo tổ chức và trở thành Owner ngay. Platform Admin chỉ còn **giám sát**.
+> Bỏ luồng cũ "Platform Admin tạo tenant, mời owner qua mã, owner chấp nhận, readiness, kích hoạt". Thay bằng **tự phục vụ**: người dùng tự đăng ký, tự tạo tổ chức và trở thành Owner ngay. Không còn vai trò giám sát trên app (3-E, 2026-10-12).
 
 #### Vì sao chọn hướng này: đối chiếu với ERP/POS trên thị trường
 
@@ -139,15 +134,14 @@ Luồng cũ dài 5 bước, cần 2 app, cần user tạm và trigger rebind, v�
 |---|---|
 | **Người dùng** | Từ màn đăng nhập chọn **Đăng ký cửa hàng mới**: tạo tài khoản và tổ chức trong cùng một luồng, sau đó là **Owner** |
 | **Nhân viên** | Được Owner mời bằng mã lời mời. **Giữ nguyên** luồng lời mời (Epic-03) |
-| **Platform Admin** | Xem/tìm tổ chức và người dùng; tạm ngưng/khôi phục/đóng tổ chức; tạm ngưng/khôi phục người dùng; chuyển owner khi hỗ trợ; xem audit log. **Không tạo tổ chức** |
-| **Operator** | Tạo Platform Admin bằng script (`scripts/create-platform-admin.sh`, local thì dùng `seed.sql`) |
 
 #### Trạng thái (mới, bỏ `provisioning` và `pending_activation`)
 
 ```text
-Tenant:        active ⇄ suspended ──▶ closed
-User profile:  active ⇄ suspended          (profile tạo khi đăng ký, không còn user tạm)
+Tenant:        luôn hoạt động (không có trạng thái chặn)
+User profile:  luôn hoạt động (không có cột status)
 Invitation:    pending ─▶ accepted | declined | revoked | expired   (chỉ cho nhân viên)
+Membership:    active ⇄ inactive ──▶ removed
 ```
 
 #### Nguyên tắc
@@ -202,7 +196,6 @@ Nếu để app gọi, người dùng có thể đóng app giữa "xác minh xon
 | Bỏ dở ở bước 3 rồi đăng nhập | Supabase trả `email_not_confirmed` → `/verify-email` (gửi lại mã) |
 | Dữ liệu cửa hàng không hợp lệ ở trigger | Validate trên client trước khi `signUp`. Trigger cũng kiểm tra lại; nếu lỗi thì xác minh thất bại và hiện thông báo |
 | Owner muốn có thêm tổ chức thứ 2 | **Không hỗ trợ** (mỗi user 1 tổ chức) |
-| Tổ chức bị đóng, Owner muốn mở lại | **Không hỗ trợ**: `closed` là trạng thái cuối. Chỉ tổ chức `suspended` mới khôi phục được (TH-01 BR-13) |
 
 #### Tạo người dùng: 3 loại tài khoản, 3 cách tạo
 
@@ -210,7 +203,6 @@ Nếu để app gọi, người dùng có thể đóng app giữa "xác minh xon
 |---|---|---|---|
 | **Owner** | Chính người đó | "Đăng ký cửa hàng mới" (luồng B ở trên) | Màn đăng nhập |
 | **Nhân viên** | Owner hoặc người có quyền `member.invite` | **Mời bằng email + mã** (giữ nguyên luồng hiện có) | Trong app: *Thêm → Người dùng → Mời* (`/more/users/invite`) |
-| **Platform Admin** | Operator | Script `create-platform-admin.sh` / `seed.sql` | Ngoài app |
 
 **Luồng tạo nhân viên** (giữ nguyên Epic-03, chỉ đổi đường gửi email):
 
@@ -222,8 +214,7 @@ Nếu để app gọi, người dùng có thể đóng app giữa "xác minh xon
 4. `accept_invitation` → tạo membership với vai trò đã chọn → nhân viên vào thẳng tổ chức.
 5. Owner quản lý tiếp trong *Người dùng*:
    - lời mời: gửi lại, thu hồi;
-   - thành viên: đổi vai trò, vô hiệu/kích hoạt lại, gỡ khỏi tổ chức;
-   - (chuyển quyền Owner **chỉ do Platform Admin** làm ở `/admin`, xem TH-01 BR-32).
+   - thành viên: đổi vai trò, vô hiệu/kích hoạt lại, gỡ khỏi tổ chức.
 
 **Nguyên tắc:** Owner **không đặt và không biết mật khẩu** của nhân viên. Mỗi người tự đặt mật khẩu khi nhận lời mời.
 
@@ -255,30 +246,15 @@ sequenceDiagram
 
 #### Định tuyến sau đăng nhập
 
-| Platform admin? | Tình trạng của user | Đi tới |
-|---|---|---|
-| — | Email chưa xác minh (`email_not_confirmed`) | `/verify-email` |
-| Có | Không có membership | `/admin` |
-| Có | Có membership | Khu vực dùng lần trước, có menu **"Chuyển không gian"** |
-| Không | Không có membership (ví dụ nhân viên đã bị gỡ khỏi tổ chức) | `/no-organization`: "Bạn chưa thuộc tổ chức nào" + **Nhập mã lời mời** + Đăng xuất. **Không có tạo tổ chức** |
-| Không | Tenant đang chọn `suspended` / `closed` | Màn thông báo trạng thái + chọn tổ chức khác / đăng xuất |
-| Không | Tenant đang chọn `active` | `/` |
+| Tình trạng của user | Đi tới |
+|---|---|
+| Email chưa xác minh (`email_not_confirmed`) | `/verify-email` |
+| Không có membership (ví dụ nhân viên đã bị gỡ khỏi tổ chức) | `/no-organization`: "Bạn chưa thuộc tổ chức nào" + **Nhập mã lời mời** + Đăng xuất. **Không có tạo tổ chức** |
+| Có tổ chức | `/` |
 
-Guard: `/signup` chỉ mở khi **chưa đăng nhập**. `/admin/**` chỉ dành cho platform admin, còn route cửa hàng cần tenant `active`. **Mọi RPC và trigger vẫn tự kiểm tra quyền.**
+Guard: `/signup` chỉ mở khi **chưa đăng nhập**. Route cửa hàng cần người dùng còn là thành viên của tổ chức đang chọn. **Mọi RPC và trigger vẫn tự kiểm tra quyền.**
 
-#### Khu vực `/admin` (giám sát, không tạo tổ chức)
-
-> ⚠️ **Cập nhật 2026-10-09 (phương án A):** không dựng khu `/admin`. Platform Admin chỉ quản lý tổ chức (tạm ngừng / khôi phục / đóng, chuyển Owner) ở nhóm "Quản trị nền tảng" cuối tab **Thêm** (`/more/platform/**`); bỏ tổng quan, người dùng nền tảng, nhật ký nền tảng, "Chuyển không gian". Chuẩn: TH-01 mục 1.2, 2.3, EP-09 và [ADMIN-SCREENS.md](ADMIN-SCREENS.md).
-
-
-| Route | Màn (chuyển từ `apps/admin`) | Thay đổi |
-|---|---|---|
-| `/admin` | Tổng quan | Giữ |
-| `/admin/organizations` | Danh sách tổ chức | **Bỏ nút "Khởi tạo"**, bỏ filter `provisioning` |
-| `/admin/organizations/:id` | Chi tiết tổ chức | Giữ tạm ngưng/khôi phục/đóng/chuyển owner; **bỏ "Gửi lại lời mời owner"** |
-| `/admin/users`, `/admin/users/:id` | Người dùng nền tảng | Giữ tạm ngưng/khôi phục/yêu cầu reset mật khẩu; **bỏ "Gửi lại kích hoạt"** |
-| `/admin/audit-logs` | Nhật ký | Giữ |
-| ~~`platform_onboarding_page`~~ | Wizard khởi tạo | **Xoá** |
+Không còn khu `/admin` và không còn quản trị nền tảng (3-E, 2026-10-12).
 
 #### Thay đổi về code và DB
 
@@ -318,7 +294,7 @@ Guard: `/signup` chỉ mở khi **chưa đăng nhập**. `/admin/**` chỉ dành
 | **5. pricing** | Giá riêng, import | 3, 4 |
 | **6. sales** | Đơn, nháp, checkout, thanh toán, biên lai, huỷ, đổi trả | 3, 4, 5 |
 | **7. einvoice** | Cấu hình MISA, phát hành, gửi, đối soát | 6 |
-| **8. platform admin** | Chuyển màn giám sát của `apps/admin` vào `features/platform_admin/` dưới `/admin` (bỏ wizard khởi tạo); chuyển đổi không gian | 2 |
+| **8. Bỏ Platform Admin** | Xoá vai trò, trạng thái chặn tổ chức / tài khoản, chuyển Owner (3-E) | 2 |
 | **9. Dọn dẹp** | Xoá `apps/admin`, `modules/`, package thừa, worker; gộp migration; cập nhật `docs/architecture`, README | 1–8 |
 
 Mỗi giai đoạn chỉ tính là xong khi các màn hình của nó trong mục 2 chạy end-to-end trên Supabase local.
@@ -326,7 +302,7 @@ Mỗi giai đoạn chỉ tính là xong khi các màn hình của nó trong mụ
 ## 6. Tiêu chí hoàn thành (Definition of Done)
 
 - [ ] Toàn bộ chức năng ở mục 2.1 hoạt động như bản legacy (đối chiếu checklist màn hình).
-- [ ] Chỉ còn **một app** `apps/erp`. Platform admin và user cửa hàng đăng nhập cùng app và vào đúng shell; user thường không truy cập được `/admin`.
+- [ ] Chỉ còn **một app** `apps/erp`. Không còn Platform Admin và không còn route `/admin` hay `/more/platform/**`.
 - [ ] Chạy trọn luồng 3.5 trên môi trường sạch: `db reset` → đăng ký user mới → xác minh mã email → tạo tổ chức → vào trang chủ có cửa hàng mặc định → mời 1 nhân viên, nhân viên nhận mã và tham gia. Platform admin (tạo bằng script) thấy tổ chức mới và tạm ngưng/khôi phục được. Mọi dòng của bảng định tuyến đều đúng.
 - [ ] Trong app (sau đăng nhập) không có màn/nút nào tạo tổ chức; trigger không tạo tổ chức thứ 2 cho user đã là Owner; bỏ dở ở bước xác minh rồi đăng nhập lại vẫn hoàn tất và có cửa hàng; user chưa xác minh email không tạo được tổ chức.
 - [ ] Không còn `apps/admin`, `modules/`, `apps/messaging_worker`, Melos, CommandBus/QueryBus, outbox/inbox.

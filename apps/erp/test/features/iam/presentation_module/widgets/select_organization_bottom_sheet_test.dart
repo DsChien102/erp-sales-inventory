@@ -1,5 +1,4 @@
 import 'package:erp/core/session/models/accessible_tenant.dart';
-import 'package:erp/core/session/models/tenant_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -12,7 +11,6 @@ const _fixtureOrganizations = <AccessibleTenant>[
     name: 'Thú y Minh Phát',
     code: 'TEN-000138',
     roleCode: 'Chủ cửa hàng',
-    status: TenantStatus.active,
     isCurrent: true,
   ),
   AccessibleTenant(
@@ -20,14 +18,12 @@ const _fixtureOrganizations = <AccessibleTenant>[
     name: 'Phòng khám Minh Tâm',
     code: 'TEN-000204',
     roleCode: 'Kế toán',
-    status: TenantStatus.active,
   ),
   AccessibleTenant(
     id: 'org-03',
     name: 'ASC Commerce',
     code: 'TEN-000095',
     roleCode: 'Nhân viên bán hàng',
-    status: TenantStatus.suspended,
   ),
 ];
 
@@ -66,7 +62,7 @@ void main() {
 
       expect(find.text('ASC Commerce'), findsOneWidget);
       expect(
-        find.textContaining('TEN-000095 · Nhân viên bán hàng · Tạm ngừng'),
+        find.textContaining('TEN-000095 · Nhân viên bán hàng'),
         findsOneWidget,
       );
 
@@ -94,7 +90,6 @@ void main() {
                   name: 'Sỹ Chiến',
                   code: 'TEN-DA84BD',
                   roleCode: 'store_owner',
-                  status: TenantStatus.active,
                   isCurrent: false,
                 ),
               ],

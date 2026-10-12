@@ -29,8 +29,7 @@ void main() {
     final script = CompletionService(manifest: manifest).render('bash');
     expect(script, contains('complete -F _vet45 vet45'));
     expect(script, contains('switch'));
-    expect(script, contains('admin'));
-    expect(script, contains('create'));
+    expect(script, isNot(contains('admin)')));
     expect(script, contains('acme'));
     expect(script, contains('local'));
     expect(script, contains('erp'));

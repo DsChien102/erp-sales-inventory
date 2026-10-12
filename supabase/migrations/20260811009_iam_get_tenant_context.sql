@@ -15,7 +15,6 @@ declare
   v_user_id uuid := auth.uid();
   v_role text;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
@@ -26,8 +25,8 @@ begin
     return jsonb_build_object('status', 'none');
   end if;
 
-  select m.role, t.name, coalesce(t.status, 'active')
-  into v_role, v_tenant_name, v_tenant_status
+  select m.role, t.name
+  into v_role, v_tenant_name
   from iam.tenants t
   left join iam.memberships m
     on m.tenant_id = t.id
@@ -49,32 +48,7 @@ begin
       'invalidation_reason', 'membershipRemoved',
       'blocked_error_code', 'MEMBERSHIP_REMOVED',
       'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'suspended' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantSuspended',
-      'blocked_error_code', 'TENANT_SUSPENDED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'closed' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantClosed',
-      'blocked_error_code', 'TENANT_CLOSED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
+      'tenant_name', v_tenant_name
     );
   end if;
 
@@ -93,8 +67,7 @@ begin
     'tenant_id', p_tenant_id,
     'tenant_name', v_tenant_name,
     'role', v_role,
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;

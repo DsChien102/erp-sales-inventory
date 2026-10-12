@@ -458,22 +458,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
       return;
     }
 
-    if (failure.code == IamBlockedCodes.tenantSuspended) {
-      emit(
-        state.copyWith(
-          step: InvitationAcceptanceStep.blocked,
-          isSubmitting: false,
-          tokenPresent: _token != null,
-          failure: IamUiFailure(
-            code: failure.code,
-            message: 'Tổ chức đang tạm ngừng, chưa thể tham gia.',
-            retryable: failure.retryable,
-          ),
-        ),
-      );
-      return;
-    }
-
     if (_isTerminalTokenFailure(failure.code)) {
       _clearSecrets();
       emit(

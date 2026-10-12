@@ -16,8 +16,6 @@ abstract final class IamBlockedCodes {
   static const ownerIdentityUnavailable = 'OWNER_IDENTITY_UNAVAILABLE';
   static const idempotencyConflict = 'IDEMPOTENCY_CONFLICT';
   static const tenantStateInvalid = 'TENANT_STATE_INVALID';
-  static const tenantSuspended = 'TENANT_SUSPENDED';
-  static const tenantClosed = 'TENANT_CLOSED';
   static const systemError = 'SYSTEM_ERROR';
   static const authenticationRequired = 'AUTHENTICATION_REQUIRED';
   static const sessionExpired = 'SESSION_EXPIRED';
@@ -34,9 +32,6 @@ abstract final class IamBlockedCodes {
   static const invitationPendingExists = 'INVITATION_PENDING_EXISTS';
   static const platformUserAlreadyExists = 'PLATFORM_USER_ALREADY_EXISTS';
   static const stepUpAuthRequired = 'STEP_UP_AUTH_REQUIRED';
-  static const ownerTargetInvalid = 'OWNER_TARGET_INVALID';
-  static const platformPermissionDenied = 'PLATFORM_PERMISSION_DENIED';
-  static const platformUserSuspended = 'PLATFORM_USER_SUSPENDED';
   static const invalidCredentials = 'INVALID_CREDENTIALS';
   static const identityEmailNotVerified = 'IDENTITY_EMAIL_NOT_VERIFIED';
 }
@@ -63,10 +58,6 @@ abstract final class IamAuditEvents {
   static const tenantProfileUpdated = 'iam.tenant.profile_updated';
   static const tenantLegalProfileUpdated = 'iam.tenant.legal_profile_updated';
   static const tenantActivated = 'iam.tenant.activated';
-  static const tenantSuspended = 'iam.tenant.suspended';
-  static const tenantRestored = 'iam.tenant.restored';
-  static const tenantClosed = 'iam.tenant.closed';
-  static const tenantOwnershipTransferred = 'iam.tenant.ownership_transferred';
   static const tenantOwnerActivated = 'iam.tenant.owner_activated';
 
   static const invitationCreated = 'iam.tenant.invitation_created';
@@ -88,10 +79,6 @@ abstract final class IamAuditEvents {
     tenantProfileUpdated,
     tenantLegalProfileUpdated,
     tenantActivated,
-    tenantSuspended,
-    tenantRestored,
-    tenantClosed,
-    tenantOwnershipTransferred,
     tenantOwnerActivated,
     invitationCreated,
     invitationResent,

@@ -20,7 +20,7 @@ pg_cron mỗi phút: gửi lại job queued / failed (≤ 5 lần) — lưới a
 
 **Không đổi** chữ ký hay thân các RPC lời mời / đặt lại mật khẩu, cũng **không đổi app**: trạng thái gửi ("Đang xếp hàng gửi / Đã gửi email / Chưa gửi được email") vẫn đọc từ `iam.email_delivery_outcomes` như hiện tại.
 
-**Ngoài phạm vi:** mã xác minh đăng ký (Supabase Auth tự gửi, 2-B1); SMTP riêng cho Auth; các sửa KI khác của TH-01 (→ **2-B3**); email nền tảng (`request_platform_password_reset`, P8 — tự chạy được nhờ cùng đường đi).
+**Ngoài phạm vi:** mã xác minh đăng ký (Supabase Auth tự gửi, 2-B1); SMTP riêng cho Auth; các sửa KI khác của TH-01 (→ **2-B3**); email nền tảng (`request_platform_password_reset`, P3 — tự chạy được nhờ cùng đường đi).
 
 ## 2. Hiện trạng
 

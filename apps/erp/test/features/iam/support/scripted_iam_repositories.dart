@@ -8,7 +8,6 @@ import 'package:erp/features/iam/data/models/tenant_profile.dart';
 import 'package:erp/features/iam/data/models/upsert_legal_profile_result.dart';
 import 'package:erp/features/iam/data/organization_repository.dart';
 import 'package:supabase/supabase.dart';
-import 'package:erp/core/session/models/tenant_context.dart';
 
 SupabaseRpc get _unusedRpc => SupabaseRpc(
   SupabaseClient(
@@ -85,7 +84,6 @@ final class ScriptedOrganizationRepository extends OrganizationRepository {
     tenant = TenantProfile(
       tenantId: current.tenantId,
       displayName: displayName,
-      status: current.status,
       version: current.version + 1,
       businessTimezone: current.businessTimezone,
       baseCurrencyCode: current.baseCurrencyCode,
@@ -143,7 +141,6 @@ final class ScriptedOrganizationRepository extends OrganizationRepository {
     tenant = TenantProfile(
       tenantId: current.tenantId,
       displayName: current.displayName,
-      status: current.status,
       version: current.version + 1,
       businessTimezone: current.businessTimezone,
       baseCurrencyCode: current.baseCurrencyCode,
@@ -168,7 +165,6 @@ TenantProfile sampleTenantProfile() {
   return TenantProfile(
     tenantId: 'org-001',
     displayName: 'Mậu Hiên',
-    status: TenantStatus.active,
     version: 1,
     businessTimezone: 'Asia/Ho_Chi_Minh',
     baseCurrencyCode: 'VND',

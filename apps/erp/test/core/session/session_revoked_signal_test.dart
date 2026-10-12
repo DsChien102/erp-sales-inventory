@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/session/session_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'fake_session_repository.dart';
 
@@ -23,7 +22,7 @@ void main() {
     final statuses = <TenantLoadStatus>[];
     final sub = cubit.stream.listen((s) => statuses.add(s.status));
 
-    revoked.add('TENANT_SUSPENDED');
+    revoked.add('MEMBERSHIP_REMOVED');
     await Future<void>.delayed(const Duration(milliseconds: 10));
 
     expect(statuses, contains(TenantLoadStatus.loading));
@@ -43,33 +42,11 @@ void main() {
 
     final statuses = <TenantLoadStatus>[];
     final sub = cubit.stream.listen((s) => statuses.add(s.status));
-    revoked.add('TENANT_CLOSED');
+    revoked.add('MEMBERSHIP_REMOVED');
     await Future<void>.delayed(const Duration(milliseconds: 10));
 
     expect(statuses, isEmpty);
     await sub.cancel();
-    await cubit.close();
-    await revoked.close();
-  });
-
-  test('suspended account signals sign-out instead of re-bootstrap', () async {
-    final revoked = StreamController<String>.broadcast();
-    final cubit = SessionController(
-      repository: FakeSessionRepository(),
-      initialState: const SessionState(
-        status: TenantLoadStatus.ready,
-        userDisplayName: '',
-      ),
-      tenantAccessRevoked: revoked.stream,
-    );
-
-    revoked.add(TenantAccessRevokedSignal.platformUserSuspended);
-    await Future<void>.delayed(const Duration(milliseconds: 10));
-
-    expect(cubit.state.identityRevoked, isTrue);
-    // Không bootstrap lại: state giữ nguyên ready.
-    expect(cubit.state.status, TenantLoadStatus.ready);
-
     await cubit.close();
     await revoked.close();
   });

@@ -79,14 +79,11 @@ as $$
   select exists (
     select 1
     from iam.stores s
-    join iam.tenants t
-      on t.id = s.tenant_id
     join iam.memberships m
       on m.tenant_id = s.tenant_id
     where s.tenant_id = p_tenant_id
       and s.id = p_store_id
       and s.status = 'active'
-      and t.status not in ('suspended', 'closed')
       and m.user_id = p_user_id
       and m.is_active
   );

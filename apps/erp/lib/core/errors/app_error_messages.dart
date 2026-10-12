@@ -9,8 +9,6 @@ abstract final class AppErrorMessages {
     'VALIDATION_ERROR': 'Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại.',
     'STATE_CHANGED': 'Dữ liệu vừa được thay đổi ở nơi khác. Vui lòng tải lại.',
     'AUTHENTICATION_REQUIRED': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-    'TENANT_SUSPENDED': 'Tổ chức đang tạm ngừng hoạt động.',
-    'TENANT_CLOSED': 'Tổ chức đã đóng.',
     'NETWORK_ERROR': 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
     'IDEMPOTENCY_CONFLICT': 'Yêu cầu bị trùng. Vui lòng thử lại.',
     'SYSTEM_ERROR': 'Đã có lỗi xảy ra. Vui lòng thử lại.',

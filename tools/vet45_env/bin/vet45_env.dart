@@ -10,8 +10,6 @@ import 'package:vet45_env/example_generator.dart';
 import 'package:vet45_env/link_service.dart';
 import 'package:vet45_env/manifest.dart';
 import 'package:vet45_env/profile_discovery.dart';
-import 'package:vet45_env/platform_admin_command_args.dart';
-import 'package:vet45_env/platform_admin_service.dart';
 import 'package:vet45_env/profile_init_service.dart';
 import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
@@ -82,8 +80,6 @@ Future<void> main(List<String> args) async {
         await _cmdProfile(manifest, rest);
       case 'supabase':
         await _cmdSupabase(manifest, rest);
-      case 'admin':
-        await _cmdAdmin(manifest, rest);
       case 'completion':
         _cmdCompletion(manifest, rest);
       default:
@@ -136,20 +132,14 @@ Commands:
   profile list|use|init
   supabase [--profile <id>] [--env <id>] <args...>
                        Run supabase CLI with profile auth.env token (auto link)
-  admin create|grant|list
-                       Bootstrap platform admin (Auth user + iam.platform_admins)
   completion bash|zsh  Print shell completion script
 
 Flags:
   --skip-link          Skip supabase link on use/sync/use-and-sync/switch/supabase
   --target <id>        Limit sync/doctor to one registered target
-  --env <id>           Environment for sync/doctor/run/admin
+  --env <id>           Environment for sync/doctor/run
   --profile <id>       Configuration profile (secrets root / Supabase account)
   --offline            Skip network checks in doctor
-  --email <addr>       Email for admin create/grant
-  --password <secret>  Password for admin create (generated if omitted)
-  --user-id <uuid>     Auth user id for admin grant
-  --yes                Confirm admin mutations on non-local environments
 ''');
 }
 
@@ -748,67 +738,5 @@ void _cmdResolveShell(EnvManifest manifest, List<String> args) {
   final railway = env.railwayEnvironment;
   if (railway != null && railway.isNotEmpty) {
     stdout.writeln('RAILWAY_ENVIRONMENT=$railway');
-  }
-}
-
-Future<void> _cmdAdmin(EnvManifest manifest, List<String> args) async {
-  final parsed = PlatformAdminCommandArgs.parse(args);
-  final ctx = manifest.context(
-    profileId: parsed.profileId,
-    environmentId: parsed.environmentId,
-  );
-  final service = PlatformAdminService(manifest: manifest);
-
-  switch (parsed.subcommand) {
-    case 'create':
-      if (parsed.email == null || parsed.email!.trim().isEmpty) {
-        stderr.writeln('Usage: vet45 admin create --email <addr> [--password ...]');
-        exit(64);
-      }
-      final result = await service.create(
-        ctx: ctx,
-        email: parsed.email!,
-        password: parsed.password,
-        yes: parsed.yes,
-      );
-      stdout.writeln(
-        'Platform admin ready: email=${result.email} userId=${result.userId}',
-      );
-      stdout.writeln(
-        '  createdUser=${result.createdUser} granted=${result.granted}',
-      );
-      if (result.existingUserMessage != null) {
-        stdout.writeln('  ${result.existingUserMessage}');
-      }
-      if (result.generatedPassword != null) {
-        stdout.writeln('');
-        stdout.writeln(
-          'Generated password (save now; will not be shown again):',
-        );
-        stdout.writeln(result.generatedPassword);
-      }
-    case 'grant':
-      final result = await service.grant(
-        ctx: ctx,
-        email: parsed.email,
-        userId: parsed.userId,
-        yes: parsed.yes,
-      );
-      stdout.writeln(
-        'Granted platform admin: email=${result.email} userId=${result.userId}',
-      );
-    case 'list':
-      final rows = await service.list(ctx: ctx);
-      if (rows.isEmpty) {
-        stdout.writeln('(no platform admins)');
-        return;
-      }
-      stdout.writeln('user_id\tcreated_at');
-      for (final row in rows) {
-        stdout.writeln('${row['user_id']}\t${row['created_at']}');
-      }
-    default:
-      stderr.writeln('Unknown admin subcommand: ${parsed.subcommand}');
-      exit(64);
   }
 }

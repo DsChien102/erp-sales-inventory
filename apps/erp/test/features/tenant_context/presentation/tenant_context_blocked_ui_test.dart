@@ -11,10 +11,10 @@ void main() {
     const state = SessionState(userDisplayName: '');
     final blocked = state.copyWith(
       status: TenantLoadStatus.blocked,
-      blockedErrorCode: IamBlockedCodes.tenantClosed,
+      blockedErrorCode: IamBlockedCodes.membershipRemoved,
       clearContextFailure: true,
     );
-    expect(blocked.blockedErrorCode, IamBlockedCodes.tenantClosed);
+    expect(blocked.blockedErrorCode, IamBlockedCodes.membershipRemoved);
   });
 
   test('copyWith can clear branch display name', () {
@@ -57,7 +57,7 @@ void main() {
         tenantId: 'org-001',
         tenantName: 'Thú y Minh Phát',
         invalidationReason: TenantContextInvalidationReason.identityInactive,
-        blockedErrorCode: IamBlockedCodes.platformUserSuspended,
+        blockedErrorCode: IamBlockedCodes.membershipRemoved,
       );
     final cubit = SessionController(repository: repository);
 

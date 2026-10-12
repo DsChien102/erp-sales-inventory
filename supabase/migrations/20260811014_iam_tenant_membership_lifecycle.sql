@@ -505,7 +505,6 @@ returns table (
   tenant_id uuid,
   name text,
   role text,
-  status text,
   is_owner boolean
 )
 language plpgsql
@@ -520,7 +519,7 @@ begin
   end if;
 
   return query
-  select t.id, t.display_name, m.role, t.status, m.is_owner
+  select t.id, t.display_name, m.role, m.is_owner
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
@@ -540,7 +539,6 @@ declare
   v_role text;
   v_membership_status text;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
@@ -551,8 +549,8 @@ begin
     raise exception 'TENANT_ACCESS_DENIED';
   end if;
 
-  select m.role, iam._membership_status_code(m.is_active, m.removed_at), t.name, coalesce(t.status, 'active')
-  into v_role, v_membership_status, v_tenant_name, v_tenant_status
+  select m.role, iam._membership_status_code(m.is_active, m.removed_at), t.name
+  into v_role, v_membership_status, v_tenant_name
   from iam.memberships m
   join iam.tenants t on t.id = m.tenant_id
   where m.user_id = v_user_id
@@ -570,14 +568,6 @@ begin
     raise exception 'MEMBERSHIP_REMOVED';
   end if;
 
-  if v_tenant_status = 'suspended' then
-    raise exception 'TENANT_SUSPENDED';
-  end if;
-
-  if v_tenant_status = 'closed' then
-    raise exception 'TENANT_CLOSED';
-  end if;
-
   if v_role = 'owner' then
     v_permissions := array[]::text[];
   else
@@ -593,8 +583,7 @@ begin
     'tenant_id', p_target_tenant_id,
     'tenant_name', v_tenant_name,
     'role', v_role,
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;
@@ -610,7 +599,6 @@ declare
   v_role text;
   v_membership_status text;
   v_tenant_name text;
-  v_tenant_status text;
   v_permissions text[];
 begin
   if v_user_id is null then
@@ -621,8 +609,8 @@ begin
     return jsonb_build_object('status', 'none');
   end if;
 
-  select m.role, iam._membership_status_code(m.is_active, m.removed_at), t.name, coalesce(t.status, 'active')
-  into v_role, v_membership_status, v_tenant_name, v_tenant_status
+  select m.role, iam._membership_status_code(m.is_active, m.removed_at), t.name
+  into v_role, v_membership_status, v_tenant_name
   from iam.tenants t
   left join iam.memberships m
     on m.tenant_id = t.id
@@ -645,8 +633,7 @@ begin
       'invalidation_reason', 'membershipRemoved',
       'blocked_error_code', 'MEMBERSHIP_REMOVED',
       'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'tenant_status', v_tenant_status
+      'tenant_name', v_tenant_name
     );
   end if;
 
@@ -657,32 +644,7 @@ begin
       'blocked_error_code', 'MEMBERSHIP_INACTIVE',
       'tenant_id', p_tenant_id,
       'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'suspended' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantSuspended',
-      'blocked_error_code', 'TENANT_SUSPENDED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
-    );
-  end if;
-
-  if v_tenant_status = 'closed' then
-    return jsonb_build_object(
-      'status', 'invalidated',
-      'invalidation_reason', 'tenantClosed',
-      'blocked_error_code', 'TENANT_CLOSED',
-      'tenant_id', p_tenant_id,
-      'tenant_name', v_tenant_name,
-      'role', v_role,
-      'tenant_status', v_tenant_status
+      'role', v_role
     );
   end if;
 
@@ -701,8 +663,7 @@ begin
     'tenant_id', p_tenant_id,
     'tenant_name', v_tenant_name,
     'role', v_role,
-    'permissions', to_jsonb(v_permissions),
-    'tenant_status', v_tenant_status
+    'permissions', to_jsonb(v_permissions)
   );
 end;
 $$;

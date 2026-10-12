@@ -230,8 +230,6 @@ vet45 sync
 vet45 sync --target erp
 vet45 doctor --target erp
 vet45 supabase -- db push
-vet45 admin create --email admin@local.test   # Auth user + iam.platform_admins
-vet45 admin list
 
 # Melos still works (slower launcher)
 melos run env:list
@@ -330,30 +328,11 @@ vet45 doctor --target erp --offline
 # or: dart run tools/vet45_env/bin/vet45_env.dart …
 ```
 
-## Platform admin bootstrap
-
-Create an Auth user and grant `iam.platform_admins` using the active profile’s **service role** (same secrets as sync). Preferred over manual SQL:
-
-```bash
-supabase start          # local — service role lấy từ `supabase status`
-vet45 admin create --email admin@local.test [--password '...']
-vet45 admin grant --email admin@local.test
-vet45 admin list
-```
-
-Non-`local` / non-`development` environments require `--yes`. If the email already exists, create is skipped (password unchanged) and only the grant runs. Generated passwords print once on stdout.
-
-Fallback SQL (if CLI unavailable):
-
-```sql
-insert into iam.platform_admins (user_id) values ('<auth-user-uuid>');
-```
-
 ## Troubleshooting
 
 | Symptom | Fix |
 | ------- | --- |
-| `Missing SUPABASE_SERVICE_ROLE_KEY` khi chạy `vet45 admin …` | Local: `supabase start`; remote: điền key vào `.vet45/profiles/<profileId>/<env>.env` |
+| `Missing SUPABASE_SERVICE_ROLE_KEY` | Local: `supabase start`; remote: điền key vào `.vet45/profiles/<profileId>/<env>.env` |
 | Doctor fails on deploy | Add `deploy/deploy.env`, or `env:doctor -- --target erp` |
 | Switch remote dev/staging project | `melos run env:use:<env>` or `melos run env:link` |
 | `supabase cli link` mismatch | `melos run env:sync` then `melos run env:doctor` |

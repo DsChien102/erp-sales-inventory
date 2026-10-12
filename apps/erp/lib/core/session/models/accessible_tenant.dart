@@ -1,5 +1,3 @@
-import 'tenant_context.dart';
-
 /// Một tổ chức người dùng được vào, dùng cho sheet chọn tổ chức.
 final class AccessibleTenant {
   const AccessibleTenant({
@@ -7,7 +5,6 @@ final class AccessibleTenant {
     required this.name,
     required this.code,
     required this.roleCode,
-    required this.status,
     this.isOwner = false,
     this.isCurrent = false,
   });
@@ -18,12 +15,8 @@ final class AccessibleTenant {
 
   /// Giá trị thô `role`. Nhãn hiển thị map ở widget.
   final String roleCode;
-  final TenantStatus status;
   final bool isOwner;
   final bool isCurrent;
-
-  /// Chỉ tổ chức đang hoạt động mới chọn được.
-  bool get isSelectable => status == TenantStatus.active;
 
   factory AccessibleTenant.fromJson(
     Map<String, dynamic> row, {
@@ -35,7 +28,6 @@ final class AccessibleTenant {
       name: row['name'] as String,
       code: codeFor(id),
       roleCode: row['role'] as String,
-      status: tenantStatusFromWire(row['status'] as String?),
       isOwner: row['is_owner'] as bool? ?? false,
       isCurrent: isCurrent,
     );
@@ -47,7 +39,6 @@ final class AccessibleTenant {
       name: name,
       code: code,
       roleCode: roleCode,
-      status: status,
       isOwner: isOwner,
       isCurrent: isCurrent ?? this.isCurrent,
     );

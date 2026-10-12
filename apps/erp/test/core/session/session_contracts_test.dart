@@ -79,34 +79,6 @@ void main() {
       repository = FakeSessionRepository(scenario: FakeIamScenario.tenantsMulti);
     });
 
-    test('platform.* asks the platform RPC and never the tenant RPC', () async {
-      final store = SessionStore()..apply(_principal(isOwner: true));
-      repository.platformAdmin = true;
-
-      await checkerFor(store).require('platform.tenant.view');
-
-      expect(repository.platformPermissionChecks, ['platform.tenant.view']);
-      expect(repository.permissionChecks, isEmpty);
-    });
-
-    test('platform.* is denied when the RPC says no, even for an Owner', () async {
-      final store = SessionStore()..apply(_principal(isOwner: true));
-      repository.platformAdmin = false;
-
-      await expectLater(
-        checkerFor(store).require('platform.tenant.view'),
-        _denied('platform.tenant.view'),
-      );
-      expect(repository.permissionChecks, isEmpty);
-    });
-
-    test('platform.* works without any tenant selected', () async {
-      final store = SessionStore()..applyAuthenticatedUser('user-1');
-      repository.platformAdmin = true;
-
-      await checkerFor(store).require('platform.tenant.view');
-    });
-
     test('an Owner passes without any tenant RPC', () async {
       final store = SessionStore()..apply(_principal(isOwner: true));
 

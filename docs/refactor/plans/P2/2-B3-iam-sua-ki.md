@@ -19,10 +19,10 @@ Xong plan này là **luồng IAM phía cửa hàng đủ để kiểm một lư�
 | KI-14 | Ngày giờ giả, câu kỹ thuật, chữ "Membership", "Phiên bản dữ liệu" | ✅ |
 | KI-05 (app cửa hàng) | Màn readiness `/more/readiness`, sheet "Kích hoạt tổ chức?", nhãn "Đang khởi tạo" ở hồ sơ tổ chức | ✅ |
 | US-07.1 | Mục "Vai trò" trong hub đang "Chức năng làm sau"; trang vai trò có sẵn nhưng không có route | ✅ Nối dữ liệu thật |
-| **KI-03** | FK `memberships.user_id → auth.users` | ⏭ **Đề xuất dời sang P8** |
-| **KI-05 (DB + màn platform)** | Xoá `create_tenant_onboarding`, `owner_activations`, `*_owner_activation`, `bootstrap_owner`, `activate_tenant`, `get_tenant_readiness`, trạng thái `provisioning` / `pending_activation`; màn platform (`organizations/*`, "Mức hoàn thiện", "Khởi tạo tổ chức"…) | ⏭ **Đề xuất dời sang P8** |
+| **KI-03** | FK `memberships.user_id → auth.users` | ⏭ **Đề xuất dời sang P3** |
+| **KI-05 (DB + màn platform)** | Xoá `create_tenant_onboarding`, `owner_activations`, `*_owner_activation`, `bootstrap_owner`, `activate_tenant`, `get_tenant_readiness`, trạng thái `provisioning` / `pending_activation`; màn platform (`organizations/*`, "Mức hoàn thiện", "Khởi tạo tổ chức"…) | ⏭ **Đề xuất dời sang P3** |
 
-**Vì sao dời KI-03 và phần DB của KI-05 sang P8:** `apps/admin` (còn dùng tới P8) vẫn gọi `create_tenant_onboarding`, luồng này tạo membership Owner "giữ chỗ" khi người đó **chưa có** `auth.users` (FK bị bỏ ở `20260911004` chính vì vậy). Thêm FK hoặc xoá RPC bây giờ sẽ làm hỏng `apps/admin` và dữ liệu `provisioning` cũ trên Dev, trong khi không ảnh hưởng luồng cửa hàng mới (2-B1 luôn có `auth.users` trước khi tạo membership). P8 dựng `/admin` mới và bỏ `apps/admin`, nên dọn DB ở đó gọn nhất. TH-01 7.3 ghi KI-03 / KI-05 phase "P2" → nếu bạn đồng ý, sửa cột Phase thành "P8" và thêm dòng vào PLAN P8.
+**Vì sao dời KI-03 và phần DB của KI-05 sang P3:** `apps/admin` (còn dùng tới P3) vẫn gọi `create_tenant_onboarding`, luồng này tạo membership Owner "giữ chỗ" khi người đó **chưa có** `auth.users` (FK bị bỏ ở `20260911004` chính vì vậy). Thêm FK hoặc xoá RPC bây giờ sẽ làm hỏng `apps/admin` và dữ liệu `provisioning` cũ trên Dev, trong khi không ảnh hưởng luồng cửa hàng mới (2-B1 luôn có `auth.users` trước khi tạo membership). P3 dựng `/admin` mới và bỏ `apps/admin`, nên dọn DB ở đó gọn nhất. TH-01 7.3 ghi KI-03 / KI-05 phase "P2" → nếu bạn đồng ý, sửa cột Phase thành "P3" và thêm dòng vào PLAN P3.
 
 > Nếu bạn muốn làm KI-03 ngay ở P2: thêm FK `not valid` (chặn dữ liệu mới, bỏ qua dữ liệu cũ) và chấp nhận "Tạo tổ chức" của `apps/admin` hỏng (đúng tinh thần BR-01). Báo Claude để sửa plan.
 
@@ -85,7 +85,7 @@ Trong `20261009003_iam_email_jobs.sql` (sửa thẳng file vì chưa áp lên m�
 4. `IamFeatureAccessCubit` / state: bỏ `readinessStatus`, `readiness`, `canViewReadiness` và khối "Kích hoạt tổ chức để có thể bắt đầu vận hành." ở `users_and_roles_page.dart`.
 5. Hồ sơ tổ chức: xoá `confirm_activate_organization_bottom_sheet.dart` và nút / luồng gọi nó; nhãn `TenantLifecycleStatus.provisioning => 'Đang khởi tạo'` ở `organization_profile_ui_mapper.dart` → bỏ nhánh (tổ chức cửa hàng không còn `provisioning`; giá trị lạ hiện như "Đang hoạt động" hoặc ẩn — chọn một, ghi vào Review).
 6. `IamUiFailureMapper`: bỏ `readinessBlocked` nếu không còn nơi nào phát ra.
-7. **Không** đụng `lib/features/iam/presentation/organizations/**`, `widgets/platform_onboarding_*` (màn platform, P8) và `TenantStatus.provisioning` ở `core/session` (DB còn có thể trả giá trị này tới P8).
+7. **Không** đụng `lib/features/iam/presentation/organizations/**`, `widgets/platform_onboarding_*` (màn platform, P3) và `TenantStatus.provisioning` ở `core/session` (DB còn có thể trả giá trị này tới P3).
 8. Grep: `grep -rn "IIamModule\|IExecutionContext" lib/features/iam lib/features/more lib/core/router` → chỉ còn `presentation/testing/`.
 
 ### Bước 4 — Hub "Người dùng & vai trò" và trang Vai trò (KI-06, KI-10, US-07.1)
@@ -115,12 +115,12 @@ Trong `20261009003_iam_email_jobs.sql` (sửa thẳng file vì chưa áp lên m�
 
 ### Bước 7 — Chữ còn lại trong vùng cửa hàng
 
-Grep trong `lib/features/iam/presentation/{users,roles,organization_profile,audit_logs}`, `lib/features/more`, `lib/features/auth`: "Đang khởi tạo", "Đang thiết lập", "Kích hoạt tổ chức", "readiness", "Membership" (chuỗi hiển thị). Còn ở `organizations/`, `widgets/platform_*`, `testing/` thì để P8.
+Grep trong `lib/features/iam/presentation/{users,roles,organization_profile,audit_logs}`, `lib/features/more`, `lib/features/auth`: "Đang khởi tạo", "Đang thiết lập", "Kích hoạt tổ chức", "readiness", "Membership" (chuỗi hiển thị). Còn ở `organizations/`, `widgets/platform_*`, `testing/` thì để P3.
 
 ### Bước 8 — (nếu bạn đồng ý mục 1) Ghi quyết định dời KI-03 / KI-05-DB
 
-- TH-01 7.3: cột Phase của KI-03 → "P8"; KI-05 → "P2 (app cửa hàng) / P8 (DB, platform)".
-- PLAN P8: thêm dòng "KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, `provisioning`, `pending_activation`".
+- TH-01 7.3: cột Phase của KI-03 → "P3"; KI-05 → "P2 (app cửa hàng) / P3 (DB, platform)".
+- PLAN P3: thêm dòng "KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, `provisioning`, `pending_activation`".
 
 ### Bước 9 — Test
 
@@ -152,14 +152,14 @@ Gợi ý: (1) DB KI-02 + sửa migration email; (2) bỏ readiness; (3) hub + va
 
 - **Chép `accept_invitation`**: hàm dài, nhiều nhánh (Owner cũ, `target_membership_id`, idempotency). Chỉ sửa đúng nhánh insert; so diff với `20260916006` trước khi xong (Claude sẽ diff khi review).
 - Kích hoạt lại bản ghi cũ giữ nguyên `memberships.id` → lịch sử / chứng từ cũ vẫn trỏ đúng người (đúng ý BR-44).
-- Bỏ readiness: `TenantStatus.provisioning` vẫn còn ở `core/session` và `AccessibleTenant.isSelectable` cho tới P8 — cố ý.
+- Bỏ readiness: `TenantStatus.provisioning` vẫn còn ở `core/session` và `AccessibleTenant.isSelectable` cho tới P3 — cố ý.
 - Trang vai trò đếm thành viên phía app (tối đa vài trăm người / tổ chức) — đủ cho đồ án; nếu cần RPC riêng thì để sau.
 
 ## 6. Review
 
 - Ngày, commit được review: 2026-10-09, working tree trên `78952e915` (chưa commit).
 - Kết quả: **Code đạt; phần DB chờ đợt kiểm IAM** → Review 🔄 (cùng 2-B1, 2-B2).
-  - **Quyết định mục 1** đã áp dụng: TH-01 7.3 KI-03 → P8, KI-05 tách P2 (app) / P8 (DB, platform); PLAN thêm 8.6.
+  - **Quyết định mục 1** đã áp dụng: TH-01 7.3 KI-03 → P3, KI-05 tách P2 (app) / P3 (DB, platform); PLAN thêm 3.6.
   - **KI-02** (`20261009005`): so với `20260916006` chỉ khác đúng nhánh insert — tìm bản ghi `(tenant, user)` `for update`; đã loại → kích hoạt lại cùng `id` (`is_active`, `removed_at = null`, vai trò mới, `version + 1`, `status_changed_at`); đang hoạt động → `DUPLICATE_MEMBERSHIP`; tạm ngừng → `MEMBERSHIP_INACTIVE`; chưa có → insert. Quyền giữ như bản gốc. Kịch bản `iam_accept_invitation_reinvite.sql` có, chưa chạy.
   - **Migration email** (sửa tại chỗ, chưa push): tên người mời "họ đệm + tên"; `UNKNOWN_TEMPLATE` → `attempts = 5`, xoá `secret`, outcome `failed` ngay; `retry_email_jobs` không còn chọn job này. Test SQL bổ sung trường hợp.
   - **Readiness**: xoá màn, cubit, widget, model, `getReadiness`, sheet "Kích hoạt tổ chức?", nhãn "Đang khởi tạo" ở vùng cửa hàng. 4 file test bị xoá đều chỉ test readiness (kể cả `tenant_admin/e2e_e01_u04_u05_test.dart`).
@@ -169,7 +169,7 @@ Gợi ý: (1) DB KI-02 + sửa migration email; (2) bỏ readiness; (3) hub + va
   - `dart analyze lib test`: không error; warning duy nhất có từ trước. `check_feature_imports`: 0 vi phạm.
   - `flutter test` toàn `apps/erp`: **1.404 pass / 61 fail**; danh sách fail trùng khớp 2-B1; số pass giảm do xoá test readiness và thêm test mới (vai trò, bộ lọc, ngày thiếu).
 - Góp ý (không chặn):
-  1. `RolesCubit` suy ra mã vai trò từ **nhãn** (`IamRoleLabelMapper.toRoleCode(label)`) vì `list_assignable_invitation_roles` chỉ trả `role_id`, `label`. Đổi nhãn trong `role_definitions` là hỏng đếm. Khi đụng RPC này lần sau (vd P8), cho trả thêm `code`.
+  1. `RolesCubit` suy ra mã vai trò từ **nhãn** (`IamRoleLabelMapper.toRoleCode(label)`) vì `list_assignable_invitation_roles` chỉ trả `role_id`, `label`. Đổi nhãn trong `role_definitions` là hỏng đếm. Khi đụng RPC này lần sau (vd P3), cho trả thêm `code`.
   2. Route vai trò kiểm `getIt<IamSession>().isOwner`; nên dùng `SessionController.isOwner` cho đồng nhất với các phần đã chuyển (đổi khi dọn `IamSession` ở P9).
 - **Đợt kiểm IAM** (gộp việc còn lại của 2-B1, 2-B2, 2-B3), theo thứ tự:
   1. Chạy 3 kịch bản SQL cùng 5 migration `20261009001…005` trong `begin … rollback` trên Dev (Claude chạy khi bạn đồng ý).

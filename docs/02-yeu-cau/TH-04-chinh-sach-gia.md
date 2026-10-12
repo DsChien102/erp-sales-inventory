@@ -1024,20 +1024,20 @@ Số KI giữ từ bản 2.1.
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-02 | Nhớ giá từ đơn: RPC có, không nơi nào gọi; UI còn nguồn "Từ đơn hàng", khối "Chứng từ nguồn đơn hàng" (tên đơn vị cứng "Hộp") | **Ngoài phạm vi.** Bỏ khỏi bộ lọc, chi tiết, lịch sử. Giữ RPC và cột | P5 |
-| KI-03 | File mẫu Excel chỉ có tiêu đề cột UUID | **Sửa** (BR-26): thêm 2 sheet tra cứu | P5 |
-| KI-04 | Giá riêng dưới sàn đã xác nhận (`review_status = warning`) không được áp khi bán | **Sửa** `preview_sales_working_state_pricing` nhận `clear` và `warning` | P5 |
-| KI-05 | Sắp xếp và một số bộ lọc chạy ở app trên trang đã tải; lọc "Trùng rule" / "Dữ liệu lỗi" không có dữ liệu | **Sửa** (BR-23/24): chuyển vào `search_customer_price_rules`; bỏ hai lọc đó | P5 |
+| KI-02 | Nhớ giá từ đơn: RPC có, không nơi nào gọi; UI còn nguồn "Từ đơn hàng", khối "Chứng từ nguồn đơn hàng" (tên đơn vị cứng "Hộp") | **Ngoài phạm vi.** Bỏ khỏi bộ lọc, chi tiết, lịch sử. Giữ RPC và cột | P6 |
+| KI-03 | File mẫu Excel chỉ có tiêu đề cột UUID | **Sửa** (BR-26): thêm 2 sheet tra cứu | P6 |
+| KI-04 | Giá riêng dưới sàn đã xác nhận (`review_status = warning`) không được áp khi bán | **Sửa** `preview_sales_working_state_pricing` nhận `clear` và `warning` | P6 |
+| KI-05 | Sắp xếp và một số bộ lọc chạy ở app trên trang đã tải; lọc "Trùng rule" / "Dữ liệu lỗi" không có dữ liệu | **Sửa** (BR-23/24): chuyển vào `search_customer_price_rules`; bỏ hai lọc đó | P6 |
 | KI-06 | Không có nút xoá; ghi đè xoá cả giá riêng đã tắt | **Giữ nguyên** (BR-14, BR-19) | — |
-| KI-07 | Lý do thay đổi ghi đè ghi chú | **Sửa** (BR-06): thêm tham số lý do cho `update_customer_price_rule`, ghi vào lịch sử | P5 |
-| KI-08 | Người thực hiện hiện 8 ký tự UUID; bộ lọc có dữ liệu mẫu ("Nguyễn Văn A", "Quản trị viên") | **Sửa** (BR-39) | P5 |
+| KI-07 | Lý do thay đổi ghi đè ghi chú | **Sửa** (BR-06): thêm tham số lý do cho `update_customer_price_rule`, ghi vào lịch sử | P6 |
+| KI-08 | Người thực hiện hiện 8 ký tự UUID; bộ lọc có dữ liệu mẫu ("Nguyễn Văn A", "Quản trị viên") | **Sửa** (BR-39) | P6 |
 | KI-09 | Dòng có giá riêng: giá nhập tay khi bán bị bỏ qua | **Giữ nguyên**; đổi giá qua "Lưu làm giá riêng" (US-06.2) | — |
-| KI-10 | "Dưới giá sàn" ở danh sách so với giá sàn lúc lưu | **Sửa** (BR-22) | P5 |
-| KI-11 | `needs_review`, nguồn `migration` có trong enum nhưng không luồng nào tạo | **Giữ trong DB, ẩn khỏi UI**; "Cần kiểm tra" vẫn hiện nếu dữ liệu có | P5 |
+| KI-10 | "Dưới giá sàn" ở danh sách so với giá sàn lúc lưu | **Sửa** (BR-22) | P6 |
+| KI-11 | `needs_review`, nguồn `migration` có trong enum nhưng không luồng nào tạo | **Giữ trong DB, ẩn khỏi UI**; "Cần kiểm tra" vẫn hiện nếu dữ liệu có | P6 |
 | KI-12 | Chỉ vào được từ tab Khác | **Giữ nguyên** | — |
-| KI-13 | Tên gọi còn "Nhớ giá" / "giá nhớ": menu "Giá riêng / Nhớ giá — …& nhớ giá bán", tiêu đề danh sách, bộ lọc, màn nhập "Nhập giá nhớ", chế độ "Cập nhật giá nhớ hiện tại", kết quả "…dòng giá nhớ" | **Sửa** thành "Giá riêng" (BR-34) | P5 |
-| KI-14 | Thông điệp mâu thuẫn quy tắc ghi đè: banner trùng "Không thể lưu rule mới…"; sheet bật lại ghi "tự động **tắt** giá riêng trùng" (thực tế là xoá) | **Sửa** câu (US-02.4 FR-04, US-03.3 FR-02) | P5 |
-| KI-15 | Chữ sai / lỗi thô: "Giá nhập phải >= 0" (thực tế > 0), cột "Giá nhỏ", toast "Lỗi: `<mã>`" | **Sửa** | P5 |
+| KI-13 | Tên gọi còn "Nhớ giá" / "giá nhớ": menu "Giá riêng / Nhớ giá — …& nhớ giá bán", tiêu đề danh sách, bộ lọc, màn nhập "Nhập giá nhớ", chế độ "Cập nhật giá nhớ hiện tại", kết quả "…dòng giá nhớ" | **Sửa** thành "Giá riêng" (BR-34) | P6 |
+| KI-14 | Thông điệp mâu thuẫn quy tắc ghi đè: banner trùng "Không thể lưu rule mới…"; sheet bật lại ghi "tự động **tắt** giá riêng trùng" (thực tế là xoá) | **Sửa** câu (US-02.4 FR-04, US-03.3 FR-02) | P6 |
+| KI-15 | Chữ sai / lỗi thô: "Giá nhập phải >= 0" (thực tế > 0), cột "Giá nhỏ", toast "Lỗi: `<mã>`" | **Sửa** | P6 |
 
 ---
 
@@ -1067,28 +1067,28 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 ### 9.1 Kiến trúc
 
-| Hiện tại | Sau refactor (P5) |
+| Hiện tại | Sau refactor (P6) |
 |---|---|
 | `Page → Cubit → IPricingModule → Handler → Gateway → RPC` | `Page → Cubit → CustomerPriceRuleRepository / PriceImportRepository → RPC` |
-| Màn chọn khách / sản phẩm gọi qua module | Dùng `PartnerRepository` (P4), `ProductRepository` (P3) |
+| Màn chọn khách / sản phẩm gọi qua module | Dùng `PartnerRepository` (P4), `ProductRepository` (P5) |
 | Codec `.xlsx` trong `modules/pricing/infrastructure` | Chuyển vào `features/pricing/data/`; thêm 2 sheet tra cứu (KI-03) |
 | RPC cần sửa | `preview_sales_working_state_pricing` (KI-04), `search_customer_price_rules` (KI-05, KI-10), `update_customer_price_rule` (KI-07), `get_customer_price_rule_history` (KI-08) |
 | Command nhớ giá, xoá | Không dùng; RPC giữ trong DB |
 | Exclusion constraint, advisory lock, idempotency, các RPC còn lại | **Giữ nguyên** |
 
-### 9.2 Chia PR của P5
+### 9.2 Chia PR của P6
 
 | PR | Nội dung | Mục |
 |---|---|---|
-| 5.1 | Danh sách + lọc + sắp xếp ở server; đổi tên "Giá riêng" | EP-01; KI-05, KI-10, KI-13 |
-| 5.2 | Form tạo / sửa + màn chọn (dùng repository P3, P4); lý do thay đổi vào lịch sử; sửa câu banner, lỗi thô | EP-02; KI-07, KI-14, KI-15 |
-| 5.3 | Chi tiết, tắt, bật lại, lịch sử; tên người thực hiện; bỏ phần nhớ giá | EP-03, EP-05; KI-02, KI-08 |
-| 5.4 | Nhập Excel; sheet tra cứu; sửa chữ | EP-04; KI-03, KI-13, KI-15 |
-| 5.5 | Áp giá khi bán nhận `warning` | EP-06; KI-04 |
+| 6.1 | Danh sách + lọc + sắp xếp ở server; đổi tên "Giá riêng" | EP-01; KI-05, KI-10, KI-13 |
+| 6.2 | Form tạo / sửa + màn chọn (dùng repository P5, P4); lý do thay đổi vào lịch sử; sửa câu banner, lỗi thô | EP-02; KI-07, KI-14, KI-15 |
+| 6.3 | Chi tiết, tắt, bật lại, lịch sử; tên người thực hiện; bỏ phần nhớ giá | EP-03, EP-05; KI-02, KI-08 |
+| 6.4 | Nhập Excel; sheet tra cứu; sửa chữ | EP-04; KI-03, KI-13, KI-15 |
+| 6.5 | Áp giá khi bán nhận `warning` | EP-06; KI-04 |
 
 ### 9.3 Kiểm thử bắt buộc
 
-**5 kịch bản đầu–cuối (điều kiện xong P5).** Sau mỗi kịch bản chạy các bất biến mục 3.3.
+**5 kịch bản đầu–cuối (điều kiện xong P6).** Sau mỗi kịch bản chạy các bất biến mục 3.3.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|

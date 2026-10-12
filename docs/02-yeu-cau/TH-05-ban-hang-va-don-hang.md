@@ -1179,7 +1179,7 @@ Scenario: SC-02 — Nháp bị sửa ở máy khác
 
 ### 4.5 EP-04 — Thu tiền công nợ của đơn 🆕
 
-**Bối cảnh.** Khách nợ quay lại trả tiền. RPC `record_sales_payment` đã có và đã chống trùng, nhưng app chưa có màn nào gọi. PLAN P6 cần kịch bản "bán nợ rồi thu sau", nên phải có màn này. Sổ công nợ theo khách (thu gộp nhiều đơn) thuộc Theme 6, chưa làm.
+**Bối cảnh.** Khách nợ quay lại trả tiền. RPC `record_sales_payment` đã có và đã chống trùng, nhưng app chưa có màn nào gọi. PLAN P8 cần kịch bản "bán nợ rồi thu sau", nên phải có màn này. Sổ công nợ theo khách (thu gộp nhiều đơn) thuộc Theme 6, chưa làm.
 
 #### US-04.1 — Thu tiền cho đơn còn phải thu
 
@@ -2187,24 +2187,24 @@ PDF phiếu: dựng trên máy (sales_receipt_pdf_generator, sales_slip_pdf_gene
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-01 | Bán, huỷ, đổi/trả **không đụng tồn kho** | **Làm ở Theme 7** theo spec `specs/themes/theme-07` (`BC-IO-04`, `BC-IO-07`, `BC-IO-13`), không làm trong P6. Xem [TH-07](TH-07-kho.md) | P11 |
-| KI-02 | `finalize_sales_order` tin đơn giá client | **Sửa** theo BR-23 | P6 |
-| KI-03 | Hoàn tất không kiểm khách còn hoạt động | **Sửa** theo BR-24 | P6 |
-| KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | **Sửa** theo BR-20 (precheck, finalize, confirm đổi/trả) | P6 |
-| KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | **Sửa** theo BR-51 | P6 |
-| KI-06 | Không có màn thu tiền sau bán (RPC có) | **Làm mới** EP-04 | P6 |
-| KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | **Bỏ** cả hai (sổ công nợ thuộc Theme 6) | P6 |
-| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | **Bỏ** | P6 |
-| KI-09 | Tìm đơn phân biệt dấu | **Sửa** theo BR-33 (`unaccent`, như TH-03) | P6 |
-| KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | **Ngoài phạm vi**; bỏ code chết | P6 |
+| KI-01 | Bán, huỷ, đổi/trả **không đụng tồn kho** | **Làm ở Theme 7** theo spec `specs/themes/theme-07` (`BC-IO-04`, `BC-IO-07`, `BC-IO-13`), không làm trong P8. Xem [TH-07](TH-07-kho.md) | P11 |
+| KI-02 | `finalize_sales_order` tin đơn giá client | **Sửa** theo BR-23 | P8 |
+| KI-03 | Hoàn tất không kiểm khách còn hoạt động | **Sửa** theo BR-24 | P8 |
+| KI-04 | Ngày hẹn thanh toán chỉ app chặn quá khứ | **Sửa** theo BR-20 (precheck, finalize, confirm đổi/trả) | P8 |
+| KI-05 | Đổi hàng phát sinh nợ: bắt nhập ngày hẹn nhưng không lưu | **Sửa** theo BR-51 | P8 |
+| KI-06 | Không có màn thu tiền sau bán (RPC có) | **Làm mới** EP-04 | P8 |
+| KI-07 | Thẻ "Xem công nợ" chỉ hiện toast; "Nợ cũ" ở thanh toán luôn 0 | **Bỏ** cả hai (sổ công nợ thuộc Theme 6) | P8 |
+| KI-08 | Quyết toán đổi/trả có QR mẫu cứng ("QR cửa hàng · ACB", "Nguyễn Văn A") và lựa chọn "Cấn trừ công nợ hiện tại" bị khoá | **Bỏ** | P8 |
+| KI-09 | Tìm đơn phân biệt dấu | **Sửa** theo BR-33 (`unaccent`, như TH-03) | P8 |
+| KI-10 | Lý do / tình trạng hàng trả: RPC chính sách trả rỗng, app luôn trống, còn trạng thái "Chưa cấu hình chính sách đổi/trả" | **Ngoài phạm vi**; bỏ code chết | P8 |
 | KI-11 | Nháp không bao giờ `expired` | **Giữ nguyên** (BR-09) | — |
 | KI-12 | Lý do huỷ không bắt buộc, lưu dạng chữ | **Giữ nguyên** | — |
 | KI-13 | `record_sales_refund` (hoàn thủ công) không có UI | **Giữ nguyên**: hoàn tiền chỉ qua đổi/trả | — |
 | KI-14 | `get_order_integration_status` và `impacts` chỉ trả `not_required` | **Giữ trong DB, không dùng**; trạng thái HĐĐT lấy từ TH-08 | — |
 | KI-15 | TH-04 từng ghi `resolve_applicable_customer_price_rule` không dùng | **Đã sửa TH-04** (TH-04 BR-35, US-06.3) | — |
-| KI-16 | PLAN P6 từng ghi gọi "nhớ giá từ đơn" sau checkout | **Đã sửa PLAN** | — |
-| KI-17 | Màn kết quả đổi/trả còn nút "Hoàn tất phiếu" dù xác nhận đã hoàn tất ngay | **Bỏ** nút | P6 |
-| KI-18 | Phương thức mặc định khác nhau: thanh toán = Tiền mặt, quyết toán đổi/trả = Chuyển khoản | **Sửa**: mặc định Tiền mặt ở cả hai | P6 |
+| KI-16 | PLAN P8 từng ghi gọi "nhớ giá từ đơn" sau checkout | **Đã sửa PLAN** | — |
+| KI-17 | Màn kết quả đổi/trả còn nút "Hoàn tất phiếu" dù xác nhận đã hoàn tất ngay | **Bỏ** nút | P8 |
+| KI-18 | Phương thức mặc định khác nhau: thanh toán = Tiền mặt, quyết toán đổi/trả = Chuyển khoản | **Sửa**: mặc định Tiền mặt ở cả hai | P8 |
 | KI-19 | Chế độ "trả toàn bộ từ yêu cầu huỷ" có trong RPC, app không dùng | **Giữ trong DB, không dùng**; đơn đã thu tiền thì người dùng tự mở đổi/trả | — |
 | KI-20 | Lọc "Hôm nay / 7 ngày / 30 ngày" tính theo giờ thiết bị, mã đơn theo giờ VN | **Giữ nguyên** (thiết bị đặt giờ VN) | — |
 
@@ -2244,27 +2244,27 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 ### 9.1 Kiến trúc
 
-| Hiện tại | Sau refactor (P6) |
+| Hiện tại | Sau refactor (P8) |
 |---|---|
 | `Page → Cubit → orchestrator → ISalesModule → Handler → Gateway → RPC` | `Page → Cubit → SalesDraftRepository / SalesOrderRepository / SalesPaymentRepository / ReturnExchangeRepository / ReceiptRepository → RPC` |
-| Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `PriceRuleRepository` (P5), `ProductRepository` (P3), `PartnerRepository` (P4) |
+| Lookups gọi `IPricingModule`, `ICatalogModule`, `IPartnerModule` | Dùng lại `PriceRuleRepository` (P6), `ProductRepository` (P5), `PartnerRepository` (P4) |
 | Rule Aggregate trong `modules/sales/domain` | Hàm thuần (tính tổng, cộng dồn dòng, kiểm vượt tổng, tiền thừa), giữ test cũ |
 | Sự kiện `sales_order_finalized.v1` → messaging worker phát HĐĐT | Trigger trên `sales.sales_orders` khi đơn Hoàn tất ghi việc vào `einvoice.internal_commands`; Edge Function `einvoice-processor` xử lý (TH-08 KI-19, KI-20) |
 | Trigger lịch sử giao dịch đối tác | Trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (PLAN 4.3, TH-03 KI-02) |
 
-### 9.2 Theo PR của P6
+### 9.2 Theo PR của P8
 
 | PR | Nội dung | Mục |
 |---|---|---|
-| 6.1 | Soạn đơn + nháp; bỏ "Nợ cũ" | EP-01, KI-07 |
-| 6.2 | Thanh toán + hoàn tất; sửa `finalize_sales_order`, `precheck_sales_order_checkout` (giá, khách, ngày hẹn) | EP-02, KI-02/03/04 |
-| 6.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** | EP-03, EP-04, KI-06/07/09 |
-| 6.4 | Phiếu bán hàng / phiếu đổi trả (PDF, in, chia sẻ) | US-02.6, 03.6, 06.7 |
-| 6.5 | Huỷ + đổi/trả; sửa `confirm_return_exchange` (ngày hẹn); bỏ QR mẫu, nút "Hoàn tất phiếu", code chính sách trống; mặc định Tiền mặt | EP-05, EP-06, KI-05/08/10/17/18 |
+| 8.1 | Soạn đơn + nháp; bỏ "Nợ cũ" | EP-01, KI-07 |
+| 8.2 | Thanh toán + hoàn tất; sửa `finalize_sales_order`, `precheck_sales_order_checkout` (giá, khách, ngày hẹn) | EP-02, KI-02/03/04 |
+| 8.3 | Tra cứu + chi tiết; `search_sales_orders` bỏ dấu; bỏ "Xem công nợ"; **thêm Thu tiền** | EP-03, EP-04, KI-06/07/09 |
+| 8.4 | Phiếu bán hàng / phiếu đổi trả (PDF, in, chia sẻ) | US-02.6, 03.6, 06.7 |
+| 8.5 | Huỷ + đổi/trả; sửa `confirm_return_exchange` (ngày hẹn); bỏ QR mẫu, nút "Hoàn tất phiếu", code chính sách trống; mặc định Tiền mặt | EP-05, EP-06, KI-05/08/10/17/18 |
 
 ### 9.3 Kiểm thử bắt buộc
 
-**6 kịch bản đầu–cuối (điều kiện xong P6).** Sau mỗi kịch bản chạy các bất biến mục 3.7.
+**6 kịch bản đầu–cuối (điều kiện xong P8).** Sau mỗi kịch bản chạy các bất biến mục 3.7.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|

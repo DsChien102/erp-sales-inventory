@@ -2104,24 +2104,24 @@ Thông điệp dưới đây là **chuẩn**. 🔧 Hiện nhiều lỗi hiện t
 
 | Mã | Vấn đề | Quyết định | Phase |
 |---|---|---|---|
-| KI-01 | `actor_id` của biến động tồn và lịch sử sản phẩm ghi `tenant_id` thay vì người thao tác (`adjust_basic_stock`, `set_basic_stock_quantity_base`) | **Sửa**: ghi `auth.uid()` (BR-22) | P3 |
-| KI-02 | `adjust_basic_stock`: `p_expected_quantity` tuỳ chọn, gọi thiếu thì ghi đè không kiểm | **Sửa**: bắt buộc (BR-23) | P3 |
+| KI-01 | `actor_id` của biến động tồn và lịch sử sản phẩm ghi `tenant_id` thay vì người thao tác (`adjust_basic_stock`, `set_basic_stock_quantity_base`) | **Sửa**: ghi `auth.uid()` (BR-22) | P5 |
+| KI-02 | `adjust_basic_stock`: `p_expected_quantity` tuỳ chọn, gọi thiếu thì ghi đè không kiểm | **Sửa**: bắt buộc (BR-23) | P5 |
 | KI-03 | `get_product_stock_history` không màn nào dùng; trả 8 ký tự UUID thay tên | **Giữ trong DB, không dùng.** Lịch sử tồn xem ở SP-22 (mục "Cập nhật tồn kho"). Theme 7 thay toàn bộ | — |
-| KI-04 | SP-10 có câu "Ở Growth, tồn được đọc từ module Kho (read-only)" | **Sửa** câu (US-05.2 FR-03) | P3 |
-| KI-05 | Điều chỉnh về đúng số đang có vẫn ghi biến động chênh lệch 0 | **Sửa**: chặn `stock_unchanged` (BR-26) | P3 |
-| KI-06 | `set_basic_stock_quantity_base` ghi đè tồn không kiểm version | **Sửa**: chỉ khi chưa có hồ sơ tồn, ngược lại `stock_already_initialized` (BR-25) | P3 |
-| KI-07 | SP-10 gọi module từ page, không cubit; nhiều lỗi catalog hiện chuỗi exception thô hoặc tiếng Anh | **Sửa**: cubit + repository; ánh xạ lỗi theo 6.4 | P3 |
-| KI-08 | `_product_unit_has_sales_transaction_usage` là stub luôn `false`: đơn vị đã bán vẫn xoá được nếu chưa có khung giá | **Sửa**: kiểm `sales.sales_order_lines`, `sales.sales_order_draft_lines`, `sales.return_exchange_order_lines` (BR-13) | P6 (cần bảng sales; làm cùng PR 6.1) |
+| KI-04 | SP-10 có câu "Ở Growth, tồn được đọc từ module Kho (read-only)" | **Sửa** câu (US-05.2 FR-03) | P5 |
+| KI-05 | Điều chỉnh về đúng số đang có vẫn ghi biến động chênh lệch 0 | **Sửa**: chặn `stock_unchanged` (BR-26) | P5 |
+| KI-06 | `set_basic_stock_quantity_base` ghi đè tồn không kiểm version | **Sửa**: chỉ khi chưa có hồ sơ tồn, ngược lại `stock_already_initialized` (BR-25) | P5 |
+| KI-07 | SP-10 gọi module từ page, không cubit; nhiều lỗi catalog hiện chuỗi exception thô hoặc tiếng Anh | **Sửa**: cubit + repository; ánh xạ lỗi theo 6.4 | P5 |
+| KI-08 | `_product_unit_has_sales_transaction_usage` là stub luôn `false`: đơn vị đã bán vẫn xoá được nếu chưa có khung giá | **Sửa**: kiểm `sales.sales_order_lines`, `sales.sales_order_draft_lines`, `sales.return_exchange_order_lines` (BR-13) | P8 (cần bảng sales; làm cùng PR 8.1) |
 | KI-09 | Kiểm tra trước khi xoá sản phẩm chỉ xét tồn | **Giữ nguyên** (BR-51): xoá mềm không mất dữ liệu đơn; nháp bị chặn khi thanh toán. Thay quyết định "Sửa" của bản 2.1 | — |
-| KI-10 | Giới hạn 8 ảnh chỉ kiểm ở app | **Sửa**: `update_product_images` và `create_product` chặn > 8 (BR-04) | P3 |
+| KI-10 | Giới hạn 8 ảnh chỉ kiểm ở app | **Sửa**: `update_product_images` và `create_product` chặn > 8 (BR-04) | P5 |
 | KI-11 | Readiness không xét `business_status` | **Giữ nguyên**: "bán được" = `active` **và** `is_ready_to_sell` | — |
-| KI-12 | Chip "Còn hàng" / "Hết hàng" lọc ở client trên các trang đã tải; số đếm chỉ có khi tải hết | **Sửa**: thêm tham số lọc tồn vào `search_products` và đếm ở server (US-01.3 FR-03) | P3 |
-| KI-13 | Chip "Đã xóa" bị comment: không có đường vào sản phẩm đã xoá nên "Khôi phục" không dùng được | **Sửa**: bật lại chip (`p_business_statuses = {soft_deleted}`) | P3 |
-| KI-14 | UI gọi "Giá vốn cơ sở", "Giá vốn mới", "Thiết lập giá vốn", "Xem Giá vốn" cho giá cơ sở; dễ nhầm với giá vốn của Theme 7 | **Sửa**: thống nhất "Giá cơ sở" | P3 |
-| KI-15 | Ô "Ghi chú" ở SP-11 và SP-19 không được lưu (RPC không có tham số) | **Bỏ** hai ô | P3 |
-| KI-16 | Code chết / chữ thừa ở giá: sheet "Xác nhận cảnh báo giá" (`WARNING_REQUIRE_ACK` không bao giờ phát sinh), câu "Thay đổi có áp dụng cho cửa hàng và kênh phân phối.", lỗi chính tả "khung giá của hàng" | **Bỏ / sửa** | P3 |
-| KI-17 | SP-09 ghi "Tuỳ chọn. Khi đã có giao dịch, không nên đổi." trong khi không đổi được | **Sửa** câu (US-04.1 FR-04) | P3 |
-| KI-18 | SP-21 còn toast "Chức năng sẽ được hoàn thiện ở màn sau." / "Tính năng (…) đang được xây dựng." | **Bỏ** code chết | P3 |
+| KI-12 | Chip "Còn hàng" / "Hết hàng" lọc ở client trên các trang đã tải; số đếm chỉ có khi tải hết | **Sửa**: thêm tham số lọc tồn vào `search_products` và đếm ở server (US-01.3 FR-03) | P5 |
+| KI-13 | Chip "Đã xóa" bị comment: không có đường vào sản phẩm đã xoá nên "Khôi phục" không dùng được | **Sửa**: bật lại chip (`p_business_statuses = {soft_deleted}`) | P5 |
+| KI-14 | UI gọi "Giá vốn cơ sở", "Giá vốn mới", "Thiết lập giá vốn", "Xem Giá vốn" cho giá cơ sở; dễ nhầm với giá vốn của Theme 7 | **Sửa**: thống nhất "Giá cơ sở" | P5 |
+| KI-15 | Ô "Ghi chú" ở SP-11 và SP-19 không được lưu (RPC không có tham số) | **Bỏ** hai ô | P5 |
+| KI-16 | Code chết / chữ thừa ở giá: sheet "Xác nhận cảnh báo giá" (`WARNING_REQUIRE_ACK` không bao giờ phát sinh), câu "Thay đổi có áp dụng cho cửa hàng và kênh phân phối.", lỗi chính tả "khung giá của hàng" | **Bỏ / sửa** | P5 |
+| KI-17 | SP-09 ghi "Tuỳ chọn. Khi đã có giao dịch, không nên đổi." trong khi không đổi được | **Sửa** câu (US-04.1 FR-04) | P5 |
+| KI-18 | SP-21 còn toast "Chức năng sẽ được hoàn thiện ở màn sau." / "Tính năng (…) đang được xây dựng." | **Bỏ** code chết | P5 |
 | KI-19 | Script import dữ liệu cũ (v1–v3) dùng cột đã đổi tên | **Bỏ**; nhập hàng loạt ngoài phạm vi | P9 |
 | KI-20 | Spec cũ ghi một số kịch bản kiểm thử thất bại (sắp xếp nhóm bị reset, lọc theo trường bổ sung, readiness đa đơn vị…) | **Kiểm lại** trong checklist P0; lỗi còn thì sửa theo mục 2 | P0 |
 | KI-21 | Chế độ `advanced` (tồn từ kho), `costing_module` (giá từ giá vốn), trạng thái `ready_to_receive`, blocker `pending_*` có trong DB nhưng không dùng | **Giữ trong DB, không dùng**; Theme 7 quyết định | P11 |
@@ -2160,7 +2160,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 
 ### 9.1 Kiến trúc
 
-| Hiện tại | Sau refactor (P3) |
+| Hiện tại | Sau refactor (P5) |
 |---|---|
 | `Page → Cubit → ICatalogModule → Handler → Gateway → RPC` | `Page → Cubit → ProductRepository / MeasurementUnitRepository / CustomFieldRepository / ProductPriceRepository / InventoryRepository → RPC` |
 | SP-10 gọi module từ page | `StockAdjustmentCubit` + `InventoryRepository` |
@@ -2170,22 +2170,22 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 | Outbox `catalog.product.*` | Bỏ (không có nơi nghe) |
 | Trigger readiness, tìm kiếm, chuẩn hoá, tính lại khung giá | **Giữ nguyên** |
 | RPC `catalog.*` | **Giữ nguyên**, trừ các sửa ở 7.3 |
-| `search_sellable_products`, `resolve_sellable_barcode` | Đặt trong `ProductRepository` để P6 dùng lại |
+| `search_sellable_products`, `resolve_sellable_barcode` | Đặt trong `ProductRepository` để P8 dùng lại |
 
-### 9.2 Theo PR của P3
+### 9.2 Theo PR của P5
 
 | PR | Nội dung | Mục |
 |---|---|---|
-| 3.1 | Sản phẩm cốt lõi: SP-01…SP-08, SP-21, SP-22, vòng đời; bật chip "Đã xóa"; lọc tồn ở server; RPC ảnh chặn 8; bỏ toast chết ở checklist | EP-01, EP-02, EP-03, EP-08; KI-10/12/13/18 |
-| 3.2 | Đơn vị: SP-09; sửa câu đơn vị cơ sở | EP-04; KI-17 |
-| 3.3 | Trường bổ sung: SP-14…SP-17, SP-02 | EP-07 |
-| 3.4 | Giá: SP-11…SP-13, SP-18…SP-20; đổi "Giá vốn cơ sở" → "Giá cơ sở"; bỏ ô ghi chú, sheet cảnh báo giá, chữ thừa | EP-06; KI-14/15/16 |
-| 3.5 | Inventory: SP-10 sang `features/inventory`; sửa `adjust_basic_stock`, `set_basic_stock_quantity_base` | EP-05; KI-01…KI-07 |
-| 6.1 (P6) | Kiểm đơn vị đã dùng trong sales khi xoá | KI-08 |
+| 5.1 | Sản phẩm cốt lõi: SP-01…SP-08, SP-21, SP-22, vòng đời; bật chip "Đã xóa"; lọc tồn ở server; RPC ảnh chặn 8; bỏ toast chết ở checklist | EP-01, EP-02, EP-03, EP-08; KI-10/12/13/18 |
+| 5.2 | Đơn vị: SP-09; sửa câu đơn vị cơ sở | EP-04; KI-17 |
+| 5.3 | Trường bổ sung: SP-14…SP-17, SP-02 | EP-07 |
+| 5.4 | Giá: SP-11…SP-13, SP-18…SP-20; đổi "Giá vốn cơ sở" → "Giá cơ sở"; bỏ ô ghi chú, sheet cảnh báo giá, chữ thừa | EP-06; KI-14/15/16 |
+| 5.5 | Inventory: SP-10 sang `features/inventory`; sửa `adjust_basic_stock`, `set_basic_stock_quantity_base` | EP-05; KI-01…KI-07 |
+| 8.1 (P8) | Kiểm đơn vị đã dùng trong sales khi xoá | KI-08 |
 
 ### 9.3 Kiểm thử bắt buộc
 
-**5 kịch bản đầu–cuối (điều kiện xong P3).** Sau mỗi kịch bản chạy các bất biến mục 3.5.
+**5 kịch bản đầu–cuối (điều kiện xong P5).** Sau mỗi kịch bản chạy các bất biến mục 3.5.
 
 | # | Kịch bản | Kỳ vọng chính |
 |---|---|---|
@@ -2210,7 +2210,7 @@ App **không có** các phần dưới đây: không màn, không nút, không t
 - Bật bắt buộc cho trường → sản phẩm thiếu trường chuyển `incomplete`; tạm tắt nhóm → hết blocker.
 - `upsert_custom_field` đổi kiểu trường có dữ liệu → `custom_field_type_change_blocked`.
 - `search_products('thuc an')` thấy "Thức ăn"; SKU tiền tố; 🔧 lọc tồn và số đếm đúng.
-- 🔧 Xoá đơn vị đã có trong dòng đơn bán → `product_conversion_unit_delete_blocked` (sau P6).
+- 🔧 Xoá đơn vị đã có trong dòng đơn bán → `product_conversion_unit_delete_blocked` (sau P8).
 
 **Widget / cubit test**
 

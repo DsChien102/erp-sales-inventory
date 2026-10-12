@@ -12,23 +12,15 @@ class FakeSessionRepository implements SessionRepository {
     this.failGetSession = false,
     this.failSetLastSelected = false,
     this.noTenants = false,
-    this.suspendedOnly = false,
-    this.platformAdmin = false,
   }) {
     _seed();
   }
 
   final FakeIamScenario scenario;
   final bool noTenants;
-  final bool suspendedOnly;
   bool failNextList = false;
   bool failGetSession;
   bool failSetLastSelected;
-
-  /// `has_platform_permission` trả `true` khi bật; `failHasPlatformPermission` làm RPC lỗi.
-  bool platformAdmin;
-  bool failHasPlatformPermission = false;
-  final List<String> platformPermissionChecks = [];
 
   String? lastSelectedTenantId;
   int switchCount = 0;
@@ -38,15 +30,6 @@ class FakeSessionRepository implements SessionRepository {
 
   final List<AccessibleTenant> _tenants = [];
   final Map<String, TenantContext> _contexts = {};
-
-  @override
-  Future<bool> hasPlatformPermission(String permission) async {
-    platformPermissionChecks.add(permission);
-    if (failHasPlatformPermission) {
-      throw const AppException(AppErrorCode.unknown);
-    }
-    return platformAdmin;
-  }
 
   /// `iam.has_permission`: trả `true` khi [permissionGranted] bật.
   bool permissionGranted = true;
@@ -84,8 +67,8 @@ class FakeSessionRepository implements SessionRepository {
         status: TenantContextStatus.invalidated,
         tenantId: 'org-001',
         tenantName: 'Thú y Minh Phát',
-        invalidationReason: TenantContextInvalidationReason.tenantSuspended,
-        blockedErrorCode: 'TENANT_SUSPENDED',
+        invalidationReason: TenantContextInvalidationReason.membershipRemoved,
+        blockedErrorCode: 'MEMBERSHIP_REMOVED',
       );
     }
     return _contexts[tenantId] ?? TenantContext.none;
@@ -128,13 +111,6 @@ class FakeSessionRepository implements SessionRepository {
     }
     final context = _contexts[targetTenantId];
     if (context == null || context.status != TenantContextStatus.valid) {
-      final tenant = _tenants.where((item) => item.id == targetTenantId).firstOrNull;
-      if (tenant?.status == TenantStatus.suspended) {
-        throw const AppException('TENANT_SUSPENDED');
-      }
-      if (tenant?.status == TenantStatus.closed) {
-        throw const AppException('TENANT_CLOSED');
-      }
       throw const AppException('TENANT_ACCESS_DENIED');
     }
     switchCount++;
@@ -154,15 +130,10 @@ class FakeSessionRepository implements SessionRepository {
   }
 
   void _seed() {
-    const minhPhat = _Seed('org-001', 'Thú y Minh Phát', 'Chủ cửa hàng', TenantStatus.active);
-    const minhTam = _Seed('org-002', 'Phòng khám Minh Tâm', 'Kế toán', TenantStatus.active);
-    const asc = _Seed(
-      'org-003',
-      'ASC Commerce',
-      'Nhân viên bán hàng',
-      TenantStatus.suspended,
-    );
-    const closed = _Seed('org-004', 'Closed Clinic', 'Nhân viên', TenantStatus.closed);
+    const minhPhat = _Seed('org-001', 'Thú y Minh Phát', 'Chủ cửa hàng');
+    const minhTam = _Seed('org-002', 'Phòng khám Minh Tâm', 'Kế toán');
+    const asc = _Seed('org-003', 'ASC Commerce', 'Nhân viên bán hàng');
+    const closed = _Seed('org-004', 'Closed Clinic', 'Nhân viên');
 
     final multi = <_Seed>[minhPhat, minhTam, asc];
     late final List<_Seed> seeds;
@@ -172,10 +143,6 @@ class FakeSessionRepository implements SessionRepository {
     switch (scenario) {
       case _ when noTenants:
         seeds = [];
-        current = null;
-        last = null;
-      case _ when suspendedOnly:
-        seeds = [asc];
         current = null;
         last = null;
       case FakeIamScenario.tenantsSingle:
@@ -204,44 +171,25 @@ class FakeSessionRepository implements SessionRepository {
           name: seed.name,
           code: AccessibleTenant.codeFor(seed.id),
           roleCode: seed.roleCode,
-          status: seed.status,
-          isOwner: seed.isOwner,
           isCurrent: seed.id == current,
         ),
       );
-      if (seed.status == TenantStatus.active) {
-        _contexts[seed.id] = TenantContext(
-          status: TenantContextStatus.valid,
-          tenantId: seed.id,
-          tenantName: seed.name,
-          roleLabel: seed.roleCode,
-          isOwner: seed.isOwner,
-          tenantStatus: seed.status,
-          permissions: const ['tenant.access'],
-        );
-      } else if (seed.status == TenantStatus.suspended || seed.status == TenantStatus.closed) {
-        final closedTenant = seed.status == TenantStatus.closed;
-        _contexts[seed.id] = TenantContext(
-          status: TenantContextStatus.invalidated,
-          tenantId: seed.id,
-          tenantName: seed.name,
-          tenantStatus: seed.status,
-          invalidationReason: closedTenant
-              ? TenantContextInvalidationReason.tenantClosed
-              : TenantContextInvalidationReason.tenantSuspended,
-          blockedErrorCode: closedTenant ? 'TENANT_CLOSED' : 'TENANT_SUSPENDED',
-        );
-      }
+      _contexts[seed.id] = TenantContext(
+        status: TenantContextStatus.valid,
+        tenantId: seed.id,
+        tenantName: seed.name,
+        roleLabel: seed.roleCode,
+        isOwner: false,
+        permissions: const ['tenant.access'],
+      );
     }
   }
 }
 
 final class _Seed {
-  const _Seed(this.id, this.name, this.roleCode, this.status, {this.isOwner = false});
+  const _Seed(this.id, this.name, this.roleCode);
 
   final String id;
   final String name;
   final String roleCode;
-  final TenantStatus status;
-  final bool isOwner;
 }

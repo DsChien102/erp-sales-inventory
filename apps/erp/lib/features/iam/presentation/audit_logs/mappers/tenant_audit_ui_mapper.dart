@@ -183,7 +183,6 @@ abstract final class TenantAuditUiMapper {
   static String _localizedSource(String source) {
     return switch (source.toLowerCase()) {
       'tenant_app' || 'erp' => 'Tenant App',
-      'platform_admin_app' || 'platform_admin' || 'admin' => 'Platform Admin App',
       'iam' => 'Hệ thống IAM',
       'worker' || 'system' => 'Hệ thống',
       _ => source,

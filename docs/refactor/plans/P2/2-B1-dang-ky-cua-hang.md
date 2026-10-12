@@ -24,7 +24,7 @@ Kèm theo:
 - Banner "Bổ sung hồ sơ pháp lý" (chỉ Owner).
 - Bật xác minh email bằng **OTP 6 số** trên Dev (2A.3), và sửa luồng **đăng ký từ lời mời** để chạy được khi đã bật xác minh.
 
-**Ngoài phạm vi** (để 2-B2 / P8): `email_jobs` + Edge Function `send-email` (2A.4); sửa `accept_invitation` (KI-02), FK `memberships.user_id` (KI-03), xoá `provisioning` / `pending_activation` / `create_tenant_onboarding` / `owner_activation` / màn readiness (KI-05); các KI giao diện (KI-06, 10–14); khu `/admin` và "Chuyển không gian" (P8). Cấu hình Auth trên **Prod để P10**.
+**Ngoài phạm vi** (để 2-B2 / P3): `email_jobs` + Edge Function `send-email` (2A.4); sửa `accept_invitation` (KI-02), FK `memberships.user_id` (KI-03), xoá `provisioning` / `pending_activation` / `create_tenant_onboarding` / `owner_activation` / màn readiness (KI-05); các KI giao diện (KI-06, 10–14); khu `/admin` và "Chuyển không gian" (P3). Cấu hình Auth trên **Prod để P10**.
 
 ## 2. Hiện trạng liên quan
 
@@ -186,7 +186,7 @@ Chuỗi UI lấy đúng TH-01 (US-01.1…01.4, US-02.4, màn 5.3, 5.4).
 
 ### Bước 10 — Test
 
-- `test/core/router/route_guard_test.dart`: bảng 2.3 (trừ dòng Platform Admin — P8): chưa đăng nhập ở `/signup`, `/verify-email` → ở lại; đã đăng nhập ở `/signup` → `/`; `hasNoOrganization` ở `/` → `/no-organization`; ở `/invitation` → ở lại; hết `hasNoOrganization` ở `/no-organization` → `/`.
+- `test/core/router/route_guard_test.dart`: bảng 2.3 (trừ dòng Platform Admin — P3): chưa đăng nhập ở `/signup`, `/verify-email` → ở lại; đã đăng nhập ở `/signup` → `/`; `hasNoOrganization` ở `/` → `/no-organization`; ở `/invitation` → ở lại; hết `hasNoOrganization` ở `/no-organization` → `/`.
 - `test/core/session/session_controller_test.dart`: fallback tổ chức đầu tiên (chọn được / chỉ có tổ chức bị tạm ngừng / rỗng).
 - `test/features/auth/logic/signup_cubit_test.dart`: mật khẩu 7 ký tự không qua bước 2; quay lại giữ dữ liệu; thiếu địa chỉ không gọi `signUpStore`; email đã có → `emailExists`.
 - `test/features/auth/logic/verify_email_cubit_test.dart`: mã sai → "Mã xác minh không đúng hoặc đã hết hạn."; gửi lại khoá 60 giây.

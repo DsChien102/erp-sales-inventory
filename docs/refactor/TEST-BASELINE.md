@@ -6,7 +6,7 @@
 
 **Tổng:** 41 package · 5688 đạt · **160 lỗi**
 
-> **Sau 8-D (2026-10-11):** 4 package IAM, `apps/admin` và `apps/messaging_worker` đã xoá — các hàng tương ứng dưới đây chỉ còn giá trị lịch sử. `tools/vet45_env` giữ nguyên 107 đạt / **1 lỗi có sẵn** (`config_init_test`: `ExampleGenerator` ghi `auth.env` khi `writeEnvCopies`, test kỳ vọng không có); `apps/erp` 1.494 đạt / 59 lỗi, đều nằm trong danh sách dưới đây.
+> **Sau 3-D (2026-10-11):** 4 package IAM, `apps/admin` và `apps/messaging_worker` đã xoá — các hàng tương ứng dưới đây chỉ còn giá trị lịch sử. `tools/vet45_env` giữ nguyên 107 đạt / **1 lỗi có sẵn** (`config_init_test`: `ExampleGenerator` ghi `auth.env` khi `writeEnvCopies`, test kỳ vọng không có); `apps/erp` 1.494 đạt / 59 lỗi, đều nằm trong danh sách dưới đây.
 
 | Package | Loại | Đạt | Lỗi |
 |---|---|---|---|

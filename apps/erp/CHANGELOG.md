@@ -18,7 +18,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - SG-06 / SG02-R02: màn kết quả bán hàng mở cùng `OrderEInvoiceSection` thay sheet placeholder.
 
 ### Changed
-
+- Tab Thêm không còn nhóm Quản trị nền tảng. Không còn màn tổ chức tạm ngừng / đã đóng hay tài khoản bị tạm ngừng. Mọi tổ chức đều chọn được.
 - Hub Người dùng & vai trò bỏ mục «Quyền sở hữu» và màn mức sẵn sàng. Mục Vai trò mở danh mục vai trò thật, không còn đếm «N quyền».
 - Đổi vai trò bỏ «Quyền được thêm / bị gỡ»: vai trò chỉ là nhãn công việc.
 - Lọc thành viên theo 4 vai trò cửa hàng. Chi tiết thành viên không còn ngày giờ giả và dòng «Phiên bản dữ liệu».
@@ -38,7 +38,6 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Đặt lại mật khẩu khi đang đăng nhập thì đăng xuất về `/login` với banner thành công.
 - Đăng ký lại cùng email chưa xác minh: sau mã OTP, mật khẩu vừa nhập được ghi lại và tên cửa hàng lấy từ dữ liệu đã tạo.
 - Gửi lại mã OTP trước 60 giây hiện đếm ngược, không báo gửi quá nhiều yêu cầu.
-- Lời mời vào tổ chức đang tạm ngừng báo «Tổ chức đang tạm ngừng, chưa thể tham gia.»
 - HĐĐT: nút Phát hành hóa đơn điện tử tắt khi readiness có `PROVIDER_NOT_CONNECTED` (chưa kết nối MISA). Nút Xem trước giữ điều kiện riêng.
 - HĐĐT: chỉ cho phát hành lại khi projection `failed` có action issue/retry; khóa tap khi processing hoặc failed không retry được; widget test chứng minh auto progress → failure → retry.
 - HĐĐT màn kết quả bán hàng: hiển thị `OrderEInvoiceSection` live ngay trên hàng chứng từ (SG02-R02), bỏ card “Chưa phát hành” cố định và sheet mở khi bấm.
@@ -54,6 +53,7 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Vào app: khi tổ chức hợp lệ, chờ thiết lập cửa hàng và kho mặc định trước khi vào trang chủ. Nếu lỗi, có thể thử lại hoặc chọn tổ chức khác.
 
 ### Internal
+- IAM: bỏ Platform Admin, cột `iam.tenants.status`, trạng thái tài khoản, RPC tạm ngừng / đóng tổ chức và chuyển Owner (3-E). Cần `supabase db reset` (hỏi trước khi `--linked`).
 - `accept_invitation` kích hoạt lại membership đã bị loại, không insert trùng. Job email `UNKNOWN_TEMPLATE` chuyển `failed` ngay. Nằm trong migration `20260916006` (đã gộp); cần `20261009003` nếu chưa đẩy.
 
 ### Fixed
@@ -76,15 +76,8 @@ Ship unit: this app only. Internal modules are not versioned separately — note
 - Đổi/trả: trả hàng trên đơn chưa thu không còn hiện «Không phát sinh chênh lệch»; phiếu PDF tách «Giảm nợ đơn» và «Đã hoàn» (bỏ nhãn cấn trừ sai).
 - Phiếu bán hàng: sau đổi/trả / thu thêm / hoàn tiền, lần mở phiếu kế tiếp tạo phiếu mới thay vì đọc bản chụp cũ (cần chạy SQL tay hoặc reset DB).
 - Checkout: toast «Paid amount cannot exceed the checkout total.» → tiếng Việt.
-- ERP: khi tài khoản bị tạm ngừng (đang dùng hoặc mở lại với phiên cũ) → toast đúng lý do + đăng xuất về `/login`; màn chặn dự phòng «Tài khoản bị tạm ngừng».
 - Tạo đơn hàng: empty state «Chưa có sản phẩm» không còn overflow khi mở ghi chú đơn (bàn phím).
 - Switch tenant: lỗi thiếu active store (`CONTEXT_INVALID`) không còn bị gói thành `SYSTEM_ERROR`.
-- Đăng nhập: tài khoản bị tạm ngừng bị chặn với thông báo rõ ràng.
-- ERP tự về màn chặn khi tổ chức tạm ngừng/đã đóng (kèm thông báo đúng lý do).
-- ERP: mọi tab hiện màn chặn khi tổ chức tạm ngừng/đã đóng; header xoá tên org; giữ mã `TENANT_CLOSED` cho copy «đã đóng».
-- ERP: tab Khác vẫn mở khi org bị chặn (đăng xuất / tài khoản cá nhân); badge «Chủ sở hữu» trên Tài khoản của tôi.
-- ERP: từ trang con khi org bị tạm ngừng/đóng → toast + về dashboard (sửa `listenWhen` sau bước `loading`).
-- ERP: tab Khác khi org bị chặn không còn gọi RPC readiness/session (hết log `SEVERE`); mục «Người dùng & vai trò» vẫn hiện nhưng vô hiệu.
 - ERP: danh sách thành viên không còn badge «Chủ sở hữu» cạnh tên (badge chỉ còn trên Tài khoản của tôi).
 
 ### Internal

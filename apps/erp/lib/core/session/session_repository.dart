@@ -52,17 +52,6 @@ class SessionRepository {
     return TenantContext.fromJson(_asMap(result));
   }
 
-  /// `iam.has_platform_permission`: chỉ nhận mã bắt đầu `platform.`; người bị
-  /// tạm ngừng luôn nhận `false`.
-  Future<bool> hasPlatformPermission(String permission) async {
-    final result = await _rpc.call(
-      'iam',
-      'has_platform_permission',
-      params: <String, dynamic>{'p_permission': permission},
-    );
-    return result == true;
-  }
-
   /// `iam.has_permission`: quyền nghiệp vụ của người dùng trong một tổ chức.
   Future<bool> hasPermission(String tenantId, String permission) async {
     final result = await _rpc.call(
