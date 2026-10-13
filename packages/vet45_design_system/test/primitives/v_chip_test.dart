@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -177,11 +178,10 @@ void main() {
       );
 
       final labelHeight = tester.getSize(find.text('Tag')).height;
-      expect(tester.getSize(find.byType(VIcon)).height, lessThanOrEqualTo(labelHeight));
-      expect(
-        tester.getSize(find.byIcon(Icons.close)).height,
-        lessThanOrEqualTo(labelHeight),
-      );
+      for (final icon in find.byType(VIcon).evaluate()) {
+        expect(tester.getSize(find.byWidget(icon.widget)).height,
+            lessThanOrEqualTo(labelHeight));
+      }
       expect(labelHeight, lineHeight);
     });
 
@@ -197,13 +197,97 @@ void main() {
         ),
       );
 
-      final removeButton = find.byIcon(Icons.close);
-      expect(removeButton, findsOneWidget);
-      expect(tester.widget<Icon>(removeButton).color, colors.info);
+      final removeIcon = find.byWidgetPredicate(
+        (w) => w is VIcon && w.icon == VIcons.close,
+      );
+      expect(removeIcon, findsOneWidget);
+      expect(tester.widget<VIcon>(removeIcon).color, colors.info);
 
-      await tester.tap(removeButton);
+      await tester.tap(removeIcon);
       await tester.pump();
       expect(removed, 1);
+    });
+
+    group('touch target', () {
+      Widget host(Widget chip) => wrap(Align(alignment: Alignment.topLeft, child: chip));
+
+      testWidgets('onRemove: layout box is 44 high, drawn chip keeps its size',
+          (tester) async {
+        await tester.pumpWidget(host(VChip(label: 'Tag', onRemove: () {})));
+        final chipBox = tester.getSize(find.byType(VChip));
+        final drawn = tester.getSize(
+          find
+              .descendant(of: find.byType(VChip), matching: find.byType(Container))
+              .first,
+        );
+
+        expect(chipBox.height, VSpacing.minTouchTarget);
+        expect(drawn.height, lessThan(VSpacing.minTouchTarget));
+      });
+
+      testWidgets('no onRemove: chip size is unchanged', (tester) async {
+        await tester.pumpWidget(host(const VChip(label: 'Tag')));
+        expect(
+          tester.getSize(find.byType(VChip)).height,
+          lessThan(VSpacing.minTouchTarget),
+        );
+      });
+
+      testWidgets('tail 44×44 region calls onRemove, rest calls onTap',
+          (tester) async {
+        var taps = 0;
+        var removed = 0;
+        await tester.pumpWidget(
+          host(
+            VChip(
+              label: 'Tag',
+              onTap: () => taps++,
+              onRemove: () => removed++,
+            ),
+          ),
+        );
+        final rect = tester.getRect(find.byType(VChip));
+
+        // 20px from the right edge: beyond the icon's left side but inside 44.
+        await tester.tapAt(Offset(rect.right - 40, rect.center.dy));
+        expect(removed, 1);
+        expect(taps, 0);
+
+        await tester.tapAt(Offset(rect.left + 6, rect.center.dy));
+        expect(removed, 1);
+        expect(taps, 1);
+      });
+
+      testWidgets('disabled chip ignores remove', (tester) async {
+        var removed = 0;
+        await tester.pumpWidget(
+          host(VChip(label: 'Tag', enabled: false, onRemove: () => removed++)),
+        );
+        final rect = tester.getRect(find.byType(VChip));
+        await tester.tapAt(Offset(rect.right - 10, rect.center.dy));
+        expect(removed, 0);
+      });
+
+      testWidgets('remove control has a named button role', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(VChip(label: 'Tag', onRemove: () {})));
+
+        final node = tester.getSemantics(find.bySemanticsLabel('Xoá Tag'));
+        expect(node.label, 'Xoá Tag');
+        expect(node.flagsCollection.isButton, isTrue);
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+        handle.dispose();
+      });
+
+      testWidgets('meets iOS tap target and labelled guidelines', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(VChip(label: 'Tag', onTap: () {}, onRemove: () {})),
+        );
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        handle.dispose();
+      });
     });
   });
 }

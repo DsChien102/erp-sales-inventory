@@ -9,7 +9,7 @@
 > **Thay thế:** bản 3.0 (2026-10-06, cùng phạm vi, ít chi tiết hơn), bản 2.0 (luồng cũ qua 2 app), `Theme 1_ Tổ chức & người dùng.md` (v1), `docs/themes/TH-01-organization-users/`.
 > **Nguồn đối chiếu:**
 > - DB: schema `iam`, migration `20260811*` (vòng đời, mời, đặt lại mật khẩu, chuẩn hoá vai trò Owner), `20260820*`, `20260826003`, `20260916005`–`006`, `20261009*` (đăng ký, email).
-> - App: `apps/erp/lib/features/{auth,iam,tenant_context}` (22 trang); `apps/admin` (sẽ gộp); [SCOPE.md](../refactor/SCOPE.md) mục 3.4–3.5, 4.
+> - App: `apps/erp/lib/features/{auth,iam,tenant_context}` (22 trang); [SCOPE.md](../refactor/SCOPE.md) mục 3.4–3.5, 4.
 >
 > **Cách đọc:** mục 1–3 là mô hình chung và dữ liệu; mục 4 chia theo epic → user story (bối cảnh, FR, BR, AC, EC, kịch bản Gherkin); mục 5 đặc tả màn hình; mục 6 RPC, email, lỗi; mục 7 phân quyền và vấn đề đã biết; mục 8 phần bị bỏ và ngoài phạm vi; mục 9 kế hoạch refactor và kiểm thử; mục 10 thuật ngữ.
 
@@ -159,7 +159,7 @@ Số BR giữ từ bản 3.0.
 
 | Mã | Quy tắc | Nơi thực thi |
 |---|---|---|
-| BR-01 | Tổ chức **chỉ** được tạo qua "Đăng ký cửa hàng mới" ở màn đăng nhập (`/signup`, khi chưa đăng nhập). Trong app và ở mục Quản trị nền tảng không có chỗ nào tạo tổ chức | Router guard; không có RPC tạo tổ chức cho client |
+| BR-01 | Tổ chức **chỉ** được tạo qua "Đăng ký cửa hàng mới" ở màn đăng nhập (`/signup`, khi chưa đăng nhập). Trong app không có chỗ nào tạo tổ chức | Router guard; không có RPC tạo tổ chức cho client |
 | BR-02 | Bước 1 – Tài khoản: họ, tên, email, mật khẩu bắt buộc; SĐT tuỳ chọn | App |
 | BR-03 | Bước 2 – Cửa hàng: tên cửa hàng, SĐT liên hệ, địa chỉ (tỉnh/thành, phường/xã, chi tiết) bắt buộc. Email liên hệ tự điền bằng email tài khoản; tên hiển thị = tên cửa hàng. **Không hỏi** hồ sơ pháp lý / MST | App, trigger kiểm lại |
 | BR-04 | Bấm "Tạo cửa hàng" gọi `auth.signUp` với metadata `profile` và `signup_tenant`. Tổ chức **chưa** được tạo ở bước này | App |
@@ -175,8 +175,8 @@ Số BR giữ từ bản 3.0.
 | Mã | Quy tắc |
 |---|---|
 | BR-11 | Múi giờ `Asia/Ho_Chi_Minh` và tiền tệ `VND` do server gán; không sửa được |
-| BR-12 | Tổ chức `suspended` / `closed`: `has_permission` ném `TENANT_SUSPENDED` / `TENANT_CLOSED`. App hiện màn thông báo trạng thái, cho chọn tổ chức khác hoặc đăng xuất |
-| BR-13 | Tạm ngừng và đóng tổ chức bắt buộc nhập lý do; ghi `status_reason`, `status_changed_by` và nhật ký nền tảng. Khôi phục **không** nhập lý do (RPC `restore_platform_tenant` không nhận lý do; nhật ký nền tảng vẫn ghi người thực hiện, 2026-10-11). Chỉ khôi phục được từ `suspended`; `closed` là trạng thái cuối |
+| BR-12 | ~~Tổ chức tạm ngừng / đã đóng~~ — bỏ (3-E, 2026-10-12): tổ chức không có trạng thái, luôn hoạt động |
+| BR-13 | ~~Lý do tạm ngừng / đóng tổ chức~~ — bỏ (3-E, 2026-10-12) |
 | BR-14 | Chưa có hồ sơ pháp lý → hiện **banner nhắc** ở trang chủ và Hồ sơ tổ chức (không chặn) 🆕 |
 
 **Hồ sơ pháp lý**
@@ -290,7 +290,7 @@ Bị bỏ khi refactor: `onboarding_operations`, `owner_activations`, outbox / i
 
 **`tenant_invitations`**: `id`, `tenant_id`, `invitee_email`, `initial_role_id`, `given_name`, `family_name`, `phone`, `status`, `token_hash`, `invited_by_membership_id`, `accepted_membership_id`, `expires_at`, `last_sent_at`, `status_reason`, `status_changed_at`, `version`, `created_at`, `updated_at`.
 
-**`platform_user_profiles`**: `user_id`, `email`, `email_verified`, `status`, `given_name`, `family_middle_name`, `phone_number`, `avatar_reference`, `last_login_at`, `version`, `created_at`, `updated_at`.
+**`platform_user_profiles`**: `user_id`, `email`, `email_verified`, `given_name`, `family_middle_name`, `phone_number`, `avatar_reference`, `last_login_at`, `version`, `created_at`, `updated_at`.
 
 **`stores`**: `id`, `tenant_id`, `code`, `display_name`, `status` (`active`/`inactive`), `created_at`.
 
@@ -311,7 +311,7 @@ Vai trò `manager` (Quản lý) đã bị xoá ở `20260811024`.
 
 | # | Bất biến |
 |---|---|
-| I-01 | Mỗi tổ chức chưa `closed` có đúng 1 membership `is_owner = true`, đang hoạt động |
+| I-01 | Mỗi tổ chức có đúng 1 membership `is_owner = true`, đang hoạt động |
 | I-02 | Mỗi người dùng là Owner của tối đa 1 tổ chức |
 | I-03 | `unique(tenant_id, user_id)` trên `memberships` |
 | I-04 | Mỗi tổ chức có ≥ 1 cửa hàng `active` |
@@ -474,7 +474,6 @@ Scenario: SC-02 — Chưa xác minh thì chưa có tổ chức
 |---|---|
 | Sai email / mật khẩu | "Email hoặc mật khẩu không chính xác." |
 | Email chưa xác minh | 🆕 chuyển `/verify-email` (hiện báo "Email chưa được xác thực hoặc kích hoạt.") |
-| Tài khoản bị tạm ngừng | "Tài khoản bị tạm ngừng — Tài khoản của bạn đã bị tạm ngừng. Vui lòng liên hệ quản trị viên." |
 | Mất mạng | "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng." |
 | Phiên lỗi | "Phiên đăng nhập không hợp lệ." |
 
@@ -484,15 +483,12 @@ Scenario: SC-02 — Chưa xác minh thì chưa có tổ chức
 
 **Tiêu chí nghiệm thu**
 
-- AC-01: Tài khoản bị tạm ngừng không vào được, kể cả khi mật khẩu đúng.
-- AC-02: Đăng nhập lại mở tổ chức chọn gần nhất nếu còn hợp lệ.
+- AC-01: Đăng nhập lại mở tổ chức chọn gần nhất nếu còn hợp lệ.
 
 #### US-02.2 — Định tuyến sau đăng nhập 🆕
 
 - FR-01: Theo bảng 2.3.
-- FR-02: Platform Admin: tab Thêm có thêm nhóm "Quản trị nền tảng" ▸ "Tổ chức"; không có khu riêng, không có "Chuyển không gian".
-- FR-03: Platform Admin không có membership: `/no-organization` có thêm nút "Quản trị nền tảng" (mở `/more/platform/organizations`).
-- AC-01: Người thường gõ `/more/platform/...` → về `/` (guard), RPC vẫn chặn (BR-60).
+- FR-02: Mọi người dùng cùng một bố cục; không có khu quản trị nền tảng (3-E).
 
 **Kịch bản**
 
@@ -504,11 +500,6 @@ Scenario: SC-01 — Nhân viên đã bị loại
   When tôi đăng nhập
   Then tôi thấy "Bạn chưa thuộc tổ chức nào"
   And tôi chỉ có "Nhập mã lời mời" và "Đăng xuất"
-
-Scenario: SC-02 — Tổ chức bị tạm ngừng
-  Given tổ chức duy nhất của tôi đang tạm ngừng
-  When tôi đăng nhập
-  Then tôi thấy "Thú y An Phát đang tạm ngừng. Bạn không thể truy cập dữ liệu của tổ chức này."
 ```
 
 #### US-02.3 — Quên mật khẩu
@@ -557,7 +548,6 @@ Scenario: SC-02 — Tổ chức bị tạm ngừng
 | `INVITATION_EXPIRED` | 🔧 "Mã lời mời đã hết hạn. Liên hệ người gửi để nhận mã mới." |
 | `INVITATION_REVOKED` | "Lời mời đã bị thu hồi và không thể tiếp nhận." |
 | `INVITATION_ALREADY_USED` | "Lời mời đã được sử dụng và không thể tiếp nhận." |
-| `TENANT_SUSPENDED` | "Tổ chức đang tạm ngừng, chưa thể tham gia." |
 | Lỗi mạng | "Không thể xác thực mã. Kiểm tra kết nối và thử lại." |
 
 - FR-04: Chữ "mã kích hoạt" 🔧 đổi thành "mã lời mời" để thống nhất (KI-13).
@@ -572,6 +562,7 @@ Scenario: SC-02 — Tổ chức bị tạm ngừng
 - FR-02: Kiểm: "Vui lòng nhập họ và tên đệm", "Vui lòng nhập tên", "Vui lòng nhập lại mật khẩu", "Mật khẩu xác nhận không khớp".
 - FR-03: Email đã có tài khoản → đăng nhập đúng email đó; sai email → "Email không khớp với lời mời." (`INVITATION_EMAIL_MISMATCH`).
 - FR-04: Không có bước "Cửa hàng" (BR-45).
+- FR-05: 🆕 Nhân viên chưa có tài khoản chỉ nhập **mã lời mời 8 ký tự**: "Xác nhận" → tạo tài khoản đã xác minh và nhận lời mời trong một lần (Edge Function `invitation-signup`), **không có bước nhập mã xác minh 6 số**. Mã lời mời gửi tới đúng email được mời nên đã chứng minh chủ email. Xong → màn kết quả → `/login`; đăng nhập bằng mật khẩu vừa đặt.
 
 **Quy tắc:** BR-42, BR-45, BR-47, BR-65.
 
@@ -618,7 +609,7 @@ Scenario: SC-02 — Mời lại người đã bị loại
 
 **Yêu cầu chức năng**
 
-- FR-01: Trang chủ ▸ bấm tên tổ chức → sheet "Chọn tổ chức": ô "Tìm theo tên hoặc mã tổ chức"; mỗi dòng tên + vai trò; tổ chức tạm ngừng / đã đóng hiện mờ kèm " · Tạm ngừng" / " · Đã đóng".
+- FR-01: Trang chủ ▸ bấm tên tổ chức → sheet "Chọn tổ chức": ô "Tìm theo tên hoặc mã tổ chức"; mỗi dòng tên + vai trò.
 - FR-02: Chọn → "Chuyển sang `<tên>`? — Dữ liệu và quyền truy cập sẽ được tải lại theo tổ chức đã chọn." ("Quay lại" / "Chuyển tổ chức") → `switch_tenant_context` → "Đang chuyển tổ chức — Đang tải dữ liệu và quyền truy cập của `<tên>`." → "Đã chuyển sang `<tên>`."
 - FR-03: Lỗi → "Không thể chuyển sang `<tên>`."; thiếu cửa hàng hoạt động → `CONTEXT_INVALID`.
 - FR-04: Không có nút "Tạo tổ chức" (BR-01).
@@ -627,14 +618,14 @@ Scenario: SC-02 — Mời lại người đã bị loại
 **Tiêu chí nghiệm thu**
 
 - AC-01: Sau khi chuyển, mọi màn nghiệp vụ hiện dữ liệu của tổ chức mới; không còn dữ liệu cũ trong bộ nhớ.
-- AC-02: Không chọn được tổ chức tạm ngừng / đã đóng.
+- AC-02: Mọi tổ chức có membership hoạt động đều chọn được.
 
 #### US-04.2 — Mất quyền khi đang dùng
 
 - FR-01: Bị loại khỏi tổ chức đang dùng, hoặc không còn membership hoạt động → tải lại session. Còn tổ chức khác thì vào tổ chức đó; hết thì `/no-organization` ("Bạn chưa thuộc tổ chức nào").
 - FR-02: Bị tạm ngừng membership → cùng đường với FR-01 (`PERMISSION_DENIED` rồi tải lại session).
 
-**Quy tắc:** BR-12, BR-34, BR-54.
+**Quy tắc:** BR-34, BR-54.
 
 **Tiêu chí nghiệm thu**
 
@@ -826,7 +817,7 @@ Scenario: SC-02 — Không loại được Owner
 - FR-02: Mỗi mục: hoạt động, người thực hiện, thời điểm, đối tượng, kết quả (Thành công / Lỗi / Bị chặn).
 - FR-03: Chi tiết "Chi tiết hoạt động": thời điểm, người thực hiện (hoặc "Không còn thông tin người thực hiện"), đối tượng, "Dữ liệu thay đổi" (Trước / Sau theo trường), "Thông tin truy vết" (Mã theo dõi, "Sao chép mã theo dõi"); dữ liệu nhạy cảm → "[Đã che theo chính sách]".
 - FR-04: Rỗng → "Chưa có hoạt động quản trị — Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây."; lọc không ra → "Không có hoạt động phù hợp" + "Xóa bộ lọc"; không tồn tại → "Không tìm thấy hoạt động — Nhật ký không tồn tại hoặc không thuộc tổ chức hiện tại."
-- FR-05: Ghi cho: đăng ký tổ chức, sửa hồ sơ, hồ sơ pháp lý, mời / gửi lại / thu hồi, chấp nhận lời mời, đổi vai trò, tạm ngừng / kích hoạt lại / loại, thay đổi trạng thái tổ chức, chuyển Owner.
+- FR-05: Ghi cho: đăng ký tổ chức, sửa hồ sơ, hồ sơ pháp lý, mời / gửi lại / thu hồi, chấp nhận lời mời, đổi vai trò, tạm ngừng / kích hoạt lại / loại thành viên.
 
 **Quy tắc:** I-07.
 
@@ -861,63 +852,7 @@ Scenario: SC-02 — Không loại được Owner
 
 ### 4.10 EP-09 — Quản trị nền tảng — bỏ (2026-10-12, 3-E)
 
-Phần này không còn trong sản phẩm: không danh sách tổ chức nền tảng, không tạm ngừng / khôi phục / đóng, không chuyển Owner, không route `/more/platform/**`. Các US-09 bên dưới là đặc tả cũ, không làm.
-
-**Tổng quan (cũ).** Chỉ chuyển phần quản lý tổ chức của `apps/admin` vào `apps/erp`, đặt ở nhóm "Quản trị nền tảng" cuối tab **Thêm** (`/more/platform/**`), chỉ hiện với Platform Admin (`has_platform_permission`). **Bỏ** mọi màn khởi tạo tổ chức (wizard onboarding, "Khởi tạo tổ chức") và (quyết định 2026-10-09) tổng quan, người dùng nền tảng, nhật ký nền tảng. Khung màn: [ADMIN-SCREENS](../refactor/ADMIN-SCREENS.md).
-
-#### US-09.1 — Tổng quan ⏭ ngoài phạm vi (2026-10-09)
-
-- FR-01: `/admin`: số tổ chức theo trạng thái (Đang hoạt động / Đã tạm ngừng / Đã đóng), số người dùng nền tảng, nhật ký gần đây; lối vào 3 mục.
-- AC-01: Lỗi → "Không tải được tổng quan quản trị" + "Thử lại".
-
-#### US-09.2 — Danh sách và chi tiết tổ chức
-
-- FR-01: `/more/platform/organizations`: ô "Tìm tên hoặc mã tổ chức"; "Bộ lọc tổ chức nền tảng": Trạng thái (Tất cả / Hoạt động / Tạm ngừng / Đã đóng). 🔧 Bỏ "Mức hoàn thiện", "Vòng đời: Thiết lập", "Đang thiết lập" (luồng readiness cũ, KI-05).
-- FR-02: Chi tiết: hồ sơ, "Chủ sở hữu", "`<n>` thành viên", "Thông tin nền tảng" (Ngày tạo, Hoạt động gần nhất, Tạm ngừng lúc / Đóng lúc, Lý do, Người thực hiện); cảnh báo "Quyền vận hành đã bị chặn — Thành viên không thể thực hiện nghiệp vụ cho đến khi tổ chức được khôi phục." / "Tổ chức đã đóng vĩnh viễn".
-- FR-03: 🔧 Bỏ cảnh báo "Email Chủ sở hữu chưa xác minh", "Hồ sơ cơ bản chưa hoàn thiện", "Kích hoạt lúc", "Ngày khởi tạo" theo nghĩa onboarding (KI-05).
-- FR-04: Trống: "Chưa có tổ chức" (🔧 bỏ nút "Khởi tạo tổ chức").
-
-#### US-09.3 — Tạm ngừng / khôi phục / đóng tổ chức
-
-**Yêu cầu chức năng**
-
-- FR-01: "Thao tác tổ chức": "Tạm ngừng tổ chức — Chặn toàn bộ quyền vận hành"; "Khôi phục tổ chức — Cho phép vận hành trở lại"; "Đóng tổ chức"; "Thay đổi chủ sở hữu — Chọn Chủ sở hữu mới".
-- FR-02: Tạm ngừng: "Tạm ngừng tổ chức? — Mọi nghiệp vụ trong tổ chức sẽ bị chặn. Dữ liệu và lịch sử vẫn được giữ lại."; "Lý do" * ("Lý do được lưu trong lịch sử quản trị.") → `suspend_platform_tenant` → "Đã tạm ngừng tổ chức thành công."
-- FR-03: Khôi phục (chỉ từ `suspended`): "Khôi phục tổ chức? — Thành viên có thể tiếp tục vận hành theo quyền hiện hành sau khi khôi phục." **không có ô lý do** → `restore_platform_tenant` → "Đã khôi phục tổ chức thành công." (2026-10-11: bỏ "Lý do" * vì RPC không nhận).
-- FR-04: Đóng: "Đóng tổ chức? — Tổ chức sẽ chuyển sang chỉ đọc vĩnh viễn và không thể khôi phục." + "Lý do đóng" * → `close_platform_tenant`.
-- FR-05: Thiếu lý do → "Vui lòng nhập lý do."
-
-**Quy tắc:** BR-12, BR-13.
-
-**Tiêu chí nghiệm thu**
-
-- AC-01: Tổ chức `closed` không khôi phục được (`TENANT_STATE_INVALID`).
-- AC-02: Nhật ký nền tảng ghi người thực hiện, lý do, trạng thái trước / sau.
-
-#### US-09.4 — Chuyển Owner
-
-- FR-01: "Thay đổi chủ sở hữu": "Chọn thành viên đang hoạt động", ô "Tìm tên hoặc email"; "Vai trò hiện hành của thành viên sẽ được giữ nguyên."
-- FR-02: Xác nhận (có ô "Chủ sở hữu hiện tại" → "Chủ sở hữu mới"): "Chuyển quyền sở hữu cho `<tên>`? — `<Owner cũ>` vẫn giữ vai trò Chủ cửa hàng. `<tên>` tiếp tục giữ vai trò `<vai trò>`." ("Quay lại" / "Chuyển quyền") → `transfer_platform_tenant_ownership` → "Đã chuyển quyền sở hữu."
-- FR-03: 🆕 Người nhận đã là Owner tổ chức khác → bị chặn (BR-07, BR-32, KI-08).
-- AC-01: Sau chuyển, tổ chức vẫn đúng 1 Owner (I-01).
-- AC-02: Không có thành viên hoạt động → "Chưa có thành viên đang hoạt động".
-
-#### US-09.5 — Người dùng nền tảng ⏭ ngoài phạm vi (2026-10-09; tạm ngừng / khôi phục người dùng làm bằng SQL)
-
-- FR-01: `/admin/users`: "`<n>` người dùng", tìm kiếm, "Bộ lọc người dùng nền tảng" (trạng thái).
-- FR-02: Chi tiết: thông tin cá nhân, "Mã người dùng", trạng thái, danh sách tổ chức tham gia (vai trò, Owner).
-- FR-03: "Tạm ngừng người dùng" / "Khôi phục người dùng?" (lý do bắt buộc) → `suspend_/restore_platform_user`.
-- FR-04: "Gửi yêu cầu đặt lại mật khẩu? — Hệ thống gửi hướng dẫn đặt lại mật khẩu. Admin không nhận mật khẩu mới." → `request_platform_password_reset`.
-- AC-01: Người dùng bị tạm ngừng → mọi `has_permission` trả false (BR-54); lần dùng kế tiếp bị đăng xuất.
-
-#### US-09.6 — Nhật ký nền tảng ⏭ ngoài phạm vi (2026-10-09; dữ liệu vẫn ghi)
-
-- FR-01: `/admin/audit-logs`: "Bộ lọc nhật ký nền tảng" (Thời gian 24 giờ / 7 ngày / 30 ngày; Kết quả Thành công / Lỗi / Bị chặn; Loại chủ thể Người dùng / Hệ thống); chi tiết như US-07.2.
-- AC-01: Rỗng → "Không tìm thấy nhật ký thao tác phù hợp."
-
----
-
-## 5. Đặc tả màn hình
+Không còn trong sản phẩm: không Platform Admin, không danh sách tổ chức nền tảng, không tạm ngừng / khôi phục / đóng tổ chức, không tạm ngừng tài khoản, không chuyển Owner, không route `/more/platform/**`. Đặc tả cũ (US-09.1 … US-09.6) xem lịch sử git của file này (trước commit 3-E `61f204347`) và [ADMIN-SCREENS](../refactor/ADMIN-SCREENS.md).
 
 ### 5.1 Danh sách màn hình
 
@@ -931,7 +866,7 @@ Phần này không còn trong sản phẩm: không danh sách tổ chức nền 
 | ID-06 | Nhập mã lời mời | `/invitation` | `invitation_token_page` |
 | ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | `invitation_registration_page` |
 | ID-08 | Chọn tổ chức | (sheet) | `select_organization_bottom_sheet` |
-| ID-09 | Tổ chức không thể truy cập | (màn chặn) | `organization_empty_view` |
+| ID-09 | Không truy cập được tổ chức (chỉ còn: bị loại / không có tổ chức) | (màn chặn) | `organization_empty_view` |
 | ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | — |
 | ID-11 | Hồ sơ tổ chức | `/more/organization-profile` | `organization_profile_page` |
 | ID-12 | Sửa thông tin tổ chức | `…/edit` | `organization_edit_profile_page` |
@@ -946,10 +881,7 @@ Phần này không còn trong sản phẩm: không danh sách tổ chức nền 
 | ID-21 | Tài khoản của tôi | `/more/my-account` | `my_account_page` |
 | ID-22 | Sửa tài khoản | `/more/my-account/edit` | `edit_my_account_page` |
 | ID-23 | Đặt lại mật khẩu (đã đăng nhập) | `/more/my-account/reset-password` | `reset_password_page` |
-| ID-31 🆕 | Tổ chức (Thêm ▸ Quản trị nền tảng) | `/more/platform/organizations` | (từ `apps/admin`) |
-| ID-32 🆕 | Chi tiết tổ chức | `/more/platform/organizations/:id` | `organization_detail_page` |
-| ID-33 🆕 | Thay đổi chủ sở hữu | `/more/platform/organizations/:id/owner` | `organization_change_owner_page` |
-| ~~ID-30, ID-34, ID-35~~ | Tổng quan, Người dùng nền tảng, Nhật ký nền tảng | — | ⏭ bỏ (2026-10-09) |
+| ~~ID-30 … ID-35~~ | Quản trị nền tảng (tổng quan, tổ chức, chi tiết, đổi chủ sở hữu, người dùng, nhật ký) | — | ⏭ bỏ (ID-30, 34, 35: 2026-10-09; ID-31…33: 3-E, 2026-10-12) |
 
 Bị xoá: `/more/readiness` (`tenant_readiness_page`), mục "Quyền sở hữu" trong hub, wizard `platform_onboarding_*`.
 
@@ -1147,32 +1079,6 @@ ID-09 chỉ còn hai trường hợp, cùng câu với màn chưa thuộc tổ c
 
 Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đối chiếu lịch sử: [ADMIN-SCREENS](../refactor/ADMIN-SCREENS.md).
 
-```text
-┌──────────────────────────────────┐
-│ ←  Chi tiết tổ chức   [Thao tác] │
-├──────────────────────────────────┤
-│ Thú y An Phát      [Đã tạm ngừng]│
-│ ⚠ Quyền vận hành đã bị chặn      │
-│   Thành viên không thể thực hiện │
-│   nghiệp vụ cho đến khi tổ chức  │
-│   được khôi phục.                │
-│ CHỦ SỞ HỮU                       │
-│ Nguyễn Thị Lan · lan@example.com │
-│ THÀNH VIÊN TỔ CHỨC   3 thành viên│
-│ THÔNG TIN NỀN TẢNG               │
-│ Ngày tạo        01/09/2026       │
-│ Tạm ngừng lúc   05/10/2026 09:30 │
-│ Lý do           Chưa thanh toán phí│
-│ Người thực hiện admin@vet45.vn   │
-└──────────────────────────────────┘
-```
-
-| Màn | Trạng thái riêng |
-|---|---|
-| ID-31 | trống "Chưa có tổ chức" (🔧 không có "Khởi tạo tổ chức"); không kết quả |
-| ID-32 | đang hoạt động / tạm ngừng / đã đóng (chỉ đọc, không thao tác trạng thái) |
-| ID-33 | không có thành viên hoạt động; người nhận đã là Owner nơi khác (🆕 chặn) |
-
 ### 5.12 Khả năng tiếp cận và đáp ứng
 
 - Ô mã 6 số / 8 ký tự hỗ trợ dán cả mã; bàn phím số cho mã 6 số.
@@ -1187,11 +1093,11 @@ Không còn màn quản trị nền tảng. Khung cũ (C1–C7) chỉ để đ�
 
 ```text
 Page ─▶ Cubit ─▶ Repository (AuthRepository, OrganizationRepository, MemberRepository,
-                             InvitationRepository, AuditLogRepository, PlatformAdminRepository)
+                             InvitationRepository, AuditLogRepository)
      ─▶ supabase.schema('iam').rpc('<tên RPC>')   hoặc   supabase.auth.*
 ```
 
-Code nằm ở `apps/erp/lib/features/{auth,iam,tenant_context,platform_admin}`.
+Code nằm ở `apps/erp/lib/features/{auth,iam,tenant_context}`.
 
 ### 6.2 Danh mục RPC (schema `iam`)
 
@@ -1201,12 +1107,12 @@ Code nằm ở `apps/erp/lib/features/{auth,iam,tenant_context,platform_admin}`.
 | Đăng ký 🆕 | `auth.signUp`, `auth.verifyOtp(signup)`, `auth.resend(signup)`; trigger `_on_auth_user_confirmed` → `_create_tenant_for_owner` | công khai / trigger |
 | Mật khẩu | `begin_/verify_/resend_/complete_password_reset_operation_by_email` (quên); `begin_password_reset_operation`, `verify_password_reset_code`, `resend_password_reset_operation`, `mark_password_reset_operation_completed` (đã đăng nhập) | công khai / người dùng |
 | Lời mời (người nhận) | `inspect_invitation_token`, `accept_invitation`, `decline_invitation` | công khai / người dùng |
+| Lời mời — tạo tài khoản 🆕 | Edge Function `invitation-signup`: `inspect_invitation_token` → `auth.admin.createUser` (đã xác minh) → `accept_invitation`; lỗi nhận lời mời thì xoá user vừa tạo | công khai (mã lời mời 8 ký tự, dùng một lần) |
 | Tổ chức | `get_tenant`, `update_tenant_profile`, `upsert_legal_profile` | `tenant.*` (Owner) |
 | Thành viên | `list_tenant_members`, `get_tenant_member`, `assign_member_role`, `deactivate_membership`, `reactivate_membership`, `remove_membership` | `iam.*` (Owner) |
 | Lời mời (Owner) | `list_assignable_invitation_roles`, `create_tenant_invitation`, `list_tenant_invitations`, `get_tenant_invitation`, `resend_tenant_invitation`, `revoke_tenant_invitation` | `iam.*` (Owner) |
 | Lịch sử | `search_tenant_audit_logs`, `get_tenant_audit_log` | `iam.*` (Owner) |
 | Tài khoản | `get_my_platform_user_profile`, `update_my_platform_user_profile` | người dùng |
-| Nền tảng | `search_platform_tenants`, `get_platform_tenant`, `list_platform_tenant_members`, `suspend_/restore_/close_platform_tenant`, `transfer_platform_tenant_ownership`, `search_platform_users`, `get_platform_user`, `suspend_/restore_platform_user`, `request_platform_password_reset`, `search_platform_audit_logs`, `get_platform_audit_log` | `has_platform_permission` |
 | Quyền | `has_permission`, `can_access_store` | nội bộ (mọi theme) |
 
 ### 6.3 Gửi email 🆕
@@ -1367,13 +1273,13 @@ Số KI giữ từ bản 3.0.
 **Widget / cubit test**
 
 - ID-02: kiểm từng bước, giữ dữ liệu khi quay lại, email đã đăng ký, mã sai.
-- Định tuyến: đủ 6 dòng của bảng 2.3.
+- Định tuyến: đủ 3 dòng của bảng 2.3.
 - ID-06/07: mỗi mã lỗi lời mời ra đúng thông điệp.
 - ID-17/18: Owner không có thao tác vòng đời; xem trước đổi vai trò không có danh sách quyền.
 
 ### 9.4 Giữ nguyên
 
-`has_permission` / `has_platform_permission`, khoá phiên bản, lịch sử quản trị và nhật ký nền tảng, cơ chế mời bằng mã (trừ sửa ở 7.3), đặt lại mật khẩu bằng mã, hồ sơ pháp lý và cảnh báo MST trùng.
+`has_permission`, khoá phiên bản, lịch sử quản trị, cơ chế mời bằng mã (trừ sửa ở 7.3), đặt lại mật khẩu bằng mã, hồ sơ pháp lý và cảnh báo MST trùng.
 
 ---
 

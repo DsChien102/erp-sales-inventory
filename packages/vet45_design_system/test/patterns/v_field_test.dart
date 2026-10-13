@@ -173,7 +173,7 @@ void main() {
         if (decoration is BoxDecoration && decoration.border is Border) {
           final border = decoration.border! as Border;
           if (border.top.color == VColorScheme.light.danger ||
-              border.top.color == VColorScheme.light.borderDefault) {
+              border.top.color == VColorScheme.light.borderInput) {
             return border.top.color;
           }
         }
@@ -202,7 +202,7 @@ void main() {
           ),
         ),
       );
-      expect(inputBorderColor(tester), VColorScheme.light.borderDefault);
+      expect(inputBorderColor(tester), VColorScheme.light.borderInput);
     });
 
     testWidgets('legacy errorText still forces danger when invalid null', (

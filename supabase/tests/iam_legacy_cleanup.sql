@@ -1,4 +1,4 @@
--- KI-03 / KI-05 / BR-07 (8-B): luồng onboarding cũ đã bị gỡ khỏi DB, FK và index chặn dữ liệu sai,
+-- KI-03 / KI-05 / BR-07 (3-B, 3-E): luồng onboarding cũ đã bị gỡ khỏi DB, FK và index chặn dữ liệu sai,
 -- lời mời nhân viên vẫn chạy.
 -- psql "$LOCAL_DB" -v ON_ERROR_STOP=1 -f supabase/tests/iam_legacy_cleanup.sql
 

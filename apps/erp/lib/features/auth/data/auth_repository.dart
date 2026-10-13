@@ -40,45 +40,6 @@ class AuthRepository {
     return userId;
   }
 
-  /// Tạo tài khoản từ lời mời.
-  /// [needsVerification] khi Auth chưa trả session (xác minh email đang bật).
-  Future<({String userId, bool needsVerification})> signUpFromInvitation({
-    required String email,
-    required String password,
-    required String givenName,
-    required String familyName,
-    String? phone,
-  }) async {
-    final canonical = email.trim().toLowerCase();
-    final trimmedPhone = phone?.trim();
-    try {
-      final response = await _auth.signUp(
-        email: canonical,
-        password: password,
-        data: <String, dynamic>{
-          'first_name': givenName,
-          'last_name': familyName,
-          if (trimmedPhone != null && trimmedPhone.isNotEmpty) 'phone': trimmedPhone,
-        },
-      );
-      final user = response.user;
-      final returnedEmail = (user?.email ?? '').trim().toLowerCase();
-      if (user == null || returnedEmail != canonical) {
-        throw const AppException(AppErrorCode.unknown);
-      }
-      if (_isObfuscatedExistingUser(user)) {
-        throw const AppException('PLATFORM_USER_ALREADY_EXISTS');
-      }
-      return (userId: user.id, needsVerification: response.session == null);
-    } on AppException {
-      rethrow;
-    } on AuthException catch (error) {
-      throw _mapInvitationAuthException(error);
-    } catch (_) {
-      throw const AppException(AppErrorCode.unknown);
-    }
-  }
-
   /// Đăng ký cửa hàng mới. Tổ chức chỉ được tạo khi email được xác minh.
   Future<void> signUpStore({
     required SignupAccountInput account,

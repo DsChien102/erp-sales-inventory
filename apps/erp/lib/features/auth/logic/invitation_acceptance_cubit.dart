@@ -3,7 +3,6 @@ import 'package:erp/core/iam/iam_ui_failure.dart';
 import 'package:erp/core/iam/iam_ui_failure_mapper.dart';
 import 'package:erp/core/session/session_controller.dart';
 import 'package:erp/core/validation/password_policy.dart';
-import 'package:erp/features/iam/data/account_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:erp/core/iam/iam_codes.dart';
 
@@ -16,19 +15,16 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
   InvitationAcceptanceCubit({
     required InvitationAcceptanceRepository invitations,
     required AuthRepository auth,
-    required AccountRepository account,
     required SessionController session,
     required String Function(String intent) nextKey,
   }) : _invitations = invitations,
        _auth = auth,
-       _account = account,
        _session = session,
        _nextKey = nextKey,
        super(const InvitationAcceptanceState());
 
   final InvitationAcceptanceRepository _invitations;
   final AuthRepository _auth;
-  final AccountRepository _account;
   final SessionController _session;
   final String Function(String intent) _nextKey;
 
@@ -37,10 +33,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
   String? _acceptKey;
   String? _declineKey;
   String? _registerKey;
-  String? _pendingGivenName;
-  String? _pendingFamilyName;
-  String? _pendingPhone;
-  String? _pendingUserId;
 
   Future<void> inspect(String token) async {
     if (isClosed || state.isSubmitting) return;
@@ -224,30 +216,31 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
         throw const AppException('PLATFORM_USER_ALREADY_EXISTS');
       }
 
-      final signUp = await _auth.signUpFromInvitation(
-        email: inspection.inviteeEmail,
+      // Không có phiên đăng nhập để dọn: tài khoản được tạo đã xác minh phía server,
+      // người dùng đăng nhập bằng mật khẩu vừa đặt ở màn đăng nhập.
+      final membership = await _invitations.registerAndAccept(
+        token: token,
         password: trimmedPassword,
         givenName: trimmedGiven,
         familyName: trimmedFamily,
         phone: trimmedPhone == null || trimmedPhone.isEmpty ? null : trimmedPhone,
+        idempotencyKey: key,
       );
-      _pendingGivenName = trimmedGiven;
-      _pendingFamilyName = trimmedFamily;
-      _pendingPhone = trimmedPhone == null || trimmedPhone.isEmpty ? null : trimmedPhone;
-      _pendingUserId = signUp.userId;
-      if (signUp.needsVerification) {
-        if (isClosed) return;
-        emit(
-          state.copyWith(
-            step: InvitationAcceptanceStep.awaitingVerification,
-            isSubmitting: false,
-            verificationEmail: inspection.inviteeEmail,
-            clearFailure: true,
+      if (isClosed) return;
+      _clearSecrets();
+      emit(
+        state.copyWith(
+          step: InvitationAcceptanceStep.accepted,
+          isSubmitting: false,
+          registrationResult: InvitationRegistrationResult(
+            userId: membership.userId,
+            membership: membership,
           ),
-        );
-        return;
-      }
-      await _finishRegistration(signUp.userId);
+          acceptedMembership: membership,
+          tokenPresent: false,
+          clearFailure: true,
+        ),
+      );
     } catch (error) {
       final failure = IamUiFailureMapper.from(error);
       if (failure.code == IamBlockedCodes.platformUserAlreadyExists) {
@@ -266,62 +259,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
         fallbackStep: InvitationAcceptanceStep.newAccountRegistration,
       );
     }
-  }
-
-  /// Sau khi xác minh OTP đăng ký từ lời mời: cập nhật hồ sơ, nhận lời mời, đăng xuất.
-  Future<void> completeVerifiedRegistration() async {
-    if (isClosed || state.isSubmitting) return;
-    final userId = _pendingUserId;
-    if (userId == null || state.step != InvitationAcceptanceStep.awaitingVerification) return;
-    emit(
-      state.copyWith(
-        step: InvitationAcceptanceStep.submitting,
-        isSubmitting: true,
-        clearFailure: true,
-      ),
-    );
-    try {
-      await _finishRegistration(userId);
-    } catch (error) {
-      _handleAcceptError(
-        error,
-        fallbackStep: InvitationAcceptanceStep.awaitingVerification,
-      );
-    }
-  }
-
-  Future<void> _finishRegistration(String userId) async {
-    final token = _token;
-    if (token == null) {
-      _emitMissingToken();
-      return;
-    }
-    final key = _registerKey ??= _nextKey('register-from-invitation');
-    _session.applySignedInUser(userId);
-    await _account.updateMyAccount(
-      avatarReference: null,
-      givenName: _pendingGivenName ?? '',
-      familyName: _pendingFamilyName ?? '',
-      phone: _pendingPhone,
-    );
-    final membership = await _invitations.accept(token, idempotencyKey: key);
-    await _session.signOut();
-    if (isClosed) return;
-    _clearSecrets();
-    emit(
-      state.copyWith(
-        step: InvitationAcceptanceStep.accepted,
-        isSubmitting: false,
-        registrationResult: InvitationRegistrationResult(
-          userId: userId,
-          membership: membership,
-        ),
-        acceptedMembership: membership,
-        tokenPresent: false,
-        clearFailure: true,
-        clearVerificationEmail: true,
-      ),
-    );
   }
 
   Future<void> decline() async {
@@ -400,10 +337,6 @@ final class InvitationAcceptanceCubit extends Cubit<InvitationAcceptanceState> {
     _acceptKey = null;
     _declineKey = null;
     _registerKey = null;
-    _pendingGivenName = null;
-    _pendingFamilyName = null;
-    _pendingPhone = null;
-    _pendingUserId = null;
   }
 
   void _handleInspectOrTerminalError(

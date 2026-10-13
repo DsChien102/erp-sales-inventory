@@ -228,7 +228,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
             VComponentTone.danger => colors.danger,
-            _ => colors.borderStrong,
+            _ => colors.borderInput,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
     final borderColor = focused ? focusBorderColor : restingBorderColor;

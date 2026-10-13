@@ -319,10 +319,18 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           title: 'VIconBox',
           child: PreviewStateWrap(
             children: [
-              VIconBox(icon: VIcons.camera, onTap: () {}),
+              // Drawn 24px, tappable area 44×44 (hit-test the corners).
+              VIconBox(
+                icon: VIcons.camera,
+                size: 24,
+                iconSize: 16,
+                semanticLabel: 'Chụp ảnh',
+                onTap: () {},
+              ),
               VIconBox(
                 icon: VIcons.add,
                 tone: VComponentTone.primary,
+                semanticLabel: 'Thêm',
                 onTap: () {},
               ),
               const VIconBox(

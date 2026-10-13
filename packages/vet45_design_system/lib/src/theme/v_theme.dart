@@ -23,8 +23,8 @@ class VTheme {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       colorScheme: const ColorScheme.light(
-        primary: VColors.primary500,
-        error: VColors.red500,
+        primary: VColors.primary600,
+        error: VColors.red600,
         surface: VColors.neutral0,
       ),
       extensions: [
@@ -37,29 +37,29 @@ class VTheme {
         elevation: 0,
       ),
       textSelectionTheme: const TextSelectionThemeData(
-        cursorColor: VColors.primary500,
+        cursorColor: VColors.primary600,
         selectionColor: VColors.primary100,
-        selectionHandleColor: VColors.primary500,
+        selectionHandleColor: VColors.primary600,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: VColors.neutral0,
         hoverColor: Colors.transparent,
-        border: VBorders.outlineInput(VColors.neutral300),
-        enabledBorder: VBorders.outlineInput(VColors.neutral300),
+        border: VBorders.outlineInput(VColors.neutral450),
+        enabledBorder: VBorders.outlineInput(VColors.neutral450),
         focusedBorder: VBorders.outlineInput(
-          VColors.primary500,
+          VColors.primary600,
           width: VBorders.thick,
         ),
-        errorBorder: VBorders.outlineInput(VColors.red500),
+        errorBorder: VBorders.outlineInput(VColors.red600),
         focusedErrorBorder: VBorders.outlineInput(
-          VColors.red500,
+          VColors.red600,
           width: VBorders.thick,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: VColors.primary500,
+          backgroundColor: VColors.primary600,
           foregroundColor: Colors.white,
           elevation: 0,
           overlayColor: Colors.transparent,

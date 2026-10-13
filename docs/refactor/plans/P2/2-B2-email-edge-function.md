@@ -1,6 +1,6 @@
 # 2-B2 — Gửi email qua Edge Function `send-email`
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (SQL ✅ 2026-10-12; chờ Vault + deploy + gửi thật)
 > Gồm việc: 2A.4 (TH-01 KI-07)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 6.3, BR-40, BR-41, BR-46, BR-64, BR-66; US-06.2, US-06.3, US-02.3
 
@@ -211,3 +211,10 @@ Gợi ý: (1) migration + test SQL; (2) Edge Function + template + test; (3) run
   1. **Sửa (nhỏ, nên làm trước khi push):** `_email_template_data` ghép tên người mời `given_name` rồi `family_middle_name` → email hiện "Lan Nguyễn Thị". Đổi thứ tự `concat_ws(' ', family_middle_name, given_name)` → "Nguyễn Thị Lan" (cách hiển thị tên người Việt, giống app).
   2. Job `activation_invitation` (onboarding cũ) sẽ bị thử 5 lần rồi mới `failed` vì `UNKNOWN_TEMPLATE` coi như lỗi tạm. Không hại; hết khi 2-B3 xoá onboarding cũ. Nếu muốn gọn: `complete_email_job` nhận lỗi `UNKNOWN_TEMPLATE` thì đặt `attempts = 5` luôn.
   3. Thử lại không giãn cách (5 lần trong ~5 phút): Resend lỗi lâu hơn thì lời mời thành "Chưa gửi được email", Owner phải bấm "Gửi lại". Chấp nhận cho đồ án; ghi vào RUNBOOK.
+
+### Cập nhật 2026-10-12 — đợt kiểm IAM
+
+- `db reset --linked` trên Dev (sau bản sửa `activated_at`) rồi chạy 4 kịch bản trong SQL Editor — `iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_legacy_cleanup`: **cả 4 không raise** (người dùng chạy, 2026-10-12).
+- `iam_email_jobs.sql` đạt: email event vào `email_jobs` (không vào outbox), mã giải được, claim / complete, thử lại 5 lần rồi `failed`, mẫu lạ fail ngay, quyền `claim_email_job` không cấp cho `authenticated`.
+- Secrets Edge Function đã đặt (`RESEND_API_KEY`, `EMAIL_FROM` = "DSC ERP <no-reply@mail.dschienerp.me>", `EMAIL_WEBHOOK_SECRET`, `APP_NAME`).
+- **Còn lại để đóng:** ghi Vault `project_url`, `email_webhook_secret` (sau lần reset cuối); `supabase functions deploy send-email`; Owner mời một email thật → nhận mail lời mời.

@@ -40,7 +40,7 @@ Nguyên tắc vàng: **đổi cách tổ chức code, không đổi hành vi ng�
 ### 2.3 Ngoài phạm vi (không làm trong đợt refactor)
 
 - Tính năng mới của TH-06 (công nợ đầy đủ), TH-07 (kiểm kê, giá vốn), TH-09, TH-10 (báo cáo), TH-11, TH-12.
-- Thiết kế lại UI/UX. Màn hình giữ nguyên, chỉ đổi phần logic/data phía sau.
+- Thiết kế lại UI/UX. Màn hình giữ nguyên, chỉ đổi phần logic/data phía sau. Ngoại lệ: sửa lỗi khả năng tiếp cận (tương phản màu, nhãn/semantics thanh dưới — plan 10-4) không tính là thiết kế lại.
 - Đổi nhà cung cấp hoá đơn điện tử hoặc đổi backend khỏi Supabase.
 
 ## 3. Phạm vi kỹ thuật
@@ -267,7 +267,7 @@ Không còn khu `/admin` và không còn quản trị nền tảng (3-E, 2026-10
 | Trigger bỏ | `_cleanup_pending_profile_on_auth_user` (không còn user tạm) |
 | Bảng bỏ | `iam.onboarding_operations`, `iam.owner_activations` |
 | Sửa | `accept_invitation` / `decline_invitation`: bỏ nhánh "hybrid owner" (`is_owner` invitation). `memberships.user_id`: **thêm lại FK** tới `auth.users`. Bỏ giá trị `provisioning` và `pending_activation` khỏi enum/check |
-| Giữ nguyên | Lời mời nhân viên, vai trò/quyền, thành viên, chuyển owner, tạm ngưng/khôi phục/đóng tổ chức, audit, quên mật khẩu |
+| Giữ nguyên | Lời mời nhân viên, vai trò/quyền, thành viên, audit, quên mật khẩu (chuyển owner, tạm ngưng / khôi phục / đóng tổ chức bỏ ở 3-E, 2026-10-12) |
 
 ## 4. Thay thế cơ chế bất đồng bộ
 

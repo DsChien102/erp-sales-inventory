@@ -54,6 +54,9 @@ class SalesDraftListCard extends StatelessWidget {
       child: VSwipeReveal(
         actionExtent: _actionWidth,
         clipBorderRadius: cardRadius,
+        semanticActions: [
+          VSwipeSemanticAction(label: 'Xóa', onInvoke: onDiscard),
+        ],
         actionsBuilder: (context, close) => SizedBox(
           height: double.infinity,
           width: _actionWidth,

@@ -8,7 +8,7 @@
 -- Depends on: 20260623000002_install_module_messaging_modules.sql,
 --             20260811001_iam_notify_email_delivery_outcome.sql,
 --             20260811017_iam_tenant_invitation_create.sql
--- Note (8-B, 2026-10-11): iam.enqueue_outbox_message is intentionally redefined here instead of being merged
+-- Note (3-B, 2026-10-11): iam.enqueue_outbox_message is intentionally redefined here instead of being merged
 --   into 20260623000001: the original is generated with format() for every schema, so a separate iam
 --   version there would be more complex than this override.
 

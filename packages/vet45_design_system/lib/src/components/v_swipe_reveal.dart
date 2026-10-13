@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_radius.dart';
+
+/// One hidden swipe action, exposed to screen readers as a custom action.
+///
+/// VoiceOver / TalkBack list these on the swipeable card (swipe up / down to
+/// pick), so the action is reachable without the swipe gesture.
+class VSwipeSemanticAction {
+  const VSwipeSemanticAction({required this.label, required this.onInvoke});
+
+  final String label;
+  final VoidCallback onInvoke;
+}
 
 /// Swipe-left shell that reveals actions behind [child].
 ///
@@ -21,6 +33,7 @@ class VSwipeReveal extends StatefulWidget {
     this.onTap,
     this.height,
     this.clipBorderRadius,
+    this.semanticActions = const [],
   });
 
   final Widget child;
@@ -35,6 +48,11 @@ class VSwipeReveal extends StatefulWidget {
 
   /// Clip radius for the reveal shell. Defaults to [VRadius.card].
   final BorderRadius? clipBorderRadius;
+
+  /// Screen-reader equivalents of the hidden actions. When non-empty the
+  /// hidden buttons are excluded from semantics while the shell is closed and
+  /// the actions are published as custom actions on the card.
+  final List<VSwipeSemanticAction> semanticActions;
 
   @override
   State<VSwipeReveal> createState() => _VSwipeRevealState();
@@ -73,13 +91,22 @@ class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderSt
     super.dispose();
   }
 
+  /// Jumps instead of animating when the platform asks for reduced motion.
+  void _animateTo(double target) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.value = target;
+    } else {
+      _controller.animateTo(target);
+    }
+  }
+
   void _close() {
-    _controller.animateTo(0);
+    _animateTo(0);
     _dragExtent = 0;
   }
 
   void _open() {
-    _controller.animateTo(1);
+    _animateTo(1);
     _dragExtent = -widget.actionExtent;
   }
 
@@ -106,7 +133,16 @@ class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderSt
           right: 0,
           top: 0,
           bottom: 0,
-          child: vInspectorShow(widget.actionsBuilder(context, _close)),
+          child: AnimatedBuilder(
+            animation: _controller,
+            // Closed + [semanticActions]: the buttons are invisible, so keep
+            // screen readers off them; the card exposes custom actions.
+            builder: (context, child) => ExcludeSemantics(
+              excluding: widget.semanticActions.isNotEmpty && !_isOpen,
+              child: child,
+            ),
+            child: vInspectorShow(widget.actionsBuilder(context, _close)),
+          ),
         ),
         AnimatedBuilder(
           animation: _controller,
@@ -114,12 +150,19 @@ class _VSwipeRevealState extends State<VSwipeReveal> with SingleTickerProviderSt
             offset: Offset(-_controller.value * widget.actionExtent, 0),
             child: child,
           ),
-          child: GestureDetector(
-            onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
-            onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
+          child: Semantics(
+            customSemanticsActions: {
+              if (widget.enabled)
+                for (final action in widget.semanticActions)
+                  CustomSemanticsAction(label: action.label): action.onInvoke,
+            },
             child: GestureDetector(
-              onTap: !widget.enabled ? null : () => _isOpen ? _close() : widget.onTap?.call(),
-              child: vInspectorShow(widget.child),
+              onHorizontalDragUpdate: canSwipe ? _onDragUpdate : null,
+              onHorizontalDragEnd: canSwipe ? _onDragEnd : null,
+              child: GestureDetector(
+                onTap: !widget.enabled ? null : () => _isOpen ? _close() : widget.onTap?.call(),
+                child: vInspectorShow(widget.child),
+              ),
             ),
           ),
         ),

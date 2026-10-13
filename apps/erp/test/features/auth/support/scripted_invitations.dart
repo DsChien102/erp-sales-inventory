@@ -6,27 +6,36 @@ import 'package:erp/features/auth/data/models/invitation_token_inspection.dart';
 import 'package:erp/features/auth/presentation/pages/invitation_token_page.dart';
 import 'package:erp/features/iam/data/models/tenant_invitation.dart';
 import 'package:erp/features/iam/data/models/tenant_member.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase/supabase.dart';
 import '../../iam/support/iam_fixtures.dart';
 
 import '../../iam/support/fake_iam_backend.dart';
 import 'scripted_auth.dart';
+
+class _MockFunctions extends Mock implements FunctionsClient {}
 
 /// Lời mời giả theo các kịch bản [FakeIamScenario] mà cubit/trang kích hoạt đang dùng.
 class ScriptedInvitations extends InvitationAcceptanceRepository {
   ScriptedInvitations({
     required this.scenario,
     this.acceptError,
+    this.registerError,
     List<String>? log,
     this.declineFailures = 0,
   }) : _log = log,
-       super(rpc: testRpc());
+       super(rpc: testRpc(), functions: _MockFunctions());
 
   final FakeIamScenario scenario;
   final Object? acceptError;
+
+  /// Lỗi của `registerAndAccept` (Edge Function `invitation-signup`).
+  final Object? registerError;
   final List<String>? _log;
   int declineFailures;
 
   final accepts = <String>[];
+  final registers = <({String givenName, String familyName, String password, String? phone, String key})>[];
   final declines = <String>[];
 
   @override
@@ -76,6 +85,31 @@ class ScriptedInvitations extends InvitationAcceptanceRepository {
     if (scenario == FakeIamScenario.acceptConcurrent) {
       throw const AppException(IamBlockedCodes.invitationAlreadyUsed);
     }
+    return _acceptedMembership();
+  }
+
+  @override
+  Future<TenantMemberDetail> registerAndAccept({
+    required String token,
+    required String password,
+    required String givenName,
+    required String familyName,
+    String? phone,
+    required String idempotencyKey,
+  }) async {
+    registers.add((
+      givenName: givenName,
+      familyName: familyName,
+      password: password,
+      phone: phone,
+      key: idempotencyKey,
+    ));
+    _log?.add('registerAndAccept');
+    if (registerError != null) throw registerError!;
+    return _acceptedMembership();
+  }
+
+  TenantMemberDetail _acceptedMembership() {
     return TenantMemberDetail(
       membershipId: 'mem-accepted-1',
       tenantId: 'org-001',
@@ -122,26 +156,24 @@ class InvitationPageHarness {
   InvitationPageHarness({
     FakeIamScenario scenario = FakeIamScenario.inspectExistingAccount,
     Object? acceptError,
-    Object? signUpError,
+    Object? registerError,
     List<String>? log,
   }) : invitations = ScriptedInvitations(
          scenario: scenario,
          acceptError: acceptError,
+         registerError: registerError,
          log: log,
        ),
-       auth = ScriptedAuthRepository(signUpError: signUpError, log: log),
-       account = ScriptedAccountRepository(log: log),
+       auth = ScriptedAuthRepository(log: log),
        session = loginSession(email: 'invitee@example.com', log: log);
 
   final ScriptedInvitations invitations;
   final ScriptedAuthRepository auth;
-  final ScriptedAccountRepository account;
   final SessionController session;
 
   InvitationTokenPage get page => InvitationTokenPage(
     invitations: invitations,
     auth: auth,
-    account: account,
     session: session,
     keyFactory: FakeIdempotencyKeyFactory(),
   );

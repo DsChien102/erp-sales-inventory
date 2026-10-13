@@ -2,7 +2,7 @@
 -- Kind: patch
 -- Intent: iam_audit_logs_v2_rebuild
 -- Touches: iam.audit_logs, iam._audit_redact, iam._audit_event_category, iam.append_audit_log, iam.search_tenant_audit_logs_v2, iam.get_tenant_audit_log
--- 8-E (2026-10-12): platform audit read RPCs removed.
+-- 3-E (2026-10-12): platform audit read RPCs removed.
 -- Safety: idempotent ; destructive (dev only)
 -- Depends on: 004_iam_tenant_audit_history_v2_payloads, 006_iam_audit_owner_activation_cleanup
 -- Promoted from _drafts/007_iam_audit_logs_v2_rebuild.sql

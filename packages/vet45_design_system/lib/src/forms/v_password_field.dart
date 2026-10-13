@@ -10,6 +10,7 @@ import '../foundation/v_component_scope.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../foundations/icons/v_icons.dart';
 import '../tokens/v_duration.dart';
+import '../tokens/v_spacing.dart';
 import 'validators/v_password_validator.dart';
 
 class VPasswordField extends StatefulWidget {
@@ -147,10 +148,9 @@ class _VPasswordFieldState extends State<VPasswordField> {
       ),
       tooltip: _obscured ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
       padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-      constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-      style: const ButtonStyle(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      constraints: const BoxConstraints.tightFor(
+        width: VSpacing.minTouchTarget,
+        height: VSpacing.minTouchTarget,
       ),
     );
   }

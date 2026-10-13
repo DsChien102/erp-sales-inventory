@@ -22,7 +22,7 @@ enum ErpTab {
     enabled: true,
   ),
   partners(
-    label: 'KH&NCC',
+    label: 'Đối tác',
     icon: Icons.people_outline_rounded,
     routePath: '/partner',
     enabled: true,

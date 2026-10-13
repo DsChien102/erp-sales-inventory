@@ -3,7 +3,7 @@
 -- Intent: iam_get_session_context_multi_tenant
 -- Context: TH-01 — user với ≥2 memberships active không còn raise CONTEXT_INVALID khi
 -- Touches: iam.get_session_context
--- 8-B (2026-10-11): KI-05 — bootstrap_owner removed; the default store is created with the tenant (iam._create_tenant_for_owner).
+-- 3-B (2026-10-11): KI-05 — bootstrap_owner removed; the default store is created with the tenant (iam._create_tenant_for_owner).
 -- Safety: idempotent ; medium
 -- Depends on: 20260830001_iam_active_store_context_group_a.sql, 20260811024_iam_patch_owner_role_canonicalization.sql
 -- Promoted from _drafts/019_iam_get_session_context_multi_tenant.sql

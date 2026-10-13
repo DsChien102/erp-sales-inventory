@@ -81,6 +81,12 @@ class SalesOrderLineRow extends StatelessWidget {
         actionExtent: _hasActions ? actionsTotalWidth : 0,
         initiallyRevealed: revealActions && _hasActions,
         clipBorderRadius: BorderRadius.zero,
+        semanticActions: [
+          if (onDiscount != null)
+            VSwipeSemanticAction(label: 'Chiết khấu', onInvoke: onDiscount!),
+          if (onDelete != null)
+            VSwipeSemanticAction(label: 'Xóa', onInvoke: onDelete!),
+        ],
         actionsBuilder: (context, close) => Row(
           mainAxisSize: MainAxisSize.min,
           children: [

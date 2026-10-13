@@ -183,6 +183,7 @@ class _TrailingChevron extends StatelessWidget {
       iconSize: 20,
       borderRadius: VRadius.input - VSpacing.space1 / 2,
       iconColor: open ? colors.textBrand : colors.textMuted,
+      semanticLabel: open ? 'Đóng danh sách' : 'Mở danh sách',
       onTap: enabled ? onTap : null,
     );
   }

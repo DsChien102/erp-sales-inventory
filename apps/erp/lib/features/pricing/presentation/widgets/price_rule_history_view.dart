@@ -197,6 +197,7 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
                 children: [
                   VIconBox(
                     icon: VIcons.tune,
+                    semanticLabel: 'Lọc lịch sử thay đổi',
                     size: 44,
                     iconSize: 20,
                     backgroundColor:

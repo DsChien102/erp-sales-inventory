@@ -69,16 +69,17 @@ Kiểm: `dig +short CNAME send.mail.dschienerp.me @dns1.registrar-servers.com` (
    ```bash
    supabase db reset --linked
    supabase functions deploy send-email
+   supabase functions deploy invitation-signup
    ```
 
-   `config.toml` đã tắt `verify_jwt` cho `send-email`. Function kiểm tra header `x-email-webhook-secret`. Nếu migration `20261009001` và `20261009002` (2-B1) chưa lên Dev, chúng đi cùng lần push này.
+   `config.toml` đã tắt `verify_jwt` cho cả hai function. `send-email` kiểm tra header `x-email-webhook-secret`. `invitation-signup` (2-B5: nhân viên chưa có tài khoản nhận lời mời bằng một mã) không cần secret mới — `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` do Supabase cấp sẵn. Nếu migration `20261009001` và `20261009002` (2-B1) chưa lên Dev, chúng đi cùng lần push này.
 
 ## Local
 
 `supabase db reset` áp migration, gồm `pg_net`, `pg_cron` và lịch `iam-retry-email-jobs` (mỗi phút). Không có Vault secret thì job vẫn được tạo, trigger không lỗi, cron gửi sau khi cấu hình.
 
 ```bash
-deno test supabase/functions/send-email/
+deno test supabase/functions/send-email/ supabase/functions/invitation-signup/
 psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
   -v ON_ERROR_STOP=1 \
   -f supabase/tests/iam_email_jobs.sql
@@ -88,6 +89,7 @@ Serve function local khi cần:
 
 ```bash
 supabase functions serve send-email --no-verify-jwt
+supabase functions serve invitation-signup --no-verify-jwt   # khi chạy app với Supabase local
 ```
 
 ## Prod

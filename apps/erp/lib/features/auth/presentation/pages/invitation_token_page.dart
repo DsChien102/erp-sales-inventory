@@ -7,7 +7,6 @@ import 'package:erp/core/iam/iam_codes.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/session/session_controller.dart';
-import '../../../iam/data/account_repository.dart';
 import '../../../iam/presentation/shared/idempotency_key_factory.dart';
 import '../../data/auth_repository.dart';
 import '../../data/invitation_acceptance_repository.dart';
@@ -16,7 +15,6 @@ import '../../logic/invitation_acceptance_state.dart';
 import '../widgets/invitation_confirm_bottom_sheet.dart';
 import '../widgets/invitation_outcome_view.dart';
 import '../widgets/invitation_token_entry_form.dart';
-import '../widgets/verify_email_view.dart';
 import 'invitation_registration_page.dart';
 
 class InvitationTokenPage extends StatelessWidget {
@@ -24,7 +22,6 @@ class InvitationTokenPage extends StatelessWidget {
     super.key,
     this.invitations,
     this.auth,
-    this.account,
     this.session,
     this.keyFactory,
     this.cubit,
@@ -32,7 +29,6 @@ class InvitationTokenPage extends StatelessWidget {
 
   final InvitationAcceptanceRepository? invitations;
   final AuthRepository? auth;
-  final AccountRepository? account;
   final SessionController? session;
   final IdempotencyKeyFactory? keyFactory;
   final InvitationAcceptanceCubit? cubit;
@@ -42,7 +38,7 @@ class InvitationTokenPage extends StatelessWidget {
     if (cubit != null) {
       return BlocProvider.value(
         value: cubit!,
-        child: _InvitationTokenView(auth: auth, session: session),
+        child: const _InvitationTokenView(),
       );
     }
     final keys = keyFactory ?? const UuidIdempotencyKeyFactory();
@@ -52,20 +48,16 @@ class InvitationTokenPage extends StatelessWidget {
       create: (_) => InvitationAcceptanceCubit(
         invitations: invitations ?? getIt<InvitationAcceptanceRepository>(),
         auth: resolvedAuth,
-        account: account ?? getIt<AccountRepository>(),
         session: resolvedSession,
         nextKey: keys.next,
       ),
-      child: _InvitationTokenView(auth: resolvedAuth, session: resolvedSession),
+      child: const _InvitationTokenView(),
     );
   }
 }
 
 class _InvitationTokenView extends StatefulWidget {
-  const _InvitationTokenView({this.auth, this.session});
-
-  final AuthRepository? auth;
-  final SessionController? session;
+  const _InvitationTokenView();
 
   @override
   State<_InvitationTokenView> createState() => _InvitationTokenViewState();
@@ -189,8 +181,6 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
         return true;
       case InvitationAcceptanceStep.newAccountRegistration:
         return state.inspection == null || !_confirmedNewAccount;
-      case InvitationAcceptanceStep.awaitingVerification:
-        return false;
       case InvitationAcceptanceStep.submitting:
         return state.inspection?.accountExists == true;
       case InvitationAcceptanceStep.accepted:
@@ -253,15 +243,6 @@ class _InvitationTokenViewState extends State<_InvitationTokenView> {
           );
         }
         return const InvitationRegistrationPage();
-      case InvitationAcceptanceStep.awaitingVerification:
-        return VerifyEmailView(
-          email: state.verificationEmail ?? '',
-          auth: widget.auth ?? getIt<AuthRepository>(),
-          session: widget.session ?? getIt<SessionController>(),
-          onVerified: (_) {
-            cubit.completeVerifiedRegistration();
-          },
-        );
       case InvitationAcceptanceStep.submitting:
         if (state.inspection?.accountExists == true) {
           return InvitationTokenEntryForm(

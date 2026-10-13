@@ -1,6 +1,6 @@
 # 2-B1 — Đăng ký cửa hàng mới, xác minh email, định tuyến sau đăng nhập
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄 (DB ✅ 2026-10-12; chờ kiểm tay trên app)
 > Gồm việc: 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 2.2, 2.3, BR-01…BR-14, BR-62…BR-65; EP-01 (US-01.1…01.5), US-02.1, US-02.2, US-02.4, US-05.4; màn 5.2, 5.3, 5.4; kiểm thử 9.3 (kịch bản 1, 2)
 
@@ -242,3 +242,10 @@ Gợi ý: (1) migration + test SQL + config; (2) bộ chọn địa chỉ sang c
   2. **Toast "Chào mừng…"**: `verifyOtp` xong là `signedIn` → guard đẩy `/signup` → `/` gần như cùng lúc với `VToast.show` của trang đăng ký. Nhiều khả năng vẫn hiện (toast nằm ở overlay), nhưng kiểm tay; nếu mất thì chuyển toast sang trang chủ (cờ trong `SessionState` hoặc `extra`).
   3. Bootstrap: tổ chức không chọn được mà cũng không tạm ngừng / đóng (vd `provisioning` của người không phải Owner) bị dựng thành ngữ cảnh "tạm ngừng". Hết khi 2-B2 bỏ `provisioning`.
   4. Khi thêm SMTP riêng: sửa `config.toml` (`email_sent`, `[auth.email.smtp]`) **trước** lần `config push` kế tiếp.
+
+### Cập nhật 2026-10-12 — đợt kiểm IAM
+
+- `db reset --linked` trên Dev (sau bản sửa `activated_at`) rồi chạy 4 kịch bản trong SQL Editor — `iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_legacy_cleanup`: **cả 4 không raise** (người dùng chạy, 2026-10-12).
+- `iam_signup_trigger.sql` đạt sau 2 lần sửa: lỗi `42804` (trigger gán `text` vào cột enum `status`) hết khi 3-E bỏ cột; lỗi `42703 activated_at` (do 3-E xoá migration tạo cột) đã sửa ở 3-E.
+- Email trên Dev: Resend `mail.dschienerp.me` verified; SMTP Auth đã cài trên Dashboard (sender "DSC ERP").
+- **Còn lại để đóng:** bật Confirm email + mẫu "Confirm signup" (mã 6 số) + rate limit 30 (Dashboard hoặc `config push`); kiểm tay TH-01 9.3 kịch bản 1–2 trên app với email thật. Review giữ 🔄 tới lúc đó.

@@ -116,6 +116,7 @@ class _FilterButton extends StatelessWidget {
         VIconBox(
           key: const Key('btn_sales_order_filter'),
           icon: VIcons.tune,
+          semanticLabel: 'Lọc đơn hàng',
           size: 44,
           iconSize: 20,
           backgroundColor: isActive ? colors.successBg : colors.surface,

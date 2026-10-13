@@ -114,7 +114,7 @@ class _VDatePickerState extends State<VDatePicker> {
     final borderColor = switch (widget.tone) {
       VComponentTone.primary => dynamicColors.primary,
       VComponentTone.danger => dynamicColors.danger,
-      _ => dynamicColors.borderDefault,
+      _ => isEnabled ? dynamicColors.borderInput : dynamicColors.borderDefault,
     };
 
     final borderWidth = VBorders.widthFor(widget.emphasis);

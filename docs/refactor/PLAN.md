@@ -84,13 +84,19 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 | 2-A3 Phiên, đăng nhập, nhận lời mời | [plans/P2/2-A3-phien-dang-nhap-loi-moi.md](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ | ✅ |
 | 2-B1 Đăng ký cửa hàng, xác minh email, định tuyến | [plans/P2/2-B1-dang-ky-cua-hang.md](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | ✅ | 🔄 |
 | 2-B2 Email qua Edge Function | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md) | ✅ | ✅ | 🔄 |
-| 2-B3 Sửa KI của IAM, bỏ readiness | [plans/P2/2-B3-iam-sua-ki.md](plans/P2/2-B3-iam-sua-ki.md) | ✅ | ✅ | 🔄 |
+| 2-B3 Sửa KI của IAM, bỏ readiness | [plans/P2/2-B3-iam-sua-ki.md](plans/P2/2-B3-iam-sua-ki.md) | ✅ | ✅ | ✅ |
 | 2-B4 Hoàn thiện IAM sau rà soát | [plans/P2/2-B4-iam-hoan-thien.md](plans/P2/2-B4-iam-hoan-thien.md) | ✅ | ✅ | ✅ |
+| 2-B5 Nhận lời mời bằng một mã | [plans/P2/2-B5-loi-moi-mot-ma.md](plans/P2/2-B5-loi-moi-mot-ma.md) | ✅ | ✅ | 🔄 |
+| 2-B6 Hoàn thiện UI/UX màn auth | [plans/P2/2-B6-ui-ux-auth.md](plans/P2/2-B6-ui-ux-auth.md) | ✅ | ⬜ | ⬜ |
+| 2-B7 Hoàn thiện UI/UX màn IAM | [plans/P2/2-B7-ui-ux-iam.md](plans/P2/2-B7-ui-ux-iam.md) | ✅ | ⬜ | ⬜ |
 | 3-A Quản trị tổ chức (app) | [plans/P3/3-A-quan-tri-to-chuc.md](plans/P3/3-A-quan-tri-to-chuc.md) | ✅ | ✅ | ✅ |
 | 3-C App bỏ phụ thuộc IAM cũ | [plans/P3/3-C-thay-iam-cu-bang-core.md](plans/P3/3-C-thay-iam-cu-bang-core.md) | ✅ | ✅ | ✅ |
 | 3-D Xoá modules/iam, apps/admin, worker | [plans/P3/3-D-xoa-iam-cu.md](plans/P3/3-D-xoa-iam-cu.md) | ✅ | ✅ | ✅ |
-| 3-B DB: KI-08, dọn luồng cũ, KI-03 | [plans/P3/3-B-db-ki08-don-luong-cu.md](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | ✅ | 🔄 |
-| 3-E Bỏ Platform Admin, trạng thái tổ chức / tài khoản | [plans/P3/3-E-bo-platform-admin.md](plans/P3/3-E-bo-platform-admin.md) | ✅ | ✅ | 🔄 |
+| 3-B DB: KI-08, dọn luồng cũ, KI-03 | [plans/P3/3-B-db-ki08-don-luong-cu.md](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | ✅ | ✅ |
+| 3-E Bỏ Platform Admin, trạng thái tổ chức / tài khoản | [plans/P3/3-E-bo-platform-admin.md](plans/P3/3-E-bo-platform-admin.md) | ✅ | ✅ | ✅ |
+| 10-4 Tương phản màu, nhãn thanh dưới | [plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md](plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md) | ✅ | ✅ | ✅ |
+| 10-5 Tương phản tone, chữ phụ, viền ô nhập | [plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md) | ✅ | ✅ | ✅ |
+| 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động | [plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅ | ✅ | ✅ |
 
 
 ---
@@ -188,10 +194,13 @@ Chi tiết từng việc:
 | **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | ✅ [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ✅ | ✅ |
 | **2-A2** | (a) IAM: thành viên, vai trò, lời mời (quản trị), nhật ký quản trị, hub "Người dùng & vai trò" | 2B.6 (phần còn lại) | ✅ [plan](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅ | ✅ |
 | **2-A3** | (a) Phiên & đăng nhập: `SessionController` gọi RPC trực tiếp (`get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) và tự cập nhật `IamSession`; `LoginCubit`, đăng xuất, nhập mã lời mời `/invitation` (`InvitationAcceptanceCubit`); xử lý 2 góp ý review 1-B (`core` import `features`, reset state khi đổi người dùng) | 2B.5, 1-B góp ý | ✅ [plan](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ |
-| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | 🔄 |
-| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend | 2A.4 | ✅ [plan](plans/P2/2-B2-email-edge-function.md) | ✅ | 🔄 |
-| **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-06, KI-10…KI-14, phần app của KI-05 (bỏ readiness cửa hàng). KI-03 và KI-05 DB/platform dời P3 | TH-01 mục 9.2 | ✅ [plan](plans/P2/2-B3-iam-sua-ki.md) | ✅ | 🔄 |
+| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | 🔄 DB ✅; chờ bật xác minh email + kiểm tay |
+| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend | 2A.4 | ✅ [plan](plans/P2/2-B2-email-edge-function.md) | ✅ | 🔄 SQL ✅, `send-email` đã deploy; chờ Vault + gửi mail lời mời thật |
+| **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-06, KI-10…KI-14, phần app của KI-05 (bỏ readiness cửa hàng). KI-03 và KI-05 DB/platform dời P3 | TH-01 mục 9.2 | ✅ [plan](plans/P2/2-B3-iam-sua-ki.md) | ✅ | ✅ |
 | **2-B4** | (b) Hoàn thiện sau rà soát TH-01: mất quyền khi đang dùng → tải lại phiên; đổi mật khẩu xong đăng xuất; câu lời mời tổ chức tạm ngừng; đăng ký lại cùng email (A3); đếm ngược gửi lại (A4) | Rà soát 2026-10-10 | ✅ [plan](plans/P2/2-B4-iam-hoan-thien.md) | ✅ | ✅ |
+| **2-B5** | (b) Nhân viên chưa có tài khoản chỉ nhập mã lời mời 8 ký tự (bỏ mã 6 số): Edge Function `invitation-signup` tạo tài khoản đã xác minh + nhận lời mời | Quyết định 2026-10-12 | ✅ [plan](plans/P2/2-B5-loi-moi-mot-ma.md) | ✅ | 🔄 code đạt; chờ deploy `invitation-signup` + kiểm tay |
+| **2-B6** | (b) Hoàn thiện UI/UX màn auth theo audit impeccable: sheet xác nhận lời mời đủ Tổ chức / Vai trò / Email, nút "Tiếp tục" ở nhập mã lời mời, lỗi đăng ký theo từng trường, lỗi đăng nhập dưới form, tự điền (Keychain / Autofill / mã 6 số), ô mã 6 số dùng `VVerificationCodeField`, nhãn nút quay lại, vùng chạm link. Làm sau khi 2-B5 commit | Audit 2026-10-13 | ✅ [plan](plans/P2/2-B6-ui-ux-auth.md) | ⬜ | ⬜ |
+| **2-B7** | (b) Hoàn thiện UI/UX màn IAM theo audit impeccable: bàn phím MST nhập được dấu gạch (BR-21), nút mời `+` trên app bar, nhãn "Chủ sở hữu" ở thẻ thành viên, lỗi mời thành viên dưới ô Email, chặn rời form khi chưa lưu, nhãn / vùng chạm (nút lọc, quay lại, "Thử lại", sao chép), tab và chip có trạng thái chọn; `VChip(onTap)` 44 + `VCard(onTap)` là nút; gộp 3 thẻ hành động, xoá file chết | Audit 2026-10-13 | ✅ [plan](plans/P2/2-B7-ui-ux-iam.md) | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
@@ -233,28 +242,30 @@ Chi tiết từng việc:
 
 > Ban đầu (2026-10-09, phương án A) phase này chuyển phần quản trị tổ chức của `apps/admin` vào tab **Thêm** (3-A). Từ 2026-10-11 mở rộng thành **làm gọn IAM** (3-B, 3-C, 3-D). Ngày 2026-10-12 **bỏ hẳn Platform Admin** (3-E): phần app của 3-A bị gỡ lại; tổ chức / tài khoản chỉ còn trạng thái hoạt động.
 
-**Trạng thái:** 🔄 3-A, 3-C, 3-D xong; 3-B và 3-E chờ `db reset --linked` (chưa chạy trong phiên 3-E)
+**Trạng thái:** ✅ Xong (2026-10-12). Kiểm tay cùng đợt kiểm IAM
 
 | Plan | Nội dung | Gồm việc | Plan | Làm | Review |
 |---|---|---|---|---|---|
 | **3-A** | (app) Quản trị tổ chức trong tab Thêm: `isPlatformAdmin`, guard G7, repository + cubit, màn C1–C6, lối vào ở tab Thêm và `/no-organization`, admin mẫu | 3.1, 3.2, 3.3, 3.5 | ✅ [plan](plans/P3/3-A-quan-tri-to-chuc.md) | ✅ | ✅ |
 | **3-C** | (app) App không còn phụ thuộc `vet45_iam_*`: hằng số / DTO sang core, `SessionStore` + 4 lớp contract thay `IamSession` / `IamStartup`, Sales bỏ `IIamModule`, viết lại 27 test | Làm gọn IAM (2026-10-11) | ✅ [plan](plans/P3/3-C-thay-iam-cu-bang-core.md) | ✅ | ✅ |
 | **3-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script | Làm gọn IAM; kéo 9.1 lên | ✅ [plan](plans/P3/3-D-xoa-iam-cu.md) | ✅ | ✅ |
-| **3-B** | (DB, sau 3-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 3.4, 3.6 | ✅ [plan](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | 🔄 `db reset --linked` qua (2026-10-12); chờ `iam_legacy_cleanup.sql` sau 3-E |
-| **3-E** | Bỏ Platform Admin (thay phương án A của 3-A, quyết định 2026-10-12): xoá `features/platform_admin`, G7, RPC `platform_*`, `platform_admins`, `platform_audit_logs`, `vet45 admin`; tổ chức / tài khoản chỉ còn hoạt động (bỏ cột `status`, ID-09, `TENANT_SUSPENDED/CLOSED`); bỏ chuyển Owner (KI-08). Làm trước khi tiếp đợt kiểm IAM | Quyết định 2026-10-12 | ✅ [plan](plans/P3/3-E-bo-platform-admin.md) | ✅ | 🔄 chưa `db reset --linked` |
+| **3-B** | (DB, sau 3-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 3.4, 3.6 | ✅ [plan](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | ✅ (2026-10-12) |
+| **3-E** | Bỏ Platform Admin (thay phương án A của 3-A, quyết định 2026-10-12): xoá `features/platform_admin`, G7, RPC `platform_*`, `platform_admins`, `platform_audit_logs`, `vet45 admin`; tổ chức / tài khoản chỉ còn hoạt động (bỏ cột `status`, ID-09, `TENANT_SUSPENDED/CLOSED`); bỏ chuyển Owner (KI-08). Làm trước khi tiếp đợt kiểm IAM | Quyết định 2026-10-12 | ✅ [plan](plans/P3/3-E-bo-platform-admin.md) | ✅ | ✅ (2026-10-12) |
 
 Chi tiết từng việc:
 
 | # | Việc |
 |---|---|
-| 3.1 | `features/platform_admin/` (data / logic / presentation); `SessionController.isPlatformAdmin`; guard: `/more/platform/**` chỉ cho Platform Admin |
-| 3.2 | Chuyển từ `apps/admin`: danh sách tổ chức (ID-31), chi tiết (ID-32), sheet Thao tác + xác nhận tạm ngừng / khôi phục / đóng, thay đổi chủ sở hữu (ID-33) + xác nhận |
-| 3.3 | Điểm vào: nhóm "Quản trị nền tảng" cuối tab Thêm; nút "Quản trị nền tảng" trên `/no-organization` (admin chưa có cửa hàng) |
-| 3.4 | KI-08: `transfer_platform_tenant_ownership` chặn người nhận đã là Owner tổ chức khác (BR-32) |
-| 3.5 | Tạo platform admin bằng `vet45 admin create --email …` (đã có trong `tools/vet45_env`, không viết script mới) + admin mẫu trong `seed.sql` cho local; ghi cách dùng vào README |
-| 3.6 | KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, trạng thái `provisioning` / `pending_activation` (dời từ 2-B3) |
+| 3.1 | ~~`features/platform_admin/`, `SessionController.isPlatformAdmin`, guard G7~~ — làm ở 3-A, gỡ ở 3-E |
+| 3.2 | ~~Chuyển từ `apps/admin`: danh sách / chi tiết tổ chức, tạm ngừng / khôi phục / đóng, đổi chủ sở hữu~~ — làm ở 3-A, gỡ ở 3-E |
+| 3.3 | ~~Lối vào "Quản trị nền tảng" ở tab Thêm và `/no-organization`~~ — làm ở 3-A, gỡ ở 3-E |
+| 3.4 | ~~KI-08: `transfer_platform_tenant_ownership` chặn người nhận đã là Owner nơi khác~~ — làm ở 3-B, bỏ cùng chuyển Owner ở 3-E |
+| 3.5 | ~~`vet45 admin create` + admin mẫu trong `seed.sql`~~ — gỡ ở 3-E |
+| 3.6 | KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, trạng thái `provisioning` / `pending_activation` (3-B) |
+| 3.7 | Bỏ `modules/iam`, `apps/admin`, `apps/messaging_worker`; app hết `vet45_iam_*` (3-C, 3-D) |
+| 3.8 | Bỏ Platform Admin: RPC `platform_*`, bảng `platform_admins`, `platform_audit_logs`; cột trạng thái tổ chức / tài khoản; ID-09 phần tổ chức / tài khoản bị chặn (3-E) |
 
-**Không chuyển** từ `apps/admin`: wizard khởi tạo (`platform_onboarding_page`), "gửi lại email thiết lập / lời mời owner", "gửi lại kích hoạt", tổng quan, người dùng nền tảng, nhật ký nền tảng, khung 5 tab, "Chuyển không gian".
+**Không chuyển** từ `apps/admin`: toàn bộ (sau 3-E).
 
 **Xong khi:** repo không còn `modules/iam`, `apps/admin`, `apps/messaging_worker`, `features/platform_admin`; DB không còn RPC onboarding / `platform_*`, cột trạng thái tổ chức / tài khoản; `db reset --linked` + kịch bản SQL IAM chạy qua (đợt kiểm IAM).
 
@@ -438,6 +449,9 @@ Chi tiết từng việc:
 | **10-1** | Tài liệu kiến trúc, sơ đồ báo cáo, README | 10.1, 10.2, 10.3 | ⬜ | ⬜ | ⬜ |
 | **10-2** | Kịch bản demo bảo vệ | 10.4 | ⬜ | ⬜ | ⬜ |
 | **10-3** | Đổi tên `vet45` (tùy chọn), merge và tag `v2.0.0` — làm thẳng | 10.5, 10.6 | — | ⬜ | — |
+| **10-4** | Tương phản màu xanh chủ đạo, nhãn + semantics thanh dưới (độc lập, làm lúc nào cũng được) | 10.7 | ✅ [plan](plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md) | ✅ | ✅ |
+| **10-5** | Tương phản tone trạng thái, chữ phụ, viền ô nhập (độc lập) | 10.8 | ✅ [plan](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md) | ✅ | ✅ |
+| **10-6** | Vùng chạm, nhãn trình đọc màn hình, inset thanh dưới, giảm chuyển động (độc lập) | 10.9 | ✅ [plan](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅ | ✅ |
 
 Chi tiết từng việc:
 
@@ -449,6 +463,9 @@ Chi tiết từng việc:
 | 10.4 | Kịch bản demo bảo vệ: đăng ký cửa hàng → thêm sản phẩm → thêm khách → bán hàng → phát hành HĐĐT → đổi trả |
 | 10.5 | (Tùy chọn) Đổi tên công cụ `vet45` / thư mục `.vet45` / `tools/vet45_env` cho khớp tên dự án mới |
 | 10.6 | Merge `refactor/simple-arch` → `dev` → `main`, tag `v2.0.0` |
+| 10.7 | Sửa lỗi khả năng tiếp cận trong `vet45_design_system`: theme sáng đổi `primary` / `success` sang `primary600` (đạt 4.5:1), `VBottomNavigationBar` hiện nhãn + `Semantics`; tab 4 ERP đổi `KH&NCC` → `Đối tác` |
+| 10.8 | Theme sáng: warning `yellow700`, danger `red600`, info `blue600`, `textSecondary` `neutral600`, `textMuted` `neutral500`; token mới `borderInput` (`neutral450`) cho viền ô nhập / checkbox / radio; test tương phản tự động |
+| 10.9 | Vùng chạm ≥ 44 (nút mật khẩu, nút xoá chip, `VIconBox` có `onTap`); nhãn cho nút quay lại `VAppBar`, mũi tên combobox, bàn phím số; `VSwipeReveal.semanticActions`; thanh dưới chừa đủ inset; skeleton / swipe tôn trọng giảm chuyển động |
 
 
 
@@ -458,9 +475,9 @@ Chi tiết từng việc:
 |---|---|---|---|
 | P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
 | P1 | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
-| P2 | 🔄 | — | Code xong 2-A1…2-B4 (2026-10-11). 2-B1, 2-B2, 2-B3 review 🔄 chờ **đợt kiểm IAM**. 2026-10-12: kiểm SQL phát hiện lỗi trigger 2-B1 (`status` enum) — hết khi làm 3-E |
-| P3 | 🔄 | — | 3-A, 3-C, 3-D ✅. 3-B: `db reset --linked` qua (2026-10-12), chờ kịch bản SQL. 3-E: plan 📝 |
-| Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS `mail.dschienerp.me` ✅, secrets Edge Function ✅, SMTP Auth (Dashboard) ✅, `db reset --linked` ✅; dừng ở kịch bản SQL chờ 3-E |
+| P2 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
+| P3 | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
+| Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. Còn: Vault → bật Confirm email + mẫu mã 6 số → kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
 | P4 | ⬜ | | |
 | P5 | ⬜ | | |
 | P6 | ⬜ | | |

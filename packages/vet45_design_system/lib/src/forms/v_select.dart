@@ -349,7 +349,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
             VComponentTone.danger => colors.danger,
-            _ => colors.borderDefault,
+            _ => isEnabled ? colors.borderInput : colors.borderDefault,
           };
 
     // ignore: deprecated_member_use_from_same_package
@@ -405,7 +405,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
                     height: menuMetrics.shellHeight,
                     child: VOverlayMenuShell.panel(
                       borderRadius: BorderRadius.circular(menuRadius),
-                      borderSide: VBorders.side(colors.borderStrong),
+                      borderSide: VBorders.side(colors.borderInput),
                       padding: const EdgeInsets.all(menuPadding),
                       boxShadow: menuBoxShadow,
                       child: menuMetrics.needsScroll

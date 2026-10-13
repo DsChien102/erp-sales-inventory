@@ -531,6 +531,7 @@ class _SalesComposeProductSearchBarState extends State<SalesComposeProductSearch
             VIconBox(
               key: const Key('btn_compose_scan_barcode'),
               icon: VIcons.qrCode,
+              semanticLabel: 'Quét mã vạch',
               size: VTextField.controlHeight,
               iconSize: 22,
               backgroundColor: colors.surface,

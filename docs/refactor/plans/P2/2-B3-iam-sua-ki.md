@@ -1,6 +1,6 @@
 # 2-B3 — Sửa các vấn đề đã biết của IAM (TH-01) và dọn readiness
 
-> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
+> Phase: P2 · Bước (b) sửa / tính năng mới · Trạng thái: Plan ✅ | Làm ✅ | Review ✅ (2026-10-12)
 > Gồm việc: TH-01 mục 9.2 (KI-02, KI-06, KI-10…KI-14, phần app của KI-05), 2B.6 "bỏ readiness", US-07.1; góp ý còn treo của 2-B1 (#1) và 2-B2 (#1, #2)
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) 3.4, 7.3, US-06.1…06.6, US-07.1, BR-31, BR-33, BR-36, BR-44, BR-55, BR-66
 
@@ -175,3 +175,9 @@ Gợi ý: (1) DB KI-02 + sửa migration email; (2) bỏ readiness; (3) hub + va
   1. Chạy 3 kịch bản SQL cùng 5 migration `20261009001…005` trong `begin … rollback` trên Dev (Claude chạy khi bạn đồng ý).
   2. `db push` 5 migration → `config push` (bật xác minh email) → secrets + Vault (`RUNBOOK-email.md`) → `functions deploy send-email`.
   3. Kiểm tay TH-01 9.3 kịch bản 1–4 (mail thật sau khi có tên miền).
+
+### Cập nhật 2026-10-12 — đợt kiểm IAM
+
+- `db reset --linked` trên Dev (sau bản sửa `activated_at`) rồi chạy 4 kịch bản trong SQL Editor — `iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_legacy_cleanup`: **cả 4 không raise** (người dùng chạy, 2026-10-12).
+- KI-02 đạt trên DB thật (`iam_accept_invitation_reinvite.sql`): mời lại người đã bị loại dùng lại đúng bản ghi thành viên, kích hoạt lại, vai trò mới, không phải Owner. `iam_legacy_cleanup.sql` phần lời mời nhân viên cũng đạt.
+- Phần app đã đạt ở review trước → **Review ✅**. Kiểm tay TH-01 9.3 kịch bản 3–4 và tick CHECKLIST làm cùng đợt kiểm tay (không chặn).

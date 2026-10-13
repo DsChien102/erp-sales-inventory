@@ -219,7 +219,7 @@ class _VTextAreaState extends State<VTextArea> {
     final toneBorderColor = switch (widget.tone) {
       VComponentTone.primary => colors.primary,
       VComponentTone.danger => colors.danger,
-      _ => colors.borderDefault,
+      _ => colors.borderInput,
     };
     final borderWidth = VBorders.widthFor(widget.emphasis);
 

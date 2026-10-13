@@ -119,14 +119,13 @@ class _PartnerFormViewState extends State<_PartnerFormView> {
           key: Key(widget.isEdit ? 'wgt_e01_u03_fr01_01' : 'wgt_e01_u02_fr02_01'),
           title: title,
           showBackButton: false,
-          leading: Padding(
-            padding: const EdgeInsets.all(VSpacing.space2),
-            child: VIconBox(
-              icon: VIcons.arrowBack,
-              size: 40,
-              backgroundColor: Colors.transparent,
-              onTap: _requestLeave,
-            ),
+          // No padding: the app bar's 56pt leading slot is the tap target.
+          leading: VIconBox(
+            icon: VIcons.arrowBack,
+            semanticLabel: 'Quay lại',
+            size: 40,
+            backgroundColor: Colors.transparent,
+            onTap: _requestLeave,
           ),
           body: PartnerCreateForm(
             onCancel: _requestLeave,

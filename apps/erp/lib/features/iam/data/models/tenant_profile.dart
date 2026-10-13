@@ -13,7 +13,6 @@ final class TenantProfile {
     this.contactAddressText,
     this.provinceCode,
     this.communeCode,
-    this.activatedAt,
     this.legalProfile,
   });
 
@@ -29,7 +28,6 @@ final class TenantProfile {
   final String? contactAddressText;
   final String? provinceCode;
   final String? communeCode;
-  final DateTime? activatedAt;
   final TenantLegalProfile? legalProfile;
 
   factory TenantProfile.fromJson(Map<String, dynamic> row) {
@@ -52,9 +50,6 @@ final class TenantProfile {
       contactAddressText: row['contact_address_text'] as String?,
       provinceCode: row['province_code'] as String?,
       communeCode: row['commune_code'] as String?,
-      activatedAt: row['activated_at'] == null
-          ? null
-          : DateTime.parse(row['activated_at'] as String),
       legalProfile: legalProfile,
     );
   }
@@ -73,7 +68,6 @@ final class TenantProfile {
       contactAddressText: contactAddressText,
       provinceCode: provinceCode,
       communeCode: communeCode,
-      activatedAt: activatedAt,
       legalProfile: legalProfile,
     );
   }

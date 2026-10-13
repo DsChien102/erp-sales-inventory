@@ -140,7 +140,10 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
       ),
     )
     ..registerLazySingleton<InvitationAcceptanceRepository>(
-      () => InvitationAcceptanceRepository(rpc: getIt<SupabaseRpc>()),
+      () => InvitationAcceptanceRepository(
+        rpc: getIt<SupabaseRpc>(),
+        functions: supabaseModule.client.functions,
+      ),
     );
 
   final catalogModule = CatalogStartup.initialize(

@@ -20,6 +20,7 @@ class VColors {
   static const Color neutral200 = Color(0xFFE5E8EB);
   static const Color neutral300 = Color(0xFFD0D5DA);
   static const Color neutral400 = Color(0xFF9AA3AD);
+  static const Color neutral450 = Color(0xFF868E98);
   static const Color neutral500 = Color(0xFF6B7480);
   static const Color neutral600 = Color(0xFF4A535E);
   static const Color neutral700 = Color(0xFF2F3640);

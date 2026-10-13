@@ -134,11 +134,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               PreviewStateRow(
-                label: 'default — vuốt trái',
+                label: 'default — vuốt trái (semanticActions: Xóa)',
                 child: VSwipeReveal(
                   height: 72,
                   actionExtent: 76,
                   onTap: () {},
+                  semanticActions: [
+                    VSwipeSemanticAction(label: 'Xóa', onInvoke: () {}),
+                  ],
                   actionsBuilder: (context, close) {
                     final actionColors = context.vColors;
                     return Material(
@@ -1599,9 +1602,27 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           child: VBottomNavigationBar(
             currentIndex: _navIndex,
             items: const [
-              VBottomNavigationItem(icon: Icon(Icons.home), label: 'Home'),
-              VBottomNavigationItem(icon: Icon(Icons.receipt_long), label: 'Orders'),
-              VBottomNavigationItem(icon: Icon(Icons.more_horiz), label: 'More'),
+              VBottomNavigationItem(
+                icon: Icon(Icons.home_outlined),
+                label: 'Trang chủ',
+              ),
+              VBottomNavigationItem(
+                icon: Icon(Icons.receipt_long_outlined),
+                label: 'Đơn hàng',
+              ),
+              VBottomNavigationItem(
+                icon: Icon(Icons.inventory_2_outlined),
+                label: 'Sản phẩm',
+              ),
+              VBottomNavigationItem(
+                icon: Icon(Icons.people_outline_rounded),
+                label: 'Đối tác',
+              ),
+              VBottomNavigationItem(
+                icon: Icon(Icons.more_horiz_rounded),
+                label: 'Thêm',
+                enabled: false,
+              ),
             ],
             onTap: (i) => setState(() => _navIndex = i),
           ),

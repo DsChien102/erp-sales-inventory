@@ -3,8 +3,6 @@ import 'package:erp/core/session/session_repository.dart';
 import 'package:erp/core/supabase/supabase_rpc.dart';
 import 'package:erp/features/auth/data/auth_repository.dart';
 import 'package:erp/features/auth/data/models/signup_input.dart';
-import 'package:erp/features/iam/data/account_repository.dart';
-import 'package:erp/features/iam/data/models/my_account.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase/supabase.dart';
@@ -28,13 +26,12 @@ class _MockUser extends Mock implements User {}
 
 class _MockSession extends Mock implements Session {}
 
-/// `signIn` / `signUpFromInvitation` ghi nhận lời gọi và có thể ném lỗi cố định.
+/// `signIn` / `signUpStore` ghi nhận lời gọi và có thể ném lỗi cố định.
 class ScriptedAuthRepository extends AuthRepository {
   ScriptedAuthRepository({
     this.signInError,
     this.signUpError,
     this.userId = 'user-1',
-    this.needsVerification = false,
     List<String>? log,
   }) : _log = log,
        super(rpc: testRpc(), auth: _unusedAuth);
@@ -44,11 +41,9 @@ class ScriptedAuthRepository extends AuthRepository {
   final Object? signInError;
   final Object? signUpError;
   final String userId;
-  final bool needsVerification;
   final List<String>? _log;
 
   final signIns = <({String email, String password})>[];
-  final signUps = <({String email, String givenName, String familyName, String password})>[];
   final storeSignUps = <SignupStoreInput>[];
   final otpCodes = <String>[];
   final resentEmails = <String>[];
@@ -66,25 +61,6 @@ class ScriptedAuthRepository extends AuthRepository {
     _log?.add('signIn');
     if (signInError != null) throw signInError!;
     return userId;
-  }
-
-  @override
-  Future<({String userId, bool needsVerification})> signUpFromInvitation({
-    required String email,
-    required String password,
-    required String givenName,
-    required String familyName,
-    String? phone,
-  }) async {
-    signUps.add((
-      email: email,
-      givenName: givenName,
-      familyName: familyName,
-      password: password,
-    ));
-    _log?.add('signUp');
-    if (signUpError != null) throw signUpError!;
-    return (userId: userId, needsVerification: needsVerification);
   }
 
   @override
@@ -118,34 +94,6 @@ class ScriptedAuthRepository extends AuthRepository {
   Future<void> updatePassword(String password) async {
     updatedPasswords.add(password);
     if (updatePasswordError != null) throw updatePasswordError!;
-  }
-}
-
-class ScriptedAccountRepository extends AccountRepository {
-  ScriptedAccountRepository({List<String>? log})
-    : _log = log,
-      super(rpc: testRpc(), auth: _MockAuth());
-
-  final List<String>? _log;
-  int updates = 0;
-
-  @override
-  Future<MyAccount> updateMyAccount({
-    String? avatarReference,
-    required String givenName,
-    required String familyName,
-    String? phone,
-  }) async {
-    updates += 1;
-    _log?.add('updateAccount');
-    return MyAccount(
-      userId: 'user-1',
-      email: 'invitee@example.com',
-      givenName: givenName,
-      familyName: familyName,
-      phone: phone,
-      emailVerified: true,
-    );
   }
 }
 

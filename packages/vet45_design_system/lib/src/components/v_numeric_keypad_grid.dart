@@ -86,7 +86,7 @@ class _Key extends StatelessWidget {
     final colors = context.vColors;
     final isSpecial = label == '000' || label == '⌫' || label == '.';
 
-    return VCard(
+    final key = VCard(
       onTap: onTap,
       padding: EdgeInsets.zero,
       backgroundColor: colors.surface,
@@ -104,6 +104,22 @@ class _Key extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    // Blank filler key: nothing for a screen reader to land on.
+    if (label.isEmpty) return ExcludeSemantics(child: key);
+
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: switch (label) {
+        '⌫' => 'Xoá',
+        '.' => 'Dấu thập phân',
+        _ => label,
+      },
+      onTap: onTap,
+      excludeSemantics: true,
+      child: key,
     );
   }
 }

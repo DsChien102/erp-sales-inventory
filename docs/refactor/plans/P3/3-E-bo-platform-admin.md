@@ -1,6 +1,6 @@
 # 3-E — Bỏ Platform Admin; tổ chức và tài khoản chỉ còn trạng thái hoạt động
 
-> Phase: P3 · Trạng thái: Plan ✅ | Làm ✅ | Review 🔄
+> Phase: P3 · Trạng thái: Plan ✅ | Làm ✅ (`61f204347`, 2026-10-12) | Review ✅ (2026-10-12)
 > Quyết định 2026-10-12: bỏ hẳn vai trò Platform Admin (thay phương án A của 3-A). Tổ chức không còn `suspended` / `closed`, tài khoản không còn `suspended`, không còn chuyển Owner.
 > Làm **trước khi tiếp tục đợt kiểm IAM** (đợt kiểm dừng ở kịch bản SQL vì lỗi trigger 2-B1, xem 2.4). Xong thì `db reset --linked` một lần cho cả 3-B và 3-E.
 > Tài liệu liên quan: [3-A](3-A-quan-tri-to-chuc.md), [3-B](3-B-db-ki08-don-luong-cu.md) (KI-08), TH-01 EP-04, EP-09, ID-09, mục 9.3.
@@ -163,3 +163,29 @@ TH-01 (EP-09, ID-09, US-04.2 phần tổ chức bị chặn, BR liên quan, mụ
 ## 7. Review
 
 Code đã làm theo plan (2026-10-12). Analyze không error mới. `flutter test`: 1.399 đạt / 59 lỗi (không lỗi mới so với 3-D). `dart test tools/vet45_env`: chỉ `config_init_test` có sẵn. GitNexus `detect_changes` không thấy diff (chỉ mục lệch so với working tree). Chưa `db reset` / kịch bản SQL vì không có Docker và chưa được phép `--linked`.
+
+### Review của Claude (2026-10-12)
+
+- Commit được review: `61f204347` (+ `06f73d718` khôi phục `.github/pull_request_template.md` lỡ xoá).
+- Kết quả: **Code đạt khi kiểm tĩnh** → Review 🔄 tới đợt kiểm IAM (như 3-B): còn `db reset --linked` và 4 kịch bản SQL.
+  - **Cú pháp:** parse toàn bộ 152 migration bằng libpg_query (SQL + thân PL/pgSQL): mọi hàm IAM đạt. 5 báo lỗi còn lại thuộc `partner` (`20260714004`, giới hạn của bộ phân tích khi không có catalog) — có từ trước.
+  - **Tham chiếu:** bản mới nhất của mọi hàm `iam.*` không còn đọc `status` của `tenants` / `platform_user_profiles`, không gọi hàm đã xoá, không dùng alias chưa khai báo (kiểm riêng `has_permission` sau khi bỏ `join iam.tenants`). Không còn `grant` / `revoke` / `comment` trỏ tới hàm không tồn tại. Hàm `language sql` (kiểm cột lúc tạo) không đụng cột đã bỏ. Đổi kiểu trả về: chỉ `list_accessible_tenants` (bản `20260811002` tạo mới, `20260811014` có `drop function` trước) — an toàn.
+  - **DDL:** cột `iam.tenants.status` + `tenants_status_chk` hết ở `20260811002`, `20260811006`; `platform_user_profiles.status` hết ở `20260811004`; trigger `_on_auth_user_confirmed` không còn ghi `status` → **hết lỗi 42804 của 2-B1**. Khối `do $$` backfill cửa hàng (`20260916003`) chỉ đọc `stores.status`.
+  - `git grep` mục 5: chỉ còn `iam_legacy_cleanup.sql` (kiểm "đã xoá"). `iam_legacy_cleanup.sql` thêm kiểm cột `tenants.status`, enum `platform_user_status`, bảng `platform_admins` / `platform_audit_logs` không còn.
+  - **App:** `dart analyze lib test`: không error; 1 warning có sẵn (`order_einvoice_section_test.dart:32`, không thuộc 3-E); warning `isOwner` của 3-B đã hết. `flutter test`: **1.399 pass / 59 fail**, mọi ca fail thuộc catalog / pricing (baseline), không ca IAM / session / router nào hỏng. `SessionController` chọn tổ chức đầu tiên khi tổ chức chọn gần nhất không hợp lệ; G5 giữ ngoại lệ `/invitation`.
+  - `tools/vet45_env`: 100 pass / 1 fail (`config_init_test`, có từ trước). Lệnh `admin`, `platform_admin_service`, `supabase_admin_client` đã xoá.
+  - **Tài liệu (bước 6, Claude):** TH-01 bỏ nốt BR-12, BR-13, câu "Tài khoản bị tạm ngừng", FR Platform Admin ở US-02.2, SC-02 tổ chức tạm ngừng, `TENANT_SUSPENDED` ở lời mời, nhãn tạm ngừng ở ID-08, I-01, FR-05 nhật ký, ID-31…33, RPC nhóm "Nền tảng", 9.3 "6 dòng" → 3; gọn 4.10 và 5.11 thành ghi chú. SCOPE "Giữ nguyên", CHECKLIST (dòng P3, ID-17), PLAN bảng việc P3.
+- **Bổ sung 2026-10-12 (sau khi chạy kịch bản SQL trên Dev) — 🔄 cần sửa:** cột `iam.tenants.activated_at` được thêm trong `20260811010_iam_platform_tenants_read.sql` — file này bị xoá ở 3-E nên cột mất theo, nhưng còn 2 chỗ dùng:
+  1. `_create_tenant_for_owner` insert `activated_at` (`20261009001:54`) → `iam_accept_invitation_reinvite.sql` (và mọi lần xác minh email đăng ký) lỗi `42703 column "activated_at" of relation "tenants" does not exist`.
+  2. `_tenant_json` đọc `p_tenant.activated_at` (`20260811015:84`) → `get_tenant` (màn Hồ sơ tổ chức) lỗi khi chạy.
+  Sửa: bỏ `activated_at` ở cả hai (app chỉ đọc vào `TenantProfile.activatedAt`, không màn nào hiển thị → bỏ field này và chỗ dùng trong `scripted_iam_repositories.dart`). Rồi `db reset --linked` và chạy lại 4 kịch bản từ đầu.
+  Kiểm tĩnh lần đầu chỉ dò cột `status`, nên sót. Đã kiểm lại **mọi** cột mà bản mới nhất của hàm `iam.*` insert / update / đọc qua alias và biến rowtype, so với schema dựng từ các migration: ngoài 2 chỗ trên không còn cột thiếu.
+- **Đã sửa (Claude, theo yêu cầu, 2026-10-12, chưa commit):** bỏ `activated_at` ở `_create_tenant_for_owner` và `_tenant_json`; bỏ luôn 3 cột `status_changed_at`, `status_changed_by`, `status_reason` của `iam.tenants` (`20260811015`) và chỗ ghi ở `20261009001`; app bỏ `TenantProfile.activatedAt` (+ fake test); đổi nhãn chú thích `8-B` / `8-E` → `3-B` / `3-E` trong SQL. Rà lại 4 file `supabase/tests/*.sql`: cột insert / đọc, tên hàm, số tham số và tham số theo tên (gồm `append_audit_log(p_… => …)`), kiểu rowtype, mã vai trò seed (`…0002` = `warehouse`, `staff` hợp lệ), `memberships.id` có default, `accept_invitation` so email qua `auth.users`, thông điệp `VALIDATION_ERROR: signup_tenant`, `first_name` cho hồ sơ người được mời, mã cửa hàng `'default'`, `expires_in_minutes = 10`, mẫu lạ → `template_data` rỗng: **không thấy chỗ nào lỗi**. `dart analyze` không error; `flutter test test/features/iam`: 214 pass.
+- Góp ý (không chặn):
+  1. ~~3 cột `status_*` của `tenants`~~, ~~nhãn `8-E` trong SQL~~ — đã sửa ở trên.
+
+### Đóng review 2026-10-12
+
+- `db reset --linked` trên Dev (sau bản sửa `activated_at`) rồi chạy 4 kịch bản trong SQL Editor — `iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_legacy_cleanup`: **cả 4 không raise** (người dùng chạy, 2026-10-12).
+- `iam_legacy_cleanup.sql` xác nhận không còn cột `iam.tenants.status`, enum `platform_user_status`, bảng `platform_admins` / `platform_audit_logs`. Trigger đăng ký chạy được (hết lỗi 2-B1).
+- **Review ✅.** Kiểm tay (tab Thêm không còn "Quản trị nền tảng", chọn tổ chức không có nhãn trạng thái) làm cùng đợt kiểm tay TH-01.

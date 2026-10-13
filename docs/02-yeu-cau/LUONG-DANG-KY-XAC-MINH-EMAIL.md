@@ -12,11 +12,11 @@ App cũ dùng chữ "kích hoạt" cho 3 việc khác nhau. Sau refactor:
 | Platform Admin **tạo tổ chức** (`provisioning`) và gửi **lời mời Owner** (mã 8 ký tự) | Platform Admin | **Bỏ.** Chủ cửa hàng tự đăng ký ở `/signup` |
 | Owner **"Kích hoạt tài khoản"**: nhập mã lời mời → đặt mật khẩu | Owner | **Bỏ** cho Owner. Thay bằng **xác minh email** bằng mã 6 số Supabase gửi |
 | Owner **"Kích hoạt tổ chức"** ở màn readiness → `active` | Owner | **Bỏ.** Tổ chức dùng được ngay khi email được xác minh. Không còn trạng thái tổ chức hay tài khoản bị chặn (3-E, 2026-10-12) |
-| Nhân viên **"Kích hoạt tài khoản"**: nhập mã lời mời → đặt mật khẩu → tham gia | Nhân viên | **Giữ**, thêm bước nhập mã 6 số khi nhân viên chưa có tài khoản |
+| Nhân viên **"Kích hoạt tài khoản"**: nhập mã lời mời → đặt mật khẩu → tham gia | Nhân viên | **Giữ**, chỉ nhập **mã lời mời 8 ký tự**. Không có mã 6 số: mã lời mời gửi tới đúng email được mời nên đã chứng minh chủ email (2-B5) |
 
 Từ nay trong app và tài liệu:
-- **Mã xác minh** = 6 số, Supabase Auth gửi, chứng minh chủ email (đăng ký cửa hàng, nhân viên tạo tài khoản mới).
-- **Mã lời mời** = 8 ký tự, Owner tạo, gửi qua `send-email`, dùng ở "Kích hoạt tài khoản".
+- **Mã xác minh** = 6 số, Supabase Auth gửi, chứng minh chủ email (đăng ký cửa hàng; đăng nhập khi email chưa xác minh).
+- **Mã lời mời** = 8 ký tự, Owner tạo, gửi qua `send-email`, dùng ở "Kích hoạt tài khoản". Nhân viên chưa có tài khoản nhận lời mời và tạo tài khoản đã xác minh trong một lần qua Edge Function `invitation-signup`.
 - **Mã đặt lại mật khẩu** = 6 số, gửi qua `send-email`.
 
 ## 2. Luồng A — Tạo tổ chức đầu tiên
@@ -85,13 +85,12 @@ Cách xử lý, gọn và không cần server riêng:
 
 ## 3. Luồng B — Xác minh email (một khối dùng chung)
 
-Cùng một khối "nhập mã 6 số" (`VerifyEmailView` + `VerifyEmailCubit`) dùng ở 3 chỗ:
+Cùng một khối "nhập mã 6 số" (`VerifyEmailView` + `VerifyEmailCubit`) dùng ở 2 chỗ (`/invitation` không dùng: nhân viên chỉ nhập mã lời mời):
 
 | Điểm vào | Gửi lại mã lúc mở | Xác minh xong |
 |---|---|---|
 | `/signup` bước 3 | Khoá 60 giây (vừa gửi khi `signUp`) | `/` + toast chào mừng |
 | `/verify-email` (từ đăng nhập, A2) | **Mở ngay** | Định tuyến sau đăng nhập → `/` |
-| `/invitation`, nhân viên chưa có tài khoản | Khoá 60 giây (vừa gửi khi `signUp`) | Cập nhật hồ sơ → nhận lời mời → đăng xuất → `/login` + "Tham gia tổ chức thành công" |
 
 ```mermaid
 stateDiagram-v2
@@ -114,7 +113,7 @@ Quy tắc: mã 6 số, hạn 1 giờ (`otp_expiry = 3600`), gửi lại sau 60 g
 
 | Loại mail | Ai bấm "Gửi lại" | Ở đâu | Chờ | Mã cũ | Đi qua | Giới hạn |
 |---|---|---|---|---|---|---|
-| Mã xác minh (6 số) | Người đăng ký / nhân viên mới | Bước 3 `/signup`, `/verify-email`, `/invitation` | 60 giây | Vô hiệu | Supabase Auth (SMTP) | Dev: 2 email / giờ / project khi chưa có SMTP riêng |
+| Mã xác minh (6 số) | Người đăng ký | Bước 3 `/signup`, `/verify-email` | 60 giây | Vô hiệu | Supabase Auth (SMTP) | Dev: 2 email / giờ / project khi chưa có SMTP riêng |
 | Mã lời mời (8 ký tự) | **Owner** | Chi tiết lời mời ▸ "Gửi lại lời mời" | — | Vô hiệu, **hạn tính lại 7 ngày** | `email_jobs` → `send-email` → Resend | Chỉ lời mời `pending` (BR-41) |
 | Mã đặt lại mật khẩu (6 số) | Người quên mật khẩu | `/login/reset-password` | 60 giây (server chặn; app đếm 60 — KI-12) | Vô hiệu | `email_jobs` → `send-email` → Resend | Gửi quá nhiều → "Bạn đã gửi quá nhiều yêu cầu…" |
 

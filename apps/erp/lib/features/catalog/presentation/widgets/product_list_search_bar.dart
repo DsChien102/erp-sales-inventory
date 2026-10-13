@@ -87,6 +87,7 @@ class _FilterButton extends StatelessWidget {
       child: VIconBox(
         key: const Key('btn_filter_custom_fields'),
         icon: VIcons.tune,
+        semanticLabel: 'Lọc sản phẩm',
         size: 44,
         iconSize: 20,
         backgroundColor: isActive ? colors.successBg : colors.surface,

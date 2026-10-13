@@ -77,6 +77,7 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
         ? vInspectorShow(leading!)
         : (showBackButton && Navigator.of(context).canPop()
             ? IconButton(
+                tooltip: 'Quay lại',
                 icon: VIcon(
                   icon: VIcons.chevronLeft,
                   color: dynamicColors.textPrimary,

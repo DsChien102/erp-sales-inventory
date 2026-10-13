@@ -9,7 +9,6 @@ enum InvitationAcceptanceStep {
   inspecting,
   existingAccountLogin,
   newAccountRegistration,
-  awaitingVerification,
   submitting,
   accepted,
   declined,
@@ -25,7 +24,6 @@ final class InvitationAcceptanceState {
     this.failure,
     this.acceptedMembership,
     this.registrationResult,
-    this.verificationEmail,
   });
 
   final InvitationAcceptanceStep step;
@@ -37,7 +35,6 @@ final class InvitationAcceptanceState {
   final IamUiFailure? failure;
   final TenantMemberDetail? acceptedMembership;
   final InvitationRegistrationResult? registrationResult;
-  final String? verificationEmail;
 
   InvitationAcceptanceState copyWith({
     InvitationAcceptanceStep? step,
@@ -50,9 +47,7 @@ final class InvitationAcceptanceState {
     bool clearInspection = false,
     bool clearFailure = false,
     bool clearAcceptedMembership = false,
-    String? verificationEmail,
     bool clearRegistrationResult = false,
-    bool clearVerificationEmail = false,
   }) {
     return InvitationAcceptanceState(
       step: step ?? this.step,
@@ -66,9 +61,6 @@ final class InvitationAcceptanceState {
       registrationResult: clearRegistrationResult
           ? null
           : (registrationResult ?? this.registrationResult),
-      verificationEmail: clearVerificationEmail
-          ? null
-          : (verificationEmail ?? this.verificationEmail),
     );
   }
 }

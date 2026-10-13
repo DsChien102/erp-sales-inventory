@@ -210,7 +210,7 @@ class _VInputState extends State<VInput> {
         : switch (widget.tone) {
             VComponentTone.primary => colors.primary,
             VComponentTone.danger => colors.danger,
-            _ => colors.borderDefault,
+            _ => colors.borderInput,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
     final borderColor = !isEnabled
@@ -267,8 +267,14 @@ class _VInputState extends State<VInput> {
       ),
     );
 
+    // Height-locked: the row is centred in the control, so vertical padding
+    // only squeezes affixes (e.g. a 44pt icon button) without moving the text.
+    final rowPadding = widget.lockControlHeight
+        ? widget.padding.copyWith(top: 0, bottom: 0)
+        : widget.padding;
+
     field = Padding(
-      padding: widget.padding,
+      padding: rowPadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
+import '../tokens/v_spacing.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_component_scope.dart';
@@ -22,6 +23,12 @@ class VIconBox extends StatelessWidget {
   /// Text label (e.g. avatar initials). Takes precedence over icon/asset.
   final String? label;
 
+  /// Accessibility name for the tappable box (screen readers).
+  ///
+  /// Required in practice when [onTap] is set and there is no visible [label];
+  /// debug builds assert on that combination.
+  final String? semanticLabel;
+
   final double size;
   final double iconSize;
   final Color? backgroundColor;
@@ -41,6 +48,7 @@ class VIconBox extends StatelessWidget {
     this.iconData,
     this.assetPath,
     this.label,
+    this.semanticLabel,
     this.size = 40.0,
     this.iconSize = 20.0,
     this.backgroundColor,
@@ -124,17 +132,38 @@ class VIconBox extends StatelessWidget {
     );
 
     if (onTap != null) {
+      final hasVisibleLabel = trimmedLabel != null && trimmedLabel.isNotEmpty;
+      assert(
+        hasVisibleLabel || (semanticLabel != null && semanticLabel!.isNotEmpty),
+        'VIconBox with onTap needs semanticLabel',
+      );
+      // The drawn box keeps [size]; the tappable area is at least 44×44.
       return vInspectorHide(
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onTap: onTap,
-          customBorder: isCircular
-              ? const CircleBorder()
-              : RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(resolvedRadius),
-                ),
-          child: container,
+        Semantics(
+          button: true,
+          label: semanticLabel ?? trimmedLabel,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: onTap,
+            customBorder: isCircular
+                ? const CircleBorder()
+                : RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(resolvedRadius),
+                  ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: VSpacing.minTouchTarget,
+                minHeight: VSpacing.minTouchTarget,
+              ),
+              child: Center(
+                widthFactor: 1,
+                heightFactor: 1,
+                // The name comes from the wrapper above; keep the tap action.
+                child: ExcludeSemantics(child: container),
+              ),
+            ),
+          ),
         ),
       );
     }

@@ -417,15 +417,14 @@ class _SalesOrderComposePageState extends State<SalesOrderComposePage> {
             }
 
             final canPop = _allowPop || !state.shouldConfirmLeave;
-            final leaveLeading = Padding(
-              padding: const EdgeInsets.all(VSpacing.space2),
-              child: VIconBox(
-                key: const Key('btn_compose_back'),
-                icon: VIcons.chevronLeft,
-                size: 40,
-                backgroundColor: Colors.transparent,
-                onTap: _requestLeave,
-              ),
+            // No padding: the app bar's 56pt leading slot is the tap target.
+            final leaveLeading = VIconBox(
+              key: const Key('btn_compose_back'),
+              icon: VIcons.chevronLeft,
+              semanticLabel: 'Quay lại',
+              size: 40,
+              backgroundColor: Colors.transparent,
+              onTap: _requestLeave,
             );
 
             return PopScope<Object?>(

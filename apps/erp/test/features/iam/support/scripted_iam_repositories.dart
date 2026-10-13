@@ -94,7 +94,6 @@ final class ScriptedOrganizationRepository extends OrganizationRepository {
       contactAddressText: contactAddressText,
       provinceCode: provinceCode,
       communeCode: communeCode,
-      activatedAt: current.activatedAt,
       legalProfile: current.legalProfile,
     );
     return tenant!;
@@ -151,7 +150,6 @@ final class ScriptedOrganizationRepository extends OrganizationRepository {
       contactAddressText: current.contactAddressText,
       provinceCode: current.provinceCode,
       communeCode: current.communeCode,
-      activatedAt: current.activatedAt,
       legalProfile: profile,
     );
     return UpsertLegalProfileResult.saved(
@@ -173,7 +171,6 @@ TenantProfile sampleTenantProfile() {
     contactEmail: 'contact@mauhien.vn',
     contactPhone: '+84901234567',
     contactAddressText: '123 Nguyen Trai, Ha Noi',
-    activatedAt: DateTime(2026, 7, 12, 16, 45),
     legalProfile: TenantLegalProfile(
       tenantId: 'org-001',
       legalEntityType: LegalEntityType.enterprise,

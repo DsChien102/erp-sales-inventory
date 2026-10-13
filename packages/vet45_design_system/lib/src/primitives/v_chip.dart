@@ -116,11 +116,10 @@ class VChip extends StatelessWidget {
         ),
         if (onRemove != null) ...[
           const VGap(VSpacing.space1, axis: Axis.horizontal),
-          _RemoveButton(
+          _RemoveIcon(
             color: foreground,
             extent: lineHeight,
             iconSize: iconSize,
-            onPressed: isEnabled ? onRemove : null,
           ),
         ],
       ],
@@ -142,6 +141,36 @@ class VChip extends StatelessWidget {
     );
 
     chipBody = vDisabledOpacity(enabled: isEnabled, child: chipBody);
+
+    if (onRemove != null) {
+      // Drawn chip keeps its size; the layout box and the tail hit area reach
+      // the minimum touch target (same approach as Material InputChip).
+      chipBody = ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: VSpacing.minTouchTarget),
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            chipBody,
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: VSpacing.minTouchTarget,
+              child: Semantics(
+                container: true,
+                button: true,
+                enabled: isEnabled,
+                label: 'Xoá $label',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: isEnabled ? onRemove : null,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     final semanticsLabel = semanticLabel ?? label;
 
@@ -187,32 +216,27 @@ class VChip extends StatelessWidget {
   }
 }
 
-class _RemoveButton extends StatelessWidget {
-  const _RemoveButton({
-    required this.onPressed,
+/// Dismiss glyph only; the tappable area is the 44×44 overlay in [VChip].
+class _RemoveIcon extends StatelessWidget {
+  const _RemoveIcon({
     required this.color,
     required this.extent,
     required this.iconSize,
   });
 
-  final VoidCallback? onPressed;
   final Color color;
   final double extent;
   final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: extent,
-      height: extent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        visualDensity: VisualDensity.compact,
-        constraints: BoxConstraints.tightFor(width: extent, height: extent),
-        iconSize: iconSize,
-        tooltip: 'Xóa',
-        onPressed: onPressed,
-        icon: Icon(Icons.close, color: color),
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: extent,
+        height: extent,
+        child: Center(
+          child: VIcon(icon: VIcons.close, size: iconSize, color: color),
+        ),
       ),
     );
   }

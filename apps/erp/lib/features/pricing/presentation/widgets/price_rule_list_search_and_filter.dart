@@ -178,6 +178,7 @@ class _FilterButton extends StatelessWidget {
       offset: const Offset(4, -4),
       child: VIconBox(
         icon: VIcons.tune,
+        semanticLabel: 'Lọc quy tắc giá',
         size: 44,
         iconSize: 20,
         backgroundColor: isActive

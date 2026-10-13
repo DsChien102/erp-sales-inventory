@@ -190,5 +190,58 @@ void main() {
         findsNothing,
       );
     });
+
+    group('visibility toggle', () {
+      Future<void> pump(WidgetTester tester) => tester.pumpWidget(
+            MaterialApp(
+              theme: VTheme.lightTheme,
+              home: const Scaffold(body: VPasswordField(label: 'Mật khẩu')),
+            ),
+          );
+
+      testWidgets('touch target is at least 44×44', (tester) async {
+        await pump(tester);
+        final size = tester.getSize(find.byType(IconButton));
+        expect(size.width, greaterThanOrEqualTo(VSpacing.minTouchTarget));
+        expect(size.height, greaterThanOrEqualTo(VSpacing.minTouchTarget));
+      });
+
+      testWidgets('name follows the obscured state', (tester) async {
+        final handle = tester.ensureSemantics();
+        await pump(tester);
+        expect(find.byTooltip('Hiện mật khẩu'), findsOneWidget);
+
+        await tester.tap(find.byType(IconButton));
+        await tester.pump();
+        expect(find.byTooltip('Ẩn mật khẩu'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('semantics node is a named button of at least 44×44',
+          (tester) async {
+        final handle = tester.ensureSemantics();
+        await pump(tester);
+
+        final node = tester.getSemantics(find.byType(IconButton));
+        expect(node.flagsCollection.isButton, isTrue);
+        expect(node.label.isNotEmpty || node.tooltip.isNotEmpty, isTrue);
+        expect(node.rect.width, greaterThanOrEqualTo(VSpacing.minTouchTarget));
+        expect(node.rect.height, greaterThanOrEqualTo(VSpacing.minTouchTarget));
+        handle.dispose();
+      });
+
+      testWidgets('field height is unchanged by the larger button', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: VTheme.lightTheme,
+            home: const Scaffold(body: VPasswordField()),
+          ),
+        );
+        expect(
+          tester.getSize(find.byType(VPasswordField)).height,
+          VDensity.fromMode(VDensityMode.comfortable).controlHeightMedium,
+        );
+      });
+    });
   });
 }

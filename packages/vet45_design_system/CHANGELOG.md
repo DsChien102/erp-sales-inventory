@@ -19,9 +19,57 @@ changelogs when relevant.
 
 ### Fixed
 
-- `VEmptyState`: không còn RenderFlex overflow khi chiều cao parent bị siết (vd. bàn phím mở trên màn tạo đơn).
+### Internal
+
+## [1.7.0] - 2026-10-13
+
+### Added
+
+- `VIconBox.semanticLabel`: tên cho trình đọc màn hình khi có `onTap` (debug assert nếu thiếu cả `semanticLabel` lẫn `label`).
+- `VSwipeReveal.semanticActions` + `VSwipeSemanticAction`: hành động ẩn công bố qua custom semantics actions trên thẻ; nút ẩn bị loại khỏi semantics khi thẻ đóng.
+
+### Changed
+
+- `VIconBox` có `onTap`: vùng chạm tối thiểu 44×44 (phần vẽ giữ `size`). `VChip` có `onRemove`: khung bố cục cao 44, vùng xoá 44×44 ở đuôi chip, nhãn `Xoá <label>`; icon xoá dùng `VIcons.close`.
+- `VBottomNavigationBar`: chừa trọn inset dưới (thanh Home / cử chỉ) thay vì 40%; `top` 4, ô tab `minHeight` 48.
+- `VInput` (khoá chiều cao): bỏ padding dọc quanh hàng prefix / text / suffix để affix chạm được dùng đủ chiều cao; vị trí chữ và chiều cao ô không đổi.
+
+### Fixed
+
+- Vùng chạm ≥ 44 cho nút ẩn / hiện của `VPasswordField`; nhãn cho nút quay lại `VAppBar` (`Quay lại`), mũi tên `VCombobox` (`Mở danh sách` / `Đóng danh sách`) và phím của `VNumericKeypadGrid` (`⌫` đọc `Xoá`, `.` đọc `Dấu thập phân`, phím trống bị ẩn).
+- `VSkeleton` / `VSkeletonScope` đứng yên và `VSwipeReveal` mở / đóng tức thì khi bật Giảm chuyển động (`MediaQuery.disableAnimations`).
 
 ### Internal
+
+- Test mới: `v_icon_box_test`, `v_swipe_reveal_test`, `v_skeleton_test`, `v_app_bar_test`, `v_numeric_keypad_grid_test`, `accessibility_guidelines_test`; mở rộng test chip, password field, bottom navigation.
+
+## [1.6.0] - 2026-10-13
+
+### Added
+
+- `VColors.neutral450` (`#868E98`) và token ngữ nghĩa `VColorScheme.borderInput` (sáng `neutral450`, tối `neutral400`): viền ranh giới control, đạt 3:1 (WCAG 1.4.11).
+
+### Changed
+
+- Theme sáng, tone trạng thái đạt 4.5:1 (WCAG 1.4.3) trên `surface` và trên nền wash của tone: `warning` → `yellow700` (hover `yellow800`, pressed `yellow900`), `danger` → `red600` (hover `red700`, pressed `red800`), `info` → `blue600` (hover `blue700`, pressed `blue800`). Các `*Bg` giữ nguyên.
+- Theme sáng, chữ phụ: `textSecondary` → `neutral600`, `textMuted` → `neutral500`. Quy ước: `textMuted` chỉ đặt trên `surface`, không đặt thẳng trên nền trang.
+- `VInput`, `VTextArea`, `VSelect`, `VDatePicker`, `VVerificationCodeField`, `VCheckbox`, `VRadio`: viền trạng thái thường dùng `borderInput` thay `borderDefault` / `borderStrong`. Viền vô hiệu giữ `borderDefault`; `VSelect` / `VDatePicker` nay cũng phân biệt viền vô hiệu.
+- `VTheme.lightTheme`: `ColorScheme.error`, `errorBorder`, `focusedErrorBorder` → `red600`; `border` / `enabledBorder` → `neutral450`. Theme tối giữ nguyên.
+
+### Internal
+
+- Test `test/theme/v_color_scheme_contrast_test.dart` kiểm tương phản `VColorScheme.light` (tone, chữ phụ, `borderInput`).
+
+## [1.5.0] - 2026-10-13
+
+### Changed
+
+- Theme sáng dùng `primary600` (`#2F7A3A`) cho `VColorScheme.primary` / `success` và Material `ColorScheme.primary` (đạt WCAG AA 4.5:1); `primaryHover` → `primary700`, `primaryPressed` → `primary800`. Theme tối giữ nguyên.
+
+### Fixed
+
+- `VBottomNavigationBar`: hiện nhãn dưới icon (icon 24px) và có semantics (tên tab, nút, trạng thái đang chọn).
+- `VEmptyState`: không còn RenderFlex overflow khi chiều cao parent bị siết (vd. bàn phím mở trên màn tạo đơn).
 
 ## [1.4.1] - 2026-09-13
 

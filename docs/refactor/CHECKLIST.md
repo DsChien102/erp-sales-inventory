@@ -17,7 +17,7 @@
 | P6 | Giá riêng (TH-04) | 10 |
 | P8 | Bán hàng, đơn hàng (TH-05) | 19 |
 | P7 | Hóa đơn điện tử (TH-08) | 13 |
-| P3 | Quản trị tổ chức (TH-01 ID-31…33) | 3 |
+| P3 | ~~Quản trị tổ chức (TH-01 ID-31…33)~~ — bỏ (3-E) | 0 |
 | — | Khung chung | 4 |
 
 ---
@@ -41,7 +41,7 @@
 | ID-04 | Quên mật khẩu | `/login/reset-password` | Gửi email đặt lại | ☐ | ☑ | Chuyển kiến trúc 2-A1; email qua Edge Function (2-B2); chưa kiểm tay hộp thư trên Dev |
 | ID-05 🆕 | Chưa thuộc tổ chức nào | `/no-organization` | Hiện đúng khi không có membership | — | ☐ | (b) xong 2-B1 |
 | ID-06 | Nhập mã lời mời | `/invitation` | Mã đúng/sai/hết hạn | ☐ | ☐ | (a) xong 2-A3 |
-| ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Đặt mật khẩu, vào tổ chức | ☐ | ☐ | (a) xong 2-A3 |
+| ID-07 | Kích hoạt tài khoản theo lời mời | `/invitation` (bước 2) | Chỉ nhập mã 8 ký tự, đặt mật khẩu, không có mã 6 số, vào tổ chức | ☐ | ☐ | (a) xong 2-A3; (b) xong 2-B5 |
 | ID-08 | Chọn tổ chức | (sheet) | Chọn khi có nhiều tổ chức | ☐ | ☐ | (a) xong 2-A3 |
 | ID-09 | Tổ chức không thể truy cập | (màn chặn) | Bỏ màn tạm ngừng / đóng (3-E). Mất quyền membership đi `/no-organization` | ☐ | — | Bỏ 2026-10-12 |
 | ID-10 | Hub Người dùng & vai trò | `/more/users-and-roles` | Điều hướng 3 mục | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
@@ -52,7 +52,7 @@
 | ID-14 | Người dùng (Thành viên / Lời mời) | `/more/users` | 2 tab, tìm, lọc | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-15 | Mời thành viên | `/more/users/invite` | Mời, chọn vai trò (gồm Chủ cửa hàng) | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3; email qua Edge Function (2-B2); chưa kiểm tay hộp thư |
 | ID-16 | Chi tiết lời mời | `/more/users/invitations/:id` | Gửi lại, thu hồi | ☐ | ☐ | Route cũ còn `/more/users/invitation-detail`. (a) xong 2-A2; (b) xong 2-B3; email qua Edge Function (2-B2); chưa kiểm tay hộp thư |
-| ID-17 | Chi tiết thành viên | `/more/users/members/:id` | Tạm ngừng / kích hoạt, đổi vai trò, chuyển Owner | ☐ | ☐ | Route cũ còn `/more/users/member-detail`. (a) xong 2-A2; (b) xong 2-B3 |
+| ID-17 | Chi tiết thành viên | `/more/users/members/:id` | Tạm ngừng / kích hoạt, đổi vai trò | ☐ | ☐ | Route cũ còn `/more/users/member-detail`. (a) xong 2-A2; (b) xong 2-B3 |
 | ID-18a | Chọn vai trò | `/more/users/select-role` | Chọn vai trò | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-18b | Xem trước đổi vai trò | `/more/users/preview-role-change` | Xác nhận đổi | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |
 | ID-19a | Vai trò | `/more/roles` | Danh sách vai trò | ☐ | ☐ | (a) xong 2-A2; (b) xong 2-B3 |

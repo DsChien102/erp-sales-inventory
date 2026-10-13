@@ -167,7 +167,6 @@ final appRouter = GoRouter(
       builder: (context, state) => InvitationTokenPage(
         invitations: getIt<InvitationAcceptanceRepository>(),
         auth: getIt<AuthRepository>(),
-        account: getIt<AccountRepository>(),
         session: getIt<SessionController>(),
       ),
     ),

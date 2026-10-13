@@ -227,6 +227,8 @@ void main() {
       expect(find.byKey(const Key('invitation_register_phone')), findsOneWidget);
       expect(find.byKey(const Key('invitation_register_password')), findsOneWidget);
       expect(find.byKey(const Key('invitation_locked_email')), findsOneWidget);
+      // Mã lời mời đã chứng minh chủ email: không có bước nhập mã xác minh 6 số.
+      expect(find.byType(VVerificationCodeField), findsNothing);
     },
   );
 

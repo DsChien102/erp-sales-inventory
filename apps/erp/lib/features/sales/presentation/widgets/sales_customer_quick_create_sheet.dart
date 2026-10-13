@@ -302,6 +302,7 @@ class _QuickCreateCustomerSheetState extends State<_QuickCreateCustomerSheet> {
                   VIconBox(
                     key: const Key('btn_sg04_quick_create_close'),
                     icon: VIcons.close,
+                    semanticLabel: 'Đóng',
                     size: 40,
                     iconSize: 20,
                     backgroundColor: Colors.transparent,

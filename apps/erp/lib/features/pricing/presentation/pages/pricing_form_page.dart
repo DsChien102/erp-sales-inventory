@@ -146,15 +146,14 @@ class _PricingFormPageState extends State<PricingFormPage> {
 
             // VAppBar default back dùng Navigator.pop() (force) — bỏ qua PopScope.
             // Leading custom + PopScope: back/Hủy/_requestLeave; swipe/system back qua canPop.
-            final leaveLeading = Padding(
-              padding: const EdgeInsets.all(VSpacing.space2),
-              child: VIconBox(
-                key: const Key('btn_price_rule_form_back'),
-                icon: VIcons.arrowBack,
-                size: 40,
-                backgroundColor: Colors.transparent,
-                onTap: _requestLeave,
-              ),
+            // No padding: the app bar's 56pt leading slot is the tap target.
+            final leaveLeading = VIconBox(
+              key: const Key('btn_price_rule_form_back'),
+              icon: VIcons.arrowBack,
+              semanticLabel: 'Quay lại',
+              size: 40,
+              backgroundColor: Colors.transparent,
+              onTap: _requestLeave,
             );
 
             if (_isEdit && form.hasStateChanged) {

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 import '../foundation/v_context_extensions.dart';
+import '../patterns/v_gap.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_opacity.dart';
+import '../tokens/v_spacing.dart';
+import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
 
 class VBottomNavigationItem {
@@ -42,9 +45,10 @@ class VBottomNavigationBar extends StatelessWidget {
             top: VBorders.side(dynamicColors.borderDefault),
           ),
         ),
+        // Keep the tab labels clear of the home indicator / gesture bar.
         padding: EdgeInsets.only(
-          top: 10,
-          bottom: bottomInset > 0 ? (bottomInset * 0.4 + 6) : 12,
+          top: VSpacing.space1,
+          bottom: bottomInset > 0 ? bottomInset : VSpacing.space3,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -57,25 +61,43 @@ class VBottomNavigationBar extends StatelessWidget {
                 : dynamicColors.textSecondary;
 
             return Expanded(
-              child: vDisabledOpacity(
-                enabled: isEnabled,
-                child: InkWell(
-                  onTap: isEnabled ? () => onTap(index) : null,
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: 50,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconTheme(
-                          data: IconThemeData(color: color, size: 29),
-                          child: item.icon,
+              child: MergeSemantics(
+                child: Semantics(
+                  selected: isSelected,
+                  button: true,
+                  child: vDisabledOpacity(
+                    enabled: isEnabled,
+                    child: InkWell(
+                      onTap: isEnabled ? () => onTap(index) : null,
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: 48,
                         ),
-                      ],
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconTheme(
+                              data: IconThemeData(color: color, size: 24),
+                              child: item.icon,
+                            ),
+                            const VGap(VSpacing.space1),
+                            MediaQuery.withClampedTextScaling(
+                              maxScaleFactor: 1.3,
+                              child: Text(
+                                item.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: VTypography.labelSmall
+                                    .copyWith(color: color),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

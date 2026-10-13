@@ -38,7 +38,7 @@ class VRadio<T> extends StatelessWidget {
         if (states.contains(WidgetState.selected)) {
           return dynamicColors.primary;
         }
-        return dynamicColors.borderStrong;
+        return dynamicColors.borderInput;
       }),
     );
 

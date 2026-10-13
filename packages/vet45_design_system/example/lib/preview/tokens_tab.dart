@@ -35,6 +35,7 @@ class TokensPreviewTab extends StatelessWidget {
             _tile('neutral200', VColors.neutral200, VColors.neutral900),
             _tile('neutral300', VColors.neutral300, VColors.neutral900),
             _tile('neutral400', VColors.neutral400, VColors.neutral900),
+            _tile('neutral450', VColors.neutral450, VColors.neutral900),
             _tile('neutral500', VColors.neutral500, VColors.neutral0),
             _tile('neutral600', VColors.neutral600, VColors.neutral0),
             _tile('neutral700', VColors.neutral700, VColors.neutral0),

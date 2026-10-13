@@ -50,8 +50,6 @@ begin
     contact_address_text,
     province_code,
     commune_code,
-    status_changed_at,
-    activated_at,
     updated_at
   )
   values (
@@ -61,8 +59,6 @@ begin
     v_address_text,
     v_province_code,
     v_commune_code,
-    v_now,
-    v_now,
     v_now
   )
   returning id into v_tenant_id;

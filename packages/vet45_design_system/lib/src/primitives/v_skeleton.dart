@@ -6,6 +6,18 @@ import '../foundation/v_inspector_scope.dart';
 import '../tokens/v_duration.dart';
 import '../tokens/v_radius.dart';
 
+/// Pulses [controller], or holds it still when the platform asks to reduce
+/// motion (iOS Reduce Motion / Android Remove animations).
+void _applyMotionPreference(AnimationController controller, BuildContext context) {
+  if (MediaQuery.disableAnimationsOf(context)) {
+    controller
+      ..stop()
+      ..value = 0.5;
+  } else if (!controller.isAnimating) {
+    controller.repeat(reverse: true);
+  }
+}
+
 /// Shared pulse animation for descendant [VSkeleton] bones (shadcn-style).
 ///
 /// Prefer wrapping a skeleton layout in one [VSkeletonScope] so all bones
@@ -38,11 +50,16 @@ class _VSkeletonScopeState extends State<VSkeletonScope>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration)
-      ..repeat(reverse: true);
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     _opacity = Tween<double>(begin: 0.4, end: 0.8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _applyMotionPreference(_controller, context);
   }
 
   @override
@@ -140,11 +157,12 @@ class _VSkeletonState extends State<VSkeleton>
       _localController = AnimationController(
         vsync: this,
         duration: VDuration.pulse,
-      )..repeat(reverse: true);
+      );
       _localOpacity = Tween<double>(begin: 0.4, end: 0.8).animate(
         CurvedAnimation(parent: _localController!, curve: Curves.easeInOut),
       );
     }
+    _applyMotionPreference(_localController!, context);
   }
 
   void _disposeLocal() {

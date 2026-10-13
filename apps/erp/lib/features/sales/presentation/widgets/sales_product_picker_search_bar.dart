@@ -73,6 +73,7 @@ class _SalesProductPickerSearchBarState extends State<SalesProductPickerSearchBa
         VIconBox(
           key: const Key('btn_sg03_scan_barcode'),
           icon: VIcons.qrCode,
+          semanticLabel: 'Quét mã vạch',
           size: 44,
           iconSize: 22,
           backgroundColor: colors.surface,

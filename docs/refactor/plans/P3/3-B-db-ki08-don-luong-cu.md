@@ -1,6 +1,6 @@
 # 3-B — DB: chặn chuyển Owner sai (KI-08), dọn luồng onboarding cũ, FK thành viên (KI-03)
 
-> Phase: P3 · Trạng thái: Plan ✅ | Làm ✅ (2026-10-11) | Review 🔄 (kiểm tĩnh đạt; `db reset --linked` qua 2026-10-12; chờ `iam_legacy_cleanup.sql` sau 3-E)
+> Phase: P3 · Trạng thái: Plan ✅ | Làm ✅ (2026-10-11) | Review ✅ (2026-10-12)
 > Gồm việc: 3.4, 3.6. Làm sau 3-C, 3-D (đã xong: không còn `apps/admin` / `modules/iam` gọi RPC cũ). **Push cùng đợt kiểm IAM.**
 > Đặc tả: [TH-01](../../../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) BR-07, BR-13, BR-32, BR-35, KI-03, KI-05, KI-08, mục 8.
 > Mọi migration mới đặt timestamp **sau `20261009005`** (5 migration P2 chưa push lên Dev).
@@ -147,3 +147,9 @@ Làm đúng plan, trừ các điểm lệch dưới đây (đều chọn hướn
 - Kịch bản `iam_accept_invitation_reinvite.sql` dừng ở lỗi trigger của 2-B1 (`_on_auth_user_confirmed`, gán `text` vào cột enum `status`) — không phải lỗi 3-B; hết khi làm [3-E](3-E-bo-platform-admin.md).
 - **3-E bỏ Platform Admin** (quyết định 2026-10-12) → S1 KI-08 (`transfer_platform_tenant_ownership`) và `iam_transfer_ownership_other_owner.sql` bị xoá; trạng thái `suspended` / `closed` của S3.3, S3.4 cũng bỏ.
 - Việc còn lại để đóng 3-B: sau 3-E, `db reset --linked` → `iam_legacy_cleanup.sql` (bản sửa theo 3-E) không raise.
+
+### Đóng review 2026-10-12
+
+- `db reset --linked` trên Dev (sau bản sửa `activated_at`) rồi chạy 4 kịch bản trong SQL Editor — `iam_signup_trigger`, `iam_email_jobs`, `iam_accept_invitation_reinvite`, `iam_legacy_cleanup`: **cả 4 không raise** (người dùng chạy, 2026-10-12).
+- `iam_legacy_cleanup.sql` đạt: 14 hàm cũ, trigger `trg_cleanup_pending_profile`, bảng onboarding không còn; FK `memberships.user_id` chặn user không tồn tại; index chặn Owner thứ hai; lời mời nhân viên vẫn chạy.
+- **Review ✅.** (S1 KI-08 đã bỏ cùng chuyển Owner ở 3-E.)

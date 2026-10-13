@@ -14,14 +14,12 @@ void main() {
   InvitationAcceptanceCubit buildCubit({
     required ScriptedInvitations invitations,
     ScriptedAuthRepository? auth,
-    ScriptedAccountRepository? account,
     FakeIdempotencyKeyFactory? keys,
     List<String>? log,
   }) {
     return InvitationAcceptanceCubit(
       invitations: invitations,
       auth: auth ?? ScriptedAuthRepository(log: log),
-      account: account ?? ScriptedAccountRepository(log: log),
       session: loginSession(email: 'invitee@example.com', log: log),
       nextKey: (keys ?? FakeIdempotencyKeyFactory()).next,
     );
@@ -133,90 +131,133 @@ void main() {
     await cubit.close();
   });
 
-  test('registerAndAccept registers then signs out without tenant bootstrap', () async {
+  test('registerAndAccept creates the account and accepts in one call, without verification', () async {
     final log = <String>[];
-    final auth = ScriptedAuthRepository(log: log);
-    final account = ScriptedAccountRepository(log: log);
+    final keys = FakeIdempotencyKeyFactory();
     final invitations = ScriptedInvitations(
       scenario: FakeIamScenario.registerAndAcceptOk,
       log: log,
     );
-    final cubit = buildCubit(
-      invitations: invitations,
-      auth: auth,
-      account: account,
-      log: log,
-    );
+    final cubit = buildCubit(invitations: invitations, keys: keys, log: log);
+    final steps = <InvitationAcceptanceStep>[];
+    final subscription = cubit.stream.listen((state) => steps.add(state.step));
+
     await cubit.inspect('tok-new');
     await cubit.registerAndAccept(
       givenName: 'An',
       familyName: 'Nguyen',
-      password: 'password-1',
+      phone: ' 0900000000 ',
+      password: 'password-1!',
     );
+    await Future<void>.delayed(Duration.zero);
+    await subscription.cancel();
+
     expect(cubit.state.step, InvitationAcceptanceStep.accepted);
-    expect(auth.signUps.single.givenName, 'An');
-    expect(auth.signUps.single.familyName, 'Nguyen');
-    expect(auth.signUps.single.password, 'password-1');
-    expect(account.updates, 1);
-    expect(log.indexOf('signUp'), lessThan(log.indexOf('signOut')));
-    expect(log, isNot(contains('bootstrap')));
-    expect(cubit.state.toString(), isNot(contains('password-1')));
+    expect(cubit.state.acceptedMembership?.status, MembershipStatus.active);
+    expect(cubit.state.registrationResult?.userId, 'invitee-user');
+    expect(cubit.state.tokenPresent, isFalse);
+    expect(cubit.state.failure, isNull);
+    expect(steps, [
+      InvitationAcceptanceStep.inspecting,
+      InvitationAcceptanceStep.newAccountRegistration,
+      InvitationAcceptanceStep.submitting,
+      InvitationAcceptanceStep.accepted,
+    ]);
+    final call = invitations.registers.single;
+    expect(call.givenName, 'An');
+    expect(call.familyName, 'Nguyen');
+    expect(call.phone, '0900000000');
+    expect(call.password, 'password-1!');
+    expect(call.key, 'register-from-invitation-test-idempotency-key');
+    expect(log, ['inspect', 'inspect', 'registerAndAccept']);
+    expect(log, isNot(contains('signUp')));
+    expect(log, isNot(contains('signOut')));
+    expect(cubit.state.toString(), isNot(contains('password-1!')));
     expect(cubit.state.toString(), isNot(contains('tok-new')));
     await cubit.close();
   });
 
-  test('registerAndAccept waits for email verification before accepting', () async {
-    final log = <String>[];
-    final auth = ScriptedAuthRepository(log: log, needsVerification: true);
-    final account = ScriptedAccountRepository(log: log);
-    final invitations = ScriptedInvitations(
-      scenario: FakeIamScenario.registerAndAcceptOk,
-      log: log,
-    );
-    final cubit = buildCubit(
-      invitations: invitations,
-      auth: auth,
-      account: account,
-      log: log,
-    );
+  test('registerAndAccept rejects invalid input without calling the server', () async {
+    final invitations = ScriptedInvitations(scenario: FakeIamScenario.registerAndAcceptOk);
+    final cubit = buildCubit(invitations: invitations);
     await cubit.inspect('tok-new');
     await cubit.registerAndAccept(
       givenName: 'An',
       familyName: 'Nguyen',
-      password: 'password-1',
+      password: 'short',
     );
 
-    expect(cubit.state.step, InvitationAcceptanceStep.awaitingVerification);
-    expect(cubit.state.verificationEmail, isNotEmpty);
-    expect(account.updates, 0);
-    expect(invitations.accepts, isEmpty);
-
-    await cubit.completeVerifiedRegistration();
-
-    expect(cubit.state.step, InvitationAcceptanceStep.accepted);
-    expect(account.updates, 1);
-    expect(invitations.accepts, isNotEmpty);
-    expect(log.indexOf('signUp'), lessThan(log.indexOf('signOut')));
+    expect(cubit.state.step, InvitationAcceptanceStep.newAccountRegistration);
+    expect(cubit.state.failure?.code, AppErrorCode.validation);
+    expect(invitations.registers, isEmpty);
     await cubit.close();
   });
 
   test('registerIdentityConflict switches to existing login', () async {
-    final auth = ScriptedAuthRepository(
-      signUpError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
-    );
     final cubit = buildCubit(
-      invitations: ScriptedInvitations(scenario: FakeIamScenario.registerIdentityConflict),
-      auth: auth,
+      invitations: ScriptedInvitations(
+        scenario: FakeIamScenario.registerIdentityConflict,
+        registerError: const AppException('PLATFORM_USER_ALREADY_EXISTS'),
+      ),
     );
     await cubit.inspect('tok');
     await cubit.registerAndAccept(
       givenName: 'A',
       familyName: 'B',
-      password: 'password-1',
+      password: 'password-1!',
     );
     expect(cubit.state.step, InvitationAcceptanceStep.existingAccountLogin);
     expect(cubit.state.failure?.code, IamBlockedCodes.platformUserAlreadyExists);
     expect(cubit.state.tokenPresent, isTrue);
+    await cubit.close();
+  });
+
+  test('registerAndAccept with an expired invitation blocks with the expired message', () async {
+    final cubit = buildCubit(
+      invitations: ScriptedInvitations(
+        scenario: FakeIamScenario.registerAndAcceptOk,
+        registerError: const AppException(IamBlockedCodes.invitationExpired),
+      ),
+    );
+    await cubit.inspect('tok');
+    await cubit.registerAndAccept(
+      givenName: 'A',
+      familyName: 'B',
+      password: 'password-1!',
+    );
+    expect(cubit.state.step, InvitationAcceptanceStep.blocked);
+    expect(cubit.state.failure?.code, IamBlockedCodes.invitationExpired);
+    expect(cubit.state.tokenPresent, isFalse);
+    await cubit.close();
+  });
+
+  test('registerAndAccept network failure stays on registration and retries with the same key', () async {
+    final keys = FakeIdempotencyKeyFactory();
+    final invitations = ScriptedInvitations(
+      scenario: FakeIamScenario.registerAndAcceptOk,
+      registerError: const AppException(AppErrorCode.network),
+    );
+    final cubit = buildCubit(invitations: invitations, keys: keys);
+    await cubit.inspect('tok');
+    await cubit.registerAndAccept(
+      givenName: 'A',
+      familyName: 'B',
+      password: 'password-1!',
+    );
+
+    expect(cubit.state.step, InvitationAcceptanceStep.newAccountRegistration);
+    expect(cubit.state.failure?.code, IamBlockedCodes.systemError);
+    expect(cubit.state.failure?.retryable, isTrue);
+    expect(cubit.state.tokenPresent, isTrue);
+
+    await cubit.registerAndAccept(
+      givenName: 'A',
+      familyName: 'B',
+      password: 'password-1!',
+    );
+    expect(invitations.registers, hasLength(2));
+    expect(invitations.registers[0].key, invitations.registers[1].key);
+    expect(keys.calls, 1);
     await cubit.close();
   });
 
