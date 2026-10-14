@@ -6,44 +6,74 @@
 ## Tổng quan
 
 ```text
-P0 Chuẩn bị ─▶ P1 Nền core/ ─▶ P2 Auth & IAM ─▶ P3 Làm gọn IAM ─▶ Đợt kiểm IAM ─▶ P4 Partner ─▶ P5 Catalog+Inventory ─▶ P6 Pricing ─▶ P7 E-invoice ─▶ P8 Sales ─▶ P9 Dọn dẹp ─▶ P10 Hoàn thiện báo cáo
+Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 7 Kho & Giá vốn ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Dọn dẹp ─▶ Báo cáo
+
+Theme 7 — UI: làm song song từ bây giờ trên dữ liệu giả, không chờ mục nào
 ```
 
-**Số phase = thứ tự làm** (đánh số lại 2026-10-12; trước đó: P3 cũ = Catalog, P5 = Pricing, P6 = Sales, P8 = Quản trị tổ chức). Mã plan đổi theo (vd `8-A` → `3-A`, thư mục `plans/P8` → `plans/P3`); P4, P7 giữ nguyên.
+**Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
 
-| Phase | Nội dung | Ước lượng | Phụ thuộc | Lý do thứ tự |
+**Thứ tự chốt 2026-10-14:** Theme 7 (Kho & Giá vốn, dựng mới theo spec v1) làm **trọn một lượt ngay sau Theme 2**, vì nó chỉ cần sản phẩm / ĐVT (Theme 2) và nhà cung cấp (Theme 3), và thay luôn tồn kho cơ bản của Theme 2. Theme 5 (Sales) làm sau Theme 7 để nối sổ kho thật một lần (8-D) thay vì refactor xong rồi quay lại. Theme 8 (HĐĐT) làm sau Theme 5, gắn khu HĐĐT vào màn chi tiết đơn đã refactor.
+
+**Mã plan và thư mục giữ theo số phase cũ** để không gãy link (vd `2-A1`, `3-E`, `plans/P2`). Bảng tra:
+
+
+| Mục                                  | Mã cũ  | Mã plan / thư mục                      |
+| ------------------------------------ | ------ | -------------------------------------- |
+| Chuẩn bị                             | P0     | `0`                                    |
+| Nền core                             | P1     | `1.1`, `1-A`, `1-B` · `plans/P1`       |
+| Theme 1 (TH-01 Tổ chức & người dùng) | P2, P3 | `2-*` · `plans/P2`; `3-*` · `plans/P3` |
+| Theme 3 (TH-03 Đối tác)              | P4     | `4-*` · `plans/P4`                     |
+| Theme 2 (TH-02 Sản phẩm & giá bán)   | P5     | `5-*` · `plans/P5`                     |
+| Theme 7 (Kho & Giá vốn)              | —      | `T7-*` · `plans/T7`                    |
+| Theme 4 (TH-04 Chính sách giá)       | P6     | `6-*` · `plans/P6`                     |
+| Theme 5 (TH-05 Bán hàng)             | P8     | `8-*` · `plans/P8`                     |
+| Theme 8 (TH-08 Hoá đơn điện tử)      | P7     | `7-*` · `plans/P7`                     |
+| Dọn dẹp                              | P9     | `9-*` · `plans/P9`                     |
+| Báo cáo                              | P10    | `10-*` · `plans/P10`                   |
+
+
+Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… là mã cũ, tra theo bảng này.
+
+
+| Mục | Nội dung | Ước lượng | Phụ thuộc | Lý do thứ tự |
 |---|---|---|---|---|
-| P0 | Chuẩn bị branch, commit việc dở, chụp checklist | 0,5 ngày | — | |
-| P1 | Dựng `core/` + mẫu feature | 2 ngày | P0 | |
-| P2 | Auth, đăng ký cửa hàng, IAM | 5 ngày | P1 | |
-| P3 | Làm gọn IAM: bỏ `modules/iam`, `apps/admin`, worker, luồng onboarding cũ, Platform Admin | 3 ngày | P2 | Làm nối tiếp IAM khi còn nhớ ngữ cảnh |
-| — | **Đợt kiểm IAM** (đóng P2, P3) | 1 ngày | P3 | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
-| P4 | Partner (+ dọn module, 3 module rỗng) | 2,5 ngày | P2 | Nhỏ; P6 / P8 cần nó |
-| P5 | Catalog + Inventory (+ dọn module) | 5,5 ngày | P2 | Lớn; P6 / P8 cần nó |
-| P6 | Pricing (+ dọn module) | 2,5 ngày | P4, P5 | |
-| P7 | E-invoice (+ dọn module, `vet45_misa`) | 8,5 ngày | P2 | Khu HĐĐT trên đơn (7.3) gắn vào **màn chi tiết đơn cũ** của Sales; hạ tầng Edge Function + `pg_cron` giống 2-B2 nên làm tiếp khi còn nhớ |
-| P8 | Sales (+ dọn module cuối, package module) | 6,5 ngày | P4, P5, P6, P7 | Khi chuyển màn chi tiết đơn phải **giữ** `OrderEInvoiceSection` của P7 |
-| P9 | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 2 ngày | P1–P8 | |
-| P10 | Tài liệu, sơ đồ cho báo cáo | 2 ngày | P9 | |
-| | **Tổng** | **~42 ngày làm việc** | | |
+| Chuẩn bị | Chuẩn bị branch, commit việc dở, chụp checklist | 0,5 ngày | — | |
+| Nền core | Dựng `core/` + mẫu feature | 2 ngày | Chuẩn bị | |
+| Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày | Nền core | |
+| Theme 1 (tiếp) | Làm gọn IAM: bỏ `modules/iam`, `apps/admin`, worker, luồng onboarding cũ, Platform Admin | 3 ngày | Theme 1 | Làm nối tiếp IAM khi còn nhớ ngữ cảnh |
+| — | **Đợt kiểm IAM** (đóng Theme 1) | 1 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
+| Theme 3 | Partner (+ dọn module, 3 module rỗng) | 2,5 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
+| Theme 2 | Catalog + tồn kho cơ bản (+ dọn module, 5-C chạy sau Theme 7) | 5,5 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
+| Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~40 ngày UI + backend (chưa ước lượng) | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
+| Theme 4 | Pricing (+ dọn module) | 2,5 ngày | Theme 3, Theme 2 | Sales cần giá |
+| Theme 5 | Sales (+ dọn module, nối kho 8-D) | 6,5 ngày + 8-D | Theme 3, 2, 7, 4 | Nối sổ kho Theme 7 ngay khi refactor (xuất kho khi checkout, huỷ, trả hàng, khả dụng) |
+| Theme 8 | E-invoice (+ dọn module cuối, `vet45_misa`, package module) | 8,5 ngày | Theme 5 | Khu HĐĐT trên đơn (7.3) gắn vào màn chi tiết đơn **đã refactor** ở Theme 5; hạ tầng Edge Function + `pg_cron` giống 2-B2 |
+| Dọn dẹp | Dọn dẹp còn lại (`vet45_shared`, Melos, DB messaging, baseline) | 2 ngày | Nền core → Theme 8 | |
+| Báo cáo | Tài liệu, sơ đồ cho báo cáo | 2 ngày | Dọn dẹp | |
+| | **Tổng (không gồm Theme 7)** | **~42 ngày làm việc** (Theme 7: ~40 ngày UI + backend chưa ước lượng) | | |
 
 Ước lượng tính cho 1 người. Sales và Catalog lớn nhất, nên chia nhỏ PR.
 
 ## Cách làm việc: lên plan → làm → review
 
-| Bước | Ai | Kết quả |
-|---|---|---|
-| **Plan** | Claude | File `docs/refactor/plans/<phase>/<mã việc>-<tên>.md`: mục tiêu, file sẽ sửa/tạo, từng bước, mã mẫu khi cần, cách kiểm tra, rủi ro. Bạn duyệt rồi mới làm |
-| **Làm** | Bạn | Code theo plan trên branch `refactor/simple-arch` (hoặc branch con), commit |
-| **Review** | Claude | Đọc diff so với plan và tài liệu TH, chạy analyze/test, ghi kết quả vào cuối file plan (mục "Review"); có góp ý thì bạn sửa rồi review lại |
+
+| Bước       | Ai     | Kết quả                                                                                                                                                   |
+| ---------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Plan**   | Claude | File `docs/refactor/plans/<phase>/<mã việc>-<tên>.md`: mục tiêu, file sẽ sửa/tạo, từng bước, mã mẫu khi cần, cách kiểm tra, rủi ro. Bạn duyệt rồi mới làm |
+| **Làm**    | Bạn    | Code theo plan trên branch `refactor/simple-arch` (hoặc branch con), commit                                                                               |
+| **Review** | Claude | Đọc diff so với plan và tài liệu TH, chạy analyze/test, ghi kết quả vào cuối file plan (mục "Review"); có góp ý thì bạn sửa rồi review lại                |
+
 
 **Đơn vị theo dõi là plan**, không phải từng việc nhỏ: mỗi phase có bảng **Plan** (mỗi plan khoảng 0,5–1,5 ngày, gom các việc phải làm cùng nhau; cột "Gồm việc" trỏ về bảng chi tiết bên dưới). Ký hiệu trong cột Plan / Làm / Review của bảng đó và dòng "Trạng thái" đầu mỗi phase:
 
-| Cột | ⬜ | 📝 / 🔄 | ✅ | khác |
-|---|---|---|---|---|
-| Plan | chưa viết | 📝 đã viết, chờ bạn duyệt | đã duyệt | — không cần (việc làm thẳng) |
-| Làm | chưa làm | 🔄 đang làm | xong, chờ review | ⏭ bỏ qua (ghi lý do) |
-| Review | chưa review | 🔄 có góp ý, đang sửa | đạt | — không cần |
+
+| Cột    | ⬜           | 📝 / 🔄                   | ✅                | khác                         |
+| ------ | ----------- | ------------------------- | ---------------- | ---------------------------- |
+| Plan   | chưa viết   | 📝 đã viết, chờ bạn duyệt | đã duyệt         | — không cần (việc làm thẳng) |
+| Làm    | chưa làm    | 🔄 đang làm               | xong, chờ review | ⏭ bỏ qua (ghi lý do)         |
+| Review | chưa review | 🔄 có góp ý, đang sửa     | đạt              | — không cần                  |
+
 
 Một việc chỉ tính **xong** khi Review ✅. Ghi commit/PR vào bảng [Theo dõi tiến độ](#theo-dõi-tiến-độ).
 
@@ -56,52 +86,63 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 1. App `erp` không còn import `vet45_<module>_*` — kể cả chỗ feature **khác** đang gọi chéo (đo 2026-10-11: `sales/presentation` gọi catalog 2, partner 1, pricing 2, einvoice 20; `pricing/presentation` gọi catalog 2, partner 1; `dashboard/presentation` gọi inventory 2).
 2. Xoá thư mục module + mục workspace / DI / router / test liên quan.
 3. DB của schema đó: bỏ outbox / inbox / RPC / bảng chỉ module cũ dùng — **sửa migration gốc** (quy tắc migration bên dưới).
-4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events` tới 7-5; 7-5 (einvoice) chạy trước 8-C (sales) theo thứ tự hiện tại nên không vướng. Package `vet45_adapters` / `vet45_annotations` / `vet45_generator` chỉ xoá được ở 8-C (module cuối).
+4. Ràng buộc thứ tự: `modules/einvoice` phụ thuộc `partner/integration_events` và `sales/integration_events` → 4-C giữ `partner/integration_events`, 8-C giữ `sales/integration_events`, tới 7-5. Theme 8 (einvoice) làm sau cùng nên **7-5 là module cuối**: xoá `modules/` và package `vet45_adapters` / `vet45_annotations` / `vet45_generator` ở 7-5. 5-C (catalog + inventory) chạy **sau Theme 7**, vì màn điều chỉnh tồn và bước nhập tồn khi tạo sản phẩm còn dùng module catalog tới khi Theme 7 thay.
+
+
 
 ### Quy tắc migration (chốt 2026-10-11)
 
 **Sửa thẳng trong migration gốc, không tạo migration mới chỉ để ghi đè cái cũ.** Áp dụng cho mọi plan từ nay, cho tới khi Prod chạy thật (P10).
 
-| Trường hợp | Làm thế nào |
-|---|---|
-| Sửa một hàm / trigger / view đã có | Sửa trong file migration chứa **định nghĩa mới nhất** của đối tượng đó (`grep -l "function iam.<tên>(" supabase/migrations/*.sql \| tail -1`) |
-| Bỏ một đối tượng của luồng cũ | Xoá câu `create …` (và `grant`, trigger đi kèm) khỏi migration gốc; không viết `drop` ở migration mới |
-| Bảng / cột / ràng buộc | Sửa câu `create table` / `alter table` gốc (vd thêm FK ngay chỗ tạo cột; xoá câu `drop constraint` đã gỡ nó) |
-| Đối tượng **mới hoàn toàn** | Vẫn tạo migration mới (timestamp lớn nhất) |
-| Migration chỉ còn là bản ghi đè rỗng sau khi gộp | Xoá file + dòng trong `REGISTRY.yaml` |
+
+| Trường hợp                                       | Làm thế nào                                                                                                                                  |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sửa một hàm / trigger / view đã có               | Sửa trong file migration chứa **định nghĩa mới nhất** của đối tượng đó (`grep -l "function iam.<tên>(" supabase/migrations/*.sql | tail -1`) |
+| Bỏ một đối tượng của luồng cũ                    | Xoá câu `create …` (và `grant`, trigger đi kèm) khỏi migration gốc; không viết `drop` ở migration mới                                        |
+| Bảng / cột / ràng buộc                           | Sửa câu `create table` / `alter table` gốc (vd thêm FK ngay chỗ tạo cột; xoá câu `drop constraint` đã gỡ nó)                                 |
+| Đối tượng **mới hoàn toàn**                      | Vẫn tạo migration mới (timestamp lớn nhất)                                                                                                   |
+| Migration chỉ còn là bản ghi đè rỗng sau khi gộp | Xoá file + dòng trong `REGISTRY.yaml`                                                                                                        |
+
 
 **Hệ quả bắt buộc:** Supabase chỉ chạy mỗi file một lần → sửa file **đã áp** thì Dev không tự nhận. Mỗi đợt có sửa migration đã áp: `supabase db reset --linked` trên Dev (xoá sạch DB Dev rồi chạy lại toàn bộ migration + `seed.sql`). Dev hiện gần như trống (0 tài khoản, chỉ dữ liệu seed — đo 2026-10-11) nên reset an toàn; **hỏi trước mỗi lần reset**. Prod chưa đụng tới — P10 dựng mới từ bộ migration cuối. **Sau khi Prod chạy thật, quay lại quy tắc cũ** (chỉ thêm migration mới).
 
 ### Danh sách plan
 
-| Việc | File plan | Plan | Làm | Review |
-|---|---|---|---|---|
-| 1.1 Cấu trúc thư mục `core/` | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ | ✅ |
-| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ | ✅ |
-| 1-B `SessionController` + router guard | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ | ✅ |
-| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu | [plans/P2/2-A1-iam-tai-khoan-to-chuc.md](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ✅ | ✅ | ✅ |
-| 2-A2 IAM: thành viên, lời mời, vai trò, nhật ký | [plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅ | ✅ | ✅ |
-| 2-A3 Phiên, đăng nhập, nhận lời mời | [plans/P2/2-A3-phien-dang-nhap-loi-moi.md](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ | ✅ |
-| 2-B1 Đăng ký cửa hàng, xác minh email, định tuyến | [plans/P2/2-B1-dang-ky-cua-hang.md](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | ✅ | 🔄 |
-| 2-B2 Email qua Edge Function | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md) | ✅ | ✅ | 🔄 |
-| 2-B3 Sửa KI của IAM, bỏ readiness | [plans/P2/2-B3-iam-sua-ki.md](plans/P2/2-B3-iam-sua-ki.md) | ✅ | ✅ | ✅ |
-| 2-B4 Hoàn thiện IAM sau rà soát | [plans/P2/2-B4-iam-hoan-thien.md](plans/P2/2-B4-iam-hoan-thien.md) | ✅ | ✅ | ✅ |
-| 2-B5 Nhận lời mời bằng một mã | [plans/P2/2-B5-loi-moi-mot-ma.md](plans/P2/2-B5-loi-moi-mot-ma.md) | ✅ | ✅ | 🔄 |
-| 2-B6 Hoàn thiện UI/UX màn auth | [plans/P2/2-B6-ui-ux-auth.md](plans/P2/2-B6-ui-ux-auth.md) | ✅ | ⬜ | ⬜ |
-| 2-B7 Hoàn thiện UI/UX màn IAM | [plans/P2/2-B7-ui-ux-iam.md](plans/P2/2-B7-ui-ux-iam.md) | ✅ | ⬜ | ⬜ |
-| 3-A Quản trị tổ chức (app) | [plans/P3/3-A-quan-tri-to-chuc.md](plans/P3/3-A-quan-tri-to-chuc.md) | ✅ | ✅ | ✅ |
-| 3-C App bỏ phụ thuộc IAM cũ | [plans/P3/3-C-thay-iam-cu-bang-core.md](plans/P3/3-C-thay-iam-cu-bang-core.md) | ✅ | ✅ | ✅ |
-| 3-D Xoá modules/iam, apps/admin, worker | [plans/P3/3-D-xoa-iam-cu.md](plans/P3/3-D-xoa-iam-cu.md) | ✅ | ✅ | ✅ |
-| 3-B DB: KI-08, dọn luồng cũ, KI-03 | [plans/P3/3-B-db-ki08-don-luong-cu.md](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | ✅ | ✅ |
-| 3-E Bỏ Platform Admin, trạng thái tổ chức / tài khoản | [plans/P3/3-E-bo-platform-admin.md](plans/P3/3-E-bo-platform-admin.md) | ✅ | ✅ | ✅ |
-| 10-4 Tương phản màu, nhãn thanh dưới | [plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md](plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md) | ✅ | ✅ | ✅ |
-| 10-5 Tương phản tone, chữ phụ, viền ô nhập | [plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md) | ✅ | ✅ | ✅ |
-| 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động | [plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅ | ✅ | ✅ |
+
+| Việc                                                                     | File plan                                                                                                | Plan | Làm | Review |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ---- | --- | ------ |
+| 1.1 Cấu trúc thư mục `core/`                                             | [plans/P1/1.1-cau-truc-core.md](plans/P1/1.1-cau-truc-core.md)                                           | ✅    | ✅   | ✅      |
+| 1-A `AppException`, `SupabaseRpc`, feature mẫu, kiểm import              | [plans/P1/1-A-app-exception-feature-mau.md](plans/P1/1-A-app-exception-feature-mau.md)                   | ✅    | ✅   | ✅      |
+| 1-B `SessionController` + router guard                                   | [plans/P1/1-B-session-controller-guard.md](plans/P1/1-B-session-controller-guard.md)                     | ✅    | ✅   | ✅      |
+| 2-A1 IAM: tài khoản, hồ sơ tổ chức, đặt lại mật khẩu                     | [plans/P2/2-A1-iam-tai-khoan-to-chuc.md](plans/P2/2-A1-iam-tai-khoan-to-chuc.md)                         | ✅    | ✅   | ✅      |
+| 2-A2 IAM: thành viên, lời mời, vai trò, nhật ký                          | [plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md)       | ✅    | ✅   | ✅      |
+| 2-A3 Phiên, đăng nhập, nhận lời mời                                      | [plans/P2/2-A3-phien-dang-nhap-loi-moi.md](plans/P2/2-A3-phien-dang-nhap-loi-moi.md)                     | ✅    | ✅   | ✅      |
+| 2-B1 Đăng ký cửa hàng, xác minh email, định tuyến                        | [plans/P2/2-B1-dang-ky-cua-hang.md](plans/P2/2-B1-dang-ky-cua-hang.md)                                   | ✅    | ✅   | 🔄     |
+| 2-B2 Email qua Edge Function                                             | [plans/P2/2-B2-email-edge-function.md](plans/P2/2-B2-email-edge-function.md)                             | ✅    | ✅   | 🔄     |
+| 2-B3 Sửa KI của IAM, bỏ readiness                                        | [plans/P2/2-B3-iam-sua-ki.md](plans/P2/2-B3-iam-sua-ki.md)                                               | ✅    | ✅   | ✅      |
+| 2-B4 Hoàn thiện IAM sau rà soát                                          | [plans/P2/2-B4-iam-hoan-thien.md](plans/P2/2-B4-iam-hoan-thien.md)                                       | ✅    | ✅   | ✅      |
+| 2-B5 Nhận lời mời bằng một mã                                            | [plans/P2/2-B5-loi-moi-mot-ma.md](plans/P2/2-B5-loi-moi-mot-ma.md)                                       | ✅    | ✅   | 🔄     |
+| 2-B6 Hoàn thiện UI/UX màn auth                                           | [plans/P2/2-B6-ui-ux-auth.md](plans/P2/2-B6-ui-ux-auth.md)                                               | ✅    | ⬜   | ⬜      |
+| 2-B7 Hoàn thiện UI/UX màn IAM                                            | [plans/P2/2-B7-ui-ux-iam.md](plans/P2/2-B7-ui-ux-iam.md)                                                 | ✅    | ⬜   | ⬜      |
+| 3-A Quản trị tổ chức (app)                                               | [plans/P3/3-A-quan-tri-to-chuc.md](plans/P3/3-A-quan-tri-to-chuc.md)                                     | ✅    | ✅   | ✅      |
+| 3-C App bỏ phụ thuộc IAM cũ                                              | [plans/P3/3-C-thay-iam-cu-bang-core.md](plans/P3/3-C-thay-iam-cu-bang-core.md)                           | ✅    | ✅   | ✅      |
+| 3-D Xoá modules/iam, apps/admin, worker                                  | [plans/P3/3-D-xoa-iam-cu.md](plans/P3/3-D-xoa-iam-cu.md)                                                 | ✅    | ✅   | ✅      |
+| 3-B DB: KI-08, dọn luồng cũ, KI-03                                       | [plans/P3/3-B-db-ki08-don-luong-cu.md](plans/P3/3-B-db-ki08-don-luong-cu.md)                             | ✅    | ✅   | ✅      |
+| 3-E Bỏ Platform Admin, trạng thái tổ chức / tài khoản                    | [plans/P3/3-E-bo-platform-admin.md](plans/P3/3-E-bo-platform-admin.md)                                   | ✅    | ✅   | ✅      |
+| 10-4 Tương phản màu, nhãn thanh dưới                                     | [plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md](plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md)   | ✅    | ✅   | ✅      |
+| 10-5 Tương phản tone, chữ phụ, viền ô nhập                               | [plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md)     | ✅    | ✅   | ✅      |
+| 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động                 | [plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅    | ✅   | ✅      |
+| T7-0 Rà soát BJ-02/03: sửa lỗi dữ liệu và luồng phê duyệt | [plans/T7/T7-0-ra-soat-bj02-bj03.md](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅ | ✅   | ✅ |
+| T7-0b Nhập hàng nhanh đúng spec (SCR-006…012) | [plans/T7/T7-0b-nhap-nhanh-dung-spec.md](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ | ✅ |
+| T7-0c Sửa còn lại T7-0b, trạng thái chung, SCR-013 | [plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | 📝 | ⬜ | ⬜ |
+| T7-1 BJ-01 Tồn kho & khả dụng                                            | [plans/T7/T7-1-ton-kho-bj01.md](plans/T7/T7-1-ton-kho-bj01.md)                                           | 📝   | ⬜   | ⬜      |
 
 
 ---
 
-## Cách chuyển MỘT feature (công thức dùng cho P2–P8)
+
+
+## Cách chuyển MỘT feature (công thức dùng cho Theme 1–5, 8)
 
 Hiện tại:
 
@@ -127,109 +168,133 @@ Page ─▶ Cubit ─▶ XxxRepository.method() ─▶ supabase.schema('x').rpc(
 8. **Kiểm tra**: `dart analyze` sạch, test cubit/repository chạy qua, tự bấm hết màn hình của feature trong checklist P0. Sau đó mở PR.
 
 **Quy tắc khi làm:**
+
 - **Tách hai bước, hai PR** (chốt 2026-10-08):
   - **(a) Chuyển kiến trúc**: không đổi hành vi, không sửa UI ngoài import/dependency, không sửa RPC.
   - **(b) Sửa theo tài liệu TH**: các mục 🔧 / 🆕 của theme đó (UI, RPC bằng migration mới, Edge Function). Mỗi mục có plan riêng.
   - Làm (a) trước (b). Có lỗi thì biết ngay do chuyển kiến trúc hay do sửa nghiệp vụ.
 - Module cũ **vẫn chạy song song** tới P9: feature nào chưa chuyển thì vẫn dùng module.
 - Theo `CLAUDE.md`: chạy GitNexus `impact` trước khi sửa symbol, và `detect_changes` trước khi commit.
-- Mỗi feature (hoặc nhóm màn hình lớn) là **1 PR vào `refactor/simple-arch`**.
+- Mỗi feature (hoặc nhóm màn hình lớn) là **1 PR vào** `refactor/simple-arch`.
 
 ---
 
-## P0. Chuẩn bị (0,5 ngày)
+
+
+## Chuẩn bị (0,5 ngày)
 
 **Trạng thái:** ✅ Xong (2026-10-08)
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **0** | Chuẩn bị | 0.1–0.6 | — | ✅ | — |
+
+| Plan  | Nội dung | Gồm việc | Plan | Làm | Review |
+| ----- | -------- | -------- | ---- | --- | ------ |
+| **0** | Chuẩn bị | 0.1–0.6  | —    | ✅   | —      |
+
 
 Chi tiết từng việc:
 
-| # | Việc | Kết quả |
-|---|---|---|
-| 0.1 | `git checkout refactor/simple-arch` (mang theo 51 thay đổi đang dở) | Đứng trên branch refactor |
-| 0.2 | Commit việc dở thành các nhóm: ① bỏ Railway/CircleCI/GitLab, ② đổi bundle id iOS/Android, ③ docs vận hành, ④ `docs/refactor/` (SCOPE + PLAN) | Thư mục làm việc sạch |
-| 0.3 | Tag mốc `v-legacy-arch` tại commit đầu branch và push | Luôn quay lại được bản cũ |
+
+| #   | Việc                                                                                                                                                               | Kết quả                                                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| 0.1 | `git checkout refactor/simple-arch` (mang theo 51 thay đổi đang dở)                                                                                                | Đứng trên branch refactor                                                   |
+| 0.2 | Commit việc dở thành các nhóm: ① bỏ Railway/CircleCI/GitLab, ② đổi bundle id iOS/Android, ③ docs vận hành, ④ `docs/refactor/` (SCOPE + PLAN)                       | Thư mục làm việc sạch                                                       |
+| 0.3 | Tag mốc `v-legacy-arch` tại commit đầu branch và push                                                                                                              | Luôn quay lại được bản cũ                                                   |
 | 0.4 | Chạy app bản cũ trên Supabase local và lập **checklist màn hình** `docs/refactor/CHECKLIST.md`: mỗi màn 1 dòng (route, thao tác chính, ☐ đã kiểm tra sau refactor) | Danh sách nghiệm thu 119 dòng. Cột "Cũ" ⏭ bỏ qua theo quyết định 2026-10-08 |
-| 0.5 | Chạy toàn bộ test hiện có và ghi lại số pass/fail làm mốc | Biết test nào vốn đã fail |
-| 0.6 | Chuyển tài liệu / rule / skill của kiến trúc cũ vào `docs/_legacy/`; viết lại `AGENTS.md` và rule Cursor theo kiến trúc mới | AI agent không viết code theo kiểu cũ |
+| 0.5 | Chạy toàn bộ test hiện có và ghi lại số pass/fail làm mốc                                                                                                          | Biết test nào vốn đã fail                                                   |
+| 0.6 | Chuyển tài liệu / rule / skill của kiến trúc cũ vào `docs/_legacy/`; viết lại `AGENTS.md` và rule Cursor theo kiến trúc mới                                        | AI agent không viết code theo kiểu cũ                                       |
+
 
 **Xong khi:** branch sạch, có tag, có checklist và mốc test.
 
 ---
 
-## P1. Nền `core/` (2 ngày)
+
+
+## Nền `core/` (2 ngày)
 
 **Trạng thái:** ✅ Xong code, merge `7c455c6a7` (2026-10-08) — còn kiểm tay trên Dev theo plan 1-B mục 5
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **1.1** | Cấu trúc thư mục `core/` | 1.1 | ✅ [plan](plans/P1/1.1-cau-truc-core.md) | ✅ | ✅ |
-| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ✅ [plan](plans/P1/1-A-app-exception-feature-mau.md) | ✅ | ✅ |
-| **1-B** | `SessionController` + router guard (3 nhánh hiện có; 3 nhánh mới làm ở 2-B1 / P3) | 1.3, 1.4 | ✅ [plan](plans/P1/1-B-session-controller-guard.md) | ✅ | ✅ |
+
+| Plan    | Nội dung                                                                                   | Gồm việc      | Plan                                                | Làm | Review |
+| ------- | ------------------------------------------------------------------------------------------ | ------------- | --------------------------------------------------- | --- | ------ |
+| **1.1** | Cấu trúc thư mục `core/`                                                                   | 1.1           | ✅ [plan](plans/P1/1.1-cau-truc-core.md)             | ✅   | ✅      |
+| **1-A** | `AppException` + bộ dịch lỗi, feature mẫu `partner_change_history`, lint ranh giới feature | 1.2, 1.5, 1.6 | ✅ [plan](plans/P1/1-A-app-exception-feature-mau.md) | ✅   | ✅      |
+| **1-B** | `SessionController` + router guard (3 nhánh hiện có; 3 nhánh mới làm ở 2-B1 / P3)          | 1.3, 1.4      | ✅ [plan](plans/P1/1-B-session-controller-guard.md)  | ✅   | ✅      |
+
 
 Chi tiết từng việc:
 
-| # | Việc | Chi tiết |
-|---|---|---|
-| 1.1 | Cấu trúc thư mục | Dời `lib/configurations/` → `lib/core/config/` trên `refactor/p1-core` |
+
+| #   | Việc                        | Chi tiết                                                                                                                                                                                |
+| --- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.1 | Cấu trúc thư mục            | Dời `lib/configurations/` → `lib/core/config/` trên `refactor/p1-core`                                                                                                                  |
 | 1.2 | `AppException` + bộ map lỗi | Một lớp lỗi chung, map từ `PostgrestException.message` (mã `PERMISSION_DENIED`, `VALIDATION_ERROR`…) sang thông báo tiếng Việt. Gộp từ `exception_mapper.dart` và các `IamBlockedCodes` |
-| 1.3 | `SessionController` | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module |
-| 1.4 | Router guard | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active |
-| 1.5 | Feature mẫu | Làm **trước 1 feature nhỏ**: `partner_change_history` (1 query, 1 cubit) theo đủ 8 bước, để làm mẫu cho cả nhóm |
-| 1.6 | Lint | Script `tool/check_feature_imports.dart` kiểm 3 luật phụ thuộc của SCOPE 3.1 cho tầng `data/`, `logic/` (feature khác chỉ dùng repository của nhau) |
+| 1.3 | `SessionController`         | Giữ: user hiện tại, có phải platform admin không, danh sách membership, tenant/store đang chọn. Thay cho `ICurrentUser` + `TenantContextCubit` + session port của module                |
+| 1.4 | Router guard                | Viết lại `redirect` theo **bảng định tuyến ở SCOPE 3.5**: chưa đăng nhập, chưa xác minh, platform admin, không có tổ chức, tenant bị chặn, tenant active                                |
+| 1.5 | Feature mẫu                 | Làm **trước 1 feature nhỏ**: `partner_change_history` (1 query, 1 cubit) theo đủ 8 bước, để làm mẫu cho cả nhóm                                                                         |
+| 1.6 | Lint                        | Script `tool/check_feature_imports.dart` kiểm 3 luật phụ thuộc của SCOPE 3.1 cho tầng `data/`, `logic/` (feature khác chỉ dùng repository của nhau)                                     |
+
 
 **Xong khi:** app chạy như cũ; feature mẫu chạy qua repository; guard là hàm thuần có test (3 nhánh hiện có, 3 nhánh mới của TH-01 2.3 thêm ở 2-B1 / P3); có test cho `SessionController` và guard.
 
 ---
 
-## P2. Auth, đăng ký cửa hàng, IAM (5 ngày)
+
+
+## Theme 1. Auth, đăng ký cửa hàng, IAM (5 ngày)
 
 **Trạng thái:** 🔄 Đang làm
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu | 2B.6 (một phần) | ✅ [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md) | ✅ | ✅ |
-| **2-A2** | (a) IAM: thành viên, vai trò, lời mời (quản trị), nhật ký quản trị, hub "Người dùng & vai trò" | 2B.6 (phần còn lại) | ✅ [plan](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅ | ✅ |
-| **2-A3** | (a) Phiên & đăng nhập: `SessionController` gọi RPC trực tiếp (`get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) và tự cập nhật `IamSession`; `LoginCubit`, đăng xuất, nhập mã lời mời `/invitation` (`InvitationAcceptanceCubit`); xử lý 2 góp ý review 1-B (`core` import `features`, reset state khi đổi người dùng) | 2B.5, 1-B góp ý | ✅ [plan](plans/P2/2-A3-phien-dang-nhap-loi-moi.md) | ✅ | ✅ |
-| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md) | ✅ | 🔄 DB ✅; chờ bật xác minh email + kiểm tay |
-| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend | 2A.4 | ✅ [plan](plans/P2/2-B2-email-edge-function.md) | ✅ | 🔄 SQL ✅, `send-email` đã deploy; chờ Vault + gửi mail lời mời thật |
-| **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-06, KI-10…KI-14, phần app của KI-05 (bỏ readiness cửa hàng). KI-03 và KI-05 DB/platform dời P3 | TH-01 mục 9.2 | ✅ [plan](plans/P2/2-B3-iam-sua-ki.md) | ✅ | ✅ |
-| **2-B4** | (b) Hoàn thiện sau rà soát TH-01: mất quyền khi đang dùng → tải lại phiên; đổi mật khẩu xong đăng xuất; câu lời mời tổ chức tạm ngừng; đăng ký lại cùng email (A3); đếm ngược gửi lại (A4) | Rà soát 2026-10-10 | ✅ [plan](plans/P2/2-B4-iam-hoan-thien.md) | ✅ | ✅ |
-| **2-B5** | (b) Nhân viên chưa có tài khoản chỉ nhập mã lời mời 8 ký tự (bỏ mã 6 số): Edge Function `invitation-signup` tạo tài khoản đã xác minh + nhận lời mời | Quyết định 2026-10-12 | ✅ [plan](plans/P2/2-B5-loi-moi-mot-ma.md) | ✅ | 🔄 code đạt; chờ deploy `invitation-signup` + kiểm tay |
-| **2-B6** | (b) Hoàn thiện UI/UX màn auth theo audit impeccable: sheet xác nhận lời mời đủ Tổ chức / Vai trò / Email, nút "Tiếp tục" ở nhập mã lời mời, lỗi đăng ký theo từng trường, lỗi đăng nhập dưới form, tự điền (Keychain / Autofill / mã 6 số), ô mã 6 số dùng `VVerificationCodeField`, nhãn nút quay lại, vùng chạm link. Làm sau khi 2-B5 commit | Audit 2026-10-13 | ✅ [plan](plans/P2/2-B6-ui-ux-auth.md) | ⬜ | ⬜ |
-| **2-B7** | (b) Hoàn thiện UI/UX màn IAM theo audit impeccable: bàn phím MST nhập được dấu gạch (BR-21), nút mời `+` trên app bar, nhãn "Chủ sở hữu" ở thẻ thành viên, lỗi mời thành viên dưới ô Email, chặn rời form khi chưa lưu, nhãn / vùng chạm (nút lọc, quay lại, "Thử lại", sao chép), tab và chip có trạng thái chọn; `VChip(onTap)` 44 + `VCard(onTap)` là nút; gộp 3 thẻ hành động, xoá file chết | Audit 2026-10-13 | ✅ [plan](plans/P2/2-B7-ui-ux-iam.md) | ⬜ | ⬜ |
+
+| Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                         | Gồm việc                                       | Plan                                                      | Làm | Review                                                              |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- | --------------------------------------------------------- | --- | ------------------------------------------------------------------- |
+| **2-A1** | (a) IAM: tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, quên mật khẩu                                                                                                                                                                                                                                                                                                                          | 2B.6 (một phần)                                | ✅ [plan](plans/P2/2-A1-iam-tai-khoan-to-chuc.md)          | ✅   | ✅                                                                   |
+| **2-A2** | (a) IAM: thành viên, vai trò, lời mời (quản trị), nhật ký quản trị, hub "Người dùng & vai trò"                                                                                                                                                                                                                                                                                                   | 2B.6 (phần còn lại)                            | ✅ [plan](plans/P2/2-A2-iam-thanh-vien-loi-moi-nhat-ky.md) | ✅   | ✅                                                                   |
+| **2-A3** | (a) Phiên & đăng nhập: `SessionController` gọi RPC trực tiếp (`get_tenant_context`, `list_accessible_tenants`, `switch_tenant_context`, `user_preferences`) và tự cập nhật `IamSession`; `LoginCubit`, đăng xuất, nhập mã lời mời `/invitation` (`InvitationAcceptanceCubit`); xử lý 2 góp ý review 1-B (`core` import `features`, reset state khi đổi người dùng)                               | 2B.5, 1-B góp ý                                | ✅ [plan](plans/P2/2-A3-phien-dang-nhap-loi-moi.md)        | ✅   | ✅                                                                   |
+| **2-B1** | (b) Đăng ký cửa hàng mới: trigger DB, cấu hình OTP, `/login`, `/signup`, `/verify-email`, `/no-organization`, banner hồ sơ pháp lý; thêm nhánh guard "chưa xác minh", "không có tổ chức", chọn tổ chức hoạt động đầu tiên                                                                                                                                                                        | 2A.1, 2A.2, 2A.3, 2B.1, 2B.2, 2B.3, 2B.4, 2B.7 | ✅ [plan](plans/P2/2-B1-dang-ky-cua-hang.md)               | ✅   | 🔄 DB ✅; chờ bật xác minh email + kiểm tay                          |
+| **2-B2** | (b) Email qua Edge Function `send-email`: `iam.email_jobs`, `enqueue_outbox_message` chuyển email sang job, `pg_net` + `pg_cron`, Resend                                                                                                                                                                                                                                                         | 2A.4                                           | ✅ [plan](plans/P2/2-B2-email-edge-function.md)            | ✅   | 🔄 SQL ✅, `send-email` đã deploy; chờ Vault + gửi mail lời mời thật |
+| **2-B3** | (b) Sửa KI của TH-01: KI-02 (`accept_invitation` kích hoạt lại thành viên đã loại), KI-06, KI-10…KI-14, phần app của KI-05 (bỏ readiness cửa hàng). KI-03 và KI-05 DB/platform dời P3                                                                                                                                                                                                            | TH-01 mục 9.2                                  | ✅ [plan](plans/P2/2-B3-iam-sua-ki.md)                     | ✅   | ✅                                                                   |
+| **2-B4** | (b) Hoàn thiện sau rà soát TH-01: mất quyền khi đang dùng → tải lại phiên; đổi mật khẩu xong đăng xuất; câu lời mời tổ chức tạm ngừng; đăng ký lại cùng email (A3); đếm ngược gửi lại (A4)                                                                                                                                                                                                       | Rà soát 2026-10-10                             | ✅ [plan](plans/P2/2-B4-iam-hoan-thien.md)                 | ✅   | ✅                                                                   |
+| **2-B5** | (b) Nhân viên chưa có tài khoản chỉ nhập mã lời mời 8 ký tự (bỏ mã 6 số): Edge Function `invitation-signup` tạo tài khoản đã xác minh + nhận lời mời                                                                                                                                                                                                                                             | Quyết định 2026-10-12                          | ✅ [plan](plans/P2/2-B5-loi-moi-mot-ma.md)                 | ✅   | 🔄 code đạt; chờ deploy `invitation-signup` + kiểm tay              |
+| **2-B6** | (b) Hoàn thiện UI/UX màn auth theo audit impeccable: sheet xác nhận lời mời đủ Tổ chức / Vai trò / Email, nút "Tiếp tục" ở nhập mã lời mời, lỗi đăng ký theo từng trường, lỗi đăng nhập dưới form, tự điền (Keychain / Autofill / mã 6 số), ô mã 6 số dùng `VVerificationCodeField`, nhãn nút quay lại, vùng chạm link. Làm sau khi 2-B5 commit                                                  | Audit 2026-10-13                               | ✅ [plan](plans/P2/2-B6-ui-ux-auth.md)                     | ⬜   | ⬜                                                                   |
+| **2-B7** | (b) Hoàn thiện UI/UX màn IAM theo audit impeccable: bàn phím MST nhập được dấu gạch (BR-21), nút mời `+` trên app bar, nhãn "Chủ sở hữu" ở thẻ thành viên, lỗi mời thành viên dưới ô Email, chặn rời form khi chưa lưu, nhãn / vùng chạm (nút lọc, quay lại, "Thử lại", sao chép), tab và chip có trạng thái chọn; `VChip(onTap)` 44 + `VCard(onTap)` là nút; gộp 3 thẻ hành động, xoá file chết | Audit 2026-10-13                               | ✅ [plan](plans/P2/2-B7-ui-ux-iam.md)                      | ⬜   | ⬜                                                                   |
+
 
 Chi tiết từng việc:
 
 ### 2A. Database (làm trước)
 
-| # | Migration mới | Nội dung |
-|---|---|---|
-| 2A.1 | `iam_create_tenant_for_owner.sql` | Hàm nội bộ `iam._create_tenant_for_owner(user_id, payload jsonb)`: tạo tenant `active`, Owner, cửa hàng mặc định, `last_selected_tenant_id`, audit. Có kiểm tra **mỗi user tối đa 1 tổ chức sở hữu** |
-| 2A.2 | `iam_on_auth_user_confirmed.sql` | Trigger trên `auth.users` khi `email_confirmed_at` chuyển từ null sang có giá trị (và khi insert đã xác minh sẵn): tạo profile `active`, có `signup_tenant` thì gọi 2A.1, rồi xoá `signup_tenant` khỏi metadata |
-| 2A.3 | Cấu hình Auth | `supabase/config.toml`: bật xác minh email (`enable_confirmations = true`), dùng **OTP 6 số** (template email đổi `{{ .ConfirmationURL }}` thành `{{ .Token }}`), `max_frequency = "1m0s"`, `site_url` / `additional_redirect_urls` theo deep link của app. Đẩy lên **Dev và Prod** bằng `supabase config push` (lệnh này áp ngay, không hỏi lại). Hiện Dev đang tắt xác nhận email, 1 giây/lần gửi để khớp app cũ (2026-10-07) |
-| 2A.4 | Email qua Edge Function | Tạo `supabase/functions/send-email` (Resend), bảng `iam.email_jobs` và Database Webhook. Sửa RPC lời mời / reset mật khẩu: ghi `email_jobs` thay cho `enqueue_outbox_message` |
+
+| #    | Migration mới                     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A.1 | `iam_create_tenant_for_owner.sql` | Hàm nội bộ `iam._create_tenant_for_owner(user_id, payload jsonb)`: tạo tenant `active`, Owner, cửa hàng mặc định, `last_selected_tenant_id`, audit. Có kiểm tra **mỗi user tối đa 1 tổ chức sở hữu**                                                                                                                                                                                                                            |
+| 2A.2 | `iam_on_auth_user_confirmed.sql`  | Trigger trên `auth.users` khi `email_confirmed_at` chuyển từ null sang có giá trị (và khi insert đã xác minh sẵn): tạo profile `active`, có `signup_tenant` thì gọi 2A.1, rồi xoá `signup_tenant` khỏi metadata                                                                                                                                                                                                                 |
+| 2A.3 | Cấu hình Auth                     | `supabase/config.toml`: bật xác minh email (`enable_confirmations = true`), dùng **OTP 6 số** (template email đổi `{{ .ConfirmationURL }}` thành `{{ .Token }}`), `max_frequency = "1m0s"`, `site_url` / `additional_redirect_urls` theo deep link của app. Đẩy lên **Dev và Prod** bằng `supabase config push` (lệnh này áp ngay, không hỏi lại). Hiện Dev đang tắt xác nhận email, 1 giây/lần gửi để khớp app cũ (2026-10-07) |
+| 2A.4 | Email qua Edge Function           | Tạo `supabase/functions/send-email` (Resend), bảng `iam.email_jobs` và Database Webhook. Sửa RPC lời mời / reset mật khẩu: ghi `email_jobs` thay cho `enqueue_outbox_message`                                                                                                                                                                                                                                                   |
+
+
+
 
 ### 2B. Màn hình
 
-| # | Màn | Ghi chú |
-|---|---|---|
-| 2B.1 | `/login` | Giữ màn cũ (đã có "Bạn đã nhận được lời mời? → Kích hoạt tài khoản"), thêm nút **Đăng ký cửa hàng mới**. Gộp `sign_in_platform_admin` và `sign_in_tenant_user` thành 1 |
-| 2B.2 | `/signup` (mới) | Wizard 3 bước: Tài khoản → Cửa hàng → Xác minh email |
-| 2B.3 | `/verify-email` (mới) | Nhập mã, gửi lại mã. Dùng cả cho trường hợp đăng nhập mà email chưa xác minh |
-| 2B.4 | `/no-organization` (mới) | "Bạn chưa thuộc tổ chức nào" + Nhập mã lời mời + Đăng xuất |
-| 2B.5 | `/invitation` | Giữ luồng lời mời nhân viên, chuyển sang repository |
+
+| #    | Màn                           | Ghi chú                                                                                                                                                                                          |
+| ---- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2B.1 | `/login`                      | Giữ màn cũ (đã có "Bạn đã nhận được lời mời? → Kích hoạt tài khoản"), thêm nút **Đăng ký cửa hàng mới**. Gộp `sign_in_platform_admin` và `sign_in_tenant_user` thành 1                           |
+| 2B.2 | `/signup` (mới)               | Wizard 3 bước: Tài khoản → Cửa hàng → Xác minh email                                                                                                                                             |
+| 2B.3 | `/verify-email` (mới)         | Nhập mã, gửi lại mã. Dùng cả cho trường hợp đăng nhập mà email chưa xác minh                                                                                                                     |
+| 2B.4 | `/no-organization` (mới)      | "Bạn chưa thuộc tổ chức nào" + Nhập mã lời mời + Đăng xuất                                                                                                                                       |
+| 2B.5 | `/invitation`                 | Giữ luồng lời mời nhân viên, chuyển sang repository                                                                                                                                              |
 | 2B.6 | IAM trong app (khoảng 20 màn) | Tài khoản của tôi, hồ sơ tổ chức, hồ sơ pháp lý, thành viên, vai trò, lời mời, audit log, quên mật khẩu: chuyển theo công thức 8 bước. **Bỏ** `tenant_readiness_page` và route `/more/readiness` |
-| 2B.7 | Banner | Banner "Bổ sung hồ sơ pháp lý" ở trang chủ khi chưa có MST |
+| 2B.7 | Banner                        | Banner "Bổ sung hồ sơ pháp lý" ở trang chủ khi chưa có MST                                                                                                                                       |
+
 
 **Repository:** `AuthRepository` (signIn, signUp, verifyOtp, resend, signOut, resetPassword), `OrganizationRepository`, `MemberRepository`, `InvitationRepository`, `AuditLogRepository`.
 
 Đặc tả chi tiết (chuỗi UI, quy tắc, sửa lỗi KI-02…KI-14, kịch bản kiểm thử): [TH-01 v4.0](../02-yeu-cau/TH-01-to-chuc-va-nguoi-dung.md) mục 4, 9.2, 9.3.
 
 **Xong khi:**
+
 - Từ `db reset`: đăng ký → nhập mã → vào trang chủ có cửa hàng mặc định.
 - Bỏ dở ở bước nhập mã, đăng nhập lại sẽ tới `/verify-email`; xác minh xong vẫn có cửa hàng.
 - Owner mời nhân viên, nhân viên nhận mã, tham gia và thấy đúng quyền.
@@ -238,32 +303,38 @@ Chi tiết từng việc:
 
 ---
 
-## P3. Làm gọn IAM (3 ngày)
+
+
+## Theme 1 (tiếp). Làm gọn IAM (3 ngày)
 
 > Ban đầu (2026-10-09, phương án A) phase này chuyển phần quản trị tổ chức của `apps/admin` vào tab **Thêm** (3-A). Từ 2026-10-11 mở rộng thành **làm gọn IAM** (3-B, 3-C, 3-D). Ngày 2026-10-12 **bỏ hẳn Platform Admin** (3-E): phần app của 3-A bị gỡ lại; tổ chức / tài khoản chỉ còn trạng thái hoạt động.
 
 **Trạng thái:** ✅ Xong (2026-10-12). Kiểm tay cùng đợt kiểm IAM
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **3-A** | (app) Quản trị tổ chức trong tab Thêm: `isPlatformAdmin`, guard G7, repository + cubit, màn C1–C6, lối vào ở tab Thêm và `/no-organization`, admin mẫu | 3.1, 3.2, 3.3, 3.5 | ✅ [plan](plans/P3/3-A-quan-tri-to-chuc.md) | ✅ | ✅ |
-| **3-C** | (app) App không còn phụ thuộc `vet45_iam_*`: hằng số / DTO sang core, `SessionStore` + 4 lớp contract thay `IamSession` / `IamStartup`, Sales bỏ `IIamModule`, viết lại 27 test | Làm gọn IAM (2026-10-11) | ✅ [plan](plans/P3/3-C-thay-iam-cu-bang-core.md) | ✅ | ✅ |
-| **3-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script | Làm gọn IAM; kéo 9.1 lên | ✅ [plan](plans/P3/3-D-xoa-iam-cu.md) | ✅ | ✅ |
-| **3-B** | (DB, sau 3-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03) | 3.4, 3.6 | ✅ [plan](plans/P3/3-B-db-ki08-don-luong-cu.md) | ✅ | ✅ (2026-10-12) |
-| **3-E** | Bỏ Platform Admin (thay phương án A của 3-A, quyết định 2026-10-12): xoá `features/platform_admin`, G7, RPC `platform_*`, `platform_admins`, `platform_audit_logs`, `vet45 admin`; tổ chức / tài khoản chỉ còn hoạt động (bỏ cột `status`, ID-09, `TENANT_SUSPENDED/CLOSED`); bỏ chuyển Owner (KI-08). Làm trước khi tiếp đợt kiểm IAM | Quyết định 2026-10-12 | ✅ [plan](plans/P3/3-E-bo-platform-admin.md) | ✅ | ✅ (2026-10-12) |
+
+| Plan    | Nội dung                                                                                                                                                                                                                                                                                                                               | Gồm việc                 | Plan                                            | Làm | Review         |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------- | --- | -------------- |
+| **3-A** | (app) Quản trị tổ chức trong tab Thêm: `isPlatformAdmin`, guard G7, repository + cubit, màn C1–C6, lối vào ở tab Thêm và `/no-organization`, admin mẫu                                                                                                                                                                                 | 3.1, 3.2, 3.3, 3.5       | ✅ [plan](plans/P3/3-A-quan-tri-to-chuc.md)      | ✅   | ✅              |
+| **3-C** | (app) App không còn phụ thuộc `vet45_iam_*`: hằng số / DTO sang core, `SessionStore` + 4 lớp contract thay `IamSession` / `IamStartup`, Sales bỏ `IIamModule`, viết lại 27 test                                                                                                                                                        | Làm gọn IAM (2026-10-11) | ✅ [plan](plans/P3/3-C-thay-iam-cu-bang-core.md) | ✅   | ✅              |
+| **3-D** | Xoá `modules/iam`, `apps/admin`, `apps/messaging_worker` + workspace / CI / script                                                                                                                                                                                                                                                     | Làm gọn IAM; kéo 9.1 lên | ✅ [plan](plans/P3/3-D-xoa-iam-cu.md)            | ✅   | ✅              |
+| **3-B** | (DB, sau 3-D, cùng đợt kiểm IAM) KI-08 chặn chuyển Owner cho người đã là Owner nơi khác; dọn onboarding / `provisioning` / `pending_activation`; FK `memberships.user_id` (KI-03)                                                                                                                                                      | 3.4, 3.6                 | ✅ [plan](plans/P3/3-B-db-ki08-don-luong-cu.md)  | ✅   | ✅ (2026-10-12) |
+| **3-E** | Bỏ Platform Admin (thay phương án A của 3-A, quyết định 2026-10-12): xoá `features/platform_admin`, G7, RPC `platform_*`, `platform_admins`, `platform_audit_logs`, `vet45 admin`; tổ chức / tài khoản chỉ còn hoạt động (bỏ cột `status`, ID-09, `TENANT_SUSPENDED/CLOSED`); bỏ chuyển Owner (KI-08). Làm trước khi tiếp đợt kiểm IAM | Quyết định 2026-10-12    | ✅ [plan](plans/P3/3-E-bo-platform-admin.md)     | ✅   | ✅ (2026-10-12) |
+
 
 Chi tiết từng việc:
 
-| # | Việc |
-|---|---|
-| 3.1 | ~~`features/platform_admin/`, `SessionController.isPlatformAdmin`, guard G7~~ — làm ở 3-A, gỡ ở 3-E |
-| 3.2 | ~~Chuyển từ `apps/admin`: danh sách / chi tiết tổ chức, tạm ngừng / khôi phục / đóng, đổi chủ sở hữu~~ — làm ở 3-A, gỡ ở 3-E |
-| 3.3 | ~~Lối vào "Quản trị nền tảng" ở tab Thêm và `/no-organization`~~ — làm ở 3-A, gỡ ở 3-E |
-| 3.4 | ~~KI-08: `transfer_platform_tenant_ownership` chặn người nhận đã là Owner nơi khác~~ — làm ở 3-B, bỏ cùng chuyển Owner ở 3-E |
-| 3.5 | ~~`vet45 admin create` + admin mẫu trong `seed.sql`~~ — gỡ ở 3-E |
-| 3.6 | KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, trạng thái `provisioning` / `pending_activation` (3-B) |
-| 3.7 | Bỏ `modules/iam`, `apps/admin`, `apps/messaging_worker`; app hết `vet45_iam_*` (3-C, 3-D) |
+
+| #   | Việc                                                                                                                                                                 |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3.1 | `features/platform_admin/`~~,~~ `SessionController.isPlatformAdmin`~~, guard G7~~ — làm ở 3-A, gỡ ở 3-E                                                              |
+| 3.2 | ~~Chuyển từ~~ `apps/admin`~~: danh sách / chi tiết tổ chức, tạm ngừng / khôi phục / đóng, đổi chủ sở hữu~~ — làm ở 3-A, gỡ ở 3-E                                     |
+| 3.3 | ~~Lối vào "Quản trị nền tảng" ở tab Thêm và~~ `/no-organization` — làm ở 3-A, gỡ ở 3-E                                                                               |
+| 3.4 | ~~KI-08:~~ `transfer_platform_tenant_ownership` ~~chặn người nhận đã là Owner nơi khác~~ — làm ở 3-B, bỏ cùng chuyển Owner ở 3-E                                     |
+| 3.5 | `vet45 admin create` ~~+ admin mẫu trong~~ `seed.sql` — gỡ ở 3-E                                                                                                     |
+| 3.6 | KI-03 FK `memberships.user_id`; xoá onboarding cũ, owner activation, readiness RPC, trạng thái `provisioning` / `pending_activation` (3-B)                           |
+| 3.7 | Bỏ `modules/iam`, `apps/admin`, `apps/messaging_worker`; app hết `vet45_iam_*` (3-C, 3-D)                                                                            |
 | 3.8 | Bỏ Platform Admin: RPC `platform_*`, bảng `platform_admins`, `platform_audit_logs`; cột trạng thái tổ chức / tài khoản; ID-09 phần tổ chức / tài khoản bị chặn (3-E) |
+
 
 **Không chuyển** từ `apps/admin`: toàn bộ (sau 3-E).
 
@@ -271,25 +342,31 @@ Chi tiết từng việc:
 
 ---
 
-## P4. Partner (2 ngày)
+
+
+## Theme 3. Partner (2 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **4-A** | (a) Chuyển partner + rule MST dùng chung | 4.1, 4.2 | ⬜ | ⬜ | ⬜ |
-| **4-B** | (b) Trigger lịch sử giao dịch đối tác + các sửa KI của TH-03 | 4.3, TH-03 mục 9.2 | ⬜ | ⬜ | ⬜ |
-| **4-C** | (dọn) **Dọn sạch module partner**: app hết `vet45_partner_*` (kể cả 1 chỗ ở `sales/presentation`, 1 ở `pricing/presentation`, router, DI); xoá `modules/partner/{domain,application,infrastructure}` — **giữ `modules/partner/integration_events` tới 7-5** (einvoice phụ thuộc); DB schema `partner`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc). Kèm: xoá 3 module rỗng `accounting`, `costing`, `dashboard` (erp không dùng), `packages/vet45_resend` (chỉ worker dùng), kiểm `apps/erp/example` | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
+
+| Plan    | Nội dung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Gồm việc                | Plan | Làm | Review |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **4-A** | (a) Chuyển partner + rule MST dùng chung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 4.1, 4.2                | ⬜    | ⬜   | ⬜      |
+| **4-B** | (b) Trigger lịch sử giao dịch đối tác + các sửa KI của TH-03                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 4.3, TH-03 mục 9.2      | ⬜    | ⬜   | ⬜      |
+| **4-C** | (dọn) **Dọn sạch module partner**: app hết `vet45_partner_*` (kể cả 1 chỗ ở `sales/presentation`, 1 ở `pricing/presentation`, router, DI); xoá `modules/partner/{domain,application,infrastructure}` — **giữ** `modules/partner/integration_events` **tới 7-5** (einvoice phụ thuộc); DB schema `partner`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc). Kèm: xoá 3 module rỗng `accounting`, `costing`, `dashboard` (erp không dùng), `packages/vet45_resend` (chỉ worker dùng), kiểm `apps/erp/example` | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
 
 Chi tiết từng việc:
 
 11 file gọi module, 8 cubit, 8 màn: danh sách, tạo, chi tiết, sửa, chuyển cá nhân → tổ chức, liên hệ, lịch sử.
 
-| # | Việc |
-|---|---|
-| 4.1 | `PartnerRepository` (search, detail, create, update, transform, contacts, deactivate/reactivate/soft-delete, check duplicate) |
-| 4.2 | Rule MST (10/12/10-3) dùng chung với IAM: chuyển vào `core/validation/tax_code.dart` |
+
+| #   | Việc                                                                                                                                                                                        |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4.1 | `PartnerRepository` (search, detail, create, update, transform, contacts, deactivate/reactivate/soft-delete, check duplicate)                                                               |
+| 4.2 | Rule MST (10/12/10-3) dùng chung với IAM: chuyển vào `core/validation/tax_code.dart`                                                                                                        |
 | 4.3 | **Trigger DB ghi lịch sử giao dịch đối tác**: trigger trên `sales.sales_orders` gọi `partner.upsert_partner_history` (TH-03 KI-02). `partner_action_logs` đã được ghi trong RPC, giữ nguyên |
+
 
 Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../02-yeu-cau/TH-03-doi-tac-giao-dich.md#92-chia-pr-của-p4).
 
@@ -297,32 +374,38 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-13): xem [TH-03 mục 9.2](../
 
 ---
 
-## P5. Catalog + Inventory (5 ngày)
+
+
+## Theme 2. Catalog + tồn kho cơ bản (5 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **5-A1** | (a) Sản phẩm cốt lõi | 5.1 | ⬜ | ⬜ | ⬜ |
-| **5-A2** | (a) Đơn vị tính + trường tùy chỉnh | 5.2, 5.3 | ⬜ | ⬜ | ⬜ |
-| **5-A3** | (a) Giá trong catalog | 5.4 | ⬜ | ⬜ | ⬜ |
-| **5-A4** | (a) Inventory | 5.5 | ⬜ | ⬜ | ⬜ |
-| **5-B** | (b) Các sửa KI của TH-02 | TH-02 mục 9.2 | ⬜ | ⬜ | ⬜ |
-| **5-C** | (dọn) **Dọn sạch module catalog + inventory**: app hết `vet45_catalog_*`, `vet45_inventory_*` (kể cả 2 chỗ ở `sales/presentation`, 2 ở `pricing/presentation`, 2 ở `dashboard/presentation`); xoá `modules/catalog`, `modules/inventory`; DB schema `catalog`, `inventory`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
+
+| Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                  | Gồm việc                | Plan | Làm | Review |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **5-A1** | (a) Sản phẩm cốt lõi                                                                                                                                                                                                                                                                                                                      | 5.1                     | ⬜    | ⬜   | ⬜      |
+| **5-A2** | (a) Đơn vị tính + trường tùy chỉnh                                                                                                                                                                                                                                                                                                        | 5.2, 5.3                | ⬜    | ⬜   | ⬜      |
+| **5-A3** | (a) Giá trong catalog                                                                                                                                                                                                                                                                                                                     | 5.4                     | ⬜    | ⬜   | ⬜      |
+| **5-A4** | (a) Cổng cặp cửa hàng–kho mặc định (phần tồn cơ bản để Theme 7 thay) | 5.5                     | ⬜    | ⬜   | ⬜      |
+| **5-B**  | (b) Các sửa KI của TH-02                                                                                                                                                                                                                                                                                                                  | TH-02 mục 9.2           | ⬜    | ⬜   | ⬜      |
+| **5-C**  | (dọn) **Dọn sạch module catalog + inventory**: **chạy sau Theme 7** (Theme 7 thay màn điều chỉnh tồn + bước nhập tồn khi tạo sản phẩm); app hết `vet45_catalog_*`, `vet45_inventory_*` (kể cả 2 chỗ ở `sales/presentation`, 2 ở `pricing/presentation`, 2 ở `dashboard/presentation`); xoá `modules/catalog`, `modules/inventory`; DB schema `catalog`, `inventory`: bỏ outbox / inbox / RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
 
 Chi tiết từng việc:
 
 ERP hiện có **18 file** gọi module catalog, **15 cubit**, **23 màn**. Chia thành 4 PR:
 
-| PR | Nhóm | Màn chính |
-|---|---|---|
-| 5.1 | Sản phẩm cốt lõi | Danh sách/tab sản phẩm, control center, tạo nhanh/guided, sửa hồ sơ, ảnh, vô hiệu/khôi phục/xoá, lịch sử thay đổi, readiness sản phẩm |
-| 5.2 | Đơn vị tính | ĐVT tenant, ĐVT sản phẩm, quy đổi |
-| 5.3 | Trường tuỳ chỉnh | Nhóm, field, giá trị, sắp xếp |
-| 5.4 | Giá trong catalog | Giá gốc thủ công, khung giá theo đơn vị, quy tắc giá cửa hàng + lịch sử |
-| 5.5 | **Inventory** | Chuyển điều chỉnh tồn và lịch sử tồn từ catalog sang `features/inventory/`. Giữ **cổng cửa hàng/kho mặc định** (theme7) qua `InventoryRepository` |
 
-Repository: `ProductRepository`, `MeasurementUnitRepository`, `CustomFieldRepository`, `ProductPriceRepository`, `InventoryRepository`.
+| PR  | Nhóm              | Màn chính                                                                                                                                         |
+| --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5.1 | Sản phẩm cốt lõi  | Danh sách/tab sản phẩm, control center, tạo nhanh/guided, sửa hồ sơ, ảnh, vô hiệu/khôi phục/xoá, lịch sử thay đổi, readiness sản phẩm             |
+| 5.2 | Đơn vị tính       | ĐVT tenant, ĐVT sản phẩm, quy đổi                                                                                                                 |
+| 5.3 | Trường tuỳ chỉnh  | Nhóm, field, giá trị, sắp xếp                                                                                                                     |
+| 5.4 | Giá trong catalog | Giá gốc thủ công, khung giá theo đơn vị, quy tắc giá cửa hàng + lịch sử                                                                           |
+| 5.5 | **Tồn kho cơ bản** | Chỉ chuyển **cổng cặp cửa hàng–kho mặc định** (`DefaultPairGateCubit` ở trang chủ, `inventory.default_pair`) sang `DefaultPairRepository`. **Không** refactor màn điều chỉnh tồn (`product_stock_adjustment_page`) và bước nhập tồn khi tạo sản phẩm (`product_guided_step_inventory`): Theme 7 thay bằng BJ-08 (kiểm kê, điều chỉnh) và BJ-12 (tồn đầu kỳ), chốt 2026-10-14. Tồn cơ bản của TH-02 **khác** Kho & Giá vốn của Theme 7 |
+
+
+Repository: `ProductRepository`, `MeasurementUnitRepository`, `CustomFieldRepository`, `ProductPriceRepository`, `DefaultPairRepository` (không dùng tên `InventoryRepository`: tên đó là repo màn Kho của Theme 7).
 Riêng tìm sản phẩm bán được / quét barcode (`search_sellable_products`, `resolve_sellable_barcode`): đặt trong `ProductRepository` để P8 Sales dùng lại.
 
 Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-san-pham-va-gia-ban.md#92-theo-pr-của-p5) (KI-01…KI-18). Riêng kiểm đơn vị đã bán khi xoá (TH-02 KI-08) làm ở P8 PR 8.1.
@@ -331,25 +414,144 @@ Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-
 
 ---
 
-## P6. Pricing (2 ngày)
+
+
+## Theme 7. Inventory — Kho & Giá vốn
+
+**Trạng thái:** 🔄 UI BJ-02, BJ-03 đã code trước khi có plan (chưa commit, review ở T7-0); T7-1 đã có plan; backend chưa lập plan
+
+> Theme 7 gồm UI và backend. Làm **UI trước** (màn hình, trạng thái, điều hướng, test; plan `T7-0…T7-16`, ~40 ngày) trên fixture, làm song song từ bây giờ; **backend làm trọn một lượt ngay sau Theme 2** (chốt 2026-10-14), plan mã `T7-B1…` chưa lập, khi lập thì thêm vào bảng Plan của mục này; riêng phần nối với bán hàng (xuất kho khi checkout, huỷ, hàng trả, BJ-04/05/06) làm ở **8-D** của Theme 5. Nguồn: [`specs/themes/theme-07`](../../specs/themes/theme-07/README.md) v4.6.8 (17 BJ + CAP-01, FROZEN) và prototype `03.design/prototype/html`; đặc tả giữ nguyên v1 đầy đủ theo quyết định 2026-10-07 ([TH-07](../02-yeu-cau/TH-07-kho.md) chỉ là con trỏ). Phạm vi: **73 màn active / 421 trạng thái** (đếm mỗi màn một lần).
+
+
+|                       |                                                                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dữ liệu | **Fixture trong bộ nhớ sau lớp Repository** (cùng cách BJ-02, BJ-03 đang làm), chép giá trị từ prototype để so mắt với HTML. Chữ ký repository giữ ổn định để thay thân bằng RPC khi có backend |
+| Chưa làm trong đợt UI | RPC / migration; ghi tồn thật; số liệu tài chính thật; trừ tồn khi bán (nối ở 8-D) |
+| Vai trò               | Như mọi phase: Claude viết plan và review, bạn tự code                                                                                                                               |
+| Thẩm quyền            | Nghiệp vụ: BJ / UC / UIF / Screen Contract. Thành phần, token, mật độ: Figma DS (`DS-CONFORMANCE.md` của prototype). HTML prototype là chuẩn đối chiếu hình ảnh                      |
+
+
+
+
+### Plan
+
+
+| Plan      | Nội dung                                                                                                                                                              | Gồm việc (màn · số trạng thái)                    | Plan                                     | Làm | Review |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------- | --- | ------ |
+| **T7-0**  | (Đợt 0, ~2 ngày, 2 PR) Sửa lỗi dữ liệu và luồng phê duyệt BJ-02/03 (review 2026-10-14): thêm trùng ghi đè, dòng chưa xong bị bỏ, HSD tự điền, mã lô / số âm, BJ-03 xác lập hai lần, người lập tự duyệt, gửi xong sai màn | BJ-02 (58), BJ-03 (21) | ✅ [plan](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅   | ✅ (2026-10-14) |
+| **T7-0b** | (Đợt 0, ~2 ngày, 2 PR) BJ-02 nhập hàng nhanh đúng spec: SCR-006/008/009/084/010/011/012 (câu chữ, bố cục, tìm sản phẩm trên màn, HSD theo cách ghi bao bì, lô trùng khác hạn) + 3 góp ý review T7-0 | SCR-006, 008, 009, 084, 010, 011, 012 | ✅ [plan](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ (2026-10-14; G1, G2 chuyển T7-0c) |
+| **T7-0c** | (Đợt 0, ~1,5–2 ngày, 2 PR) Sửa còn lại của T7-0b (G1 key thẻ lô, G2 "Sửa" ở SCR-010) + trạng thái chung BJ-02 qua `ReceiptScenario` (không quyền, kho khoá, dữ liệu vừa đổi, chưa có người duyệt, đang ghi nhận, chưa rõ kết quả, bị chặn) + SCR-013 Đối soát + bảng trạng thái → test | SCR-006…013 | 📝 [plan](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | ⬜ | ⬜ |
+| **T7-0d** | (Đợt 0, ~2 ngày) BJ-02 nhận theo chứng từ: SCR-007 + chế độ document của SCR-009 / 084 / 010 / 011 (`Chưa nhận lần này`, vượt chứng từ, `Đổi chứng từ`) | SCR-007, 009, 084, 010, 011 | ⬜ | ⬜ | ⬜ |
+| **T7-0e** | (Đợt 0, ~1,5 ngày) BJ-03 theo spec (SCR-014/015/017/019 + trạng thái, form căn cứ: Tiền tệ, không chọn sẵn cách hiểu giá) + kiến trúc / DS còn lại BJ-02/03 (Cubit cho page còn lại, `VToast`, token màu, widget dùng chung, tiền số nguyên) | BJ-03 (21) | ⬜ | ⬜ | ⬜ |
+| **T7-1**  | (Đợt 1, 1,5 ngày) BJ-01 Tồn kho & khả dụng                                                                                                                            | SCR-001, 003 · 10                                 | 📝 [plan](plans/T7/T7-1-ton-kho-bj01.md) | ⬜   | ⬜      |
+| **T7-2**  | (Đợt 1, 1,5 ngày) BJ-13 Điều chỉnh giá trị hàng nhập                                                                                                                  | SCR-085, 086, 089 · 16                            | ⬜                                        | ⬜   | ⬜      |
+| **T7-3**  | (Đợt 1, 2 ngày) BJ-14 Tính và công bố giá vốn                                                                                                                         | SCR-072, 074, 077 · 13                            | ⬜                                        | ⬜   | ⬜      |
+| **T7-4**  | (Đợt 2, 3 ngày) BJ-04 Giữ hàng (chỉ đọc) + BJ-05 Lấy hàng và bàn giao                                                                                                 | SCR-021 · 3; SCR-025…029 · 23                     | ⬜                                        | ⬜   | ⬜      |
+| **T7-5**  | (Đợt 2, 3 ngày) BJ-06 Hàng khách trả                                                                                                                                  | SCR-030…035 · 38                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-6**  | (Đợt 2, 2,5 ngày) BJ-07 Trả nhà cung cấp — **dựng 3 màn dùng chung** cho BJ-09/10                                                                                     | SCR-036, 037, 039, 041 · 24                       | ⬜                                        | ⬜   | ⬜      |
+| **T7-7**  | (Đợt 3, 2 ngày) BJ-09 Trạng thái hàng + SCR-056 (dùng lại ở T7-13)                                                                                                    | SCR-038 · 8; SCR-056 · 6; chế độ trên 036/037/041 | ⬜                                        | ⬜   | ⬜      |
+| **T7-8**  | (Đợt 3, 2 ngày) BJ-10 Tiêu hủy hàng                                                                                                                                   | SCR-040 · 10; chế độ trên 036/037/041             | ⬜                                        | ⬜   | ⬜      |
+| **T7-9**  | (Đợt 3, 3,5 ngày) BJ-08 Kiểm kê (đếm mù, `VNumericKeypadSheet`)                                                                                                       | SCR-042…047 · 34                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-10** | (Đợt 4, 3 ngày) BJ-11 Hủy và sửa sai nghiệp vụ kho                                                                                                                    | SCR-048…053 · 37                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-11** | (Đợt 4, 3 ngày) BJ-16 + BJ-17 Đối soát và phục hồi UNKNOWN (một bộ màn, hai ngữ cảnh vào)                                                                             | SCR-078…083 · 36                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-12** | (Đợt 4, 3 ngày) BJ-12 Khởi tạo tồn đầu kỳ (nhập tệp, `VFileDropZone`)                                                                                                 | SCR-066…071 · 36                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-13** | (Đợt 5, 3 ngày) BJ-15 Báo cáo tồn và thẻ kho (ngày ghi nhận / ngày nghiệp vụ)                                                                                         | SCR-054, 055, 057, 058, 059 · 30                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-14** | (Đợt 5, 1,5 ngày) CAP-01 Chính sách tồn & cận hạn                                                                                                                     | SCR-062…065 · 18                                  | ⬜                                        | ⬜   | ⬜      |
+| **T7-15** | (Đợt 5, 2 ngày) Kho Home: lối vào, "Cần chú ý", "Tất cả chức năng kho", deep link; thay hard-code `task.id` và toast còn sót                                          | `warehouse_home_*`                                | ⬜                                        | ⬜   | ⬜      |
+| **T7-16** | (Đợt 5, 2 ngày) Rà soát cuối: bảng 421 trạng thái → test, luồng đầu–cuối mỗi BJ, tương phản / vùng chạm / `Semantics`, quét chuỗi giả                                 | Toàn Theme                                        | ⬜                                        | ⬜   | ⬜      |
+
+
+**Thứ tự đợt:** 0 làm trước (BJ-02/03 có lỗi dữ liệu và sai vai phê duyệt, lại là mẫu cho các BJ sau) → 1 nối tiếp cụm valuation → 2 xuất và hoàn trả (có LOT, Product/UOM) → 3 kiểm soát tồn (BJ-09/10 dùng lại màn của BJ-07) → 4 sửa sai / đối soát / khởi tạo (cần nghiệp vụ gốc để có cái mà sửa) → 5 báo cáo, chính sách, Home (đọc từ mọi nguồn, gom mọi lối vào nên làm cuối). Ước lượng thô cho 1 người, gồm UI + test, chưa gồm backend (plan `T7-B*` chưa lập). Thứ tự BJ trong đợt lấy theo `runOrder` của prototype, chỉ nhóm lại theo phụ thuộc màn dùng chung.
+
+### Hiện trạng (2026-10-13)
+
+
+| Hạng mục                                                   | Trạng thái                                                                                                                                                                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BJ-02                                                      | Có SCR-006, 008, 009, 084, 010, 011, 012 (nhập nhanh, `QuickReceiptSessionCubit`). **Thiếu** SCR-007 (nhận theo chứng từ — nút "Nhập theo PO" chỉ hiện SnackBar) và SCR-013 (đối soát UNKNOWN)                                                          |
+| BJ-03                                                      | Có SCR-014, 015, 017, 019 + sheet căn cứ trực tiếp; có `sourceChanged`, `commercialConflict`                                                                                                                                                            |
+| Trạng thái chưa thấy trong `lib/features/inventory` (grep) | `PERMISSION_DENIED`, `UNKNOWN` / `COMMIT_UNKNOWN`, `FINANCIAL_MASKED`, `LOCKED`, `SELF_APPROVAL_NOT_ALLOWED`, `APPROVAL_ALREADY_DECIDED`, `PENDING_APPROVAL`, `APPROVER_CONFIGURATION_MISSING`                                                          |
+| Home                                                       | `WarehouseHomePage` v3.8: Việc của bạn · Bắt đầu việc mới · Tra cứu. Điều hướng việc còn hard-code `task.id == 'receipt_01'`, phần còn lại toast; `/warehouse/stock`, `/warehouse/reports` chưa có route                                                |
+| Build                                                      | Đã sửa lỗi `th` (2026-10-13 23:32): `dart analyze lib/features/inventory` sạch, 14 test xanh. `flutter analyze` sập vì đường dẫn có dấu ("Đồ án") — lỗi môi trường, dùng `dart analyze` |
+
+
+
+
+### Công thức làm MỘT BJ (phía UI)
+
+1. **Đọc**: UIF → từng Screen Contract (Information hierarchy, Trạng thái, Hành động) → UC (luồng thay thế / ngoại lệ) → fixture trong `app.js` của prototype.
+2. **Model + luật thuần**: `data/models/` và hàm suy ra (chỉ báo, điều kiện bật nút, tính tiền) là Dart thuần, có unit test; không để luật nằm trong widget.
+3. **Repository fixture**: một class, chữ ký như RPC sau này; tham số kịch bản (`normal / empty / stale / permissionDenied / unknown…`) để test và demo ép trạng thái.
+4. **Cubit**: Page → Cubit → Repository; lỗi qua `AppException`, không hiện exception thô.
+5. **Page**: dựng đúng thứ tự "Information hierarchy"; **mỗi trạng thái trong contract có một nhánh dựng và một test**.
+6. **Điều hướng**: đăng ký route, nối **đúng lối vào đã có trên Home** (thay toast / SnackBar giả); Back về đúng nơi gọi, giữ bộ lọc.
+7. **Test**: unit (luật), widget từng trạng thái, một luồng đầu–cuối.
+8. **So với prototype**: `index.html` → UIF → đối chiếu từng trạng thái ở inspector; ghi lệch vào mục Review của plan.
+
+**Quy tắc UI chung** (rút từ `DS-CONFORMANCE.md` của prototype):
+
+- Dùng thành phần DS có sẵn (`VChip`, `VSearchBar`, `VBanner`, `VBottomSheet`, `VEmptyState`, `VButton`, `VBadge`, `VNumericKeypadSheet`, `VFileDropZone`…); không tạo thành phần riêng cho một tính năng khi DS đã đủ.
+- Từ 2 Info / Key-value Row cùng nhóm ngữ nghĩa thì **một bề mặt chung**; list độc lập nền trong suốt. Product → LOT là cha–con (row phẳng cùng bề mặt), không card lồng card.
+- Mỗi trạng thái **một hành động chính**; footer hai nút xếp ngang (Phụ | Chính). Không có trạng thái cụt; Back / điều hướng không được đổi finality.
+- `VBanner` chỉ cho ngoại lệ, cảnh báo, chặn, hệ quả. Thành công cùng màn dùng toast; không toast trùng màn kết quả / lỗi inline / UNKNOWN. `UNKNOWN` ≠ thất bại, luôn có đường phục hồi.
+- Chip lọc một hàng, cuộn ngang, không wrap. Hủy đối tượng đang mở nằm trong ngữ cảnh đối tượng, không đặt ở danh sách.
+- Nội dung: "mã vạch" (không "barcode"), UOM luôn đi với số lượng, không ID kỹ thuật. `PERMISSION_DENIED`: dữ liệu được bảo vệ **không có mặt** trong cây widget; `FINANCIAL_MASKED`: không hiện số tiền.
+- Tương phản, vùng chạm ≥ 44, nhãn `Semantics` cho nút icon theo 10-4…10-6.
+
+**Dùng lại, đừng làm lại:**
+
+
+| Dùng chung                                                                      | Ở đâu                                      | Plan           |
+| ------------------------------------------------------------------------------- | ------------------------------------------ | -------------- |
+| Row điều hướng, Key-value Row (`inventory_list_row`, `inventory_key_value_row`) | `features/inventory/presentation/widgets/` | T7-1           |
+| SCR-036 / 037 / 041 (BJ-07 · BJ-09 · BJ-10)                                     | dựng ở BJ-07; BJ-09/10 chỉ đổi chế độ      | T7-6           |
+| SCR-056 Chi tiết movement (BJ-09 · BJ-15)                                       | dựng ở BJ-09                               | T7-7           |
+| SCR-078…083 (BJ-16 · BJ-17)                                                     | một bộ màn, hai ngữ cảnh vào               | T7-11          |
+| Hàng chờ → làm việc → rà soát → kết quả (BJ-03)                                 | mẫu cho BJ-13, BJ-14, BJ-05, BJ-07         | T7-0 chuẩn hoá |
+
+
+
+
+### Quyết định cần chốt
+
+
+| #   | Câu hỏi                                                                                                                                                                                                                          | Gợi ý                                                                                                         |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1   | Home: giữ v3.8 đang làm hay chuyển candidate v4.6.4 (Cần chú ý + 6 nhóm chức năng)?                                                                                                                                              | Giữ v3.8 tới hết đợt 4, chốt ở T7-15 khi đã đủ lối vào                                                        |
+| 2   | Widget dùng chung ở feature hay lên `vet45_design_system`?                                                                                                                                                                       | Ở feature trước; đẩy lên package khi ≥ 3 BJ dùng và hình dạng đã ổn (plan riêng)                              |
+| 3   | Fixture dùng chung một chỗ (`data/fixtures/`) để cùng sản phẩm không lệch mã giữa BJ (hiện BJ-01 `SP-000184`, BJ-03 `SP-00142`)?                                                                                                 | Có, từ T7-1; T7-0 chuyển fixture BJ-02/03 sang                                                                |
+| 4   | Vai người dùng (Chủ, Thủ kho, Kế toán…) để thấy `PERMISSION_DENIED`, `FINANCIAL_MASKED`, `SELF_APPROVAL_NOT_ALLOWED`: phiên thật hay tham số kịch bản?                                                                           | **Danh tính: phiên thật** (`SessionStore.userId` + `AccountRepository`), chốt trong T7-0 để kiểm người lập ≠ người duyệt; **quyền / che tài chính: tham số kịch bản** ở giai đoạn UI |
+
+
+**Đã chốt (2026-10-14):** `features/inventory/` là của Theme 7; 5-A4 chỉ chuyển cổng cặp mặc định sang `DefaultPairRepository` (không dùng tên `InventoryRepository`), phần tồn cơ bản để Theme 7 thay.
+
+**Xong khi (UI):** 73 màn active đều mở được từ Home hoặc deep link, không còn toast / SnackBar giả hành vi; mỗi trạng thái trong Screen Contract có nhánh dựng và ít nhất một test; `dart analyze lib/features/inventory test/features/inventory` = 0 lỗi và `flutter test` không lỗi thêm so với `TEST-BASELINE.md`; mỗi UIF đối chiếu inspector prototype đạt, không còn đường cụt.
+
+---
+
+## Theme 4. Pricing (2 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **6-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn) | 6.1, 6.2, 6.3 | ⬜ | ⬜ | ⬜ |
-| **6-B** | (b) Các sửa KI của TH-04 | TH-04 mục 9.2 | ⬜ | ⬜ | ⬜ |
-| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
+
+| Plan    | Nội dung                                                                                                                                                                                    | Gồm việc                | Plan | Làm | Review |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **6-A** | (a) Chuyển pricing (giá riêng, nhập Excel, màn chọn)                                                                                                                                        | 6.1, 6.2, 6.3           | ⬜    | ⬜   | ⬜      |
+| **6-B** | (b) Các sửa KI của TH-04                                                                                                                                                                    | TH-04 mục 9.2           | ⬜    | ⬜   | ⬜      |
+| **6-C** | (dọn) **Dọn sạch module pricing**: app hết `vet45_pricing_*` (kể cả 2 chỗ ở `sales/presentation`); xoá `modules/pricing`; DB schema `pricing`: bỏ RPC cũ không còn dùng (sửa migration gốc) | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
 
 Chi tiết từng việc:
 
 9 file gọi module, 5 cubit, 9 màn: danh sách, form, chi tiết, lịch sử, import, các màn chọn (sản phẩm/khách/đơn vị).
 
-| # | Việc |
-|---|---|
-| 6.1 | `CustomerPriceRuleRepository` (CRUD, tắt/bật, lịch sử, resolve áp dụng) |
-| 6.2 | `PriceImportRepository` (template, start/confirm/cancel import) |
+
+| #   | Việc                                                                                  |
+| --- | ------------------------------------------------------------------------------------- |
+| 6.1 | `CustomerPriceRuleRepository` (CRUD, tắt/bật, lịch sử, resolve áp dụng)               |
+| 6.2 | `PriceImportRepository` (template, start/confirm/cancel import)                       |
 | 6.3 | Màn chọn sản phẩm/khách dùng lại `ProductRepository` (P5) và `PartnerRepository` (P4) |
+
 
 Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../02-yeu-cau/TH-04-chinh-sach-gia.md#92-chia-pr-của-p6).
 
@@ -357,66 +559,81 @@ Chia PR và các sửa lỗi đi kèm (KI-02…KI-15): xem [TH-04 mục 9.2](../
 
 ---
 
-## P7. E-invoice (8 ngày)
+
+
+## Theme 5. Sales (6 ngày, phần lớn nhất)
 
 **Trạng thái:** ⬜ Chưa làm
 
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **7-1** | DB: promote drafts HĐĐT + sửa KI-02, 04, 06 | 7.1 | ⬜ | ⬜ | ⬜ |
-| **7-2** | Dời toàn bộ UI HĐĐT (thiết lập + trên đơn), gộp bản trùng, `EInvoiceRepository` | 7.2, 7.3 | ⬜ | ⬜ | ⬜ |
-| **7-3** | Edge Function `einvoice-processor` + client MISA TypeScript | 7.4 | ⬜ | ⬜ | ⬜ |
-| **7-4** | Kích hoạt: `pg_cron`, `functions.invoke`, trigger thay outbox/inbox | 7.5 | ⬜ | ⬜ | ⬜ |
-| **7-5** | (dọn) **Dọn sạch module einvoice**: app hết `vet45_einvoice_*` (20 file ở `sales/presentation` đã chuyển ở 7-2); xoá `modules/einvoice` (gồm `presentation` + `example`), `packages/vet45_misa` (thay bằng client TypeScript 7-3), `packages/vet45_async_query`, `modules/partner/integration_events` (hết người dùng); DB schema `einvoice`: bỏ outbox / inbox, **giữ `internal_commands`** | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
-Chi tiết từng việc:
+| Plan     | Nội dung                                                                                                                                                                                                                                                                                                                                                                                         | Gồm việc                | Plan | Làm | Review |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ---- | --- | ------ |
+| **8-A1** | (a) Soạn đơn + nháp                                                                                                                                                                                                                                                                                                                                                                              | 8.1                     | ⬜    | ⬜   | ⬜      |
+| **8-A2** | (a) Checkout + thanh toán                                                                                                                                                                                                                                                                                                                                                                        | 8.2                     | ⬜    | ⬜   | ⬜      |
+| **8-A3** | (a) Tra cứu đơn + phiếu/biên lai                                                                                                                                                                                                                                                                                                                                                                 | 8.3, 8.4                | ⬜    | ⬜   | ⬜      |
+| **8-A4** | (a) Huỷ đơn + đổi/trả                                                                                                                                                                                                                                                                                                                                                                            | 8.5                     | ⬜    | ⬜   | ⬜      |
+| **8-B**  | (b) Các sửa KI của TH-05                                                                                                                                                                                                                                                                                                                                                                         | TH-05 mục 9.2           | ⬜    | ⬜   | ⬜      |
+| **8-C** | (dọn) **Dọn sạch module sales**: app hết `vet45_sales_*` (20 file `sales/presentation` còn gọi einvoice chạy song song tới 7-2); xoá `modules/sales` **trừ `modules/sales/integration_events`** (einvoice còn dùng, xoá ở 7-5); bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chỉ phục vụ module cũ); DB schema `sales`: bỏ outbox / inbox | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+| **8-D** | (b) **Nối kho Theme 7**: xuất kho cùng checkout (`BC-IO-04`), hoàn nguyên khi huỷ đơn (`BC-IO-13`), nhận hàng khách trả (`BC-IO-07`), khả dụng khi chọn sản phẩm (`BC-IO-01`, thay tồn cơ bản trong `search_sellable_products`); backend BJ-04 giữ hàng, BJ-05 lấy và bàn giao, BJ-06 hàng khách trả | Thứ tự 2026-10-14 | ⬜ | ⬜ | ⬜ |
 
-Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ hành vi hiện có** (hàng đợi, đối soát nền, phát hành và gửi tự động, chống trùng) nhưng **bỏ `apps/messaging_worker`**: mọi lệnh gọi MISA chuyển sang Edge Function `einvoice-processor` (TypeScript), kích hoạt bởi app và `pg_cron` mỗi 30 giây (TH-08 KI-20). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (KI-17).
-
-| # | Việc |
-|---|---|
-| 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06) |
-| 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16 |
-| 7.3 | **Trên đơn** (làm trước P8: gắn vào màn chi tiết đơn **cũ**, P8 giữ nguyên widget khi chuyển màn): `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17 |
-| 7.4 | **Edge Function `einvoice-processor`**: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
-| 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20) |
-
-**Xong khi:** với worker **đã tắt**: kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật, kể cả khi app đã đóng; MISA timeout thì `pg_cron` đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
-
----
-
-## P8. Sales (6 ngày, phần lớn nhất)
-
-**Trạng thái:** ⬜ Chưa làm
-
-| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
-|---|---|---|---|---|---|
-| **8-A1** | (a) Soạn đơn + nháp | 8.1 | ⬜ | ⬜ | ⬜ |
-| **8-A2** | (a) Checkout + thanh toán | 8.2 | ⬜ | ⬜ | ⬜ |
-| **8-A3** | (a) Tra cứu đơn + phiếu/biên lai | 8.3, 8.4 | ⬜ | ⬜ | ⬜ |
-| **8-A4** | (a) Huỷ đơn + đổi/trả | 8.5 | ⬜ | ⬜ | ⬜ |
-| **8-B** | (b) Các sửa KI của TH-05 | TH-05 mục 9.2 | ⬜ | ⬜ | ⬜ |
-| **8-C** | (dọn) **Dọn sạch module sales — module cuối**: app hết `vet45_sales_*`; xoá `modules/sales` → thư mục `modules/` **trống, xoá hẳn**; xoá `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator` (chỉ module dùng); bỏ `CoreExecutionContext` / `CorePermissionChecker` / `CoreTenantAccessChecker` trong `core/session` (chỉ phục vụ module cũ); DB schema `sales`: bỏ outbox / inbox | Dọn module (2026-10-11) | ⬜ | ⬜ | ⬜ |
 
 Chi tiết từng việc:
 
 20 file gọi module, 13 cubit, khoảng 20 màn. Chia thành 5 PR:
 
-| PR | Nhóm | RPC/Query chính |
-|---|---|---|
-| 8.1 | Soạn đơn + nháp | save/update/cancel draft, list drafts, restore; preview pricing (gọi pricing). Sửa `catalog._product_unit_has_sales_transaction_usage` đọc dòng đơn / nháp / đổi trả (TH-02 KI-08) |
-| 8.2 | Checkout + thanh toán | precheck checkout, **finalize_sales_order** (transaction ở DB), record payment/refund, settlement, payment summary |
-| 8.3 | Tra cứu đơn | list/search/detail/timeline, post-sale actions |
-| 8.4 | Phiếu/biên lai | generate/get receipt, original receipt, printed/shared, slip preview |
-| 8.5 | Huỷ đơn + đổi/trả | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel) |
 
-**Integration event:** bỏ outbox. Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở P7.5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả **không** làm ở P8: thuộc Theme 7 (P11, `BC-IO-04`, `BC-IO-07`, `BC-IO-13`).
+| PR  | Nhóm                  | RPC/Query chính                                                                                                                                                                    |
+| --- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8.1 | Soạn đơn + nháp       | save/update/cancel draft, list drafts, restore; preview pricing (gọi pricing). Sửa `catalog._product_unit_has_sales_transaction_usage` đọc dòng đơn / nháp / đổi trả (TH-02 KI-08) |
+| 8.2 | Checkout + thanh toán | precheck checkout, **finalize_sales_order** (transaction ở DB), record payment/refund, settlement, payment summary                                                                 |
+| 8.3 | Tra cứu đơn           | list/search/detail/timeline, post-sale actions                                                                                                                                     |
+| 8.4 | Phiếu/biên lai        | generate/get receipt, original receipt, printed/shared, slip preview                                                                                                               |
+| 8.5 | Huỷ đơn + đổi/trả     | cancellation (lý do, precheck, confirm); return/exchange (start, preview pricing, update, confirm, complete, cancel)                                                               |
 
-**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho kiểm ở P11 (Theme 7). Các màn sales trong checklist đều đã tick.
+
+**Integration event:** bỏ outbox. Phát hành HĐĐT tự động dùng trigger trên `sales.sales_orders` khi đơn Hoàn tất, ghi việc vào `einvoice.internal_commands` (làm ở 7.5 của Theme 8, sau Theme 5; TH-08 KI-19, KI-20). Không gọi "nhớ giá từ đơn" (ngoài phạm vi, TH-04 KI-02). Trừ/cộng tồn khi bán, huỷ, đổi trả nối vào sổ kho Theme 7 ở **8-D** (Theme 7 đã xong trước Theme 5).
+
+**Xong khi:** đủ 6 kịch bản: bán thường, bán nợ rồi thu sau, hoàn tiền, huỷ đơn, đổi hàng, trả hàng. Công nợ (còn phải thu của đơn) đúng sau mỗi kịch bản. Tồn kho đúng sau mỗi kịch bản (xuất, hoàn nguyên, nhận hàng trả qua 8-D). Các màn sales trong checklist đều đã tick.
 
 ---
 
-## P9. Dọn dẹp (3 ngày)
+
+
+## Theme 8. E-invoice (8 ngày)
+
+**Trạng thái:** ⬜ Chưa làm
+
+
+| Plan    | Nội dung                                                                                                                                                                                                                                                                                                                                                                                     | Gồm việc                | Plan | Làm | Review |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---- | --- | ------ |
+| **7-1** | DB: promote drafts HĐĐT + sửa KI-02, 04, 06                                                                                                                                                                                                                                                                                                                                                  | 7.1                     | ⬜    | ⬜   | ⬜      |
+| **7-2** | Dời toàn bộ UI HĐĐT (thiết lập + trên đơn), gộp bản trùng, `EInvoiceRepository`                                                                                                                                                                                                                                                                                                              | 7.2, 7.3                | ⬜    | ⬜   | ⬜      |
+| **7-3** | Edge Function `einvoice-processor` + client MISA TypeScript                                                                                                                                                                                                                                                                                                                                  | 7.4                     | ⬜    | ⬜   | ⬜      |
+| **7-4** | Kích hoạt: `pg_cron`, `functions.invoke`, trigger thay outbox/inbox                                                                                                                                                                                                                                                                                                                          | 7.5                     | ⬜    | ⬜   | ⬜      |
+| **7-5** | (dọn) **Dọn sạch module einvoice**: app hết `vet45_einvoice_*` (20 file ở `sales/presentation` đã chuyển ở 7-2); xoá `modules/einvoice` (gồm `presentation` + `example`), `packages/vet45_misa` (thay bằng client TypeScript 7-3), `packages/vet45_async_query`, `modules/partner/integration_events` (hết người dùng); `modules/sales/integration_events` (8-C để lại); đây là **module cuối** → thư mục `modules/` trống, xoá hẳn; xoá `packages/vet45_adapters`, `vet45_annotations`, `vet45_generator` (chỉ module dùng); DB schema `einvoice`: bỏ outbox / inbox, **giữ** `internal_commands` | Dọn module (2026-10-11) | ⬜    | ⬜   | ⬜      |
+
+
+Chi tiết từng việc:
+
+Đặc tả: [TH-08](../02-yeu-cau/TH-08-hoa-don-dien-tu.md). Chia PR theo [TH-08 mục 9.2](../02-yeu-cau/TH-08-hoa-don-dien-tu.md#92-chia-pr-của-p7). Quyết định 2026-10-07: **giữ hành vi hiện có** (hàng đợi, đối soát nền, phát hành và gửi tự động, chống trùng) nhưng **bỏ** `apps/messaging_worker`: mọi lệnh gọi MISA chuyển sang Edge Function `einvoice-processor` (TypeScript), kích hoạt bởi app và `pg_cron` mỗi 30 giây (TH-08 KI-20). UI e-invoice hiện tách giữa `modules/einvoice/presentation` và bản sao trong `features/sales` (KI-17).
+
+
+| #   | Việc                                                                                                                                                                                                                                                                                                           |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7.1 | **DB**: promote 23 file `supabase/migrations/_drafts/001…023` thành migration chính thức; sửa `update_automation_policy` (KI-02), kiểm người mua trong `issue_invoice` / `retry_issuance` / `start_auto_issuance` (KI-04), chép lại trường người mua mỗi lượt (KI-06)                                          |
+| 7.2 | **Thiết lập**: chuyển 4 màn vào `apps/erp/lib/features/einvoice/presentation`; `EInvoiceRepository` (kết nối, mẫu, chính sách, sẵn sàng) gọi RPC `einvoice`; KI-01, 15, 16                                                                                                                                     |
+| 7.3 | **Trên đơn** (Theme 5 đã refactor xong: gắn vào màn chi tiết đơn **mới**): `OrderEInvoiceSection` + 2 cubit dùng repository; gộp các sheet về một chỗ; hỏi lại trạng thái bằng `Timer` trong cubit (bỏ `vet45_async_query`, giữ hành vi); KI-08, 17                                    |
+| 7.4 | **Edge Function** `einvoice-processor`: viết lại client MISA bằng TypeScript (theo `packages/vet45_misa`, chép 80 test sang Deno) và handler cho 9 loại lệnh `internal_commands` (đồng bộ mẫu, xem trước, phát hành + khóa ký hiệu, đối soát, bản chính thức, tải tài liệu, quan sát, gửi email, đối soát gửi) |
+| 7.5 | **Kích hoạt**: `pg_cron` + `pg_net` gọi Edge Function mỗi 30 giây; app gọi `functions.invoke` sau mỗi RPC ghi yêu cầu; trigger khi đơn Hoàn tất và khi hồ sơ khách đổi ghi thẳng `internal_commands` (thay outbox/inbox); `record_issuance_success` tự xếp việc gửi tự động (KI-19, KI-20)                     |
+
+
+**Xong khi:** với worker **đã tắt**: kết nối MISA sandbox → phát hành từ đơn → xem/tải PDF → gửi email → gửi lại → phát hành lại sau lỗi; tự phát hành + tự gửi chạy khi bật, kể cả khi app đã đóng; MISA timeout thì `pg_cron` đối soát ra đúng một hóa đơn (TH-08 mục 9.3).
+
+---
+
+
+
+## Dọn dẹp (3 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -440,7 +657,7 @@ Chi tiết từng việc:
 
 ---
 
-## P10. Hoàn thiện cho báo cáo đồ án (2 ngày)
+## Hoàn thiện cho báo cáo đồ án (2 ngày)
 
 **Trạng thái:** ⬜ Chưa làm
 
@@ -471,28 +688,37 @@ Chi tiết từng việc:
 
 ## Theo dõi tiến độ
 
-| Phase | Trạng thái | PR | Ghi chú |
+| Mục | Trạng thái | PR | Ghi chú |
 |---|---|---|---|
-| P0 | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
-| P1 | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
-| P2 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
-| P3 | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
+| Chuẩn bị | ✅ | — (commit trực tiếp trên branch) | Tag `v-legacy-arch`; CHECKLIST lập xong, cột "Cũ" bỏ qua; TEST-BASELINE 5688 đạt / 160 lỗi; Supabase Dev đủ 162 migration; tài liệu cũ vào `docs/_legacy/` |
+| Nền core | ✅ | Merge `7c455c6a7` (branch `refactor/p1-core`) | 1.1 `16bcfe263`; 1-A `d8f4e9ca8`, `8550b3561`; 1-B `3a48c19b5`, `373002481`. Còn kiểm tay + tick CHECKLIST |
+| Theme 1 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
+| Theme 1 (tiếp) | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. Còn: Vault → bật Confirm email + mẫu mã 6 số → kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
-| P4 | ⬜ | | |
-| P5 | ⬜ | | |
-| P6 | ⬜ | | |
-| P7 | ⬜ | | |
-| P8 | ⬜ | | |
-| P9 | ⬜ | | |
-| P10 | ⬜ | | |
+| Theme 3 | ⬜ | | |
+| Theme 2 | ⬜ | | |
+| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅; T7-0c có plan 📝 (T7-0d, 0e chưa lập); T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*` |
+| Theme 4 | ⬜ | | |
+| Theme 5 | ⬜ | | |
+| Theme 8 | ⬜ | | |
+| Dọn dẹp | ⬜ | | |
+| Báo cáo | ⬜ | | |
 
-## Rủi ro theo phase
+## Rủi ro theo mục
 
-| Phase | Rủi ro | Cách xử lý |
+| Mục | Rủi ro | Cách xử lý |
 |---|---|---|
-| P2 | Trigger trên `auth.users` lỗi làm hỏng việc xác minh email | Test kỹ ở local; trigger bắt lỗi rõ ràng; validate dữ liệu cửa hàng trên client trước khi `signUp` |
-| P2 | Email OTP local khó test | Dùng Inbucket/Mailpit có sẵn trong `supabase start` để đọc mã |
-| P7 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |
-| P8 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
-| P9 | Gộp migration làm lệch schema | So `pg_dump --schema-only` trước và sau; chạy lại toàn bộ checklist |
+| Theme 1 | Trigger trên `auth.users` lỗi làm hỏng việc xác minh email | Test kỹ ở local; trigger bắt lỗi rõ ràng; validate dữ liệu cửa hàng trên client trước khi `signUp` |
+| Theme 1 | Email OTP local khó test | Dùng Inbucket/Mailpit có sẵn trong `supabase start` để đọc mã |
+| Theme 2 / Theme 7 | Giữa 5-A4 và lúc Theme 7 thay màn tồn cơ bản, `modules/catalog` chưa xoá được | 5-C chạy sau Theme 7 (đã ghi ở mục Theme 2) |
+| Theme 7 | Prototype có nhiều lớp patch (v251…v468), lớp sau ghi đè lớp trước | Đối chiếu **hiển thị cuối cùng** trong `index.html`; dữ liệu và luật lấy từ `app.js` + Screen Contract |
+| Theme 7 | Số liệu lệch giữa tài liệu prototype (README 82 màn, manifest 73 màn active / 482 render) | Dùng `manifest.json` v4.6.8 + `workbench-data.js`; đếm lại khi spec đổi |
+| Theme 7 | Mỗi BJ tự dựng lại row / sheet khiến UI lệch nhau | Bảng "Dùng lại"; Review kiểm trùng lặp trước khi ✅ |
+| Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
+| Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
+| Theme 7 | Theme 7 lớn (UI ~40 ngày + backend) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
+| Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
+| Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
+| Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |
+| Dọn dẹp | Gộp migration làm lệch schema | So `pg_dump --schema-only` trước và sau; chạy lại toàn bộ checklist |
 
