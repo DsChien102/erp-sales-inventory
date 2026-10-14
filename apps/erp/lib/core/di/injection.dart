@@ -22,6 +22,8 @@ import '../../features/iam/data/audit_log_repository.dart';
 import '../../features/iam/data/invitation_repository.dart';
 import '../../features/iam/data/member_repository.dart';
 import '../../features/iam/data/organization_repository.dart';
+import '../../features/inventory/data/goods_receipt_repository.dart';
+import '../../features/inventory/data/valuation_repository.dart';
 import '../../features/partner/data/partner_repository.dart';
 import '../router/session_refresh.dart';
 import '../session/session_contracts.dart';
@@ -97,6 +99,10 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
     ..registerSingleton<ITenantAccessChecker>(tenantAccessChecker);
 
   getIt
+    ..registerLazySingleton<ValuationRepository>(() => ValuationRepository())
+    ..registerLazySingleton<GoodsReceiptRepository>(
+      () => GoodsReceiptRepository(valuation: getIt<ValuationRepository>()),
+    )
     ..registerLazySingleton<PartnerRepository>(
       () => PartnerRepository(
         rpc: getIt<SupabaseRpc>(),

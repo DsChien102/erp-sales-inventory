@@ -31,6 +31,27 @@ import '../../features/einvoice/presentation/pages/provider_connection_page.dart
 import '../../features/einvoice/presentation/pages/default_issuance_configuration_page.dart';
 import '../../features/einvoice/presentation/pages/automation_policy_page.dart';
 
+// Inventory
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/inventory/data/current_receipt_actor.dart';
+import '../../features/inventory/data/goods_receipt_repository.dart';
+import '../../features/inventory/logic/quick_receipt_session_cubit.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_approval_page.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_item_detail_page.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_items_page.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_result_page.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_review_page.dart';
+import '../../features/inventory/presentation/pages/quick_receipt_header_page.dart';
+import '../../features/inventory/presentation/pages/receipt_entry_choice_page.dart';
+import '../../features/inventory/presentation/pages/receipt_item_detail_args.dart';
+import '../../features/inventory/presentation/pages/warehouse_home_page.dart';
+import '../../features/inventory/data/valuation_repository.dart';
+import '../../features/inventory/logic/valuation_session_cubit.dart';
+import '../../features/inventory/presentation/pages/valuation_queue_page.dart';
+import '../../features/inventory/presentation/pages/valuation_workspace_page.dart';
+import '../../features/inventory/presentation/pages/valuation_review_page.dart';
+import '../../features/inventory/presentation/pages/valuation_result_page.dart';
+
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/invitation_token_page.dart';
@@ -177,6 +198,109 @@ final appRouter = GoRouter(
         final tab = state.extra as DashboardTab? ?? DashboardTab.home;
         return DashboardPage(initialTab: tab);
       },
+    ),
+    GoRoute(
+      path: '/inventory',
+      name: 'inventory',
+      builder: (context, state) => const WarehouseHomePage(),
+    ),
+    GoRoute(
+      path: '/warehouse/receipts/new',
+      name: 'warehouse.receipts.new',
+      builder: (context, state) => const ReceiptEntryChoicePage(),
+    ),
+    ShellRoute(
+      builder: (context, state, child) {
+        return BlocProvider(
+          create: (_) => QuickReceiptSessionCubit(
+            repository: getIt<GoodsReceiptRepository>(),
+            actorLoader: currentReceiptActor,
+          )..loadCatalog(),
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: '/warehouse/receipts/quick/header',
+          name: 'warehouse.receipts.quick.header',
+          builder: (context, state) => const QuickReceiptHeaderPage(),
+        ),
+        GoRoute(
+          path: '/warehouse/receipts/quick/items',
+          name: 'warehouse.receipts.quick.items',
+          builder: (context, state) => const GoodsReceiptItemsPage(),
+        ),
+        GoRoute(
+          path: '/warehouse/receipts/quick/item-detail',
+          name: 'warehouse.receipts.quick.item-detail',
+          builder: (context, state) {
+            final args = state.extra as ReceiptItemDetailArgs;
+            return GoodsReceiptItemDetailPage(
+              item: args.item,
+              readOnly: args.readOnly,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/warehouse/receipts/quick/review',
+          name: 'warehouse.receipts.quick.review',
+          builder: (context, state) => const GoodsReceiptReviewPage(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/warehouse/receipts/approval/:id',
+      name: 'warehouse.receipts.approval',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return GoodsReceiptApprovalPage(receiptId: id);
+      },
+    ),
+    GoRoute(
+      path: '/warehouse/receipts/result/:id',
+      name: 'warehouse.receipts.result',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return GoodsReceiptResultPage(receiptId: id);
+      },
+    ),
+    GoRoute(
+      path: '/warehouse/valuation/queue',
+      name: 'warehouse.valuation.queue',
+      builder: (context, state) => const ValuationQueuePage(),
+    ),
+    ShellRoute(
+      builder: (context, state, child) {
+        return BlocProvider(
+          create: (_) => ValuationSessionCubit(
+            repository: getIt<ValuationRepository>(),
+          ),
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: '/warehouse/valuation/receipt/:id',
+          name: 'warehouse.valuation.receipt',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return ValuationWorkspacePage(receiptId: id);
+          },
+        ),
+        GoRoute(
+          path: '/warehouse/valuation/review',
+          name: 'warehouse.valuation.review',
+          builder: (context, state) => const ValuationReviewPage(),
+        ),
+        GoRoute(
+          path: '/warehouse/valuation/result/:id',
+          name: 'warehouse.valuation.result',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return ValuationResultPage(receiptId: id);
+          },
+        ),
+      ],
     ),
     GoRoute(
       path: '/more/settings',

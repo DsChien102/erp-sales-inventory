@@ -110,11 +110,12 @@ class _MoreView extends StatelessWidget {
             subtitle: 'Nhập kho từ nhà cung cấp',
             enabled: false,
           ),
-          const _MoreMenuItem(
+          _MoreMenuItem(
             icon: VIcons.warehouse,
             title: 'Kho',
             subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
-            enabled: false,
+            enabled: !blocked,
+            onTap: blocked ? null : () => context.push('/inventory'),
           ),
           const _MoreMenuItem(
             icon: VIcons.chart,
