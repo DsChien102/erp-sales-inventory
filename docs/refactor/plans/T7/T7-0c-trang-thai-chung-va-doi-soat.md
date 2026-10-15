@@ -1,6 +1,6 @@
 # T7-0c — Sửa còn lại của T7-0b, trạng thái chung BJ-02 và màn Đối soát (SCR-013)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan 📝 | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7. Inventory" (đợt 0). Ước lượng: **~1,5–2 ngày, 2 PR**. Làm sau [T7-0b](T7-0b-nhap-nhanh-dung-spec.md) (✅).
 > Đối chiếu: Screen Contract SCR-006, 008, 009, 010, 011, 012, 013; UC-02-02 (EF-B, EF-C), UC-02-04 (EF-A, EF-B), UC-02-05; câu chữ lấy từ prototype v4.6.8 (`index.html?uif=UIF-02&flow=quick&screen=…&state=…`, trích 2026-10-14).
 
@@ -465,7 +465,17 @@ Không hiện "mốc sổ" (số thứ tự sổ kho) như prototype — đó l�
 - "Xem hỗ trợ xử lý" (BJ-17) cố ý chưa có; khi làm T7-11 thì thêm nút ở `PROCESSING_OR_UNKNOWN`.
 
 ## 8. Review
-<!-- Claude ghi sau khi người dùng code xong -->
-- Ngày, commit được review:
-- Kết quả: ⬜
-- Góp ý:
+
+- **Ngày:** 2026-10-14, trên working tree sau commit `7dc1757c3` (T7-0c chưa commit).
+- **Kết quả: ✅ đạt.**
+- **Đã kiểm:**
+  - `dart analyze lib/features/inventory test/features/inventory lib/core/router lib/core/di` → No issues found.
+  - `flutter test test/features/inventory` → 71 test xanh (trước T7-0c: 50); đủ C1–C21.
+  - Lệnh `grep` mục 5 → sạch; `injection.dart` không còn đặt `scenario` (mặc định `normal`).
+  - Bước 0: G1 có `_lotKeys` thêm / xoá cùng `_lots` và truyền `key:`; G2 "Sửa" dùng `pop()` / `pop()` hai lần; câu không tìm thấy đã đổi.
+  - Repository: `_guard()` ở mọi phương thức công khai; `getCapability`; `catalogChanged` chỉ ném lần đầu; `approverMissing` ném trước khi cấp ID; trạng thái sau duyệt theo kịch bản, chỉ `completed` mới tạo mục chờ định giá; `checkReceiptResult` theo cùng định danh, `executionUnknownStuck` không bao giờ có kết quả.
+  - Màn: SCR-006 `ReceiptEntryCubit` đủ 5 trạng thái; 008 / 009 / 084 không quyền, xung đột (+ "Tải lại", ẩn lỗi "Thử lại" trùng), kho khoá chỉ xem, lỗi nhập; 010 banner "Chưa có người duyệt phù hợp" thay banner phê duyệt và không toast; 011 không quyền / "Không có yêu cầu để duyệt"; 012 `ReceiptResultCubit` có hỏi lại khi đang ghi nhận, huỷ timer ở `close()`, nhánh chưa rõ kết quả khoá Back + "Xác minh kết quả"; 013 dòng thời gian chỉ hiện sự kiện có bằng chứng, không "mốc sổ", không "Xem hỗ trợ xử lý", tự về màn kết quả bằng `Timer` huỷ được.
+- **Góp ý (không chặn, ghi lại để làm khi chạm tới):**
+  1. SCR-013 `STALE`: `isStale` chỉ tính lại khi màn rebuild; đứng yên trên màn quá 1 phút mà không thao tác thì banner "Dữ liệu có thể đã cũ" không tự hiện (plan bước 4.6 của tôi không nói cách rebuild). Thêm một `Timer` trong `_ReconciliationViewState` gọi `setState` khi tới `checkedAt + 1 phút` (huỷ ở `dispose` và khi `checkedAt` đổi).
+  2. `ReceiptEntryCubit` và `ReceiptResultCubit` đổi lỗi lạ (không phải quyền / xung đột) thành `ready` / "không tìm thấy" — ổn với fixture; khi nối backend cần trạng thái lỗi có "Thử lại" (T7-0e hoặc plan backend).
+- **Việc tiếp:** commit T7-0c; plan tiếp theo T7-0d (nhận theo chứng từ).
