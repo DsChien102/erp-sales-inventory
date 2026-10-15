@@ -391,7 +391,7 @@ showVConfirmDialog(
   actionLabel: 'Đổi chứng từ',
   isDestructive: true,
   onAction: () async {
-    await getIt<GoodsReceiptRepository>().discardDraft(state.document!.id); // hoặc qua cubit
+    await context.read<QuickReceiptSessionCubit>().discardDocumentDraft(); // hàm mới: gọi repository.discardDraft(document.id)
     if (context.mounted) context.go('/warehouse/receipts/documents');
   },
 );
@@ -420,7 +420,7 @@ showVConfirmDialog(
 
 1. Banner lý do: `VBannerStatus.warning` `'Lý do cần duyệt'` / `'Lượng vào tồn vật lý vượt chứng từ nguồn.'`.
 2. Thông tin lần nhận: thêm `'Chứng từ'` · `sourceDocumentId`, `'Ngày chứng từ'`; bỏ nút "Xem chứng từ giao nhận" nếu phiếu không có tệp.
-3. Thông tin yêu cầu: thêm `'Tổng giá trị rủi ro'` · `MoneyFormatter.formatMinor(riskTotalVnd(doc.items))` (`apps/erp/lib/core/formatting/money_formatter.dart`; vd `12.923.000đ`); `scenario == financialMasked` → `'Không có quyền xem'` và **không** đưa số vào cây widget. Đặt cờ `riskMasked` trong `ReceiptApprovalLoaded` (cubit đọc từ repository `isFinancialMasked()`), không đọc `scenario` trực tiếp ở page.
+3. Thông tin yêu cầu: thêm `'Tổng giá trị rủi ro'` · `MoneyFormatter.formatMinor(riskTotalVnd(doc.items))` (`apps/erp/lib/core/formatting/money_formatter.dart`; vd `12.923.000đ`); `scenario == financialMasked` → `'Không có quyền xem'` và **không** đưa số vào cây widget. Đặt cờ `riskMasked` trong `ReceiptApprovalLoaded`; cubit đọc từ hàm **mới** của repository `bool isFinancialMasked() => scenario == ReceiptScenario.financialMasked;` — page không đọc `scenario` trực tiếp.
 4. `ReceiptLineSummary` có `trailingLabel` như SCR-010.
 
 **Chỉnh câu theo prototype (cả hai chế độ):**

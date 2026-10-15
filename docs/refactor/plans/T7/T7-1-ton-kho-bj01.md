@@ -4,6 +4,21 @@
 > Tài liệu liên quan: `specs/themes/theme-07` — [UIF-01](../../../../specs/themes/theme-07/03.design/flows/UIF-01-BJ-01.md), [SCR-001](../../../../specs/themes/theme-07/03.design/screens/SCR-001.md), [SCR-003](../../../../specs/themes/theme-07/03.design/screens/SCR-003.md), UC-01-01…05, BC-IO-01, BC-IO-14, PRJ-01; prototype `03.design/prototype/html` v4.6.8 (`render001BJ01`, `render003BJ01`, fixture `bj01Products`).
 > Thuộc [PLAN.md](../../PLAN.md) mục "Theme 7. Inventory" (đợt 1); theo dõi tiến độ ở đó.
 
+## 0. Cập nhật sau T7-0 … T7-0c (review 2026-10-15) — đọc trước, **ưu tiên hơn** các mục bên dưới khi mâu thuẫn
+
+Plan này viết ngày 2026-10-13, trước khi T7-0 / T7-0b / T7-0c thêm hạ tầng dùng chung cho `features/inventory/`. Phiên thực hiện phải theo các điểm sau:
+
+| # | Thay đổi | Lý do / chỗ có sẵn |
+|---|---|---|
+| U1 | **Home:** đặt lại `routePath: '/warehouse/stock'` cho mục `lookup_stock` trong `data/inventory_repository.dart` (hiện là `null` từ T7-0b). Mục 3 dòng "Không đụng `inventory_repository.dart`" **bỏ**. | Home chỉ mở route có thật (T7-0b) |
+| U2 | **Key-value Row:** **không** tạo `inventory_key_value_row.dart`; dùng `ReceiptKeyValueRow(label:, value:, emphasized:)` ở `presentation/widgets/receipt_key_value_row.dart` (`emphasized: true` cho `Khả dụng`). Đổi tên widget thành tên chung để T7-0e làm bằng GitNexus `rename`. | Đã có từ T7-0b |
+| U3 | **List Row:** vẫn tạo `presentation/widgets/inventory_list_row.dart` như mục 3. | Chưa có widget chung (các page đang dùng `_ProductResultRow`, `_ReceiptItemRow` riêng) |
+| U4 | **Trạng thái:** `PERMISSION_DENIED` dùng `InventoryPermissionDenied`; `STALE` dùng `InventoryNoticeBanner(InventoryNotice.stale, description: 'Hãy làm mới trước khi sử dụng.', action: VButton(label: 'Làm mới', variant: VButtonVariant.secondary, …))` — **thêm** tham số tuỳ chọn `String? description` vào `InventoryNoticeBanner` (mặc định giữ câu hiện tại) vì câu STALE của BJ-01 khác BJ-02. SCR-003 STALE: `description: 'Dữ liệu đến ${queryAsOf}. Hãy làm mới trước khi sử dụng.'`. | `presentation/widgets/inventory_state_views.dart` (T7-0c) |
+| U5 | **Kịch bản fixture:** theo mẫu `GoodsReceiptRepository`: `StockScenario scenario = StockScenario.normal;` là **field public đổi được** (không phải tham số constructor), mỗi phương thức gọi `_guard()` ném `AppException(AppErrorCode.noPermission)`; `stale` / `empty` đọc trong `getSnapshot` / `getProduct`. Đăng ký `StockRepository` là `registerLazySingleton` trong `core/di/injection.dart` (cạnh `GoodsReceiptRepository`); page lấy bằng `getIt<StockRepository>()`, cubit nhận qua constructor; test truyền repository mới và `getIt.reset()` ở `tearDown`. | Cùng cách T7-0, T7-0c |
+| U6 | **Hạn dùng lô:** `StockLotItem` dùng `LotDate expiry` (`data/models/lot_date.dart`) thay cho `expiryDisplay` + `expiryPrecision`; hiển thị `expiry.format()`. Fixture: `DH2507` → `LotDate(year: 2026, month: 11, day: 30)`, `DH2509` → `LotDate(year: 2026, month: 9, day: 15)`, `TY2408` → `LotDate(year: 2026, month: 7, day: 31)`, `TY2511` → `LotDate(year: 2027, month: 11)`. | `LotDate` có từ T7-0b, đã giữ precision |
+| U7 | **Định dạng số lượng:** dùng `formatQuantity` trong `logic/receipt_rules.dart` (không viết hàm mới). | Có từ T7-0b |
+| U8 | **Kiểm tra:** `dart analyze lib/features/inventory test/features/inventory lib/core/router lib/core/di`; `flutter analyze` không dùng (sập do đường dẫn có dấu). Mốc trước khi làm: 71 test inventory xanh (commit `49967966e`). | — |
+
 ## 1. Mục tiêu
 
 Làm xong BJ-01 phía Flutter, **chỉ đọc, dữ liệu mẫu sau lớp Repository** (cùng cách BJ-02/BJ-03 đang làm):
@@ -24,10 +39,6 @@ Làm xong BJ-01 phía Flutter, **chỉ đọc, dữ liệu mẫu sau lớp Repos
 | Lỗi | Mất quyền: dùng `AppException(AppErrorCode.noPermission)` (`lib/core/errors/app_exception.dart`). |
 | Kiểu số lượng | `double` (như `ValuationGroupItem.pendingQty`). |
 | Mẫu logic | `ValuationQueueState`/`Cubit`: enum `status` + `copyWith` + `search()`/`setFilter()`. |
-
-### Lỗi build trước đây (đã sửa)
-
-Chữ thừa `th` ở dòng 1 `goods_receipt_item_detail_page.dart` đã được sửa (2026-10-13 23:32); `dart analyze lib/features/inventory` sạch, 14 test xanh. `flutter analyze` vẫn sập vì đường dẫn có dấu ("Đồ án") — lỗi môi trường; dùng `dart analyze`.
 
 ## 3. Thay đổi
 
@@ -53,7 +64,7 @@ Quy ước thư mục theo `features/inventory/` hiện có (data / logic / pres
 | `test/features/inventory/data/stock_repository_test.dart` | tạo | Unit: lọc + tìm + refresh |
 | `test/features/inventory/presentation/pages/stock_flow_test.dart` | tạo | Widget: SCR-001 + SCR-003 |
 
-Không đụng `inventory_repository.dart`, `warehouse_home_*`: Home đã trỏ đúng route.
+Sửa `data/inventory_repository.dart`: `lookup_stock` → `routePath: '/warehouse/stock'` (xem U1). Không đụng `warehouse_home_*`.
 
 ## 4. Các bước
 
