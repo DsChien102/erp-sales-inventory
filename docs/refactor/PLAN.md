@@ -135,6 +135,7 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 | T7-0 Rà soát BJ-02/03: sửa lỗi dữ liệu và luồng phê duyệt | [plans/T7/T7-0-ra-soat-bj02-bj03.md](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅ | ✅   | ✅ |
 | T7-0b Nhập hàng nhanh đúng spec (SCR-006…012) | [plans/T7/T7-0b-nhap-nhanh-dung-spec.md](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ | ✅ |
 | T7-0c Sửa còn lại T7-0b, trạng thái chung, SCR-013 | [plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | ✅ | ✅ | ✅ |
+| T7-0d Nhận hàng theo chứng từ (SCR-007 + chế độ chứng từ) | [plans/T7/T7-0d-nhan-theo-chung-tu.md](plans/T7/T7-0d-nhan-theo-chung-tu.md) | 📝 | ⬜ | ⬜ |
 | T7-1 BJ-01 Tồn kho & khả dụng                                            | [plans/T7/T7-1-ton-kho-bj01.md](plans/T7/T7-1-ton-kho-bj01.md)                                           | 📝   | ⬜   | ⬜      |
 
 
@@ -441,7 +442,7 @@ Các sửa lỗi kèm theo từng PR: xem [TH-02 mục 9.2](../02-yeu-cau/TH-02-
 | **T7-0**  | (Đợt 0, ~2 ngày, 2 PR) Sửa lỗi dữ liệu và luồng phê duyệt BJ-02/03 (review 2026-10-14): thêm trùng ghi đè, dòng chưa xong bị bỏ, HSD tự điền, mã lô / số âm, BJ-03 xác lập hai lần, người lập tự duyệt, gửi xong sai màn | BJ-02 (58), BJ-03 (21) | ✅ [plan](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅   | ✅ (2026-10-14) |
 | **T7-0b** | (Đợt 0, ~2 ngày, 2 PR) BJ-02 nhập hàng nhanh đúng spec: SCR-006/008/009/084/010/011/012 (câu chữ, bố cục, tìm sản phẩm trên màn, HSD theo cách ghi bao bì, lô trùng khác hạn) + 3 góp ý review T7-0 | SCR-006, 008, 009, 084, 010, 011, 012 | ✅ [plan](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ (2026-10-14; G1, G2 chuyển T7-0c) |
 | **T7-0c** | (Đợt 0, ~1,5–2 ngày, 2 PR) Sửa còn lại của T7-0b (G1 key thẻ lô, G2 "Sửa" ở SCR-010) + trạng thái chung BJ-02 qua `ReceiptScenario` (không quyền, kho khoá, dữ liệu vừa đổi, chưa có người duyệt, đang ghi nhận, chưa rõ kết quả, bị chặn) + SCR-013 Đối soát + bảng trạng thái → test | SCR-006…013 | ✅ [plan](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | ✅ | ✅ (2026-10-14) |
-| **T7-0d** | (Đợt 0, ~2 ngày) BJ-02 nhận theo chứng từ: SCR-007 + chế độ document của SCR-009 / 084 / 010 / 011 (`Chưa nhận lần này`, vượt chứng từ, `Đổi chứng từ`) | SCR-007, 009, 084, 010, 011 | ⬜ | ⬜ | ⬜ |
+| **T7-0d** | (Đợt 0, ~2,5 ngày, 2 PR) BJ-02 nhận theo chứng từ: fixture chứng từ mua + bản nháp tự lưu + kiểm phiên bản; SCR-007; chế độ chứng từ của SCR-009 / 084 / 010 / 011 / 012 (`Chưa nhận lần này`, chênh lệch, `Đổi chứng từ`, chỉ duyệt khi vượt, không vượt thì ghi nhận ngay, tổng giá trị rủi ro); đổi đường dẫn phiên `quick` → `session` | SCR-007, 009, 084, 010, 011, 012 | 📝 [plan](plans/T7/T7-0d-nhan-theo-chung-tu.md) | ⬜ | ⬜ |
 | **T7-0e** | (Đợt 0, ~1,5 ngày) BJ-03 theo spec (SCR-014/015/017/019 + trạng thái, form căn cứ: Tiền tệ, không chọn sẵn cách hiểu giá) + kiến trúc / DS còn lại BJ-02/03 (Cubit cho page còn lại, `VToast`, token màu, widget dùng chung, tiền số nguyên) | BJ-03 (21) | ⬜ | ⬜ | ⬜ |
 | **T7-1**  | (Đợt 1, 1,5 ngày) BJ-01 Tồn kho & khả dụng                                                                                                                            | SCR-001, 003 · 10                                 | 📝 [plan](plans/T7/T7-1-ton-kho-bj01.md) | ⬜   | ⬜      |
 | **T7-2**  | (Đợt 1, 1,5 ngày) BJ-13 Điều chỉnh giá trị hàng nhập                                                                                                                  | SCR-085, 086, 089 · 16                            | ⬜                                        | ⬜   | ⬜      |
@@ -697,7 +698,7 @@ Chi tiết từng việc:
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. Còn: Vault → bật Confirm email + mẫu mã 6 số → kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
 | Theme 3 | ⬜ | | |
 | Theme 2 | ⬜ | | |
-| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (T7-0c chưa commit); T7-0d, 0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*` |
+| Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*` |
 | Theme 4 | ⬜ | | |
 | Theme 5 | ⬜ | | |
 | Theme 8 | ⬜ | | |
