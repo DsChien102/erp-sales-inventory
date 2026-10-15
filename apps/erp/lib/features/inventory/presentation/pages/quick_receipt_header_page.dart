@@ -7,6 +7,7 @@ import 'package:vet45_design_system/design_system.dart';
 import '../../data/models/receipt_header_draft.dart';
 import '../../logic/quick_receipt_session_cubit.dart';
 import '../../logic/quick_receipt_session_state.dart';
+import '../widgets/inventory_state_views.dart';
 import '../widgets/receipt_supplier_select_sheet.dart';
 
 class QuickReceiptHeaderPage extends StatefulWidget {
@@ -58,20 +59,20 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
     );
     if (result == null || !mounted) return;
     context.read<QuickReceiptSessionCubit>().updateHeader(
-          header.copyWith(
-            documentFileNames: [
-              ...header.documentFileNames,
-              ...result.files.map((f) => f.name),
-            ],
-          ),
-        );
+      header.copyWith(
+        documentFileNames: [
+          ...header.documentFileNames,
+          ...result.files.map((f) => f.name),
+        ],
+      ),
+    );
   }
 
   void _removeDocument(ReceiptHeaderDraft header, int index) {
     final updated = List<String>.from(header.documentFileNames)..removeAt(index);
     context.read<QuickReceiptSessionCubit>().updateHeader(
-          header.copyWith(documentFileNames: updated),
-        );
+      header.copyWith(documentFileNames: updated),
+    );
   }
 
   @override
@@ -82,7 +83,8 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
       builder: (context, state) {
         final header = state.header;
         final supplierMissing = _triedContinue && header.supplierId.isEmpty;
-        final catalogReady = state.catalogStatus == CatalogStatus.ready;
+        final locked = state.warehouseLocked;
+        final catalogReady = state.catalogStatus == CatalogStatus.ready && !locked;
         if (_warehouseController.text != header.warehouseName) {
           _warehouseController.text = header.warehouseName;
         }
@@ -95,211 +97,235 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
             title: 'Nhập hàng nhanh',
             showBackButton: true,
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: VSection(
-              title: 'Thông tin lần nhận',
-              subtitle:
-                  'Xác định nhà cung cấp, phạm vi nhận và chứng từ giao nhận.',
-              gapAfterHeader: VSpacing.space4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  VField(
-                    invalid: supplierMissing,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const VFieldLabel('Nhà cung cấp', isRequired: true),
-                        const VGap(VSpacing.space1),
-                        InkWell(
-                          onTap: catalogReady ? () => _selectSupplier(state) : null,
-                          borderRadius: BorderRadius.circular(VRadius.button),
-                          child: Opacity(
-                            opacity: catalogReady ? 1 : 0.4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: VSpacing.space3,
-                                vertical: VSpacing.space3,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: supplierMissing
-                                      ? colors.danger
-                                      : (header.supplierId.isEmpty
-                                          ? colors.borderDefault
-                                          : colors.primary),
-                                ),
-                                borderRadius:
-                                    BorderRadius.circular(VRadius.button),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+          body: state.permissionDenied
+              ? const InventoryPermissionDenied()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (state.catalogConflict) ...[
+                        InventoryNoticeBanner(
+                          InventoryNotice.conflict,
+                          action: VButton(
+                            label: 'Tải lại',
+                            variant: VButtonVariant.secondary,
+                            size: VButtonSize.small,
+                            onPressed: context.read<QuickReceiptSessionCubit>().loadCatalog,
+                          ),
+                        ),
+                        const VGap(VSpacing.space3),
+                      ],
+                      if (locked) ...[
+                        const InventoryNoticeBanner(InventoryNotice.locked),
+                        const VGap(VSpacing.space3),
+                      ],
+                      if (_triedContinue && !header.isValid) ...[
+                        const InventoryNoticeBanner(InventoryNotice.validation),
+                        const VGap(VSpacing.space3),
+                      ],
+                      VSection(
+                        title: 'Thông tin lần nhận',
+                        subtitle: 'Xác định nhà cung cấp, phạm vi nhận và chứng từ giao nhận.',
+                        gapAfterHeader: VSpacing.space4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            VField(
+                              invalid: supplierMissing,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: VText(
-                                      header.supplierName.isNotEmpty
-                                          ? header.supplierName
-                                          : 'Chạm để chọn nhà cung cấp...',
-                                      style: VTypography.bodyDefault.copyWith(
-                                        color: header.supplierName.isNotEmpty
-                                            ? colors.textPrimary
-                                            : colors.textSecondary,
+                                  const VFieldLabel('Nhà cung cấp', isRequired: true),
+                                  const VGap(VSpacing.space1),
+                                  InkWell(
+                                    onTap: catalogReady ? () => _selectSupplier(state) : null,
+                                    borderRadius: BorderRadius.circular(VRadius.button),
+                                    child: Opacity(
+                                      opacity: catalogReady ? 1 : 0.4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: VSpacing.space3,
+                                          vertical: VSpacing.space3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: supplierMissing
+                                                ? colors.danger
+                                                : (header.supplierId.isEmpty
+                                                      ? colors.borderDefault
+                                                      : colors.primary),
+                                          ),
+                                          borderRadius: BorderRadius.circular(VRadius.button),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: VText(
+                                                header.supplierName.isNotEmpty
+                                                    ? header.supplierName
+                                                    : 'Chạm để chọn nhà cung cấp...',
+                                                style: VTypography.bodyDefault.copyWith(
+                                                  color: header.supplierName.isNotEmpty
+                                                      ? colors.textPrimary
+                                                      : colors.textSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                            const VIcon(
+                                              icon: VIcons.chevronDown,
+                                              iconSize: VIconSize.sm,
+                                              iconColor: VIconColor.muted,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  const VIcon(
-                                    icon: VIcons.chevronDown,
-                                    iconSize: VIconSize.sm,
-                                    iconColor: VIconColor.muted,
+                                  if (supplierMissing) ...[
+                                    const VGap(VSpacing.space1),
+                                    const VFieldError('Chọn nhà cung cấp trong danh sách.'),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const VGap(VSpacing.space3),
+                            VField(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const VFieldLabel('Kho nhận'),
+                                  const VGap(VSpacing.space1),
+                                  VTextField(
+                                    controller: _warehouseController,
+                                    enabled: false,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        ),
-                        if (supplierMissing) ...[
-                          const VGap(VSpacing.space1),
-                          const VFieldError('Chọn nhà cung cấp trong danh sách.'),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const VGap(VSpacing.space3),
-                  VField(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const VFieldLabel('Kho nhận'),
-                        const VGap(VSpacing.space1),
-                        VTextField(
-                          controller: _warehouseController,
-                          enabled: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const VGap(VSpacing.space3),
-                  VField(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const VFieldLabel('Ngày nhận'),
-                        const VGap(VSpacing.space1),
-                        VTextField(
-                          controller: _dateController,
-                          enabled: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const VGap(VSpacing.space3),
-                  VField(
-                    invalid: _triedContinue && header.documentFileNames.isEmpty,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const VFieldLabel(
-                          'Chứng từ giao nhận',
-                          isRequired: true,
-                        ),
-                        const VGap(VSpacing.space2),
-                        VFileDropZone(
-                          title: 'Chọn hoặc kéo tệp',
-                          subtitle:
-                              'Phiếu giao hàng, biên bản bàn giao, vận đơn hoặc bản scan/ảnh rõ nội dung',
-                          state: header.documentFileNames.isEmpty
-                              ? (_triedContinue
-                                  ? VFileDropZoneState.invalid
-                                  : VFileDropZoneState.empty)
-                              : VFileDropZoneState.valid,
-                          onTap: () => _pickDocuments(header),
-                        ),
-                        if (_triedContinue &&
-                            header.documentFileNames.isEmpty) ...[
-                          const VGap(VSpacing.space1),
-                          const VFieldError(
-                            'Cần đính kèm ít nhất một chứng từ giao nhận.',
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (header.documentFileNames.isNotEmpty) ...[
-                    const VGap(VSpacing.space3),
-                    for (final entry in header.documentFileNames.asMap().entries)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: VSpacing.space2),
-                        child: Container(
-                          padding: const EdgeInsets.all(VSpacing.space2),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: colors.borderDefault),
-                            borderRadius: BorderRadius.circular(VRadius.button),
-                          ),
-                          child: Row(
-                            children: [
-                              const VIcon(
-                                icon: VIcons.file,
-                                iconSize: VIconSize.md,
-                                iconColor: VIconColor.primary,
+                            const VGap(VSpacing.space3),
+                            VField(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const VFieldLabel('Ngày nhận'),
+                                  const VGap(VSpacing.space1),
+                                  VTextField(
+                                    controller: _dateController,
+                                    enabled: false,
+                                  ),
+                                ],
                               ),
-                              const VGap(VSpacing.space2, axis: Axis.horizontal),
-                              Expanded(
-                                child: VText(
-                                  entry.value,
-                                  style: VTypography.bodySmall,
+                            ),
+                            const VGap(VSpacing.space3),
+                            VField(
+                              invalid: _triedContinue && header.documentFileNames.isEmpty,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const VFieldLabel(
+                                    'Chứng từ giao nhận',
+                                    isRequired: true,
+                                  ),
+                                  const VGap(VSpacing.space2),
+                                  VFileDropZone(
+                                    title: 'Chọn hoặc kéo tệp',
+                                    subtitle:
+                                        'Phiếu giao hàng, biên bản bàn giao, vận đơn hoặc bản scan/ảnh rõ nội dung',
+                                    state: header.documentFileNames.isEmpty
+                                        ? (_triedContinue
+                                              ? VFileDropZoneState.invalid
+                                              : VFileDropZoneState.empty)
+                                        : VFileDropZoneState.valid,
+                                    onTap: locked ? null : () => _pickDocuments(header),
+                                  ),
+                                  if (_triedContinue && header.documentFileNames.isEmpty) ...[
+                                    const VGap(VSpacing.space1),
+                                    const VFieldError(
+                                      'Cần đính kèm ít nhất một chứng từ giao nhận.',
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            if (header.documentFileNames.isNotEmpty) ...[
+                              const VGap(VSpacing.space3),
+                              for (final entry in header.documentFileNames.asMap().entries)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: VSpacing.space2),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(VSpacing.space2),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: colors.borderDefault),
+                                      borderRadius: BorderRadius.circular(VRadius.button),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const VIcon(
+                                          icon: VIcons.file,
+                                          iconSize: VIconSize.md,
+                                          iconColor: VIconColor.primary,
+                                        ),
+                                        const VGap(VSpacing.space2, axis: Axis.horizontal),
+                                        Expanded(
+                                          child: VText(
+                                            entry.value,
+                                            style: VTypography.bodySmall,
+                                          ),
+                                        ),
+                                        VButton.icon(
+                                          icon: VIcons.close,
+                                          semanticLabel: 'Xoá chứng từ',
+                                          variant: VButtonVariant.tertiary,
+                                          size: VButtonSize.small,
+                                          onPressed: () => _removeDocument(header, entry.key),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              VButton.icon(
-                                icon: VIcons.close,
-                                semanticLabel: 'Xoá chứng từ',
-                                variant: VButtonVariant.tertiary,
-                                size: VButtonSize.small,
-                                onPressed: () =>
-                                    _removeDocument(header, entry.key),
-                              ),
                             ],
-                          ),
+                            const VGap(VSpacing.space3),
+                            VText(
+                              'Xác nhận quyền sở hữu',
+                              style: VTypography.caption.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const VGap(VSpacing.space1),
+                            VText(
+                              'Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận.',
+                              style: VTypography.caption.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                  ],
-                  const VGap(VSpacing.space3),
-                  VText(
-                    'Xác nhận quyền sở hữu',
-                    style: VTypography.caption.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textSecondary,
+                    ],
+                  ),
+                ),
+          bottomNavigationBar: state.permissionDenied || locked
+              ? null
+              : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(VSpacing.space4),
+                    child: VButton(
+                      label: 'Xác nhận & tiếp tục',
+                      fullWidth: true,
+                      size: VButtonSize.large,
+                      onPressed: () {
+                        if (!header.isValid) {
+                          setState(() => _triedContinue = true);
+                          return;
+                        }
+                        context.push('/warehouse/receipts/quick/items');
+                      },
                     ),
                   ),
-                  const VGap(VSpacing.space1),
-                  VText(
-                    'Hệ thống lưu người xác nhận, thời điểm và chứng từ giao nhận.',
-                    style: VTypography.caption.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: VButton(
-                label: 'Xác nhận & tiếp tục',
-                fullWidth: true,
-                size: VButtonSize.large,
-                onPressed: () {
-                  if (!header.isValid) {
-                    setState(() => _triedContinue = true);
-                    return;
-                  }
-                  context.push('/warehouse/receipts/quick/items');
-                },
-              ),
-            ),
-          ),
+                ),
         );
       },
     );

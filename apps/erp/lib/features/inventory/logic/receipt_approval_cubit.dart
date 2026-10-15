@@ -23,14 +23,17 @@ class ReceiptApprovalCubit extends Cubit<ReceiptApprovalState> {
       final actor = await _actorLoader();
       final doc = await _repository.getReceiptById(id);
       if (doc == null) {
-        emit(const ReceiptApprovalError('Không tìm thấy yêu cầu nhận hàng.'));
+        emit(const ReceiptApprovalNotFound());
         return;
       }
       emit(ReceiptApprovalLoaded(document: doc, actor: actor));
     } catch (e) {
-      emit(ReceiptApprovalError(
-        AppException.from(e).userMessage(receiptErrorMessages),
-      ));
+      final error = AppException.from(e);
+      emit(
+        error.isNoPermission
+            ? const ReceiptApprovalPermissionDenied()
+            : ReceiptApprovalError(error.userMessage(receiptErrorMessages)),
+      );
     }
   }
 

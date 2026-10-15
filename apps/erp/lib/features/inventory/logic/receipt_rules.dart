@@ -87,4 +87,6 @@ String classificationText(ReceiptItemDraft item) {
 const receiptErrorMessages = {
   'APPROVAL_ALREADY_DECIDED': 'Yêu cầu này đã được xử lý trước đó.',
   'SELF_APPROVAL_NOT_ALLOWED': 'Bạn đã gửi yêu cầu này nên không thể tự duyệt.',
+  'APPROVER_CONFIGURATION_MISSING':
+      'Chưa thể tạo phiếu. Cần cấu hình người duyệt đủ quyền và phạm vi rồi gửi lại trong phiên hiện tại.',
 };

@@ -9,6 +9,7 @@ import '../../data/goods_receipt_repository.dart';
 import '../../data/models/receipt_actor.dart';
 import '../../logic/receipt_approval_cubit.dart';
 import '../../logic/receipt_approval_state.dart';
+import '../widgets/inventory_state_views.dart';
 import '../widgets/receipt_key_value_row.dart';
 import '../widgets/receipt_line_summary.dart';
 import '../widgets/receipt_reject_reason_sheet.dart';
@@ -152,6 +153,24 @@ class _GoodsReceiptApprovalView extends StatelessWidget {
                             context.read<ReceiptApprovalCubit>().load(receiptId),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ReceiptApprovalPermissionDenied() =>
+              const InventoryPermissionDenied(),
+            ReceiptApprovalNotFound() => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(VSpacing.space6),
+                  child: VEmptyState(
+                    child: VEmptyHeader(
+                      children: [
+                        VEmptyMedia(icon: VIcons.inventory),
+                        VEmptyTitle('Không có yêu cầu để duyệt'),
+                        VEmptyDescription(
+                          'Yêu cầu chỉ xuất hiện sau khi người lập gửi hồ sơ hợp lệ.',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

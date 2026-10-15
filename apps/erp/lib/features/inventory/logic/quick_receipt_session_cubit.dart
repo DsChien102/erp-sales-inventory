@@ -25,17 +25,24 @@ class QuickReceiptSessionCubit extends Cubit<QuickReceiptSessionState> {
   Future<void> loadCatalog() async {
     emit(state.copyWith(catalogStatus: CatalogStatus.loading, clearError: true));
     try {
+      final capability = await _repository.getCapability();
       final suppliers = await _repository.getSuppliers();
       final products = await _repository.getProducts();
       emit(state.copyWith(
         catalogStatus: CatalogStatus.ready,
         suppliers: suppliers,
         products: products,
+        permissionDenied: false,
+        catalogConflict: false,
+        warehouseLocked: capability.warehouseLocked,
       ));
     } catch (e) {
+      final error = AppException.from(e);
       emit(state.copyWith(
         catalogStatus: CatalogStatus.failure,
-        errorMessage: AppException.from(e).userMessage(receiptErrorMessages),
+        permissionDenied: error.isNoPermission,
+        catalogConflict: error.isStateChanged,
+        errorMessage: error.userMessage(receiptErrorMessages),
       ));
     }
   }
@@ -71,7 +78,11 @@ class QuickReceiptSessionCubit extends Cubit<QuickReceiptSessionState> {
   Future<ReceiptDocumentModel?> submitForApproval() async {
     if (!state.canReview) return null;
 
-    emit(state.copyWith(isSubmitting: true, clearError: true));
+    emit(state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSubmitErrorCode: true,
+    ));
     try {
       final maker = await _actorLoader();
       final doc = await _repository.submitQuickReceipt(
@@ -85,9 +96,12 @@ class QuickReceiptSessionCubit extends Cubit<QuickReceiptSessionState> {
       ));
       return doc;
     } catch (e) {
+      final error = AppException.from(e);
       emit(state.copyWith(
         isSubmitting: false,
-        errorMessage: AppException.from(e).userMessage(receiptErrorMessages),
+        permissionDenied: error.isNoPermission,
+        submitErrorCode: error.code,
+        errorMessage: error.userMessage(receiptErrorMessages),
       ));
       return null;
     }

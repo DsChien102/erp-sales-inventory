@@ -123,8 +123,8 @@ Future<void> _pumpPage(
 }
 
 void main() {
-  setUp(() {
-    getIt.reset();
+  setUp(() async {
+    await getIt.reset();
     getIt.registerLazySingleton<GoodsReceiptRepository>(
       () => GoodsReceiptRepository(),
     );

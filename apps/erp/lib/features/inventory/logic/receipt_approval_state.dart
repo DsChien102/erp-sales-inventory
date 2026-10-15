@@ -63,6 +63,14 @@ class ReceiptApprovalSuccess extends ReceiptApprovalState {
   List<Object?> get props => [document];
 }
 
+class ReceiptApprovalPermissionDenied extends ReceiptApprovalState {
+  const ReceiptApprovalPermissionDenied();
+}
+
+class ReceiptApprovalNotFound extends ReceiptApprovalState {
+  const ReceiptApprovalNotFound();
+}
+
 class ReceiptApprovalError extends ReceiptApprovalState {
   const ReceiptApprovalError(this.message);
 

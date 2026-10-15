@@ -3,7 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'receipt_header_draft.dart';
 import 'receipt_item_draft.dart';
 
-enum ReceiptStatus { pendingApproval, completed, rejected }
+enum ReceiptStatus {
+  pendingApproval,
+  completed,
+  rejected,
+  processing,
+  executionUnknown,
+  executionRejected,
+}
 
 class ReceiptDocumentModel extends Equatable {
   const ReceiptDocumentModel({
@@ -18,6 +25,7 @@ class ReceiptDocumentModel extends Equatable {
     this.decidedByName,
     this.decidedAt,
     this.rejectReason,
+    this.executedAt,
   });
 
   final String id;
@@ -31,6 +39,7 @@ class ReceiptDocumentModel extends Equatable {
   final String? decidedByName;
   final DateTime? decidedAt;
   final String? rejectReason;
+  final DateTime? executedAt;
 
   double get totalPhysicalStock =>
       items.fold(0.0, (sum, i) => sum + i.totalPhysicalStock);
@@ -49,6 +58,7 @@ class ReceiptDocumentModel extends Equatable {
     String? decidedByName,
     DateTime? decidedAt,
     String? rejectReason,
+    DateTime? executedAt,
   }) {
     return ReceiptDocumentModel(
       id: id ?? this.id,
@@ -62,6 +72,7 @@ class ReceiptDocumentModel extends Equatable {
       decidedByName: decidedByName ?? this.decidedByName,
       decidedAt: decidedAt ?? this.decidedAt,
       rejectReason: rejectReason ?? this.rejectReason,
+      executedAt: executedAt ?? this.executedAt,
     );
   }
 
@@ -78,5 +89,6 @@ class ReceiptDocumentModel extends Equatable {
         decidedByName,
         decidedAt,
         rejectReason,
+        executedAt,
       ];
 }

@@ -39,6 +39,7 @@ import '../../features/inventory/logic/quick_receipt_session_cubit.dart';
 import '../../features/inventory/presentation/pages/goods_receipt_approval_page.dart';
 import '../../features/inventory/presentation/pages/goods_receipt_item_detail_page.dart';
 import '../../features/inventory/presentation/pages/goods_receipt_items_page.dart';
+import '../../features/inventory/presentation/pages/goods_receipt_reconciliation_page.dart';
 import '../../features/inventory/presentation/pages/goods_receipt_result_page.dart';
 import '../../features/inventory/presentation/pages/goods_receipt_review_page.dart';
 import '../../features/inventory/presentation/pages/quick_receipt_header_page.dart';
@@ -263,6 +264,13 @@ final appRouter = GoRouter(
         final id = state.pathParameters['id'] ?? '';
         return GoodsReceiptResultPage(receiptId: id);
       },
+    ),
+    GoRoute(
+      path: '/warehouse/receipts/reconciliation/:id',
+      name: 'warehouse.receipts.reconciliation',
+      builder: (context, state) => GoodsReceiptReconciliationPage(
+        receiptId: state.pathParameters['id'] ?? '',
+      ),
     ),
     GoRoute(
       path: '/warehouse/valuation/queue',

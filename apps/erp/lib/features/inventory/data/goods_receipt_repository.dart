@@ -3,10 +3,12 @@ import 'package:equatable/equatable.dart';
 import '../../../core/errors/app_exception.dart';
 import 'models/lot_date.dart';
 import 'models/receipt_actor.dart';
+import 'models/receipt_capability.dart';
 import 'models/receipt_document_model.dart';
 import 'models/receipt_header_draft.dart';
 import 'models/receipt_item_draft.dart';
 import 'models/receipt_lot_draft.dart';
+import 'models/receipt_scenario.dart';
 import 'valuation_repository.dart';
 
 class ReceiptSupplierDto extends Equatable {
@@ -84,7 +86,26 @@ class GoodsReceiptRepository {
 
   final ValuationRepository? _valuation;
   final Map<String, ReceiptDocumentModel> _receipts = {};
+  final Map<String, int> _checks = {};
   int _seq = 0;
+  bool _catalogChangeServed = false;
+
+  /// Chỉ test và demo đặt; xem [ReceiptScenario].
+  ReceiptScenario scenario = ReceiptScenario.normal;
+
+  void _guard() {
+    if (scenario == ReceiptScenario.permissionDenied) {
+      throw const AppException(AppErrorCode.noPermission);
+    }
+  }
+
+  Future<ReceiptCapability> getCapability() async {
+    _guard();
+    return ReceiptCapability(
+      canQuickReceive: true,
+      warehouseLocked: scenario == ReceiptScenario.warehouseLocked,
+    );
+  }
 
   void _seed() {
     final now = DateTime.now();
@@ -134,6 +155,7 @@ class GoodsReceiptRepository {
   }
 
   Future<List<ReceiptSupplierDto>> getSuppliers() async {
+    _guard();
     return const [
       ReceiptSupplierDto(
         id: 'sup_01',
@@ -157,6 +179,11 @@ class GoodsReceiptRepository {
   }
 
   Future<List<ReceiptProductDto>> getProducts() async {
+    _guard();
+    if (scenario == ReceiptScenario.catalogChanged && !_catalogChangeServed) {
+      _catalogChangeServed = true;
+      throw const AppException(AppErrorCode.stateChanged);
+    }
     return const [
       ReceiptProductDto(
         id: 'prod_01',
@@ -211,6 +238,11 @@ class GoodsReceiptRepository {
     List<ReceiptItemDraft> items, {
     required ReceiptActor maker,
   }) async {
+    _guard();
+    if (scenario == ReceiptScenario.approverMissing) {
+      // UC-02-02 EF-B: không tạo phiếu, không cấp receiptId.
+      throw const AppException('APPROVER_CONFIGURATION_MISSING');
+    }
     final now = DateTime.now();
     final id = _nextId(now);
 
@@ -229,6 +261,7 @@ class GoodsReceiptRepository {
   }
 
   Future<ReceiptDocumentModel?> getReceiptById(String id) async {
+    _guard();
     return _receipts[id];
   }
 
@@ -236,6 +269,7 @@ class GoodsReceiptRepository {
     String id, {
     required ReceiptActor approver,
   }) async {
+    _guard();
     final doc = _receipts[id];
     if (doc == null) throw const AppException(AppErrorCode.notFound);
     if (doc.status != ReceiptStatus.pendingApproval) {
@@ -245,15 +279,54 @@ class GoodsReceiptRepository {
       throw const AppException('SELF_APPROVAL_NOT_ALLOWED');
     }
 
+    final executed = switch (scenario) {
+      ReceiptScenario.executionProcessing => ReceiptStatus.processing,
+      ReceiptScenario.executionUnknown ||
+      ReceiptScenario.executionUnknownStuck =>
+        ReceiptStatus.executionUnknown,
+      ReceiptScenario.executionRejected => ReceiptStatus.executionRejected,
+      _ => ReceiptStatus.completed,
+    };
+    final now = DateTime.now();
     final approved = doc.copyWith(
-      status: ReceiptStatus.completed,
+      status: executed,
       decidedById: approver.id,
       decidedByName: approver.name,
-      decidedAt: DateTime.now(),
+      decidedAt: now,
+      executedAt: switch (executed) {
+        ReceiptStatus.completed || ReceiptStatus.executionRejected => now,
+        _ => null,
+      },
     );
     _receipts[id] = approved;
-    _valuation?.addQuickReceipt(approved);
+    // Chỉ `completed` mới có hàng để định giá (UC-02-04).
+    if (executed == ReceiptStatus.completed) {
+      _valuation?.addQuickReceipt(approved);
+    }
     return approved;
+  }
+
+  /// UC-02-05: hỏi lại kết quả bằng cùng định danh; không tạo thao tác mới.
+  Future<ReceiptDocumentModel?> checkReceiptResult(String id) async {
+    _guard();
+    final doc = _receipts[id];
+    if (doc == null) return null;
+    final n = (_checks[id] ?? 0) + 1;
+    _checks[id] = n;
+    final resolves = switch (doc.status) {
+      ReceiptStatus.processing => n >= 2,
+      ReceiptStatus.executionUnknown =>
+        scenario != ReceiptScenario.executionUnknownStuck && n >= 2,
+      _ => false,
+    };
+    if (!resolves) return doc;
+    final done = doc.copyWith(
+      status: ReceiptStatus.completed,
+      executedAt: DateTime.now(),
+    );
+    _receipts[id] = done;
+    _valuation?.addQuickReceipt(done);
+    return done;
   }
 
   Future<ReceiptDocumentModel> rejectReceipt(
@@ -261,6 +334,7 @@ class GoodsReceiptRepository {
     required ReceiptActor approver,
     required String reason,
   }) async {
+    _guard();
     final doc = _receipts[id];
     if (doc == null) throw const AppException(AppErrorCode.notFound);
     if (doc.status != ReceiptStatus.pendingApproval) {

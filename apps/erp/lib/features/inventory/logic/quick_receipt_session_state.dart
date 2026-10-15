@@ -18,6 +18,10 @@ class QuickReceiptSessionState extends Equatable {
     this.catalogStatus = CatalogStatus.loading,
     this.suppliers = const [],
     this.products = const [],
+    this.permissionDenied = false,
+    this.warehouseLocked = false,
+    this.catalogConflict = false,
+    this.submitErrorCode,
   });
 
   final ReceiptHeaderDraft header;
@@ -28,8 +32,17 @@ class QuickReceiptSessionState extends Equatable {
   final CatalogStatus catalogStatus;
   final List<ReceiptSupplierDto> suppliers;
   final List<ReceiptProductDto> products;
+  final bool permissionDenied;
+  final bool warehouseLocked;
+
+  /// Danh mục vừa đổi, chờ người dùng "Tải lại".
+  final bool catalogConflict;
+
+  /// Mã lỗi của lần gửi gần nhất, vd `APPROVER_CONFIGURATION_MISSING`.
+  final String? submitErrorCode;
 
   bool get canReview =>
+      !warehouseLocked &&
       header.isValid &&
       items.isNotEmpty &&
       items.every((i) => validateReceiptItem(i).isValid) &&
@@ -44,7 +57,12 @@ class QuickReceiptSessionState extends Equatable {
     CatalogStatus? catalogStatus,
     List<ReceiptSupplierDto>? suppliers,
     List<ReceiptProductDto>? products,
+    bool? permissionDenied,
+    bool? warehouseLocked,
+    bool? catalogConflict,
+    String? submitErrorCode,
     bool clearError = false,
+    bool clearSubmitErrorCode = false,
   }) {
     return QuickReceiptSessionState(
       header: header ?? this.header,
@@ -55,6 +73,12 @@ class QuickReceiptSessionState extends Equatable {
       catalogStatus: catalogStatus ?? this.catalogStatus,
       suppliers: suppliers ?? this.suppliers,
       products: products ?? this.products,
+      permissionDenied: permissionDenied ?? this.permissionDenied,
+      warehouseLocked: warehouseLocked ?? this.warehouseLocked,
+      catalogConflict: catalogConflict ?? this.catalogConflict,
+      submitErrorCode: clearSubmitErrorCode
+          ? null
+          : (submitErrorCode ?? this.submitErrorCode),
     );
   }
 
@@ -68,5 +92,9 @@ class QuickReceiptSessionState extends Equatable {
         catalogStatus,
         suppliers,
         products,
+        permissionDenied,
+        warehouseLocked,
+        catalogConflict,
+        submitErrorCode,
       ];
 }

@@ -7,6 +7,7 @@ import '../../data/models/receipt_item_draft.dart';
 import '../../data/models/receipt_lot_draft.dart';
 import '../../logic/quick_receipt_session_cubit.dart';
 import '../../logic/receipt_rules.dart';
+import '../widgets/inventory_state_views.dart';
 import '../widgets/receipt_key_value_row.dart';
 import '../widgets/receipt_lot_editor_card.dart';
 
@@ -28,6 +29,7 @@ class GoodsReceiptItemDetailPage extends StatefulWidget {
 class _GoodsReceiptItemDetailPageState
     extends State<GoodsReceiptItemDetailPage> {
   late List<ReceiptLotDraft> _lots;
+  late List<Key> _lotKeys;
   bool _showErrors = false;
 
   @override
@@ -36,11 +38,13 @@ class _GoodsReceiptItemDetailPageState
     _lots = widget.item.lots.isEmpty
         ? [const ReceiptLotDraft()]
         : List.from(widget.item.lots);
+    _lotKeys = List.generate(_lots.length, (_) => UniqueKey());
   }
 
   void _addNewLot() {
     setState(() {
       _lots.add(const ReceiptLotDraft());
+      _lotKeys.add(UniqueKey());
     });
   }
 
@@ -54,6 +58,7 @@ class _GoodsReceiptItemDetailPageState
     if (_lots.length > 1) {
       setState(() {
         _lots.removeAt(index);
+        _lotKeys.removeAt(index);
       });
     }
   }
@@ -74,7 +79,9 @@ class _GoodsReceiptItemDetailPageState
     final item = widget.item;
     final draft = item.copyWith(lots: _lots);
     final validation = validateReceiptItem(draft);
-    final readOnly = widget.readOnly;
+    final sessionLocked =
+        context.read<QuickReceiptSessionCubit>().state.warehouseLocked;
+    final readOnly = widget.readOnly || sessionLocked;
 
     final cubit = readOnly ? null : context.read<QuickReceiptSessionCubit>();
     final existingIndex =
@@ -92,6 +99,10 @@ class _GoodsReceiptItemDetailPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (sessionLocked) ...[
+              const InventoryNoticeBanner(InventoryNotice.locked),
+              const VGap(VSpacing.space4),
+            ],
             VText(
               item.productName,
               style: VTypography.headingH4.copyWith(
@@ -118,6 +129,7 @@ class _GoodsReceiptItemDetailPageState
             for (var index = 0; index < _lots.length; index++) ...[
               if (index > 0) const VGap(VSpacing.space3),
               ReceiptLotEditorCard(
+                key: _lotKeys[index],
                 lot: _lots[index],
                 index: index,
                 isLotTracked: item.isLotTracked,
