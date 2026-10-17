@@ -1,8 +1,8 @@
 {
-  "version": "5.1.2",
-  "parent": "5.1.1",
-  "status": "T7_P_A2_BJ06",
-  "scope": "T7-P A2: BJ-06 viết lại sạch vào app/bj06.js; móc onPrevious; ownedFlows UIF-06.",
+  "version": "5.1.3",
+  "parent": "5.1.2",
+  "status": "T7_P_A3_CAP01",
+  "scope": "T7-P A3: CAP-01 viết lại sạch vào app/cap01.js; dữ liệu khung CAP-01 vào literal core.js; ownedFlows CAP-01.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,

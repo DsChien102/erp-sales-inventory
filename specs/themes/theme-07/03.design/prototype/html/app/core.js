@@ -27,7 +27,7 @@ window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {ve
 // Figma DS v2.0.3 is UI authority; business authority remains in BJ/UC/decision/contracts.
 const FIGMA_MIGRATED_FLOWS = new Set([
   "UIF-01","UIF-02","UIF-03","UIF-04","UIF-05","UIF-06","UIF-07","UIF-08","UIF-09",
-  "UIF-10","UIF-11","UIF-12","UIF-13","UIF-14","UIF-15","UIF-16","UIF-17"
+  "UIF-10","UIF-11","UIF-12","UIF-13","UIF-14","UIF-15","UIF-16","UIF-17","CAP-01"
 ]);
 const FIGMA_TEMPLATE_NODES = {
   "Mobile / Root List":"551:549", "Mobile / Nested List":"551:1277", "Mobile / Detail":"551:1396",
@@ -50,7 +50,8 @@ const FIGMA_TEMPLATE_BY_FLOW_SCREEN = {
   "UIF-14":{"SCR-072":"Mobile / Root List","SCR-073":"Mobile / Form","SCR-074":"Mobile / Detail","SCR-076":"Mobile / Detail","SCR-077":"Mobile / Detail"},
   "UIF-15":{"SCR-054":"Mobile / Form","SCR-055":"Mobile / Detail","SCR-056":"Mobile / Detail","SCR-057":"Mobile / Detail","SCR-058":"Mobile / Detail","SCR-059":"Mobile / Detail"},
   "UIF-16":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-081":"Mobile / Detail","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
-  "UIF-17":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"}
+  "UIF-17":{"SCR-078":"Mobile / Root List","SCR-079":"Mobile / Detail","SCR-080":"Mobile / Form","SCR-082":"Mobile / Detail","SCR-083":"Mobile / Detail"},
+  "CAP-01":{"SCR-062":"Mobile / Form","SCR-063":"Mobile / Form","SCR-064":"Mobile / Detail","SCR-065":"Mobile / Detail"}
 };
 function figmaScreenTemplate(){ return FIGMA_TEMPLATE_BY_FLOW_SCREEN[activeFlowId]?.[activeScreenId] || null; }
 const screens = HARNESS.screens;
@@ -62,6 +63,7 @@ const FLOW_GROUPS = [
   { id: "inventory-operations", label: "Inventory operations", bjs: ["BJ-01", "BJ-02", "BJ-04", "BJ-05", "BJ-06", "BJ-07"] },
   { id: "inventory-valuation", label: "Inventory valuation", bjs: ["BJ-03", "BJ-13", "BJ-14"] },
   { id: "inventory-audit-control", label: "Inventory audit & control", bjs: ["BJ-08", "BJ-09", "BJ-10", "BJ-11", "BJ-12", "BJ-15", "BJ-16", "BJ-17"] },
+  { id: "supporting", label: "Supporting capability", bjs: ["CAP-01"] },
 ];
 
 function flowGroupLabel(flow) {
@@ -762,7 +764,8 @@ function renderFlowInspector() {
     "UIF-12":"v3.2.0 · BJ12 số dư đầu kỳ + control foundation",
     "UIF-15":"v3.2.0 · BJ15 báo cáo/thẻ kho + DS aligned",
     "UIF-16":"v3.2.0 · BJ16 đối soát sai lệch + evidence",
-    "UIF-17":"v3.2.0 · BJ17 xác minh kết quả + recovery"
+    "UIF-17":"v3.2.0 · BJ17 xác minh kết quả + recovery",
+    "CAP-01":"v3.6.0 · Figma DS primitives · HTML Theme 7 design"
   })[activeFlowId] || "Calibrated shell · structural migration pending";
   document.getElementById("traceability").innerHTML=`<div class="trace-row"><span>BJ / UIF</span><strong>${f.bj} · ${f.id}</strong></div><div class="trace-row"><span>UC</span><strong>${(screen.uc||[]).join(" · ")||"—"}</strong></div><div class="trace-row"><span>Purpose</span><strong>${screen.purpose||"—"}</strong></div><div class="trace-row"><span>Action</span><strong>${actions}</strong></div><div class="trace-row"><span>Figma DS</span><strong>${figmaMigrationLabel}</strong></div><div class="trace-row"><span>DS annotations</span><strong>VPageScaffold → VAppBar · ${(screen.components||[]).join(" · ")}</strong></div><div class="trace-row"><span>Composition</span><strong>${screen.themeComposition||"—"}</strong></div>`;
   document.getElementById("design-rationale").textContent=f.intent || screen.purpose;
@@ -5300,131 +5303,13 @@ if(activeFlowId==="UIF-08") render();
 /* ===== v360-full-theme-completion.js ===== */
 /* VET45 Theme 7 v3.6.0 — full-theme completion & UX QA correction
  * Parent: v3.5.1
- * Scope: supporting capability CAP-01, active-session cancellation, representative-state coherence,
+ * Scope: active-session cancellation, representative-state coherence,
  * feedback/toast semantics, dead-end exits, and final UX simplification.
  * Figma is Design System + mature cross-theme reference only; Theme 7 design authority is this HTML harness.
+ * CAP-01 đã chuyển sang app/cap01.js (T7-P gói A3).
  */
 (() => {
   const VERSION = "3.6.0";
-  const e = (v) => (typeof esc === "function" ? esc(v) : String(v ?? ""));
-  const ea = (v) => (typeof escapeAttribute === "function" ? escapeAttribute(v) : String(v ?? "").replace(/"/g,"&quot;"));
-  const nb = (v) => String(v ?? "").trim().length > 0;
-  const n = (v) => Number(v ?? 0);
-
-  // -----------------------------------------------------------------------
-  // Full-theme scope: supporting capability is a first-class prototype flow.
-  // -----------------------------------------------------------------------
-  if (typeof FIGMA_MIGRATED_FLOWS !== "undefined") FIGMA_MIGRATED_FLOWS.add("CAP-01");
-  if (typeof FIGMA_TEMPLATE_BY_FLOW_SCREEN !== "undefined") {
-    FIGMA_TEMPLATE_BY_FLOW_SCREEN["CAP-01"] = {
-      "SCR-062":"Mobile / Form",
-      "SCR-063":"Mobile / Form",
-      "SCR-064":"Mobile / Detail",
-      "SCR-065":"Mobile / Detail"
-    };
-  }
-  if (typeof FLOW_GROUPS !== "undefined" && !FLOW_GROUPS.some(g=>g.id==="supporting")) {
-    FLOW_GROUPS.push({id:"supporting",label:"Supporting capability",bjs:["CAP-01"]});
-  }
-
-  // Inspector labels are review metadata only, never Product UI.
-  const oldRenderInspector = renderFlowInspector;
-  if (oldRenderInspector) {
-    renderFlowInspector = function(){
-      oldRenderInspector();
-      const trace=document.getElementById("traceability");
-      if(activeFlowId==="CAP-01" && trace){
-        const rows=[...trace.querySelectorAll(".trace-row")];
-        const figma=rows.find(r=>r.firstElementChild?.textContent?.trim()==="Figma DS");
-        if(figma?.lastElementChild) figma.lastElementChild.textContent="v3.6.0 · Figma DS primitives · HTML Theme 7 design";
-      }
-    };
-  }
-
-  // -----------------------------------------------------------------------
-  // CAP-01 — Inventory / near-expiry policy supporting capability.
-  // Entry and return location are prototype integration fallbacks, not a
-  // production navigation contract while BG-006 remains unresolved.
-  // -----------------------------------------------------------------------
-  let capPolicyKind="STOCK";
-  let capThreshold="50";
-  let capTarget="80";
-  let capStockSource="PRODUCT_OVERRIDE";
-  let capNearExpiryDays="90";
-  let capNearExpiryAction="WARN";
-  let capNearExpirySource="TENANT_DEFAULT";
-  let capPolicyRevision=5;
-  let capLastResult=null;
-  let capReturnFlow="UIF-01";
-  let capReturnScreen="SCR-001";
-
-  function capNumberField(label,value,attr,hint="",disabled=false){
-    return `<div class="form-field" data-ds-component="VNumberField" data-ds-prop-label="${ea(label)}"><label>${e(label)}</label><div class="input-shell"><input inputmode="numeric" type="number" min="0" value="${ea(value)}" ${attr} ${disabled?"disabled":""}></div>${hint?`<small class="helper-text">${e(hint)}</small>`:""}</div>`;
-  }
-  function capSelect(label,value,attr,options,disabled=false){
-    return `<label class="form-field v360-select-field" data-ds-component="VSelect"><span>${e(label)}</span><div class="select-shell"><select ${attr} ${disabled?"disabled":""}>${options.map(([v,l])=>`<option value="${ea(v)}" ${v===value?"selected":""}>${e(l)}</option>`).join("")}</select></div></label>`;
-  }
-  function capExit(){
-    activeFlowId=capReturnFlow;
-    activeScreenId=capReturnScreen;
-    if(stateByScreen[activeScreenId]==null){ const s=screens.find(x=>x.id===activeScreenId); stateByScreen[activeScreenId]=s?.defaultState||s?.states?.[0]||"READY"; }
-    syncReviewUrl(); render();
-  }
-  function capFormNotice(state){
-    if(state==="VALIDATION_ERROR") return vBanner("error","Chưa thể tiếp tục","Kiểm tra lại các giá trị được nhập trước khi rà soát.");
-    if(state==="CONFLICT") return vBanner("warning","Chính sách vừa được cập nhật","Tải lại giá trị hiện hành trước khi lưu thay đổi.");
-    if(state==="LOCKED") return vBanner("warning","Đang ở chế độ chỉ xem","Chính sách đang được cập nhật ở nơi khác. Bạn có thể xem nhưng chưa thể lưu.");
-    return "";
-  }
-  function capRender062(state){
-    if(state==="PERMISSION_DENIED") return appShell({title:"Chính sách tồn",body:deniedBody(),centered:true,backAction:"v360-cap-exit"});
-    const locked=state==="LOCKED";
-    const invalid=n(capThreshold)<0||n(capTarget)<n(capThreshold);
-    const body=`${capFormNotice(state)}${ds24InfoGroup("Phạm vi",`${ds24InfoRow("Áp dụng","Tồn kho và cảnh báo tồn thấp")}${ds24InfoRow("Tác động sổ kho","Không")}`,"v360-policy-context")}
-      <section class="v360-form-section" data-composed-from="VNumberField,VSelect">
-        ${capNumberField("Ngưỡng cảnh báo",capThreshold,'data-v360-cap-threshold','Cảnh báo khi tồn khả dụng xuống dưới mức này.',locked)}
-        ${capNumberField("Mức tồn mục tiêu",capTarget,'data-v360-cap-target','Phải lớn hơn hoặc bằng ngưỡng cảnh báo.',locked)}
-        ${capSelect("Nguồn áp dụng",capStockSource,'data-v360-cap-stock-source',[["PRODUCT_OVERRIDE","Ghi đè theo sản phẩm"],["TENANT_DEFAULT","Mặc định tổ chức"]],locked)}
-      </section>`;
-    const actions=locked?primaryFooter("Đóng",'data-v360-action="cap-exit"'):`<footer class="app-actions figma-sticky-footer"><button class="button button--primary" type="button" data-v360-action="cap-review-stock" data-ds-component="VButton" ${invalid?'disabled':''}>Rà soát thay đổi</button></footer>`;
-    return appShell({title:"Chính sách tồn",body,actions,backAction:"v360-cap-exit"});
-  }
-  function capRender063(state){
-    if(state==="PERMISSION_DENIED") return appShell({title:"Hàng cận hạn",body:deniedBody(),centered:true,backAction:"v360-cap-exit"});
-    const locked=state==="LOCKED";
-    const invalid=n(capNearExpiryDays)<=0;
-    const body=`${capFormNotice(state)}${ds24InfoGroup("Phạm vi",`${ds24InfoRow("Áp dụng","Cảnh báo hàng cận hạn")}${ds24InfoRow("Tác động sổ kho","Không")}`,"v360-policy-context")}
-      <section class="v360-form-section" data-composed-from="VNumberField,VSelect">
-        ${capNumberField("Số ngày cận hạn",capNearExpiryDays,'data-v360-cap-expiry-days','Tính từ ngày hiện tại đến hạn dùng.',locked)}
-        ${capSelect("Hành động",capNearExpiryAction,'data-v360-cap-expiry-action',[["WARN","Cảnh báo"],["BLOCK_SALE","Chặn bán"]],locked)}
-        ${capSelect("Nguồn áp dụng",capNearExpirySource,'data-v360-cap-expiry-source',[["TENANT_DEFAULT","Mặc định tổ chức"],["PRODUCT_OVERRIDE","Ghi đè theo sản phẩm"]],locked)}
-      </section>`;
-    const actions=locked?primaryFooter("Đóng",'data-v360-action="cap-exit"'):`<footer class="app-actions figma-sticky-footer"><button class="button button--primary" type="button" data-v360-action="cap-review-expiry" data-ds-component="VButton" ${invalid?'disabled':''}>Rà soát thay đổi</button></footer>`;
-    return appShell({title:"Hàng cận hạn",body,actions,backAction:"v360-cap-exit"});
-  }
-  function capRender064(state){
-    if(state==="PERMISSION_DENIED") return appShell({title:"Rà soát chính sách",body:deniedBody(),centered:true,backAction:"v360-cap-edit"});
-    if(state==="VALIDATION_ERROR") return appShell({title:"Rà soát chính sách",body:vBanner("error","Chính sách chưa hợp lệ","Quay lại cấu hình và kiểm tra các giá trị."),actions:primaryFooter("Quay lại chỉnh sửa",'data-v360-action="cap-edit"'),backAction:"v360-cap-edit"});
-    const sourceLabel=(capPolicyKind==="STOCK"?capStockSource:capNearExpirySource)==="PRODUCT_OVERRIDE"?"Ghi đè theo sản phẩm":"Mặc định tổ chức";
-    const policyRows=capPolicyKind==="STOCK"
-      ? `${ds24KeyValueRow("Ngưỡng cảnh báo",capThreshold,true)}${ds24KeyValueRow("Mức tồn mục tiêu",capTarget,true)}${ds24InfoRow("Nguồn áp dụng",sourceLabel)}`
-      : `${ds24KeyValueRow("Cận hạn",`${capNearExpiryDays} ngày`,true)}${ds24InfoRow("Hành động",capNearExpiryAction==="WARN"?"Cảnh báo":"Chặn bán")}${ds24InfoRow("Nguồn áp dụng",sourceLabel)}`;
-    const pending=state==="APPROVAL_REQUIRED";
-    const body=`${pending?vBanner("warning","Cần người có quyền xác nhận","Bạn không thể tự lưu thay đổi chính sách này."):""}${ds24InfoGroup(capPolicyKind==="STOCK"?"Chính sách tồn":"Chính sách cận hạn",policyRows,"v360-policy-review")}${ds24InfoGroup("Tác động",`${ds24InfoRow("Sổ kho","Không thay đổi")}${ds24InfoRow("Chỉ báo và khả dụng","Được tính lại theo chính sách mới")}`,"v360-policy-impact")}`;
-    const actions=pending?primaryFooter("Về cấu hình",'data-v360-action="cap-edit"'):`<footer class="app-actions figma-sticky-footer v360-dual-actions"><button class="button button--secondary" type="button" data-v360-action="cap-edit" data-ds-component="VButton">Chỉnh sửa</button><button class="button button--primary" type="button" data-v360-action="cap-save" data-ds-component="VButton">Lưu chính sách</button></footer>`;
-    return appShell({title:"Rà soát chính sách",body,actions,backAction:"v360-cap-edit"});
-  }
-  function capRender065(state){
-    if(state==="PERMISSION_DENIED") return appShell({title:"Kết quả cập nhật",body:deniedBody(),centered:true,back:false,actions:primaryFooter("Đóng",'data-v360-action="cap-exit"')});
-    if(state==="UNKNOWN") return appShell({title:"Kết quả cập nhật",body:ds24Result("Đang xác minh kết quả","Không lưu lại thay đổi. Hệ thống đang xác minh đúng lần cập nhật này.",[["Chính sách",capPolicyKind==="STOCK"?"Tồn kho":"Cận hạn"],["Tác động sổ kho","Chưa kết luận"]],"warning"),centered:true,back:false,actions:primaryFooter("Đóng",'data-v360-action="cap-exit"')});
-    if(state==="REJECTED_EXECUTION") return appShell({title:"Kết quả cập nhật",body:ds24Result("Chưa cập nhật chính sách","Không có chính sách mới được áp dụng.",[["Tác động sổ kho","Không"],["Trạng thái","Giữ chính sách hiện hành"]],"warning"),centered:true,back:false,actions:primaryFooter("Về cấu hình",'data-v360-action="cap-edit"')});
-    const r=capLastResult||{revision:capPolicyRevision+1,kind:capPolicyKind,lowStock:12};
-    return appShell({title:"Kết quả cập nhật",body:ds24Result("Đã cập nhật chính sách","Chỉ báo liên quan sẽ dùng chính sách mới; không tạo biến động tồn kho.",[["Chính sách",r.kind==="STOCK"?"Tồn kho":"Cận hạn"],["Lần cập nhật",`Lần ${r.revision}`],["Tác động sổ kho","Không"],["Chỉ báo tồn thấp",`${r.lowStock} sản phẩm`]]),centered:true,back:false,actions:primaryFooter("Đóng",'data-v360-action="cap-exit"')});
-  }
-  renderers["SCR-062"]=capRender062;
-  renderers["SCR-063"]=capRender063;
-  renderers["SCR-064"]=capRender064;
-  renderers["SCR-065"]=capRender065;
 
   // -----------------------------------------------------------------------
   // BJ08 cancellation: destructive action belongs inside an opened session,
@@ -5602,51 +5487,17 @@ if(activeFlowId==="UIF-08") render();
   },true);
 
   // -----------------------------------------------------------------------
-  // CAP-01 interaction and stable exit paths.
+  // Stable exit paths (fallback-exit).
   // -----------------------------------------------------------------------
   document.addEventListener("input",(event)=>{
     if(activeFlowId==="UIF-08" && event.target.matches("[data-ic08-cancel-reason]")){
       queueMicrotask(()=>{const b=document.querySelector('[data-v350-action="ic08-confirm-cancel"]');if(b)b.disabled=!String(event.target.value||"").trim();});
     }
   },true);
-  document.addEventListener("input",(event)=>{
-    if(activeFlowId!=="CAP-01")return;
-    if(event.target.matches("[data-v360-cap-threshold]")){capThreshold=event.target.value;return;}
-    if(event.target.matches("[data-v360-cap-target]")){capTarget=event.target.value;return;}
-    if(event.target.matches("[data-v360-cap-expiry-days]")){capNearExpiryDays=event.target.value;return;}
-  },true);
-  document.addEventListener("change",(event)=>{
-    if(activeFlowId!=="CAP-01")return;
-    if(event.target.matches("[data-v360-cap-stock-source]")){capStockSource=event.target.value;return;}
-    if(event.target.matches("[data-v360-cap-expiry-action]")){capNearExpiryAction=event.target.value;return;}
-    if(event.target.matches("[data-v360-cap-expiry-source]")){capNearExpirySource=event.target.value;return;}
-  },true);
   document.addEventListener("click",(event)=>{
     const action=event.target.closest("[data-v360-action]");
     if(!action||action.disabled)return;
-    const k=action.dataset.v360Action;
-    if(k==="cap-exit"){event.preventDefault();event.stopPropagation();return capExit();}
-    if(k==="fallback-exit"){event.preventDefault();event.stopPropagation();const target=action.dataset.v360Target;if(target)return navigate(target);}
-    if(activeFlowId!=="CAP-01")return;
-    event.preventDefault();event.stopPropagation();
-    if(k==="cap-review-stock"){
-      if(n(capThreshold)<0||n(capTarget)<n(capThreshold)){stateByScreen["SCR-062"]="VALIDATION_ERROR";return renderAppScreen();}
-      capPolicyKind="STOCK";stateByScreen["SCR-064"]="READY";return navigate("SCR-064");
-    }
-    if(k==="cap-review-expiry"){
-      if(n(capNearExpiryDays)<=0){stateByScreen["SCR-063"]="VALIDATION_ERROR";return renderAppScreen();}
-      capPolicyKind="EXPIRY";stateByScreen["SCR-064"]="READY";return navigate("SCR-064");
-    }
-    if(k==="cap-edit"){return navigate(capPolicyKind==="STOCK"?"SCR-062":"SCR-063");}
-    if(k==="cap-save"){
-      capPolicyRevision+=1;capLastResult={revision:capPolicyRevision,kind:capPolicyKind,lowStock:12};stateByScreen["SCR-065"]="COMPLETED";return navigate("SCR-065");
-    }
-  },true);
-  document.addEventListener("click",(event)=>{
-    const x=event.target.closest('[data-action="v360-cap-exit"]');
-    if(x){event.preventDefault();event.stopPropagation();return capExit();}
-    const edit=event.target.closest('[data-action="v360-cap-edit"]');
-    if(edit&&activeFlowId==="CAP-01"){event.preventDefault();event.stopPropagation();return navigate(capPolicyKind==="STOCK"?"SCR-062":"SCR-063");}
+    if(action.dataset.v360Action==="fallback-exit"){event.preventDefault();event.stopPropagation();const target=action.dataset.v360Target;if(target)return navigate(target);}
   },true);
 
   // -----------------------------------------------------------------------
@@ -5679,10 +5530,7 @@ if(activeFlowId==="UIF-08") render();
   }
   window.__VET45_V360__={
     version:VERSION,
-    capState:()=>({capPolicyKind,capThreshold,capTarget,capStockSource,capNearExpiryDays,capNearExpiryAction,capNearExpirySource,capPolicyRevision,capLastResult}),
-    setCapReturn(flow="UIF-01",screen="SCR-001"){capReturnFlow=flow;capReturnScreen=screen;},
-    ensureRepresentativeFixture,
-    capExit
+    ensureRepresentativeFixture
   };
 
   // Final render after all effective renderers and global QA corrections exist.

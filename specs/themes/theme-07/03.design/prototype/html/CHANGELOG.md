@@ -1,5 +1,12 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.1.3] — T7-P Giai đoạn 1, gói A3: CAP-01 viết lại sạch
+
+- CAP-01 (SCR-062…065) chuyển hết sang `app/cap01.js`: trạng thái, helper, hàm dựng, listener input/change/click (pha capture), `capExit`, công cụ dev `__VET45_V360__.{capState,setCapReturn,capExit}`.
+- `ownedFlows` thêm `CAP-01`. Dữ liệu khung vào literal `core.js`: `FIGMA_MIGRATED_FLOWS`, `FIGMA_TEMPLATE_BY_FLOW_SCREEN`, `FLOW_GROUPS` (Supporting capability), `figmaMigrationLabel`; xoá lớp bọc `renderFlowInspector` của `v360`.
+- Gộp bước sửa sau dựng vào hàm dựng: `v440` grouped surface (`cap01InfoGroup`), `v361` dual footer (SCR-064), marker `data-v470` trên key-value (`cap01KeyValueRow`). Giữ: `fallback-exit`, `SCR-062/063` trong `v360RootScreens` (A11).
+- Golden thêm 6 kịch bản CAP-01 (`SC_cap01_*`, helper `pick`): 843 ca khớp hoàn toàn; 0 lỗi JS.
+
 ## [5.1.2] — T7-P Giai đoạn 1, gói A2: BJ-06 viết lại sạch
 
 - BJ-06 (UIF-06: SCR-030…035) chuyển hết sang `app/bj06.js`: fixture, chuẩn hoá semantic của `v394`, helper `io06*` (18 hàm lấy thân `v394`), hàm dựng, listener input/change/click (pha capture).

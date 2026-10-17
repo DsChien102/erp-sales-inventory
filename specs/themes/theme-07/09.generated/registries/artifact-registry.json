@@ -3222,8 +3222,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "591d60847e639a5ca7f02dffded436ef5eae272a78c7832136802e67c9587c7f",
-      "size": 8773
+      "sha256": "af6f6cb3b44b6c02a673938aee03d9e133a4f77a2b6787f0227c18d93ee11ad7",
+      "size": 9665
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3462,8 +3462,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "cc6635665f99655dbd684960e5bd4cb40388d40e938255d4950286aaa51233a0",
-      "size": 551
+      "sha256": "bd397a1667369c4f3b6f37a5c4dee9c2ff3eeaa4ce03eca832f90f1568a34555",
+      "size": 14139
     },
     {
       "path": "03.design/prototype/html/app/core.js",
@@ -3474,8 +3474,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "046470512936a27b94265560f520016375d48ddf2cb8f152dcb5cb51a1b0dfc9",
-      "size": 1067899
+      "sha256": "70bdeeeb9533de339313fc71b4e07a0cffb8aeb919cad3c717f272f2c8de09a4",
+      "size": 1054832
     },
     {
       "path": "03.design/prototype/html/app/hub.js",
@@ -3558,8 +3558,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "cc71c910c0509c9df0a53d82e07d5f459f4cc31af8045795e84f41cdcae9aa34",
-      "size": 1439
+      "sha256": "4a5eb2fb9d41b6f55ecc03129fd3af062fe6a41e85cca3213997930ee43a9151",
+      "size": 1472
     },
     {
       "path": "03.design/prototype/html/prototype.manifest.json",
@@ -3630,8 +3630,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "b2276a7ae5c06a9daa835c6376ec62fabaab630c3ba028f36f20950a766d3109",
-      "size": 20494
+      "sha256": "301c968295433ed2d345bd4aabfeca563e79ecd5a56c97c9c12a978595cfd11c",
+      "size": 22434
     },
     {
       "path": "03.design/prototype/html/tools/sync-registry.py",

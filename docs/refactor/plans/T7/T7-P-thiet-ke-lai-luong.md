@@ -118,7 +118,7 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 
 ### 4.2 Giai đoạn 1 — gói A11: dọn khung (sau khi mọi gói xong)
 
-1. Khi mọi luồng đã ở `ownedFlows`: xoá `renderFlowScreen` và mọi bước sửa sau dựng còn lại, `renderFlowInspector` (gộp phần CAP-01 của `v360`), các khối legacy đã rỗng, bảng toast `v360`, wrapper `navigate` còn sót; `renderAppScreen` chỉ còn: màn gốc theme → `ThemeApp`; còn lại → `renderers[...]` + `ThemeApp.afterFlowRender()`.
+1. Khi mọi luồng đã ở `ownedFlows`: xoá `renderFlowScreen` và mọi bước sửa sau dựng còn lại, `renderFlowInspector`, các khối legacy đã rỗng, bảng toast `v360`, wrapper `navigate` còn sót; `renderAppScreen` chỉ còn: màn gốc theme → `ThemeApp`; còn lại → `renderers[...]` + `ThemeApp.afterFlowRender()`.
 2. Helper dùng chéo (vd. `bj01Empty`) → `core.js` với tên DS (`ds24EmptyState`).
 3. CSS: mỗi BJ một khối trong `styles/screens.css` (gom luật `[data-active-uif="UIF-NN"]` / tiền tố BJ), xoá luật không dùng (script `tools/css-usage.mjs`, có trong [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) mục 3.7), bỏ `!important` khi không còn đối thủ; thành phần dùng chung trong `styles/components.css`.
 4. Xoá mã chết còn lại (bộ bấm thử đo độ phủ).
@@ -228,7 +228,7 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A1 | **BJ-04, BJ-05** | 021; 025–029 | `io04`, `io05` | `app.js`; `v350` (gán lại `io05ApplyHandover`, `io05VisibleOrders`; xác minh UNKNOWN); `v393` (SCR-029 UNKNOWN, gán lại `io05VisibleOrders`); `v396` (`render021IO04`); `v360` (toast "Đã cập nhật lô lấy hàng") | 0 | ✅ | Móc `onScreenEnter` (khoá `UIF-NN:SCR-NNN`) thay wrapper `navigate` — các gói sau dùng lại |
 | A2 | **BJ-06** | 030–035 | `io06` | `app.js`; `v350`; `v394` (SCR-032…035, bọc `renderFlowScreen` đổi tiêu đề SCR-031, gán lại 18 hàm `io06*`, listener `window` capture chặn trước listener chung); `legacy-cross-theme-copy` (SCR-031); `v360` (2 toast, đang chết) | 1 | ✅ | Móc `onPrevious` (theo luồng) thay nhánh trong `previousScreen` — các gói sau dùng lại |
 | A3 | **CAP-01** | 062–065 | `cap` | `v360` (toàn bộ CAP-01, phần CAP-01 của `renderFlowInspector`) | 0 | 0,5 | |
-| A4 | **BJ-02** | 006–013, 084 | `bj02` | `app.js`; `v350` (011, 012, 013); `v360` (`ensureBj02ReviewFixture`, toast); `v392` (cả 9 màn, gán lại 8 hàm); `v460` / `v461` (SCR-008); `v466`–`v468`; `v470` (tone "rủi ro"); `v471`; `legacy-sheet-cleanup`; `legacy-cross-theme-copy` (SCR-012); `hub.js` (`addPendingReviewExit` → vào hàm dựng SCR-010) | 4 | 2 | 58 trạng thái, demo chính |
+| A4 | **BJ-02** | 006–013, 084 | `bj02` | `app.js`; `v350` (011, 012, 013); `v360` (`ensureBj02ReviewFixture`, toast); `v392` (cả 9 màn, gán lại 11 hàm + bọc 2); `v460` / `v461` (SCR-008); `v466`–`v468`; `v470` (tone "rủi ro"); `v471`; `legacy-sheet-cleanup`; `legacy-cross-theme-copy` (SCR-012); `hub.js` (`addPendingReviewExit` — để lại `hub.js`, xem plan A4 mục 2.5) | 4 | 2 | 58 trạng thái, demo chính; cụm "nhập nhanh đời đầu" đang chết, xoá ở A4 |
 | A5 | **BJ-03, BJ-13, BJ-14** | 014–019; 085–089; 072–077 | `val03`, `val13`, `val14` | `app.js`; `v313`; `v430` (bọc `navigate`); `v460` / `v461` (bọc `navigate`, gán lại `val14CreateRun`); `v397`; `v398`; `v399`; `v350`; `v360` (3 fixture); `v431` | 10 | 3 | Helper chung → `app/shared-valuation.js` |
 | A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07*`); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | 036 / 037 / 041 dùng chung → dựng ở `bj07.js`, BJ-09 / 10 gọi lại; 056 dựng ở `bj09.js` (BJ-15 gọi lại) |
 | A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310*` / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này) |
@@ -457,8 +457,8 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | A0 | BJ-01 | — | ✅ 2026-10-16 (phiên review) | ✅ |
 | A1 | BJ-04, BJ-05 | ✅ [plan](T7-P-A1-bj04-bj05.md) | ✅ | ⬜ |
 | A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ⬜ |
-| A3 | CAP-01 | ⬜ | ⬜ | ⬜ |
-| A4 | BJ-02 | ⬜ | ⬜ | ⬜ |
+| A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ⬜ |
+| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ⬜ | ⬜ |
 | A5 | BJ-03, BJ-13, BJ-14 | ⬜ | ⬜ | ⬜ |
 | A6 | BJ-07, BJ-09, BJ-10 | ⬜ | ⬜ | ⬜ |
 | A7 | BJ-08 | ⬜ | ⬜ | ⬜ |

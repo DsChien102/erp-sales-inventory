@@ -87,6 +87,7 @@ const click = (sel, i = 0) => `(()=>{const el=document.querySelectorAll(${JSON.s
 const back = click('#app-screen .app-back-button');
 const search = (q) => `(()=>{const i=document.querySelector('[data-t462-inventory-search]');if(!i)return false;i.value=${JSON.stringify(q)};i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));return true})()`;
 const typeIn = (sel, value) => `(()=>{const i=document.querySelector(${JSON.stringify(sel)});if(!i)return false;i.value=${JSON.stringify(value)};i.dispatchEvent(new Event('input',{bubbles:true}));return true})()`;
+const pick = (sel, value) => `(()=>{const i=document.querySelector(${JSON.stringify(sel)});if(!i)return false;i.value=${JSON.stringify(value)};i.dispatchEvent(new Event('change',{bubbles:true}));return true})()`;
 const T = '?mode=theme&app=';
 const SCENARIOS = [
   { name: 'SC_more', url: T + 'more', steps: [['kho', click('[data-theme-app-route="inventory"]')], ['back', back]] },
@@ -129,6 +130,18 @@ const SCENARIOS = [
       { name: 'SC_bj06_cap_changed', url: U + 'SCR-031&state=RETURN_CAP_CHANGED', steps: [['refresh', click('[data-io06-action="refresh-return-request"]')]] },
       { name: 'SC_bj06_unknown', url: U + 'SCR-035&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
       { name: 'SC_bj06_approver_entry', url: '?uif=UIF-06&entry=approver', steps: [['case', click('[data-io06-approval-case]')]] },
+    ];
+  })(),
+  // CAP-01 Chính sách tồn & cận hạn — T7-P A3
+  ...(() => {
+    const C = '?uif=CAP-01&screen=';
+    return [
+      { name: 'SC_cap01_stock', url: C + 'SCR-062', steps: [['threshold-high', typeIn('[data-v360-cap-threshold]', '100')], ['review-invalid', click('[data-v360-action="cap-review-stock"]')], ['threshold-ok', typeIn('[data-v360-cap-threshold]', '40')], ['source', pick('[data-v360-cap-stock-source]', 'TENANT_DEFAULT')], ['review', click('[data-v360-action="cap-review-stock"]')], ['edit', click('[data-v360-action="cap-edit"]')], ['review-again', click('[data-v360-action="cap-review-stock"]')], ['save', click('[data-v360-action="cap-save"]')], ['exit', click('[data-v360-action="cap-exit"]')]] },
+      { name: 'SC_cap01_expiry', url: C + 'SCR-063', steps: [['days-zero', typeIn('[data-v360-cap-expiry-days]', '0')], ['review-invalid', click('[data-v360-action="cap-review-expiry"]')], ['days-ok', typeIn('[data-v360-cap-expiry-days]', '60')], ['action', pick('[data-v360-cap-expiry-action]', 'BLOCK_SALE')], ['review', click('[data-v360-action="cap-review-expiry"]')], ['back', back], ['review-again', click('[data-v360-action="cap-review-expiry"]')], ['save', click('[data-v360-action="cap-save"]')]] },
+      { name: 'SC_cap01_back', url: C + 'SCR-062', steps: [['back', back]] },
+      { name: 'SC_cap01_locked', url: C + 'SCR-062&state=LOCKED', steps: [['exit', click('[data-v360-action="cap-exit"]')]] },
+      { name: 'SC_cap01_review_invalid', url: C + 'SCR-064&state=VALIDATION_ERROR', steps: [['edit', click('[data-v360-action="cap-edit"]')]] },
+      { name: 'SC_cap01_unknown', url: C + 'SCR-065&state=UNKNOWN', steps: [['close', click('.app-actions [data-v360-action]')]] },
     ];
   })(),
 ];
