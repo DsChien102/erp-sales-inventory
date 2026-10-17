@@ -144,6 +144,26 @@ const SCENARIOS = [
       { name: 'SC_cap01_unknown', url: C + 'SCR-065&state=UNKNOWN', steps: [['close', click('.app-actions [data-v360-action]')]] },
     ];
   })(),
+  // BJ-02 Nhận hàng mua (UIF-02) — T7-P A4
+  ...(() => {
+    const R = '?uif=UIF-02&screen=';
+    const setEvidence = `(()=>{bj02Header.evidenceRefs=[{id:'EV-T1',name:'phieu-giao.jpg',type:'DELIVERY_DOCUMENT'}];bj02Header.evidence='phieu-giao.jpg';bj02Header.ownershipAssertion=null;renderAppScreen();return true})()`;
+    return [
+      { name: 'SC_bj02_choose', url: R + 'SCR-006', steps: [['document', click('[data-flow="document"]')], ['back', back], ['quick', click('[data-flow="quick"]')], ['back', back]] },
+      { name: 'SC_bj02_documents', url: R + 'SCR-007&flow=document', steps: [['search-empty', typeIn('[data-bj02-document-search]', 'zzz')], ['clear-search', typeIn('[data-bj02-document-search]', '')], ['open', click('[data-bj02-document-id]')], ['back', back]] },
+      { name: 'SC_bj02_line', url: R + 'SCR-007&flow=document', steps: [['doc', click('[data-bj02-document-id]')], ['line', click('[data-bj02-line-id]')], ['qty', click('[data-bj02-quantity-target]')], ['key1', click('[data-bj02-numeric-key="1"]')], ['key2', click('[data-bj02-numeric-key="2"]')], ['numeric-save', click('[data-bj02-action="numeric-save"]')], ['save-line', click('[data-bj02-action="save-line"]')], ['line2', click('[data-bj02-line-id]', 1)], ['not-received', click('[data-bj02-action="not-received"]')], ['confirm-not', click('[data-bj02-action="confirm-not-received"]')]] },
+      { name: 'SC_bj02_lot', url: R + 'SCR-007&flow=document', steps: [['doc', click('[data-bj02-document-id]')], ['line', click('[data-bj02-line-id]')], ['add-lot', click('[data-bj02-action="add-editor-lot"]')], ['lot-code', typeIn('[data-bj02-lot-field="code"]', 'DH2601')], ['precision', pick('[data-v392-lot-precision="expiryPrecision"]', 'MONTH')], ['show-mfg', click('[data-bj02-action="show-manufacture-date"]')], ['toggle-lot', click('[data-bj02-action="toggle-lot"]')], ['back', back]] },
+      { name: 'SC_bj02_quick', url: R + 'SCR-008&flow=quick', steps: [['open-supplier', click('[data-bj02-open-supplier-sheet]')], ['backdrop', click('[data-bj02-supplier-backdrop]')], ['open-again', click('[data-bj02-open-supplier-sheet]')], ['pick-supplier', click('[data-bj02-supplier-option]')], ['evidence', setEvidence], ['continue', click('[data-v392-quick-continue]')], ['back', back], ['open-supplier2', click('[data-bj02-open-supplier-sheet]')], ['pick-other', click('[data-bj02-supplier-option]', 1)]] },
+      { name: 'SC_bj02_review', url: R + 'SCR-010', steps: [['detail', click('[data-bj02-review-line]')], ['close', click('[data-bj02-review-close]')], ['change-src', click('[data-v392-change-source]')], ['cancel-src', click('[data-v392-cancel-source-change]')], ['change-again', click('[data-v392-change-source]')], ['confirm-src', click('[data-v392-confirm-source-change]')]] },
+      { name: 'SC_bj02_submit', url: R + 'SCR-010', steps: [['submit', click('[data-action="submit"]')]] },
+      { name: 'SC_bj02_approve', url: R + 'SCR-011', steps: [['open-ev', click('[data-v392-open-evidence]')], ['preview', click('[data-v392-preview-file]')], ['close-ev', click('[data-v392-close-evidence]')], ['open-reject', click('[data-action="open-reject"]')], ['close-reject', click('[data-action="close-reject"]')], ['open-reject2', click('[data-action="open-reject"]')], ['reason', typeIn('[data-reject-reason]', 'Sai số lượng')], ['confirm-reject', click('[data-action="confirm-reject"]')]] },
+      { name: 'SC_bj02_approve_ok', url: R + 'SCR-011', steps: [['approve', click('[data-action="approve"]')]] },
+      { name: 'SC_bj02_result', url: R + 'SCR-012&state=COMPLETED', steps: [['exit', click('[data-action="exit-flow"]')]] },
+      { name: 'SC_bj02_unknown', url: R + 'SCR-012&state=UNKNOWN', steps: [['verify', click('[data-v350-action="bj02-verify-unknown"]')], ['handoff', click('[data-v350-action="bj02-handoff-unknown"]')]] },
+      { name: 'SC_bj02_recon_back', url: R + 'SCR-013&state=TERMINAL', steps: [['back', back]] },
+      { name: 'SC_bj02_pending', url: R + 'SCR-010&state=PENDING_APPROVAL', steps: [] },
+    ];
+  })(),
 ];
 for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 const todo = groups.filter((g) => g.cases.length);

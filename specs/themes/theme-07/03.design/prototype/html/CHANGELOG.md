@@ -1,5 +1,13 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.1.4] — T7-P Giai đoạn 1, gói A4: BJ-02 viết lại sạch
+
+- BJ-02 (UIF-02: SCR-006…013, SCR-084) chuyển hết sang `app/bj02.js`: fixture, `BJ02_CONTEXT`, helper, hàm dựng, listener click/focus/change/input (pha capture + `data-action` bubble), `onPrevious["UIF-02"]`.
+- `ownedFlows` thêm `UIF-02`. Gộp bước sửa sau dựng vào hàm dựng: `v440` grouped surface (SCR-010), `v361` dual footer nguy hiểm (SCR-011), `v470` tone "rủi ro" / dấu trừ (`bj02KeyValueRow`), badge SCR-012 `resultMode`, `ensureBj02ReviewFixture` ở đầu 084/010/011/012.
+- Gỡ khỏi `core.js`: mã chết nhập nhanh đời đầu; cả khối `v392`, `v466`–`v468`, `v471`; phần BJ-02 của `v350` / `v360` / `v460` / `v461` / `legacy-sheet-cleanup` / `legacy-cross-theme-copy`; listener `data-bj02-*` / `data-flow` / `data-v392-*`. Giữ: `bj02-verify-unknown` / `bj02-handoff-unknown` (A10), `addPendingReviewExit` (hub), `flowMode` / `entryMode` UIF-02, `SCR-011/012/013` trong `v360ExitTargets`.
+- Sửa lỗi sẵn: `updateBj02EditorLiveFeedback` dùng biến `saveButton` chưa khai báo → lấy nút `[data-bj02-action="save-line"]` từ DOM (kịch bản nhập lô).
+- Golden thêm 13 kịch bản BJ-02 (`SC_bj02_*`): khớp hoàn toàn với bộ UIF-02; 0 lỗi JS.
+
 ## [5.1.3] — T7-P Giai đoạn 1, gói A3: CAP-01 viết lại sạch
 
 - CAP-01 (SCR-062…065) chuyển hết sang `app/cap01.js`: trạng thái, helper, hàm dựng, listener input/change/click (pha capture), `capExit`, công cụ dev `__VET45_V360__.{capState,setCapReturn,capExit}`.

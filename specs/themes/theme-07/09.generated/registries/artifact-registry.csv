@@ -266,11 +266,11 @@ UIF-17,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-17-BJ-17.md,2a05ae42
 PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,7ef3761968eb3cc1f0252ebaa11b30e167cc3d2e259a5b826ff5cea3be43129c,9106,theme-07,Navigation areas,v3.10.1
 PAT-UI-UX,design-pattern,BA,FROZEN,03.design/patterns/PAT-UI-UX.md,15470417f13b098d2bd06712614af5a5d6dcf2a0e4b721d56e7d542e558970e1,8072,theme-07,UI/UX policy & patterns,v3.13.0
 PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,d26a5595daf0446c3137df583b45adbc82e1ec71015f8543f9044db60b1236bf,13668,theme-07,Theme 07 mobile prototype mapping,v4.6.6
-,,,,03.design/prototype/html/CHANGELOG.md,af6f6cb3b44b6c02a673938aee03d9e133a4f77a2b6787f0227c18d93ee11ad7,9665,,,
+,,,,03.design/prototype/html/CHANGELOG.md,9c62aac0a44a54c53254f877ef198b46fd6d9877cfa7fa33ab778d2b79b1006e,10969,,,
 ,,,,03.design/prototype/html/DS-CONFORMANCE.md,4ff31e594e50f993667e179b699c1b0fe166eabc65c6f95c1ebca19e0312e3bd,10470,,,
 ,,,,03.design/prototype/html/README.md,ad169eebc3e983e79b5a24d26dac450271e8b577b93e2f3e95b8a6a16b8ed314,3237,,,
 ,,,,03.design/prototype/html/app/bj01.js,e431f319e90d14b14d23f0e700bc1e6185cd58674e413a2a679115eb00b25525,18504,,,
-,,,,03.design/prototype/html/app/bj02.js,b5bf71b9d560e433f8e25e387663535645c654919f66cc8454da9aed27836729,740,,,
+,,,,03.design/prototype/html/app/bj02.js,f7bff97e859905be4f562262d9df760410e69c08efd20a464db8c54e140bca86,121906,,,
 ,,,,03.design/prototype/html/app/bj03.js,f25366078141fca694b2f0e93ae05b38b3cbbe3fbf5433c028e1d59cae4bd89a,737,,,
 ,,,,03.design/prototype/html/app/bj04.js,fa3125ae5e43f69ff79195da14692d43c0663a31a475c7d169ddf68b490a60a3,5854,,,
 ,,,,03.design/prototype/html/app/bj05.js,2e4f06a1c55337280b3929191f8854093cd2869bb1e983704dbfe6f77e43e33e,43244,,,
@@ -287,20 +287,20 @@ PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,d26a5595daf
 ,,,,03.design/prototype/html/app/bj16.js,35f3ebf1fe590e9b064f5a26613d0bdf5a88f69a6539ac4cfbbc9fddafd1c44f,693,,,
 ,,,,03.design/prototype/html/app/bj17.js,3429b0d73899809c71088dc615230e6238f9b320573c90be012d44a14f2c60d6,697,,,
 ,,,,03.design/prototype/html/app/cap01.js,bd397a1667369c4f3b6f37a5c4dee9c2ff3eeaa4ce03eca832f90f1568a34555,14139,,,
-,,,,03.design/prototype/html/app/core.js,70bdeeeb9533de339313fc71b4e07a0cffb8aeb919cad3c717f272f2c8de09a4,1054832,,,
+,,,,03.design/prototype/html/app/core.js,ce184d7a133010540ca2d4dc4346c72244433fe6c86b16c4c624eb281cf81e9a,879252,,,
 ,,,,03.design/prototype/html/app/hub.js,27c66eabe5029b2aa704c8acf2d5925bfc401b2eb86ec109e33de2a841ffa47f,29631,,,
 ,,,,03.design/prototype/html/data/workbench-data.js,a98d8408579e025c18c2751af4e3052374d1167170c51d4eea2cd08774316683,216604,,,
 ,,,,03.design/prototype/html/data/workbench-data.json,1f34c23032f5c24191c29fba4131ada449efbfe5c746128966d9e5cbfa70175a,216575,,,
 ,,,,03.design/prototype/html/harness/workbench.css,0e7e8e2d49ea7a4a9cbb0dd712a5c706012211d4512415e73ef820cc9ca2436e,191,,,
 ,,,,03.design/prototype/html/harness/workbench.js,a59f1fbe07f91a27448c5fa5d5bfb04b0b220752778eff09451e6e12d9b5e491,231,,,
 ,,,,03.design/prototype/html/index.html,a310e3fd4cf33168ed51a7fcf1b28177b104d68df1b85a730cc434a63d006692,6121,,,
-,,,,03.design/prototype/html/manifest.json,4a5eb2fb9d41b6f55ecc03129fd3af062fe6a41e85cca3213997930ee43a9151,1472,,,
+,,,,03.design/prototype/html/manifest.json,6cb66ac80c90eb94eeaba24bd397027f4280d140c66f039cd3f4c9d47031331b,1440,,,
 ,,,,03.design/prototype/html/prototype.manifest.json,84e287af0ed09bfbdfaf524d39a6ee6729d343e7804208089e36d13b176af855,10908,,,
 ,,,,03.design/prototype/html/styles/components.css,62dcff9d132017e8114e2bf9f9d146736440f465a90894829c01f259a2e2103b,244115,,,
 ,,,,03.design/prototype/html/styles/screens.css,e76f4e01bc496710a3f0955597fa96a254ae5ad1c28c52440e9a12951b8d4bb3,397951,,,
 ,,,,03.design/prototype/html/styles/tokens.css,ddac51d4aecdaa7c96101ee4a2400cdcce731d94b2566ac2985e199b619de437,5895,,,
 ,,,,03.design/prototype/html/tools/.gitignore,800b6a09b08d3e11aee1ced18b0eeb9b31fd1785d8a6aaff756b67fbbf8ad55f,10,,,
-,,,,03.design/prototype/html/tools/golden.mjs,301c968295433ed2d345bd4aabfeca563e79ecd5a56c97c9c12a978595cfd11c,22434,,,
+,,,,03.design/prototype/html/tools/golden.mjs,ecb9316398468fc37a94c5441f98055b3247309f9d1e931b992d3d2907e707b4,26470,,,
 ,,,,03.design/prototype/html/tools/sync-registry.py,a35b25d9cdfc9c3c7c40ba6f6a8a6f0ae6a87a8811597545285d033780c59c94,2751,,,
 SCR-001,screen-contract,BA,FROZEN,03.design/screens/SCR-001.md,ac40f6262e5ff966f9b09c58e2c7f55135a32da1402e10a4b75090d54fbca8e8,6514,theme-07,Tồn kho,v3.10.1
 SCR-002,screen-contract,BA,FROZEN,03.design/screens/SCR-002.md,4a68989e285c76375b2aac62f3df60491d949917c1eb07ade6da715e653ebc98,2241,theme-07,Kết quả khả dụng — MERGED,v3.10.1

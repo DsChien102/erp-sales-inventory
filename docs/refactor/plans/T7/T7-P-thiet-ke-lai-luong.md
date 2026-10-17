@@ -458,7 +458,7 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | A1 | BJ-04, BJ-05 | ✅ [plan](T7-P-A1-bj04-bj05.md) | ✅ | ⬜ |
 | A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ⬜ |
 | A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ⬜ |
-| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ⬜ | ⬜ |
+| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ⬜ |
 | A5 | BJ-03, BJ-13, BJ-14 | ⬜ | ⬜ | ⬜ |
 | A6 | BJ-07, BJ-09, BJ-10 | ⬜ | ⬜ | ⬜ |
 | A7 | BJ-08 | ⬜ | ⬜ | ⬜ |
