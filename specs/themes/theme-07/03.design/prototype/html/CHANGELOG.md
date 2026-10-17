@@ -1,5 +1,22 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.1.6] — T7-P Giai đoạn 1, gói A6: BJ-07, BJ-09, BJ-10 viết lại sạch
+
+- BJ-07 (UIF-07: SCR-036/037/039/041), BJ-09 (UIF-09: SCR-036/037/038/041/056), BJ-10 (UIF-10: SCR-036/037/040/041) chuyển sang `app/bj07.js`, `bj09.js`, `bj10.js`.
+- Móc khung `flowRenderers` / `rendererFor` / `flowScreen`: màn dùng chung (036/037/041; 056) dựng theo luồng. `ownedFlows` thêm `UIF-07`, `UIF-09`, `UIF-10`.
+- Gỡ khỏi `core.js`: khối `v395` / `v3101`; phần BJ-07/09/10 của `app.js` / `v350` / `v360` / `legacy-cross-theme-copy`; listener `io07` / `ic09` / `ic10` chết. Giữ: chuỗi SCR-056 BJ-15 (`v310`/`v320`/`v351`), `v350LockSourceForUnknown` UIF-07, `v350EntryTargets` / `v360RootScreens` / `v360ExitTargets`, `FIGMA_TEMPLATE_*`, `entryMode` return-task.
+- Gộp sau dựng vào hàm dựng: `v360` fallback "Về danh sách" (038/040 không nút); `v350UnknownResult` cho SCR-041 UNKNOWN của BJ-10. SCR-056 BJ-09 không có `movement` tạm gọi chuỗi BJ-15 (A9 thay).
+- Golden thêm 10 kịch bản `SC_bj07_*` / `SC_bj09_*` / `SC_bj10_*` (ca UIF-07/09/10 + UIF-15_SCR-056 + attention khớp hoàn toàn; 0 lỗi JS). Selector chỉnh: `SC_bj09_approve` seed `buildBasis()` vì `entry=approver` không có căn cứ sẵn.
+
+## [5.1.5] — T7-P Giai đoạn 1, gói A5: cụm giá trị BJ-03 / 13 / 14 viết lại sạch
+
+- BJ-03 (UIF-03: SCR-014/015/017/019), BJ-13 (UIF-13: SCR-085/086/089), BJ-14 (UIF-14: SCR-072/074/077) chuyển sang `app/bj03.js`, `bj13.js`, `bj14.js`; helper chung → `app/shared-valuation.js`.
+- `ownedFlows` thêm `UIF-03`, `UIF-13`, `UIF-14`. Móc khung `screenAliases` trong `navigate` (đường cũ SCR-016/018/087/088/073/075/076); deep link giữ màn retired để alias chạy trước `hub.js` render.
+- Hàm thắng: SCR-014/085 từ `v430`; còn lại từ `v461`. Giữ chuẩn hoá fixture / helper sống của `v397`–`v399` + `v313EntryType`. Expose `window.val13V398` / `__VET45_V399__` cho chỗ gọi còn lại.
+- Gỡ khỏi `core.js`: khối `v313` / `v397`–`v399` / `v430` / `v431` / `v460` / `v461` (phần giá trị); listener `data-val*` chết. Giữ: `v350EntryTargets` UIF-14 dirty-scope, `v360RootScreens` / `v360ExitTargets`, `FIGMA_TEMPLATE_*`, `entryMode` receipt-task / source-task.
+- Đo pipe vs bare trước `ownedFlows`: không khác (không cần gộp thêm `v440`/`v360`/`v470`). Dirty-scope: set `mode14=DIRTY_SETUP` lúc nạp trong `bj14.js`; `v350ApplyEntry` guard `typeof val14Runs`.
+- Golden thêm 9 kịch bản `SC_bj03_*` / `SC_bj13_*` / `SC_bj14_*` (960 ca khớp hoàn toàn; 0 lỗi JS). Selector chỉnh: basis đủ currency/source/reason + ngày `dd/mm/yyyy`; BJ-13 bỏ pick method thứ hai (fixture chỉ 1 cách); retired SCR-018→UIF-13 SCR-085, SCR-088→SCR-086.
+
 ## [5.1.4] — T7-P Giai đoạn 1, gói A4: BJ-02 viết lại sạch
 
 - BJ-02 (UIF-02: SCR-006…013, SCR-084) chuyển hết sang `app/bj02.js`: fixture, `BJ02_CONTEXT`, helper, hàm dựng, listener click/focus/change/input (pha capture + `data-action` bubble), `onPrevious["UIF-02"]`.

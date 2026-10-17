@@ -164,6 +164,39 @@ const SCENARIOS = [
       { name: 'SC_bj02_pending', url: R + 'SCR-010&state=PENDING_APPROVAL', steps: [] },
     ];
   })(),
+  // Cụm giá trị BJ-03 / 13 / 14 — T7-P A5
+  ...(() => {
+    const V3 = '?uif=UIF-03&screen=';
+    const V13 = '?uif=UIF-13&screen=';
+    const V14 = '?uif=UIF-14&screen=';
+    return [
+      { name: 'SC_bj03_list', url: V3 + 'SCR-014', steps: [['filter-ready', click('[data-v430-val03-filter="READY"]')], ['filter-issue', click('[data-v430-val03-filter="ISSUE"]')], ['filter-all', click('[data-v430-val03-filter="ALL"]')], ['search', typeIn('[data-v430-val03-search]', 'Minh')], ['clear-search', typeIn('[data-v430-val03-search]', '')], ['receipt', click('[data-v430-val03-receipt="VAL03-R1"]')]] },
+      { name: 'SC_bj03_basis', url: V3 + 'SCR-014', steps: [['receipt', click('[data-v430-val03-receipt="VAL03-R2"]')], ['add-basis', click('[data-v461-val03-add-basis="VAL03-G3"]')], ['currency', pick('[data-v461-basis-currency]', 'VND')], ['price', typeIn('[data-v461-basis-price]', '120000')], ['tax-mode', click('[data-v461-tax-mode="INCLUDED"]')], ['source', typeIn('[data-v461-basis-source]', 'Báo giá NCC')], ['date', typeIn('[data-v461-basis-date]', '01/09/2026')], ['ref', typeIn('[data-v461-basis-ref]', 'HD-TEST-01')], ['reason', typeIn('[data-v461-basis-reason]', 'Nhập nhanh thiếu căn cứ')], ['save-sheet', click('[data-v461-val03-sheet="save"]')], ['select', click('[data-v461-val03-select="VAL03-G3"]')], ['review', click('[data-v461-val03-review]')], ['back', click('[data-v461-val03-back]')]] },
+      { name: 'SC_bj03_confirm', url: V3 + 'SCR-017', steps: [['confirm', click('[data-v461-val03-confirm]')], ['to-list', click('[data-v461-val03-result-list]')]] },
+      { name: 'SC_bj13_flow', url: V13 + 'SCR-085', steps: [['filter-actionable', click('[data-v430-val13-filter="ACTIONABLE"]')], ['filter-all', click('[data-v430-val13-filter="ALL"]')], ['task', click('[data-v430-val13-task="LC13-001"]')], ['open-confirm', click('[data-v461-val13-open-confirm]')], ['confirm-close', click('[data-v461-val13-confirm-close]')], ['open-again', click('[data-v461-val13-open-confirm]')], ['confirm', click('[data-v461-val13-confirm]')], ['to-list', click('[data-v461-val13-list]')]] },
+      { name: 'SC_bj14_flow', url: V14 + 'SCR-072', steps: [['run', click('[data-v461-val14-run="COST-0826"]')], ['compare', click('[data-v461-compare] summary')], ['open-publish', click('[data-v461-val14-open-publish]')], ['publish-close', click('[data-v461-val14-publish-close]')], ['open-again', click('[data-v461-val14-open-publish]')], ['publish', click('[data-v461-val14-publish]')], ['to-list', click('[data-v461-val14-list]')]] },
+      { name: 'SC_bj14_period', url: V14 + 'SCR-072', steps: [['close-period', click('[data-v461-val14-close-period]')], ['period', pick('[data-v461-val14-period]', '09/2026')], ['calculate', click('[data-v461-val14-calculate]')]] },
+      { name: 'SC_bj14_dirty', url: '?uif=UIF-14&entry=dirty-scope', steps: [['calculate', click('[data-v461-val14-calculate]')]] },
+      { name: 'SC_bj03_retired', url: '?uif=UIF-03&screen=SCR-018', steps: [] },
+      { name: 'SC_bj13_retired', url: '?uif=UIF-13&screen=SCR-088', steps: [] },
+    ];
+  })(),
+  // BJ-07 / 09 / 10 — T7-P A6
+  ...(() => {
+    const seed09Approver = `(()=>{window.__VET45_V3101__?.buildBasis?.();stateByScreen['SCR-038']='APPROVAL_REVIEW';renderAppScreen();return true})()`;
+    return [
+      { name: 'SC_bj07_list', url: '?uif=UIF-07&screen=SCR-036', steps: [['filter-actionable', click('[data-io07-filter="ACTIONABLE"]')], ['filter-waiting', click('[data-io07-filter="WAITING"]')], ['filter-all', click('[data-io07-filter="ALL"]')], ['search', typeIn('[data-io07-search]', 'Minh')], ['clear-search', typeIn('[data-io07-search]', '')], ['request', click('[data-io07-request="RTV-260827-02"]')]] },
+      { name: 'SC_bj07_verify', url: '?uif=UIF-07&screen=SCR-036', steps: [['request', click('[data-io07-request="RTV-260827-02"]')], ['alloc1', click('[data-io07-allocation="RTV-A1"]')], ['scan', typeIn('[data-io07-scan-lot]', 'DH2507')], ['confirm1', click('[data-io07-action="confirm-allocation"]')], ['alloc2', click('[data-io07-allocation="RTV-A2"]')], ['mismatch', click('[data-io07-action="mark-mismatch"]')], ['select-mismatch', click('[data-io07-action="select-mismatch"]')], ['close-mismatch', click('[data-io07-action="close-mismatch"]')]] },
+      { name: 'SC_bj07_handover', url: '?uif=UIF-07&screen=SCR-037', steps: [['review', click('[data-io07-action="review-handover"]')], ['back-prep', click('[data-io07-action="back-to-preparation"]')], ['review2', click('[data-io07-action="review-handover"]')], ['confirm', click('[data-io07-action="confirm-handover"]')], ['to-queue', click('[data-io07-action="result-to-rtv-queue"]')]] },
+      { name: 'SC_bj07_source_changed', url: '?uif=UIF-07&screen=SCR-039&state=SOURCE_CHANGED', steps: [['back-prep', click('[data-io07-action="back-to-preparation"]')]] },
+      { name: 'SC_bj09_flow', url: '?uif=UIF-09&screen=SCR-036', steps: [['filter-sellable', click('[data-ic09-filter="SELLABLE"]')], ['filter-all', click('[data-ic09-filter="ALL"]')], ['search', typeIn('[data-ic09-search]', 'Amox')], ['clear-search', typeIn('[data-ic09-search]', '')], ['item', click('[data-ic09-item="amox"]')], ['change', click('[data-ic09-action="change"]')], ['dest', click('[data-v3101-destination][value="QUARANTINE"]')], ['qty', typeIn('[data-v3101-qty]', '1')], ['reason', typeIn('[data-v3101-reason]', 'Bao bì móp')], ['submit', click('[data-v3101-action="submit"]')]] },
+      { name: 'SC_bj09_approve', url: '?uif=UIF-09&entry=approver', steps: [['seed', seed09Approver], ['open-reject', click('[data-v3101-action="reject-open"]')], ['reason', typeIn('[data-v3101-reject-reason]', 'Thiếu bằng chứng')], ['close-reject', click('[data-v3101-action="reject-close"]')], ['approve', click('[data-v3101-action="approve"]')]] },
+      { name: 'SC_bj09_movement', url: '?uif=UIF-09&screen=SCR-056', steps: [] },
+      { name: 'SC_bj10_flow', url: '?uif=UIF-10&screen=SCR-036', steps: [['item', click('[data-ic10-item="amox-l2407"]')], ['request', click('[data-ic10-action="request"]')], ['qty', typeIn('[data-v350-ic10-qty]', '6')], ['reason', typeIn('[data-v350-ic10-reason]', 'Hàng không còn đủ điều kiện')], ['evidence', typeIn('[data-v350-ic10-evidence]', 'Ảnh hiện trạng')], ['submit', click('[data-v350-action="ic10-submit"]')]] },
+      { name: 'SC_bj10_approve', url: '?uif=UIF-10&entry=approver', steps: [['approve', click('[data-v350-action="ic10-approve"]')]] },
+      { name: 'SC_bj10_complete', url: '?uif=UIF-10&entry=completion-operator', steps: [['actual', typeIn('[data-v350-ic10-actual]', '6')], ['proof', typeIn('[data-v350-ic10-proof]', 'bien-ban.jpg')], ['complete', click('[data-v350-action="ic10-complete"]')]] },
+    ];
+  })(),
 ];
 for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 const todo = groups.filter((g) => g.cases.length);

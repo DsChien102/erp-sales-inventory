@@ -100,7 +100,7 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 
 1. **Kịch bản golden trước:** thêm kịch bản thao tác của các BJ trong gói (lọc, mở chi tiết, sheet, gửi, duyệt, quay lại, vào từ Hub) vào `tools/golden.mjs`; chụp `.golden-base` **trước khi** đụng code; chụp hai lần phải khớp.
 2. **Bản đồ:** liệt kê màn của gói và các lớp đang định nghĩa / bọc / sửa chúng (bảng mục 8.1 là điểm bắt đầu; đầu mỗi `app/bjNN.js` đã ghi lớp định nghĩa màn).
-3. **Chuyển sang `app/bjNN.js`:** fixture, biến trạng thái, hàm dựng **cuối cùng** của từng màn, helper riêng, xử lý sự kiện (click / input / change / keydown / focusin) đang nằm trong `core.js`. Helper dùng chung giữa nhiều BJ → `app/shared-<cụm>.js` (vd. `shared-valuation.js`, `shared-control.js`), nạp trước các `bjNN.js` của cụm.
+3. **Chuyển sang `app/bjNN.js`:** fixture, biến trạng thái, hàm dựng **cuối cùng** của từng màn, helper riêng, xử lý sự kiện (click / input / change / keydown / focusin) đang nằm trong `core.js`. Helper dùng chung giữa nhiều BJ → `app/shared-<cụm>.js` (vd. `shared-valuation.js`, `shared-control.js`), nạp trước các `bjNN.js` của cụm. Đường cũ / màn retired: đăng ký `screenAliases` (móc trong `navigate` gốc, A5) thay wrapper `navigate` từng lớp.
 4. **Màn bị định nghĩa nhiều lần:** lấy bản thắng (bản gán sau cùng), gộp các `.replace()` / phần bọc của wrapper vào chuỗi gốc, xoá bản bị đè. Hàm toàn cục bị gán lại (vd. `io05ApplyHandover = function…`) → giữ **một** định nghĩa: bản cuối.
 5. **Bước sửa sau dựng:** đo HTML "trần" (gọi thẳng `renderers[...]`) với HTML qua chuỗi legacy cho mọi trạng thái; khác ở đâu thì gộp vào hàm dựng. Các bước dùng chung hay gặp: `ensureRepresentativeFixture` / `ensureStableExitAffordance` (`v360`), `normalizeDualFooters` (`v361`), `cleanupDismissibleSheets`, `polishCrossThemeCopy`, `applyGroupedSurfaceRule` (`v440`), tone / badge của `v470`, `v471`.
 6. **Wrapper `navigate` / toast:** nhánh của BJ trong wrapper `navigate` (`v350`, `v430`, `v460`, `v461`) và dòng của BJ trong bảng toast của `v360` → chuyển vào xử lý sự kiện của BJ (gọi `showToast` ngay sau `render()`, không hẹn giờ).
@@ -230,10 +230,10 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A3 | **CAP-01** | 062–065 | `cap` | `v360` (toàn bộ CAP-01, phần CAP-01 của `renderFlowInspector`) | 0 | 0,5 | |
 | A4 | **BJ-02** | 006–013, 084 | `bj02` | `app.js`; `v350` (011, 012, 013); `v360` (`ensureBj02ReviewFixture`, toast); `v392` (cả 9 màn, gán lại 11 hàm + bọc 2); `v460` / `v461` (SCR-008); `v466`–`v468`; `v470` (tone "rủi ro"); `v471`; `legacy-sheet-cleanup`; `legacy-cross-theme-copy` (SCR-012); `hub.js` (`addPendingReviewExit` — để lại `hub.js`, xem plan A4 mục 2.5) | 4 | 2 | 58 trạng thái, demo chính; cụm "nhập nhanh đời đầu" đang chết, xoá ở A4 |
 | A5 | **BJ-03, BJ-13, BJ-14** | 014–019; 085–089; 072–077 | `val03`, `val13`, `val14` | `app.js`; `v313`; `v430` (bọc `navigate`); `v460` / `v461` (bọc `navigate`, gán lại `val14CreateRun`); `v397`; `v398`; `v399`; `v350`; `v360` (3 fixture); `v431` | 10 | 3 | Helper chung → `app/shared-valuation.js` |
-| A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07*`); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | 036 / 037 / 041 dùng chung → dựng ở `bj07.js`, BJ-09 / 10 gọi lại; 056 dựng ở `bj09.js` (BJ-15 gọi lại) |
-| A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310*` / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này) |
+| A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07*`); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | Màn dùng chung (036 / 037 / 041; 056 với BJ-15) dựng **theo luồng** qua móc `flowRenderers` (plan A6, khác hướng ban đầu "dựng ở `bj07.js`"); 056 của BJ-09 tạm rơi về chuỗi BJ-15 tới A9 |
+| A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310*` / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này); bỏ mọi `render()` lúc nạp trong `core.js` (plan A7 mục 4.1) |
 | A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2 | Dùng `shared-control.js` |
-| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320`; `v350` (gán lại `cf15InventoryResult`, `cf15StockCardResult`); `v351`; `legacy-sheet-cleanup` | 4 | 1,5 | |
+| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320`; `v350` (gán lại `cf15InventoryResult`, `cf15StockCardResult`); `v351`; `legacy-sheet-cleanup` | 4 | 1,5 | Thay nhánh SCR-056 không có `movement` trong `bj09.js` (hiện gọi chuỗi `renderers["SCR-056"]`) |
 | A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310`; `v350`; `legacy-cross-theme-copy` (UIF-17) | 9 | 2 | Một bộ màn, hai luồng → dựng ở `bj16.js`, `bj17.js` gọi lại |
 | A11 | **Dọn khung** | — | — | mục 4.2 | — | 2 | Sau A1–A10 |
 | | **Cộng** | | | | | **~20** | |
@@ -459,9 +459,9 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ⬜ |
 | A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ⬜ |
 | A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ⬜ |
-| A5 | BJ-03, BJ-13, BJ-14 | ⬜ | ⬜ | ⬜ |
-| A6 | BJ-07, BJ-09, BJ-10 | ⬜ | ⬜ | ⬜ |
-| A7 | BJ-08 | ⬜ | ⬜ | ⬜ |
+| A5 | BJ-03, BJ-13, BJ-14 | ✅ [plan](T7-P-A5-gia-tri.md) | ✅ | ⬜ |
+| A6 | BJ-07, BJ-09, BJ-10 | ✅ [plan](T7-P-A6-bj07-bj09-bj10.md) | ✅ | ⬜ |
+| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ⬜ | ⬜ |
 | A8 | BJ-11, BJ-12 | ⬜ | ⬜ | ⬜ |
 | A9 | BJ-15 | ⬜ | ⬜ | ⬜ |
 | A10 | BJ-16, BJ-17 | ⬜ | ⬜ | ⬜ |
