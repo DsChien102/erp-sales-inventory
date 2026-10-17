@@ -14,9 +14,8 @@ Generated from the actual v4.6.8 package tree. User-pruned files are not restore
 
 - `03.design/screens/SCR-010.md`
 - `03.design/flows/UIF-02-BJ-02.md`
-- `03.design/prototype/html/workbench-data.json`
+- `03.design/prototype/html/data/workbench-data.json`
 - `09.generated/registries/design/runtime-state-registry-v4.6.8.json`
-- `03.design/prototype/html/qa/BJ02-DESIGN-STATE-CLEANUP-QA-v4.6.8.json`
 - `06.evidence/EVD-BJ02-DESIGN-STATE-CLEANUP-v4.6.8.md`
 
 ## Actual tree summary
