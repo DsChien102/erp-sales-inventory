@@ -115,6 +115,9 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 - Toast hẹn giờ 30 ms của `v360` chạy từ pha capture; khi chuyển vào handler của BJ phải gọi ngay sau `render()`.
 - Helper của BJ được BJ khác gọi (vd. `bj01Empty` dùng ở BJ-08): giữ tên, ghi chú ở đầu file; gom về `core.js` ở gói A11.
 - Lần render đầu chạy trước khi `bjNN.js` nạp: không sao, `hub.js` gọi `render()` sau cùng.
+- **Không gọi `render()` / `renderAppScreen()` lúc nạp trong `core.js`** (A7): helper chuyển sang file nạp sau (`shared-control.js`…) sẽ `ReferenceError` ở cấp cao nhất và dừng nạp `core.js` giữa chừng — hỏng mọi luồng, không chỉ BJ đang tách.
+- **Chú thích `load-time render removed` phải đúng là lúc nạp** (A8): hàm chạy lúc bấm (`crSwitchFlow`, hẹn giờ duyệt) **giữ** `render()` — A7 xoá nhầm hai chỗ đó.
+- **Kiểm listener của BJ còn đủ trước khi tách** (A5/A8): A5 làm mất khối Correction & Recovery (UIF-11/16/17); A8 chặng 0 đặt lại vào `core.js` (phần UIF-16/17 chờ A10 chuyển).
 
 ### 4.2 Giai đoạn 1 — gói A11: dọn khung (sau khi mọi gói xong)
 
@@ -232,9 +235,9 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A5 | **BJ-03, BJ-13, BJ-14** | 014–019; 085–089; 072–077 | `val03`, `val13`, `val14` | `app.js`; `v313`; `v430` (bọc `navigate`); `v460` / `v461` (bọc `navigate`, gán lại `val14CreateRun`); `v397`; `v398`; `v399`; `v350`; `v360` (3 fixture); `v431` | 10 | 3 | Helper chung → `app/shared-valuation.js` |
 | A6 | **BJ-07, BJ-09, BJ-10** | 036, 037, 039, 041; 038, 056; 040 | `io07`, `ic09`, `ic10` | `app.js`; `v310`; `v350`; `v395` (gán lại 8 hàm `io07*`); `v3101`; `v351` (056); `v360` (041, toast); `legacy-cross-theme-copy` (038) | 12 | 3 | Màn dùng chung (036 / 037 / 041; 056 với BJ-15) dựng **theo luồng** qua móc `flowRenderers` (plan A6, khác hướng ban đầu "dựng ở `bj07.js`"); 056 của BJ-09 tạm rơi về chuỗi BJ-15 tới A9 |
 | A7 | **BJ-08** | 042–047 | `ic08`, `ac310`, `ac321` | `app.js`; `v310`; `v320`; `v340` (gán lại `ac310CountGroup`, `ac310RecountGroup`); `v350` (gán lại `ic08ConfirmationSheet`, `ic08QuantityTrigger`); `v3100`; `v360`; `legacy-sheet-cleanup` | 6 | 2 | Helper `ac310*` / `ac321*` dùng chung cụm kiểm soát → `app/shared-control.js` (dựng ở gói này); bỏ mọi `render()` lúc nạp trong `core.js` (plan A7 mục 4.1) |
-| A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2 | Dùng `shared-control.js` |
-| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320`; `v350` (gán lại `cf15InventoryResult`, `cf15StockCardResult`); `v351`; `legacy-sheet-cleanup` | 4 | 1,5 | Thay nhánh SCR-056 không có `movement` trong `bj09.js` (hiện gọi chuỗi `renderers["SCR-056"]`) |
-| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310`; `v350`; `legacy-cross-theme-copy` (UIF-17) | 9 | 2 | Một bộ màn, hai luồng → dựng ở `bj16.js`, `bj17.js` gọi lại |
+| A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan [A8](T7-P-A8-bj11-bj12.md) mục 2.6 |
+| A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan [A9](T7-P-A9-bj15.md). SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf*` + `ac310ProductRow` → `shared-control.js` |
+| A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-*`); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan [A10](T7-P-A10-bj16-bj17.md). Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf*` đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
 | A11 | **Dọn khung** | — | — | mục 4.2 | — | 2 | Sau A1–A10 |
 | | **Cộng** | | | | | **~20** | |
 
@@ -461,10 +464,10 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ⬜ |
 | A5 | BJ-03, BJ-13, BJ-14 | ✅ [plan](T7-P-A5-gia-tri.md) | ✅ | ⬜ |
 | A6 | BJ-07, BJ-09, BJ-10 | ✅ [plan](T7-P-A6-bj07-bj09-bj10.md) | ✅ | ⬜ |
-| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ⬜ | ⬜ |
-| A8 | BJ-11, BJ-12 | ⬜ | ⬜ | ⬜ |
-| A9 | BJ-15 | ⬜ | ⬜ | ⬜ |
-| A10 | BJ-16, BJ-17 | ⬜ | ⬜ | ⬜ |
+| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ✅ | ⬜ |
+| A8 | BJ-11, BJ-12 | ✅ [plan](T7-P-A8-bj11-bj12.md) | ✅ | ⬜ |
+| A9 | BJ-15 | ✅ [plan](T7-P-A9-bj15.md) | ✅ | ⬜ |
+| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ⬜ | ⬜ |
 | A11 | Dọn khung | ⬜ | ⬜ | ⬜ |
 
 ### Giai đoạn 2 — thiết kế lại

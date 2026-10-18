@@ -473,23 +473,8 @@ function ioFilterChips(active,items,attr){const calibrated=FIGMA_MIGRATED_FLOWS.
 function ac321CanonicalChips(active,items,attr){return `<div class="ac321-chip-wrap" data-composed-from="VChip" aria-label="Bộ lọc">${items.map(([key,label])=>ds24Chip(key,label,active===key,attr)).join('')}</div>`;}
 
 // v1.6.0 — Inventory Audit & Control Product correction (UIF-08/UIF-09/UIF-10)
-let ic08ConfirmKind=null;
-let ic08Scope="ALL";
-let ic08ScopeTarget="";
-let ic08ScopeSheetOpen=false;
-let ic08ProductSheetOpen=false;
-let ic08CutoffDate="2026-09-09";
-let ic08CutoffTime="08:00";
-let ic08Reason="Kiểm kê định kỳ";
-let ic08AssignedCounter="Nguyễn An";
-let ic08CancelReason="";
-let ic08ReviewReason="";
-let ic08KeypadTarget=null;
-let ic08KeypadDraft="";
-let ic08Counts={amox:"18",glove:"7"};
-let ic08Recounts={amox:"18",glove:"7"};
-let ic08Evidence={amox:"Kiểm lại kệ, thiếu 2 hộp",glove:"Phát hiện 1 hộp chưa ghi nhận"};
-let ic08UnexpectedLine=null;
+/* ic08* fixtures → app/bj08.js (T7-P A7) */
+
 /* ic09Items moved to app/bj09.js (T7-P A6) */
 function icCard(title,body){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,DS v2 / Info Row,VTextField"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong>${title}</strong></div><div class="review-card-body">${body}</div></section>`;}
 function icField(label,value,attr="",type="text",hint=""){return `<div class="form-field" data-ds-component="${type==='number'?'VNumberField':'VTextField'}"><label>${label}</label><div class="input-shell"><input type="${type}" value="${escapeAttribute(value)}" ${attr}></div>${hint?`<small class="helper-text">${hint}</small>`:""}</div>`;}
@@ -499,117 +484,33 @@ function icHeaderRows(rows){return ioReadCard(rows.map(([a,b,strong])=>ioMetaRow
 function icSecondary(label,action,tone="secondary"){const c=tone==='danger'?'button button--danger button--full':'button button--secondary button--full';return `<button class="${c}" type="button" ${action}>${label}</button>`;}
 function icApprovalButtons(prefix){return `<div class="ic-action-stack">${icSecondary("Từ chối",`data-${prefix}-action="reject"`,'danger')}${primaryFooter("Duyệt",`data-${prefix}-action="approve"`)}</div>`;}
 
-function ic08Section(title,body,extra="") { return `<section class="ds24-section ${extra}" data-theme-component="Theme7StockCountSection">${ds24SectionTitle(title)}${body}</section>`; }
+/* ic08Section → app/bj08.js (T7-P A7) */
 function ds24SelectField(label,value,options,attr="") {
   return `<label class="ds24-field" data-ds-component="VSelect" data-figma-node="522:7291"><span class="vet45-text-style-8">${esc(label)}</span><select ${attr} class="ds24-field__control vet45-text-style-6">${options.map(([v,l])=>`<option value="${v}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 }
 function ds24TextField(label,value,attrs="",helper="") {
   return `<label class="ds24-field" data-ds-component="VTextField" data-figma-node="522:7186"><span class="vet45-text-style-8">${esc(label)}</span><input class="ds24-field__control vet45-text-style-6" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small class="vet45-text-style-11">${esc(helper)}</small>`:''}</label>`;
 }
-function ic08QuantityTrigger(label,value,target,unit,disabled=false) {
-  return `<div class="ds24-field" data-theme-component="Theme7QuantityEntry" data-composed-from="VText,VNumericKeypadSheet"><span class="vet45-text-style-8">${esc(label)}</span><button type="button" class="ds24-field__control ds24-quantity-trigger" data-ic08-keypad-open="${target}" data-unit="${escapeAttribute(unit)}" ${disabled?'disabled':''}><span class="vet45-text-style-6">${esc(value||'0')}</span><small class="vet45-text-style-11">${esc(unit)}</small></button></div>`;
-}
-function ic08ContextRows(rows) { return ds24InfoGroup('',rows.map(([k,v])=>ds24InfoRow(k,v)).join(''),'ds24-info-group--untitled ic08-info-group'); }
-function ic08ProductInputGroup({keyId,code,name,lot,uom,value,label="Số lượng thực tế",targetPrefix="count",badge="",badgeTone="Neutral",unexpected=false,disabled=false,facts=""}) {
-  const meta=`${code?`${code} · `:""}${lot?`Lô ${lot} · `:""}${uom}`;
-  const head=ds24ListRow({title:name,subtitle:meta,trailing:badge?ds24Badge(badge,badgeTone):"",leading:"package",type:"Status",density:"Compact",interactive:false,attrs:`data-layout-role="stock-count-product" ${unexpected?'data-product-flag="is_unexpected_key"':''}`});
-  const qty=ic08QuantityTrigger(label,value,`${targetPrefix}:${unexpected?'unexpected':keyId}`,uom,disabled);
-  return `<div class="ac321-product-input-group" data-layout-pattern="Sectioned form composition" data-composed-from="DS v2 / List Row,DS v2 / Key-value Row,VTextField">${head}${facts?`<div class="ac321-product-facts">${facts}</div>`:""}<div class="ac321-product-field">${qty}</div></div>`;
-}
-function ic08CountRow({id,name,lot,uom,value,unexpected=false,disabled=false}) {
-  const code=id==='amox'?'SP-00128':id==='glove'?'SP-00410':unexpected?'':'';
-  // v3.4.0: counting is already the screen task; do not repeat a generic "Cần đếm" badge on every product.
-  return ic08ProductInputGroup({keyId:id,code,name,lot,uom,value,unexpected,disabled,badge:unexpected?'Bổ sung thực tế':'',badgeTone:'Info',targetPrefix:'count'});
-}
-function ic08RecountRow({id,name,lot,uom,book,first,variance,value,disabled=false}) {
-  const code=id==='amox'?'SP-00128':'SP-00410';
-  // v3.4.0: variance is a product fact, not a status badge. Keep the identity row quiet and put all numeric evidence in one aligned fact region.
-  const facts=`${ds24KeyValueRow('Theo sổ',`${book} ${uom}`)}${ds24KeyValueRow('Lần đếm đầu',`${first} ${uom}`)}${ds24KeyValueRow('Chênh lệch',`${variance} ${uom}`)}`;
-  return ic08ProductInputGroup({keyId:id,code,name,lot,uom,value,label:'Số lượng đếm lại',targetPrefix:'recount',disabled,facts});
-}
-function ic08NumericSheet() {
-  if(!ic08KeypadTarget)return ""; const [mode,id]=ic08KeypadTarget.split(':'); const unit=id==='unexpected'?(ic08UnexpectedLine?.uom||'hộp'):'hộp'; const title=mode==='recount'?'Nhập số lượng đếm lại':'Nhập số lượng'; const keys=['1','2','3','4','5','6','7','8','9','.','0','⌫'];
-  return `<div class="sheet-backdrop ds24-overlay" data-ic08-action="keypad-cancel"><section class="ds24-keypad" data-ds-component="VNumericKeypadSheet" data-figma-node="1829:6657" data-ds-prop-mode="Quantity" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="ds24-keypad__handle"></div><header><h3 class="vet45-text-style-4">${title}</h3><p class="vet45-text-style-7">Đơn vị: ${esc(unit)}</p></header><div class="ds24-keypad__value vet45-text-style-2">${esc(ic08KeypadDraft||'0')}</div><div class="ds24-keypad__grid">${keys.map(k=>`<button type="button" data-ic08-key="${escapeAttribute(k)}" aria-label="${k==='⌫'?'Xóa một số':k}" class="vet45-text-style-3">${k}</button>`).join('')}</div><div class="ds24-keypad__actions"><button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="keypad-cancel" data-ds-component="VButton" data-figma-node="521:529">Hủy</button><button class="ds24-button ds24-button--primary" type="button" data-ic08-action="keypad-save" data-ds-component="VButton" data-figma-node="521:529">Lưu</button></div></section></div>`;
-}
-function ic08ConfirmationSheet() {
-  if(!ic08ConfirmKind)return "";
-  const cfg={
-    'open-session':['Mở phiên kiểm kê?','Phạm vi sẽ được khóa theo thời điểm chốt của phiên.','Mở phiên','default',false],
-    'submit-first':['Nộp lần đếm đầu?','Sau khi nộp, hệ thống mới hiển thị số sổ và chênh lệch.','Nộp kết quả','default',false],
-    'submit-recount':['Gửi kết quả kiểm kê?','Kết quả đếm lại sẽ được chuyển sang công việc duyệt độc lập.','Gửi chờ duyệt','default',false],
-    'approve':['Duyệt và điều chỉnh?','Hệ thống sẽ ghi điều chỉnh tồn kho và hoàn tất phiên nếu các guard vẫn hợp lệ.','Duyệt và điều chỉnh','default',false],
-    'request-review':['Yêu cầu xem lại?','Phiên giữ nguyên khóa và quay lại bước đếm lại. Lý do được lưu cùng quyết định.','Yêu cầu xem lại','default',true],
-    'cancel':['Hủy phiên kiểm kê?','Không tạo điều chỉnh. Lịch sử kiểm đếm được giữ và phạm vi được mở khóa.','Hủy phiên','danger',true]
-  }[ic08ConfirmKind]; if(!cfg)return "";
-  const [title,desc,action,tone,needsReason]=cfg; const val=ic08ConfirmKind==='cancel'?ic08CancelReason:ic08ReviewReason; const attr=ic08ConfirmKind==='cancel'?'data-ic08-cancel-reason':'data-ic08-review-reason';
-  const reason=needsReason?ds24TextField('Lý do',val,attr,'Lý do được lưu trong lịch sử quản trị.'):'';
-  return `<div class="sheet-backdrop ds24-overlay" data-ic08-action="confirm-close"><section class="ds24-confirmation ds24-confirmation--${tone}" data-ds-component="DS v2 / Confirmation Sheet" data-figma-node="550:1058" data-ds-prop-content="${needsReason?'Reason':'Plain'}" data-ds-prop-tone="${tone==='danger'?'Danger':'Default'}" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="ds24-confirmation__handle"></div><h3 class="vet45-text-style-4">${esc(title)}</h3><p class="vet45-text-style-6">${esc(desc)}</p>${reason}<div class="ds24-confirmation__actions"><button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="confirm-close" data-ds-component="VButton">Quay lại</button><button class="ds24-button ${tone==='danger'?'ds24-button--danger':'ds24-button--primary'}" type="button" data-ic08-action="confirm-${ic08ConfirmKind}" data-ds-component="VButton" ${needsReason&&!val.trim()?'disabled':''}>${esc(action)}</button></div></section></div>`;
-}
-function ic08SelectSheet() {
-  if(!ic08ScopeSheetOpen&&!ic08ProductSheetOpen)return ""; const productMode=ic08ProductSheetOpen;
-  const rows=productMode?[["vitc","Vitamin C","SP-00231 · Lô L2501-C · hộp"],["amox-new","Amox 500","SP-00128 · Lô L2501-A · hộp"]]:ic08Scope==='PRODUCT'?[["amox","Amox 500","SP-00128"],["glove","Găng tay M","SP-00410"]]:ic08Scope==='GROUP'?[["group-vaccine","Nhóm vaccine","Nhóm sản phẩm"],["group-medicine","Nhóm thuốc","Nhóm sản phẩm"]]:[["lot-l2407","Lô L2407-A","Amox 500"],["lot-l2405","Lô L2405-M","Găng tay M"]];
-  return `<div class="sheet-backdrop ds24-overlay" data-ic08-action="select-close"><section class="ds24-select-sheet" data-ds-pattern="Select Sheet" data-theme-component="Theme7SearchSelectSheet" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="ds24-sheet__handle"></div><h3 class="vet45-text-style-4">${productMode?'Thêm hàng thực tế':'Chọn phạm vi'}</h3>${ds24Search('','','Tìm kiếm')}<div class="ds24-list-stack">${rows.map(([id,name,meta])=>ds24ListRow({title:name,subtitle:meta,attrs:`data-ic08-${productMode?'product':'scope-target'}="${id}" data-name="${escapeAttribute(name)}" data-meta="${escapeAttribute(meta)}"`,theme:productMode?'Theme7UnexpectedItemResult':'Theme7ScopeResult'})).join('')}</div><button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="select-close" data-ds-component="VButton">Đóng</button></section></div>`;
-}
-function ic08Overlays(){return `${ic08NumericSheet()}${ic08ConfirmationSheet()}${ic08SelectSheet()}`;}
-function ic08SessionRow() {
-  return `<section class="ds24-session-block" data-theme-component="Theme7StockCountSession"><div class="ds24-session-main">${ds24ListRow({title:'KK-0709-03',subtitle:'Kho trung tâm · Toàn kho',trailing:`${ds24Badge('Đang đếm','Info')}<small class="vet45-text-style-11">12/38</small>`,attrs:'data-ic08-action="resume"',leading:'listCheck',theme:'Theme7StockCountSessionRow'})}</div><button class="ds24-button ds24-button--danger ds24-session-cancel" type="button" data-ic08-action="cancel-open" data-action-contract="ACT-09-CANCEL" data-ds-component="VButton" data-figma-node="521:529">Hủy phiên</button></section>`;
-}
-function render042IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kiểm kê kho",body:deniedBody(),centered:true,back:false});
-  if(state==="LOADING")return appShell({title:"Kiểm kê kho",body:loadingBody(),back:false});
-  if(state==="EMPTY")return appShell({title:"Kiểm kê kho",body:`${bj01Empty(false)}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false});
-  if(state==="FILTER_EMPTY")return appShell({title:"Kiểm kê kho",body:`${ds24Search('','','Tìm phiên kiểm kê')}${bj01Empty(true)}${ic08Overlays()}`,back:false});
-  if(state==="PENDING_APPROVAL")return appShell({title:"Kiểm kê kho",body:`${vBanner('info','Đã gửi chờ duyệt','Bạn đã hoàn tất phần việc của mình. Quyết định duyệt nằm trong công việc riêng của người duyệt.')}${ic08ContextRows([['Phiên','KK-0709-03'],['Phạm vi','Kho trung tâm'],['Trạng thái','Chờ duyệt']])}`,back:false});
-  const chips=ac321CanonicalChips('ALL',[["ALL","Tất cả"],["COUNTING","Đang đếm"],["APPROVAL","Chờ duyệt"]],'data-ic08-filter');
-  return appShell({title:"Kiểm kê kho",body:`${ds24Search('','','Tìm phiên kiểm kê')}${chips}${ic08SessionRow()}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false});
-}
-function render043IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Tạo phiên kiểm kê",body:deniedBody(),centered:true});
-  if(["CONFLICT","LOCKED"].includes(state))return appShell({title:"Tạo phiên kiểm kê",body:`${vBanner('warning','Phạm vi đang được kiểm kê','Không thể mở thêm phiên chồng lên phạm vi đang khóa.')}${ic08ContextRows([['Kho','Kho trung tâm'],['Thời điểm chốt','09/09/2026 · 08:00']])}`});
-  const validation=state==="VALIDATION_ERROR"?vBanner('error','Chưa đủ thông tin','Chọn phạm vi và nhập lý do kiểm kê trước khi mở phiên.'):'';
-  const scopeOptions=[["ALL","Toàn kho"],["PRODUCT","Sản phẩm"],["GROUP","Nhóm sản phẩm"],["LOT","Lô"]];
-  const target=ic08Scope!=="ALL"?`<div class="ds24-field" data-theme-component="Theme7ScopeTarget" data-composed-from="VText,Search & Select"><span class="vet45-text-style-8">${ic08Scope==='PRODUCT'?'Sản phẩm':ic08Scope==='GROUP'?'Nhóm sản phẩm':'Lô'}</span><button type="button" class="ds24-field__control ds24-select-trigger" data-ic08-action="scope-select-open"><span>${esc(ic08ScopeTarget||'Chọn phạm vi')}</span>${icon('chevronRight','icon--sm')}</button></div>`:'';
-  const body=`${validation}${ic08ContextRows([['Kho','Kho trung tâm'],['Thời điểm chốt','09/09/2026 · 08:00'],['Người đếm','Nguyễn An']])}${ds24SectionTitle('Thiết lập phiên')}${ds24SelectField('Phạm vi',ic08Scope,scopeOptions,'data-ic08-scope')}${target}${ds24TextField('Lý do kiểm kê',ic08Reason,'data-ic08-reason','Thông tin này được gửi cùng yêu cầu mở phiên.')}${vBanner('info','Phạm vi sẽ được khóa','Sau khi mở phiên, phạm vi và thời điểm chốt không tự thay đổi theo dữ liệu mới.')}${ic08Overlays()}`;
-  return appShell({title:"Tạo phiên kiểm kê",body,actions:primaryFooter("Mở phiên kiểm kê",'data-ic08-action="open-session"',ic08Scope!=="ALL"&&!ic08ScopeTarget)});
-}
-function render044IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Đếm mù",body:deniedBody(),centered:true});
-  if(state==="NO_RESULT")return appShell({title:"Đếm mù",body:bj01Empty(false),actions:primaryFooter("Về danh sách",'data-ic08-action="to-list"')});
-  const lost=state==="LOCK_LOST"; const error=state==="VALIDATION_ERROR"?vBanner('error','Chưa nhập đủ kết quả','Nhập số đếm thực tế cho tất cả dòng trước khi nộp.'):'';
-  const notice=lost?vBanner('warning','Phiên không còn giữ khóa','Số đã nhập được giữ trên thiết bị. Quay về phiên kiểm kê để tải lại trạng thái authoritative trước khi tiếp tục.'):'';
-  const unexpected=ic08UnexpectedLine?ic08CountRow({id:'unexpected',name:ic08UnexpectedLine.name,lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,value:ic08UnexpectedLine.value,unexpected:true,disabled:lost}):'';
-  const body=`${error}${notice}${vBanner('info','Đếm mù đang bật','Chỉ ghi nhận số lượng thực tế. Số sổ và chênh lệch không có trong DOM trước lần nộp đầu.')}${ic08ContextRows([['Phiên','KK-0709-03'],['Kho','Kho trung tâm'],['Thời điểm chốt','09/09/2026 · 08:00']])}<div class="ac321-list-meta">2 dòng cần đếm</div><div class="ds24-count-list ac321-count-collection">${ic08CountRow({id:'amox',name:'Amox 500',lot:'L2407-A',uom:'hộp',value:ic08Counts.amox,disabled:lost})}${ic08CountRow({id:'glove',name:'Găng tay M',lot:'L2405-M',uom:'hộp',value:ic08Counts.glove,disabled:lost})}${unexpected}</div>${!lost?`<button class="ds24-button ds24-button--secondary ds24-inline-action" type="button" data-ic08-action="add-actual-open" data-theme-component="Theme7UnexpectedPhysicalItemAction">${icon('package','icon--sm')}Thêm hàng thực tế</button>`:''}${ic08Overlays()}`;
-  return appShell({title:"Đếm mù",body,actions:lost?primaryFooter("Về phiên kiểm kê",'data-ic08-action="to-list"'):primaryFooter("Nộp kết quả đếm",'data-ic08-action="submit-first"')});
-}
-function render045IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Chênh lệch và đếm lại",body:deniedBody(),centered:true});
-  const locked=state==="LOCKED", price=state==="PRICE_BASIS_REQUIRED", evidence=state==="EVIDENCE_REQUIRED", validation=state==="VALIDATION_ERROR";
-  const notice=locked?vBanner('warning','Phiên đang chỉ đọc','Không thể sửa kết quả đếm trong trạng thái hiện hành.'):price?vBanner('error','Chưa đủ căn cứ giá','Dòng thừa chưa có căn cứ giá hợp lệ. Phiên tiếp tục giữ khóa; không nhập giá tạm để đi tiếp.'):evidence?vBanner('warning','Chưa đủ bằng chứng','Bằng chứng authoritative chưa đủ để gửi duyệt. Phiên tiếp tục giữ khóa.'):validation?vBanner('error','Kết quả đếm lại chưa hợp lệ','Kiểm tra các số lượng đếm lại trước khi gửi.'):'';
-  const evidenceStatus=`<section class="ds24-section" data-theme-component="Theme7CountEvidenceStatus">${ds24SectionTitle('Căn cứ và bằng chứng')}${ic08ContextRows([['Amox 500','Đã có bằng chứng'],['Găng tay M',price?'Thiếu căn cứ giá':'Đã có căn cứ']])}${price||evidence?vBanner('warning','Chưa thể gửi duyệt','Hệ thống chỉ cho gửi khi nguồn có thẩm quyền xác nhận đủ căn cứ.'):''}</section>`;
-  const body=`${notice}${vBanner('info','Chỉ xử lý dòng có chênh lệch','Số sổ được lộ sau lần đếm đầu. Người đếm chỉ nhập lại số thực tế của các dòng lệch.')}<div class="ds24-count-list ac321-count-collection">${ic08RecountRow({id:'amox',name:'Amox 500',lot:'L2407-A',uom:'hộp',book:20,first:18,variance:'−2 hộp',value:ic08Recounts.amox,disabled:locked})}${ic08RecountRow({id:'glove',name:'Găng tay M',lot:'L2405-M',uom:'hộp',book:6,first:7,variance:'+1 hộp',value:ic08Recounts.glove,disabled:locked})}</div>${evidenceStatus}${ic08Overlays()}`;
-  let actions=''; if(!locked) actions=`<footer class="app-actions figma-sticky-footer ds24-footer-stack" data-ds-pattern="Sticky Footer"><button class="ds24-button ds24-button--primary" type="button" data-ic08-action="submit-recount" data-ds-component="VButton" ${price||evidence?'disabled':''}>Gửi chờ duyệt</button>${price||evidence?`<button class="ds24-button ds24-button--danger" type="button" data-ic08-action="cancel-open" data-action-contract="ACT-09-CANCEL" data-ds-component="VButton">Hủy phiên</button>`:''}</footer>`;
-  return appShell({title:"Chênh lệch và đếm lại",body,actions});
-}
-function render046IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Duyệt kết quả kiểm kê",body:deniedBody(),centered:true,back:false});
-  if(state==="SELF_APPROVAL_NOT_ALLOWED")return appShell({title:"Duyệt kết quả kiểm kê",body:vBanner('warning','Không thể tự duyệt','Người thực hiện kiểm kê không được duyệt chính kết quả của mình.'),back:false});
-  if(state==="APPROVAL_ALREADY_DECIDED")return appShell({title:"Duyệt kết quả kiểm kê",body:vBanner('info','Công việc đã có quyết định','Mở kết quả kiểm kê để xem trạng thái authoritative.'),actions:primaryFooter("Xem kết quả",'data-ic08-action="approval-result"'),back:false});
-  const body=`${vBanner('info','Cần quyết định độc lập','Người duyệt chỉ rà soát bằng chứng và quyết định; không sửa số đếm.')}${ic08ContextRows([['Phiên','KK-0709-03'],['Người thực hiện','Nguyễn An'],['Kho','Kho trung tâm'],['Tổng dòng lệch','2 dòng']])}${ic08Section('Amox 500 · L2407-A',`${ic08ContextRows([['Chênh lệch','−2 hộp'],['Đếm lại','18 hộp'],['Bằng chứng','Đã đủ']])}`)}${ic08Section('Găng tay M · L2405-M',`${ic08ContextRows([['Chênh lệch','+1 hộp'],['Đếm lại','7 hộp'],['Căn cứ giá','Đã đủ'],['Bằng chứng','Đã đủ']])}`)}${ic08Overlays()}`;
-  const actions=`<footer class="app-actions figma-sticky-footer ds24-footer-stack" data-ds-pattern="Sticky Footer"><button class="ds24-button ds24-button--primary" type="button" data-ic08-action="approve" data-action-contract="ACT-09-APPROVE" data-decision-role="approve" data-ds-component="VButton">Duyệt và điều chỉnh</button><button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="request-review" data-action-contract="ACT-09-APPROVE" data-decision-role="request-review" data-ds-component="VButton">Yêu cầu xem lại</button></footer>`;
-  return appShell({title:"Duyệt kết quả kiểm kê",body,actions,back:false});
-}
+/* ic08QuantityTrigger → app/bj08.js (T7-P A7) */
+/* ic08ContextRows → app/bj08.js (T7-P A7) */
+/* ic08ProductInputGroup → app/bj08.js (T7-P A7) */
+/* ic08CountRow → app/bj08.js (T7-P A7) */
+/* ic08RecountRow → app/bj08.js (T7-P A7) */
+/* ic08NumericSheet → app/bj08.js (T7-P A7) */
+/* ic08ConfirmationSheet → app/bj08.js (T7-P A7) */
+/* ic08SelectSheet → app/bj08.js (T7-P A7) */
+/* ic08Overlays → app/bj08.js (T7-P A7) */
+/* ic08SessionRow → app/bj08.js (T7-P A7) */
+/* render042IC08 → app/bj08.js (T7-P A7) */
+/* render043IC08 → app/bj08.js (T7-P A7) */
+/* render044IC08 → app/bj08.js (T7-P A7) */
+/* render045IC08 → app/bj08.js (T7-P A7) */
+/* render046IC08 → app/bj08.js (T7-P A7) */
 function ds24Result(title,description,rows,tone='success') {
   const iconName=tone==='success'?'checkCircle':tone==='danger'?'xCircle':'alert';
   return `<section class="ds24-result" data-theme-component="Theme7OperationResult" data-composed-from="VIcon,VText,DS v2 / Info Row,State Pattern"><div class="ds24-result__icon ds24-result__icon--${tone}">${icon(iconName)}</div><h2 class="vet45-text-style-3">${esc(title)}</h2><p class="vet45-text-style-6">${esc(description)}</p><div class="ds24-info-stack">${rows.map(([k,v])=>ds24InfoRow(k,v)).join('')}</div></section>`;
 }
-function render047IC08(state) {
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả kiểm kê",body:deniedBody(),centered:true,back:false});
-  if(state==="PROCESSING")return appShell({title:"Kết quả kiểm kê",body:loadingBody(),centered:true,back:false});
-  if(state==="UNKNOWN")return appShell({title:"Kết quả kiểm kê",body:ds24Result('Đang xác minh kết quả','Không gửi lại điều chỉnh. Hệ thống đang xác minh đúng lần xử lý này.',[['Phiên','KK-0709-03'],['Định danh xử lý','Giữ nguyên'],['Tồn kho','Chưa kết luận']],'warning'),actions:primaryFooter("Tiếp tục xác minh",'data-ic08-action="verify-result"'),centered:true,back:false});
-  if(state==="CANCELLED")return appShell({title:"Kết quả kiểm kê",body:ds24Result('Đã hủy phiên','Không tạo điều chỉnh; lịch sử kiểm đếm được giữ và phạm vi đã mở khóa.',[['Phiên','KK-0709-03'],['Điều chỉnh','Không tạo'],['Khóa phạm vi','Đã mở']],'warning'),actions:primaryFooter("Về kiểm kê",'data-ic08-action="to-list"'),centered:true,back:false});
-  if(state==="REJECTED_EXECUTION")return appShell({title:"Kết quả kiểm kê",body:ds24Result('Điều chỉnh chưa được thực thi','Guard nghiệp vụ không đạt; không có tác động tồn kho.',[['Phiên','KK-0709-03'],['Tác động','Không ghi nhận'],['Khóa phạm vi','Theo trạng thái phiên']],'warning'),actions:primaryFooter("Về kiểm kê",'data-ic08-action="to-list"'),centered:true,back:false});
-  return appShell({title:"Kết quả kiểm kê",body:ds24Result('Đã hoàn tất kiểm kê','Điều chỉnh tồn kho đã được ghi theo quyết định duyệt và phạm vi đã mở khóa.',[['Phiên','KK-0709-03'],['Điều chỉnh','ADJ-0709-03'],['Đã điều chỉnh','2 dòng'],['Khóa phạm vi','Đã mở']]),actions:primaryFooter("Về kiểm kê",'data-ic08-action="to-list"'),centered:true,back:false});
-}
+/* render047IC08 → app/bj08.js (T7-P A7) */
 
 /* ic09StatusTone moved (T7-P A6) */
 /* ic09Current moved (T7-P A6) */
@@ -617,16 +518,7 @@ function render047IC08(state) {
 /* render037IC09 moved (T7-P A6) */
 /* render038IC09 moved (T7-P A6) */
 /* render041IC09 moved (T7-P A6) */
-function render056IC09(state){
-  if(activeFlowId!=="UIF-09") return renderGeneric(screens.find(s=>s.id==="SCR-056"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Lịch sử tình trạng",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Lịch sử tình trạng",body:loadingBody()});
-  // ic09Current sống ở bj09.js — lần dựng sớm trong core (trước khi nạp bj) bỏ qua.
-  if(typeof ic09Current!=="function") return appShell({title:"Lịch sử tình trạng",body:loadingBody()});
-  const x=ic09Current();
-  const body=`${icHeaderRows([["Sản phẩm",x.name,true],["Lô",x.lot]])}<div class="timeline"><div class="timeline-card">${ioMetaRow("07/09/2026 · 09:14","Bán được → Cách ly",true)}<small>Nguyễn An · Bao bì có dấu hiệu bất thường</small></div><div class="timeline-card">${ioMetaRow("01/09/2026 · 08:00","Nhận vào kho",true)}<small>Tình trạng ban đầu: Bán được</small></div></div>`;
-  return appShell({title:"Lịch sử tình trạng",body});
-}
+/* render056IC09 → app/bj09.js (T7-P A9) */
 
 /* render036IC10 moved (T7-P A6) */
 /* render037IC10 moved (T7-P A6) */
@@ -643,99 +535,31 @@ function render056IC09(state){
 // Product UI exposes business facts, decisions and authoritative finality only.
 // Technical identifiers/replay/rebuild/hash/polling remain contracts/Inspect concerns.
 // ============================================================================
-let cr11Filter="ALL";
-let cr11Query="";
-let cr11SelectedId="IO-260901-014";
-let cr11Strategy="DELTA";
-let cr11CorrectQty=118;
-let cr11CorrectionReason="Ghi nhận thừa 2 hộp khi nhận hàng";
-let cr11CancelReason="";
-let cr11ApprovalRejectOpen=false;
-let cr11ApprovalRejectReason="";
-const cr11Operations=[
-  {id:"IO-260906-022",type:"Thay đổi tình trạng hàng",source:"ST-260906-04",status:"READY",statusLabel:"Có thể hủy",route:"CANCEL",warehouse:"Kho trung tâm",product:"Amox 500 · Lô L2407-A",qty:12,uom:"hộp",impact:"Chưa phát sinh thay đổi tồn kho"},
-  {id:"IO-260901-014",type:"Nhận hàng",source:"PN-260901-07",status:"COMPLETED",statusLabel:"Có thể sửa",route:"CORRECT",warehouse:"Kho trung tâm",product:"Nobivac DHPPi · Lô DH2507",qty:120,uom:"hộp",correctQty:118,impact:"Đã tăng tồn 120 hộp"},
-  {id:"IO-260906-031",type:"Tiêu hủy",source:"DSP-260906-02",status:"UNKNOWN",statusLabel:"Đang xác minh",route:"UNKNOWN",warehouse:"Kho trung tâm",product:"Vitamin C · Lô L2310-C",qty:5,uom:"hộp",impact:"Chưa thể kết luận tác động tồn kho"},
-  {id:"IO-260902-005",type:"Xuất bán",source:"SO-260902-19",status:"COMPLETED",statusLabel:"Cần xử lý đúng luồng",route:"PHYSICAL_RETURN_BLOCKED",warehouse:"Kho trung tâm",product:"Oxytetracycline LA",qty:3,uom:"chai",impact:"Hàng đã bàn giao thực tế cho khách"}
-];
-function cr11Current(){return cr11Operations.find(x=>x.id===cr11SelectedId)||cr11Operations[1];}
-function cr11StateFor(op){if(op.route==="CANCEL")return "CANCELABLE";if(op.route==="UNKNOWN")return "UNKNOWN";if(op.route==="PHYSICAL_RETURN_BLOCKED")return "BLOCKED_PHYSICAL_HANDOVER";return "CORRECTABLE";}
-function crChoice(name,value,label,detail,checked,attr){return `<label class="cr-choice" data-ds-component="VRadio"><input type="radio" name="${name}" value="${value}" ${attr} ${checked?'checked':''}><span><strong data-ds-component="VText">${label}</strong><small data-ds-component="VText" data-ds-prop-variant="VTextVariant.bodySmall">${detail}</small></span></label>`;}
+/* cr11* state + cr11Operations → app/bj11.js (T7-P A8) */
+/* cr11Current → app/bj11.js (T7-P A8) */
+
+/* cr11StateFor → app/bj11.js or bj12.js (T7-P A8) */
+
+/* crChoice → app/bj11.js or bj12.js (T7-P A8) */
+
 function crFactCard(title,rows,badge="",tone="info"){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card cr-fact-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,VBadge,DS v2 / Info Row"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong data-ds-component="VText">${title}</strong>${badge?vBadge(badge,tone):""}</div><div class="review-card-body">${rows.map(r=>ioMetaRow(r[0],r[1],!!r[2])).join("")}</div></section>`;}
-function crTextAction(label,attr){return `<button type="button" class="button button--secondary button--full" ${attr} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary">${label}</button>`;}
+/* crTextAction → app/bj11.js or bj12.js (T7-P A8) */
+
 function crSwitchFlow(flowId,screenId,state){activeFlowId=flowId;activeScreenId=screenId;if(state&&stateByScreen[screenId]!==undefined)stateByScreen[screenId]=state;syncReviewUrl();render();}
-function cr11ListRows(){
-  const labels={ALL:"Tất cả",CANCEL:"Có thể hủy",CORRECT:"Có thể sửa",UNKNOWN:"Đang xác minh"};
-  const rows=cr11Operations.filter(op=>cr11Filter==="ALL"||op.route===cr11Filter).filter(op=>ioMatchesSearch(cr11Query,`${op.id} ${op.type} ${op.source} ${op.product}`));
-  const list=rows.map(op=>ioProductRow({name:op.type,code:`${op.id} · ${op.source}`,primary:`${op.qty} ${op.uom}`,secondary:op.product,badge:op.statusLabel,badgeStatus:op.route==="UNKNOWN"?"warning":op.route==="PHYSICAL_RETURN_BLOCKED"?"warning":"info",attr:`data-cr11-operation="${op.id}"`})).join("");
-  return `${ioSearchBar("Tìm mã nghiệp vụ, chứng từ hoặc hàng",'data-cr11-search',cr11Query)}${ac321CanonicalChips(cr11Filter,Object.entries(labels),'data-cr11-filter')}${list?`<div class="io-list-card" data-ds-component="VSection" data-composed-from="DS v2 / List Row,VBadge"><div class="io-product-list">${list}</div></div>`:ioEmpty("Không có nghiệp vụ phù hợp","Thử đổi bộ lọc hoặc từ khóa tìm kiếm.")}`;
-}
-function render048CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-048"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kiểm soát nghiệp vụ kho",body:deniedBody(),centered:true,back:false});
-  if(state==="LOADING")return appShell({title:"Kiểm soát nghiệp vụ kho",body:loadingBody(),back:false});
-  if(state==="EMPTY")return appShell({title:"Kiểm soát nghiệp vụ kho",body:ioEmpty("Chưa có nghiệp vụ cần kiểm soát","Các nghiệp vụ đủ điều kiện sẽ xuất hiện tại đây."),back:false});
-  return appShell({title:"Kiểm soát nghiệp vụ kho",body:cr11ListRows(),back:false});
-}
-function render049CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-049"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Chi tiết nghiệp vụ kho",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Chi tiết nghiệp vụ kho",body:loadingBody()});
-  const op=cr11Current();const routeState=state==="READY"?cr11StateFor(op):state;
-  const context=crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Chứng từ nguồn",op.source],["Kho",op.warehouse],["Hàng",op.product],["Số lượng",`${op.qty} ${op.uom}`],["Tác động",op.impact]],op.statusLabel,routeState==="UNKNOWN"?"warning":"info");
-  if(routeState==="UNKNOWN")return appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("warning","Kết quả chưa xác định","Chưa được hủy, đảo hoặc tạo sửa sai cho tới khi kết quả của đúng lần xử lý này được xác lập.")}${context}`,actions:primaryFooter("Xác minh kết quả",'data-cr11-action="handoff-unknown"')});
-  if(routeState==="BLOCKED_PHYSICAL_HANDOVER")return appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("warning","Không sửa bằng cách đưa hàng về kho","Hàng đã được bàn giao thực tế. Nếu khách trả hàng, phải ghi nhận đúng nghiệp vụ Hàng khách trả; sửa sai không thay thế việc nhận hàng thực tế.")}${context}`,actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"')});
-  if(routeState==="TERMINAL")return appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("info","Không còn tác động để đảo","Nghiệp vụ đã bị hủy hoặc từ chối trước khi thực thi. Không có thay đổi tồn kho cần sửa.")}${context}`,actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"')});
-  if(routeState==="CANCELABLE")return appShell({title:"Chi tiết nghiệp vụ kho",body:`${context}<p class="cr-footnote" data-ds-component="VText">Nghiệp vụ chưa thực thi nên có thể hủy mà không tạo biến động tồn kho.</p>`,actions:primaryFooter("Hủy yêu cầu",'data-cr11-action="open-cancel"',false,"danger")});
-  return appShell({title:"Chi tiết nghiệp vụ kho",body:`${context}${ioSectionTitle("Dấu vết liên quan")}${crFactCard("Nghiệp vụ gốc",[["Ngày nghiệp vụ","01/09/2026"],["Trạng thái","Đã hoàn tất"],["Sửa sai trước đó","Không"]])}`,actions:primaryFooter("Sửa sai",'data-cr11-action="open-correction"')});
-}
-function render052CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-052"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kiểm soát nghiệp vụ",body:deniedBody(),centered:true});
-  const op=cr11Current();
-  if(state==="DEPENDENCY_BLOCKED")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa thể sửa sai","Có nghiệp vụ phía sau đang phụ thuộc. Hãy xử lý nghiệp vụ đó trước.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Hàng",op.product],["Tác động hiện tại",op.impact]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
-  if(state==="PERIOD_POLICY_VIOLATION")return appShell({title:"Chọn cách sửa",body:`${vBanner("warning","Chưa có kỳ mở để ghi nhận sửa sai","Cần có kỳ ghi nhận hiện hành hợp lệ trước khi tiếp tục.")}${crFactCard(op.id,[["Ngày nghiệp vụ gốc","01/09/2026"],["Kỳ gốc","Đã khóa"]])}`,actions:primaryFooter("Về chi tiết",'data-cr11-action="back-detail"')});
-  const cancelMode=state==="CANCEL_UNEXECUTED"||op.route==="CANCEL";
-  if(cancelMode){
-    const err=state==="VALIDATION_ERROR"&&!cr11CancelReason.trim()?vBanner("error","Cần nhập lý do hủy","Lý do giúp truy vết vì sao yêu cầu dừng trước khi thực thi."):"";
-    const body=`${err}${vBanner("info","Hủy trước khi thực thi","Nghiệp vụ sẽ chuyển sang Đã hủy; tồn kho và giá trị không thay đổi.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Chứng từ nguồn",op.source],["Tác động tồn kho","Không thay đổi"]])}${icTextarea("Lý do hủy",cr11CancelReason,'data-cr11-cancel-reason','Nhập lý do hủy')}`;
-    return appShell({title:"Hủy yêu cầu kho",body,actions:primaryFooter("Hủy yêu cầu",'data-cr11-action="confirm-cancel"',!cr11CancelReason.trim(),"danger")});
-  }
-  const body=`${vBanner("info","Nghiệp vụ gốc luôn được giữ nguyên","Hệ thống sẽ tạo một nghiệp vụ sửa sai có liên kết; không sửa hoặc xóa lịch sử đã hoàn tất.")}${crFactCard(op.id,[["Nghiệp vụ",op.type,true],["Đã ghi nhận",`${op.qty} ${op.uom}`],["Kỳ gốc","Đã khóa · tác động sửa sai ghi ở kỳ mở hiện hành"]])}${ioSectionTitle("Chọn cách sửa")}<div class="cr-choice-list">${crChoice("cr11-strategy","DELTA","Sửa phần sai","Dùng khi phần sai có thể điều chỉnh độc lập và vẫn giữ đúng ý nghĩa chứng từ.",cr11Strategy==="DELTA",'data-cr11-strategy')}${crChoice("cr11-strategy","FULL","Hoàn nguyên và ghi lại đúng","Dùng khi toàn bộ nghiệp vụ không còn đúng hoặc phải xác lập lại nguyên khối.",cr11Strategy==="FULL",'data-cr11-strategy')}</div>`;
-  return appShell({title:"Chọn cách sửa",body,actions:primaryFooter("Tiếp tục",'data-cr11-action="edit-correction"')});
-}
-function render050CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-050"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Nội dung sửa sai",body:deniedBody(),centered:true});
-  const op=cr11Current();const delta=Number(cr11CorrectQty)-Number(op.qty);
-  const validation=state==="VALIDATION_ERROR"?vBanner("error","Kiểm tra nội dung sửa sai","Số đúng phải lớn hơn hoặc bằng 0 và cần có lý do."):state==="SOURCE_VERSION_STALE"?vBanner("warning","Nghiệp vụ nguồn đã thay đổi","Hãy quay lại chi tiết để đối chiếu dữ liệu hiện hành trước khi gửi."):state==="CONFLICT"?vBanner("warning","Đã có yêu cầu sửa sai khác","Không tạo yêu cầu sửa sai song song. Mở yêu cầu đang hoạt động để tiếp tục."):"";
-  const body=`${validation}${crFactCard("Trước và sau",[["Nghiệp vụ gốc",op.id,true],["Số đã ghi nhận",`${op.qty} ${op.uom}`],["Cách sửa",cr11Strategy==="DELTA"?"Sửa phần sai":"Hoàn nguyên và ghi lại đúng"]])}<div class="form-field" data-ds-component="VNumberField"><label>Số đúng <span class="required">*</span></label><div class="input-shell"><input type="number" min="0" inputmode="decimal" value="${cr11CorrectQty}" data-cr11-correct-qty></div></div>${crFactCard("Hệ thống tự tính",[["Điều chỉnh",`${delta>0?"+":""}${delta} ${op.uom}`,true]])}${icTextarea("Lý do sửa sai",cr11CorrectionReason,'data-cr11-correction-reason','Mô tả ngắn điều đã sai và căn cứ sửa')}`;
-  const disabled=Number(cr11CorrectQty)<0||!cr11CorrectionReason.trim()||state==="SOURCE_VERSION_STALE"||state==="CONFLICT";
-  return appShell({title:"Nội dung sửa sai",body,actions:primaryFooter("Gửi phê duyệt",'data-cr11-action="submit-correction"',disabled)});
-}
-function render051CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-051"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Duyệt sửa sai",body:deniedBody(),centered:true,back:false});
-  if(state==="SELF_APPROVAL_NOT_ALLOWED")return appShell({title:"Duyệt sửa sai",body:`${vBanner("warning","Bạn không thể tự duyệt yêu cầu này","Người lập và người duyệt phải độc lập theo chính sách kiểm soát.")}`,back:false});
-  if(state==="APPROVAL_ALREADY_DECIDED")return appShell({title:"Duyệt sửa sai",body:vBanner("info","Yêu cầu đã có quyết định","Mở kết quả sửa sai để xem trạng thái hiện hành."),actions:primaryFooter("Xem kết quả",'data-cr11-action="approval-result"'),back:false});
-  const op=cr11Operations[1];const delta=Number(cr11CorrectQty)-Number(op.qty);
-  const rejectError=state==="VALIDATION_ERROR"&&cr11ApprovalRejectOpen&&!cr11ApprovalRejectReason.trim()?vBanner("error","Cần nhập lý do từ chối","Lý do được lưu cùng quyết định phê duyệt."):"";
-  const sheet=cr11ApprovalRejectOpen?`<div class="sheet-backdrop"><section class="bottom-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" role="dialog" aria-modal="true"><div class="sheet-handle"></div><div class="sheet-title"><h3>Từ chối sửa sai</h3></div><div class="sheet-content">${rejectError}${icTextarea("Lý do từ chối",cr11ApprovalRejectReason,'data-cr11-approval-reason','Nhập lý do')}<div class="sheet-actions">${crTextAction("Đóng",'data-cr11-action="reject-close"')}<button class="button button--danger" type="button" data-cr11-action="reject-confirm" ${cr11ApprovalRejectReason.trim()?'':'disabled'}>Từ chối</button></div></div></section></div>`:"";
-  const body=`${vBanner("info","Công việc phê duyệt độc lập","Quyết định chỉ duyệt phương án. Sau khi duyệt, hệ thống tự ghi nhận phần sửa sai nếu điều kiện vẫn hợp lệ.")}${crFactCard("Yêu cầu sửa sai",[["Nghiệp vụ gốc",op.id,true],["Người lập","Nguyễn An"],["Lý do",cr11CorrectionReason]])}${ioSectionTitle("Trước / sau")}${crFactCard("Số lượng",[["Trước",`${op.qty} ${op.uom}`],["Sau",`${cr11CorrectQty} ${op.uom}`],["Điều chỉnh",`${delta>0?"+":""}${delta} ${op.uom}`,true]])}${sheet}`;
-  const actions=`<div class="cr-two-actions">${crTextAction("Từ chối",'data-cr11-action="reject-open"')}<button class="button button--primary button--full" type="button" data-cr11-action="approve" data-ds-component="VButton">Duyệt</button></div>`;
-  return appShell({title:"Duyệt sửa sai",body,actions,back:false});
-}
-function render053CR11(state){
-  if(activeFlowId!=="UIF-11")return renderGeneric(screens.find(s=>s.id==="SCR-053"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả sửa sai",body:deniedBody(),centered:true,back:false});
-  if(state==="PROCESSING")return appShell({title:"Kết quả sửa sai",body:`${loadingBody()}${vBanner("info","Đang ghi nhận sửa sai","Hệ thống đang kiểm lại điều kiện và ghi nhận phần sửa sai theo quyết định đã duyệt.")}`,centered:true,back:false});
-  if(state==="PENDING_APPROVAL")return appShell({title:"Kết quả sửa sai",body:ioResult("Đã gửi chờ duyệt","Bạn đã hoàn tất phần việc của mình. Người có quyền duyệt sẽ nhận một công việc riêng.",[["Nghiệp vụ gốc",cr11Current().id],["Tác động tồn kho","Chưa thay đổi"]],"warning"),actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"'),centered:true,back:false});
-  if(state==="CANCELLED")return appShell({title:"Kết quả kiểm soát",body:ioResult("Đã hủy yêu cầu","Yêu cầu dừng trước khi thực thi; không phát sinh biến động kho hoặc thay đổi giá trị tồn kho.",[["Nghiệp vụ",cr11Current().id],["Tồn kho","Không thay đổi"]]),actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"'),centered:true,back:false});
-  if(state==="REJECTED")return appShell({title:"Kết quả sửa sai",body:ioResult("Yêu cầu không được duyệt","Nghiệp vụ gốc được giữ nguyên và không có tác động tồn kho mới.",[["Nghiệp vụ gốc","IO-260901-014"],["Tồn kho","Không thay đổi"]],"warning"),actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"'),centered:true,back:false});
-  if(state==="UNKNOWN")return appShell({title:"Kết quả sửa sai",body:ioResult("Đang xác minh kết quả","Không tạo hoặc gửi lại yêu cầu sửa sai. Hệ thống đang xác minh đúng lần xử lý này.",[["Nghiệp vụ gốc","IO-260901-014"],["Kết quả","Chưa xác định"]],"warning"),actions:primaryFooter("Xác minh kết quả",'data-cr11-action="handoff-unknown"'),centered:true,back:false});
-  if(state==="BLOCKED")return appShell({title:"Kết quả sửa sai",body:ioResult("Chưa thể ghi sửa sai","Điều kiện hiện hành không còn phù hợp. Nghiệp vụ gốc chưa bị thay đổi.",[["Nghiệp vụ gốc","IO-260901-014"],["Tác động mới","Không có"]],"warning"),actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"'),centered:true,back:false});
-  return appShell({title:"Kết quả sửa sai",body:ioResult("Đã hoàn tất sửa sai","Nghiệp vụ gốc được giữ nguyên; bản ghi sửa sai mới đã ghi phần điều chỉnh và liên kết đầy đủ.",[["Nghiệp vụ gốc","IO-260901-014"],["Bản ghi sửa sai","IO-260907-109"],["Điều chỉnh",`${Number(cr11CorrectQty)-120} hộp`]]),actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"'),centered:true,back:false});
-}
+/* cr11ListRows → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render048CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render049CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render052CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render050CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render051CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render053CR11 → app/bj11.js or bj12.js (T7-P A8) */
+
 
 let crControlQuery="";
 let cr16Filter="ALL";
@@ -864,203 +688,30 @@ function render083CR(state){
 
 // v1.8.0 — Control Foundation & Inquiry · BJ12 / UIF12 + BJ15 / UIF15
 // Product UI keeps migration controls and read-only inquiry separate from architecture/recovery mechanics.
-let cf12FileName = "ton-kho-dau-ky-2026.xlsx";
-let cf12Cutoff = "2026-08-31";
-let cf12ControlQty = "4820";
-let cf12ControlValue = "386240000";
-let cf12RejectOpen = false;
-let cf12RejectReason = "";
-const cf12Summary = { rows: 82, products: 36, parsedQty: 4820, parsedValue: 386240000, sellableRows: 74, nonSellableRows: 8 };
-const cfMoney = (n) => `${Number(n || 0).toLocaleString("vi-VN")} ₫`;
-const cfMoneyInput = (n) => n === "" || n == null ? "" : Number(String(n).replace(/[^0-9-]/g, "") || 0).toLocaleString("vi-VN");
-const cfNumber = (n) => Number(n || 0).toLocaleString("vi-VN");
-function cfDateVN(value){const v=String(value||"");const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:v;}
-function cfDateKey(value){const v=String(value||"");const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);return m?`${m[3]}-${m[2]}-${m[1]}`:v;}
-function cfField(label,value,attr,type="text",hint=""){
-  const isDate=type==="date", isMoney=type==="money", htmlType=(isDate||isMoney)?"text":type, shown=isDate?cfDateVN(value):isMoney?cfMoneyInput(value):value;
-  const extra=isDate?' inputmode="numeric" placeholder="dd/mm/yyyy"':isMoney?' inputmode="numeric"':"";
-  const component=isDate?"VDatePickerField":isMoney?"VMoneyField":type==="number"?"VNumberField":"VTextField";
-  const figmaNode=isMoney?' data-figma-node="522:7322"':'';
-  const stateAttr=isMoney?` data-ds-prop-state="${shown!==""?"Filled":"Default"}"`:"";
-  const moneySuffix=isMoney?'<span class="money-suffix" aria-hidden="true">₫</span>':"";
-  return `<div class="form-field cf-field" data-ds-component="${component}"${figmaNode}${stateAttr}><label>${label}</label><div class="input-shell"><input type="${htmlType}" value="${escapeAttribute(shown)}" ${attr}${extra}>${moneySuffix}</div>${hint?`<small class="field-help">${hint}</small>`:""}</div>`;
-}
-function cfSelect(label,value,options,attr,hint=""){
-  return `<div class="form-field cf-field" data-ds-component="VSelect"><label>${label}</label><div class="input-shell"><select ${attr}>${options.map(([v,l])=>`<option value="${escapeAttribute(v)}" ${String(v)===String(value)?"selected":""}>${l}</option>`).join("")}</select><span>${icon("chevronDown","icon--sm")}</span></div>${hint?`<small class="field-help">${hint}</small>`:""}</div>`;
-}
-function cfSummaryGrid(items){return `<div class="cf-summary-grid">${items.map(([l,v])=>`<div class="cf-summary-tile"><small>${l}</small><strong>${v}</strong></div>`).join("")}</div>`;}
-function cfSecondary(label,attr,tone="neutral"){return `<button class="button button--secondary cf-secondary" type="button" ${attr} data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-size="VButtonSize.medium" data-ds-prop-tone="VComponentTone.${tone}">${label}</button>`;}
-function cf12ReviewCard(){
-  return `${crFactCard("Phạm vi khởi tạo",[["Kho","Kho trung tâm",true],["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Dòng dữ liệu",`${cfNumber(cf12Summary.rows)} dòng`]])}${crFactCard("Số kiểm soát",[["Tổng số lượng",cfNumber(cf12ControlQty),true],["Tổng giá trị",cfMoney(cf12ControlValue),true],["Đối chiếu tệp","Khớp số kiểm soát"]])}`;
-}
-function render066CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Khởi tạo tồn kho",body:deniedBody(),centered:true,back:false});
-  if(state==="LOADING")return appShell({title:"Khởi tạo tồn kho",body:loadingBody(),back:false});
-  if(state==="PREPARING")return appShell({title:"Khởi tạo tồn kho",body:`${vBanner("info","Đang chuẩn bị số dư đầu kỳ","Tệp và số kiểm soát đã được giữ lại. Tiếp tục rà soát dữ liệu trước khi gửi phê duyệt.")}${cf12ReviewCard()}`,actions:primaryFooter("Tiếp tục chuẩn bị",'data-cf12-action="continue-prepare"'),back:false});
-  if(state==="PENDING_APPROVAL")return appShell({title:"Khởi tạo tồn kho",body:`${vBanner("info","Đã gửi chờ duyệt","Bạn đã hoàn tất phần chuẩn bị. Tồn kho chưa được khởi tạo ở bước này.")}${cf12ReviewCard()}`,back:false});
-  if(state==="REJECTED")return appShell({title:"Khởi tạo tồn kho",body:`${vBanner("warning","Cần sửa trước khi gửi lại","Người duyệt đã từ chối số dư đầu kỳ. Tồn kho chưa được khởi tạo.")}${crFactCard("Lý do",[["Nội dung","Đối chiếu lại số lượng của nhóm Vaccine",true],["Tác động tồn kho","Chưa có"]])}`,actions:primaryFooter("Sửa dữ liệu",'data-cf12-action="fix-rejected"'),back:false});
-  if(state==="UNKNOWN")return appShell({title:"Khởi tạo tồn kho",body:`${vBanner("warning","Đang xác minh kết quả","Không tạo một lần khởi tạo khác. Hệ thống đang xác minh đúng lần xử lý hiện tại trước khi mở nghiệp vụ kho bình thường.")}${crFactCard("Trạng thái",[["Ngày chốt số dư",cfDateVN(cf12Cutoff),true],["Khởi tạo mới","Bị khóa cho đến khi có kết luận"]])}`,back:false});
-  if(state==="ACTIVE_RECONCILED")return appShell({title:"Khởi tạo tồn kho",body:ioResult("Tồn kho đầu kỳ đã sẵn sàng","Số dư đầu kỳ đã được ghi nhận và đối chiếu. Nghiệp vụ kho bình thường có thể bắt đầu.",[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Đối soát","Đã khớp"]]),actions:primaryFooter("Xem tồn kho",'data-cf12-action="see-inventory"'),centered:true,back:false});
-  const body=`${crFactCard("Khởi tạo lần đầu",[["Kho","Kho trung tâm",true],["Trạng thái","Chưa thiết lập"],["Quy tắc","Chỉ có một số dư đầu kỳ chính thức"]])}<p class="io-footnote">Sau khi hoàn tất, mọi sửa sai phát sinh được xử lý bằng nghiệp vụ điều chỉnh có kiểm soát; không mở lại số dư đầu kỳ.</p>`;
-  return appShell({title:"Khởi tạo tồn kho",body,actions:primaryFooter("Bắt đầu",'data-cf12-action="start"'),back:false});
-}
-function render067CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Dữ liệu tồn kho đầu kỳ",body:deniedBody(),centered:true});
-  if(state==="LOCKED")return appShell({title:"Dữ liệu tồn kho đầu kỳ",body:`${vBanner("info","Dữ liệu đang được xử lý","Tệp nguồn và số kiểm soát hiện chỉ đọc.")}${cf12ReviewCard()}`});
-  if(state==="CONFLICT")return appShell({title:"Dữ liệu tồn kho đầu kỳ",body:`${vBanner("warning","Phạm vi vừa thay đổi","Không tiếp tục trên dữ liệu cũ. Tải lại thông tin hiện hành trước khi kiểm tra tệp.")}${cf12ReviewCard()}`});
-  const invalid=state==="VALIDATION_ERROR";
-  const body=`${invalid?vBanner("error","Chưa đủ dữ liệu kiểm soát","Chọn tệp, ngày chốt và nhập cả tổng số lượng lẫn tổng giá trị độc lập trước khi kiểm tra."):""}<section class="review-card cf-file-card" data-ds-component="VFileDropZone"><div class="review-card-body"><div class="cf-file-icon">${icon("fileText")}</div><div class="cf-file-copy"><strong>Tệp số dư đầu kỳ</strong><small>${esc(cf12FileName||"Chưa chọn tệp")}</small></div>${cfSecondary("Chọn tệp",'data-cf12-action="choose-file"')}</div></section><div class="form-stack">${cfField("Ngày chốt số dư",cf12Cutoff,'data-cf12-cutoff','date','Dùng đúng ngày nghiệp vụ mà số dư đầu kỳ có hiệu lực.')}${cfField("Tổng số lượng kiểm soát",cf12ControlQty,'data-cf12-control-qty','number','Nhập từ nguồn kiểm soát độc lập với tệp chi tiết.')}${cfField("Tổng giá trị kiểm soát",cf12ControlValue,'data-cf12-control-value','money','Giá trị tồn kho đầu kỳ theo nguồn kiểm soát.')}</div>`;
-  const disabled=!cf12FileName||!cf12Cutoff||!(Number(cf12ControlQty)>=0)||!(Number(cf12ControlValue)>=0);
-  return appShell({title:"Dữ liệu tồn kho đầu kỳ",body,actions:primaryFooter("Kiểm tra dữ liệu",'data-cf12-action="check"',disabled)});
-}
-function render068CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả kiểm tra dữ liệu",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Kết quả kiểm tra dữ liệu",body:loadingBody()});
-  if(state==="CONFLICT")return appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Nguồn dữ liệu đã thay đổi","Kết quả kiểm tra cũ không còn hiệu lực. Chọn lại tệp hoặc tải lại phạm vi.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
-  if(state==="VALIDATION_FAILED"){
-    const body=`${vBanner("error","Còn dòng chưa hợp lệ","Không có dữ liệu nào được ghi nhận. Sửa các dòng lỗi trong nguồn rồi kiểm tra lại.")}${cfSummaryGrid([["Dòng đọc được",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Lỗi cần sửa","3"]])}${crFactCard("Dòng 18 · Vaccine Newcastle",[["Vấn đề","Chưa xác định sản phẩm trong VET45",true],["Cách xử lý","Sửa dữ liệu nguồn; không tạo sản phẩm trong luồng này"]])}${crFactCard("Dòng 44 · Amox 500",[["Vấn đề","Trùng cùng sản phẩm + kho + tình trạng + lô",true],["Cách xử lý","Giữ một dòng dữ liệu chính thức; không tự cộng gộp"]])}${crFactCard("Dòng 61 · Nobivac DHPPi",[["Vấn đề","Thiếu hạn dùng bắt buộc của lô",true],["Cách xử lý","Bổ sung hạn dùng đúng theo nhãn lô"]])}`;
-    return appShell({title:"Kết quả kiểm tra dữ liệu",body,actions:primaryFooter("Chọn lại tệp",'data-cf12-action="back-file"')});
-  }
-  if(state==="CONTROL_TOTAL_MISMATCH"){
-    const body=`${vBanner("warning","Số kiểm soát không khớp","Không gửi phê duyệt cho đến khi số trong tệp khớp nguồn kiểm soát độc lập.")}${crFactCard("Đối chiếu số lượng",[["Theo tệp",cfNumber(cf12Summary.parsedQty),true],["Số kiểm soát",cfNumber(Number(cf12ControlQty)+12),true],["Chênh lệch","−12"]])}${crFactCard("Đối chiếu giá trị",[["Theo tệp",cfMoney(cf12Summary.parsedValue),true],["Số kiểm soát",cfMoney(cf12ControlValue),true]])}`;
-    return appShell({title:"Kết quả kiểm tra dữ liệu",body,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
-  }
-  const body=`${vBanner("success","Dữ liệu đã qua kiểm tra","Tệp chi tiết khớp số kiểm soát và không còn blocker dữ liệu trong phạm vi này.")}${cfSummaryGrid([["Dòng dữ liệu",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue)]])}${crFactCard("Kiểm tra chính",[["Số âm","Không có"],["Dòng trùng khóa nghiệp vụ","Không có"],["Lô / hạn dùng","Hợp lệ"],["Số kiểm soát","Đã khớp",true]])}`;
-  return appShell({title:"Kết quả kiểm tra dữ liệu",body,actions:primaryFooter("Rà soát số dư",'data-cf12-action="review"')});
-}
-function render069CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Rà soát số dư đầu kỳ",body:deniedBody(),centered:true});
-  if(state==="CONFLICT")return appShell({title:"Rà soát số dư đầu kỳ",body:`${vBanner("warning","Dữ liệu vừa thay đổi","Quay lại kiểm tra nguồn hiện hành trước khi gửi phê duyệt.")}${cf12ReviewCard()}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')});
-  if(state==="VALIDATION_ERROR")return appShell({title:"Rà soát số dư đầu kỳ",body:`${vBanner("error","Chưa thể gửi phê duyệt","Dữ liệu không còn thỏa điều kiện đã kiểm tra. Quay lại bước kiểm tra.")}${cf12ReviewCard()}`,actions:primaryFooter("Kiểm tra lại",'data-cf12-action="back-check"')});
-  if(state==="PENDING_APPROVAL")return appShell({title:"Rà soát số dư đầu kỳ",body:`${vBanner("info","Đã gửi chờ duyệt","Bạn đã hoàn tất phần việc chuẩn bị. Tồn kho chưa thay đổi.")}${cf12ReviewCard()}`});
-  const body=`${cf12ReviewCard()}${crFactCard("Phân bố dữ liệu",[["Bán được",`${cfNumber(cf12Summary.sellableRows)} dòng`,true],["Không bán được",`${cfNumber(cf12Summary.nonSellableRows)} dòng`],["Lô / hạn dùng","Giữ theo dữ liệu sản phẩm"]])}`;
-  return appShell({title:"Rà soát số dư đầu kỳ",body,actions:primaryFooter("Gửi phê duyệt",'data-cf12-action="send-approval"')});
-}
-function cf12ApprovalFooter(){return `<div class="ic-action-stack cf12-approval-actions">${cfSecondary("Từ chối",'data-cf12-action="open-reject"',"danger")}${primaryFooter("Duyệt",'data-cf12-action="approve"')}</div>`;}
-function cf12RejectSheet(){
-  if(!cf12RejectOpen)return "";
-  return `<div class="sheet-backdrop" data-cf12-action="close-reject"><section class="bottom-sheet cf12-reject-sheet" role="dialog" aria-modal="true" aria-label="Từ chối số dư đầu kỳ" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>Từ chối số dư đầu kỳ</h3></div><div class="sheet-divider"></div><div class="sheet-content">${icTextarea("Lý do từ chối",cf12RejectReason,'data-cf12-reject-reason','Nhập nội dung người lập cần sửa')}<div class="sheet-actions">${cfSecondary("Hủy",'data-cf12-action="close-reject"')}<button class="button button--primary" type="button" data-cf12-action="confirm-reject" data-ds-component="VButton" ${cf12RejectReason.trim()?"":"disabled"}>Xác nhận từ chối</button></div></div></section></div>`;
-}
-function render070CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Duyệt số dư đầu kỳ",body:deniedBody(),centered:true,back:false});
-  if(state==="SELF_APPROVAL_NOT_ALLOWED")return appShell({title:"Duyệt số dư đầu kỳ",body:`${vBanner("warning","Không thể tự duyệt","Người chuẩn bị số dư đầu kỳ không được đồng thời là người quyết định.")}${cf12ReviewCard()}`,back:false});
-  if(state==="APPROVAL_ALREADY_DECIDED")return appShell({title:"Duyệt số dư đầu kỳ",body:`${vBanner("info","Công việc đã có quyết định","Quyết định hợp lệ đầu tiên có hiệu lực. Màn này chỉ còn để xem bằng chứng đã dùng.")}${cf12ReviewCard()}`,back:false});
-  if(state==="VALIDATION_ERROR")return appShell({title:"Duyệt số dư đầu kỳ",body:`${vBanner("error","Không thể quyết định","Dữ liệu nền không còn hợp lệ. Không ghi nhận số dư từ bằng chứng đã thay đổi.")}${cf12ReviewCard()}`,back:false});
-  const body=`${vBanner("info","Kiểm tra trước khi duyệt","Đối chiếu ngày chốt, số kiểm soát và phạm vi. Nếu duyệt, hệ thống sẽ ghi nhận số dư sau khi kiểm tra lại điều kiện.")}${crFactCard("Người chuẩn bị",[["Người lập","Nguyễn An",true],["Ngày gửi","07/09/2026 · 10:32"]])}${cf12ReviewCard()}${cf12RejectSheet()}`;
-  return appShell({title:"Duyệt số dư đầu kỳ",body,actions:cf12ApprovalFooter(),back:false});
-}
-function render071CF12(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả khởi tạo tồn kho",body:deniedBody(),centered:true,back:false});
-  if(state==="PROCESSING")return appShell({title:"Kết quả khởi tạo tồn kho",body:`${loadingBody()}${vBanner("info","Đang ghi nhận và đối soát","Hệ thống đang xử lý số dư được duyệt. Không cần thực hiện thêm thao tác.")}`,centered:true,back:false});
-  if(state==="UNKNOWN"||state==="COMMIT_UNKNOWN")return appShell({title:"Kết quả khởi tạo tồn kho",body:ioResult("Đang xác minh kết quả","Chưa thể kết luận lần khởi tạo đã được ghi nhận hay chưa. Không tạo lần mới hoặc nhập lại số dư.",[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Khởi tạo mới","Đang bị khóa"]],"warning"),centered:true,back:false});
-  if(state==="REJECTED_EXECUTION")return appShell({title:"Kết quả khởi tạo tồn kho",body:ioResult("Chưa khởi tạo tồn kho","Yêu cầu không được thực hiện. Không có số dư đầu kỳ nào được ghi nhận.",[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Tác động tồn kho","Không có"]],"warning"),actions:primaryFooter("Về trạng thái khởi tạo",'data-cf12-action="result-home"'),centered:true,back:false});
-  const body=ioResult("Đã khởi tạo tồn kho đầu kỳ","Số dư đã được ghi nhận nguyên khối và đối soát thành công. Mọi sửa sai tiếp theo đi qua nghiệp vụ điều chỉnh có kiểm soát.",[["Ngày chốt số dư",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Tổng giá trị",cfMoney(cf12Summary.parsedValue)],["Đối soát","Đã khớp"]]);
-  return appShell({title:"Kết quả khởi tạo tồn kho",body,actions:primaryFooter("Xem tồn kho",'data-cf12-action="see-inventory"'),centered:true,back:false});
-}
+/* cf12* state + cf12Summary → app/bj12.js (T7-P A8) */
+/* cfMoney…cfSecondary → app/shared-control.js (T7-P A9) */
+/* cf12ReviewCard → app/bj11.js or bj12.js (T7-P A8) */
 
-let cf15ReportType = "INVENTORY";
-let cf15DateMode = "BUSINESS";
-let cf15Warehouse = "MAIN";
-let cf15Product = "ALL";
-let cf15From = "2026-09-01";
-let cf15To = "2026-09-07";
-let cf15SelectedProduct = "P-NOB";
-let cf15SelectedMovement = "M-RECEIPT";
-let cf15ProductSheetOpen = false;
-let cf15ExportFrom = "REPORT";
-let cf15FinanceIncluded = true;
-const cf15Products = [
- {id:"P-NOB",name:"Nobivac DHPPi",code:"SP-00418",qty:118,uom:"hộp",available:106,value:10030000,tracking:"LOT",lots:[{lot:"N2407-01",qty:70,state:"Bán được"},{lot:"N2408-02",qty:36,state:"Bán được"},{lot:"N2407-Q",qty:12,state:"Cách ly"}]},
- {id:"P-AMX",name:"Amox 500",code:"SP-00128",qty:24,uom:"hộp",available:18,value:3480000,tracking:"LOT",lots:[{lot:"L2407-A",qty:18,state:"Bán được"},{lot:"L2407-Q",qty:6,state:"Cách ly"}]},
- {id:"P-GLV",name:"Găng tay M",code:"SP-00602",qty:34,uom:"hộp",available:34,value:2550000,tracking:"NONE",lots:[]}
-];
-const cf15Movements = [
- {id:"M-RECEIPT",time:"07/09/2026 · 09:14",business:"07/09/2026",recorded:"07/09/2026 · 09:16",label:"Nhận hàng",source:"Phiếu nhận PN-260907-04",delta:20,before:98,after:118,uom:"hộp",lot:"N2408-02",state:"Bán được",actor:"Nguyễn An",value:1700000},
- {id:"M-SALE",time:"06/09/2026 · 15:40",business:"06/09/2026",recorded:"06/09/2026 · 15:42",label:"Bán hàng",source:"Đơn bán DH-260906-118",delta:-4,before:102,after:98,uom:"hộp",lot:"N2407-01",state:"Bán được",actor:"Trần Minh",value:-340000},
- {id:"M-STATUS",time:"05/09/2026 · 10:05",business:"05/09/2026",recorded:"05/09/2026 · 10:05",label:"Chuyển tình trạng",source:"Yêu cầu trạng thái TT-260905-03",delta:0,before:102,after:102,uom:"hộp",lot:"N2407-Q",state:"Cách ly",actor:"Lê Hoa",value:0}
-];
-function cf15ProductById(id){return cf15Products.find(x=>x.id===id)||cf15Products[0];}
-function cf15Movement(){return cf15Movements.find(x=>x.id===cf15SelectedMovement)||cf15Movements[0];}
-function cf15DateLabel(mode=cf15DateMode){return mode==="RECORDED"?"Ngày ghi nhận":"Ngày nghiệp vụ";}
-function cf15Segmented(value,items,attr){return `<div class="cf-segmented" data-ds-component="VSegmentedControl">${items.map(([v,l])=>`<button type="button" class="cf-segment ${value===v?"is-selected":""}" ${attr}="${v}" data-ds-component="VSegmentedControlItem">${l}</button>`).join("")}</div>`;}
-function render054CF15(state){
-  if(activeFlowId!=="UIF-15")return renderGeneric(screens.find(s=>s.id==="SCR-054"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Tra cứu kho",body:deniedBody(),centered:true,back:false});
-  if(state==="CONFLICT")return appShell({title:"Tra cứu kho",body:vBanner("warning","Phạm vi vừa thay đổi","Tải lại phạm vi tra cứu trước khi xem báo cáo."),back:false});
-  const invalid=state==="VALIDATION_ERROR";
-  const productOptions=[["ALL","Tất cả sản phẩm"],...cf15Products.map(x=>[x.id,`${x.name} · ${x.code}`])];
-  const body=`${invalid?vBanner("error","Chưa đủ điều kiện tra cứu",cf15ReportType==="STOCK_CARD"?"Chọn một sản phẩm cụ thể để xem thẻ kho.":"Kiểm tra lại phạm vi và kỳ báo cáo."):""}${ioSectionTitle("Loại tra cứu")}${cf15Segmented(cf15ReportType,[["INVENTORY","Tồn kho"],["STOCK_CARD","Thẻ kho"]],"data-cf15-report-type")}${ioSectionTitle("Phạm vi")}<div class="form-stack">${cfSelect("Kho",cf15Warehouse,[["MAIN","Kho trung tâm"]],"data-cf15-warehouse","Nếu tổ chức chỉ có một kho hợp lệ, hệ thống giữ sẵn kho đó.")}${cfSelect("Sản phẩm",cf15Product,productOptions,"data-cf15-product",cf15ReportType==="STOCK_CARD"?"Bắt buộc khi xem thẻ kho.":"Có thể để tất cả khi xem báo cáo tồn.")}</div>${ioSectionTitle("Cách hiểu thời gian")}${cf15Segmented(cf15DateMode,[["BUSINESS","Ngày nghiệp vụ"],["RECORDED","Ngày ghi nhận"]],"data-cf15-date-mode")}<p class="io-footnote">Hai mốc thời gian có ý nghĩa khác nhau và không được trộn âm thầm trong cùng một kết quả.</p><div class="form-stack cf-date-grid">${cfField("Từ ngày",cf15From,'data-cf15-from','date')}${cfField("Đến ngày",cf15To,'data-cf15-to','date')}</div>`;
-  return appShell({title:"Tra cứu kho",body,actions:primaryFooter("Xem báo cáo",'data-cf15-action="query"'),back:false});
-}
-function cf15ContextBanner(state,mode){
-  const stale=state==="STALE"?vBanner("warning","Dữ liệu đang cập nhật","Dùng mốc dữ liệu bên dưới; không sửa tồn kho từ số liệu chưa cập nhật."):"";
-  return `${stale}<div class="cf-context-row"><span>${cf15DateLabel(mode)} · ${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}</span><strong>Đến 07/09/2026 · 11:00</strong></div>`;
-}
-function cf15ProductSheet(product,financeAllowed){
-  if(!cf15ProductSheetOpen)return "";
-  const stateRows=[...new Set(product.lots.map(x=>x.state))].map(st=>[st,`${cfNumber(product.lots.filter(x=>x.state===st).reduce((a,x)=>a+x.qty,0))} ${product.uom}`]);
-  const lotBlock=product.tracking==="LOT"?`${ioSectionTitle("Theo lô")}<div class="cf-sheet-list">${product.lots.map(x=>ioMetaRow(`Lô ${x.lot}`,`${cfNumber(x.qty)} ${product.uom} · ${x.state}`,true)).join("")}</div>`:"";
-  const stateBlock=stateRows.length?`${ioSectionTitle("Theo tình trạng")}<div class="cf-sheet-list">${stateRows.map(r=>ioMetaRow(r[0],r[1],true)).join("")}</div>`:"";
-  return `<div class="sheet-backdrop" data-cf15-action="close-product-sheet"><section class="bottom-sheet cf15-sheet" role="dialog" aria-modal="true" aria-label="Chi tiết ${product.name}" onclick="event.stopPropagation()" data-ds-component="VBottomSheet" data-figma-node="4695:6353"><div class="sheet-handle"></div><div class="sheet-title"><h3>${product.name}</h3><small>${product.code}</small></div><div class="sheet-divider"></div><div class="sheet-content">${crFactCard("Số lượng",[["Tồn vật lý",`${cfNumber(product.qty)} ${product.uom}`,true],["Khả dụng bán",`${cfNumber(product.available)} ${product.uom}`,true],...(financeAllowed?[["Giá trị tồn",cfMoney(product.value)]]:[])])}${stateBlock}${lotBlock}${product.tracking!=="LOT"?'<p class="io-footnote">Sản phẩm không quản lý theo lô; báo cáo không tạo một “lô mặc định” giả.</p>':""}<div class="sheet-actions">${cfSecondary("Đóng",'data-cf15-action="close-product-sheet"')}<button class="button button--primary" type="button" data-cf15-action="product-stock-card" data-cf15-product-id="${product.id}" data-ds-component="VButton">Xem thẻ kho</button></div></div></section></div>`;
-}
-function cf15InventoryResult(state,mode){
-  const financeAllowed=state!=="FINANCIAL_RESTRICTED";
-  const rows=cf15Products.map(p=>ioProductRow({name:p.name,code:p.code,primary:`${cfNumber(p.qty)} ${p.uom}`,secondary:`Khả dụng ${cfNumber(p.available)} ${p.uom}`,attr:`data-cf15-product-row="${p.id}"`})).join("");
-  const totalValue=cf15Products.reduce((a,x)=>a+x.value,0);
-  return `${cf15ContextBanner(state,mode)}${cfSummaryGrid([["Sản phẩm",cf15Products.length],["Kho","Kho trung tâm"],...(financeAllowed?[["Tổng giá trị",cfMoney(totalValue)]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Bạn vẫn có thể xem số lượng trong phạm vi được cấp quyền.")}${ioSectionTitle("Sản phẩm")}<div class="io-list-card" data-ds-component="VSection" data-composed-from="DS v2 / List Row"><div class="io-product-list">${rows}</div></div><p class="io-footnote">Không cộng các số lượng khác đơn vị thành một tổng giả.</p><div class="cf-inline-actions">${cfSecondary("Xuất báo cáo",'data-cf15-action="export"')}</div>${cf15ProductSheet(cf15ProductById(cf15SelectedProduct),financeAllowed)}`;
-}
-function cf15StockCardResult(state,mode){
-  const financeAllowed=state!=="FINANCIAL_RESTRICTED"; const p=cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product);
-  const movRows=cf15Movements.map(m=>`<button class="cf-movement-row" type="button" data-cf15-movement="${m.id}" data-ds-component="DS v2 / List Row" data-figma-node="525:519" data-ds-prop-type="Navigation" data-ds-prop-density="Default" data-ds-prop-state="Default"><span><strong>${m.label}</strong><small>${mode==="RECORDED"?m.recorded:m.business} · ${m.source}</small></span><span class="cf-movement-values"><strong>${m.delta>0?"+":""}${m.delta} ${m.uom}</strong><small>Còn ${m.after} ${m.uom}</small></span>${navChevron()}</button>`).join("");
-  return `${cf15ContextBanner(state,mode)}${crFactCard(p.name,[["Mã",p.code,true],["Tồn hiện tại",`${cfNumber(p.qty)} ${p.uom}`],["Khả dụng bán",`${cfNumber(p.available)} ${p.uom}`],...(financeAllowed?[["Giá trị tồn",cfMoney(p.value)]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Thẻ kho vẫn hiển thị số lượng và nguồn nghiệp vụ trong phạm vi quyền.")}${ioSectionTitle("Biến động")}<div class="cf-movement-list">${movRows}</div><div class="cf-inline-actions">${cfSecondary("Xuất thẻ kho",'data-cf15-action="export"')}</div>`;
-}
-function render055CF15(state){
-  if(activeFlowId!=="UIF-15")return renderGeneric(screens.find(s=>s.id==="SCR-055"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả tra cứu",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Kết quả tra cứu",body:loadingBody()});
-  if(state==="EMPTY"||state==="FILTER_EMPTY")return appShell({title:"Kết quả tra cứu",body:ioEmpty(state==="FILTER_EMPTY"?"Không có dữ liệu phù hợp":"Chưa có dữ liệu tồn kho","Đổi phạm vi hoặc kỳ báo cáo để kiểm tra lại.")});
-  const mode=state==="RECORDED_DATE_VIEW"?"RECORDED":state==="BUSINESS_DATE_VIEW"?"BUSINESS":cf15DateMode;
-  const body=cf15ReportType==="STOCK_CARD"?cf15StockCardResult(state,mode):cf15InventoryResult(state,mode);
-  return appShell({title:cf15ReportType==="STOCK_CARD"?"Thẻ kho":"Báo cáo tồn kho",subtitle:`Kho trung tâm · ${cf15DateLabel(mode)}`,body});
-}
-function render056CF15(state){
-  if(activeFlowId!=="UIF-15")return render056IC09(state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Chi tiết biến động",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Chi tiết biến động",body:loadingBody()});
-  if(state==="CONFLICT")return appShell({title:"Chi tiết biến động",body:vBanner("warning","Nguồn nghiệp vụ vừa thay đổi","Tải lại dữ liệu trước khi dựa vào chi tiết đang xem.")});
-  const m=cf15Movement(); const financeAllowed=state!=="FINANCIAL_RESTRICTED";
-  const body=`${crFactCard(m.label,[["Nguồn",m.source,true],["Ngày nghiệp vụ",m.business],["Ngày ghi nhận",m.recorded],["Người thực hiện",m.actor]])}${crFactCard("Số lượng",[["Trước",`${m.before} ${m.uom}`],["Biến động",`${m.delta>0?"+":""}${m.delta} ${m.uom}`,true],["Sau",`${m.after} ${m.uom}`],["Lô",m.lot],["Tình trạng",m.state]])}${financeAllowed?crFactCard("Giá trị",[["Tác động",cfMoney(m.value),true],["Nguồn giá","Giá trị chính thức của giao dịch"]]):vBanner("info","Giá trị tài chính đã được ẩn","Bạn có thể truy vết nguồn và số lượng nhưng không xem giá trị.")}${cfSecondary("Xem nguồn",'data-cf15-action="source"')}`;
-  return appShell({title:"Chi tiết biến động",body});
-}
-function render057CF15(state){
-  if(activeFlowId!=="UIF-15")return renderGeneric(screens.find(s=>s.id==="SCR-057"),state);
-  if(state==="PERMISSION_DENIED")return appShell({title:"Nguồn nghiệp vụ",body:deniedBody(),centered:true});
-  if(state==="LOADING")return appShell({title:"Nguồn nghiệp vụ",body:loadingBody()});
-  if(state==="EMPTY")return appShell({title:"Nguồn nghiệp vụ",body:ioEmpty("Chưa có bằng chứng nguồn","Không có chuỗi nguồn phù hợp với biến động đang xem.")});
-  const m=cf15Movement(); const stale=state==="STALE"?vBanner("warning","Dữ liệu nguồn đang cập nhật","Giữ mốc hiển thị hiện tại; không dùng dữ liệu chưa cập nhật làm căn cứ để thay đổi tồn kho."):"";
-  const body=`${stale}${crFactCard("Biến động đang xem",[["Nguồn",m.source,true],["Sản phẩm",cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product).name],["Số lượng",`${m.delta>0?"+":""}${m.delta} ${m.uom}`]])}${ioSectionTitle("Dòng thời gian nghiệp vụ")}<div class="timeline cf-business-timeline"><div class="timeline-card"><strong>${m.source}</strong><small>Giao dịch nguồn được hoàn tất</small></div><div class="timeline-card"><strong>Đã ghi nhận kho</strong><small>${m.recorded}</small></div><div class="timeline-card"><strong>${m.delta>=0?"Tồn tăng":"Tồn giảm"} ${Math.abs(m.delta)} ${m.uom}</strong><small>Số dư sau biến động: ${m.after} ${m.uom}</small></div></div><div class="cf-inline-actions">${cfSecondary("Xuất bằng chứng",'data-cf15-action="export-source"')}</div>`;
-  return appShell({title:"Nguồn nghiệp vụ",body});
-}
-function render058CF15(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Xuất báo cáo",body:deniedBody(),centered:true,back:false});
-  if(state==="EXPORT_RUNNING")return appShell({title:"Xuất báo cáo",body:loadingBody(),centered:true,back:false});
-  if(state==="VALIDATION_ERROR")return appShell({title:"Xuất báo cáo",body:vBanner("error","Chưa thể xuất","Phạm vi hoặc mốc dữ liệu không còn hợp lệ. Quay lại kết quả tra cứu để kiểm tra."),backAction:"cf15-back-export"});
-  if(state==="STALE")return appShell({title:"Xuất báo cáo",body:`${vBanner("warning","Kết quả đang cập nhật","Không xuất một file được hiểu nhầm là số liệu mới hơn mốc đang hiển thị.")}${crFactCard("Mốc dữ liệu",[["Đến","07/09/2026 · 11:00",true],["Cách hiểu thời gian",cf15DateLabel()]])}`,backAction:"cf15-back-export"});
-  const sourceLabel=cf15ExportFrom==="SOURCE"?"Bằng chứng biến động":cf15ReportType==="STOCK_CARD"?"Thẻ kho":"Báo cáo tồn kho";
-  const body=`${crFactCard("Phạm vi xuất",[["Nội dung",sourceLabel,true],["Kho","Kho trung tâm"],["Kỳ",`${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}`],["Cách hiểu thời gian",cf15DateLabel()],["Dữ liệu đến","07/09/2026 · 11:00"],["Giá trị tài chính",cf15FinanceIncluded?"Có":"Không"]])}${crFactCard("Định dạng",[["Tệp","CSV",true],["Quyền dữ liệu","Giữ đúng như màn đang xem"]])}<p class="io-footnote">Tệp xuất giữ cùng phạm vi, quyền và mốc dữ liệu với kết quả đang xem.</p>`;
-  return appShell({title:"Xuất báo cáo",body,actions:primaryFooter("Xuất báo cáo",'data-cf15-action="confirm-export"'),backAction:"cf15-back-export"});
-}
-function render059CF15(state){
-  if(state==="PERMISSION_DENIED")return appShell({title:"Kết quả xuất báo cáo",body:deniedBody(),centered:true,back:false});
-  if(state==="PROCESSING")return appShell({title:"Kết quả xuất báo cáo",body:loadingBody(),centered:true,back:false});
-  if(state==="SOURCE_STALE")return appShell({title:"Kết quả xuất báo cáo",body:ioResult("Nguồn dữ liệu đã thay đổi","Không tạo tệp từ kết quả chưa cập nhật. Quay lại báo cáo và tải mốc hiện hành trước khi xuất lại.",[["Tệp","Chưa tạo"],["Dữ liệu","Không bị thay đổi"]],"warning"),actions:primaryFooter("Quay lại báo cáo",'data-cf15-action="done-export"'),centered:true,back:false});
-  if(state==="REJECTED_EXECUTION")return appShell({title:"Kết quả xuất báo cáo",body:ioResult("Chưa tạo được tệp","Chưa tạo được tệp nhưng dữ liệu tồn kho không thay đổi.",[["Dữ liệu kho","Không thay đổi"],["Có thể thử lại","Từ cùng báo cáo hiện hành"]],"warning"),actions:primaryFooter("Quay lại báo cáo",'data-cf15-action="done-export"'),centered:true,back:false});
-  const filename=cf15ExportFrom==="SOURCE"?"bang-chung-bien-dong-07092026.csv":cf15ReportType==="STOCK_CARD"?"the-kho-07092026.csv":"bao-cao-ton-kho-07092026.csv";
-  const body=ioResult("Đã tạo tệp báo cáo","Tệp giữ đúng phạm vi, quyền và mốc dữ liệu của kết quả đã xem.",[["Tệp",filename],["Dữ liệu đến","07/09/2026 · 11:00"],["Giá trị tài chính",cf15FinanceIncluded?"Có":"Không"]]);
-  return appShell({title:"Kết quả xuất báo cáo",body,actions:primaryFooter("Xong",'data-cf15-action="done-export"'),centered:true,back:false});
-}
+/* render066CF12 → app/bj11.js or bj12.js (T7-P A8) */
 
-const renderers = {"SCR-048":render048CR11,"SCR-049":render049CR11,"SCR-050":render050CR11,"SCR-051":render051CR11,"SCR-052":render052CR11,"SCR-053":render053CR11,"SCR-078":render078CR,"SCR-079":render079CR,"SCR-080":render080CR,"SCR-081":render081CR,"SCR-082":render082CR,"SCR-083":render083CR,"SCR-042":render042IC08,"SCR-043":render043IC08,"SCR-044":render044IC08,"SCR-045":render045IC08,"SCR-046":render046IC08,"SCR-047":render047IC08,"SCR-054":render054CF15,"SCR-055":render055CF15,"SCR-056":render056CF15,"SCR-057":render057CF15,"SCR-058":render058CF15,"SCR-059":render059CF15,"SCR-066":render066CF12,"SCR-067":render067CF12,"SCR-068":render068CF12,"SCR-069":render069CF12,"SCR-070":render070CF12,"SCR-071":render071CF12};
+/* render067CF12 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render068CF12 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render069CF12 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* cf12ApprovalFooter → app/bj11.js or bj12.js (T7-P A8) */
+
+/* cf12RejectSheet → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render070CF12 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* render071CF12 → app/bj11.js or bj12.js (T7-P A8) */
+
+
+/* cf15* state + render054…059CF15 → app/bj15.js (T7-P A9) */
+
+const renderers = {"SCR-078":render078CR,"SCR-079":render079CR,"SCR-080":render080CR,"SCR-081":render081CR,"SCR-082":render082CR,"SCR-083":render083CR};
 for (const screen of screens) if (!renderers[screen.id]) renderers[screen.id]=(state)=>renderGeneric(screen,state);
 /* flowScreen assigns after framework */
 
@@ -1523,90 +1174,46 @@ syncReviewUrl();
 
 /* UIF-07 click listener moved to app/bj07.js (T7-P A6) */
 
+// v1.7.0 Correction & Recovery interactions (UIF-11 → bj11.js T7-P A8; UIF-16/17 remain for A10)
+ document.addEventListener("input",(event)=>{
+  if(["UIF-16","UIF-17"].includes(activeFlowId)&&event.target.matches("[data-cr-control-search]")){crControlQuery=event.target.value;return renderAppScreen();}
+ },true);
 
-// v1.8.0 — targeted interactions for UIF12 / UIF15. No backend calls are simulated.
-document.addEventListener("input",(event)=>{
-  if(activeFlowId==="UIF-12"){
-    if(event.target.matches("[data-cf12-cutoff]")){cf12Cutoff=event.target.value;return;}
-    if(event.target.matches("[data-cf12-control-qty]")){cf12ControlQty=event.target.value;return;}
-    if(event.target.matches("[data-cf12-control-value]")){cf12ControlValue=String(event.target.value||"").replace(/[^0-9-]/g,"");return;}
-    if(event.target.matches("[data-cf12-reject-reason]")){
-      cf12RejectReason=event.target.value;
-      const b=document.querySelector('[data-cf12-action="confirm-reject"]'); if(b)b.disabled=!cf12RejectReason.trim();
-      return;
+ document.addEventListener("click",(event)=>{
+  if(activeFlowId==="UIF-16"){
+    const f=event.target.closest("[data-cr16-filter]");if(f){event.preventDefault();cr16Filter=f.dataset.cr16Filter;return renderAppScreen();}
+  }
+  if(activeFlowId==="UIF-17"){
+    const f=event.target.closest("[data-cr17-filter]");if(f){event.preventDefault();cr17Filter=f.dataset.cr17Filter;return renderAppScreen();}
+  }
+  if(["UIF-16","UIF-17"].includes(activeFlowId)){
+    const row=event.target.closest("[data-cr-case]");if(row){event.preventDefault();if(activeFlowId==="UIF-16"){cr16SelectedId=row.dataset.crCase;stateByScreen["SCR-079"]=cr079StateFor16(cr16Current());}else{cr17SelectedId=row.dataset.crCase;stateByScreen["SCR-079"]=cr079StateFor17(cr17Current());}return navigate("SCR-079");}
+  }
+  if(activeFlowId==="UIF-16"){
+    const a=event.target.closest("[data-cr16-action]");if(a&&!a.disabled){event.preventDefault();const k=a.dataset.cr16Action;
+      if(k==="open-plan"){stateByScreen["SCR-080"]="READY";return navigate("SCR-080");}
+      if(k==="start-recovery"){stateByScreen["SCR-081"]="REBUILDING";navigate("SCR-081");setTimeout(()=>{if(activeFlowId==="UIF-16"&&activeScreenId==="SCR-081"&&stateByScreen["SCR-081"]==="REBUILDING"){stateByScreen["SCR-081"]="READY";syncReviewUrl();render();}},750);return;}
+      if(k==="review-result"){stateByScreen["SCR-082"]="READY";return navigate("SCR-082");}
+      if(k==="review-close"){stateByScreen["SCR-082"]="READY";return navigate("SCR-082");}
+      if(k==="close-case"){stateByScreen["SCR-083"]="RESOLVED";return navigate("SCR-083");}
+      if(k==="show-escalated"){stateByScreen["SCR-083"]="ESCALATED";return navigate("SCR-083");}
+      if(k==="handoff-correction"){cr11SelectedId="IO-260901-014";stateByScreen["SCR-049"]="CORRECTABLE";return crSwitchFlow("UIF-11","SCR-049","CORRECTABLE");}
+      if(k==="to-list"){crControlQuery="";stateByScreen["SCR-078"]="READY";return navigate("SCR-078");}
     }
   }
-  if(activeFlowId==="UIF-15"){
-    if(event.target.matches("[data-cf15-from]")){cf15From=event.target.value;return;}
-    if(event.target.matches("[data-cf15-to]")){cf15To=event.target.value;return;}
+  if(activeFlowId==="UIF-17"){
+    const a=event.target.closest("[data-cr17-action]");if(a&&!a.disabled){event.preventDefault();const k=a.dataset.cr17Action;
+      if(k==="open-plan"){stateByScreen["SCR-080"]=cr17Current().evidence==="INSUFFICIENT"?"INSUFFICIENT_EVIDENCE":"READY";return navigate("SCR-080");}
+      if(k==="execute-plan"){cr17ResolutionMode=cr17Current().evidence==="COMMITTED"?"COMMITTED":"CONTINUED";stateByScreen["SCR-082"]="READY";return navigate("SCR-082");}
+      if(k==="finish-review"){stateByScreen["SCR-083"]="COMPLETED";return navigate("SCR-083");}
+      if(k==="show-escalated"){stateByScreen["SCR-083"]="ESCALATED";return navigate("SCR-083");}
+      if(k==="to-list"){crControlQuery="";cr17ResolutionMode="";stateByScreen["SCR-078"]="READY";return navigate("SCR-078");}
+    }
   }
-},true);
+ },true);
 
-document.addEventListener("change",(event)=>{
-  if(activeFlowId!=="UIF-15")return;
-  if(event.target.matches("[data-cf15-warehouse]")){cf15Warehouse=event.target.value;return;}
-  if(event.target.matches("[data-cf15-product]")){cf15Product=event.target.value;if(cf15Product!=="ALL")cf15SelectedProduct=cf15Product;return;}
-},true);
 
-document.addEventListener("click",(event)=>{
-  if(activeFlowId==="UIF-12"){
-    const a=event.target.closest("[data-cf12-action]"); if(!a||a.disabled)return;
-    event.preventDefault(); event.stopPropagation(); const k=a.dataset.cf12Action;
-    if(k==="start"||k==="continue-prepare"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
-    if(k==="choose-file"){cf12FileName="ton-kho-dau-ky-2026.xlsx";stateByScreen["SCR-067"]="READY";return renderAppScreen();}
-    if(k==="check"){
-      const valid=Boolean(cf12FileName&&cf12Cutoff&&cf12ControlQty!==""&&cf12ControlValue!==""&&Number(cf12ControlQty)>=0&&Number(cf12ControlValue)>=0);
-      if(!valid){stateByScreen["SCR-067"]="VALIDATION_ERROR";return renderAppScreen();}
-      stateByScreen["SCR-068"]="READY";return navigate("SCR-068");
-    }
-    if(k==="back-file"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
-    if(k==="review"){stateByScreen["SCR-069"]="READY";return navigate("SCR-069");}
-    if(k==="back-check"){stateByScreen["SCR-068"]="READY";return navigate("SCR-068");}
-    if(k==="send-approval"){stateByScreen["SCR-069"]="PENDING_APPROVAL";stateByScreen["SCR-066"]="PENDING_APPROVAL";return navigate("SCR-066");}
-    if(k==="fix-rejected"){stateByScreen["SCR-067"]="READY";return navigate("SCR-067");}
-    if(k==="open-reject"){cf12RejectOpen=true;cf12RejectReason="";return renderAppScreen();}
-    if(k==="close-reject"){cf12RejectOpen=false;cf12RejectReason="";return renderAppScreen();}
-    if(k==="confirm-reject"){
-      if(!cf12RejectReason.trim())return;
-      cf12RejectOpen=false;stateByScreen["SCR-070"]="APPROVAL_ALREADY_DECIDED";stateByScreen["SCR-066"]="REJECTED";return renderAppScreen();
-    }
-    if(k==="approve"){
-      cf12RejectOpen=false;stateByScreen["SCR-071"]="PROCESSING";navigate("SCR-071");
-      window.setTimeout(()=>{if(activeFlowId==="UIF-12"&&activeScreenId==="SCR-071"&&stateByScreen["SCR-071"]==="PROCESSING"){stateByScreen["SCR-071"]="COMPLETED";stateByScreen["SCR-066"]="ACTIVE_RECONCILED";render();}},420);
-      return;
-    }
-    if(k==="result-home"){return navigate("SCR-066");}
-    if(k==="see-inventory"){
-      activeFlowId="UIF-01";activeScreenId="SCR-001";stateByScreen["SCR-001"]="READY";syncReviewUrl();return render();
-    }
-  }
-  if(activeFlowId==="UIF-15"){
-    const rt=event.target.closest("[data-cf15-report-type]"); if(rt){event.preventDefault();cf15ReportType=rt.dataset.cf15ReportType;if(cf15ReportType==="STOCK_CARD"&&cf15Product==="ALL"){cf15Product=cf15SelectedProduct;}stateByScreen["SCR-054"]="READY";return renderAppScreen();}
-    const dm=event.target.closest("[data-cf15-date-mode]"); if(dm){event.preventDefault();cf15DateMode=dm.dataset.cf15DateMode;stateByScreen["SCR-054"]="READY";return renderAppScreen();}
-    const pr=event.target.closest("[data-cf15-product-row]"); if(pr){event.preventDefault();cf15SelectedProduct=pr.dataset.cf15ProductRow;cf15ProductSheetOpen=true;return renderAppScreen();}
-    const mv=event.target.closest("[data-cf15-movement]"); if(mv){event.preventDefault();cf15SelectedMovement=mv.dataset.cf15Movement;stateByScreen["SCR-056"]="READY";return navigate("SCR-056");}
-    const action=event.target.closest("[data-cf15-action]"); if(!action||action.disabled)return;
-    event.preventDefault();event.stopPropagation();const k=action.dataset.cf15Action;
-    if(k==="query"){
-      if(!cf15From||!cf15To||cfDateKey(cf15From)>cfDateKey(cf15To)||(cf15ReportType==="STOCK_CARD"&&cf15Product==="ALL")){stateByScreen["SCR-054"]="VALIDATION_ERROR";return renderAppScreen();}
-      cf15ProductSheetOpen=false;stateByScreen["SCR-055"]="READY";return navigate("SCR-055");
-    }
-    if(k==="close-product-sheet"){cf15ProductSheetOpen=false;return renderAppScreen();}
-    if(k==="product-stock-card"){
-      const id=action.dataset.cf15ProductId||cf15SelectedProduct;cf15ReportType="STOCK_CARD";cf15Product=id;cf15SelectedProduct=id;cf15ProductSheetOpen=false;stateByScreen["SCR-055"]="READY";return renderAppScreen();
-    }
-    if(k==="source"){stateByScreen["SCR-057"]="READY";return navigate("SCR-057");}
-    if(k==="export"||k==="export-source"){
-      cf15ExportFrom=k==="export-source"?"SOURCE":"REPORT";cf15FinanceIncluded=stateByScreen[activeScreenId]!=="FINANCIAL_RESTRICTED";stateByScreen["SCR-058"]="READY";return navigate("SCR-058");
-    }
-    if(k==="confirm-export"){
-      stateByScreen["SCR-059"]="PROCESSING";navigate("SCR-059");window.setTimeout(()=>{if(activeFlowId==="UIF-15"&&activeScreenId==="SCR-059"&&stateByScreen["SCR-059"]==="PROCESSING"){stateByScreen["SCR-059"]="COMPLETED";render();}},320);return;
-    }
-    if(k==="done-export"){stateByScreen[cf15ExportFrom==="SOURCE"?"SCR-057":"SCR-055"]="READY";return navigate(cf15ExportFrom==="SOURCE"?"SCR-057":"SCR-055");}
-  }
-  const customBack=event.target.closest('[data-action="cf15-back-export"]');
-  if(customBack&&activeFlowId==="UIF-15"){event.preventDefault();event.stopPropagation();return navigate(cf15ExportFrom==="SOURCE"?"SCR-057":"SCR-055");}
-},true);
+// v1.8.0 UIF-12 → bj12.js (A8); UIF-15 → bj15.js (T7-P A9)
 
 const flowSelectorEl=document.getElementById("flow-selector");
 flowSelectorEl?.addEventListener("change",(e)=>{activeFlowId=e.target.value; const f=activeFlow(); activeScreenId=f.screens[0]; syncReviewUrl(); render();});
@@ -1615,7 +1222,7 @@ document.addEventListener("click",(e)=>{
   const act=e.target.closest("[data-generic-action]"); if(act){ showToast(`${act.textContent.trim()} · prototype không gọi backend`, "checkCircle"); }
   const card=e.target.closest(".generic-data-card[data-ds-profile='card.interactive']"); if(card&&!inspectEnabled){ const ids=activeFlow()?.screens||[]; const i=ids.indexOf(activeScreenId); if(i>=0&&i<ids.length-1) navigate(ids[i+1]); }
 });
-render();
+/* load-time render() → hub.js (T7-P A7) */
 
 function fitReviewDeviceToViewport() {
   const device = document.getElementById("device-preview");
@@ -1670,328 +1277,86 @@ const AC310_SCREEN_IDS = [
 ];
 const ac310BaseRenderers = Object.fromEntries(AC310_SCREEN_IDS.map((id)=>[id, renderers[id]]));
 
-function ac310Tone(tone="Neutral") {
-  const map={success:"Success",warning:"Warning",danger:"Danger",error:"Danger",info:"Info",neutral:"Neutral",brand:"Brand"};
-  return map[String(tone).toLowerCase()] || tone;
-}
-function ac310CleanText(text) {
-  let out=String(text??"");
-  const replacements=[
-    [/\bauthoritative\b/gi,"chính thức"],
-    [/\bDOM\b/g,"giao diện"],
-    [/\bguard\b/gi,"điều kiện kiểm soát"],
-    [/\bledger\b/gi,"sổ kho"],
-    [/\brecovery\b/gi,"khôi phục"],
-    [/\bcommit\b/gi,"ghi nhận"],
-    [/\bUNKNOWN\b/g,"chưa xác định"],
-    [/\bCut[- ]?off\b/gi,"Thời điểm chốt"],
-    [/\bLOT\b/g,"Lô"],
-    [/\bUOM\b/g,"Đơn vị"],
-    [/\bblocker\b/gi,"điều kiện chưa đạt"],
-    [/\bdependency\b/gi,"nghiệp vụ phụ thuộc"],
-    [/\bprojection\b/gi,"số liệu hiển thị"],
-    [/\bfinality\b/gi,"kết quả chính thức"]
-  ];
-  replacements.forEach(([re,val])=>{out=out.replace(re,val);});
-  return out;
-}
-function ac310SanitizeMarkup(html) {
-  const template=document.createElement("template");
-  template.innerHTML=String(html||"");
-  const walker=document.createTreeWalker(template.content,NodeFilter.SHOW_TEXT);
-  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-  nodes.forEach((node)=>{node.nodeValue=ac310CleanText(node.nodeValue);});
-  return template.innerHTML;
-}
+/* ac310Tone → app/shared-control.js (T7-P A7) */
+/* ac310CleanText → app/shared-control.js (T7-P A7) */
+/* ac310SanitizeMarkup → app/shared-control.js (T7-P A7) */
 function ac310Base(id,state){
   const fn=ac310BaseRenderers[id];
   return ac310SanitizeMarkup(fn?fn(state):renderGeneric(screens.find((s)=>s.id===id),state));
 }
-function ac310Return(html){return ac310SanitizeMarkup(html);}
-function ac310SectionTitle(title,meta=""){
-  return `<div class="ac310-section-title" data-ds-component="VText"><h2>${esc(title)}</h2>${meta?`<span>${esc(meta)}</span>`:""}</div>`;
-}
-function ac310InfoSurface(title,rows,{extraClass="",badge="",badgeTone="Neutral"}={}){
-  const head=title?`<div class="ac310-surface__head"><h2>${esc(title)}</h2>${badge?ds24Badge(badge,ac310Tone(badgeTone)):""}</div>`:"";
-  const body=(rows||[]).map((r)=>ds24InfoRow(r[0],r[1],r[2]?"ac310-info-row--emphasis":"")).join("");
-  return `<section class="ac310-surface ${extraClass}" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / Info Row${badge?',VBadge':''}">${head}<div class="ac310-info-rows">${body}</div></section>`;
-}
-function ac310KeyValueSurface(title,rows,{extraClass=""}={}){
-  const head=title?`<div class="ac310-surface__head"><h2>${esc(title)}</h2></div>`:"";
-  return `<section class="ac310-surface ${extraClass}" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / Key-value Row">${head}<div class="ac310-key-value-stack">${(rows||[]).map((r)=>ds24KeyValueRow(r[0],r[1],!!r[2])).join("")}</div></section>`;
-}
-function ac310RecordRow({title,subtitle="",badge="",tone="Neutral",attrs="",leading=null,status=false,disabled=false,extraClass=""}){
-  return ds24ListRow({title,subtitle,trailing:badge?ds24Badge(badge,ac310Tone(tone)):"",leading,attrs,type:status?"Status":"Navigation",density:status?"Compact":"Default",interactive:!status,disabled,extraClass:`ac310-record-row ${extraClass}`.trim()});
-}
-function ac310ProductRow({name,code,meta="",badge="",tone="Neutral",attrs="",status=false}){
-  const subtitle=[code,meta].filter(Boolean).join(" · ");
-  return ds24ListRow({title:name,subtitle,trailing:badge?ds24Badge(badge,ac310Tone(tone)):"",leading:"package",attrs,type:status?"Status":"Navigation",density:status?"Compact":"Default",interactive:!status,extraClass:"ac310-product-row"});
-}
-function ac310ListSurface(rows,extra=""){
-  return ds24GroupedCollection(`<div class="ac310-list-stack">${rows}</div>`,`ac310-list-surface ${extra}`,"DS v2 / List Row,VBadge");
-}
-function ac310RadioChoice({value,label,detail="",checked=false,attrs="",disabled=false}){
-  return `<label class="ac310-radio-row${disabled?' is-disabled':''}" data-ds-component="VRadio" data-figma-node="522:7410"><input type="radio" value="${escapeAttribute(value)}" ${attrs} ${checked?'checked':''} ${disabled?'disabled':''}><span class="ac310-radio-control" aria-hidden="true"></span><span class="ac310-radio-copy"><strong>${esc(label)}</strong>${detail?`<small>${esc(detail)}</small>`:""}</span></label>`;
-}
-function ac310RadioSurface(title,choices){
-  return `<section class="ac310-surface ac310-radio-surface" data-composed-from="VText,VRadio">${title?`<div class="ac310-surface__head"><h2>${esc(title)}</h2></div>`:""}<div class="ac310-radio-list">${choices.join("")}</div></section>`;
-}
-function ac310AuditItem(type,title,meta){
-  const t=String(type||"System");
-  const iconName=t==="Create"?"checkCircle":t==="Update"?"edit":t==="Delete"?"alert":"info";
-  return `<div class="ac310-audit-item ac310-audit-item--${t.toLowerCase()}" data-ds-component="DS v2 / Audit Item" data-figma-node="525:621" data-ds-prop-type="${t}">${icon(iconName,"ac310-audit-item__icon")}<span class="ac310-audit-item__copy"><strong>${esc(title)}</strong><small>${esc(meta)}</small></span></div>`;
-}
-function ac310AuditSurface(title,items){
-  return `<section class="ac310-audit-surface" data-composed-from="DS v2 / Audit Item">${title?ac310SectionTitle(title):""}<div class="ac310-audit-list">${items.join("")}</div></section>`;
-}
-function ac310Field(label,value,attrs="",helper="",type="text"){
-  const component=type==="number"?"VNumberField":type==="date"?"VDateField":"VTextField";
-  return `<label class="ac310-field" data-ds-component="${component}"><span>${esc(label)}</span><input type="${type}" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small>${esc(helper)}</small>`:""}</label>`;
-}
-function ac310Textarea(label,value,attrs="",helper=""){
-  return `<label class="ac310-field" data-ds-component="VTextarea" data-figma-node="522:7212"><span>${esc(label)}</span><textarea ${attrs}>${esc(value)}</textarea>${helper?`<small>${esc(helper)}</small>`:""}</label>`;
-}
-function ac310FileDrop(title,fileName,attrs=""){
-  return `<section class="ac310-file-drop" data-ds-component="VFileDropZone"><div class="ac310-file-drop__icon">${icon("fileText")}</div><div class="ac310-file-drop__copy"><strong>${esc(title)}</strong><small>${esc(fileName||"Chưa chọn tệp")}</small></div><button type="button" class="button button--secondary" ${attrs} data-ds-component="VButton">Chọn tệp</button></section>`;
-}
-function ac310ApprovalFooter(rejectAttr,approveAttr,approveLabel="Duyệt"){
-  return `<footer class="app-actions figma-sticky-footer ac310-two-actions" data-ds-pattern="Sticky Footer"><button class="button button--secondary" type="button" ${rejectAttr} data-ds-component="VButton">Từ chối</button><button class="button button--primary" type="button" ${approveAttr} data-ds-component="VButton">${esc(approveLabel)}</button></footer>`;
-}
-function ac310SummaryMetrics(items){
-  return `<section class="ac310-metrics" data-composed-from="DS v2 / Metric Card">${items.map(([label,value])=>`<div class="ac310-metric" data-ds-component="DS v2 / Metric Card" data-figma-node="525:382"><span>${esc(label)}</span><strong>${esc(String(value))}</strong></div>`).join("")}</section>`;
-}
-function ac310Result(title,desc,rows,tone="success"){
-  return ioResult(title,desc,rows,tone);
-}
+/* ac310Return → app/shared-control.js (T7-P A7) */
+/* ac310SectionTitle → app/bj11.js or bj12.js (T7-P A8) */
 
-/* ------------------------------ BJ08 ----------------------------------- */
-function ac310Render042(state){
-  if(!["READY","PENDING_APPROVAL"].includes(state)) return ac310Base("SCR-042",state);
-  if(state==="PENDING_APPROVAL"){
-    return ac310Return(appShell({title:"Kiểm kê kho",body:`${vBanner("info","Đã gửi chờ duyệt","Kết quả đếm lại đã được gửi sang công việc duyệt độc lập. Tồn kho chưa thay đổi.")}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03",true],["Kho","Kho trung tâm"],["Trạng thái","Chờ duyệt"]])}`,back:false}));
-  }
-  const chips=`<div class="ds24-chip-scroll">${ds24Chip("ALL","Tất cả",true,"data-ic08-filter")}${ds24Chip("COUNTING","Đang đếm",false,"data-ic08-filter")}${ds24Chip("APPROVAL","Chờ duyệt",false,"data-ic08-filter")}</div>`;
-  const row=ac310RecordRow({title:"KK-0709-03",subtitle:"Kho trung tâm · Toàn kho · 12/38 đã đếm",badge:"Đang đếm",tone:"Info",attrs:'data-ic08-action="resume"',leading:null});
-  const session=`${ac310ListSurface(row,"ac310-count-session-list")}<button class="button button--secondary ac310-danger-text" type="button" data-ic08-action="cancel-open" data-ds-component="VButton">Hủy phiên</button>`;
-  return ac310Return(appShell({title:"Kiểm kê kho",body:`${ds24Search("","","Tìm phiên kiểm kê")}${chips}${ac310SectionTitle("Phiên đang thực hiện","1 phiên")}${session}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false}));
-}
-function ac310Render043(state){
-  if(!["READY","VALIDATION_ERROR"].includes(state)) return ac310Base("SCR-043",state);
-  const validation=state==="VALIDATION_ERROR"?vBanner("error","Chưa đủ thông tin","Chọn phạm vi và nhập lý do kiểm kê trước khi mở phiên."):"";
-  const scopeOptions=[["ALL","Toàn kho"],["PRODUCT","Sản phẩm"],["GROUP","Nhóm sản phẩm"],["LOT","Lô"]];
-  const target=ic08Scope!=="ALL"?`<div class="ds24-field"><span class="vet45-text-style-8">${ic08Scope==="PRODUCT"?"Sản phẩm":ic08Scope==="GROUP"?"Nhóm sản phẩm":"Lô"}</span><button type="button" class="ds24-field__control ds24-select-trigger" data-ic08-action="scope-select-open"><span>${esc(ic08ScopeTarget||"Chọn phạm vi")}</span>${icon("chevronRight","icon--sm")}</button></div>`:"";
-  const body=`${validation}${ac310InfoSurface("Thông tin phiên",[["Kho","Kho trung tâm"],["Thời điểm chốt","09/09/2026 · 08:00"],["Người đếm",ic08AssignedCounter]])}<div class="ac310-form-stack">${ds24SelectField("Phạm vi",ic08Scope,scopeOptions,"data-ic08-scope")}${target}${ds24TextField("Lý do kiểm kê",ic08Reason,"data-ic08-reason","")}</div>${vBanner("info","Phạm vi sẽ được khóa","Sau khi mở phiên, phạm vi và thời điểm chốt được giữ nguyên cho lần kiểm kê này.")}${ic08Overlays()}`;
-  return ac310Return(appShell({title:"Tạo phiên kiểm kê",body,actions:primaryFooter("Mở phiên kiểm kê",'data-ic08-action="open-session"',ic08Scope!=="ALL"&&!ic08ScopeTarget)}));
-}
-function ac310CountGroup({id,name,code,lot,uom,value,unexpected=false,disabled=false}){
-  const parent=ac310ProductRow({name,code,meta:`${lot?`Lô ${lot} · `:""}${uom}`,badge:unexpected?"Bổ sung thực tế":"Cần đếm",tone:unexpected?"Info":"Neutral",status:true});
-  return `<section class="ac310-product-control-group" data-composed-from="DS v2 / List Row,VNumericKeypadSheet">${parent}<div class="ac310-control-indent">${ic08QuantityTrigger("Số lượng thực tế",value,`count:${id}`,uom,disabled)}</div></section>`;
-}
-function ac310RecountGroup({id,name,code,lot,uom,book,first,variance,value,disabled=false}){
-  const parent=ac310ProductRow({name,code,meta:`Lô ${lot} · ${uom}`,badge:variance,tone:"Warning",status:true});
-  return `<section class="ac310-product-control-group" data-composed-from="DS v2 / List Row,DS v2 / Key-value Row,VNumericKeypadSheet">${parent}<div class="ac310-control-indent">${ac310KeyValueSurface("",[["Theo sổ",`${book} ${uom}`],["Lần đếm đầu",`${first} ${uom}`],["Chênh lệch",variance,true]],{extraClass:"ac310-inline-surface"})}${ic08QuantityTrigger("Số lượng đếm lại",value,`recount:${id}`,uom,disabled)}</div></section>`;
-}
-function ac310Render044(state){
-  if(!["BLIND_COUNT","READY","VALIDATION_ERROR","LOCK_LOST"].includes(state)) return ac310Base("SCR-044",state);
-  const lost=state==="LOCK_LOST";
-  const error=state==="VALIDATION_ERROR"?vBanner("error","Chưa nhập đủ kết quả","Nhập số đếm thực tế cho tất cả dòng trước khi nộp."):"";
-  const notice=lost?vBanner("warning","Phiên không còn giữ khóa","Số đã nhập được giữ trên thiết bị. Quay về phiên kiểm kê để tải lại trạng thái hiện hành trước khi tiếp tục."):vBanner("info","Đang đếm mù","Chỉ nhập số thực tế. Số theo sổ và chênh lệch chỉ hiển thị sau lần nộp đầu.");
-  const groups=[ac310CountGroup({id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp",value:ic08Counts.amox,disabled:lost}),ac310CountGroup({id:"glove",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp",value:ic08Counts.glove,disabled:lost})];
-  if(ic08UnexpectedLine) groups.push(ac310CountGroup({id:"unexpected",name:ic08UnexpectedLine.name,code:"Hàng thực tế bổ sung",lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,value:ic08UnexpectedLine.value,unexpected:true,disabled:lost}));
-  const body=`${error}${notice}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03"],["Kho","Kho trung tâm"],["Thời điểm chốt","09/09/2026 · 08:00"]])}${ac310SectionTitle("Hàng cần đếm",`${groups.length} dòng`)}<div class="ac310-product-control-list">${groups.join("")}</div>${!lost?`<button class="button button--secondary ac310-inline-button" type="button" data-ic08-action="add-actual-open" data-ds-component="VButton">Thêm hàng thực tế</button>`:""}${ic08Overlays()}`;
-  return ac310Return(appShell({title:"Đếm mù",body,actions:lost?primaryFooter("Về phiên kiểm kê",'data-ic08-action="to-list"'):primaryFooter("Nộp kết quả đếm",'data-ic08-action="submit-first"')}));
-}
-function ac310Render045(state){
-  if(!["RECOUNT_REQUIRED","READY","LOCKED","PRICE_BASIS_REQUIRED","EVIDENCE_REQUIRED","VALIDATION_ERROR"].includes(state)) return ac310Base("SCR-045",state);
-  const locked=state==="LOCKED",price=state==="PRICE_BASIS_REQUIRED",evidence=state==="EVIDENCE_REQUIRED";
-  const notice=locked?vBanner("warning","Phiên đang chỉ đọc","Không thể sửa kết quả đếm trong trạng thái hiện hành."):price?vBanner("error","Chưa đủ căn cứ giá","Dòng thừa chưa có căn cứ giá hợp lệ. Phiên vẫn được giữ khóa."):evidence?vBanner("warning","Chưa đủ bằng chứng","Bổ sung bằng chứng cần thiết trước khi gửi duyệt."):state==="VALIDATION_ERROR"?vBanner("error","Kết quả đếm lại chưa hợp lệ","Kiểm tra số lượng đếm lại trước khi gửi."):vBanner("info","Chỉ đếm lại dòng có chênh lệch","Số theo sổ đã được hiển thị sau lần đếm đầu.");
-  const groups=[ac310RecountGroup({id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp",book:20,first:18,variance:"−2 hộp",value:ic08Recounts.amox,disabled:locked}),ac310RecountGroup({id:"glove",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp",book:6,first:7,variance:"+1 hộp",value:ic08Recounts.glove,disabled:locked})];
-  const evidenceRows=[["Amox 500","Đã có bằng chứng"],["Găng tay M",price?"Thiếu căn cứ giá":evidence?"Thiếu bằng chứng":"Đã có căn cứ"]];
-  const body=`${notice}<div class="ac310-product-control-list">${groups.join("")}</div>${ac310InfoSurface("Căn cứ và bằng chứng",evidenceRows)}${(price||evidence)?vBanner("warning","Chưa thể gửi duyệt","Chỉ có thể gửi khi tất cả căn cứ bắt buộc đã hợp lệ."):""}${ic08Overlays()}`;
-  let actions=""; if(!locked) actions=`<footer class="app-actions figma-sticky-footer ac310-footer-stack"><button class="button button--primary" type="button" data-ic08-action="submit-recount" data-ds-component="VButton" ${price||evidence?'disabled':''}>Gửi chờ duyệt</button>${price||evidence?`<button class="button button--secondary ac310-danger-text" type="button" data-ic08-action="cancel-open" data-ds-component="VButton">Hủy phiên</button>`:""}</footer>`;
-  return ac310Return(appShell({title:"Chênh lệch và đếm lại",body,actions}));
-}
-function ac310Render046(state){
-  if(!["READY","APPROVAL_REVIEW"].includes(state)) return ac310Base("SCR-046",state);
-  const body=`${vBanner("info","Cần quyết định độc lập","Người duyệt chỉ rà soát bằng chứng và quyết định; không sửa số đếm.")}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03",true],["Người thực hiện","Nguyễn An"],["Kho","Kho trung tâm"],["Dòng chênh lệch","2 dòng"]])}${ac310ProductRow({name:"Amox 500",code:"SP-00128",meta:"Lô L2407-A · hộp",badge:"−2 hộp",tone:"Warning",status:true})}${ac310KeyValueSurface("",[["Đếm lại","18 hộp"],["Bằng chứng","Đã đủ"]],{extraClass:"ac310-approval-detail"})}${ac310ProductRow({name:"Găng tay M",code:"SP-00410",meta:"Lô L2405-M · hộp",badge:"+1 hộp",tone:"Warning",status:true})}${ac310KeyValueSurface("",[["Đếm lại","7 hộp"],["Căn cứ giá","Đã đủ"],["Bằng chứng","Đã đủ"]],{extraClass:"ac310-approval-detail"})}${ic08Overlays()}`;
-  const actions=`<footer class="app-actions figma-sticky-footer ac310-two-actions"><button class="button button--secondary" type="button" data-ic08-action="request-review" data-ds-component="VButton">Yêu cầu xem lại</button><button class="button button--primary" type="button" data-ic08-action="approve" data-ds-component="VButton">Duyệt và điều chỉnh</button></footer>`;
-  return ac310Return(appShell({title:"Duyệt kết quả kiểm kê",body,actions,back:false}));
-}
+/* ac310InfoSurface → app/shared-control.js (T7-P A7) */
+/* ac310KeyValueSurface → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310RecordRow → app/shared-control.js (T7-P A7) */
+/* ac310ProductRow → app/shared-control.js (T7-P A9) */
+/* ac310ListSurface → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310RadioChoice → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310RadioSurface → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310AuditItem → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310AuditSurface → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Field → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Textarea → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310FileDrop → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310ApprovalFooter → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310SummaryMetrics → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Result → app/bj11.js or bj12.js (T7-P A8) */
+
+
+/* BJ08 v310 renderers → app/bj08.js (T7-P A7) */
 
 /* ------------------------------ BJ09 ----------------------------------- */
 /* ac310Render036 removed (T7-P A6) */
 /* ac310Render037 removed (T7-P A6) */
-function ac310StateLabel(value){return value==="QUARANTINE"?"Cách ly":value==="DAMAGED"?"Hỏng":value==="DEMO"?"Dùng thử":"Bán được";}
+/* ac310StateLabel removed (T7-P A9) */
 /* ac310Render038 removed (T7-P A6) */
 /* ac310Render041 removed (T7-P A6) */
-function ac310Render056(state){
-  if(activeFlowId==="UIF-09"){
-    if(!["READY","LOADING","PERMISSION_DENIED"].includes(state)) return ac310Base("SCR-056",state);
-    if(state!=="READY") return ac310Base("SCR-056",state);
-    if(typeof ic09Current!=="function") return ac310Base("SCR-056",state);
-    const x=ic09Current();
-    const body=`${ac310ProductRow({name:x.name,code:x.code,meta:`Lô ${x.lot}`,badge:x.label,tone:ic09StatusTone(x.state),status:true})}${ac310AuditSurface("Lịch sử",[ac310AuditItem("Update","Bán được → Cách ly","07/09/2026 · 09:14 · Nguyễn An · Bao bì có dấu hiệu bất thường"),ac310AuditItem("Create","Nhận vào kho","01/09/2026 · 08:00 · Tình trạng ban đầu: Bán được")])}`;
-    return ac310Return(appShell({title:"Lịch sử tình trạng",body}));
-  }
-  if(activeFlowId==="UIF-15") return ac310Render056CF15(state);
-  return ac310Base("SCR-056",state);
-}
+/* ac310Render056 → bj09.js / bj15.js (T7-P A9) */
 
 /* ------------------------------ BJ10 ----------------------------------- */
 /* ac310Render040 removed (T7-P A6) */
 
 /* ------------------------------ BJ11 ----------------------------------- */
-function ac310Render048(state){
-  if(activeFlowId!=="UIF-11") return ac310Base("SCR-048",state);
-  if(state!=="READY") return ac310Base("SCR-048",state);
-  const labels={ALL:"Tất cả",CANCEL:"Có thể hủy",CORRECT:"Có thể sửa",UNKNOWN:"Đang xác minh"};
-  const rows=cr11Operations.filter((op)=>cr11Filter==="ALL"||op.route===cr11Filter).filter((op)=>ioMatchesSearch(cr11Query,`${op.id} ${op.type} ${op.source} ${op.product}`)).map((op)=>ac310RecordRow({title:op.type,subtitle:`${op.id} · ${op.source} · ${op.product}`,badge:op.route==="PHYSICAL_RETURN_BLOCKED"?"Luồng trả hàng":op.statusLabel,tone:op.route==="UNKNOWN"||op.route==="PHYSICAL_RETURN_BLOCKED"?"Warning":"Info",attrs:`data-cr11-operation="${op.id}"`,leading:null})).join("");
-  const chips=`<div class="ds24-chip-scroll">${Object.entries(labels).map(([k,l])=>ds24Chip(k,l,cr11Filter===k,"data-cr11-filter")).join("")}</div>`;
-  return ac310Return(appShell({title:"Kiểm soát nghiệp vụ kho",body:`${ds24Search(cr11Query,"data-cr11-search","Tìm mã nghiệp vụ hoặc chứng từ")}${chips}${rows?ac310ListSurface(rows):ioEmpty("Không có nghiệp vụ phù hợp","Thử đổi bộ lọc hoặc từ khóa tìm kiếm.")}`,back:false}));
-}
-function ac310Render049(state){
-  if(activeFlowId!=="UIF-11") return ac310Base("SCR-049",state);
-  if(!["READY","CORRECTABLE","CANCELABLE","UNKNOWN","BLOCKED_PHYSICAL_HANDOVER","TERMINAL"].includes(state)) return ac310Base("SCR-049",state);
-  const op=cr11Current(),routeState=state==="READY"?cr11StateFor(op):state;
-  const context=`${ac310RecordRow({title:op.id,subtitle:`${op.type} · ${op.source}`,badge:op.statusLabel,tone:routeState==="UNKNOWN"?"Warning":"Info",status:true,leading:null})}${ac310InfoSurface("Thông tin nghiệp vụ",[["Kho",op.warehouse],["Hàng",op.product],["Số lượng",`${op.qty} ${op.uom}`],["Tác động",op.impact]])}`;
-  if(routeState==="UNKNOWN") return ac310Return(appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("warning","Kết quả chưa xác định","Chưa hủy hoặc tạo sửa sai cho tới khi xác lập kết quả của đúng lần xử lý này.")}${context}`,actions:primaryFooter("Xác minh kết quả",'data-cr11-action="handoff-unknown"')}));
-  if(routeState==="BLOCKED_PHYSICAL_HANDOVER") return ac310Return(appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("warning","Hàng đã được bàn giao thực tế","Khách trả hàng phải qua nghiệp vụ Hàng khách trả; không xử lý bằng sửa sai.")}${context}`,actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"')}));
-  if(routeState==="TERMINAL") return ac310Return(appShell({title:"Chi tiết nghiệp vụ kho",body:`${vBanner("info","Không còn tác động cần sửa","Nghiệp vụ đã dừng trước khi thực thi.")}${context}`,actions:primaryFooter("Về danh sách",'data-cr11-action="to-list"')}));
-  if(routeState==="CANCELABLE") return ac310Return(appShell({title:"Chi tiết nghiệp vụ kho",body:`${context}<p class="ac310-note">Nghiệp vụ chưa thực thi nên có thể hủy mà không tạo biến động tồn kho.</p>`,actions:primaryFooter("Hủy yêu cầu",'data-cr11-action="open-cancel"',false,"danger")}));
-  return ac310Return(appShell({title:"Chi tiết nghiệp vụ kho",body:`${context}${ac310AuditSurface("Dấu vết",[ac310AuditItem("Create","Nghiệp vụ gốc đã hoàn tất","01/09/2026 · Chưa có sửa sai trước đó")])}`,actions:primaryFooter("Sửa sai",'data-cr11-action="open-correction"')}));
-}
-function ac310Render052(state){
-  if(activeFlowId!=="UIF-11") return ac310Base("SCR-052",state);
-  if(["DEPENDENCY_BLOCKED","PERIOD_POLICY_VIOLATION","PERMISSION_DENIED"].includes(state)) return ac310Base("SCR-052",state);
-  const op=cr11Current(); const cancelMode=state==="CANCEL_UNEXECUTED"||op.route==="CANCEL";
-  if(cancelMode){
-    const body=`${state==="VALIDATION_ERROR"&&!cr11CancelReason.trim()?vBanner("error","Cần nhập lý do hủy","Lý do được lưu trong lịch sử kiểm soát."):""}${vBanner("info","Hủy trước khi thực thi","Tồn kho và giá trị không thay đổi.")}${ac310InfoSurface("Yêu cầu",[["Nghiệp vụ",op.id,true],["Loại",op.type],["Chứng từ nguồn",op.source]])}${ac310Textarea("Lý do hủy",cr11CancelReason,'data-cr11-cancel-reason')}`;
-    return ac310Return(appShell({title:"Hủy yêu cầu kho",body,actions:primaryFooter("Hủy yêu cầu",'data-cr11-action="confirm-cancel"',!cr11CancelReason.trim(),"danger")}));
-  }
-  const choices=[ac310RadioChoice({value:"DELTA",label:"Sửa phần sai",detail:"Điều chỉnh riêng phần sai và giữ nguyên phần đúng.",checked:cr11Strategy==="DELTA",attrs:'name="cr11-strategy" data-cr11-strategy'}),ac310RadioChoice({value:"FULL",label:"Hoàn nguyên và ghi lại đúng",detail:"Dùng khi toàn bộ nghiệp vụ phải được xác lập lại.",checked:cr11Strategy==="FULL",attrs:'name="cr11-strategy" data-cr11-strategy'})];
-  const body=`${vBanner("info","Nghiệp vụ gốc luôn được giữ nguyên","Hệ thống tạo bản ghi sửa sai có liên kết; không xóa lịch sử đã hoàn tất.")}${ac310InfoSurface("Nghiệp vụ gốc",[["Mã",op.id,true],["Đã ghi nhận",`${op.qty} ${op.uom}`],["Kỳ gốc","Đã khóa"]])}${ac310RadioSurface("Cách sửa",choices)}`;
-  return ac310Return(appShell({title:"Chọn cách sửa",body,actions:primaryFooter("Tiếp tục",'data-cr11-action="edit-correction"')}));
-}
-function ac310Render050(state){
-  if(activeFlowId!=="UIF-11") return ac310Base("SCR-050",state);
-  if(["PERMISSION_DENIED","SOURCE_VERSION_STALE","CONFLICT"].includes(state)) return ac310Base("SCR-050",state);
-  const op=cr11Current(),delta=Number(cr11CorrectQty)-Number(op.qty);
-  const body=`${state==="VALIDATION_ERROR"?vBanner("error","Kiểm tra nội dung sửa sai","Số đúng phải lớn hơn hoặc bằng 0 và cần có lý do."):""}${ac310InfoSurface("Trước khi sửa",[["Nghiệp vụ gốc",op.id,true],["Số đã ghi nhận",`${op.qty} ${op.uom}`],["Cách sửa",cr11Strategy==="DELTA"?"Sửa phần sai":"Hoàn nguyên và ghi lại đúng"]])}<div class="ac310-form-stack">${ac310Field("Số đúng",cr11CorrectQty,'data-cr11-correct-qty min="0" inputmode="decimal"','',"number")}${ac310Textarea("Lý do sửa sai",cr11CorrectionReason,'data-cr11-correction-reason')}</div>${ac310KeyValueSurface("Hệ thống tự tính",[["Điều chỉnh",`${delta>0?"+":""}${delta} ${op.uom}`,true]])}`;
-  return ac310Return(appShell({title:"Nội dung sửa sai",body,actions:primaryFooter("Gửi phê duyệt",'data-cr11-action="submit-correction"',Number(cr11CorrectQty)<0||!cr11CorrectionReason.trim())}));
-}
-function ac310Render051(state){
-  if(activeFlowId!=="UIF-11") return ac310Base("SCR-051",state);
-  if(!["READY","VALIDATION_ERROR"].includes(state)) return ac310Base("SCR-051",state);
-  const op=cr11Operations[1],delta=Number(cr11CorrectQty)-Number(op.qty);
-  const sheet=cr11ApprovalRejectOpen?`<div class="sheet-backdrop"><section class="bottom-sheet ac310-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" role="dialog" aria-modal="true"><div class="sheet-handle"></div><div class="sheet-title"><h3>Từ chối sửa sai</h3></div><div class="sheet-content">${state==="VALIDATION_ERROR"&&!cr11ApprovalRejectReason.trim()?vBanner("error","Cần nhập lý do từ chối","Lý do được lưu cùng quyết định."):""}${ac310Textarea("Lý do từ chối",cr11ApprovalRejectReason,'data-cr11-approval-reason')}<div class="sheet-actions"><button class="button button--secondary" type="button" data-cr11-action="reject-close">Đóng</button><button class="button button--danger" type="button" data-cr11-action="reject-confirm" ${cr11ApprovalRejectReason.trim()?"":"disabled"}>Từ chối</button></div></div></section></div>`:"";
-  const body=`${vBanner("info","Công việc phê duyệt độc lập","Quyết định chỉ duyệt phương án; hệ thống tự ghi nhận sửa sai sau khi kiểm tra lại điều kiện.")}${ac310InfoSurface("Yêu cầu sửa sai",[["Nghiệp vụ gốc",op.id,true],["Người lập","Nguyễn An"],["Lý do",cr11CorrectionReason]])}${ac310KeyValueSurface("Trước và sau",[["Trước",`${op.qty} ${op.uom}`],["Sau",`${cr11CorrectQty} ${op.uom}`],["Điều chỉnh",`${delta>0?"+":""}${delta} ${op.uom}`,true]])}${sheet}`;
-  return ac310Return(appShell({title:"Duyệt sửa sai",body,actions:ac310ApprovalFooter('data-cr11-action="reject-open"','data-cr11-action="approve"'),back:false}));
-}
+/* ac310Render048 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render049 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render052 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render050 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render051 → app/bj11.js or bj12.js (T7-P A8) */
+
 
 /* ------------------------------ BJ12 ----------------------------------- */
-function ac310Cf12Review(){
-  return ac310InfoSurface("Số dư đầu kỳ",[["Kho","Kho trung tâm"],["Ngày chốt",cfDateVN(cf12Cutoff),true],["Dòng dữ liệu",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)],["Tổng giá trị",cfMoney(cf12Summary.parsedValue),true]]);
-}
-function ac310Render066(state){
-  if(activeFlowId!=="UIF-12") return ac310Base("SCR-066",state);
-  if(!["READY","PENDING_APPROVAL","REJECTED","ACTIVE_RECONCILED"].includes(state)) return ac310Base("SCR-066",state);
-  if(state==="ACTIVE_RECONCILED") return ac310Return(appShell({title:"Khởi tạo tồn kho",body:ac310Result("Tồn kho đầu kỳ đã sẵn sàng","Số dư đầu kỳ đã được ghi nhận và đối chiếu.",[["Ngày chốt",cfDateVN(cf12Cutoff)],["Sản phẩm",`${cfNumber(cf12Summary.products)} sản phẩm`],["Đối soát","Đã khớp"]]),actions:primaryFooter("Xem tồn kho",'data-cf12-action="see-inventory"'),centered:true,back:false}));
-  if(state==="PENDING_APPROVAL") return ac310Return(appShell({title:"Khởi tạo tồn kho",body:`${vBanner("info","Đang chờ duyệt","Bạn đã hoàn tất phần chuẩn bị. Tồn kho chưa thay đổi.")}${ac310InfoSurface("Yêu cầu",[["Kho","Kho trung tâm"],["Ngày chốt",cfDateVN(cf12Cutoff)],["Trạng thái","Chờ duyệt"]])}`,back:false}));
-  if(state==="REJECTED") return ac310Return(appShell({title:"Khởi tạo tồn kho",body:`${vBanner("warning","Yêu cầu cần chỉnh sửa","Người duyệt đã trả lại dữ liệu. Tồn kho chưa thay đổi.")}${ac310InfoSurface("Yêu cầu",[["Kho","Kho trung tâm"],["Ngày chốt",cfDateVN(cf12Cutoff)],["Trạng thái","Cần chỉnh sửa"]])}`,actions:primaryFooter("Chỉnh dữ liệu",'data-cf12-action="fix-rejected"'),back:false}));
-  return ac310Return(appShell({title:"Khởi tạo tồn kho",body:`${ac310InfoSurface("Khởi tạo lần đầu",[["Kho","Kho trung tâm",true],["Trạng thái","Chưa thiết lập"],["Nguyên tắc","Chỉ có một số dư đầu kỳ chính thức"]])}<p class="ac310-note">Sau khi hoàn tất, mọi sửa sai được thực hiện bằng nghiệp vụ điều chỉnh có kiểm soát.</p>`,actions:primaryFooter("Bắt đầu",'data-cf12-action="start"'),back:false}));
-}
-function ac310Render067(state){
-  if(activeFlowId!=="UIF-12") return ac310Base("SCR-067",state);
-  if(!["READY","VALIDATION_ERROR"].includes(state)) return ac310Base("SCR-067",state);
-  const invalid=state==="VALIDATION_ERROR";
-  const body=`${invalid?vBanner("error","Chưa đủ dữ liệu kiểm soát","Chọn tệp, ngày chốt và nhập đủ hai số kiểm soát trước khi kiểm tra."):""}${ac310FileDrop("Tệp số dư đầu kỳ",cf12FileName,'data-cf12-action="choose-file"')}<div class="ac310-form-stack">${ac310Field("Ngày chốt số dư",cf12Cutoff,'data-cf12-cutoff','Ngày nghiệp vụ mà số dư đầu kỳ có hiệu lực.',"date")}${ac310Field("Tổng số lượng kiểm soát",cf12ControlQty,'data-cf12-control-qty','Nhập từ nguồn kiểm soát độc lập.',"number")}${ac310Field("Tổng giá trị kiểm soát",cf12ControlValue,'data-cf12-control-value','Giá trị tồn kho đầu kỳ theo nguồn kiểm soát.',"text")}</div>`;
-  const disabled=!cf12FileName||!cf12Cutoff||!(Number(cf12ControlQty)>=0)||!(Number(cf12ControlValue)>=0);
-  return ac310Return(appShell({title:"Dữ liệu tồn kho đầu kỳ",body,actions:primaryFooter("Kiểm tra dữ liệu",'data-cf12-action="check"',disabled)}));
-}
-function ac310IssueRow(title,detail){return ac310RecordRow({title,subtitle:detail,badge:"Cần sửa",tone:"Warning",status:true,leading:null});}
-function ac310Render068(state){
-  if(activeFlowId!=="UIF-12") return ac310Base("SCR-068",state);
-  if(!["READY","VALIDATION_FAILED","CONTROL_TOTAL_MISMATCH"].includes(state)) return ac310Base("SCR-068",state);
-  if(state==="VALIDATION_FAILED"){
-    const issues=ac310ListSurface(`${ac310IssueRow("Dòng 18 · Vaccine Newcastle","Chưa xác định sản phẩm")}${ac310IssueRow("Dòng 44 · Amox 500","Trùng cùng sản phẩm + kho + tình trạng + lô")}${ac310IssueRow("Dòng 61 · Nobivac DHPPi","Thiếu hạn dùng bắt buộc")}`,"ac310-validation-list");
-    return ac310Return(appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("error","Còn dòng chưa hợp lệ","Không có dữ liệu nào được ghi nhận. Sửa dữ liệu nguồn rồi kiểm tra lại.")}${ac310SummaryMetrics([["Dòng đọc được",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Lỗi cần sửa","3"]])}${ac310SectionTitle("Dòng cần sửa")}${issues}`,actions:primaryFooter("Chọn lại tệp",'data-cf12-action="back-file"')}));
-  }
-  if(state==="CONTROL_TOTAL_MISMATCH") return ac310Return(appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("warning","Số kiểm soát không khớp","Chưa thể gửi phê duyệt.")}${ac310KeyValueSurface("Đối chiếu",[["Theo tệp",cfNumber(cf12Summary.parsedQty)],["Số kiểm soát",cfNumber(Number(cf12ControlQty)+12)],["Chênh lệch","−12",true],["Giá trị theo tệp",cfMoney(cf12Summary.parsedValue)],["Giá trị kiểm soát",cfMoney(cf12ControlValue)]])}`,actions:primaryFooter("Quay lại dữ liệu",'data-cf12-action="back-file"')}));
-  return ac310Return(appShell({title:"Kết quả kiểm tra dữ liệu",body:`${vBanner("success","Dữ liệu đã qua kiểm tra","Tệp chi tiết khớp số kiểm soát và không còn lỗi bắt buộc.")}${ac310SummaryMetrics([["Dòng dữ liệu",cfNumber(cf12Summary.rows)],["Sản phẩm",cfNumber(cf12Summary.products)],["Tổng số lượng",cfNumber(cf12Summary.parsedQty)]])}${ac310InfoSurface("Kiểm tra chính",[["Số âm","Không có"],["Dòng trùng","Không có"],["Lô / hạn dùng","Hợp lệ"],["Số kiểm soát","Đã khớp",true]])}`,actions:primaryFooter("Rà soát số dư",'data-cf12-action="review"')}));
-}
-function ac310Render069(state){
-  if(activeFlowId!=="UIF-12") return ac310Base("SCR-069",state);
-  if(!["READY","PENDING_APPROVAL"].includes(state)) return ac310Base("SCR-069",state);
-  const pending=state==="PENDING_APPROVAL"?vBanner("info","Đã gửi chờ duyệt","Bạn đã hoàn tất phần chuẩn bị. Tồn kho chưa thay đổi."):"";
-  const body=`${pending}${ac310Cf12Review()}${ac310InfoSurface("Phân bố dữ liệu",[["Bán được",`${cfNumber(cf12Summary.sellableRows)} dòng`,true],["Không bán được",`${cfNumber(cf12Summary.nonSellableRows)} dòng`],["Lô / hạn dùng","Giữ theo cấu hình sản phẩm"]])}`;
-  return ac310Return(appShell({title:"Rà soát số dư đầu kỳ",body,actions:state==="READY"?primaryFooter("Gửi phê duyệt",'data-cf12-action="send-approval"'):""}));
-}
-function ac310Render070(state){
-  if(activeFlowId!=="UIF-12") return ac310Base("SCR-070",state);
-  if(state!=="READY") return ac310Base("SCR-070",state);
-  const reject=cf12RejectSheet();
-  const body=`${vBanner("info","Kiểm tra trước khi duyệt","Đối chiếu ngày chốt, số kiểm soát và phạm vi trước khi quyết định.")}${ac310InfoSurface("Người chuẩn bị",[["Người lập","Nguyễn An",true],["Ngày gửi","07/09/2026 · 10:32"]])}${ac310Cf12Review()}${reject}`;
-  return ac310Return(appShell({title:"Duyệt số dư đầu kỳ",body,actions:ac310ApprovalFooter('data-cf12-action="open-reject"','data-cf12-action="approve"'),back:false}));
-}
+/* ac310Cf12Review → app/bj11.js or bj12.js (T7-P A8) */
 
-/* ------------------------------ BJ15 ----------------------------------- */
-function ac310ModeChoice(value,label,detail,current,attr){
-  return `<button type="button" class="ac310-mode-row${current===value?' is-selected':''}" ${attr}="${value}" data-ds-component="VRadio" data-figma-node="522:7410"><span class="ac310-radio-control"></span><span class="ac310-radio-copy"><strong>${esc(label)}</strong><small>${esc(detail)}</small></span></button>`;
-}
-function ac310Render054(state){
-  if(activeFlowId!=="UIF-15") return ac310Base("SCR-054",state);
-  if(!["READY","VALIDATION_ERROR"].includes(state)) return ac310Base("SCR-054",state);
-  const invalid=state==="VALIDATION_ERROR";
-  const productOptions=[["ALL","Tất cả sản phẩm"],...cf15Products.map((x)=>[x.id,`${x.name} · ${x.code}`])];
-  const modes=`${ac310ModeChoice("INVENTORY","Tồn kho","Xem số lượng và giá trị theo phạm vi",cf15ReportType,"data-cf15-report-type")}${ac310ModeChoice("STOCK_CARD","Thẻ kho","Xem biến động của một sản phẩm",cf15ReportType,"data-cf15-report-type")}`;
-  const dates=`${ac310ModeChoice("BUSINESS","Ngày nghiệp vụ","Theo ngày nghiệp vụ phát sinh",cf15DateMode,"data-cf15-date-mode")}${ac310ModeChoice("RECORDED","Ngày ghi nhận","Theo thời điểm hệ thống ghi nhận",cf15DateMode,"data-cf15-date-mode")}`;
-  const body=`${invalid?vBanner("error","Chưa đủ điều kiện tra cứu",cf15ReportType==="STOCK_CARD"?"Chọn một sản phẩm cụ thể để xem thẻ kho.":"Kiểm tra lại phạm vi và kỳ báo cáo."):""}${ac310RadioSurface("Loại tra cứu",[modes])}<div class="ac310-form-stack">${cfSelect("Kho",cf15Warehouse,[["MAIN","Kho trung tâm"]],"data-cf15-warehouse","")}${cfSelect("Sản phẩm",cf15Product,productOptions,"data-cf15-product",cf15ReportType==="STOCK_CARD"?"Bắt buộc khi xem thẻ kho.":"")}</div>${ac310RadioSurface("Cách hiểu thời gian",[dates])}<div class="ac310-form-stack ac310-date-grid">${cfField("Từ ngày",cf15From,'data-cf15-from','date')}${cfField("Đến ngày",cf15To,'data-cf15-to','date')}</div>`;
-  return ac310Return(appShell({title:"Tra cứu kho",body,actions:primaryFooter("Xem báo cáo",'data-cf15-action="query"'),back:false}));
-}
-function ac310Cf15ProductSheet(product,financeAllowed){
-  if(!cf15ProductSheetOpen||!product) return "";
-  const rows=[["Tồn vật lý",`${cfNumber(product.qty)} ${product.uom}`,true],["Khả dụng bán",`${cfNumber(product.available)} ${product.uom}`,true],...(financeAllowed?[["Giá trị tồn",cfMoney(product.value)]]:[])];
-  const lots=product.tracking==="LOT"?product.lots.map((l)=>ac310RecordRow({title:`Lô ${l.lot}`,subtitle:`${l.qty} ${product.uom}`,badge:l.state,tone:l.state==="Bán được"?"Success":"Warning",status:true,leading:null})).join(""):"";
-  return `<div class="sheet-backdrop" data-cf15-action="close-product-sheet"><section class="bottom-sheet ac310-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="sheet-handle"></div><div class="sheet-title"><h3>${esc(product.name)}</h3><small>${esc(product.code)}</small></div><div class="sheet-content">${ac310KeyValueSurface("",rows,{extraClass:"ac310-sheet-surface"})}${product.tracking==="LOT"?`${ac310SectionTitle("Theo lô")}${ac310ListSurface(lots,"ac310-sheet-list")}`:`<p class="ac310-note">Sản phẩm không quản lý theo lô.</p>`}<div class="sheet-actions"><button class="button button--secondary" type="button" data-cf15-action="close-product-sheet">Đóng</button><button class="button button--primary" type="button" data-cf15-action="product-stock-card" data-cf15-product-id="${product.id}">Xem thẻ kho</button></div></div></section></div>`;
-}
-function ac310Render055(state){
-  if(activeFlowId!=="UIF-15") return ac310Base("SCR-055",state);
-  if(!["READY","RECORDED_DATE_VIEW","BUSINESS_DATE_VIEW","FINANCIAL_RESTRICTED"].includes(state)) return ac310Base("SCR-055",state);
-  const mode=state==="RECORDED_DATE_VIEW"?"RECORDED":state==="BUSINESS_DATE_VIEW"?"BUSINESS":cf15DateMode;
-  const financeAllowed=state!=="FINANCIAL_RESTRICTED";
-  if(cf15ReportType==="INVENTORY"){
-    const rows=cf15Products.map((p)=>ac310ProductRow({name:p.name,code:p.code,meta:`${cfNumber(p.qty)} ${p.uom} · Khả dụng ${cfNumber(p.available)} ${p.uom}`,attrs:`data-cf15-product-row="${p.id}"`})).join("");
-    const body=`${cf15ContextBanner(state,mode)}${ac310SummaryMetrics([["Sản phẩm",cf15Products.length],["Kho","Kho trung tâm"],...(financeAllowed?[["Tổng giá trị",cfMoney(cf15Products.reduce((a,x)=>a+x.value,0))]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Bạn vẫn có thể xem số lượng trong phạm vi được cấp quyền.")}${ac310SectionTitle("Sản phẩm")}${ac310ListSurface(rows)}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="export">Xuất báo cáo</button>${ac310Cf15ProductSheet(cf15ProductById(cf15SelectedProduct),financeAllowed)}`;
-    return ac310Return(appShell({title:"Báo cáo tồn kho",subtitle:`Kho trung tâm · ${cf15DateLabel(mode)}`,body}));
-  }
-  const p=cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product);
-  const movements=cf15Movements.map((m)=>ac310RecordRow({title:m.label,subtitle:`${mode==="RECORDED"?m.recorded:m.business} · ${m.source}`,badge:`${m.delta>0?"+":""}${m.delta} ${m.uom}`,tone:"Neutral",attrs:`data-cf15-movement="${m.id}"`,leading:null})).join("");
-  const body=`${cf15ContextBanner(state,mode)}${ac310ProductRow({name:p.name,code:p.code,meta:`${cfNumber(p.qty)} ${p.uom}`,badge:`Khả dụng ${cfNumber(p.available)} ${p.uom}`,tone:"Success",status:true})}${financeAllowed?ac310KeyValueSurface("",[["Giá trị tồn",cfMoney(p.value),true]]):vBanner("info","Giá trị tài chính đã được ẩn","Thẻ kho vẫn hiển thị số lượng và nguồn nghiệp vụ.")}${ac310SectionTitle("Biến động")}${ac310ListSurface(movements)}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="export">Xuất thẻ kho</button>`;
-  return ac310Return(appShell({title:"Thẻ kho",subtitle:`${p.name} · ${cf15DateLabel(mode)}`,body}));
-}
-function ac310Render056CF15(state){
-  if(activeFlowId!=="UIF-15") return ac310Base("SCR-056",state);
-  if(!["READY","FINANCIAL_RESTRICTED","LOCKED"].includes(state)) return ac310Base("SCR-056",state);
-  const m=cf15Movement(),financeAllowed=state!=="FINANCIAL_RESTRICTED";
-  const lockedNotice=state==="LOCKED"?vBanner("info","Dữ liệu đang ở chế độ chỉ đọc","Bạn có thể xem nguồn và truy vết; màn này không thay đổi dữ liệu."):"";
-  const body=`${lockedNotice}${ac310RecordRow({title:m.label,subtitle:m.source,badge:`${m.delta>0?"+":""}${m.delta} ${m.uom}`,tone:"Neutral",status:true,leading:null})}${ac310InfoSurface("Thời gian và người thực hiện",[["Ngày nghiệp vụ",m.business],["Ngày ghi nhận",m.recorded],["Người thực hiện",m.actor]])}${ac310KeyValueSurface("Số lượng",[["Trước",`${m.before} ${m.uom}`],["Biến động",`${m.delta>0?"+":""}${m.delta} ${m.uom}`,true],["Sau",`${m.after} ${m.uom}`],["Lô",m.lot],["Tình trạng",m.state]])}${financeAllowed?ac310KeyValueSurface("Giá trị",[["Tác động",cfMoney(m.value),true]]):vBanner("info","Giá trị tài chính đã được ẩn","Bạn vẫn có thể truy vết nguồn và số lượng.")}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="source">Xem nguồn</button>`;
-  return ac310Return(appShell({title:"Chi tiết biến động",body}));
-}
-function ac310Render057(state){
-  if(activeFlowId!=="UIF-15") return ac310Base("SCR-057",state);
-  if(state!=="READY"&&state!=="STALE") return ac310Base("SCR-057",state);
-  const m=cf15Movement();
-  const items=[ac310AuditItem("Create",m.source,`Nghiệp vụ nguồn hoàn tất · ${m.business}`),ac310AuditItem("System","Đã ghi nhận kho",m.recorded),ac310AuditItem("Update",`${m.delta>=0?"Tồn tăng":"Tồn giảm"} ${Math.abs(m.delta)} ${m.uom}`,`Số dư sau biến động: ${m.after} ${m.uom}`)];
-  const body=`${state==="STALE"?vBanner("warning","Dữ liệu nguồn đang cập nhật","Giữ mốc hiển thị hiện tại cho tới khi tải lại dữ liệu."):""}${ac310InfoSurface("Biến động đang xem",[["Nguồn",m.source,true],["Sản phẩm",cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product).name],["Số lượng",`${m.delta>0?"+":""}${m.delta} ${m.uom}`]])}${ac310AuditSurface("Dòng thời gian nghiệp vụ",items)}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="export-source">Xuất bằng chứng</button>`;
-  return ac310Return(appShell({title:"Nguồn nghiệp vụ",body}));
-}
-function ac310Render058(state){
-  if(activeFlowId!=="UIF-15") return ac310Base("SCR-058",state);
-  if(state!=="READY") return ac310Base("SCR-058",state);
-  const sourceLabel=cf15ExportFrom==="SOURCE"?"Bằng chứng biến động":cf15ReportType==="STOCK_CARD"?"Thẻ kho":"Báo cáo tồn kho";
-  const body=`${ac310InfoSurface("Phạm vi xuất",[["Nội dung",sourceLabel,true],["Kho","Kho trung tâm"],["Kỳ",`${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}`],["Cách hiểu thời gian",cf15DateLabel()],["Dữ liệu đến","07/09/2026 · 11:00"],["Giá trị tài chính",cf15FinanceIncluded?"Có":"Không"]])}${ac310InfoSurface("Định dạng",[["Tệp","CSV",true],["Quyền dữ liệu","Giữ như màn đang xem"]])}`;
-  return ac310Return(appShell({title:"Xuất báo cáo",body,actions:primaryFooter("Xuất báo cáo",'data-cf15-action="confirm-export"'),backAction:"cf15-back-export"}));
-}
+/* ac310Render066 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render067 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310IssueRow → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render068 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render069 → app/bj11.js or bj12.js (T7-P A8) */
+
+/* ac310Render070 → app/bj11.js or bj12.js (T7-P A8) */
+
+
+/* BJ15 ac310* → app/bj15.js (T7-P A9) */
 
 /* --------------------------- BJ16 / BJ17 ------------------------------- */
 function ac310CaseRows(is17){
@@ -2063,30 +1428,10 @@ function ac310Render082(state){
 }
 
 /* Bind v3.1.0 renderers. Shared screen IDs preserve non Audit & Control flows. */
-renderers["SCR-042"]=ac310Render042;
-renderers["SCR-043"]=ac310Render043;
-renderers["SCR-044"]=ac310Render044;
-renderers["SCR-045"]=ac310Render045;
-renderers["SCR-046"]=ac310Render046;
-renderers["SCR-047"]=(state)=>activeFlowId==="UIF-08"?ac310Base("SCR-047",state):ac310Base("SCR-047",state);
-renderers["SCR-048"]=ac310Render048;
-renderers["SCR-049"]=ac310Render049;
-renderers["SCR-052"]=ac310Render052;
-renderers["SCR-050"]=ac310Render050;
-renderers["SCR-051"]=ac310Render051;
-renderers["SCR-053"]=(state)=>activeFlowId==="UIF-11"?ac310Base("SCR-053",state):ac310Base("SCR-053",state);
-renderers["SCR-066"]=ac310Render066;
-renderers["SCR-067"]=ac310Render067;
-renderers["SCR-068"]=ac310Render068;
-renderers["SCR-069"]=ac310Render069;
-renderers["SCR-070"]=ac310Render070;
-renderers["SCR-071"]=(state)=>activeFlowId==="UIF-12"?ac310Base("SCR-071",state):ac310Base("SCR-071",state);
-renderers["SCR-054"]=ac310Render054;
-renderers["SCR-055"]=ac310Render055;
-renderers["SCR-056"]=ac310Render056;
-renderers["SCR-057"]=ac310Render057;
-renderers["SCR-058"]=ac310Render058;
-renderers["SCR-059"]=(state)=>activeFlowId==="UIF-15"?ac310Base("SCR-059",state):ac310Base("SCR-059",state);
+/* SCR-042…047 renderers → bj08.js (T7-P A7) */
+/* SCR-048…053 / SCR-066…071 → app/bj11.js / bj12.js (T7-P A8) */
+/* SCR-054…059 → app/bj15.js (T7-P A9); SCR-056 = flowScreen */
+renderers["SCR-056"]=flowScreen("SCR-056");
 renderers["SCR-078"]=ac310Render078;
 renderers["SCR-079"]=ac310Render079;
 renderers["SCR-080"]=ac310Render080;
@@ -2095,177 +1440,11 @@ renderers["SCR-082"]=ac310Render082;
 renderers["SCR-083"]=(state)=>["UIF-16","UIF-17"].includes(activeFlowId)?ac310Base("SCR-083",state):ac310Base("SCR-083",state);
 
 // Re-render once so a deep-linked Audit & Control screen immediately uses v3.1.0.
-if (["UIF-08","UIF-09","UIF-10","UIF-11","UIF-12","UIF-15","UIF-16","UIF-17"].includes(activeFlowId)) render();
+/* load-time render removed (T7-P A7): if (["UIF-08","UIF-09","UIF-10","UIF-11"… */
 
-/* ===== v320-audit-control-ui-correction.js ===== */
-/* VET45 Theme 7 v3.2.0 — Audit & Control UI correction
- * Parent: v3.1.0
- * Scope: BJ08, BJ09, BJ10, BJ11, BJ12, BJ15, BJ16, BJ17.
- * Purpose: remove redundant list headings, remove destructive CTAs from browse/list surfaces,
- * and tighten dense filter/list presentation while preserving all business states and handlers.
- */
+/* v320 → bj09.js / bj15.js (T7-P A9) */
 
-const AC320_SCOPE = ["UIF-08","UIF-09","UIF-10","UIF-11","UIF-12","UIF-15","UIF-16","UIF-17"];
-const ac320Base = {
-  "SCR-042": renderers["SCR-042"],
-  "SCR-044": renderers["SCR-044"],
-  "SCR-055": renderers["SCR-055"],
-  "SCR-056": renderers["SCR-056"],
-  "SCR-057": renderers["SCR-057"]
-};
-
-function ac320ListCount(count,label="mục") {
-  return `<div class="ac320-list-meta" data-ds-component="DS v2 / List Top Bar" data-figma-node="547:2223" data-ds-prop-type="Count"><span>${esc(`${count} ${label}`)}</span></div>`;
-}
-
-function ac320SessionRow(){
-  return `<div class="ac320-session-record" data-ds-pattern="Session record" data-composed-from="DS v2 / List Row,VBadge">
-    ${ac310RecordRow({title:"KK-0709-03",subtitle:"Kho trung tâm · Toàn kho · 12/38 đã đếm",badge:"Đang đếm",tone:"Info",attrs:'data-ic08-action="resume"',leading:null})}
-  </div>`;
-}
-
-function ac320Render042(state){
-  if(activeFlowId!=="UIF-08" || !["READY","PENDING_APPROVAL"].includes(state)) return ac320Base["SCR-042"](state);
-  if(state==="PENDING_APPROVAL") return ac320Base["SCR-042"](state);
-  const chips=`<div class="ds24-chip-scroll ac320-chip-row" aria-label="Lọc phiên kiểm kê">${ds24Chip("ALL","Tất cả",true,"data-ic08-filter")}${ds24Chip("COUNTING","Đang đếm",false,"data-ic08-filter")}${ds24Chip("APPROVAL","Chờ duyệt",false,"data-ic08-filter")}</div>`;
-  const body=`${ds24Search("","","Tìm phiên kiểm kê")}${chips}${ac320SessionRow()}${ic08Overlays()}`;
-  return ac310Return(appShell({title:"Kiểm kê kho",body,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false}));
-}
-
-function ac320Render044(state){
-  if(activeFlowId!=="UIF-08" || !["BLIND_COUNT","READY","VALIDATION_ERROR","LOCK_LOST"].includes(state)) return ac320Base["SCR-044"](state);
-  const lost=state==="LOCK_LOST";
-  const error=state==="VALIDATION_ERROR"?vBanner("error","Chưa nhập đủ kết quả","Nhập số đếm thực tế cho tất cả dòng trước khi nộp."):"";
-  const notice=lost?vBanner("warning","Phiên không còn giữ khóa","Số đã nhập được giữ trên thiết bị. Quay về phiên kiểm kê để tải lại trạng thái hiện hành trước khi tiếp tục."):vBanner("info","Đang đếm mù","Chỉ nhập số thực tế. Số theo sổ và chênh lệch chỉ hiển thị sau lần nộp đầu.");
-  const groups=[ac310CountGroup({id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp",value:ic08Counts.amox,disabled:lost}),ac310CountGroup({id:"glove",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp",value:ic08Counts.glove,disabled:lost})];
-  if(ic08UnexpectedLine) groups.push(ac310CountGroup({id:"unexpected",name:ic08UnexpectedLine.name,code:"Hàng thực tế bổ sung",lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,value:ic08UnexpectedLine.value,unexpected:true,disabled:lost}));
-  const body=`${error}${notice}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03"],["Kho","Kho trung tâm"],["Thời điểm chốt","09/09/2026 · 08:00"]])}${ac320ListCount(groups.length,"dòng cần đếm")}<div class="ac310-product-control-list">${groups.join("")}</div>${!lost?`<button class="button button--secondary ac310-inline-button" type="button" data-ic08-action="add-actual-open" data-ds-component="VButton">Thêm hàng thực tế</button>`:""}${ic08Overlays()}`;
-  return ac310Return(appShell({title:"Đếm mù",body,actions:lost?primaryFooter("Về phiên kiểm kê",'data-ic08-action="to-list"'):primaryFooter("Nộp kết quả đếm",'data-ic08-action="submit-first"')}));
-}
-
-function ac320Render055(state){
-  if(activeFlowId!=="UIF-15") return ac320Base["SCR-055"](state);
-  const html=ac320Base["SCR-055"](state);
-  if(typeof html!=="string") return html;
-  const t=document.createElement("template"); t.innerHTML=html;
-  const title=[...t.content.querySelectorAll(".ac310-section-title,.ds24-section-title,.io-section-title")].find(x=>x.textContent.trim()==="Sản phẩm");
-  if(title) title.remove();
-  return t.innerHTML;
-}
-
-function ac320Render056(state){
-  const html=ac320Base["SCR-056"](state);
-  if(!AC320_SCOPE.includes(activeFlowId) || typeof html!=="string") return html;
-  const t=document.createElement("template"); t.innerHTML=html;
-  const shell=t.content.querySelector('.v-page-scaffold');
-  const pageTitle=shell?.dataset.dsPropTitle||"";
-  if(pageTitle==="Lịch sử tình trạng"){
-    [...t.content.querySelectorAll(".ac310-section-title,.ds24-section-title,.io-section-title")].filter(x=>x.textContent.trim()==="Lịch sử").forEach(x=>x.remove());
-  }
-  return t.innerHTML;
-}
-
-function ac320Render057(state){
-  const html=ac320Base["SCR-057"](state);
-  if(activeFlowId!=="UIF-15" || typeof html!=="string") return html;
-  const t=document.createElement("template"); t.innerHTML=html;
-  const shell=t.content.querySelector('.v-page-scaffold');
-  const pageTitle=shell?.dataset.dsPropTitle||"";
-  if(pageTitle==="Nguồn nghiệp vụ"){
-    [...t.content.querySelectorAll(".ac310-section-title,.ds24-section-title,.io-section-title")].filter(x=>x.textContent.trim()==="Dòng thời gian nghiệp vụ").forEach(x=>x.remove());
-  }
-  return t.innerHTML;
-}
-
-renderers["SCR-042"]=ac320Render042;
-renderers["SCR-044"]=ac320Render044;
-renderers["SCR-055"]=ac320Render055;
-renderers["SCR-056"]=ac320Render056;
-renderers["SCR-057"]=ac320Render057;
-
-if (AC320_SCOPE.includes(activeFlowId)) render();
-
-/* ===== v340-professional-composition.js ===== */
-/* VET45 Theme 7 v3.4.0 — professional composition correction
- * Parent: v3.3.0
- * Scope: cumulative product/context hierarchy cleanup, with targeted renderer changes in BJ08.
- * No business/state/action contract is changed.
- */
-
-// Keep product identity quiet during counting: the screen already communicates the task.
-ac310CountGroup = function({id,name,code,lot,uom,value,unexpected=false,disabled=false}){
-  const parent=ac310ProductRow({
-    name, code,
-    meta:`${lot?`Lô ${lot} · `:""}${uom}`,
-    badge:unexpected?"Bổ sung thực tế":"",
-    tone:unexpected?"Info":"Neutral",
-    status:true
-  });
-  return `<section class="ac310-product-control-group ac340-product-task" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / List Row,VNumericKeypadSheet">${parent}<div class="ac310-control-indent">${ic08QuantityTrigger("Số lượng thực tế",value,`count:${id}`,uom,disabled)}</div></section>`;
-};
-
-// Variance is evidence, not a status badge. Put all numeric comparison facts in one aligned region.
-ac310RecountGroup = function({id,name,code,lot,uom,book,first,variance,value,disabled=false}){
-  const parent=ac310ProductRow({name,code,meta:`Lô ${lot} · ${uom}`,badge:"",tone:"Neutral",status:true});
-  const facts=ac310KeyValueSurface("",[
-    ["Theo sổ",`${book} ${uom}`],
-    ["Lần đếm đầu",`${first} ${uom}`],
-    ["Chênh lệch",variance]
-  ],{extraClass:"ac310-inline-surface ac340-recount-facts"});
-  return `<section class="ac310-product-control-group ac340-product-task ac340-recount-task" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / List Row,DS v2 / Key-value Row,VNumericKeypadSheet">${parent}<div class="ac310-control-indent">${facts}${ic08QuantityTrigger("Số lượng đếm lại",value,`recount:${id}`,uom,disabled)}</div></section>`;
-};
-
-function ac340ReviewProduct({name,code,meta,variance,rows}){
-  const product=ac310ProductRow({name,code,meta,badge:"",tone:"Neutral",status:true});
-  const details=ac310KeyValueSurface("",[["Chênh lệch",variance],...rows],{extraClass:"ac310-approval-detail ac340-review-facts"});
-  return `<section class="ac340-review-group" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / List Row,DS v2 / Key-value Row">${product}${details}</section>`;
-}
-
-const ac340Base044=renderers["SCR-044"];
-const ac340Base045=renderers["SCR-045"];
-const ac340Base046=renderers["SCR-046"];
-
-function ac340Render044(state){
-  if(activeFlowId!=="UIF-08" || !["BLIND_COUNT","READY","VALIDATION_ERROR","LOCK_LOST"].includes(state)) return ac340Base044(state);
-  const lost=state==="LOCK_LOST";
-  const error=state==="VALIDATION_ERROR"?vBanner("error","Chưa nhập đủ kết quả","Nhập số đếm thực tế cho tất cả dòng trước khi nộp."):"";
-  const notice=lost?vBanner("warning","Phiên không còn giữ khóa","Số đã nhập được giữ trên thiết bị. Quay về phiên kiểm kê để tải lại trạng thái hiện hành trước khi tiếp tục."):vBanner("info","Đang đếm mù","Chỉ nhập số thực tế. Số theo sổ và chênh lệch chỉ hiển thị sau lần nộp đầu.");
-  const groups=[
-    ac310CountGroup({id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp",value:ic08Counts.amox,disabled:lost}),
-    ac310CountGroup({id:"glove",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp",value:ic08Counts.glove,disabled:lost})
-  ];
-  if(ic08UnexpectedLine) groups.push(ac310CountGroup({id:"unexpected",name:ic08UnexpectedLine.name,code:"Hàng thực tế bổ sung",lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,value:ic08UnexpectedLine.value,unexpected:true,disabled:lost}));
-  const body=`${error}${notice}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03"],["Kho","Kho trung tâm"],["Thời điểm chốt","09/09/2026 · 08:00"]])}<div class="ac310-product-control-list ac340-product-task-list">${groups.join("")}</div>${!lost?`<button class="button button--secondary ac310-inline-button" type="button" data-ic08-action="add-actual-open" data-ds-component="VButton">Thêm hàng thực tế</button>`:""}${ic08Overlays()}`;
-  return ac310Return(appShell({title:"Đếm mù",body,actions:lost?primaryFooter("Về phiên kiểm kê",'data-ic08-action="to-list"'):primaryFooter("Nộp kết quả đếm",'data-ic08-action="submit-first"')}));
-}
-
-function ac340Render045(state){
-  if(activeFlowId!=="UIF-08" || !["RECOUNT_REQUIRED","READY","LOCKED","PRICE_BASIS_REQUIRED","EVIDENCE_REQUIRED","VALIDATION_ERROR"].includes(state)) return ac340Base045(state);
-  const locked=state==="LOCKED",price=state==="PRICE_BASIS_REQUIRED",evidence=state==="EVIDENCE_REQUIRED";
-  const notice=locked?vBanner("warning","Phiên đang chỉ đọc","Không thể sửa kết quả đếm trong trạng thái hiện hành."):price?vBanner("error","Chưa đủ căn cứ giá","Dòng thừa chưa có căn cứ giá hợp lệ. Phiên vẫn được giữ khóa."):evidence?vBanner("warning","Chưa đủ bằng chứng","Bổ sung bằng chứng cần thiết trước khi gửi duyệt."):state==="VALIDATION_ERROR"?vBanner("error","Kết quả đếm lại chưa hợp lệ","Kiểm tra số lượng đếm lại trước khi gửi."):vBanner("info","Chỉ đếm lại dòng có chênh lệch","Số theo sổ đã được hiển thị sau lần đếm đầu.");
-  const groups=[
-    ac310RecountGroup({id:"amox",name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp",book:20,first:18,variance:"−2 hộp",value:ic08Recounts.amox,disabled:locked}),
-    ac310RecountGroup({id:"glove",name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp",book:6,first:7,variance:"+1 hộp",value:ic08Recounts.glove,disabled:locked})
-  ];
-  const evidenceRows=[["Amox 500","Đã có bằng chứng"],["Găng tay M",price?"Thiếu căn cứ giá":evidence?"Thiếu bằng chứng":"Đã có căn cứ"]];
-  const body=`${notice}<div class="ac310-product-control-list ac340-product-task-list">${groups.join("")}</div>${ac310InfoSurface("Căn cứ và bằng chứng",evidenceRows)}${(price||evidence)?vBanner("warning","Chưa thể gửi duyệt","Chỉ có thể gửi khi tất cả căn cứ bắt buộc đã hợp lệ."):""}${ic08Overlays()}`;
-  let actions=""; if(!locked) actions=`<footer class="app-actions figma-sticky-footer ac310-footer-stack"><button class="button button--primary" type="button" data-ic08-action="submit-recount" data-ds-component="VButton" ${price||evidence?'disabled':''}>Gửi chờ duyệt</button>${price||evidence?`<button class="button button--secondary ac310-danger-text" type="button" data-ic08-action="cancel-open" data-ds-component="VButton">Hủy phiên</button>`:""}</footer>`;
-  return ac310Return(appShell({title:"Chênh lệch và đếm lại",body,actions}));
-}
-
-function ac340Render046(state){
-  if(activeFlowId!=="UIF-08" || !["READY","APPROVAL_REVIEW"].includes(state)) return ac340Base046(state);
-  const products=`<div class="ac340-review-list">${ac340ReviewProduct({name:"Amox 500",code:"SP-00128",meta:"Lô L2407-A · hộp",variance:"−2 hộp",rows:[["Đếm lại","18 hộp"],["Bằng chứng","Đã đủ"]]})}${ac340ReviewProduct({name:"Găng tay M",code:"SP-00410",meta:"Lô L2405-M · hộp",variance:"+1 hộp",rows:[["Đếm lại","7 hộp"],["Căn cứ giá","Đã đủ"],["Bằng chứng","Đã đủ"]]})}</div>`;
-  const body=`${vBanner("info","Cần quyết định độc lập","Người duyệt chỉ rà soát bằng chứng và quyết định; không sửa số đếm.")}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03",true],["Người thực hiện","Nguyễn An"],["Kho","Kho trung tâm"],["Dòng chênh lệch","2 dòng"]])}${products}${ic08Overlays()}`;
-  const actions=`<footer class="app-actions figma-sticky-footer ac310-two-actions"><button class="button button--secondary" type="button" data-ic08-action="request-review" data-ds-component="VButton">Yêu cầu xem lại</button><button class="button button--primary" type="button" data-ic08-action="approve" data-ds-component="VButton">Duyệt và điều chỉnh</button></footer>`;
-  return ac310Return(appShell({title:"Duyệt kiểm kê",body,actions}));
-}
-
-renderers["SCR-044"]=ac340Render044;
-renderers["SCR-045"]=ac340Render045;
-renderers["SCR-046"]=ac340Render046;
-
-if(activeFlowId==="UIF-08") render();
+/* v340 BJ-08 moved/removed (T7-P A7) */
 
 /* ===== v350-flow-logic-correction.js ===== */
 /* VET45 Theme 7 v3.5.0 — full flow/logic correction
@@ -2300,6 +1479,8 @@ if(activeFlowId==="UIF-08") render();
     "UIF-08": {"assigned-counter":["SCR-044","BLIND_COUNT"], "approver":["SCR-046","APPROVAL_REVIEW"]},
     "UIF-09": {"product-context":["SCR-037","READY"], "approver":["SCR-038","APPROVAL_REVIEW"]},
     "UIF-10": {"product-context":["SCR-037","READY"], "approver":["SCR-040","APPROVAL_REVIEW"], "completion-operator":["SCR-040","COMPLETION"]},
+    "UIF-11": {"approver":["SCR-051","READY"], "operation-context":["SCR-049","CORRECTABLE"]},
+    "UIF-12": {"approver":["SCR-070","READY"]},
     "UIF-14": {"dirty-scope":["SCR-073","READY"]}
   };
   function v350ApplyEntry(flowId, mode, shouldRender=false) {
@@ -2378,174 +1559,19 @@ if(activeFlowId==="UIF-08") render();
 
 
   // -------------------------------------------------------------------------
-  // BJ08 — blind count / recount / approval
-  // -------------------------------------------------------------------------
-  ic08Counts={amox:"",glove:""};
-  ic08Recounts={amox:"",glove:""};
-  let v350Ic08DiscrepancyIds=[];
-  let v350Ic08AdjustedCount=0;
-  const v350Ic08Book={amox:20,glove:6};
-  const v350Ic08Meta={
-    amox:{name:"Amox 500",code:"SP-00128",lot:"L2407-A",uom:"hộp"},
-    glove:{name:"Găng tay M",code:"SP-00410",lot:"L2405-M",uom:"hộp"}
-  };
-  function v350Ic08FirstValid(){return ["amox","glove"].every(id=>nonBlank(ic08Counts[id])&&Number.isFinite(Number(ic08Counts[id]))&&Number(ic08Counts[id])>=0);}
-  function v350Ic08Recompute(){v350Ic08DiscrepancyIds=["amox","glove"].filter(id=>num(ic08Counts[id])!==v350Ic08Book[id]);return v350Ic08DiscrepancyIds;}
-  function v350Ic08RecountValid(){return v350Ic08DiscrepancyIds.every(id=>nonBlank(ic08Recounts[id])&&Number.isFinite(Number(ic08Recounts[id]))&&Number(ic08Recounts[id])>=0);}
-  function v350Ic08Variance(id,value){const d=num(value)-v350Ic08Book[id];return `${d>0?"+":""}${d} ${v350Ic08Meta[id].uom}`;}
-  ic08QuantityTrigger = function(label,value,target,unit,disabled=false) {
-    const display=nonBlank(value)?String(value):"—";
-    return `<div class="ds24-field" data-theme-component="Theme7QuantityEntry" data-composed-from="VText,VNumericKeypadSheet"><span class="vet45-text-style-8">${esc(label)}</span><button type="button" class="ds24-field__control ds24-quantity-trigger" data-ic08-keypad-open="${target}" data-unit="${escAttr(unit)}" ${disabled?'disabled':''}><span class="vet45-text-style-6">${esc(display)}</span><small class="vet45-text-style-11">${esc(unit)}</small></button></div>`;
-  };
-  ic08ConfirmationSheet = function(){
-    if(!ic08ConfirmKind)return "";
-    const cfg={
-      'open-session':['Mở phiên kiểm kê?','Phạm vi sẽ được khóa theo thời điểm chốt của phiên.','Mở phiên','default',false],
-      'submit-first':['Nộp lần đếm đầu?','Sau khi nộp, hệ thống mới hiển thị số sổ và chênh lệch.','Nộp kết quả','default',false],
-      'submit-recount':['Gửi kết quả kiểm kê?','Kết quả đếm lại sẽ được chuyển sang công việc duyệt độc lập.','Gửi chờ duyệt','default',false],
-      'approve':['Duyệt và điều chỉnh?','Hệ thống chỉ ghi điều chỉnh sau khi kiểm tra lại điều kiện và phạm vi.','Duyệt và điều chỉnh','default',false],
-      'request-review':['Yêu cầu xem lại?','Phiên giữ nguyên khóa và quay lại bước đếm lại.','Yêu cầu xem lại','default',true],
-      'cancel':['Hủy phiên kiểm kê?','Không tạo điều chỉnh. Lịch sử kiểm đếm được giữ.','Hủy phiên','danger',true]
-    }[ic08ConfirmKind]; if(!cfg)return "";
-    const [title,desc,action,tone,needsReason]=cfg;
-    const val=ic08ConfirmKind==='cancel'?ic08CancelReason:ic08ReviewReason;
-    const attr=ic08ConfirmKind==='cancel'?'data-ic08-cancel-reason':'data-ic08-review-reason';
-    const reason=needsReason?ds24TextField('Lý do',val,attr,'Lý do được lưu trong lịch sử quản trị.'):'';
-    return `<div class="sheet-backdrop ds24-overlay" data-ic08-action="confirm-close"><section class="ds24-confirmation ds24-confirmation--${tone}" data-ds-component="DS v2 / Confirmation Sheet" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="ds24-confirmation__handle"></div><h3 class="vet45-text-style-4">${esc(title)}</h3><p class="vet45-text-style-6">${esc(desc)}</p>${reason}<div class="ds24-confirmation__actions"><button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="confirm-close">Quay lại</button><button class="ds24-button ${tone==='danger'?'ds24-button--danger':'ds24-button--primary'}" type="button" data-v350-action="ic08-confirm-${ic08ConfirmKind}" ${needsReason&&!nonBlank(val)?'disabled':''}>${esc(action)}</button></div></section></div>`;
-  };
-  function v350Render044(state){
-    if(activeFlowId!=="UIF-08") return ac340Base044(state);
-    if(!["BLIND_COUNT","READY","VALIDATION_ERROR","LOCK_LOST"].includes(state)) return ac340Base044(state);
-    const lost=state==="LOCK_LOST";
-    const error=state==="VALIDATION_ERROR"?vBanner("error","Chưa nhập đủ kết quả","Nhập số đếm thực tế cho tất cả dòng trước khi nộp."):"";
-    const notice=lost?vBanner("warning","Phiên không còn giữ khóa","Số đã nhập được giữ trên thiết bị. Tải lại trạng thái hiện hành trước khi tiếp tục."):vBanner("info","Đang đếm mù","Chỉ nhập số thực tế. Số theo sổ và chênh lệch chỉ hiển thị sau lần nộp đầu.");
-    const groups=["amox","glove"].map(id=>{const m=v350Ic08Meta[id];return ac310CountGroup({id,name:m.name,code:m.code,lot:m.lot,uom:m.uom,value:ic08Counts[id],disabled:lost});});
-    if(ic08UnexpectedLine)groups.push(ac310CountGroup({id:"unexpected",name:ic08UnexpectedLine.name,code:"Hàng thực tế bổ sung",lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,value:ic08UnexpectedLine.value,unexpected:true,disabled:lost}));
-    const body=`${error}${notice}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03"],["Kho","Kho trung tâm"],["Thời điểm chốt","09/09/2026 · 08:00"]])}<div class="ac310-product-control-list ac340-product-task-list">${groups.join("")}</div>${!lost?`<button class="button button--secondary ac310-inline-button" type="button" data-ic08-action="add-actual-open" data-ds-component="VButton">Thêm hàng thực tế</button>`:""}${ic08Overlays()}`;
-    return ac310Return(appShell({title:"Đếm mù",body,actions:lost?primaryFooter("Về phiên kiểm kê",'data-ic08-action="to-list"'):primaryFooter("Nộp kết quả đếm",'data-ic08-action="submit-first"')}));
-  }
-  function v350Render045(state){
-    if(activeFlowId!=="UIF-08")return ac340Base045(state);
-    if(!["RECOUNT_REQUIRED","READY","LOCKED","PRICE_BASIS_REQUIRED","EVIDENCE_REQUIRED","VALIDATION_ERROR"].includes(state))return ac340Base045(state);
-    if(!v350Ic08DiscrepancyIds.length)v350Ic08Recompute();
-    if(!v350Ic08DiscrepancyIds.length) v350Ic08DiscrepancyIds=["amox","glove"]; // direct Inspector fixture only
-    const locked=state==="LOCKED",price=state==="PRICE_BASIS_REQUIRED",evidence=state==="EVIDENCE_REQUIRED";
-    const notice=locked?vBanner("warning","Phiên đang chỉ đọc","Không thể sửa kết quả đếm trong trạng thái hiện hành."):price?vBanner("error","Chưa đủ căn cứ giá","Dòng thừa chưa có căn cứ giá hợp lệ."):evidence?vBanner("warning","Chưa đủ bằng chứng","Bổ sung bằng chứng cần thiết trước khi gửi duyệt."):state==="VALIDATION_ERROR"?vBanner("error","Kết quả đếm lại chưa hợp lệ","Nhập số lượng đếm lại cho tất cả dòng chênh lệch."):vBanner("info","Chỉ đếm lại dòng có chênh lệch","Số theo sổ đã được hiển thị sau lần đếm đầu.");
-    const groups=v350Ic08DiscrepancyIds.map(id=>{const m=v350Ic08Meta[id],first=nonBlank(ic08Counts[id])?num(ic08Counts[id]):(id==="amox"?18:7);return ac310RecountGroup({id,name:m.name,code:m.code,lot:m.lot,uom:m.uom,book:v350Ic08Book[id],first,variance:v350Ic08Variance(id,first),value:ic08Recounts[id],disabled:locked});});
-    const evidenceRows=v350Ic08DiscrepancyIds.map(id=>[v350Ic08Meta[id].name,price?"Thiếu căn cứ giá":evidence?"Thiếu bằng chứng":"Đã đủ căn cứ"]);
-    const body=`${notice}<div class="ac310-product-control-list ac340-product-task-list">${groups.join("")}</div>${ac310InfoSurface("Căn cứ và bằng chứng",evidenceRows)}${ic08Overlays()}`;
-    let actions="";if(!locked)actions=`<footer class="app-actions figma-sticky-footer ac310-footer-stack"><button class="button button--primary" type="button" data-ic08-action="submit-recount" ${price||evidence?'disabled':''}>Gửi chờ duyệt</button>${price||evidence?`<button class="button button--secondary ac310-danger-text" type="button" data-ic08-action="cancel-open">Hủy phiên</button>`:""}</footer>`;
-    return ac310Return(appShell({title:"Chênh lệch và đếm lại",body,actions}));
-  }
-  function v350Render046(state){
-    if(activeFlowId!=="UIF-08")return ac340Base046(state);
-    if(state==="SELF_APPROVAL_NOT_ALLOWED")return appShell({title:"Duyệt kết quả kiểm kê",body:vBanner("warning","Không thể tự duyệt","Người thực hiện kiểm kê không được duyệt chính kết quả của mình."),back:false});
-    if(state==="APPROVAL_ALREADY_DECIDED")return appShell({title:"Duyệt kết quả kiểm kê",body:vBanner("info","Công việc đã có quyết định","Mở kết quả kiểm kê để xem trạng thái hiện hành."),actions:primaryFooter("Xem kết quả",'data-v350-action="ic08-approval-result"'),back:false});
-    if(!["READY","APPROVAL_REVIEW"].includes(state))return ac340Base046(state);
-    const ids=v350Ic08DiscrepancyIds.length?v350Ic08DiscrepancyIds:["amox","glove"];
-    const groups=ids.map(id=>{const m=v350Ic08Meta[id],first=nonBlank(ic08Counts[id])?num(ic08Counts[id]):(id==="amox"?18:7),final=nonBlank(ic08Recounts[id])?num(ic08Recounts[id]):first;return ac340ReviewProduct({name:m.name,code:m.code,meta:`Lô ${m.lot} · ${m.uom}`,variance:v350Ic08Variance(id,final),rows:[["Kết quả cuối",`${final} ${m.uom}`],["Bằng chứng","Đã đủ"]]});}).join("");
-    const noDiff=ids.every(id=>{const v=nonBlank(ic08Recounts[id])?num(ic08Recounts[id]):num(ic08Counts[id]||v350Ic08Book[id]);return v===v350Ic08Book[id];});
-    const body=`${vBanner("info","Cần quyết định độc lập",noDiff?"Kết quả cuối không còn chênh lệch. Người duyệt xác nhận để hoàn tất phiên.":"Người duyệt chỉ rà soát bằng chứng và quyết định; không sửa số đếm.")}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03"],["Người thực hiện","Nguyễn An"],["Kho","Kho trung tâm"],["Dòng cần quyết định",`${ids.length} dòng`]])}<div class="ac340-review-list">${groups}</div>${ic08Overlays()}`;
-    const actions=`<footer class="app-actions figma-sticky-footer ac310-two-actions"><button class="button button--secondary" type="button" data-v350-action="ic08-request-review">Yêu cầu xem lại</button><button class="button button--primary" type="button" data-v350-action="ic08-approve">Duyệt${noDiff?"":" và điều chỉnh"}</button></footer>`;
-    return ac310Return(appShell({title:"Duyệt kiểm kê",body,actions,back:false}));
-  }
-  renderers["SCR-044"]=v350Render044;
-  renderers["SCR-045"]=v350Render045;
-  renderers["SCR-046"]=v350Render046;
-  const v350Render047Base=renderers["SCR-047"];
-  renderers["SCR-047"]=function(state){
-    if(activeFlowId!=="UIF-08"||state!=="COMPLETED")return v350Render047Base(state);
-    const title=v350Ic08AdjustedCount?"Đã hoàn tất kiểm kê":"Đã hoàn tất kiểm kê — không cần điều chỉnh";
-    const desc=v350Ic08AdjustedCount?"Điều chỉnh tồn kho đã được ghi theo quyết định duyệt và phạm vi đã mở khóa.":"Kết quả kiểm đếm khớp số sổ. Phiên hoàn tất mà không tạo bút toán điều chỉnh.";
-    const rows=[["Phiên","KK-0709-03"],["Điều chỉnh",v350Ic08AdjustedCount?"ADJ-0709-03":"Không tạo"],["Số dòng điều chỉnh",String(v350Ic08AdjustedCount)],["Khóa phạm vi","Đã mở"]];
-    return appShell({title:"Kết quả kiểm kê",body:ds24Result(title,desc,rows),actions:primaryFooter("Về kiểm kê",'data-ic08-action="to-list"'),centered:true,back:false});
-  };
-
-
-
-  // -------------------------------------------------------------------------
-  // BJ12 — independent control total and approval snapshot.
-  // -------------------------------------------------------------------------
-  let v350Cf12ApprovalHash=null;
-  const v350Cf12Hash=()=>[cf12FileName,cf12Cutoff,cf12ControlQty,cf12ControlValue,cf12Summary.rows,cf12Summary.parsedQty,cf12Summary.parsedValue].join("|");
-  const v350Cf12Matches=()=>num(cf12ControlQty)===num(cf12Summary.parsedQty)&&num(cf12ControlValue)===num(cf12Summary.parsedValue);
-  const v350Render067Base=renderers["SCR-067"];
-  renderers["SCR-067"]=(state)=>activeFlowId==="UIF-12"?v350Render067Base(state).replace(/data-cf12-action="check"/g,'data-v350-action="cf12-check"'):v350Render067Base(state);
-  const v350Render069Base=renderers["SCR-069"];
-  renderers["SCR-069"]=(state)=>activeFlowId==="UIF-12"?v350Render069Base(state).replace(/data-cf12-action="send-approval"/g,'data-v350-action="cf12-send-approval"'):v350Render069Base(state);
-  const v350Render070Base=renderers["SCR-070"];
-  renderers["SCR-070"]=(state)=>activeFlowId==="UIF-12"?v350Render070Base(state).replace(/data-cf12-action="approve"/g,'data-v350-action="cf12-approve"'):v350Render070Base(state);
-  const v350Render068Base=renderers["SCR-068"];
-  renderers["SCR-068"]=function(state){
-    if(activeFlowId!=="UIF-12")return v350Render068Base(state);
-    if(state!=="CONTROL_TOTAL_MISMATCH")return v350Render068Base(state);
-    const dq=num(cf12ControlQty)-num(cf12Summary.parsedQty),dv=num(cf12ControlValue)-num(cf12Summary.parsedValue);
-    const body=`${vBanner("warning","Số kiểm soát không khớp","Không gửi phê duyệt cho đến khi tệp chi tiết khớp nguồn kiểm soát độc lập.")}${crFactCard("Đối chiếu số lượng",[["Theo tệp",cfNumber(cf12Summary.parsedQty),true],["Số kiểm soát",cfNumber(cf12ControlQty),true],["Chênh lệch",`${dq>0?"+":""}${cfNumber(dq)}`]])}${crFactCard("Đối chiếu giá trị",[["Theo tệp",cfMoney(cf12Summary.parsedValue),true],["Số kiểm soát",cfMoney(cf12ControlValue),true],["Chênh lệch",cfMoney(dv)]])}`;
-    return appShell({title:"Kiểm tra dữ liệu",body,actions:primaryFooter("Sửa số kiểm soát",'data-cf12-action="back-file"')});
-  };
+  /* BJ08 v350 renderers/helpers → app/bj08.js (T7-P A7) */
 
   // -------------------------------------------------------------------------
   // BJ14 — successor must preserve immediate predecessor and policy method.
   // -------------------------------------------------------------------------
 
   // -------------------------------------------------------------------------
-  // BJ15 — report filters constrain actual datasets and export scope.
-  // -------------------------------------------------------------------------
-  cf15Movements.forEach(m=>{m.productId ||= "P-NOB";});
-  if(!cf15Movements.some(m=>m.productId==="P-AMX"))cf15Movements.push({id:"MV-AMX-01",productId:"P-AMX",label:"Nhận hàng",source:"PN-260907-11",business:"07/09/2026",recorded:"07/09/2026",actor:"Nguyễn An",before:12,delta:6,after:18,uom:"hộp",lot:"L2407-A",state:"Bán được",value:720000});
-  if(!cf15Movements.some(m=>m.productId==="P-GLV"))cf15Movements.push({id:"MV-GLV-01",productId:"P-GLV",label:"Kiểm kê",source:"KK-0709-03",business:"07/09/2026",recorded:"07/09/2026",actor:"Nguyễn An",before:5,delta:1,after:6,uom:"hộp",lot:"L2405-M",state:"Bán được",value:0});
-  function v350DateIso(v){const m=String(v||"").match(/^(\d{2})\/(\d{2})\/(\d{4})/);return m?`${m[3]}-${m[2]}-${m[1]}`:String(v||"").slice(0,10);}
-  function v350Cf15Products(){return cf15Product==="ALL"?cf15Products:cf15Products.filter(p=>p.id===cf15Product);}
-  function v350Cf15Movements(mode=cf15DateMode){const pid=cf15Product==="ALL"?cf15SelectedProduct:cf15Product;return cf15Movements.filter(m=>(!pid||m.productId===pid)).filter(m=>{const d=v350DateIso(mode==="RECORDED"?m.recorded:m.business);return (!cf15From||d>=cf15From)&&(!cf15To||d<=cf15To);});}
-  cf15InventoryResult=function(state,mode){
-    const financeAllowed=state!=="FINANCIAL_RESTRICTED",products=v350Cf15Products();
-    if(!products.length)return `${cf15ContextBanner(state,mode)}${ioEmpty("Không có dữ liệu phù hợp","Đổi phạm vi hoặc kỳ báo cáo để kiểm tra lại.")}`;
-    const rows=products.map(p=>ioProductRow({name:p.name,code:p.code,primary:`${cfNumber(p.qty)} ${p.uom}`,secondary:`Khả dụng ${cfNumber(p.available)} ${p.uom}`,attr:`data-cf15-product-row="${p.id}"`})).join("");
-    const totalValue=products.reduce((a,x)=>a+x.value,0);
-    return `${cf15ContextBanner(state,mode)}${cfSummaryGrid([["Sản phẩm",products.length],["Kho","Kho trung tâm"],...(financeAllowed?[["Tổng giá trị",cfMoney(totalValue)]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Bạn vẫn có thể xem số lượng trong phạm vi được cấp quyền.")}<div class="io-list-card" data-ds-component="VSection" data-composed-from="DS v2 / List Row"><div class="io-product-list">${rows}</div></div><p class="io-footnote">Không cộng các số lượng khác đơn vị thành một tổng giả.</p><div class="cf-inline-actions">${cfSecondary("Xuất báo cáo",'data-cf15-action="export"')}</div>${cf15ProductSheet(cf15ProductById(cf15SelectedProduct),financeAllowed)}`;
-  };
-  cf15StockCardResult=function(state,mode){
-    const financeAllowed=state!=="FINANCIAL_RESTRICTED";const p=cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product);const movements=v350Cf15Movements(mode);
-    const movRows=movements.map(m=>`<button class="cf-movement-row" type="button" data-cf15-movement="${m.id}" data-ds-component="DS v2 / List Row"><span><strong>${m.label}</strong><small>${mode==="RECORDED"?m.recorded:m.business} · ${m.source}</small></span><span class="cf-movement-values"><strong>${m.delta>0?"+":""}${m.delta} ${m.uom}</strong><small>Còn ${m.after} ${m.uom}</small></span>${navChevron()}</button>`).join("");
-    return `${cf15ContextBanner(state,mode)}${crFactCard(p.name,[["Mã",p.code,true],["Tồn hiện tại",`${cfNumber(p.qty)} ${p.uom}`],["Khả dụng bán",`${cfNumber(p.available)} ${p.uom}`],...(financeAllowed?[["Giá trị tồn",cfMoney(p.value)]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Thẻ kho vẫn hiển thị số lượng và nguồn nghiệp vụ trong phạm vi quyền.")}${movements.length?`<div class="cf-movement-list">${movRows}</div>`:ioEmpty("Không có biến động trong kỳ","Đổi khoảng ngày hoặc sản phẩm để xem dữ liệu khác.")}<div class="cf-inline-actions">${cfSecondary("Xuất thẻ kho",'data-cf15-action="export"')}</div>`;
-  };
-  const v350Render055Base=renderers["SCR-055"];
-  renderers["SCR-055"]=function(state){
-    if(activeFlowId!=="UIF-15")return v350Render055Base(state);
-    if(!["READY","RECORDED_DATE_VIEW","BUSINESS_DATE_VIEW","FINANCIAL_RESTRICTED","FILTER_EMPTY","EMPTY","LOADING","PERMISSION_DENIED"].includes(state))return v350Render055Base(state);
-    if(["FILTER_EMPTY","EMPTY","LOADING","PERMISSION_DENIED"].includes(state))return v350Render055Base(state);
-    const mode=state==="RECORDED_DATE_VIEW"?"RECORDED":state==="BUSINESS_DATE_VIEW"?"BUSINESS":cf15DateMode;
-    const financeAllowed=state!=="FINANCIAL_RESTRICTED";
-    if(cf15ReportType==="INVENTORY"){
-      const products=v350Cf15Products();
-      if(!products.length)return ac310Return(appShell({title:"Báo cáo tồn kho",body:ioEmpty("Không có dữ liệu phù hợp","Đổi phạm vi hoặc kỳ báo cáo để kiểm tra lại.")}));
-      const rows=products.map((p)=>ac310ProductRow({name:p.name,code:p.code,meta:`${cfNumber(p.qty)} ${p.uom} · Khả dụng ${cfNumber(p.available)} ${p.uom}`,attrs:`data-cf15-product-row="${p.id}"`})).join("");
-      const totalValue=products.reduce((a,x)=>a+x.value,0);
-      const body=`${cf15ContextBanner(state,mode)}${ac310SummaryMetrics([["Sản phẩm",products.length],["Kho","Kho trung tâm"],...(financeAllowed?[["Tổng giá trị",cfMoney(totalValue)]]:[])])}${financeAllowed?"":vBanner("info","Giá trị tài chính đã được ẩn","Bạn vẫn có thể xem số lượng trong phạm vi được cấp quyền.")}${ac310ListSurface(rows)}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="export">Xuất báo cáo</button>${ac310Cf15ProductSheet(cf15ProductById(cf15SelectedProduct),financeAllowed)}`;
-      return ac310Return(appShell({title:"Báo cáo tồn kho",subtitle:`Kho trung tâm · ${cf15DateLabel(mode)}`,body}));
-    }
-    const p=cf15ProductById(cf15Product==="ALL"?cf15SelectedProduct:cf15Product);
-    const filtered=v350Cf15Movements(mode);
-    if(!filtered.length)return ac310Return(appShell({title:"Thẻ kho",subtitle:`${p.name} · ${cf15DateLabel(mode)}`,body:`${cf15ContextBanner(state,mode)}${ioEmpty("Không có biến động trong kỳ","Đổi khoảng ngày hoặc sản phẩm để xem dữ liệu khác.")}`}));
-    const movements=filtered.map((m)=>ac310RecordRow({title:m.label,subtitle:`${mode==="RECORDED"?m.recorded:m.business} · ${m.source}`,badge:`${m.delta>0?"+":""}${m.delta} ${m.uom}`,tone:"Neutral",attrs:`data-cf15-movement="${m.id}"`,leading:null})).join("");
-    const body=`${cf15ContextBanner(state,mode)}${ac310ProductRow({name:p.name,code:p.code,meta:`${cfNumber(p.qty)} ${p.uom}`,badge:`Khả dụng ${cfNumber(p.available)} ${p.uom}`,tone:"Success",status:true})}${financeAllowed?ac310KeyValueSurface("",[["Giá trị tồn",cfMoney(p.value),true]]):vBanner("info","Giá trị tài chính đã được ẩn","Thẻ kho vẫn hiển thị số lượng và nguồn nghiệp vụ.")}${ac310SectionTitle("Biến động")}${ac310ListSurface(movements)}<button class="button button--secondary ac310-inline-button" type="button" data-cf15-action="export">Xuất thẻ kho</button>`;
-    return ac310Return(appShell({title:"Thẻ kho",subtitle:`${p.name} · ${cf15DateLabel(mode)}`,body}));
-  };
-  const v350Render058Base=renderers["SCR-058"];
-  renderers["SCR-058"]=function(state){
-    if(activeFlowId!=="UIF-15"||state!=="READY")return v350Render058Base(state);
-    const sourceLabel=cf15ExportFrom==="SOURCE"?"Bằng chứng biến động":cf15ReportType==="STOCK_CARD"?"Thẻ kho":"Báo cáo tồn kho";
-    const productLabel=cf15Product==="ALL"?"Tất cả sản phẩm":cf15ProductById(cf15Product).name;
-    const count=cf15ReportType==="STOCK_CARD"?v350Cf15Movements(cf15DateMode).length:v350Cf15Products().length;
-    const body=`${crFactCard("Phạm vi xuất",[["Nội dung",sourceLabel,true],["Kho","Kho trung tâm"],["Sản phẩm",productLabel],["Kỳ",`${cfDateVN(cf15From)} → ${cfDateVN(cf15To)}`],["Cách hiểu thời gian",cf15DateLabel()],["Số dòng trong phạm vi",String(count)],["Giá trị tài chính",cf15FinanceIncluded?"Có":"Không"]])}${crFactCard("Định dạng",[["Tệp","CSV",true],["Quyền dữ liệu","Giữ đúng như màn đang xem"]])}<p class="io-footnote">Tệp xuất giữ đúng bộ lọc, khoảng ngày, quyền và mốc dữ liệu của kết quả đang xem.</p>`;
-    return appShell({title:"Xuất báo cáo",body,actions:primaryFooter("Xuất báo cáo",'data-cf15-action="confirm-export"'),backAction:"cf15-back-export"});
-  };
+// BJ15 → app/bj15.js (T7-P A9)
 
-  // -------------------------------------------------------------------------
   // BJ16 / BJ17 — context integrity + evidence freshness + safe finality.
   // -------------------------------------------------------------------------
   cr16Cases.forEach((c,i)=>{c.evidenceVersion ??= 1;c.planEvidenceVersion ??= null;c.recoveryEvidenceVersion ??= null;c.closed ??= false;if(c.id==="REC-260907-04")c.correctionOperationId="IO-260904-021";});
-  if(!cr11Operations.some(o=>o.id==="IO-260904-021"))cr11Operations.splice(2,0,{id:"IO-260904-021",type:"Nhận hàng",source:"PN-260904-08",status:"COMPLETED",statusLabel:"Có thể sửa",route:"CORRECT",warehouse:"Kho trung tâm",product:"Amox 500 · Lô L2407-A",qty:20,uom:"hộp",correctQty:18,impact:"Đã tăng tồn 20 hộp"});
+  /* IO-260904-021 seed → app/bj11.js (T7-P A8) */
   cr17Cases.forEach(c=>{c.evidenceVersion ??= 1;c.planEvidenceVersion ??= null;c.resolutionRecord ??= null;c.sourceFlow ??= "UIF-17";});
   const v350Render079Base=renderers["SCR-079"],v350Render080Base=renderers["SCR-080"],v350Render081Base=renderers["SCR-081"],v350Render082Base=renderers["SCR-082"],v350Render083Base=renderers["SCR-083"];
   renderers["SCR-079"]=function(state){
@@ -2575,16 +1601,11 @@ if(activeFlowId==="UIF-08") render();
   // UNKNOWN result routing — a result in doubt must not silently return/retry.
   // -------------------------------------------------------------------------
   function wrapUnknown(screenId,flowId,metaFactory){const base=renderers[screenId];renderers[screenId]=function(state){if(activeFlowId===flowId&&["UNKNOWN","COMMIT_UNKNOWN"].includes(state))return v350UnknownResult(metaFactory());return base(state);};}
-  const unknowns=[
-    ["SCR-047","UIF-08",()=>({sourceFlow:"UIF-08",operation:"KK-0709-03",scope:"Kho trung tâm · phiên kiểm kê"})],
-    ["SCR-066","UIF-12",()=>({sourceFlow:"UIF-12",operation:"Khởi tạo tồn kho đầu kỳ",scope:`Kho trung tâm · ${cfDateVN(cf12Cutoff)}`})],
-    ["SCR-071","UIF-12",()=>({sourceFlow:"UIF-12",operation:"Khởi tạo tồn kho đầu kỳ",scope:`Kho trung tâm · ${cfDateVN(cf12Cutoff)}`})]
-  ];unknowns.forEach(x=>wrapUnknown(...x));
+  /* wrapUnknown SCR-047/066/071 → bj08/bj12 (T7-P A7/A8); handoff-unknown listener giữ */
+  const unknowns=[];
   // BJ02 verify/handoff-unknown: giữ listener data-v350-action (A10); wrapper SCR-012/013 đã chết (v392).
 
-  // BJ11 navigation action must not create finality.
-  const v350Render051Base=renderers["SCR-051"];
-  renderers["SCR-051"]=(state)=>activeFlowId==="UIF-11"?v350Render051Base(state).replace(/data-cr11-action="approval-result"/g,'data-v350-action="cr11-approval-result"'):v350Render051Base(state);
+  /* BJ11 SCR-051 → app/bj11.js (T7-P A8) */
 
   // -------------------------------------------------------------------------
   // Event binding for v3.5.0 controls.
@@ -2596,38 +1617,7 @@ if(activeFlowId==="UIF-08") render();
     if(k==="bj02-verify-unknown"){stateByScreen["SCR-013"]="PROCESSING_OR_UNKNOWN";return navigate("SCR-013");}
     if(k==="bj02-handoff-unknown")return v350HandoffUnknown({sourceFlow:"UIF-02",operation:"Nhận hàng",scope:"Yêu cầu nhận hàng hiện tại",evidence:"INSUFFICIENT"});
 
-    if(k==="ic08-confirm-submit-first"){
-      ic08ConfirmKind=null;if(!v350Ic08FirstValid()){stateByScreen["SCR-044"]="VALIDATION_ERROR";return renderAppScreen();}
-      v350Ic08Recompute();
-      if(v350Ic08DiscrepancyIds.length){v350Ic08DiscrepancyIds.forEach(id=>ic08Recounts[id]="");stateByScreen["SCR-045"]="RECOUNT_REQUIRED";return navigate("SCR-045");}
-      stateByScreen["SCR-046"]="APPROVAL_REVIEW";return navigate("SCR-046");
-    }
-    if(k==="ic08-confirm-submit-recount"){
-      ic08ConfirmKind=null;if(!v350Ic08RecountValid()){stateByScreen["SCR-045"]="VALIDATION_ERROR";return renderAppScreen();}
-      stateByScreen["SCR-042"]="PENDING_APPROVAL";return navigate("SCR-042");
-    }
-    if(k==="ic08-confirm-open-session"){ic08ConfirmKind=null;stateByScreen["SCR-044"]="BLIND_COUNT";return navigate("SCR-044");}
-    if(k==="ic08-confirm-cancel"){if(!nonBlank(ic08CancelReason))return;ic08ConfirmKind=null;stateByScreen["SCR-047"]="CANCELLED";return navigate("SCR-047");}
-    if(k==="ic08-approve"){if(!isApproverEntry()){stateByScreen["SCR-046"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}ic08ConfirmKind="approve";return renderAppScreen();}
-    if(k==="ic08-confirm-approve"){if(!isApproverEntry()){ic08ConfirmKind=null;stateByScreen["SCR-046"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}ic08ConfirmKind=null;v350Ic08AdjustedCount=["amox","glove"].filter(id=>num(nonBlank(ic08Recounts[id])?ic08Recounts[id]:ic08Counts[id])!==v350Ic08Book[id]).length;stateByScreen["SCR-047"]="COMPLETED";return navigate("SCR-047");}
-    if(k==="ic08-request-review"){ic08ReviewReason="";ic08ConfirmKind="request-review";return renderAppScreen();}
-    if(k==="ic08-confirm-request-review"){if(!isApproverEntry()){ic08ConfirmKind=null;stateByScreen["SCR-046"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}if(!nonBlank(ic08ReviewReason))return;ic08ConfirmKind=null;stateByScreen["SCR-045"]="RECOUNT_REQUIRED";return navigate("SCR-045");}
-    if(k==="ic08-approval-result")return navigate("SCR-047");
 
-
-    if(k==="cf12-check"){
-      const valid=Boolean(cf12FileName&&cf12Cutoff&&cf12ControlQty!==""&&cf12ControlValue!==""&&num(cf12ControlQty)>=0&&num(cf12ControlValue)>=0);
-      if(!valid){stateByScreen["SCR-067"]="VALIDATION_ERROR";return renderAppScreen();}
-      stateByScreen["SCR-068"]=v350Cf12Matches()?"READY":"CONTROL_TOTAL_MISMATCH";return navigate("SCR-068");
-    }
-    if(k==="cf12-send-approval"){if(!v350Cf12Matches()){stateByScreen["SCR-068"]="CONTROL_TOTAL_MISMATCH";return navigate("SCR-068");}v350Cf12ApprovalHash=v350Cf12Hash();stateByScreen["SCR-069"]="PENDING_APPROVAL";stateByScreen["SCR-066"]="PENDING_APPROVAL";return navigate("SCR-066");}
-    if(k==="cf12-approve"){
-      if(!isApproverEntry()){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}
-      if(!v350Cf12ApprovalHash||v350Cf12ApprovalHash!==v350Cf12Hash()){stateByScreen["SCR-070"]="VALIDATION_ERROR";return renderAppScreen();}
-      stateByScreen["SCR-071"]="PROCESSING";navigate("SCR-071");setTimeout(()=>{if(activeFlowId==="UIF-12"&&activeScreenId==="SCR-071"&&stateByScreen["SCR-071"]==="PROCESSING"){stateByScreen["SCR-071"]="COMPLETED";stateByScreen["SCR-066"]="ACTIVE_RECONCILED";render();}},420);return;
-    }
-
-    if(k==="cr11-approval-result")return navigate("SCR-053");
     if(k==="cr16-correction-handoff"){const c=cr16Current();const opId=c.correctionOperationId;if(!opId)return;cr11SelectedId=opId;stateByScreen["SCR-049"]="CORRECTABLE";return crSwitchFlow("UIF-11","SCR-049","CORRECTABLE");}
     if(k==="cr16-source-handoff"){stateByScreen["SCR-083"]="ESCALATED";return navigate("SCR-083");}
     if(k==="cr16-open-plan"){const c=cr16Current();c.planEvidenceVersion=c.evidenceVersion;stateByScreen["SCR-080"]="READY";return navigate("SCR-080");}
@@ -2664,67 +1654,10 @@ if(activeFlowId==="UIF-08") render();
   // Actor ownership — decision actions are executable only in the assigned
   // approver/completion context. Navigation/open-sheet actions remain harmless.
   // -------------------------------------------------------------------------
-  const v350Render051ActorBase=renderers["SCR-051"];
-  renderers["SCR-051"]=function(state){
-    if(activeFlowId!=="UIF-11")return v350Render051ActorBase(state);
-    return v350Render051ActorBase(state)
-      .replace(/data-cr11-action="approve"/g,'data-v350-action="cr11-approve"')
-      .replace(/data-cr11-action="reject-confirm"/g,'data-v350-action="cr11-reject-confirm"');
-  };
-  const v350Render070ActorBase=renderers["SCR-070"];
-  renderers["SCR-070"]=function(state){
-    if(activeFlowId!=="UIF-12")return v350Render070ActorBase(state);
-    return v350Render070ActorBase(state)
-      .replace(/data-cf12-action="confirm-reject"/g,'data-v350-action="cf12-confirm-reject"');
-  };
-
-  document.addEventListener("click",(event)=>{
-    const a=event.target.closest("[data-v350-action]"); if(!a||a.disabled)return;
-    const k=a.dataset.v350Action;
-    if(!["cr11-approve","cr11-reject-confirm","cf12-confirm-reject"].includes(k))return;
-    event.preventDefault();event.stopPropagation();
-    if(!isApproverEntry()){
-      const screen=activeFlowId==="UIF-11"?"SCR-051":"SCR-070";
-      stateByScreen[screen]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();
-    }
-    if(k==="cr11-approve"){
-      stateByScreen["SCR-053"]="PROCESSING";navigate("SCR-053");setTimeout(()=>{if(activeFlowId==="UIF-11"&&activeScreenId==="SCR-053"&&stateByScreen["SCR-053"]==="PROCESSING"){stateByScreen["SCR-053"]="COMPLETED";syncReviewUrl();render();}},300);return;
-    }
-    if(k==="cr11-reject-confirm"){
-      if(!cr11ApprovalRejectReason.trim()){stateByScreen["SCR-051"]="VALIDATION_ERROR";return renderAppScreen();}cr11ApprovalRejectOpen=false;stateByScreen["SCR-053"]="REJECTED";return navigate("SCR-053");
-    }
-    if(k==="cf12-confirm-reject"){
-      if(!cf12RejectReason.trim())return;cf12RejectOpen=false;stateByScreen["SCR-070"]="APPROVAL_ALREADY_DECIDED";stateByScreen["SCR-066"]="REJECTED";return renderAppScreen();
-    }
-  },true);
+  /* BJ11/BJ12 actor listeners → app/bj11.js / bj12.js (T7-P A8) */
 
   // -------------------------------------------------------------------------
-  // BJ08 list controls — search and filter must change the visible collection,
-  // not merely render controls that look interactive.
-  // -------------------------------------------------------------------------
-  let v350Ic08ListQuery="", v350Ic08ListFilter="ALL";
-  const v350Render042Base=renderers["SCR-042"];
-  renderers["SCR-042"]=function(state){
-    if(activeFlowId!=="UIF-08")return v350Render042Base(state);
-    if(state==="CANCEL_REQUEST")return ac310Return(appShell({title:"Kiểm kê kho",body:`${vBanner("warning","Yêu cầu hủy cần được xử lý trong phiên","Không đặt thao tác hủy trên màn danh sách. Mở đúng phiên kiểm kê để tiếp tục xử lý theo trạng thái hiện hành.")}${ac310InfoSurface("Phiên kiểm kê",[["Mã phiên","KK-0709-03",true],["Kho","Kho trung tâm"],["Trạng thái","Cần mở phiên để xử lý"]])}`,actions:primaryFooter("Về danh sách",'data-v350-action="ic08-cancel-request-back"'),back:false}));
-    if(!["READY","FILTER_EMPTY"].includes(state))return v350Render042Base(state);
-    const records=[
-      {id:"KK-0709-03",status:"COUNTING",title:"KK-0709-03",subtitle:"Kho trung tâm · Toàn kho · 12/38 đã đếm",badge:"Đang đếm",tone:"Info",action:'data-ic08-action="resume"'},
-      {id:"KK-0708-02",status:"APPROVAL",title:"KK-0708-02",subtitle:"Kho trung tâm · Nhóm vaccine · Đã đếm xong",badge:"Chờ duyệt",tone:"Warning",action:'data-v350-action="ic08-open-approval"'}
-    ];
-    const q=v350Ic08ListQuery.trim().toLocaleLowerCase("vi");
-    const rows=(state==="FILTER_EMPTY"?[]:records.filter(r=>(v350Ic08ListFilter==="ALL"||r.status===v350Ic08ListFilter)&&(!q||`${r.title} ${r.subtitle}`.toLocaleLowerCase("vi").includes(q))));
-    const chips=`<div class="ds24-chip-scroll ac320-chip-row" aria-label="Lọc phiên kiểm kê">${ds24Chip("ALL","Tất cả",v350Ic08ListFilter==="ALL","data-v350-ic08-filter")}${ds24Chip("COUNTING","Đang đếm",v350Ic08ListFilter==="COUNTING","data-v350-ic08-filter")}${ds24Chip("APPROVAL","Chờ duyệt",v350Ic08ListFilter==="APPROVAL","data-v350-ic08-filter")}</div>`;
-    const list=rows.length?`<div class="ac320-session-list">${rows.map(r=>ac310RecordRow({title:r.title,subtitle:r.subtitle,badge:r.badge,tone:r.tone,attrs:r.action,leading:null})).join("")}</div>`:ioEmpty("Không tìm thấy phiên kiểm kê","Thử từ khóa hoặc bộ lọc khác.");
-    const body=`${ds24Search(v350Ic08ListQuery,'data-v350-ic08-list-search','Tìm phiên kiểm kê')}${chips}${list}`;
-    return ac310Return(appShell({title:"Kiểm kê kho",body,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false}));
-  };
-  document.addEventListener("input",(event)=>{if(activeFlowId==="UIF-08"&&event.target.matches("[data-v350-ic08-list-search]")){v350Ic08ListQuery=event.target.value;return renderAppScreen();}},true);
-  document.addEventListener("click",(event)=>{
-    const f=event.target.closest("[data-v350-ic08-filter]");if(f&&activeFlowId==="UIF-08"){event.preventDefault();event.stopPropagation();v350Ic08ListFilter=f.dataset.v350Ic08Filter;return renderAppScreen();}
-    const a=event.target.closest('[data-v350-action="ic08-open-approval"]');if(a&&activeFlowId==="UIF-08"){event.preventDefault();event.stopPropagation();stateByScreen["SCR-046"]="APPROVAL_REVIEW";return navigate("SCR-046");}
-    const back=event.target.closest('[data-v350-action="ic08-cancel-request-back"]');if(back&&activeFlowId==="UIF-08"){event.preventDefault();event.stopPropagation();stateByScreen["SCR-042"]="READY";return renderAppScreen();}
-  },true);
+  /* BJ08 list controls → app/bj08.js (T7-P A7) */
 
   // Fix List Row search hiding after DS migration.
   window.__VET45_V350__={
@@ -2740,8 +1673,8 @@ if(activeFlowId==="UIF-08") render();
     bumpIO06Source(){const r=io06CurrentRequest();r.sourceVersion=num(r.sourceVersion)+1;io06RefreshRequestState(r);return r.sourceVersion;},
     bumpCR16Evidence(){const c=cr16Current();c.evidenceVersion=num(c.evidenceVersion)+1;return c.evidenceVersion;},
     bumpCR17Evidence(){const c=cr17Current();c.evidenceVersion=num(c.evidenceVersion)+1;return c.evidenceVersion;},
-    setCf12Control(qty,value){cf12ControlQty=String(qty);cf12ControlValue=String(value);return v350Cf12Matches();},
-    getCf15Rows(mode=cf15DateMode){return v350Cf15Movements(mode).map(x=>x.id);},
+    setCf12Control(qty,value){cf12ControlQty=String(qty);cf12ControlValue=String(value);return (typeof bj12ControlMatches==='function'?bj12ControlMatches():false);},
+    getCf15Rows(mode=typeof cf15DateMode!=='undefined'?cf15DateMode:'BUSINESS'){return (typeof bj15Movements==='function'?bj15Movements(mode):[]).map(x=>x.id);},
     getState(){return {flow:activeFlowId,screen:activeScreenId,state:stateByScreen[activeScreenId]};},
     getIC10(){return window.__VET45_BJ10__?.getIC10?.()||{};},
     getIC09(){return window.__VET45_V3101__?{draft:window.__VET45_V3101__.getDraft?.(),basis:window.__VET45_V3101__.getBasis?.(),current:typeof ic09Current==='function'?ic09Current():null}:{};},
@@ -2749,66 +1682,10 @@ if(activeFlowId==="UIF-08") render();
   };
 
   // Final render after correcting entry routing and effective renderer table.
-  syncReviewUrl();render();
+  syncReviewUrl(); /* load-time render removed T7-P A7 */
 })();
 
-/* ===== v351-list-chip-navigation-correction.js ===== */
-/* VET45 Theme 7 v3.5.1 — list/chip/navigation correction
- * Parent: v3.5.0. Presentation and drill-down return behavior only.
- */
-(function(){
-  const patchBackAction=(html,action)=>{
-    if(typeof html!=="string") return html;
-    const t=document.createElement("template");
-    t.innerHTML=html;
-    const back=t.content.querySelector(".app-back-button");
-    if(back){
-      back.removeAttribute("data-back");
-      back.setAttribute("data-action",action);
-    }
-    return t.innerHTML;
-  };
-
-  // BJ09 history is an auxiliary drill-down from SCR-037, not the next step after
-  // the result screen. Back must restore the detail that launched it without
-  // mutating status/result state.
-  const base056=renderers["SCR-056"];
-  renderers["SCR-056"]=function(state){
-    const html=base056(state);
-    if(activeFlowId==="UIF-09") return patchBackAction(html,"v351-ic09-history-back");
-    if(activeFlowId==="UIF-15") return patchBackAction(html,"v351-cf15-movement-back");
-    return html;
-  };
-
-  // BJ15 source evidence is another auxiliary drill-down. Make its parent explicit
-  // instead of relying on screen-array order.
-  const base057=renderers["SCR-057"];
-  renderers["SCR-057"]=function(state){
-    const html=base057(state);
-    if(activeFlowId==="UIF-15") return patchBackAction(html,"v351-cf15-source-back");
-    return html;
-  };
-
-  document.addEventListener("click",(event)=>{
-    const btn=event.target.closest?.("[data-action]");
-    if(!btn) return;
-    const action=btn.dataset.action;
-    if(action==="v351-ic09-history-back" && activeFlowId==="UIF-09"){
-      event.preventDefault(); event.stopImmediatePropagation();
-      return navigate("SCR-037");
-    }
-    if(action==="v351-cf15-movement-back" && activeFlowId==="UIF-15"){
-      event.preventDefault(); event.stopImmediatePropagation();
-      return navigate("SCR-055");
-    }
-    if(action==="v351-cf15-source-back" && activeFlowId==="UIF-15"){
-      event.preventDefault(); event.stopImmediatePropagation();
-      return navigate("SCR-056");
-    }
-  },true);
-
-  if(["UIF-09","UIF-15"].includes(activeFlowId)) render();
-})();
+/* v351 → bj09.js / bj15.js (T7-P A9) */
 
 /* ===== v360-full-theme-completion.js ===== */
 /* VET45 Theme 7 v3.6.0 — full-theme completion & UX QA correction
@@ -2822,29 +1699,8 @@ if(activeFlowId==="UIF-08") render();
   const VERSION = "3.6.0";
 
   // -----------------------------------------------------------------------
-  // BJ08 cancellation: destructive action belongs inside an opened session,
-  // never on the browse list.
-  // -----------------------------------------------------------------------
-  function injectSessionCancel(html){
-    if(!html || html.includes('data-ic08-action="cancel-open"')) return html;
-    const button=`<button class="button button--secondary v360-session-cancel" type="button" data-ic08-action="cancel-open" data-action-contract="ACT-09-CANCEL" data-ds-component="VButton" data-ds-prop-variant="VButtonVariant.secondary" data-ds-prop-tone="VComponentTone.danger">Hủy phiên</button>`;
-    if(html.includes('</footer>')) return html.replace('</footer>',`${button}</footer>`);
-    return html;
-  }
-  const base044=renderers["SCR-044"];
-  renderers["SCR-044"]=function(state){
-    const html=base044(state);
-    if(activeFlowId!=="UIF-08" || !["BLIND_COUNT","READY","VALIDATION_ERROR"].includes(state)) return html;
-    return injectSessionCancel(html);
-  };
-  const base045=renderers["SCR-045"];
-  renderers["SCR-045"]=function(state){
-    const html=base045(state);
-    if(activeFlowId!=="UIF-08" || !["RECOUNT_REQUIRED","READY","VALIDATION_ERROR","EVIDENCE_REQUIRED","PRICE_BASIS_REQUIRED"].includes(state)) return html;
-    return injectSessionCancel(html);
-  };
+  /* BJ08 session cancel / SCR-044/045 inject moved to bj08.js (T7-P A7) */
 
-  // -----------------------------------------------------------------------
   // Representative-state coherence. These seeds are only for direct Inspector
   // entry to READY review screens; normal user transitions already populate
   // the same prerequisites and are never overwritten.
@@ -2880,26 +1736,13 @@ if(activeFlowId==="UIF-08") render();
   // in the same work context or returns to a work list. Dedicated result
   // screens keep sole ownership of operation-level success feedback.
   // -----------------------------------------------------------------------
-  const toastRules=[
-    ['[data-cr11-action="submit-correction"]',"Đã gửi yêu cầu sửa sai","success"],
-    ['[data-cf12-action="send-approval"]',"Đã gửi số dư đầu kỳ chờ duyệt","success"]
-  ];
-  document.addEventListener("click",(event)=>{
-    for(const [selector,msg,tone] of toastRules){
-      const hit=event.target.closest(selector);if(!hit||hit.disabled)continue;
-      window.setTimeout(()=>{if(document.getElementById("app-screen"))showToast(msg,tone);},30);
-      break;
-    }
-  },true);
+  /* toastRules cr11/cf12 → bj11 submit-correction toast (T7-P A8) */
 
   // -----------------------------------------------------------------------
   // Stable exit paths (fallback-exit).
   // -----------------------------------------------------------------------
-  document.addEventListener("input",(event)=>{
-    if(activeFlowId==="UIF-08" && event.target.matches("[data-ic08-cancel-reason]")){
-      queueMicrotask(()=>{const b=document.querySelector('[data-v350-action="ic08-confirm-cancel"]');if(b)b.disabled=!String(event.target.value||"").trim();});
-    }
-  },true);
+  /* v360 ic08-cancel-reason listener removed (T7-P A7) */
+
   document.addEventListener("click",(event)=>{
     const action=event.target.closest("[data-v360-action]");
     if(!action||action.disabled)return;
@@ -2940,7 +1783,7 @@ if(activeFlowId==="UIF-08") render();
   };
 
   // Final render after all effective renderers and global QA corrections exist.
-  syncReviewUrl();render();
+  syncReviewUrl(); /* load-time render removed T7-P A7 */
 })();
 
 /* ===== v361-footer-action-correction.js ===== */
@@ -3062,20 +1905,8 @@ if(activeFlowId==="UIF-08") render();
   }
 })();
 
-/* ===== legacy-sheet-cleanup (từ v381) ===== */
-/* Legacy, xoá khi các BJ có sheet được viết lại ở T7-P: bỏ nút "Đóng" thừa ở sheet chỉ xem / chọn
- * (backdrop, tay nắm và Back hệ thống đã đóng được sheet). */
-(()=>{
-  function cleanupDismissibleSheets(){
-    document.querySelectorAll('.ds24-select-sheet button[data-ic08-action="select-close"]').forEach(n=>n.remove());
-    document.querySelectorAll('.cf15-sheet button[data-cf15-action="close-product-sheet"], .ac310-sheet button[data-cf15-action="close-product-sheet"]').forEach(n=>n.remove());
-    document.querySelectorAll('.cf15-sheet .sheet-actions, .ac310-sheet .sheet-actions').forEach(actions=>{
-      if(actions.children.length===1)actions.classList.add('t381-single-business-action');
-    });
-  }
-  const previousRenderFlowScreen=renderFlowScreen;
-  renderFlowScreen=function(){previousRenderFlowScreen();cleanupDismissibleSheets();};
-})();
+/* legacy-sheet-cleanup → bj15.js sheets (T7-P A9) */
+
 /* ===== legacy-cross-theme-copy (từ v390) ===== */
 /* Legacy, xoá dần khi BJ-02 / 06 / 09 / 17 được viết lại ở T7-P: sửa chữ sau khi dựng màn. */
 (()=>{
@@ -3095,155 +1926,7 @@ if(activeFlowId==="UIF-08") render();
 })();
 
 
-/* ===== v3100-bj08-semantic-hardening.js ===== */
-(function(){
-  const baseRender042V3100=renderers['SCR-042'];
-  const BOOK={amox:20,glove:6};
-  const META={
-    amox:{name:'Amox 500',code:'SP-00128',lot:'L2407-A',uom:'hộp',state:'Bán được'},
-    glove:{name:'Găng tay M',code:'SP-00410',lot:'L2405-M',uom:'hộp',state:'Cách ly'}
-  };
-  let roundNo=1;
-  let roundHistory=[];
-  let resultSnapshot=null;
-  let dialogKind=null;
-  let approvalCaseNo=1;
-  let contributorNames=['Nguyễn An'];
-
-  const num=(v)=>Number(String(v||'0').replace(',','.'))||0;
-  const signed=(n)=>`${n>0?'+':''}${n}`;
-  const allZero=(vals)=>Object.keys(BOOK).every(k=>num(vals[k])===BOOK[k]) && (!ic08UnexpectedLine || num(ic08UnexpectedLine.value)===0);
-  const currentVariance=(vals)=>Object.keys(BOOK).map(k=>({id:k,...META[k],book:BOOK[k],count:num(vals[k]),variance:num(vals[k])-BOOK[k]})).filter(x=>x.variance!==0);
-  const info=(rows)=>ic08ContextRows(rows);
-  const lineHead=(m,badge='')=>ds24ListRow({title:m.name,subtitle:`${m.code} · Lô ${m.lot} · ${m.state} · ${m.uom}`,trailing:badge?ds24Badge(badge,'Info'):'',leading:'package',type:'Status',density:'Compact',interactive:false});
-  function blindRow(id){ const m=META[id]; return `<section class="ac321-product-input-group" data-theme-component="Theme7StockCountLine" data-physical-count-key="${id}">${lineHead(m)}<div class="ac321-product-field">${ic08QuantityTrigger('Số lượng thực tế',ic08Counts[id],`count:${id}`,m.uom,false)}</div></section>`; }
-  function recountRow(id){ const m=META[id], book=BOOK[id], first=num(ic08Counts[id]), value=ic08Recounts[id], variance=first-book; return `<section class="ac321-product-input-group" data-theme-component="Theme7StockRecountLine" data-physical-count-key="${id}">${lineHead(m)}<div class="ac321-product-facts">${ds24KeyValueRow('Theo sổ',`${book} ${m.uom}`)}${ds24KeyValueRow('Lần đếm đầu',`${first} ${m.uom}`)}${ds24KeyValueRow('Chênh lệch',`${signed(variance)} ${m.uom}`)}</div><div class="ac321-product-field">${ic08QuantityTrigger('Số lượng đếm lại',value,`recount:${id}`,m.uom,false)}</div></section>`; }
-  function unexpectedBlock(blind=true){
-    if(!ic08UnexpectedLine) return '';
-    const st=ic08UnexpectedLine.stockState||'';
-    const select=`<label class="ds24-field" data-ds-component="VSelect"><span class="vet45-text-style-8">Trạng thái hàng</span><select class="ds24-field__control" data-v3100-stock-state><option value="">Chọn trạng thái</option><option value="SELLABLE" ${st==='SELLABLE'?'selected':''}>Bán được</option><option value="QUARANTINE" ${st==='QUARANTINE'?'selected':''}>Cách ly</option><option value="DAMAGED" ${st==='DAMAGED'?'selected':''}>Hỏng</option></select></label>`;
-    const m={name:ic08UnexpectedLine.name,code:'Sản phẩm hiện có',lot:ic08UnexpectedLine.lot,uom:ic08UnexpectedLine.uom,state:st?({SELLABLE:'Bán được',QUARANTINE:'Cách ly',DAMAGED:'Hỏng'}[st]||st):'Chưa xác định trạng thái'};
-    return `<section class="ac321-product-input-group" data-theme-component="Theme7UnexpectedPhysicalKey">${lineHead(m,'Hàng thực tế')}${select}<div class="ac321-product-field">${ic08QuantityTrigger('Số lượng thực tế',ic08UnexpectedLine.value,'count:unexpected',m.uom,false)}</div><small class="vet45-text-style-11">Giá trị hàng thừa do nguồn có thẩm quyền cung cấp; người đếm không nhập giá.</small></section>`;
-  }
-  function footer(primaryLabel,primaryAction,secondary=true){ return `<footer class="app-actions figma-sticky-footer ds24-footer-stack" data-ds-pattern="Sticky Footer"><button class="ds24-button ds24-button--primary" type="button" data-v3100-ic08-action="${primaryAction}" data-ds-component="VButton">${primaryLabel}</button>${secondary?`<button class="ds24-button ds24-button--secondary" type="button" data-v3100-ic08-action="cancel-open" data-action-contract="ACT-09-CANCEL" data-ds-component="VButton">Hủy phiên</button>`:''}</footer>`; }
-  function confirmSheet(){
-    if(!dialogKind)return '';
-    const cfg={open:['Mở phiên kiểm kê?','Hệ thống khóa phạm vi trước khi chốt số sổ và mở phiên.','Mở phiên',false],first:['Nộp lần đếm đầu?','Sau khi nộp, số sổ và chênh lệch mới được hiển thị.','Nộp kết quả',false],recount:['Gửi kết quả đếm lại?','Kết quả được lưu thành một vòng đếm lại bất biến.','Gửi kết quả',false],approve:['Duyệt và điều chỉnh?','Hệ thống kiểm tra lại căn cứ giá, quyền và khóa trước khi ghi điều chỉnh.','Duyệt và điều chỉnh',false],review:['Yêu cầu đếm lại?','Vòng đếm hiện tại được giữ nguyên. Một vòng đếm lại mới sẽ được mở.','Yêu cầu đếm lại',true],cancel:['Hủy phiên kiểm kê?','Không tạo điều chỉnh; toàn bộ lịch sử đếm được giữ và phạm vi được mở khóa.','Hủy phiên',true]}[dialogKind];
-    if(!cfg)return '';
-    const [title,desc,label,reason]=cfg; const val=dialogKind==='cancel'?ic08CancelReason:ic08ReviewReason;
-    const reasonHtml=reason?ds24TextField('Lý do',val,dialogKind==='cancel'?'data-v3100-cancel-reason':'data-v3100-review-reason','Bắt buộc để lưu lịch sử quyết định.'):'';
-    return `<div class="sheet-backdrop ds24-overlay"><section class="ds24-confirmation" data-ds-component="DS v2 / Confirmation Sheet" role="dialog" aria-modal="true"><div class="ds24-confirmation__handle"></div><h3 class="vet45-text-style-4">${title}</h3><p class="vet45-text-style-6">${desc}</p>${reasonHtml}<div class="ds24-confirmation__actions"><button class="ds24-button ds24-button--secondary" data-v3100-ic08-action="dialog-close">Quay lại</button><button class="ds24-button ${dialogKind==='cancel'?'ds24-button--danger':'ds24-button--primary'}" data-v3100-ic08-action="confirm-${dialogKind}" ${reason&&!val.trim()?'disabled':''}>${label}</button></div></section></div>`;
-  }
-  function overlays(){ return `${ic08NumericSheet()}${ic08SelectSheet()}${confirmSheet()}`; }
-
-  render042IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-042'),state);
-    // Preserve the previously approved interactive list/search/filter surface.
-    // v3.10.0 changes stock-count semantics, not browse-list information architecture.
-    const html=baseRender042V3100(state);
-    return String(html).replace(/data-ic08-action=\"create\"/g,'data-v3100-ic08-action=\"new\"').replace(/data-ic08-action=\"resume\"/g,'data-v3100-ic08-action=\"resume-count\"');
-  };
-
-  render043IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-043'),state);
-    if(state==='COUNT_SCOPE_HAS_UNRESOLVED_VALUATION') return appShell({title:'Tạo phiên kiểm kê',body:`${vBanner('warning','Chưa thể mở phiên','Phạm vi còn hàng chờ xác nhận giá trị. Hoàn tất phần giá trị hàng nhận trước khi kiểm kê.')}${info([['Kho','Kho trung tâm'],['Người đếm',ic08AssignedCounter]])}`,actions:primaryFooter('Về kiểm kê','data-v3100-ic08-action="to-list"')});
-    const scopeOptions=[['ALL','Toàn kho'],['PRODUCT','Sản phẩm'],['GROUP','Nhóm sản phẩm'],['LOT','Lô']];
-    const target=ic08Scope==='ALL'?'':`<button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="scope-select-open">${ic08ScopeTarget||'Chọn phạm vi cụ thể'}</button>`;
-    const body=`${info([['Kho','Kho trung tâm'],['Thời điểm chốt','Khi mở phiên'],['Người đếm',ic08AssignedCounter]])}${ds24SelectField('Phạm vi',ic08Scope,scopeOptions,'data-ic08-scope')}${target}${ds24TextField('Lý do kiểm kê',ic08Reason,'data-ic08-reason')}${vBanner('info','Phạm vi được khóa khi mở phiên','Hệ thống chốt số sổ và thành viên nhóm tại thời điểm khóa phạm vi.')}${overlays()}`;
-    return appShell({title:'Tạo phiên kiểm kê',body,actions:primaryFooter('Mở phiên kiểm kê','data-v3100-ic08-action="open"')});
-  };
-
-  render044IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-044'),state);
-    const validation=state==='VALIDATION_ERROR'?vBanner('error','Chưa đủ kết quả đếm','Nhập số lượng thực tế cho tất cả dòng trước khi nộp.'):'';
-    const body=`${validation}${vBanner('info','Đếm mù','Số lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu.')}${info([['Phiên','KK-1709-01'],['Kho','Kho trung tâm'],['Người đếm',ic08AssignedCounter]])}${ic08Section('Hàng trong phạm vi',blindRow('amox')+blindRow('glove'))}${unexpectedBlock(true)}<button class="ds24-button ds24-button--secondary" type="button" data-ic08-action="add-actual-open">Thêm hàng thực tế</button>${overlays()}`;
-    return appShell({title:'Đếm mù',body,actions:footer('Nộp kết quả đếm','submit-first',true)});
-  };
-
-  render045IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-045'),state);
-    const diffs=currentVariance(ic08Counts);
-    const ids=diffs.map(x=>x.id);
-    const rows=ids.map(recountRow).join('');
-    const basisBlocked=state==='PRICE_BASIS_REQUIRED';
-    const basis=basisBlocked?vBanner('warning','Thiếu căn cứ giá hàng thừa','Phiên vẫn khóa; căn cứ giá phải đến từ nguồn có thẩm quyền.'):info([['Căn cứ giá hàng thừa',ids.includes('glove')?'Đã xác nhận':'Không phát sinh'],['Khóa phạm vi','Đang giữ']]);
-    const validation=state==='VALIDATION_ERROR'?vBanner('error','Kết quả đếm lại chưa hợp lệ','Nhập số lượng đếm lại cho tất cả dòng chênh lệch.'):'';
-    const body=`${validation}${vBanner('warning',`Đếm lại lần ${roundNo}`,`${ids.length} dòng còn chênh lệch. Kết quả vòng trước được giữ nguyên trong lịch sử.`)}${ic08Section('Dòng cần đếm lại',rows||'<p class="vet45-text-style-7">Không còn dòng chênh lệch.</p>')}${basis}${overlays()}`;
-    return appShell({title:'Chênh lệch và đếm lại',body,actions:footer('Gửi kết quả đếm lại','submit-recount',true)});
-  };
-
-  render046IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-046'),state);
-    if(state==='PERMISSION_DENIED')return appShell({title:'Duyệt kết quả kiểm kê',body:deniedBody(),centered:true,back:false});
-    if(state==='COUNT_APPROVAL_SNAPSHOT_STALE')return appShell({title:'Duyệt kết quả kiểm kê',body:`${vBanner('warning','Kết quả cần được lập lại','Căn cứ giá hoặc dữ liệu kiểm kê đã thay đổi. Không thể điều chỉnh theo lần duyệt cũ.')}${info([['Phiên','KK-1709-01'],['Tác động','Chưa ghi điều chỉnh']])}`,back:false});
-    if(state==='SELF_APPROVAL_NOT_ALLOWED')return appShell({title:'Duyệt kết quả kiểm kê',body:vBanner('warning','Không thể tự duyệt','Bạn đã tham gia kiểm đếm của kết quả này. Công việc cần người duyệt độc lập.'),back:false});
-    if(state==='APPROVAL_ALREADY_DECIDED')return appShell({title:'Duyệt kết quả kiểm kê',body:vBanner('info','Công việc đã có quyết định','Mở kết quả phiên để xem trạng thái hiện hành.'),actions:primaryFooter('Xem kết quả','data-v3100-ic08-action="approval-result"'),back:false});
-    const vals={amox:String(ic08Recounts.amox??'').trim()!==''?ic08Recounts.amox:(String(ic08Counts.amox??'').trim()!==''?ic08Counts.amox:'18'),glove:String(ic08Recounts.glove??'').trim()!==''?ic08Recounts.glove:(String(ic08Counts.glove??'').trim()!==''?ic08Counts.glove:'7')};
-    const diffs=Object.keys(BOOK).map(k=>({id:k,...META[k],book:BOOK[k],count:num(vals[k]),variance:num(vals[k])-BOOK[k]})).filter(x=>x.variance!==0);
-    const lines=diffs.map(x=>ic08Section(`${x.name} · ${x.lot}`,info([['Trạng thái',x.state],['Theo sổ',`${x.book} ${x.uom}`],['Đếm lại',`${x.count} ${x.uom}`],['Chênh lệch',`${signed(x.variance)} ${x.uom}`],...(x.variance>0?[['Căn cứ giá hàng thừa','Đã xác nhận']]:[['Căn cứ giá thiếu','Giá vốn đã khóa']])]))).join('');
-    const body=`${vBanner('info','Cần quyết định độc lập','Bạn chỉ rà soát kết quả và quyết định; không sửa số đếm.')}${info([['Phiên','KK-1709-01'],['Lần đếm lại',String(roundNo)],['Người đã tham gia đếm',contributorNames.join(', ')],['Mức duyệt','Đã xác định theo rủi ro hiện hành']])}${lines}${overlays()}`;
-    const actions=`<footer class="app-actions figma-sticky-footer ds24-footer-stack"><button class="ds24-button ds24-button--primary" data-v3100-ic08-action="approve">Duyệt và điều chỉnh</button><button class="ds24-button ds24-button--secondary" data-v3100-ic08-action="request-review">Yêu cầu xem lại</button></footer>`;
-    return appShell({title:'Duyệt kết quả kiểm kê',body,actions,back:false});
-  };
-
-  render047IC08=function(state){
-    if(activeFlowId!=='UIF-08') return renderGeneric(screens.find(s=>s.id==='SCR-047'),state);
-    const snap=resultSnapshot;
-    if(state==='UNKNOWN')return appShell({title:'Kết quả kiểm kê',body:ds24Result('Đang xác minh kết quả','Không gửi lại thao tác. Hệ thống cần xác minh đúng lần xử lý này.',[['Phiên','KK-1709-01'],['Định danh xử lý','Giữ nguyên'],['Tồn kho','Chưa kết luận']],'warning'),actions:primaryFooter('Chuyển sang xác minh','data-v350-action="handoff-unknown" data-source-flow="UIF-08" data-operation="KK-1709-01" data-scope="Kho trung tâm · Kiểm kê"'),centered:true,back:false});
-    if(state==='CANCELLED'||snap?.type==='CANCELLED')return appShell({title:'Kết quả kiểm kê',body:ds24Result('Đã hủy phiên','Không tạo điều chỉnh. Lịch sử đếm được giữ và phạm vi đã mở khóa.',[['Phiên','KK-1709-01'],['Điều chỉnh','Không tạo'],['Khóa phạm vi','Đã mở'],['Thời điểm','17/09/2026 09:52']],'warning'),actions:primaryFooter('Về kiểm kê','data-v3100-ic08-action="to-list"'),centered:true,back:false});
-    if(state==='REJECTED_EXECUTION')return appShell({title:'Kết quả kiểm kê',body:ds24Result('Chưa thực hiện điều chỉnh','Điều kiện nghiệp vụ không đạt; không có tác động tồn kho.',[['Phiên','KK-1709-01'],['Tác động','Không ghi nhận']],'warning'),actions:primaryFooter('Về kiểm kê','data-v3100-ic08-action="to-list"'),centered:true,back:false});
-    if(snap?.type==='ZERO')return appShell({title:'Kết quả kiểm kê',body:ds24Result('Đã hoàn tất kiểm kê','Kết quả thực tế khớp số sổ. Không cần tạo điều chỉnh và phạm vi đã mở khóa.',[['Phiên','KK-1709-01'],['Điều chỉnh','Không tạo'],['Khóa phạm vi','Đã mở'],['Hoàn tất lúc',snap.committedAt]]),actions:primaryFooter('Về kiểm kê','data-v3100-ic08-action="to-list"'),centered:true,back:false});
-    return appShell({title:'Kết quả kiểm kê',body:ds24Result('Đã hoàn tất kiểm kê','Điều chỉnh chênh lệch đã được ghi và phạm vi đã mở khóa.',[['Phiên','KK-1709-01'],['Điều chỉnh',snap?.adjustmentId||'ADJ-1709-08'],['Đã điều chỉnh',`${snap?.lines||2} dòng`],['Khóa phạm vi','Đã mở'],['Ghi nhận lúc',snap?.committedAt||'17/09/2026 09:52']]),actions:primaryFooter('Về kiểm kê','data-v3100-ic08-action="to-list"'),centered:true,back:false});
-  };
-
-  renderers['SCR-042']=render042IC08; renderers['SCR-043']=render043IC08; renderers['SCR-044']=render044IC08; renderers['SCR-045']=render045IC08; renderers['SCR-046']=render046IC08; renderers['SCR-047']=render047IC08;
-
-  function rerender(){ if(typeof renderAppScreen==='function')renderAppScreen(); }
-  document.addEventListener('input',function(e){
-    if(e.target.matches('[data-v3100-cancel-reason]')){ic08CancelReason=e.target.value;rerender();}
-    if(e.target.matches('[data-v3100-review-reason]')){ic08ReviewReason=e.target.value;rerender();}
-  },true);
-  document.addEventListener('change',function(e){ if(e.target.matches('[data-v3100-stock-state]')&&ic08UnexpectedLine){ic08UnexpectedLine.stockState=e.target.value;rerender();}},true);
-  document.addEventListener('click',function(e){
-    const a=e.target.closest('[data-v3100-ic08-action]'); if(!a||a.disabled)return;
-    e.preventDefault();e.stopImmediatePropagation(); const k=a.dataset.v3100Ic08Action;
-    if(k==='new'){roundNo=1;roundHistory=[];resultSnapshot=null;dialogKind=null;approvalCaseNo=1;contributorNames=[ic08AssignedCounter];ic08Counts={amox:'',glove:''};ic08Recounts={amox:'',glove:''};ic08UnexpectedLine=null;ic08CancelReason='';ic08ReviewReason='';stateByScreen['SCR-043']='READY';return navigate('SCR-043');}
-    if(k==='resume-count'){return navigate('SCR-044');}
-    if(k==='to-list'){resultSnapshot=null;return navigate('SCR-042');}
-    if(k==='open'){dialogKind='open';return rerender();}
-    if(k==='confirm-open'){dialogKind=null;stateByScreen['SCR-044']='BLIND_COUNT';return navigate('SCR-044');}
-    if(k==='submit-first'){dialogKind='first';return rerender();}
-    if(k==='confirm-first'){
-      dialogKind=null;
-      const missing=Object.keys(BOOK).some(id=>String(ic08Counts[id]??'').trim()===''||!Number.isFinite(Number(ic08Counts[id]))||Number(ic08Counts[id])<0);
-      if(missing||(ic08UnexpectedLine&&num(ic08UnexpectedLine.value)>0&&!ic08UnexpectedLine.stockState)){stateByScreen['SCR-044']='VALIDATION_ERROR';return rerender();}
-      roundHistory.push({round:1,type:'FIRST',actor:ic08AssignedCounter,values:{...ic08Counts},hash:'cnt-first-v3100'});
-      if(allZero(ic08Counts)){resultSnapshot={type:'ZERO',committedAt:'17/09/2026 09:50'};stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
-      roundNo=1;stateByScreen['SCR-045']='RECOUNT_REQUIRED';return navigate('SCR-045');
-    }
-    if(k==='submit-recount'){dialogKind='recount';return rerender();}
-    if(k==='confirm-recount'){
-      dialogKind=null;
-      const ids=currentVariance(ic08Counts).map(x=>x.id);
-      const missing=ids.some(id=>String(ic08Recounts[id]??'').trim()===''||!Number.isFinite(Number(ic08Recounts[id]))||Number(ic08Recounts[id])<0);
-      if(missing){stateByScreen['SCR-045']='VALIDATION_ERROR';return rerender();}
-      if(stateByScreen['SCR-045']==='PRICE_BASIS_REQUIRED'){return rerender();}
-      roundHistory.push({round:roundNo+1,type:'RECOUNT',actor:ic08AssignedCounter,values:{...ic08Recounts},hash:`cnt-recount-${roundNo+1}-v3100`});
-      if(allZero(ic08Recounts)){resultSnapshot={type:'ZERO',committedAt:'17/09/2026 09:51'};stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
-      stateByScreen['SCR-042']='PENDING_APPROVAL';approvalCaseNo+=1;return navigate('SCR-042');
-    }
-    if(k==='cancel-open'){ic08CancelReason='';dialogKind='cancel';return rerender();}
-    if(k==='confirm-cancel'){if(!ic08CancelReason.trim())return;dialogKind=null;resultSnapshot={type:'CANCELLED',reason:ic08CancelReason};stateByScreen['SCR-047']='CANCELLED';return navigate('SCR-047');}
-    if(k==='approve'){if(window.__VET45_V350__?.getActor?.()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return rerender();}dialogKind='approve';return rerender();}
-    if(k==='confirm-approve'){if(window.__VET45_V350__?.getActor?.()!=='approver'){dialogKind=null;stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return rerender();}dialogKind=null;resultSnapshot={type:'ADJUSTED',adjustmentId:'ADJ-1709-08',lines:currentVariance(ic08Recounts).length,committedAt:'17/09/2026 09:52'};stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
-    if(k==='request-review'){if(window.__VET45_V350__?.getActor?.()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return rerender();}ic08ReviewReason='';dialogKind='review';return rerender();}
-    if(k==='confirm-review'){if(!ic08ReviewReason.trim())return;dialogKind=null;roundNo+=1;stateByScreen['SCR-045']='RECOUNT_REQUIRED';return navigate('SCR-045');}
-    if(k==='dialog-close'){dialogKind=null;return rerender();}
-    if(k==='approval-result'){stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
-  },true);
-
-  window.__VET45_V3100__={version:'3.10.0',decisions:[171,172,173,174,175,176,177],getRoundHistory:()=>roundHistory.slice(),getResult:()=>resultSnapshot};
-})();
+/* v3100 BJ-08 moved to app/bj08.js (T7-P A7) */
 
 /* ===== v440-theme-wide-grouped-surface.js ===== */
 /* VET45 Theme 7 v4.4.0 — theme-wide grouped information surface normalization */
@@ -3411,5 +2094,7 @@ if(activeFlowId==="UIF-08") render();
   }).observe(root,{childList:true,subtree:true});
   decorate();
 })();
+
+
 
 

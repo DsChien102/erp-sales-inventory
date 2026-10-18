@@ -1,8 +1,7 @@
 /* BJ-09 — Quản lý trạng thái hàng (UIF-09). Màn: SCR-036, SCR-037, SCR-038, SCR-041, SCR-056.
  *
- * Đã viết lại sạch (T7-P gói A6, 2026-10-17). Màn dùng chung đăng ký qua flowRenderers.
- * SCR-056 không có movement → rơi về chuỗi BJ-15 trong renderers["SCR-056"] (A9 thay).
- * ac310SanitizeMarkup lấy từ core.js (A7 → shared-control.js).
+ * Đã viết lại sạch (T7-P gói A6, 2026-10-17; SCR-056 history tự dựng ở A9).
+ * Màn dùng chung đăng ký qua flowRenderers. Helper ac310* / ac310ProductRow → app/shared-control.js.
  */
 
 let ic09Filter="ALL";
@@ -212,14 +211,25 @@ function render041IC09(state){
     }
     return ac310SanitizeMarkup(render041IC09(state));
   }
+  function bj09HistoryBase(state){
+    if(state==="PERMISSION_DENIED")return appShell({title:"Lịch sử tình trạng",body:deniedBody(),centered:true,backAction:"v351-ic09-history-back"});
+    if(state==="LOADING")return appShell({title:"Lịch sử tình trạng",body:loadingBody(),backAction:"v351-ic09-history-back"});
+    const x=ic09Current();
+    const body=`${icHeaderRows([["Sản phẩm",x.name,true],["Lô",x.lot]])}<div class="timeline"><div class="timeline-card">${ioMetaRow("07/09/2026 · 09:14","Bán được → Cách ly",true)}<small>Nguyễn An · Bao bì có dấu hiệu bất thường</small></div><div class="timeline-card">${ioMetaRow("01/09/2026 · 08:00","Nhận vào kho",true)}<small>Tình trạng ban đầu: Bán được</small></div></div>`;
+    return appShell({title:"Lịch sử tình trạng",body,backAction:"v351-ic09-history-back"});
+  }
+  function render056BJ09History(state){
+    if(state==="READY"){
+      const x=ic09Current();
+      const body=`${ac310ProductRow({name:x.name,code:x.code,meta:`Lô ${x.lot}`,badge:x.label,tone:ic09StatusTone(x.state),status:true})}${ac310AuditSurface("",[ac310AuditItem("Update","Bán được → Cách ly","07/09/2026 · 09:14 · Nguyễn An · Bao bì có dấu hiệu bất thường"),ac310AuditItem("Create","Nhận vào kho","01/09/2026 · 08:00 · Tình trạng ban đầu: Bán được")])}`;
+      return ac310SanitizeMarkup(appShell({title:"Lịch sử tình trạng",body,backAction:"v351-ic09-history-back"}));
+    }
+    return ac310SanitizeMarkup(bj09HistoryBase(state));
+  }
   function render056BJ09(state){
-    if(!movement)return renderers['SCR-056'](state);
+    if(!movement) return render056BJ09History(state);
     const body=`${icHeaderRows([['Sản phẩm',movement.product,true],['Lô',movement.lot],['Biến động',`${stateLabel(movement.from)} → ${stateLabel(movement.to)}`],['Số lượng',`${movement.quantity} ${movement.uom}`],['Ghi nhận lúc',movement.recordedAt]])}<p class="io-footnote">Việc đổi tình trạng không làm thay đổi giá trị ghi sổ của lượng hàng này.</p>`;
-    const html=appShell({title:'Chi tiết biến động',body});
-    // v351: back restores SCR-037 without mutating status (auxiliary drill-down).
-    const t=document.createElement('template');t.innerHTML=html;const back=t.content.querySelector('.app-back-button');
-    if(back){back.removeAttribute('data-back');back.setAttribute('data-action','v351-ic09-history-back');}
-    return t.innerHTML;
+    return appShell({title:'Chi tiết biến động',body,backAction:"v351-ic09-history-back"});
   }
 
   function systemCommit(){
@@ -315,6 +325,8 @@ document.addEventListener("change",(event)=>{
 document.addEventListener("click",(event)=>{
   if(activeFlowId!=="UIF-09") return;
 
+    const histBack=event.target.closest('[data-action="v351-ic09-history-back"]');
+    if(histBack){event.preventDefault();event.stopImmediatePropagation();return navigate("SCR-037");}
     const f=event.target.closest("[data-ic09-filter]"); if(f){event.preventDefault();ic09Filter=f.dataset.ic09Filter;return renderAppScreen();}
     const item=event.target.closest("[data-ic09-item]"); if(item){event.preventDefault();ic09Selected=item.dataset.ic09Item;stateByScreen["SCR-037"]=ic09Current().state==="EXPIRED"?"EXPIRED":"READY";return navigate("SCR-037");}
     const a=event.target.closest("[data-ic09-action]"); if(a&&!a.disabled){event.preventDefault();const k=a.dataset.ic09Action;

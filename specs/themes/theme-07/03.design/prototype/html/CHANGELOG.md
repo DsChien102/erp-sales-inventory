@@ -1,5 +1,31 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.1.9] — T7-P Giai đoạn 1, gói A9: BJ-15 viết lại sạch
+
+- BJ-15 (UIF-15: SCR-054…059) → `app/bj15.js`; helper `cfMoney`…`cfSecondary` và `ac310ProductRow` → `app/shared-control.js`.
+- `ownedFlows` thêm `UIF-15`. SCR-056 đăng ký qua `flowRenderers` (UIF-15 + UIF-09).
+- SCR-056 của BJ-09 khi không có `movement` tự dựng trong `bj09.js` (`render056BJ09History` / `bj09HistoryBase`); listener `v351-ic09-history-back`.
+- Gỡ khỏi `core.js`: phần BJ-15 của `app.js` / `v310` / `v350`; **cả khối `v320`**, **`v351`**, **`legacy-sheet-cleanup`**; `render056IC09`; `ac310StateLabel`. Giữ: `v360RootScreens` / `v360ExitTargets`, `getCf15Rows` → `bj15Movements`, `AC310_SCREEN_IDS`, listener `fallback-exit`.
+- Gộp sau dựng vào hàm dựng: sheet không nút "Đóng" + `t381-single-business-action`; 058/059 `PERMISSION_DENIED` footer "Về báo cáo"; 056/057 `backAction` v351; dấu trừ U+2212 trên key-value 056 (`bj15Minus`).
+- Golden thêm kịch bản `SC_bj15_*` / `SC_bj09_history_back`.
+
+## [5.1.8] — T7-P Giai đoạn 1, gói A8: BJ-11, BJ-12 viết lại sạch
+
+- BJ-11 (UIF-11: SCR-048…053) → `app/bj11.js`; BJ-12 (UIF-12: SCR-066…071) → `app/bj12.js`; helper chung thêm vào `app/shared-control.js` (SectionTitle / KeyValue / List / Radio / Audit* / SummaryMetrics / Field / ApprovalFooter).
+- `ownedFlows` thêm `UIF-11`, `UIF-12`. Fixture `IO-260904-021` nằm trong `cr11Operations` (bỏ splice lúc nạp của `v350`).
+- **Sửa lỗi (chặng 0):** khôi phục listener Correction & Recovery (UIF-11/16/17, mất từ A5); trả `render()` runtime trong `crSwitchFlow` và hẹn giờ duyệt sửa sai (A7 xoá nhầm).
+- **Sửa lỗi (chặng 5):** nút "Từ chối" trong sheet SCR-051 / SCR-070 — listener input chọn `data-v350-action` cuối; xử lý `cf12-confirm-reject` trước backdrop `close-reject`.
+- Gỡ khỏi `core.js`: mã chết / `.replace` thuộc tính / toast `cr11`/`cf12` chết; listener UIF-12 (giữ UIF-15); phần UIF-11 của Correction & Recovery (giữ UIF-16/17 cho A10). Giữ: routing `entry`, `v360RootScreens` / `v360ExitTargets`, `cr16-correction-handoff`, `cfMoney`…`cfSecondary`, `v350EntryTargets` UIF-11/12.
+- Golden: sửa `wait(ms)` trong `tools/golden.mjs` (§6.1); thêm kịch bản `SC_bj11_*` / `SC_bj12_*`.
+
+## [5.1.7] — T7-P Giai đoạn 1, gói A7: BJ-08 viết lại sạch, shared-control.js
+
+- BJ-08 (UIF-08: SCR-042…047) chuyển sang `app/bj08.js`; helper dùng chung cụm kiểm soát → `app/shared-control.js` (`ac310Tone` / `ac310CleanText` / `ac310SanitizeMarkup` / `ac310Return` / `ac310InfoSurface` / `ac310RecordRow`).
+- `ownedFlows` thêm `UIF-08`. Bỏ mọi lời gọi `render()` lúc nạp trong `core.js` (hub.js dựng lần đầu).
+- Gỡ khỏi `core.js`: mã chết BJ-08 (`render043…047` gốc, `v310`/`v320`/`v340`/`v350`/`v360` phần 042–047, cả khối `v3100`, `legacy-sheet-cleanup` nút `select-close`). Giữ: `v350EntryTargets` / `v350ApplyEntry` UIF-08, `v360RootScreens` / `v360ExitTargets`, `FIGMA_TEMPLATE_*`, `ac310BaseRenderers`.
+- Gộp sau dựng vào hàm dựng: `v361` dual footer (044/045 hủy + duyệt), `v360` "Về danh sách" (046 không nút), `v470` attention + dấu trừ U+2212 trên "Chênh lệch", copy legacy UNKNOWN "Lần xử lý".
+- Golden thêm 9 kịch bản `SC_bj08_*` (37 ca UIF-08 khớp hoàn toàn với mốc trước A7; SC mới + deep link cụm kiểm soát 0 lỗi JS).
+
 ## [5.1.6] — T7-P Giai đoạn 1, gói A6: BJ-07, BJ-09, BJ-10 viết lại sạch
 
 - BJ-07 (UIF-07: SCR-036/037/039/041), BJ-09 (UIF-09: SCR-036/037/038/041/056), BJ-10 (UIF-10: SCR-036/037/040/041) chuyển sang `app/bj07.js`, `bj09.js`, `bj10.js`.

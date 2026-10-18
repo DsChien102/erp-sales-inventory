@@ -1,8 +1,8 @@
 {
-  "version": "5.1.6",
-  "parent": "5.1.5",
-  "status": "T7_P_A6_BJ07_09_10",
-  "scope": "T7-P A6: BJ-07/09/10 viết lại sạch vào app/bj07.js, bj09.js, bj10.js; móc flowRenderers/rendererFor/flowScreen; ownedFlows UIF-07/09/10; golden SC_bj07_/bj09_/bj10_*.",
+  "version": "5.1.9",
+  "parent": "5.1.8",
+  "status": "T7_P_A9_BJ15_CLEAN",
+  "scope": "T7-P A9: BJ-15 viết lại sạch vào app/bj15.js; cf*/ac310ProductRow → shared-control.js; SCR-056 BJ-09 tự dựng; gỡ v320/v351/legacy-sheet-cleanup; ownedFlows UIF-15; golden SC_bj15_* / SC_bj09_history_back.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,
@@ -10,7 +10,7 @@
   "structure": {
     "html": "index.html",
     "styles": ["styles/tokens.css", "styles/components.css", "styles/screens.css", "harness/workbench.css"],
-    "scripts": ["data/workbench-data.js", "app/core.js", "app/shared-valuation.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js", "harness/workbench.js"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "app/shared-control.js", "app/shared-valuation.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js", "harness/workbench.js"],
     "golden": "tools/golden.mjs"
   },
   "authority": {
@@ -18,6 +18,5 @@
     "figmaDesignSystem": "Figma Design System is the UI authority for components, patterns, templates, tokens, typography, spacing, state, interaction conventions and visual rules.",
     "htmlPrototype": "HTML prototype is the design/verification medium and must implement both the product documents and the Figma Design System; it does not invent business rules or UI conventions.",
     "implementation": "Production code decides the technical implementation."
-  },
-  "notes": "v5.0.0 không đổi nghiệp vụ so với v4.7.0. Hub Kho chỉ còn candidate (bỏ hub=current). Runtime JS đang gom trong app/core.js; file bj*/hub.js là chỗ sở hữu để tách finer."
+  }
 }
