@@ -14,14 +14,7 @@ const ic09Items=[
   {id:"vitc",name:"Vitamin C",code:"SP-00231",lot:"L2310-C",qty:4,uom:"hộp",state:"EXPIRED",label:"Hết hạn",expiry:"31/08/2026"},
   {id:"dungthu",name:"Dầu sát khuẩn",code:"SP-00606",lot:"L2406-T",qty:2,uom:"chai",state:"DEMO",label:"Dùng thử",expiry:"31/12/2027"}
 ];
-function icCard(title,body){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,DS v2 / Info Row,VTextField"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong>${title}</strong></div><div class="review-card-body">${body}</div></section>`;}
-function icField(label,value,attr="",type="text",hint=""){return `<div class="form-field" data-ds-component="${type==='number'?'VNumberField':'VTextField'}"><label>${label}</label><div class="input-shell"><input type="${type}" value="${escapeAttribute(value)}" ${attr}></div>${hint?`<small class="helper-text">${hint}</small>`:""}</div>`;}
-function icTextarea(label,value,attr="",placeholder=""){return `<div class="form-field ic-textarea-field" data-ds-component="VTextarea" data-figma-node="522:7212"><label>${label}</label><textarea class="textarea" ${attr} placeholder="${escapeAttribute(placeholder)}">${esc(value)}</textarea></div>`;}
 function icChoice(value,label,detail,checked=false){return `<label class="v364-radio-option" data-ds-component="VRadio" data-figma-node="522:7410" data-ds-prop-state="${checked?'On':'Off'}"><input type="radio" name="ic-state" value="${escapeAttribute(value)}" data-ic09-destination ${checked?'checked':''}><span class="v364-radio-control" aria-hidden="true"></span><span class="v364-radio-copy"><strong>${esc(label)}</strong>${detail?`<small>${esc(detail)}</small>`:''}</span></label>`;}
-function icHeaderRows(rows){return ioReadCard(rows.map(([a,b,strong])=>ioMetaRow(a,b,!!strong)).join(''));}
-function icSecondary(label,action,tone="secondary"){const c=tone==='danger'?'button button--danger button--full':'button button--secondary button--full';return `<button class="${c}" type="button" ${action}>${label}</button>`;}
-function icApprovalButtons(prefix){return `<div class="ic-action-stack">${icSecondary("Từ chối",`data-${prefix}-action="reject"`,'danger')}${primaryFooter("Duyệt",`data-${prefix}-action="approve"`)}</div>`;}
-
 function ic09StatusTone(s){return s==="EXPIRED"||s==="DAMAGED"?"danger":s==="QUARANTINE"?"warning":s==="DEMO"?"info":"success";}
 function ic09Current(){return ic09Items.find(x=>x.id===ic09Selected)||ic09Items[0];}
 function render036IC09(state){
@@ -94,7 +87,7 @@ function render041IC09(state){
   const escText=(v)=>typeof esc==='function'?esc(String(v??'')):String(v??'');
   const num=(v)=>Number(String(v??'').replace(',','.'))||0;
   const current=()=>ic09Current();
-  const actor=()=>window.__VET45_V350__?.getActor?.()||'module';
+  const actor=()=>currentActor()||'module';
   const stateLabel=(v)=>({SELLABLE:'Bán được',QUARANTINE:'Cách ly',DAMAGED:'Hỏng',DEMO:'Dùng thử',EXPIRED:'Hết hạn'}[v]||v);
   const transition=()=>POLICY.transitions[current().state]?.[draft.destination]||null;
   function fixtureHash(payload){
@@ -177,7 +170,7 @@ function render041IC09(state){
   }
   function render038BJ09(state){
     const x=current();
-    // v360 ensureStableExitAffordance: màn 038 không có nút → "Về danh sách" (ownedFlows bỏ qua lớp đó).
+    // v360 ensureStableExitAffordance: màn 038 không có nút → "Về danh sách" (A11: dựng thẳng, không lớp v360).
     const exitList=primaryFooter('Về danh sách','data-v360-action="fallback-exit" data-v360-target="SCR-036"');
     if(state==='PERMISSION_DENIED')return appShell({title:'Chuyển tình trạng hàng',body:deniedBody(),centered:true,back:false,actions:exitList});
     if(state==='LOCKED')return appShell({title:'Chuyển tình trạng hàng',body:`${vBanner('info','Đang thuộc phạm vi kiểm kê','Không thể đổi tình trạng khi phạm vi đang khóa.')}${icHeaderRows([['Sản phẩm',x.name,true],['Lô',x.lot],['Tình trạng hiện tại',stateLabel(x.state)]])}`,back:false,actions:exitList});
@@ -297,15 +290,15 @@ function render041IC09(state){
     if(k==='rebuild'){resetDraft();stateByScreen['SCR-038']='READY';return renderAppScreen();}
   },true);
 
-  window.__VET45_V3101__={
-    version:VERSION,decisions:[178,179,180,181,182,183,184],policy:POLICY,
-    getDraft:()=>({...draft}),getBasis:()=>basis,getDecision:()=>decision,getMovement:()=>movement,
-    getSource:(id)=>JSON.parse(JSON.stringify(SOURCE[id||current().id]||null)),
-    setDraft(v={}){draft={...draft,...v};return {...draft};},
-    setStaleOnExecute(v=true){staleOnExecute=Boolean(v);return staleOnExecute;},
-    buildBasis(){basis=buildBasis();return basis;},systemCommit,
-    fixtureHashNote:'Deterministic harness fixture hash only; production contract requires canonical SHA-256.'
-  };
+  Object.assign(window.__VET45_QA__, {
+    getIC09(){return {draft:{...draft},basis,current:typeof ic09Current==='function'?ic09Current():null};},
+    ic09BuildBasis(){basis=buildBasis();return basis;}, buildBasis(){basis=buildBasis();return basis;},
+    ic09GetDraft:()=>({...draft}), ic09GetBasis:()=>basis, ic09GetDecision:()=>decision, ic09GetMovement:()=>movement,
+    ic09GetSource:(id)=>JSON.parse(JSON.stringify(SOURCE[id||current().id]||null)),
+    ic09SetDraft(v={}){draft={...draft,...v};return {...draft};},
+    ic09SetStaleOnExecute(v=true){staleOnExecute=Boolean(v);return staleOnExecute;},
+    ic09SystemCommit: systemCommit,
+  });
 
   flowRenderers["UIF-09"] = Object.assign(flowRenderers["UIF-09"] || {}, {
     "SCR-036": render036BJ09,
@@ -338,4 +331,3 @@ document.addEventListener("click",(event)=>{
   
 },true);
 
-ownedFlows.add("UIF-09");

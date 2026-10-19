@@ -1,6 +1,6 @@
 # T7-P · Gói A2 — viết lại code sạch BJ-06 Hàng khách trả
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A2 (mục 8.1). Ước lượng: **~1 ngày, 1 commit**.
 > Người làm: bạn. Review: phiên plan / review. Mẫu tham khảo: `app/bj05.js` (gói A1), [T7-P-A1-bj04-bj05.md](T7-P-A1-bj04-bj05.md) (cách làm, đoạn đo 4.5, helper `typeIn`).
 
@@ -244,4 +244,11 @@ Dùng nguyên đoạn đo của [A1 mục 4.5](T7-P-A1-bj04-bj05.md), đổi dan
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ✅ đạt.**
+- **Đã kiểm:**
+  - Golden: mọi ca `UIF-06_*` và `SC_bj06_*` — chữ khớp mốc trước Giai đoạn 1; ảnh chỉ lệch góc khung thiết bị (A11). `SC_bj06_unknown_1_handoff` sang BJ-17 như mốc gốc.
+  - `grep "io06[A-Za-z]*\s*=\s*function"` rỗng; không còn tên trần của `v394` (`attr`, `upper`, `MAKER`, `LOTS`, `AUTH`, `isoNow`); `core.js` không còn `io06` / `v394`.
+  - SCR-031 "Kiểm hàng khách trả" nằm trong hàm dựng; SCR-034 `PERMISSION_DENIED` có "Về danh sách" (`fallback-exit`); `bj06IsoNow` cố định nên golden ổn định giữa hai lần chụp.
+  - Móc `onPrevious["UIF-06"]` thay nhánh trong `previousScreen` — khung A11 giữ nguyên.
+- **Góp ý:** mã chết đã xoá (chặn tự duyệt ngoại lệ lô, chặn ghi nhận khi `sourceVersion` đổi) đã ghi cho brief Giai đoạn 2 — giữ nguyên ghi chú đó khi viết brief BJ-06.

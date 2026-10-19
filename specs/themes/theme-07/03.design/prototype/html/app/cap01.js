@@ -1,11 +1,11 @@
 /* CAP-01 — Chính sách tồn & cận hạn (CAP-01). Màn: SCR-062, SCR-063, SCR-064, SCR-065.
  *
  * Đã viết lại sạch (T7-P gói A3, 2026-10-17): mọi trạng thái, helper, hàm dựng và xử lý sự kiện của CAP-01
- * nằm ở đây; màn dựng thẳng (ownedFlows), không qua bước sửa sau dựng legacy. Sửa CAP-01: sửa thẳng file này.
+ * nằm ở đây; Sửa CAP-01: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24InfoRow, ds24Result, vBanner, deniedBody, primaryFooter, esc,
  * escapeAttribute, navigate, render, renderAppScreen, syncReviewUrl, screens, stateByScreen.
  * Helper cục bộ: cap01InfoGroup (gộp v440), cap01KeyValueRow (gộp marker v470), cap01Num.
- * Còn ở core.js (gỡ ở gói A11): fallback-exit, v360RootScreens (SCR-062/063).
+ * Lối ra dự phòng `data-v360-action="fallback-exit"` do khung (core.js) xử lý.
  * Lối vào / lối ra là fallback prototype (BG-006 chưa chốt) — không phải hợp đồng điều hướng production.
  */
 
@@ -15,7 +15,7 @@ const cap01Num = (v) => Number(v ?? 0);
 function cap01InfoGroup(title, rows, extraClass = "") {
   return `<section class="ds24-info-group ${extraClass}" data-composed-from="DS v2 / Info Row">${title ? `<h2 class="ds24-info-group__title">${esc(title)}</h2>` : ""}<div class="ds24-info-group__rows v440-grouped-surface" data-layout-pattern="Grouped surface" data-v440-grouped-surface="auto">${rows}</div></section>`;
 }
-/** Key-value row đã gộp marker v470 (ownedFlows bỏ qua decorate của v470). */
+/** Key-value row đã gộp marker v470. */
 function cap01KeyValueRow(label, value, emphasis = false) {
   return `<div class="ds24-key-value-row${emphasis ? " ds24-key-value-row--emphasis" : ""}" data-ds-component="DS v2 / Key-value Row" data-figma-node="525:358" data-ds-prop-state="${emphasis ? "Emphasis" : "Default"}" data-v470="1"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
 }
@@ -116,7 +116,6 @@ Object.assign(renderers, {
   "SCR-064": render064CAP01,
   "SCR-065": render065CAP01,
 });
-ownedFlows.add("CAP-01");
 
 document.addEventListener("input", (event) => {
   if (activeFlowId !== "CAP-01") return;
@@ -158,7 +157,7 @@ document.addEventListener("click", (event) => {
   }
 }, true);
 
-Object.assign(window.__VET45_V360__ ??= {}, {
+Object.assign(window.__VET45_QA__, {
   capState: () => ({ capPolicyKind, capThreshold, capTarget, capStockSource, capNearExpiryDays, capNearExpiryAction, capNearExpirySource, capPolicyRevision, capLastResult }),
   setCapReturn(flow = "UIF-01", screen = "SCR-001") { capReturnFlow = flow; capReturnScreen = screen; },
   capExit,

@@ -37,7 +37,7 @@ Relevant DS pages: Foundations & Icons `505:5889`, Components `505:5890`, Patter
 
 Migrated Product UI is accepted only after component anatomy/variant/state, typography, spacing, token usage, icon semantics, 402×874 geometry, overflow, navigation, state/finality and browser-error checks pass. Mature Product UI in other available Figma Themes is used after DS/Patterns to validate composition and rhythm, not to override canonical DS semantics.
 
-See `../contracts/figma-ds/UIF-MIGRATION-STATUS.json`, `figma-ds-runtime/runtime-registry.json`, and the current release QA artifacts under `qa/`.
+See `../contracts/figma-ds/UIF-MIGRATION-STATUS.json`. Sau T7-P0: token runtime nằm ở `styles/tokens.css` (giá trị theo DESIGN.md từ đợt v4.7.0); `figma-ds.exact.css` không còn là file riêng và không còn là bản chép Figma nguyên chữ. Thư mục `qa/` và `figma-ds-runtime/` đã xoá — kiểm bằng `tools/golden.mjs`.
 
 ## Locked composition rules — v3.2.1
 

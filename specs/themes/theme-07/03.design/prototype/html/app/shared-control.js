@@ -3,6 +3,7 @@
  * A8: SectionTitle / KeyValueSurface / ListSurface / RadioSurface / Audit* / SummaryMetrics / Field / ApprovalFooter.
  * A9: cfMoney…cfSecondary, ac310ProductRow.
  * A10: crFactCard, ac321CanonicalChips.
+ * A11: icCard/icField/icTextarea/icHeaderRows/icSecondary/icApprovalButtons.
  */
 function ac310Tone(tone="Neutral") {
   const map={success:"Success",warning:"Warning",danger:"Danger",error:"Danger",info:"Info",neutral:"Neutral",brand:"Brand"};
@@ -76,7 +77,8 @@ function ac310Field(label,value,attrs="",helper="",type="text"){
   return `<label class="ac310-field" data-ds-component="${component}"><span>${esc(label)}</span><input type="${type}" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small>${esc(helper)}</small>`:""}</label>`;
 }
 function ac310ApprovalFooter(rejectAttr,approveAttr,approveLabel="Duyệt"){
-  return `<footer class="app-actions figma-sticky-footer ac310-two-actions" data-ds-pattern="Sticky Footer"><button class="button button--secondary" type="button" ${rejectAttr} data-ds-component="VButton">Từ chối</button><button class="button button--primary" type="button" ${approveAttr} data-ds-component="VButton">${esc(approveLabel)}</button></footer>`;
+  // Dual footer nguy hiểm (trước A8 do v361 normalizeDualFooters thêm lúc chạy): Từ chối | Duyệt trên một hàng.
+  return `<footer class="app-actions figma-sticky-footer ac310-two-actions v361-dual-footer v361-dual-footer--danger" data-ds-pattern="Sticky Footer" data-ds-prop-layout="Dual" data-ds-prop-tone="Danger"><button class="button button--secondary" type="button" ${rejectAttr} data-ds-component="VButton" data-ds-prop-tone="VComponentTone.danger" data-ds-profile="button.destructiveSecondary">Từ chối</button><button class="button button--primary" type="button" ${approveAttr} data-ds-component="VButton">${esc(approveLabel)}</button></footer>`;
 }
 
 function ac310ProductRow({name,code,meta="",badge="",tone="Neutral",attrs="",status=false}){
@@ -107,3 +109,11 @@ function cfSecondary(label,attr,tone="neutral"){return `<button class="button bu
 
 function crFactCard(title,rows,badge="",tone="info"){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card cr-fact-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,VBadge,DS v2 / Info Row"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong data-ds-component="VText">${title}</strong>${badge?vBadge(badge,tone):""}</div><div class="review-card-body">${rows.map(r=>ioMetaRow(r[0],r[1],!!r[2])).join("")}</div></section>`;}
 function ac321CanonicalChips(active,items,attr){return `<div class="ac321-chip-wrap" data-composed-from="VChip" aria-label="Bộ lọc">${items.map(([key,label])=>ds24Chip(key,label,active===key,attr)).join('')}</div>`;}
+
+/* ic* — shared Inventory Control helpers (was duplicated in core.js + bj09.js; T7-P A11). */
+function icCard(title,body){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,DS v2 / Info Row,VTextField"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong>${title}</strong></div><div class="review-card-body">${body}</div></section>`;}
+function icField(label,value,attr="",type="text",hint=""){return `<div class="form-field" data-ds-component="${type==='number'?'VNumberField':'VTextField'}"><label>${label}</label><div class="input-shell"><input type="${type}" value="${escapeAttribute(value)}" ${attr}></div>${hint?`<small class="helper-text">${hint}</small>`:""}</div>`;}
+function icTextarea(label,value,attr="",placeholder=""){return `<div class="form-field ic-textarea-field" data-ds-component="VTextarea" data-figma-node="522:7212"><label>${label}</label><textarea class="textarea" ${attr} placeholder="${escapeAttribute(placeholder)}">${esc(value)}</textarea></div>`;}
+function icHeaderRows(rows){return ioReadCard(rows.map(([a,b,strong])=>ioMetaRow(a,b,!!strong)).join(''));}
+function icSecondary(label,action,tone="secondary"){const c=tone==='danger'?'button button--danger button--full':'button button--secondary button--full';return `<button class="${c}" type="button" ${action}>${label}</button>`;}
+function icApprovalButtons(prefix){return `<div class="ic-action-stack">${icSecondary("Từ chối",`data-${prefix}-action="reject"`,'danger')}${primaryFooter("Duyệt",`data-${prefix}-action="approve"`)}</div>`;}

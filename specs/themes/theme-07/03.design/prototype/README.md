@@ -102,7 +102,7 @@ Prototype là design expression/verification medium hiện hành của baseline 
 
 ## 2. Cách chạy
 
-Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Runtime giữ các layer lịch sử để regression, đồng thời nạp `v430-valuation-uiux.css/js` sau các lớp valuation lịch sử để BJ03/BJ13/BJ14 dùng đúng contract v4.3.0 và Figma DS v2 ngay từ first paint; `v440-theme-wide-grouped-surface.css/js` giữ invariant grouped surface; `v450-theme-visual-qa.css` giữ visual regression fixes; `v460-semantic-ux.css/js` giữ lớp v4.6.0; `v461-semantic-correction.js` nạp sau cùng để sửa authority/default mà không phá visual invariant.
+Mở `03.design/prototype/html/index.html` trực tiếp hoặc phục vụ thư mục `03.design/prototype/html/` bằng một static HTTP server. Từ v5.0.0 (T7-P0) runtime không còn các layer lịch sử `vNNN-*`: CSS nằm ở `html/styles/`, JS ở `html/app/`, harness ở `html/harness/`; công cụ so ảnh chuẩn ở `html/tools/golden.mjs` (xem `html/README.md`). Các mục phiên bản bên dưới là lịch sử, tên file trong đó có thể không còn.
 
 ## 3. Screen → route/state mapping
 

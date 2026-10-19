@@ -64,10 +64,11 @@ if (mode === 'compare') {
   process.exit(diff.length ? 1 : 0);
 }
 
-if (mode !== 'capture') {
-  console.error('Dùng: node tools/golden.mjs capture <dir> [filter] | compare <dirA> <dirB>');
+if (mode !== 'capture' && mode !== 'usage') {
+  console.error('Dùng: node tools/golden.mjs capture <dir> [filter] | compare <dirA> <dirB> | usage <dir>');
   process.exit(2);
 }
+const FULL = process.env.FULL === '1';
 
 const filter = b || '';
 const dataFile = ['data/workbench-data.json', 'workbench-data.json'].map((f) => path.join(HTML, f)).find(existsSync);
@@ -184,7 +185,7 @@ const SCENARIOS = [
   })(),
   // BJ-07 / 09 / 10 — T7-P A6
   ...(() => {
-    const seed09Approver = `(()=>{window.__VET45_V3101__?.buildBasis?.();stateByScreen['SCR-038']='APPROVAL_REVIEW';renderAppScreen();return true})()`;
+    const seed09Approver = `(()=>{window.__VET45_QA__?.buildBasis?.()||window.__VET45_QA__?.ic09BuildBasis?.();stateByScreen['SCR-038']='APPROVAL_REVIEW';renderAppScreen();return true})()`;
     return [
       { name: 'SC_bj07_list', url: '?uif=UIF-07&screen=SCR-036', steps: [['filter-actionable', click('[data-io07-filter="ACTIONABLE"]')], ['filter-waiting', click('[data-io07-filter="WAITING"]')], ['filter-all', click('[data-io07-filter="ALL"]')], ['search', typeIn('[data-io07-search]', 'Minh')], ['clear-search', typeIn('[data-io07-search]', '')], ['request', click('[data-io07-request="RTV-260827-02"]')]] },
       { name: 'SC_bj07_verify', url: '?uif=UIF-07&screen=SCR-036', steps: [['request', click('[data-io07-request="RTV-260827-02"]')], ['alloc1', click('[data-io07-allocation="RTV-A1"]')], ['scan', typeIn('[data-io07-scan-lot]', 'DH2507')], ['confirm1', click('[data-io07-action="confirm-allocation"]')], ['alloc2', click('[data-io07-allocation="RTV-A2"]')], ['mismatch', click('[data-io07-action="mark-mismatch"]')], ['select-mismatch', click('[data-io07-action="select-mismatch"]')], ['close-mismatch', click('[data-io07-action="close-mismatch"]')]] },
@@ -228,7 +229,7 @@ const SCENARIOS = [
   { name: 'SC_bj12_prepare', url: '?uif=UIF-12&screen=SCR-066', steps: [['start', click('[data-cf12-action="start"]')], ['file', click('[data-cf12-action="choose-file"]')], ['clear-qty', typeIn('[data-cf12-control-qty]', '')], ['check-err', click('[data-v350-action="cf12-check"]')], ['qty', typeIn('[data-cf12-control-qty]', '4820')], ['check', click('[data-v350-action="cf12-check"]')], ['review', click('[data-cf12-action="review"]')], ['send', click('[data-v350-action="cf12-send-approval"]')]] },
   { name: 'SC_bj12_mismatch', url: '?uif=UIF-12&screen=SCR-067', steps: [['qty', typeIn('[data-cf12-control-qty]', '4800')], ['check', click('[data-v350-action="cf12-check"]')], ['back', click('[data-cf12-action="back-file"]')]] },
   { name: 'SC_bj12_failed', url: '?uif=UIF-12&screen=SCR-068&state=VALIDATION_FAILED', steps: [['back', click('[data-cf12-action="back-file"]')]] },
-  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-v350-action="cf12-check"]')], ['review', click('[data-cf12-action="review"]')], ['send', click('[data-v350-action="cf12-send-approval"]')], ['approver', `window.__VET45_V350__.applyEntry('UIF-12','approver')`], ['approve', click('[data-v350-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
+  { name: 'SC_bj12_approve', url: '?uif=UIF-12&screen=SCR-067', steps: [['check', click('[data-v350-action="cf12-check"]')], ['review', click('[data-cf12-action="review"]')], ['send', click('[data-v350-action="cf12-send-approval"]')], ['approver', `window.__VET45_QA__.applyEntry('UIF-12','approver')`], ['approve', click('[data-v350-action="cf12-approve"]')], ['wait', wait(500)], ['inventory', click('[data-cf12-action="see-inventory"]')]] },
   { name: 'SC_bj12_stale', url: '?uif=UIF-12&entry=approver', steps: [['approve', click('[data-v350-action="cf12-approve"]')]] },
   { name: 'SC_bj12_self', url: '?uif=UIF-12&screen=SCR-070', steps: [['approve', click('[data-v350-action="cf12-approve"]')], ['exit', click('[data-v360-action="fallback-exit"]')]] },
   { name: 'SC_bj12_reject', url: '?uif=UIF-12&entry=approver', steps: [['open', click('[data-cf12-action="open-reject"]')], ['close', click('[data-cf12-action="close-reject"]')], ['open2', click('[data-cf12-action="open-reject"]')], ['reason', typeIn('[data-cf12-reject-reason]', 'Sai nhóm vaccine')], ['confirm', click('[data-v350-action="cf12-confirm-reject"]')], ['exit', click('[data-v360-action="fallback-exit"]')], ['fix', click('[data-cf12-action="fix-rejected"]')]] },
@@ -250,8 +251,8 @@ const SCENARIOS = [
   ...(() => {
     const D = '?uif=UIF-16&screen=';
     const U = '?uif=UIF-17&screen=';
-    const bump16 = `(()=>{window.__VET45_V350__.bumpCR16Evidence();return true})()`;
-    const bump17 = `(()=>{window.__VET45_V350__.bumpCR17Evidence();return true})()`;
+    const bump16 = `(()=>{window.__VET45_QA__.bumpCR16Evidence();return true})()`;
+    const bump17 = `(()=>{window.__VET45_QA__.bumpCR17Evidence();return true})()`;
     return [
       { name: 'SC_bj16_list', url: D + 'SCR-078', steps: [['filter-action', click('[data-cr16-filter="ACTION"]')], ['filter-waiting', click('[data-cr16-filter="WAITING"]')], ['filter-high', click('[data-cr16-filter="HIGH"]')], ['filter-all', click('[data-cr16-filter="ALL"]')], ['search', typeIn('[data-cr-control-search]', 'Amox')], ['clear-search', typeIn('[data-cr-control-search]', '')], ['case', click('[data-cr-case="REC-260907-03"]')]] },
       { name: 'SC_bj16_recovery', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-03"]')], ['open-plan', click('[data-v350-action="cr16-open-plan"]')], ['start', click('[data-v350-action="cr16-start-recovery"]')], ['wait', wait(400)], ['review', click('[data-v350-action="cr16-review-result"]')], ['close', click('[data-v350-action="cr16-close-case"]')], ['to-list', click('[data-cr16-action="to-list"]')]] },
@@ -277,12 +278,215 @@ const SCENARIOS = [
       { name: 'SC_bj17_from_bj10', url: '?uif=UIF-10&screen=SCR-041&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
     ];
   })(),
+  // Khung — T7-P A11
+  ...(() => {
+    const entries = {
+      'UIF-01': ['product-context'],
+      'UIF-02': ['document-context', 'approver'],
+      'UIF-03': ['receipt-task'],
+      'UIF-04': ['order-context'],
+      'UIF-05': ['order-task'],
+      'UIF-06': ['return-task', 'approver'],
+      'UIF-07': ['return-task'],
+      'UIF-08': ['assigned-counter', 'approver'],
+      'UIF-09': ['product-context', 'approver'],
+      'UIF-10': ['product-context', 'approver', 'completion-operator'],
+      'UIF-11': ['approver', 'operation-context'],
+      'UIF-12': ['approver'],
+      'UIF-13': ['source-task'],
+      'UIF-14': ['dirty-scope'],
+      'UIF-16': ['case-context'],
+      'UIF-17': ['unknown-context'],
+    };
+    return [
+      ...Object.entries(entries).flatMap(([uif, modes]) => modes.map((mode) => ({ name: `SC_entry_${uif}_${mode}`, url: `?uif=${uif}&entry=${mode}`, steps: [] }))),
+      { name: 'SC_entry_state_12', url: '?uif=UIF-12&entry=approver&state=SELF_APPROVAL_NOT_ALLOWED', steps: [] },
+      { name: 'SC_entry_state_01', url: '?uif=UIF-01&entry=product-context&state=STALE', steps: [] },
+      { name: 'SC_entry_flow_02', url: '?uif=UIF-02&entry=document-context&flow=quick', steps: [] },
+      { name: 'SC_qa_entry14', url: '?uif=UIF-14&screen=SCR-072', steps: [['apply', `window.__VET45_QA__.applyEntry('UIF-14','dirty-scope')`]] },
+      { name: 'SC_banner_046', url: '?uif=UIF-08&screen=SCR-042', steps: [['to-046', `(()=>{activeScreenId='SCR-046';stateByScreen['SCR-046']='APPROVAL_REVIEW';renderAppScreen();return true})()`]] },
+      { name: 'SC_banner_040', url: '?uif=UIF-10&entry=approver', steps: [['rerender', `(()=>{renderAppScreen();return true})()`]] },
+    ];
+  })(),
 ];
 for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 const todo = groups.filter((g) => g.cases.length);
 mkdirSync(a, { recursive: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+if (mode === 'usage') {
+  // Chrome CDP chỉ trả luật đã khớp (used:true); luật không dùng = có trong file nhưng không có trong tập offset đã dùng.
+  const cssUsedRanges = new Map(); // file -> [{start,end}]
+  const jsCoverage = new Map(); // file:fn:start -> {file,fn,start,count}
+  const postrender = [];
+  const sheetUrls = new Map(); // styleSheetId -> url
+  function listCssRules(src) {
+    const rules = [];
+    const len = src.length;
+    let i = 0;
+    const skipWsComment = () => {
+      while (i < len) {
+        if (src[i] === '/' && src[i + 1] === '*') { const e = src.indexOf('*/', i + 2); i = e < 0 ? len : e + 2; continue; }
+        if (/\s/.test(src[i])) { i++; continue; }
+        break;
+      }
+    };
+    const readBlock = () => {
+      if (src[i] !== '{') return -1;
+      let depth = 0, start = i;
+      for (; i < len; i++) {
+        if (src[i] === '/' && src[i + 1] === '*') { const e = src.indexOf('*/', i + 2); i = e < 0 ? len : e + 1; continue; }
+        if (src[i] === '"' || src[i] === "'") { const q = src[i++]; while (i < len && src[i] !== q) { if (src[i] === '\\') i++; i++; } continue; }
+        if (src[i] === '{') depth++;
+        else if (src[i] === '}') { depth--; if (depth === 0) { i++; return start; } }
+      }
+      return -1;
+    };
+    while (i < len) {
+      skipWsComment();
+      if (i >= len) break;
+      if (src[i] === '@') {
+        const atStart = i;
+        while (i < len && src[i] !== '{' && src[i] !== ';') i++;
+        if (src[i] === ';') { i++; continue; }
+        const prelude = src.slice(atStart, i).replace(/\s+/g, ' ').trim();
+        const blockStart = readBlock();
+        if (blockStart < 0) break;
+        // Ghi nhận khối @media/@supports để lọc giữ ở chặng 6; không tách luật con (Chrome offset là luật phẳng).
+        rules.push({ start: atStart, end: i, selector: prelude, atRule: true });
+        continue;
+      }
+      const start = i;
+      while (i < len && src[i] !== '{') {
+        if (src[i] === '/' && src[i + 1] === '*') { const e = src.indexOf('*/', i + 2); i = e < 0 ? len : e + 2; continue; }
+        i++;
+      }
+      if (i >= len) break;
+      const selector = src.slice(start, i).replace(/\s+/g, ' ').trim();
+      const blockStart = readBlock();
+      if (blockStart < 0) break;
+      if (selector) rules.push({ start, end: i, selector, atRule: false });
+    }
+    return rules;
+  }
+  async function usageWorker(n, queue, errors) {
+    const port = 9500 + n;
+    const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${path.join(a, '.chrome' + n)}`, '--hide-scrollbars', '--force-device-scale-factor=1', 'about:blank'], { stdio: 'ignore' });
+    let list; for (let i = 0; i < 100 && !list; i++) { try { list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json(); } catch { await sleep(100); } }
+    if (!list?.length) { chrome.kill(); throw new Error(`Chrome CDP không sẵn sàng ở cổng ${port}`); }
+    const ws = new WebSocket(list.find((t) => t.type === 'page').webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
+    let id = 0; const pend = new Map(); let loaded = null;
+    ws.onmessage = (e) => {
+      const m = JSON.parse(e.data);
+      if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); }
+      if (m.method === 'Page.loadEventFired' && loaded) loaded();
+      if (m.method === 'CSS.styleSheetAdded') {
+        const h = m.params.header;
+        if (h?.styleSheetId && h.sourceURL) sheetUrls.set(h.styleSheetId, h.sourceURL);
+      }
+      if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails.exception?.description?.slice(0, 200));
+    };
+    const send = (method, params = {}) => new Promise((r, j) => {
+      const i = ++id;
+      const t = setTimeout(() => { pend.delete(i); j(new Error(`CDP timeout ${method}`)); }, 30000);
+      pend.set(i, (m) => { clearTimeout(t); r(m); });
+      ws.send(JSON.stringify({ id: i, method, params }));
+    });
+    const evalv = async (expression) => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const m = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+        if (m?.result?.result) return m.result.result.value;
+        await sleep(100);
+      }
+      return undefined;
+    };
+    await send('Page.enable'); await send('Runtime.enable'); await send('DOM.enable'); await send('CSS.enable'); await send('Profiler.enable');
+    await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+    await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    const frames = 'new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))';
+    let g;
+    while ((g = queue.shift())) {
+      const p = new Promise((r) => (loaded = r));
+      await send('CSS.startRuleUsageTracking');
+      await send('Profiler.startPreciseCoverage', { callCount: true, detailed: false });
+      await send('Page.navigate', { url: BASE + g.url }); await p;
+      await evalv(`(async()=>{for(let i=0;i<100&&!document.querySelector('#device-preview');i++)await new Promise(r=>setTimeout(r,50));})()`);
+      await evalv(`(()=>{const st=document.createElement('style');st.textContent='*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}select{appearance:none!important;-webkit-appearance:none!important}';document.head.append(st)})()`);
+      await evalv(`document.fonts.ready.then(()=>${frames})`);
+      for (const c of g.cases) {
+        if (c.screen) await evalv(`(activeScreenId=${JSON.stringify(c.screen)}, stateByScreen[activeScreenId]=${JSON.stringify(c.state)}, render(), ${frames})`);
+        if (c.act) await evalv(`Promise.resolve(${c.act}).then(()=>${frames})`);
+        const pr = await evalv(`(()=>({v440:document.querySelectorAll('[data-v440-grouped-surface="auto"]').length,v360:document.querySelectorAll('.v360-context-banner').length}))()`);
+        if (pr && (pr.v440 > 0 || pr.v360 > 0)) postrender.push(`${c.name}\tv440=${pr.v440}\tv360=${pr.v360}`);
+      }
+      const cssStop = await send('CSS.stopRuleUsageTracking');
+      for (const u of cssStop.result?.ruleUsage || []) {
+        if (!u.used) continue;
+        const url = sheetUrls.get(u.styleSheetId);
+        if (!url) continue;
+        const fm = url.match(/\/((?:styles|harness)\/[^/?#]+\.css)/);
+        const file = fm ? fm[1] : null;
+        if (!file) continue;
+        if (!cssUsedRanges.has(file)) cssUsedRanges.set(file, []);
+        cssUsedRanges.get(file).push({ start: u.startOffset, end: u.endOffset });
+      }
+      const cov = await send('Profiler.takePreciseCoverage');
+      await send('Profiler.stopPreciseCoverage');
+      for (const s of cov.result?.result || []) {
+        const url = s.url || '';
+        if (!/\/(app|harness)\/[^/]+\.js/.test(url)) continue;
+        const file = url.replace(/^.*\/((?:app|harness)\/[^/?#]+\.js).*$/, '$1');
+        for (const fn of s.functions || []) {
+          if (!fn.functionName || fn.functionName === '') continue;
+          const start = fn.ranges?.[0]?.startOffset ?? 0;
+          const count = (fn.ranges || []).reduce((n, r) => n + (r.count || 0), 0);
+          const key = `${file}:${fn.functionName}:${start}`;
+          const prev = jsCoverage.get(key);
+          if (!prev) jsCoverage.set(key, { file, fn: fn.functionName, start, count });
+          else prev.count += count;
+        }
+      }
+    }
+    ws.close(); chrome.kill();
+  }
+  const t0 = Date.now(); const errors = []; const queue = [...todo];
+  // usage: 1 worker — stylesheet IDs must stay consistent for offset→selector mapping
+  await usageWorker(0, queue, errors);
+  const cssFiles = {};
+  for (const f of ['styles/tokens.css', 'styles/components.css', 'styles/screens.css', 'harness/workbench.css']) {
+    const p = path.join(HTML, f);
+    if (existsSync(p)) cssFiles[f] = readFileSync(p, 'utf8');
+  }
+  const overlaps = (ranges, start, end) => (ranges || []).some((r) => r.start < end && r.end > start);
+  const unusedLines = [];
+  for (const [file, src] of Object.entries(cssFiles)) {
+    const used = cssUsedRanges.get(file) || [];
+    for (const rule of listCssRules(src)) {
+      if (overlaps(used, rule.start, rule.end)) continue;
+      const line = src.slice(0, rule.start).split('\n').length;
+      unusedLines.push(`${file}:${line}\t${rule.selector.slice(0, 160)}`);
+    }
+  }
+  writeFileSync(path.join(a, '_css-unused.txt'), unusedLines.join('\n') + (unusedLines.length ? '\n' : ''));
+  const uncovered = [];
+  for (const { file, fn, start, count } of [...jsCoverage.values()].sort((a, b) => a.file.localeCompare(b.file) || a.start - b.start)) {
+    if (count > 0) continue;
+    const srcPath = path.join(HTML, file);
+    if (!existsSync(srcPath)) continue;
+    const src = readFileSync(srcPath, 'utf8');
+    const line = src.slice(0, start).split('\n').length;
+    uncovered.push(`${file}:${line}\t${fn}`);
+  }
+  writeFileSync(path.join(a, '_js-uncovered.txt'), uncovered.join('\n') + (uncovered.length ? '\n' : ''));
+  writeFileSync(path.join(a, '_postrender.txt'), postrender.join('\n') + (postrender.length ? '\n' : ''));
+  writeFileSync(path.join(a, '_errors.json'), JSON.stringify(errors, null, 1));
+  await sleep(300);
+  for (const d of readdirSync(a)) if (d.startsWith('.chrome')) rmSync(path.join(a, d), { recursive: true, force: true });
+  console.log(`usage: ${todo.reduce((s, g) => s + g.cases.length, 0)} ca · CSS unused ${unusedLines.length} · JS uncovered ${uncovered.length} · postrender hits ${postrender.length} · ${((Date.now() - t0) / 1000).toFixed(1)}s · lỗi ${errors.length}`);
+  process.exit(0);
+}
+
 async function worker(n, queue, errors) {
   const port = 9400 + n;
   const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${path.join(a, '.chrome' + n)}`, '--hide-scrollbars', '--force-device-scale-factor=1', 'about:blank'], { stdio: 'ignore' });
@@ -311,7 +515,9 @@ async function worker(n, queue, errors) {
       if (c.act) await evalv(`Promise.resolve(${c.act}).then(()=>${frames})`);
       const v = await evalv(`(()=>{const d=document.querySelector('#device-preview')?.getBoundingClientRect();const s=document.querySelector('#app-screen');if(!d||!s)return null;return {x:d.x,y:d.y,w:d.width,h:d.height,t:s.innerText+'\\n@inspector '+['current-screen-id','current-screen-name','workbench-title','traceability'].map(i=>document.getElementById(i)?.innerText||'').join(' | ')+'\\n@url '+location.search}})()`);
       if (!v) { errors.push(`no preview for ${c.name}`); continue; }
-      const shot = await send('Page.captureScreenshot', { format: 'png', clip: { x: v.x, y: v.y, width: Math.max(1, v.w), height: Math.max(1, v.h), scale: 1 } });
+      const shot = FULL
+        ? await send('Page.captureScreenshot', { format: 'png' })
+        : await send('Page.captureScreenshot', { format: 'png', clip: { x: v.x, y: v.y, width: Math.max(1, v.w), height: Math.max(1, v.h), scale: 1 } });
       writeFileSync(path.join(a, c.name + '.png'), Buffer.from(shot.result.data, 'base64'));
       writeFileSync(path.join(a, c.name + '.txt'), v.t);
     }

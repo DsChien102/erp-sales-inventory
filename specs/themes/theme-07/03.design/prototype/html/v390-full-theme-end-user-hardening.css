@@ -1,9 +1,0 @@
-/* VET45 Theme 7 v3.9.0 — Full Theme end-user hardening */
-.t390-work-heading > span{color:var(--vet45-v2-text-secondary,#6b7480);font-size:12px;line-height:16px}
-.t390-no-work{width:100%;min-height:72px;box-sizing:border-box;padding:14px 16px;border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:12px;background:var(--vet45-v2-surface-default,#fff);display:flex;flex-direction:column;justify-content:center;gap:4px}
-.t390-no-work strong{font-size:14px;line-height:20px;color:var(--vet45-v2-text-primary,#0e1116)}
-.t390-no-work span{font-size:13px;line-height:20px;color:var(--vet45-v2-text-secondary,#6b7480)}
-.t390-catalog-search{width:100%}
-.t390-persona-control{display:flex;flex-direction:column;gap:6px;width:100%;font-size:12px;color:var(--vet45-v2-text-secondary,#6b7480)}
-.t390-persona-control select{min-height:40px;width:100%;box-sizing:border-box;border:1px solid var(--vet45-v2-border-default,#e5e8eb);border-radius:8px;background:var(--vet45-v2-surface-default,#fff);color:var(--vet45-v2-text-primary,#0e1116);padding:0 10px;font:inherit}
-body[data-workbench-mode="theme"] .t381-catalog-row[hidden],body[data-workbench-mode="theme"] .t381-catalog-section[hidden],body[data-workbench-mode="theme"] .t380-manual-sheet [hidden]{display:none!important}

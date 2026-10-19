@@ -1,29 +1,22 @@
-/* VET45 Theme 7 prototype — runtime (T7-P0, v5.0.0).
+/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, v5.3.1).
  *
- * Khung chung (đã sạch, sửa thẳng ở đây):
- *   - Phần "app.js" bên dưới: trạng thái (activeFlowId, activeScreenId, stateByScreen, flowMode…), bảng renderers,
- *     helper DS (appShell, ds24*, vBanner, primaryFooter, icon…), harness.
- *   - Mỗi hàm khung có MỘT định nghĩa: renderAppScreen (điều phối), renderInspector, renderFlowSelector,
- *     renderNavigation, syncReviewUrl, previousScreen. Chế độ "Toàn Theme 7" + Hub Kho nằm ở app/hub.js (ThemeApp).
- *   - renderAppScreen(): màn gốc chế độ theme → ThemeApp.renderRoot(); còn lại → renderFlowScreen() rồi ThemeApp.afterFlowRender().
+ * Chỉ còn khung sản phẩm:
+ *   - Trạng thái + routing lối vào (`entryTargets` / `applyEntry` / `onEntry` / `currentActor`)
+ *   - `renderers` / `flowRenderers` / `flowScreen` / `renderAppScreen` / `render` / `navigate` / `previousScreen`
+ *   - Helper DS (`appShell`, `ds24*`, `vBanner`, `primaryFooter`, `icon`, `io*` / `ic*` còn dùng…)
+ *   - Toast, lối ra dự phòng, bước dựng chung `applyGroupedSurfaceRule`
+ *   - API QA `window.__VET45_QA__` (BJ chỉ `Object.assign`)
  *
- * Legacy (xoá dần theo BJ ở T7-P — xem chú thích đầu app/bjNN.js):
- *   - Các khối có tiêu đề "===== vNNN-… =====" và "===== legacy-… =====" sau phần app.js là lớp vá cũ của từng BJ: gán lại renderers['SCR-…'],
- *     bọc renderFlowScreen / renderFlowInspector / navigate để sửa DOM sau dựng. Khi viết lại một BJ, chuyển hàm dựng cuối
- *     sang app/bjNN.js và xoá phần tương ứng ở đây; không thêm lớp vá mới.
+ * Harness (sidebar / inspector / Inspect / device frame) → `harness/workbench.js` + `harness/workbench.css` + `harness/figma-ds-map.js`.
+ * Mỗi BJ → `app/bjNN.js` / `cap01.js`; Hub → `app/hub.js`. Không còn lớp vá `vNNN` / bọc `render`/`navigate`.
  */
-/* ===== figma-ds-runtime-map.js ===== */
-window.VET45_FIGMA_DS_MAP = {"schemaVersion":2,"release":"2.2.0-candidate","source":{"parent":"2.1.2","figmaFileKey":"QVJolM5tAdFKkhP7RIwe3y","designSystemVersion":"2.0.3","componentPageId":"505:5890","patternTemplatePageId":"505:5891","foundationPageId":"505:5889","authority":"Figma DS","phase":"LIVE_EXISTING_COMPONENT_FIRST_CORRECTION","scope":"Canonical Figma DS mapping used by the cumulative Theme 7 runtime. UIF-01, UIF-02 and UIF-08 have structurally migrated Product implementations; other UIFs remain legacy until their own migration gate passes."},"statusSemantics":{"EXACT":"Exact canonical Figma target identity. This is source/mapping exactness only; it is NOT proof that the current legacy DOM anatomy is migrated.","EXACT_PATTERN":"Exact canonical Figma pattern target identity. This is source/mapping exactness only; it is NOT proof of current Product implementation.","LEGACY_ALIAS":"legacy HTML name resolves to canonical Figma asset","OWNED_SLOT":"not standalone; owned by canonical parent asset","EXACT_FOUNDATION":"Exact canonical Figma foundation/style/token target responsibility; current legacy UIF usage remains transitional until migrated.","CONTEXTUAL":"requires screen context but no custom convention may be invented","CONTEXTUAL_PATTERN":"pattern selected by interaction context","CONTEXTUAL_CARD":"generic legacy card must be decomposed/replaced contextually","MIGRATION_TARGET":"canonical target identified; visual composition change deferred to Phase 3/4","COMPOSITION":"allowed composition from canonical lower layers; not a new DS component","OPEN_DS_GAP":"recurring construct not represented by one canonical live asset","IMPLEMENTATION_DETAIL":"renderer/workbench implementation detail, not Product UI"},"precedence":["themeComponent","dsInternal","component+profile","component"],"componentMappings":{"VButton":{"layer":"COMPONENT","status":"EXACT","name":"VButton","nodeId":"521:529","assetType":"COMPONENT_SET","section":"01. Actions","note":"","variantPolicy":{}},"VTextField":{"layer":"COMPONENT","status":"EXACT","name":"VTextField","nodeId":"522:7186","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VTextarea":{"layer":"COMPONENT","status":"EXACT","name":"VTextarea","nodeId":"522:7212","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VMoneyField":{"layer":"COMPONENT","status":"EXACT","name":"VMoneyField","nodeId":"522:7322","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VCheckbox":{"layer":"COMPONENT","status":"EXACT","name":"VCheckbox","nodeId":"522:7397","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VRadio":{"layer":"COMPONENT","status":"EXACT","name":"VRadio","nodeId":"522:7410","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VSwitch":{"layer":"COMPONENT","status":"EXACT","name":"VSwitch","nodeId":"522:7427","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VSelect":{"layer":"COMPONENT","status":"EXACT","name":"VSelect","nodeId":"522:7291","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VSearchBar":{"layer":"COMPONENT","status":"EXACT","name":"VSearchBar","nodeId":"522:7245","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VDatePicker":{"layer":"COMPONENT","status":"EXACT","name":"VDatePicker","nodeId":"522:7368","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VFileDropZone":{"layer":"COMPONENT","status":"EXACT","name":"VFileDropZone","nodeId":"522:7507","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"","variantPolicy":{}},"VAppBar":{"layer":"COMPONENT","status":"EXACT","name":"VAppBar","nodeId":"547:1594","assetType":"COMPONENT_SET","section":"03. Navigation","note":"","variantPolicy":{}},"VBadge":{"layer":"COMPONENT","status":"EXACT","name":"VBadge","nodeId":"525:309","assetType":"COMPONENT_SET","section":"04. Data Display","note":"","variantPolicy":{}},"VChip":{"layer":"COMPONENT","status":"EXACT","name":"VChip","nodeId":"522:7449","assetType":"COMPONENT_SET","section":"04. Data Display","note":"","variantPolicy":{}},"VBanner":{"layer":"COMPONENT","status":"EXACT","name":"VBanner","nodeId":"526:4215","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Live master: Info/Default is content-driven; Compact is 72px; Success/Warning/Danger Default is 96px. Do not place multi-line copy in Compact.","variantPolicy":{"infoDefaultHeight":"HUG_CONTENT","compactHeight":"72","semanticDefaultHeight":"96","defaultPadding":"16","compactPaddingY":"12","gap":"12","iconSize":"20"}},"VToast":{"layer":"COMPONENT","status":"EXACT","name":"VToast","nodeId":"526:4305","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"","variantPolicy":{}},"VEmptyState":{"layer":"COMPONENT","status":"EXACT","name":"VEmptyState","nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"","variantPolicy":{}},"VLoading":{"layer":"COMPONENT","status":"EXACT","name":"VLoading","nodeId":"526:4373","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"","variantPolicy":{}},"VProgress":{"layer":"COMPONENT","status":"EXACT","name":"VProgress","nodeId":"526:4386","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"","variantPolicy":{}},"VSkeleton":{"layer":"COMPONENT","status":"EXACT","name":"VSkeleton","nodeId":"526:4380","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"","variantPolicy":{}},"VSegmentedControl":{"layer":"COMPONENT","status":"EXACT","name":"VSegmentedControl ","nodeId":"1049:9619","assetType":"COMPONENT_SET","section":"03. Navigation","note":"","variantPolicy":{}},"VModal":{"layer":"COMPONENT","status":"EXACT","name":"VModal","nodeId":"550:1275","assetType":"COMPONENT_SET","section":"06. Overlays","note":"","variantPolicy":{}},"VNumericKeypadSheet":{"layer":"COMPONENT","status":"EXACT","name":"VNumericKeypadSheet","nodeId":"1829:16196","assetType":"COMPONENT_SET","section":"06. Overlays","note":"","variantPolicy":{}},"VText":{"layer":"FOUNDATION","status":"EXACT_FOUNDATION","name":"VET45 v2 Typography styles","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Resolve to the canonical text style by semantic role; legacy VText is a primitive, not a Components-page master.","variantPolicy":{}},"VIcon":{"layer":"FOUNDATION","status":"EXACT_FOUNDATION","name":"VET45 approved Icon Library","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Use the canonical icon registry / Lucide-backed VET45 icon instances; icon size and touch target remain independent.","variantPolicy":{}},"VPagePadding":{"layer":"FOUNDATION","status":"EXACT_FOUNDATION","name":"Layout/Mobile edge = 16","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Page body/footer horizontal padding is foundation layout responsibility.","variantPolicy":{}},"VPageScaffold":{"layer":"TEMPLATE","status":"CONTEXTUAL","name":"Mobile / Detail","nodeId":"551:1396","assetType":"COMPONENT","section":"09. Page Templates","note":"Legacy scaffold has no 1:1 template. Phase 3/4 selects Root List / Nested List / Detail / Form / Wizard / Search & Select / State from screen task and entry architecture.","variantPolicy":{}},"VTextFormField":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"VTextField","nodeId":"522:7186","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"Single-line legacy fields map to VTextField; multiline instances map to VTextarea via runtime resolver.","variantPolicy":{}},"VNumberField":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"VTextField","nodeId":"522:7186","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"Numeric input uses VTextField semantics. Numeric keypad overlay, where required, uses VNumericKeypadSheet.","variantPolicy":{}},"VDatePickerField":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"VDatePicker","nodeId":"522:7368","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"Legacy field alias resolves to canonical VDatePicker.","variantPolicy":{}},"VConfirmDialog":{"layer":"PATTERN","status":"LEGACY_ALIAS","name":"DS v2 / Confirmation Sheet","nodeId":"550:1058","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns","note":"Destructive confirmation is a pattern responsibility, not a custom dialog.","variantPolicy":{}},"VBottomSheet":{"layer":"COMPONENT","status":"EXACT","name":"VBottomSheet","nodeId":"4695:6353","assetType":"COMPONENT","section":"06. Overlays","note":"Live canonical VBottomSheet master verified 2026-09-09. Prefer directly over custom Product sheet shells when only generic bottom-sheet structure is required.","variantPolicy":{}},"VCombobox":{"layer":"PATTERN","status":"CONTEXTUAL_PATTERN","name":"DS v2 / Search Results Dropdown","nodeId":"1280:6272","assetType":"COMPONENT_SET","section":"05. List Patterns","note":"Combobox behavior decomposes to canonical field/search + Search Results Dropdown; product semantics choose Product or Entity result pattern.","variantPolicy":{}},"VChoiceList":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Choice group from VRadio / VCheckbox","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"No standalone ChoiceList master in live DS; compose canonical selection controls.","variantPolicy":{}},"VQuantitySelector":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"VTextField","nodeId":"522:7186","assetType":"COMPONENT_SET","section":"02. Inputs & Selection","note":"Phase 4: historical plain quantity annotations are normalized to canonical VTextField; no active Theme 7 Product render uses VQuantitySelector.","variantPolicy":{}},"VSection":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Section layout","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Semantic section/layout wrapper; uses foundation spacing and typography rather than inventing a reusable visual component.","variantPolicy":{}},"VCard":{"layer":"COMPOSITION","status":"CONTEXTUAL_CARD","name":"Contextual data-display surface","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Legacy generic card key is retained for trace only. Phase 4 active Product renders must not resolve to VCard; use a canonical data-display asset or justified VSection composition.","variantPolicy":{}},"VCardTitle":{"layer":"FOUNDATION","status":"OWNED_SLOT","name":"VET45 v2 Typography styles","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Owned content slot; resolve text style by card family/context.","variantPolicy":{}},"VCardIcon":{"layer":"FOUNDATION","status":"OWNED_SLOT","name":"VET45 approved Icon Library","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Owned content slot; resolve icon tone/size through semantic icon variables.","variantPolicy":{}},"VIconBox":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Icon presentation container","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Non-interactive icon container is a composition. Interactive icon-only actions must use DS v2 / Icon Button.","variantPolicy":{}},"VEmptyMedia":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VEmptyState","nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Media slot of VEmptyState; not a separate component master.","variantPolicy":{}},"VEmptyTitle":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VEmptyState","nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Title slot of VEmptyState; not a separate component master.","variantPolicy":{}},"VEmptyDescription":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VEmptyState","nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Description slot of VEmptyState; not a separate component master.","variantPolicy":{}},"VAppBarTitle":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VAppBar","nodeId":"547:1594","assetType":"COMPONENT_SET","section":"03. Navigation","note":"Title slot of VAppBar.","variantPolicy":{}},"VAppBarSubtitle":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VAppBar","nodeId":"547:1594","assetType":"COMPONENT_SET","section":"03. Navigation","note":"Subtitle/context slot of VAppBar.","variantPolicy":{}},"VSegmentedControlItem":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VSegmentedControl ","nodeId":"1049:9619","assetType":"COMPONENT_SET","section":"03. Navigation","note":"Segment item is owned by the canonical control.","variantPolicy":{}},"VSegmentedButton":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"VSegmentedControl ","nodeId":"1049:9619","assetType":"COMPONENT_SET","section":"03. Navigation","note":"Legacy segmented button/group must normalize to VSegmentedControl.","variantPolicy":{}}},"profileMappings":{"VButton|button.primaryFooter":{"layer":"PATTERN","status":"EXACT_PATTERN","name":"DS v2 / Sticky Footer","nodeId":"549:927","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns","note":"Footer composition is governed by Sticky Footer and contains canonical VButton.","variantPolicy":{}},"VButton|button.secondary":{"layer":"COMPONENT","status":"EXACT","name":"VButton","nodeId":"521:529","assetType":"COMPONENT_SET","section":"01. Actions","note":"Secondary hierarchy normalized at runtime.","variantPolicy":{}},"VButton|button.destructiveSecondary":{"layer":"COMPONENT","status":"EXACT","name":"VButton","nodeId":"521:529","assetType":"COMPONENT_SET","section":"01. Actions","note":"Destructive action normalizes to Danger hierarchy; no custom destructive-secondary component.","variantPolicy":{}},"VSearchBar|search.standard":{"layer":"PATTERN","status":"CONTEXTUAL_PATTERN","name":"DS v2 / Search & Filter Header","nodeId":"547:2306","assetType":"COMPONENT_SET","section":"05. List Patterns","note":"When search and filter participate in list discovery, use Search & Filter Header; search-only remains VSearchBar.","variantPolicy":{}},"VPagePadding|screen.body.standard":{"layer":"FOUNDATION","status":"EXACT_FOUNDATION","name":"Layout/Mobile edge = 16","nodeId":null,"assetType":"FOUNDATION","section":"DS v2 — 01 Foundations & Icons","note":"Canonical mobile body gutter.","variantPolicy":{}},"VPageScaffold|screen.shell.standard":{"layer":"TEMPLATE","status":"CONTEXTUAL","name":"Mobile / Detail","nodeId":"551:1396","assetType":"COMPONENT","section":"09. Page Templates","note":"Screen template chosen by task/surface in Phase 3/4; scaffold itself is not a canonical component.","variantPolicy":{}},"VCard|card.readOnly":{"layer":"COMPOSITION","status":"CONTEXTUAL_CARD","name":"Read-only data display","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Legacy trace only. Phase 4 active Product UI must resolve read-only data to Summary Card / Info Row / Key-value Row / Record Card or justified composition.","variantPolicy":{}},"VCard|card.interactive":{"layer":"COMPOSITION","status":"CONTEXTUAL_CARD","name":"Interactive record/list item","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Legacy trace only. Phase 4 active Product UI must resolve interactive records to DS v2 / List Row / Record Card or justified composition.","variantPolicy":{}},"VBottomSheet|approval.reject":{"layer":"PATTERN","status":"EXACT_PATTERN","name":"DS v2 / Confirmation Sheet","nodeId":"550:1058","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns","note":"Approval rejection with reason is confirmation/form-sheet composition; no custom bottom-sheet convention.","variantPolicy":{}}},"themeComponentMappings":{"PermissionDeniedState":{"layer":"COMPONENT","status":"EXACT","name":"VEmptyState","nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Use Type=No Permission.","variantPolicy":{}},"Theme7InventoryProductRow":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / List Row","nodeId":"525:519","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"Theme7InventoryLotRow":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / List Row","nodeId":"525:519","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"Theme7InventoryProvenanceEntry":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / List Row","nodeId":"525:519","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"InventoryOperationItemRow":{"layer":"COMPONENT","status":"LEGACY_ALIAS","name":"DS v2 / List Row","nodeId":"525:519","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: legacy annotation is bypassed in all active UIFs; active operational rows render canonical DS v2 / List Row.","variantPolicy":{}},"Theme7InventoryFilterRow":{"layer":"PATTERN","status":"EXACT_PATTERN","name":"DS v2 / Search & Filter Header","nodeId":"547:2306","assetType":"COMPONENT_SET","section":"05. List Patterns","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"InventoryTaskFilterRow":{"layer":"PATTERN","status":"LEGACY_ALIAS","name":"DS v2 / Search & Filter Header","nodeId":"547:2306","assetType":"COMPONENT_SET","section":"05. List Patterns","note":"Phase 4: legacy filter-row key is retained for trace only; active list discovery composes canonical VSearchBar/VChip under Figma list-pattern responsibility.","variantPolicy":{}},"Theme7InventoryQuantityRow":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / Info Row","nodeId":"525:351","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"Theme7InventorySummaryCard":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / Summary Card","nodeId":"525:552","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: active Theme 7 Product usage is calibrated to the named live Figma asset.","variantPolicy":{}},"Theme7InventoryRecordList":{"layer":"COMPOSITION","status":"COMPOSITION","name":"List container of DS v2 / List Row","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: layout-only container composed from canonical DS v2 / List Row children.","variantPolicy":{}},"Theme7InventoryEvidenceRows":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Evidence fact rows from DS v2 / Info Row","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: evidence container is layout-only; each fact row uses canonical DS v2 / Info Row.","variantPolicy":{}},"OperationEvidenceTimeline":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / Timeline Item","nodeId":"525:587","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: repeated operation evidence events use canonical DS v2 / Timeline Item.","variantPolicy":{}},"Theme7EvidenceTimeline":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Timeline from DS v2 / Timeline Item","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: timeline container is layout-only; events use canonical Timeline Item responsibility.","variantPolicy":{}},"ReceivingProductSummary":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / Summary Card","nodeId":"525:552","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: selected-product summary uses canonical DS v2 / Summary Card.","variantPolicy":{}},"ReceivingBalanceSummary":{"layer":"COMPONENT","status":"EXACT","name":"DS v2 / Summary Card","nodeId":"525:552","assetType":"COMPONENT_SET","section":"04. Data Display","note":"Phase 4: receiving balance summary uses DS v2 / Summary Card responsibility.","variantPolicy":{}},"Theme7QuickReceiptProductSearch":{"layer":"PATTERN","status":"EXACT_PATTERN","name":"DS v2 / Search Results Dropdown","nodeId":"1280:6272","assetType":"COMPONENT_SET","section":"05. List Patterns","note":"Phase 4: quick product lookup uses canonical Search Results Dropdown/Product responsibility with VSearchBar.","variantPolicy":{}},"ReceivingLotEditor":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Form composition under Mobile / Form","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: nested LOT editor follows Mobile / Form anatomy using canonical fields; it is not itself a page-template instance.","variantPolicy":{}},"LotAllocationSection":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Allocation section from canonical rows/fields","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: allocation editor is a screen-local composition from canonical form fields, date input and actions; no custom DS master is introduced.","variantPolicy":{}},"Theme7OperationResult":{"layer":"TEMPLATE","status":"EXACT_PATTERN","name":"Mobile / State","nodeId":"551:1746","assetType":"COMPONENT","section":"09. Page Templates","note":"Phase 4: authoritative operation results use Mobile / State responsibility with VEmptyState/result facts; behavior remains business-defined.","variantPolicy":{}},"Theme7InlineSingleChoice":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Selection group from DS v2 / List Row","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: full-row mobile choice uses canonical DS v2 / List Row Type=Selection rather than a feature-specific card.","variantPolicy":{}},"PickLotAllocation":{"layer":"COMPOSITION","status":"COMPOSITION","name":"LOT allocation from List Row + quantity input","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: LOT allocation is a business composition from canonical list/fact/form primitives; no standalone DS component is invented.","variantPolicy":{}},"ReturnLotMismatchReasons":{"layer":"COMPOSITION","status":"COMPOSITION","name":"Single-choice group from VRadio","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Phase 4: audited mismatch reasons are a single-choice group composed from canonical VRadio semantics.","variantPolicy":{}}},"internalMappings":{"VAppBar.leading":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VAppBar","nodeId":"547:1594","assetType":"COMPONENT_SET","section":"03. Navigation","note":"Leading navigation slot owned by VAppBar.","variantPolicy":{}},"VBanner.icon":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VBanner","nodeId":"526:4215","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Icon slot owned by VBanner.","variantPolicy":{}},"VBanner.copy":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VBanner","nodeId":"526:4215","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Copy slot owned by VBanner.","variantPolicy":{}},"VLoading.CircularProgressIndicator":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VLoading","nodeId":"526:4373","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Internal loading indicator owned by VLoading.","variantPolicy":{}},"VBottomSheet.handle":{"layer":"COMPOSITION","status":"OWNED_SLOT","name":"Bottom-sheet pattern handle","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Pattern-internal presentation; not a standalone Product component.","variantPolicy":{}},"VBottomSheet.title":{"layer":"COMPOSITION","status":"OWNED_SLOT","name":"Bottom-sheet pattern title","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Pattern-internal title slot.","variantPolicy":{}},"VBottomSheet.divider":{"layer":"COMPOSITION","status":"OWNED_SLOT","name":"Bottom-sheet pattern divider","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Pattern-internal separator.","variantPolicy":{}},"showVBottomSheet.SafeArea":{"layer":"COMPOSITION","status":"IMPLEMENTATION_DETAIL","name":"Bottom-sheet safe-area behavior","nodeId":null,"assetType":"COMPOSITION","section":null,"note":"Pattern implementation detail; never exposed as Product component.","variantPolicy":{}},"VToast.message":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VToast","nodeId":"526:4305","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Message slot owned by VToast.","variantPolicy":{}},"VToast.close":{"layer":"COMPONENT","status":"OWNED_SLOT","name":"VToast","nodeId":"526:4305","assetType":"COMPONENT_SET","section":"05. Feedback & Status","note":"Close affordance owned by VToast.","variantPolicy":{}}},"screenTemplatePolicy":{"list":"Root List or Nested List — decide from entry architecture/back hierarchy in Phase 3","form":"Mobile / Form unless a true multi-step task requires Mobile / Wizard","detail":"Mobile / Detail","review":"Mobile / Detail or Mobile / Form according to whether user edits before commit; calibrate in Phase 3","result":"Mobile / State","timeline":"Mobile / Detail","dashboard":"Mobile / Detail","overlay":"Canonical overlay pattern, not a page template","choice":"Mobile / Form or State by task; calibrate","status / entry":"Mobile / State","validation result":"Mobile / State","approval review":"Mobile / Detail / Form according to editable decision inputs"},"variantNormalization":{"VButton":{"Hierarchy":"tone=danger => Danger; else variant primary/secondary/tertiary => Primary/Secondary/Tertiary","State":"disabled => Disabled; loading marker => Loading; else Default","Size":"small => Small; medium/default => Default; large => Large"},"VBadge":{"Tone":"success/warning/danger/info => Success/Warning/Danger/Info; else Neutral","Style":"Soft unless a screen contract explicitly requires Strong"},"VBanner":{"Tone":"error legacy value normalizes to Danger; info/success/warning preserve semantic tone","Density":"Default unless compact is explicitly contracted"},"VAppBar":{"Type":"back+subtitle => Context; back => Back; root+subtitle => Root context; root => Root"},"VEmptyState":{"Type":"PermissionDeniedState => No Permission; filtered no-result => No Result; error/blocked/empty by business state"},"VText":"data-ds-prop-variant or semantic element role maps to live VET45 v2 Text Style; legacy bodyMedium maps to Body / Default until a distinct style exists"},"governance":{"reuseOrder":["Component","Pattern","Template","Composition"],"noPrefixBoundary":true,"noSilentCustomConvention":true,"genericCardPolicy":"VCard is migration debt, not a canonical Figma component.","productBehaviorFrozen":true,"screenCompositionChangedInThisRelease":false},"assetIndex":{"DS v2 / Collapsible Note":{"nodeId":"1062:8765","assetType":"COMPONENT_SET","section":"07. Interaction"},"DS v2 / Financial Disclosure/Collapsed":{"nodeId":"2144:9874","assetType":"COMPONENT","section":"07. Interaction"},"DS v2 / Financial Disclosure/Expanded":{"nodeId":"2144:9886","assetType":"COMPONENT","section":"07. Interaction"},"VSwipeActionRecord":{"nodeId":"1001:7250","assetType":"COMPONENT_SET","section":"07. Interaction"},"VButton":{"nodeId":"521:529","assetType":"COMPONENT_SET","section":"01. Actions"},"DS v2 / FAB/Default/Default":{"nodeId":"521:663","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / FAB/Default/Pressed":{"nodeId":"521:669","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / FAB/Default/Disabled":{"nodeId":"521:674","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / FAB/Small/Default":{"nodeId":"521:679","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / FAB/Small/Pressed":{"nodeId":"521:684","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / FAB/Small/Disabled":{"nodeId":"521:689","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / Icon Button":{"nodeId":"4431:10317","assetType":"COMPONENT_SET","section":"01. Actions"},"DS v2 / Link":{"nodeId":"4431:10396","assetType":"COMPONENT_SET","section":"01. Actions"},"DS v2 / Action Row/Default":{"nodeId":"521:695","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / Action Row/Danger":{"nodeId":"521:708","assetType":"COMPONENT","section":"01. Actions"},"DS v2 / Action Row/Disabled":{"nodeId":"521:720","assetType":"COMPONENT","section":"01. Actions"},"VTextField":{"nodeId":"522:7186","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VTextarea":{"nodeId":"522:7212","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VMoneyField":{"nodeId":"522:7322","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VCheckbox":{"nodeId":"522:7397","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VRadio":{"nodeId":"522:7410","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VSwitch":{"nodeId":"522:7427","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VSelect":{"nodeId":"522:7291","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VSearchBar":{"nodeId":"522:7245","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VDatePicker":{"nodeId":"522:7368","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VFileDropZone":{"nodeId":"522:7507","assetType":"COMPONENT_SET","section":"02. Inputs & Selection"},"VAppBar":{"nodeId":"547:1594","assetType":"COMPONENT_SET","section":"03. Navigation"},"VTabs (Có Disabled)":{"nodeId":"522:7478","assetType":"COMPONENT_SET","section":"03. Navigation"},"VTabs":{"nodeId":"547:2501","assetType":"COMPONENT_SET","section":"03. Navigation"},"VSegmentedControl ":{"nodeId":"1049:9619","assetType":"COMPONENT_SET","section":"03. Navigation"},"VSteps":{"nodeId":"526:4417","assetType":"COMPONENT_SET","section":"03. Navigation"},"VBottomNavigationBar / Tenant":{"nodeId":"570:164","assetType":"COMPONENT_SET","section":"03. Navigation"},"VBottomNavigationBar / Platform":{"nodeId":"547:2463","assetType":"COMPONENT_SET","section":"03. Navigation"},"VStepProgress":{"nodeId":"547:2618","assetType":"COMPONENT_SET","section":"03. Navigation"},"DS v2 / Context Header":{"nodeId":"1713:9357","assetType":"COMPONENT","section":"03. Navigation"},"DS v2 / List Top Bar":{"nodeId":"547:2223","assetType":"COMPONENT_SET","section":"03. Navigation"},"VAvatar":{"nodeId":"525:284","assetType":"COMPONENT_SET","section":"04. Data Display"},"VBadge":{"nodeId":"525:309","assetType":"COMPONENT_SET","section":"04. Data Display"},"VChip":{"nodeId":"522:7449","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Metric Card":{"nodeId":"525:382","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Entity Card":{"nodeId":"525:539","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Summary Card":{"nodeId":"525:552","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Media Card":{"nodeId":"567:557","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Record Card":{"nodeId":"1001:7201","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Info Row":{"nodeId":"525:351","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Key-value Row":{"nodeId":"525:358","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / List Row":{"nodeId":"525:519","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Timeline Item":{"nodeId":"525:587","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Audit Item":{"nodeId":"525:621","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Avata Card":{"nodeId":"791:24159","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Product Result Card":{"nodeId":"1234:6260","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Order Line Row":{"nodeId":"1683:5847","assetType":"COMPONENT_SET","section":"04. Data Display"},"DS v2 / Payment & Receivable Summary Row/Default":{"nodeId":"2099:5459","assetType":"COMPONENT","section":"04. Data Display"},"DS v2 / Payment & Receivable Summary Row/Outstanding":{"nodeId":"2099:5469","assetType":"COMPONENT","section":"04. Data Display"},"DS v2 / Payment & Receivable Summary Row/Muted":{"nodeId":"2099:5479","assetType":"COMPONENT","section":"04. Data Display"},"VBanner":{"nodeId":"526:4215","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VToast":{"nodeId":"526:4305","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VEmptyState":{"nodeId":"526:4352","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VLoading":{"nodeId":"526:4373","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VProgress":{"nodeId":"526:4386","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VSkeleton":{"nodeId":"526:4380","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"DS v2 / Readiness Item":{"nodeId":"526:4442","assetType":"COMPONENT_SET","section":"05. Feedback & Status"},"VModal":{"nodeId":"550:1275","assetType":"COMPONENT_SET","section":"06. Overlays"},"VNumericKeypadSheet":{"nodeId":"1829:16196","assetType":"COMPONENT_SET","section":"06. Overlays"},"DS v2 / Sticky Footer":{"nodeId":"549:927","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / FAB Placement":{"nodeId":"549:958","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Keyboard-safe Action Bar":{"nodeId":"549:1007","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Action Sheet":{"nodeId":"550:999","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Confirmation Sheet":{"nodeId":"550:1058","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Select Sheet":{"nodeId":"550:1148","assetType":"COMPONENT","section":"04. Interaction & Overlay Patterns"},"DS v2 / Filter Sheet":{"nodeId":"1149:6895","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Toast Layer":{"nodeId":"550:1347","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"Loading Overlay":{"nodeId":"550:1298","assetType":"COMPONENT_SET","section":"04. Interaction & Overlay Patterns"},"DS v2 / Search & Filter Header":{"nodeId":"547:2306","assetType":"COMPONENT_SET","section":"05. List Patterns"},"DS v2 / Search Results Dropdown/Product/Results":{"nodeId":"1280:6203","assetType":"COMPONENT","section":"05. List Patterns"},"DS v2 / Search Results Dropdown/Entity/Results":{"nodeId":"1280:6136","assetType":"COMPONENT","section":"05. List Patterns"},"DS v2 / Search Results Dropdown":{"nodeId":"1280:6272","assetType":"COMPONENT_SET","section":"05. List Patterns"},"DS v2 / Form Sheet":{"nodeId":"1353:6355","assetType":"COMPONENT","section":"06. Form Patterns"},"Mobile / Root List":{"nodeId":"551:549","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Nested List":{"nodeId":"551:1277","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Detail":{"nodeId":"551:1396","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Form":{"nodeId":"551:1452","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Wizard":{"nodeId":"551:1530","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Search & Select":{"nodeId":"551:1621","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / State":{"nodeId":"551:1746","assetType":"COMPONENT","section":"09. Page Templates"},"Mobile / Identity":{"nodeId":"551:1777","assetType":"COMPONENT","section":"09. Page Templates"}},"dynamicResolution":{"VButton.link":"Legacy VButtonVariant.link resolves to canonical DS v2 / Link instead of VButton.","VTextFormField.multiline":"A legacy VTextFormField containing textarea resolves to canonical VTextarea.","VPageScaffold.template":"Explicit base template follows the business screen archetype; true centered VEmptyState surfaces dynamically resolve to Mobile / State.","VEmptyState.type":"No Permission / No Result / Error / Blocked / Empty is inferred from the rendered business state and content for Inspect only."},"phase3":{"scope":["UIF-02","UIF-05","UIF-08","UIF-10","UIF-15","UIF-17"],"rule":"Representative Product surfaces may use direct live Figma asset names; generic VCard/VQuantitySelector debt is removed from calibrated renders; explicit template mapping is authoritative for calibrated screens."},"phase4":{"status":"FULL_ROLLOUT_CANDIDATE","parent":"2.0.2","flows":17,"canonicalActiveScreens":73,"activeStateRenders":497,"policy":"Active Product renders must resolve to live Figma Components/Patterns/Templates or justified COMPOSITION; no MIGRATION_TARGET, OPEN_DS_GAP, or CONTEXTUAL_CARD annotations."},"phase5":{"status":"FINAL_CONFORMANCE_CANDIDATE","parent":"2.1.0","flows":17,"canonicalActiveScreens":73,"activeStateRenders":497,"policy":"Result/status/validation business surfaces use Detail by default; Mobile / State is reserved for actual full-content Empty/Error/No Permission/Blocked/No Result. Success result anatomy is VSection composition, not a synthetic VEmptyState variant. Exact Info Row, VTextarea and VMoneyField responsibilities are enforced globally."},"implementationSemantics":{"sourceReadiness":"MAPPING_EXACT_RUNTIME_GATES_OPEN","productImplementation":"MIXED_BY_UIF_SEE_UIF_MIGRATION_STATUS","proofRule":"A screen/component is migrated only after structure + variants/states + exact canonical responsibility + visual + behavior gates pass. Current migrated scope is UIF-01/UIF-02/UIF-08; data-figma-node alone is insufficient."},"readiness":{"release":"2.2.0-candidate","sourceLock":"FIGMA-DS-SOURCE-LOCK.json","livePreflight":"../../html/qa/FIGMA-DS-LIVE-PREFLIGHT-v2.2.0.json","approvedIconLibrary":"figma-approved-icon-library.json","iconDemand":"../../html/qa/FIGMA-DS-ICON-DEMAND-v2.2.0.json","overlayRegister":"FIGMA-DS-OVERLAY-MIGRATION-REGISTER-v2.2.0.json","uifStatus":"UIF-MIGRATION-STATUS.json"},"componentSelectionPriority":["V_COMPONENT_IF_SEMANTICALLY_VALID","EXISTING_NON_V_COMPONENT","EXISTING_PATTERN_OR_TEMPLATE","LAYOUT_COMPOSITION_OF_EXISTING_DS_ASSETS","NEW_COMPONENT_ONLY_AFTER_PROVEN_REUSABLE_GAP"],"runtimeRelease":"2.5.1"};
-
-/* ===== app.js ===== */
 const HARNESS = window.VET45_HARNESS_DATA || { flows: [], screens: [], runOrder: [] };
 const FIGMA_DS_MAP = window.VET45_FIGMA_DS_MAP || { componentMappings:{}, profileMappings:{}, themeComponentMappings:{}, internalMappings:{} };
-// v4.6.1 review fixtures. These are runtime inputs, not business decisions.
+// Fixture review (tiền tệ, tỷ giá, thuế, chính sách giá vốn) — đầu vào runtime, không phải quyết định nghiệp vụ.
 window.__VET45_MONEY_CURRENCY_CATALOG__ = window.__VET45_MONEY_CURRENCY_CATALOG__ || [{id:"VND",label:"VND"},{id:"USD",label:"USD"}];
 window.__VET45_FX_SOURCE_FIXTURE__ = window.__VET45_FX_SOURCE_FIXTURE__ || {VND:{rate:1,version:"LOCAL-VND"},USD:{rate:24450,version:"FX-DEMO-USD-202609"}};
 window.__VET45_TAX_TREATMENT_POLICY__ = window.__VET45_TAX_TREATMENT_POLICY__ || {version:"TAX-HKD-DEMO-v1",recoverableRate:0};
 window.__VET45_TENANT_COST_POLICY__ = window.__VET45_TENANT_COST_POLICY__ || {version:"COST-POLICY-DEMO-v1",method:"PERIODIC",label:"Bình quân cuối kỳ",periodCloseScopes:[{id:"ALL_PRODUCTS",label:"Toàn bộ sản phẩm"},{id:"DIRTY_PRODUCTS_ONLY",label:"Sản phẩm cần tính lại"}],fixture:true};
-// v2.7.1 — live Figma DS correction: List Row density/affordance, grouped Info Row surfaces, VToast, and Key-value Row fidelity; BJ05 business behavior unchanged.
 // Figma DS v2.0.3 is UI authority; business authority remains in BJ/UC/decision/contracts.
 const FIGMA_MIGRATED_FLOWS = new Set([
   "UIF-01","UIF-02","UIF-03","UIF-04","UIF-05","UIF-06","UIF-07","UIF-08","UIF-09",
@@ -59,17 +52,6 @@ const flowCatalog = HARNESS.flows;
 let activeFlowId = new URLSearchParams(window.location.search).get("uif") || "UIF-02";
 if (!flowCatalog.some((f) => f.id === activeFlowId)) activeFlowId = "UIF-02";
 const groups = ["Screens"];
-const FLOW_GROUPS = [
-  { id: "inventory-operations", label: "Inventory operations", bjs: ["BJ-01", "BJ-02", "BJ-04", "BJ-05", "BJ-06", "BJ-07"] },
-  { id: "inventory-valuation", label: "Inventory valuation", bjs: ["BJ-03", "BJ-13", "BJ-14"] },
-  { id: "inventory-audit-control", label: "Inventory audit & control", bjs: ["BJ-08", "BJ-09", "BJ-10", "BJ-11", "BJ-12", "BJ-15", "BJ-16", "BJ-17"] },
-  { id: "supporting", label: "Supporting capability", bjs: ["CAP-01"] },
-];
-
-function flowGroupLabel(flow) {
-  const match = FLOW_GROUPS.find((group) => group.bjs.includes(flow.bj));
-  return match ? match.label : "Other";
-}
 
 const stateByScreen = Object.fromEntries(screens.map((screen) => [screen.id, screen.defaultState]));
 
@@ -86,28 +68,79 @@ let activeScreenId = (() => {
 })();
 let viewport = initialParams.get("viewport") === "wide" ? "wide" : "mobile";
 let flowMode = initialParams.get("flow") === "quick" ? "quick" : "document";
+
+// Entry architecture: one table (screen + optional state/flowMode). v350 targets win where both existed.
+const entryTargets = {
+  "UIF-01": { "product-context": { screen: "SCR-003" } },
+  "UIF-02": {
+    "document-context": { screen: "SCR-009", flowMode: "document" },
+    "approver": { screen: "SCR-011" },
+  },
+  "UIF-03": { "receipt-task": { screen: "SCR-015" } },
+  "UIF-04": { "order-context": { screen: "SCR-021" } },
+  "UIF-05": { "order-task": { screen: "SCR-026" } },
+  "UIF-06": { "return-task": { screen: "SCR-031" }, "approver": { screen: "SCR-034" } },
+  "UIF-07": { "return-task": { screen: "SCR-037" } },
+  "UIF-08": {
+    "assigned-counter": { screen: "SCR-044", state: "BLIND_COUNT" },
+    "approver": { screen: "SCR-046", state: "APPROVAL_REVIEW" },
+  },
+  "UIF-09": {
+    "product-context": { screen: "SCR-037", state: "READY" },
+    "approver": { screen: "SCR-038", state: "APPROVAL_REVIEW" },
+  },
+  "UIF-10": {
+    "product-context": { screen: "SCR-037", state: "READY" },
+    "approver": { screen: "SCR-040", state: "APPROVAL_REVIEW" },
+    "completion-operator": { screen: "SCR-040", state: "COMPLETION" },
+  },
+  "UIF-11": {
+    "approver": { screen: "SCR-051", state: "READY" },
+    "operation-context": { screen: "SCR-049", state: "CORRECTABLE" },
+  },
+  "UIF-12": { "approver": { screen: "SCR-070", state: "READY" } },
+  "UIF-13": { "source-task": { screen: "SCR-086" } },
+  "UIF-14": { "dirty-scope": { screen: "SCR-073", state: "READY" } },
+  "UIF-16": { "case-context": { screen: "SCR-079" } },
+  "UIF-17": { "unknown-context": { screen: "SCR-079" } },
+};
+const onEntry = {};
+let actorMode = entryMode;
+function currentActor() { return actorMode; }
+function applyEntry(flowId, mode, shouldRender = false) {
+  const target = entryTargets[flowId]?.[mode];
+  if (!target) return false;
+  activeFlowId = flowId;
+  activeScreenId = target.screen;
+  if (target.flowMode) flowMode = target.flowMode;
+  if (target.state !== undefined && stateByScreen[activeScreenId] !== undefined) {
+    stateByScreen[activeScreenId] = target.state;
+  }
+  onEntry[`${flowId}:${mode}`]?.();
+  if (shouldRender) { syncReviewUrl(); render(); }
+  return true;
+}
+let entryApplied = null;
 if (!requestedScreen) {
-  if (activeFlowId === "UIF-01" && entryMode === "product-context") activeScreenId = "SCR-003";
-  else if (activeFlowId === "UIF-02" && entryMode === "document-context") { flowMode = "document"; activeScreenId = "SCR-009"; }
-  else if (activeFlowId === "UIF-02" && entryMode === "approver") activeScreenId = "SCR-011";
-  else if (activeFlowId === "UIF-03" && entryMode === "receipt-task") activeScreenId = "SCR-015";
-  else if (activeFlowId === "UIF-04" && entryMode === "order-context") activeScreenId = "SCR-021";
-  else if (activeFlowId === "UIF-05" && entryMode === "order-task") activeScreenId = "SCR-026";
-  else if (activeFlowId === "UIF-06" && entryMode === "return-task") activeScreenId = "SCR-031";
-  else if (activeFlowId === "UIF-06" && entryMode === "approver") activeScreenId = "SCR-034";
-  else if (activeFlowId === "UIF-07" && entryMode === "return-task") activeScreenId = "SCR-037";
-  else if (activeFlowId === "UIF-13" && entryMode === "source-task") activeScreenId = "SCR-086";
-  else if (activeFlowId === "UIF-11" && entryMode === "operation-context") activeScreenId = "SCR-049";
-  else if (activeFlowId === "UIF-11" && entryMode === "approver") activeScreenId = "SCR-051";
-  else if (activeFlowId === "UIF-16" && entryMode === "case-context") activeScreenId = "SCR-079";
-  else if (activeFlowId === "UIF-17" && entryMode === "unknown-context") activeScreenId = "SCR-079";
-  else if (activeFlowId === "UIF-12" && entryMode === "approver") activeScreenId = "SCR-070";
+  if (applyEntry(activeFlowId, entryMode, false)) entryApplied = entryTargets[activeFlowId]?.[entryMode] || null;
 }
 const initialState = initialParams.get("state");
-if (initialState && screens.find((s) => s.id === activeScreenId)?.states.includes(initialState)) stateByScreen[activeScreenId] = initialState;
+if (initialState && !(entryApplied && entryApplied.state) && screens.find((s) => s.id === activeScreenId)?.states.includes(initialState)) {
+  stateByScreen[activeScreenId] = initialState;
+}
 let toastTimer = null;
 
-
+// QA surface — BJ files only Object.assign into this object (never reassign).
+window.__VET45_QA__ = {
+  setActor(mode) { actorMode = String(mode || "module"); return actorMode; },
+  getActor() { return actorMode; },
+  applyEntry(flowId, mode) {
+    actorMode = String(mode || "module");
+    const applied = applyEntry(String(flowId || activeFlowId), actorMode, true);
+    return { applied, flow: activeFlowId, screen: activeScreenId, state: stateByScreen[activeScreenId], actor: actorMode };
+  },
+  getState() { return { flow: activeFlowId, screen: activeScreenId, state: stateByScreen[activeScreenId] }; },
+};
 
 
 // ============================================================================
@@ -162,77 +195,12 @@ function navChevron() {
 }
 
 
-
-
 function currentScreen() {
   return screens.find((screen) => screen.id === activeScreenId);
 }
 
 function activeFlow() { return flowCatalog.find((f) => f.id === activeFlowId) || flowCatalog[0]; }
 function flowScreens() { const f=activeFlow(); return (f?.screens || []).map((id)=>screens.find((s)=>s.id===id)).filter(Boolean); }
-function renderFlowSelector() {
-  if (typeof ThemeApp !== "undefined") ThemeApp.updateModeTabs();
-  if (typeof ThemeApp !== "undefined" && ThemeApp.inTheme()) return ThemeApp.renderFlowSelector();
-  document.body.dataset.workbenchMode = "bj";
-  const sel=document.getElementById("flow-selector"); if(!sel) return;
-  const grouped = FLOW_GROUPS.map((group) => ({
-    label: group.label,
-    flows: flowCatalog.filter((flow) => group.bjs.includes(flow.bj)),
-  })).filter((group) => group.flows.length > 0);
-  const ungrouped = flowCatalog.filter((flow) => !FLOW_GROUPS.some((group) => group.bjs.includes(flow.bj)));
-  if (ungrouped.length) grouped.push({ label: "Other", flows: ungrouped });
-  sel.innerHTML = grouped.map((group) => `
-    <optgroup label="${group.label}">
-      ${group.flows.map((f) => `<option value="${f.id}" ${f.id===activeFlowId?"selected":""}>${f.id} · ${f.bj} · ${f.name}</option>`).join("")}
-    </optgroup>
-  `).join("");
-  const f=activeFlow();
-  document.body.dataset.activeUif = f.id;
-  document.getElementById("sidebar-flow-title").textContent=`${f.id} · ${f.name}`;
-  document.getElementById("sidebar-flow-intent").textContent=f.intent || "";
-  document.getElementById("workbench-title").textContent=`${f.bj} · ${f.name}`;
-  document.getElementById("workbench-count").textContent=`${f.screens.length} màn · ${f.id}`;
-}
-function renderNavigation() {
-  if (typeof ThemeApp !== "undefined" && ThemeApp.inTheme()) return ThemeApp.renderNavigation();
-  const navigation=document.getElementById("screen-navigation");
-  navigation.innerHTML=`<div class="nav-group"><span class="nav-group-label">Screens</span>${flowScreens().map((screen)=>`<button class="screen-nav-item ${screen.id===activeScreenId?"is-active":""}" data-screen="${screen.id}" type="button"><span class="screen-nav-number">${screen.short}</span><span class="screen-nav-copy"><strong>${screen.name}</strong><span>${screen.surface}</span></span><span class="nav-chevron">›</span></button>`).join("")}</div>`;
-}
-function renderInspector() {
-  if (typeof ThemeApp !== "undefined" && ThemeApp.isRoot()) return ThemeApp.renderRootInspector();
-  renderFlowInspector();
-  if (typeof ThemeApp !== "undefined") ThemeApp.afterFlowInspector();
-}
-function renderFlowInspector() {
-  const screen=currentScreen(); const state=stateByScreen[screen.id]; const f=activeFlow();
-  document.getElementById("current-screen-id").textContent=`${screen.id} · ${screen.surface}`;
-  document.getElementById("current-screen-name").textContent=screen.name;
-  document.getElementById("state-switcher").innerHTML=screen.states.map((item)=>`<button class="state-chip ${item===state?"is-active":""}" data-state="${item}" type="button">${item}</button>`).join("");
-  const actions=(screen.actions||[]).map((a)=>a.id).join(" · ") || (screen.traceActions?.length ? `System: ${screen.traceActions.join(" · ")}` : "Navigation / query");
-  const figmaMigrationLabel = ({
-    "UIF-01":"v3.0.1 · BJ01 migrated + DS hard-gated",
-    "UIF-02":"v3.0.1 · BJ02 migrated + DS hard-gated",
-    "UIF-03":"v3.0.1 · BJ03 valuation hierarchy + evidence",
-    "UIF-13":"v3.0.1 · BJ13 late-cost allocation + review",
-    "UIF-14":"v3.0.1 · BJ14 costing run + publish",
-    "UIF-04":"v3.0.1 · BJ04 migrated + DS hard-gated",
-    "UIF-05":"v3.0.1 · BJ05 migrated + VBottomSheet corrected",
-    "UIF-06":"v3.0.1 · BJ06 UX/navigation corrected",
-    "UIF-07":"v3.0.1 · BJ07 danh sách gọn + phân cấp sản phẩm/lô",
-    "UIF-08":"v3.2.0 · BJ08 kiểm kê + DS aligned",
-    "UIF-09":"v3.2.0 · BJ09 tình trạng hàng + audit history",
-    "UIF-10":"v3.2.0 · BJ10 tiêu hủy + controlled completion",
-    "UIF-11":"v3.2.0 · BJ11 hủy/sửa sai + DS aligned",
-    "UIF-12":"v3.2.0 · BJ12 số dư đầu kỳ + control foundation",
-    "UIF-15":"v3.2.0 · BJ15 báo cáo/thẻ kho + DS aligned",
-    "UIF-16":"v3.2.0 · BJ16 đối soát sai lệch + evidence",
-    "UIF-17":"v3.2.0 · BJ17 xác minh kết quả + recovery",
-    "CAP-01":"v3.6.0 · Figma DS primitives · HTML Theme 7 design"
-  })[activeFlowId] || "Calibrated shell · structural migration pending";
-  document.getElementById("traceability").innerHTML=`<div class="trace-row"><span>BJ / UIF</span><strong>${f.bj} · ${f.id}</strong></div><div class="trace-row"><span>UC</span><strong>${(screen.uc||[]).join(" · ")||"—"}</strong></div><div class="trace-row"><span>Purpose</span><strong>${screen.purpose||"—"}</strong></div><div class="trace-row"><span>Action</span><strong>${actions}</strong></div><div class="trace-row"><span>Figma DS</span><strong>${figmaMigrationLabel}</strong></div><div class="trace-row"><span>DS annotations</span><strong>VPageScaffold → VAppBar · ${(screen.components||[]).join(" · ")}</strong></div><div class="trace-row"><span>Composition</span><strong>${screen.themeComposition||"—"}</strong></div>`;
-  document.getElementById("design-rationale").textContent=f.intent || screen.purpose;
-}
-
 function statusBar() {
   if (FIGMA_MIGRATED_FLOWS.has(activeFlowId)) {
     return `<div class="app-statusbar" data-figma-slot="Status Bar"><span>9:41</span><span>LTE&nbsp;&nbsp;100%</span></div>`;
@@ -248,12 +216,6 @@ function statusBar() {
     </div>`;
 }
 
-function progress(step) {
-  if (!step) return "";
-  return `<div class="progress-track" aria-label="Tiến độ ${step} trên 5">${[1, 2, 3, 4, 5]
-    .map((item) => `<span class="${item < step ? "is-done" : item === step ? "is-current" : ""}"></span>`)
-    .join("")}</div>`;
-}
 
 function appShell({ title, subtitle = null, body, actions = "", centered = false, back = true, backAction = "" }) {
   const hasSubtitle = Boolean(subtitle);
@@ -332,19 +294,9 @@ function primaryFooter(label, actionAttr, disabled = false, tone = "primary") {
 }
 
 
-
-
-
-
 function escapeAttribute(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
-
-
-
-
-
-
 
 
 function esc(v){return String(v??"").replace(/[&<>\"]/g,(m)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
@@ -435,14 +387,16 @@ function ds24SummaryCard(title,body,extra="") {
   return `<section class="ds24-summary-card" data-ds-component="DS v2 / Summary Card" data-figma-node="525:552" data-ds-prop-tone="Neutral" ${extra}><h2 class="ds24-summary-card__title">${esc(title)}</h2><p class="ds24-summary-card__body">${esc(body)}</p></section>`;
 }
 function ds24SectionTitle(title,meta="") { return `<div class="ds24-section-title"><h2 class="vet45-text-style-5">${esc(title)}</h2>${meta?`<span class="vet45-text-style-11">${esc(meta)}</span>`:''}</div>`; }
+function ds24EmptyState(filtered=true) {
+  return `<div class="ds24-empty" data-ds-component="VEmptyState"><div class="ds24-empty__media" data-ds-component="VEmptyMedia">${icon(filtered?'search':'inbox')}</div><h3 class="vet45-text-style-5" data-ds-component="VEmptyTitle">${filtered?'Không có kết quả phù hợp':'Chưa có dữ liệu tồn kho'}</h3><p class="vet45-text-style-6" data-ds-component="VEmptyDescription">${filtered?'Thử tên, mã sản phẩm hoặc chọn bộ lọc khác.':'Không có dữ liệu trong kho hiện tại.'}</p>${filtered?`<button class="ds24-button ds24-button--secondary" data-bj01-clear type="button" data-ds-component="VButton" data-figma-node="521:529">Xóa tìm kiếm và bộ lọc</button>`:''}</div>`;
+}
+
 function ds24Sheet({title,body,attrs=""}) {
   return `<div class="sheet-backdrop ds24-overlay" ${attrs}><section class="ds24-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" data-ds-prop-show-title="true" data-ds-prop-title="${escapeAttribute(title)}" role="dialog" aria-modal="true"><div class="ds24-sheet__handle" data-ds-internal="VBottomSheet.handle"></div><h3 class="vet45-text-style-4" data-ds-internal="VBottomSheet.title">${esc(title)}</h3><div class="ds24-sheet__body" data-ds-internal="VBottomSheet.content">${body}</div></section></div>`;
 }
 
 
 // ============================================================================
-
-/* io07* moved to app/bj07.js (T7-P A6) */
 
 
 function ioSearchBar(placeholder,attr,value=""){return `<div class="search-box io-search" data-ds-component="VSearchBar" data-ds-profile="search.standard" data-ds-prop-variant="VSearchBarVariant.outlined" data-ds-prop-tone="VComponentTone.neutral" data-ds-prop-hint-text="${escapeAttribute(placeholder)}"><span class="search-leading">${icon("search","icon--sm")}</span><input ${attr} value="${escapeAttribute(value)}" placeholder="${escapeAttribute(placeholder)}" aria-label="${escapeAttribute(placeholder)}"/><span></span></div>`;}
@@ -469,139 +423,32 @@ function ioSecondary(label,attr){return `<button class="button button--secondary
 function ioEmpty(title,desc){return `<div class="empty-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon("inbox")}</div><h3 data-ds-component="VEmptyTitle">${title}</h3><p data-ds-component="VEmptyDescription">${desc}</p></div>`;}
 function resultHero(title,desc,kind="success"){const iconName=kind==="success"?"checkCircle":kind==="danger"?"xCircle":"clock";const toneClass=kind==="success"?"icon-box--success":kind==="danger"?"icon-box--danger":"icon-box--warning";return `<div class="result-hero result-hero--${kind}" data-ds-component="VSection" data-composed-from="VIcon,VText"><div class="icon-box ${toneClass}" data-ds-component="VIcon">${icon(iconName,"icon--empty-media")}</div><h2 data-ds-component="VText" data-ds-prop-variant="VTextVariant.headingH3">${title}</h2><p data-ds-component="VText" data-ds-prop-variant="VTextVariant.bodyDefault">${desc}</p></div>`;}
 function ioResult(title,desc,rows,kind="success",button=""){return `<div class="io-result">${resultHero(title,desc,kind)}${ioReadCard(rows.map(r=>ioMetaRow(r[0],r[1],true)).join(''))}${button}</div>`;}
-function ioFilterChips(active,items,attr){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<div class="filter-row io-task-filters" ${calibrated?'data-ds-component="VSection"':'data-theme-component="InventoryTaskFilterRow"'} data-composed-from="VChip">${items.map(([key,label])=>`<button type="button" class="filter-chip ${active===key?'is-active':''}" ${attr}="${key}" data-ds-component="VChip" data-ds-prop-selected="${active===key}">${label}</button>`).join('')}</div>`;}
-/* ac321CanonicalChips → app/shared-control.js (T7-P A10) */
 
-// v1.6.0 — Inventory Audit & Control Product correction (UIF-08/UIF-09/UIF-10)
-/* ic08* fixtures → app/bj08.js (T7-P A7) */
-
-/* ic09Items moved to app/bj09.js (T7-P A6) */
-function icCard(title,body){const calibrated=FIGMA_MIGRATED_FLOWS.has(activeFlowId);return `<section class="review-card" data-ds-component="${calibrated?'VSection':'VCard'}" ${calibrated?'data-composed-from="VText,DS v2 / Info Row,VTextField"':'data-ds-profile="card.readOnly"'}><div class="review-card-header"><strong>${title}</strong></div><div class="review-card-body">${body}</div></section>`;}
-function icField(label,value,attr="",type="text",hint=""){return `<div class="form-field" data-ds-component="${type==='number'?'VNumberField':'VTextField'}"><label>${label}</label><div class="input-shell"><input type="${type}" value="${escapeAttribute(value)}" ${attr}></div>${hint?`<small class="helper-text">${hint}</small>`:""}</div>`;}
-function icTextarea(label,value,attr="",placeholder=""){return `<div class="form-field ic-textarea-field" data-ds-component="VTextarea" data-figma-node="522:7212"><label>${label}</label><textarea class="textarea" ${attr} placeholder="${escapeAttribute(placeholder)}">${esc(value)}</textarea></div>`;}
-/* icChoice moved to app/bj09.js (T7-P A6) */
-function icHeaderRows(rows){return ioReadCard(rows.map(([a,b,strong])=>ioMetaRow(a,b,!!strong)).join(''));}
-function icSecondary(label,action,tone="secondary"){const c=tone==='danger'?'button button--danger button--full':'button button--secondary button--full';return `<button class="${c}" type="button" ${action}>${label}</button>`;}
-function icApprovalButtons(prefix){return `<div class="ic-action-stack">${icSecondary("Từ chối",`data-${prefix}-action="reject"`,'danger')}${primaryFooter("Duyệt",`data-${prefix}-action="approve"`)}</div>`;}
-
-/* ic08Section → app/bj08.js (T7-P A7) */
 function ds24SelectField(label,value,options,attr="") {
   return `<label class="ds24-field" data-ds-component="VSelect" data-figma-node="522:7291"><span class="vet45-text-style-8">${esc(label)}</span><select ${attr} class="ds24-field__control vet45-text-style-6">${options.map(([v,l])=>`<option value="${v}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 }
 function ds24TextField(label,value,attrs="",helper="") {
   return `<label class="ds24-field" data-ds-component="VTextField" data-figma-node="522:7186"><span class="vet45-text-style-8">${esc(label)}</span><input class="ds24-field__control vet45-text-style-6" value="${escapeAttribute(value)}" ${attrs}>${helper?`<small class="vet45-text-style-11">${esc(helper)}</small>`:''}</label>`;
 }
-/* ic08QuantityTrigger → app/bj08.js (T7-P A7) */
-/* ic08ContextRows → app/bj08.js (T7-P A7) */
-/* ic08ProductInputGroup → app/bj08.js (T7-P A7) */
-/* ic08CountRow → app/bj08.js (T7-P A7) */
-/* ic08RecountRow → app/bj08.js (T7-P A7) */
-/* ic08NumericSheet → app/bj08.js (T7-P A7) */
-/* ic08ConfirmationSheet → app/bj08.js (T7-P A7) */
-/* ic08SelectSheet → app/bj08.js (T7-P A7) */
-/* ic08Overlays → app/bj08.js (T7-P A7) */
-/* ic08SessionRow → app/bj08.js (T7-P A7) */
-/* render042IC08 → app/bj08.js (T7-P A7) */
-/* render043IC08 → app/bj08.js (T7-P A7) */
-/* render044IC08 → app/bj08.js (T7-P A7) */
-/* render045IC08 → app/bj08.js (T7-P A7) */
-/* render046IC08 → app/bj08.js (T7-P A7) */
 function ds24Result(title,description,rows,tone='success') {
   const iconName=tone==='success'?'checkCircle':tone==='danger'?'xCircle':'alert';
   return `<section class="ds24-result" data-theme-component="Theme7OperationResult" data-composed-from="VIcon,VText,DS v2 / Info Row,State Pattern"><div class="ds24-result__icon ds24-result__icon--${tone}">${icon(iconName)}</div><h2 class="vet45-text-style-3">${esc(title)}</h2><p class="vet45-text-style-6">${esc(description)}</p><div class="ds24-info-stack">${rows.map(([k,v])=>ds24InfoRow(k,v)).join('')}</div></section>`;
 }
-/* render047IC08 → app/bj08.js (T7-P A7) */
-
-/* ic09StatusTone moved (T7-P A6) */
-/* ic09Current moved (T7-P A6) */
-/* render036IC09 moved (T7-P A6) */
-/* render037IC09 moved (T7-P A6) */
-/* render038IC09 moved (T7-P A6) */
-/* render041IC09 moved (T7-P A6) */
-/* render056IC09 → app/bj09.js (T7-P A9) */
-
-/* render036IC10 moved (T7-P A6) */
-/* render037IC10 moved (T7-P A6) */
-/* render040IC10 moved (T7-P A6) */
-/* render041IC10 moved (T7-P A6) */
-
-/* render036IO07 moved (T7-P A6) */
-/* render037IO07 moved (T7-P A6) */
-/* render039IO07 moved (T7-P A6) */
-/* render041IO07 moved (T7-P A6) */
-
-// ============================================================================
-// v1.7.0 — crSwitchFlow (khung handoff); UIF-16/17 → bj16/bj17 (A10)
-// Product UI exposes business facts, decisions and authoritative finality only.
-// Technical identifiers/replay/rebuild/hash/polling remain contracts/Inspect concerns.
-// ============================================================================
-/* cr11* state + cr11Operations → app/bj11.js (T7-P A8) */
-/* cr11Current → app/bj11.js (T7-P A8) */
-
-/* cr11StateFor → app/bj11.js or bj12.js (T7-P A8) */
-
-/* crChoice → app/bj11.js or bj12.js (T7-P A8) */
-
-/* crFactCard → app/shared-control.js (T7-P A10) */
-
-/* crTextAction → app/bj11.js or bj12.js (T7-P A8) */
-
-function crSwitchFlow(flowId,screenId,state){activeFlowId=flowId;activeScreenId=screenId;if(state&&stateByScreen[screenId]!==undefined)stateByScreen[screenId]=state;syncReviewUrl();render();} /* khung handoff luồng (A10 giữ) */
-/* cr11ListRows → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render048CR11 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render049CR11 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render052CR11 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render050CR11 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render051CR11 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render053CR11 → app/bj11.js or bj12.js (T7-P A8) */
 
 
-/* cr16 / cr17 state + render078…083 → app/bj16.js / bj17.js (T7-P A10) */
-
-// v1.8.0 — Control Foundation & Inquiry · BJ12 / UIF12 + BJ15 / UIF15
-// Product UI keeps migration controls and read-only inquiry separate from architecture/recovery mechanics.
-/* cf12* state + cf12Summary → app/bj12.js (T7-P A8) */
-/* cfMoney…cfSecondary → app/shared-control.js (T7-P A9) */
-/* cf12ReviewCard → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render066CF12 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render067CF12 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render068CF12 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render069CF12 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* cf12ApprovalFooter → app/bj11.js or bj12.js (T7-P A8) */
-
-/* cf12RejectSheet → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render070CF12 → app/bj11.js or bj12.js (T7-P A8) */
-
-/* render071CF12 → app/bj11.js or bj12.js (T7-P A8) */
+// Chuyển luồng khi handoff (BJ-16 → BJ-11, BJ-17 …): đổi luồng + màn + trạng thái rồi dựng lại.
 
 
-/* cf15* state + render054…059CF15 → app/bj15.js (T7-P A9) */
+function crSwitchFlow(flowId,screenId,state){activeFlowId=flowId;activeScreenId=screenId;if(state&&stateByScreen[screenId]!==undefined)stateByScreen[screenId]=state;syncReviewUrl();render();}
+
+
+
 
 const renderers = {};
 for (const screen of screens) if (!renderers[screen.id]) renderers[screen.id]=(state)=>renderGeneric(screen,state);
-/* flowScreen assigns after framework */
 
 
-
-
-
-// Một điểm vào duy nhất. Màn gốc của chế độ theme (Thêm, Hub Kho) do app/hub.js dựng; mọi màn BJ qua
-// renderFlowScreen. Các bước sửa sau dựng còn lại (legacy) bọc renderFlowScreen và được xoá dần theo BJ ở T7-P.
-// Luồng đã viết lại sạch trong app/bjNN.js tự đăng ký vào đây: màn của chúng dựng thẳng bằng renderers[...],
-// không qua các bước sửa sau dựng legacy bọc renderFlowScreen.
-const ownedFlows = new Set();
+// Một điểm vào duy nhất. Màn gốc chế độ theme → ThemeApp.renderRoot(); còn lại → rendererFor + afterFlowRender.
 // Màn dùng chung nhiều luồng: mỗi luồng đăng ký hàm dựng riêng, flowRenderers["UIF-NN"]["SCR-NNN"] = fn.
 const flowRenderers = {};
 function rendererFor(flowId, screenId) { return flowRenderers[flowId]?.[screenId] || renderers[screenId]; }
@@ -612,14 +459,8 @@ function flowScreen(screenId) {
 ["SCR-036","SCR-037","SCR-038","SCR-039","SCR-040","SCR-041"].forEach((id)=>{ renderers[id]=flowScreen(id); });
 function renderAppScreen() {
   if (typeof ThemeApp !== "undefined" && ThemeApp.isRoot()) return ThemeApp.renderRoot();
-  if (ownedFlows.has(activeFlowId)) document.getElementById("app-screen").innerHTML = rendererFor(activeFlowId, activeScreenId)(stateByScreen[activeScreenId]);
-  else renderFlowScreen();
+  document.getElementById("app-screen").innerHTML = rendererFor(activeFlowId, activeScreenId)(stateByScreen[activeScreenId]);
   if (typeof ThemeApp !== "undefined") ThemeApp.afterFlowRender();
-}
-function renderFlowScreen() {
-  const state = stateByScreen[activeScreenId];
-  const effectiveRenderer = renderers[activeScreenId] || ((st) => appShell({title: screens.find(x=>x.id===activeScreenId)?.name || "Theme 7", body: ioEmpty("Đang hoàn thiện prototype","Màn hình này sẽ được tải khi lớp completion được khởi tạo."), back:false}));
-  document.getElementById("app-screen").innerHTML = effectiveRenderer(state);
 }
 
 function render() {
@@ -627,6 +468,7 @@ function render() {
   renderNavigation();
   renderInspector();
   renderAppScreen();
+  if (typeof applyGroupedSurfaceRule === "function") applyGroupedSurfaceRule();
   if (inspectEnabled) resetInspectSelection();
   requestAnimationFrame(fitReviewDeviceToViewport);
 }
@@ -698,344 +540,9 @@ function showToastCanonical(message, type = "success") {
   return toast;
 }
 function showToast(message,type="success"){return showToastCanonical(message,type);}
-function showToastLegacy(message,type="success"){return showToastCanonical(message,type);}
 
-// Review-only Inspect state. Kept outside product UI.
-let inspectEnabled = false;
-let inspectPinned = false;
-let inspectTarget = null;
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function inspectableFrom(target) {
-  if (!(target instanceof Element)) return null;
-  const hit = target.closest('[data-ds-component], [data-theme-component], [data-ds-internal]');
-  return hit && hit.closest('#app-screen') ? hit : null;
-}
-
-function numberPx(style, property) {
-  const value = Number.parseFloat(style.getPropertyValue(property));
-  return Number.isFinite(value) ? value : 0;
-}
-
-function boxRect(rect, top, right, bottom, left, mode = "expand") {
-  if (mode === "expand") {
-    return { left: rect.left - left, top: rect.top - top, width: rect.width + left + right, height: rect.height + top + bottom };
-  }
-  return { left: rect.left + left, top: rect.top + top, width: Math.max(0, rect.width - left - right), height: Math.max(0, rect.height - top - bottom) };
-}
-
-function setInspectBox(node, box) {
-  Object.assign(node.style, {
-    left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px`,
-  });
-}
-
-function figmaAssetTarget(name, layer = "COMPONENT", status = "EXACT", note = "") {
-  const asset = FIGMA_DS_MAP.assetIndex?.[name] || {};
-  return { name, nodeId: asset.nodeId || null, assetType: asset.assetType || null, section: asset.section || null, layer, status, note };
-}
-
-function resolveFigmaMapping(element) {
-  const ds = element.dataset.dsComponent || "";
-  const theme = element.dataset.themeComponent || "";
-  const internal = element.dataset.dsInternal || "";
-  const profile = element.dataset.dsProfile || "";
-  let source = "";
-  let mapping = null;
-  if (theme && FIGMA_DS_MAP.themeComponentMappings?.[theme]) { source = `theme:${theme}`; mapping = FIGMA_DS_MAP.themeComponentMappings[theme]; }
-  else if (internal && FIGMA_DS_MAP.internalMappings?.[internal]) { source = `internal:${internal}`; mapping = FIGMA_DS_MAP.internalMappings[internal]; }
-  else if (ds) {
-    const base = FIGMA_DS_MAP.componentMappings?.[ds] || null;
-    const contextual = profile ? (FIGMA_DS_MAP.profileMappings?.[`${ds}|${profile}`] || null) : null;
-    if (base && contextual && ["PATTERN","TEMPLATE","FOUNDATION"].includes(contextual.layer) && ["EXACT","LEGACY_ALIAS","EXACT_FOUNDATION"].includes(base.status)) {
-      source = `component:${ds}`; mapping = { ...base, contextMapping: contextual };
-    } else if (contextual) { source = `profile:${ds}|${profile}`; mapping = contextual; }
-    else if (base) { source = `component:${ds}`; mapping = base; }
-    else if (FIGMA_DS_MAP.assetIndex?.[ds]) {
-      const asset=FIGMA_DS_MAP.assetIndex[ds];
-      const section=String(asset.section||"");
-      const layer=section.includes("Patterns")||section.includes("Form Patterns")?"PATTERN":section.includes("Page Templates")?"TEMPLATE":"COMPONENT";
-      source=`asset:${ds}`; mapping=figmaAssetTarget(ds,layer,"EXACT","Direct live Figma DS asset used by Phase 4 rollout.");
-    }
-  }
-
-  // Dynamic legacy aliases that depend on actual rendered anatomy.
-  if (ds === "VButton" && String(element.dataset.dsPropVariant || "").toLowerCase().includes("link")) {
-    source = "dynamic:VButton.link"; mapping = figmaAssetTarget("DS v2 / Link", "COMPONENT", "LEGACY_ALIAS", "Legacy link-style button resolves to canonical Link component.");
-  }
-  if (ds === "VTextFormField" && element.querySelector("textarea")) {
-    source = "dynamic:VTextFormField.multiline"; mapping = FIGMA_DS_MAP.componentMappings?.VTextarea || mapping;
-  }
-  if (ds === "VPageScaffold") {
-    const explicitTemplate = element.dataset.figmaTemplate || "";
-    if (explicitTemplate) {
-      source = `phase5:template:${activeFlowId}:${activeScreenId}`;
-      mapping = figmaAssetTarget(explicitTemplate, "TEMPLATE", "EXACT", "Phase 5 Theme 7 screen uses the explicit task-appropriate Figma page template.");
-      return { ...mapping, source, legacy: { ds, theme, internal, profile } };
-    }
-    const surface = currentScreen()?.surface || "";
-    let name = null;
-    if (["result", "status / entry", "validation result"].includes(surface)) name = "Mobile / Detail";
-    else if (surface === "form" || surface === "choice" || surface === "approval review") name = "Mobile / Form";
-    else if (surface === "list") name = element.dataset.dsPropShowBackButton === "false" ? "Mobile / Root List" : "Mobile / Nested List";
-    else if (["detail", "review", "timeline", "dashboard"].includes(surface)) name = "Mobile / Detail";
-    if (name) { source = `dynamic:template:${surface}`; mapping = figmaAssetTarget(name, "TEMPLATE", "MIGRATION_TARGET", "Fallback template candidate derived from current task/surface; explicit Phase 5 mappings are authoritative."); }
-  }
-  if (!mapping) mapping = { name: ds || theme || internal || element.tagName.toLowerCase(), nodeId: null, assetType: null, section: null, layer: "UNMAPPED", status: "UNMAPPED", note: "No Phase 2 mapping rule." };
-  return { ...mapping, source, legacy: { ds, theme, internal, profile } };
-}
-
-function figmaTextStyleFor(element) {
-  const v = String(element.dataset.dsPropVariant || "");
-  if (v.includes("headingH1")) return "VET45 v2 / Heading / H1";
-  if (v.includes("headingH2")) return "VET45 v2 / Heading / H2";
-  if (v.includes("headingH3")) return "VET45 v2 / Heading / H3";
-  if (v.includes("headingH4")) return "VET45 v2 / Heading / H4";
-  if (v.includes("bodySmall")) return "VET45 v2/Body/Small";
-  if (v.includes("bodyDefault") || v.includes("bodyMedium")) return "VET45 v2 / Body / Default";
-  if (element.matches("h1")) return "VET45 v2 / Heading / H1";
-  if (element.matches("h2")) return "VET45 v2 / Heading / H3";
-  if (element.matches("h3")) return "VET45 v2 / Heading / H4";
-  if (element.matches("small")) return "VET45 v2/Body/Small";
-  if (element.matches("strong")) return "VET45 v2 / Label / Default";
-  return "VET45 v2 / Body / Default";
-}
-
-function canonicalFigmaProps(element, mapping) {
-  const ds = element.dataset.dsComponent || "";
-  const out = [];
-  if (ds === "VButton") {
-    const variant = String(element.dataset.dsPropVariant || "").toLowerCase();
-    const tone = String(element.dataset.dsPropTone || "").toLowerCase();
-    if (mapping.name === "DS v2 / Link") {
-      out.push(["Tone", tone.includes("danger") ? "Danger" : "Default"]);
-      out.push(["State", element.disabled ? "Disabled" : "Default"]);
-    } else {
-      let hierarchy = tone.includes("danger") ? "Danger" : variant.includes("secondary") ? "Secondary" : variant.includes("tertiary") ? "Tertiary" : "Primary";
-      const size = String(element.dataset.dsPropSize || "").toLowerCase();
-      out.push(["Hierarchy", hierarchy]);
-      out.push(["State", element.disabled ? "Disabled" : element.classList.contains("is-loading") ? "Loading" : "Default"]);
-      out.push(["Size", size.includes("small") ? "Small" : size.includes("large") ? "Large" : "Default"]);
-    }
-  } else if (ds === "VBadge") {
-    const status = String(element.dataset.dsPropStatus || element.className || "").toLowerCase();
-    const tone = status.includes("success") ? "Success" : status.includes("warning") ? "Warning" : status.includes("danger") || status.includes("error") ? "Danger" : status.includes("info") ? "Info" : "Neutral";
-    out.push(["Tone", tone], ["Style", "Soft"]);
-  } else if (ds === "VBanner") {
-    const status = String(element.dataset.dsPropStatus || element.className || "").toLowerCase();
-    const tone = status.includes("success") ? "Success" : status.includes("warning") ? "Warning" : status.includes("danger") || status.includes("error") ? "Danger" : "Info";
-    out.push(["Tone", tone], ["Density", "Default"]);
-  } else if (ds === "VChip") {
-    const selected = element.dataset.dsPropSelected === "true" || element.classList.contains("is-active");
-    out.push(["Tone", selected ? "Brand" : "Neutral"], ["State", element.disabled ? "Disabled" : "Default"]);
-  } else if (ds === "VAppBar") {
-    const back = element.querySelector('[data-ds-internal="VAppBar.leading"]') !== null;
-    const subtitle = element.querySelector('[data-ds-component="VAppBarSubtitle"]') !== null;
-    out.push(["Type", back && subtitle ? "Context" : back ? "Back" : subtitle ? "Root context" : "Root"]);
-  } else if (ds === "VEmptyState") {
-    const text = element.textContent || "";
-    let type = element.dataset.themeComponent === "PermissionDeniedState" ? "No Permission" : /không có kết quả/i.test(text) ? "No Result" : /bị chặn|không thể tiếp tục/i.test(text) ? "Blocked" : /lỗi|không tải/i.test(text) ? "Error" : "Empty";
-    out.push(["Type", type]);
-  } else if (ds === "VSearchBar") {
-    const input = element.querySelector("input");
-    out.push(["State", element.matches(":focus-within") ? "Focused" : input?.disabled ? "Disabled" : input?.value ? "Filled" : "Default"]);
-  } else if (["VTextField","VTextFormField","VNumberField","VDatePicker","VDatePickerField","VSelect"].includes(ds)) {
-    const input = element.querySelector("input,textarea,select") || (element.matches("input,textarea,select") ? element : null);
-    out.push(["State", element.matches(":focus-within") ? "Focused" : input?.disabled ? "Disabled" : input?.value ? "Filled" : "Default"]);
-  } else if (ds === "VRadio") {
-    const input = element.querySelector('input[type="radio"]');
-    out.push(["State", input?.disabled ? (input.checked ? "Disabled On" : "Disabled Off") : input?.checked || element.classList.contains("is-selected") ? "On" : "Off"]);
-  } else if (ds === "VSegmentedControl") {
-    const items = [...element.querySelectorAll("button")];
-    const selected = items.findIndex((x)=>x.classList.contains("is-selected") || x.getAttribute("aria-pressed") === "true");
-    if (selected >= 0) out.push(["Selected", String(selected + 1)]);
-  } else if (ds === "VText") {
-    out.push(["Text style", figmaTextStyleFor(element)]);
-  } else if (ds === "VIcon") {
-    out.push(["Registry", "VET45 approved Icon Library"]);
-    if (element.dataset.dsPropIcon) out.push(["Icon", element.dataset.dsPropIcon.replace(/^VIcons\./, "")]);
-  }
-  return out;
-}
-
-function inspectLabel(element) {
-  const mapping = resolveFigmaMapping(element);
-  return mapping.name || element.dataset.dsComponent || element.dataset.themeComponent || element.dataset.dsInternal || element.tagName.toLowerCase();
-}
-
-function collectInspectProps(element) {
-  const props = [];
-  for (const attr of element.attributes) {
-    if (attr.name.startsWith('data-ds-prop-')) props.push([attr.name.slice('data-ds-prop-'.length), attr.value]);
-  }
-  if (element.dataset.dsProfile) props.unshift(['profile', element.dataset.dsProfile]);
-  if (element.dataset.dsSlot) props.push(['slot', element.dataset.dsSlot]);
-  if (element.dataset.dsDefaultIcon) props.push(['defaultIcon', element.dataset.dsDefaultIcon]);
-  if (element.dataset.dsIcon) props.push(['icon', element.dataset.dsIcon]);
-  if (element.dataset.composedFrom) props.push(['composedFrom', element.dataset.composedFrom]);
-  if (element.dataset.dsGap) props.push(['DS gap', element.dataset.dsGap]);
-  return props;
-}
-
-function inspectBoxValues(element) {
-  const style = getComputedStyle(element);
-  const rect = element.getBoundingClientRect();
-  const margin = [numberPx(style,'margin-top'), numberPx(style,'margin-right'), numberPx(style,'margin-bottom'), numberPx(style,'margin-left')];
-  const border = [numberPx(style,'border-top-width'), numberPx(style,'border-right-width'), numberPx(style,'border-bottom-width'), numberPx(style,'border-left-width')];
-  const padding = [numberPx(style,'padding-top'), numberPx(style,'padding-right'), numberPx(style,'padding-bottom'), numberPx(style,'padding-left')];
-  const marginRect = boxRect(rect, ...margin, 'expand');
-  const paddingRect = boxRect(rect, ...border, 'shrink');
-  const contentRect = boxRect(paddingRect, ...padding, 'shrink');
-  return { style, rect, margin, border, padding, marginRect, borderRect: rect, paddingRect, contentRect };
-}
-
-function fourSides(values) {
-  return `${Math.round(values[0] * 10) / 10} · ${Math.round(values[1] * 10) / 10} · ${Math.round(values[2] * 10) / 10} · ${Math.round(values[3] * 10) / 10}`;
-}
-
-function renderInspectDetails(element, boxes) {
-  const panel = document.getElementById('inspect-details');
-  const mapping = resolveFigmaMapping(element);
-  const legacyProps = collectInspectProps(element);
-  const figmaProps = canonicalFigmaProps(element, mapping);
-  const figmaPropsHtml = figmaProps.length
-    ? figmaProps.map(([k,v]) => `<div class="inspect-prop"><span>${escapeHtml(k)}</span><code>${escapeHtml(v)}</code></div>`).join('')
-    : '<div class="inspect-muted">Không có variant/state canonical bổ sung cho node này.</div>';
-  const legacyPropsHtml = legacyProps.length
-    ? legacyProps.map(([k,v]) => `<div class="inspect-prop"><span>${escapeHtml(k)}</span><code>${escapeHtml(v)}</code></div>`).join('')
-    : '<div class="inspect-muted">Không có legacy prop override.</div>';
-  const legacyLabel = [mapping.legacy?.theme && `Theme7.${mapping.legacy.theme}`, mapping.legacy?.ds, mapping.legacy?.internal].filter(Boolean).join(' · ') || '—';
-  panel.innerHTML = `
-    <div class="inspect-component-name">${escapeHtml(mapping.name)}</div>
-    <div class="inspect-meta-grid">
-      <span>Figma node</span><strong>${escapeHtml(mapping.nodeId || '—')}</strong>
-      <span>Layer</span><strong>${escapeHtml(mapping.layer || '—')}</strong>
-      <span>Mapping</span><strong>${escapeHtml(mapping.status || '—')}</strong>
-      <span>Section</span><strong>${escapeHtml(mapping.section || '—')}</strong>
-      <span>Authority</span><strong>Figma DS v2.0.3</strong>
-      <span>Legacy</span><strong>${escapeHtml(legacyLabel)}</strong>
-      <span>Element</span><strong>${escapeHtml(element.tagName.toLowerCase())}</strong>
-      ${mapping.contextMapping ? `<span>Context</span><strong>${escapeHtml(mapping.contextMapping.name)}${mapping.contextMapping.nodeId ? ` · ${escapeHtml(mapping.contextMapping.nodeId)}` : ''}</strong>` : ''}
-    </div>
-    ${mapping.note ? `<div class="inspect-mapping-note">${escapeHtml(mapping.note)}</div>` : ''}
-    <div class="inspect-subtitle">Figma props / variant</div>
-    <div class="inspect-props">${figmaPropsHtml}</div>
-    <div class="inspect-subtitle">Legacy annotation / trace</div>
-    <div class="inspect-props">${legacyPropsHtml}</div>
-    <div class="inspect-subtitle">Box model · T/R/B/L (px)</div>
-    <div class="box-model-readout">
-      <div class="box-line box-line--margin"><span>margin</span><code>${fourSides(boxes.margin)}</code></div>
-      <div class="box-line box-line--border"><span>border</span><code>${fourSides(boxes.border)}</code></div>
-      <div class="box-line box-line--padding"><span>padding</span><code>${fourSides(boxes.padding)}</code></div>
-      <div class="box-line box-line--content"><span>content</span><code>${Math.round(boxes.contentRect.width * 10) / 10} × ${Math.round(boxes.contentRect.height * 10) / 10}</code></div>
-    </div>`;
-}
-
-function showInspectOverlay(element) {
-  if (!inspectEnabled || !element || !element.isConnected) return;
-  inspectTarget = element;
-  const overlay = document.getElementById('inspect-overlay');
-  const boxes = inspectBoxValues(element);
-  overlay.hidden = false;
-  setInspectBox(overlay.querySelector('.inspect-box--margin'), boxes.marginRect);
-  setInspectBox(overlay.querySelector('.inspect-box--border'), boxes.borderRect);
-  setInspectBox(overlay.querySelector('.inspect-box--padding'), boxes.paddingRect);
-  setInspectBox(overlay.querySelector('.inspect-box--content'), boxes.contentRect);
-  const tag = overlay.querySelector('.inspect-tag');
-  tag.textContent = inspectLabel(element);
-  const tagTop = Math.max(4, boxes.borderRect.top - 25);
-  const tagLeft = Math.max(4, Math.min(boxes.borderRect.left, window.innerWidth - 280));
-  tag.style.top = `${tagTop}px`;
-  tag.style.left = `${tagLeft}px`;
-  renderInspectDetails(element, boxes);
-}
-
-function hideInspectOverlay() {
-  const overlay = document.getElementById('inspect-overlay');
-  if (overlay) overlay.hidden = true;
-}
-
-function resetInspectSelection() {
-  inspectPinned = false;
-  inspectTarget = null;
-  hideInspectOverlay();
-  const status = document.getElementById('inspect-pin-status');
-  if (status) status.textContent = inspectEnabled ? 'Hover component' : 'Inspect off';
-  const details = document.getElementById('inspect-details');
-  if (details && inspectEnabled) details.textContent = 'Rê chuột lên component; click để ghim. Esc để bỏ ghim.';
-}
-
-function toggleInspect(force) {
-  inspectEnabled = typeof force === 'boolean' ? force : !inspectEnabled;
-  document.body.classList.toggle('inspect-mode', inspectEnabled);
-  const toggle = document.getElementById('inspect-toggle');
-  toggle.classList.toggle('is-active', inspectEnabled);
-  toggle.setAttribute('aria-pressed', String(inspectEnabled));
-  toggle.textContent = inspectEnabled ? 'Inspect · On' : 'Inspect';
-  document.getElementById('inspect-section').hidden = !inspectEnabled;
-  const url = new URL(window.location.href);
-  if (inspectEnabled) url.searchParams.set('inspect', '1'); else url.searchParams.delete('inspect');
-  history.replaceState(null, '', url);
-  resetInspectSelection();
-}
-
-document.getElementById('inspect-toggle')?.addEventListener('click', () => toggleInspect());
-document.getElementById('app-screen')?.addEventListener('pointermove', (event) => {
-  if (!inspectEnabled || inspectPinned) return;
-  const target = inspectableFrom(event.target);
-  if (target) showInspectOverlay(target); else hideInspectOverlay();
-});
-document.getElementById('app-screen')?.addEventListener('pointerleave', () => {
-  if (inspectEnabled && !inspectPinned) hideInspectOverlay();
-});
-
-// Capture click inside product viewport while Inspect is on so prototype actions
-// never fire accidentally. A click pins the selected component instead.
-document.addEventListener('click', (event) => {
-  if (!inspectEnabled || !event.target.closest?.('#app-screen')) return;
-  const target = inspectableFrom(event.target);
-  if (!target) return;
-  event.preventDefault();
-  event.stopImmediatePropagation();
-  inspectPinned = true;
-  showInspectOverlay(target);
-  document.getElementById('inspect-pin-status').textContent = 'Pinned · Esc để bỏ ghim';
-}, true);
-
-document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape' || !inspectEnabled) return;
-  resetInspectSelection();
-});
-window.addEventListener('resize', () => { if (inspectEnabled && inspectTarget) showInspectOverlay(inspectTarget); });
-document.getElementById('app-screen')?.addEventListener('scroll', () => { if (inspectEnabled && inspectTarget) showInspectOverlay(inspectTarget); }, true);
 
 document.addEventListener("click", (event) => {
-  const screenButton = event.target.closest("[data-screen]");
-  if (screenButton) return navigate(screenButton.dataset.screen);
-
-  const stateButton = event.target.closest("[data-state]");
-  if (stateButton) {
-    stateByScreen[activeScreenId] = stateButton.dataset.state;
-    syncReviewUrl();
-    return render();
-  }
-
-  const viewportButton = event.target.closest("[data-viewport]");
-  if (viewportButton) {
-    viewport = viewportButton.dataset.viewport;
-    syncReviewUrl();
-    document.querySelectorAll(".viewport-button").forEach((button) => button.classList.toggle("is-active", button === viewportButton));
-    document.getElementById("device-preview").className = `device-preview is-${viewport}`;
-    return;
-  }
-
   const nextButton = event.target.closest("[data-next]");
   if (nextButton) return navigate(nextButton.dataset.next);
 
@@ -1047,583 +554,89 @@ document.addEventListener("click", (event) => {
   if (action === "close-toast") { actionButton.closest(".toast")?.remove(); return; }
 });
 
-document.getElementById("device-preview").className = `device-preview is-${viewport}`;
-document.querySelectorAll(".viewport-button").forEach((button) => button.classList.toggle("is-active", button.dataset.viewport === viewport));
-syncReviewUrl();
+// Lối ra dự phòng — màn gắn data-v360-action="fallback-exit".
+document.addEventListener("click", (event) => {
+  const action = event.target.closest("[data-v360-action]");
+  if (!action || action.disabled) return;
+  if (action.dataset.v360Action === "fallback-exit") {
+    event.preventDefault();
+    event.stopPropagation();
+    const target = action.dataset.v360Target;
+    if (target) return navigate(target);
+  }
+}, true);
 
 
 
-/* UIF-07 click listener moved to app/bj07.js (T7-P A6) */
 
-/* listener UIF-16/17 Correction Recovery → bj16.js / bj17.js (T7-P A10) */
 
-// v1.8.0 UIF-12 → bj12.js (A8); UIF-15 → bj15.js (T7-P A9)
-
-const flowSelectorEl=document.getElementById("flow-selector");
-flowSelectorEl?.addEventListener("change",(e)=>{activeFlowId=e.target.value; const f=activeFlow(); activeScreenId=f.screens[0]; syncReviewUrl(); render();});
 document.addEventListener("click",(e)=>{
   const next=e.target.closest("[data-generic-next]"); if(next){ const ids=activeFlow()?.screens||[]; const i=ids.indexOf(activeScreenId); if(i>=0&&i<ids.length-1) navigate(ids[i+1]); else showToast("Đã hoàn thành flow demo", "checkCircle"); }
   const act=e.target.closest("[data-generic-action]"); if(act){ showToast(`${act.textContent.trim()} · prototype không gọi backend`, "checkCircle"); }
   const card=e.target.closest(".generic-data-card[data-ds-profile='card.interactive']"); if(card&&!inspectEnabled){ const ids=activeFlow()?.screens||[]; const i=ids.indexOf(activeScreenId); if(i>=0&&i<ids.length-1) navigate(ids[i+1]); }
 });
-/* load-time render() → hub.js (T7-P A7) */
 
-function fitReviewDeviceToViewport() {
-  const device = document.getElementById("device-preview");
-  const canvas = document.querySelector(".stage-canvas");
-  if (!device || !canvas) return;
-  if (window.innerWidth <= 840 || device.classList.contains("is-wide")) {
-    device.style.setProperty("--vet45-review-scale", "1");
-    return;
-  }
-  const canvasRect = canvas.getBoundingClientRect();
-  const canvasStyle = getComputedStyle(canvas);
-  const padTop = parseFloat(canvasStyle.paddingTop) || 0;
-  const padLeft = parseFloat(canvasStyle.paddingLeft) || 0;
-  const padRight = parseFloat(canvasStyle.paddingRight) || 0;
-  const deviceTop = canvasRect.top + padTop;
-  const availableHeight = Math.max(360, window.innerHeight - deviceTop - 8);
-  const availableWidth = Math.max(240, canvas.clientWidth - padLeft - padRight);
-  const scale = Math.min(1, availableHeight / 890, availableWidth / 418);
-  device.style.setProperty("--vet45-review-scale", String(scale));
-}
-window.addEventListener("resize", fitReviewDeviceToViewport);
-requestAnimationFrame(fitReviewDeviceToViewport);
 
-window.__VET45_PROTOTYPE__ = {
-  productKind: "mobile_app",
-  version: "3.6.0",
-  defaultViewport: { width: 402, height: 874 },
-  offline: true,
-  uiFlows: flowCatalog.map((f) => f.id),
-  screens: screens.map((s) => s.id),
-  roles: [...new Set(screens.flatMap((s) => s.actors || []))],
-  states: [...new Set(screens.flatMap((s) => s.states || []))],
-  scenarios: ["canonical", "document-receipt", "quick-receipt", "source-waiting", "stale-recovery", "partial-handover", "permission-denied"],
-  devicePresets: [{ id: "iphone-402", kind: "mobile", width: 402, height: 874 }],
-  inspect: { enabled: true, selectable: true }
-};
-if (initialParams.get("inspect") === "1") toggleInspect(true);
 
-/* v310 → xoá cả khối (T7-P A10); SCR-056 = flowScreen ở bj15.js */
-/* v320 → bj09.js / bj15.js (T7-P A9) */
-/* v340 BJ-08 moved/removed (T7-P A7) */
 
-/* ===== v350-flow-logic-correction.js ===== */
-/* VET45 Theme 7 v3.5.0 — full flow/logic correction
- * Parent: v3.4.0
- * Scope: executable state transitions, stale-source guards, UNKNOWN recovery,
- * actor handoff, reporting scope, costing lineage, and UI behavior regressions.
- * UI remains composed from the existing Figma DS components/patterns.
- */
-(() => {
-  const VERSION = "3.5.0";
-  const num = (v) => Number(v ?? 0);
-  const nonBlank = (v) => String(v ?? "").trim().length > 0;
-  const same = (a,b) => String(a ?? "") === String(b ?? "");
-  const escAttr = (v) => (typeof escapeAttribute === "function" ? escapeAttribute(v) : String(v).replace(/"/g,"&quot;"));
-
-  // Reachable states introduced/activated by v3.5.0 must be declared, not only
-  // reachable through imperative handlers. This keeps Inspector/state coverage
-  // aligned with the executable state machine.
-  const v350DeclaredStates = {
-    "SCR-040":["VALIDATION_ERROR","SELF_APPROVAL_NOT_ALLOWED"],
-    "SCR-046":["APPROVAL_REVIEW"]
+/* Bước dựng chung (DS) — grouped surface (trước đây v440; giữ MutationObserver vì DOM đổi ngoài render). */
+function applyGroupedSurfaceRule() {
+  const ROW_SELECTOR = '[data-ds-component="DS v2 / Info Row"],[data-ds-component="DS v2 / Key-value Row"]';
+  const ROOT_BOUNDARY_SELECTOR = '#app-screen,.app-content,.app-body,.app-shell,.device-screen';
+  const alpha = (value) => {
+    const text = String(value || '');
+    if (!text || text === 'transparent') return 0;
+    const m = text.match(/rgba?\(([^)]+)\)/i);
+    if (!m) return 1;
+    const parts = m[1].split(',').map((v) => v.trim());
+    return parts.length < 4 ? 1 : Number(parts[3]);
   };
-  Object.entries(v350DeclaredStates).forEach(([sid,extra])=>{
-    const sc=screens.find(x=>x.id===sid);
-    if(sc){ sc.states=[...new Set([...(sc.states||[]),...extra])]; }
-  });
-
-  // -------------------------------------------------------------------------
-  // Entry architecture / actor boundary
-  // -------------------------------------------------------------------------
-  const v350EntryTargets = {
-    "UIF-08": {"assigned-counter":["SCR-044","BLIND_COUNT"], "approver":["SCR-046","APPROVAL_REVIEW"]},
-    "UIF-09": {"product-context":["SCR-037","READY"], "approver":["SCR-038","APPROVAL_REVIEW"]},
-    "UIF-10": {"product-context":["SCR-037","READY"], "approver":["SCR-040","APPROVAL_REVIEW"], "completion-operator":["SCR-040","COMPLETION"]},
-    "UIF-11": {"approver":["SCR-051","READY"], "operation-context":["SCR-049","CORRECTABLE"]},
-    "UIF-12": {"approver":["SCR-070","READY"]},
-    "UIF-14": {"dirty-scope":["SCR-073","READY"]}
+  const hasVisualSurface = (el) => {
+    if (!el) return false;
+    const s = getComputedStyle(el);
+    const borderWidths = [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth].map((v) => parseFloat(v) || 0);
+    const hasBorder = borderWidths.some((v) => v > 0.1) && [s.borderTopStyle, s.borderRightStyle, s.borderBottomStyle, s.borderLeftStyle].some((v) => v !== 'none');
+    const hasShadow = Boolean(s.boxShadow && s.boxShadow !== 'none');
+    const hasBackground = alpha(s.backgroundColor) > 0.01;
+    return hasBorder || hasShadow || hasBackground;
   };
-  function v350ApplyEntry(flowId, mode, shouldRender=false) {
-    const target = v350EntryTargets[flowId]?.[mode];
-    if (!target) return false;
-    activeFlowId = flowId;
-    activeScreenId = target[0];
-    if (stateByScreen[activeScreenId] !== undefined) stateByScreen[activeScreenId] = target[1];
-    if (flowId === "UIF-14" && mode === "dirty-scope" && typeof val14Runs !== "undefined") {
-      const dirty = val14Runs.find(r => r.status === "DIRTY");
-      if (dirty) {
-        val14SelectedRunId = dirty.id;
-        val14SetupKind = dirty.kind;
-        val14SetupPeriod = dirty.period;
-        val14SetupScope = "Sản phẩm cần tính lại";
-        val14SuccessorOf = dirty.id;
-      }
-    }
-    if (shouldRender) { syncReviewUrl(); render(); }
-    return true;
-  }
-  if (!initialParams.get("screen")) v350ApplyEntry(activeFlowId, entryMode, false);
-  let v350ActorMode = entryMode;
-  const isApproverEntry = () => v350ActorMode === "approver";
-  const isCompletionEntry = () => v350ActorMode === "completion-operator";
-
-  // -------------------------------------------------------------------------
-  // Common safety / recovery helpers → bj17.js / onUnknownHandoff (T7-P A10)
-
-  // Capture source version when entering a review/receipt context.
-  const v350Navigate = navigate;
-  navigate = function(screenId){
-    return v350Navigate(screenId);
-  };
-
-
-  // -------------------------------------------------------------------------
-  /* BJ08 v350 renderers/helpers → app/bj08.js (T7-P A7) */
-
-  // -------------------------------------------------------------------------
-  // BJ14 — successor must preserve immediate predecessor and policy method.
-  // -------------------------------------------------------------------------
-
-  // -------------------------------------------------------------------------
-// BJ15 → app/bj15.js (T7-P A9)
-
-  // BJ16 / BJ17 → app/bj16.js / bj17.js (T7-P A10)
-
-  // UNKNOWN / handoff-unknown / bj02-* → app/bj17.js / bj02.js (T7-P A10)
-
-  // Event binding for v3.5.0 controls.
-  // -------------------------------------------------------------------------
-  /* v350 click cr16/cr17/handoff/bj02 → bj16/bj17/bj02 (T7-P A10) */
-
-
-  // Actor ownership — decision actions are executable only in the assigned
-  // approver/completion context. Navigation/open-sheet actions remain harmless.
-  // -------------------------------------------------------------------------
-  /* BJ11/BJ12 actor listeners → app/bj11.js / bj12.js (T7-P A8) */
-
-  // -------------------------------------------------------------------------
-  /* BJ08 list controls → app/bj08.js (T7-P A7) */
-
-  // Fix List Row search hiding after DS migration.
-  window.__VET45_V350__={
-    version:VERSION,
-    setActor(mode){v350ActorMode=String(mode||"module");return v350ActorMode;},
-    getActor(){return v350ActorMode;},
-    applyEntry(flowId,mode){
-      v350ActorMode=String(mode||"module");
-      const applied=v350ApplyEntry(String(flowId||activeFlowId),v350ActorMode,true);
-      return {applied,flow:activeFlowId,screen:activeScreenId,state:stateByScreen[activeScreenId],actor:v350ActorMode};
-    },
-    bumpIO05Source(){const o=io05CurrentOrder();o.sourceVersion=num(o.sourceVersion)+1;return o.sourceVersion;},
-    bumpIO06Source(){const r=io06CurrentRequest();r.sourceVersion=num(r.sourceVersion)+1;io06RefreshRequestState(r);return r.sourceVersion;},
-    bumpCR16Evidence(){const c=cr16Current();c.evidenceVersion=num(c.evidenceVersion)+1;return c.evidenceVersion;},
-    bumpCR17Evidence(){const c=cr17Current();c.evidenceVersion=num(c.evidenceVersion)+1;return c.evidenceVersion;},
-    setCf12Control(qty,value){cf12ControlQty=String(qty);cf12ControlValue=String(value);return (typeof bj12ControlMatches==='function'?bj12ControlMatches():false);},
-    getCf15Rows(mode=typeof cf15DateMode!=='undefined'?cf15DateMode:'BUSINESS'){return (typeof bj15Movements==='function'?bj15Movements(mode):[]).map(x=>x.id);},
-    getState(){return {flow:activeFlowId,screen:activeScreenId,state:stateByScreen[activeScreenId]};},
-    getIC10(){return window.__VET45_BJ10__?.getIC10?.()||{};},
-    getIC09(){return window.__VET45_V3101__?{draft:window.__VET45_V3101__.getDraft?.(),basis:window.__VET45_V3101__.getBasis?.(),current:typeof ic09Current==='function'?ic09Current():null}:{};},
-    getBJ17(){const c=cr17Current();return {id:c.id,operation:c.operation,evidenceVersion:c.evidenceVersion,record:c.resolutionRecord};}
-  };
-
-  // Final render after correcting entry routing and effective renderer table.
-  syncReviewUrl(); /* load-time render removed T7-P A7 */
-})();
-
-/* v351 → bj09.js / bj15.js (T7-P A9) */
-
-/* ===== v360-full-theme-completion.js ===== */
-/* VET45 Theme 7 v3.6.0 — full-theme completion & UX QA correction
- * Parent: v3.5.1
- * Scope: active-session cancellation, representative-state coherence,
- * feedback/toast semantics, dead-end exits, and final UX simplification.
- * Figma is Design System + mature cross-theme reference only; Theme 7 design authority is this HTML harness.
- * CAP-01 đã chuyển sang app/cap01.js (T7-P gói A3).
- */
-(() => {
-  const VERSION = "3.6.0";
-
-  // -----------------------------------------------------------------------
-  /* BJ08 session cancel / SCR-044/045 inject moved to bj08.js (T7-P A7) */
-
-  // Representative-state coherence. These seeds are only for direct Inspector
-  // entry to READY review screens; normal user transitions already populate
-  // the same prerequisites and are never overwritten.
-  // -----------------------------------------------------------------------
-  function ensureRepresentativeFixture(){
-    /* ensureIo07ReviewFixture moved to bj07.js */
-  }
-  const baseRenderAppScreen=renderFlowScreen;
-  const v360TransientStates=new Set(["LOADING","PROCESSING","CALCULATING","REBUILDING","PREPARING","EXPORT_RUNNING"]);
-  const v360RootScreens=new Set(["SCR-001","SCR-006","SCR-014","SCR-025","SCR-030","SCR-036","SCR-042","SCR-048","SCR-054","SCR-066","SCR-072","SCR-078","SCR-085","SCR-062","SCR-063"]);
-  const v360ExitTargets={
-    "SCR-011":"SCR-006","SCR-012":"SCR-006","SCR-013":"SCR-006",
-    "SCR-019":"SCR-014","SCR-029":"SCR-025","SCR-034":"SCR-030","SCR-035":"SCR-030",
-    "SCR-038":"SCR-036","SCR-040":"SCR-036","SCR-051":"SCR-048",
-    "SCR-041":"SCR-036","SCR-046":"SCR-042","SCR-047":"SCR-042",
-    "SCR-052":"SCR-048","SCR-053":"SCR-048","SCR-058":"SCR-055","SCR-059":"SCR-055",
-    "SCR-070":"SCR-066","SCR-071":"SCR-066","SCR-077":"SCR-072","SCR-083":"SCR-078","SCR-089":"SCR-085"
-  };
-  function ensureStableExitAffordance(){
-    const state=stateByScreen[activeScreenId];
-    if(v360TransientStates.has(state)||v360RootScreens.has(activeScreenId))return;
-    const root=document.getElementById("app-screen");if(!root)return;
-    const interactive=root.querySelector('button:not([disabled]),a[href],[data-back],[data-action]:not([data-action=""]),[data-generic-next],[data-generic-action]');
-    if(interactive)return;
-    const target=v360ExitTargets[activeScreenId];if(!target)return;
-    const label=activeScreenId==="SCR-058"||activeScreenId==="SCR-059"?"Về báo cáo":"Về danh sách";
-    root.querySelector('.v-page-scaffold')?.insertAdjacentHTML('beforeend',primaryFooter(label,`data-v360-action="fallback-exit" data-v360-target="${target}"`));
-  }
-  renderFlowScreen=function(){ensureRepresentativeFixture();const out=baseRenderAppScreen();ensureStableExitAffordance();return out;};
-
-  // -----------------------------------------------------------------------
-  // Product feedback: mutation success is acknowledged when the user remains
-  // in the same work context or returns to a work list. Dedicated result
-  // screens keep sole ownership of operation-level success feedback.
-  // -----------------------------------------------------------------------
-  /* toastRules cr11/cf12 → bj11 submit-correction toast (T7-P A8) */
-
-  // -----------------------------------------------------------------------
-  // Stable exit paths (fallback-exit).
-  // -----------------------------------------------------------------------
-  /* v360 ic08-cancel-reason listener removed (T7-P A7) */
-
-  document.addEventListener("click",(event)=>{
-    const action=event.target.closest("[data-v360-action]");
-    if(!action||action.disabled)return;
-    if(action.dataset.v360Action==="fallback-exit"){event.preventDefault();event.stopPropagation();const target=action.dataset.v360Target;if(target)return navigate(target);}
-  },true);
-
-  // -----------------------------------------------------------------------
-  // UX simplification: normal progress/context should not consume banner
-  // semantics. Only exact informational banners which merely restate the
-  // screen are demoted; exception/warning/error/success banners remain.
-  // -----------------------------------------------------------------------
-  const normalInfoBannerTitles=new Set([
-    "Yêu cầu thay đổi tình trạng",
-    "Phê duyệt chưa phải tiêu hủy",
-    "Cần quyết định độc lập",
-    "Chỉ xử lý dòng có chênh lệch"
-  ]);
-  function simplifyNormalBanners(){
-    if(!["UIF-08","UIF-09","UIF-10","UIF-16","UIF-17"].includes(activeFlowId))return;
-    document.querySelectorAll("#app-screen .v-banner--info").forEach(b=>{
-      const title=b.querySelector("strong")?.textContent?.trim()||"";
-      if(normalInfoBannerTitles.has(title)) b.classList.add("v360-context-banner");
-    });
-  }
-  const prevRender=render;
-  render=function(){const out=prevRender();requestAnimationFrame(simplifyNormalBanners);return out;};
-
-  // Version metadata exposed to QA/runtime.
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version=VERSION;
-    window.__VET45_PROTOTYPE__.uiFlows=flowCatalog.map(f=>f.id);
-    window.__VET45_PROTOTYPE__.screens=screens.map(s=>s.id);
-    window.__VET45_PROTOTYPE__.scenarios=[...(window.__VET45_PROTOTYPE__.scenarios||[]),"supporting-policy","active-session-cancellation","feedback-semantic"];
-  }
-  window.__VET45_V360__={
-    version:VERSION,
-    ensureRepresentativeFixture
-  };
-
-  // Final render after all effective renderers and global QA corrections exist.
-  syncReviewUrl(); /* load-time render removed T7-P A7 */
-})();
-
-/* ===== v361-footer-action-correction.js ===== */
-/* VET45 Theme 7 v3.6.1 — dual Sticky Footer normalization
- * Parent: v3.6.0
- * Scope: UI-only correction. No business rule, action, state or navigation change.
- */
-(() => {
-  const VERSION = "3.6.1";
-
-  function directButtons(footer){
-    return [...footer.children].filter((el)=>el.tagName === "BUTTON" && el.offsetParent !== null);
-  }
-  function isPrimary(button){
-    return button.classList.contains("button--primary") || button.classList.contains("ds24-button--primary");
-  }
-  function isDanger(button){
-    return button.classList.contains("button--danger") ||
-      button.classList.contains("ds24-button--danger") ||
-      button.classList.contains("ac310-danger-text") ||
-      button.classList.contains("v360-session-cancel") ||
-      button.dataset.dsPropTone === "VComponentTone.danger" ||
-      button.dataset.dsProfile === "button.destructiveSecondary";
-  }
-  function hasDestructiveIntent(button){
-    if(isDanger(button)) return true;
-    const actionMetadata=Object.entries(button.dataset || {})
-      .filter(([key])=>/action|intent|profile/i.test(key))
-      .map(([,value])=>String(value || ""))
-      .join(" ");
-    return /(^|[-_\s])(reject|cancel|delete|remove|destructive)([-_\s]|$)/i.test(actionMetadata);
-  }
-
-  function normalizeDualFooters(){
-    const root=document.getElementById("app-screen");
-    if(!root) return;
-    root.querySelectorAll(".app-actions").forEach((footer)=>{
-      const buttons=directButtons(footer);
-      footer.classList.remove("v361-dual-footer","v361-dual-footer--danger");
-      if(buttons.length !== 2) return;
-
-      const primary=buttons.find(isPrimary);
-      const secondary=buttons.find((b)=>b !== primary);
-      // DS convention is Secondary/Destructive | Primary. Keep DOM/tab order aligned with visual order.
-      if(primary && secondary && footer.firstElementChild !== secondary){
-        footer.insertBefore(secondary, primary);
-      }
-
-      // Destructive intent (reject/cancel/delete/remove) uses the canonical danger secondary hierarchy.
-      if(secondary && hasDestructiveIntent(secondary) && !isPrimary(secondary)){
-        secondary.dataset.dsPropTone="VComponentTone.danger";
-        secondary.dataset.dsProfile="button.destructiveSecondary";
-      }
-
-      footer.classList.add("v361-dual-footer");
-      footer.dataset.dsPropLayout="Dual";
-      const tone=buttons.some(isDanger) ? "Danger" : "Default";
-      footer.dataset.dsPropTone=tone;
-      if(tone === "Danger") footer.classList.add("v361-dual-footer--danger");
-    });
-  }
-
-  const previousRenderAppScreen=renderFlowScreen;
-  renderFlowScreen=function(){
-    const out=previousRenderAppScreen();
-    normalizeDualFooters();
-    return out;
-  };
-
-  // Normalize the screen already rendered by the previous release script.
-  normalizeDualFooters();
-
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version=VERSION;
-    window.__VET45_PROTOTYPE__.scenarios=[...(window.__VET45_PROTOTYPE__.scenarios||[]),"dual-footer-horizontal"];
-  }
-  window.__VET45_V361__={version:VERSION,normalizeDualFooters};
-})();
-
-/* ===== v362-list-rhythm-correction.js ===== */
-/* VET45 Theme 7 v3.6.2 — independent list/card rhythm correction
- * Layout-only cumulative release. No business/state/action/navigation mutation.
- */
-(()=>{
-  const VERSION = "3.6.2";
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version = VERSION;
-    window.__VET45_PROTOTYPE__.scenarios = [
-      ...(window.__VET45_PROTOTYPE__.scenarios || []),
-      "independent-list-card-rhythm"
-    ];
-  }
-})();
-
-/* ===== v363-list-navigation-state-correction.js ===== */
-/* VET45 Theme 7 v3.6.3 — homogeneous list navigation / disabled-state correction
- * Parent: v3.6.2
- * UI semantics only: non-actionable peers in a navigation collection keep Navigation anatomy
- * and chevron, using the canonical Disabled state instead of switching component Type.
- */
-(()=>{
-  const VERSION = "3.6.3";
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version = VERSION;
-    window.__VET45_PROTOTYPE__.scenarios = [
-      ...(window.__VET45_PROTOTYPE__.scenarios || []),
-      "homogeneous-navigation-list-disabled-state"
-    ];
-  }
-})();
-
-/* ===== v364-radio-helper-correction.js ===== */
-/* VET45 Theme 7 v3.6.4 — canonical radio/helper correction */
-(()=>{
-  const VERSION="3.6.4";
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version=VERSION;
-    window.__VET45_PROTOTYPE__.scenarios=[...(window.__VET45_PROTOTYPE__.scenarios||[]),"canonical-vradio-and-plain-helper-text"];
-  }
-})();
-
-/* legacy-sheet-cleanup → bj15.js sheets (T7-P A9) */
-
-/* chữ "Định danh"→"Lần xử lý" UIF-17 → bj17.js (T7-P A10) */
-
-/* ===== v440-theme-wide-grouped-surface.js ===== */
-/* VET45 Theme 7 v4.4.0 — theme-wide grouped information surface normalization */
-(()=>{
-  const VERSION='4.4.0';
-  const ROW_SELECTOR='[data-ds-component="DS v2 / Info Row"],[data-ds-component="DS v2 / Key-value Row"]';
-  const ROOT_BOUNDARY_SELECTOR='#app-screen,.app-content,.app-body,.app-shell,.device-screen';
-  const alpha=(value)=>{
-    const text=String(value||'');
-    if(!text||text==='transparent') return 0;
-    const m=text.match(/rgba?\(([^)]+)\)/i);
-    if(!m) return 1;
-    const parts=m[1].split(',').map(v=>v.trim());
-    return parts.length<4?1:Number(parts[3]);
-  };
-  const hasVisualSurface=(el)=>{
-    if(!el) return false;
-    const s=getComputedStyle(el);
-    const borderWidths=[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth].map(v=>parseFloat(v)||0);
-    const hasBorder=borderWidths.some(v=>v>0.1) && [s.borderTopStyle,s.borderRightStyle,s.borderBottomStyle,s.borderLeftStyle].some(v=>v!=='none');
-    const hasShadow=Boolean(s.boxShadow&&s.boxShadow!=='none');
-    const hasBackground=alpha(s.backgroundColor)>0.01;
-    return hasBorder||hasShadow||hasBackground;
-  };
-  const alreadyOwnedBySurface=(stack)=>{
-    let current=stack;
-    for(let depth=0;current&&depth<3;depth+=1,current=current.parentElement){
-      if(depth>0 && current.matches?.(ROOT_BOUNDARY_SELECTOR)) break;
-      if(hasVisualSurface(current)) return true;
+  const alreadyOwnedBySurface = (stack) => {
+    let current = stack;
+    for (let depth = 0; current && depth < 3; depth += 1, current = current.parentElement) {
+      if (depth > 0 && current.matches?.(ROOT_BOUNDARY_SELECTOR)) break;
+      if (hasVisualSurface(current)) return true;
     }
     return false;
   };
-  const isMinimalRowStack=(el)=>{
-    const direct=[...el.children].filter(child=>child.matches?.(ROW_SELECTOR));
-    if(direct.length<2) return false;
-    return ![...el.children].some(child=>[...child.children].filter(grand=>grand.matches?.(ROW_SELECTOR)).length>=2);
+  const isMinimalRowStack = (el) => {
+    const direct = [...el.children].filter((child) => child.matches?.(ROW_SELECTOR));
+    if (direct.length < 2) return false;
+    return ![...el.children].some((child) => [...child.children].filter((grand) => grand.matches?.(ROW_SELECTOR)).length >= 2);
   };
-  function applyGroupedSurfaceRule(){
-    const root=document.querySelector('#app-screen');
-    if(!root) return {candidates:0,added:0};
-    let candidates=0,added=0;
-    root.querySelectorAll('*').forEach((el)=>{
-      if(!isMinimalRowStack(el)) return;
-      candidates+=1;
-      if(alreadyOwnedBySurface(el)) return;
-      el.classList.add('v440-grouped-surface');
-      el.setAttribute('data-layout-pattern','Grouped surface');
-      el.setAttribute('data-v440-grouped-surface','auto');
-      added+=1;
-    });
-    return {candidates,added};
-  }
-  const priorRenderAppScreen=renderFlowScreen;
-  if(priorRenderAppScreen){
-    renderFlowScreen=function(){
-      const out=priorRenderAppScreen.apply(this,arguments);
-      applyGroupedSurfaceRule();
-      return out;
-    };
-  }
-  const priorRender=typeof render==='function'?render:null;
-  if(priorRender){
-    render=function(){
-      const out=priorRender.apply(this,arguments);
-      applyGroupedSurfaceRule();
-      return out;
-    };
-  }
-  const root=document.querySelector('#app-screen');
-  if(root && typeof MutationObserver!=='undefined'){
-    let scheduled=false;
-    const observer=new MutationObserver(()=>{
-      if(scheduled) return;
-      scheduled=true;
-      queueMicrotask(()=>{scheduled=false;applyGroupedSurfaceRule();});
-    });
-    observer.observe(root,{childList:true,subtree:true});
-  }
-  applyGroupedSurfaceRule();
-  if(window.__VET45_PROTOTYPE__) window.__VET45_PROTOTYPE__.version=VERSION;
-  window.__VET45_V440__={version:VERSION,parent:'4.3.1',scope:'ALL_CANONICAL_UIF',rule:'ONE_HOMOGENEOUS_COLLECTION_ONE_SURFACE_BOUNDARY',applyGroupedSurfaceRule};
+  const root = document.querySelector('#app-screen');
+  if (!root) return { candidates: 0, added: 0 };
+  let candidates = 0, added = 0;
+  root.querySelectorAll('*').forEach((el) => {
+    if (!isMinimalRowStack(el)) return;
+    candidates += 1;
+    if (alreadyOwnedBySurface(el)) return;
+    el.classList.add('v440-grouped-surface');
+    el.setAttribute('data-layout-pattern', 'Grouped surface');
+    el.setAttribute('data-v440-grouped-surface', 'auto');
+    added += 1;
+  });
+  return { candidates, added };
+}
+window.__VET45_QA__.applyGroupedSurfaceRule = applyGroupedSurfaceRule;
+(() => {
+  const root = document.querySelector('#app-screen');
+  if (!root || typeof MutationObserver === 'undefined') return;
+  let scheduled = false;
+  new MutationObserver(() => {
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => { scheduled = false; applyGroupedSurfaceRule(); });
+  }).observe(root, { childList: true, subtree: true });
 })();
 
-/* ===== v450-theme-visual-qa.js ===== */
-/* VET45 Theme 7 v4.5.0 — snapshot-led visual QA release marker.
- * No business behavior is changed here; visual fixes live in the scoped CSS/source-copy edits.
- */
-(()=>{
-  const VERSION='4.5.0';
-  window.__VET45_V450__={version:VERSION,scope:'snapshot-led-visual-qa'};
-  if(window.__VET45_PROTOTYPE__) window.__VET45_PROTOTYPE__.version=VERSION;
-})();
-
-/* ===== v470-color-semantics.js ===== */
-/* VET45 Theme 7 v4.7.0 — T7-P colorize.
-   Post-render decoration only: no renderer, fixture or copy is changed.
-   - Stock state suffix in list-row captions ("… · Tồn thấp") becomes a DS badge in the trailing slot.
-   - Key-value rows carrying risk or a non-zero discrepancy get the warning tone; minus uses U+2212. */
-(()=>{
-  const VERSION='4.7.0';
-  const badge=document.querySelector('.review-meta > .review-badge:not(.review-badge--muted)');
-  if(badge)badge.textContent='v4.7.0 · T7-P UI refinement';
-  if(window.__VET45_PROTOTYPE__){
-    window.__VET45_PROTOTYPE__.version=VERSION;
-    window.__VET45_PROTOTYPE__.scenarios=[...new Set([...(window.__VET45_PROTOTYPE__.scenarios||[]),'t7p-colorize'])];
-  }
-
-  const STOCK_STATES=[
-    ['Có lô hết hạn','Danger'],
-    ['Hết hạn','Danger'],
-    ['Hết hàng','Danger'],
-    ['Có lô cận hạn','Warning'],
-    ['Cận hạn','Warning'],
-    ['Tồn thấp','Warning'],
-  ];
-
-  function stockBadge(label,tone){
-    const t=tone.toLowerCase();
-    return `<span class="ds24-badge ds24-badge--${t} ds24-badge--dot" data-ds-component="VBadge" data-ds-prop-style="Soft" data-ds-prop-tone="${tone}">${label}</span>`;
-  }
-
-  function decorateCaptions(root){
-    root.querySelectorAll('.ds24-list-row__copy > small:not([data-v470])').forEach(small=>{
-      small.dataset.v470='1';
-      const parts=small.textContent.split(' · ');
-      if(parts.length<2)return;
-      const last=parts[parts.length-1].trim();
-      const hit=STOCK_STATES.find(([label])=>label===last);
-      if(!hit)return;
-      const row=small.closest('.ds24-list-row');
-      const trailing=row&&row.querySelector('.ds24-list-row__trailing');
-      if(!trailing)return;
-      small.textContent=parts.slice(0,-1).join(' · ');
-      trailing.insertAdjacentHTML('afterbegin',stockBadge(hit[0],hit[1]));
-    });
-  }
-
-  function decorateKeyValues(root){
-    root.querySelectorAll('.ds24-key-value-row:not([data-v470]), .bj02-key-value-row:not([data-v470])').forEach(row=>{
-      row.dataset.v470='1';
-      const label=(row.querySelector(':scope > span')?.textContent||'').trim();
-      const value=row.querySelector(':scope > strong');
-      if(!value)return;
-      const text=value.textContent.trim();
-      if(/^-\s?\d/.test(text))value.textContent=text.replace(/^-\s?/,'−');
-      if(/rủi ro/i.test(label)){row.classList.add('v470-kv--warning');return;}
-      if(/^Chênh lệch$/i.test(label)&&/\d/.test(text)&&!/^[−+-]?\s?0(\s|$)/.test(text))row.classList.add('v470-kv--attention');
-    });
-  }
-
-  function decorate(){
-    const root=document.getElementById('app-screen');
-    if(!root||ownedFlows.has(activeFlowId))return;
-    decorateCaptions(root);
-    decorateKeyValues(root);
-  }
-
-  const root=document.getElementById('app-screen');
-  if(!root)return;
-  let queued=false;
-  new MutationObserver(()=>{
-    if(queued)return;
-    queued=true;
-    requestAnimationFrame(()=>{queued=false;decorate();});
-  }).observe(root,{childList:true,subtree:true});
-  decorate();
-})();
-
-
-
-
+syncReviewUrl();

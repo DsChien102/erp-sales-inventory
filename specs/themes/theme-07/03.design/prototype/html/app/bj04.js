@@ -1,7 +1,7 @@
 /* BJ-04 — Quản lý vòng đời giữ hàng (UIF-04). Màn: SCR-021.
  *
- * Đã viết lại sạch (T7-P gói A1, 2026-10-17): mọi hàm dựng, fixture và xử lý sự kiện của BJ-04 nằm ở đây; màn dựng
- * thẳng (ownedFlows), không qua bước sửa sau dựng legacy. Sửa BJ-04: sửa thẳng file này.
+ * Đã viết lại sạch (T7-P gói A1, 2026-10-17): mọi hàm dựng, fixture và xử lý sự kiện của BJ-04 nằm ở đây.
+ * Sửa BJ-04: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24ListRow, ds24Badge, ds24InfoGroup, ds24InfoRow, ds24SectionTitle,
  * vBanner, deniedBody, loadingBody, escapeAttribute, showToast.
  */
@@ -54,7 +54,6 @@ function render021BJ04(state){
 }
 
 Object.assign(renderers, { "SCR-021": render021BJ04 });
-ownedFlows.add("UIF-04");
 
 document.addEventListener("click", (event) => {
   if (activeFlowId !== "UIF-04") return;

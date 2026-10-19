@@ -102,3 +102,6 @@ docs/superpowers/
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/Flutter/ephemeral/
+
+# Theme 7 prototype golden screenshots (T7-P0)
+specs/themes/theme-07/03.design/prototype/html/tools/.golden*/

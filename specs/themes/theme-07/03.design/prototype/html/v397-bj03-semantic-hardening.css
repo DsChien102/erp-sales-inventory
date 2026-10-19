@@ -1,5 +1,0 @@
-/* v3.9.7 BJ03 valuation semantic hardening */
-#app-screen .valuation-evidence-group[data-valuation-basis],
-#app-screen .valuation-product-group[data-valuation-basis]{min-width:0}
-#app-screen .valuation-product-facts{min-width:0}
-#app-screen .valuation-provenance p{overflow-wrap:anywhere}

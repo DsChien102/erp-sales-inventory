@@ -1,5 +1,25 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.3.1] — T7-P A12: sửa sau review Giai đoạn 1 — hết Giai đoạn 1
+
+- **R1 (lỗi A11):** trả lại CSS mất khi tách harness — khối "Review cards" (`.review-card-header strong` 14px, `.review-card-header` / `-body`, `.review-line`) vào `components.css` đúng vị trí cũ; thứ tự luật `.device-preview` như `styles.css` gốc (bo góc 34px, khung chuẩn 402×874) và xoá bản sao bo 32px trong `screens.css`. Tiêu đề thẻ UIF-11/12/15/16, kết quả SCR-089 và 4 góc khung trở lại như trước Giai đoạn 1.
+- **R2 (lỗi A8):** `ac310ApprovalFooter` viết sẵn dual footer nguy hiểm của `v361` (`v361-dual-footer--danger`, nút "Từ chối" tone danger) — SCR-051 / SCR-070 lại có "Từ chối" | "Duyệt" trên một hàng; `bj11KeyValueSurface` dựng dòng nhấn mạnh bằng `ds24KeyValueRow(…, true)` — "Điều chỉnh" trên SCR-050 / 051 lại đậm như trước A8. Khớp mốc trước Giai đoạn 1.
+- **R3 (A5, A6):** mỗi hàm một định nghĩa — xoá 37 bản chết bị gán đè trong `bj03.js` (15), `bj07.js` (7), `bj13.js` (10), `bj14.js` (5), khai báo `let` ở cấp file; `val14CreateRun` gộp `bj14ApplyPolicy` (bỏ bọc `baseCreate14`); bỏ export thừa `window.val03ApplySourceUpdate` / `val13ApplySourceUpdate` / `val13V398`. Golden khớp hoàn toàn.
+- **R7 (A5):** cụm giá trị tách đúng theo BJ — `bj03.js` dựng SCR-014…019, `bj13.js` SCR-085…089, `bj14.js` SCR-072…077 (trước: `bj03.js` dựng cả SCR-085, `bj14.js` dựng cả SCR-015/017/019/086/089). Helper giao diện `VAL_UI_430` / `VAL_UI_461` → `shared-valuation.js`. Xoá listener chết `data-v430-val14-*`; gộp 10 định nghĩa trùng dạng bí danh (`val03Calc`…, `val13Preview`…) và `val03Commit` bản `v397`. Golden khớp hoàn toàn.
+- **R4:** dọn chú thích lỗi thời (`/* ===== app.js ===== */`, `// v1.7.0` / `v1.8.0` / `v2.7.1`, câu cụt đầu `bj01` / `bj04`, `simplifyNormalBanners`); `bj10.js` bỏ lớp chuyển tiếp `render036/037BJ10`.
+- **R5:** `tools/golden.mjs` chỉ dùng `__VET45_QA__`; mốc mới `tools/.golden-phase1` (1348 ca, 0 lỗi JS) — **0 khác biệt** với mọi mốc trước Giai đoạn 1 còn lưu (`.golden-a5-base` 960 ca, `.golden-base` 911, `.golden-a10` 186, `.golden-a8-check` 110); xoá 32 thư mục mốc tạm; `tools/.gitignore` thêm `.full*/`, `.usage*/`.
+- Badge harness `v5.3.1 · T7-P A12 hết Giai đoạn 1`.
+
+## [5.3.0] — T7-P Giai đoạn 1, gói A11: dọn khung `core.js`, tách harness, dọn CSS không dùng
+
+- `core.js` chỉ còn khung: `entryTargets` / `applyEntry` / `onEntry` / `currentActor`, `renderAppScreen` / `render` / `navigate`, helper DS, toast, lối ra dự phòng, bước dựng chung (`applyGroupedSurfaceRule` + MutationObserver; `simplifyNormalBanners` đã gộp vào `vBanner` ở bj08 / bj10, không còn trong khung). Xoá lớp vá `v35x`/`v36x`/`v4xx`, `ownedFlows` / `renderFlowScreen`.
+- API QA gộp thành `window.__VET45_QA__` (BJ/`cap01` chỉ `Object.assign`); `tools/golden.mjs` đọc `__VET45_QA__` (giữ fallback tên cũ đến hết A11).
+- Harness → `harness/workbench.js` + `harness/figma-ds-map.js` + `harness/workbench.css` (chrome sidebar/inspector/inspect/stage; khung `.device-preview` size + luật trộn giữ trong `styles/*` để cascade với v281). `index.html`: nạp harness ngay sau `core.js`; stylesheet `components` → `workbench` → `screens`.
+- Helper chéo: `ds24EmptyState` trong khung; `icCard`…`icApprovalButtons` một bản ở `shared-control.js`.
+- Banner ngữ cảnh: truyền `extraClass` `"v360-context-banner"` vào `vBanner` (bj08/bj10) — ca đi qua `renderAppScreen()` nay có lớp (khác biệt có chủ đích, đã ghi lúc chặng 2).
+- CSS: xoá 1254 luật không dùng (gate usage + không còn tên trong mã) — `components.css` 6092→3243 dòng, `screens.css` 9414→7264. Không bỏ `!important`, không gom theo BJ.
+- Badge harness `v5.3.0 · T7-P A11 framework`. *(Review 2026-10-19: chặng 5 làm mất CSS và mốc golden bị chụp lại — sửa ở 5.3.1 R1.)*
+
 ## [5.2.0] — T7-P Giai đoạn 1, gói A10: BJ-16, BJ-17 viết lại sạch; mọi luồng đã sở hữu
 
 - BJ-16 (UIF-16: SCR-078…083) → `app/bj16.js`; BJ-17 (UIF-17: SCR-078/079/080/082/083) → `app/bj17.js`; helper chung `crFactCard` / `ac321CanonicalChips` → `app/shared-control.js`.

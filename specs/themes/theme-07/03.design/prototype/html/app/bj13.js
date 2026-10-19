@@ -1,6 +1,8 @@
 /* BJ-13 — Điều chỉnh giá trị hàng nhập (UIF-13). Màn: SCR-085, SCR-086, SCR-089.
  *
- * Đã viết lại sạch (T7-P gói A5, 2026-10-17). Sửa BJ-13: sửa thẳng file này.
+ * Đã viết lại sạch (T7-P gói A5, 2026-10-17); tách đúng theo BJ ở A12 R7 (2026-10-19). Sửa BJ-13: sửa thẳng file này.
+ * Màn dựng ở hai khối cuối: SCR-085 (bản v430), SCR-086 / 089 (bản v461; 087 / 088 là đường cũ). Helper val13* gán trong
+ * khối chuẩn hoá v398; val13Engine dùng chung với BJ-14.
  */
 // UIF-13 / BJ-13 v1.4.5 — Late landed cost deep Product correction.
 // Allocation-method labels below are runtime fixtures returned by the preview
@@ -27,48 +29,12 @@ let val13SelectedTaskId="LC13-001", val13Query="", val13Filter="ALL", val13Revie
 function val13Current(){return val13Tasks.find(t=>t.id===val13SelectedTaskId)||val13Tasks[0];}
 function val13FmtMoney(value){const n=Number(value||0);return `${new Intl.NumberFormat('vi-VN').format(n)} đ`;}
 function val13FmtSourceAmount(t){const amount=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:2}).format(Number(t.sourceAmount||0));return `${amount} ${t.currency}`;}
-function val13SelectedTargets(t=val13Current()){return (t.targets||[]).filter(x=>x.selected);}
 function val13TaskSearchText(t){return ioNormalizeSearch(`${t.id} ${t.sourceRef} ${t.supplier} ${t.component}`);}
 function val13QueueTitle(t){return String(t.sourceRef||"").replace(/^(Hóa đơn vận chuyển|Phí bảo hiểm|Điều chỉnh chiết khấu)\s+/i,"");}
 function val13AllocationWeight(target,method){return method==="FIXTURE_QTY"?Math.max(0,Number(target.qty)||0):Math.max(0,Number(target.receivedValue)||0);}
-function val13Preview(t=val13Current()){
-  const targets=val13SelectedTargets(t);const total=Number(t.normalizedAmount||0);if(!targets.length||t.normalizedAmount==null)return [];
-  const weights=targets.map(x=>val13AllocationWeight(x,t.selectedMethod));const weightTotal=weights.reduce((a,b)=>a+b,0)||targets.length;
-  let used=0;return targets.map((target,index)=>{let amount;if(index===targets.length-1)amount=total-used;else{const weight=weightTotal?weights[index]:1;amount=Math.round(total*(weight/weightTotal));used+=amount;}return {...target,allocatedAmount:amount,roundingAdjustment:index===targets.length-1?total-used-amount:0};});
-}
-function val13PreviewHashOf(t=val13Current()){return `${t.id}|v${t.sourceVersion}|${t.selectedMethod}|${val13SelectedTargets(t).map(x=>x.id).sort().join(',')}|${t.normalizedAmount}`;}
-function val13CanOpenAllocation(t=val13Current()){return t.status==="ACTIONABLE"&&t.normalizedAmount!=null&&val13SelectedTargets(t).length>0;}
-function val13CanPreview(t=val13Current()){return val13CanOpenAllocation(t)&&t.allowedMethods.some(m=>m.id===t.selectedMethod);}
-function val13StatusMeta(t){if(t.status==="WAITING")return [t.waitingOwner||"Đang chờ","neutral"];return ["Có thể xử lý","success"];}
-function val13ResetTaskDraft(t){for(const target of (t.targets||[]))target.selected=true;t.selectedMethod=t.allowedMethods?.length===1?t.allowedMethods[0].id:"";val13ReviewSourceVersion=null;val13PreviewHash=null;val13LastSourceChange=null;}
-function val13SourceCard(t){
-  const [rawLabel,rawTone]=val13StatusMeta(t);const label=t.status==="WAITING"?"Đang chờ":rawLabel;
-  const context=ds24ContextStatusRow({title:t.sourceRef,subtitle:`${t.component} · ${t.supplier}`,label,tone:valuationDsTone(rawTone),leading:null});
-  const facts=`${ds24InfoRow("Giá trị nguồn",val13FmtSourceAmount(t))}${t.currency!=="VND"&&t.fxLabel?ds24InfoRow("Tỷ giá",t.fxLabel):""}${t.normalizedAmount!=null?ds24KeyValueRow("Sau chuẩn hóa",val13FmtMoney(t.normalizedAmount),true):""}${ds24InfoRow("Lần cập nhật nguồn",`Lần ${t.sourceVersion}`)}${ds24InfoRow("Bằng chứng",t.evidence)}`;
-  return `${context}${ds24InfoGroup("Chi tiết nguồn",facts,"valuation-info-group valuation-info-group--wrap val13-source-card")}`;
-}
-function val13TargetHtml(t){
-  return (t.targets||[]).map(target=>`<button type="button" class="val13-target-row ${target.selected?'is-selected':''}" data-val13-target="${target.id}" aria-pressed="${target.selected}" data-composed-from="VCheckbox,VText"><span class="valuation-selection-control val13-check-mark" aria-hidden="true">${target.selected?icon('check','icon--xs'):''}</span><span class="val13-target-copy"><strong>${esc(target.product)}</strong><small>${esc(target.receipt)} · ${esc(target.code)} · ${target.qty} ${esc(target.uom)}${target.lot?` · Lô ${esc(target.lot)}`:""}</small></span></button>`).join('');
-}
-function val13AllocationRows(t=val13Current()){
-  const rows=val13Preview(t);return rows.map(row=>`<div class="val13-allocation-row valuation-allocation-row" data-composed-from="VText"><span><strong>${esc(row.product)}</strong><small>${esc(row.receipt)} · ${row.qty} ${esc(row.uom)}${row.lot?` · Lô ${esc(row.lot)}`:""}</small></span><strong class="valuation-amount">${esc(val13FmtMoney(row.allocatedAmount))}</strong></div>`).join('');
-}
+// Helper BJ-13 — một định nghĩa duy nhất, gán trong khối v398 bên dưới (cần biến cục bộ của khối).
+let val13SelectedTargets, val13Preview, val13PreviewHashOf, val13CanOpenAllocation, val13CanPreview, val13StatusMeta, val13ResetTaskDraft, val13SourceCard, val13TargetHtml, val13AllocationRows, val13PeriodCard, val13ReviewBody, val13Commit, val13Result, val13ApplySourceUpdate;
 function val13DirtyScope(t=val13Current()){return [...new Map(val13Preview(t).map(x=>[`${x.product}|${x.uom}`,`${x.product} · ${x.uom}`])).values()];}
-function val13PeriodCard(t){
-  const differs=t.originalPeriod&&t.postingPeriod&&t.originalPeriod!==t.postingPeriod;
-  return `${differs?vBanner("info","Ghi nhận ở kỳ mở hiện tại",t.periodReason||"Kỳ gốc đã khóa; điều chỉnh vẫn liên kết về kỳ gốc."):""}${ds24InfoGroup("Kỳ ghi nhận",`${ds24InfoRow("Kỳ gốc",t.originalPeriod||"—")}${ds24InfoRow("Kỳ ghi nhận",t.postingPeriod||"—")}`,"valuation-info-group")}`;
-}
-function val13ReviewBody(t){
-  const allocations=val13Preview(t),method=t.allowedMethods.find(m=>m.id===t.selectedMethod)?.label||"—",total=allocations.reduce((sum,x)=>sum+x.allocatedAmount,0);
-  const allocation=`${ds24SectionTitle("Phân bổ sẽ ghi",`${allocations.length} dòng đích`)}${ds24GroupedCollection(`${val13AllocationRows(t)}<div class="valuation-total-strip valuation-total-strip--inside">${ds24KeyValueRow("Tổng phân bổ",val13FmtMoney(total),true)}</div>`,"valuation-allocation-collection val13-review-group","VText,DS v2 / Key-value Row")}`;
-  const methodInfo=ds24InfoGroup("Căn cứ phân bổ",`${ds24KeyValueRow("Giá trị sau chuẩn hóa",val13FmtMoney(t.normalizedAmount),true)}${ds24InfoRow("Phương pháp",method)}`,"valuation-info-group");
-  const effects=ds24InfoGroup("Tác động sau ghi",`${ds24InfoRow("Số lượng tồn kho","Không thay đổi")}${ds24InfoRow("Giá vốn chính thức","Chưa tự công bố lại")}${ds24InfoRow("Cần tính lại",val13DirtyScope(t).join("; ")||"—")}`,"valuation-info-group valuation-info-group--wrap");
-  return `${val13SourceCard(t)}${methodInfo}${allocation}${val13PeriodCard(t)}${effects}`;
-}
-function val13Commit(){const t=val13Current();const allocations=val13Preview(t);val13LastResult={operationId:`LC13-OP-${String(val13OperationSeq++).padStart(3,'0')}`,taskId:t.id,sourceRef:t.sourceRef,component:t.component,normalizedAmount:t.normalizedAmount,postingPeriod:t.postingPeriod,originalPeriod:t.originalPeriod,allocations:allocations.map(x=>({...x})),dirtyScope:val13DirtyScope(t)};t.status="COMPLETED";return val13LastResult;}
-function val13Result(){return val13LastResult||{operationId:"LC13-OP-PREVIEW",taskId:val13Current().id,sourceRef:val13Current().sourceRef,component:val13Current().component,normalizedAmount:val13Current().normalizedAmount,postingPeriod:val13Current().postingPeriod,originalPeriod:val13Current().originalPeriod,allocations:val13Preview(),dirtyScope:val13DirtyScope()};}
-function val13ApplySourceUpdate(){const t=val13Current();if(t.status!=="ACTIONABLE")return;t.sourceVersion+=1;const before=t.normalizedAmount;t.normalizedAmount=Number(t.normalizedAmount||0)+100000;val13LastSourceChange={from:val13FmtMoney(before),to:val13FmtMoney(t.normalizedAmount),version:t.sourceVersion};if(activeScreenId==="SCR-088")stateByScreen["SCR-088"]="SOURCE_CHANGED";render();}
-window.val13ApplySourceUpdate=val13ApplySourceUpdate;
 
 // ============================================================================
 
@@ -225,10 +191,8 @@ val13Commit=function(){
 };
 val13Result=function(){const t=val13Current();return val13LastResult||{operationId:t.operationId,taskId:t.id,sourceComponentKey:t.sourceComponentKey,sourceRevision:Number(t.sourceVersion||1),sourceRef:t.sourceRef,component:t.component,normalizedAmount:t.normalizedAmount,allocations:allocate(t),dirtyScope:dirtyScopes(t),periodGroups:periodGroups(t),adjustmentBatches:[],lateCostBasisHash:lateCostBasisHash(t),allocationHash:allocationHash(t)};};
 val13ApplySourceUpdate=function(){const t=val13Current();if(t.status!=='ACTIONABLE')return;t.sourceVersion=Number(t.sourceVersion||1)+1;t.sourceRevision=t.sourceVersion;const before=t.normalizedAmount;t.normalizedAmount=Number(t.normalizedAmount||0)+100000;val13LastSourceChange={from:val13FmtMoney(before),to:val13FmtMoney(t.normalizedAmount),version:t.sourceVersion};if(activeScreenId==='SCR-088')stateByScreen['SCR-088']='SOURCE_CHANGED';render();};
-window.val13ApplySourceUpdate=val13ApplySourceUpdate;
 
 const val13Engine={lateCostBasisPayload,lateCostBasisHash,allocationHash,combinedPreviewHash,metricSnapshot,methodEligible,allocate,dirtyScopes,periodGroups,allInitialValued,economicIdentity:(t=val13Current())=>t.sourceComponentKey,touchExposure:(id)=>{const t=val13Current(),x=t.targets.find(y=>y.id===id);if(!x)return false;x.exposureVersion+=1;x.exposureHash=stableHash({key:x.valuationExposureKey,version:x.exposureVersion,qty:x.baseQty,value:x.initialDirectValue,refs:x.receiptValuationRefs,businessDate:x.businessDate,original:x.originalPeriod,posting:x.postingPeriod});return true;},shuffleTargets:(t=val13Current())=>{t.targets.reverse();return true;}};
-window.val13V398=val13Engine;
 window.val13Engine=val13Engine;
 })();
 var val13Engine=window.val13Engine;
@@ -239,5 +203,80 @@ screenAliases["UIF-13"] = Object.assign(screenAliases["UIF-13"] || {}, {
 });
 { const a = screenAliases[activeFlowId]?.[activeScreenId]; if (Array.isArray(a)) { activeFlowId = a[0]; activeScreenId = a[1]; } else if (a) activeScreenId = a; }
 
-ownedFlows.add("UIF-13");
 
+
+
+/* --- SCR-085 (danh sách — bản v430) — BJ-13 --- */
+(()=>{
+  const {signed, row, heading, keyRows, contextRow, selectField}=VAL_UI_430;
+  let val13Filter430='ALL';
+  function val13Source430(t){return `${contextRow(t.sourceRef.replace(/ · dòng \d+$/,''),`${t.component} · ${t.supplier}`)}${keyRows(ds24KeyValueRow('Giá trị điều chỉnh',signed(t.normalizedAmount),true),'v430-source-amount')}`;}
+  function val13Targets430(t){return (t.targets||[]).map(x=>row({title:x.product,subtitle:`${x.receipt} · ${x.qty} ${x.uom}${x.lot?` · Lô ${x.lot}`:''}`,trailing:t.targetScopeMode==='FIXED'?ds24Badge('Theo nguồn','Neutral'):(x.selected?icon('checkCircle','icon--sm'):''),leading:null,type:t.targetScopeMode==='FIXED'?'Status':'Selection',interactive:t.targetScopeMode!=='FIXED',state:x.selected?'Selected':'Default',attrs:t.targetScopeMode==='FIXED'?'':`data-v430-val13-target="${x.id}"`})).join('');}
+  function val13Method430(t){const opts=`<option value="">Chọn cách phân bổ</option>`+(t.allowedMethods||[]).map(m=>`<option value="${m.id}" ${m.id===t.selectedMethod?'selected':''}>${esc(m.label)}</option>`).join('');return selectField('Cách phân bổ','data-v430-val13-method',opts);}
+  function val13Preview430(t){const p=val13Preview(t);if(!p.length)return vBanner('info','Chưa có kết quả phân bổ','Chọn phạm vi và cách phân bổ để xem kết quả trước khi rà soát.','','Compact');return `<section class="v430-preview">${heading('Kết quả phân bổ',`${p.length} dòng`)}${keyRows(p.map(x=>ds24KeyValueRow(`${x.product} · ${x.receipt}`,signed(x.allocatedAmount))).join('')+ds24KeyValueRow('Tổng phân bổ',signed(p.reduce((n,x)=>n+x.allocatedAmount,0)),true))}</section>`;}
+  function render085BJ13(state){if(activeFlowId!=='UIF-13')return renderGeneric(screens.find(s=>s.id==='SCR-085'),state);if(state==='LOADING')return appShell({title:'Điều chỉnh giá trị hàng nhập',body:loadingBody(),centered:true,back:false});if(state==='PERMISSION_DENIED')return appShell({title:'Điều chỉnh giá trị hàng nhập',body:deniedBody(),centered:true,back:false});const q=String(val13Query||'').toLocaleLowerCase('vi'),tasks=val13Tasks.filter(t=>t.status!=='COMPLETED').filter(t=>!q||`${t.sourceRef} ${t.supplier} ${t.component}`.toLocaleLowerCase('vi').includes(q)).filter(t=>val13Filter430==='ALL'||(val13Filter430==='ACTIONABLE'&&t.status==='ACTIONABLE')||(val13Filter430==='WAITING'&&t.status==='WAITING')),rows=tasks.map(t=>row({title:t.sourceRef.replace(/ · dòng \d+$/,''),subtitle:`${t.component} · ${t.supplier} · ${signed(t.normalizedAmount)}`,trailing:t.status==='WAITING'?ds24Badge('Đang chờ','Neutral'):'',leading:null,type:'Navigation',attrs:`data-v430-val13-task="${t.id}"`})).join(''),body=`${ds24Search(val13Query,'data-v430-val13-search','Nguồn điều chỉnh hoặc đối tác')}<div class="ds24-chip-scroll">${ds24Chip('ALL','Tất cả',val13Filter430==='ALL','data-v430-val13-filter')}${ds24Chip('ACTIONABLE','Có thể xử lý',val13Filter430==='ACTIONABLE','data-v430-val13-filter')}${ds24Chip('WAITING','Đang chờ',val13Filter430==='WAITING','data-v430-val13-filter')}</div>${rows?`<section class="ds24-list-stack v430-list">${rows}</section>`:ioEmpty('Không có công việc phù hợp','Đổi từ khóa hoặc bộ lọc để xem công việc khác.')}`;return appShell({title:'Điều chỉnh giá trị hàng nhập',body,back:false});}
+
+  window.addEventListener('input',event=>{
+    if(activeFlowId==='UIF-13'&&event.target.matches('[data-v430-val13-search]')){val13Query=event.target.value;return renderAppScreen();}
+  },true);
+  window.addEventListener('change',event=>{
+    if(activeFlowId==='UIF-13'&&event.target.matches('[data-v430-val13-method]')){event.stopImmediatePropagation();const t=val13Current();if((t.allowedMethods||[]).some(m=>m.id===event.target.value)){t.selectedMethod=event.target.value;val13PreviewHash=null;}stateByScreen['SCR-086']='READY';return renderAppScreen();}
+  },true);
+  window.addEventListener('click',event=>{
+    let el;
+    if(activeFlowId==='UIF-13'){
+      if((el=event.target.closest('[data-v430-val13-filter]'))){event.preventDefault();event.stopImmediatePropagation();val13Filter430=el.dataset.v430Val13Filter;return renderAppScreen();}
+      if((el=event.target.closest('[data-v430-val13-task]'))){event.preventDefault();event.stopImmediatePropagation();val13SelectedTaskId=el.dataset.v430Val13Task;val13ResetTaskDraft(val13Current());stateByScreen['SCR-086']='READY';return navigate('SCR-086');}
+      if((el=event.target.closest('[data-v430-val13-target]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current(),line=(t.targets||[]).find(x=>x.id===el.dataset.v430Val13Target);if(line&&t.targetScopeMode!=='FIXED')line.selected=!line.selected;val13PreviewHash=null;return renderAppScreen();}
+      if((el=event.target.closest('[data-v430-val13-review]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current();if(!val13CanPreview(t)){stateByScreen['SCR-086']='VALIDATION_ERROR';return renderAppScreen();}val13ReviewSourceVersion=t.sourceVersion;val13PreviewHash=val13PreviewHashOf(t);stateByScreen['SCR-088']='READY';return navigate('SCR-088');}
+      if((el=event.target.closest('[data-v430-val13-back]'))){event.preventDefault();event.stopImmediatePropagation();stateByScreen['SCR-086']='READY';return navigate('SCR-086');}
+      if((el=event.target.closest('[data-v430-val13-confirm]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current();if(Number(val13ReviewSourceVersion)!==Number(t.sourceVersion)||val13PreviewHash!==val13PreviewHashOf(t)){stateByScreen['SCR-088']='SOURCE_CHANGED';return renderAppScreen();}val13Commit();stateByScreen['SCR-089']='COMPLETED';return navigate('SCR-089');}
+      if((el=event.target.closest('[data-v430-val13-list]'))){event.preventDefault();event.stopImmediatePropagation();val13Query='';val13Filter430='ALL';return navigate('SCR-085');}
+    }
+  },true);
+  Object.assign(renderers, { 'SCR-085': render085BJ13 });
+})();
+
+/* --- SCR-086 / 089 (phân bổ, kết quả — bản v461) — BJ-13 --- */
+(()=>{
+  const {money, signed, pct, row, heading, flat, keys, context, button, confirmSheet}=VAL_UI_461;
+  let confirm13=false,detail13=false;
+  const eligibleMethods=t=>(t.allowedMethods||[]).filter(m=>val13Engine?.methodEligible?val13Engine.methodEligible(t,m.id):true);
+  const methodLabel=(t,id=t.selectedMethod)=>eligibleMethods(t).find(m=>m.id===id)?.label||(t.allowedMethods||[]).find(m=>m.id===id)?.label||'—';
+  const selectedTargets13=t=>(t.targets||[]).filter(x=>t.targetScopeMode==='FIXED'||x.selected);
+  function allocationRows13(t){const rows=val13Preview(t),sum=rows.reduce((n,x)=>n+Number(x.allocationMetric?.metricValue||0),0);return rows.map(x=>{const metric=Number(x.allocationMetric?.metricValue||0),metricText=t.selectedMethod==='FIXTURE_VALUE'?`${money(metric)} · ${pct(sum?metric/sum:0)}`:`${metric.toLocaleString('vi-VN')} ${x.allocationMetric?.unit||''} · ${pct(sum?metric/sum:0)}`;return `<div class="v460-allocation-row" data-composed-from="VText,DS v2 / Key-value Row"><div><strong>${esc(x.product)}</strong><small>${esc(x.receipt)} · ${x.qty} ${esc(x.uom)}${x.lot?` · Lô ${esc(x.lot)}`:''}</small><small>Căn cứ phân bổ: ${esc(metricText)}</small></div><strong>${esc(signed(x.allocatedAmount))}</strong></div>`;}).join('');}
+  function methodControl13(t){const methods=eligibleMethods(t);if(methods.length<=1){const m=methods[0];if(!m)return flat('Cách phân bổ',ds24InfoRow('Phương pháp','Chưa có phương pháp hợp lệ'),'v460-method-readonly');const desc=m.id==='FIXTURE_VALUE'?'Phân bổ theo tỷ trọng giá trị nhập ban đầu của từng sản phẩm, trước các điều chỉnh phát sinh sau đó.':'Chỉ dùng khi toàn bộ phạm vi có chỉ tiêu lượng chuẩn cùng đơn vị và có thể so sánh.';return `<section class="v460-methods v460-method-readonly">${heading('Cách phân bổ')}<div class="v460-method-summary" data-composed-from="VText,DS v2 / Summary Card"><strong>${esc(m.label)}</strong><span>${esc(desc)}</span></div></section>`;}return `<section class="v460-methods">${heading('Cách phân bổ')}<div class="v460-choice-list">${methods.map(m=>`<button type="button" class="v460-choice ${t.selectedMethod===m.id?'is-selected':''}" data-v461-val13-method="${m.id}" data-ds-component="VRadio" aria-pressed="${t.selectedMethod===m.id}"><span class="v460-choice__radio"><span></span></span><span><strong>${esc(m.label)}</strong><small>${m.id==='FIXTURE_VALUE'?'Phân bổ theo tỷ trọng giá trị nhập ban đầu của từng sản phẩm':'Chỉ dùng khi toàn bộ phạm vi có chỉ tiêu lượng chuẩn cùng đơn vị'}</small></span></button>`).join('')}</div></section>`;}
+  function period13(t){const targets=selectedTargets13(t),posting=[...new Set(targets.map(x=>x.postingPeriod).filter(Boolean))],original=[...new Set(targets.map(x=>x.originalPeriod).filter(Boolean))],moved=targets.some(x=>x.originalPeriod&&x.postingPeriod&&x.originalPeriod!==x.postingPeriod);if(!posting.length)return '';if(!moved&&posting.length===1)return flat('Kỳ ghi nhận',ds24InfoRow('Kỳ ghi điều chỉnh',posting[0]));const originalLabel=original.join(', ')||'—',postingLabel=posting.join(', ')||'—';return `${vBanner('info','Kỳ của hàng gốc đã khóa',`Điều chỉnh được ghi ở kỳ ${postingLabel}; kỳ ${originalLabel} vẫn được giữ để truy vết.`)}${flat('Kỳ ghi nhận',`${ds24InfoRow('Kỳ của hàng gốc',originalLabel)}${ds24InfoRow('Kỳ ghi điều chỉnh',postingLabel)}`)}`;}
+  function render086BJ13(state){
+    if(activeFlowId!=='UIF-13')return renderGeneric(screens.find(s=>s.id==='SCR-086'),state);const t=val13Current();if(state==='LOADING')return appShell({title:'Phân bổ điều chỉnh giá trị',body:loadingBody(),centered:true});if(state==='PERMISSION_DENIED')return appShell({title:'Phân bổ điều chỉnh giá trị',body:deniedBody(),centered:true});if(t.status==='WAITING')return appShell({title:'Phân bổ điều chỉnh giá trị',body:`${vBanner('info','Chưa thể xử lý',t.waitingOwner||'Đang chờ nguồn hoàn tất dữ liệu cần thiết.')}${context(t.sourceRef.replace(/ · dòng \d+$/,''),`${t.component} · ${t.supplier}`)}`});
+    const methods=eligibleMethods(t);if(methods.length===1&&t.selectedMethod!==methods[0].id){t.selectedMethod=methods[0].id;val13PreviewHash=null;}const preview=val13Preview(t),total=preview.reduce((n,x)=>n+Number(x.allocatedAmount||0),0),targets=(t.targets||[]).map(x=>row({title:x.product,subtitle:`${x.receipt} · ${x.qty} ${x.uom}${x.lot?` · Lô ${x.lot}`:''}`,trailing:'',leading:null,type:'Status',interactive:false})).join(''),valid=val13CanPreview(t)&&preview.length>0;
+    const source=`${context(t.sourceRef.replace(/ · dòng \d+$/,''),`${t.component} · ${t.supplier}`)}${keys(ds24KeyValueRow('Giá trị điều chỉnh',signed(t.normalizedAmount),true))}`;
+    const allocation=valid?`${heading('Kết quả phân bổ',`${preview.length} sản phẩm`)}<section class="v460-allocation-list">${allocationRows13(t)}${ds24KeyValueRow('Tổng phân bổ',signed(total),true)}</section>`:vBanner('warning','Chưa có phương pháp phân bổ hợp lệ','Cần metric hợp lệ và so sánh được trên toàn phạm vi; hệ thống không tự chia đều.');
+    const body=`${state==='SOURCE_CHANGED'?vBanner('warning','Nguồn điều chỉnh đã thay đổi','Kiểm tra lại dữ liệu hiện hành trước khi ghi.'):''}${source}${heading('Phạm vi áp dụng','Theo nguồn xác định')}<section class="ds24-list-stack v430-list">${targets}</section>${methodControl13(t)}${allocation}${period13(t)}${confirm13?confirmSheet({title:'Ghi điều chỉnh giá trị?',desc:'Kiểm tra lại tổng tiền, phạm vi, cách phân bổ và kỳ ghi nhận trước khi ghi.',body:flat('Xác nhận',`${ds24InfoRow('Nguồn',t.sourceRef.replace(/ · dòng \d+$/,''))}${ds24InfoRow('Sản phẩm',String(preview.length))}${ds24InfoRow('Cách phân bổ',methodLabel(t))}${ds24InfoRow('Kỳ ghi nhận',[...new Set(preview.map(x=>x.postingPeriod))].join(', ')||'—')}${ds24KeyValueRow('Tổng điều chỉnh',signed(total),true)}`),confirmLabel:'Ghi điều chỉnh',confirmAttr:'data-v461-val13-confirm',closeAttr:'data-v461-val13-confirm-close'}):''}`;
+    return appShell({title:'Phân bổ điều chỉnh giá trị',body,actions:primaryFooter('Ghi điều chỉnh','data-v461-val13-open-confirm',!valid)});
+  }
+  function render089BJ13(state){
+    if(activeFlowId!=='UIF-13')return renderGeneric(screens.find(s=>s.id==='SCR-089'),state);const t=val13Current(),res=val13LastResult||val13Result();if(state==='PROCESSING')return appShell({title:'Kết quả điều chỉnh giá trị',body:loadingBody(),centered:true,back:false});if(state==='UNKNOWN'){const attrs=`data-v350-action="handoff-unknown" data-source-flow="UIF-13" data-operation="${escapeAttribute(res.operationId||t.operationId)}" data-scope="${escapeAttribute(t.sourceComponentKey||t.id)}"`;return appShell({title:'Đang xác minh kết quả',body:ioResult('Chưa xác định điều chỉnh đã được ghi hay chưa','Không ghi lại adjustment. Chuyển đúng thao tác này sang xác minh.',[['Nguồn',t.sourceRef],['Trạng thái','Đang xác minh']],'warning'),centered:true,back:false,actions:primaryFooter('Chuyển sang xác minh',attrs)});}if(state==='REJECTED_EXECUTION')return appShell({title:'Kết quả điều chỉnh giá trị',body:ioResult('Chưa ghi điều chỉnh','Không có thay đổi giá trị.',[['Nguồn',t.sourceRef],['Tác động','Không thay đổi']],'warning'),centered:true,back:false,actions:primaryFooter('Xem lại phân bổ','data-v461-val13-back')});
+    const allocations=res.allocations||[],periods=[...new Set(allocations.map(x=>x.postingPeriod).filter(Boolean))],detailRows=allocations.map(x=>row({title:x.product,subtitle:`${x.receipt} · ${x.qty} ${x.uom}`,trailing:`<strong class="v460-money-trailing">${signed(x.allocatedAmount)}</strong>`,leading:null,type:'Status',interactive:false})).join('');
+    const summary=flat('Kết quả',`${ds24InfoRow('Nguồn',String(res.sourceRef||t.sourceRef).replace(/ · dòng \d+$/,''))}${ds24InfoRow('Sản phẩm bị ảnh hưởng',String(allocations.length))}${ds24InfoRow('Kỳ ghi nhận',periods.join(', ')||'—')}${ds24InfoRow('Giá vốn','Cần cập nhật')}${ds24KeyValueRow('Tổng điều chỉnh',signed(res.normalizedAmount??t.normalizedAmount),true)}`),details=detailRows?`<details class="v430-details v460-details" ${detail13?'open':''}><summary>Xem chi tiết phân bổ (${allocations.length})</summary><div class="v430-details__body"><section class="ds24-list-stack v430-list">${detailRows}</section></div></details>`:'';
+    const title=Number(res.normalizedAmount??t.normalizedAmount)<0?'Đã ghi giảm giá trị hàng nhập':'Đã ghi điều chỉnh giá trị hàng nhập';return appShell({title:'Kết quả điều chỉnh giá trị',body:`<div class="io-result">${resultHero(title,'Điều chỉnh đã được ghi; sản phẩm liên quan cần cập nhật giá vốn.')}${summary}${details}</div>`,centered:true,back:false,actions:primaryFooter('Về công việc điều chỉnh','data-v461-val13-list')});
+  }
+
+  window.addEventListener('click',event=>{
+    let el;
+    if(activeFlowId==='UIF-13'){
+      if((el=event.target.closest('[data-v461-val13-method]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current(),id=el.dataset.v461Val13Method;if(eligibleMethods(t).some(m=>m.id===id)){t.selectedMethod=id;val13PreviewHash=null;}return renderAppScreen();}
+      if((el=event.target.closest('[data-v461-val13-open-confirm]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current();if(!val13CanPreview(t))return;val13ReviewSourceVersion=t.sourceVersion;val13PreviewHash=val13PreviewHashOf(t);confirm13=true;return renderAppScreen();}
+      if((el=event.target.closest('[data-v461-val13-confirm-close]'))){event.preventDefault();event.stopImmediatePropagation();confirm13=false;return renderAppScreen();}
+      if((el=event.target.closest('[data-v461-val13-confirm]'))){event.preventDefault();event.stopImmediatePropagation();const t=val13Current();if(Number(val13ReviewSourceVersion)!==Number(t.sourceVersion)||val13PreviewHash!==val13PreviewHashOf(t)){confirm13=false;stateByScreen['SCR-086']='SOURCE_CHANGED';return renderAppScreen();}val13Commit();confirm13=false;stateByScreen['SCR-089']='COMPLETED';return navigate('SCR-089');}
+      if((el=event.target.closest('[data-v461-val13-back]'))){event.preventDefault();event.stopImmediatePropagation();confirm13=false;stateByScreen['SCR-086']='READY';return navigate('SCR-086');}
+      if((el=event.target.closest('[data-v461-val13-list]'))){event.preventDefault();event.stopImmediatePropagation();confirm13=false;return navigate('SCR-085');}
+    }
+  },true);
+  Object.assign(renderers, {
+    'SCR-086': render086BJ13,
+    'SCR-087': render086BJ13,
+    'SCR-088': function(state){ activeScreenId='SCR-086'; return render086BJ13(state); },
+    'SCR-089': render089BJ13,
+  });
+})();

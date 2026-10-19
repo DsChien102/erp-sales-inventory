@@ -1,11 +1,11 @@
 /* BJ-01 — Theo dõi tồn, khả dụng và chỉ báo vận hành (UIF-01). Màn: SCR-001 Tồn kho, SCR-003 Chi tiết tồn kho
  * (SCR-004 = SCR-003 với sheet lô đang mở).
  *
- * Đã viết lại sạch (T7-P bước A, 2026-10-16): mọi hàm dựng, fixture và xử lý sự kiện của BJ-01 nằm ở đây; màn dựng
- * thẳng (ownedFlows), không qua bước sửa sau dựng legacy. Sửa BJ-01: sửa thẳng file này.
+ * Đã viết lại sạch (T7-P bước A, 2026-10-16): mọi hàm dựng, fixture và xử lý sự kiện của BJ-01 nằm ở đây.
+ * Sửa BJ-01: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24* (ListRow, Badge, DotBadge, Chip, Search, KeyValueRow, InfoRow, Sheet,
  * SectionTitle), vBanner, deniedBody, loadingBody, icon, esc, escapeAttribute, navigate, render, renderAppScreen.
- * bj01Empty cũng đang được BJ-08 (legacy trong core.js) gọi.
+ * Empty state: ds24EmptyState ở core.js (bj01Empty giữ bí danh; BJ-08 cũng gọi).
  */
 
 // ---- Fixture và trạng thái màn
@@ -73,9 +73,7 @@ function bj01SearchAndFilters() {
   const filters=[['ALL','Tất cả'],['OUT','Hết hàng'],['LOW','Tồn thấp'],['NEAR','Cận hạn'],['EXPIRED','Hết hạn']];
   return `${ds24Search(bj01Query,'data-bj01-search','Tên, mã sản phẩm hoặc mã vạch')}<div class="ds24-chip-scroll" aria-label="Lọc tồn kho" data-composed-from="VChip">${filters.map(([k,l])=>ds24Chip(k,l,bj01Filter===k,'data-bj01-filter')).join('')}</div>`;
 }
-function bj01Empty(filtered=true) {
-  return `<div class="ds24-empty" data-ds-component="VEmptyState"><div class="ds24-empty__media" data-ds-component="VEmptyMedia">${icon(filtered?'search':'inbox')}</div><h3 class="vet45-text-style-5" data-ds-component="VEmptyTitle">${filtered?'Không có kết quả phù hợp':'Chưa có dữ liệu tồn kho'}</h3><p class="vet45-text-style-6" data-ds-component="VEmptyDescription">${filtered?'Thử tên, mã sản phẩm hoặc chọn bộ lọc khác.':'Không có dữ liệu trong kho hiện tại.'}</p>${filtered?`<button class="ds24-button ds24-button--secondary" data-bj01-clear type="button" data-ds-component="VButton" data-figma-node="521:529">Xóa tìm kiếm và bộ lọc</button>`:''}</div>`;
-}
+function bj01Empty(filtered=true){ return ds24EmptyState(filtered); }
 function bj01AvailabilityRows(p,{showAvailable=true}={}) {
   const unit=esc(p.stockUom);
   const reasons=(p.eligibilityBreakdown||[]).filter((x)=>Number(x.quantity)>0);
@@ -144,7 +142,6 @@ function render003BJ01(state) {
 function render004BJ01(state) { bj01LotOpen=true; return render003BJ01(state==="PERMISSION_DENIED"?state:state==="LOADING"?state:"READY"); }
 
 Object.assign(renderers, { "SCR-001": render001BJ01, "SCR-003": render003BJ01, "SCR-004": render004BJ01 });
-ownedFlows.add("UIF-01");
 
 // ---- Sự kiện
 document.addEventListener("click", (event) => {

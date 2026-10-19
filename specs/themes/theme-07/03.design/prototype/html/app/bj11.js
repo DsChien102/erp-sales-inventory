@@ -1,6 +1,6 @@
 /* BJ-11 — Hủy và sửa sai nghiệp vụ kho (UIF-11). Màn: SCR-048…053.
  *
- * Đã viết lại sạch (T7-P gói A8, 2026-10-17). Màn dựng thẳng (ownedFlows).
+ * Đã viết lại sạch (T7-P gói A8, 2026-10-17). Màn đăng ký qua flowRenderers / renderers.
  * Helper chung ac310* (Section/KeyValue/List/Radio/Audit/Summary/Field/ApprovalFooter) → app/shared-control.js.
  * Khôi phục listener Correction & Recovery (bị mất từ A5); sửa nút Từ chối (data-v350-action).
  */
@@ -35,9 +35,7 @@ function bj11KeyValueSurface(title,rows,{extraClass=""}={}){
   const body=(rows||[]).map((r)=>{
     let v=String(r[1]??"");
     if(/^-\s?\d/.test(v)) v=v.replace(/^-\s?/,"−");
-    const attention=r[2] && /^(Điều chỉnh|Chênh lệch)$/.test(String(r[0]||""));
-    const cls=attention?" ds24-key-value-row v470-kv--attention":" ds24-key-value-row";
-    return `<div class="${cls.trim()}" data-ds-component="DS v2 / Key-value Row"><span>${esc(r[0])}</span><strong>${esc(v)}</strong></div>`;
+    return ds24KeyValueRow(r[0],v,!!r[2]);
   }).join("");
   return `<section class="ac310-surface ${extraClass}" data-layout-pattern="Grouped surface" data-composed-from="DS v2 / Key-value Row">${head}<div class="ac310-key-value-stack">${body}</div></section>`;
 }
@@ -175,7 +173,7 @@ document.addEventListener("click",(event)=>{
   if(!["cr11-approval-result","cr11-approve","cr11-reject-confirm"].includes(vk))return;
   event.preventDefault();event.stopPropagation();
   if(vk==="cr11-approval-result")return navigate("SCR-053");
-  if(window.__VET45_V350__?.getActor?.()!=="approver"){stateByScreen["SCR-051"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
+  if(currentActor()!=="approver"){stateByScreen["SCR-051"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
   if(vk==="cr11-approve"){
     stateByScreen["SCR-053"]="PROCESSING";navigate("SCR-053");setTimeout(()=>{if(activeFlowId==="UIF-11"&&activeScreenId==="SCR-053"&&stateByScreen["SCR-053"]==="PROCESSING"){stateByScreen["SCR-053"]="COMPLETED";syncReviewUrl();render();}},300);return;
   }
@@ -193,4 +191,3 @@ Object.assign(renderers, {
   "SCR-051": render051BJ11,
   "SCR-053": render053BJ11
 });
-ownedFlows.add("UIF-11");

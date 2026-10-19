@@ -6,14 +6,14 @@
 
 let ic10Selected="amox-l2407";
 
-function render036IC10(state){
+function render036BJ10(state){
   if(state==="PERMISSION_DENIED")return appShell({title:"Hàng có thể xử lý",body:deniedBody(),centered:true,back:false});
   if(state==="LOADING")return appShell({title:"Hàng có thể xử lý",body:loadingBody(),back:false});
   if(state==="EMPTY")return appShell({title:"Hàng có thể xử lý",body:ioEmpty("Chưa có hàng cần xử lý","Chỉ hàng không bán được và thuộc quyền sở hữu của tổ chức mới xuất hiện tại đây."),back:false});
   const body=`${vBanner("info","Chỉ hiển thị hàng đủ điều kiện","Hàng đang bán được cần đổi tình trạng trước khi có thể lập yêu cầu tiêu hủy.")}<div class="io-list-card" data-ds-component="VSection" data-composed-from="DS v2 / List Row"><div class="io-product-list">${ioProductRow({name:"Amox 500",code:"SP-00128",primary:"6 hộp",secondary:"Lô L2407-A",badge:"Cách ly",badgeStatus:"warning",attr:'data-ic10-item="amox-l2407"'})}${ioProductRow({name:"Vitamin C",code:"SP-00231",primary:"4 hộp",secondary:"Lô L2310-C",badge:"Hết hạn",badgeStatus:"danger",attr:'data-ic10-item="vitc-l2310"'})}</div></div>`;
   return appShell({title:"Hàng có thể xử lý",body,back:false});
 }
-function render037IC10(state){
+function render037BJ10(state){
   if(state==="PERMISSION_DENIED")return appShell({title:"Chi tiết hàng",body:deniedBody(),centered:true});
   if(state==="LOCKED")return appShell({title:"Chi tiết hàng",body:`${vBanner("info","Đang thuộc phạm vi kiểm kê","Thông tin chỉ đọc cho đến khi phiên kiểm kê kết thúc.")}${icHeaderRows([["Sản phẩm","Amox 500",true],["Lô","L2407-A"],["Tình trạng","Cách ly"],["Tồn vật lý","6 hộp"]])}`});
   const body=`${icHeaderRows([["Sản phẩm","Amox 500",true],["Mã","SP-00128"],["Lô","L2407-A"],["Tình trạng","Cách ly"],["Tồn vật lý","6 hộp"],["Quyền sở hữu","Hàng của tổ chức"]])}${ioSectionTitle("Xử lý")}<p class="io-footnote">Phê duyệt yêu cầu không làm giảm tồn. Chỉ xác nhận đã tiêu hủy thực tế mới cho phép ghi giảm.</p>`;
@@ -24,7 +24,7 @@ function render040IC10(state){
   const base=icHeaderRows([["Sản phẩm","Amox 500",true],["Lô","L2407-A"],["Tình trạng","Cách ly"],["Có thể xử lý","6 hộp"]]);
   if(state==="PRICE_BASIS_REQUIRED")return appShell({title:"Yêu cầu tiêu hủy",body:`${vBanner("error","Chưa có căn cứ giá hợp lệ","Không thể gửi yêu cầu vì chưa xác định được căn cứ giá chính thức cho lượng hàng này. Không nhập giá thủ công để bỏ qua kiểm soát.")}${base}${icField("Số lượng đề nghị","6",'data-ic10-qty','number')}${icTextarea("Lý do","Hàng không còn đủ điều kiện sử dụng",'data-ic10-reason')}`,actions:primaryFooter("Gửi yêu cầu tiêu hủy",'data-ic10-action="submit"',true)});
   if(state==="PENDING_APPROVAL")return appShell({title:"Yêu cầu tiêu hủy",body:`${vBanner("info","Đã gửi chờ duyệt","Bạn đã hoàn tất phần việc lập yêu cầu. Tồn kho chưa thay đổi; người duyệt nhận công việc riêng.")}${base}${icHeaderRows([["Số lượng đề nghị","6 hộp",true],["Tác động tồn kho","Chưa có"]])}`,back:false});
-  if(state==="APPROVAL_REVIEW")return appShell({title:"Duyệt tiêu hủy",body:`${vBanner("info","Phê duyệt chưa phải tiêu hủy","Duyệt chỉ cho phép chuyển yêu cầu sang chờ xử lý thực tế. Tồn vật lý chưa giảm ở bước này.")}${base}${icHeaderRows([["Số lượng đề nghị","6 hộp",true],["Căn cứ giá","Giá vốn hiện hành"],["Lý do","Hàng không còn đủ điều kiện sử dụng"]])}`,actions:icApprovalButtons("ic10"),back:false});
+  if(state==="APPROVAL_REVIEW")return appShell({title:"Duyệt tiêu hủy",body:`${vBanner("info","Phê duyệt chưa phải tiêu hủy","Duyệt chỉ cho phép chuyển yêu cầu sang chờ xử lý thực tế. Tồn vật lý chưa giảm ở bước này.","v360-context-banner")}${base}${icHeaderRows([["Số lượng đề nghị","6 hộp",true],["Căn cứ giá","Giá vốn hiện hành"],["Lý do","Hàng không còn đủ điều kiện sử dụng"]])}`,actions:icApprovalButtons("ic10"),back:false});
   if(state==="APPROVED_PENDING_DISPOSAL")return appShell({title:"Yêu cầu tiêu hủy",body:`${vBanner("success","Đã duyệt — chờ xử lý thực tế","Yêu cầu đã được duyệt nhưng tồn kho vẫn giữ nguyên. Công việc xác nhận tiêu hủy sẽ được giao cho người thực hiện phù hợp.")}${base}${icHeaderRows([["Đã duyệt","6 hộp",true],["Tồn vật lý hiện tại","6 hộp · chưa giảm"]])}`,back:false});
   if(state==="COMPLETION_QTY_BLOCKED")return appShell({title:"Xác nhận đã tiêu hủy",body:`${vBanner("error","Số lượng thực tế vượt phạm vi được duyệt","Không thể ghi giảm. Cần lập yêu cầu và phê duyệt mới cho phần vượt chính sách.")}${base}${icField("Đã tiêu hủy thực tế","7",'data-ic10-actual','number')}${icTextarea("Bằng chứng","Biên bản tiêu hủy #TH-0709",'data-ic10-proof')}`,actions:primaryFooter("Xác nhận đã tiêu hủy",'data-ic10-action="complete"',true,"danger"),back:false});
   if(state==="COMPLETION")return appShell({title:"Xác nhận đã tiêu hủy",body:`${vBanner("warning","Chỉ xác nhận sau khi đã xử lý thực tế","Số lượng ở đây là lượng thực tế đã tiêu hủy và sẽ là căn cứ ghi giảm tồn.")}${base}${icField("Đã tiêu hủy thực tế","6",'data-ic10-actual','number')}${icTextarea("Bằng chứng","Biên bản tiêu hủy #TH-0709",'data-ic10-proof')}`,actions:primaryFooter("Xác nhận đã tiêu hủy",'data-ic10-action="complete"',false,"danger"),back:false});
@@ -43,20 +43,18 @@ const bj10Num=(v)=>Number(v??0);
 const bj10NonBlank=(v)=>String(v??"").trim().length>0;
 function bj10RequestValid(){const q=bj10Num(bj10RequestQty);return q>0&&q<=6&&bj10NonBlank(bj10Reason)&&bj10NonBlank(bj10Evidence);}
 function bj10CompletionValid(){const q=bj10Num(bj10ActualQty);return q>0&&q<=bj10Num(bj10ApprovedQty)&&bj10NonBlank(bj10Proof);}
-function bj10IsApprover(){return window.__VET45_V350__?.getActor?.()==="approver";}
-function bj10IsCompletion(){return window.__VET45_V350__?.getActor?.()==="completion-operator";}
+function bj10IsApprover(){return currentActor()==="approver";}
+function bj10IsCompletion(){return currentActor()==="completion-operator";}
 
-function render036BJ10(state){return render036IC10(state);}
-function render037BJ10(state){return render037IC10(state);}
 
 function render040BJ10(state){
-  // v360 ensureStableExitAffordance: màn 040 không có nút → "Về danh sách" (ownedFlows bỏ qua lớp đó).
+  // v360 ensureStableExitAffordance: màn 040 không có nút → "Về danh sách" (A11: dựng thẳng, không lớp v360).
   const exitList=primaryFooter("Về danh sách",'data-v360-action="fallback-exit" data-v360-target="SCR-036"');
   if(state==="PERMISSION_DENIED")return appShell({title:"Yêu cầu tiêu hủy",body:deniedBody(),centered:true,back:false,actions:exitList});
   const base=icHeaderRows([["Sản phẩm","Amox 500",true],["Lô","L2407-A"],["Tình trạng","Cách ly"],["Có thể xử lý","6 hộp"]]);
   if(state==="SELF_APPROVAL_NOT_ALLOWED")return appShell({title:"Duyệt tiêu hủy",body:vBanner("warning","Không thể tự duyệt","Người lập yêu cầu không được tự duyệt yêu cầu tiêu hủy."),back:false,actions:exitList});
   if(state==="PENDING_APPROVAL")return appShell({title:"Yêu cầu tiêu hủy",body:`${vBanner("info","Đã gửi chờ duyệt","Tồn kho chưa thay đổi; người duyệt nhận công việc riêng.")}${base}${icHeaderRows([["Số lượng đề nghị",`${bj10RequestQty} hộp`,true],["Lý do",bj10Reason],["Bằng chứng",bj10Evidence],["Tác động tồn kho","Chưa có"]])}`,back:false,actions:exitList});
-  if(state==="APPROVAL_REVIEW")return appShell({title:"Duyệt tiêu hủy",body:`${vBanner("info","Phê duyệt chưa phải tiêu hủy","Duyệt chỉ cho phép chuyển yêu cầu sang chờ xử lý thực tế; tồn vật lý chưa giảm.")}${base}${icHeaderRows([["Số lượng đề nghị",`${bj10RequestQty} hộp`,true],["Lý do",bj10Reason||"—"],["Bằng chứng",bj10Evidence||"—"],["Căn cứ giá","Giá vốn hiện hành"]])}`,actions:`<div class="ic-action-stack">${icSecondary("Từ chối",'data-v350-action="ic10-reject"','danger')}${primaryFooter("Duyệt",'data-v350-action="ic10-approve"')}</div>`,back:false});
+  if(state==="APPROVAL_REVIEW")return appShell({title:"Duyệt tiêu hủy",body:`${vBanner("info","Phê duyệt chưa phải tiêu hủy","Duyệt chỉ cho phép chuyển yêu cầu sang chờ xử lý thực tế; tồn vật lý chưa giảm.","v360-context-banner")}${base}${icHeaderRows([["Số lượng đề nghị",`${bj10RequestQty} hộp`,true],["Lý do",bj10Reason||"—"],["Bằng chứng",bj10Evidence||"—"],["Căn cứ giá","Giá vốn hiện hành"]])}`,actions:`<div class="ic-action-stack">${icSecondary("Từ chối",'data-v350-action="ic10-reject"','danger')}${primaryFooter("Duyệt",'data-v350-action="ic10-approve"')}</div>`,back:false});
   if(state==="APPROVED_PENDING_DISPOSAL")return appShell({title:"Yêu cầu tiêu hủy",body:`${vBanner("success","Đã duyệt — chờ xử lý thực tế","Tồn kho vẫn giữ nguyên cho đến khi người thực hiện xác nhận xử lý thực tế.")}${base}${icHeaderRows([["Đã duyệt",`${bj10ApprovedQty} hộp`,true],["Tồn vật lý hiện tại","6 hộp · chưa giảm"]])}`,back:false,actions:exitList});
   if(state==="COMPLETION"||state==="COMPLETION_QTY_BLOCKED"){
     const blocked=state==="COMPLETION_QTY_BLOCKED";
@@ -87,10 +85,9 @@ flowRenderers["UIF-10"] = Object.assign(flowRenderers["UIF-10"] || {}, {
   "SCR-041": render041BJ10,
 });
 
-// Expose for any remaining getIC10 readers
-window.__VET45_BJ10__ = {
+Object.assign(window.__VET45_QA__, {
   getIC10(){return {requestQty:bj10RequestQty,reason:bj10Reason,evidence:bj10Evidence,approvedQty:bj10ApprovedQty,actualQty:bj10ActualQty,proof:bj10Proof,completedQty:bj10CompletedQty};}
-};
+});
 
 document.addEventListener("input",(event)=>{
   if(event.target.matches("[data-v350-ic10-qty]")){bj10RequestQty=event.target.value;return;}
@@ -116,7 +113,7 @@ document.addEventListener("click",(event)=>{
       if(k==="ic10-approve"){if(!bj10IsApprover()){stateByScreen["SCR-040"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}bj10ApprovedQty=bj10Num(bj10RequestQty);stateByScreen["SCR-040"]="APPROVED_PENDING_DISPOSAL";return renderAppScreen();}
       if(k==="ic10-reject"){if(!bj10IsApprover()){stateByScreen["SCR-040"]="SELF_APPROVAL_NOT_ALLOWED";return renderAppScreen();}stateByScreen["SCR-041"]="REJECTED_EXECUTION";return navigate("SCR-041");}
       if(k==="ic10-complete"){
-        const actor=window.__VET45_V350__?.getActor?.()||"module";
+        const actor=currentActor()||"module";
         if(!bj10IsCompletion()&&actor!=="module"){return;}
         if(bj10Num(bj10ActualQty)>bj10Num(bj10ApprovedQty)){stateByScreen["SCR-040"]="COMPLETION_QTY_BLOCKED";return renderAppScreen();}
         if(!bj10CompletionValid()){stateByScreen["SCR-040"]="COMPLETION_QTY_BLOCKED";return renderAppScreen();}
@@ -134,4 +131,3 @@ document.addEventListener("click",(event)=>{
   }
 },true);
 
-ownedFlows.add("UIF-10");

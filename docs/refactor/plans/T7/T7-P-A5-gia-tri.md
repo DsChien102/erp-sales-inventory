@@ -1,6 +1,6 @@
 # T7-P · Gói A5 — viết lại code sạch cụm giá trị: BJ-03, BJ-13, BJ-14
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A5 (mục 8.1). Ước lượng: **~3 ngày, 1 commit**, làm theo 5 chặng (mỗi chặng kết thúc bằng golden khớp hoàn toàn).
 > Người làm: bạn. Review: phiên plan / review. Mẫu: `app/bj02.js` (A4), `app/bj06.js` (A2); đoạn đo, `typeIn`, `pick`: [A1](T7-P-A1-bj04-bj05.md), [A3](T7-P-A3-cap01.md).
 > Làm **sau A4** (A4 sửa khối SCR-008 trong `v460` / `v461` và danh sách `ensureRepresentativeFixture` của `v360` — cùng khối với A5).
@@ -244,4 +244,17 @@ Bước không làm màn đổi → chỉnh selector, ghi mục 9.
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11, chưa commit; HEAD `4c7020013`). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ⚠️ → ✅ sau A12 bước R3 + R7 (2026-10-19):** giao diện đạt; mỗi hàm một định nghĩa; mỗi `bjNN.js` chỉ dựng màn của BJ đó.
+- **Đã kiểm:**
+  - Golden: mọi ca `UIF-03/13/14_*`, `SC_bj03_*`, `SC_bj13_*`, `SC_bj14_*`, `SC_ws_valuation_*` — chữ khớp mốc trước Giai đoạn 1. Ảnh: UIF-13 `SCR-089_REJECTED_EXECUTION` / `_UNKNOWN` lệch khoảng cách vài px quanh biểu tượng + tiêu đề kết quả — xuất hiện **sau** mốc `.golden-a7-after`, cùng nhóm lỗi CSS của A11 (mục 14.1), không phải lỗi A5.
+  - Đường cũ: `SC_bj13_retired_*`, deep link `SCR-088` → `SCR-086`, `navigate('SCR-018')` từ UIF-03 → UIF-13 SCR-085 — đúng.
+  - `core.js` không còn `val03` / `val13` / `val14` / khối `v313`, `v397`–`v399`, `v430`, `v431`, `v460`, `v461`.
+- **Chưa đạt:**
+  1. Kiểm "Một định nghĩa" (mục 5) phải **rỗng** nhưng còn 30 hàm định nghĩa hai–ba lần trong cùng file (bản đầu là bản `app.js` đã chết, bản sau là bản `v397`–`v399` / `v461` thắng):
+     - `bj03.js` (15 — đúng 15 hàm liệt kê ở 2.3): `val03SourceDetail`, `val03ScopeReady`, `val03HasSelectedConflict`, `val03TotalValue`, `val03ReceiptState`, `val03ActionablePairs`, `val03WaitingPairs`, `val03SourcePriceText`, `val03ApplySourceUpdate`, `val03Commit`, `val03ScopeGroupsHtml`, `val03CalculationGroupsHtml`, `val03EvidenceSheet`, `val03ReviewGroupsHtml`, `val03ResultGroupsHtml`.
+     - `bj13.js` (10): `val13StatusMeta`, `val13ResetTaskDraft`, `val13SourceCard`, `val13TargetHtml`, `val13AllocationRows`, `val13PeriodCard`, `val13ReviewBody`, `val13Commit`, `val13Result`, `val13ApplySourceUpdate`.
+     - `bj14.js` (5): `val14RunSummary`, `val14AdjustmentCard`, `val14ApplyInputChange`, `val14Commit`, và `val14CreateRun` **ba** lần (dòng 40, 93, rồi bọc `const baseCreate14 = val14CreateRun; val14CreateRun = function(){…applyPolicy…}` dòng 252–253).
+     Ghi chú mục 9 ("gán lại là phần sống của `v397`–`v399`, đúng plan 2.3") hiểu sai: 2.3 nói **giữ hành vi** của bản thắng, còn checklist bước 4 (plan tổng 4.1) yêu cầu **giữ một định nghĩa = bản cuối, xoá bản bị đè**. Hệ quả: người sửa BJ-03/13/14 ở Giai đoạn 2 sửa nhầm bản đầu sẽ không thấy tác dụng.
+  3. **Bổ sung (phát hiện khi làm R3):** file chưa tách theo BJ — `bj03.js` dựng cả SCR-085 (BJ-13) và chứa listener `data-v430-val14-*`; `bj14.js` dựng cả SCR-015/017/019 (BJ-03) và SCR-086/089 (BJ-13); `bj13.js` không dựng màn nào. Mục tiêu 1 của plan chưa đạt — xem A12 bước R7.
+  2. Còn cầu nối tên cũ `window.val13V398` (bj13 → bj14 `eligibleMethods`). Chấp nhận tạm; khi gộp ở R3 đổi thành lời gọi hàm toàn cục `val13Engine.methodEligible` và bỏ `window.val13V398`.

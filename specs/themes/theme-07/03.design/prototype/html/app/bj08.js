@@ -1,9 +1,11 @@
 /* BJ-08 — Kiểm kê và điều chỉnh chênh lệch (UIF-08). Màn: SCR-042…047.
  *
- * Đã viết lại sạch (T7-P gói A7, 2026-10-17). Màn dựng thẳng (ownedFlows).
+ * Đã viết lại sạch (T7-P gói A7, 2026-10-17). Màn đăng ký qua flowRenderers / renderers.
  * Helper chung ac310SanitizeMarkup / ac310Return / ac310InfoSurface / ac310RecordRow → app/shared-control.js.
  * Khôi phục listener keypad/scope (bị mất từ A5 khi tách listener Audit).
  */
+
+{ const sc = screens.find((x) => x.id === "SCR-046"); if (sc) sc.states = [...new Set([...(sc.states || []), "APPROVAL_REVIEW"])]; }
 
 let ic08ConfirmKind=null;
 let ic08Scope="ALL";
@@ -70,7 +72,7 @@ function render042BJ08(state) {
     // LOADING / EMPTY / PERMISSION_DENIED (+ other) from original app.js, sanitized
     if(state==="PERMISSION_DENIED") html = appShell({title:"Kiểm kê kho",body:deniedBody(),centered:true,back:false});
     else if(state==="LOADING") html = appShell({title:"Kiểm kê kho",body:loadingBody(),back:false});
-    else if(state==="EMPTY") html = appShell({title:"Kiểm kê kho",body:`${bj01Empty(false)}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false});
+    else if(state==="EMPTY") html = appShell({title:"Kiểm kê kho",body:`${ds24EmptyState(false)}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false});
     else html = appShell({title:"Kiểm kê kho",body:`${ds24Search('','','Tìm phiên kiểm kê')}${ac321CanonicalChips('ALL',[["ALL","Tất cả"],["COUNTING","Đang đếm"],["APPROVAL","Chờ duyệt"]],'data-ic08-filter')}${ic08SessionRow()}${ic08Overlays()}`,actions:primaryFooter("Tạo phiên kiểm kê",'data-ic08-action="create"'),back:false});
     html = ac310SanitizeMarkup(html);
   }
@@ -171,7 +173,7 @@ function render045BJ08(state){
     const vals={amox:String(ic08Recounts.amox??'').trim()!==''?ic08Recounts.amox:(String(ic08Counts.amox??'').trim()!==''?ic08Counts.amox:'18'),glove:String(ic08Recounts.glove??'').trim()!==''?ic08Recounts.glove:(String(ic08Counts.glove??'').trim()!==''?ic08Counts.glove:'7')};
     const diffs=Object.keys(BJ08_BOOK).map(k=>({id:k,...BJ08_META[k],book:BJ08_BOOK[k],count:bj08Num(vals[k]),variance:bj08Num(vals[k])-BJ08_BOOK[k]})).filter(x=>x.variance!==0);
     const lines=diffs.map(x=>ic08Section(`${x.name} · ${x.lot}`,bj08Info([['Trạng thái',x.state],['Theo sổ',`${x.book} ${x.uom}`],['Đếm lại',`${x.count} ${x.uom}`],['Chênh lệch',`${bj08Signed(x.variance)} ${x.uom}`],...(x.variance>0?[['Căn cứ giá hàng thừa','Đã xác nhận']]:[['Căn cứ giá thiếu','Giá vốn đã khóa']])]))).join('');
-    const body=`${vBanner('info','Cần quyết định độc lập','Bạn chỉ rà soát kết quả và quyết định; không sửa số đếm.')}${bj08Info([['Phiên','KK-1709-01'],['Lần đếm lại',String(bj08RoundNo)],['Người đã tham gia đếm',bj08ContributorNames.join(', ')],['Mức duyệt','Đã xác định theo rủi ro hiện hành']])}${lines}${bj08Overlays()}`;
+    const body=`${vBanner('info','Cần quyết định độc lập','Bạn chỉ rà soát kết quả và quyết định; không sửa số đếm.','v360-context-banner')}${bj08Info([['Phiên','KK-1709-01'],['Lần đếm lại',String(bj08RoundNo)],['Người đã tham gia đếm',bj08ContributorNames.join(', ')],['Mức duyệt','Đã xác định theo rủi ro hiện hành']])}${lines}${bj08Overlays()}`;
     return appShell({title:'Duyệt kết quả kiểm kê',body,actions:bj08ApprovalFooter(),back:false});
   };
 
@@ -188,7 +190,7 @@ function render047BJ08(state){
 
 function bj08Rerender(){ if(typeof renderAppScreen==='function')renderAppScreen(); }
 
-window.__VET45_V3100__={version:'3.10.0',decisions:[171,172,173,174,175,176,177],getRoundHistory:()=>bj08RoundHistory.slice(),getResult:()=>bj08ResultSnapshot};
+Object.assign(window.__VET45_QA__, { bj08RoundHistory: () => bj08RoundHistory.slice(), bj08Result: () => bj08ResultSnapshot });
 
 
 /* --- listeners (app.js Audit UIF-08 sống + v350 list + v3100) --- */
@@ -263,9 +265,9 @@ document.addEventListener("click",(event)=>{
   }
   if(k==='cancel-open'){ic08CancelReason='';bj08DialogKind='cancel';return bj08Rerender();}
   if(k==='confirm-cancel'){if(!ic08CancelReason.trim())return;bj08DialogKind=null;bj08ResultSnapshot={type:'CANCELLED',reason:ic08CancelReason};stateByScreen['SCR-047']='CANCELLED';return navigate('SCR-047');}
-  if(k==='approve'){if(window.__VET45_V350__?.getActor?.()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}bj08DialogKind='approve';return bj08Rerender();}
-  if(k==='confirm-approve'){if(window.__VET45_V350__?.getActor?.()!=='approver'){bj08DialogKind=null;stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}bj08DialogKind=null;bj08ResultSnapshot={type:'ADJUSTED',adjustmentId:'ADJ-1709-08',lines:bj08CurrentVariance(ic08Recounts).length,committedAt:'17/09/2026 09:52'};stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
-  if(k==='request-review'){if(window.__VET45_V350__?.getActor?.()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}ic08ReviewReason='';bj08DialogKind='review';return bj08Rerender();}
+  if(k==='approve'){if(currentActor()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}bj08DialogKind='approve';return bj08Rerender();}
+  if(k==='confirm-approve'){if(currentActor()!=='approver'){bj08DialogKind=null;stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}bj08DialogKind=null;bj08ResultSnapshot={type:'ADJUSTED',adjustmentId:'ADJ-1709-08',lines:bj08CurrentVariance(ic08Recounts).length,committedAt:'17/09/2026 09:52'};stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
+  if(k==='request-review'){if(currentActor()!=='approver'){stateByScreen['SCR-046']='SELF_APPROVAL_NOT_ALLOWED';return bj08Rerender();}ic08ReviewReason='';bj08DialogKind='review';return bj08Rerender();}
   if(k==='confirm-review'){if(!ic08ReviewReason.trim())return;bj08DialogKind=null;bj08RoundNo+=1;stateByScreen['SCR-045']='RECOUNT_REQUIRED';return navigate('SCR-045');}
   if(k==='dialog-close'){bj08DialogKind=null;return bj08Rerender();}
   if(k==='approval-result'){stateByScreen['SCR-047']='COMPLETED';return navigate('SCR-047');}
@@ -280,4 +282,3 @@ Object.assign(renderers, {
   "SCR-046": render046BJ08,
   "SCR-047": render047BJ08
 });
-ownedFlows.add("UIF-08");

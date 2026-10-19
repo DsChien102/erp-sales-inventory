@@ -1,6 +1,6 @@
 # T7-P · Gói A9 — viết lại code sạch BJ-15 Báo cáo tồn và thẻ kho
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A9 (mục 8.1). Ước lượng: **~1,5 ngày, 1 commit**, 5 chặng (0 → 4), golden kiểm sau mỗi chặng.
 > Người làm: bạn. Review: phiên plan / review. Mẫu: `app/bj12.js` (dùng `cf*`, `crFactCard`), `app/bj09.js` (màn dùng chung qua `flowRenderers`); đoạn đo: [A1](T7-P-A1-bj04-bj05.md) mục 4.5.
 > Làm **sau A8**. Không có thay đổi hành vi có chủ đích; lỗi phát hiện được ghi ở mục 2.7 cho brief BJ-15.
@@ -236,4 +236,9 @@ Lối vào từ BJ-01 (`[data-bj01-handoff]` → UIF-15 SCR-054) đã có trong 
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11, chưa commit; HEAD `4c7020013`). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ✅ đạt** (theo trạng thái cuối).
+- **Đã kiểm:**
+  - Mục 9 ghi golden **chưa chạy** lúc làm (Chrome CDP không lên). Đã chạy lại trên trạng thái cuối: mọi ca `UIF-15_*`, `UIF-09_SCR-056_*`, `SC_bj15_*`, `SC_bj09_history_back` — chữ khớp mốc gốc; `SC_bj09_movement_0` khớp `UIF-09_SCR-056_READY` gốc. Ảnh `UIF-15_SCR-058_READY` / `_STALE` lệch tiêu đề thẻ (11px thay 14px) — lỗi CSS của A11 (mục 14.1), không phải A9.
+  - `core.js` không còn `cf15` / `v320` / `v351` / `legacy-sheet-cleanup` / `ac320`; `cf*` + `ac310ProductRow` ở `shared-control.js`; SCR-056 đăng ký cho cả UIF-15 và UIF-09 qua `flowRenderers`.
+- **Góp ý:** gói nào chưa chạy được golden thì không đánh "Làm ✅" — để "Làm 🔄 chờ golden" tới khi có kết quả (A9 commit `5c23edf62` đi vào lịch sử khi chưa kiểm).

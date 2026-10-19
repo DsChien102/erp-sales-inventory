@@ -1,6 +1,6 @@
 /* BJ-15 — Báo cáo tồn và thẻ kho (UIF-15). Màn: SCR-054…059.
  *
- * Đã viết lại sạch (T7-P gói A9, 2026-10-18). Màn dựng thẳng (ownedFlows).
+ * Đã viết lại sạch (T7-P gói A9, 2026-10-18). Màn đăng ký qua flowRenderers / renderers.
  * Helper chung cf* / ac310ProductRow → app/shared-control.js.
  * SCR-056 dùng chung với BJ-09 qua flowRenderers.
  */
@@ -250,4 +250,7 @@ document.addEventListener("click",(event)=>{
   }
 },true);
 
-ownedFlows.add("UIF-15");
+
+Object.assign(window.__VET45_QA__, {
+  getCf15Rows(mode=typeof cf15DateMode!=="undefined"?cf15DateMode:"BUSINESS"){return (typeof bj15Movements==="function"?bj15Movements(mode):[]).map(x=>x.id);}
+});

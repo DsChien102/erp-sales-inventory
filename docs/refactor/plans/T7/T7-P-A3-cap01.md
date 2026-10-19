@@ -1,6 +1,6 @@
 # T7-P · Gói A3 — viết lại code sạch CAP-01 Chính sách tồn & cận hạn
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A3 (mục 8.1). Ước lượng: **~0,5 ngày, 1 commit**.
 > Người làm: bạn. Review: phiên plan / review. Mẫu tham khảo: `app/bj05.js` (gói A1); cách làm, đoạn đo, helper golden: [T7-P-A1-bj04-bj05.md](T7-P-A1-bj04-bj05.md).
 > Làm được độc lập với A2 (không chung lớp, không chung listener).
@@ -157,4 +157,11 @@ Khối `// CAP-01 Chính sách tồn & cận hạn — T7-P A3`, `C = '?uif=CAP-
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ✅ đạt.**
+- **Đã kiểm:**
+  - Golden: mọi ca `CAP-01_*`, `SC_cap01_*`, `SC_ws_setup_*` — chữ khớp mốc trước Giai đoạn 1; ảnh chỉ lệch góc khung thiết bị (A11).
+  - `cap01.js` có đủ trạng thái, helper, hàm dựng, listener; `cap01InfoGroup` / `cap01KeyValueRow` / footer `v361-dual-footer` gộp sẵn nên vẫn đúng sau khi A11 xoá `v361` / `v470`.
+  - Công cụ dev: `__VET45_QA__.capState().capPolicyRevision` = `5` (A11 đã đổi từ `__VET45_V360__`).
+  - Literal khung `FIGMA_MIGRATED_FLOWS` / `FIGMA_TEMPLATE_BY_FLOW_SCREEN` ở `core.js`; `FLOW_GROUPS` sang harness (A11).
+- **Góp ý:** chú thích đầu `cap01.js` còn dòng "Còn ở core.js (gỡ dần ở A11): fallback-exit" — `fallback-exit` nay là phần khung chính thức, sửa câu cho đúng (A12 bước R4).

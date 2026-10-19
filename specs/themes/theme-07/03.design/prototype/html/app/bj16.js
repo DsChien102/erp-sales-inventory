@@ -1,6 +1,6 @@
 /* BJ-16 — Điều tra và đối soát sai lệch (UIF-16). Màn: SCR-078…083.
  *
- * Đã viết lại sạch (T7-P gói A10, 2026-10-19). Màn dựng thẳng (ownedFlows).
+ * Đã viết lại sạch (T7-P gói A10, 2026-10-19). Màn đăng ký qua flowRenderers / renderers.
  * Phần chung danh sách/helper bj16* dùng chung với BJ-17; crFactCard / ac321CanonicalChips → shared-control.js.
  * cr16-correction-handoff → UIF-11; listener data-v350-action cr16-* viết thẳng.
  */
@@ -146,4 +146,7 @@ document.addEventListener("click",(event)=>{
   if(k==="cr16-back-evidence"){stateByScreen["SCR-079"]=cr079StateFor16(cr16Current());return navigate("SCR-079");}
 },true);
 
-ownedFlows.add("UIF-16");
+
+Object.assign(window.__VET45_QA__, {
+  bumpCR16Evidence(){const c=cr16Current();c.evidenceVersion=Number(c.evidenceVersion||0)+1;return c.evidenceVersion;}
+});

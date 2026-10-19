@@ -1,6 +1,6 @@
 # T7-P · Gói A4 — viết lại code sạch BJ-02 Nhận hàng mua
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A4 (mục 8.1). Ước lượng: **~2 ngày, 1 commit** (làm theo 4 chặng, mỗi chặng golden khớp rồi mới sang chặng sau).
 > Người làm: bạn. Review: phiên plan / review. Mẫu: `app/bj05.js`, `app/bj06.js`; cách làm, đoạn đo, `typeIn`: [A1](T7-P-A1-bj04-bj05.md), [A2](T7-P-A2-bj06.md).
 > Làm **sau A2** (A2 đã sửa listener `data-v350-action` và `previousScreen` mà A4 cũng sửa) và sau A3 nếu được (cùng sửa `v360`).
@@ -230,4 +230,11 @@ Selector nào không khớp fixture (vd. chỉ số dòng có lô, `data-v392-lo
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ✅ đạt.**
+- **Đã kiểm:**
+  - Golden: mọi ca `UIF-02_*_document`, `UIF-02_*_quick`, `SC_bj02_*`, `SC_pending*`, `SC_quick_UIF-02` — chữ khớp mốc trước Giai đoạn 1; ảnh chỉ lệch góc khung thiết bị (A11). `SC_bj02_unknown_2_handoff` sang BJ-17 như mốc gốc (mốc `.golden-a7-after` cho thấy bước này từng không chuyển màn sau A5–A7 do mất listener; A8 chặng 0 khôi phục).
+  - `grep "^\s*[A-Za-z0-9_]*\s*=\s*function" app/bj02.js` rỗng; `core.js` không còn `bj02` / `v392` / `v466`–`v468` / `v471`.
+  - Gộp sau dựng còn đúng sau khi A11 xoá lớp: `v361` dual footer nguy hiểm (SCR-011), `v470` tone trong `bj02KeyValueRow`, `v440` grouped surface trên `.v392-quantity-summary`.
+  - Sửa lỗi `saveButton` chưa khai báo trong `updateBj02EditorLiveFeedback` — đúng, đã ghi CHANGELOG.
+- **Góp ý:** `.replaceAll('sản phẩm','mặt hàng')` của SCR-009 và lối "Về Kho" trong `hub.js` đã ghi cho brief BJ-02 — giữ.

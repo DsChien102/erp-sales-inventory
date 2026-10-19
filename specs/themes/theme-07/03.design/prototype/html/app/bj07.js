@@ -4,7 +4,6 @@
  * Dùng chung từ core.js: appShell, ds24*, io*, vBanner, deniedBody, loadingBody, esc, escapeAttribute,
  * primaryFooter, navigate, renderAppScreen, showToast, ac310SanitizeMarkup (A7 → shared-control.js).
  * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-07"] (A10); nút handoff-unknown → bj17.js.
- * Còn ở core.js: bảng v360 (A11).
  */
 
 const io07Requests=[
@@ -45,7 +44,8 @@ function io07Current(){return io07Requests.find(r=>r.id===io07Selected)||io07Req
 function io07ActiveRequests(){return io07Requests.filter(r=>!r.closed&&!r.completed&&!r.sourceCancelled&&!r.unknownLocked);}
 function io07Allocations(req=io07Current()){return (req.groups||[]).flatMap(group=>(group.allocations||[]).map(allocation=>({group,allocation})));}
 function io07FindAllocation(id,req=io07Current()){return io07Allocations(req).find(x=>x.allocation.id===id)||null;}
-function io07AllVerified(req=io07Current()){const lines=io07Allocations(req);return lines.length>0&&lines.every(({allocation})=>allocation.verified&&!allocation.physicalMismatch);}
+// Helper BJ-07 — một định nghĩa duy nhất, gán trong khối v395 bên dưới (cần biến cục bộ của khối).
+let io07AllVerified, io07ReviewGroups, io07SourceDelta, io07VerificationSheet, io07ApplySourceUpdate, io07CreateResult, io07ResultSnapshot;
 function io07HasMismatch(req=io07Current()){return io07Allocations(req).some(({allocation})=>allocation.physicalMismatch);}
 function io07VerifiedCount(req=io07Current()){return io07Allocations(req).filter(({allocation})=>allocation.verified&&!allocation.physicalMismatch).length;}
 function io07Stage(req){if(req.queue==="WAITING")return "WAITING";return io07AllVerified(req)?"READY":"ACTIONABLE";}
@@ -125,42 +125,8 @@ function io07PreparationGroups(req){
     return `<div class="io07-product-group ds24-grouped-subgroup" data-layout-role="product-allocation-subgroup" data-composed-from="DS v2 / List Row,VBadge">${heading}<div class="io07-allocation-list">${rows}</div></div>`;
   }).join("");
 }
-function io07ReviewGroups(reqOrLines,{statusLabel="Đã kiểm",statusTone="Success"}={}){
-  let groups=[];
-  if(Array.isArray(reqOrLines)){
-    const map=new Map();
-    for(const line of reqOrLines||[]){const key=`${line.name}|${line.code||""}|${line.uom}`;if(!map.has(key))map.set(key,{name:line.name,code:line.code||"",uom:line.uom,tracking:line.lot?"LOT":"NONE",allocations:[]});map.get(key).allocations.push({lot:line.lot,expiry:line.expiry,qty:line.qty});}
-    groups=[...map.values()];
-  } else groups=(reqOrLines?.groups||[]);
-  const subgroups=groups.map(group=>{
-    const allocations=group.allocations||[];
-    const heading=io07ProductGroupHeader(group,{label:statusLabel,tone:statusTone,role:"rtv-review-product"});
-    const rows=allocations.map(a=>{
-      const left=a.lot?`Lô ${a.lot}${a.expiry?` · HSD ${a.expiry}`:""}`:"Không theo lô";
-      return ds24KeyValueRow(left,`${a.qty} ${group.uom}`);
-    }).join("");
-    return `<div class="io07-review-product ds24-grouped-subgroup" data-layout-role="product-fact-subgroup" data-composed-from="VIcon,VText,VBadge,DS v2 / Key-value Row">${heading}<div class="io07-review-kv">${rows}</div></div>`;
-  }).join("");
-  return ds24GroupedCollection(subgroups,"io07-review-products io07-grouped-collection io07-grouped-collection--facts","DS v2 / List Row,DS v2 / Key-value Row");
-}
-function io07SourceDelta(req){
-  const affected=io07Allocations(req).some(({allocation})=>allocation.affectedByChange);
-  return affected?vBanner("warning","Yêu cầu đã thay đổi","Phần bị ảnh hưởng cần kiểm lại theo phiên bản mới.","","Compact"):"";
-}
-function io07VerificationSheet(req){
-  if(!io07VerifySheetOpen)return "";const found=io07FindAllocation(io07ActiveAllocationId,req);if(!found)return "";const {group,allocation:a}=found;
-  const expectedLot=group.tracking==="LOT"?String(a.lot||""):"";const mismatch=Boolean(expectedLot&&io07ScanLot.trim()&&io07ScanLot.trim().toLocaleUpperCase("vi")!==expectedLot.toLocaleUpperCase("vi"));
-  const product=ds24ContextStatusRow({title:group.name,subtitle:`${group.code} · ${group.uom}`,label:a.verified?"Đã kiểm":"Cần kiểm",tone:a.verified?"Success":"Neutral",leading:"package",attrs:'data-layout-role="rtv-verify-product"'});
-  const facts=ds24InfoGroup("",`${ds24InfoRow("Cần chuẩn bị",`${a.qty} ${group.uom}`)}${group.tracking==="LOT"?ds24InfoRow("Lô cần khớp",a.lot):""}${a.expiry?ds24InfoRow("Hạn dùng",a.expiry):""}`,"ds24-info-group--untitled io07-sheet-facts");
-  const lotInput=group.tracking==="LOT"?`${ds24TextField("Lô thực tế (không bắt buộc)",io07ScanLot,'data-io07-scan-lot autocomplete="off"',"Chỉ đối chiếu, không thay lô.")}<div data-io07-scan-feedback>${mismatch?vBanner("error","Lô không khớp",`Cần lô ${expectedLot}. Kho không thay lô tại đây.`,"","Compact"):""}</div>`:"";
-  return `<div class="sheet-backdrop io07-verify-backdrop" data-io07-verify-backdrop><section class="bottom-sheet io-bottom-sheet io07-verification-sheet" data-ds-component="VBottomSheet" data-figma-node="4695:6353" role="dialog" aria-modal="true" aria-label="Kiểm hàng thực tế"><div class="sheet-handle"></div><div class="sheet-title"><h3>Kiểm hàng thực tế</h3></div><div class="io07-verification-content">${product}${facts}${lotInput}<div class="io07-sheet-actions"><button class="button button--secondary" data-io07-action="mark-mismatch" type="button">Không khớp</button><button class="button button--primary" data-io07-action="confirm-allocation" type="button" ${mismatch?'disabled':''}>Đúng hàng</button></div></div></section></div>`;
-}
 function io07OpenVerification(id){io07ActiveAllocationId=id;io07ScanLot="";io07VerifySheetOpen=true;}
-function io07ApplySourceUpdate(reqId,changes=[]){const req=io07Requests.find(r=>r.id===reqId);if(!req||req.completed||req.closed)return false;req.sourceVersion=Number(req.sourceVersion||0)+1;req.changed=true;const notes=[];for(const change of changes){if(change.type==="QTY"){const f=io07FindAllocation(change.allocationId,req);if(!f)continue;f.allocation.previousQty=f.allocation.qty;f.allocation.qty=change.newQty;f.allocation.verified=false;f.allocation.physicalMismatch=false;f.allocation.affectedByChange=true;notes.push(change.note||`${f.group.name} · ${f.group.uom}: ${f.allocation.previousQty} → ${change.newQty}.`);}else if(change.type==="LOT"){const f=io07FindAllocation(change.allocationId,req);if(!f)continue;f.allocation.previousLot=f.allocation.lot;f.allocation.lot=change.newLot;f.allocation.verified=false;f.allocation.physicalMismatch=false;f.allocation.affectedByChange=true;notes.push(change.note||`${f.group.name} · ${f.group.uom}: Lô ${f.allocation.previousLot} → ${change.newLot}.`);}else if(change.type==="REMOVE"){for(const group of req.groups||[]){const idx=(group.allocations||[]).findIndex(a=>a.id===change.allocationId);if(idx>=0){const old=group.allocations[idx];group.allocations.splice(idx,1);notes.push(change.note||`${group.name} · ${group.uom}${old.lot?` · Lô ${old.lot}`:""}: bỏ khỏi yêu cầu; lượng chờ trả được hệ thống giải phóng.`);break;}}req.groups=req.groups.filter(g=>(g.allocations||[]).length);}else if(change.type==="ADD"){let group=req.groups.find(g=>g.id===change.groupId);if(!group&&change.group){group={...change.group,allocations:[]};req.groups.push(group);}if(!group)continue;const allocation={...change.allocation,verified:false,physicalMismatch:false,affectedByChange:true};group.allocations.push(allocation);notes.push(change.note||`${group.name} · ${group.uom}${allocation.lot?` · Lô ${allocation.lot}`:""}: thêm ${allocation.qty} ${group.uom} cần kiểm.`);}}
-  if(notes.length)req.sourceChanges=[...notes];req.queue="ACTIONABLE";return true;}
 function io07CancelSource(reqId){const req=io07Requests.find(r=>r.id===reqId);if(!req||req.completed)return false;req.sourceVersion=Number(req.sourceVersion||0)+1;req.sourceCancelled=true;req.closed=true;req.queue="CLOSED";req.lifecycle="Đã hủy từ nguồn";req.changed=true;req.sourceChanges=["Bộ phận Mua hàng đã hủy yêu cầu trước bàn giao; lượng chờ trả được hệ thống giải phóng."];return true;}
-function io07CreateResult(req){const op=`IO-RTV-260903-${String(io07OperationSeq++).padStart(3,"0")}`;const lines=io07Allocations(req).map(({group,allocation:a})=>({groupId:group.id,name:group.name,code:group.code,uom:group.uom,lot:a.lot,expiry:a.expiry,qty:a.qty}));io07LastResult={operationId:op,requestId:req.id,supplier:req.supplier,source:req.source,sourceVersion:req.sourceVersion,warehouse:req.warehouse,lines};return io07LastResult;}
-function io07ResultSnapshot(){if(io07LastResult)return io07LastResult;const req=io07Current();return {operationId:"IO-RTV-ĐANG-XỬ-LÝ",requestId:req.id,supplier:req.supplier,source:req.source,sourceVersion:req.sourceVersion,warehouse:req.warehouse,lines:io07Allocations(req).map(({group,allocation:a})=>({name:group.name,code:group.code,uom:group.uom,lot:a.lot,expiry:a.expiry,qty:a.qty}))};}
 io07Requests.forEach(r=>{r.unknownLocked ??= false;});
 
 function ensureIo07ReviewFixture(){
@@ -467,7 +433,6 @@ document.addEventListener("input",(event)=>{
   if(activeFlowId==="UIF-07" && event.target.matches("[data-io07-search]")){io07Query=event.target.value;ioFilterRows("io07",io07Query);return;}
 },true);
 
-ownedFlows.add("UIF-07");
 
 onUnknownHandoff["UIF-07"] = () => {
   const r = io07Current();

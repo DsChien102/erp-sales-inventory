@@ -1,6 +1,6 @@
 # T7-P · Gói A6 — viết lại code sạch BJ-07 Trả NCC, BJ-09 Tình trạng hàng, BJ-10 Tiêu hủy
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ | Làm ✅ | Review ✅
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) Giai đoạn 1, gói A6 (mục 8.1). Ước lượng: **~3 ngày, 1 commit**, 5 chặng (mỗi chặng golden khớp hoàn toàn).
 > Người làm: bạn. Review: phiên plan / review. Mẫu: `app/bj02.js`, `app/bj06.js`; đoạn đo: [A1](T7-P-A1-bj04-bj05.md) mục 4.5.
 > Làm sau A2 (đã xong — listener chung `io07`) và sau A4 (cùng sửa listener `data-v350-action`, `legacy-cross-theme-copy`). Độc lập với A5. **Trước A7** (A7 dựng `shared-control.js`; A6 vẫn gọi `ac310SanitizeMarkup` trong `core.js`).
@@ -231,4 +231,12 @@ Bước không làm màn đổi → chỉnh, ghi mục 9.
 
 ## 10. Review
 
-(Phiên review điền sau khi bạn báo xong.)
+- **Ngày:** 2026-10-19, rà trên working tree cuối Giai đoạn 1 (sau A11, chưa commit; HEAD `4c7020013`). Kiểm chung: [plan tổng mục 14.1](T7-P-thiet-ke-lai-luong.md#141-review-giai-đoạn-1-2026-10-19).
+- **Kết quả: ⚠️ → ✅ sau A12 bước R3 (2026-10-19):** giao diện đạt; `bj07.js` đã còn một định nghĩa cho mọi hàm.
+- **Đã kiểm:**
+  - Golden: mọi ca `UIF-07/09/10_*`, `UIF-15_SCR-056_*`, `SC_bj07_*`, `SC_bj09_*`, `SC_bj10_*`, `SC_attention_UIF-09` — chữ khớp mốc trước Giai đoạn 1. `SC_bj09_movement_0` (SCR-056 BJ-09 không có `movement`) nay khớp `UIF-09_SCR-056_READY` của mốc gốc — phần A6 tạm rơi về chuỗi BJ-15 đã được A9 trả đúng.
+  - Móc `flowRenderers` / `rendererFor` / `flowScreen` còn nguyên sau A11; `renderers["SCR-036…041"] = flowScreen(id)`. Rẽ nhánh `activeFlowId` trong `bj07/09/10.js` chỉ ở đầu listener và hẹn giờ `queueSystemCommit` của BJ-09 (chấp nhận được).
+  - Đổi hướng `flowRenderers` (thay "dựng ở `bj07.js`") — chấp nhận; A9 / A10 dùng lại đúng cách.
+- **Chưa đạt:**
+  1. `bj07.js` còn 7 hàm định nghĩa hai lần (bản `app.js` chết ở đầu file, bản `v395` gán đè trong khối cuối): `io07AllVerified`, `io07ReviewGroups`, `io07SourceDelta`, `io07VerificationSheet`, `io07ApplySourceUpdate`, `io07CreateResult`, `io07ResultSnapshot`. Kiểm "Một định nghĩa" mục 5 (`grep "^\s*[A-Za-z0-9_]*\s*=\s*function" app/bj07.js`) phải rỗng.
+- **Góp ý (không chặn):** `bj10.js` có `render036BJ10` … `render041BJ10` chỉ gọi thẳng `render0xxIC10` — bỏ lớp chuyển tiếp, đăng ký thẳng `render0xxIC10` (hoặc đổi tên hàm gốc) khi làm R3.

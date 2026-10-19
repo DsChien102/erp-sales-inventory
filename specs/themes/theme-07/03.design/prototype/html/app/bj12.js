@@ -1,6 +1,6 @@
 /* BJ-12 — Khởi tạo tồn đầu kỳ (UIF-12). Màn: SCR-066…071.
  *
- * Đã viết lại sạch (T7-P gói A8, 2026-10-17). Màn dựng thẳng (ownedFlows).
+ * Đã viết lại sạch (T7-P gói A8, 2026-10-17). Màn đăng ký qua flowRenderers / renderers.
  * Helper chung ac310* / cfMoney / cfField / … → app/shared-control.js.
  * Sửa nút Từ chối (data-v350-action="cf12-confirm-reject").
  */
@@ -170,12 +170,12 @@ document.addEventListener("click",(event)=>{
       }
       if(k==="cf12-send-approval"){if(!bj12ControlMatches()){stateByScreen["SCR-068"]="CONTROL_TOTAL_MISMATCH";return navigate("SCR-068");}bj12Cf12ApprovalHash=bj12Hash();stateByScreen["SCR-069"]="PENDING_APPROVAL";stateByScreen["SCR-066"]="PENDING_APPROVAL";return navigate("SCR-066");}
       if(k==="cf12-approve"){
-        if(window.__VET45_V350__?.getActor?.()!=="approver"){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
+        if(currentActor()!=="approver"){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
         if(!bj12Cf12ApprovalHash||bj12Cf12ApprovalHash!==bj12Hash()){stateByScreen["SCR-070"]="VALIDATION_ERROR";syncReviewUrl();return renderAppScreen();}
         stateByScreen["SCR-071"]="PROCESSING";navigate("SCR-071");setTimeout(()=>{if(activeFlowId==="UIF-12"&&activeScreenId==="SCR-071"&&stateByScreen["SCR-071"]==="PROCESSING"){stateByScreen["SCR-071"]="COMPLETED";stateByScreen["SCR-066"]="ACTIVE_RECONCILED";syncReviewUrl();render();}},420);return;
       }
       if(k==="cf12-confirm-reject"){
-        if(window.__VET45_V350__?.getActor?.()!=="approver"){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
+        if(currentActor()!=="approver"){stateByScreen["SCR-070"]="SELF_APPROVAL_NOT_ALLOWED";syncReviewUrl();return renderAppScreen();}
         if(!cf12RejectReason.trim())return;cf12RejectOpen=false;stateByScreen["SCR-070"]="APPROVAL_ALREADY_DECIDED";stateByScreen["SCR-066"]="REJECTED";syncReviewUrl();return renderAppScreen();
       }
     }
@@ -205,10 +205,8 @@ Object.assign(renderers, {
   "SCR-070": render070BJ12,
   "SCR-071": render071BJ12
 });
-ownedFlows.add("UIF-12");
 
-// Keep setCf12Control working after hash moved here
-if(window.__VET45_V350__){
-  const prev=window.__VET45_V350__.setCf12Control;
-  window.__VET45_V350__.setCf12Control=function(qty,value){cf12ControlQty=String(qty);cf12ControlValue=String(value);return bj12ControlMatches();};
-}
+
+Object.assign(window.__VET45_QA__, {
+  setCf12Control(qty,value){cf12ControlQty=String(qty);cf12ControlValue=String(value);return bj12ControlMatches();}
+});

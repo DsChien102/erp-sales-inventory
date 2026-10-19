@@ -84,7 +84,7 @@ Dữ liệu mẫu **chép đúng** `bj01Products` của prototype (để so mắ
 | INV-TYLO | Tylosin 20% · SP-000122 | lọ | LOT | 18 | 7 | 3 | 4 | 8 / 24 | CONFIGURED | Hết hạn 11 | TY2408 (31/07/2026, 11/0, hết hạn) · TY2511 (**11/2027**, precision MONTH, 7/7) |
 | INV-OXY | Oxytetracycline LA · SP-000147 | chai | NONE | 31 | 30 | 4 | 26 | null / null | NOT_CONFIGURED | Cách ly 1 | — |
 
-Kèm mỗi sản phẩm: `barcode` (8938500001012, …004068, …005096, …006123, …007144), `latestMovement {label, source, delta}`, `reservation {quantity, source}` (xem `bj01Products` trong `app.js`).
+Kèm mỗi sản phẩm: `barcode` (8938500001012, …004068, …005096, …006123, …007144), `latestMovement {label, source, delta}`, `reservation {quantity, source}` (xem `bj01Products` trong `app/core.js` / `app/bj01.js`).
 
 `StockRepository`:
 

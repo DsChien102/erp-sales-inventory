@@ -122,14 +122,15 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 
 ### 4.2 Giai đoạn 1 — gói A11: dọn khung (sau khi mọi gói xong)
 
-Sau A10 còn trong `core.js`: `v350DeclaredStates`, `v350EntryTargets` / `v350ApplyEntry` / actor, wrapper `navigate` rỗng, `__VET45_V350__`; `v360` (bảng thoát + `ensureStableExitAffordance`, listener `fallback-exit`, `simplifyNormalBanners`); `v361`, `v440`, `v470`. `v310` và chữ sau dựng UIF-17 đã xoá ở A10.
+Plan: [T7-P-A11-don-khung.md](T7-P-A11-don-khung.md). Phạm vi chốt 2026-10-19:
 
-1. Khi mọi luồng đã ở `ownedFlows`: xoá `renderFlowScreen` và mọi bước sửa sau dựng còn lại, `renderFlowInspector`, các khối legacy đã rỗng, bảng toast `v360`, wrapper `navigate` còn sót; `renderAppScreen` chỉ còn: màn gốc theme → `ThemeApp`; còn lại → `renderers[...]` + `ThemeApp.afterFlowRender()`.
-2. Helper dùng chéo (vd. `bj01Empty`) → `core.js` với tên DS (`ds24EmptyState`).
-3. CSS: mỗi BJ một khối trong `styles/screens.css` (gom luật `[data-active-uif="UIF-NN"]` / tiền tố BJ), xoá luật không dùng (script `tools/css-usage.mjs`, có trong [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) mục 3.7), bỏ `!important` khi không còn đối thủ; thành phần dùng chung trong `styles/components.css`. CSS `.cr-*`, `.ac310-*` dọn ở đây.
-4. Xoá mã chết còn lại (bộ bấm thử đo độ phủ).
-5. Tách harness (`harness/workbench.js` / `.css`) khỏi `core.js` / `components.css`.
-6. Kiểm: golden khớp hoàn toàn; bấm thử 0 lỗi JS.
+1. `core.js` chỉ còn khung: xoá `renderFlowScreen`, `ownedFlows`, mọi khối `vNNN` (`v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`); `renderAppScreen` = màn gốc theme → `ThemeApp`, còn lại → `rendererFor(...)` + `ThemeApp.afterFlowRender()`.
+2. Bước sau dựng **còn sống dù mọi luồng đã sở hữu** (bọc `render` / `MutationObserver`): `simplifyNormalBanners` → gộp vào hàm dựng BJ-08 / BJ-10 (khác biệt có chủ đích, ghi CHANGELOG); `v440` grouped surface → đo trước, 0 tác động thì xoá, còn thì giữ làm **một** bước dựng chung có tên trong khung.
+3. Routing lối vào + actor gộp một bảng `entryTargets` / `applyEntry` / `currentActor()`; mọi API QA `__VET45_V350__` / `__V360__` / `__V3101__` / `__BJ10__`… → **một** `window.__VET45_QA__` (BJ tự đăng ký). Giữ tên thuộc tính `data-v350-action` / `data-v360-action` (đổi ở Giai đoạn 2).
+4. Helper dùng chéo: `bj01Empty` → `ds24EmptyState`; bản trùng `icCard…icApprovalButtons` (`core.js` + `bj09.js`) → `shared-control.js`.
+5. Tách harness → `harness/workbench.js` / `figma-ds-map.js` / `workbench.css`; `renderFlowInspector` **giữ nguyên chữ** (golden đọc inspector).
+6. CSS chỉ phần an toàn: xoá luật không dùng (chế độ `golden.mjs usage`), gồm `.cr-*` / `.ac310-*` chết. **Gom CSS theo BJ và bỏ `!important` dời sang bước C của từng BJ** (mục 4.4).
+7. Xoá mã chết JS còn lại (độ phủ + `grep`), file tạm của các gói trước. Kiểm: golden khớp hoàn toàn (trừ mục 2); bấm thử 0 lỗi JS.
 
 ### 4.2b Giai đoạn 2 — mỗi BJ đi B → E
 
@@ -153,7 +154,7 @@ Bạn duyệt bằng cách đồng ý cả brief hoặc chỉ ra điểm bỏ / 
 
 ### 4.4 C — Dựng thiết kế mới
 
-1. Sửa thẳng `app/bjNN.js`; CSS riêng của BJ trong `styles/screens.css` (khối có tiêu đề BJ), thành phần dùng chung trong `styles/components.css`.
+1. Sửa thẳng `app/bjNN.js`; CSS riêng của BJ trong `styles/screens.css` (khối có tiêu đề BJ), thành phần dùng chung trong `styles/components.css`. **Dời từ A11:** gom mọi luật của BJ (`[data-active-uif="UIF-NN"]`, tiền tố BJ, rải trong các khối `vNNN-…css`) về khối của BJ, bỏ `!important` khi không còn đối thủ — làm cùng lúc dựng thiết kế mới vì golden của BJ được phép khác.
 2. Dùng token `--vet45-v2-*`; không màu / cỡ chữ / khoảng cách gõ tay.
 3. Mọi trạng thái trong brief có nhánh dựng; nút nhảy sang BJ khác đi qua `navigate` / `ThemeApp` (không sửa DOM của BJ khác).
 4. Cập nhật kịch bản golden theo brief.
@@ -241,12 +242,12 @@ Bản đồ lớp cũ đo ngày 2026-10-16 trên `app/core.js`. "Lớp" = khối
 | A8 | **BJ-11, BJ-12** | 048–053; 066–071 | `cr11`, `cf12` | `app.js`; `v310`; `v350`; `v360` (toast) | 5 | 2,5 | Dùng `shared-control.js`. Chặng 0 khôi phục listener UIF-11/16/17 (mất từ A5) và `render()` trong `crSwitchFlow` / hẹn giờ duyệt (A7 xoá nhầm) — plan [A8](T7-P-A8-bj11-bj12.md) mục 2.6 |
 | A9 | **BJ-15** | 054, 055, 057, 058, 059 (+056 từ A6) | `cf15` | `app.js`; `v310`; `v320` (cả khối); `v350` (seed `cf15Movements` lúc nạp, gán lại `cf15InventoryResult`, `cf15StockCardResult`, bọc 055 / 058); `v351` (cả khối); `legacy-sheet-cleanup` (cả khối) | 4 | 1,5 | Plan [A9](T7-P-A9-bj15.md). SCR-056 BJ-09 không có `movement` tự dựng trong `bj09.js` (tránh đệ quy qua `flowScreen`); `cf*` + `ac310ProductRow` → `shared-control.js` |
 | A10 | **BJ-16, BJ-17** | 078–083 | `cr16`, `cr17` | `app.js`; `v310` (phần còn lại → xoá cả khối); `v350` (seed `cr16/17Cases` lúc nạp, `.replace` 079–082, `handoff-unknown` + `bj02-*`); `legacy-cross-theme-copy` (cả khối) | 9 | 2 | Plan [A10](T7-P-A10-bj16-bj17.md). Một bộ màn, hai luồng qua `flowRenderers`, `bj17.js` gọi lại helper `bj16.js`. Cơ chế K3 (`handoff-unknown`) → `bj17.js` + móc `onUnknownHandoff` cho UIF-05/06/07. `ac310ProductRow` / `cf*` đã ở `shared-control.js` (A9). Xong A10 = mọi luồng đã sở hữu |
-| A11 | **Dọn khung** | — | — | mục 4.2 | — | 2 | Sau A1–A10 |
-| | **Cộng** | | | | | **~20** | |
+| A11 | **Dọn khung** | — | — | `v350`, `v360`, `v361`, `v362`–`v364`, `v440`, `v450`, `v470`; harness trong `core.js` / `components.css`; CSS không dùng | — | 3 | Plan [A11](T7-P-A11-don-khung.md). `v440` / `simplifyNormalBanners` vẫn chạy trên luồng đã sở hữu (bọc `render`) — đo trước. Một API `__VET45_QA__`. CSS chỉ xoá luật không dùng; gom theo BJ dời Giai đoạn 2 |
+| | **Cộng** | | | | | **~21** | |
 
 Thứ tự gợi ý: A1 → A2 → A3 (gói nhỏ, ít lớp chồng, để quen cách làm) → A4 (BJ-02, demo chính) → A5 (cụm giá trị) → A6 → A7 (dựng `shared-control.js`) → A8 → A9 → A10 → A11. Plan gói `T7-P-A<n>-*.md` được viết ngay trước khi bạn làm gói đó.
 
-**Mốc hết Giai đoạn 1:** mọi luồng trong `ownedFlows`; `core.js` chỉ còn khung; không còn khối `vNNN-…`; golden khớp hoàn toàn với mốc trước Giai đoạn 1 (trừ khác biệt có chủ đích ghi trong CHANGELOG); bấm thử 0 lỗi JS.
+**Mốc hết Giai đoạn 1:** mọi luồng dựng thẳng qua `renderers` / `flowRenderers` (A11 bỏ `ownedFlows`); `core.js` chỉ còn khung, harness ở `harness/`; không còn khối `vNNN-…`; golden khớp hoàn toàn với mốc trước Giai đoạn 1 (trừ khác biệt có chủ đích ghi trong CHANGELOG); bấm thử 0 lỗi JS.
 
 ### 8.2 Giai đoạn 2 — thiết kế lại theo đợt
 
@@ -461,17 +462,84 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | Gói | BJ | Plan | Làm | Review |
 |---|---|---|---|---|
 | A0 | BJ-01 | — | ✅ 2026-10-16 (phiên review) | ✅ |
-| A1 | BJ-04, BJ-05 | ✅ [plan](T7-P-A1-bj04-bj05.md) | ✅ | ⬜ |
-| A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ⬜ |
-| A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ⬜ |
-| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ⬜ |
-| A5 | BJ-03, BJ-13, BJ-14 | ✅ [plan](T7-P-A5-gia-tri.md) | ✅ | ⬜ |
-| A6 | BJ-07, BJ-09, BJ-10 | ✅ [plan](T7-P-A6-bj07-bj09-bj10.md) | ✅ | ⬜ |
-| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ✅ | ⬜ |
-| A8 | BJ-11, BJ-12 | ✅ [plan](T7-P-A8-bj11-bj12.md) | ✅ | ⬜ |
-| A9 | BJ-15 | ✅ [plan](T7-P-A9-bj15.md) | ✅ | ⬜ |
-| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ✅ | ⬜ |
-| A11 | Dọn khung | ⬜ | ⬜ | ⬜ |
+| A1 | BJ-04, BJ-05 | ✅ [plan](T7-P-A1-bj04-bj05.md) | ✅ | ✅ |
+| A2 | BJ-06 | ✅ [plan](T7-P-A2-bj06.md) | ✅ | ✅ |
+| A3 | CAP-01 | ✅ [plan](T7-P-A3-cap01.md) | ✅ | ✅ |
+| A4 | BJ-02 | ✅ [plan](T7-P-A4-bj02.md) | ✅ | ✅ |
+| A5 | BJ-03, BJ-13, BJ-14 | ✅ [plan](T7-P-A5-gia-tri.md) | ✅ | ✅ |
+| A6 | BJ-07, BJ-09, BJ-10 | ✅ [plan](T7-P-A6-bj07-bj09-bj10.md) | ✅ | ✅ |
+| A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ✅ | ✅ |
+| A8 | BJ-11, BJ-12 | ✅ [plan](T7-P-A8-bj11-bj12.md) | ✅ | ✅ |
+| A9 | BJ-15 | ✅ [plan](T7-P-A9-bj15.md) | ✅ | ✅ |
+| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ✅ | ✅ |
+| A11 | Dọn khung | ✅ [plan](T7-P-A11-don-khung.md) | ✅ | ✅ |
+
+### 14.1 Review Giai đoạn 1 (2026-10-19)
+
+Rà trên working tree sau A11 (chưa commit; HEAD `4c7020013`), từng plan ghi kết quả ở mục 10 của plan đó. Code của mỗi gói đã bị gói sau sửa tiếp nên rà theo **trạng thái cuối**, đối chiếu golden với các mốc còn lưu.
+
+**Kiểm chung**
+
+| Kiểm | Kết quả |
+|---|---|
+| `node --check app/*.js harness/*.js` | Sạch |
+| Golden toàn bộ (1348 ca) | 0 lỗi JS; khớp hoàn toàn `tools/.golden-a11-base` / `-final` — nhưng hai mốc này chụp **sau** khi A11 mất CSS, nên không chứng minh được "giao diện không đổi" |
+| So với mốc trước Giai đoạn 1 (`tools/.golden-base` 911 ca, `tools/.golden-a5-base` 960 ca, chung tên) | **Chữ khớp 100%.** Hình: mọi ca lệch 4 góc khung thiết bị (A11); 23 ca trạng thái lệch thật — 5 do A8, 18 do A11 (+ các ca `SC_*` đi qua cùng màn) |
+| So với `.golden-a10` (186 ca, ngay sau A10) | Chỉ lệch các ca do A11 → A1–A10 sạch về hình trừ A8 |
+| Sau A12 (2026-10-19) | Mốc `tools/.golden-phase1`: **0 khác biệt** (chữ + hình) với `.golden-a5-base`, `.golden-base`, `.golden-a10`, `.golden-a8-check` trên mọi ca chung tên; 0 lỗi JS; bấm thử các luồng đã sửa 0 lỗi |
+| Mốc gốc trước A1 | **Không còn** (`tools/.golden-base` bị chụp lại sau A4, 15:32 17/10); git không giữ được vì prototype T7-P0 chưa từng commit đủ (xem R6) |
+| Bấm thử (mọi màn × trạng thái, bấm lần lượt từng nút + nút footer kế tiếp, Hub) | 1301 lần bấm, **0 lỗi JS** |
+| "Một định nghĩa" (checklist 4.1 bước 4) | Lúc review chưa đạt: `bj03.js` 15, `bj13.js` 10, `bj14.js` 5 (`val14CreateRun` ×3), `bj07.js` 7 hàm định nghĩa lặp → **đã sửa ở A12 R3** (+ 10 hàm dạng bí danh `X = tênHàmCụcBộ` sửa ở R7) |
+
+**Bài học (thêm vào checklist 4.1 cho Giai đoạn 2):**
+
+- Mỗi gói so **toàn bộ** golden với **một** mốc cố định chụp trước khi đụng code; không chụp lại mốc giữa gói. Mốc chụp lại = mất bằng chứng (A11). Chụp tập con (A7, A8) để lọt lệch.
+- Chưa chạy được golden thì không đánh "Làm ✅" (A9).
+- Khi bỏ một bước sửa sau dựng (`v361`, `v470`…), đo pipe vs bare cho **mọi** màn còn dùng helper chung (A8 bỏ sót footer duyệt).
+
+### 14.2 Gói A12 — sửa sau review Giai đoạn 1 ✅ (2026-10-19, phiên review làm theo yêu cầu người dùng) — **hết Giai đoạn 1**
+
+Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/`. Server: `python3 -m http.server 8765 --bind 127.0.0.1 &`.
+
+**R0. Mốc.** Đổi tên `tools/.golden-a11-final` → `tools/.golden-a12-pre` (trạng thái hiện tại). Mốc đích để so: `tools/.golden-a5-base` (960 ca, trước A5), `tools/.golden-base` (911 ca, sau A4), `.golden-a10` (186 ca, sau A10), `tools/.golden-a8-check` (110 ca). Đích của A12: so với **cả bốn** mốc (chỉ trên ca chung tên) → `Khớp hoàn toàn`, chấp nhận duy nhất: (a) ca nháy con trỏ ≤ 30 điểm ảnh ở ô tìm / ô nhập (`SC_attention_UIF-09_1_open`, `UIF-02_SCR-009_VALIDATION_ERROR_quick`, `SC_bj16_denied_1_exit`, `SC_bj17_committed_0`, `UIF-11_SCR-048_READY`, `UIF-13_SCR-085_FINANCIAL_MASKED`); (b) khác biệt có chủ đích đã ghi CHANGELOG (handoff UNKNOWN của A8 chặng 0 — chỉ khác `.golden-a7-after`, không khác bốn mốc trên).
+
+**R1. CSS mất ở A11 (chặn).** ✅ 2026-10-19 (phiên review) — góc khung: luật `.device-preview` bị đảo thứ tự (bản bo 32px thắng bản 34px) + một bản sao bo 32px trong `screens.css`; đặt lại thứ tự `styles.css` gốc (base → is-wide → v0.2.3 34px → khung chuẩn 402×874 → `:not(.is-wide)`), xoá bản sao. Khối "Review cards" chèn lại đúng chỗ. Không cần bước 3: `UIF-13_SCR-089_*` cũng hết lệch. Kết quả: **0 khác biệt** với cả bốn mốc R0. Hướng gốc:
+
+1. *Góc khung thiết bị* (mọi ca): so một ảnh bất kỳ (`CAP-01_SCR-062_READY.png`) giữa `.golden-a10` và bản chụp mới — chỉ khác 4 góc 45×45. Tìm luật `.device-preview` / `#review-stage` / nền sân khấu (bo góc 32 vs 34px, viền 8px, `box-shadow`, màu nền sau góc) đã đổi khi tách `harness/workbench.css`; đối chiếu bản legacy trong git (`git show HEAD:specs/themes/theme-07/03.design/prototype/html/workbench.css`, `…/styles.css`, `…/v281-device-frame-correction.css`) và trả lại đúng giá trị + thứ tự. Làm bước này **trước** để `compare` không còn lệch ở mọi ca.
+2. *Khối "Review cards"*: chèn vào `styles/components.css` ngay sau dòng `.approval-actions > :last-child { min-height:52px; }` (≈ dòng 1139, đúng vị trí trong chuỗi luật cũ), bản gốc ở `git show HEAD:specs/themes/theme-07/03.design/prototype/html/styles.css` dòng 2111–2117:
+   ```css
+   /* Review cards composed from VCardHeader/VCardContent-like anatomy */
+   .review-card-header { min-height:auto; padding:var(--v-space-4) var(--v-space-4) var(--v-space-2); border-bottom:0; background:var(--v-color-surface); }
+   .review-card-header strong { font-size:14px; line-height:19px; font-weight:600; }
+   .review-card-body { gap:var(--v-space-2); padding:0 var(--v-space-4) var(--v-space-4); }
+   .review-line { grid-template-columns:minmax(100px,.8fr) minmax(0,1.2fr); gap:var(--v-space-3); }
+   .review-line > span { color:var(--v-color-text-secondary); font-size:13px; line-height:20px; }
+   .review-line > strong { color:var(--v-color-text-primary); font-size:13px; line-height:20px; font-weight:600; }
+   ```
+   Đổi biến `--v-*` sang `--vet45-v2-*` theo cách T7-P0 đã đổi các dòng ngay trên (`.app-actions` dùng `--vet45-v2-space-3`, `--vet45-v2-surface-default`; tra `styles/tokens.css` cho `text-secondary` / `text-primary`).
+3. Chụp `tools/.golden-a12-r1`, so với bốn mốc R0. Còn ca lệch hình (dự kiến `UIF-13_SCR-089_*` nếu chưa hết) → mở ảnh hai bên, tìm phần tử lệch, tìm luật legacy trong git cho phần tử đó mà `styles/*` không còn **và** không có trong `tools/.usage-a11-6/_css-deletable.txt` → trả lại đúng chỗ. Lặp tới khi chỉ còn 5 ca của R2.
+
+**R2. Footer duyệt và dòng "Điều chỉnh" của A8 (chặn).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — 5 ca khớp `tools/.golden-a5-base`; so với trước khi sửa chỉ khác các ca SCR-050 / 051 / 070 (+ `SC_bj11_*` / `SC_bj12_*` / `SC_entry_UIF-11/12_approver` đi qua), chữ không đổi, 0 lỗi JS.
+
+1. `shared-control.js` `ac310ApprovalFooter`: viết sẵn kết quả của `normalizeDualFooters` (`v361`) như `bj02.js` (SCR-011) / `cap01.js` (SCR-064) đã làm — footer thêm lớp `v361-dual-footer v361-dual-footer--danger`, `data-ds-prop-layout="Dual" data-ds-prop-tone="Danger"`; nút "Từ chối" (đứng trước nút chính) thêm `data-ds-prop-tone="VComponentTone.danger" data-ds-profile="button.destructiveSecondary"`. Nguồn chuẩn: `git show HEAD:specs/themes/theme-07/03.design/prototype/html/v361-footer-action-correction.js`. Dùng ở `bj11.js` (SCR-051) và `bj12.js` (SCR-070).
+2. `bj11.js` `bj11KeyValueSurface`: dòng có cờ nhấn mạnh (`r[2]`) dựng bằng `ds24KeyValueRow(label, value, true)` (lớp `ds24-key-value-row--emphasis`, `data-ds-prop-state="Emphasis"`) như trước A8; chỉ thêm `v470-kv--attention` nếu mốc gốc có (mở `UIF-11_SCR-051_READY.png` trong `tools/.golden-a5-base`: "Điều chỉnh −2 hộp" đậm đen, không màu cảnh báo). Giữ dấu trừ U+2212 (mốc gốc SCR-051 có `−2`; SCR-050 có `-2` — đối chiếu `.txt`).
+3. Đích: `UIF-11_SCR-050_READY`, `_VALIDATION_ERROR`, `SCR-051_READY`, `_VALIDATION_ERROR`, `UIF-12_SCR-070_READY` khớp `tools/.golden-a5-base`.
+
+**R3. Một định nghĩa (A5, A6).** ✅ 2026-10-19 (phiên review) — cách làm thực tế: bản thắng nằm trong IIFE `v395`/`v397`–`v399` và cần biến cục bộ của khối, nên **xoá 37 bản chết** (tree-sitter, đúng ranh giới hàm) và khai báo `let tên…;` một dòng ở chỗ bản chết đầu tiên (không còn biến toàn cục ngầm); `val14CreateRun` gộp: `bj14ApplyPolicy` / `BJ14_COST_POLICY` lên cấp file, bản `v399` `return bj14ApplyPolicy(run)`, bỏ `baseCreate14`; bỏ export thừa `window.val03ApplySourceUpdate` / `val13ApplySourceUpdate` / `val13V398` (bj14 gọi `val13Engine`). Đoạn đếm rỗng; golden 1348 ca khớp hoàn toàn bản sau R2; 0 lỗi JS. Kiểm `grep "=\s*function"` của plan A5/A6 vẫn ra các phép gán trong IIFE — đó là định nghĩa duy nhất, dùng đoạn đếm dưới đây làm tiêu chí. Hướng gốc (giữ để đối chiếu): Với từng hàm trong danh sách ở review A5 / A6: giữ **bản cuối** (bản đang chạy), đổi `name=function(...)` thành `function name(...)` đặt ở chỗ bản đầu, xoá bản đầu. `val14CreateRun`: gộp ba bản thành một = thân bản `v399` (dòng 93) + `applyPolicy(r)` trước `return`; xoá `baseCreate14`. Cẩn thận hàm được **chụp tham chiếu lúc nạp** (`const x = tênHàm`) — grep `=\s*val0\|=\s*val1\|=\s*io07` trước khi xoá. `window.val13V398` → `bj14.js` gọi thẳng `val13Engine.methodEligible`. Kiểm: đoạn đếm ở cuối mục này rỗng; golden khớp `tools/.golden-a12-r1` (sau R1–R2) hoàn toàn.
+
+```bash
+node -e 'const fs=require("fs");for(const f of fs.readdirSync("app")){const s=fs.readFileSync("app/"+f,"utf8"),m={};for(const r of s.matchAll(/(?:^|[\s;{}(])function\s+([A-Za-z0-9_$]+)\s*\(|(?:^|[\s;{}])([A-Za-z0-9_$]+)\s*=\s*function\b/gm)){const n=r[1]||r[2];m[n]=(m[n]||0)+1}const d=Object.keys(m).filter(k=>m[k]>1);if(d.length)console.log(f,d.join(" "))}'
+```
+
+**R4. Chú thích.** ✅ 2026-10-19. `core.js`: xoá dòng 13 `/* ===== app.js ===== */`, các dòng `// v1.7.0 …`, `// v1.8.0 …` (2 chỗ), `/* flowScreen assigns after framework */`; dòng 7 bỏ `simplifyNormalBanners`. Đầu `bj01.js` / `bj04.js`: sửa câu cụt "… màn dựng"; `bj05/06/07.js`: bỏ thụt `  */`; `cap01.js`: bỏ "Còn ở core.js (gỡ dần ở A11): fallback-exit". `bj10.js`: bỏ lớp chuyển tiếp `render0xxBJ10`.
+
+**R5. Công cụ và thư mục mốc.** ✅ 2026-10-19 — mốc `tools/.golden-phase1` (1348 ca, 0 lỗi JS, 0 khác biệt với bốn mốc gốc) chụp **trước** khi xoá 32 thư mục mốc tạm; README prototype trỏ mốc mới. `tools/golden.mjs`: bỏ nhánh `||window.__VET45_V350__` / `__VET45_V3101__`. Sau khi A12 đạt: chụp mốc Giai đoạn 2 `tools/.golden-phase1`; xoá mọi `tools/.golden-a*`, `tools/.golden-{base,check,sc-a,sc-b,bj02-sc}`, `tools/.full-*`, `tools/.usage-*`, và `.golden-*` ở gốc `html/`. `tools/.gitignore` thêm `.full*/` và `.usage*/`.
+
+**R6. Ghi lại và commit.** ✅ 2026-10-19 — CHANGELOG `[5.3.1]`, `manifest.json` / badge 5.3.1, `sync-registry.py`; commit theo yêu cầu người dùng. CHANGELOG `[5.3.1] — T7-P A12: sửa sau review Giai đoạn 1` (R1 CSS trả lại, R2 footer / dòng nhấn mạnh, R3 một định nghĩa); sửa mục 5.3.0 bỏ `simplifyNormalBanners` khỏi danh sách khung. `manifest.json` 5.3.1; `python3 tools/sync-registry.py`. **Commit gồm cả cấu trúc T7-P0 + A11 chưa từng commit**: 214 file legacy đã xoá, `styles/`, `harness/`, `data/`, `index.html` — kiểm bằng `git stash -u && git status` không còn gì rồi mở `index.html` từ một bản `git worktree` sạch. `detect_changes()` trước commit. Commit: `refactor(prototype): T7-P A11+A12 — framework cleanup, harness split, post-review fixes`.
+
+**R7. Tách lại cụm giá trị theo BJ (A5).** ✅ 2026-10-19 (phiên review, theo yêu cầu người dùng) — helper giao diện của hai khối → `VAL_UI_430` / `VAL_UI_461` trong `shared-valuation.js` (giữ nguyên thân; 5 helper chỉ BJ-03 dùng ở lại `bj03.js`); phần dựng + listener tách thành khối riêng theo BJ: `bj03.js` dựng SCR-014/015/016/017/019, `bj13.js` SCR-085…089, `bj14.js` SCR-072…077. Xoá mã chết lộ ra: nhánh listener `data-v430-val14-*` (không màn nào phát, tham chiếu biến không tồn tại), `VALUATION_FLOWS`, `SCREEN_ALIAS`, `if(typeof renderers==='undefined')`, `val03Commit = val03Commit430` lặp. Gộp nốt định nghĩa trùng dạng bí danh mà đoạn đếm R3 bỏ sót: `val03EvidenceState` / `Source` / `GroupSelectedQty` / `Calc`, `val03Commit` (bản `v397` chết), `val13SelectedTargets` / `Preview` / `PreviewHashOf` / `CanOpenAllocation` / `CanPreview`. Golden 1348 ca khớp hoàn toàn bản sau R3; 0 lỗi JS. Mô tả lúc phát hiện (giữ để đối chiếu): Phát hiện khi làm R3: `bj03.js` chứa khối `v430` dựng SCR-014 (BJ-03) **và SCR-085 (BJ-13)** + listener `data-v430-val14-*` (BJ-14); `bj14.js` chứa khối `v461` dựng SCR-015/017/019 (BJ-03), **SCR-086/089 (BJ-13)** và SCR-072/074/077 (BJ-14); `bj13.js` chỉ có fixture + helper. Mục tiêu A5 "BJ-NN → `app/bjNN.js`" chưa đạt. Hướng: chuyển hàm dựng + listener theo màn về đúng file (helper cục bộ dùng chung của `v430` / `v461` → `shared-valuation.js`), golden khớp hoàn toàn. Ước lượng ~0,5–1 ngày. Có thể dời sang bước C của Đợt giá trị ở Giai đoạn 2 (khi BJ-03/13/14 được viết lại) nếu chấp nhận.
+
+Xong A12: plan tổng mục 14 đổi Review A5 / A6 / A8 / A11 sang ✅ và ghi "Hết Giai đoạn 1".
 
 ### Giai đoạn 2 — thiết kế lại
 

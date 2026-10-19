@@ -205,7 +205,7 @@ class InventoryNoticeBanner extends StatelessWidget {
 | `validation` | error | `'Cần kiểm tra dữ liệu'` | `'Dữ liệu đã nhập được giữ lại. Sửa trường được đánh dấu trước khi tiếp tục.'` |
 | `stale` | warning | `'Dữ liệu có thể đã cũ'` | `'Làm mới lịch sử trước khi dựa vào trạng thái hiện tại.'` |
 
-(Severity lấy từ bảng state copy trong `app.js` của prototype.)
+(Severity lấy từ bảng state copy trong `app/core.js` của prototype.)
 
 ### 3.3 Session cubit — trạng thái của 008 / 009 / 084 / 010
 

@@ -3,9 +3,9 @@
  * Đã viết lại sạch (T7-P gói A4, 2026-10-17): mọi fixture, trạng thái, helper, hàm dựng và xử lý sự kiện của BJ-02
  * nằm ở đây. Sửa BJ-02: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, stateBanner, deniedBody, loadingBody, emptyBody, vBanner, vBadge, resultHero,
- * icon, primaryFooter, esc, escapeAttribute, navigate, renderAppScreen, showToast, onPrevious, ownedFlows, flowMode.
+ * icon, primaryFooter, esc, escapeAttribute, navigate, renderAppScreen, showToast, onPrevious, flowMode.
  * UNKNOWN: listener bj02-verify-unknown / bj02-handoff-unknown ở file này (A10); handoff gọi bj17HandoffUnknown.
- * Còn ở hub: addPendingReviewExit / "Về Kho" (Giai đoạn 2); SCR-011/012/013 trong v360ExitTargets; v470 (A11).
+ * Còn ở hub: addPendingReviewExit / "Về Kho" (Giai đoạn 2).
  */
 
 const supplierCatalog = [
@@ -1216,7 +1216,6 @@ Object.assign(renderers, {
   "SCR-012": render012BJ02,
   "SCR-013": render013BJ02,
 });
-ownedFlows.add("UIF-02");
 
 document.addEventListener("click", (event) => {
   const a = event.target.closest("[data-v350-action]");

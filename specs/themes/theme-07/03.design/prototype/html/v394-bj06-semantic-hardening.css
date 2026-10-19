@@ -1,7 +1,0 @@
-/* v3.9.4 — BJ06 semantic hardening only. Uses existing Figma-DS-derived primitives. */
-.v394-return-line + .v394-return-line{margin-top:8px}
-.v394-lot-facts{margin:0 0 8px;padding:0 12px}
-.v394-new-lot{margin-top:12px}
-.v394-system-expired{cursor:default}
-.v394-system-expired .ds24-list-row__trailing{pointer-events:none}
-.v394-expired-fact{margin-top:8px}

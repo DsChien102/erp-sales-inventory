@@ -1,16 +1,16 @@
 {
-  "version": "5.2.0",
-  "parent": "5.1.9",
-  "status": "T7_P_A10_BJ16_BJ17_CLEAN",
-  "scope": "T7-P A10: BJ-16/BJ-17 viết lại sạch vào app/bj16.js / bj17.js; crFactCard/ac321CanonicalChips → shared-control.js; onUnknownHandoff; gỡ v310 + chữ sau dựng UIF-17; ownedFlows mọi luồng; golden SC_bj16_* / SC_bj17_*.",
+  "version": "5.3.1",
+  "parent": "5.2.0",
+  "status": "T7_P_A11_FRAMEWORK_CLEAN",
+  "scope": "T7-P A11: core.js khung sạch; harness JS/CSS tách; __VET45_QA__; xoá CSS không dùng; golden khớp sau rebaseline CSS harness.",
   "flows": 18,
   "screens": 89,
   "canonicalActiveScreens": 73,
   "inspect": true,
   "structure": {
     "html": "index.html",
-    "styles": ["styles/tokens.css", "styles/components.css", "styles/screens.css", "harness/workbench.css"],
-    "scripts": ["data/workbench-data.js", "app/core.js", "app/shared-control.js", "app/shared-valuation.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js", "harness/workbench.js"],
+    "styles": ["styles/tokens.css", "styles/components.css", "harness/workbench.css", "styles/screens.css"],
+    "scripts": ["data/workbench-data.js", "app/core.js", "harness/figma-ds-map.js", "harness/workbench.js", "app/shared-control.js", "app/shared-valuation.js", "app/bj01.js…bj17.js", "app/cap01.js", "app/hub.js"],
     "golden": "tools/golden.mjs"
   },
   "authority": {

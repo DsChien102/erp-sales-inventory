@@ -1,12 +1,11 @@
 /* BJ-05 — Lấy hàng và bàn giao đơn (UIF-05). Màn: SCR-025, SCR-026, SCR-027, SCR-028, SCR-029.
  *
  * Đã viết lại sạch (T7-P gói A1, 2026-10-17): mọi fixture, trạng thái, helper io05*, hàm dựng và xử lý sự kiện của BJ-05
- * nằm ở đây; màn dựng thẳng (ownedFlows), không qua bước sửa sau dựng legacy. Sửa BJ-05: sửa thẳng file này.
+ * nằm ở đây; Sửa BJ-05: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24*, io* (ioSearchBar, ioMatchesSearch, ioFilterRows, ioMetaRow, ioReadCard,
- * ioEmpty, ioResult, resultHero, ioFilterChips… — BJ-06 / 07 cũng dùng), vBanner, deniedBody, loadingBody, esc,
+ * ioEmpty, ioResult, resultHero… — BJ-06 / 07 cũng dùng), vBanner, deniedBody, loadingBody, esc,
  * escapeAttribute, navigate, render, renderAppScreen, showToast, primaryFooter, onScreenEnter.
  * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-05"] (A10); nút data-v350-action="handoff-unknown" → bj17.js.
- * Còn ở core.js: bumpIO05Source (A11); SCR-025 / SCR-029 trong v360RootScreens / v360ExitTargets (A11).
  */
 
 const IO05_ACTOR={id:"USR-WH-001",name:"Nguyễn Văn An"};
@@ -249,7 +248,6 @@ Object.assign(renderers, {
   "SCR-028": render028BJ05,
   "SCR-029": render029BJ05,
 });
-ownedFlows.add("UIF-05");
 
 onUnknownHandoff["UIF-05"] = () => {
   const o = io05CurrentOrder();
@@ -288,4 +286,8 @@ document.addEventListener("click", (event) => {
   if (k === "result-to-queue") { io05QueueFilter = "ALL"; io05Query = ""; return navigate("SCR-025"); }
   if (k === "continue-remaining") { stateByScreen["SCR-026"] = "READY"; return navigate("SCR-026"); }
   if (k === "confirm-handover") { if (io05HandoverInvalid() || io05HandoverTotal() <= 0) return; const result = io05ApplyHandover(); if (!result) return; stateByScreen["SCR-029"] = result.full ? "COMPLETED" : "PARTIAL_COMPLETED"; return navigate("SCR-029"); }
+});
+
+Object.assign(window.__VET45_QA__, {
+  bumpIO05Source(){const o=io05CurrentOrder();o.sourceVersion=Number(o.sourceVersion||0)+1;return o.sourceVersion;}
 });

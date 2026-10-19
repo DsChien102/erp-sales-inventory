@@ -1,12 +1,11 @@
 /* BJ-06 — Hàng khách trả (UIF-06). Màn: SCR-030, SCR-031, SCR-032, SCR-033, SCR-034, SCR-035.
  *
  * Đã viết lại sạch (T7-P gói A2, 2026-10-17): mọi fixture, trạng thái, helper io06*, hàm dựng và xử lý sự kiện của BJ-06
- * nằm ở đây; màn dựng thẳng (ownedFlows), không qua bước sửa sau dựng legacy. Sửa BJ-06: sửa thẳng file này.
+ * nằm ở đây; Sửa BJ-06: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, ds24*, io* chung (ioMatchesSearch, ioNormalizeSearch, ioFilterRows, ioEmpty,
  * ioResult, resultHero, ioSecondary, ioMetaRow, ioReadCard), vBanner, deniedBody, loadingBody, esc, escapeAttribute,
  * icon, primaryFooter, navigate, renderAppScreen, onPrevious.
  * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-06"] (A10); nút handoff-unknown → bj17.js.
- * Còn ở core.js: bumpIO06Source (A11); SCR-030/034/035 trong bảng v360 (A11).
  */
 
 
@@ -245,7 +244,6 @@ Object.assign(renderers, {
   "SCR-034": render034BJ06,
   "SCR-035": render035BJ06,
 });
-ownedFlows.add("UIF-06");
 
 onUnknownHandoff["UIF-06"] = () => {
   const r = io06CurrentRequest();
@@ -346,3 +344,7 @@ onPrevious["UIF-06"] = () => {
   if (activeScreenId === "SCR-032") return navigate("SCR-031");
   if (activeScreenId === "SCR-033") { io06ClassificationOpen = false; io06ClassificationDraft = null; return navigate("SCR-030"); }
 };
+
+Object.assign(window.__VET45_QA__, {
+  bumpIO06Source(){const r=io06CurrentRequest();r.sourceVersion=Number(r.sourceVersion||0)+1;io06RefreshRequestState(r);return r.sourceVersion;}
+});

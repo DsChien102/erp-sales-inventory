@@ -1,6 +1,6 @@
 /* BJ-17 — Phục hồi nghiệp vụ có kết quả chưa xác định (UIF-17). Màn: SCR-078, 079, 080, 082, 083.
  *
- * Đã viết lại sạch (T7-P gói A10, 2026-10-19). Màn dựng thẳng (ownedFlows); gọi lại helper bj16* lúc chạy.
+ * Đã viết lại sạch (T7-P gói A10, 2026-10-19). Màn đăng ký qua flowRenderers / renderers; gọi lại helper bj16* lúc chạy.
  * Cơ chế K3 handoff-unknown + bj17RecoveryCase ở đây; khoá nguồn qua móc onUnknownHandoff (bj05/06/07 đăng ký).
  * Chữ "Lần xử lý" viết thẳng (trước đây legacy-cross-theme-copy).
  */
@@ -144,4 +144,8 @@ document.addEventListener("click",(event)=>{
   return bj17HandoffUnknown({sourceFlow:a.dataset.sourceFlow,operation:a.dataset.operation,scope:a.dataset.scope,evidence:"INSUFFICIENT"});
 },true);
 
-ownedFlows.add("UIF-17");
+
+Object.assign(window.__VET45_QA__, {
+  bumpCR17Evidence(){const c=cr17Current();c.evidenceVersion=Number(c.evidenceVersion||0)+1;return c.evidenceVersion;},
+  getBJ17(){const c=cr17Current();return {id:c.id,operation:c.operation,evidenceVersion:c.evidenceVersion,record:c.resolutionRecord};}
+});
