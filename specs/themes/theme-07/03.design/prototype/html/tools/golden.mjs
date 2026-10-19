@@ -246,6 +246,37 @@ const SCENARIOS = [
   { name: 'SC_bj15_result_denied', url: '?uif=UIF-15&screen=SCR-059&state=PERMISSION_DENIED', steps: [['exit', click('[data-v360-action="fallback-exit"]')]] },
   { name: 'SC_bj15_result_stale', url: '?uif=UIF-15&screen=SCR-059&state=SOURCE_STALE', steps: [['done', click('[data-cf15-action="done-export"]')]] },
   { name: 'SC_bj09_history_back', url: '?uif=UIF-09&screen=SCR-056', steps: [['back', back]] },
+  // BJ-16 / BJ-17 — T7-P A10
+  ...(() => {
+    const D = '?uif=UIF-16&screen=';
+    const U = '?uif=UIF-17&screen=';
+    const bump16 = `(()=>{window.__VET45_V350__.bumpCR16Evidence();return true})()`;
+    const bump17 = `(()=>{window.__VET45_V350__.bumpCR17Evidence();return true})()`;
+    return [
+      { name: 'SC_bj16_list', url: D + 'SCR-078', steps: [['filter-action', click('[data-cr16-filter="ACTION"]')], ['filter-waiting', click('[data-cr16-filter="WAITING"]')], ['filter-high', click('[data-cr16-filter="HIGH"]')], ['filter-all', click('[data-cr16-filter="ALL"]')], ['search', typeIn('[data-cr-control-search]', 'Amox')], ['clear-search', typeIn('[data-cr-control-search]', '')], ['case', click('[data-cr-case="REC-260907-03"]')]] },
+      { name: 'SC_bj16_recovery', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-03"]')], ['open-plan', click('[data-v350-action="cr16-open-plan"]')], ['start', click('[data-v350-action="cr16-start-recovery"]')], ['wait', wait(400)], ['review', click('[data-v350-action="cr16-review-result"]')], ['close', click('[data-v350-action="cr16-close-case"]')], ['to-list', click('[data-cr16-action="to-list"]')]] },
+      { name: 'SC_bj16_conflict', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-03"]')], ['open-plan', click('[data-v350-action="cr16-open-plan"]')], ['bump', bump16], ['start', click('[data-v350-action="cr16-start-recovery"]')], ['back', back]] },
+      { name: 'SC_bj16_mismatch', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-03"]')], ['open-plan', click('[data-v350-action="cr16-open-plan"]')], ['start', click('[data-v350-action="cr16-start-recovery"]')], ['wait', wait(400)], ['review', click('[data-v350-action="cr16-review-result"]')], ['bump', bump16], ['close', click('[data-v350-action="cr16-close-case"]')], ['back-ev', click('[data-v350-action="cr16-back-evidence"]')]] },
+      { name: 'SC_bj16_correction', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-04"]')], ['handoff', click('[data-v350-action="cr16-correction-handoff"]')]] },
+      { name: 'SC_bj16_no_real', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-05"]')], ['review-close', click('[data-v350-action="cr16-review-close"]')], ['close', click('[data-v350-action="cr16-close-case"]')], ['to-list', click('[data-cr16-action="to-list"]')]] },
+      { name: 'SC_bj16_ledger', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-06"]')], ['escalated', click('[data-cr16-action="show-escalated"]')], ['to-list', click('[data-cr16-action="to-list"]')]] },
+      { name: 'SC_bj16_source', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-07"]')], ['source', click('[data-v350-action="cr16-source-handoff"]')]] },
+      { name: 'SC_bj16_back', url: D + 'SCR-078', steps: [['case', click('[data-cr-case="REC-260907-03"]')], ['open-plan', click('[data-v350-action="cr16-open-plan"]')], ['b1', back], ['b2', back]] },
+      { name: 'SC_bj16_context', url: '?uif=UIF-16&entry=case-context', steps: [['back', back]] },
+      { name: 'SC_bj16_denied', url: D + 'SCR-083&state=PERMISSION_DENIED', steps: [['exit', click('[data-v360-action="fallback-exit"]')]] },
+      { name: 'SC_bj17_list', url: U + 'SCR-078', steps: [['filter-committed', click('[data-cr17-filter="COMMITTED"]')], ['filter-no', click('[data-cr17-filter="NO_COMMIT"]')], ['filter-ins', click('[data-cr17-filter="INSUFFICIENT"]')], ['filter-all', click('[data-cr17-filter="ALL"]')], ['search', typeIn('[data-cr-control-search]', 'IO-260906-044')], ['clear-search', typeIn('[data-cr-control-search]', '')], ['case', click('[data-cr-case="REC-UNKNOWN-01"]')]] },
+      { name: 'SC_bj17_committed', url: U + 'SCR-078', steps: [['case', click('[data-cr-case="REC-UNKNOWN-01"]')], ['open-plan', click('[data-cr17-action="open-plan"]')], ['execute', click('[data-v350-action="cr17-execute-plan"]')], ['finish', click('[data-v350-action="cr17-finish-review"]')], ['to-list', click('[data-cr17-action="to-list"]')]] },
+      { name: 'SC_bj17_continue', url: U + 'SCR-078', steps: [['case', click('[data-cr-case="REC-UNKNOWN-02"]')], ['open-plan', click('[data-cr17-action="open-plan"]')], ['execute', click('[data-v350-action="cr17-execute-plan"]')], ['finish', click('[data-v350-action="cr17-finish-review"]')]] },
+      { name: 'SC_bj17_insufficient', url: U + 'SCR-078', steps: [['case', click('[data-cr-case="REC-UNKNOWN-03"]')], ['escalated', click('[data-cr17-action="show-escalated"]')], ['to-list', click('[data-cr17-action="to-list"]')]] },
+      { name: 'SC_bj17_plan_conflict', url: U + 'SCR-078', steps: [['case', click('[data-cr-case="REC-UNKNOWN-01"]')], ['open-plan', click('[data-cr17-action="open-plan"]')], ['bump', bump17], ['execute', click('[data-v350-action="cr17-execute-plan"]')]] },
+      { name: 'SC_bj17_finish_conflict', url: U + 'SCR-078', steps: [['case', click('[data-cr-case="REC-UNKNOWN-01"]')], ['open-plan', click('[data-cr17-action="open-plan"]')], ['execute', click('[data-v350-action="cr17-execute-plan"]')], ['bump', bump17], ['finish', click('[data-v350-action="cr17-finish-review"]')]] },
+      { name: 'SC_bj17_context', url: '?uif=UIF-17&entry=unknown-context', steps: [['back', back]] },
+      { name: 'SC_bj17_denied', url: U + 'SCR-083&state=PERMISSION_DENIED', steps: [['exit', click('[data-v360-action="fallback-exit"]')]] },
+      { name: 'SC_bj17_from_bj05', url: '?uif=UIF-05&screen=SCR-029&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')], ['escalated', click('[data-cr17-action="show-escalated"]')], ['to-list', click('[data-cr17-action="to-list"]')]] },
+      { name: 'SC_bj17_from_bj07', url: '?uif=UIF-07&screen=SCR-041&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
+      { name: 'SC_bj17_from_bj10', url: '?uif=UIF-10&screen=SCR-041&state=UNKNOWN', steps: [['handoff', click('[data-v350-action="handoff-unknown"]')]] },
+    ];
+  })(),
 ];
 for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
 const todo = groups.filter((g) => g.cases.length);

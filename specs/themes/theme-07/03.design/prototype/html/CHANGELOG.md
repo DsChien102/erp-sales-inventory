@@ -1,5 +1,14 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.2.0] — T7-P Giai đoạn 1, gói A10: BJ-16, BJ-17 viết lại sạch; mọi luồng đã sở hữu
+
+- BJ-16 (UIF-16: SCR-078…083) → `app/bj16.js`; BJ-17 (UIF-17: SCR-078/079/080/082/083) → `app/bj17.js`; helper chung `crFactCard` / `ac321CanonicalChips` → `app/shared-control.js`.
+- `ownedFlows` thêm `UIF-16`, `UIF-17` — **mọi luồng đã sở hữu**.
+- Cơ chế K3: `bj17HandoffUnknown` / `bj17RecoveryCase` ở `bj17.js`; móc `onUnknownHandoff` (bj05/06/07 đăng ký); `bj02-verify-unknown` / `bj02-handoff-unknown` → `bj02.js`.
+- Gỡ khỏi `core.js`: phần BJ-16/17 của Correction Recovery / `v350`; **cả khối `v310`** (`ac310Base` / `AC310_SCREEN_IDS`); **cả khối chữ sau dựng UIF-17**; listener UIF-16/17. Giữ: `crSwitchFlow`, routing `entry`, `v350DeclaredStates` / `v350EntryTargets` / `__VET45_V350__`, `v360` / `v361` / `v440` / `v470` (A11).
+- Gộp vào hàm dựng: thuộc tính `data-v350-action` cuối; chữ "Lần xử lý"; footer "Về danh sách" 083 `PERMISSION_DENIED`.
+- Golden thêm kịch bản `SC_bj16_*` / `SC_bj17_*`.
+
 ## [5.1.9] — T7-P Giai đoạn 1, gói A9: BJ-15 viết lại sạch
 
 - BJ-15 (UIF-15: SCR-054…059) → `app/bj15.js`; helper `cfMoney`…`cfSecondary` và `ac310ProductRow` → `app/shared-control.js`.

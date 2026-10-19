@@ -7,7 +7,7 @@
   "merge_source": "v3.13.0",
   "merge_source_parent": "v3.12.0",
   "registry_policy": "Actual package tree only; user-pruned files are not restored. Metadata is preserved from existing entries where available.",
-  "artifact_count": 456,
+  "artifact_count": 463,
   "artifacts": [
     {
       "path": "01.knowledge/decisions/decision-register.md",
@@ -3222,8 +3222,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "126b1dfb238d33518d3bcaaa31d08e483dc568ae576586b052f689f9b970a7fd",
-      "size": 13768
+      "sha256": "4240967c0b44af382fe19005a19cf054ad1b263bae9da9a4b30f7345753c2d33",
+      "size": 18377
     },
     {
       "path": "03.design/prototype/html/DS-CONFORMANCE.md",
@@ -3270,8 +3270,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "f7bff97e859905be4f562262d9df760410e69c08efd20a464db8c54e140bca86",
-      "size": 121906
+      "sha256": "0e405141a5b7fe87be4d3d288c0b4495dbbfd1d9b93b961f5d3954d613d78c6a",
+      "size": 122539
     },
     {
       "path": "03.design/prototype/html/app/bj03.js",
@@ -3306,8 +3306,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "2e4f06a1c55337280b3929191f8854093cd2869bb1e983704dbfe6f77e43e33e",
-      "size": 43244
+      "sha256": "f7b1a458208f64b742551ae222242ff9233cc47170a993ed5e2ab597535cbeb2",
+      "size": 43390
     },
     {
       "path": "03.design/prototype/html/app/bj06.js",
@@ -3318,8 +3318,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "ac86ef30c5c1a5c600d19377b4ca633c678c2284adb3ef14dd00df73c71afa4c",
-      "size": 60524
+      "sha256": "17d2c89803b8982bfca19f5bc7a28b93cbfeebdcf173280715e6f916e24226b9",
+      "size": 60717
     },
     {
       "path": "03.design/prototype/html/app/bj07.js",
@@ -3330,8 +3330,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "144523f647c50402293bba9ce11d410d66f2b64d3a3f7a2ae3d7861e5c41a06e",
-      "size": 51466
+      "sha256": "fc125e3068cd3d6c94a9661329d11a336c61a25d5e94fd1b15d8f6468f6fb986",
+      "size": 51680
     },
     {
       "path": "03.design/prototype/html/app/bj08.js",
@@ -3342,8 +3342,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "797120e79676890eba2710cc272e6cbbaf96178af506735cccbfc566deb99ceb",
-      "size": 843
+      "sha256": "22cd45f03a4c28e731255970287151f3b02fa8c4c2fa7bc9fee5e8a696ae9e54",
+      "size": 35059
     },
     {
       "path": "03.design/prototype/html/app/bj09.js",
@@ -3354,8 +3354,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "77ede373f2f90a0732c64a69d13304946305c09b514a68a91416bddc6bdc6dca",
-      "size": 32996
+      "sha256": "9244acc79ede5f7c9b8cbfeb3951b0ab60f7ee59f274ce906182e415d23680f8",
+      "size": 34384
     },
     {
       "path": "03.design/prototype/html/app/bj10.js",
@@ -3366,8 +3366,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "1fae005aa556cc180d129306e4d6bde7cdcb0362b1dfba1cbad0231c868279d2",
-      "size": 18175
+      "sha256": "4cfe1b125d4b7351923d4577eb2ff4e03d70a9f06860c3214c1952bbddee8f02",
+      "size": 17950
     },
     {
       "path": "03.design/prototype/html/app/bj11.js",
@@ -3378,8 +3378,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "c795d3d50147fee0e9544ba1ee4a232f00cdfed4c4d3601b5cb9f802c1f8b6b4",
-      "size": 655
+      "sha256": "1e750b6ffc5bcba86ca71b700885ee0dc27b9b725cb2a31deda69e408c1ed38d",
+      "size": 25397
     },
     {
       "path": "03.design/prototype/html/app/bj12.js",
@@ -3390,8 +3390,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "d3e65b060f93c5b2a88abba5e556b3a1412837f7625f39a33d469e122e63798d",
-      "size": 688
+      "sha256": "ab1b2d4df1e11009a7ecbf336b858ab8fc321181706e2bbe77f88b171f8bb6d5",
+      "size": 23189
     },
     {
       "path": "03.design/prototype/html/app/bj13.js",
@@ -3426,8 +3426,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "74e19d1511e58de2797590ea355a4c2cf3ef9d6f880cd227181a4d73eb9403c7",
-      "size": 796
+      "sha256": "b7c91a2cc2bed18995ac1647ac14eeedd7af78e9416bda05272d10eb721fba79",
+      "size": 33040
     },
     {
       "path": "03.design/prototype/html/app/bj16.js",
@@ -3438,8 +3438,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "35f3ebf1fe590e9b064f5a26613d0bdf5a88f69a6539ac4cfbbc9fddafd1c44f",
-      "size": 693
+      "sha256": "4154d863084a003d12b734a82fb3ede4e637b6018d8ff7d77cf3ca3841667e25",
+      "size": 19791
     },
     {
       "path": "03.design/prototype/html/app/bj17.js",
@@ -3450,8 +3450,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "3429b0d73899809c71088dc615230e6238f9b320573c90be012d44a14f2c60d6",
-      "size": 697
+      "sha256": "f979200d7bea04b7418bf4591d6b51484533167f5d2e5c0773479f71b3945035",
+      "size": 13189
     },
     {
       "path": "03.design/prototype/html/app/cap01.js",
@@ -3474,8 +3474,20 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "39624c8efa483a9369c9e51ce1319741d6e5747a6ff5f773d446960325296d25",
-      "size": 386241
+      "sha256": "6e5d57d8c1001f48854ed3128c0aab3a80f21bed4cc53085cadfcc6475c85703",
+      "size": 144739
+    },
+    {
+      "path": "03.design/prototype/html/app/core.js.before-a10",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "2a2ab5a76124de24ebea2dd592b4ee529860f0d1d4bf999e7f007ba4912ea229",
+      "size": 195738
     },
     {
       "path": "03.design/prototype/html/app/core.js.before-a5",
@@ -3502,6 +3514,42 @@
       "size": 509122
     },
     {
+      "path": "03.design/prototype/html/app/core.js.before-a7",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "39624c8efa483a9369c9e51ce1319741d6e5747a6ff5f773d446960325296d25",
+      "size": 386241
+    },
+    {
+      "path": "03.design/prototype/html/app/core.js.before-a8",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "ed56dfa5d08900979289bb748f4e09738d6b963b8ddb2cb8364cd4bcbe0ea1ca",
+      "size": 307946
+    },
+    {
+      "path": "03.design/prototype/html/app/core.js.before-a9",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "8154b9c7ee33e64a5ccec3b9bc26b0046e140616a637d46c790f4f7c6b04a756",
+      "size": 245032
+    },
+    {
       "path": "03.design/prototype/html/app/hub.js",
       "id": "",
       "type": "",
@@ -3512,6 +3560,18 @@
       "source_baseline": "",
       "sha256": "27c66eabe5029b2aa704c8acf2d5925bfc401b2eb86ec109e33de2a841ffa47f",
       "size": 29631
+    },
+    {
+      "path": "03.design/prototype/html/app/shared-control.js",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "3c3d72150a08b629dd37566565e2aa572075f3f6f775308727ad5d92c46ea37c",
+      "size": 9344
     },
     {
       "path": "03.design/prototype/html/app/shared-valuation.js",
@@ -3582,8 +3642,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "7b52c0b7155e501fec3c68814b4ff47e21b578a9f162bfbde45b67e17d43ec66",
-      "size": 6173
+      "sha256": "e705e13b1b4251487af977743265ecb4c506e74148c36410cdfef7d267cbade9",
+      "size": 6223
     },
     {
       "path": "03.design/prototype/html/manifest.json",
@@ -3594,8 +3654,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "d1a889239c22eae16236a8db0820e961609c67cc8ceb31b3ccb9a28add4cb736",
-      "size": 1558
+      "sha256": "a6cb29b93850d6a6a1a315091f424291051f9c85e145f67f1851312033fa4d96",
+      "size": 1438
     },
     {
       "path": "03.design/prototype/html/prototype.manifest.json",
@@ -3670,18 +3730,6 @@
       "size": 18672
     },
     {
-      "path": "03.design/prototype/html/tools/_a6_extract.py",
-      "id": "",
-      "type": "",
-      "owner": "",
-      "status": "",
-      "theme": "",
-      "title": "",
-      "source_baseline": "",
-      "sha256": "ab2f9efd890898bd79dbcbeb5ff3fce28fcd7a7a48d2f4d3f8e281ff0d8948e8",
-      "size": 45992
-    },
-    {
       "path": "03.design/prototype/html/tools/_a6_recovered_audit_listeners.js.txt",
       "id": "",
       "type": "",
@@ -3694,6 +3742,42 @@
       "size": 12490
     },
     {
+      "path": "03.design/prototype/html/tools/_a7_extract.py",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "0ba1d8dbd43d9b486c4ae66d78470e77376eeb2652ebcce6653de908377c3886",
+      "size": 39640
+    },
+    {
+      "path": "03.design/prototype/html/tools/_a8_extract.py",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "d42610442cac563c83b8f717ea41d014bb021805717745c30c01ecce21b8de4a",
+      "size": 61177
+    },
+    {
+      "path": "03.design/prototype/html/tools/_a9_apply.py",
+      "id": "",
+      "type": "",
+      "owner": "",
+      "status": "",
+      "theme": "",
+      "title": "",
+      "source_baseline": "",
+      "sha256": "b949361e1a22b334a5fbf54b2cf8c8b2f51fdb2bfe66ae3c3be4f63ddb185582",
+      "size": 8151
+    },
+    {
       "path": "03.design/prototype/html/tools/golden.mjs",
       "id": "",
       "type": "",
@@ -3702,8 +3786,8 @@
       "theme": "",
       "title": "",
       "source_baseline": "",
-      "sha256": "f9888ec75c6649e309b23ff1cd7ce3f0c9144eb7936fa3209044680678028c84",
-      "size": 33207
+      "sha256": "84440569069c94a82e516e82b626f1b203a62a7202734b4b9d446d665a0c585e",
+      "size": 51279
     },
     {
       "path": "03.design/prototype/html/tools/sync-registry.py",

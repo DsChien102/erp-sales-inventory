@@ -4,8 +4,8 @@
  * nằm ở đây. Sửa BJ-02: sửa thẳng file này.
  * Dùng chung từ app/core.js: appShell, stateBanner, deniedBody, loadingBody, emptyBody, vBanner, vBadge, resultHero,
  * icon, primaryFooter, esc, escapeAttribute, navigate, renderAppScreen, showToast, onPrevious, ownedFlows, flowMode.
- * Còn ở core/hub: bj02-verify-unknown / bj02-handoff-unknown (A10); addPendingReviewExit / "Về Kho" (hub, Giai đoạn 2);
- * SCR-011/012/013 trong v360ExitTargets; selector .bj02-key-value-row của v470 (A11).
+ * UNKNOWN: listener bj02-verify-unknown / bj02-handoff-unknown ở file này (A10); handoff gọi bj17HandoffUnknown.
+ * Còn ở hub: addPendingReviewExit / "Về Kho" (Giai đoạn 2); SCR-011/012/013 trong v360ExitTargets; v470 (A11).
  */
 
 const supplierCatalog = [
@@ -1217,6 +1217,25 @@ Object.assign(renderers, {
   "SCR-013": render013BJ02,
 });
 ownedFlows.add("UIF-02");
+
+document.addEventListener("click", (event) => {
+  const a = event.target.closest("[data-v350-action]");
+  if (!a || a.disabled) return;
+  const k = a.dataset.v350Action;
+  if (k !== "bj02-verify-unknown" && k !== "bj02-handoff-unknown") return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (k === "bj02-verify-unknown") {
+    stateByScreen["SCR-013"] = "PROCESSING_OR_UNKNOWN";
+    return navigate("SCR-013");
+  }
+  return bj17HandoffUnknown({
+    sourceFlow: "UIF-02",
+    operation: "Nhận hàng",
+    scope: "Yêu cầu nhận hàng hiện tại",
+    evidence: "INSUFFICIENT",
+  });
+}, true);
 
 onPrevious["UIF-02"] = () => {
   if (activeScreenId === "SCR-009") return navigate(flowMode === "quick" ? "SCR-008" : "SCR-007");

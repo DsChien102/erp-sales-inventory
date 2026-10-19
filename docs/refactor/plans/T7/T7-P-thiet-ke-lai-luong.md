@@ -118,12 +118,15 @@ Checklist cho mỗi gói (rút từ BJ-01, đã làm 2026-10-16):
 - **Không gọi `render()` / `renderAppScreen()` lúc nạp trong `core.js`** (A7): helper chuyển sang file nạp sau (`shared-control.js`…) sẽ `ReferenceError` ở cấp cao nhất và dừng nạp `core.js` giữa chừng — hỏng mọi luồng, không chỉ BJ đang tách.
 - **Chú thích `load-time render removed` phải đúng là lúc nạp** (A8): hàm chạy lúc bấm (`crSwitchFlow`, hẹn giờ duyệt) **giữ** `render()` — A7 xoá nhầm hai chỗ đó.
 - **Kiểm listener của BJ còn đủ trước khi tách** (A5/A8): A5 làm mất khối Correction & Recovery (UIF-11/16/17); A8 chặng 0 đặt lại vào `core.js` (phần UIF-16/17 chờ A10 chuyển).
+- **Cơ chế dùng chung nằm trong IIFE** (`v350`): chuyển hẳn ra file sở hữu và nối bằng móc (`onUnknownHandoff`), không gọi chéo vào biến cục bộ (A10).
 
 ### 4.2 Giai đoạn 1 — gói A11: dọn khung (sau khi mọi gói xong)
 
+Sau A10 còn trong `core.js`: `v350DeclaredStates`, `v350EntryTargets` / `v350ApplyEntry` / actor, wrapper `navigate` rỗng, `__VET45_V350__`; `v360` (bảng thoát + `ensureStableExitAffordance`, listener `fallback-exit`, `simplifyNormalBanners`); `v361`, `v440`, `v470`. `v310` và chữ sau dựng UIF-17 đã xoá ở A10.
+
 1. Khi mọi luồng đã ở `ownedFlows`: xoá `renderFlowScreen` và mọi bước sửa sau dựng còn lại, `renderFlowInspector`, các khối legacy đã rỗng, bảng toast `v360`, wrapper `navigate` còn sót; `renderAppScreen` chỉ còn: màn gốc theme → `ThemeApp`; còn lại → `renderers[...]` + `ThemeApp.afterFlowRender()`.
 2. Helper dùng chéo (vd. `bj01Empty`) → `core.js` với tên DS (`ds24EmptyState`).
-3. CSS: mỗi BJ một khối trong `styles/screens.css` (gom luật `[data-active-uif="UIF-NN"]` / tiền tố BJ), xoá luật không dùng (script `tools/css-usage.mjs`, có trong [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) mục 3.7), bỏ `!important` khi không còn đối thủ; thành phần dùng chung trong `styles/components.css`.
+3. CSS: mỗi BJ một khối trong `styles/screens.css` (gom luật `[data-active-uif="UIF-NN"]` / tiền tố BJ), xoá luật không dùng (script `tools/css-usage.mjs`, có trong [T7-P-bj01-ton-kho.md](T7-P-bj01-ton-kho.md) mục 3.7), bỏ `!important` khi không còn đối thủ; thành phần dùng chung trong `styles/components.css`. CSS `.cr-*`, `.ac310-*` dọn ở đây.
 4. Xoá mã chết còn lại (bộ bấm thử đo độ phủ).
 5. Tách harness (`harness/workbench.js` / `.css`) khỏi `core.js` / `components.css`.
 6. Kiểm: golden khớp hoàn toàn; bấm thử 0 lỗi JS.
@@ -467,7 +470,7 @@ Sau đợt 5: kịch bản golden `SC_demo_*` đi đúng các bước trên.
 | A7 | BJ-08 | ✅ [plan](T7-P-A7-bj08.md) | ✅ | ⬜ |
 | A8 | BJ-11, BJ-12 | ✅ [plan](T7-P-A8-bj11-bj12.md) | ✅ | ⬜ |
 | A9 | BJ-15 | ✅ [plan](T7-P-A9-bj15.md) | ✅ | ⬜ |
-| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ⬜ | ⬜ |
+| A10 | BJ-16, BJ-17 | ✅ [plan](T7-P-A10-bj16-bj17.md) | ✅ | ⬜ |
 | A11 | Dọn khung | ⬜ | ⬜ | ⬜ |
 
 ### Giai đoạn 2 — thiết kế lại

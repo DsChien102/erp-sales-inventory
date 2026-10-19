@@ -73,9 +73,7 @@ function render041BJ10(state){
     if(!(Number(bj10CompletedQty)>0||Number(bj10ApprovedQty)>0)) return appShell({title:"Kết quả tiêu hủy",body:ioResult("Đã ghi nhận tiêu hủy","Tồn vật lý và giá trị đã giảm theo đúng số lượng thực tế được xác nhận.",[["Yêu cầu","TH-0709-04"],["Đã tiêu hủy","6 hộp"],["Tồn vật lý còn lại","0 hộp"]]),actions:primaryFooter("Về hàng có thể xử lý",'data-ic10-action="to-list"'),centered:true,back:false});
     return appShell({title:"Kết quả tiêu hủy",body:ioResult("Đã ghi nhận tiêu hủy","Tồn vật lý và giá trị đã giảm theo đúng số lượng thực tế được xác nhận.",[["Yêu cầu","TH-0709-04"],["Đã tiêu hủy",`${bj10CompletedQty||bj10ApprovedQty} hộp`],["Tồn vật lý còn lại",`${Math.max(0,6-(bj10CompletedQty||bj10ApprovedQty))} hộp`]]),actions:primaryFooter("Về hàng có thể xử lý",'data-ic10-action="to-list"'),centered:true,back:false});
   }
-  // v350 wrapUnknown(SCR-041, UIF-10) — ownedFlows bỏ qua lớp đó.
   if(state==="UNKNOWN"||state==="COMMIT_UNKNOWN"){
-    if(typeof v350UnknownResult==="function") return v350UnknownResult({sourceFlow:"UIF-10",operation:"TH-0709-04",scope:"Amox 500 · Lô L2407-A"});
     const body=ioResult("Kết quả chưa xác định","Không gửi lại thao tác. Chuyển đúng lần xử lý này sang xác minh kết quả.",[["Nghiệp vụ","TH-0709-04"],["Phạm vi","Amox 500 · Lô L2407-A"],["Trạng thái","Chưa kết luận"]],"warning");
     return appShell({title:"Xác minh kết quả",body,actions:primaryFooter("Chuyển sang xác minh",'data-v350-action="handoff-unknown" data-source-flow="UIF-10" data-operation="TH-0709-04" data-scope="Amox 500 · Lô L2407-A"'),centered:true,back:false});
   }

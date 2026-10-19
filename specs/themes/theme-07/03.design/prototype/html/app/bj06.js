@@ -5,8 +5,8 @@
  * Dùng chung từ app/core.js: appShell, ds24*, io* chung (ioMatchesSearch, ioNormalizeSearch, ioFilterRows, ioEmpty,
  * ioResult, resultHero, ioSecondary, ioMetaRow, ioReadCard), vBanner, deniedBody, loadingBody, esc, escapeAttribute,
  * icon, primaryFooter, navigate, renderAppScreen, onPrevious.
- * Còn ở core.js (gỡ ở gói khác): handoff-unknown + nhánh UIF-06 của v350LockSourceForUnknown (A10); bumpIO06Source (A11);
- * SCR-030/034/035 trong bảng v360 (A11).
+ * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-06"] (A10); nút handoff-unknown → bj17.js.
+ * Còn ở core.js: bumpIO06Source (A11); SCR-030/034/035 trong bảng v360 (A11).
  */
 
 
@@ -246,6 +246,15 @@ Object.assign(renderers, {
   "SCR-035": render035BJ06,
 });
 ownedFlows.add("UIF-06");
+
+onUnknownHandoff["UIF-06"] = () => {
+  const r = io06CurrentRequest();
+  if (r) {
+    r.unknownLocked = true;
+    r.queue = "WAITING";
+    r.status = "Đang xác minh kết quả";
+  }
+};
 
 
 document.addEventListener("input", (event) => {

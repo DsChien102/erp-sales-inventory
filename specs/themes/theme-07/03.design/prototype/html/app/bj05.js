@@ -5,8 +5,8 @@
  * Dùng chung từ app/core.js: appShell, ds24*, io* (ioSearchBar, ioMatchesSearch, ioFilterRows, ioMetaRow, ioReadCard,
  * ioEmpty, ioResult, resultHero, ioFilterChips… — BJ-06 / 07 cũng dùng), vBanner, deniedBody, loadingBody, esc,
  * escapeAttribute, navigate, render, renderAppScreen, showToast, primaryFooter, onScreenEnter.
- * Còn ở core.js (gỡ ở gói khác): cơ chế handoff-unknown của v350; bumpIO05Source trong công cụ dev; mục SCR-025 /
- * SCR-029 trong v360RootScreens / v360ExitTargets.
+ * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-05"] (A10); nút data-v350-action="handoff-unknown" → bj17.js.
+ * Còn ở core.js: bumpIO05Source (A11); SCR-025 / SCR-029 trong v360RootScreens / v360ExitTargets (A11).
  */
 
 const IO05_ACTOR={id:"USR-WH-001",name:"Nguyễn Văn An"};
@@ -250,6 +250,11 @@ Object.assign(renderers, {
   "SCR-029": render029BJ05,
 });
 ownedFlows.add("UIF-05");
+
+onUnknownHandoff["UIF-05"] = () => {
+  const o = io05CurrentOrder();
+  if (o) o.unknownLocked = true;
+};
 
 document.addEventListener("input", (event) => {
   if (activeFlowId === "UIF-05" && event.target.matches("[data-io05-search]")) { io05Query = event.target.value; ioFilterRows("io05", io05Query); return; }

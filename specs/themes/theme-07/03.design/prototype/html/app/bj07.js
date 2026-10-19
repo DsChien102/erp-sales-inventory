@@ -3,7 +3,8 @@
  * Đã viết lại sạch (T7-P gói A6, 2026-10-17). Màn dùng chung (036/037/041) đăng ký qua flowRenderers.
  * Dùng chung từ core.js: appShell, ds24*, io*, vBanner, deniedBody, loadingBody, esc, escapeAttribute,
  * primaryFooter, navigate, renderAppScreen, showToast, ac310SanitizeMarkup (A7 → shared-control.js).
- * Còn ở core.js: handoff-unknown + nhánh UIF-07 của v350LockSourceForUnknown (A10); bảng v360 (A11).
+ * Handoff UNKNOWN: đăng ký onUnknownHandoff["UIF-07"] (A10); nút handoff-unknown → bj17.js.
+ * Còn ở core.js: bảng v360 (A11).
  */
 
 const io07Requests=[
@@ -467,3 +468,12 @@ document.addEventListener("input",(event)=>{
 },true);
 
 ownedFlows.add("UIF-07");
+
+onUnknownHandoff["UIF-07"] = () => {
+  const r = io07Current();
+  if (r) {
+    r.unknownLocked = true;
+    r.queue = "WAITING";
+    r.lifecycle = "Đang xác minh kết quả";
+  }
+};
