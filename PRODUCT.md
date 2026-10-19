@@ -33,8 +33,10 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 - Design system nội bộ: package `vet45_design_system`.
 - Không có quản trị nền tảng (Platform Admin) trong app; chỉ có Owner và thành viên. Quyền thật do RPC kiểm, router guard chỉ ẩn/chuyển màn.
 - Tổ chức chỉ được tạo từ `/signup`; không ai tạo tổ chức sau khi đăng nhập.
-- Đang refactor kiến trúc (branch `refactor/simple-arch`): giữ nguyên hành vi người dùng thấy; thiết kế lại UI/UX nằm ngoài phạm vi đợt này, trừ luồng khởi tạo tổ chức (TH-01).
-- Ngoài phạm vi hiện tại: TH-06 công nợ đầy đủ, báo cáo (TH-10), kiểm kê/giá vốn đầy đủ.
+- Đang refactor kiến trúc (branch `refactor/simple-arch`): giữ nguyên hành vi người dùng thấy; thiết kế lại UI/UX nằm ngoài phạm vi đợt này, trừ luồng khởi tạo tổ chức (TH-01) và Theme 7 Kho & Giá vốn.
+- Theme 7 (`apps/erp/lib/features/inventory`) được chỉnh lại UI/UX **trên nền thiết kế hiện tại**: giữ DESIGN.md (màu, chữ, token), không đổi sang phong cách mới. Sửa bố cục, thứ bậc thông tin, mật độ, trạng thái và lối đi giữa các màn.
+- Thành phần UI của Theme 7 lấy từ `vet45_design_system`. Khi DS chưa có thành phần phù hợp thì **thêm mới vào `vet45_design_system`** (dựng từ token có sẵn, đặt tên `V…` như các thành phần khác), không dựng widget riêng trong feature.
+- Ngoài phạm vi hiện tại: TH-06 công nợ đầy đủ, báo cáo (TH-10).
 
 ## Brand Commitments
 
@@ -50,4 +52,4 @@ Thành công nghĩa là Owner hoàn tất nghiệp vụ (lập đơn, thu tiền
 1. **Owner tự làm được mọi thứ trên điện thoại**: mỗi tác vụ hằng ngày hoàn tất được không cần máy tính hay người hỗ trợ.
 2. **Đúng nghiệp vụ trước, đẹp sau**: số tiền, tồn kho, giá và hoá đơn phải rõ ràng, khó nhập sai.
 3. **Dễ trình bày**: luồng chính đi thẳng, ít nhánh, để demo trước hội đồng mạch lạc.
-4. **Đặc tả là chuẩn**: hành vi và chuỗi chữ trên UI theo `docs/02-yeu-cau`, không tự ý đổi.
+4. **Đặc tả là chuẩn**: hành vi và chuỗi chữ trên UI theo `docs/02-yeu-cau`, không tự ý đổi. Riêng Theme 7: nghiệp vụ (BJ / UC) và chuỗi chữ theo `specs/themes/theme-07`; **luồng, điều hướng và bố cục màn (UIF / Screen Contract) được thiết kế lại** trên prototype HTML `specs/themes/theme-07/03.design/prototype/html`, Screen Contract sửa theo sau. Spec hiện tại và các Hub cũ là đầu vào tham khảo, không phải đáp án.
