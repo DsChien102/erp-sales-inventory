@@ -63,10 +63,10 @@ class _ReceiptEntryChoiceView extends StatelessWidget {
                       onPressed: context.read<ReceiptEntryCubit>().load,
                     ),
                   ),
-                  const VGap(VSpacing.space3),
+                  const VGap.cozy(),
                 ] else if (state.warehouseLocked) ...[
                   const InventoryNoticeBanner(InventoryNotice.locked),
-                  const VGap(VSpacing.space3),
+                  const VGap.cozy(),
                 ],
                 // Chứng từ mua chưa có (SCR-007 thuộc T7-0d): thẻ tạm khoá kèm lý do.
                 const _ChoiceCard(
@@ -75,7 +75,7 @@ class _ReceiptEntryChoiceView extends StatelessWidget {
                   icon: VIcons.receipt,
                   enabled: false,
                 ),
-                const VGap(VSpacing.space3),
+                const VGap.cozy(),
                 _ChoiceCard(
                   title: 'Nhập hàng nhanh',
                   subtitle: 'Hàng đã đến, chưa có chứng từ mua.',
@@ -122,7 +122,7 @@ class _ChoiceCard extends StatelessWidget {
             child: Row(
               children: [
                 VCardIcon(icon: icon, tone: VComponentTone.neutral),
-                const VGap(VSpacing.space3, axis: Axis.horizontal),
+                const VGap.horizontalCozy(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -132,6 +132,7 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 | 10-4 Tương phản màu, nhãn thanh dưới                                     | [plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md](plans/P10/10-4-tuong-phan-mau-thanh-dieu-huong.md)   | ✅    | ✅   | ✅      |
 | 10-5 Tương phản tone, chữ phụ, viền ô nhập                               | [plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md)     | ✅    | ✅   | ✅      |
 | 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động                 | [plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅    | ✅   | ✅      |
+| 10-7 Tinh chỉnh design system từng mảng bằng impeccable (10 task)         | [plans/P10/10-7-tinh-chinh-design-system-impeccable.md](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | 📝    | ⬜   | ⬜      |
 | T7-0 Rà soát BJ-02/03: sửa lỗi dữ liệu và luồng phê duyệt | [plans/T7/T7-0-ra-soat-bj02-bj03.md](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅ | ✅   | ✅ |
 | T7-0b Nhập hàng nhanh đúng spec (SCR-006…012) | [plans/T7/T7-0b-nhap-nhanh-dung-spec.md](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ | ✅ |
 | T7-0c Sửa còn lại T7-0b, trạng thái chung, SCR-013 | [plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | ✅ | ✅ | ✅ |

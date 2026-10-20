@@ -71,7 +71,7 @@ class _ReceiptSupplierSelectSheetState
                 });
               },
             ),
-            const VGap(VSpacing.space3),
+            const VGap.cozy(),
             Flexible(
               child: filtered.isEmpty
                   ? Padding(

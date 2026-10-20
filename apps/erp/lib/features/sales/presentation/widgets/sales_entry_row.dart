@@ -42,7 +42,7 @@ class SalesEntryRow extends StatelessWidget {
             icon: icon,
             color: enabled ? colors.textPrimary : colors.textMuted,
           ),
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,10 +63,10 @@ class SalesEntryRow extends StatelessWidget {
             ),
           ),
           if (badge != null) ...[
-            const VGap(VSpacing.space3, axis: Axis.horizontal),
+            const VGap.horizontalCozy(),
             badge!,
           ],
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           VIcon(
             icon: VIcons.chevronRight,
             size: 20,

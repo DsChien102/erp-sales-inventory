@@ -36,7 +36,7 @@ class SalesOrderDetailPaymentSummaryCard extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            VGap(VSpacing.space3, axis: Axis.horizontal),
+            VGap.horizontalCozy(),
             Expanded(
               child: VText(
                 'Đang tải thanh toán & công nợ…',
@@ -89,7 +89,7 @@ class SalesOrderDetailPaymentSummaryCard extends StatelessWidget {
             size: 22,
             color: enabled ? colors.textPrimary : colors.textSecondary,
           ),
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

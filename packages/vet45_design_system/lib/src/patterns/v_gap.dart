@@ -12,6 +12,7 @@ class VGap extends StatelessWidget {
 
   const VGap.xs({super.key, this.axis = Axis.vertical}) : size = VSpacing.xs;
   const VGap.sm({super.key, this.axis = Axis.vertical}) : size = VSpacing.sm;
+  const VGap.cozy({super.key, this.axis = Axis.vertical}) : size = VSpacing.cozy;
   const VGap.md({super.key, this.axis = Axis.vertical}) : size = VSpacing.md;
   const VGap.lg({super.key, this.axis = Axis.vertical}) : size = VSpacing.lg;
   const VGap.xl({super.key, this.axis = Axis.vertical}) : size = VSpacing.xl;
@@ -19,6 +20,7 @@ class VGap extends StatelessWidget {
 
   const VGap.horizontalXs({super.key}) : size = VSpacing.xs, axis = Axis.horizontal;
   const VGap.horizontalSm({super.key}) : size = VSpacing.sm, axis = Axis.horizontal;
+  const VGap.horizontalCozy({super.key}) : size = VSpacing.cozy, axis = Axis.horizontal;
   const VGap.horizontalMd({super.key}) : size = VSpacing.md, axis = Axis.horizontal;
   const VGap.horizontalLg({super.key}) : size = VSpacing.lg, axis = Axis.horizontal;
 

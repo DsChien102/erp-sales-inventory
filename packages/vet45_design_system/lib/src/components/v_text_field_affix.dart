@@ -9,7 +9,7 @@ const double kVTextFieldAffixOuterDense = VSpacing.space2;
 
 /// Gap between affix icon and input text.
 const double kVTextFieldAffixInner = VSpacing.space1;
-const double kVTextFieldAffixInnerDense = VSpacing.space0;
+const double kVTextFieldAffixInnerDense = VSpacing.hairline;
 
 /// Shared affix inset for [VTextField] / [VTextArea] prefix & suffix.
 ///

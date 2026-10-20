@@ -197,7 +197,7 @@ class _ReconciliationViewState extends State<_ReconciliationView> {
               style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
             ),
             if (checkedAt != null) ...[
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VText(
                 'Lần kiểm tra gần nhất',
                 style: VTypography.caption.copyWith(
@@ -211,7 +211,7 @@ class _ReconciliationViewState extends State<_ReconciliationView> {
               ),
             ],
             if (stale) ...[
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               const InventoryNoticeBanner(InventoryNotice.stale),
             ],
           ],

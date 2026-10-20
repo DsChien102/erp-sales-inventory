@@ -94,7 +94,7 @@ class ValuationResultPage extends StatelessWidget {
                         child: _ResultLineTile(line: line),
                       );
                     }),
-                    const VGap(VSpacing.space3),
+                    const VGap.cozy(),
 
                     // Remaining pending banner
                     if (remaining) ...[
@@ -104,7 +104,7 @@ class ValuationResultPage extends StatelessWidget {
                             '${result.remainingPendingCount} dòng chưa đủ điều kiện hoặc chưa được chọn trong lần xử lý này.',
                         tone: VComponentTone.info,
                       ),
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                     ],
                   ],
                 ),
@@ -164,7 +164,7 @@ class _HeroResultBanner extends StatelessWidget {
               iconColor: VIconColor.success,
             ),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
           Text(
             'Đã xác lập giá trị nhập ban đầu',
             style: VTypography.headingH3.copyWith(

@@ -163,7 +163,7 @@ class _VSearchBarState extends State<VSearchBar> {
       prefix: Row(
         children: [
           VIcon(icon: VIcons.search, color: iconColor, size: 20),
-          const VGap(VSpacing.space0, axis: .horizontal),
+          const VGap(VSpacing.hairline, axis: .horizontal),
         ],
       ),
       suffix: effectiveSuffix,

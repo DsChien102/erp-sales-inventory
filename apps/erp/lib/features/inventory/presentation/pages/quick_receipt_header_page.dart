@@ -114,15 +114,15 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                             onPressed: context.read<QuickReceiptSessionCubit>().loadCatalog,
                           ),
                         ),
-                        const VGap(VSpacing.space3),
+                        const VGap.cozy(),
                       ],
                       if (locked) ...[
                         const InventoryNoticeBanner(InventoryNotice.locked),
-                        const VGap(VSpacing.space3),
+                        const VGap.cozy(),
                       ],
                       if (_triedContinue && !header.isValid) ...[
                         const InventoryNoticeBanner(InventoryNotice.validation),
-                        const VGap(VSpacing.space3),
+                        const VGap.cozy(),
                       ],
                       VSection(
                         title: 'Thông tin lần nhận',
@@ -190,7 +190,7 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                                 ],
                               ),
                             ),
-                            const VGap(VSpacing.space3),
+                            const VGap.cozy(),
                             VField(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +204,7 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                                 ],
                               ),
                             ),
-                            const VGap(VSpacing.space3),
+                            const VGap.cozy(),
                             VField(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +218,7 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                                 ],
                               ),
                             ),
-                            const VGap(VSpacing.space3),
+                            const VGap.cozy(),
                             VField(
                               invalid: _triedContinue && header.documentFileNames.isEmpty,
                               child: Column(
@@ -250,7 +250,7 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                               ),
                             ),
                             if (header.documentFileNames.isNotEmpty) ...[
-                              const VGap(VSpacing.space3),
+                              const VGap.cozy(),
                               for (final entry in header.documentFileNames.asMap().entries)
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: VSpacing.space2),
@@ -286,7 +286,7 @@ class _QuickReceiptHeaderPageState extends State<QuickReceiptHeaderPage> {
                                   ),
                                 ),
                             ],
-                            const VGap(VSpacing.space3),
+                            const VGap.cozy(),
                             VText(
                               'Xác nhận quyền sở hữu',
                               style: VTypography.caption.copyWith(

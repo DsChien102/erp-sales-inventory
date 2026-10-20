@@ -133,15 +133,15 @@ class _GoodsReceiptItemsPageState extends State<GoodsReceiptItemsPage> {
                           onPressed: cubit.loadCatalog,
                         ),
                       ),
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                     ],
                     if (locked) ...[
                       const InventoryNoticeBanner(InventoryNotice.locked),
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                     ],
                     if (_triedReview && !state.canReview && !locked) ...[
                       const InventoryNoticeBanner(InventoryNotice.validation),
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                     ],
                     VSection(
                       title: 'Thông tin lần nhận',
@@ -180,7 +180,7 @@ class _GoodsReceiptItemsPageState extends State<GoodsReceiptItemsPage> {
                         hintText: 'Tìm tên, mã mặt hàng hoặc mã vạch',
                         onChanged: (q) => setState(() => _query = q),
                       ),
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                     ],
                     if (locked)
                       const SizedBox.shrink()
@@ -199,7 +199,7 @@ class _GoodsReceiptItemsPageState extends State<GoodsReceiptItemsPage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const VGap(VSpacing.space3),
+                          const VGap.cozy(),
                           VButton(
                             label: 'Thử lại',
                             variant: VButtonVariant.secondary,
@@ -234,7 +234,7 @@ class _GoodsReceiptItemsPageState extends State<GoodsReceiptItemsPage> {
                         ),
                       ),
                     if (dup != null) ...[
-                      const VGap(VSpacing.space3),
+                      const VGap.cozy(),
                       VBanner(
                         status: VBannerStatus.warning,
                         title: '${dup.productName} · ${dup.unitName} đã có trong lần nhận',

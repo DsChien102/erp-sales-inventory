@@ -35,19 +35,19 @@ typography:
     fontFamily: "Inter"
     fontSize: "28px"
     fontWeight: 700
-    lineHeight: 1.21
+    lineHeight: 1.43
     letterSpacing: "-0.5px"
   title-lg:
     fontFamily: "Inter"
     fontSize: "22px"
     fontWeight: 700
-    lineHeight: 1.27
+    lineHeight: 1.45
     letterSpacing: "-0.3px"
   title:
     fontFamily: "Inter"
     fontSize: "18px"
     fontWeight: 600
-    lineHeight: 1.33
+    lineHeight: 1.44
     letterSpacing: "-0.2px"
   body:
     fontFamily: "Inter"
@@ -68,17 +68,17 @@ typography:
     fontFamily: "Inter"
     fontSize: "12px"
     fontWeight: 600
-    lineHeight: 1.33
+    lineHeight: 1.5
   label-sm:
     fontFamily: "Inter"
     fontSize: "11px"
     fontWeight: 600
-    lineHeight: 1.27
+    lineHeight: 1.45
   numeric:
     fontFamily: "JetBrains Mono"
     fontSize: "14px"
     fontWeight: 500
-    lineHeight: 1.57
+    lineHeight: 1.43
 rounded:
   r4: "4px"
   r6: "6px"
@@ -227,18 +227,22 @@ Một xanh lá phòng khám trên nền xám lạnh, với ba màu trạng thái
 **Character:** Inter rõ ràng, trung tính, hỗ trợ tốt dấu tiếng Việt. Toàn hệ thống đậm hơn mặc định một bậc, tiêu đề siết chữ nhẹ (letter-spacing âm) cho cảm giác chắc gọn.
 
 ### Hierarchy
-- **Display** (800, 40px, 44px): con số lớn đơn lẻ, ví dụ tổng tiền nổi bật. Hiếm dùng.
-- **Headline** (700, 28px, 34px): tiêu đề trang lớn.
-- **Title Large** (700, 22px, 28px): tiêu đề khu vực.
-- **Title** (600, 18px, 24px): tiêu đề thẻ; app bar dùng cỡ này ở weight 700.
+- **Display** (800, 40px, 44px): con số lớn đơn lẻ, ví dụ tổng tiền nổi bật. Hiếm dùng. **Chỉ chứa số**: dòng quá chật cho dấu tiếng Việt.
+- **Headline** (700, 28px, 40px): tiêu đề trang lớn.
+- **Title Large** (700, 22px, 32px): tiêu đề khu vực.
+- **Title** (600, 18px, 26px): tiêu đề thẻ; app bar dùng cỡ này ở weight 700.
 - **Body** (500, 14px, 22px): chữ thân, giá trị trong ô nhập.
 - **Body Small** (500, 13px, 20px): chữ phụ, nhãn chip, mô tả dưới tiêu đề.
-- **Label** (600, 14px, 20px): nhãn form, chữ trên nút và link.
-- **Caption** (600, 12px, 16px): chú thích, badge nhỏ.
-- **Label Small** (600, 11px, 14px): badge trạng thái, nhãn chật chỗ.
+- **Label** (600, 14px, 20px): nhãn form, chữ trên nút và link. Tiêu đề nhỏ (`headingH4`) dùng cùng thông số.
+- **Caption** (600, 12px, 18px): chú thích, badge nhỏ.
+- **Label Small** (600, 11px, 16px): badge trạng thái, nhãn chật chỗ.
 
 ### Named Rules
-**The Mono for Money Rule.** Khi số tiền, số lượng hoặc mã cần căn thẳng cột (bảng, danh sách dòng hàng), dùng biến thể JetBrains Mono cùng vai trò thay vì Inter.
+**The Tabular Figures Rule.** Mọi vai trò Inter bật `tnum`: chữ số cùng bề rộng, nên số tiền và số lượng tự thẳng cột ở bất kỳ style nào.
+
+**The Mono for Money Rule.** Khi cả chuỗi (mã, SKU, số tiền kèm ký hiệu) cần căn thẳng cột theo từng ký tự (bảng, danh sách dòng hàng), dùng biến thể JetBrains Mono cùng vai trò thay vì Inter. Bản mono có cùng chiều cao dòng với bản Inter.
+
+**The Stacked Marks Rule.** Dấu chồng tiếng Việt (Ẫ, Ỗ, Ặ) cao hơn ascender của Inter. Từ Title trở lên, chiều cao dòng ≥ 1.43 × cỡ chữ để dấu không bị cắt hay đè lên dòng trên; không hạ line-height của token. `test/tokens/v_typography_test.dart` vẽ chữ thật để khoá quy tắc này.
 
 ## Layout
 

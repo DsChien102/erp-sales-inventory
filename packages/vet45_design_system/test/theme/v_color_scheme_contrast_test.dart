@@ -82,6 +82,47 @@ void main() {
     });
   });
 
+  group('VColorScheme.dark status tones', () {
+    final dark = VColorScheme.dark;
+    for (final tone in [
+      VComponentTone.success,
+      VComponentTone.warning,
+      VComponentTone.danger,
+      VComponentTone.info,
+    ]) {
+      test('${tone.name}: foreground on surface and tint ≥ 4.5', () {
+        final fg = dark.foregroundForTone(tone)!;
+        expect(contrast(fg, dark.surface), greaterThanOrEqualTo(text));
+        expect(contrast(fg, dark.backgroundForTone(tone)!), greaterThanOrEqualTo(text));
+      });
+
+      test('${tone.name}: tint differs from the neutral surface', () {
+        expect(dark.backgroundForTone(tone), isNot(dark.surface));
+      });
+    }
+
+    test('textInverse on filled primary / warning / danger / info ≥ 4.5', () {
+      for (final fill in [dark.primary, dark.warning, dark.danger, dark.info]) {
+        expect(contrast(dark.textInverse, fill), greaterThanOrEqualTo(text));
+      }
+    });
+
+    test('textInverse on hover / pressed fills ≥ 4.5', () {
+      for (final fill in [
+        dark.primaryHover,
+        dark.primaryPressed,
+        dark.warningHover,
+        dark.warningPressed,
+        dark.dangerHover,
+        dark.dangerPressed,
+        dark.infoHover,
+        dark.infoPressed,
+      ]) {
+        expect(contrast(dark.textInverse, fill), greaterThanOrEqualTo(text));
+      }
+    });
+  });
+
   group('VColorScheme.dark borderInput', () {
     test('≥ 3.0 on surface', () {
       expect(

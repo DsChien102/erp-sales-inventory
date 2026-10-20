@@ -4,6 +4,7 @@ import 'package:vet45_design_system/src/patterns/v_gap.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_scope.dart';
 import '../tokens/v_opacity.dart';
+import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_inspector_scope.dart';
 
@@ -61,7 +62,7 @@ class VRadio<T> extends StatelessWidget {
     if (label != null) {
       body = InkWell(
         onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(VRadius.r4),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(

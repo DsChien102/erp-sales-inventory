@@ -214,7 +214,7 @@ class _GoodsReceiptApprovalView extends StatelessWidget {
                   description:
                       'Bạn đã gửi yêu cầu này. Cần một người khác có quyền phê duyệt.',
                 ),
-                const VGap(VSpacing.space3),
+                const VGap.cozy(),
               ] else if (loadedState.isDecided) ...[
                 VBanner(
                   status: VBannerStatus.info,
@@ -223,14 +223,14 @@ class _GoodsReceiptApprovalView extends StatelessWidget {
                       ? 'Đã từ chối: ${doc.rejectReason}'
                       : null,
                 ),
-                const VGap(VSpacing.space3),
+                const VGap.cozy(),
               ] else ...[
                 const VBanner(
                   status: VBannerStatus.info,
                   title: 'Lý do cần duyệt',
                   description: 'Nhập hàng nhanh bắt buộc phê duyệt.',
                 ),
-                const VGap(VSpacing.space3),
+                const VGap.cozy(),
               ],
               VSection(
                 title: 'Thông tin lần nhận',
@@ -254,7 +254,7 @@ class _GoodsReceiptApprovalView extends StatelessWidget {
                           label: 'Ngày nhận',
                           value: _formatDate(doc.header.receiptDate),
                         ),
-                        const VGap(VSpacing.space3),
+                        const VGap.cozy(),
                         VButton(
                           label: 'Xem chứng từ giao nhận',
                           variant: VButtonVariant.secondary,
@@ -353,7 +353,7 @@ class _GoodsReceiptApprovalView extends StatelessWidget {
                             onPressed: () => _handleReject(context),
                           ),
                         ),
-                        const VGap(VSpacing.space3, axis: Axis.horizontal),
+                        const VGap.horizontalCozy(),
                         Expanded(
                           child: VButton(
                             label: 'Duyệt',

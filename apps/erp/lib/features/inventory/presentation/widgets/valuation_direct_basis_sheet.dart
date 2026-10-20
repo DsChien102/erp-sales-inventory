@@ -178,7 +178,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
               ],
             ),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
 
           // Cách hiểu giá
           Text(
@@ -197,7 +197,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
               });
             },
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
 
           // Thuế tính vào giá trị (nếu chưa gồm thuế)
           if (_taxMode == ValuationTaxMode.excluded) ...[
@@ -218,7 +218,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
                 ],
               ),
             ),
-            const VGap(VSpacing.space3),
+            const VGap.cozy(),
           ],
 
           // Nguồn căn cứ
@@ -245,7 +245,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
               ],
             ),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
 
           // Ngày căn cứ
           VField(
@@ -301,7 +301,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
               ],
             ),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
 
           // Tham chiếu / bằng chứng
           VField(
@@ -317,7 +317,7 @@ class _ValuationDirectBasisSheetState extends State<ValuationDirectBasisSheet> {
               ],
             ),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
 
           // Lý do xác lập trực tiếp
           VField(

@@ -127,7 +127,7 @@ class _DocumentActionTile extends StatelessWidget {
       child: Row(
         children: [
           VIcon(icon: icon, size: 22, color: colors.textPrimary),
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

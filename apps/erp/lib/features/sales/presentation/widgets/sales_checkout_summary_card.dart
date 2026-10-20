@@ -26,7 +26,7 @@ class SalesCheckoutSummaryCard extends StatelessWidget {
             size: 20,
             color: colors.textSecondary,
           ),
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

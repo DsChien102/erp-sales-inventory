@@ -15,11 +15,24 @@ changelogs when relevant.
 
 ### Added
 
+- `VPageScaffold.contentMaxWidth` (+ `defaultContentMaxWidth`, `fullWidth`): từ breakpoint tablet, body và `bottomBar` nằm trong một cột giữa (640 tablet / 720 desktop); điện thoại giữ nguyên full-width. FAB bám mép cột. Trang tự chia pane truyền `VPageScaffold.fullWidth`.
+- `VPageScaffold` chừa inset ngang an toàn (tai thỏ / đảo động) cho body khi xoay ngang.
+
 ### Changed
+
+- 10-7.2 layout: `VSpacing.hairline` (1px) replaces the misnamed `space0` (deprecated); `VSection` keeps an 8px gap before the trailing action and centers a lone title on it; `VPageScaffold.bottomBar` uses a hairline top border instead of `elevation: 8`.
+
+### Removed
+
+- `VCombobox`: bỏ `filter`, `tone`, `emphasis` (không nơi nào dùng; trạng thái lỗi vẫn kế thừa `VField.invalid` / `invalid`). Bỏ `kVComboboxControlHeight` (dùng `VCombobox.controlHeight`).
+- `VComboboxContent.padding` / `defaultPadding`, `VComboboxItem.onSelect`: bỏ.
+- `VComboboxFooter`: bỏ. Truyền thẳng widget vào `VComboboxContent.footer`; cần controller thì `vComboboxOf(context)` trong `Builder`. Khoảng cách trên footer do panel đảm nhiệm.
 
 ### Fixed
 
 ### Internal
+
+- `VCombobox`: gộp `_VComboboxHost` vào state, gom nhịp "đồng bộ focus ↔ menu" về một helper, bỏ `updateShouldNotify` luôn trả `false`.
 
 ## [1.7.0] - 2026-10-13
 

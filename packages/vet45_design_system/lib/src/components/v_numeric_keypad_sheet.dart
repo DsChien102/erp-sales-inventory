@@ -7,6 +7,7 @@ import '../foundation/v_context_extensions.dart';
 import '../foundation/v_inspector_scope.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
+import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_button.dart';
@@ -361,7 +362,7 @@ class _VNumericKeypadSheetState extends State<VNumericKeypadSheet> {
           child: Container(
             decoration: BoxDecoration(
               color: colors.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(VRadius.sheet)),
             ),
             padding: EdgeInsets.fromLTRB(
               VSpacing.space4,

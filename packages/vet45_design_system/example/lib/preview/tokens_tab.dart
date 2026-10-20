@@ -79,6 +79,7 @@ class TokensPreviewTab extends StatelessWidget {
             _tile('red100', VColors.red100, VColors.red900),
             _tile('red200', VColors.red200, VColors.red900),
             _tile('red300', VColors.red300, VColors.neutral0),
+            _tile('red350', VColors.red350, VColors.red900),
             _tile('red400', VColors.red400, VColors.neutral0),
             _tile('red500', VColors.red500, VColors.neutral0),
             _tile('red600', VColors.red600, VColors.neutral0),
@@ -179,6 +180,7 @@ class TokensPreviewTab extends StatelessWidget {
           description: 'Motion timing tokens (VDuration).',
           child: PreviewStateWrap(
             children: [
+              _durationChip('instant', VDuration.instant),
               _durationChip('fast', VDuration.fast),
               _durationChip('medium', VDuration.medium),
               _durationChip('normal', VDuration.normal),

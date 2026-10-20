@@ -111,7 +111,7 @@ class ReceiptLineSummary extends StatelessWidget {
                       ),
                     ),
                     if (lot.expiryDate != null) ...[
-                      const VGap(VSpacing.space3, axis: Axis.horizontal),
+                      const VGap.horizontalCozy(),
                       VText(
                         'HSD ${lot.expiryDate!.format()}',
                         style: VTypography.caption.copyWith(

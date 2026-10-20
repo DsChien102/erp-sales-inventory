@@ -82,7 +82,7 @@ class ValuationReviewPage extends StatelessWidget {
 
                     // Total Valuation Summary Card
                     _TotalSummaryCard(totalValue: state.totalSelectedValue),
-                    const VGap(VSpacing.space3),
+                    const VGap.cozy(),
 
                     // Back to edit link button
                     Center(

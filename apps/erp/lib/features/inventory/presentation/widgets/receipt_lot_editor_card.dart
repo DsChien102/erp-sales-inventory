@@ -166,7 +166,7 @@ class _ReceiptLotEditorCardState extends State<ReceiptLotEditorCard> {
                     ),
                 ],
               ),
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VField(
                 invalid: lotCodeIssue != null,
                 child: Column(
@@ -188,7 +188,7 @@ class _ReceiptLotEditorCardState extends State<ReceiptLotEditorCard> {
                   ],
                 ),
               ),
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VField(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,7 +206,7 @@ class _ReceiptLotEditorCardState extends State<ReceiptLotEditorCard> {
                   ],
                 ),
               ),
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VField(
                 invalid: expiryError != null,
                 child: Column(
@@ -263,7 +263,7 @@ class _ReceiptLotEditorCardState extends State<ReceiptLotEditorCard> {
                     ],
                   ),
                 ),
-                const VGap(VSpacing.space3),
+                const VGap.cozy(),
                 VField(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +346,7 @@ class _ReceiptLotEditorCardState extends State<ReceiptLotEditorCard> {
                 ],
               ),
             ),
-            const VGap(VSpacing.space3),
+            const VGap.cozy(),
             ReceiptKeyValueRow(
               label: 'Tổng kiểm nhận',
               value: '${formatQuantity(lot.totalReceived)} $unit',

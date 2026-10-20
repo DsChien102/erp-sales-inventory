@@ -83,7 +83,7 @@ class _CurrentStatusCard extends StatelessWidget {
             variant: VTextVariant.bodyDefault,
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          const VGap(VSpacing.space3),
+          const VGap.cozy(),
           SalesLabelHighlightRow(
             key: const Key('wgt_sg08_payment_debt_settlement_label'),
             label: 'Trạng thái',

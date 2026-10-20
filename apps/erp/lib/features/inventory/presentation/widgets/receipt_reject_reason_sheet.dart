@@ -63,7 +63,7 @@ class _ReceiptRejectReasonSheetState extends State<ReceiptRejectReasonSheet> {
                   color: colors.textSecondary,
                 ),
               ),
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VTextArea(
                 controller: _controller,
                 hintText: 'Ví dụ: Hàng giao sai quy cách, bao bì rách vỡ...',
@@ -81,7 +81,7 @@ class _ReceiptRejectReasonSheetState extends State<ReceiptRejectReasonSheet> {
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
-                  const VGap(VSpacing.space3, axis: Axis.horizontal),
+                  const VGap.horizontalCozy(),
                   Expanded(
                     child: VButton(
                       label: 'Từ chối',

@@ -36,7 +36,11 @@ class VSection extends StatelessWidget {
         children: [
           if (hasHeader) ...[
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              // A lone title centers on a 44px trailing action; with a subtitle
+              // the action stays aligned to the title line.
+              crossAxisAlignment: subtitle == null
+                  ? CrossAxisAlignment.center
+                  : CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -58,7 +62,10 @@ class VSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != null) vInspectorShow(trailing!),
+                if (trailing != null) ...[
+                  const VGap.horizontalSm(),
+                  vInspectorShow(trailing!),
+                ],
               ],
             ),
             VGap(gapAfterHeader),

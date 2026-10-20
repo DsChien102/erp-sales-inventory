@@ -37,7 +37,7 @@ class SalesComposeFormBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const VGap(VSpacing.space3),
+        const VGap.cozy(),
         VPagePadding(
           child: SalesComposeCustomerCard(
             customer: state.customer,

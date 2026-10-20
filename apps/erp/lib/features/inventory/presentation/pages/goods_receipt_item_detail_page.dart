@@ -127,7 +127,7 @@ class _GoodsReceiptItemDetailPageState
               ),
             if (item.isLotTracked) const VGap(VSpacing.space2),
             for (var index = 0; index < _lots.length; index++) ...[
-              if (index > 0) const VGap(VSpacing.space3),
+              if (index > 0) const VGap.cozy(),
               ReceiptLotEditorCard(
                 key: _lotKeys[index],
                 lot: _lots[index],
@@ -146,7 +146,7 @@ class _GoodsReceiptItemDetailPageState
               ),
             ],
             if (item.isLotTracked && !readOnly) ...[
-              const VGap(VSpacing.space3),
+              const VGap.cozy(),
               VButton(
                 label: 'Thêm lô khác',
                 leading: VIcons.add,

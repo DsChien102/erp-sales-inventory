@@ -4,9 +4,9 @@ import 'package:vet45_design_system/design_system.dart';
 
 void main() {
   test('VOverlayMenuShell uses bottom-weighted design-system shadow token', () {
-    expect(VOverlayMenuShell.menuShadow, VShadows.e2);
-    expect(VOverlayMenuShell.menuShadow.single.offset, const Offset(0, 4));
-    expect(VOverlayMenuShell.menuShadow.single.blurRadius, 16);
+    expect(VOverlayMenuShell.menuShadow, VShadows.e1);
+    expect(VOverlayMenuShell.menuShadow.single.offset, const Offset(0, 2));
+    expect(VOverlayMenuShell.menuShadow.single.blurRadius, 8);
   });
 
   testWidgets('VOverlayMenuShell.panel renders DecoratedBox with boxShadow', (tester) async {
@@ -22,6 +22,6 @@ void main() {
 
     final decorated = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
     final decoration = decorated.decoration as BoxDecoration;
-    expect(decoration.boxShadow, VShadows.e2);
+    expect(decoration.boxShadow, VShadows.e1);
   });
 }

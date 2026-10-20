@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class VColors {
   VColors._();
 
-  static const Color primary50 = Color(0xFFE8F6EC);
-  static const Color primary100 = Color(0xFFDCEFDE);
-  static const Color primary200 = Color(0xFFB8DFBD);
+  static const Color primary50 = Color(0xFFEBF4EE);
+  static const Color primary100 = Color(0xFFDDEBE0);
+  static const Color primary200 = Color(0xFFBDD9C2);
   static const Color primary300 = Color(0xFF8DCB96);
   static const Color primary400 = Color(0xFF5FB36C);
   static const Color primary500 = Color(0xFF3B9448);
@@ -27,8 +27,8 @@ class VColors {
   static const Color neutral900 = Color(0xFF0E1116);
 
   // Info / blue
-  static const Color blue50 = Color(0xFFE8F0FC);
-  static const Color blue100 = Color(0xFFD5E4FA);
+  static const Color blue50 = Color(0xFFEBF0F8);
+  static const Color blue100 = Color(0xFFDAE4F4);
   static const Color blue200 = Color(0xFFAEC9F5);
   static const Color blue300 = Color(0xFF7BA8EE);
   static const Color blue400 = Color(0xFF4F8AE7);
@@ -39,8 +39,8 @@ class VColors {
   static const Color blue900 = Color(0xFF122A59);
 
   // Warning / yellow
-  static const Color yellow50 = Color(0xFFFDF3E0);
-  static const Color yellow100 = Color(0xFFFBE9C6);
+  static const Color yellow50 = Color(0xFFF9F1E2);
+  static const Color yellow100 = Color(0xFFF5E8CF);
   static const Color yellow200 = Color(0xFFF7D48E);
   static const Color yellow300 = Color(0xFFF0BC4E);
   static const Color yellow400 = Color(0xFFE5A41F);
@@ -51,10 +51,13 @@ class VColors {
   static const Color yellow900 = Color(0xFF53330D);
 
   // Danger / red
-  static const Color red50 = Color(0xFFFBE8E8);
-  static const Color red100 = Color(0xFFF6D4D4);
+  static const Color red50 = Color(0xFFF8ECEC);
+  static const Color red100 = Color(0xFFF1DADA);
   static const Color red200 = Color(0xFFECA9A9);
   static const Color red300 = Color(0xFFE07A7A);
+  // Between red300 and red200: lightest red that still fills with dark text
+  // (≥ 4.5:1 on neutral700 and on red900). Used for dark-theme danger.
+  static const Color red350 = Color(0xFFE88B8B);
   static const Color red400 = Color(0xFFD95A5A);
   static const Color red500 = Color(0xFFD14343);
   static const Color red600 = Color(0xFFB53232);

@@ -154,7 +154,7 @@ class SalesOrderDetailBody extends StatelessWidget {
                   ),
                   const VGap(VSpacing.space2),
                   SalesOrderDetailProductsSection(items: displayedItems),
-                  const VGap(VSpacing.space3),
+                  const VGap.cozy(),
                   if (showDocumentsSection) ...[
                     SalesOrderDetailDocumentsSection(
                       isCancelled: isCancelled,
@@ -170,7 +170,7 @@ class SalesOrderDetailBody extends StatelessWidget {
                       onRetryHistory: onRetryHistory,
                       showHistory: showHistory,
                     ),
-                    const VGap(VSpacing.space3),
+                    const VGap.cozy(),
                   ],
                 ],
               ),

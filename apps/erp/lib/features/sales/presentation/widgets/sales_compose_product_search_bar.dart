@@ -446,7 +446,7 @@ class _SalesComposeProductSearchBarState extends State<SalesComposeProductSearch
         borderRadius: BorderRadius.circular(VRadius.card),
         borderSide: VBorders.side(context.vColors.borderStrong),
         boxShadow: _menuBoxShadow,
-        padding: const EdgeInsets.symmetric(vertical: VSpacing.space0),
+        padding: const EdgeInsets.symmetric(vertical: VSpacing.hairline),
         child: child,
       ),
     );

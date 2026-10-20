@@ -28,7 +28,7 @@ class ReceiptKeyValueRow extends StatelessWidget {
               style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
             ),
           ),
-          const VGap(VSpacing.space3, axis: Axis.horizontal),
+          const VGap.horizontalCozy(),
           Flexible(
             child: VText(
               value,
