@@ -10,8 +10,7 @@ void main() {
     );
   }
 
-  Finder shellFinder() =>
-      find.byKey(const ValueKey<String>('v_empty_state_shell'));
+  Finder shellFinder() => find.byKey(const ValueKey<String>('v_empty_state_shell'));
 
   BoxDecoration? emptyDecoration(WidgetTester tester) {
     final finder = shellFinder();
@@ -238,6 +237,73 @@ void main() {
         wrap(const VEmptyTitle('Orphan')),
       );
       expect(tester.takeException(), isA<FlutterError>());
+    });
+  });
+
+  group('VEmptyState hardening', () {
+    const longChild = VEmptyHeader(
+      children: [
+        VEmptyMedia(iconData: Icons.inbox_outlined),
+        VEmptyTitle('Không tìm thấy kết quả phù hợp với bộ lọc hiện tại của bạn'),
+        VEmptyDescription(
+          'Hãy thử bỏ bớt bộ lọc, kiểm tra lại chính tả hoặc tìm bằng mã vạch. '
+          'Nếu sản phẩm chưa tồn tại, bạn có thể tạo mới ngay trong danh mục.',
+        ),
+      ],
+    );
+
+    testWidgets('scrolls instead of overflowing in a short viewport', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: Scaffold(
+              body: SizedBox(
+                height: 160,
+                child: const VEmptyState(bordered: true, child: longChild),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+    });
+
+    testWidgets('works inside an unbounded scroll view', (tester) async {
+      await tester.pumpWidget(
+        wrap(const SingleChildScrollView(child: VEmptyState(child: longChild))),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+    });
+
+    testWidgets('legacy title is announced once and CTA keeps its own node', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          // ignore: deprecated_member_use
+          VEmptyState(
+            // ignore: deprecated_member_use
+            iconEmoji: '📭',
+            // ignore: deprecated_member_use
+            title: 'Chưa có đơn hàng',
+            // ignore: deprecated_member_use
+            actionLabel: 'Tạo đơn',
+            // ignore: deprecated_member_use
+            onActionPressed: () {},
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Chưa có đơn hàng'), findsOneWidget);
+      expect(find.bySemanticsLabel('📭'), findsNothing);
+      expect(find.bySemanticsLabel('Tạo đơn'), findsWidgets);
+      handle.dispose();
     });
   });
 }

@@ -53,16 +53,14 @@ void main() {
 
     double rowDx(WidgetTester tester) => tester.getTopLeft(find.text(rowLabel)).dx;
 
-    testWidgets('without semanticActions hidden buttons stay in semantics',
-        (tester) async {
+    testWidgets('without semanticActions hidden buttons stay in semantics', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(host());
       expect(find.bySemanticsLabel('Xóa'), findsOneWidget);
       handle.dispose();
     });
 
-    testWidgets('with semanticActions hidden buttons leave semantics while closed',
-        (tester) async {
+    testWidgets('with semanticActions hidden buttons leave semantics while closed', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         host(
@@ -91,8 +89,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('card publishes custom actions that run the callback',
-        (tester) async {
+    testWidgets('card publishes custom actions that run the callback', (tester) async {
       final handle = tester.ensureSemantics();
       var deleted = 0;
       await tester.pumpWidget(
@@ -129,8 +126,10 @@ void main() {
           ],
         ),
       );
-      final ids =
-          tester.getSemantics(find.text(rowLabel)).getSemanticsData().customSemanticsActionIds;
+      final ids = tester
+          .getSemantics(find.text(rowLabel))
+          .getSemanticsData()
+          .customSemanticsActionIds;
       expect(ids ?? const <int>[], isEmpty);
       handle.dispose();
     });

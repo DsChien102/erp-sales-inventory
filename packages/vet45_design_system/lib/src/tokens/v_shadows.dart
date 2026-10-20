@@ -5,33 +5,33 @@ class VShadows {
 
   static const List<BoxShadow> e1 = [
     BoxShadow(
-      color: Color(0x0A0E1116),
-      blurRadius: 8,
-      offset: Offset(0, 2),
+      color: Color(0x080E1116),
+      blurRadius: 6,
+      offset: Offset(0, 1),
     ),
   ];
 
   static const List<BoxShadow> e2 = [
     BoxShadow(
-      color: Color(0x140E1116),
-      blurRadius: 16,
-      offset: Offset(0, 4),
+      color: Color(0x0F0E1116),
+      blurRadius: 12,
+      offset: Offset(0, 3),
     ),
   ];
 
   static const List<BoxShadow> e3 = [
     BoxShadow(
-      color: Color(0x1F0E1116),
-      blurRadius: 24,
-      offset: Offset(0, 8),
+      color: Color(0x170E1116),
+      blurRadius: 20,
+      offset: Offset(0, 6),
     ),
   ];
 
   static const List<BoxShadow> e4 = [
     BoxShadow(
-      color: Color(0x290E1116),
-      blurRadius: 32,
-      offset: Offset(0, 16),
+      color: Color(0x1F0E1116),
+      blurRadius: 28,
+      offset: Offset(0, 12),
     ),
   ];
 }

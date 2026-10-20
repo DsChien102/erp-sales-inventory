@@ -1,6 +1,6 @@
 /// Built-in select validation for [VSelect].
 abstract final class VSelectValidator {
-  static const String defaultRequiredMessage = 'Vui lòng chọn một giá trị';
+  static const String defaultRequiredMessage = 'Vui lòng chọn một mục';
 
   static bool isValid<T>(T? value) => value != null;
 

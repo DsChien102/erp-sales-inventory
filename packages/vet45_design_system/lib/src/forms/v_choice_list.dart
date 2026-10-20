@@ -135,7 +135,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
 
     return vInspectorHide(
       Semantics(
-        label: widget.semanticLabel ?? legacyTitle ?? 'Choice list',
+        label: widget.semanticLabel ?? legacyTitle ?? 'Danh sách lựa chọn',
         enabled: isEnabled,
         child: body,
       ),

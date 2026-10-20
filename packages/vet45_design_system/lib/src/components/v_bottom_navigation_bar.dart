@@ -56,9 +56,7 @@ class VBottomNavigationBar extends StatelessWidget {
             final isSelected = index == currentIndex;
             final item = items[index];
             final isEnabled = item.enabled;
-            final color = isSelected
-                ? dynamicColors.primary
-                : dynamicColors.textSecondary;
+            final color = isSelected ? dynamicColors.primary : dynamicColors.textSecondary;
 
             return Expanded(
               child: MergeSemantics(
@@ -91,8 +89,11 @@ class VBottomNavigationBar extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.center,
-                                style: VTypography.labelSmall
-                                    .copyWith(color: color),
+                                style: VTypography.labelSmall.copyWith(
+                                  color: color,
+                                  // Selection reads by weight too, not by color alone.
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],

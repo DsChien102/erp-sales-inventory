@@ -1174,8 +1174,9 @@ class _ComposeCreateComboboxState extends State<_ComposeCreateCombobox> {
         mainAxisSize: MainAxisSize.min,
         children: [
           VComboboxContent(
-            footer: VComboboxFooter(
-              builder: (context, child, root) {
+            footer: Builder(
+              builder: (context) {
+                final root = vComboboxOf(context);
                 return ListenableBuilder(
                   listenable: root,
                   builder: (context, _) {

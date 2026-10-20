@@ -44,7 +44,7 @@ class VCheckbox extends StatelessWidget {
       value: value,
       onChanged: isEnabled ? onChanged : null,
       activeColor: _activeColor(dynamicColors),
-      checkColor: Colors.white,
+      checkColor: dynamicColors.textInverse,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(VRadius.r4),
       ),

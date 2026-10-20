@@ -7,6 +7,8 @@ import '../tokens/v_spacing.dart';
 /// Standard screen inset padding.
 ///
 /// Horizontal defaults to [VSpacing.screenMobile]; pass [horizontal] to override.
+/// On tablets the outer gutter comes from [VPageScaffold]'s content column, so
+/// this inset stays 16 at every width.
 class VPagePadding extends StatelessWidget {
   const VPagePadding({
     super.key,

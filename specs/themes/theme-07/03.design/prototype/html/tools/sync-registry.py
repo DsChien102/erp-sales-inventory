@@ -19,7 +19,7 @@ def sha(p):
 
 proto = []
 for dp, dn, fn in os.walk(PROTO.rstrip('/')):
-    dn[:] = [d for d in dn if not d.startswith('.golden')]
+    dn[:] = [d for d in dn if not d.startswith('.')]
     proto += [os.path.join(dp, f) for f in fn]
 proto = sorted(proto)
 

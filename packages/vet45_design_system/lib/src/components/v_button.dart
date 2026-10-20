@@ -119,14 +119,10 @@ class VButton extends StatelessWidget {
 
   final bool _iconOnly;
 
-  static TextStyle _textStyleForVariant(VButtonVariant variant) {
-    return switch (variant) {
-      VButtonVariant.primary => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
-      VButtonVariant.secondary => VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w500),
-      VButtonVariant.tertiary => VTypography.headingH4.copyWith(fontWeight: FontWeight.w600),
-      VButtonVariant.link => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w500),
-    };
-  }
+  /// Every variant speaks the Label role (14 / 600); variants differ by fill
+  /// and border, never by type size, so the primary action is never the
+  /// smallest text on screen.
+  static TextStyle _textStyleForVariant(VButtonVariant variant) => VTypography.actionDefault;
 
   static double _iconSizeFor(VButtonSize size) {
     return switch (size) {
@@ -311,7 +307,8 @@ class VButton extends StatelessWidget {
         if (resolvedTone == VComponentTone.success) {
           return VBorders.side(dynamicColors.success);
         }
-        return VBorders.side(dynamicColors.borderDefault);
+        // Control boundary: borderInput clears 3:1 on white; hairline does not.
+        return VBorders.side(dynamicColors.borderInput);
       }
 
       return BorderSide.none;

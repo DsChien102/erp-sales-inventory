@@ -11,9 +11,11 @@ void main() {
   }
 
   BoxDecoration? cardDecoration(WidgetTester tester) {
-    final container = tester.widgetList<Container>(find.byType(Container)).firstWhere(
-      (c) => c.decoration is BoxDecoration,
-    );
+    final container = tester
+        .widgetList<Container>(find.byType(Container))
+        .firstWhere(
+          (c) => c.decoration is BoxDecoration,
+        );
     return container.decoration as BoxDecoration?;
   }
 

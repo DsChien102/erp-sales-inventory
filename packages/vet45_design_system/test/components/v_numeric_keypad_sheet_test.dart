@@ -86,9 +86,9 @@ void main() {
       expect(controller.selection.isCollapsed, isTrue);
 
       Finder key(String label) => find.descendant(
-            of: find.byType(VNumericKeypadGrid),
-            matching: find.text(label),
-          );
+        of: find.byType(VNumericKeypadGrid),
+        matching: find.text(label),
+      );
 
       await tester.tap(key('3'));
       await tester.pump();
@@ -164,9 +164,9 @@ void main() {
       await tester.pump();
 
       Finder key(String label) => find.descendant(
-            of: find.byType(VNumericKeypadGrid),
-            matching: find.text(label),
-          );
+        of: find.byType(VNumericKeypadGrid),
+        matching: find.text(label),
+      );
 
       for (final d in ['1', '0', '0', '0']) {
         await tester.tap(key(d));

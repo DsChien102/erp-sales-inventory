@@ -75,7 +75,6 @@ export 'src/components/v_combobox_input.dart';
 export 'src/components/v_combobox_content.dart';
 export 'src/components/v_combobox_list.dart';
 export 'src/components/v_combobox_item.dart';
-export 'src/components/v_combobox_footer.dart';
 export 'src/components/v_bottom_navigation_bar.dart';
 export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';

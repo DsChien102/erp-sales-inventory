@@ -91,7 +91,7 @@ class VToast extends StatelessWidget {
           boxShadow: VShadows.e2,
           border: VBorders.all(
             type == VToastType.success
-                ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
+                ? colors.surface.withValues(alpha: 0.06)
                 : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
             width: VBorders.widthFor(emphasis),
           ),
@@ -108,9 +108,13 @@ class VToast extends StatelessWidget {
                 highlightColor: Colors.transparent,
                 onTap: onTap,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.space4,
-                    vertical: 14,
+                  // Right inset is trimmed so the close icon's 44px hit box
+                  // keeps the icon optically at space4 from the edge.
+                  padding: const EdgeInsets.only(
+                    left: VSpacing.space4,
+                    right: VSpacing.space1,
+                    top: VSpacing.space1,
+                    bottom: VSpacing.space1,
                   ),
                   child: Row(
                     children: [
@@ -124,17 +128,28 @@ class VToast extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap:
-                            onClose ??
-                            () {
-                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            },
-                        child: VIcon(
-                          icon: VIcons.close,
-                          color: closeIconColor,
-                          size: 20,
+                      const SizedBox(width: VSpacing.space1),
+                      Semantics(
+                        button: true,
+                        label: 'Đóng',
+                        excludeSemantics: true,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap:
+                              onClose ??
+                              () {
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              },
+                          child: SizedBox.square(
+                            dimension: VSpacing.minTouchTarget,
+                            child: Center(
+                              child: VIcon(
+                                icon: VIcons.close,
+                                color: closeIconColor,
+                                size: 20,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -154,7 +169,7 @@ class VToast extends StatelessWidget {
       VComponentTone.warning => colors.warning,
       VComponentTone.danger => colors.danger,
       VComponentTone.info => colors.info,
-      _ => const Color(0xFFFFFFFF),
+      _ => colors.surface,
     };
   }
 }

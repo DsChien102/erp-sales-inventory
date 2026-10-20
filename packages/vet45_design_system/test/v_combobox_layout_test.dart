@@ -811,7 +811,7 @@ void main() {
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'Beta');
   });
 
-  testWidgets('VComboboxFooter shows with empty list', (tester) async {
+  testWidgets('VComboboxContent footer shows with empty list', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -825,10 +825,7 @@ void main() {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   VComboboxContent(
-                    footer: VComboboxFooter(
-                      child: const Text('Tao moi'),
-                      builder: (context, child, root) => child!,
-                    ),
+                    footer: const Text('Tao moi'),
                     child: const VComboboxList(
                       children: [
                         VComboboxItem<String>(

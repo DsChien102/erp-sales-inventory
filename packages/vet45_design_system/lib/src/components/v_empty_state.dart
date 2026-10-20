@@ -210,12 +210,28 @@ class VEmptyState extends StatelessWidget {
     // ignore: deprecated_member_use_from_same_package
     final content = child ?? _legacyContent();
 
-    final body = Padding(
-      padding: resolvedPadding,
-      child: Align(
-        alignment: Alignment.center,
-        child: vInspectorShow(content),
-      ),
+    final body = LayoutBuilder(
+      builder: (context, constraints) {
+        final padded = Padding(
+          padding: resolvedPadding,
+          child: Align(
+            alignment: Alignment.center,
+            child: vInspectorShow(content),
+          ),
+        );
+        if (!constraints.hasBoundedHeight) return padded;
+        // Short viewport (keyboard open, landscape, large text): scroll instead
+        // of overflowing, and keep the content centred when there is room.
+        // primary: false — never steal the page's PrimaryScrollController
+        // (parent Scrollbar / tap-status-bar-to-top keep working).
+        return SingleChildScrollView(
+          primary: false,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: padded,
+          ),
+        );
+      },
     );
 
     final shell = hasDecoration
@@ -233,11 +249,16 @@ class VEmptyState extends StatelessWidget {
     return vInspectorHide(
       VComponentScope(
         tone: tone,
-        child: Semantics(
-          // ignore: deprecated_member_use_from_same_package
-          label: semanticLabel ?? title,
-          child: shell,
-        ),
+        // Children keep their own semantics (title, description, CTA stay
+        // separate nodes); a label is only added when the caller asks for one.
+        child: semanticLabel == null
+            ? shell
+            : Semantics(
+                container: true,
+                explicitChildNodes: true,
+                label: semanticLabel,
+                child: shell,
+              ),
       ),
     );
   }
@@ -274,7 +295,8 @@ class VEmptyState extends StatelessWidget {
               emoji: iconEmoji,
             ),
             VEmptyTitle(legacyTitle),
-            if (legacyDescription != null) VEmptyDescription(legacyDescription),
+            if (legacyDescription != null && legacyDescription.isNotEmpty)
+              VEmptyDescription(legacyDescription),
           ],
         ),
         if (legacyActionLabel != null && legacyOnAction != null) ...[
@@ -285,9 +307,7 @@ class VEmptyState extends StatelessWidget {
               onPressed: legacyOnAction,
               leading: legacyActionLeadingToken,
               // ignore: deprecated_member_use_from_same_package
-              leadingIcon: legacyActionLeadingToken == null
-                  ? legacyActionLeading
-                  : null,
+              leadingIcon: legacyActionLeadingToken == null ? legacyActionLeading : null,
               size: VButtonSize.medium,
               emphasis: legacyEmphasis,
             ),
@@ -377,19 +397,23 @@ class VEmptyMedia extends StatelessWidget {
 
     if (emoji != null && child == null && icon == null && iconData == null) {
       return vInspectorHide(
-        Text(emoji!, style: const TextStyle(fontSize: 48)),
+        ExcludeSemantics(
+          child: Text(emoji!, style: const TextStyle(fontSize: 48)),
+        ),
       );
     }
 
     if (variant == VEmptyMediaVariant.plain) {
       if (child != null) return vInspectorShow(child!);
       return vInspectorHide(
-        VIconBox(
-          icon: icon,
-          iconData: icon == null ? iconData : null,
-          size: size,
-          iconSize: size * 0.44,
-          tone: resolvedTone,
+        ExcludeSemantics(
+          child: VIconBox(
+            icon: icon,
+            iconData: icon == null ? iconData : null,
+            size: size,
+            iconSize: size * 0.44,
+            tone: resolvedTone,
+          ),
         ),
       );
     }
@@ -410,15 +434,17 @@ class VEmptyMedia extends StatelessWidget {
     }
 
     return vInspectorHide(
-      VIconBox(
-        icon: icon,
-        iconData: icon == null ? iconData : null,
-        size: size,
-        iconSize: size * 0.44,
-        tone: resolvedTone ?? VComponentTone.neutral,
-        backgroundColor: resolvedTone == null ? colors.surfaceAlt : null,
-        iconColor: resolvedTone == null ? colors.textSecondary : null,
-        borderRadius: VRadius.r16,
+      ExcludeSemantics(
+        child: VIconBox(
+          icon: icon,
+          iconData: icon == null ? iconData : null,
+          size: size,
+          iconSize: size * 0.44,
+          tone: resolvedTone ?? VComponentTone.neutral,
+          backgroundColor: resolvedTone == null ? colors.surfaceAlt : null,
+          iconColor: resolvedTone == null ? colors.textSecondary : null,
+          borderRadius: VRadius.r16,
+        ),
       ),
     );
   }

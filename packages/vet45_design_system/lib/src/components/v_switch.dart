@@ -40,10 +40,11 @@ class VSwitch extends StatelessWidget {
     Widget toggle = Switch(
       value: value,
       onChanged: isEnabled ? onChanged : null,
-      activeThumbColor: Colors.white,
+      activeThumbColor: dynamicColors.surface,
       activeTrackColor: trackColor,
-      inactiveThumbColor: Colors.white,
-      inactiveTrackColor: dynamicColors.borderStrong,
+      inactiveThumbColor: dynamicColors.surface,
+      // borderInput clears 3:1 on white; borderStrong (1.4:1) left "off" unreadable.
+      inactiveTrackColor: dynamicColors.borderInput,
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     );
 

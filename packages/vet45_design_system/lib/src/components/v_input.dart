@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
@@ -25,6 +28,11 @@ import '../tokens/v_typography.dart';
 ///
 /// Single-line locked height follows ambient [VDensity.controlHeightMedium]
 /// (shared with [VButton] size medium, [VTextField], [VSelect], [VCombobox]).
+/// It is a floor for multi-line fields and grows with the system text scale, so
+/// large text and wrapped lines are never clipped.
+///
+/// [obscureText] always renders a single line (a multi-line obscured field
+/// would assert inside [TextField]).
 class VInput extends StatefulWidget {
   /// Default inset — horizontal [VSpacing.space3], vertical [VSpacing.space2].
   static const EdgeInsets defaultPadding = EdgeInsets.symmetric(
@@ -141,7 +149,9 @@ class VInput extends StatefulWidget {
 
 class _VInputState extends State<VInput> {
   FocusNode? _ownedFocusNode;
-  Offset? _outsidePointerDown;
+  // Keyed by pointer so a second finger cannot overwrite the first finger's
+  // down position mid-scroll.
+  final Map<int, Offset> _outsidePointerDowns = {};
 
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
 
@@ -178,16 +188,25 @@ class _VInputState extends State<VInput> {
   }
 
   void _handleFocusChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    // Focus can change mid-build (autofocus, route push); defer the rebuild.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+      return;
+    }
+    setState(() {});
   }
 
   void _rememberOutsidePointerDown(PointerDownEvent event) {
-    _outsidePointerDown = event.position;
+    // Cancelled pointers never reach the up handler; drop stale entries.
+    if (_outsidePointerDowns.length > 8) _outsidePointerDowns.clear();
+    _outsidePointerDowns[event.pointer] = event.position;
   }
 
   void _unfocusOnOutsideTapUp(PointerUpEvent event) {
-    final down = _outsidePointerDown;
-    _outsidePointerDown = null;
+    final down = _outsidePointerDowns.remove(event.pointer);
     if (down != null && (event.position - down).distance > kTouchSlop) {
       return;
     }
@@ -228,6 +247,13 @@ class _VInputState extends State<VInput> {
     final prefix = widget.prefix;
     final suffix = widget.suffix;
 
+    // Obscured fields are single-line; minLines must never exceed maxLines.
+    final maxLines = widget.obscureText ? 1 : widget.maxLines;
+    final isSingleLine = maxLines == 1;
+    final minLines = isSingleLine || widget.minLines == null
+        ? null
+        : widget.minLines!.clamp(1, maxLines ?? widget.minLines!);
+
     Widget field = TextField(
       controller: widget.controller,
       enabled: isEnabled,
@@ -238,8 +264,8 @@ class _VInputState extends State<VInput> {
       onChanged: widget.onChanged,
       autofocus: widget.autofocus,
       focusNode: _focusNode,
-      maxLines: widget.maxLines,
-      minLines: widget.minLines,
+      maxLines: maxLines,
+      minLines: minLines,
       inputFormatters: widget.inputFormatters,
       textAlign: widget.textAlign,
       onSubmitted: widget.onSubmitted,
@@ -259,6 +285,7 @@ class _VInputState extends State<VInput> {
         focusedErrorBorder: InputBorder.none,
         filled: false,
         hintText: widget.hintText,
+        hintMaxLines: isSingleLine ? 1 : null,
         hintStyle: baseTextStyle.copyWith(
           color: widget.hintColor ?? colors.textMuted,
         ),
@@ -269,7 +296,7 @@ class _VInputState extends State<VInput> {
 
     // Height-locked: the row is centred in the control, so vertical padding
     // only squeezes affixes (e.g. a 44pt icon button) without moving the text.
-    final rowPadding = widget.lockControlHeight
+    final rowPadding = widget.lockControlHeight && isSingleLine
         ? widget.padding.copyWith(top: 0, bottom: 0)
         : widget.padding;
 
@@ -302,10 +329,18 @@ class _VInputState extends State<VInput> {
 
     if (widget.lockControlHeight) {
       final controlHeight = context.vDensity.controlHeightMedium;
+      // Single line stays at control height until the text scale needs more
+      // room; multi-line is only floored so wrapped lines keep their height.
+      final maxHeight = isSingleLine
+          ? math.max(
+              controlHeight,
+              MediaQuery.textScalerOf(context).scale(controlHeight),
+            )
+          : double.infinity;
       field = ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: controlHeight,
-          maxHeight: controlHeight,
+          maxHeight: maxHeight,
         ),
         child: field,
       );

@@ -38,19 +38,17 @@ class VFloatingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final isEnabled =
-        VComponentScope.resolveEnabled(context, local: enabled) && onTap != null;
+    final isEnabled = VComponentScope.resolveEnabled(context, local: enabled) && onTap != null;
 
-    final resolvedBgColor = backgroundColor ??
+    final resolvedBgColor =
+        backgroundColor ??
         switch (tone) {
           VComponentTone.primary => dynamicColors.primary,
           VComponentTone.danger => dynamicColors.danger,
           VComponentTone.warning => dynamicColors.warning,
           _ => dynamicColors.primary,
         };
-    final resolvedIconColor = iconColor ?? Colors.white;
-
-    final shadowAlpha = emphasis == VComponentEmphasis.strong ? 0.35 : 0.2;
+    final resolvedIconColor = iconColor ?? dynamicColors.textInverse;
 
     return vInspectorHide(
       Semantics(
@@ -65,14 +63,7 @@ class VFloatingActionButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: resolvedBgColor,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: resolvedBgColor.withValues(alpha: shadowAlpha),
-                  blurRadius: emphasis == VComponentEmphasis.strong ? 16 : 8,
-                  offset: const Offset(0, 8),
-                ),
-                if (emphasis == VComponentEmphasis.strong) ...VShadows.e3,
-              ],
+              boxShadow: emphasis == VComponentEmphasis.strong ? VShadows.e3 : VShadows.e2,
             ),
             child: Material(
               color: Colors.transparent,

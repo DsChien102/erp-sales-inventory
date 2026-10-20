@@ -118,7 +118,7 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 - [`SCR-014` — Hàng chờ xác nhận giá nhập](../screens/SCR-014.md) — module entry.
 - [`SCR-015` — Chọn hàng cần xác nhận giá](../screens/SCR-015.md) — contextual/in-flow scope.
-- `SCR-016` — historical/migration identity; provenance/conflict là contextual `VBottomSheet` trên SCR-015/SCR-017.
+- `SCR-016` — historical/migration identity; provenance/conflict là contextual `VBottomSheet` trên SCR-015/SCR-017. (xem [`RETIRED.md`](../screens/RETIRED.md))
 - [`SCR-017` — Rà soát xác nhận giá](../screens/SCR-017.md) — final direct-valuation commit.
 - [`SCR-019` — Kết quả xác nhận giá](../screens/SCR-019.md) — result/finality.
 
@@ -126,19 +126,19 @@ Chỉ `MODULE_ENTRY` mới mặc định global-discoverable. `CONTEXTUAL_ONLY`,
 
 - [`SCR-085` — Chi phí mua bổ sung](../screens/SCR-085.md) — module work queue.
 - [`SCR-086` — Nguồn và phạm vi chi phí](../screens/SCR-086.md) — source task / 1..N receipt-line scope.
-- [`SCR-087` — Phân bổ chi phí](../screens/SCR-087.md) — server preview, in-flow.
-- [`SCR-088` — Rà soát ghi chi phí](../screens/SCR-088.md) — single final commit surface.
+- [`SCR-087` — Phân bổ chi phí](../screens/RETIRED.md) — server preview, in-flow.
+- [`SCR-088` — Rà soát ghi chi phí](../screens/RETIRED.md) — single final commit surface.
 - [`SCR-089` — Kết quả ghi chi phí](../screens/SCR-089.md) — result/finality; dirty scope handoff cho BJ14.
-- `SCR-018` retired khỏi active UIF13; giữ historical/migration trace.
+- `SCR-018` retired khỏi active UIF13; giữ historical/migration trace. (xem [`RETIRED.md`](../screens/RETIRED.md))
 
 **BJ14 — Tính và công bố giá vốn (v1.5.0)**
 
 - [`SCR-072` — Giá vốn](../screens/SCR-072.md) — module worklist.
-- [`SCR-073` — Thiết lập lần tính](../screens/SCR-073.md) — setup/create immutable run.
+- [`SCR-073` — Thiết lập lần tính](../screens/RETIRED.md) — setup/create immutable run.
 - [`SCR-074` — Kết quả lần tính](../screens/SCR-074.md) — CALCULATING/BLOCKED/READY state surface.
-- [`SCR-076` — Rà soát công bố](../screens/SCR-076.md) — final publish review.
+- [`SCR-076` — Rà soát công bố](../screens/RETIRED.md) — final publish review.
 - [`SCR-077` — Kết quả công bố](../screens/SCR-077.md) — result/finality.
-- `SCR-075` retired khỏi active UIF14; giữ historical/migration trace.
+- `SCR-075` retired khỏi active UIF14; giữ historical/migration trace. (xem [`RETIRED.md`](../screens/RETIRED.md))
 
 #### NAV-05 — Báo cáo và truy vết
 

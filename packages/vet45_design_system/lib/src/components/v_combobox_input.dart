@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_overlay_menu_shell.dart';
@@ -62,23 +61,18 @@ class _VComboboxInputState extends State<VComboboxInput> {
     final colors = context.vColors;
     final isEnabled = root.canInteract;
     final isInvalid = VField.resolveInvalid(context, local: root.invalid);
-    final useDanger =
-        isInvalid || root.tone == VComponentTone.danger;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final menuWidth = constraints.maxWidth;
-        const menuStyleMaxHeight = 400.0;
-        final transparentMenuStyle = MenuStyle(
+            final transparentMenuStyle = MenuStyle(
           elevation: const WidgetStatePropertyAll(0),
           backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
           surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
           shadowColor: const WidgetStatePropertyAll(Colors.transparent),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           minimumSize: WidgetStatePropertyAll(Size(menuWidth, 0)),
-          maximumSize: WidgetStatePropertyAll(
-            Size(menuWidth, menuStyleMaxHeight),
-          ),
+          maximumSize: WidgetStatePropertyAll(Size(menuWidth, 400)),
         );
 
         final menu = MenuButtonTheme(
@@ -111,7 +105,6 @@ class _VComboboxInputState extends State<VComboboxInput> {
                       tapRegionGroupId: root.tapRegionGroupId,
                       body: body,
                       footer: root.overlayFooter,
-                      padding: root.overlayPadding,
                     ),
                   );
                 },
@@ -123,8 +116,6 @@ class _VComboboxInputState extends State<VComboboxInput> {
                 focusNode: root.focusNode,
                 controller: root.textController,
                 hintText: widget.hintText,
-                tone: root.tone,
-                emphasis: root.emphasis,
                 invalid: isInvalid,
                 groupId: root.tapRegionGroupId,
                 textStyle: VTypography.bodyDefault.copyWith(
@@ -152,7 +143,7 @@ class _VComboboxInputState extends State<VComboboxInput> {
           builder: (context, child) {
             return VTextFieldFocusRing(
               focused: isEnabled && root.focusNode.hasFocus,
-              danger: useDanger,
+              danger: isInvalid,
               child: child!,
             );
           },

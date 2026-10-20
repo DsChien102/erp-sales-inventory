@@ -6,7 +6,9 @@ void main() {
   Widget wrap(Widget child) {
     return MaterialApp(
       theme: VTheme.lightTheme,
-      home: Scaffold(body: Padding(padding: const EdgeInsets.all(16), child: child)),
+      home: Scaffold(
+        body: Padding(padding: const EdgeInsets.all(16), child: child),
+      ),
     );
   }
 

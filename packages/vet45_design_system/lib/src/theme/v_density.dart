@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 
 enum VDensityMode { compact, comfortable }
 
+/// Control sizes and field padding.
+///
+/// Density follows how the screen is touched, never how wide it is. Phones and
+/// the counter tablet are both finger-driven (often standing, one hand, bright
+/// light), so both run [comfortable]; do not derive the mode from a
+/// breakpoint. [compact] is for pointer-driven windows (web / desktop) only.
+/// Controls below [VSpacing.minTouchTarget] still extend their hit area to it.
 @immutable
 class VDensity extends ThemeExtension<VDensity> {
   final VDensityMode mode;

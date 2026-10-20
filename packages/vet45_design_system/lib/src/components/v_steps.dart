@@ -56,18 +56,21 @@ class VSteps extends StatelessWidget {
       final double circleSize = 32.0;
 
       switch (status) {
+        // Done steps recede to a wash + check; the current step is the only
+        // solid mark, so the eye lands on where the user is now.
         case VStepStatus.completed:
           return Container(
             width: circleSize,
             height: circleSize,
             decoration: BoxDecoration(
-              color: dynamicColors.success,
+              color: dynamicColors.successBg,
               shape: BoxShape.circle,
+              border: VBorders.all(dynamicColors.success, width: VBorders.thin),
             ),
-            child: const Center(
+            child: Center(
               child: VIcon(
                 icon: VIcons.check,
-                color: Colors.white,
+                color: dynamicColors.success,
                 size: 16.0,
               ),
             ),
@@ -77,20 +80,15 @@ class VSteps extends StatelessWidget {
             width: circleSize,
             height: circleSize,
             decoration: BoxDecoration(
-              color: dynamicColors.successBg,
+              color: dynamicColors.success,
               shape: BoxShape.circle,
-              border: VBorders.all(
-                dynamicColors.success,
-                width: VBorders.thin,
-              ),
             ),
             child: Center(
               child: VText(
                 '${index + 1}',
-                style: VTypography.bodyDefault.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: dynamicColors.success,
-                  fontSize: 14.0,
+                style: VTypography.labelDefault.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: dynamicColors.textInverse,
                 ),
               ),
             ),
@@ -102,14 +100,14 @@ class VSteps extends StatelessWidget {
             decoration: BoxDecoration(
               color: dynamicColors.surfaceAlt,
               shape: BoxShape.circle,
+              // Outline keeps upcoming steps visible on a Shelf Gray page.
+              border: VBorders.all(dynamicColors.borderStrong, width: VBorders.thin),
             ),
             child: Center(
               child: VText(
                 '${index + 1}',
-                style: VTypography.bodyDefault.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: dynamicColors.textMuted,
-                  fontSize: 14.0,
+                style: VTypography.labelDefault.copyWith(
+                  color: dynamicColors.textSecondary,
                 ),
               ),
             ),
@@ -120,7 +118,7 @@ class VSteps extends StatelessWidget {
     Widget buildHorizontalStep(int index, VStepItem step) {
       final status = getStatus(index, step);
       final isLast = index == steps.length - 1;
-      
+
       final Color lineAfterColor = index < currentStep
           ? dynamicColors.success
           : dynamicColors.borderDefault;
@@ -135,11 +133,11 @@ class VSteps extends StatelessWidget {
         VStepStatus.inactive => dynamicColors.textMuted,
       };
 
-      final titleStyle = VTypography.bodyDefault.copyWith(
-        fontWeight: FontWeight.w600,
+      final titleStyle = VTypography.labelDefault.copyWith(
+        fontWeight: status == VStepStatus.active ? FontWeight.w700 : FontWeight.w600,
         color: titleColor,
       );
-      final subtitleStyle = VTypography.bodyDefault.copyWith(color: dynamicColors.textMuted);
+      final subtitleStyle = VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary);
 
       return Expanded(
         child: Column(
@@ -202,15 +200,11 @@ class VSteps extends StatelessWidget {
         VStepStatus.inactive => dynamicColors.textMuted,
       };
 
-      final titleStyle = VTypography.bodyDefault.copyWith(
-        fontWeight: FontWeight.w600,
+      final titleStyle = VTypography.labelDefault.copyWith(
+        fontWeight: status == VStepStatus.active ? FontWeight.w700 : FontWeight.w600,
         color: titleColor,
       );
-      final subtitleStyle = VTypography.bodyDefault.copyWith(
-        color: status == VStepStatus.active
-            ? dynamicColors.success.withValues(alpha: 0.8)
-            : dynamicColors.textMuted,
-      );
+      final subtitleStyle = VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary);
 
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -253,15 +247,11 @@ class VSteps extends StatelessWidget {
           ? dynamicColors.success
           : dynamicColors.borderDefault;
 
-      final titleStyle = VTypography.bodyDefault.copyWith(
-        fontWeight: FontWeight.w600,
+      final titleStyle = VTypography.labelDefault.copyWith(
+        fontWeight: status == VStepStatus.active ? FontWeight.w700 : FontWeight.w600,
         color: titleColor,
       );
-      final subtitleStyle = VTypography.bodyDefault.copyWith(
-        color: status == VStepStatus.active
-            ? dynamicColors.success.withValues(alpha: 0.8)
-            : dynamicColors.textMuted,
-      );
+      final subtitleStyle = VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary);
 
       return Column(
         mainAxisSize: MainAxisSize.min,

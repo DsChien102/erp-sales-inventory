@@ -263,9 +263,10 @@ UIF-14,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-14-BJ-14.md,29ab1435
 UIF-15,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-15-BJ-15.md,2a95f79f26be42654ef9c678ffa12b180263fad89dbc967db7622fdd178a9a02,9533,theme-07,Tra cứu báo cáo tồn và thẻ kho,v4.1.0
 UIF-16,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-16-BJ-16.md,bba1e89b517c567657835d0619bbedf84cfa3bdefe3b0756333c4563ee3102dc,11541,theme-07,Điều tra và đối soát sai lệch,v4.1.0
 UIF-17,ui-flow-contract,BA/UX,IN_REVIEW,03.design/flows/UIF-17-BJ-17.md,2a05ae427a8da4ecf60ce595f02ba94be3c1e007801d4f419833d0934ab043aa,11222,theme-07,Phục hồi nghiệp vụ có kết quả chưa xác định,v4.1.0
-PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,7ef3761968eb3cc1f0252ebaa11b30e167cc3d2e259a5b826ff5cea3be43129c,9106,theme-07,Navigation areas,v3.10.1
+,,,,03.design/flows/_TEMPLATE.md,326f3b34434b5bc9b217fbb078ceba8a783552fd8b64b55a383ff9fae2cd7a1e,765,,,
+PAT-NAV,design-pattern,BA,FROZEN,03.design/patterns/PAT-NAV.md,c2e1000c2dfab4f401122d42de061e3f11f0bb907a40d4d5385bdf7a1f228231,9238,theme-07,Navigation areas,v3.10.1
 PAT-UI-UX,design-pattern,BA,FROZEN,03.design/patterns/PAT-UI-UX.md,15470417f13b098d2bd06712614af5a5d6dcf2a0e4b721d56e7d542e558970e1,8072,theme-07,UI/UX policy & patterns,v3.13.0
-PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,d26a5595daf0446c3137df583b45adbc82e1ec71015f8543f9044db60b1236bf,13668,theme-07,Theme 07 mobile prototype mapping,v4.6.6
+PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,177595ac7ed97aee2a1fb32b6a438a5420530b29ae816a8f8c743abfc6891fe7,1342,theme-07,Theme 07 mobile prototype mapping,v4.6.6
 ,,,,03.design/prototype/html/CHANGELOG.md,e9711944b2c47a959a8ff4db38ec349973f59b87aeb9ec7fe22a2a80edf1e5b2,22550,,,
 ,,,,03.design/prototype/html/DS-CONFORMANCE.md,4ff31e594e50f993667e179b699c1b0fe166eabc65c6f95c1ebca19e0312e3bd,10470,,,
 ,,,,03.design/prototype/html/README.md,c977b958e0f8ee8ad3c3ce86f9f866f3342b2e10bc9c9861ef63a30188cd0307,2291,,,
@@ -304,7 +305,9 @@ PROTOTYPE,prototype-manifest,BA,FROZEN,03.design/prototype/README.md,d26a5595daf
 ,,,,03.design/prototype/html/styles/tokens.css,ddac51d4aecdaa7c96101ee4a2400cdcce731d94b2566ac2985e199b619de437,5895,,,
 ,,,,03.design/prototype/html/tools/.gitignore,176c2d854707b0b1ef85cefa42a1b751b61a9ca85e13661b5a11b2481583e515,27,,,
 ,,,,03.design/prototype/html/tools/golden.mjs,dd8353c65649849634aa3f08cae367dc7f52591df1d5c44918c04a4a03c99466,63010,,,
-,,,,03.design/prototype/html/tools/sync-registry.py,a35b25d9cdfc9c3c7c40ba6f6a8a6f0ae6a87a8811597545285d033780c59c94,2751,,,
+,,,,03.design/prototype/html/tools/sync-registry.py,7841c00aa2582bb3a5ecaa797c062b9758fcb3cfb163558fe0a28b1e8c086d82,2745,,,
+,,,,03.design/screens/INDEX.md,5d673b6e3799d6ef1602747fef5edae07897d99f28d2a48a99f2a2fb0dd90bab,7611,,,
+,,,,03.design/screens/RETIRED.md,6fcd7972f94f24766a490cb7050dd4336dd115eec33538f12dfb7baf741f9a41,1128,,,
 SCR-001,screen-contract,BA,FROZEN,03.design/screens/SCR-001.md,ac40f6262e5ff966f9b09c58e2c7f55135a32da1402e10a4b75090d54fbca8e8,6514,theme-07,Tồn kho,v3.10.1
 SCR-002,screen-contract,BA,FROZEN,03.design/screens/SCR-002.md,4a68989e285c76375b2aac62f3df60491d949917c1eb07ade6da715e653ebc98,2241,theme-07,Kết quả khả dụng — MERGED,v3.10.1
 SCR-003,screen-contract,BA,FROZEN,03.design/screens/SCR-003.md,d343c56e59d18c9d1949a047c33db5d3d5dc35fe365fb006b1ffc3bdfaa1d1e5,6157,theme-07,Chi tiết tồn kho,v3.10.1
@@ -320,9 +323,7 @@ SCR-012,screen-contract,BA,FROZEN,03.design/screens/SCR-012.md,9f38c583764fbdab4
 SCR-013,screen-contract,BA,FROZEN,03.design/screens/SCR-013.md,d83bc0de18096c60570a875318dd9895fb8f711dfdb205b3d13529446c4eb494,4044,theme-07,Đối soát kết quả nhận hàng,v3.10.1
 SCR-014,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-014.md,17ce2487f0062873e01c421a5f3620b818bf8654823450b69ac85cad9b68acbd,2845,theme-07,Hàng chờ xác lập giá trị,v4.3.0
 SCR-015,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-015.md,6b13cb567af129985e75aad4190bc5dc444cc7922d2b7563716a7ff166493ff6,3702,theme-07,Xác lập giá trị nhập ban đầu,v4.6.1
-SCR-016,screen-contract,BA,RETIRED,03.design/screens/SCR-016.md,af117d3ec7825922950be7e0a25481f495ed3bbe8f91cf42beb21d9fa80ca29d,577,theme-07,Căn cứ và cách tính — Đã hợp nhất,v3.13.0
 SCR-017,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-017.md,1a45babfbe68318e5d7b1b732480aa12d6025ea44ac14716e369598d58eb451d,1418,theme-07,Rà soát giá trị nhập ban đầu,v4.6.0
-SCR-018,screen-contract,BA,RETIRED,03.design/screens/SCR-018.md,1707848df6e06f7b45ec175e5416f4c9e4ba3c06e9b8d404dcd4d98f610b1ed9,731,theme-07,Ghi chi phí mua bổ sung — Đã thay thế,v3.13.0
 SCR-019,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-019.md,75078b488b116e68485002633fcc976d5adc8ae99a2bedcbe8fecb2e9f4b74fb,1134,theme-07,Kết quả xác lập giá trị,v4.6.0
 SCR-020,screen-contract,BA,FROZEN,03.design/screens/SCR-020.md,474ba913a33056fc780e6b86e4e87422d4bc1aedabbbab36b9859a3c2ece855e,5717,theme-07,Đơn cần giữ hàng,v3.10.1
 SCR-021,screen-contract,BA,FROZEN,03.design/screens/SCR-021.md,7960b9903ad513ef5a1efaf2af58851e9ac0300dd5929d8ea6e6c1a35a01700d,4748,theme-07,Giữ hàng theo đơn,v3.10.1
@@ -377,10 +378,7 @@ SCR-069,screen-contract,BA,FROZEN,03.design/screens/SCR-069.md,e02daa32137b851fc
 SCR-070,screen-contract,BA,FROZEN,03.design/screens/SCR-070.md,de07cea058d00d04aaea4147a9e56c31e9e12d27eebf9bfdaeea633613673917,3769,theme-07,Duyệt số dư đầu kỳ,v3.10.1
 SCR-071,screen-contract,BA,FROZEN,03.design/screens/SCR-071.md,95f2a7a164bf732261f9f90d5dba63c89e1b06d80c183031b6c81a6ef8dec715,3140,theme-07,Kết quả khởi tạo tồn kho,v3.10.1
 SCR-072,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-072.md,f98dde6cb234a47c637cc5bd102d61b1d3485bf924cf76c2a5db672b86ac2d71,1656,theme-07,Công việc giá vốn,v4.3.0
-SCR-073,screen-contract,BA,RETIRED,03.design/screens/SCR-073.md,95df6393872440f814ee5befda11ab3ad90d2f2bc40753b98fefb692211e4e87,467,theme-07,Thiết lập lần tính — Đã hợp nhất,v3.13.0
 SCR-074,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-074.md,49bd32893d4e33b3ab919df3c985e134b06954b95c730388dfac07c6bcb3e0ed,2507,theme-07,Tính và rà soát giá vốn,v4.6.1
-SCR-075,screen-contract,BA,RETIRED,03.design/screens/SCR-075.md,f48d4c85fdb8a7635058f3806db7c1a5b4c303d87563f4170c1a59d8a54a81c2,330,theme-07,Blocker và adjustment — Đã hợp nhất,v3.13.0
-SCR-076,screen-contract,BA,RETIRED,03.design/screens/SCR-076.md,3077b7da46b140bc41282ca60e6c230163ab5269d93c56e962d86bff62b6c57f,418,theme-07,Rà soát công bố — Đã hợp nhất,v3.13.0
 SCR-077,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-077.md,525e1f38ae98cccb8919bcf4c50b87d443662e34053cf454b34c15dd9f7d9a03,1065,theme-07,Kết quả công bố giá vốn,v4.6.0
 SCR-078,screen-contract,BA,FROZEN,03.design/screens/SCR-078.md,e5427491bee94c16c0fa89259487f9d1b53a2e0b0612ac44a28ffad7466709ce,6213,theme-07,Hồ sơ cần kiểm tra,v3.10.1
 SCR-079,screen-contract,BA,FROZEN,03.design/screens/SCR-079.md,c56e1828036c99b490367ec06780b4d23707a830f524f79518fc12b4013cc904,7046,theme-07,Bằng chứng & kết luận,v3.10.1
@@ -391,8 +389,6 @@ SCR-083,screen-contract,BA,FROZEN,03.design/screens/SCR-083.md,2dfde8e8f193f5944
 SCR-084,screen-contract,BA,FROZEN,03.design/screens/SCR-084.md,a7aa4b70342b4a1c81392fa9ac66d197b1fe5088fd16a06ecd1b93c5beaf46f5,6042,theme-07,Chi tiết hàng thực nhận,v3.10.1
 SCR-085,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-085.md,9b3adb919924484569c9ff696d1d98ec67a8811af46a19a910ed3fec16fac9f3,1524,theme-07,Điều chỉnh giá trị hàng nhập,v4.3.0
 SCR-086,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-086.md,bbc13477a4822d76a74fb8b013281347458d09caa91e326723d474f1a500cd03,2841,theme-07,Phân bổ điều chỉnh giá trị,v4.6.1
-SCR-087,screen-contract,BA,RETIRED,03.design/screens/SCR-087.md,3e5e67987702002b0faf4a767663237d314130a0581fd5d4e08b9a87b2e0c863,514,theme-07,Phân bổ điều chỉnh — Đã hợp nhất,v3.13.0
-SCR-088,screen-contract,BA,RETIRED,03.design/screens/SCR-088.md,53eea57854056660704b7188bf256c36709ce983eb60302f48368c089b2dfac7,643,theme-07,Rà soát điều chỉnh giá trị — đã hợp nhất,v4.6.0
 SCR-089,screen-contract,BA,IN_REVIEW,03.design/screens/SCR-089.md,9a0112b1061e4063c34360c14957430016c128a5edfc2a70b64f1ef7bbe8c349,972,theme-07,Kết quả điều chỉnh giá trị,v4.6.0
 SCR-090,screen-contract,BA,FROZEN,03.design/screens/SCR-090.md,8be210aafbf967093238ebecc39361f299a5c248f2dcbed68b565be59fb66057,4806,theme-07,Kho,v4.6.7
 SCR-091,screen-contract,BA,FROZEN,03.design/screens/SCR-091.md,3f57fd1f408465b68a92bbf70d77d78094095d36c9ed0e360caa540f4a099e1e,1288,theme-07,Tồn kho,v4.6.4
@@ -401,6 +397,7 @@ SCR-093,screen-contract,BA,FROZEN,03.design/screens/SCR-093.md,23a30d75614943c17
 SCR-094,screen-contract,BA,FROZEN,03.design/screens/SCR-094.md,27adb4c42528e1d1e2a6999ed8c76d9362f9f852f2271f0a5716f0b68e204ef0,1342,theme-07,Giá trị kho,v4.6.4
 SCR-095,screen-contract,BA,FROZEN,03.design/screens/SCR-095.md,2665ab74a5fd43bba9fc21e4109bb08b12ca3ab9f4299502a70cd955fb192211,1099,theme-07,Báo cáo & lịch sử,v4.6.4
 SCR-096,screen-contract,BA,FROZEN,03.design/screens/SCR-096.md,d016be4abf2d1a94661adc9dc3ac06205d38af35752e39229696ae31601c8ceb,1370,theme-07,Thiết lập kho,v4.6.4
+,,,,03.design/screens/_TEMPLATE.md,b16ce83324da30348c6824e7eaba4371828412cb0fd05c5aac569fbcbb3680d5,2257,,,
 ,,,,04.harness/manifests/theme.manifest.yml,cb2ce451225e30fb88f7f00a25d0f2ef498d195370de9f498f2440e4859cc80e,35851,,,
 PROC-01,procedure,SA/SE,FROZEN,05.procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho.md,a9704d0983f381f16903e176b10892a40fc1b713c35a18493085df9ee6f0e512,40234,theme-07,Dựng lại dữ liệu dẫn xuất từ sổ kho,v3.10.1
 ,,,,06.evidence/EVD-BJ02-DESIGN-STATE-CLEANUP-v4.6.8.json,b7db2ffc8ac6c3778ded6bd1bc99ddaf68e540608125a885ebdf9bc32a481042,523,,,
@@ -451,4 +448,4 @@ EVD-BJ02-QUICK-RECEIPT-NO-DRAFT-v4.6.6,evidence,QA/Harness,CURRENT,06.evidence/E
 ,,,,09.generated/registries/design/screen-registry.md,e9594457bc73950ada474186149a5c559cb6ac24ab6da2bf0632f0590614e0f5,11459,,,
 ,,,,09.generated/registries/design/ui-flow-registry.json,e0119d122d05335cfdf46bb89c55760a112eef70baf93b5f08372c20f00f6fce,34640,,,
 ,,,,09.generated/registries/structure-path-migration-v3.11.0.json,79339887eee9120e1812d95500c9894f59f02dea0d1b1e287d1c9494395baf17,476354,,,
-T07-README,theme-readme,BA/SA,FROZEN,README.md,38b3ab7b8ee4a6770a3b90072b894913e024be0b265de9367cec0cc31071674d,11465,theme-07,Theme 07 — Kho & Giá vốn,v4.6.6
+T07-README,theme-readme,BA/SA,FROZEN,README.md,ee00a1dc8fb328a560074e7ecce2d82ba8c50a62a63be2f477a555f47df00305,11539,theme-07,Theme 07 — Kho & Giá vốn,v4.6.6

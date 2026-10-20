@@ -5,8 +5,7 @@ import 'package:vet45_design_system/src/components/v_numeric_keypad_grid.dart';
 
 /// Touch-target and naming guidelines for the controls that were fixed in 10-6.
 void main() {
-  testWidgets('tappable design-system controls are ≥ 44pt and named',
-      (tester) async {
+  testWidgets('tappable design-system controls are ≥ 44pt and named', (tester) async {
     final handle = tester.ensureSemantics();
 
     await tester.pumpWidget(

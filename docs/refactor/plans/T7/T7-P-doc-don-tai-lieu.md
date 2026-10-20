@@ -1,6 +1,6 @@
 # T7-P · Dọn tài liệu `03.design` (mục 7.1 của plan tổng thể)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (làm trước **Giai đoạn 2**; độc lập với code nên làm lúc nào cũng được) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (làm trước **Giai đoạn 2**; độc lập với code nên làm lúc nào cũng được) | Làm ✅ (2026-10-19, chưa commit) | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 7.1. Ước lượng: **~0,5 ngày, 1 commit**. Làm **trước** bước C của BJ-01 (bước E của BJ-01 dùng khuôn tạo ở đây).
 > Người làm: bạn. Review: phiên plan / review.
 
@@ -86,6 +86,7 @@ Quy tắc ghi ngay dưới khối (thêm vào cuối `_TEMPLATE.md`, ngoài kh�
 - Một hệ đánh số `## 1…9`; mục con dùng `###` không đánh số.
 - Mã kỹ thuật (BC, API, enum) chỉ ở mục 9; các mục khác viết bằng lời người dùng.
 - Chữ ở mục 8 là chuỗi chuẩn: prototype và Flutter chép đúng.
+- **Màn dùng chung nhiều luồng** (SCR-036 / 037 / 041: BJ-07, 09, 10; SCR-056: BJ-09, 15; SCR-078…083: BJ-16, 17 — prototype dựng mỗi luồng một hàm qua `flowRenderers`): frontmatter `bj` / `uif` / `prototype` ghi danh sách (vd. `bj: [BJ-07, BJ-09, BJ-10]`); mục 1 viết chung; mục 2–5 và 8 chia `### UIF-NN` theo luồng; BJ nào thiết kế lại trước thì viết phần của luồng mình, để trống phần luồng khác kèm ghi "chưa viết lại".
 
 ### 2.2 `03.design/flows/_TEMPLATE.md` (tạo)
 
@@ -165,18 +166,17 @@ Sửa chỗ còn trỏ tới 7 file đó:
 
 | File | Dòng | Sửa |
 |---|---|---|
-| `03.design/patterns/PAT-NAV.md` | 121, 129, 130, 132, 137, 139, 141 | Liên kết `../screens/SCR-0xx.md` → `../screens/RETIRED.md`; giữ chữ mô tả |
+| `03.design/patterns/PAT-NAV.md` | 129, 130, 137, 139 (liên kết SCR-087 / 088 / 073 / 076) | Liên kết `../screens/SCR-0xx.md` → `../screens/RETIRED.md`; giữ chữ mô tả. Dòng 121 / 132 / 141 (SCR-016 / 018 / 075) chỉ nhắc tên, không liên kết — thêm "(xem [`RETIRED.md`](../screens/RETIRED.md))" |
 | `README.md` (theme) | 127, 133 | Giữ câu, thêm "(xem `03.design/screens/RETIRED.md`)" |
-| `09.generated/registries/design/screen-registry.md` / `.json`, `ui-flow-registry.json`, `action-registry.json`, `COMPONENT-USAGE-REGISTRY.yaml`, `09.generated/matrices/design/ui-traceability.json` | trường đường dẫn của 7 màn | `03.design/screens/SCR-0xx.md` → `03.design/screens/RETIRED.md`; giữ ID và trạng thái `RETIRED` |
 
-**Không sửa:** các file `runtime-state-registry-v*.json` (ảnh chụp lịch sử theo phiên bản), `structure-path-migration-v3.11.0.json` (lịch sử), `prototype/html/data/workbench-data.json` và `app/core.js` (ID dùng để chuyển hướng liên kết cũ).
+**Không sửa:** `09.generated/registries/design/*` và `09.generated/matrices/design/ui-traceability.json` — chỉ lưu ID + trạng thái `RETIRED`, không có đường dẫn file (đo 2026-10-19); các file `runtime-state-registry-v*.json` (ảnh chụp lịch sử theo phiên bản), `structure-path-migration-v3.11.0.json` (lịch sử), `prototype/html/data/workbench-data.json` và `app/core.js` (ID dùng để chuyển hướng liên kết cũ).
 
 ### 2.4 `03.design/screens/INDEX.md` (tạo)
 
 ```markdown
 # Bảng tra màn Theme 7
 
-Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/html`; màn Hub nằm ở `app/hub.js`. Cập nhật bảng này ở bước E của mỗi BJ (T7-P mục 4.5).
+Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/html`; màn Hub nằm ở `app/hub.js`. Cập nhật bảng này ở bước E của mỗi BJ (T7-P mục 4.6).
 
 <bảng ở mục 5 của plan này>
 ```
@@ -185,7 +185,7 @@ Cột "Trong prototype": **Có** = có hàm dựng trong `03.design/prototype/ht
 
 ### 2.5 `03.design/prototype/README.md` (viết lại)
 
-Giữ phần frontmatter, đổi `version: v5.1.0`, `source_baseline: v5.1.0`, bỏ `parent`. Thân file thay bằng:
+Giữ phần frontmatter, đổi `version: v5.3.1`, `source_baseline: v5.3.1`, bỏ `parent` (hiện file còn `v4.6.8` / `v4.6.7`). Thân file thay bằng:
 
 ```markdown
 # Prototype — Theme 07
@@ -218,24 +218,27 @@ Xem [`html/README.md`](html/README.md): cấu trúc thư mục, khung `app/core.
 
 ### 2.6 Đồng bộ registry
 
-`python3 03.design/prototype/html/tools/sync-registry.py` chỉ đồng bộ phần `03.design/prototype/`. Sau khi tạo / xoá file ở `screens/` và `flows/`, cập nhật thêm `09.generated/registries/artifact-registry.csv/.json` và `09.generated/indexes/package-checksums.sha256` cho các file đó: bỏ dòng của 7 file đã xoá, thêm dòng cho `_TEMPLATE.md` (2 file), `RETIRED.md`, `INDEX.md` (sha256 + size). Cách nhanh: sửa `PROTO = '03.design/prototype/'` trong `sync-registry.py` thành `PROTO = '03.design/'` và chạy một lần (script quét cả `03.design/`), rồi trả lại như cũ.
+`python3 03.design/prototype/html/tools/sync-registry.py` chỉ đồng bộ phần `03.design/prototype/`. Sau khi tạo / xoá file ở `screens/` và `flows/`, cập nhật thêm `09.generated/registries/artifact-registry.csv/.json` và `09.generated/indexes/package-checksums.sha256` cho các file đó: bỏ dòng của 7 file đã xoá, thêm dòng cho `_TEMPLATE.md` (2 file), `RETIRED.md`, `INDEX.md` (sha256 + size). Cách nhanh: sửa `PROTO = '03.design/prototype/'` trong `sync-registry.py` thành `PROTO = '03.design/'` và chạy một lần (script quét cả `03.design/`), rồi trả lại như cũ. Trước khi chạy, đổi hẳn điều kiện bỏ qua thư mục từ `d.startswith('.golden')` thành `d.startswith('.')` (giữ luôn) — từ A12 còn có `tools/.full*` / `tools/.usage*` (không vào git) mà script sẽ quét nhầm.
 
 ## 3. Kiểm
 
 | Kiểm | Cách | Đạt khi |
 |---|---|---|
-| Không còn liên kết gãy | `grep -rn "screens/SCR-0\(16\|18\|73\|75\|76\|87\|88\)\.md" specs docs` | Chỉ còn trong `runtime-state-registry-v*.json` và `structure-path-migration-v3.11.0.json` |
-| Prototype không đổi | `node tools/golden.mjs capture … && compare` | "Khớp hoàn toàn" (plan này không đụng code) |
+| Không còn liên kết gãy | `grep -rn "screens/SCR-0\(16\|18\|73\|75\|76\|87\|88\)\.md" specs docs` | Chỉ còn trong `structure-path-migration-v3.11.0.json` (lịch sử) và chính plan này (`docs/refactor/plans/T7/T7-P-doc-don-tai-lieu.md`) |
+| Prototype không đổi | `node tools/golden.mjs capture tools/.golden-now && node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now` | "Khớp hoàn toàn" (plan này không đụng code) |
 | Registry | `python3 …/sync-registry.py` chạy không lỗi; số dòng giảm 7, tăng 4 | |
 | Bảng tra | Mỗi file `screens/SCR-*.md` còn lại có đúng một dòng trong `INDEX.md`; 7 màn đã bỏ có trong `RETIRED.md` | 89 + 7 = 96 |
 
 ## 4. Ghi chú khi làm
 
-(Bạn ghi lệch plan, vấn đề phát sinh.)
+- Làm đúng plan; kiểm đạt: grep liên kết gãy chỉ còn `structure-path-migration-v3.11.0.json` và plan này; golden "Khớp hoàn toàn (1348 ca)"; registry 453 → 450 dòng (−7 +4), checksums 446 → 443; `INDEX.md` 96 dòng, mỗi `SCR-*.md` còn lại (89) có đúng một dòng, 7 màn bỏ có trong `RETIRED.md`.
+- `sync-registry.py`: đã đổi điều kiện bỏ qua thành `d.startswith('.')` (giữ luôn); `PROTO` chạy tạm `03.design/` rồi trả lại, chạy lại một lần với giá trị gốc cho kết quả giống.
+- Hai `_TEMPLATE.md` chép nguyên khối; phần "Quy tắc ghi" của Screen Contract nằm dưới đường kẻ ngang, ghi chú xoá khi dùng khuôn.
+- Dùng `git rm` nên 7 file xoá đã vào stage; phần còn lại chưa stage.
 
 ## 5. Bảng tra 96 màn (để dán vào `INDEX.md`)
 
-Đo 2026-10-16. Dòng `RETIRED` giữ trong bảng để tra; file của chúng đã xoá ở 2.3.
+Đo 2026-10-16, rà lại 2026-10-19 sau Giai đoạn 1: 96 / 96 dòng khớp `status` trong frontmatter từng file; cột "Trong prototype" khớp `data/workbench-data.json` (màn trong luồng) và `app/hub.js` (SCR-090…096 là các khu của Hub). Dòng `RETIRED` giữ trong bảng để tra; file của chúng đã xoá ở 2.3.
 
 | Màn | Tên | BJ | Trạng thái file | Trong prototype |
 |---|---|---|---|---|
@@ -338,4 +341,16 @@ Xem [`html/README.md`](html/README.md): cấu trúc thư mục, khung `app/core.
 
 ## 6. Review
 
-(Phiên review điền.)
+**Rà plan trước khi làm (2026-10-19, sau Giai đoạn 1 / commit `35e6b1f55`):** plan vẫn làm được; đã sửa trong plan 7 chỗ lệch với hiện trạng:
+
+1. Khuôn Screen Contract thêm quy tắc cho **màn dùng chung nhiều luồng** (A6 / A9 / A10 dựng theo `flowRenderers`) — trước đây khuôn chỉ có một `bj` / `uif`.
+2. `PAT-NAV.md`: chỉ 4 dòng có liên kết tới file sẽ xoá (129, 130, 137, 139); 3 dòng còn lại chỉ nhắc tên.
+3. Bỏ dòng sửa `09.generated/registries/design/*`: các file này chỉ lưu ID, không có đường dẫn — không có gì để sửa (đường dẫn nằm ở `artifact-registry` + checksums, đã có ở 2.6).
+4. Tham chiếu "T7-P mục 4.5" → **4.6** (bước E); plan tổng 4.6 thêm bước cập nhật `INDEX.md`.
+5. `prototype/README.md`: phiên bản đích **v5.3.1** (không phải v5.1.0).
+6. `sync-registry.py`: bỏ qua mọi thư mục ẩn (`.full*`, `.usage*` từ A12).
+7. Kiểm golden so với mốc **`tools/.golden-phase1`**.
+
+Đã kiểm: 96 file `screens/SCR-*.md` ↔ 96 dòng bảng mục 5 (trạng thái khớp từng file); 7 file `RETIRED` còn đủ; `README.md` theme dòng 127 / 133 đúng chỗ.
+
+(Review sau khi làm: phiên review điền.)

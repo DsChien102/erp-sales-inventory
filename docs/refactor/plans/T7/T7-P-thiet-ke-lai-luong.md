@@ -172,7 +172,8 @@ Bạn duyệt bằng cách đồng ý cả brief hoặc chỉ ra điểm bỏ / 
 1. `CHANGELOG.md`: mục BJ (thiết kế lại gì, khác golden ở đâu).
 2. **Viết lại Screen Contract và UIF của BJ theo khuôn mới** (mục 7.1): gộp các đoạn `### vX.Y` vào nội dung chính, đưa vào thay đổi đã duyệt ở B, chữ theo bảng đã duyệt; trạng thái file `IN_REVIEW`.
 3. Mục 13: đánh dấu đề xuất đã áp.
-4. `python3 tools/sync-registry.py`; mục 14 tiến độ.
+4. `03.design/screens/INDEX.md`: cập nhật dòng các màn của BJ (tên, trạng thái file, có trong prototype).
+5. `python3 tools/sync-registry.py`; mục 14 tiến độ.
 
 ---
 

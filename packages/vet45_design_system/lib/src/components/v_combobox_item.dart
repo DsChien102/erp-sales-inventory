@@ -23,7 +23,6 @@ class VComboboxItem<T> extends StatelessWidget {
     required this.child,
     this.searchText,
     this.enabled = true,
-    this.onSelect,
   });
 
   final T value;
@@ -36,9 +35,6 @@ class VComboboxItem<T> extends StatelessWidget {
   final Widget child;
 
   final bool enabled;
-
-  /// Override default root [VComboboxController.select].
-  final VoidCallback? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +52,7 @@ class VComboboxItem<T> extends StatelessWidget {
       child: ExcludeFocus(
         child: MenuItemButton(
           requestFocusOnHover: false,
-          onPressed: isEnabled
-              ? () {
-                  if (onSelect != null) {
-                    onSelect!();
-                  } else {
-                    root.select(value);
-                  }
-                }
-              : null,
+          onPressed: isEnabled ? () => root.select(value) : null,
           style: ButtonStyle(
             minimumSize: _itemMinSize,
             maximumSize: _itemMaxSize,

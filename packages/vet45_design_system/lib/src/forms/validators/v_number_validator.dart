@@ -3,8 +3,14 @@ abstract final class VNumberValidator {
   static const String defaultRequiredMessage = 'Vui lòng nhập số';
   static const String defaultInvalidMessage = 'Số không hợp lệ';
 
-  static String defaultMinMessage(num min) => 'Giá trị tối thiểu là $min';
-  static String defaultMaxMessage(num max) => 'Giá trị tối đa là $max';
+  static String defaultMinMessage(num min) =>
+      'Giá trị tối thiểu là ${_formatBound(min)}';
+  static String defaultMaxMessage(num max) =>
+      'Giá trị tối đa là ${_formatBound(max)}';
+
+  /// Matches how the field displays the number, so the message and the input agree.
+  static String _formatBound(num value) =>
+      format(value, allowDecimal: value != value.truncate());
 
   /// Formats [value] with thousand separators (`,`) and optional decimal (`.`).
   static String format(

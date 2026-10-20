@@ -458,7 +458,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
 
     return vInspectorHide(
       Semantics(
-        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Select',
+        label: widget.semanticLabel ?? legacyLabel ?? widget.hintText ?? 'Chọn',
         button: true,
         enabled: isEnabled,
         child: vDisabledOpacity(enabled: isEnabled, child: body),

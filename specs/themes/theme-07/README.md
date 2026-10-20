@@ -124,13 +124,13 @@ Hệ thống phải trả lời nhất quán năm câu hỏi:
 - `SCR-017` — Cho kế toán kiểm tra **toàn bộ phạm vi sắp ghi** trước mutation. Đây là summary review, không lặp lại workspace `SCR-015`.
 - `SCR-086` — Giúp kế toán hiểu nguồn điều chỉnh, phạm vi source-owned, chọn **một phương pháp phân bổ hợp lệ**, xem được vì sao từng Product nhận số tiền đó và xác nhận ghi adjustment.
 - `SCR-089` — Thông báo finality của adjustment. Result screen ưu tiên kết quả nghiệp vụ, không lặp lại toàn bộ preview.
-- `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng.
+- `SCR-074` — Một bề mặt cho setup → calculating → blocked/ready → xác nhận publication. `SCR-073/075/076` là alias/retired state, không phải active screen riêng. (xem `03.design/screens/RETIRED.md`)
 - `SCR-077` — Cho biết publication đã có hiệu lực và **phần chênh lệch nào thực sự được ghi**.
 
 ### 6.5 Các điểm giao diện đã đồng bộ
 
 - Prototype HTML hiện hành (v5.0.0, sau T7-P0) không còn lớp vá: CSS ở `03.design/prototype/html/styles/`, JS ở `03.design/prototype/html/app/`; xem `03.design/prototype/html/README.md`.
-- `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`.
+- `SCR-088` không còn là active route; legacy/deep-link hội tụ về `SCR-086`. (xem `03.design/screens/RETIRED.md`)
 - BJ13 không chia đều khi metric không hợp lệ; preview bị chặn theo `T7-DR-198`.
 - BJ03/BJ13 không hiển thị hoặc yêu cầu người dùng nhập tỷ giá; UI chỉ dùng giá trị VND đã chuẩn hóa.
 - BJ14 đọc phương pháp và phạm vi chốt kỳ từ tenant policy; UI không hard-code lựa chọn theo run.

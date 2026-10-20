@@ -69,7 +69,7 @@ class VConfirmDialog extends StatelessWidget {
                   children: [
                     VButton(
                       label: cancelLabel,
-                      variant: VButtonVariant.tertiary,
+                      variant: VButtonVariant.secondary,
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     const SizedBox(width: VSpacing.space2),

@@ -9,20 +9,20 @@ void main() {
     const labels = ['Trang chủ', 'Đơn hàng', 'Sản phẩm'];
 
     List<VBottomNavigationItem> buildItems({bool lastEnabled = true}) => [
-          const VBottomNavigationItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Trang chủ',
-          ),
-          const VBottomNavigationItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Đơn hàng',
-          ),
-          VBottomNavigationItem(
-            icon: const Icon(Icons.inventory_2_outlined),
-            label: 'Sản phẩm',
-            enabled: lastEnabled,
-          ),
-        ];
+      const VBottomNavigationItem(
+        icon: Icon(Icons.home_outlined),
+        label: 'Trang chủ',
+      ),
+      const VBottomNavigationItem(
+        icon: Icon(Icons.receipt_long_outlined),
+        label: 'Đơn hàng',
+      ),
+      VBottomNavigationItem(
+        icon: const Icon(Icons.inventory_2_outlined),
+        label: 'Sản phẩm',
+        enabled: lastEnabled,
+      ),
+    ];
 
     Future<void> pumpBar(
       WidgetTester tester, {
@@ -69,8 +69,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('tap calls onTap with index; disabled item does not',
-        (tester) async {
+    testWidgets('tap calls onTap with index; disabled item does not', (tester) async {
       final taps = <int>[];
       await pumpBar(tester, lastEnabled: false, onTap: taps.add);
 
@@ -81,13 +80,11 @@ void main() {
       expect(taps, [1]);
     });
 
-    testWidgets('label colour: selected = primary, others = textSecondary',
-        (tester) async {
+    testWidgets('label colour: selected = primary, others = textSecondary', (tester) async {
       await pumpBar(tester, currentIndex: 0);
 
       final colors = VColorScheme.light;
-      Color labelColor(String label) =>
-          tester.widget<Text>(find.text(label)).style!.color!;
+      Color labelColor(String label) => tester.widget<Text>(find.text(label)).style!.color!;
 
       expect(labelColor('Trang chủ'), colors.primary);
       expect(labelColor('Đơn hàng'), colors.textSecondary);

@@ -1,12 +1,12 @@
 /// Built-in validation for [VChoiceList].
 abstract final class VChoiceListValidator {
-  static const String defaultRequiredMessage = 'Vui lòng chọn ít nhất một giá trị';
+  static const String defaultRequiredMessage = 'Vui lòng chọn ít nhất một mục';
 
   static String defaultMinSelectionsMessage(int min) =>
-      'Vui lòng chọn ít nhất $min giá trị';
+      'Vui lòng chọn ít nhất $min mục';
 
   static String defaultMaxSelectionsMessage(int max) =>
-      'Chỉ được chọn tối đa $max giá trị';
+      'Chỉ được chọn tối đa $max mục';
 
   static bool isValid<T>(
     List<T> selected, {
