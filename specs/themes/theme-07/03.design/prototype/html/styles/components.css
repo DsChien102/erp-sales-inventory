@@ -73,7 +73,7 @@
 }
 
 /* --- mixed device/product kept in components (A11) --- */
-/* Thứ tự giữ như styles.css gốc: base → is-wide → v0.2.3 (bo 34px) → khung chuẩn 402×874 → :not(.is-wide) 418×890 (A12 R1). */
+/* Thứ tự giữ như styles.css gốc: base → v0.2.3 (bo 34px) → khung chuẩn 402×874 → .is-mobile 418×890 (A12 R1, H1). */
 
 .device-preview {
   overflow: hidden;
@@ -85,12 +85,6 @@
   background: var(--vet45-v2-neutral-100);
   box-shadow: var(--vet45-v2-shadow-3), 0 24px 80px rgba(14, 17, 22, 0.08);
   transition: width 180ms ease, border-radius 180ms ease;
-}
-
-.device-preview.is-wide {
-  width: min(760px, calc(100vw - 650px));
-  border-width: 6px;
-  border-radius: 20px;
 }
 
 /* v0.2.3 refinements per QA feedback */
@@ -107,10 +101,135 @@
   min-height: 874px;
 }
 
-.device-preview:not(.is-wide) {
+.device-preview.is-mobile {
   width:418px;
   height:890px;
   min-height:890px;
+}
+
+/* Khung web 1280×800 (H1): cửa sổ máy tính, thanh bên trái của app, nội dung giữa tối đa 1120px. */
+.device-preview.is-web {
+  width: 1280px;
+  height: 800px;
+  min-height: 800px;
+  border: 1px solid var(--vet45-v2-neutral-300);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  background: var(--vet45-v2-neutral-100);
+}
+
+.device-preview.is-web > .app-screen {
+  min-width: 0;
+  height: 100%;
+}
+
+/* Vùng nội dung web: màn app (Hub, Thêm) rộng tới 1120px; màn BJ chưa thiết kế lại cho web giữ cột iPhone 402px ở giữa. Cao theo khung. */
+.device-preview.is-web > .app-screen > .v-page-scaffold {
+  width: 100% !important;
+  max-width: 1120px !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.device-preview.is-web > .app-screen > .v-page-scaffold:not(.t7-integrated-shell) {
+  width: 402px !important;
+}
+
+.device-preview.is-web .app-statusbar,
+.device-preview.is-web .t7-app-bottom-nav {
+  display: none;
+}
+
+@media (min-width: 841px) {
+  /* Sân khấu hẹp hơn 1280px: cột lưới không giãn theo khung, khung thu quanh giữa sân khấu. */
+  .stage-canvas:has(.device-preview.is-web) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .device-preview.is-web {
+    transform: scale(var(--vet45-review-scale, 1));
+    transform-origin: top center;
+  }
+}
+
+.t7-web-sidebar {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--vet45-v2-space-1);
+  padding: var(--vet45-v2-space-4) var(--vet45-v2-space-3);
+  overflow-y: auto;
+  border-right: 1px solid var(--vet45-v2-border-default);
+  background: var(--vet45-v2-surface-default);
+}
+
+.device-preview:not(.is-web) .t7-web-sidebar {
+  display: none;
+}
+
+.t7-web-sidebar__org {
+  padding: var(--vet45-v2-space-2) var(--vet45-v2-space-3) var(--vet45-v2-space-4);
+  color: var(--vet45-v2-text-primary);
+  font: 600 15px/20px Inter, system-ui, sans-serif;
+}
+
+.t7-web-sidebar button {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  gap: var(--vet45-v2-space-3);
+  padding: 0 var(--vet45-v2-space-3);
+  border: 0;
+  border-radius: var(--vet45-v2-radius-3);
+  background: transparent;
+  color: var(--vet45-v2-text-secondary);
+  font: 600 14px/20px Inter, system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.t7-web-sidebar button .icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--vet45-v2-icon-secondary);
+}
+
+.t7-web-sidebar button.is-active {
+  background: var(--vet45-v2-primary-surface);
+  color: var(--vet45-v2-text-brand);
+}
+
+.t7-web-sidebar button.is-active .icon {
+  color: var(--vet45-v2-icon-brand);
+}
+
+.t7-web-sidebar button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.t7-web-sidebar__sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vet45-v2-space-1);
+  margin-bottom: var(--vet45-v2-space-2);
+}
+
+.t7-web-sidebar__sub button {
+  min-height: 36px;
+  padding-left: calc(var(--vet45-v2-space-3) + 32px);
+  font-weight: 500;
+}
+
+.t7-web-sidebar__logout {
+  margin-top: auto;
+  padding-top: var(--vet45-v2-space-3);
+  border-top: 1px solid var(--vet45-v2-border-default);
 }
 
 .review-card {
@@ -158,30 +277,6 @@
 .review-line > strong {
   text-align: right;
   font-size: 11px;
-}
-
-.device-preview.is-wide .choice-list,
-.device-preview.is-wide .document-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.device-preview.is-wide .form-stack.form-stack--two-column,
-.device-preview.is-wide .review-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.device-preview.is-wide .lot-meta-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.device-preview.is-wide .quantity-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.device-preview.is-wide .review-card + .review-card {
-  margin-top: 0;
 }
 
 * {
@@ -907,30 +1002,6 @@ button {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.device-preview.is-wide .app-statusbar {
-  display: none;
-}
-
-.device-preview.is-wide .app-appbar {
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.device-preview.is-wide .progress-track,
-.device-preview.is-wide .app-content,
-.device-preview.is-wide .app-actions {
-  width: 100%;
-  max-width: 700px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.device-preview.is-wide .app-content {
-  padding-right: 24px;
-  padding-left: 24px;
-}
-
 @media (max-width: 1240px) {
   .review-layout {
     grid-template-columns: 250px minmax(520px, 1fr);
@@ -938,10 +1009,6 @@ button {
 
   .review-inspector {
     display: none;
-  }
-
-  .device-preview.is-wide {
-    width: min(760px, calc(100vw - 330px));
   }
 }
 
@@ -965,8 +1032,7 @@ button {
     padding: 0;
   }
 
-  .device-preview,
-  .device-preview.is-wide {
+  .device-preview {
     width: 100%;
     height: 100vh;
     min-height: 620px;
@@ -1208,11 +1274,6 @@ button {
 .sheet-content { padding:var(--vet45-v2-space-4); }
 
 .sheet-actions { grid-template-columns:1fr 1.3fr; gap:var(--vet45-v2-space-2); margin-top:var(--vet45-v2-space-4); }
-
-@media (min-width: 600px) {
-  .device-preview.is-wide .app-content { padding-left:var(--vet45-v2-layout-tablet-edge); padding-right:var(--vet45-v2-layout-tablet-edge); }
-  .device-preview.is-wide .app-actions { padding-left:var(--vet45-v2-layout-tablet-edge); padding-right:var(--vet45-v2-layout-tablet-edge); }
-}
 
 .toast { display:grid; grid-template-columns:26px minmax(0,1fr) 20px; gap:var(--vet45-v2-space-3); align-items:center; margin:var(--vet45-v2-space-1) var(--vet45-v2-space-4); padding:14px var(--vet45-v2-space-4); border-radius:var(--vet45-v2-radius-5); color:var(--vet45-v2-text-inverse); background:var(--vet45-v2-surface-toast); box-shadow:var(--vet45-v2-elevation-e2); }
 
@@ -2730,7 +2791,7 @@ body[data-active-uif="UIF-02"] .figma-calibrated-shell .screen-intro h2 {font-si
 
 .figma-calibrated-shell [data-figma-template="Mobile / State"] .body-stack{width:100%;align-content:center}
 
-.device-preview:not(.is-wide) > .app-screen {
+.device-preview.is-mobile > .app-screen {
   width:402px;
   height:874px;
 }

@@ -2075,7 +2075,7 @@ Trạng thái khác: "Đang xử lý đổi/trả", "Phiếu nháp đổi/trả"
 - Số tiền và trạng thái có nhãn đọc màn hình đầy đủ; trạng thái không chỉ phân biệt bằng màu.
 - Vùng chạm ≥ 44 px; ô số lượng và tiền dùng bàn phím số.
 - Thanh dưới cố định không che nội dung khi bàn phím mở.
-- Tablet / web: SG-02 chia hai cột (dòng hàng | tóm tắt), SG-08 + SG-09 dạng danh sách–chi tiết; quy tắc không đổi.
+- Thiết bị chính (2026-10-20, [LUONG-UNG-DUNG 1.1](LUONG-UNG-DUNG.md)): bán hàng **iPhone và web ngang nhau** — thiết kế đủ hai bố cục. Web: SG-02 chia hai cột (dòng hàng | tóm tắt), SG-08 + SG-09 dạng danh sách–chi tiết, quét mã bằng máy quét USB vào ô tìm; quy tắc không đổi. Không làm tablet.
 
 ---
 

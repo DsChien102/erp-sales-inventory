@@ -9,6 +9,7 @@
 Chuẩn bị ─▶ Nền core/ ─▶ Theme 1 IAM ─▶ Theme 1 làm gọn IAM ─▶ Đợt kiểm IAM ─▶ Theme 3 Partner ─▶ Theme 2 Catalog ─▶ Theme 7 Kho & Giá vốn ─▶ Theme 4 Pricing ─▶ Theme 5 Sales ─▶ Theme 8 E-invoice ─▶ Dọn dẹp ─▶ Báo cáo
 
 Theme 7 — UI: làm song song từ bây giờ trên dữ liệu giả, không chờ mục nào
+Web cho app (W-1 khung, W-2 Theme 1): hoãn, sau Theme 7 prototype; W-1 trước màn Flutter web đầu tiên
 ```
 
 **Đặt tên theo theme** (2026-10-14): mỗi mục nghiệp vụ mang số theme TH-0x của `docs/02-yeu-cau`; mục không thuộc theme nào (Chuẩn bị, Nền core, Dọn dẹp, Báo cáo) giữ tên riêng. **Thứ tự trong file = thứ tự làm.**
@@ -25,6 +26,7 @@ Theme 7 — UI: làm song song từ bây giờ trên dữ liệu giả, không c
 | Theme 1 (TH-01 Tổ chức & người dùng) | P2, P3 | `2-*` · `plans/P2`; `3-*` · `plans/P3` |
 | Theme 3 (TH-03 Đối tác)              | P4     | `4-*` · `plans/P4`                     |
 | Theme 2 (TH-02 Sản phẩm & giá bán)   | P5     | `5-*` · `plans/P5`                     |
+| Web cho app (khung web, Theme 1 web) | —      | `W-*` · `plans/W`                      |
 | Theme 7 (Kho & Giá vốn)              | —      | `T7-*` · `plans/T7`                    |
 | Theme 4 (TH-04 Chính sách giá)       | P6     | `6-*` · `plans/P6`                     |
 | Theme 5 (TH-05 Bán hàng)             | P8     | `8-*` · `plans/P8`                     |
@@ -43,6 +45,7 @@ Trong phần mô tả bên dưới, chỗ nào còn ghi `P2`, `P5`, `P7.5`… l�
 | Theme 1 | Auth, đăng ký cửa hàng, IAM | 5 ngày | Nền core | |
 | Theme 1 (tiếp) | Làm gọn IAM: bỏ `modules/iam`, `apps/admin`, worker, luồng onboarding cũ, Platform Admin | 3 ngày | Theme 1 | Làm nối tiếp IAM khi còn nhớ ngữ cảnh |
 | — | **Đợt kiểm IAM** (đóng Theme 1) | 1 ngày | Theme 1 (tiếp) | `db reset --linked` → kịch bản SQL → Vault → `functions deploy send-email` → bật xác minh email → kiểm tay TH-01 9.3 → tick CHECKLIST |
+| Web cho app | Khung web thanh bên (W-1) + Theme 1 trên web (W-2) | ~4 ngày | Theme 1 | Chốt thiết bị 2026-10-20. **Hoãn** sau Theme 7 prototype; W-1 phải xong trước màn Flutter web đầu tiên |
 | Theme 3 | Partner (+ dọn module, 3 module rỗng) | 2,5 ngày | Theme 1 | Nhỏ; Theme 7 (nhà cung cấp), Theme 4, Theme 5 cần nó |
 | Theme 2 | Catalog + tồn kho cơ bản (+ dọn module, 5-C chạy sau Theme 7) | 5,5 ngày | Theme 1 | Lớn; Theme 7, Theme 4, Theme 5 cần nó |
 | Theme 7 | **Kho & Giá vốn** (dựng mới; 17 BJ + CAP-01, 73 màn) | ~40 ngày UI + backend (chưa ước lượng) | UI: — (làm song song); backend: Theme 2, Theme 3 | Thay tồn kho cơ bản của Theme 2; có sổ kho thật trước khi refactor Sales. Trong theme: **UI trước** (fixture), backend sau |
@@ -106,6 +109,16 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 
 **Hệ quả bắt buộc:** Supabase chỉ chạy mỗi file một lần → sửa file **đã áp** thì Dev không tự nhận. Mỗi đợt có sửa migration đã áp: `supabase db reset --linked` trên Dev (xoá sạch DB Dev rồi chạy lại toàn bộ migration + `seed.sql`). Dev hiện gần như trống (0 tài khoản, chỉ dữ liệu seed — đo 2026-10-11) nên reset an toàn; **hỏi trước mỗi lần reset**. Prod chưa đụng tới — P10 dựng mới từ bộ migration cuối. **Sau khi Prod chạy thật, quay lại quy tắc cũ** (chỉ thêm migration mới).
 
+### Thiết bị (chốt 2026-10-20)
+
+Ưu tiên **iPhone** và **web trên máy tính**; Android build từ cùng mã, xếp sau; không iPad, không app macOS / Windows. Khung web = **thanh bên trái**, cửa sổ hẹp về thanh dưới 5 tab. Chi tiết và thiết bị chính của từng phần: [LUONG-UNG-DUNG mục 1.1](../02-yeu-cau/LUONG-UNG-DUNG.md#11-thiết-bị-và-khung-chốt-2026-10-20).
+
+Áp cho mọi plan từ nay:
+
+1. Plan có màn hình ghi **thiết bị chính** của từng màn và bố cục web (danh sách – chi tiết, bảng, hộp thoại) ngay trong plan; không để dồn sang một đợt sau. Theme 2, 3, 4, 5, 8 làm bố cục web trong chính plan của theme; Theme 1 (đã làm) sửa ở mục **Web cho app**; Theme 7 theo T7-P. **Thứ tự (2026-10-20):** Theme 7 trước, rồi mới quay lại từng theme.
+2. Review kiểm cả hai: iPhone (simulator) và Chrome cửa sổ rộng + hẹp; trên web đi được bằng bàn phím.
+3. Bố cục theo bề rộng; mật độ (`VDensity`) theo cách thao tác (`compact` khi dùng chuột), không suy từ bề rộng.
+
 ### Danh sách plan
 
 
@@ -133,6 +146,7 @@ Mỗi phase nghiệp vụ kết thúc bằng một plan **dọn sạch module** 
 | 10-5 Tương phản tone, chữ phụ, viền ô nhập                               | [plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md](plans/P10/10-5-tuong-phan-tone-va-vien-o-nhap.md)     | ✅    | ✅   | ✅      |
 | 10-6 Vùng chạm, nhãn, inset thanh dưới, giảm chuyển động                 | [plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md](plans/P10/10-6-vung-cham-nhan-inset-chuyen-dong.md) | ✅    | ✅   | ✅      |
 | 10-7 Tinh chỉnh design system từng mảng bằng impeccable (10 task)         | [plans/P10/10-7-tinh-chinh-design-system-impeccable.md](plans/P10/10-7-tinh-chinh-design-system-impeccable.md) | 📝    | ⬜   | ⬜      |
+| W-1 Khung web: thanh bên, tab có URL, density | [plans/W/W-1-khung-web.md](plans/W/W-1-khung-web.md) | 📝 | ⬜ | ⬜ |
 | T7-0 Rà soát BJ-02/03: sửa lỗi dữ liệu và luồng phê duyệt | [plans/T7/T7-0-ra-soat-bj02-bj03.md](plans/T7/T7-0-ra-soat-bj02-bj03.md) | ✅ | ✅   | ✅ |
 | T7-0b Nhập hàng nhanh đúng spec (SCR-006…012) | [plans/T7/T7-0b-nhap-nhanh-dung-spec.md](plans/T7/T7-0b-nhap-nhanh-dung-spec.md) | ✅ | ✅ | ✅ |
 | T7-0c Sửa còn lại T7-0b, trạng thái chung, SCR-013 | [plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md](plans/T7/T7-0c-trang-thai-chung-va-doi-soat.md) | ✅ | ✅ | ✅ |
@@ -345,6 +359,30 @@ Chi tiết từng việc:
 ---
 
 
+
+## Web cho app (W) (~4 ngày)
+
+**Trạng thái:** ⬜ **Hoãn** (2026-10-20, người dùng): làm Theme 7 trước (prototype T7-P, gồm khung web trên prototype), rồi mới quay lại từng theme đã làm; người dùng lướt lại tài liệu một lượt trước khi giao. W-1 đã có plan (📝, chưa duyệt) — phải xong **trước khi code Flutter màn web đầu tiên** (Theme 7 giai đoạn 5 hoặc theme đầu tiên quay lại). W-2 chưa viết, viết khi quay lại Theme 1 (rà cùng 2-B6 / 2-B7).
+
+| Plan | Nội dung | Gồm việc | Plan | Làm | Review |
+|---|---|---|---|---|---|
+| **W-1** | Khung web: thanh bên trái 5 mục (+ mục con của "Thêm"), ngưỡng bề rộng chuyển thanh dưới ↔ thanh bên, `VDensity.compact` khi thao tác chuột, vùng nội dung giới hạn bề rộng; 5 tab thành `StatefulShellRoute` có URL (~2 ngày) | W.1–W.4 | 📝 [plan](plans/W/W-1-khung-web.md) | ⬜ | ⬜ |
+| **W-2** | Theme 1 trên web: màn công khai (đăng nhập, đăng ký, xác minh, lời mời) căn giữa cột hẹp; quản trị tổ chức / người dùng / vai trò / nhật ký dạng danh sách – chi tiết hoặc bảng. Gộp hoặc làm ngay sau 2-B6 / 2-B7 (UI/UX auth, IAM — chưa làm) để không sửa một màn hai lần | W.5, W.6 | ⬜ | ⬜ | ⬜ |
+
+Chi tiết từng việc:
+
+| # | Việc |
+|---|---|
+| W.1 | Shell của router: một `ShellRoute` dựng thanh dưới hoặc thanh bên theo bề rộng; giữ nguyên route và guard (LUONG-UNG-DUNG mục 3) |
+| W.2 | Thành phần thanh bên trong `vet45_design_system` (cùng mục, nhãn, `Semantics` như `VBottomNavigationBar` — 10-4); test |
+| W.3 | Chọn density theo thiết bị trỏ (web + chuột → `compact`), không theo bề rộng; Android / iPhone giữ `comfortable` |
+| W.4 | Kiểm `flutter build web` + chạy Chrome; phím tắt cơ bản (Tab, Enter, Esc đóng hộp thoại / sheet) |
+| W.5 | Màn công khai TH-01 trên web |
+| W.6 | Màn quản trị TH-01 trên web (danh sách – chi tiết, bảng thành viên / nhật ký); sheet → hộp thoại |
+
+**Xong khi:** mọi màn Theme 1 dùng được trên Chrome cửa sổ rộng và hẹp, không vỡ, đi được bằng bàn phím; iPhone không đổi so với trước (ảnh chụp so sánh).
+
+---
 
 ## Theme 3. Partner (2 ngày)
 
@@ -699,6 +737,7 @@ Chi tiết từng việc:
 | Theme 1 | 🔄 | — | Code xong 2-A1…2-B4. 2-B3 ✅ (2026-10-12). Còn 2-B1 (bật xác minh email + kiểm tay), 2-B2 (Vault + gửi mail thật; `send-email` đã deploy) |
 | Theme 1 (tiếp) | ✅ | — | 3-A…3-E ✅ (2026-10-12). 4 kịch bản SQL IAM đạt trên Dev sau `db reset --linked` |
 | Đợt kiểm IAM | 🔄 | — | 2026-10-12: Resend + DNS ✅, secrets Edge Function ✅, SMTP Auth ✅, `db reset --linked` ✅, 4 kịch bản SQL ✅, `send-email` đã deploy ✅. Còn: Vault → bật Confirm email + mẫu mã 6 số → kiểm tay TH-01 9.3 kịch bản 1–4 → tick CHECKLIST |
+| Web cho app | ⬜ hoãn | | Mở 2026-10-20 (chốt thiết bị iPhone + web); W-1 có plan 📝; làm sau Theme 7 prototype |
 | Theme 3 | ⬜ | | |
 | Theme 2 | ⬜ | | |
 | Theme 7 | 🔄 | — | 2026-10-14: T7-0 ✅ (sửa lỗi dữ liệu + luồng phê duyệt BJ-02/03, chưa commit); T7-0b ✅, T7-0c ✅ (commit `49967966e`); T7-0d có plan 📝; T7-0e chưa lập; T7-1 (BJ-01) có plan 📝. Backend chưa lập plan `T7-B*`. 2026-10-16: chốt **sửa prototype trước (T7-P), rồi mới code Flutter**; T7-0d, T7-1 tạm dừng, rà lại theo prototype mới trước khi giao |
@@ -721,6 +760,7 @@ Chi tiết từng việc:
 | Theme 7 | UI trên fixture che lỗi hợp đồng dữ liệu (kiểu số, null, phân trang) | Repository giữ chữ ký như RPC; model theo `PRJ-*` / `ENT-*`; plan backend rà lại model trước khi nối |
 | Theme 7 | 421 trạng thái → test phình | Bảng "trạng thái → test" ở T7-0 / T7-16; test theo bảng, không viết tay từng cái |
 | Theme 7 | Theme 7 lớn (UI ~40 ngày + backend) mà đứng trước Theme 4, 5, 8 → luồng demo bán hàng + HĐĐT bị đẩy lùi | Theo dõi tiến độ Theme 7 sát; nếu trễ thì chốt lại phạm vi trước khi vào Theme 4 |
+| Mọi theme | Thêm bố cục web làm mỗi theme dài thêm (~10–20% phần UI) | Chỉ tối ưu thiết bị chính của màn; thiết bị kia chỉ cần không vỡ, đủ hành động |
 | Theme 5 | Mất rule nghiệp vụ khi bỏ Aggregate | Bước 5 của công thức: port rule thành hàm thuần và giữ test cũ |
 | Theme 5 | Từ lúc sổ kho Theme 7 chạy tới khi Theme 5 nối kho (8-D), Sales cũ vẫn đọc tồn cơ bản không còn cập nhật | Chỉ ảnh hưởng Dev (Prod chưa chạy); 8-D chuyển sang khả dụng của Theme 7 |
 | Theme 8 | UI einvoice nằm ở module nên phải chuyển nhiều file | Chuyển nguyên thư mục trước, đổi dependency sau, 2 PR riêng |

@@ -43,7 +43,7 @@ ScrollableState _menuOuterScrollable(WidgetTester tester) {
   if (outerState == null) {
     fail('Expected a pinned outer menu scrollable inside MenuAnchor');
   }
-  return outerState!;
+  return outerState;
 }
 
 Finder _menuItemListScrollableFinder() {

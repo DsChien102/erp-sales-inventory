@@ -28,7 +28,6 @@ Chi tiết boundary: [harness/02-module-map.md](harness/02-module-map.md), [OVER
 | Business scope | [OVERVIEWS.md](OVERVIEWS.md) | Purpose, scope, epic map |
 | Appendices | [APPENDICES.md](APPENDICES.md) | CJ / UF / SG index |
 | References | [references.md](references.md) | Cross-theme, MISA, platform |
-| Raw dump | [_incoming/](_incoming/) | Chỉ file thô trước ingest |
 | Harness | [harness/](harness/) | Ritual, domain, contracts, slices |
 
 ## Epic index

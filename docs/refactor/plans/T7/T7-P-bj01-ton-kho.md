@@ -1,8 +1,8 @@
 # T7-P · BJ-01 Tồn kho & khả dụng — dựng thiết kế mới (bước C–E)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (để dành cho **Giai đoạn 2**; phiên review rà lại theo code sau Giai đoạn 1 trước khi làm) | Làm ⬜ | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (rà lại theo code sau Giai đoạn 1 + H1 + plan BJ-12: 2026-10-21) | Làm ⬜ | Review ⬜
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md). Brief đã duyệt 2026-10-16: mục 0 của plan này. Bước A đã xong (`app/bj01.js`).
-> Ước lượng: **~1–1,5 ngày, 2 commit** (C+D; E). Làm **sau** [dọn tài liệu 7.1](T7-P-doc-don-tai-lieu.md) (bước E dùng khuôn ở đó).
+> Ước lượng: **~1–1,5 ngày, 2 commit** (C+D; E). Làm **sau** [dọn tài liệu 7.1](T7-P-doc-don-tai-lieu.md) (bước E dùng khuôn ở đó) **và sau BJ-12** — 2026-10-20 Giai đoạn 2 sắp theo chặng hành trình, BJ-01 là BJ thứ hai của chặng 1 "Mở kho" ([T7-P mục 8.2](T7-P-thiet-ke-lai-luong.md)); K1 dựng ở BJ-12 (`app/shared-patterns.js`), plan này dùng lại. Thiết bị chính: **iPhone**; web phải dùng được (T7-P mục 2). Phiên bản đích **5.6.0** (BJ-12 = 5.5.0, CAP-01 = 5.7.0).
 > Người làm: bạn. Review: phiên plan / review.
 
 Đường dẫn tính từ `specs/themes/theme-07/03.design/prototype/html/` nếu không ghi khác. Câu trong ngoặc kép là chữ hiển thị, chép nguyên văn.
@@ -14,7 +14,7 @@
 - Nhân viên, giữa lúc có khách: "Còn bao nhiêu? Bán được bao nhiêu?" → tìm nhanh một sản phẩm, nhìn một con số.
 - Owner, đầu ngày hoặc trước khi đặt hàng: "Cái gì hết hoặc sắp hết? Lô nào cận hạn, hết hạn?" → lọc theo vấn đề rồi làm việc tiếp: nhập thêm (BJ-02) hoặc xử lý lô (BJ-09).
 
-**Luồng hiện tại** (ảnh: `tools/.golden-base/UIF-01_SCR-001_READY.png`, `SC_bj01_list_5_product.png`, `SC_bj01_detail_4_provenance.png`)
+**Luồng hiện tại** (ảnh: `tools/.golden-phase1/UIF-01_SCR-001_READY.png`, `SC_bj01_list_5_product.png`, `SC_bj01_detail_4_provenance.png`)
 
 SCR-001 danh sách (dòng ngữ cảnh, ô tìm, 5 chip lọc, dòng sản phẩm) → SCR-003 chi tiết (thẻ sản phẩm, "Khả dụng", 3 số phân rã, lý do không bán được, cảnh báo tồn, lô, nguồn) → sheet lô / sheet nguồn → thẻ kho (BJ-15).
 
@@ -47,7 +47,7 @@ SCR-001 danh sách (dòng ngữ cảnh, ô tìm, 5 chip lọc, dòng sản phẩ
 8. Lô sắp theo **HSD gần nhất trước**; sheet lô giữ, thêm nút "Xử lý lô hết hạn" khi lô đã hết hạn.
 9. "Nguồn và thời điểm cập nhật" → sheet → "Xem thẻ kho và lịch sử": giữ nguyên.
 
-*Trạng thái* (dựng khuôn K1, T7-P mục 5): LOADING = khung xương đúng bố cục; EMPTY / FILTER_EMPTY giữ; STALE = banner + "Làm mới" ngay dưới dòng ngữ cảnh; PERMISSION_DENIED = chuyện gì + làm gì tiếp + nút "Về Kho".
+*Trạng thái* (dùng khuôn K1 đã dựng ở BJ-12 — `k1Loading`, `k1Stale`, `k1Denied`): LOADING = khung xương đúng bố cục; EMPTY / FILTER_EMPTY giữ; STALE = banner + "Làm mới" ngay dưới dòng ngữ cảnh; PERMISSION_DENIED = chuyện gì + làm gì tiếp + nút "Về Kho".
 
 **Không đổi:** quy tắc chỉ báo (Hết hàng / Tồn thấp / cận hạn / hết hạn), ngưỡng (CAP-01), sheet nguồn và chuyển sang thẻ kho.
 
@@ -67,7 +67,7 @@ SCR-001 danh sách (dòng ngữ cảnh, ô tìm, 5 chip lọc, dòng sản phẩ
 ## 2. Chuẩn bị
 
 1. Máy chủ: `python3 -m http.server 8765 --bind 127.0.0.1 &` trong thư mục `html/`.
-2. `node tools/golden.mjs capture tools/.golden-base` rồi chụp lần hai và `compare` — phải "Khớp hoàn toàn" (mốc trước khi sửa).
+2. Mốc = mốc **sau BJ-12** (`tools/.golden-bj12-after`, `tools/.golden-bj12-web-after`, chụp ở bước D của BJ-12). Chụp lại hiện trạng `tools/.golden-bj01-base` và `DEVICE=web … tools/.golden-bj01-web-base`, so với hai mốc đó → "Khớp hoàn toàn". Không chụp lại mốc giữa gói.
 3. Đọc lại brief (mục 0) và bảng chữ mục 9 của plan này.
 
 ## 3. Bước C — dựng
@@ -105,14 +105,7 @@ function ds24StockRow({ title, subtitle = "", quantity, badge = "", attrs = "" }
 }
 ```
 
-**e. `ds24StateBody` (mới) — khuôn K1 cho trạng thái toàn màn:**
-
-```js
-// K1: chuyện gì xảy ra · làm gì tiếp · lối ra. Tone trung tính cho "không có quyền" (không phải lỗi).
-function ds24StateBody({ iconName, title, description, actions = "" }) {
-  return `<div class="empty-state ds24-state" data-ds-component="VEmptyState"><div class="icon-box" data-ds-component="VEmptyMedia">${icon(iconName, "icon--empty-media")}</div><h3 data-ds-component="VEmptyTitle">${esc(title)}</h3><p data-ds-component="VEmptyDescription">${esc(description)}</p>${actions}</div>`;
-}
-```
+**e. Trạng thái toàn màn (K1):** không thêm helper — dùng `k1Denied`, `k1Loading`, `k1Stale`, `k1ExitAttr` trong `app/shared-patterns.js` (dựng ở BJ-12). Nếu BJ-12 chưa làm xong thì làm BJ-12 trước.
 
 ### 3.2 `styles/components.css` — CSS của các thành phần ở 3.1
 
@@ -126,7 +119,6 @@ Thêm một khối `/* ===== Thành phần: search action, chip count, stock row
 | `.ds24-stock-row` | Kế thừa `.ds24-list-row`; cao tối thiểu 64 |
 | `.ds24-stock-row__value` | Cột phải, căn phải, xếp dọc, khoảng cách 4 |
 | `.ds24-stock-row__qty` | JetBrains Mono, 16/22, đậm 700, `--vet45-v2-text-primary`; chữ số đều |
-| `.ds24-state` | Căn giữa, nút hành động bên dưới, rộng tối đa 320 |
 | `.skeleton--row` | Cao 64, bo 12 (bổ sung cho `.skeleton-*` sẵn có) |
 
 ### 3.3 `app/bj01.js` — SCR-001 Tồn kho
@@ -197,7 +189,7 @@ Thêm một khối `/* ===== Thành phần: search action, chip count, stock row
      activeScreenId = "SCR-036"; stateByScreen["SCR-036"] = "READY";
      syncReviewUrl(); render();
      ```
-8. **Fixture BJ-09** (`app/core.js`, mảng `ic09Items`): thêm dòng để BJ-09 có đúng lô của BJ-01:
+8. **Fixture BJ-09** (`app/bj09.js`, mảng `ic09Items`): thêm dòng để BJ-09 có đúng lô của BJ-01:
    ```js
    {id:"tylo",name:"Tylosin 20%",code:"SP-000122",lot:"TY2408",qty:11,uom:"lọ",state:"EXPIRED",label:"Hết hạn",expiry:"31/07/2026"},
    ```
@@ -207,61 +199,25 @@ Thêm một khối `/* ===== Thành phần: search action, chip count, stock row
 
 | Màn · trạng thái | Hiện gì | Lối ra |
 |---|---|---|
-| 001 · `LOADING` | Dòng ngữ cảnh; khung xương: một thanh tìm + 4 `.skeleton--row` | — |
+| 001 · `LOADING` | Dòng ngữ cảnh + `k1Loading({ blocks:["search","row","row","row","row"] })` (thêm kiểu khối `row` / `search` vào `k1Loading` nếu BJ-12 chưa có) | — |
 | 001 · `EMPTY` | `bj01Empty(false)` (giữ) | — |
 | 001 · `FILTER_EMPTY` | `bj01Empty(true)` + "Xóa tìm kiếm và bộ lọc" (giữ) | Nút xoá lọc |
-| 001 · `STALE` | Dòng ngữ cảnh → banner "Dữ liệu có thể đã cũ" + "Làm mới" (giữ) → danh sách | Làm mới |
-| 001 / 003 · `PERMISSION_DENIED` | `ds24StateBody({ iconName: "lock", title: "Không có quyền xem tồn kho", description: "Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.", actions: <nút chính "Về Kho" data-v464-action="to-warehouse"> })`; không có dữ liệu sản phẩm trong DOM | "Về Kho" (về Hub qua `ThemeApp`) |
-| 003 · `LOADING` | Dòng ngữ cảnh; `.skeleton--card` cao 140 + 3 `.skeleton--row` | — |
+| 001 · `STALE` | Dòng ngữ cảnh → `k1Stale({ title:"Dữ liệu có thể đã cũ", actionLabel:"Làm mới", actionAttr:"data-bj01-refresh" })` (giữ chữ) → danh sách | Làm mới |
+| 001 / 003 · `PERMISSION_DENIED` | `k1Denied({ what:"Không có quyền xem tồn kho", next:"Bạn chưa được cấp quyền xem tồn kho. Liên hệ chủ cửa hàng nếu cần.", exitAttr:k1ExitAttr("SCR-001") })`; không có dữ liệu sản phẩm trong DOM | "Về Kho" |
+| 003 · `LOADING` | Dòng ngữ cảnh + `k1Loading({ blocks:["card","row","row","row"] })` | — |
 | 003 · `STALE` | Như READY, banner + "Làm mới" ngay dưới dòng ngữ cảnh | Làm mới |
 
 ### 3.6 `styles/screens.css` — CSS BJ-01
 
 1. Tạo khối `/* ===== BJ-01 Tồn kho (app/bj01.js) ===== */` ở **cuối** file cho: `.bj01-stock-hero*` (thẻ trắng bo 12, viền `--vet45-v2-border-default`, đệm 16; số "Khả dụng" JetBrains Mono 22/28 đậm 700; lưới 3 cột cho `dl`, nhãn 12 `--vet45-v2-text-secondary`, số mono 14), `.bj01-attention*` (khoảng cách 8 giữa banner, gợi ý, nút), `.bj01-scan-frame` (khung 4:3, viền gạch `--vet45-v2-border-strong`, icon giữa).
 2. **Dọn luật cũ của BJ-01** sau khi markup mới chạy:
-   - Luật nhắm `[data-active-uif="UIF-01"]` hoặc `.bj01-` nằm rải ở: `styles/components.css` (67 chỗ), `styles/screens.css` các khối `bj01-ds-fidelity.css` (66), `v271` (14), `v273` (10), `v251` (9), `v301` (5), `v391` (2), `v340` (1).
+   - Luật nhắm `[data-active-uif="UIF-01"]` hoặc `.bj01-` (đo 2026-10-21 sau A11): `styles/components.css` 6 chỗ, `styles/screens.css` 101 chỗ (`grep -c "UIF-01\|bj01-" styles/*.css`).
    - Xoá luật **không còn khớp phần tử nào** trên màn BJ-01 (vd. `.ds24-availability…`, thẻ sản phẩm cũ). Dùng script mục 3.7 để biết luật nào không dùng.
    - Luật còn dùng: chuyển vào khối BJ-01, bỏ tiền tố `body[data-active-uif="UIF-01"]` nếu selector đã đủ riêng (class `bj01-*`), bỏ `!important` khi không còn đối thủ. Chụp golden sau mỗi lần chuyển.
 
-### 3.7 Script đo luật CSS không dùng (tạo `tools/css-usage.mjs`)
+### 3.7 Đo luật CSS không dùng
 
-Mở từng trang của BJ (mọi trạng thái + kịch bản `SC_bj01_*`), bật `CSS.startRuleUsageTracking`, gom luật đã dùng, in luật **không dùng** có chứa một chuỗi lọc. Dựa trên cùng cách mở Chrome của `golden.mjs` (CDP, cổng riêng):
-
-```js
-// node tools/css-usage.mjs <filter>   (vd. 'UIF-01' hoặc 'bj01-'); cần máy chủ 8765
-import { spawn } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-const filter = process.argv[2] || 'UIF-01';
-const urls = ['SCR-001', 'SCR-003'].flatMap((s) => {
-  const wb = JSON.parse(readFileSync('data/workbench-data.json', 'utf8'));
-  return wb.screens.find((x) => x.id === s).states.map((st) => `?uif=UIF-01&screen=${s}&state=${st}`);
-});
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--remote-debugging-port=9470', '--user-data-dir=/tmp/css-usage-chrome', 'about:blank'], { stdio: 'ignore' });
-let list; for (let i = 0; i < 100 && !list; i++) { try { list = await (await fetch('http://127.0.0.1:9470/json/list')).json(); } catch { await sleep(100); } }
-const ws = new WebSocket(list.find((t) => t.type === 'page').webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
-let id = 0; const pend = new Map(); const sheets = new Map();
-ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); } if (m.method === 'CSS.styleSheetAdded') sheets.set(m.params.header.styleSheetId, m.params.header.sourceURL); };
-const send = (method, params = {}) => new Promise((r) => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
-await send('Page.enable'); await send('DOM.enable'); await send('CSS.enable');
-const used = new Set(); const all = new Map();
-for (const u of urls) {
-  await send('CSS.startRuleUsageTracking');
-  await send('Page.navigate', { url: 'http://127.0.0.1:8765/index.html' + u }); await sleep(1200);
-  const r = await send('CSS.stopRuleUsageTracking');
-  for (const x of r.result.ruleUsage) { const k = `${x.styleSheetId}:${x.startOffset}`; all.set(k, x); if (x.used) used.add(k); }
-}
-const texts = new Map();
-for (const [sid] of sheets) texts.set(sid, (await send('CSS.getStyleSheetText', { styleSheetId: sid })).result.text);
-for (const [k, x] of all) {
-  if (used.has(k)) continue;
-  const t = texts.get(x.styleSheetId)?.slice(x.startOffset, x.endOffset) || '';
-  if (t.includes(filter)) console.log(`${sheets.get(x.styleSheetId)?.split('/').pop()} @${x.startOffset}: ${t.slice(0, 140).replace(/\s+/g, ' ')}`);
-}
-ws.close(); chrome.kill();
-```
-
-Lưu ý: luật cho thao tác (sheet đang mở, `:hover`, `:focus`) không hiện khi chỉ mở trang — trước khi xoá một luật có `sheet`, `overlay`, `:focus`, `:hover`, `is-open` hãy mở sheet tương ứng bằng tay để chắc.
+Dùng chế độ có sẵn của golden (A11), **không viết script mới**: `node tools/golden.mjs usage tools/.usage-bj01 UIF-01` (chạy mọi ca có `UIF-01` trong tên, gồm `SC_bj01_*`) → xem `tools/.usage-bj01/_css-deletable.txt`, lọc dòng có `UIF-01` hoặc `bj01-`. Luật cho thao tác (sheet đang mở, `:hover`, `:focus`, `is-open`) chỉ hiện khi kịch bản mở chúng — trước khi xoá luật loại này, mở bằng tay để chắc.
 
 ### 3.8 Kịch bản golden (`tools/golden.mjs`)
 
@@ -275,13 +231,16 @@ Giữ các kịch bản `SC_bj01_*` hiện có (thuộc tính `data-bj01-*` khô
 | `SC_bj01_out` | như trên | `[data-bj01-product="INV-ENRO"]` → `[data-bj01-receive]` |
 | `SC_bj01_expired` | như trên | `[data-bj01-product="INV-TYLO"]` → `[data-bj01-dispose-lot]` |
 | `SC_bj01_expired_sheet` | như trên | `[data-bj01-product="INV-TYLO"]` → `[data-bj01-lot="TY2408"]` → `.ds24-sheet [data-bj01-dispose-lot]` |
-| `SC_bj01_denied` | `?mode=theme&app=flow&uif=UIF-01&screen=SCR-001&state=PERMISSION_DENIED` | `[data-v464-action="to-warehouse"]` |
+| `SC_bj01_denied` | `?mode=theme&app=flow&uif=UIF-01&screen=SCR-001&state=PERMISSION_DENIED` | nút "Về Kho" (`[data-theme-sidebar-route="inventory"]` do `k1ExitAttr` sinh ở chế độ theme) |
+| `SC_bj01_barcode_type` | `?uif=UIF-01&screen=SCR-001` | gõ `8938500004068` vào `[data-bj01-search]` (máy quét USB trên web gõ như bàn phím) → còn đúng dòng Amox 500 |
 
 ## 4. Bước D — kiểm
 
 | Kiểm | Đạt khi |
 |---|---|
-| Golden | Chỉ khác ở: `UIF-01_*`, `SC_bj01_*`, `SC_search_*`, `SC_quick_UIF-01_*`, `SC_ws_inventory_0_*`, `UIF-09_SCR-036_*` (dòng Tylosin thêm vào BJ-09) và kịch bản mới. Mọi ca khác "Khớp hoàn toàn" |
+| Golden mobile | So `tools/.golden-bj01-base`: chỉ khác ở `UIF-01_*`, `SC_bj01_*`, `SC_search_*`, `SC_quick_UIF-01_*`, `SC_ws_inventory_0_*`, `UIF-09_SCR-036_*` (dòng Tylosin thêm vào BJ-09) và kịch bản mới. Mọi ca khác "Khớp hoàn toàn" |
+| Golden web | So `tools/.golden-bj01-web-base`: chỉ khác `UIF-01_*@web`, `UIF-09_SCR-036_*@web` |
+| Web dùng được | Khung web: SCR-001 / 003 không vỡ, không tràn ngang, đủ nút; BJ-01 **không** dùng `k7-wide` (iPhone chính — giữ cột ở giữa); `SC_bj01_barcode_type` đạt |
 | Bộ bấm thử | 0 lỗi JS (phiên review chạy lại khi review) |
 | Bỏ chạm luồng khác | `SC_bj01_receive` dừng ở SCR-008 nhập nhanh; `SC_bj01_expired` dừng ở SCR-036 BJ-09 có đúng một dòng "Tylosin 20% · TY2408" |
 | `PERMISSION_DENIED` | DOM của SCR-001 / 003 không có tên, mã hay số lượng sản phẩm nào (`innerText` của `#app-screen` chỉ gồm chữ trạng thái, thanh trạng thái và nút) |
@@ -289,15 +248,15 @@ Giữ các kịch bản `SC_bj01_*` hiện có (thuộc tính `data-bj01-*` khô
 | Chữ | Đúng bảng mục 9 |
 | Bạn xem ảnh | `UIF-01_SCR-001_READY`, `UIF-01_SCR-003_READY` (Nobivac), `SC_bj01_list_5_product` (Amox — tồn thấp), `SC_bj01_tylo_1_product` (Tylosin — tồn thấp + lô hết hạn), `SC_bj01_scan_1_*`, `UIF-01_SCR-001_PERMISSION_DENIED`, `UIF-01_SCR-003_LOADING` |
 
-Xong D: chụp `.golden-base` mới (mốc cho BJ-02).
+Xong D: chụp `tools/.golden-bj01-after` và `DEVICE=web … tools/.golden-bj01-web-after` (mốc cho CAP-01).
 
 ## 5. Bước E — ghi lại
 
-1. `CHANGELOG.md`: mục `[5.2.0] — T7-P BJ-01 thiết kế lại` (thay đổi theo màn; ca golden khác; thành phần mới `VStockRow`, `ds24StateBody`, chip có số, nút quét trong ô tìm). `manifest.json` → `5.2.0`.
+1. `CHANGELOG.md`: mục `[5.6.0] — T7-P BJ-01 thiết kế lại` (thay đổi theo màn; ca golden khác; thành phần mới `VStockRow`, chip có số, nút quét trong ô tìm; dùng K1 của BJ-12). Phiên bản 5.6.0 ở `manifest.json`, `harness/workbench.js`, badge `index.html`.
 2. **Viết lại theo khuôn** `03.design/screens/_TEMPLATE.md`: `03.design/screens/SCR-001.md`, `SCR-003.md` — gộp các đoạn `### vX.Y` hiện có vào nội dung chính; thứ bậc thông tin, bảng trạng thái và bảng chữ theo prototype mới; trạng thái `IN_REVIEW`.
 3. Viết lại `03.design/flows/UIF-01-BJ-01.md` theo `03.design/flows/_TEMPLATE.md`: sơ đồ 001 → 003 → (sheet lô / sheet nguồn → BJ-15), nút sang BJ-02 và BJ-09, khuôn K1.
 4. `03.design/screens/INDEX.md`: SCR-004, SCR-005 ghi "sheet trong SCR-003"; SCR-002, SCR-060, SCR-061 giữ ghi chú hiện có.
-5. Plan tổng thể T7-P: mục 5 mô tả khuôn K1 đã dựng (helper `ds24StateBody`, quy tắc); mục 6 đánh dấu `VStockRow`, nút quét, chip có số = ✅ prototype; mục 13 đánh dấu 3 dòng BJ-01 đã duyệt + thêm chữ mới ở mục 9 dưới đây; mục 14 BJ-01 C / D / E ✅.
+5. Plan tổng thể T7-P: mục 5 thêm BJ-01 vào chỗ dùng K1; mục 6 đánh dấu `VStockRow`, nút quét, chip có số = ✅ prototype; mục 13 đánh dấu 3 dòng BJ-01 đã duyệt + thêm chữ mới ở mục 9 dưới đây; mục 14 BJ-01 C / D / E ✅.
 6. `python3 tools/sync-registry.py`.
 
 ## 6. Thứ tự commit
@@ -310,7 +269,7 @@ Trước mỗi commit chạy `detect_changes()` theo CLAUDE.md (thay đổi ch�
 ## 7. Không làm trong plan này
 
 - Điền sẵn sản phẩm vào phiếu BJ-02 khi bấm "Nhận hàng" (BJ-02 chưa hỗ trợ; xem lại ở brief BJ-02).
-- Đặt ngưỡng tồn ngay trong SCR-003 khi "Chưa có ngưỡng tồn" (thuộc CAP-01).
+- Đặt ngưỡng tồn ngay trong SCR-003 khi "Chưa có ngưỡng tồn": plan CAP-01 mục 3.4 thêm nút "Đặt ngưỡng tồn" / "Sửa ngưỡng" vào SCR-003.
 - Gộp fixture BJ-01 và BJ-09 thành một bộ (chỉ thêm một dòng Tylosin; gộp hẳn ở BJ-09).
 - Quét mã vạch thật (prototype chỉ mô phỏng).
 

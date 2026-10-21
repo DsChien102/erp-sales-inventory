@@ -1,6 +1,6 @@
 # T7-P · Dọn tài liệu `03.design` (mục 7.1 của plan tổng thể)
 
-> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (làm trước **Giai đoạn 2**; độc lập với code nên làm lúc nào cũng được) | Làm ✅ (2026-10-19, chưa commit) | Review ⬜
+> Theme: Theme 7 Inventory · Trạng thái: Plan ✅ (làm trước **Giai đoạn 2**; độc lập với code nên làm lúc nào cũng được) | Làm ✅ (2026-10-19; commit `684a2f7b6` tạo file, `fc93c752e` xoá + sửa) | Review ✅ (2026-10-20)
 > Thuộc [T7-P](T7-P-thiet-ke-lai-luong.md) mục 7.1. Ước lượng: **~0,5 ngày, 1 commit**. Làm **trước** bước C của BJ-01 (bước E của BJ-01 dùng khuôn tạo ở đây).
 > Người làm: bạn. Review: phiên plan / review.
 
@@ -353,4 +353,14 @@ Xem [`html/README.md`](html/README.md): cấu trúc thư mục, khung `app/core.
 
 Đã kiểm: 96 file `screens/SCR-*.md` ↔ 96 dòng bảng mục 5 (trạng thái khớp từng file); 7 file `RETIRED` còn đủ; `README.md` theme dòng 127 / 133 đúng chỗ.
 
-(Review sau khi làm: phiên review điền.)
+**Review sau khi làm (2026-10-20, trên HEAD `fc93c752e`):** đạt.
+
+| Kiểm | Kết quả |
+|---|---|
+| Liên kết gãy | `grep` chỉ còn `structure-path-migration-v3.11.0.json` và plan này |
+| Golden | "Khớp hoàn toàn (1348 ca)" so với `tools/.golden-phase1` |
+| Registry | `sync-registry.py` chạy lại không tạo thay đổi; 4 dòng mới có ở csv / json / checksums, 0 dòng của 7 file đã xoá; `shasum -c` 443 / 443 OK |
+| Bảng tra | `INDEX.md` 96 dòng; mỗi `SCR-*.md` còn lại (89) đúng một dòng, trạng thái khớp frontmatter; `RETIRED.md` đủ 7 màn |
+| Nội dung | Hai khuôn, `RETIRED.md`, `prototype/README.md` (v5.3.1, bỏ `parent`) khớp plan; `PAT-NAV.md` 7 dòng, `README.md` theme 2 dòng; `sync-registry.py` giữ `d.startswith('.')`, `PROTO` trả về gốc |
+
+Lệch plan, không cần sửa: plan định 1 commit riêng, thực tế nằm trong hai commit gộp với việc khác (typography, design system). Câu chữ nhỏ: `PAT-NAV.md` dòng 121 / 132 / 141 đặt "(xem RETIRED.md)" sau dấu chấm câu.

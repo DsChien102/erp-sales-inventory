@@ -29,4 +29,3 @@ Business setup · Data onboarding · Order-to-cash · Management & control — c
 - Nghị định / thông tư HĐĐT VN: tra cứu khi implement tuân thủ (không nhân bản trong harness).
 - Product Vision AA: `AA-O08` (ghi nhận yêu cầu/thông tin xuất HĐ) — Theme 08 không tự tạo mã AA mới (§1.7.4).
 
-Raw files trước ingest: [_incoming/](_incoming/).

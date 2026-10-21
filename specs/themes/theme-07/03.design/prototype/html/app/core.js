@@ -1,4 +1,4 @@
-/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, v5.3.1).
+/* VET45 Theme 7 prototype — khung runtime (T7-P A11–A12, H1, v5.4.0).
  *
  * Chỉ còn khung sản phẩm:
  *   - Trạng thái + routing lối vào (`entryTargets` / `applyEntry` / `onEntry` / `currentActor`)
@@ -66,7 +66,7 @@ let activeScreenId = (() => {
   if (screens.some((s) => s.id === requestedScreen)) return requestedScreen;
   return initialFlow?.screens[0] || "SCR-006";
 })();
-let viewport = initialParams.get("viewport") === "wide" ? "wide" : "mobile";
+let viewport = initialParams.get("viewport") === "web" ? "web" : "mobile";
 let flowMode = initialParams.get("flow") === "quick" ? "quick" : "document";
 
 // Entry architecture: one table (screen + optional state/flowMode). v350 targets win where both existed.
@@ -467,6 +467,7 @@ function render() {
   renderFlowSelector();
   renderNavigation();
   renderInspector();
+  if (typeof ThemeApp !== "undefined") ThemeApp.renderWebSidebar();
   renderAppScreen();
   if (typeof applyGroupedSurfaceRule === "function") applyGroupedSurfaceRule();
   if (inspectEnabled) resetInspectSelection();

@@ -40,6 +40,10 @@ node tools/golden.mjs capture tools/.golden-now
 node tools/golden.mjs compare tools/.golden-phase1 tools/.golden-now
 node tools/golden.mjs usage tools/.usage-now   # CSS unused + JS uncovered
 FULL=1 node tools/golden.mjs capture tools/.full-now  # ảnh toàn trang (harness)
+
+# Khung Web 1280×800 (không chụp kịch bản SC_*; tên ca thêm @web)
+DEVICE=web node tools/golden.mjs capture tools/.golden-web-now
+node tools/golden.mjs compare tools/.golden-web-base tools/.golden-web-now
 ```
 
-Mốc `tools/.golden-phase1` (1348 ca) = trạng thái hết Giai đoạn 1 sau A12, khớp mọi mốc trước Giai đoạn 1. Thư mục `.golden*/`, `.full*/`, `.usage*/` không vào git — chụp lại mốc trên máy mới bằng `capture` ở một commit đã biết đúng.
+Mốc `tools/.golden-phase1` (1348 ca) = trạng thái hết Giai đoạn 1 sau A12, khớp mọi mốc trước Giai đoạn 1. Mốc `tools/.golden-web-base` (555 ca, `DEVICE=web`) = khung web sau H1, mốc cho BJ-12. Thư mục `.golden*/`, `.full*/`, `.usage*/` không vào git — chụp lại mốc trên máy mới bằng `capture` ở một commit đã biết đúng.

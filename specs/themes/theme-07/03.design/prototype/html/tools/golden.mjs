@@ -11,6 +11,9 @@ const [, , mode, a, b] = process.argv;
 const HTML = process.env.PROTO_HTML || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = process.env.PROTO_URL || 'http://127.0.0.1:8765/index.html';
 const WORKERS = Number(process.env.WORKERS || 4);
+// DEVICE=web: khung Web 1280×800 (cửa sổ 2400×1300 để khung không bị thu); mặc định mobile, tên ca không đổi.
+const WEB = process.env.DEVICE === 'web';
+const WINDOW = WEB ? { width: 2400, height: 1300 } : { width: 1600, height: 1100 };
 const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 
 // Minimal PNG decoder (8-bit RGB/RGBA, non-interlaced: what Chrome writes).
@@ -309,7 +312,8 @@ const SCENARIOS = [
     ];
   })(),
 ];
-for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
+if (!WEB) for (const sc of SCENARIOS) groups.push({ url: sc.url, cases: [{ name: `${sc.name}_0` }, ...sc.steps.map(([n, act], i) => ({ name: `${sc.name}_${i + 1}_${n}`, act }))].filter((c) => c.name.includes(filter)) });
+if (WEB) for (const g of groups) { g.url += '&viewport=web'; g.cases = g.cases.map((c) => ({ ...c, name: c.name + '@web' })); }
 const todo = groups.filter((g) => g.cases.length);
 mkdirSync(a, { recursive: true });
 
@@ -402,7 +406,7 @@ if (mode === 'usage') {
       return undefined;
     };
     await send('Page.enable'); await send('Runtime.enable'); await send('DOM.enable'); await send('CSS.enable'); await send('Profiler.enable');
-    await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+    await send('Emulation.setDeviceMetricsOverride', { ...WINDOW, deviceScaleFactor: 1, mobile: false });
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
     const frames = 'new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))';
     let g;
@@ -498,7 +502,7 @@ async function worker(n, queue, errors) {
   const send = (method, params = {}) => new Promise((r) => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
   const evalv = async (expression) => (await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true })).result.result?.value;
   await send('Page.enable'); await send('Runtime.enable');
-  await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1100, deviceScaleFactor: 1, mobile: false });
+  await send('Emulation.setDeviceMetricsOverride', { ...WINDOW, deviceScaleFactor: 1, mobile: false });
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   const frames = 'new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))';
   let g;

@@ -2794,7 +2794,7 @@ body[data-active-uif="UIF-05"] .bj05-link {
     overflow: hidden;
     align-items: start;
   }
-  .device-preview:not(.is-wide) {
+  .device-preview.is-mobile {
     transform: scale(var(--vet45-review-scale, 1));
     transform-origin: top center;
   }
@@ -2889,7 +2889,7 @@ body[data-active-uif="UIF-05"] .bj05-lot-sheet .bj05-textarea__control {
     display: grid !important;
     place-items: start center !important;
   }
-  .device-preview:not(.is-wide) {
+  .device-preview.is-mobile {
     width: 402px !important;
     height: 874px !important;
     min-height: 874px !important;
@@ -3389,13 +3389,13 @@ body[data-active-uif="UIF-06"] .ds24-section-title > span { flex:0 0 auto!import
 }
 
 @media (min-width: 841px) {
-  .device-preview:not(.is-wide) {
+  .device-preview.is-mobile {
     width: 418px !important;
     height: 890px !important;
     min-height: 890px !important;
     box-sizing: border-box !important;
   }
-  .device-preview:not(.is-wide) > .app-screen {
+  .device-preview.is-mobile > .app-screen {
     width: 402px !important;
     height: 874px !important;
     min-width: 402px !important;

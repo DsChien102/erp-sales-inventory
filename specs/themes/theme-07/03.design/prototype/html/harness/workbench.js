@@ -409,6 +409,7 @@ document.addEventListener("click", (event) => {
     syncReviewUrl();
     document.querySelectorAll(".viewport-button").forEach((button) => button.classList.toggle("is-active", button === viewportButton));
     document.getElementById("device-preview").className = `device-preview is-${viewport}`;
+    fitReviewDeviceToViewport();
     return;
   }
 });
@@ -427,7 +428,7 @@ function fitReviewDeviceToViewport() {
   const device = document.getElementById("device-preview");
   const canvas = document.querySelector(".stage-canvas");
   if (!device || !canvas) return;
-  if (window.innerWidth <= 840 || device.classList.contains("is-wide")) {
+  if (window.innerWidth <= 840) {
     device.style.setProperty("--vet45-review-scale", "1");
     return;
   }
@@ -439,7 +440,10 @@ function fitReviewDeviceToViewport() {
   const deviceTop = canvasRect.top + padTop;
   const availableHeight = Math.max(360, window.innerHeight - deviceTop - 8);
   const availableWidth = Math.max(240, canvas.clientWidth - padLeft - padRight);
-  const scale = Math.min(1, availableHeight / 890, availableWidth / 418);
+  const isWeb = device.classList.contains("is-web");
+  const scale = isWeb
+    ? Math.min(1, availableHeight / 802, availableWidth / 1282)
+    : Math.min(1, availableHeight / 890, availableWidth / 418);
   device.style.setProperty("--vet45-review-scale", String(scale));
 }
 window.addEventListener("resize", fitReviewDeviceToViewport);
@@ -447,8 +451,8 @@ requestAnimationFrame(fitReviewDeviceToViewport);
 
 
 window.__VET45_PROTOTYPE__ = {
-  productKind: "mobile_app",
-  version: "5.3.1",
+  productKind: "app",
+  version: "5.4.0",
   defaultViewport: { width: 402, height: 874 },
   offline: true,
   uiFlows: flowCatalog.map((f) => f.id),
@@ -456,7 +460,7 @@ window.__VET45_PROTOTYPE__ = {
   roles: [...new Set(screens.flatMap((s) => s.actors || []))],
   states: [...new Set(screens.flatMap((s) => s.states || []))],
   scenarios: ["canonical", "document-receipt", "quick-receipt", "source-waiting", "stale-recovery", "partial-handover", "permission-denied"],
-  devicePresets: [{ id: "iphone-402", kind: "mobile", width: 402, height: 874 }],
+  devicePresets: [{ id: "iphone-402", kind: "mobile", width: 402, height: 874 }, { id: "web-1280", kind: "web", width: 1280, height: 800 }],
   inspect: { enabled: true, selectable: true }
 };
 if (initialParams.get("inspect") === "1") toggleInspect(true);

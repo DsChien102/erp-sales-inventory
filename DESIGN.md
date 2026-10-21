@@ -173,7 +173,7 @@ VET45 là một quầy thuốc thú y ngăn nắp: mọi thứ cần dùng đề
 
 Hệ thống tiết chế và tinh gọn. Nền xám lạnh nhạt (Shelf Gray) làm mặt quầy, các khối trắng (Counter White) là khay đựng, viền mảnh 1px phân ngăn thay cho bóng đổ. Màu xanh lá Clinic Leaf Green là nhãn dán duy nhất trên quầy: nó đánh dấu hành động chính và trạng thái đang chọn, không dùng để trang trí. Vàng, đỏ, xanh dương chỉ xuất hiện khi có điều cần báo.
 
-Mật độ ở mức thoải mái cho ngón tay (comfortable): control cao 44px, vùng chạm tối thiểu 44px. Chữ Inter đậm hơn mặc định một bậc (w500 cho chữ thân) để đọc rõ trên điện thoại dưới ánh đèn cửa hàng. Số liệu tài chính và mã dùng JetBrains Mono khi cần căn thẳng cột.
+Trên iPhone mật độ ở mức thoải mái cho ngón tay (comfortable): control cao 44px, vùng chạm tối thiểu 44px. Trên web ở máy tính (chuột, bàn phím) dùng mật độ gọn (compact) và màn rộng có thanh bên; cùng màu, chữ, token. Chữ Inter đậm hơn mặc định một bậc (w500 cho chữ thân) để đọc rõ trên điện thoại dưới ánh đèn cửa hàng. Số liệu tài chính và mã dùng JetBrains Mono khi cần căn thẳng cột.
 
 **Key Characteristics:**
 - Một màu nhấn duy nhất (Clinic Leaf Green), còn lại là thang xám lạnh.
@@ -246,13 +246,13 @@ Một xanh lá phòng khám trên nền xám lạnh, với ba màu trạng thái
 
 ## Layout
 
-Bố cục mobile-first cho điện thoại, với ba breakpoint theo chiều rộng: mobile (< 600px), tablet (600–1023px), desktop (≥ 1024px). Lề màn hình 16px trên mobile, 24px trên tablet, 32px trên desktop.
+Hai thiết bị ưu tiên: **iPhone** và **web trên máy tính** (không làm iPad). Mỗi màn thiết kế trước cho thiết bị chính của nó (`docs/02-yeu-cau/LUONG-UNG-DUNG.md` mục 1.1). Ba breakpoint theo chiều rộng: mobile (< 600px), tablet (600–1023px), desktop (≥ 1024px); "tablet" chỉ là cửa sổ web hẹp, dùng bố cục như mobile. Từ desktop: thanh bên trái, nội dung rộng tối đa 1120px, danh sách – chi tiết hai cột, bảng khi nhiều cột số, sheet dưới thành hộp thoại. Lề màn hình 16px trên mobile, 24px trên tablet, 32px trên desktop.
 
 Khoảng cách theo thang 4px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 72. Nhịp thường dùng là 16px giữa các khối và trong thẻ, 8px giữa phần tử liên quan, 4px giữa icon và chữ.
 
-Có hai mật độ: **comfortable** (mặc định; control 36 / 44 / 52px, ô nhập đệm 12 × 16px) và **compact** (control 32 / 40 / 48px, ô nhập đệm 10 × 14px). Control nào thấp hơn 44px vẫn được nới vùng chạm ra 44px.
+Có hai mật độ: **comfortable** (mặc định; control 36 / 44 / 52px, ô nhập đệm 12 × 16px) và **compact** (control 32 / 40 / 48px, ô nhập đệm 10 × 14px). Control nào thấp hơn 44px vẫn được nới vùng chạm ra 44px. Mật độ chọn theo **cách thao tác**, không theo bề rộng: cảm ứng (iPhone, Android, web trên điện thoại) → comfortable; web trên máy tính → compact.
 
-Khu cửa hàng có app bar trắng ở trên và thanh điều hướng dưới 5 tab; vùng công khai (đăng nhập, đăng ký) không có thanh dưới.
+Khu cửa hàng có app bar trắng ở trên và 5 mục điều hướng: thanh dưới trên iPhone / cửa sổ hẹp, thanh bên trái trên web từ desktop; vùng công khai (đăng nhập, đăng ký) không có thanh điều hướng.
 
 ## Elevation & Depth
 
@@ -320,6 +320,7 @@ Tiết chế và rõ ràng: một nút đặc màu xanh, còn lại là viền h
 - **Do** làm mờ 40% để biểu thị trạng thái vô hiệu.
 - **Do** cho mọi tab và nút chỉ có icon một nhãn đọc được (chữ hiển thị hoặc semantics label); hành động ẩn sau thao tác vuốt phải có `semanticActions`.
 - **Do** tôn trọng Giảm chuyển động (`MediaQuery.disableAnimations`): skeleton đứng yên, thao tác vuốt mở / đóng tức thì.
+- **Do** cho web đi được bằng bàn phím: Tab qua mọi control theo thứ tự đọc, vòng focus nhìn thấy, Enter / Space kích hoạt, Esc đóng hộp thoại và sheet; mọi hành động vuốt có nút hoặc menu thay thế dùng chuột.
 
 ### Don't:
 - **Don't** dùng `VColors.*` trực tiếp trong component, app hoặc module.

@@ -1,5 +1,17 @@
 # Changelog — Theme 7 HTML Prototype
 
+## [5.4.0] — T7-P H1: harness khung web 1280×800
+
+Không đổi màn nào: golden mobile khớp hoàn toàn `tools/.golden-phase1` (1348 ca), 0 lỗi JS.
+
+- **H1 — dọn `is-wide`:** xoá mọi luật `.device-preview.is-wide …` (`components.css`, kể cả trong `@media`); 6 luật `:not(.is-wide)` → `.device-preview.is-mobile`. `viewport=wide` trên URL nay rơi về mobile; giá trị mới là `viewport=web`.
+- **H2 — nút và khai báo:** nút "Web · 1280 × 800" cạnh "Mobile · 402 × 874"; `__VET45_PROTOTYPE__.productKind: "app"`, `devicePresets` thêm `web-1280`.
+- **H3 — khung web:** `.device-preview.is-web` 1280×800, viền 1px, lưới 240px + nội dung; không thanh trạng thái iOS, không thanh dưới. Màn Hub / Thêm rộng tới 1120px; màn BJ chưa thiết kế lại cho web giữ cột iPhone 402px ở giữa vùng nội dung, cao theo khung. Sân khấu hẹp hơn 1280px thì khung thu quanh giữa.
+- **H4 — thanh bên giả:** `#web-sidebar` (`hub.js` `webSidebar()` / `renderWebSidebar()`, gọi từ `render()`): tên tổ chức, 5 mục chính (chỉ "Thêm" bật), mục con "Kho" (đang chọn, về Home Kho) / "Giá riêng / Nhớ giá" / "Người dùng & vai trò" / "Tài khoản của tôi" / "Thiết lập" (tắt), "Đăng xuất" (tắt). Tên tổ chức là fixture `ORG_NAME` ("VET45 Demo") vì Hub chưa có tên tổ chức.
+- **H5 — thu khung:** `fitReviewDeviceToViewport()` có công thức cho khung web (`min(1, cao / 802, rộng / 1282)`); đổi khung gọi lại ngay.
+- **H6 — golden hai khung:** `DEVICE=web node tools/golden.mjs capture <dir>` — cửa sổ 2400×1300, URL thêm `viewport=web`, tên ca thêm `@web`, chỉ nhóm màn × trạng thái + `HUB_home` (555 ca), bỏ kịch bản `SC_*`. Mốc web: `tools/.golden-web-base`.
+- Badge harness `v5.4.0 · H1 khung web`.
+
 ## [5.3.1] — T7-P A12: sửa sau review Giai đoạn 1 — hết Giai đoạn 1
 
 - **R1 (lỗi A11):** trả lại CSS mất khi tách harness — khối "Review cards" (`.review-card-header strong` 14px, `.review-card-header` / `-body`, `.review-line`) vào `components.css` đúng vị trí cũ; thứ tự luật `.device-preview` như `styles.css` gốc (bo góc 34px, khung chuẩn 402×874) và xoá bản sao bo 32px trong `screens.css`. Tiêu đề thẻ UIF-11/12/15/16, kết quả SCR-089 và 4 góc khung trở lại như trước Giai đoạn 1.

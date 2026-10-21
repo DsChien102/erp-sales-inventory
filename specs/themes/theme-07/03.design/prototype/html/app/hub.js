@@ -58,6 +58,8 @@ const ThemeApp = (() => {
     ] },
   };
 
+  const ORG_NAME = 'VET45 Demo';
+
   const PENDING_RECEIPTS = [
     { id: 'REC-260916-01', supplier: 'Minh Dũng', meta: 'Kho trung tâm · 1 mặt hàng · Nguyễn Văn An gửi 09:41' },
     { id: 'REC-260916-02', supplier: 'An Việt', meta: 'Kho trung tâm · 2 mặt hàng · Lê Thu Hà gửi 08:55' },
@@ -80,6 +82,27 @@ const ThemeApp = (() => {
       <button type="button" disabled aria-label="Đối tác">${icon('user', 'icon--sm')}<span>Đối tác</span></button>
       <button type="button" class="is-active" aria-current="page" data-theme-sidebar-route="more" aria-label="Thêm">${icon('more', 'icon--sm')}<span>Thêm</span></button>
     </nav>`;
+  }
+
+  // Thanh bên của khung web (W-1 mục 3.3): cùng nhãn / icon với bottomNav(), thêm mục con của "Thêm"; chỉ hiện khi khung là Web.
+  function webSidebar() {
+    const main = [['warehouse', 'Trang chủ'], ['fileText', 'Đơn hàng'], ['package', 'Sản phẩm'], ['user', 'Đối tác']]
+      .map(([ic, label]) => `<button type="button" disabled aria-label="${label}">${icon(ic, 'icon--sm')}<span>${label}</span></button>`).join('');
+    const sub = [['Giá riêng / Nhớ giá'], ['Người dùng & vai trò'], ['Tài khoản của tôi'], ['Thiết lập']]
+      .map(([label]) => `<button type="button" disabled>${label}</button>`).join('');
+    return `<div class="t7-web-sidebar__org">${esc(ORG_NAME)}</div>
+      ${main}
+      <button type="button" class="is-active" data-theme-sidebar-route="more" aria-label="Thêm">${icon('more', 'icon--sm')}<span>Thêm</span></button>
+      <div class="t7-web-sidebar__sub">
+        <button type="button" class="is-active" aria-current="page" data-theme-sidebar-route="inventory">Kho</button>
+        ${sub}
+      </div>
+      <button type="button" class="t7-web-sidebar__logout" disabled>Đăng xuất</button>`;
+  }
+
+  function renderWebSidebar() {
+    const nav = document.getElementById('web-sidebar');
+    if (nav) nav.innerHTML = webSidebar();
   }
 
   function shell({ title, body, back, backAttr, extraClass = '' }) {
@@ -394,7 +417,7 @@ const ThemeApp = (() => {
   }, true);
 
   return {
-    isRoot, inTheme, renderRoot, afterFlowRender, renderFlowSelector, renderNavigation, renderRootInspector, afterFlowInspector, decorateUrl,
+    isRoot, inTheme, renderRoot, renderWebSidebar, afterFlowRender, renderFlowSelector, renderNavigation, renderRootInspector, afterFlowInspector, decorateUrl,
     updateModeTabs, installModeTabs,
     handlePrevious() {
       if (inThemeFlow() && activeScreenId === activeFlow().screens[0]) { go('inventory'); return true; }
